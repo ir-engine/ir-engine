@@ -1,9 +1,11 @@
 import { Object3D, AnimationMixer, Vector3 } from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+// import { GLTFLoader } from "../gltf/GLTFLoader"
 // @ts-ignore
-import loadingCubeUrl from "../../../public/editor/loading-cube.glb";
+// import loadingCubeUrl from "../../../public/editor/loading-cube.glb";
 import cloneObject3D from "../utils/cloneObject3D";
-let cubeGltf = null;
+let cubeGltf: GLTF | null = null;
+const GLTF_PATH = "/editor/loading-cube.glb"; // Static
 export default class LoadingCube extends Object3D {
   model: any;
   mixer: AnimationMixer;
@@ -12,9 +14,13 @@ export default class LoadingCube extends Object3D {
     if (cubeGltf) {
       return Promise.resolve(cubeGltf);
     }
-    const gltf = new GLTFLoader().load(loadingCubeUrl, () => {
-      cubeGltf = gltf;
-      return cubeGltf;
+    return new Promise((resolve, reject) => {
+      new GLTFLoader().load(GLTF_PATH, (gltf) => {
+        cubeGltf = gltf;
+        resolve(cubeGltf);
+      }, undefined, (err) => {
+        reject(err);
+      });
     });
   }
   constructor() {
@@ -29,7 +35,7 @@ export default class LoadingCube extends Object3D {
     this.model = cloneObject3D(cubeGltf.scene);
     this.add(this.model);
     this.mixer = new AnimationMixer(this);
-    this.mixer.clipAction(this.model.animations[0]).play();
+    this.mixer.clipAction(cubeGltf.animations[0]).play();
     this.worldScale = new Vector3();
   }
   copy(source, recursive = true) {

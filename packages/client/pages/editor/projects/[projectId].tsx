@@ -1,3 +1,13 @@
-import dynamic from "next/dynamic";
+import React, { lazy, Suspense, useEffect, useState } from "react";
 
-export default dynamic(() => import("./../../../components/editor/ui/EditorContainer"));
+const EditorContainer = lazy(() => import("./../../../components/editor/ui/EditorContainer"));
+
+const Project = (props) => {
+    const [hasMounted, setHasMounted] = useState(false);
+    useEffect(() => setHasMounted(true), []);
+    return hasMounted && <Suspense fallback={React.Fragment}>
+        <EditorContainer {...props} />
+    </Suspense>;
+};
+
+export default Project;

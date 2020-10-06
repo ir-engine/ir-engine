@@ -16,13 +16,13 @@ import {
 import PrimaryLink from "../inputs/PrimaryLink";
 import { Button } from "../inputs/Button";
 import { ProjectsSection, ProjectsContainer, ProjectsHeader } from "./ProjectsPage";
-import { ApiContext } from "../contexts/ApiContext";
 import InfiniteScroll from "react-infinite-scroller";
-// import usePaginatedSearch from "./usePaginatedSearch";
 import { useRouter } from "next/router";
+// import { ApiContext } from "../contexts/ApiContext";
+// import usePaginatedSearch from "./usePaginatedSearch";
 
 export default function CreateProjectPage() {
-  const api = useContext(ApiContext);
+  // const api = useContext(ApiContext);
   const router = useRouter();
 
   const queryParams = new Map(Object.entries(router.query));
@@ -95,7 +95,7 @@ export default function CreateProjectPage() {
 
   // MODIFIED FROM ORIGINAL
   const { loading, error, entries } = { loading: false, error: false, entries: [] };
-  let hasMore, loadMore;
+  const hasMore = false;
   const filteredEntries = entries.map(result => ({
     ...result,
     url: `/projects/new?sceneId=${result.id}`,
@@ -140,14 +140,14 @@ export default function CreateProjectPage() {
                   <InfiniteScroll
                     initialLoad={false}
                     pageStart={0}
-                    loadMore={loadMore}
+                    loadMore={() => {}}
                     hasMore={hasMore}
                     threshold={100}
                     useWindow={true}
                   >
                     <ProjectGrid
                       projects={filteredEntries}
-                      newProjectPath="/projects/new"
+                      newProjectPath="/editor/projects/new"
                       newProjectLabel="New Empty Project"
                       /* @ts-ignore */
                       onSelectProject={onSelectScene}

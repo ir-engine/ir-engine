@@ -9,6 +9,7 @@ export default class AddObjectCommand extends Command {
   id: any;
   constructor(editor, object, parent, before) {
     super(editor);
+    this.editor = editor;
     this.object = object;
     this.parent = parent;
     this.before = before;

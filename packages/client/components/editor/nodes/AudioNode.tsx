@@ -14,7 +14,7 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
   static legacyComponentName = "audio";
   static nodeName = "Audio";
   static async load() {
-    audioHelperTexture = await loadTexture("editor/audio-icon.png");
+    audioHelperTexture = await loadTexture("/editor/audio-icon.png");
   }
   static async deserialize(editor, json, loadAsync, onError) {
     const node = await super.deserialize(editor, json);

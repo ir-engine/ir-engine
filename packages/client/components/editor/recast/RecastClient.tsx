@@ -27,7 +27,7 @@ export default class RecastClient {
   constructor() {
     // BUG: Recast worker doesn't seem to work in Spoke, def broken here
     // @ts-ignore
-    this.worker = new RecastWorker();
+    // this.worker = new RecastWorker();
     this.working = false;
   }
   async buildNavMesh(geometry, params, signal) {

@@ -18,16 +18,16 @@ import NumericStepperInput from "../inputs/NumericStepperInput";
 import SelectInput from "../inputs/SelectInput";
 import { ContextMenu, MenuItem, showMenu, SubMenu } from "../layout/ContextMenu";
 import { InfoTooltip } from "../layout/Tooltip";
-import styledTheme, { withTheme } from "../theme";
+import styledTheme from "../theme";
 import ToolButton from "./ToolButton";
 
-const StyledToolbar = withTheme((styled as any).div`
+const StyledToolbar = (styled as any).div`
   display: flex;
   flex-direction: row;
   height: 40px;
   background-color: ${props => props.theme.toolbar};
   user-select: none;
-`);
+`;
 
 const ToolButtons = (styled as any).div`
   width: auto;
@@ -36,7 +36,7 @@ const ToolButtons = (styled as any).div`
   flex-direction: row;
 `;
 
-const ToolToggles = withTheme((styled as any).div`
+const ToolToggles = (styled as any).div`
   width: auto;
   height: inherit;
   display: flex;
@@ -44,7 +44,7 @@ const ToolToggles = withTheme((styled as any).div`
   background-color: ${props => props.theme.toolbar2};
   align-items: center;
   padding: 0 16px;
-`);
+`;
 
 const Spacer = (styled as any).div`
   flex: 1;
@@ -113,7 +113,7 @@ const selectInputStyles = {
   })
 };
 
-const StyledToggleButton = withTheme((styled as any).div`
+const StyledToggleButton = (styled as any).div`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -130,7 +130,7 @@ const StyledToggleButton = withTheme((styled as any).div`
   :active {
     background-color: ${props => props.theme.blue};
   }
-`);
+`;
 
 function ToggleButton({ tooltip, children, ...rest }) {
   return (
@@ -145,13 +145,13 @@ ToggleButton.propTypes = {
   children: PropTypes.node
 };
 
-const ToolbarInputGroup = withTheme((styled as any).div`
+const ToolbarInputGroup = (styled as any).div`
   display: flex;
   align-items: center;
   border: 1px solid ${props => props.theme.border};
   border-radius: 4px;
   margin: 0 4px;
-`);
+`;
 
 const ToolbarNumericStepperInput = (styled as any)(NumericStepperInput)`
   width: 100px;

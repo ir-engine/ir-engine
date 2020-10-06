@@ -7,7 +7,6 @@ import StringInput from "../inputs/StringInput";
 // import Link from "next/link"
 import { useRouter } from "next/router";
 import { Plus } from "@styled-icons/fa-solid/Plus";
-import { ThemeContext, withTheme } from "../theme";
 
 const ProjectGridItemContainer = (styled as any).div`
   display: flex;
@@ -36,13 +35,12 @@ const ProjectGridItemContainer = (styled as any).div`
 
 export function NewProjectGridItem({ path, label }: { path: string; label: string }) {
   const router = useRouter();
-  const theme = React.useContext(ThemeContext);
   
   const routeTo = (route: string) => () => {
     router.push(route);
   };
   return (
-    <ProjectGridItemContainer theme={theme} as="button" onClick={routeTo(path)}>
+    <ProjectGridItemContainer as="button" onClick={routeTo(path)}>
       <Plus />
       <h3>{label}</h3>
     </ProjectGridItemContainer>
@@ -59,9 +57,8 @@ NewProjectGridItem.defaultProps = {
 };
 
 export function LoadingProjectGridItem() {
-  const theme = React.useContext(ThemeContext);
   return (
-    <ProjectGridItemContainer theme={theme}>
+    <ProjectGridItemContainer>
       <h3>Loading...</h3>
     </ProjectGridItemContainer>
   );
@@ -75,9 +72,8 @@ const StyledProjectGrid = (styled as any).div`
 `;
  
 export function ProjectGrid({ projects, newProjectPath, newProjectLabel, contextMenuId, loading }) {
-  const theme = React.useContext(ThemeContext);
   return (
-    <StyledProjectGrid theme={theme}>
+    <StyledProjectGrid>
       {newProjectPath && !loading && <NewProjectGridItem path={newProjectPath} label={newProjectLabel} />}
       {projects.map(project => (
         <ProjectGridItem key={project.project_id || project.id} project={project} contextMenuId={contextMenuId} />
@@ -95,22 +91,22 @@ ProjectGrid.propTypes = {
   loading: PropTypes.bool
 };
 
-export const ProjectGridContainer = withTheme((styled as any).div`
+export const ProjectGridContainer = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
   background-color: ${props => props.theme.panel2};
   border-radius: 3px;
-`);
+`;
 
-export const ProjectGridContent = withTheme((styled as any).div`
+export const ProjectGridContent = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
   padding: 20px;
-`);
+`;
 
-export const ProjectGridHeader = withTheme((styled as any).div`
+export const ProjectGridHeader = styled.div`
   display: flex;
   background-color: ${props => props.theme.toolbar2};
   border-radius: 3px 3px 0px 0px;
@@ -118,44 +114,41 @@ export const ProjectGridHeader = withTheme((styled as any).div`
   justify-content: space-between;
   align-items: center;
   padding: 0 10px;
-`);
+`;
 
-export const Filter = withTheme((styled as any).a<{ active?: boolean }>`
+export const Filter = styled.a<{ active?: boolean }>`
   font-size: 1.25em;
   cursor: pointer;
   color: ${props => (props.active ? props.theme.blue : props.theme.text)};
-`);
+`;
 
-export const Separator = withTheme((styled as any).div`
+export const Separator = styled.div`
   height: 48px;
   width: 1px;
   background-color: ${props => props.theme.border};
-`);
+`;
 
-export const ProjectGridHeaderRow = Row; // styled(Row)`
-//   align-items: center;
+export const ProjectGridHeaderRow = styled(Row)`
+  align-items: center;
 
-//   & > * {
-//     margin: 0 10px;
-//   }
-// `;
+  & > * {
+    margin: 0 10px;
+  }
+`;
 
-export const SearchInput = StringInput;
+export const SearchInput = styled<any>(StringInput)`
+  width: auto;
+  min-width: 200px;
+  height: 28px;
+`;
 
-// export const SearchInput = styled<any>(StringInput)`
-//   width: auto;
-//   min-width: 200px;
-//   height: 28px;
-// `;
-
-export const CenteredMessage = (styled as any).div`
+export const CenteredMessage = styled.div`
   display: flex;
   flex: 1;
   justify-content: center;
   align-items: center;
 `;
 
-export const ErrorMessage = withTheme(CenteredMessage);
-// styled(CenteredMessage)`
-//   color: ${props => props.theme.red};
-// `);
+export const ErrorMessage = styled(CenteredMessage)`
+  color: ${props => props.theme.red};
+`;
