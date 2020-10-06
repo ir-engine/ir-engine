@@ -19,7 +19,7 @@ import Modifiers from "./Modifier"
 import { ExportOBJ } from "../../assets/exporters/OBJExporter"
 import { Proxies } from "./Proxy"
 import Targets from "./Targets"
-import { Object3D, Material, Quaternion, LoadingManager, MaterialLoader, FileLoader, LoaderUtils, Mesh, Geometry, MeshBasicMaterial, SkinnedMesh, MultiMaterial, Vector3, Matrix4 } from "three"
+import { Object3D, Material, Quaternion, LoadingManager, MaterialLoader, FileLoader, LoaderUtils, Mesh, Geometry, MeshBasicMaterial, SkinnedMesh, Vector3, Matrix4 } from "three"
 
 export class HumanIO {
   human: any
@@ -262,7 +262,7 @@ export class BaseHuman extends Object3D {
           materials.push(new MeshBasicMaterial({ visible: false, name: "maskedFaces" }))
 
           // load multiple materials, to group helper faces using materials http://stackoverflow.com/questions/11025307/can-i-hide-faces-of-a-mesh-in-three-js
-          this.mesh = new SkinnedMesh(geometry, new MultiMaterial(materials))
+          this.mesh = new SkinnedMesh(geometry, materials)
           this.mesh.name = config.character
           this.add(this.mesh)
 
