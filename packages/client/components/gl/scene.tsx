@@ -18,7 +18,7 @@ import { TransformComponent } from '@xr3ngine/engine/src/transform/components/Tr
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { AmbientLight, EquirectangularReflectionMapping, Mesh, MeshPhongMaterial, SphereBufferGeometry, sRGBEncoding, TextureLoader,CineonToneMapping } from 'three';
+import { AmbientLight, EquirectangularReflectionMapping, Mesh, MeshPhongMaterial, SphereBufferGeometry, sRGBEncoding, TextureLoader,CineonToneMapping, PCFSoftShadowMap, PointLight } from 'three';
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import { selectInstanceConnectionState } from '../../redux/instanceConnection/selector';
 import { connectToInstanceServer, provisionInstanceServer } from '../../redux/instanceConnection/service';
@@ -49,9 +49,15 @@ const mapStateToProps = (state: any): any => {
 
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
-  connectToInstanceServer: bindActionCreators(connectToInstanceServer, dispatch)
-});
+  provisionInstanceServer: bindActionCreators(
+    provisionInstanceServer,
+    dispatch
+  ),
+  connectToInstanceServer: bindActionCreators(
+    connectToInstanceServer,
+    dispatch
+  ),
+})
 
 export const EnginePage: FunctionComponent = (props: any) => {
   const {
@@ -68,13 +74,13 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const [showControllHint, setShowControllHint] = useState(true);
 
   useEffect(() => {
-    console.log('initializeEngine!');
+    console.log('initializeEngine!')
 
     const onObjectHover = (event: CustomEvent): void => {
       if (event.detail.focused) {
         setHoveredLabel(String(event.detail.interactionText ? event.detail.interactionText :'Activate' ));
       } else {
-        setHoveredLabel('');
+        setHoveredLabel('')
       }
     };
 
@@ -108,64 +114,88 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
     const networkSchema: NetworkSchema = {
       ...DefaultNetworkSchema,
-      transport: SocketWebRTCClientTransport
-    };
+      transport: SocketWebRTCClientTransport,
+    }
 
     const InitializationOptions = {
       ...DefaultInitializationOptions,
       networking: {
         enabled: true,
         supportsMediaStreams: true,
-        schema: networkSchema
+        schema: networkSchema,
       },
       physics: {
-        enabled: true
+        enabled: true,
       },
       audio: {
-        src: '/audio/djMagda.m4a'
+        src: '/audio/djMagda.m4a',
       },
       input: {
-        mobile: isMobileOrTablet()
-      }
-    };
-    initializeEngine(InitializationOptions);
+        mobile: isMobileOrTablet(),
+      },
+    }
+    initializeEngine(InitializationOptions)
 
     // Load glb here
     // createPrefab(rigidBodyBox);
 
-    addObject3DComponent(createEntity(), { obj3d: AmbientLight, ob3dArgs: {
-      intensity: 0.3
-    }});
+    Engine.renderer.shadowMap.enabled = true
+    Engine.renderer.shadowMap.type = PCFSoftShadowMap
 
-    const cameraTransform = getMutableComponent<TransformComponent>(CameraComponent.instance.entity, TransformComponent);
-    cameraTransform.position.set(0, 1.2, 3);
+    const light = new PointLight(0xffffff, 1.8)
+    light.position.set(0, 4, 4)
+    light.castShadow = true
+    light.shadow.bias = -0.0006 // Prevents graphical issues
+    light.shadow.mapSize.set(2048, 2048)
+    light.shadow.camera.position.set(0, 4, 4)
+    light.shadow.camera.updateMatrixWorld()
+    Engine.scene.add(light)
 
-    const envMapURL =
-      "./hdr/city.jpg";
+    addObject3DComponent(createEntity(), {
+      obj3d: AmbientLight,
+      ob3dArgs: {
+        intensity: 0.3,
+      },
+    })
 
-      const loader = new TextureLoader();
+    const cameraTransform = getMutableComponent<TransformComponent>(
+      CameraComponent.instance.entity,
+      TransformComponent
+    )
+    cameraTransform.position.set(0, 1.2, 3)
 
-       (loader as any).load(envMapURL, data => {
-       const map = loader.load(envMapURL);
-       map.mapping = EquirectangularReflectionMapping;
-       map.encoding = sRGBEncoding;
-        Engine.scene.environment = map;
-        Engine.scene.background = map;
-        }, null);
+    const envMapURL = './hdr/city.jpg'
 
-    const { sound } = Engine as any;
+    const loader = new TextureLoader()
+
+    ;(loader as any).load(
+      envMapURL,
+      (data) => {
+        const map = loader.load(envMapURL)
+        map.mapping = EquirectangularReflectionMapping
+        map.encoding = sRGBEncoding
+        Engine.scene.environment = map
+        Engine.scene.background = map
+      },
+      null
+    )
+
+    const { sound } = Engine as any
     if (sound) {
       const audioMesh = new Mesh(
         new SphereBufferGeometry(0.3),
-        new MeshPhongMaterial({color: 0xff2200})
-      );
-      const audioEntity = createEntity();
+        new MeshPhongMaterial({ color: 0xff2200 })
+      )
+      const audioEntity = createEntity()
       addObject3DComponent(audioEntity, {
-        obj3d: audioMesh
-      });
-      audioMesh.add(sound);
-      const transform = addComponent(audioEntity, TransformComponent) as TransformComponent;
-      transform.position.set(0, 1, 0);
+        obj3d: audioMesh,
+      })
+      audioMesh.add(sound)
+      const transform = addComponent(
+        audioEntity,
+        TransformComponent
+      ) as TransformComponent
+      transform.position.set(0, 1, 0)
       // const audioComponent = addComponent(audioEntity,
       //   class extends Component {static scema = {}}
       // )
@@ -195,7 +225,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
       document.removeEventListener('player-in-car', onCarActivation);
 
       // cleanup
-      console.log('cleanup?!');
+      console.log('cleanup?!')
       // TODO: use resetEngine when it will be completed. for now just reload
       //document.location.reload();
       resetEngine();
@@ -216,16 +246,19 @@ export const EnginePage: FunctionComponent = (props: any) => {
     };
     document.addEventListener("keydown", f);
     return (): void => {
-      document.removeEventListener("keydown", f);
-    };
-  });
+      document.removeEventListener('keydown', f)
+    }
+  })
 
   useEffect(() => {
-    if (instanceConnectionState.get('instanceProvisioned') === true && instanceConnectionState.get('updateNeeded') === true) {
-      console.log('Calling connectToInstanceServer');
-      connectToInstanceServer();
+    if (
+      instanceConnectionState.get('instanceProvisioned') === true &&
+      instanceConnectionState.get('updateNeeded') === true
+    ) {
+      console.log('Calling connectToInstanceServer')
+      connectToInstanceServer()
     }
-  }, [instanceConnectionState]);
+  }, [instanceConnectionState])
 
   useEffect(() => {
     if (instanceConnectionState.get('instanceProvisioned') == false) {
@@ -248,14 +281,14 @@ export const EnginePage: FunctionComponent = (props: any) => {
     else {
       connectToInstanceServer();
     }
-  }, []);
+  }, [])
 
   const toggleEnabled = (): void => {
-    // console.log("enabled", enabled);
+    console.log('enabled ', enabled)
     if (enabled === true) {
-      setEnabled(false);
+      setEnabled(false)
     } else {
-      setEnabled(true);
+      setEnabled(true)
     }
   };
 
@@ -304,7 +337,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
     {mobileGamepad}
     <BeginnerBox />
     </>
-  );
-};
+  )
+}
 
-export default connect(mapStateToProps, mapDispatchToProps)(EnginePage);
+export default connect(mapStateToProps, mapDispatchToProps)(EnginePage)
