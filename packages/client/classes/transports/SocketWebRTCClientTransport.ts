@@ -107,22 +107,22 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   public async initialize(address = "https://127.0.0.1", port = 3030, opts?: {}): Promise<void> {
     console.log(`Initializing client transport to ${address}:${port}`);
     this.mediasoupDevice = new Device();
+    if (this.socket && this.socket.close) {
+      this.socket.close();
+    }
+
+    const {startVideo, ...query} = (opts as any);
 
     if (process.env.NODE_ENV === 'development') {
       this.socket = io(`${address as string}:${port.toString()}`, {
-        query: opts
+        query: query
       });
     } else {
       this.socket = io(gameserver, {
         path: `/socket.io/${address as string}/${port.toString()}`,
-        query: opts
+        query: query
       });
     }
-    // this.socket = ioclient(`${address}:${port}`, {
-    //   query: {
-    //     cool: 'pants'
-    //   }
-    // });
     this.request = this.promisedRequest(this.socket);
 
     // window.screenshare = await this.startScreensharea
@@ -156,11 +156,18 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       console.log("About to send camera streams");
       // await this.sendCameraStreams();
+      if (startVideo === true) this.sendCameraStreams();
     });
     this.socket.on(MessageTypes.WebRTCConsumeData.toString(), this.handleDataConsumerCreation);
-    this.socket.on(MessageTypes.WebRTCCreateProducer.toString(), async (socketId, mediaTag) => {
+    this.socket.on(MessageTypes.WebRTCCreateProducer.toString(), async (socketId, mediaTag, producerId) => {
+      const selfProducerIds = [
+          MediaStreamComponent.instance.camVideoProducer?.id,
+          MediaStreamComponent.instance.camAudioProducer?.id
+      ];
       if (
           (MediaStreamComponent.instance.mediaStream !== null) &&
+          (producerId != null) &&
+          (selfProducerIds.indexOf(producerId) < 0) &&
           (MediaStreamComponent.instance.consumers?.find(
               c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
           ) == null)
@@ -232,8 +239,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     // state, if the checkbox in our UI is unchecked. so as soon as we
     // have a client-side camVideoProducer object, we need to set it to
     // paused as appropriate, too.
-    if(MediaStreamComponent.instance.mediaStream == null)
-      await MediaStreamSystem.instance.startCamera();
+    if (MediaStreamComponent.instance.mediaStream == null) await MediaStreamSystem.instance.startCamera();
     console.log('Video track to send:');
     console.log(MediaStreamComponent.instance.mediaStream.getVideoTracks()[0]);
     MediaStreamComponent.instance.camVideoProducer = await this.sendTransport.produce({
@@ -593,12 +599,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
     // any time a transport transitions to closed,
     // failed, or disconnected, leave the  and reset
-    transport.on("connectionstatechange", async (state: string, a: any, b: any) => {
+    transport.on("connectionstatechange", async (state: string) => {
       console.log(`transport ${transport.id} connectionstatechange ${state}`);
-      console.log('A stuff:');
-      console.log(a);
-      console.log('B stuff:');
-      console.log(b);
       // for this simple sample code, assume that transports being
       // closed is an error (we never close these transports except when
       // we leave the )
