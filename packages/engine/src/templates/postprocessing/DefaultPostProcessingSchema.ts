@@ -58,18 +58,16 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
     },
     */
     // Bloom
-    /*
     {
       effect: BloomEffect,
       options: {
         blendFunction: BlendFunction.SCREEN,
-        kernelSize: KernelSize.MEDIUM,
+        kernelSize: KernelSize.SMALL,
         luminanceThreshold: 1.05,
         luminanceSmoothing: 0.1,
         intensity: 1
       }
     },
-    */
     // Tonemapping
     {
       effect: ToneMappingEffect,
