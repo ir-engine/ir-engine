@@ -1,9 +1,6 @@
 import {
-  LOCATIONS_RETRIEVED,
-  INSTANCES_RETRIEVED
+  LOCATIONS_RETRIEVED
 } from '../actions';
-
-import { InstanceServerProvisionResult } from '@xr3ngine/common/interfaces/InstanceServerProvisionResult';
 
 export interface LocationsRetrievedAction {
   type: string;

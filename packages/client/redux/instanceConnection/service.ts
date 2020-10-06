@@ -1,10 +1,11 @@
 import { connectToServer } from "@xr3ngine/engine/src/networking/functions/connectToServer";
+import { Network } from "@xr3ngine/engine/src/networking/components/Network";
+import { MediaStreamComponent } from "@xr3ngine/engine/src/networking/components/MediaStreamComponent";
 import { Dispatch } from 'redux';
 import { client } from '../feathers';
 import {
   instanceServerConnected,
   instanceServerProvisioned,
-  socketCreated
 } from './actions';
 import store from "../store";
 
@@ -37,30 +38,14 @@ export function connectToInstanceServer () {
       const instanceConnectionState = getState().get('instanceConnection');
       const instance = instanceConnectionState.get('instance');
       const locationId = instanceConnectionState.get('locationId');
-      let socket;
       console.log('Connect to instance server');
-      console.log(instance);
-      // if (process.env.NODE_ENV === 'development') {
-      //   socket = io(`${instance.get('ipAddress') as string}:${instance.get('port') as string}`, {
-      //     query: {
-      //       locationId: locationId,
-      //       token: token
-      //     }
-      //   });
-      // } else {
-      //   socket = io(gameserver, {
-      //     path: `/socket.io/${instance.get('ipAddress') as string}/${instance.get('port') as string}`,
-      //     query: {
-      //       locationId: locationId,
-      //       token: token
-      //     }
-      //   });
-      // }
-      // const instanceClient = feathers();
-      // instanceClient.configure(feathers.socketio(socket, { timeout: 10000 }));
+      const videoActive = MediaStreamComponent.instance.camVideoProducer != null || MediaStreamComponent.instance.camAudioProducer != null;
+      await (Network.instance.transport as any).endVideoChat();
+      await (Network.instance.transport as any).leave();
       await connectToServer(instance.get('ipAddress'), instance.get('port'), {
         locationId: locationId,
-        token: token
+        token: token,
+        startVideo: videoActive
       });
       // setClient(instanceClient);
       dispatch(instanceServerConnected());
