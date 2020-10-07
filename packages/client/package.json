@@ -26,6 +26,7 @@
     "test"
   ],
   "pre-commit": [
+    "lint",
     "test",
     "precommit"
   ],

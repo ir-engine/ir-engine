@@ -8,6 +8,7 @@ import { AppBar} from '@material-ui/core';
 import Fab from '@material-ui/core/Fab';
 import { selectChatState } from '../../../redux/chat/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
+import { selectPartyState } from '../../../redux/party/selector';
 import { bindActionCreators, Dispatch } from 'redux';
 import {
   updateMessageScrollInit
@@ -19,7 +20,8 @@ import NoSSR from "react-no-ssr";
 const mapStateToProps = (state: any): any => {
   return {
     authState: selectAuthState(state),
-    chatState: selectChatState(state)
+    chatState: selectChatState(state),
+    partyState: selectPartyState(state)
   };
 };
 
@@ -34,17 +36,20 @@ interface Props {
   setBottomDrawerOpen: any;
   updateMessageScrollInit?: any;
   authState?: any;
+  partyState?: any;
 }
 
 export const DrawerControls = (props: Props): JSX.Element => {
   const {
     authState,
+    partyState,
     setLeftDrawerOpen,
     setBottomDrawerOpen,
     setRightDrawerOpen,
     setTopDrawerOpen,
     updateMessageScrollInit
   } = props;
+  const party = partyState.get('party');
   const selfUser = authState.get('user');
   const openChat = (): void => {
     setLeftDrawerOpen(false);
@@ -67,7 +72,7 @@ export const DrawerControls = (props: Props): JSX.Element => {
   };
   return (
     <AppBar className="bottom-appbar">
-      { (selfUser && selfUser.instanceId != null && selfUser.partyId != null) && <NoSSR><VideoChat/></NoSSR> }
+      { (selfUser && selfUser.instanceId != null && selfUser.partyId != null && party?.id != null) && <NoSSR><VideoChat/></NoSSR> }
       <Fab color="primary" aria-label="PersonAdd" onClick={openInvite}>
         <PersonAdd />
       </Fab>

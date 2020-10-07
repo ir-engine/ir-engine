@@ -38,11 +38,12 @@ export default (app: Application): void => {
             const { status } = gsResult;
             if (status.state === 'Ready' || ((process.env.NODE_ENV === 'development' && status.state === 'Shutdown') || (app as any).instance == null)) {
               console.log('Starting new instance');
+              const localIp = await getLocalServerIp();
               const selfIpAddress = `${(status.address as string)}:${(status.portsList[0].port as string)}`;
               const instanceResult = await app.service('instance').create({
                 currentUsers: 1,
                 locationId: locationId,
-                ipAddress: selfIpAddress
+                ipAddress: config.server.mode === 'local' ? `${localIp.ipAddress}:3030` : selfIpAddress
               });
               await agonesSDK.allocate();
               (app as any).instance = instanceResult;

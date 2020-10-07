@@ -17,7 +17,7 @@ export function handleKey(entity: Entity, args: { event: KeyboardEvent; value: B
   console.log("Handle key called");
   // Get immutable reference to Input and check if the button is defined -- ignore undefined keys
   const input = getComponent(entity, Input);
-  if (input.schema.keyboardInputMap[args.event.key.toLowerCase()] === undefined)
+  if (input.schema.keyboardInputMap[args.event.key?.toLowerCase()] === undefined)
     return;
   const mappedKey = input.schema.keyboardInputMap[args.event.key.toLowerCase()];
 
