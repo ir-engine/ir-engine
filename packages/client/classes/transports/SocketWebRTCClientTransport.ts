@@ -329,7 +329,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
         producerId: MediaStreamComponent.instance.camVideoProducer.id
       });
-      await MediaStreamComponent.instance.camVideoProducer.close();
+      await MediaStreamComponent.instance.camVideoProducer?.close();
     }
     if (MediaStreamComponent.instance.camAudioProducer) {
       console.log('closing camAudioProducer:');
@@ -337,7 +337,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
         producerId: MediaStreamComponent.instance.camAudioProducer.id
       });
-      await MediaStreamComponent.instance.camAudioProducer.close();
+      await MediaStreamComponent.instance.camAudioProducer?.close();
     }
     if (MediaStreamComponent.instance.screenVideoProducer) {
       console.log('closing screenVideoProducer:');
@@ -345,7 +345,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
         producerId: MediaStreamComponent.instance.screenVideoProducer.id
       });
-      await MediaStreamComponent.instance.screenVideoProducer.close();
+      await MediaStreamComponent.instance.screenVideoProducer?.close();
     }
     if (MediaStreamComponent.instance.screenAudioProducer) {
       console.log('closing screenAudioProducer:');
@@ -353,7 +353,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
         producerId: MediaStreamComponent.instance.screenAudioProducer.id
       });
-      await MediaStreamComponent.instance.screenAudioProducer.close();
+      await MediaStreamComponent.instance.screenAudioProducer?.close();
     }
 
     MediaStreamComponent.instance.consumers.map(async (c) => {

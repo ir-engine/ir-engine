@@ -329,7 +329,7 @@ export default class Sky extends Object3D {
     // );
     const pmremGenerator = new PMREMGenerator(renderer);
     // pmremGenerator.update(renderer);
-    const texture = pmremGenerator.fromCubemap(this.cubeCamera.renderTarget.texture as CubeTexture)
+    const texture = pmremGenerator.fromCubemap(this.cubeCamera.renderTarget.texture as CubeTexture);
     // const pmremCubeUVPacker = new PMREMCubeUVPacker((pmremGenerator as any).cubeLods);
     // debugger
     // const pmremCubeUVPacker = new PMREMCubeUVPacker(this.cubeCamera.renderTarget.texture.mipmaps);
@@ -338,7 +338,7 @@ export default class Sky extends Object3D {
     pmremGenerator.dispose();
     // pmremCubeUVPacker.dispose();
     // return pmremCubeUVPacker.CubeUVRenderTarget.texture;
-    return texture
+    return texture;
   }
   copy(source, recursive = true) {
     if (recursive) {
