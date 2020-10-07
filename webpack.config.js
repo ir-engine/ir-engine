@@ -48,5 +48,16 @@ module.exports = {
     plugins: [
         new ForkTsCheckerWebpackPlugin(),
         (process.env.NODE_ENV !== 'production') ? new WebpackShellPlugin({onBuildEnd: ['nodemon dist/server.js --watch build']}) : () => { }
-    ]
+    ],
+    optimization: {
+        splitChunks: {
+            cacheGroups: {
+                commons: {
+                    test: /[\/]node_modules[\/]/,
+                    name: 'vendors',
+                    chunks: 'all'
+                }
+            }
+        }
+    }
 };
