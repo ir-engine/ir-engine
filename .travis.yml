@@ -23,6 +23,7 @@ jobs:
       - yarn install
       - yarn lint
       - yarn build-docker
+      if: branch != dev
 #    - stage: staging-deploy
 #      script: bash scripts/publish_dockerhub.sh staging $TRAVIS_COMMIT xr3ngine/xr3ngine && scripts/deploy.sh staging $TRAVIS_COMMIT
 #      on:
