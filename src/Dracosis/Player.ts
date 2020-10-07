@@ -17,6 +17,7 @@ import {
   BufferGeometry,
   SphereBufferGeometry,
   CompressedTexture,
+  VideoTexture,
   BoxBufferGeometry,
   PlaneBufferGeometry,
   MeshBasicMaterial,
@@ -61,11 +62,14 @@ export default class DracosisPlayer {
   // Private Fields
   private _startFrame = 1;
   private _endFrame = 0;
+  private _prevFrame = 0;
   private _renderFrame = 0;
   private _numberOfFrames = 0;
   private _bufferSize = 99;
   private _audio = Howl;
   private _currentFrame = 1;
+  private _video = null;
+  private _videoTexture = null;
   private _loop = true;
   private _playOnStart = true;
   private _isinitialized = false;
@@ -159,14 +163,20 @@ export default class DracosisPlayer {
     this._playOnStart = playOnStart;
     this._currentFrame = startFrame;
     this._bufferSize = bufferSize;
-    this._audio = new Howl({
-        src: audioUrl,
-        format: ['mp3']
-    });
+    // this._audio = new Howl({
+    //     src: audioUrl,
+    //     format: ['mp3']
+    // });
+    this._video = document.createElement('video');
+    this._video.src = 'http://localhost:3000/morgan-sound.mp4';
+    this._videoTexture = new VideoTexture(this._video);
+
+    this._video.requestVideoFrameCallback(this.videoUpdateHandler.bind(this));
     
+    document.body.appendChild(this._video);
 
     this.bufferGeometry = new PlaneBufferGeometry(1, 1);
-    this.material = new MeshBasicMaterial();
+    this.material = new MeshBasicMaterial({map:this._videoTexture});
     // this is to debug UVs
     //@ts-ignore
     // this.material = new ShaderMaterial({
@@ -287,7 +297,7 @@ export default class DracosisPlayer {
       'uv',
       new Float32BufferAttribute(meshData.uv, 2)
     );
-    geometry.computeVertexNormals();
+    // geometry.computeVertexNormals();
     return geometry;
   }
 
@@ -513,15 +523,15 @@ export default class DracosisPlayer {
         player._pos
       ).bufferGeometry = player.decodeCORTOData(geomTex.bufferGeometry);
 
-      player
-        .decodeTexture(geomTex.compressedTexture, geomTex.frameNumber)
-        .then(({ texture, frameNumber }) => {
-          var pos = player.getPositionInBuffer(frameNumber);
-          player._ringBuffer.get(pos).compressedTexture = texture;
-          if (!player._isPlaying && count < this._bufferSize) count++;
-          // @todo create some bufferReady flag, to know when buffer is filled
-          // if (count == this._bufferSize) this.play();
-        });
+      // player
+      //   .decodeTexture(geomTex.compressedTexture, geomTex.frameNumber)
+      //   .then(({ texture, frameNumber }) => {
+      //     var pos = player.getPositionInBuffer(frameNumber);
+      //     player._ringBuffer.get(pos).compressedTexture = texture;
+      //     if (!player._isPlaying && count < this._bufferSize) count++;
+      //     // @todo create some bufferReady flag, to know when buffer is filled
+      //     // if (count == this._bufferSize) this.play();
+      //   });
 
     });
 
@@ -605,9 +615,9 @@ export default class DracosisPlayer {
     const player = this;
 
     // Every 2 second, make sure our workers are working
-    setTimeout(function () {
-      player.handleBuffers(player);
-    }, 16.6*4);
+    // setTimeout(function () {
+    //   player.handleBuffers(player);
+    // }, 16.6*4);
   }
 
   showFrame(frame: number){
@@ -631,7 +641,7 @@ export default class DracosisPlayer {
 
       this.compressedTexture = this._ringBuffer.getFirst().compressedTexture;
       // @ts-ignore
-      this.mesh.material.map = this.compressedTexture;
+      // this.mesh.material.map = this.compressedTexture;
       // @ts-ignore
       this.mesh.material.needsUpdate = true;
 
@@ -708,8 +718,9 @@ export default class DracosisPlayer {
     this._isPlaying = true;
     this.show();
     // this.update();
-    this.render();
-    this._audio.play()
+    // this.render();
+    // this._audio.play()
+    this._video.play()
   }
 
   pause() {
@@ -768,9 +779,26 @@ export default class DracosisPlayer {
     }, stepLength * fadeTime);
   }
 
+  videoUpdateHandler(now,metadata){
+    
+    let frameToPlay =  metadata.presentedFrames -1 ;
+    // console.log(frameToPlay,'frameToPlay',now,metadata);
+    console.log('==========DIFF',Math.round(this._video.currentTime*30), Math.round(metadata.mediaTime*30),metadata.presentedFrames,metadata);
+    
+    if(frameToPlay!==this._prevFrame){
+      this.showFrame(frameToPlay)
+      this._prevFrame = frameToPlay;
+      this.handleBuffers(this);
+    }
+    this._video.requestVideoFrameCallback(this.videoUpdateHandler.bind(this));
+  }
+
   render(){
     this._renderFrame++;
-    let frameToPlay = 40 + Math.round(this._audio.seek()*30) || 0;
+    // console.log(this._video.currentTime,'curtime');
+    
+    // let frameToPlay = 40 + Math.round(this._audio.seek()*30) || 0;
+    let frameToPlay =  Math.floor(this._video.currentTime*30) || 0;
     if(this._renderFrame%2===0 || !this._isPlaying){
       console.log(frameToPlay,'frametoplay');
       this.showFrame(frameToPlay)
