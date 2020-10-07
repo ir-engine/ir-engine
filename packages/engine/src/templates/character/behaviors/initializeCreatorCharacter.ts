@@ -50,7 +50,7 @@ export const initializeCreatorCharacter: Behavior = (entity): void => {
                         component.targetDistance = component.distance;
 
                         // Zoom interpolation
-                        setInterval(function () {
+                        setInterval(() => {
                             if (component.targetDistance != component.distance) {
                                 component.distance += (component.targetDistance - component.distance) * 0.25;
                             }
@@ -83,7 +83,7 @@ export const initializeCreatorCharacter: Behavior = (entity): void => {
 
         const gltfLoader = new GLTFLoader();
         let idleAnimation;
-        gltfLoader.load("models/characters/Animation.glb", function (gltf: any) {
+        gltfLoader.load("models/characters/Animation.glb", (gltf: any) => {
             actor.animations = gltf.animations;
             idleAnimation = AnimationClip.findByName(actor.animations, 'idle');
             const action = actor.mixer.clipAction(idleAnimation);
@@ -148,7 +148,7 @@ export const initializeCreatorCharacter: Behavior = (entity): void => {
         let numLoaded = 0;
         for (let i = 0, len = modelNames.length; i < len; i++) {
             const modelName = modelNames[i];
-            gltfLoader.load("models/characters/" + modelName + ".glb", function (gltf: any) {
+            gltfLoader.load("models/characters/" + modelName + ".glb", (gltf: any) => {
                 models[modelName] = gltf;
                 numLoaded++
                 if (numLoaded == len) {
@@ -217,7 +217,7 @@ export const initializeCreatorCharacter: Behavior = (entity): void => {
                     leftArrow.addEventListener("mouseup", resetFilter);
                     rightArrow.addEventListener("mouseup", resetFilter);
 
-                    leftArrow.addEventListener("click", function () {
+                    leftArrow.addEventListener("click", () => {
                         const currentIndex = modelNames.indexOf(currentModel);
                         let newIndex = currentIndex - 1;
                         if (newIndex < 0) {
@@ -232,7 +232,7 @@ export const initializeCreatorCharacter: Behavior = (entity): void => {
                         action.play();
                     });
 
-                    rightArrow.addEventListener("click", function () {
+                    rightArrow.addEventListener("click", () => {
                         const currentIndex = modelNames.indexOf(currentModel);
                         let newIndex = currentIndex + 1;
                         if (newIndex > modelNames.length - 1) {

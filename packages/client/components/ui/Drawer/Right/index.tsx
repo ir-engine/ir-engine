@@ -311,9 +311,6 @@ const Invites = (props: Props): any => {
     };
 
     const provisionInstance = (location, instance?) => {
-        console.log('provisionInstance');
-        console.log(location);
-        console.log(instance);
         provisionInstanceServer(location.id, instance?.id);
     };
 

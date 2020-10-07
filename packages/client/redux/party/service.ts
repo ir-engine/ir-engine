@@ -12,6 +12,7 @@ import {
 import { dispatchAlertError } from '../alert/service';
 import store from './../store';
 import { Network } from '@xr3ngine/engine/src/networking/components/Network';
+import { provisionInstanceServer } from '../instanceConnection/service';
 
 // import { Party } from '@xr3ngine/common/interfaces/Party'
 
@@ -123,14 +124,19 @@ export function transferPartyOwner(partyUserId: string) {
   };
 }
 
-client.service('party-user').on('created', (params) => {
-  console.log('party user created');
-  console.log((store.getState() as any).get('party').party);
-  console.log((store.getState() as any).get('party').get('party'));
+client.service('party-user').on('created', async (params) => {
+  const selfUser = (store.getState() as any).get('auth').get('user');
   if ((store.getState() as any).get('party').get('party') == null) {
     store.dispatch(createdParty(params));
   }
   store.dispatch(createdPartyUser(params.partyUser));
+  if (params.partyUser.userId === selfUser.id) {
+    const party = await client.service('party').get(params.partyUser.partyId);
+    if (party.instanceId) {
+      const instance = await client.service('instance').get(party.instanceId);
+      await provisionInstanceServer(instance.locationId, instance.id)(store.dispatch, store.getState);
+    }
+  }
 });
 
 client.service('party-user').on('patched', (params) => {
@@ -142,6 +148,7 @@ client.service('party-user').on('removed', (params) => {
   store.dispatch(removedPartyUser(params.partyUser));
   if (params.partyUser.userId === selfUser.id) {
     console.log('Attempting to end video call');
+    (Network.instance?.transport as any)?.endVideoChat();
     (Network.instance?.transport as any)?.leave();
   }
 });
