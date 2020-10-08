@@ -105,7 +105,7 @@
     "mediasoup-client": "^3.6.12",
     "mobx-react": "^6.2.5",
     "mousetrap": "^1.6.5",
-    "next": "9.5.2",
+    "next": "9.5.4",
     "next-images": "^1.4.0",
     "next-redux-wrapper": "^5.0.0",
     "nipplejs": "^0.8.7",
