@@ -16,7 +16,9 @@ const styles: CSSProperties = {
   width: "90%",
   height: "90%",
   overflowY: 'auto',
-  backgroundColor: "#ffffff"
+  backgroundColor: "#ffffff",
+  //temporary - before MVP
+  display: 'none'
 };
 
 const linkStyle: CSSProperties = {
