@@ -1,15 +1,15 @@
-import { Behavior } from '../../common/interfaces/Behavior';
-import { TransformComponent } from '../../transform/components/TransformComponent';
+import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
+import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { CharacterComponent } from "@xr3ngine/engine/src/templates/character/components/CharacterComponent";
-import { ColliderComponent } from '../components/ColliderComponent';
-import { VehicleBody } from '../components/VehicleBody';
-import { PlayerInCar } from '../components/PlayerInCar';
+import { ColliderComponent } from '@xr3ngine/engine/src/physics/components/ColliderComponent';
+import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
+import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
 import { Vector3, Euler, Quaternion, Matrix4 } from 'three';
-import { Entity } from '../../ecs/classes/Entity';
-import { PhysicsManager } from '../components/PhysicsManager';
-import { getMutableComponent, hasComponent, getComponent, addComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
-import { Object3DComponent } from '../../common/components/Object3DComponent';
-import { cannonFromThreeVector } from '../../common/functions/cannonFromThreeVector';
+import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
+import { PhysicsManager } from '@xr3ngine/engine/src/physics/components/PhysicsManager';
+import { getMutableComponent, hasComponent, getComponent, addComponent, removeComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { Object3DComponent } from '@xr3ngine/engine/src/common/components/Object3DComponent';
+import { cannonFromThreeVector } from '@xr3ngine/engine/src/common/functions/cannonFromThreeVector';
 import { addState, hasState } from '@xr3ngine/engine/src/state/behaviors/StateBehaviors';
 import { setDropState } from "@xr3ngine/engine/src/templates/character/behaviors/setDropState";
 import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";
@@ -78,7 +78,7 @@ export const playerModelInCar: Behavior = (entity: Entity, args: { type: string,
   if (stateComponent.data.has(CharacterStateTypes.ENTER_VEHICLE)) {
     if (!hasComponent(entityCar, LocalInputReceiver)) {
       addComponent(entityCar, LocalInputReceiver);
-      addComponent(entityCar, FollowCameraComponent, { distance: 3, mode: "thirdPerson" });
+      addComponent(entityCar, FollowCameraComponent, { distance: 4, mode: "thirdPerson" });
       vehicleComponent.currentDriver = entity;
     }
 

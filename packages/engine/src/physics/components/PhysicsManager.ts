@@ -13,11 +13,15 @@ export class PhysicsManager extends Component<PhysicsManager> {
   groundMaterial = new Material('groundMaterial')
   wheelMaterial = new Material('wheelMaterial')
   trimMeshMaterial = new Material('trimMeshMaterial')
+
   wheelGroundContactMaterial = new ContactMaterial(this.wheelMaterial, this.groundMaterial, {
     friction: 0.3,
-    restitution: 0,
-    contactEquationStiffness: 1000
+    restitution: 0.3,
+    contactEquationStiffness: 1e8,
+    contactEquationRelaxation: 3,
+    frictionEquationStiffness: 1e8
   })
+  
   /*
   trimMeshContactMaterial = new ContactMaterial(this.trimMeshMaterial, this.groundMaterial, {
     friction: 0.3,
@@ -40,10 +44,11 @@ export class PhysicsManager extends Component<PhysicsManager> {
     this.physicsFrameTime = 1 / this.physicsFrameRate;
     this.physicsMaxPrediction = this.physicsFrameRate;
     this.physicsWorld.allowSleep = false;
+  //  this.groundMaterial.friction = 5
     // this.physicsWorld.solver.iterations = 10;
 
     // We must add the contact materials to the world
-  //  this.physicsWorld.addContactMaterial(PhysicsManager.instance.wheelGroundContactMaterial);
+    //this.physicsWorld.addContactMaterial(PhysicsManager.instance.wheelGroundContactMaterial);
   //  this.physicsWorld.addContactMaterial(PhysicsManager.instance.trimMeshContactMaterial);
 
     // Physics

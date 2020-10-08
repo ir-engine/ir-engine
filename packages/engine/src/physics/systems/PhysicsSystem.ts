@@ -6,7 +6,7 @@ import { VehicleBody } from '../../physics/components/VehicleBody';
 import { addCollider } from '../behaviors/ColliderBehavior';
 import { RigidBodyBehavior } from '../behaviors/RigidBodyBehavior';
 import { VehicleBehavior } from '../behaviors/VehicleBehavior';
-import { playerModelInCar } from '../behaviors/playerModelInCar';
+import { playerModelInCar } from '@xr3ngine/engine/src/templates/car/behaviors/playerModelInCar';
 
 import { ColliderComponent } from '../components/ColliderComponent';
 import { PlayerInCar } from '../components/PlayerInCar';
