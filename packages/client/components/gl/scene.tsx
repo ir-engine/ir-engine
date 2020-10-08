@@ -11,6 +11,7 @@ import { CarController } from "@xr3ngine/engine/src/templates/car/prefabs/CarCon
 import { WorldPrefab } from "@xr3ngine/engine/src/templates/world/prefabs/WorldPrefab";
 import { rigidBodyBox } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox";
 import { rigidBodyBox2 } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox2";
+import { JoystickPrefab } from "@xr3ngine/engine/src/templates/devices/prefabs/JoystickPrefab";
 import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
 import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
@@ -137,7 +138,9 @@ export const EnginePage: FunctionComponent = (props: any) => {
     initializeEngine(InitializationOptions);
 
     // Load glb here
-    // createPrefab(rigidBodyBox);
+    createPrefab(rigidBodyBox);
+    
+    createPrefab(JoystickPrefab);
 
     Engine.renderer.shadowMap.enabled = true;
     Engine.renderer.shadowMap.type = PCFSoftShadowMap;
