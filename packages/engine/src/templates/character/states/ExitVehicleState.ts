@@ -26,7 +26,7 @@ export const ExitVehicleState: StateSchemaValue = {
     {
       behavior: setActorAnimation,
       args: {
-        name: 'exit_vehicle',
+        name: 'exiting_car',
         transitionDuration: 0.1
       }
     }

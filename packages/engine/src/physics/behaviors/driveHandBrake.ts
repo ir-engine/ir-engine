@@ -7,8 +7,8 @@ export const driveHandBrake: Behavior = (entity: Entity, args: { on:boolean }): 
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
   const vehicle = vehicleComponent.vehiclePhysics;
 
-  vehicle.setBrake(args.on? 1 : 0, 0);
-  vehicle.setBrake(args.on? 1 : 0, 1);
-  vehicle.setBrake(args.on? 1 : 0, 2);
-  vehicle.setBrake(args.on? 1 : 0, 3);
+  vehicle.setBrake(args.on? 10 : 0, 0);
+  vehicle.setBrake(args.on? 10 : 0, 1);
+  vehicle.setBrake(args.on? 10 : 0, 2);
+  vehicle.setBrake(args.on? 10 : 0, 3);
 };
