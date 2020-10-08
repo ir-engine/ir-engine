@@ -35,7 +35,7 @@ export const StartSprintLeftState: StateSchemaValue = {
      {
        behavior: setActorAnimation,
        args: {
-         name: 'sprint_left',
+         name: 'run_left',
          transitionDuration: 1
        }
      }

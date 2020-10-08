@@ -27,7 +27,7 @@ export const JumpRunningState: StateSchemaValue = {
       {
         behavior: setActorAnimation,
         args: {
-          name: 'falling_idle', //walk_jump_start
+          name: 'falling', //walk_jump_start
           transitionDuration: 0.3
         }
       }

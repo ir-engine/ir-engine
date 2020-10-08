@@ -8,6 +8,7 @@ import { RigidBody } from '../components/RigidBody';
 import { MeshTagComponent } from '../../common/components/Object3DTagComponents';
 import { threeToCannon } from '@xr3ngine/engine/src/templates/world/three-to-cannon';
 import { CollisionGroups } from "../enums/CollisionGroups";
+import { PhysicsManager } from '../components/PhysicsManager';
 
 export function createTrimesh (mesh, position, mass) {
     mesh = mesh.clone();
@@ -30,11 +31,13 @@ export function createBox (entity: Entity) {
   const shape = new Box(new Vec3(collider.scale[0] / 2, collider.scale[1] / 2, collider.scale[2] / 2));
 
   const body = new Body({
-    mass: mass
+    mass: mass,
+  //  material: PhysicsManager.instance.groundMaterial
   });
 
-  const q = new Quaternion();
-  q.setFromAxisAngle(new Vec3(1, 0, 0), -Math.PI / 2);
+
+//  const q = new Quaternion();
+//  q.setFromAxisAngle(new Vec3(1, 0, 0), -Math.PI / 2);
   body.addShape(shape);
 
   //  body.quaternion.setFromAxisAngle(new Vec3(1,0,0),-Math.PI/2);
@@ -91,9 +94,12 @@ export function createSphere (entity: Entity) {
 
   const body = new Body({
     mass: mass,
-    });
+    material: PhysicsManager.instance.groundMaterial
+//    material: PhysicsManager.instance.wheelMaterial
+  });
 
   body.addShape(shape);
+  body.angularDamping = 0.5;
   return body;
 }
 
