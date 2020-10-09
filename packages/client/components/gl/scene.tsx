@@ -138,9 +138,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
     initializeEngine(InitializationOptions);
 
     // Load glb here
-    createPrefab(rigidBodyBox);
     
-    createPrefab(JoystickPrefab);
+   
 
     Engine.renderer.shadowMap.enabled = true;
     Engine.renderer.shadowMap.type = PCFSoftShadowMap;
@@ -210,8 +209,10 @@ export const EnginePage: FunctionComponent = (props: any) => {
     Engine.renderer.toneMapping = CineonToneMapping;
     Engine.renderer.toneMappingExposure = 1;
 
-    createPrefab(WorldPrefab);
+    // createPrefab(WorldPrefab);
     createPrefab(staticWorldColliders);
+    createPrefab(rigidBodyBox);
+    createPrefab(JoystickPrefab);
 //  setTimeout(() => {
     // createPrefab(rigidBodyBox);
     // createPrefab(rigidBodyBox2);
