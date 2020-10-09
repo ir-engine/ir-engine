@@ -12,6 +12,7 @@ import { CharacterComponent } from "../components/CharacterComponent";
 import { CharacterStateTypes } from "../CharacterStateTypes";
 import { Engine } from "../../../ecs/classes/Engine";
 import { PhysicsManager } from "../../../physics/components/PhysicsManager";
+import { AnimationManager } from "@xr3ngine/engine/src/templates/character/components/AnimationManager";
 import { addObject3DComponent } from "../../../common/behaviors/Object3DBehaviors";
 
 export const initializeCharacter: Behavior = (entity): void => {
@@ -19,6 +20,7 @@ export const initializeCharacter: Behavior = (entity): void => {
 	console.log("**** Initializing character!");
 	if (!hasComponent(entity, CharacterComponent as any))
 		addComponent(entity, CharacterComponent as any);
+
 
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	// The visuals group is centered for easy actor tilting
@@ -29,7 +31,7 @@ export const initializeCharacter: Behavior = (entity): void => {
 	addObject3DComponent(entity, { obj3d: actor.tiltContainer });
 	const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader as any);
 	assetLoader.onLoaded = (entity, { asset }) => {
-		actor.animations = asset.animations;
+		actor.animations = AnimationManager.instance.animations
 
 		console.log("Components on character");
 		console.log(entity.components);
@@ -48,6 +50,8 @@ export const initializeCharacter: Behavior = (entity): void => {
 		actor.tiltContainer.add(actor.modelContainer);
 
 		actor.mixer = new AnimationMixer(Engine.scene);
+		actor.mixer.timeScale = 0.7
+
 
 		actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 		actor.rotationSimulator = new RelativeSpringSimulator(60, actor.defaultRotationSimulatorMass, actor.defaultRotationSimulatorDamping);

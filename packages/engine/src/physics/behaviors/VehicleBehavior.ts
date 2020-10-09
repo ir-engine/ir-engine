@@ -33,6 +33,27 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
       const wheels = vehicleComponent.arrayWheelsMesh;
 
 
+      if (vehicle.currentVehicleSpeedKmHour > 1) {
+        vehicle.applyEngineForce(10, 0);
+        vehicle.applyEngineForce(10, 1);
+        vehicle.applyEngineForce(10, 2);
+        vehicle.applyEngineForce(10, 3);
+      } else if (vehicle.currentVehicleSpeedKmHour < -1) {
+        vehicle.applyEngineForce(-10, 0);
+        vehicle.applyEngineForce(-10, 1);
+        vehicle.applyEngineForce(-10, 2);
+        vehicle.applyEngineForce(-10, 3);
+      } else if (vehicle.currentVehicleSpeedKmHour != 0) {
+      //  vehicle.chassisBody.velocity.set(0,0,0)
+
+        vehicle.setBrake(0.5, 0);
+        vehicle.setBrake(0.5, 1);
+        vehicle.setBrake(0.5, 2);
+        vehicle.setBrake(0.5, 3);
+
+      }
+
+
       transform.position.set(
         chassisBody.position.x,
         chassisBody.position.y,
@@ -123,7 +144,8 @@ export function createVehicleBody (entity: Entity ) {
   chassisBody.position.x = transform.position.x;
   chassisBody.position.y = transform.position.y;
   chassisBody.position.z = transform.position.z;
-  //  chassisBody.angularVelocity.set(0, 0, 0.5);
+  chassisBody.angularVelocity.set(0, 0, 0.5);
+
   const options = {
     radius: wheelRadius,
     directionLocal: new Vec3(0, -1, 0),
@@ -131,7 +153,7 @@ export function createVehicleBody (entity: Entity ) {
     suspensionRestLength: 0.3,
     frictionSlip: 5,
     dampingRelaxation: 2.3,
-    dampingCompression: 4.4,
+    dampingCompression: 1.4,
     maxSuspensionForce: 100000,
     rollInfluence: 0.01,
     axleLocal: new Vec3(-1, 0, 0),

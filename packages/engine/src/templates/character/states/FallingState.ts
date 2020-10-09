@@ -31,7 +31,7 @@ export const FallingState: StateSchemaValue = {
       {
         behavior: setActorAnimation,
         args: {
-          name: 'walk_jump_start', //falling_idle
+          name: 'falling', //falling_idle
           transitionDuration: 0.5
         }
       }
