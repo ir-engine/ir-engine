@@ -20,7 +20,7 @@ export const RazerLaptop: Prefab = {
             url: 'https://www.razer.com/gaming-laptops/Razer-Blade-Stealth-13/RZ09-03102E52-R3U1',
             buyUrl: 'https://www.razer.com/product-added/RZ09-03102E52-R3U1',
             learnMoreUrl: 'https://www.razer.com/gaming-laptops/razer-blade',
-            modelUrl: 'models/razer_laptop.glb',
+            modelUrl: 'models/devices/razer_laptop.glb',
             htmlContent: `<h5>Razer Blade Stealth 13 - 4K Touch 60Hz - GeForce GTX 1650 Ti Max-Q - Black</h5>
 The World’s First Gaming Ultrabook™<br />
 US$1,999.99<br />
@@ -45,7 +45,7 @@ Single-zone RGB powered by Razer Chroma™`
       args: {
         component: AssetLoader,
         componentArgs: {
-          url: "models/razer_laptop.glb",
+          url: "models/devices/razer_laptop.glb",
           receiveShadow: true,
           castShadow: true,
           onLoaded: (entityIn:Entity, args:unknown, delta:number, entityOut:Entity): void => {

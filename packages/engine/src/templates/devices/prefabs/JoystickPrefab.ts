@@ -3,7 +3,8 @@ import { TransformComponent } from "@xr3ngine/engine/src/transform/components/Tr
 import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
 import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
-import { addJoystickToScene } from "../../devices/behavior/addJoystickToScene";
+// import { ParsingDevicesToScene } from "../behavior/ParsingDevicesToScene";
+import { ProcessModelAsset } from "../../../assets/functions/ProcessModelAsset";
 
 
 export const JoystickPrefab: Prefab = {
@@ -14,10 +15,10 @@ export const JoystickPrefab: Prefab = {
             args: {
                 component: AssetLoader,
                 componentArgs: {
-                    url: "/models/Wildcat_Arena.glb",
+                    url: "models/devices/Wildcat_Arena.glb",
                     receiveShadow: true,
                     castShadow: true,
-                    onLoaded: addJoystickToScene
+                    // onLoaded: ProcessModelAsset
                 }
             }
         }

@@ -12,6 +12,7 @@ import { Model } from "../components/Model";
 import { Object3DComponent } from "../../common/components/Object3DComponent";
 import { addObject3DComponent } from "../../common/behaviors/Object3DBehaviors";
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
+import { Engine } from "../../ecs/classes/Engine";
 
 const LODS_DISTANCES = {
   "0": 5,
@@ -24,7 +25,7 @@ export function ProcessModelAsset(entity: Entity, component:AssetLoader, asset:a
   let object = asset.scene ?? asset;
 
   ReplaceMaterials(object, component);
-  object = HandleLODs(object);
+  object = HandleLODs(entity,object);
 
   if (hasComponent(entity, Object3DComponent)) {
     if (getComponent<Object3DComponent>(entity, Object3DComponent).value !== undefined)
@@ -45,16 +46,22 @@ export function ProcessModelAsset(entity: Entity, component:AssetLoader, asset:a
   });
 }
 
-function HandleLODs(asset):any {
+function HandleLODs(entity: Entity, asset:any) {
   const haveAnyLods = !!asset.children?.find(c => String(c.name).match(LODS_REGEXP));
   if (!haveAnyLods) {
     return asset;
   }
 
   const lod = new LOD();
+  console.log(Engine.scene);
 
   asset.children.forEach(child => {
     const parts = child.name.match(LODS_REGEXP);
+    if (parts){
+    lod.addLevel(child,5)
+    }
+    const e = createEntity();
+    addObject3DComponent(e, { obj3d: lod,parentEntity: entity });
     // TODO: finish here
   });
 

@@ -57,6 +57,9 @@ export default class AssetLoadingSystem extends System {
       const component = getComponent<AssetLoader>(entity, AssetLoader);
       if (component.assetClass === AssetClass.Model) {
         addComponent(entity, Model, { value: asset });
+        if (!asset){
+          debugger
+        }
         ProcessModelAsset(entity, component, asset);
       }
 
