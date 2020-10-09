@@ -19,7 +19,7 @@ const miniGeo = new BoxBufferGeometry(2, 1, 4);
 // Prefab is a pattern for creating an entity and component collection as a prototype
 
 export const NetworkPlayerCharacter: NetworkPrefab = {
-  // These will be created for all players on the network
+  // These will be created for all players on the network 
   networkComponents: [
     // ActorComponent has values like movement speed, deceleration, jump height, etc
     { type: CharacterComponent },

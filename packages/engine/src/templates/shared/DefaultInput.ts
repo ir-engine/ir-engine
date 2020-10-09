@@ -27,5 +27,6 @@ export enum DefaultInput {
   MOUSE_MOVEMENT, // mouse event movement
   SWITCH_CAR,
   POINTER_LOCK,
-  CAMERA_SCROLL
+  CAMERA_SCROLL,
+  SWITCH_CAMERA
 }

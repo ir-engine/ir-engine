@@ -43,7 +43,6 @@ export class CameraSystem extends System {
       const cam = getComponent(entity, CameraComponent) as CameraComponent;
       if (!!cam.followTarget && hasComponent(cam.followTarget, FollowCameraComponent)) {
         setCameraFollow(entity, null, delta, cam.followTarget);
-
       }
     });
 
