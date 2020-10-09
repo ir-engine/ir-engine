@@ -1,16 +1,16 @@
 import { AssetLoader } from '@xr3ngine/engine/src/assets/components/AssetLoader';
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { addObject3DComponent } from '@xr3ngine/engine/src/common/behaviors/Object3DBehaviors';
-import { Object3DComponent } from '@xr3ngine/engine/src/common/components/Object3DComponent';
+// import { Object3DComponent } from '@xr3ngine/engine/src/common/components/Object3DComponent';
 import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
 import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
-import { addComponent, createEntity, getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { addComponent, createEntity, /*getComponent,*/ getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { CarController } from "@xr3ngine/engine/src/templates/car/prefabs/CarController";
 import { WorldPrefab } from "@xr3ngine/engine/src/templates/world/prefabs/WorldPrefab";
-import { rigidBodyBox } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox";
-import { rigidBodyBox2 } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox2";
+// import { rigidBodyBox } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox";
+// import { rigidBodyBox2 } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox2";
 import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
 import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
@@ -30,6 +30,8 @@ import { selectPartyState } from '../../redux/party/selector';
 import { client } from '../../redux/feathers';
 
 import dynamic from 'next/dynamic';
+
+import LinearProgress from '@material-ui/core/LinearProgress';
 import { RazerLaptop } from "@xr3ngine/engine/src/templates/interactive/prefabs/RazerLaptop";
 import { InfoBox } from "../infoBox";
 import { HintBox } from "../hintBox";
@@ -72,6 +74,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const [infoBoxData, setInfoBoxData] = useState(null);
   const [hintBoxData, setHintBoxData] = useState('default');
   const [showControllHint, setShowControllHint] = useState(true);
+  const [progress, setProgress] = React.useState(0);
+  const [progressEntity, setProgressEntity] = React.useState('');
 
   useEffect(() => {
     console.log('initializeEngine!');
@@ -107,9 +111,24 @@ export const EnginePage: FunctionComponent = (props: any) => {
       setShowControllHint(true);
     };
 
+    const onSceneLoaded= (event: CustomEvent): void => {
+      console.log('event.detail', event.detail)
+      if (event.detail.loaded) {
+        setProgress(1);
+      } else {
+        setProgress(0);
+      }
+    };
+
+    const onSceneLoadedEntity= (event: CustomEvent): void => {
+      setProgressEntity(' left '+event.detail.left);
+    };
+
     document.addEventListener('object-hover', onObjectHover);
     document.addEventListener('object-activation', onObjectActivation);
     document.addEventListener('player-in-car', onCarActivation);
+    document.addEventListener('scene-loaded', onSceneLoaded);
+    document.addEventListener('scene-loaded-entity', onSceneLoadedEntity);
 
 
     const networkSchema: NetworkSchema = {
@@ -134,6 +153,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
         mobile: isMobileOrTablet(),
       },
     };
+    
     initializeEngine(InitializationOptions);
 
     // Load glb here
@@ -213,8 +233,10 @@ export const EnginePage: FunctionComponent = (props: any) => {
     // createPrefab(rigidBodyBox);
     // createPrefab(rigidBodyBox2);
     createPrefab(RazerLaptop);
-    createPrefab(PlayerCharacter);
-     createPrefab(CarController);
+    // createPrefab(PlayerCharacter);
+    createPrefab(CarController);
+    setProgress(1);
+
     //createPrefab(interactiveBox);
   //}, 5000);
 
@@ -223,6 +245,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
       document.removeEventListener('object-hover', onObjectHover);
       document.removeEventListener('object-activation', onObjectActivation);
       document.removeEventListener('player-in-car', onCarActivation);
+      document.removeEventListener('scene-loaded', onSceneLoaded);
+      document.removeEventListener('scene-loaded-entity', onSceneLoadedEntity);    
 
       // cleanup
       console.log('cleanup?!');
@@ -310,20 +334,33 @@ export const EnginePage: FunctionComponent = (props: any) => {
       />
     ) : null;
 
+    //mobile gamepad
   const mobileGamepadProps = {hovered:hoveredLabel.length > 0, layout: hintBoxData };
-
   const mobileGamepad = isMobileOrTablet()? <MobileGamepad {...mobileGamepadProps} /> : null;
 
+  //info box with button
   const infoBox = !isMobileOrTablet() && infoBoxData ? <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} /> : null;
   const hintBox = !isMobileOrTablet() && showControllHint && hintBoxData ? <HintBox layout={hintBoxData} /> : null;
+
+  const progressBar = 
+        progress < 1 ? 
+          <div className="overlay">
+            <section className="linearProgressContainer">
+            <span className="loadingProgressTile"> Please wait while the World is loading ...{progressEntity}</span>
+              <LinearProgress className="linearProgress" />
+            </section>
+          </div> 
+        : null;
+  //hide default overlay
+  if(progress < 1 && document.querySelector('.overlayTemporary')){document.querySelector('.overlayTemporary').remove()}
 
 
   const hoveredLabelElement = !!!isMobileOrTablet() && hoveredLabel.length > 0 ?
   <div className="hintContainer">Press <span className="keyItem" >E</span> to {hoveredLabel}</div> : null;
-
-
   return (
     <>
+    <div className="overlay overlayTemporary"></div>
+    {progressBar}
     {/* <Dialog {...{props:{isOpened:true, content:beginnerHintMessage}}}>{beginnerHintMessage}</Dialog> */}
     {infoBox}
     {hintBox}
