@@ -46,26 +46,37 @@ export function ProcessModelAsset(entity: Entity, component:AssetLoader, asset:a
   });
 }
 
-function HandleLODs(entity: Entity, asset:any) {
-  const haveAnyLods = !!asset.children?.find(c => String(c.name).match(LODS_REGEXP));
-  if (!haveAnyLods) {
+function HandleLODs(entity: Entity, asset:Object3D):Object3D {
+  const haveAnyLODs = !!asset.children?.find(c => String(c.name).match(LODS_REGEXP));
+  if (!haveAnyLODs) {
     return asset;
   }
 
-  const lod = new LOD();
-  console.log(Engine.scene);
-
+  const LODs = new Map<string,{object:Object3D, level:string}[]>();
   asset.children.forEach(child => {
-    const parts = child.name.match(LODS_REGEXP);
-    if (parts){
-    lod.addLevel(child,5)
+    const [ _, name, level ]:string[] = child.name.match(LODS_REGEXP);
+    if (!name || !level) {
+      return;
     }
-    const e = createEntity();
-    addObject3DComponent(e, { obj3d: lod,parentEntity: entity });
-    // TODO: finish here
+
+    if (!LODs.has(name)) {
+      LODs.set(name, []);
+    }
+
+    LODs.get(name).push({ object: child, level });
   });
 
-  return lod;
+  LODs.forEach((value, key) => {
+    const lod = new LOD();
+    lod.name = key;
+    value[0].object.parent.add(lod);
+
+    value.forEach(({ level, object}) => {
+      lod.addLevel(object, LODS_DISTANCES[level]);
+    });
+  });
+
+  return asset;
 }
 
 function ReplaceMaterials(object, component: AssetLoader) {
