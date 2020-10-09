@@ -20,8 +20,6 @@ let direction = new Vector3();
 const up = new Vector3( 0, 1, 0);
 const empty = new Vector3();
 const PI_2 = Math.PI / 2;
-const maxPolarAngle = 45;
-const minPolarAngle = 0;
 
 const mx = new Matrix4();
 let theta = 0;
@@ -52,13 +50,13 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
   		euler.y -= inputValue[0] * 0.01;
   		euler.x -= inputValue[1] * 0.01;
 
-  		euler.x = Math.max( PI_2 - maxPolarAngle, Math.min( PI_2 - minPolarAngle, euler.x ) );
+  		euler.x = Math.max( -PI_2, Math.min( PI_2, euler.x ) );
 
   		follower.rotation.setFromEuler( euler );
 
       follower.position.set(
         target.position.x,
-        3,
+        target.position.y + 1,
         target.position.z
       );
     }

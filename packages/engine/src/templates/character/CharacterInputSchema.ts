@@ -1,4 +1,5 @@
 import { cameraPointerLock } from "@xr3ngine/engine/src/camera/behaviors/cameraPointerLock";
+import { switchCameraMode } from "@xr3ngine/engine/src/camera/behaviors/switchCameraMode";
 import { BinaryValue } from '../../common/enums/BinaryValue';
 import { Thumbsticks } from '../../common/enums/Thumbsticks';
 import { disableScroll, enableScroll } from '../../common/functions/enableDisableScrolling';
@@ -207,7 +208,8 @@ export const CharacterInputSchema: InputSchema = {
     e: DefaultInput.INTERACT,
     ' ': DefaultInput.JUMP,
     shift: DefaultInput.SPRINT,
-    p: DefaultInput.POINTER_LOCK
+    p: DefaultInput.POINTER_LOCK,
+    v: DefaultInput.SWITCH_CAMERA
   },
   // Map how inputs relate to each other
   inputRelationships: {
@@ -223,6 +225,14 @@ export const CharacterInputSchema: InputSchema = {
         started: [
           {
             behavior: cameraPointerLock,
+            args: {}
+          }
+        ]
+    },
+    [DefaultInput.SWITCH_CAMERA]: {
+        started: [
+          {
+            behavior: switchCameraMode,
             args: {}
           }
         ]
