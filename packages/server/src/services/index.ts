@@ -39,6 +39,7 @@ import UserSettings from './user-settings/user-settings.service';
 // Junctions
 import GroupUser from './group-user/group-user.service';
 import PartyUser from './party-user/party-user.service';
+import LocationAdmin from './location-admin/location-admin.service';
 
 // Services
 import AcceptInvite from './accept-invite/accept-invite.service';
@@ -109,6 +110,7 @@ export default (app: Application): void => {
   // Junctions
   app.configure(PartyUser);
   app.configure(GroupUser);
+  app.configure(LocationAdmin);
 
   // Services
   app.configure(AcceptInvite);
