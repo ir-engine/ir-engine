@@ -11,6 +11,7 @@ import { CarController } from "@xr3ngine/engine/src/templates/car/prefabs/CarCon
 import { WorldPrefab } from "@xr3ngine/engine/src/templates/world/prefabs/WorldPrefab";
 import { rigidBodyBox } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox";
 import { rigidBodyBox2 } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox2";
+import { JoystickPrefab } from "@xr3ngine/engine/src/templates/devices/prefabs/JoystickPrefab";
 import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
 import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
@@ -30,7 +31,7 @@ import { selectPartyState } from '../../redux/party/selector';
 import { client } from '../../redux/feathers';
 
 import dynamic from 'next/dynamic';
-import { RazerLaptop } from "@xr3ngine/engine/src/templates/interactive/prefabs/RazerLaptop";
+import { RazerLaptop } from "@xr3ngine/engine/src/templates/devices/prefabs/RazerLaptop";
 import { InfoBox } from "../infoBox";
 import { HintBox } from "../hintBox";
 import { BeginnerBox } from '../beginnerBox';
@@ -137,7 +138,6 @@ export const EnginePage: FunctionComponent = (props: any) => {
     initializeEngine(InitializationOptions);
 
     // Load glb here
-    // createPrefab(rigidBodyBox);
 
     Engine.renderer.shadowMap.enabled = true;
     Engine.renderer.shadowMap.type = PCFSoftShadowMap;
@@ -209,6 +209,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
     createPrefab(WorldPrefab);
     createPrefab(staticWorldColliders);
+    createPrefab(JoystickPrefab);
 //  setTimeout(() => {
     // createPrefab(rigidBodyBox);
     // createPrefab(rigidBodyBox2);
