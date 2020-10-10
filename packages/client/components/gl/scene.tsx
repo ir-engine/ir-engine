@@ -31,7 +31,7 @@ import { selectPartyState } from '../../redux/party/selector';
 import { client } from '../../redux/feathers';
 
 import dynamic from 'next/dynamic';
-import { RazerLaptop } from "@xr3ngine/engine/src/templates/interactive/prefabs/RazerLaptop";
+import { RazerLaptop } from "@xr3ngine/engine/src/templates/devices/prefabs/RazerLaptop";
 import { InfoBox } from "../infoBox";
 import { HintBox } from "../hintBox";
 import { BeginnerBox } from '../beginnerBox';
