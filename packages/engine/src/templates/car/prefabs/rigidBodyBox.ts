@@ -1,4 +1,4 @@
-import { BoxBufferGeometry, Group, IcosahedronBufferGeometry, LOD, Mesh, MeshLambertMaterial, MeshPhongMaterial, TetrahedronBufferGeometry } from "three";
+import { BoxBufferGeometry, Mesh, MeshPhongMaterial } from "three";
 import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
 import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
 
@@ -9,29 +9,9 @@ import { addMeshCollider } from "@xr3ngine/engine/src/physics/behaviors/addMeshC
 import { addMeshRigidBody } from "@xr3ngine/engine/src/physics/behaviors/addMeshRigidBody";
 import { attachCamera } from "@xr3ngine/engine/src/camera/behaviors/attachCamera";
 
-const lodSystem = new LOD();
-for( let i = 0; i < 4; i++ ) {
-
-    const boxGeometry = new IcosahedronBufferGeometry (1 ,3 - i)
-    const boxMaterial = new MeshPhongMaterial({ color: 'red' })
-    const boxMeshA = new Mesh(boxGeometry , boxMaterial)
-    boxMeshA.position.set( -3, 0, -3 );
-    const boxMeshB = new Mesh(boxGeometry , boxMaterial)
-    boxMeshB.position.set( 3, 0, 3 );
-    const boxMeshGroup = new Group()
-    boxMeshGroup.add (boxMeshA)
-    boxMeshGroup.add (boxMeshB)
-	
-	lodSystem.addLevel( boxMeshGroup, i * 4);
-}
-
-// scene.add( lod );
-
-// const boxGeometry = new BoxBufferGeometry(1, 1, 1);
-// const boxMaterial = new MeshPhongMaterial({ color: 'red' });
-// const boxMesh = new Mesh(boxGeometry, boxMaterial);
-
-
+const boxGeometry = new BoxBufferGeometry(1, 1, 1);
+const boxMaterial = new MeshPhongMaterial({ color: 'red' });
+const boxMesh = new Mesh(boxGeometry, boxMaterial);
 
 export const rigidBodyBox: Prefab = {
     components: [
@@ -44,7 +24,7 @@ export const rigidBodyBox: Prefab = {
         {
             behavior: addObject3DComponent,
             args: {
-                obj3d: lodSystem
+                obj3d: boxMesh
             }
         }
     ]
