@@ -31,13 +31,15 @@ import { client } from '../../redux/feathers';
 
 import dynamic from 'next/dynamic';
 
-import LinearProgress from '@material-ui/core/LinearProgress';
 import { RazerLaptop } from "@xr3ngine/engine/src/templates/interactive/prefabs/RazerLaptop";
-import { InfoBox } from "../infoBox";
-import { HintBox } from "../hintBox";
-import { BeginnerBox } from '../beginnerBox';
+// import { InfoBox } from "../infoBox";
+// import { HintBox } from "../hintBox";
+// import { BeginnerBox } from '../beginnerBox';
 import './style.scss';
 import { resetEngine } from "../../../engine/src/ecs/functions/EngineFunctions";
+import LinearProgressComponent from '../ui/LinearProgress';
+import UIDialog from '../ui/Dialog/Dialog'
+
 
 const MobileGamepad = dynamic(() => import("../mobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
@@ -70,53 +72,55 @@ export const EnginePage: FunctionComponent = (props: any) => {
     provisionInstanceServer
   } = props;
   const [enabled, setEnabled] = useState(false);
-  const [hoveredLabel, setHoveredLabel] = useState('');
-  const [infoBoxData, setInfoBoxData] = useState(null);
-  const [hintBoxData, setHintBoxData] = useState('default');
-  const [showControllHint, setShowControllHint] = useState(true);
-  const [progress, setProgress] = React.useState(0);
+  // const [hoveredLabel, setHoveredLabel] = useState('');
+  // const [infoBoxData, setInfoBoxData] = useState(null);
+  // const [hintBoxData, setHintBoxData] = useState('default');
+  // const [showControllHint, setShowControllHint] = useState(true);
+  const [sceneLoaded, setSceneLoaded] = React.useState(0);
+  const [goToAvatar, setGoToAvatar] = React.useState(false);
+  const [avatar, setAvatar] = React.useState(false);
   const [progressEntity, setProgressEntity] = React.useState('');
+  const [isDialogOpen, setDialogOpen] = React.useState(false);
 
   useEffect(() => {
     console.log('initializeEngine!');
 
-    const onObjectHover = (event: CustomEvent): void => {
-      if (event.detail.focused) {
-        setHoveredLabel(String(event.detail.interactionText ? event.detail.interactionText :'Activate' ));
-      } else {
-        setHoveredLabel('');
-      }
-    };
+    // const onObjectHover = (event: CustomEvent): void => {
+    //   if (event.detail.focused) {
+    //     setHoveredLabel(String(event.detail.interactionText ? event.detail.interactionText :'Activate' ));
+    //   } else {
+    //     setHoveredLabel('');
+    //   }
+    // };
 
-    const onObjectActivation = (event: CustomEvent): void => {
-      console.log('OBJECT ACTIVATION!', event.detail?.action, event.detail);
-      switch (event.detail.action) {
-        case "link":
-          window.open(event.detail.url, "_blank");
-          break;
-        case "infoBox":
-          // TODO: show info box
-          setInfoBoxData(event.detail.payload);
-          break;
-      }
-    };
+    // const onObjectActivation = (event: CustomEvent): void => {
+    //   console.log('OBJECT ACTIVATION!', event.detail?.action, event.detail);
+    //   switch (event.detail.action) {
+    //     case "link":
+    //       window.open(event.detail.url, "_blank");
+    //       break;
+    //     case "infoBox":
+    //       // TODO: show info box
+    //       setInfoBoxData(event.detail.payload);
+    //       break;
+    //   }
+    // };
 
-    const onCarActivation = (event: CustomEvent): void => {
-      if (event.detail.inCar) {
-        setHintBoxData('car');
-        setHoveredLabel('');
-      } else {
-        setHintBoxData('default');
-      }
-      setShowControllHint(true);
-    };
+    // const onCarActivation = (event: CustomEvent): void => {
+    //   if (event.detail.inCar) {
+    //     setHintBoxData('car');
+    //     setHoveredLabel('');
+    //   } else {
+    //     setHintBoxData('default');
+    //   }
+    //   setShowControllHint(true);
+    // };
 
     const onSceneLoaded= (event: CustomEvent): void => {
-      console.log('event.detail', event.detail)
       if (event.detail.loaded) {
-        setProgress(1);
+        setSceneLoaded(1);
       } else {
-        setProgress(0);
+        setSceneLoaded(0);
       }
     };
 
@@ -124,9 +128,9 @@ export const EnginePage: FunctionComponent = (props: any) => {
       setProgressEntity(' left '+event.detail.left);
     };
 
-    document.addEventListener('object-hover', onObjectHover);
-    document.addEventListener('object-activation', onObjectActivation);
-    document.addEventListener('player-in-car', onCarActivation);
+    // document.addEventListener('object-hover', onObjectHover);
+    // document.addEventListener('object-activation', onObjectActivation);
+    // document.addEventListener('player-in-car', onCarActivation);
     document.addEventListener('scene-loaded', onSceneLoaded);
     document.addEventListener('scene-loaded-entity', onSceneLoadedEntity);
 
@@ -235,16 +239,16 @@ export const EnginePage: FunctionComponent = (props: any) => {
     createPrefab(RazerLaptop);
     // createPrefab(PlayerCharacter);
     createPrefab(CarController);
-    setProgress(1);
+    // setSceneLoaded(1);
 
     //createPrefab(interactiveBox);
   //}, 5000);
 
 
     return (): void => {
-      document.removeEventListener('object-hover', onObjectHover);
-      document.removeEventListener('object-activation', onObjectActivation);
-      document.removeEventListener('player-in-car', onCarActivation);
+      // document.removeEventListener('object-hover', onObjectHover);
+      // document.removeEventListener('object-activation', onObjectActivation);
+      // document.removeEventListener('player-in-car', onCarActivation);
       document.removeEventListener('scene-loaded', onSceneLoaded);
       document.removeEventListener('scene-loaded-entity', onSceneLoadedEntity);    
 
@@ -256,17 +260,32 @@ export const EnginePage: FunctionComponent = (props: any) => {
     };
   }, []);
 
+  const renderLinearProgress = () =>{
+    if(sceneLoaded < 1){
+      document.querySelector('.overlayTemporary') && document.querySelector('.overlayTemporary').remove();
+      return <div className="overlay">
+        <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
+      </div> 
+    }
+  }
+
+  const defineDialog = () =>{
+    setDialogOpen(sceneLoaded === 1 ? true: false);
+  }
+  useEffect(() => {
+    defineDialog();
+    renderLinearProgress();   
+  },[sceneLoaded]);
+
+
   useEffect(() => {
     const f = (event: KeyboardEvent): void => {
       //hide controlls hint when move/do smth
-      setShowControllHint(false);
-      // const P_PLAY_PAUSE = 112;
-      // if (event.keyCode === 27)
+      // setShowControllHint(false);
       if (event.keyCode === 192) {
         event.preventDefault();
         toggleEnabled();
       }
-      // else if(event.keyCode == P_PLAY_PAUSE)
     };
     document.addEventListener("keydown", f);
     return (): void => {
@@ -311,6 +330,15 @@ export const EnginePage: FunctionComponent = (props: any) => {
     }
   };
 
+  const setStep = (stepNumber) =>{
+    console.log('stepNumber', stepNumber)
+    // switch (stepNumber){
+    //   case 2: setGoToAvatar(true);break;
+    //   case 3: setAvatar(true);break;
+    //   default: setGoToAvatar(false);break;
+    // }
+  }
+
   const terminal = enabled? (
       <Terminal
         color='green'
@@ -334,40 +362,43 @@ export const EnginePage: FunctionComponent = (props: any) => {
       />
     ) : null;
 
-    //mobile gamepad
-  const mobileGamepadProps = {hovered:hoveredLabel.length > 0, layout: hintBoxData };
-  const mobileGamepad = isMobileOrTablet()? <MobileGamepad {...mobileGamepadProps} /> : null;
+  //   //mobile gamepad
+  // const mobileGamepadProps = {hovered:hoveredLabel.length > 0, layout: hintBoxData };
+  // const mobileGamepad = isMobileOrTablet()? <MobileGamepad {...mobileGamepadProps} /> : null;
 
   //info box with button
-  const infoBox = !isMobileOrTablet() && infoBoxData ? <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} /> : null;
-  const hintBox = !isMobileOrTablet() && showControllHint && hintBoxData ? <HintBox layout={hintBoxData} /> : null;
+  // const infoBox = !isMobileOrTablet() && infoBoxData ? <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} /> : null;
+  // const hintBox = !isMobileOrTablet() && showControllHint && hintBoxData ? <HintBox layout={hintBoxData} /> : null;
 
-  const progressBar = 
-        progress < 1 ? 
-          <div className="overlay">
-            <section className="linearProgressContainer">
-            <span className="loadingProgressTile"> Please wait while the World is loading ...{progressEntity}</span>
-              <LinearProgress className="linearProgress" />
-            </section>
-          </div> 
-        : null;
+  // const progressBar = 
+  //       progress < 1 ? 
+  //         <div className="overlay">
+  //           <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
+  //         </div> 
+        // : null;
   //hide default overlay
-  if(progress < 1 && document.querySelector('.overlayTemporary')){document.querySelector('.overlayTemporary').remove()}
 
 
-  const hoveredLabelElement = !!!isMobileOrTablet() && hoveredLabel.length > 0 ?
-  <div className="hintContainer">Press <span className="keyItem" >E</span> to {hoveredLabel}</div> : null;
+  // const hoveredLabelElement = !!!isMobileOrTablet() && hoveredLabel.length > 0 ?
+  // <div className="hintContainer">Press <span className="keyItem" >E</span> to {hoveredLabel}</div> : null;
+
+  const dialogText = sceneLoaded === 1 ? 'Virtual retail experience' :  goToAvatar ? 'Select Your Avatar': '';
+  const submitButtonText = sceneLoaded === 1 ? 'Enter The World' : 'Approve';
+  // const submitButtonAction = sceneLoaded === 1 ? setStep(2)  : goToAvatar ? setStep(3):  '';
   return (
     <>
     <div className="overlay overlayTemporary"></div>
-    {progressBar}
-    {/* <Dialog {...{props:{isOpened:true, content:beginnerHintMessage}}}>{beginnerHintMessage}</Dialog> */}
-    {infoBox}
-    {hintBox}
-    {hoveredLabelElement}
+    {renderLinearProgress()}
+    <UIDialog {...{values:{isOpened:isDialogOpen, content:dialogText, submitButton:{submitButtonText,
+       submitButtonAction:setStep(2)
+      //  sceneLoaded === 1 ? setStep(2)  : goToAvatar ? setStep(3):  ''
+       }}}}>{dialogText}</UIDialog>
+    {/* {infoBox} */}
+    {/* {hintBox} */}
+    {/* {hoveredLabelElement} */}
     {terminal}
-    {mobileGamepad}
-    <BeginnerBox />
+    {/* {mobileGamepad} */}
+    {/* <BeginnerBox /> */}
     </>
   );
 };

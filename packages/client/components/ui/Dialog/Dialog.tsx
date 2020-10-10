@@ -1,19 +1,23 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import Dialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
-import IconButton from '@material-ui/core/IconButton';
-import CloseIcon from '@material-ui/icons/Close';
-import Typography from '@material-ui/core/Typography';
-import { selectDialogState } from '../../../redux/dialog/selector';
-import { closeDialog } from '../../../redux/dialog/service';
 import { bindActionCreators, Dispatch } from 'redux';
 import Router from 'next/router';
+import {Dialog, DialogTitle, DialogContent, Button, IconButton, Typography} from '@material-ui/core';
+// import DialogTitle from '@material-ui/core/DialogTitle';
+// import DialogContent from '@material-ui/core/DialogContent';
+// import IconButton from '@material-ui/core/IconButton';
+import CloseIcon from '@material-ui/icons/Close';
+// import Typography from '@material-ui/core/Typography';
+import { selectDialogState } from '../../../redux/dialog/selector';
+import { closeDialog } from '../../../redux/dialog/service';
+
 import './style.scss';
 
 interface Props {
   dialog: any;
+  values:any;
+  children: any;
+  isCloseButton:boolean;
   closeDialog: typeof closeDialog;
 }
 
@@ -28,9 +32,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 const UIDialog = (props: Props): any => {
-  const { dialog, closeDialog } = props;
-  const isOpened = dialog.get('isOpened');
-  const content = dialog.get('content');
+  console.log('+++++++props', props)
+  const { dialog, values, closeDialog, children, isCloseButton = false} = props;
+  const content = dialog.get('content') ? dialog.get('content') : values ?  values.content : '';
+  const submitButton = values && values.submitButton ?  values.submitButton.submitButtonText : '';
 
   useEffect(() => {
     Router.events.on('routeChangeStart', () => {
@@ -43,21 +48,26 @@ const UIDialog = (props: Props): any => {
     closeDialog();
   };
 
+
   return (
-    <Dialog open={isOpened} onClose={handleClose} aria-labelledby="xr-dialog" color="background">
+    <Dialog open={values ? values.isOpened : false} onClose={handleClose} aria-labelledby="xr-dialog" color="background">
       <DialogTitle disableTypography className="dialogTitle">
-        <Typography variant="h6">{(content && content.title) ?? ''}</Typography>
-        <IconButton
+        { content && content.title && (<Typography variant="h6">{content.title}</Typography>)}
+        {isCloseButton && (<IconButton
           aria-label="close"
           className="dialogCloseButton"
           onClick={handleClose}
         >
           <CloseIcon />
-        </IconButton>
+        </IconButton>)}
       </DialogTitle>
 
       <DialogContent className="dialogContent">
-        {content && content.children}
+        {/* {content && content.children} */}
+        <section className="innerText">{children}</section>
+        {submitButton && (<Button variant="contained" color="primary" 
+        onClick={()=>values.submitButton.submitButtonAction}
+        >{submitButton}</Button>)}
       </DialogContent>
     </Dialog>
   );
