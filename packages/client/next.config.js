@@ -10,7 +10,11 @@ module.exports = withImages(
     /* config options here */
     publicRuntimeConfig: config.get('publicRuntimeConfig'),
     env: {
-      API_SERVER: process.env.API_SERVER
+      API_SERVER: process.env.API_SERVER,
+      API_SERVER_ADDRESS: process.env.API_SERVER_ADDRESS,
+      API_RESOLVE_MEDIA_ROUTE: process.env.API_RESOLVE_MEDIA_ROUTE,
+      API_PROJECTS_ROUTE: process.env.API_PROJECTS_ROUTE,
+      USE_HTTPS: process.env.USE_HTTPS === 'true',
     },
     dir: './',
     distDir: './.next',
