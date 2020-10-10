@@ -7,9 +7,10 @@ export default () => {
     // Getting logged in user and attaching owner of user
     const { result } = context;
     const loggedInUser = extractLoggedInUserFromParams(context.params);
+    const user = await context.app.service('user').get(loggedInUser.userId);
     await context.app.service('party-user').create({
       partyId: result.id,
-      isOwner: true,
+      isOwner: result.locationId == null ? true : user.location_admins.find(locationAdmin => locationAdmin.locationId === result.locationId) != null,
       userId: loggedInUser.userId
     });
     await context.app.service('user').patch(loggedInUser.userId, {

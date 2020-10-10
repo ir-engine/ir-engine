@@ -71,7 +71,7 @@ const Layout = (props: Props): any => {
                 </Fragment>
       }
       <footer>
-        { authState.get('authUser') != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
+        { authState.get('authUser') != null && authState.get('isLoggedIn') === true && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
                 <DrawerControls setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/> }
         { authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
       </footer>

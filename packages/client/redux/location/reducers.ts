@@ -1,11 +1,15 @@
 import Immutable from 'immutable';
 import {
   LocationsAction,
-  LocationsRetrievedAction
+  LocationsRetrievedAction,
+  ShowroomEnabledSetAction,
+  ShowroomLocationRetrievedAction
 } from './actions';
 
 import {
-  LOCATIONS_RETRIEVED
+  LOCATIONS_RETRIEVED,
+  SHOWROOM_ENABLED_SET,
+  SHOWROOM_LOCATION_RETRIEVED
 } from '../actions';
 
 export const initialState = {
@@ -14,6 +18,10 @@ export const initialState = {
     total: 0,
     limit: 10,
     skip: 0
+  },
+  showroomEnabled: true,
+  showroomLocation: {
+    location: {}
   },
   updateNeeded: true
 };
@@ -25,19 +33,25 @@ const locationReducer = (state = immutableState, action: LocationsAction): any =
   switch (action.type) {
     case LOCATIONS_RETRIEVED:
       newValues = (action as LocationsRetrievedAction).locations;
-      console.log('newValues:');
-      console.log(newValues);
       updateMap = new Map();
       existingLocations = state.get('locations').get('locations');
       updateMap.set('locations', (existingLocations.size != null || state.get('updateNeeded') === true) ? newValues.data : existingLocations.concat(newValues.data));
       updateMap.set('skip', newValues.skip);
       updateMap.set('limit', newValues.limit);
       updateMap.set('total', newValues.total);
-      console.log('updateMap:');
-      console.log(updateMap);
       return state
         .set('locations', updateMap)
         .set('updateNeeded', false);
+
+    case SHOWROOM_ENABLED_SET:
+      return state.set('showroomEnabled', (action as ShowroomEnabledSetAction).showroomEnabled);
+
+    case SHOWROOM_LOCATION_RETRIEVED:
+      newValues = (action as ShowroomLocationRetrievedAction).location;
+      updateMap = new Map();
+      updateMap.set('location', newValues);
+      return state
+          .set('showroomLocation', updateMap);
   }
 
   return state;

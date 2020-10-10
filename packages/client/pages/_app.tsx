@@ -5,7 +5,7 @@ import withRedux from 'next-redux-wrapper';
 import { Provider } from 'react-redux';
 import { fromJS } from 'immutable';
 import { configureStore } from '../redux/store';
-import { Store } from 'redux';
+import {bindActionCreators, Dispatch, Store} from 'redux';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import theme from "./../components/editor/ui/theme";
 import { ThemeProvider } from "styled-components";
@@ -18,6 +18,7 @@ import { initGA, logPageView } from '../components/analytics';
 import url from 'url';
 import querystring from 'querystring';
 import { dispatchAlertError } from '../redux/alert/service';
+import { connect } from 'react-redux';
 
 import getConfig from 'next/config';
 import { ApiContext } from '../components/editor/ui/contexts/ApiContext';
@@ -27,10 +28,20 @@ const config = getConfig().publicRuntimeConfig;
 
 interface Props extends AppProps {
   store: Store;
+  doLoginAuto: typeof doLoginAuto;
 }
 
+
+const mapStateToProps = (state: any): any => {
+  return {};
+};
+
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
+  doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
+});
+
 const MyApp = (props: Props): any => {
-  const { Component, pageProps, store } = props;
+  const { Component, pageProps, store, doLoginAuto } = props;
 
   const [api, setApi] = useState<Api>();
 
@@ -59,7 +70,7 @@ const MyApp = (props: Props): any => {
     logPageView();
     getDeviceInfo();
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    doLoginAuto(store.dispatch);
+    doLoginAuto();
     const urlParts = url.parse(window.location.href);
     const query = querystring.parse(urlParts.query);
     if (query.error != null) {
@@ -94,4 +105,4 @@ const MyApp = (props: Props): any => {
 export default withRedux(configureStore, {
   serializeState: (state) => state.toJS(),
   deserializeState: (state) => fromJS(state)
-})(MyApp);
+})(connect(mapStateToProps, mapDispatchToProps)(MyApp));

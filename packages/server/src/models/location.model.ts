@@ -31,6 +31,7 @@ export default (app: Application): any => {
   (location as any).associate = (models: any): void => {
     (location as any).hasMany(models.instance);
     (location as any).hasOne(models.collection); // scene
+    (location as any).belongsToMany(models.user, { through: 'location_admin'})
   };
 
   return location;

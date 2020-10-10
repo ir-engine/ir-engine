@@ -21,6 +21,9 @@ export default {
           },
           {
             model: 'subscription'
+          },
+          {
+            model: 'location-admin'
           }
         ]
       })
@@ -33,6 +36,9 @@ export default {
           },
           {
             model: 'subscription'
+          },
+          {
+            model: 'location-admin'
           }
         ]
       })
