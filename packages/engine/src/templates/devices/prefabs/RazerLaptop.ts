@@ -5,7 +5,7 @@ import { Interactive } from "../../../interaction/components/Interactive";
 import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { Entity } from "../../../ecs/classes/Entity";
-import { onInteraction, onInteractionHover } from "../functions/commonInteractive";
+import { onInteraction, onInteractionHover } from "../../interactive/functions/commonInteractive";
 
 export const RazerLaptop: Prefab = {
   components: [
