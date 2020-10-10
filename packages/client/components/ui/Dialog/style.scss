@@ -1,4 +1,6 @@
 .MuiPaper-root{
+  font-size: 1em;
+
   .dialogTitle {
     margin: 0;
     padding: 10px;
@@ -13,5 +15,9 @@
   
   .dialogContent {
     padding-bottom: 40px;
+    text-align: center;
+    .innerText{
+      padding: 10px 0;
+    }
   }
 }
