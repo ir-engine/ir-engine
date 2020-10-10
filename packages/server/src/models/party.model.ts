@@ -22,6 +22,7 @@ export default (app: Application): any => {
     (Party as any).belongsToMany(models.user, { through: 'party_user' });
     (Party as any).hasMany(models.party_user, { unique: false });
     (Party as any).belongsTo(models.instance);
+    (Party as any).belongsTo(models.location);
   };
   return Party;
 };

@@ -19,6 +19,7 @@ import { provisionInstanceServer } from '../instanceConnection/service';
 export function getParty () {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
+      console.log('CALLING GETPARTY()');
       const partyResult = await client.service('party').get(null);
       dispatch(loadedParty(partyResult));
     } catch (err) {

@@ -3,16 +3,18 @@ import React, { useEffect } from 'react';
 import {Button} from '@material-ui/core';
 import NoSSR from 'react-no-ssr';
 import { connect } from "react-redux";
-import { Dispatch } from "redux";
+import {bindActionCreators, Dispatch} from "redux";
 import Loading from '../components/gl/loading';
 import Scene from "../components/gl/scene";
 import Layout from '../components/ui/Layout';
 import { selectAuthState } from "../redux/auth/selector";
 import { selectInstanceConnectionState } from '../redux/instanceConnection/selector';
+import { setShowroomEnabled } from '../redux/location/service';
 
 interface Props {
     authState?: any;
     instanceConnectionState?: any;
+    setShowroomEnabled: typeof setShowroomEnabled;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -22,15 +24,22 @@ const mapStateToProps = (state: any): any => {
     };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({});
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
+    setShowroomEnabled: bindActionCreators(setShowroomEnabled, dispatch)
+});
 
 export const IndexPage = (props: any): any => {
-    const {
-        authState,
-        instanceConnectionState
-    } = props;
-    const selfUser = authState.get('user');
+  const {
+    authState,
+    instanceConnectionState,
+    setShowroomEnabled
+  } = props;
+  const selfUser = authState.get('user');
   const [ sceneIsVisible, setSceneVisible ] = React.useState(true);
+
+  useEffect(() => {
+      setShowroomEnabled(false);
+  }, []);
 
   useEffect(() => {
       if (selfUser?.instanceId != null || instanceConnectionState.get('instanceProvisioned') === true) {

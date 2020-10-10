@@ -7,6 +7,7 @@ import { selectFriendState } from '../../../../redux/friend/selector';
 import { selectGroupState } from '../../../../redux/group/selector';
 import { selectPartyState } from '../../../../redux/party/selector';
 import { selectUserState } from '../../../../redux/user/selector';
+import { selectLocationState } from '../../../../redux/location/selector';
 import './style.scss';
 
 import {
@@ -76,6 +77,7 @@ const mapStateToProps = (state: any): any => {
         chatState: selectChatState(state),
         friendState: selectFriendState(state),
         groupState: selectGroupState(state),
+        locationState: selectLocationState(state),
         partyState: selectPartyState(state),
         userState: selectUserState(state)
     };
@@ -115,6 +117,7 @@ interface Props {
     patchGroup?: any;
     removeGroup?: any;
     removeGroupUser?: any;
+    locationState?: any;
     partyState?: any;
     getParty?: any;
     createParty?: any;
@@ -152,6 +155,7 @@ const LeftDrawer = (props: Props): any => {
         const {
             authState,
             friendState,
+            locationState,
             getFriends,
             unfriend,
             groupState,
@@ -202,6 +206,8 @@ const LeftDrawer = (props: Props): any => {
         const partyUsers = party && party.partyUsers ? party.partyUsers : [];
         const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === user.id) : {};
         const layerUsers = userState.get('layerUsers') ?? [];
+        const showroomEnabled = locationState.get('showroomEnabled');
+        const showroomLocation = locationState.get('showroomLocation').get('location');
 
         useEffect(() => {
             if (friendState.get('updateNeeded') === true && friendState.get('getFriendsInProgress') !== true) {
@@ -470,6 +476,7 @@ const LeftDrawer = (props: Props): any => {
                 >
                     {detailsOpen === false && groupFormOpen === false &&
                     <div className="list-container">
+                        {showroomEnabled !== true &&
                         <Accordion expanded={selectedAccordion === 'user'} onChange={handleAccordionSelect('user')}>
                             <AccordionSummary
                                 id="friends-header"
@@ -512,6 +519,8 @@ const LeftDrawer = (props: Props): any => {
                                 </List>
                             </AccordionDetails>
                         </Accordion>
+                        }
+                        {showroomEnabled !== true &&
                         <Accordion expanded={selectedAccordion === 'group'} onChange={handleAccordionSelect('group')}>
                             <AccordionSummary
                                 id="groups-header"
@@ -551,6 +560,8 @@ const LeftDrawer = (props: Props): any => {
                                 </List>
                             </AccordionDetails>
                         </Accordion>
+                        }
+                        {(showroomEnabled !== true || (user.userRole === 'location-admin' && user.locationAdmins?.find(locationAdmin => showroomLocation.id === locationAdmin.locationId) != null)) &&
                         <Accordion expanded={selectedAccordion === 'party'} onChange={handleAccordionSelect('party')}>
                             <AccordionSummary
                                 id="party-header"
@@ -739,8 +750,9 @@ const LeftDrawer = (props: Props): any => {
                                 }
                             </AccordionDetails>
                         </Accordion>
+                        }
                         {
-                            user && user.instanceId &&
+                            user && user.instanceId && (showroomEnabled !== true || (user.userRole === 'location-admin' && user.locationAdmins?.find(locationAdmin => showroomLocation.id === locationAdmin.locationId) != null)) &&
                             <Accordion expanded={selectedAccordion === 'layerUsers'}
                                        onChange={handleAccordionSelect('layerUsers')}>
                                 <AccordionSummary

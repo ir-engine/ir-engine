@@ -1,4 +1,5 @@
 import { IdentityProvider } from './IdentityProvider'
+import { LocationAdmin } from './LocationAdmin'
 
 export type RelationshipType = 'friend' | 'requested' | 'blocked' | 'blocking'
 export interface User {
@@ -6,6 +7,7 @@ export interface User {
   name: string
   userRole: string
   identityProviders: IdentityProvider[]
+  locationAdmins: LocationAdmin[]
   relationType?: RelationshipType
   inverseRelationType?: RelationshipType
   subscription: any
@@ -35,6 +37,12 @@ export function resolveUser (user: any): User {
       subscription: verifiedSubscription
     }
     delete returned.subscriptions
+  }
+  if (user?.location_admins && user.location_admins.length > 0) {
+    returned = {
+      ...returned,
+      locationAdmins: user.location_admins
+    }
   }
   return returned
 }

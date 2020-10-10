@@ -6,6 +6,7 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common';
 import collectAnalytics from '../../hooks/collect-analytics';
 import unsetSelfPartyOwner from '../../hooks/unset-self-party-owner';
 import checkPartyInstanceSize from '../../hooks/check-party-instance-size';
+import {extractLoggedInUserFromParams} from "../auth-management/auth-management.utils";
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
@@ -21,7 +22,26 @@ export default {
       )
     ],
     get: [],
-    create: [disallow('external')],
+    create: [
+        async (context: HookContext): Promise<HookContext> => {
+          const { app, params } = context;
+          const loggedInUser = extractLoggedInUserFromParams(params);
+          const partyUserResult = await app.service('party-user').find({
+            query: {
+              userId: loggedInUser.userId
+            }
+          });
+
+          console.log('Existing Party users for this user:')
+          console.log(partyUserResult.data);
+          await Promise.all(partyUserResult.data.map(partyUser => {
+            return app.service('party-user').remove(partyUser.id);
+          }));
+
+          return context;
+        },
+        partyPermissionAuthenticate()
+    ],
     update: [disallow()],
     patch: [
         partyPermissionAuthenticate()
