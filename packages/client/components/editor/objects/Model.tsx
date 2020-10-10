@@ -100,6 +100,7 @@ export default class Model extends Object3D {
       this.animationMixer.update(dt);
     }
   }
+  /** @ts-ignore */
   get castShadow() {
     return this._castShadow;
   }
@@ -121,6 +122,7 @@ export default class Model extends Object3D {
       });
     }
   }
+  /** @ts-ignore */
   get receiveShadow() {
     return this._receiveShadow;
   }

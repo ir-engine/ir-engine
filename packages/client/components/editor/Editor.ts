@@ -121,9 +121,9 @@ export default class Editor extends EventEmitter {
   selected: any[];
   selectedTransformRoots: any[];
   history: History;
-  renderer: any;
+  renderer: Renderer;
   inputManager: any;
-  editorControls: any;
+  editorControls: EditorControls;
   flyControls: any;
   playModeControls: any;
   nodeTypes: any;
@@ -587,7 +587,7 @@ export default class Editor extends EventEmitter {
         }
       });
       this.flyControls.update(delta);
-      this.editorControls.update(delta);
+      this.editorControls.update();
 
       this.renderer.update(delta, time);
       this.inputManager.reset();
