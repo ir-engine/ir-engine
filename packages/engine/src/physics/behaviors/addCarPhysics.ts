@@ -31,8 +31,8 @@ export const addCarPhysics: Behavior = (entity: Entity, args: any ) => {
   const arrayWheels = [];
 
    asset.scene.traverse( mesh => {
-     console.log(mesh.name);
-     console.log(mesh);
+     // console.log(mesh.name);
+     // console.log(mesh);
 
 
      if (mesh.type == 'Mesh') {
