@@ -32,10 +32,11 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 const UIDialog = (props: Props): any => {
-  console.log('+++++++props', props)
+
+
+  console.log('+++props', props)
   const { dialog, values, closeDialog, children, isCloseButton = false} = props;
   const content = dialog.get('content') ? dialog.get('content') : values ?  values.content : '';
-  const submitButton = values && values.submitButton ?  values.submitButton.submitButtonText : '';
 
   useEffect(() => {
     Router.events.on('routeChangeStart', () => {
@@ -65,9 +66,9 @@ const UIDialog = (props: Props): any => {
       <DialogContent className="dialogContent">
         {/* {content && content.children} */}
         <section className="innerText">{children}</section>
-        {submitButton && (<Button variant="contained" color="primary" 
-        onClick={()=>values.submitButton.submitButtonAction}
-        >{submitButton}</Button>)}
+        {values && values.submitButtonText && 
+          (<Button variant="contained" color="primary" 
+              onClick={values.submitButtonAction}>{values.submitButtonText}</Button>)}
       </DialogContent>
     </Dialog>
   );
