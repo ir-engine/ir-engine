@@ -2,14 +2,13 @@ import Immutable from 'immutable';
 import {
   LocationsAction,
   LocationsRetrievedAction,
-  ShowroomEnabledSetAction,
-  ShowroomLocationRetrievedAction
+  LocationRetrievedAction
 } from './actions';
 
 import {
   LOCATIONS_RETRIEVED,
-  SHOWROOM_ENABLED_SET,
-  SHOWROOM_LOCATION_RETRIEVED
+  LOCATION_RETRIEVED,
+  LOCATION_BAN_CREATED
 } from '../actions';
 
 export const initialState = {
@@ -19,11 +18,12 @@ export const initialState = {
     limit: 10,
     skip: 0
   },
-  showroomEnabled: true,
-  showroomLocation: {
-    location: {}
+  currentLocation: {
+    location: {},
+    bannedUsers: []
   },
-  updateNeeded: true
+  updateNeeded: true,
+  currentLocationUpdateNeeded: true
 };
 
 const immutableState = Immutable.fromJS(initialState);
@@ -43,15 +43,29 @@ const locationReducer = (state = immutableState, action: LocationsAction): any =
         .set('locations', updateMap)
         .set('updateNeeded', false);
 
-    case SHOWROOM_ENABLED_SET:
-      return state.set('showroomEnabled', (action as ShowroomEnabledSetAction).showroomEnabled);
-
-    case SHOWROOM_LOCATION_RETRIEVED:
-      newValues = (action as ShowroomLocationRetrievedAction).location;
+    case LOCATION_RETRIEVED:
+      newValues = (action as LocationRetrievedAction).location;
       updateMap = new Map();
+      console.log('Location newValues:');
+      console.log(newValues);
+      if (newValues.locationType == null) {
+        newValues.set('locationType', 'private');
+      }
       updateMap.set('location', newValues);
+      let bannedUsers = [];
+      newValues.location_bans.forEach(ban => {
+        bannedUsers.push(ban.userId);
+      });
+      bannedUsers = [...new Set(bannedUsers)];
+      updateMap.set('bannedUsers', bannedUsers);
+      console.log('Writing new Location state:');
+      console.log(updateMap);
       return state
-          .set('showroomLocation', updateMap);
+          .set('currentLocation', updateMap)
+          .set('currentLocationUpdateNeeded', false);
+
+    case LOCATION_BAN_CREATED:
+      return state.set('currentLocationUpdateNeeded', true);
   }
 
   return state;

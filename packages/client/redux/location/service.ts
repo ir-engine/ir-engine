@@ -3,8 +3,8 @@ import { dispatchAlertError } from "../alert/service";
 import { client } from '../feathers';
 import {
   locationsRetrieved,
-  showroomEnabledSet,
-  showroomLocationRetrieved
+  locationRetrieved,
+  locationBanCreated
 } from './actions';
 
 export function getLocations(skip?: number, limit?: number) {
@@ -24,11 +24,11 @@ export function getLocations(skip?: number, limit?: number) {
   };
 }
 
-export function setShowroomLocation(locationId: string) {
+export function getLocation(locationId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       const location = await client.service('location').get(locationId);
-      dispatch(showroomLocationRetrieved(location));
+      dispatch(locationRetrieved(location));
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
@@ -36,22 +36,16 @@ export function setShowroomLocation(locationId: string) {
   };
 }
 
-export function setShowroomEnabled(enabled: boolean) {
-  return async(dispatch: Dispatch): Promise<any> => {
-    dispatch(showroomEnabledSet(enabled));
-  };
-}
-
-export function joinShowroomParty(showroomLocationId: string) {
+export function joinLocationParty(locationId: string) {
   return async(dispatch: Dispatch, getState: any): Promise<any> => {
     try {
       let showroomParty;
       const selfUser = getState().get('auth').get('user');
-      console.log('joinShowroomParty selfUser:')
+      console.log('joinShowroomParty selfUser:');
       console.log(selfUser);
       const showroomPartyResult = await client.service('party').find({
         query: {
-          locationId: showroomLocationId
+          locationId: locationId
         }
       });
       console.log('showroomPartyResult:');
@@ -59,7 +53,7 @@ export function joinShowroomParty(showroomLocationId: string) {
       console.log('length: ' + showroomPartyResult.length);
       if (showroomPartyResult.length === 0) {
         showroomParty = await client.service('party').create({
-          locationId: showroomLocationId
+          locationId: locationId
         });
       } else {
         showroomParty = showroomPartyResult[0];
@@ -72,6 +66,21 @@ export function joinShowroomParty(showroomLocationId: string) {
       });
     } catch(err) {
       console.log(err);
+    }
+  };
+}
+
+export function banUserFromLocation(userId: string, locationId: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      await client.service('location-ban').create({
+        userId: userId,
+        locationId: locationId
+      });
+      dispatch(locationBanCreated());
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
     }
   };
 }

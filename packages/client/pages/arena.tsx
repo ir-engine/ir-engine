@@ -13,20 +13,19 @@ import { selectInstanceConnectionState } from '../redux/instanceConnection/selec
 import { selectLocationState } from '../redux/location/selector';
 import { doLoginAuto } from '../redux/auth/service';
 import {
-    joinShowroomParty,
-    setShowroomEnabled,
-    setShowroomLocation
+    getLocation,
+    joinLocationParty
 } from '../redux/location/service';
 
 interface Props {
     authState?: any;
     instanceConnectionState?: any;
     doLoginAuto?: typeof doLoginAuto;
-    joinShowroomParty?: typeof joinShowroomParty;
-    setShowroomLocation?: typeof setShowroomLocation;
+    getLocation?: typeof getLocation;
+    joinLocationParty?: typeof joinLocationParty;
 }
 
-const showroomLocationId = 'a98b8470-fd2d-11ea-bc7c-cd4cac9a8d61';
+const arenaLocationId = 'a98b8470-fd2d-11ea-bc7c-cd4cac9a8d61';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -38,8 +37,7 @@ const mapStateToProps = (state: any): any => {
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
-    joinShowroomParty: bindActionCreators(joinShowroomParty, dispatch),
-    setShowroomLocation: bindActionCreators(setShowroomLocation, dispatch)
+    joinLocationParty: bindActionCreators(joinLocationParty, dispatch),
 });
 
 export const IndexPage = (props: Props): any => {
@@ -47,23 +45,22 @@ export const IndexPage = (props: Props): any => {
       authState,
       instanceConnectionState,
       doLoginAuto,
-      joinShowroomParty,
-      setShowroomLocation
+      getLocation,
+      joinLocationParty
   } = props;
   const selfUser = authState.get('user');
   const [ sceneIsVisible, setSceneVisible ] = React.useState(true);
 
   useEffect(() => {
-    setShowroomEnabled(true);
     doLoginAuto(true);
   }, []);
 
   useEffect(() => {
       if (authState.get('isLoggedIn') === true && authState.get('user').id != null && authState.get('user').id.length > 0) {
-          setShowroomLocation(showroomLocationId);
-          console.log('Joining showroom party, auth state now is:')
+          getLocation(arenaLocationId);
+          console.log('Joining showroom party, auth state now is:');
           console.log(authState);
-          joinShowroomParty(showroomLocationId);
+          joinLocationParty(arenaLocationId);
       }
   }, [authState]);
 
