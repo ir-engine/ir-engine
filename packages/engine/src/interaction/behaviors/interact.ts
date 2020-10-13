@@ -14,25 +14,37 @@ import { LifecycleValue } from "../../common/enums/LifecycleValue";
  * @param args
  * @param delta
  */
-export const interact: Behavior = (entity: Entity, args: any, delta): void => {
+
+// const aaa = CharacterComponent.schema.inputAxisBehaviors
+const startedPosition = new Map([
+  ['mouseStart', DefaultInput.SCREENXY]
+]);
+
+export const  interact: Behavior = (entity: Entity, args: any, delta): void => {
   if (!hasComponent(entity, Interacts)) {
     console.error(
       'Attempted to call interact behavior, but actor does not have Interacts component'
     )
     return
   }
+
+  console.log(startedPosition)
+  
   const { focusedInteractive: focusedEntity } = getComponent(entity, Interacts)
   const input = getComponent(entity, Input)
   // const mouseStarted = LifecycleValue.STARTED;
   // const mouseEnded = LifecycleValue.ENDED;
   // const mouseScreenPosition = getComponent(entity, Input).data.get(DefaultInput.SCREENXY);
-  let mouseScreenPosition = getComponent(entity, Input).data.get(DefaultInput.MOUSE_MOVEMENT)
-  let mouseButtonDownCheckStart = input.schema.inputButtonBehaviors[8].started[0].args.phaze
-  let mouseButtonDownCheckEnd = input.schema.inputButtonBehaviors[8].ended[0].args.phaze
 
-  console.log(mouseScreenPosition)
+  console.log(args)
 
-  if (mouseButtonDownCheckEnd && !mouseScreenPosition) {
+  const mouseScreenPosition = getComponent(entity, Input).data.get(DefaultInput.SCREENXY)
+  // const mouseButtonDownCheckStart = input.schema.inputButtonBehaviors[8].started
+  // const mouseButtonDownCheckEnd = input.schema.inputButtonBehaviors[8].ended
+
+  // console.log(mouseScreenPosition.value[0])
+
+  if (args.phaze != 0 && mouseScreenPosition.value[0]  ) {
     if (!focusedEntity) {
       // no available interactive object is focused right now
       return
