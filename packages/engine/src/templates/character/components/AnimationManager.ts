@@ -20,6 +20,10 @@ export class AnimationManager extends Component<AnimationManager> {
 		if (isBrowser) {
 			new GLTFLoader().load('models/avatars/Animation_NoRootMotion.glb', gltf => {
 					this.animations = gltf.animations;
+					this.animations.forEach(clip => {
+						// TODO: make list of morph targets names
+						clip.tracks = clip.tracks.filter(track => !track.name.match(/^CC_Base_/));
+					});
 				}
 			);
 		}
