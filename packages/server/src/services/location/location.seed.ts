@@ -15,7 +15,8 @@ export const seed = {
       {
           id: 'a98b8470-fd2d-11ea-bc7c-cd4cac9a8d61',
           name: 'Arena',
-          maxUsersPerInstance: 4
+          maxUsersPerInstance: 4,
+          locationType: 'showroom'
       },
       {
           id: 'b5cf2a70-fd2d-11ea-bc7c-cd4cac9a8d61',

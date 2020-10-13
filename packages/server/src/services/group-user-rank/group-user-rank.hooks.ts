@@ -1,5 +1,6 @@
 import collectAnalytics from '../../hooks/collect-analytics';
 import * as authentication from '@feathersjs/authentication';
+import { disallow } from "feathers-hooks-common";
 
 const { authenticate } = authentication.hooks;
 
@@ -9,8 +10,8 @@ export default {
     find: [],
     get: [],
     create: [],
-    update: [],
-    patch: [],
+    update: [disallow()],
+    patch: [disallow()],
     remove: []
   },
 
