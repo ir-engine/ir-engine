@@ -9,7 +9,6 @@ import Fab from '@material-ui/core/Fab';
 import { selectChatState } from '../../../redux/chat/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
 import { selectPartyState } from '../../../redux/party/selector';
-import { selectLocationState } from '../../../redux/location/selector';
 import { bindActionCreators, Dispatch } from 'redux';
 import {
   updateMessageScrollInit
@@ -22,7 +21,6 @@ const mapStateToProps = (state: any): any => {
   return {
     authState: selectAuthState(state),
     chatState: selectChatState(state),
-    locationState: selectLocationState(state),
     partyState: selectPartyState(state)
   };
 };
@@ -38,14 +36,12 @@ interface Props {
   setBottomDrawerOpen: any;
   updateMessageScrollInit?: any;
   authState?: any;
-  locationState?: any;
   partyState?: any;
 }
 
 export const DrawerControls = (props: Props): JSX.Element => {
   const {
     authState,
-    locationState,
     partyState,
     setLeftDrawerOpen,
     setBottomDrawerOpen,
@@ -54,8 +50,6 @@ export const DrawerControls = (props: Props): JSX.Element => {
     updateMessageScrollInit
   } = props;
   const party = partyState.get('party');
-  const showroomLocation = locationState.get('showroomLocation').get('location');
-  const showroomEnabled = locationState.get('showroomEnabled');
   const selfUser = authState.get('user');
   const openChat = (): void => {
     setLeftDrawerOpen(false);
@@ -79,17 +73,17 @@ export const DrawerControls = (props: Props): JSX.Element => {
   return (
     <AppBar className="bottom-appbar">
       { (selfUser && selfUser.instanceId != null && selfUser.partyId != null && party?.id != null) && <NoSSR><VideoChat/></NoSSR> }
-      { showroomEnabled !== true &&
+      { selfUser.userRole !== 'guest' &&
         <Fab color="primary" aria-label="PersonAdd" onClick={openInvite}>
           <PersonAdd/>
         </Fab>
       }
-      { showroomEnabled !== true &&
+      { selfUser.userRole !== 'guest' &&
         <Fab color="primary" aria-label="Forum" onClick={openChat}>
           <Forum/>
         </Fab>
       }
-      { ((showroomEnabled !== true) || (selfUser.userRole === 'location-admin' && selfUser.locationAdmins?.find(locationAdmin => showroomLocation.id === locationAdmin.locationId) != null)) &&
+      { (selfUser.userRole !== 'guest') &&
         <Fab color="primary" aria-label="People" onClick={openPeople}>
           <People/>
         </Fab>

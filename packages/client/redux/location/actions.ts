@@ -1,8 +1,6 @@
 import {
   LOCATIONS_RETRIEVED,
-  SHOWROOM_ENABLED_SET,
-  SHOWROOM_LOCATION_RETRIEVED,
-  SHOWROOM_LOCATION_SET
+  LOCATION_RETRIEVED, LOCATION_BAN_CREATED
 } from '../actions';
 
 export interface LocationsRetrievedAction {
@@ -10,26 +8,19 @@ export interface LocationsRetrievedAction {
   locations: any[];
 }
 
-export interface ShowroomLocationRetrievedAction {
+export interface LocationRetrievedAction {
   type: string;
   location: any;
 }
 
-export interface ShowroomLocationSetAction {
+export interface LocationBanCreatedAction {
   type: string;
-  locationId: string;
-}
-
-export interface ShowroomEnabledSetAction {
-  type: string;
-  showroomEnabled: boolean;
 }
 
 export type LocationsAction =
   LocationsRetrievedAction
-  | ShowroomEnabledSetAction
-  | ShowroomLocationRetrievedAction
-  | ShowroomLocationSetAction
+  | LocationRetrievedAction
+  | LocationBanCreatedAction
 
 export function locationsRetrieved (locations: any): LocationsRetrievedAction {
   return {
@@ -38,23 +29,15 @@ export function locationsRetrieved (locations: any): LocationsRetrievedAction {
   };
 }
 
-export function showroomLocationSet (locationId: string): ShowroomLocationSetAction {
+export function locationRetrieved (location: any): LocationRetrievedAction {
   return {
-    type: SHOWROOM_LOCATION_SET,
-    locationId: locationId
-  };
-}
-
-export function showroomLocationRetrieved (location: any): ShowroomLocationRetrievedAction {
-  return {
-    type: SHOWROOM_LOCATION_RETRIEVED,
+    type: LOCATION_RETRIEVED,
     location: location
   };
 }
 
-export function showroomEnabledSet (enabled: boolean): ShowroomEnabledSetAction {
+export function locationBanCreated (): LocationBanCreatedAction {
   return {
-    type: SHOWROOM_ENABLED_SET,
-    showroomEnabled: enabled
+    type: LOCATION_BAN_CREATED
   };
 }

@@ -15,9 +15,7 @@ export function getStoredState (key: string) {
   if (!window) {
     return undefined;
   }
-  console.log('getStoredState running with key: ' + localStorageKey)
   const rawState = localStorage.getItem(localStorageKey);
-  console.log(rawState)
   if (!rawState) {
     return undefined;
   }
