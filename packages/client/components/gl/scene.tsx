@@ -33,13 +33,14 @@ import dynamic from 'next/dynamic';
 
 import { RazerLaptop } from "@xr3ngine/engine/src/templates/interactive/prefabs/RazerLaptop";
 // import { InfoBox } from "../infoBox";
-// import { HintBox } from "../hintBox";
+import HintBox from "../hintBox";
 // import { BeginnerBox } from '../beginnerBox';
 import './style.scss';
 import { resetEngine } from "../../../engine/src/ecs/functions/EngineFunctions";
 import LinearProgressComponent from '../ui/LinearProgress';
 import UIDialog from '../ui/Dialog/Dialog'
 
+import UserSettings from '../ui/Profile/UserSettings'
 
 const MobileGamepad = dynamic(() => import("../mobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
@@ -51,8 +52,8 @@ const mapStateToProps = (state: any): any => {
   };
 };
 
-enum generalStateList {START_STATE, SCENE_LOADING, SCENE_LOADED, AVATAR_SELECTION, AVATAR_SELECTED, DEVICE_SETUP,
-    TUTOR_LOOKAROUND, TUTOR_MOVE, ALL_DONE};
+export enum generalStateList {START_STATE, SCENE_LOADING, SCENE_LOADED, AVATAR_SELECTION, AVATAR_SELECTED, DEVICE_SETUP,
+    TUTOR_LOOKAROUND, TUTOR_MOVE, TUTOR_UNMUTE, TUTOR_VIDEO, ALL_DONE};
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   provisionInstanceServer: bindActionCreators(
@@ -75,60 +76,62 @@ export const EnginePage: FunctionComponent = (props: any) => {
   } = props;
   const [enabled, setEnabled] = useState(false);
   const [generalState, setGeneralState] = useState(generalStateList.START_STATE);
-  const [hoveredLabel, setHoveredLabel] = useState('');
-  const [infoBoxData, setInfoBoxData] = useState(null);
-  const [hintBoxData, setHintBoxData] = useState('default');
-  const [showControllHint, setShowControllHint] = useState(true);
+  // const [hoveredLabel, setHoveredLabel] = useState('');
+  // const [infoBoxData, setInfoBoxData] = useState(null);
+  const [hintBoxData, setHintBoxData] = useState({ action:null, step:generalState});
+  // const [showControllHint, setShowControllHint] = useState(true);
   const [progressEntity, setProgressEntity] = useState('');
-  const defaultDialogData = {isOpened: false, dialogText:'', submitButtonText: '', submitButtonAction:null}
+  const defaultDialogData = {isOpened: false, dialogText:'', submitButtonText: '', submitButtonAction:null, children:null}
   const [dialogData, setDialogData] = useState(defaultDialogData);
+
+
+  const onObjectHover = (event: CustomEvent): void => {
+    // if (event.detail.focused) {
+    //   setHoveredLabel(String(event.detail.interactionText ? event.detail.interactionText :'Activate' ));
+    // } else {
+    //   setHoveredLabel('');
+    // }
+  };
+
+  const onObjectActivation = (event: CustomEvent): void => {
+    // console.log('OBJECT ACTIVATION!', event.detail?.action, event.detail);
+    // switch (event.detail.action) {
+    //   case "link":
+    //     window.open(event.detail.url, "_blank");
+    //     break;
+    //   case "infoBox":
+    //     // TODO: show info box
+    //     setInfoBoxData(event.detail.payload);
+    //     break;
+    // }
+  };
+
+  const onCarActivation = (event: CustomEvent): void => {
+    // if (event.detail.inCar) {
+    //   setHintBoxData('car');
+    //   setHoveredLabel('');
+    // } else {
+    //   setHintBoxData('default');
+    // }
+    // setShowControllHint(true);
+  };
+
+  //all scene entities is loaded 
+  const onSceneLoaded= (event: CustomEvent): void => {
+    if (event.detail.loaded) {
+      console.log('onSceneLoaded generalState', generalState);
+      setGeneralState(generalStateList.SCENE_LOADED);
+    }
+  };
+
+  //started loading scene intities
+  const onSceneLoadedEntity= (event: CustomEvent): void => {
+    setProgressEntity(' left '+event.detail.left);
+  };
+
 
   useEffect(() => {
     console.log('initializeEngine!');
-
-    const onObjectHover = (event: CustomEvent): void => {
-      if (event.detail.focused) {
-        setHoveredLabel(String(event.detail.interactionText ? event.detail.interactionText :'Activate' ));
-      } else {
-        setHoveredLabel('');
-      }
-    };
-
-    const onObjectActivation = (event: CustomEvent): void => {
-      console.log('OBJECT ACTIVATION!', event.detail?.action, event.detail);
-      switch (event.detail.action) {
-        case "link":
-          window.open(event.detail.url, "_blank");
-          break;
-        case "infoBox":
-          // TODO: show info box
-          setInfoBoxData(event.detail.payload);
-          break;
-      }
-    };
-
-    const onCarActivation = (event: CustomEvent): void => {
-      if (event.detail.inCar) {
-        setHintBoxData('car');
-        setHoveredLabel('');
-      } else {
-        setHintBoxData('default');
-      }
-      setShowControllHint(true);
-    };
-
-    //all scene entities is loaded 
-    const onSceneLoaded= (event: CustomEvent): void => {
-      if (event.detail.loaded) {
-        console.log('onSceneLoaded generalState', generalState);
-        setGeneralState(generalStateList.SCENE_LOADED);
-      }
-    };
-
-    //started loading scene intities
-    const onSceneLoadedEntity= (event: CustomEvent): void => {
-      setProgressEntity(' left '+event.detail.left);
-    };
 
     document.addEventListener('object-hover', onObjectHover);
     document.addEventListener('object-activation', onObjectActivation);
@@ -163,8 +166,6 @@ export const EnginePage: FunctionComponent = (props: any) => {
     initializeEngine(InitializationOptions);
 
     // Load glb here
-    // createPrefab(rigidBodyBox);
-
     Engine.renderer.shadowMap.enabled = true;
     Engine.renderer.shadowMap.type = PCFSoftShadowMap;
 
@@ -235,23 +236,15 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
     createPrefab(WorldPrefab);
     createPrefab(staticWorldColliders);
-//  setTimeout(() => {
-    // createPrefab(rigidBodyBox);
-    // createPrefab(rigidBodyBox2);
     createPrefab(RazerLaptop);
     createPrefab(CarController);
-    // setSceneLoaded(1);
-
-    //createPrefab(interactiveBox);
-  //}, 5000);
+    createPrefab(PlayerCharacter);
 
 
     return (): void => {
       document.removeEventListener('object-hover', onObjectHover);
       document.removeEventListener('object-activation', onObjectActivation);
       document.removeEventListener('player-in-car', onCarActivation);
-      document.removeEventListener('scene-loaded', onSceneLoaded);
-      document.removeEventListener('scene-loaded-entity', onSceneLoadedEntity);    
 
       // cleanup
       console.log('cleanup?!');
@@ -277,28 +270,60 @@ export const EnginePage: FunctionComponent = (props: any) => {
             setDialogData({isOpened: true,
                     dialogText:'Virtual retail experience', 
                     submitButtonText: 'Enter The World', 
-                    submitButtonAction:()=>setGeneralState(generalStateList.AVATAR_SELECTION)})
+                    submitButtonAction:()=>setGeneralState(generalStateList.AVATAR_SELECTION),
+                    children:null})
             break;
           }
       case generalStateList.AVATAR_SELECTION: {
              setDialogData({isOpened: true, 
                     dialogText:'Select Your Avatar', 
                     submitButtonText: 'Accept', 
-                    submitButtonAction:()=>setGeneralState(generalStateList.AVATAR_SELECTED)});
+                    submitButtonAction:()=>setGeneralState(generalStateList.AVATAR_SELECTED),
+                    children:null});
             break;
           }  
       case generalStateList.AVATAR_SELECTED: {
-            createPrefab(PlayerCharacter);
-            setGeneralState(generalStateList.ALL_DONE);
+            // document.removeEventListener('scene-loaded', onSceneLoaded);
+            // document.removeEventListener('scene-loaded-entity', onSceneLoadedEntity);    
+            // createPrefab(PlayerCharacter);
+            setGeneralState(generalStateList.DEVICE_SETUP);
             setDialogData(defaultDialogData);
+           break;}
+      case generalStateList.DEVICE_SETUP: {
+        setDialogData({isOpened: true, 
+          dialogText: 'Device Setup', 
+          children: <UserSettings />,
+          submitButtonText: 'Accept', 
+          submitButtonAction:()=>setGeneralState(generalStateList.TUTOR_LOOKAROUND)});
            break;
-         }          
+         }  
+      case generalStateList.TUTOR_LOOKAROUND: {     
+          setDialogData(defaultDialogData);   
+          setHintBoxData({action: ()=>setGeneralState(generalStateList.TUTOR_MOVE), step:generalStateList.TUTOR_LOOKAROUND});
+          break;
+        }   
+      case generalStateList.TUTOR_MOVE: {        
+            setHintBoxData({action: ()=>setGeneralState(generalStateList.TUTOR_UNMUTE), step:generalStateList.TUTOR_MOVE});
+            break;
+          } 
+      case generalStateList.TUTOR_UNMUTE: {        
+            setHintBoxData({action: ()=>setGeneralState(generalStateList.TUTOR_VIDEO), step:generalStateList.TUTOR_UNMUTE});
+            break;
+          }
+      case generalStateList.TUTOR_VIDEO: {        
+            setHintBoxData({action: ()=>setGeneralState(generalStateList.ALL_DONE),step:generalStateList.TUTOR_VIDEO});
+            break;
+          }
+      case generalStateList.ALL_DONE: {        
+            setHintBoxData({action: null, step:generalStateList.ALL_DONE});
+            break;
+          }     
+      case generalStateList.ALL_DONE : {setDialogData(defaultDialogData); break;}
       default : {setDialogData(defaultDialogData); break;}
     }
   }
 
   useEffect(() => {
-    console.log('generalState useEffect', generalState)
     renderLinearProgress();  
     defineDialog();
   },[generalState]);
@@ -386,27 +411,16 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
   //info box with button
   // const infoBox = !isMobileOrTablet() && infoBoxData ? <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} /> : null;
-  // const hintBox = !isMobileOrTablet() && showControllHint && hintBoxData ? <HintBox layout={hintBoxData} /> : null;
-
-  // const progressBar = 
-  //       progress < 1 ? 
-  //         <div className="overlay">
-  //           <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
-  //         </div> 
-        // : null;
-  //hide default overlay
-
 
   // const hoveredLabelElement = !!!isMobileOrTablet() && hoveredLabel.length > 0 ?
   // <div className="hintContainer">Press <span className="keyItem" >E</span> to {hoveredLabel}</div> : null;
  
   return (
     <>
-    <div className="overlay overlayTemporary"></div>
+    {/* <div className="overlay overlayTemporary"></div> */}
     {renderLinearProgress()}
-    <UIDialog {...{values:dialogData}}>{dialogData.dialogText}</UIDialog>
-    {/* {infoBox} */}
-    {/* {hintBox} */}
+    <UIDialog {...{values:dialogData}}>{dialogData.children && dialogData.children}</UIDialog>
+    <HintBox {...hintBoxData}/>
     {/* {hoveredLabelElement} */}
     {terminal}
     {/* {mobileGamepad} */}
