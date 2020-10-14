@@ -29,7 +29,7 @@ export default [
       }),
       nodePolyfills(),
       // terser(),
-      babel({ babelHelpers: "bundled" })
+      //babel({ babelHelpers: "bundled" })
     ],
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     output: [
