@@ -25,15 +25,28 @@ import React from "react";
 
 import './style.scss';
 import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
-import { generalStateList } from '../../gl/scene';
+// import { generalStateList } from '../../../redux/app/actions';
 import { Button, Snackbar } from '@material-ui/core';
 import {ArrowheadLeftOutline} from '@styled-icons/evaicons-outline/ArrowheadLeftOutline';
 import {ArrowheadRightOutline} from '@styled-icons/evaicons-outline/ArrowheadRightOutline';
 import {DotCircle} from '@styled-icons/fa-regular/DotCircle';
+import { connect } from "react-redux";
+import { selectAppOnBoardingStep } from "../../../redux/app/selector";
+import { generalStateList, setAppOnBoardingStep } from '../../../redux/app/actions'
+import store from "../../../redux/store";
+
+
+const mapStateToProps = (state: any): any => {
+  return {   
+    onBoardingStep: selectAppOnBoardingStep(state)
+  };
+};
+
 
 const OnBoardingBox = (props) =>{
+  const { onBoardingStep }  = props;
   const renderHintIcons = () =>{
-    switch(props.step){
+    switch(onBoardingStep){
       case generalStateList.TUTOR_LOOKAROUND: 
           return <section className="lookaround"><ArrowheadLeftOutline /><ArrowheadRightOutline /></section>; 
       case generalStateList.TUTOR_MOVE:
@@ -42,11 +55,12 @@ const OnBoardingBox = (props) =>{
     }
   }
   let message = '';
-  switch(props.step){
-    case generalStateList.TUTOR_LOOKAROUND: message=' Drag anywhere to look around';break;      
-    case generalStateList.TUTOR_MOVE: message= isMobileOrTablet() ? ' Use joystick to move' : 'Use mouse to move'; break;
-    case generalStateList.TUTOR_UNMUTE: message='Tap to unmute'; break;
-    case generalStateList.TUTOR_VIDEO: message='Tap to enable stream'; break;
+  let action = null;
+  switch(onBoardingStep){
+    case generalStateList.TUTOR_LOOKAROUND:message=' Drag anywhere to look around'; action = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_MOVE)); break;      
+    case generalStateList.TUTOR_MOVE: message= isMobileOrTablet() ? ' Use joystick to move' : 'Use mouse to move'; action = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_UNMUTE)); break;
+    case generalStateList.TUTOR_UNMUTE: message='Tap to unmute'; action = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_VIDEO)); break;
+    case generalStateList.TUTOR_VIDEO: message='Tap to enable stream'; action = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));  break;
     default : message= '';break;
   }     
       
@@ -54,11 +68,11 @@ const OnBoardingBox = (props) =>{
                 <>
                   {renderHintIcons()}
                   <Snackbar anchorOrigin={{vertical: 'bottom',horizontal: 'center'}} 
-                  className={`helpHintSnackBar ${props.step === generalStateList.TUTOR_MOVE ? 'right-content-width' : ''}`} open={true} 
+                  className={`helpHintSnackBar ${onBoardingStep === generalStateList.TUTOR_MOVE ? 'right-content-width' : ''}`} open={true} 
                   autoHideDuration={10000} message={message} 
-                  action={<Button onClick={props.action} color="primary">(Skip)</Button>} />
+                  action={<Button onClick={action} color="primary">(Skip)</Button>} />
                 </>
               :null
 }
 
-export default OnBoardingBox;
+export default connect(mapStateToProps)(OnBoardingBox);
