@@ -1,4 +1,5 @@
 import { Dispatch } from 'redux';
+import { v1 } from 'uuid';
 import {
   EmailLoginForm,
   EmailRegistrationForm,
@@ -41,17 +42,32 @@ const { publicRuntimeConfig } = getConfig();
 const apiServer: string = publicRuntimeConfig.apiServer;
 const authConfig = publicRuntimeConfig.auth;
 
-export async function doLoginAuto (dispatch: Dispatch) {
-  const authData = getStoredState('auth');
-  const accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined;
+export function doLoginAuto (allowGuest?: boolean) {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    try {
+      console.log('DoLoginAuto')
+      const authData = getStoredState('auth');
+      console.log(authData)
+      let accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined;
+      console.log(accessToken);
 
-  if (!accessToken) {
-    return;
-  }
+      if (allowGuest !== true && !accessToken) {
+        return;
+      }
 
-  await (client as any).authentication.setAccessToken(accessToken as string);
-  (client as any).reAuthenticate()
-    .then((res: any) => {
+      if (allowGuest === true && !accessToken) {
+        const newProvider = await client.service('identity-provider').create({
+          type: 'guest',
+          token: v1()
+        });
+        accessToken = newProvider.accessToken;
+      }
+
+      console.log('Setting access token: ' + accessToken)
+      await (client as any).authentication.setAccessToken(accessToken as string);
+      const res = await (client as any).reAuthenticate()
+      console.log('reauthenticate res:')
+      console.log(res);
       if (res) {
         const authUser = resolveAuthUser(res);
         dispatch(loginUserSuccess(authUser));
@@ -59,15 +75,15 @@ export async function doLoginAuto (dispatch: Dispatch) {
       } else {
         console.log('****************');
       }
-    })
-    .catch((e) => {
+    } catch (err) {
+      console.log(err)
       dispatch(didLogout());
 
-      console.log(e);
       if (window.location.pathname !== '/') {
         window.location.href = '/';
       }
-    });
+    }
+  };
 }
 
 export function loadUserData (dispatch: Dispatch, userId: string): any {
@@ -145,41 +161,37 @@ export function loginUserByFacebook () {
 }
 
 export function loginUserByJwt (accessToken: string, redirectSuccess: string, redirectError: string, subscriptionId?: string): any {
-  return (dispatch: Dispatch): any => {
-    dispatch(actionProcessing(true));
-
-    (client as any).authenticate({
-      strategy: 'jwt',
-      accessToken
-    })
-      .then((res: any) => {
-        const authUser = resolveAuthUser(res);
-
-        if (subscriptionId != null && subscriptionId.length > 0) {
-          client.service('seat').patch(authUser.identityProvider.userId, {
-            subscriptionId: subscriptionId
-          })
-            .catch((err) => {
-              console.log(err);
-            })
-            .finally(() => {
-              dispatch(loginUserSuccess(authUser));
-              loadUserData(dispatch, authUser.identityProvider.userId);
-              window.location.href = redirectSuccess;
-            });
-        } else {
-          dispatch(loginUserSuccess(authUser));
-          loadUserData(dispatch, authUser.identityProvider.userId);
-          window.location.href = redirectSuccess;
-        }
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      dispatch(actionProcessing(true));
+      const res = await (client as any).authenticate({
+        strategy: 'jwt',
+        accessToken
       })
-      .catch((err: any) => {
-        console.log(err);
-        dispatch(loginUserError('Failed to login'));
-        dispatchAlertError(dispatch, err.message);
-        window.location.href = `${redirectError}?error=${err.message}`;
-      })
-      .finally(() => dispatch(actionProcessing(false)));
+
+      const authUser = resolveAuthUser(res);
+
+      if (subscriptionId != null && subscriptionId.length > 0) {
+        await client.service('seat').patch(authUser.identityProvider.userId, {
+          subscriptionId: subscriptionId
+        })
+        dispatch(loginUserSuccess(authUser));
+        loadUserData(dispatch, authUser.identityProvider.userId);
+      } else {
+        console.log('JWT login succeeded');
+        console.log(authUser);
+        dispatch(loginUserSuccess(authUser));
+        loadUserData(dispatch, authUser.identityProvider.userId);
+      }
+      dispatch(actionProcessing(false));
+      window.location.href = redirectSuccess;
+    } catch(err) {
+      console.log(err);
+      dispatch(loginUserError('Failed to login'));
+      dispatchAlertError(dispatch, err.message);
+      window.location.href = `${redirectError}?error=${err.message}`;
+      dispatch(actionProcessing(false));
+    }
   };
 }
 

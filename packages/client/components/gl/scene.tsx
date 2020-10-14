@@ -277,7 +277,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
   useEffect(() => {
     if (
       instanceConnectionState.get('instanceProvisioned') === true &&
-      instanceConnectionState.get('updateNeeded') === true
+      instanceConnectionState.get('updateNeeded') === true &&
+      instanceConnectionState.get('instanceServerConnecting') === false
     ) {
       console.log('Calling connectToInstanceServer');
       connectToInstanceServer();
@@ -285,20 +286,17 @@ export const EnginePage: FunctionComponent = (props: any) => {
   }, [instanceConnectionState]);
 
   useEffect(() => {
-    if (instanceConnectionState.get('instanceProvisioned') == false) {
+    if (instanceConnectionState.get('instanceProvisioned') === false && instanceConnectionState.get('instanceProvisioning') === false) {
       const user = authState.get('user');
       const party = partyState.get('party');
       const instanceId = user.instanceId != null ? user.instanceId : party.instanceId != null ? party.instanceId: null;
       if (instanceId != null) {
         client.service('instance').get(instanceId)
             .then((instance) => {
-              console.log(`Connecting to location ${instance.locationId}`);
+              console.log('Provisioning instance from scene init useEffect')
               provisionInstanceServer(instance.locationId);
             });
       }
-    }
-    else {
-      connectToInstanceServer();
     }
   }, []);
 

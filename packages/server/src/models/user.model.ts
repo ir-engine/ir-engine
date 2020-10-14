@@ -48,6 +48,8 @@ export default (app: Application): any => {
     (User as any).hasMany(models.channel, { foreignKey: 'userId1' });
     (User as any).hasMany(models.channel, { foreignKey: 'userId2' });
     (User as any).hasOne(models.seat, { foreignKey: 'userId' });
+    (User as any).belongsToMany(models.location, { through: 'location_admin' });
+    (User as any).hasMany(models.location_admin, { unique: false })
   };
 
   return User;

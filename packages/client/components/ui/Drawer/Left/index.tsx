@@ -7,6 +7,7 @@ import { selectFriendState } from '../../../../redux/friend/selector';
 import { selectGroupState } from '../../../../redux/group/selector';
 import { selectPartyState } from '../../../../redux/party/selector';
 import { selectUserState } from '../../../../redux/user/selector';
+import { selectLocationState } from '../../../../redux/location/selector';
 import './style.scss';
 
 import {
@@ -31,6 +32,9 @@ import {
     getLayerUsers
 } from "../../../../redux/user/service";
 import {
+    banUserFromLocation
+} from '../../../../redux/location/service';
+import {
     Accordion,
     AccordionSummary,
     AccordionDetails,
@@ -48,6 +52,7 @@ import {
 import {
     Add,
     ArrowLeft,
+    Block,
     Delete,
     Edit,
     ExpandMore,
@@ -76,6 +81,7 @@ const mapStateToProps = (state: any): any => {
         chatState: selectChatState(state),
         friendState: selectFriendState(state),
         groupState: selectGroupState(state),
+        locationState: selectLocationState(state),
         partyState: selectPartyState(state),
         userState: selectUserState(state)
     };
@@ -115,6 +121,7 @@ interface Props {
     patchGroup?: any;
     removeGroup?: any;
     removeGroupUser?: any;
+    locationState?: any;
     partyState?: any;
     getParty?: any;
     createParty?: any;
@@ -152,6 +159,7 @@ const LeftDrawer = (props: Props): any => {
         const {
             authState,
             friendState,
+            locationState,
             getFriends,
             unfriend,
             groupState,
@@ -198,10 +206,14 @@ const LeftDrawer = (props: Props): any => {
         const [groupFormOpen, setGroupFormOpen] = useState(false);
         const [partyUserDeletePending, setPartyUserDeletePending] = useState('');
         const [selectedAccordion, setSelectedAccordion] = useState('');
+        const [locationBanPending, setLocationBanPending] = useState('');
         const selfGroupUser = selectedGroup.id && selectedGroup.id.length > 0 ? selectedGroup.groupUsers.find((groupUser) => groupUser.userId === user.id) : {};
         const partyUsers = party && party.partyUsers ? party.partyUsers : [];
         const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === user.id) : {};
         const layerUsers = userState.get('layerUsers') ?? [];
+        const locationSettings = locationState.get('currentLocation').get('settings');
+        const currentLocation = locationState.get('currentLocation').get('location');
+        const isLocationAdmin = user.locationAdmins?.find(locationAdmin => currentLocation.id === locationAdmin.locationId) != null;
 
         useEffect(() => {
             if (friendState.get('updateNeeded') === true && friendState.get('getFriendsInProgress') !== true) {
@@ -275,6 +287,22 @@ const LeftDrawer = (props: Props): any => {
             setSelectedGroup(initialGroupForm);
             setDetailsOpen(false);
             setDetailsType('');
+        };
+
+        const showLocationBanConfirm = (e, userId) => {
+            e.preventDefault();
+            setLocationBanPending(userId);
+        };
+
+        const cancelLocationBan = (e) => {
+            e.preventDefault();
+            setLocationBanPending('');
+        };
+
+        const confirmLocationBan = (e, userId) => {
+            e.preventDefault();
+            setGroupDeletePending('');
+            banUserFromLocation(userId, currentLocation.id);
         };
 
         const nextGroupsPage = (): void => {
@@ -470,6 +498,7 @@ const LeftDrawer = (props: Props): any => {
                 >
                     {detailsOpen === false && groupFormOpen === false &&
                     <div className="list-container">
+                        {user.userRole !== 'guest' &&
                         <Accordion expanded={selectedAccordion === 'user'} onChange={handleAccordionSelect('user')}>
                             <AccordionSummary
                                 id="friends-header"
@@ -512,6 +541,8 @@ const LeftDrawer = (props: Props): any => {
                                 </List>
                             </AccordionDetails>
                         </Accordion>
+                        }
+                        {user.userRole !== 'guest' &&
                         <Accordion expanded={selectedAccordion === 'group'} onChange={handleAccordionSelect('group')}>
                             <AccordionSummary
                                 id="groups-header"
@@ -551,6 +582,8 @@ const LeftDrawer = (props: Props): any => {
                                 </List>
                             </AccordionDetails>
                         </Accordion>
+                        }
+                        {user.userRole !== 'guest' &&
                         <Accordion expanded={selectedAccordion === 'party'} onChange={handleAccordionSelect('party')}>
                             <AccordionSummary
                                 id="party-header"
@@ -739,6 +772,7 @@ const LeftDrawer = (props: Props): any => {
                                 }
                             </AccordionDetails>
                         </Accordion>
+                        }
                         {
                             user && user.instanceId &&
                             <Accordion expanded={selectedAccordion === 'layerUsers'}
@@ -767,6 +801,29 @@ const LeftDrawer = (props: Props): any => {
                                                         <ListItemText primary={layerUser.name + ' (you)'}/>}
                                                         {user.id !== layerUser.id &&
                                                         <ListItemText primary={layerUser.name}/>}
+                                                        {
+                                                            locationBanPending !== user.id &&
+                                                            isLocationAdmin === true &&
+                                                            <Button onClick={(e) => showLocationBanConfirm(e, layerUser.id)}>
+                                                                <Block/>
+                                                            </Button>
+                                                        }
+                                                        {locationBanPending === layerUser.id &&
+                                                        <div>
+                                                            <Button variant="contained"
+                                                                    color="primary"
+                                                                    onClick={(e) => confirmLocationBan(e, layerUser.id)}
+                                                            >
+                                                                Ban User
+                                                            </Button>
+                                                            <Button variant="contained"
+                                                                    color="secondary"
+                                                                    onClick={(e) => cancelLocationBan(e)}
+                                                            >
+                                                                Cancel
+                                                            </Button>
+                                                        </div>
+                                                        }
                                                     </ListItem>;
                                                 }
                                             )
