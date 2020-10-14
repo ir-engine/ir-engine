@@ -1,43 +1,39 @@
-import { AssetLoader } from '@xr3ngine/engine/src/assets/components/AssetLoader';
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { addObject3DComponent } from '@xr3ngine/engine/src/common/behaviors/Object3DBehaviors';
-import { Object3DComponent } from '@xr3ngine/engine/src/common/components/Object3DComponent';
 import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
+import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
 import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
-import { addComponent, createEntity, getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
+import { addComponent, createEntity, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { CarController } from "@xr3ngine/engine/src/templates/car/prefabs/CarController";
-import { WorldPrefab } from "@xr3ngine/engine/src/templates/world/prefabs/WorldPrefab";
-import { rigidBodyBox } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox";
-import { rigidBodyBox2 } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox2";
-import { JoystickPrefab } from "@xr3ngine/engine/src/templates/devices/prefabs/JoystickPrefab";
 import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
 import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter';
+import { JoystickPrefab } from "@xr3ngine/engine/src/templates/devices/prefabs/JoystickPrefab";
+import { RazerLaptop } from "@xr3ngine/engine/src/templates/devices/prefabs/RazerLaptop";
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
+import { WorldPrefab } from "@xr3ngine/engine/src/templates/world/prefabs/WorldPrefab";
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
+import dynamic from 'next/dynamic';
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { AmbientLight, EquirectangularReflectionMapping, Mesh, MeshPhongMaterial, SphereBufferGeometry, sRGBEncoding, TextureLoader, CineonToneMapping, PCFSoftShadowMap, PointLight, RGBEEncoding } from 'three';
+import { AmbientLight, CineonToneMapping, EquirectangularReflectionMapping, Mesh, MeshPhongMaterial, PCFSoftShadowMap, PointLight, RGBEEncoding, SphereBufferGeometry } from 'three';
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
+import { selectAuthState } from '../../redux/auth/selector';
+import { client } from '../../redux/feathers';
 import { selectInstanceConnectionState } from '../../redux/instanceConnection/selector';
 import { connectToInstanceServer, provisionInstanceServer } from '../../redux/instanceConnection/service';
+import { selectPartyState } from '../../redux/party/selector';
+import { BeginnerBox } from '../beginnerBox';
+import { HintBox } from "../hintBox";
+import { InfoBox } from "../infoBox";
 import Terminal from '../terminal';
 import { commands, description } from '../terminal/commands';
-import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
-import { selectAuthState } from '../../redux/auth/selector';
-import { selectPartyState } from '../../redux/party/selector';
-import { client } from '../../redux/feathers';
-
-import dynamic from 'next/dynamic';
-import { RazerLaptop } from "@xr3ngine/engine/src/templates/devices/prefabs/RazerLaptop";
-import { InfoBox } from "../infoBox";
-import { HintBox } from "../hintBox";
-import { BeginnerBox } from '../beginnerBox';
 import './style.scss';
-import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
+RazerLaptop
 
 const MobileGamepad = dynamic(() => import("../mobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
