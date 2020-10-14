@@ -3,6 +3,7 @@ import { Types } from '../../ecs/types/Types';
 import { AssetClass } from '../enums/AssetClass';
 import { AssetType } from '../enums/AssetType';
 import { AssetClassAlias, AssetsLoadedHandler, AssetTypeAlias } from '../types/AssetTypes';
+import { Object3D } from 'three';
 
 export class AssetLoader extends Component<AssetLoader> {
   loaded = false
@@ -14,7 +15,7 @@ export class AssetLoader extends Component<AssetLoader> {
   envMapOverride: any = null
   append = true
   onLoaded: AssetsLoadedHandler = null
-  parent: any = null
+  parent: Object3D = null
 }
 AssetLoader.schema = {
   assetType: { default: AssetType.glTF, type: Types.Number },
