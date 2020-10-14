@@ -19,3 +19,14 @@
         text-transform: capitalize;
     }
 }
+
+.overlay{
+    display:block;
+    position:fixed;
+    top:0;
+    width: 100%;
+    left: 0;
+    height:100%;
+    background-color: rgba(0,0,0,0.95);
+    z-index: 5000;    
+}
