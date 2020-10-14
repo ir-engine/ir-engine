@@ -9,6 +9,7 @@ import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { Vector2 } from "three";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { Input } from "../components/Input";
+import { DefaultInput } from '../../templates/shared/DefaultInput';
 
 /**
  * Handle Touch
@@ -29,11 +30,15 @@ export const handleTouch: Behavior = (entity: Entity, { event, value }: { event:
       //   ', y: ' +
       //   Math.trunc(args.event.targetTouches[0].clientY);
       const inputKeys = [ TouchInputs.Touch1, TouchInputs.Touch2 ];
+      // const interactTouch = DefaultInput.INTERACT;
       inputKeys.forEach((inputKey, touchIndex) => {
         if (!event.targetTouches[touchIndex]) {
           return;
         }
         const mappedInputKey = input.schema.touchInputMap?.axes[inputKey];
+        // const actionTouchedKey = input.schema.touchInputMap?.axes[interactTouch];
+        // console.log(mappedInputKey);
+        // console.log(actionTouchedKey);
 
         if (!mappedInputKey) {
           return;
@@ -46,6 +51,12 @@ export const handleTouch: Behavior = (entity: Entity, { event, value }: { event:
             value: inputValue,
             lifecycleState: LifecycleValue.STARTED
           });
+          // input.data.set(interactTouch, {
+          //   type: InputType.TWODIM,
+          //   value: inputValue,
+          //   lifecycleState: LifecycleValue.STARTED
+          // });
+
         } else {
           // If mouse position set, check it's value
           const oldValue = input.data.get(mappedInputKey).value as number;
