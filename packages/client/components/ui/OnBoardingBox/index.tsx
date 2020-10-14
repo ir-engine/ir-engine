@@ -25,13 +25,13 @@ import React from "react";
 
 import './style.scss';
 import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
-import {generalStateList} from '../gl/scene';
+import { generalStateList } from '../../gl/scene';
 import { Button, Snackbar } from '@material-ui/core';
 import {ArrowheadLeftOutline} from '@styled-icons/evaicons-outline/ArrowheadLeftOutline';
 import {ArrowheadRightOutline} from '@styled-icons/evaicons-outline/ArrowheadRightOutline';
 import {DotCircle} from '@styled-icons/fa-regular/DotCircle';
 
-const HintBox = (props) =>{
+const OnBoardingBox = (props) =>{
   const renderHintIcons = () =>{
     switch(props.step){
       case generalStateList.TUTOR_LOOKAROUND: 
@@ -61,4 +61,4 @@ const HintBox = (props) =>{
               :null
 }
 
-export default HintBox;
+export default OnBoardingBox;
