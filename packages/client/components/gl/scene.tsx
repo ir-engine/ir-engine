@@ -33,7 +33,8 @@ import dynamic from 'next/dynamic';
 
 import { RazerLaptop } from "@xr3ngine/engine/src/templates/interactive/prefabs/RazerLaptop";
 // import { InfoBox } from "../infoBox";
-import HintBox from "../hintBox";
+import OnBoardingBox from "../ui/OnBoardingBox";
+import MediaIconsBox from "../ui/MediaIconsBox";
 // import { BeginnerBox } from '../beginnerBox';
 import './style.scss';
 import { resetEngine } from "../../../engine/src/ecs/functions/EngineFunctions";
@@ -238,7 +239,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
     createPrefab(staticWorldColliders);
     createPrefab(RazerLaptop);
     createPrefab(CarController);
-    createPrefab(PlayerCharacter);
+    //if we uncomment this - all work Ok
+    // createPrefab(PlayerCharacter);
 
 
     return (): void => {
@@ -284,8 +286,9 @@ export const EnginePage: FunctionComponent = (props: any) => {
           }  
       case generalStateList.AVATAR_SELECTED: {
             // document.removeEventListener('scene-loaded', onSceneLoaded);
-            // document.removeEventListener('scene-loaded-entity', onSceneLoadedEntity);    
-            // createPrefab(PlayerCharacter);
+            // document.removeEventListener('scene-loaded-entity', onSceneLoadedEntity);  
+            //if load character here- the progress will reset to default first step - BUG  
+            createPrefab(PlayerCharacter);
             setGeneralState(generalStateList.DEVICE_SETUP);
             setDialogData(defaultDialogData);
            break;}
@@ -420,7 +423,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
     {/* <div className="overlay overlayTemporary"></div> */}
     {renderLinearProgress()}
     <UIDialog {...{values:dialogData}}>{dialogData.children && dialogData.children}</UIDialog>
-    <HintBox {...hintBoxData}/>
+    <OnBoardingBox {...hintBoxData}/>
+    <MediaIconsBox {...{step:generalState}}/>
     {/* {hoveredLabelElement} */}
     {terminal}
     {/* {mobileGamepad} */}
