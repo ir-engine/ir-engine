@@ -3,17 +3,17 @@ import { LocationAdmin } from './LocationAdmin'
 
 export type RelationshipType = 'friend' | 'requested' | 'blocked' | 'blocking'
 export interface User {
-  id: string
-  name: string
-  userRole: string
-  identityProviders: IdentityProvider[]
-  locationAdmins: LocationAdmin[]
-  relationType?: RelationshipType
-  inverseRelationType?: RelationshipType
-  subscription: any
-  subscriptions: any[]
-  avatarUrl?: string
-  instanceId?: string
+  id: string;
+  name: string;
+  userRole: string;
+  identityProviders: IdentityProvider[];
+  locationAdmins: LocationAdmin[];
+  relationType?: RelationshipType;
+  inverseRelationType?: RelationshipType;
+  subscription: any;
+  subscriptions: any[];
+  avatarUrl?: string;
+  instanceId?: string;
 }
 
 export const UserSeed = {

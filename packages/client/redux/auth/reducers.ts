@@ -104,7 +104,8 @@ const authReducer = (state = immutableState, action: any): any => {
       return state.set('user', updatedUser);
     }
     case USER_UPDATED: {
-      return state.set('user', (action as UserUpdatedAction).user);
+      const updatedUser = Object.assign({}, state.get('user'), {...(action as UserUpdatedAction).user});
+      return state.set('user', updatedUser);
     }
   }
 

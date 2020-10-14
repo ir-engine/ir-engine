@@ -1,6 +1,8 @@
 import {
+  FETCH_CURRENT_LOCATION,
   LOCATIONS_RETRIEVED,
-  LOCATION_RETRIEVED, LOCATION_BAN_CREATED
+  LOCATION_RETRIEVED,
+  LOCATION_BAN_CREATED
 } from '../actions';
 
 export interface LocationsRetrievedAction {
@@ -17,10 +19,15 @@ export interface LocationBanCreatedAction {
   type: string;
 }
 
+export interface FetchingCurrentLocationAction {
+  type: string;
+}
+
 export type LocationsAction =
   LocationsRetrievedAction
   | LocationRetrievedAction
   | LocationBanCreatedAction
+  | FetchingCurrentLocationAction
 
 export function locationsRetrieved (locations: any): LocationsRetrievedAction {
   return {
@@ -39,5 +46,11 @@ export function locationRetrieved (location: any): LocationRetrievedAction {
 export function locationBanCreated (): LocationBanCreatedAction {
   return {
     type: LOCATION_BAN_CREATED
+  };
+}
+
+export function fetchingCurrentLocation (): FetchingCurrentLocationAction {
+  return {
+    type: FETCH_CURRENT_LOCATION
   };
 }

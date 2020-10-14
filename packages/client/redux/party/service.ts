@@ -133,7 +133,7 @@ client.service('party-user').on('created', async (params) => {
   store.dispatch(createdPartyUser(params.partyUser));
   if (params.partyUser.userId === selfUser.id) {
     const party = await client.service('party').get(params.partyUser.partyId);
-    if (party.instanceId) {
+    if (party.instanceId && (store.getState() as any).get('instanceConnection').get('instanceProvisioning') === false) {
       const instance = await client.service('instance').get(party.instanceId);
       await provisionInstanceServer(instance.locationId, instance.id)(store.dispatch, store.getState);
     }
@@ -150,7 +150,7 @@ client.service('party-user').on('removed', (params) => {
   if (params.partyUser.userId === selfUser.id) {
     console.log('Attempting to end video call');
     (Network.instance?.transport as any)?.endVideoChat();
-    (Network.instance?.transport as any)?.leave();
+    // (Network.instance?.transport as any)?.leave();
   }
 });
 

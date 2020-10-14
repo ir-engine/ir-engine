@@ -2,10 +2,11 @@ import Immutable from 'immutable';
 import {
   LocationsAction,
   LocationsRetrievedAction,
-  LocationRetrievedAction
+  LocationRetrievedAction,
 } from './actions';
 
 import {
+  FETCH_CURRENT_LOCATION,
   LOCATIONS_RETRIEVED,
   LOCATION_RETRIEVED,
   LOCATION_BAN_CREATED
@@ -23,7 +24,8 @@ export const initialState = {
     bannedUsers: []
   },
   updateNeeded: true,
-  currentLocationUpdateNeeded: true
+  currentLocationUpdateNeeded: true,
+  fetchingCurrentLocation: false
 };
 
 const immutableState = Immutable.fromJS(initialState);
@@ -43,6 +45,9 @@ const locationReducer = (state = immutableState, action: LocationsAction): any =
         .set('locations', updateMap)
         .set('updateNeeded', false);
 
+    case FETCH_CURRENT_LOCATION:
+      return state.set('fetchingCurrentLocation', true);
+
     case LOCATION_RETRIEVED:
       newValues = (action as LocationRetrievedAction).location;
       updateMap = new Map();
@@ -53,7 +58,7 @@ const locationReducer = (state = immutableState, action: LocationsAction): any =
       }
       updateMap.set('location', newValues);
       let bannedUsers = [];
-      newValues.location_bans.forEach(ban => {
+      newValues.location_bans?.forEach(ban => {
         bannedUsers.push(ban.userId);
       });
       bannedUsers = [...new Set(bannedUsers)];
@@ -62,7 +67,8 @@ const locationReducer = (state = immutableState, action: LocationsAction): any =
       console.log(updateMap);
       return state
           .set('currentLocation', updateMap)
-          .set('currentLocationUpdateNeeded', false);
+          .set('currentLocationUpdateNeeded', false)
+          .set('fetchingCurrentLocation', false);
 
     case LOCATION_BAN_CREATED:
       return state.set('currentLocationUpdateNeeded', true);
