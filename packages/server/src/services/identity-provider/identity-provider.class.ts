@@ -110,18 +110,12 @@ export class IdentityProvider extends Service {
       ...data,
       ...identityProvider,
       user: {
-        id: userId
+        id: userId,
+        userRole: type === 'guest' ? 'guest' : 'user'
       }
     }, params);
 
     if (type === 'guest') {
-      console.log('Doing guest update things')
-      console.log('identityProvider:')
-      console.log(result)
-      await userService.patch(userId, {
-        userRole: 'guest'
-      });
-
       result.accessToken = await this.app.service('authentication').createAccessToken(
           {},
           { subject: result.id.toString() }

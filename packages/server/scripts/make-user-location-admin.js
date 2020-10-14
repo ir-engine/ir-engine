@@ -153,33 +153,33 @@ cli.main(async () => {
                 userId: userId
             });
         }
-        let locationParty = await Party.findOne({
-            where: {
-                locationId: options.locationId
-            }
-        });
-        if (locationParty == null) {
-            locationParty = await Party.create({
-                locationId: options.locationId
-            });
-        }
-        userMatch.partyId = locationParty.id;
-
-        const partyUser = await PartyUser.findOne({
-            where: {
-                partyId: locationParty.id,
-                userId: userId
-            }
-        });
-        if (partyUser == null) {
-            await PartyUser.create({
-                partyId: locationParty.id,
-                userId: userId
-            });
-        }
+        // let locationParty = await Party.findOne({
+        //     where: {
+        //         locationId: options.locationId
+        //     }
+        // });
+        // if (locationParty == null) {
+        //     locationParty = await Party.create({
+        //         locationId: options.locationId
+        //     });
+        // }
+        // userMatch.partyId = locationParty.id;
+        //
+        // const partyUser = await PartyUser.findOne({
+        //     where: {
+        //         partyId: locationParty.id,
+        //         userId: userId
+        //     }
+        // });
+        // if (partyUser == null) {
+        //     await PartyUser.create({
+        //         partyId: locationParty.id,
+        //         userId: userId
+        //     });
+        // }
         await userMatch.save();
 
-        cli.ok(`User with email ${options.email} and ID ${identityProviderMatch.userId} made an admin of location ${locationParty.id}` );
+        cli.ok(`User with email ${options.email} and ID ${identityProviderMatch.userId} made an admin of location ${options.locationId}` );
         process.exit(0);
     }
     catch (err) {

@@ -2,6 +2,7 @@ import { Dispatch } from 'redux';
 import { dispatchAlertError } from "../alert/service";
 import { client } from '../feathers';
 import {
+  fetchingCurrentLocation,
   locationsRetrieved,
   locationRetrieved,
   locationBanCreated
@@ -27,6 +28,7 @@ export function getLocations(skip?: number, limit?: number) {
 export function getLocation(locationId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
+      dispatch(fetchingCurrentLocation());
       const location = await client.service('location').get(locationId);
       dispatch(locationRetrieved(location));
     } catch(err) {
@@ -43,6 +45,7 @@ export function joinLocationParty(locationId: string) {
       const selfUser = getState().get('auth').get('user');
       console.log('joinShowroomParty selfUser:');
       console.log(selfUser);
+      console.log(locationId);
       const showroomPartyResult = await client.service('party').find({
         query: {
           locationId: locationId
@@ -58,12 +61,20 @@ export function joinLocationParty(locationId: string) {
       } else {
         showroomParty = showroomPartyResult[0];
       }
-      console.log(showroomParty.id);
 
-      await client.service('party-user').create({
-        partyId: showroomParty.id,
-        userId: selfUser.id
+      const partyUser = await client.service('party-user').find({
+        query: {
+          partyId: showroomParty.id,
+          userId: selfUser.id
+        }
       });
+      console.log('PartyUser:');
+      console.log(partyUser);
+      // if (partyUser.length === 0) {
+        await client.service('party-user').create({
+          partyId: showroomParty.id
+        });
+      // }
     } catch(err) {
       console.log(err);
     }
