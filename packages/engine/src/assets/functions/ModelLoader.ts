@@ -1,6 +1,7 @@
 import { LoadingManager } from 'three';
-import * as GLTFExporter from 'three-gltf-exporter';
-import GLTFLoader from 'three-gltf-loader';
+// import * as GLTFExporter from 'three-gltf-exporter';
+import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { SkeletonUtils } from 'three/examples/jsm/utils/SkeletonUtils';
 import FBXLoader from '../loaders/FBXLoader/FBXLoader';
 
@@ -31,6 +32,7 @@ const patchModel = model => {
   model.export = () =>
     new Promise((accept, reject) => {
       new GLTFExporter().parse(
+        // @ts-ignore
         saved,
         ab => {
           accept(ab);
