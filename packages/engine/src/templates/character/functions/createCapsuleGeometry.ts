@@ -1,7 +1,7 @@
-import * as THREE from 'three';
+import {Vector3, Geometry, Vector4, Face3} from "three";
 
-export function createCapsuleGeometry(radius = 1, height = 2, N = 32): THREE.Geometry {
-	const geometry = new THREE.Geometry();
+export function createCapsuleGeometry(radius = 1, height = 2, N = 32): Geometry {
+	const geometry = new Geometry();
 	const TWOPI = Math.PI * 2;
 	const PID2 = 1.570796326794896619231322;
 
@@ -12,8 +12,8 @@ export function createCapsuleGeometry(radius = 1, height = 2, N = 32): THREE.Geo
 		for (let j = 0; j <= N; j++) {
 			const theta = j * TWOPI / N;
 			const phi = -PID2 + Math.PI * i / (N / 2);
-			const vertex = new THREE.Vector3();
-			const normal = new THREE.Vector3();
+			const vertex = new Vector3();
+			const normal = new Vector3();
 			vertex.x = radius * Math.cos(phi) * Math.cos(theta);
 			vertex.y = radius * Math.cos(phi) * Math.sin(theta);
 			vertex.z = radius * Math.sin(phi);
@@ -31,8 +31,8 @@ export function createCapsuleGeometry(radius = 1, height = 2, N = 32): THREE.Geo
 		for (let j = 0; j <= N; j++) {
 			const theta = j * TWOPI / N;
 			const phi = -PID2 + Math.PI * i / (N / 2);
-			const vertex = new THREE.Vector3();
-			const normal = new THREE.Vector3();
+			const vertex = new Vector3();
+			const normal = new Vector3();
 			vertex.x = radius * Math.cos(phi) * Math.cos(theta);
 			vertex.y = radius * Math.cos(phi) * Math.sin(theta);
 			vertex.z = radius * Math.sin(phi);
@@ -47,7 +47,7 @@ export function createCapsuleGeometry(radius = 1, height = 2, N = 32): THREE.Geo
 
 	for (let i = 0; i <= N / 2; i++) {
 		for (let j = 0; j < N; j++) {
-			const vec = new THREE.Vector4(
+			const vec = new Vector4(
 				i * (N + 1) + j,
 				i * (N + 1) + (j + 1),
 				(i + 1) * (N + 1) + (j + 1),
@@ -55,13 +55,13 @@ export function createCapsuleGeometry(radius = 1, height = 2, N = 32): THREE.Geo
 			);
 
 			if (i === N / 4) {
-				const face1 = new THREE.Face3(vec.x, vec.y, vec.z, [
+				const face1 = new Face3(vec.x, vec.y, vec.z, [
 					normals[vec.x],
 					normals[vec.y],
 					normals[vec.z]
 				]);
 
-				const face2 = new THREE.Face3(vec.x, vec.z, vec.w, [
+				const face2 = new Face3(vec.x, vec.z, vec.w, [
 					normals[vec.x],
 					normals[vec.z],
 					normals[vec.w]
@@ -71,13 +71,13 @@ export function createCapsuleGeometry(radius = 1, height = 2, N = 32): THREE.Geo
 				geometry.faces.push(face1);
 			}
 			else {
-				const face1 = new THREE.Face3(vec.x, vec.y, vec.z, [
+				const face1 = new Face3(vec.x, vec.y, vec.z, [
 					normals[vec.x],
 					normals[vec.y],
 					normals[vec.z]
 				]);
 
-				const face2 = new THREE.Face3(vec.x, vec.z, vec.w, [
+				const face2 = new Face3(vec.x, vec.z, vec.w, [
 					normals[vec.x],
 					normals[vec.z],
 					normals[vec.w]
