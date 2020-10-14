@@ -10,17 +10,22 @@ export default class SpawnPointNode extends EditorNodeMixin(THREE.Object3D) {
   static nodeName = "Spawn Point";
   static async load() {
     // TODO: Return Promise resolve
-    new GLTFLoader().load(
-      GLTF_PATH,
-      ({ scene }) => {
-        scene.traverse((child) => {
-          if ((child as THREE.Mesh).isMesh) {
-            child.layers.set(1);
-          }
-        });
-        spawnPointHelperModel = scene;
-      }
-    );
+    await new Promise((resolve, reject) => {
+      new GLTFLoader().load(
+        GLTF_PATH,
+        ({ scene }) => {
+          scene.traverse((child) => {
+            if ((child as THREE.Mesh).isMesh) {
+              child.layers.set(1);
+            }
+          });
+          spawnPointHelperModel = scene;
+          resolve({} as unknown as void)
+        }, undefined,
+        reject
+      );
+    })
+    return spawnPointHelperModel
   }
   constructor(editor) {
     super(editor);
