@@ -492,6 +492,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         MediaStreamComponent.instance.producers.push(producer);
                         Network.instance.clients[socket.id].media[appData.mediaTag] = {
                             paused,
+                            producerId: producer.id,
+                            globalMute: false,
                             encodings: rtpParameters.encodings
                         };
 
@@ -649,17 +651,29 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     logger.info("resume-producer", producer.appData);
                     await producer.resume();
                     Network.instance.clients[socket.id].media[producer.appData.mediaTag].paused = false;
+                    Network.instance.clients[socket.id].media[producer.appData.mediaTag].globalMute = false;
+                    const hostClient = Object.entries(Network.instance.clients).find(([name,client]) => {
+                        return client.media[producer.appData.mediaTag]?.producerId === producerId;
+                    });
+                    hostClient[1].socket.emit(MessageTypes.WebRTCResumeProducer.toString(), producer.id);
                     callback({resumed: true});
                 });
 
                 // --> /signaling/resume-producer
                 // called to resume sending a track from a specific client
                 socket.on(MessageTypes.WebRTCPauseProducer.toString(), async (data, callback) => {
-                    const {producerId} = data,
+                    const {producerId, globalMute } = data,
                         producer = MediaStreamComponent.instance.producers.find(p => p.id === producerId);
                     logger.info("pause-producer: ", producer.appData);
                     await producer.pause();
                     Network.instance.clients[socket.id].media[producer.appData.mediaTag].paused = true;
+                    Network.instance.clients[socket.id].media[producer.appData.mediaTag].globalMute = globalMute || false;
+                    if (globalMute === true) {
+                        const hostClient = Object.entries(Network.instance.clients).find(([name,client]) => {
+                            return client.media[producer.appData.mediaTag]?.producerId === producerId;
+                        });
+                        hostClient[1].socket.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true);
+                    }
                     callback({paused: true});
                 });
             });
@@ -719,35 +733,37 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         Object.keys(Network.instance.clients).filter(id => id !== socket.id).forEach(async (socketId: string) => {
             try {
                 const transport: Transport = Network.instance.clients[socketId].recvTransport;
-                const dataConsumer = await transport.consumeData({
-                    dataProducerId: dataProducer.id,
-                    appData: {peerId: socket.id, transportId: transport.id},
-                    maxPacketLifeTime:
-                    dataProducer.sctpStreamParameters.maxPacketLifeTime,
-                    maxRetransmits: dataProducer.sctpStreamParameters.maxRetransmits,
-                    ordered: false,
-                });
-                logger.info('Data Consumer created!');
-                dataConsumer.on('producerclose', () => {
-                    dataConsumer.close();
-                    Network.instance.clients[socket.id].dataConsumers.delete(
-                        dataProducer.id
+                if (transport != null) {
+                    const dataConsumer = await transport.consumeData({
+                        dataProducerId: dataProducer.id,
+                        appData: {peerId: socket.id, transportId: transport.id},
+                        maxPacketLifeTime:
+                        dataProducer.sctpStreamParameters.maxPacketLifeTime,
+                        maxRetransmits: dataProducer.sctpStreamParameters.maxRetransmits,
+                        ordered: false,
+                    });
+                    logger.info('Data Consumer created!');
+                    dataConsumer.on('producerclose', () => {
+                        dataConsumer.close();
+                        Network.instance.clients[socket.id].dataConsumers.delete(
+                            dataProducer.id
+                        );
+                    });
+                    logger.info('Setting data consumer to room state');
+                    Network.instance.clients[socket.id].dataConsumers.set(
+                        dataProducer.id,
+                        dataConsumer
                     );
-                });
-                logger.info('Setting data consumer to room state');
-                Network.instance.clients[socket.id].dataConsumers.set(
-                    dataProducer.id,
-                    dataConsumer
-                );
-                // Currently Creating a consumer for each client and making it subscribe to the current producer
-                socket.to(socketId).emit(MessageTypes.WebRTCConsumeData.toString(), {
-                    dataProducerId: dataProducer.id,
-                    sctpStreamParameters: dataConsumer.sctpStreamParameters,
-                    label: dataConsumer.label,
-                    id: dataConsumer.id,
-                    appData: dataConsumer.appData,
-                    protocol: 'json',
-                } as MediaSoupClientTypes.DataConsumerOptions);
+                    // Currently Creating a consumer for each client and making it subscribe to the current producer
+                    socket.to(socketId).emit(MessageTypes.WebRTCConsumeData.toString(), {
+                        dataProducerId: dataProducer.id,
+                        sctpStreamParameters: dataConsumer.sctpStreamParameters,
+                        label: dataConsumer.label,
+                        id: dataConsumer.id,
+                        appData: dataConsumer.appData,
+                        protocol: 'json',
+                    } as MediaSoupClientTypes.DataConsumerOptions);
+                }
             } catch (error) {
                 console.log(error);
             }

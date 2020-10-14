@@ -17,16 +17,9 @@ export default () => {
         }
       });
       const partyOwner = partyUserResult.data.find((partyUser) => (partyUser.isOwner === 1 || partyUser.isOwner === true));
-      console.log('partyOwner:');
-      console.log(partyOwner);
-      console.log(`instanceId: ${party.instanceId}`);
       if (party.instanceId != null) {
         const instance = await context.app.service('instance').get(party.instanceId);
-        console.log('instance:');
-        console.log(instance);
         const location = await context.app.service('location').get(instance.locationId);
-        console.log('location: ');
-        console.log(location);
         console.log(instance.currentUsers + 1 > location.maxUsersPerInstance);
         if (instance.currentUsers + 1 > location.maxUsersPerInstance) {
           console.log('Putting party onto a new server');

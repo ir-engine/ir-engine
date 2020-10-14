@@ -12,7 +12,7 @@ export default () => {
       partyId: result.id,
       isOwner: result.locationId == null ? true : user.location_admins.find(locationAdmin => locationAdmin.locationId === result.locationId) != null,
       userId: loggedInUser.userId
-    });
+    }, context.params);
     await context.app.service('user').patch(loggedInUser.userId, {
       partyId: result.id
     });
