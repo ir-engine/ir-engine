@@ -1,11 +1,11 @@
-import * as THREE from 'three';
+import { Vector3 } from 'three';
 /**
  * Finds an angle between two vectors
- * @param {THREE.Vector3} v1
- * @param {THREE.Vector3} v2
+ * @param {Vector3} v1
+ * @param {Vector3} v2
  */
 
-export function getAngleBetweenVectors(v1: THREE.Vector3, v2: THREE.Vector3, dotTreshold = 0.0005): number {
+export function getAngleBetweenVectors(v1: Vector3, v2: Vector3, dotTreshold = 0.0005): number {
 	let angle: number;
 	const dot = v1.dot(v2);
 

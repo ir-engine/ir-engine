@@ -1,4 +1,3 @@
-import * as THREE from 'three';
 import { Entity } from '../../ecs/classes/Entity';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Input } from '../../input/components/Input';
@@ -7,8 +6,8 @@ import { TransformComponent } from '../components/TransformComponent';
 import { CameraComponent } from '../../camera/components/CameraComponent';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
-import { Quaternion } from 'cannon-es';
-import { Vector3 } from 'three';
+import { Quaternion as CANNONQuaternion } from 'cannon-es';
+import { Matrix4, Vector3, Quaternion } from 'three';
 
 let follower, target;
 let inputComponent;
@@ -16,7 +15,7 @@ let mouseDownPosition;
 let originalRotation;
 let actor, camera;
 let inputValue, startValue;
-const q = new Quaternion();
+const q = new CANNONQuaternion();
 const direction = new Vector3();
 
 const maxAngleX = 35.0472;
@@ -103,8 +102,8 @@ export const followTarget: Behavior = (entityIn: Entity, args: any, delta: any, 
         direction.normalize();
 
 
-        mx = new THREE.Matrix4().lookAt(new THREE.Vector3(direction[0],direction[1],direction[2]),new THREE.Vector3(0,0,0),new THREE.Vector3(0,1,0));
-        qw = new THREE.Quaternion().setFromRotationMatrix(mx);
+        mx = new Matrix4().lookAt(new Vector3(direction[0],direction[1],direction[2]),new Vector3(0,0,0),new Vector3(0,1,0));
+        qw = new Quaternion().setFromRotationMatrix(mx);
 
         follower.rotation = [qw.x, qw.y, qw.z, qw.w];
         target.rotation = [qw.x, qw.y, qw.z, qw.w];

@@ -4,13 +4,13 @@ import babel from "@rollup/plugin-babel"
 import typescript from "rollup-plugin-typescript2"
 import commonjs from "@rollup/plugin-commonjs"
 import nodePolyfills from "rollup-plugin-node-polyfills"
-import nodeGlobals from "rollup-plugin-node-globals"
+// import nodeGlobals from "rollup-plugin-node-globals"
 import injectProcessEnv from "rollup-plugin-inject-process-env"
-import builtins from 'builtin-modules/static'
-import glsl from "rollup-plugin-glsl";
-import { string } from "rollup-plugin-string";
+// import builtins from 'builtin-modules/static'
+// import glsl from "rollup-plugin-glsl";
+// import { string } from "rollup-plugin-string";
 
-const pkg = require('./package.json')
+// const pkg = require('./package.json')
 
 
 export default [
@@ -29,7 +29,7 @@ export default [
       }),
       nodePolyfills(),
       // terser(),
-      babel({ babelHelpers: "bundled" })
+      //babel({ babelHelpers: "bundled" })
     ],
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     output: [

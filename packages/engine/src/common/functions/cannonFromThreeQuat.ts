@@ -1,6 +1,6 @@
-import * as THREE from 'three';
-import * as CANNON from 'cannon-es';
+import { Quaternion } from 'three';
+import { Quaternion as CANNONQuaternion } from 'cannon-es';
 
-export function cannonFromThreeQuat(quat: THREE.Quaternion): CANNON.Quaternion {
-	return new CANNON.Quaternion(quat.x, quat.y, quat.z, quat.w);
+export function cannonFromThreeQuat(quat: Quaternion): CANNONQuaternion {
+	return new CANNONQuaternion(quat.x, quat.y, quat.z, quat.w);
 }

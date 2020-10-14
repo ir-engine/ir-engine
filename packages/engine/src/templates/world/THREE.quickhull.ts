@@ -38,7 +38,7 @@
 
  */
 
- import * as THREE from 'three';
+ import {Face3, Vector3} from 'three';
 /* tslint:disable */
 export const quickhull = (function(){
   let faces = [];
@@ -53,16 +53,16 @@ export const quickhull = (function(){
     cEdgeIndex;
 
   function reset(){
-    ab    = new THREE.Vector3(),
-    ac    = new THREE.Vector3(),
-    ax    = new THREE.Vector3(),
-    suba  = new THREE.Vector3(),
-    subb  = new THREE.Vector3(),
-    normal  = new THREE.Vector3(),
-    diff  = new THREE.Vector3(),
-    subaA = new THREE.Vector3(),
-    subaB = new THREE.Vector3(),
-    subC  = new THREE.Vector3();
+    ab    = new Vector3(),
+    ac    = new Vector3(),
+    ax    = new Vector3(),
+    suba  = new Vector3(),
+    subb  = new Vector3(),
+    normal  = new Vector3(),
+    diff  = new Vector3(),
+    subaA = new Vector3(),
+    subaB = new Vector3(),
+    subC  = new Vector3();
   }
 
   //temporary vectors
@@ -78,9 +78,9 @@ export const quickhull = (function(){
 
   const norm = function(){
 
-    const ca = new THREE.Vector3(),
-      ba = new THREE.Vector3(),
-      N = new THREE.Vector3();
+    const ca = new Vector3(),
+      ba = new Vector3(),
+      N = new Vector3();
 
     return function( a, b, c ){
 
@@ -271,9 +271,9 @@ export const quickhull = (function(){
   }
 
   const distSqPointSegment = function(){
-    const ab = new THREE.Vector3(),
-      ac = new THREE.Vector3(),
-      bc = new THREE.Vector3();
+    const ab = new Vector3(),
+      ac = new Vector3(),
+      bc = new Vector3();
 
     return function( a, b, c ){
 
@@ -386,7 +386,7 @@ export const quickhull = (function(){
     subaA.subVectors( v1, v0 ).normalize();
     subaB.subVectors( v2, v0 ).normalize();
     subC.subVectors ( v3, v0 ).normalize();
-    const sign  = subC.dot( new THREE.Vector3().crossVectors( subaB, subaA ));
+    const sign  = subC.dot( new Vector3().crossVectors( subaB, subaA ));
 
 
     // Reverse the winding if negative sign
@@ -422,7 +422,7 @@ export const quickhull = (function(){
 
     let ll = faces.length;
     while( ll-- > 0 ){
-      geometry.faces[ll] = new THREE.Face3( faces[ll][2], faces[ll][1], faces[ll][0], faces[ll].normal );
+      geometry.faces[ll] = new Face3( faces[ll][2], faces[ll][1], faces[ll][0], faces[ll].normal );
     }
 
     geometry.normalsNeedUpdate = true;

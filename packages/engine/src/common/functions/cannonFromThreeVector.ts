@@ -1,6 +1,6 @@
-import * as THREE from 'three';
-import * as CANNON from 'cannon-es';
+import { Vector3 } from 'three';
+import { Vec3 } from 'cannon-es';
 
-export function cannonFromThreeVector(vec: THREE.Vector3): CANNON.Vec3 {
-	return new CANNON.Vec3(vec.x, vec.y, vec.z);
+export function cannonFromThreeVector(vec: Vector3): Vec3 {
+	return new Vec3(vec.x, vec.y, vec.z);
 }
