@@ -73,6 +73,8 @@ export const SET_VIEWPORT_SIZE = 'SET_VIEWPORT_SIZE';
 
 export const SET_IN_VR_MODE = 'SET_IN_VR_MODE';
 
+export const SET_APP_ONBOARDING_STEP = 'SET_APP_ONBOARDING_STEP';
+
 // video controls
 
 export const SET_VIDEO_PLAYING = 'SET_VIDEO_PLAYING';

@@ -12,7 +12,6 @@ import { WorldPrefab } from "@xr3ngine/engine/src/templates/world/prefabs/WorldP
 // import { rigidBodyBox } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox";
 // import { rigidBodyBox2 } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox2";
 import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
-import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import React, { FunctionComponent, useEffect, useState } from 'react';
@@ -41,7 +40,10 @@ import { resetEngine } from "../../../engine/src/ecs/functions/EngineFunctions";
 import LinearProgressComponent from '../ui/LinearProgress';
 import UIDialog from '../ui/Dialog/Dialog'
 
-import UserSettings from '../ui/Profile/UserSettings'
+import { selectAppOnBoardingStep } from '../../redux/app/selector';
+import { generalStateList, setAppOnBoardingStep } from '../../redux/app/actions'
+import store from '../../redux/store';
+
 
 const MobileGamepad = dynamic(() => import("../mobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
@@ -49,12 +51,11 @@ const mapStateToProps = (state: any): any => {
   return {
     instanceConnectionState: selectInstanceConnectionState(state),
     authState: selectAuthState(state),
-    partyState: selectPartyState(state)
+    partyState: selectPartyState(state),
+    onBoardingStep: selectAppOnBoardingStep(state)
   };
 };
 
-export enum generalStateList {START_STATE, SCENE_LOADING, SCENE_LOADED, AVATAR_SELECTION, AVATAR_SELECTED, DEVICE_SETUP,
-    TUTOR_LOOKAROUND, TUTOR_MOVE, TUTOR_UNMUTE, TUTOR_VIDEO, ALL_DONE};
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   provisionInstanceServer: bindActionCreators(
@@ -73,17 +74,15 @@ export const EnginePage: FunctionComponent = (props: any) => {
     instanceConnectionState,
     partyState,
     connectToInstanceServer,
-    provisionInstanceServer
+    provisionInstanceServer,
+    onBoardingStep
   } = props;
   const [enabled, setEnabled] = useState(false);
   const [generalState, setGeneralState] = useState(generalStateList.START_STATE);
   // const [hoveredLabel, setHoveredLabel] = useState('');
   // const [infoBoxData, setInfoBoxData] = useState(null);
-  const [hintBoxData, setHintBoxData] = useState({ action:null, step:generalState});
   // const [showControllHint, setShowControllHint] = useState(true);
   const [progressEntity, setProgressEntity] = useState('');
-  const defaultDialogData = {isOpened: false, dialogText:'', submitButtonText: '', submitButtonAction:null, children:null}
-  const [dialogData, setDialogData] = useState(defaultDialogData);
 
 
   const onObjectHover = (event: CustomEvent): void => {
@@ -120,8 +119,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   //all scene entities is loaded 
   const onSceneLoaded= (event: CustomEvent): void => {
     if (event.detail.loaded) {
-      console.log('onSceneLoaded generalState', generalState);
-      setGeneralState(generalStateList.SCENE_LOADED);
+      store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED))      
     }
   };
 
@@ -256,82 +254,6 @@ export const EnginePage: FunctionComponent = (props: any) => {
     };
   }, []);
 
-  const renderLinearProgress = () =>{
-    if(generalState === generalStateList.START_STATE){
-      document.querySelector('.overlayTemporary') && document.querySelector('.overlayTemporary').remove();
-      return <div className="overlay">
-        <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
-      </div> 
-    }
-  }
-
-  const defineDialog = () =>{
-    console.log ('defineDialog generalStateList[generalState]', generalStateList[generalState])
-    switch(generalState){
-      case  generalStateList.SCENE_LOADED : { 
-            setDialogData({isOpened: true,
-                    dialogText:'Virtual retail experience', 
-                    submitButtonText: 'Enter The World', 
-                    submitButtonAction:()=>setGeneralState(generalStateList.AVATAR_SELECTION),
-                    children:null})
-            break;
-          }
-      case generalStateList.AVATAR_SELECTION: {
-             setDialogData({isOpened: true, 
-                    dialogText:'Select Your Avatar', 
-                    submitButtonText: 'Accept', 
-                    submitButtonAction:()=>setGeneralState(generalStateList.AVATAR_SELECTED),
-                    children:null});
-            break;
-          }  
-      case generalStateList.AVATAR_SELECTED: {
-            // document.removeEventListener('scene-loaded', onSceneLoaded);
-            // document.removeEventListener('scene-loaded-entity', onSceneLoadedEntity);  
-            //if load character here- the progress will reset to default first step - BUG  
-            createPrefab(PlayerCharacter);
-            setGeneralState(generalStateList.DEVICE_SETUP);
-            setDialogData(defaultDialogData);
-           break;}
-      case generalStateList.DEVICE_SETUP: {
-        setDialogData({isOpened: true, 
-          dialogText: 'Device Setup', 
-          children: <UserSettings />,
-          submitButtonText: 'Accept', 
-          submitButtonAction:()=>setGeneralState(generalStateList.TUTOR_LOOKAROUND)});
-           break;
-         }  
-      case generalStateList.TUTOR_LOOKAROUND: {     
-          setDialogData(defaultDialogData);   
-          setHintBoxData({action: ()=>setGeneralState(generalStateList.TUTOR_MOVE), step:generalStateList.TUTOR_LOOKAROUND});
-          break;
-        }   
-      case generalStateList.TUTOR_MOVE: {        
-            setHintBoxData({action: ()=>setGeneralState(generalStateList.TUTOR_UNMUTE), step:generalStateList.TUTOR_MOVE});
-            break;
-          } 
-      case generalStateList.TUTOR_UNMUTE: {        
-            setHintBoxData({action: ()=>setGeneralState(generalStateList.TUTOR_VIDEO), step:generalStateList.TUTOR_UNMUTE});
-            break;
-          }
-      case generalStateList.TUTOR_VIDEO: {        
-            setHintBoxData({action: ()=>setGeneralState(generalStateList.ALL_DONE),step:generalStateList.TUTOR_VIDEO});
-            break;
-          }
-      case generalStateList.ALL_DONE: {        
-            setHintBoxData({action: null, step:generalStateList.ALL_DONE});
-            break;
-          }     
-      case generalStateList.ALL_DONE : {setDialogData(defaultDialogData); break;}
-      default : {setDialogData(defaultDialogData); break;}
-    }
-  }
-
-  useEffect(() => {
-    renderLinearProgress();  
-    defineDialog();
-  },[generalState]);
-
-
   useEffect(() => {
     const f = (event: KeyboardEvent): void => {
       //hide controlls hint when move/do smth
@@ -421,10 +343,11 @@ export const EnginePage: FunctionComponent = (props: any) => {
   return (
     <>
     {/* <div className="overlay overlayTemporary"></div> */}
-    {renderLinearProgress()}
-    <UIDialog {...{values:dialogData}}>{dialogData.children && dialogData.children}</UIDialog>
-    <OnBoardingBox {...hintBoxData}/>
-    <MediaIconsBox {...{step:generalState}}/>
+    {/* {renderLinearProgress()} */}
+    <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
+    <UIDialog />
+    <OnBoardingBox />
+    <MediaIconsBox />
     {/* {hoveredLabelElement} */}
     {terminal}
     {/* {mobileGamepad} */}
