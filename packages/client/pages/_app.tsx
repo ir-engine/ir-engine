@@ -1,5 +1,5 @@
 // eslint-disable-next-line
-import App, { AppProps } from 'next/app'
+import { AppProps } from 'next/app'
 import Head from 'next/head';
 import withRedux from 'next-redux-wrapper';
 import { Provider } from 'react-redux';
@@ -83,7 +83,7 @@ const MyApp = (props: Props): any => {
       </Head>
       <ThemeProvider theme={theme}>
         <ApiContext.Provider value={api}>
-          <CssBaseline />
+          {/* <CssBaseline /> */}
           <GlobalStyle />
           <Provider store={store}>
             <Component {...pageProps} />

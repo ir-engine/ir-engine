@@ -10,6 +10,7 @@ export default class SpawnPointNodeEditor extends Component<
   {}
 > {
   static iconComponent = StreetView;
+  static description = "A point where people will appear when they enter your scene.\nThe icon in the Viewport represents the actual size of an avatar.";
   render() {
     return (
       <NodeEditor
