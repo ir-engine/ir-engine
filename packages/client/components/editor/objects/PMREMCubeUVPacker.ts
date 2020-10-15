@@ -119,7 +119,6 @@ const PMREMCubeUVPacker = ( function () {
 		constructor: PMREMCubeUVPacker,
 
 		update: function ( renderer ) {
-			return
 
 			const size = this.cubeLods[ 0 ].width * 4;
 			// top and bottom are swapped for some reason?
