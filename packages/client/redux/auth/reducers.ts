@@ -82,10 +82,7 @@ const authReducer = (state = immutableState, action: any): any => {
         .set('user', user);
     }
     case RESTORE: {
-      console.log('RESTORING STATE')
       const stored = getStoredState('auth');
-      console.log('GOT STORED');
-      console.log(stored);
 
       if (stored) {
         return state

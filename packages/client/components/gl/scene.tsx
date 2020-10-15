@@ -271,7 +271,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
       if (instanceId != null) {
         client.service('instance').get(instanceId)
             .then((instance) => {
-              console.log('Provisioning instance from scene init useEffect')
+              console.log('Provisioning instance from scene init useEffect');
               provisionInstanceServer(instance.locationId);
             });
       }

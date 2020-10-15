@@ -24,9 +24,6 @@ const options = cli.parse({
     locationId: [false, 'locationId to make user locatin-admin of', 'string']
 });
 
-console.log('OUTER OPTIONS:')
-console.log(options);
-
 cli.main(async () => {
     try {
         const sequelizeClient = new Sequelize({
@@ -132,7 +129,7 @@ cli.main(async () => {
             throw new Error('No matching user with email ' + options.email);
         }
 
-        const userId = identityProviderMatch.userId
+        const userId = identityProviderMatch.userId;
 
         const userMatch = await User.findOne({
             where: {
@@ -153,37 +150,13 @@ cli.main(async () => {
                 userId: userId
             });
         }
-        // let locationParty = await Party.findOne({
-        //     where: {
-        //         locationId: options.locationId
-        //     }
-        // });
-        // if (locationParty == null) {
-        //     locationParty = await Party.create({
-        //         locationId: options.locationId
-        //     });
-        // }
-        // userMatch.partyId = locationParty.id;
-        //
-        // const partyUser = await PartyUser.findOne({
-        //     where: {
-        //         partyId: locationParty.id,
-        //         userId: userId
-        //     }
-        // });
-        // if (partyUser == null) {
-        //     await PartyUser.create({
-        //         partyId: locationParty.id,
-        //         userId: userId
-        //     });
-        // }
         await userMatch.save();
 
         cli.ok(`User with email ${options.email} and ID ${identityProviderMatch.userId} made an admin of location ${options.locationId}` );
         process.exit(0);
     }
     catch (err) {
-        console.log(err)
+        console.log(err);
         cli.fatal(err);
     }
 });

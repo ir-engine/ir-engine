@@ -9,4 +9,4 @@ import { CameraComponent } from '../components/CameraComponent';
 export function cameraPointerLock() {
   document.body.requestPointerLock();
   console.log("Camera PointerLock");
-};
+}

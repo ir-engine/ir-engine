@@ -46,11 +46,8 @@ const authConfig = publicRuntimeConfig.auth;
 export function doLoginAuto (allowGuest?: boolean) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      console.log('DoLoginAuto')
       const authData = getStoredState('auth');
-      console.log(authData)
       let accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined;
-      console.log(accessToken);
 
       if (allowGuest !== true && !accessToken) {
         return;
@@ -64,11 +61,8 @@ export function doLoginAuto (allowGuest?: boolean) {
         accessToken = newProvider.accessToken;
       }
 
-      console.log('Setting access token: ' + accessToken)
       await (client as any).authentication.setAccessToken(accessToken as string);
-      const res = await (client as any).reAuthenticate()
-      console.log('reauthenticate res:')
-      console.log(res);
+      const res = await (client as any).reAuthenticate();
       if (res) {
         const authUser = resolveAuthUser(res);
         dispatch(loginUserSuccess(authUser));
@@ -77,7 +71,7 @@ export function doLoginAuto (allowGuest?: boolean) {
         console.log('****************');
       }
     } catch (err) {
-      console.log(err)
+      console.log(err);
       dispatch(didLogout());
 
       if (window.location.pathname !== '/') {
@@ -168,14 +162,14 @@ export function loginUserByJwt (accessToken: string, redirectSuccess: string, re
       const res = await (client as any).authenticate({
         strategy: 'jwt',
         accessToken
-      })
+      });
 
       const authUser = resolveAuthUser(res);
 
       if (subscriptionId != null && subscriptionId.length > 0) {
         await client.service('seat').patch(authUser.identityProvider.userId, {
           subscriptionId: subscriptionId
-        })
+        });
         dispatch(loginUserSuccess(authUser));
         loadUserData(dispatch, authUser.identityProvider.userId);
       } else {
