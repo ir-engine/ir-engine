@@ -143,7 +143,6 @@ export class Magiclink implements ServiceMethods<Data> {
   }
 
   async create (data: any, params?: Params): Promise<Data> {
-    console.log('Magiclink create')
     const identityProviderService: Service = this.app.service('identity-provider');
 
     // check magiclink type
@@ -160,7 +159,6 @@ export class Magiclink implements ServiceMethods<Data> {
     })) as any).data;
 
     if (identityProviders.length === 0) {
-      console.log('Creating identity-provider')
       identityProvider = await identityProviderService.create(
         {
           token: token,

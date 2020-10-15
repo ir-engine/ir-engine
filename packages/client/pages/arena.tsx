@@ -1,4 +1,4 @@
-import { AppProps } from 'next/app'
+import { AppProps } from 'next/app';
 import React, { useEffect } from 'react';
 //import './style.scss';
 import {Button} from '@material-ui/core';
@@ -73,23 +73,18 @@ export const IndexPage = (props: Props): any => {
   useEffect(() => {
       if (authState.get('isLoggedIn') === true && authState.get('user').id != null && authState.get('user').id.length > 0 && currentLocation.id == null && userBanned === false && locationState.get('fetchingCurrentLocation') !== true) {
           getLocation(arenaLocationId);
-          console.log('Joining showroom party, auth state now is:');
-          console.log(authState);
-          console.log(locationState.get('currentLocation'));
           joinLocationParty(arenaLocationId);
       }
   }, [authState]);
 
   useEffect(() => {
       if (currentLocation.id != null && userBanned === false && instanceConnectionState.get('instanceProvisioned') !== true && instanceConnectionState.get('instanceProvisioning') === false && selfUser.partyId != null) {
-          console.log('Provisioning instance from arena useEffect')
           provisionInstanceServer(currentLocation.id);
       }
   }, [partyState]);
 
   useEffect(() => {
       if (userBanned === false && (selfUser?.instanceId != null || instanceConnectionState.get('instanceProvisioned') === true)) {
-          console.log('Setting scene visible');
           setSceneVisible(true);
       }
   }, [selfUser?.instanceId, selfUser?.partyId, instanceConnectionState]);

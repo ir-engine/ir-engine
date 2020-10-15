@@ -12,7 +12,7 @@ import RightDrawer from '../Drawer/Right';
 import BottomDrawer from '../Drawer/Bottom';
 import { selectAuthState } from '../../../redux/auth/selector';
 import PartyVideoWindows from '../PartyVideoWindows';
-import InstanceChat from '../InstanceChat'
+import InstanceChat from '../InstanceChat';
 import Me from '../Me';
 
 const { publicRuntimeConfig } = getConfig();
