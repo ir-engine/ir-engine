@@ -1,5 +1,6 @@
-import { IdentityProvider } from './IdentityProvider'
-import { LocationAdmin } from './LocationAdmin'
+import { IdentityProvider } from './IdentityProvider';
+import { LocationAdmin } from './LocationAdmin';
+import { LocationBan } from './LocationBan';
 
 export type RelationshipType = 'friend' | 'requested' | 'blocked' | 'blocking'
 export interface User {
@@ -14,6 +15,8 @@ export interface User {
   subscriptions: any[];
   avatarUrl?: string;
   instanceId?: string;
+  partyId?: string;
+  locationBans?: LocationBan[];
 }
 
 export const UserSeed = {
@@ -42,7 +45,16 @@ export function resolveUser (user: any): User {
     returned = {
       ...returned,
       locationAdmins: user.location_admins
-    }
+    };
   }
+  if (user?.location_bans && user.location_bans.length > 0) {
+    returned = {
+      ...returned,
+      locationBans: user.location_bans
+    };
+  }
+
+  console.log('Returned user:')
+  console.log(returned)
   return returned
 }

@@ -24,6 +24,9 @@ export default {
           },
           {
             model: 'location-admin'
+          },
+          {
+            model: 'location-ban'
           }
         ]
       })
@@ -39,13 +42,33 @@ export default {
           },
           {
             model: 'location-admin'
+          },
+          {
+            model: 'location-ban'
           }
         ]
       })
     ],
     create: [],
     update: [],
-    patch: [],
+    patch: [
+      addAssociations({
+        models: [
+          {
+            model: 'identity-provider'
+          },
+          {
+            model: 'subscription'
+          },
+          {
+            model: 'location-admin'
+          },
+          {
+            model: 'location-ban'
+          }
+        ]
+      })
+    ],
     remove: []
   },
 
