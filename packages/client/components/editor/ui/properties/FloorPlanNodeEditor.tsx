@@ -17,6 +17,8 @@ type FloorPlanNodeEditorProps = {
   node?: object;
 };
 class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
+    static iconComponent = ShoePrints;
+    static description = "Sets the walkable surface area in your scene.";
     constructor(props) {
         super(props);
         const createPropSetter = propName => value =>
@@ -42,8 +44,6 @@ class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
   onChangeRegionMinSize: (value: any) => any;
   onChangeMaxTriangles: (value: any) => any;
   onChangeForceTrimesh: (value: any) => any;
-  static description: any;
-  static iconComponent: any;
   onRegenerate = async () => {
     const abortController = new AbortController();
     this.props.showDialog(ProgressDialog, {
