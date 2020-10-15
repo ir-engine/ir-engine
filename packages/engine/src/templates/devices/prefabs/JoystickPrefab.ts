@@ -8,7 +8,7 @@ import { ProcessModelAsset } from "../../../assets/functions/ProcessModelAsset";
 
 
 export const JoystickPrefab: Prefab = {
-    components: [{ type: TransformComponent, data: { position: [-3, 1, 0] } }],
+    components: [{ type: TransformComponent, data: { position: [3, 1, 0] } }],
     onCreate: [
         {
             behavior: addComponentFromSchema,
