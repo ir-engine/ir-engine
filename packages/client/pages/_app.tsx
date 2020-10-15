@@ -7,7 +7,7 @@ import { fromJS } from 'immutable';
 import { configureStore } from '../redux/store';
 import {bindActionCreators, Dispatch, Store} from 'redux';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import theme from "./../components/editor/ui/theme";
+import theme from "./../components/editor/theme";
 import { ThemeProvider } from "styled-components";
 import { restoreState } from '../redux/persisted.store';
 import { doLoginAuto } from '../redux/auth/service';
@@ -21,10 +21,12 @@ import { dispatchAlertError } from '../redux/alert/service';
 import { connect } from 'react-redux';
 
 import getConfig from 'next/config';
-import { ApiContext } from '../components/editor/ui/contexts/ApiContext';
+import { ApiContext } from '../components/editor/contexts/ApiContext';
 import Api from "../components/editor/api/Api";
 
 const config = getConfig().publicRuntimeConfig;
+
+
 
 interface Props extends AppProps {
   store: Store;
@@ -102,6 +104,11 @@ const MyApp = (props: Props): any => {
     </Fragment>
   );
 };
+
+MyApp.getInitialProps = async(ctx) => {
+  return {}
+}
+
 export default withRedux(configureStore, {
   serializeState: (state) => state.toJS(),
   deserializeState: (state) => fromJS(state)

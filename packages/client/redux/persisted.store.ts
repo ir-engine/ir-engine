@@ -2,8 +2,7 @@ import getConfig from 'next/config';
 
 import { RESTORE } from './actions';
 
-const { publicRuntimeConfig } = getConfig();
-const localStorageKey: string = publicRuntimeConfig.localStorageKey;
+const localStorageKey: string = "xr3ngine-client-store-key-v1"; // publicRuntimeConfig.localStorageKey;
 
 export function restoreState (): any {
   return {

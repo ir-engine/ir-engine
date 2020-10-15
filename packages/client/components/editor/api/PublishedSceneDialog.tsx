@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import React from "react";
-import PreviewDialog from "../ui/dialogs/PreviewDialog";
-import { Button } from "../ui/inputs/Button";
+import PreviewDialog from "../dialogs/PreviewDialog";
+import { Button } from "../inputs/Button";
 
 export default function PublishedSceneDialog({ onCancel, sceneName, sceneUrl, screenshotUrl, ...props }) {
   return (

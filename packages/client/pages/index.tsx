@@ -48,4 +48,8 @@ export const IndexPage = (props: any): any => {
   );
 };
 
+IndexPage.getInitialProps = async(ctx) => {
+  return {}
+}
+
 export default connect(mapStateToProps, mapDispatchToProps)(IndexPage);

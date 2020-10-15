@@ -4,11 +4,11 @@ import EventEmitter from "eventemitter3";
 import jwtDecode from "jwt-decode";
 import { buildAbsoluteURL } from "url-toolkit";
 import { client } from "../../../redux/feathers";
-import configs from "../configs";
-import { AudioFileTypes, matchesFileTypes } from "../ui/assets/fileTypes";
-import PerformanceCheckDialog from "../ui/dialogs/PerformanceCheckDialog";
-import ProgressDialog from "../ui/dialogs/ProgressDialog";
-import { RethrownError } from "../utils/errors";
+import configs from "@xr3ngine/engine/src/editor/configs";
+import { AudioFileTypes, matchesFileTypes } from "../assets/fileTypes";
+import PerformanceCheckDialog from "../dialogs/PerformanceCheckDialog";
+import ProgressDialog from "../dialogs/ProgressDialog";
+import { RethrownError } from "@xr3ngine/engine/src/common/utils/errors";
 import PublishDialog from "./PublishDialog";
 import PublishedSceneDialog from "./PublishedSceneDialog";
 

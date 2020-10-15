@@ -30,6 +30,6 @@
   "include": [
     "next-env.d.ts",
     "./**/*.ts",
-    "./**/*.tsx", "components/editor/commands/SetPropertyMultipleCommand.tsx=",
+    "./**/*.tsx",
   ]
 }

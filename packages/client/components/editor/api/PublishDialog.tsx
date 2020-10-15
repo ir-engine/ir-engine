@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import configs from "../configs";
-import PreviewDialog from "../ui/dialogs/PreviewDialog";
-import StringInput from "../ui/inputs/StringInput";
-import BooleanInput from "../ui/inputs/BooleanInput";
-import FormField from "../ui/inputs/FormField";
+import configs from "@xr3ngine/engine/src/editor/configs";
+import PreviewDialog from "../dialogs/PreviewDialog";
+import StringInput from "../inputs/StringInput";
+import BooleanInput from "../inputs/BooleanInput";
+import FormField from "../inputs/FormField";
 
 export default class PublishDialog extends Component {
   static propTypes = {

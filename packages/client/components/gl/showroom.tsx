@@ -20,22 +20,22 @@ import React, { FunctionComponent, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { AmbientLight, CineonToneMapping, EquirectangularReflectionMapping, Mesh, MeshPhongMaterial, PCFSoftShadowMap, PointLight, RGBEEncoding, SphereBufferGeometry } from 'three';
-import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
+import { RGBELoader } from "@xr3ngine/engine/src/assets/loaders/HDR/RGBELoader";
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import { selectAuthState } from '../../redux/auth/selector';
 import { client } from '../../redux/feathers';
 import { selectInstanceConnectionState } from '../../redux/instanceConnection/selector';
 import { connectToInstanceServer, provisionInstanceServer } from '../../redux/instanceConnection/service';
 import { selectPartyState } from '../../redux/party/selector';
-import { BeginnerBox } from '../beginnerBox';
-import { HintBox } from "../hintBox";
-import { InfoBox } from "../infoBox";
+import { BeginnerBox } from '../ui/beginnerBox';
+import { HintBox } from "../ui/hintBox";
+import { InfoBox } from "../ui/infoBox";
 import Terminal from '../terminal';
 import { commands, description } from '../terminal/commands';
 import './style.module.css';
 RazerLaptop
 
-const MobileGamepad = dynamic(() => import("../mobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
+const MobileGamepad = dynamic(() => import("../ui/mobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
 const mapStateToProps = (state: any): any => {
   return {

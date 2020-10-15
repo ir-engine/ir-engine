@@ -1,14 +1,17 @@
 const path = require('path')
 const appRootPath = require('app-root-path')
 process.env.NODE_CONFIG_DIR = path.join(appRootPath.path, 'packages/client/config')
-const config = require('config')
+const conf = require('config');
 const withImages = require('next-images')
+const withNodeConfig = require("next-plugin-node-config");
 
-module.exports = withImages(
+module.exports = withImages(withNodeConfig(
 {
     /* config options here */
-    publicRuntimeConfig: config.get('publicRuntimeConfig'),
-    env: {
+    serverRuntimeConfig: {},
+    /* config options here */
+    publicRuntimeConfig: conf.get('publicRuntimeConfig'),
+        env: {
       API_SERVER: process.env.API_SERVER,
       API_SERVER_ADDRESS: process.env.API_SERVER_ADDRESS,
       API_RESOLVE_MEDIA_ROUTE: process.env.API_RESOLVE_MEDIA_ROUTE,
@@ -18,71 +21,91 @@ module.exports = withImages(
     dir: './',
     distDir: './.next',
     webpack(config) {
+      config.optimization = {
+        splitChunks: {
+          minChunks: 1,
+          cacheGroups: {
+            defaultVendors: {
+              test: /[\\/]node_modules[\\/]/,
+              priority: -10
+            },
+            default: {
+              minChunks: 2,
+              priority: -20,
+              reuseExistingChunk: true
+            }
+          }
+        }
+      }
       config.resolve.alias.utils = path.join(__dirname, 'utils')
       config.module.rules.push(
         {
           test: /\.m?js$/,
-          use: {
+          use: ['cache-loader', 'thread-loader', {
             loader: 'babel-loader',
             options: {
               presets: [
-                '@babel/preset-env',
                 'next/babel'
               ]
             }
-          }
+          }]
         },
         {
           test: /\.(eot|woff|woff2|ttf)$/,
-          use: {
+          use: ['cache-loader', 'thread-loader', {
             loader: 'url-loader',
             options: {
               limit: 100000,
               name: '[name].[ext]'
             }
-          }
+          }]
         },
         {
         test: /\.(world)(\?.*$|$)/,
-        use: {
+        use: ['cache-loader', 'thread-loader', {
           loader: "file-loader",
           options: {
             name: "[name]-[hash].[ext]",
             outputPath: "editor/assets/templates"
           }
-        }
+        }]
       },
       {
         test: /\.ts$/,
-        use: {
+        use: ['cache-loader', 'thread-loader', {
           loader: 'ts-loader',
-          options: { allowTsInNodeModules: true },
-        }
+          options: {
+            allowTsInNodeModules: true,
+            transpileOnly: true,
+            happyPackMode: true
+          },
+        }]
       })
 
       config.module.rules.push({
         test: /\.(glb)(\?.*$|$)/,
-        use: {
+        use: ['cache-loader', 'thread-loader', {
           loader: "file-loader",
           options: {
             name: "[name]-[hash].[ext]",
             outputPath: "editor/assets/models"
           }
-        }
+        }]
       })
       config.module.rules.push({
         test: /\.(gltf)(\?.*$|$)/,
-        use: {
+        use: ['cache-loader', 'thread-loader', {
           loader: "gltf-webpack-loader",
           options: {
             name: "[name]-[hash].[ext]",
             outputPath: "editor/assets/models"
           }
-        }
+        }]
       })
       config.module.rules.push({
         test: /\.(bin)$/,
         use: [
+          'cache-loader', 'thread-loader',
           {
             loader: "file-loader",
             options: {
@@ -94,21 +117,22 @@ module.exports = withImages(
       })
       config.module.rules.push({
         test: /\.(glsl|vert|fs|frag)$/,
-        loader: 'ts-shader-loader'
+        use: ['cache-loader', 'thread-loader', 'ts-shader-loader']
       })
       config.module.rules.push({
         test: /\.(mp4|webm)(\?.*$|$)/,
-        use: {
+        use: ['cache-loader', 'thread-loader', {
           loader: "file-loader",
           options: {
             name: "[name]-[hash].[ext]",
             outputPath: "editor/assets/videos"
           }
-        }
+        }]
       })
       config.module.rules.push({
         test: /\.worker\.js$/,
         include: path.join(__dirname, "src"),
+        use: ['cache-loader', 'thread-loader', {
         loader: "worker-loader",
         options: {
           // Workers must be inlined because they are hosted on a CDN and CORS doesn't permit us
@@ -118,28 +142,30 @@ module.exports = withImages(
           inline: true,
           fallback: false
         }
-      })
+      }]
+    })
       config.module.rules.push({
         test: /\.tmp$/,
         type: "javascript/auto",
-        use: {
+        use: ['cache-loader', 'thread-loader', {
           loader: "file-loader",
           options: {
             name: "[name]-[hash].[ext]"
           }
-        }
+        }]
       })
       config.module.rules.push({
         test: /\.wasm$/,
         type: "javascript/auto",
-        use: {
+        use: ['cache-loader', 'thread-loader', {
           loader: "file-loader",
           options: {
             outputPath: "editor/assets/js/wasm",
             name: "[name]-[hash].[ext]"
           }
-        }
+        }]
       })
       return config
     }
   })
+)

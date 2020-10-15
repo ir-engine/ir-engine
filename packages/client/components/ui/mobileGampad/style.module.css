@@ -1,0 +1,65 @@
+.stickLeft {
+    position: fixed;
+    bottom: 0;
+    width: 50%;
+    left: 0;
+}
+
+.controlButtonContainer {
+    position: fixed;
+    border-radius: 50%;
+    right: 100px;
+    bottom: 300px;
+}
+
+.controlButtonContainer.controllButton {
+    position: absolute;
+    border-radius: 50%;
+    background-color: white;
+    opacity: 0.75;
+    bottom: 0px;
+    font-size: 20px;
+    height: var(--mobileControllButtonsSize);
+    width: var(--mobileControllButtonsSize);
+    text-align: center;
+    line-height: var(--mobileControllButtonsSize);
+}
+
+.controlButtonContainer.controllButton.gamepadButton A {
+    background-color: #00bb00;
+    right: 0;
+    top: 0;
+    display: none;
+}
+
+.controlButtonContainer.controllButton.gamepadButton B {
+    background-color: #bb0000;
+    right: -var(--mobileControllButtonsSize);
+    bottom: 0;
+    display: none;
+}
+
+.controlButtonContainer.controllButton.gamepadButton X {
+    background-color: #0000ff;
+    right: var(--mobileControllButtonsSize);
+    bottom: 0;
+    display: none;
+}
+
+.controlButtonContainer.controllButton.gamepadButton Y {
+    background-color: #ffbb00;
+    right: 0;
+    bottom: var(--mobileControllButtonsSize);
+    display: none;
+}
+
+.controlButtonContainer.controllButton.gamepadButton ._available {
+    opacity: 1;
+    font-weight: bold;
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(102, 185, 51, 1);
+}
+
+.controlButtonContainer.controllButton.gamepadButton ._not_available {
+    opacity: 0;
+}
