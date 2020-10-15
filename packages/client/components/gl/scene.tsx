@@ -255,7 +255,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
     if (
       instanceConnectionState.get('instanceProvisioned') === true &&
       instanceConnectionState.get('updateNeeded') === true &&
-      instanceConnectionState.get('instanceServerConnecting') === false
+      instanceConnectionState.get('instanceServerConnecting') === false &&
+      instanceConnectionState.get('connected') === false
     ) {
       console.log('Calling connectToInstanceServer');
       connectToInstanceServer();

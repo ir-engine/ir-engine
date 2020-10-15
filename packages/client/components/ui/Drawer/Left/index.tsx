@@ -47,6 +47,7 @@ import {
     ListItemText,
     SwipeableDrawer,
     TextField,
+    Tooltip,
     Typography
 } from '@material-ui/core';
 import {
@@ -103,7 +104,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     updateInviteTarget: bindActionCreators(updateInviteTarget, dispatch),
     updateChatTarget: bindActionCreators(updateChatTarget, dispatch),
     updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch),
-    getLayerUsers: bindActionCreators(getLayerUsers, dispatch)
+    getLayerUsers: bindActionCreators(getLayerUsers, dispatch),
+    banUserFromLocation: bindActionCreators(banUserFromLocation, dispatch)
 });
 
 interface Props {
@@ -133,6 +135,7 @@ interface Props {
     updateChatTarget?: any;
     updateMessageScrollInit?: any;
     getLayerUsers?: any;
+    banUserFromLocation?: any;
 }
 
 const initialSelectedUserState = {
@@ -182,7 +185,8 @@ const LeftDrawer = (props: Props): any => {
             updateChatTarget,
             updateMessageScrollInit,
             userState,
-            getLayerUsers
+            getLayerUsers,
+            banUserFromLocation
         } = props;
 
         const user = authState.get('user') as User;
@@ -211,7 +215,6 @@ const LeftDrawer = (props: Props): any => {
         const partyUsers = party && party.partyUsers ? party.partyUsers : [];
         const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === user.id) : {};
         const layerUsers = userState.get('layerUsers') ?? [];
-        const locationSettings = locationState.get('currentLocation').get('settings');
         const currentLocation = locationState.get('currentLocation').get('location');
         const isLocationAdmin = user.locationAdmins?.find(locationAdmin => currentLocation.id === locationAdmin.locationId) != null;
 
@@ -301,7 +304,8 @@ const LeftDrawer = (props: Props): any => {
 
         const confirmLocationBan = (e, userId) => {
             e.preventDefault();
-            setGroupDeletePending('');
+            console.log('Confirming location ban');
+            setLocationBanPending('');
             banUserFromLocation(userId, currentLocation.id);
         };
 
@@ -802,11 +806,15 @@ const LeftDrawer = (props: Props): any => {
                                                         {user.id !== layerUser.id &&
                                                         <ListItemText primary={layerUser.name}/>}
                                                         {
-                                                            locationBanPending !== user.id &&
+                                                            locationBanPending !== layerUser.id &&
                                                             isLocationAdmin === true &&
-                                                            <Button onClick={(e) => showLocationBanConfirm(e, layerUser.id)}>
-                                                                <Block/>
-                                                            </Button>
+                                                            user.id !== layerUser.id &&
+                                                            layerUser.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null &&
+                                                            <Tooltip title="Ban user">
+                                                                <Button onClick={(e) => showLocationBanConfirm(e, layerUser.id)}>
+                                                                    <Block/>
+                                                                </Button>
+                                                            </Tooltip>
                                                         }
                                                         {locationBanPending === layerUser.id &&
                                                         <div>

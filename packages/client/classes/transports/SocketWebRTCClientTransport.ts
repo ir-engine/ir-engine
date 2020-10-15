@@ -138,7 +138,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       // If a reliable message is received, add it to the queue
       this.socket.on(MessageTypes.ReliableMessage.toString(), (message) => {
-        Network.instance.incomingMessageQueue.add(message);
+        Network.instance?.incomingMessageQueue.add(message);
       });
 
       // use sendBeacon to tell the server we're disconnecting when
@@ -182,7 +182,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     });
 
     this.socket.on(MessageTypes.WebRTCCloseConsumer.toString(), async(consumerId) => {
-      MediaStreamComponent.instance.consumers = MediaStreamComponent.instance.consumers.filter((c) => c.id !== consumerId);
+      if (MediaStreamComponent.instance) MediaStreamComponent.instance.consumers = MediaStreamComponent.instance.consumers.filter((c) => c.id !== consumerId);
     });
   }
 
@@ -320,33 +320,32 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   async endVideoChat(): Promise<boolean> {
-    console.log('Ending video chat');
-    if (MediaStreamComponent.instance.camVideoProducer) {
+    if (MediaStreamComponent.instance?.camVideoProducer) {
       await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
         producerId: MediaStreamComponent.instance.camVideoProducer.id
       });
       await MediaStreamComponent.instance.camVideoProducer?.close();
     }
-    if (MediaStreamComponent.instance.camAudioProducer) {
+    if (MediaStreamComponent.instance?.camAudioProducer) {
       await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
         producerId: MediaStreamComponent.instance.camAudioProducer.id
       });
       await MediaStreamComponent.instance.camAudioProducer?.close();
     }
-    if (MediaStreamComponent.instance.screenVideoProducer) {
+    if (MediaStreamComponent.instance?.screenVideoProducer) {
       await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
         producerId: MediaStreamComponent.instance.screenVideoProducer.id
       });
       await MediaStreamComponent.instance.screenVideoProducer?.close();
     }
-    if (MediaStreamComponent.instance.screenAudioProducer) {
+    if (MediaStreamComponent.instance?.screenAudioProducer) {
       await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
         producerId: MediaStreamComponent.instance.screenAudioProducer.id
       });
       await MediaStreamComponent.instance.screenAudioProducer?.close();
     }
 
-    MediaStreamComponent.instance.consumers.map(async (c) => {
+    MediaStreamComponent.instance?.consumers.map(async (c) => {
       await this.request(MessageTypes.WebRTCCloseConsumer.toString(), {
         consumerId: c.id
       });
@@ -357,13 +356,15 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   resetProducer(): void {
-    MediaStreamComponent.instance.camVideoProducer = null;
-    MediaStreamComponent.instance.camAudioProducer = null;
-    MediaStreamComponent.instance.screenVideoProducer = null;
-    MediaStreamComponent.instance.screenAudioProducer = null;
-    MediaStreamComponent.instance.mediaStream = null;
-    MediaStreamComponent.instance.localScreen = null;
-    MediaStreamComponent.instance.consumers = [];
+    if (MediaStreamComponent.instance) {
+      MediaStreamComponent.instance.camVideoProducer = null;
+      MediaStreamComponent.instance.camAudioProducer = null;
+      MediaStreamComponent.instance.screenVideoProducer = null;
+      MediaStreamComponent.instance.screenAudioProducer = null;
+      MediaStreamComponent.instance.mediaStream = null;
+      MediaStreamComponent.instance.localScreen = null;
+      MediaStreamComponent.instance.consumers = [];
+    }
   }
 
   async leave(): Promise<boolean> {
@@ -374,8 +375,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // stop polling
       clearInterval(this.pollingInterval);
       console.log('Cleared interval');
-
+      console.log(this.request);
       if (this.request) {
+        console.log('Leaving World');
         // close everything on the server-side (transports, producers, consumers)
         const result = await this.request(MessageTypes.LeaveWorld.toString());
         console.log('LeaveWorld result:');
@@ -389,22 +391,23 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // closing the transports closes all producers and consumers. we
       // don't need to do anything beyond closing the transports, except
       // to set all our local variables to their initial states
-      try {
-        if (this.recvTransport) await this.recvTransport.close();
-        if (this.sendTransport) await this.sendTransport.close();
-      } catch (err) {
-      }
-
+      if (this.recvTransport) await this.recvTransport.close();
+      if (this.sendTransport) await this.sendTransport.close();
       this.recvTransport = null;
       this.sendTransport = null;
-      MediaStreamComponent.instance.camVideoProducer = null;
-      MediaStreamComponent.instance.camAudioProducer = null;
-      MediaStreamComponent.instance.screenVideoProducer = null;
-      MediaStreamComponent.instance.screenAudioProducer = null;
-      MediaStreamComponent.instance.mediaStream = null;
-      MediaStreamComponent.instance.localScreen = null;
       this.lastPollSyncData = {};
-      MediaStreamComponent.instance.consumers = [];
+      if (MediaStreamComponent.instance) {
+        MediaStreamComponent.instance.camVideoProducer = null;
+        MediaStreamComponent.instance.camAudioProducer = null;
+        MediaStreamComponent.instance.screenVideoProducer = null;
+        MediaStreamComponent.instance.screenAudioProducer = null;
+        MediaStreamComponent.instance.mediaStream = null;
+        MediaStreamComponent.instance.localScreen = null;
+        MediaStreamComponent.instance.consumers = [];
+      }
+      if (this.socket && this.socket.close) {
+        this.socket.close();
+      }
       this.leaving = false;
       console.log('Nulled everything');
       return true;
@@ -431,8 +434,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     consumer = await this.recvTransport.consume(
       { ...consumerParameters, appData: { peerId, mediaTag } }
     );
-
-    const stats = await consumer.getStats();
 
     if (MediaStreamComponent.instance.consumers?.find(c => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag) == null) {
       let connected = false;

@@ -65,12 +65,14 @@ export const IndexPage = (props: Props): any => {
   const currentLocation = locationState.get('currentLocation').get('location');
   const [ sceneIsVisible, setSceneVisible ] = React.useState(false);
 
+  const userBanned = selfUser.locationBans?.find(ban => ban.locationId === arenaLocationId) != null;
+
   useEffect(() => {
     doLoginAuto(true);
   }, []);
 
   useEffect(() => {
-      if (authState.get('isLoggedIn') === true && authState.get('user').id != null && authState.get('user').id.length > 0 && currentLocation.id == null && locationState.get('fetchingCurrentLocation') !== true) {
+      if (authState.get('isLoggedIn') === true && authState.get('user').id != null && authState.get('user').id.length > 0 && currentLocation.id == null && userBanned === false && locationState.get('fetchingCurrentLocation') !== true) {
           getLocation(arenaLocationId);
           console.log('Joining showroom party, auth state now is:');
           console.log(authState);
@@ -80,14 +82,15 @@ export const IndexPage = (props: Props): any => {
   }, [authState]);
 
   useEffect(() => {
-      if (currentLocation.id != null && instanceConnectionState.get('instanceProvisioned') !== true && instanceConnectionState.get('instanceProvisioning') === false && selfUser.partyId != null) {
+      if (currentLocation.id != null && userBanned === false && instanceConnectionState.get('instanceProvisioned') !== true && instanceConnectionState.get('instanceProvisioning') === false && selfUser.partyId != null) {
           console.log('Provisioning instance from arena useEffect')
           provisionInstanceServer(currentLocation.id);
       }
   }, [partyState]);
 
   useEffect(() => {
-      if (selfUser?.instanceId != null || instanceConnectionState.get('instanceProvisioned') === true) {
+      if (userBanned === false && (selfUser?.instanceId != null || instanceConnectionState.get('instanceProvisioned') === true)) {
+          console.log('Setting scene visible');
           setSceneVisible(true);
       }
   }, [selfUser?.instanceId, selfUser?.partyId, instanceConnectionState]);
@@ -97,7 +100,8 @@ export const IndexPage = (props: Props): any => {
   return(
     <Layout pageTitle="Home">
       <NoSSR onSSR={<Loading/>}>
-        {sceneIsVisible? (<Scene />) : null}
+        {userBanned === false && sceneIsVisible ? (<Scene />) : null}
+        {userBanned !== false ? (<div className="banned">You have been banned from this location</div>) : null}
       </NoSSR>
     </Layout>
   );

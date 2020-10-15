@@ -130,6 +130,9 @@ export default (app: Application): void => {
               await app.service('instance').patch(instanceId, {
                 currentUsers: instance.currentUsers - 1
               });
+              await app.service('user').patch(user.id, {
+                instanceId: null
+              }, { instanceId: instanceId });
             }
 
             app.channel(`instanceIds/${instanceId as string}`).leave(connection);

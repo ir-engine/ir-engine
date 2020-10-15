@@ -62,19 +62,9 @@ export function joinLocationParty(locationId: string) {
         showroomParty = showroomPartyResult[0];
       }
 
-      const partyUser = await client.service('party-user').find({
-        query: {
-          partyId: showroomParty.id,
-          userId: selfUser.id
-        }
+      await client.service('party-user').create({
+        partyId: showroomParty.id
       });
-      console.log('PartyUser:');
-      console.log(partyUser);
-      // if (partyUser.length === 0) {
-        await client.service('party-user').create({
-          partyId: showroomParty.id
-        });
-      // }
     } catch(err) {
       console.log(err);
     }
