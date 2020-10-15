@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Extracted and modified from Three.js
  * https://github.com/mrdoob/three.js/blob/dev/examples/jsm/loaders/GLTFLoader.js
@@ -13,8 +12,8 @@
  * @author Don McCurdy / https://www.donmccurdy.com
  */
 
-import { RethrownError } from "../utils/errors";
-import loadTexture from "../utils/loadTexture";
+import { RethrownError } from "../../../common/utils/errors";
+import loadTexture from "../../../common/utils/loadTexture";
 
 import {
   AnimationClip,
@@ -67,11 +66,12 @@ import {
   TriangleStripDrawMode,
   VectorKeyframeTrack,
   VertexColors,
-  sRGBEncoding
+  sRGBEncoding,
+  LoadingManager
 } from "three";
 
-import { MaterialsUnlitLoaderExtension } from "./extensions/loader/MaterialsUnlitLoaderExtension";
-import { LightmapLoaderExtension } from "./extensions/loader/LightmapLoaderExtension";
+import { MaterialsUnlitLoaderExtension } from "./extensions/MaterialsUnlitLoaderExtension";
+import { LightmapLoaderExtension } from "./extensions/LightmapLoaderExtension";
 
 /* CONSTANTS */
 
@@ -255,6 +255,20 @@ const defaultOptions = {
 };
 
 class GLTFLoader {
+  url: any;
+  manager: LoadingManager;
+  options: any;
+  cache: Map<any, any>;
+  primitiveCache: {};
+  meshReferences: {};
+  meshUses: {};
+  stats: { nodes: number; meshes: number; materials: number; textures: number; triangles: number; vertices: number; totalSize: number; jsonSize: number; bufferInfo: {}; textureInfo: {}; meshInfo: {}; };
+  textureLoader: TextureLoader;
+  fileLoader: FileLoader;
+  knownExtensions: Set<any>;
+  extensions: any[];
+  hooks: {};
+  json: any;
   constructor(url, manager?, options?) {
     this.url = url;
     this.manager = manager !== undefined ? manager : DefaultLoadingManager;
@@ -314,7 +328,7 @@ class GLTFLoader {
   }
 
   addKnownExtension(extensionName) {
-    this.knownExtensions.push(extensionName);
+    this.knownExtensions.add(extensionName);
   }
 
   addHook(hookName, test, callback) {
@@ -379,7 +393,7 @@ class GLTFLoader {
         fileLoader.load(this.url, resolve, undefined, event => {
           reject(event);
         })
-      );
+      ) as any;
 
       let content;
 
@@ -465,6 +479,7 @@ class GLTFLoader {
 
     return { json, glbBuffer };
   }
+  path: string
 
   usesExtension(extensionName) {
     return Array.isArray(this.json.extensionsUsed) && this.json.extensionsUsed.indexOf(extensionName) !== -1;
@@ -525,7 +540,8 @@ class GLTFLoader {
    * @param {number} index
    * @return {Promise<Object3D|Material|Texture|AnimationClip|ArrayBuffer|Object>}
    */
-  getDependency(type, index, { key, ...options } = {}) {
+  // @ts-ignore
+  getDependency(type, index?, { key, ...options } = {}) {
     let cacheKey = type;
 
     if (index !== undefined) {
@@ -928,7 +944,7 @@ class GLTFLoader {
           TypedKeyframeTrack = QuaternionKeyframeTrack;
           break;
 
-        case PATH_PROPERTIES.position:
+        case PATH_PROPERTIES.translation:
         case PATH_PROPERTIES.scale:
         default:
           TypedKeyframeTrack = VectorKeyframeTrack;
@@ -1017,7 +1033,7 @@ class GLTFLoader {
     const { json } = await this.getDependency("root");
     const skinDef = json.skins[skinIndex];
 
-    const skinEntry = { joints: skinDef.joints };
+    const skinEntry = { joints: skinDef.joints } as any;
 
     if (skinDef.inverseBindMatrices === undefined) {
       return skinEntry;
@@ -1656,7 +1672,7 @@ class GLTFLoader {
     }
 
     // Load Texture resource.
-    let loader = Loader.Handlers.get(sourceURI);
+    let loader = this.manager.getHandler(sourceURI);
 
     if (!loader) {
       loader = textureLoader;
@@ -1664,12 +1680,12 @@ class GLTFLoader {
 
     const textureUrl = this.resolveURL(sourceURI, options.path);
 
-    const texture = await loadTexture(textureUrl, this.textureLoader);
+    const texture = await loadTexture(textureUrl, this.textureLoader) as any;
 
     if (!imageSize) {
       const perfEntries = performance.getEntriesByName(textureUrl);
       if (perfEntries.length > 0) {
-        imageSize = perfEntries[0].encodedBodySize;
+        imageSize = (perfEntries[0] as any).encodedBodySize;
       }
     }
 
@@ -1820,7 +1836,7 @@ class GLTFLoader {
 
       if (bufferView !== null) {
         // Avoid modifying the original ArrayBuffer, if the bufferView wasn't initialized with zeroes.
-        bufferAttribute.setArray(bufferAttribute.array.slice());
+         bufferAttribute.copy(bufferAttribute);
       }
 
       for (let i = 0, il = sparseIndices.length; i < il; i++) {

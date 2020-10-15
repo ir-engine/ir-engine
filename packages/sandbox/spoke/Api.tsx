@@ -5,17 +5,17 @@ import uuid from "uuid/v4";
 import AuthContainer from "./AuthContainer";
 import LoginDialog from "./LoginDialog";
 import PublishDialog from "./PublishDialog";
-import ProgressDialog from "../ui/dialogs/ProgressDialog";
-import PerformanceCheckDialog from "../ui/dialogs/PerformanceCheckDialog";
+import ProgressDialog from "../dialogs/ProgressDialog";
+import PerformanceCheckDialog from "../dialogs/PerformanceCheckDialog";
 import jwtDecode from "jwt-decode";
 import { buildAbsoluteURL } from "url-toolkit";
 import PublishedSceneDialog from "./PublishedSceneDialog";
-import { matchesFileTypes, AudioFileTypes } from "../ui/assets/fileTypes";
+import { matchesFileTypes, AudioFileTypes } from "../assets/fileTypes";
 import { RethrownError } from "../editor/utils/errors";
 import { searchTermsExistInBlacklist } from "./BlockSearchTerms.jsx";
 
 // Media related functions should be kept up to date with Hubs media-utils:
-// ${prefix}github.com/mozilla/hubs/blob/master/src/utils/media-utils.js
+// ${prefix}github.com/mozilla/hubs/blob/master/src/editor/utils/media-utils.js
 
 const resolveUrlCache = new Map();
 const resolveMediaCache = new Map();
