@@ -66,7 +66,6 @@ export const IndexPage = (props: Props): any => {
   const [ sceneIsVisible, setSceneVisible ] = React.useState(false);
 
   const userBanned = selfUser.locationBans?.find(ban => ban.locationId === arenaLocationId) != null;
-
   useEffect(() => {
     doLoginAuto(true);
   }, []);
