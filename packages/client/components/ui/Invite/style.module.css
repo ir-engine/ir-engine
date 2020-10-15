@@ -1,0 +1,43 @@
+.root {
+    width: 100%;
+    background-color: #fff;
+}
+
+.button {
+    color: black;
+    font-size: 20px;
+}
+
+.button:hover {
+    text-decoration: none;
+}
+
+.container {
+    flex-grow: 1;
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        width: 100%;
+        text-align: center;
+    }
+}
+
+.section1 {
+    padding: 24px;
+}
+
+.inviteBox {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.inputBox {
+    margin-right: 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+}

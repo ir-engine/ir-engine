@@ -36,8 +36,8 @@ import { RazerLaptop } from "@xr3ngine/engine/src/templates/devices/prefabs/Raze
 import OnBoardingBox from "../ui/OnBoardingBox";
 import MediaIconsBox from "../ui/MediaIconsBox";
 // import { BeginnerBox } from '../beginnerBox';
-import './style.scss';
-import { resetEngine } from "../../../engine/src/ecs/functions/EngineFunctions";
+
+import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
 import LinearProgressComponent from '../ui/LinearProgress';
 import UIDialog from '../ui/Dialog/Dialog'
 

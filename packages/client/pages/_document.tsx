@@ -1,9 +1,9 @@
-import React, { Children } from 'react';
 import getConfig from 'next/config';
-import Document, { Html, Head, Main, NextScript } from 'next/document';
+import Document, { Head, Html, Main, NextScript } from 'next/document';
+import React from 'react';
+import { ServerStyleSheet } from 'styled-components';
 // import { ServerStyleSheet } from '@material-ui/core/styles';
 import theme from '../theme';
-import { ServerStyleSheet } from 'styled-components';
 
 const { publicRuntimeConfig } = getConfig();
 const siteDescription: string = publicRuntimeConfig.siteDescription;

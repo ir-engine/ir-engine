@@ -1,11 +1,9 @@
 import React, { useEffect } from 'react';
-//import './style.scss';
-import {Button} from '@material-ui/core';
 import NoSSR from 'react-no-ssr';
 import { connect } from "react-redux";
-import {bindActionCreators, Dispatch} from "redux";
+import { Dispatch } from "redux";
 import Loading from '../components/gl/loading';
-import Scene from "../components/gl/sceneDev";
+import Scene from "../components/gl/scene";
 import Layout from '../components/ui/Layout';
 import { selectAuthState } from "../redux/auth/selector";
 import { selectInstanceConnectionState } from '../redux/instanceConnection/selector';

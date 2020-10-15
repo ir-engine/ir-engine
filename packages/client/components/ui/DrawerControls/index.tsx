@@ -1,4 +1,4 @@
-import './style.scss';
+import './style.module.css';
 import {
   Forum,
   People,

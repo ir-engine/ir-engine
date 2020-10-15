@@ -32,7 +32,7 @@ export default class AssetManifestSource extends BaseSource {
   loaded: boolean;
   searchDebounceTimeout: number;
   searchPlaceholder: any;
-  fuse: Fuse<unknown, { shouldSort: boolean; threshold: number; location: number; distance: number; maxPatternLength: number; minMatchCharLength: number; keys: string[] }>;
+  fuse: Fuse<{ shouldSort: boolean; threshold: number; location: number; distance: number; maxPatternLength: number; minMatchCharLength: number; keys: string[] }>;
   constructor(editor, name, manifestUrl) {
     super();
     this.editor = editor;

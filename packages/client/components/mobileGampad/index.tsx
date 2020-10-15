@@ -2,7 +2,6 @@ import React, { CSSProperties, FunctionComponent, useEffect, useRef, useState } 
 import nipplejs from 'nipplejs';
 import { Thumbsticks } from '@xr3ngine/engine/src/common/enums/Thumbsticks';
 import { GamepadButtons } from "@xr3ngine/engine/src/input/enums/GamepadButtons";
-import './style.scss';
 
 export type MobileGamepadProps = {
   hovered?: boolean | false;

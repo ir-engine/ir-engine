@@ -1,0 +1,9 @@
+.userWidget {
+    display: none;
+    position: fixed;
+    right: 1em;
+    margin-top: auto;
+    margin-bottom: auto;
+    z-index:1000;
+    margin-left: auto;
+}

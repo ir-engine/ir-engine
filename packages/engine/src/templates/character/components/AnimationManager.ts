@@ -3,7 +3,7 @@
 import { Component } from '../../../ecs/classes/Component';
 import { AnimationClip } from 'three';
 
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { GLTFLoader } from "../../../assets/loaders/glTF/GLTFLoader";
 import { isBrowser } from "../../../common/functions/isBrowser";
 import { Types } from '../../../ecs/types/Types';
 
@@ -12,19 +12,19 @@ export class AnimationManager extends Component<AnimationManager> {
 	//public initialized = false
 	animations: AnimationClip[] = []
 
-	constructor () {
+	constructor() {
 		super();
 
 		AnimationManager.instance = this;
 
 		if (isBrowser) {
-			new GLTFLoader().load('models/avatars/Animation_NoRootMotion.glb', gltf => {
-					this.animations = gltf.animations;
-					this.animations.forEach(clip => {
-						// TODO: make list of morph targets names
-						clip.tracks = clip.tracks.filter(track => !track.name.match(/^CC_Base_/));
-					});
-				}
+			new GLTFLoader('models/avatars/Animation_NoRootMotion.glb').loadGLTF().then(({ scene }) => {
+				this.animations = scene.animations;
+				this.animations.forEach(clip => {
+					// TODO: make list of morph targets names
+					clip.tracks = clip.tracks.filter(track => !track.name.match(/^CC_Base_/));
+				});
+			}
 			);
 		}
 	}

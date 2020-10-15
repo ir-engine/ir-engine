@@ -1,6 +1,6 @@
 import { Dialog, Fab, Snackbar, Tooltip, DialogTitle, DialogContent,DialogContentText, DialogActions,Button } from "@material-ui/core";
 import React, { FunctionComponent } from "react";
-import './style.scss';
+import './style.module.css';
 
 export const BeginnerBox: FunctionComponent = (props: any) => {
   const [snackBarOpened, setSnackBarOpened] = React.useState(localStorage.getItem('skipHelpHighlight') === 'true' ? false : true);

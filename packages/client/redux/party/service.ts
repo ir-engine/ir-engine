@@ -36,15 +36,19 @@ export const getParties = async (): Promise<void> => {
   console.log('PARTIES', parties);
   const userId = (store.getState() as any).get('auth').get('user').id;
   console.log('USERID: ', userId);
+  // @ts-ignore
   if (client.io && socketId === undefined) {
+    // @ts-ignore
     client.io.emit('request-socket-id', ({ id }: { id: number }) => {
       console.log('Socket-ID received: ', id);
       socketId = id;
     });
+    // @ts-ignore
     client.io.on('message-party', (data: any) => {
       console.warn('Message received, data: ', data);
     })
     ;(window as any).joinParty = (userId: number, partyId: number) => {
+      // @ts-ignore
       client.io.emit('join-party', {
         userId,
         partyId
@@ -53,6 +57,7 @@ export const getParties = async (): Promise<void> => {
       });
     }
     ;(window as any).messageParty = (userId: number, partyId: number, message: string) => {
+      // @ts-ignore
       client.io.emit('message-party-request', {
         userId,
         partyId,
@@ -60,6 +65,7 @@ export const getParties = async (): Promise<void> => {
       });
     }
     ;(window as any).partyInit = (userId: number) => {
+      // @ts-ignore
       client.io.emit('party-init', { userId }, (response: any) => {
         response ? console.log('Init success', response) : console.log('Init failed');
       });

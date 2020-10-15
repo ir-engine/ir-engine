@@ -16,7 +16,7 @@ import injectProcessEnv from "rollup-plugin-inject-process-env"
 export default [
   {
     input: "src/initialize.ts",
-    external: ["mediasoup", "express", "utf-8-validate", "buffer-es6", "debug", "socket.io", "safer", "depd"],
+    external: ["mediasoup", "debug", "socket.io"],
     plugins: [
       typescript(),
       json(),

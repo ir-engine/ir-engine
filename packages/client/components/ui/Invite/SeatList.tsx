@@ -12,7 +12,7 @@ import SeatItem from './SeatItem';
 import { Dispatch, bindActionCreators } from 'redux';
 import { selectSeatState } from '../../../redux/seats/selector';
 import { useRouter } from 'next/router';
-import './style.scss';
+import './style.module.css';
 import {
   inviteUser,
   getSeats

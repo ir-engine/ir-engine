@@ -10,6 +10,7 @@ export default class PhysicalDirectionalLight extends DirectionalLight {
     this.castShadow = true;
     this.shadowMapResolution = createShadowMapResolutionProxy(this);
   }
+  // @ts-ignore
   get shadowBias() {
     return this.shadow.bias;
   }

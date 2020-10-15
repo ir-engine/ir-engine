@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
 import Container from '@material-ui/core/Container';
 import { bindActionCreators, Dispatch } from 'redux';
 import { fetchAdminVideos } from '../../../redux/admin/service';
-import './admin.scss';
+import './style.module.css';
 import { selectAdminState } from '../../../redux/admin/selector';
 import { selectVideoState } from '../../../redux/video/selector';
 import { selectAuthState } from '../../../redux/auth/selector';

@@ -1,5 +1,5 @@
 import { Object3D, AnimationMixer, Vector3 } from "three";
-import { GLTFLoader } from "../gltf/GLTFLoader"
+import { GLTFLoader } from "@xr3ngine/engine/src/assets/loaders/glTF/GLTFLoader"
 // @ts-ignore
 import cloneObject3D from "../utils/cloneObject3D";
 let cubeGltf: { scene: any, json: any, stats: any } = null;

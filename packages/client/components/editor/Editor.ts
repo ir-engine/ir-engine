@@ -11,8 +11,8 @@ import {
   Clock,
   Scene
 } from "three";
-import { GLTFExporter } from "./gltf/GLTFExporter";
-import { GLTFLoader } from "./gltf/GLTFLoader";
+import { GLTFExporter } from "@xr3ngine/engine/src/assets/exporters/glTF/GLTFExporter";
+import { GLTFLoader } from "@xr3ngine/engine/src/assets/loaders/glTF/GLTFLoader";
 import History from "./History";
 import Renderer from "./renderer/Renderer";
 import ThumbnailRenderer from "./renderer/ThumbnailRenderer";

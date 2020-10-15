@@ -14,6 +14,7 @@ export default class PhysicalPointLight extends PointLight {
   set range(value) {
     this.distance = value;
   }
+  //@ts-ignore
   get shadowBias() {
     return this.shadow.bias;
   }

@@ -2,11 +2,10 @@ const path = require('path')
 const appRootPath = require('app-root-path')
 process.env.NODE_CONFIG_DIR = path.join(appRootPath.path, 'packages/client/config')
 const config = require('config')
-const withSass = require('@zeit/next-sass')
 const withImages = require('next-images')
 
 module.exports = withImages(
-  withSass({
+{
     /* config options here */
     publicRuntimeConfig: config.get('publicRuntimeConfig'),
     env: {
@@ -18,15 +17,9 @@ module.exports = withImages(
     },
     dir: './',
     distDir: './.next',
-    webpack(config, { isServer }) {
+    webpack(config) {
       config.resolve.alias.utils = path.join(__dirname, 'utils')
-      if (!isServer) { // Fixes dot env fs error
-        config.node = {
-          fs: 'empty'
-        }
-      }
       config.module.rules.push(
-        /*
         {
           test: /\.m?js$/,
           use: {
@@ -39,7 +32,6 @@ module.exports = withImages(
             }
           }
         },
-        */
         {
           test: /\.(eot|woff|woff2|ttf)$/,
           use: {
@@ -151,4 +143,3 @@ module.exports = withImages(
       return config
     }
   })
-)

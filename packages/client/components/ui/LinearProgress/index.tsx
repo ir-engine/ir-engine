@@ -1,7 +1,7 @@
 import React from 'react';
 import LinearProgress from '@material-ui/core/LinearProgress';
 
-import './style.scss';
+import './style.module.css';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { connect } from 'react-redux';
 import { generalStateList } from '../../../redux/app/actions';

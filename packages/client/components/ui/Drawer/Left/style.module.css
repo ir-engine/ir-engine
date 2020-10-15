@@ -1,0 +1,130 @@
+.paper {
+    padding: 16px 32px 24px;
+    box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14), 0px 1px 14px 0px rgba(0, 0, 0, 0.12);
+    background-color: #fff;
+}
+
+.selectable:hover {
+        cursor: pointer;
+        background-color: gray;
+}
+
+.background-red {
+    background-color: #ef5350;
+    color: white;
+}
+
+.flex-center {
+    display: flex;
+    justify-content: center;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.MuiDrawer-paperAnchorLeft {
+    width: 30%;
+    @media (max-width: 768px) {
+        width: 90%;
+    }
+}
+
+.details>* {
+    margin: 1em;
+}
+
+.group-form {
+    margin: 1em;
+}
+
+.title {
+    font-size: 1.4em;
+    font-weight: bold;
+    text-align: center;
+    margin: 0.5em;
+}
+
+.description {
+    font-size: 1.2em;
+}
+
+.margin-top {
+    margin-top: 1em;
+}
+
+.MuiAccordionSummary-content > svg {
+        margin-right: 5px;
+}
+
+.list-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+}
+
+.list-container>ul {
+    flex-grow: 1;
+    overflow-y: auto;
+    min-height: 100px;
+    justify-content: end;
+}
+
+.MuiAccordion-root {
+    min-height: 50px;
+    overflow-y: auto;
+}
+
+.MuiAccordion-root.Mui-expanded {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex-grow: 1;
+}
+
+.MuiAccordion-root.Mui-expanded .MuiCollapse-container.MuiCollapse-entered {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex-grow: 1;
+}
+
+.MuiAccordion-root.Mui-expanded .MuiCollapse-container.MuiCollapse-entered.MuiCollapse-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex-grow: 1;
+}
+
+.MuiAccordion-root.Mui-expanded .MuiCollapse-container.MuiCollapse-entered.MuiCollapse-wrapper.MuiCollapse-wrapperInner {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex-grow: 1;
+}
+
+.MuiAccordion-root.Mui-expanded .MuiCollapse-container.MuiCollapse-entered.MuiCollapse-wrapper.MuiCollapse-wrapperInner>div {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex-grow: 1;
+}
+
+.MuiAccordion-root.Mui-expanded .MuiCollapse-container.MuiCollapse-entered.MuiCollapse-wrapper.MuiCollapse-wrapperInner>.MuiAccordionDetails-root {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex-grow: 1;
+}
+
+.details-container {
+    @include flex-collapse;
+}
+
+.details-container>.list-container {
+    overflow-y: auto;
+}
+
+.MuiTabs-root {
+    min-height: 75px;
+}

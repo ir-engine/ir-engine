@@ -12,7 +12,7 @@ import { Relationship } from '@xr3ngine/common/interfaces/Relationship';
 import { Dispatch, bindActionCreators } from 'redux';
 import { getUserRelationship } from '../../../redux/user/service';
 import NextLink from 'next/link';
-import './style.scss';
+import './style.module.css';
 
 const mapStateToProps = (state: any): any => {
   return {

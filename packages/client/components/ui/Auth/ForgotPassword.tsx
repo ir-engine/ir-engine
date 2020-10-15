@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { forgotPassword } from '../../../redux/auth/service';
 import Grid from '@material-ui/core/Grid';
-import './style.scss';
+import './style.module.css';
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   forgotPassword: bindActionCreators(forgotPassword, dispatch)

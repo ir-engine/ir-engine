@@ -1,0 +1,17 @@
+.MuiFab-secondary.helpButton {
+    display: none;
+    position: fixed;
+    bottom: 2em;
+    right: 2em;
+    opacity: 0.6;
+}
+
+.MuiFab-secondary.helpButton:hover {
+    opacity: 1;
+}
+
+.MuiSnackbar-root.helpHintSnackBar {
+    display: none;
+    bottom: 2em;
+    right: 8em;
+}

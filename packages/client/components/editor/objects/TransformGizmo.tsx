@@ -2,7 +2,7 @@ import { Object3D, Color, Vector3, Raycaster } from "three";
 // @ts-ignore
 import cloneObject3D from "../utils/cloneObject3D";
 import { TransformMode, TransformAxis } from "../controls/EditorControls";
-import { GLTFLoader } from "../gltf/GLTFLoader";
+import { GLTFLoader } from "@xr3ngine/engine/src/assets/loaders/glTF/GLTFLoader";
 let gizmoGltf: { scene: any, json: any, stats: any } = null;
 const GLTF_PATH = "/editor/TransformGizmo.glb"; // STATIC
 export default class TransformGizmo extends Object3D {

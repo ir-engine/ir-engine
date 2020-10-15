@@ -1,5 +1,5 @@
 import React, { CSSProperties, FunctionComponent } from "react";
-import './style.scss';
+import './style.module.css';
 
 export type HintBoxProps = {
   layout: string;

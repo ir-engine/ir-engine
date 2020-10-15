@@ -4,7 +4,7 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import EmptyLayout from '../Layout/EmptyLayout';
 import { verifyEmail } from '../../../redux/auth/service';
-import './style.scss';
+import './style.module.css';
 
 interface Props {
   auth: any;

@@ -9,7 +9,7 @@ import { resendVerificationEmail } from '../../../redux/auth/service';
 import { selectAuthState } from '../../../redux/auth/selector';
 import EmptyLayout from '../Layout/EmptyLayout';
 import { IdentityProvider } from '@xr3ngine/common/interfaces/IdentityProvider';
-import './style.scss';
+import './style.module.css';
 
 const mapStateToProps = (state: any): any => {
   return {

@@ -1,6 +1,6 @@
 import { Transform } from 'cannon-es';
 import { AmbientLight, DirectionalLight, HemisphereLight, Mesh, PointLight, SpotLight, PlaneGeometry, MeshBasicMaterial, DoubleSide } from 'three';
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { GLTFLoader } from "../../assets/loaders/glTF/GLTFLoader";
 import { Sky } from 'three/examples/jsm/objects/Sky';
 import { VisibleTagComponent } from '../../common/components/Object3DTagComponents';
 import { addObject3DComponent, addTagComponentFromBehavior } from '../../common/behaviors/Object3DBehaviors';

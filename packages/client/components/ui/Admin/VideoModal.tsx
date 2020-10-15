@@ -16,7 +16,7 @@ import {
   updateVideo,
   deleteVideo
 } from '../../../redux/admin/service';
-import './admin.scss';
+import './style.module.css';
 import { selectAdminState } from '../../../redux/admin/selector';
 interface Props {
   open: boolean;

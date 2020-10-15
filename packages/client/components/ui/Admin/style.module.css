@@ -1,0 +1,97 @@
+.admin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  flex-wrap: wrap;
+}
+
+.paper-modal {
+  padding: 16px 32px 24px;
+  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14), 0px 1px 14px 0px rgba(0, 0, 0, 0.12);
+  background-color: #fff;
+  max-width: 80%;
+  max-height: 90%;
+  overflow-y: scroll;
+}
+
+.info-icon {
+  color: white !important;
+  opacity: 0.54;
+}
+
+.info-icon:hover {
+  color: white !important;
+  opacity: 0.75;
+}
+
+.avatar {
+  margin: 7px;
+  background-color: #3f51b5;
+}
+
+.form {
+  width: 100%;
+  margin-top: 14px;
+}
+
+.submit {
+  margin: 14px 0 !important;
+}
+
+.delete {
+  color: white !important;
+  background-color: red !important;
+}
+
+.MuiButton-contained.facebook {
+  background-color: #4267B2;
+  color: white;
+}
+
+.MuiButton-contained.google {
+  background-color: red;
+  color: white;
+}
+
+.MuiButton-contained.github {
+  background-color: grey;
+  color: white;
+}
+
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal .close {
+  left: 95%;
+}
+
+.modal.close:hover {
+  color: red;
+}
+
+#__next {
+  height: 100%;
+  width: 100%;
+  position: fixed;
+}
+
+#__next.page-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#__next.page-container.header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#__next.page-container main {
+  overflow-y: auto;
+}

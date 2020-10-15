@@ -32,7 +32,7 @@ import { HintBox } from "../hintBox";
 import { InfoBox } from "../infoBox";
 import Terminal from '../terminal';
 import { commands, description } from '../terminal/commands';
-import './style.scss';
+import './style.module.css';
 RazerLaptop
 
 const MobileGamepad = dynamic(() => import("../mobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });

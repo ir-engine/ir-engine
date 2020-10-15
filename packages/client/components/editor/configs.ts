@@ -1,5 +1,3 @@
-import "dotenv";
-
 // Read configs from meta tags if available, otherwise use the process.env injected from build.
 const configs = {};
 const get = (configs, key, defaultValue) => {
@@ -37,26 +35,6 @@ get(configs, "USE_DIRECT_UPLOAD_API", process.env.USE_DIRECT_UPLOAD_API);
 get(configs, "API_RESOLVE_MEDIA_ROUTE", process.env.API_RESOLVE_MEDIA_ROUTE);
 
 get(configs, "USE_HTTPS", process.env.USE_HTTPS);
-
-if ((configs as any).BASE_ASSETS_PATH) {
-  // eslint-disable-next-line no-undef, @typescript-eslint/camelcase
-  __webpack_public_path__ = (configs as any).BASE_ASSETS_PATH;
-}
-
-function fixBaseAssetsPath(path) {
-  // eslint-disable-next-line no-undef
-  if (!path.startsWith(__webpack_public_path__)) {
-    // eslint-disable-next-line no-useless-escape
-    const matches = path.match(/^([^\/]+\/).+$/);
-
-    if (matches.length > 1) {
-      // eslint-disable-next-line no-undef, @typescript-eslint/camelcase
-      return __webpack_public_path__ + path.replace(matches[1], "");
-    }
-  }
-
-  return path;
-}
 
 (configs as any).name = (): string => "Scene Editor";
 (configs as any).longName = (): string => "Scene Editor";

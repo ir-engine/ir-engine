@@ -1,7 +1,7 @@
 import { createGlobalStyle } from "styled-components";
 import { Theme } from "./theme";
 const GlobalStyle = createGlobalStyle`
-  /*! minireset.css v0.0.4 | MIT License | github.com/jgthms/minireset.css */
+  /*! minireset.module.css v0.0.4 | MIT License | github.com/jgthms/minireset.module.css */
   html,
   body,
   p,

@@ -6,8 +6,9 @@ import { System } from '../../ecs/classes/System';
 import { Not } from '../../ecs/functions/ComponentFunctions';
 import {
   addComponent,
-  createEntity, getComponent, getMutableComponent,
-
+  createEntity,
+  getComponent,
+  getMutableComponent,
   hasComponent,
   removeComponent
 } from '../../ecs/functions/EntityFunctions';
@@ -28,7 +29,7 @@ export default class AssetLoadingSystem extends System {
     super();
     addComponent(createEntity(), AssetVault);
   }
-
+  
   execute () {
     if(this.queryResults.toLoad.all.length > 0){
       const event = new CustomEvent('scene-loaded', { detail:{loaded:false} });

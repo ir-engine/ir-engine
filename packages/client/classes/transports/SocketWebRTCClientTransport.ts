@@ -9,7 +9,6 @@ import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/Media
 import { UnreliableMessageReturn, UnreliableMessageType } from "@xr3ngine/engine/src/networking/types/NetworkingTypes";
 import * as mediasoupClient from "mediasoup-client";
 import { DataConsumerOptions, DataProducer, Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
-import ioclient from "socket.io-client";
 import getConfig from "next/config";
 
 const { publicRuntimeConfig } = getConfig();

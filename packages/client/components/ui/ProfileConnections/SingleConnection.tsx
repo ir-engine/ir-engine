@@ -21,7 +21,7 @@ import { showDialog } from '../../../redux/dialog/service';
 import MagicLinkEmail from '../Auth/MagicLinkEmail';
 import PasswordLogin from '../Auth/PasswordLogin';
 import { ConnectionTexts } from './ConnectionTexts';
-import './style.scss';
+import './style.module.css';
 
 interface Props {
   auth?: any;

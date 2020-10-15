@@ -1,6 +1,6 @@
 import React from "react";
 
-import './style.scss';
+import './style.module.css';
 import { generalStateList } from '../../../redux/app/actions';
 import { Microphone } from '@styled-icons/boxicons-regular/Microphone';
 import { CameraVideo } from '@styled-icons/bootstrap/CameraVideo';

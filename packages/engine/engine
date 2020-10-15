@@ -1,5 +1,0 @@
-SERVER_IP="192.168.86.33"
-SERVER_PORT="3001"
-SERVER_HOST="localhost"
-CERT="engine/certs/armada.crt"
-KEY="engine/certs/armada.key"
