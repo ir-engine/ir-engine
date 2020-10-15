@@ -1,10 +1,10 @@
 import { BaseSource } from "./index";
 import { ItemTypes } from "../../dnd";
 import UploadSourcePanel from "../UploadSourcePanel";
-import ModelNode from "../../../nodes/ModelNode";
-import VideoNode from "../../../nodes/VideoNode";
-import ImageNode from "../../../nodes/ImageNode";
-import AudioNode from "../../../nodes/AudioNode";
+import ModelNode from "@xr3ngine/engine/src/editor/nodes/ModelNode";
+import VideoNode from "@xr3ngine/engine/src/editor/nodes/VideoNode";
+import ImageNode from "@xr3ngine/engine/src/editor/nodes/ImageNode";
+import AudioNode from "@xr3ngine/engine/src/editor/nodes/AudioNode";
 import { AcceptsAllFileTypes } from "../fileTypes";
 const assetTypeToNode = {
   model: ModelNode,

@@ -1,6 +1,6 @@
 import VideoMediaSource from "../VideoMediaSource";
 import { ItemTypes } from "../../dnd";
-import VideoNode from "../../../nodes/VideoNode";
+import VideoNode from "@xr3ngine/engine/src/editor/nodes/VideoNode";
 export default class TenorSource extends VideoMediaSource {
   searchPlaceholder: string;
   searchLegalCopy: string;

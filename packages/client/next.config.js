@@ -5,7 +5,7 @@ const conf = require('config');
 const withImages = require('next-images')
 const withNodeConfig = require("next-plugin-node-config");
 
-module.exports = withImages(withNodeConfig(
+module.exports = withImages(
 {
     /* config options here */
     serverRuntimeConfig: {},
@@ -168,4 +168,4 @@ module.exports = withImages(withNodeConfig(
       return config
     }
   })
-)
+  
