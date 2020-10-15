@@ -289,7 +289,7 @@ const BottomDrawer = (props: Props): any => {
             <SwipeableDrawer
                 className="flex-column"
                 anchor="bottom"
-                open={props.bottomDrawerOpen === true}
+                open={bottomDrawerOpen === true}
                 onClose={() => {setBottomDrawerOpen(false);}}
                 onOpen={() => {}}
             >
@@ -328,76 +328,78 @@ const BottomDrawer = (props: Props): any => {
                                     onMouseLeave={(e) => toggleMessageCrudSelect(e, message)}
                                     onTouchEnd={(e) => toggleMessageCrudSelect(e, message)}
                                 >
-                                    { message.senderId !== user.id &&
-                                        <ListItemAvatar>
-                                            <Avatar src={getMessageUser(message).avatarUrl}/>
-                                        </ListItemAvatar>
-                                    }
-                                    {messageUpdatePending !== message.id &&
-                                        <ListItemText
-                                            primary={message.text}
-                                            secondary={generateMessageSecondary(message)}
-                                        />
-                                    }
-                                    {message.senderId === user.id && messageUpdatePending !== message.id &&
-                                        <div>
-                                            { messageDeletePending !== message.id && messageCrudSelected === message.id &&
-                                            <div className="crud-controls">
-                                                    {messageDeletePending !== message.id &&
-                                                    <Edit className="edit"
-                                                          onClick={(e) => loadMessageEdit(e, message)}
-                                                          onTouchEnd={(e) => loadMessageEdit(e, message)}
-                                                    />
-                                                    }
-                                                    {messageDeletePending !== message.id &&
-                                                    <Delete className="delete"
-                                                            onClick={(e) => showMessageDeleteConfirm(e, message)}
-                                                            onTouchEnd={(e) => showMessageDeleteConfirm(e, message)}
-                                                    />
-                                                    }
-                                                </div>
-                                            }
-                                            {messageDeletePending === message.id &&
-                                                <div className="crud-controls">
-                                                    {messageDeletePending === message.id &&
-                                                    <Delete className="delete"
-                                                            onClick={(e) => confirmMessageDelete(e, message)}
-                                                            onTouchEnd={(e) => confirmMessageDelete(e, message)}
-                                                    />
-                                                    }
-                                                    {messageDeletePending === message.id &&
-                                                    <Clear className="cancel"
-                                                           onClick={(e) => cancelMessageDelete(e)}
-                                                           onTouchEnd={(e) => cancelMessageDelete(e)}
-                                                    />
-                                                    }
-                                                </div>
-                                            }
-                                        </div>
-                                    }
-                                    {messageUpdatePending === message.id &&
-                                        <div className="message-edit">
-                                            <TextField
-                                                variant="outlined"
-                                                margin="normal"
-                                                multiline
-                                                fullWidth
-                                                id="editingMessage"
-                                                label="Message text"
-                                                name="editingMessage"
-                                                autoFocus
-                                                value={editingMessage}
-                                                inputProps={{
-                                                    maxLength: 1000
-                                                }}
-                                                onChange={handleEditingMessageChange}
+                                    <div>
+                                        { message.senderId !== user.id &&
+                                            <ListItemAvatar>
+                                                <Avatar src={getMessageUser(message).avatarUrl}/>
+                                            </ListItemAvatar>
+                                        }
+                                        {messageUpdatePending !== message.id &&
+                                            <ListItemText
+                                                primary={message.text}
+                                                secondary={generateMessageSecondary(message)}
                                             />
-                                            <div className="editing-controls">
-	                                            <Clear className="cancel" onClick={(e) => cancelMessageUpdate(e)} onTouchEnd={(e) => cancelMessageUpdate(e)}/>
-                                                <Save className="save" onClick={(e) => confirmMessageUpdate(e, message)} onTouchEnd={(e) => confirmMessageUpdate(e, message)}/>
+                                        }
+                                        {message.senderId === user.id && messageUpdatePending !== message.id &&
+                                            <div>
+                                                { messageDeletePending !== message.id && messageCrudSelected === message.id &&
+                                                <div className="crud-controls">
+                                                        {messageDeletePending !== message.id &&
+                                                        <Edit className="edit"
+                                                              onClick={(e) => loadMessageEdit(e, message)}
+                                                              onTouchEnd={(e) => loadMessageEdit(e, message)}
+                                                        />
+                                                        }
+                                                        {messageDeletePending !== message.id &&
+                                                        <Delete className="delete"
+                                                                onClick={(e) => showMessageDeleteConfirm(e, message)}
+                                                                onTouchEnd={(e) => showMessageDeleteConfirm(e, message)}
+                                                        />
+                                                        }
+                                                    </div>
+                                                }
+                                                {messageDeletePending === message.id &&
+                                                    <div className="crud-controls">
+                                                        {messageDeletePending === message.id &&
+                                                        <Delete className="delete"
+                                                                onClick={(e) => confirmMessageDelete(e, message)}
+                                                                onTouchEnd={(e) => confirmMessageDelete(e, message)}
+                                                        />
+                                                        }
+                                                        {messageDeletePending === message.id &&
+                                                        <Clear className="cancel"
+                                                               onClick={(e) => cancelMessageDelete(e)}
+                                                               onTouchEnd={(e) => cancelMessageDelete(e)}
+                                                        />
+                                                        }
+                                                    </div>
+                                                }
                                             </div>
-                                        </div>
-                                    }
+                                        }
+                                        {messageUpdatePending === message.id &&
+                                            <div className="message-edit">
+                                                <TextField
+                                                    variant="outlined"
+                                                    margin="normal"
+                                                    multiline
+                                                    fullWidth
+                                                    id="editingMessage"
+                                                    label="Message text"
+                                                    name="editingMessage"
+                                                    autoFocus
+                                                    value={editingMessage}
+                                                    inputProps={{
+                                                        maxLength: 1000
+                                                    }}
+                                                    onChange={handleEditingMessageChange}
+                                                />
+                                                <div className="editing-controls">
+                                                    <Clear className="cancel" onClick={(e) => cancelMessageUpdate(e)} onTouchEnd={(e) => cancelMessageUpdate(e)}/>
+                                                    <Save className="save" onClick={(e) => confirmMessageUpdate(e, message)} onTouchEnd={(e) => confirmMessageUpdate(e, message)}/>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
                                 </ListItem>;
                             })
                             }
