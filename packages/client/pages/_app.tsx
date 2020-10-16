@@ -26,8 +26,6 @@ import Api from "../components/editor/api/Api";
 
 const config = getConfig().publicRuntimeConfig;
 
-
-
 interface Props extends AppProps {
   store: Store;
   doLoginAuto: typeof doLoginAuto;
@@ -104,11 +102,6 @@ const MyApp = (props: Props): any => {
     </Fragment>
   );
 };
-
-MyApp.getInitialProps = async(ctx) => {
-  return {}
-}
-
 export default withRedux(configureStore, {
   serializeState: (state) => state.toJS(),
   deserializeState: (state) => fromJS(state)

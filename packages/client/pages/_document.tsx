@@ -36,7 +36,6 @@ export default class MyDocument extends Document {
     const sheet = new ServerStyleSheet();
     const originalRenderPage = ctx.renderPage;
 
-    try {
       ctx.renderPage = () =>
         originalRenderPage({
           // @ts-ignore
@@ -54,9 +53,7 @@ export default class MyDocument extends Document {
           </>
         ),
       };
-    } finally {
       sheet.seal();
-    }
   }
   render () {
     return (

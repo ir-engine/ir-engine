@@ -3,12 +3,9 @@ const appRootPath = require('app-root-path')
 process.env.NODE_CONFIG_DIR = path.join(appRootPath.path, 'packages/client/config')
 const conf = require('config');
 const withImages = require('next-images')
-const withNodeConfig = require("next-plugin-node-config");
 
 module.exports = withImages(
 {
-    /* config options here */
-    serverRuntimeConfig: {},
     /* config options here */
     publicRuntimeConfig: conf.get('publicRuntimeConfig'),
         env: {
@@ -21,22 +18,6 @@ module.exports = withImages(
     dir: './',
     distDir: './.next',
     webpack(config) {
-      config.optimization = {
-        splitChunks: {
-          minChunks: 1,
-          cacheGroups: {
-            defaultVendors: {
-              test: /[\\/]node_modules[\\/]/,
-              priority: -10
-            },
-            default: {
-              minChunks: 2,
-              priority: -20,
-              reuseExistingChunk: true
-            }
-          }
-        }
-      }
       config.resolve.alias.utils = path.join(__dirname, 'utils')
       config.module.rules.push(
         {
@@ -168,4 +149,4 @@ module.exports = withImages(
       return config
     }
   })
-  
+

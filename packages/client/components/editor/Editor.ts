@@ -12,7 +12,7 @@ import {
   Scene
 } from "three";
 import { GLTFExporter } from "@xr3ngine/engine/src/assets/exporters/glTF/GLTFExporter";
-import { GLTFLoader } from "@xr3ngine/engine/src/assets/loaders/glTF/GLTFLoader";
+import { GLTFLoader } from "@xr3ngine/engine/src/assets/loaders/glTF/EditorGLTFLoader";
 import History from "@xr3ngine/engine/src/editor/History";
 import Renderer from "@xr3ngine/engine/src/editor/renderer/Renderer";
 import ThumbnailRenderer from "@xr3ngine/engine/src/editor/renderer/ThumbnailRenderer";

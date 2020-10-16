@@ -10,7 +10,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": false,
-    "module": "commonjs",
+    "module": "esnext",
     "strict": false,
     "noImplicitAny": false,
     "resolveJsonModule": true,
@@ -24,12 +24,11 @@
   },
   "exclude": [
     "node_modules",
-    "tests/**",
-    "../engine/tests"
+    "tests/**"
   ],
   "include": [
     "next-env.d.ts",
     "./**/*.ts",
-    "./**/*.tsx",
+    "./**/*.tsx"
   ]
 }
