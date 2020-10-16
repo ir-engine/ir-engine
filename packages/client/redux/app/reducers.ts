@@ -1,6 +1,7 @@
 import Immutable from 'immutable';
 import {
   AppLoadedAction,
+  generalStateList,
   SetViewportAction
 } from './actions';
 
@@ -8,7 +9,8 @@ import {
   SET_APP_LOADED,
   SET_APP_LOADING_PERCENT,
   SET_VIEWPORT_SIZE,
-  SET_IN_VR_MODE
+  SET_IN_VR_MODE,
+  SET_APP_ONBOARDING_STEP
 } from '../actions';
 
 type AppState = {
@@ -18,6 +20,7 @@ type AppState = {
     width: number;
     height: number;
   };
+  onBoardingStep : number;
 }
 
 export const initialState: AppState = {
@@ -26,7 +29,8 @@ export const initialState: AppState = {
   viewport: {
     width: 1400,
     height: 900
-  }
+  },
+  onBoardingStep: generalStateList.START_STATE
 };
 
 const immutableState = Immutable.fromJS(initialState);
@@ -45,6 +49,9 @@ const appReducer = (state = immutableState, action: AppLoadedAction | SetViewpor
     case SET_IN_VR_MODE:
       return state
         .set('inVrMode', action.inVrMode);
+    case SET_APP_ONBOARDING_STEP: 
+          return state
+            .set('onBoardingStep', action.onBoardingStep >= state.get('onBoardingStep') ? action.onBoardingStep : state.get('onBoardingStep'));
     default:
       break;
   }
