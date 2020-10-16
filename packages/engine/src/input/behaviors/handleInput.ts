@@ -21,7 +21,7 @@ import { BinaryValue } from '../../common/enums/BinaryValue';
  * @param args
  * @param {Number} delta Time since last frame
  */
-export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): void => {
+ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): void => {
   // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
   const input = getMutableComponent(entity, Input);
 
@@ -66,7 +66,7 @@ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): 
       }
       input.data.set(key, value)
     }
-  })
+  });
 
   // For each input currently on the input object:
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
@@ -138,7 +138,7 @@ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): 
   input.prevData.clear();
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
     input.prevData.set(key, value);
-  })
+  });
 
   // clean processed LifecycleValue.ENDED inputs
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
@@ -156,5 +156,5 @@ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): 
     //   //   input.data.delete(key)
     //   // }
     // }
-  })
+  });
 };
