@@ -9,8 +9,9 @@ import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { CarController } from "@xr3ngine/engine/src/templates/car/prefabs/CarController";
 import { WorldPrefab } from "@xr3ngine/engine/src/templates/world/prefabs/WorldPrefab";
-// import { rigidBodyBox } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox";
-// import { rigidBodyBox2 } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox2";
+import { rigidBodyBox } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox";
+import { rigidBodyBox2 } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox2";
+import { JoystickPrefab } from "@xr3ngine/engine/src/templates/devices/prefabs/JoystickPrefab";
 import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
@@ -30,11 +31,11 @@ import { client } from '../../redux/feathers';
 
 import dynamic from 'next/dynamic';
 
-import { RazerLaptop } from "@xr3ngine/engine/src/templates/interactive/prefabs/RazerLaptop";
 import { InfoBox } from "../ui/InfoBox";
 import OnBoardingBox from "../ui/OnBoardingBox";
 import MediaIconsBox from "../ui/MediaIconsBox";
 // import { BeginnerBox } from '../beginnerBox';
+import { RazerLaptop } from "@xr3ngine/engine/src/templates/devices/prefabs/RazerLaptop";
 import './style.scss';
 import { resetEngine } from "../../../engine/src/ecs/functions/EngineFunctions";
 import LinearProgressComponent from '../ui/LinearProgress';
@@ -232,6 +233,10 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
     createPrefab(WorldPrefab);
     createPrefab(staticWorldColliders);
+    createPrefab(JoystickPrefab);
+//  setTimeout(() => {
+    // createPrefab(rigidBodyBox);
+    // createPrefab(rigidBodyBox2);
     createPrefab(RazerLaptop);
     createPrefab(CarController);
 
@@ -266,7 +271,9 @@ export const EnginePage: FunctionComponent = (props: any) => {
   useEffect(() => {
     if (
       instanceConnectionState.get('instanceProvisioned') === true &&
-      instanceConnectionState.get('updateNeeded') === true
+      instanceConnectionState.get('updateNeeded') === true &&
+      instanceConnectionState.get('instanceServerConnecting') === false &&
+      instanceConnectionState.get('connected') === false
     ) {
       console.log('Calling connectToInstanceServer');
       connectToInstanceServer();
@@ -274,20 +281,17 @@ export const EnginePage: FunctionComponent = (props: any) => {
   }, [instanceConnectionState]);
 
   useEffect(() => {
-    if (instanceConnectionState.get('instanceProvisioned') == false) {
+    if (instanceConnectionState.get('instanceProvisioned') === false && instanceConnectionState.get('instanceProvisioning') === false) {
       const user = authState.get('user');
       const party = partyState.get('party');
       const instanceId = user.instanceId != null ? user.instanceId : party.instanceId != null ? party.instanceId: null;
       if (instanceId != null) {
         client.service('instance').get(instanceId)
             .then((instance) => {
-              console.log(`Connecting to location ${instance.locationId}`);
+              console.log('Provisioning instance from scene init useEffect');
               provisionInstanceServer(instance.locationId);
             });
       }
-    }
-    else {
-      connectToInstanceServer();
     }
   }, []);
 
