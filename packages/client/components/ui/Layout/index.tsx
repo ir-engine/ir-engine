@@ -12,6 +12,7 @@ import RightDrawer from '../Drawer/Right';
 import BottomDrawer from '../Drawer/Bottom';
 import { selectAuthState } from '../../../redux/auth/selector';
 import PartyVideoWindows from '../PartyVideoWindows';
+import InstanceChat from '../InstanceChat';
 import Me from '../Me';
 
 const { publicRuntimeConfig } = getConfig();
@@ -37,6 +38,7 @@ const Layout = (props: Props): any => {
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
   const [topDrawerOpen, setTopDrawerOpen] = useState(false);
   const [bottomDrawerOpen, setBottomDrawerOpen] = useState(false);
+  const user = authState.get('user');
 
   return (
     <section>
@@ -71,9 +73,11 @@ const Layout = (props: Props): any => {
                 </Fragment>
       }
       <footer>
-        { authState.get('authUser') != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
+        { authState.get('authUser') != null && authState.get('isLoggedIn') === true && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
                 <DrawerControls setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/> }
         { authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
+        { authState.get('authUser') != null && authState.get('isLoggedIn') === true && user.partyId != null && user.instanceId != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
+          <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen}/> }
       </footer>
     </section>
   );

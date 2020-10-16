@@ -11,7 +11,7 @@ export default {
     get: [],
     create: [disallow('external')],
     update: [disallow()],
-    patch: [],
+    patch: [disallow()],
     remove: [disallow('external')]
   },
 

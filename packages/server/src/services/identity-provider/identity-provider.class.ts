@@ -65,6 +65,12 @@ export class IdentityProvider extends Service {
           type
         };
         break;
+      case 'guest':
+        identityProvider = {
+          token: token,
+          type: type
+        };
+        break;
       case 'auth0':
         break;
     }
@@ -104,9 +110,17 @@ export class IdentityProvider extends Service {
       ...data,
       ...identityProvider,
       user: {
-        id: userId
+        id: userId,
+        userRole: type === 'guest' ? 'guest' : 'user'
       }
     }, params);
+
+    if (type === 'guest') {
+      result.accessToken = await this.app.service('authentication').createAccessToken(
+          {},
+          { subject: result.id.toString() }
+      );
+    }
 
     return result;
   }
