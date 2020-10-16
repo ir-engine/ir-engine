@@ -36,7 +36,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 const UIDialog = (props) => {
-  const { onBoardingStep} = props;
+  const { onBoardingStep, title = ''} = props;
   // const content = dialog.get('content') ? dialog.get('content') : values ?  values.content : '';
 
   useEffect(() => {
@@ -89,7 +89,7 @@ const UIDialog = (props) => {
   return (
     <Dialog open={isOpened} onClose={handleClose} aria-labelledby="xr-dialog" className="custom-dialog">
       <DialogTitle disableTypography className="dialogTitle">
-        {/* { content && content.title && (<Typography variant="h6">{content.title}</Typography>)} */}
+        { title && (<Typography variant="h6">{title}</Typography>)}
         {isCloseButton && (<IconButton
           aria-label="close"
           className="dialogCloseButton"
