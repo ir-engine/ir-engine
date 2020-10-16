@@ -1,6 +1,5 @@
 const path = require('path')
 const packageRoot = require('app-root-path').path;
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 const root = [path.resolve(__dirname)]
 const WebpackShellPlugin = require('webpack-shell-plugin');

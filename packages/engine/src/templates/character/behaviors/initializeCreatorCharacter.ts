@@ -13,7 +13,7 @@ import { CharacterStateTypes } from "../CharacterStateTypes";
 import { Engine } from "../../../ecs/classes/Engine";
 import { PhysicsManager } from "../../../physics/components/PhysicsManager";
 import { addObject3DComponent } from "../../../common/behaviors/Object3DBehaviors";
-import { GLTFLoader } from "../../../assets/loaders/glTF/GLTFLoader";
+import GLTFLoader from "three-gltf-loader";
 
 export const initializeCreatorCharacter: Behavior = (entity): void => {
     console.log("Init creator character")
@@ -81,9 +81,10 @@ export const initializeCreatorCharacter: Behavior = (entity): void => {
 
         actor.mixer = new AnimationMixer(Engine.scene);
 
+        const gltfLoader = new GLTFLoader();
         let idleAnimation;
-        new GLTFLoader("models/characters/Animation.glb").loadGLTF().then( ({ scene }) => {
-            actor.animations = scene.animations;
+        gltfLoader.load("models/characters/Animation.glb", (gltf: any) => {
+            actor.animations = gltf.animations;
             idleAnimation = AnimationClip.findByName(actor.animations, 'idle');
             const action = actor.mixer.clipAction(idleAnimation);
             action.setDuration(20);
@@ -147,8 +148,8 @@ export const initializeCreatorCharacter: Behavior = (entity): void => {
         let numLoaded = 0;
         for (let i = 0, len = modelNames.length; i < len; i++) {
             const modelName = modelNames[i];
-            new GLTFLoader("models/characters/" + modelName + ".glb").loadGLTF().then( ({ scene }) => {
-                models[modelName] = scene;
+            gltfLoader.load("models/characters/" + modelName + ".glb", (gltf: any) => {
+                models[modelName] = gltf;
                 numLoaded++
                 if (numLoaded == len) {
                     const leftArrow = document.createElement("button");

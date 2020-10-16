@@ -1,6 +1,6 @@
 /**
  * Extracted and modified from Three.js
- * https://github.com/mrdoob/three.js/blob/dev/examples/jsm/loaders/GLTFLoader.js
+ * https://github.com/mrdoob/three.js/blob/dev/examples/jsm/loaders/EditorGLTFLoader.js
  * https://github.com/mrdoob/three.js/blob/dev/LICENSE
  **/
 
@@ -182,6 +182,10 @@ const GLB_CHUNK_TYPES = { JSON: 0x4e4f534a, BIN: 0x004e4942 };
 // Spline Interpolation
 // Specification: https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#appendix-c-spline-interpolation
 class GLTFCubicSplineInterpolant extends Interpolant {
+	public resultBuffer: any;
+	public sampleValues: any;
+	public valueSize: any;
+
   constructor(parameterPositions, sampleValues, sampleSize, resultBuffer) {
     super(parameterPositions, sampleValues, sampleSize, resultBuffer);
   }
@@ -255,6 +259,12 @@ const defaultOptions = {
 };
 
 class GLTFLoader {
+	public times: any;
+	public values: any;
+	public getValueSize: any;
+	public test: any;
+	public callback: any;
+	public glbBuffer: any;
   url: any;
   manager: LoadingManager;
   options: any;
@@ -270,6 +280,7 @@ class GLTFLoader {
   hooks: {};
   json: any;
   constructor(url, manager?, options?) {
+    console.log("Constructing GLTFLoader")
     this.url = url;
     this.manager = manager !== undefined ? manager : DefaultLoadingManager;
     this.options = Object.assign({}, defaultOptions, options);
@@ -623,7 +634,6 @@ class GLTFLoader {
   }
 
   async loadGLTF() {
-    try {
       const { json } = await this.getDependency("root");
       const sceneIndex = json.scene || 0;
       const scene = await this.getDependency("scene", sceneIndex);
@@ -647,9 +657,6 @@ class GLTFLoader {
       }
 
       return { scene, json, stats };
-    } catch (error) {
-      throw new RethrownError(`Error loading glTF "${this.url}"`, error);
-    }
   }
 
   /**

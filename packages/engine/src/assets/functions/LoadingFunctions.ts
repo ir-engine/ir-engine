@@ -1,17 +1,11 @@
 import { TextureLoader } from 'three';
-import { GLTFLoader } from "../loaders/glTF/GLTFLoader";
+import GLTFLoader from "three-gltf-loader";
 import AssetVault from '../components/AssetVault';
 import { AssetClass } from '../enums/AssetClass';
 import { AssetType } from '../enums/AssetType';
 import { AssetId, AssetMap, AssetsLoadedHandler, AssetTypeAlias, AssetUrl } from '../types/AssetTypes';
 import * as FBXLoader from '../loaders/FBX/FBXLoader';
 import { Entity } from '../../ecs/classes/Entity';
-
-class GLTFLoaderWrapper {
-  load = async (url) => {
-    return await new GLTFLoader(url).loadGLTF()
-  }
-}
 
 // Kicks off an i{terator to load the list of assets and add them to the vault
 export function loadAssets (
@@ -24,7 +18,7 @@ export function loadAssets (
 
 export function loadAsset (url: AssetUrl, entity:Entity, onAssetLoaded: AssetsLoadedHandler): void {
   if (!AssetVault.instance.assets.has(url)) {
-    const loader = new (getLoaderForAssetType(getAssetType(url)));
+    const loader = getLoaderForAssetType(getAssetType(url));
     loader.load(url, resource => {
       AssetVault.instance.assets.set(url, resource);
       onAssetLoaded(entity, { asset: resource });
@@ -46,7 +40,7 @@ function iterateLoadAsset (
   } else {
     const [{ url }] = current.value;
     if (!AssetVault.instance.assets.has(url)) {
-      const loader = new (getLoaderForAssetType(getAssetType(url)));
+      const loader = getLoaderForAssetType(getAssetType(url));
 
       if (loader == null) {
         console.error('Loader failed on ', url);
@@ -68,11 +62,11 @@ function iterateLoadAsset (
   }
 }
 
-function getLoaderForAssetType (assetType: AssetTypeAlias): typeof GLTFLoaderWrapper | typeof FBXLoader.FBXLoader | typeof TextureLoader {
-  if (assetType == AssetType.FBX) return FBXLoader.FBXLoader;
-  else if (assetType == AssetType.glTF) return GLTFLoaderWrapper;
-  else if (assetType == AssetType.PNG) return TextureLoader;
-  else if (assetType == AssetType.JPEG) return TextureLoader;
+function getLoaderForAssetType (assetType: AssetTypeAlias): GLTFLoader | any | TextureLoader {
+  if (assetType == AssetType.FBX) return new FBXLoader.FBXLoader();
+  else if (assetType == AssetType.glTF) return new GLTFLoader();
+  else if (assetType == AssetType.PNG) return new TextureLoader();
+  else if (assetType == AssetType.JPEG) return new TextureLoader();
 }
 
 export function getAssetType (assetFileName) {

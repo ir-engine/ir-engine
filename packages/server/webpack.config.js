@@ -1,10 +1,10 @@
-const path = require('path')
+/* eslint-disable @typescript-eslint/no-var-requires */
+const path = require('path');
 const packageRoot = require('app-root-path').path;
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-
-const root = [path.resolve(__dirname)]
 const WebpackShellPlugin = require('webpack-shell-plugin');
-console.log("PACKAGE ROOT", packageRoot)
+
+const root = [path.resolve(__dirname)];
+console.log("PACKAGE ROOT", packageRoot);
 module.exports = {
     entry: `${root}/src/index.ts`,
     target: 'node',
@@ -46,7 +46,6 @@ module.exports = {
         }]
     },
     plugins: [
-        new ForkTsCheckerWebpackPlugin(),
         (process.env.NODE_ENV !== 'production') ? new WebpackShellPlugin({onBuildEnd: ['nodemon dist/server.js --watch build']}) : () => { }
     ]
 };

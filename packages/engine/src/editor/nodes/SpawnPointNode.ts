@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { GLTFLoader } from "@xr3ngine/engine/src/assets/loaders/glTF/GLTFLoader";
+import { GLTFLoader } from "@xr3ngine/engine/src/assets/loaders/glTF/EditorGLTFLoader";
 import EditorNodeMixin from "./EditorNodeMixin";
 //@ts-ignore
 // import spawnPointModelUrl from "../../../public/editor/spawn-point.glb";

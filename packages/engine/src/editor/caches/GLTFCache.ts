@@ -1,4 +1,4 @@
-import { GLTFLoader } from "@xr3ngine/engine/src/assets/loaders/glTF/GLTFLoader";
+import { GLTFLoader } from "@xr3ngine/engine/src/assets/loaders/glTF/EditorGLTFLoader";
 
 export default class GLTFCache {
   cache: Map<any, any>;

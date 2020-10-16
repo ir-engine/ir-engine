@@ -1,15 +1,14 @@
-/* eslint-disable react/prefer-stateless-function */
-// FIXME ^
 import React from 'react';
-import { Alert, AlertTitle } from '@material-ui/lab';
+import Alert from '@material-ui/lab/Alert';
+import AlertTitle from '@material-ui/lab/Alert';
 
-export default class PaymentFailurePage extends React.Component {
-  render() {
+export const PaymentFailurePage = () => {
     return (
       <Alert style={{ marginTop: 10, height: 200, justifyContent: 'center', alignItems: 'center' }} severity="error">
         <AlertTitle>Payment Failed</AlertTitle>
         Subscription — <strong>failed</strong>
       </Alert>
     );
-  }
 }
+
+export default PaymentFailurePage
