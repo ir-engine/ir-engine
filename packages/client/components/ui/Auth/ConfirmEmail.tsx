@@ -26,7 +26,8 @@ interface Props {
   resendVerificationEmail: typeof resendVerificationEmail;
 }
 
-const ConfirmEmail = ({ auth, resendVerificationEmail }: Props): any => {
+const ConfirmEmail = (props: Props): any => {
+  const { auth, resendVerificationEmail } = props;
   const handleResendEmail = (e: any): any => {
     e.preventDefault();
 

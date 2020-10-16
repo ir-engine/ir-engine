@@ -2,6 +2,7 @@ import { Dispatch } from 'redux';
 import { client } from '../feathers';
 import {
   createdMessage,
+  loadedChannel,
   loadedChannels,
   loadedMessages,
   patchedMessage,
@@ -70,22 +71,26 @@ export function getChannels(skip?: number, limit?: number) {
 //   }
 // }
 //
-// export function getPartyChannel() {
-//   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-//     try {
-//       const channelResult = await client.service('channel').find({
-//         query: {
-//           channelType: 'party'
-//         }
-//       })
-//       dispatch(loadedPartyChannel(channelResult))
-//     } catch(err) {
-//       dispatchAlertError(dispatch, err.message)}
-//   }
-// }
+export function getPartyChannel() {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    try {
+      console.log('Getting party channel');
+      const channelResult = await client.service('channel').find({
+        query: {
+          channelType: 'party'
+        }
+      });
+      console.log('Party channel:');
+      console.log(channelResult);
+      dispatch(loadedChannel(channelResult.data[0], 'party'));
+    } catch(err) {
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
 
 export function createMessage(values: any) {
-  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+  return async (dispatch: Dispatch): Promise<any> => {
     try {
       await client.service('message').create({
         targetObjectId: values.targetObjectId,

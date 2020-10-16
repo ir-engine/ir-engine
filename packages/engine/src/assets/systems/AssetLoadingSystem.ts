@@ -1,6 +1,5 @@
-import { addObject3DComponent, removeObject3DComponent } from '../../common/behaviors/Object3DBehaviors';
+import { removeObject3DComponent } from '../../common/behaviors/Object3DBehaviors';
 import { Object3DComponent } from '../../common/components/Object3DComponent';
-import { Engine } from '../../ecs/classes/Engine';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { Not } from '../../ecs/functions/ComponentFunctions';
@@ -11,8 +10,6 @@ import {
   hasComponent,
   removeComponent
 } from '../../ecs/functions/EntityFunctions';
-import { TransformChildComponent } from '../../transform/components/TransformChildComponent';
-import { TransformParentComponent } from '../../transform/components/TransformParentComponent';
 import { AssetLoader } from '../components/AssetLoader';
 import { AssetLoaderState } from '../components/AssetLoaderState';
 import AssetVault from '../components/AssetVault';
@@ -22,6 +19,7 @@ import { AssetClass } from '../enums/AssetClass';
 import { getAssetClass, getAssetType, loadAsset } from '../functions/LoadingFunctions';
 import { isBrowser } from '../../common/functions/isBrowser';
 import { MeshPhysicalMaterial, TorusGeometry } from "three";
+import { ProcessModelAsset } from "../functions/ProcessModelAsset";
 
 export default class AssetLoadingSystem extends System {
   loaded = new Map<Entity, any>()
@@ -32,12 +30,13 @@ export default class AssetLoadingSystem extends System {
     addComponent(createEntity(), AssetVault);
   }
 
-  execute () {
+  execute () : void{
     if(this.queryResults.toLoad.all.length > 0){
       const event = new CustomEvent('scene-loaded', { detail:{loaded:false} });
       document.dispatchEvent(event);
     }  
 
+  // execute(): void {
     this.queryResults.assetVault.all.forEach(entity => {
       // Do things here
     });
@@ -84,54 +83,10 @@ export default class AssetLoadingSystem extends System {
     this.loaded.forEach( (asset, entity) =>{
       const component = getComponent<AssetLoader>(entity, AssetLoader);
       if (component.assetClass === AssetClass.Model) {
-        const replacedMaterials = new Map();
-        if(asset.scene !== undefined)
-        asset.scene.traverse((child) => {
-          if (child.isMesh) {
-            child.receiveShadow = component.receiveShadow;
-            child.castShadow = component.castShadow;
-
-            if (component.envMapOverride) {
-              child.material.envMap = component.envMapOverride;
-            }
-
-            if (replacedMaterials.has(child.material)) {
-              child.material = replacedMaterials.get(child.material);
-            } else {
-              if (child?.material?.userData?.gltfExtensions?.KHR_materials_clearcoat) {
-                const newMaterial = new MeshPhysicalMaterial({});
-                newMaterial.setValues(child.material); // to copy properties of original material
-                newMaterial.clearcoat = child.material.userData.gltfExtensions.KHR_materials_clearcoat.clearcoatFactor;
-                newMaterial.clearcoatRoughness = child.material.userData.gltfExtensions.KHR_materials_clearcoat.clearcoatRoughnessFactor;
-                newMaterial.defines = { STANDARD: '', PHYSICAL: '' }; // override if it's replaced by non PHYSICAL defines of child.material
-
-                replacedMaterials.set(child.material, newMaterial);
-                child.material = newMaterial;
-              }
-            }
-          }
-        });
-        replacedMaterials.clear();
+        addComponent(entity, Model, { value: asset });
+        ProcessModelAsset(entity, component, asset);
       }
 
-      addComponent(entity, Model, { value: asset });
-      if (hasComponent(entity, Object3DComponent)) {
-        if (getComponent<Object3DComponent>(entity, Object3DComponent).value !== undefined)
-          getMutableComponent<Object3DComponent>(entity, Object3DComponent).value.add(asset.scene);
-        else getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = (asset.scene);
-      } else {
-        addObject3DComponent(entity, {obj3d: asset.scene ?? asset});
-      }
-
-      //const transformParent = addComponent<TransformParentComponent>(entity, TransformParentComponent) as TransformParentComponent
-      const a = asset.scene ?? asset;
-      a.children.forEach(obj => {
-        const e = createEntity();
-        addObject3DComponent(e, { obj3d: obj, parentEntity: entity });
-        // const transformChild = addComponent<TransformChildComponent>(e, TransformChildComponent) as TransformChildComponent
-        // transformChild.parent = entity
-        //transformParent.children.push(e)
-      });
       getMutableComponent<AssetLoader>(entity, AssetLoader).loaded = true;
       
       AssetVault.instance.assets.set(hashResourceString(component.url), asset.scene);
@@ -157,7 +112,7 @@ export default class AssetLoadingSystem extends System {
   }
 }
 
-export function hashResourceString (str) {
+export function hashResourceString (str:string):string {
   let hash = 0;
   let i = 0;
   const len = str.length;

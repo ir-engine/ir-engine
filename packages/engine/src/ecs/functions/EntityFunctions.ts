@@ -230,7 +230,7 @@ export function hasAllComponents(entity: Entity, Components: Array<ComponentCons
  */
 export function hasAnyComponents(entity: Entity, Components: Array<ComponentConstructor<any>>): boolean {
   for (let i = 0; i < Components.length; i++) {
-    if (hasComponent(entity, entity.components[i])) return true;
+    if (hasComponent(entity, Components[i])) return true;
   }
   return false;
 }

@@ -1,7 +1,7 @@
 import { EntityPool } from './EntityPool';
 import { EventDispatcher } from './EventDispatcher';
 import { Query } from './Query';
-import { WebGLRenderer, Camera, Scene, Clock } from 'three';
+import { WebGLRenderer, PerspectiveCamera, Scene, Clock } from 'three';
 import { EngineOptions } from '../interfaces/EngineOptions';
 import { DefaultOptions } from '../constants/DefaultOptions';
 import { Entity } from './Entity';
@@ -43,8 +43,8 @@ export class Engine {
  * Reference to the three.js camera object
  * This is set in {@link @xr3ngine/engine/src/initialize#initializeEngine}
  */
-  static camera: Camera = null
-  
+  static camera: PerspectiveCamera = null
+
   /**
  * Reference to the three.js camera object
  * This is set in {@link @xr3ngine/engine/src/initialize#initializeEngine}

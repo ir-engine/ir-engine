@@ -1,4 +1,5 @@
 import { cameraPointerLock } from "@xr3ngine/engine/src/camera/behaviors/cameraPointerLock";
+import { switchCameraMode } from "@xr3ngine/engine/src/camera/behaviors/switchCameraMode";
 import { BinaryValue } from '../../common/enums/BinaryValue';
 import { Thumbsticks } from '../../common/enums/Thumbsticks';
 import { disableScroll, enableScroll } from '../../common/functions/enableDisableScrolling';
@@ -24,6 +25,7 @@ import { InputType } from "../../input/enums/InputType";
 import { setLocalMovementDirection } from "./behaviors/setLocalMovementDirection";
 import { handleMouseWheel } from "../../input/behaviors/handleMouseWheel";
 import { changeCameraDistanceByDelta } from "../../camera/behaviors/changeCameraDistanceByDelta";
+import { LifecycleValue } from "../../common/enums/LifecycleValue";
 
 export const CharacterInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
@@ -160,7 +162,8 @@ export const CharacterInputSchema: InputSchema = {
   // Map mouse buttons to abstract input
   mouseInputMap: {
     buttons: {
-      [MouseInput.LeftButton]: DefaultInput.PRIMARY,
+      // [MouseInput.LeftButton]: DefaultInput.PRIMARY,
+      [MouseInput.LeftButton]: DefaultInput.INTERACT,
       [MouseInput.RightButton]: DefaultInput.SECONDARY,
       [MouseInput.MiddleButton]: DefaultInput.INTERACT
     },
@@ -207,7 +210,8 @@ export const CharacterInputSchema: InputSchema = {
     e: DefaultInput.INTERACT,
     ' ': DefaultInput.JUMP,
     shift: DefaultInput.SPRINT,
-    p: DefaultInput.POINTER_LOCK
+    p: DefaultInput.POINTER_LOCK,
+    v: DefaultInput.SWITCH_CAMERA
   },
   // Map how inputs relate to each other
   inputRelationships: {
@@ -227,11 +231,29 @@ export const CharacterInputSchema: InputSchema = {
           }
         ]
     },
+    [DefaultInput.SWITCH_CAMERA]: {
+        started: [
+          {
+            behavior: switchCameraMode,
+            args: {}
+          }
+        ]
+    },
     [DefaultInput.INTERACT]: {
+      started: [
+        {
+          behavior: interact,
+          args: {
+            phaze:LifecycleValue.STARTED         
+          }
+        }
+      ],
       ended: [
         {
           behavior: interact,
-          args: {}
+          args: {
+            phaze:LifecycleValue.ENDED 
+          }
         }
       ]
     },

@@ -33,14 +33,13 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
     return;
   }
 
-
   const raycastList:Array<Object3D> = interactive
     .filter(interactiveEntity => {
       // - have object 3d to raycast
       if (!hasComponent(interactiveEntity, Object3DComponent)) {
         return false;
       }
-
+      
       // - distance check
       // TODO: handle parent transform!!!
       const distance = getComponent(interactiveEntity, TransformComponent).position.distanceTo(clientPosition);
@@ -64,19 +63,18 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
     // console.warn('!character.viewVector')
     return;
   }
+
   const raycaster = new Raycaster();
-  let object, rayOrigin, rayDirection;
+  let object;
   // - added mouse raycaster
   const rayCamera = Engine.camera.clone();
-  const rayMouse = mouseScreen.normalize();
+  const rayMouse = mouseScreen;
   raycaster.setFromCamera(rayMouse,rayCamera);
   let intersections = raycaster.intersectObjects(raycastList, true );
 
   if (!intersections.length){
-  // TODO: rayOrigin, rayDirection
-  rayOrigin = clientPosition;
-  rayDirection = character.viewVector.clone().normalize().setY(0);
-
+  const rayOrigin = clientPosition;
+  const rayDirection = character.viewVector.clone().normalize().setY(0);
   raycaster.set(rayOrigin, rayDirection);
   intersections = raycaster.intersectObjects( raycastList, true );
 }
@@ -96,5 +94,5 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
   const interacts = getMutableComponent(entity, Interacts);
   interacts.focusedRayHit = newRayHit;
   interacts.focusedInteractive = newRayHit? (object as any).entity : null;
-  
+
 };
