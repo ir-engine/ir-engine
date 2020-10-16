@@ -36,6 +36,10 @@ prefab.components?.forEach(component => {
   });
 });
   }
+  prefab.onAfterCreate?.forEach(action => {
+    // Call the behavior with the args
+    { action.behavior(entity, action.args); }
+  });
 
   return entity;
 }
