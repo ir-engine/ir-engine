@@ -13,7 +13,9 @@ import { Input } from "../../input/components/Input";
  * @param args
  * @param delta
  */
+
 const startedPosition = new Map<Entity,any>();
+// const touchStartedPosition = new Map<Entity,any>();
 
 export const interact:Behavior = (entity: Entity, args:any, delta): void => {
   if (!hasComponent(entity, Interacts)) {
@@ -23,17 +25,26 @@ export const interact:Behavior = (entity: Entity, args:any, delta): void => {
 
   const { focusedInteractive:focusedEntity } = getComponent(entity, Interacts);
   const mouseScreenPosition = getComponent(entity, Input).data.get(DefaultInput.SCREENXY);
+
+  // if (args.touchPhaze === LifecycleValue.STARTED ){
+  //   console.log(mouseScreenPosition);
+  //   touchStartedPosition.set(entity,mouseScreenPosition.value)
+  //   return
+  // }
   
   if (args.phaze === LifecycleValue.STARTED ){
     startedPosition.set(entity,mouseScreenPosition.value)
+    return
   }
-  
+    
   const startedMousePosition = startedPosition.get(entity);
-  
+  // const startedTouchPosition = touchStartedPosition.get(entity);
+    
   if (startedMousePosition !== mouseScreenPosition.value){
     // mouse moved, skip interaction call
     return;
     }
+    
   if (!focusedEntity) {
     // no available interactive object is focused right now
     return;
