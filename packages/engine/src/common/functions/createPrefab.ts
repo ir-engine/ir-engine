@@ -13,28 +13,31 @@ export function createPrefab (prefab: Prefab): Entity {
   });
   // For each component on the prefab...
   {
-prefab.components?.forEach(component => {
-  // The component to the entity
-  addComponent(entity, component.type);
-  // If the component has no initialization data, return
-  if (component.data == undefined) return;
-  // Get a mutable reference to the component
-  const addedComponent = getMutableComponent(entity, component.type);
-  // Set initialization data for each key
-  Object.keys(component.data).forEach(initValue => {
-    // Get the component on the entity, and set it to the initializing value from the prefab
-    if (addedComponent[initValue] instanceof Vector3) {
+    prefab.components?.forEach(component => {
+      if (typeof component.data === 'undefined') {
+        // The component to the entity
+        addComponent(entity, component.type);
+        return;
+      }
 
-      addedComponent[initValue].fromArray(component.data[initValue]);
+      const initData = {};
+      // Set initialization data for each key
+      Object.keys(component.data).forEach(initValue => {
+        // Get the component on the entity, and set it to the initializing value from the prefab
+        if (initData[initValue] instanceof Vector3) {
 
-      console.log(addedComponent[initValue]);
-    } else if (addedComponent[initValue] instanceof Quaternion) {
-      addedComponent[initValue].fromArray(component.data[initValue]);
-    } else {
-      addedComponent[initValue] = component.data[initValue];
-    }
-  });
-});
+          initData[initValue].fromArray(component.data[initValue]);
+
+          //console.log(initData[initValue]);
+        } else if (initData[initValue] instanceof Quaternion) {
+          initData[initValue].fromArray(component.data[initValue]);
+        } else {
+          initData[initValue] = component.data[initValue];
+        }
+      });
+      // The component to the entity
+      addComponent(entity, component.type, initData);
+    });
   }
   prefab.onAfterCreate?.forEach(action => {
     // Call the behavior with the args
