@@ -39,11 +39,11 @@ import { RazerLaptop } from "@xr3ngine/engine/src/templates/devices/prefabs/Raze
 import './style.scss';
 import { resetEngine } from "../../../engine/src/ecs/functions/EngineFunctions";
 import LinearProgressComponent from '../ui/LinearProgress';
-import OnBoardingDialog from '../ui/OnBoardingDialog'
-import TooltipContainer from '../ui/TooltipContainer'
+import OnBoardingDialog from '../ui/OnBoardingDialog';
+import TooltipContainer from '../ui/TooltipContainer';
 
 import { selectAppOnBoardingStep } from '../../redux/app/selector';
-import { generalStateList, setAppOnBoardingStep } from '../../redux/app/actions'
+import { generalStateList, setAppOnBoardingStep } from '../../redux/app/actions';
 import store from '../../redux/store';
 
 
@@ -91,7 +91,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   };
 
   const onObjectActivation = (event: CustomEvent): void => {
-    setHoveredLabel('')
+    setHoveredLabel('');
     switch (event.detail.action) {
       case "link":
         window.open(event.detail.url, "_blank");
@@ -115,7 +115,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   //all scene entities is loaded 
   const onSceneLoaded= (event: CustomEvent): void => {
     if (event.detail.loaded) {
-      store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED))      
+      store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));      
     }
   };
 
@@ -130,7 +130,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
     document.addEventListener('player-in-car', onCarActivation);
     document.addEventListener('scene-loaded', onSceneLoaded);
     document.addEventListener('scene-loaded-entity', onSceneLoadedEntity);
-  }
+  };
 
 
   useEffect(() => {

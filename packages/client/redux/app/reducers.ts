@@ -20,7 +20,7 @@ type AppState = {
     width: number;
     height: number;
   };
-  onBoardingStep : number;
+  onBoardingStep: number;
 }
 
 export const initialState: AppState = {
