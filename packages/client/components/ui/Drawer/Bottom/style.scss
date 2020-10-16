@@ -204,18 +204,37 @@
 }
 
 .message {
-    padding: 5px 10px;
-    border-radius: 10px;
-    width: 60%;
-    margin-bottom: 5px;
-
     &.self {
-        background-color: #fff8dc;
-        margin-left: 40%;
+        &:before {
+            content: '';
+            width: 40%;
+            display: block;
+        }
+
+        & > div {
+            background-color: #fff8dc;
+            padding: 5px 10px;
+            border-radius: 10px;
+            width: 60%;
+            margin-bottom: 5px;
+            display: flex;
+        }
     }
 
     &.other {
-        background-color: #f0fff0;
-        margin-right: 40%;
+        &:after {
+            content: '';
+            width: 40%;
+            display: block;
+        }
+
+        & > div {
+            background-color: #f0fff0;
+            padding: 5px 10px;
+            border-radius: 10px;
+            width: 60%;
+            margin-bottom: 5px;
+            display: flex;
+        }
     }
 }

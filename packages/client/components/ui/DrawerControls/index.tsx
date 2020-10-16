@@ -73,15 +73,21 @@ export const DrawerControls = (props: Props): JSX.Element => {
   return (
     <AppBar className="bottom-appbar">
       { (selfUser && selfUser.instanceId != null && selfUser.partyId != null && party?.id != null) && <NoSSR><VideoChat/></NoSSR> }
-      <Fab color="primary" aria-label="PersonAdd" onClick={openInvite}>
-        <PersonAdd />
-      </Fab>
-      <Fab color="primary" aria-label="Forum" onClick={openChat}>
-        <Forum />
-      </Fab>
-      <Fab color="primary" aria-label="People" onClick={openPeople}>
-        <People/>
-      </Fab>
+      { selfUser.userRole !== 'guest' &&
+        <Fab color="primary" aria-label="PersonAdd" onClick={openInvite}>
+          <PersonAdd/>
+        </Fab>
+      }
+      { selfUser.userRole !== 'guest' &&
+        <Fab color="primary" aria-label="Forum" onClick={openChat}>
+          <Forum/>
+        </Fab>
+      }
+      { (selfUser.userRole !== 'guest') &&
+        <Fab color="primary" aria-label="People" onClick={openPeople}>
+          <People/>
+        </Fab>
+      }
     </AppBar>
   );
 };

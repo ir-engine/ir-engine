@@ -16,7 +16,8 @@ $avatar-bg: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZ
         width: 100%;
     }
 
-    &.video-paused {
+    &.video-paused,
+    &.no-video {
         background-color: #243b55bf;
 
         & > video {
@@ -24,14 +25,35 @@ $avatar-bg: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZ
         }
     }
 
+    .global-mute {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        font-size: 24px;
+        color: #5ee0ff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
     .user-controls {
         position: absolute;
         bottom: 0;
         width: 100%;
         display: flex;
         justify-content: space-between;
+        align-items: flex-end;
 
-        & > button {
+        .right-controls {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+
+            & > .spacer {
+                height: 5px;
+            }
+        }
+
+        button {
             background-color: white;
             opacity:40%;
             z-index: 200;
