@@ -31,7 +31,7 @@ import { client } from '../../redux/feathers';
 import dynamic from 'next/dynamic';
 
 import { RazerLaptop } from "@xr3ngine/engine/src/templates/interactive/prefabs/RazerLaptop";
-// import { InfoBox } from "../infoBox";
+import { InfoBox } from "../ui/InfoBox";
 import OnBoardingBox from "../ui/OnBoardingBox";
 import MediaIconsBox from "../ui/MediaIconsBox";
 // import { BeginnerBox } from '../beginnerBox';
@@ -39,13 +39,14 @@ import './style.scss';
 import { resetEngine } from "../../../engine/src/ecs/functions/EngineFunctions";
 import LinearProgressComponent from '../ui/LinearProgress';
 import UIDialog from '../ui/Dialog/Dialog'
+import TooltipContainer from '../ui/TooltipContainer'
 
 import { selectAppOnBoardingStep } from '../../redux/app/selector';
 import { generalStateList, setAppOnBoardingStep } from '../../redux/app/actions'
 import store from '../../redux/store';
 
 
-const MobileGamepad = dynamic(() => import("../mobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
+const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -78,32 +79,26 @@ export const EnginePage: FunctionComponent = (props: any) => {
     onBoardingStep
   } = props;
   const [enabled, setEnabled] = useState(false);
-  const [generalState, setGeneralState] = useState(generalStateList.START_STATE);
-  // const [hoveredLabel, setHoveredLabel] = useState('');
-  // const [infoBoxData, setInfoBoxData] = useState(null);
+  const [hoveredLabel, setHoveredLabel] = useState('');
+  const [infoBoxData, setInfoBoxData] = useState(null);
   // const [showControllHint, setShowControllHint] = useState(true);
   const [progressEntity, setProgressEntity] = useState('');
 
 
   const onObjectHover = (event: CustomEvent): void => {
-    // if (event.detail.focused) {
-    //   setHoveredLabel(String(event.detail.interactionText ? event.detail.interactionText :'Activate' ));
-    // } else {
-    //   setHoveredLabel('');
-    // }
+    setHoveredLabel(event.detail.focused ? event.detail.interactionText.length > 0 ? event.detail.interactionText :'Activate'  :'');
   };
 
   const onObjectActivation = (event: CustomEvent): void => {
-    // console.log('OBJECT ACTIVATION!', event.detail?.action, event.detail);
-    // switch (event.detail.action) {
-    //   case "link":
-    //     window.open(event.detail.url, "_blank");
-    //     break;
-    //   case "infoBox":
-    //     // TODO: show info box
-    //     setInfoBoxData(event.detail.payload);
-    //     break;
-    // }
+    setHoveredLabel('')
+    switch (event.detail.action) {
+      case "link":
+        window.open(event.detail.url, "_blank");
+        break;
+      case "infoBox":
+        setInfoBoxData(event.detail.payload);
+        break;
+    }
   };
 
   const onCarActivation = (event: CustomEvent): void => {
@@ -127,17 +122,19 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const onSceneLoadedEntity= (event: CustomEvent): void => {
     setProgressEntity(' left '+event.detail.left);
   };
-
-
-  useEffect(() => {
-    console.log('initializeEngine!');
-
+  
+  const addEventListeners = () =>{
     document.addEventListener('object-hover', onObjectHover);
     document.addEventListener('object-activation', onObjectActivation);
     document.addEventListener('player-in-car', onCarActivation);
     document.addEventListener('scene-loaded', onSceneLoaded);
     document.addEventListener('scene-loaded-entity', onSceneLoadedEntity);
+  }
 
+
+  useEffect(() => {
+    console.log('initializeEngine!');
+    addEventListeners();
 
     const networkSchema: NetworkSchema = {
       ...DefaultNetworkSchema,
@@ -237,9 +234,6 @@ export const EnginePage: FunctionComponent = (props: any) => {
     createPrefab(staticWorldColliders);
     createPrefab(RazerLaptop);
     createPrefab(CarController);
-    //if we uncomment this - all work Ok
-    // createPrefab(PlayerCharacter);
-
 
     return (): void => {
       document.removeEventListener('object-hover', onObjectHover);
@@ -330,27 +324,24 @@ export const EnginePage: FunctionComponent = (props: any) => {
       />
     ) : null;
 
-  //   //mobile gamepad
-  // const mobileGamepadProps = {hovered:hoveredLabel.length > 0, layout: hintBoxData };
-  // const mobileGamepad = isMobileOrTablet()? <MobileGamepad {...mobileGamepadProps} /> : null;
+  //mobile gamepad
+  const mobileGamepadProps = {hovered:hoveredLabel.length > 0, layout: 'default' };
+  const mobileGamepad = isMobileOrTablet()? <MobileGamepad {...mobileGamepadProps} /> : null;
 
   //info box with button
   // const infoBox = !isMobileOrTablet() && infoBoxData ? <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} /> : null;
-
-  // const hoveredLabelElement = !!!isMobileOrTablet() && hoveredLabel.length > 0 ?
-  // <div className="hintContainer">Press <span className="keyItem" >E</span> to {hoveredLabel}</div> : null;
  
   return (
     <>
-    {/* <div className="overlay overlayTemporary"></div> */}
-    {/* {renderLinearProgress()} */}
     <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
     <UIDialog />
     <OnBoardingBox />
     <MediaIconsBox />
+    <TooltipContainer message={hoveredLabel.length > 0 ? hoveredLabel : ''} />
+    <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} />
     {/* {hoveredLabelElement} */}
     {terminal}
-    {/* {mobileGamepad} */}
+    {mobileGamepad}
     {/* <BeginnerBox /> */}
     </>
   );
