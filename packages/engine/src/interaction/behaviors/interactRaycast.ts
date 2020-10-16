@@ -39,7 +39,7 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
       if (!hasComponent(interactiveEntity, Object3DComponent)) {
         return false;
       }
-
+      
       // - distance check
       // TODO: handle parent transform!!!
       const distance = getComponent(interactiveEntity, TransformComponent).position.distanceTo(clientPosition);
@@ -65,21 +65,19 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
   }
 
   const raycaster = new Raycaster();
-  let object, rayOrigin, rayDirection,rayCamera,rayMouse;
+  let object;
   // - added mouse raycaster
-  rayCamera = Engine.camera.clone();
-  rayMouse = mouseScreen;
+  const rayCamera = Engine.camera.clone();
+  const rayMouse = mouseScreen;
   raycaster.setFromCamera(rayMouse,rayCamera);
   let intersections = raycaster.intersectObjects(raycastList, true );
 
-//   if (!intersections.length){
-//   // TODO: rayOrigin, rayDirection
-//   rayOrigin = clientPosition;
-//   rayDirection = character.viewVector.clone().normalize().setY(0);
-
-//   raycaster.set(rayOrigin, rayDirection);
-//   intersections = raycaster.intersectObjects( raycastList, true );
-// }
+  if (!intersections.length){
+  const rayOrigin = clientPosition;
+  const rayDirection = character.viewVector.clone().normalize().setY(0);
+  raycaster.set(rayOrigin, rayDirection);
+  intersections = raycaster.intersectObjects( raycastList, true );
+}
   
   if (intersections.length) {
     object = intersections[0].object;
@@ -96,5 +94,5 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
   const interacts = getMutableComponent(entity, Interacts);
   interacts.focusedRayHit = newRayHit;
   interacts.focusedInteractive = newRayHit? (object as any).entity : null;
-  
+
 };
