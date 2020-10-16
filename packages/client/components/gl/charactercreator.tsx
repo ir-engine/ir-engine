@@ -52,7 +52,7 @@ import { LocalInputReceiver } from '@xr3ngine/engine/src/input/components/LocalI
 
 import dynamic from 'next/dynamic';
 const MobileGamepad = dynamic(
-  () => import('../mobileGampad').then((mod) => mod.MobileGamepad),
+  () => import('../ui/MobileGampad').then((mod) => mod.MobileGamepad),
   { ssr: false }
 );
 
