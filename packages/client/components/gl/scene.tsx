@@ -39,7 +39,7 @@ import { RazerLaptop } from "@xr3ngine/engine/src/templates/devices/prefabs/Raze
 import './style.scss';
 import { resetEngine } from "../../../engine/src/ecs/functions/EngineFunctions";
 import LinearProgressComponent from '../ui/LinearProgress';
-import UIDialog from '../ui/Dialog/Dialog'
+import OnBoardingDialog from '../ui/OnBoardingDialog'
 import TooltipContainer from '../ui/TooltipContainer'
 
 import { selectAppOnBoardingStep } from '../../redux/app/selector';
@@ -338,7 +338,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   return (
     <>
     <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
-    <UIDialog />
+    <OnBoardingDialog />
     <OnBoardingBox />
     <MediaIconsBox />
     <TooltipContainer message={hoveredLabel.length > 0 ? hoveredLabel : ''} />
