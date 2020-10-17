@@ -31,7 +31,7 @@ export default class AssetLoadingSystem extends System {
   }
 
   execute () : void{
-    if(this.queryResults.toLoad.all.length > 0){
+    if(isBrowser && this.queryResults.toLoad.all.length > 0){
       const event = new CustomEvent('scene-loaded', { detail:{loaded:false} });
       document.dispatchEvent(event);
     }  
