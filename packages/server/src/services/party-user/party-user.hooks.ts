@@ -42,7 +42,7 @@ export default {
             }
             return context;
           } catch(err) {
-            console.log(err)
+            console.log(err);
           }
         },
         partyPermissionAuthenticate()
@@ -77,8 +77,6 @@ export default {
     create: [
         async (context: HookContext): Promise<HookContext> => {
           const { app, params, result } = context;
-          console.log('New party-user result:')
-          console.log(result);
           await app.service('user').patch(result.userId, {
             partyId: result.partyId
           });

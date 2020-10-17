@@ -24,5 +24,5 @@ export const getInCar: Behavior = (entity: Entity, args: { value: Vector2 }, del
 
   const event = new CustomEvent('player-in-car', { detail:{inCar:true, interactionText: 'get out of the car',} });
   document.dispatchEvent(event);
-  cameraPointerLock()
+  // cameraPointerLock()
 };

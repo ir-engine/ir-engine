@@ -38,6 +38,11 @@ const instanceConnectionReducer = (state = immutableState, action: InstanceServe
   switch (action.type) {
     case INSTANCE_SERVER_PROVISIONING:
       return state
+          .set('instance', new Map(Object.entries(initialState.instance)))
+          .set('socket', {})
+          .set('connected', false)
+          .set('instanceProvisioned', false)
+          .set('readyToConnect', false)
           .set('instanceProvisioning', true);
     case INSTANCE_SERVER_PROVISIONED:
       newInstance = new Map(state.get('instance'));
@@ -65,7 +70,7 @@ const instanceConnectionReducer = (state = immutableState, action: InstanceServe
         .set('readyToConnect', false);
     case INSTANCE_SERVER_DISCONNECTED:
       return state
-        .set('instance', initialState.instance)
+        .set('instance', new Map(Object.entries(initialState.instance)))
         .set('locationId', initialState.locationId)
         .set('connected', false)
         .set('instanceProvisioned', false);

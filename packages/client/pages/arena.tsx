@@ -1,12 +1,12 @@
-import { AppProps } from 'next/app'
+import { AppProps } from 'next/app';
 import React, { useEffect } from 'react';
 //import './style.scss';
 import {Button} from '@material-ui/core';
 import NoSSR from 'react-no-ssr';
 import { connect } from 'react-redux';
 import {Store, Dispatch, bindActionCreators} from 'redux';
-import Loading from '../components/gl/loading';
-import Scene from '../components/gl/scene';
+import Loading from '../components/scenes/loading';
+import Scene from '../components/scenes/scene';
 import Layout from '../components/ui/Layout';
 import { selectAuthState } from '../redux/auth/selector';
 import { selectInstanceConnectionState } from '../redux/instanceConnection/selector';
@@ -65,29 +65,26 @@ export const IndexPage = (props: Props): any => {
   const currentLocation = locationState.get('currentLocation').get('location');
   const [ sceneIsVisible, setSceneVisible ] = React.useState(false);
 
+  const userBanned = selfUser.locationBans?.find(ban => ban.locationId === arenaLocationId) != null;
   useEffect(() => {
     doLoginAuto(true);
   }, []);
 
   useEffect(() => {
-      if (authState.get('isLoggedIn') === true && authState.get('user').id != null && authState.get('user').id.length > 0 && currentLocation.id == null && locationState.get('fetchingCurrentLocation') !== true) {
+      if (authState.get('isLoggedIn') === true && authState.get('user').id != null && authState.get('user').id.length > 0 && currentLocation.id == null && userBanned === false && locationState.get('fetchingCurrentLocation') !== true) {
           getLocation(arenaLocationId);
-          console.log('Joining showroom party, auth state now is:');
-          console.log(authState);
-          console.log(locationState.get('currentLocation'));
           joinLocationParty(arenaLocationId);
       }
   }, [authState]);
 
   useEffect(() => {
-      if (currentLocation.id != null && instanceConnectionState.get('instanceProvisioned') !== true && instanceConnectionState.get('instanceProvisioning') === false && selfUser.partyId != null) {
-          console.log('Provisioning instance from arena useEffect')
+      if (currentLocation.id != null && userBanned === false && instanceConnectionState.get('instanceProvisioned') !== true && instanceConnectionState.get('instanceProvisioning') === false && selfUser.partyId != null) {
           provisionInstanceServer(currentLocation.id);
       }
   }, [partyState]);
 
   useEffect(() => {
-      if (selfUser?.instanceId != null || instanceConnectionState.get('instanceProvisioned') === true) {
+      if (userBanned === false && (selfUser?.instanceId != null || instanceConnectionState.get('instanceProvisioned') === true)) {
           setSceneVisible(true);
       }
   }, [selfUser?.instanceId, selfUser?.partyId, instanceConnectionState]);
@@ -97,7 +94,8 @@ export const IndexPage = (props: Props): any => {
   return(
     <Layout pageTitle="Home">
       <NoSSR onSSR={<Loading/>}>
-        {sceneIsVisible? (<Scene />) : null}
+        {userBanned === false && sceneIsVisible ? (<Scene />) : null}
+        {userBanned !== false ? (<div className="banned">You have been banned from this location</div>) : null}
       </NoSSR>
     </Layout>
   );

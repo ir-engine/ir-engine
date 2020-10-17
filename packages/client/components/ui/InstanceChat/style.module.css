@@ -1,0 +1,15 @@
+.instance-chat-container {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  left: 25%;
+  width: 50%;
+}
+
+.instance-chat-container .chat-box  > div {
+    background-color: white;
+  }
+
+.instance-chat-container > ul {
+  min-height: 0;
+}

@@ -1,4 +1,4 @@
-import './style.scss';
+import './style.module.css';
 import React, { useState, useEffect } from 'react';
 // import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 // import PauseIcon from '@material-ui/icons/Pause'

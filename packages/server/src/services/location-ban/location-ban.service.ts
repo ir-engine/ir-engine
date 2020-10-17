@@ -1,4 +1,4 @@
-// Initializes the `location-ban` service on path `/location-ban`
+// Initializes the `location-ban` service on dpath `/location-ban`
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import { LocationBan } from './location-ban.class';
@@ -25,4 +25,32 @@ export default function (app: Application): void {
   const service = app.service('location-ban');
 
   service.hooks(hooks);
+
+  service.publish('created', async (data, params): Promise<any> => {
+    try {
+      const targetIds = [data.userId];
+      const user = await app.service('user').get(data.userId);
+      const partyUser: any = await app.service('party-user').find({
+        query: {
+          partyId: user.partyId,
+          userId: user.id
+        }
+      });
+      console.log('Banned party-user');
+      console.log(partyUser);
+      if (partyUser.total > 0) {
+        const { query, ...paramsCopy } = params as any;
+        paramsCopy.skipAuth = true;
+        await app.service('party-user').remove(partyUser.data[0].id, paramsCopy);
+      }
+
+      return Promise.all(targetIds.map((userId: string) => {
+        return app.channel(`userIds/${userId}`).send({
+          locationBan: data
+        });
+      }));
+    } catch(err) {
+      console.log(err);
+    }
+  });
 }

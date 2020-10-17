@@ -29,13 +29,13 @@ import { connectToInstanceServer, provisionInstanceServer } from '../../redux/in
 import { selectPartyState } from '../../redux/party/selector';
 import { BeginnerBox } from '../ui/beginnerBox';
 import { HintBox } from "../ui/hintBox";
-import { InfoBox } from "../ui/infoBox";
+import { InfoBox } from "../ui/InfoBox";
 import Terminal from '../terminal';
 import { commands, description } from '../terminal/commands';
 import './style.module.css';
 RazerLaptop
 
-const MobileGamepad = dynamic(() => import("../ui/mobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
+const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
 const mapStateToProps = (state: any): any => {
   return {

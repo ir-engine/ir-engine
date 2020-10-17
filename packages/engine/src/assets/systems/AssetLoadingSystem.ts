@@ -19,6 +19,8 @@ import { Model } from '../components/Model';
 import { Unload } from '../components/Unload';
 import { AssetClass } from '../enums/AssetClass';
 import { getAssetClass, getAssetType, loadAsset } from '../functions/LoadingFunctions';
+import { isBrowser } from '../../common/functions/isBrowser';
+import { MeshPhysicalMaterial, TorusGeometry } from "three";
 import { ProcessModelAsset } from "../functions/ProcessModelAsset";
 
 export default class AssetLoadingSystem extends System {
@@ -29,13 +31,14 @@ export default class AssetLoadingSystem extends System {
     super();
     addComponent(createEntity(), AssetVault);
   }
-  
-  execute () {
+
+  execute () : void{
     if(this.queryResults.toLoad.all.length > 0){
       const event = new CustomEvent('scene-loaded', { detail:{loaded:false} });
       document.dispatchEvent(event);
     }  
 
+  // execute(): void {
     this.queryResults.assetVault.all.forEach(entity => {
       // Do things here
     });

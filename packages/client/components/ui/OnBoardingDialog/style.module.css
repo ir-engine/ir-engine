@@ -1,0 +1,28 @@
+.custom-dialog.MuiBackdrop-root{
+    background: transparent;
+  }
+  
+.MuiPaper-root{
+  font-size: 1em;
+}
+
+.MuiPaper-root.dialogTitle {
+  margin: 0;
+  padding: 10px;
+}
+
+.MuiPaper-root.dialogTitle.dialogCloseButton {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  z-index: 2000;
+}
+
+.MuiPaper-root.dialogContent {
+  padding-bottom: 40px;
+  text-align: center;
+}
+
+.MuiPaper-root.dialogContent .innerText{
+  padding: 10px 0;
+}

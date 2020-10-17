@@ -37,6 +37,7 @@ import axios from 'axios';
 import { resolveAuthUser } from '@xr3ngine/common/interfaces/AuthUser';
 import { resolveUser } from '@xr3ngine/common/interfaces/User';
 import store from "../store";
+import { Network } from '@xr3ngine/engine/src/networking/components/Network';
 
 const { publicRuntimeConfig } = getConfig();
 const apiServer: string = publicRuntimeConfig.apiServer;
@@ -45,11 +46,8 @@ const authConfig = publicRuntimeConfig.auth;
 export function doLoginAuto (allowGuest?: boolean) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      console.log('DoLoginAuto')
       const authData = getStoredState('auth');
-      console.log(authData)
       let accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined;
-      console.log(accessToken);
 
       if (allowGuest !== true && !accessToken) {
         return;
@@ -63,11 +61,8 @@ export function doLoginAuto (allowGuest?: boolean) {
         accessToken = newProvider.accessToken;
       }
 
-      console.log('Setting access token: ' + accessToken)
       await (client as any).authentication.setAccessToken(accessToken as string);
-      const res = await (client as any).reAuthenticate()
-      console.log('reauthenticate res:')
-      console.log(res);
+      const res = await (client as any).reAuthenticate();
       if (res) {
         const authUser = resolveAuthUser(res);
         dispatch(loginUserSuccess(authUser));
@@ -76,7 +71,7 @@ export function doLoginAuto (allowGuest?: boolean) {
         console.log('****************');
       }
     } catch (err) {
-      console.log(err)
+      console.log(err);
       dispatch(didLogout());
 
       if (window.location.pathname !== '/') {
@@ -167,14 +162,14 @@ export function loginUserByJwt (accessToken: string, redirectSuccess: string, re
       const res = await (client as any).authenticate({
         strategy: 'jwt',
         accessToken
-      })
+      });
 
       const authUser = resolveAuthUser(res);
 
       if (subscriptionId != null && subscriptionId.length > 0) {
         await client.service('seat').patch(authUser.identityProvider.userId, {
           subscriptionId: subscriptionId
-        })
+        });
         dispatch(loginUserSuccess(authUser));
         loadUserData(dispatch, authUser.identityProvider.userId);
       } else {
@@ -486,19 +481,45 @@ export function updateUsername (userId: string, name: string) {
   };
 }
 
-client.service('user').on('patched', (params) => {
+client.service('user').on('patched', async (params) => {
   const selfUser = (store.getState() as any).get('auth').get('user');
-  const user = params.userRelationship;
+  const user = resolveUser(params.userRelationship);
+  console.log('User Patched: ' + user.id);
   if (selfUser.id === user.id) {
     if (selfUser.instanceId !== user.instanceId) {
       store.dispatch(clearLayerUsers());
     }
     store.dispatch(userUpdated(user));
   } else {
+    console.log('Not self user');
+    console.log(user);
     if (user.instanceId === selfUser.instanceId) {
       store.dispatch(addedLayerUser(user));
     } else {
       store.dispatch(removedLayerUser(user));
     }
+  }
+});
+
+client.service('location-ban').on('created', async(params) => {
+  console.log('Location Ban created');
+  const state = store.getState() as any;
+  const selfUser = state.get('auth').get('user');
+  const party = state.get('party');
+  const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === selfUser.id) : {};
+  const currentLocation = state.get('locations').get('currentLocation').get('location');
+  const locationBan = params.locationBan;
+  console.log('Current location id: ' + currentLocation.id);
+  console.log(locationBan);
+  if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
+    await (Network.instance.transport as any).endVideoChat();
+    await (Network.instance.transport as any).leave();
+    if (selfPartyUser.id != null) {
+      await client.service('party-user').remove(selfPartyUser.id);
+    }
+    const user = resolveUser(await client.service('user').get(selfUser.id));
+    console.log('Fetched user');
+    console.log(user);
+    store.dispatch(userUpdated(user));
   }
 });

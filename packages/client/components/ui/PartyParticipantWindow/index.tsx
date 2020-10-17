@@ -270,7 +270,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                     {
                         enableGlobalMute && peerId !== 'me_cam' && peerId !== 'me_screen' && <div className="spacer"/>
                     }
-                    <Tooltip title={(peerId === 'me_cam' || peerId === 'me_screen') && audioStream.paused === false ? 'Mute me' : (peerId === 'me_cam' || peerId === 'me_screen') && audioStream.paused === true ? 'Unmute me' : (peerId !== 'me_cam' && peerId !== 'me_screen') && audioStream.paused === false ? 'Mute this person' : 'Unmute this person' }>
+                    <Tooltip title={(peerId === 'me_cam' || peerId === 'me_screen') && audioStream?.paused === false ? 'Mute me' : (peerId === 'me_cam' || peerId === 'me_screen') && audioStream?.paused === true ? 'Unmute me' : (peerId !== 'me_cam' && peerId !== 'me_screen') && audioStream?.paused === false ? 'Mute this person' : 'Unmute this person' }>
                         <IconButton
                             size="small"
                             className="audio-control"
