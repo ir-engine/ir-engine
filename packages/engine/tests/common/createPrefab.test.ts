@@ -8,15 +8,23 @@ import {
 import { registerSystem, unregisterSystem } from "../../src/ecs/functions/SystemFunctions";
 import { createPrefab } from "../../src/common/functions/createPrefab";
 import { Entity } from "../../src/ecs/classes/Entity";
+import { Quaternion, Vector3, Scene } from "three";
+import { interactiveBox } from "../../src/templates/interactive/prefabs/interactiveBox";
+import { TransformComponent } from "../../src/transform/components/TransformComponent";
+import { Engine } from "../../src/ecs/classes/Engine";
 
 const onCreate = jest.fn((entity:Entity) => { return entity.componentTypes.length });
 const onAfterCreate = jest.fn((entity:Entity) => { return entity.componentTypes.length });
 
 class TestComponent extends Component<TestComponent> {
-  value:number
+  value:number;
+  position: Vector3;
+  rotation: Quaternion;
 }
 TestComponent.schema = {
   value: { type: Types.Number, default: 0 },
+  position: { type: Types.Ref, default: new Vector3(1,2,3)},
+  rotation: { type: Types.Ref, default: new Quaternion(1,2,3, 4)}
 };
 class TestComponent2 extends Component<TestComponent> {}
 
@@ -77,6 +85,7 @@ function createTestPrefab() {
       {
         type: TestComponent,
         data: {
+          position: [4,5,6],
           value: 42
         }
       },
@@ -105,10 +114,23 @@ it ("fills components with data", () => {
 
   const component = getComponent(entity, TestComponent) as TestComponent
   expect(component.value).toBe(42)
+  expect(component.position).toMatchObject(new Vector3(4,5,6))
+  expect(component.rotation).toMatchObject(new Quaternion(1,2,3, 4))
 })
 
 it ("queries receive components as added", () => {
   expect(system.queryResults.test.all.length).toBe(1)
   expect(system.queryResults.test.added.length).toBe(1)
   expect(system.queryResults.test.changed.length).toBe(0)
+})
+
+describe("special case", () => {
+  test("interactiveBox rotation?", () => {
+    Engine.scene = new Scene();
+    const iBox = createPrefab(interactiveBox);
+    const transformComponent = getComponent(iBox, TransformComponent);
+    expect(transformComponent.position).toBeInstanceOf(Vector3);
+    expect(transformComponent.rotation).toBeInstanceOf(Quaternion);
+    expect(transformComponent.velocity).toBeInstanceOf(Vector3);
+  })
 })

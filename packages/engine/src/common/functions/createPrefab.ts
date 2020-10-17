@@ -1,7 +1,6 @@
 import { Prefab } from '../interfaces/Prefab';
-import { Engine } from '../../ecs/classes/Engine';
 import { Entity } from '../../ecs/classes/Entity';
-import { createEntity, addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { createEntity, addComponent } from '../../ecs/functions/EntityFunctions';
 import { Quaternion, Vector3 } from "three";
 
 export function createPrefab (prefab: Prefab): Entity {
@@ -22,18 +21,24 @@ export function createPrefab (prefab: Prefab): Entity {
 
       const initData = {};
       // Set initialization data for each key
-      Object.keys(component.data).forEach(initValue => {
+      Object.keys(component.data).forEach(initValueKey => {
+        let initValue = component.data[initValueKey];
         // Get the component on the entity, and set it to the initializing value from the prefab
-        if (initData[initValue] instanceof Vector3) {
-
-          initData[initValue].fromArray(component.data[initValue]);
-
-          //console.log(initData[initValue]);
-        } else if (initData[initValue] instanceof Quaternion) {
-          initData[initValue].fromArray(component.data[initValue]);
+        if (typeof component.type.schema[initValueKey] === 'undefined') {
+          console.warn('property', initValueKey, ' not exists in component schema of ', component.type.name);
         } else {
-          initData[initValue] = component.data[initValue];
+          if (
+            typeof component.type.schema[initValueKey].default !== 'undefined' &&
+            Array.isArray(initValue)
+          ) {
+            if (component.type.schema[initValueKey].default instanceof Vector3) {
+              initValue = new Vector3().fromArray(initValue);
+            } else if (component.type.schema[initValueKey].default instanceof Quaternion) {
+              initValue = new Quaternion().fromArray(initValue);
+            }
+          }
         }
+        initData[initValueKey] = initValue;
       });
       // The component to the entity
       addComponent(entity, component.type, initData);

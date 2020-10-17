@@ -23,6 +23,7 @@ export const setActorAnimation: Behavior = (entity, args: { name: string; transi
   console.log('-->actor.modelContainer.children[0]', actor.modelContainer.children[0]);
 
   if (newAction === null) {
+    console.warn('setActorAnimation', args.name, ', not found');
     return;
   }
 
@@ -34,6 +35,7 @@ export const setActorAnimation: Behavior = (entity, args: { name: string; transi
 
 
   if (args.name == actor.currentAnimationAction.getClip().name) {
+    console.warn('setActorAnimation', args.name, ', same animation already playing');
     return;
   }
 /*
