@@ -37,10 +37,12 @@ export const initializeCharacter: Behavior = (entity): void => {
 	// we should keep it clean till asset loaded and all it's content moved into modelContainer
 	addObject3DComponent(entity, { obj3d: actor.tiltContainer });
 
-	const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader as any);
-	assetLoader.parent = actor.modelContainer;
-	assetLoader.onLoaded = (entity, { asset }) => {
-		actor.animations = AnimationManager.instance.animations;
+	// const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader as any);
+	// assetLoader.parent = actor.modelContainer;
+	// assetLoader.onLoaded = (entity, { asset }) => {
+		AnimationManager.instance.getAnimations().then(animations => {
+			actor.animations = animations;
+		});
 
 		console.log("Components on character");
 		console.log(entity.components);
@@ -99,5 +101,5 @@ export const initializeCharacter: Behavior = (entity): void => {
 		addState(entity, { state: CharacterStateTypes.IDLE });
 		actor.initialized = true;
 
-	};
+	// };
 };

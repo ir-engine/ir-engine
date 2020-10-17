@@ -9,24 +9,34 @@ import { Types } from '../../../ecs/types/Types';
 
 export class AnimationManager extends Component<AnimationManager> {
 	static instance: AnimationManager
-	//public initialized = false
-	animations: AnimationClip[] = []
+	public initialized = false
+
+	_animations: AnimationClip[] = []
+	getAnimations(): Promise<AnimationClip[]> {
+		return new Promise(resolve => {
+			if (!isBrowser) {
+				resolve([]);
+				return;
+			}
+
+			new GLTFLoader().load('models/avatars/Animation_NoRootMotion.glb', gltf => {
+					this._animations = gltf.animations;
+					this._animations.forEach(clip => {
+						// TODO: make list of morph targets names
+						clip.tracks = clip.tracks.filter(track => !track.name.match(/^CC_Base_/));
+					});
+					resolve(this._animations);
+				}
+			);
+		});
+	}
 
 	constructor () {
 		super();
 
 		AnimationManager.instance = this;
 
-		if (isBrowser) {
-			new GLTFLoader().load('models/avatars/Animation_NoRootMotion.glb', gltf => {
-					this.animations = gltf.animations;
-					this.animations.forEach(clip => {
-						// TODO: make list of morph targets names
-						clip.tracks = clip.tracks.filter(track => !track.name.match(/^CC_Base_/));
-					});
-				}
-			);
-		}
+		this.getAnimations();
 	}
 }
 

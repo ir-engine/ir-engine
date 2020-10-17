@@ -19,6 +19,8 @@ import { AssetClass } from '../enums/AssetClass';
 import { getAssetClass, getAssetType, loadAsset } from '../functions/LoadingFunctions';
 import { isBrowser } from '../../common/functions/isBrowser';
 import { ProcessModelAsset } from "../functions/ProcessModelAsset";
+import { CharacterAvatarComponent } from "../../templates/character/components/CharacterAvatarComponent";
+import { loadActorAvatar } from "../../templates/character/behaviors/loadActorAvatar";
 
 export default class AssetLoadingSystem extends System {
   loaded = new Map<Entity, any>()
@@ -29,6 +31,13 @@ export default class AssetLoadingSystem extends System {
   }
 
   execute(): void {
+    this.queryResults.characterAvatar.added.forEach(entity => {
+      loadActorAvatar(entity);
+    });
+    this.queryResults.characterAvatar.changed.forEach(entity => {
+      loadActorAvatar(entity);
+    });
+
     this.queryResults.assetVault.all.forEach(entity => {
       // Do things here
     });
@@ -121,5 +130,12 @@ AssetLoadingSystem.queries = {
   },
   toUnload: {
     components: [AssetLoaderState, Unload, Not(AssetLoader)]
+  },
+  characterAvatar: {
+    components: [ CharacterAvatarComponent ],
+    listen: {
+      added: true,
+      changed: true
+    }
   }
 };
