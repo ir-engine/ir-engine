@@ -616,7 +616,8 @@ class Terminal extends Component<any, any> {
       // Scroll terminal to end.
       setTimeout(
         () => {
-          instance.contentWrapper.scrollTop = instance.contentWrapper.scrollHeight;
+          if (instance.contentWrapper !== null)
+            instance.contentWrapper.scrollTop = instance.contentWrapper.scrollHeight;
         },
         50);
 
@@ -895,6 +896,7 @@ class Terminal extends Component<any, any> {
     let commands = { ...this.state.commands };
     let descriptions = { ...this.state.descriptions };
     const instanceData = this.state.instances.find(i => isEqual(i.instance, instance));
+    
     if (instanceData) {
       Object.values(instanceData.pluginInstances).forEach((i: any) => {
         commands = {
@@ -911,9 +913,8 @@ class Terminal extends Component<any, any> {
 
     for (const option of options) {
       // eslint-disable-line no-restricted-syntax
-      if (descriptions[option] !== false) {
+      if ((option in descriptions) && descriptions[option] !== false)
         printLine(`${option} - ${descriptions[option]}`);
-      }
     }
   };
 
