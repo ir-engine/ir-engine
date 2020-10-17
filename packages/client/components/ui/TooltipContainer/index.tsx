@@ -16,8 +16,8 @@ const mapStateToProps = (state: any): any => {
 };
 
 
-const TooltipContainer = (props : Props) =>{
-  console.log('props.message', props.message)
+const TooltipContainer = (props: Props) =>{
+  console.log('props.message', props.message);
        
   return !isMobileOrTablet() && props.message ? 
             <Snackbar anchorOrigin={{vertical: 'bottom',horizontal: 'center'}} 
@@ -25,7 +25,7 @@ const TooltipContainer = (props : Props) =>{
             autoHideDuration={10000}>
                 <section className='MuiSnackbarContent-root innerHtml'>Press <span className="keyItem" >E</span> to {props.message}</section>
             </Snackbar>
-          :null
-}
+          :null;
+};
 
 export default connect(mapStateToProps)(TooltipContainer);

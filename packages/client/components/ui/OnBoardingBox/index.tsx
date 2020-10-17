@@ -32,7 +32,7 @@ import {ArrowheadRightOutline} from '@styled-icons/evaicons-outline/ArrowheadRig
 import {DotCircle} from '@styled-icons/fa-regular/DotCircle';
 import { connect } from "react-redux";
 import { selectAppOnBoardingStep } from "../../../redux/app/selector";
-import { generalStateList, setAppOnBoardingStep } from '../../../redux/app/actions'
+import { generalStateList, setAppOnBoardingStep } from '../../../redux/app/actions';
 import store from "../../../redux/store";
 
 
@@ -53,7 +53,7 @@ const OnBoardingBox = (props) =>{
           return isMobileOrTablet() ? <section className="movearound"><DotCircle /></section> : '';
       default : return '';
     }
-  }
+  };
   let message = '';
   let action = null;
   switch(onBoardingStep){
@@ -72,7 +72,7 @@ const OnBoardingBox = (props) =>{
                   autoHideDuration={10000} message={message} 
                   action={<Button onClick={action} color="primary">(Skip)</Button>} />
                 </>
-              :null
-}
+              :null;
+};
 
 export default connect(mapStateToProps)(OnBoardingBox);

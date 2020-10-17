@@ -23,7 +23,7 @@ import { ProcessModelAsset } from "../functions/ProcessModelAsset";
 
 export default class AssetLoadingSystem extends System {
   loaded = new Map<Entity, any>()
-  loadingCount:number = 0;
+  loadingCount = 0;
 
   constructor() {
     super();
