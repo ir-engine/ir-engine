@@ -258,7 +258,6 @@ export default class Api extends EventEmitter {
   }
 
   async resolveMedia(url, index): any {
-    // debugger
     const absoluteUrl = new URL(url, (window as any).location).href;
 
     if (absoluteUrl.startsWith(this.serverURL)) {

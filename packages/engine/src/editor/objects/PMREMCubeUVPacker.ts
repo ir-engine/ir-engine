@@ -7,6 +7,7 @@ import {
 	NoBlending,
 	OrthographicCamera,
 	PlaneBufferGeometry,
+	GammaEncoding,
 	RGBEEncoding,
 	RGBM16Encoding,
 	Scene,
@@ -68,7 +69,10 @@ const PMREMCubeUVPacker = ( function () {
 
 		let offset2 = 0;
 		let c = 4.0;
-		this.numLods = Math.log( cubeTextureLods[ 0 ].width ) / Math.log( 2 ) - 2; // IE11 doesn't support Math.log2
+		this.numLods = Math.min(
+			cubeTextureLods.length,
+			Math.log(cubeTextureLods[0].width) / Math.log(2) - 2 // IE11 doesn't support Math.log2
+		)
 		for ( let i = 0; i < this.numLods; i ++ ) {
 
 			const offset1 = ( textureResolution - textureResolution / c ) * 0.5;
@@ -132,24 +136,28 @@ const PMREMCubeUVPacker = ( function () {
 
 			}
 
-			const gammaInput = renderer.gammaInput;
-			const gammaOutput = renderer.gammaOutput;
+			// const gammaInput = renderer.gammaInput;
+			// const gammaOutput = renderer.gammaOutput;
 			const toneMapping = renderer.toneMapping;
 			const toneMappingExposure = renderer.toneMappingExposure;
 			const currentRenderTarget = renderer.getRenderTarget();
 
-			renderer.gammaInput = false;
-			renderer.gammaOutput = false;
+			// renderer.gammaInput = false;
+			// renderer.gammaOutput = false;
 			renderer.toneMapping = LinearToneMapping;
 			renderer.toneMappingExposure = 1.0;
+			if (this.CubeUVRenderTarget) this.CubeUVRenderTarget.texture.encoding = GammaEncoding
 			renderer.setRenderTarget( this.CubeUVRenderTarget );
 			renderer.render( scene, camera );
 
+			if (currentRenderTarget) currentRenderTarget.texture.encoding = GammaEncoding
 			renderer.setRenderTarget( currentRenderTarget );
 			renderer.toneMapping = toneMapping;
 			renderer.toneMappingExposure = toneMappingExposure;
-			renderer.gammaInput = gammaInput;
-			renderer.gammaOutput = gammaOutput;
+			
+			this.CubeUVRenderTarget.texture.encoding = GammaEncoding
+			// renderer.gammaInput = gammaInput;
+			// renderer.gammaOutput = gammaOutput;
 
 			for ( let i = 0; i < this.objects.length; i ++ ) {
 

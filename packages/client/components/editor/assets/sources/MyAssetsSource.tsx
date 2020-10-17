@@ -6,6 +6,7 @@ import VideoNode from "@xr3ngine/engine/src/editor/nodes/VideoNode";
 import ImageNode from "@xr3ngine/engine/src/editor/nodes/ImageNode";
 import AudioNode from "@xr3ngine/engine/src/editor/nodes/AudioNode";
 import { AcceptsAllFileTypes } from "../fileTypes";
+import Editor from "../../../Editor";
 const assetTypeToNode = {
   model: ModelNode,
   image: ImageNode,
@@ -20,7 +21,7 @@ const assetTypeToItemType = {
 };
 export default class MyAssetsSource extends BaseSource {
   component: typeof UploadSourcePanel;
-  editor: any;
+  editor: Editor;
   tags: { label: string; value: string }[];
   searchLegalCopy: string;
   privacyPolicyUrl: string;

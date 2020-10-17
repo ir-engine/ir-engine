@@ -42,7 +42,7 @@ export default class TransformGizmo extends Object3D {
 
     gizmoGltf = gltf;
 
-    return Promise.resolve(gizmoGltf);
+    return gizmoGltf;
   }
   constructor() {
     super();

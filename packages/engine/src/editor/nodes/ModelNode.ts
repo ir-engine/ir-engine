@@ -57,9 +57,14 @@ export default class ModelNode extends EditorNodeMixin(Model) {
             node.model.animations
           ) {
             // DEPRECATED: Old loop-animation component stored the clip name rather than the clip index
-            node.activeClipIndex = node.model.animations.findIndex(
-              animation => animation.name === clip
-            );
+            // node.activeClipIndex = node.model.animations.findIndex(
+            //   animation => animation.name === clip
+            // );
+            const clipIndex = node.model.animations.findIndex(animation => animation.name === clip);
+
+            if (clipIndex !== -1) {
+              node.activeClipIndices = [clipIndex];
+            }
           }
         }
         const shadowComponent = json.components.find(c => c.name === "shadow");

@@ -15,6 +15,8 @@ export default class PointLightNodeEditor extends Component<
   PointLightNodeEditorProps,
   {}
 > {
+  static iconComponent = Lightbulb;
+  static description = "A light which emits in all directions from a single point.";
   onChangeColor = color => {
     (this.props.editor as any).setPropertySelected("color", color);
   };

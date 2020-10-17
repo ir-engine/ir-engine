@@ -1,5 +1,6 @@
 import { Fly, FlyMapping } from "./input-mappings";
-import { Vector3, Matrix4, Quaternion, MathUtils } from "three";
+import { Vector3, Matrix4, Quaternion, MathUtils, PerspectiveCamera } from "three";
+import InputManager from "./InputManager";
 const EPSILON = 10e-5;
 const UP = new Vector3(0, 1, 0);
 const parentInverse = new Matrix4();
@@ -20,7 +21,7 @@ export default class FlyControls {
   maxXRotation: any;
   direction: Vector3;
   onMouseUp: (e: any) => void;
-  constructor(camera, inputManager) {
+  constructor(camera: PerspectiveCamera, inputManager: InputManager) {
     this.enabled = false;
     this.camera = camera;
     this.inputManager = inputManager;
