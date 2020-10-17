@@ -9,11 +9,11 @@ import { closeDialog } from '../../../redux/dialog/service';
 
 import './style.scss';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
-import { generalStateList, setAppOnBoardingStep } from '../../../redux/app/actions'
+import { generalStateList, setAppOnBoardingStep } from '../../../redux/app/actions';
 import store from '../../../redux/store';
 import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
 import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter';
-import UserSettings from '../Profile/UserSettings'
+import UserSettings from '../Profile/UserSettings';
 
 // interface Props {
 //   dialog: any;
@@ -57,9 +57,9 @@ const OnBoardingDialog = (props) => {
   let submitButtonText = '';
   let submitButtonAction = null;
   let children = null;
-  let isCloseButton = false;
+  const isCloseButton = false;
   const defineDialog = () =>{
-    console.log ('defineDialog generalStateList[generalState]', onBoardingStep, generalStateList[onBoardingStep])
+    console.log ('defineDialog generalStateList[generalState]', onBoardingStep, generalStateList[onBoardingStep]);
     switch(onBoardingStep){
       case  generalStateList.SCENE_LOADED : { 
             isOpened=true; dialogText = 'Virtual retail experience'; submitButtonText =  'Enter The World';
@@ -82,7 +82,7 @@ const OnBoardingDialog = (props) => {
          }     
       default : {isOpened = false;dialogText = '';submitButtonText = '';submitButtonAction = null;children = null; break;}
     }
-  }
+  };
 
   defineDialog();
 

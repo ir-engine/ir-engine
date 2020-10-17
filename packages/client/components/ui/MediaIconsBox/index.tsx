@@ -4,7 +4,7 @@ import './style.scss';
 import { generalStateList } from '../../../redux/app/actions';
 import { Microphone } from '@styled-icons/boxicons-regular/Microphone';
 import { CameraVideo } from '@styled-icons/bootstrap/CameraVideo';
-import { Face } from '@styled-icons/boxicons-regular/Face'
+import { Face } from '@styled-icons/boxicons-regular/Face';
 import { connect } from "react-redux";
 import { selectAppOnBoardingStep } from "../../../redux/app/selector";
 
@@ -23,7 +23,7 @@ const MediaIconsBox = (props) =>{
             <Face />
           </section>
         </section>
-      :null
-}
+      :null;
+};
 
 export default connect(mapStateToProps)(MediaIconsBox);

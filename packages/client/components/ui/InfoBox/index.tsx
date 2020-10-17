@@ -17,8 +17,8 @@ export const InfoBox: FunctionComponent<InfoBoxProps> = ({ onClose, data }: Info
   if(!data){return null;}
 
 const handleLinkClick = (url) =>{  
-   window.open(url, "_blank")
-}
+   window.open(url, "_blank");
+};
   let modelView = null;
   if (data.modelUrl) {
     modelView = (<ModelView modelUrl={data.modelUrl} />);

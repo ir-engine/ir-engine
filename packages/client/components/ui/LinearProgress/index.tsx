@@ -8,7 +8,7 @@ import { generalStateList } from '../../../redux/app/actions';
 
 interface Props {
   label?: string;
-  onBoardingStep?:number;
+  onBoardingStep?: number;
 }
 
 const mapStateToProps = (state: any): any => {
