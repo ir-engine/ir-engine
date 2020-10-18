@@ -1,11 +1,6 @@
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { Entity } from "@xr3ngine/engine/src/ecs/classes/Entity";
-import { System } from "@xr3ngine/engine/src/ecs/classes/System";
-import { Component } from "@xr3ngine/engine/src/ecs/classes/Component";
-import { Query } from "@xr3ngine/engine/src/ecs/classes/Query";
-import { ComponentConstructor } from "@xr3ngine/engine/src/ecs/interfaces/ComponentInterfaces";
-import Left from "../ui/Drawer/Left";
 import { createEntity } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
+import { ComponentConstructor } from "@xr3ngine/engine/src/ecs/interfaces/ComponentInterfaces";
 //import {curryRight} from "lodash";
 
 function round(number: number): number {
