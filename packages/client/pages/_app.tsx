@@ -23,7 +23,7 @@ import { connect } from 'react-redux';
 import getConfig from 'next/config';
 import { ApiContext } from '../components/editor/contexts/ApiContext';
 import Api from "../components/editor/api/Api";
-import GlobalStyle from '../components/editor/ui/GlobalStyle';
+import GlobalStyle from '../components/editor/GlobalStyle';
 
 const config = getConfig().publicRuntimeConfig;
 

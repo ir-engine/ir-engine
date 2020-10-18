@@ -23,7 +23,7 @@ import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebR
 import { selectInstanceConnectionState } from '../../redux/instanceConnection/selector';
 import { connectToInstanceServer, provisionInstanceServer } from '../../redux/instanceConnection/service';
 import Terminal from '../terminal';
-import { commands, description } from '../terminal/commands';
+import { commands, descriptions } from '../terminal/commands';
 import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
 import { selectAuthState } from '../../redux/auth/selector';
 import { selectPartyState } from '../../redux/party/selector';
@@ -323,7 +323,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
           // height: "30%",
           zIndex: 4000 }}
         commands={commands}
-        description={description}
+        description={descriptions}
         msg='Interactive terminal. Please consult the manual for commands.'
       />
     ) : null;

@@ -11,7 +11,6 @@ export default {
     patch: [],
     remove: []
   },
-
   after: {
     all: [],
     find: [],

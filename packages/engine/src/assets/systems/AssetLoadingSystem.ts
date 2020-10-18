@@ -19,8 +19,6 @@ import { Model } from '../components/Model';
 import { Unload } from '../components/Unload';
 import { AssetClass } from '../enums/AssetClass';
 import { getAssetClass, getAssetType, loadAsset } from '../functions/LoadingFunctions';
-import { isBrowser } from '../../common/functions/isBrowser';
-import { MeshPhysicalMaterial, TorusGeometry } from "three";
 import { ProcessModelAsset } from "../functions/ProcessModelAsset";
 
 export default class AssetLoadingSystem extends System {

@@ -67,7 +67,8 @@
     "@feathersjs/transport-commons": "^4.5.8",
     "chokidar": "3.4.2",
     "mediasoup-client": "^3.6.12",
-    "sequelize": "~5.21.8"
+    "sequelize": "~5.21.8",
+    "three": "^0.121.0"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.11.5",
