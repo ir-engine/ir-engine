@@ -1,7 +1,6 @@
 import { Prefab } from '../interfaces/Prefab';
-import { Engine } from '../../ecs/classes/Engine';
 import { Entity } from '../../ecs/classes/Entity';
-import { createEntity, addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { createEntity, addComponent } from '../../ecs/functions/EntityFunctions';
 import { Quaternion, Vector3 } from "three";
 
 export function createPrefab (prefab: Prefab): Entity {
@@ -13,29 +12,42 @@ export function createPrefab (prefab: Prefab): Entity {
   });
   // For each component on the prefab...
   {
-prefab.components?.forEach(component => {
-  // The component to the entity
-  addComponent(entity, component.type);
-  // If the component has no initialization data, return
-  if (component.data == undefined) return;
-  // Get a mutable reference to the component
-  const addedComponent = getMutableComponent(entity, component.type);
-  // Set initialization data for each key
-  Object.keys(component.data).forEach(initValue => {
-    // Get the component on the entity, and set it to the initializing value from the prefab
-    if (addedComponent[initValue] instanceof Vector3) {
+    prefab.components?.forEach(component => {
+      if (typeof component.data === 'undefined') {
+        // The component to the entity
+        addComponent(entity, component.type);
+        return;
+      }
 
-      addedComponent[initValue].fromArray(component.data[initValue]);
-
-      console.log(addedComponent[initValue]);
-    } else if (addedComponent[initValue] instanceof Quaternion) {
-      addedComponent[initValue].fromArray(component.data[initValue]);
-    } else {
-      addedComponent[initValue] = component.data[initValue];
-    }
-  });
-});
+      const initData = {};
+      // Set initialization data for each key
+      Object.keys(component.data).forEach(initValueKey => {
+        let initValue = component.data[initValueKey];
+        // Get the component on the entity, and set it to the initializing value from the prefab
+        if (typeof component.type.schema[initValueKey] === 'undefined') {
+          console.warn('property', initValueKey, ' not exists in component schema of ', component.type.name);
+        } else {
+          if (
+            typeof component.type.schema[initValueKey].default !== 'undefined' &&
+            Array.isArray(initValue)
+          ) {
+            if (component.type.schema[initValueKey].default instanceof Vector3) {
+              initValue = new Vector3().fromArray(initValue);
+            } else if (component.type.schema[initValueKey].default instanceof Quaternion) {
+              initValue = new Quaternion().fromArray(initValue);
+            }
+          }
+        }
+        initData[initValueKey] = initValue;
+      });
+      // The component to the entity
+      addComponent(entity, component.type, initData);
+    });
   }
+  prefab.onAfterCreate?.forEach(action => {
+    // Call the behavior with the args
+    { action.behavior(entity, action.args); }
+  });
 
   return entity;
 }
