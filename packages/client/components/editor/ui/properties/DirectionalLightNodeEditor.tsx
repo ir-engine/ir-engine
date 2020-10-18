@@ -13,6 +13,8 @@ export default class DirectionalLightNodeEditor extends Component<
   DirectionalLightNodeEditorProps,
   {}
 > {
+  static iconComponent = Bolt;
+  static description = "A light which illuminates the entire scene, but emits along a single direction.";
   onChangeColor = color => {
     (this.props.editor as any).setPropertySelected("color", color);
   };
