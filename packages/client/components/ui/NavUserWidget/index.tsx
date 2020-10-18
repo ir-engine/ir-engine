@@ -8,7 +8,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { showDialog } from '../../../redux/dialog/service';
 import Dropdown from '../Profile/ProfileDropdown';
 import { User } from '@xr3ngine/common/interfaces/User';
-import './style.scss';
+import './style.module.scss';
 
 const mapStateToProps = (state: any): any => {
   return { auth: selectAuthState(state) };

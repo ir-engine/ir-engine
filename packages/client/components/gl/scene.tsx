@@ -36,7 +36,7 @@ import OnBoardingBox from "../ui/OnBoardingBox";
 import MediaIconsBox from "../ui/MediaIconsBox";
 // import { BeginnerBox } from '../beginnerBox';
 import { RazerLaptop } from "@xr3ngine/engine/src/templates/devices/prefabs/RazerLaptop";
-import './style.scss';
+import './style.module.scss';
 import { resetEngine } from "../../../engine/src/ecs/functions/EngineFunctions";
 import LinearProgressComponent from '../ui/LinearProgress';
 import OnBoardingDialog from '../ui/OnBoardingDialog';

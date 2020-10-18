@@ -1,5 +1,5 @@
 // import React, { CSSProperties, FunctionComponent } from "react";
-// import './style.scss';
+// import './style.module.scss';
 
 // export type HintBoxProps = {
 //   layout: string;
@@ -23,7 +23,7 @@
 // };
 import React from "react";
 
-import './style.scss';
+import './style.module.scss';
 import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
 // import { generalStateList } from '../../../redux/app/actions';
 import { Button, Snackbar } from '@material-ui/core';

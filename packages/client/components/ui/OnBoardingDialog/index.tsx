@@ -7,7 +7,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import { selectDialogState } from '../../../redux/dialog/selector';
 import { closeDialog } from '../../../redux/dialog/service';
 
-import './style.scss';
+import './style.module.scss';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { generalStateList, setAppOnBoardingStep } from '../../../redux/app/actions';
 import store from '../../../redux/store';

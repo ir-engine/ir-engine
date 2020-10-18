@@ -7,7 +7,7 @@ import Box from '@material-ui/core/Box';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectAuthState } from '../../../redux/auth/selector';
-import './style.scss';
+import './style.module.scss';
 import {
   cancelInvitation,
   removeSeat

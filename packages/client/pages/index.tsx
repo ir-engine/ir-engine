@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-//import './style.scss';
+//import './style.module.scss';
 import {Button} from '@material-ui/core';
 import NoSSR from 'react-no-ssr';
 import { connect } from "react-redux";

@@ -8,7 +8,7 @@ import { selectGroupState } from '../../../../redux/group/selector';
 import { selectPartyState } from '../../../../redux/party/selector';
 import { selectUserState } from '../../../../redux/user/selector';
 import { selectLocationState } from '../../../../redux/location/selector';
-import './style.scss';
+import './style.module.scss';
 
 import {
     updateInviteTarget

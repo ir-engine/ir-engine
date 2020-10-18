@@ -10,7 +10,7 @@ import { selectDialogState } from '../../../redux/dialog/selector';
 import { closeDialog } from '../../../redux/dialog/service';
 import { bindActionCreators, Dispatch } from 'redux';
 import Router from 'next/router';
-import './style.scss';
+import './style.module.scss';
 
 interface Props {
   dialog: any;

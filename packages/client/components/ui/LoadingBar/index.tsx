@@ -1,5 +1,5 @@
 import React from 'react';
-import './style.scss';
+import './style.module.scss';
 
 interface Props {
   loadPercent: number;
