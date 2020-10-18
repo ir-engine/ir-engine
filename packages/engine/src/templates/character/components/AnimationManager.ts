@@ -12,7 +12,7 @@ export class AnimationManager extends Component<AnimationManager> {
 	public initialized = false
 
 	_animations: AnimationClip[] = []
-	getAnimations(): Promise<AnimationClip[]> {
+	public getAnimations(): Promise<AnimationClip[]> {
 		return new Promise(resolve => {
 			if (!isBrowser) {
 				resolve([]);

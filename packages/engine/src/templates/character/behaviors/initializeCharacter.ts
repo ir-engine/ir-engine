@@ -7,7 +7,7 @@ import { CapsuleCollider } from "../../../physics/components/CapsuleCollider";
 import { RelativeSpringSimulator } from "../../../physics/classes/RelativeSpringSimulator";
 import { VectorSpringSimulator } from "../../../physics/classes/VectorSpringSimulator";
 import { CollisionGroups } from "../../../physics/enums/CollisionGroups";
-import { addState } from "../../../state/behaviors/StateBehaviors";
+import { addState } from "../../../state/behaviors/addState";
 import { CharacterComponent } from "../components/CharacterComponent";
 import { CharacterStateTypes } from "../CharacterStateTypes";
 import { Engine } from "../../../ecs/classes/Engine";
@@ -44,9 +44,6 @@ export const initializeCharacter: Behavior = (entity): void => {
 			actor.animations = animations;
 		});
 
-		console.log("Components on character");
-		console.log(entity.components);
-
 		actor.mixer = new AnimationMixer(actor.modelContainer);
 		actor.mixer.timeScale = 0.7;
 
@@ -61,7 +58,7 @@ export const initializeCharacter: Behavior = (entity): void => {
 		addComponent(entity, CapsuleCollider as any, {
 			mass: 1,
 			position: new Vec3(),
-			actor_height: 1,
+			height: 1,
 			radius: 0.25,
 			segments: 8,
 			friction: 0.0

@@ -18,6 +18,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { physicsPostStep } from '../../templates/character/behaviors/physicsPostStep';
 import { updateCharacter } from '../../templates/character/behaviors/updateCharacter';
 import { Engine } from '../../ecs/classes/Engine';
+import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions';
 
 export class PhysicsSystem extends System {
   fixedExecute:(delta:number)=>void = null
@@ -26,7 +27,7 @@ export class PhysicsSystem extends System {
   constructor() {
     super();
     this.fixedRunner = new FixedStepsRunner(Engine.physicsFrameRate, this.onFixedExecute.bind(this));
-    new PhysicsManager({ framerate: Engine.physicsFrameRate });
+    const physicsManagerComponent = addComponent<PhysicsManager>(createEntity(), PhysicsManager);
   }
 
   canExecute(delta:number): boolean {
