@@ -23,16 +23,10 @@
     "url": "git+https://github.com/xr3ngine/xr3ngine.git"
   },
   "scripts": {
-    "build": "rollup -c",
     "lint": "node node_modules/.bin/eslint --fix --quiet --ext .ts src/",
     "test": "jest",
-    "validate": "yarn run lint && yarn run test",
-    "create-indexes": "npx create-ts-index src -b"
+    "validate": "yarn run lint && yarn run test"
   },
-  "pre-commit": [
-    "lint",
-    "build"
-  ],
   "version": "0.2.0",
   "peerDependencies": {
     "three": "^0.121.1"
