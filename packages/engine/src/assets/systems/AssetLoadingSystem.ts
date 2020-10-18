@@ -20,6 +20,8 @@ import { getAssetClass, getAssetType, loadAsset } from '../functions/LoadingFunc
 import { isBrowser } from '../../common/functions/isBrowser';
 import { MeshPhysicalMaterial, TorusGeometry } from "three";
 import { ProcessModelAsset } from "../functions/ProcessModelAsset";
+import { CharacterAvatarComponent } from "../../templates/character/components/CharacterAvatarComponent";
+import { loadActorAvatar } from "../../templates/character/behaviors/loadActorAvatar";
 
 export default class AssetLoadingSystem extends System {
   loaded = new Map<Entity, any>()
@@ -36,16 +38,25 @@ export default class AssetLoadingSystem extends System {
       document.dispatchEvent(event);
     }  
 
-  // execute(): void {
+    this.queryResults.characterAvatar.added.forEach(entity => {
+      loadActorAvatar(entity);
+    });
+    this.queryResults.characterAvatar.changed.forEach(entity => {
+      loadActorAvatar(entity);
+    });
+
     this.queryResults.assetVault.all.forEach(entity => {
       // Do things here
     });
     this.queryResults.toLoad.all.forEach((entity: Entity) => {
-      if(hasComponent(entity, AssetLoaderState)) return console.log("Returning because already has assetloader");
       console.log("To load query has members!");
-      // Create a new entity
-      addComponent(entity, AssetLoaderState);
-      
+      if(hasComponent(entity, AssetLoaderState)) {
+        //return console.log("Returning because already has AssetLoaderState");
+        console.log("??? already has AssetLoaderState");
+      } else {
+        // Create a new AssetLoaderState
+        addComponent(entity, AssetLoaderState);
+      }
       const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader);
       // Set the filetype
       assetLoader.assetType = getAssetType(assetLoader.url);
@@ -78,6 +89,13 @@ export default class AssetLoadingSystem extends System {
       }
      
     });
+
+    if (this.queryResults.toLoad.added?.length > 0) {
+      console.log('toLoad added', this.queryResults.toLoad.added.length);
+    }
+    if (this.queryResults.toLoad.removed?.length > 0) {
+      console.log('toLoad removed', this.queryResults.toLoad.removed.length);
+    }
 
     // Do the actual entity creation inside the system tick not in the loader callback
     this.loaded.forEach( (asset, entity) =>{
@@ -135,9 +153,16 @@ AssetLoadingSystem.queries = {
     listen: {
       added: true,
       removed: true
-    }  
+    }
   },
   toUnload: {
     components: [AssetLoaderState, Unload, Not(AssetLoader)]
+  },
+  characterAvatar: {
+    components: [ CharacterAvatarComponent ],
+    listen: {
+      added: true,
+      changed: true
+    }
   }
 };

@@ -27,23 +27,27 @@ export function ProcessModelAsset(entity: Entity, component:AssetLoader, asset:a
   ReplaceMaterials(object, component);
   object = HandleLODs(entity,object);
 
-  if (hasComponent(entity, Object3DComponent)) {
-    if (getComponent<Object3DComponent>(entity, Object3DComponent).value !== undefined)
-      getMutableComponent<Object3DComponent>(entity, Object3DComponent).value.add(object);
-    else getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = object;
+  if (component.parent) {
+    component.parent.add(object);
   } else {
-    addObject3DComponent(entity, {obj3d: object});
+    if (hasComponent(entity, Object3DComponent)) {
+      if (getComponent<Object3DComponent>(entity, Object3DComponent).value !== undefined)
+        getMutableComponent<Object3DComponent>(entity, Object3DComponent).value.add(object);
+      else getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = object;
+    } else {
+      addObject3DComponent(entity, {obj3d: object});
+    }
+
+    //const transformParent = addComponent<TransformParentComponent>(entity, TransformParentComponent) as TransformParentComponent
+
+    object.children.forEach(obj => {
+      const e = createEntity();
+      addObject3DComponent(e, { obj3d: obj, parentEntity: entity });
+      // const transformChild = addComponent<TransformChildComponent>(e, TransformChildComponent) as TransformChildComponent
+      // transformChild.parent = entity
+      //transformParent.children.push(e)
+    });
   }
-
-  //const transformParent = addComponent<TransformParentComponent>(entity, TransformParentComponent) as TransformParentComponent
-
-  object.children.forEach(obj => {
-    const e = createEntity();
-    addObject3DComponent(e, { obj3d: obj, parentEntity: entity });
-    // const transformChild = addComponent<TransformChildComponent>(e, TransformChildComponent) as TransformChildComponent
-    // transformChild.parent = entity
-    //transformParent.children.push(e)
-  });
 }
 
 function HandleLODs(entity: Entity, asset:Object3D):Object3D {

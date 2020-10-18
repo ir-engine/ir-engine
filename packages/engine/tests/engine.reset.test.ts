@@ -1,24 +1,24 @@
-import { initializeEngine } from "../../src/initialize";
-import { Engine } from "../../src/ecs/classes/Engine";
-import { addComponent, createEntity } from "../../src/ecs/functions/EntityFunctions";
-import { Component } from "../../src/ecs/classes/Component";
-import { Entity } from "../../src/ecs/classes/Entity";
-import { execute, resetEngine } from "../../src/ecs/functions/EngineFunctions";
-import { CharacterInputSchema } from "../../src/templates/character/CharacterInputSchema";
-import { DefaultNetworkSchema } from "../../src/templates/network/DefaultNetworkSchema";
-import { CharacterStateSchema } from "../../src/templates/character/CharacterStateSchema";
-import { CharacterSubscriptionSchema } from "../../src/templates/character/CharacterSubscriptionSchema";
-import { createPrefab } from "../../src/common/functions/createPrefab";
-import { rigidBodyBox } from "@xr3ngine/client/components/gl/rigidBodyBox";
-import { staticWorldColliders } from "@xr3ngine/client/components/gl/staticWorldColliders";
-import { addObject3DComponent } from "../../src/common/behaviors/Object3DBehaviors";
+import { initializeEngine } from "../src/initialize";
+import { Engine } from "../src/ecs/classes/Engine";
+import { addComponent, createEntity } from "../src/ecs/functions/EntityFunctions";
+import { Component } from "../src/ecs/classes/Component";
+import { Entity } from "../src/ecs/classes/Entity";
+import { execute, resetEngine } from "../src/ecs/functions/EngineFunctions";
+import { CharacterInputSchema } from "../src/templates/character/CharacterInputSchema";
+import { DefaultNetworkSchema } from "../src/templates/networking/DefaultNetworkSchema";
+import { CharacterStateSchema } from "../src/templates/character/CharacterStateSchema";
+import { CharacterSubscriptionSchema } from "../src/templates/character/CharacterSubscriptionSchema";
+import { createPrefab } from "../src/common/functions/createPrefab";
+import { rigidBodyBox } from "../src/templates/car/prefabs/rigidBodyBox";
+import { staticWorldColliders } from "../src/templates/car/prefabs/staticWorldColliders";
+import { addObject3DComponent } from "../src/common/behaviors/Object3DBehaviors";
 import { AmbientLight } from "three";
-import { Prefab } from "../../src/common/interfaces/Prefab";
-import { CharacterComponent } from "../../src/templates/character/components/CharacterComponent";
-import { TransformComponent } from "../../src/transform/components/TransformComponent";
-import { Input } from "../../src/input/components/Input";
-import { State } from "../../src/state/components/State";
-import { Subscription } from "../../src/subscription/components/Subscription";
+import { Prefab } from "../src/common/interfaces/Prefab";
+import { CharacterComponent } from "../src/templates/character/components/CharacterComponent";
+import { TransformComponent } from "../src/transform/components/TransformComponent";
+import { Input } from "../src/input/components/Input";
+import { State } from "../src/state/components/State";
+import { Subscription } from "../src/subscription/components/Subscription";
 
 const options = {
   debug: true,
