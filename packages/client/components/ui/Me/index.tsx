@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import './style.scss';
+import './style.module.scss';
 import PartyParticipantWindow from '../PartyParticipantWindow';
 import { Grid } from '@material-ui/core';
 import { MediaStreamComponent } from '@xr3ngine/engine/src/networking/components/MediaStreamComponent';

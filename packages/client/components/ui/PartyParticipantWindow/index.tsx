@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import './style.scss';
+import './style.module.scss';
 import { autorun } from 'mobx';
 import { observer } from 'mobx-react';
 import IconButton from '@material-ui/core/IconButton';

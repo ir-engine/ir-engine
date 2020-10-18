@@ -1,4 +1,4 @@
-import "dotenv";
+// import "dotenv";
 
 // Read configs from meta tags if available, otherwise use the process.env injected from build.
 const configs = {};

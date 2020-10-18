@@ -12,7 +12,7 @@ import { getUsers } from '../../../redux/user/service';
 import { TextField, InputAdornment } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { debounce } from 'lodash';
-import './style.scss';
+import './style.module.scss';
 
 interface Props {
   userState: any;

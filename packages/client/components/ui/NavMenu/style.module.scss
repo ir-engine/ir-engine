@@ -1,0 +1,22 @@
+.gap {
+    flex-grow: 1;
+}
+.flex {
+    display: flex;
+    align-items: center;
+}
+
+.appbar {
+    box-shadow: none!important;
+    background-color: rgba(0, 0, 0, 0)!important;
+    color: rgba(0, 0, 0, 0)!important;
+    padding: 2em !important;
+    flex-direction: row !important;
+    align-items: center !important;
+}
+
+.logo {
+    height: 3em;
+    width: auto;
+    cursor: pointer;
+}
