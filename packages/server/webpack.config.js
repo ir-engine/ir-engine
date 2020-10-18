@@ -50,7 +50,7 @@ module.exports = {
     },
     plugins: [
         new WebpackHookPlugin({
-            onBuildEnd: ['node dist/server.js']
+            onBuildEnd: ['nodemon dist/server.js']
           }),
           new ForkTsCheckerWebpackPlugin({
             typescript: {
