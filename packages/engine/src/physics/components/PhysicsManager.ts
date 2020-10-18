@@ -6,7 +6,7 @@ import { Shape, Body } from 'cannon-es';
 import { Mesh } from 'three';
 import debug from "cannon-es-debugger";
 
-export class PhysicsManager extends Component<PhysicsManager> {
+export class PhysicsManager extends Component<any> {
   static instance: PhysicsManager
   frame: number
   physicsWorld: World
@@ -34,13 +34,13 @@ export class PhysicsManager extends Component<PhysicsManager> {
 	physicsFrameTime: number;
   physicsMaxPrediction: number;
 
-  constructor (options:{ framerate: number }) {
+  constructor () {
     super();
-    console.log("Constructing physics manager", options);
+    console.log("Constructing physics world!");
     PhysicsManager.instance = this;
     this.frame = 0;
     this.physicsWorld = new World();
-    this.physicsFrameRate = options.framerate;
+    this.physicsFrameRate = Engine.physicsFrameRate;
     this.physicsFrameTime = 1 / this.physicsFrameRate;
     this.physicsMaxPrediction = this.physicsFrameRate;
     this.physicsWorld.allowSleep = false;
@@ -88,5 +88,4 @@ export class PhysicsManager extends Component<PhysicsManager> {
   }
 }
 PhysicsManager.schema = {
-  physicsWorld: { type: Types.Ref, default: null }
 };

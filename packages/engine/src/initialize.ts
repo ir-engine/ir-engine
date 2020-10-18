@@ -52,8 +52,8 @@ export const DefaultInitializationOptions = {
     enabled: true
   },
   networking: {
-    enabled: false,
-    supportsMediaStreams: false,
+    enabled: true,
+    supportsMediaStreams: true,
     schema: DefaultNetworkSchema
   },
   state: {
@@ -65,7 +65,7 @@ export const DefaultInitializationOptions = {
     schema: CharacterSubscriptionSchema
   },
   physics: {
-    enabled: false
+    enabled: true
   },
   particles: {
     enabled: false
@@ -145,7 +145,10 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
       //   });
       // }
     }
+      
+    registerSystem(StateSystem);
 
+    registerSystem(PhysicsSystem);
 
   // Networking
   if (options.networking && options.networking.enabled) {
@@ -159,18 +162,9 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
     }
   }
 
-  // State
-  if (options.state && options.state.enabled) {
-    registerSystem(StateSystem);
-  }
-
   // Subscriptions
   if (options.subscriptions && options.subscriptions.enabled) {
     registerSystem(SubscriptionSystem);
-  }
-  // Physics
-  if (options.physics && options.physics.enabled) {
-    registerSystem(PhysicsSystem);
   }
   // Particles
   if (options.particles && options.particles.enabled) {

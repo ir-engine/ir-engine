@@ -2,7 +2,7 @@ import { CharacterComponent } from '../components/CharacterComponent';
 import { getComponent } from '../../../ecs/functions/EntityFunctions';
 import { Behavior } from '../../../common/interfaces/Behavior';
 import { Entity } from '../../../ecs/classes/Entity';
-import { addState } from '../../../state/behaviors/StateBehaviors';
+import { addState } from "../../../state/behaviors/addState";
 import { now } from '../../../common/functions/now';
 
 export const onAnimationEnded: Behavior = (entity: Entity, args: { transitionToState: any; }, deltaTime) => {

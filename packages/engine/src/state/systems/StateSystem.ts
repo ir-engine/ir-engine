@@ -4,7 +4,7 @@ import { NumericalType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
-import { addState } from '../behaviors/StateBehaviors';
+import { addState } from "../behaviors/addState";
 import { State } from '../components/State';
 import { StateValue } from '../interfaces/StateValue';
 import { StateGroupAlias } from '../types/StateGroupAlias';
