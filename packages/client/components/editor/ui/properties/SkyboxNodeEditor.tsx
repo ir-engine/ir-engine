@@ -4,6 +4,7 @@ import InputGroup from "../inputs/InputGroup";
 import NumericInputGroup from "../inputs/NumericInputGroup";
 import RadianNumericInputGroup from "../inputs/RadianNumericInputGroup";
 import NodeEditor from "./NodeEditor";
+import { Cloud } from "@styled-icons/fa-solid/Cloud";
 const hoursToRadians = hours => hours / 24;
 const radiansToHours = rads => rads * 24;
 type SkyboxNodeEditorProps = {
@@ -14,6 +15,7 @@ export default class SkyboxNodeEditor extends Component<
   SkyboxNodeEditorProps,
   {}
 > {
+  static iconComponent = Cloud;
   onChangeTurbidity = turbidity => {
     (this.props.editor as any).setPropertySelected("turbidity", turbidity);
   };

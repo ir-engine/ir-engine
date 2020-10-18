@@ -12,6 +12,8 @@ export default class GroundPlaneNodeEditor extends Component<
   GroundPlaneNodeEditorProps,
   {}
 > {
+  static iconComponent = SquareFull;
+  static description = "A flat ground plane that extends into the distance.";
   onChangeColor = color => {
     (this.props.editor as any).setPropertySelected("color", color);
   };
