@@ -92,6 +92,10 @@ export const CharacterInputSchema: InputSchema = {
         args: {
           touchPhaze:LifecycleValue.STARTED         
         }
+      },
+      {
+          behavior: interact,
+          args: {}
       }
     ],
     touchend: [
