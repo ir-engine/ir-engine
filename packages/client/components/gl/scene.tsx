@@ -231,7 +231,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
     Engine.renderer.toneMapping = CineonToneMapping;
     Engine.renderer.toneMappingExposure = 1;
 
-    createPrefab(WorldPrefab);
+    // createPrefab(WorldPrefab);
     createPrefab(staticWorldColliders);
     createPrefab(JoystickPrefab);
 //  setTimeout(() => {

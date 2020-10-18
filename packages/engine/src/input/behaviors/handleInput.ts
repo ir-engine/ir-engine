@@ -52,8 +52,8 @@ import { BinaryValue } from '../../common/enums/BinaryValue';
       // skip all other inputs
       return
     }
-
-    if (value.lifecycleState === LifecycleValue.ENDED) {
+    
+    if (value.lifecycleState = LifecycleValue.ENDED) {
       // ENDED here is a special case, like mouse position on mouse down
       return
     }
