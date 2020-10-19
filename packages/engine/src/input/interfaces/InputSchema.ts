@@ -25,6 +25,9 @@ export interface InputSchema {
     };
   };
   touchInputMap?: {
+    buttons?: {
+      [key: number]: InputAlias;
+    };
     axes?: {
       [key: number]: InputAlias;
     };
