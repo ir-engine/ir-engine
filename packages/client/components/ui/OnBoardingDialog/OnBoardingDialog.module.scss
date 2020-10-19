@@ -1,0 +1,62 @@
+  .MuiDialog-root{
+    .MuiBackdrop-root{
+      background: transparent;
+    }
+  }
+.customDialog{
+  .dialogTitle {
+    margin: 0;
+    padding: 10px;
+  
+    .dialogCloseButton {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      z-index: 2000;
+    }
+  }
+
+  .dialogContent {
+    font-size: 1em;    
+    padding-bottom: 40px;
+    text-align: center;
+    .innerText{
+      padding: 10px 0;
+    }
+  }
+}
+// .MuiDialog-root{
+//   .MuiBackdrop-root{
+//     background: transparent;
+//   }
+// }
+// .OnBoardingDialog{
+//   &_customDialog{
+//     .MuiBackdrop-root{
+//       background: transparent;
+//     }
+//   }
+//   .OnBoardingDialog{
+//     font-size: 1em;
+  
+//     &_dialogTitle {
+//       margin: 0;
+//       padding: 10px;
+    
+//       &_dialogCloseButton {
+//         position: absolute;
+//         right: 10px;
+//         top: 10px;
+//         z-index: 2000;
+//       }
+//     }
+    
+//     .dialogContent {
+//       padding-bottom: 40px;
+//       text-align: center;
+//       .innerText{
+//         padding: 10px 0;
+//       }
+//     }
+//   }
+// }
