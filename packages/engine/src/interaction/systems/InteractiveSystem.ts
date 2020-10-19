@@ -8,8 +8,10 @@ import { Input } from "../../input/components/Input";
 import { DefaultInput } from "../../templates/shared/DefaultInput";
 import { BinaryValue } from "../../common/enums/BinaryValue";
 import { InteractiveFocused } from "../components/InteractiveFocused";
+import { SubFocused } from "../components/SubFocused";
 import { Entity } from "../../ecs/classes/Entity";
 import { interactFocused } from "../behaviors/interactFocused";
+import { subFocused } from "../behaviors/subFocused";
 
 export class InteractiveSystem extends System {
   /**
@@ -50,10 +52,18 @@ export class InteractiveSystem extends System {
           }
         }
 
+
         // unmark all unfocused
-        this.queryResults.interactive?.all.forEach(entity => {
-          if (entity !== interacts.focusedInteractive) {
-            removeComponent(entity, InteractiveFocused);
+        this.queryResults.interactive?.all.forEach(entityInter => {
+          if (entityInter !== interacts.focusedInteractive) {
+            removeComponent(entityInter, InteractiveFocused);
+          }
+          if (interacts.subFocusedArray.some(subFocusEntity => subFocusEntity.entity === entityInter)) {
+            if (!hasComponent(entityInter, SubFocused)) {
+              addComponent(entityInter, SubFocused);
+            }
+          } else {
+            removeComponent(entityInter, SubFocused);
           }
         });
       }
@@ -66,6 +76,13 @@ export class InteractiveSystem extends System {
       interactFocused(entity, null, delta);
     });
 
+    this.queryResults.subfocus.added?.forEach(entity => {
+      subFocused(entity, null, delta);
+    });
+    this.queryResults.subfocus.removed?.forEach(entity => {
+      subFocused(entity, null, delta);
+    });
+
     this.focused.clear();
     this.newFocused.forEach(e => this.focused.add(e) );
   }
@@ -75,6 +92,13 @@ export class InteractiveSystem extends System {
     interactive: { components: [ Interactive ] },
     focus: {
       components: [ Interactive, InteractiveFocused ],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
+    subfocus: {
+      components: [ Interactive, SubFocused ],
       listen: {
         added: true,
         removed: true
