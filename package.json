@@ -75,6 +75,7 @@
     "babel-jest": "^26.3.0",
     "cache-loader": "^4.1.0",
     "jest": "^26.4.2",
+    "ts-jest": "^26.4.1",
     "lerna": "^3.22.1",
     "parallel-webpack": "^2.6.0"
   }
