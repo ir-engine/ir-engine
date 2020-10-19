@@ -2,6 +2,7 @@ import { System, SystemAttributes } from "../../ecs/classes/System";
 import { Interactive } from "../components/Interactive";
 import { Interacts } from "../components/Interacts";
 import { interactRaycast } from "../behaviors/interactRaycast";
+import { interactBoxRaycast } from "../behaviors/interactBoxRaycast";
 import { interact } from "../behaviors/interact";
 import { addComponent, getComponent, hasComponent, removeComponent } from "../../ecs/functions/EntityFunctions";
 import { Input } from "../../input/components/Input";
@@ -42,6 +43,7 @@ export class InteractiveSystem extends System {
     this.queryResults.interactors?.all.forEach(entity => {
       if (this.queryResults.interactive?.all.length) {
         interactRaycast(entity, { interactive: this.queryResults.interactive.all });
+        interactBoxRaycast(entity, { interactive: this.queryResults.interactive.all });
 
         const interacts = getComponent(entity, Interacts);
         if (interacts.focusedInteractive) {
