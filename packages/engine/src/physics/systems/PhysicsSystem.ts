@@ -21,7 +21,7 @@ import { Engine } from '../../ecs/classes/Engine';
 import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions';
 
 export class PhysicsSystem extends System {
-  fixedExecute:(delta:number)=>void = null
+  fixedExecute: (delta: number) => void = null
   fixedRunner: FixedStepsRunner
 
   constructor() {
@@ -30,11 +30,11 @@ export class PhysicsSystem extends System {
     const physicsManagerComponent = addComponent<PhysicsManager>(createEntity(), PhysicsManager);
   }
 
-  canExecute(delta:number): boolean {
+  canExecute(delta: number): boolean {
     return super.canExecute(delta) && this.fixedRunner.canRun(delta);
   }
 
-  execute(delta:number): void {
+  execute(delta: number): void {
     this.fixedRunner.run(delta);
 
     this.onExecute(delta);
@@ -46,7 +46,7 @@ export class PhysicsSystem extends System {
     PhysicsManager.instance.dispose();
   }
 
-  onExecute(delta:number): void {
+  onExecute(delta: number): void {
     // // Collider
     this.queryResults.collider.added?.forEach(entity => {
       console.log("onAdded called on collider behavior");
@@ -101,7 +101,7 @@ export class PhysicsSystem extends System {
 
   }
 
-  onFixedExecute(delta:number): void {
+  onFixedExecute(delta: number): void {
     this.queryResults.character.all?.forEach(entity => physicsPreStep(entity, null, delta));
     PhysicsManager.instance.frame++;
     PhysicsManager.instance.physicsWorld.step(PhysicsManager.instance.physicsFrameTime);

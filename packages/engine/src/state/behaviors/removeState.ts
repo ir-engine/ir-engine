@@ -5,7 +5,7 @@ import { StateAlias } from '../types/StateAlias';
 import { getComponent } from '../../ecs/functions/EntityFunctions';
 
 
-export const removeState: Behavior = (entity: Entity, args: { state: StateAlias; }): void => {
+export const removeState: Behavior = (entity: Entity, args: { state: StateAlias }): void => {
   // check state group
   const stateComponent = getComponent(entity, State);
   if (stateComponent.data.has(args.state)) {

@@ -98,7 +98,7 @@ export class FBXLoader {
 }
 
 interface IFBXTreeParser {
-  textureLoader: any
+  textureLoader: any;
 }
 
 @autobind
@@ -111,11 +111,11 @@ class FBXTreeParser<IFBXTreeParser> {
   parse(fbxTree) {
     FBXLoader.connections = this.parseConnections()
 
-    let images = this.parseImages()
-    let textures = this.parseTextures(images)
-    let materials = this.parseMaterials(textures)
-    let deformers = this.parseDeformers()
-    let geometryMap = new GeometryParser().parse(deformers)
+    const images = this.parseImages()
+    const textures = this.parseTextures(images)
+    const materials = this.parseMaterials(textures)
+    const deformers = this.parseDeformers()
+    const geometryMap = new GeometryParser().parse(deformers)
 
     this.parseScene(deformers, geometryMap, materials)
 
@@ -123,7 +123,7 @@ class FBXTreeParser<IFBXTreeParser> {
   }
 
   parseConnections() {
-    let connectionMap = new Map()
+    const connectionMap = new Map()
 
     if ('Connections' in FBXLoader.fbxTree) {
       const rawConnections = FBXLoader.fbxTree.Connections.connections
@@ -159,8 +159,8 @@ class FBXTreeParser<IFBXTreeParser> {
   }
 
   parseImages() {
-    let images = {}
-    let blobs = {}
+    const images = {}
+    const blobs = {}
 
     if ('Video' in FBXLoader.fbxTree.Objects) {
       const videoNodes = FBXLoader.fbxTree.Objects.Video
@@ -3471,7 +3471,7 @@ class BinaryReader {
 
   getBooleanArray( size ) {
 
-    const a:any = [];
+    const a: any = [];
 
     for ( let i = 0; i < size; i ++ ) {
 
@@ -3683,7 +3683,7 @@ class FBXTree {
 
 function isFbxFormatBinary( buffer ) {
 
-  var CORRECT = 'Kaydara FBX Binary  \0';
+  const CORRECT = 'Kaydara FBX Binary  \0';
 
   return buffer.byteLength >= CORRECT.length && CORRECT === convertArrayBufferToString( buffer, 0, CORRECT.length );
 
@@ -3691,22 +3691,22 @@ function isFbxFormatBinary( buffer ) {
 
 function isFbxFormatASCII( text ) {
 
-  var CORRECT = [ 'K', 'a', 'y', 'd', 'a', 'r', 'a', '\\', 'F', 'B', 'X', '\\', 'B', 'i', 'n', 'a', 'r', 'y', '\\', '\\' ];
+  const CORRECT = [ 'K', 'a', 'y', 'd', 'a', 'r', 'a', '\\', 'F', 'B', 'X', '\\', 'B', 'i', 'n', 'a', 'r', 'y', '\\', '\\' ];
 
-  var cursor = 0;
+  let cursor = 0;
 
   function read( offset ) {
 
-    var result = text[ offset - 1 ];
+    const result = text[ offset - 1 ];
     text = text.slice( cursor + offset );
     cursor ++;
     return result;
 
   }
 
-  for ( var i = 0; i < CORRECT.length; ++ i ) {
+  for ( let i = 0; i < CORRECT.length; ++ i ) {
 
-    var num = read( 1 );
+    const num = read( 1 );
     if ( num === CORRECT[ i ] ) {
 
       return false;
@@ -3721,11 +3721,11 @@ function isFbxFormatASCII( text ) {
 
 function getFbxVersion( text ) {
 
-  var versionRegExp = /FBXVersion: (\d+)/;
-  var match = text.match( versionRegExp );
+  const versionRegExp = /FBXVersion: (\d+)/;
+  const match = text.match( versionRegExp );
   if ( match ) {
 
-    var version = parseInt( match[ 1 ] );
+    const version = parseInt( match[ 1 ] );
     return version;
 
   }
@@ -3740,12 +3740,12 @@ function convertFBXTimeToSeconds( time ) {
 
 }
 
-var dataArray = [];
+const dataArray = [];
 
 // extracts the data from the correct position in the FBX array based on indexing type
 function getData( polygonVertexIndex, polygonIndex, vertexIndex, infoObject ) {
 
-  var index;
+  let index;
 
   switch ( infoObject.mappingType ) {
 
@@ -3768,36 +3768,36 @@ function getData( polygonVertexIndex, polygonIndex, vertexIndex, infoObject ) {
 
   if ( infoObject.referenceType === 'IndexToDirect' ) index = infoObject.indices[ index ];
 
-  var from = index * infoObject.dataSize;
-  var to = from + infoObject.dataSize;
+  const from = index * infoObject.dataSize;
+  const to = from + infoObject.dataSize;
 
   return slice( dataArray, infoObject.buffer, from, to );
 
 }
 
-var tempEuler = new Euler();
-var tempVec = new Vector3();
+const tempEuler = new Euler();
+const tempVec = new Vector3();
 
 // generate transformation from FBX transform data
 // ref: https://help.autodesk.com/view/FBX/2017/ENU/?guid=__files_GUID_10CDD63C_79C1_4F2D_BB28_AD2BE65A02ED_htm
 // ref: http://docs.autodesk.com/FBX/2014/ENU/FBX-SDK-Documentation/index.html?url=cpp_ref/_transformations_2main_8cxx-example.html,topicNumber=cpp_ref__transformations_2main_8cxx_example_htmlfc10a1e1-b18d-4e72-9dc0-70d0f1959f5e
 function generateTransform( transformData ) {
 
-  var lTranslationM = new Matrix4();
-  var lPreRotationM = new Matrix4();
-  var lRotationM = new Matrix4();
-  var lPostRotationM = new Matrix4();
+  const lTranslationM = new Matrix4();
+  const lPreRotationM = new Matrix4();
+  const lRotationM = new Matrix4();
+  const lPostRotationM = new Matrix4();
 
-  var lScalingM = new Matrix4();
-  var lScalingPivotM = new Matrix4();
-  var lScalingOffsetM = new Matrix4();
-  var lRotationOffsetM = new Matrix4();
-  var lRotationPivotM = new Matrix4();
+  const lScalingM = new Matrix4();
+  const lScalingPivotM = new Matrix4();
+  const lScalingOffsetM = new Matrix4();
+  const lRotationOffsetM = new Matrix4();
+  const lRotationPivotM = new Matrix4();
 
-  var lParentGX = new Matrix4();
-  var lGlobalT = new Matrix4();
+  let lParentGX = new Matrix4();
+  const lGlobalT = new Matrix4();
 
-  var inheritType = ( transformData.inheritType ) ? transformData.inheritType : 0;
+  const inheritType = ( transformData.inheritType ) ? transformData.inheritType : 0;
 
   if ( transformData.translation ) lTranslationM.setPosition( tempVec.fromArray( transformData.translation ) );
 
@@ -3837,22 +3837,22 @@ function generateTransform( transformData ) {
   if ( transformData.parentMatrixWorld ) lParentGX = transformData.parentMatrixWorld;
 
   // Global Rotation
-  var lLRM = lPreRotationM.multiply( lRotationM ).multiply( lPostRotationM );
-  var lParentGRM = new Matrix4();
+  const lLRM = lPreRotationM.multiply( lRotationM ).multiply( lPostRotationM );
+  const lParentGRM = new Matrix4();
   lParentGX.extractRotation( lParentGRM );
 
   // Global Shear*Scaling
-  var lParentTM = new Matrix4();
-  var lLSM;
-  var lParentGSM;
-  var lParentGRSM;
+  const lParentTM = new Matrix4();
+  let lLSM;
+  let lParentGSM;
+  let lParentGRSM;
 
   lParentTM.copyPosition( lParentGX );
   lParentGRSM = lParentTM.getInverse( lParentTM ).multiply( lParentGX );
   lParentGSM = lParentGRM.getInverse( lParentGRM ).multiply( lParentGRSM );
   lLSM = lScalingM;
 
-  var lGlobalRS;
+  let lGlobalRS;
   if ( inheritType === 0 ) {
 
     lGlobalRS = lParentGRM.multiply( lLRM ).multiply( lParentGSM ).multiply( lLSM );
@@ -3863,20 +3863,20 @@ function generateTransform( transformData ) {
 
   } else {
 
-    var lParentLSM = new Matrix4().copy( lScalingM );
+    const lParentLSM = new Matrix4().copy( lScalingM );
 
-    var lParentGSM_noLocal = lParentGSM.multiply( lParentLSM.getInverse( lParentLSM ) );
+    const lParentGSM_noLocal = lParentGSM.multiply( lParentLSM.getInverse( lParentLSM ) );
 
     lGlobalRS = lParentGRM.multiply( lLRM ).multiply( lParentGSM_noLocal ).multiply( lLSM );
 
   }
 
   // Calculate the local transform matrix
-  var lTransform = lTranslationM.multiply( lRotationOffsetM ).multiply( lRotationPivotM ).multiply( lPreRotationM ).multiply( lRotationM ).multiply( lPostRotationM ).multiply( lRotationPivotM.getInverse( lRotationPivotM ) ).multiply( lScalingOffsetM ).multiply( lScalingPivotM ).multiply( lScalingM ).multiply( lScalingPivotM.getInverse( lScalingPivotM ) );
+  let lTransform = lTranslationM.multiply( lRotationOffsetM ).multiply( lRotationPivotM ).multiply( lPreRotationM ).multiply( lRotationM ).multiply( lPostRotationM ).multiply( lRotationPivotM.getInverse( lRotationPivotM ) ).multiply( lScalingOffsetM ).multiply( lScalingPivotM ).multiply( lScalingM ).multiply( lScalingPivotM.getInverse( lScalingPivotM ) );
 
-  var lLocalTWithAllPivotAndOffsetInfo = new Matrix4().copyPosition( lTransform );
+  const lLocalTWithAllPivotAndOffsetInfo = new Matrix4().copyPosition( lTransform );
 
-  var lGlobalTranslation = lParentGX.multiply( lLocalTWithAllPivotAndOffsetInfo );
+  const lGlobalTranslation = lParentGX.multiply( lLocalTWithAllPivotAndOffsetInfo );
   lGlobalT.copyPosition( lGlobalTranslation );
 
   lTransform = lGlobalT.multiply( lGlobalRS );
@@ -3891,7 +3891,7 @@ function getEulerOrder( order ) {
 
   order = order || 0;
 
-  var enums = [
+  const enums = [
     'ZYX', // -> XYZ extrinsic
     'YZX', // -> XZY extrinsic
     'XZY', // -> YZX extrinsic
@@ -3916,7 +3916,7 @@ function getEulerOrder( order ) {
 // Used internally by the TextParser
 function parseNumberArray( value ) {
 
-  var array = value.split( ',' ).map(  ( val ) => {
+  const array = value.split( ',' ).map(  ( val ) => {
 
     return parseFloat( val );
 
@@ -3937,7 +3937,7 @@ function convertArrayBufferToString( buffer, from?, to? ) {
 
 function append( a, b ) {
 
-  for ( var i = 0, j = a.length, l = b.length; i < l; i ++, j ++ ) {
+  for ( let i = 0, j = a.length, l = b.length; i < l; i ++, j ++ ) {
 
     a[ j ] = b[ i ];
 
@@ -3947,7 +3947,7 @@ function append( a, b ) {
 
 function slice( a, b, from, to ) {
 
-  for ( var i = from, j = 0; i < to; i ++, j ++ ) {
+  for ( let i = from, j = 0; i < to; i ++, j ++ ) {
 
     a[ j ] = b[ i ];
 

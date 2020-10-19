@@ -15,8 +15,8 @@ import { XRWebGLLayerOptions, XRWebGLLayer, XRSession } from '../types/WebXR';
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 
 declare let XRWebGLLayerClass: {
-  prototype: XRWebGLLayer
-  new(session: XRSession, context: WebGLRenderingContext | undefined, options?: XRWebGLLayerOptions): XRWebGLLayer
+  prototype: XRWebGLLayer;
+  new(session: XRSession, context: WebGLRenderingContext | undefined, options?: XRWebGLLayerOptions): XRWebGLLayer;
 };
 
 let mainControllerId: any;

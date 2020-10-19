@@ -54,7 +54,7 @@ export const IdleState: StateSchemaValue = {
     {
       behavior: triggerActionIfMovementHasChanged,
       args: {
-        action: (entity:Entity): void => {
+        action: (entity: Entity): void => {
           // Default behavior for all states
           findVehicle(entity);
           const input = getComponent(entity, Input);

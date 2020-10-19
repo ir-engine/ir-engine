@@ -51,7 +51,7 @@ export const CarController: Prefab = {
                     url: "models/vehicles/Sportscar.glb", //  "models/car.glb"
                     receiveShadow: true,
                     castShadow: true,
-                    onLoaded: (entityIn:Entity, args:unknown, delta:number, entityOut:Entity): void => {
+                    onLoaded: (entityIn: Entity, args: unknown, delta: number, entityOut: Entity): void => {
                       addCarPhysics(entityIn, args, delta, entityOut);
                       changeColor(entityIn, {
                         materialName: "Main",

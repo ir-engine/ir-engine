@@ -18,7 +18,7 @@ import { Engine } from "../../ecs/classes/Engine";
  * @param interactive
  * @param delta
  */
-export const interactRaycast:Behavior = (entity: Entity, { interactive }:InteractBehaviorArguments, delta: number): void => {
+export const interactRaycast: Behavior = (entity: Entity, { interactive }: InteractBehaviorArguments, delta: number): void => {
   const clientPosition = getComponent(entity, TransformComponent).position;
   // - added mouse position tracking
   const mouseScreenPosition = getComponent(entity, Input).data.get(DefaultInput.SCREENXY);
@@ -33,7 +33,7 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
     return;
   }
 
-  const raycastList:Array<Object3D> = interactive
+  const raycastList: Array<Object3D> = interactive
     .filter(interactiveEntity => {
       // - have object 3d to raycast
       if (!hasComponent(interactiveEntity, Object3DComponent)) {

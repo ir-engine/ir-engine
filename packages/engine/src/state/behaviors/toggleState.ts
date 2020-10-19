@@ -7,7 +7,7 @@ import { StateGroupAlias } from '../types/StateGroupAlias';
 import { removeState } from './removeState';
 import { addState } from './addState';
 
-export const toggleState: Behavior = (entity: Entity, args: { value: BinaryType, stateType: StateAlias }): void => {
+export const toggleState: Behavior = (entity: Entity, args: { value: BinaryType; stateType: StateAlias }): void => {
   if (args.value === BinaryValue.ON) addState(entity, args);
   else removeState(entity, args);
 };

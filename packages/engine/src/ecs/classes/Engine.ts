@@ -10,7 +10,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 
 export class Engine {
 
-  public static engineTimer:{ start: Function, stop: Function } = null
+  public static engineTimer: { start: Function; stop: Function } = null
   public static engineTimerTimeout;
 
   //public static stats: Stats

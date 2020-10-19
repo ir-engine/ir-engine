@@ -13,7 +13,7 @@ import { LifecycleValue } from '../../common/enums/LifecycleValue';
  * @param args is argument object. Events that occur due to the user interacting with a pointing device (such as a mouse).
  */
 
-export const handleMouseWheel: Behavior = (entity: Entity, args: { event: WheelEvent; }): void => {
+export const handleMouseWheel: Behavior = (entity: Entity, args: { event: WheelEvent }): void => {
   const input = getComponent(entity, Input);
   const value = args.event?.deltaY;
 

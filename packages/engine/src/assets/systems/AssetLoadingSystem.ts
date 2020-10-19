@@ -32,7 +32,7 @@ export default class AssetLoadingSystem extends System {
     addComponent(createEntity(), AssetVault);
   }
 
-  execute () : void{
+  execute (): void{
     if(isBrowser && this.queryResults.toLoad.all.length > 0){
       const event = new CustomEvent('scene-loaded', { detail:{loaded:false} });
       document.dispatchEvent(event);
@@ -130,7 +130,7 @@ export default class AssetLoadingSystem extends System {
   }
 }
 
-export function hashResourceString (str:string):string {
+export function hashResourceString (str: string): string {
   let hash = 0;
   let i = 0;
   const len = str.length;

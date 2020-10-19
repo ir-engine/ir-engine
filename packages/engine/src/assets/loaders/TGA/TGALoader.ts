@@ -2,8 +2,8 @@ import autobind from 'autobind-decorator'
 import { DefaultLoadingManager, Texture, FileLoader } from 'three'
 
 declare const OffscreenCanvas: {
-  prototype: any
-  new (width: number, height: number): any
+  prototype: any;
+  new (width: number, height: number): any;
 }
 
 @autobind

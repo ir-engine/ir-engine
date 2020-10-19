@@ -5,7 +5,7 @@ import { addState } from "../../../state/behaviors/addState";
 import { DefaultInput } from '../../shared/DefaultInput';
 import { CharacterComponent } from '../components/CharacterComponent';
 
-export const setJumpingState: Behavior = (entity, args: { transitionToState: any; }, deltaTime) => {
+export const setJumpingState: Behavior = (entity, args: { transitionToState: any }, deltaTime) => {
   const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
   if (!actor.initialized) return;
   const input = getComponent(entity, Input);

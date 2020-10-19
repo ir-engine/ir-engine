@@ -3,7 +3,7 @@ import { Entity } from '../../ecs/classes/Entity';
 import { removeEntity } from '../../ecs/functions/EntityFunctions';
 // TODO: This should only be called on server
 
-export const handleClientDisconnected = (args: { id: any; }) => {
+export const handleClientDisconnected = (args: { id: any }) => {
   if (!Network.instance?.transport.isServer)
     return;
 
