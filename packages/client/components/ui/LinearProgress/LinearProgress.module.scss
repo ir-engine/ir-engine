@@ -1,0 +1,24 @@
+.overlay{
+  display: block;
+  position: fixed;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  left: 0;
+  background: rgba(0,0,0,0.8);
+  
+  .linearProgressContainer{
+    display: block;
+    position: fixed;
+    top: 45%;
+    width: 60%;
+    left: 20%;
+  
+      .loadingProgressTile{
+          color: #FFFFFF;
+          display: block;
+          text-align: center;
+          width: 100%;
+      }
+  }
+}

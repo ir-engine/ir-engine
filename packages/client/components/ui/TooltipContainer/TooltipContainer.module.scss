@@ -1,17 +1,19 @@
 .TooltipSnackBar{
     top: 55%;
-    color: hsl(0, 0%, 0%);
-    text-align: center;
-    padding: 2em;
     user-select: none;
     height: fit-content;
     width: fit-content;
     border-radius: 5px;
-    section.innerHtml{
+    padding: 2em;
+
+    .innerHtml{
         text-align: center;  
         display: block;   
+        color: #000000;
         border-radius: 5px;
-        padding: 1em 2em;   
+        padding: 1em 2em; 
+        background-color: rgba(255,255,0, 0.85);
+
         .keyItem{
             background-color: rgba(0,0,0,0.6);
             border-radius: 4px;

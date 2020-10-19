@@ -1,4 +1,4 @@
-.info-box-container{
+.infoBoxContainer{
     position: fixed;
     top: 50%;
     left: 50%;
@@ -6,32 +6,27 @@
     width: max-content;
     height: max-content;
     overflow-y: auto;
-    //background-color: #ffffff;
     padding: 1em;
     background-color: rgba(255, 255, 255, 0.8);
     border-radius: 5px;
+    color: #000000;
 
     h6{
         text-align: center;
         text-transform: uppercase;
+        padding: 5px 45px 5px 5px;
     }
 
     .dialogCloseButton{
         position: fixed;
         right: 5px;
-        top: 5px;
+        top: 0px;
+        z-index: 5;
+        cursor: pointer;
     }
 
     @media  (max-width: 768px) {
         width: 90%;        
-    }
-    .link{
-        cursor: pointer;
-        background-color:#44d62c;
-        padding: 5px;
-        border-radius: 2px 5px;
-        margin: 0 2px;
-        color: #000000;
     }
     .iframe{
         width: 100%;

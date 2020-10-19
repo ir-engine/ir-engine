@@ -6,23 +6,16 @@ import {Dialog, DialogTitle, DialogContent, Button, IconButton, Typography} from
 import CloseIcon from '@material-ui/icons/Close';
 import { selectDialogState } from '../../../redux/dialog/selector';
 import { closeDialog } from '../../../redux/dialog/service';
-
-import './style.module.scss';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { generalStateList, setAppOnBoardingStep } from '../../../redux/app/actions';
 import store from '../../../redux/store';
+
 import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
 import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter';
 import UserSettings from '../Profile/UserSettings';
 
-// interface Props {
-//   dialog: any;
-//   values:any;
-//   // children: any;
-//   isCloseButton:boolean;
-//   closeDialog: typeof closeDialog;
-//   onBoardingStep:number;
-// }
+import styles from './OnBoardingDialog.module.scss';
+
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -37,7 +30,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const OnBoardingDialog = (props) => {
   const { onBoardingStep, title = ''} = props;
-  // const content = dialog.get('content') ? dialog.get('content') : values ?  values.content : '';
 
   useEffect(() => {
     Router.events.on('routeChangeStart', () => {
@@ -49,8 +41,6 @@ const OnBoardingDialog = (props) => {
     e.preventDefault();
     closeDialog();
   };
-  // const defaultDialogData = {isOpened: false, dialogText:'', submitButtonText: '', submitButtonAction:null, children:null}
-
 
   let isOpened = false;
   let dialogText = '';
@@ -59,7 +49,6 @@ const OnBoardingDialog = (props) => {
   let children = null;
   const isCloseButton = false;
   const defineDialog = () =>{
-    console.log ('defineDialog generalStateList[generalState]', onBoardingStep, generalStateList[onBoardingStep]);
     switch(onBoardingStep){
       case  generalStateList.SCENE_LOADED : { 
             isOpened=true; dialogText = 'Virtual retail experience'; submitButtonText =  'Enter The World';
@@ -87,21 +76,20 @@ const OnBoardingDialog = (props) => {
   defineDialog();
 
   return (
-    <Dialog open={isOpened} onClose={handleClose} aria-labelledby="xr-dialog" className="custom-dialog">
-      <DialogTitle disableTypography className="dialogTitle">
+    <Dialog open={isOpened} onClose={handleClose} aria-labelledby="xr-dialog" className={styles.customDialog}>
+      <DialogTitle disableTypography className={styles.dialogTitle}>
         { title && (<Typography variant="h6">{title}</Typography>)}
         {isCloseButton && (<IconButton
           aria-label="close"
-          className="dialogCloseButton"
+          className={styles.dialogCloseButton}
           onClick={handleClose}
         >
           <CloseIcon />
         </IconButton>)}
       </DialogTitle>
 
-      <DialogContent className="dialogContent">
-        {/* {content && content.children} */}
-        {dialogText && ( <section className="innerText">{dialogText}</section>)}
+      <DialogContent className={styles.dialogContent}>
+        {dialogText && ( <section className={styles.innerText}>{dialogText}</section>)}
         {children}
         {submitButtonText && 
           (<Button variant="contained" color="primary" 

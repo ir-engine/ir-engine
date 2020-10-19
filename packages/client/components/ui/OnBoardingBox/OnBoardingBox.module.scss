@@ -1,4 +1,3 @@
-    
 .lookaround{
     bottom: 30%;
     position: fixed;
@@ -21,7 +20,6 @@
     bottom: 0;
     position: fixed;
     padding: 0 0 0 30%;
-    //width: 100vw;
     width: 15em;
     height: 15em;
     @media (max-width: 768px) {
@@ -41,13 +39,13 @@
     padding: 2em;
     user-select: none;
     text-align: center;
-    &.right-content-width{       
+    &.rightContentWidth{       
         @media (max-width: 768px) {
             width: fit-content;
             margin: 0 0 0 12em;
         }
     }
-    .MuiSnackbarContent-root{
+    .helpHintSnackBarContent{
         background-color: rgba(255,255,0, 0.85);
         color: #000000;
         text-align: center;
