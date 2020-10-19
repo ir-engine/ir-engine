@@ -50,6 +50,7 @@
   },
   "types": "lib/",
   "pre-push": [
+    "lint",
     "test"
   ],
   "pre-commit": [
