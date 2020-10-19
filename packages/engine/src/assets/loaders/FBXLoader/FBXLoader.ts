@@ -16,7 +16,7 @@ export class FBXLoader {
 
   constructor() {
     this.manager =
-      this.manager !== undefined ? this.manager : DefaultLoadingManager
+      this.manager !== undefined ? this.manager : DefaultLoadingManager;
   }
 
   load(url, onLoad, onProgress?, onError?) {
@@ -30,395 +30,395 @@ export class FBXLoader {
     FBXLoader.serverUrl = url.split(urlPop)[0];
 
     // three 에서 path + url 로 호출함
-    const path = ''
+    const path = '';
 
-    const loader = new FileLoader(this.manager)
-    loader.setPath(path)
-    loader.setResponseType('arraybuffer')
+    const loader = new FileLoader(this.manager);
+    loader.setPath(path);
+    loader.setResponseType('arraybuffer');
 
     loader.load(
       url,
       buffer => {
         try {
-          onLoad(this.parse(buffer, path))
+          onLoad(this.parse(buffer, path));
         } catch (error) {
           setTimeout(() => {
-            if (onError) onError(error)
-            this.manager.itemError(url)
-            console.log('load error')
-          }, 0)
+            if (onError) onError(error);
+            this.manager.itemError(url);
+            console.log('load error');
+          }, 0);
         }
       },
       onProgress,
       onError
-    )
+    );
   }
 
   setPath(value) {
-    this.path = value
-    return this
+    this.path = value;
+    return this;
   }
 
   setResourcePath(value) {
-    this.resourcePath = value
-    return this
+    this.resourcePath = value;
+    return this;
   }
 
   setCrossOrigin(value) {
-    this.crossOrigin = value
-    return this
+    this.crossOrigin = value;
+    return this;
   }
 
   parse(FBXBuffer, path) {
     if (isFbxFormatBinary(FBXBuffer)) {
-      FBXLoader.fbxTree = new BinaryParser().parse(FBXBuffer)
+      FBXLoader.fbxTree = new BinaryParser().parse(FBXBuffer);
     } else {
-      const FBXText = convertArrayBufferToString(FBXBuffer)
+      const FBXText = convertArrayBufferToString(FBXBuffer);
 
       if (!isFbxFormatASCII(FBXText)) {
-        throw new Error('FBXLoader: Unknown format.')
+        throw new Error('FBXLoader: Unknown format.');
       }
 
       if (getFbxVersion(FBXText) < 7000) {
         throw new Error(
           'FBXLoader: FBX version not supported, FileVersion: ' +
             getFbxVersion(FBXText)
-        )
+        );
       }
 
-      FBXLoader.fbxTree = new TextParser().parse(FBXText)
+      FBXLoader.fbxTree = new TextParser().parse(FBXText);
     }
 
     const textureLoader = new TextureLoader(this.manager)
       .setPath(this.resourcePath || path)
-      .setCrossOrigin(this.crossOrigin)
+      .setCrossOrigin(this.crossOrigin);
 
-    return new FBXTreeParser(textureLoader).parse(FBXLoader.fbxTree)
+    return new FBXTreeParser(textureLoader).parse(FBXLoader.fbxTree);
   }
 }
 
-interface IFBXTreeParser {
+interface FBXTreeParserInterface {
   textureLoader: any;
 }
 
 @autobind
-class FBXTreeParser<IFBXTreeParser> {
+class FBXTreeParser<FBXTreeParserInterface> {
   textureLoader: any
   constructor(textureLoader) {
-    this.textureLoader = textureLoader
+    this.textureLoader = textureLoader;
   }
 
   parse(fbxTree) {
-    FBXLoader.connections = this.parseConnections()
+    FBXLoader.connections = this.parseConnections();
 
-    const images = this.parseImages()
-    const textures = this.parseTextures(images)
-    const materials = this.parseMaterials(textures)
-    const deformers = this.parseDeformers()
-    const geometryMap = new GeometryParser().parse(deformers)
+    const images = this.parseImages();
+    const textures = this.parseTextures(images);
+    const materials = this.parseMaterials(textures);
+    const deformers = this.parseDeformers();
+    const geometryMap = new GeometryParser().parse(deformers);
 
-    this.parseScene(deformers, geometryMap, materials)
+    this.parseScene(deformers, geometryMap, materials);
 
-    return FBXLoader.sceneGraph
+    return FBXLoader.sceneGraph;
   }
 
   parseConnections() {
-    const connectionMap = new Map()
+    const connectionMap = new Map();
 
     if ('Connections' in FBXLoader.fbxTree) {
-      const rawConnections = FBXLoader.fbxTree.Connections.connections
+      const rawConnections = FBXLoader.fbxTree.Connections.connections;
 
       rawConnections.forEach(rawConnection => {
-        const fromID = rawConnection[0]
-        const toID = rawConnection[1]
-        const relationship = rawConnection[2]
+        const fromID = rawConnection[0];
+        const toID = rawConnection[1];
+        const relationship = rawConnection[2];
 
         if (!connectionMap.has(fromID)) {
           connectionMap.set(fromID, {
             parents: [],
             children: []
-          })
+          });
         }
 
-        const parentRelationship = { ID: toID, relationship: relationship }
-        connectionMap.get(fromID).parents.push(parentRelationship)
+        const parentRelationship = { ID: toID, relationship: relationship };
+        connectionMap.get(fromID).parents.push(parentRelationship);
 
         if (!connectionMap.has(toID)) {
           connectionMap.set(toID, {
             parents: [],
             children: []
-          })
+          });
         }
 
-        const childRelationship = { ID: fromID, relationship: relationship }
-        connectionMap.get(toID).children.push(childRelationship)
-      })
+        const childRelationship = { ID: fromID, relationship: relationship };
+        connectionMap.get(toID).children.push(childRelationship);
+      });
     }
 
-    return connectionMap
+    return connectionMap;
   }
 
   parseImages() {
-    const images = {}
-    const blobs = {}
+    const images = {};
+    const blobs = {};
 
     if ('Video' in FBXLoader.fbxTree.Objects) {
-      const videoNodes = FBXLoader.fbxTree.Objects.Video
+      const videoNodes = FBXLoader.fbxTree.Objects.Video;
 
       for (const nodeID in videoNodes) {
-        const videoNode = videoNodes[nodeID]
+        const videoNode = videoNodes[nodeID];
 
-        const id = parseInt(nodeID)
+        const id = parseInt(nodeID);
 
-        const itemName = videoNode.RelativeFilename.split("\\").pop() || videoNode.Filename.split("\\").pop()
+        const itemName = videoNode.RelativeFilename.split("\\").pop() || videoNode.Filename.split("\\").pop();
 
-        images[id] = `${FBXLoader.serverUrl}${itemName}`
+        images[id] = `${FBXLoader.serverUrl}${itemName}`;
 
         // raw image data is in videoNode.Content
         if ('Content' in videoNode) {
           const arrayBufferContent =
             videoNode.Content instanceof ArrayBuffer &&
-            videoNode.Content.byteLength > 0
+            videoNode.Content.byteLength > 0;
           const base64Content =
-            typeof videoNode.Content === 'string' && videoNode.Content !== ''
+            typeof videoNode.Content === 'string' && videoNode.Content !== '';
 
           if (arrayBufferContent || base64Content) {
-            const image = this.parseImage(videoNodes[nodeID])
+            const image = this.parseImage(videoNodes[nodeID]);
 
-            blobs[videoNode.RelativeFilename || videoNode.Filename] = image
+            blobs[videoNode.RelativeFilename || videoNode.Filename] = image;
           }
         }
       }
     }
 
     for (const id in images) {
-      const filename = images[id]
+      const filename = images[id];
 
-      if (blobs[filename] !== undefined) images[id] = blobs[filename]
-      else images[id] = images[id].split('\\').pop()
+      if (blobs[filename] !== undefined) images[id] = blobs[filename];
+      else images[id] = images[id].split('\\').pop();
     }
 
-    return images
+    return images;
   }
 
   parseImage(videoNode) {
-    const content = videoNode.Content
-    const fileName = videoNode.RelativeFilename || videoNode.Filename
+    const content = videoNode.Content;
+    const fileName = videoNode.RelativeFilename || videoNode.Filename;
     const extension = fileName
       .slice(fileName.lastIndexOf('.') + 1)
-      .toLowerCase()
+      .toLowerCase();
 
-    let type
+    let type;
 
     switch (extension) {
       case 'bmp':
-        type = 'image/bmp'
-        break
+        type = 'image/bmp';
+        break;
 
       case 'jpg':
       case 'jpeg':
-        type = 'image/jpeg'
-        break
+        type = 'image/jpeg';
+        break;
 
       case 'png':
-        type = 'image/png'
-        break
+        type = 'image/png';
+        break;
 
       case 'tif':
-        type = 'image/tiff'
-        break
+        type = 'image/tiff';
+        break;
 
       case 'tga':
         if (typeof new TGALoader() !== 'function') {
           console.warn(
             'FBXLoader: TGALoader is required to load TGA textures'
-          )
-          return
+          );
+          return;
         } else {
           if (this.textureLoader.manager.getHandler('.tga') === null) {
-            const tgaLoader = new TGALoader()
-            tgaLoader.setPath(this.textureLoader.path)
+            const tgaLoader = new TGALoader();
+            tgaLoader.setPath(this.textureLoader.path);
 
-            this.textureLoader.manager.addHandler(/\.tga$/i, tgaLoader)
+            this.textureLoader.manager.addHandler(/\.tga$/i, tgaLoader);
           }
 
-          type = 'image/tga'
-          break
+          type = 'image/tga';
+          break;
         }
 
       default:
         console.warn(
           'FBXLoader: Image type "' + extension + '" is not supported.'
-        )
-        return
+        );
+        return;
     }
 
     if (typeof content === 'string') {
       // ASCII format
-      return 'data:' + type + ';base64,' + content
+      return 'data:' + type + ';base64,' + content;
     } else {
       // Binary Format
-      const array = new Uint8Array(content)
-      return window.URL.createObjectURL(new Blob([array], { type: type }))
+      const array = new Uint8Array(content);
+      return window.URL.createObjectURL(new Blob([array], { type: type }));
     }
   }
 
   parseTextures(images) {
-    const textureMap = new Map()
+    const textureMap = new Map();
 
     if ('Texture' in FBXLoader.fbxTree.Objects) {
-      const textureNodes = FBXLoader.fbxTree.Objects.Texture
+      const textureNodes = FBXLoader.fbxTree.Objects.Texture;
       for (const nodeID in textureNodes) {
-        const texture = this.parseTexture(textureNodes[nodeID], images)
-        textureMap.set(parseInt(nodeID), texture)
+        const texture = this.parseTexture(textureNodes[nodeID], images);
+        textureMap.set(parseInt(nodeID), texture);
       }
     }
 
-    return textureMap
+    return textureMap;
   }
 
   parseTexture(textureNode, images) {
-    const texture = this.loadTexture(textureNode, images)
+    const texture = this.loadTexture(textureNode, images);
 
-    texture.ID = textureNode.id
+    texture.ID = textureNode.id;
 
-    texture.name = textureNode.attrName
+    texture.name = textureNode.attrName;
 
-    const wrapModeU = textureNode.WrapModeU
-    const wrapModeV = textureNode.WrapModeV
+    const wrapModeU = textureNode.WrapModeU;
+    const wrapModeV = textureNode.WrapModeV;
 
-    const valueU = wrapModeU !== undefined ? wrapModeU.value : 0
-    const valueV = wrapModeV !== undefined ? wrapModeV.value : 0
+    const valueU = wrapModeU !== undefined ? wrapModeU.value : 0;
+    const valueV = wrapModeV !== undefined ? wrapModeV.value : 0;
 
     // http://download.autodesk.com/us/fbx/SDKdocs/FBX_SDK_Help/files/fbxsdkref/class_k_fbx_texture.html#889640e63e2e681259ea81061b85143a
     // 0: repeat(default), 1: clamp
 
     texture.wrapS =
-      valueU === 0 ? RepeatWrapping : ClampToEdgeWrapping
+      valueU === 0 ? RepeatWrapping : ClampToEdgeWrapping;
     texture.wrapT =
-      valueV === 0 ? RepeatWrapping : ClampToEdgeWrapping
+      valueV === 0 ? RepeatWrapping : ClampToEdgeWrapping;
 
     if ('Scaling' in textureNode) {
-      const values = textureNode.Scaling.value
+      const values = textureNode.Scaling.value;
 
-      texture.repeat.x = values[0]
-      texture.repeat.y = values[1]
+      texture.repeat.x = values[0];
+      texture.repeat.y = values[1];
     }
 
-    return texture
+    return texture;
   }
 
   loadTexture(textureNode, images) {
-    let fileName
-    const currentPath = this.textureLoader.path
-    const children = FBXLoader.connections.get(textureNode.id).children
+    let fileName;
+    const currentPath = this.textureLoader.path;
+    const children = FBXLoader.connections.get(textureNode.id).children;
 
     if (
       children !== undefined &&
       children.length > 0 &&
       images[children[0].ID] !== undefined
     ) {
-      fileName = images[children[0].ID]
+      fileName = images[children[0].ID];
 
       if (fileName.indexOf('blob:') === 0 || fileName.indexOf('data:') === 0) {
-        this.textureLoader.setPath(undefined)
+        this.textureLoader.setPath(undefined);
       }
     }
 
-    let texture
+    let texture;
 
-    const extension = textureNode.FileName.slice(-3).toLowerCase()
+    const extension = textureNode.FileName.slice(-3).toLowerCase();
 
     if (extension === 'tga') {
-      const loader = this.textureLoader.getHandler('.tga')
+      const loader = this.textureLoader.getHandler('.tga');
 
       if (loader === null) {
         console.warn(
           'FBXLoader: TGALoader not found, creating empty placeholder texture for',
           fileName
-        )
-        texture = new Texture()
+        );
+        texture = new Texture();
       } else {
-        texture = loader.load(fileName)
+        texture = loader.load(fileName);
       }
     } else if (extension === 'psd') {
       console.warn(
         'FBXLoader: PSD textures are not supported, creating empty placeholder texture for',
         fileName
-      )
-      texture = new Texture()
+      );
+      texture = new Texture();
     } else {
-      texture = this.textureLoader.load(fileName)
+      texture = this.textureLoader.load(fileName);
     }
 
-    this.textureLoader.setPath(currentPath)
+    this.textureLoader.setPath(currentPath);
 
-    return texture
+    return texture;
   }
 
   parseMaterials(textureMap) {
-    const materialMap = new Map()
+    const materialMap = new Map();
 
     if ('Material' in FBXLoader.fbxTree.Objects) {
-      const materialNodes = FBXLoader.fbxTree.Objects.Material
+      const materialNodes = FBXLoader.fbxTree.Objects.Material;
 
       for (const nodeID in materialNodes) {
-        const material = this.parseMaterial(materialNodes[nodeID], textureMap)
+        const material = this.parseMaterial(materialNodes[nodeID], textureMap);
 
-        if (material !== null) materialMap.set(parseInt(nodeID), material)
+        if (material !== null) materialMap.set(parseInt(nodeID), material);
       }
     }
 
-    return materialMap
+    return materialMap;
   }
 
   parseMaterial(materialNode, textureMap) {
-    const ID = materialNode.id
-    const name = materialNode.attrName
-    let type = materialNode.ShadingModel
+    const ID = materialNode.id;
+    const name = materialNode.attrName;
+    let type = materialNode.ShadingModel;
 
     // Case where FBX wraps shading model in property object.
     if (typeof type === 'object') {
-      type = type.value
+      type = type.value;
     }
 
     // Ignore unused materials which don't have any connections.
-    if (!FBXLoader.connections.has(ID)) return null
+    if (!FBXLoader.connections.has(ID)) return null;
 
-    const parameters = this.parseParameters(materialNode, textureMap, ID)
+    const parameters = this.parseParameters(materialNode, textureMap, ID);
 
-    let material
+    let material;
 
     switch (type.toLowerCase()) {
       case 'phong':
-        material = new MeshPhongMaterial()
-        break
+        material = new MeshPhongMaterial();
+        break;
       case 'lambert':
-        material = new MeshLambertMaterial()
-        break
+        material = new MeshLambertMaterial();
+        break;
       default:
         console.warn(
           'FBXLoader: unknown material type "%s". Defaulting to MeshPhongMaterial.',
           type
-        )
-        material = new MeshPhongMaterial()
-        break
+        );
+        material = new MeshPhongMaterial();
+        break;
     }
 
-    material.setValues(parameters)
-    material.name = name
+    material.setValues(parameters);
+    material.name = name;
 
-    return material
+    return material;
   }
 
   parseParameters(materialNode, textureMap, ID) {
-    const parameters: any = {}
+    const parameters: any = {};
 
     if (materialNode.BumpFactor) {
-      parameters.bumpScale = materialNode.BumpFactor.value
+      parameters.bumpScale = materialNode.BumpFactor.value;
     }
     if (materialNode.Diffuse) {
-      parameters.color = new Color().fromArray(materialNode.Diffuse.value)
+      parameters.color = new Color().fromArray(materialNode.Diffuse.value);
     } else if (
       materialNode.DiffuseColor &&
       materialNode.DiffuseColor.type === 'Color'
@@ -426,17 +426,17 @@ class FBXTreeParser<IFBXTreeParser> {
       // The blender exporter exports diffuse here instead of in materialNode.Diffuse
       parameters.color = new Color().fromArray(
         materialNode.DiffuseColor.value
-      )
+      );
     }
 
     if (materialNode.DisplacementFactor) {
-      parameters.displacementScale = materialNode.DisplacementFactor.value
+      parameters.displacementScale = materialNode.DisplacementFactor.value;
     }
 
     if (materialNode.Emissive) {
       parameters.emissive = new Color().fromArray(
         materialNode.Emissive.value
-      )
+      );
     } else if (
       materialNode.EmissiveColor &&
       materialNode.EmissiveColor.type === 'Color'
@@ -444,35 +444,35 @@ class FBXTreeParser<IFBXTreeParser> {
       // The blender exporter exports emissive color here instead of in materialNode.Emissive
       parameters.emissive = new Color().fromArray(
         materialNode.EmissiveColor.value
-      )
+      );
     }
 
     if (materialNode.EmissiveFactor) {
       parameters.emissiveIntensity = parseFloat(
         materialNode.EmissiveFactor.value
-      )
+      );
     }
 
     if (materialNode.Opacity) {
-      parameters.opacity = parseFloat(materialNode.Opacity.value)
+      parameters.opacity = parseFloat(materialNode.Opacity.value);
     }
 
     if (parameters.opacity < 1.0) {
-      parameters.transparent = true
+      parameters.transparent = true;
     }
 
     if (materialNode.ReflectionFactor) {
-      parameters.reflectivity = materialNode.ReflectionFactor.value
+      parameters.reflectivity = materialNode.ReflectionFactor.value;
     }
 
     if (materialNode.Shininess) {
-      parameters.shininess = materialNode.Shininess.value
+      parameters.shininess = materialNode.Shininess.value;
     }
 
     if (materialNode.Specular) {
       parameters.specular = new Color().fromArray(
         materialNode.Specular.value
-      )
+      );
     } else if (
       materialNode.SpecularColor &&
       materialNode.SpecularColor.type === 'Color'
@@ -480,52 +480,52 @@ class FBXTreeParser<IFBXTreeParser> {
       // The blender exporter exports specular color here instead of in materialNode.Specular
       parameters.specular = new Color().fromArray(
         materialNode.SpecularColor.value
-      )
+      );
     }
 
     FBXLoader.connections.get(ID).children.forEach(child => {
-      const type = child.relationship
+      const type = child.relationship;
 
       switch (type) {
         case 'Bump':
-          parameters.bumpMap = this.getTexture(textureMap, child.ID)
-          break
+          parameters.bumpMap = this.getTexture(textureMap, child.ID);
+          break;
 
         case 'Maya|TEX_ao_map':
-          parameters.aoMap = this.getTexture(textureMap, child.ID)
-          break
+          parameters.aoMap = this.getTexture(textureMap, child.ID);
+          break;
 
         case 'DiffuseColor':
         case 'Maya|TEX_color_map':
-          parameters.map = this.getTexture(textureMap, child.ID)
-          break
+          parameters.map = this.getTexture(textureMap, child.ID);
+          break;
 
         case 'DisplacementColor':
-          parameters.displacementMap = this.getTexture(textureMap, child.ID)
-          break
+          parameters.displacementMap = this.getTexture(textureMap, child.ID);
+          break;
 
         case 'EmissiveColor':
-          parameters.emissiveMap = this.getTexture(textureMap, child.ID)
-          break
+          parameters.emissiveMap = this.getTexture(textureMap, child.ID);
+          break;
 
         case 'NormalMap':
         case 'Maya|TEX_normal_map':
-          parameters.normalMap = this.getTexture(textureMap, child.ID)
-          break
+          parameters.normalMap = this.getTexture(textureMap, child.ID);
+          break;
 
         case 'ReflectionColor':
-          parameters.envMap = this.getTexture(textureMap, child.ID)
-          parameters.envMap.mapping = EquirectangularReflectionMapping
-          break
+          parameters.envMap = this.getTexture(textureMap, child.ID);
+          parameters.envMap.mapping = EquirectangularReflectionMapping;
+          break;
 
         case 'SpecularColor':
-          parameters.specularMap = this.getTexture(textureMap, child.ID)
-          break
+          parameters.specularMap = this.getTexture(textureMap, child.ID);
+          break;
 
         case 'TransparentColor':
-          parameters.alphaMap = this.getTexture(textureMap, child.ID)
-          parameters.transparent = true
-          break
+          parameters.alphaMap = this.getTexture(textureMap, child.ID);
+          parameters.transparent = true;
+          break;
 
         case 'AmbientColor':
         case 'ShininessExponent': // AKA glossiness map
@@ -535,12 +535,12 @@ class FBXTreeParser<IFBXTreeParser> {
           console.warn(
             'FBXLoader: %s map is not supported in js, skipping texture.',
             type
-          )
-          break
+          );
+          break;
       }
-    })
+    });
 
-    return parameters
+    return parameters;
   }
 
   getTexture(textureMap, id) {
@@ -551,53 +551,53 @@ class FBXTreeParser<IFBXTreeParser> {
     ) {
       console.warn(
         'FBXLoader: layered textures are not supported in js. Discarding all but first layer.'
-      )
-      id = FBXLoader.connections.get(id).children[0].ID
+      );
+      id = FBXLoader.connections.get(id).children[0].ID;
     }
 
-    return textureMap.get(id)
+    return textureMap.get(id);
   }
 
   parseDeformers() {
-    const skeletons: any = {}
-    const morphTargets: any = {}
+    const skeletons: any = {};
+    const morphTargets: any = {};
 
     if ('Deformer' in FBXLoader.fbxTree.Objects) {
-      const DeformerNodes = FBXLoader.fbxTree.Objects.Deformer
+      const DeformerNodes = FBXLoader.fbxTree.Objects.Deformer;
 
       for (const nodeID in DeformerNodes) {
-        const deformerNode = DeformerNodes[nodeID]
+        const deformerNode = DeformerNodes[nodeID];
 
-        const relationships = FBXLoader.connections.get(parseInt(nodeID))
+        const relationships = FBXLoader.connections.get(parseInt(nodeID));
 
         if (deformerNode.attrType === 'Skin') {
-          const skeleton: any = this.parseSkeleton(relationships, DeformerNodes)
-          skeleton.ID = nodeID
+          const skeleton: any = this.parseSkeleton(relationships, DeformerNodes);
+          skeleton.ID = nodeID;
 
           if (relationships.parents.length > 1)
             console.warn(
               'FBXLoader: skeleton attached to more than one geometry is not supported.'
-            )
-          skeleton.geometryID = relationships.parents[0].ID
+            );
+          skeleton.geometryID = relationships.parents[0].ID;
 
-          skeletons[nodeID] = skeleton
+          skeletons[nodeID] = skeleton;
         } else if (deformerNode.attrType === 'BlendShape') {
           const morphTarget: any = {
             id: nodeID
-          }
+          };
 
           morphTarget.rawTargets = this.parseMorphTargets(
             relationships,
             DeformerNodes
-          )
-          morphTarget.id = nodeID
+          );
+          morphTarget.id = nodeID;
 
           if (relationships.parents.length > 1)
             console.warn(
               'FBXLoader: morph target attached to more than one geometry is not supported.'
-            )
+            );
 
-          morphTargets[nodeID] = morphTarget
+          morphTargets[nodeID] = morphTarget;
         }
       }
     }
@@ -605,16 +605,16 @@ class FBXTreeParser<IFBXTreeParser> {
     return {
       skeletons: skeletons,
       morphTargets: morphTargets
-    }
+    };
   }
 
   parseSkeleton(relationships, deformerNodes) {
-    const rawBones: any = []
+    const rawBones: any = [];
 
     relationships.children.forEach((child) => {
-      const boneNode = deformerNodes[child.ID]
+      const boneNode = deformerNodes[child.ID];
 
-      if (boneNode.attrType !== 'Cluster') return
+      if (boneNode.attrType !== 'Cluster') return;
 
       const rawBone = {
         ID: child.ID,
@@ -623,49 +623,49 @@ class FBXTreeParser<IFBXTreeParser> {
         transformLink: new Matrix4().fromArray(boneNode.TransformLink.a)
         // transform: new Matrix4().fromArray( boneNode.Transform.a ),
         // linkMode: boneNode.Mode,
-      }
+      };
 
       if ('Indexes' in boneNode) {
-        rawBone.indices = boneNode.Indexes.a
-        rawBone.weights = boneNode.Weights.a
+        rawBone.indices = boneNode.Indexes.a;
+        rawBone.weights = boneNode.Weights.a;
       }
 
-      rawBones.push(rawBone)
-    })
+      rawBones.push(rawBone);
+    });
 
     return {
       rawBones: rawBones,
       bones: []
-    }
+    };
   }
 
   parseMorphTargets(relationships, deformerNodes) {
-    const rawMorphTargets: any = []
+    const rawMorphTargets: any = [];
 
     for (let i = 0; i < relationships.children.length; i++) {
-      const child = relationships.children[i]
+      const child = relationships.children[i];
 
-      const morphTargetNode = deformerNodes[child.ID]
+      const morphTargetNode = deformerNodes[child.ID];
 
       const rawMorphTarget: any = {
         name: morphTargetNode.attrName,
         initialWeight: morphTargetNode.DeformPercent,
         id: morphTargetNode.id,
         fullWeights: morphTargetNode.FullWeights.a
-      }
+      };
 
-      if (morphTargetNode.attrType !== 'BlendShapeChannel') return
+      if (morphTargetNode.attrType !== 'BlendShapeChannel') return;
 
       rawMorphTarget.geoID = FBXLoader.connections
         .get(parseInt(child.ID))
         .children.filter((child) => {
-          return child.relationship === undefined
-        })[0].ID
+          return child.relationship === undefined;
+        })[0].ID;
 
-      rawMorphTargets.push(rawMorphTarget)
+      rawMorphTargets.push(rawMorphTarget);
     }
 
-    return rawMorphTargets
+    return rawMorphTargets;
   }
 
   parseScene( deformers, geometryMap, materialMap ) {
@@ -1649,7 +1649,7 @@ class GeometryParser {
       weightsIndices: [],
     };
 
-    let materialIndex 
+    let materialIndex; 
     let polygonIndex = 0;
     let faceLength = 0;
     let displayedWeightsWarning = false;
@@ -3803,7 +3803,7 @@ function generateTransform( transformData ) {
 
   if ( transformData.preRotation ) {
 
-    var array = transformData.preRotation.map( MathUtils.degToRad );
+    const array = transformData.preRotation.map( MathUtils.degToRad );
     array.push( transformData.eulerOrder );
     lPreRotationM.makeRotationFromEuler( tempEuler.fromArray( array ) );
 
@@ -3811,7 +3811,7 @@ function generateTransform( transformData ) {
 
   if ( transformData.rotation ) {
 
-    var array = transformData.rotation.map( MathUtils.degToRad );
+    const array = transformData.rotation.map( MathUtils.degToRad );
     array.push( transformData.eulerOrder );
     lRotationM.makeRotationFromEuler( tempEuler.fromArray( array ) );
 
@@ -3819,7 +3819,7 @@ function generateTransform( transformData ) {
 
   if ( transformData.postRotation ) {
 
-    var array = transformData.postRotation.map( MathUtils.degToRad );
+    const array = transformData.postRotation.map( MathUtils.degToRad );
     array.push( transformData.eulerOrder );
     lPostRotationM.makeRotationFromEuler( tempEuler.fromArray( array ) );
 
@@ -3843,14 +3843,10 @@ function generateTransform( transformData ) {
 
   // Global Shear*Scaling
   const lParentTM = new Matrix4();
-  let lLSM;
-  let lParentGSM;
-  let lParentGRSM;
-
   lParentTM.copyPosition( lParentGX );
-  lParentGRSM = lParentTM.getInverse( lParentTM ).multiply( lParentGX );
-  lParentGSM = lParentGRM.getInverse( lParentGRM ).multiply( lParentGRSM );
-  lLSM = lScalingM;
+  const lParentGRSM = lParentTM.getInverse( lParentTM ).multiply( lParentGX );
+  const lParentGSM = lParentGRM.getInverse( lParentGRM ).multiply( lParentGRSM );
+  const lLSM = lScalingM;
 
   let lGlobalRS;
   if ( inheritType === 0 ) {
@@ -3964,4 +3960,4 @@ function inject( a1, index, a2 ) {
 
 }
 
-export default FBXLoader
+export default FBXLoader;
