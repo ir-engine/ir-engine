@@ -23,6 +23,7 @@
     "precommit": "no-master-commits -b master,dev && echo \\* Running pre-commit test  && echo \\*\\* \\`git commit --no-verify\\` to skip && echo \\*\\*\\* PRs THAT DO NOT PASS TESTS WILL NOT BE ACCEPTED && yarn run test"
   },
   "pre-push": [
+    "lint",
     "test"
   ],
   "pre-commit": [

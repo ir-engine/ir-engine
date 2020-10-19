@@ -18,37 +18,37 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered,l
     document.dispatchEvent(event);
   };
 
-  const buttonsConfig: Array<{ button: GamepadButtons; label: string }> = [
-    {
-      button: GamepadButtons.A,
-      label: "A",
-    },
-    {
-      button: GamepadButtons.B,
-      label: "B",
-    },
-    {
-      button: GamepadButtons.X,
-      label: "X",
-    },
-    {
-      button: GamepadButtons.Y,
-      label: "Y",
-    },
-  ];
+  // const buttonsConfig: Array<{ button: GamepadButtons; label: string }> = [
+  //   {
+  //     button: GamepadButtons.A,
+  //     label: "A",
+  //   },
+  //   {
+  //     button: GamepadButtons.B,
+  //     label: "B",
+  //   },
+  //   {
+  //     button: GamepadButtons.X,
+  //     label: "X",
+  //   },
+  //   {
+  //     button: GamepadButtons.Y,
+  //     label: "Y",
+  //   },
+  // ];
 
-  const buttons = buttonsConfig.map(((value, index) => {
-    let buttonClassName = "controllButton gamepadButton_"+value.label;
-    buttonClassName += value.label === 'Y' && hovered ? ' _available' : value.label === 'A' && layout !== 'default' ? '_not_available' :'';
-    return (<div
-      key={index}
-      className={ buttonClassName }
-      onPointerDown={ (): void => triggerButton(value.button, true) }
-      onPointerUp={ (): void => triggerButton(value.button, false) }
-      onTouchStart={ (): void => triggerButton(value.button, true) }
-      onTouchEnd={ (): void => triggerButton(value.button, false) }
-    >{ value.label }</div>);
-  }));
+  // const buttons = buttonsConfig.map(((value, index) => {
+  //   let buttonClassName = "controllButton gamepadButton_"+value.label;
+  //   buttonClassName += value.label === 'Y' && hovered ? ' _available' : value.label === 'A' && layout !== 'default' ? '_not_available' :'';
+  //   return (<div
+  //     key={index}
+  //     className={ buttonClassName }
+  //     onPointerDown={ (): void => triggerButton(value.button, true) }
+  //     onPointerUp={ (): void => triggerButton(value.button, false) }
+  //     onTouchStart={ (): void => triggerButton(value.button, true) }
+  //     onTouchEnd={ (): void => triggerButton(value.button, false) }
+  //   >{ value.label }</div>);
+  // }));
 
   useEffect(() => {
     // mount
@@ -86,9 +86,9 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered,l
         className='stickLeft'
         ref={leftContainer}
        />
-      <div className="controlButtonContainer">
+      {/* <div className="controlButtonContainer">
         { buttons }
-      </div>
+      </div> */}
     </>);
 };
 

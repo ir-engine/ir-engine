@@ -8,3 +8,6 @@ export const selectAppLoadPercent = createSelector([selectLoadPercent], loadPerc
 
 const selectInVrModeFn = (state: any): any => state.getIn(['app', 'inVrMode']);
 export const selectInVrModeState = createSelector([selectInVrModeFn], inVrMode => inVrMode);
+
+const selectOnBoardingStep = (state: any): any => state.getIn(['app', 'onBoardingStep']);
+export const selectAppOnBoardingStep = createSelector([selectOnBoardingStep], onBoardingStep => onBoardingStep);
