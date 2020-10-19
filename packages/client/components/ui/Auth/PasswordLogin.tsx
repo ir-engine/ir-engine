@@ -16,7 +16,7 @@ import { loginUserByPassword, addConnectionByPassword } from '../../../redux/aut
 import { showDialog, closeDialog } from '../../../redux/dialog/service';
 import SignUp from './Register';
 import ForgotPassword from './ForgotPassword';
-import './style.scss';
+import './style.module.scss';
 import { User } from '@xr3ngine/common/interfaces/User';
 
 const mapStateToProps = (state: any): any => {

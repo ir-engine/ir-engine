@@ -21,7 +21,7 @@ const mouseMovement: [number, number] = [0, 0];
  * @param args is argument object. Events that occur due to the user interacting with a pointing device (such as a mouse).
  */
 
-export const handleMouseMovement: Behavior = (entity: Entity, args: { event: MouseEvent; }): void => {
+export const handleMouseMovement: Behavior = (entity: Entity, args: { event: MouseEvent }): void => {
   const input = getComponent(entity, Input);
   const normalizedPosition = normalizeMouseCoordinates(args.event.clientX, args.event.clientY, window.innerWidth, window.innerHeight);
   const mousePosition: [number, number] = [ normalizedPosition.x, normalizedPosition.y ];

@@ -15,7 +15,7 @@ import {
 } from '../../../redux/user/service';
 import { Button } from '@material-ui/core';
 import { User } from '@xr3ngine/common/interfaces/User';
-import './style.scss';
+import './style.module.scss';
 
 interface Props {
   auth?: any;

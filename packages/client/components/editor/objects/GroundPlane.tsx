@@ -27,6 +27,7 @@ export default class GroundPlane extends Object3D {
   get color() {
     return this.mesh.material.color;
   }
+  // @ts-ignore
   get receiveShadow() {
     return this._receiveShadow;
   }

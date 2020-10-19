@@ -10,7 +10,7 @@ import { onAnimationEnded } from "./onAnimationEnded";
 import { FallingState } from "../states/FallingState";
 import { jumpStart } from "./jumpStart";
 import { CharacterStateTypes } from "../CharacterStateTypes";
-import { addState } from '../../../state/behaviors/StateBehaviors';
+import { addState } from "../../../state/behaviors/addState";
 
 export const jumpIdle: Behavior = (entity: Entity, args: null, delta: any): void => {
 	const transform = getComponent<TransformComponent>(entity, TransformComponent);

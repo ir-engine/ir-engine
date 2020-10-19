@@ -56,7 +56,7 @@ export class Entity {
    * Default logic for copying entity
    * @returns this new entity as a copy of the source
    */
-  copy (src:Entity): Entity {
+  copy (src: Entity): Entity {
     for (const componentId in src.components) {
       const srcComponent = src.components[componentId];
       addComponent(this, srcComponent.constructor);

@@ -11,7 +11,7 @@ import { findVehicle } from '../functions/findVehicle';
 import { getComponent } from '../../../ecs/functions/EntityFunctions';
 import { Input } from '../../../input/components/Input';
 import { isMoving } from '../functions/isMoving';
-import { addState } from '../../../state/behaviors/StateBehaviors';
+import { addState } from "../../../state/behaviors/addState";
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { setAppropriateStartWalkState } from '../behaviors/setStartWalkState';
 import { Entity } from '../../../ecs/classes/Entity';
@@ -54,7 +54,7 @@ export const IdleState: StateSchemaValue = {
     {
       behavior: triggerActionIfMovementHasChanged,
       args: {
-        action: (entity:Entity): void => {
+        action: (entity: Entity): void => {
           // Default behavior for all states
           findVehicle(entity);
           const input = getComponent(entity, Input);

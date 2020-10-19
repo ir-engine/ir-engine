@@ -1,22 +1,25 @@
-import { sRGBEncoding, RGBFormat } from "three";
-import { LoaderExtension } from "./LoaderExtension";
+import { sRGBEncoding, RGBFormat } from 'three';
+import { LoaderExtension } from './LoaderExtension';
 function getLightmap(materialDef) {
   return (
     materialDef.extensions &&
     materialDef.extensions[LightmapLoaderExtension.extensionName]
   );
 }
+
 function shouldSetMaterialParams(_material, materialDef) {
   return getLightmap(materialDef);
 }
+
 export class LightmapLoaderExtension extends LoaderExtension {
-  static extensionName = "XR3_lightmap";
-  extensionNames = [LightmapLoaderExtension.extensionName];
-  loader: any;
+  static extensionName = 'XR3_lightmap'
+
+  extensionNames = [LightmapLoaderExtension.extensionName]
+
   onLoad() {
     if (this.loader.usesExtension(LightmapLoaderExtension.extensionName)) {
       this.loader.addHook(
-        "setMaterialParams",
+        'setMaterialParams',
         shouldSetMaterialParams,
         this.setMaterialParams
       );
@@ -29,11 +32,11 @@ export class LightmapLoaderExtension extends LoaderExtension {
         lightmap.intensity === undefined ? 1 : lightmap.intensity;
       await this.loader.assignTexture(
         material,
-        "lightMap",
+        'lightMap',
         lightmap,
         sRGBEncoding,
         RGBFormat
       );
     }
-  };
+  }
 }

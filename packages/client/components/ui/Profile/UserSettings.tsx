@@ -12,7 +12,7 @@ import MicIcon from '@material-ui/icons/Mic';
 import MicOffIcon from '@material-ui/icons/MicOff';
 import Slider from '@material-ui/core/Slider';
 import Switch from '@material-ui/core/Switch';
-import './style.scss';
+import './style.module.scss';
 
 const UserSettings = (): any => {
   const [volume, setvolume] = useState<number>(30);

@@ -11,7 +11,7 @@ import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { NumericalType } from "../../common/types/NumericalTypes";
 
 let follower, target;
-let inputComponent:Input;
+let inputComponent: Input;
 let cameraFollow;
 let actor, camera
 let inputValue, startValue

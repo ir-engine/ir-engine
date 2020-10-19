@@ -4,7 +4,7 @@ import { Object3DComponent } from "../../../common/components/Object3DComponent"
 import { Mesh, MeshPhongMaterial } from "three";
 import { ColliderComponent } from "../../../physics/components/ColliderComponent";
 
-export const onInteraction:Behavior = (entity, args, delta, entityOut, time) => {
+export const onInteraction: Behavior = (entity, args, delta, entityOut, time) => {
   if (!hasComponent(entityOut, Object3DComponent)) {
     return;
   }
@@ -15,7 +15,7 @@ export const onInteraction:Behavior = (entity, args, delta, entityOut, time) => 
   collider.collider.velocity.z += 0.1 * Math.random();
 };
 
-export const onInteractionHover:Behavior = (entity, { focused }:{ focused:boolean }, delta, entityOut, time) => {
+export const onInteractionHover: Behavior = (entity, { focused }: { focused: boolean }, delta, entityOut, time) => {
   if (!hasComponent(entityOut, Object3DComponent)) {
     return;
   }

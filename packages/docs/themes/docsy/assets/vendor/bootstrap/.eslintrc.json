@@ -215,7 +215,7 @@
     "no-useless-computed-key": "error",
     "no-useless-constructor": "error",
     "no-useless-rename": "error",
-    "no-var": "error",
+    "no-var": "off",
     "object-shorthand": "error",
     "prefer-arrow-callback": "error",
     "prefer-const": "error",
