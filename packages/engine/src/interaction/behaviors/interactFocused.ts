@@ -6,8 +6,7 @@ import { InteractiveFocused } from "../components/InteractiveFocused";
 import { HighlightComponent } from "../../effects/components/HighlightComponent";
 import { SubFocused } from "../components/SubFocused";
 
-export const interactFocused:Behavior = (entity: Entity, args, delta: number): void => {
-
+export const interactFocused: Behavior = (entity: Entity, args, delta: number): void => {
   if (!hasComponent(entity, Interactive)) {
     console.error('Attempted to call interact behavior, but target does not have Interactive component');
     return;

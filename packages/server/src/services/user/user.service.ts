@@ -46,6 +46,16 @@ export default (app: Application): void => {
       let targetIds = [data.id];
       const updatePromises = [];
 
+      let layerUsers = [];
+      if (data.instanceId != null || params.params?.instanceId != null) {
+        layerUsers = await app.service('user').Model.findAll({
+          where: {
+            instanceId: data.instanceId || params.params?.instanceId
+          }
+        });
+        targetIds = targetIds.concat(layerUsers.map(user => user.id));
+      }
+
       groupUsers.forEach((groupUser) => {
         updatePromises.push(app.service('group-user').patch(groupUser.id, {
           groupUserRank: groupUser.groupUserRank

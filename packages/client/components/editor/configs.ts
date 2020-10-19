@@ -1,4 +1,4 @@
-import "dotenv";
+// import "dotenv";
 
 // Read configs from meta tags if available, otherwise use the process.env injected from build.
 const configs = {};
@@ -37,7 +37,8 @@ get(configs, "USE_DIRECT_UPLOAD_API", process.env.USE_DIRECT_UPLOAD_API);
 get(configs, "API_RESOLVE_MEDIA_ROUTE", process.env.API_RESOLVE_MEDIA_ROUTE);
 
 get(configs, "USE_HTTPS", process.env.USE_HTTPS);
-
+// eslint-disable-next-line @typescript-eslint/camelcase
+let __webpack_public_path__ = "";
 if ((configs as any).BASE_ASSETS_PATH) {
   // eslint-disable-next-line no-undef, @typescript-eslint/camelcase
   __webpack_public_path__ = (configs as any).BASE_ASSETS_PATH;

@@ -11,13 +11,13 @@ export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
   const deleteArr = [];
 
    asset.scene.traverse( mesh => {
-     console.log(mesh.userData.data);
+     // console.log(mesh.userData.data);
 
      if (mesh.userData.data == "physics") {
        if (mesh.userData.type == "box" || mesh.userData.type == "trimesh") {
-         console.log('ADD COLLIDER');
+         // console.log('ADD COLLIDER');
          deleteArr.push(mesh);
-         console.log(mesh);
+         // console.log(mesh);
          if(mesh.type == 'Group') {
            for (let i = 0; i < mesh.children.length; i++) {
              addColliderWithoutEntity(mesh.userData.type, mesh.children[i].position, mesh.children[i].quaternion, mesh.children[i].scale, mesh.children[i]);

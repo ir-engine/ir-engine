@@ -1,23 +1,19 @@
 /* eslint-disable no-console, react/sort-comp */
+import isEqual from 'lodash.isequal';
 import React, { Component } from 'react';
 import stringSimilarity from 'string-similarity';
-import whatkey from 'whatkey';
-import isEqual from 'lodash.isequal';
 import { ThemeProvider } from 'styled-components';
+import whatkey from 'whatkey';
 import { handleLogging } from '../../utils';
-import {
-  TerminalPropTypes,
-  TerminalContextTypes,
-  TerminalDefaultProps,
-} from '../types';
-
-import { os, pluginMap, uuidv4, getShortcuts, modCommands } from './terminal-utils';
-
 import Content from '../Content/index';
 import Tabs from '../Tabs/index';
-import { CSSProperties } from '@material-ui/core/styles/withStyles';
-import { red } from '@material-ui/core/colors';
-import { ContentBackspace } from 'material-ui/svg-icons';
+import {
+  TerminalContextTypes,
+  TerminalDefaultProps, TerminalPropTypes
+} from '../types';
+import { getShortcuts, modCommands, os, pluginMap, uuidv4 } from './terminal-utils';
+
+
 
 let isTerminalExpanded = false;
 // isTerminalExpanded = true;
@@ -620,7 +616,8 @@ class Terminal extends Component<any, any> {
       // Scroll terminal to end.
       setTimeout(
         () => {
-          instance.contentWrapper.scrollTop = instance.contentWrapper.scrollHeight;
+          if (instance.contentWrapper !== null)
+            instance.contentWrapper.scrollTop = instance.contentWrapper.scrollHeight;
         },
         50);
 
@@ -899,6 +896,7 @@ class Terminal extends Component<any, any> {
     let commands = { ...this.state.commands };
     let descriptions = { ...this.state.descriptions };
     const instanceData = this.state.instances.find(i => isEqual(i.instance, instance));
+    
     if (instanceData) {
       Object.values(instanceData.pluginInstances).forEach((i: any) => {
         commands = {
@@ -915,9 +913,8 @@ class Terminal extends Component<any, any> {
 
     for (const option of options) {
       // eslint-disable-line no-restricted-syntax
-      if (descriptions[option] !== false) {
+      if ((option in descriptions) && descriptions[option] !== false)
         printLine(`${option} - ${descriptions[option]}`);
-      }
     }
   };
 

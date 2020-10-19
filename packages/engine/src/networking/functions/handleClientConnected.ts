@@ -6,7 +6,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { MessageTypes } from '../enums/MessageTypes';
 // TODO: This should only be called on server, harmless, but yeah
 
-export const handleClientConnected = (args: { id: any; media: any; }) => {
+export const handleClientConnected = (args: { id: any; media: any }) => {
   console.log("handle client connected");
   if (Network.instance.clients[args.id] == null) {
     Network.instance.clients[args.id] = {

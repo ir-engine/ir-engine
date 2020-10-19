@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {bindActionCreators, Dispatch} from 'redux';
 import {connect} from 'react-redux';
-import './style.scss';
+import './style.module.scss';
 import _ from 'lodash';
 import {
     Accordion,

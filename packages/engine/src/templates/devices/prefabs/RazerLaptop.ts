@@ -48,7 +48,7 @@ Single-zone RGB powered by Razer Chroma™`
           url: "models/devices/razer_laptop.glb",
           receiveShadow: true,
           castShadow: true,
-          onLoaded: (entityIn:Entity, args:unknown, delta:number, entityOut:Entity): void => {
+          onLoaded: (entityIn: Entity, args: unknown, delta: number, entityOut: Entity): void => {
 
           }
         }

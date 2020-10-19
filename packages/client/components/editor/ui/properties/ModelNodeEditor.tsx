@@ -15,6 +15,8 @@ export default class ModelNodeEditor extends Component<
   ModelNodeEditorProps,
   {}
 > {
+  static iconComponent = Cube;
+  static description = "A 3D model in your scene, loaded from a GLTF URL or file.";
   onChangeSrc = (src, initialProps) => {
     (this.props.editor as any).setPropertiesSelected({ ...initialProps, src });
   };

@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 
 // import { siteTitle } from '../../../config/server'
 
-import './style.scss';
+import './style.module.scss';
 import Button from '@material-ui/core/Button';
 import { connect } from 'react-redux';
 import { selectVideoState } from '../../../redux/video/selector';

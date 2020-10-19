@@ -18,7 +18,7 @@ export class NetworkInterpolation extends Component<any> {
     NetworkInterpolation.instance = this;
   }
 
-  dispose():void {
+  dispose(): void {
     super.dispose();
     NetworkInterpolation.instance = null;
   }
@@ -42,7 +42,7 @@ export class NetworkInterpolation extends Component<any> {
   /** Get the latest snapshot */
   get (): Snapshot | undefined
   /** Get the two snapshots around a specific time */
-  get (time: number): { older: Snapshot, newer: Snapshot } | undefined
+  get (time: number): { older: Snapshot; newer: Snapshot } | undefined
   /** Get the closest snapshot to e specific time */
   get (time: number, closest: boolean): Snapshot | undefined
 

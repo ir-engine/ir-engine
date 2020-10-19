@@ -13,6 +13,8 @@ export default class SimpleWaterNodeEditor extends Component<
   SimpleWaterNodeEditorProps,
   {}
 > {
+  static iconComponent = Water;
+  static description = "Renders a water plane.";
   onChangeColor = color => {
     (this.props.editor as any).setPropertySelected("color", color);
   };

@@ -18,25 +18,45 @@ import { Unload } from '../components/Unload';
 import { AssetClass } from '../enums/AssetClass';
 import { getAssetClass, getAssetType, loadAsset } from '../functions/LoadingFunctions';
 import { isBrowser } from '../../common/functions/isBrowser';
+import { MeshPhysicalMaterial, TorusGeometry } from "three";
 import { ProcessModelAsset } from "../functions/ProcessModelAsset";
+import { CharacterAvatarComponent } from "../../templates/character/components/CharacterAvatarComponent";
+import { loadActorAvatar } from "../../templates/character/behaviors/loadActorAvatar";
 
 export default class AssetLoadingSystem extends System {
   loaded = new Map<Entity, any>()
+  loadingCount = 0;
 
   constructor() {
     super();
     addComponent(createEntity(), AssetVault);
   }
 
-  execute(): void {
+  execute (): void{
+    if(isBrowser && this.queryResults.toLoad.all.length > 0){
+      const event = new CustomEvent('scene-loaded', { detail:{loaded:false} });
+      document.dispatchEvent(event);
+    }  
+
+    this.queryResults.characterAvatar.added.forEach(entity => {
+      loadActorAvatar(entity);
+    });
+    this.queryResults.characterAvatar.changed.forEach(entity => {
+      loadActorAvatar(entity);
+    });
+
     this.queryResults.assetVault.all.forEach(entity => {
       // Do things here
     });
     this.queryResults.toLoad.all.forEach((entity: Entity) => {
-      if(hasComponent(entity, AssetLoaderState)) return console.log("Returning because already has assetloader");
       console.log("To load query has members!");
-      // Create a new entity
-      addComponent(entity, AssetLoaderState);
+      if(hasComponent(entity, AssetLoaderState)) {
+        //return console.log("Returning because already has AssetLoaderState");
+        console.log("??? already has AssetLoaderState");
+      } else {
+        // Create a new AssetLoaderState
+        addComponent(entity, AssetLoaderState);
+      }
       const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader);
       // Set the filetype
       assetLoader.assetType = getAssetType(assetLoader.url);
@@ -45,12 +65,37 @@ export default class AssetLoadingSystem extends System {
       // Check if the vault already contains the asset
       // If it does, get it so we don't need to reload it
       // Load the asset with a calback to add it to our processing queue
-      if(isBrowser) // Only load asset on browser, as it uses browser-specific requests
-      loadAsset(assetLoader.url, entity, (entity, { asset }) => {
-        // This loads the editor scene
-        this.loaded.set(entity, asset);
-      });
+      if(isBrowser){ // Only load asset on browser, as it uses browser-specific requests
+        this.loadingCount++;
+
+        const eventEntity = new CustomEvent('scene-loaded-entity', { detail:{left:this.loadingCount} });
+        document.dispatchEvent(eventEntity);
+
+        loadAsset(assetLoader.url, entity, (entity, { asset }) => {
+          // This loads the editor scene
+          this.loaded.set(entity, asset); 
+          this.loadingCount--;
+
+          if(this.loadingCount === 0){
+            //loading finished
+            const event = new CustomEvent('scene-loaded', { detail:{loaded:true} });
+            document.dispatchEvent(event);
+          }else{
+            //show progress by entitites
+            const event = new CustomEvent('scene-loaded-entity', { detail:{left: this.loadingCount} });
+            document.dispatchEvent(event);
+          }
+        });
+      }
+     
     });
+
+    if (this.queryResults.toLoad.added?.length > 0) {
+      console.log('toLoad added', this.queryResults.toLoad.added.length);
+    }
+    if (this.queryResults.toLoad.removed?.length > 0) {
+      console.log('toLoad removed', this.queryResults.toLoad.removed.length);
+    }
 
     // Do the actual entity creation inside the system tick not in the loader callback
     this.loaded.forEach( (asset, entity) =>{
@@ -67,6 +112,8 @@ export default class AssetLoadingSystem extends System {
       if (component.onLoaded) {
         component.onLoaded(entity, { asset });
       }
+
+      console.log('loaded number ', entity)
     });
 
     this.loaded?.clear();
@@ -83,7 +130,7 @@ export default class AssetLoadingSystem extends System {
   }
 }
 
-export function hashResourceString (str:string):string {
+export function hashResourceString (str: string): string {
   let hash = 0;
   let i = 0;
   const len = str.length;
@@ -102,9 +149,20 @@ AssetLoadingSystem.queries = {
     components: [AssetVault]
   },
   toLoad: {
-    components: [AssetLoader, Not(AssetLoaderState)]
+    components: [AssetLoader, Not(AssetLoaderState)],
+    listen: {
+      added: true,
+      removed: true
+    }
   },
   toUnload: {
     components: [AssetLoaderState, Unload, Not(AssetLoader)]
+  },
+  characterAvatar: {
+    components: [ CharacterAvatarComponent ],
+    listen: {
+      added: true,
+      changed: true
+    }
   }
 };

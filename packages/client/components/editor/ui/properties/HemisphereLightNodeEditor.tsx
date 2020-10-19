@@ -12,6 +12,8 @@ export default class HemisphereLightNodeEditor extends Component<
   HemisphereLightNodeEditorProps,
   {}
 > {
+  static iconComponent = Certificate;
+  static description = "A light which illuminates the scene from directly overhead.";
   onChangeSkyColor = skyColor => {
     (this.props.editor as any).setPropertySelected("skyColor", skyColor);
   };

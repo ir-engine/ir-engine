@@ -25,6 +25,7 @@ import { InputType } from "../../input/enums/InputType";
 import { setLocalMovementDirection } from "./behaviors/setLocalMovementDirection";
 import { handleMouseWheel } from "../../input/behaviors/handleMouseWheel";
 import { changeCameraDistanceByDelta } from "../../camera/behaviors/changeCameraDistanceByDelta";
+import { LifecycleValue } from "../../common/enums/LifecycleValue";
 
 export const CharacterInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
@@ -83,7 +84,18 @@ export const CharacterInputSchema: InputSchema = {
         behavior: handleTouch,
         args: {
           value: BinaryValue.ON
+        },
+        
+      },
+      {
+        behavior: interact,
+        args: {
+          touchPhaze:LifecycleValue.STARTED         
         }
+      },
+      {
+          behavior: interact,
+          args: {}
       }
     ],
     touchend: [
@@ -91,6 +103,12 @@ export const CharacterInputSchema: InputSchema = {
         behavior: handleTouch,
         args: {
           value: BinaryValue.OFF
+        }
+      },
+      {
+        behavior: interact,
+        args: {
+          touchPhaze:LifecycleValue.ENDED         
         }
       }
     ],
@@ -161,7 +179,8 @@ export const CharacterInputSchema: InputSchema = {
   // Map mouse buttons to abstract input
   mouseInputMap: {
     buttons: {
-      [MouseInput.LeftButton]: DefaultInput.PRIMARY,
+      // [MouseInput.LeftButton]: DefaultInput.PRIMARY,
+      [MouseInput.LeftButton]: DefaultInput.INTERACT,
       [MouseInput.RightButton]: DefaultInput.SECONDARY,
       [MouseInput.MiddleButton]: DefaultInput.INTERACT
     },
@@ -238,10 +257,20 @@ export const CharacterInputSchema: InputSchema = {
         ]
     },
     [DefaultInput.INTERACT]: {
+      started: [
+        {
+          behavior: interact,
+          args: {
+            phaze:LifecycleValue.STARTED         
+          }
+        }
+      ],
       ended: [
         {
           behavior: interact,
-          args: {}
+          args: {
+            phaze:LifecycleValue.ENDED 
+          }
         }
       ]
     },

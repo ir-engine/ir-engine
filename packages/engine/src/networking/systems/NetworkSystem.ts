@@ -51,7 +51,7 @@ export class NetworkSystem extends System {
   execute(delta): void {
     // Transforms that are updated are automatically collected
     // note: onChanged needs to currently be handled outside of fixedExecute
-    if (Network.instance.transport.isServer)
+    if (Network.instance?.transport.isServer)
       this.queryResults.networkTransforms.changed?.forEach((entity: Entity) =>
         addNetworkTransformToWorldState(entity)
       );
@@ -63,7 +63,7 @@ export class NetworkSystem extends System {
     // Advance the network tick
 
     // Client only
-    if (!Network.instance.transport.isServer) {
+    if (!Network.instance?.transport.isServer) {
       // Client sends input and *only* input to the server (for now)
       this.queryResults.networkInputSender.all?.forEach((entity: Entity) =>
         sendClientInputToServer(entity)
@@ -76,7 +76,7 @@ export class NetworkSystem extends System {
     }
 
     // Server-only
-    if (Network.instance.transport.isServer) {
+    if (Network.instance?.transport.isServer) {
       Network.tick++;
 
       // handle client input, apply to local objects and add to world state snapshot

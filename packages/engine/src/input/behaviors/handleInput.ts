@@ -21,12 +21,29 @@ import { BinaryValue } from '../../common/enums/BinaryValue';
  * @param args
  * @param {Number} delta Time since last frame
  */
-export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): void => {
+ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): void => {
   // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
   const input = getMutableComponent(entity, Input);
 
   // check CHANGED/UNCHANGED axis inputs
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+    if (!input.prevData.has(key)) {
+      return
+    }
+
+    if (value.type === InputType.BUTTON) {
+      const prevValue = input.prevData.get(key)
+      if (
+          prevValue.lifecycleState === LifecycleValue.STARTED &&
+          value.lifecycleState === LifecycleValue.STARTED
+      ) {
+        // auto-switch to CONTINUED
+        value.lifecycleState = LifecycleValue.CONTINUED
+        input.data.set(key, value)
+      }
+      return
+    }
+
     if (
       value.type !== InputType.ONEDIM &&
       value.type !== InputType.TWODIM &&
@@ -35,8 +52,8 @@ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): 
       // skip all other inputs
       return
     }
-
-    if (value.lifecycleState === LifecycleValue.ENDED) {
+    
+    if (value.lifecycleState = LifecycleValue.ENDED) {
       // ENDED here is a special case, like mouse position on mouse down
       return
     }
@@ -49,7 +66,7 @@ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): 
       }
       input.data.set(key, value)
     }
-  })
+  });
 
   // For each input currently on the input object:
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
@@ -121,7 +138,7 @@ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): 
   input.prevData.clear();
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
     input.prevData.set(key, value);
-  })
+  });
 
   // clean processed LifecycleValue.ENDED inputs
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
@@ -139,5 +156,5 @@ export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): 
     //   //   input.data.delete(key)
     //   // }
     // }
-  })
+  });
 };

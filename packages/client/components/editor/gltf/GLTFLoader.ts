@@ -1656,7 +1656,8 @@ class GLTFLoader {
     }
 
     // Load Texture resource.
-    let loader = Loader.Handlers.get(sourceURI);
+    // let loader = Loader.Handlers.get(sourceURI); deprecated/removed from three
+    let loader = this.manager.getHandler(sourceURI); // newer method
 
     if (!loader) {
       loader = textureLoader;

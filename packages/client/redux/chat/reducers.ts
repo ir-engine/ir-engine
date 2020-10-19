@@ -15,6 +15,8 @@ import {
 
 import {
   CREATED_MESSAGE,
+  FETCHING_PARTY_CHANNEL,
+  LOADED_CHANNEL,
   LOADED_CHANNELS,
   LOADED_MESSAGES,
   PATCHED_MESSAGE,
@@ -44,13 +46,15 @@ export const initialState = {
   targetObject: {},
   targetChannelId: '',
   updateMessageScroll: false,
-  messageScrollInit: false
+  messageScrollInit: false,
+  partyChannelFetching: false,
+  partyChannelFetched: false
 };
 
 const immutableState = Immutable.fromJS(initialState);
 
 const chatReducer = (state = immutableState, action: ChatAction): any => {
-  let updateMap, localAction, updateMapChannels, updateMapChannelsChild;
+  let updateMap, localAction, updateMapChannels, updateMapChannelsChild, returned;
   switch (action.type) {
     case LOADED_CHANNELS:
       localAction = (action as LoadedChannelsAction);
@@ -61,15 +65,35 @@ const chatReducer = (state = immutableState, action: ChatAction): any => {
       updateMapChannels = new Map((updateMap as any).get('channels'));
       updateMap.set('updateNeeded', false);
       localAction.channels.forEach((channel) => {
-        channel.updateNeeded = true;
-        channel.limit = 8;
-        channel.skip = 0;
-        channel.total = 0;
-        updateMapChannels.set(channel.id, channel);
+        if (updateMapChannels[channel.id] == null) {
+          channel.updateNeeded = true;
+          channel.limit = 8;
+          channel.skip = 0;
+          channel.total = 0;
+          updateMapChannels.set(channel.id, channel);
+        }
       });
       updateMap.set('channels', updateMapChannels);
       return state
           .set('channels', updateMap);
+    case LOADED_CHANNEL:
+      localAction = (action as LoadedChannelsAction);
+      const newChannel = localAction.channel;
+      const channelType = localAction.channelType;
+      updateMap = new Map(state.get('channels'));
+      updateMapChannels = new Map((updateMap as any).get('channels'));
+      if (newChannel?.id != null && updateMapChannels[newChannel.id] == null) {
+        newChannel.updateNeeded = true;
+        newChannel.limit = 10;
+        newChannel.skip = 0;
+        newChannel.total = 0;
+        updateMapChannels.set(newChannel.id, newChannel);
+      }
+      updateMap.set('channels', updateMapChannels);
+      returned = state
+          .set('channels', updateMap);
+      if (channelType === 'party') returned = returned.set('fetchingPartyChannel', false).set('partyChannelFetched', true);
+      return returned;
     case CREATED_MESSAGE:
       localAction = (action as CreatedMessageAction);
         const channelId = localAction.message.channelId;
@@ -87,7 +111,7 @@ const chatReducer = (state = immutableState, action: ChatAction): any => {
         updateMapChannels.set(channelId, updateMapChannelsChild);
         updateMap.set('channels', updateMapChannels);
       }
-      let returned = state
+      returned = state
         .set('channels', updateMap)
         .set('updateMessageScroll', true);
 
@@ -191,6 +215,9 @@ const chatReducer = (state = immutableState, action: ChatAction): any => {
     case SET_MESSAGE_SCROLL_INIT:
       const { value } = (action as SetMessageScrollInitAction);
       return state.set('messageScrollInit', value);
+
+    case FETCHING_PARTY_CHANNEL:
+      return state.set('fetchingPartyChannel', true);
   }
 
   return state;

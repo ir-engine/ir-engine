@@ -28,97 +28,97 @@ export type XREventType =
 type XRSpace = EventTarget
 
 interface XRRenderState {
-  depthNear?: number
-  depthFar?: number
-  inlineVerticalFieldOfView?: number
-  baseLayer?: XRWebGLLayer
+  depthNear?: number;
+  depthFar?: number;
+  inlineVerticalFieldOfView?: number;
+  baseLayer?: XRWebGLLayer;
 }
 
 export interface XRInputSource {
-  handedness: XRHandedness
-  targetRayMode: XRTargetRayMode
-  targetRaySpace: XRSpace
-  gripSpace: XRSpace | undefined
-  gamepad: Gamepad | undefined
-  profiles: string[]
+  handedness: XRHandedness;
+  targetRayMode: XRTargetRayMode;
+  targetRaySpace: XRSpace;
+  gripSpace: XRSpace | undefined;
+  gamepad: Gamepad | undefined;
+  profiles: string[];
 }
 
 interface XRSessionInit {
-  optionalFeatures?: string[]
-  requiredFeatures?: string[]
+  optionalFeatures?: string[];
+  requiredFeatures?: string[];
 }
 
 export interface XRSession {
-  addEventListener: any
-  removeEventListener: any
-  requestReferenceSpace(type: XRReferenceSpaceType): Promise<XRReferenceSpace>
-  updateRenderState(XRRenderStateInit: XRRenderState): Promise<void>
-  requestAnimationFrame: any
-  end(): Promise<void>
-  renderState: XRRenderState
-  inputSources: XRInputSource[]
+  addEventListener: any;
+  removeEventListener: any;
+  requestReferenceSpace(type: XRReferenceSpaceType): Promise<XRReferenceSpace>;
+  updateRenderState(XRRenderStateInit: XRRenderState): Promise<void>;
+  requestAnimationFrame: any;
+  end(): Promise<void>;
+  renderState: XRRenderState;
+  inputSources: XRInputSource[];
 
   // hit test
-  requestHitTestSource(options: XRHitTestOptionsInit): Promise<XRHitTestSource>
+  requestHitTestSource(options: XRHitTestOptionsInit): Promise<XRHitTestSource>;
   requestHitTestSourceForTransientInput(
     options: XRTransientInputHitTestOptionsInit
-  ): Promise<XRTransientInputHitTestSource>
+  ): Promise<XRTransientInputHitTestSource>;
 
   // legacy AR hit test
-  requestHitTest(ray: XRRay, referenceSpace: XRReferenceSpace): Promise<XRHitResult[]>
+  requestHitTest(ray: XRRay, referenceSpace: XRReferenceSpace): Promise<XRHitResult[]>;
 
   // legacy plane detection
-  updateWorldTrackingState(options: { planeDetectionState?: { enabled: boolean } }): void
+  updateWorldTrackingState(options: { planeDetectionState?: { enabled: boolean } }): void;
 }
 
 export interface XRReferenceSpace extends XRSpace {
-  getOffsetReferenceSpace(originOffset: XRRigidTransform): XRReferenceSpace
-  onreset: any
+  getOffsetReferenceSpace(originOffset: XRRigidTransform): XRReferenceSpace;
+  onreset: any;
 }
 
 type XRPlaneSet = Set<XRPlane>
 type XRAnchorSet = Set<XRAnchor>
 
 export interface XRFrame {
-  session: XRSession
-  getViewerPose(referenceSpace: XRReferenceSpace): XRViewerPose | undefined
-  getPose(space: XRSpace, baseSpace: XRSpace): XRPose | undefined
+  session: XRSession;
+  getViewerPose(referenceSpace: XRReferenceSpace): XRViewerPose | undefined;
+  getPose(space: XRSpace, baseSpace: XRSpace): XRPose | undefined;
 
   // AR
-  getHitTestResults(hitTestSource: XRHitTestSource): XRHitTestResult[]
-  getHitTestResultsForTransientInput(hitTestSource: XRTransientInputHitTestSource): XRTransientInputHitTestResult[]
+  getHitTestResults(hitTestSource: XRHitTestSource): XRHitTestResult[];
+  getHitTestResultsForTransientInput(hitTestSource: XRTransientInputHitTestSource): XRTransientInputHitTestResult[];
   // Anchors
-  trackedAnchors?: XRAnchorSet
-  createAnchor(pose: XRRigidTransform, space: XRSpace): Promise<XRAnchor>
+  trackedAnchors?: XRAnchorSet;
+  createAnchor(pose: XRRigidTransform, space: XRSpace): Promise<XRAnchor>;
   // Planes
   worldInformation: {
-    detectedPlanes?: XRPlaneSet
-  }
+    detectedPlanes?: XRPlaneSet;
+  };
 }
 
 interface XRViewerPose extends XRPose {
-  views: XRView[]
+  views: XRView[];
 }
 
 export interface XRPose {
-  transform: XRRigidTransform
-  emulatedPosition: boolean
+  transform: XRRigidTransform;
+  emulatedPosition: boolean;
 }
 
 export interface XRWebGLLayerOptions {
-  antialias?: boolean
-  depth?: boolean
-  stencil?: boolean
-  alpha?: boolean
-  multiview?: boolean
-  framebufferScaleFactor?: number
+  antialias?: boolean;
+  depth?: boolean;
+  stencil?: boolean;
+  alpha?: boolean;
+  multiview?: boolean;
+  framebufferScaleFactor?: number;
 }
 
 export interface XRWebGLLayer {
-  framebuffer: WebGLFramebuffer
-  framebufferWidth: number
-  framebufferHeight: number
-  getViewport: any
+  framebuffer: WebGLFramebuffer;
+  framebufferWidth: number;
+  framebufferHeight: number;
+  getViewport: any;
 }
 
 declare class XRRigidTransform {
@@ -130,20 +130,20 @@ declare class XRRigidTransform {
 }
 
 interface XRView {
-  eye: XREye
-  projectionMatrix: Float32Array
-  transform: XRRigidTransform
+  eye: XREye;
+  projectionMatrix: Float32Array;
+  transform: XRRigidTransform;
 }
 
 interface XRInputSourceChangeEvent {
-  session: XRSession
-  removed: XRInputSource[]
-  added: XRInputSource[]
+  session: XRSession;
+  removed: XRInputSource[];
+  added: XRInputSource[];
 }
 
 interface XRInputSourceEvent extends Event {
-  readonly frame: XRFrame
-  readonly inputSource: XRInputSource
+  readonly frame: XRFrame;
+  readonly inputSource: XRInputSource;
 }
 
 // Experimental(er) features
@@ -160,48 +160,48 @@ declare enum XRHitTestTrackableType {
 }
 
 interface XRHitResult {
-  hitMatrix: Float32Array
+  hitMatrix: Float32Array;
 }
 
 interface XRTransientInputHitTestResult {
-  readonly inputSource: XRInputSource
-  readonly results: XRHitTestResult[]
+  readonly inputSource: XRInputSource;
+  readonly results: XRHitTestResult[];
 }
 
 interface XRHitTestResult {
-  getPose(baseSpace: XRSpace): XRPose | undefined
+  getPose(baseSpace: XRSpace): XRPose | undefined;
   // When anchor system is enabled
-  createAnchor?(pose: XRRigidTransform): Promise<XRAnchor>
+  createAnchor?(pose: XRRigidTransform): Promise<XRAnchor>;
 }
 
 interface XRHitTestSource {
-  cancel(): void
+  cancel(): void;
 }
 
 interface XRTransientInputHitTestSource {
-  cancel(): void
+  cancel(): void;
 }
 
 interface XRHitTestOptionsInit {
-  space: XRSpace
-  entityTypes?: XRHitTestTrackableType[]
-  offsetRay?: XRRay
+  space: XRSpace;
+  entityTypes?: XRHitTestTrackableType[];
+  offsetRay?: XRRay;
 }
 
 interface XRTransientInputHitTestOptionsInit {
-  profile: string
-  entityTypes?: XRHitTestTrackableType[]
-  offsetRay?: XRRay
+  profile: string;
+  entityTypes?: XRHitTestTrackableType[];
+  offsetRay?: XRRay;
 }
 
 interface XRAnchor {
-  anchorSpace: XRSpace
-  delete(): void
+  anchorSpace: XRSpace;
+  delete(): void;
 }
 
 interface XRPlane {
-  orientation: 'Horizontal' | 'Vertical'
-  planeSpace: XRSpace
-  polygon: DOMPointReadOnly[]
-  lastChangedTime: number
+  orientation: 'Horizontal' | 'Vertical';
+  planeSpace: XRSpace;
+  polygon: DOMPointReadOnly[];
+  lastChangedTime: number;
 }
