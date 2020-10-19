@@ -149,7 +149,7 @@ export function pause (): void {
 /**
  * Get stats for all entities, components and systems in the simulation
  */
-export function stats (): { entities: any, system: any } {
+export function stats (): { entities: any; system: any } {
   const queryStats = {};
   for (const queryName in Engine.queries) {
     queryStats[queryName] = Engine.queries[queryName].stats();

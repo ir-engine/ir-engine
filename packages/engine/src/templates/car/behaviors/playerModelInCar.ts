@@ -49,7 +49,7 @@ function setPlayerToSeats(transform, transformCar, seat) {
 
 
 
-export const playerModelInCar: Behavior = (entity: Entity, args: { type: string, phase?: string }, delta): void => {
+export const playerModelInCar: Behavior = (entity: Entity, args: { type: string; phase?: string }, delta): void => {
   const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
 
   if (args.phase === 'onAdded') {

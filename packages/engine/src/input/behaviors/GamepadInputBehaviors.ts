@@ -86,7 +86,7 @@ export const handleGamepads: Behavior = (entity: Entity) => {
  */
 const handleGamepadButton: Behavior = (
   entity: Entity,
-  args: { gamepad: Gamepad, index: number, mappedInputValue: InputAlias }
+  args: { gamepad: Gamepad; index: number; mappedInputValue: InputAlias }
 ) => {
   // Get mutable component reference
   input = getMutableComponent(entity, Input);
@@ -111,7 +111,7 @@ const handleGamepadButton: Behavior = (
  */
 export const handleGamepadAxis: Behavior = (
   entity: Entity,
-  args: { gamepad: Gamepad, inputIndex: number, mappedInputValue: InputAlias }
+  args: { gamepad: Gamepad; inputIndex: number; mappedInputValue: InputAlias }
 ) => {
   // get immutable component reference
   input = getComponent(entity, Input);

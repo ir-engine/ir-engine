@@ -17,7 +17,7 @@ import { DefaultInput } from '../../templates/shared/DefaultInput';
  * @param {Entity} entity The entity
  * @param args is argument object
  */
-export const handleTouch: Behavior = (entity: Entity, { event, value }: { event: TouchEvent, value: BinaryType }): void => {
+export const handleTouch: Behavior = (entity: Entity, { event, value }: { event: TouchEvent; value: BinaryType }): void => {
   const input = getComponent(entity, Input);
   // If the touch is ON
   if (value === BinaryValue.ON) {

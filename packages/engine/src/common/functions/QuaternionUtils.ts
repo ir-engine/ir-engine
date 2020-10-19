@@ -1,8 +1,8 @@
 export interface quatAxis {
-  x: number
-  y: number
-  z: number
-  w: number
+  x: number;
+  y: number;
+  z: number;
+  w: number;
 }
 
 export function vector4ArrayToAxisObject (q: number[]): quatAxis {

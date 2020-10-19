@@ -71,7 +71,7 @@ export class PhysicsManager extends Component<any> {
      //debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions);
   }
 
-  dispose():void {
+  dispose(): void {
     super.dispose();
 
     console.log("**** Disposing");

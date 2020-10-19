@@ -21,7 +21,7 @@ const LODS_DISTANCES = {
 };
 const LODS_REGEXP = new RegExp(/^(.*)_LOD(\d+)$/);
 
-export function ProcessModelAsset(entity: Entity, component:AssetLoader, asset:any): void {
+export function ProcessModelAsset(entity: Entity, component: AssetLoader, asset: any): void {
   let object = asset.scene ?? asset;
 
   ReplaceMaterials(object, component);
@@ -50,15 +50,15 @@ export function ProcessModelAsset(entity: Entity, component:AssetLoader, asset:a
   }
 }
 
-function HandleLODs(entity: Entity, asset:Object3D):Object3D {
+function HandleLODs(entity: Entity, asset: Object3D): Object3D {
   const haveAnyLODs = !!asset.children?.find(c => String(c.name).match(LODS_REGEXP));
   if (!haveAnyLODs) {
     return asset;
   }
 
-  const LODs = new Map<string,{object:Object3D, level:string}[]>();
+  const LODs = new Map<string,{object: Object3D; level: string}[]>();
   asset.children.forEach(child => {
-    const [ _, name, level ]:string[] = child.name.match(LODS_REGEXP);
+    const [ _, name, level ]: string[] = child.name.match(LODS_REGEXP);
     if (!name || !level) {
       return;
     }

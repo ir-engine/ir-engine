@@ -4,7 +4,7 @@ import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { Vec3 } from "cannon-es";
 import { TransformComponent } from "../../../transform/components/TransformComponent";
 
-export const setPosition: Behavior = (entity, args: { x: number; y: number; z: number; }): void => {
+export const setPosition: Behavior = (entity, args: { x: number; y: number; z: number }): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	const actorTransform: TransformComponent = getMutableComponent<TransformComponent>(entity, TransformComponent);
 

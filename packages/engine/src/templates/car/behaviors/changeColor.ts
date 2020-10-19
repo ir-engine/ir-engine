@@ -4,7 +4,7 @@ import { Color, Mesh } from "three";
 import { getComponent } from "../../../ecs/functions/EntityFunctions";
 import { Object3DComponent } from "../../../common/components/Object3DComponent";
 
-export const changeColor: Behavior = (entity: Entity, args: { materialName: string, color?: Color }): void => {
+export const changeColor: Behavior = (entity: Entity, args: { materialName: string; color?: Color }): void => {
   const vehicle = getComponent(entity, Object3DComponent).value;
   console.log("CHANGE COLOR");
   let material;

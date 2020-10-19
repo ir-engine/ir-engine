@@ -7,29 +7,29 @@ import { Entity } from './Entity';
 import { Query } from './Query';
 
 export interface SystemAttributes {
-  priority?: number
-  [propName: string]: any
+  priority?: number;
+  [propName: string]: any;
 }
 
 export interface SystemQueries {
   [queryName: string]: {
-    components: Array<ComponentConstructor<any> | NotComponent<any>>
+    components: Array<ComponentConstructor<any> | NotComponent<any>>;
     listen?: {
-      added?: boolean
-      removed?: boolean
-      changed?: boolean | Array<ComponentConstructor<any>>
-    }
-  }
+      added?: boolean;
+      removed?: boolean;
+      changed?: boolean | Array<ComponentConstructor<any>>;
+    };
+  };
 }
 
 export interface SystemConstructor<T extends System> {
-  isSystem: true
-  new (...args: any): T
+  isSystem: true;
+  new (...args: any): T;
 }
 
 export interface NotComponent<C extends Component<any>> {
-  type: 'not'
-  Component: ComponentConstructor<C>
+  type: 'not';
+  Component: ComponentConstructor<C>;
 }
 
 export abstract class System {
@@ -51,11 +51,11 @@ export abstract class System {
    */
   queryResults: {
     [queryName: string]: {
-      all?: Entity[]
-      added?: Entity[]
-      removed?: Entity[]
-      changed?: Entity[]
-    }
+      all?: Entity[];
+      added?: Entity[];
+      removed?: Entity[];
+      changed?: Entity[];
+    };
   } = {}
 
   /**

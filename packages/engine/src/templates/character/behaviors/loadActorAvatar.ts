@@ -15,7 +15,7 @@ import { CharacterAvatars } from "../CharacterAvatars";
 import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
 
 export const loadActorAvatar: Behavior = (entity) => {
-  const avatarId:string = getComponent(entity, CharacterAvatarComponent)?.avatarId;
+  const avatarId: string = getComponent(entity, CharacterAvatarComponent)?.avatarId;
   if (!avatarId) {
     return;
   }

@@ -15,7 +15,7 @@ import { Object3DComponent } from '../../common/components/Object3DComponent';
 import { cannonFromThreeVector } from '../../common/functions/cannonFromThreeVector';
 import { Vec3, Shape, Body } from 'cannon-es';
 
-export const addCollider: Behavior = (entity: Entity, args: { type: string, phase?: string }): void => {
+export const addCollider: Behavior = (entity: Entity, args: { type: string; phase?: string }): void => {
   if (args.phase === 'onRemoved') {
     const collider = getComponent<ColliderComponent>(entity, ColliderComponent, true);
     if (collider) {

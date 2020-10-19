@@ -4,7 +4,7 @@ import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { setupMeshProperties } from "../functions/setupMeshProperties";
 // Integrate with asset loader
 
-export const readCharacterData: Behavior = (entity, args: { model: any; }): void => {
+export const readCharacterData: Behavior = (entity, args: { model: any }): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	// TODO: actor will only work with glb
 	args.model.traverse((child) => {

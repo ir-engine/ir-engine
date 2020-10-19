@@ -230,7 +230,7 @@ export default class Api extends EventEmitter {
 
       return response.json();
     }).catch(e => {
-      console.warn(e)
+      console.warn(e);
     });
 
     resolveUrlCache.set(cacheKey, request);
