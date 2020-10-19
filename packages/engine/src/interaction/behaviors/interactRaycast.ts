@@ -72,13 +72,16 @@ export const interactRaycast: Behavior = (entity: Entity, { interactive }: Inter
   raycaster.setFromCamera(rayMouse,rayCamera);
   let intersections = raycaster.intersectObjects(raycastList, true );
 
+/*  may come in handy in the future
+
   if (!intersections.length){
-  const rayOrigin = clientPosition;
-  const rayDirection = character.viewVector.clone().normalize().setY(0);
-  raycaster.set(rayOrigin, rayDirection);
-  intersections = raycaster.intersectObjects( raycastList, true );
-}
-  
+    const rayOrigin = clientPosition;
+    const rayDirection = character.viewVector.clone().normalize().setY(0);
+    raycaster.set(rayOrigin, rayDirection);
+    intersections = raycaster.intersectObjects( raycastList, true );
+  }
+*/
+
   if (intersections.length) {
     object = intersections[0].object;
     while (raycastList.indexOf(object)===-1 && object.parent) {
