@@ -12,7 +12,7 @@ export class TransformComponent extends Component<TransformComponent> {
     this.reset();
   }
 
-  copy(src: { position?: Vector3; rotation?: Quaternion; velocity?: Vector3 }): this {
+  copy(src: { position?: Vector3, rotation?: Quaternion, velocity?: Vector3 }): this {
     if (src.position) {
       this.position.copy(src.position);
     }
