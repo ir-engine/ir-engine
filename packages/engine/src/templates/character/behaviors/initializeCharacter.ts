@@ -7,7 +7,7 @@ import { CapsuleCollider } from "../../../physics/components/CapsuleCollider";
 import { RelativeSpringSimulator } from "../../../physics/classes/RelativeSpringSimulator";
 import { VectorSpringSimulator } from "../../../physics/classes/VectorSpringSimulator";
 import { CollisionGroups } from "../../../physics/enums/CollisionGroups";
-import { addState } from "../../../state/behaviors/StateBehaviors";
+import { addState } from "../../../state/behaviors/addState";
 import { CharacterComponent } from "../components/CharacterComponent";
 import { CharacterStateTypes } from "../CharacterStateTypes";
 import { Engine } from "../../../ecs/classes/Engine";
@@ -26,31 +26,26 @@ export const initializeCharacter: Behavior = (entity): void => {
 	// The visuals group is centered for easy actor tilting
 	actor.tiltContainer = new Group();
 	actor.tiltContainer.name = 'Actor (tiltContainer)';
+
+	// // Model container is used to reliably ground the actor, as animation can alter the position of the model itself
+	actor.modelContainer = new Group();
+	actor.modelContainer.name = 'Actor (modelContainer)';
+	actor.modelContainer.position.y = -actor.rayCastLength;
+	actor.tiltContainer.add(actor.modelContainer);
+
 	// by default all asset childs are moved into entity object3dComponent, which is tiltContainer
 	// we should keep it clean till asset loaded and all it's content moved into modelContainer
 	addObject3DComponent(entity, { obj3d: actor.tiltContainer });
-	const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader as any);
-	assetLoader.onLoaded = (entity, { asset }) => {
-		actor.animations = AnimationManager.instance.animations
 
-		console.log("Components on character");
-		console.log(entity.components);
+	// const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader as any);
+	// assetLoader.parent = actor.modelContainer;
+	// assetLoader.onLoaded = (entity, { asset }) => {
+		AnimationManager.instance.getAnimations().then(animations => {
+			actor.animations = animations;
+		});
 
-		// // Model container is used to reliably ground the actor, as animation can alter the position of the model itself
-		actor.modelContainer = new Group();
-		actor.modelContainer.name = 'Actor (modelContainer)';
-		actor.modelContainer.position.y = -actor.rayCastLength;
-
-		// by default all asset childs are moved into entity object3dComponent, which is tiltContainer
-		// we should keep it clean till asset loaded and all it's content moved into modelContainer
-		while (actor.tiltContainer.children.length) {
-			actor.modelContainer.add(actor.tiltContainer.children[0]);
-		}
-		// now move model container inside empty tilt container
-		actor.tiltContainer.add(actor.modelContainer);
-
-		actor.mixer = new AnimationMixer(Engine.scene);
-		actor.mixer.timeScale = 0.7
+		actor.mixer = new AnimationMixer(actor.modelContainer);
+		actor.mixer.timeScale = 0.7;
 
 
 		actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
@@ -63,7 +58,7 @@ export const initializeCharacter: Behavior = (entity): void => {
 		addComponent(entity, CapsuleCollider as any, {
 			mass: 1,
 			position: new Vec3(),
-			actor_height: 1,
+			height: 1,
 			radius: 0.25,
 			segments: 8,
 			friction: 0.0
@@ -103,5 +98,5 @@ export const initializeCharacter: Behavior = (entity): void => {
 		addState(entity, { state: CharacterStateTypes.IDLE });
 		actor.initialized = true;
 
-	};
+	// };
 };

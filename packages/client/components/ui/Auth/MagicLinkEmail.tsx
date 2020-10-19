@@ -16,7 +16,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import NextLink from 'next/link';
 import getConfig from 'next/config';
-import './style.scss';
+import './style.module.scss';
 import { User } from '@xr3ngine/common/interfaces/User';
 
 const config = getConfig().publicRuntimeConfig.staticPages;

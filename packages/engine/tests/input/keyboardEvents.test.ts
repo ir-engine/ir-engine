@@ -79,7 +79,16 @@ describe('full lifecycle', () => {
     expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
   })
 
-  it("subsequent triggers CONTINUED", () => {
+  it("on next execution switches CONTINUED", () => {
+    triggerKey({ key:'w', type: 'keydown' })
+    execute(); // started
+    execute(); // continued
+
+    const data1 = input.data.get(DefaultInput.FORWARD);
+    expect(data1.lifecycleState).toBe(LifecycleValue.CONTINUED);
+  })
+
+  it("subsequent keydown triggers CONTINUED", () => {
     triggerKey({ key:'w', type: 'keydown' })
     execute();
     triggerKey({ key:'w', type: 'keydown' })

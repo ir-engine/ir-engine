@@ -1,0 +1,14 @@
+.linearProgressContainer{
+  display: block;
+  position: fixed;
+  top: 45%;
+  width: 60%;
+  left: 20%;
+
+    .loadingProgressTile{
+        color: #FFFFFF;
+        display: block;
+        text-align: center;
+        width: 100%;
+    }
+}

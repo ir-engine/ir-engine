@@ -43,7 +43,7 @@ const theme = createMuiTheme({
         color: '#FFF'        
       },
   },
-  overrides: {
+  overrides: { 
     MuiFab: {
       root: {
         text:{

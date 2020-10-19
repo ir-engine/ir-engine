@@ -12,7 +12,7 @@ import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfM
 import { findVehicle } from '../functions/findVehicle';
 import { jumpIdle } from '../behaviors/jumpIdle';
 import { DefaultInput } from '../../shared/DefaultInput';
-import { addState } from '../../../state/behaviors/StateBehaviors';
+import { addState } from "../../../state/behaviors/addState";
 import { Input } from '../../../input/components/Input';
 import { getComponent } from '../../../ecs/functions/EntityFunctions';
 import { getLocalMovementDirection } from '../functions/getLocalMovementDirection';

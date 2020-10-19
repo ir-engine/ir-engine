@@ -2,7 +2,7 @@ import React, { Fragment, useState } from 'react';
 import UserProfile from './UserIcon';
 import UserSettings from './UserSettings';
 import Subscription from './Subscription';
-import './style.scss';
+import './style.module.scss';
 import {
     Settings,
     AccountCircle,

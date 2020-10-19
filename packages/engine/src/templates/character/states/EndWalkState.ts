@@ -11,7 +11,7 @@ import { getComponent } from '../../../ecs/functions/EntityFunctions';
 import { Input } from '../../../input/components/Input';
 import { findVehicle } from '../functions/findVehicle';
 import { DefaultInput } from '../../shared/DefaultInput';
-import { addState } from '../../../state/behaviors/StateBehaviors';
+import { addState } from "../../../state/behaviors/addState";
 import { isMoving } from '../functions/isMoving';
 import { setAppropriateStartWalkState } from '../behaviors/setStartWalkState';
 import { CharacterComponent } from '../components/CharacterComponent';

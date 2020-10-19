@@ -3,7 +3,7 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import Button from '@material-ui/core/Button';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import './style.scss';
+import './style.module.scss';
 import TextField from '@material-ui/core/TextField';
 import { uploadAvatar, updateUsername } from '../../../redux/auth/service';
 

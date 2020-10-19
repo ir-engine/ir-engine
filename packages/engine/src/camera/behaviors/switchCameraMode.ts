@@ -9,8 +9,8 @@ import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraCo
 
 
 export const switchCameraMode: Behavior = (entity: Entity, args: any): void => {
-  let follower = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent); // Camera
-  let camera = getMutableComponent<CameraComponent>(entity, CameraComponent); // Camera
+  const follower = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent); // Camera
+  const camera = getMutableComponent<CameraComponent>(entity, CameraComponent); // Camera
   if (follower.mode == 'firstPerson') {
     follower.mode = 'thirdPerson'
     Engine.camera.near = 0.1

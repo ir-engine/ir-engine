@@ -4,15 +4,15 @@ import { addObject3DComponent } from '../../common/behaviors/Object3DBehaviors';
 import { getMutableComponent, createEntity, addComponent } from '../../ecs/functions/EntityFunctions';
 
 export default function createSkybox (args: {
-  obj
-  distance
-  inclination
-  azimuth
-  mieCoefficient
-  mieDirectionalG
-  rayleigh
-  turbidity
-  material
+  obj;
+  distance;
+  inclination;
+  azimuth;
+  mieCoefficient;
+  mieDirectionalG;
+  rayleigh;
+  turbidity;
+  material;
 }): void {
   const entity = createEntity();
   addObject3DComponent(entity, args.obj);

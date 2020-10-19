@@ -4,7 +4,7 @@ import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { PhysicsManager } from "../../../physics/components/PhysicsManager";
 // Set for deletion
 
-export const setPhysicsEnabled: Behavior = (entity, args: { value: boolean; }): void => {
+export const setPhysicsEnabled: Behavior = (entity, args: { value: boolean }): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 
 	actor.physicsEnabled = args.value;

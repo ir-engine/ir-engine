@@ -196,7 +196,7 @@ export class EffectPass extends Pass {
 	 * @param {...Effect} effects - The effects that will be rendered by this pass.
 	 */
 
-  constructor (camera:Camera, ...effects) {
+  constructor (camera: Camera, ...effects) {
     super('EffectPass');
 
     this.setFullscreenMaterial(new EffectMaterial(null, null, null, camera));
@@ -266,7 +266,7 @@ export class EffectPass extends Pass {
 	 * @type {Boolean}
 	 */
 
-  get encodeOutput ():boolean {
+  get encodeOutput (): boolean {
     return (this.getFullscreenMaterial().defines.ENCODE_OUTPUT !== undefined);
   }
 
@@ -276,7 +276,7 @@ export class EffectPass extends Pass {
 	 * @type {Boolean}
 	 */
 
-  set encodeOutput (value:boolean) {
+  set encodeOutput (value: boolean) {
     if (this.encodeOutput !== value) {
       const material = this.getFullscreenMaterial();
       material.needsUpdate = true;
@@ -323,7 +323,7 @@ export class EffectPass extends Pass {
 	 * @param {WebGLRenderer} renderer - The renderer.
 	 */
 
-  verifyResources (renderer:WebGLRenderer):void {
+  verifyResources (renderer: WebGLRenderer): void {
     const capabilities = renderer.capabilities;
     let max = Math.min(capabilities.maxFragmentUniforms, capabilities.maxVertexUniforms);
 
@@ -499,7 +499,7 @@ export class EffectPass extends Pass {
 	 * @param {Boolean} [stencilTest] - Indicates whether a stencil mask is active.
 	 */
 
-  render (renderer:WebGLRenderer, inputBuffer:WebGLRenderTarget, outputBuffer:WebGLRenderTarget, deltaTime:number, stencilTest:boolean):void {
+  render (renderer: WebGLRenderer, inputBuffer: WebGLRenderTarget, outputBuffer: WebGLRenderTarget, deltaTime: number, stencilTest: boolean): void {
     const material = this.getFullscreenMaterial();
     const time = material.uniforms.time.value + deltaTime;
 

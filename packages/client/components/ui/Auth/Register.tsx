@@ -11,7 +11,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { registerUserByEmail } from '../../../redux/auth/service';
 import SignIn from './Login';
-import './style.scss';
+import './style.module.scss';
 import { showDialog } from '../../../redux/dialog/service';
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
