@@ -1,23 +1,19 @@
 /* eslint-disable no-console, react/sort-comp */
+import isEqual from 'lodash.isequal';
 import React, { Component } from 'react';
 import stringSimilarity from 'string-similarity';
-import whatkey from 'whatkey';
-import isEqual from 'lodash.isequal';
 import { ThemeProvider } from 'styled-components';
+import whatkey from 'whatkey';
 import { handleLogging } from '../../utils';
-import {
-  TerminalPropTypes,
-  TerminalContextTypes,
-  TerminalDefaultProps,
-} from '../types';
-
-import { os, pluginMap, uuidv4, getShortcuts, modCommands } from './terminal-utils';
-
 import Content from '../Content/index';
 import Tabs from '../Tabs/index';
-import { CSSProperties } from '@material-ui/core/styles/withStyles';
-import { red } from '@material-ui/core/colors';
-import { ContentBackspace } from 'material-ui/svg-icons';
+import {
+  TerminalContextTypes,
+  TerminalDefaultProps, TerminalPropTypes
+} from '../types';
+import { getShortcuts, modCommands, os, pluginMap, uuidv4 } from './terminal-utils';
+
+
 
 let isTerminalExpanded = false;
 // isTerminalExpanded = true;

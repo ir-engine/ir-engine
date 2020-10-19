@@ -45,7 +45,7 @@ import {
   provisionInstanceServer,
 } from '../../redux/instanceConnection/service';
 import Terminal from '../terminal';
-import { commands, description } from '../terminal/commands';
+import { commands, descriptions } from '../terminal/commands';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { Input } from '@xr3ngine/engine/src/input/components/Input';
 import { LocalInputReceiver } from '@xr3ngine/engine/src/input/components/LocalInputReceiver';
@@ -271,7 +271,7 @@ export const CharacterCreatorPage: FunctionComponent = (props: any) => {
         zIndex: 4000,
       }}
       commands={commands}
-      description={description}
+      description={descriptions}
       msg="Interactive terminal. Please consult the manual for commands."
     />
   ) : null;
