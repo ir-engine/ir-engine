@@ -1,5 +1,5 @@
-import configs from "../configs";
-import EditorNodeMixin from "./EditorNodeMixin";
+import configs from "../../../client/components/editor/configs";
+import EditorNodeMixin from "../../../client/components/editor/nodes/EditorNodeMixin";
 import {
   Mesh,
   MeshBasicMaterial,
@@ -9,12 +9,12 @@ import {
   Object3D
 } from "three";
 import FloorPlan from "../objects/FloorPlan";
-import GroundPlaneNode from "./GroundPlaneNode";
-import BoxColliderNode from "./BoxColliderNode";
-import mergeMeshGeometries from "../utils/mergeMeshGeometries";
-import RecastClient from "../recast/RecastClient";
+import GroundPlaneNode from "../../../client/components/editor/nodes/GroundPlaneNode";
+import BoxColliderNode from "../../../client/components/editor/nodes/BoxColliderNode";
+import mergeMeshGeometries from "../../../client/components/editor/utils/mergeMeshGeometries";
+import RecastClient from "./recast/RecastClient";
 import HeightfieldClient from "../heightfield/HeightfieldClient";
-import SpawnPointNode from "./SpawnPointNode";
+import SpawnPointNode from "../../../client/components/editor/nodes/SpawnPointNode";
 // @ts-ignore
 import * as recastWasmUrl from "recast-wasm/dist/recast.wasm";
 const recastClient = new RecastClient();

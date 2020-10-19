@@ -18,7 +18,7 @@ import Renderer from "./renderer/Renderer";
 import ThumbnailRenderer from "./renderer/ThumbnailRenderer";
 
 import SceneNode from "./nodes/SceneNode";
-import FloorPlanNode from "./nodes/FloorPlanNode";
+// import FloorPlanNode from "../../../sandbox/client/editor/FloorPlanNode";
 
 import LoadingCube from "./objects/LoadingCube";
 import ErrorIcon from "./objects/ErrorIcon";
@@ -388,11 +388,11 @@ export default class Editor extends EventEmitter {
 
     const scene = this.scene;
 
-    const floorPlanNode = scene.findNodeByType(FloorPlanNode);
+    // const floorPlanNode = scene.findNodeByType(FloorPlanNode);
 
-    if (floorPlanNode) {
-      await floorPlanNode.generate(signal);
-    }
+    // if (floorPlanNode) {
+    //   await floorPlanNode.generate(signal);
+    // }
 
     const clonedScene = cloneObject3D(scene, true);
     const animations = clonedScene.getAnimationClips();
