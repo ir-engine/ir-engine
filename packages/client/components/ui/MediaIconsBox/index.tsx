@@ -18,9 +18,9 @@ const MediaIconsBox = (props) =>{
   return props.onBoardingStep === generalStateList.ALL_DONE ? 
         <section className="drawer-box-container">
           <section className="drawer-box">
-            <Microphone />
-            <CameraVideo />
-            <Face />
+            <Microphone size="3em" />
+            <CameraVideo size="3em"  />
+            <Face size="3em" />
           </section>
         </section>
       :null;
