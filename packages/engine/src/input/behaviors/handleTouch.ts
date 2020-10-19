@@ -3,7 +3,6 @@ import { Behavior } from '../../common/interfaces/Behavior';
 import { BinaryType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
 import { TouchInputs } from "../enums/TouchInputs";
-import { MouseInput } from "../enums/MouseInput";
 import { InputType } from "../enums/InputType";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { Vector2 } from "three";
@@ -29,7 +28,7 @@ export const handleTouch: Behavior = (entity: Entity, { event, value }: { event:
       //   Math.trunc(args.event.targetTouches[0].clientX) +
       //   ', y: ' +
       //   Math.trunc(args.event.targetTouches[0].clientY);
-      const inputKeys = [ TouchInputs.Touch1, TouchInputs.Touch2 ];
+      const inputKeys = [ TouchInputs.Touch1Move, TouchInputs.Touch2Move ];
       // const interactTouch = DefaultInput.INTERACT;
       inputKeys.forEach((inputKey, touchIndex) => {
         if (!event.targetTouches[touchIndex]) {
@@ -79,43 +78,3 @@ export const handleTouch: Behavior = (entity: Entity, { event, value }: { event:
 
 };
 
-/**
- * Touch move
- * 
- * @param {Entity} entity The entity
- * @param args is argument object
- */
-export const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEvent }): void => {
-  const input = getComponent(entity, Input);
-
-  let s = 'Touch move.';
-  // A list of contact points on a touch surface.
-  if (args.event.targetTouches.length) {
-    s +=
-      ' x: ' +
-      Math.trunc(args.event.targetTouches[0].clientX) +
-      ', y: ' +
-      Math.trunc(args.event.targetTouches[0].clientY);
-
-    if (args.event.targetTouches.length == 2) {
-      if ((args.event as any).scale) {
-        debugger;
-      }
-
-
-      const scaleMappedInputKey = input.schema.touchInputMap?.axes[TouchInputs.Scale];
-      if (scaleMappedInputKey) {
-
-        if ((args.event as any).scale) {
-          input.data.set(scaleMappedInputKey, {
-            type: InputType.ONEDIM,
-            value: (args.event as any).scale,
-            lifecycleState: LifecycleValue.CHANGED
-          });
-        }
-      }
-    }
-
-  }
-  console.log(s);
-};
