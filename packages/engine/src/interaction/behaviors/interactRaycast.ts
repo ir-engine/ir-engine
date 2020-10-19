@@ -3,7 +3,7 @@ import { Entity } from "../../ecs/classes/Entity";
 import { InteractBehaviorArguments } from "../types";
 import { getComponent, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import { TransformComponent } from "../../transform/components/TransformComponent";
-import { Object3D, Ray, Raycaster, Vector3,Vector2 } from "three";
+import { Object3D, Ray, Raycaster, Vector3, Vector2, Mesh, Frustum, Matrix4, Box3 } from "three";
 import { Object3DComponent } from "../../common/components/Object3DComponent";
 import { Interactive } from "../components/Interactive";
 import { Interacts } from "../components/Interacts";
@@ -12,12 +12,19 @@ import { Input } from "../../input/components/Input";
 import { DefaultInput } from "../../templates/shared/DefaultInput";
 import { Engine } from "../../ecs/classes/Engine";
 
+const rx1 = -0.1; // first right x point of screen, two-dimensional square on the screen, hitting which the interactive objects are highlighted
+const ry1 = -0.1; // first right y point of screen
+const rx2 = 0.1; // second right x point of screen
+const ry2 = 0.1; // second right y point of screen
+const farDistance = 5; // distance to which interactive objects from the camera will be highlighted
+
 /**
  * Checks if entity can interact with any of entities listed in 'interactive' array, checking distance, guards and raycast
  * @param entity
  * @param interactive
  * @param delta
  */
+
 export const interactRaycast:Behavior = (entity: Entity, { interactive }:InteractBehaviorArguments, delta: number): void => {
   const clientPosition = getComponent(entity, TransformComponent).position;
   // - added mouse position tracking
@@ -32,7 +39,6 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
   if (!hasComponent(entity, CharacterComponent)) {
     return;
   }
-
 
   const raycastList:Array<Object3D> = interactive
     .filter(interactiveEntity => {
@@ -64,23 +70,22 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
     // console.warn('!character.viewVector')
     return;
   }
+
   const raycaster = new Raycaster();
-  let object, rayOrigin, rayDirection;
+  let object;
   // - added mouse raycaster
   const rayCamera = Engine.camera.clone();
-  const rayMouse = mouseScreen.normalize();
+  const rayMouse = mouseScreen;
   raycaster.setFromCamera(rayMouse,rayCamera);
   let intersections = raycaster.intersectObjects(raycastList, true );
-
+/*
   if (!intersections.length){
-  // TODO: rayOrigin, rayDirection
-  rayOrigin = clientPosition;
-  rayDirection = character.viewVector.clone().normalize().setY(0);
-
+  const rayOrigin = clientPosition;
+  const rayDirection = character.viewVector.clone().normalize().setY(0);
   raycaster.set(rayOrigin, rayDirection);
   intersections = raycaster.intersectObjects( raycastList, true );
 }
-  
+*/
   if (intersections.length) {
     object = intersections[0].object;
     while (raycastList.indexOf(object)===-1 && object.parent) {
@@ -92,9 +97,27 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
     }
   }
 
+  const projectionMatrix = new Matrix4().makePerspective( rx1, rx2, ry1, ry2, Engine.camera.near, farDistance );
+  Engine.camera.updateMatrixWorld();
+  Engine.camera.matrixWorldInverse.getInverse( Engine.camera.matrixWorld );
+
+  const viewProjectionMatrix = new Matrix4().multiplyMatrices( projectionMatrix, Engine.camera.matrixWorldInverse );
+  const frustum = new Frustum().setFromProjectionMatrix( viewProjectionMatrix );
+
+  const subFocusedArray = raycastList.filter(scene => {
+    let child:any = scene.children[0];
+    if (child instanceof Mesh) {
+      return frustum.intersectsBox(child.geometry.boundingBox);
+    } else
+    if (child instanceof Object3D) {
+     const aabb = new Box3().setFromObject( child );
+     return frustum.intersectsBox(aabb);
+   }
+  })
+
   const newRayHit = object && intersections.length? intersections[0] : null;
   const interacts = getMutableComponent(entity, Interacts);
   interacts.focusedRayHit = newRayHit;
   interacts.focusedInteractive = newRayHit? (object as any).entity : null;
-  
+  interacts.subFocusedArray = subFocusedArray;
 };
