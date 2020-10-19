@@ -9,7 +9,7 @@
     @media (max-width: 768px) {
         height: 12em;
     }
-    svg{
+    > svg{
         height: 15em;
         color: yellow;
         @media (max-width: 768px) {
