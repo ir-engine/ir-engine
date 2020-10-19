@@ -18,7 +18,7 @@ export class MediaStreamSystem extends System {
     MediaStreamComponent.instance = mediaStreamComponent;
   }
 
-  dispose():void {
+  dispose(): void {
     super.dispose();
     // TODO: stop camera? stop/abort MediaStreamComponent.instance.mediaStream ?
     MediaStreamSystem.instance = null;
@@ -112,7 +112,7 @@ export class MediaStreamSystem extends System {
     });
   }
 
-  addVideoAudio (mediaStream: { track: { clone: () => MediaStreamTrack }, kind: string }, peerId: any) {
+  addVideoAudio (mediaStream: { track: { clone: () => MediaStreamTrack }; kind: string }, peerId: any) {
     console.log('addVideoAudio');
     console.log(mediaStream);
     console.log(peerId);

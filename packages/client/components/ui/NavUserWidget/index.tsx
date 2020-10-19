@@ -1,14 +1,13 @@
+import { User } from '@xr3ngine/common/interfaces/User';
 import React, { useEffect } from 'react';
-import {Button} from '@material-ui/core';
-import SignIn from '../Auth/Login';
-import { logoutUser } from '../../../redux/auth/service';
-import { selectAuthState } from '../../../redux/auth/selector';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
+import { selectAuthState } from '../../../redux/auth/selector';
+import { logoutUser } from '../../../redux/auth/service';
 import { showDialog } from '../../../redux/dialog/service';
+import SignIn from '../Auth/Login';
 import Dropdown from '../Profile/ProfileDropdown';
-import { User } from '@xr3ngine/common/interfaces/User';
-import './style.scss';
+import './style.module.scss';
 
 const mapStateToProps = (state: any): any => {
   return { auth: selectAuthState(state) };
@@ -66,7 +65,7 @@ const NavUserBadge = (props: Props): any => {
           />
         </div>
       )}
-      {!isLoggedIn && (
+      {/* {!isLoggedIn && (
         <Button variant="contained" color="primary"
           style={styles.loginButton}
           onClick={() =>
@@ -77,7 +76,7 @@ const NavUserBadge = (props: Props): any => {
         >
           Log In
         </Button>
-      )}
+      )} */}
     </div>
   );
 };

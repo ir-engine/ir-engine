@@ -1,5 +1,5 @@
 import React from 'react';
-import './style.scss';
+import './style.module.scss';
 import { connect } from 'react-redux';
 
 const Index = (): any => (

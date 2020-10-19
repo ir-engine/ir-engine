@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import Error404 from '../404';
 import React, { useEffect } from 'react';
 import { client } from '../../redux/feathers';
-import { initializeEngine } from "@xr3ngine/engine/src/initialize";
+// import { initializeEngine } from "@xr3ngine/engine/src/initialize";
 import { createEntity } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;

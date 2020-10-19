@@ -1,5 +1,6 @@
 import {
   CHAT_TARGET_SET,
+  LOADED_CHANNEL,
   LOADED_CHANNELS,
   CREATED_MESSAGE,
   LOADED_MESSAGES,
@@ -94,6 +95,14 @@ export type ChatAction =
     | CreatedChannelAction
     | PatchedChannelAction
     | RemovedChannelAction
+
+export function loadedChannel(channelResult: Channel, channelFetchedType: string): ChatAction {
+  return {
+    type: LOADED_CHANNEL,
+    channel: channelResult,
+    channelType: channelFetchedType
+  };
+}
 
 export function loadedChannels(channelResult: ChannelResult): ChatAction {
   return {

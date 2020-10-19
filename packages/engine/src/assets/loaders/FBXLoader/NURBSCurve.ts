@@ -39,7 +39,7 @@ export class NURBSCurve extends Curve<Vector3> {
 		}
 	}
 
-	getPoint (t, optionalTarget) {
+	getPoint (t, optionalTarget?) {
 
 		const point = optionalTarget || new Vector3();
 
@@ -59,7 +59,7 @@ export class NURBSCurve extends Curve<Vector3> {
 
 	}
 
-	getTangent (t, optionalTarget) {
+	getTangent (t, optionalTarget?) {
 
 		const tangent = optionalTarget || new Vector3();
 

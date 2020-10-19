@@ -13,6 +13,6 @@
     "resolveJsonModule": true,
     "allowJs": true
   },
-  "include": ["src/**/*", "sandbox/vehicles/car", "sandbox/car", "sandbox/AudioStore.ts"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "tsconfig.json"]
 }

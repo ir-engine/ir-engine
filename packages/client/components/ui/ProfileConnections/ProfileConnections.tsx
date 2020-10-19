@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { selectAuthState } from '../../../redux/auth/selector';
 import SingleConnection from './SingleConnection';
 import { User } from '@xr3ngine/common/interfaces/User';
-import './style.scss';
+import './style.module.scss';
 
 interface Props {
   auth: any;

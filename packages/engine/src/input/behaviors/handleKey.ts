@@ -13,7 +13,7 @@ import { LifecycleValue } from "../../common/enums/LifecycleValue";
  * @param args is argument object
  */
 
-export function handleKey(entity: Entity, args: { event: KeyboardEvent; value: BinaryType; }): any {
+export function handleKey(entity: Entity, args: { event: KeyboardEvent; value: BinaryType }): any {
   console.log("Handle key called");
   // Get immutable reference to Input and check if the button is defined -- ignore undefined keys
   const input = getComponent(entity, Input);

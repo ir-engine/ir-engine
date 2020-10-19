@@ -9,18 +9,18 @@ import { NetworkObjectList } from '../interfaces/NetworkObjectList';
 export interface NetworkClientList {
   // Key is socket ID
   [key: string]: {
-    userId?: string,
-    socket?: any,
-    lastSeenTs?: any,
-    joinTs?: any,
-    media?: {},
-    consumerLayers?: {},
-    stats?: {},
-    sendTransport?: any,
-    recvTransport?: any,
-    dataConsumers?: Map<string, any>, // Key => id of data producer
-    dataProducers?: Map<string, any> // Key => label of data channel}
-  }
+    userId?: string;
+    socket?: any;
+    lastSeenTs?: any;
+    joinTs?: any;
+    media?: {};
+    consumerLayers?: {};
+    stats?: {};
+    sendTransport?: any;
+    recvTransport?: any;
+    dataConsumers?: Map<string, any>; // Key => id of data producer
+    dataProducers?: Map<string, any>; // Key => label of data channel}
+  };
 }
 
 

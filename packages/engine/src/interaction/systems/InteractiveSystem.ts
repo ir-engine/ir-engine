@@ -18,11 +18,11 @@ export class InteractiveSystem extends System {
   /**
    * Elements that was in focused state on last execution
    */
-  focused:Set<Entity>
+  focused: Set<Entity>
   /**
    * Elements that are focused on current execution
    */
-  newFocused:Set<Entity>
+  newFocused: Set<Entity>
 
   constructor(attributes?: SystemAttributes) {
     super(attributes);

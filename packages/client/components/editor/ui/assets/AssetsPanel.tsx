@@ -115,8 +115,8 @@ export default function AssetsPanel() {
 
   return (
     <AssetsPanelContainer id="assets-panel">
-      <AssetsPanelColumn flex>
-        { /* @ts-ignore */ }
+      { /* @ts-ignore */ }
+      {/* <AssetsPanelColumn flex>
         <AssetsPanelToolbar title="Assets" />
         <List>
           {sources.map(source => (
@@ -125,7 +125,7 @@ export default function AssetsPanel() {
             </ListItem>
           ))}
         </List>
-      </AssetsPanelColumn>
+      </AssetsPanelColumn> */}
       <Column flex>
         {SourceComponent && (
           <SourceComponent

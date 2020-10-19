@@ -9,7 +9,7 @@ import { resendVerificationEmail } from '../../../redux/auth/service';
 import { selectAuthState } from '../../../redux/auth/selector';
 import EmptyLayout from '../Layout/EmptyLayout';
 import { IdentityProvider } from '@xr3ngine/common/interfaces/IdentityProvider';
-import './style.scss';
+import './style.module.scss';
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -26,7 +26,8 @@ interface Props {
   resendVerificationEmail: typeof resendVerificationEmail;
 }
 
-const ConfirmEmail = ({ auth, resendVerificationEmail }: Props): any => {
+const ConfirmEmail = (props: Props): any => {
+  const { auth, resendVerificationEmail } = props;
   const handleResendEmail = (e: any): any => {
     e.preventDefault();
 

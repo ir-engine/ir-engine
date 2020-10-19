@@ -10,6 +10,9 @@ export default class ScenePreviewCameraNodeEditor extends Component<
   ScenePreviewCameraNodeEditorProps,
   {}
 > {
+  static iconComponent = Camera;
+  static description =
+    "The camera used to generate the thumbnail for your scene and the starting position for the preview camera in Hubs.";
   onSetFromViewport = () => {
     (this.props.node as any).setFromViewport();
   };

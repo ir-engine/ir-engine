@@ -12,7 +12,7 @@ import {
   loginUserByGoogle,
   loginUserByFacebook
 } from '../../../redux/auth/service';
-import './style.scss';
+import './style.module.scss';
 import {selectAdminState} from "../../../redux/admin/selector";
 
 const mapStateToProps = (state: any): any => {

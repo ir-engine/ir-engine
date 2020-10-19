@@ -3,7 +3,7 @@ import { Behavior } from '../../../common/interfaces/Behavior';
 import { getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { isMoving } from '../functions/isMoving';
 
-export const setTargetVelocityIfMoving: Behavior = (entity, args: { ifTrue: { x: number; y: number; z: number; }; ifFalse?: { x: number; y: number; z: number; }; }, deltaTime) => {
+export const setTargetVelocityIfMoving: Behavior = (entity, args: { ifTrue: { x: number; y: number; z: number }; ifFalse?: { x: number; y: number; z: number } }, deltaTime) => {
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   if(!actor.initialized) return;
   if(isMoving(entity)) {

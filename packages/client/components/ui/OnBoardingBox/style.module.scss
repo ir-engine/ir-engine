@@ -1,0 +1,78 @@
+    
+.lookaround{
+    bottom: 30%;
+    position: fixed;
+    width: 100vw;
+    height: 15em;
+    display: flex;
+    justify-content: space-between;
+    @media (max-width: 768px) {
+        height: 12em;
+    }
+    > svg{
+        height: 15em;
+        color: yellow;
+        @media (max-width: 768px) {
+            bottom: 15%;
+        }
+    }
+}
+.movearound{
+    bottom: 0;
+    position: fixed;
+    padding: 0 0 0 30%;
+    //width: 100vw;
+    width: 15em;
+    height: 15em;
+    @media (max-width: 768px) {
+        height: 10em;
+        bottom: 1em;
+        padding: 0 0 0 5%;
+    }
+    svg{
+        height: 15em;
+        color: yellow;
+        @media (max-width: 768px) {
+            height: 10em;
+        }
+    }
+}
+.helpHintSnackBar{
+    padding: 2em;
+    user-select: none;
+    text-align: center;
+    &.right-content-width{       
+        @media (max-width: 768px) {
+            width: fit-content;
+            margin: 0 0 0 12em;
+        }
+    }
+    .MuiSnackbarContent-root{
+        background-color: rgba(255,255,0, 0.85);
+        color: #000000;
+        text-align: center;
+    }    
+}
+
+
+.controlsHintBox{
+    position: fixed;
+    bottom: 1em;
+    left: 10em;
+    color: #FFFFFF;
+}
+.keyButton{
+    background-color: rgba(0,0,0,0.6);
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(102,185,51,0.5);
+    box-sizing: border-box;
+    display: inline-block;
+    height: 2em;
+    line-height: 2em;
+    margin: 3px 10px 3px 0;
+    min-width: 2em;
+    padding: 0px 5px;
+    text-align: center;
+    text-transform: capitalize;
+    opacity: 1
+}

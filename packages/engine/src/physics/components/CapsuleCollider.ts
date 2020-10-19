@@ -24,7 +24,7 @@ export class CapsuleCollider extends Component<CapsuleCollider>
 		return newThis;
 	}
 
-	reapplyOptions(options:any) {
+	reapplyOptions(options: any) {
 		const defaults = {
 			mass: 0,
 			position: new Vec3(),

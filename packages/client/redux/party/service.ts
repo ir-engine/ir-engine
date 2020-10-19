@@ -19,6 +19,7 @@ import { provisionInstanceServer } from '../instanceConnection/service';
 export function getParty () {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
+      console.log('CALLING GETPARTY()');
       const partyResult = await client.service('party').get(null);
       dispatch(loadedParty(partyResult));
     } catch (err) {
@@ -35,16 +36,16 @@ export const getParties = async (): Promise<void> => {
   console.log('PARTIES', parties);
   const userId = (store.getState() as any).get('auth').get('user').id;
   console.log('USERID: ', userId);
-  if (client.io && socketId === undefined) {
-    client.io.emit('request-socket-id', ({ id }: { id: number }) => {
+  if ((client as any).io && socketId === undefined) {
+    (client as any).io.emit('request-socket-id', ({ id }: { id: number }) => {
       console.log('Socket-ID received: ', id);
       socketId = id;
     });
-    client.io.on('message-party', (data: any) => {
+    (client as any).io.on('message-party', (data: any) => {
       console.warn('Message received, data: ', data);
     })
     ;(window as any).joinParty = (userId: number, partyId: number) => {
-      client.io.emit('join-party', {
+      (client as any).io.emit('join-party', {
         userId,
         partyId
       }, (res) => {
@@ -52,14 +53,14 @@ export const getParties = async (): Promise<void> => {
       });
     }
     ;(window as any).messageParty = (userId: number, partyId: number, message: string) => {
-      client.io.emit('message-party-request', {
+      (client as any).io.emit('message-party-request', {
         userId,
         partyId,
         message
       });
     }
     ;(window as any).partyInit = (userId: number) => {
-      client.io.emit('party-init', { userId }, (response: any) => {
+      (client as any).io.emit('party-init', { userId }, (response: any) => {
         response ? console.log('Init success', response) : console.log('Init failed');
       });
     };
@@ -132,7 +133,8 @@ client.service('party-user').on('created', async (params) => {
   store.dispatch(createdPartyUser(params.partyUser));
   if (params.partyUser.userId === selfUser.id) {
     const party = await client.service('party').get(params.partyUser.partyId);
-    if (party.instanceId) {
+    const dbUser = await client.service('user').get(selfUser.id);
+    if (party.instanceId != null && party.instanceId !== dbUser.instanceId && (store.getState() as any).get('instanceConnection').get('instanceProvisioning') === false) {
       const instance = await client.service('instance').get(party.instanceId);
       await provisionInstanceServer(instance.locationId, instance.id)(store.dispatch, store.getState);
     }
@@ -149,7 +151,7 @@ client.service('party-user').on('removed', (params) => {
   if (params.partyUser.userId === selfUser.id) {
     console.log('Attempting to end video call');
     (Network.instance?.transport as any)?.endVideoChat();
-    (Network.instance?.transport as any)?.leave();
+    // (Network.instance?.transport as any)?.leave();
   }
 });
 

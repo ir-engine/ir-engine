@@ -89,14 +89,11 @@ export default (app: Application): void => {
               const partyUsers = (partyUserResult as any).data;
               const partyOwner = partyUsers.find((partyUser) => partyUser.isOwner === 1);
               if (partyOwner.userId === userId) {
-                console.log('Patching party instanceId');
                 await app.service('party').patch(user.partyId, {
                   instanceId: (app as any).instance.id
                 });
                 const nonOwners = partyUsers.filter((partyUser) => partyUser.isOwner !== 1 && partyUser.isOwner !== true);
                 const emittedIp = (process.env.KUBERNETES !== 'true') ? await getLocalServerIp() : { ipAddress: status.address, port: status.portsList[0].port};
-                console.log('Emitting instance-provision to other party users:');
-                console.log(emittedIp);
                 await Promise.all(nonOwners.map(async partyUser => {
                   await app.service('instance-provision').emit('created', {
                     userId: partyUser.userId,
@@ -133,6 +130,9 @@ export default (app: Application): void => {
               await app.service('instance').patch(instanceId, {
                 currentUsers: instance.currentUsers - 1
               });
+              await app.service('user').patch(user.id, {
+                instanceId: null
+              }, { instanceId: instanceId });
             }
 
             app.channel(`instanceIds/${instanceId as string}`).leave(connection);

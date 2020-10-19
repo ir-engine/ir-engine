@@ -1,21 +1,19 @@
 language: node_js
 node_js:
   - "14"
-
 cache:
   npm: false
   yarn: true
-
+  directories:
+    - "node_modules"
 env:
   global:
     - MYSQL_DATABASE=xr3ngine
     - MYSQL_USER=root
     - MYSQL_PASSWORD=
-
 services:
   - docker
   - mysql
-
 jobs:
   include:
     - stage: compile
@@ -39,7 +37,6 @@ jobs:
 #      on:
 #        tags: true
 #        all_branches: true
-
 after_success:
   - wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
   - chmod +x send.sh

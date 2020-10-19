@@ -15,7 +15,7 @@ import { LifecycleValue } from "../../common/enums/LifecycleValue";
  * @param args is argument object with event and value properties. Value set 0 | 1
  */
 
-export const handleMouseButton: Behavior = (entity: Entity, args: { event: MouseEvent; value: BinaryType; }): void => {
+export const handleMouseButton: Behavior = (entity: Entity, args: { event: MouseEvent; value: BinaryType }): void => {
   // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
   const input = getMutableComponent(entity, Input);
   if (input.schema.mouseInputMap.buttons[args.event.button] === undefined)

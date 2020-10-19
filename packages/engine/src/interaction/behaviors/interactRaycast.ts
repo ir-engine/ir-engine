@@ -39,7 +39,7 @@ export const interactRaycast: Behavior = (entity: Entity, { interactive }: Inter
       if (!hasComponent(interactiveEntity, Object3DComponent)) {
         return false;
       }
-
+      
       // - distance check
       // TODO: handle parent transform!!!
       const distance = getComponent(interactiveEntity, TransformComponent).position.distanceTo(clientPosition);

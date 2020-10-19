@@ -12,7 +12,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public initialized = false
 
 // TODO: Move these... but for now...
-	public currentAnimationAction:AnimationAction = null
+	public currentAnimationAction: AnimationAction = null
 	public currentAnimationLength = 0
 	public timer = 0
 

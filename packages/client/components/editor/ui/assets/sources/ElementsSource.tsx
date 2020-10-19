@@ -2,15 +2,16 @@ import Fuse from "fuse.js";
 import { BaseSource } from "./index";
 import { ItemTypes } from "../../dnd";
 import MediaSourcePanel from "../MediaSourcePanel";
+import Editor from "../../../Editor";
 export default class ElementsSource extends BaseSource {
   component: typeof MediaSourcePanel;
-  editor: any;
+  editor: Editor;
   id: string;
   name: string;
   enableExperimentalFeatures: any;
   disableUrl: boolean;
   searchDebounceTimeout: number;
-  constructor(editor) {
+  constructor(editor: Editor) {
     super();
     this.component = MediaSourcePanel;
     this.editor = editor;
