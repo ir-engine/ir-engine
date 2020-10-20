@@ -33,10 +33,14 @@ export default class AssetLoadingSystem extends System {
   }
 
   execute (): void{
-    if(isBrowser && this.queryResults.toLoad.all.length > 0){
-      const event = new CustomEvent('scene-loaded', { detail:{loaded:false} });
-      document.dispatchEvent(event);
-    }  
+    if(isBrowser)
+    {
+      if (this.queryResults.toLoad.all.length > 0){
+      document.dispatchEvent(new CustomEvent('scene-loaded', { detail:{loaded:false} }));
+    } else {
+      document.dispatchEvent(new CustomEvent('scene-loaded', { detail:{loaded:true} }));
+    }
+  }
 
     this.queryResults.characterAvatar.added.forEach(entity => {
       loadActorAvatar(entity);

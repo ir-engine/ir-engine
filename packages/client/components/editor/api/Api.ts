@@ -15,7 +15,7 @@ import PublishedSceneDialog from "./PublishedSceneDialog";
 const resolveUrlCache = new Map();
 const resolveMediaCache = new Map();
 
-const API_SERVER_ADDRESS = (configs as any).API_SERVER_ADDRESS || (process.browser ? `${document.location.hostname}:3030` : "localhost:3030");
+const API_SERVER_ADDRESS = (configs as any).API_SERVER_ADDRESS;
 
 const {
   API_ASSETS_ROUTE,
@@ -913,11 +913,12 @@ export default class Api extends EventEmitter {
       if (signal) {
         signal.addEventListener("abort", onAbort);
       }
+      console.log("Posting to: ", `https://${API_SERVER_ADDRESS}/media`);
 
       if (USE_DIRECT_UPLOAD_API) {
         request.open("post", `${host}${API_MEDIA_ROUTE}`, true);
       } else {
-        request.open("post", `http://${API_SERVER_ADDRESS}${API_MEDIA_ROUTE}`, true);
+        request.open("post", `https://${API_SERVER_ADDRESS}/media`, true);
       }
 
       request.upload.addEventListener("progress", e => {
