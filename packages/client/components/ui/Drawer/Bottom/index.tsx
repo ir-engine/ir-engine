@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import './style.module.scss';
+import styles from './Bottom.module.scss';
 import {
     Avatar,
     Button,
@@ -35,6 +35,7 @@ import moment from 'moment';
 import {User} from "@xr3ngine/common/interfaces/User";
 import { Message } from '@xr3ngine/common/interfaces/Message';
 import _ from 'lodash';
+import classNames from 'classnames';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -287,18 +288,18 @@ const BottomDrawer = (props: Props): any => {
     return (
         <div>
             <SwipeableDrawer
-                className="flex-column"
+                className={styles['flex-column']}
                 anchor="bottom"
                 open={bottomDrawerOpen === true}
                 onClose={() => {setBottomDrawerOpen(false);}}
                 onOpen={() => {}}
             >
                 <div className="bottom-container">
-                    <List onScroll={(e) => onChannelScroll(e)} className="chat-container">
+                    <List onScroll={(e) => onChannelScroll(e)} className={styles['chat-container']}>
                         { channels && channels.size > 0 && Array.from(channels).sort(([channelId1, channel1], [channelId2, channel2]) => new Date(channel2.updatedAt).getTime() - new Date(channel1.updatedAt).getTime()).map(([channelId, channel], index) => {
                             return <ListItem
                                 key={channelId}
-                                className="selectable"
+                                className={styles.selectable}
                                 onClick={() => setActiveChat(channel)}
                                 selected={ channelId === targetChannelId }
                                 divider={ index < channels.size - 1 }
@@ -318,11 +319,15 @@ const BottomDrawer = (props: Props): any => {
                             </ListItem>
                         }
                     </List>
-                    <div className="list-container">
-                        <List ref={(messageRef as any)} onScroll={(e) => onMessageScroll(e)} className="message-container">
+                    <div className={styles['list-container']}>
+                        <List ref={(messageRef as any)} onScroll={(e) => onMessageScroll(e)} className={styles['message-container']}>
                             { activeChannel != null && activeChannel.messages && activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).map((message) => {
                                 return <ListItem
-                                    className={message.senderId === user.id ? "message self" : "message other"}
+                                    className={classNames({
+                                        message: true,
+                                        self: message.senderId === user.id,
+                                        other: message.senderId !== user.id
+                                    })}
                                     key={message.id}
                                     onMouseEnter={(e) => toggleMessageCrudSelect(e, message)}
                                     onMouseLeave={(e) => toggleMessageCrudSelect(e, message)}
@@ -343,15 +348,15 @@ const BottomDrawer = (props: Props): any => {
                                         {message.senderId === user.id && messageUpdatePending !== message.id &&
                                             <div>
                                                 { messageDeletePending !== message.id && messageCrudSelected === message.id &&
-                                                <div className="crud-controls">
+                                                <div className={styles['crud-controls']}>
                                                         {messageDeletePending !== message.id &&
-                                                        <Edit className="edit"
+                                                        <Edit className={styles.edit}
                                                               onClick={(e) => loadMessageEdit(e, message)}
                                                               onTouchEnd={(e) => loadMessageEdit(e, message)}
                                                         />
                                                         }
                                                         {messageDeletePending !== message.id &&
-                                                        <Delete className="delete"
+                                                        <Delete className={styles.delete}
                                                                 onClick={(e) => showMessageDeleteConfirm(e, message)}
                                                                 onTouchEnd={(e) => showMessageDeleteConfirm(e, message)}
                                                         />
@@ -359,15 +364,15 @@ const BottomDrawer = (props: Props): any => {
                                                     </div>
                                                 }
                                                 {messageDeletePending === message.id &&
-                                                    <div className="crud-controls">
+                                                    <div className={styles['crud-controls']}>
                                                         {messageDeletePending === message.id &&
-                                                        <Delete className="delete"
+                                                        <Delete className={styles.delete}
                                                                 onClick={(e) => confirmMessageDelete(e, message)}
                                                                 onTouchEnd={(e) => confirmMessageDelete(e, message)}
                                                         />
                                                         }
                                                         {messageDeletePending === message.id &&
-                                                        <Clear className="cancel"
+                                                        <Clear className={styles.cancel}
                                                                onClick={(e) => cancelMessageDelete(e)}
                                                                onTouchEnd={(e) => cancelMessageDelete(e)}
                                                         />
@@ -377,7 +382,7 @@ const BottomDrawer = (props: Props): any => {
                                             </div>
                                         }
                                         {messageUpdatePending === message.id &&
-                                            <div className="message-edit">
+                                            <div className={styles['message-edit']}>
                                                 <TextField
                                                     variant="outlined"
                                                     margin="normal"
@@ -393,9 +398,9 @@ const BottomDrawer = (props: Props): any => {
                                                     }}
                                                     onChange={handleEditingMessageChange}
                                                 />
-                                                <div className="editing-controls">
-                                                    <Clear className="cancel" onClick={(e) => cancelMessageUpdate(e)} onTouchEnd={(e) => cancelMessageUpdate(e)}/>
-                                                    <Save className="save" onClick={(e) => confirmMessageUpdate(e, message)} onTouchEnd={(e) => confirmMessageUpdate(e, message)}/>
+                                                <div className={styles['editing-controls']}>
+                                                    <Clear className={styles.cancel} onClick={(e) => cancelMessageUpdate(e)} onTouchEnd={(e) => cancelMessageUpdate(e)}/>
+                                                    <Save className={styles.save} onClick={(e) => confirmMessageUpdate(e, message)} onTouchEnd={(e) => confirmMessageUpdate(e, message)}/>
                                                 </div>
                                             </div>
                                         }
@@ -404,15 +409,15 @@ const BottomDrawer = (props: Props): any => {
                             })
                             }
                             { targetChannelId.length === 0 && targetObject.id != null &&
-                                <div className="first-message-placeholder">
+                                <div className={styles['first-message-placeholder']}>
                                     <div>{targetChannelId}</div>
                                     Start a chat with {(targetObjectType === 'user' || targetObjectType === 'group') ? targetObject.name : 'your current party'}
                                 </div>
                             }
                         </List>
                         {targetObject != null && targetObject.id != null &&
-                            <div className="flex-center">
-                                <div className="chat-box">
+                            <div className={styles['flex-center']}>
+                                <div className={styles['chat-box']}>
                                     <TextField
                                         variant="outlined"
                                         margin="normal"
@@ -439,7 +444,7 @@ const BottomDrawer = (props: Props): any => {
                             </div>
                         }
                         { (targetObject == null || targetObject.id == null) &&
-                            <div className="no-chat">
+                            <div className={styles['no-chat']}>
                                 <div>
                                     Start a chat with a friend or group from the left drawer
                                 </div>

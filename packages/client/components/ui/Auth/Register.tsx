@@ -11,7 +11,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { registerUserByEmail } from '../../../redux/auth/service';
 import SignIn from './Login';
-import './style.module.scss';
+import styles from './Auth.module.scss';
 import { showDialog } from '../../../redux/dialog/service';
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
@@ -48,14 +48,14 @@ const SignUp = (props: Props): any => {
 
   return (
     <Container component="main" maxWidth="xs">
-      <div className={'paper'}>
-        <Avatar className={'avatar'}>
+      <div className={styles.paper}>
+        <Avatar className={styles.avatar}>
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
           Sign up
         </Typography>
-        <form className={'form'} noValidate onSubmit={(e) => handleRegister(e)}>
+        <form className={styles.form} noValidate onSubmit={(e) => handleRegister(e)}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
@@ -88,7 +88,7 @@ const SignUp = (props: Props): any => {
                 fullWidth
                 variant="contained"
                 color="primary"
-                className={'submit'}
+                className={styles.submit}
               >
                 Sign Up
               </Button>

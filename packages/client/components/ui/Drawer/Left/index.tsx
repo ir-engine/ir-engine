@@ -8,7 +8,7 @@ import { selectGroupState } from '../../../../redux/group/selector';
 import { selectPartyState } from '../../../../redux/party/selector';
 import { selectUserState } from '../../../../redux/user/selector';
 import { selectLocationState } from '../../../../redux/location/selector';
-import './style.module.scss';
+import styles from './Left.module.scss';
 
 import {
     updateInviteTarget
@@ -74,6 +74,7 @@ import {
     removePartyUser,
     transferPartyOwner
 } from '../../../../redux/party/service';
+import classNames from 'classnames';
 
 
 const mapStateToProps = (state: any): any => {
@@ -491,7 +492,7 @@ const LeftDrawer = (props: Props): any => {
         return (
             <div>
                 <SwipeableDrawer
-                    className="flex-column"
+                    className={styles['flex-column']}
                     anchor="left"
                     open={props.leftDrawerOpen === true}
                     onClose={() => {
@@ -501,7 +502,7 @@ const LeftDrawer = (props: Props): any => {
                     }}
                 >
                     {detailsOpen === false && groupFormOpen === false &&
-                    <div className="list-container">
+                    <div className={styles['list-container']}>
                         {user.userRole !== 'guest' &&
                         <Accordion expanded={selectedAccordion === 'user'} onChange={handleAccordionSelect('user')}>
                             <AccordionSummary
@@ -512,8 +513,8 @@ const LeftDrawer = (props: Props): any => {
                                 <SupervisedUserCircle/>
                                 <Typography>Friends</Typography>
                             </AccordionSummary>
-                            <AccordionDetails className='list-container'>
-                                <div className="flex-center">
+                            <AccordionDetails className={styles['list-container']}>
+                                <div className={styles['flex-center']}>
                                     <Button
                                         variant="contained"
                                         color="primary"
@@ -528,7 +529,7 @@ const LeftDrawer = (props: Props): any => {
                                     {friends && friends.length > 0 && friends.sort((a, b) => a.name - b.name).map((friend, index) => {
                                         return <div key={friend.id}>
                                             <ListItem
-                                                className="selectable"
+                                                className={styles.selectable}
                                                 onClick={() => {
                                                     openDetails('user', friend);
                                                 }}
@@ -556,8 +557,8 @@ const LeftDrawer = (props: Props): any => {
                                 <Group/>
                                 <Typography>Groups</Typography>
                             </AccordionSummary>
-                            <AccordionDetails className='list-container'>
-                                <div className="flex-center">
+                            <AccordionDetails className={styles['list-container']}>
+                                <div className={styles['flex-center']}>
                                     <Button
                                         variant="contained"
                                         color="primary"
@@ -572,7 +573,7 @@ const LeftDrawer = (props: Props): any => {
                                     {groups && groups.length > 0 && groups.sort((a, b) => a.name - b.name).map((group, index) => {
                                         return <div key={group.id}>
                                             <ListItem
-                                                className="selectable"
+                                                className={styles.selectable}
                                                 onClick={() => {
                                                     openDetails('group', group);
                                                 }}
@@ -597,11 +598,15 @@ const LeftDrawer = (props: Props): any => {
                                 <GroupWork/>
                                 <Typography>Party</Typography>
                             </AccordionSummary>
-                            <AccordionDetails className={'flexbox flex-column flex-center'}>
+                            <AccordionDetails className={classNames({
+                                [styles.flexbox]: true,
+                                [styles['flex-column']]: true,
+                                [styles['flex-center']]: true
+                            })}>
                                 {party == null &&
                                 <div>
-                                    <div className="title">You are not currently in a party</div>
-                                    <div className="flex-center">
+                                    <div className={styles.title}>You are not currently in a party</div>
+                                    <div className={styles['flex-center']}>
                                         <Button
                                             variant="contained"
                                             color="primary"
@@ -613,12 +618,19 @@ const LeftDrawer = (props: Props): any => {
                                 </div>
                                 }
                                 {party != null &&
-                                <div className="list-container">
-                                    <div className="title">Current Party</div>
-                                    <div className="party-id flex-center">
+                                <div className={styles['list-container']}>
+                                    <div className={styles.title}>Current Party</div>
+                                    <div className={classNames({
+                                        [styles['party-id']]: true,
+                                        [styles['flex-center']]: true
+                                    })}>
                                         <div>ID: {party.id}</div>
                                     </div>
-                                    <div className="actionButtons flex-center flex-column">
+                                    <div className={classNames({
+                                        [styles.actionButtons]: true,
+                                        [styles['flex-center']]: true,
+                                        [styles['flex-column']]: true
+                                    })}>
                                         <Button
                                             variant="contained"
                                             color="primary"
@@ -643,7 +655,7 @@ const LeftDrawer = (props: Props): any => {
                                             (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
                                             <Button
                                                 variant="contained"
-                                                className="background-red"
+                                                className={styles['background-red']}
                                                 startIcon={<Delete/>}
                                                 onClick={(e) => showPartyDeleteConfirm(e)}
                                             >
@@ -654,7 +666,7 @@ const LeftDrawer = (props: Props): any => {
                                         <div>
                                             <Button variant="contained"
                                                     startIcon={<Delete/>}
-                                                    className="background-red"
+                                                    className={styles['background-red']}
                                                     onClick={(e) => confirmPartyDelete(e, party.id)}
                                             >
                                                 Confirm Delete
@@ -669,9 +681,15 @@ const LeftDrawer = (props: Props): any => {
                                         }
                                     </div>
                                     <Divider/>
-                                    <div className="title margin-top">Members</div>
+                                    <div className={classNames({
+                                        [styles.title]: true,
+                                        [styles['margin-top']]: true
+                                    })}>Members</div>
                                     <List
-                                        className="flex-center flex-column"
+                                        className={classNames({
+                                            [styles['flex-center']]: true,
+                                            [styles['flex-column']]: true
+                                        })}
                                         onScroll={(e) => onListScroll(e)}
                                     >
                                         {partyUsers && partyUsers.length > 0 && partyUsers.sort((a, b) => a.name - b.name).map((partyUser) => {
@@ -789,11 +807,18 @@ const LeftDrawer = (props: Props): any => {
                                     <Public/>
                                     <Typography>Layer Users</Typography>
                                 </AccordionSummary>
-                                <AccordionDetails className={'flexbox flex-column flex-center'}>
-                                    <div className="list-container">
-                                        <div className="title">Users on this Layer</div>
+                                <AccordionDetails className={classNames({
+                                    [styles.flexbox]: true,
+                                    [styles['flex-column']]: true,
+                                    [styles['flex-center']]: true
+                                })}>
+                                    <div className={styles['list-container']}>
+                                        <div className={styles.title}>Users on this Layer</div>
                                         <List
-                                            className="flex-center flex-column"
+                                            className={classNames({
+                                                [styles['flex-center']]: true,
+                                                [styles['flex-column']]: true
+                                            })}
                                             onScroll={(e) => onListScroll(e)}
                                         >
                                             {layerUsers && layerUsers.length > 0 && layerUsers.sort((a, b) => a.name - b.name).map((layerUser) => {
@@ -844,24 +869,40 @@ const LeftDrawer = (props: Props): any => {
                     </div>
                     }
                     {detailsOpen === true && groupFormOpen === false && detailsType === 'user' &&
-                    <div className="flex-center flex-column">
-                        <div className="header">
+                    <div className={classNames({
+                        [styles['flex-center']]: true,
+                        [styles['flex-column']]: true
+                    })}>
+                        <div className={styles.header}>
                             <Button onClick={closeDetails}>
                                 <ArrowLeft/>
                             </Button>
                             <Divider/>
                         </div>
-                        <div className="details">
-                            <div className="avatarUrl flex-center">
+                        <div className={styles.details}>
+                            <div className={classNames({
+                                [styles.avatarUrl]: true,
+                                [styles['flex-center']]: true
+                            })}>
                                 <Avatar src={selectedUser.avatarUrl}/>
                             </div>
-                            <div className="userName flex-center">
+                            <div className={classNames({
+                                [styles.userName]: true,
+                                [styles['flex-center']]: true
+                            })}>
                                 <div>{selectedUser.name}</div>
                             </div>
-                            <div className="userId flex-center">
+                            <div className={classNames({
+                                [styles.userId]: true,
+                                [styles['flex-center']]: true
+                            })}>
                                 <div>ID: {selectedUser.id}</div>
                             </div>
-                            <div className="actionButtons flex-center flex-column">
+                            <div className={classNames({
+                                [styles.actionButtons]: true,
+                                [styles['flex-center']]: true,
+                                [styles['flex-column']]: true
+                            })}>
                                 <Button
                                     variant="contained"
                                     color="primary"
@@ -883,7 +924,7 @@ const LeftDrawer = (props: Props): any => {
                                 {friendDeletePending !== selectedUser.id &&
                                 <Button
                                     variant="contained"
-                                    className="background-red"
+                                    className={styles['background-red']}
                                     startIcon={<Delete/>}
                                     onClick={(e) => showFriendDeleteConfirm(e, selectedUser.id)}
                                 >
@@ -893,7 +934,7 @@ const LeftDrawer = (props: Props): any => {
                                 <div>
                                     <Button variant="contained"
                                             startIcon={<Delete/>}
-                                            className="background-red"
+                                            className={styles['background-red']}
                                             onClick={(e) => confirmFriendDelete(e, selectedUser.id)}
                                     >
                                         Unfriend
@@ -911,24 +952,40 @@ const LeftDrawer = (props: Props): any => {
                     </div>
                     }
                     {detailsOpen === true && groupFormOpen === false && detailsType === 'group' &&
-                    <div className="details-container">
-                        <div className="header">
+                    <div className={styles['details-container']}>
+                        <div className={styles.header}>
                             <Button onClick={closeDetails}>
                                 <ArrowLeft/>
                             </Button>
                             <Divider/>
                         </div>
-                        <div className="details list-container">
-                            <div className="title flex-center">
+                        <div className={classNames({
+                            [styles.details]: true,
+                            [styles['list-container']]: true
+                        })}>
+                            <div className={classNames({
+                                [styles.title]: true,
+                                [styles['flex-center']]: true
+                            })}>
                                 <div>{selectedGroup.name}</div>
                             </div>
-                            <div className="group-id flex-center">
+                            <div className={classNames({
+                                [styles['group-id']]: true,
+                                [styles['flex-center']]: true
+                            })}>
                                 <div>ID: {selectedGroup.id}</div>
                             </div>
-                            <div className="description flex-center">
+                            <div className={classNames({
+                                [styles.description]: true,
+                                [styles['flex-center']]: true
+                            })}>
                                 <div>{selectedGroup.description}</div>
                             </div>
-                            <div className="actionButtons flex-center flex-column">
+                            <div className={classNames({
+                                [styles.actionButtons]: true,
+                                [styles['flex-center']]: true,
+                                [styles['flex-column']]: true
+                            })}>
                                 <Button
                                     variant="contained"
                                     color="primary"
@@ -962,7 +1019,7 @@ const LeftDrawer = (props: Props): any => {
                                 selfGroupUser != null && selfGroupUser.groupUserRank === 'owner' &&
                                 <Button
                                     variant="contained"
-                                    className="background-red"
+                                    className={styles['background-red']}
                                     startIcon={<Delete/>}
                                     onClick={(e) => showGroupDeleteConfirm(e, selectedGroup.id)}
                                 >
@@ -972,7 +1029,7 @@ const LeftDrawer = (props: Props): any => {
                                 <div>
                                     <Button variant="contained"
                                             startIcon={<Delete/>}
-                                            className="background-red"
+                                            className={styles['background-red']}
                                             onClick={(e) => confirmGroupDelete(e, selectedGroup.id)}
                                     >
                                         Confirm Delete
@@ -987,8 +1044,14 @@ const LeftDrawer = (props: Props): any => {
                                 }
                             </div>
                             <Divider/>
-                            <div className="title margin-top">Members</div>
-                            <List className="flex-center flex-column">
+                            <div className={classNames({
+                                [styles.title]: true,
+                                [styles['margin-top']]: true
+                            })}>Members</div>
+                            <List className={classNames({
+                                [styles['flex-center']]: true,
+                                [styles['flex-column']]: true,
+                            })}>
                                 {selectedGroup && selectedGroup.groupUsers && selectedGroup.groupUsers.length > 0 && selectedGroup.groupUsers.sort((a, b) => a.name - b.name).map((groupUser) => {
                                         return <ListItem key={groupUser.id}>
                                             <ListItemAvatar>
@@ -1051,9 +1114,9 @@ const LeftDrawer = (props: Props): any => {
                     }
                     {
                         groupFormOpen === true &&
-                        <form className='group-form' noValidate onSubmit={(e) => submitGroup(e)}>
-                            {groupFormMode === 'create' && <div className="title">New Group</div>}
-                            {groupFormMode === 'update' && <div className="title">Update Group</div>}
+                        <form className={styles['group-form']} noValidate onSubmit={(e) => submitGroup(e)}>
+                            {groupFormMode === 'create' && <div className={styles.title}>New Group</div>}
+                            {groupFormMode === 'update' && <div className={styles.title}>Update Group</div>}
                             <TextField
                                 variant="outlined"
                                 margin="normal"
@@ -1080,12 +1143,15 @@ const LeftDrawer = (props: Props): any => {
                                 value={groupForm.description}
                                 onChange={(e) => handleGroupCreateInput(e)}
                             />
-                            <div className="flex-center flex-column">
+                            <div className={classNames({
+                                [styles['flex-center']]: true,
+                                [styles['flex-column']]: true
+                            })}>
                                 <Button
                                     type="submit"
                                     variant="contained"
                                     color="primary"
-                                    className={'submit'}
+                                    className={styles.submit}
                                 >
                                     {groupFormMode === 'create' && 'Create Group'}
                                     {groupFormMode === 'update' && 'Update Group'}

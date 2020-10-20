@@ -77,5 +77,8 @@
     "jest": "^26.4.2",
     "lerna": "^3.22.1",
     "parallel-webpack": "^2.6.0"
+  },
+  "dependencies": {
+    "ts-jest": "^26.4.1"
   }
 }

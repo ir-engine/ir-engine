@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import getConfig from 'next/config';
 import NavMenu from '../NavMenu';
 import Head from 'next/head';
-import './style.module.scss';
+import styles from './Layout.module.scss';
 import Alerts from '../Common/Alerts';
 import UIDialog from '../Dialog/Dialog';
 import DrawerControls from '../DrawerControls';
