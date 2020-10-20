@@ -8,6 +8,9 @@ import { DefaultInput } from "../../templates/shared/DefaultInput";
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { Engine } from "../../ecs/classes/Engine";
+import { TouchInputs } from "../../input/enums/TouchInputs";
+import { Vector2 } from "three";
+import { normalizeMouseCoordinates } from "../../common/functions/normalizeMouseCoordinates";
 
 /**
  *
@@ -18,7 +21,7 @@ import { Engine } from "../../ecs/classes/Engine";
 
 
 const startedPosition = new Map<Entity,any>();
-// const endedPosition = new Map<Entity,any>();
+const touchPosition = new Map<Entity,any>();
 
 export const  interact: Behavior = (entity: Entity, args: any, delta): void => {
   if (!hasComponent(entity, Interacts)) {
@@ -34,21 +37,51 @@ export const  interact: Behavior = (entity: Entity, args: any, delta): void => {
   // console.log(args)
 
   const mouseScreenPosition = getComponent(entity, Input).data.get(DefaultInput.SCREENXY)
+  const touchScreenPosition = getComponent(entity, Input).data.get(DefaultInput.SCREENXY)
+
+  const normalTouch = normalizeMouseCoordinates(touchScreenPosition.value[0], touchScreenPosition.value[1], window.innerWidth, window.innerHeight);
+  // if (touchScreenPosition){
+  // touchScreenPosition[0] = ( touchScreenPosition[0] / window.innerWidth ) * 2 - 1;
+  // touchScreenPosition[1] = - ( touchScreenPosition[1] / window.innerHeight ) * 2 + 1;
+  // }
+  // const touchScreen = new Vector2();
+  // if (touchScreenPosition) {
+  //   touchScreen.x = touchScreenPosition.value[0];
+	//   touchScreen.y = touchScreenPosition.value[1];
+  //   }
+  //   const touchScreenArray = [];
+  //   touchScreenArray.push(touchScreen);
+  
   if (args.phaze === LifecycleValue.STARTED ){
-    startedPosition.set(entity,mouseScreenPosition.value)
-    
+    startedPosition.set(entity,mouseScreenPosition.value);
+    return
   }
+
+  console.log(normalTouch);
   
+  
+  if (args.touchPhaze === LifecycleValue.STARTED ){
+    touchPosition.set(entity,normalTouch);
+    return
+  }
+
+  // console.log(touchPosition);
+
   const startedMousePosition = startedPosition.get(entity);
+  const startedTouchPosition = touchPosition.get(entity);
   
-  console.log('Mouse position on START',startedMousePosition)
-  console.log('Current mouse position', mouseScreenPosition.value)
+  // console.log('Mouse position on START',startedMousePosition)
+  // console.log('Current mouse position', mouseScreenPosition.value)
+
+  console.log('Touch position on START',startedTouchPosition);
+  console.log('Current touch position', normalTouch);
  
-  if (startedMousePosition == mouseScreenPosition.value) {
+  if (startedMousePosition !== mouseScreenPosition.value || startedTouchPosition !== touchScreenPosition) {
     if (!focusedEntity) {
       // no available interactive object is focused right now
       return
     }
+  }
 
     if (!hasComponent(focusedEntity, Interactive)) {
       console.error(
@@ -61,5 +94,5 @@ export const  interact: Behavior = (entity: Entity, args: any, delta): void => {
     if (interactive && typeof interactive.onInteraction === 'function') {
       interactive.onInteraction(entity, args, delta, focusedEntity)
     }
-  }
-}
+  
+};

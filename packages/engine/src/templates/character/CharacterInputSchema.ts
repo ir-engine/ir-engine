@@ -27,6 +27,7 @@ import { setLocalMovementDirection } from "./behaviors/setLocalMovementDirection
 import { handleMouseWheel } from "../../input/behaviors/handleMouseWheel";
 import { changeCameraDistanceByDelta } from "../../camera/behaviors/changeCameraDistanceByDelta";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
+import { TouchInputs } from "../../input/enums/TouchInputs";
 
 export const CharacterInputSchema: InputSchema = {
   // When an Input component is added, the system will call this array of behaviors
@@ -93,11 +94,11 @@ export const CharacterInputSchema: InputSchema = {
         args: {
           touchPhaze:LifecycleValue.STARTED         
         }
-      },
-      {
-          behavior: interact,
-          args: {}
       }
+      // {
+      //     behavior: interact,
+      //     args: {}
+      // }
     ],
     touchend: [
       {
@@ -192,6 +193,16 @@ export const CharacterInputSchema: InputSchema = {
       [MouseInput.MouseClickDownTransformRotation]: DefaultInput.ROTATION_START,
       [MouseInput.MouseClickDownMovement]: DefaultInput.LOOKTURN_PLAYERONE,
       [MouseInput.MouseScroll]: DefaultInput.CAMERA_SCROLL
+    }
+  },
+  // Map touch buttons to abstract input
+  touchInputMap: {
+    buttons: {
+      [TouchInputs.Touch]: DefaultInput.INTERACT,
+    },
+    axes: {
+      [TouchInputs.Touch1Move]: DefaultInput.SCREENXY,
+      [TouchInputs.Touch2Move]: DefaultInput.LOOKTURN_PLAYERONE
     }
   },
   // Map gamepad buttons to abstract input
