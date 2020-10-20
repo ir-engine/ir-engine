@@ -28,20 +28,20 @@ import { BinaryValue } from '../../common/enums/BinaryValue';
   // check CHANGED/UNCHANGED axis inputs
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
     if (!input.prevData.has(key)) {
-      return
+      return;
     }
 
     if (value.type === InputType.BUTTON) {
-      const prevValue = input.prevData.get(key)
+      const prevValue = input.prevData.get(key);
       if (
           prevValue.lifecycleState === LifecycleValue.STARTED &&
           value.lifecycleState === LifecycleValue.STARTED
       ) {
         // auto-switch to CONTINUED
-        value.lifecycleState = LifecycleValue.CONTINUED
-        input.data.set(key, value)
+        value.lifecycleState = LifecycleValue.CONTINUED;
+        input.data.set(key, value);
       }
-      return
+      return;
     }
 
     if (
@@ -50,21 +50,21 @@ import { BinaryValue } from '../../common/enums/BinaryValue';
       value.type !== InputType.THREEDIM
     ) {
       // skip all other inputs
-      return
+      return;
     }
     
     if (value.lifecycleState === LifecycleValue.ENDED) {
       // ENDED here is a special case, like mouse position on mouse down
-      return
+      return;
     }
 
     if (input.prevData.has(key)) {
       if (JSON.stringify(value.value) === JSON.stringify(input.prevData.get(key).value)) {
-        value.lifecycleState = LifecycleValue.UNCHANGED
+        value.lifecycleState = LifecycleValue.UNCHANGED;
       } else {
-        value.lifecycleState = LifecycleValue.CHANGED
+        value.lifecycleState = LifecycleValue.CHANGED;
       }
-      input.data.set(key, value)
+      input.data.set(key, value);
     }
   });
 
@@ -147,7 +147,7 @@ import { BinaryValue } from '../../common/enums/BinaryValue';
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
     if (value.type === InputType.BUTTON) {
       if (value.lifecycleState === LifecycleValue.ENDED) {
-        input.data.delete(key)
+        input.data.delete(key);
       }
     }
     // else if (
