@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {bindActionCreators, Dispatch} from 'redux';
 import {connect} from 'react-redux';
-import './style.module.scss';
+import styles from './Right.module.scss';
 import _ from 'lodash';
 import {
     Accordion,
@@ -62,6 +62,7 @@ import {
     getInvitableGroups
 } from '../../../../redux/group/service';
 import {User} from '@xr3ngine/common/interfaces/User';
+import classNames from 'classnames';
 
 
 const mapStateToProps = (state: any): any => {
@@ -315,9 +316,12 @@ const Invites = (props: Props): any => {
     };
 
     return (
-        <div className="invite-container">
+        <div className={styles['invite-container']}>
             <SwipeableDrawer
-                className="flex-column list-container"
+                className={classNames({
+                    [styles['flex-column']]: true,
+                    [styles['list-container']]: true
+                })}
                 BackdropProps={{invisible: true}}
                 anchor="right"
                 open={props.rightDrawerOpen === true}
@@ -336,8 +340,8 @@ const Invites = (props: Props): any => {
                         <Mail/>
                         <Typography>Invites</Typography>
                     </AccordionSummary>
-                    <AccordionDetails className='list-container'>
-                        <div className="title">Invites</div>
+                    <AccordionDetails className={styles['list-container']}>
+                        <div className={styles.title}>Invites</div>
                         <Tabs
                             value={inviteTabIndex}
                             onChange={handleInviteChange}
@@ -441,8 +445,8 @@ const Invites = (props: Props): any => {
                         }
                         {inviteTabIndex === 0 &&
                         <div>
-                            <div className="title">Send Request</div>
-                            <div className="sub-header">Request Type</div>
+                            <div className={styles.title}>Send Request</div>
+                            <div className={styles['sub-header']}>Request Type</div>
                             <Tabs
                                 value={inviteTypeIndex}
                                 onChange={handleInviteTypeChange}
@@ -473,9 +477,9 @@ const Invites = (props: Props): any => {
                                 />
                             </Tabs>
                             {inviteTypeIndex === 1 &&
-                            <div className="flex-justify-center">
+                            <div className={styles['flex-justify-center']}>
                                 {invitableGroupState.get('total') > 0 &&
-                                <FormControl className="group-select">
+                                <FormControl className={styles['group-select']}>
                                     <InputLabel id="invite-group-select-label">Group</InputLabel>
                                     <Select
                                         labelId="invite-group-select-label"
@@ -486,7 +490,7 @@ const Invites = (props: Props): any => {
                                     >
                                         {invitableGroups.map((group) => {
                                             return <MenuItem
-                                                className="flex-center"
+                                                className={styles['flex-center']}
                                                 key={group.id}
                                                 value={group.id}
                                             >
@@ -502,10 +506,10 @@ const Invites = (props: Props): any => {
                             </div>
                             }
                             {inviteTypeIndex === 2 && party == null &&
-                            <div className="flex-justify-center">You are not currently in a party</div>
+                            <div className={styles['flex-justify-center']}>You are not currently in a party</div>
                             }
                             {inviteTypeIndex === 2 && party != null && selfPartyUser?.isOwner !== true && selfPartyUser?.isOwner !== 1 &&
-                            <div className="flex-justify-center">You are not the owner of your current party</div>
+                            <div className={styles['flex-justify-center']}>You are not the owner of your current party</div>
                             }
                             {!((inviteTypeIndex === 1 && invitableGroupState.get('total') === 0) ||
                                 (inviteTypeIndex === 1 && _.find(invitableGroupState.get('groups'), (invitableGroup) => invitableGroup.id === inviteState.get('targetObjectId')) == null) ||
@@ -540,7 +544,7 @@ const Invites = (props: Props): any => {
                                     }
                                 </Tabs>
 
-                                <div className="username">
+                                <div className={styles.username}>
                                     {tabIndex !== 3 && <TextField
                                         variant="outlined"
                                         margin="normal"
@@ -554,7 +558,7 @@ const Invites = (props: Props): any => {
                                     />
                                     }
                                     {tabIndex === 3 &&
-                                    <FormControl className="friend-select">
+                                    <FormControl className={styles['friend-select']}>
                                         <InputLabel id="invite-friend-select-label">Friend</InputLabel>
                                         <Select
                                             labelId="invite-friend-select-label"
@@ -565,7 +569,7 @@ const Invites = (props: Props): any => {
                                         >
                                             {friends.map((friend) => {
                                                 return <MenuItem
-                                                    className="flex-center"
+                                                    className={styles['flex-center']}
                                                     key={friend.id}
                                                     value={friend.id}
                                                 >
@@ -598,10 +602,10 @@ const Invites = (props: Props): any => {
                         <Public/>
                         <Typography>Scenes</Typography>
                     </AccordionSummary>
-                    <AccordionDetails className='list-container'>
+                    <AccordionDetails className={styles['list-container']}>
                         <GridList
                             cellHeight={160}
-                            className="location-grid"
+                            className={styles['location-grid']}
                             cols={4}
                         >
                             {locations.map((location) => {

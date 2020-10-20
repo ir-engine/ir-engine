@@ -49,11 +49,14 @@ export function doLoginAuto (allowGuest?: boolean) {
       const authData = getStoredState('auth');
       let accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined;
 
+      console.log(allowGuest)
+      console.log(accessToken)
       if (allowGuest !== true && !accessToken) {
         return;
       }
 
       if (allowGuest === true && !accessToken) {
+        console.log('Logging in as guest');
         const newProvider = await client.service('identity-provider').create({
           type: 'guest',
           token: v1()

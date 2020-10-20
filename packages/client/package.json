@@ -50,6 +50,7 @@
     "autobind-decorator": "^2.4.0",
     "autoprefixer": "^9.7.5",
     "axios": "^0.19.2",
+    "classnames": "^2.2.6",
     "device-detector-js": "^2.2.5",
     "eslint-plugin-react-hooks": "^4.1.2",
     "eventemitter3": "^4.0.7",

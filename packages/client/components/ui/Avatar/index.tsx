@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
-import './style.module.scss';
+import styles from './Avatar.module.scss';
 
 const LetterAvatars = (): any => {
   return (
@@ -10,7 +10,7 @@ const LetterAvatars = (): any => {
         Shaw
       </Typography>
       <div className="root">
-        <Avatar className="purple">S</Avatar>
+        <Avatar className={styles.purple}>S</Avatar>
       </div>
     </Fragment>
   );

@@ -48,7 +48,7 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:Int
   const frustum = new Frustum().setFromProjectionMatrix( viewProjectionMatrix );
 
   const subFocusedArray = raycastList.filter(scene => {
-    let child:any = scene.children[0];
+    const child:any = scene.children[0];
     if (child instanceof Mesh) {
       return frustum.intersectsBox(child.geometry.boundingBox);
     } else
