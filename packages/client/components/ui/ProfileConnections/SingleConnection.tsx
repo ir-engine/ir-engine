@@ -21,7 +21,7 @@ import { showDialog } from '../../../redux/dialog/service';
 import MagicLinkEmail from '../Auth/MagicLinkEmail';
 import PasswordLogin from '../Auth/PasswordLogin';
 import { ConnectionTexts } from './ConnectionTexts';
-import './style.module.scss';
+import styles from './ProfileConnections.module.scss';
 
 interface Props {
   auth?: any;
@@ -140,7 +140,7 @@ const SingleConnection = (props: Props): any => {
     actionBlock = (
       <Box display="flex">
         <Box p={1}>
-          <a href="#" onClick={disconnect} className={classes.button}>
+          <a href="#" onClick={disconnect} className={styles.button}>
             <Typography variant="h6">{identityProvider.token}</Typography>
             <Typography color="textSecondary" variant="body2">
               (disconnect)
@@ -158,7 +158,7 @@ const SingleConnection = (props: Props): any => {
     actionBlock = (
       <Box display="flex">
         <Box p={1}>
-          <a href="#" onClick={connect} className={classes.button}>
+          <a href="#" onClick={connect} className={styles.button}>
             Connect
           </a>
         </Box>
@@ -167,7 +167,7 @@ const SingleConnection = (props: Props): any => {
   }
 
   return (
-    <div className={classes.root}>
+    <div className={styles.root}>
       <Box display="flex" p={1}>
         <Box p={1} flexGrow={1}>
           <Grid container direction="column">

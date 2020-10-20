@@ -70,7 +70,7 @@ export const interactRaycast: Behavior = (entity: Entity, { interactive }: Inter
   const rayCamera = Engine.camera.clone();
   const rayMouse = mouseScreen;
   raycaster.setFromCamera(rayMouse,rayCamera);
-  let intersections = raycaster.intersectObjects(raycastList, true );
+  const intersections = raycaster.intersectObjects(raycastList, true );
 
 /*  may come in handy in the future
 
