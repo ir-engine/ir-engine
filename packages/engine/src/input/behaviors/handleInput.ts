@@ -125,6 +125,9 @@ import { BinaryValue } from '../../common/enums/BinaryValue';
               element.behavior(entity, element.args, delta)
             );
             break;
+            case LifecycleValue.ENDED:
+              console.warn("Patch fix, need to handle properly: ", LifecycleValue.ENDED);
+            break;
           default:
             console.error('Unexpected lifecycleState', value.lifecycleState, LifecycleValue[value.lifecycleState]);
         }
