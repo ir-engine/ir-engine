@@ -44,6 +44,7 @@
     "@types/react-redux": "^7.1.7",
     "@types/redux-immutable": "^4.0.1",
     "@types/styled-components": "^5.1.3",
+    "@typescript-eslint/eslint-plugin": "^4.5.0",
     "@xr3ngine/common": "^0.2.0",
     "@xr3ngine/engine": "^0.2.0",
     "app-root-path": "^3.0.0",
