@@ -9,6 +9,7 @@ import { createEntity, /*getComponent,*/ getMutableComponent } from '@xr3ngine/e
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { CarController } from '@xr3ngine/engine/src/templates/car/prefabs/CarController';
+import { PlayerCharacter } from "../../../engine/src/templates/character/prefabs/PlayerCharacter";
 import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
@@ -184,6 +185,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
     // createPrefab(rigidBodyBox2);
     // createPrefab(RazerLaptop);
     createPrefab(CarController);
+    createPrefab(PlayerCharacter);
 
     return (): void => {
       document.removeEventListener('object-hover', onObjectHover);
