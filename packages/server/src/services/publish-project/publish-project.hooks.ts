@@ -22,7 +22,9 @@ const mapProjectSceneDataForSaving = () => {
 
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [
+      authenticate('jwt')
+    ],
     find: [disallow()],
     get: [disallow()],
     create: [

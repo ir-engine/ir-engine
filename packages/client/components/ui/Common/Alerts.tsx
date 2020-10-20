@@ -33,7 +33,7 @@ const Alerts = (props: Props): any => {
   const message = alert.get('message');
 
   return (
-    <div className={styles['alert-container']}>
+    <div className={styles.alertContainer}>
       {type === 'none' || message === '' ? (
         <Box />
       ) : (

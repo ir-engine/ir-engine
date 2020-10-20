@@ -3,49 +3,39 @@ import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraCo
 import { addObject3DComponent } from '@xr3ngine/engine/src/common/behaviors/Object3DBehaviors';
 // import { Object3DComponent } from '@xr3ngine/engine/src/common/components/Object3DComponent';
 import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
+import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
 import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
-import { addComponent, createEntity, /*getComponent,*/ getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { createEntity, /*getComponent,*/ getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
-import { CarController } from "@xr3ngine/engine/src/templates/car/prefabs/CarController";
-import { WorldPrefab } from "@xr3ngine/engine/src/templates/world/prefabs/WorldPrefab";
-import { rigidBodyBox } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox";
-import { rigidBodyBox2 } from "@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox2";
-import { JoystickPrefab } from "@xr3ngine/engine/src/templates/devices/prefabs/JoystickPrefab";
+import { CarController } from '@xr3ngine/engine/src/templates/car/prefabs/CarController';
 import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
+import dynamic from 'next/dynamic';
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { AmbientLight, EquirectangularReflectionMapping, Mesh, MeshPhongMaterial, SphereBufferGeometry, sRGBEncoding, TextureLoader,CineonToneMapping, PCFSoftShadowMap, PointLight } from 'three';
+import { AmbientLight, PCFSoftShadowMap, PointLight } from 'three';
+import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
+import { generalStateList, setAppOnBoardingStep } from '../../redux/app/actions';
+import { selectAppOnBoardingStep } from '../../redux/app/selector';
+import { selectAuthState } from '../../redux/auth/selector';
+import { client } from '../../redux/feathers';
 import { selectInstanceConnectionState } from '../../redux/instanceConnection/selector';
 import { connectToInstanceServer, provisionInstanceServer } from '../../redux/instanceConnection/service';
-import Terminal from '../terminal';
-import { commands, descriptions } from '../terminal/commands';
-import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
-import { selectAuthState } from '../../redux/auth/selector';
 import { selectPartyState } from '../../redux/party/selector';
-import { client } from '../../redux/feathers';
-
-import dynamic from 'next/dynamic';
-
+import store from '../../redux/store';
 import { InfoBox } from "../ui/InfoBox";
-import OnBoardingBox from "../ui/OnBoardingBox";
-import MediaIconsBox from "../ui/MediaIconsBox";
-// import { BeginnerBox } from '../beginnerBox';
-import { RazerLaptop } from "@xr3ngine/engine/src/templates/devices/prefabs/RazerLaptop";
-import './style.module.scss';
-import { resetEngine } from "../../../engine/src/ecs/functions/EngineFunctions";
 import LinearProgressComponent from '../ui/LinearProgress';
+import MediaIconsBox from "../ui/MediaIconsBox";
+import OnBoardingBox from "../ui/OnBoardingBox";
 import OnBoardingDialog from '../ui/OnBoardingDialog';
 import TooltipContainer from '../ui/TooltipContainer';
-
-import { selectAppOnBoardingStep } from '../../redux/app/selector';
-import { generalStateList, setAppOnBoardingStep } from '../../redux/app/actions';
-import store from '../../redux/store';
-
+// import { BeginnerBox } from '../beginnerBox';
+// import { RazerLaptop } from "@xr3ngine/engine/src/templates/devices/prefabs/RazerLaptop";
+import './style.module.scss';
 
 const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
@@ -57,7 +47,6 @@ const mapStateToProps = (state: any): any => {
     onBoardingStep: selectAppOnBoardingStep(state)
   };
 };
-
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   provisionInstanceServer: bindActionCreators(
@@ -84,7 +73,6 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const [infoBoxData, setInfoBoxData] = useState(null);
   // const [showControllHint, setShowControllHint] = useState(true);
   const [progressEntity, setProgressEntity] = useState('');
-
 
   const onObjectHover = (event: CustomEvent): void => {
     setHoveredLabel(event.detail.focused ? event.detail.interactionText.length > 0 ? event.detail.interactionText :'Activate'  :'');
@@ -188,56 +176,13 @@ export const EnginePage: FunctionComponent = (props: any) => {
     );
     cameraTransform.position.set(0, 1.2, 3);
 
-    const envMapURL = './hdr/city.jpg';
-
-    const loader = new TextureLoader()
-
-    ;(loader as any).load(
-      envMapURL,
-      (data) => {
-        const map = loader.load(envMapURL);
-        map.mapping = EquirectangularReflectionMapping;
-        map.encoding = sRGBEncoding;
-        Engine.scene.environment = map;
-        Engine.scene.background = map;
-      },
-      null
-    );
-
-    const { sound } = Engine as any;
-    if (sound) {
-      const audioMesh = new Mesh(
-        new SphereBufferGeometry(0.3),
-        new MeshPhongMaterial({ color: 0xff2200 })
-      );
-      const audioEntity = createEntity();
-      addObject3DComponent(audioEntity, {
-        obj3d: audioMesh,
-      });
-      audioMesh.add(sound);
-      const transform = addComponent(
-        audioEntity,
-        TransformComponent
-      ) as TransformComponent;
-      transform.position.set(0, 1, 0);
-      // const audioComponent = addComponent(audioEntity,
-      //   class extends Component {static scema = {}}
-      // )
-    }
-    Engine.renderer.toneMapping = CineonToneMapping;
-    Engine.renderer.toneMappingExposure = 0.1;
-
-
-    Engine.renderer.toneMapping = CineonToneMapping;
-    Engine.renderer.toneMappingExposure = 1;
-
     // createPrefab(WorldPrefab);
     createPrefab(staticWorldColliders);
-    createPrefab(JoystickPrefab);
+    // createPrefab(JoystickPrefab);
 //  setTimeout(() => {
     // createPrefab(rigidBodyBox);
     // createPrefab(rigidBodyBox2);
-    createPrefab(RazerLaptop);
+    // createPrefab(RazerLaptop);
     createPrefab(CarController);
 
     return (): void => {
@@ -252,21 +197,6 @@ export const EnginePage: FunctionComponent = (props: any) => {
       resetEngine();
     };
   }, []);
-
-  useEffect(() => {
-    const f = (event: KeyboardEvent): void => {
-      //hide controlls hint when move/do smth
-      // setShowControllHint(false);
-      if (event.keyCode === 192) {
-        event.preventDefault();
-        toggleEnabled();
-      }
-    };
-    document.addEventListener("keydown", f);
-    return (): void => {
-      document.removeEventListener('keydown', f);
-    };
-  });
 
   useEffect(() => {
     if (
@@ -295,39 +225,6 @@ export const EnginePage: FunctionComponent = (props: any) => {
     }
   }, []);
 
-  const toggleEnabled = (): void => {
-    console.log('enabled ', enabled);
-    if (enabled === true) {
-      setEnabled(false);
-    } else {
-      setEnabled(true);
-    }
-  };
-
-
-  const terminal = enabled? (
-      <Terminal
-        color='green'
-        backgroundColor='black'
-        // allowTabs={false}
-        allowTabs={true}
-        startState='maximised'
-        showCommands={true}
-        style={{
-          fontWeight: "bold",
-          fontSize: "1em",
-          position: "fixed",
-          bottom: "0",
-          width: "100%",
-          // Height is set in termimal itself depending is it expanded.
-          // height: "30%",
-          zIndex: 4000 }}
-        commands={commands}
-        descriptions={descriptions}
-        msg='Interactive terminal. For commands list execute help.'
-      />
-    ) : null;
-
   //mobile gamepad
   const mobileGamepadProps = {hovered:hoveredLabel.length > 0, layout: 'default' };
   const mobileGamepad = isMobileOrTablet()? <MobileGamepad {...mobileGamepadProps} /> : null;
@@ -343,10 +240,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
     <MediaIconsBox />
     <TooltipContainer message={hoveredLabel.length > 0 ? hoveredLabel : ''} />
     <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} />
-    {/* {hoveredLabelElement} */}
-    {terminal}
     {mobileGamepad}
-    {/* <BeginnerBox /> */}
     </>
   );
 };

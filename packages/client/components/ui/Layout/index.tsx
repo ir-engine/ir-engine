@@ -40,13 +40,15 @@ const Layout = (props: Props): any => {
   const [bottomDrawerOpen, setBottomDrawerOpen] = useState(false);
   const user = authState.get('user');
 
+// TODO: Uncomment alerts when we can fix issues
+
   return (
     <section>
       <Head>
         <title>
           {siteTitle} | {pageTitle}
         </title>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.slim.js" />
+        {/* <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.slim.js" /> */}
       </Head>
       <header>
         <NavMenu />
@@ -54,7 +56,7 @@ const Layout = (props: Props): any => {
       </header>
       <Fragment>
         <UIDialog />
-        <Alerts />
+        {/* <Alerts /> */}
         {children}
       </Fragment>
       { authUser?.accessToken != null && authUser.accessToken.length > 0 &&
