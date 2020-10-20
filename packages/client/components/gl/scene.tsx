@@ -45,6 +45,7 @@ import TooltipContainer from '../ui/TooltipContainer';
 import { selectAppOnBoardingStep } from '../../redux/app/selector';
 import { generalStateList, setAppOnBoardingStep } from '../../redux/app/actions';
 import store from '../../redux/store';
+import { PlayerCharacter } from "../../../engine/src/templates/character/prefabs/PlayerCharacter";
 
 
 const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
@@ -239,6 +240,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
     // createPrefab(rigidBodyBox2);
     createPrefab(RazerLaptop);
     createPrefab(CarController);
+    createPrefab(PlayerCharacter);
 
     return (): void => {
       document.removeEventListener('object-hover', onObjectHover);
