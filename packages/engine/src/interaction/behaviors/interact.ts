@@ -19,80 +19,44 @@ import { normalizeMouseCoordinates } from "../../common/functions/normalizeMouse
  * @param delta
  */
 
-
 const startedPosition = new Map<Entity,any>();
-const touchPosition = new Map<Entity,any>();
 
 export const  interact: Behavior = (entity: Entity, args: any, delta): void => {
   if (!hasComponent(entity, Interacts)) {
     console.error(
       'Attempted to call interact behavior, but actor does not have Interacts component'
-    )
-    return
+    );
+    return;
   }
   
-  const { focusedInteractive: focusedEntity } = getComponent(entity, Interacts)
-  const input = getComponent(entity, Input)
-  
-  // console.log(args)
-
-  const mouseScreenPosition = getComponent(entity, Input).data.get(DefaultInput.SCREENXY)
-  const touchScreenPosition = getComponent(entity, Input).data.get(DefaultInput.SCREENXY)
-
-  const normalTouch = normalizeMouseCoordinates(touchScreenPosition.value[0], touchScreenPosition.value[1], window.innerWidth, window.innerHeight);
-  // if (touchScreenPosition){
-  // touchScreenPosition[0] = ( touchScreenPosition[0] / window.innerWidth ) * 2 - 1;
-  // touchScreenPosition[1] = - ( touchScreenPosition[1] / window.innerHeight ) * 2 + 1;
-  // }
-  // const touchScreen = new Vector2();
-  // if (touchScreenPosition) {
-  //   touchScreen.x = touchScreenPosition.value[0];
-	//   touchScreen.y = touchScreenPosition.value[1];
-  //   }
-  //   const touchScreenArray = [];
-  //   touchScreenArray.push(touchScreen);
-  
+  const { focusedInteractive: focusedEntity } = getComponent(entity, Interacts);
+  const input = getComponent(entity, Input);
+  const mouseScreenPosition = getComponent(entity, Input).data.get(DefaultInput.SCREENXY);
+   
   if (args.phaze === LifecycleValue.STARTED ){
     startedPosition.set(entity,mouseScreenPosition.value);
-    return
+    return;
   }
-
-  console.log(normalTouch);
-  
-  
-  if (args.touchPhaze === LifecycleValue.STARTED ){
-    touchPosition.set(entity,normalTouch);
-    return
-  }
-
-  // console.log(touchPosition);
 
   const startedMousePosition = startedPosition.get(entity);
-  const startedTouchPosition = touchPosition.get(entity);
   
-  // console.log('Mouse position on START',startedMousePosition)
-  // console.log('Current mouse position', mouseScreenPosition.value)
-
-  console.log('Touch position on START',startedTouchPosition);
-  console.log('Current touch position', normalTouch);
- 
-  if (startedMousePosition !== mouseScreenPosition.value || startedTouchPosition !== touchScreenPosition) {
+  if (startedMousePosition !== mouseScreenPosition.value) {
     if (!focusedEntity) {
       // no available interactive object is focused right now
-      return
+      return;
     }
   }
 
     if (!hasComponent(focusedEntity, Interactive)) {
       console.error(
         'Attempted to call interact behavior, but target does not have Interactive component'
-      )
-      return
+      );
+      return;
     }
 
-    const interactive = getComponent(focusedEntity, Interactive)
+    const interactive = getComponent(focusedEntity, Interactive);
     if (interactive && typeof interactive.onInteraction === 'function') {
-      interactive.onInteraction(entity, args, delta, focusedEntity)
+      interactive.onInteraction(entity, args, delta, focusedEntity);
     }
   
 };

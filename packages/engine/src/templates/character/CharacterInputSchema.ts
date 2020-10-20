@@ -88,13 +88,7 @@ export const CharacterInputSchema: InputSchema = {
           value: BinaryValue.ON
         },
         
-      },
-      {
-        behavior: interact,
-        args: {
-          touchPhaze:LifecycleValue.STARTED         
-        }
-      }
+      }      
       // {
       //     behavior: interact,
       //     args: {}
@@ -105,12 +99,6 @@ export const CharacterInputSchema: InputSchema = {
         behavior: handleTouch,
         args: {
           value: BinaryValue.OFF
-        }
-      },
-      {
-        behavior: interact,
-        args: {
-          touchPhaze:LifecycleValue.ENDED         
         }
       }
     ],
