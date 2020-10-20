@@ -61,7 +61,7 @@ const OnBoardingDialog = (props) => {
             break;
           }  
       case generalStateList.AVATAR_SELECTED: {
-            createPrefab(PlayerCharacter);
+            //createPrefab(PlayerCharacter);
             store.dispatch(setAppOnBoardingStep(generalStateList.DEVICE_SETUP));            
            break;}
       case generalStateList.DEVICE_SETUP: {
