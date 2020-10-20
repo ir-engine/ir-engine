@@ -10,7 +10,7 @@ import { selectDialogState } from '../../../redux/dialog/selector';
 import { closeDialog } from '../../../redux/dialog/service';
 import { bindActionCreators, Dispatch } from 'redux';
 import Router from 'next/router';
-import './style.module.scss';
+import styles from './Dialog.module.scss';
 
 interface Props {
   dialog: any;
@@ -45,18 +45,18 @@ const UIDialog = (props: Props): any => {
 
   return (
     <Dialog open={isOpened} onClose={handleClose} aria-labelledby="xr-dialog" color="background">
-      <DialogTitle disableTypography className="dialogTitle">
+      <DialogTitle disableTypography className={styles.dialogTitle}>
         <Typography variant="h6">{(content && content.title) ?? ''}</Typography>
         <IconButton
           aria-label="close"
-          className="dialogCloseButton"
+          className={styles.dialogCloseButton}
           onClick={handleClose}
         >
           <CloseIcon />
         </IconButton>
       </DialogTitle>
 
-      <DialogContent className="dialogContent">
+      <DialogContent className={styles.dialogContent}>
         {content && content.children}
       </DialogContent>
     </Dialog>

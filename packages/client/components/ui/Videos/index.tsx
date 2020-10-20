@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 
 // import { siteTitle } from '../../../config/server'
 
-import './style.module.scss';
+import styles from './Videos.module.scss';
 import Button from '@material-ui/core/Button';
 import { connect } from 'react-redux';
 import { selectVideoState } from '../../../redux/video/selector';
@@ -34,13 +34,13 @@ export const VideoList = (props: Props): any => {
   }, []);
   return (
     <div>
-      <Button variant="contained" color="primary" className={'back'} href="/">
+      <Button variant="contained" color="primary" className={styles.back} href="/">
         Back
       </Button>
-      <div className="video-container">
+      <div className={styles['video-container']}>
         {videos.get('videos').map((video: PublicVideo, i: number) => {
           return (
-            <div className="box" key={i}>
+            <div className={styles.box} key={i}>
               {/* <Link
                 href={
                   '/video?manifest=' + video.url + '&title=' + video.name

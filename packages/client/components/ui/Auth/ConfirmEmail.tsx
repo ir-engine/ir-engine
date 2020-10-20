@@ -9,7 +9,7 @@ import { resendVerificationEmail } from '../../../redux/auth/service';
 import { selectAuthState } from '../../../redux/auth/selector';
 import EmptyLayout from '../Layout/EmptyLayout';
 import { IdentityProvider } from '@xr3ngine/common/interfaces/IdentityProvider';
-import './style.module.scss';
+import styles from './Auth.module.scss';
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -39,7 +39,7 @@ const ConfirmEmail = (props: Props): any => {
   return (
     <EmptyLayout>
       <Container component="main" maxWidth="md">
-        <div className={'paper'}>
+        <div className={styles.paper}>
           <Typography component="h1" variant="h5">
             Confirmation Email
           </Typography>
