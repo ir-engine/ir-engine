@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import Router from 'next/router';
@@ -13,9 +13,9 @@ import store from '../../../redux/store';
 import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
 import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter';
 import UserSettings from '../Profile/UserSettings';
-
+import { setActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/setActorAvatar";
+import { CharacterAvatarData } from '@xr3ngine/engine/src/templates/character/CharacterAvatars'
 import styles from './OnBoardingDialog.module.scss';
-
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -28,8 +28,16 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   closeDialog: bindActionCreators(closeDialog, dispatch)
 });
 
-const OnBoardingDialog = (props) => {
-  const { onBoardingStep, title = ''} = props;
+interface DialogProps{
+  onBoardingStep?:number;
+  title?:string;
+  avatarsList?: CharacterAvatarData[];
+  actorAvatarId?:string;
+  onAvatarChange?:any;
+}
+const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAvatarChange}:DialogProps) => {
+  // const [prevAvatarId, setPrevAvatarId] = useState(null);
+  // const [nextAvatarId, setNextAvatarId] = useState(null);
 
   useEffect(() => {
     Router.events.on('routeChangeStart', () => {
@@ -42,6 +50,26 @@ const OnBoardingDialog = (props) => {
     closeDialog();
   };
 
+  let prevAvatarId=null;
+  let nextAvatarId=null;
+
+  const recalculateAvatarsSteps = (actorAvatarId) =>{
+    let currentAvatarIndex = avatarsList.findIndex(value => value.id === actorAvatarId);
+    if (currentAvatarIndex === -1) {
+      currentAvatarIndex = 0;
+    }
+    const nextAvatarIndex = (currentAvatarIndex + 1) % avatarsList.length;
+    let prevAvatarIndex = (currentAvatarIndex - 1) % avatarsList.length;
+    if (prevAvatarIndex < 0) {
+      prevAvatarIndex = avatarsList.length - 1;
+    }
+    prevAvatarId = (avatarsList[nextAvatarIndex].id);
+    nextAvatarId = (avatarsList[prevAvatarIndex].id);
+  }
+ 
+  recalculateAvatarsSteps(actorAvatarId);
+  console.log('actorAvatarId',actorAvatarId);
+  
   let isOpened = false;
   let dialogText = '';
   let submitButtonText = '';
@@ -56,12 +84,15 @@ const OnBoardingDialog = (props) => {
             break;
           }
       case generalStateList.AVATAR_SELECTION: {
-            isOpened= true; dialogText = 'Select Your Avatar'; submitButtonText = 'Accept';
+            isOpened= true; dialogText = 'Select Your Avatar'; submitButtonText = 'Accept';          
+            children = <div style={{ }}>
+              <button type={"button"} onClick={(): void => onAvatarChange(prevAvatarId)}>prev</button>
+              <button type={"button"} onClick={(): void => onAvatarChange(nextAvatarId)}>next</button>
+            </div>;
             submitButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.AVATAR_SELECTED));
             break;
           }  
       case generalStateList.AVATAR_SELECTED: {
-            //createPrefab(PlayerCharacter);
             store.dispatch(setAppOnBoardingStep(generalStateList.DEVICE_SETUP));            
            break;}
       case generalStateList.DEVICE_SETUP: {
