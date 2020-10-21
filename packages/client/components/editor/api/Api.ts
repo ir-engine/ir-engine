@@ -441,7 +441,6 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    /* eslint-disable @typescript-eslint/camelcase */
     const project = {
       name: scene.name,
       thumbnail_file_id: thumbnailFileId,
@@ -449,7 +448,6 @@ export default class Api extends EventEmitter {
       project_file_id: projectFileId,
       project_file_token: projectFileToken
     };
-    /* eslint-enable */
 
     if (parentSceneId) {
       project["parent_scene_id"] = parentSceneId;
@@ -541,7 +539,6 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    /* eslint-disable @typescript-eslint/camelcase */
     const project = {
       name: editor.scene.name,
       thumbnail_file_id: thumbnailFileId,
@@ -549,7 +546,6 @@ export default class Api extends EventEmitter {
       project_file_id: projectFileId,
       project_file_token: projectFileToken
     };
-    /* eslint-enable */
 
     const sceneId = editor.scene.metadata && editor.scene.metadata.sceneId ? editor.scene.metadata.sceneId : null;
 
@@ -820,7 +816,6 @@ export default class Api extends EventEmitter {
         throw error;
       }
 
-      /* eslint-disable @typescript-eslint/camelcase */
       const sceneParams = {
         screenshot_file_id: screenshotId,
         screenshot_file_token: screenshotToken,
@@ -836,7 +831,6 @@ export default class Api extends EventEmitter {
           content: publishParams.contentAttributions
         }
       };
-      /* eslint-enable */
     
       const token = this.getToken();
 
@@ -1038,7 +1032,6 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    /* eslint-disable @typescript-eslint/camelcase */
     const body = JSON.stringify({
       asset: {
         name: file.name,
@@ -1048,7 +1041,6 @@ export default class Api extends EventEmitter {
         thumbnail_access_token: thumbnailAccessToken
       }
     });
-    /* eslint-enable */
 
     const resp = await this.fetch(endpoint, { method: "POST", headers, body, signal });
     console.log("Response: " + Object.values(resp));

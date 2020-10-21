@@ -14,8 +14,8 @@ const get = (configs, key, defaultValue) => {
   }
 };
 
-console.log("API_SERVER_ADDRESS", process.env.API_SERVER_ADDRESS)
-console.log("API_MEDIA_ROUTE", process.env.API_MEDIA_ROUTE)
+console.log("API_SERVER_ADDRESS", process.env.API_SERVER_ADDRESS);
+console.log("API_MEDIA_ROUTE", process.env.API_MEDIA_ROUTE);
 
 get(configs, "API_ASSETS_ROUTE", process.env.API_ASSETS_ROUTE);
 get(configs, "API_MEDIA_ROUTE", process.env.API_MEDIA_ROUTE);
@@ -39,10 +39,8 @@ get(configs, "USE_DIRECT_UPLOAD_API", process.env.USE_DIRECT_UPLOAD_API);
 get(configs, "API_RESOLVE_MEDIA_ROUTE", process.env.API_RESOLVE_MEDIA_ROUTE);
 
 get(configs, "USE_HTTPS", process.env.USE_HTTPS);
-// eslint-disable-next-line @typescript-eslint/camelcase
 let __webpack_public_path__ = "";
 if ((configs as any).BASE_ASSETS_PATH) {
-  // eslint-disable-next-line no-undef, @typescript-eslint/camelcase
   __webpack_public_path__ = (configs as any).BASE_ASSETS_PATH;
 }
 
@@ -53,7 +51,6 @@ function fixBaseAssetsPath(path) {
     const matches = path.match(/^([^\/]+\/).+$/);
 
     if (matches.length > 1) {
-      // eslint-disable-next-line no-undef, @typescript-eslint/camelcase
       return __webpack_public_path__ + path.replace(matches[1], "");
     }
   }
