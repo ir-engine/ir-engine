@@ -35,7 +35,7 @@ interface DialogProps{
   actorAvatarId?:string;
   onAvatarChange?:any;
 }
-const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAvatarChange}:DialogProps) => {
+const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAvatarChange}:DialogProps): any => {
 
   useEffect(() => {
     Router.events.on('routeChangeStart', () => {
@@ -132,6 +132,6 @@ const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAv
   );
 };
 
-const OnBoardingDialogWrapper = (props: any): any => <OnBoardingDialog {...props } />;
+const OnBoardingDialogWrapper = (props: DialogProps): any => <OnBoardingDialog {...props } />;
 
 export default connect(mapStateToProps, mapDispatchToProps)(OnBoardingDialogWrapper);
