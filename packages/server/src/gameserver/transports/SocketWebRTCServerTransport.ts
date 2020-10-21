@@ -487,8 +487,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
                         logger.info('New producer');
 
-                        const stats = await producer.getStats();
-
                         MediaStreamComponent.instance.producers.push(producer);
                         Network.instance.clients[socket.id].media[appData.mediaTag] = {
                             paused,

@@ -88,7 +88,7 @@ export default (app: Application): void => {
               });
               const partyUsers = (partyUserResult as any).data;
               const partyOwner = partyUsers.find((partyUser) => partyUser.isOwner === 1);
-              if (partyOwner.userId === userId) {
+              if (partyOwner?.userId === userId) {
                 await app.service('party').patch(user.partyId, {
                   instanceId: (app as any).instance.id
                 });
