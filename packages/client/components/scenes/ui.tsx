@@ -29,7 +29,6 @@ import MediaIconsBox from "../ui/MediaIconsBox";
 import OnBoardingBox from "../ui/OnBoardingBox";
 import OnBoardingDialog from '../ui/OnBoardingDialog';
 import TooltipContainer from '../ui/TooltipContainer';
-import './style.module.scss';
 
 const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
@@ -67,12 +66,12 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const [progressEntity, setProgressEntity] = useState('');
 
   const sceneLoadedEntity = (event: CustomEvent): void =>
-    setProgressEntity(' left '+ event.detail.left)
+    setProgressEntity(' left '+ event.detail.left);
 
   const sceneLoaded = (event: CustomEvent): void => {
     if (event.detail.loaded)
       store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));      
-  }
+  };
   
   useEffect(() => {
     document.addEventListener('scene-loaded-entity', sceneLoadedEntity);
@@ -117,8 +116,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
     createPrefab(staticWorldColliders);
 
     return (): void => {
-      document.removeEventListener('scene-loaded-entity', sceneLoadedEntity)
-      document.removeEventListener('scene-loaded', sceneLoaded)
+      document.removeEventListener('scene-loaded-entity', sceneLoadedEntity);
+      document.removeEventListener('scene-loaded', sceneLoaded);
       resetEngine();
     };
   }, []);
