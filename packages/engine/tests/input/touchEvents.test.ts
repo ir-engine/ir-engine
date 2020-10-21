@@ -67,8 +67,8 @@ const testInputSchema: InputSchema = {
       [TouchInputs.Touch]: DefaultInput.INTERACT,
     },
     axes: {
-      [TouchInputs.Touch1Move]: DefaultInput.SCREENXY,
-      [TouchInputs.Touch2Move]: DefaultInput.LOOKTURN_PLAYERONE
+      [TouchInputs.Touch1Position]: DefaultInput.SCREENXY,
+      [TouchInputs.Touch1Movement]: DefaultInput.LOOKTURN_PLAYERONE
     }
   },
   inputButtonBehaviors: {
@@ -159,14 +159,16 @@ afterEach(() => {
 //  another Input type should be triggered by two touches, but SCREENXY doesn't
 
 // move
-describe.skip("movement", () => {
+describe("movement", () => {
   const windowPoint1 = { x: 100, y:20 };
   const normalPoint1 = normalizeMouseCoordinates(windowPoint1.x, windowPoint1.y, window.innerWidth, window.innerHeight);
   const windowPoint2 = { x: 120, y:25 };
   const normalPoint2 = normalizeMouseCoordinates(windowPoint2.x, windowPoint2.y, window.innerWidth, window.innerHeight);
+  // const windowPoint3 = { x: 140, y:30 };
+  // const normalPoint3 = normalizeMouseCoordinates(windowPoint2.x, windowPoint2.y, window.innerWidth, window.innerHeight);
 
   it ("lifecycle STARTED", () => {
-    triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 });
+    triggerTouch({ ...windowPoint1, type: 'touchmove', id: 1 });
     execute();
 
     expect(input.data.has(DefaultInput.SCREENXY)).toBeTruthy();
@@ -174,25 +176,27 @@ describe.skip("movement", () => {
     expect(data1.value).toMatchObject([ normalPoint1.x, normalPoint1.y ]);
     expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
     expect(mockedBehaviorOnStarted.mock.calls.length).toBe(1);
-  })
+  });
 
   it ("lifecycle CHANGED", () => {
-    triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 })
+    triggerTouch({ ...windowPoint1, type: 'touchmove', id: 1 });
     execute();
-    triggerTouch({...windowPoint2, type: 'touchmove', id: 1 })
+    triggerTouch({...windowPoint2, type: 'touchmove', id: 1 });
     execute();
+    // triggerTouch({...windowPoint3, type: 'touchmove', id: 1 })
+    // execute();
 
     expect(input.data.has(DefaultInput.SCREENXY)).toBeTruthy();
     const data2 = input.data.get(DefaultInput.SCREENXY);
     expect(data2.value).toMatchObject([ normalPoint2.x, normalPoint2.y ]);
     expect(data2.lifecycleState).toBe(LifecycleValue.CHANGED);
-    expect(mockedBehaviorOnChanged.mock.calls.length).toBe(1)
-  })
+    expect(mockedBehaviorOnChanged.mock.calls.length).toBe(1);
+  });
 
   it ("lifecycle UNCHANGED", () => {
-    triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 })
+    triggerTouch({ ...windowPoint1, type: 'touchmove', id: 1 });
     execute();
-    triggerTouch({ ...windowPoint2, type: 'touchmove', id: 1 })
+    triggerTouch({ ...windowPoint2, type: 'touchmove', id: 1 });
     execute(); // changed
     execute(); // unchanged from previous execution
 
@@ -200,8 +204,8 @@ describe.skip("movement", () => {
     const data2 = input.data.get(DefaultInput.SCREENXY);
     expect(data2.value).toMatchObject([ normalPoint2.x, normalPoint2.y ]);
     expect(data2.lifecycleState).toBe(LifecycleValue.UNCHANGED);
-    expect(mockedBehaviorOnUnChanged.mock.calls.length).toBe(1)
-  })
+    expect(mockedBehaviorOnUnChanged.mock.calls.length).toBe(1);
+  });
 
   describe.skip("simultaneous", () => {
     it ("lifecycle STARTED", () => {
@@ -218,9 +222,9 @@ describe.skip("movement", () => {
       expect(data2.lifecycleState).toBe(LifecycleValue.STARTED);
 
       expect(mockedBehaviorOnStarted.mock.calls.length).toBe(2);
-    })
-  })
-})
+    });
+  });
+});
 
 // buttons + move
 describe("gestures", () => {
@@ -231,18 +235,18 @@ describe("gestures", () => {
 
   describe("touch", () => {
     it ("lifecycle STARTED", () => {
-      triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 })
+      triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 });
       execute();
 
       expect(input.data.has(DefaultInput.INTERACT)).toBeTruthy();
       const data1 = input.data.get(DefaultInput.INTERACT);
       expect(data1.value).toBe(BinaryValue.ON);
       expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
-      expect(mockedButtonBehaviorOnStarted.mock.calls.length).toBe(1)
-    })
+      expect(mockedButtonBehaviorOnStarted.mock.calls.length).toBe(1);
+    });
 
     it ("lifecycle CONTINUED", () => {
-      triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 })
+      triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 });
       execute();
       execute();
 
@@ -250,18 +254,18 @@ describe("gestures", () => {
       const data1 = input.data.get(DefaultInput.INTERACT);
       expect(data1.value).toBe(BinaryValue.ON);
       expect(data1.lifecycleState).toBe(LifecycleValue.CONTINUED);
-      expect(mockedButtonBehaviorOnContinued.mock.calls.length).toBe(1)
-    })
+      expect(mockedButtonBehaviorOnContinued.mock.calls.length).toBe(1);
+    });
 
     it ("lifecycle ENDED", () => {
-      triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 })
+      triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 });
       execute();
-      triggerTouch({ ...windowPoint1, type: 'touchend', id: 1 })
+      triggerTouch({ ...windowPoint1, type: 'touchend', id: 1 });
       execute();
 
       expect(input.data.has(DefaultInput.INTERACT)).toBeFalsy();
-      expect(mockedButtonBehaviorOnEnded.mock.calls.length).toBe(1)
-    })
+      expect(mockedButtonBehaviorOnEnded.mock.calls.length).toBe(1);
+    });
 
     describe.skip("simultaneous", () => {
       it ("lifecycle CONTINUED when second touch starts and ends", () => {
@@ -277,12 +281,12 @@ describe("gestures", () => {
         expect(data1.lifecycleState).toBe(LifecycleValue.CONTINUED);
 
         expect(mockedButtonBehaviorOnEnded.mock.calls.length).toBe(1);
-      })
-    })
-  })
+      });
+    });
+  });
   // zoom
   // TODO: check Scale(Pinch)
-})
+});
 
 function triggerTouch({ x, y, type, id = 0}: { x:number, y:number, type?:string, id?:number }):void {
   const touch = {
@@ -295,7 +299,7 @@ function triggerTouch({ x, y, type, id = 0}: { x:number, y:number, type?:string,
     touch
   ];
 
-  const typeListenerCall = addListenerMock.mock.calls.find(call => call[0] === type)
+  const typeListenerCall = addListenerMock.mock.calls.find(call => call[0] === type);
   typeListenerCall[1]({
     type,
     changedTouches: touches,
@@ -304,5 +308,5 @@ function triggerTouch({ x, y, type, id = 0}: { x:number, y:number, type?:string,
     view: window,
     cancelable: true,
     bubbles: true,
-  })
+  });
 }

@@ -29,16 +29,13 @@ export const handleTouch: Behavior = (entity: Entity, { event, value }: { event:
       //   ', y: ' +
       //   Math.trunc(args.event.targetTouches[0].clientY);
       const inputKeys = [ TouchInputs.Touch ];
-      // const interactTouch = DefaultInput.INTERACT;
+     
       inputKeys.forEach((inputKey, touchIndex) => {
         if (!event.targetTouches[touchIndex]) {
           return;
         }
         const mappedInputKey = input.schema.touchInputMap?.buttons[inputKey];
-        // const actionTouchedKey = input.schema.touchInputMap?.axes[interactTouch];
-        // console.log(mappedInputKey);
-        // console.log(actionTouchedKey);
-
+        
         if (!mappedInputKey) {
           return;
         }
@@ -50,12 +47,7 @@ export const handleTouch: Behavior = (entity: Entity, { event, value }: { event:
             value: inputValue,
             lifecycleState: LifecycleValue.STARTED
           });
-          // input.data.set(interactTouch, {
-          //   type: InputType.TWODIM,
-          //   value: inputValue,
-          //   lifecycleState: LifecycleValue.STARTED
-          // });
-
+          
         } else {
           // If mouse position set, check it's value
           const oldValue = input.data.get(mappedInputKey).value as number;
@@ -69,7 +61,7 @@ export const handleTouch: Behavior = (entity: Entity, { event, value }: { event:
         }
       });
     }
-    //console.log(s);
+    
   } else {
     const mappedInputKey = input.schema.touchInputMap?.buttons[TouchInputs.Touch];
 
