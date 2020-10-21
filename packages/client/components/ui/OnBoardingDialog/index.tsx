@@ -10,11 +10,11 @@ import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { generalStateList, setAppOnBoardingStep } from '../../../redux/app/actions';
 import store from '../../../redux/store';
 
-import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
-import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter';
 import UserSettings from '../Profile/UserSettings';
-import { setActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/setActorAvatar";
 import { CharacterAvatarData } from '@xr3ngine/engine/src/templates/character/CharacterAvatars'
+
+import { ArrowIosBackOutline } from '@styled-icons/evaicons-outline/ArrowIosBackOutline'
+import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline/ArrowIosForwardOutline'
 import styles from './OnBoardingDialog.module.scss';
 
 const mapStateToProps = (state: any): any => {
@@ -36,8 +36,6 @@ interface DialogProps{
   onAvatarChange?:any;
 }
 const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAvatarChange}:DialogProps) => {
-  // const [prevAvatarId, setPrevAvatarId] = useState(null);
-  // const [nextAvatarId, setNextAvatarId] = useState(null);
 
   useEffect(() => {
     Router.events.on('routeChangeStart', () => {
@@ -68,7 +66,6 @@ const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAv
   }
  
   recalculateAvatarsSteps(actorAvatarId);
-  console.log('actorAvatarId',actorAvatarId);
   
   let isOpened = false;
   let dialogText = '';
@@ -85,10 +82,10 @@ const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAv
           }
       case generalStateList.AVATAR_SELECTION: {
             isOpened= true; dialogText = 'Select Your Avatar'; submitButtonText = 'Accept';          
-            children = <div style={{ }}>
-              <button type={"button"} onClick={(): void => onAvatarChange(prevAvatarId)}>prev</button>
-              <button type={"button"} onClick={(): void => onAvatarChange(nextAvatarId)}>next</button>
-            </div>;
+            children = <section className={styles.selectionButtons}>
+                          <ArrowIosBackOutline onClick={(): void => onAvatarChange(prevAvatarId)} />
+                          <ArrowIosForwardOutline onClick={(): void => onAvatarChange(nextAvatarId)} />
+                        </section>;
             submitButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.AVATAR_SELECTED));
             break;
           }  
@@ -107,7 +104,12 @@ const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAv
   defineDialog();
 
   return (
-    <Dialog open={isOpened} onClose={handleClose} aria-labelledby="xr-dialog" className={styles.customDialog}>
+    <Dialog open={isOpened} onClose={handleClose} aria-labelledby="xr-dialog" 
+      classes={{
+        paper: styles.avatarDialog,
+      }}
+      BackdropProps={{ style: { backgroundColor: "transparent" } }}
+      className={styles.customDialog}>
       <DialogTitle disableTypography className={styles.dialogTitle}>
         { title && (<Typography variant="h6">{title}</Typography>)}
         {isCloseButton && (<IconButton
