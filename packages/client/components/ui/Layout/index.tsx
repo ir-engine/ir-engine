@@ -20,8 +20,9 @@ const siteTitle: string = publicRuntimeConfig.siteTitle;
 
 interface Props {
   authState?: any;
+  login?: boolean;
   pageTitle: string;
-  children: any;
+  children?: any;
 }
 const mapStateToProps = (state: any): any => {
   return {
@@ -32,7 +33,7 @@ const mapStateToProps = (state: any): any => {
 const mapDispatchToProps = (): any => ({});
 
 const Layout = (props: Props): any => {
-  const { pageTitle, children, authState } = props;
+  const { pageTitle, children, authState, login } = props;
   const authUser = authState.get('authUser');
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false);
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
@@ -51,9 +52,7 @@ const Layout = (props: Props): any => {
         {/* <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.slim.js" /> */}
       </Head>
       <header>
-        
-        {/* temporary hide NavMenu */}
-        {/* <NavMenu /> */}
+        <NavMenu login={login} />
         {authUser?.accessToken != null && authUser.accessToken.length > 0 && <PartyVideoWindows />}
       </header>
       <Fragment>

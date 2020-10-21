@@ -1,13 +1,15 @@
 import React, { useEffect } from 'react';
+//import './Admin.module.scss';
+import {Button} from '@material-ui/core';
 import NoSSR from 'react-no-ssr';
 import { connect } from "react-redux";
-import { bindActionCreators, Dispatch } from "redux";
-import Loading from '../components/scenes/loading';
-import Scene from "../components/scenes/scene";
+import {bindActionCreators, Dispatch} from "redux";
+import Loading from '../components/gl/loading';
+import Scene from "../components/gl/scene";
 import Layout from '../components/ui/Layout';
 import { selectAuthState } from "../redux/auth/selector";
-import { doLoginAuto } from '../redux/auth/service';
 import { selectInstanceConnectionState } from '../redux/instanceConnection/selector';
+import { doLoginAuto } from '../redux/auth/service';
 
 interface Props {
     authState?: any;
@@ -28,31 +30,13 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 export const IndexPage = (props: any): any => {
   const {
-    authState,
-    instanceConnectionState,
-    doLoginAuto
+    authState
   } = props;
-  const selfUser = authState.get('user');
-  const [ sceneIsVisible, setSceneVisible ] = React.useState(true);
-
-  useEffect(() => {
-      doLoginAuto(true);
-  }, []);
-
-  useEffect(() => {
-      if (selfUser?.instanceId != null || instanceConnectionState.get('instanceProvisioned') === true) {
-          setSceneVisible(true);
-      }
-  }, [selfUser?.instanceId, selfUser?.partyId, instanceConnectionState]);
 
   // <Button className="right-bottom" variant="contained" color="secondary" aria-label="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }}>scene</Button>
 
   return(
-    <Layout pageTitle="Home" login={false}>
-      <NoSSR onSSR={<Loading/>}>
-        {sceneIsVisible? (<Scene />) : null}
-      </NoSSR>
-    </Layout>
+    <Layout pageTitle="Home" login={true} />
   );
 };
 

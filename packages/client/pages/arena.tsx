@@ -92,7 +92,7 @@ export const IndexPage = (props: Props): any => {
   // <Button className="right-bottom" variant="contained" color="secondary" aria-label="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }}>scene</Button>
 
   return(
-    <Layout pageTitle="Home">
+    <Layout pageTitle="Home" login={false}>
       <NoSSR onSSR={<Loading/>}>
         {userBanned === false && sceneIsVisible ? (<Scene />) : null}
         {userBanned !== false ? (<div className="banned">You have been banned from this location</div>) : null}
