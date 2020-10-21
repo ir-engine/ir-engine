@@ -146,4 +146,5 @@ export class Engine {
   static vehicles: any;
   static lastTime: number;
   static tick = 0;
+  static viewportElement: HTMLElement;
 }
