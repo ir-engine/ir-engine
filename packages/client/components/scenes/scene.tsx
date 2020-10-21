@@ -21,7 +21,7 @@ import { AmbientLight, PCFSoftShadowMap, PointLight } from 'three';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import { generalStateList, setAppOnBoardingStep } from '../../redux/app/actions';
-import { selectAppOnBoardingStep } from '../../redux/app/selector';
+// import { selectAppOnBoardingStep } from '../../redux/app/selector';
 import { selectAuthState } from '../../redux/auth/selector';
 import { client } from '../../redux/feathers';
 import { selectInstanceConnectionState } from '../../redux/instanceConnection/selector';
@@ -34,8 +34,6 @@ import MediaIconsBox from "../ui/MediaIconsBox";
 import OnBoardingBox from "../ui/OnBoardingBox";
 import OnBoardingDialog from '../ui/OnBoardingDialog';
 import TooltipContainer from '../ui/TooltipContainer';
-// import { BeginnerBox } from '../beginnerBox';
-// import { RazerLaptop } from "@xr3ngine/engine/src/templates/devices/prefabs/RazerLaptop";
 import './style.module.scss';
 import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
 import { setActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/setActorAvatar";
@@ -47,7 +45,7 @@ const mapStateToProps = (state: any): any => {
     instanceConnectionState: selectInstanceConnectionState(state),
     authState: selectAuthState(state),
     partyState: selectPartyState(state),
-    onBoardingStep: selectAppOnBoardingStep(state)
+    // onBoardingStep: selectAppOnBoardingStep(state)
   };
 };
 
@@ -69,15 +67,11 @@ export const EnginePage: FunctionComponent = (props: any) => {
     partyState,
     connectToInstanceServer,
     provisionInstanceServer,
-    onBoardingStep
   } = props;
   const [actorEntity, setActorEntity] = useState(null);
   const [actorAvatarId, setActorAvatarId] = useState('Rose');
-
-  const [enabled, setEnabled] = useState(false);
   const [hoveredLabel, setHoveredLabel] = useState('');
   const [infoBoxData, setInfoBoxData] = useState(null);
-  // const [showControllHint, setShowControllHint] = useState(true);
   const [progressEntity, setProgressEntity] = useState('');
 
   const onObjectHover = (event: CustomEvent): void => {
@@ -97,13 +91,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   };
 
   const onCarActivation = (event: CustomEvent): void => {
-    // if (event.detail.inCar) {
-    //   setHintBoxData('car');
-    //   setHoveredLabel('');
-    // } else {
-    //   setHintBoxData('default');
-    // }
-    // setShowControllHint(true);
+    setHoveredLabel(event.detail.interactionText ? event.detail.interactionText : '');
   };
 
   //all scene entities is loaded 
@@ -238,9 +226,6 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const mobileGamepadProps = {hovered:hoveredLabel.length > 0, layout: 'default' };
   const mobileGamepad = isMobileOrTablet()? <MobileGamepad {...mobileGamepadProps} /> : null;
 
-  //info box with button
-  // const infoBox = !isMobileOrTablet() && infoBoxData ? <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} /> : null;
- 
   return (
     <>
     <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
