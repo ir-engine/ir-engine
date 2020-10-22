@@ -90,9 +90,8 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
   // Create a new world -- this holds all of our simulation state, entities, etc
   initialize();
 
-  // Input
-  if (options.input && options.input.enabled && isBrowser) {
-    registerSystem(InputSystem, { useWebXR: options.withWebXRInput });
+  if (isBrowser) {
+    Engine.viewportElement = document.body;
   }
 
   // Create a new three.js scene
@@ -177,6 +176,12 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
   // Rendering
   if (options.renderer && options.renderer.enabled) {
     registerSystem(WebGLRendererSystem, { priority: 999 });
+    Engine.viewportElement = Engine.renderer.domElement;
+  }
+
+  // Input
+  if (options.input && options.input.enabled && isBrowser) {
+    registerSystem(InputSystem, { useWebXR: options.withWebXRInput });
   }
 
   if (options.interactive && options.interactive.enabled) {
