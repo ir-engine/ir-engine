@@ -836,7 +836,7 @@ export default class Editor extends EventEmitter {
     object.saveParent = true;
 
     if (parent) {
-      if (before && parent.children) {
+      if (before) {
         const index = parent.children.indexOf(before);
 
         if (index === -1) {
