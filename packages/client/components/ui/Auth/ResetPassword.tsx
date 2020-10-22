@@ -5,6 +5,7 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import EmptyLayout from '../Layout/EmptyLayout';
 import { resetPassword } from '../../../redux/auth/service';
+import styles from './Auth.module.scss';
 
 interface Props {
   resetPassword: typeof resetPassword;
@@ -28,14 +29,14 @@ const ResetPassword = (props: Props): any => {
   return (
     <EmptyLayout>
       <Container component="main" maxWidth="xs">
-        <div className={'paper'}>
+        <div className={styles.paper}>
           <Typography component="h1" variant="h5">
             Reset Password
           </Typography>
           <Typography variant="body2" color="textSecondary" align="center">
             Please enter your password for your email address
           </Typography>
-          <form className={'form'} noValidate onSubmit={(e) => handleReset(e)}>
+          <form className={styles.form} noValidate onSubmit={(e) => handleReset(e)}>
             <TextField
               variant="outlined"
               margin="normal"
@@ -53,7 +54,7 @@ const ResetPassword = (props: Props): any => {
               fullWidth
               variant="contained"
               color="primary"
-              className={'submit'}
+              className={styles.submit}
             >
               Submit
             </Button>

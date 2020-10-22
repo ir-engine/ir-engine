@@ -43,7 +43,7 @@ export class PhysicsSystem extends System {
   dispose(): void {
     super.dispose();
 
-    PhysicsManager.instance.dispose();
+    PhysicsManager.instance?.dispose();
   }
 
   onExecute(delta: number): void {

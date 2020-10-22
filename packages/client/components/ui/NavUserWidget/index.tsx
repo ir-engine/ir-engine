@@ -7,7 +7,8 @@ import { logoutUser } from '../../../redux/auth/service';
 import { showDialog } from '../../../redux/dialog/service';
 import SignIn from '../Auth/Login';
 import Dropdown from '../Profile/ProfileDropdown';
-import './style.module.scss';
+import styles from './NavUserWidget.module.scss';
+import {Button} from '@material-ui/core';
 
 const mapStateToProps = (state: any): any => {
   return { auth: selectAuthState(state) };
@@ -24,14 +25,6 @@ interface Props {
   showDialog?: typeof showDialog;
 }
 
-const styles = {
-  loginButton: {
-    color: 'white',
-  },
-  logoutButton: {
-    color: 'white',
-  },
-};
 
 const NavUserBadge = (props: Props): any => {
   useEffect(() => {
@@ -55,9 +48,9 @@ const NavUserBadge = (props: Props): any => {
   // const userName = user && user.name
 
   return (
-    <div className="userWidget">
+    <div className={styles.userWidget}>
       {isLoggedIn && (
-        <div className="flex">
+        <div className={styles.flex}>
           <Dropdown
             avatarUrl={user && user.avatarUrl}
             auth={props.auth}
@@ -65,9 +58,9 @@ const NavUserBadge = (props: Props): any => {
           />
         </div>
       )}
-      {/* {!isLoggedIn && (
+      {!isLoggedIn && (
         <Button variant="contained" color="primary"
-          style={styles.loginButton}
+          className={styles.loginButton}
           onClick={() =>
             props.showDialog({
               children: <SignIn />,
@@ -76,7 +69,7 @@ const NavUserBadge = (props: Props): any => {
         >
           Log In
         </Button>
-      )} */}
+      )}
     </div>
   );
 };

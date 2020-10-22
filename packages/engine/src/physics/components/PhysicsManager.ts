@@ -21,7 +21,7 @@ export class PhysicsManager extends Component<any> {
     contactEquationRelaxation: 3,
     frictionEquationStiffness: 1e8
   })
-  
+
   /*
   trimMeshContactMaterial = new ContactMaterial(this.trimMeshMaterial, this.groundMaterial, {
     friction: 0.3,
@@ -68,7 +68,7 @@ export class PhysicsManager extends Component<any> {
          //if (body === Engine.actor
          //console.log("PH  UPD: body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape) }
      }};
-     //debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions);
+    // debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions);
   }
 
   dispose(): void {

@@ -43,18 +43,14 @@ class Content extends Component<any> {
     controller: null,
   };
 
-  componentWillMount = () => {
+  componentDidMount = () => {
+    // this.focusInput();
     const data = this.context.instances.find(i => i.id === this.props.id);
     let state = { prompt: this.props.prompt };
     if (data) {
       state = { ...state, ...data.oldData };
     }
     this.setState(state);
-  };
-
-  componentDidMount = () => {
-    this.focusInput();
-    const data = this.context.instances.find(i => i.id === this.props.id);
     this.unregister = this.props.register(this);
     if (!data || Object.keys(data.oldData).length === 0) {
       this.handleChange({ target: { value: 'show' }, key: 'Enter', dontShowCommand: true });

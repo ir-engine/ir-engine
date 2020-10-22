@@ -1,10 +1,11 @@
-import './style.module.scss';
+import styles from './VideoSeeker.module.scss';
 import React, { useState, useEffect } from 'react';
 // import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 // import PauseIcon from '@material-ui/icons/Pause'
 // import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import triggerNavigation from '@xr3ngine/common/utils/triggerNavigation';
 import secondsToString from '@xr3ngine/common/utils/secondsToString';
+import classNames from 'classnames';
 const playBtnImageSrc = '/icons/play-shadow.png';
 const pauseBtnImageSrc = '/icons/pause-shadow.png';
 const backBtnImageSrc = '/icons/back-btn-shadow.png';
@@ -41,22 +42,37 @@ const VideoSeeker = ({ playing, onTogglePlay, onSeekChange, videoLengthSeconds, 
   }} />;
   const timeRemaining = videoLengthSeconds - currentTimeSeconds;
   return (
-    <div className="VideoSeeker clickable">
-      <div className="seek-bar-container">
-        <div className="seek-bar full-bar" style={{
+    <div className={classNames({
+      [styles.VideoSeeker]: true,
+      [styles.clickable]: true
+    })}>
+      <div className={styles['seek-bar-container']}>
+        <div className={classNames({
+          [styles['seek-bar']]: true,
+          [styles['full-bar']]: true
+        })} style={{
           width: '100%'
         }} />
         {bufferedBars.map(({ start, end }, index) => <div
-          className="seek-bar buffer-bar"
+          className={classNames({
+            [styles['seek-bar']]: true,
+            [styles['buffer-bar']]: true
+          })}
           key={`buffered-bar${index}`}
           style={{
             left: `${start * 100}%`,
             width: `${(end - start) * 100}%`
           }} />)}
-        <div className="seek-bar current-time-bar" style={{
+        <div className={classNames({
+          [styles['seek-bar']]: true,
+          [styles['current-time-bar']]: true
+        })} style={{
           width: `${seekPercentage}%`
         }} />
-        <div className="seek-bar clickable-bar" onClick={e => {
+        <div className={classNames({
+          [styles['seek-bar']]: true,
+          [styles['clickable-bar']]: true
+        })} onClick={e => {
           if (typeof onSeekChange === 'function') {
             const rect = (e.target as HTMLElement).getBoundingClientRect();
             const left = rect.left;
@@ -66,16 +82,22 @@ const VideoSeeker = ({ playing, onTogglePlay, onSeekChange, videoLengthSeconds, 
           }
         }} />
       </div>
-      {(<div className="back-button-container video-control-button">
+      {(<div className={classNames({
+        [styles['back-button-container']]: true,
+        [styles['video-control-button']]: true
+      })}>
         {backButton}
       </div>)}
-      <div className="play-controls video-control-button">
+      <div className={classNames({
+        [styles['play-controls']]: true,
+        [styles['video-control-button']]: true
+      })}>
         {
           playing ? <PauseIcon onClick={() => onTogglePlay(false)} style={{ color: 'white' }} />
             : <PlayArrowIcon onClick={() => onTogglePlay(true)} style={{ color: 'white' }} />
         }
       </div>
-      {!playing && (<div className="time-remaining-text">
+      {!playing && (<div className={styles['time-remaining-text']}>
         {timeRemaining ? `-${secondsToString(timeRemaining)}` : ''}
       </div>)}
     </div>

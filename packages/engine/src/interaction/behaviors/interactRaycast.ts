@@ -39,7 +39,7 @@ export const interactRaycast: Behavior = (entity: Entity, { interactive }: Inter
       if (!hasComponent(interactiveEntity, Object3DComponent)) {
         return false;
       }
-      
+
       // - distance check
       // TODO: handle parent transform!!!
       const distance = getComponent(interactiveEntity, TransformComponent).position.distanceTo(clientPosition);
@@ -72,7 +72,7 @@ export const interactRaycast: Behavior = (entity: Entity, { interactive }: Inter
   raycaster.setFromCamera(rayMouse,rayCamera);
   let intersections = raycaster.intersectObjects(raycastList, true );
 
-/*  may come in handy in the future
+
 
   if (!intersections.length){
     const rayOrigin = clientPosition;
@@ -80,7 +80,7 @@ export const interactRaycast: Behavior = (entity: Entity, { interactive }: Inter
     raycaster.set(rayOrigin, rayDirection);
     intersections = raycaster.intersectObjects( raycastList, true );
   }
-*/
+
 
   if (intersections.length) {
     object = intersections[0].object;

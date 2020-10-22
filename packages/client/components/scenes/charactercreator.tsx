@@ -44,8 +44,6 @@ import {
   connectToInstanceServer,
   provisionInstanceServer,
 } from '../../redux/instanceConnection/service';
-import Terminal from '../terminal';
-import { commands, descriptions } from '../terminal/commands';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { Input } from '@xr3ngine/engine/src/input/components/Input';
 import { LocalInputReceiver } from '@xr3ngine/engine/src/input/components/LocalInputReceiver';
@@ -252,30 +250,6 @@ export const CharacterCreatorPage: FunctionComponent = (props: any) => {
     }
   };
 
-  const terminal = enabled ? (
-    <Terminal
-      color="green"
-      backgroundColor="black"
-      // allowTabs={false}
-      allowTabs={true}
-      startState="maximised"
-      showCommands={true}
-      style={{
-        fontWeight: 'bold',
-        fontSize: '1em',
-        position: 'fixed',
-        bottom: '0',
-        width: '100%',
-        // Height is set in termimal itself depending is it expanded.
-        // height: "30%",
-        zIndex: 4000,
-      }}
-      commands={commands}
-      description={descriptions}
-      msg="Interactive terminal. Please consult the manual for commands."
-    />
-  ) : null;
-
   const mobileGamepad = isMobileOrTablet() ? <MobileGamepad /> : null;
 
   const hoveredLabelElement = hoveredLabel.length ? (
@@ -294,7 +268,6 @@ export const CharacterCreatorPage: FunctionComponent = (props: any) => {
   return (
     <>
       {hoveredLabelElement}
-      {terminal}
       {mobileGamepad}
     </>
   );
