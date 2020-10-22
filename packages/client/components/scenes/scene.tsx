@@ -20,7 +20,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { AmbientLight, PCFSoftShadowMap, PointLight } from 'three';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
-import { generalStateList, setAppOnBoardingStep } from '../../redux/app/actions';
+import { generalStateList, setAppOnBoardingStep, setAppLoaded } from '../../redux/app/actions';
 // import { selectAppOnBoardingStep } from '../../redux/app/selector';
 import { selectAuthState } from '../../redux/auth/selector';
 import { client } from '../../redux/feathers';
@@ -43,32 +43,18 @@ const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => m
 
 const mapStateToProps = (state: any): any => {
   return {
-    instanceConnectionState: selectInstanceConnectionState(state),
-    authState: selectAuthState(state),
-    partyState: selectPartyState(state),
     onBoardingStep: selectAppOnBoardingStep(state)
   };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  provisionInstanceServer: bindActionCreators(
-    provisionInstanceServer,
-    dispatch
-  ),
-  connectToInstanceServer: bindActionCreators(
-    connectToInstanceServer,
-    dispatch
-  ),
+  setAppLoaded: bindActionCreators(setAppLoaded, dispatch)
 });
 
 export const EnginePage: FunctionComponent = (props: any) => {
   const {
-    authState,
-    instanceConnectionState,
-    partyState,
-    connectToInstanceServer,
-    provisionInstanceServer,
-    onBoardingStep
+    onBoardingStep,
+    setAppLoaded
   } = props;
   const [actorEntity, setActorEntity] = useState(null);
   const [actorAvatarId, setActorAvatarId] = useState('Rose');
@@ -99,7 +85,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
   //all scene entities is loaded 
   const onSceneLoaded= (event: CustomEvent): void => {
     if (event.detail.loaded) {
-      store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));      
+      store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
+      setAppLoaded(true);
     }
   };
 
@@ -195,33 +182,6 @@ export const EnginePage: FunctionComponent = (props: any) => {
       //document.location.reload();
       resetEngine();
     };
-  }, []);
-
-  useEffect(() => {
-    if (
-      instanceConnectionState.get('instanceProvisioned') === true &&
-      instanceConnectionState.get('updateNeeded') === true &&
-      instanceConnectionState.get('instanceServerConnecting') === false &&
-      instanceConnectionState.get('connected') === false
-    ) {
-      console.log('Calling connectToInstanceServer');
-      connectToInstanceServer();
-    }
-  }, [instanceConnectionState]);
-
-  useEffect(() => {
-    if (instanceConnectionState.get('instanceProvisioned') === false && instanceConnectionState.get('instanceProvisioning') === false) {
-      const user = authState.get('user');
-      const party = partyState.get('party');
-      const instanceId = user.instanceId != null ? user.instanceId : party.instanceId != null ? party.instanceId: null;
-      if (instanceId != null) {
-        client.service('instance').get(instanceId)
-            .then((instance) => {
-              console.log('Provisioning instance from scene init useEffect');
-              provisionInstanceServer(instance.locationId);
-            });
-      }
-    }
   }, []);
 
   //mobile gamepad

@@ -117,11 +117,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.videoEnabled = videoEnabled ?? false;
 
     if (process.env.NODE_ENV === 'development') {
-      this.socket = io(`${address as string}:${port.toString()}`, {
+      this.socket = ioclient(`${address as string}:${port.toString()}`, {
         query: query
       });
     } else {
-      this.socket = io(gameserver, {
+      this.socket = ioclient(gameserver, {
         path: `/socket.io/${address as string}/${port.toString()}`,
         query: query
       });
