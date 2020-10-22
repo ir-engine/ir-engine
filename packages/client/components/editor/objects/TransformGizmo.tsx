@@ -1,5 +1,4 @@
 import { Object3D, Color, Vector3, Raycaster } from "three";
-// @ts-ignore
 import cloneObject3D from "../utils/cloneObject3D";
 import { TransformMode, TransformAxis } from "../controls/EditorControls";
 import { GLTFLoader } from "../gltf/GLTFLoader";
@@ -212,7 +211,7 @@ export default class TransformGizmo extends Object3D {
     this.transformMode = TransformMode.Disabled;
     this.model.traverse(obj => {
       if (obj.isMesh) {
-        obj.layers.set(1);
+        // obj.layers.set(1);
         obj.material.depthTest = false;
         obj.material.depthWrite = false;
         obj.renderOrder = 100;
@@ -257,7 +256,7 @@ export default class TransformGizmo extends Object3D {
       return undefined;
     }
     this.raycasterResults.length = 0;
-    raycaster.intersectObject(this.activeControls, true, this.raycasterResults);
+    this.raycasterResults = raycaster.intersectObject(this.activeControls, true, this.raycasterResults);
     const axisResult = this.raycasterResults.find(
       result => result.object.axisInfo !== undefined
     );
@@ -276,7 +275,7 @@ export default class TransformGizmo extends Object3D {
     }
     return newAxisInfo.axis;
   }
-  highlightHoveredAxis(raycaster) {
+  highlightHoveredAxis(raycaster: Raycaster) {
     if (!this.activeControls) {
       return undefined;
     }
@@ -284,7 +283,7 @@ export default class TransformGizmo extends Object3D {
       this.hoveredAxis.axisInfo.selectionColorTarget.opacity = 0.5;
     }
     this.raycasterResults.length = 0;
-    raycaster.intersectObject(this.activeControls, true, this.raycasterResults);
+    this.raycasterResults = raycaster.intersectObject(this.activeControls, true, this.raycasterResults);
     const axisResult = this.raycasterResults.find(
       result => result.object.axisInfo !== undefined
     );
@@ -307,6 +306,7 @@ export default class TransformGizmo extends Object3D {
       this.selectedAxis = undefined;
     }
   }
+  /** @ts-ignore */
   clone() {
     // You can only have one instance of TransformControls so return a dummy object when cloning.
     return new Object3D().copy(this);
