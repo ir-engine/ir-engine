@@ -34,7 +34,6 @@ import MediaIconsBox from "../ui/MediaIconsBox";
 import OnBoardingBox from "../ui/OnBoardingBox";
 import OnBoardingDialog from '../ui/OnBoardingDialog';
 import TooltipContainer from '../ui/TooltipContainer';
-import './style.module.scss';
 import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
 import { setActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/setActorAvatar";
 import { selectAppOnBoardingStep } from '../../redux/app/selector';
@@ -104,8 +103,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
   };
 
   useEffect(() => {
-    console.log('actorEntity',actorEntity)
-    console.log('actorAvatarId',actorAvatarId)
+    console.log('actorEntity',actorEntity);
+    console.log('actorAvatarId',actorAvatarId);
     if (actorEntity) {
       setActorAvatar(actorEntity, {avatarId: actorAvatarId});
     }
@@ -191,7 +190,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   return (
     <>
     <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
-    <OnBoardingDialog avatarsList={CharacterAvatars} actorAvatarId={actorAvatarId} onAvatarChange={(avatarId) => {setActorAvatarId(avatarId) }} />
+    <OnBoardingDialog avatarsList={CharacterAvatars} actorAvatarId={actorAvatarId} onAvatarChange={(avatarId) => {setActorAvatarId(avatarId); }} />
     <OnBoardingBox />
     <MediaIconsBox />
     <TooltipContainer message={hoveredLabel.length > 0 ? hoveredLabel : ''} />

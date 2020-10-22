@@ -3,7 +3,7 @@ import nipplejs from 'nipplejs';
 import { Thumbsticks } from '@xr3ngine/engine/src/common/enums/Thumbsticks';
 import { GamepadButtons } from "@xr3ngine/engine/src/input/enums/GamepadButtons";
 import styles from './MobileGamepad.module.scss';
-import { TouchApp } from '@styled-icons/material/TouchApp'
+import { TouchApp } from '@styled-icons/material/TouchApp';
 
 export type MobileGamepadProps = {
   hovered?: boolean | false;
@@ -76,7 +76,7 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered,l
       <div className={styles.controlButtonContainer}>
         { buttons }
       </div>
-    </> )
+    </> );
 };
 
 export default MobileGamepad;
