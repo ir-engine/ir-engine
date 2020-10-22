@@ -159,71 +159,115 @@ afterEach(() => {
 //  another Input type should be triggered by two touches, but SCREENXY doesn't
 
 // move
-describe("movement", () => {
+describe("move", () => {
   const windowPoint1 = { x: 100, y:20 };
   const normalPoint1 = normalizeMouseCoordinates(windowPoint1.x, windowPoint1.y, window.innerWidth, window.innerHeight);
   const windowPoint2 = { x: 120, y:25 };
   const normalPoint2 = normalizeMouseCoordinates(windowPoint2.x, windowPoint2.y, window.innerWidth, window.innerHeight);
+  const normalDiff = { x: normalPoint2.x - normalPoint1.x, y: normalPoint2.y - normalPoint1.y };
   // const windowPoint3 = { x: 140, y:30 };
   // const normalPoint3 = normalizeMouseCoordinates(windowPoint2.x, windowPoint2.y, window.innerWidth, window.innerHeight);
 
-  it ("lifecycle STARTED", () => {
-    triggerTouch({ ...windowPoint1, type: 'touchmove', id: 1 });
-    execute();
-
-    expect(input.data.has(DefaultInput.SCREENXY)).toBeTruthy();
-    const data1 = input.data.get(DefaultInput.SCREENXY);
-    expect(data1.value).toMatchObject([ normalPoint1.x, normalPoint1.y ]);
-    expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
-    expect(mockedBehaviorOnStarted.mock.calls.length).toBe(1);
-  });
-
-  it ("lifecycle CHANGED", () => {
-    triggerTouch({ ...windowPoint1, type: 'touchmove', id: 1 });
-    execute();
-    triggerTouch({...windowPoint2, type: 'touchmove', id: 1 });
-    execute();
-    // triggerTouch({...windowPoint3, type: 'touchmove', id: 1 })
-    // execute();
-
-    expect(input.data.has(DefaultInput.SCREENXY)).toBeTruthy();
-    const data2 = input.data.get(DefaultInput.SCREENXY);
-    expect(data2.value).toMatchObject([ normalPoint2.x, normalPoint2.y ]);
-    expect(data2.lifecycleState).toBe(LifecycleValue.CHANGED);
-    expect(mockedBehaviorOnChanged.mock.calls.length).toBe(1);
-  });
-
-  it ("lifecycle UNCHANGED", () => {
-    triggerTouch({ ...windowPoint1, type: 'touchmove', id: 1 });
-    execute();
-    triggerTouch({ ...windowPoint2, type: 'touchmove', id: 1 });
-    execute(); // changed
-    execute(); // unchanged from previous execution
-
-    expect(input.data.has(DefaultInput.SCREENXY)).toBeTruthy();
-    const data2 = input.data.get(DefaultInput.SCREENXY);
-    expect(data2.value).toMatchObject([ normalPoint2.x, normalPoint2.y ]);
-    expect(data2.lifecycleState).toBe(LifecycleValue.UNCHANGED);
-    expect(mockedBehaviorOnUnChanged.mock.calls.length).toBe(1);
-  });
-
-  describe.skip("simultaneous", () => {
+  describe("position", () => {
     it ("lifecycle STARTED", () => {
-      triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 });
-      triggerTouch({ ...windowPoint2, type: 'touchstart', id: 2 });
+      triggerTouch({ ...windowPoint1, type: 'touchmove', id: 1 });
       execute();
 
+      expect(input.data.has(DefaultInput.SCREENXY)).toBeTruthy();
       const data1 = input.data.get(DefaultInput.SCREENXY);
       expect(data1.value).toMatchObject([ normalPoint1.x, normalPoint1.y ]);
       expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
-
-      const data2 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
-      expect(data2.value).toMatchObject([ normalPoint2.x, normalPoint2.y ]);
-      expect(data2.lifecycleState).toBe(LifecycleValue.STARTED);
-
-      expect(mockedBehaviorOnStarted.mock.calls.length).toBe(2);
+      expect(mockedBehaviorOnStarted.mock.calls.length).toBe(1);
     });
-  });
+
+    it ("lifecycle CHANGED", () => {
+      triggerTouch({ ...windowPoint1, type: 'touchmove', id: 1 });
+      execute();
+      triggerTouch({...windowPoint2, type: 'touchmove', id: 1 });
+      execute();
+      // triggerTouch({...windowPoint3, type: 'touchmove', id: 1 })
+      // execute();
+
+      expect(input.data.has(DefaultInput.SCREENXY)).toBeTruthy();
+      const data2 = input.data.get(DefaultInput.SCREENXY);
+      expect(data2.value).toMatchObject([ normalPoint2.x, normalPoint2.y ]);
+      expect(data2.lifecycleState).toBe(LifecycleValue.CHANGED);
+      expect(mockedBehaviorOnChanged.mock.calls.length).toBe(1);
+    });
+
+    it ("lifecycle UNCHANGED", () => {
+      triggerTouch({ ...windowPoint1, type: 'touchmove', id: 1 });
+      execute();
+      triggerTouch({ ...windowPoint2, type: 'touchmove', id: 1 });
+      execute(); // changed
+      execute(); // unchanged from previous execution
+
+      expect(input.data.has(DefaultInput.SCREENXY)).toBeTruthy();
+      const data2 = input.data.get(DefaultInput.SCREENXY);
+      expect(data2.value).toMatchObject([ normalPoint2.x, normalPoint2.y ]);
+      expect(data2.lifecycleState).toBe(LifecycleValue.UNCHANGED);
+      expect(mockedBehaviorOnUnChanged.mock.calls.length).toBe(1);
+    });
+
+    describe.skip("simultaneous", () => {
+      it ("lifecycle STARTED", () => {
+        triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 });
+        triggerTouch({ ...windowPoint2, type: 'touchstart', id: 2 });
+        execute();
+
+        const data1 = input.data.get(DefaultInput.SCREENXY);
+        expect(data1.value).toMatchObject([ normalPoint1.x, normalPoint1.y ]);
+        expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
+
+        const data2 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+        expect(data2.value).toMatchObject([ normalPoint2.x, normalPoint2.y ]);
+        expect(data2.lifecycleState).toBe(LifecycleValue.STARTED);
+
+        expect(mockedBehaviorOnStarted.mock.calls.length).toBe(2);
+      });
+    });
+  })
+
+  describe("movement", () => {
+    it ("lifecycle STARTED", () => {
+      triggerTouch({ ...windowPoint1, type: 'touchmove', id: 1 });
+      execute();
+
+      expect(input.data.has(DefaultInput.LOOKTURN_PLAYERONE)).toBeTruthy();
+      const data1 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+      expect(data1.value).toMatchObject([ 0, 0 ]);
+      expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
+      //expect(mockedBehaviorOnStarted.mock.calls.length).toBe(1);
+    });
+
+    it ("lifecycle CHANGED", () => {
+      triggerTouch({ ...windowPoint1, type: 'touchmove', id: 1 });
+      execute();
+      triggerTouch({...windowPoint2, type: 'touchmove', id: 1 });
+      execute();
+
+      expect(input.data.has(DefaultInput.LOOKTURN_PLAYERONE)).toBeTruthy();
+      const data2 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+      expect(data2.value).toMatchObject([ normalDiff.x, normalDiff.y ]);
+      expect(data2.lifecycleState).toBe(LifecycleValue.CHANGED);
+      // expect(mockedBehaviorOnChanged.mock.calls.length).toBe(1);
+    });
+
+    it ("lifecycle UNCHANGED", () => {
+      triggerTouch({ ...windowPoint1, type: 'touchmove', id: 1 });
+      execute();
+      triggerTouch({ ...windowPoint2, type: 'touchmove', id: 1 });
+      execute(); // changed
+      execute(); // unchanged from previous execution
+
+      expect(input.data.has(DefaultInput.LOOKTURN_PLAYERONE)).toBeTruthy();
+      const data2 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+      expect(data2.value).toMatchObject([ normalDiff.x, normalDiff.y ]);
+      expect(data2.lifecycleState).toBe(LifecycleValue.UNCHANGED);
+      //expect(mockedBehaviorOnUnChanged.mock.calls.length).toBe(1);
+    });
+
+  })
 });
 
 // buttons + move
