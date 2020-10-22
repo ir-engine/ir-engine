@@ -45,7 +45,7 @@ export const initializeCharacter: Behavior = (entity): void => {
 		});
 
 		actor.mixer = new AnimationMixer(actor.modelContainer);
-		actor.mixer.timeScale = 0.7;
+		actor.mixer.timeScale = actor.animationsTimeScale;
 
 
 		actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
@@ -56,13 +56,14 @@ export const initializeCharacter: Behavior = (entity): void => {
 		// Physics
 		// Player Capsule
 		addComponent(entity, CapsuleCollider as any, {
-			mass: 1,
-			position: new Vec3(),
-			height: 1,
-			radius: 0.25,
-			segments: 8,
-			friction: 0.0
+			mass: actor.actorMass,
+			position: actor.capsulePosition,
+			height: actor.actorHeight,
+			radius: actor.capsuleRadius,
+			segments: actor.capsuleSegments,
+			friction: actor.capsuleFriction
 		});
+
 		actor.actorCapsule = getMutableComponent<CapsuleCollider>(entity, CapsuleCollider);
 		actor.actorCapsule.body.shapes.forEach((shape) => {
 			shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
@@ -89,8 +90,8 @@ export const initializeCharacter: Behavior = (entity): void => {
 			color: 0xff0000
 		});
 		actor.raycastBox = new Mesh(boxGeo, boxMat);
-		actor.raycastBox.visible = true;
-		Engine.scene.add(actor.raycastBox);
+		//actor.raycastBox.visible = true;
+		//Engine.scene.add(actor.raycastBox);
 		PhysicsManager.instance.physicsWorld.addBody(actor.actorCapsule.body);
 
 		// Physics pre/post step callback bindings

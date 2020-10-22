@@ -1,19 +1,14 @@
+import { Object3D, Ray, Raycaster, Vector3, Vector2, Mesh, Frustum, Matrix4, Box3 } from "three";
 import { Behavior } from "../../common/interfaces/Behavior";
 import { Entity } from "../../ecs/classes/Entity";
 import { InteractBehaviorArguments } from "../types";
-import { getComponent, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
+import { getComponent, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";\
 
-import { Object3D, Ray, Raycaster, Vector3, Vector2, Mesh, Frustum, Matrix4, Box3 } from "three";
 import { Object3DComponent } from "../../common/components/Object3DComponent";
 import { Interactive } from "../components/Interactive";
+import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { Interacts } from "../components/Interacts";
 import { Engine } from "../../ecs/classes/Engine";
-
-const rx1 = -0.1; // first right x point of screen, two-dimensional square on the screen, hitting which the interactive objects are highlighted
-const ry1 = -0.1; // first right y point of screen
-const rx2 = 0.1; // second right x point of screen
-const ry2 = 0.1; // second right y point of screen
-const farDistance = 5; // distance to which interactive objects from the camera will be highlighted
 
 /**
  * Checks if entity can interact with any of entities listed in 'interactive' array, checking distance, guards and raycast
@@ -23,6 +18,10 @@ const farDistance = 5; // distance to which interactive objects from the camera 
  */
 
 export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:InteractBehaviorArguments, delta: number): void => {
+
+  if (!hasComponent(entity, FollowCameraComponent)) return;
+  const followCamera = getComponent(entity, FollowCameraComponent);
+  if (!followCamera.raycastBoxOn) return;
 
   const raycastList:Array<Object3D> = interactive
     .filter(interactiveEntity => {
@@ -40,7 +39,15 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:Int
     return;
   }
 
-  const projectionMatrix = new Matrix4().makePerspective( rx1, rx2, ry1, ry2, Engine.camera.near, farDistance );
+  const projectionMatrix = new Matrix4().makePerspective(
+    followCamera.rx1,
+    followCamera.rx2,
+    followCamera.ry1,
+    followCamera.ry2,
+    Engine.camera.near,
+    followCamera.farDistance
+  );
+
   Engine.camera.updateMatrixWorld();
   Engine.camera.matrixWorldInverse.getInverse( Engine.camera.matrixWorld );
 
@@ -49,13 +56,15 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:Int
 
   const subFocusedArray = raycastList.filter(scene => {
     const child:any = scene.children[0];
+    const aabb = new Box3();
     if (child instanceof Mesh) {
-      return frustum.intersectsBox(child.geometry.boundingBox);
+      aabb.copy(child.geometry.boundingBox);
+      aabb.applyMatrix4( child.matrixWorld );
     } else
     if (child instanceof Object3D) {
-     const aabb = new Box3().setFromObject( child );
-     return frustum.intersectsBox(aabb);
-   }
+     aabb.setFromObject( child );
+    }
+    return frustum.intersectsBox(aabb);
   })
 
   const interacts = getMutableComponent(entity, Interacts);
