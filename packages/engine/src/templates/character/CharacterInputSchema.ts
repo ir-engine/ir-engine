@@ -37,10 +37,11 @@ export const CharacterInputSchema: InputSchema = {
   // Map gamepad buttons to abstract input
   gamepadInputMap: {
     buttons: {
-      [GamepadButtons.A]: DefaultInput.JUMP,
-      [GamepadButtons.B]: DefaultInput.CROUCH, // B - back
-      [GamepadButtons.X]: DefaultInput.SPRINT, // X - secondary input
-      [GamepadButtons.Y]: DefaultInput.INTERACT, // Y - tertiary input
+      [GamepadButtons.A]: DefaultInput.INTERACT,
+      // [GamepadButtons.A]: DefaultInput.JUMP,
+      // [GamepadButtons.B]: DefaultInput.CROUCH, // B - back
+      // [GamepadButtons.X]: DefaultInput.SPRINT, // X - secondary input
+      // [GamepadButtons.Y]: DefaultInput.INTERACT, // Y - tertiary input
       // 4: DefaultInput.DEFAULT, // LB
       // 5: DefaultInput.DEFAULT, // RB
       // 6: DefaultInput.DEFAULT, // LT

@@ -1,8 +1,9 @@
-import React, { CSSProperties, FunctionComponent, useEffect, useRef, useState } from 'react';
+import React, { FunctionComponent, useEffect, useRef } from 'react';
 import nipplejs from 'nipplejs';
 import { Thumbsticks } from '@xr3ngine/engine/src/common/enums/Thumbsticks';
 import { GamepadButtons } from "@xr3ngine/engine/src/input/enums/GamepadButtons";
 import styles from './MobileGamepad.module.scss';
+import { TouchApp } from '@styled-icons/material/TouchApp'
 
 export type MobileGamepadProps = {
   hovered?: boolean | false;
@@ -18,48 +19,34 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered,l
     document.dispatchEvent(event);
   };
 
-  // const buttonsConfig: Array<{ button: GamepadButtons; label: string }> = [
-  //   {
-  //     button: GamepadButtons.A,
-  //     label: "A",
-  //   },
-  //   {
-  //     button: GamepadButtons.B,
-  //     label: "B",
-  //   },
-  //   {
-  //     button: GamepadButtons.X,
-  //     label: "X",
-  //   },
-  //   {
-  //     button: GamepadButtons.Y,
-  //     label: "Y",
-  //   },
-  // ];
+  const buttonsConfig: Array<{ button: GamepadButtons; label: string }> = [
+    {
+      button: GamepadButtons.A,
+      label: "A",
+    },
+  ];
 
-  // const buttons = buttonsConfig.map(((value, index) => {
-  //   let buttonClassName = "controllButton gamepadButton_"+value.label;
-  //   buttonClassName += value.label === 'Y' && hovered ? ' _available' : value.label === 'A' && layout !== 'default' ? '_not_available' :'';
-  //   return (<div
-  //     key={index}
-  //     className={ buttonClassName }
-  //     onPointerDown={ (): void => triggerButton(value.button, true) }
-  //     onPointerUp={ (): void => triggerButton(value.button, false) }
-  //     onTouchStart={ (): void => triggerButton(value.button, true) }
-  //     onTouchEnd={ (): void => triggerButton(value.button, false) }
-  //   >{ value.label }</div>);
-  // }));
+  const buttons = buttonsConfig.map(((value, index) => {
+    return (<div
+      key={index}
+      className={styles.controllButton + ' ' + styles[`gamepadButton_${value.label}`] + ' ' + (hovered ? styles.availableButton : styles.notAvailableButton)}
+      onPointerDown={ (): void => triggerButton(value.button, true) }
+      onPointerUp={ (): void => triggerButton(value.button, false) }
+      onTouchStart={ (): void => triggerButton(value.button, true) }
+      onTouchEnd={ (): void => triggerButton(value.button, false) }
+    ><TouchApp /></div>);
+  }));
 
   useEffect(() => {
     // mount
-    const size = window.innerHeight * 0.4;
-    const bottom = window.innerHeight * 0.25;
+    const size = window.innerHeight * 0.15;
+    const bottom = window.innerHeight * 0.1;
 
     const stickLeft = nipplejs.create({
       zone: leftContainer.current,
       mode: 'static',
       position: { left: '40%', bottom: bottom + 'px' },
-      color: 'green',
+      color: 'white',      
       size: size,
       dynamicPage: true
     });
@@ -80,16 +67,16 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered,l
     };
   }, []);
 
-  return (
-    <>
+
+  return   (<>
       <div
         className={styles.stickLeft}
         ref={leftContainer}
        />
-      {/* <div className={styles.controlButtonContainer}>
+      <div className={styles.controlButtonContainer}>
         { buttons }
-      </div> */}
-    </>);
+      </div>
+    </> )
 };
 
 export default MobileGamepad;
