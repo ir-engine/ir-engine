@@ -9,6 +9,7 @@ import { createEntity, /*getComponent,*/ getMutableComponent } from '@xr3ngine/e
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { CarController } from '@xr3ngine/engine/src/templates/car/prefabs/CarController';
+import { PlayerCharacter } from "../../../engine/src/templates/character/prefabs/PlayerCharacter";
 import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
@@ -20,7 +21,7 @@ import { AmbientLight, PCFSoftShadowMap, PointLight } from 'three';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import { generalStateList, setAppOnBoardingStep } from '../../redux/app/actions';
-import { selectAppOnBoardingStep } from '../../redux/app/selector';
+// import { selectAppOnBoardingStep } from '../../redux/app/selector';
 import { selectAuthState } from '../../redux/auth/selector';
 import { client } from '../../redux/feathers';
 import { selectInstanceConnectionState } from '../../redux/instanceConnection/selector';
@@ -33,9 +34,9 @@ import MediaIconsBox from "../ui/MediaIconsBox";
 import OnBoardingBox from "../ui/OnBoardingBox";
 import OnBoardingDialog from '../ui/OnBoardingDialog';
 import TooltipContainer from '../ui/TooltipContainer';
-// import { BeginnerBox } from '../beginnerBox';
-// import { RazerLaptop } from "@xr3ngine/engine/src/templates/devices/prefabs/RazerLaptop";
 import './style.module.scss';
+import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
+import { setActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/setActorAvatar";
 
 const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
@@ -44,7 +45,7 @@ const mapStateToProps = (state: any): any => {
     instanceConnectionState: selectInstanceConnectionState(state),
     authState: selectAuthState(state),
     partyState: selectPartyState(state),
-    onBoardingStep: selectAppOnBoardingStep(state)
+    // onBoardingStep: selectAppOnBoardingStep(state)
   };
 };
 
@@ -66,12 +67,11 @@ export const EnginePage: FunctionComponent = (props: any) => {
     partyState,
     connectToInstanceServer,
     provisionInstanceServer,
-    onBoardingStep
   } = props;
-  const [enabled, setEnabled] = useState(false);
+  const [actorEntity, setActorEntity] = useState(null);
+  const [actorAvatarId, setActorAvatarId] = useState('Rose');
   const [hoveredLabel, setHoveredLabel] = useState('');
   const [infoBoxData, setInfoBoxData] = useState(null);
-  // const [showControllHint, setShowControllHint] = useState(true);
   const [progressEntity, setProgressEntity] = useState('');
 
   const onObjectHover = (event: CustomEvent): void => {
@@ -91,13 +91,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   };
 
   const onCarActivation = (event: CustomEvent): void => {
-    // if (event.detail.inCar) {
-    //   setHintBoxData('car');
-    //   setHoveredLabel('');
-    // } else {
-    //   setHintBoxData('default');
-    // }
-    // setShowControllHint(true);
+    setHoveredLabel(event.detail.interactionText ? event.detail.interactionText : '');
   };
 
   //all scene entities is loaded 
@@ -120,6 +114,13 @@ export const EnginePage: FunctionComponent = (props: any) => {
     document.addEventListener('scene-loaded-entity', onSceneLoadedEntity);
   };
 
+  useEffect(() => {
+    console.log('actorEntity',actorEntity)
+    console.log('actorAvatarId',actorAvatarId)
+    if (actorEntity) {
+      setActorAvatar(actorEntity, {avatarId: actorAvatarId});
+    }
+  }, [ actorEntity, actorAvatarId ]);
 
   useEffect(() => {
     console.log('initializeEngine!');
@@ -176,14 +177,10 @@ export const EnginePage: FunctionComponent = (props: any) => {
     );
     cameraTransform.position.set(0, 1.2, 3);
 
-    // createPrefab(WorldPrefab);
     createPrefab(staticWorldColliders);
-    // createPrefab(JoystickPrefab);
-//  setTimeout(() => {
-    // createPrefab(rigidBodyBox);
-    // createPrefab(rigidBodyBox2);
-    // createPrefab(RazerLaptop);
     createPrefab(CarController);
+    const actorEntity = createPrefab(PlayerCharacter);
+    setActorEntity(actorEntity);
 
     return (): void => {
       document.removeEventListener('object-hover', onObjectHover);
@@ -229,13 +226,10 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const mobileGamepadProps = {hovered:hoveredLabel.length > 0, layout: 'default' };
   const mobileGamepad = isMobileOrTablet()? <MobileGamepad {...mobileGamepadProps} /> : null;
 
-  //info box with button
-  // const infoBox = !isMobileOrTablet() && infoBoxData ? <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} /> : null;
- 
   return (
     <>
     <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
-    <OnBoardingDialog />
+    <OnBoardingDialog avatarsList={CharacterAvatars} actorAvatarId={actorAvatarId} onAvatarChange={(avatarId) => {setActorAvatarId(avatarId) }} />
     <OnBoardingBox />
     <MediaIconsBox />
     <TooltipContainer message={hoveredLabel.length > 0 ? hoveredLabel : ''} />
