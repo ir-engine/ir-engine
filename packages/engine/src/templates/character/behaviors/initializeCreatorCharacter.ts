@@ -7,7 +7,7 @@ import { CapsuleCollider } from "../../../physics/components/CapsuleCollider";
 import { RelativeSpringSimulator } from "../../../physics/classes/RelativeSpringSimulator";
 import { VectorSpringSimulator } from "../../../physics/classes/VectorSpringSimulator";
 import { CollisionGroups } from "../../../physics/enums/CollisionGroups";
-import { addState } from "../../../state/behaviors/StateBehaviors";
+import { addState } from "../../../state/behaviors/addState";
 import { CharacterComponent } from "../components/CharacterComponent";
 import { CharacterStateTypes } from "../CharacterStateTypes";
 import { Engine } from "../../../ecs/classes/Engine";
@@ -101,7 +101,7 @@ export const initializeCreatorCharacter: Behavior = (entity): void => {
         addComponent(entity, CapsuleCollider as any, {
             mass: 1,
             position: new Vec3(),
-            actor_height: 0.5,
+            height: 0.5,
             radius: 0.25,
             segments: 8,
             friction: 0.0

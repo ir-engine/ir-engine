@@ -13,7 +13,7 @@ import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfM
 import { findVehicle } from '../functions/findVehicle';
 import { getComponent } from '../../../ecs/functions/EntityFunctions';
 import { Input } from '../../../input/components/Input';
-import { addState } from '../../../state/behaviors/StateBehaviors';
+import { addState } from "../../../state/behaviors/addState";
 
 export const DropRunningState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,

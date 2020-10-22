@@ -22,6 +22,8 @@ export default class ParticleEmitterNodeEditor extends Component<
   ParticleEmitterNodeEditorProps,
   {}
 > {
+  static iconComponent = SprayCan;
+  static description = "Particle emitter to create particles.";
   updateParticles() {
     for (const node of (this.props.editor as any).selected) {
       node.updateParticles();

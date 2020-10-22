@@ -5,7 +5,7 @@
  * @param elementWidth
  * @param elementHeight
  */
-export function normalizeMouseCoordinates(x: number, y: number, elementWidth: number, elementHeight: number): { x: number, y: number } {
+export function normalizeMouseCoordinates(x: number, y: number, elementWidth: number, elementHeight: number): { x: number; y: number } {
   return {
     x: (x / elementWidth) * 2 - 1,
     y: (y / elementHeight) * -2 + 1

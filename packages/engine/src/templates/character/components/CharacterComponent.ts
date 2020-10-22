@@ -12,7 +12,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public initialized = false
 
 // TODO: Move these... but for now...
-	public currentAnimationAction:AnimationAction = null
+	public currentAnimationAction: AnimationAction = null
 	public currentAnimationLength = 0
 	public timer = 0
 
@@ -53,7 +53,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	// Ray casting
 	public rayResult: RaycastResult = new RaycastResult();
 	public rayHasHit = false;
-	public rayCastLength = 0.57;
+	public rayCastLength = 0.77;
 	public raySafeOffset = 0.03;
 	public wantsToJump = false;
 	public initJumpSpeed = -1;

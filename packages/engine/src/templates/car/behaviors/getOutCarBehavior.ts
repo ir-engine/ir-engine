@@ -8,7 +8,7 @@ import { VehicleBody } from '../../../physics/components/VehicleBody';
 import { PlayerInCar } from '../../../physics/components/PlayerInCar';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
 import { setPosition } from '../../../templates/character/behaviors/setPosition';
-import { addState } from '../../../state/behaviors/StateBehaviors';
+import { addState } from "../../../state/behaviors/addState";
 import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";
 
 

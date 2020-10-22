@@ -1,26 +1,6 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import styled from "styled-components";
-
-const StatsContainer = (styled as any).div`
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  color: white;
-  padding: 8px;
-  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
-  background-color: rgba(0, 0, 0, 0.5);
-  border-radius: 4px;
-  width: 150px;
-
-  h3 {
-    font-size: 14px;
-  }
-
-  ul {
-    margin: 8px 4px;
-  }
-`;
+import styles from "./styles.module.scss";
 
 export default function Stats({ editor }) {
   const [info, setInfo] = useState(0);
@@ -48,7 +28,7 @@ export default function Stats({ editor }) {
   }, [editor]);
 
   return (
-    <StatsContainer>
+    <div className={styles.statsContainer}>
       <h3>Stats:</h3>
       {info && (
         <ul>
@@ -72,7 +52,7 @@ export default function Stats({ editor }) {
           </li>
         </ul>
       )}
-    </StatsContainer>
+    </div>
   );
 }
 

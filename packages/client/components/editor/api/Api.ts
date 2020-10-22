@@ -3,6 +3,7 @@
 import EventEmitter from "eventemitter3";
 import jwtDecode from "jwt-decode";
 import { buildAbsoluteURL } from "url-toolkit";
+import { client } from "../../../redux/feathers";
 import configs from "../configs";
 import { AudioFileTypes, matchesFileTypes } from "../ui/assets/fileTypes";
 import PerformanceCheckDialog from "../ui/dialogs/PerformanceCheckDialog";
@@ -14,7 +15,7 @@ import PublishedSceneDialog from "./PublishedSceneDialog";
 const resolveUrlCache = new Map();
 const resolveMediaCache = new Map();
 
-const API_SERVER_ADDRESS = (configs as any).API_SERVER_ADDRESS || process.browser ? `${document.location.hostname}:3030` : "localhost:3030";
+const API_SERVER_ADDRESS = (configs as any).API_SERVER_ADDRESS;
 
 const {
   API_ASSETS_ROUTE,
@@ -37,7 +38,8 @@ const {
   USE_HTTPS
 } = configs as any;
 
-const prefix = USE_HTTPS === "true" ? "https://" : "http://";
+// const prefix = USE_HTTPS === "true" ? "https://" : "http://";
+const prefix = "https://";
 
 function b64EncodeUnicode(str): string {
   // first we use encodeURIComponent to get percent-encoded UTF-8, then we convert the percent-encodings
@@ -208,13 +210,14 @@ export default class Api extends EventEmitter {
 
     const cacheKey = `${url}|${index}`;
     if (resolveUrlCache.has(cacheKey)) return resolveUrlCache.get(cacheKey);
-
     const request = this.fetch(`${prefix}${API_SERVER_ADDRESS}${API_RESOLVE_MEDIA_ROUTE}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ media: { url, index } })
-    }).then(async response => {
-      if (!response.ok) {
+    })
+    // client.service("resolve-media").create({ media: { url, index } })
+    .then(async response => {
+    if (!response.ok) {
         const message = `Error resolving url "${url}":\n  `;
         try {
           const body = await response.text();
@@ -226,6 +229,8 @@ export default class Api extends EventEmitter {
       console.log("Response: " + Object.values(response));
 
       return response.json();
+    }).catch(e => {
+      console.warn(e);
     });
 
     resolveUrlCache.set(cacheKey, request);
@@ -908,11 +913,12 @@ export default class Api extends EventEmitter {
       if (signal) {
         signal.addEventListener("abort", onAbort);
       }
+      console.log("Posting to: ", `https://${API_SERVER_ADDRESS}/media`);
 
       if (USE_DIRECT_UPLOAD_API) {
         request.open("post", `${host}${API_MEDIA_ROUTE}`, true);
       } else {
-        request.open("post", `http://${API_SERVER_ADDRESS}${API_MEDIA_ROUTE}`, true);
+        request.open("post", `https://${API_SERVER_ADDRESS}/media`, true);
       }
 
       request.upload.addEventListener("progress", e => {
@@ -1127,11 +1133,11 @@ export default class Api extends EventEmitter {
 
   async fetch(url, options: any = {}): Promise<any> {
     try {
-      const token = this.getToken();
+      // const token = this.getToken();
       if (options.headers == null) {
         options.headers = {};
       }
-      options.headers.authorization = `Bearer ${token}`;
+      // options.headers.authorization = `Bearer ${token}`;
       const res = await fetch(url, options);
       console.log("Response: " + Object.values(res));
 

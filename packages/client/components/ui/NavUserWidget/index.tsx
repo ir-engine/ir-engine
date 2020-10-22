@@ -1,14 +1,14 @@
+import { User } from '@xr3ngine/common/interfaces/User';
 import React, { useEffect } from 'react';
-import {Button} from '@material-ui/core';
-import SignIn from '../Auth/Login';
-import { logoutUser } from '../../../redux/auth/service';
-import { selectAuthState } from '../../../redux/auth/selector';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
+import { selectAuthState } from '../../../redux/auth/selector';
+import { logoutUser } from '../../../redux/auth/service';
 import { showDialog } from '../../../redux/dialog/service';
+import SignIn from '../Auth/Login';
 import Dropdown from '../Profile/ProfileDropdown';
-import { User } from '@xr3ngine/common/interfaces/User';
-import './style.scss';
+import styles from './NavUserWidget.module.scss';
+import {Button} from '@material-ui/core';
 
 const mapStateToProps = (state: any): any => {
   return { auth: selectAuthState(state) };
@@ -25,14 +25,6 @@ interface Props {
   showDialog?: typeof showDialog;
 }
 
-const styles = {
-  loginButton: {
-    color: 'white',
-  },
-  logoutButton: {
-    color: 'white',
-  },
-};
 
 const NavUserBadge = (props: Props): any => {
   useEffect(() => {
@@ -56,9 +48,9 @@ const NavUserBadge = (props: Props): any => {
   // const userName = user && user.name
 
   return (
-    <div className="userWidget">
+    <div className={styles.userWidget}>
       {isLoggedIn && (
-        <div className="flex">
+        <div className={styles.flex}>
           <Dropdown
             avatarUrl={user && user.avatarUrl}
             auth={props.auth}
@@ -68,7 +60,7 @@ const NavUserBadge = (props: Props): any => {
       )}
       {!isLoggedIn && (
         <Button variant="contained" color="primary"
-          style={styles.loginButton}
+          className={styles.loginButton}
           onClick={() =>
             props.showDialog({
               children: <SignIn />,

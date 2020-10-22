@@ -12,7 +12,7 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import { LocalInputReceiver } from "@xr3ngine/engine/src/input/components/LocalInputReceiver";
 import { VehicleBody } from '../../../physics/components/VehicleBody';
 import { PlayerInCar } from '../../../physics/components/PlayerInCar';
-import { addState } from '../../../state/behaviors/StateBehaviors';
+import { addState } from "../../../state/behaviors/addState";
 import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";
 import { cameraPointerLock } from "@xr3ngine/engine/src/camera/behaviors/cameraPointerLock";
 

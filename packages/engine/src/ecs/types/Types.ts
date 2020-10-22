@@ -4,14 +4,14 @@ export type TypeCopyFunction<T> = (src: T, dest: T) => T
 export type TypeCloneFunction<T> = (value: T) => T
 
 export interface PropTypeDefinition<T, D> {
-  name: string
-  default?: D
-  copy: TypeCopyFunction<T>
-  clone: TypeCloneFunction<T>
+  name: string;
+  default?: D;
+  copy: TypeCopyFunction<T>;
+  clone: TypeCloneFunction<T>;
 }
 
 export interface PropType<T, D> extends PropTypeDefinition<T, D> {
-  isType: true
+  isType: true;
 }
 
 export type NumberPropType = PropType<number, number>
@@ -146,7 +146,7 @@ export const fromEntries = (Object as any).fromEntries || ( iterable =>
 const capitalize = (s: string) => s[0].toUpperCase() + s.slice(1);
 
 export function types(
-  defaults:object = {value: {type: Types.Ref}}
+  defaults: object = {value: {type: Types.Ref}}
 ): ComponentSchema {
   return fromEntries(
       Object.entries(defaults).map( (name, value) => 

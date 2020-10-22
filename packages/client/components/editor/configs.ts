@@ -1,4 +1,4 @@
-import "dotenv";
+// import "dotenv";
 
 // Read configs from meta tags if available, otherwise use the process.env injected from build.
 const configs = {};
@@ -14,6 +14,9 @@ const get = (configs, key, defaultValue) => {
   }
 };
 
+console.log("API_SERVER_ADDRESS", process.env.API_SERVER_ADDRESS)
+console.log("API_MEDIA_ROUTE", process.env.API_MEDIA_ROUTE)
+
 get(configs, "API_ASSETS_ROUTE", process.env.API_ASSETS_ROUTE);
 get(configs, "API_MEDIA_ROUTE", process.env.API_MEDIA_ROUTE);
 get(configs, "API_MEDIA_SEARCH_ROUTE", process.env.API_MEDIA_SEARCH_ROUTE);
@@ -28,7 +31,6 @@ get(configs, "BASE_ASSETS_PATH", process.env.BASE_ASSETS_PATH);
 get(configs, "CLIENT_ADDRESS", process.env.CLIENT_ADDRESS);
 get(configs, "CORS_PROXY_SERVER", process.env.CORS_PROXY_SERVER);
 get(configs, "GA_TRACKING_ID", process.env.GA_TRACKING_ID);
-get(configs, "IS_XR3", process.env.IS_XR3);
 get(configs, "NON_CORS_PROXY_DOMAINS", process.env.NON_CORS_PROXY_DOMAINS);
 get(configs, "SENTRY_DSN", process.env.SENTRY_DSN);
 get(configs, "THUMBNAIL_ROUTE", process.env.THUMBNAIL_ROUTE);
@@ -37,7 +39,8 @@ get(configs, "USE_DIRECT_UPLOAD_API", process.env.USE_DIRECT_UPLOAD_API);
 get(configs, "API_RESOLVE_MEDIA_ROUTE", process.env.API_RESOLVE_MEDIA_ROUTE);
 
 get(configs, "USE_HTTPS", process.env.USE_HTTPS);
-
+// eslint-disable-next-line @typescript-eslint/camelcase
+let __webpack_public_path__ = "";
 if ((configs as any).BASE_ASSETS_PATH) {
   // eslint-disable-next-line no-undef, @typescript-eslint/camelcase
   __webpack_public_path__ = (configs as any).BASE_ASSETS_PATH;

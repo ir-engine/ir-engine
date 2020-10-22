@@ -1,7 +1,7 @@
 import React from 'react';
 import LinearProgress from '@material-ui/core/LinearProgress';
 
-import './style.scss';
+import styles from './LinearProgress.module.scss';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { connect } from 'react-redux';
 import { generalStateList } from '../../../redux/app/actions';
@@ -20,10 +20,10 @@ const mapStateToProps = (state: any): any => {
 const LinearProgressComponent = (props: Props) => {
   const{ onBoardingStep, label} = props;
   return  onBoardingStep === generalStateList.START_STATE ?
-    <div className="overlay">
-      <section className="linearProgressContainer">
+    <div className={styles.overlay}>
+      <section className={styles.linearProgressContainer}>
           {label.length > 0 && (<span className="loadingProgressTile">{label}</span>)}        
-          <LinearProgress className="linearProgress" />
+          <LinearProgress className={styles.linearProgress} />
       </section>
     </div>
   : null;

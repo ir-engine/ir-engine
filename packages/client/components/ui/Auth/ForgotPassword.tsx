@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { forgotPassword } from '../../../redux/auth/service';
 import Grid from '@material-ui/core/Grid';
-import './style.scss';
+import styles from './Auth.module.scss';
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   forgotPassword: bindActionCreators(forgotPassword, dispatch)
@@ -35,7 +35,7 @@ const ForgotPassword = (props: Props): any => {
 
   return (
     <Container component="main" maxWidth="xs">
-      <div className={classes.paper}>
+      <div className={styles.paper}>
         <Typography component="h1" variant="h5">
           Forgot Password
         </Typography>
@@ -46,7 +46,7 @@ const ForgotPassword = (props: Props): any => {
         </Typography>
 
         <form
-          className={classes.form}
+          className={styles.form}
           noValidate
           onSubmit={(e) => handleForgot(e)}
         >
@@ -71,7 +71,7 @@ const ForgotPassword = (props: Props): any => {
                 fullWidth
                 variant="contained"
                 color="primary"
-                className={classes.submit}
+                className={styles.submit}
               >
                 Submit
               </Button>

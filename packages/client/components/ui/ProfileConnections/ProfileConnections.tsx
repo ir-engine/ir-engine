@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { selectAuthState } from '../../../redux/auth/selector';
 import SingleConnection from './SingleConnection';
 import { User } from '@xr3ngine/common/interfaces/User';
-import './style.scss';
+import styles from './ProfileConnections.module.scss';
 
 interface Props {
   auth: any;
@@ -31,8 +31,8 @@ const ProfileConnections = (props: Props): any => {
   }
 
   return (
-    <div className={classes.root}>
-      <div className={classes.section1}>
+    <div className={styles.root}>
+      <div className={styles.section1}>
         <Grid container alignItems="center">
           <Grid item xs>
             <Typography variant="h4">Connections</Typography>

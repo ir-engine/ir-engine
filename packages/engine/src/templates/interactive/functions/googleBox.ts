@@ -3,12 +3,12 @@ import { getMutableComponent, hasComponent } from "../../../ecs/functions/Entity
 import { Object3DComponent } from "../../../common/components/Object3DComponent";
 import { Mesh, MeshPhongMaterial } from "three";
 
-export const onInteraction:Behavior = (entity, args, delta, entityOut, time) => {
+export const onInteraction: Behavior = (entity, args, delta, entityOut, time) => {
   const event = new CustomEvent('object-activation', { detail: { url: "https://google.com" } });
   document.dispatchEvent(event);
 };
 
-export const onInteractionHover:Behavior = (entity, { focused }:{ focused:boolean }, delta, entityOut, time) => {
+export const onInteractionHover: Behavior = (entity, { focused }: { focused: boolean }, delta, entityOut, time) => {
   const event = new CustomEvent('object-hover', { detail: { focused, label: "Use to open google.com" } });
   document.dispatchEvent(event);
 
