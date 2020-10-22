@@ -22,7 +22,7 @@ export class AudioSystem extends System {
         window.addEventListener('click', this.startAudio);
     }
 
-    dispose():void {
+    dispose(): void {
         this.audioReady = false;
         this.callbacks = [];
         window.removeEventListener('touchstart',this.startAudio);

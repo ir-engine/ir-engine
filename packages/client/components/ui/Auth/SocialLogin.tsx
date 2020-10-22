@@ -12,8 +12,7 @@ import {
   loginUserByGoogle,
   loginUserByFacebook
 } from '../../../redux/auth/service';
-import './style.scss';
-import {selectAdminState} from "../../../redux/admin/selector";
+import styles from './Auth.module.scss';
 
 const mapStateToProps = (state: any): any => {
   return {};
@@ -66,7 +65,7 @@ const SocialLogin = (props: Props): any => {
         onClick={(e) => handleGithubLogin(e)}
         startIcon={<GitHubIcon />}
         variant="contained"
-        className="github"
+        className={styles.github}
         fullWidth={true}
       >
         Login with GitHub
@@ -81,7 +80,7 @@ const SocialLogin = (props: Props): any => {
         onClick={(e) => handleGoogleLogin(e)}
         // startIcon={<GoogleIcon />}
         variant="contained"
-        className="google"
+        className={styles.google}
         fullWidth={true}
       >
         Login with Google
@@ -96,7 +95,7 @@ const SocialLogin = (props: Props): any => {
         onClick={(e) => handleFacebookLogin(e)}
         startIcon={<FacebookIcon />}
         variant="contained"
-        className="facebook"
+        className={styles.facebook}
         fullWidth={true}
       >
         Login with Facebook
@@ -108,7 +107,7 @@ const SocialLogin = (props: Props): any => {
 
   return (
     <Container component="main" maxWidth="xs">
-      <div className="paper">
+      <div className={styles.paper}>
         <Grid container justify="center" spacing={2}>
           {githubButton}
           {facebookButton}

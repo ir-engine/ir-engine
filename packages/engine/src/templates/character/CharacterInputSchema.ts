@@ -8,7 +8,8 @@ import { handleMouseMovement } from "../../input/behaviors/handleMouseMovement";
 import { handleMouseButton } from "../../input/behaviors/handleMouseButton";
 import { handleKey } from "../../input/behaviors/handleKey";
 import { handleGamepadConnected, handleGamepadDisconnected } from '../../input/behaviors/GamepadInputBehaviors';
-import { handleTouch, handleTouchMove } from '../../input/behaviors/TouchBehaviors';
+import { handleTouch } from '../../input/behaviors/handleTouch';
+import { handleTouchMove } from '../../input/behaviors/handleTouchMove';
 import { GamepadButtons } from '../../input/enums/GamepadButtons';
 import { MouseInput } from '../../input/enums/MouseInput';
 import { InputRelationship } from '../../input/interfaces/InputRelationship';
@@ -84,7 +85,18 @@ export const CharacterInputSchema: InputSchema = {
         behavior: handleTouch,
         args: {
           value: BinaryValue.ON
+        },
+        
+      },
+      {
+        behavior: interact,
+        args: {
+          touchPhaze:LifecycleValue.STARTED         
         }
+      },
+      {
+          behavior: interact,
+          args: {}
       }
     ],
     touchend: [
@@ -92,6 +104,12 @@ export const CharacterInputSchema: InputSchema = {
         behavior: handleTouch,
         args: {
           value: BinaryValue.OFF
+        }
+      },
+      {
+        behavior: interact,
+        args: {
+          touchPhaze:LifecycleValue.ENDED         
         }
       }
     ],

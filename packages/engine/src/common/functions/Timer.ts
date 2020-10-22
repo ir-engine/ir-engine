@@ -2,9 +2,9 @@ import { isBrowser } from './isBrowser';
 import { now } from "./now";
 
 export function Timer (
-  callbacks: { update?: Function, render?: Function },
+  callbacks: { update?: Function; render?: Function },
   step?: number
-): { start: Function, stop: Function } {
+): { start: Function; stop: Function } {
   const increment = step || 1 / 60;
 
   let last = 0;
@@ -53,20 +53,20 @@ export class FixedStepsRunner {
   private subsequentErrorsShown = 0
   private shownErrorPreviously = false
   private accumulator = 0
-  readonly callback:(time:number)=>void
+  readonly callback: (time: number) => void
 
-  constructor(updatesPerSecond:number, callback:(time:number)=>void) {
+  constructor(updatesPerSecond: number, callback: (time: number) => void) {
     this.timestep = 1 / updatesPerSecond;
     this.limit = this.timestep * 1000;
     this.updatesLimit = updatesPerSecond;
     this.callback = callback;
   }
 
-  canRun(delta:number):boolean {
+  canRun(delta: number): boolean {
     return (this.accumulator + delta) > this.timestep;
   }
 
-  run(delta:number):void {
+  run(delta: number): void {
     const start = now();
     let timeUsed = 0;
     let updatesCount = 0;
@@ -112,7 +112,7 @@ export class FixedStepsRunner {
   }
 }
 
-export function createFixedTimestep(updatesPerSecond:number, callback:(time:number)=>void):(delta:number)=>void {
+export function createFixedTimestep(updatesPerSecond: number, callback: (time: number) => void): (delta: number) => void {
   const timestep = 1 / updatesPerSecond;
   const limit = timestep * 1000;
   const updatesLimit = updatesPerSecond;

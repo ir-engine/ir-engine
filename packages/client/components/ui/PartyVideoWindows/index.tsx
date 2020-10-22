@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import './style.scss';
+import styles from './PartyParticipantWindow.module.scss';
 import { Grid } from '@material-ui/core';
 import PartyParticipantWindow from '../PartyParticipantWindow';
 import { MediaStreamComponent } from '@xr3ngine/engine/src/networking/components/MediaStreamComponent';
@@ -27,7 +27,7 @@ const PartyVideoWindows = observer((): JSX.Element => {
   }, []);
 
   return (
-    <Grid className="party-user-container" container direction="row" wrap="nowrap">
+    <Grid className={ styles['party-user-container']} container direction="row" wrap="nowrap">
       { parsedConsumers.map(([key, tracks]) => (
         <PartyParticipantWindow
             containerProportions={{

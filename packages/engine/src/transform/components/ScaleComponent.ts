@@ -3,7 +3,7 @@ import { Component } from '../../ecs/classes/Component';
 const vector3ScaleIdentity: number[] = [1, 1, 1];
 
 interface PropTypes {
-  scale: number[]
+  scale: number[];
 }
 
 export class ScaleComponent extends Component<ScaleComponent> {

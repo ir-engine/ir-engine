@@ -36,7 +36,9 @@ const validateCollectionData = () => {
 
 export default {
   before: {
-    all: [authenticate('jwt'), collectAnalytics()],
+    all: [
+      authenticate('jwt'), 
+      collectAnalytics()],
     find: [],
     get: [],
     create: [attachOwnerIdInBody('userId'), mapProjectSaveData(), validateCollectionData(), generateSceneCollection({ type: collectionType.project })],

@@ -1,5 +1,5 @@
 // eslint-disable-next-line
-import App, { AppProps } from 'next/app'
+import { AppProps } from 'next/app'
 import Head from 'next/head';
 import withRedux from 'next-redux-wrapper';
 import { Provider } from 'react-redux';
@@ -23,6 +23,7 @@ import { connect } from 'react-redux';
 import getConfig from 'next/config';
 import { ApiContext } from '../components/editor/ui/contexts/ApiContext';
 import Api from "../components/editor/api/Api";
+import GlobalStyle from '../components/editor/ui/GlobalStyle';
 
 const config = getConfig().publicRuntimeConfig;
 
@@ -93,7 +94,8 @@ const MyApp = (props: Props): any => {
       </Head>
       <ThemeProvider theme={theme}>
         <ApiContext.Provider value={api}>
-          <CssBaseline />
+          {/* <CssBaseline /> */}
+          <GlobalStyle />
           <Provider store={store}>
             <Component {...pageProps} />
           </Provider>

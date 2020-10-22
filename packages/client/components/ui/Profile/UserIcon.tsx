@@ -3,9 +3,10 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import Button from '@material-ui/core/Button';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import './style.scss';
+import styles from './Profile.module.scss';
 import TextField from '@material-ui/core/TextField';
 import { uploadAvatar, updateUsername } from '../../../redux/auth/service';
+import classNames from 'classnames';
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   uploadAvatar: bindActionCreators(uploadAvatar, dispatch),
@@ -56,8 +57,8 @@ const UserProfile = (props: Props): any => {
     await props.updateUsername(user.id, username);
   };
   return (
-      <div className="user-container">
-        <div className="username">
+      <div className={styles['user-container']}>
+        <div className={styles.username}>
           <TextField
               variant="outlined"
               margin="normal"
@@ -73,17 +74,27 @@ const UserProfile = (props: Props): any => {
             Update
           </Button>
         </div>
-        <div className="user-id">
+        <div className={styles['user-id']}>
           <div>User ID: {user.id}</div>
         </div>
-        <div className="uploadform">
+        <div className={styles.uploadform}>
           {fileUrl ? (
               <img
                   src={URL.createObjectURL(fileUrl)}
-                  className="rounded mx-auto d-block max-size-200"
+                  className={classNames({
+                    [styles.rounded]: true,
+                    [styles['mx-auto']]: true,
+                    [styles['d-block']]: true,
+                    [styles['max-size-200']]: true
+                  })}
               />
           ) : props.avatarUrl ? (
-              <img src={props.avatarUrl} className="rounded mx-auto d-block max-size-200" />
+              <img src={props.avatarUrl} className={classNames({
+                [styles.rounded]: true,
+                [styles['mx-auto']]: true,
+                [styles['d-block']]: true,
+                [styles['max-size-200']]: true
+              })} />
           ) : (
               <AccountCircleIcon style={{ fontSize: 150 }} />
           )}
@@ -93,7 +104,7 @@ const UserProfile = (props: Props): any => {
               name="file"
               placeholder="Upload Product Image"
               type="file"
-              className="signup__fileField"
+              className={styles['signup__fileField']}
               onChange={handleChange}
           />
 

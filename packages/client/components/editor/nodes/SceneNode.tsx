@@ -171,10 +171,10 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         }
       }
       if (!EntityNodeConstructor) {
-        throw new Error(
+        console.warn(
           `No node constructor found for entity "${entity.name}"`
         );
-      }
+      } else {
       const node = await EntityNodeConstructor.deserialize(
         editor,
         entity,
@@ -207,6 +207,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       }
       node.onChange();
     }
+  }
     await Promise.all(dependencies);
     return [scene, errors];
   }

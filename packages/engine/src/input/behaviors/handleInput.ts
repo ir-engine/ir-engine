@@ -52,8 +52,8 @@ import { BinaryValue } from '../../common/enums/BinaryValue';
       // skip all other inputs
       return
     }
-
-    if (value.lifecycleState === LifecycleValue.ENDED) {
+    
+    if (value.lifecycleState = LifecycleValue.ENDED) {
       // ENDED here is a special case, like mouse position on mouse down
       return
     }
@@ -124,6 +124,9 @@ import { BinaryValue } from '../../common/enums/BinaryValue';
             input.schema.inputAxisBehaviors[key].unchanged?.forEach(element =>
               element.behavior(entity, element.args, delta)
             );
+            break;
+            case LifecycleValue.ENDED:
+              console.warn("Patch fix, need to handle properly: ", LifecycleValue.ENDED);
             break;
           default:
             console.error('Unexpected lifecycleState', value.lifecycleState, LifecycleValue[value.lifecycleState]);

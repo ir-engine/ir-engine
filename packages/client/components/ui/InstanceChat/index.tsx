@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import './style.scss';
+import styles from './InstanceChat.module.scss';
 import {
     Avatar,
     Button,
@@ -27,6 +27,7 @@ import moment from 'moment';
 import {User} from "@xr3ngine/common/interfaces/User";
 import { Message } from '@xr3ngine/common/interfaces/Message';
 import _ from 'lodash';
+import classNames from 'classnames';
 
 
 const mapStateToProps = (state: any): any => {
@@ -75,9 +76,6 @@ const BottomDrawer = (props: Props): any => {
         activeChannel = activeChannelMatch[1];
     }
 
-    console.log('ActiveChannel:');
-    console.log(activeChannel);
-
     useEffect(() =>  {
         if (channelState.get('partyChannelFetched') !== true && channelState.get('fetchingPartyChannel') !== true) {
             getPartyChannel();
@@ -105,7 +103,6 @@ const BottomDrawer = (props: Props): any => {
     };
 
     const setActiveChat = (channel): void => {
-        console.log('setActiveChat:');
         updateMessageScrollInit(true);
         const channelType = channel.channelType;
         const target = channelType === 'user' ? (channel.user1?.id === user.id ? channel.user2 : channel.user2?.id === user.id ? channel.user1 : {}) : channelType === 'group' ? channel.group : channel.party;
@@ -149,12 +146,16 @@ const BottomDrawer = (props: Props): any => {
     };
 
     return (
-        <div className="instance-chat-container">
-            <div className="list-container">
-                <List ref={(messageRef as any)} className="message-container">
+        <div className={styles['instance-chat-container']}>
+            <div className={styles['list-container']}>
+                <List ref={(messageRef as any)} className={styles['message-container']}>
                     { activeChannel != null && activeChannel.messages && activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).slice(activeChannel.messages?.length - 3, activeChannel.mesages?.length).map((message) => {
                         return <ListItem
-                            className={message.senderId === user.id ? "message self" : "message other"}
+                            className={classNames({
+                                message: true,
+                                self: message.senderId === user.id,
+                                other: message.senderId !== user.id
+                            })}
                             key={message.id}
                         >
                             <div>
@@ -172,13 +173,13 @@ const BottomDrawer = (props: Props): any => {
                     })
                     }
                     {(activeChannel == null || activeChannel.messages?.length === 0) &&
-                    <div className="first-message-placeholder">
+                    <div className={styles['first-message-placeholder']}>
                         No messages to this party yet
                     </div>
                     }
                 </List>
-                <div className="flex-center">
-                    <div className="chat-box">
+                <div className={styles['flex-center']}>
+                    <div className={styles['chat-box']}>
                         <Button variant="contained"
                                 color="primary"
                                 startIcon={<MessageIcon/>}

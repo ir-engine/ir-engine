@@ -376,7 +376,7 @@ export default class EditorControls extends EventEmitter {
       const selectStartPosition = input.get(Editor.selectStartPosition);
       this.selectStartPosition.copy(selectStartPosition);
       this.raycaster.setFromCamera(selectStartPosition, this.camera);
-      if ((this.transformGizmo as any).activeControls) {
+      if (this.transformGizmo.activeControls) {
         this.transformAxis = this.transformGizmo.selectAxisWithRaycaster(
           this.raycaster
         );

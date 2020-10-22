@@ -21,40 +21,44 @@ const LODS_DISTANCES = {
 };
 const LODS_REGEXP = new RegExp(/^(.*)_LOD(\d+)$/);
 
-export function ProcessModelAsset(entity: Entity, component:AssetLoader, asset:any): void {
+export function ProcessModelAsset(entity: Entity, component: AssetLoader, asset: any): void {
   let object = asset.scene ?? asset;
 
   ReplaceMaterials(object, component);
   object = HandleLODs(entity,object);
 
-  if (hasComponent(entity, Object3DComponent)) {
-    if (getComponent<Object3DComponent>(entity, Object3DComponent).value !== undefined)
-      getMutableComponent<Object3DComponent>(entity, Object3DComponent).value.add(object);
-    else getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = object;
+  if (component.parent) {
+    component.parent.add(object);
   } else {
-    addObject3DComponent(entity, {obj3d: object});
+    if (hasComponent(entity, Object3DComponent)) {
+      if (getComponent<Object3DComponent>(entity, Object3DComponent).value !== undefined)
+        getMutableComponent<Object3DComponent>(entity, Object3DComponent).value.add(object);
+      else getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = object;
+    } else {
+      addObject3DComponent(entity, {obj3d: object});
+    }
+
+    //const transformParent = addComponent<TransformParentComponent>(entity, TransformParentComponent) as TransformParentComponent
+
+    object.children.forEach(obj => {
+      const e = createEntity();
+      addObject3DComponent(e, { obj3d: obj, parentEntity: entity });
+      // const transformChild = addComponent<TransformChildComponent>(e, TransformChildComponent) as TransformChildComponent
+      // transformChild.parent = entity
+      //transformParent.children.push(e)
+    });
   }
-
-  //const transformParent = addComponent<TransformParentComponent>(entity, TransformParentComponent) as TransformParentComponent
-
-  object.children.forEach(obj => {
-    const e = createEntity();
-    addObject3DComponent(e, { obj3d: obj, parentEntity: entity });
-    // const transformChild = addComponent<TransformChildComponent>(e, TransformChildComponent) as TransformChildComponent
-    // transformChild.parent = entity
-    //transformParent.children.push(e)
-  });
 }
 
-function HandleLODs(entity: Entity, asset:Object3D):Object3D {
+function HandleLODs(entity: Entity, asset: Object3D): Object3D {
   const haveAnyLODs = !!asset.children?.find(c => String(c.name).match(LODS_REGEXP));
   if (!haveAnyLODs) {
     return asset;
   }
 
-  const LODs = new Map<string,{object:Object3D, level:string}[]>();
+  const LODs = new Map<string,{object: Object3D; level: string}[]>();
   asset.children.forEach(child => {
-    const [ _, name, level ]:string[] = child.name.match(LODS_REGEXP);
+    const [ _, name, level ]: string[] = child.name.match(LODS_REGEXP);
     if (!name || !level) {
       return;
     }

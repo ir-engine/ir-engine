@@ -46,7 +46,6 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
     actor.actorCapsule.body.position.copy(cannonFromThreeVector(newPos));
     actor.actorCapsule.body.interpolatedPosition.copy(cannonFromThreeVector(newPos));
   }
-
-  actor.viewVector = new Vector3(0, 0,-1).applyQuaternion(Engine.camera.quaternion)
-
+  if(Engine.camera)
+    actor.viewVector = new Vector3(0, 0,-1).applyQuaternion(Engine.camera.quaternion);
 };

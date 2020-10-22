@@ -31,7 +31,7 @@ export class InputSystem extends System {
   private readonly boundListeners //= new Set()
   readonly useWebXR
   readonly onVRSupportRequested
-  private entityListeners:Map<Entity, Array<ListenerBindingData>>
+  private entityListeners: Map<Entity, Array<ListenerBindingData>>
 
   constructor ({ useWebXR, onVRSupportRequested }) {
     super();
@@ -86,7 +86,7 @@ export class InputSystem extends System {
         behavior.behavior(entity, { ...behavior.args });
       });
       // Bind DOM events to event behavior
-      const listenersDataArray:ListenerBindingData[] = [];
+      const listenersDataArray: ListenerBindingData[] = [];
       this.entityListeners.set(entity, listenersDataArray);
       Object.keys(this._inputComponent.schema.eventBindings)?.forEach((eventName: string) => {
         this._inputComponent.schema.eventBindings[eventName].forEach((behaviorEntry: any) => {

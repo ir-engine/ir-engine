@@ -25,7 +25,7 @@ export const drive: Behavior = (entity: Entity, args: { direction: number }): vo
   vehicle.applyEngineForce(vehicleComponent.maxForce * args.direction * -1, 3);
 };
 
-export const driveByInputAxis: Behavior = (entity: Entity, args: { input: InputAlias, inputType: InputType }): void => {
+export const driveByInputAxis: Behavior = (entity: Entity, args: { input: InputAlias; inputType: InputType }): void => {
   const input =  getComponent<Input>(entity, Input as any);
   const data = input.data.get(args.input);
 

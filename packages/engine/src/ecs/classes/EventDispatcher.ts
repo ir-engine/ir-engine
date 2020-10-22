@@ -7,7 +7,7 @@ import { Entity } from './Entity';
  */
 export class EventDispatcher {
   _listeners: {}
-  stats: { fired: number, handled: number }
+  stats: { fired: number; handled: number }
   constructor () {
     this._listeners = {};
     this.stats = {
