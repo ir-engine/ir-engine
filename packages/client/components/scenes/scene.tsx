@@ -37,6 +37,7 @@ import TooltipContainer from '../ui/TooltipContainer';
 import './style.module.scss';
 import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
 import { setActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/setActorAvatar";
+import { selectAppOnBoardingStep } from '../../redux/app/selector';
 
 const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
@@ -45,7 +46,7 @@ const mapStateToProps = (state: any): any => {
     instanceConnectionState: selectInstanceConnectionState(state),
     authState: selectAuthState(state),
     partyState: selectPartyState(state),
-    // onBoardingStep: selectAppOnBoardingStep(state)
+    onBoardingStep: selectAppOnBoardingStep(state)
   };
 };
 
@@ -67,6 +68,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
     partyState,
     connectToInstanceServer,
     provisionInstanceServer,
+    onBoardingStep
   } = props;
   const [actorEntity, setActorEntity] = useState(null);
   const [actorAvatarId, setActorAvatarId] = useState('Rose');
@@ -223,8 +225,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
   }, []);
 
   //mobile gamepad
-  const mobileGamepadProps = {hovered:hoveredLabel.length > 0, layout: 'default' };
-  const mobileGamepad = isMobileOrTablet()? <MobileGamepad {...mobileGamepadProps} /> : null;
+  const mobileGamepadProps = {hovered: hoveredLabel.length > 0, layout: 'default' };
+  const mobileGamepad = isMobileOrTablet() && onBoardingStep >= generalStateList.TUTOR_MOVE ? <MobileGamepad {...mobileGamepadProps} /> : null;
 
   return (
     <>
