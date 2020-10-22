@@ -23,7 +23,8 @@ export default {
     create: [
       commonHooks.iff(
         commonHooks.isProvider('external'),
-        authenticate('jwt'), setLoggedInUser('userId')
+        authenticate('jwt'),
+        setLoggedInUser('userId')
       ), addUUID(), addUploadPath(), addUriToFile(), makeS3FilesPublic()],
     update: [disallow()],
     patch: [disallow()],

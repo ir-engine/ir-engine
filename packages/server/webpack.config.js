@@ -1,16 +1,30 @@
-const path = require('path')
+const path = require('path');
 const packageRoot = require('app-root-path').path;
+const fs = require('fs');
+const WebpackHookPlugin = require('webpack-hook-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const dev = process.env.NODE_ENV !== 'production';
 
-const root = [path.resolve(__dirname)]
-const WebpackShellPlugin = require('webpack-shell-plugin');
-console.log("PACKAGE ROOT", packageRoot)
+const root = [path.resolve(__dirname)];
+const plugins = [new ForkTsCheckerWebpackPlugin({
+    typescript: {
+        diagnosticOptions: {
+            semantic: true,
+            syntactic: true
+        }
+    }
+})];
+if (dev) plugins.push(new WebpackHookPlugin({
+    onBuildEnd: ['nodemon dist/server.js']
+}));
+const buildOptions = dev ? {
+    // there should be 1 cpu for the fork-ts-checker-webpack-plugin
+    workers: require('os').cpus().length - 1
+} : {};
+
 module.exports = {
     entry: `${root}/src/index.ts`,
     target: 'node',
-    stats: {
-        logging: 'verbose'
-      },
     node: {
         __dirname: true
     },
@@ -31,22 +45,20 @@ module.exports = {
             `${packageRoot}/node_modules`
         ]
     },
-    resolveLoader: {
-        // root: [`${root}/node_modules`, `${packageRoot}/node_modules`, 'node_modules']
-    },
     module: {
         rules: [{
             // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
             test: /\.tsx?$/,
+            // Cache loader references cached files before trying to rebuild them
             use: [
                 {
+                    // Process typescript only after caching and threading have been initializeds
                     loader: 'ts-loader',
-                }
-            ]
+                    options: {
+                        happyPackMode: true // IMPORTANT! use happyPackMode mode to speed-up compilation and reduce errors reported to webpack
+                    }
+                }]
         }]
     },
-    plugins: [
-        new ForkTsCheckerWebpackPlugin(),
-        (process.env.NODE_ENV !== 'production') ? new WebpackShellPlugin({onBuildEnd: ['nodemon dist/server.js --watch build']}) : () => { }
-    ]
+    plugins
 };

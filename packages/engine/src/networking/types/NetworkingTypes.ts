@@ -5,8 +5,8 @@ import { DataProducer as ClientDataProducer, SctpCapabilities } from "mediasoup-
 import { MessageTypeAlias } from "./MessageTypeAlias";
 
 export type SendMessageTypeDetail = {
-    type?: MessageTypeAlias,
-    unreliableChannel?: string
+    type?: MessageTypeAlias;
+    unreliableChannel?: string;
 }
 
 export type UnreliableMessageType = "json" | "raw"
@@ -15,6 +15,6 @@ export type UnreliableMessageReturn = DataProducer | ClientDataProducer | Error
 
 export type CreateWebRtcTransportParams = {
     peerId?: string;
-    direction: 'recv' | 'send',
-    sctpCapabilities: SctpCapabilities
+    direction: 'recv' | 'send';
+    sctpCapabilities: SctpCapabilities;
 }

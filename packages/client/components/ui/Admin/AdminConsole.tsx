@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
 import Container from '@material-ui/core/Container';
 import { bindActionCreators, Dispatch } from 'redux';
 import { fetchAdminVideos } from '../../../redux/admin/service';
-import './admin.scss';
+import styles from './Admin.module.scss';
 import { selectAdminState } from '../../../redux/admin/selector';
 import { selectVideoState } from '../../../redux/video/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
@@ -95,8 +95,8 @@ const AdminConsole = (props: Props): any => {
   return (
     <div>
       {auth.get('user').userRole === 'admin' && (
-        <div className={'page-container'}>
-          <div className={'header'}>
+        <div className={styles['page-container']}>
+          <div className={styles.header}>
             <Button variant="contained" color="primary" onClick={() => goToRoot()} >
               <ArrowBackIcon/>
             </Button>
@@ -106,16 +106,16 @@ const AdminConsole = (props: Props): any => {
             <Button />
           </div>
           <Container component="main" maxWidth="md">
-            <div className={'admin'}>
-              <GridList className={'grid'} cellHeight={200} cols={2}>
+            <div className={styles.admin}>
+              <GridList className={styles.grid} cellHeight={200} cols={2}>
                 {videos.get('videos').map((video) => (
-                  <GridListTile className={'cell'} key={video.id} cols={1}>
+                  <GridListTile className={styles.cell} key={video.id} cols={1}>
                     <img src={video.metadata.thumbnailUrl} alt={video.name} />
                     <GridListTileBar
                       title={video.name}
                       actionIcon={
                         <IconButton
-                          className={'info-icon'}
+                          className={styles['info-icon']}
                           onClick={() => handleEditModal(video)}
                         >
                           <InfoIcon />

@@ -18,7 +18,7 @@ import { Engine } from "../../ecs/classes/Engine";
  * @param interactive
  * @param delta
  */
-export const interactRaycast:Behavior = (entity: Entity, { interactive }:InteractBehaviorArguments, delta: number): void => {
+export const interactRaycast: Behavior = (entity: Entity, { interactive }: InteractBehaviorArguments, delta: number): void => {
   const clientPosition = getComponent(entity, TransformComponent).position;
   // - added mouse position tracking
   const mouseScreenPosition = getComponent(entity, Input).data.get(DefaultInput.SCREENXY);
@@ -33,7 +33,7 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
     return;
   }
 
-  const raycastList:Array<Object3D> = interactive
+  const raycastList: Array<Object3D> = interactive
     .filter(interactiveEntity => {
       // - have object 3d to raycast
       if (!hasComponent(interactiveEntity, Object3DComponent)) {
@@ -70,15 +70,18 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
   const rayCamera = Engine.camera.clone();
   const rayMouse = mouseScreen;
   raycaster.setFromCamera(rayMouse,rayCamera);
-  let intersections = raycaster.intersectObjects(raycastList, true );
+  const intersections = raycaster.intersectObjects(raycastList, true );
+
+/*  may come in handy in the future
 
   if (!intersections.length){
-  const rayOrigin = clientPosition;
-  const rayDirection = character.viewVector.clone().normalize().setY(0);
-  raycaster.set(rayOrigin, rayDirection);
-  intersections = raycaster.intersectObjects( raycastList, true );
-}
-  
+    const rayOrigin = clientPosition;
+    const rayDirection = character.viewVector.clone().normalize().setY(0);
+    raycaster.set(rayOrigin, rayDirection);
+    intersections = raycaster.intersectObjects( raycastList, true );
+  }
+*/
+
   if (intersections.length) {
     object = intersections[0].object;
     while (raycastList.indexOf(object)===-1 && object.parent) {

@@ -30,7 +30,7 @@ const options = {
     schema: CharacterSubscriptionSchema
   },
   physics: {
-    enabled: false
+    enabled: true
   },
   particles: {
     enabled: false

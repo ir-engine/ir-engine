@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import './style.scss';
+import styles from './PartyParticipantWindow.module.scss';
 import { autorun } from 'mobx';
 import { observer } from 'mobx-react';
 import IconButton from '@material-ui/core/IconButton';
 import Slider from '@material-ui/core/Slider';
 import Tooltip from '@material-ui/core/Tooltip';
+import classNames from 'classnames';
 
 import {
     Mic,
@@ -227,17 +228,22 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     return (
         <div
             id={props.peerId + '_container'}
-            className={`party-chat-user ${videoStream == null ? 'no-video' : ''} ${(videoStream && (videoProducerPaused === true || videoStreamPaused === true)) ? 'video-paused': ''} ${(audioStream && (audioProducerPaused === true || audioStreamPaused === true)) ? 'audio-paused': ''}`}
+            className={classNames({
+                [styles['party-chat-user']]: true,
+                [styles['no-video']]: videoStream == null,
+                [styles['video-paused']]: (videoStream && (videoProducerPaused === true || videoStreamPaused === true)),
+                [styles['audio-paused']]: (audioStream && (audioProducerPaused === true || audioStreamPaused === true))
+            })}
             style={props.containerProportions || {}}
         >
             {
-                audioProducerGlobalMute === true && <div className="global-mute">Muted by Admin</div>
+                audioProducerGlobalMute === true && <div className={styles['global-mute']}>Muted by Admin</div>
             }
-            <div className="user-controls">
+            <div className={styles['user-controls']}>
                 <Tooltip title={videoProducerPaused === false && videoStreamPaused === false ? 'Pause Video' : 'Resume Video'}>
                     <IconButton
                         size="small"
-                        className="video-control"
+                        className={styles['video-control']}
                         onClick={toggleVideo}
                         style={{visibility : (videoStream == null || videoProducerPaused === true || videoProducerGlobalMute) ? 'hidden' : 'visible' }}
                     >
@@ -247,19 +253,19 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                 </Tooltip>
                 {
                     audioStream && audioProducerPaused === false && audioProducerGlobalMute === false &&
-                        <div className="audio-slider">
+                        <div className={styles['audio-slider']}>
                             { volume > 0 && <VolumeDown/> }
                             { volume === 0 && <VolumeMute/>}
                             <Slider value={volume} onChange={adjustVolume} aria-labelledby="continuous-slider"/>
                             <VolumeUp/>
                         </div>
                 }
-                <div className="right-controls">
+                <div className={styles['right-controls']}>
                     {
                         enableGlobalMute && peerId !== 'me_cam' && peerId !== 'me_screen' && <Tooltip title={audioProducerGlobalMute === false ? 'Mute for everyone' : 'Unmute for everyone'}>
                             <IconButton
                                 size="small"
-                                className="audio-control"
+                                className={styles['audio-control']}
                                 onClick={toggleGlobalMute}
                             >
                                 { audioStream && audioProducerGlobalMute === false && <RecordVoiceOver /> }
@@ -268,12 +274,12 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                         </Tooltip>
                     }
                     {
-                        enableGlobalMute && peerId !== 'me_cam' && peerId !== 'me_screen' && <div className="spacer"/>
+                        enableGlobalMute && peerId !== 'me_cam' && peerId !== 'me_screen' && <div className={styles['spacer']}/>
                     }
                     <Tooltip title={(peerId === 'me_cam' || peerId === 'me_screen') && audioStream?.paused === false ? 'Mute me' : (peerId === 'me_cam' || peerId === 'me_screen') && audioStream?.paused === true ? 'Unmute me' : (peerId !== 'me_cam' && peerId !== 'me_screen') && audioStream?.paused === false ? 'Mute this person' : 'Unmute this person' }>
                         <IconButton
                             size="small"
-                            className="audio-control"
+                            className={styles['audio-control']}
                             onClick={toggleAudio}
                             style={{visibility : (audioProducerPaused === true || audioProducerGlobalMute === true) ? 'hidden' : 'visible' }}
                         >

@@ -16,7 +16,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import NextLink from 'next/link';
 import getConfig from 'next/config';
-import './style.scss';
+import styles from './Auth.module.scss';
 import { User } from '@xr3ngine/common/interfaces/User';
 
 const config = getConfig().publicRuntimeConfig.staticPages;
@@ -135,7 +135,7 @@ const MagicLinkEmail = (props: Props): any => {
           {state.descr}
         </Typography>
 
-        <form className={'form'} noValidate onSubmit={(e) => handleSubmit(e)}>
+        <form className={styles.form} noValidate onSubmit={(e) => handleSubmit(e)}>
           <Grid container>
             <Grid item xs={12}>
               <TextField
@@ -177,7 +177,7 @@ const MagicLinkEmail = (props: Props): any => {
                 fullWidth
                 variant="contained"
                 color="primary"
-                className="submit"
+                className={styles.submit}
                 disabled={!state.isAgreedTermsOfService}
               >
                 Send Login Link

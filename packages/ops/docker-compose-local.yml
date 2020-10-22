@@ -37,25 +37,6 @@ services:
     restart: always
     ports:
       - '3000:3000'
-  
-  editor:
-    build:
-      context: ../Editor
-    image: xr3ngine/editor
-    environment: 
-      BASE_ASSETS_PATH: http://xr3ngine.local/ 
-      HUBS_SERVER: xr3ngine.local:4000
-      RETICULUM_SERVER: xr3ngine.local:4000
-      THUMBNAIL_SERVER: 
-      CORS_PROXY_SERVER: 
-      NON_CORS_PROXY_DOMAINS: 
-      SENTRY_DSN: 
-      GA_TRACKING_ID: 
-      IS_XR3: "false"
-    restart: always
-    ports:
-      - '9090:80'
-
  
   # DB Server
   db:

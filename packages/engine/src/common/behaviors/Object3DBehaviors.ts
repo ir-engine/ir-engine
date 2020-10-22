@@ -62,7 +62,7 @@ const isObj = o => o?.constructor === Object;
 
 export const addObject3DComponent: Behavior = (
   entity: Entity,
-  args: { obj3d: any, obj3dArgs?: any, parentEntity?: Entity }
+  args: { obj3d: any; obj3dArgs?: any; parentEntity?: Entity }
 ) => {
 
   const isObject3d =(typeof args.obj3d === 'object');

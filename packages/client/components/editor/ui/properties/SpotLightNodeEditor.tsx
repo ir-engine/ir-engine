@@ -13,7 +13,9 @@ type SpotLightNodeEditorProps = {
   node?: object;
   multiEdit?: boolean;
 };
-export default class SpotLightNodeEditor extends Component<{}, {}> {
+export default class SpotLightNodeEditor extends Component<SpotLightNodeEditorProps, {}> {
+  static iconComponent = Bullseye;
+  static description = "A light which emits along a direction, illuminating objects within a cone.";
   onChangeColor = color => {
     (this.props as any).editor.setPropertySelected("color", color);
   };

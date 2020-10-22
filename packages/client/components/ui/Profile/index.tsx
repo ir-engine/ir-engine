@@ -2,7 +2,7 @@ import React, { Fragment, useState } from 'react';
 import UserProfile from './UserIcon';
 import UserSettings from './UserSettings';
 import Subscription from './Subscription';
-import './style.scss';
+import styles from './Profile.module.scss';
 import {
     Settings,
     AccountCircle,
@@ -26,6 +26,7 @@ interface Props {
   avatarUrl: string;
   auth: any;
 }
+import classNames from 'classnames';
 
 const TabPanel = (props: any): any => <Fragment>{props.value === props.index && props.children}</Fragment>;
 
@@ -52,7 +53,7 @@ const ProfileModal = (props: Props): any => {
   //   </TabPanel>
   // )
   const subscription = (
-    <TabPanel value={tabIndex} className="subscription-profile" index={2}>
+    <TabPanel value={tabIndex} className={styles['subscription-profile']} index={2}>
       <Subscription auth={props.auth}/>
     </TabPanel>
   );
@@ -61,7 +62,7 @@ const ProfileModal = (props: Props): any => {
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
-        className="modal"
+        className={styles.modal}
         open={props.open}
         onClose={props.handleClose}
         closeAfterTransition
@@ -71,7 +72,10 @@ const ProfileModal = (props: Props): any => {
         }}
       >
         <Fade in={props.open}>
-          <div className="paper profile">
+          <div className={classNames({
+              [styles.paper]: true,
+              [styles.profile]: true
+          })}>
             <Tabs
               value={tabIndex}
               onChange={handleChange}

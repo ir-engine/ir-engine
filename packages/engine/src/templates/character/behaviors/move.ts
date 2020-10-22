@@ -17,7 +17,7 @@ const outputSpeed: Vector3 = new Vector3();
 
 export const move: Behavior = (
   entity: Entity,
-  args: { input: InputAlias, inputType: InputType, value: [number,number] },
+  args: { input: InputAlias; inputType: InputType; value: [number,number] },
   time: any
 ): void => {
 
@@ -48,7 +48,7 @@ export const move: Behavior = (
 
 export const moveByInputAxis: Behavior = (
   entity: Entity,
-  args: { input: InputAlias, inputType: InputType },
+  args: { input: InputAlias; inputType: InputType },
   time: any
 ): void => {
   actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);

@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 export const TabBar = (styled as any).div`
   height: 30px;
-  max-width: 600px;
+  max-width: 100%;
   transition: all 0.4s ease-out;
   background: #222;
   display: flex;
