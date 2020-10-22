@@ -85,11 +85,13 @@ export class AcceptInvite implements ServiceMethods<Data> {
             return new BadRequest('Invalid group ID');
           }
 
+          const { query, ...paramsCopy } = params;
+          paramsCopy.skipAuth = true;
           await this.app.service('group-user').create({
             userId: inviteeIdentityProvider.userId,
             groupId: invite.targetObjectId,
             groupUserRank: 'user'
-          });
+          }, paramsCopy);
         } else if (invite.inviteType === 'party') {
           const party = await this.app.service('party').get(invite.targetObjectId, params);
 
@@ -101,11 +103,13 @@ export class AcceptInvite implements ServiceMethods<Data> {
             partyId: invite.targetObjectId
           });
 
+          const { query, ...paramsCopy } = params;
+          paramsCopy.skipAuth = true;
           await this.app.service('party-user').create({
             userId: inviteeIdentityProvider.userId,
             partyId: invite.targetObjectId,
             isOwner: false
-          });
+          }, paramsCopy);
         }
       } else if (invite.inviteeId != null) {
         const invitee = await this.app.service('user').get(invite.inviteeId);
@@ -135,11 +139,13 @@ export class AcceptInvite implements ServiceMethods<Data> {
             return new BadRequest('Invalid group ID');
           }
 
+          const { query, ...paramsCopy } = params;
+          paramsCopy.skipAuth = true;
           await this.app.service('group-user').create({
             userId: invite.inviteeId,
             groupId: invite.targetObjectId,
             groupUserRank: 'user'
-          });
+          }, paramsCopy);
         } else if (invite.inviteType === 'party') {
           const party = await this.app.service('party').get(invite.targetObjectId, params);
 
@@ -151,11 +157,13 @@ export class AcceptInvite implements ServiceMethods<Data> {
             partyId: invite.targetObjectId
           });
 
+          const { query, ...paramsCopy } = params;
+          paramsCopy.skipAuth = true;
           await this.app.service('party-user').create({
             userId: invite.inviteeId,
             partyId: invite.targetObjectId,
             isOwner: false
-          });
+          }, paramsCopy);
         }
       }
 
