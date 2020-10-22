@@ -112,6 +112,8 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
 export function createVehicleBody (entity: Entity ) {
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
+  const colliderTrimOffset = new Vec3().set(...vehicleComponent.colliderTrimOffset);
+  const collidersSphereOffset = new Vec3().set(...vehicleComponent.collidersSphereOffset);
   const wheelsPositions = vehicleComponent.arrayWheelsPosition;
   const wheelRadius = vehicleComponent.wheelRadius;
   const vehicleCollider = vehicleComponent.vehicleCollider;
@@ -121,8 +123,7 @@ export function createVehicleBody (entity: Entity ) {
   let chassisBody, chassisShape;
 
   if (vehicleCollider) {
-    const offset = new Vec3(0, -0.8, 0);
-    chassisBody = createTrimesh(vehicleCollider, offset, mass);
+    chassisBody = createTrimesh(vehicleCollider, colliderTrimOffset, mass);
     chassisBody.shapes.forEach((shape) => {
       shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
     });
@@ -136,11 +137,10 @@ export function createVehicleBody (entity: Entity ) {
   for (let i = 0; i < vehicleSphereColliders.length; i++) {
     const shape = new Sphere(vehicleSphereColliders[i].scale.x);
     shape.collisionFilterMask = ~CollisionGroups.Characters;
-    chassisBody.addShape(shape, cannonFromThreeVector(vehicleSphereColliders[i].position));
+    chassisBody.addShape(shape, cannonFromThreeVector(vehicleSphereColliders[i].position).vadd(collidersSphereOffset));
   }
 
 
-  //  let
   chassisBody.position.x = transform.position.x;
   chassisBody.position.y = transform.position.y;
   chassisBody.position.z = transform.position.z;
@@ -199,9 +199,10 @@ export function createVehicleBody (entity: Entity ) {
 
   vehicle.addToWorld(PhysicsManager.instance.physicsWorld);
 
-
+/*
   for (let i = 0; i < wheelBodies.length; i++) {
     PhysicsManager.instance.physicsWorld.addBody(wheelBodies[i]);
   }
+  */
   return vehicle;
 }
