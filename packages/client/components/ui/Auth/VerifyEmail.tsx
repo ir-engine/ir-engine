@@ -4,7 +4,7 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import EmptyLayout from '../Layout/EmptyLayout';
 import { verifyEmail } from '../../../redux/auth/service';
-import './style.module.scss';
+import styles from './Auth.module.scss';
 
 interface Props {
   auth: any;
@@ -23,7 +23,7 @@ const VerifyEmail = (props: Props): any => {
   return (
     <EmptyLayout>
       <Container component="main" maxWidth="md">
-        <div className={'paper'}>
+        <div className={styles.paper}>
           <Typography component="h1" variant="h5">
             Verify Email
           </Typography>

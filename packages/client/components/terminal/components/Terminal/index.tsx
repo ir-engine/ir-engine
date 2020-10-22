@@ -130,7 +130,7 @@ class Terminal extends Component<any, any> {
       isTerminalExpanded: isTerminalExpanded,
       commands: {},
       descriptions: {},
-      show: props.startState !== 'closed',
+      show: false,
       minimise: props.startState === 'minimised',
       maximise: props.startState === 'maximised',
       shortcuts: {},
@@ -160,21 +160,30 @@ class Terminal extends Component<any, any> {
     };
   }
 
-  // Prepare the symbol
-  componentWillMount = () => {
+  f = (event: KeyboardEvent): void => {
+    if (event.keyCode === 192) {
+      event.preventDefault();
+      this.setState ({ ...this.state, show: 'open'});
+    }
+  };
+
+
+  // Load everything!
+  componentDidMount = () => {
     this.loadPlugins();
     this.assembleCommands();
     this.setDescriptions();
     this.setShortcuts();
     this.createTab(true);
-  };
-
-  // Load everything!
-  componentDidMount = () => {
     if (this.props.watchConsoleLogging) {
       this.watchConsoleLogging();
     }
+    document.addEventListener("keydown", this.f);
   };
+
+  componentWillUnmount = () => {
+      document.removeEventListener('keydown', this.f);
+  }
 
   // Tab creation
   createTab = (force = false) => {

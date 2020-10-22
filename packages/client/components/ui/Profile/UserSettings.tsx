@@ -12,7 +12,7 @@ import MicIcon from '@material-ui/icons/Mic';
 import MicOffIcon from '@material-ui/icons/MicOff';
 import Slider from '@material-ui/core/Slider';
 import Switch from '@material-ui/core/Switch';
-import './style.module.scss';
+import styles from './Profile.module.scss';
 
 const UserSettings = (): any => {
   const [volume, setvolume] = useState<number>(30);
@@ -37,7 +37,7 @@ const UserSettings = (): any => {
   };
 
   return (
-    <div className="root">
+    <div className={styles.root}>
       <Typography id="continuous-slider" gutterBottom style={{ padding: 10 }}>
         Microphone volume
       </Typography>

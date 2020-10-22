@@ -5,7 +5,7 @@ import { selectAlertState } from '../../../redux/alert/selector';
 import { alertCancel } from '../../../redux/alert/service';
 import { bindActionCreators, Dispatch } from 'redux';
 import { Box } from '@material-ui/core';
-import './style.module.scss';
+import styles from './Common.module.scss';
 
 interface Props {
   alert: any;
@@ -33,7 +33,7 @@ const Alerts = (props: Props): any => {
   const message = alert.get('message');
 
   return (
-    <div className="alert-container">
+    <div className={styles.alertContainer}>
       {type === 'none' || message === '' ? (
         <Box />
       ) : (

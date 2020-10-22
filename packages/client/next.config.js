@@ -4,16 +4,47 @@ process.env.NODE_CONFIG_DIR = path.join(appRootPath.path, 'packages/client/confi
 const conf = require('config');
 const withImages = require('next-images')
 
+console.log({
+  API_SERVER: process.env.API_SERVER,
+  API_SERVER_ADDRESS: process.env.API_SERVER_ADDRESS,
+  API_RESOLVE_MEDIA_ROUTE: process.env.API_RESOLVE_MEDIA_ROUTE,
+  API_PROJECTS_ROUTE: process.env.API_PROJECTS_ROUTE,
+  USE_HTTPS: process.env.USE_HTTPS === 'true',
+  API_MEDIA_ROUTE: process.env.API_MEDIA_ROUTE
+})
+
 module.exports = withImages(
-{
+  {
     /* config options here */
     publicRuntimeConfig: conf.get('publicRuntimeConfig'),
-        env: {
+    env: {
       API_SERVER: process.env.API_SERVER,
       API_SERVER_ADDRESS: process.env.API_SERVER_ADDRESS,
       API_RESOLVE_MEDIA_ROUTE: process.env.API_RESOLVE_MEDIA_ROUTE,
       API_PROJECTS_ROUTE: process.env.API_PROJECTS_ROUTE,
-      USE_HTTPS: process.env.USE_HTTPS === 'true',
+      API_MEDIA_ROUTE: process.env.API_MEDIA_ROUTE,
+      HOST_PORT: "3030",
+      HOST_IP: "localhost",
+      USE_HTTPS: true,
+      API_SERVER_ADDRESS: "localhost:3030",
+      API_ASSETS_ROUTE: "/static-resource",
+      API_ASSETS_ACTION: "assets",
+      API_MEDIA_ROUTE: "/media",
+      API_MEDIA_SEARCH_ROUTE: "-search",
+      API_META_ROUTE: "/meta",
+      API_PROJECTS_ROUTE: "/collection",
+      API_RESOLVE_MEDIA_ROUTE: "/resolve-media",
+      API_PROJECT_PUBLISH_ACTION: "/publish-project",
+      API_SCENES_ROUTE: "/collection",
+      API_SOCKET_ENDPOINT: "/socket",
+      ROUTER_BASE_PATH: "/editor",
+      CLIENT_ADDRESS: "localhost:3030",
+      CLIENT_SCENE_ROUTE: "/scenes/",
+      CLIENT_LOCAL_SCENE_ROUTE: "/scene.html?scene_id=",
+      THUMBNAIL_SERVER: "localhost:3030",
+      THUMBNAIL_ROUTE: "/thumbnail/",
+      NON_CORS_PROXY_DOMAINS: "localhost:3030",
+      CORS_PROXY_SERVER: "localhost:3030"
     },
     dir: './',
     distDir: './.next',
@@ -42,26 +73,26 @@ module.exports = withImages(
           }]
         },
         {
-        test: /\.(world)(\?.*$|$)/,
-        use: ['cache-loader', 'thread-loader', {
-          loader: "file-loader",
-          options: {
-            name: "[name]-[hash].[ext]",
-            outputPath: "editor/assets/templates"
-          }
-        }]
-      },
-      {
-        test: /\.ts$/,
-        use: ['cache-loader', 'thread-loader', {
-          loader: 'ts-loader',
-          options: {
-            allowTsInNodeModules: true,
-            transpileOnly: true,
-            happyPackMode: true
-          },
-        }]
-      })
+          test: /\.(world)(\?.*$|$)/,
+          use: ['cache-loader', 'thread-loader', {
+            loader: "file-loader",
+            options: {
+              name: "[name]-[hash].[ext]",
+              outputPath: "editor/assets/templates"
+            }
+          }]
+        },
+        {
+          test: /\.ts$/,
+          use: ['cache-loader', 'thread-loader', {
+            loader: 'ts-loader',
+            options: {
+              allowTsInNodeModules: true,
+              transpileOnly: true,
+              happyPackMode: true
+            },
+          }]
+        })
 
       config.module.rules.push({
         test: /\.(glb)(\?.*$|$)/,
@@ -114,17 +145,17 @@ module.exports = withImages(
         test: /\.worker\.js$/,
         include: path.join(__dirname, "src"),
         use: ['cache-loader', 'thread-loader', {
-        loader: "worker-loader",
-        options: {
-          // Workers must be inlined because they are hosted on a CDN and CORS doesn't permit us
-          // from loading worker scripts from another origin. To minimize bundle size, dynamically
-          // import a wrapper around the worker. See SketchfabZipLoader.js and API.js for an example.
-          name: "editor/assets/js/workers/[name]-[hash].js",
-          inline: true,
-          fallback: false
-        }
-      }]
-    })
+          loader: "worker-loader",
+          options: {
+            // Workers must be inlined because they are hosted on a CDN and CORS doesn't permit us
+            // from loading worker scripts from another origin. To minimize bundle size, dynamically
+            // import a wrapper around the worker. See SketchfabZipLoader.js and API.js for an example.
+            name: "editor/assets/js/workers/[name]-[hash].js",
+            inline: true,
+            fallback: false
+          }
+        }]
+      })
       config.module.rules.push({
         test: /\.tmp$/,
         type: "javascript/auto",

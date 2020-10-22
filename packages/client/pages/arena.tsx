@@ -1,12 +1,12 @@
 import { AppProps } from 'next/app';
 import React, { useEffect } from 'react';
-//import './style.module.scss';
+//import './Admin.module.scss';
 import {Button} from '@material-ui/core';
 import NoSSR from 'react-no-ssr';
 import { connect } from 'react-redux';
 import {Store, Dispatch, bindActionCreators} from 'redux';
-import Loading from '../components/gl/loading';
-import Scene from '../components/gl/scene';
+import Loading from '../components/scenes/loading';
+import Scene from '../components/scenes/scene';
 import Layout from '../components/ui/Layout';
 import { selectAuthState } from '../redux/auth/selector';
 import { selectInstanceConnectionState } from '../redux/instanceConnection/selector';

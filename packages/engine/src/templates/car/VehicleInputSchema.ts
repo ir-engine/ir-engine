@@ -1,13 +1,4 @@
-import { BinaryValue } from '../../common/enums/BinaryValue';
 import { Thumbsticks } from '../../common/enums/Thumbsticks';
-import { disableScroll, enableScroll } from '../../common/functions/enableDisableScrolling';
-import { preventDefault } from '../../common/functions/preventDefault';
-import { handleMouseMovement } from "../../input/behaviors/handleMouseMovement";
-import { handleMouseButton } from "../../input/behaviors/handleMouseButton";
-import { handleKey } from "../../input/behaviors/handleKey";
-import { handleGamepadConnected, handleGamepadDisconnected } from '../../input/behaviors/GamepadInputBehaviors';
-import { handleTouch } from '../../input/behaviors/handleTouch';
-import { handleTouchMove } from '../../input/behaviors/handleTouchMove';
 import { GamepadButtons } from '../../input/enums/GamepadButtons';
 import { InputType } from '../../input/enums/InputType';
 import { MouseInput } from '../../input/enums/MouseInput';
@@ -20,145 +11,11 @@ import { DefaultInput } from '../shared/DefaultInput';
 import { driveSteering } from "../../physics/behaviors/driveSteeringBehavior";
 // import { honk } from './behaviors/honk';
 import { driveHandBrake } from "../../physics/behaviors/driveHandBrake";
-import { interact } from "../../interaction/behaviors/interact";
-import {
-  handleOnScreenGamepadButton,
-  handleOnScreenGamepadMovement
-} from "../../input/behaviors/handleOnScreenJoystick";
-import { moveByInputAxis } from "../character/behaviors/move";
 import { changeColor } from "./behaviors/changeColor";
+import { DefaultInputSchema } from "../shared/DefaultInputSchema";
 
 export const VehicleInputSchema: InputSchema = {
-  // When an Input component is added, the system will call this array of behaviors
-  onAdded: [
-    {
-      behavior: disableScroll
-    }
-  ],
-  // When an Input component is removed, the system will call this array of behaviors
-  onRemoved: [
-    {
-      behavior: enableScroll
-    }
-  ],
-  // When the input component is added or removed, the system will bind/unbind these events to the DOM
-  eventBindings: {
-    // Mouse
-    contextmenu: [
-      {
-        behavior: preventDefault
-      }
-    ],
-    mousemove: [
-      {
-        behavior: handleMouseMovement,
-        args: {
-          value: DefaultInput.SCREENXY
-        }
-      }
-    ],
-    mouseup: [
-      {
-        behavior: handleMouseButton,
-        args: {
-          value: BinaryValue.OFF
-        }
-      }
-    ],
-    mousedown: [
-      {
-        behavior: handleMouseButton,
-        args: {
-          value: BinaryValue.ON
-        }
-      }
-    ],
-
-    // Touch
-    touchstart: [
-      {
-        behavior: handleTouch,
-        args: {
-          value: BinaryValue.ON
-        }
-      },
-      // {
-      //   behavior: rotateStart
-      // }
-    ],
-    touchend: [
-      {
-        behavior: handleTouch,
-        args: {
-          value: BinaryValue.OFF
-        }
-      }
-    ],
-    touchcancel: [
-      {
-        behavior: handleTouch,
-        args: {
-          value: BinaryValue.OFF
-        }
-      }
-    ],
-    touchmove: [
-      {
-        behavior: handleTouchMove
-      }
-    ],
-
-    // Keys
-    keyup: [
-      {
-        behavior: handleKey,
-        args: {
-          value: BinaryValue.OFF
-        }
-      }
-    ],
-    keydown: [
-      {
-        behavior: handleKey,
-        args: {
-          value: BinaryValue.ON
-        }
-      }
-    ],
-    // Gamepad
-    gamepadconnected: [
-      {
-        behavior: handleGamepadConnected
-      }
-    ],
-    gamepaddisconnected: [
-      {
-        behavior: handleGamepadDisconnected
-      }
-    ],
-    // mobile onscreen gamepad
-    stickmove: [
-      {
-        behavior: handleOnScreenGamepadMovement
-      }
-    ],
-    mobilegamepadbuttondown: [
-      {
-        behavior: handleOnScreenGamepadButton,
-        args: {
-          value: BinaryValue.ON
-        }
-      }
-    ],
-    mobilegamepadbuttonup: [
-      {
-        behavior: handleOnScreenGamepadButton,
-        args: {
-          value: BinaryValue.OFF
-        }
-      }
-    ]
-  },
+  ...DefaultInputSchema,
   // Map mouse buttons to abstract input
   mouseInputMap: {
     buttons: {
