@@ -20,18 +20,22 @@ export const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEv
 
   const normalizedPosition = normalizeMouseCoordinates(args.event.targetTouches[0].clientX, args.event.targetTouches[0].clientY, window.innerWidth, window.innerHeight);
   const touchPosition: [number, number] = [normalizedPosition.x, normalizedPosition.y];
-  const touchPrevInput = input.prevData.get(DefaultInput.SCREENXY);
-  const normalizedPrevPosition = normalizeMouseCoordinates(touchPrevInput.value[0], touchPrevInput.value[1], window.innerWidth, window.innerHeight);
-  const touchPrevPosition: [number, number] = [ normalizedPrevPosition.x, normalizedPrevPosition.y ];
-  const touchMovementPositionX = (touchPosition[0] - touchPrevPosition[0]);
-  const touchMovementPositionY = (touchPosition[1] - touchPrevPosition[1]);
-  const touchMovement: [number, number] = [ touchMovementPositionX, touchMovementPositionY ];
 
   const mappedPositionInput = input.schema.touchInputMap?.axes[TouchInputs.Touch1Position];
   const mappedMovementInput = input.schema.touchInputMap?.axes[TouchInputs.Touch1Movement];
 
   if (!mappedPositionInput) {
     return;
+  }
+
+  let touchMovement: [number, number] = [ 0,0 ];
+  if (mappedMovementInput && input.prevData.has(mappedPositionInput)) {
+    const touchPositionPrevInput = input.prevData.get(mappedPositionInput);
+    //const normalizedPrevPosition = normalizeMouseCoordinates(touchPositionPrevInput.value[0], touchPositionPrevInput.value[1], window.innerWidth, window.innerHeight);
+    //const touchPrevPosition: [number, number] = [ normalizedPrevPosition.x, normalizedPrevPosition.y ];
+    const touchMovementPositionX = (touchPosition[0] - touchPositionPrevInput.value[0]);
+    const touchMovementPositionY = (touchPosition[1] - touchPositionPrevInput.value[1]);
+    touchMovement = [ touchMovementPositionX, touchMovementPositionY ];
   }
 
   if (mappedPositionInput) {
