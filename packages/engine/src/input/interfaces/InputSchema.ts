@@ -3,6 +3,7 @@ import { InputAlias } from '../types/InputAlias';
 import { InputRelationship } from './InputRelationship';
 import { BinaryValue } from '../../common/enums/BinaryValue';
 import { TouchInputs } from '../enums/TouchInputs';
+import { DomEventBehaviorValue } from "../../common/interfaces/DomEventBehaviorValue";
 
 export interface InputSchema {
   // Called by input system when an Input component is added
@@ -11,7 +12,7 @@ export interface InputSchema {
   onRemoved: BehaviorValue[]; // Function
   // Bound to events on added, unbound on removed
   eventBindings?: {
-    [key: string]: BehaviorValue[];
+    [key: string]: DomEventBehaviorValue[];
   };
   cameraInputMap?: {
     [key: number]: InputAlias;

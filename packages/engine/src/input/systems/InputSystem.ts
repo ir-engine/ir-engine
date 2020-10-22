@@ -13,6 +13,8 @@ import { InputValue } from "../interfaces/InputValue";
 import { NumericalType } from "../../common/types/NumericalTypes";
 import { InputAlias } from "../types/InputAlias";
 import { handleInputPurge } from "../behaviors/handleInputPurge";
+import { DomEventBehaviorValue } from "../../common/interfaces/DomEventBehaviorValue";
+import { Engine } from "../../ecs/classes/Engine";
 /**
  * Input System
  *
@@ -89,8 +91,25 @@ export class InputSystem extends System {
       const listenersDataArray: ListenerBindingData[] = [];
       this.entityListeners.set(entity, listenersDataArray);
       Object.keys(this._inputComponent.schema.eventBindings)?.forEach((eventName: string) => {
-        this._inputComponent.schema.eventBindings[eventName].forEach((behaviorEntry: any) => {
-          const domElement = behaviorEntry.selector ? document.querySelector(behaviorEntry.selector) : document;
+        this._inputComponent.schema.eventBindings[eventName].forEach((behaviorEntry: DomEventBehaviorValue) => {
+          let domParentElement:EventTarget = Engine.viewportElement ?? document;
+          if (behaviorEntry.element) {
+            switch (behaviorEntry.element) {
+              case "window":
+                domParentElement = window;
+                break;
+              case "document":
+                domParentElement = document;
+                break;
+              case "viewport":
+              default:
+                domParentElement = Engine.viewportElement;
+            }
+          }
+
+          const domElement = (behaviorEntry.selector && domParentElement instanceof Element) ? domParentElement.querySelector(behaviorEntry.selector) : domParentElement;
+          console.log('InputSystem addEventListener:', eventName, domElement, ' (', behaviorEntry.element, behaviorEntry.selector, ')');
+
           if (domElement) {
             const listener = (event: Event) => behaviorEntry.behavior(entity, { event, ...behaviorEntry.args });
             domElement.addEventListener(eventName, listener);
