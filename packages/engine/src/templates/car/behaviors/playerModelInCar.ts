@@ -1,4 +1,7 @@
+import { Matrix4, Vector3 } from 'three';
 import { FollowCameraComponent } from "@xr3ngine/engine/src/camera/components/FollowCameraComponent";
+import { Interactive } from "@xr3ngine/engine/src/interaction/components/Interactive";
+import { InteractiveFocused } from "@xr3ngine/engine/src/interaction/components/InteractiveFocused";
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
@@ -12,7 +15,7 @@ import { setPosition } from "@xr3ngine/engine/src/templates/character/behaviors/
 import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";
 import { CharacterComponent } from "@xr3ngine/engine/src/templates/character/components/CharacterComponent";
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
-import { Matrix4, Vector3 } from 'three';
+
 
 function openCarDoorAnimation(mesh, timer, timeAnimation) {
   if (timer > (timeAnimation/2)) {
@@ -72,8 +75,9 @@ export const playerModelInCar: Behavior = (entity: Entity, args: { type: string;
 
   if (stateComponent.data.has(CharacterStateTypes.ENTER_VEHICLE)) {
     if (!hasComponent(entityCar, LocalInputReceiver)) {
+      removeComponent(entityCar, InteractiveFocused);
       addComponent(entityCar, LocalInputReceiver);
-      addComponent(entityCar, FollowCameraComponent, { distance: 4, mode: "thirdPerson" });
+      addComponent(entityCar, FollowCameraComponent, { distance: 4, mode: "thirdPerson", raycastBoxOn: false });
       vehicleComponent.currentDriver = entity;
     }
 

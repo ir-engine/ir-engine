@@ -25,11 +25,11 @@ export const addCollider: Behavior = (entity: Entity, args: { type: string; phas
   }
 
   // phase onAdded
-  console.log("*** Adding collider");
+  //console.log("*** Adding collider");
   const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
 
-  console.log("collider type "+collider.type);
+  //console.log("collider type "+collider.type);
   let body;
   if (collider.type === 'box') body = createBox(entity);
   else if (collider.type === 'cylinder') body = createCylinder(entity);
