@@ -258,6 +258,6 @@ var DracoFileCreator = /** @class */ (function () {
 // for file in *.ply
 // ../corto $file
 // end
-new DracoFileCreator('crt', 'png', 0, 299, 'CRT_fromPLY-meshlab2_sample_v35_299frames.drcs', function () {
+new DracoFileCreator('crt', 'png', 0, 2759, 'PLY-luna-med2760.drcs', function () {
   console.log('Converted to Dracosis');
 });
