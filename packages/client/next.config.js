@@ -1,92 +1,123 @@
 const path = require('path')
 const appRootPath = require('app-root-path')
 process.env.NODE_CONFIG_DIR = path.join(appRootPath.path, 'packages/client/config')
-const config = require('config')
-const withSass = require('@zeit/next-sass')
+const conf = require('config');
 const withImages = require('next-images')
 
+console.log({
+  API_SERVER: process.env.API_SERVER,
+  API_SERVER_ADDRESS: process.env.API_SERVER_ADDRESS,
+  API_RESOLVE_MEDIA_ROUTE: process.env.API_RESOLVE_MEDIA_ROUTE,
+  API_PROJECTS_ROUTE: process.env.API_PROJECTS_ROUTE,
+  USE_HTTPS: process.env.USE_HTTPS === 'true',
+  API_MEDIA_ROUTE: process.env.API_MEDIA_ROUTE
+})
+
 module.exports = withImages(
-  withSass({
+  {
     /* config options here */
-    publicRuntimeConfig: config.get('publicRuntimeConfig'),
+    publicRuntimeConfig: conf.get('publicRuntimeConfig'),
     env: {
-      API_SERVER: process.env.API_SERVER
+      API_SERVER: process.env.API_SERVER,
+      API_SERVER_ADDRESS: process.env.API_SERVER_ADDRESS,
+      API_RESOLVE_MEDIA_ROUTE: process.env.API_RESOLVE_MEDIA_ROUTE,
+      API_PROJECTS_ROUTE: process.env.API_PROJECTS_ROUTE,
+      API_MEDIA_ROUTE: process.env.API_MEDIA_ROUTE,
+      HOST_PORT: "3030",
+      HOST_IP: "localhost",
+      USE_HTTPS: true,
+      API_SERVER_ADDRESS: "localhost:3030",
+      API_ASSETS_ROUTE: "/static-resource",
+      API_ASSETS_ACTION: "assets",
+      API_MEDIA_ROUTE: "/media",
+      API_MEDIA_SEARCH_ROUTE: "-search",
+      API_META_ROUTE: "/meta",
+      API_PROJECTS_ROUTE: "/collection",
+      API_RESOLVE_MEDIA_ROUTE: "/resolve-media",
+      API_PROJECT_PUBLISH_ACTION: "/publish-project",
+      API_SCENES_ROUTE: "/collection",
+      API_SOCKET_ENDPOINT: "/socket",
+      ROUTER_BASE_PATH: "/editor",
+      CLIENT_ADDRESS: "localhost:3030",
+      CLIENT_SCENE_ROUTE: "/scenes/",
+      CLIENT_LOCAL_SCENE_ROUTE: "/scene.html?scene_id=",
+      THUMBNAIL_SERVER: "localhost:3030",
+      THUMBNAIL_ROUTE: "/thumbnail/",
+      NON_CORS_PROXY_DOMAINS: "localhost:3030",
+      CORS_PROXY_SERVER: "localhost:3030"
     },
     dir: './',
     distDir: './.next',
-    webpack(config, { isServer }) {
+    webpack(config) {
       config.resolve.alias.utils = path.join(__dirname, 'utils')
-      if (!isServer) { // Fixes dot env fs error
-        config.node = {
-          fs: 'empty'
-        }
-      }
       config.module.rules.push(
-        /*
         {
           test: /\.m?js$/,
-          use: {
+          use: ['cache-loader', 'thread-loader', {
             loader: 'babel-loader',
             options: {
               presets: [
-                '@babel/preset-env',
                 'next/babel'
               ]
             }
-          }
+          }]
         },
-        */
         {
           test: /\.(eot|woff|woff2|ttf)$/,
-          use: {
+          use: ['cache-loader', 'thread-loader', {
             loader: 'url-loader',
             options: {
               limit: 100000,
               name: '[name].[ext]'
             }
-          }
+          }]
         },
         {
-        test: /\.(world)(\?.*$|$)/,
-        use: {
-          loader: "file-loader",
-          options: {
-            name: "[name]-[hash].[ext]",
-            outputPath: "editor/assets/templates"
-          }
-        }
-      },
-      {
-        test: /\.ts$/,
-        use: {
-          loader: 'ts-loader',
-          options: { allowTsInNodeModules: true },
-        }
-      })
+          test: /\.(world)(\?.*$|$)/,
+          use: ['cache-loader', 'thread-loader', {
+            loader: "file-loader",
+            options: {
+              name: "[name]-[hash].[ext]",
+              outputPath: "editor/assets/templates"
+            }
+          }]
+        },
+        {
+          test: /\.ts$/,
+          use: ['cache-loader', 'thread-loader', {
+            loader: 'ts-loader',
+            options: {
+              allowTsInNodeModules: true,
+              transpileOnly: true,
+              happyPackMode: true
+            },
+          }]
+        })
 
       config.module.rules.push({
         test: /\.(glb)(\?.*$|$)/,
-        use: {
+        use: ['cache-loader', 'thread-loader', {
           loader: "file-loader",
           options: {
             name: "[name]-[hash].[ext]",
             outputPath: "editor/assets/models"
           }
-        }
+        }]
       })
       config.module.rules.push({
         test: /\.(gltf)(\?.*$|$)/,
-        use: {
+        use: ['cache-loader', 'thread-loader', {
           loader: "gltf-webpack-loader",
           options: {
             name: "[name]-[hash].[ext]",
             outputPath: "editor/assets/models"
           }
-        }
+        }]
       })
       config.module.rules.push({
         test: /\.(bin)$/,
         use: [
+          'cache-loader', 'thread-loader',
           {
             loader: "file-loader",
             options: {
@@ -98,53 +129,54 @@ module.exports = withImages(
       })
       config.module.rules.push({
         test: /\.(glsl|vert|fs|frag)$/,
-        loader: 'ts-shader-loader'
+        use: ['cache-loader', 'thread-loader', 'ts-shader-loader']
       })
       config.module.rules.push({
         test: /\.(mp4|webm)(\?.*$|$)/,
-        use: {
+        use: ['cache-loader', 'thread-loader', {
           loader: "file-loader",
           options: {
             name: "[name]-[hash].[ext]",
             outputPath: "editor/assets/videos"
           }
-        }
+        }]
       })
       config.module.rules.push({
         test: /\.worker\.js$/,
         include: path.join(__dirname, "src"),
-        loader: "worker-loader",
-        options: {
-          // Workers must be inlined because they are hosted on a CDN and CORS doesn't permit us
-          // from loading worker scripts from another origin. To minimize bundle size, dynamically
-          // import a wrapper around the worker. See SketchfabZipLoader.js and API.js for an example.
-          name: "editor/assets/js/workers/[name]-[hash].js",
-          inline: true,
-          fallback: false
-        }
+        use: ['cache-loader', 'thread-loader', {
+          loader: "worker-loader",
+          options: {
+            // Workers must be inlined because they are hosted on a CDN and CORS doesn't permit us
+            // from loading worker scripts from another origin. To minimize bundle size, dynamically
+            // import a wrapper around the worker. See SketchfabZipLoader.js and API.js for an example.
+            name: "editor/assets/js/workers/[name]-[hash].js",
+            inline: true,
+            fallback: false
+          }
+        }]
       })
       config.module.rules.push({
         test: /\.tmp$/,
         type: "javascript/auto",
-        use: {
+        use: ['cache-loader', 'thread-loader', {
           loader: "file-loader",
           options: {
             name: "[name]-[hash].[ext]"
           }
-        }
+        }]
       })
       config.module.rules.push({
         test: /\.wasm$/,
         type: "javascript/auto",
-        use: {
+        use: ['cache-loader', 'thread-loader', {
           loader: "file-loader",
           options: {
             outputPath: "editor/assets/js/wasm",
             name: "[name]-[hash].[ext]"
           }
-        }
+        }]
       })
       return config
     }
   })
-)

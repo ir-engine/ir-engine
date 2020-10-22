@@ -12,9 +12,9 @@ export class Interactive extends Component<Interactive> {
     data: { type: Types.Ref }
   }
 
-  public onInteractionCheck:InteractionCheckHandler
-  public onInteraction:Behavior
-  public onInteractionFocused:Behavior
-  public interactiveDistance:number
-  public data:any
+  public onInteractionCheck: InteractionCheckHandler
+  public onInteraction: Behavior
+  public onInteractionFocused: Behavior
+  public interactiveDistance: number
+  public data: any
 }

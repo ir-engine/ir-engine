@@ -4,9 +4,9 @@ import { StateType } from '../enums/StateType';
 import { StateAlias } from '../types/StateAlias';
 import { StateGroupAlias } from '../types/StateGroupAlias';
 export interface StateValue<T extends NumericalType> {
-  state: StateAlias
-  type?: StateType
-  value?: T
-  group?: StateGroupAlias
-  lifecycleState: LifecycleValue
+  state: StateAlias;
+  type?: StateType;
+  value?: T;
+  group?: StateGroupAlias;
+  lifecycleState: LifecycleValue;
 }

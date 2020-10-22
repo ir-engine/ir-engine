@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from "react";
 import { CommonInteractiveDataPayload } from "@xr3ngine/engine/src/templates/interactive/interfaces/CommonInteractiveData";
 import dynamic from "next/dynamic";
-import './style.scss';
+import styles from './InfoBox.module.scss';
 import { Button, IconButton } from "@material-ui/core";
 import CloseIcon from '@material-ui/icons/Close';
 
@@ -24,8 +24,8 @@ const handleLinkClick = (url) =>{
     modelView = (<ModelView modelUrl={data.modelUrl} />);
   }
 
-  return <div className="info-box-container">    
-    <h6>{ data.name }<IconButton aria-label="close" className="dialogCloseButton" 
+  return <div className={styles.infoBoxContainer}>    
+    <h6>{ data.name }<IconButton aria-label="close" className={styles.dialogCloseButton} 
         onClick={(): void => { if (typeof onClose === 'function') { onClose(); } }}>
         <CloseIcon />
     </IconButton></h6>

@@ -4,6 +4,7 @@ import { BadRequest } from '@feathersjs/errors';
 import SketchFabMediaClass from '../media-search/sketch-fab.class';
 import GooglePolyMediaClass from '../media-search/google-poly.class';
 import StorageProvider from '../../storage/storageprovider';
+import logger from '../../app/logger';
 
 interface Data {}
 interface MediaType { [key: string]: { Handler: any; mediaType: string; modelId: string} }
@@ -39,9 +40,8 @@ export class ResolveMedia implements ServiceMethods<Data> {
       return await Promise.reject(new BadRequest('URL is required!'));
     }
 
-    const selectedMediaType = this.processAndGetMediaTypeHandler(data.media.url);
-
-    const modelId = selectedMediaType.modelId;
+    const SelectedMediaType = this.processAndGetMediaTypeHandler(data.media.url);
+    const modelId = SelectedMediaType.modelId;
 
     // const asset = await StaticResourceModel.findOne({
     //   where: {
@@ -59,8 +59,21 @@ export class ResolveMedia implements ServiceMethods<Data> {
     //   return asset
     // }
 
-    const selectedMediaInstance = new selectedMediaType.Handler();
-    const model = await selectedMediaInstance.getModel(modelId);
+    let model;
+    if (SelectedMediaType.Handler) {
+      const selectedMediaInstance = new SelectedMediaType.Handler();
+      model = await selectedMediaInstance.getModel(modelId);
+    } else {
+      model = {
+        meta: {
+          author: '',
+          expected_content_type: 'model/gltf',
+          license: '',
+          name: '',
+        },
+        origin: data.media.url
+      };
+    }
     // TODO: Save sketch fab in static resource
     // Now stream that model to s3 and send the url to front end
 

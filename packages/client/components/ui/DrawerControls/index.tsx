@@ -1,4 +1,4 @@
-import './style.scss';
+import styles from './DrawerControls.module.scss';
 import {
   Forum,
   People,
@@ -71,7 +71,7 @@ export const DrawerControls = (props: Props): JSX.Element => {
     setBottomDrawerOpen(false);
   };
   return (
-    <AppBar className="bottom-appbar">
+    <AppBar className={styles['bottom-appbar']}>
       { (selfUser && selfUser.instanceId != null && selfUser.partyId != null && party?.id != null) && <NoSSR><VideoChat/></NoSSR> }
       { selfUser.userRole !== 'guest' &&
         <Fab color="primary" aria-label="PersonAdd" onClick={openInvite}>

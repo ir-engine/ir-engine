@@ -18,7 +18,7 @@ import Renderer from "./renderer/Renderer";
 import ThumbnailRenderer from "./renderer/ThumbnailRenderer";
 
 import SceneNode from "./nodes/SceneNode";
-import FloorPlanNode from "./nodes/FloorPlanNode";
+// import FloorPlanNode from "../../../sandbox/client/editor/FloorPlanNode";
 
 import LoadingCube from "./objects/LoadingCube";
 import ErrorIcon from "./objects/ErrorIcon";
@@ -88,6 +88,7 @@ import ImageNode from "./nodes/ImageNode";
 import AudioNode from "./nodes/AudioNode";
 import LinkNode from "./nodes/LinkNode";
 import AssetManifestSource from "./ui/assets/AssetManifestSource";
+import Api from "./api/Api";
 
 const tempMatrix1 = new Matrix4();
 const tempMatrix2 = new Matrix4();
@@ -115,15 +116,15 @@ const rendererPromise = new Promise((resolve, reject) => {
 const removeObjectsRoots = [];
 
 export default class Editor extends EventEmitter {
-  api: any;
-  settings: {};
+  api: Api;
+  settings: any;
   project: any;
   selected: any[];
   selectedTransformRoots: any[];
   history: History;
-  renderer: any;
-  inputManager: any;
-  editorControls: any;
+  renderer: Renderer;
+  inputManager: InputManager;
+  editorControls: EditorControls;
   flyControls: any;
   playModeControls: any;
   nodeTypes: any;
@@ -387,11 +388,11 @@ export default class Editor extends EventEmitter {
 
     const scene = this.scene;
 
-    const floorPlanNode = scene.findNodeByType(FloorPlanNode);
+    // const floorPlanNode = scene.findNodeByType(FloorPlanNode);
 
-    if (floorPlanNode) {
-      await floorPlanNode.generate(signal);
-    }
+    // if (floorPlanNode) {
+    //   await floorPlanNode.generate(signal);
+    // }
 
     const clonedScene = cloneObject3D(scene, true);
     const animations = clonedScene.getAnimationClips();
@@ -587,7 +588,7 @@ export default class Editor extends EventEmitter {
         }
       });
       this.flyControls.update(delta);
-      this.editorControls.update(delta);
+      this.editorControls.update();
 
       this.renderer.update(delta, time);
       this.inputManager.reset();
@@ -1079,7 +1080,7 @@ export default class Editor extends EventEmitter {
     return duplicatedRoots;
   }
 
-  duplicateSelected(parent, before, useHistory = true, emitEvent = true, selectObject = true) {
+  duplicateSelected(parent = undefined, before = undefined, useHistory = true, emitEvent = true, selectObject = true) {
     this.duplicateMultiple(this.selected, parent, before, useHistory, emitEvent, selectObject);
   }
 
@@ -1215,7 +1216,7 @@ export default class Editor extends EventEmitter {
     return groupNode;
   }
 
-  groupSelected(groupParent, groupBefore, useHistory = true, emitEvent = true, selectObject = true) {
+  groupSelected(groupParent = undefined, groupBefore = undefined, useHistory = true, emitEvent = true, selectObject = true) {
     return this.groupMultiple(
       this.selectedTransformRoots,
       groupParent,

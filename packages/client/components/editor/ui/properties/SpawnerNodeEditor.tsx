@@ -12,6 +12,8 @@ export default class SpawnerNodeEditor extends Component<
   SpawnerNodeEditorProps,
   {}
 > {
+  static iconComponent = Magic;
+  static description = "Spawns a model as an interactable object.";
   onChangeSrc = (src, initialProps) => {
     (this.props.editor as any).setPropertiesSelected({ ...initialProps, src });
   };

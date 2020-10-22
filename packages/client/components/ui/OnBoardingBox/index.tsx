@@ -1,32 +1,8 @@
-// import React, { CSSProperties, FunctionComponent } from "react";
-// import './style.scss';
-
-// export type HintBoxProps = {
-//   layout: string;
-// };
-
-// export const HintBox: FunctionComponent<HintBoxProps> = ({ layout }: HintBoxProps) => {
-//   const keysHintsList = {
-//     default: [{keys:['w','s','a','d'], title:'Move'},{keys:['space'], title:'Jump'}],
-//     car: [{keys:['w','s','a','d'], title:'Move'},{keys:['e'], title:'get out of the car'}]
-//   };
-
-//   document.getElementById('control-hint-box') ?  document.getElementById('control-hint-box').style.opacity = '1' : null;
-  
-//   return <div id="control-hint-box" className='controlsHintBox'>
-//             <h3>Controls</h3>
-//             {keysHintsList[layout].map(line=> 
-//               (<section key={line.title}>
-//                 {line.keys.map(key=><span key={key} className='keyButton'>{key}</span>)}
-//                 to {line.title}</section>))}    
-//           </div>;
-// };
 import React from "react";
 
-import './style.scss';
+import styles from './OnBoardingBox.module.scss';
 import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
-// import { generalStateList } from '../../../redux/app/actions';
-import { Button, Snackbar } from '@material-ui/core';
+import { Button, Snackbar, SnackbarContent } from '@material-ui/core';
 import {ArrowheadLeftOutline} from '@styled-icons/evaicons-outline/ArrowheadLeftOutline';
 import {ArrowheadRightOutline} from '@styled-icons/evaicons-outline/ArrowheadRightOutline';
 import {DotCircle} from '@styled-icons/fa-regular/DotCircle';
@@ -48,9 +24,9 @@ const OnBoardingBox = (props) =>{
   const renderHintIcons = () =>{
     switch(onBoardingStep){
       case generalStateList.TUTOR_LOOKAROUND: 
-          return <section className="lookaround"><ArrowheadLeftOutline /><ArrowheadRightOutline /></section>; 
+          return <section className={styles.lookaround}><ArrowheadLeftOutline /><ArrowheadRightOutline /></section>; 
       case generalStateList.TUTOR_MOVE:
-          return isMobileOrTablet() ? <section className="movearound"><DotCircle /></section> : '';
+          return isMobileOrTablet() ? <section className={styles.movearound}><DotCircle /></section> : '';
       default : return '';
     }
   };
@@ -63,14 +39,16 @@ const OnBoardingBox = (props) =>{
     case generalStateList.TUTOR_VIDEO: message='Tap to enable stream'; action = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));  break;
     default : message= '';break;
   }     
-      
+  const additionalStyle = onBoardingStep === generalStateList.TUTOR_MOVE && isMobileOrTablet() ? styles.rightContentWidth : '';
   return message ? 
                 <>
                   {renderHintIcons()}
                   <Snackbar anchorOrigin={{vertical: 'bottom',horizontal: 'center'}} 
-                  className={`helpHintSnackBar ${onBoardingStep === generalStateList.TUTOR_MOVE ? 'right-content-width' : ''}`} open={true} 
-                  autoHideDuration={10000} message={message} 
-                  action={<Button onClick={action} color="primary">(Skip)</Button>} />
+                  className={styles.helpHintSnackBar + additionalStyle} open={true} 
+                  autoHideDuration={10000}>
+                      <SnackbarContent className={styles.helpHintSnackBarContent} message={message} 
+                      action={<Button onClick={action} color="primary">(Skip)</Button>} />                      
+                  </Snackbar>
                 </>
               :null;
 };

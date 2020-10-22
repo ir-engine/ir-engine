@@ -1,11 +1,11 @@
 import React from 'react';
 import NavUserWidget from '../NavUserWidget';
 import AppBar from '@material-ui/core/AppBar';
-import './style.scss';
+import styles from './NavMenu.module.scss';
 
 export const NavMenu = (): any => {
   return (
-    <AppBar className="appbar">
+    <AppBar className={styles.appbar}>
       <NavUserWidget />
     </AppBar>
   );

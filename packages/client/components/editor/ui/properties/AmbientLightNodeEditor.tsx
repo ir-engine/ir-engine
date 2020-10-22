@@ -12,6 +12,8 @@ export default class AmbientLightNodeEditor extends Component<
   AmbientLightNodeEditorProps,
   {}
 > {
+  static iconComponent = Sun;
+  static description = "A light which illuminates all objects in your scene.";
   onChangeColor = color => {
     (this.props.editor as any).setPropertySelected("color", color);
   };

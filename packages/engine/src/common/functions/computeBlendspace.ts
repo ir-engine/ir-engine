@@ -3,13 +3,13 @@ import { ScalarType, Vector2Type, Vector3Type } from '../types/NumericalTypes';
 import { instanceOf } from './instanceOf';
 
 interface blendStatePositionValue {
-  stateType: StateAlias
-  position: ScalarType | Vector2Type | Vector3Type
+  stateType: StateAlias;
+  position: ScalarType | Vector2Type | Vector3Type;
 }
 
 interface outputState {
-  stateType: StateAlias
-  weight: number
+  stateType: StateAlias;
+  weight: number;
 }
 
 // get ring buffer
