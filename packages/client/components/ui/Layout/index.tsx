@@ -51,7 +51,9 @@ const Layout = (props: Props): any => {
         {/* <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.slim.js" /> */}
       </Head>
       <header>
-        <NavMenu />
+        
+        {/* temporary hide NavMenu */}
+        {/* <NavMenu /> */}
         {authUser?.accessToken != null && authUser.accessToken.length > 0 && <PartyVideoWindows />}
       </header>
       <Fragment>
