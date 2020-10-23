@@ -3,16 +3,22 @@ import { Interactive } from "../components/Interactive";
 import { Interacts } from "../components/Interacts";
 import { interactRaycast } from "../behaviors/interactRaycast";
 import { interactBoxRaycast } from "../behaviors/interactBoxRaycast";
+import { calcBoundingBox } from "../behaviors/calcBoundingBox";
 import { interact } from "../behaviors/interact";
-import { addComponent, getComponent, hasComponent, removeComponent } from "../../ecs/functions/EntityFunctions";
+import { addComponent, getMutableComponent, getComponent, hasComponent, removeComponent } from "../../ecs/functions/EntityFunctions";
+import { Object3DComponent } from "../../common/components/Object3DComponent";
 import { Input } from "../../input/components/Input";
 import { DefaultInput } from "../../templates/shared/DefaultInput";
 import { BinaryValue } from "../../common/enums/BinaryValue";
 import { InteractiveFocused } from "../components/InteractiveFocused";
+import { CalcBoundingBox } from "../components/CalcBoundingBox";
 import { SubFocused } from "../components/SubFocused";
 import { Entity } from "../../ecs/classes/Entity";
+import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
+import { RigidBody } from "@xr3ngine/engine/src/physics/components/RigidBody";
 import { interactFocused } from "../behaviors/interactFocused";
 import { subFocused } from "../behaviors/subFocused";
+
 
 export class InteractiveSystem extends System {
   /**
@@ -42,9 +48,8 @@ export class InteractiveSystem extends System {
 
     this.queryResults.interactors?.all.forEach(entity => {
       if (this.queryResults.interactive?.all.length) {
-        interactRaycast(entity, { interactive: this.queryResults.interactive.all });
-        interactBoxRaycast(entity, { interactive: this.queryResults.interactive.all });
-
+        //interactRaycast(entity, { interactive: this.queryResults.interactive.all });
+        interactBoxRaycast(entity, { interactive: this.queryResults.boundingBox.all });
         const interacts = getComponent(entity, Interacts);
         if (interacts.focusedInteractive) {
           this.newFocused.add(interacts.focusedInteractive);
@@ -57,6 +62,18 @@ export class InteractiveSystem extends System {
 
         // unmark all unfocused
         this.queryResults.interactive?.all.forEach(entityInter => {
+          if (!hasComponent(entityInter, CalcBoundingBox) &&
+              hasComponent(entityInter, Object3DComponent) &&
+              (getComponent(entityInter, Object3DComponent).value.position.x != 0 ||
+              getComponent(entityInter, Object3DComponent).value.position.y != 0 ||
+              getComponent(entityInter, Object3DComponent).value.position.z != 0)
+            ){
+              if (hasComponent(entityInter, RigidBody) || hasComponent(entityInter, VehicleBody)) {
+                addComponent(entityInter, CalcBoundingBox, { dynamic: true })
+              } else {
+                addComponent(entityInter, CalcBoundingBox)
+              }
+          }
           if (entityInter !== interacts.focusedInteractive) {
             removeComponent(entityInter, InteractiveFocused);
           }
@@ -69,6 +86,11 @@ export class InteractiveSystem extends System {
           }
         });
       }
+    });
+
+
+    this.queryResults.boundingBox.added?.forEach(entity => {
+      calcBoundingBox(entity, null, delta);
     });
 
     this.queryResults.focus.added?.forEach(entity => {
@@ -92,6 +114,12 @@ export class InteractiveSystem extends System {
   static queries: any = {
     interactors: { components: [ Interacts ] },
     interactive: { components: [ Interactive ] },
+    boundingBox: { components: [ CalcBoundingBox ],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
     focus: {
       components: [ Interactive, InteractiveFocused ],
       listen: {
