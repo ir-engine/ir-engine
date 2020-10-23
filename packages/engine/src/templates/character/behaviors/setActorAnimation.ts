@@ -20,8 +20,6 @@ export const setActorAnimation: Behavior = (entity, args: { name: string; transi
   const clip = AnimationClip.findByName(actor.animations, args.name );
   const newAction = actor.mixer.clipAction(clip, actor.modelContainer.children[0]);
 
-  console.log('-->actor.modelContainer.children[0]', actor.modelContainer.children[0]);
-
   if (newAction === null) {
     console.warn('setActorAnimation', args.name, ', not found');
     return;

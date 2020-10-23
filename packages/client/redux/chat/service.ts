@@ -21,14 +21,14 @@ import {dispatchAlertError} from '../alert/service';
 export function getChannels(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      console.log('FETCHING CHANNELS');
+      // console.log('FETCHING CHANNELS');
       const channelResult = await client.service('channel').find({
         query: {
           $limit: limit != null ? limit : getState().get('chat').get('channels').get('channels').get('limit'),
           $skip: skip != null ? skip : getState().get('chat').get('channels').get('channels').get('skip')
         }
       });
-      console.log(channelResult);
+      // console.log(channelResult);
       dispatch(loadedChannels(channelResult));
     } catch(err) {
       console.log(err);
