@@ -11,10 +11,10 @@ import { generalStateList, setAppOnBoardingStep } from '../../../redux/app/actio
 import store from '../../../redux/store';
 
 import UserSettings from '../Profile/UserSettings';
-import { CharacterAvatarData } from '@xr3ngine/engine/src/templates/character/CharacterAvatars'
+import { CharacterAvatarData } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
 
-import { ArrowIosBackOutline } from '@styled-icons/evaicons-outline/ArrowIosBackOutline'
-import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline/ArrowIosForwardOutline'
+import { ArrowIosBackOutline } from '@styled-icons/evaicons-outline/ArrowIosBackOutline';
+import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline/ArrowIosForwardOutline';
 import styles from './OnBoardingDialog.module.scss';
 
 const mapStateToProps = (state: any): any => {
@@ -63,7 +63,7 @@ const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAv
     }
     prevAvatarId = (avatarsList[nextAvatarIndex].id);
     nextAvatarId = (avatarsList[prevAvatarIndex].id);
-  }
+  };
  
   recalculateAvatarsSteps(actorAvatarId);
   

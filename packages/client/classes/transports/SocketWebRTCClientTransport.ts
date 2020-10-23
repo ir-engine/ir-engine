@@ -117,11 +117,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.videoEnabled = videoEnabled ?? false;
 
     if (process.env.NODE_ENV === 'development') {
-      this.socket = io(`${address as string}:${port.toString()}`, {
+      this.socket = ioclient(`${address as string}:${port.toString()}`, {
         query: query
       });
     } else {
-      this.socket = io(gameserver, {
+      this.socket = ioclient(gameserver, {
         path: `/socket.io/${address as string}/${port.toString()}`,
         query: query
       });
@@ -538,7 +538,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         "produce",
         async ({ kind, rtpParameters, appData }: any, callback: (arg0: { id: any }) => void, errback: () => void) => {
           console.log("transport produce event", appData.mediaTag);
-          console.log(rtpParameters);
 
           // we may want to start out paused (if the checkboxes in the ui
           // aren't checked, for each media type. not very clean code, here
@@ -562,7 +561,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
             errback();
             console.log(error);
             return;
-          } 
+          }
           callback({ id });
         }
       );

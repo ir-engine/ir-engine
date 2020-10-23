@@ -24,6 +24,7 @@ import getConfig from 'next/config';
 import { ApiContext } from '../components/editor/ui/contexts/ApiContext';
 import Api from "../components/editor/api/Api";
 import GlobalStyle from '../components/editor/ui/GlobalStyle';
+import './styles.scss';
 
 const config = getConfig().publicRuntimeConfig;
 

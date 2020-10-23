@@ -74,7 +74,6 @@ export default (io: Server): void => {
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     socket.on('party-init', async ({ userId }, response) => { // Create Socket Rooms for parties that user has joined
       try {
-        // eslint-disable-next-line @typescript-eslint/camelcase
         const { party_user } = app.get('sequelizeClient').models;
         const parties = await party_user.findAll({
           attributes: ['partyId'],

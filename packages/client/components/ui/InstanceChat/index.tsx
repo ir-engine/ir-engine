@@ -149,12 +149,12 @@ const BottomDrawer = (props: Props): any => {
         <div className={styles['instance-chat-container']}>
             <div className={styles['list-container']}>
                 <List ref={(messageRef as any)} className={styles['message-container']}>
-                    { activeChannel != null && activeChannel.messages && activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).slice(activeChannel.messages?.length - 3, activeChannel.mesages?.length).map((message) => {
+                    { activeChannel != null && activeChannel.messages && activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).slice(activeChannel.messages.length >= 3 ? activeChannel.messages?.length - 3 : 0, activeChannel.mesages?.length).map((message) => {
                         return <ListItem
                             className={classNames({
-                                message: true,
-                                self: message.senderId === user.id,
-                                other: message.senderId !== user.id
+                                [styles.message]: true,
+                                [styles.self]: message.senderId === user.id,
+                                [styles.other]: message.senderId !== user.id
                             })}
                             key={message.id}
                         >

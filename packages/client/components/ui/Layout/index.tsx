@@ -11,6 +11,8 @@ import LeftDrawer from '../Drawer/Left';
 import RightDrawer from '../Drawer/Right';
 import BottomDrawer from '../Drawer/Bottom';
 import { selectAuthState } from '../../../redux/auth/selector';
+import { selectLocationState } from '../../../redux/location/selector';
+import { Location } from '@xr3ngine/common/interfaces/Location';
 import PartyVideoWindows from '../PartyVideoWindows';
 import InstanceChat from '../InstanceChat';
 import Me from '../Me';
@@ -20,19 +22,23 @@ const siteTitle: string = publicRuntimeConfig.siteTitle;
 
 interface Props {
   authState?: any;
+  locationState?: any;
+  login?: boolean;
   pageTitle: string;
-  children: any;
+  children?: any;
 }
 const mapStateToProps = (state: any): any => {
   return {
-    authState: selectAuthState(state)
+    authState: selectAuthState(state),
+    locationState: selectLocationState(state)
   };
 };
 
 const mapDispatchToProps = (): any => ({});
 
 const Layout = (props: Props): any => {
-  const { pageTitle, children, authState } = props;
+  const { pageTitle, children, authState, locationState, login } = props;
+  const currentLocation = locationState.get('currentLocation').get('location') as Location;
   const authUser = authState.get('authUser');
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false);
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
@@ -51,9 +57,7 @@ const Layout = (props: Props): any => {
         {/* <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.slim.js" /> */}
       </Head>
       <header>
-        
-        {/* temporary hide NavMenu */}
-        {/* <NavMenu /> */}
+        <NavMenu login={login} />
         {authUser?.accessToken != null && authUser.accessToken.length > 0 && <PartyVideoWindows />}
       </header>
       <Fragment>
@@ -80,7 +84,7 @@ const Layout = (props: Props): any => {
         { authState.get('authUser') != null && authState.get('isLoggedIn') === true && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
                 <DrawerControls setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/> }
         { authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
-        { authState.get('authUser') != null && authState.get('isLoggedIn') === true && user.partyId != null && user.instanceId != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
+        { authState.get('authUser') != null && authState.get('isLoggedIn') === true && user.partyId != null && user.instanceId != null && currentLocation.locationType != null && currentLocation.locationType === 'showroom' && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
           <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen}/> }
       </footer>
     </section>

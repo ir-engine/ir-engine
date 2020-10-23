@@ -112,7 +112,9 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
 export function createVehicleBody (entity: Entity ) {
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
+  // @ts-ignore
   const colliderTrimOffset = new Vec3().set(...vehicleComponent.colliderTrimOffset);
+  // @ts-ignore
   const collidersSphereOffset = new Vec3().set(...vehicleComponent.collidersSphereOffset);
   const wheelsPositions = vehicleComponent.arrayWheelsPosition;
   const wheelRadius = vehicleComponent.wheelRadius;
