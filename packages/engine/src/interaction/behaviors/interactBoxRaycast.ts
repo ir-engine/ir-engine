@@ -1,4 +1,4 @@
-import { Object3D, Ray, Raycaster, Vector3, Vector2, Mesh, Frustum, Matrix4, Box3 } from "three";
+import { Object3D, Ray, Raycaster, Vector3, Vector2, Mesh, Frustum, Matrix4, Box3, Scene } from "three";
 import { Behavior } from "../../common/interfaces/Behavior";
 import { Entity } from "../../ecs/classes/Entity";
 import { InteractBehaviorArguments } from "../types";
@@ -8,6 +8,7 @@ import { Object3DComponent } from "../../common/components/Object3DComponent";
 import { Interactive } from "../components/Interactive";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { Interacts } from "../components/Interacts";
+import { CalcBoundingBox } from "../components/CalcBoundingBox";
 import { Engine } from "../../ecs/classes/Engine";
 
 /**
@@ -23,6 +24,7 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:Int
   const followCamera = getComponent(entity, FollowCameraComponent);
   if (!followCamera.raycastBoxOn) return;
 
+/*
   const raycastList:Array<Object3D> = interactive
     .filter(interactiveEntity => {
       // - have object 3d to raycast
@@ -33,12 +35,12 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:Int
       // - onInteractionCheck is not set or passed
       return (typeof interactive.onInteractionCheck !== 'function' || interactive.onInteractionCheck(entity, interactiveEntity));
     })
-    .map(entity => getComponent(entity, Object3DComponent).value );
+    .map(entity => getComponent(entity, Object3DComponent).value);
 
   if (!raycastList.length) {
     return;
   }
-
+*/
   const projectionMatrix = new Matrix4().makePerspective(
     followCamera.rx1,
     followCamera.rx2,
@@ -54,19 +56,42 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:Int
   const viewProjectionMatrix = new Matrix4().multiplyMatrices( projectionMatrix, Engine.camera.matrixWorldInverse );
   const frustum = new Frustum().setFromProjectionMatrix( viewProjectionMatrix );
 
-  const subFocusedArray = raycastList.filter(scene => {
-    const child:any = scene.children[0];
-    const aabb = new Box3();
-    if (child instanceof Mesh) {
-      aabb.copy(child.geometry.boundingBox);
-      aabb.applyMatrix4( child.matrixWorld );
-    } else
-    if (child instanceof Object3D) {
-     aabb.setFromObject( child );
+  !window.t?window.t=1:window.t==200?console.warn(window.t+=1, interactive ):window.t+=1;
+
+  const subFocusedArray = interactive.filter( entityIn => {
+    let aabb = new Box3()
+    let box = getComponent(entityIn, CalcBoundingBox).box
+    let dynamic = getComponent(entityIn, CalcBoundingBox).dynamic
+    if (box !== null) {
+
+      aabb.copy(box)
+      if (dynamic) {
+        aabb.applyMatrix4( getComponent(entityIn, Object3DComponent).value.matrixWorld );
+      }
+
+    } else {
+      getComponent(entityIn, CalcBoundingBox).boxArray.forEach(v => {
+
+      })
     }
+
+
+
+  //  if (value instanceof Scene) value = value.children[0];
+//    if (value instanceof Mesh) {
+  //  if( value.geometry.boundingBox == null) value.geometry.computeBoundingBox();
+    //  aabb.copy(value.geometry.boundingBox);
+    //  aabb.applyMatrix4( value.matrixWorld );
+  //  } else
+  //  if (value instanceof Object3D) {
+  //   aabb.setFromObject( value );
+
+  //   value.name == 'door_front_left' ? console.warn(frustum.intersectsBox(aabb)):'';
+
     return frustum.intersectsBox(aabb);
   })
 
   const interacts = getMutableComponent(entity, Interacts);
-  interacts.subFocusedArray = subFocusedArray;
+  interacts.subFocusedArray = subFocusedArray.map(v => getComponent(v, Object3DComponent).value);
+
 };

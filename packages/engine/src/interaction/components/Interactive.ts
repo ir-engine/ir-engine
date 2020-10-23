@@ -9,6 +9,7 @@ export class Interactive extends Component<Interactive> {
     onInteractionCheck: { type: Types.Ref },
     onInteractionFocused: { type: Types.Ref },
     onInteraction: { type: Types.Ref },
+    interactionParts: { type: Types.Array },
     data: { type: Types.Ref }
   }
 
@@ -16,5 +17,8 @@ export class Interactive extends Component<Interactive> {
   public onInteraction: Behavior
   public onInteractionFocused: Behavior
   public interactiveDistance: number
+  public interactionParts: Array = []
   public data: any
+
+
 }

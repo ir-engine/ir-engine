@@ -30,11 +30,12 @@ export const CarController: Prefab = {
       // Similar to Unity's Update(), LateUpdate(), and Start()
   //    { type: Subscription, data: { schema: DefaultSubscriptionSchema } }
         { type: Interactive, data: {
+            interactionParts: ['door_front_left', 'door_front_right'],
             onInteraction: getInCar,
             onInteractionCheck: getInCarPossible,
             onInteractionFocused: onInteractionHover,
             data:{
-              interactionText: 'get in car'              
+              interactionText: 'get in car'
             },
           }
         }
