@@ -138,8 +138,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     }
 
     sendReliableData(message: any): void {
-        if (!this.isInitialized) return;
-        this.socketIO.sockets.emit(MessageTypes.ReliableMessage.toString(), message);
+        if (!this.isInitialized) console.error("Not initialized");
+        else this.socketIO.sockets.emit(MessageTypes.ReliableMessage.toString(), message);
     }
 
     async sendData(data: any, channel = 'default'): Promise<UnreliableMessageReturn> {

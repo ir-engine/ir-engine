@@ -49,7 +49,4 @@ export const handleClientConnected = (args: { id: any; media: any }) => {
 
   // Added created to the worldState with networkId and ownerId
   Network.instance.worldState.createObjects.push(createObjectMessage);
-  // console.log("Added user ", args.id);
-  // console.log("Pushed object: ");
-  // console.log(createObjectMessage);
 };

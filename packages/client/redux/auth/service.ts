@@ -49,8 +49,8 @@ export function doLoginAuto (allowGuest?: boolean) {
       const authData = getStoredState('auth');
       let accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined;
 
-      console.log(allowGuest);
-      console.log(accessToken);
+      // console.log(allowGuest);
+      // console.log(accessToken);
       if (allowGuest !== true && !accessToken) {
         return;
       }

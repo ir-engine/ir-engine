@@ -9,6 +9,7 @@ export const handleUpdateFromServer: Behavior = (entity: Entity, args: null, del
   // For each message, handle and process
   while (queue.getBufferLength() > 0) {
     const message = queue.pop();
+    console.log("MESSAGE", message);
     // Buffer to object
     applyWorldState(message, delta);
   }

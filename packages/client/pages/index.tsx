@@ -48,7 +48,11 @@ export const IndexPage = (props: any): any => {
         doLoginAuto
     } = props;
     const selfUser = authState.get('user');
+    console.log("SelfUser:")
+    console.log(selfUser)
     const party = partyState.get('party');
+    console.log("party:")
+    console.log(party)
     const instanceId = selfUser.instanceId != null ? selfUser.instanceId : party?.instanceId != null ? party.instanceId : null;
     const appLoaded = appState.get('loaded');
 
@@ -65,6 +69,12 @@ export const IndexPage = (props: any): any => {
         ) {
             console.log('Calling connectToInstanceServer from index page');
             connectToInstanceServer();
+        } else {
+            console.log("Couldn't call connectToInstance Server");
+            console.log(instanceConnectionState.get('instanceProvisioned'));
+            console.log(instanceConnectionState.get('updateNeeded'));
+            console.log(instanceConnectionState.get('instanceServerConnecting'));
+            console.log(instanceConnectionState.get('connected'));
         }
     }, [instanceConnectionState]);
 
@@ -76,6 +86,8 @@ export const IndexPage = (props: any): any => {
                         console.log('Provisioning instance from index page init useEffect');
                         provisionInstanceServer(instance.locationId);
                     });
+            } else {
+                console.error("instanceId is null");
             }
         }
     }, [appState]);

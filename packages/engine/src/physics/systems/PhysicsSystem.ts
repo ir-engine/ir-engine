@@ -49,12 +49,10 @@ export class PhysicsSystem extends System {
   onExecute(delta: number): void {
     // // Collider
     this.queryResults.collider.added?.forEach(entity => {
-      console.log("onAdded called on collider behavior");
       addCollider(entity, { phase: 'onAdded' });
     });
 
     this.queryResults.collider.removed?.forEach(entity => {
-      console.log("onRemoved called on collider behavior");
       addCollider(entity, { phase: 'onRemoved' });
     });
 

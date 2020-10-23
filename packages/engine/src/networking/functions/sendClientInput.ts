@@ -11,7 +11,7 @@ import { InputType } from "../../input/enums/InputType";
 import { Network } from "../components/Network";
 
 export const sendClientInput = (entity: Entity): void => {
-
+console.log("Sending client input")
   // Get the input component
   const input = getComponent(entity, Input);
   if (input.data.size < 1) return;
