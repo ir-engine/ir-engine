@@ -1,7 +1,7 @@
 $mobileControllButtonsSize:3em;
 .stickLeft{
     position: fixed;
-    bottom: 0;
+    bottom: 50px;
     width: 50%;
     left: 0;    
 }
@@ -19,7 +19,7 @@ $mobileControllButtonsSize:3em;
         border-radius: 50%;
         background:rgba(255,255,255,0.4);
         opacity: 0.75;
-        bottom: 0px;
+        bottom: 50px;
         font-size: 20px;
         height: $mobileControllButtonsSize;
         width: $mobileControllButtonsSize;
