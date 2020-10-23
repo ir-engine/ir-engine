@@ -7,6 +7,8 @@ import { MouseInput } from '../enums/MouseInput';
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { normalizeMouseCoordinates } from "../../common/functions/normalizeMouseCoordinates";
 import { DefaultInput } from '../../templates/shared/DefaultInput';
+import { Vector2, Vector3 } from 'three';
+import { deltaMouseMovement } from '../../common/functions/deltaMouseMovement';
 
 /**
  * Local reference to input component
@@ -25,12 +27,15 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
   const input = getComponent(entity, Input);
   const normalizedPosition = normalizeMouseCoordinates(args.event.clientX, args.event.clientY, window.innerWidth, window.innerHeight);
   const mousePosition: [number, number] = [ normalizedPosition.x, normalizedPosition.y ];
+  // console.log(args.event);
+ 
   // TODO: should movement be also normalized?
-  const mouseMovement: [number, number] = [ args.event.movementX, args.event.movementY ];
-
-  const mappedPositionInput = input.schema.mouseInputMap.axes[MouseInput.MousePosition]
-  const mappedMovementInput = input.schema.mouseInputMap.axes[MouseInput.MouseMovement]
-  const mappedDragMovementInput = input.schema.mouseInputMap.axes[MouseInput.MouseClickDownMovement]
+  const normalizedMovement = deltaMouseMovement(args.event.movementX, args.event.movementY, window.innerWidth, window.innerHeight);
+  const mouseMovement: [number, number] = [ normalizedMovement.x, normalizedMovement.y ];
+ 
+  const mappedPositionInput = input.schema.mouseInputMap.axes[MouseInput.MousePosition];
+  const mappedMovementInput = input.schema.mouseInputMap.axes[MouseInput.MouseMovement];
+  const mappedDragMovementInput = input.schema.mouseInputMap.axes[MouseInput.MouseClickDownMovement];
 
   // If mouse position not set, set it with lifecycle started
   if (mappedPositionInput) {
@@ -66,7 +71,7 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
   }
 
   // TODO: it looks like hack... MouseInput.MousePosition doesn't know that it is SCREENXY, and it could be anything ... same should be here
-  const SCREENXY_START = input.data.get(DefaultInput.SCREENXY_START)
+  const SCREENXY_START = input.data.get(DefaultInput.SCREENXY_START);
   if (SCREENXY_START && SCREENXY_START.lifecycleState !== LifecycleValue.ENDED) {
     // Set dragging movement delta
     if (mappedDragMovementInput) {
