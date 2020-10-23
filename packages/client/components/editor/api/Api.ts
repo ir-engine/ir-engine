@@ -38,7 +38,7 @@ const {
   USE_HTTPS
 } = configs as any;
 
-const prefix = USE_HTTPS === "true" ? "https://" : "http://";
+const prefix = USE_HTTPS ? "https://" : "http://";
 
 function b64EncodeUnicode(str): string {
   // first we use encodeURIComponent to get percent-encoded UTF-8, then we convert the percent-encodings
