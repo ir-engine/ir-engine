@@ -32,7 +32,7 @@ export const handleClientConnected = (args: { id: any; media: any }) => {
   // Get a reference to the transform on the object so we can send initial values
   const transform = getComponent(entity, TransformComponent);
 
-  console.log(transform);
+  // console.log(transform);
 
   const createObjectMessage = {
     networkId: networkObject.networkId,
@@ -49,7 +49,7 @@ export const handleClientConnected = (args: { id: any; media: any }) => {
 
   // Added created to the worldState with networkId and ownerId
   Network.instance.worldState.createObjects.push(createObjectMessage);
-  console.log("Added user ", args.id);
-  console.log("Pushed object: ");
-  console.log(createObjectMessage);
+  // console.log("Added user ", args.id);
+  // console.log("Pushed object: ");
+  // console.log(createObjectMessage);
 };
