@@ -439,12 +439,18 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
                 // called from inside a client's `transport.on('connect')` event handler.
                 socket.on(MessageTypes.WebRTCTransportConnect.toString(), async (data, callback) => {
-                    const {transportId, dtlsParameters} = data,
-                        transport = MediaStreamComponent.instance.transports[transportId];
-                    logger.info("WebRTCTransportConnectRequest: " + socket.id);
-                    await transport.connect({dtlsParameters});
-                    logger.info(`transport ${socket.id} connected successfully`);
-                    callback({connected: true});
+                    try {
+                        const {transportId, dtlsParameters} = data,
+                            transport = MediaStreamComponent.instance.transports[transportId];
+                        logger.info("WebRTCTransportConnectRequest: " + socket.id);
+                        await transport.connect({dtlsParameters});
+                        logger.info(`transport ${socket.id} connected successfully`);
+                        callback({connected: true});
+                    } catch(err) {
+                        console.log('WebRTC transport connect error')
+                        console.log(err)
+                        callback({connected: false})
+                    }
                 });
 
                 // called by a client that wants to close a single transport (for
@@ -453,13 +459,13 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     try {
                         logger.info("close-transport: " + socket.id);
                         const {transportId} = data;
-                        console.log(transportId);
                         const transport = MediaStreamComponent.instance.transports[transportId];
-                        await this.closeTransport(transport);
+                        if (transport != null) await this.closeTransport(transport);
                         callback({closed: true});
                     } catch (err) {
                         logger.info('WebRTC Transport close error');
                         logger.info(err);
+                        callback({closed: true})
                     }
                 });
 
@@ -494,11 +500,14 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         logger.info('New producer');
 
                         MediaStreamComponent.instance.producers.push(producer);
+                        console.log('Producer appdata:')
+                        console.log(appData);
                         Network.instance.clients[socket.id].media[appData.mediaTag] = {
                             paused,
                             producerId: producer.id,
                             globalMute: false,
-                            encodings: rtpParameters.encodings
+                            encodings: rtpParameters.encodings,
+                            partyId: appData.partyId
                         };
 
                         Object.keys(Network.instance.clients).forEach((key) => {
@@ -523,6 +532,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     try {
                         logger.info('Receive Track handler');
                         const {mediaPeerId, mediaTag, rtpCapabilities, partyId} = data;
+                        console.log(`Socket id: ${socket.id}`);
+                        console.log(`partyId: ${partyId}`);
                         const producer = MediaStreamComponent.instance.producers.find(
                             p => p._appData.mediaTag === mediaTag && p._appData.peerId === mediaPeerId && p._appData.partyId === partyId
                         );
@@ -534,13 +545,10 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                             return;
                         }
 
-                        console.log(Object.keys(MediaStreamComponent.instance.transports).length)
                         const transport = Object.values(MediaStreamComponent.instance.transports).find(
                             t => (t as any)._appData.peerId === socket.id && (t as any)._appData.clientDirection === "recv" && (t as any)._appData.partyId === partyId
                         );
 
-                        console.log('Creating consumer');
-                        console.log(producer.id);
                         const consumer = await (transport as any).consume({
                             producerId: producer.id,
                             rtpCapabilities,
@@ -725,14 +733,16 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         producer: Producer
     ): Promise<void> => {
         console.log('Creating consumers for existing client media');
+        console.log('This transport\'s partyId: ' + partyId);
         const selfClient = Network.instance.clients[socket.id];
         if (selfClient.socket != null) {
             Object.entries(Network.instance.clients).forEach(([name, value]) => {
                 if (name === socket.id || value.media == null || value.socket == null) return;
                 console.log(`Sending media for ${name}`);
-                Object.entries(value.media).map(([subName]) => {
+                Object.entries(value.media).map(([subName, subValue]) => {
                     console.log(`Emitting createProducer for socket ${socket.id} of type ${subName}`);
-                    selfClient.socket.emit(MessageTypes.WebRTCCreateProducer.toString(), value.userId, subName, producer.id, partyId);
+                    console.log(subValue);
+                    if (partyId === (subValue as any).partyId) selfClient.socket.emit(MessageTypes.WebRTCCreateProducer.toString(), value.userId, subName, producer.id, partyId);
                 });
             });
         }

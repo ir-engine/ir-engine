@@ -40,6 +40,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   pollPending = false;
   videoEnabled = false;
 
+  partyId: string;
+
     /**
    * Send a message over TCP with socket.io
    * You should probably want {@link @xr3ngine/packages/enginge/src/networking/functions/NetworkFunctions.ts#sendMessage}
@@ -108,13 +110,14 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   public async initialize(address = "https://127.0.0.1", port = 3030, opts?: any): Promise<void> {
-    console.log(`Initializing client transport to ${address}:${port}`);
+    console.log(`Initializing client transport to ${address}:${port} with partyId: ${opts.partyId}`);
     this.mediasoupDevice = new Device();
     if (this.socket && this.socket.close) {
       this.socket.close();
     }
 
     const {startVideo, videoEnabled, partyId, ...query} = opts;
+    this.partyId = partyId;
 
     this.videoEnabled = videoEnabled ?? false;
 
@@ -164,7 +167,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       if (startVideo === true) this.sendCameraStreams(partyId);
     });
     this.socket.on(MessageTypes.WebRTCConsumeData.toString(), this.handleDataConsumerCreation);
-    this.socket.on(MessageTypes.WebRTCCreateProducer.toString(), async (socketId, mediaTag, producerId, partyId) => {
+    this.socket.on(MessageTypes.WebRTCCreateProducer.toString(), async (socketId, mediaTag, producerId, localPartyId) => {
       const selfProducerIds = [
           MediaStreamComponent.instance.camVideoProducer?.id,
           MediaStreamComponent.instance.camAudioProducer?.id
@@ -175,11 +178,12 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           (selfProducerIds.indexOf(producerId) < 0) &&
           (MediaStreamComponent.instance.consumers?.find(
               c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
-          ) == null)
+          ) == null &&
+          this.partyId === localPartyId)
       ) {
         // that we don't already have consumers for...
         console.log(`auto subscribing to ${mediaTag} track that ${socketId} has added at ${new Date()}`);
-        await this.subscribeToTrack(socketId, mediaTag, partyId);
+        await this.subscribeToTrack(socketId, mediaTag, localPartyId);
       }
     });
 
@@ -249,7 +253,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       if (partyId == null) {
         transport = this.instanceSendTransport;
       } else {
-        [transport,] = await Promise.all([this.initSendTransport(partyId), this.initReceiveTransport(partyId)]);
+        if (this.partySendTransport == null || this.partySendTransport.closed === true) [transport,] = await Promise.all([this.initSendTransport(partyId), this.initReceiveTransport(partyId)]);
+        else transport = this.partySendTransport;
       }
       MediaStreamComponent.instance.camVideoProducer = await transport.produce({
         track: MediaStreamComponent.instance.mediaStream.getVideoTracks()[0],
@@ -332,7 +337,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   //   return true;
   // }
 
-  async endVideoChat(): Promise<boolean> {
+  async endVideoChat(leftParty?: boolean): Promise<boolean> {
     if (MediaStreamComponent.instance?.camVideoProducer) {
       await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
         producerId: MediaStreamComponent.instance.camVideoProducer.id
@@ -364,15 +369,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       });
       await c.close();
     });
-    if (this.partyRecvTransport) {
-      await this.request(MessageTypes.WebRTCTransportClose.toString(), { transportId: this.partyRecvTransport.id });
-      await this.partyRecvTransport.close();
+    if (leftParty === true) {
+      if (this.partyRecvTransport != null && this.partyRecvTransport.closed !== true) await this.partyRecvTransport.close();
+      if (this.partySendTransport != null && this.partySendTransport.closed !== true) await this.partySendTransport.close();
     }
-    if (this.partySendTransport) {
-      await this.request(MessageTypes.WebRTCTransportClose.toString(), { transportId: this.partySendTransport.id });
-      await this.partySendTransport.close();
-    }
-    console.log('Closed party transports');
     this.resetProducer();
     return true;
   }
@@ -387,6 +387,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       MediaStreamComponent.instance.localScreen = null;
       MediaStreamComponent.instance.consumers = [];
     }
+  }
+
+  setPartyId(partyId: string): void {
+    this.partyId = partyId;
   }
 
   async leave(): Promise<boolean> {
@@ -410,13 +414,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         console.log('Left World');
       }
 
-      // closing the transports closes all producers and consumers. we
-      // don't need to do anything beyond closing the transports, except
-      // to set all our local variables to their initial states
-      if (this.instanceRecvTransport) await this.instanceRecvTransport.close();
-      if (this.instanceSendTransport) await this.instanceSendTransport.close();
-      if (this.partyRecvTransport) await this.partyRecvTransport.close();
-      if (this.partySendTransport) await this.partySendTransport.close();
+      //Leaving the world should close all transports from the server side.
+      //This will also destroy all the associated producers and consumers.
+      //All we need to do on the client is null all references.
       this.instanceRecvTransport = null;
       this.instanceSendTransport = null;
       this.partyRecvTransport = null;
@@ -458,22 +458,24 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
     console.log(`Requesting consumer for peer ${peerId} of type ${mediaTag} at ${new Date()}`);
 
-    consumer = partyId == null ? await this.instanceRecvTransport.consume(
-      { ...consumerParameters, appData: { peerId, mediaTag } }
-    ) : await this.partyRecvTransport.consume(
-        { ...consumerParameters, appData: { peerId, mediaTag, partyId } }
-    );
+    if (consumerParameters.id != null) {
+      consumer = partyId == null ? await this.instanceRecvTransport.consume(
+          {...consumerParameters, appData: {peerId, mediaTag}}
+      ) : await this.partyRecvTransport.consume(
+          {...consumerParameters, appData: {peerId, mediaTag, partyId}}
+      );
 
-    if (MediaStreamComponent.instance.consumers?.find(c => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag) == null) {
-      let connected = false;
-      MediaStreamComponent.instance.consumers.push(consumer);
+      if (MediaStreamComponent.instance.consumers?.find(c => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag) == null) {
+        let connected = false;
+        MediaStreamComponent.instance.consumers.push(consumer);
 
-      connected = true;
+        connected = true;
 
-      // okay, we're ready. let's ask the peer to send us media
-      await this.resumeConsumer(consumer);
-    } else {
-      await this.closeConsumer(consumer);
+        // okay, we're ready. let's ask the peer to send us media
+        await this.resumeConsumer(consumer);
+      } else {
+        await this.closeConsumer(consumer);
+      }
     }
   }
 
@@ -626,7 +628,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // we leave the )
       if (this.leaving !== true && (state === "closed" || state === "failed" || state === "disconnected")) {
         console.log("transport closed ... leaving the and resetting");
-        await this.request(MessageTypes.WebRTCTransportClose.toString(), { transportId: transport.id });
+        // await this.request(MessageTypes.WebRTCTransportClose.toString(), { transportId: transport.id });
       }
     });
 
