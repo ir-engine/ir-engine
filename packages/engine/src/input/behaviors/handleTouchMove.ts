@@ -36,6 +36,8 @@ export const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEv
     const touchMovementPositionX = (touchPosition[0] - touchPositionPrevInput.value[0]);
     const touchMovementPositionY = (touchPosition[1] - touchPositionPrevInput.value[1]);
     touchMovement = [ touchMovementPositionX, touchMovementPositionY ];
+
+    console.log(touchMovement);
   }
 
   if (mappedPositionInput) {
