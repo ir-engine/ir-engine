@@ -125,7 +125,7 @@ export default (app: Application): void => {
             const user = await app.service('user').get(userId);
             console.log('Socket disconnect from ' + userId);
             const instanceId = process.env.KUBERNETES !== 'true' ? user.instanceId : (app as any).instance?.id;
-            const instance = (app as any).instance ? await app.service('instance').get(instanceId) : {};
+            const instance = ((app as any).instance && instanceId != null) ? await app.service('instance').get(instanceId) : {};
             if (user.instanceId === instanceId) {
               await app.service('instance').patch(instanceId, {
                 currentUsers: instance.currentUsers - 1
