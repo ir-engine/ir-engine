@@ -82,7 +82,7 @@ export function addComponent<C extends Component<C>>(
   }
 
   if (~entity.componentTypes.indexOf(Component)) {
-    console.warn('Component type already exists on entity.', entity, Component.name);
+    // console.warn('Component type already exists on entity.', entity, Component.name);
     return;
   }
 
