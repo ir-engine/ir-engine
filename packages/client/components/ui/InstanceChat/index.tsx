@@ -180,12 +180,16 @@ const BottomDrawer = (props: Props): any => {
                 </List>
                 <div className={styles['flex-center']}>
                     <div className={styles['chat-box']}>
-                        <Button variant="contained"
+                        {/* <Button variant="contained"
                                 color="primary"
-                                startIcon={<MessageIcon/>}
+                                startIcon={}
                                 onClick={openDrawer}
-                        />
+                        /> */}
+                        <div className={styles.iconContainer} onClick={openDrawer}>
+                            <MessageIcon/>
+                        </div>
                         <TextField
+                            className={styles.messageFieldContainer}
                             variant="outlined"
                             margin="normal"
                             multiline
@@ -196,15 +200,19 @@ const BottomDrawer = (props: Props): any => {
                             autoFocus
                             value={composingMessage}
                             inputProps={{
-                                maxLength: 1000
+                                maxLength: 1000,
+                                // padding: 0
                             }}
                             onChange={handleComposingMessageChange}
                         />
-                        <Button variant="contained"
+                        <div className={styles.iconContainerSend} onClick={packageMessage}>
+                            <Send/>
+                        </div>
+                        {/* <Button variant="contained"
                                 color="primary"
                                 startIcon={<Send/>}
                                 onClick={packageMessage}
-                        />
+                        /> */}
                     </div>
                 </div>
             </div>
