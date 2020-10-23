@@ -67,12 +67,10 @@ export default (app: Application): void => {
               console.log('Joining allocated instance');
               console.log(user.instanceId);
               console.log((app as any).instance.id);
-              if (user.instanceId !== (app as any).instance.id) {
                 const instance = await app.service('instance').get((app as any).instance.id);
                 await app.service('instance').patch((app as any).instance.id, {
                   currentUsers: (instance.currentUsers as number) + 1
                 });
-              }
             }
             console.log('Patching user instanceId to ' + (app as any).instance.id);
             await app.service('user').patch(userId, {
