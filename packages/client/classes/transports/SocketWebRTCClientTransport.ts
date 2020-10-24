@@ -47,7 +47,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
    */
   sendReliableData(message): void {
     console.log("sendReliableData: ", message)
-    this.socket.emit(message);
+    this.socket.emit(MessageTypes.ReliableMessage.toString(), message);
+    
   }
 
   // send and init are done separately to make it a bit more readable

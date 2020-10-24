@@ -67,7 +67,6 @@ export class NetworkSystem extends System {
       // Client sends input and *only* input to the server (for now)
       this.queryResults.networkInputSender.all?.forEach((entity: Entity) => {
         sendClientInputToServer(entity);
-        console.log("sendClientInputToServer");
       }
       );
       // Client handles incoming input from other clients and interpolates transforms
