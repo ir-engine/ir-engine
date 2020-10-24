@@ -47,10 +47,8 @@ export class Message extends Service {
           userId1: userId,
           userId2: targetObjectId
         });
-        channelId = channel.id;
-      } else {
-        channelId = channel.id;
       }
+      channelId = channel.id;
       userIdList = [userId, targetObjectId];
     } else if (targetObjectType === 'group') {
       const targetGroup = await this.app.service('group').get(targetObjectId);
@@ -67,10 +65,8 @@ export class Message extends Service {
           channelType: 'group',
           groupId: targetObjectId
         });
-        channelId = channel.id;
-      } else {
-        channelId = channel.id;
       }
+      channelId = channel.id;
       const groupUsers = await this.app.service('group-user').find({
         query: {
           groupId: targetObjectId
@@ -94,10 +90,8 @@ export class Message extends Service {
           channelType: 'party',
           partyId: targetObjectId
         });
-        channelId = channel.id;
-      } else {
-        channelId = channel.id;
       }
+      channelId = channel.id;
       const partyUsers = await this.app.service('party-user').find({
         query: {
           partyId: targetObjectId
@@ -105,6 +99,31 @@ export class Message extends Service {
       });
       userIdList = (partyUsers as any).data.map((partyUser) => {
         return partyUser.userId;
+      });
+    } else if (targetObjectType === 'instance') {
+      const targetInstance = await this.app.service('instance').get(targetObjectId);
+      if (targetInstance == null) {
+        throw new BadRequest('Invalid target instance ID');
+      }
+      channel = await channelModel.findOne({
+        where: {
+          instanceId: targetObjectId
+        }
+      });
+      if (channel == null) {
+        channel = await this.app.service('channel').create({
+          channelType: 'instance',
+          instanceId: targetObjectId
+        });
+      }
+      channelId = channel.id;
+      const instanceUsers = await this.app.service('user').find({
+        query: {
+          instanceId: targetObjectId
+        }
+      });
+      userIdList = (instanceUsers as any).data.map((instanceUser) => {
+        return instanceUser.id;
       });
     }
 

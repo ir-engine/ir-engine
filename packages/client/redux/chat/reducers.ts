@@ -1,7 +1,6 @@
 import Immutable from 'immutable';
 import {
   LoadedMessagesAction,
-  LoadedChannelAction,
   CreatedMessageAction,
   LoadedChannelsAction,
   RemovedMessageAction,
@@ -15,7 +14,7 @@ import {
 
 import {
   CREATED_MESSAGE,
-  FETCHING_PARTY_CHANNEL,
+  FETCHING_INSTANCE_CHANNEL,
   LOADED_CHANNEL,
   LOADED_CHANNELS,
   LOADED_MESSAGES,
@@ -47,8 +46,8 @@ export const initialState = {
   targetChannelId: '',
   updateMessageScroll: false,
   messageScrollInit: false,
-  partyChannelFetching: false,
-  partyChannelFetched: false
+  instanceChannelFetching: false,
+  instanceChannelFetched: false
 };
 
 const immutableState = Immutable.fromJS(initialState);
@@ -82,6 +81,13 @@ const chatReducer = (state = immutableState, action: ChatAction): any => {
       const channelType = localAction.channelType;
       updateMap = new Map(state.get('channels'));
       updateMapChannels = new Map((updateMap as any).get('channels'));
+      if (channelType === 'instance') {
+        const tempUpdateMapChannels = new Map();
+        updateMapChannels.forEach((value, key) => {
+          if (value.channelType !== 'instance') tempUpdateMapChannels.set(key, value);
+        });
+        updateMapChannels = new Map(tempUpdateMapChannels);
+      }
       if (newChannel?.id != null && updateMapChannels[newChannel.id] == null) {
         newChannel.updateNeeded = true;
         newChannel.limit = 10;
@@ -92,12 +98,12 @@ const chatReducer = (state = immutableState, action: ChatAction): any => {
       updateMap.set('channels', updateMapChannels);
       returned = state
           .set('channels', updateMap);
-      if (channelType === 'party') returned = returned.set('fetchingPartyChannel', false).set('partyChannelFetched', true);
+      if (channelType === 'instance') returned = returned.set('fetchingInstanceChannel', false).set('instanceChannelFetched', true);
       return returned;
     case CREATED_MESSAGE:
       localAction = (action as CreatedMessageAction);
-        const channelId = localAction.message.channelId;
-        const selfUser = localAction.selfUser;
+      const channelId = localAction.message.channelId;
+      const selfUser = localAction.selfUser;
       updateMap = new Map(state.get('channels'));
       updateMapChannels = new Map((updateMap as any).get('channels'));
       updateMapChannelsChild = (updateMapChannels as any).get(channelId);
@@ -117,7 +123,7 @@ const chatReducer = (state = immutableState, action: ChatAction): any => {
 
       if (state.get('targetChannelId').length === 0 && updateMapChannelsChild != null) {
         const channelType = updateMapChannelsChild.channelType;
-        const targetObject = channelType === 'user' ? (updateMapChannelsChild.userId1 === selfUser.id ? updateMapChannelsChild.user2 : updateMapChannelsChild.user1) : channelType === 'group' ? updateMapChannelsChild.group : updateMapChannelsChild.party;
+        const targetObject = channelType === 'user' ? (updateMapChannelsChild.userId1 === selfUser.id ? updateMapChannelsChild.user2 : updateMapChannelsChild.user1) : channelType === 'group' ? updateMapChannelsChild.group : channelType === 'instance' ? updateMapChannelsChild.instance : updateMapChannelsChild.party;
         returned = returned
           .set('targetChannelId', channelId)
           .set('targetObjectType', channelType)
@@ -127,29 +133,29 @@ const chatReducer = (state = immutableState, action: ChatAction): any => {
     case LOADED_MESSAGES:
       localAction = (action as LoadedMessagesAction);
       updateMap = new Map(state.get('channels'));
-        updateMapChannels = updateMap.get('channels');
-        updateMapChannelsChild = (updateMapChannels.get(localAction.channelId));
-        updateMapChannelsChild.messages = (updateMapChannelsChild == null || updateMapChannelsChild.messages == null || updateMapChannelsChild.messages.size != null || updateMapChannels.get('updateNeeded') === true) ? localAction.messages : _.unionBy(updateMapChannelsChild.messages, localAction.messages, 'id');
-        updateMapChannelsChild.limit = localAction.limit;
-        updateMapChannelsChild.skip = localAction.skip;
-        updateMapChannelsChild.total = localAction.total;
-        updateMapChannelsChild.updateNeeded = false;
-        updateMapChannels.set(localAction.channelId, updateMapChannelsChild);
-        updateMap.set('channels', updateMapChannels);
+      updateMapChannels = updateMap.get('channels');
+      updateMapChannelsChild = (updateMapChannels.get(localAction.channelId));
+      updateMapChannelsChild.messages = (updateMapChannelsChild.messages == null || updateMapChannelsChild.messages.size != null || updateMapChannels.get('updateNeeded') === true) ? localAction.messages : _.unionBy(updateMapChannelsChild.messages, localAction.messages, 'id');
+      updateMapChannelsChild.limit = localAction.limit;
+      updateMapChannelsChild.skip = localAction.skip;
+      updateMapChannelsChild.total = localAction.total;
+      updateMapChannelsChild.updateNeeded = false;
+      updateMapChannels.set(localAction.channelId, updateMapChannelsChild);
+      updateMap.set('channels', updateMapChannels);
       return state
           .set('channels', updateMap);
     case REMOVED_MESSAGE:
       localAction = (action as RemovedMessageAction);
       updateMap = new Map(state.get('channels'));
 
-        updateMapChannels = new Map(updateMap.get('channels'));
-        updateMapChannelsChild = (updateMapChannels as any).get(localAction.message.channelId);
-        if (updateMapChannelsChild != null) {
-            _.remove(updateMapChannelsChild.messages, (message: Message) => message.id === localAction.message.id);
-            updateMapChannelsChild.skip = updateMapChannelsChild.skip - 1;
-            updateMapChannels.set(localAction.message.channelId, updateMapChannelsChild);
-            updateMap.set('channels', updateMapChannels);
-        }
+      updateMapChannels = new Map(updateMap.get('channels'));
+      updateMapChannelsChild = (updateMapChannels as any).get(localAction.message.channelId);
+      if (updateMapChannelsChild != null) {
+          _.remove(updateMapChannelsChild.messages, (message: Message) => message.id === localAction.message.id);
+          updateMapChannelsChild.skip = updateMapChannelsChild.skip - 1;
+          updateMapChannels.set(localAction.message.channelId, updateMapChannelsChild);
+          updateMap.set('channels', updateMapChannels);
+      }
       return state
           .set('channels', updateMap);
     case PATCHED_MESSAGE:
@@ -171,8 +177,8 @@ const chatReducer = (state = immutableState, action: ChatAction): any => {
       updateMap = new Map(state.get('channels'));
 
       updateMapChannels = new Map(updateMap.get('channels'));
-        updateMapChannels.set(createdChannel.id, createdChannel);
-        updateMap.set('channels', updateMapChannels);
+      updateMapChannels.set(createdChannel.id, createdChannel);
+      updateMap.set('channels', updateMapChannels);
 
       return state
           .set('channels', updateMap);
@@ -186,6 +192,7 @@ const chatReducer = (state = immutableState, action: ChatAction): any => {
       if (updateMapChannelsChild != null) {
         updateMapChannelsChild.updatedAt = updateChannel.updatedAt;
         updateMapChannelsChild.group = updateChannel.group;
+        updateMapChannelsChild.instance = updateChannel.instance;
         updateMapChannelsChild.party = updateChannel.party;
         updateMapChannelsChild.user1 = updateChannel.user1;
         updateMapChannelsChild.user2 = updateChannel.user2;
@@ -216,8 +223,8 @@ const chatReducer = (state = immutableState, action: ChatAction): any => {
       const { value } = (action as SetMessageScrollInitAction);
       return state.set('messageScrollInit', value);
 
-    case FETCHING_PARTY_CHANNEL:
-      return state.set('fetchingPartyChannel', true);
+    case FETCHING_INSTANCE_CHANNEL:
+      return state.set('fetchingInstanceChannel', true);
   }
 
   return state;

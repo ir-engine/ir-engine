@@ -27,6 +27,7 @@ export default {
           try {
             const {app, params, data} = context;
             const loggedInUser = extractLoggedInUserFromParams(params);
+            const user = await app.service('user').get(loggedInUser.userId);
             const partyUserResult = await app.service('party-user').find({
               query: {
                 userId: loggedInUser.userId
@@ -40,6 +41,7 @@ export default {
             if (data.userId == null) {
               data.userId = loggedInUser.userId;
             }
+            context.params.oldInstanceId = user.instanceId;
             return context;
           } catch(err) {
             console.log(err);
