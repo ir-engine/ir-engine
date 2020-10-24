@@ -16,7 +16,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { AmbientLight, DirectionalLight, HemisphereLight } from 'three';
 // import { PlayerCharacter } from "../../../engine/src/templates/character/prefabs/PlayerCharacter";
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
-import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '../../redux/app/actions';
+import { generalStateList, setAppOnBoardingStep, setAppLoaded } from '../../redux/app/actions';
 import store from '../../redux/store';
 import LinearProgressComponent from '../ui/LinearProgress';
 
