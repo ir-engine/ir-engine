@@ -6,10 +6,11 @@ import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { Entity } from "../../../ecs/classes/Entity";
 import { Interactive } from "../../../interaction/components/Interactive";
 import { onInteraction, onInteractionHover } from "../../interactive/functions/commonInteractive";
-
+import { RigidBody } from "@xr3ngine/engine/src/physics/components/RigidBody";
 
 export const JoystickPrefab: Prefab = {
     components: [{ type: TransformComponent, data: { position: [3, 1, 0] } },
+
     { type: Interactive, data: {
         onInteraction: onInteraction,
         onInteractionFocused: onInteractionHover,

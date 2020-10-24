@@ -7,6 +7,7 @@ import { calcBoundingBox } from "../behaviors/calcBoundingBox";
 import { interact } from "../behaviors/interact";
 import { addComponent, getMutableComponent, getComponent, hasComponent, removeComponent } from "../../ecs/functions/EntityFunctions";
 import { Object3DComponent } from "../../common/components/Object3DComponent";
+import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { Input } from "../../input/components/Input";
 import { DefaultInput } from "../../templates/shared/DefaultInput";
 import { BinaryValue } from "../../common/enums/BinaryValue";
@@ -64,15 +65,13 @@ export class InteractiveSystem extends System {
         this.queryResults.interactive?.all.forEach(entityInter => {
           if (!hasComponent(entityInter, CalcBoundingBox) &&
               hasComponent(entityInter, Object3DComponent) &&
-              (getComponent(entityInter, Object3DComponent).value.position.x != 0 ||
-              getComponent(entityInter, Object3DComponent).value.position.y != 0 ||
-              getComponent(entityInter, Object3DComponent).value.position.z != 0)
+              hasComponent(entityInter, TransformComponent)
             ){
-              if (hasComponent(entityInter, RigidBody) || hasComponent(entityInter, VehicleBody)) {
-                addComponent(entityInter, CalcBoundingBox, { dynamic: true })
-              } else {
-                addComponent(entityInter, CalcBoundingBox)
-              }
+              
+            addComponent(entityInter, CalcBoundingBox, {
+              dynamic: (hasComponent(entityInter, RigidBody) || hasComponent(entityInter, VehicleBody))
+            })
+
           }
           if (entityInter !== interacts.focusedInteractive) {
             removeComponent(entityInter, InteractiveFocused);
