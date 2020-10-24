@@ -269,8 +269,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
                 // If a reliable message is received, add it to the queue
                 socket.on(MessageTypes.ReliableMessage.toString(), (message) => {
-                    console.log("Received message", message);
-                    Network.instance.incomingMessageQueue.add(message.data);
+                    Network.instance.incomingMessageQueue.add(message);
                 });
 
                 // Handle the disconnection
@@ -407,7 +406,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     try {
                         if (!params.label) throw ({error: 'data producer label i.e. channel name is not provided!'});
                         const {transportId, sctpStreamParameters, label, protocol, appData} = params;
-                        logger.info("Data channel label: `'${label}'` -- client id: " + socket.id);
+                        logger.info(`Data channel label: ${label} -- client id: ` + socket.id);
                         logger.info("Data producer params", params);
                         const transport: Transport = MediaStreamComponent.instance.transports[transportId];
                         const options: DataProducerOptions = {

@@ -16,7 +16,6 @@ export const addInputToWorldState: Behavior = (entity: Entity) => {
 
   const networkId = getComponent(entity, NetworkObject).networkId;
 
-
   // Create a schema for input to send
   const inputs = {
     networkId: networkId,
@@ -50,8 +49,6 @@ export const addInputToWorldState: Behavior = (entity: Entity) => {
         console.error("Input type has no network handler (maybe we should add one?)");
     }
   }
-
-  console.log("Sending input for " + networkId);
 
   // Add inputs to world state
   Network.instance.worldState.inputs.push(inputs);
