@@ -56,23 +56,34 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:Int
   const viewProjectionMatrix = new Matrix4().multiplyMatrices( projectionMatrix, Engine.camera.matrixWorldInverse );
   const frustum = new Frustum().setFromProjectionMatrix( viewProjectionMatrix );
 
+
+
+
   !window.t?window.t=1:window.t==200?console.warn(window.t+=1, interactive ):window.t+=1;
 
   const subFocusedArray = interactive.filter( entityIn => {
-    let aabb = new Box3()
-    let box = getComponent(entityIn, CalcBoundingBox).box
-    let dynamic = getComponent(entityIn, CalcBoundingBox).dynamic
-    if (box !== null) {
 
-      aabb.copy(box)
-      if (dynamic) {
-        aabb.applyMatrix4( getComponent(entityIn, Object3DComponent).value.matrixWorld );
+    let calcBoundingBox = getComponent(entityIn, CalcBoundingBox)
+    if (calcBoundingBox.boxArray.length) {
+      // TO DO: static group object
+      if (calcBoundingBox.dynamic) {
+        return calcBoundingBox.boxArray.some( object3D => {
+          let aabb = new Box3();
+          aabb.setFromObject( object3D );
+          return frustum.intersectsBox(aabb);
+        })
       }
-
     } else {
-      getComponent(entityIn, CalcBoundingBox).boxArray.forEach(v => {
 
-      })
+      if (calcBoundingBox.dynamic) {
+        let object3D = getComponent(entityIn, Object3DComponent)
+        let aabb = new Box3();
+        aabb.copy(calcBoundingBox.box);
+        aabb.applyMatrix4( object3D.value.matrixWorld );
+        return frustum.intersectsBox(aabb);
+      } else {
+        return frustum.intersectsBox(calcBoundingBox.box);
+      }
     }
 
 
@@ -88,7 +99,7 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:Int
 
   //   value.name == 'door_front_left' ? console.warn(frustum.intersectsBox(aabb)):'';
 
-    return frustum.intersectsBox(aabb);
+
   })
 
   const interacts = getMutableComponent(entity, Interacts);

@@ -6,10 +6,8 @@ import { InteractionCheckHandler } from "../types";
 
 export class CalcBoundingBox extends Component<CalcBoundingBox> {
   static schema = {
-    box: { type:  Types.Ref },
-    boxArray: { type: Types.Array },
+    box: { type:  Types.Ref, default: new Box3() },
+    boxArray: { type: Types.Array, default: [] },
     dynamic: { type: Types.Boolean, default: false },
   }
-  public box: Box3 | null = null
-  public boxArray: Array = []
 }

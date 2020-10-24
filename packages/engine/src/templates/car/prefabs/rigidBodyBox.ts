@@ -14,12 +14,13 @@ import { onInteraction, onInteractionHover } from "../../interactive/functions/c
 const boxGeometry = new BoxBufferGeometry(1, 1, 1);
 const boxMaterial = new MeshPhongMaterial({ color: 'red' });
 const boxMesh = new Mesh(boxGeometry, boxMaterial);
+boxMesh.name = 'simpleBox';
 
 export const rigidBodyBox: Prefab = {
     components: [
-      { type: TransformComponent, data: { position: [-3, 8,-3]} },
+      { type: TransformComponent, data: { position: [-3, 1,-3]} },
       { type: ColliderComponent, data: { type: 'box', scale: [1, 1, 1], mass: 10 }},
-      { type: RigidBody },
+
       { type: Interactive, data: {
           onInteraction: onInteraction,
           onInteractionFocused: onInteractionHover,

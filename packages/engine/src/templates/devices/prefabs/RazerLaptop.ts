@@ -4,12 +4,14 @@ import { addMeshCollider } from "@xr3ngine/engine/src/physics/behaviors/addMeshC
 import { Interactive } from "../../../interaction/components/Interactive";
 import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
+import { RigidBody } from "@xr3ngine/engine/src/physics/components/RigidBody";
 import { Entity } from "../../../ecs/classes/Entity";
 import { onInteraction, onInteractionHover } from "../../interactive/functions/commonInteractive";
 
 export const RazerLaptop: Prefab = {
   components: [
     { type: TransformComponent, data: { position: [3,0.5,3]} },
+    { type: RigidBody },
     { type: Interactive, data: {
         onInteraction: onInteraction,
         onInteractionFocused: onInteractionHover,
@@ -64,4 +66,3 @@ Single-zone RGB powered by Razer Chroma™`
     },
   ]
 };
-
