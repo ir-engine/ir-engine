@@ -51,9 +51,7 @@ export const IndexPage = (props: any): any => {
     console.log("SelfUser:")
     console.log(selfUser)
     const party = partyState.get('party');
-    console.log("party:")
-    console.log(party)
-    const instanceId = selfUser.instanceId != null ? selfUser.instanceId : party?.instanceId != null ? party.instanceId : null;
+    const instanceId = selfUser?.instanceId ?? party?.instanceId;
     const appLoaded = appState.get('loaded');
 
     useEffect(() => {

@@ -1,6 +1,7 @@
 import { Network } from '../components/Network';
 import { Entity } from '../../ecs/classes/Entity';
 import { removeEntity } from '../../ecs/functions/EntityFunctions';
+import { MessageTypes } from '../enums/MessageTypes';
 // TODO: This should only be called on server
 
 export const handleClientDisconnected = (args: { id: any }) => {
@@ -32,6 +33,17 @@ export const handleClientDisconnected = (args: { id: any }) => {
 
   // Remove entity and character
   console.log("Removed user ", args.id);
+
+    // Call each behavior in the network template
+    Network.instance.schema.messageHandlers[MessageTypes.ClientDisconnected].forEach(behavior => {
+      behavior.behavior(
+        // Client ID
+        args.id,
+        // isLocalClient
+        args.id === Network.instance.mySocketID
+      );
+    });
+
   if (Network.instance.clients[args.id])
   delete Network.instance.clients[args.id];
 };
