@@ -12,7 +12,6 @@ import { NetworkInterpolation } from '../components/NetworkInterpolation';
 import { initializeNetworkObject } from './initializeNetworkObject';
 
 export function applyWorldState(worldStateBuffer, delta = 0.033) {
-  console.log("applyWorldState")
   const worldState = worldStateBuffer; // worldStateModel.fromBuffer(worldStateBuffer);
 
 

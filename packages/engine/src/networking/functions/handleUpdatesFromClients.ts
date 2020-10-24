@@ -11,6 +11,7 @@ export function handleUpdatesFromClients() {
   // For each
   while (Network.instance.incomingMessageQueue.getBufferLength() > 0) {
     const message = queue.pop();
+    console.log(message);
     // Parse the message
     const clientInput = message as any; // clientInputModel.fromBuffer(message)
     // Get input component

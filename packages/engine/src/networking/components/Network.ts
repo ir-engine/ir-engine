@@ -49,7 +49,6 @@ export class Network extends Component<Network> {
   static _schemas: Map<string, MessageSchema> = new Map()
 
   incomingMessageQueue: RingBuffer<ArrayBuffer>
-  outgoingMessageQueue: RingBuffer<ArrayBuffer>
 
   worldState = {
     tick: Network.tick,
@@ -71,7 +70,6 @@ export class Network extends Component<Network> {
 
     // TODO: Replace default message queue sizes
     this.incomingMessageQueue = new RingBuffer<ArrayBuffer>(100);
-    this.outgoingMessageQueue = new RingBuffer<ArrayBuffer>(100);
   }
 
   dispose(): void {
