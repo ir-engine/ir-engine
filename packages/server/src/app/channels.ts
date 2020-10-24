@@ -135,7 +135,7 @@ export default (app: Application): void => {
 
             app.channel(`instanceIds/${instanceId as string}`).leave(connection);
 
-            if (instance.currentUsers === 1) {
+            if (instance.currentUsers <= 1) {
               console.log('Deleting instance ' + instanceId);
               await app.service('instance').remove(instanceId);
               if ((app as any).gsSubdomainNumber != null) {

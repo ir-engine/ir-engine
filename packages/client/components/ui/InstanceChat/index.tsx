@@ -12,7 +12,7 @@ import {
     TextField
 } from '@material-ui/core';
 import {
-    getPartyChannel,
+    getInstanceChannel,
     createMessage,
     updateChatTarget,
     updateMessageScrollInit
@@ -38,7 +38,7 @@ const mapStateToProps = (state: any): any => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-    getPartyChannel: bindActionCreators(getPartyChannel, dispatch),
+    getInstanceChannel: bindActionCreators(getInstanceChannel, dispatch),
     createMessage: bindActionCreators(createMessage, dispatch),
     updateChatTarget: bindActionCreators(updateChatTarget, dispatch),
     updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch)
@@ -48,7 +48,7 @@ interface Props {
     authState?: any;
     setBottomDrawerOpen: any;
     chatState?: any;
-    getPartyChannel?: any;
+    getInstanceChannel?: any;
     createMessage?: any;
     updateChatTarget?: any;
     updateMessageScrollInit?: any;
@@ -58,7 +58,7 @@ const BottomDrawer = (props: Props): any => {
     const {
         authState,
         chatState,
-        getPartyChannel,
+        getInstanceChannel,
         createMessage,
         setBottomDrawerOpen,
         updateChatTarget,
@@ -71,14 +71,14 @@ const BottomDrawer = (props: Props): any => {
     const channelState = chatState.get('channels');
     const channels = channelState.get('channels');
     const [composingMessage, setComposingMessage] = useState('');
-    const activeChannelMatch = [...channels].find(([, channel]) => channel.channelType === 'party');
+    const activeChannelMatch = [...channels].find(([, channel]) => channel.channelType === 'instance');
     if (activeChannelMatch && activeChannelMatch.length > 0) {
         activeChannel = activeChannelMatch[1];
     }
 
     useEffect(() =>  {
-        if (channelState.get('partyChannelFetched') !== true && channelState.get('fetchingPartyChannel') !== true) {
-            getPartyChannel();
+        if (channelState.get('instanceChannelFetched') !== true && channelState.get('fetchingInstanceChannel') !== true) {
+            getInstanceChannel();
         }
     }, []);
 
@@ -94,8 +94,8 @@ const BottomDrawer = (props: Props): any => {
     const packageMessage = (event: any): void => {
         if (composingMessage.length > 0) {
             createMessage({
-                targetObjectId: user.partyId,
-                targetObjectType: 'party',
+                targetObjectId: user.instanceId,
+                targetObjectType: 'instance',
                 text: composingMessage
             });
             setComposingMessage('');
@@ -105,7 +105,7 @@ const BottomDrawer = (props: Props): any => {
     const setActiveChat = (channel): void => {
         updateMessageScrollInit(true);
         const channelType = channel.channelType;
-        const target = channelType === 'user' ? (channel.user1?.id === user.id ? channel.user2 : channel.user2?.id === user.id ? channel.user1 : {}) : channelType === 'group' ? channel.group : channel.party;
+        const target = channelType === 'user' ? (channel.user1?.id === user.id ? channel.user2 : channel.user2?.id === user.id ? channel.user1 : {}) : channelType === 'group' ? channel.group : channelType === 'instance' ? channel.instance : channel.party;
         updateChatTarget(channelType, target, channel.id);
         setComposingMessage('');
     };
@@ -125,6 +125,11 @@ const BottomDrawer = (props: Props): any => {
                 return partyUser.userId === message.senderId;
             });
             user = partyUser != null ? partyUser.user : {};
+        } else if (channel.channelType === 'instance') {
+            const instanceUser = _.find(channel.instance.instanceUsers, (instanceUser) => {
+                return instanceUser.id === message.senderId;
+            });
+            user = instanceUser != null ? instanceUser : {};
         }
 
         return user;
@@ -174,7 +179,7 @@ const BottomDrawer = (props: Props): any => {
                     }
                     {(activeChannel == null || activeChannel.messages?.length === 0) &&
                     <div className={styles['first-message-placeholder']}>
-                        No messages to this party yet
+                        No messages to this layer
                     </div>
                     }
                 </List>
