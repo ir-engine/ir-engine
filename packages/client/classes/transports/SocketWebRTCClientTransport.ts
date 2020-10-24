@@ -158,7 +158,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // Ping request for testing unreliable messaging may remove if not needed
       console.log('About to init receive and send transports');
       // Init Receive and Send Transports initially since we need them for unreliable message consumption and production
-      await Promise.all([this.initSendTransport(), this.initReceiveTransport()]);
+      await Promise.all([this.initSendTransport('instance'), this.initReceiveTransport('instance')]);
 
       await this.createDataProducer();
 
@@ -179,7 +179,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           (MediaStreamComponent.instance.consumers?.find(
               c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
           ) == null &&
-          this.partyId === localPartyId)
+          (this.partyId === localPartyId) || localPartyId === 'instance')
       ) {
         // that we don't already have consumers for...
         console.log(`auto subscribing to ${mediaTag} track that ${socketId} has added at ${new Date()}`);
@@ -222,7 +222,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   async initReceiveTransport(partyId?: string): Promise<MediaSoupTransport | Error> {
     console.log('Creating receive transport');
     let transport;
-    if (partyId == null) transport = this.instanceRecvTransport = await this.createTransport("recv");
+    if (partyId === 'instance') transport = this.instanceRecvTransport = await this.createTransport('recv', 'instance');
     else transport = this.partyRecvTransport = await this.createTransport('recv', partyId);
     return Promise.resolve(transport);
   }
@@ -231,7 +231,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   async initSendTransport(partyId?: string): Promise<MediaSoupTransport | Error> {
     console.log('Creating send transport');
     let transport;
-    if (partyId == null) transport = this.instanceSendTransport = await this.createTransport("send");
+    if (partyId === 'instance') transport = this.instanceSendTransport = await this.createTransport('send', 'instance');
     else transport = this.partySendTransport = await this.createTransport('send', partyId);
     return Promise.resolve(transport);
   }
@@ -250,7 +250,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       console.log('Video track to send:');
       console.log(MediaStreamComponent.instance.mediaStream.getVideoTracks()[0]);
       let transport;
-      if (partyId == null) {
+      if (partyId === 'instance') {
         transport = this.instanceSendTransport;
       } else {
         if (this.partySendTransport == null || this.partySendTransport.closed === true) [transport,] = await Promise.all([this.initSendTransport(partyId), this.initReceiveTransport(partyId)]);
@@ -278,7 +278,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     MediaStreamComponent.instance.mediaStream.removeTrack(audioTrack);
     MediaStreamComponent.instance.mediaStream.addTrack(dst.stream.getAudioTracks()[0]);
     // same thing for audio, but we can use our already-created
-    const transport = partyId == null ? this.instanceSendTransport : this.partySendTransport;
+    const transport = partyId === 'instance' ? this.instanceSendTransport : this.partySendTransport;
     MediaStreamComponent.instance.camAudioProducer = await transport.produce({
       track: MediaStreamComponent.instance.mediaStream.getAudioTracks()[0],
       appData: { mediaTag: "cam-audio", partyId: partyId }
@@ -459,7 +459,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log(`Requesting consumer for peer ${peerId} of type ${mediaTag} at ${new Date()}`);
 
     if (consumerParameters.id != null) {
-      consumer = partyId == null ? await this.instanceRecvTransport.consume(
+      consumer = partyId === 'instance' ? await this.instanceRecvTransport.consume(
           {...consumerParameters, appData: {peerId, mediaTag}}
       ) : await this.partyRecvTransport.consume(
           {...consumerParameters, appData: {peerId, mediaTag, partyId}}
