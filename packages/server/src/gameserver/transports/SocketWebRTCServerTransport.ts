@@ -447,9 +447,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         logger.info(`transport ${socket.id} connected successfully`);
                         callback({connected: true});
                     } catch(err) {
-                        console.log('WebRTC transport connect error')
-                        console.log(err)
-                        callback({connected: false})
+                        console.log('WebRTC transport connect error');
+                        console.log(err);
+                        callback({connected: false});
                     }
                 });
 
@@ -465,7 +465,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     } catch (err) {
                         logger.info('WebRTC Transport close error');
                         logger.info(err);
-                        callback({closed: true})
+                        callback({closed: true});
                     }
                 });
 
@@ -500,7 +500,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         logger.info('New producer');
 
                         MediaStreamComponent.instance.producers.push(producer);
-                        console.log('Producer appdata:')
+                        console.log('Producer appdata:');
                         console.log(appData);
                         Network.instance.clients[socket.id].media[appData.mediaTag] = {
                             paused,
@@ -606,7 +606,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                             producerPaused: consumer.producerPaused
                         });
                     } catch(err) {
-                        console.log(err)
+                        console.log(err);
                     }
                 });
 
@@ -829,7 +829,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 // remove this track's info from our roomState...mediaTag bookkeeping
                 delete Network.instance.clients[producer.appData.peerId]?.media[producer.appData.mediaTag];
             } catch(err) {
-                console.log('ClosePipeProducer error')
+                console.log('ClosePipeProducer error');
                 console.log(err);
             }
         }
@@ -849,7 +849,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
     async createWebRtcTransport({peerId, direction, sctpCapabilities, partyId}: CreateWebRtcTransportParams): Promise<WebRtcTransport> {
         logger.info("Creating Mediasoup transport");
-        console.log(partyId)
+        console.log(partyId);
         try {
             const {listenIps, initialAvailableOutgoingBitrate} = localConfig.mediasoup.webRtcTransport;
             const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[];

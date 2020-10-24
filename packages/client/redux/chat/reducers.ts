@@ -81,6 +81,13 @@ const chatReducer = (state = immutableState, action: ChatAction): any => {
       const channelType = localAction.channelType;
       updateMap = new Map(state.get('channels'));
       updateMapChannels = new Map((updateMap as any).get('channels'));
+      if (channelType === 'instance') {
+        const tempUpdateMapChannels = new Map();
+        updateMapChannels.forEach((value, key) => {
+          if (value.channelType !== 'instance') tempUpdateMapChannels.set(key, value);
+        });
+        updateMapChannels = new Map(tempUpdateMapChannels);
+      }
       if (newChannel?.id != null && updateMapChannels[newChannel.id] == null) {
         newChannel.updateNeeded = true;
         newChannel.limit = 10;

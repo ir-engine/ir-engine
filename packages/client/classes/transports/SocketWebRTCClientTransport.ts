@@ -445,7 +445,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   async subscribeToTrack(peerId: string, mediaTag: string, partyId) {
-    console.log('Calling subscribeToTrack with partyId: ' + partyId)
     // if we do already have a consumer, we shouldn't have called this method
     let consumer = MediaStreamComponent.instance.consumers.find(
       (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === mediaTag

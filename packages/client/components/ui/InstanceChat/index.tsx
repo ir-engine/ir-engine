@@ -19,6 +19,7 @@ import {
 } from '../../../redux/chat/service';
 import { selectAuthState} from '../../../redux/auth/selector';
 import { selectChatState } from '../../../redux/chat/selector';
+import { selectInstanceConnectionState } from '../../../redux/instanceConnection/selector';
 import {
     Message as MessageIcon,
     Send
@@ -34,6 +35,7 @@ const mapStateToProps = (state: any): any => {
     return {
         authState: selectAuthState(state),
         chatState: selectChatState(state),
+        instanceConnectionState: selectInstanceConnectionState(state),
     };
 };
 
@@ -48,16 +50,18 @@ interface Props {
     authState?: any;
     setBottomDrawerOpen: any;
     chatState?: any;
+    instanceConnectionState?: any;
     getInstanceChannel?: any;
     createMessage?: any;
     updateChatTarget?: any;
     updateMessageScrollInit?: any;
 }
 
-const BottomDrawer = (props: Props): any => {
+const InstanceChat = (props: Props): any => {
     const {
         authState,
         chatState,
+        instanceConnectionState,
         getInstanceChannel,
         createMessage,
         setBottomDrawerOpen,
@@ -77,10 +81,12 @@ const BottomDrawer = (props: Props): any => {
     }
 
     useEffect(() =>  {
-        if (channelState.get('instanceChannelFetched') !== true && channelState.get('fetchingInstanceChannel') !== true) {
+        console.log('InstanceChat instanceConnectionState useEffect');
+        console.log(instanceConnectionState.get('connected'));
+        if (instanceConnectionState.get('connected') === true && channelState.get('fetchingInstanceChannel') !== true) {
             getInstanceChannel();
         }
-    }, []);
+    }, [instanceConnectionState]);
 
     const openBottomDrawer = (e: any): void => {
         setBottomDrawerOpen(true);
@@ -225,4 +231,4 @@ const BottomDrawer = (props: Props): any => {
     );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(BottomDrawer);
+export default connect(mapStateToProps, mapDispatchToProps)(InstanceChat);
