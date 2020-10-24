@@ -67,12 +67,10 @@ export default (app: Application): void => {
               console.log('Joining allocated instance');
               console.log(user.instanceId);
               console.log((app as any).instance.id);
-              if (user.instanceId !== (app as any).instance.id) {
                 const instance = await app.service('instance').get((app as any).instance.id);
                 await app.service('instance').patch((app as any).instance.id, {
                   currentUsers: (instance.currentUsers as number) + 1
                 });
-              }
             }
             console.log('Patching user instanceId to ' + (app as any).instance.id);
             await app.service('user').patch(userId, {
@@ -125,7 +123,7 @@ export default (app: Application): void => {
             const user = await app.service('user').get(userId);
             console.log('Socket disconnect from ' + userId);
             const instanceId = process.env.KUBERNETES !== 'true' ? user.instanceId : (app as any).instance?.id;
-            const instance = (app as any).instance ? await app.service('instance').get(instanceId) : {};
+            const instance = ((app as any).instance && instanceId != null) ? await app.service('instance').get(instanceId) : {};
             if (user.instanceId === instanceId) {
               await app.service('instance').patch(instanceId, {
                 currentUsers: instance.currentUsers - 1
@@ -137,7 +135,7 @@ export default (app: Application): void => {
 
             app.channel(`instanceIds/${instanceId as string}`).leave(connection);
 
-            if (instance.currentUsers === 1) {
+            if (instance.currentUsers <= 1) {
               console.log('Deleting instance ' + instanceId);
               await app.service('instance').remove(instanceId);
               if ((app as any).gsSubdomainNumber != null) {

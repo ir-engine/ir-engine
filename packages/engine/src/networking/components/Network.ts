@@ -16,8 +16,10 @@ export interface NetworkClientList {
     media?: {};
     consumerLayers?: {};
     stats?: {};
-    sendTransport?: any;
-    recvTransport?: any;
+    instanceSendTransport?: any;
+    instanceRecvTransport?: any;
+    partySendTransport?: any;
+    partyRecvTransport?: any;
     dataConsumers?: Map<string, any>; // Key => id of data producer
     dataProducers?: Map<string, any>; // Key => label of data channel}
   };
