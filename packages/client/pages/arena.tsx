@@ -84,7 +84,6 @@ export const ArenaPage = (props: Props): any => {
   useEffect(() => {
       if (authState.get('isLoggedIn') === true && authState.get('user').id != null && authState.get('user').id.length > 0 && currentLocation.id == null && userBanned === false && locationState.get('fetchingCurrentLocation') !== true) {
           getLocation(arenaLocationId);
-          joinLocationParty(arenaLocationId);
       }
   }, [authState]);
 
@@ -92,7 +91,7 @@ export const ArenaPage = (props: Props): any => {
       if (currentLocation.id != null && userBanned === false && instanceConnectionState.get('instanceProvisioned') !== true && instanceConnectionState.get('instanceProvisioning') === false && selfUser.partyId != null) {
           provisionInstanceServer(currentLocation.id);
       }
-  }, [partyState]);
+  }, [locationState]);
 
     useEffect(() => {
         if (

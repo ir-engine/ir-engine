@@ -71,18 +71,18 @@ export function getChannels(skip?: number, limit?: number) {
 //   }
 // }
 //
-export function getPartyChannel() {
+export function getInstanceChannel() {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      console.log('Getting party channel');
+      console.log('Getting instance channel');
       const channelResult = await client.service('channel').find({
         query: {
-          channelType: 'party'
+          channelType: 'instance'
         }
       });
-      console.log('Party channel:');
+      console.log('Instance channel:');
       console.log(channelResult);
-      dispatch(loadedChannel(channelResult.data[0], 'party'));
+      dispatch(loadedChannel(channelResult.data[0], 'instance'));
     } catch(err) {
       dispatchAlertError(dispatch, err.message);
     }
