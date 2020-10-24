@@ -349,7 +349,7 @@ export default (app: Application): any => {
           instanceId: data.instanceId
         }
       });
-      targetIds = instanceUsers.map((instanceUser) => instanceUser.id)
+      targetIds = instanceUsers.map((instanceUser) => instanceUser.id);
     }
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     return Promise.all(targetIds.map((userId) => {

@@ -206,6 +206,10 @@ export class Channel extends Service {
           });
         }));
 
+        if (query.channelType) {
+          results.rows = results.rows.filter((row) => row.channelType === query.channelType);
+        }
+
         return {
           data: results.rows,
           total: results.count,
