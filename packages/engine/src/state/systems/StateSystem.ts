@@ -14,6 +14,9 @@ export class StateSystem extends System {
   private readonly _args: any
   public execute (delta: number): void {
     this.queryResults.state.added?.forEach(entity => {
+      console.log("Handling state");
+      console.log("Processing entity with component types: ");
+      console.log(entity.componentTypes);
       // If stategroup has a default, add it to our state map
       this._state = getComponent(entity, State);
       if (this._state.schema === undefined) return;

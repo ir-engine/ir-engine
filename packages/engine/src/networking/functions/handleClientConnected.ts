@@ -17,15 +17,24 @@ export const handleClientConnected = (args: { id: any; media: any }) => {
     };
   }
 
+  const networkId = Network.getNetworkId();
+
   // Create the default client prefab
   const entity = createNetworkPrefab(
     Network.instance.schema.prefabs[Network.instance.schema.defaultClientPrefab],
     args.id,
-    Network.getNetworkId()
+    networkId
   );
 
   // Get a reference to the network object we just created, we need the ID
   const networkObject = getComponent(entity, NetworkObject);
+
+  // Add the network object to our list of network objects
+    Network.instance.networkObjects[networkId] = {
+      ownerId: args.id, // Owner's socket ID
+      prefabType: Network.instance.schema.defaultClientPrefab, // All network objects need to be a registered prefab
+      component: networkObject
+    };
 
   if (!hasComponent(entity, TransformComponent)) addComponent(entity, TransformComponent);
 

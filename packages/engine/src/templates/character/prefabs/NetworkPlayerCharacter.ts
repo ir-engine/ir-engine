@@ -14,10 +14,8 @@ import { FollowCameraComponent } from '../../../camera/components/FollowCameraCo
 import { addComponentFromSchema } from '../../../common/behaviors/addComponentFromSchema';
 import { AssetLoader } from '../../../assets/components/AssetLoader';
 import { initializeCharacter } from '../behaviors/initializeCharacter';
-const box = new BoxBufferGeometry(0.25, 0.25, 0.25);
-const miniGeo = new BoxBufferGeometry(2, 1, 4);
-// Prefab is a pattern for creating an entity and component collection as a prototype
 
+// Prefab is a pattern for creating an entity and component collection as a prototype
 export const NetworkPlayerCharacter: NetworkPrefab = {
   // These will be created for all players on the network
   networkComponents: [

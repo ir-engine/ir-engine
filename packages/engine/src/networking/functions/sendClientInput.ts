@@ -9,13 +9,18 @@ import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { Input } from "../../input/components/Input";
 import { InputType } from "../../input/enums/InputType";
 import { Network } from "../components/Network";
+import { NetworkObject } from "../components/NetworkObject";
 
 export const sendClientInput = (entity: Entity): void => {
   // Get the input component
   const input = getComponent(entity, Input);
   if (input.data.size < 1) return;
+
+  const networkId = getComponent(entity, NetworkObject).networkId;
+
   // Create a schema for input to send
   const inputs = {
+    networkId: networkId,
     buttons: {},
     axes1d: {},
     axes2d: {}
