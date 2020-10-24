@@ -367,11 +367,11 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
                     // Distinguish between send and create transport of each client w.r.t producer and consumer (data or mediastream)
                     if (direction === 'recv') {
-                        if (partyId == null) Network.instance.clients[socket.id].instanceRecvTransport = transport;
+                        if (partyId === 'instance') Network.instance.clients[socket.id].instanceRecvTransport = transport;
                         else if (partyId != null) Network.instance.clients[socket.id].partyRecvTransport = transport;
 
                     } else if (direction === 'send') {
-                        if (partyId == null) Network.instance.clients[socket.id].instanceSendTransport = transport;
+                        if (partyId === 'instance') Network.instance.clients[socket.id].instanceSendTransport = transport;
                         else if (partyId != null) Network.instance.clients[socket.id].partySendTransport = transport;
                     }
 
@@ -537,7 +537,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         const producer = MediaStreamComponent.instance.producers.find(
                             p => p._appData.mediaTag === mediaTag && p._appData.peerId === mediaPeerId && p._appData.partyId === partyId
                         );
-                        const router = partyId == null ? this.routers.instance : this.routers[partyId];
+                        const router = this.routers[partyId];
                         if (producer == null || !router.canConsume({producerId: producer.id, rtpCapabilities})) {
                             const msg = `client cannot consume ${mediaPeerId}:${mediaTag}`;
                             console.error(`recv-track: ${socket.id} ${msg}`);
@@ -853,13 +853,11 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         try {
             const {listenIps, initialAvailableOutgoingBitrate} = localConfig.mediasoup.webRtcTransport;
             const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[];
-            let router;
-            if (partyId != null) {
+            if (partyId != null && partyId !== 'instance') {
                 if (this.routers[partyId] == null) this.routers[partyId] = await this.worker.createRouter({mediaCodecs});
-                router = this.routers[partyId];
                 logger.info("Worker created router for party " + partyId);
             }
-            if (partyId == null) router = this.routers.instance;
+            const router = this.routers[partyId];
             const transport = await router.createWebRtcTransport({
                 listenIps: listenIps,
                 enableUdp: true,
