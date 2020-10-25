@@ -47,8 +47,7 @@ export function applyWorldState(worldStateBuffer, delta = 0.033) {
     Network.instance.clients[worldState.clientsConnected[connectingClient].userId] = {
       userId: worldState.clientsConnected[connectingClient].userId
     };
-    console.log(worldState.clientsConnected[connectingClient].userId, " connected");
-  }
+    console.log(worldState.clientsConnected[connectingClient].userId, " connected");  }
 
   // Handle all clients that disconnected this frame
   for (const disconnectingClient in worldState.clientsDisconnected) {
@@ -68,8 +67,6 @@ export function applyWorldState(worldStateBuffer, delta = 0.033) {
         worldState.createObjects[objectToCreate].networkId,
         worldState.createObjects[objectToCreate].prefabType
     );
-
-    console.log("Created network prefab for " + worldState.createObjects[objectToCreate].ownerId);
   }
 
   if (worldState.transforms !== undefined && worldState.transforms.length > 0) {

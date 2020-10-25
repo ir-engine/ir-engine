@@ -319,7 +319,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 });
 
                 socket.on(MessageTypes.Heartbeat.toString(), () => {
-                    console.log("Heartbeat from ", userId);
                     Network.instance.clients[userId].lastSeenTs = Date.now();
                 })
 
@@ -367,7 +366,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     for (const networkId in Network.instance.networkObjects)
                         worldState.createObjects.push({
                             prefabType: Network.instance.networkObjects[networkId].prefabType,
-                            networkid: networkId,
+                            networkId: networkId,
                             ownerId: Network.instance.networkObjects[networkId].ownerId
                         });
 

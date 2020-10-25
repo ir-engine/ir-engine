@@ -58,10 +58,6 @@ export const sendClientInput = (entity: Entity): void => {
     }
   }
 
-  console.log("numInputs", numInputs)
-  if (numInputs < 1) return;
-
-  console.log("INPUTS: ", inputs)
   // Convert to a message buffer
   const message = inputs; // clientInputModel.toBuffer(inputs)
 
