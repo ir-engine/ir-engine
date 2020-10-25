@@ -124,12 +124,12 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.videoEnabled = videoEnabled ?? false;
 
     if (process.env.NODE_ENV === 'development') {
-      this.socket = ioclient(`${address as string}:${port.toString()}`, {
+      this.socket = ioclient(`${address as string}:${port.toString()}/realtime`, {
         query: query
       });
     } else {
       this.socket = ioclient(gameserver, {
-        path: `/socket.io/${address as string}/${port.toString()}`,
+        path: `/socket.io/${address as string}/${port.toString()}/realtime`,
         query: query
       });
     }
@@ -140,6 +140,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log(`Initializing socket.io...,`);
     this.socket.on("connect", async () => {
       console.log("Connected!");
+
+      console.log("Attempting to join world");
+      await this.joinWorld();
 
       this.socket.emit(MessageTypes.Heartbeat.toString(), 1000);
 
@@ -161,9 +164,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       window.addEventListener("unload", async () => {
         this.socket.emit(MessageTypes.LeaveWorld.toString());
       });
-
-      console.log("Attempting to join world");
-      await this.joinWorld();
 
       // Ping request for testing unreliable messaging may remove if not needed
       console.log('About to init receive and send transports');

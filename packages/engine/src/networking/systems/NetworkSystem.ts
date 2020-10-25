@@ -38,7 +38,8 @@ export class NetworkSystem extends System {
 
     // Initialize the server automatically
     if (process.env.SERVER_MODE !== undefined && (process.env.SERVER_MODE === 'realtime' || process.env.SERVER_MODE === 'local')) {
-        Network.instance.transport.initialize();
+        console.log("Initializing");
+      Network.instance.transport.initialize();
         Network.instance.isInitialized = true;
     }
 

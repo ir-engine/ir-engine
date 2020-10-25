@@ -139,8 +139,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     }
 
     sendReliableData(message: any): void {
-        if (!this.isInitialized) console.error("Not initialized");
-        else this.socketIO.sockets.emit(MessageTypes.ReliableMessage.toString(), message);
+        if (!this.isInitialized) return console.error("Not initialized");
+        this.socketIO.of('/realtime').emit(MessageTypes.ReliableMessage.toString(), message);
     }
 
     async sendData(data: any, channel = 'default'): Promise<UnreliableMessageReturn> {
@@ -242,8 +242,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 announcedIp: process.env.KUBERNETES === 'true' ? (config.gameserver.local === true ? gsResult.status.address : `${stringSubdomainNumber}.${config.gameserver.domain}` ) : localIp.ipAddress
             }];
             this.socketIO = (this.app as any)?.io;
+            const realtime = this.socketIO.of('/realtime');
 
-            this.socketIO.sockets.on("connect", (socket: Socket) => {
+            realtime.on("connect", (socket: Socket) => {
                 logger.info('Socket Connected');
                 Network.instance.clients[socket.id] = {
                     userId: socket.id,
