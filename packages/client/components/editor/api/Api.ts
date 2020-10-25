@@ -38,8 +38,7 @@ const {
   USE_HTTPS
 } = configs as any;
 
-// const prefix = USE_HTTPS === "true" ? "https://" : "http://";
-const prefix = "https://";
+const prefix = USE_HTTPS ? "https://" : "http://";
 
 function b64EncodeUnicode(str): string {
   // first we use encodeURIComponent to get percent-encoded UTF-8, then we convert the percent-encodings
@@ -912,7 +911,7 @@ export default class Api extends EventEmitter {
       if (USE_DIRECT_UPLOAD_API) {
         request.open("post", `${host}${API_MEDIA_ROUTE}`, true);
       } else {
-        request.open("post", `https://${API_SERVER_ADDRESS}/media`, true);
+        request.open("post", `${prefix}${API_SERVER_ADDRESS}${API_MEDIA_ROUTE}`, true);
       }
 
       request.upload.addEventListener("progress", e => {
@@ -1125,11 +1124,11 @@ export default class Api extends EventEmitter {
 
   async fetch(url, options: any = {}): Promise<any> {
     try {
-      // const token = this.getToken();
+      const token = this.getToken();
       if (options.headers == null) {
         options.headers = {};
       }
-      // options.headers.authorization = `Bearer ${token}`;
+      options.headers.authorization = `Bearer ${token}`;
       const res = await fetch(url, options);
       console.log("Response: " + Object.values(res));
 

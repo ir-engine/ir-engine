@@ -14,7 +14,6 @@ import { initializeNetworkObject } from './initializeNetworkObject';
 export function applyWorldState(worldStateBuffer, delta = 0.033) {
   const worldState = worldStateBuffer; // worldStateModel.fromBuffer(worldStateBuffer);
 
-
   if(worldState.clientsConnected.length > 0) {
     console.log("worldState.clientsConnected");
     console.log(worldState.clientsConnected);
@@ -83,8 +82,10 @@ export function applyWorldState(worldStateBuffer, delta = 0.033) {
   }
 
   // Handle all network objects destroyed this frame
-  for (const objectToDestroy in worldState.destroyObjects)
-    destroyNetworkObject(worldState.createObjects[objectToDestroy].networkId);
+  for (const objectToDestroy in worldState.destroyObjects){
+    destroyNetworkObject(worldState.destroyObjects[objectToDestroy].networkId);
+    console.log("Destroying network object");
+  }
 
   if(worldState.inputs !== undefined && worldState.inputs.length > 0){
     console.log("World state inputs: ");
@@ -92,8 +93,8 @@ export function applyWorldState(worldStateBuffer, delta = 0.033) {
   }
 
   worldState.inputs?.forEach(stateData => {
-
-    if(Network.instance.networkObjects[stateData.networkId] === undefined) return console.warn("network object undefined, but inputs not");
+    if(Network.instance.networkObjects[stateData.networkId] === undefined)
+      return console.warn("network object undefined, but inputs not");
     // Get network object with networkId
     const networkComponent = Network.instance.networkObjects[stateData.networkId].component;
     // Get input object attached

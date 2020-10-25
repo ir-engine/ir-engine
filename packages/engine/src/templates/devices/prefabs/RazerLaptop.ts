@@ -38,7 +38,7 @@ Single-zone RGB powered by Razer Chroma™`
       }
     }
   ],
-  onCreate: [
+  onBeforeCreate: [
     // add a 3d object
     {
       behavior: addComponentFromSchema,
