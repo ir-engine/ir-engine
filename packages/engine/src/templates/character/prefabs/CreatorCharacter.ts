@@ -32,7 +32,7 @@ export const CreatorCharacter: Prefab = {
         { type: Subscription, data: { schema: CharacterSubscriptionSchema } },
         { type: Interacts }
     ],
-    onBeforeCreate: [
+    onAfterCreate: [
         {
             behavior: addComponentFromSchema,
             args: {

@@ -30,7 +30,7 @@ export const googleBox: Prefab = {
             }
         }
     ],
-    onBeforeCreate: [
+    onAfterCreate: [
         {
             behavior: addObject3DComponent,
             args: {

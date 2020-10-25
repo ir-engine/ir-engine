@@ -19,7 +19,7 @@ export const rigidBodyBox: Prefab = {
       { type: ColliderComponent, data: { type: 'box', scale: [1, 1, 1], mass: 10 }},
       { type: RigidBody }
     ],
-    onBeforeCreate: [
+    onAfterCreate: [
         // add a 3d object
         {
             behavior: addObject3DComponent,

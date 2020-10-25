@@ -83,7 +83,7 @@ export const interactiveBox: Prefab = {
             }
         }
     ],
-    onBeforeCreate: [
+    onAfterCreate: [
         {
             behavior: addObject3DComponent,
             args: {
