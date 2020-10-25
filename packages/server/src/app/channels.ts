@@ -3,6 +3,7 @@ import { Application } from '../declarations';
 import getLocalServerIp from '../util/get-local-server-ip';
 import config from '../config';
 import app from "../app";
+import { Network } from '@xr3ngine/engine/src/networking/components/Network';
 
 export default (app: Application): void => {
   if (typeof app.channel !== 'function') {
@@ -24,6 +25,7 @@ export default (app: Application): void => {
   app.on('connection', async (connection) => {
     if ((process.env.KUBERNETES === 'true' && config.server.mode === 'realtime') || (process.env.NODE_ENV === 'development') || config.server.mode === 'local') {
       try {
+        console.log("**** CONNECTED");
         const token = (connection as any).socketQuery?.token;
         if (token != null) {
           const authResult = await app.service('authentication').strategies.jwt.authenticate({ accessToken: token }, {});

@@ -28,8 +28,6 @@ export interface NetworkClientList {
 
 export class Network extends Component<Network> {
   static instance: Network = null
-  // TODO: localuserId should be set somewhere
-  localUserId = ""
   isInitialized: boolean
   transport: NetworkTransport
   schema: NetworkSchema
@@ -41,7 +39,9 @@ export class Network extends Component<Network> {
   ]
   clients: NetworkClientList = {}
   networkObjects: NetworkObjectList = {}
-  mySocketID: string
+  socketId: string
+  userId: string
+  accessToken: string
   private static availableNetworkId = 0
   static getNetworkId() {
     return this.availableNetworkId++;
