@@ -16,11 +16,8 @@ import { AnimationManager } from "@xr3ngine/engine/src/templates/character/compo
 import { addObject3DComponent } from "../../../common/behaviors/Object3DBehaviors";
 
 export const initializeCharacter: Behavior = (entity): void => {
-	console.log("Init character");
-	console.log("**** Initializing character!");
 	if (!hasComponent(entity, CharacterComponent as any))
 		addComponent(entity, CharacterComponent as any);
-
 
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	// The visuals group is centered for easy actor tilting

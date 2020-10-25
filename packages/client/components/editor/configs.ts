@@ -14,9 +14,6 @@ const get = (configs, key, defaultValue) => {
   }
 };
 
-console.log("API_SERVER_ADDRESS", process.env.API_SERVER_ADDRESS);
-console.log("API_MEDIA_ROUTE", process.env.API_MEDIA_ROUTE);
-
 get(configs, "API_ASSETS_ROUTE", process.env.API_ASSETS_ROUTE);
 get(configs, "API_MEDIA_ROUTE", process.env.API_MEDIA_ROUTE);
 get(configs, "API_MEDIA_SEARCH_ROUTE", process.env.API_MEDIA_SEARCH_ROUTE);

@@ -32,7 +32,7 @@ export const testLODedMesh: Prefab = {
     {type: ColliderComponent, data: {type: "box", scale: [2, 4, 2], mass: 10}},
     {type: RigidBody}
   ],
-  onCreate: [
+  onBeforeCreate: [
     // add a 3d object
     {
       behavior: addObject3DComponent,

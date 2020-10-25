@@ -32,7 +32,7 @@ export const CreatorCharacter: Prefab = {
         { type: Subscription, data: { schema: CharacterSubscriptionSchema } },
         { type: Interacts }
     ],
-    onCreate: [
+    onBeforeCreate: [
         {
             behavior: addComponentFromSchema,
             args: {
@@ -48,7 +48,7 @@ export const CreatorCharacter: Prefab = {
             behavior: initializeCreatorCharacter
         }
     ],
-    onDestroy: [
+    onBeforeDestroy: [
 
     ]
 };

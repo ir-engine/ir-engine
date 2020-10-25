@@ -39,7 +39,7 @@ export const CarController: Prefab = {
           }
         }
     ],
-    onCreate: [
+    onBeforeCreate: [
         // add a 3d object
         {
             behavior: addComponentFromSchema,

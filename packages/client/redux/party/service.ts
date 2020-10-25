@@ -19,7 +19,7 @@ import { provisionInstanceServer } from '../instanceConnection/service';
 export function getParty () {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      console.log('CALLING GETPARTY()');
+      // console.log('CALLING GETPARTY()');
       const partyResult = await client.service('party').get(null);
       dispatch(loadedParty(partyResult));
     } catch (err) {
@@ -37,7 +37,7 @@ export const getParties = async (): Promise<void> => {
   const userId = (store.getState() as any).get('auth').get('user').id;
   console.log('USERID: ', userId);
   if ((client as any).io && socketId === undefined) {
-    (client as any).io.emit('request-socket-id', ({ id }: { id: number }) => {
+    (client as any).io.emit('request-user-id', ({ id }: { id: number }) => {
       console.log('Socket-ID received: ', id);
       socketId = id;
     });

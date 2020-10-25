@@ -7,12 +7,13 @@ import { InputType } from "../../input/enums/InputType";
 // TODO: A lot of this logic can be combined with handleInputFromServer
 export function handleUpdatesFromClients() {
   // Parse incoming message queue
-  const queue = Network.instance.incomingMessageQueue;
   // For each
   while (Network.instance.incomingMessageQueue.getBufferLength() > 0) {
-    const message = queue.pop();
-    // Parse the message
-    const clientInput = message as any; // clientInputModel.fromBuffer(message)
+    const clientInput = Network.instance.incomingMessageQueue.pop() as any;
+
+    if(clientInput === undefined) return console.warn("Input is undefined, this might be because it was destroyed this frame");
+    if(Network.instance.networkObjects[clientInput.networkId] === undefined) return
+
     // Get input component
     const input = getComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, Input);
 
