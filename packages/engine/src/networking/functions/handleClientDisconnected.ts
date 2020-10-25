@@ -41,7 +41,7 @@ export const handleClientDisconnected = (args: { id: any }) => {
         // Client ID
         args.id,
         // isLocalClient
-        args.id === Network.instance.mySocketID
+        args.id === Network.instance.userId
       );
     });
 

@@ -12,6 +12,9 @@ import { DataConsumerOptions, DataProducer, Transport as MediaSoupTransport } fr
 import ioclient from "socket.io-client";
 import getConfig from "next/config";
 
+import store from "../../redux/store"
+import { User } from "@xr3ngine/common/interfaces/User";
+
 const { publicRuntimeConfig } = getConfig();
 const gameserver = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.gameserver : 'https://localhost:3030';
 
@@ -113,6 +116,16 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
   public async initialize(address = "https://127.0.0.1", port = 3030, opts?: any): Promise<void> {
     console.log(`Initializing client transport to ${address}:${port} with partyId: ${opts.partyId}`);
+
+    const token = (store.getState() as any).get('auth').get('authUser').accessToken;
+    const selfUser = (store.getState() as any).get('auth').get('user') as User;
+
+    console.log("selfUser: ");
+    console.log(selfUser);
+    console.log("token: ", token);
+    Network.instance.userId = selfUser.id;
+    Network.instance.accessToken = token;
+
     this.mediasoupDevice = new Device();
     if (this.socket && this.socket.close) {
       this.socket.close();
@@ -140,9 +153,31 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log(`Initializing socket.io...,`);
     this.socket.on("connect", async () => {
       console.log("Connected!");
+      const payload = { userId: Network.instance.userId, accessToken: Network.instance.accessToken}
+      console.log("Payload: ", payload);
+      const { success } = await this.request(MessageTypes.Authorization.toString(), payload);
 
-      console.log("Attempting to join world");
-      await this.joinWorld();
+      if(!success) return console.error("Unable to connect with credentials"); 
+      
+          // signal that we're a new peer and initialize our
+    // mediasoup-client device, if this is our first time connecting
+
+    console.log("Joining world");
+    const joinWorldResponse = await this.request(MessageTypes.JoinWorld.toString());
+
+    const { worldState, routerRtpCapabilities } = joinWorldResponse as any;
+
+    console.log("World state init: ");
+    console.log(worldState);
+    // TODO: This shouldn't be in the transport, should be in our network system somehow
+    // Apply all state to initial frame
+    applyWorldState(worldState);
+
+    console.log("Loading mediasoup");
+    if (this.mediasoupDevice.loaded !== true) await this.mediasoupDevice.load({ routerRtpCapabilities });
+
+    console.log("Joined world");
+    return Promise.resolve();
 
       this.socket.emit(MessageTypes.Heartbeat.toString(), 1000);
 
@@ -152,11 +187,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         console.log("Sending heartbeat");
       }, 1000);
 
-      Network.instance.mySocketID = this.socket.id;
+      Network.instance.socketId = this.socket.id;
 
       // If a reliable message is received, add it to the queue
       this.socket.on(MessageTypes.ReliableMessage.toString(), (message) => {
-        console.log(message);
         Network.instance?.incomingMessageQueue.add(message);
       });
 
@@ -207,27 +241,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   // Mediasoup Code:
   //= =//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//
 
-  async joinWorld() {
-    // signal that we're a new peer and initialize our
-    // mediasoup-client device, if this is our first time connecting
-
-    console.log("Joining world");
-    const resp = await this.request(MessageTypes.JoinWorld.toString());
-
-    const { worldState, routerRtpCapabilities } = resp as any;
-
-    console.log("World state init: ");
-    console.log(worldState);
-    // TODO: This shouldn't be in the transport, should be in our network system somehow
-    // Apply all state to initial frame
-    applyWorldState(worldState);
-
-    console.log("Loading mediasoup");
-    if (this.mediasoupDevice.loaded !== true) await this.mediasoupDevice.load({ routerRtpCapabilities });
-
-    console.log("Joined world");
-    return Promise.resolve();
-  }
 
   // Init receive transport, create one if it doesn't exist else just resolve promise
   async initReceiveTransport(partyId?: string): Promise<MediaSoupTransport | Error> {

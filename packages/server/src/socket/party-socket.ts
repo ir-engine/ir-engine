@@ -49,7 +49,7 @@ export default (io: Server): void => {
         socket.join(partyId);
       });
     }
-    socket.on('request-socket-id', (response) => {
+    socket.on('request-user-id', (response) => {
       response({ id: socket.id });
     });
     socket.on('disconnect', () => {
