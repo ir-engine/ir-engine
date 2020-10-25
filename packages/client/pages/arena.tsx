@@ -1,10 +1,10 @@
 import { AppProps } from 'next/app';
 import React, { useEffect } from 'react';
 //import './Admin.module.scss';
-import {Button} from '@material-ui/core';
+import { Button } from '@material-ui/core';
 import NoSSR from 'react-no-ssr';
 import { connect } from 'react-redux';
-import {Store, Dispatch, bindActionCreators} from 'redux';
+import { Store, Dispatch, bindActionCreators } from 'redux';
 import Loading from '../components/scenes/loading';
 import Scene from '../components/scenes/scene';
 import Layout from '../components/ui/Layout';
@@ -22,7 +22,7 @@ import {
     connectToInstanceServer,
     provisionInstanceServer,
 } from '../redux/instanceConnection/service';
-import {client} from "../redux/feathers";
+import { client } from "../redux/feathers";
 
 interface Props {
     appState?: any;
@@ -58,50 +58,61 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 export const ArenaPage = (props: Props): any => {
-  const {
-      appState,
-      authState,
-      locationState,
-      partyState,
-      instanceConnectionState,
-      doLoginAuto,
-      getLocation,
-      joinLocationParty,
-      connectToInstanceServer,
-      provisionInstanceServer
-  } = props;
-  const appLoaded = appState.get('loaded');
-  const selfUser = authState.get('user');
-  const party = partyState.get('party');
-  const instanceId = selfUser.instanceId != null ? selfUser.instanceId : party?.instanceId != null ? party.instanceId : null;
-  const currentLocation = locationState.get('currentLocation').get('location');
+    const {
+        appState,
+        authState,
+        locationState,
+        partyState,
+        instanceConnectionState,
+        doLoginAuto,
+        getLocation,
+        joinLocationParty,
+        connectToInstanceServer,
+        provisionInstanceServer
+    } = props;
+    const appLoaded = appState.get('loaded');
+    const selfUser = authState.get('user');
+    const party = partyState.get('party');
+    const instanceId = selfUser.instanceId != null ? selfUser.instanceId : party?.instanceId != null ? party.instanceId : null;
 
-  const userBanned = selfUser?.locationBans?.find(ban => ban.locationId === arenaLocationId) != null;
-  useEffect(() => {
-    doLoginAuto(true);
-  }, []);
-
-  useEffect(() => {
-      if (authState.get('isLoggedIn') === true && authState.get('user').id != null && authState.get('user').id.length > 0 && currentLocation.id == null && userBanned === false && locationState.get('fetchingCurrentLocation') !== true) {
-          getLocation(arenaLocationId);
-      }
-  }, [authState]);
-
-  useEffect(() => {
-      if (currentLocation.id != null && userBanned === false && instanceConnectionState.get('instanceProvisioned') !== true && instanceConnectionState.get('instanceProvisioning') === false && selfUser.partyId != null) {
-          provisionInstanceServer(currentLocation.id);
-      }
-  }, [locationState]);
+    const userBanned = selfUser?.locationBans?.find(ban => ban.locationId === arenaLocationId) != null;
+    useEffect(() => {
+        doLoginAuto(true);
+    }, []);
 
     useEffect(() => {
+        const currentLocation = locationState.get('currentLocation').get('location');
+        if (authState.get('isLoggedIn') === true && authState.get('user').id != null && authState.get('user').id.length > 0 && currentLocation.id == null && userBanned === false && locationState.get('fetchingCurrentLocation') !== true) {
+            getLocation(arenaLocationId);
+        }
+    }, [authState]);
+
+    useEffect(() => {
+        const currentLocation = locationState.get('currentLocation').get('location');
+        if (currentLocation.id != null &&
+            userBanned === false &&
+            instanceConnectionState.get('instanceProvisioned') !== true &&
+            instanceConnectionState.get('instanceProvisioning') === false)
+                provisionInstanceServer(currentLocation.id);
+    }, [locationState]);
+
+    useEffect(() => {
+        console.log("instanceConnectionState", instanceConnectionState)
         if (
             instanceConnectionState.get('instanceProvisioned') === true &&
             instanceConnectionState.get('updateNeeded') === true &&
             instanceConnectionState.get('instanceServerConnecting') === false &&
             instanceConnectionState.get('connected') === false
         ) {
-            console.log('Calling connectToInstanceServer from arena page');
+            console.log('Calling connectToInstanceServer from arena page')
+
             connectToInstanceServer();
+        }
+        else {
+            console.log(instanceConnectionState.get('instanceProvisioned'))
+            console.log(instanceConnectionState.get('updateNeeded'))
+            console.log(instanceConnectionState.get('instanceServerConnecting'))
+            console.log(instanceConnectionState.get('connected'))
         }
     }, [instanceConnectionState]);
 
@@ -117,16 +128,16 @@ export const ArenaPage = (props: Props): any => {
         }
     }, [appState]);
 
-  // <Button className="right-bottom" variant="contained" color="secondary" aria-label="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }}>scene</Button>
+    // <Button className="right-bottom" variant="contained" color="secondary" aria-label="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }}>scene</Button>
 
-  return(
-    <Layout pageTitle="Home" login={false}>
-      <NoSSR onSSR={<Loading/>}>
-        {userBanned === false ? (<Scene />) : null}
-        {userBanned !== false ? (<div className="banned">You have been banned from this location</div>) : null}
-      </NoSSR>
-    </Layout>
-  );
+    return (
+        <Layout pageTitle="Home" login={false}>
+            <NoSSR onSSR={<Loading />}>
+                {userBanned === false ? (<Scene />) : null}
+                {userBanned !== false ? (<div className="banned">You have been banned from this location</div>) : null}
+            </NoSSR>
+        </Layout>
+    );
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ArenaPage);

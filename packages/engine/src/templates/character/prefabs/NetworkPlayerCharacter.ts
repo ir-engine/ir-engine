@@ -38,7 +38,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     { type: FollowCameraComponent, data: { distance: 3, mode: "thirdPerson" } },
 
   ],
-  onCreate: [
+  onAfterCreate: [
     {
       behavior: addComponentFromSchema,
       networked: true,
@@ -58,7 +58,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
       networked: true
     }
   ],
-  onDestroy: [
+  onBeforeDestroy: [
 
   ]
 };

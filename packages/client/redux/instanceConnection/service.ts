@@ -13,7 +13,6 @@ import store from "../store";
 
 export function provisionInstanceServer (locationId: string, instanceId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    try {
       dispatch(instanceServerProvisioning());
       const token = getState().get('auth').get('authUser').accessToken;
       console.log(`Provisioning instance server for location ${locationId} and instance ${instanceId}`);
@@ -28,9 +27,6 @@ export function provisionInstanceServer (locationId: string, instanceId?: string
       if (provisionResult.ipAddress != null && provisionResult.port != null) {
         dispatch(instanceServerProvisioned(provisionResult, locationId));
       }
-    } catch (err) {
-      console.log(err);
-    }
   };
 }
 

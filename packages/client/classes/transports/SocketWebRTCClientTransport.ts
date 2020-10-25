@@ -141,6 +141,14 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.socket.on("connect", async () => {
       console.log("Connected!");
 
+      this.socket.emit(MessageTypes.Heartbeat.toString(), 1000);
+
+      // Send heartbeat every second
+      setInterval(() => {
+        this.socket.emit(MessageTypes.Heartbeat.toString());
+        console.log("Sending heartbeat");
+      }, 1000);
+
       Network.instance.mySocketID = this.socket.id;
 
       // If a reliable message is received, add it to the queue
