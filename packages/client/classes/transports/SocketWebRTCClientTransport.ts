@@ -156,6 +156,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       // If a reliable message is received, add it to the queue
       this.socket.on(MessageTypes.ReliableMessage.toString(), (message) => {
+        console.log(message);
         Network.instance?.incomingMessageQueue.add(message);
       });
 
