@@ -44,7 +44,7 @@ export function applyWorldState(worldStateBuffer, delta = 0.033) {
   // Handle all clients that connected this frame
   for (const connectingClient in worldState.clientsConnected) {
     // Add them to our client list
-    Network.instance.clients[worldState.clientsConnected[connectingClient].clientId] = {
+    Network.instance.clients[worldState.clientsConnected[connectingClient].userId] = {
       userId: worldState.clientsConnected[connectingClient].userId
     };
     console.log(worldState.clientsConnected[connectingClient].userId, " connected");
@@ -55,7 +55,7 @@ export function applyWorldState(worldStateBuffer, delta = 0.033) {
     if(worldState.clientsConnected[disconnectingClient] !== undefined){
     // Remove them from our client list
     console.log(worldState.clientsConnected[disconnectingClient].userId, " disconnected");
-    delete Network.instance.clients[worldState.clientsConnected[disconnectingClient].clientId];
+    delete Network.instance.clients[worldState.clientsConnected[disconnectingClient].userId];
     } else {
       console.warn("Client disconnected but was not found in our client list");
     }
