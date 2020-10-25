@@ -54,7 +54,6 @@ const Layout = (props: Props): any => {
         <title>
           {siteTitle} | {pageTitle}
         </title>
-        {/* <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.slim.js" /> */}
       </Head>
       <header>
         <NavMenu login={login} />
