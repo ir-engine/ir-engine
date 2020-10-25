@@ -17,7 +17,7 @@ export function createNetworkPrefab(prefab: NetworkPrefab, ownerId, networkId: n
   console.log("Create prefab: ");
   console.log(prefab);
   // Call each create action
-  prefab.onCreate?.forEach(action => {
+  prefab.onBeforeCreate?.forEach(action => {
     // If it's a networked behavior, or this is the local player, call it
     if (action.networked || ownerId === (Network.instance).mySocketID)
     // Call the behavior with the args

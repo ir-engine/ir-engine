@@ -5,6 +5,7 @@ import { MessageTypes } from '../enums/MessageTypes';
 // TODO: This should only be called on server
 
 export const handleClientDisconnected = (args: { id: any }) => {
+  if(args.id === undefined) return console.log("Client disconnected is null");
   if (!Network.instance?.transport.isServer)
     return;
 

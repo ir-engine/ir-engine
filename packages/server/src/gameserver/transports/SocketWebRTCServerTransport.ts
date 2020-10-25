@@ -26,6 +26,7 @@ import logger from "../../app/logger";
 import getLocalServerIp from '../../util/get-local-server-ip';
 import config from '../../config';
 import AWS from 'aws-sdk';
+import { handleClientDisconnected } from "@xr3ngine/engine/src/networking/functions/handleClientDisconnected";
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
 const Route53 = new AWS.Route53({ ...config.aws.route53.keys });
@@ -256,6 +257,21 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     dataProducers: new Map<string, DataProducer>() // Key => label of data channel
                 };
 
+                console.log("NetworkClient: ", Network.instance.clients[socket.id])
+                console.log("lastSeenTs", Network.instance.clients[socket.id].lastSeenTs)
+
+                    // Every 5 seconds, check if this user is still connected
+                const heartbeat = setInterval(()=> {
+                    console.log("Date now: ", Date.now())
+                    console.log("Network.instance.clients[socket.id].lastSeenTs: ", Network.instance.clients[socket.id].lastSeenTs)
+                    if(Date.now() - Network.instance.clients[socket.id].lastSeenTs > 5000){
+                        console.log("Removing client ", socket.id, " due to activity");
+                        // Heartbeat hasn't been received in more than 5 seconds, so let's remove the client
+                        handleClientDisconnected({ id: socket.id });
+                        clearInterval(heartbeat);
+                    }
+                }, 5000)
+
                 // Call all message handlers associated with client connection
                 Network.instance.schema.messageHandlers[MessageTypes.ClientConnected.toString()].forEach(behavior => {
                     const client = Network.instance.clients[socket.id];
@@ -272,10 +288,16 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     Network.instance.incomingMessageQueue.add(message);
                 });
 
+                socket.on(MessageTypes.Heartbeat.toString(), () => {
+                    Network.instance.clients[socket.id].lastSeenTs = Date.now();
+                    console.log("Received heartbeat", Network.instance.clients[socket.id].lastSeenTs);
+                })
+
                 // Handle the disconnection
                 socket.on("disconnect", () => {
                     try {
                         console.log(socket.id + " disconnected");
+                        clearInterval(heartbeat);
                         Network.instance.worldState.clientsDisconnected.push(socket.id);
                         const disconnectedClient = Network.instance.clients[socket.id];
                         if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close();
