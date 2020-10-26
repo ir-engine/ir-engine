@@ -6,7 +6,7 @@ import { Quaternion, Vector3 } from "three";
 export function createPrefab (prefab: Prefab): Entity {
   const entity = createEntity();
   // Call each create action
-  prefab.onCreate?.forEach(action => {
+  prefab.onBeforeCreate?.forEach(action => {
     // Call the behavior with the args
     { action.behavior(entity, action.args); }
   });

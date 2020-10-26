@@ -1,59 +1,71 @@
-$mobileControllButtonsSize:2.5em;
+$mobileControllButtonsSize:3em;
 .stickLeft{
     position: fixed;
-    bottom: 0;
+    bottom: 50px;
     width: 50%;
-    left: 0;
+    left: 0;    
 }
+
 .controlButtonContainer{
     position: fixed;
     border-radius: 50%;
     right: 100px;
-    bottom: 300px;
+    bottom: 40px;
+    line-height: ($mobileControllButtonsSize+1em);
+
 
     .controllButton{
         position: absolute;
         border-radius: 50%;
-        background-color: white;
+        background:rgba(255,255,255,0.4);
         opacity: 0.75;
-        bottom: 0px;
+        bottom: 50px;
         font-size: 20px;
         height: $mobileControllButtonsSize;
         width: $mobileControllButtonsSize;
         text-align: center;
-        line-height: $mobileControllButtonsSize;
-
-        &.gamepadButton_{
-            &A{
-                background-color: #00bb00;
-                right: 0;
-                top: 0;
-            }
-            &B{
-                background-color: #bb0000;
-                right: -$mobileControllButtonsSize;
-                bottom: 0;
-            }
-            &X{
-                background-color: #0000ff;
-                right: $mobileControllButtonsSize;
-                bottom: 0;
-            }
-            &Y{
-                background-color: #ffbb00;
-                right: 0;
-                bottom: $mobileControllButtonsSize;
-            }            
+        border: 1px solid #ffffff;
+        > svg {
+            height: 2em;
         }
 
-        &._available{
+        // &.gamepadButton_{
+        //     &A{
+        //         // background-color: #00bb00;
+        //         // right: 0;
+        //         // bottom: $mobileControllButtonsSize;
+        //     }
+        //     // &A{
+        //     //     background-color: #00bb00;
+        //     //     right: 0;
+        //     //     top: 0;
+        //     // }
+        //     // &B{
+        //     //     background-color: #bb0000;
+        //     //     right: -$mobileControllButtonsSize;
+        //     //     bottom: 0;
+        //     // }
+        //     // &X{
+        //     //     background-color: #0000ff;
+        //     //     right: $mobileControllButtonsSize;
+        //     //     bottom: 0;
+        //     // }
+        //     // &Y{
+        //     //     background-color: #ffbb00;
+        //     //     right: 0;
+        //     //     bottom: $mobileControllButtonsSize;
+        //     // }            
+        // }
+
+        &.availableButton{
             opacity: 1;
-            font-weight: bold;
-            color: #ffffff;
-            box-shadow: 0 0 10px rgba(102,185,51,1);
+            // font-weight: bold;
+            // color: #ffffff;
+            border: 1px solid #ffff00;
+            box-shadow: 0 0 10px rgba(255,255,0,1);
         }
 
-        &._not_available{
+        &.notAvailableButton{
             opacity: 0;
         }
     }

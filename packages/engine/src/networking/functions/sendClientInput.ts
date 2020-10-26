@@ -9,15 +9,18 @@ import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { Input } from "../../input/components/Input";
 import { InputType } from "../../input/enums/InputType";
 import { Network } from "../components/Network";
+import { NetworkObject } from "../components/NetworkObject";
 
 export const sendClientInput = (entity: Entity): void => {
-
   // Get the input component
   const input = getComponent(entity, Input);
   if (input.data.size < 1) return;
-  // console.log(input.data)
+
+  const networkId = getComponent(entity, NetworkObject).networkId;
+
   // Create a schema for input to send
   const inputs = {
+    networkId: networkId,
     buttons: {},
     axes1d: {},
     axes2d: {}
@@ -25,22 +28,28 @@ export const sendClientInput = (entity: Entity): void => {
 
   let numInputs = 0;
 
+  // TODO: Parse entries and examine how map is working
+  // We need to add these inputs properly!
+
+  console.log(input.data.entries())
+
   // Add all values in input component to schema
-  for (const key in input.data.keys()) {
-    switch (input.data.keys[key].type) {
+  for (let [key, value] of input.data.entries()) {
+
+    switch (value.type) {
       case InputType.BUTTON:
-        inputs.buttons[key] = { input: key, value: input.data.keys[key].value, lifecycleState: input.data.keys[key].lifecycleState };
+        inputs.buttons[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
         numInputs++;
         break;
       case InputType.ONEDIM:
-        if (input.data.keys[key].lifecycleState !== LifecycleValue.UNCHANGED) {
-          inputs.axes1d[key] = { input: key, value: input.data.keys[key].value, lifecycleState: input.data.keys[key].lifecycleState };
+        if (value.lifecycleState !== LifecycleValue.UNCHANGED) {
+          inputs.axes1d[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
           numInputs++;
         }
         break;
       case InputType.TWODIM:
-        if (input.data.keys[key].lifecycleState !== LifecycleValue.UNCHANGED) {
-          inputs.axes2d[key] = { input: key, valueX: input.data.keys[key].value[0], valueY: input.data.keys[key].value[1], lifecycleState: input.data.keys[key].lifecycleState };
+        if (value.lifecycleState !== LifecycleValue.UNCHANGED) {
+          inputs.axes2d[key] = { input: key, valueX: value.value[0], valueY: value.value[1], lifecycleState: value.lifecycleState };
           numInputs++;
         }
         break;
@@ -49,8 +58,10 @@ export const sendClientInput = (entity: Entity): void => {
     }
   }
 
+  console.log("numInputs", numInputs)
   if (numInputs < 1) return;
 
+  console.log("INPUTS: ", inputs)
   // Convert to a message buffer
   const message = inputs; // clientInputModel.toBuffer(inputs)
 

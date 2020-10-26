@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 const templates = [
   {
     project_id: "crater",

@@ -56,7 +56,7 @@ export const PlayerCharacter: Prefab = {
             behavior: initializeCharacter
         }
     ],
-    onDestroy: [
+    onBeforeDestroy: [
 
     ]
 };

@@ -12,13 +12,14 @@ import {
     TextField
 } from '@material-ui/core';
 import {
-    getPartyChannel,
+    getInstanceChannel,
     createMessage,
     updateChatTarget,
     updateMessageScrollInit
 } from '../../../redux/chat/service';
 import { selectAuthState} from '../../../redux/auth/selector';
 import { selectChatState } from '../../../redux/chat/selector';
+import { selectInstanceConnectionState } from '../../../redux/instanceConnection/selector';
 import {
     Message as MessageIcon,
     Send
@@ -34,11 +35,12 @@ const mapStateToProps = (state: any): any => {
     return {
         authState: selectAuthState(state),
         chatState: selectChatState(state),
+        instanceConnectionState: selectInstanceConnectionState(state),
     };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-    getPartyChannel: bindActionCreators(getPartyChannel, dispatch),
+    getInstanceChannel: bindActionCreators(getInstanceChannel, dispatch),
     createMessage: bindActionCreators(createMessage, dispatch),
     updateChatTarget: bindActionCreators(updateChatTarget, dispatch),
     updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch)
@@ -48,17 +50,19 @@ interface Props {
     authState?: any;
     setBottomDrawerOpen: any;
     chatState?: any;
-    getPartyChannel?: any;
+    instanceConnectionState?: any;
+    getInstanceChannel?: any;
     createMessage?: any;
     updateChatTarget?: any;
     updateMessageScrollInit?: any;
 }
 
-const BottomDrawer = (props: Props): any => {
+const InstanceChat = (props: Props): any => {
     const {
         authState,
         chatState,
-        getPartyChannel,
+        instanceConnectionState,
+        getInstanceChannel,
         createMessage,
         setBottomDrawerOpen,
         updateChatTarget,
@@ -71,16 +75,18 @@ const BottomDrawer = (props: Props): any => {
     const channelState = chatState.get('channels');
     const channels = channelState.get('channels');
     const [composingMessage, setComposingMessage] = useState('');
-    const activeChannelMatch = [...channels].find(([, channel]) => channel.channelType === 'party');
+    const activeChannelMatch = [...channels].find(([, channel]) => channel.channelType === 'instance');
     if (activeChannelMatch && activeChannelMatch.length > 0) {
         activeChannel = activeChannelMatch[1];
     }
 
     useEffect(() =>  {
-        if (channelState.get('partyChannelFetched') !== true && channelState.get('fetchingPartyChannel') !== true) {
-            getPartyChannel();
+        console.log('InstanceChat instanceConnectionState useEffect');
+        console.log(instanceConnectionState.get('connected'));
+        if (instanceConnectionState.get('connected') === true && channelState.get('fetchingInstanceChannel') !== true) {
+            getInstanceChannel();
         }
-    }, []);
+    }, [instanceConnectionState]);
 
     const openBottomDrawer = (e: any): void => {
         setBottomDrawerOpen(true);
@@ -94,8 +100,8 @@ const BottomDrawer = (props: Props): any => {
     const packageMessage = (event: any): void => {
         if (composingMessage.length > 0) {
             createMessage({
-                targetObjectId: user.partyId,
-                targetObjectType: 'party',
+                targetObjectId: user.instanceId,
+                targetObjectType: 'instance',
                 text: composingMessage
             });
             setComposingMessage('');
@@ -105,7 +111,7 @@ const BottomDrawer = (props: Props): any => {
     const setActiveChat = (channel): void => {
         updateMessageScrollInit(true);
         const channelType = channel.channelType;
-        const target = channelType === 'user' ? (channel.user1?.id === user.id ? channel.user2 : channel.user2?.id === user.id ? channel.user1 : {}) : channelType === 'group' ? channel.group : channel.party;
+        const target = channelType === 'user' ? (channel.user1?.id === user.id ? channel.user2 : channel.user2?.id === user.id ? channel.user1 : {}) : channelType === 'group' ? channel.group : channelType === 'instance' ? channel.instance : channel.party;
         updateChatTarget(channelType, target, channel.id);
         setComposingMessage('');
     };
@@ -125,6 +131,11 @@ const BottomDrawer = (props: Props): any => {
                 return partyUser.userId === message.senderId;
             });
             user = partyUser != null ? partyUser.user : {};
+        } else if (channel.channelType === 'instance') {
+            const instanceUser = _.find(channel.instance.instanceUsers, (instanceUser) => {
+                return instanceUser.id === message.senderId;
+            });
+            user = instanceUser != null ? instanceUser : {};
         }
 
         return user;
@@ -149,12 +160,12 @@ const BottomDrawer = (props: Props): any => {
         <div className={styles['instance-chat-container']}>
             <div className={styles['list-container']}>
                 <List ref={(messageRef as any)} className={styles['message-container']}>
-                    { activeChannel != null && activeChannel.messages && activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).slice(activeChannel.messages?.length - 3, activeChannel.mesages?.length).map((message) => {
+                    { activeChannel != null && activeChannel.messages && activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).slice(activeChannel.messages.length >= 3 ? activeChannel.messages?.length - 3 : 0, activeChannel.mesages?.length).map((message) => {
                         return <ListItem
                             className={classNames({
-                                message: true,
-                                self: message.senderId === user.id,
-                                other: message.senderId !== user.id
+                                [styles.message]: true,
+                                [styles.self]: message.senderId === user.id,
+                                [styles.other]: message.senderId !== user.id
                             })}
                             key={message.id}
                         >
@@ -174,18 +185,22 @@ const BottomDrawer = (props: Props): any => {
                     }
                     {(activeChannel == null || activeChannel.messages?.length === 0) &&
                     <div className={styles['first-message-placeholder']}>
-                        No messages to this party yet
+                        No messages to this layer
                     </div>
                     }
                 </List>
                 <div className={styles['flex-center']}>
                     <div className={styles['chat-box']}>
-                        <Button variant="contained"
+                        {/* <Button variant="contained"
                                 color="primary"
-                                startIcon={<MessageIcon/>}
+                                startIcon={}
                                 onClick={openDrawer}
-                        />
+                        /> */}
+                        <div className={styles.iconContainer} onClick={openDrawer}>
+                            <MessageIcon/>
+                        </div>
                         <TextField
+                            className={styles.messageFieldContainer}
                             variant="outlined"
                             margin="normal"
                             multiline
@@ -196,15 +211,19 @@ const BottomDrawer = (props: Props): any => {
                             autoFocus
                             value={composingMessage}
                             inputProps={{
-                                maxLength: 1000
+                                maxLength: 1000,
+                                // padding: 0
                             }}
                             onChange={handleComposingMessageChange}
                         />
-                        <Button variant="contained"
+                        <div className={styles.iconContainerSend} onClick={packageMessage}>
+                            <Send/>
+                        </div>
+                        {/* <Button variant="contained"
                                 color="primary"
                                 startIcon={<Send/>}
                                 onClick={packageMessage}
-                        />
+                        /> */}
                     </div>
                 </div>
             </div>
@@ -212,4 +231,4 @@ const BottomDrawer = (props: Props): any => {
     );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(BottomDrawer);
+export default connect(mapStateToProps, mapDispatchToProps)(InstanceChat);

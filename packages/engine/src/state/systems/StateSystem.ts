@@ -42,9 +42,6 @@ export class StateSystem extends System {
     // });
 
     this.queryResults.state.all?.forEach(entity => {
-      if (!hasComponent(entity, State)) {
-        return;
-      }
       callBehaviors(entity, { phase: 'onUpdate' }, delta);
       // callBehaviors(entity, { phase: 'onLateUpdate' }, delta);
     });

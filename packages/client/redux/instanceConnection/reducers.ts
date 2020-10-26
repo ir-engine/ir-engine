@@ -58,7 +58,8 @@ const instanceConnectionReducer = (state = immutableState, action: InstanceServe
         .set('instanceProvisioning', false)
         .set('instanceProvisioned', true)
         .set('readyToConnect', true)
-        .set('updateNeeded', true);
+        .set('updateNeeded', true)
+        .set('connected', false);
     case INSTANCE_SERVER_CONNECTING:
       return state
           .set('instanceServerConnecting', true);
