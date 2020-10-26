@@ -27,6 +27,7 @@ import getLocalServerIp from '../../util/get-local-server-ip';
 import config from '../../config';
 import AWS from 'aws-sdk';
 import { handleClientDisconnected } from "@xr3ngine/engine/src/networking/functions/handleClientDisconnected";
+import { destroyNetworkObject } from "@xr3ngine/engine/src/networking/functions/destroyNetworkObject";
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
 const Route53 = new AWS.Route53({ ...config.aws.route53.keys });
@@ -777,7 +778,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             Network.instance.worldState.destroyObjects.push(removeMessage);
             console.log("Culling ownerless object: ", networkObject.component.networkId);
             // Remove it from server
-            delete Network.instance.networkObjects[key];
+            destroyNetworkObject(networkObject.component.networkId);
+            console.log("objects remaining on server: ");
+            console.log(Network.instance.networkObjects);
         }
     }
 
