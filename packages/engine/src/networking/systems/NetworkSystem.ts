@@ -86,6 +86,7 @@ export class NetworkSystem extends System {
       // Note: Transforms that are updated get added to world state frame in execute since they use added hook
       // When that is fixed, we should move from execute to here
 
+      console.log("Network input count: ", this.queryResults.networkInput);
       // For each networked object + input receiver, add to the frame to send
       this.queryResults.networkInput.all?.forEach((entity: Entity) => {
         addInputToWorldState(entity);

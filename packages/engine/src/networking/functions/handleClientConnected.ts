@@ -19,8 +19,6 @@ export const handleClientConnected = (args: { id: any; media: any }) => {
 
   const clientHasNetworkObjects = networkObjectsClientOwns.length > 0;
 
-  const networkId = Network.getNetworkId();
-
   // // Reset the client object
   // Network.instance.clients[args.id] = {
   //   userId: args.id,
@@ -50,7 +48,11 @@ export const handleClientConnected = (args: { id: any; media: any }) => {
     }
   }
 
+  // If we have a a character already, use network id, otherwise create a new one
+  const networkId = hasCharacter ? networkObject.networkId : Network.getNetworkId();
+
   if (!hasCharacter) {
+    
     // No character, so let's make a new one
     const entity = createNetworkPrefab(
       Network.instance.schema.prefabs[Network.instance.schema.defaultClientPrefab],
