@@ -90,5 +90,4 @@ Network.schema = {
   transport: { type: Types.Ref },
   schema: { type: Types.Ref },
   clients: { type: Types.Array },
-  mySocketID: { type: Types.String }
 };
