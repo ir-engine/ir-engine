@@ -11,15 +11,15 @@ import { initializeNetworkObject } from './initializeNetworkObject';
 export function applyWorldState(worldStateBuffer, delta = 0.033) {
   const worldState = worldStateBuffer; // worldStateModel.fromBuffer(worldStateBuffer);
 
-  if(worldState.clientsConnected.length > 0) {
-    console.log("worldState.clientsConnected");
-    console.log(worldState.clientsConnected);
-  }
+  // if(worldState.clientsConnected.length > 0) {
+  //   console.log("worldState.clientsConnected");
+  //   console.log(worldState.clientsConnected);
+  // }
 
-  if(worldState.createObjects.length > 0) {
-    console.log("worldState.networkObjects");
-    console.log(worldState.createObjects);
-  }
+  // if(worldState.createObjects.length > 0) {
+  //   console.log("worldState.networkObjects");
+  //   console.log(worldState.createObjects);
+  // }
   // // TODO: Validate if we've missed important frames
   // console.log("Old tick is",
   //   (NetworkInterpolation.instance.vault[NetworkInterpolation.instance.vaultSize].state as any).tick,

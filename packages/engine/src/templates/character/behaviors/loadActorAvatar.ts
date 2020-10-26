@@ -13,6 +13,7 @@ import { State } from "../../../state/components/State";
 import { LifecycleValue } from "../../../common/enums/LifecycleValue";
 import { CharacterAvatars } from "../CharacterAvatars";
 import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
+import { initializeCharacter } from "./initializeCharacter";
 
 export const loadActorAvatar: Behavior = (entity) => {
   const avatarId: string = getComponent(entity, CharacterAvatarComponent)?.avatarId;
@@ -39,7 +40,7 @@ export const loadActorAvatar: Behavior = (entity) => {
 
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 
-      if(!actor.initialized) return console.warn("Returning because actor isn't initialized");
+      if(!actor.initialized) initializeCharacter(entity);
       actor.mixer?.stopAllAction();
       
       // forget that we have any animation playing
