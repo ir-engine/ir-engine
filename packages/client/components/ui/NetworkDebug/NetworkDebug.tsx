@@ -21,7 +21,7 @@ export const NetworkDebug = () => {
 
       if(Network.instance !== null)
       return (
-        <div>
+        <div style={{ position: "absolute" }}>
             <div>
               <h1>Network Object</h1>
               <JSONTree data={Network.instance} />

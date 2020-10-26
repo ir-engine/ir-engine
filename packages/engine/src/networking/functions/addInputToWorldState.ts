@@ -12,14 +12,10 @@ export const addInputToWorldState: Behavior = (entity: Entity) => {
   const input = getComponent(entity, Input);
   const networkId = getComponent(entity, NetworkObject).networkId;
   
-  console.log("Processing input for", networkId);
-  console.log("Inputs so far: ", Network.instance.worldState.inputs)
-
   // If there's no input, don't send the frame
   if (input.data.size < 1) {
     return
   }
-
 
   // Create a schema for input to send
   const inputs = {
