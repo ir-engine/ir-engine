@@ -10,6 +10,7 @@ export interface NetworkClientList {
   // Key is socket ID
   [key: string]: {
     userId?: string;
+    name?: string;
     socket?: any;
     lastSeenTs?: any;
     joinTs?: any;

@@ -28,11 +28,6 @@ export const sendClientInput = (entity: Entity): void => {
 
   let numInputs = 0;
 
-  // TODO: Parse entries and examine how map is working
-  // We need to add these inputs properly!
-
-  console.log(input.data.entries())
-
   // Add all values in input component to schema
   for (let [key, value] of input.data.entries()) {
 

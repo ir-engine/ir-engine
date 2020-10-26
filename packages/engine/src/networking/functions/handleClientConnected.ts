@@ -1,9 +1,8 @@
-import { Network } from '../components/Network';
-import { createNetworkPrefab } from './createNetworkPrefab';
-import { getComponent, hasComponent, addComponent } from '../../ecs/functions/EntityFunctions';
-import { NetworkObject } from '../components/NetworkObject';
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { MessageTypes } from '../enums/MessageTypes';
+import { Network } from '../components/Network';
+import { NetworkObject } from '../components/NetworkObject';
+import { createNetworkPrefab } from './createNetworkPrefab';
 // TODO: This should only be called on server, harmless, but yeah
 
 export const handleClientConnected = (args: { id: any; media: any }) => {
@@ -19,7 +18,13 @@ export const handleClientConnected = (args: { id: any; media: any }) => {
 
   const networkId = Network.getNetworkId();
 
-  // Create the default client prefab
+  // TODO: First, check if the client is already in our client list
+  
+  // TODO: Then, check if client already has network objects
+
+  // TODO: Do they already have a default client prefab? Let's give it to them (but throw a warning)
+
+  // TODO: Otherwise create a new one
   const entity = createNetworkPrefab(
     Network.instance.schema.prefabs[Network.instance.schema.defaultClientPrefab],
     args.id,

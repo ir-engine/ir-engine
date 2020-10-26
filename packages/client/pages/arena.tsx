@@ -97,7 +97,6 @@ export const ArenaPage = (props: Props): any => {
     }, [locationState]);
 
     useEffect(() => {
-        console.log("instanceConnectionState", instanceConnectionState)
         if (
             instanceConnectionState.get('instanceProvisioned') === true &&
             instanceConnectionState.get('updateNeeded') === true &&
@@ -105,14 +104,7 @@ export const ArenaPage = (props: Props): any => {
             instanceConnectionState.get('connected') === false
         ) {
             console.log('Calling connectToInstanceServer from arena page')
-
             connectToInstanceServer();
-        }
-        else {
-            console.log(instanceConnectionState.get('instanceProvisioned'))
-            console.log(instanceConnectionState.get('updateNeeded'))
-            console.log(instanceConnectionState.get('instanceServerConnecting'))
-            console.log(instanceConnectionState.get('connected'))
         }
     }, [instanceConnectionState]);
 

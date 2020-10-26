@@ -190,89 +190,96 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         }
     }
 
-            gameServer;
+    gameServer;
     public async initialize(address, port = 3030): Promise<void> {
-            if (this.isInitialized) console.error("Already initialized transport");
-            logger.info('Initializing server transport');
+        if (this.isInitialized) console.error("Already initialized transport");
+        logger.info('Initializing server transport');
 
-            let stringSubdomainNumber, gsResult;
-            if (process.env.KUBERNETES === 'true') {
-                this.gameServer = await (this.app as any).agonesSDK.getGameServer();
-                const name = this.gameServer.objectMeta.name;
-                (this.app as any).gsName = name;
+        let stringSubdomainNumber, gsResult;
+        if (process.env.KUBERNETES === 'true') {
+            this.gameServer = await (this.app as any).agonesSDK.getGameServer();
+            const name = this.gameServer.objectMeta.name;
+            (this.app as any).gsName = name;
 
-                const gsIdentifier = gsNameRegex.exec(name);
-                stringSubdomainNumber = await this.getFreeSubdomain(gsIdentifier[1], 0);
-                (this.app as any).gsSubdomainNumber = stringSubdomainNumber;
+            const gsIdentifier = gsNameRegex.exec(name);
+            stringSubdomainNumber = await this.getFreeSubdomain(gsIdentifier[1], 0);
+            (this.app as any).gsSubdomainNumber = stringSubdomainNumber;
 
-                gsResult = await (this.app as any).agonesSDK.getGameServer();
-                const params = {
-                    ChangeBatch: {
-                        Changes: [
-                            {
-                                Action: 'UPSERT',
-                                ResourceRecordSet: {
-                                    Name: `${stringSubdomainNumber}.${config.gameserver.domain}`,
-                                    ResourceRecords: [
-                                        {
-                                            Value: gsResult.status.address
-                                        }
-                                    ],
-                                    TTL: 0,
-                                    Type: 'A'
-                                }
+            gsResult = await (this.app as any).agonesSDK.getGameServer();
+            const params = {
+                ChangeBatch: {
+                    Changes: [
+                        {
+                            Action: 'UPSERT',
+                            ResourceRecordSet: {
+                                Name: `${stringSubdomainNumber}.${config.gameserver.domain}`,
+                                ResourceRecords: [
+                                    {
+                                        Value: gsResult.status.address
+                                    }
+                                ],
+                                TTL: 0,
+                                Type: 'A'
                             }
-                        ]
-                    },
-                    HostedZoneId: config.aws.route53.hostedZoneId
-                };
-                if (config.gameserver.local !== true) await Route53.changeResourceRecordSets(params).promise();
-            }
+                        }
+                    ]
+                },
+                HostedZoneId: config.aws.route53.hostedZoneId
+            };
+            if (config.gameserver.local !== true) await Route53.changeResourceRecordSets(params).promise();
+        }
 
-            logger.info('Starting WebRTC');
-            await this.startMediasoup();
+        logger.info('Starting WebRTC');
+        await this.startMediasoup();
 
-            // Start Websockets
-            logger.info("Starting websockets");
-            const localIp = await getLocalServerIp();
-            localConfig.mediasoup.webRtcTransport.listenIps = [{
-                ip: '0.0.0.0',
-                announcedIp: process.env.KUBERNETES === 'true' ? (config.gameserver.local === true ? gsResult.status.address : `${stringSubdomainNumber}.${config.gameserver.domain}`) : localIp.ipAddress
-            }];
+        // Start Websockets
+        logger.info("Starting websockets");
+        const localIp = await getLocalServerIp();
+        localConfig.mediasoup.webRtcTransport.listenIps = [{
+            ip: '0.0.0.0',
+            announcedIp: process.env.KUBERNETES === 'true' ? (config.gameserver.local === true ? gsResult.status.address : `${stringSubdomainNumber}.${config.gameserver.domain}`) : localIp.ipAddress
+        }];
 
-                        // Every 5 seconds, check if this user is still connected
-                        const heartbeat = setInterval(() => {
-                            for (const client in Network.instance.clients){
-                                if (Date.now() - Network.instance.clients[client].lastSeenTs > 5000) {
-                                    console.log("Removing client ", client, " due to activity");
-                                    // Heartbeat hasn't been received in more than 5 seconds, so let's remove the client
-                                    handleClientDisconnected({ id: Network.instance.clients[client].userId });
-                                    clearInterval(heartbeat);
-                                }
-                            }
-                            for (const key in Network.instance.networkObjects){
-                                const networkObject = Network.instance.networkObjects[key];
-                                if(Network.instance.clients[networkObject.ownerId] !== undefined)
-                                    continue
-                                const removeMessage = { networkId: networkObject.component.networkId };
-                                Network.instance.worldState.destroyObjects.push(removeMessage);
-                                console.log("Culling ownerless object: ", networkObject.component.networkId);
-                            }
-                        }, 5000)
-            
+       setInterval(() => this.validateNetworkObjects(), 5000)
 
-            // Set up realtime channel on socket.io
-            this.socketIO = (this.app as any)?.io;
-            const realtime = this.socketIO.of('/realtime');
-            let userId, accessToken
-            // On connection, set up a bunch of handlers in the connect function
-            realtime.on("connect", (socket: Socket) => {
-                console.log("Connected, waiting for authorization request");
-                socket.on(MessageTypes.Authorization.toString(), async (data, callback) => {
-                   userId = data.userId;
-                   accessToken = data.accessToken;
-                   Network.instance.clients[userId] = {
+
+        // Set up realtime channel on socket.io
+        this.socketIO = (this.app as any)?.io;
+        const realtime = this.socketIO.of('/realtime');
+        let userId, accessToken
+        // On connection, set up a bunch of handlers in the connect function
+        realtime.on("connect", (socket: Socket) => {
+            console.log("Connected, waiting for authorization request");
+            socket.on(MessageTypes.Authorization.toString(), async (data, callback) => {
+                userId = data.userId;
+                accessToken = data.accessToken;
+                console.warn("Skipping authorization check because we haven't implemented");
+                console.log(data);
+
+                if (userId === undefined || accessToken === undefined) {
+                    const message = "userId or accessToken is undefined";
+                    console.error(message);
+                    callback({ success: false, message });
+                    return;
+                }
+
+                // Check user ID is valid
+
+                console.log("**** AUTHORIZING USER", userId);
+
+                const user = await this.app.service('user').Model.findOne({
+                    attributes: ['id', 'name', 'instanceId'],
+                    where: {
+                        id: userId
+                    }
+                }).catch(error => {
+                    callback({ success: false, message: error });
+                    return console.warn("Failed to authorize user");
+                })
+
+                Network.instance.clients[userId] = {
                     userId: userId,
+                    name: user.dataValues.name,
                     socket: socket,
                     lastSeenTs: Date.now(),
                     joinTs: Date.now(),
@@ -282,25 +289,18 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     dataConsumers: new Map<string, DataConsumer>(), // Key => id of data producer
                     dataProducers: new Map<string, DataProducer>() // Key => label of data channel
                 };
-                    console.warn("Skipping authorization check because we haven't implemented");
-                    console.log(data);
-                    if(userId === undefined || accessToken === undefined) {
-                        console.error("userId of accessToken is undefined");
-                        callback({ success: false });
-                        return;
-                    }
 
-                    callback({ success: true });
-                
+                // Check user is supposed to be in this instance
+                // if(user.dataValues.instanceId !== this.app.instance.id){
+                //     const message = "Instance ID authorized to user did not match ID of current instance.";
+                //     callback({ success: false, message: message });
+                //     return console.warn(message);
+                // }
+                // NOTE: This is disabled because we are currently patching instance id for user after this call
 
-            console.log("Connect called for ", userId)
-                    // on authorization request
-                // check that user is supposed to be in this instance
-                // validate their jwt
-                // send success
+                callback({ success: true });
 
-
-
+                console.log("Connect called for ", userId)
 
                 // Call all message handlers associated with client connection
                 Network.instance.schema.messageHandlers[MessageTypes.ClientConnected.toString()].forEach(behavior => {
@@ -344,33 +344,33 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     console.log("JoinWorld received")
                     try {
 
-                    // Add user ID to peer list
-                    Network.instance.clients[userId].userId = userId;
+                        // Add user ID to peer list
+                        Network.instance.clients[userId].userId = userId;
 
-                    // Prepare a worldstate frame
-                    const worldState = {
-                        tick: Network.tick,
-                        transforms: [],
-                        inputs: [],
-                        clientsConnected: [],
-                        clientsDisconnected: [],
-                        createObjects: [],
-                        destroyObjects: []
-                    };
+                        // Prepare a worldstate frame
+                        const worldState = {
+                            tick: Network.tick,
+                            transforms: [],
+                            inputs: [],
+                            clientsConnected: [],
+                            clientsDisconnected: [],
+                            createObjects: [],
+                            destroyObjects: []
+                        };
 
-                    // Get all clients and add to clientsConnected
-                    for (const userId in Network.instance.clients)
-                        worldState.clientsConnected.push({ userId: Network.instance.clients[userId].userId });
+                        // Get all clients and add to clientsConnected
+                        for (const userId in Network.instance.clients)
+                            worldState.clientsConnected.push({ userId: Network.instance.clients[userId].userId });
 
-                    // Get all network objects and add to createObjects
-                    for (const networkId in Network.instance.networkObjects)
-                        worldState.createObjects.push({
-                            prefabType: Network.instance.networkObjects[networkId].prefabType,
-                            networkId: networkId,
-                            ownerId: Network.instance.networkObjects[networkId].ownerId
-                        });
+                        // Get all network objects and add to createObjects
+                        for (const networkId in Network.instance.networkObjects)
+                            worldState.createObjects.push({
+                                prefabType: Network.instance.networkObjects[networkId].prefabType,
+                                networkId: networkId,
+                                ownerId: Network.instance.networkObjects[networkId].ownerId
+                            });
 
-                    // TODO: Get all inputs and add to inputs
+                        // TODO: Get all inputs and add to inputs
 
                         // Convert world state to buffer and send along
                         callback({
@@ -751,8 +751,31 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     callback({ paused: true });
                 });
             });
-            });
-            this.isInitialized = true;
+        });
+        this.isInitialized = true;
+    }
+
+    validateNetworkObjects(): void {
+        for (const client in Network.instance.clients) {
+            // Validate that user has phoned home in last 5 seconds
+            if (Date.now() - Network.instance.clients[client].lastSeenTs > 5000) {
+                console.log("Removing client ", client, " due to activity");
+                // Heartbeat hasn't been received in more than 5 seconds, so let's remove the client
+                handleClientDisconnected({ id: Network.instance.clients[client].userId });
+            }
+        }
+        for (const key in Network.instance.networkObjects) {
+            const networkObject = Network.instance.networkObjects[key];
+            // Validate that the object doesn't belong to a non-existant user
+            if (Network.instance.clients[networkObject.ownerId] !== undefined)
+                continue
+            // If it does, tell clients to destroy it
+            const removeMessage = { networkId: networkObject.component.networkId };
+            Network.instance.worldState.destroyObjects.push(removeMessage);
+            console.log("Culling ownerless object: ", networkObject.component.networkId);
+            // Remove it from server
+            delete Network.instance.networkObjects[key];
+        }
     }
 
     // start mediasoup with a single worker and router
@@ -801,8 +824,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     }
     getUserIdFromSocketId = (socketId) => {
         let userId;
-        for(const key in Network.instance.clients) {
-            if(Network.instance.clients[key].socket.id === socketId){
+        for (const key in Network.instance.clients) {
+            if (Network.instance.clients[key].socket.id === socketId) {
                 userId = Network.instance.clients[key].userId;
                 break;
             }
