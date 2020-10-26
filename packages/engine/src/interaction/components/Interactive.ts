@@ -19,6 +19,4 @@ export class Interactive extends Component<Interactive> {
   public interactiveDistance: number
   public interactionParts: Array = []
   public data: any
-
-
 }

@@ -12,31 +12,13 @@ import { FollowCameraComponent } from "../../camera/components/FollowCameraCompo
 import { Interacts } from "../components/Interacts";
 import { Engine } from "../../ecs/classes/Engine";
 
-/**
- * Checks if entity can interact with any of entities listed in 'interactive' array, checking distance, guards and raycast
- * @param entity
- * @param interactive
- * @param delta
- */
 
- function searchModelChildrenByName(entity, name) {
-  // console.warn(entity);
-
-   let screne = getComponent(entity, Object3DComponent).value
-  // console.warn(screne);
-
-   let m
-   screne.children[0].traverse(value => {
-     if (name == value.name) {
-       m = value
-     }
-   })
-
-   //console.warn(m);
-   return m
+ function searchModelChildrenByName(entity: Entity, name: string): Object3D {
+   const screne = getComponent(entity, Object3DComponent).value
+   return screne.children[0].getObjectByName(name)
  }
 
- function applyPositionToObject3D(entity, dynamic) {
+ function applyPositionToObject3D(entity: Entity, dynamic: boolean): void {
    let object3D = getMutableComponent(entity, Object3DComponent);
    let transform = getComponent(entity, TransformComponent);
 
@@ -50,7 +32,7 @@ import { Engine } from "../../ecs/classes/Engine";
 
 
 
- export const calcBoundingBox: Behavior = (entity: Entity, args, delta: number): void => {
+ export const calcBoundingBox: Behavior = (entity: Entity): void => {
 
    const interactive = getMutableComponent(entity, Interactive);
    const calcBoundingBox = getMutableComponent(entity, BoundingBox);
@@ -65,7 +47,7 @@ import { Engine } from "../../ecs/classes/Engine";
 
      } else {
 
-       let aabb = new Box3();
+       const aabb = new Box3();
        let object3D = getComponent(entity, Object3DComponent).value;
 
        if (object3D instanceof Scene) object3D = object3D.children[0];
