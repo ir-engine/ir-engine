@@ -20,6 +20,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 interface Props {
+  login?: boolean;
   auth?: any;
   logoutUser?: typeof logoutUser;
   showDialog?: typeof showDialog;
@@ -27,24 +28,25 @@ interface Props {
 
 
 const NavUserBadge = (props: Props): any => {
+  const { login, auth, logoutUser, showDialog } = props;
   useEffect(() => {
     handleLogin();
   }, []);
 
   const handleLogout = () => {
-    props.logoutUser();
+    logoutUser();
   };
 
   const handleLogin = () => {
     const params = new URLSearchParams(document.location.search);
     const showLoginDialog = params.get('login');
     if (showLoginDialog === String(true)) {
-      props.showDialog({ children: <SignIn /> });
+      showDialog({ children: <SignIn /> });
     }
   };
 
-  const isLoggedIn = props.auth.get('isLoggedIn');
-  const user = props.auth.get('user') as User;
+  const isLoggedIn = auth.get('isLoggedIn');
+  const user = auth.get('user') as User;
   // const userName = user && user.name
 
   return (
@@ -53,16 +55,16 @@ const NavUserBadge = (props: Props): any => {
         <div className={styles.flex}>
           <Dropdown
             avatarUrl={user && user.avatarUrl}
-            auth={props.auth}
-            logoutUser={props.logoutUser}
+            auth={auth}
+            logoutUser={logoutUser}
           />
         </div>
       )}
-      {!isLoggedIn && (
+      {!isLoggedIn && login === true && (
         <Button variant="contained" color="primary"
           className={styles.loginButton}
           onClick={() =>
-            props.showDialog({
+            showDialog({
               children: <SignIn />,
             })
           }

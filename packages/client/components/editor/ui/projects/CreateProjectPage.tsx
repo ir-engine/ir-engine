@@ -99,7 +99,6 @@ export default function CreateProjectPage() {
   const filteredEntries = entries.map(result => ({
     ...result,
     url: `/projects/new?sceneId=${result.id}`,
-    // eslint-disable-next-line @typescript-eslint/camelcase
     thumbnail_url: result && result.images && result.images.preview && result.images.preview.url
   }));
 

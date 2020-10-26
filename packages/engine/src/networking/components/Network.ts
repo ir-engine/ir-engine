@@ -16,8 +16,10 @@ export interface NetworkClientList {
     media?: {};
     consumerLayers?: {};
     stats?: {};
-    sendTransport?: any;
-    recvTransport?: any;
+    instanceSendTransport?: any;
+    instanceRecvTransport?: any;
+    partySendTransport?: any;
+    partyRecvTransport?: any;
     dataConsumers?: Map<string, any>; // Key => id of data producer
     dataProducers?: Map<string, any>; // Key => label of data channel}
   };
@@ -26,8 +28,6 @@ export interface NetworkClientList {
 
 export class Network extends Component<Network> {
   static instance: Network = null
-  // TODO: localuserId should be set somewhere
-  localUserId = ""
   isInitialized: boolean
   transport: NetworkTransport
   schema: NetworkSchema
@@ -39,7 +39,9 @@ export class Network extends Component<Network> {
   ]
   clients: NetworkClientList = {}
   networkObjects: NetworkObjectList = {}
-  mySocketID: string
+  socketId: string
+  userId: string
+  accessToken: string
   private static availableNetworkId = 0
   static getNetworkId() {
     return this.availableNetworkId++;
@@ -47,7 +49,6 @@ export class Network extends Component<Network> {
   static _schemas: Map<string, MessageSchema> = new Map()
 
   incomingMessageQueue: RingBuffer<ArrayBuffer>
-  outgoingMessageQueue: RingBuffer<ArrayBuffer>
 
   worldState = {
     tick: Network.tick,
@@ -69,7 +70,6 @@ export class Network extends Component<Network> {
 
     // TODO: Replace default message queue sizes
     this.incomingMessageQueue = new RingBuffer<ArrayBuffer>(100);
-    this.outgoingMessageQueue = new RingBuffer<ArrayBuffer>(100);
   }
 
   dispose(): void {

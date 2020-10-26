@@ -49,8 +49,8 @@ export function doLoginAuto (allowGuest?: boolean) {
       const authData = getStoredState('auth');
       let accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined;
 
-      console.log(allowGuest)
-      console.log(accessToken)
+      // console.log(allowGuest);
+      // console.log(accessToken);
       if (allowGuest !== true && !accessToken) {
         return;
       }
@@ -493,6 +493,9 @@ client.service('user').on('patched', async (params) => {
       store.dispatch(clearLayerUsers());
     }
     store.dispatch(userUpdated(user));
+    if (user.partyId) {
+      (Network.instance.transport as any).setPartyId(user.partyId);
+    }
   } else {
     console.log('Not self user');
     console.log(user);
@@ -515,7 +518,7 @@ client.service('location-ban').on('created', async(params) => {
   console.log('Current location id: ' + currentLocation.id);
   console.log(locationBan);
   if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
-    await (Network.instance.transport as any).endVideoChat();
+    await (Network.instance.transport as any).endVideoChat(true);
     await (Network.instance.transport as any).leave();
     if (selfPartyUser.id != null) {
       await client.service('party-user').remove(selfPartyUser.id);

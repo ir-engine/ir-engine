@@ -6,7 +6,8 @@ export interface Prefab {
     type: any;
     data?: any;
   }>;
-  onCreate?: BehaviorValue[];
+  onBeforeCreate?: BehaviorValue[];
   onAfterCreate?: BehaviorValue[];
-  onDestroy?: BehaviorValue[];
+  onBeforeDestroy?: BehaviorValue[];
+  onAfterDestroy?: BehaviorValue[];
 }

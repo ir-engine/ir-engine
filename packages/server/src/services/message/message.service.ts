@@ -48,6 +48,17 @@ export default (app: Application): any => {
       targetIds = (groupUsers as any).data.map((groupUser) => {
         return groupUser.userId;
       });
+    } else if (channel.channelType === 'instance') {
+      const instanceUsers = await app.service('user').find({
+        query: {
+          $limit: 1000,
+          instanceId: channel.instanceId
+        }
+      });
+
+      targetIds = (instanceUsers as any).data.map((instanceUser) => {
+        return instanceUser.id;
+      });
     } else if (channel.channelType === 'user') {
       targetIds = [channel.userId1, channel.userId2];
     }
@@ -84,6 +95,17 @@ export default (app: Application): any => {
       targetIds = (groupUsers as any).data.map((groupUser) => {
         return groupUser.userId;
       });
+    } else if (channel.channelType === 'instance') {
+      const instanceUsers = await app.service('user').find({
+        query: {
+          $limit: 1000,
+          instanceId: channel.instanceId
+        }
+      });
+
+      targetIds = (instanceUsers as any).data.map((instanceUser) => {
+        return instanceUser.id;
+      });
     } else if (channel.channelType === 'user') {
       targetIds = [channel.userId1, channel.userId2];
     }
@@ -119,6 +141,17 @@ export default (app: Application): any => {
 
       targetIds = (groupUsers as any).data.map((groupUser) => {
         return groupUser.userId;
+      });
+    } else if (channel.channelType === 'instance') {
+      const instanceUsers = await app.service('user').find({
+        query: {
+          $limit: 1000,
+          instanceId: channel.instanceId
+        }
+      });
+
+      targetIds = (instanceUsers as any).data.map((instanceUser) => {
+        return instanceUser.id;
       });
     } else if (channel.channelType === 'user') {
       targetIds = [channel.userId1, channel.userId2];

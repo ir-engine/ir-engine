@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { commands, descriptions } from '../commands'
+import { commands, descriptions } from '../commands';
 
 export const commandsPropType = PropTypes.objectOf(PropTypes.oneOfType([
   PropTypes.func,

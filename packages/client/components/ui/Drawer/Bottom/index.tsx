@@ -169,7 +169,7 @@ const BottomDrawer = (props: Props): any => {
         console.log('setActiveChat:');
         updateMessageScrollInit(true);
         const channelType = channel.channelType;
-        const target = channelType === 'user' ? (channel.user1?.id === user.id ? channel.user2 : channel.user2?.id === user.id ? channel.user1 : {}) : channelType === 'group' ? channel.group : channel.party;
+        const target = channelType === 'user' ? (channel.user1?.id === user.id ? channel.user2 : channel.user2?.id === user.id ? channel.user1 : {}) : channelType === 'group' ? channel.group : channelType === 'instance' ? channel.instance : channel.party;
         updateChatTarget(channelType, target, channel.id);
         setMessageDeletePending('');
         setMessageUpdatePending('');
@@ -222,6 +222,11 @@ const BottomDrawer = (props: Props): any => {
                 return partyUser.userId === message.senderId;
             });
             user = partyUser != null ? partyUser.user : {};
+        } else if (channel.channelType === 'instance') {
+            const instanceUser = _.find(channel.instance.instanceUsers, (instanceUser) => {
+                return instanceUser.id === message.senderId;
+            });
+            user = instanceUser != null ? instanceUser : {};
         }
 
         return user;
@@ -294,7 +299,7 @@ const BottomDrawer = (props: Props): any => {
                 onClose={() => {setBottomDrawerOpen(false);}}
                 onOpen={() => {}}
             >
-                <div className="bottom-container">
+                <div className={styles['bottom-container']}>
                     <List onScroll={(e) => onChannelScroll(e)} className={styles['chat-container']}>
                         { channels && channels.size > 0 && Array.from(channels).sort(([channelId1, channel1], [channelId2, channel2]) => new Date(channel2.updatedAt).getTime() - new Date(channel1.updatedAt).getTime()).map(([channelId, channel], index) => {
                             return <ListItem
@@ -309,7 +314,7 @@ const BottomDrawer = (props: Props): any => {
                                             <Avatar src={channel.userId1 === user.id ? channel.user2.avatarUrl: channel.user1.avatarUrl}/>
                                         </ListItemAvatar>
                                     }
-                                    <ListItemText primary={channel.channelType === 'user' ? (channel.user1?.id === user.id ? channel.user2.name : channel.user2?.id === user.id ? channel.user1.name : '') : channel.channelType === 'group' ? channel.group.name : 'Current party'}/>
+                                    <ListItemText primary={channel.channelType === 'user' ? (channel.user1?.id === user.id ? channel.user2.name : channel.user2?.id === user.id ? channel.user1.name : '') : channel.channelType === 'group' ? channel.group.name : channel.channelType === 'instance' ? 'Current layer' : 'Current party'}/>
                                 </ListItem>;
                         })
                         }
@@ -324,9 +329,9 @@ const BottomDrawer = (props: Props): any => {
                             { activeChannel != null && activeChannel.messages && activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).map((message) => {
                                 return <ListItem
                                     className={classNames({
-                                        message: true,
-                                        self: message.senderId === user.id,
-                                        other: message.senderId !== user.id
+                                        [styles.message]: true,
+                                        [styles.self]: message.senderId === user.id,
+                                        [styles.other]: message.senderId !== user.id
                                     })}
                                     key={message.id}
                                     onMouseEnter={(e) => toggleMessageCrudSelect(e, message)}
@@ -411,7 +416,7 @@ const BottomDrawer = (props: Props): any => {
                             { targetChannelId.length === 0 && targetObject.id != null &&
                                 <div className={styles['first-message-placeholder']}>
                                     <div>{targetChannelId}</div>
-                                    Start a chat with {(targetObjectType === 'user' || targetObjectType === 'group') ? targetObject.name : 'your current party'}
+                                    Start a chat with {(targetObjectType === 'user' || targetObjectType === 'group') ? targetObject.name : targetObjectType === 'instance' ? 'your current layer' : 'your current party'}
                                 </div>
                             }
                         </List>

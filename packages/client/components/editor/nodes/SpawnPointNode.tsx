@@ -9,11 +9,12 @@ export default class SpawnPointNode extends EditorNodeMixin(THREE.Object3D) {
   static nodeName = "Spawn Point";
   static async load() {
     const { scene } = await new GLTFLoader(GLTF_PATH).loadGLTF();
-    scene.traverse(child => {
-      if (child.isMesh) {
-        child.layers.set(1);
-      }
-    });
+    // BREAKS OBJECT SELECTION => Raycastignore layers set to 1
+    // scene.traverse(child => {
+    //   if (child.isMesh) {
+    //     child.layers.set(1);
+    //   }
+    // });
     spawnPointHelperModel = scene;
   }
   constructor(editor) {

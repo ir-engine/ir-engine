@@ -61,7 +61,7 @@ const onCreateArgs = { testing: true }
 const onAfterCreateArgs = { testing: true, another: true }
 function createTestPrefab() {
   return createPrefab({
-    onCreate: [
+    onBeforeCreate: [
       {
         behavior: onCreate,
         args: onCreateArgs
