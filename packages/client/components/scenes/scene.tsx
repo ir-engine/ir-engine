@@ -19,6 +19,7 @@ import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebR
 import { generalStateList, setAppOnBoardingStep, setAppLoaded } from '../../redux/app/actions';
 import store from '../../redux/store';
 import LinearProgressComponent from '../ui/LinearProgress';
+import NetworkDebug from '../ui/NetworkDebug/NetworkDebug';
 
 const mapStateToProps = (state: any): any => {
   return { };
@@ -115,6 +116,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
   return (
     <>
+    <NetworkDebug />
     <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
     </>
   );
