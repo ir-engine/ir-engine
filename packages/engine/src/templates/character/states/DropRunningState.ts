@@ -19,20 +19,20 @@ export const DropRunningState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
   onEntry: [
     {
+      behavior: initializeCharacterState
+    },
+    {
       behavior: setArcadeVelocityTarget,
       args: { x: 0, y: 0, z: 0.8 }
     },
-      {
-        behavior: initializeCharacterState
-      },
-      {
-        behavior: setActorAnimation,
-        args: {
-          name: 'run_to_stop',
-          transitionDuration: 0.1
-        }
+    {
+      behavior: setActorAnimation,
+      args: {
+        name: 'run_to_stop',
+        transitionDuration: 0.1
       }
-    ],
+    }
+  ],
   onUpdate: [
     {
       behavior: updateCharacterState,

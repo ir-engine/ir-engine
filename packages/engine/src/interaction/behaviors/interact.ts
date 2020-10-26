@@ -2,7 +2,7 @@ import { Behavior } from "../../common/interfaces/Behavior";
 import { Entity } from "../../ecs/classes/Entity";
 import { Interactive } from "../components/Interactive";
 import { getComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
-import { Interacts } from "../components/Interacts";
+import { Interaction } from "../components/Interacts";
 import { Input } from "../../input/components/Input";
 import { DefaultInput } from "../../templates/shared/DefaultInput";
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
@@ -21,14 +21,14 @@ const startedPosition = new Map<Entity,any>();
 // const endedPosition = new Map<Entity,any>();
 
 export const  interact: Behavior = (entity: Entity, args: any, delta): void => {
-  if (!hasComponent(entity, Interacts)) {
+  if (!hasComponent(entity, Interaction)) {
     console.error(
       'Attempted to call interact behavior, but actor does not have Interacts component'
     )
     return
   }
   
-  const { focusedInteractive: focusedEntity } = getComponent(entity, Interacts)
+  const { focusedInteractive: focusedEntity } = getComponent(entity, Interaction)
   const input = getComponent(entity, Input)
   
   // console.log(args)

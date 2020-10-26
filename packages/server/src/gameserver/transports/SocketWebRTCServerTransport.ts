@@ -193,6 +193,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     gameServer;
     public async initialize(address, port = 3030): Promise<void> {
         if (this.isInitialized) console.error("Already initialized transport");
+        this.isInitialized = true;
+
         logger.info('Initializing server transport');
 
         let stringSubdomainNumber, gsResult;
@@ -289,6 +291,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     dataConsumers: new Map<string, DataConsumer>(), // Key => id of data producer
                     dataProducers: new Map<string, DataProducer>() // Key => label of data channel
                 };
+
+                console.log("Creating client object for ", userId);
+                console.log(Network.instance.clients[userId]);
 
                 // Check user is supposed to be in this instance
                 // if(user.dataValues.instanceId !== this.app.instance.id){
@@ -472,15 +477,14 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         const dataProducer = await transport.produceData(options);
 
                         console.log(`user ${userId} producing data`);
+                        console.log(Network.instance.clients[userId])
                         // console.log(Network.instance.clients[userId])
-                        if (Network.instance.clients[userId].dataProducers)
-                            Network.instance.clients[userId].dataProducers.set(label, dataProducer);
-                        else console.log("Network.instance.clients[userId].dataProducers is nulled" + Network.instance.clients[userId].dataProducers);
+                        Network.instance.clients[userId].dataProducers.set(label, dataProducer);
                         // if our associated transport closes, close ourself, too
                         dataProducer.on("transportclose", () => {
                             logger.info("data producer's transport closed: " + dataProducer.id);
                             dataProducer.close();
-                            Network.instance.clients[userId].dataProducers.delete(userId);
+                            Network.instance.clients[userId].dataProducers.delete(label);
                         });
                         // Possibly do stuff with appData here
                         logger.info("Sending dataproducer id to client:" + dataProducer.id);
@@ -752,7 +756,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 });
             });
         });
-        this.isInitialized = true;
     }
 
     validateNetworkObjects(): void {
