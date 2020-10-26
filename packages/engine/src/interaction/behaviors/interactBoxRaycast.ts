@@ -8,7 +8,8 @@ import { Object3DComponent } from "../../common/components/Object3DComponent";
 import { Interactive } from "../components/Interactive";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { Interacts } from "../components/Interacts";
-import { CalcBoundingBox } from "../components/CalcBoundingBox";
+import { BoundingBox } from "../components/BoundingBox";
+import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { Engine } from "../../ecs/classes/Engine";
 
 /**
@@ -24,7 +25,8 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:Int
   const followCamera = getComponent(entity, FollowCameraComponent);
   if (!followCamera.raycastBoxOn) return;
 
-/*
+  const transform = getComponent<TransformComponent>(entity, TransformComponent);
+
   const raycastList:Array<Object3D> = interactive
     .filter(interactiveEntity => {
       // - have object 3d to raycast
@@ -35,12 +37,11 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:Int
       // - onInteractionCheck is not set or passed
       return (typeof interactive.onInteractionCheck !== 'function' || interactive.onInteractionCheck(entity, interactiveEntity));
     })
-    .map(entity => getComponent(entity, Object3DComponent).value);
 
   if (!raycastList.length) {
     return;
   }
-*/
+
   const projectionMatrix = new Matrix4().makePerspective(
     followCamera.rx1,
     followCamera.rx2,
@@ -57,52 +58,45 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:Int
   const frustum = new Frustum().setFromProjectionMatrix( viewProjectionMatrix );
 
 
+  const subFocusedArray = raycastList.map( entityIn => {
 
-
-  !window.t?window.t=1:window.t==200?console.warn(window.t+=1, interactive ):window.t+=1;
-
-  const subFocusedArray = interactive.filter( entityIn => {
-
-    let calcBoundingBox = getComponent(entityIn, CalcBoundingBox)
+    let calcBoundingBox = getComponent(entityIn, BoundingBox);
     if (calcBoundingBox.boxArray.length) {
       // TO DO: static group object
       if (calcBoundingBox.dynamic) {
-        return calcBoundingBox.boxArray.some( object3D => {
-          let aabb = new Box3();
+
+        const arr = calcBoundingBox.boxArray.map((object3D, index) => {
+          const aabb = new Box3();
           aabb.setFromObject( object3D );
-          return frustum.intersectsBox(aabb);
-        })
+          return [entityIn, frustum.intersectsBox(aabb), aabb.distanceToPoint(transform.position), index];
+        }).filter( value => value[1] ).sort((a,b) => a[2] - b[2])
+
+        if (arr.length) {
+          return arr[0]
+        } else {
+          return [null, false]
+        }
+
       }
     } else {
-
       if (calcBoundingBox.dynamic) {
-        let object3D = getComponent(entityIn, Object3DComponent)
+        let object3D = getComponent(entityIn, Object3DComponent);
         let aabb = new Box3();
         aabb.copy(calcBoundingBox.box);
         aabb.applyMatrix4( object3D.value.matrixWorld );
-        return frustum.intersectsBox(aabb);
+        return [entityIn, frustum.intersectsBox(aabb), aabb.distanceToPoint(transform.position)];
       } else {
-        return frustum.intersectsBox(calcBoundingBox.box);
+        return [entityIn, frustum.intersectsBox(calcBoundingBox.box), calcBoundingBox.box.distanceToPoint(transform.position)];
       }
     }
+  }).filter( value => value[1] );
 
-
-
-  //  if (value instanceof Scene) value = value.children[0];
-//    if (value instanceof Mesh) {
-  //  if( value.geometry.boundingBox == null) value.geometry.computeBoundingBox();
-    //  aabb.copy(value.geometry.boundingBox);
-    //  aabb.applyMatrix4( value.matrixWorld );
-  //  } else
-  //  if (value instanceof Object3D) {
-  //   aabb.setFromObject( value );
-
-  //   value.name == 'door_front_left' ? console.warn(frustum.intersectsBox(aabb)):'';
-
-
-  })
+  const selectNearest = subFocusedArray.sort((a,b) => a[2] - b[2])
 
   const interacts = getMutableComponent(entity, Interacts);
-  interacts.subFocusedArray = subFocusedArray.map(v => getComponent(v, Object3DComponent).value);
+  interacts.subFocusedArray = subFocusedArray.map(v => getComponent(v[0], Object3DComponent).value);
 
+  const newBoxHit = selectNearest.length? selectNearest[0] : null;
+  interacts.focusedBoxHit = newBoxHit;
+  interacts.focusedInteractive = newBoxHit? newBoxHit[0] : null;
 };

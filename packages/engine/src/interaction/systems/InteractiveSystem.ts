@@ -12,7 +12,7 @@ import { Input } from "../../input/components/Input";
 import { DefaultInput } from "../../templates/shared/DefaultInput";
 import { BinaryValue } from "../../common/enums/BinaryValue";
 import { InteractiveFocused } from "../components/InteractiveFocused";
-import { CalcBoundingBox } from "../components/CalcBoundingBox";
+import { BoundingBox } from "../components/BoundingBox";
 import { SubFocused } from "../components/SubFocused";
 import { Entity } from "../../ecs/classes/Entity";
 import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
@@ -63,17 +63,17 @@ export class InteractiveSystem extends System {
 
         // unmark all unfocused
         this.queryResults.interactive?.all.forEach(entityInter => {
-          if (!hasComponent(entityInter, CalcBoundingBox) &&
+          if (!hasComponent(entityInter, BoundingBox) &&
               hasComponent(entityInter, Object3DComponent) &&
               hasComponent(entityInter, TransformComponent)
             ){
-              
-            addComponent(entityInter, CalcBoundingBox, {
+
+            addComponent(entityInter, BoundingBox, {
               dynamic: (hasComponent(entityInter, RigidBody) || hasComponent(entityInter, VehicleBody))
             })
 
           }
-          if (entityInter !== interacts.focusedInteractive) {
+          if (entityInter !== interacts.focusedInteractive && hasComponent(entityInter, InteractiveFocused)) {
             removeComponent(entityInter, InteractiveFocused);
           }
           if (interacts.subFocusedArray.some(subFocusEntity => subFocusEntity.entity === entityInter)) {
@@ -92,10 +92,12 @@ export class InteractiveSystem extends System {
       calcBoundingBox(entity, null, delta);
     });
 
-    this.queryResults.focus.added?.forEach(entity => {
+    // removal is the first because the hint must first be deleted, and then a new one appears
+    this.queryResults.focus.removed?.forEach(entity => {
       interactFocused(entity, null, delta);
     });
-    this.queryResults.focus.removed?.forEach(entity => {
+
+    this.queryResults.focus.added?.forEach(entity => {
       interactFocused(entity, null, delta);
     });
 
@@ -113,7 +115,7 @@ export class InteractiveSystem extends System {
   static queries: any = {
     interactors: { components: [ Interacts ] },
     interactive: { components: [ Interactive ] },
-    boundingBox: { components: [ CalcBoundingBox ],
+    boundingBox: { components: [ BoundingBox ],
       listen: {
         added: true,
         removed: true
