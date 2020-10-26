@@ -95,7 +95,7 @@ export const interactRaycast: Behavior = (entity: Entity, { interactive }: Inter
 
   const newRayHit = object && intersections.length? intersections[0] : null;
   const interacts = getMutableComponent(entity, Interacts);
-  interacts.focusedRayHit = newRayHit;
+  interacts.BoxHitResult = newRayHit;
   interacts.focusedInteractive = newRayHit? (object as any).entity : null;
 
 };
