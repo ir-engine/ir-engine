@@ -1,14 +1,11 @@
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { Network } from '../components/Network';
-import { addSnapshot, calculateInterpolation, createSnapshot } from '../functions/NetworkInterpolationFunctions';
-import { worldStateModel } from '../schema/worldStateSchema';
-import { TransformComponent } from '../../transform/components/TransformComponent';
-import { Input } from '../../input/components/Input';
 import { handleInput } from '../../input/behaviors/handleInput';
+import { Input } from '../../input/components/Input';
 import { InputType } from '../../input/enums/InputType';
-import { createNetworkPrefab } from '../functions/createNetworkPrefab';
+import { TransformComponent } from '../../transform/components/TransformComponent';
+import { Network } from '../components/Network';
 import { destroyNetworkObject } from '../functions/destroyNetworkObject';
-import { NetworkInterpolation } from '../components/NetworkInterpolation';
+import { addSnapshot, calculateInterpolation, createSnapshot } from '../functions/NetworkInterpolationFunctions';
 import { initializeNetworkObject } from './initializeNetworkObject';
 
 export function applyWorldState(worldStateBuffer, delta = 0.033) {
@@ -84,10 +81,10 @@ export function applyWorldState(worldStateBuffer, delta = 0.033) {
     console.log("Destroying network object");
   }
 
-  if(worldState.inputs !== undefined && worldState.inputs.length > 0){
-    console.log("World state inputs: ");
-    console.log(worldState.inputs);
-  }
+  // if(worldState.inputs !== undefined && worldState.inputs.length > 0){
+  //   console.log("World state inputs: ");
+  //   console.log(worldState.inputs);
+  // }
 
   worldState.inputs?.forEach(stateData => {
     if(Network.instance.networkObjects[stateData.networkId] === undefined)
