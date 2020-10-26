@@ -6,7 +6,7 @@ import { TransformComponent } from "../../transform/components/TransformComponen
 import { Object3D, Ray, Raycaster, Vector3,Vector2 } from "three";
 import { Object3DComponent } from "../../common/components/Object3DComponent";
 import { Interactive } from "../components/Interactive";
-import { Interacts } from "../components/Interacts";
+import { Interaction } from "../components/Interacts";
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { Input } from "../../input/components/Input";
 import { DefaultInput } from "../../templates/shared/DefaultInput";
@@ -94,7 +94,7 @@ export const interactRaycast: Behavior = (entity: Entity, { interactive }: Inter
   }
 
   const newRayHit = object && intersections.length? intersections[0] : null;
-  const interacts = getMutableComponent(entity, Interacts);
+  const interacts = getMutableComponent(entity, Interaction);
   interacts.focusedRayHit = newRayHit;
   interacts.focusedInteractive = newRayHit? (object as any).entity : null;
 

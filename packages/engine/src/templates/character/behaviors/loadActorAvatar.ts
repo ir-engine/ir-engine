@@ -39,13 +39,16 @@ export const loadActorAvatar: Behavior = (entity) => {
 
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 
-      actor.mixer.stopAllAction();
+      if(!actor.initialized) return console.warn("Returning because actor isn't initialized");
+      actor.mixer?.stopAllAction();
+      
       // forget that we have any animation playing
       actor.currentAnimationAction = null;
 
       // clear current avatar mesh
-      ([ ...actor.modelContainer.children ])
-        .forEach(child => actor.modelContainer.remove(child) );
+      if(actor.modelContainer !== undefined)
+        ([ ...actor.modelContainer.children ])
+          .forEach(child => actor.modelContainer.remove(child));
 
       tmpGroup.children.forEach(child => actor.modelContainer.add(child));
 

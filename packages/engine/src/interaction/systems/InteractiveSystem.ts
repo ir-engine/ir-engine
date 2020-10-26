@@ -1,6 +1,6 @@
 import { System, SystemAttributes } from "../../ecs/classes/System";
 import { Interactive } from "../components/Interactive";
-import { Interacts } from "../components/Interacts";
+import { Interaction } from "../components/Interacts";
 import { interactRaycast } from "../behaviors/interactRaycast";
 import { interactBoxRaycast } from "../behaviors/interactBoxRaycast";
 import { interact } from "../behaviors/interact";
@@ -45,7 +45,7 @@ export class InteractiveSystem extends System {
         interactRaycast(entity, { interactive: this.queryResults.interactive.all });
         interactBoxRaycast(entity, { interactive: this.queryResults.interactive.all });
 
-        const interacts = getComponent(entity, Interacts);
+        const interacts = getComponent(entity, Interaction);
         if (interacts.focusedInteractive) {
           this.newFocused.add(interacts.focusedInteractive);
           // TODO: can someone else focus object? should we update 'interacts' entity
@@ -90,7 +90,7 @@ export class InteractiveSystem extends System {
   }
 
   static queries: any = {
-    interactors: { components: [ Interacts ] },
+    interactors: { components: [ Interaction ] },
     interactive: { components: [ Interactive ] },
     focus: {
       components: [ Interactive, InteractiveFocused ],

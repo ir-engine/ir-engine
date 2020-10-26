@@ -7,7 +7,7 @@ import { getComponent, getMutableComponent, hasComponent } from "../../ecs/funct
 import { Object3DComponent } from "../../common/components/Object3DComponent";
 import { Interactive } from "../components/Interactive";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
-import { Interacts } from "../components/Interacts";
+import { Interaction } from "../components/Interacts";
 import { Engine } from "../../ecs/classes/Engine";
 
 /**
@@ -67,6 +67,6 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:Int
     return frustum.intersectsBox(aabb);
   })
 
-  const interacts = getMutableComponent(entity, Interacts);
+  const interacts = getMutableComponent(entity, Interaction);
   interacts.subFocusedArray = subFocusedArray;
 };

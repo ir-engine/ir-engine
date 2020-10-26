@@ -21,11 +21,11 @@ export const handleClientConnected = (args: { id: any; media: any }) => {
 
   const networkId = Network.getNetworkId();
 
-  // Reset the client object
-  Network.instance.clients[args.id] = {
-    userId: args.id,
-    media: args.media
-  };
+  // // Reset the client object
+  // Network.instance.clients[args.id] = {
+  //   userId: args.id,
+  //   media: args.media
+  // };
 
   let networkObject;
   let hasCharacter = false;
