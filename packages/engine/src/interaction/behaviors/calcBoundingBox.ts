@@ -6,7 +6,7 @@ import { getComponent, getMutableComponent, hasComponent } from "../../ecs/funct
 
 import { Object3DComponent } from "../../common/components/Object3DComponent";
 import { Interactive } from "../components/Interactive";
-import { CalcBoundingBox } from "../components/CalcBoundingBox";
+import { BoundingBox } from "../components/BoundingBox";
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { Interacts } from "../components/Interacts";
@@ -18,11 +18,12 @@ import { Engine } from "../../ecs/classes/Engine";
  * @param interactive
  * @param delta
  */
+
  function searchModelChildrenByName(entity, name) {
-   console.warn(entity);
+  // console.warn(entity);
 
    let screne = getComponent(entity, Object3DComponent).value
-   console.warn(screne);
+  // console.warn(screne);
 
    let m
    screne.children[0].traverse(value => {
@@ -30,13 +31,14 @@ import { Engine } from "../../ecs/classes/Engine";
        m = value
      }
    })
-   console.warn(m);
+
+   //console.warn(m);
    return m
  }
 
  function applyPositionToObject3D(entity, dynamic) {
-   let object3D = getMutableComponent(entity, Object3DComponent)
-   let transform = getComponent(entity, TransformComponent)
+   let object3D = getMutableComponent(entity, Object3DComponent);
+   let transform = getComponent(entity, TransformComponent);
 
    object3D.value.position.copy(transform.position);
    object3D.value.rotation.setFromQuaternion(transform.rotation);
@@ -50,25 +52,23 @@ import { Engine } from "../../ecs/classes/Engine";
 
  export const calcBoundingBox: Behavior = (entity: Entity, args, delta: number): void => {
 
-   const interactive = getMutableComponent(entity, Interactive)
-   const calcBoundingBox = getMutableComponent(entity, CalcBoundingBox)
+   const interactive = getMutableComponent(entity, Interactive);
+   const calcBoundingBox = getMutableComponent(entity, BoundingBox);
 
-   applyPositionToObject3D(entity, calcBoundingBox.dynamic)
+   applyPositionToObject3D(entity, calcBoundingBox.dynamic);
 
 
      if (interactive.interactionParts.length) {
 
-       let arr = interactive.interactionParts.map(name => searchModelChildrenByName(entity, name))
-       getMutableComponent(entity, CalcBoundingBox).boxArray = arr;
+       let arr = interactive.interactionParts.map(name => searchModelChildrenByName(entity, name));
+       getMutableComponent(entity, BoundingBox).boxArray = arr;
 
      } else {
 
        let aabb = new Box3();
-       let object3D = getComponent(entity, Object3DComponent).value
-
+       let object3D = getComponent(entity, Object3DComponent).value;
 
        if (object3D instanceof Scene) object3D = object3D.children[0];
-
        if (object3D instanceof Mesh) {
 
          if( object3D.geometry.boundingBox == null) object3D.geometry.computeBoundingBox();
@@ -85,5 +85,4 @@ import { Engine } from "../../ecs/classes/Engine";
 
        calcBoundingBox.box = aabb;
      }
-
  }

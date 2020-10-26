@@ -16,16 +16,16 @@ export const subFocused:Behavior = (entity: Entity, args, delta: number): void =
     return;
   }
 
-  const focused = hasComponent(entity, InteractiveFocused);
+  //const focused = hasComponent(entity, InteractiveFocused);
   const subFocused = hasComponent(entity, SubFocused);
 
-  if (!focused) {
+//  if (!focused) {
     if (subFocused){
       addComponent(entity, HighlightComponent);
     }
     else {
       removeComponent(entity, HighlightComponent);
     }
-  }
+//  }
 
 };
