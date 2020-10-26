@@ -8,6 +8,7 @@ import { createEntity, /*getComponent,*/ getMutableComponent } from '@xr3ngine/e
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
+import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import React, { FunctionComponent, useEffect, useState } from 'react';
@@ -107,6 +108,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
     createPrefab(staticWorldColliders);
     // const actorEntity = createPrefab(PlayerCharacter);
     // setActorEntity(actorEntity);
+    createPrefab(PlayerCharacter);
 
     return (): void => {
       resetEngine();
