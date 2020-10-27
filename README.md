@@ -10,6 +10,9 @@ This repo includes a fully-feature client, API server, realtime gamerserver, gam
 
 </div>
 
+[![Build Status](https://travis-ci.org/xr3ngine/xr3ngine.svg?branch=dev)](https://travis-ci.org/xr3ngine/xr3ngine)[![Codecov](https://img.shields.io/codecov/c/github/xr3ngine/xr3ngine?logo=codecov&style=flat-square)](https://codecov.io/gh/xr3ngine/xr3ngine)	
+
+
 ## Popular features
 Player rigs to support 2D, 3D and XR interaction
 
