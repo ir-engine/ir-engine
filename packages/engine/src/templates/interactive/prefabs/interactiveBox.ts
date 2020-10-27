@@ -4,7 +4,7 @@ import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Obje
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { addMeshCollider } from "@xr3ngine/engine/src/physics/behaviors/addMeshCollider";
 import { addMeshRigidBody } from "@xr3ngine/engine/src/physics/behaviors/addMeshRigidBody";
-import { Interactive } from "../../../interaction/components/Interactive";
+import { Interactable } from "../../../interaction/components/Interactable";
 import { onInteractionHover } from "../functions/interactiveBox";
 import {
     addComponent,
@@ -26,7 +26,7 @@ export const interactiveBox: Prefab = {
     components: [
         { type: TransformComponent, data: { position: [-3, 2,-3] } },
         {
-            type: Interactive,
+            type: Interactable,
             data: {
                 interactiveDistance: 3,
                 onInteractionFocused: onInteractionHover,

@@ -20,8 +20,8 @@ export const CharacterInputSchema: InputSchema = {
   // Map mouse buttons to abstract input
   mouseInputMap: {
     buttons: {
-      // [MouseInput.LeftButton]: DefaultInput.PRIMARY,
-      [MouseInput.LeftButton]: DefaultInput.INTERACT,
+      [MouseInput.LeftButton]: DefaultInput.PRIMARY,
+    //  [MouseInput.LeftButton]: DefaultInput.INTERACT,
       [MouseInput.RightButton]: DefaultInput.SECONDARY,
       [MouseInput.MiddleButton]: DefaultInput.INTERACT
     },
@@ -103,7 +103,7 @@ export const CharacterInputSchema: InputSchema = {
         {
           behavior: interact,
           args: {
-            phaze:LifecycleValue.STARTED         
+            phaze:LifecycleValue.STARTED
           }
         }
       ],
@@ -111,7 +111,7 @@ export const CharacterInputSchema: InputSchema = {
         {
           behavior: interact,
           args: {
-            phaze:LifecycleValue.ENDED 
+            phaze:LifecycleValue.ENDED
           }
         }
       ]

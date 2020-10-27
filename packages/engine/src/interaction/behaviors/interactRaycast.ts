@@ -5,8 +5,8 @@ import { getComponent, getMutableComponent, hasComponent } from "../../ecs/funct
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { Object3D, Ray, Raycaster, Vector3,Vector2 } from "three";
 import { Object3DComponent } from "../../common/components/Object3DComponent";
-import { Interactive } from "../components/Interactive";
-import { Interaction } from "../components/Interacts";
+import { Interactable } from "../components/Interactable";
+import { Interactor } from "../components/Interactor";
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { Input } from "../../input/components/Input";
 import { DefaultInput } from "../../templates/shared/DefaultInput";
@@ -43,7 +43,7 @@ export const interactRaycast: Behavior = (entity: Entity, { interactive }: Inter
       // - distance check
       // TODO: handle parent transform!!!
       const distance = getComponent(interactiveEntity, TransformComponent).position.distanceTo(clientPosition);
-      const interactive = getComponent(interactiveEntity, Interactive);
+      const interactive = getComponent(interactiveEntity, Interactable);
 
       if (distance > interactive.interactiveDistance) {
         return false;
@@ -94,7 +94,7 @@ export const interactRaycast: Behavior = (entity: Entity, { interactive }: Inter
   }
 
   const newRayHit = object && intersections.length? intersections[0] : null;
-  const interacts = getMutableComponent(entity, Interaction);
+  const interacts = getMutableComponent(entity, Interactor);
   interacts.focusedRayHit = newRayHit;
   interacts.focusedInteractive = newRayHit? (object as any).entity : null;
 
