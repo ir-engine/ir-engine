@@ -69,7 +69,7 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:Int
           const aabb = new Box3();
           aabb.setFromObject( object3D );
           return [entityIn, frustum.intersectsBox(aabb), aabb.distanceToPoint(transform.position), index];
-        }).filter( value => value[1] ).sort((a,b) => a[2] - b[2])
+        }).filter( value => value[1] ).sort((a: any,b: any) => a[2] - b[2])
 
         if (arr.length) {
           return arr[0]
@@ -91,12 +91,12 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:Int
     }
   }).filter( value => value[1] );
 
-  const selectNearest = subFocusedArray.sort((a,b) => a[2] - b[2])
+  const selectNearest = subFocusedArray.sort((a: any,b: any) => a[2] - b[2])
 
   const interacts = getMutableComponent(entity, Interactor);
-  interacts.subFocusedArray = subFocusedArray.map(v => getComponent(v[0], Object3DComponent).value);
+  interacts.subFocusedArray = subFocusedArray.map((v: any) => getComponent(v[0], Object3DComponent).value);
 
   const newBoxHit = selectNearest.length? selectNearest[0] : null;
-  interacts.BoxHitResult = newBoxHit;
-  interacts.focusedInteractive = newBoxHit? newBoxHit[0] : null;
+  (interacts.BoxHitResult as any) = newBoxHit;
+  (interacts.focusedInteractive as any) = newBoxHit? newBoxHit[0] : null;
 };

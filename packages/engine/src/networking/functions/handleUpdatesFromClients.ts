@@ -17,11 +17,11 @@ export function handleUpdatesFromClients() {
     const input = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, Input);
 
     // Clear current data
-    input.data.clear();
+    input?.data.clear();
 
     // Apply button input
     for (const button in clientInput.buttons) {
-      input.data.set(clientInput.buttons[button].input,
+      input?.data.set(clientInput.buttons[button].input,
         {
           type: InputType.BUTTON,
           value: clientInput.buttons[button].value,
@@ -31,7 +31,7 @@ export function handleUpdatesFromClients() {
 
     // Axis 1D input
     for (const axis in clientInput.axes1d) {
-      input.data.set(clientInput.axes1d[axis].input,
+      input?.data.set(clientInput.axes1d[axis].input,
         {
           type: InputType.BUTTON,
           value: clientInput.axes1d[axis].value,
@@ -41,7 +41,7 @@ export function handleUpdatesFromClients() {
 
     // Axis 2D input
     for (const axis in clientInput.axes2d) {
-      input.data.set(clientInput.axes2d[axis].input,
+      input?.data.set(clientInput.axes2d[axis].input,
         {
           type: InputType.BUTTON,
           value: clientInput.axes2d[axis].value,
