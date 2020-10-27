@@ -23,61 +23,41 @@ export const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEv
   const normalizedPosition = normalizeMouseCoordinates(args.event.touches[0].clientX, args.event.touches[0].clientY, window.innerWidth, window.innerHeight);
   const touchPosition: [number, number] = [normalizedPosition.x, normalizedPosition.y];
 
-  console.log(args.event);
+  //console.log('handleTouchMove', touchPosition);
+  //console.log(args.event);
   const mappedPositionInput = input.schema.touchInputMap?.axes[TouchInputs.Touch1Position];
-  const mappedMovementInput = input.schema.touchInputMap?.axes[TouchInputs.Touch1Movement];
 
   if (!mappedPositionInput) {
     return;
   }
 
-  let touchMovement: [number, number] = [ 0,0 ];
-  
+  const hasData = input.data.has(mappedPositionInput);
+  console.log('handleTouchMove', args.event.type, hasData, LifecycleValue[hasData? LifecycleValue.CHANGED : LifecycleValue.STARTED]);
 
-  if (mappedMovementInput && input.prevData.has(mappedPositionInput)) {
+  input.data.set(mappedPositionInput, {
+    type: InputType.TWODIM,
+    value: touchPosition,
+    lifecycleState: hasData? LifecycleValue.CHANGED : LifecycleValue.STARTED
+  });
+
+  const movementStart = args.event.type === 'touchstart';
+  const mappedMovementInput = input.schema.touchInputMap?.axes[TouchInputs.Touch1Movement];
+  if (!mappedMovementInput) {
+    return;
+  }
+
+  const touchMovement: [number, number] = [ 0,0 ];
+  if (!movementStart && input.prevData.has(mappedPositionInput)) {
     const touchPositionPrevInput = input.prevData.get(mappedPositionInput);
-    //const normalizedPrevPosition = normalizeMouseCoordinates(touchPositionPrevInput.value[0], touchPositionPrevInput.value[1], window.innerWidth, window.innerHeight);
-    //const touchPrevPosition: [number, number] = [ normalizedPrevPosition.x, normalizedPrevPosition.y ];
-    const touchMovementPositionX = (( touchPosition[0] - touchPositionPrevInput.value[0]) );
-    const touchMovementPositionY = (( touchPosition[1] - touchPositionPrevInput.value[1]) );
-    // touchMovement = [ touchMovementPositionX, touchMovementPositionY ];
-    const normalizedTouchMovement = deltaTouchMovement(touchMovementPositionX,touchMovementPositionY,window.innerWidth, window.innerHeight)
-    touchMovement = [ normalizedTouchMovement.x, normalizedTouchMovement.y ];
-
-    console.log(touchMovementPositionX);
-    console.log(touchMovementPositionY);
-    console.log(touchMovement);
+    touchMovement[0] = touchPosition[0] - touchPositionPrevInput.value[0];
+    touchMovement[1] = touchPosition[1] - touchPositionPrevInput.value[1];
+    // console.log(touchMovement);
+    console.log('prev input', touchPositionPrevInput.value);
   }
 
-  if (mappedPositionInput) {
-    if (!input.data.has(mappedPositionInput)) {
-      input.data.set(mappedPositionInput, {
-        type: InputType.TWODIM,
-        value: touchPosition,
-        lifecycleState: LifecycleValue.STARTED
-      });
-    } else {
-      input.data.set(mappedPositionInput, {
-        type: InputType.TWODIM,
-        value: touchPosition,
-        lifecycleState: LifecycleValue.CHANGED
-      });
-    }
-  }
-  
-  if (mappedMovementInput) {
-    if (!input.data.has(mappedMovementInput)) {
-      input.data.set(mappedMovementInput, {
-        type: InputType.TWODIM,
-        value: touchMovement,
-        lifecycleState: LifecycleValue.STARTED
-      });
-    } else {
-      input.data.set(mappedMovementInput, {
-        type: InputType.TWODIM,
-        value: touchMovement,
-        lifecycleState: LifecycleValue.CHANGED
-      });
-    }
-  }
+  input.data.set(mappedMovementInput, {
+    type: InputType.TWODIM,
+    value: touchMovement,
+    lifecycleState: input.data.has(mappedMovementInput)? LifecycleValue.CHANGED : LifecycleValue.STARTED
+  });
 };

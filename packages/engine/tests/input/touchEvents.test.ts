@@ -16,9 +16,9 @@ import { normalizeMouseCoordinates } from "../../src/common/functions/normalizeM
 
 let addListenerMock:jest.SpyInstance;
 
-const mockedButtonBehaviorOnStarted = jest.fn(() => { console.log('behavior call on started') });
-const mockedButtonBehaviorOnContinued = jest.fn(() => { console.log('behavior call on continued') });
-const mockedButtonBehaviorOnEnded = jest.fn(() => { console.log('behavior call on ended') });
+const mockedButtonBehaviorOnStarted = jest.fn(() => { console.log('behavior call on button started') });
+const mockedButtonBehaviorOnContinued = jest.fn(() => { console.log('behavior call on button continued') });
+const mockedButtonBehaviorOnEnded = jest.fn(() => { console.log('behavior call on button ended') });
 
 const mockedBehaviorOnStarted = jest.fn(() => { console.log('behavior call on started') });
 const mockedBehaviorOnEnded = jest.fn(() => { console.log('behavior call on ended') });
@@ -38,6 +38,9 @@ const testInputSchema: InputSchema = {
         args: {
           value: BinaryValue.ON
         }
+      },
+      {
+        behavior: handleTouchMove
       }
     ],
     touchend: [
@@ -136,24 +139,26 @@ beforeAll(() => {
 })
 
 beforeEach(() => {
+  addListenerMock.mockClear();
+
   // in each test we should have new clean entity with new clean input component (unpolluted by previous tests)
   entity = createEntity()
   input = addComponent<Input>(entity, Input, { schema: testInputSchema }) as Input
   addComponent(entity, LocalInputReceiver)
   execute();
 
-  mockedBehaviorOnStarted.mockClear()
-  mockedBehaviorOnEnded.mockClear()
-  mockedBehaviorOnChanged.mockClear()
-  mockedBehaviorOnUnChanged.mockClear()
-  mockedButtonBehaviorOnStarted.mockClear()
-  mockedButtonBehaviorOnContinued.mockClear()
-  mockedButtonBehaviorOnEnded.mockClear()
-})
+  mockedBehaviorOnStarted.mockClear();
+  mockedBehaviorOnEnded.mockClear();
+  mockedBehaviorOnChanged.mockClear();
+  mockedBehaviorOnUnChanged.mockClear();
+  mockedButtonBehaviorOnStarted.mockClear();
+  mockedButtonBehaviorOnContinued.mockClear();
+  mockedButtonBehaviorOnEnded.mockClear();
+});
 afterEach(() => {
   // cleanup
   removeEntity(entity, true);
-})
+});
 
 // TODO: check that move of touches with different id does not interfere,
 //  another Input type should be triggered by two touches, but SCREENXY doesn't
@@ -272,10 +277,15 @@ describe("move", () => {
 
 // buttons + move
 describe("gestures", () => {
+  // const windowPointW1 = { x: 0, y:0 };
+  // const windowPointW2 = { x: 1024, y:0 };
+  // const windowPointH1 = { x: 0, y:0 };
+  // const windowPointH2 = { x: 0, y:768 };
   const windowPoint1 = { x: 100, y:20 };
   const normalPoint1 = normalizeMouseCoordinates(windowPoint1.x, windowPoint1.y, window.innerWidth, window.innerHeight);
   const windowPoint2 = { x: 120, y:25 };
   const normalPoint2 = normalizeMouseCoordinates(windowPoint2.x, windowPoint2.y, window.innerWidth, window.innerHeight);
+  const normalDiff = { x: normalPoint2.x - normalPoint1.x, y: normalPoint2.y - normalPoint1.y };
 
   describe("touch", () => {
     it ("lifecycle STARTED", () => {
@@ -328,6 +338,45 @@ describe("gestures", () => {
       });
     });
   });
+
+  describe("touch drag", () => {
+    it ("lifecycle STARTED", () => {
+      let data
+      triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 });
+      execute();
+      triggerTouch({ ...windowPoint2, type: 'touchmove', id: 1 });
+      execute();
+
+      expect(input.data.has(DefaultInput.LOOKTURN_PLAYERONE)).toBeTruthy();
+      const data2 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+      expect(data2.value).toMatchObject([ normalDiff.x, normalDiff.y ]);
+      expect(data2.lifecycleState).toBe(LifecycleValue.CHANGED);
+      //expect(mockedButtonBehaviorOnStarted.mock.calls.length).toBe(1);
+    });
+
+    // it ("lifecycle CONTINUED", () => {
+    //   triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 });
+    //   execute();
+    //   execute();
+    //
+    //   expect(input.data.has(DefaultInput.INTERACT)).toBeTruthy();
+    //   const data1 = input.data.get(DefaultInput.INTERACT);
+    //   expect(data1.value).toBe(BinaryValue.ON);
+    //   expect(data1.lifecycleState).toBe(LifecycleValue.CONTINUED);
+    //   expect(mockedButtonBehaviorOnContinued.mock.calls.length).toBe(1);
+    // });
+    //
+    // it ("lifecycle ENDED", () => {
+    //   triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 });
+    //   execute();
+    //   triggerTouch({ ...windowPoint1, type: 'touchend', id: 1 });
+    //   execute();
+    //
+    //   expect(input.data.has(DefaultInput.INTERACT)).toBeFalsy();
+    //   expect(mockedButtonBehaviorOnEnded.mock.calls.length).toBe(1);
+    // });
+  });
+
   // zoom
   // TODO: check Scale(Pinch)
 });
@@ -343,14 +392,17 @@ function triggerTouch({ x, y, type, id = 0}: { x:number, y:number, type?:string,
     touch
   ];
 
-  const typeListenerCall = addListenerMock.mock.calls.find(call => call[0] === type);
-  typeListenerCall[1]({
-    type,
-    changedTouches: touches,
-    targetTouches: touches,
-    touches: touches,
-    view: window,
-    cancelable: true,
-    bubbles: true,
-  });
+  const typeListenerCalls = addListenerMock.mock.calls.filter(call => call[0] === type);
+  typeListenerCalls.forEach(typeListenerCall => {
+    console.log('TRIGGER TOUCH', type);
+    typeListenerCall[1]({
+      type,
+      changedTouches: touches,
+      targetTouches: touches,
+      touches: touches,
+      view: window,
+      cancelable: true,
+      bubbles: true,
+    });
+  })
 }
