@@ -8,7 +8,7 @@ import { RigidBody } from "@xr3ngine/engine/src/physics/components/RigidBody";
 import { addMeshCollider } from "@xr3ngine/engine/src/physics/behaviors/addMeshCollider";
 import { addMeshRigidBody } from "@xr3ngine/engine/src/physics/behaviors/addMeshRigidBody";
 import { attachCamera } from "@xr3ngine/engine/src/camera/behaviors/attachCamera";
-import { Interactive } from "../../../interaction/components/Interactive";
+import { Interactable } from "../../../interaction/components/Interactable";
 import { onInteraction, onInteractionHover } from "../../interactive/functions/commonInteractive";
 
 const boxGeometry = new BoxBufferGeometry(1, 1, 1);
@@ -21,7 +21,7 @@ export const rigidBodyBox: Prefab = {
       { type: TransformComponent, data: { position: [-3, 1,-3]} },
       { type: ColliderComponent, data: { type: 'box', scale: [1, 1, 1], mass: 10 }},
 
-      { type: Interactive, data: {
+      { type: Interactable, data: {
           onInteraction: onInteraction,
           onInteractionFocused: onInteractionHover,
           data: {
