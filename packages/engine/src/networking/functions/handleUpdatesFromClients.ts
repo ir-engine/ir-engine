@@ -1,8 +1,7 @@
-import { clientInputModel } from "../schema/clientInputSchema";
-import { Network } from "../components/Network";
-import { getComponent } from "../../ecs/functions/EntityFunctions";
+import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { Input } from "../../input/components/Input";
 import { InputType } from "../../input/enums/InputType";
+import { Network } from "../components/Network";
 
 // TODO: A lot of this logic can be combined with handleInputFromServer
 export function handleUpdatesFromClients() {
@@ -15,7 +14,7 @@ export function handleUpdatesFromClients() {
     if(Network.instance.networkObjects[clientInput.networkId] === undefined) return
 
     // Get input component
-    const input = getComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, Input);
+    const input = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, Input);
 
     // Clear current data
     input.data.clear();

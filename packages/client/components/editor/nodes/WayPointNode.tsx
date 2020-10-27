@@ -9,12 +9,11 @@ export default class WayPointNode extends EditorNodeMixin(THREE.Object3D) {
   static async load() {
     const { scene } = await new GLTFLoader(GLTF_PATH).loadGLTF();
 
-    // BREAKS OBJECT SELECTION => Raycastignore layers set to 1
-    // scene.traverse(child => {
-    //   if (child.isMesh) {
-    //     child.layers.set(1);
-    //   }
-    // });
+    scene.traverse(child => {
+      if (child.isMesh) {
+        child.layers.set(2);
+      }
+    });
 
     wayPointHelperModel = scene;
   }

@@ -31,7 +31,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   partyRecvTransport: MediaSoupTransport
   partySendTransport: MediaSoupTransport
   lastPollSyncData = {}
-  pollingInterval: NodeJS.Timeout
   pollingTickRate = 1000
   pollingTimeout = 4000
 
@@ -51,7 +50,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
    * @param message message to send
    */
   sendReliableData(message): void {
-    console.log("sendReliableData: ", message)
     this.socket.emit(MessageTypes.ReliableMessage.toString(), message);
     
   }
@@ -120,9 +118,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     const token = (store.getState() as any).get('auth').get('authUser').accessToken;
     const selfUser = (store.getState() as any).get('auth').get('user') as User;
 
-    console.log("selfUser: ");
-    console.log(selfUser);
-    console.log("token: ", token);
     Network.instance.userId = selfUser.id;
     Network.instance.accessToken = token;
 
@@ -154,7 +149,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.socket.on("connect", async () => {
       console.log("Connected!");
       const payload = { userId: Network.instance.userId, accessToken: Network.instance.accessToken}
-      console.log("Payload: ", payload);
       const { success } = await this.request(MessageTypes.Authorization.toString(), payload);
 
       if(!success) return console.error("Unable to connect with credentials"); 
@@ -175,11 +169,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
     console.log("Loading mediasoup");
     if (this.mediasoupDevice.loaded !== true) await this.mediasoupDevice.load({ routerRtpCapabilities });
-
-    console.log("Joined world");
-    return Promise.resolve();
-
-      this.socket.emit(MessageTypes.Heartbeat.toString(), 1000);
 
       // Send heartbeat every second
       setInterval(() => {
@@ -422,10 +411,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       console.log('Attempting to leave client transport');
       this.leaving = true;
 
-      // stop polling
-      clearInterval(this.pollingInterval);
-      console.log('Cleared interval');
-      console.log(this.request);
       if (this.request) {
         console.log('Leaving World');
         // close everything on the server-side (transports, producers, consumers)
