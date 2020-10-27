@@ -33,8 +33,9 @@ export const sendClientInput = (entity: Entity): void => {
 
   let numInputs = 0;
 
+
   // Add all values in input component to schema
-  for (let [key, value] of input.data.entries()) {
+  for (const [key, value] of input.data.entries()) {
 
     switch (value.type) {
       case InputType.BUTTON:
