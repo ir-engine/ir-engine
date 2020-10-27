@@ -33,6 +33,7 @@ export const sendClientInput = (entity: Entity): void => {
 
   let numInputs = 0;
 
+
   // Add all values in input component to schema
   for (let [key, value] of input.data.entries()) {
 

@@ -170,6 +170,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log("Loading mediasoup");
     if (this.mediasoupDevice.loaded !== true) await this.mediasoupDevice.load({ routerRtpCapabilities });
 
+    console.log("Joined world");
+    // return Promise.resolve();
+
       // Send heartbeat every second
       setInterval(() => {
         this.socket.emit(MessageTypes.Heartbeat.toString());

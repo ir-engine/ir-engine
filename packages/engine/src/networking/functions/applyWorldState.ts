@@ -81,11 +81,6 @@ export function applyWorldState(worldStateBuffer, delta = 0.033) {
     console.log("Destroying network object");
   }
 
-  // if(worldState.inputs !== undefined && worldState.inputs.length > 0){
-  //   console.log("World state inputs: ");
-  //   console.log(worldState.inputs);
-  // }
-
   worldState.inputs?.forEach(stateData => {
     if(Network.instance.networkObjects[stateData.networkId] === undefined)
       return console.warn("network object undefined, but inputs not");
