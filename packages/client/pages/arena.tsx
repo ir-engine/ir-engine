@@ -103,7 +103,7 @@ export const ArenaPage = (props: Props): any => {
             instanceConnectionState.get('instanceServerConnecting') === false &&
             instanceConnectionState.get('connected') === false
         ) {
-            console.log('Calling connectToInstanceServer from arena page')
+            console.log('Calling connectToInstanceServer from arena page');
             connectToInstanceServer();
         }
     }, [instanceConnectionState]);

@@ -60,7 +60,7 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:Int
 
   const subFocusedArray = raycastList.map( entityIn => {
 
-    let calcBoundingBox = getComponent(entityIn, BoundingBox);
+    const calcBoundingBox = getComponent(entityIn, BoundingBox);
     if (calcBoundingBox.boxArray.length) {
       // TO DO: static group object
       if (calcBoundingBox.dynamic) {
@@ -80,8 +80,8 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:Int
       }
     } else {
       if (calcBoundingBox.dynamic) {
-        let object3D = getComponent(entityIn, Object3DComponent);
-        let aabb = new Box3();
+        const object3D = getComponent(entityIn, Object3DComponent);
+        const aabb = new Box3();
         aabb.copy(calcBoundingBox.box);
         aabb.applyMatrix4( object3D.value.matrixWorld );
         return [entityIn, frustum.intersectsBox(aabb), aabb.distanceToPoint(transform.position)];
