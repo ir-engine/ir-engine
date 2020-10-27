@@ -73,7 +73,7 @@ export const ArenaPage = (props: Props): any => {
     const appLoaded = appState.get('loaded');
     const selfUser = authState.get('user');
     const party = partyState.get('party');
-    const instanceId = selfUser.instanceId != null ? selfUser.instanceId : party?.instanceId != null ? party.instanceId : null;
+    const instanceId = selfUser?.instanceId != null ? selfUser.instanceId : party?.instanceId != null ? party.instanceId : null;
 
     const userBanned = selfUser?.locationBans?.find(ban => ban.locationId === arenaLocationId) != null;
     useEffect(() => {

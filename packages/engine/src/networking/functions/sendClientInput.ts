@@ -31,7 +31,7 @@ export const sendClientInput = (entity: Entity): void => {
   // TODO: Parse entries and examine how map is working
   // We need to add these inputs properly!
 
-  console.log(input.data.entries())
+  // console.log(input.data.entries())
 
   // Add all values in input component to schema
   for (let [key, value] of input.data.entries()) {
@@ -58,10 +58,10 @@ export const sendClientInput = (entity: Entity): void => {
     }
   }
 
-  console.log("numInputs", numInputs)
+  // console.log("numInputs", numInputs)
   if (numInputs < 1) return;
 
-  console.log("INPUTS: ", inputs)
+  // console.log("INPUTS: ", inputs)
   // Convert to a message buffer
   const message = inputs; // clientInputModel.toBuffer(inputs)
 
