@@ -243,13 +243,13 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             announcedIp: process.env.KUBERNETES === 'true' ? (config.gameserver.local === true ? gsResult.status.address : `${stringSubdomainNumber}.${config.gameserver.domain}`) : localIp.ipAddress
         }];
 
-       setInterval(() => this.validateNetworkObjects(), 5000)
+       setInterval(() => this.validateNetworkObjects(), 5000);
 
 
         // Set up realtime channel on socket.io
         this.socketIO = (this.app as any)?.io;
         const realtime = this.socketIO.of('/realtime');
-        let userId, accessToken
+        let userId, accessToken;
         // On connection, set up a bunch of handlers in the connect function
         realtime.on("connect", (socket: Socket) => {
             console.log("Connected, waiting for authorization request");
@@ -278,7 +278,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 }).catch(error => {
                     callback({ success: false, message: error });
                     return console.warn("Failed to authorize user");
-                })
+                });
 
                 Network.instance.clients[userId] = {
                     userId: userId,
@@ -306,7 +306,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
                 callback({ success: true });
 
-                console.log("Connect called for ", userId)
+                console.log("Connect called for ", userId);
 
                 // Call all message handlers associated with client connection
                 Network.instance.schema.messageHandlers[MessageTypes.ClientConnected.toString()].forEach(behavior => {
@@ -361,7 +361,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         });
 
         socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) => {
-            console.log("JoinWorld received")
+            console.log("JoinWorld received");
             try {
 
                 // Add user ID to peer list
@@ -498,7 +498,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 const dataProducer = await transport.produceData(options);
 
                         console.log(`user ${userId} producing data`);
-                        console.log(Network.instance.clients[userId])
+                        console.log(Network.instance.clients[userId]);
                         // console.log(Network.instance.clients[userId])
                         Network.instance.clients[userId].dataProducers.set(label, dataProducer);
                         // if our associated transport closes, close ourself, too
@@ -827,7 +827,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             const networkObject = Network.instance.networkObjects[key];
             // Validate that the object doesn't belong to a non-existant user
             if (Network.instance.clients[networkObject.ownerId] !== undefined)
-                continue
+                continue;
             // If it does, tell clients to destroy it
             const removeMessage = { networkId: networkObject.component.networkId };
             Network.instance.worldState.destroyObjects.push(removeMessage);

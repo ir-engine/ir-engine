@@ -19,8 +19,8 @@ import { Engine } from "../../ecs/classes/Engine";
  }
 
  function applyPositionToObject3D(entity: Entity, dynamic: boolean): void {
-   let object3D = getMutableComponent(entity, Object3DComponent);
-   let transform = getComponent(entity, TransformComponent);
+   const object3D = getMutableComponent(entity, Object3DComponent);
+   const transform = getComponent(entity, TransformComponent);
 
    object3D.value.position.copy(transform.position);
    object3D.value.rotation.setFromQuaternion(transform.rotation);
@@ -42,7 +42,7 @@ import { Engine } from "../../ecs/classes/Engine";
 
      if (interactive.interactionParts.length) {
 
-       let arr = interactive.interactionParts.map(name => searchModelChildrenByName(entity, name));
+       const arr = interactive.interactionParts.map(name => searchModelChildrenByName(entity, name));
        getMutableComponent(entity, BoundingBox).boxArray = arr;
 
      } else {
