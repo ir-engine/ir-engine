@@ -1,16 +1,12 @@
-import { Object3D, Ray, Raycaster, Vector3, Vector2, Mesh, Frustum, Matrix4, Box3, Scene } from "three";
+import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
+import { Box3, Mesh, Object3D, Scene } from "three";
+import { Object3DComponent } from "../../common/components/Object3DComponent";
 import { Behavior } from "../../common/interfaces/Behavior";
 import { Entity } from "../../ecs/classes/Entity";
-import { InteractBehaviorArguments } from "../types";
-import { getComponent, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
-
-import { Object3DComponent } from "../../common/components/Object3DComponent";
-import { Interactable } from "../components/Interactable";
+import { getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { BoundingBox } from "../components/BoundingBox";
-import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
-import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
-import { Interactor } from "../components/Interactor";
-import { Engine } from "../../ecs/classes/Engine";
+import { Interactable } from "../components/Interactable";
+
 
 
  function searchModelChildrenByName(entity: Entity, name: string): Object3D {
@@ -19,8 +15,8 @@ import { Engine } from "../../ecs/classes/Engine";
  }
 
  function applyPositionToObject3D(entity: Entity, dynamic: boolean): void {
-   let object3D = getMutableComponent(entity, Object3DComponent);
-   let transform = getComponent(entity, TransformComponent);
+   const object3D = getMutableComponent(entity, Object3DComponent);
+   const transform = getComponent(entity, TransformComponent);
 
    object3D.value.position.copy(transform.position);
    object3D.value.rotation.setFromQuaternion(transform.rotation);
@@ -42,7 +38,7 @@ import { Engine } from "../../ecs/classes/Engine";
 
      if (interactive.interactionParts.length) {
 
-       let arr = interactive.interactionParts.map(name => searchModelChildrenByName(entity, name));
+       const arr = interactive.interactionParts.map(name => searchModelChildrenByName(entity, name));
        getMutableComponent(entity, BoundingBox).boxArray = arr;
 
      } else {

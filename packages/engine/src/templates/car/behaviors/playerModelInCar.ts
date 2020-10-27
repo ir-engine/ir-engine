@@ -1,6 +1,5 @@
 import { Matrix4, Vector3 } from 'three';
 import { FollowCameraComponent } from "@xr3ngine/engine/src/camera/components/FollowCameraComponent";
-import { Interactive } from "@xr3ngine/engine/src/interaction/components/Interactive";
 import { InteractiveFocused } from "@xr3ngine/engine/src/interaction/components/InteractiveFocused";
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';

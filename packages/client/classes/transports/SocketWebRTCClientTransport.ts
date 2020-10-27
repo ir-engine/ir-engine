@@ -12,7 +12,7 @@ import { DataConsumerOptions, DataProducer, Transport as MediaSoupTransport } fr
 import ioclient from "socket.io-client";
 import getConfig from "next/config";
 
-import store from "../../redux/store"
+import store from "../../redux/store";
 import { User } from "@xr3ngine/common/interfaces/User";
 
 const { publicRuntimeConfig } = getConfig();
@@ -148,7 +148,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log(`Initializing socket.io...,`);
     this.socket.on("connect", async () => {
       console.log("Connected!");
-      const payload = { userId: Network.instance.userId, accessToken: Network.instance.accessToken}
+      const payload = { userId: Network.instance.userId, accessToken: Network.instance.accessToken};
       const { success } = await this.request(MessageTypes.Authorization.toString(), payload);
 
       if(!success) return console.error("Unable to connect with credentials"); 
@@ -169,6 +169,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
     console.log("Loading mediasoup");
     if (this.mediasoupDevice.loaded !== true) await this.mediasoupDevice.load({ routerRtpCapabilities });
+
+    console.log("Joined world");
+    // return Promise.resolve();
 
       // Send heartbeat every second
       setInterval(() => {
