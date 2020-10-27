@@ -27,7 +27,7 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:Int
 
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
 
-  const raycastList:Array<Object3D> = interactive
+  const raycastList:Array<Entity> = interactive
     .filter(interactiveEntity => {
       // - have object 3d to raycast
       if (!hasComponent(interactiveEntity, Object3DComponent)) {
