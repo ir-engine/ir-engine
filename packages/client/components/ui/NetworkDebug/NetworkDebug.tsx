@@ -1,6 +1,6 @@
 import { Network } from "@xr3ngine/engine/src/networking/components/Network";
 import React, { useEffect, useState } from "react";
-import JSONTree from 'react-json-tree'
+import JSONTree from 'react-json-tree';
 
 export const NetworkDebug = () => {
     const [networkData, setNetworkData] = useState(Network.instance);
@@ -35,8 +35,8 @@ export const NetworkDebug = () => {
               <JSONTree data={Network.instance.networkObjects} />
               </div>
         </div>
-      )
-      return <div>Awaiting network connection...</div> 
-}
+      );
+      return <div>Awaiting network connection...</div>; 
+};
 
 export default NetworkDebug;
