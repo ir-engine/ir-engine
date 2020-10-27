@@ -27,8 +27,7 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:Int
 
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
 
-  const raycastList:Array<Object3D> = interactive
-    .filter(interactiveEntity => {
+  const raycastList = interactive.filter(interactiveEntity => {
       // - have object 3d to raycast
       if (!hasComponent(interactiveEntity, Object3DComponent)) {
         return false;
@@ -97,6 +96,6 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:Int
   interacts.subFocusedArray = subFocusedArray.map(v => getComponent(v[0], Object3DComponent).value);
 
   const newBoxHit = selectNearest.length? selectNearest[0] : null;
-  interacts.focusedBoxHit = newBoxHit;
+  interacts.BoxHitResult = newBoxHit;
   interacts.focusedInteractive = newBoxHit? newBoxHit[0] : null;
 };
