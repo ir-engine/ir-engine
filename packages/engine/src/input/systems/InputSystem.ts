@@ -81,6 +81,8 @@ export class InputSystem extends System {
 
     // Called when input component is added to entity
     this.queryResults.inputs.added?.forEach(entity => {
+      console.log("Input added: ");
+      console.log(entity.componentTypes);
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
       // Call all behaviors in "onAdded" of input map

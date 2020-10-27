@@ -1,10 +1,10 @@
 import { Behavior } from "../../../common/interfaces/Behavior";
 import { getComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
 import { Object3DComponent } from "../../../common/components/Object3DComponent";
-import { Interactive } from "../../../interaction/components/Interactive";
+import { Interactable } from "../../../interaction/components/Interactable";
 
 export const onInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
-  const interactiveComponent = getComponent(entityInteractive, Interactive);
+  const interactiveComponent = getComponent(entityInteractive, Interactable);
 
   // TODO: make interface for universal interactive data, and event data
   const detail: any = {};
@@ -21,7 +21,7 @@ export const onInteraction: Behavior = (entityInitiator, args, delta, entityInte
 };
 
 export const onInteractionHover: Behavior = (entityInitiator, { focused }: { focused: boolean }, delta, entityInteractive, time) => {
-  const interactiveComponent = getComponent(entityInteractive, Interactive);
+  const interactiveComponent = getComponent(entityInteractive, Interactable);
 
   // TODO: make interface for universal interactive data, and event data
   const detail: any = { focused };

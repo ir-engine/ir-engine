@@ -46,7 +46,12 @@ function setPlayerToSeats(transform, transformCar, seat) {
     seat[2]+0.51
   ).applyQuaternion(transformCar.rotation);
 
-  transform.position.copy( entrance.add(transformCar.position) );
+//  transform.position.copy( entrance.add(transformCar.position) );
+//console.warn(transformCar.position);
+
+  transform.position.copy( transformCar.position );
+
+  //console.warn(transform.position);
   transform.rotation.copy( transformCar.rotation );
 }
 
@@ -89,20 +94,21 @@ export const playerModelInCar: Behavior = (entity: Entity, args: { type: string;
 
     // when ENTER VEHICLE
     setPlayerToPositionEnter(entity, transformCar, vehicleComponent.entrancesArray[0]);
-
+/*
     const hhh = new Matrix4().multiplyMatrices(
       new Matrix4().makeRotationFromQuaternion(transformCar.rotation),
       new Matrix4().makeRotationY(-Math.PI / 2)
     );
     transform.rotation.setFromRotationMatrix(hhh);
+    */
   }
 
 
 
 
   if (stateComponent.data.has(CharacterStateTypes.DRIVING_IDLE)) {
-
     //<-----setPlayerToSeats(
+
     setPlayerToSeats(transform, transformCar, vehicleComponent.seatsArray[0]);
   }
 

@@ -15,7 +15,7 @@ import { addComponentFromSchema } from '../../../common/behaviors/addComponentFr
 import { AssetLoader } from '../../../assets/components/AssetLoader';
 import { initializeCharacter } from '../behaviors/initializeCharacter';
 import { CharacterAvatarComponent } from '../components/CharacterAvatarComponent';
-import { Interaction } from '../../../interaction/components/Interacts';
+import { Interactor } from '../../../interaction/components/Interactor';
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const NetworkPlayerCharacter: NetworkPrefab = {
@@ -38,7 +38,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
   components: [
     { type: LocalInputReceiver },
     { type: FollowCameraComponent, data: { distance: 3, mode: "thirdPerson" } },
-    { type: Interaction }
+    { type: Interactor }
   ],
   onAfterCreate: [
     {
