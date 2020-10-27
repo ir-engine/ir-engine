@@ -140,7 +140,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     }
 
     sendReliableData(message: any): void {
-        this.socketIO.of('/realtime').emit(MessageTypes.ReliableMessage.toString(), message);
+        if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.ReliableMessage.toString(), message);
     }
 
     async sendData(data: any, channel = 'default'): Promise<UnreliableMessageReturn> {
