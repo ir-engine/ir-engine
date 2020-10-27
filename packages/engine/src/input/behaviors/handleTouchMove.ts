@@ -20,7 +20,7 @@ import { deltaTouchMovement } from '../../common/functions/deltaTouchMovement';
 export const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEvent }): void => {
   const input = getComponent(entity, Input);
 
-  const normalizedPosition = normalizeMouseCoordinates(args.event.touches[0].clientX, args.event.touches[0].clientY, window.innerWidth, window.innerHeight);
+  const normalizedPosition = normalizeMouseCoordinates(args.event.targetTouches[0].clientX, args.event.targetTouches[0].clientY, window.innerWidth, window.innerHeight);
   const touchPosition: [number, number] = [normalizedPosition.x, normalizedPosition.y];
 
   console.log(args.event);
@@ -40,9 +40,9 @@ export const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEv
     //const touchPrevPosition: [number, number] = [ normalizedPrevPosition.x, normalizedPrevPosition.y ];
     const touchMovementPositionX = (( touchPosition[0] - touchPositionPrevInput.value[0]) );
     const touchMovementPositionY = (( touchPosition[1] - touchPositionPrevInput.value[1]) );
-    // touchMovement = [ touchMovementPositionX, touchMovementPositionY ];
-    const normalizedTouchMovement = deltaTouchMovement(touchMovementPositionX,touchMovementPositionY,window.innerWidth, window.innerHeight)
-    touchMovement = [ normalizedTouchMovement.x, normalizedTouchMovement.y ];
+    touchMovement = [ touchMovementPositionX, touchMovementPositionY ];
+    // const normalizedTouchMovement = deltaTouchMovement(touchMovementPositionX,touchMovementPositionY,window.innerWidth, window.innerHeight)
+    // touchMovement = [ normalizedTouchMovement.x, normalizedTouchMovement.y ];
 
     console.log(touchMovementPositionX);
     console.log(touchMovementPositionY);

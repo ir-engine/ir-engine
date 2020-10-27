@@ -71,12 +71,16 @@ export const DefaultInputSchema: InputSchema = {
     // Touch
     touchstart: [
       {
+        behavior: handleTouchMove
+      },
+      {
         behavior: handleTouch,
         args: {
           value: BinaryValue.ON
         },
 
       }
+      
     ],
     touchend: [
       {
