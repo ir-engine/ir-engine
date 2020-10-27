@@ -11,7 +11,7 @@ let lastSize = 0
 export const addInputToWorldState: Behavior = (entity: Entity) => {
   const input = getComponent(entity, Input);
   const networkId = getComponent(entity, NetworkObject).networkId;
-  console.log("Adding inputs to worldstate for", networkId)
+  // console.log("Adding inputs to worldstate for", networkId)
   // Get all input receivers
   
   // If there's no input, don't send the frame, unless the last frame had input
