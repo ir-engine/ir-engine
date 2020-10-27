@@ -214,23 +214,23 @@ describe("move", () => {
       expect(mockedBehaviorOnUnChanged.mock.calls.length).toBe(1);
     });
 
-    describe.skip("simultaneous", () => {
-      it ("lifecycle STARTED", () => {
-        triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 });
-        triggerTouch({ ...windowPoint2, type: 'touchstart', id: 2 });
-        execute();
-
-        const data1 = input.data.get(DefaultInput.SCREENXY);
-        expect(data1.value).toMatchObject([ normalPoint1.x, normalPoint1.y ]);
-        expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
-
-        const data2 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
-        expect(data2.value).toMatchObject([ normalPoint2.x, normalPoint2.y ]);
-        expect(data2.lifecycleState).toBe(LifecycleValue.STARTED);
-
-        expect(mockedBehaviorOnStarted.mock.calls.length).toBe(2);
-      });
-    });
+    // describe.skip("simultaneous", () => {
+    //   it ("lifecycle STARTED", () => {
+    //     triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 });
+    //     triggerTouch({ ...windowPoint2, type: 'touchstart', id: 2 });
+    //     execute();
+    //
+    //     const data1 = input.data.get(DefaultInput.SCREENXY);
+    //     expect(data1.value).toMatchObject([ normalPoint1.x, normalPoint1.y ]);
+    //     expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
+    //
+    //     const data2 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+    //     expect(data2.value).toMatchObject([ normalPoint2.x, normalPoint2.y ]);
+    //     expect(data2.lifecycleState).toBe(LifecycleValue.STARTED);
+    //
+    //     expect(mockedBehaviorOnStarted.mock.calls.length).toBe(2);
+    //   });
+    // });
   })
 
   describe("movement", () => {
@@ -277,10 +277,6 @@ describe("move", () => {
 
 // buttons + move
 describe("gestures", () => {
-  // const windowPointW1 = { x: 0, y:0 };
-  // const windowPointW2 = { x: 1024, y:0 };
-  // const windowPointH1 = { x: 0, y:0 };
-  // const windowPointH2 = { x: 0, y:768 };
   const windowPoint1 = { x: 100, y:20 };
   const normalPoint1 = normalizeMouseCoordinates(windowPoint1.x, windowPoint1.y, window.innerWidth, window.innerHeight);
   const windowPoint2 = { x: 120, y:25 };
@@ -321,22 +317,22 @@ describe("gestures", () => {
       expect(mockedButtonBehaviorOnEnded.mock.calls.length).toBe(1);
     });
 
-    describe.skip("simultaneous", () => {
-      it ("lifecycle CONTINUED when second touch starts and ends", () => {
-        triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 });
-        triggerTouch({ ...windowPoint2, type: 'touchstart', id: 2 });
-        execute();
-        triggerTouch({ ...windowPoint1, type: 'touchend', id: 2 });
-        execute();
-
-        expect(input.data.has(DefaultInput.INTERACT)).toBeTruthy();
-        const data1 = input.data.get(DefaultInput.SECONDARY);
-        expect(data1.value).toBe(BinaryValue.ON);
-        expect(data1.lifecycleState).toBe(LifecycleValue.CONTINUED);
-
-        expect(mockedButtonBehaviorOnEnded.mock.calls.length).toBe(1);
-      });
-    });
+    // describe.skip("simultaneous", () => {
+    //   it ("lifecycle CONTINUED when second touch starts and ends", () => {
+    //     triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 });
+    //     triggerTouch({ ...windowPoint2, type: 'touchstart', id: 2 });
+    //     execute();
+    //     triggerTouch({ ...windowPoint1, type: 'touchend', id: 2 });
+    //     execute();
+    //
+    //     expect(input.data.has(DefaultInput.INTERACT)).toBeTruthy();
+    //     const data1 = input.data.get(DefaultInput.SECONDARY);
+    //     expect(data1.value).toBe(BinaryValue.ON);
+    //     expect(data1.lifecycleState).toBe(LifecycleValue.CONTINUED);
+    //
+    //     expect(mockedButtonBehaviorOnEnded.mock.calls.length).toBe(1);
+    //   });
+    // });
   });
 
   describe("touch drag", () => {
@@ -381,6 +377,35 @@ describe("gestures", () => {
   // TODO: check Scale(Pinch)
 });
 
+describe("special cases", () => {
+  test("subsequent moves between execute", () => {
+    const windowPoint1 = { x: 10, y:20 };
+    const normalPoint1 = normalizeMouseCoordinates(windowPoint1.x, windowPoint1.y, window.innerWidth, window.innerHeight);
+    const windowPoint2 = { x: -12, y:-25 };
+    const normalPoint2 = normalizeMouseCoordinates(windowPoint2.x, windowPoint2.y, window.innerWidth, window.innerHeight);
+    const windowPoint3 = { x: 16, y:10 };
+    const normalPoint3 = normalizeMouseCoordinates(windowPoint3.x, windowPoint3.y, window.innerWidth, window.innerHeight);
+    const normalDiff1 = { x: normalPoint2.x - normalPoint1.x, y: normalPoint2.y - normalPoint1.y };
+    const normalDiff2 = { x: normalPoint3.x - normalPoint2.x, y: normalPoint3.y - normalPoint2.y };
+
+
+    triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 });
+    triggerTouch({ ...windowPoint2, type: 'touchmove', id: 1 });
+    execute();
+    const data = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+    expect(data.value).toMatchObject([ normalDiff1.x, normalDiff1.y ]);
+
+    triggerTouch({ ...windowPoint1, type: 'touchmove', id: 1 });
+    triggerTouch({ ...windowPoint2, type: 'touchmove', id: 1 });
+    triggerTouch({ ...windowPoint3, type: 'touchmove', id: 1 });
+    execute();
+
+    expect(input.data.has(DefaultInput.LOOKTURN_PLAYERONE)).toBeTruthy();
+    const data2 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+    expect(data2.value).toMatchObject([ normalDiff2.x, normalDiff2.y ]);
+  })
+})
+
 function triggerTouch({ x, y, type, id = 0}: { x:number, y:number, type?:string, id?:number }):void {
   const touch = {
     identifier: id,
@@ -394,7 +419,6 @@ function triggerTouch({ x, y, type, id = 0}: { x:number, y:number, type?:string,
 
   const typeListenerCalls = addListenerMock.mock.calls.filter(call => call[0] === type);
   typeListenerCalls.forEach(typeListenerCall => {
-    console.log('TRIGGER TOUCH', type);
     typeListenerCall[1]({
       type,
       changedTouches: touches,

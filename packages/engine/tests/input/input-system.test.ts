@@ -5,6 +5,8 @@ import { addComponent, createEntity, removeComponent } from "../../src/ecs/funct
 import { Input } from "../../src/input/components/Input";
 import { CharacterInputSchema } from "../../src/templates/character/CharacterInputSchema";
 import { LocalInputReceiver } from "../../src/input/components/LocalInputReceiver";
+import { normalizeMouseCoordinates } from "../../src/common/functions/normalizeMouseCoordinates";
+import { normalizeMouseMovement } from "../../src/common/functions/normalizeMouseMovement";
 
 test("cleanup event listeners", () => {
   const addListener = jest.spyOn(document, 'addEventListener');
@@ -31,3 +33,21 @@ test("cleanup event listeners", () => {
 
   expect(listenersSet.size).toBe(0);
 });
+
+describe("coordinates", () => {
+  const PointWH0 = { x: 0, y:0 };
+  const PointWEnd = { x: window.innerWidth, y:0 };
+  const PointHEnd = { x: 0, y:window.innerHeight };
+
+  test("normalized coordinates", () => {
+    expect(normalizeMouseCoordinates(PointWH0.x, PointWH0.y, window.innerWidth, window.innerHeight)).toMatchObject({ x:-1, y: 1})
+    expect(normalizeMouseCoordinates(PointWEnd.x, PointWEnd.y, window.innerWidth, window.innerHeight)).toMatchObject({ x:1, y: 1})
+    expect(normalizeMouseCoordinates(PointHEnd.x, PointHEnd.y, window.innerWidth, window.innerHeight)).toMatchObject({ x:-1, y: -1})
+  })
+
+  test("normalized delta", () => {
+    expect(normalizeMouseMovement(PointWH0.x, PointWH0.y, window.innerWidth, window.innerHeight)).toMatchObject({ x:0, y: 0})
+    expect(normalizeMouseMovement(PointWEnd.x, PointWEnd.y, window.innerWidth, window.innerHeight)).toMatchObject({ x:2, y: 0})
+    expect(normalizeMouseMovement(PointHEnd.x, PointHEnd.y, window.innerWidth, window.innerHeight)).toMatchObject({ x:0, y: 2})
+  })
+})
