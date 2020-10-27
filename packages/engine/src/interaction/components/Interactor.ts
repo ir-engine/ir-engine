@@ -4,9 +4,9 @@ import { Types } from "../../ecs/types/Types";
 import { Intersection } from "three";
 
 export class Interactor extends Component<Interactor> {
-  public focusedInteractive: Entity | null
+  public focusedInteractive: any
   public focusedRayHit: Intersection | null
-  public BoxHitResult: [ Entity, boolean, number?, number? ] | null
+  public BoxHitResult: any
   public subFocusedArray: any[] | null
 
   static schema = {

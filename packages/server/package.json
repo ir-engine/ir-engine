@@ -41,8 +41,7 @@
     "test": "echo \"TODO: no test specified\" && exit 0",
     "lint": "node node_modules/.bin/eslint --ext .js,.ts ./ --fix",
     "validate": "yarn run lint && yarn run build && yarn run test",
-    "precommit": "no-master-commits -b master,dev",
-    "postinstall": "node ../../node_modules/youtube-dl/scripts/download.js && cd ../../node_modules/mediasoup && node npm-scripts.js postinstall"
+    "precommit": "no-master-commits -b master,dev"
   },
   "types": "lib/",
   "pre-push": [
