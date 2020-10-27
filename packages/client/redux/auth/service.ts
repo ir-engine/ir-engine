@@ -487,7 +487,6 @@ export function updateUsername (userId: string, name: string) {
 client.service('user').on('patched', async (params) => {
   const selfUser = (store.getState() as any).get('auth').get('user');
   const user = resolveUser(params.userRelationship);
-  console.log('User Patched: ' + user.id);
   if (selfUser.id === user.id) {
     if (selfUser.instanceId !== user.instanceId) {
       store.dispatch(clearLayerUsers());

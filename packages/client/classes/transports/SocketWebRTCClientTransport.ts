@@ -177,7 +177,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     if (this.mediasoupDevice.loaded !== true) await this.mediasoupDevice.load({ routerRtpCapabilities });
 
     console.log("Joined world");
-    return Promise.resolve();
+    // return Promise.resolve();
 
       this.socket.emit(MessageTypes.Heartbeat.toString(), 1000);
 
