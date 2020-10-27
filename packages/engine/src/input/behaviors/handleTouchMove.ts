@@ -45,5 +45,5 @@ export const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEv
     }
 
   }
-  console.log(s);
+  // console.log(s);
 };

@@ -74,7 +74,7 @@ export default (app: Application): void => {
                   currentUsers: (instance.currentUsers as number) + 1
                 });
             }
-            console.log('Patching user instanceId to ' + (app as any).instance.id);
+            console.log(`Patching user ${user.id} instanceId to ${(app as any).instance.id}`);
             await app.service('user').patch(userId, {
               instanceId: (app as any).instance.id
             });
@@ -130,9 +130,18 @@ export default (app: Application): void => {
               await app.service('instance').patch(instanceId, {
                 currentUsers: instance.currentUsers - 1
               });
-              await app.service('user').patch(user.id, {
-                instanceId: null
-              }, { instanceId: instanceId });
+
+              setTimeout(async () => {
+                await app.service('user').patch(null, {
+                  instanceId: null
+                }, {
+                  query: {
+                    id: user.id,
+                    instanceId: instanceId
+                  },
+                  instanceId: instanceId
+                });
+              }, 2000);
             }
 
             app.channel(`instanceIds/${instanceId as string}`).leave(connection);
