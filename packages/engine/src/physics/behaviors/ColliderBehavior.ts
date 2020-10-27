@@ -30,7 +30,7 @@ export const addCollider: Behavior = (entity: Entity, args: { type: string; phas
 
   // if simple mesh do computeBoundingBox()
   if (hasComponent(entity, Object3DComponent)){
-    let mesh = getComponent(entity, Object3DComponent).value
+    const mesh = getComponent(entity, Object3DComponent).value
     if (mesh instanceof Mesh) {
       mesh.geometry.computeBoundingBox();
     }

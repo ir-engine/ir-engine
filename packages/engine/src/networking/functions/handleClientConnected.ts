@@ -11,7 +11,7 @@ export const handleClientConnected = (args: { id: any; media: any }) => {
   const clientExists = isNullOrUndefined(Network.instance.clients[args.id]);
 
   // get network objects that match client id, this is a validation check
-  let networkObjectsClientOwns = []
+  const networkObjectsClientOwns = []
 
   for (const key in Network.instance.networkObjects)
     if (Network.instance.networkObjects[key].ownerId === args.id)
