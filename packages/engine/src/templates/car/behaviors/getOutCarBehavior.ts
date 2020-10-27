@@ -13,7 +13,7 @@ import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/Ch
 
 
 export const getOutCar: Behavior = (entity: Entity): void => {
-  console.log("Getting out of car");
+  console.warn("Getting out of car");
   const vehicleComponent = getMutableComponent(entity, VehicleBody);
   const entityDriver = vehicleComponent.currentDriver;
 

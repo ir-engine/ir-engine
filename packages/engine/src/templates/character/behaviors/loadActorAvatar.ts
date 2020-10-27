@@ -13,6 +13,7 @@ import { State } from "../../../state/components/State";
 import { LifecycleValue } from "../../../common/enums/LifecycleValue";
 import { CharacterAvatars } from "../CharacterAvatars";
 import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
+import { initializeCharacter } from "./initializeCharacter";
 
 export const loadActorAvatar: Behavior = (entity) => {
   const avatarId: string = getComponent(entity, CharacterAvatarComponent)?.avatarId;
@@ -39,13 +40,16 @@ export const loadActorAvatar: Behavior = (entity) => {
 
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 
-      actor.mixer.stopAllAction();
+      if(!actor.initialized) initializeCharacter(entity);
+      actor.mixer?.stopAllAction();
+      
       // forget that we have any animation playing
       actor.currentAnimationAction = null;
 
       // clear current avatar mesh
-      ([ ...actor.modelContainer.children ])
-        .forEach(child => actor.modelContainer.remove(child) );
+      if(actor.modelContainer !== undefined)
+        ([ ...actor.modelContainer.children ])
+          .forEach(child => actor.modelContainer.remove(child));
 
       tmpGroup.children.forEach(child => actor.modelContainer.add(child));
 

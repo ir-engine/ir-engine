@@ -50,11 +50,14 @@ export class NetworkSystem extends System {
   }
 
   execute(delta): void {
+
+
     // Transforms that are updated are automatically collected
     // note: onChanged needs to currently be handled outside of fixedExecute
-    if (Network.instance?.transport.isServer)
-      this.queryResults.networkTransforms.changed?.forEach((entity: Entity) =>
+      this.queryResults.networkTransforms.changed?.forEach((entity: Entity) => {
+        console.log("Adding transform to world state")
         addNetworkTransformToWorldState(entity)
+      }
       );
 
     this.fixedExecute(delta);
@@ -87,7 +90,7 @@ export class NetworkSystem extends System {
       // When that is fixed, we should move from execute to here
 
       // For each networked object + input receiver, add to the frame to send
-      this.queryResults.networkInput.all?.forEach((entity: Entity) => {
+      this.queryResults.networkInputsToServer.all?.forEach((entity: Entity) => {
         addInputToWorldState(entity);
       });
 
@@ -113,8 +116,8 @@ export class NetworkSystem extends System {
     networkObjects: {
       components: [NetworkObject]
     },
-    networkInput: {
-      components: [NetworkObject, Input, Not(LocalInputReceiver)]
+    networkInputsToServer: {
+      components: [NetworkObject, Input]
     },
     networkInputSender: {
       components: [NetworkObject, Input, LocalInputReceiver]

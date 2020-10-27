@@ -11,10 +11,15 @@ import { InputType } from "../../input/enums/InputType";
 import { Network } from "../components/Network";
 import { NetworkObject } from "../components/NetworkObject";
 
+let lastDataSize = 0
+
 export const sendClientInput = (entity: Entity): void => {
   // Get the input component
   const input = getComponent(entity, Input);
-  if (input.data.size < 1) return;
+  if (input.data.size < 1 && lastDataSize < 1) return;
+
+  // Let's hold a reference so that we can track when all input is off and send a blank frame on empty input
+  lastDataSize = input.data.size
 
   const networkId = getComponent(entity, NetworkObject).networkId;
 
@@ -27,11 +32,6 @@ export const sendClientInput = (entity: Entity): void => {
   };
 
   let numInputs = 0;
-
-  // TODO: Parse entries and examine how map is working
-  // We need to add these inputs properly!
-
-  console.log(input.data.entries())
 
   // Add all values in input component to schema
   for (let [key, value] of input.data.entries()) {
@@ -58,10 +58,6 @@ export const sendClientInput = (entity: Entity): void => {
     }
   }
 
-  console.log("numInputs", numInputs)
-  if (numInputs < 1) return;
-
-  console.log("INPUTS: ", inputs)
   // Convert to a message buffer
   const message = inputs; // clientInputModel.toBuffer(inputs)
 

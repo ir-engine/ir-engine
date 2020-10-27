@@ -17,7 +17,7 @@ export const staticWorldColliders: Prefab = {
       { type: TransformComponent, data: { position: [ 0, -0.05, 0 ]  } },
       { type: ColliderComponent, data: { type: 'box', scale: scale, mass: 0 }}
     ],
-    onBeforeCreate: [
+    onAfterCreate: [
         // add a 3d object
          {
              behavior: addObject3DComponent,
