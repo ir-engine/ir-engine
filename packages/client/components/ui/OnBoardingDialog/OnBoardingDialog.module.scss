@@ -1,48 +1,72 @@
 .customDialog{
 
-  .avatarDialog{
-    position: fixed;
-    top:  10%;
-    @media (max-width: 768px) {
-      top: 5%;
-    }
-  }
-  .dialogTitle {
-    margin: 0;
-    padding: 10px;
   
-    .dialogCloseButton {
+  .customDialogInner{
+    background-color: rgba(0,0,0,0.6);
+    color: #fff;
+
+    &.avatarDialog{
       position: absolute;
-      right: 10px;
-      top: 10px;
-      z-index: 2000;
-    }
-  }
-
-  .dialogContent {
-    font-size: 1em;    
-    padding-bottom: 40px;
-    text-align: center;
-
-    .innerText{
-      padding: 10px 0;
+      top: 10%;      
+      @media (max-width: 768px) {
+        top: 5%;
+      }
     }
 
-    .selectionButtons{
-      position: fixed;
-      top: 40%;
-      left: 40%;
-      svg{
-        height: 10em;
+    &.scene_loaded{
+      .dialogContent {
+        padding-top: 125px;
+        background-image: url('../assets/ArenaLogo.png');
+        background-position: center top;
+        background-repeat: no-repeat;
+        background-size: 150px;
+      }
+    }
+
+    .dialogTitle {
+      margin: 0;
+      padding: 10px;
+      text-align: center;
+    
+      .dialogCloseButton {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        z-index: 2000;
+      }
+    }
+  
+    .dialogContent {
+      font-size: 1em;    
+      padding-bottom: 24px;
+      text-align: center;
+  
+      .innerText{
+        padding: 10px 0;
+      }
+  
+      button{
+        display: block;
+        margin: 5px auto;
         cursor: pointer;
-        color: yellow;
+      }
+  
+      .selectionButtons{
+        position: fixed;
+        top: 40%;
+        left: 40%;
+        svg{
+          height: 10em;
+          cursor: pointer;
+          color: blue;
+          @media (max-width: 768px) {
+              bottom: 15%;
+          }
+        }
         @media (max-width: 768px) {
-            bottom: 15%;
+          left: 18%;
         }
       }
-      @media (max-width: 768px) {
-        left: 18%;
-      }
-    }
-  }  
+    }  
+  }
 }
