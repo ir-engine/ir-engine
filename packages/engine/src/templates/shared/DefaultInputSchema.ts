@@ -67,7 +67,6 @@ export const DefaultInputSchema: InputSchema = {
         }
       }
     ],
-
     // Touch
     touchstart: [
       {
@@ -86,7 +85,6 @@ export const DefaultInputSchema: InputSchema = {
 
         },
       }
-      
     ],
     touchend: [
       {
