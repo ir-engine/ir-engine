@@ -1,64 +1,74 @@
-.lookaround{
-    bottom: 30%;
-    position: fixed;
+.exitButtonContainer{
+    position: absolute;
+    top: 10px;
     width: 100vw;
-    height: 15em;
-    display: flex;
-    justify-content: space-between;
-    @media (max-width: 768px) {
-        height: 12em;
-    }
-    > svg{
-        height: 15em;
-        color: yellow;
-        @media (max-width: 768px) {
-            bottom: 15%;
-        }
-    }
-}
-.movearound{
-    bottom: 0;
-    position: fixed;
-    padding: 0 0 0 30%;
-    width: 15em;
-    height: 15em;
-    @media (max-width: 768px) {
-        height: 10em;
-        bottom: 1em;
-        padding: 0 0 0 5%;
-    }
-    svg{
-        height: 15em;
-        color: yellow;
-        @media (max-width: 768px) {
-            height: 10em;
-        }
+
+    .exitButton{
+        cursor: pointer;
+        display: block;
+        margin: 0 auto;
     }
 }
 .helpHintSnackBar{
     padding: 2em;
     user-select: none;
     text-align: center;
-    &.rightContentWidth{       
+    
+    &.bottomPos{
+        bottom: 50px;
+    }
+
+    &.tutor_lookaround{
+        .helpHintSnackBarContent{
+            padding-top: 100px;
+            background-image: url('../assets/swipe.svg');
+            background-position: center 10px;
+            background-repeat: no-repeat;
+            background-size: 100px;
+        }
+    }
+    &.tutor_move{
         @media (max-width: 768px) {
             width: fit-content;
             margin: 0 0 0 12em;
         }
     }
+    &.tutor_interact{
+        
+        @media (max-width: 768px) {
+            width: fit-content;
+            margin: 0 10em 0 0;
+
+            .helpHintSnackBarContent{
+                padding-top: 70px;
+                background-image: url('../assets/interactico.svg');
+                background-position: center 10px;
+                background-repeat: no-repeat;
+                background-size: 40px;
+            }
+        }
+    }
+
+    &.tutor_unmute{
+        .helpHintSnackBarContent{
+            padding-top: 70px;
+            background-image: url('../assets/mic.svg');
+            background-position: center 10px;
+            background-repeat: no-repeat;
+            background-size: 40px;
+        }
+        @media (max-width: 768px) {
+            width: fit-content;
+            margin: 0 10em 0 0;
+        }
+    }
     .helpHintSnackBarContent{
-        background-color: rgba(255,255,0, 0.85);
-        color: #000000;
+        background-color: rgba(0,0,0, 0.6);
+        color: #FFFFFF;
         text-align: center;
     }    
 }
 
-
-.controlsHintBox{
-    position: fixed;
-    bottom: 1em;
-    left: 10em;
-    color: #FFFFFF;
-}
 .keyButton{
     background-color: rgba(0,0,0,0.6);
     border-radius: 4px;
