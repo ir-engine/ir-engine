@@ -41,7 +41,8 @@
     "test": "echo \"TODO: no test specified\" && exit 0",
     "lint": "node node_modules/.bin/eslint --ext .js,.ts ./ --fix",
     "validate": "yarn run lint && yarn run build && yarn run test",
-    "precommit": "no-master-commits -b master,dev"
+    "precommit": "no-master-commits -b master,dev",
+    "postinstall": "cd ../../node_modules/mediasoup && node npm-scripts.js postinstall"
   },
   "types": "lib/",
   "pre-push": [
@@ -144,8 +145,7 @@
     "serve-favicon": "^2.5.0",
     "universal-analytics": "^0.4.20",
     "uuid": "^8.0.0",
-    "winston": "^3.3.3",
-    "youtube-dl": "^3.0.2"
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "@types/bent": "^7.0.2",
@@ -164,7 +164,6 @@
     "@types/serve-favicon": "^2.5.0",
     "@types/universal-analytics": "^0.4.4",
     "@types/uuid": "^7.0.3",
-    "@types/youtube-dl": "^1.12.2",
     "@typescript-eslint/eslint-plugin": "^2.34.0",
     "@typescript-eslint/parser": "^2.34.0",
     "app-root-path": "^3.0.0",

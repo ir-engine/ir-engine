@@ -4,13 +4,24 @@ import { Thumbsticks } from '@xr3ngine/engine/src/common/enums/Thumbsticks';
 import { GamepadButtons } from "@xr3ngine/engine/src/input/enums/GamepadButtons";
 import styles from './MobileGamepad.module.scss';
 import { TouchApp } from '@styled-icons/material/TouchApp';
+import { selectAppOnBoardingStep } from '../../../redux/app/selector';
+import { connect } from 'react-redux';
+import { generalStateList } from '../../../redux/app/actions';
+
+
+const mapStateToProps = (state: any): any => {
+  return {   
+    onBoardingStep: selectAppOnBoardingStep(state)
+  };
+};
 
 export type MobileGamepadProps = {
   hovered?: boolean | false;
   layout?: string ;
+  onBoardingStep: number | null;
 };
 
-export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered,layout}: MobileGamepadProps) => {
+export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered,layout, onBoardingStep}: MobileGamepadProps) => {
   const leftContainer = useRef<HTMLDivElement>();
 
   const triggerButton = (button: GamepadButtons, pressed: boolean): void => {
@@ -26,10 +37,12 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered,l
     },
   ];
 
+  console.log('onBoardingStep=', onBoardingStep, ' generalStateList.TUTOR_INTERACT = ', generalStateList.TUTOR_INTERACT);
+
   const buttons = buttonsConfig.map(((value, index) => {
     return (<div
       key={index}
-      className={styles.controllButton + ' ' + styles[`gamepadButton_${value.label}`] + ' ' + (hovered ? styles.availableButton : styles.notAvailableButton)}
+      className={styles.controllButton + ' ' + styles[`gamepadButton_${value.label}`] + ' ' + (hovered || onBoardingStep === generalStateList.TUTOR_INTERACT  ? styles.availableButton : styles.notAvailableButton)}
       onPointerDown={ (): void => triggerButton(value.button, true) }
       onPointerUp={ (): void => triggerButton(value.button, false) }
       onTouchStart={ (): void => triggerButton(value.button, true) }
@@ -79,4 +92,4 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered,l
     </> );
 };
 
-export default MobileGamepad;
+export default connect(mapStateToProps)(MobileGamepad);
