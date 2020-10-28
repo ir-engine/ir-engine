@@ -10,6 +10,7 @@ export interface NetworkClientList {
   // Key is socket ID
   [key: string]: {
     userId?: string;
+    name?: string;
     socket?: any;
     lastSeenTs?: any;
     joinTs?: any;
@@ -89,5 +90,4 @@ Network.schema = {
   transport: { type: Types.Ref },
   schema: { type: Types.Ref },
   clients: { type: Types.Array },
-  mySocketID: { type: Types.String }
 };

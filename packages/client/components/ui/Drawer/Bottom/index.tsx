@@ -184,7 +184,6 @@ const BottomDrawer = (props: Props): any => {
     };
 
     const onMessageScroll = (e): void => {
-        console.log(messageScrollInit);
         if (e.target.scrollTop === 0 && (e.target.scrollHeight > e.target.clientHeight) && messageScrollInit !== true && (activeChannel.skip + activeChannel.limit) < activeChannel.total) {
             setMessageScrollUpdate(true);
             setTopMessage((messageEl as any).firstElementChild);

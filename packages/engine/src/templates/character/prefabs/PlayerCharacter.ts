@@ -13,7 +13,7 @@ import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { initializeCharacter } from "../behaviors/initializeCharacter";
 import { CharacterComponent } from "../components/CharacterComponent";
 import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
-import { Interacts } from "../../../interaction/components/Interacts";
+import { Interactor } from "../../../interaction/components/Interactor";
 import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
@@ -36,7 +36,7 @@ export const PlayerCharacter: Prefab = {
         // Similar to Unity's Update(), LateUpdate(), and Start()
         { type: Subscription, data: { schema: CharacterSubscriptionSchema } },
       //  { type: LocalInputReceiver }
-        { type: Interacts }
+        { type: Interactor }
     ],
     onAfterCreate: [
         // {
