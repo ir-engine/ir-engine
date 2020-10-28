@@ -183,8 +183,9 @@ export const resize: Behavior = entity => {
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+    canvas.style.position='fixed';
 
-    Engine.renderer.setSize(width, height);
+    Engine.renderer.setSize(width-3, height-3);
     rendererComponent.composer ? rendererComponent.composer.setSize(width, height):'';
 
     RendererComponent.instance.needsResize = false;
