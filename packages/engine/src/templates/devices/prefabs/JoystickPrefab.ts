@@ -4,7 +4,6 @@ import { addMeshCollider } from "@xr3ngine/engine/src/physics/behaviors/addMeshC
 import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { Entity } from "../../../ecs/classes/Entity";
-import { Interactive } from "../../../interaction/components/Interactive";
 import { onInteraction, onInteractionHover } from "../../interactive/functions/commonInteractive";
 
 
