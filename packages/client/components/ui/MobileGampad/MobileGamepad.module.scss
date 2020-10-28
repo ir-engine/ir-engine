@@ -13,13 +13,12 @@ $mobileControllButtonsSize:3em;
     bottom: 40px;
     line-height: ($mobileControllButtonsSize+1em);
 
-
     .controllButton{
         position: absolute;
         border-radius: 50%;
         background:rgba(255,255,255,0.4);
         opacity: 0.75;
-        bottom: 50px;
+        bottom: 20px;
         font-size: 20px;
         height: $mobileControllButtonsSize;
         width: $mobileControllButtonsSize;
@@ -66,7 +65,7 @@ $mobileControllButtonsSize:3em;
         }
 
         &.notAvailableButton{
-            opacity: 0;
+            opacity: 0.6;
         }
     }
 }
