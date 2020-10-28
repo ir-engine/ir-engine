@@ -11,7 +11,7 @@ import { Network } from '../components/Network';
 import { NetworkClient } from '../components/NetworkClient';
 import { NetworkInterpolation } from '../components/NetworkInterpolation';
 import { NetworkObject } from '../components/NetworkObject';
-import { addInputToWorldState } from '../functions/addInputToWorldState';
+import { addInputToWorldStateOnServer } from '../functions/addInputToWorldStateOnServer';
 import { addNetworkTransformToWorldState } from '../functions/addNetworkTransformToWorldState';
 import { handleUpdateFromServer } from '../functions/handleUpdateFromServer';
 import { handleUpdatesFromClients } from '../functions/handleUpdatesFromClients';
@@ -91,7 +91,7 @@ export class NetworkSystem extends System {
 
       // For each networked object + input receiver, add to the frame to send
       this.queryResults.networkInputsToServer.all?.forEach((entity: Entity) => {
-        addInputToWorldState(entity);
+        addInputToWorldStateOnServer(entity);
       });
 
       // Create the snapshot and add it to the world state on the server
