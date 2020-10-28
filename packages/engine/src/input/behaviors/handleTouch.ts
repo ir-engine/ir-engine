@@ -28,51 +28,51 @@ export const handleTouch: Behavior = (entity: Entity, { event, value }: { event:
       //   Math.trunc(args.event.targetTouches[0].clientX) +
       //   ', y: ' +
       //   Math.trunc(args.event.targetTouches[0].clientY);
-      const inputKeys = [ TouchInputs.Touch1Move, TouchInputs.Touch2Move ];
-      // const interactTouch = DefaultInput.INTERACT;
+      const inputKeys = [ TouchInputs.Touch ];
+     
       inputKeys.forEach((inputKey, touchIndex) => {
         if (!event.targetTouches[touchIndex]) {
           return;
         }
-        const mappedInputKey = input.schema.touchInputMap?.axes[inputKey];
-        // const actionTouchedKey = input.schema.touchInputMap?.axes[interactTouch];
-        // console.log(mappedInputKey);
-        // console.log(actionTouchedKey);
-
+        const mappedInputKey = input.schema.touchInputMap?.buttons[inputKey];
+        
         if (!mappedInputKey) {
           return;
         }
 
-        const inputValue = new Vector2(event.targetTouches[touchIndex].clientX, event.targetTouches[touchIndex].clientY);
+        const inputValue = BinaryValue.ON;
         if (!input.data.has(mappedInputKey)) {
           input.data.set(mappedInputKey, {
-            type: InputType.TWODIM,
+            type: InputType.BUTTON,
             value: inputValue,
             lifecycleState: LifecycleValue.STARTED
           });
-          // input.data.set(interactTouch, {
-          //   type: InputType.TWODIM,
-          //   value: inputValue,
-          //   lifecycleState: LifecycleValue.STARTED
-          // });
-
+          
         } else {
           // If mouse position set, check it's value
           const oldValue = input.data.get(mappedInputKey).value as number;
 
           // If it's not the same, set it and update the lifecycle value to changed
           input.data.set(mappedInputKey, {
-            type: InputType.TWODIM,
+            type: InputType.BUTTON,
             value: inputValue,
             lifecycleState: LifecycleValue.CHANGED
           });
         }
       });
     }
-    //console.log(s);
+    
   } else {
-    // console.log('Touch end.');
-    // TODO: set ENDED lifecycleState to all mapped inputs?
+    const mappedInputKey = input.schema.touchInputMap?.buttons[TouchInputs.Touch];
+
+    if (!mappedInputKey) {
+      return;
+    }
+    input.data.set(mappedInputKey, {
+      type: InputType.BUTTON,
+      value: BinaryValue.OFF,
+      lifecycleState: LifecycleValue.ENDED
+    });
   }
 
 

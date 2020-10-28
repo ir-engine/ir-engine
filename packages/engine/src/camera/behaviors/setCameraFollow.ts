@@ -9,6 +9,7 @@ import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/func
 import { DefaultInput } from "../../templates/shared/DefaultInput";
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { NumericalType } from "../../common/types/NumericalTypes";
+import { normalizeMouseCoordinates } from '../../common/functions/normalizeMouseCoordinates';
 
 let follower, target;
 let inputComponent: Input;
@@ -36,21 +37,24 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
 
   let inputAxes;
   if (document.pointerLockElement) {
-    inputAxes = DefaultInput.MOUSE_MOVEMENT
+    inputAxes = DefaultInput.MOUSE_MOVEMENT;
   } else {
-    inputAxes = DefaultInput.LOOKTURN_PLAYERONE
+    inputAxes = DefaultInput.LOOKTURN_PLAYERONE;
   }
-
-  inputValue = getInputData(inputComponent, inputAxes)
+    
+  inputValue = getInputData(inputComponent, inputAxes);
 
   if (cameraFollow.mode === "firstPerson") {
 
       euler.setFromQuaternion( follower.rotation );
 
   		euler.y -= inputValue[0] * 0.01;
-  		euler.x -= inputValue[1] * 0.01;
-
-  		euler.x = Math.max( -PI_2, Math.min( PI_2, euler.x ) );
+      euler.x -= inputValue[1] * 0.01;
+      
+      // euler.y -= normalizedPosition.y;
+  		// euler.x -= normalizedPosition.x;
+      
+      euler.x = Math.max( -PI_2, Math.min( PI_2, euler.x ) );    
 
   		follower.rotation.setFromEuler( euler );
 
@@ -62,9 +66,9 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
     }
     else if (cameraFollow.mode === "thirdPerson") {
 
-      theta -= inputValue[0] * (1 / 2);
+      theta += inputValue[0] * 120;
       theta %= 360;
-      phi += inputValue[1] * (1 / 2);
+      phi += inputValue[1] * 120;
       phi = Math.min(85, Math.max(0, phi));
 
       follower.position.set(
@@ -72,7 +76,7 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
         target.position.y + cameraFollow.distance * Math.sin(phi *  Math.PI / 180),
         target.position.z + cameraFollow.distance * Math.cos(theta *  Math.PI / 180) *  Math.cos(phi * Math.PI / 180)
       );
-
+      
       direction.copy(follower.position);
       direction = direction.sub(target.position).normalize();
 
