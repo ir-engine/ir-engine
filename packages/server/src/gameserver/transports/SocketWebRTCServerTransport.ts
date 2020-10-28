@@ -498,7 +498,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 const dataProducer = await transport.produceData(options);
 
                         console.log(`user ${userId} producing data`);
-                        console.log(Network.instance.clients[userId]);
                         // console.log(Network.instance.clients[userId])
                         Network.instance.clients[userId].dataProducers.set(label, dataProducer);
                         // if our associated transport closes, close ourself, too
@@ -825,13 +824,13 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         }
         for (const key in Network.instance.networkObjects) {
             const networkObject = Network.instance.networkObjects[key];
-            // Validate that the object doesn't belong to a non-existant user
-            if (Network.instance.clients[networkObject.ownerId] !== undefined)
+            // Validate that the object has an associated user and doesn't belong to a non-existant user
+            if (networkObject.ownerId !== undefined && Network.instance.clients[networkObject.ownerId] !== undefined)
                 continue;
             // If it does, tell clients to destroy it
             const removeMessage = { networkId: networkObject.component.networkId };
             Network.instance.worldState.destroyObjects.push(removeMessage);
-            console.log("Culling ownerless object: ", networkObject.component.networkId);
+            console.log("Culling ownerless object: ", networkObject.component.networkId, "owned by ", networkObject.ownerId);
             // Remove it from server
             destroyNetworkObject(networkObject.component.networkId);
             console.log("objects remaining on server: ");

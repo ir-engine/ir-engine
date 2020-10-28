@@ -66,19 +66,19 @@ export default (app: Application): void => {
               //   }
               // })
             } else {
-              console.log('Joining allocated instance');
-              console.log(user.instanceId);
-              console.log((app as any).instance.id);
+              // console.log('Joining allocated instance');
+              // console.log(user.instanceId);
+              // console.log((app as any).instance.id);
                 const instance = await app.service('instance').get((app as any).instance.id);
                 await app.service('instance').patch((app as any).instance.id, {
                   currentUsers: (instance.currentUsers as number) + 1
                 });
             }
-            console.log(`Patching user ${user.id} instanceId to ${(app as any).instance.id}`);
+            // console.log(`Patching user ${user.id} instanceId to ${(app as any).instance.id}`);
             await app.service('user').patch(userId, {
               instanceId: (app as any).instance.id
             });
-            console.log('Patched user instanceId');
+            // console.log('Patched user instanceId');
             app.channel(`instanceIds/${(app as any).instance.id as string}`).join(connection);
             if (user.partyId != null) {
               const partyUserResult = await app.service('party-user').find({
