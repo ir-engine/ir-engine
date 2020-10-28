@@ -181,11 +181,11 @@ export const resize: Behavior = entity => {
       cam.updateProjectionMatrix();
     }
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
     canvas.style.position='fixed';
 
-    Engine.renderer.setSize(width-3, height-3);
+    Engine.renderer.setSize(width, height);
     rendererComponent.composer ? rendererComponent.composer.setSize(width, height):'';
 
     RendererComponent.instance.needsResize = false;

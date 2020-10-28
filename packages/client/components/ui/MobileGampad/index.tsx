@@ -37,7 +37,7 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered,l
     },
   ];
 
-  console.log('onBoardingStep=', onBoardingStep, ' generalStateList.TUTOR_INTERACT = ', generalStateList.TUTOR_INTERACT)
+  console.log('onBoardingStep=', onBoardingStep, ' generalStateList.TUTOR_INTERACT = ', generalStateList.TUTOR_INTERACT);
 
   const buttons = buttonsConfig.map(((value, index) => {
     return (<div
