@@ -36,8 +36,6 @@ export function connectToInstanceServer () {
       dispatch(instanceServerConnecting());
       const authState = getState().get('auth');
       const user = authState.get('user');
-      console.log('USERUSER:');
-      console.log(user);
       const token = authState.get('authUser').accessToken;
       const instanceConnectionState = getState().get('instanceConnection');
       const instance = instanceConnectionState.get('instance');

@@ -145,8 +145,6 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
       // }
     }
       
-    registerSystem(StateSystem);
-
     registerSystem(PhysicsSystem);
 
   // Networking
@@ -187,6 +185,9 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
   if (options.interactive && options.interactive.enabled) {
     registerSystem(InteractiveSystem);
   }
+
+  registerSystem(StateSystem);
+
 
   // if (options.debug === true) {
   //   // If we're in debug, add a gridhelper

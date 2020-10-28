@@ -9,6 +9,7 @@ import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
 import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter';
+import { RazerLaptop } from '@xr3ngine/engine/src/templates/devices/prefabs/RazerLaptop';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import React, { FunctionComponent, useEffect, useState } from 'react';
@@ -20,6 +21,7 @@ import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebR
 import { generalStateList, setAppOnBoardingStep, setAppLoaded } from '../../redux/app/actions';
 import store from '../../redux/store';
 import LinearProgressComponent from '../ui/LinearProgress';
+import NetworkDebug from '../ui/NetworkDebug/NetworkDebug';
 
 const mapStateToProps = (state: any): any => {
   return { };
@@ -30,6 +32,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 export const EnginePage: FunctionComponent = (props: any) => {
+    const [actorEntity, setActorEntity] = useState(null);
+
   const {
     setAppLoaded
   } = props;
@@ -109,7 +113,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
     // const actorEntity = createPrefab(PlayerCharacter);
     // setActorEntity(actorEntity);
     createPrefab(PlayerCharacter);
-
+    createPrefab(RazerLaptop);
     return (): void => {
       resetEngine();
     };
@@ -117,6 +121,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
   return (
     <>
+    <NetworkDebug />
     <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
     </>
   );

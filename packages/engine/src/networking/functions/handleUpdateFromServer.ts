@@ -13,10 +13,10 @@ export const handleUpdateFromServer: Behavior = (entity: Entity, args: null, del
   while (queue.getBufferLength() > 0) {
     const message = queue.pop();
     applyWorldState(message, delta);
-    if(_.isEqual(lastMessage, message["inputs"]))
-      return
-    lastMessage = message["inputs"];
-    console.log("MESSAGE", message);
+    // if(_.isEqual(lastMessage, message["inputs"]))
+    //   return
+    // lastMessage = message["inputs"];
+    // console.log("MESSAGE", message);
     // Buffer to object
   }
 };

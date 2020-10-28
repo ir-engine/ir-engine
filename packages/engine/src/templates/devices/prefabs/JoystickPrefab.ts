@@ -1,15 +1,15 @@
 import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
-import { AssetLoader } from "../../../assets/components/AssetLoader";
-import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
+import { addMeshCollider } from "@xr3ngine/engine/src/physics/behaviors/addMeshCollider";
 import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
-// import { ParsingDevicesToScene } from "../behavior/ParsingDevicesToScene";
-import { ProcessModelAsset } from "../../../assets/functions/ProcessModelAsset";
+import { AssetLoader } from "../../../assets/components/AssetLoader";
+import { Entity } from "../../../ecs/classes/Entity";
+import { onInteraction, onInteractionHover } from "../../interactive/functions/commonInteractive";
 
 
 export const JoystickPrefab: Prefab = {
     components: [{ type: TransformComponent, data: { position: [3, 1, 0] } }],
-    onBeforeCreate: [
+    onAfterCreate: [
         {
             behavior: addComponentFromSchema,
             args: {
@@ -21,6 +21,14 @@ export const JoystickPrefab: Prefab = {
                     // onLoaded: ProcessModelAsset
                 }
             }
+        },
+        {
+          behavior: addMeshCollider,
+          args: {
+            type: 'box',
+            scale: [0.434122, 0.367724, 0.55483],
+            mass: 1
+          }
         }
     ]
 };

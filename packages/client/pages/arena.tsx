@@ -73,7 +73,7 @@ export const ArenaPage = (props: Props): any => {
     const appLoaded = appState.get('loaded');
     const selfUser = authState.get('user');
     const party = partyState.get('party');
-    const instanceId = selfUser.instanceId != null ? selfUser.instanceId : party?.instanceId != null ? party.instanceId : null;
+    const instanceId = selfUser?.instanceId ?? party?.instanceId;
 
     const userBanned = selfUser?.locationBans?.find(ban => ban.locationId === arenaLocationId) != null;
     useEffect(() => {
@@ -97,22 +97,14 @@ export const ArenaPage = (props: Props): any => {
     }, [locationState]);
 
     useEffect(() => {
-        console.log("instanceConnectionState", instanceConnectionState)
         if (
             instanceConnectionState.get('instanceProvisioned') === true &&
             instanceConnectionState.get('updateNeeded') === true &&
             instanceConnectionState.get('instanceServerConnecting') === false &&
             instanceConnectionState.get('connected') === false
         ) {
-            console.log('Calling connectToInstanceServer from arena page')
-
+            console.log('Calling connectToInstanceServer from arena page');
             connectToInstanceServer();
-        }
-        else {
-            console.log(instanceConnectionState.get('instanceProvisioned'))
-            console.log(instanceConnectionState.get('updateNeeded'))
-            console.log(instanceConnectionState.get('instanceServerConnecting'))
-            console.log(instanceConnectionState.get('connected'))
         }
     }, [instanceConnectionState]);
 

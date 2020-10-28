@@ -3,9 +3,10 @@ import { Entity } from "../../ecs/classes/Entity";
 import { Types } from "../../ecs/types/Types";
 import { Intersection } from "three";
 
-export class Interacts extends Component<Interacts> {
+export class Interactor extends Component<Interactor> {
   public focusedInteractive: Entity | null
   public focusedRayHit: Intersection | null
+  public BoxHitResult: [ Entity, boolean, number?, number? ] | null
   public subFocusedArray: any[] | null
 
   static schema = {
