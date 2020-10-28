@@ -73,14 +73,16 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
     }
   }
 
-  if (worldState.transforms !== undefined && worldState.transforms.length > 0) {
-    // Add world state to our snapshot vault
-    addSnapshot(createSnapshot(worldState.transforms));
-    // Interpolate it
-    const snapshot = calculateInterpolation('x y z q(quat)');
-    const { state } = snapshot;
-    Network.instance.worldState.transforms = state;
-  }
+
+  // TODO: Re-enable for snapshot interpolation
+  // if (worldState.transforms !== undefined && worldState.transforms.length > 0) {
+  //   // Add world state to our snapshot vault
+  //   addSnapshot(createSnapshot(worldState.transforms));
+  //   // Interpolate it
+  //   const snapshot = calculateInterpolation('x y z q(quat)');
+  //   const { state } = snapshot;
+  //   Network.instance.worldState.transforms = state;
+  // }
 
   // Handle all network objects destroyed this frame
   for (const objectToDestroy in worldState.destroyObjects) {
@@ -132,6 +134,8 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
 
   // Update transforms
   Network.instance.worldState.transforms?.forEach(transformData => {
+    if(Network.instance.networkObjects[transformData.networkId])
+      return console.warn("Network object not found in list");
     // Get network component from data
     const networkComponent = Network.instance.networkObjects[transformData.networkId].component;
     const transform = getMutableComponent(networkComponent.entity, TransformComponent);

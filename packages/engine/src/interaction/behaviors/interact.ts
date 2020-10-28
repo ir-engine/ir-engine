@@ -29,7 +29,7 @@ export const  interact: Behavior = (entity: Entity, args: any, delta): void => {
     return;
   }
   
-  const { focusedInteractive: focusedEntity } = getComponent(entity, Interacts);
+  const { focusedInteractive: focusedEntity } = getComponent(entity, Interactor);
   const input = getComponent(entity, Input);
   const mouseScreenPosition = getComponent(entity, Input).data.get(DefaultInput.SCREENXY);
    
