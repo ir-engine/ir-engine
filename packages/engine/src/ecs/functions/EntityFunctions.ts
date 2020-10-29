@@ -82,7 +82,7 @@ export function addComponent<C extends Component<C>>(
   }
 
   if (~entity.componentTypes.indexOf(Component)) {
-    console.warn('Component type already exists on entity.', entity, Component.name);
+    // console.warn('Component type already exists on entity.', entity, Component.name);
     return;
   }
 
@@ -230,7 +230,7 @@ export function hasAllComponents(entity: Entity, Components: Array<ComponentCons
  */
 export function hasAnyComponents(entity: Entity, Components: Array<ComponentConstructor<any>>): boolean {
   for (let i = 0; i < Components.length; i++) {
-    if (hasComponent(entity, entity.components[i])) return true;
+    if (hasComponent(entity, Components[i])) return true;
   }
   return false;
 }
@@ -252,7 +252,10 @@ export function createEntity(): Entity {
 export function removeEntity(entity: Entity, immediately?: boolean): void {
   const index = Engine.entities.indexOf(entity);
 
-  if (!~index) throw new Error('Tried to remove entity not in list');
+  if (!~index) {
+    console.error('Tried to remove entity not in list');
+    return;
+  }
 
   if (entity.numStateComponents === 0) {
     // Remove from entity list

@@ -210,7 +210,7 @@ export default function ViewportPanelContainer() {
         editor.renderer.dispose();
       }
     };
-  }
+  };
   useEffect(initEditor, []);
 
   const [{ canDrop, isOver }, dropRef] = useDrop({

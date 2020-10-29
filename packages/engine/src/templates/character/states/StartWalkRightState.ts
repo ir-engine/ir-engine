@@ -13,7 +13,7 @@ import { findVehicle } from '../functions/findVehicle';
 import { getComponent } from '../../../ecs/functions/EntityFunctions';
 import { Input } from '../../../input/components/Input';
 import { DefaultInput } from '../../shared/DefaultInput';
-import { addState } from '../../../state/behaviors/StateBehaviors';
+import { addState } from "../../../state/behaviors/addState";
 import { isMoving } from '../functions/isMoving';
 import { setIdleState } from '../behaviors/setIdleState';
 
@@ -25,7 +25,7 @@ export const StartWalkRightState: StateSchemaValue = {
       ['canEnterVehicles']: true,
       ['rotationSimulator.mass']: 20,
       ['rotationSimulator.damping']: 0.7,
-      ['arcadeVelocityTarget']: { x: 0.0, y: 0.0, z: 0.8 },
+      ['moveSpeed']: 4
     }
   }],
   onEntry: [
@@ -56,7 +56,7 @@ export const StartWalkRightState: StateSchemaValue = {
           const input = getComponent(entity, Input);
 
           if (input.data.has(DefaultInput.BACKWARD)) {
-            addState(entity, { state: CharacterStateTypes.WALK_START_BACK_RIGHT });
+            addState(entity, { state: CharacterStateTypes.WALK_START_BACKWARD });
           } else if (input.data.has(DefaultInput.LEFT)) {
             addState(entity, { state: CharacterStateTypes.WALK_START_LEFT });
           } else if (input.data.has(DefaultInput.FORWARD)) {
@@ -71,7 +71,11 @@ export const StartWalkRightState: StateSchemaValue = {
             setIdleState(entity);
           }
           if (input.data.has(DefaultInput.SPRINT))
-            return addState(entity, { state: CharacterStateTypes.SPRINT });
+            return addState(entity, { state: CharacterStateTypes.SPRINT_RIGHT });
+
+          if (!isMoving(entity)) {
+            setIdleState(entity);
+          }
         }
       }
     },

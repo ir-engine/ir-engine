@@ -34,15 +34,19 @@ export default class PhysicalSpotLight extends SpotLight {
     this.angle = value;
     this.penumbra = 1.0 - Math.max(this.innerConeAngle, Number.EPSILON) / value;
   }
+  // @ts-ignore
   get shadowBias() {
     return this.shadow.bias;
   }
+  // @ts-ignore
   set shadowBias(value) {
     this.shadow.bias = value;
   }
+  // @ts-ignore
   get shadowRadius() {
     return this.shadow.radius;
   }
+  // @ts-ignore
   set shadowRadius(value) {
     this.shadow.radius = value;
   }

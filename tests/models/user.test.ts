@@ -11,6 +11,11 @@ describe('CRUD operation on \'User\' model', () => {
         role: 'testrole'
       }
     })
+    await model.destroy({
+      where: {
+        name: 'test'
+      }
+    })
     await userRoleModel.create({
       role: 'testrole'
     })

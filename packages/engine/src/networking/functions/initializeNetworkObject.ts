@@ -6,7 +6,7 @@ import { NetworkObject } from '../components/NetworkObject';
 import { createNetworkPrefab } from './createNetworkPrefab';
 
 export function initializeNetworkObject(ownerId: string, networkId: number, prefabType: number, position?: Vector3, rotation?: Quaternion) {
-
+console.log("Initializing network object")
   // Instantiate into the world
   const networkEntity = createNetworkPrefab(
     // Prefab from the Network singleton's schema, using the defaultClientPrefab as a key

@@ -6,7 +6,7 @@ import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/func
 import { InputAlias } from "../../input/types/InputAlias";
 import { InputType } from "../../input/enums/InputType";
 
-export const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:inputAxes, inputType }: { input: InputAlias, inputType: InputType }): void => {
+export const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:inputAxes, inputType }: { input: InputAlias; inputType: InputType }): void => {
   const inputComponent = getComponent(entity, Input) as Input;
 
   if (!inputComponent.data.has(inputAxes)) {

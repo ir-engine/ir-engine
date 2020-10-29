@@ -18,7 +18,7 @@ export class CameraComponent extends Component<CameraComponent> {
     CameraComponent.instance = this;
   }
 
-  dispose():void {
+  dispose(): void {
     super.dispose();
     CameraComponent.instance = null;
   }

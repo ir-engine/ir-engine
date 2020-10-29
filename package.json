@@ -39,16 +39,11 @@
     "dev": "lerna run dev --parallel",
     "test": "jest",
     "lint": "lerna run lint",
-    "version-increment": "lerna version --comventional-commits --yes",
+    "version-increment": "lerna version --conventional-commits --yes",
     "validate": "lerna run validate",
     "build": "lerna run build --parallel",
     "build-docker": "lerna run --ignore @xr3ngine/docs build --parallel",
     "diff": "lerna diff"
-  },
-  "resolutions": {
-    "is-promise": "2.1.0",
-    "simple-swizzle/is-arrayish/is-promise": "2.1.0",
-    "fs-capacitor/is-promise": "2.1.0"
   },
   "types": "lib/",
   "pre-push": [
@@ -71,21 +66,22 @@
     "@feathersjs/socketio-client": "^4.5.8",
     "@feathersjs/transport-commons": "^4.5.8",
     "chokidar": "3.4.2",
-    "graphql": "^15.0.0",
-    "graphql-relay": "~0.6.0",
-    "graphql-sequelize": "~9.4.0",
     "mediasoup-client": "^3.6.12",
-    "sequelize": "~5.21.8"
+    "sequelize": "~5.21.8",
+    "three": "^0.121.0"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.11.5",
-    "babel-jest": "^26.3.0",
+    "babel-jest": "^26.6.0",
+    "bcrypt": "^5.0.0",
+    "cache-loader": "^4.1.0",
     "jest": "^26.4.2",
-    "lerna": "^3.22.1"
+    "lerna": "^3.22.1",
+    "parallel-webpack": "^2.6.0",
+    "supertest": "^5.0.0",
+    "ts-jest": "^26.4.1"
   },
   "dependencies": {
-    "@babel/plugin-transform-typescript": "^7.11.0",
-    "nipplejs": "^0.8.7",
-    "three-to-cannon": "^3.0.1"
+    "ts-jest": "^26.4.1"
   }
 }

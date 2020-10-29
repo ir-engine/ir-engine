@@ -23,7 +23,7 @@ const valueX = 0, valueY = 0;
 
 export const rotateAround: Behavior = (
   entity: Entity,
-  args: { input: InputAlias, inputType: InputType, value: NumericalType },
+  args: { input: InputAlias; inputType: InputType; value: NumericalType },
   delta: number
 ): void => {
 /*

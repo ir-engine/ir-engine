@@ -1,5 +1,6 @@
 import collectAnalytics from '../../hooks/collect-analytics';
 import * as authentication from '@feathersjs/authentication';
+import addAssociations from "../../hooks/add-associations";
 
 const { authenticate } = authentication.hooks;
 
@@ -16,8 +17,24 @@ export default {
 
   after: {
     all: [],
-    find: [],
-    get: [],
+    find: [
+      addAssociations({
+        models: [
+          {
+            model: 'location-ban'
+          }
+        ]
+      })
+    ],
+    get: [
+      addAssociations({
+        models: [
+          {
+            model: 'location-ban'
+          }
+        ]
+      })
+    ],
     create: [],
     update: [],
     patch: [],

@@ -1,13 +1,16 @@
 import { Vec3, Box, Cylinder, ConvexPolyhedron, Quaternion, Sphere, Body } from 'cannon-es';
 import { Vector3 } from 'three';
+import { Object3DComponent } from '@xr3ngine/engine/src/common/components/Object3DComponent';
 import { Entity } from '../../ecs/classes/Entity';
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { RigidBody } from '../components/RigidBody';
 import { MeshTagComponent } from '../../common/components/Object3DTagComponents';
 import { threeToCannon } from '@xr3ngine/engine/src/templates/world/three-to-cannon';
 import { CollisionGroups } from "../enums/CollisionGroups";
+import { PhysicsManager } from '../components/PhysicsManager';
+import { cannonFromThreeVector } from "@xr3ngine/engine/src/common/functions/cannonFromThreeVector";
 
 export function createTrimesh (mesh, position, mass) {
     mesh = mesh.clone();
@@ -22,6 +25,8 @@ export function createTrimesh (mesh, position, mass) {
 }
 
 export function createBox (entity: Entity) {
+  const object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent);
+  //const offset = new Vec3();
   const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
   const rigidBody = getComponent<RigidBody>(entity, RigidBody);
 
@@ -30,11 +35,19 @@ export function createBox (entity: Entity) {
   const shape = new Box(new Vec3(collider.scale[0] / 2, collider.scale[1] / 2, collider.scale[2] / 2));
 
   const body = new Body({
-    mass: mass
+    mass: mass,
+  //  material: PhysicsManager.instance.groundMaterial
   });
 
-  const q = new Quaternion();
-  q.setFromAxisAngle(new Vec3(1, 0, 0), -Math.PI / 2);
+
+//  const q = new Quaternion();
+//  q.setFromAxisAngle(new Vec3(1, 0, 0), -Math.PI / 2);
+/*
+  if (hasComponent(entity, Object3DComponent)) {
+    offset.copy(cannonFromThreeVector(object3DComponent.value.position));
+  }
+*/
+
   body.addShape(shape);
 
   //  body.quaternion.setFromAxisAngle(new Vec3(1,0,0),-Math.PI/2);
@@ -91,9 +104,12 @@ export function createSphere (entity: Entity) {
 
   const body = new Body({
     mass: mass,
-    });
+    material: PhysicsManager.instance.groundMaterial
+//    material: PhysicsManager.instance.wheelMaterial
+  });
 
   body.addShape(shape);
+  body.angularDamping = 0.5;
   return body;
 }
 

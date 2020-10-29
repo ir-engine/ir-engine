@@ -114,23 +114,23 @@ if (config.server.enabled) {
 
   app.hooks(appHooks);
 
-  if ((process.env.KUBERNETES === 'true' && (config.server.mode === 'realtime' || config.server.mode === 'api')) || process.env.NODE_ENV === 'development' || config.server.mode === 'local') {
+  if (config.server.mode === 'api' || config.server.mode === 'realtime') {
+    (app as any).k8AgonesClient = K8s.api({ endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`, version: '/apis/agones.dev/v1', auth: { caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'), token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token') } });
+    (app as any).k8DefaultClient = K8s.api({ endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`, version: '/api/v1', auth: { caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'), token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token') } });
+  }
+
+  if ((process.env.KUBERNETES === 'true' && config.server.mode === 'realtime') || process.env.NODE_ENV === 'development' || config.server.mode === 'local') {
     agonesSDK.connect();
     agonesSDK.ready();
     (app as any).agonesSDK = agonesSDK;
     healthPing(agonesSDK);
-
-    if (config.server.mode === 'api' || config.server.mode === 'realtime') {
-      (app as any).k8AgonesClient = K8s.api({ endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`, version: '/apis/agones.dev/v1', auth: { caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'), token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token') } });
-      (app as any).k8DefaultClient = K8s.api({ endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`, version: '/api/v1', auth: { caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'), token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token') } });
-    }
 
     // Create new gameserver instance
     const gameServer = new WebRTCGameServer(app);
     console.log("Created new gameserver instance");
     console.log(gameServer);
   } else {
-    console.log("Could not create new game server instance!!");
+    console.log('Did not create gameserver');
   }
 
   app.use('/healthcheck', (req, res) => {

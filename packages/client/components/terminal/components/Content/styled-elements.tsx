@@ -8,10 +8,9 @@ export const Container = (styled as any).div`
 export const ContainerMain = (styled as any).div`
 display: block;
 margin: 0 auto;
-  max-width: 600px;
+  max-width: 100%;
   transition: all 0.4s ease-out;
   background: ${props => props.theme.backgroundColor};
-  max-height: 600px;
   height: 100%;
   overflow: scroll;
   position: relative;

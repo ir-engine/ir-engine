@@ -15,9 +15,9 @@ import { BinaryValue } from "../../common/enums/BinaryValue";
  * @param args is argument object. Events that occur due to the user interacting with a pointing device (such as a mouse).
  */
 
-export const handleOnScreenGamepadMovement: Behavior = (entity: Entity, args: { event: CustomEvent; }): void => {
+export const handleOnScreenGamepadMovement: Behavior = (entity: Entity, args: { event: CustomEvent }): void => {
   // TODO: move this types to types and interfaces
-  const { stick, value }:{ stick:Thumbsticks, value:{x:number,y:number} } = args.event.detail;
+  const { stick, value }: { stick: Thumbsticks; value: {x: number;y: number} } = args.event.detail;
 
   const input = getComponent(entity, Input);
   const mappedAxes = input.schema.gamepadInputMap?.axes;
@@ -68,7 +68,7 @@ export const handleOnScreenGamepadMovement: Behavior = (entity: Entity, args: { 
  * @param args is argument object
  */
 
-export function handleOnScreenGamepadButton(entity: Entity, args: { event: CustomEvent; value: BinaryType; }): any {
+export function handleOnScreenGamepadButton(entity: Entity, args: { event: CustomEvent; value: BinaryType }): any {
   console.log("Handle handleOnScreenGamepadButton called", args.event.detail, args.value);
 
   // input.schema.gamepadInputMap.buttons[]

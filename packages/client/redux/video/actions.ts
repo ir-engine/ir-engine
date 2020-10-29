@@ -9,7 +9,6 @@ export interface PublicVideoState {
 }
 
 export interface VideoMetaData {
-  // eslint-disable-next-line camelcase
   thumbnailUrl?: string;
   '360_format'?: string;
   rating?: string;

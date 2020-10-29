@@ -44,7 +44,7 @@ export const carMetalSphereStandard: Prefab = {
       { type: ColliderComponent, data: { type: 'sphere', scale: [2, 2, 2], mass: 0.1 }},
       { type: RigidBody }
     ],
-    onCreate: [
+    onAfterCreate: [
         // add a 3d object
         {
             behavior: addObject3DComponent,
@@ -61,7 +61,7 @@ export const carMetalSpherePhysical: Prefab = {
     { type: ColliderComponent, data: { type: 'sphere', scale: [1, 1, 1], mass: 0 }},
     { type: RigidBody }
   ],
-  onCreate: [
+  onAfterCreate: [
     // add a 3d object
     {
       behavior: addObject3DComponent,

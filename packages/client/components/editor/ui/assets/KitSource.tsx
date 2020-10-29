@@ -19,7 +19,7 @@ export default class KitSource extends BaseSource {
   assets: any[];
   tags: any[];
   loaded: boolean;
-  fuse: Fuse<unknown, { shouldSort: boolean; threshold: number; location: number; distance: number; maxPatternLength: number; minMatchCharLength: number; keys: string[] }>;
+  fuse: Fuse<any>;
   constructor(api, kitUrl) {
     super();
     this.api = api;

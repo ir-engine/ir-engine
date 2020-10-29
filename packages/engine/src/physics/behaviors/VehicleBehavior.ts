@@ -33,6 +33,27 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
       const wheels = vehicleComponent.arrayWheelsMesh;
 
 
+      if (vehicle.currentVehicleSpeedKmHour > 1) {
+        vehicle.applyEngineForce(10, 0);
+        vehicle.applyEngineForce(10, 1);
+        vehicle.applyEngineForce(10, 2);
+        vehicle.applyEngineForce(10, 3);
+      } else if (vehicle.currentVehicleSpeedKmHour < -1) {
+        vehicle.applyEngineForce(-10, 0);
+        vehicle.applyEngineForce(-10, 1);
+        vehicle.applyEngineForce(-10, 2);
+        vehicle.applyEngineForce(-10, 3);
+      } else if (vehicle.currentVehicleSpeedKmHour != 0) {
+      //  vehicle.chassisBody.velocity.set(0,0,0)
+
+        vehicle.setBrake(0.5, 0);
+        vehicle.setBrake(0.5, 1);
+        vehicle.setBrake(0.5, 2);
+        vehicle.setBrake(0.5, 3);
+
+      }
+
+
       transform.position.set(
         chassisBody.position.x,
         chassisBody.position.y,
@@ -91,6 +112,10 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
 export function createVehicleBody (entity: Entity ) {
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
+  // @ts-ignore
+  const colliderTrimOffset = new Vec3().set(...vehicleComponent.colliderTrimOffset);
+  // @ts-ignore
+  const collidersSphereOffset = new Vec3().set(...vehicleComponent.collidersSphereOffset);
   const wheelsPositions = vehicleComponent.arrayWheelsPosition;
   const wheelRadius = vehicleComponent.wheelRadius;
   const vehicleCollider = vehicleComponent.vehicleCollider;
@@ -100,8 +125,7 @@ export function createVehicleBody (entity: Entity ) {
   let chassisBody, chassisShape;
 
   if (vehicleCollider) {
-    const offset = new Vec3(0, -0.8, 0);
-    chassisBody = createTrimesh(vehicleCollider, offset, mass);
+    chassisBody = createTrimesh(vehicleCollider, colliderTrimOffset, mass);
     chassisBody.shapes.forEach((shape) => {
       shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
     });
@@ -115,15 +139,15 @@ export function createVehicleBody (entity: Entity ) {
   for (let i = 0; i < vehicleSphereColliders.length; i++) {
     const shape = new Sphere(vehicleSphereColliders[i].scale.x);
     shape.collisionFilterMask = ~CollisionGroups.Characters;
-    chassisBody.addShape(shape, cannonFromThreeVector(vehicleSphereColliders[i].position));
+    chassisBody.addShape(shape, cannonFromThreeVector(vehicleSphereColliders[i].position).vadd(collidersSphereOffset));
   }
 
 
-  //  let
   chassisBody.position.x = transform.position.x;
   chassisBody.position.y = transform.position.y;
   chassisBody.position.z = transform.position.z;
-  //  chassisBody.angularVelocity.set(0, 0, 0.5);
+  chassisBody.angularVelocity.set(0, 0, 0.5);
+
   const options = {
     radius: wheelRadius,
     directionLocal: new Vec3(0, -1, 0),
@@ -131,7 +155,7 @@ export function createVehicleBody (entity: Entity ) {
     suspensionRestLength: 0.3,
     frictionSlip: 5,
     dampingRelaxation: 2.3,
-    dampingCompression: 4.4,
+    dampingCompression: 1.4,
     maxSuspensionForce: 100000,
     rollInfluence: 0.01,
     axleLocal: new Vec3(-1, 0, 0),
@@ -177,9 +201,10 @@ export function createVehicleBody (entity: Entity ) {
 
   vehicle.addToWorld(PhysicsManager.instance.physicsWorld);
 
-
+/*
   for (let i = 0; i < wheelBodies.length; i++) {
     PhysicsManager.instance.physicsWorld.addBody(wheelBodies[i]);
   }
+  */
   return vehicle;
 }

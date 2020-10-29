@@ -2,9 +2,9 @@ import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 
 export interface Props {
-  src: string
-  projection: string
-  parent: any // Types.Ref
+  src: string;
+  projection: string;
+  parent: any; // Types.Ref
 }
 
 class ImageComponent extends Component<Props> {

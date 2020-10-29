@@ -18,6 +18,7 @@ export default () => {
         });
         if (partyOwnerResult.total > 1) {
           const selfPartyUser = partyOwnerResult.data.find((partyUser) => partyUser.userId === user.id);
+          console.log('Unsetting self party owner');
           await context.app.service('party-user').patch(selfPartyUser.id, {
             isOwner: 0
           }, context.params);

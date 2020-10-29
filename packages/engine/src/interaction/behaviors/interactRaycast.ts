@@ -5,8 +5,8 @@ import { getComponent, getMutableComponent, hasComponent } from "../../ecs/funct
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { Object3D, Ray, Raycaster, Vector3,Vector2 } from "three";
 import { Object3DComponent } from "../../common/components/Object3DComponent";
-import { Interactive } from "../components/Interactive";
-import { Interacts } from "../components/Interacts";
+import { Interactable } from "../components/Interactable";
+import { Interactor } from "../components/Interactor";
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { Input } from "../../input/components/Input";
 import { DefaultInput } from "../../templates/shared/DefaultInput";
@@ -18,7 +18,7 @@ import { Engine } from "../../ecs/classes/Engine";
  * @param interactive
  * @param delta
  */
-export const interactRaycast:Behavior = (entity: Entity, { interactive }:InteractBehaviorArguments, delta: number): void => {
+export const interactRaycast: Behavior = (entity: Entity, { interactive }: InteractBehaviorArguments, delta: number): void => {
   const clientPosition = getComponent(entity, TransformComponent).position;
   // - added mouse position tracking
   const mouseScreenPosition = getComponent(entity, Input).data.get(DefaultInput.SCREENXY);
@@ -33,8 +33,7 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
     return;
   }
 
-
-  const raycastList:Array<Object3D> = interactive
+  const raycastList: Array<Object3D> = interactive
     .filter(interactiveEntity => {
       // - have object 3d to raycast
       if (!hasComponent(interactiveEntity, Object3DComponent)) {
@@ -44,7 +43,7 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
       // - distance check
       // TODO: handle parent transform!!!
       const distance = getComponent(interactiveEntity, TransformComponent).position.distanceTo(clientPosition);
-      const interactive = getComponent(interactiveEntity, Interactive);
+      const interactive = getComponent(interactiveEntity, Interactable);
 
       if (distance > interactive.interactiveDistance) {
         return false;
@@ -64,23 +63,25 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
     // console.warn('!character.viewVector')
     return;
   }
+
   const raycaster = new Raycaster();
-  let object, rayOrigin, rayDirection;
+  let object;
   // - added mouse raycaster
   const rayCamera = Engine.camera.clone();
-  const rayMouse = mouseScreen.normalize();
+  const rayMouse = mouseScreen;
   raycaster.setFromCamera(rayMouse,rayCamera);
   let intersections = raycaster.intersectObjects(raycastList, true );
 
-  if (!intersections.length){
-  // TODO: rayOrigin, rayDirection
-  rayOrigin = clientPosition;
-  rayDirection = character.viewVector.clone().normalize().setY(0);
 
-  raycaster.set(rayOrigin, rayDirection);
-  intersections = raycaster.intersectObjects( raycastList, true );
-}
-  
+
+  if (!intersections.length){
+    const rayOrigin = clientPosition;
+    const rayDirection = character.viewVector.clone().normalize().setY(0);
+    raycaster.set(rayOrigin, rayDirection);
+    intersections = raycaster.intersectObjects( raycastList, true );
+  }
+
+
   if (intersections.length) {
     object = intersections[0].object;
     while (raycastList.indexOf(object)===-1 && object.parent) {
@@ -93,8 +94,8 @@ export const interactRaycast:Behavior = (entity: Entity, { interactive }:Interac
   }
 
   const newRayHit = object && intersections.length? intersections[0] : null;
-  const interacts = getMutableComponent(entity, Interacts);
+  const interacts = getMutableComponent(entity, Interactor);
   interacts.focusedRayHit = newRayHit;
   interacts.focusedInteractive = newRayHit? (object as any).entity : null;
-  
+
 };

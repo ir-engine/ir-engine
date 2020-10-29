@@ -6,19 +6,34 @@ import {
   createEntity,
   removeEntity,
   removeComponent,
-  getMutableComponent, hasComponent
+  getMutableComponent, hasComponent, hasAllComponents, hasAnyComponents
 } from "../../src/ecs/functions/EntityFunctions";
 import { execute } from "../../src/ecs/functions/EngineFunctions";
 import { Types } from "../../src/ecs/types/Types";
+import { AssetLoader } from "../../src/assets/components/AssetLoader";
+import { AssetLoaderState } from "../../src/assets/components/AssetLoaderState";
+import { Not } from "../../src/ecs/functions/ComponentFunctions";
 
 class TestComponent extends Component<TestComponent> {}
 TestComponent.schema = {
   value: { type: Types.Number, default: 0 },
 };
 
+class UnwantedComponent extends Component<TestComponent> {}
+
 
 class TestSystem extends System {
-  execute(delta: number, time: number): void {}
+  execute(delta: number, time: number): void {
+
+    // special case
+    this.queryResults.toLoad.all.forEach(entity => {
+      if (hasComponent(entity, AssetLoaderState)) {
+        throw new Error("This entity should not be in this query")
+      }
+      // next line should remove entity from this query
+      addComponent(entity, AssetLoaderState)
+    })
+  }
 }
 
 TestSystem.queries = {
@@ -29,20 +44,36 @@ TestSystem.queries = {
       changed: true,
       removed: true
     }
+  },
+  testNot: {
+    components: [ TestComponent, Not(UnwantedComponent) ],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  toLoad: {
+    components: [ AssetLoader, Not(AssetLoaderState) ],
+    listen: {
+      added: true,
+      removed: true
+    }
   }
 };
 
-describe("add component", () => {
-  let entity, system
-  beforeEach(() => {
-    system = registerSystem(TestSystem)
-    entity = createEntity()
-  })
-  afterEach(() => {
+let entity, system
+beforeEach(() => {
+  system = registerSystem(TestSystem)
+  entity = createEntity()
+})
+afterEach(() => {
+  if (entity) {
     removeEntity(entity, true)
-    unregisterSystem(TestSystem)
-  })
+  }
+  unregisterSystem(TestSystem)
+})
 
+describe("add component", () => {
   it("adds entity into query .added and .all", () => {
     addComponent(entity, TestComponent)
     expect(system.queryResults.test.all.length).toBe(1)
@@ -62,16 +93,9 @@ describe("add component", () => {
 })
 
 describe("remove component", () => {
-  let entity, system
   beforeEach(() => {
-    system = registerSystem(TestSystem)
-    entity = createEntity()
     addComponent(entity, TestComponent)
     execute() // handle added
-  })
-  afterEach(() => {
-    removeEntity(entity, true)
-    unregisterSystem(TestSystem)
   })
 
   it("removes component from entity", () => {
@@ -99,8 +123,6 @@ describe("remove component", () => {
 })
 
 test("entity deletion should trigger .removed", () => {
-  const system = registerSystem(TestSystem)
-  const entity = createEntity()
   addComponent(entity, TestComponent)
   execute() // handle added
 
@@ -126,20 +148,13 @@ test("entity deletion should trigger .removed", () => {
   expect(system.queryResults.test.changed.length).toBe(0)
   expect(system.queryResults.test.removed.length).toBe(0)
 
-  unregisterSystem(TestSystem)
+  entity = null
 })
 
 describe("change component", () => {
-  let entity, system
   beforeEach(() => {
-    system = registerSystem(TestSystem)
-    entity = createEntity()
     addComponent(entity, TestComponent)
     execute() // handle added
-  })
-  afterEach(() => {
-    removeEntity(entity, true)
-    unregisterSystem(TestSystem)
   })
 
   it("adds entity into query .changed", () => {
@@ -164,5 +179,56 @@ describe("change component", () => {
     expect(system.queryResults.test.added.length).toBe(0)
     expect(system.queryResults.test.changed.length).toBe(0)
     expect(system.queryResults.test.removed.length).toBe(0)
+  })
+})
+
+describe("modifier Not. [TestComponent, Not(UnwantedComponent)]", () => {
+
+  it("TestComponent = +", () => {
+    expect(system.queryResults.testNot.all.length).toBe(0)
+    addComponent(entity, TestComponent)
+    expect(system.queryResults.testNot.all.length).toBe(1)
+  })
+
+  it("[UnwantedComponent,TestComponent]-UnwantedComponent = +", () => {
+    expect(system.queryResults.testNot.all.length).toBe(0)
+    addComponent(entity, UnwantedComponent)
+    addComponent(entity, TestComponent)
+
+    removeComponent(entity, UnwantedComponent)
+
+    expect(system.queryResults.testNot.all.length).toBe(1)
+  })
+
+  it("[UnwantedComponent,TestComponent] -", () => {
+    expect(system.queryResults.testNot.all.length).toBe(0)
+    addComponent(entity, UnwantedComponent)
+    addComponent(entity, TestComponent)
+    expect(system.queryResults.testNot.all.length).toBe(0)
+  })
+
+  it("[TestComponent,UnwantedComponent] -", () => {
+    expect(system.queryResults.testNot.all.length).toBe(0)
+    addComponent(entity, TestComponent)
+    addComponent(entity, UnwantedComponent)
+
+    expect(system.queryResults.testNot.all.length).toBe(0)
+  })
+})
+
+describe("complex cases", () => {
+
+  it("remove immediate and then add new", () => {
+    addComponent(entity, AssetLoader)
+    execute(); // process and add state
+    expect(system.queryResults.toLoad.all.length).toBe(0)
+    // expect(system.queryResults.toLoad.removed.length).toBe(1)
+    execute(); // clear removed query list
+    removeComponent(entity, AssetLoader, true)
+    execute();
+    addComponent(entity, AssetLoader)
+    expect(hasComponent(entity, AssetLoaderState)).toBe(true)
+    execute(); // since we didn't delete state component, entity should not appear in toLoad query list
+    expect(system.queryResults.toLoad.all.length).toBe(0)
   })
 })

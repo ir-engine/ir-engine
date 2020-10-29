@@ -1,5 +1,7 @@
 import {
+  INSTANCE_SERVER_PROVISIONING,
   INSTANCE_SERVER_PROVISIONED,
+  INSTANCE_SERVER_CONNECTING,
   INSTANCE_SERVER_CONNECTED,
   INSTANCE_SERVER_DISCONNECTED,
   SOCKET_CREATED
@@ -7,11 +9,19 @@ import {
 
 import { InstanceServerProvisionResult } from '@xr3ngine/common/interfaces/InstanceServerProvisionResult';
 
+export interface InstanceServerProvisioningAction {
+  type: string;
+}
+
 export interface InstanceServerProvisionedAction {
   type: string;
   ipAddress: string;
   port: string;
   locationId: string;
+}
+
+export interface InstanceServerConnectingAction {
+  type: string;
 }
 
 export interface InstanceServerConnectedAction {
@@ -29,10 +39,17 @@ export interface SocketCreatedAction {
 
 export type InstanceServerAction =
   InstanceServerProvisionedAction
+  | InstanceServerProvisioningAction
+  | InstanceServerConnectingAction
   | InstanceServerConnectedAction
   | InstanceServerDisconnectedAction
   | SocketCreatedAction
 
+export function instanceServerProvisioning (): InstanceServerProvisioningAction {
+  return {
+    type: INSTANCE_SERVER_PROVISIONING
+  };
+}
 export function instanceServerProvisioned (provisionResult: InstanceServerProvisionResult, locationId: string): InstanceServerProvisionedAction {
   return {
     type: INSTANCE_SERVER_PROVISIONED,
@@ -41,6 +58,12 @@ export function instanceServerProvisioned (provisionResult: InstanceServerProvis
     locationId: locationId
   };
 }
+export function instanceServerConnecting (): InstanceServerConnectingAction {
+  return {
+    type: INSTANCE_SERVER_CONNECTING
+  };
+}
+
 export function instanceServerConnected (): InstanceServerConnectedAction {
   return {
     type: INSTANCE_SERVER_CONNECTED

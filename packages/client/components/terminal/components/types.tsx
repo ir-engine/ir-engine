@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { commands, descriptions } from '../commands';
 
 export const commandsPropType = PropTypes.objectOf(PropTypes.oneOfType([
   PropTypes.func,
@@ -73,21 +74,31 @@ export const TerminalContextTypes = {
 };
 
 export const TerminalDefaultProps = {
-  startState: 'open',
+  startState: 'closed',
   allowTabs: true,
   showActions: true,
-  msg: '',
+  msg: 'Interactive terminal. For commands list execute help.',
   closedTitle: 'OOPS! You closed the window.',
   closedMessage: 'Click on the icon to reopen.',
   color: 'green',
-  style: {},
-  prompt: 'green',
+  style: {
+    fontWeight: "bold",
+    fontSize: "1em",
+    position: "fixed",
+    bottom: "0",
+    width: "100%",
+    // Height is set in termimal itself depending is it expanded.
+    // height: "30%",
+    zIndex: 4000 },
+    prompt: 'green',
   backgroundColor: 'black',
-  commands: {},
-  descriptions: {},
+  commands: commands,
+  descriptions: descriptions,
   watchConsoleLogging: false,
   commandPassThrough: false,
   promptSymbol: '>',
   plugins: [],
   shortcuts: {},
 };
+
+        

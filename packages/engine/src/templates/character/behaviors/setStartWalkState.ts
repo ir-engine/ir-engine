@@ -1,6 +1,6 @@
 import { CharacterComponent } from '../components/CharacterComponent';
 import { getComponent } from '../../../ecs/functions/EntityFunctions';
-import { addState } from '../../../state/behaviors/StateBehaviors';
+import { addState } from "../../../state/behaviors/addState";
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { Entity } from '../../../ecs/classes/Entity';
 import { getSignedAngleBetweenVectors } from '../../../common/functions/getSignedAngleBetweenVectors';
@@ -22,7 +22,7 @@ export const setAppropriateStartWalkState = (entity: Entity): void => {
     addState(entity, { state: CharacterStateTypes.WALK_START_FORWARD });
   }
   else if (actor.localMovementDirection.z === -1) {
-    addState(entity, { state: CharacterStateTypes.WALK_START_BACK_RIGHT });
+    addState(entity, { state: CharacterStateTypes.WALK_START_BACKWARD });
   }
   else if (actor.localMovementDirection.x === 1) {
     addState(entity, { state: CharacterStateTypes.WALK_START_LEFT });
@@ -30,6 +30,6 @@ export const setAppropriateStartWalkState = (entity: Entity): void => {
   else if (actor.localMovementDirection.x === -1) {
     addState(entity, { state: CharacterStateTypes.WALK_START_RIGHT });
   }
-  
+
 
 };

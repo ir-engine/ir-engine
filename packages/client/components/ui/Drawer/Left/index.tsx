@@ -7,7 +7,8 @@ import { selectFriendState } from '../../../../redux/friend/selector';
 import { selectGroupState } from '../../../../redux/group/selector';
 import { selectPartyState } from '../../../../redux/party/selector';
 import { selectUserState } from '../../../../redux/user/selector';
-import './style.scss';
+import { selectLocationState } from '../../../../redux/location/selector';
+import styles from './Left.module.scss';
 
 import {
     updateInviteTarget
@@ -31,6 +32,9 @@ import {
     getLayerUsers
 } from "../../../../redux/user/service";
 import {
+    banUserFromLocation
+} from '../../../../redux/location/service';
+import {
     Accordion,
     AccordionSummary,
     AccordionDetails,
@@ -43,11 +47,13 @@ import {
     ListItemText,
     SwipeableDrawer,
     TextField,
+    Tooltip,
     Typography
 } from '@material-ui/core';
 import {
     Add,
     ArrowLeft,
+    Block,
     Delete,
     Edit,
     ExpandMore,
@@ -68,6 +74,7 @@ import {
     removePartyUser,
     transferPartyOwner
 } from '../../../../redux/party/service';
+import classNames from 'classnames';
 
 
 const mapStateToProps = (state: any): any => {
@@ -76,6 +83,7 @@ const mapStateToProps = (state: any): any => {
         chatState: selectChatState(state),
         friendState: selectFriendState(state),
         groupState: selectGroupState(state),
+        locationState: selectLocationState(state),
         partyState: selectPartyState(state),
         userState: selectUserState(state)
     };
@@ -97,7 +105,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     updateInviteTarget: bindActionCreators(updateInviteTarget, dispatch),
     updateChatTarget: bindActionCreators(updateChatTarget, dispatch),
     updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch),
-    getLayerUsers: bindActionCreators(getLayerUsers, dispatch)
+    getLayerUsers: bindActionCreators(getLayerUsers, dispatch),
+    banUserFromLocation: bindActionCreators(banUserFromLocation, dispatch)
 });
 
 interface Props {
@@ -115,6 +124,7 @@ interface Props {
     patchGroup?: any;
     removeGroup?: any;
     removeGroupUser?: any;
+    locationState?: any;
     partyState?: any;
     getParty?: any;
     createParty?: any;
@@ -126,6 +136,7 @@ interface Props {
     updateChatTarget?: any;
     updateMessageScrollInit?: any;
     getLayerUsers?: any;
+    banUserFromLocation?: any;
 }
 
 const initialSelectedUserState = {
@@ -152,6 +163,7 @@ const LeftDrawer = (props: Props): any => {
         const {
             authState,
             friendState,
+            locationState,
             getFriends,
             unfriend,
             groupState,
@@ -174,7 +186,8 @@ const LeftDrawer = (props: Props): any => {
             updateChatTarget,
             updateMessageScrollInit,
             userState,
-            getLayerUsers
+            getLayerUsers,
+            banUserFromLocation
         } = props;
 
         const user = authState.get('user') as User;
@@ -198,10 +211,13 @@ const LeftDrawer = (props: Props): any => {
         const [groupFormOpen, setGroupFormOpen] = useState(false);
         const [partyUserDeletePending, setPartyUserDeletePending] = useState('');
         const [selectedAccordion, setSelectedAccordion] = useState('');
+        const [locationBanPending, setLocationBanPending] = useState('');
         const selfGroupUser = selectedGroup.id && selectedGroup.id.length > 0 ? selectedGroup.groupUsers.find((groupUser) => groupUser.userId === user.id) : {};
         const partyUsers = party && party.partyUsers ? party.partyUsers : [];
         const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === user.id) : {};
         const layerUsers = userState.get('layerUsers') ?? [];
+        const currentLocation = locationState.get('currentLocation').get('location');
+        const isLocationAdmin = user.locationAdmins?.find(locationAdmin => currentLocation.id === locationAdmin.locationId) != null;
 
         useEffect(() => {
             if (friendState.get('updateNeeded') === true && friendState.get('getFriendsInProgress') !== true) {
@@ -275,6 +291,23 @@ const LeftDrawer = (props: Props): any => {
             setSelectedGroup(initialGroupForm);
             setDetailsOpen(false);
             setDetailsType('');
+        };
+
+        const showLocationBanConfirm = (e, userId) => {
+            e.preventDefault();
+            setLocationBanPending(userId);
+        };
+
+        const cancelLocationBan = (e) => {
+            e.preventDefault();
+            setLocationBanPending('');
+        };
+
+        const confirmLocationBan = (e, userId) => {
+            e.preventDefault();
+            console.log('Confirming location ban');
+            setLocationBanPending('');
+            banUserFromLocation(userId, currentLocation.id);
         };
 
         const nextGroupsPage = (): void => {
@@ -459,7 +492,10 @@ const LeftDrawer = (props: Props): any => {
         return (
             <div>
                 <SwipeableDrawer
-                    className="flex-column"
+                    className={classNames({
+                        [styles['flex-column']]: true,
+                        [styles['left-drawer']]: true
+                    })}
                     anchor="left"
                     open={props.leftDrawerOpen === true}
                     onClose={() => {
@@ -469,8 +505,9 @@ const LeftDrawer = (props: Props): any => {
                     }}
                 >
                     {detailsOpen === false && groupFormOpen === false &&
-                    <div className="list-container">
-                        <Accordion expanded={selectedAccordion === 'user'} onChange={handleAccordionSelect('user')}>
+                    <div className={styles['list-container']}>
+                        {user.userRole !== 'guest' &&
+                        <Accordion expanded={selectedAccordion === 'user'} onChange={handleAccordionSelect('user') } className={styles['MuiAccordion-root']}>
                             <AccordionSummary
                                 id="friends-header"
                                 expandIcon={<ExpandMore/>}
@@ -479,8 +516,8 @@ const LeftDrawer = (props: Props): any => {
                                 <SupervisedUserCircle/>
                                 <Typography>Friends</Typography>
                             </AccordionSummary>
-                            <AccordionDetails className='list-container'>
-                                <div className="flex-center">
+                            <AccordionDetails className={styles['list-container']}>
+                                <div className={styles['flex-center']}>
                                     <Button
                                         variant="contained"
                                         color="primary"
@@ -495,7 +532,7 @@ const LeftDrawer = (props: Props): any => {
                                     {friends && friends.length > 0 && friends.sort((a, b) => a.name - b.name).map((friend, index) => {
                                         return <div key={friend.id}>
                                             <ListItem
-                                                className="selectable"
+                                                className={styles.selectable}
                                                 onClick={() => {
                                                     openDetails('user', friend);
                                                 }}
@@ -512,7 +549,9 @@ const LeftDrawer = (props: Props): any => {
                                 </List>
                             </AccordionDetails>
                         </Accordion>
-                        <Accordion expanded={selectedAccordion === 'group'} onChange={handleAccordionSelect('group')}>
+                        }
+                        {user.userRole !== 'guest' &&
+                        <Accordion expanded={selectedAccordion === 'group'} onChange={handleAccordionSelect('group')} className={styles['MuiAccordion-root']}>
                             <AccordionSummary
                                 id="groups-header"
                                 expandIcon={<ExpandMore/>}
@@ -521,8 +560,8 @@ const LeftDrawer = (props: Props): any => {
                                 <Group/>
                                 <Typography>Groups</Typography>
                             </AccordionSummary>
-                            <AccordionDetails className='list-container'>
-                                <div className="flex-center">
+                            <AccordionDetails className={styles['list-container']}>
+                                <div className={styles['flex-center']}>
                                     <Button
                                         variant="contained"
                                         color="primary"
@@ -537,7 +576,7 @@ const LeftDrawer = (props: Props): any => {
                                     {groups && groups.length > 0 && groups.sort((a, b) => a.name - b.name).map((group, index) => {
                                         return <div key={group.id}>
                                             <ListItem
-                                                className="selectable"
+                                                className={styles.selectable}
                                                 onClick={() => {
                                                     openDetails('group', group);
                                                 }}
@@ -551,7 +590,9 @@ const LeftDrawer = (props: Props): any => {
                                 </List>
                             </AccordionDetails>
                         </Accordion>
-                        <Accordion expanded={selectedAccordion === 'party'} onChange={handleAccordionSelect('party')}>
+                        }
+                        {user.userRole !== 'guest' &&
+                        <Accordion expanded={selectedAccordion === 'party'} onChange={handleAccordionSelect('party')} className={styles['MuiAccordion-root']}>
                             <AccordionSummary
                                 id="party-header"
                                 expandIcon={<ExpandMore/>}
@@ -560,11 +601,15 @@ const LeftDrawer = (props: Props): any => {
                                 <GroupWork/>
                                 <Typography>Party</Typography>
                             </AccordionSummary>
-                            <AccordionDetails className={'flexbox flex-column flex-center'}>
+                            <AccordionDetails className={classNames({
+                                [styles.flexbox]: true,
+                                [styles['flex-column']]: true,
+                                [styles['flex-center']]: true
+                            })}>
                                 {party == null &&
                                 <div>
-                                    <div className="title">You are not currently in a party</div>
-                                    <div className="flex-center">
+                                    <div className={styles.title}>You are not currently in a party</div>
+                                    <div className={styles['flex-center']}>
                                         <Button
                                             variant="contained"
                                             color="primary"
@@ -576,12 +621,19 @@ const LeftDrawer = (props: Props): any => {
                                 </div>
                                 }
                                 {party != null &&
-                                <div className="list-container">
-                                    <div className="title">Current Party</div>
-                                    <div className="party-id flex-center">
+                                <div className={styles['list-container']}>
+                                    <div className={styles.title}>Current Party</div>
+                                    <div className={classNames({
+                                        [styles['party-id']]: true,
+                                        [styles['flex-center']]: true
+                                    })}>
                                         <div>ID: {party.id}</div>
                                     </div>
-                                    <div className="actionButtons flex-center flex-column">
+                                    <div className={classNames({
+                                        'action-buttons': true,
+                                        [styles['flex-center']]: true,
+                                        [styles['flex-column']]: true
+                                    })}>
                                         <Button
                                             variant="contained"
                                             color="primary"
@@ -606,7 +658,7 @@ const LeftDrawer = (props: Props): any => {
                                             (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
                                             <Button
                                                 variant="contained"
-                                                className="background-red"
+                                                className={styles['background-red']}
                                                 startIcon={<Delete/>}
                                                 onClick={(e) => showPartyDeleteConfirm(e)}
                                             >
@@ -617,7 +669,7 @@ const LeftDrawer = (props: Props): any => {
                                         <div>
                                             <Button variant="contained"
                                                     startIcon={<Delete/>}
-                                                    className="background-red"
+                                                    className={styles['background-red']}
                                                     onClick={(e) => confirmPartyDelete(e, party.id)}
                                             >
                                                 Confirm Delete
@@ -632,9 +684,15 @@ const LeftDrawer = (props: Props): any => {
                                         }
                                     </div>
                                     <Divider/>
-                                    <div className="title margin-top">Members</div>
+                                    <div className={classNames({
+                                        [styles.title]: true,
+                                        [styles['margin-top']]: true
+                                    })}>Members</div>
                                     <List
-                                        className="flex-center flex-column"
+                                        className={classNames({
+                                            [styles['flex-center']]: true,
+                                            [styles['flex-column']]: true
+                                        })}
                                         onScroll={(e) => onListScroll(e)}
                                     >
                                         {partyUsers && partyUsers.length > 0 && partyUsers.sort((a, b) => a.name - b.name).map((partyUser) => {
@@ -739,6 +797,7 @@ const LeftDrawer = (props: Props): any => {
                                 }
                             </AccordionDetails>
                         </Accordion>
+                        }
                         {
                             user && user.instanceId &&
                             <Accordion expanded={selectedAccordion === 'layerUsers'}
@@ -751,11 +810,18 @@ const LeftDrawer = (props: Props): any => {
                                     <Public/>
                                     <Typography>Layer Users</Typography>
                                 </AccordionSummary>
-                                <AccordionDetails className={'flexbox flex-column flex-center'}>
-                                    <div className="list-container">
-                                        <div className="title">Users on this Layer</div>
+                                <AccordionDetails className={classNames({
+                                    [styles.flexbox]: true,
+                                    [styles['flex-column']]: true,
+                                    [styles['flex-center']]: true
+                                })}>
+                                    <div className={styles['list-container']}>
+                                        <div className={styles.title}>Users on this Layer</div>
                                         <List
-                                            className="flex-center flex-column"
+                                            className={classNames({
+                                                [styles['flex-center']]: true,
+                                                [styles['flex-column']]: true
+                                            })}
                                             onScroll={(e) => onListScroll(e)}
                                         >
                                             {layerUsers && layerUsers.length > 0 && layerUsers.sort((a, b) => a.name - b.name).map((layerUser) => {
@@ -767,6 +833,33 @@ const LeftDrawer = (props: Props): any => {
                                                         <ListItemText primary={layerUser.name + ' (you)'}/>}
                                                         {user.id !== layerUser.id &&
                                                         <ListItemText primary={layerUser.name}/>}
+                                                        {
+                                                            locationBanPending !== layerUser.id &&
+                                                            isLocationAdmin === true &&
+                                                            user.id !== layerUser.id &&
+                                                            layerUser.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null &&
+                                                            <Tooltip title="Ban user">
+                                                                <Button onClick={(e) => showLocationBanConfirm(e, layerUser.id)}>
+                                                                    <Block/>
+                                                                </Button>
+                                                            </Tooltip>
+                                                        }
+                                                        {locationBanPending === layerUser.id &&
+                                                        <div>
+                                                            <Button variant="contained"
+                                                                    color="primary"
+                                                                    onClick={(e) => confirmLocationBan(e, layerUser.id)}
+                                                            >
+                                                                Ban User
+                                                            </Button>
+                                                            <Button variant="contained"
+                                                                    color="secondary"
+                                                                    onClick={(e) => cancelLocationBan(e)}
+                                                            >
+                                                                Cancel
+                                                            </Button>
+                                                        </div>
+                                                        }
                                                     </ListItem>;
                                                 }
                                             )
@@ -779,24 +872,40 @@ const LeftDrawer = (props: Props): any => {
                     </div>
                     }
                     {detailsOpen === true && groupFormOpen === false && detailsType === 'user' &&
-                    <div className="flex-center flex-column">
-                        <div className="header">
+                    <div className={classNames({
+                        [styles['flex-center']]: true,
+                        [styles['flex-column']]: true
+                    })}>
+                        <div className={styles.header}>
                             <Button onClick={closeDetails}>
                                 <ArrowLeft/>
                             </Button>
                             <Divider/>
                         </div>
-                        <div className="details">
-                            <div className="avatarUrl flex-center">
+                        <div className={styles.details}>
+                            <div className={classNames({
+                                [styles.avatarUrl]: true,
+                                [styles['flex-center']]: true
+                            })}>
                                 <Avatar src={selectedUser.avatarUrl}/>
                             </div>
-                            <div className="userName flex-center">
+                            <div className={classNames({
+                                [styles.userName]: true,
+                                [styles['flex-center']]: true
+                            })}>
                                 <div>{selectedUser.name}</div>
                             </div>
-                            <div className="userId flex-center">
+                            <div className={classNames({
+                                [styles.userId]: true,
+                                [styles['flex-center']]: true
+                            })}>
                                 <div>ID: {selectedUser.id}</div>
                             </div>
-                            <div className="actionButtons flex-center flex-column">
+                            <div className={classNames({
+                                'action-buttons': true,
+                                [styles['flex-center']]: true,
+                                [styles['flex-column']]: true
+                            })}>
                                 <Button
                                     variant="contained"
                                     color="primary"
@@ -818,7 +927,7 @@ const LeftDrawer = (props: Props): any => {
                                 {friendDeletePending !== selectedUser.id &&
                                 <Button
                                     variant="contained"
-                                    className="background-red"
+                                    className={styles['background-red']}
                                     startIcon={<Delete/>}
                                     onClick={(e) => showFriendDeleteConfirm(e, selectedUser.id)}
                                 >
@@ -828,7 +937,7 @@ const LeftDrawer = (props: Props): any => {
                                 <div>
                                     <Button variant="contained"
                                             startIcon={<Delete/>}
-                                            className="background-red"
+                                            className={styles['background-red']}
                                             onClick={(e) => confirmFriendDelete(e, selectedUser.id)}
                                     >
                                         Unfriend
@@ -846,24 +955,40 @@ const LeftDrawer = (props: Props): any => {
                     </div>
                     }
                     {detailsOpen === true && groupFormOpen === false && detailsType === 'group' &&
-                    <div className="details-container">
-                        <div className="header">
+                    <div className={styles['details-container']}>
+                        <div className={styles.header}>
                             <Button onClick={closeDetails}>
                                 <ArrowLeft/>
                             </Button>
                             <Divider/>
                         </div>
-                        <div className="details list-container">
-                            <div className="title flex-center">
+                        <div className={classNames({
+                            [styles.details]: true,
+                            [styles['list-container']]: true
+                        })}>
+                            <div className={classNames({
+                                [styles.title]: true,
+                                [styles['flex-center']]: true
+                            })}>
                                 <div>{selectedGroup.name}</div>
                             </div>
-                            <div className="group-id flex-center">
+                            <div className={classNames({
+                                'group-id': true,
+                                [styles['flex-center']]: true
+                            })}>
                                 <div>ID: {selectedGroup.id}</div>
                             </div>
-                            <div className="description flex-center">
+                            <div className={classNames({
+                                [styles.description]: true,
+                                [styles['flex-center']]: true
+                            })}>
                                 <div>{selectedGroup.description}</div>
                             </div>
-                            <div className="actionButtons flex-center flex-column">
+                            <div className={classNames({
+                                'action-buttons': true,
+                                [styles['flex-center']]: true,
+                                [styles['flex-column']]: true
+                            })}>
                                 <Button
                                     variant="contained"
                                     color="primary"
@@ -897,7 +1022,7 @@ const LeftDrawer = (props: Props): any => {
                                 selfGroupUser != null && selfGroupUser.groupUserRank === 'owner' &&
                                 <Button
                                     variant="contained"
-                                    className="background-red"
+                                    className={styles['background-red']}
                                     startIcon={<Delete/>}
                                     onClick={(e) => showGroupDeleteConfirm(e, selectedGroup.id)}
                                 >
@@ -907,7 +1032,7 @@ const LeftDrawer = (props: Props): any => {
                                 <div>
                                     <Button variant="contained"
                                             startIcon={<Delete/>}
-                                            className="background-red"
+                                            className={styles['background-red']}
                                             onClick={(e) => confirmGroupDelete(e, selectedGroup.id)}
                                     >
                                         Confirm Delete
@@ -922,8 +1047,14 @@ const LeftDrawer = (props: Props): any => {
                                 }
                             </div>
                             <Divider/>
-                            <div className="title margin-top">Members</div>
-                            <List className="flex-center flex-column">
+                            <div className={classNames({
+                                [styles.title]: true,
+                                [styles['margin-top']]: true
+                            })}>Members</div>
+                            <List className={classNames({
+                                [styles['flex-center']]: true,
+                                [styles['flex-column']]: true,
+                            })}>
                                 {selectedGroup && selectedGroup.groupUsers && selectedGroup.groupUsers.length > 0 && selectedGroup.groupUsers.sort((a, b) => a.name - b.name).map((groupUser) => {
                                         return <ListItem key={groupUser.id}>
                                             <ListItemAvatar>
@@ -986,9 +1117,9 @@ const LeftDrawer = (props: Props): any => {
                     }
                     {
                         groupFormOpen === true &&
-                        <form className='group-form' noValidate onSubmit={(e) => submitGroup(e)}>
-                            {groupFormMode === 'create' && <div className="title">New Group</div>}
-                            {groupFormMode === 'update' && <div className="title">Update Group</div>}
+                        <form className={styles['group-form']} noValidate onSubmit={(e) => submitGroup(e)}>
+                            {groupFormMode === 'create' && <div className={styles.title}>New Group</div>}
+                            {groupFormMode === 'update' && <div className={styles.title}>Update Group</div>}
                             <TextField
                                 variant="outlined"
                                 margin="normal"
@@ -1015,12 +1146,15 @@ const LeftDrawer = (props: Props): any => {
                                 value={groupForm.description}
                                 onChange={(e) => handleGroupCreateInput(e)}
                             />
-                            <div className="flex-center flex-column">
+                            <div className={classNames({
+                                [styles['flex-center']]: true,
+                                [styles['flex-column']]: true
+                            })}>
                                 <Button
                                     type="submit"
                                     variant="contained"
                                     color="primary"
-                                    className={'submit'}
+                                    className={styles.submit}
                                 >
                                     {groupFormMode === 'create' && 'Create Group'}
                                     {groupFormMode === 'update' && 'Update Group'}

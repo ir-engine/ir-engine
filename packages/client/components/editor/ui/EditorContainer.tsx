@@ -360,7 +360,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     } else if (then) {
       then();
     }
-  };
+  }
 
   generateToolbarMenu = () => {
     return [

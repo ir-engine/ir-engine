@@ -12,8 +12,9 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import { LocalInputReceiver } from "@xr3ngine/engine/src/input/components/LocalInputReceiver";
 import { VehicleBody } from '../../../physics/components/VehicleBody';
 import { PlayerInCar } from '../../../physics/components/PlayerInCar';
-import { addState } from '../../../state/behaviors/StateBehaviors';
+import { addState } from "../../../state/behaviors/addState";
 import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";
+import { cameraPointerLock } from "@xr3ngine/engine/src/camera/behaviors/cameraPointerLock";
 
 export const getInCar: Behavior = (entity: Entity, args: { value: Vector2 }, delta, entityCar): void => {
 
@@ -23,5 +24,5 @@ export const getInCar: Behavior = (entity: Entity, args: { value: Vector2 }, del
 
   const event = new CustomEvent('player-in-car', { detail:{inCar:true, interactionText: 'get out of the car',} });
   document.dispatchEvent(event);
-
+  // cameraPointerLock()
 };

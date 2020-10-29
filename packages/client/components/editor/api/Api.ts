@@ -15,7 +15,7 @@ import PublishedSceneDialog from "./PublishedSceneDialog";
 const resolveUrlCache = new Map();
 const resolveMediaCache = new Map();
 
-const API_SERVER_ADDRESS = (configs as any).API_SERVER_ADDRESS || (process.browser ? `${document.location.hostname}:3030` : "localhost:3030");
+const API_SERVER_ADDRESS = (configs as any).API_SERVER_ADDRESS;
 
 const {
   API_ASSETS_ROUTE,
@@ -229,7 +229,7 @@ export default class Api extends EventEmitter {
 
       return response.json();
     }).catch(e => {
-      console.warn(e)
+      console.warn(e);
     });
 
     resolveUrlCache.set(cacheKey, request);
@@ -440,7 +440,6 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    /* eslint-disable @typescript-eslint/camelcase */
     const project = {
       name: scene.name,
       thumbnail_file_id: thumbnailFileId,
@@ -448,7 +447,6 @@ export default class Api extends EventEmitter {
       project_file_id: projectFileId,
       project_file_token: projectFileToken
     };
-    /* eslint-enable */
 
     if (parentSceneId) {
       project["parent_scene_id"] = parentSceneId;
@@ -540,7 +538,6 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    /* eslint-disable @typescript-eslint/camelcase */
     const project = {
       name: editor.scene.name,
       thumbnail_file_id: thumbnailFileId,
@@ -548,7 +545,6 @@ export default class Api extends EventEmitter {
       project_file_id: projectFileId,
       project_file_token: projectFileToken
     };
-    /* eslint-enable */
 
     const sceneId = editor.scene.metadata && editor.scene.metadata.sceneId ? editor.scene.metadata.sceneId : null;
 
@@ -819,7 +815,6 @@ export default class Api extends EventEmitter {
         throw error;
       }
 
-      /* eslint-disable @typescript-eslint/camelcase */
       const sceneParams = {
         screenshot_file_id: screenshotId,
         screenshot_file_token: screenshotToken,
@@ -835,7 +830,6 @@ export default class Api extends EventEmitter {
           content: publishParams.contentAttributions
         }
       };
-      /* eslint-enable */
     
       const token = this.getToken();
 
@@ -912,6 +906,7 @@ export default class Api extends EventEmitter {
       if (signal) {
         signal.addEventListener("abort", onAbort);
       }
+      console.log("Posting to: ", `https://${API_SERVER_ADDRESS}/media`);
 
       if (USE_DIRECT_UPLOAD_API) {
         request.open("post", `${host}${API_MEDIA_ROUTE}`, true);
@@ -1036,7 +1031,6 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    /* eslint-disable @typescript-eslint/camelcase */
     const body = JSON.stringify({
       asset: {
         name: file.name,
@@ -1046,7 +1040,6 @@ export default class Api extends EventEmitter {
         thumbnail_access_token: thumbnailAccessToken
       }
     });
-    /* eslint-enable */
 
     const resp = await this.fetch(endpoint, { method: "POST", headers, body, signal });
     console.log("Response: " + Object.values(resp));

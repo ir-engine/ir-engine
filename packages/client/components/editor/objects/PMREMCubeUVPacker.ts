@@ -72,7 +72,7 @@ const PMREMCubeUVPacker = ( function () {
 		this.numLods = Math.min(
 			cubeTextureLods.length,
 			Math.log(cubeTextureLods[0].width) / Math.log(2) - 2 // IE11 doesn't support Math.log2
-		)
+		);
 		for ( let i = 0; i < this.numLods; i ++ ) {
 
 			const offset1 = ( textureResolution - textureResolution / c ) * 0.5;
@@ -146,16 +146,16 @@ const PMREMCubeUVPacker = ( function () {
 			// renderer.gammaOutput = false;
 			renderer.toneMapping = LinearToneMapping;
 			renderer.toneMappingExposure = 1.0;
-			if (this.CubeUVRenderTarget) this.CubeUVRenderTarget.texture.encoding = GammaEncoding
+			if (this.CubeUVRenderTarget) this.CubeUVRenderTarget.texture.encoding = GammaEncoding;
 			renderer.setRenderTarget( this.CubeUVRenderTarget );
 			renderer.render( scene, camera );
 
-			if (currentRenderTarget) currentRenderTarget.texture.encoding = GammaEncoding
+			if (currentRenderTarget) currentRenderTarget.texture.encoding = GammaEncoding;
 			renderer.setRenderTarget( currentRenderTarget );
 			renderer.toneMapping = toneMapping;
 			renderer.toneMappingExposure = toneMappingExposure;
 			
-			this.CubeUVRenderTarget.texture.encoding = GammaEncoding
+			this.CubeUVRenderTarget.texture.encoding = GammaEncoding;
 			// renderer.gammaInput = gammaInput;
 			// renderer.gammaOutput = gammaOutput;
 

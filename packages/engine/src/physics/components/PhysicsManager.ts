@@ -6,18 +6,22 @@ import { Shape, Body } from 'cannon-es';
 import { Mesh } from 'three';
 import debug from "cannon-es-debugger";
 
-export class PhysicsManager extends Component<PhysicsManager> {
+export class PhysicsManager extends Component<any> {
   static instance: PhysicsManager
   frame: number
   physicsWorld: World
   groundMaterial = new Material('groundMaterial')
   wheelMaterial = new Material('wheelMaterial')
   trimMeshMaterial = new Material('trimMeshMaterial')
+
   wheelGroundContactMaterial = new ContactMaterial(this.wheelMaterial, this.groundMaterial, {
     friction: 0.3,
-    restitution: 0,
-    contactEquationStiffness: 1000
+    restitution: 0.3,
+    contactEquationStiffness: 1e8,
+    contactEquationRelaxation: 3,
+    frictionEquationStiffness: 1e8
   })
+
   /*
   trimMeshContactMaterial = new ContactMaterial(this.trimMeshMaterial, this.groundMaterial, {
     friction: 0.3,
@@ -30,20 +34,20 @@ export class PhysicsManager extends Component<PhysicsManager> {
 	physicsFrameTime: number;
   physicsMaxPrediction: number;
 
-  constructor (options:{ framerate: number }) {
+  constructor () {
     super();
-    console.log("Constructing physics manager", options);
     PhysicsManager.instance = this;
     this.frame = 0;
     this.physicsWorld = new World();
-    this.physicsFrameRate = options.framerate;
+    this.physicsFrameRate = Engine.physicsFrameRate;
     this.physicsFrameTime = 1 / this.physicsFrameRate;
     this.physicsMaxPrediction = this.physicsFrameRate;
     this.physicsWorld.allowSleep = false;
+  //  this.groundMaterial.friction = 5
     // this.physicsWorld.solver.iterations = 10;
 
     // We must add the contact materials to the world
-  //  this.physicsWorld.addContactMaterial(PhysicsManager.instance.wheelGroundContactMaterial);
+    //this.physicsWorld.addContactMaterial(PhysicsManager.instance.wheelGroundContactMaterial);
   //  this.physicsWorld.addContactMaterial(PhysicsManager.instance.trimMeshContactMaterial);
 
     // Physics
@@ -53,8 +57,6 @@ export class PhysicsManager extends Component<PhysicsManager> {
 
     this.parallelPairs = [];
 
-     console.log("========PhysicsManager.instance.physicsWorld");
-     console.log(PhysicsManager.instance.physicsWorld);
      const DebugOptions = {
        onInit: (body: Body, mesh: Mesh, shape: Shape) => 	{
         // console.log("PH INIT: body: ", body, " | mesh: ", mesh, " | shape: ", shape)
@@ -63,13 +65,11 @@ export class PhysicsManager extends Component<PhysicsManager> {
          //if (body === Engine.actor
          //console.log("PH  UPD: body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape) }
      }};
-     debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions);
+    // debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions);
   }
 
-  dispose():void {
+  dispose(): void {
     super.dispose();
-
-    console.log("**** Disposing");
     PhysicsManager.instance.groundMaterial = null;
     PhysicsManager.instance.wheelMaterial = null;
     PhysicsManager.instance.trimMeshMaterial = null;
@@ -83,5 +83,4 @@ export class PhysicsManager extends Component<PhysicsManager> {
   }
 }
 PhysicsManager.schema = {
-  physicsWorld: { type: Types.Ref, default: null }
 };

@@ -17,16 +17,16 @@ export const ExitVehicleState: StateSchemaValue = {
   }],
   onEntry: [
     {
+      behavior: initializeCharacterState
+    },
+    {
       behavior: setArcadeVelocityTarget,
       args: { x: 0, y: 0, z: 0 }
     },
     {
-      behavior: initializeCharacterState
-    },
-    {
       behavior: setActorAnimation,
       args: {
-        name: 'exit_vehicle',
+        name: 'exiting_car',
         transitionDuration: 0.1
       }
     }
