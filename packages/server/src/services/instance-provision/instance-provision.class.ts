@@ -175,7 +175,6 @@ export class InstanceProvision implements ServiceMethods<Data> {
           return getLocalServerIp();
         }
         console.log('Getting free gameserver');
-        console.log((this.app as any).k8AgonesClient);
         const serverResult = await (this.app as any).k8AgonesClient.get('gameservers');
         const readyServers = _.filter(serverResult.items, (server: any) => server.status.state === 'Ready');
         const server = readyServers[Math.floor(Math.random() * readyServers.length)];

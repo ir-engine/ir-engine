@@ -136,8 +136,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         query: query
       });
     } else {
-      this.socket = ioclient(gameserver, {
-        path: `/socket.io/${address as string}/${port.toString()}/realtime`,
+      this.socket = ioclient(`${gameserver}/realtime`, {
+        path: `/socket.io/${address as string}/${port.toString()}`,
         query: query
       });
     }
@@ -151,7 +151,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       const payload = { userId: Network.instance.userId, accessToken: Network.instance.accessToken};
       const { success } = await this.request(MessageTypes.Authorization.toString(), payload);
 
-      if(!success) return console.error("Unable to connect with credentials"); 
+      if(!success) return console.error("Unable to connect with credentials");
       
           // signal that we're a new peer and initialize our
     // mediasoup-client device, if this is our first time connecting
@@ -202,6 +202,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       console.log('Data Producer created');
       // await this.sendCameraStreams();
       if (startVideo === true) this.sendCameraStreams(partyId);
+    });
+    this.socket.on('disconnect', async () => {
+      console.log('Socket received disconnect');
+      // this.socket.close();
     });
     this.socket.on(MessageTypes.WebRTCConsumeData.toString(), this.handleDataConsumerCreation);
     this.socket.on(MessageTypes.WebRTCCreateProducer.toString(), async (socketId, mediaTag, producerId, localPartyId) => {
