@@ -74,8 +74,7 @@ export class NetworkSystem extends System {
 
       // Transforms that are updated are automatically collected
       // note: onChanged needs to currently be handled outside of fixedExecute
-      this.queryResults.serverNetworkTransforms.all?.forEach((entity: Entity) => {
-        console.log("Adding transform to world state")
+      this.queryResults.serverNetworkTransforms.changed?.forEach((entity: Entity) => {
         addNetworkTransformToWorldState(entity)
       }
       );
