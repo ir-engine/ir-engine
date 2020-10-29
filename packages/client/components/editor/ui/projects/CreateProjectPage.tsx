@@ -128,7 +128,7 @@ export default function CreateProjectPage() {
                   <SearchInput placeholder="Search scenes..." onChange={onChangeQuery} />
                 </ProjectGridHeaderRow>
                 <ProjectGridHeaderRow>
-                  <Button onClick={routeTo('/editor/projects/new')}>
+                  <Button onClick={routeTo('/editor/projects')}>
                     New Empty Project
                   </Button>
                 </ProjectGridHeaderRow>
@@ -147,7 +147,7 @@ export default function CreateProjectPage() {
                   >
                     <ProjectGrid
                       projects={filteredEntries}
-                      newProjectPath="/editor/projects/new"
+                      newProjectPath="/editor/projects"
                       newProjectLabel="New Empty Project"
                       /* @ts-ignore */
                       onSelectProject={onSelectScene}
