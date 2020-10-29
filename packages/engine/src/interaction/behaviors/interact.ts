@@ -38,7 +38,10 @@ export const  interact: Behavior = (entity: Entity, args: any, delta): void => {
   }
 
   const startedMousePosition = startedPosition.get(entity);
-  if (startedMousePosition !== mouseScreenPosition.value) {
+  if (
+    startedMousePosition[0] !== mouseScreenPosition.value[0] ||
+    startedMousePosition[1] !== mouseScreenPosition.value[1]
+  ) {
     // mouse moved, skip "click"
     console.warn('mouse moved!');
     return;
@@ -54,6 +57,8 @@ export const  interact: Behavior = (entity: Entity, args: any, delta): void => {
   const interactive = getComponent(focusedEntity, Interactable);
   if (interactive && typeof interactive.onInteraction === 'function') {
     interactive.onInteraction(entity, args, delta, focusedEntity);
+  } else {
+    console.warn('onInteraction is not a function');
   }
 
 };
