@@ -1,3 +1,4 @@
+import isNullOrUndefined from '../../common/functions/isNullOrUndefined';
 import { createFixedTimestep } from '../../common/functions/Timer';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
@@ -11,16 +12,17 @@ import { Network } from '../components/Network';
 import { NetworkClient } from '../components/NetworkClient';
 import { NetworkInterpolation } from '../components/NetworkInterpolation';
 import { NetworkObject } from '../components/NetworkObject';
-import { addInputToWorldState } from '../functions/addInputToWorldState';
+import { addInputToWorldStateOnServer } from '../functions/addInputToWorldStateOnServer';
 import { addNetworkTransformToWorldState } from '../functions/addNetworkTransformToWorldState';
+import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClient';
 import { handleUpdateFromServer } from '../functions/handleUpdateFromServer';
 import { handleUpdatesFromClients } from '../functions/handleUpdatesFromClients';
 import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions';
-import { prepareWorldState as prepareServerWorldState } from '../functions/prepareWorldState';
+import { prepareWorldState as prepareWorldState } from '../functions/prepareWorldState';
 import { sendClientInput as sendClientInputToServer } from '../functions/sendClientInput';
 
 export class NetworkSystem extends System {
-  fixedExecute: (delta: number) => void = null
+
 
   constructor(attributes) {
     super();
@@ -29,76 +31,67 @@ export class NetworkSystem extends System {
     const networkEntity = createEntity();
     addComponent(networkEntity, Network);
     addComponent(networkEntity, NetworkInterpolation);
-    // Late initialization of network
-    // Instantiate the provided transport (SocketWebRTCClientTransport / SocketWebRTCServerTransport by default)
 
     const { schema, app } = attributes;
     Network.instance.schema = schema;
+    // Instantiate the provided transport (SocketWebRTCClientTransport / SocketWebRTCServerTransport by default)
     Network.instance.transport = new schema.transport(app);
 
-    // Initialize the server automatically
+    // Initialize the server automatically - client is initialized in connectToServer
     if (process.env.SERVER_MODE !== undefined && (process.env.SERVER_MODE === 'realtime' || process.env.SERVER_MODE === 'local')) {
-        Network.instance.transport.initialize();
-        Network.instance.isInitialized = true;
+      Network.instance.transport.initialize();
+      Network.instance.isInitialized = true;
     }
-
-    prepareServerWorldState();
-
-    // TODO: Move network timestep (30) to config
-    this.fixedExecute = createFixedTimestep(30, this.onFixedExecute.bind(this));
   }
 
   execute(delta): void {
-    // Transforms that are updated are automatically collected
-    // note: onChanged needs to currently be handled outside of fixedExecute
-    if (Network.instance?.transport.isServer)
-      this.queryResults.networkTransforms.changed?.forEach((entity: Entity) =>
-        addNetworkTransformToWorldState(entity)
-      );
-
     this.fixedExecute(delta);
   }
 
-  onFixedExecute(delta) {
-    // Advance the network tick
+  fixedExecute = (delta: number) => {
+    // Client logic
+    if (!isNullOrUndefined(Network.instance) && !Network.instance.transport.isServer) {
+      const queue = Network.instance.incomingMessageQueue;
+      // For each message, handle and process
+      while (queue.getBufferLength() > 0) {
+        applyNetworkStateToClient(queue.pop(), delta);
+      }
 
-    // Client only
-    if (!Network.instance?.transport.isServer) {
       // Client sends input and *only* input to the server (for now)
-      this.queryResults.networkInputSender.all?.forEach((entity: Entity) =>
-        sendClientInputToServer(entity)
+      this.queryResults.localClientNetworkObjects.all?.forEach((entity: Entity) => {
+        sendClientInputToServer(entity);
+      }
       );
-      
-      // Client handles incoming input from other clients and interpolates transforms
-      this.queryResults.network.all?.forEach((entity: Entity) => {
-        handleUpdateFromServer(entity);
-      });
     }
 
     // Server-only
     if (Network.instance?.transport.isServer) {
+      // Advance the tick on the server by one
       Network.tick++;
+
+      // Create a new empty world state frame to be sent to clients
+      prepareWorldState();
 
       // handle client input, apply to local objects and add to world state snapshot
       handleUpdatesFromClients();
 
-      // Note: Transforms that are updated get added to world state frame in execute since they use added hook
-      // When that is fixed, we should move from execute to here
-
+      // Transforms that are updated are automatically collected
+      // note: onChanged needs to currently be handled outside of fixedExecute
+      this.queryResults.serverNetworkTransforms.changed?.forEach((entity: Entity) => {
+        addNetworkTransformToWorldState(entity)
+      });
+      
       // For each networked object + input receiver, add to the frame to send
-      this.queryResults.networkInput.all?.forEach((entity: Entity) => {
-        addInputToWorldState(entity);
+      this.queryResults.serverNetworkInputs.all?.forEach((entity: Entity) => {
+        addInputToWorldStateOnServer(entity);
       });
 
-      // Create the snapshot and add it to the world state on the server
-      addSnapshot(createSnapshot(Network.instance.worldState.transforms));
+      // TODO: Create the snapshot and add it to the world state on the server
+      // addSnapshot(createSnapshot(Network.instance.worldState.transforms));
 
-      const ws = Network.instance.worldState; // worldStateModel.toBuffer(Network.instance.worldState)
+      // TODO: to enable snapshots, use worldStateModel.toBuffer(Network.instance.worldState)
       // Send the message to all connected clients
-      Network.instance.transport.sendReliableData(ws); // Use default channel
-
-        // Create a new empty world state frame to be sent to clients
-        prepareServerWorldState();
+      Network.instance.transport.sendReliableData(Network.instance.worldState); // Use default channel
     }
   }
 
@@ -109,20 +102,20 @@ export class NetworkSystem extends System {
     networkInterpolation: {
       components: [NetworkInterpolation]
     },
-    networkObjects: {
-      components: [NetworkObject]
-    },
-    networkInput: {
+    clientNetworkObjects: {
       components: [NetworkObject, Input, Not(LocalInputReceiver)]
     },
-    networkInputSender: {
+    localClientNetworkObjects: {
       components: [NetworkObject, Input, LocalInputReceiver]
     },
     networkStates: {
       components: [NetworkObject, State]
     },
-    networkTransforms: {
+    serverNetworkTransforms: {
       components: [NetworkObject, TransformComponent]
+    },
+    serverNetworkInputs: {
+      components: [NetworkObject, Input]
     },
     networkOwners: {
       components: [NetworkClient]

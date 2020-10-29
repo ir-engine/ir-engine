@@ -60,7 +60,7 @@ type EditorContainerProps = {
 };
 type EditorContainerState = {
   onboardingContext: { enabled: boolean };
-  project: null;
+  project: any;
   parentSceneId: null;
   // templateUrl: any;
   settingsContext: any;
@@ -360,7 +360,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     } else if (then) {
       then();
     }
-  };
+  }
 
   generateToolbarMenu = () => {
     return [
@@ -414,7 +414,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
               if (projectId === "tutorial") {
                 this.setState({ onboardingContext: { enabled: true } });
               } else {
-                this.props.router.push("/projects/tutorial");
+                this.props.router.push("/editor/projects/tutorial");
               }
             }
           },
@@ -612,7 +612,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
     this.updateModifiedState(() => {
       this.setState({ creatingProject: true, project }, () => {
-        this.props.router.replace(`/projects/${project.project_id}`);
+        this.props.router.replace(`/editor/projects/${project.project_id}`);
         this.setState({ creatingProject: false });
       });
     });
@@ -646,8 +646,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     await new Promise(resolve => setTimeout(resolve, 5));
 
     try {
-      const { editor, project } = this.state as any;
-
+      const { editor, project } = this.state;
       if (project) {
         const newProject = await this.props.api.saveProject(
           project.project_id,

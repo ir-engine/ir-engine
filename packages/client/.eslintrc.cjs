@@ -45,6 +45,16 @@ module.exports = {
     "@typescript-eslint/promise-function-async": "off",
     "@typescript-eslint/ban-ts-ignore": "off",
     "@typescript-eslint/no-this-alias": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/ban-types": [
+       "off",
+      {
+        "types": [
+            "{}",
+            "object"
+        ]
+      }
+    ],
     // React linting rules
     "react/boolean-prop-naming": "off",
     "react/button-has-type": "error",

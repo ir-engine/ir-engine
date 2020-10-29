@@ -12,7 +12,7 @@ import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/C
 import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
 import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
  import { VehicleInputSchema } from "@xr3ngine/engine/src/templates/car/VehicleInputSchema";
-import { Interactive } from "../../../interaction/components/Interactive";
+import { Interactable } from "../../../interaction/components/Interactable";
 import { getInCar } from "../behaviors/getInCarBehavior";
 import { getInCarPossible } from "../behaviors/getInCarPossible";
 import { Entity } from "../../../ecs/classes/Entity";
@@ -29,17 +29,18 @@ export const CarController: Prefab = {
     //   { type: State, data: { schema: VehicleStateSchema } },
       // Similar to Unity's Update(), LateUpdate(), and Start()
   //    { type: Subscription, data: { schema: DefaultSubscriptionSchema } }
-        { type: Interactive, data: {
+        { type: Interactable, data: {
+            interactionParts: ['door_front_left', 'door_front_right'],
             onInteraction: getInCar,
             onInteractionCheck: getInCarPossible,
             onInteractionFocused: onInteractionHover,
             data:{
-              interactionText: 'get in car'              
+              interactionText: 'get in car'
             },
           }
         }
     ],
-    onCreate: [
+    onAfterCreate: [
         // add a 3d object
         {
             behavior: addComponentFromSchema,

@@ -7,7 +7,7 @@ import { addWorldColliders } from "../behaviors/addWorldColliders";
 
 export const WorldPrefab: Prefab = {
     components: [{ type: TransformComponent, data: { position: [0, 0.01, 0] } }],
-    onCreate: [
+    onAfterCreate: [
         {
             behavior: addComponentFromSchema,
             args: {

@@ -54,7 +54,7 @@ export function resolveUser (user: any): User {
     };
   }
 
-  console.log('Returned user:')
-  console.log(returned)
+  // console.log('Returned user:')
+  // console.log(returned)
   return returned
 }

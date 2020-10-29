@@ -23,8 +23,6 @@ export function initialize (options?: EngineOptions) {
 }
 
 export function reset(): void {
-  console.log('reset start');
-
   // clear all entities components
   Engine.entities.forEach(entity => {
     removeAllComponents(entity, false);
@@ -81,8 +79,6 @@ export function reset(): void {
     Engine.renderer.dispose();
     Engine.renderer = null;
   }
-
-  console.log('reset finished');
 }
 
 /**
@@ -201,12 +197,4 @@ export function resetEngine() {
   Engine.engineTimer?.stop();
 
   reset();
-}
-
-export function startTimer () {
-  setTimeout(() => {
-    Engine.engineTimer = Timer({
-      update: (delta, elapsedTime) => execute(delta, elapsedTime)
-    }).start();
-  }, 1);
 }

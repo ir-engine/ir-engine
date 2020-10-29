@@ -387,6 +387,7 @@ describe("special cases", () => {
     const normalPoint3 = normalizeMouseCoordinates(windowPoint3.x, windowPoint3.y, window.innerWidth, window.innerHeight);
     const normalDiff1 = { x: normalPoint2.x - normalPoint1.x, y: normalPoint2.y - normalPoint1.y };
     const normalDiff2 = { x: normalPoint3.x - normalPoint2.x, y: normalPoint3.y - normalPoint2.y };
+    const normalDiff1to3 = { x: normalPoint3.x - normalPoint1.x, y: normalPoint3.y - normalPoint1.y };
 
 
     triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 });

@@ -139,7 +139,7 @@ export const initializeCreatorCharacter: Behavior = (entity): void => {
         // Physics pre/post step callback bindings
         // States
         addState(entity, { state: CharacterStateTypes.IDLE });
-        actor.initialized = true;
+        // actor.initialized = true;
 
         // Load character models
         const models = { "Rose": null, "Allison": null, "Andy": null, "Erik": null, "Geoff": null, "Jace": null };

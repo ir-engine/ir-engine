@@ -12,15 +12,12 @@ import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/Ch
 export const setActorAnimation: Behavior = (entity, args: { name: string; transitionDuration: number }) => {
   //console.log('set anim: ', args.name, args.transitionDuration, 'now', now());
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-  // const actorObject3D: Object3DComponent = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
-  const stateComponent = getComponent<State>(entity, State);
 
-  if(!actor.initialized) return console.log("Not setting actor animation because not initialized");
+  if(!actor.initialized)
+  return console.log("Not setting actor animation because not initialized");
 
   const clip = AnimationClip.findByName(actor.animations, args.name );
   const newAction = actor.mixer.clipAction(clip, actor.modelContainer.children[0]);
-
-  console.log('-->actor.modelContainer.children[0]', actor.modelContainer.children[0]);
 
   if (newAction === null) {
     console.warn('setActorAnimation', args.name, ', not found');

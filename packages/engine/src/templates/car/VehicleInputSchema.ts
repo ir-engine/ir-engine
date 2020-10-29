@@ -13,6 +13,7 @@ import { driveSteering } from "../../physics/behaviors/driveSteeringBehavior";
 import { driveHandBrake } from "../../physics/behaviors/driveHandBrake";
 import { changeColor } from "./behaviors/changeColor";
 import { DefaultInputSchema } from "../shared/DefaultInputSchema";
+import { LifecycleValue } from "../../common/enums/LifecycleValue";
 
 export const VehicleInputSchema: InputSchema = {
   ...DefaultInputSchema,
@@ -20,14 +21,17 @@ export const VehicleInputSchema: InputSchema = {
   mouseInputMap: {
     buttons: {
       [MouseInput.LeftButton]: DefaultInput.PRIMARY,
-      [MouseInput.RightButton]: DefaultInput.SECONDARY
-      // [MouseButtons.MiddleButton]: DefaultInput.INTERACT
+    //  [MouseInput.LeftButton]: DefaultInput.INTERACT,
+      [MouseInput.RightButton]: DefaultInput.SECONDARY,
+      [MouseInput.MiddleButton]: DefaultInput.INTERACT
     },
     axes: {
       [MouseInput.MouseMovement]: DefaultInput.MOUSE_MOVEMENT,
       [MouseInput.MousePosition]: DefaultInput.SCREENXY,
       [MouseInput.MouseClickDownPosition]: DefaultInput.SCREENXY_START,
-      [MouseInput.MouseClickDownTransformRotation]: DefaultInput.ROTATION_START
+      [MouseInput.MouseClickDownTransformRotation]: DefaultInput.ROTATION_START,
+      [MouseInput.MouseClickDownMovement]: DefaultInput.LOOKTURN_PLAYERONE,
+      [MouseInput.MouseScroll]: DefaultInput.CAMERA_SCROLL
     }
   },
   // Map gamepad buttons to abstract input
@@ -87,7 +91,7 @@ export const VehicleInputSchema: InputSchema = {
       ]
     },
     [DefaultInput.INTERACT]: {
-      ended: [
+      started: [
         {
           behavior: getOutCar,
           args: {}

@@ -51,8 +51,6 @@ const locationReducer = (state = immutableState, action: LocationsAction): any =
     case LOCATION_RETRIEVED:
       newValues = (action as LocationRetrievedAction).location;
       updateMap = new Map();
-      console.log('Location newValues:');
-      console.log(newValues);
       if (newValues.locationType == null) {
         newValues.set('locationType', 'private');
       }
@@ -63,8 +61,6 @@ const locationReducer = (state = immutableState, action: LocationsAction): any =
       });
       bannedUsers = [...new Set(bannedUsers)];
       updateMap.set('bannedUsers', bannedUsers);
-      console.log('Writing new Location state:');
-      console.log(updateMap);
       return state
           .set('currentLocation', updateMap)
           .set('currentLocationUpdateNeeded', false)
