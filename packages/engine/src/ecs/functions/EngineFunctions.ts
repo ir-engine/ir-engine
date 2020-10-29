@@ -198,11 +198,3 @@ export function resetEngine() {
 
   reset();
 }
-
-export function startTimer () {
-  setTimeout(() => {
-    Engine.engineTimer = Timer({
-      update: (delta, elapsedTime) => execute(delta, elapsedTime)
-    }).start();
-  }, 1);
-}
