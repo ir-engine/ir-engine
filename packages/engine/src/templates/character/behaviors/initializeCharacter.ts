@@ -16,11 +16,9 @@ import { AnimationManager } from "@xr3ngine/engine/src/templates/character/compo
 import { addObject3DComponent } from "../../../common/behaviors/Object3DBehaviors";
 
 export const initializeCharacter: Behavior = (entity): void => {
-	console.log("Init character");
-	console.log("**** Initializing character!");
+	console.log("Initializing character");
 	if (!hasComponent(entity, CharacterComponent as any))
 		addComponent(entity, CharacterComponent as any);
-
 
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	// The visuals group is centered for easy actor tilting
@@ -40,64 +38,64 @@ export const initializeCharacter: Behavior = (entity): void => {
 	// const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader as any);
 	// assetLoader.parent = actor.modelContainer;
 	// assetLoader.onLoaded = (entity, { asset }) => {
-		AnimationManager.instance.getAnimations().then(animations => {
-			actor.animations = animations;
-		});
+	AnimationManager.instance.getAnimations().then(animations => {
+		actor.animations = animations;
+	});
 
-		actor.mixer = new AnimationMixer(actor.modelContainer);
-		actor.mixer.timeScale = actor.animationsTimeScale;
+	actor.mixer = new AnimationMixer(actor.modelContainer);
+	actor.mixer.timeScale = actor.animationsTimeScale;
 
 
-		actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
-		actor.rotationSimulator = new RelativeSpringSimulator(60, actor.defaultRotationSimulatorMass, actor.defaultRotationSimulatorDamping);
+	actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
+	actor.rotationSimulator = new RelativeSpringSimulator(60, actor.defaultRotationSimulatorMass, actor.defaultRotationSimulatorDamping);
 
-		actor.viewVector = new Vector3();
+	actor.viewVector = new Vector3();
 
-		// Physics
-		// Player Capsule
-		addComponent(entity, CapsuleCollider as any, {
-			mass: actor.actorMass,
-			position: actor.capsulePosition,
-			height: actor.actorHeight,
-			radius: actor.capsuleRadius,
-			segments: actor.capsuleSegments,
-			friction: actor.capsuleFriction
-		});
+	// Physics
+	// Player Capsule
+	addComponent(entity, CapsuleCollider as any, {
+		mass: actor.actorMass,
+		position: actor.capsulePosition,
+		height: actor.actorHeight,
+		radius: actor.capsuleRadius,
+		segments: actor.capsuleSegments,
+		friction: actor.capsuleFriction
+	});
 
-		actor.actorCapsule = getMutableComponent<CapsuleCollider>(entity, CapsuleCollider);
-		actor.actorCapsule.body.shapes.forEach((shape) => {
-			shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
-		});
-		actor.actorCapsule.body.allowSleep = false;
-		actor.actorCapsule.body.position = new Vec3(0,1,0);
-		// Move actor to different collision group for raycasting
-		actor.actorCapsule.body.collisionFilterGroup = 2;
+	actor.actorCapsule = getMutableComponent<CapsuleCollider>(entity, CapsuleCollider);
+	actor.actorCapsule.body.shapes.forEach((shape) => {
+		shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
+	});
+	actor.actorCapsule.body.allowSleep = false;
+	actor.actorCapsule.body.position = new Vec3(0, 1, 0);
+	// Move actor to different collision group for raycasting
+	actor.actorCapsule.body.collisionFilterGroup = 2;
 
-		// Disable actor rotation
-		actor.actorCapsule.body.fixedRotation = true;
-		actor.actorCapsule.body.updateMassProperties();
+	// Disable actor rotation
+	actor.actorCapsule.body.fixedRotation = true;
+	actor.actorCapsule.body.updateMassProperties();
 
-		    // If this entity has an object3d, get the position of that
-			// if(hasComponent(entity, Object3DComponent)){
-			// 	actor.actorCapsule.body.position = cannonFromThreeVector(getComponent<Object3DComponent>(entity, Object3DComponent).value.position)
-			//   } else {
-			//	actor.actorCapsule.body.position = new Vec3()
-			//   }
+	// If this entity has an object3d, get the position of that
+	// if(hasComponent(entity, Object3DComponent)){
+	// 	actor.actorCapsule.body.position = cannonFromThreeVector(getComponent<Object3DComponent>(entity, Object3DComponent).value.position)
+	//   } else {
+	//	actor.actorCapsule.body.position = new Vec3()
+	//   }
 
-		// Ray cast debug
-		const boxGeo = new BoxGeometry(0.1, 0.1, 0.1);
-		const boxMat = new MeshLambertMaterial({
-			color: 0xff0000
-		});
-		actor.raycastBox = new Mesh(boxGeo, boxMat);
-		//actor.raycastBox.visible = true;
-		//Engine.scene.add(actor.raycastBox);
-		PhysicsManager.instance.physicsWorld.addBody(actor.actorCapsule.body);
+	// Ray cast debug
+	const boxGeo = new BoxGeometry(0.1, 0.1, 0.1);
+	const boxMat = new MeshLambertMaterial({
+		color: 0xff0000
+	});
+	actor.raycastBox = new Mesh(boxGeo, boxMat);
+	//actor.raycastBox.visible = true;
+	//Engine.scene.add(actor.raycastBox);
+	PhysicsManager.instance.physicsWorld.addBody(actor.actorCapsule.body);
 
-		// Physics pre/post step callback bindings
-		// States
-		addState(entity, { state: CharacterStateTypes.IDLE });
-		actor.initialized = true;
+	// Physics pre/post step callback bindings
+	// States
+	addState(entity, { state: CharacterStateTypes.IDLE });
+	actor.initialized = true;
 
 	// };
 };

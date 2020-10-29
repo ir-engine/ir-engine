@@ -1,23 +1,19 @@
+import { getComponent } from '../../../ecs/functions/EntityFunctions';
+import { Input } from '../../../input/components/Input';
+import { addState } from "../../../state/behaviors/addState";
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { setMovingState } from '../behaviors/setMovingState';
+import { DefaultInput } from '../../shared/DefaultInput';
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { onAnimationEnded } from '../behaviors/onAnimationEnded';
 import { setActorAnimation } from "../behaviors/setActorAnimation";
 import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
+import { setAppropriateStartWalkState } from '../behaviors/setStartWalkState';
+import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { CharacterComponent } from '../components/CharacterComponent';
-import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
 import { findVehicle } from '../functions/findVehicle';
-import { jumpIdle } from '../behaviors/jumpIdle';
-import { DefaultInput } from '../../shared/DefaultInput';
-import { addState } from "../../../state/behaviors/addState";
-import { Input } from '../../../input/components/Input';
-import { getComponent } from '../../../ecs/functions/EntityFunctions';
-import { getLocalMovementDirection } from '../functions/getLocalMovementDirection';
-import { setJumpingState } from '../behaviors/setJumpingState';
-import { setAppropriateStartWalkState } from '../behaviors/setStartWalkState';
 
 export const DropIdleState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,

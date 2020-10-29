@@ -1,16 +1,18 @@
 import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { addMeshCollider } from "@xr3ngine/engine/src/physics/behaviors/addMeshCollider";
-import { Interactive } from "../../../interaction/components/Interactive";
+import { Interactable } from "../../../interaction/components/Interactable";
 import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
+import { RigidBody } from "@xr3ngine/engine/src/physics/components/RigidBody";
 import { Entity } from "../../../ecs/classes/Entity";
 import { onInteraction, onInteractionHover } from "../../interactive/functions/commonInteractive";
 
 export const RazerLaptop: Prefab = {
   components: [
     { type: TransformComponent, data: { position: [3,0.5,3]} },
-    { type: Interactive, data: {
+    { type: RigidBody },
+    { type: Interactable, data: {
         onInteraction: onInteraction,
         onInteractionFocused: onInteractionHover,
         data: {
@@ -38,7 +40,7 @@ Single-zone RGB powered by Razer Chroma™`
       }
     }
   ],
-  onCreate: [
+  onAfterCreate: [
     // add a 3d object
     {
       behavior: addComponentFromSchema,
@@ -64,4 +66,3 @@ Single-zone RGB powered by Razer Chroma™`
     },
   ]
 };
-

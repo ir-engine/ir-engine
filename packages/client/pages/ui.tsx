@@ -36,7 +36,7 @@ export const IndexPage = (props: any): any => {
   const [ sceneIsVisible, setSceneVisible ] = React.useState(true);
 
   useEffect(() => {
-      console.log('Index calling doLoginAuto')
+      console.log('Index calling doLoginAuto');
       doLoginAuto(true);
   }, []);
 

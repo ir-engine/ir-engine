@@ -93,7 +93,6 @@ const SeatList = (props: Props): any => {
   const filled = seatState.get('seats').filter((seat: Seat) => seat.seatStatus === 'filled');
   const subscription = authState.get('user').subscription;
 
-  // eslint-disable-next-line camelcase
   useEffect(() => {
     if (subscription != null && seatState.get('updateNeeded') === true) {
       props.getSeats();

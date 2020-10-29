@@ -2,7 +2,7 @@ import { Behavior } from "../../common/interfaces/Behavior";
 import { Entity } from "../../ecs/classes/Entity";
 import { addComponent, getComponent, hasComponent, removeComponent } from "../../ecs/functions/EntityFunctions";
 
-import { Interactive } from "../components/Interactive";
+import { Interactable } from "../components/Interactable";
 import { InteractiveFocused } from "../components/InteractiveFocused";
 import { SubFocused } from "../components/SubFocused";
 import { HighlightComponent } from "../../effects/components/HighlightComponent";
@@ -11,21 +11,21 @@ import { HighlightComponent } from "../../effects/components/HighlightComponent"
 
 export const subFocused:Behavior = (entity: Entity, args, delta: number): void => {
 
-  if (!hasComponent(entity, Interactive)) {
+  if (!hasComponent(entity, Interactable)) {
     console.error('Attempted to call interact behavior, but target does not have Interactive component');
     return;
   }
 
-  const focused = hasComponent(entity, InteractiveFocused);
+  //const focused = hasComponent(entity, InteractiveFocused);
   const subFocused = hasComponent(entity, SubFocused);
 
-  if (!focused) {
+//  if (!focused) {
     if (subFocused){
       addComponent(entity, HighlightComponent);
     }
     else {
       removeComponent(entity, HighlightComponent);
     }
-  }
+//  }
 
 };

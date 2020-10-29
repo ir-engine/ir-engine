@@ -492,7 +492,10 @@ const LeftDrawer = (props: Props): any => {
         return (
             <div>
                 <SwipeableDrawer
-                    className={styles['flex-column']}
+                    className={classNames({
+                        [styles['flex-column']]: true,
+                        [styles['left-drawer']]: true
+                    })}
                     anchor="left"
                     open={props.leftDrawerOpen === true}
                     onClose={() => {
@@ -504,7 +507,7 @@ const LeftDrawer = (props: Props): any => {
                     {detailsOpen === false && groupFormOpen === false &&
                     <div className={styles['list-container']}>
                         {user.userRole !== 'guest' &&
-                        <Accordion expanded={selectedAccordion === 'user'} onChange={handleAccordionSelect('user')}>
+                        <Accordion expanded={selectedAccordion === 'user'} onChange={handleAccordionSelect('user') } className={styles['MuiAccordion-root']}>
                             <AccordionSummary
                                 id="friends-header"
                                 expandIcon={<ExpandMore/>}
@@ -548,7 +551,7 @@ const LeftDrawer = (props: Props): any => {
                         </Accordion>
                         }
                         {user.userRole !== 'guest' &&
-                        <Accordion expanded={selectedAccordion === 'group'} onChange={handleAccordionSelect('group')}>
+                        <Accordion expanded={selectedAccordion === 'group'} onChange={handleAccordionSelect('group')} className={styles['MuiAccordion-root']}>
                             <AccordionSummary
                                 id="groups-header"
                                 expandIcon={<ExpandMore/>}
@@ -589,7 +592,7 @@ const LeftDrawer = (props: Props): any => {
                         </Accordion>
                         }
                         {user.userRole !== 'guest' &&
-                        <Accordion expanded={selectedAccordion === 'party'} onChange={handleAccordionSelect('party')}>
+                        <Accordion expanded={selectedAccordion === 'party'} onChange={handleAccordionSelect('party')} className={styles['MuiAccordion-root']}>
                             <AccordionSummary
                                 id="party-header"
                                 expandIcon={<ExpandMore/>}
@@ -627,7 +630,7 @@ const LeftDrawer = (props: Props): any => {
                                         <div>ID: {party.id}</div>
                                     </div>
                                     <div className={classNames({
-                                        [styles.actionButtons]: true,
+                                        'action-buttons': true,
                                         [styles['flex-center']]: true,
                                         [styles['flex-column']]: true
                                     })}>
@@ -899,7 +902,7 @@ const LeftDrawer = (props: Props): any => {
                                 <div>ID: {selectedUser.id}</div>
                             </div>
                             <div className={classNames({
-                                [styles.actionButtons]: true,
+                                'action-buttons': true,
                                 [styles['flex-center']]: true,
                                 [styles['flex-column']]: true
                             })}>
@@ -970,7 +973,7 @@ const LeftDrawer = (props: Props): any => {
                                 <div>{selectedGroup.name}</div>
                             </div>
                             <div className={classNames({
-                                [styles['group-id']]: true,
+                                'group-id': true,
                                 [styles['flex-center']]: true
                             })}>
                                 <div>ID: {selectedGroup.id}</div>
@@ -982,7 +985,7 @@ const LeftDrawer = (props: Props): any => {
                                 <div>{selectedGroup.description}</div>
                             </div>
                             <div className={classNames({
-                                [styles.actionButtons]: true,
+                                'action-buttons': true,
                                 [styles['flex-center']]: true,
                                 [styles['flex-column']]: true
                             })}>

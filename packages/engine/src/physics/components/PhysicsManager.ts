@@ -36,7 +36,6 @@ export class PhysicsManager extends Component<any> {
 
   constructor () {
     super();
-    console.log("Constructing physics world!");
     PhysicsManager.instance = this;
     this.frame = 0;
     this.physicsWorld = new World();
@@ -58,8 +57,6 @@ export class PhysicsManager extends Component<any> {
 
     this.parallelPairs = [];
 
-     console.log("========PhysicsManager.instance.physicsWorld");
-     console.log(PhysicsManager.instance.physicsWorld);
      const DebugOptions = {
        onInit: (body: Body, mesh: Mesh, shape: Shape) => 	{
         // console.log("PH INIT: body: ", body, " | mesh: ", mesh, " | shape: ", shape)
@@ -73,8 +70,6 @@ export class PhysicsManager extends Component<any> {
 
   dispose(): void {
     super.dispose();
-
-    console.log("**** Disposing");
     PhysicsManager.instance.groundMaterial = null;
     PhysicsManager.instance.wheelMaterial = null;
     PhysicsManager.instance.trimMeshMaterial = null;

@@ -18,12 +18,12 @@ export const DropRollingState: StateSchemaValue = {
     }
   }],
   onEntry: [
-    {
-      behavior: setArcadeVelocityTarget,
-      args: { x: 0, y: 0, z: 0.8 }
-    },
       {
         behavior: initializeCharacterState
+      },
+      {
+        behavior: setArcadeVelocityTarget,
+        args: { x: 0, y: 0, z: 0.8 }
       },
       {
         behavior: setActorAnimation,

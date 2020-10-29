@@ -33,3 +33,13 @@
   background-color: grey;
   color: white;
 }
+
+.termsLink {
+  & > a {
+    color: blue;
+
+    &:hover {
+      color: green;
+    }
+  }
+}

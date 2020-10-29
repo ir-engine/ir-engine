@@ -21,20 +21,20 @@ export const EndWalkState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
   onEntry: [
     {
+      behavior: initializeCharacterState
+    },
+    {
       behavior: setArcadeVelocityTarget,
       args: { x: 0, y: 0, z: 0 }
     },
-      {
-        behavior: initializeCharacterState
-      },
-      {
-        behavior: setActorAnimation,
-        args: {
-          name: 'idle2',
-          transitionDuration: 1
-        }
+    {
+      behavior: setActorAnimation,
+      args: {
+        name: 'idle',
+        transitionDuration: 1
       }
-    ],
+    }
+  ],
   onUpdate: [
     {
       behavior: updateCharacterState,
@@ -75,7 +75,7 @@ export const EndWalkState: StateSchemaValue = {
           }
 
           // If we're not moving, don't worry about the rest of this action
-        //  if (!isMoving(entity)) return;
+          //  if (!isMoving(entity)) return;
 
           setAppropriateStartWalkState(entity);
 

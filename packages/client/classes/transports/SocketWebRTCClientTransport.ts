@@ -12,6 +12,9 @@ import { DataConsumerOptions, DataProducer, Transport as MediaSoupTransport } fr
 import ioclient from "socket.io-client";
 import getConfig from "next/config";
 
+import store from "../../redux/store";
+import { User } from "@xr3ngine/common/interfaces/User";
+
 const { publicRuntimeConfig } = getConfig();
 const gameserver = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.gameserver : 'https://localhost:3030';
 
@@ -23,10 +26,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   isServer = false
   mediasoupDevice: mediasoupClient.Device
   leaving = false
-  recvTransport: MediaSoupTransport
-  sendTransport: MediaSoupTransport
+  instanceRecvTransport: MediaSoupTransport
+  instanceSendTransport: MediaSoupTransport
+  partyRecvTransport: MediaSoupTransport
+  partySendTransport: MediaSoupTransport
   lastPollSyncData = {}
-  pollingInterval: NodeJS.Timeout
   pollingTickRate = 1000
   pollingTimeout = 4000
 
@@ -38,13 +42,16 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   pollPending = false;
   videoEnabled = false;
 
+  partyId: string;
+
     /**
    * Send a message over TCP with socket.io
    * You should probably want {@link @xr3ngine/packages/enginge/src/networking/functions/NetworkFunctions.ts#sendMessage}
    * @param message message to send
    */
   sendReliableData(message): void {
-    this.socket.emit(message);
+    this.socket.emit(MessageTypes.ReliableMessage.toString(), message);
+    
   }
 
   // send and init are done separately to make it a bit more readable
@@ -52,7 +59,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   // creates data producer on client
   async createDataProducer(channel: string = DEFAULT_DATA_CHANNEL, type: UnreliableMessageType = 'raw', customInitInfo: any = {}): Promise<DataProducer | Error> {
     // else if (MediaStreamComponent.instance.dataProducers.get(channel)) return Promise.reject(new Error('Data channel already exists!'))
-    const dataProducer = await this.sendTransport.produceData({
+    const dataProducer = await this.instanceSendTransport.produceData({
       appData: { data: customInitInfo }, // Probably Add additional info to send to server
       ordered: true,
       label: channel,
@@ -77,7 +84,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   // Create data consumer and subscribe to the other client's producer when signalled
   handleDataConsumerCreation = async (options: DataConsumerOptions) => {
     console.log("Data consumer creation");
-    const dataConsumer = await this.recvTransport.consumeData(options);
+    const dataConsumer = await this.instanceRecvTransport.consumeData(options);
     console.log("Data consumer created");
 
     dataConsumer.on('message', handleDataChannelConsumerMessage(dataConsumer)); // Handle message received
@@ -105,24 +112,32 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     };
   }
 
-  public async initialize(address = "https://127.0.0.1", port = 3030, opts?: {}): Promise<void> {
-    console.log(`Initializing client transport to ${address}:${port}`);
+  public async initialize(address = "https://127.0.0.1", port = 3030, opts?: any): Promise<void> {
+    console.log(`Initializing client transport to ${address}:${port} with partyId: ${opts.partyId}`);
+
+    const token = (store.getState() as any).get('auth').get('authUser').accessToken;
+    const selfUser = (store.getState() as any).get('auth').get('user') as User;
+
+    Network.instance.userId = selfUser.id;
+    Network.instance.accessToken = token;
+
     this.mediasoupDevice = new Device();
     if (this.socket && this.socket.close) {
       this.socket.close();
     }
 
-    const {startVideo, videoEnabled, ...query} = (opts as any);
+    const {startVideo, videoEnabled, partyId, ...query} = opts;
+    this.partyId = partyId;
 
     this.videoEnabled = videoEnabled ?? false;
 
     if (process.env.NODE_ENV === 'development') {
-      this.socket = io(`${address as string}:${port.toString()}`, {
+      this.socket = ioclient(`${address as string}:${port.toString()}/realtime`, {
         query: query
       });
     } else {
-      this.socket = io(gameserver, {
-        path: `/socket.io/${address as string}/${port.toString()}`,
+      this.socket = ioclient(gameserver, {
+        path: `/socket.io/${address as string}/${port.toString()}/realtime`,
         query: query
       });
     }
@@ -133,8 +148,38 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log(`Initializing socket.io...,`);
     this.socket.on("connect", async () => {
       console.log("Connected!");
+      const payload = { userId: Network.instance.userId, accessToken: Network.instance.accessToken};
+      const { success } = await this.request(MessageTypes.Authorization.toString(), payload);
 
-      Network.instance.mySocketID = this.socket.id;
+      if(!success) return console.error("Unable to connect with credentials"); 
+      
+          // signal that we're a new peer and initialize our
+    // mediasoup-client device, if this is our first time connecting
+
+    console.log("Joining world");
+    const joinWorldResponse = await this.request(MessageTypes.JoinWorld.toString());
+
+    const { worldState, routerRtpCapabilities } = joinWorldResponse as any;
+
+    console.log("World state init: ");
+    console.log(worldState);
+    // TODO: This shouldn't be in the transport, should be in our network system somehow
+    // Apply all state to initial frame
+    applyWorldState(worldState);
+
+    console.log("Loading mediasoup");
+    if (this.mediasoupDevice.loaded !== true) await this.mediasoupDevice.load({ routerRtpCapabilities });
+
+    console.log("Joined world");
+    // return Promise.resolve();
+
+      // Send heartbeat every second
+      setInterval(() => {
+        this.socket.emit(MessageTypes.Heartbeat.toString());
+        console.log("Sending heartbeat");
+      }, 1000);
+
+      Network.instance.socketId = this.socket.id;
 
       // If a reliable message is received, add it to the queue
       this.socket.on(MessageTypes.ReliableMessage.toString(), (message) => {
@@ -147,22 +192,19 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         this.socket.emit(MessageTypes.LeaveWorld.toString());
       });
 
-      console.log("Attempting to join world");
-      await this.joinWorld();
-
       // Ping request for testing unreliable messaging may remove if not needed
       console.log('About to init receive and send transports');
       // Init Receive and Send Transports initially since we need them for unreliable message consumption and production
-      await Promise.all([this.initSendTransport(), this.initReceiveTransport()]);
+      await Promise.all([this.initSendTransport('instance'), this.initReceiveTransport('instance')]);
 
       await this.createDataProducer();
 
       console.log('Data Producer created');
       // await this.sendCameraStreams();
-      if (startVideo === true) this.sendCameraStreams();
+      if (startVideo === true) this.sendCameraStreams(partyId);
     });
     this.socket.on(MessageTypes.WebRTCConsumeData.toString(), this.handleDataConsumerCreation);
-    this.socket.on(MessageTypes.WebRTCCreateProducer.toString(), async (socketId, mediaTag, producerId) => {
+    this.socket.on(MessageTypes.WebRTCCreateProducer.toString(), async (socketId, mediaTag, producerId, localPartyId) => {
       const selfProducerIds = [
           MediaStreamComponent.instance.camVideoProducer?.id,
           MediaStreamComponent.instance.camAudioProducer?.id
@@ -173,11 +215,12 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           (selfProducerIds.indexOf(producerId) < 0) &&
           (MediaStreamComponent.instance.consumers?.find(
               c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
-          ) == null)
+          ) == null &&
+          (this.partyId === localPartyId) || localPartyId === 'instance')
       ) {
         // that we don't already have consumers for...
         console.log(`auto subscribing to ${mediaTag} track that ${socketId} has added at ${new Date()}`);
-        await this.subscribeToTrack(socketId, mediaTag);
+        await this.subscribeToTrack(socketId, mediaTag, localPartyId);
       }
     });
 
@@ -190,43 +233,26 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   // Mediasoup Code:
   //= =//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//
 
-  async joinWorld() {
-    // signal that we're a new peer and initialize our
-    // mediasoup-client device, if this is our first time connecting
-
-    console.log("Joining world");
-    const resp = await this.request(MessageTypes.JoinWorld.toString());
-
-    const { worldState, routerRtpCapabilities } = resp as any;
-
-    console.log("World state init: ");
-    console.log(worldState);
-    // TODO: This shouldn't be in the transport, should be in our network system somehow
-    // Apply all state to initial frame
-    applyWorldState(worldState);
-
-    console.log("Loading mediasoup");
-    if (this.mediasoupDevice.loaded !== true) await this.mediasoupDevice.load({ routerRtpCapabilities });
-
-    console.log("Joined world");
-    return Promise.resolve();
-  }
 
   // Init receive transport, create one if it doesn't exist else just resolve promise
-  async initReceiveTransport(): Promise<MediaSoupTransport | Error> {
+  async initReceiveTransport(partyId?: string): Promise<MediaSoupTransport | Error> {
     console.log('Creating receive transport');
-    this.recvTransport = await this.createTransport("recv");
-    return Promise.resolve(this.recvTransport);
+    let transport;
+    if (partyId === 'instance') transport = this.instanceRecvTransport = await this.createTransport('recv', 'instance');
+    else transport = this.partyRecvTransport = await this.createTransport('recv', partyId);
+    return Promise.resolve(transport);
   }
 
   // Init send transport, create one if it doesn't exist else just resolve promise
-  async initSendTransport(): Promise<MediaSoupTransport | Error> {
+  async initSendTransport(partyId?: string): Promise<MediaSoupTransport | Error> {
     console.log('Creating send transport');
-    this.sendTransport = await this.createTransport("send");
-    return Promise.resolve(this.sendTransport);
+    let transport;
+    if (partyId === 'instance') transport = this.instanceSendTransport = await this.createTransport('send', 'instance');
+    else transport = this.partySendTransport = await this.createTransport('send', partyId);
+    return Promise.resolve(transport);
   }
 
-  async sendCameraStreams(): Promise<void> {
+  async sendCameraStreams(partyId?: string): Promise<void> {
     console.log("send camera streams");
     // start sending video. the transport logic will initiate a
     // signaling conversation with the server to set up an outbound rtp
@@ -239,10 +265,17 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     if (this.videoEnabled === true) {
       console.log('Video track to send:');
       console.log(MediaStreamComponent.instance.mediaStream.getVideoTracks()[0]);
-      MediaStreamComponent.instance.camVideoProducer = await this.sendTransport.produce({
+      let transport;
+      if (partyId === 'instance') {
+        transport = this.instanceSendTransport;
+      } else {
+        if (this.partySendTransport == null || this.partySendTransport.closed === true) [transport,] = await Promise.all([this.initSendTransport(partyId), this.initReceiveTransport(partyId)]);
+        else transport = this.partySendTransport;
+      }
+      MediaStreamComponent.instance.camVideoProducer = await transport.produce({
         track: MediaStreamComponent.instance.mediaStream.getVideoTracks()[0],
         encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
-        appData: {mediaTag: "cam-video"}
+        appData: {mediaTag: "cam-video", partyId: partyId}
       });
 
       if (MediaStreamComponent.instance.videoPaused) await MediaStreamComponent.instance.camVideoProducer.pause();
@@ -261,65 +294,66 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     MediaStreamComponent.instance.mediaStream.removeTrack(audioTrack);
     MediaStreamComponent.instance.mediaStream.addTrack(dst.stream.getAudioTracks()[0]);
     // same thing for audio, but we can use our already-created
-    MediaStreamComponent.instance.camAudioProducer = await this.sendTransport.produce({
+    const transport = partyId === 'instance' ? this.instanceSendTransport : this.partySendTransport;
+    MediaStreamComponent.instance.camAudioProducer = await transport.produce({
       track: MediaStreamComponent.instance.mediaStream.getAudioTracks()[0],
-      appData: { mediaTag: "cam-audio" }
+      appData: { mediaTag: "cam-audio", partyId: partyId }
     });
 
     if (MediaStreamComponent.instance.audioPaused) MediaStreamComponent.instance.camAudioProducer.pause();
   }
 
-  async startScreenshare(): Promise<boolean> {
-    console.log("start screen share");
+  // async startScreenshare(): Promise<boolean> {
+  //   console.log("start screen share");
+  //
+  //   // make sure we've joined the  and that we have a sending transport
+  //   if (!this.sendTransport) this.sendTransport = await this.createTransport("send");
+  //
+  //   // get a screen share track
+  //   MediaStreamComponent.instance.localScreen = await (navigator.mediaDevices as any).getDisplayMedia(
+  //     { video: true, audio: true }
+  //   );
+  //
+  //   // create a producer for video
+  //   MediaStreamComponent.instance.screenVideoProducer = await this.sendTransport.produce({
+  //     track: MediaStreamComponent.instance.localScreen.getVideoTracks()[0],
+  //     encodings: [], // TODO: Add me
+  //     appData: { mediaTag: "screen-video" }
+  //   });
+  //
+  //   // create a producer for audio, if we have it
+  //   if (MediaStreamComponent.instance.localScreen.getAudioTracks().length) {
+  //     MediaStreamComponent.instance.screenAudioProducer = await this.sendTransport.produce({
+  //       track: MediaStreamComponent.instance.localScreen.getAudioTracks()[0],
+  //       appData: { mediaTag: "screen-audio" }
+  //     });
+  //   }
+  //
+  //   // handler for screen share stopped event (triggered by the
+  //   // browser's built-in screen sharing ui)
+  //   MediaStreamComponent.instance.screenVideoProducer.track.onended = async () => {
+  //     console.log("screen share stopped");
+  //     await MediaStreamComponent.instance.screenVideoProducer.pause();
+  //
+  //     const { error } = await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
+  //       producerId: MediaStreamComponent.instance.screenVideoProducer.id
+  //     });
+  //
+  //     await MediaStreamComponent.instance.screenVideoProducer.close();
+  //     MediaStreamComponent.instance.screenVideoProducer = null;
+  //     if (MediaStreamComponent.instance.screenAudioProducer) {
+  //       const { error: screenAudioProducerError } = await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
+  //         producerId: MediaStreamComponent.instance.screenAudioProducer.id
+  //       });
+  //
+  //       await MediaStreamComponent.instance.screenAudioProducer.close();
+  //       MediaStreamComponent.instance.screenAudioProducer = null;
+  //     }
+  //   };
+  //   return true;
+  // }
 
-    // make sure we've joined the  and that we have a sending transport
-    if (!this.sendTransport) this.sendTransport = await this.createTransport("send");
-
-    // get a screen share track
-    MediaStreamComponent.instance.localScreen = await (navigator.mediaDevices as any).getDisplayMedia(
-      { video: true, audio: true }
-    );
-
-    // create a producer for video
-    MediaStreamComponent.instance.screenVideoProducer = await this.sendTransport.produce({
-      track: MediaStreamComponent.instance.localScreen.getVideoTracks()[0],
-      encodings: [], // TODO: Add me
-      appData: { mediaTag: "screen-video" }
-    });
-
-    // create a producer for audio, if we have it
-    if (MediaStreamComponent.instance.localScreen.getAudioTracks().length) {
-      MediaStreamComponent.instance.screenAudioProducer = await this.sendTransport.produce({
-        track: MediaStreamComponent.instance.localScreen.getAudioTracks()[0],
-        appData: { mediaTag: "screen-audio" }
-      });
-    }
-
-    // handler for screen share stopped event (triggered by the
-    // browser's built-in screen sharing ui)
-    MediaStreamComponent.instance.screenVideoProducer.track.onended = async () => {
-      console.log("screen share stopped");
-      await MediaStreamComponent.instance.screenVideoProducer.pause();
-
-      const { error } = await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
-        producerId: MediaStreamComponent.instance.screenVideoProducer.id
-      });
-
-      await MediaStreamComponent.instance.screenVideoProducer.close();
-      MediaStreamComponent.instance.screenVideoProducer = null;
-      if (MediaStreamComponent.instance.screenAudioProducer) {
-        const { error: screenAudioProducerError } = await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
-          producerId: MediaStreamComponent.instance.screenAudioProducer.id
-        });
-
-        await MediaStreamComponent.instance.screenAudioProducer.close();
-        MediaStreamComponent.instance.screenAudioProducer = null;
-      }
-    };
-    return true;
-  }
-
-  async endVideoChat(): Promise<boolean> {
+  async endVideoChat(leftParty?: boolean): Promise<boolean> {
     if (MediaStreamComponent.instance?.camVideoProducer) {
       await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
         producerId: MediaStreamComponent.instance.camVideoProducer.id
@@ -351,6 +385,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       });
       await c.close();
     });
+    if (leftParty === true) {
+      if (this.partyRecvTransport != null && this.partyRecvTransport.closed !== true) await this.partyRecvTransport.close();
+      if (this.partySendTransport != null && this.partySendTransport.closed !== true) await this.partySendTransport.close();
+    }
     this.resetProducer();
     return true;
   }
@@ -367,15 +405,15 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     }
   }
 
+  setPartyId(partyId: string): void {
+    this.partyId = partyId;
+  }
+
   async leave(): Promise<boolean> {
     try {
       console.log('Attempting to leave client transport');
       this.leaving = true;
 
-      // stop polling
-      clearInterval(this.pollingInterval);
-      console.log('Cleared interval');
-      console.log(this.request);
       if (this.request) {
         console.log('Leaving World');
         // close everything on the server-side (transports, producers, consumers)
@@ -388,13 +426,13 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         console.log('Left World');
       }
 
-      // closing the transports closes all producers and consumers. we
-      // don't need to do anything beyond closing the transports, except
-      // to set all our local variables to their initial states
-      if (this.recvTransport) await this.recvTransport.close();
-      if (this.sendTransport) await this.sendTransport.close();
-      this.recvTransport = null;
-      this.sendTransport = null;
+      //Leaving the world should close all transports from the server side.
+      //This will also destroy all the associated producers and consumers.
+      //All we need to do on the client is null all references.
+      this.instanceRecvTransport = null;
+      this.instanceSendTransport = null;
+      this.partyRecvTransport = null;
+      this.partySendTransport = null;
       this.lastPollSyncData = {};
       if (MediaStreamComponent.instance) {
         MediaStreamComponent.instance.camVideoProducer = null;
@@ -418,7 +456,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     }
   }
 
-  async subscribeToTrack(peerId: string, mediaTag: string) {
+  async subscribeToTrack(peerId: string, mediaTag: string, partyId) {
     // if we do already have a consumer, we shouldn't have called this method
     let consumer = MediaStreamComponent.instance.consumers.find(
       (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === mediaTag
@@ -426,25 +464,29 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
     // ask the server to create a server-side consumer object and send us back the info we need to create a client-side consumer
     const consumerParameters = await this.request(MessageTypes.WebRTCReceiveTrack.toString(),
-      { mediaTag, mediaPeerId: peerId, rtpCapabilities: this.mediasoupDevice.rtpCapabilities }
+      { mediaTag, mediaPeerId: peerId, rtpCapabilities: this.mediasoupDevice.rtpCapabilities, partyId: partyId }
     );
 
     console.log(`Requesting consumer for peer ${peerId} of type ${mediaTag} at ${new Date()}`);
 
-    consumer = await this.recvTransport.consume(
-      { ...consumerParameters, appData: { peerId, mediaTag } }
-    );
+    if (consumerParameters.id != null) {
+      consumer = partyId === 'instance' ? await this.instanceRecvTransport.consume(
+          {...consumerParameters, appData: {peerId, mediaTag}}
+      ) : await this.partyRecvTransport.consume(
+          {...consumerParameters, appData: {peerId, mediaTag, partyId}}
+      );
 
-    if (MediaStreamComponent.instance.consumers?.find(c => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag) == null) {
-      let connected = false;
-      MediaStreamComponent.instance.consumers.push(consumer);
+      if (MediaStreamComponent.instance.consumers?.find(c => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag) == null) {
+        let connected = false;
+        MediaStreamComponent.instance.consumers.push(consumer);
 
-      connected = true;
+        connected = true;
 
-      // okay, we're ready. let's ask the peer to send us media
-      await this.resumeConsumer(consumer);
-    } else {
-      await this.closeConsumer(consumer);
+        // okay, we're ready. let's ask the peer to send us media
+        await this.resumeConsumer(consumer);
+      } else {
+        await this.closeConsumer(consumer);
+      }
     }
   }
 
@@ -498,11 +540,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
   // utility function to create a transport and hook up signaling logic
   // appropriate to the transport's direction
-  async createTransport(direction: string) {
+  async createTransport(direction: string, partyId?: string) {
     // ask the server to create a server-side transport object and send
     // us back the info we need to create a client-side transport
     let transport;
-    const { transportOptions } = await this.request(MessageTypes.WebRTCTransportCreate.toString(), { direction, sctpCapabilities: this.mediasoupDevice.sctpCapabilities });
+    const { transportOptions } = await this.request(MessageTypes.WebRTCTransportCreate.toString(), { direction, sctpCapabilities: this.mediasoupDevice.sctpCapabilities, partyId: partyId});
     console.log("transport options", transportOptions);
 
     if (direction === "recv")
@@ -538,7 +580,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         "produce",
         async ({ kind, rtpParameters, appData }: any, callback: (arg0: { id: any }) => void, errback: () => void) => {
           console.log("transport produce event", appData.mediaTag);
-          console.log(rtpParameters);
 
           // we may want to start out paused (if the checkboxes in the ui
           // aren't checked, for each media type. not very clean code, here
@@ -562,7 +603,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
             errback();
             console.log(error);
             return;
-          } 
+          }
           callback({ id });
         }
       );
@@ -598,7 +639,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // we leave the )
       if (this.leaving !== true && (state === "closed" || state === "failed" || state === "disconnected")) {
         console.log("transport closed ... leaving the and resetting");
-        this.endVideoChat();
+        // await this.request(MessageTypes.WebRTCTransportClose.toString(), { transportId: transport.id });
       }
     });
 

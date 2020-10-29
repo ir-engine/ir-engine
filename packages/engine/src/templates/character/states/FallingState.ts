@@ -22,12 +22,12 @@ export const FallingState: StateSchemaValue = {
   }],
   onEntry: [
     {
+      behavior: initializeCharacterState
+    },
+    {
       behavior: setArcadeVelocityTarget,
       args: { x: 0, y: 0, z: 0.05 }
     },
-      {
-        behavior: initializeCharacterState
-      },
       {
         behavior: setActorAnimation,
         args: {
