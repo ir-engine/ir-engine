@@ -45,8 +45,6 @@ export default class WayPointNodeEditor extends Component<
   WayPointNodeEditorProps,
   {}
 > {
-  static iconComponent = StreetView;
-  static description = "A point people can teleport to.\n";
   constructor(props) {
     super(props);
     const createPropSetter = propName => value => {
@@ -56,6 +54,8 @@ export default class WayPointNodeEditor extends Component<
       propertyNames.map(name => [name, createPropSetter(name)])
     );
   }
+  static iconComponent = StreetView;
+  static description = "A point people can teleport to.\n";
   setters: Map<string, (value: any) => any>;
   render() {
     const { node } = this.props as any;

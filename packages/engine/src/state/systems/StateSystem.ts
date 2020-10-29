@@ -4,7 +4,7 @@ import { NumericalType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
-import { addState } from '../behaviors/StateBehaviors';
+import { addState } from "../behaviors/addState";
 import { State } from '../components/State';
 import { StateValue } from '../interfaces/StateValue';
 import { StateGroupAlias } from '../types/StateGroupAlias';
@@ -16,8 +16,7 @@ export class StateSystem extends System {
     this.queryResults.state.added?.forEach(entity => {
       // If stategroup has a default, add it to our state map
       this._state = getComponent(entity, State);
-      if (this._state.schema === undefined) return;
-      Object.keys((this._state.schema)?.groups).forEach((stateGroup: StateGroupAlias) => {
+      Object.keys((this._state.schema).groups).forEach((stateGroup: StateGroupAlias) => {
         if (
           this._state.schema.groups[stateGroup] !== undefined &&
           this._state.schema.groups[stateGroup].default !== undefined
@@ -26,25 +25,7 @@ export class StateSystem extends System {
         }
       });
     });
-
-    // this.queryResults.state.changed?.forEach(entity => {
-    //   // If stategroup has a default, add it to our state map
-    //   this._state = getComponent(entity, State);
-    //   if (this._state.schema === undefined) return;
-    //   Object.keys((this._state.schema)?.groups).forEach((stateGroup: StateGroupAlias) => {
-    //     if (
-    //       this._state.schema.groups[stateGroup] !== undefined &&
-    //       this._state.schema.groups[stateGroup].default !== undefined
-    //     ) {
-    //       addState(entity, { state: this._state.schema.groups[stateGroup].default });
-    //     }
-    //   });
-    // });
-
     this.queryResults.state.all?.forEach(entity => {
-      if (!hasComponent(entity, State)) {
-        return;
-      }
       callBehaviors(entity, { phase: 'onUpdate' }, delta);
       // callBehaviors(entity, { phase: 'onLateUpdate' }, delta);
     });

@@ -1,0 +1,28 @@
+$mobileControllButtonsSize:3em;
+.drawerBoxContainer{
+    position: absolute;
+    bottom: 150px;
+    right: 40px;
+    .drawerBox{        
+        margin: 0 auto;
+        width: fit-content;    
+        height: fit-content;
+        display: flex;
+        background:rgba(255,255,255,0.4);
+        opacity: 0.75;
+        font-size: 20px;
+        height: $mobileControllButtonsSize;
+        width: $mobileControllButtonsSize;
+        text-align: center;
+        border: 1px solid #ffffff;
+        font-size: 20px;
+        border-radius: 50%;
+        line-height: ($mobileControllButtonsSize+1em);
+
+        > svg{
+            height: 2em;
+            color: white;        
+            margin: 0.5em;
+        }
+    }
+}

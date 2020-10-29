@@ -1,0 +1,86 @@
+.exitButtonContainer{
+    position: absolute;
+    top: 10px;
+    width: 100vw;
+
+    .exitButton{
+        cursor: pointer;
+        display: block;
+        margin: 0 auto;
+    }
+}
+.helpHintSnackBar{
+    padding: 2em;
+    user-select: none;
+    text-align: center;
+    
+    &.bottomPos{
+        bottom: 50px;
+    }
+
+    &.tutor_lookaround{
+        .helpHintSnackBarContent{
+            padding-top: 100px;
+            background-image: url('../assets/swipe.svg');
+            background-position: center 10px;
+            background-repeat: no-repeat;
+            background-size: 100px;
+        }
+    }
+    &.tutor_move{
+        @media (max-width: 768px) {
+            width: fit-content;
+            margin: 0 0 0 12em;
+        }
+    }
+    &.tutor_interact{
+        
+        @media (max-width: 768px) {
+            width: fit-content;
+            margin: 0 10em 0 0;
+
+            .helpHintSnackBarContent{
+                padding-top: 70px;
+                background-image: url('../assets/interactico.svg');
+                background-position: center 10px;
+                background-repeat: no-repeat;
+                background-size: 40px;
+            }
+        }
+    }
+
+    &.tutor_unmute{
+        .helpHintSnackBarContent{
+            padding-top: 70px;
+            background-image: url('../assets/mic.svg');
+            background-position: center 10px;
+            background-repeat: no-repeat;
+            background-size: 40px;
+        }
+        @media (max-width: 768px) {
+            width: fit-content;
+            margin: 0 10em 0 0;
+        }
+    }
+    .helpHintSnackBarContent{
+        background-color: rgba(0,0,0, 0.6);
+        color: #FFFFFF;
+        text-align: center;
+    }    
+}
+
+.keyButton{
+    background-color: rgba(0,0,0,0.6);
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(102,185,51,0.5);
+    box-sizing: border-box;
+    display: inline-block;
+    height: 2em;
+    line-height: 2em;
+    margin: 3px 10px 3px 0;
+    min-width: 2em;
+    padding: 0px 5px;
+    text-align: center;
+    text-transform: capitalize;
+    opacity: 1
+}

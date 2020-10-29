@@ -30,7 +30,7 @@ export class MediaStreamComponent extends Component<any> {
     this.mediaStream = null;
   }
 
-  dispose():void {
+  dispose(): void {
     super.dispose();
     MediaStreamComponent.instance = null;
     this.consumers = [];

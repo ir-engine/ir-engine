@@ -29,17 +29,14 @@ module.exports = {
   ],
   rules: {
     "no-unused-expressions": "off",
-    "no-var": "error",
+    "no-var": "off",
+    "prefer-const": "off",
     "prefer-arrow-callback": "error",
     "semi": [2, 'always'],
     "space-before-function-paren": "off",
     "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/no-unused-vars": [
-      "off"
-    ],
-    "@typescript-eslint/no-use-before-define": [
-      "off"
-    ],
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-use-before-define": "off",
     "@typescript-eslint/default-param-last": "off",
     "@typescript-eslint/no-empty-interface": "off",
     "@typescript-eslint/no-empty-function": "off",
@@ -48,6 +45,16 @@ module.exports = {
     "@typescript-eslint/promise-function-async": "off",
     "@typescript-eslint/ban-ts-ignore": "off",
     "@typescript-eslint/no-this-alias": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/ban-types": [
+       "off",
+      {
+        "types": [
+            "{}",
+            "object"
+        ]
+      }
+    ],
     // React linting rules
     "react/boolean-prop-naming": "off",
     "react/button-has-type": "error",

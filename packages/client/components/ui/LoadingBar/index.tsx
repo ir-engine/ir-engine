@@ -1,15 +1,15 @@
 import React from 'react';
-import './style.scss';
+import styles from './LoadingBar.module.scss';
 
 interface Props {
   loadPercent: number;
 }
 const LoadingBar = ({ loadPercent }: Props): any => {
   return (
-    <div className="LoadingBar">
-      <div className="loading-bar-outline" />
+    <div className={styles.LoadingBar}>
+      <div className={styles['loading-bar-outline']} />
       <div
-        className="progress-bar"
+        className={styles['progress-bar']}
         style={{
           width: `${loadPercent}%`
         }}

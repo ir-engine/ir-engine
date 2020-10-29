@@ -16,7 +16,7 @@ export function loadAssets (
   iterateLoadAsset(assets.entries(), onAssetLoaded, onAllAssetsLoaded);
 }
 
-export function loadAsset (url: AssetUrl, entity:Entity, onAssetLoaded: AssetsLoadedHandler): void {
+export function loadAsset (url: AssetUrl, entity: Entity, onAssetLoaded: AssetsLoadedHandler): void {
   if (!AssetVault.instance.assets.has(url)) {
     const loader = getLoaderForAssetType(getAssetType(url));
     loader.load(url, resource => {

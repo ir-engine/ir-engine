@@ -72,7 +72,7 @@ export class ResolveMedia implements ServiceMethods<Data> {
           name: '',
         },
         origin: data.media.url
-      }
+      };
     }
     // TODO: Save sketch fab in static resource
     // Now stream that model to s3 and send the url to front end

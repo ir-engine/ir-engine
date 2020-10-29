@@ -10,12 +10,14 @@ import { IdleRotateRightState } from './states/IdleRotateRightState';
 import { JumpIdleState } from './states/JumpIdleState';
 import { JumpRunningState } from './states/JumpRunningState';
 import { SprintState } from './states/SprintState';
+import { StartSprintLeftState } from './states/StartSprintLeftState';
+import { StartSprintRightState } from './states/StartSprintRightState';
+import { StartSprintBackwardState } from './states/StartSprintBackwardState';
 import { StartWalkForwardState } from './states/StartWalkForwardState';
 import { StartWalkLeftState } from './states/StartWalkLeftState';
 import { StartWalkRightState } from './states/StartWalkRightState';
 import { EndWalkState } from './states/EndWalkState';
-import { StartWalkBackRightState } from './states/StartWalkBackRightState';
-import { StartWalkBackLeftState } from './states/StartWalkBackLeftState';
+import { StartWalkBackwardState } from './states/StartWalkBackwardState';
 import { DrivingIdleState } from './states/DrivingIdleState';
 import { EnterVehicleState } from './states/EnterVehicleState';
 import { ExitVehicleState } from './states/ExitVehicleState';
@@ -32,9 +34,11 @@ export const CharacterStates = {
   [CharacterStateTypes.JUMP_IDLE]: JumpIdleState,
   [CharacterStateTypes.JUMP_RUNNING]: JumpRunningState,
   [CharacterStateTypes.SPRINT]: SprintState,
+  [CharacterStateTypes.SPRINT_LEFT]: StartSprintLeftState,
+  [CharacterStateTypes.SPRINT_RIGHT]: StartSprintRightState,
+  [CharacterStateTypes.SPRINT_BACKWARD]: StartSprintBackwardState,
   [CharacterStateTypes.WALK_END]: EndWalkState,
-  [CharacterStateTypes.WALK_START_BACK_LEFT]: StartWalkBackLeftState,
-  [CharacterStateTypes.WALK_START_BACK_RIGHT]: StartWalkBackRightState,
+  [CharacterStateTypes.WALK_START_BACKWARD]: StartWalkBackwardState,
   [CharacterStateTypes.WALK_START_FORWARD]: StartWalkForwardState,
   [CharacterStateTypes.WALK_START_LEFT]: StartWalkLeftState,
   [CharacterStateTypes.WALK_START_RIGHT]: StartWalkRightState,

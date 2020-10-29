@@ -1,9 +1,10 @@
 import { Component } from '../../ecs/classes/Component';
+import { Types } from '../../ecs/types/Types';
 import { BehaviorMapType } from '../types/BehaviorMapType';
 
 export interface PropTypes<TDataType extends string | number | symbol, TBehaviorMap, TValue> {
-  schema: TBehaviorMap
-  data: BehaviorMapType<TDataType, TValue>
+  schema: TBehaviorMap;
+  data: BehaviorMapType<TDataType, TValue>;
 }
 // Constructs a component with a map and data values
 // Data contains a map() of arbitrary data
@@ -27,3 +28,8 @@ PropTypes<TDataType, BehaviorSchema, TValue>
     this.data.clear();
   }
 }
+
+BehaviorComponent.schema = {
+  schema: { type: Types.Ref, default: null},
+  data: { type: Types.Ref, default: null}
+};

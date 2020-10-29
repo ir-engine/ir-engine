@@ -9,25 +9,26 @@ import { NetworkObjectList } from '../interfaces/NetworkObjectList';
 export interface NetworkClientList {
   // Key is socket ID
   [key: string]: {
-    userId?: string,
-    socket?: any,
-    lastSeenTs?: any,
-    joinTs?: any,
-    media?: {},
-    consumerLayers?: {},
-    stats?: {},
-    sendTransport?: any,
-    recvTransport?: any,
-    dataConsumers?: Map<string, any>, // Key => id of data producer
-    dataProducers?: Map<string, any> // Key => label of data channel}
-  }
+    userId?: string;
+    name?: string;
+    socket?: any;
+    lastSeenTs?: any;
+    joinTs?: any;
+    media?: {};
+    consumerLayers?: {};
+    stats?: {};
+    instanceSendTransport?: any;
+    instanceRecvTransport?: any;
+    partySendTransport?: any;
+    partyRecvTransport?: any;
+    dataConsumers?: Map<string, any>; // Key => id of data producer
+    dataProducers?: Map<string, any>; // Key => label of data channel}
+  };
 }
 
 
 export class Network extends Component<Network> {
   static instance: Network = null
-  // TODO: localuserId should be set somewhere
-  localUserId = ""
   isInitialized: boolean
   transport: NetworkTransport
   schema: NetworkSchema
@@ -39,7 +40,9 @@ export class Network extends Component<Network> {
   ]
   clients: NetworkClientList = {}
   networkObjects: NetworkObjectList = {}
-  mySocketID: string
+  socketId: string
+  userId: string
+  accessToken: string
   private static availableNetworkId = 0
   static getNetworkId() {
     return this.availableNetworkId++;
@@ -47,7 +50,6 @@ export class Network extends Component<Network> {
   static _schemas: Map<string, MessageSchema> = new Map()
 
   incomingMessageQueue: RingBuffer<ArrayBuffer>
-  outgoingMessageQueue: RingBuffer<ArrayBuffer>
 
   worldState = {
     tick: Network.tick,
@@ -57,7 +59,7 @@ export class Network extends Component<Network> {
     clientsDisconnected: [],
     createObjects: [],
     destroyObjects: []
-  }
+  };
 
   static sceneId = "default"
   static Network: any
@@ -69,7 +71,6 @@ export class Network extends Component<Network> {
 
     // TODO: Replace default message queue sizes
     this.incomingMessageQueue = new RingBuffer<ArrayBuffer>(100);
-    this.outgoingMessageQueue = new RingBuffer<ArrayBuffer>(100);
   }
 
   dispose(): void {
@@ -89,5 +90,4 @@ Network.schema = {
   transport: { type: Types.Ref },
   schema: { type: Types.Ref },
   clients: { type: Types.Array },
-  mySocketID: { type: Types.String }
 };

@@ -7,7 +7,7 @@ import Box from '@material-ui/core/Box';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectAuthState } from '../../../redux/auth/selector';
-import './style.scss';
+import styles from './Invite.module.scss';
 import {
   cancelInvitation,
   removeSeat
@@ -54,8 +54,8 @@ const SeatItem = (props: Props): any => {
   };
 
   return (
-    <div className={'root'}>
-      <Box display="flex" className={'container'} p={1}>
+    <div className={styles.root}>
+      <Box display="flex" className={styles.container} p={1}>
         <Box p={1} display="flex">
           <Avatar variant="rounded" src="" alt="avatar"/>
         </Box>

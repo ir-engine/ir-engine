@@ -11,7 +11,7 @@ import { findVehicle } from '../functions/findVehicle';
 import { getComponent } from '../../../ecs/functions/EntityFunctions';
 import { Input } from '../../../input/components/Input';
 import { isMoving } from '../functions/isMoving';
-import { addState } from '../../../state/behaviors/StateBehaviors';
+import { addState } from "../../../state/behaviors/addState";
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { setAppropriateStartWalkState } from '../behaviors/setStartWalkState';
 import { Entity } from '../../../ecs/classes/Entity';
@@ -39,7 +39,7 @@ export const IdleState: StateSchemaValue = {
     {
       behavior: setActorAnimation,
       args: {
-        name: 'idle6',
+        name: 'idle',
         transitionDuration: 1
       }
     }
@@ -54,7 +54,7 @@ export const IdleState: StateSchemaValue = {
     {
       behavior: triggerActionIfMovementHasChanged,
       args: {
-        action: (entity:Entity): void => {
+        action: (entity: Entity): void => {
           // Default behavior for all states
           findVehicle(entity);
           const input = getComponent(entity, Input);
@@ -64,12 +64,25 @@ export const IdleState: StateSchemaValue = {
             return addState(entity, {state: CharacterStateTypes.JUMP_IDLE});
           }
 
+          if (input.data.has(DefaultInput.SPRINT)) {
+
+            if (input.data.has(DefaultInput.FORWARD)) {
+              return addState(entity, { state: CharacterStateTypes.SPRINT })
+            } else if (input.data.has(DefaultInput.LEFT)) {
+              return addState(entity, { state: CharacterStateTypes.SPRINT_LEFT })
+            } else if (input.data.has(DefaultInput.RIGHT)) {
+              return addState(entity, { state: CharacterStateTypes.SPRINT_RIGHT })
+            } else if (input.data.has(DefaultInput.BACKWARD)) {
+              return addState(entity, { state: CharacterStateTypes.SPRINT_BACKWARD })
+            }
+          }
+
           // If we're not moving, don't worry about the rest of this action
           if (!isMoving(entity)) return;
 
           // If our character is moving or being moved, go to walk state
-          if (getComponent(entity, CharacterComponent).velocity.length() > 0.5)
-            return addState(entity, { state: CharacterStateTypes.WALK });
+    //      if (getComponent(entity, CharacterComponent).velocity.length() > 0.5)
+  //          return addState(entity, { state: CharacterStateTypes.WALK_START_FORWARD });
 
           // Otherwise set the appropriate walk state
           setAppropriateStartWalkState(entity);

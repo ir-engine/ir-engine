@@ -12,7 +12,6 @@ import { RendererComponent } from '../../renderer/components/RendererComponent'
 export class HighlightSystem extends System {
   constructor(attributes?: SystemAttributes) {
     super(attributes)
-    registerComponent(HighlightComponent)
   }
   canExecute(delta: number): boolean {
     return super.canExecute(delta) && !!RendererComponent?.instance?.composer

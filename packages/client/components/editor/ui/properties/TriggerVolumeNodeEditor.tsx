@@ -48,8 +48,6 @@ export default class TriggerVolumeNodeEditor extends Component<
   TriggerVolumeNodeEditorProps,
   TriggerVolumeNodeEditorState
 > {
-  static iconComponent = Running;
-  static description = "Sets a property on the target object on enter and leave.";
   constructor(props) {
     super(props);
     this.state = {
@@ -66,6 +64,8 @@ export default class TriggerVolumeNodeEditor extends Component<
     });
     this.setState({ options });
   }
+  static iconComponent = Running;
+  static description = "Sets a property on the target object on enter and leave.";
   onChangeTarget = target => {
     (this.props.editor as any).setPropertiesSelected({
       target,

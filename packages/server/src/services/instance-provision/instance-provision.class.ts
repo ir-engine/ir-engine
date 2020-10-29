@@ -73,7 +73,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
         const partyOwner = (partyOwnerResult as any).data[0];
         // Only redirect non-party owners. Party owner will be provisioned below this and will pull the
         // other party members with them.
-        if (partyOwner.userId !== userId && partyOwner.user.instanceId) {
+        if (partyOwner?.userId !== userId && partyOwner?.user.instanceId) {
           const partyInstance = await this.app.service('instance').get(partyOwner.user.instanceId);
           // Only provision the party's instance if the non-owner is trying to go to the party's scene.
           // If they're not, they'll be removed from the party

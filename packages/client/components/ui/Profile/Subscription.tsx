@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button';
 interface MProps {
   auth: any;
 }
+import styles from './Profile.module.scss';
 
 const useStyles = makeStyles({
   root: {
@@ -33,11 +34,11 @@ const UserSettings: React.FC<MProps> = (props: MProps) => {
 
   // }
   return (
-    <div className={classes.subscriptionBody}>
-      <div className={classes.subscriptionTitle}>Your Subscription</div>
+    <div className={styles.subscriptionBody}>
+      <div className={styles.subscriptionTitle}>Your Subscription</div>
       {authUser.subscription == null &&
-        <div className={classes.subscriptionBody}>
-          <div className={classes.subscriptionBody}>Free Tier</div>
+        <div className={styles.subscriptionBody}>
+          <div className={styles.subscriptionBody}>Free Tier</div>
           <Button
             variant="contained"
             color="primary"
@@ -48,7 +49,7 @@ const UserSettings: React.FC<MProps> = (props: MProps) => {
         </div>
       }
       {authUser.subscription != null &&
-        <div className={classes.subscriptionBody}>
+        <div className={styles.subscriptionBody}>
           <div>Plan: {authUser.subscription.subscriptionType.name}</div>
           <div>Seats: {authUser.subscription.subscriptionType.seats}</div>
           <div>Unused Seats: {authUser.subscription.unusedSeats}</div>

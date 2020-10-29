@@ -1,3 +1,3 @@
 export interface SchemaMap {
-  [key: string]: any
+  [key: string]: any;
 }

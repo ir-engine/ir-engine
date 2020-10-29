@@ -1,13 +1,13 @@
 import { Behavior } from "../../../common/interfaces/Behavior";
 import { getComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
 import { Object3DComponent } from "../../../common/components/Object3DComponent";
-import { Interactive } from "../../../interaction/components/Interactive";
+import { Interactable } from "../../../interaction/components/Interactable";
 
-export const onInteraction:Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
-  const interactiveComponent = getComponent(entityInteractive, Interactive);
+export const onInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
+  const interactiveComponent = getComponent(entityInteractive, Interactable);
 
   // TODO: make interface for universal interactive data, and event data
-  const detail:any = {};
+  const detail: any = {};
   if (interactiveComponent.data) {
     if (typeof interactiveComponent.data.action !== 'undefined') {
       detail.action = interactiveComponent.data.action;
@@ -20,11 +20,11 @@ export const onInteraction:Behavior = (entityInitiator, args, delta, entityInter
   document.dispatchEvent(event);
 };
 
-export const onInteractionHover:Behavior = (entityInitiator, { focused }:{ focused:boolean }, delta, entityInteractive, time) => {
-  const interactiveComponent = getComponent(entityInteractive, Interactive);
+export const onInteractionHover: Behavior = (entityInitiator, { focused }: { focused: boolean }, delta, entityInteractive, time) => {
+  const interactiveComponent = getComponent(entityInteractive, Interactable);
 
   // TODO: make interface for universal interactive data, and event data
-  const detail:any = { focused };
+  const detail: any = { focused };
 
   if (interactiveComponent.data) {
     if (typeof interactiveComponent.data.action !== 'undefined') {

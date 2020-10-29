@@ -12,7 +12,7 @@ import SeatItem from './SeatItem';
 import { Dispatch, bindActionCreators } from 'redux';
 import { selectSeatState } from '../../../redux/seats/selector';
 import { useRouter } from 'next/router';
-import './style.scss';
+import styles from './Invite.module.scss';
 import {
   inviteUser,
   getSeats
@@ -93,7 +93,6 @@ const SeatList = (props: Props): any => {
   const filled = seatState.get('seats').filter((seat: Seat) => seat.seatStatus === 'filled');
   const subscription = authState.get('user').subscription;
 
-  // eslint-disable-next-line camelcase
   useEffect(() => {
     if (subscription != null && seatState.get('updateNeeded') === true) {
       props.getSeats();
@@ -101,10 +100,10 @@ const SeatList = (props: Props): any => {
   }, [authState.get('user').subscription, seatState]);
 
   return (
-    <div className={classes.root}>
-      <div className={classes.section1}>
+    <div className={styles.root}>
+      <div className={styles.section1}>
         <Grid container alignItems="center">
-          <Grid item xs className={classes.header}>
+          <Grid item xs className={styles.header}>
             <Typography variant="h4">
               Subscription Seats
             </Typography>
@@ -119,13 +118,13 @@ const SeatList = (props: Props): any => {
       { subscription != null && <Grid container>
         <Grid item
           xs
-          className={classes.inviteBox}
+          className={styles.inviteBox}
         >
           <TextField
             label="Invite users by email"
             type="search"
             variant="outlined"
-            className={classes.inputBox}
+            className={styles.inputBox}
             value={state.inviteField}
             onChange={(e) => updateField(e)}
             onKeyDown={(e) => e.keyCode === 13 ? inviteUser() : null}
