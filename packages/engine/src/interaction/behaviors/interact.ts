@@ -31,7 +31,6 @@ export const  interact: Behavior = (entity: Entity, args: any, delta): void => {
     startedPosition.set(entity,mouseScreenPosition.value);
     return;
   }
-
   if (!focusedEntity) {
     // no available interactive object is focused right now
     return;

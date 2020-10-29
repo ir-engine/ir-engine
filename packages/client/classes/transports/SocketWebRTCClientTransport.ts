@@ -2,7 +2,7 @@ import { MediaStreamComponent } from "@xr3ngine/engine/src/networking/components
 import { Network } from "@xr3ngine/engine/src/networking/components/Network";
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "@xr3ngine/engine/src/networking/constants/VideoConstants";
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
-import { applyWorldState } from "@xr3ngine/engine/src/networking/functions/applyWorldState";
+import { applyNetworkStateToClient } from "@xr3ngine/engine/src/networking/functions/applyNetworkStateToClient";
 import handleDataChannelConsumerMessage from "@xr3ngine/engine/src/networking/functions/handleDataChannelConsumerMessage";
 import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
 import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
@@ -147,7 +147,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
     console.log(`Initializing socket.io...,`);
     this.socket.on("connect", async () => {
-      console.log("Connected!");
       const payload = { userId: Network.instance.userId, accessToken: Network.instance.accessToken};
       const { success } = await this.request(MessageTypes.Authorization.toString(), payload);
 
@@ -165,7 +164,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log(worldState);
     // TODO: This shouldn't be in the transport, should be in our network system somehow
     // Apply all state to initial frame
-    applyWorldState(worldState);
+    applyNetworkStateToClient(worldState);
 
     console.log("Loading mediasoup");
     if (this.mediasoupDevice.loaded !== true) await this.mediasoupDevice.load({ routerRtpCapabilities });
@@ -176,7 +175,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // Send heartbeat every second
       setInterval(() => {
         this.socket.emit(MessageTypes.Heartbeat.toString());
-        console.log("Sending heartbeat");
+        // console.log("Sending heartbeat");
       }, 1000);
 
       Network.instance.socketId = this.socket.id;

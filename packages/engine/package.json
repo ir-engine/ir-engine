@@ -24,7 +24,7 @@
   },
   "scripts": {
     "lint": "node node_modules/.bin/eslint --fix --quiet --ext .ts src/",
-    "test": "jest",
+    "test": "jest input/touchEvents",
     "validate": "yarn run lint && yarn run test"
   },
   "version": "0.2.0",
