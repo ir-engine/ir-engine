@@ -72,19 +72,15 @@ export class NetworkSystem extends System {
       // Create a new empty world state frame to be sent to clients
       prepareWorldState();
 
+      // handle client input, apply to local objects and add to world state snapshot
+      handleUpdatesFromClients();
+
       // Transforms that are updated are automatically collected
       // note: onChanged needs to currently be handled outside of fixedExecute
       this.queryResults.serverNetworkTransforms.changed?.forEach((entity: Entity) => {
         addNetworkTransformToWorldState(entity)
-      }
-      );
-
-      // handle client input, apply to local objects and add to world state snapshot
-      handleUpdatesFromClients();
-
-      // Note: Transforms that are updated get added to world state frame in execute since they use added hook
-      // When that is fixed, we should move from execute to here
-
+      });
+      
       // For each networked object + input receiver, add to the frame to send
       this.queryResults.serverNetworkInputs.all?.forEach((entity: Entity) => {
         addInputToWorldStateOnServer(entity);
