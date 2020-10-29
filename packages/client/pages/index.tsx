@@ -13,7 +13,6 @@ import {client} from "../redux/feathers";
 import {connectToInstanceServer, provisionInstanceServer} from "../redux/instanceConnection/service";
 import {selectPartyState} from "../redux/party/selector";
 
-
 import theme from '../theme'
 import { ThemeProvider } from '@material-ui/core';
 
@@ -88,11 +87,11 @@ export const IndexPage = (props: any): any => {
 
     return (
         <ThemeProvider theme={theme}>
-        <Layout pageTitle="Home" login={false}>
-            <NoSSR onSSR={<Loading/>}>
-                <Scene/>
-            </NoSSR>
-        </Layout>
+            <Layout pageTitle="Home" login={false}>
+                <NoSSR onSSR={<Loading/>}>
+                    <Scene/>
+                </NoSSR>
+            </Layout>
         </ThemeProvider>
     );
 };
