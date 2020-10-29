@@ -14,7 +14,7 @@ let follower, target;
 let inputComponent: Input;
 let cameraFollow;
 let camera;
-let inputValue;
+let inputValue:NumericalType;
 const euler = new Euler(0, 0, 0, "YXZ");
 let direction = new Vector3();
 const up = new Vector3(0, 1, 0);
@@ -42,6 +42,9 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
   }
 
   inputValue = getInputData(inputComponent, inputAxes);
+  if (!inputValue) {
+    return;
+  }
 
   if (cameraFollow.mode === "firstPerson") {
 
@@ -60,9 +63,9 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
       target.position.z
     );
   } else if (cameraFollow.mode === "thirdPerson") {
-
     theta -= inputValue[0] * 120;
     theta %= 360;
+    console.log('cam add', (inputValue[0]).toFixed(8));
     phi -= inputValue[1] * 120;
     phi = Math.min(85, Math.max(0, phi));
 
@@ -89,7 +92,7 @@ function getInputData(inputComponent: Input, inputAxes: number): NumericalType {
     const inputValue = inputData.value;
     if (inputData.lifecycleState === LifecycleValue.ENDED || inputData.lifecycleState === LifecycleValue.UNCHANGED) {
       // skip
-      return emptyInputValue;
+      return;
     }
 
     if (inputData.lifecycleState !== LifecycleValue.CHANGED) {

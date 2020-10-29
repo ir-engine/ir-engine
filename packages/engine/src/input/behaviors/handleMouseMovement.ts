@@ -24,6 +24,8 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
   const mappedMovementInput = input.schema.mouseInputMap.axes[MouseInput.MouseMovement];
   const mappedDragMovementInput = input.schema.mouseInputMap.axes[MouseInput.MouseClickDownMovement];
 
+  const previousPosition = input.data.get(mappedPositionInput)?.value;
+
   // If mouse position not set, set it with lifecycle started
   if (mappedPositionInput) {
     input.data.set(mappedPositionInput, {
@@ -34,7 +36,6 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
   }
 
   const mouseMovement: [number, number] = [0, 0];
-  const previousPosition = input.prevData.get(mappedPositionInput)?.value;
   if (previousPosition) {
     mouseMovement[0] = mousePosition[0] - previousPosition[0];
     mouseMovement[1] = mousePosition[1] - previousPosition[1];
