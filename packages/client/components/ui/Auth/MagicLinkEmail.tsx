@@ -162,9 +162,9 @@ const MagicLinkEmail = (props: Props): any => {
                   />
                 }
                 label={
-                  <div>
+                  <div className={styles.termsLink}>
                     I agree to the{' '}
-                    <NextLink href={termsOfService}>
+                    <NextLink href={termsOfService} >
                       Terms &amp; Conditions
                     </NextLink>
                   </div>

@@ -9,10 +9,6 @@ const Me = observer(() => {
     // Listening on MediaStreamComponent.instance doesn't appear to register for some reason, but listening
     // to an observable property of it does.
 
-    useEffect(() => {
-        console.log('camVideoProducer changed');
-        console.log(MediaStreamComponent.instance);
-    }, [MediaStreamComponent.instance?.camVideoProducer]);
   return (
     <Grid className={styles['me-party-user-container']} container>
         {

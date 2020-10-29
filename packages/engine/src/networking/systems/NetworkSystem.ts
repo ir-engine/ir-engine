@@ -38,7 +38,8 @@ export class NetworkSystem extends System {
 
     // Initialize the server automatically
     if (process.env.SERVER_MODE !== undefined && (process.env.SERVER_MODE === 'realtime' || process.env.SERVER_MODE === 'local')) {
-        Network.instance.transport.initialize();
+        console.log("Initializing");
+      Network.instance.transport.initialize();
         Network.instance.isInitialized = true;
     }
 
@@ -49,11 +50,14 @@ export class NetworkSystem extends System {
   }
 
   execute(delta): void {
+
+
     // Transforms that are updated are automatically collected
     // note: onChanged needs to currently be handled outside of fixedExecute
-    if (Network.instance?.transport.isServer)
-      this.queryResults.networkTransforms.changed?.forEach((entity: Entity) =>
+      this.queryResults.networkTransforms.changed?.forEach((entity: Entity) => {
+        console.log("Adding transform to world state")
         addNetworkTransformToWorldState(entity)
+      }
       );
 
     this.fixedExecute(delta);
@@ -65,10 +69,10 @@ export class NetworkSystem extends System {
     // Client only
     if (!Network.instance?.transport.isServer) {
       // Client sends input and *only* input to the server (for now)
-      this.queryResults.networkInputSender.all?.forEach((entity: Entity) =>
-        sendClientInputToServer(entity)
+      this.queryResults.networkInputSender.all?.forEach((entity: Entity) => {
+        sendClientInputToServer(entity);
+      }
       );
-      
       // Client handles incoming input from other clients and interpolates transforms
       this.queryResults.network.all?.forEach((entity: Entity) => {
         handleUpdateFromServer(entity);
@@ -86,7 +90,7 @@ export class NetworkSystem extends System {
       // When that is fixed, we should move from execute to here
 
       // For each networked object + input receiver, add to the frame to send
-      this.queryResults.networkInput.all?.forEach((entity: Entity) => {
+      this.queryResults.networkInputsToServer.all?.forEach((entity: Entity) => {
         addInputToWorldState(entity);
       });
 
@@ -112,8 +116,8 @@ export class NetworkSystem extends System {
     networkObjects: {
       components: [NetworkObject]
     },
-    networkInput: {
-      components: [NetworkObject, Input, Not(LocalInputReceiver)]
+    networkInputsToServer: {
+      components: [NetworkObject, Input]
     },
     networkInputSender: {
       components: [NetworkObject, Input, LocalInputReceiver]

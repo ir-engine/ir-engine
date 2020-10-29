@@ -12,10 +12,11 @@ import {
   Plane,
   Quaternion,
   MathUtils as _Math,
-  Layers
+  Layers,
+  PerspectiveCamera
 } from "three";
 import getIntersectingNode from "../utils/getIntersectingNode";
-import { TransformSpace } from "../Editor";
+import EditorClass, { TransformSpace } from "../Editor";
 import TransformGizmo from "../objects/TransformGizmo";
 export const SnapMode = {
   Disabled: "Disabled",
@@ -57,8 +58,8 @@ function sortDistance(a, b) {
   return a.distance - b.distance;
 }
 export default class EditorControls extends EventEmitter {
-  camera: any;
-  editor: any;
+  camera: PerspectiveCamera;
+  editor: EditorClass;
   inputManager: any;
   flyControls: any;
   enabled: boolean;
@@ -812,8 +813,8 @@ export default class EditorControls extends EventEmitter {
     if (
       (excludeObjects && excludeObjects.indexOf(object) !== -1) ||
       (excludeLayers && excludeLayers.test(object.layers)) ||
-      (this.editor.renderer.batchManager &&
-        this.editor.renderer.batchManager.batches.indexOf(object) !== -1) ||
+      (this.editor.renderer.renderer.batchManager &&
+        this.editor.renderer.renderer.batchManager.batches.indexOf(object) !== -1) ||
       !object.visible
     ) {
       return;
