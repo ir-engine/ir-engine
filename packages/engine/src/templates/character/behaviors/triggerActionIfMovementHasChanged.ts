@@ -13,7 +13,6 @@ export const triggerActionIfMovementHasChanged: Behavior = (entity: Entity, args
 	}, 0) + 'LDM' + character.localMovementDirection.toArray().map(n => n.toFixed(7)).join(':');
 
 	if (character.currentInputHash !== hash) {
-		console.log("Action state has changed, hash is: ", hash);
 		args.action(entity);
 		character.currentInputHash = hash;
 	}

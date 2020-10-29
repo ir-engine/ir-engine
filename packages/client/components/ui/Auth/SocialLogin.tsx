@@ -32,7 +32,7 @@ interface Props {
   loginUserByGithub?: typeof loginUserByGithub;
   loginUserByGoogle?: typeof loginUserByGoogle;
   loginUserByFacebook?: typeof loginUserByFacebook;
-};
+}
 
 const SocialLogin = (props: Props): any => {
   const {

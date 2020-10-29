@@ -85,9 +85,9 @@ export const PlayerCharacter: Prefab = {
     // Similar to Unity's Update(), LateUpdate(), and Start()
     { type: Subscription, data: { schema: CharacterSubscriptionSchema } }
   ],
-  onCreate: [
+  onBeforeCreate: [
   ],
-  onDestroy: [
+  onBeforeDestroy: [
   ]
 };
 

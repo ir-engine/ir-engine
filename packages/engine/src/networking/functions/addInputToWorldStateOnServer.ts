@@ -7,15 +7,18 @@ import { InputType } from '../../input/enums/InputType';
 import { Network } from '../components/Network';
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
 
-export const addInputToWorldState: Behavior = (entity: Entity) => {
-  // Get all input receivers
+export const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
+  let lastSize = 0
   const input = getComponent(entity, Input);
-
-  // If there's no input, don't send the frame
-  if (input.data.size < 1) return;
-
   const networkId = getComponent(entity, NetworkObject).networkId;
+  // Get all input receivers
+  
+  // If there's no input, don't send the frame, unless the last frame had input
+  if (input.data.size < 1 && lastSize < 1) {
+    return
+  }
 
+  lastSize = input.data.size;
 
   // Create a schema for input to send
   const inputs = {
@@ -50,8 +53,6 @@ export const addInputToWorldState: Behavior = (entity: Entity) => {
         console.error("Input type has no network handler (maybe we should add one?)");
     }
   }
-
-  console.log("Sending input for " + networkId);
 
   // Add inputs to world state
   Network.instance.worldState.inputs.push(inputs);

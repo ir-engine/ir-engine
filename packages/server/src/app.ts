@@ -32,7 +32,7 @@ const emitter = new EventEmitter();
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
-const app: Application = express(feathers());
+const app = express(feathers()) as Application;
 const agonesSDK = new AgonesSDK();
 
 function healthPing (agonesSDK: AgonesSDK): void {

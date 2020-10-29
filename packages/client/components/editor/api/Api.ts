@@ -38,8 +38,7 @@ const {
   USE_HTTPS
 } = configs as any;
 
-// const prefix = USE_HTTPS === "true" ? "https://" : "http://";
-const prefix = "https://";
+const prefix = USE_HTTPS ? "https://" : "http://";
 
 function b64EncodeUnicode(str): string {
   // first we use encodeURIComponent to get percent-encoded UTF-8, then we convert the percent-encodings
@@ -441,7 +440,6 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    /* eslint-disable @typescript-eslint/camelcase */
     const project = {
       name: scene.name,
       thumbnail_file_id: thumbnailFileId,
@@ -449,7 +447,6 @@ export default class Api extends EventEmitter {
       project_file_id: projectFileId,
       project_file_token: projectFileToken
     };
-    /* eslint-enable */
 
     if (parentSceneId) {
       project["parent_scene_id"] = parentSceneId;
@@ -508,7 +505,7 @@ export default class Api extends EventEmitter {
       throw new Error("Save project aborted");
     }
 
-    const { blob: thumbnailBlob } = await editor.takeScreenshot(512, 320);
+    const thumbnailBlob = await editor.takeScreenshot(512, 320); // Fixed blob undefined
 
     if (signal.aborted) {
       throw new Error("Save project aborted");
@@ -541,7 +538,6 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    /* eslint-disable @typescript-eslint/camelcase */
     const project = {
       name: editor.scene.name,
       thumbnail_file_id: thumbnailFileId,
@@ -549,7 +545,6 @@ export default class Api extends EventEmitter {
       project_file_id: projectFileId,
       project_file_token: projectFileToken
     };
-    /* eslint-enable */
 
     const sceneId = editor.scene.metadata && editor.scene.metadata.sceneId ? editor.scene.metadata.sceneId : null;
 
@@ -820,7 +815,6 @@ export default class Api extends EventEmitter {
         throw error;
       }
 
-      /* eslint-disable @typescript-eslint/camelcase */
       const sceneParams = {
         screenshot_file_id: screenshotId,
         screenshot_file_token: screenshotToken,
@@ -836,7 +830,6 @@ export default class Api extends EventEmitter {
           content: publishParams.contentAttributions
         }
       };
-      /* eslint-enable */
     
       const token = this.getToken();
 
@@ -918,7 +911,7 @@ export default class Api extends EventEmitter {
       if (USE_DIRECT_UPLOAD_API) {
         request.open("post", `${host}${API_MEDIA_ROUTE}`, true);
       } else {
-        request.open("post", `https://${API_SERVER_ADDRESS}/media`, true);
+        request.open("post", `${prefix}${API_SERVER_ADDRESS}${API_MEDIA_ROUTE}`, true);
       }
 
       request.upload.addEventListener("progress", e => {
@@ -1038,7 +1031,6 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    /* eslint-disable @typescript-eslint/camelcase */
     const body = JSON.stringify({
       asset: {
         name: file.name,
@@ -1048,7 +1040,6 @@ export default class Api extends EventEmitter {
         thumbnail_access_token: thumbnailAccessToken
       }
     });
-    /* eslint-enable */
 
     const resp = await this.fetch(endpoint, { method: "POST", headers, body, signal });
     console.log("Response: " + Object.values(resp));
@@ -1133,11 +1124,11 @@ export default class Api extends EventEmitter {
 
   async fetch(url, options: any = {}): Promise<any> {
     try {
-      // const token = this.getToken();
+      const token = this.getToken();
       if (options.headers == null) {
         options.headers = {};
       }
-      // options.headers.authorization = `Bearer ${token}`;
+      options.headers.authorization = `Bearer ${token}`;
       const res = await fetch(url, options);
       console.log("Response: " + Object.values(res));
 

@@ -13,7 +13,6 @@ type ModelViewProps = {
  * @constructor
  */
 export const ModelView: FunctionComponent<ModelViewProps> = ({ modelUrl, iosModelUrl }: ModelViewProps) => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
   // @ts-ignore
   return <model-viewer style={{width: '100%', height: '300px'}} src={modelUrl} ios-src={iosModelUrl} ar auto-rotate camera-controls />;
 };

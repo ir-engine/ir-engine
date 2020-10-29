@@ -1,33 +1,30 @@
-import { AmbientLight, Camera, GridHelper, PerspectiveCamera, Scene, AudioListener, Audio, PositionalAudio, AudioLoader } from 'three';
+import _ from 'lodash';
+import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
+import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
+import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
+import { CameraSystem } from './camera/systems/CameraSystem';
+import { isBrowser } from './common/functions/isBrowser';
+import { Timer } from './common/functions/Timer';
+import { Engine } from './ecs/classes/Engine';
+import { execute, initialize } from './ecs/functions/EngineFunctions';
 //import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js'
 import { registerSystem } from './ecs/functions/SystemFunctions';
-import { createEntity } from './ecs/functions/EntityFunctions';
-import { Engine } from './ecs/classes/Engine';
-import { execute, initialize, reset, startTimer } from './ecs/functions/EngineFunctions';
-import { PhysicsSystem } from './physics/systems/PhysicsSystem';
-import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
-import { CharacterSubscriptionSchema } from './templates/character/CharacterSubscriptionSchema';
-import { TransformSystem } from './transform/systems/TransformSystem';
-import { isBrowser } from './common/functions/isBrowser';
-import { CameraSystem } from './camera/systems/CameraSystem';
+import { HighlightSystem } from './effects/systems/EffectSystem';
 import { InputSystem } from './input/systems/InputSystem';
-import { NetworkSystem } from './networking/systems/NetworkSystem';
+import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
+import { NetworkSystem } from './networking/systems/NetworkSystem';
+import { ParticleSystem } from "./particles/systems/ParticleSystem";
+import { PhysicsSystem } from './physics/systems/PhysicsSystem';
+import { WebGLRendererSystem } from './renderer/systems/WebGLRendererSystem';
 import { StateSystem } from './state/systems/StateSystem';
 import { SubscriptionSystem } from './subscription/systems/SubscriptionSystem';
-import { ParticleSystem } from "./particles/systems/ParticleSystem";
-import { WebGLRendererSystem } from './renderer/systems/WebGLRendererSystem';
-import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
-import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
+import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
-import { Timer } from './common/functions/Timer';
-import { addObject3DComponent } from './common/behaviors/Object3DBehaviors';
-import _ from 'lodash';
+import { CharacterSubscriptionSchema } from './templates/character/CharacterSubscriptionSchema';
+import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
+import { TransformSystem } from './transform/systems/TransformSystem';
 
-import { Mesh, BufferGeometry } from "three";
-import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
-import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
-import { HighlightSystem } from './effects/systems/EffectSystem';
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 
@@ -145,8 +142,6 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
       // }
     }
       
-    registerSystem(StateSystem);
-
     registerSystem(PhysicsSystem);
 
   // Networking
@@ -188,6 +183,9 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
     registerSystem(InteractiveSystem);
   }
 
+  registerSystem(StateSystem);
+
+
   // if (options.debug === true) {
   //   // If we're in debug, add a gridhelper
   //   const gridHelper = new GridHelper(1000, 100, 0xffffff, 0xeeeeee);
@@ -198,5 +196,9 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
   // }
 
   // Start our timer!
-    Engine.engineTimerTimeout = setTimeout(startTimer, 1000);
+    Engine.engineTimerTimeout = setTimeout(() => {
+      Engine.engineTimer = Timer({
+        update: (delta, elapsedTime) => execute(delta, elapsedTime)
+      }).start();
+    }, 1000);
 }

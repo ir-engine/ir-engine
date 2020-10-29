@@ -50,7 +50,6 @@ const VideoModal = (props: Props): any => {
     rating: props.video?.metadata?.rating ? props.video.metadata.rating : '',
     category1: props.video?.metadata?.categories ? props.video.metadata.categories[0] : '',
     category2: props.video?.metadata?.categories ? props.video.metadata.categories[1] : '',
-    // eslint-disable-next-line camelcase
     thumbnailUrl: props.video?.metadata?.thumbnailUrl ? props.video.metadata.thumbnailUrl : '',
     runtime: props.video?.metadata?.runtime ? props.video.metadata.runtime : '',
     stereoscopic: props.video?.metadata?.stereoscopic ? props.video.metadata.stereoscopic : false,
@@ -69,7 +68,6 @@ const VideoModal = (props: Props): any => {
       rating: props.video?.metadata?.rating ? props.video.metadata.rating : '',
       category1: props.video?.metadata?.categories ? props.video.metadata.categories[0] : '',
       category2: props.video?.metadata?.categories ? props.video.metadata.categories[1] : '',
-      // eslint-disable-next-line camelcase
       thumbnailUrl: props.video?.metadata?.thumbnailUrl ? props.video.metadata.thumbnailUrl : '',
       runtime: props.video?.metadata?.runtime ? props.video.metadata.runtime : '',
       stereoscopic: props.video?.metadata?.stereoscopic ? props.video.metadata.stereoscopic : false,

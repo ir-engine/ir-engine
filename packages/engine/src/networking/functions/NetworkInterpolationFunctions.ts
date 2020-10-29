@@ -17,6 +17,8 @@ export function snapshot () {
 
 /** Create a new Snapshot */
 export function createSnapshot (state: StateEntityGroup | { [key: string]: StateEntityGroup }): Snapshot {
+  console.log("state is");
+  console.log(state);
   const check = (state: StateEntityGroup) => {
     // check if state is an array
     if (!Array.isArray(state)) throw new Error('You have to pass an Array to createSnapshot()');
