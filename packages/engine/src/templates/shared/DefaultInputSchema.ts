@@ -74,14 +74,10 @@ export const DefaultInputSchema: InputSchema = {
         behavior: handleTouch,
         args: {
           value: BinaryValue.ON
-        },
-
+        }
       },
       {
         behavior: handleTouchMove,
-        args: {
-
-        },
       }
     ],
     touchend: [
