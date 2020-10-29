@@ -50,9 +50,6 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
     euler.y -= inputValue[0] * 0.01;
     euler.x -= inputValue[1] * 0.01;
 
-    // euler.y -= normalizedPosition.y;
-    // euler.x -= normalizedPosition.x;
-
     euler.x = Math.max(-PI_2, Math.min(PI_2, euler.x));
 
     follower.rotation.setFromEuler(euler);
