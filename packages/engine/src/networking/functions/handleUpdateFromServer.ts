@@ -3,7 +3,7 @@ import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { Network } from '../components/Network';
-import { applyWorldState } from './applyWorldState';
+import { applyNetworkStateToClient } from './applyNetworkStateToClient';
 
 let lastMessage
 
@@ -12,7 +12,7 @@ export const handleUpdateFromServer: Behavior = (entity: Entity, args: null, del
   // For each message, handle and process
   while (queue.getBufferLength() > 0) {
     const message = queue.pop();
-    applyWorldState(message, delta);
+    applyNetworkStateToClient(message, delta);
     // if(_.isEqual(lastMessage, message["inputs"]))
     //   return
     // lastMessage = message["inputs"];

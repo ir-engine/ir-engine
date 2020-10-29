@@ -13,6 +13,7 @@ import { InputType } from "../../input/enums/InputType";
 import { setLocalMovementDirection } from "./behaviors/setLocalMovementDirection";
 import { changeCameraDistanceByDelta } from "../../camera/behaviors/changeCameraDistanceByDelta";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
+import { TouchInputs } from "../../input/enums/TouchInputs";
 import { DefaultInputSchema } from "../shared/DefaultInputSchema";
 
 export const CharacterInputSchema: InputSchema = {
@@ -32,6 +33,16 @@ export const CharacterInputSchema: InputSchema = {
       [MouseInput.MouseClickDownTransformRotation]: DefaultInput.ROTATION_START,
       [MouseInput.MouseClickDownMovement]: DefaultInput.LOOKTURN_PLAYERONE,
       [MouseInput.MouseScroll]: DefaultInput.CAMERA_SCROLL
+    }
+  },
+  // Map touch buttons to abstract input
+  touchInputMap: {
+    buttons: {
+      [TouchInputs.Touch]: DefaultInput.INTERACT,
+    },
+    axes: {
+      [TouchInputs.Touch1Position]: DefaultInput.SCREENXY,
+      [TouchInputs.Touch1Movement]: DefaultInput.LOOKTURN_PLAYERONE
     }
   },
   // Map gamepad buttons to abstract input
