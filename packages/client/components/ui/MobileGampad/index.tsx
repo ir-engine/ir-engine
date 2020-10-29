@@ -18,7 +18,7 @@ const mapStateToProps = (state: any): any => {
 export type MobileGamepadProps = {
   hovered?: boolean | false;
   layout?: string ;
-  onBoardingStep: number | null;
+  onBoardingStep?: number | null;
 };
 
 export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered,layout, onBoardingStep}: MobileGamepadProps) => {
