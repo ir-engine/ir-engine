@@ -16,7 +16,7 @@ export enum DefaultInput {
   RUN,
   SPRINT,
   SNEAK,
-  SCREENXY,
+  SCREENXY, // Is this too specific, or useful?
   SCREENXY_START,
   ROTATION_START,
   MOVEMENT_PLAYERONE,
@@ -24,10 +24,9 @@ export enum DefaultInput {
   MOVEMENT_PLAYERTWO,
   LOOKTURN_PLAYERTWO,
   ALTERNATE,
-  MOUSE_MOVEMENT,
+  MOUSE_MOVEMENT, // mouse event movement
   SWITCH_CAR,
   POINTER_LOCK,
   CAMERA_SCROLL,
   SWITCH_CAMERA
- 
 }
