@@ -505,7 +505,7 @@ export default class Api extends EventEmitter {
       throw new Error("Save project aborted");
     }
 
-    const { blob: thumbnailBlob } = await editor.takeScreenshot(512, 320);
+    const thumbnailBlob = await editor.takeScreenshot(512, 320); // Fixed blob undefined
 
     if (signal.aborted) {
       throw new Error("Save project aborted");
