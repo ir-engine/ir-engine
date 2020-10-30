@@ -28,6 +28,7 @@ import config from '../../config';
 import AWS from 'aws-sdk';
 import {handleClientDisconnected} from "@xr3ngine/engine/src/networking/functions/handleClientDisconnected";
 import {destroyNetworkObject} from "@xr3ngine/engine/src/networking/functions/destroyNetworkObject";
+import { NetworkObject } from "@xr3ngine/engine/src/networking/components/NetworkObject";
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
 const Route53 = new AWS.Route53({...config.aws.route53.keys});
@@ -253,13 +254,10 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         let userId, accessToken;
         // On connection, set up a bunch of handlers in the connect function
         realtime.on("connect", (socket: Socket) => {
-            console.log("Connected, waiting for authorization request");
+            logger.info("Connected, waiting for authorization request");
             socket.on(MessageTypes.Authorization.toString(), async (data, callback) => {
                 userId = data.userId;
                 accessToken = data.accessToken;
-                console.warn("Skipping authorization check because we haven't implemented");
-                console.log(data);
-
                 if (userId === undefined || accessToken === undefined) {
                     const message = "userId or accessToken is undefined";
                     console.error(message);
@@ -268,9 +266,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 }
 
                 // Check user ID is valid
-
-                console.log("**** AUTHORIZING USER", userId);
-
+                logger.info("**** AUTHORIZING USER", userId);
                 const user = await this.app.service('user').Model.findOne({
                     attributes: ['id', 'name', 'instanceId'],
                     where: {
@@ -294,9 +290,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     dataProducers: new Map<string, DataProducer>() // Key => label of data channel
                 };
 
-                console.log("Creating client object for ", userId);
-                console.log(Object.keys(Network.instance.clients));
-
                 // Check user is supposed to be in this instance
                 // if(user.dataValues.instanceId !== this.app.instance.id){
                 //     const message = "Instance ID authorized to user did not match ID of current instance.";
@@ -306,8 +299,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 // NOTE: This is disabled because we are currently patching instance id for user after this call
 
                 callback({success: true});
-
-                console.log("Connect called for ", userId);
 
                 // Call all message handlers associated with client connection
                 Network.instance.schema.messageHandlers[MessageTypes.ClientConnected.toString()].forEach(behavior => {
@@ -364,7 +355,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 });
 
                 socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) => {
-                    console.log("JoinWorld received");
+                    logger.info("JoinWorld received");
                     try {
                         const userId = this.getUserIdFromSocketId(socket.id);
                         // Add user ID to peer list
@@ -836,20 +827,18 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 handleClientDisconnected({id: Network.instance.clients[client].userId});
             }
         }
-        for (const key in Network.instance.networkObjects) {
+        Object.keys(Network.instance.networkObjects).forEach((key: string) => {
             const networkObject = Network.instance.networkObjects[key];
             // Validate that the object has an associated user and doesn't belong to a non-existant user
             if (networkObject.ownerId !== undefined && Network.instance.clients[networkObject.ownerId] !== undefined)
-                continue;
+                return;
             // If it does, tell clients to destroy it
             const removeMessage = {networkId: networkObject.component.networkId};
             Network.instance.worldState.destroyObjects.push(removeMessage);
-            console.log("Culling ownerless object: ", networkObject.component.networkId, "owned by ", networkObject.ownerId);
+            logger.info("Culling ownerless object: ", networkObject.component.networkId, "owned by ", networkObject.ownerId);
             // Remove it from server
             destroyNetworkObject(key);
-            console.log("objects remaining on server: ");
-            console.log(Network.instance.networkObjects);
-        }
+        })
     }
 
     // start mediasoup with a single worker and router

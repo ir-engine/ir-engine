@@ -22,6 +22,7 @@ import { BinaryValue } from '../../common/enums/BinaryValue';
  * @param {Number} delta Time since last frame
  */
  export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): void => {
+   console.log("handle input called")
   // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
   const input = getMutableComponent(entity, Input);
 

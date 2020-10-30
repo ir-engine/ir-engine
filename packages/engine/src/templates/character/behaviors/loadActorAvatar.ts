@@ -3,6 +3,7 @@ import {
   addComponent,
   getComponent,
   getMutableComponent,
+  hasComponent,
   removeComponent
 } from "../../../ecs/functions/EntityFunctions";
 import { CharacterComponent } from "../components/CharacterComponent";
@@ -16,31 +17,22 @@ import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent
 import { initializeCharacter } from "./initializeCharacter";
 
 export const loadActorAvatar: Behavior = (entity) => {
-  const avatarId: string = getComponent(entity, CharacterAvatarComponent)?.avatarId;
-  if (!avatarId) {
-    return;
-  }
-  const nextAvatarSrc = CharacterAvatars.find(avatarData => avatarData.id === avatarId)?.src;
-  if (!nextAvatarSrc) {
-    throw new Error("Avatar not found for id:" + String(avatarId));
-  }
+  const avatarId: string = getComponent(entity, CharacterAvatarComponent).avatarId ?? "Andy";
+  const avatarSource = CharacterAvatars.find(avatarData => avatarData.id === avatarId)?.src;
   
-  removeComponent(entity, AssetLoader, true);
-  removeComponent(entity, AssetLoaderState, true);
+  if(hasComponent(entity, AssetLoader)) removeComponent(entity, AssetLoader, true);
+  if(hasComponent(entity, AssetLoaderState)) removeComponent(entity, AssetLoaderState, true);
 
   const tmpGroup = new Group();
   addComponent(entity, AssetLoader, {
-    //url: "models/avatars/" + nextAvatarSrc,
-    url: nextAvatarSrc,
+    url: avatarSource,
     receiveShadow: true,
     castShadow: true,
     parent: tmpGroup,
     onLoaded: (entity, args) => {
-      // console.log('loaded new avatar model', args);
-
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 
-      if(!actor.initialized) initializeCharacter(entity);
+      initializeCharacter(entity);
       actor.mixer?.stopAllAction();
       
       // forget that we have any animation playing

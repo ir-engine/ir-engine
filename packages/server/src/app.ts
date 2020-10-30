@@ -127,10 +127,9 @@ if (config.server.enabled) {
 
     // Create new gameserver instance
     const gameServer = new WebRTCGameServer(app);
-    console.log("Created new gameserver instance");
-    console.log(gameServer);
+    logger.info("Created new gameserver instance");
   } else {
-    console.log('Did not create gameserver');
+    console.warn('Did not create gameserver');
   }
 
   app.use('/healthcheck', (req, res) => {

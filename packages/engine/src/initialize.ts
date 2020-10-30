@@ -3,7 +3,7 @@ import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
 import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
 import { CameraSystem } from './camera/systems/CameraSystem';
-import { isBrowser } from './common/functions/isBrowser';
+import { isClient } from './common/functions/isClient';
 import { Timer } from './common/functions/Timer';
 import { Engine } from './ecs/classes/Engine';
 import { execute, initialize } from './ecs/functions/EngineFunctions';
@@ -64,7 +64,7 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
 
   registerSystem(PhysicsSystem);
 
-  registerSystem(InputSystem, { useWebXR: isBrowser });
+  registerSystem(InputSystem, { useWebXR: isClient });
 
   registerSystem(StateSystem);
 
@@ -73,7 +73,7 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
   registerSystem(TransformSystem, { priority: 900 });
 
   //Object HighlightSystem
-  if (isBrowser) {
+  if (isClient) {
     // Create a new camera
     const camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.3, 500);
     // Add the camera to the camera manager so it's available anywhere

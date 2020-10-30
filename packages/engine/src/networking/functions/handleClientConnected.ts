@@ -7,8 +7,6 @@ import { NetworkObjectList } from '../interfaces/NetworkObjectList';
 import { createNetworkPrefab } from './createNetworkPrefab';
 
 export const handleClientConnected = (args: { id: any; media: any }) => {
-  console.log("handle client connected");
-
   const clientExists = !isNullOrUndefined(Network.instance.clients[args.id]);
 
   // get network objects that match client id, this is a validation check
@@ -68,8 +66,6 @@ export const handleClientConnected = (args: { id: any; media: any }) => {
 
   // Get a reference to the transform on the object so we can send initial values
   const transform = getComponent(networkObject.entity, TransformComponent);
-
-  // console.log(transform);
 
   const createObjectMessage = {
     networkId: networkObject.networkId,

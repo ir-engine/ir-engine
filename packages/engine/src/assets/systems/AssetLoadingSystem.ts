@@ -17,7 +17,7 @@ import { Model } from '../components/Model';
 import { Unload } from '../components/Unload';
 import { AssetClass } from '../enums/AssetClass';
 import { getAssetClass, getAssetType, loadAsset } from '../functions/LoadingFunctions';
-import { isBrowser } from '../../common/functions/isBrowser';
+import { isClient } from '../../common/functions/isClient';
 import { MeshPhysicalMaterial, TorusGeometry } from "three";
 import { ProcessModelAsset } from "../functions/ProcessModelAsset";
 import { CharacterAvatarComponent } from "../../templates/character/components/CharacterAvatarComponent";
@@ -32,20 +32,17 @@ export default class AssetLoadingSystem extends System {
     addComponent(createEntity(), AssetVault);
   }
 
-  execute (): void{
-    if(isBrowser)
-    {
-      if (this.queryResults.toLoad.all.length > 0){
-      document.dispatchEvent(new CustomEvent('scene-loaded', { detail:{loaded:false} }));
-    } else {
-      document.dispatchEvent(new CustomEvent('scene-loaded', { detail:{loaded:true} }));
+  execute(): void {
+    if (isClient) {
+      if (this.queryResults.toLoad.all.length > 0) {
+        document.dispatchEvent(new CustomEvent('scene-loaded', { detail: { loaded: false } }));
+      } else {
+        document.dispatchEvent(new CustomEvent('scene-loaded', { detail: { loaded: true } }));
+      }
     }
-  }
 
+    // TODO: Remove this
     this.queryResults.characterAvatar.added.forEach(entity => {
-      loadActorAvatar(entity);
-    });
-    this.queryResults.characterAvatar.changed.forEach(entity => {
       loadActorAvatar(entity);
     });
 
@@ -53,7 +50,7 @@ export default class AssetLoadingSystem extends System {
       // Do things here
     });
     this.queryResults.toLoad.all.forEach((entity: Entity) => {
-      if(hasComponent(entity, AssetLoaderState)) {
+      if (hasComponent(entity, AssetLoaderState)) {
         //return console.log("Returning because already has AssetLoaderState");
         console.log("??? already has AssetLoaderState");
       } else {
@@ -68,33 +65,33 @@ export default class AssetLoadingSystem extends System {
       // Check if the vault already contains the asset
       // If it does, get it so we don't need to reload it
       // Load the asset with a calback to add it to our processing queue
-      if(isBrowser){ // Only load asset on browser, as it uses browser-specific requests
+      if (isClient) { // Only load asset on browser, as it uses browser-specific requests
         this.loadingCount++;
 
-        const eventEntity = new CustomEvent('scene-loaded-entity', { detail:{left:this.loadingCount} });
+        const eventEntity = new CustomEvent('scene-loaded-entity', { detail: { left: this.loadingCount } });
         document.dispatchEvent(eventEntity);
 
         loadAsset(assetLoader.url, entity, (entity, { asset }) => {
           // This loads the editor scene
-          this.loaded.set(entity, asset); 
+          this.loaded.set(entity, asset);
           this.loadingCount--;
 
-          if(this.loadingCount === 0){
+          if (this.loadingCount === 0) {
             //loading finished
-            const event = new CustomEvent('scene-loaded', { detail:{loaded:true} });
+            const event = new CustomEvent('scene-loaded', { detail: { loaded: true } });
             document.dispatchEvent(event);
-          }else{
+          } else {
             //show progress by entitites
-            const event = new CustomEvent('scene-loaded-entity', { detail:{left: this.loadingCount} });
+            const event = new CustomEvent('scene-loaded-entity', { detail: { left: this.loadingCount } });
             document.dispatchEvent(event);
           }
         });
       }
-     
+
     });
 
     // Do the actual entity creation inside the system tick not in the loader callback
-    this.loaded.forEach( (asset, entity) =>{
+    this.loaded.forEach((asset, entity) => {
       const component = getComponent<AssetLoader>(entity, AssetLoader);
       if (component.assetClass === AssetClass.Model) {
         addComponent(entity, Model, { value: asset });
@@ -102,9 +99,9 @@ export default class AssetLoadingSystem extends System {
       }
 
       getMutableComponent<AssetLoader>(entity, AssetLoader).loaded = true;
-      
+
       AssetVault.instance.assets.set(hashResourceString(component.url), asset.scene);
-      
+
       if (component.onLoaded) {
         component.onLoaded(entity, { asset });
       }
@@ -119,14 +116,14 @@ export default class AssetLoadingSystem extends System {
       removeComponent(entity, AssetLoaderState);
       removeComponent(entity, Unload);
 
-      if(hasComponent(entity, Object3DComponent)){
+      if (hasComponent(entity, Object3DComponent)) {
         removeObject3DComponent(entity);
       }
     });
   }
 }
 
-export function hashResourceString (str: string): string {
+export function hashResourceString(str: string): string {
   let hash = 0;
   let i = 0;
   const len = str.length;
@@ -154,8 +151,9 @@ AssetLoadingSystem.queries = {
   toUnload: {
     components: [AssetLoaderState, Unload, Not(AssetLoader)]
   },
+  // TODO: Remove this
   characterAvatar: {
-    components: [ CharacterAvatarComponent ],
+    components: [CharacterAvatarComponent],
     listen: {
       added: true,
       changed: true

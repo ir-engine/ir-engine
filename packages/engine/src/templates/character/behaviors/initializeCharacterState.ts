@@ -2,7 +2,6 @@ import { Behavior } from "../../../common/interfaces/Behavior";
 import { Entity } from "../../../ecs/classes/Entity";
 import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { CharacterComponent } from "../components/CharacterComponent";
-import { checkIfCharacterIsInitialized } from "./checkIfCharacterIsInitialized";
 import { setArcadeVelocityInfluence } from "./setArcadeVelocityInfluence";
 
 export const initializeCharacterState: Behavior = (entity: Entity) => {

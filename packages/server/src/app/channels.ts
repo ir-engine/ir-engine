@@ -4,6 +4,7 @@ import getLocalServerIp from '../util/get-local-server-ip';
 import config from '../config';
 import app from "../app";
 import { Network } from '@xr3ngine/engine/src/networking/components/Network';
+import logger from './logger';
 
 export default (app: Application): void => {
   if (typeof app.channel !== 'function') {
@@ -39,7 +40,7 @@ export default (app: Application): void => {
             const gsResult = await agonesSDK.getGameServer();
             const { status } = gsResult;
             if (status.state === 'Ready' || ((process.env.NODE_ENV === 'development' && status.state === 'Shutdown') || (app as any).instance == null)) {
-              console.log('Starting new instance');
+              logger.info('Starting new instance');
               const localIp = await getLocalServerIp();
               const selfIpAddress = `${(status.address as string)}:${(status.portsList[0].port as string)}`;
               const instanceResult = await app.service('instance').create({
@@ -158,8 +159,10 @@ export default (app: Application): void => {
                 delete (app as any).instance;
               }
               const gsName = (app as any).gsName;
-              console.log('App\'s gameserver name:');
-              console.log(gsName);
+              if(gsName !== undefined){
+                logger.info('App\'s gameserver name:');
+                logger.info(gsName);
+              }
               if ((app as any).gsSubdomainNumber != null) {
                 await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
                   allocated: false

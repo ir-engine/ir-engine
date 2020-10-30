@@ -5,9 +5,11 @@ import { MessageTypes } from '../enums/MessageTypes';
 // TODO: This should only be called on server
 
 export const handleClientDisconnected = (args: { id: any }) => {
-  if(args.id === undefined) return console.log("Client disconnected is null");
   if (!Network.instance?.transport.isServer)
     return;
+
+  if(args.id === undefined)
+    return console.log("Client disconnected is null");
 
   if (!Network.instance.clients[args.id])
     console.warn('Client is not in client list');
@@ -31,9 +33,6 @@ export const handleClientDisconnected = (args: { id: any }) => {
     Network.instance.worldState.destroyObjects.push(removeMessage);
     removeEntity(obj.component.entity);
   });
-
-  // Remove entity and character
-  console.log("Removed user ", args.id);
 
     // Call each behavior in the network template
     Network.instance.schema.messageHandlers[MessageTypes.ClientDisconnected].forEach(behavior => {
