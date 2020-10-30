@@ -4,6 +4,7 @@ import { UserRelationship } from './user-relationship.class';
 import createModel from '../../models/user-relationship.model';
 import hooks from './user-relationship.hooks';
 import { Op } from 'sequelize';
+import logger from '../../app/logger';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -136,7 +137,7 @@ export default (app: Application): any => {
         }));
       }
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       throw err;
     }
   });
@@ -168,7 +169,7 @@ export default (app: Application): any => {
         });
       }));
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       throw err;
     }
   });

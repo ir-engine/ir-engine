@@ -24,12 +24,11 @@ export const handleClientConnected = (args: { id: any; media: any }) => {
   //   media: args.media
   // };
 
-  let networkObject;
-
-  if (clientExists) console.warn("Connecting client", args.id, "is already in our user list");
+  if (clientExists) {
+    console.warn("Connecting client", args.id, "is already in our user list");
 
   // Client already had network objects
-  if (clientExists && clientHasNetworkObjects) {
+  if (clientHasNetworkObjects) {
     console.warn("Client already exists and has network objects")
     // Do they have a player character object?
     // If  they don't let's get them one
@@ -40,6 +39,9 @@ export const handleClientConnected = (args: { id: any; media: any }) => {
       delete Network.instance.networkObjects[networkObjectsClientOwns[i]]
     }
   }
+  Network.instance.transport.handleKick(Network.instance.clients[args.id].socket);
+  delete(Network.instance.clients[args.id]);
+}
 
   // If we have a a character already, use network id, otherwise create a new one
   const networkId = Network.getNetworkId();
@@ -52,8 +54,7 @@ export const handleClientConnected = (args: { id: any; media: any }) => {
     );
 
     // Get a reference to the network object we just created, we need the ID
-    networkObject = getComponent(entity, NetworkObject);
-
+    let networkObject = getComponent(entity, NetworkObject);
 
   // Add the network object to our list of network objects
   Network.instance.networkObjects[networkId] = {

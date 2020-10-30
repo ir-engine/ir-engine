@@ -1,15 +1,19 @@
-import {MediaStreamComponent} from "@xr3ngine/engine/src/networking/components/MediaStreamComponent";
-import {Network} from "@xr3ngine/engine/src/networking/components/Network";
-import {MessageTypes} from "@xr3ngine/engine/src/networking/enums/MessageTypes";
-import {NetworkTransport} from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
+import { MediaStreamComponent } from "@xr3ngine/engine/src/networking/components/MediaStreamComponent";
+import { Network } from "@xr3ngine/engine/src/networking/components/Network";
+import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
+import { destroyNetworkObject } from "@xr3ngine/engine/src/networking/functions/destroyNetworkObject";
+import { handleClientConnected } from "@xr3ngine/engine/src/networking/functions/handleClientConnected";
+import { handleClientDisconnected } from "@xr3ngine/engine/src/networking/functions/handleClientDisconnected";
+import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
 import {
     CreateWebRtcTransportParams,
     UnreliableMessageReturn
 } from "@xr3ngine/engine/src/networking/types/NetworkingTypes";
+import AWS from 'aws-sdk';
 import * as https from "https";
-import {createWorker} from 'mediasoup';
-import {types as MediaSoupClientTypes} from "mediasoup-client";
-import {SctpParameters} from "mediasoup-client/lib/SctpParameters";
+import { createWorker } from 'mediasoup';
+import { types as MediaSoupClientTypes } from "mediasoup-client";
+import { SctpParameters } from "mediasoup-client/lib/SctpParameters";
 import {
     DataConsumer,
     DataProducer,
@@ -21,14 +25,10 @@ import {
     WebRtcTransport,
     Worker
 } from "mediasoup/lib/types";
-import SocketIO, {Socket} from "socket.io";
+import SocketIO, { Socket } from "socket.io";
 import logger from "../../app/logger";
-import getLocalServerIp from '../../util/get-local-server-ip';
 import config from '../../config';
-import AWS from 'aws-sdk';
-import {handleClientDisconnected} from "@xr3ngine/engine/src/networking/functions/handleClientDisconnected";
-import {destroyNetworkObject} from "@xr3ngine/engine/src/networking/functions/destroyNetworkObject";
-import { NetworkObject } from "@xr3ngine/engine/src/networking/components/NetworkObject";
+import getLocalServerIp from '../../util/get-local-server-ip';
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
 const Route53 = new AWS.Route53({...config.aws.route53.keys});
@@ -145,7 +145,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     }
 
     async sendData(data: any, channel = 'default'): Promise<UnreliableMessageReturn> {
-        if (this.transport === undefined) return;
         try {
             return await this.transport.produceData({
                 appData: {data},
@@ -154,8 +153,14 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 protocol: 'raw'
             });
         } catch (error) {
-            console.log(error);
+            logger.error(error);
         }
+    }
+
+    handleKick(socket: any){
+        console.log("Kicking ", socket.id);
+        console.log(this.socketIO.sockets.connected[socket.id])
+        if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.Kick.toString(), socket.id);
     }
 
     async getFreeSubdomain(gsIdentifier: string, subdomainNumber: number): Promise<string> {
@@ -187,8 +192,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 return stringSubdomainNumber;
             }
         } catch (err) {
-            console.log('get RTC port range error');
-            console.log(err);
+            logger.error('get RTC port range error');
+            logger.error(err);
         }
     }
 
@@ -301,23 +306,20 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 callback({success: true});
 
                 // Call all message handlers associated with client connection
-                Network.instance.schema.messageHandlers[MessageTypes.ClientConnected.toString()].forEach(behavior => {
-                    const client = Network.instance.clients[userId];
-                    behavior.behavior(
+                    handleClientConnected(
                         {
                             id: userId,
-                            media: client.media
+                            media: Network.instance.clients[userId].media
                         },
                     );
-                });
 
                 // If a reliable message is received, add it to the queue
                 socket.on(MessageTypes.ReliableMessage.toString(), (message) => {
                     try {
                         Network.instance.incomingMessageQueue.add(message);
                     } catch (err) {
-                        console.log('Reliable Message error');
-                        console.log(err);
+                        logger.error('Reliable Message error');
+                        logger.error(err);
                     }
                 });
 
@@ -326,8 +328,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         const userId = this.getUserIdFromSocketId(socket.id);
                         if (Network.instance.clients[userId] != null) Network.instance.clients[userId].lastSeenTs = Date.now();
                     } catch (err) {
-                        console.log('Heartbeat error');
-                        console.log(err);
+                        logger.error('Heartbeat error');
+                        logger.error(err);
                     }
                 });
 
@@ -349,18 +351,14 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                                 delete Network.instance.clients[userId];
                         }
                     } catch (err) {
-                        console.log('socket disconnect error');
-                        console.log(err);
+                        logger.error('socket disconnect error');
+                        logger.error(err);
                     }
                 });
 
                 socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) => {
                     logger.info("JoinWorld received");
                     try {
-                        const userId = this.getUserIdFromSocketId(socket.id);
-                        // Add user ID to peer list
-                        Network.instance.clients[userId].userId = userId;
-
                         // Prepare a worldstate frame
                         const worldState = {
                             tick: Network.tick,
@@ -392,8 +390,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                             routerRtpCapabilities: this.routers.instance.rtpCapabilities
                         });
                     } catch (error) {
-                        console.log('JoinWorld error');
-                        console.log(error);
+                        logger.error('JoinWorld error');
+                        logger.error(error);
                     }
                 });
 
@@ -412,8 +410,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         logger.info("Removing " + userId + " from client list");
                         if (callback !== undefined) callback({});
                     } catch (err) {
-                        console.log('LeaveWorld error');
-                        console.log(err);
+                        logger.error('LeaveWorld error');
+                        logger.error(err);
                     }
                 });
 
@@ -472,8 +470,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         transport.observer.on('newproducer', this.sendCurrentProducers(socket, partyId));
                         callback({transportOptions: clientTransportOptions});
                     } catch (err) {
-                        console.log('WebRTC Transport create error');
-                        console.log(err);
+                        logger.error('WebRTC Transport create error');
+                        logger.error(err);
                     }
                 });
 
@@ -494,8 +492,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         };
                         const dataProducer = await transport.produceData(options);
 
-                        console.log(`user ${userId} producing data`);
-                        // console.log(Network.instance.clients[userId])
+                        logger.info(`user ${userId} producing data`);
                         Network.instance.clients[userId].dataProducers.set(label, dataProducer);
                         // if our associated transport closes, close ourself, too
                         dataProducer.on("transportclose", () => {
@@ -507,7 +504,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         logger.info("Sending dataproducer id to client:" + dataProducer.id);
                         return callback({id: dataProducer.id});
                     } catch (error) {
-                        console.log(error);
+                        logger.error(error);
                     }
                 });
 
@@ -522,8 +519,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         logger.info(`transport for user ${userId} connected successfully`);
                         callback({connected: true});
                     } catch (err) {
-                        console.log('WebRTC transport connect error');
-                        console.log(err);
+                        logger.error('WebRTC transport connect error');
+                        logger.error(err);
                         callback({connected: false});
                     }
                 });
@@ -555,8 +552,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         await this.closeProducerAndAllPipeProducers(producer, userId);
                         callback({closed: true});
                     } catch (err) {
-                        console.log('WebRTC CloseProducer error');
-                        console.log(err);
+                        logger.error('WebRTC CloseProducer error');
+                        logger.error(err);
                     }
                 });
 
@@ -581,11 +578,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                                 this.closeProducerAndAllPipeProducers(producer, userId);
                             });
 
-                            logger.info('New producer');
-
                             MediaStreamComponent.instance.producers.push(producer);
-                            console.log('Producer appdata:');
-                            console.log(appData);
+                            logger.info('New producer. Appdata:', appData);
                             Network.instance.clients[userId].media[appData.mediaTag] = {
                                 paused,
                                 producerId: producer.id,
@@ -600,15 +594,13 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                                     client.socket.emit(MessageTypes.WebRTCCreateProducer.toString(), userId, appData.mediaTag, producer.id, appData.partyId);
                                 }
                             });
-
-                            console.log(MediaStreamComponent.instance.producers);
                             callback({id: producer.id});
                         } else {
                             callback({error: 'Invalid transport ID'});
                         }
                     } catch (err) {
-                        console.log('sendtrack error:');
-                        console.log(err);
+                        logger.error('sendtrack error:');
+                        logger.error(err);
                     }
                 });
 
@@ -693,7 +685,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                             producerPaused: consumer.producerPaused
                         });
                     } catch (err) {
-                        console.log(err);
+                        logger.error(err);
                     }
                 });
 
@@ -706,8 +698,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         await consumer.pause();
                         callback({paused: true});
                     } catch (err) {
-                        console.log('WebRTC PauseConsumer error');
-                        console.log(err);
+                        logger.error('WebRTC PauseConsumer error');
+                        logger.error(err);
                     }
                 });
 
@@ -720,8 +712,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         await consumer.resume();
                         callback({resumed: true});
                     } catch (err) {
-                        console.log('WebRTC ResumeConsumer error');
-                        console.log(err);
+                        logger.error('WebRTC ResumeConsumer error');
+                        logger.error(err);
                     }
                 });
 
@@ -736,8 +728,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         if (consumer != null) await this.closeConsumer(consumer);
                         callback({closed: true});
                     } catch (err) {
-                        console.log('WebRTC CloseConsumer error');
-                        console.log(err);
+                        logger.error('WebRTC CloseConsumer error');
+                        logger.error(err);
                     }
                 });
 
@@ -752,8 +744,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         await consumer.setPreferredLayers({spatialLayer});
                         callback({layersSet: true});
                     } catch (err) {
-                        console.log('WebRTC ConsumerSetLayers error');
-                        console.log(err);
+                        logger.error('WebRTC ConsumerSetLayers error');
+                        logger.error(err);
                     }
                 });
 
@@ -786,8 +778,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         hostClient[1].socket.emit(MessageTypes.WebRTCResumeProducer.toString(), producer.id);
                         callback({resumed: true});
                     } catch (err) {
-                        console.log('WebRTC ResumeProducer error');
-                        console.log(err);
+                        logger.error('WebRTC ResumeProducer error');
+                        logger.error(err);
                     }
                 });
 
@@ -810,8 +802,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         }
                         callback({paused: true});
                     } catch (err) {
-                        console.log('WebRTC PauseProducer error');
-                        console.log(err);
+                        logger.error('WebRTC PauseProducer error');
+                        logger.error(err);
                     }
                 });
             });
@@ -875,17 +867,17 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             if (selfClient.socket != null) {
                 Object.entries(Network.instance.clients).forEach(([name, value]) => {
                     if (name === userId || value.media == null || value.socket == null) return;
-                    console.log(`Sending media for ${name}`);
+                    logger.info(`Sending media for ${name}`);
                     Object.entries(value.media).map(([subName, subValue]) => {
-                        console.log(`Emitting createProducer for user ${userId} of type ${subName}`);
-                        console.log(subValue);
+                        logger.info(`Emitting createProducer for user ${userId} of type ${subName}`);
+                        logger.info(subValue);
                         if (partyId === (subValue as any).partyId) selfClient.socket.emit(MessageTypes.WebRTCCreateProducer.toString(), value.userId, subName, producer.id, partyId);
                     });
                 });
             }
         } catch (err) {
-            console.log('sendCurrentProducers error');
-            console.log(err);
+            logger.error('sendCurrentProducers error');
+            logger.error(err);
         }
     }
     getUserIdFromSocketId = (socketId): string => {
@@ -899,8 +891,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             }
             return userId;
         } catch (err) {
-            console.log('getUserIdFromSocketId error');
-            console.log(err);
+            logger.error('getUserIdFromSocketId error');
+            logger.error(err);
         }
     }
     // Create consumer for each client!
@@ -944,7 +936,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     } as MediaSoupClientTypes.DataConsumerOptions);
                 }
             } catch (error) {
-                console.log(error);
+                logger.error(error);
             }
         });
     }
@@ -958,8 +950,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             await transport.close();
             delete MediaStreamComponent.instance.transports[transport.id];
         } catch (err) {
-            console.log('closeTranport error');
-            console.log(err);
+            logger.error('closeTranport error');
+            logger.error(err);
         }
     }
 
@@ -972,8 +964,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
             if (Network.instance.clients[producer.appData.peerId]) delete Network.instance.clients[producer.appData.peerId].media[producer.appData.mediaTag];
         } catch (err) {
-            console.log('CloseProducer error');
-            console.log(err);
+            logger.error('CloseProducer error');
+            logger.error(err);
         }
     }
 
@@ -995,14 +987,14 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 // remove this track's info from our roomState...mediaTag bookkeeping
                 delete Network.instance.clients[producer.appData.peerId]?.media[producer.appData.mediaTag];
             } catch (err) {
-                console.log('ClosePipeProducer error');
-                console.log(err);
+                logger.error('ClosePipeProducer error');
+                logger.error(err);
             }
         }
     }
 
     async closeConsumer(consumer): Promise<void> {
-        logger.info("closing consumer " + consumer.id);
+        logger.info("closing consumer", consumer.id);
         await consumer.close();
 
         MediaStreamComponent.instance.consumers = MediaStreamComponent.instance.consumers.filter(c => c.id !== consumer.id);
@@ -1014,8 +1006,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     }
 
     async createWebRtcTransport({peerId, direction, sctpCapabilities, partyId}: CreateWebRtcTransportParams): Promise<WebRtcTransport> {
-        logger.info("Creating Mediasoup transport");
-        console.log(partyId);
+        logger.info("Creating Mediasoup transport for", partyId);
         try {
             const {listenIps, initialAvailableOutgoingBitrate} = localConfig.mediasoup.webRtcTransport;
             const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[];
@@ -1037,8 +1028,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
             return transport;
         } catch (err) {
-            console.log('WebRTC create transport error');
-            console.log(err);
+            logger.error('WebRTC create transport error');
+            logger.error(err);
         }
     }
 }
