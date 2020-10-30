@@ -87,7 +87,7 @@ export function reset(): void {
  * WARNING: This is called by initializeEngine() in {@link @xr3ngine/engine/initialize#initializeEngine}
  * (You probably don't want to use this) 
  */
-export function execute (delta?: number, time?: number): void {
+export function execute (delta?: number, time?: number, isFixedUpdate = false): void {
   Engine.tick++;
   if (!delta) {
     time = now() / 1000;
@@ -96,9 +96,15 @@ export function execute (delta?: number, time?: number): void {
   }
 
   if (Engine.enabled) {
-    Engine.systemsToExecute.forEach(system => system.enabled && executeSystem(system, delta, time));
+    Engine.systemsToExecute
+      .filter(system => system.enabled && (!isFixedUpdate || isFixedUpdate && typeof system.fixedExecute === "function"))
+      .forEach(system => executeSystem(system, delta, time, isFixedUpdate));
     processDeferredEntityRemoval();
   }
+}
+
+export function fixedExecute (delta?: number, time?: number): void {
+  execute(delta, time, true);
 }
 
 /**
