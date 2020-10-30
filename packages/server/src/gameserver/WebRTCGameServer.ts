@@ -12,8 +12,8 @@ const networkSchema = {
 const options = {
   debug: false,
   withTransform: true,
-  withWebXRInput: true,
   input: {
+    useWebXR: true,
     enabled: false
   },
   networking: {

@@ -2,6 +2,8 @@ import { Entity } from '../../ecs/classes/Entity';
 import { createEntity, addComponent, getMutableComponent, getComponent } from '../../ecs/functions/EntityFunctions';
 import { Network } from '../components/Network';
 import { NetworkObject } from '../components/NetworkObject';
+import { Server } from '../components/Server';
+import { Client } from '../components/Client';
 import { NetworkPrefab } from '../interfaces/NetworkPrefab';
 
 /**
@@ -14,6 +16,8 @@ export function createNetworkPrefab(prefab: NetworkPrefab, ownerId, networkId: n
 
   // Add a NetworkObject component to the entity, this will store information about changing state
   addComponent(entity, NetworkObject, { ownerId, networkId });
+  addComponent(entity, Network.instance.transport.isServer ? Server : Client);
+
   console.log("Create prefab ", networkId, " for ", ownerId);
   // Call each create action
   prefab.onBeforeCreate?.forEach(action => {
