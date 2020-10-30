@@ -23,7 +23,6 @@ import { Subscription } from "../src/subscription/components/Subscription";
 const options = {
   debug: true,
   withTransform: true,
-  withWebXRInput: false,
   audio: {
     enabled: false,
     src: '',
@@ -34,7 +33,7 @@ const options = {
     refDistance: 20,
   },
   input: {
-    enabled: true,
+    useWebXR: false,
     schema: CharacterInputSchema
   },
   assets: {

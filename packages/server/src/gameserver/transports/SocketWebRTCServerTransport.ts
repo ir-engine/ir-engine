@@ -846,7 +846,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             Network.instance.worldState.destroyObjects.push(removeMessage);
             console.log("Culling ownerless object: ", networkObject.component.networkId, "owned by ", networkObject.ownerId);
             // Remove it from server
-            destroyNetworkObject(networkObject.component.networkId);
+            destroyNetworkObject(key);
             console.log("objects remaining on server: ");
             console.log(Network.instance.networkObjects);
         }
