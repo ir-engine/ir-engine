@@ -203,7 +203,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
         };
       }
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       throw err;
     }
   }

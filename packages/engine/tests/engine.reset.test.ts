@@ -21,51 +21,15 @@ import { State } from "../src/state/components/State";
 import { Subscription } from "../src/subscription/components/Subscription";
 
 const options = {
-  debug: true,
-  withTransform: true,
-  audio: {
-    enabled: false,
-    src: '',
-    volume: 0.5,
-    autoplay: true,
-    loop: true,
-    positional: true,
-    refDistance: 20,
-  },
   input: {
     useWebXR: false,
     schema: CharacterInputSchema
   },
-  assets: {
-    enabled: true
-  },
   networking: {
-    enabled: false,
-    supportsMediaStreams: false,
     schema: DefaultNetworkSchema
   },
   state: {
-    enabled: true,
     schema: CharacterStateSchema
-  },
-  subscriptions: {
-    enabled: true,
-    schema: CharacterSubscriptionSchema
-  },
-  physics: {
-    enabled: true
-  },
-  particles: {
-    enabled: false
-  },
-  camera: {
-    enabled: true
-  },
-  transform: {
-    enabled: true
-  },
-  renderer: {
-    enabled: false
   }
 }
 
@@ -137,8 +101,6 @@ test("Engine reset should work", () => {
   createPrefab(rigidBodyBox);
   createPrefab(staticWorldColliders);
   createPrefab(PlayerCharacter);
-
-
 
   addObject3DComponent(createEntity(), { obj3d: AmbientLight, ob3dArgs: {
       intensity: 2.0

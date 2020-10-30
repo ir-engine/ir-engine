@@ -26,13 +26,12 @@ export default (app: Application): void => {
   app.on('connection', async (connection) => {
     if ((process.env.KUBERNETES === 'true' && config.server.mode === 'realtime') || (process.env.NODE_ENV === 'development') || config.server.mode === 'local') {
       try {
-        console.log("**** CONNECTED");
         const token = (connection as any).socketQuery?.token;
         if (token != null) {
           const authResult = await app.service('authentication').strategies.jwt.authenticate({ accessToken: token }, {});
           const identityProvider = authResult['identity-provider'];
           if (identityProvider != null) {
-            console.log(`user ${identityProvider.userId} joining ${(connection as any).socketQuery.locationId}`);
+            logger.info(`user ${identityProvider.userId} joining ${(connection as any).socketQuery.locationId}`);
             const userId = identityProvider.userId;
             const user = await app.service('user').get(userId);
             const locationId = (connection as any).socketQuery.locationId;
@@ -108,7 +107,7 @@ export default (app: Application): void => {
           }
         }
       } catch (err) {
-        console.log(err);
+        logger.error(err);
         throw err;
       }
     }
@@ -124,7 +123,7 @@ export default (app: Application): void => {
           if (identityProvider != null) {
             const userId = identityProvider.userId;
             const user = await app.service('user').get(userId);
-            console.log('Socket disconnect from ' + userId);
+            logger.info('Socket disconnect from ' + userId);
             const instanceId = process.env.KUBERNETES !== 'true' ? user.instanceId : (app as any).instance?.id;
             const instance = ((app as any).instance && instanceId != null) ? await app.service('instance').get(instanceId) : {};
             if (user.instanceId === instanceId) {
@@ -173,7 +172,7 @@ export default (app: Application): void => {
           }
         }
       } catch (err) {
-        console.log(err);
+        logger.info(err);
         throw err;
       }
     }

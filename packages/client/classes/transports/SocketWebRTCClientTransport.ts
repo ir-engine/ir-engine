@@ -1,19 +1,18 @@
+import { User } from "@xr3ngine/common/interfaces/User";
 import { MediaStreamComponent } from "@xr3ngine/engine/src/networking/components/MediaStreamComponent";
 import { Network } from "@xr3ngine/engine/src/networking/components/Network";
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "@xr3ngine/engine/src/networking/constants/VideoConstants";
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
 import { applyNetworkStateToClient } from "@xr3ngine/engine/src/networking/functions/applyNetworkStateToClient";
-import handleDataChannelConsumerMessage from "@xr3ngine/engine/src/networking/functions/handleDataChannelConsumerMessage";
 import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
 import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
 import { UnreliableMessageReturn, UnreliableMessageType } from "@xr3ngine/engine/src/networking/types/NetworkingTypes";
 import * as mediasoupClient from "mediasoup-client";
 import { DataConsumerOptions, DataProducer, Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
-import ioclient from "socket.io-client";
 import getConfig from "next/config";
-
+import ioclient from "socket.io-client";
 import store from "../../redux/store";
-import { User } from "@xr3ngine/common/interfaces/User";
+
 
 const { publicRuntimeConfig } = getConfig();
 const gameserver = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.gameserver : 'https://localhost:3030';
@@ -51,7 +50,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
    */
   sendReliableData(message): void {
     this.socket.emit(MessageTypes.ReliableMessage.toString(), message);
-    
+  }
+
+  handleKick(socket){
+    console.log("Handling kick: ", socket);
   }
 
   // send and init are done separately to make it a bit more readable
@@ -86,8 +88,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log("Data consumer creation");
     const dataConsumer = await this.instanceRecvTransport.consumeData(options);
     console.log("Data consumer created");
+   
 
-    dataConsumer.on('message', handleDataChannelConsumerMessage(dataConsumer)); // Handle message received
+    dataConsumer.on('message', (dataConsumer)  => (message: any)  => {
+      Network.instance.incomingMessageQueue.add(message);
+    }); // Handle message received
     console.log("Setting data consumer");
     MediaStreamComponent.instance.dataConsumers.set(options.dataProducerId, dataConsumer);
     dataConsumer.on('close', () => {
@@ -160,13 +165,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
     const { worldState, routerRtpCapabilities } = joinWorldResponse as any;
 
-    console.log("World state init: ");
-    console.log(worldState);
     // TODO: This shouldn't be in the transport, should be in our network system somehow
     // Apply all state to initial frame
     applyNetworkStateToClient(worldState);
 
-    console.log("Loading mediasoup");
     if (this.mediasoupDevice.loaded !== true) await this.mediasoupDevice.load({ routerRtpCapabilities });
 
     console.log("Joined world");
@@ -205,6 +207,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.socket.on('disconnect', async () => {
       console.log('Socket received disconnect');
       // this.socket.close();
+    });
+    this.socket.on(MessageTypes.Kick.toString(), async () => {
+      console.log("TODO: SNACKBAR HERE");
+      console.log('Socket received kick message');
+      this.socket.close();
     });
     this.socket.on(MessageTypes.WebRTCConsumeData.toString(), this.handleDataConsumerCreation);
     this.socket.on(MessageTypes.WebRTCCreateProducer.toString(), async (socketId, mediaTag, producerId, localPartyId) => {

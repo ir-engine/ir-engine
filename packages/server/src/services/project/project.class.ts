@@ -7,6 +7,7 @@ import { extractLoggedInUserFromParams } from '../auth-management/auth-managemen
 import { Application } from '../../declarations';
 import StorageProvider from '../../storage/storageprovider';
 import { BadRequest } from '@feathersjs/errors';
+import logger from '../../app/logger';
 interface Data { }
 interface ServiceOptions {}
 
@@ -62,10 +63,10 @@ export class Project implements ServiceMethods<Data> {
       key: tempOwnedFileKey
     }, (err: any, result: any) => {
       if (err) {
-        console.log('Storage removal error');
-        console.log('Error in removing project temp Owned file: ', err);
+        logger.error('Storage removal error');
+        logger.error('Error in removing project temp Owned file: ', err);
       }
-      console.log('Project temp Owned file removed result: ', result);
+      logger.info('Project temp Owned file removed result: ', result);
     });
     return mapProjectDetailData(params.collection);
   }

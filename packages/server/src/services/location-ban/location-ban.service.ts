@@ -4,6 +4,7 @@ import { Application } from '../../declarations';
 import { LocationBan } from './location-ban.class';
 import createModel from '../../models/location-ban.model';
 import hooks from './location-ban.hooks';
+import logger from '../../app/logger';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -50,7 +51,7 @@ export default function (app: Application): void {
         });
       }));
     } catch(err) {
-      console.log(err);
+      logger.error(err);
     }
   });
 }
