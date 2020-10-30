@@ -15,6 +15,7 @@ import styles from './OnBoardingBox.module.scss';
 import { DefaultInput } from "@xr3ngine/engine/src/templates/shared/DefaultInput";
 import { getMutableComponent } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
 import { Input } from "@xr3ngine/engine/src/input/components/Input";
+import { Entity } from "@xr3ngine/engine/src/ecs/classes/Entity";
 
 const mapStateToProps = (state: any): any => {
   return {   
@@ -27,8 +28,7 @@ interface Props {
   actorEntity : Entity;
 }
 
-const OnBoardingBox = (props : Props) =>{
-  const { onBoardingStep,actorEntity }  = props;
+const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
 
   const addLookAroundEventListeners = () =>{
     const InputComponent = getMutableComponent(actorEntity, Input);
