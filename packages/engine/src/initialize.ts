@@ -20,6 +20,7 @@ import { WebGLRendererSystem } from './renderer/systems/WebGLRendererSystem';
 import { StateSystem } from './state/systems/StateSystem';
 import { SubscriptionSystem } from './subscription/systems/SubscriptionSystem';
 import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
+import { EmptyCharacterInputSchema } from './templates/character/EmptyCharacterInputSchema';
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
 import { CharacterSubscriptionSchema } from './templates/character/CharacterSubscriptionSchema';
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
