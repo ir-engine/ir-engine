@@ -14,13 +14,6 @@ import {
   handleOnScreenGamepadMovement
 } from "../../input/behaviors/handleOnScreenJoystick";
 import { disableScroll, enableScroll } from "../../common/functions/enableDisableScrolling";
-import { Vector2 } from "three";
-import { getComponent } from "../../ecs/functions/EntityFunctions";
-import { Input } from "../../input/components/Input";
-import isNullOrUndefined from "../../common/functions/isNullOrUndefined";
-
-const startPosition = new Vector2(0,0);
-const accumulatedMoveDifference = new Vector2(0,0);
 
 export const DefaultInputSchema: InputSchema = {
   inputAxisBehaviors: {},
@@ -48,15 +41,6 @@ export const DefaultInputSchema: InputSchema = {
     mousemove: [
       {
         behavior: handleMouseMovement,
-      },
-      {
-        behavior: entity => {
-          const input = getComponent(entity, Input);
-          const move = input.data.get(DefaultInput.LOOKTURN_PLAYERONE)?.value;
-          if (move) {
-            accumulatedMoveDifference.add(new Vector2(move[0], move[1]));
-          }
-        }
       }
     ],
     mouseup: [
@@ -64,14 +48,6 @@ export const DefaultInputSchema: InputSchema = {
         behavior: handleMouseButton,
         args: {
           value: BinaryValue.OFF
-        }
-      },
-      {
-        behavior: (entity) => {
-          const input = getComponent(entity, Input);
-          const pos = input.data.get(DefaultInput.SCREENXY).value;
-          console.log('MOV DIFF1', startPosition.clone().sub(new Vector2(pos[0], pos[1])).toArray());
-          console.log('MOV DIFF2', accumulatedMoveDifference.toArray());
         }
       }
     ],
@@ -82,17 +58,6 @@ export const DefaultInputSchema: InputSchema = {
         element: 'viewport',
         args: {
           value: BinaryValue.ON
-        }
-      },
-      {
-        behavior: (entity) => {
-          const input = getComponent(entity, Input);
-          const posData = input.data.get(DefaultInput.SCREENXY);
-          if(isNullOrUndefined(posData)) return console.warn("Position data for mouse is undefined");
-          const pos = posData.value
-          startPosition.set(pos[0], pos[1]);
-          accumulatedMoveDifference.set(0,0);
-          console.log('MOUSE MOVE START');
         }
       }
     ],
@@ -107,24 +72,12 @@ export const DefaultInputSchema: InputSchema = {
     // Touch
     touchstart: [
       {
-        behavior: handleTouchMove
+        behavior: handleTouchMove,
       },
       {
         behavior: handleTouch,
         args: {
           value: BinaryValue.ON
-        }
-      },
-      {
-        behavior: handleTouchMove,
-      },
-      {
-        behavior: (entity) => {
-          const input = getComponent(entity, Input);
-          const pos = input.data.get(DefaultInput.SCREENXY).value;
-          startPosition.set(pos[0], pos[1]);
-          accumulatedMoveDifference.set(0,0);
-          console.log('TOUCH MOVE START');
         }
       }
     ],
@@ -133,14 +86,6 @@ export const DefaultInputSchema: InputSchema = {
         behavior: handleTouch,
         args: {
           value: BinaryValue.OFF
-        }
-      },
-      {
-        behavior: (entity) => {
-          const input = getComponent(entity, Input);
-          const pos = input.data.get(DefaultInput.SCREENXY).value;
-          console.log('MOV DIFF1', startPosition.clone().sub(new Vector2(pos[0], pos[1])).toArray());
-          console.log('MOV DIFF2', accumulatedMoveDifference.toArray());
         }
       }
     ],
@@ -155,13 +100,6 @@ export const DefaultInputSchema: InputSchema = {
     touchmove: [
       {
         behavior: handleTouchMove
-      },
-      {
-        behavior: entity => {
-          const input = getComponent(entity, Input);
-          const move = input.data.get(DefaultInput.LOOKTURN_PLAYERONE).value;
-          accumulatedMoveDifference.add(new Vector2(move[0], move[1]));
-        }
       }
     ],
     // Keys
