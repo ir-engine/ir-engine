@@ -9,7 +9,6 @@ import { getComponent, getMutableComponent } from "@xr3ngine/engine/src/ecs/func
 import { DefaultInput } from "../../templates/shared/DefaultInput";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { NumericalType } from "../../common/types/NumericalTypes";
-import { normalizeMouseCoordinates } from "../../common/functions/normalizeMouseCoordinates";
 
 let follower, target;
 let inputComponent: Input;
