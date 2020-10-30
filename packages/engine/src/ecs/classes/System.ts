@@ -65,6 +65,7 @@ export abstract class System {
   name: string
   _queries: {} = {}
   abstract execute (delta: number, time: number): void
+  fixedExecute? (delta: number, time: number): void
 
   canExecute (delta: number): boolean {
     if (this._mandatoryQueries.length === 0) return true;
