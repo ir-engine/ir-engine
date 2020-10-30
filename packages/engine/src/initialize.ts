@@ -6,7 +6,7 @@ import { CameraSystem } from './camera/systems/CameraSystem';
 import { isBrowser } from './common/functions/isBrowser';
 import { Timer } from './common/functions/Timer';
 import { Engine } from './ecs/classes/Engine';
-import { execute, initialize } from './ecs/functions/EngineFunctions';
+import { execute, fixedExecute, initialize } from "./ecs/functions/EngineFunctions";
 //import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js'
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { HighlightSystem } from './effects/systems/EffectSystem';
@@ -197,8 +197,11 @@ export function initializeEngine (initOptions: any = DefaultInitializationOption
 
   // Start our timer!
     Engine.engineTimerTimeout = setTimeout(() => {
-      Engine.engineTimer = Timer({
-        update: (delta, elapsedTime) => execute(delta, elapsedTime)
-      }).start();
+      Engine.engineTimer = Timer(
+        {
+          fixedUpdate: (delta:number, elapsedTime: number) => fixedExecute(delta, elapsedTime),
+          update: (delta, elapsedTime) => execute(delta, elapsedTime)
+        },
+        Engine.physicsFrameRate).start();
     }, 1000);
 }

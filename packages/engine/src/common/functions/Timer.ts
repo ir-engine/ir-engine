@@ -1,16 +1,20 @@
 import { isBrowser } from './isBrowser';
 import { now } from "./now";
 
+type TimerUpdateCallback = (delta: number, elapsedTime?: number) => any;
+
 export function Timer (
-  callbacks: { update?: Function; render?: Function },
-  step?: number
+  callbacks: { update?: TimerUpdateCallback; fixedUpdate?: TimerUpdateCallback; render?: Function },
+  framerate?: number
 ): { start: Function; stop: Function } {
-  const increment = step || 1 / 60;
+  const rate = framerate || 1 / 30;
 
   let last = 0;
   let accumulated = 0;
   let delta = 0;
   let frameId;
+
+  const fixedRunner = callbacks.fixedUpdate? new FixedStepsRunner(rate, callbacks.fixedUpdate) : null;
 
   function onFrame (time) {
     frameId = (isBrowser ? requestAnimationFrame : requestAnimationFrameOnServer)(onFrame);
@@ -18,6 +22,10 @@ export function Timer (
     if (last !== null) {
       delta = (time - last) / 1000;
       accumulated = accumulated + delta;
+
+      if (fixedRunner) {
+        fixedRunner.run(delta);
+      }
 
       if (callbacks.update) callbacks.update(delta, accumulated);
     }
