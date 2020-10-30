@@ -26,14 +26,13 @@ const StyledProjectGridItem = (styled as any).div`
   }
 `;
 
-const StyledContextMenuTrigger = StylableContextMenuTrigger;
-// styled(StylableContextMenuTrigger)`
-//   display: flex;
-//   flex-direction: column;
-//   flex: 1;
-//   border-top-left-radius: inherit;
-//   border-top-right-radius: inherit;
-// `;
+const StyledContextMenuTrigger = styled(StylableContextMenuTrigger)`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+`;
 
 const TitleContainer = (styled as any).div`
   display: flex;
@@ -112,7 +111,7 @@ export default class ProjectGridItem extends Component {
 
     const content = (
       <>
-        <ThumbnailContainer>{project.thumbnail_url && <Thumbnail src={project.thumbnail_url} />}</ThumbnailContainer>
+        <ThumbnailContainer>{project.thumbnailUrl && <Thumbnail src={project.thumbnailUrl} />}</ThumbnailContainer>
         <TitleContainer>
           <Col>
             <h3>{project.name}</h3>

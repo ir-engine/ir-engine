@@ -55,8 +55,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
     createPrefab(staticWorldColliders);
 
-    const actorEntity = createPrefab(PlayerCharacter);
-    setActorEntity(actorEntity);
+    // const actorEntity = createPrefab(PlayerCharacter);
+    // setActorEntity(actorEntity);
 
     return (): void => {
       if (confirm('hot update! do cleanup/reload?')) {

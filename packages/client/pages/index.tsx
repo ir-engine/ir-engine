@@ -13,6 +13,9 @@ import {client} from "../redux/feathers";
 import {connectToInstanceServer, provisionInstanceServer} from "../redux/instanceConnection/service";
 import {selectPartyState} from "../redux/party/selector";
 
+import theme from '../theme';
+import { ThemeProvider } from '@material-ui/core';
+
 interface Props {
     appState?: any;
     authState?: any;
@@ -83,11 +86,13 @@ export const IndexPage = (props: any): any => {
     // <Button className="right-bottom" variant="contained" color="secondary" aria-label="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }}>scene</Button>
 
     return (
-        <Layout pageTitle="Home" login={false}>
-            <NoSSR onSSR={<Loading/>}>
-                <Scene/>
-            </NoSSR>
-        </Layout>
+        <ThemeProvider theme={theme}>
+            <Layout pageTitle="Home" login={false}>
+                <NoSSR onSSR={<Loading/>}>
+                    <Scene/>
+                </NoSSR>
+            </Layout>
+        </ThemeProvider>
     );
 };
 

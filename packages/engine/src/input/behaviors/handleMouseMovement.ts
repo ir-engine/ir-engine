@@ -41,7 +41,6 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
     mouseMovement[1] = mousePosition[1] - previousPosition[1];
   }
 
-  // console.log(mouseMovement);
   if (mappedMovementInput) {
     input.data.set(mappedMovementInput, {
       type: InputType.TWODIM,
