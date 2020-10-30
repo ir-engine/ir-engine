@@ -1,4 +1,4 @@
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { handleInput } from '../../input/behaviors/handleInput';
 import { Input } from '../../input/components/Input';
 import { InputType } from '../../input/enums/InputType';
@@ -7,6 +7,7 @@ import { Network } from '../components/Network';
 import { destroyNetworkObject } from './destroyNetworkObject';
 import { addSnapshot, calculateInterpolation, createSnapshot } from './NetworkInterpolationFunctions';
 import { initializeNetworkObject } from './initializeNetworkObject';
+import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 
 export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
   const worldState = worldStateBuffer; // worldStateModel.fromBuffer(worldStateBuffer);
@@ -94,6 +95,12 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
       return console.warn("network object undefined, but inputs not");
     // Get network object with networkId
     const networkComponent = Network.instance.networkObjects[stateData.networkId].component;
+
+    // Ignore input applied to local user input object that the client is currently controlling
+    if(networkComponent.ownerId === Network.instance.userId && hasComponent(networkComponent.entity, LocalInputReceiver)) return;
+
+    console.log("Setting input on ", networkComponent.ownerId)
+
     // Get input object attached
     const input = getComponent(networkComponent.entity, Input);
 
@@ -131,10 +138,13 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
     handleInput(networkComponent.entity, {}, delta);
   });
 
+  if(Network.instance.worldState.transforms.length < 1) return console.warn("Network transforms is empty");
+
   // Update transforms
   Network.instance.worldState.transforms?.forEach(transformData => {
-    if(Network.instance.networkObjects[transformData.networkId])
-      return console.warn("Network object not found in list");
+    if(!Network.instance.networkObjects[transformData.networkId]){
+      return console.warn("Network object not found in list: ", transformData.networkId);
+    }
     // Get network component from data
     const networkComponent = Network.instance.networkObjects[transformData.networkId].component;
     const transform = getMutableComponent(networkComponent.entity, TransformComponent);
@@ -152,5 +162,6 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
       transformData.qW
     );
     console.log("Updated transform on ", transformData.networkId);
+    console.log([transformData.x, transformData.y, transformData.z]);
   });
 }
