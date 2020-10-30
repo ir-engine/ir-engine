@@ -1,4 +1,4 @@
-import { isBrowser } from './isBrowser';
+import { isClient } from './isClient';
 import { now } from "./now";
 
 export function Timer (
@@ -13,7 +13,7 @@ export function Timer (
   let frameId;
 
   function onFrame (time) {
-    frameId = (isBrowser ? requestAnimationFrame : requestAnimationFrameOnServer)(onFrame);
+    frameId = (isClient ? requestAnimationFrame : requestAnimationFrameOnServer)(onFrame);
 
     if (last !== null) {
       delta = (time - last) / 1000;
@@ -27,7 +27,7 @@ export function Timer (
 
   function start () {
     last = null;
-    frameId = (isBrowser ? requestAnimationFrame : requestAnimationFrameOnServer)(onFrame);
+    frameId = (isClient ? requestAnimationFrame : requestAnimationFrameOnServer)(onFrame);
   }
 
   function stop () {

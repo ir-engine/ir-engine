@@ -4,6 +4,7 @@ import {BadRequest} from '@feathersjs/errors';
 import _ from 'lodash';
 import Sequelize, { Op } from 'sequelize';
 import getLocalServerIp from '../../util/get-local-server-ip';
+import logger from '../../app/logger';
 
 interface Data {}
 
@@ -143,7 +144,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
         });
         const maxInstance = await this.app.service('instance').get(maxInstanceId);
         if (process.env.KUBERNETES !== 'true') {
-          console.log('Resetting local instance to ' + maxInstanceId);
+          logger.info('Resetting local instance to ' + maxInstanceId);
           (this.app as any).instance = maxInstance;
           return getLocalServerIp();
         }
@@ -191,7 +192,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
       } else {
         const instanceUserSort = _.sortBy(availableLocationInstances, (instance: typeof instanceModel) => instance.currentUsers);
         if (process.env.KUBERNETES !== 'true') {
-          console.log('Resetting local instance to ' + instanceUserSort[0].id);
+          logger.info('Resetting local instance to ' + instanceUserSort[0].id);
           (this.app as any).instance = instanceUserSort[0];
           return getLocalServerIp();
         }

@@ -1,8 +1,5 @@
-import isNullOrUndefined from '../../common/functions/isNullOrUndefined';
-import { createFixedTimestep } from '../../common/functions/Timer';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
-import { Not } from '../../ecs/functions/ComponentFunctions';
 import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions';
 import { Input } from '../../input/components/Input';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
@@ -17,9 +14,7 @@ import { Server } from '../components/Server';
 import { addInputToWorldStateOnServer } from '../functions/addInputToWorldStateOnServer';
 import { addNetworkTransformToWorldState } from '../functions/addNetworkTransformToWorldState';
 import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClient';
-import { handleUpdateFromServer } from '../functions/handleUpdateFromServer';
 import { handleUpdatesFromClients } from '../functions/handleUpdatesFromClients';
-import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions';
 import { prepareWorldState as prepareWorldState } from '../functions/prepareWorldState';
 import { sendClientInput as sendClientInputToServer } from '../functions/sendClientInput';
 
@@ -90,6 +85,7 @@ export class NetworkSystem extends System {
 
   // Call execution on client
   fixedExecuteOnClient = (delta: number) => {
+    if(Network.instance == null) return
     // Client logic
     const queue = Network.instance.incomingMessageQueue;
     // For each message, handle and process
