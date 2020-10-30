@@ -59,11 +59,15 @@ export function getSystems (): System[] {
 /**
  * Call execute() function on a system instance
  */
-export function executeSystem (system: System, delta: number, time: number): void {
+export function executeSystem (system: System, delta: number, time: number, isFixedUpdate = false): void {
   if (system.initialized) {
     if (system.canExecute(delta)) {
       const startTime = now();
-      system.execute(delta, time);
+      if (isFixedUpdate) {
+        system.fixedExecute(delta, time);
+      } else {
+        system.execute(delta, time);
+      }
       system.executeTime = now() - startTime;
       system.clearEventQueues();
     }
