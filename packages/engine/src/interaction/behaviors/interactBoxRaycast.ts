@@ -19,7 +19,7 @@ import { Engine } from "../../ecs/classes/Engine";
  * @param delta
  */
 
-export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:InteractBehaviorArguments, delta: number): void => {
+export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }: InteractBehaviorArguments, delta: number): void => {
 
   if (!hasComponent(entity, FollowCameraComponent)) return;
   const followCamera = getComponent(entity, FollowCameraComponent);
@@ -27,7 +27,7 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:Int
 
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
 
-  const raycastList:Array<Entity> = interactive
+  const raycastList: Array<Entity> = interactive
     .filter(interactiveEntity => {
       // - have object 3d to raycast
       if (!hasComponent(interactiveEntity, Object3DComponent)) {
@@ -52,24 +52,24 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:Int
   );
 
   Engine.camera.updateMatrixWorld();
-  Engine.camera.matrixWorldInverse.getInverse( Engine.camera.matrixWorld );
+  Engine.camera.matrixWorldInverse.getInverse(Engine.camera.matrixWorld);
 
-  const viewProjectionMatrix = new Matrix4().multiplyMatrices( projectionMatrix, Engine.camera.matrixWorldInverse );
-  const frustum = new Frustum().setFromProjectionMatrix( viewProjectionMatrix );
+  const viewProjectionMatrix = new Matrix4().multiplyMatrices(projectionMatrix, Engine.camera.matrixWorldInverse);
+  const frustum = new Frustum().setFromProjectionMatrix(viewProjectionMatrix);
 
 
-  const subFocusedArray = raycastList.map( entityIn => {
+  const subFocusedArray = raycastList.map(entityIn => {
 
-    const calcBoundingBox = getComponent(entityIn, BoundingBox);
-    if (calcBoundingBox.boxArray.length) {
+    const boundingBox = getComponent(entityIn, BoundingBox);
+    if (boundingBox.boxArray.length) {
       // TO DO: static group object
-      if (calcBoundingBox.dynamic) {
+      if (boundingBox.dynamic) {
 
-        const arr = calcBoundingBox.boxArray.map((object3D, index) => {
+        const arr = boundingBox.boxArray.map((object3D, index) => {
           const aabb = new Box3();
-          aabb.setFromObject( object3D );
+          aabb.setFromObject(object3D);
           return [entityIn, frustum.intersectsBox(aabb), aabb.distanceToPoint(transform.position), index];
-        }).filter( value => value[1] ).sort((a: any,b: any) => a[2] - b[2])
+        }).filter(value => value[1]).sort((a: any, b: any) => a[2] - b[2])
 
         if (arr.length) {
           return arr[0]
@@ -79,24 +79,24 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }:Int
 
       }
     } else {
-      if (calcBoundingBox.dynamic) {
+      if (boundingBox.dynamic) {
         const object3D = getComponent(entityIn, Object3DComponent);
         const aabb = new Box3();
-        aabb.copy(calcBoundingBox.box);
-        aabb.applyMatrix4( object3D.value.matrixWorld );
+        aabb.copy(boundingBox.box);
+        aabb.applyMatrix4(object3D.value.matrixWorld);
         return [entityIn, frustum.intersectsBox(aabb), aabb.distanceToPoint(transform.position)];
       } else {
-        return [entityIn, frustum.intersectsBox(calcBoundingBox.box), calcBoundingBox.box.distanceToPoint(transform.position)];
+        return [entityIn, frustum.intersectsBox(boundingBox.box), boundingBox.box.distanceToPoint(transform.position)];
       }
     }
-  }).filter( value => value[1] );
+  }).filter(value => value[1]);
 
-  const selectNearest = subFocusedArray.sort((a: any,b: any) => a[2] - b[2])
+  const selectNearest = subFocusedArray.sort((a: any, b: any) => a[2] - b[2])
 
   const interacts = getMutableComponent(entity, Interactor);
   interacts.subFocusedArray = subFocusedArray.map((v: any) => getComponent(v[0], Object3DComponent).value);
 
-  const newBoxHit = selectNearest.length? selectNearest[0] : null;
+  const newBoxHit = selectNearest.length ? selectNearest[0] : null;
   (interacts.BoxHitResult as any) = newBoxHit;
-  (interacts.focusedInteractive as any) = newBoxHit? newBoxHit[0] : null;
+  (interacts.focusedInteractive as any) = newBoxHit ? newBoxHit[0] : null;
 };

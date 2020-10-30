@@ -88,7 +88,7 @@ export default function CreateProjectPage() {
     scene => {
       const search = new URLSearchParams();
       search.set("sceneId", scene.id);
-      router.push(`/projects/new?${search}`);
+      router.push(`/editor/projects/new?${search}`);
     },
     [router]
   );
@@ -98,7 +98,8 @@ export default function CreateProjectPage() {
   const hasMore = false;
   const filteredEntries = entries.map(result => ({
     ...result,
-    url: `/projects/new?sceneId=${result.id}`,
+    url: `/editor/projects/new?sceneId=${result.id}`,
+    // eslint-disable-next-line @typescript-eslint/camelcase
     thumbnail_url: result && result.images && result.images.preview && result.images.preview.url
   }));
 
@@ -127,7 +128,7 @@ export default function CreateProjectPage() {
                   <SearchInput placeholder="Search scenes..." onChange={onChangeQuery} />
                 </ProjectGridHeaderRow>
                 <ProjectGridHeaderRow>
-                  <Button onClick={routeTo('/projects/new')}>
+                  <Button onClick={routeTo('/editor/projects')}>
                     New Empty Project
                   </Button>
                 </ProjectGridHeaderRow>
@@ -146,7 +147,7 @@ export default function CreateProjectPage() {
                   >
                     <ProjectGrid
                       projects={filteredEntries}
-                      newProjectPath="/editor/projects/new"
+                      newProjectPath="/editor/projects"
                       newProjectLabel="New Empty Project"
                       /* @ts-ignore */
                       onSelectProject={onSelectScene}
