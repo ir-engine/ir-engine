@@ -41,6 +41,7 @@ export const DefaultInputSchema: InputSchema = {
     mousemove: [
       {
         behavior: handleMouseMovement,
+        // element: 'viewport'
       }
     ],
     mouseup: [
@@ -51,9 +52,11 @@ export const DefaultInputSchema: InputSchema = {
         }
       }
     ],
+
     mousedown: [
       {
         behavior: handleMouseButton,
+        element: 'viewport',
         args: {
           value: BinaryValue.ON
         }
@@ -67,9 +70,11 @@ export const DefaultInputSchema: InputSchema = {
         }
       }
     ],
-
     // Touch
     touchstart: [
+      {
+        behavior: handleTouchMove
+      },
       {
         behavior: handleTouch,
         args: {
@@ -105,6 +110,7 @@ export const DefaultInputSchema: InputSchema = {
     keyup: [
       {
         behavior: handleKey,
+        element: 'document',
         args: {
           value: BinaryValue.OFF
         }
@@ -113,6 +119,7 @@ export const DefaultInputSchema: InputSchema = {
     keydown: [
       {
         behavior: handleKey,
+        element: 'document',
         args: {
           value: BinaryValue.ON
         }

@@ -109,6 +109,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
     cameraTransform.position.set(0, 1.2, 3);
 
     createPrefab(staticWorldColliders);
+
     const actorEntity = createPrefab(PlayerCharacter);
     setActorEntity(actorEntity);
 

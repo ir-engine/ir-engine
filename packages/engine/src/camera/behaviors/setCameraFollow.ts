@@ -47,19 +47,19 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
 
     euler.setFromQuaternion(follower.rotation);
 
-    euler.y -= inputValue[0] * 0.01;
-    euler.x -= inputValue[1] * 0.01;
+  		euler.y -= inputValue[0] * 0.01;
+      euler.x -= inputValue[1] * 0.01;
+            
+      euler.x = Math.max( -PI_2, Math.min( PI_2, euler.x ) );    
 
     euler.x = Math.max(-PI_2, Math.min(PI_2, euler.x));
 
     follower.rotation.setFromEuler(euler);
 
-    follower.position.set(
-      target.position.x,
-      target.position.y + 1,
-      target.position.z
-    );
-  } else if (cameraFollow.mode === "thirdPerson") {
+      theta -= inputValue[0] * 120;
+      theta %= 360;
+      phi -= inputValue[1] * 120;
+      phi = Math.min(85, Math.max(0, phi));
 
     theta -= inputValue[0] * 120;
     theta %= 360;
