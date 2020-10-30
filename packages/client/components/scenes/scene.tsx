@@ -8,6 +8,7 @@ import { createEntity, /*getComponent,*/ getMutableComponent } from '@xr3ngine/e
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
+import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
 import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacterWithEmptyInputSchema';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
@@ -20,6 +21,8 @@ import { generalStateList, setAppOnBoardingStep, setAppLoaded } from '../../redu
 import store from '../../redux/store';
 import LinearProgressComponent from '../ui/LinearProgress';
 import NetworkDebug from '../ui/NetworkDebug/NetworkDebug';
+import OnBoardingBox from '../ui/OnBoardingBox';
+import OnBoardingDialog from '../ui/OnBoardingDialog';
 
 const mapStateToProps = (state: any): any => {
   return { };
@@ -121,6 +124,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
     <>
     <NetworkDebug />
     <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
+    <OnBoardingDialog avatarsList={CharacterAvatars} />
+    <OnBoardingBox actorEntity={actorEntity} />
     </>
   );
 };

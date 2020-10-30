@@ -67,7 +67,7 @@ export const EmptyCharacterInputSchema: InputSchema = {
       // [GamepadButtons.DPad4]: DefaultInput.RIGHT // DPAD 4
     },
     axes: {
-      [Thumbsticks.Left]: DefaultInput.MOVEMENT_PLAYERONE,
+      // [Thumbsticks.Left]: DefaultInput.MOVEMENT_PLAYERONE,
       [Thumbsticks.Right]: DefaultInput.LOOKTURN_PLAYERONE
     }
   },
@@ -80,8 +80,8 @@ export const EmptyCharacterInputSchema: InputSchema = {
     // e: DefaultInput.INTERACT,
     // ' ': DefaultInput.JUMP,
     // shift: DefaultInput.SPRINT,
-    p: DefaultInput.POINTER_LOCK,
-    v: DefaultInput.SWITCH_CAMERA
+    // p: DefaultInput.POINTER_LOCK,
+    // v: DefaultInput.SWITCH_CAMERA
   },
   // Map how inputs relate to each other
   inputRelationships: {
@@ -93,22 +93,22 @@ export const EmptyCharacterInputSchema: InputSchema = {
   },
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
-    [DefaultInput.POINTER_LOCK]: {
-        started: [
-          {
-            behavior: cameraPointerLock,
-            args: {}
-          }
-        ]
-    },
-    [DefaultInput.SWITCH_CAMERA]: {
-        started: [
-          {
-            behavior: switchCameraMode,
-            args: {}
-          }
-        ]
-    },
+    // [DefaultInput.POINTER_LOCK]: {
+    //     started: [
+    //       {
+    //         behavior: cameraPointerLock,
+    //         args: {}
+    //       }
+    //     ]
+    // },
+    // [DefaultInput.SWITCH_CAMERA]: {
+    //     started: [
+    //       {
+    //         behavior: switchCameraMode,
+    //         args: {}
+    //       }
+    //     ]
+    // },
     // [DefaultInput.INTERACT]: {
     //   started: [
     //     {
@@ -155,126 +155,126 @@ export const EmptyCharacterInputSchema: InputSchema = {
     //     }
     //   ]
     // },
-    // [DefaultInput.FORWARD]: {
-    //     started: [
-    //       {
-    //         behavior: setLocalMovementDirection,
-    //         args: {
-    //           z: 1
-    //         }
-    //       }
-    //     ],
-    //     continued: [
-    //       {
-    //         behavior: setLocalMovementDirection,
-    //         args: {
-    //           z: 1
-    //         }
-    //       }
-    //     ],
-    //   ended: [
-    //     {
-    //       behavior: setLocalMovementDirection,
-    //       args: {
-    //         z: 0
-    //       }
-    //     },
-    //     {
-    //       behavior: updateCharacterState,
-    //       args: {}
-    //     }
-    //   ]
-    // },
-    // [DefaultInput.BACKWARD]: {
-    //     started: [
-    //       {
-    //         behavior: setLocalMovementDirection,
-    //         args: {
-    //           z: -1
-    //         }
-    //       }
-    //     ],
-    //     continued: [
-    //       {
-    //         behavior: setLocalMovementDirection,
-    //         args: {
-    //           z: -1
-    //         }
-    //       }
-    //     ],
-    //   ended: [
-    //     {
-    //       behavior: setLocalMovementDirection,
-    //       args: {
-    //         z: 0
-    //       }
-    //     },
-    //     {
-    //       behavior: updateCharacterState,
-    //       args: {}
-    //     }
-    //   ]
-    // },
-    // [DefaultInput.LEFT]: {
-    //     started: [
-    //       {
-    //         behavior: setLocalMovementDirection,
-    //         args: {
-    //           x: 1
-    //         }
-    //       }
-    //     ],
-    //     continued: [
-    //       {
-    //         behavior: setLocalMovementDirection,
-    //         args: {
-    //           x: 1
-    //         }
-    //       }
-    //     ],
-    //   ended: [
-    //     {
-    //       behavior: setLocalMovementDirection,
-    //       args: {
-    //         x: 0
-    //       }
-    //     },
-    //     {
-    //       behavior: updateCharacterState,
-    //       args: {}
-    //     }
-    //   ]
-    // },
-    // [DefaultInput.RIGHT]: {
-    //     started: [
-    //       {
-    //         behavior: setLocalMovementDirection,
-    //         args: {
-    //           x: -1
-    //         }
-    //       }
-    //     ],
-    //     continued: [
-    //       {
-    //         behavior: setLocalMovementDirection,
-    //         args: {
-    //           x: -1
-    //         }
-    //       }
-    //     ],
-    //   ended: [
-    //     {
-    //       behavior: setLocalMovementDirection,
-    //       args: {
-    //         x: 0
-    //       }
-    //     },
-    //     {
-    //       behavior: updateCharacterState,
-    //       args: {}
-    //     }
-    //   ]
-    // }
+    [DefaultInput.FORWARD]: {
+        started: [
+          {
+            behavior: setLocalMovementDirection,
+            args: {
+              z: 1
+            }
+          }
+        ],
+        continued: [
+          {
+            behavior: setLocalMovementDirection,
+            args: {
+              z: 1
+            }
+          }
+        ],
+      ended: [
+        {
+          behavior: setLocalMovementDirection,
+          args: {
+            z: 0
+          }
+        },
+        {
+          behavior: updateCharacterState,
+          args: {}
+        }
+      ]
+    },
+    [DefaultInput.BACKWARD]: {
+        started: [
+          {
+            behavior: setLocalMovementDirection,
+            args: {
+              z: -1
+            }
+          }
+        ],
+        continued: [
+          {
+            behavior: setLocalMovementDirection,
+            args: {
+              z: -1
+            }
+          }
+        ],
+      ended: [
+        {
+          behavior: setLocalMovementDirection,
+          args: {
+            z: 0
+          }
+        },
+        {
+          behavior: updateCharacterState,
+          args: {}
+        }
+      ]
+    },
+    [DefaultInput.LEFT]: {
+        started: [
+          {
+            behavior: setLocalMovementDirection,
+            args: {
+              x: 1
+            }
+          }
+        ],
+        continued: [
+          {
+            behavior: setLocalMovementDirection,
+            args: {
+              x: 1
+            }
+          }
+        ],
+      ended: [
+        {
+          behavior: setLocalMovementDirection,
+          args: {
+            x: 0
+          }
+        },
+        {
+          behavior: updateCharacterState,
+          args: {}
+        }
+      ]
+    },
+    [DefaultInput.RIGHT]: {
+        started: [
+          {
+            behavior: setLocalMovementDirection,
+            args: {
+              x: -1
+            }
+          }
+        ],
+        continued: [
+          {
+            behavior: setLocalMovementDirection,
+            args: {
+              x: -1
+            }
+          }
+        ],
+      ended: [
+        {
+          behavior: setLocalMovementDirection,
+          args: {
+            x: 0
+          }
+        },
+        {
+          behavior: updateCharacterState,
+          args: {}
+        }
+      ]
+    }
   },
   // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
   inputAxisBehaviors: {
@@ -298,31 +298,31 @@ export const EmptyCharacterInputSchema: InputSchema = {
         }
       ]
     },
-    // [DefaultInput.MOVEMENT_PLAYERONE]: {
-    //   started: [
-    //     {
-    //       behavior: moveByInputAxis,
-    //       args: {
-    //         input: DefaultInput.MOVEMENT_PLAYERONE,
-    //         inputType: InputType.TWODIM
-    //       }
-    //     }
-    //   ],
-    //   changed: [
-    //     {
-    //       behavior: moveByInputAxis,
-    //       args: {
-    //         input: DefaultInput.MOVEMENT_PLAYERONE,
-    //         inputType: InputType.TWODIM
-    //       }
-    //     },
-    //     {
-    //       behavior: updateCharacterState,
-    //       args: {
-    //         setCameraRelativeOrientationTarget: true
-    //       }
-    //     }
-    //   ]
-    // }
+    [DefaultInput.MOVEMENT_PLAYERONE]: {
+      started: [
+        {
+          behavior: moveByInputAxis,
+          args: {
+            input: DefaultInput.MOVEMENT_PLAYERONE,
+            inputType: InputType.TWODIM
+          }
+        }
+      ],
+      changed: [
+        {
+          behavior: moveByInputAxis,
+          args: {
+            input: DefaultInput.MOVEMENT_PLAYERONE,
+            inputType: InputType.TWODIM
+          }
+        },
+        {
+          behavior: updateCharacterState,
+          args: {
+            setCameraRelativeOrientationTarget: true
+          }
+        }
+      ]
+    }
   }
 };
