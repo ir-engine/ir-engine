@@ -302,7 +302,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         console.log("handleClientConnected");
                         if (Network.instance.clients[userId] !== undefined && 
                         Network.instance.clients[userId].socket.id !== socket.id) {
-                            const socketToKick = Network.instance.clients[userId].socket;
+                            const clientToKick = Network.instance.clients[userId];
                           console.log(userId);
                           console.log("Network.instance.clients[userId].socket.id");
                           console.log(Network.instance.clients[userId].socket.id);
