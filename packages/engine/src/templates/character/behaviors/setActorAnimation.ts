@@ -1,20 +1,15 @@
-import { CharacterComponent } from '../components/CharacterComponent';
+import { AnimationClip } from 'three';
 import { Behavior } from '../../../common/interfaces/Behavior';
-import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
-import { Object3DComponent } from "../../../common/components/Object3DComponent";
-import { AnimationClip, AnimationAction, LoopOnce } from 'three';
-import { now } from '../../../common/functions/now';
-import { State } from "@xr3ngine/engine/src/state/components/State";
-import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";
+import { getMutableComponent } from '../../../ecs/functions/EntityFunctions';
+import { CharacterComponent } from '../components/CharacterComponent';
 
 
 
 export const setActorAnimation: Behavior = (entity, args: { name: string; transitionDuration: number }) => {
-  //console.log('set anim: ', args.name, args.transitionDuration, 'now', now());
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 
-  if(!actor.initialized)
-  return console.log("Not setting actor animation because not initialized");
+  // Actor isn't initialized yet, so skip the animation
+  if(!actor.initialized) return
 
   const clip = AnimationClip.findByName(actor.animations, args.name );
   const newAction = actor.mixer.clipAction(clip, actor.modelContainer.children[0]);

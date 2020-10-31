@@ -177,7 +177,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // Send heartbeat every second
       setInterval(() => {
         this.socket.emit(MessageTypes.Heartbeat.toString());
-        // console.log("Sending heartbeat");
+        console.log("Sending heartbeat");
       }, 1000);
 
       Network.instance.socketId = this.socket.id;
@@ -555,7 +555,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     // us back the info we need to create a client-side transport
     let transport;
     const { transportOptions } = await this.request(MessageTypes.WebRTCTransportCreate.toString(), { direction, sctpCapabilities: this.mediasoupDevice.sctpCapabilities, partyId: partyId});
-    console.log("transport options", transportOptions);
 
     if (direction === "recv")
       transport = await this.mediasoupDevice.createRecvTransport(transportOptions);

@@ -30,24 +30,9 @@ export const loadActorAvatar: Behavior = (entity) => {
     castShadow: true,
     parent: tmpGroup,
     onLoaded: (entity, args) => {
-      const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-
       initializeCharacter(entity);
-      actor.mixer?.stopAllAction();
-      
-      // forget that we have any animation playing
-      actor.currentAnimationAction = null;
-
-      // clear current avatar mesh
-      if(actor.modelContainer !== undefined)
-        ([ ...actor.modelContainer.children ])
-          .forEach(child => actor.modelContainer.remove(child));
-
+      const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
       tmpGroup.children.forEach(child => actor.modelContainer.add(child));
-
-      const stateComponent = getComponent(entity, State);
-      // trigger all states to restart?
-      stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
     }
   });
 };
