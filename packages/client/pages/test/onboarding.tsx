@@ -2,12 +2,12 @@ import React, { useEffect } from 'react';
 import NoSSR from 'react-no-ssr';
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
-import Loading from '../components/scenes/loading';
-import Scene from "../components/scenes/ui";
-import Layout from '../components/ui/Layout';
-import { selectAuthState } from "../redux/auth/selector";
-import { doLoginAuto } from '../redux/auth/service';
-import { selectInstanceConnectionState } from '../redux/instanceConnection/selector';
+import Loading from '../../components/scenes/loading';
+import Scene from "../../components/scenes/ui";
+import Layout from '../../components/ui/Layout';
+import { selectAuthState } from "../../redux/auth/selector";
+import { doLoginAuto } from '../../redux/auth/service';
+import { selectInstanceConnectionState } from '../../redux/instanceConnection/selector';
 
 interface Props {
     authState?: any;
@@ -26,7 +26,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
 });
 
-export const IndexPage = (props: any): any => {
+export const onboardingPage = (props: any): any => {
   const {
     authState,
     instanceConnectionState,
@@ -57,4 +57,4 @@ export const IndexPage = (props: any): any => {
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(IndexPage);
+export default connect(mapStateToProps, mapDispatchToProps)(onboardingPage);
