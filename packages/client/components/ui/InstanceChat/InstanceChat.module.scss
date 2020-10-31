@@ -15,8 +15,12 @@
       display: flex;
       // flex: 1;
       height: inherit;
-      padding: 15px 10px;      
+      padding: 15px 10px;
       background: rgba(0,0,0,0.7);
+      &:hover {
+        cursor: pointer;
+        background: rgba(0,0,0,0.9);
+      }
     }
     .messageFieldContainer{
       margin:0px;
@@ -29,8 +33,12 @@
       display: flex;
       // flex: 1;
       height: inherit;
-      padding: 15px 10px;           
-      background-color: rgba(255,255,255,0.8);
+      padding: 15px 10px;
+      background: rgba(0,0,0,0.7);
+      &:hover {
+        cursor: pointer;
+        background: rgba(0,0,0,0.9);
+      }
     }
   }
 
@@ -40,6 +48,8 @@
 
     margin: 0 auto;
     width: 70%;
+
+    z-index: 100;
 
     @media (max-width: 768px) {
       width: 100%;

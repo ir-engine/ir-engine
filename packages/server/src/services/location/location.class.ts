@@ -84,11 +84,14 @@ export class Location extends Service {
 
   async find (params: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params);
-    const skip = params.query?.$skip ? params.query.$skip : 0;
-    const limit = params.query?.$limit ? params.query.$limit : 10;
+    // eslint-disable-next-line prefer-const
+    let {skip, limit, ...strippedQuery} = params.query;
+    if (skip == null) skip = 0;
+    if (limit == null) limit = 10;
     const locationResult = await this.app.service('location').Model.findAndCountAll({
       offset: skip,
       limit: limit,
+      where: strippedQuery,
       order: [
         ['name', 'ASC']
       ],
