@@ -13,7 +13,6 @@ import { BinaryValue } from "../../src/common/enums/BinaryValue";
 import { DefaultInput } from "../../src/templates/shared/DefaultInput";
 import { LifecycleValue } from "../../src/common/enums/LifecycleValue";
 import { normalizeMouseCoordinates } from "../../src/common/functions/normalizeMouseCoordinates";
-import { Vector2 } from "three";
 
 let addListenerMock:jest.SpyInstance;
 
@@ -379,7 +378,7 @@ describe("gestures", () => {
 });
 
 describe("special cases", () => {
-  test("start+move happening between execute", () => {
+  test("subsequent moves between execute", () => {
     const windowPoint1 = { x: 10, y:20 };
     const normalPoint1 = normalizeMouseCoordinates(windowPoint1.x, windowPoint1.y, window.innerWidth, window.innerHeight);
     const windowPoint2 = { x: -12, y:-25 };
@@ -405,47 +404,6 @@ describe("special cases", () => {
     expect(input.data.has(DefaultInput.LOOKTURN_PLAYERONE)).toBeTruthy();
     const data2 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
     expect(data2.value).toMatchObject([ normalDiff2.x, normalDiff2.y ]);
-  })
-
-  test("subsequent moves between execute", () => {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    const points:Array<{ point: Vector2, move: Vector2, nPoint: Vector2, nMove: Vector2 }> = [];
-
-    const normalizeCoordinatesV = (point:{x:number,y:number}, width:number, height:number):Vector2 => {
-      const tmp = normalizeMouseCoordinates(point.x, point.y, width, height);
-      return new Vector2(tmp.x, tmp.y);
-    }
-
-    const pointStart = new Vector2(100, 30);
-    const pointEnd = pointStart.clone();
-    const steps = 10;
-    for (let i = 0; i < steps; i++) {
-      const move = new Vector2(5,2);
-      const point = pointEnd.clone().add(move);
-      const nPoint = normalizeCoordinatesV(point, width, height);
-      const nPointPrev = normalizeCoordinatesV(pointEnd, width, height);
-      const nMove = nPoint.clone().sub(nPointPrev);
-
-      points.push({
-        point,
-        move,
-        nPoint,
-        nMove
-      })
-      pointEnd.copy(point);
-    }
-
-    const nMoveTotal = normalizeCoordinatesV(pointEnd, width, height).sub(normalizeCoordinatesV(pointStart, width, height));
-
-    triggerTouch({ ...pointStart, type: 'touchmove', id: 1 });
-    execute();
-    points.forEach(data => {
-      triggerTouch({ ...data.point, type: 'touchmove', id: 1 });
-    })
-    execute();
-    const data = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
-    expect(data.value).toMatchObject(nMoveTotal.toArray());
   })
 })
 

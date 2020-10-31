@@ -24,7 +24,7 @@ export const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEv
   }
 
   const hasData = input.data.has(mappedPositionInput);
-  const previousPositionValue = (input.prevData.has(mappedPositionInput)? input.prevData.get(mappedPositionInput) : input.data.get(mappedPositionInput))?.value;
+  const previousPositionValue = input.data.get(mappedPositionInput)?.value;
 
   input.data.set(mappedPositionInput, {
     type: InputType.TWODIM,
@@ -40,6 +40,9 @@ export const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEv
 
   const touchMovement: [number, number] = [ 0,0 ];
   if (!movementStart && previousPositionValue) {
+    // const touchPositionPrevInput = input.prevData.get(mappedPositionInput);
+    // touchMovement[0] = touchPosition[0] - touchPositionPrevInput.value[0];
+    // touchMovement[1] = touchPosition[1] - touchPositionPrevInput.value[1];
     touchMovement[0] = touchPosition[0] - previousPositionValue[0];
     touchMovement[1] = touchPosition[1] - previousPositionValue[1];
   }
