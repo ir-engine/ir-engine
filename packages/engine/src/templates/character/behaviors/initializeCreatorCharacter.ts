@@ -83,7 +83,7 @@ export const initializeCreatorCharacter: Behavior = (entity): void => {
 
         const gltfLoader = new GLTFLoader();
         let idleAnimation;
-        gltfLoader.load("models/characters/Animation.glb", (gltf: any) => {
+        gltfLoader.load("/models/characters/Animation.glb", (gltf: any) => {
             actor.animations = gltf.animations;
             idleAnimation = AnimationClip.findByName(actor.animations, 'idle');
             const action = actor.mixer.clipAction(idleAnimation);
