@@ -43,8 +43,6 @@ export function createPrefab (prefab: Prefab): Entity {
       });
       // The component to the entity
       addComponent(entity, component.type, initData);
-      console.log("Added component", component.type)
-      console.log(component);
     });
   }
   prefab.onAfterCreate?.forEach(action => {

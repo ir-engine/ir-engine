@@ -26,12 +26,16 @@ import {
     Worker
 } from "mediasoup/lib/types";
 import SocketIO, { Socket } from "socket.io";
+import isNullOrUndefined from '@xr3ngine/engine/src/common/functions/isNullOrUndefined';
 import logger from "../../app/logger";
 import config from '../../config';
 import getLocalServerIp from '../../util/get-local-server-ip';
+import { addComponent, getComponent, hasComponent, removeEntity } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
+import { initializeNetworkObject } from "@xr3ngine/engine/src/networking/functions/initializeNetworkObject";
+import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
-const Route53 = new AWS.Route53({...config.aws.route53.keys});
+const Route53 = new AWS.Route53({ ...config.aws.route53.keys });
 
 interface Client {
     socket: SocketIO.Socket;
@@ -99,7 +103,7 @@ const localConfig = {
         // to set these appropriately for your network for the demo to
         // run anywhere but on localhost
         webRtcTransport: {
-            listenIps: [{ip: "192.168.0.81", announcedIp: null}],
+            listenIps: [{ ip: "192.168.0.81", announcedIp: null }],
             initialAvailableOutgoingBitrate: 800000,
             maxIncomingBitrate: 150000
         }
@@ -108,7 +112,7 @@ const localConfig = {
 
 const defaultRoomState = {
     // external
-    activeSpeaker: {producerId: null, volume: null, peerId: null},
+    activeSpeaker: { producerId: null, volume: null, peerId: null },
     // internal
     transports: {},
     producers: [],
@@ -147,7 +151,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     async sendData(data: any, channel = 'default'): Promise<UnreliableMessageReturn> {
         try {
             return await this.transport.produceData({
-                appData: {data},
+                appData: { data },
                 sctpStreamParameters: data.sctpStreamParameters,
                 label: channel,
                 protocol: 'raw'
@@ -157,7 +161,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         }
     }
 
-    handleKick(socket: any){
+    handleKick(socket: any) {
         console.log("Kicking ", socket.id);
         console.log(this.socketIO.sockets.connected[socket.id])
         if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.Kick.toString(), socket.id);
@@ -252,66 +256,176 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
         setInterval(() => this.validateNetworkObjects(), 5000);
 
-
         // Set up realtime channel on socket.io
         this.socketIO = (this.app as any)?.io;
         const realtime = this.socketIO.of('/realtime');
-        let userId, accessToken;
         // On connection, set up a bunch of handlers in the connect function
         realtime.on("connect", (socket: Socket) => {
+            console.log("Received connection request from ", socket.id);
+            // Client sent connection request -- socket.io will respond with a connection success automatically
+            // Client should then send an authorization offer, which we will validate before adding more socket events
             logger.info("Connected, waiting for authorization request");
             socket.on(MessageTypes.Authorization.toString(), async (data, callback) => {
-                userId = data.userId;
-                accessToken = data.accessToken;
-                if (userId === undefined || accessToken === undefined) {
+                const userId = data.userId;
+                const accessToken = data.accessToken;
+
+                // userId or access token were undefined, so something is wrong. Return failure
+                if (isNullOrUndefined(userId) || isNullOrUndefined(accessToken)) {
                     const message = "userId or accessToken is undefined";
                     console.error(message);
-                    callback({success: false, message});
+                    callback({ success: false, message });
                     return;
                 }
 
-                // Check user ID is valid
-                logger.info("**** AUTHORIZING USER", userId);
+                // Check database to verify that user ID is valid
                 const user = await this.app.service('user').Model.findOne({
                     attributes: ['id', 'name', 'instanceId'],
                     where: {
                         id: userId
                     }
                 }).catch(error => {
-                    callback({success: false, message: error});
+                    // They weren't found in the dabase, so send the client an error message and return
+                    callback({ success: false, message: error });
                     return console.warn("Failed to authorize user");
                 });
+                
 
-                Network.instance.clients[userId] = {
-                    userId: userId,
-                    name: user.dataValues.name,
-                    socket: socket,
-                    lastSeenTs: Date.now(),
-                    joinTs: Date.now(),
-                    media: {},
-                    consumerLayers: {},
-                    stats: {},
-                    dataConsumers: new Map<string, DataConsumer>(), // Key => id of data producer
-                    dataProducers: new Map<string, DataProducer>() // Key => label of data channel
-                };
+                // TODO: Check that we are supposed to be in this instance ID, etc.
 
-                // Check user is supposed to be in this instance
-                // if(user.dataValues.instanceId !== this.app.instance.id){
-                //     const message = "Instance ID authorized to user did not match ID of current instance.";
-                //     callback({ success: false, message: message });
-                //     return console.warn(message);
-                // }
-                // NOTE: This is disabled because we are currently patching instance id for user after this call
+                // We got through the validations, so return an authorization success messaage to client
+                callback({ success: true });
 
-                callback({success: true});
+                // Start listening for a JoinWorld message
+                socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) => {
+                    logger.info("JoinWorld received");
+                    try {
+                        console.log("handleClientConnected");
+                        if (Network.instance.clients[userId] !== undefined && 
+                        Network.instance.clients[userId].socket.id !== socket.id) {
+                            const socketToKick = Network.instance.clients[userId].socket;
+                          console.log(userId);
+                          console.log("Network.instance.clients[userId].socket.id");
+                          console.log(Network.instance.clients[userId].socket.id);
+                          console.log("Socket ID: ", socket.id)
+                          console.log("is null or undefined: ", isNullOrUndefined(Network.instance.clients[userId]));
+                          console.warn("Connecting client", userId, "is already in our user list");
+                          Network.instance.transport.handleKick(socketToKick);
+                      
+                        // Client already had network objects
+                          console.warn("Client already exists and has network objects")
+                          // Do they have a player character object?
+                          // If  they don't let's get them one
+                          // For each object client owns, check if it's the character network prefab
+                            for (const key in Network.instance.networkObjects)
+                              if (Network.instance.networkObjects[key].ownerId === userId){
+                                console.log("Removing entity for existing client",
+                                    Network.instance.networkObjects[key])
+                                removeEntity(Network.instance.networkObjects[key].component.entity)
+                                delete Network.instance.networkObjects[key]
+                              }
+                        // delete(Network.instance.clients[userId]);
+                      }
+ 
+                      Network.instance.clients[userId] = {
+                        userId: userId,
+                        name: user.dataValues.name,
+                        socket,
+                        lastSeenTs: Date.now(),
+                        joinTs: Date.now(),
+                        media: {},
+                        consumerLayers: {},
+                        stats: {},
+                        dataConsumers: new Map<string, DataConsumer>(), // Key => id of data producer
+                        dataProducers: new Map<string, DataProducer>() // Key => label of data channel
+                      };
+                      
+                        // If we have a a character already, use network id, otherwise create a new one
+                        const networkId = Network.getNetworkId();
+                      
+                        let networkObject = initializeNetworkObject(userId, networkId, Network.instance.schema.defaultClientPrefab);
+                      
+                        // Add the network object to our list of network objects
+                        Network.instance.networkObjects[networkId] = {
+                          ownerId: userId, // Owner's socket ID
+                          prefabType: Network.instance.schema.defaultClientPrefab, // All network objects need to be a registered prefab
+                          component: networkObject
+                        };
+                      
+                        // if (!hasComponent(networkObject.entity, TransformComponent)) addComponent(networkObject.entity, TransformComponent);
+                      
+                        // Get a reference to the transform on the object so we can send initial values
+                        const transform = getComponent(networkObject.entity, TransformComponent);
+                                            
+                        // Added created to the worldState with networkId and ownerId
+                        Network.instance.worldState.createObjects.push({
+                            networkId: networkObject.networkId,
+                            ownerId: userId,
+                            prefabType: Network.instance.schema.defaultClientPrefab,
+                            x: transform.position.x,
+                            y: transform.position.y,
+                            z: transform.position.z,
+                            qX: transform.rotation.x,
+                            qY: transform.rotation.y,
+                            qZ: transform.rotation.z,
+                            qW: transform.rotation.w
+                          });
 
-                // Call all message handlers associated with client connection
-                    handleClientConnected(
-                        {
-                            id: userId,
-                            media: Network.instance.clients[userId].media
-                        },
-                    );
+                        // Prepare a fresh worldstate frame to add to
+                        const worldState = {
+                            tick: Network.tick,
+                            transforms: [],
+                            inputs: [],
+                            clientsConnected: [],
+                            clientsDisconnected: [],
+                            createObjects: [],
+                            destroyObjects: []
+                        };
+                        console.log("Connected clients");
+                        // Get all clients and add to clientsConnected and push to world state frame
+                        for (const userId in Network.instance.clients){
+                            console.log(userId);
+                            worldState.clientsConnected.push({ userId: Network.instance.clients[userId].userId });
+                        }
+
+                        // Get all network objects and add to createObjects
+                        for (const networkId in Network.instance.networkObjects){
+                            const transform = getComponent(Network.instance.networkObjects[networkId].component.entity, TransformComponent);
+                            worldState.createObjects.push({
+                                prefabType: Network.instance.networkObjects[networkId].prefabType,
+                                networkId: networkId,
+                                ownerId: Network.instance.networkObjects[networkId].ownerId,
+                                x: transform.position.x,
+                                y: transform.position.y,
+                                z: transform.position.z,
+                                qX: transform.rotation.x,
+                                qY: transform.rotation.y,
+                                qZ: transform.rotation.z,
+                                qW: transform.rotation.w
+                            });
+                        }
+
+
+                        // TODO: Get all inputs and add to inputs
+                        // TODO: Convert the world state to a typed buffer
+
+                        console.log("Sending init worldstate");
+                        console.log(worldState);
+                        console.log("**** Network worldstate frame is: ");
+                        console.log(Network.instance.worldState);
+                        console.log("Network.instance.clients[userId]");
+                        console.log(Network.instance.clients[userId]);
+                        // Return initial world state to client to set things up
+                        callback({
+                            worldState /* worldState: worldStateModel.toBuffer(worldState) */,
+                            routerRtpCapabilities: this.routers.instance.rtpCapabilities
+                        });
+                    } catch (error) {
+                        logger.error('JoinWorld error');
+                        logger.error(error);
+                    }
+                });
+            });
+
 
                 // If a reliable message is received, add it to the queue
                 socket.on(MessageTypes.ReliableMessage.toString(), (message) => {
@@ -326,7 +440,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 socket.on(MessageTypes.Heartbeat.toString(), () => {
                     try {
                         const userId = this.getUserIdFromSocketId(socket.id);
-                        if (Network.instance.clients[userId] != null) Network.instance.clients[userId].lastSeenTs = Date.now();
+                        if (Network.instance.clients[userId] != undefined) Network.instance.clients[userId].lastSeenTs = Date.now();
                     } catch (err) {
                         logger.error('Heartbeat error');
                         logger.error(err);
@@ -356,45 +470,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     }
                 });
 
-                socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) => {
-                    logger.info("JoinWorld received");
-                    try {
-                        // Prepare a worldstate frame
-                        const worldState = {
-                            tick: Network.tick,
-                            transforms: [],
-                            inputs: [],
-                            clientsConnected: [],
-                            clientsDisconnected: [],
-                            createObjects: [],
-                            destroyObjects: []
-                        };
-
-                        // Get all clients and add to clientsConnected
-                        for (const userId in Network.instance.clients)
-                            worldState.clientsConnected.push({userId: Network.instance.clients[userId].userId});
-
-                        // Get all network objects and add to createObjects
-                        for (const networkId in Network.instance.networkObjects)
-                            worldState.createObjects.push({
-                                prefabType: Network.instance.networkObjects[networkId].prefabType,
-                                networkId: networkId,
-                                ownerId: Network.instance.networkObjects[networkId].ownerId
-                            });
-
-                        // TODO: Get all inputs and add to inputs
-
-                        // Convert world state to buffer and send along
-                        callback({
-                            worldState /* worldState: worldStateModel.toBuffer(worldState) */,
-                            routerRtpCapabilities: this.routers.instance.rtpCapabilities
-                        });
-                    } catch (error) {
-                        logger.error('JoinWorld error');
-                        logger.error(error);
-                    }
-                });
-
                 // --> /signaling/leave
                 // removes the peer from the roomState data structure and and closes
                 // all associated mediasoup objects
@@ -421,11 +496,11 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 socket.on(MessageTypes.WebRTCTransportCreate.toString(), async (data: CreateWebRtcTransportParams, callback) => {
                     try {
                         const userId = this.getUserIdFromSocketId(socket.id);
-                        const {direction, peerId, sctpCapabilities, partyId} = Object.assign(data, {peerId: userId});
+                        const { direction, peerId, sctpCapabilities, partyId } = Object.assign(data, { peerId: userId });
                         logger.info("WebRTCTransportCreateRequest: " + peerId + " " + direction);
 
                         const transport: WebRtcTransport = await this.createWebRtcTransport(
-                            {peerId, direction, sctpCapabilities, partyId}
+                            { peerId, direction, sctpCapabilities, partyId }
                         );
 
                         // this.transport = transport;
@@ -444,7 +519,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                             else if (partyId != null) Network.instance.clients[userId].partySendTransport = transport;
                         }
 
-                        const {id, iceParameters, iceCandidates, dtlsParameters} = transport;
+                        const { id, iceParameters, iceCandidates, dtlsParameters } = transport;
 
                         if (process.env.KUBERNETES === 'true') {
                             const serverResult = await (this.app as any).k8AgonesClient.get('gameservers');
@@ -468,7 +543,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         // Create data consumers for other clients if the current client transport receives data producer on it
                         transport.observer.on('newdataproducer', this.handleConsumeDataEvent(socket));
                         transport.observer.on('newproducer', this.sendCurrentProducers(socket, partyId));
-                        callback({transportOptions: clientTransportOptions});
+                        callback({ transportOptions: clientTransportOptions });
                     } catch (err) {
                         logger.error('WebRTC Transport create error');
                         logger.error(err);
@@ -479,8 +554,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     logger.info('Produce Data handler');
                     try {
                         const userId = this.getUserIdFromSocketId(socket.id);
-                        if (!params.label) throw ({error: 'data producer label i.e. channel name is not provided!'});
-                        const {transportId, sctpStreamParameters, label, protocol, appData} = params;
+                        if (!params.label) throw ({ error: 'data producer label i.e. channel name is not provided!' });
+                        const { transportId, sctpStreamParameters, label, protocol, appData } = params;
                         logger.info(`Data channel label: ${label} -- user id: ` + userId);
                         logger.info("Data producer params", params);
                         const transport: Transport = MediaStreamComponent.instance.transports[transportId];
@@ -488,7 +563,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                             label,
                             protocol,
                             sctpStreamParameters,
-                            appData: {...(appData || {}), peerID: userId, transportId}
+                            appData: { ...(appData || {}), peerID: userId, transportId }
                         };
                         const dataProducer = await transport.produceData(options);
 
@@ -502,7 +577,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         });
                         // Possibly do stuff with appData here
                         logger.info("Sending dataproducer id to client:" + dataProducer.id);
-                        return callback({id: dataProducer.id});
+                        return callback({ id: dataProducer.id });
                     } catch (error) {
                         logger.error(error);
                     }
@@ -512,16 +587,16 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 socket.on(MessageTypes.WebRTCTransportConnect.toString(), async (data, callback) => {
                     try {
                         const userId = this.getUserIdFromSocketId(socket.id);
-                        const {transportId, dtlsParameters} = data,
+                        const { transportId, dtlsParameters } = data,
                             transport = MediaStreamComponent.instance.transports[transportId];
                         logger.info("WebRTCTransportConnectRequest: " + userId);
-                        await transport.connect({dtlsParameters});
+                        await transport.connect({ dtlsParameters });
                         logger.info(`transport for user ${userId} connected successfully`);
-                        callback({connected: true});
+                        callback({ connected: true });
                     } catch (err) {
                         logger.error('WebRTC transport connect error');
                         logger.error(err);
-                        callback({connected: false});
+                        callback({ connected: false });
                     }
                 });
 
@@ -531,14 +606,14 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     try {
                         const userId = this.getUserIdFromSocketId(socket.id);
                         logger.info("close-transport for user: " + userId);
-                        const {transportId} = data;
+                        const { transportId } = data;
                         const transport = MediaStreamComponent.instance.transports[transportId];
                         if (transport != null) await this.closeTransport(transport);
-                        callback({closed: true});
+                        callback({ closed: true });
                     } catch (err) {
                         logger.info('WebRTC Transport close error');
                         logger.info(err);
-                        callback({closed: true});
+                        callback({ closed: true });
                     }
                 });
 
@@ -547,10 +622,10 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     try {
                         const userId = this.getUserIdFromSocketId(socket.id);
                         logger.info('Close Producer handler');
-                        const {producerId} = data,
+                        const { producerId } = data,
                             producer = MediaStreamComponent.instance.producers.find(p => p.id === producerId);
                         await this.closeProducerAndAllPipeProducers(producer, userId);
-                        callback({closed: true});
+                        callback({ closed: true });
                     } catch (err) {
                         logger.error('WebRTC CloseProducer error');
                         logger.error(err);
@@ -562,7 +637,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     try {
                         const userId = this.getUserIdFromSocketId(socket.id);
                         logger.info('Send Track handler');
-                        const {transportId, kind, rtpParameters, paused = false, appData} = data,
+                        const { transportId, kind, rtpParameters, paused = false, appData } = data,
                             transport = MediaStreamComponent.instance.transports[transportId];
 
                         if (transport != null) {
@@ -570,7 +645,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                                 kind,
                                 rtpParameters,
                                 paused,
-                                appData: {...appData, peerId: userId, transportId}
+                                appData: { ...appData, peerId: userId, transportId }
                             });
 
                             // if our associated transport closes, close ourself, too
@@ -594,9 +669,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                                     client.socket.emit(MessageTypes.WebRTCCreateProducer.toString(), userId, appData.mediaTag, producer.id, appData.partyId);
                                 }
                             });
-                            callback({id: producer.id});
+                            callback({ id: producer.id });
                         } else {
-                            callback({error: 'Invalid transport ID'});
+                            callback({ error: 'Invalid transport ID' });
                         }
                     } catch (err) {
                         logger.error('sendtrack error:');
@@ -612,15 +687,15 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     try {
                         const userId = this.getUserIdFromSocketId(socket.id);
                         logger.info('Receive Track handler');
-                        const {mediaPeerId, mediaTag, rtpCapabilities, partyId} = data;
+                        const { mediaPeerId, mediaTag, rtpCapabilities, partyId } = data;
                         const producer = MediaStreamComponent.instance.producers.find(
                             p => p._appData.mediaTag === mediaTag && p._appData.peerId === mediaPeerId && p._appData.partyId === partyId
                         );
                         const router = this.routers[partyId];
-                        if (producer == null || !router.canConsume({producerId: producer.id, rtpCapabilities})) {
+                        if (producer == null || !router.canConsume({ producerId: producer.id, rtpCapabilities })) {
                             const msg = `client cannot consume ${mediaPeerId}:${mediaTag}`;
                             console.error(`recv-track: ${userId} ${msg}`);
-                            callback({error: msg});
+                            callback({ error: msg });
                             return;
                         }
 
@@ -632,7 +707,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                             producerId: producer.id,
                             rtpCapabilities,
                             paused: true, // see note above about always starting paused
-                            appData: {peerId: userId, mediaPeerId, mediaTag, partyId: partyId}
+                            appData: { peerId: userId, mediaPeerId, mediaTag, partyId: partyId }
                         });
 
                         // need both 'transportclose' and 'producerclose' event handlers,
@@ -692,11 +767,11 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 // called to pause receiving a track for a specific client
                 socket.on(MessageTypes.WebRTCPauseConsumer.toString(), async (data, callback) => {
                     try {
-                        const {consumerId} = data,
+                        const { consumerId } = data,
                             consumer = MediaStreamComponent.instance.consumers.find(c => c.id === consumerId);
                         logger.info("pause-consumer", consumer.appData);
                         await consumer.pause();
-                        callback({paused: true});
+                        callback({ paused: true });
                     } catch (err) {
                         logger.error('WebRTC PauseConsumer error');
                         logger.error(err);
@@ -706,11 +781,11 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 // called to resume receiving a track for a specific client
                 socket.on(MessageTypes.WebRTCResumeConsumer.toString(), async (data, callback) => {
                     try {
-                        const {consumerId} = data,
+                        const { consumerId } = data,
                             consumer = MediaStreamComponent.instance.consumers.find(c => c.id === consumerId);
                         logger.info("resume-consumer", consumer.appData);
                         await consumer.resume();
-                        callback({resumed: true});
+                        callback({ resumed: true });
                     } catch (err) {
                         logger.error('WebRTC ResumeConsumer error');
                         logger.error(err);
@@ -722,11 +797,11 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 // clean up consumer object
                 socket.on(MessageTypes.WebRTCCloseConsumer.toString(), async (data, callback) => {
                     try {
-                        const {consumerId} = data,
+                        const { consumerId } = data,
                             consumer = MediaStreamComponent.instance.consumers.find(c => c.id === consumerId);
                         logger.info(`Close Consumer handler: ${consumerId}`);
                         if (consumer != null) await this.closeConsumer(consumer);
-                        callback({closed: true});
+                        callback({ closed: true });
                     } catch (err) {
                         logger.error('WebRTC CloseConsumer error');
                         logger.error(err);
@@ -738,11 +813,11 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 // wants to receive
                 socket.on(MessageTypes.WebRTCConsumerSetLayers.toString(), async (data, callback) => {
                     try {
-                        const {consumerId, spatialLayer} = data,
+                        const { consumerId, spatialLayer } = data,
                             consumer = MediaStreamComponent.instance.consumers.find(c => c.id === consumerId);
                         logger.info("consumer-set-layers: ", spatialLayer, consumer.appData);
-                        await consumer.setPreferredLayers({spatialLayer});
-                        callback({layersSet: true});
+                        await consumer.setPreferredLayers({ spatialLayer });
+                        callback({ layersSet: true });
                     } catch (err) {
                         logger.error('WebRTC ConsumerSetLayers error');
                         logger.error(err);
@@ -766,7 +841,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 socket.on(MessageTypes.WebRTCResumeProducer.toString(), async (data, callback) => {
                     try {
                         const userId = this.getUserIdFromSocketId(socket.id);
-                        const {producerId} = data,
+                        const { producerId } = data,
                             producer = MediaStreamComponent.instance.producers.find(p => p.id === producerId);
                         logger.info("resume-producer", producer.appData);
                         await producer.resume();
@@ -776,7 +851,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                             return client.media[producer.appData.mediaTag]?.producerId === producerId;
                         });
                         hostClient[1].socket.emit(MessageTypes.WebRTCResumeProducer.toString(), producer.id);
-                        callback({resumed: true});
+                        callback({ resumed: true });
                     } catch (err) {
                         logger.error('WebRTC ResumeProducer error');
                         logger.error(err);
@@ -788,7 +863,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 socket.on(MessageTypes.WebRTCPauseProducer.toString(), async (data, callback) => {
                     try {
                         const userId = this.getUserIdFromSocketId(socket.id);
-                        const {producerId, globalMute} = data,
+                        const { producerId, globalMute } = data,
                             producer = MediaStreamComponent.instance.producers.find(p => p.id === producerId);
                         logger.info("pause-producer: ", producer.appData);
                         await producer.pause();
@@ -800,14 +875,13 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                             });
                             hostClient[1].socket.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true);
                         }
-                        callback({paused: true});
+                        callback({ paused: true });
                     } catch (err) {
                         logger.error('WebRTC PauseProducer error');
                         logger.error(err);
                     }
                 });
             });
-        });
     }
 
     validateNetworkObjects(): void {
@@ -816,7 +890,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             if (Date.now() - Network.instance.clients[client].lastSeenTs > 5000) {
                 console.log("Removing client ", client, " due to activity");
                 // Heartbeat hasn't been received in more than 5 seconds, so let's remove the client
-                handleClientDisconnected({id: Network.instance.clients[client].userId});
+                handleClientDisconnected({ id: Network.instance.clients[client].userId });
             }
         }
         Object.keys(Network.instance.networkObjects).forEach((key: string) => {
@@ -825,7 +899,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             if (networkObject.ownerId !== undefined && Network.instance.clients[networkObject.ownerId] !== undefined)
                 return;
             // If it does, tell clients to destroy it
-            const removeMessage = {networkId: networkObject.component.networkId};
+            const removeMessage = { networkId: networkObject.component.networkId };
             Network.instance.worldState.destroyObjects.push(removeMessage);
             logger.info("Culling ownerless object: ", networkObject.component.networkId, "owned by ", networkObject.ownerId);
             // Remove it from server
@@ -854,7 +928,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         logger.info("Created Mediasoup worker");
 
         const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[];
-        this.routers = {instance: await this.worker.createRouter({mediaCodecs})};
+        this.routers = { instance: await this.worker.createRouter({ mediaCodecs }) };
         logger.info("Worker created router");
     }
 
@@ -907,9 +981,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 if (transport != null) {
                     const dataConsumer = await transport.consumeData({
                         dataProducerId: dataProducer.id,
-                        appData: {peerId: userId, transportId: transport.id},
+                        appData: { peerId: userId, transportId: transport.id },
                         maxPacketLifeTime:
-                        dataProducer.sctpStreamParameters.maxPacketLifeTime,
+                            dataProducer.sctpStreamParameters.maxPacketLifeTime,
                         maxRetransmits: dataProducer.sctpStreamParameters.maxRetransmits,
                         ordered: false,
                     });
@@ -1005,13 +1079,13 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         delete Network.instance.clients[consumer.appData.peerId].consumerLayers[consumer.id];
     }
 
-    async createWebRtcTransport({peerId, direction, sctpCapabilities, partyId}: CreateWebRtcTransportParams): Promise<WebRtcTransport> {
+    async createWebRtcTransport({ peerId, direction, sctpCapabilities, partyId }: CreateWebRtcTransportParams): Promise<WebRtcTransport> {
         logger.info("Creating Mediasoup transport for", partyId);
         try {
-            const {listenIps, initialAvailableOutgoingBitrate} = localConfig.mediasoup.webRtcTransport;
+            const { listenIps, initialAvailableOutgoingBitrate } = localConfig.mediasoup.webRtcTransport;
             const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[];
             if (partyId != null && partyId !== 'instance') {
-                if (this.routers[partyId] == null) this.routers[partyId] = await this.worker.createRouter({mediaCodecs});
+                if (this.routers[partyId] == null) this.routers[partyId] = await this.worker.createRouter({ mediaCodecs });
                 logger.info("Worker created router for party " + partyId);
             }
             const router = this.routers[partyId];
@@ -1023,7 +1097,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 enableSctp: true, // Enabling it for setting up data channels
                 numSctpStreams: sctpCapabilities.numStreams,
                 initialAvailableOutgoingBitrate: initialAvailableOutgoingBitrate,
-                appData: {peerId, partyId, clientDirection: direction}
+                appData: { peerId, partyId, clientDirection: direction }
             });
 
             return transport;

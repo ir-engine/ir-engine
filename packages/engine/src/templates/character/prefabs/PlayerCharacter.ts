@@ -52,9 +52,9 @@ export const PlayerCharacter: Prefab = {
         //         }
         //     }
         // },
-        {
-            behavior: initializeCharacter
-        }
+        // {
+        //     behavior: initializeCharacter
+        // }
     ],
     onBeforeDestroy: [
 

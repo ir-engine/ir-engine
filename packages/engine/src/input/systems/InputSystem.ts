@@ -191,14 +191,8 @@ export class InputSystem extends System {
       // Get component reference
       this._inputComponent = getComponent(entity, Input, true);
 
-      if (this._inputComponent.data.size) {
-        this._inputComponent.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-          handleInputPurge(entity);
-        });
-      }
-
       // Call all behaviors in "onRemoved" of input map
-      this._inputComponent.schema.onRemoved.forEach(behavior => {
+      this._inputComponent?.schema?.onRemoved.forEach(behavior => {
         behavior.behavior(entity, behavior.args);
       });
     });

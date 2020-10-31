@@ -11,10 +11,10 @@ import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 
 export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
   const worldState = worldStateBuffer; // worldStateModel.fromBuffer(worldStateBuffer);
-  // if(worldState.clientsConnected.length > 0) {
-  //   console.log("worldState.clientsConnected");
-  //   console.log(worldState.clientsConnected);
-  // }
+  if(worldState.clientsConnected.length > 0) {
+    console.log("worldState.clientsConnected");
+    console.log(worldState.clientsConnected);
+  }
 
   // if(worldState.createObjects.length > 0) {
   //   console.log("worldState.networkObjects");
@@ -36,7 +36,7 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
 
   Network.tick = worldState.tick;
 
-  Network.instance.worldState = worldState; // cache latest world state, we might be able to delete this
+  Network.instance.worldState = worldState;
 
   // Handle all clients that connected this frame
   for (const connectingClient in worldState.clientsConnected) {
@@ -138,7 +138,8 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
     handleInput(networkComponent.entity, {}, delta);
   });
 
-  if(Network.instance.worldState.transforms.length < 1) return console.warn("Network transforms is empty");
+  if(Network.instance.worldState.transforms.length < 1)
+    return
 
   // Update transforms
   Network.instance.worldState.transforms?.forEach(transformData => {
