@@ -19,8 +19,8 @@ import { ProjectsSection, ProjectsContainer, ProjectsHeader } from "./ProjectsPa
 import InfiniteScroll from "react-infinite-scroller";
 import { useRouter } from "next/router";
 import { withApi } from "../contexts/ApiContext";
-// import usePaginatedSearch from "./usePaginatedSearch";
-// import configs from "../../configs"
+import usePaginatedSearch from "./usePaginatedSearch";
+import configs from "../../configs"
 import Api from "../../api/Api";
 
 function CreateProjectPage({ api }: { api: Api }) {
@@ -95,10 +95,10 @@ function CreateProjectPage({ api }: { api: Api }) {
   );
 
   // MODIFIED FROM ORIGINAL
-  // const { loading, error, entries } = usePaginatedSearch(`${api.apiURL}${(configs as any).API_MEDIA_SEARCH_ROUTE}`, params);
-  const { loading, error, entries } = { loading: false, error: false, entries: [] };
+  const { loading, error, entries } = usePaginatedSearch(`${api.apiURL}${(configs as any).API_MEDIA_SEARCH_ROUTE}`, params);
+  // const { loading, error, entries } = { loading: false, error: false, entries: [] };
   const hasMore = false;
-  const filteredEntries = entries ? entries.map(result => ({
+  const filteredEntries = Array.isArray(entries) ? entries.map(result => ({
     ...result,
     url: `/editor/projects/new?sceneId=${result.id}`,
     // eslint-disable-next-line @typescript-eslint/camelcase
@@ -127,7 +127,7 @@ function CreateProjectPage({ api }: { api: Api }) {
                   </Filter>
                   <Separator />
                   {/* @ts-ignore */}
-                  <SearchInput placeholder="Search scenes..." onChange={onChangeQuery} />
+                  <SearchInput placeholder="Search scenes..." value={params.q} onChange={onChangeQuery} />
                 </ProjectGridHeaderRow>
                 <ProjectGridHeaderRow>
                   <Button onClick={routeTo('/editor/projects/new')}>

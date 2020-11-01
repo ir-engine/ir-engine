@@ -48,7 +48,7 @@ export default function usePaginatedSearch(path, queryParams, options = {}) {
       },
       onNewData: (data, newData) => {
         if (!cursor) {
-          return newData;
+          return { entries: newData, meta: { next_cursor: null } }
         } else {
           return {
             entries: [...data.entries, ...newData.entries],
