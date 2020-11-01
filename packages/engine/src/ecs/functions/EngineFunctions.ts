@@ -6,6 +6,7 @@ import { EngineOptions } from '../interfaces/EngineOptions';
 import { Timer } from "../../common/functions/Timer";
 import { now } from "../../common/functions/now";
 import { removeAllComponents, removeAllEntities } from "./EntityFunctions";
+import { SystemUpdateType } from "./SystemUpdateType";
 
 /**
  * Initialize options on the engine object and fire a command for devtools
@@ -87,7 +88,7 @@ export function reset(): void {
  * WARNING: This is called by initializeEngine() in {@link @xr3ngine/engine/initialize#initializeEngine}
  * (You probably don't want to use this) 
  */
-export function execute (delta?: number, time?: number, isFixedUpdate = false): void {
+export function execute (delta?: number, time?: number, updateType = SystemUpdateType.Free): void {
   Engine.tick++;
   if (!delta) {
     time = now() / 1000;
@@ -97,14 +98,9 @@ export function execute (delta?: number, time?: number, isFixedUpdate = false): 
 
   if (Engine.enabled) {
     Engine.systemsToExecute
-      .filter(system => system.enabled && (!isFixedUpdate || isFixedUpdate && typeof system.fixedExecute === "function"))
-      .forEach(system => executeSystem(system, delta, time, isFixedUpdate));
+      .forEach(system => executeSystem(system, delta, time, updateType));
     processDeferredEntityRemoval();
   }
-}
-
-export function fixedExecute (delta?: number, time?: number): void {
-  execute(delta, time, true);
 }
 
 /**

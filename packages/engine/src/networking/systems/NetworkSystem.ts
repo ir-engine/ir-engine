@@ -1,6 +1,8 @@
+import { isServer } from '../../common/functions/isServer';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions';
+import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { Input } from '../../input/components/Input';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { State } from '../../state/components/State';
@@ -19,6 +21,7 @@ import { prepareWorldState as prepareWorldState } from '../functions/prepareWorl
 import { sendClientInput as sendClientInputToServer } from '../functions/sendClientInput';
 
 export class NetworkSystem extends System {
+  updateType = SystemUpdateType.Network;
 
   isServer;
 
@@ -46,11 +49,6 @@ export class NetworkSystem extends System {
       Network.instance.isInitialized = true;
     }
   }
-
-  // Call logic based on whether we are the server or the client
-  execute = (delta): void =>
-    (this.isServer) ? this.fixedExecuteOnServer(delta): 
-    this.fixedExecuteOnClient(delta);
 
   // Call execution on server
   fixedExecuteOnServer = (delta: number) => {
@@ -85,7 +83,7 @@ export class NetworkSystem extends System {
 
   // Call execution on client
   fixedExecuteOnClient = (delta: number) => {
-    if(Network.instance == null) return
+    if (Network.instance == null) return
     // Client logic
     const queue = Network.instance.incomingMessageQueue;
     // For each message, handle and process
@@ -98,6 +96,10 @@ export class NetworkSystem extends System {
     //   sendClientInputToServer(entity);
     // });
   }
+
+  // Call logic based on whether we are the server or the client
+  execute = isServer ? this.fixedExecuteOnServer :
+    this.fixedExecuteOnClient;
 
   static queries: any = {
     networkServer: {

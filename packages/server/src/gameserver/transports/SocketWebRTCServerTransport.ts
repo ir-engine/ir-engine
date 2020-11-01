@@ -302,14 +302,14 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         console.log("handleClientConnected");
                         if (Network.instance.clients[userId] !== undefined && 
                         Network.instance.clients[userId].socket.id !== socket.id) {
-                            const clientToKick = Network.instance.clients[userId];
+                            const clientToKick = Object.assign({}, Network.instance.clients[userId]);
                           console.log(userId);
                           console.log("Network.instance.clients[userId].socket.id");
                           console.log(Network.instance.clients[userId].socket.id);
                           console.log("Socket ID: ", socket.id)
                           console.log("is null or undefined: ", isNullOrUndefined(Network.instance.clients[userId]));
                           console.warn("Connecting client", userId, "is already in our user list");
-                          Network.instance.transport.handleKick(socketToKick);
+                          Network.instance.transport.handleKick(clientToKick.socket.id);
                       
                         // Client already had network objects
                           console.warn("Client already exists and has network objects")

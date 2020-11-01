@@ -6,9 +6,10 @@ import { CameraSystem } from './camera/systems/CameraSystem';
 import { isClient } from './common/functions/isClient';
 import { Timer } from './common/functions/Timer';
 import { Engine } from './ecs/classes/Engine';
-import { execute, fixedExecute, initialize } from "./ecs/functions/EngineFunctions";
+import { execute, initialize } from "./ecs/functions/EngineFunctions";
 //import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js'
 import { registerSystem } from './ecs/functions/SystemFunctions';
+import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
 import { HighlightSystem } from './effects/systems/EffectSystem';
 import { InputSystem } from './input/systems/InputSystem';
 import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
@@ -95,9 +96,9 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
     Engine.engineTimerTimeout = setTimeout(() => {
       Engine.engineTimer = Timer(
         {
-          fixedUpdate: (delta:number, elapsedTime: number) => fixedExecute(delta, elapsedTime),
-          update: (delta, elapsedTime) => execute(delta, elapsedTime)
-        },
-        Engine.physicsFrameRate).start();
+          networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
+          fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
+          update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
+        }).start();
     }, 1000);
 }

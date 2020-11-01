@@ -8,8 +8,11 @@ import {
   removeComponent
 } from '../../ecs/functions/EntityFunctions'
 import { RendererComponent } from '../../renderer/components/RendererComponent'
+import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 
 export class HighlightSystem extends System {
+  updateType = SystemUpdateType.Fixed;
+
   constructor(attributes?: SystemAttributes) {
     super(attributes)
   }

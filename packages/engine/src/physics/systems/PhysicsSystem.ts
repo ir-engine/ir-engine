@@ -16,8 +16,10 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { physicsPostStep } from '../../templates/character/behaviors/physicsPostStep';
 import { updateCharacter } from '../../templates/character/behaviors/updateCharacter';
 import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions';
+import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 
 export class PhysicsSystem extends System {
+  updateType = SystemUpdateType.Fixed;
 
   constructor() {
     super();
@@ -81,9 +83,6 @@ export class PhysicsSystem extends System {
       playerModelInCar(entity, { phase: 'onRemoved' }, delta);
     });
 
-  }
-
-  fixedExecute(delta: number): void {
     this.queryResults.character.all?.forEach(entity => physicsPreStep(entity, null, delta));
     PhysicsManager.instance.frame++;
     PhysicsManager.instance.physicsWorld.step(PhysicsManager.instance.physicsFrameTime);
