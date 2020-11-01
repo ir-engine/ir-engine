@@ -18,11 +18,12 @@ import { Button } from "../inputs/Button";
 import { ProjectsSection, ProjectsContainer, ProjectsHeader } from "./ProjectsPage";
 import InfiniteScroll from "react-infinite-scroller";
 import { useRouter } from "next/router";
-// import { ApiContext } from "../contexts/ApiContext";
+import { withApi } from "../contexts/ApiContext";
 // import usePaginatedSearch from "./usePaginatedSearch";
+// import configs from "../../configs"
+import Api from "../../api/Api";
 
-export default function CreateProjectPage() {
-  // const api = useContext(ApiContext);
+function CreateProjectPage({ api }: { api: Api }) {
   const router = useRouter();
 
   const queryParams = new Map(Object.entries(router.query));
@@ -94,14 +95,15 @@ export default function CreateProjectPage() {
   );
 
   // MODIFIED FROM ORIGINAL
+  // const { loading, error, entries } = usePaginatedSearch(`${api.apiURL}${(configs as any).API_MEDIA_SEARCH_ROUTE}`, params);
   const { loading, error, entries } = { loading: false, error: false, entries: [] };
   const hasMore = false;
-  const filteredEntries = entries.map(result => ({
+  const filteredEntries = entries ? entries.map(result => ({
     ...result,
     url: `/editor/projects/new?sceneId=${result.id}`,
     // eslint-disable-next-line @typescript-eslint/camelcase
     thumbnail_url: result && result.images && result.images.preview && result.images.preview.url
-  }));
+  })) : [];
 
   return (
     <>
@@ -128,7 +130,7 @@ export default function CreateProjectPage() {
                   <SearchInput placeholder="Search scenes..." onChange={onChangeQuery} />
                 </ProjectGridHeaderRow>
                 <ProjectGridHeaderRow>
-                  <Button onClick={routeTo('/editor/projects')}>
+                  <Button onClick={routeTo('/editor/projects/new')}>
                     New Empty Project
                   </Button>
                 </ProjectGridHeaderRow>
@@ -147,7 +149,7 @@ export default function CreateProjectPage() {
                   >
                     <ProjectGrid
                       projects={filteredEntries}
-                      newProjectPath="/editor/projects"
+                      newProjectPath="/editor/projects/new"
                       newProjectLabel="New Empty Project"
                       /* @ts-ignore */
                       onSelectProject={onSelectScene}
@@ -164,7 +166,4 @@ export default function CreateProjectPage() {
   );
 }
 
-// CreateProjectPage.propTypes = {
-//   history: PropTypes.object.isRequired,
-//   location: PropTypes.object.isRequired
-// };
+export default withApi(CreateProjectPage)
