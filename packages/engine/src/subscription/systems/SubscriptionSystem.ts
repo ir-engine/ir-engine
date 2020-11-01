@@ -4,8 +4,10 @@ import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { Subscription } from '../components/Subscription';
 import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
+import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 
 export class SubscriptionSystem extends System {
+  updateType = SystemUpdateType.Fixed;
   private subscription: Subscription
   public execute (delta: number): void {
     this.queryResults.subscriptions.added?.forEach(entity => {

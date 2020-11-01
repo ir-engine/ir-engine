@@ -4,20 +4,24 @@ import { now } from "./now";
 type TimerUpdateCallback = (delta: number, elapsedTime?: number) => any;
 
 export function Timer (
-  callbacks: { update?: TimerUpdateCallback; fixedUpdate?: TimerUpdateCallback; render?: Function },
-  framerate?: number
+  callbacks: { update?: TimerUpdateCallback; fixedUpdate?: TimerUpdateCallback; networkUpdate?: TimerUpdateCallback; render?: Function },
+  fixedFrameRate?: number, networkTickRate?: number
 ): { start: Function; stop: Function } {
-  const rate = framerate || 1 / 30;
+  const fixedRate = fixedFrameRate || 1 / 60;
+  const networkRate = networkTickRate || 1 / 20;
 
   let last = 0;
   let accumulated = 0;
   let delta = 0;
   let frameId;
 
-  const fixedRunner = callbacks.fixedUpdate? new FixedStepsRunner(rate, callbacks.fixedUpdate) : null;
+  const fixedRunner = callbacks.fixedUpdate? new FixedStepsRunner(fixedRate, callbacks.fixedUpdate) : null;
+  const networkRunner = callbacks.fixedUpdate? new FixedStepsRunner(networkRate, callbacks.networkUpdate) : null;
+
+  const updateFunction = (isClient ? requestAnimationFrame : requestAnimationFrameOnServer);
 
   function onFrame (time) {
-    frameId = (isClient ? requestAnimationFrame : requestAnimationFrameOnServer)(onFrame);
+    frameId = updateFunction(onFrame);
 
     if (last !== null) {
       delta = (time - last) / 1000;
@@ -25,6 +29,10 @@ export function Timer (
 
       if (fixedRunner) {
         fixedRunner.run(delta);
+      }
+
+      if (networkRunner) {
+        networkRunner.run(delta);
       }
 
       if (callbacks.update) callbacks.update(delta, accumulated);

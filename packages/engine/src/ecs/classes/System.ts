@@ -1,5 +1,6 @@
 import { QUERY_COMPONENT_CHANGED, QUERY_ENTITY_ADDED, QUERY_ENTITY_REMOVED } from '../constants/Events';
 import { componentRegistered, hasRegisteredComponent, queryKeyFromComponents, registerComponent } from '../functions/ComponentFunctions';
+import { SystemUpdateType } from '../functions/SystemUpdateType';
 import { ComponentConstructor } from '../interfaces/ComponentInterfaces';
 import { Component } from './Component';
 import { Engine } from './Engine';
@@ -45,6 +46,8 @@ export abstract class System {
   executeTime: number
   initialized: boolean
 
+  updateType = SystemUpdateType.Free
+
   /**
    * The results of the queries.
    * Should be used inside of execute.
@@ -64,8 +67,7 @@ export abstract class System {
   enabled: boolean
   name: string
   _queries: {} = {}
-  abstract execute (delta: number, time: number): void
-  fixedExecute? (delta: number, time: number): void
+  execute? (delta: number, time: number): void
 
   canExecute (delta: number): boolean {
     if (this._mandatoryQueries.length === 0) return true;
@@ -188,6 +190,7 @@ export abstract class System {
         Engine.queries.push(query);
       }
     }
+
     const c = (this.constructor as any).prototype;
     c.order = Engine.systems.length;
   }

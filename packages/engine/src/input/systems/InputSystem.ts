@@ -5,6 +5,7 @@ import { Engine } from "../../ecs/classes/Engine";
 import { Entity } from "../../ecs/classes/Entity";
 import { System } from '../../ecs/classes/System';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { NetworkObject } from "../../networking/components/NetworkObject";
 import { Server } from "../../networking/components/Server";
 import { handleInput } from '../behaviors/handleInput';
@@ -28,6 +29,7 @@ import { InputAlias } from "../types/InputAlias";
  */
 
 export class InputSystem extends System {
+  updateType = SystemUpdateType.Fixed;
   // Temp/ref variables
   private _inputComponent: Input
 
@@ -68,10 +70,7 @@ export class InputSystem extends System {
  *
  * @param {Number} delta Time since last frame
  */
-  public execute(delta: number): void {
-    if (isClient) this.clientExecute(delta);
-    else this.serverExecute(delta);
-  }
+  public execute = isClient ? this.clientExecute : this.serverExecute;
 
   public clientExecute(delta: number): void {
     // Handle XR input

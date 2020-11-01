@@ -22,8 +22,11 @@ import { MeshPhysicalMaterial, TorusGeometry } from "three";
 import { ProcessModelAsset } from "../functions/ProcessModelAsset";
 import { CharacterAvatarComponent } from "../../templates/character/components/CharacterAvatarComponent";
 import { loadActorAvatar } from "../../templates/character/behaviors/loadActorAvatar";
+import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 
 export default class AssetLoadingSystem extends System {
+  updateType = SystemUpdateType.Fixed;
+  
   loaded = new Map<Entity, any>()
   loadingCount = 0;
 
