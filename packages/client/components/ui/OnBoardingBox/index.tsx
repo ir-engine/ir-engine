@@ -32,7 +32,7 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
 
   const addLookAroundEventListeners = () =>{
     const InputComponent = getMutableComponent(actorEntity, Input);
-    InputComponent.schema.inputAxisBehaviors[DefaultInput.LOOKTURN_PLAYERONE] = {started : [{behavior:actorLooked}]};
+    InputComponent.schema.inputAxisBehaviors[DefaultInput.LOOKTURN_PLAYERONE] = {changed : [{behavior:actorLooked}]};
   }
 
 
@@ -40,14 +40,8 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
     const InputComponent = getMutableComponent(actorEntity, Input);
     delete InputComponent.schema.inputAxisBehaviors[DefaultInput.LOOKTURN_PLAYERONE];
     store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_MOVE));
-    //add
-    const keyboardInputMap = {
-      w: DefaultInput.FORWARD,
-      a: DefaultInput.LEFT,
-      s: DefaultInput.BACKWARD,
-      d: DefaultInput.RIGHT}
-    InputComponent.schema.keyboardInputMap = Object.assign(InputComponent.schema.keyboardInputMap, keyboardInputMap) ;
-    //touch/joystick
+   
+    //gamepad
     const gamepadInputMap = {
       [GamepadButtons.DPad1]: DefaultInput.FORWARD, // DPAD 1
       [GamepadButtons.DPad2]: DefaultInput.BACKWARD, // DPAD 2
@@ -57,12 +51,21 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
     InputComponent.schema.gamepadInputMap.axes[Thumbsticks.Left] =  DefaultInput.MOVEMENT_PLAYERONE;           
     InputComponent.schema.gamepadInputMap.buttons = Object.assign(InputComponent.schema.gamepadInputMap.buttons, gamepadInputMap) ;
 
+    //add keyboard
+    const keyboardInputMap = {
+      w: DefaultInput.FORWARD,
+      a: DefaultInput.LEFT,
+      s: DefaultInput.BACKWARD,
+      d: DefaultInput.RIGHT}
+    InputComponent.schema.keyboardInputMap = Object.assign(InputComponent.schema.keyboardInputMap, keyboardInputMap) ;
     //keyboard
     InputComponent.schema.inputButtonBehaviors[DefaultInput.FORWARD].started.push({behavior:actorMoved});
     InputComponent.schema.inputButtonBehaviors[DefaultInput.BACKWARD].started.push({behavior:actorMoved});
     InputComponent.schema.inputButtonBehaviors[DefaultInput.LEFT].started.push({behavior:actorMoved});
     InputComponent.schema.inputButtonBehaviors[DefaultInput.RIGHT].started.push({behavior:actorMoved});
-    //joystick
+    
+    
+    //
     InputComponent.schema.inputAxisBehaviors[DefaultInput.MOVEMENT_PLAYERONE].started.push({behavior:actorMoved});
   }
 
@@ -89,9 +92,9 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
     store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_INTERACT));
   }
 
+  const exitTutorialHandle = () =>store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));
 
   let message = '';
-  let action = null;
   switch(onBoardingStep){
     case generalStateList.TUTOR_LOOKAROUND:message='Touch and Drag to look around'; addLookAroundEventListeners(); break;      
     case generalStateList.TUTOR_MOVE: message= isMobileOrTablet() ? ' Use joystick to move' : 'Use mouse to move'; break;
@@ -103,7 +106,7 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
                 <>
                   <section className={styles.exitButtonContainer}>
                     <Button variant="outlined" color="primary" className={styles.exitButton} 
-                        onClick={()=>store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE))}>Exit Tutorial</Button>
+                        onClick={exitTutorialHandle}>Exit Tutorial</Button>
                   </section>
                   <Snackbar 
                   anchorOrigin={{vertical: 'bottom',horizontal: 'center'}} 
@@ -113,7 +116,12 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
                   }}
                   open={true} 
                   autoHideDuration={10000}>
-                      <SnackbarContent className={styles.helpHintSnackBarContent} message={message} />                      
+                      <SnackbarContent 
+                      classes={{
+                        root: styles.helpHintSnackBarContent,
+                        message: styles.helpHintSnackBarContentMessage
+                      }}
+                      message={message} />                      
                   </Snackbar>
                 </>
               :null;
