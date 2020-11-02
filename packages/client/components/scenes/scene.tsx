@@ -115,7 +115,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
   return (
     <>
-    {/* <NetworkDebug /> */}
+    <NetworkDebug />
     <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
     <OnBoardingDialog avatarsList={CharacterAvatars} />
     <OnBoardingBox actorEntity={actorEntity} />
