@@ -296,40 +296,36 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
                 // Start listening for a JoinWorld message
                 socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) => {
-                // If we are already logged in, kick the other socket
-                if (Network.instance.clients[userId] !== undefined &&
-                    Network.instance.clients[userId].socketId !== socket.id) {
-                        console.log("Incoming socket id is", socket.id);
-                        console.log("Current socket id is: ", )
-                        // this.socketIO.to(Network.instance.clients[userId].socketId).emit(MessageTypes.Kick.toString());
+                    // If we are already logged in, kick the other socket
+                    if (Network.instance.clients[userId] !== undefined &&
+                        Network.instance.clients[userId].socketId !== socket.id) {
+                        console.log("Client already exists, kicking the old client and disconnecting");
                         Network.instance.clients[userId].socket.emit(MessageTypes.Kick.toString());
                         Network.instance.clients[userId].socket.disconnect();
-                        console.log("Disconnected client at", Network.instance.clients[userId].socketId);
-                        console.log("Replaced with", socket.id);                           
-                }
+                    }
 
                     logger.info("JoinWorld received");
                     try {
                         // TODO: Refactor as maps
-                                Object.keys(Network.instance.networkObjects).forEach((key: string) => {
-                                    const networkObject = Network.instance.networkObjects[key];
-                                    // Validate that the object belonged to disconnecting user
-                                    if (networkObject.ownerId !== userId) return;
-        
-                                    logger.info("Culling object:", networkObject.component.networkId, "owned by disconnecting client", networkObject.ownerId);
-                                    
-                                    // If it does, tell clients to destroy it
-                                    Network.instance.worldState.destroyObjects.push({ networkId: networkObject.component.networkId });
-                                    
-                                    // get network object
-                                    const entity = Network.instance.networkObjects[key].component.entity;
-                                    
-                                    // Remove the entity and all of it's components
-                                    removeEntity(entity);
-                        
-                                    // Remove network object from list
-                                    delete Network.instance.networkObjects[key];
-                                })
+                        Object.keys(Network.instance.networkObjects).forEach((key: string) => {
+                            const networkObject = Network.instance.networkObjects[key];
+                            // Validate that the object belonged to disconnecting user
+                            if (networkObject.ownerId !== userId) return;
+
+                            logger.info("Culling object:", networkObject.component.networkId, "owned by disconnecting client", networkObject.ownerId);
+
+                            // If it does, tell clients to destroy it
+                            Network.instance.worldState.destroyObjects.push({ networkId: networkObject.component.networkId });
+
+                            // get network object
+                            const entity = Network.instance.networkObjects[key].component.entity;
+
+                            // Remove the entity and all of it's components
+                            removeEntity(entity);
+
+                            // Remove network object from list
+                            delete Network.instance.networkObjects[key];
+                        })
                         Network.instance.clients[userId] = {
                             userId: userId,
                             name: user.dataValues.name,
@@ -345,8 +341,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         };
 
                         Network.instance.worldState.clientsConnected.push({ userId })
-
-                        // TODO: Check for any network objects this client owns. If they already own a default character, skip creating a new one for them
 
 
                         // If we have a a character already, use network id, otherwise create a new one
@@ -457,7 +451,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 try {
                     const userId = this.getUserIdFromSocketId(socket.id);
                     const disconnectedClient = Network.instance.clients[userId];
-                    if(disconnectedClient === undefined)
+                    if (disconnectedClient === undefined)
                         return console.warn("Disconnecting client was undefined, probably already handled from JoinWorld handshake");
                     //On local, new connections can come in before the old sockets are disconnected.
                     //The new connection will overwrite the socketID for the user's client.
@@ -470,16 +464,16 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                             if (networkObject.ownerId !== userId) return;
 
                             logger.info("Culling object:", networkObject.component.networkId, "owned by disconnecting client", networkObject.ownerId);
-                            
+
                             // If it does, tell clients to destroy it
                             Network.instance.worldState.destroyObjects.push({ networkId: networkObject.component.networkId });
-                            
+
                             // get network object
                             const entity = Network.instance.networkObjects[key].component.entity;
-                            
+
                             // Remove the entity and all of it's components
                             removeEntity(entity);
-                
+
                             // Remove network object from list
                             delete Network.instance.networkObjects[key];
                         })
@@ -960,13 +954,14 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             // Validate that the object has an associated user and doesn't belong to a non-existant user
             if (networkObject.ownerId !== undefined && Network.instance.clients[networkObject.ownerId] !== undefined)
                 return;
+
             // If it does, tell clients to destroy it
             const removeMessage = { networkId: networkObject.component.networkId };
             Network.instance.worldState.destroyObjects.push(removeMessage);
             logger.info("Culling ownerless object: ", networkObject.component.networkId, "owned by ", networkObject.ownerId);
 
             // get network object
-            const entity = Network.instance.networkObjects[key].component.entity;
+            const entity = networkObject.component.entity;
 
             // Remove the entity and all of it's components
             removeEntity(entity);
@@ -1033,7 +1028,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     break;
                 }
             }
-            if(userId === undefined) return null
+            if (userId === undefined) return null
             return userId;
         } catch (err) {
             logger.error('getUserIdFromSocketId error');
