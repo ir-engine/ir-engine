@@ -1,5 +1,6 @@
 import { isBrowser } from './isBrowser';
 import { now } from "./now";
+import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 
 export function Timer (
   callbacks: { update?: Function; render?: Function },
@@ -11,23 +12,50 @@ export function Timer (
   let accumulated = 0;
   let delta = 0;
   let frameId;
+  let defaultAnimationFrame = isBrowser ? requestAnimationFrame : requestAnimationFrameOnServer;
+
+  function render() {
+    if (Engine.xrSession) {
+      if (callbacks.update) callbacks.update();
+  		Engine.renderer.render( Engine.scene, Engine.camera );
+    } else {
+      Engine.renderer.setAnimationLoop( null );
+      start();
+    }
+	}
 
   function onFrame (time) {
-    frameId = (isBrowser ? requestAnimationFrame : requestAnimationFrameOnServer)(onFrame);
+    if (Engine.xrSession) {
+      stop();
+      Engine.renderer.setAnimationLoop( render );
+    //  frameId = Engine.xrSession.requestAnimationFrame(toXR)
+    } else {
+      frameId = defaultAnimationFrame(onFrame);
 
-    if (last !== null) {
-      delta = (time - last) / 1000;
-      accumulated = accumulated + delta;
+      if (last !== null) {
+        delta = (time - last) / 1000;
+        accumulated = accumulated + delta;
 
-      if (callbacks.update) callbacks.update(delta, accumulated);
+        if (callbacks.update) callbacks.update(delta, accumulated);
+      }
+      last = time;
+      if (callbacks.render) callbacks.render();
     }
-    last = time;
-    if (callbacks.render) callbacks.render();
   }
-
+/*
+  function toXR (timestamp, xrFrame) {
+    if (Engine.xrSession) {
+      Engine.xrSession.requestAnimationFrame(toXR)
+      onFrameXR(timestamp, xrFrame, callbacks)
+    } else {
+      xrFrame.session.end();
+      frameId = defaultAnimationFrame(onFrame)
+    }
+  }
+*/
   function start () {
     last = null;
-    frameId = (isBrowser ? requestAnimationFrame : requestAnimationFrameOnServer)(onFrame);
+    frameId = defaultAnimationFrame(onFrame);
   }
 
   function stop () {

@@ -1,116 +1,182 @@
+import { Vector3, Vector4, PerspectiveCamera, ArrayCamera } from "three";
+import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { WebXRMainController } from '../components/WebXRMainController';
-import { WebXRMainGamepad } from '../components/WebXRMainGamepad';
-import { WebXRPointer } from '../components/WebXRPointer';
-import { WebXRRenderer } from '../components/WebXRRenderer';
-import { WebXRSecondController } from '../components/WebXRSecondController';
-import { WebXRSecondGamepad } from '../components/WebXRSecondGamepad';
-import { WebXRSession } from '../components/WebXRSession';
-import { WebXRSpace } from '../components/WebXRSpace';
-import { WebXRViewPoint } from '../components/WebXRViewPoint';
-import { getInputSources } from '../functions/WebXRFunctions';
+import { createWebGLContext } from '../functions/WebXRFunctions';
 import { getComponent, hasComponent, getMutableComponent, addComponent } from '../../ecs/functions/EntityFunctions';
-import { XRWebGLLayerOptions, XRWebGLLayer, XRSession } from '../types/WebXR';
+import { WebXRSession } from "../components/WebXRSession";
+import { XRWebGLLayerOptions, XRSession } from '../types/WebXR';
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 
-declare let XRWebGLLayerClass: {
-  prototype: XRWebGLLayer;
-  new(session: XRSession, context: WebGLRenderingContext | undefined, options?: XRWebGLLayerOptions): XRWebGLLayer;
-};
+const cameraLPos = new Vector3();
+const cameraRPos = new Vector3();
 
-let mainControllerId: any;
-let secondControllerId: any;
+const cameraL = new PerspectiveCamera();
+cameraL.layers.enable( 1 );
+cameraL.viewport = new Vector4();
 
-/**
- * Process session
- * 
- * @param {Entity} entity The entity
- */
-export const processSession: Behavior = (entity: Entity) => {
-  // Getting session and is immersive properties from the component
-  const { session, isImmersive } = getComponent(entity, WebXRSession) as any;
-  // If true then requesting animation frame
-  if (isImmersive) {
-    session.requestAnimationFrame((time, frame) => {
-      console.log(time, 'XRFrame', frame);
-      // TODO:
-      // let refSpace = session.isImmersive ?
-      //     xrImmersiveRefSpace :
-      //     inlineViewerHelper.referenceSpace;
-      // Getting session and is immersive properties from the component
-      const { space } = getComponent(entity, WebXRSpace) as any;
-      if (space) setComponent(entity, WebXRViewPoint, { pose: frame.getViewerPose(space) });
+const cameraR = new PerspectiveCamera();
+cameraR.layers.enable( 2 );
+cameraR.viewport = new Vector4();
 
-      const controllers = space ? getInputSources(session, frame, space) : [];
-      let main, second;
-      if (controllers.length == 1) {
-        main = controllers[0];
-      } else if (controllers.length == 2) {
-        main = controllers[mainControllerId];
-        second = controllers[secondControllerId];
-        setComponent(entity, WebXRSecondController, { pose: second.gripPose, handId: second.handedness });
-        const { gamepad } = second;
-        if (gamepad) setComponent(entity, WebXRSecondGamepad, { gamepad });
-      } else return;
-      if (main.targetRayPose) { setComponent(entity, WebXRPointer, { pose: main.targetRayPose, pointMode: main.targetRayMode }); }
-      setComponent(entity, WebXRMainController, { pose: main.gripPose, handId: main.handedness });
-      const { gamepad } = main;
-      if (gamepad) setComponent(entity, WebXRMainGamepad, { gamepad });
-    });
-  }
-};
+const cameras = [ cameraL, cameraR ];
 
-/**
- * Tracking
- * 
- * @param {Entity} entity The entity
- */
-export const tracking: Behavior = (entity: Entity) => {
-  // Get a components from the entity
-  const viewPoint = getComponent<WebXRViewPoint>(entity, WebXRViewPoint);
-  const pointer = getComponent(entity, WebXRPointer);
-  const mainController = getComponent(entity, WebXRMainController);
-  const secondController = getComponent(entity, WebXRSecondController);
-};
+const cameraVR = new ArrayCamera();
+cameraVR.layers.enable( 1 );
+cameraVR.layers.enable( 2 );
 
-/**
- * Initialization session
- * 
- * @param {Entity} entity The entity
- * @param args is argument object
- */
-export const initializeSession: Behavior = (entity: Entity, args: { webXRRenderer: any }) => {
-  // Getting session and is immersive properties from the component
-  const { session, isImmersive } = getComponent(entity, WebXRSession) as any;
-  session.addEventListener('end', () => {
-    entity.remove();
-    args.webXRRenderer.requestAnimationFrame = WebXRRenderer.schema.requestAnimationFrame.default;
-  });
-  // console.log("XR session added to", entity, "isImmersive", isImmersive)
-  if (isImmersive /* entity.name == "vr-session" */) {
-    args.webXRRenderer.context.makeXRCompatible().then(() =>
-      session.updateRenderState({
-        baseLayer: new XRWebGLLayerClass(session, args.webXRRenderer.context)
-      })
-    );
-    args.webXRRenderer.requestAnimationFrame = session.requestAnimationFrame.bind(session);
-  }
-  console.log('XR session started', session);
-};
 
-/**
- * 
- * @param {Entity} entity The entity
- * @param Class Interface for defining new component
- * @param {Object} data 
- */
-function setComponent(entity: Entity, Class: ComponentConstructor<any>, data: object) {
-  if (hasComponent(entity, Class)) {
-    // Get immutable reference to Class
-    const mutate = getMutableComponent(entity, Class);
-    for (const property in data) mutate[property] = data[property];
-  } else {
-    addComponent(entity, Class, data);
+function updateCamera( camera, parent ) {
+	if ( parent === null ) {
+		camera.matrixWorld.copy( camera.matrix );
+	} else {
+		camera.matrixWorld.multiplyMatrices( parent.matrixWorld, camera.matrix );
+	}
+	camera.matrixWorldInverse.getInverse( camera.matrixWorld );
+}
+
+
+
+export function onFrameXR(timestamp, xrFrame, callbacks) {
+  const session = xrFrame.session;
+  const pose = xrFrame.getViewerPose(Engine.xrReferenceSpace);
+
+  if ( pose !== null ) {
+    const views = pose.views;
+    const glLayer = session.renderState.baseLayer;
+    // Run imaginary 3D engine's simulation to step forward physics, animations, etc.
+    //scene.updateScene(timestamp, xrFrame);
+  //  Engine.renderer.setFramebuffer( glLayer.framebuffer );
+    Engine.context.bindFramebuffer(Engine.context.FRAMEBUFFER, glLayer.framebuffer);
+    Engine.context.clear(Engine.context.COLOR_BUFFER_BIT | Engine.context.DEPTH_BUFFER_BIT);
+
+/*
+    for (let view of pose.views) {
+      let viewport = glLayer.getViewport(view);
+      Engine.context.viewport(viewport.x, viewport.y, viewport.width, viewport.height);
+    //  Engine.scene.draw(view.projectionMatrix, view.transform);
+      if (callbacks.render) callbacks.render();
+    }
+*/
+    let cameraVRNeedsUpdate = false;
+
+    if ( views.length !== cameraVR.cameras.length ) {
+
+      cameraVR.cameras.length = 0;
+      cameraVRNeedsUpdate = true;
+
+    }
+
+
+    for ( let i = 0; i < views.length; i ++ ) {
+
+				const view = views[ i ];
+				const viewport = glLayer.getViewport( view );
+
+				const camera = cameras[ i ];
+				camera.matrix.fromArray( view.transform.matrix );
+				camera.projectionMatrix.fromArray( view.projectionMatrix );
+				camera.viewport.set( viewport.x, viewport.y, viewport.width, viewport.height );
+
+				if ( i === 0 ) {
+
+					cameraVR.matrix.copy( camera.matrix );
+
+				}
+
+				if ( cameraVRNeedsUpdate === true ) {
+
+					cameraVR.cameras.push( camera );
+
+				}
+
+			}
+
+      if (callbacks.render) callbacks.render(Engine.scene, cameraVR);
+
   }
 }
+
+
+export const initializeSession: Behavior = (entity: Entity) => {
+
+  const { session } = getComponent(entity, WebXRSession);
+  const context = createWebGLContext();
+
+   session.requestReferenceSpace("local").then((referenceSpace) => {
+     Engine.xrReferenceSpace = referenceSpace
+     /*
+     referenceSpace = await worldData.session.requestReferenceSpace("unbounded");
+  worldData.referenceSpace = referenceSpace.getOffsetReferenceSpace(
+        new XRRigidTransform(worldData.playerSpawnPosition, worldData.playerSpawnOrientation));
+  worldData.animationFrameRequestID = worldData.session.requestAnimationFrame(onDrawFrame);
+*/
+   }).then(()=>{
+     return context.makeXRCompatible().then(() => {
+       /*
+       const layerInit = {
+				antialias: attributes.antialias,
+				alpha: attributes.alpha,
+				depth: attributes.depth,
+				stencil: attributes.stencil,
+				framebufferScaleFactor: framebufferScaleFactor
+			};
+      session.updateRenderState({ baseLayer: new XRWebGLLayer(session, context, layerInit) });
+      */
+      session.updateRenderState({ baseLayer: new XRWebGLLayer(session, context) });
+    })
+   }).then(() => {
+    Engine.context = context
+    Engine.xrSession = session
+  });
+
+};
+
+function setProjectionFromUnion( camera, cameraL, cameraR ) {
+
+		cameraLPos.setFromMatrixPosition( cameraL.matrixWorld );
+		cameraRPos.setFromMatrixPosition( cameraR.matrixWorld );
+
+		const ipd = cameraLPos.distanceTo( cameraRPos );
+
+		const projL = cameraL.projectionMatrix.elements;
+		const projR = cameraR.projectionMatrix.elements;
+
+		// VR systems will have identical far and near planes, and
+		// most likely identical top and bottom frustum extents.
+		// Use the left camera for these values.
+		const near = projL[ 14 ] / ( projL[ 10 ] - 1 );
+		const far = projL[ 14 ] / ( projL[ 10 ] + 1 );
+		const topFov = ( projL[ 9 ] + 1 ) / projL[ 5 ];
+		const bottomFov = ( projL[ 9 ] - 1 ) / projL[ 5 ];
+
+		const leftFov = ( projL[ 8 ] - 1 ) / projL[ 0 ];
+		const rightFov = ( projR[ 8 ] + 1 ) / projR[ 0 ];
+		const left = near * leftFov;
+		const right = near * rightFov;
+
+		// Calculate the new camera's position offset from the
+		// left camera. xOffset should be roughly half `ipd`.
+		const zOffset = ipd / ( - leftFov + rightFov );
+		const xOffset = zOffset * - leftFov;
+
+		// TODO: Better way to apply this offset?
+		cameraL.matrixWorld.decompose( camera.position, camera.quaternion, camera.scale );
+		camera.translateX( xOffset );
+		camera.translateZ( zOffset );
+		camera.matrixWorld.compose( camera.position, camera.quaternion, camera.scale );
+		camera.matrixWorldInverse.getInverse( camera.matrixWorld );
+
+		// Find the union of the frustum values of the cameras and scale
+		// the values so that the near plane's position does not change in world space,
+		// although must now be relative to the new union camera.
+		const near2 = near + zOffset;
+		const far2 = far + zOffset;
+		const left2 = left - xOffset;
+		const right2 = right + ( ipd - xOffset );
+		const top2 = topFov * far / far2 * near2;
+		const bottom2 = bottomFov * far / far2 * near2;
+
+		camera.projectionMatrix.makePerspective( left2, right2, top2, bottom2, near2, far2 );
+
+	}
