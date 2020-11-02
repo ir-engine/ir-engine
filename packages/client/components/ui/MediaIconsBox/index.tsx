@@ -2,8 +2,8 @@ import React from "react";
 
 import { generalStateList } from '../../../redux/app/actions';
 import { Microphone } from '@styled-icons/boxicons-regular/Microphone';
-import { CameraVideo } from '@styled-icons/bootstrap/CameraVideo';
-import { Face } from '@styled-icons/boxicons-regular/Face';
+// import { CameraVideo } from '@styled-icons/bootstrap/CameraVideo';
+// import { Face } from '@styled-icons/boxicons-regular/Face';
 import { connect } from "react-redux";
 import { selectAppOnBoardingStep } from "../../../redux/app/selector";
 
@@ -16,12 +16,12 @@ const mapStateToProps = (state: any): any => {
 };
 
 const MediaIconsBox = (props) =>{
-  return props.onBoardingStep === generalStateList.ALL_DONE ? 
+  return props.onBoardingStep >= generalStateList.TUTOR_UNMUTE ? 
         <section className={styles.drawerBoxContainer}>
           <section className={styles.drawerBox}>
-            <Microphone size="3em" />
-            <CameraVideo size="3em"  />
-            <Face size="3em" />
+            <Microphone />
+            {/* <CameraVideo size="3em"  /> */}
+            {/* <Face size="3em" /> */}
           </section>
         </section>
       :null;

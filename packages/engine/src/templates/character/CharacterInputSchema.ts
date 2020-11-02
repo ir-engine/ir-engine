@@ -21,8 +21,8 @@ export const CharacterInputSchema: InputSchema = {
   // Map mouse buttons to abstract input
   mouseInputMap: {
     buttons: {
-      // [MouseInput.LeftButton]: DefaultInput.PRIMARY,
-      [MouseInput.LeftButton]: DefaultInput.INTERACT,
+      [MouseInput.LeftButton]: DefaultInput.PRIMARY,
+    //  [MouseInput.LeftButton]: DefaultInput.INTERACT,
       [MouseInput.RightButton]: DefaultInput.SECONDARY,
       [MouseInput.MiddleButton]: DefaultInput.INTERACT
     },
@@ -48,10 +48,11 @@ export const CharacterInputSchema: InputSchema = {
   // Map gamepad buttons to abstract input
   gamepadInputMap: {
     buttons: {
-      [GamepadButtons.A]: DefaultInput.JUMP,
-      [GamepadButtons.B]: DefaultInput.CROUCH, // B - back
-      [GamepadButtons.X]: DefaultInput.SPRINT, // X - secondary input
-      [GamepadButtons.Y]: DefaultInput.INTERACT, // Y - tertiary input
+      [GamepadButtons.A]: DefaultInput.INTERACT,
+      // [GamepadButtons.A]: DefaultInput.JUMP,
+      // [GamepadButtons.B]: DefaultInput.CROUCH, // B - back
+      // [GamepadButtons.X]: DefaultInput.SPRINT, // X - secondary input
+      // [GamepadButtons.Y]: DefaultInput.INTERACT, // Y - tertiary input
       // 4: DefaultInput.DEFAULT, // LB
       // 5: DefaultInput.DEFAULT, // RB
       // 6: DefaultInput.DEFAULT, // LT
@@ -113,7 +114,7 @@ export const CharacterInputSchema: InputSchema = {
         {
           behavior: interact,
           args: {
-            phaze:LifecycleValue.STARTED         
+            phaze:LifecycleValue.STARTED
           }
         }
       ],
@@ -121,7 +122,7 @@ export const CharacterInputSchema: InputSchema = {
         {
           behavior: interact,
           args: {
-            phaze:LifecycleValue.ENDED 
+            phaze:LifecycleValue.ENDED
           }
         }
       ]

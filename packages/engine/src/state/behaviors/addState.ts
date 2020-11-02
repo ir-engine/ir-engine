@@ -31,7 +31,6 @@ export const addState: Behavior = (entity: Entity, args: { state: StateAlias }):
   // If state group is set to exclusive (XOR) then check if other states from state group are on
   if (stateComponent.schema.groups[stateGroup].exclusive) {
     stateComponent.data.forEach((value, key) => {
-      console.log("key: ", key, " | args.state: ", args.state);
       if (key !== args.state && value.group === stateComponent.schema.states[args.state].group) {
         stateComponent.data.delete(key);
       }

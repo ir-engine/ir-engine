@@ -147,11 +147,11 @@ export function createFixedTimestep(updatesPerSecond: number, callback: (time: n
 
     if (!accumulatorDepleted) {
       if (subsequentErorrsShown <= subsequentErorrsLimit) {
-        console.error('Fixed timesteps SKIPPED time used ', timeUsed, 'ms (of ', limit, 'ms), made ', updatesCount, 'updates. skipped ', Math.floor(accumulator / timestep));
-        console.log('accumulatorDepleted', accumulatorDepleted, 'timeout', timeout, 'updatesLimitReached', updatesLimitReached);
+        // console.error('Fixed timesteps SKIPPED time used ', timeUsed, 'ms (of ', limit, 'ms), made ', updatesCount, 'updates. skipped ', Math.floor(accumulator / timestep));
+        // console.log('accumulatorDepleted', accumulatorDepleted, 'timeout', timeout, 'updatesLimitReached', updatesLimitReached);
       } else {
         if (subsequentErorrsShown > subsequentErorrsResetLimit) {
-          console.error('FixedTimestep', subsequentErorrsResetLimit, ' subsequent errors catched');
+          // console.error('FixedTimestep', subsequentErorrsResetLimit, ' subsequent errors catched');
           subsequentErorrsShown = subsequentErorrsLimit - 1;
         }
       }
