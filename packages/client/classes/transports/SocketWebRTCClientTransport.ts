@@ -156,7 +156,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       const { success } = await this.request(MessageTypes.Authorization.toString(), payload);
 
       if(!success) return console.error("Unable to connect with credentials");
-      eeeeeeeeeeeeeeeeeeeeeeeeeeee
           // signal that we're a new peer and initialize our
     // mediasoup-client device, if this is our first time connecting
 
