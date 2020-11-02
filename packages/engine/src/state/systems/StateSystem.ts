@@ -18,6 +18,8 @@ export class StateSystem extends System {
     this.queryResults.state.added?.forEach(entity => {
       // If stategroup has a default, add it to our state map
       this._state = getComponent(entity, State);
+      if(this._state === undefined)
+        return  console.warn("Tried to execute on a newly added input component, but it was undefined")
       Object.keys((this._state.schema).groups).forEach((stateGroup: StateGroupAlias) => {
         if (
           this._state.schema.groups[stateGroup] !== undefined &&

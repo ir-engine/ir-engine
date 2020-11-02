@@ -69,19 +69,6 @@ export abstract class System {
   _queries: {} = {}
   execute? (delta: number, time: number): void
 
-  canExecute (delta: number): boolean {
-    if (this._mandatoryQueries.length === 0) return true;
-
-    for (let i = 0; i < this._mandatoryQueries.length; i++) {
-      const query = this._mandatoryQueries[i];
-      if (query.entities.length === 0) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
   constructor (attributes?: SystemAttributes) {
     this.enabled = true;
 
@@ -141,21 +128,15 @@ export abstract class System {
         const q = queryConfig;
         if (q.listen) {
           validEvents.forEach(eventName => {
-            if (!this.execute) {
-              console.warn(
-                `System '${this.name}' has defined listen events (${validEvents.join(
-                  ', '
-                )}) for query '${queryName}' but it does not implement the 'execute' method.`
-              );
-            }
 
             // Is the event enabled on this system's query?
             if (q.listen[eventName]) {
               const event = q.listen[eventName];
-
+ 
               if (eventName === 'changed') {
                 query.reactive = true;
                 if (event === true) {
+  
                   // Any change on the entity from the components in the query
                   const eventList = (this.queryResults[queryName][eventName] = []);
                   query.eventDispatcher.addEventListener(QUERY_COMPONENT_CHANGED, entity => {

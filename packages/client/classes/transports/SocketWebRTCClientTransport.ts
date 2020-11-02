@@ -156,7 +156,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       const { success } = await this.request(MessageTypes.Authorization.toString(), payload);
 
       if(!success) return console.error("Unable to connect with credentials");
-      
+      eeeeeeeeeeeeeeeeeeeeeeeeeeee
           // signal that we're a new peer and initialize our
     // mediasoup-client device, if this is our first time connecting
 
@@ -177,7 +177,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // Send heartbeat every second
       setInterval(() => {
         this.socket.emit(MessageTypes.Heartbeat.toString());
-        console.log("Sending heartbeat");
       }, 1000);
 
       Network.instance.socketId = this.socket.id;

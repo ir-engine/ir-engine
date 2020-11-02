@@ -1,3 +1,6 @@
+import { Group } from "three";
+import { AssetLoader } from "../../../assets/components/AssetLoader";
+import { AssetLoaderState } from "../../../assets/components/AssetLoaderState";
 import { Behavior } from "../../../common/interfaces/Behavior";
 import {
   addComponent,
@@ -6,18 +9,13 @@ import {
   hasComponent,
   removeComponent
 } from "../../../ecs/functions/EntityFunctions";
-import { CharacterComponent } from "../components/CharacterComponent";
-import { AssetLoader } from "../../../assets/components/AssetLoader";
-import { AssetLoaderState } from "../../../assets/components/AssetLoaderState";
-import { Group } from "three";
-import { State } from "../../../state/components/State";
-import { LifecycleValue } from "../../../common/enums/LifecycleValue";
 import { CharacterAvatars } from "../CharacterAvatars";
 import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
+import { CharacterComponent } from "../components/CharacterComponent";
 import { initializeCharacter } from "./initializeCharacter";
 
 export const loadActorAvatar: Behavior = (entity) => {
-  const avatarId: string = getComponent(entity, CharacterAvatarComponent).avatarId ?? "Andy";
+  const avatarId: string = getComponent(entity, CharacterAvatarComponent)?.avatarId ?? "Andy";
   const avatarSource = CharacterAvatars.find(avatarData => avatarData.id === avatarId)?.src;
   
   if(hasComponent(entity, AssetLoader)) removeComponent(entity, AssetLoader, true);

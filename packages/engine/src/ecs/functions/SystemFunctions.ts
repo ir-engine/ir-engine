@@ -61,13 +61,11 @@ export function getSystems (): System[] {
  * Call execute() function on a system instance
  */
 export function executeSystem (system: System, delta: number, time: number, updateType = SystemUpdateType.Free): void {
-  if (system.initialized) {
-    if (system.canExecute(delta) && updateType === system.updateType) {
+  if (system.initialized  && updateType === system.updateType) {
       const startTime = now();
         system.execute(delta, time);
         system.executeTime = now() - startTime;
         system.clearEventQueues();
-      }
     }
 }
 

@@ -67,7 +67,6 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
   } else if (cameraFollow.mode === "thirdPerson") {
     theta -= inputValue[0] * 120;
     theta %= 360;
-    console.log('cam add', (inputValue[0]).toFixed(8));
     phi -= inputValue[1] * 120;
     phi = Math.min(85, Math.max(0, phi));
 

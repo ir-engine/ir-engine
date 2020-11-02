@@ -1,7 +1,7 @@
 import { isServer } from '../../common/functions/isServer';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
-import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions';
+import { addComponent, createEntity, getComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { Input } from '../../input/components/Input';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
@@ -13,12 +13,7 @@ import { NetworkClient } from '../components/NetworkClient';
 import { NetworkInterpolation } from '../components/NetworkInterpolation';
 import { NetworkObject } from '../components/NetworkObject';
 import { Server } from '../components/Server';
-import { addInputToWorldStateOnServer } from '../functions/addInputToWorldStateOnServer';
-import { addNetworkTransformToWorldState } from '../functions/addNetworkTransformToWorldState';
 import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClient';
-import { handleUpdatesFromClients } from '../functions/handleUpdatesFromClients';
-import { prepareWorldState as prepareWorldState } from '../functions/prepareWorldState';
-import { sendClientInput as sendClientInputToServer } from '../functions/sendClientInput';
 
 export class NetworkSystem extends System {
   updateType = SystemUpdateType.Network;
@@ -56,8 +51,6 @@ export class NetworkSystem extends System {
     // Advance the tick on the server by one
     Network.tick++;
 
-    // Create a new empty world state frame to be sent to clients
-    prepareWorldState();
 
     // handle client input, apply to local objects and add to world state snapshot
     // handleUpdatesFromClients();
@@ -79,6 +72,17 @@ export class NetworkSystem extends System {
     // TODO: to enable snapshots, use worldStateModel.toBuffer(Network.instance.worldState)
     // Send the message to all connected clients
     Network.instance.transport.sendReliableData(Network.instance.worldState); // Use default channel
+
+    // CClear collected world state frame and reset after calculating
+    Network.instance.worldState = {
+      tick: Network.tick,
+      transforms: [],
+      inputs: [],
+      clientsConnected: [],
+      clientsDisconnected: [],
+      createObjects: [],
+      destroyObjects: []
+    };
   }
 
   // Call execution on client
@@ -116,6 +120,9 @@ export class NetworkSystem extends System {
     },
     serverNetworkTransforms: {
       components: [NetworkObject, TransformComponent, Server]
+    },
+    serverNetworkObjects: {
+      components: [NetworkObject, Server]
     },
     serverNetworkInputs: {
       components: [NetworkObject, Input, Server]

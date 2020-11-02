@@ -1,9 +1,11 @@
+import { AssetLoaderState } from "../../assets/components/AssetLoaderState";
 import { isClient } from "../../common/functions/isClient";
 import { DomEventBehaviorValue } from "../../common/interfaces/DomEventBehaviorValue";
 import { NumericalType } from "../../common/types/NumericalTypes";
 import { Engine } from "../../ecs/classes/Engine";
 import { Entity } from "../../ecs/classes/Entity";
 import { System } from '../../ecs/classes/System';
+import { Not } from "../../ecs/functions/ComponentFunctions";
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { NetworkObject } from "../../networking/components/NetworkObject";
@@ -63,14 +65,13 @@ export class InputSystem extends System {
 
   dispose(): void {
     // disposeVR();
-    this._inputComponent = null;
   }
 
   /**
  *
  * @param {Number} delta Time since last frame
  */
-  public execute = isClient ? this.clientExecute : this.serverExecute;
+  public execute = (isClient ? this.clientExecute : this.serverExecute);
 
   public clientExecute(delta: number): void {
     // Handle XR input
@@ -93,6 +94,8 @@ export class InputSystem extends System {
     this.queryResults.localClientInput.added?.forEach(entity => {
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
+      if(this._inputComponent === undefined)
+        return console.warn("Tried to execute on a newly added input component, but it was undefined")
       // Call all behaviors in "onAdded" of input map
       this._inputComponent.schema.onAdded.forEach(behavior => {
         behavior.behavior(entity, { ...behavior.args });
@@ -141,8 +144,9 @@ export class InputSystem extends System {
     // Called when input component is removed from entity
     this.queryResults.localClientInput.removed.forEach(entity => {
       // Get component reference
-      this._inputComponent = getComponent(entity, Input, true);
-
+      this._inputComponent = getComponent(entity, Input);
+      if(this._inputComponent === undefined)
+        return  console.warn("Tried to execute on a newly added input component, but it was undefined")
       if (this._inputComponent.data.size) {
         this._inputComponent.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
           handleInputPurge(entity);
@@ -170,28 +174,32 @@ export class InputSystem extends System {
   }
 
   public serverExecute(delta: number): void {
-    // Apply input for local user input onto client
-    this.queryResults.inputOnServer.all?.forEach(entity => {
-      handleInput(entity, {}, delta);
-    });
 
     // Called when input component is added to entity
     this.queryResults.inputOnServer.added?.forEach(entity => {
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
+      
+      if(this._inputComponent === undefined)
+      return  console.warn("Tried to execute on a newly added input component, but it was undefined")
       // Call all behaviors in "onAdded" of input map
-      this._inputComponent.schema.onAdded.forEach(behavior => {
+      this._inputComponent.schema.onAdded?.forEach(behavior => {
         behavior.behavior(entity, { ...behavior.args });
       });
     });
 
+    // Apply input for local user input onto client
+    this.queryResults.inputOnServer.all?.forEach(entity => {
+      handleInput(entity, {}, delta);
+    });
+
     // Called when input component is removed from entity
-    this.queryResults.inputOnServer.removed.forEach(entity => {
+    this.queryResults.inputOnServer.removed?.forEach(entity => {
       // Get component reference
-      this._inputComponent = getComponent(entity, Input, true);
+      this._inputComponent = getComponent(entity, Input);
 
       // Call all behaviors in "onRemoved" of input map
-      this._inputComponent?.schema?.onRemoved.forEach(behavior => {
+      this._inputComponent?.schema?.onRemoved?.forEach(behavior => {
         behavior.behavior(entity, behavior.args);
       });
     });
@@ -202,15 +210,15 @@ export class InputSystem extends System {
    * Queries must have components attribute which defines the list of components
    */
   InputSystem.queries = {
-    localClientInput: {
-      components: [Input, LocalInputReceiver],
+    inputOnServer: {
+      components: [NetworkObject, Input, Server, Not(AssetLoaderState)],
       listen: {
         added: true,
         removed: true
       }
     },
-    inputOnServer: {
-      components: [NetworkObject, Input, Server],
+    localClientInput: {
+      components: [Input, LocalInputReceiver],
       listen: {
         added: true,
         removed: true
