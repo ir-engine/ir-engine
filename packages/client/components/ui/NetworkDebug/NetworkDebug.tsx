@@ -1,6 +1,6 @@
 import { Network } from "@xr3ngine/engine/src/networking/components/Network";
 import React, { useEffect, useState } from "react";
-import JSONTree from 'react-json-tree';
+// import JSONTree from 'react-json-tree';
 
 export const NetworkDebug = () => {
     const [networkData, setNetworkData] = useState(Network.instance);
@@ -24,15 +24,15 @@ export const NetworkDebug = () => {
         <div style={{ position: "absolute" }}>
             <div>
               <h1>Network Object</h1>
-              <JSONTree data={Network.instance} />
+              {/* <JSONTree data={Network.instance} /> */}
               </div>
               <div>
               <h1>Network Clients</h1>
-              <JSONTree data={Network.instance.clients} />
+              {/* <JSONTree data={Network.instance.clients} /> */}
               </div>
               <div>
               <h1>Network Objects</h1>
-              <JSONTree data={Network.instance.networkObjects} />
+              {/* <JSONTree data={Network.instance.networkObjects} /> */}
               </div>
         </div>
       );
