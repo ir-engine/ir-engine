@@ -2,7 +2,7 @@ import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { isServer } from '../../common/functions/isServer';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
-import { addComponent, createEntity, getComponent } from '../../ecs/functions/EntityFunctions';
+import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { Input } from '../../input/components/Input';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
@@ -19,6 +19,7 @@ import { addInputToWorldStateOnServer } from '../functions/addInputToWorldStateO
 import { addNetworkTransformToWorldState } from '../functions/addNetworkTransformToWorldState';
 import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClient';
 import { handleUpdatesFromClients } from '../functions/handleUpdatesFromClients';
+import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions';
 import { sendClientInputToServer } from '../functions/sendClientInputToServer';
 
 export class NetworkSystem extends System {
@@ -57,9 +58,13 @@ export class NetworkSystem extends System {
     // Advance the tick on the server by one
     Network.tick++;
 
+    let transforms = [];
     // Transforms that are updated are automatically collected
     // note: onChanged needs to currently be handled outside of fixedExecute
     this.queryResults.serverNetworkTransforms.all?.forEach((entity: Entity) => {
+      const transform = getComponent(entity, TransformComponent);
+      transforms.push(transform);
+      transform.position.setY(Network.tick/1000);
       addNetworkTransformToWorldState(entity)
     });
 
