@@ -1,4 +1,6 @@
+import _ from "lodash";
 import { AssetLoaderState } from "../../assets/components/AssetLoaderState";
+import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { isClient } from "../../common/functions/isClient";
 import { DomEventBehaviorValue } from "../../common/interfaces/DomEventBehaviorValue";
 import { NumericalType } from "../../common/types/NumericalTypes";
@@ -8,8 +10,10 @@ import { System } from '../../ecs/classes/System';
 import { Not } from "../../ecs/functions/ComponentFunctions";
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
+import { Network } from "../../networking/components/Network";
 import { NetworkObject } from "../../networking/components/NetworkObject";
 import { Server } from "../../networking/components/Server";
+import { handleUpdatesFromClients } from "../../networking/functions/handleUpdatesFromClients";
 import { handleInput } from '../behaviors/handleInput';
 import { handleInputPurge } from "../behaviors/handleInputPurge";
 import { initializeSession, processSession } from '../behaviors/WebXRInputBehaviors';
@@ -17,6 +21,7 @@ import { Input } from '../components/Input';
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
 import { WebXRRenderer } from '../components/WebXRRenderer';
 import { WebXRSession } from '../components/WebXRSession';
+import { InputType } from "../enums/InputType";
 import { initVR } from '../functions/WebXRFunctions';
 import { InputValue } from "../interfaces/InputValue";
 import { ListenerBindingData } from "../interfaces/ListenerBindingData";
@@ -86,15 +91,69 @@ export class InputSystem extends System {
 
     // Apply input for local user input onto client
     this.queryResults.localClientInput.all?.forEach(entity => {
+      // Apply input to local client
       handleInput(entity, {}, delta);
-    });
 
+      // Client sends input and *only* input to the server (for now)
+      // console.log("Handling input for entity ", entity.id);
+      const input = getComponent(entity, Input);
+
+      // If input is the same as last frame, return
+      if(_.isEqual(input.data, input.lastData))
+        return
+
+      // Repopulate lastData
+      input.lastData.clear();
+      input.data.forEach((value, key) => input.lastData.set(key, value));
+
+      const networkId = getComponent(entity, NetworkObject).networkId;
+      let numInputs = 0;
+
+      // Create a schema for input to send
+      const inputs = {
+        networkId: networkId,
+        buttons: {},
+        axes1d: {},
+        axes2d: {}
+      };
+      
+      // Add all values in input component to schema
+      for (const [key, value] of input.data.entries()) {
+
+        switch (value.type) {
+          case InputType.BUTTON:
+            inputs.buttons[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
+            numInputs++;
+            break;
+          case InputType.ONEDIM:
+            if (value.lifecycleState !== LifecycleValue.UNCHANGED) {
+              inputs.axes1d[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
+              numInputs++;
+            }
+            break;
+          case InputType.TWODIM:
+            if (value.lifecycleState !== LifecycleValue.UNCHANGED) {
+              inputs.axes2d[key] = { input: key, valueX: value.value[0], valueY: value.value[1], lifecycleState: value.lifecycleState };
+              numInputs++;
+            }
+            break;
+          default:
+            console.error("Input type has no network handler (maybe we should add one?)");
+        }
+      }
+
+      // Convert to a message buffer
+      const message = inputs; // clientInputModel.toBuffer(inputs)
+      console.log("Sending message", message);
+      // TODO: Send unreliably
+      Network.instance.transport.sendReliableData(message); // Use default channel
+    });
 
     // Called when input component is added to entity
     this.queryResults.localClientInput.added?.forEach(entity => {
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
-      if(this._inputComponent === undefined)
+      if (this._inputComponent === undefined)
         return console.warn("Tried to execute on a newly added input component, but it was undefined")
       // Call all behaviors in "onAdded" of input map
       this._inputComponent.schema.onAdded.forEach(behavior => {
@@ -145,8 +204,8 @@ export class InputSystem extends System {
     this.queryResults.localClientInput.removed.forEach(entity => {
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
-      if(this._inputComponent === undefined)
-        return  console.warn("Tried to execute on a newly added input component, but it was undefined")
+      if (this._inputComponent === undefined)
+        return console.warn("Tried to execute on a newly added input component, but it was undefined")
       if (this._inputComponent.data.size) {
         this._inputComponent.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
           handleInputPurge(entity);
@@ -174,14 +233,16 @@ export class InputSystem extends System {
   }
 
   public serverExecute(delta: number): void {
-
+    // handle client input, apply to local objects and add to world state snapshot
+    handleUpdatesFromClients();
+    
     // Called when input component is added to entity
     this.queryResults.inputOnServer.added?.forEach(entity => {
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
-      
-      if(this._inputComponent === undefined)
-      return  console.warn("Tried to execute on a newly added input component, but it was undefined")
+
+      if (this._inputComponent === undefined)
+        return console.warn("Tried to execute on a newly added input component, but it was undefined")
       // Call all behaviors in "onAdded" of input map
       this._inputComponent.schema.onAdded?.forEach(behavior => {
         behavior.behavior(entity, { ...behavior.args });
@@ -206,24 +267,24 @@ export class InputSystem extends System {
   }
 }
 
-  /**
-   * Queries must have components attribute which defines the list of components
-   */
-  InputSystem.queries = {
-    inputOnServer: {
-      components: [NetworkObject, Input, Server, Not(AssetLoaderState)],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    localClientInput: {
-      components: [Input, LocalInputReceiver],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    xrRenderer: { components: [WebXRRenderer] },
-    xrSession: { components: [WebXRSession], listen: { added: true } }
-  };
+/**
+ * Queries must have components attribute which defines the list of components
+ */
+InputSystem.queries = {
+  inputOnServer: {
+    components: [NetworkObject, Input, Server, Not(AssetLoaderState)],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  localClientInput: {
+    components: [Input, LocalInputReceiver],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  xrRenderer: { components: [WebXRRenderer] },
+  xrSession: { components: [WebXRSession], listen: { added: true } }
+};
