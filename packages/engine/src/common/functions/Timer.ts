@@ -7,8 +7,8 @@ export function Timer (
   callbacks: { update?: TimerUpdateCallback; fixedUpdate?: TimerUpdateCallback; networkUpdate?: TimerUpdateCallback; render?: Function },
   fixedFrameRate?: number, networkTickRate?: number
 ): { start: Function; stop: Function } {
-  const fixedRate = fixedFrameRate || 1 / 60;
-  const networkRate = networkTickRate || 1 / 20;
+  const fixedRate = fixedFrameRate || 60;
+  const networkRate = networkTickRate || 20;
 
   let last = 0;
   let accumulated = 0;

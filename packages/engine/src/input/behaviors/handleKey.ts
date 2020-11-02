@@ -14,7 +14,6 @@ import { LifecycleValue } from "../../common/enums/LifecycleValue";
  */
 
 export function handleKey(entity: Entity, args: { event: KeyboardEvent; value: BinaryType }): any {
-  console.log("Handle key called");
   // Get immutable reference to Input and check if the button is defined -- ignore undefined keys
   const input = getComponent(entity, Input);
   if (input.schema.keyboardInputMap[args.event.key?.toLowerCase()] === undefined)

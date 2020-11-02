@@ -1,3 +1,4 @@
+import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { isServer } from '../../common/functions/isServer';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
@@ -5,6 +6,7 @@ import { addComponent, createEntity, getComponent } from '../../ecs/functions/En
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { Input } from '../../input/components/Input';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
+import { InputType } from '../../input/enums/InputType';
 import { State } from '../../state/components/State';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { Client } from '../components/Client';
@@ -13,7 +15,11 @@ import { NetworkClient } from '../components/NetworkClient';
 import { NetworkInterpolation } from '../components/NetworkInterpolation';
 import { NetworkObject } from '../components/NetworkObject';
 import { Server } from '../components/Server';
+import { addInputToWorldStateOnServer } from '../functions/addInputToWorldStateOnServer';
+import { addNetworkTransformToWorldState } from '../functions/addNetworkTransformToWorldState';
 import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClient';
+import { handleUpdatesFromClients } from '../functions/handleUpdatesFromClients';
+import { sendClientInputToServer } from '../functions/sendClientInputToServer';
 
 export class NetworkSystem extends System {
   updateType = SystemUpdateType.Network;
@@ -51,20 +57,16 @@ export class NetworkSystem extends System {
     // Advance the tick on the server by one
     Network.tick++;
 
-
-    // handle client input, apply to local objects and add to world state snapshot
-    // handleUpdatesFromClients();
-
     // Transforms that are updated are automatically collected
     // note: onChanged needs to currently be handled outside of fixedExecute
-    // this.queryResults.serverNetworkTransforms.all?.forEach((entity: Entity) => {
-    //   addNetworkTransformToWorldState(entity)
-    // });
+    this.queryResults.serverNetworkTransforms.all?.forEach((entity: Entity) => {
+      addNetworkTransformToWorldState(entity)
+    });
 
     // For each networked object + input receiver, add to the frame to send
-    // this.queryResults.serverNetworkInputs.all?.forEach((entity: Entity) => {
-    //   addInputToWorldStateOnServer(entity);
-    // });
+    this.queryResults.serverNetworkInputs.all?.forEach((entity: Entity) => {
+      addInputToWorldStateOnServer(entity);
+    });
 
     // TODO: Create the snapshot and add it to the world state on the server
     // addSnapshot(createSnapshot(Network.instance.worldState.transforms));
@@ -94,11 +96,6 @@ export class NetworkSystem extends System {
     while (queue.getBufferLength() > 0) {
       applyNetworkStateToClient(queue.pop(), delta);
     }
-
-    // Client sends input and *only* input to the server (for now)
-    // this.queryResults.localClientNetworkObjects.all?.forEach((entity: Entity) => {
-    //   sendClientInputToServer(entity);
-    // });
   }
 
   // Call logic based on whether we are the server or the client

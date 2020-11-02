@@ -69,7 +69,9 @@ export const DefaultInputSchema: InputSchema = {
       {
         behavior: (entity) => {
           const input = getComponent(entity, Input);
-          const pos = input.data.get(DefaultInput.SCREENXY).value;
+          const posData = input.data.get(DefaultInput.SCREENXY);
+          if(isNullOrUndefined(posData)) return console.warn("Position data for mouse is undefined");
+          const pos = posData.value
           console.log('MOV DIFF1', startPosition.clone().sub(new Vector2(pos[0], pos[1])).toArray());
           console.log('MOV DIFF2', accumulatedMoveDifference.toArray());
         }

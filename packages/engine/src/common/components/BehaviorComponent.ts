@@ -12,6 +12,7 @@ export class BehaviorComponent<TDataType extends string | number | symbol, Behav
 PropTypes<TDataType, BehaviorSchema, TValue>
 > {
   schema: BehaviorSchema
+  lastData: BehaviorMapType<TDataType, TValue> = new Map<TDataType, TValue>()
   data: BehaviorMapType<TDataType, TValue> = new Map<TDataType, TValue>()
   constructor () {
     super(false);
