@@ -33,7 +33,7 @@ export class SubscriptionSystem extends System {
   }
 
   callBehaviorsForHook: Behavior = (entity: Entity, args: { phase: string }, delta: any) => {
-    this.subscription = getComponent(entity, Subscription, true);
+    this.subscription = getComponent(entity, Subscription);
     // If the schema for this subscription component has any values in this phase
     if (this.subscription.schema[args.phase] !== undefined) {
       // Foreach value in this phase

@@ -1,13 +1,11 @@
-import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
 import { handleInput } from '../../input/behaviors/handleInput';
 import { Input } from '../../input/components/Input';
+import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { InputType } from '../../input/enums/InputType';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { Network } from '../components/Network';
-import { destroyNetworkObject } from './destroyNetworkObject';
-import { addSnapshot, calculateInterpolation, createSnapshot } from './NetworkInterpolationFunctions';
 import { initializeNetworkObject } from './initializeNetworkObject';
-import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 
 export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
   const worldState = worldStateBuffer; // worldStateModel.fromBuffer(worldStateBuffer);
@@ -41,7 +39,7 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
   // Handle all clients that connected this frame
   for (const connectingClient in worldState.clientsConnected) {
     // Add them to our client list
-    Network.instance.clients[worldState.clientsConnected[connectingClient].userId] = {
+    Network.instance.clients[worldState.clientsConnected[connectingClient].userId]`` = {
       userId: worldState.clientsConnected[connectingClient].userId
     };
     console.log(worldState.clientsConnected[connectingClient].userId, " connected");
@@ -73,7 +71,6 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
     }
   }
 
-
   // TODO: Re-enable for snapshot interpolation
   // if (worldState.transforms !== undefined && worldState.transforms.length > 0) {
   //   // Add world state to our snapshot vault
@@ -86,8 +83,16 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
 
   // Handle all network objects destroyed this frame
   for (const objectToDestroy in worldState.destroyObjects) {
-    destroyNetworkObject(worldState.destroyObjects[objectToDestroy].networkId);
-    console.log("Destroying network object");
+    const objectKey = worldState.destroyObjects[objectToDestroy].networkId;
+    if (Network.instance.networkObjects[objectKey] === undefined)
+      return console.warn("Can't destroy object as it doesn't appear to exist")
+    console.log("Destroying network object ", Network.instance.networkObjects[objectKey].component.networkId);
+    // get network object
+    const entity = Network.instance.networkObjects[objectKey].component.entity;
+    // Remove the entity and all of it's components
+    removeEntity(entity);
+    // Remove network object from list
+    delete Network.instance.networkObjects[objectKey];
   }
 
   worldState.inputs?.forEach(stateData => {

@@ -129,9 +129,10 @@ export default (app: Application): void => {
             if (user.instanceId === instanceId) {
               await app.service('instance').patch(instanceId, {
                 currentUsers: instance.currentUsers - 1
+              }).catch((err) => {
+                console.warn("Failed to remove user, probably because instance was destroyed");
               });
 
-              setTimeout(async () => {
                 await app.service('user').patch(null, {
                   instanceId: null
                 }, {
@@ -140,13 +141,14 @@ export default (app: Application): void => {
                     instanceId: instanceId
                   },
                   instanceId: instanceId
-                });
-              }, 2000);
+                }).catch(() =>
+                  console.warn("Failed to patch user, probably because they don't have an ID yet")
+                )
             }
 
             app.channel(`instanceIds/${instanceId as string}`).leave(connection);
 
-            if (instance.currentUsers <= 1) {
+            if (instance.currentUsers < 1) {
               console.log('Deleting instance ' + instanceId);
               await app.service('instance').remove(instanceId);
               if ((app as any).gsSubdomainNumber != null) {

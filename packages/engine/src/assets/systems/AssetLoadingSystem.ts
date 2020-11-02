@@ -44,11 +44,6 @@ export default class AssetLoadingSystem extends System {
       }
     }
 
-    // TODO: Remove this
-    this.queryResults.characterAvatar.added.forEach(entity => {
-      loadActorAvatar(entity);
-    });
-
     this.queryResults.assetVault.all.forEach(entity => {
       // Do things here
     });

@@ -16,9 +16,6 @@ export class HighlightSystem extends System {
   constructor(attributes?: SystemAttributes) {
     super(attributes)
   }
-  canExecute(delta: number): boolean {
-    return super.canExecute(delta) && !!RendererComponent?.instance?.composer
-  }
 
   execute(deltaTime, time): void {
     for (const entity of this.queryResults.hightlights.added) {
