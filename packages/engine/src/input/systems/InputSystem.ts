@@ -6,7 +6,6 @@ import { initializeSession, processSession } from '../behaviors/WebXRInputBehavi
 import { Input } from '../components/Input';
 import { WebXRRenderer } from '../components/WebXRRenderer';
 import { WebXRSession } from '../components/WebXRSession';
-import { initVR } from '../functions/WebXRFunctions';
 import { ListenerBindingData } from "../interfaces/ListenerBindingData";
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
 import { InputValue } from "../interfaces/InputValue";
@@ -31,24 +30,14 @@ export class InputSystem extends System {
   // Temp/ref variables
   private _inputComponent: Input
   private readonly boundListeners //= new Set()
-  readonly useWebXR
-  readonly onVRSupportRequested
   private entityListeners: Map<Entity, Array<ListenerBindingData>>
 
-  constructor ({ useWebXR, onVRSupportRequested }) {
+  constructor () {
     super();
-    this.useWebXR = useWebXR;
-    this.onVRSupportRequested = onVRSupportRequested;
     this.mainControllerId = 0;
     this.secondControllerId = 1;
     this.boundListeners = new Set();
     this.entityListeners = new Map();
-
-    if (this.useWebXR) {
-      if (this.onVRSupportRequested) {
-        initVR(this.onVRSupportRequested);
-      } else initVR();
-    }
   }
 
   dispose(): void {
@@ -56,20 +45,9 @@ export class InputSystem extends System {
     this._inputComponent = null;
   }
 
-  /**
-   *
-   * @param {Number} delta Time since last frame
-   */
   public execute(delta: number): void {
     // Handle XR input
-    if (this.queryResults.xrRenderer.all.length > 0) {
-      console.log("XR RENDERING");
-      const webXRRenderer = getMutableComponent(this.queryResults.xrRenderer.all[0], WebXRRenderer);
-      // Called when WebXRSession component is added to entity
-      this.queryResults.xrSession.added?.forEach(entity => initializeSession(entity, { webXRRenderer }));
-      // Called every frame on all WebXRSession components
-      this.queryResults.xrSession.all.forEach(entity => processSession(entity));
-    }
+  //  this.queryResults.xrSession.added?.forEach(entity => initializeSession(entity));
 
     // Called every frame on all input components
     this.queryResults.inputs.all.forEach(entity => {
@@ -173,6 +151,5 @@ InputSystem.queries = {
       removed: true
     }
   },
-  xrRenderer: { components: [WebXRRenderer] },
   xrSession: { components: [WebXRSession], listen: { added: true } }
 };
