@@ -96,8 +96,7 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
     case generalStateList.TUTOR_LOOKAROUND:message='Touch and Drag to look around'; addLookAroundEventListeners(); break;      
     case generalStateList.TUTOR_MOVE: message= isMobileOrTablet() ? ' Use joystick to move' : 'Use mouse to move'; break;
     case generalStateList.TUTOR_INTERACT: message= isMobileOrTablet() ? 'Use to interact' : 'Press E to interact'; break;
-    case generalStateList.TUTOR_UNMUTE: message='Tap to toggle Mic'; action = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_END)); break;
-    // case generalStateList.TUTOR_VIDEO: message='Tap to enable stream'; action = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));  break;
+    case generalStateList.TUTOR_UNMUTE: message='Tap to toggle Mic'; break;
     default : message= '';break;
   }     
   return message ? 
@@ -114,8 +113,7 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
                   }}
                   open={true} 
                   autoHideDuration={10000}>
-                      <SnackbarContent className={styles.helpHintSnackBarContent} message={message} 
-                      action={<Button onClick={action} color="primary">(Skip)</Button>} />                      
+                      <SnackbarContent className={styles.helpHintSnackBarContent} message={message} />                      
                   </Snackbar>
                 </>
               :null;
