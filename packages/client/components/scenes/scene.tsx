@@ -129,7 +129,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
     <OnBoardingDialog avatarsList={CharacterAvatars} />
     <OnBoardingBox actorEntity={actorEntity} />
     <MediaIconsBox />
-    {/* <MobileGamepad /> */}
+    <MobileGamepad />
     </>
   );
 };
