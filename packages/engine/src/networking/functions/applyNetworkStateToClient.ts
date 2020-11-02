@@ -39,7 +39,7 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
   // Handle all clients that connected this frame
   for (const connectingClient in worldState.clientsConnected) {
     // Add them to our client list
-    Network.instance.clients[worldState.clientsConnected[connectingClient].userId]`` = {
+    Network.instance.clients[worldState.clientsConnected[connectingClient].userId] = {
       userId: worldState.clientsConnected[connectingClient].userId
     };
     console.log(worldState.clientsConnected[connectingClient].userId, " connected");

@@ -11,7 +11,7 @@ export interface NetworkClientList {
   [key: string]: {
     userId?: string;
     name?: string;
-    socket: SocketIO.Socket;
+    socket?: SocketIO.Socket;
     socketId?: string;
     lastSeenTs?: any;
     joinTs?: any;
