@@ -20,6 +20,11 @@ export function handleKey(entity: Entity, args: { event: KeyboardEvent; value: B
   if (input.schema.keyboardInputMap[args.event.key?.toLowerCase()] === undefined)
     return;
   const mappedKey = input.schema.keyboardInputMap[args.event.key.toLowerCase()];
+  const element = args.event.target as HTMLElement;
+  // Сheck which excludes the possibility of controlling the character (car, etc.) when typing a text
+  if (element?.tagName === 'INPUT' || element?.tagName === 'SELECT' || element?.tagName === 'TEXTAREA') {
+    return;
+  }
 
   if (args.value === BinaryValue.ON) {
     // If the key is in the map but it's in the same state as now, let's skip it (debounce)

@@ -59,7 +59,7 @@ export class Network extends Component<Network> {
     clientsDisconnected: [],
     createObjects: [],
     destroyObjects: []
-  }
+  };
 
   static sceneId = "default"
   static Network: any

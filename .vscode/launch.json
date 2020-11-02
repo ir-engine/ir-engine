@@ -15,6 +15,15 @@
               "dev"
             ],
             "stopOnEntry": false
-        },
+        },{
+          "type": "node",
+          "request": "launch",
+          "name": "yarn dev via Webpack",
+          "program": "${workspaceFolder}/node_modules/webpack/bin/webpack.js",
+          "args": [
+             "--config", "${workspaceFolder}/packages/config/webpack.config.js", "--watch", "--mode=development"
+          ],
+          "env" : { "NODE_ENV" : "development" }
+      },
     ]
 }
