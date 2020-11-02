@@ -2,6 +2,7 @@ import { removeEntity } from '../../ecs/functions/EntityFunctions';
 import { Network } from '../components/Network';
 
 export function destroyNetworkObject(networkId) {
+  console.log("Destroying network object ", networkId);
   if(Network.instance.networkObjects[networkId] === undefined)
     return console.warn("Can't destroy object as it doesn't appear to exist")
   // get network object

@@ -13,7 +13,7 @@ import {client} from "../redux/feathers";
 import {connectToInstanceServer, provisionInstanceServer} from "../redux/instanceConnection/service";
 import {selectPartyState} from "../redux/party/selector";
 
-import theme from '../theme'
+import theme from '../theme';
 import { ThemeProvider } from '@material-ui/core';
 
 interface Props {

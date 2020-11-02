@@ -7,9 +7,8 @@ import { setArcadeVelocityInfluence } from "./setArcadeVelocityInfluence";
 
 export const initializeCharacterState: Behavior = (entity: Entity) => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+	// TODO: Replace with characterinitialized component
 	if(!actor.initialized) return;
-	console.log(actor);
-	console.log(actor.velocitySimulator);
 	if(actor.velocitySimulator === undefined){
 		actor.velocitySimulator.init();
 	}

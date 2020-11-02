@@ -52,6 +52,7 @@ const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAv
   let nextAvatarId=null;
 
   const recalculateAvatarsSteps = (actorAvatarId) =>{
+    if(actorAvatarId === undefined) return;
     let currentAvatarIndex = avatarsList.findIndex(value => value.id === actorAvatarId);
     if (currentAvatarIndex === -1) {
       currentAvatarIndex = 0;

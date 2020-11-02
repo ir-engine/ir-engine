@@ -81,8 +81,6 @@ export class InputSystem extends System {
 
     // Called when input component is added to entity
     this.queryResults.inputs.added?.forEach(entity => {
-      console.log("Input added: ");
-      console.log(entity.componentTypes);
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
       // Call all behaviors in "onAdded" of input map
@@ -94,24 +92,24 @@ export class InputSystem extends System {
       this.entityListeners.set(entity, listenersDataArray);
       Object.keys(this._inputComponent.schema.eventBindings)?.forEach((eventName: string) => {
         this._inputComponent.schema.eventBindings[eventName].forEach((behaviorEntry: DomEventBehaviorValue) => {
-          const domParentElement:EventTarget = document;
-          // let domParentElement:EventTarget = Engine.viewportElement ?? document;
-          // if (behaviorEntry.element) {
-          //   switch (behaviorEntry.element) {
-          //     case "window":
-          //       domParentElement = window;
-          //       break;
-          //     case "document":
-          //       domParentElement = document;
-          //       break;
-          //     case "viewport":
-          //     default:
-          //       domParentElement = Engine.viewportElement;
-          //   }
-          // }
+          // const domParentElement:EventTarget = document;
+          let domParentElement:EventTarget = Engine.viewportElement ?? document;
+          if (behaviorEntry.element) {
+            switch (behaviorEntry.element) {
+              case "window":
+                domParentElement = window;
+                break;
+              case "document":
+                domParentElement = document;
+                break;
+              case "viewport":
+              default:
+                domParentElement = Engine.viewportElement;
+            }
+          }
 
           const domElement = (behaviorEntry.selector && domParentElement instanceof Element) ? domParentElement.querySelector(behaviorEntry.selector) : domParentElement;
-          // console.log('InputSystem addEventListener:', eventName, domElement, ' (', behaviorEntry.element, behaviorEntry.selector, ')');
+          //console.log('InputSystem addEventListener:', eventName, domElement, ' (', behaviorEntry.element, behaviorEntry.selector, ')');
 
           if (domElement) {
             const listener = (event: Event) => behaviorEntry.behavior(entity, { event, ...behaviorEntry.args });
