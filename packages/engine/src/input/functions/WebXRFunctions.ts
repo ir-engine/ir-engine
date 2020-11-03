@@ -1,12 +1,153 @@
+import { Vector3,  MeshPhongMaterial, TextureLoader, Matrix4, RepeatWrapping } from 'three';
+import GLTFLoader from 'three-gltf-loader';
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { Entity } from '../../ecs/classes/Entity';
-import { createEntity, addComponent } from '../../ecs/functions/EntityFunctions';
+import { createEntity, addComponent, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { WebXRSession } from '../components/WebXRSession';
+import { XRControllersComponent } from '../components/XRControllersComponent';
 import { WebXRSpace } from '../components/WebXRSpace';
 import { XRSession, XRFrame, XRReferenceSpace, XRInputSource } from '../types/WebXR';
 
+var container;
 
-export function initVR () {
+var controller1, controller2;
+var controllerGrip1, controllerGrip2;
+
+let particularArray
+
+var raycaster, intersected = [];
+var tempMatrix = new Matrix4();
+
+var controls, group;
+
+export function initControllersVR(actorEntity) {
+  // controllers
+
+    const controller1 = Engine.renderer.xr.getController( 0 );
+  //  controller1.addEventListener( 'selectstart', (e) => {selectStart(e, 0)} );
+  //  controller1.addEventListener( 'selectend', e => {onSelectEnd(e,0)} );
+    Engine.scene.add( controller1 );
+
+    const controller2 = Engine.renderer.xr.getController( 1 );
+  //  controller2.addEventListener( 'selectstart', (e) => {selectStart(e, 1)} );
+  //  controller2.addEventListener( 'selectend', e => {onSelectEnd(e,1)} );
+    Engine.scene.add( controller2 );
+
+    /////var controllerModelFactory = new XRControllerModelFactory();
+
+    controllerGrip1 = Engine.renderer.xr.getControllerGrip( 0 );
+    controllerGrip2 = Engine.renderer.xr.getControllerGrip( 1 );
+
+    addComponent(actorEntity, XRControllersComponent, {
+      controller1: controller1,
+      controller2: controller2,
+      position1: controller1.position,
+      position2: controller2.position,
+      rotation1: controller1.quaternion,
+      rotation2: controller2.quaternion,
+      controllerGrip1: controllerGrip1,
+      controllerGrip2: controllerGrip2
+
+    })
+    console.warn(getComponent(actorEntity, XRControllersComponent));
+    console.warn(controller1);
+
+
+
+    new GLTFLoader().load('models/webxr/controllers/valve_controller_knu_1_0_right.glb', obj => {
+
+    //  new TextureLoader().load('./models/controllers/valve_controller_knu_1_0_right_spec.png',
+  //    texture => {
+  //      new TextureLoader().load('./models/controllers/valve_controller_knu_1_0_right_diff.png',
+  //      texture2 => {
+      //    console.warn(obj);
+          let mesh = obj.scene.children[2]
+
+          mesh.material = new MeshPhongMaterial()
+      //    texture.anisotropy = 16
+      //    texture.wrapS = texture.wrapT = RepeatWrapping;
+      //    mesh.material.map = texture2;
+    //      mesh.material.specularMap = texture;
+          //mesh.position.y = 0.1;
+          mesh.position.z = -0.08 ;
+          let mesh2 = mesh.clone()
+
+      //    console.warn(obj);
+
+          mesh.applyMatrix4(new Matrix4().makeScale(-1, 1, 1));
+
+          controllerGrip1.add( mesh );
+          Engine.scene.add( controllerGrip1 );
+
+
+          controllerGrip2.add( mesh2 );
+          Engine.scene.add( controllerGrip2 );
+          console.warn('Loaded Model Controllers Done');
+    //    });
+
+    //  });
+
+    })
+}
+
+
+function selectStart( event, n ) {
+
+
+	let currentIndex = []
+	let controllerPosition = new Vector3(
+		event.target.position.x,
+		event.target.position.y,
+		event.target.position.z
+	)
+/*
+	for (let i = 0; i < particularArray.length; i++) {
+
+    let diff = new Vector3().subVectors( particularArray[i].position, controllerPosition).length()
+		//console.log(diff);
+		if( diff < 30) {
+			currentIndex.push(i)
+		}
+	}
+	currentIndex.sort((a, b) => a - b)
+*/
+	//console.log(particularArray[currentIndex[0]]);
+/*
+	if (currentIndex.length > 0) {
+		if (!n) {
+			window.clothSimulatorApp.booleanNeed = true
+			window.clothSimulatorApp.currentIndexNeed = particularArray[currentIndex[0]]
+		} else {
+			window.clothSimulatorApp.booleanNeed2 = true
+			window.clothSimulatorApp.currentIndexNeed2 = particularArray[currentIndex[0]]
+		}
+	}
+  */
+//	window.clothSimulatorApp.memoryNeed
+}
+
+
+
+function onSelectEnd( event, n ) {
+	if (!n) {
+		window.clothSimulatorApp.booleanNeed = false
+	} else {
+		window.clothSimulatorApp.booleanNeed2 = false
+	}
+}
+/*
+function getIntersections( controller ) {
+
+	tempMatrix.identity().extractRotation( controller.matrixWorld );
+
+	raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
+	raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
+
+	return raycaster.intersectObjectsVR( group.children );
+
+}
+*/
+export function initVR (actorEntity) {
   const button = document.createElement( 'button' );
 	button.id = 'VRButton';
 	button.style.display = 'none';
@@ -17,12 +158,12 @@ export function initVR () {
 	Engine.renderer.xr.enabled = true;
 	Engine.renderer.xr.setReferenceSpaceType( 'local-floor' );
 	navigator.xr.isSessionSupported( 'immersive-vr' ).then( function ( supported ) {
-		supported ? showEnterVR(button) : showWebXRNotFound(button);
+		supported ? showEnterVR(actorEntity, button) : showWebXRNotFound(button);
 	});
 };
 
 
-function showEnterVR( button ) {
+function showEnterVR(actorEntity, button ) {
 
 	function onSessionStarted( session ) {
 		Engine.renderer.xr.setSession( session );
@@ -40,12 +181,15 @@ function showEnterVR( button ) {
 		//	var sessionInit = { optionalFeatures: [ "unbounded" ] };
 		//	var sessionInit = { optionalFeatures:  [ "local" ] };
 			navigator.xr.requestSession( "immersive-vr", sessionInit ).then((session) => {
-        addComponent(createEntity(), WebXRSession, { session });
+        addComponent(actorEntity, WebXRSession, { session });
 				Engine.xrSession = session;
         onSessionStarted(session)
+        initControllersVR(actorEntity)
       });
 
 		} else {
+      removeComponent(actorEntity, WebXRSession);
+      removeComponent(actorEntity, XRControllersComponent);
       Engine.xrSession.end();
 			Engine.xrSession = null;
 			onSessionEnded();
