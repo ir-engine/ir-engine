@@ -24,29 +24,15 @@ const startedPosition = new Map<Entity,any>();
 export const  interact: Behavior = (entity: Entity, args: any, delta): void => {
   if (!hasComponent(entity, Interactor)) {
     console.error(
-<<<<<<< HEAD
       'Attempted to call interact behavior, but actor does not have Interacts component'
     );
     return;
   }
   
-  const { focusedInteractive: focusedEntity } = getComponent(entity, Interacts);
+  const { focusedInteractive: focusedEntity } = getComponent(entity, Interactor);
   const input = getComponent(entity, Input);
   const mouseScreenPosition = getComponent(entity, Input).data.get(DefaultInput.SCREENXY);
    
-=======
-      'Attempted to call interact behavior, but actor does not have Interactor component'
-    )
-    return
-  }
-  
-  const { focusedInteractive: focusedEntity } = getComponent(entity, Interactor)
-  const input = getComponent(entity, Input)
-  
-  // console.log(args)
-
-  const mouseScreenPosition = getComponent(entity, Input).data.get(DefaultInput.SCREENXY)
->>>>>>> 464-camera-scale-touch
   if (args.phaze === LifecycleValue.STARTED ){
     startedPosition.set(entity,mouseScreenPosition.value);
     return;
@@ -68,11 +54,7 @@ export const  interact: Behavior = (entity: Entity, args: any, delta): void => {
       return;
     }
 
-<<<<<<< HEAD
-    const interactive = getComponent(focusedEntity, Interactive);
-=======
     const interactive = getComponent(focusedEntity, Interactable)
->>>>>>> 464-camera-scale-touch
     if (interactive && typeof interactive.onInteraction === 'function') {
       interactive.onInteraction(entity, args, delta, focusedEntity);
     }

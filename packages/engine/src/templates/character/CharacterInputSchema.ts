@@ -42,7 +42,8 @@ export const CharacterInputSchema: InputSchema = {
     },
     axes: {
       [TouchInputs.Touch1Position]: DefaultInput.SCREENXY,
-      [TouchInputs.Touch1Movement]: DefaultInput.LOOKTURN_PLAYERONE
+      [TouchInputs.Touch1Movement]: DefaultInput.LOOKTURN_PLAYERONE,
+      [TouchInputs.Scale]: DefaultInput.CAMERA_SCROLL
     }
   },
   // Map gamepad buttons to abstract input

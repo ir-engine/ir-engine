@@ -110,17 +110,11 @@ export const EnginePage: FunctionComponent = (props: any) => {
     cameraTransform.position.set(0, 1.2, 3);
 
     createPrefab(staticWorldColliders);
-<<<<<<< HEAD
     // createPrefab(CarController);
+    createPrefab(RazerLaptop);
     const actorEntity = createPrefab(PlayerCharacter);
     setActorEntity(actorEntity);
 
-=======
-    // const actorEntity = createPrefab(PlayerCharacter);
-    // setActorEntity(actorEntity);
-    createPrefab(PlayerCharacter);
-    createPrefab(RazerLaptop);
->>>>>>> 464-camera-scale-touch
     return (): void => {
       resetEngine();
     };

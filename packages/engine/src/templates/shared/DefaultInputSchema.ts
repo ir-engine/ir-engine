@@ -7,6 +7,7 @@ import { handleMouseWheel } from "../../input/behaviors/handleMouseWheel";
 import { DefaultInput } from "./DefaultInput";
 import { handleTouch } from "../../input/behaviors/handleTouch";
 import { handleTouchMove } from "../../input/behaviors/handleTouchMove";
+import { handleTouchScale } from "../../input/behaviors/handleTouchScale";
 import { handleKey } from "../../input/behaviors/handleKey";
 import { handleGamepadConnected, handleGamepadDisconnected } from "../../input/behaviors/GamepadInputBehaviors";
 import {
@@ -108,8 +109,19 @@ export const DefaultInputSchema: InputSchema = {
     touchmove: [
       {
         behavior: handleTouchMove
+      },
+      {
+        behavior: handleTouchScale
       }
     ],
+    // touchscale: [
+    //   {
+    //     behavior: handleTouchScale,
+    //     args: {
+    //       value: DefaultInput.CAMERA_SCROLL
+    //     }
+    //   }
+    // ],
     // Keys
     keyup: [
       {

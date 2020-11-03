@@ -111,11 +111,7 @@ export class InputSystem extends System {
           }
 
           const domElement = (behaviorEntry.selector && domParentElement instanceof Element) ? domParentElement.querySelector(behaviorEntry.selector) : domParentElement;
-<<<<<<< HEAD
           //console.log('InputSystem addEventListener:', eventName, domElement, ' (', behaviorEntry.element, behaviorEntry.selector, ')');
-=======
-          // console.log('InputSystem addEventListener:', eventName, domElement, ' (', behaviorEntry.element, behaviorEntry.selector, ')');
->>>>>>> 464-camera-scale-touch
 
           if (domElement) {
             const listener = (event: Event) => behaviorEntry.behavior(entity, { event, ...behaviorEntry.args });

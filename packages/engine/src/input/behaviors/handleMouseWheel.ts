@@ -16,6 +16,7 @@ import { LifecycleValue } from '../../common/enums/LifecycleValue';
 export const handleMouseWheel: Behavior = (entity: Entity, args: { event: WheelEvent }): void => {
   const input = getComponent(entity, Input);
   const value = args.event?.deltaY;
+  console.log(args)
 
   // If mouse position not set, set it with lifecycle started
   if (!input.data.has(input.schema.mouseInputMap.axes[MouseInput.MouseScroll])) {

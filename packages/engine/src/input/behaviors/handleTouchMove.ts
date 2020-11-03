@@ -46,14 +46,11 @@ export const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEv
     touchMovement[0] = touchPosition[0] - previousPositionValue[0];
     touchMovement[1] = touchPosition[1] - previousPositionValue[1];
   }
-<<<<<<< HEAD
 
   input.data.set(mappedMovementInput, {
     type: InputType.TWODIM,
     value: touchMovement,
     lifecycleState: input.data.has(mappedMovementInput)? LifecycleValue.CHANGED : LifecycleValue.STARTED
   });
-=======
-  // console.log(s);
->>>>>>> 464-camera-scale-touch
+
 };

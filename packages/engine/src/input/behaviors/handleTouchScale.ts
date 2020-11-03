@@ -14,9 +14,9 @@ import { TouchInputs } from '../enums/TouchInputs';
  * @param args is argument object. Events that occur due to the user interacting with a pointing device (such as a mouse).
  */
 
-export const handleMouseWheel: Behavior = (entity: Entity, args: { event: TouchEvent }): void => {
+export const handleTouchScale: Behavior = (entity: Entity, args: { event: TouchEvent }): void => {
   const input = getComponent(entity, Input);
-  const value = args.event?.deltaY;
+//   const value = args.event?.deltaY;
 
 
   let s = 'Touch move.';
@@ -27,24 +27,51 @@ export const handleMouseWheel: Behavior = (entity: Entity, args: { event: TouchE
       Math.trunc(args.event.targetTouches[0].clientX) +
       ', y: ' +
       Math.trunc(args.event.targetTouches[0].clientY);
+      const value = (args.event as any).scale;
+      console.log(args)
+      console.log(value)
 
     if (args.event.targetTouches.length == 2) {
-      if ((args.event as any).scale) {
-        debugger;
-      }
-
-
+      // if ((args.event as any).scale) {
+      //   debugger;
+      // }
       const scaleMappedInputKey = input.schema.touchInputMap?.axes[TouchInputs.Scale];
-      if (scaleMappedInputKey) {
+      // const value = (args.event as any).scale;
 
-        if ((args.event as any).scale) {
-          input.data.set(scaleMappedInputKey, {
-            type: InputType.ONEDIM,
-            value: (args.event as any).scale,
-            lifecycleState: LifecycleValue.CHANGED
-          });
-        }
+      console.log(args)
+      console.log(value)
+
+      // If mouse position not set, set it with lifecycle started
+      if (!input.data.has(scaleMappedInputKey)) {
+        input.data.set(scaleMappedInputKey, {
+          type: InputType.ONEDIM,
+          value: Math.sign(value),
+          lifecycleState: LifecycleValue.STARTED
+        });
+      } else {
+        // If mouse position set, check it's value
+        const oldValue = input.data.get(scaleMappedInputKey).value as number;
+
+        // If it's not the same, set it and update the lifecycle value to changed
+        input.data.set(scaleMappedInputKey, {
+          type: InputType.ONEDIM,
+          value: oldValue + Math.sign(value),
+          lifecycleState: LifecycleValue.CHANGED
+        });
       }
+
+
+      
+      // if (scaleMappedInputKey) {
+
+      //   if ((args.event as any).scale) {
+      //     input.data.set(scaleMappedInputKey, {
+      //       type: InputType.TWODIM,
+      //       value: (args.event as any).scale,
+      //       lifecycleState: LifecycleValue.CHANGED
+      //     });
+      //   }
+      // }
     }
 
   }
@@ -53,21 +80,21 @@ export const handleMouseWheel: Behavior = (entity: Entity, args: { event: TouchE
   // If mouse position not set, set it with lifecycle started
 
 
-  if (!input.data.has(input.schema.mouseInputMap.axes[MouseInput.MouseScroll])) {
-    input.data.set(input.schema.mouseInputMap.axes[MouseInput.MouseScroll], {
-      type: InputType.ONEDIM,
-      value: Math.sign(value),
-      lifecycleState: LifecycleValue.STARTED
-    });
-  } else {
-    // If mouse position set, check it's value
-    const oldValue = input.data.get(input.schema.mouseInputMap.axes[MouseInput.MouseScroll]).value as number;
+//   if (!input.data.has(input.schema.mouseInputMap.axes[MouseInput.MouseScroll])) {
+//     input.data.set(input.schema.mouseInputMap.axes[MouseInput.MouseScroll], {
+//       type: InputType.ONEDIM,
+//       value: Math.sign(value),
+//       lifecycleState: LifecycleValue.STARTED
+//     });
+//   } else {
+//     // If mouse position set, check it's value
+//     const oldValue = input.data.get(input.schema.mouseInputMap.axes[MouseInput.MouseScroll]).value as number;
 
-    // If it's not the same, set it and update the lifecycle value to changed
-    input.data.set(input.schema.mouseInputMap.axes[MouseInput.MouseScroll], {
-      type: InputType.ONEDIM,
-      value: oldValue + Math.sign(value),
-      lifecycleState: LifecycleValue.CHANGED
-    });
-  }
+//     // If it's not the same, set it and update the lifecycle value to changed
+//     input.data.set(input.schema.mouseInputMap.axes[MouseInput.MouseScroll], {
+//       type: InputType.ONEDIM,
+//       value: oldValue + Math.sign(value),
+//       lifecycleState: LifecycleValue.CHANGED
+//     });
+//   }
 };
