@@ -19,6 +19,7 @@ export class AnimationManager extends Component<AnimationManager> {
 				return;
 			}
 
+
 			new GLTFLoader().load('models/avatars/Animation.glb', gltf => {
 					this._animations = gltf.animations;
 					this._animations.forEach(clip => {

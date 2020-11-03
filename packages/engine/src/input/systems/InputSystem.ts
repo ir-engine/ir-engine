@@ -1,11 +1,14 @@
+import { Engine } from "../../ecs/classes/Engine";
 import { Entity } from "../../ecs/classes/Entity";
 import { System } from '../../ecs/classes/System';
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { handleInput } from '../behaviors/handleInput';
 import { initializeSession, processSession } from '../behaviors/WebXRInputBehaviors';
+import { webXRControllersBehaviors, addPhysics, updatePhysics, removePhysics } from '../behaviors/webXRControllersBehaviors';
 import { Input } from '../components/Input';
 import { WebXRRenderer } from '../components/WebXRRenderer';
 import { WebXRSession } from '../components/WebXRSession';
+import { XRControllersComponent } from '../components/XRControllersComponent';
 import { ListenerBindingData } from "../interfaces/ListenerBindingData";
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
 import { InputValue } from "../interfaces/InputValue";
@@ -13,7 +16,7 @@ import { NumericalType } from "../../common/types/NumericalTypes";
 import { InputAlias } from "../types/InputAlias";
 import { handleInputPurge } from "../behaviors/handleInputPurge";
 import { DomEventBehaviorValue } from "../../common/interfaces/DomEventBehaviorValue";
-import { Engine } from "../../ecs/classes/Engine";
+
 /**
  * Input System
  *
@@ -47,8 +50,11 @@ export class InputSystem extends System {
 
   public execute(delta: number): void {
     // Handle XR input
-  //  this.queryResults.xrSession.added?.forEach(entity => initializeSession(entity));
-
+    this.queryResults.controllersComponent.added?.forEach(entity => addPhysics(entity));
+    this.queryResults.controllersComponent.all?.forEach(entity => {
+      updatePhysics(entity)
+    });
+    this.queryResults.controllersComponent.removed?.forEach(entity => removePhysics(entity));
     // Called every frame on all input components
     this.queryResults.inputs.all.forEach(entity => {
       if (!hasComponent(entity, Input)) {
@@ -151,5 +157,6 @@ InputSystem.queries = {
       removed: true
     }
   },
-  xrSession: { components: [WebXRSession], listen: { added: true } }
+  xrSession: { components: [WebXRSession], listen: { added: true } },
+  controllersComponent: { components: [XRControllersComponent], listen: { added: true, removed: true } }
 };
