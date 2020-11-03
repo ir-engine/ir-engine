@@ -43,7 +43,9 @@ export function connectToInstanceServer () {
       const locationState = getState().get('locations');
       const currentLocation = locationState.get('currentLocation').get('location');
       console.log('Connect to instance server');
+      console.log(MediaStreamComponent.instance);
       const videoActive = MediaStreamComponent.instance.camVideoProducer != null || MediaStreamComponent.instance.camAudioProducer != null;
+      console.log(videoActive)
       // TODO: Disconnected 
       // await (Network.instance.transport as any).endVideoChat();
       // await (Network.instance.transport as any).leave();

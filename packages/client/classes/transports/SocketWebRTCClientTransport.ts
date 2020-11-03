@@ -124,6 +124,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       this.socket = ioclient(`${address as string}:${port.toString()}/realtime`, {
         query: query
       });
+      console.log('Made new development socketio');
     } else {
       this.socket = ioclient(`${gameserver}/realtime`, {
         path: `/socket.io/${address as string}/${port.toString()}`,
@@ -195,6 +196,15 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       this.socket.disconnect();
       this.socket?.close();
     });
+    this.socket.on(MessageTypes.Kick.toString(), async () => {
+      console.log("TODO: SNACKBAR HERE");
+      console.log('Socket received kick message');
+      await this.endVideoChat();
+      console.log('Post-kick endVideoChat finished, now calling leave');
+      await this.leave();
+      console.log('Post-kick leave finished');
+      this.socket.close();
+    });
     this.socket.on(MessageTypes.WebRTCConsumeData.toString(), async (options) => {
     console.log("Data consumer creation");
     const dataConsumer = await this.instanceRecvTransport.consumeData(options);
@@ -213,6 +223,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     }); // Handle message received
   });
     this.socket.on(MessageTypes.WebRTCCreateProducer.toString(), async (socketId, mediaTag, producerId, localPartyId) => {
+      console.log('Got WebRTC CreateProducer for producer ' + producerId);
       const selfProducerIds = [
           MediaStreamComponent.instance.camVideoProducer?.id,
           MediaStreamComponent.instance.camAudioProducer?.id
@@ -276,10 +287,12 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       console.log('Video track to send:');
       console.log(MediaStreamComponent.instance.mediaStream.getVideoTracks()[0]);
       let transport;
+      console.log(partyId)
       if (partyId === 'instance') {
         transport = this.instanceSendTransport;
       } else {
-        if (this.partySendTransport == null || this.partySendTransport.closed === true) [transport,] = await Promise.all([this.initSendTransport(partyId), this.initReceiveTransport(partyId)]);
+        console.log(this.partySendTransport);
+        if (this.partySendTransport == null || this.partySendTransport.closed === true || this.partySendTransport.connectionState === 'disconnected') [transport,] = await Promise.all([this.initSendTransport(partyId), this.initReceiveTransport(partyId)]);
         else transport = this.partySendTransport;
       }
       MediaStreamComponent.instance.camVideoProducer = await transport.produce({
@@ -364,43 +377,56 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   // }
 
   async endVideoChat(leftParty?: boolean): Promise<boolean> {
-    if (MediaStreamComponent.instance?.camVideoProducer) {
-      await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
-        producerId: MediaStreamComponent.instance.camVideoProducer.id
-      });
-      await MediaStreamComponent.instance.camVideoProducer?.close();
-    }
-    if (MediaStreamComponent.instance?.camAudioProducer) {
-      await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
-        producerId: MediaStreamComponent.instance.camAudioProducer.id
-      });
-      await MediaStreamComponent.instance.camAudioProducer?.close();
-    }
-    if (MediaStreamComponent.instance?.screenVideoProducer) {
-      await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
-        producerId: MediaStreamComponent.instance.screenVideoProducer.id
-      });
-      await MediaStreamComponent.instance.screenVideoProducer?.close();
-    }
-    if (MediaStreamComponent.instance?.screenAudioProducer) {
-      await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
-        producerId: MediaStreamComponent.instance.screenAudioProducer.id
-      });
-      await MediaStreamComponent.instance.screenAudioProducer?.close();
-    }
+    try {
+      console.log('Ending videochat');
+      console.log(this.socket);
+      if (MediaStreamComponent.instance?.camVideoProducer) {
+        if (this.socket?.connected === true) await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
+          producerId: MediaStreamComponent.instance.camVideoProducer.id
+        });
+        await MediaStreamComponent.instance.camVideoProducer?.close();
+      }
+      console.log('Closed cam video producer');
+      if (MediaStreamComponent.instance?.camAudioProducer) {
+        if (this.socket?.connected === true) await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
+          producerId: MediaStreamComponent.instance.camAudioProducer.id
+        });
+        await MediaStreamComponent.instance.camAudioProducer?.close();
+      }
+      console.log('Closed cam audio producer');
+      if (MediaStreamComponent.instance?.screenVideoProducer) {
+        if (this.socket?.connected === true) await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
+          producerId: MediaStreamComponent.instance.screenVideoProducer.id
+        });
+        await MediaStreamComponent.instance.screenVideoProducer?.close();
+      }
+      if (MediaStreamComponent.instance?.screenAudioProducer) {
+        if (this.socket?.connected === true) await this.request(MessageTypes.WebRTCCloseProducer.toString(), {
+          producerId: MediaStreamComponent.instance.screenAudioProducer.id
+        });
+        await MediaStreamComponent.instance.screenAudioProducer?.close();
+      }
+      console.log('Closed screen audio and video producers');
 
-    MediaStreamComponent.instance?.consumers.map(async (c) => {
-      await this.request(MessageTypes.WebRTCCloseConsumer.toString(), {
-        consumerId: c.id
+      MediaStreamComponent.instance?.consumers.map(async (c) => {
+        if (this.socket?.connected === true) await this.request(MessageTypes.WebRTCCloseConsumer.toString(), {
+          consumerId: c.id
+        });
+        await c.close();
       });
-      await c.close();
-    });
-    if (leftParty === true) {
-      if (this.partyRecvTransport != null && this.partyRecvTransport.closed !== true) await this.partyRecvTransport.close();
-      if (this.partySendTransport != null && this.partySendTransport.closed !== true) await this.partySendTransport.close();
+      console.log('Closed all consumers');
+      if (leftParty === true) {
+        if (this.partyRecvTransport != null && this.partyRecvTransport.closed !== true) await this.partyRecvTransport.close();
+        if (this.partySendTransport != null && this.partySendTransport.closed !== true) await this.partySendTransport.close();
+      }
+      console.log('Resetting producer');
+      this.resetProducer();
+      console.log('Finished ending video chat');
+      return true;
+    } catch(err) {
+      console.log('EndvideoChat error');
+      console.log(err);
     }
-    this.resetProducer();
-    return true;
   }
 
   resetProducer(): void {
@@ -454,6 +480,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         MediaStreamComponent.instance.consumers = [];
       }
       if (this.socket && this.socket.close) {
+
         this.socket.close();
       }
       this.leaving = false;
@@ -472,10 +499,14 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === mediaTag
     );
 
+    console.log('subscribeToTrack sending WebRTCReceiveTrack');
     // ask the server to create a server-side consumer object and send us back the info we need to create a client-side consumer
     const consumerParameters = await this.request(MessageTypes.WebRTCReceiveTrack.toString(),
       { mediaTag, mediaPeerId: peerId, rtpCapabilities: this.mediasoupDevice.rtpCapabilities, partyId: partyId }
     );
+
+    console.log('ReceiveTrack returned');
+    console.log(consumerParameters);
 
     console.log(`Requesting consumer for peer ${peerId} of type ${mediaTag} at ${new Date()}`);
 
@@ -556,6 +587,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     let transport;
     const { transportOptions } = await this.request(MessageTypes.WebRTCTransportCreate.toString(), { direction, sctpCapabilities: this.mediasoupDevice.sctpCapabilities, partyId: partyId});
 
+    console.log('New transport options:');
+    console.log(transportOptions)
     if (direction === "recv")
       transport = await this.mediasoupDevice.createRecvTransport(transportOptions);
     else if (direction === "send")
