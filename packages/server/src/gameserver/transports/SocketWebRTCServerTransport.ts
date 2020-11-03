@@ -296,16 +296,15 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
                 // Start listening for a JoinWorld message
                 socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) => {
-                    // If we are already logged in, kick the other socket
-                    if (Network.instance.clients[userId] !== undefined &&
-                        Network.instance.clients[userId].socketId !== socket.id) {
-                        console.log("Client already exists, kicking the old client and disconnecting");
-                        Network.instance.clients[userId].socket.emit(MessageTypes.Kick.toString());
-                        Network.instance.clients[userId].socket.disconnect();
-                    }
-
                     logger.info("JoinWorld received");
                     try {
+                        // If we are already logged in, kick the other socket
+                        if (Network.instance.clients[userId] !== undefined &&
+                            Network.instance.clients[userId].socketId !== socket.id) {
+                            console.log("Client already exists, kicking the old client and disconnecting");
+                            Network.instance.clients[userId].socket.emit(MessageTypes.Kick.toString());
+                            Network.instance.clients[userId].socket.disconnect();
+                        }
                         // TODO: Refactor as maps
                         Object.keys(Network.instance.networkObjects).forEach((key: string) => {
                             const networkObject = Network.instance.networkObjects[key];
@@ -480,6 +479,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
 
                         Network.instance.worldState.clientsDisconnected.push({ userId });
+                        console.log('Disconnecting clients for user ' + userId);
                         if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close();
                         if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close();
                         if (disconnectedClient?.partyRecvTransport) disconnectedClient.partyRecvTransport.close();
@@ -522,7 +522,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 try {
                     const userId = this.getUserIdFromSocketId(socket.id);
                     const { direction, peerId, sctpCapabilities, partyId } = Object.assign(data, { peerId: userId });
-                    logger.info("WebRTCTransportCreateRequest: " + peerId + " " + direction);
+                    console.log(`WebRTCTransportCreateRequest: ${peerId} ${partyId} ${direction}`);
 
                     const transport: WebRtcTransport = await this.createWebRtcTransport(
                         { peerId, direction, sctpCapabilities, partyId }
@@ -630,7 +630,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             socket.on(MessageTypes.WebRTCTransportClose.toString(), async (data, callback) => {
                 try {
                     const userId = this.getUserIdFromSocketId(socket.id);
-                    logger.info("close-transport for user: " + userId);
+                    console.log("close-transport for user: " + userId);
                     const { transportId } = data;
                     const transport = MediaStreamComponent.instance.transports[transportId];
                     if (transport != null) await this.closeTransport(transport);
@@ -661,9 +661,12 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             socket.on(MessageTypes.WebRTCSendTrack.toString(), async (data, callback) => {
                 try {
                     const userId = this.getUserIdFromSocketId(socket.id);
-                    logger.info('Send Track handler');
+                    console.log('Send Track handler');
                     const { transportId, kind, rtpParameters, paused = false, appData } = data,
                         transport = MediaStreamComponent.instance.transports[transportId];
+                    console.log(MediaStreamComponent.instance.transports);
+                    console.log('Transport to send with:');
+                    console.log(transport);
 
                     if (transport != null) {
                         const producer = await transport.produce({
@@ -691,7 +694,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         Object.keys(Network.instance.clients).forEach((key) => {
                             const client = Network.instance.clients[key];
                             if (client.userId !== userId) {
-                                this.socketIO.to(client.socketId).emit(MessageTypes.WebRTCCreateProducer.toString(), userId, appData.mediaTag, producer.id, appData.partyId);
+                                client.socket.emit(MessageTypes.WebRTCCreateProducer.toString(), userId, appData.mediaTag, producer.id, appData.partyId);
                             }
                         });
                         callback({ id: producer.id });
@@ -711,7 +714,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             socket.on(MessageTypes.WebRTCReceiveTrack.toString(), async (data, callback) => {
                 try {
                     const userId = this.getUserIdFromSocketId(socket.id);
-                    logger.info('Receive Track handler');
+                    console.log('Receive Track handler');
                     const { mediaPeerId, mediaTag, rtpCapabilities, partyId } = data;
                     const producer = MediaStreamComponent.instance.producers.find(
                         p => p._appData.mediaTag === mediaTag && p._appData.peerId === mediaPeerId && p._appData.partyId === partyId
@@ -725,7 +728,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     }
 
                     const transport = Object.values(MediaStreamComponent.instance.transports).find(
-                        t => (t as any)._appData.peerId === userId && (t as any)._appData.clientDirection === "recv" && (t as any)._appData.partyId === partyId
+                        t => (t as any)._appData.peerId === userId && (t as any)._appData.clientDirection === "recv" && (t as any)._appData.partyId === partyId && t.closed === false
                     );
 
                     const consumer = await (transport as any).consume({
@@ -875,7 +878,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     const hostClient = Object.entries(Network.instance.clients).find(([name, client]) => {
                         return client.media[producer.appData.mediaTag]?.producerId === producerId;
                     });
-                    this.socketIO.to(hostClient[1].socketId).emit(MessageTypes.WebRTCResumeProducer.toString(), producer.id);
+                    hostClient[1].socket.emit(MessageTypes.WebRTCResumeProducer.toString(), producer.id);
                     callback({ resumed: true });
                 } catch (err) {
                     logger.error('WebRTC ResumeProducer error');
@@ -898,7 +901,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         const hostClient = Object.entries(Network.instance.clients).find(([name, client]) => {
                             return client.media[producer.appData.mediaTag]?.producerId === producerId;
                         });
-                        this.socketIO.to(hostClient[1].socketId).emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true);
+                        hostClient[1].socket.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true);
                     }
                     callback({ paused: true });
                 } catch (err) {
@@ -910,91 +913,103 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     }
 
     validateNetworkObjects(): void {
-        for (const client in Network.instance.clients) {
-            // Validate that user has phoned home in last 5 seconds
-            if (Date.now() - Network.instance.clients[client].lastSeenTs > 5000) {
-                console.log("Removing client ", client, " due to activity");
-                if (!Network.instance.clients[client])
-                    return console.warn('Client is not in client list');
+        try {
+            for (const client in Network.instance.clients) {
+                // Validate that user has phoned home in last 5 seconds
+                if (Date.now() - Network.instance.clients[client].lastSeenTs > 5000) {
+                    console.log("Removing client ", client, " due to activity");
+                    if (!Network.instance.clients[client])
+                        return console.warn('Client is not in client list');
 
-                const disconnectedClient = Object.assign({}, Network.instance.clients[client]);
+                    const disconnectedClient = Object.assign({}, Network.instance.clients[client]);
 
-                Network.instance.worldState.clientsDisconnected.push({ client });
-                if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close();
-                if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close();
-                if (disconnectedClient?.partyRecvTransport) disconnectedClient.partyRecvTransport.close();
-                if (disconnectedClient?.partySendTransport) disconnectedClient.partySendTransport.close();
+                    Network.instance.worldState.clientsDisconnected.push({client});
+                    console.log('Disconnected Client:');
+                    console.log(disconnectedClient)
+                    if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close();
+                    if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close();
+                    if (disconnectedClient?.partyRecvTransport) disconnectedClient.partyRecvTransport.close();
+                    if (disconnectedClient?.partySendTransport) disconnectedClient.partySendTransport.close();
 
-                // Find all network objects that the disconnecting client owns and remove them
-                const networkObjectsClientOwns = [];
+                    // Find all network objects that the disconnecting client owns and remove them
+                    const networkObjectsClientOwns = [];
 
-                // Loop through network objects in world
-                for (const obj in Network.instance.networkObjects)
-                    // If this client owns the object, add it to our array
-                    if (Network.instance.networkObjects[obj].ownerId === client)
-                        networkObjectsClientOwns.push(Network.instance.networkObjects[obj]);
+                    // Loop through network objects in world
+                    for (const obj in Network.instance.networkObjects)
+                        // If this client owns the object, add it to our array
+                        if (Network.instance.networkObjects[obj].ownerId === client)
+                            networkObjectsClientOwns.push(Network.instance.networkObjects[obj]);
 
-                // Remove all objects for disconnecting user
-                networkObjectsClientOwns.forEach(obj => {
-                    // Get the entity attached to the NetworkObjectComponent and remove it
-                    console.log("Removed entity ", (obj.component.entity as Entity).id, " for user ", client);
-                    const removeMessage = { networkId: obj.networkId };
-                    Network.instance.worldState.destroyObjects.push(removeMessage);
-                    // if (Network.instance.worldState.inputs[obj.networkId])
-                    delete Network.instance.worldState.inputs[obj.networkId];
-                    removeEntity(obj.component.entity);
-                });
+                    // Remove all objects for disconnecting user
+                    networkObjectsClientOwns.forEach(obj => {
+                        // Get the entity attached to the NetworkObjectComponent and remove it
+                        console.log("Removed entity ", (obj.component.entity as Entity).id, " for user ", client);
+                        const removeMessage = {networkId: obj.networkId};
+                        Network.instance.worldState.destroyObjects.push(removeMessage);
+                        // if (Network.instance.worldState.inputs[obj.networkId])
+                        delete Network.instance.worldState.inputs[obj.networkId];
+                        removeEntity(obj.component.entity);
+                    });
 
-                if (Network.instance.clients[client])
-                    delete Network.instance.clients[client];
+                    if (Network.instance.clients[client])
+                        delete Network.instance.clients[client];
+                }
             }
+            Object.keys(Network.instance.networkObjects).forEach((key: string) => {
+                const networkObject = Network.instance.networkObjects[key];
+                // Validate that the object has an associated user and doesn't belong to a non-existant user
+                if (networkObject.ownerId !== undefined && Network.instance.clients[networkObject.ownerId] !== undefined)
+                    return;
+
+                // If it does, tell clients to destroy it
+                const removeMessage = {networkId: networkObject.component.networkId};
+                Network.instance.worldState.destroyObjects.push(removeMessage);
+                logger.info("Culling ownerless object: ", networkObject.component.networkId, "owned by ", networkObject.ownerId);
+
+                // get network object
+                const entity = networkObject.component.entity;
+
+                // Remove the entity and all of it's components
+                removeEntity(entity);
+
+                // Remove network object from list
+                delete Network.instance.networkObjects[key];
+                console.log(key, " removed from simulation");
+            });
+        } catch(err) {
+            console.log('ValidateNetworkObject error');
+            console.log(err);
         }
-        Object.keys(Network.instance.networkObjects).forEach((key: string) => {
-            const networkObject = Network.instance.networkObjects[key];
-            // Validate that the object has an associated user and doesn't belong to a non-existant user
-            if (networkObject.ownerId !== undefined && Network.instance.clients[networkObject.ownerId] !== undefined)
-                return;
-
-            // If it does, tell clients to destroy it
-            const removeMessage = { networkId: networkObject.component.networkId };
-            Network.instance.worldState.destroyObjects.push(removeMessage);
-            logger.info("Culling ownerless object: ", networkObject.component.networkId, "owned by ", networkObject.ownerId);
-
-            // get network object
-            const entity = networkObject.component.entity;
-
-            // Remove the entity and all of it's components
-            removeEntity(entity);
-
-            // Remove network object from list
-            delete Network.instance.networkObjects[key];
-            console.log(key, " removed from simulation");
-        })
     }
 
     // start mediasoup with a single worker and router
     async startMediasoup(): Promise<void> {
-        logger.info("Starting WebRTC Server");
-        // Initialize roomstate
-        this.worker = await createWorker({
-            logLevel: 'debug',
-            rtcMinPort: localConfig.mediasoup.worker.rtcMinPort,
-            rtcMaxPort: localConfig.mediasoup.worker.rtcMaxPort,
-            // dtlsCertificateFile: serverConfig.server.certPath,
-            // dtlsPrivateKeyFile: serverConfig.server.keyPath,
-            logTags: ['sctp']
-        });
+        try {
+            logger.info("Starting WebRTC Server");
+            // Initialize roomstate
+            this.worker = await createWorker({
+                logLevel: 'debug',
+                rtcMinPort: localConfig.mediasoup.worker.rtcMinPort,
+                rtcMaxPort: localConfig.mediasoup.worker.rtcMaxPort,
+                // dtlsCertificateFile: serverConfig.server.certPath,
+                // dtlsPrivateKeyFile: serverConfig.server.keyPath,
+                logTags: ['sctp']
+            });
 
-        this.worker.on("died", () => {
-            console.error("mediasoup worker died (this should never happen)");
-            process.exit(1);
-        });
+            this.worker.on("died", () => {
+                console.error("mediasoup worker died (this should never happen)");
+                process.exit(1);
+            });
 
-        logger.info("Created Mediasoup worker");
+            logger.info("Created Mediasoup worker");
 
-        const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[];
-        this.routers = { instance: await this.worker.createRouter({ mediaCodecs }) };
-        logger.info("Worker created router");
+            const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[];
+            this.routers = {instance: await this.worker.createRouter({mediaCodecs})};
+            logger.info("Worker created router");
+        } catch(err) {
+            console.log('startMediasoup error');
+            console.log(err);
+        }
     }
 
     sendCurrentProducers = (socket: SocketIO.Socket, partyId?: string) => async (
@@ -1008,9 +1023,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     if (name === userId || value.media == null || value.socketId == null) return;
                     logger.info(`Sending media for ${name}`);
                     Object.entries(value.media).map(([subName, subValue]) => {
-                        logger.info(`Emitting createProducer for user ${userId} of type ${subName}`);
-                        logger.info(subValue);
-                        if (partyId === (subValue as any).partyId) this.socketIO.to(selfClient.socketId).emit(MessageTypes.WebRTCCreateProducer.toString(), value.userId, subName, producer.id, partyId);
+                        if (partyId === (subValue as any).partyId) selfClient.socket.emit(MessageTypes.WebRTCCreateProducer.toString(), value.userId, subName, producer.id, partyId);
                     });
                 });
             }
@@ -1083,7 +1096,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
     async closeTransport(transport): Promise<void> {
         try {
-            logger.info("closing transport " + transport.id, transport.appData);
+            console.log("closing transport " + transport.id, transport.appData);
             // our producer and consumer event handlers will take care of
             // calling closeProducer() and closeConsumer() on all the producers
             // and consumers associated with this transport
@@ -1097,7 +1110,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
     async closeProducer(producer): Promise<void> {
         try {
-            logger.info("closing producer " + producer.id, producer.appData);
+            console.log("closing producer " + producer.id, producer.appData);
             await producer.close();
 
             MediaStreamComponent.instance.producers = MediaStreamComponent.instance.producers.filter(p => p.id !== producer.id);
@@ -1139,14 +1152,14 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
         MediaStreamComponent.instance.consumers = MediaStreamComponent.instance.consumers.filter(c => c.id !== consumer.id);
         Object.entries(Network.instance.clients).forEach(([, value]) => {
-            this.socketIO.to(value.socketId).emit(MessageTypes.WebRTCCloseConsumer.toString(), consumer.id);
+            value.socket.emit(MessageTypes.WebRTCCloseConsumer.toString(), consumer.id);
         });
 
-        delete Network.instance.clients[consumer.appData.peerId].consumerLayers[consumer.id];
+        delete Network.instance.clients[consumer.appData.peerId]?.consumerLayers[consumer.id];
     }
 
     async createWebRtcTransport({ peerId, direction, sctpCapabilities, partyId }: CreateWebRtcTransportParams): Promise<WebRtcTransport> {
-        logger.info("Creating Mediasoup transport for", partyId);
+        console.log("Creating Mediasoup transport for", partyId);
         try {
             const { listenIps, initialAvailableOutgoingBitrate } = localConfig.mediasoup.webRtcTransport;
             const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[];
@@ -1166,6 +1179,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 appData: { peerId, partyId, clientDirection: direction }
             });
 
+            console.log('New transport to return:')
+            console.log(transport);
             return transport;
         } catch (err) {
             logger.error('WebRTC create transport error');
