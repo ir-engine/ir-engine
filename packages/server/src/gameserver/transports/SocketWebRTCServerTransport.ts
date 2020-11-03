@@ -137,27 +137,23 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     transport: Transport
     isInitialized = false
     app: any
+    dataProducers: DataProducer[] = [] 
 
     constructor(app) {
         this.app = app;
+        setInterval(() => this.sendData("data"), 1000);
     }
 
     sendReliableData(message: any): void {
         if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.ReliableMessage.toString(), message);
     }
 
-    async sendData(data: any, channel = 'default'): Promise<UnreliableMessageReturn> {
-        try {
-            return await this.transport.produceData({
-                appData: { data },
-                sctpStreamParameters: data.sctpStreamParameters,
-                label: channel,
-                protocol: 'raw'
-            });
-        } catch (error) {
-            logger.error(error);
-        }
+    sendData(data: any): void {
+        this.dataProducers.forEach(producer => {
+            producer.send(JSON.stringify(data));
+        })
     }
+
 
     handleKick(socket: any) {
         console.log("Kicking ", socket.id);
@@ -575,13 +571,15 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 }
             });
 
+
             socket.on(MessageTypes.WebRTCProduceData.toString(), async (params, callback) => {
+                console.log("Produce data handler called");
                 logger.info('Produce Data handler');
                 try {
                     const userId = this.getUserIdFromSocketId(socket.id);
                     if (!params.label) throw ({ error: 'data producer label i.e. channel name is not provided!' });
                     const { transportId, sctpStreamParameters, label, protocol, appData } = params;
-                    logger.info(`Data channel label: ${label} -- user id: ` + userId);
+                    console.log(`Data channel label: ${label} -- user id: ` + userId);
                     logger.info("Data producer params", params);
                     const transport: Transport = MediaStreamComponent.instance.transports[transportId];
                     const options: DataProducerOptions = {
@@ -591,15 +589,19 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                         appData: { ...(appData || {}), peerID: userId, transportId }
                     };
                     const dataProducer = await transport.produceData(options);
-
+                    this.dataProducers.push(dataProducer);
+                    console.log(`user ${userId} producing data`);
                     logger.info(`user ${userId} producing data`);
                     Network.instance.clients[userId].dataProducers.set(label, dataProducer);
                     // if our associated transport closes, close ourself, too
                     dataProducer.on("transportclose", () => {
+                        this.dataProducers.splice(this.dataProducers.indexOf(dataProducer), 1);
                         logger.info("data producer's transport closed: " + dataProducer.id);
                         dataProducer.close();
                         Network.instance.clients[userId].dataProducers.delete(label);
                     });
+                    // this.handleConsumeDataEvent(socket);
+                    console.log("this.handleConsumeDataEvent(socket);");
                     // Possibly do stuff with appData here
                     logger.info("Sending dataproducer id to client:" + dataProducer.id);
                     return callback({ id: dataProducer.id });
@@ -1036,50 +1038,49 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         }
     }
     // Create consumer for each client!
-    handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
-        dataProducer: DataProducer
-    ): Promise<void> => {
-        const userId = this.getUserIdFromSocketId(socket.id);
-        logger.info('Data Consumer being created on server by client: ' + userId);
-        Object.keys(Network.instance.clients).filter(id => id !== userId).forEach(async (otherUserId: string) => {
-            try {
-                const transport: Transport = Network.instance.clients[otherUserId].instanceRecvTransport;
-                if (transport != null) {
-                    const dataConsumer = await transport.consumeData({
-                        dataProducerId: dataProducer.id,
-                        appData: { peerId: userId, transportId: transport.id },
-                        maxPacketLifeTime:
-                            dataProducer.sctpStreamParameters.maxPacketLifeTime,
-                        maxRetransmits: dataProducer.sctpStreamParameters.maxRetransmits,
-                        ordered: false,
-                    });
-                    logger.info('Data Consumer created!');
-                    dataConsumer.on('producerclose', () => {
-                        dataConsumer.close();
-                        Network.instance.clients[userId].dataConsumers.delete(
-                            dataProducer.id
-                        );
-                    });
-                    logger.info('Setting data consumer to room state');
-                    Network.instance.clients[userId].dataConsumers.set(
-                        dataProducer.id,
-                        dataConsumer
+// Create consumer for each client!
+handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
+    dataProducer: DataProducer
+): Promise<void> => {
+    const userId = this.getUserIdFromSocketId(socket.id);
+    console.log('Data Consumer being created on server by client: ' + userId);
+            const transport: Transport = Network.instance.clients[userId].instanceRecvTransport;
+                const dataConsumer = await transport.consumeData({
+                    dataProducerId: dataProducer.id,
+                    appData: { peerId: userId, transportId: transport.id },
+                    maxPacketLifeTime:
+                        dataProducer.sctpStreamParameters.maxPacketLifeTime,
+                    maxRetransmits: dataProducer.sctpStreamParameters.maxRetransmits,
+                    ordered: false,
+                });
+                dataConsumer.on('message', (message) => {
+                    console.log("Message received!");
+                    console.log(message)
+                });
+                console.log('Data Consumer created!');
+                dataConsumer.on('producerclose', () => {
+                    dataConsumer.close();
+                    Network.instance.clients[userId].dataConsumers.delete(
+                        dataProducer.id
                     );
-                    // Currently Creating a consumer for each client and making it subscribe to the current producer
-                    socket.to(otherUserId).emit(MessageTypes.WebRTCConsumeData.toString(), {
-                        dataProducerId: dataProducer.id,
-                        sctpStreamParameters: dataConsumer.sctpStreamParameters,
-                        label: dataConsumer.label,
-                        id: dataConsumer.id,
-                        appData: dataConsumer.appData,
-                        protocol: 'json',
-                    } as MediaSoupClientTypes.DataConsumerOptions);
-                }
-            } catch (error) {
-                logger.error(error);
-            }
-        });
-    }
+                });
+                logger.info('Setting data consumer to room state');
+                Network.instance.clients[userId].dataConsumers.set(
+                    dataProducer.id,
+                    dataConsumer
+                );
+
+                const dataProducerOut = Network.instance.clients[userId].dataProducers.get('default');
+                // Currently Creating a consumer for each client and making it subscribe to the current producer
+                socket.emit(MessageTypes.WebRTCConsumeData.toString(), {
+                    dataProducerId:dataProducerOut.id,
+                    sctpStreamParameters: dataConsumer.sctpStreamParameters,
+                    label: dataConsumer.label,
+                    id: dataConsumer.id,
+                    appData: dataConsumer.appData,
+                    protocol: 'raw',
+                } as MediaSoupClientTypes.DataConsumerOptions);
+}
 
     async closeTransport(transport): Promise<void> {
         try {
