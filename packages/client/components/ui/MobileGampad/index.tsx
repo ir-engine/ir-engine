@@ -4,18 +4,9 @@ import { Thumbsticks } from '@xr3ngine/engine/src/common/enums/Thumbsticks';
 import { GamepadButtons } from "@xr3ngine/engine/src/input/enums/GamepadButtons";
 import styles from './MobileGamepad.module.scss';
 import { TouchApp } from '@styled-icons/material/TouchApp';
-import { selectAppOnBoardingStep } from '../../../redux/app/selector';
-import { connect } from 'react-redux';
 import { generalStateList } from '../../../redux/app/actions';
 
-
-const mapStateToProps = (state: any): any => {
-  return {   
-    onBoardingStep: selectAppOnBoardingStep(state)
-  };
-};
-
-export type MobileGamepadProps = {
+type MobileGamepadProps = {
   hovered?: boolean | false;
   layout?: string ;
   onBoardingStep?: number | null;
@@ -37,12 +28,10 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered,l
     },
   ];
 
-  console.log('onBoardingStep=', onBoardingStep, ' generalStateList.TUTOR_INTERACT = ', generalStateList.TUTOR_INTERACT);
-
   const buttons = buttonsConfig.map(((value, index) => {
     return (<div
       key={index}
-      className={styles.controllButton + ' ' + styles[`gamepadButton_${value.label}`] + ' ' + (hovered || onBoardingStep === generalStateList.TUTOR_INTERACT  ? styles.availableButton : styles.notAvailableButton)}
+      className={styles.controllButton + ' ' + styles[`gamepadButton_${value.label}`] + ' ' + (hovered || onBoardingStep >= generalStateList.TUTOR_INTERACT  ? styles.availableButton : styles.notAvailableButton)}
       onPointerDown={ (): void => triggerButton(value.button, true) }
       onPointerUp={ (): void => triggerButton(value.button, false) }
       onTouchStart={ (): void => triggerButton(value.button, true) }
@@ -81,7 +70,7 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered,l
   }, []);
 
 
-  return   (<>
+  return   <>
       <div
         className={styles.stickLeft}
         ref={leftContainer}
@@ -89,7 +78,7 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered,l
       <div className={styles.controlButtonContainer}>
         { buttons }
       </div>
-    </> );
+    </> ;
 };
 
-export default connect(mapStateToProps)(MobileGamepad);
+export default MobileGamepad;

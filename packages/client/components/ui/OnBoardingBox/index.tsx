@@ -35,11 +35,10 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
     InputComponent.schema.inputAxisBehaviors[DefaultInput.LOOKTURN_PLAYERONE] = {changed : [{behavior:actorLooked}]};
   }
 
-
   const actorLooked = () =>{
+    store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_MOVE));
     const InputComponent = getMutableComponent(actorEntity, Input);
     delete InputComponent.schema.inputAxisBehaviors[DefaultInput.LOOKTURN_PLAYERONE];
-    store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_MOVE));
    
     //gamepad
     const gamepadInputMap = {
@@ -63,15 +62,14 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
     InputComponent.schema.inputButtonBehaviors[DefaultInput.BACKWARD].started.push({behavior:actorMoved});
     InputComponent.schema.inputButtonBehaviors[DefaultInput.LEFT].started.push({behavior:actorMoved});
     InputComponent.schema.inputButtonBehaviors[DefaultInput.RIGHT].started.push({behavior:actorMoved});
-    
-    
+        
     //
     InputComponent.schema.inputAxisBehaviors[DefaultInput.MOVEMENT_PLAYERONE].started.push({behavior:actorMoved});
   }
 
   const actorInteracted = () =>{
-    const InputComponent = getMutableComponent(actorEntity, Input);
     store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_UNMUTE));
+    const InputComponent = getMutableComponent(actorEntity, Input);
     InputComponent.schema = CharacterInputSchema;
   }
 
