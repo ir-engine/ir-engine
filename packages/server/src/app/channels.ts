@@ -78,6 +78,7 @@ export default (app: Application): void => {
             await app.service('user').patch(userId, {
               instanceId: (app as any).instance.id
             });
+            (connection as any).instanceId = (app as any).instance.id;
             // console.log('Patched user instanceId');
             app.channel(`instanceIds/${(app as any).instance.id as string}`).join(connection);
             if (user.partyId != null) {
@@ -86,9 +87,10 @@ export default (app: Application): void => {
                   partyId: user.partyId
                 }
               });
+              const party = await app.service('party').get(user.partyId);
               const partyUsers = (partyUserResult as any).data;
               const partyOwner = partyUsers.find((partyUser) => partyUser.isOwner === 1);
-              if (partyOwner?.userId === userId) {
+              if (partyOwner?.userId === userId && party.instanceId !== (app as any).instance.id) {
                 await app.service('party').patch(user.partyId, {
                   instanceId: (app as any).instance.id
                 });
@@ -117,6 +119,8 @@ export default (app: Application): void => {
     if ((process.env.KUBERNETES === 'true' && config.server.mode === 'realtime') || process.env.NODE_ENV === 'development' || config.server.mode === 'local') {
       try {
         const token = (connection as any).socketQuery?.token;
+        console.log('Disconnecting connection:');
+        console.log(connection);
         if (token != null) {
           const authResult = await app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {});
           const identityProvider = authResult['identity-provider'];
@@ -124,52 +128,57 @@ export default (app: Application): void => {
             const userId = identityProvider.userId;
             const user = await app.service('user').get(userId);
             logger.info('Socket disconnect from ' + userId);
-            const instanceId = process.env.KUBERNETES !== 'true' ? user.instanceId : (app as any).instance?.id;
+            const instanceId = process.env.KUBERNETES !== 'true' ? (connection as any).instanceId : (app as any).instance?.id;
             const instance = ((app as any).instance && instanceId != null) ? await app.service('instance').get(instanceId) : {};
-            if (user.instanceId === instanceId) {
+            console.log('instanceId: ' + instanceId);
+            console.log('user instanceId: ' + user.instanceId);
+
+            if (instanceId != null) {
               await app.service('instance').patch(instanceId, {
                 currentUsers: instance.currentUsers - 1
               }).catch((err) => {
                 console.warn("Failed to remove user, probably because instance was destroyed");
               });
 
-                await app.service('user').patch(null, {
-                  instanceId: null
-                }, {
-                  query: {
-                    id: user.id,
-                    instanceId: instanceId
-                  },
+              const user = await app.service('user').get(userId);
+              if (Network.instance.clients[userId] == null && process.env.KUBERNETES === 'true') await app.service('user').patch(null, {
+                instanceId: null
+              }, {
+                query: {
+                  id: user.id,
                   instanceId: instanceId
-                }).catch(() =>
-                  console.warn("Failed to patch user, probably because they don't have an ID yet")
-                )
-            }
+                },
+                instanceId: instanceId
+              }).catch((err) => {
+                console.warn("Failed to patch user, probably because they don't have an ID yet"),
+                    console.log(err);
+              });
 
-            app.channel(`instanceIds/${instanceId as string}`).leave(connection);
+              app.channel(`instanceIds/${instanceId as string}`).leave(connection);
 
-            if (instance.currentUsers < 1) {
-              console.log('Deleting instance ' + instanceId);
-              await app.service('instance').remove(instanceId);
-              if ((app as any).gsSubdomainNumber != null) {
-                await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
-                  allocated: false
-                });
+              if (instance.currentUsers < 1) {
+                console.log('Deleting instance ' + instanceId);
+                await app.service('instance').remove(instanceId);
+                if ((app as any).gsSubdomainNumber != null) {
+                  await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
+                    allocated: false
+                  });
+                }
+                if (process.env.KUBERNETES === 'true') {
+                  delete (app as any).instance;
+                }
+                const gsName = (app as any).gsName;
+                if (gsName !== undefined) {
+                  logger.info('App\'s gameserver name:');
+                  logger.info(gsName);
+                }
+                if ((app as any).gsSubdomainNumber != null) {
+                  await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
+                    allocated: false
+                  });
+                }
+                await (app as any).agonesSDK.shutdown();
               }
-              if (process.env.KUBERNETES === 'true') {
-                delete (app as any).instance;
-              }
-              const gsName = (app as any).gsName;
-              if(gsName !== undefined){
-                logger.info('App\'s gameserver name:');
-                logger.info(gsName);
-              }
-              if ((app as any).gsSubdomainNumber != null) {
-                await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
-                  allocated: false
-                });
-              }
-              await (app as any).agonesSDK.shutdown();
             }
           }
         }

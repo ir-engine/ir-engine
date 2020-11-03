@@ -102,6 +102,20 @@ export class InstanceProvision implements ServiceMethods<Data> {
             paramsCopy.query = {};
             await this.app.service('party-user').remove((partyUser as any).data[0].id, paramsCopy);
           }
+        } else if (partyOwner?.userId === userId && partyOwner?.user.instanceId) {
+          const partyInstance = await this.app.service('instance').get(partyOwner.user.instanceId);
+          if (partyInstance.locationId === locationId) {
+            if (process.env.KUBERNETES !== 'true') {
+              return getLocalServerIp();
+            }
+            const addressSplit = partyInstance.ipAddress.split(':');
+            console.log('addressSplit:');
+            console.log(addressSplit);
+            return {
+              ipAddress: addressSplit[0],
+              port: addressSplit[1]
+            };
+          }
         }
       }
       const friendsAtLocationResult = await this.app.service('user').Model.findAndCountAll({

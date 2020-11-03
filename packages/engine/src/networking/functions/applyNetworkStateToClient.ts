@@ -167,7 +167,7 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
       transformData.qZ,
       transformData.qW
     );
-    console.log("Updated transform on ", transformData.networkId);
-    console.log([transformData.x, transformData.y, transformData.z]);
+    // console.log("Updated transform on ", transformData.networkId);
+    // console.log([transformData.x, transformData.y, transformData.z]);
   });
 }
