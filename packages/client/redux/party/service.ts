@@ -13,6 +13,7 @@ import { dispatchAlertError } from '../alert/service';
 import store from './../store';
 import { Network } from '@xr3ngine/engine/src/networking/components/Network';
 import { provisionInstanceServer } from '../instanceConnection/service';
+import { endVideoChat } from '../../classes/transports/WebRTCFunctions';
 
 // import { Party } from '@xr3ngine/common/interfaces/Party'
 
@@ -153,7 +154,7 @@ client.service('party-user').on('removed', (params) => {
   store.dispatch(removedPartyUser(params.partyUser));
   if (params.partyUser.userId === selfUser.id) {
     console.log('Attempting to end video call');
-    (Network.instance?.transport as any)?.endVideoChat(true);
+    endVideoChat(true);
     // (Network.instance?.transport as any)?.leave();
   }
 });

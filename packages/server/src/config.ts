@@ -232,6 +232,4 @@ chargebeeInst.configure({
   api_key: config.chargebee.apiKey
 });
 
-console.log(inspect(config));
-
 export default config;

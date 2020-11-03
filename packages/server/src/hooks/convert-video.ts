@@ -110,7 +110,7 @@
 //       resolve();
 //     } catch (err) {
 //       console.log('uploadFile error');
-//       console.log(err);
+//       logger.error(err);
 //       reject(err);
 //     }
 //   });
@@ -164,7 +164,7 @@
 //     }, async (err: any, exists: any) => {
 //       if (err) {
 //         console.log('s3 error');
-//         console.log(err);
+//         logger.error(err);
 //         throw err;
 //       }
 //
@@ -185,7 +185,7 @@
 //               { cwd: localFilePath },
 //               (err: any, output: any) => {
 //                 if (err) {
-//                   console.log(err);
+//                   logger.error(err);
 //                   reject(err);
 //                 }
 //                 resolve();
@@ -202,7 +202,7 @@
 //                 { cwd: localFilePath },
 //                 (err: any, output: any) => {
 //                   if (err) {
-//                     console.log(err);
+//                     logger.error(err);
 //                     reject(err);
 //                   }
 //                   resolve(output);
@@ -230,7 +230,7 @@
 //             await promiseExec(ffmpegCommand);
 //           } catch (err) {
 //             console.log('ffmpeg error');
-//             console.log(err);
+//             logger.error(err);
 //             await fs.promises.rmdir(localFilePath, { recursive: true });
 //             throw err;
 //           }
@@ -241,7 +241,7 @@
 //             await uploadFile(outputdir, fileId, localContext, app, result.id);
 //           } catch (err) {
 //             console.log('Error in totality of file upload');
-//             console.log(err);
+//             logger.error(err);
 //             throw err;
 //           }
 //
@@ -252,7 +252,7 @@
 //           return;
 //         } catch (err) {
 //           console.log('Transcoding process error');
-//           console.log(err);
+//           logger.error(err);
 //
 //           throw err;
 //         }
@@ -269,7 +269,7 @@
 //           }, (err, data) => {
 //             if (err) {
 //               console.log('S3 error');
-//               console.log(err);
+//               logger.error(err);
 //               reject(err);
 //             }
 //
@@ -291,7 +291,7 @@
 //               { cwd: localFilePath },
 //               (err: any, output: any) => {
 //                 if (err) {
-//                   console.log(err);
+//                   logger.error(err);
 //                   reject(err);
 //                 }
 //                 resolve(output);

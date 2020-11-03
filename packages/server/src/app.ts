@@ -91,7 +91,7 @@ if (config.server.enabled) {
     }));
 
     (app as any).sync.ready.then(() => {
-      console.log('Feathers-sync started');
+      logger.info('Feathers-sync started');
     });
   }
 
@@ -127,10 +127,9 @@ if (config.server.enabled) {
 
     // Create new gameserver instance
     const gameServer = new WebRTCGameServer(app);
-    console.log("Created new gameserver instance");
-    console.log(gameServer);
+    logger.info("Created new gameserver instance");
   } else {
-    console.log('Did not create gameserver');
+    console.warn('Did not create gameserver');
   }
 
   app.use('/healthcheck', (req, res) => {
@@ -145,13 +144,13 @@ app.use(express.static(editorPath));
 app.all('/editor/*', (req, res) => res.sendFile(path.join(editorPath, 'editor/index.html')));
 
 process.on('exit', async () => {
-  console.log('Server exiting');
+  logger.info('Server exiting');
   const gsName = (app as any).gsName;
-  console.log('App\'s gameserver name:');
-  console.log(gsName);
-  console.log(gsName != null);
-  console.log(process.env.NODE_ENV !== 'development');
-  console.log((app as any).k8DefaultClient != null);
+  logger.info('App\'s gameserver name:');
+  logger.info(gsName);
+  logger.info(gsName != null);
+  logger.info(process.env.NODE_ENV !== 'development');
+  logger.info((app as any).k8DefaultClient != null);
   if ((app as any).gsSubdomainNumber != null) {
     await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
       allocated: false
@@ -160,14 +159,14 @@ process.on('exit', async () => {
 });
 
 process.on('SIGTERM', async () => {
-  console.log('Server exiting');
+  logger.info('Server exiting');
   const gsName = (app as any).gsName;
-  console.log('App\'s gameserver name:');
-  console.log(gsName);
-  console.log(gsName);
-  console.log(gsName != null);
-  console.log(process.env.NODE_ENV !== 'development');
-  console.log((app as any).k8DefaultClient != null);
+  logger.info('App\'s gameserver name:');
+  logger.info(gsName);
+  logger.info(gsName);
+  logger.info(gsName != null);
+  logger.info(process.env.NODE_ENV !== 'development');
+  logger.info((app as any).k8DefaultClient != null);
   if ((app as any).gsSubdomainNumber != null) {
     await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
       allocated: false

@@ -10,6 +10,7 @@ import { BadRequest } from '@feathersjs/errors';
 import * as pug from 'pug';
 import requireMainFilename from 'require-main-filename';
 import config from '../config';
+import logger from '../app/logger';
 
 
 
@@ -204,7 +205,7 @@ export default () => {
 
       return context;
     } catch (err) {
-      console.log(err);
+      logger.error(err);
     }
   };
 };

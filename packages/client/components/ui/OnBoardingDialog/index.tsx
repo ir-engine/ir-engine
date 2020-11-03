@@ -81,8 +81,7 @@ const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAv
     switch(onBoardingStep){
       case  generalStateList.SCENE_LOADED : { 
             isOpened=true; dialogText = 'Virtual Conference / Retail Demo'; submitButtonText =  'Join World';
-            // childrenBeforeText = <CardMedia image="packages/client/components/ui/assets/ArenaLogo.png" title="Arena Logo" />
-            submitButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.DEVICE_SETUP));
+            submitButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.AVATAR_SELECTION));
             break;
           }
       case generalStateList.DEVICE_SETUP: {

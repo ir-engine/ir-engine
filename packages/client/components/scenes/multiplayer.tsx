@@ -1,14 +1,12 @@
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { addObject3DComponent } from '@xr3ngine/engine/src/common/behaviors/Object3DBehaviors';
 import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
-import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
 import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
 import { createEntity, /*getComponent,*/ getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
-import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import React, { FunctionComponent, useEffect, useState } from 'react';
@@ -17,7 +15,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { AmbientLight, DirectionalLight, HemisphereLight } from 'three';
 // import { PlayerCharacter } from "../../../engine/src/templates/character/prefabs/PlayerCharacter";
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
-import { generalStateList, setAppOnBoardingStep, setAppLoaded } from '../../redux/app/actions';
+import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '../../redux/app/actions';
 import store from '../../redux/store';
 import LinearProgressComponent from '../ui/LinearProgress';
 import NetworkDebug from '../ui/NetworkDebug/NetworkDebug';
@@ -67,16 +65,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
     const InitializationOptions = {
       ...DefaultInitializationOptions,
       networking: {
-        enabled: true,
-        supportsMediaStreams: true,
         schema: networkSchema,
-      },
-      physics: {
-        enabled: true,
-      },
-      input: {
-        mobile: isMobileOrTablet(),
-      },
+      }
     };
     
     initializeEngine(InitializationOptions);

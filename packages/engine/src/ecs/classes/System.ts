@@ -1,5 +1,6 @@
 import { QUERY_COMPONENT_CHANGED, QUERY_ENTITY_ADDED, QUERY_ENTITY_REMOVED } from '../constants/Events';
 import { componentRegistered, hasRegisteredComponent, queryKeyFromComponents, registerComponent } from '../functions/ComponentFunctions';
+import { SystemUpdateType } from '../functions/SystemUpdateType';
 import { ComponentConstructor } from '../interfaces/ComponentInterfaces';
 import { Component } from './Component';
 import { Engine } from './Engine';
@@ -45,6 +46,8 @@ export abstract class System {
   executeTime: number
   initialized: boolean
 
+  updateType = SystemUpdateType.Free
+
   /**
    * The results of the queries.
    * Should be used inside of execute.
@@ -64,20 +67,7 @@ export abstract class System {
   enabled: boolean
   name: string
   _queries: {} = {}
-  abstract execute (delta: number, time: number): void
-
-  canExecute (delta: number): boolean {
-    if (this._mandatoryQueries.length === 0) return true;
-
-    for (let i = 0; i < this._mandatoryQueries.length; i++) {
-      const query = this._mandatoryQueries[i];
-      if (query.entities.length === 0) {
-        return false;
-      }
-    }
-
-    return true;
-  }
+  execute? (delta: number, time: number): void
 
   constructor (attributes?: SystemAttributes) {
     this.enabled = true;
@@ -138,21 +128,15 @@ export abstract class System {
         const q = queryConfig;
         if (q.listen) {
           validEvents.forEach(eventName => {
-            if (!this.execute) {
-              console.warn(
-                `System '${this.name}' has defined listen events (${validEvents.join(
-                  ', '
-                )}) for query '${queryName}' but it does not implement the 'execute' method.`
-              );
-            }
 
             // Is the event enabled on this system's query?
             if (q.listen[eventName]) {
               const event = q.listen[eventName];
-
+ 
               if (eventName === 'changed') {
                 query.reactive = true;
                 if (event === true) {
+  
                   // Any change on the entity from the components in the query
                   const eventList = (this.queryResults[queryName][eventName] = []);
                   query.eventDispatcher.addEventListener(QUERY_COMPONENT_CHANGED, entity => {
@@ -187,6 +171,7 @@ export abstract class System {
         Engine.queries.push(query);
       }
     }
+
     const c = (this.constructor as any).prototype;
     c.order = Engine.systems.length;
   }
