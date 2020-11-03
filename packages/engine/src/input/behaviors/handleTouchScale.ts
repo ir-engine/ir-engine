@@ -6,6 +6,7 @@ import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { MouseInput } from '../enums/MouseInput';
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { TouchInputs } from '../enums/TouchInputs';
+import { normalizeMouseCoordinates } from '../../common/functions/normalizeMouseCoordinates';
 
 /**
  * System behavior called whenever the mouse pressed
@@ -22,30 +23,50 @@ export const handleTouchScale: Behavior = (entity: Entity, args: { event: TouchE
   let s = 'Touch move.';
   // A list of contact points on a touch surface.
   if (args.event.targetTouches.length) {
-    s +=
-      ' x: ' +
-      Math.trunc(args.event.targetTouches[0].clientX) +
-      ', y: ' +
-      Math.trunc(args.event.targetTouches[0].clientY);
-      const value = (args.event as any).scale;
-      console.log(args)
-      console.log(value)
+    // s +=
+    //   ' x: ' +
+    //   Math.trunc(args.event.targetTouches[0].clientX) +
+    //   ', y: ' +
+    //   Math.trunc(args.event.targetTouches[0].clientY);
+    //   const value = (args.event as any).scale;
+    //   console.log(args)
+    //   console.log(value)
 
     if (args.event.targetTouches.length == 2) {
       // if ((args.event as any).scale) {
       //   debugger;
       // }
+      const normalizedPosition0 = normalizeMouseCoordinates(args.event.touches[0].clientX, args.event.touches[0].clientY, window.innerWidth, window.innerHeight);
+      const normalizedPosition1 = normalizeMouseCoordinates(args.event.touches[1].clientX, args.event.touches[1].clientY, window.innerWidth, window.innerHeight);
+      const touchPosition0: [number, number] = [normalizedPosition0.x, normalizedPosition0.y];
+      const touchPosition1: [number, number] = [normalizedPosition1.x, normalizedPosition1.y];
+      const touchPositionsAvarageY : number = (touchPosition0[1] + touchPosition1[1]) / 2;
+
+      const mappedPositionInput = input.schema.touchInputMap?.axes[TouchInputs.Touch1Position];
+      const mappedPositionInput1 = input.schema.touchInputMap?.axes[TouchInputs.Touch];
+
+      // if (!mappedPositionInput) {
+      //   return;
+      // }
+
+      // const hasData = input.data.has(mappedPositionInput);
+      const previousPositionValue = input.data.get(mappedPositionInput)?.value;
       const scaleMappedInputKey = input.schema.touchInputMap?.axes[TouchInputs.Scale];
       // const value = (args.event as any).scale;
 
-      console.log(args)
-      console.log(value)
+      console.log(previousPositionValue)
+      // console.log(touchPosition1)
+      // console.log(mappedPositionInput)
+      // console.log(hasData)
+      // console.log(previousPositionValue)
+      console.log(input.data)
+      // console.log(touchPosition0[1])
 
       // If mouse position not set, set it with lifecycle started
       if (!input.data.has(scaleMappedInputKey)) {
         input.data.set(scaleMappedInputKey, {
           type: InputType.ONEDIM,
-          value: Math.sign(value),
+          value: touchPositionsAvarageY,
           lifecycleState: LifecycleValue.STARTED
         });
       } else {
@@ -55,7 +76,7 @@ export const handleTouchScale: Behavior = (entity: Entity, args: { event: TouchE
         // If it's not the same, set it and update the lifecycle value to changed
         input.data.set(scaleMappedInputKey, {
           type: InputType.ONEDIM,
-          value: oldValue + Math.sign(value),
+          value: oldValue + touchPositionsAvarageY,
           lifecycleState: LifecycleValue.CHANGED
         });
       }

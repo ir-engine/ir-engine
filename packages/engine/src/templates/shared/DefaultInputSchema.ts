@@ -111,7 +111,10 @@ export const DefaultInputSchema: InputSchema = {
         behavior: handleTouchMove
       },
       {
-        behavior: handleTouchScale
+        behavior: handleTouchScale,
+        args: {
+          value: DefaultInput.CAMERA_SCROLL
+        }
       }
     ],
     // touchscale: [

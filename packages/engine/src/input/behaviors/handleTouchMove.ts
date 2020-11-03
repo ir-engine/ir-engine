@@ -6,6 +6,7 @@ import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { Input } from "../components/Input";
 import { normalizeMouseCoordinates } from '../../common/functions/normalizeMouseCoordinates';
+import { DefaultInput } from '../../templates/shared/DefaultInput';
 
 /**
  * Touch move
