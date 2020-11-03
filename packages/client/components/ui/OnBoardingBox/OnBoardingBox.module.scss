@@ -2,6 +2,7 @@
     position: absolute;
     top: 10px;
     width: 100vw;
+    z-index: 1200;
 
     .exitButton{
         cursor: pointer;
@@ -13,6 +14,10 @@
     padding: 2em;
     user-select: none;
     text-align: center;
+    .helpHintSnackBarContentMessage{
+        width: 100%;
+        text-align: center;
+    }
     
     &.bottomPos{
         bottom: 50px;
