@@ -203,15 +203,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // await this.sendCameraStreams();
       if (startVideo === true) this.sendCameraStreams(partyId);
     });
-    // this.socket.on('disconnect', async () => {
-    //   console.log('Socket received disconnect');
-    //   await this.endVideoChat();
-    //   console.log('Post-disconnect endVideoChat finished, now calling leave');
-    //   await this.leave();
-    //   console.log('Post-disconnect leave finished');
-    //   this.socket.close();
-    //   // this.socket.close();
-    // });
+    this.socket.on('disconnect', async () => {
+      await this.endVideoChat();
+      await this.leave();
+    });
     this.socket.on(MessageTypes.Kick.toString(), async () => {
       console.log("TODO: SNACKBAR HERE");
       console.log('Socket received kick message');
@@ -219,7 +214,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       console.log('Post-kick endVideoChat finished, now calling leave');
       await this.leave();
       console.log('Post-kick leave finished');
-      this.socket.close();
     });
     this.socket.on(MessageTypes.WebRTCConsumeData.toString(), this.handleDataConsumerCreation);
     this.socket.on(MessageTypes.WebRTCCreateProducer.toString(), async (socketId, mediaTag, producerId, localPartyId) => {
@@ -290,6 +284,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         transport = this.instanceSendTransport;
       } else {
         console.log(this.partySendTransport);
+        console.log(this.partySendTransport?.closed);
+        console.log(this.partySendTransport?.connectionState);
         if (this.partySendTransport == null || this.partySendTransport.closed === true || this.partySendTransport.connectionState === 'disconnected') [transport,] = await Promise.all([this.initSendTransport(partyId), this.initReceiveTransport(partyId)]);
         else transport = this.partySendTransport;
       }
