@@ -20,6 +20,8 @@ import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebR
 import { generalStateList, setAppOnBoardingStep, setAppLoaded } from '../../redux/app/actions';
 import store from '../../redux/store';
 import LinearProgressComponent from '../ui/LinearProgress';
+import MediaIconsBox from '../ui/MediaIconsBox';
+import { MobileGamepad } from '../ui/MobileGampad';
 import NetworkDebug from '../ui/NetworkDebug/NetworkDebug';
 import OnBoardingBox from '../ui/OnBoardingBox';
 import OnBoardingDialog from '../ui/OnBoardingDialog';
@@ -119,6 +121,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
     <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
     <OnBoardingDialog avatarsList={CharacterAvatars} />
     <OnBoardingBox actorEntity={actorEntity} />
+    <MediaIconsBox />
+    <MobileGamepad />
     </>
   );
 };
