@@ -47,8 +47,8 @@ export function connectToInstanceServer () {
       const videoActive = MediaStreamComponent.instance.camVideoProducer != null || MediaStreamComponent.instance.camAudioProducer != null;
       console.log(videoActive)
       // TODO: Disconnected 
-      // await (Network.instance.transport as any).endVideoChat();
-      // await (Network.instance.transport as any).leave();
+      await (Network.instance.transport as any).endVideoChat();
+      await (Network.instance.transport as any).leave();
       await connectToServer(instance.get('ipAddress'), instance.get('port'), {
         locationId: locationId,
         token: token,
