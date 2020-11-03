@@ -132,6 +132,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       });
 
       this.socket.on('disconnect', async () => {
+        await endVideoChat();
+        await leave();
         clearInterval(heartbeat);
         console.log('Socket received disconnect');
         // this.socket.close();
