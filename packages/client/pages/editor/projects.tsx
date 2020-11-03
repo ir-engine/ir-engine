@@ -123,8 +123,7 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
   renderContextMenu = props => {
     return (
       <>
-      { /* ts-ignore */ }
-      <ContextMenu>
+      <ContextMenu id={contextMenuId}>
         <MenuItem onClick={e => this.onDeleteProject(props.trigger.project)}>
           Delete Project
         </MenuItem>

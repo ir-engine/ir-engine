@@ -8,19 +8,21 @@ import { createEntity, /*getComponent,*/ getMutableComponent } from '@xr3ngine/e
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
-import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter';
+import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
+import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacterWithEmptyInputSchema';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { AmbientLight, DirectionalLight, HemisphereLight } from 'three';
-// import { PlayerCharacter } from "../../../engine/src/templates/character/prefabs/PlayerCharacter";
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import { generalStateList, setAppOnBoardingStep, setAppLoaded } from '../../redux/app/actions';
 import store from '../../redux/store';
 import LinearProgressComponent from '../ui/LinearProgress';
 import NetworkDebug from '../ui/NetworkDebug/NetworkDebug';
+import OnBoardingBox from '../ui/OnBoardingBox';
+import OnBoardingDialog from '../ui/OnBoardingDialog';
 
 const mapStateToProps = (state: any): any => {
   return { };
@@ -67,16 +69,9 @@ export const EnginePage: FunctionComponent = (props: any) => {
     const InitializationOptions = {
       ...DefaultInitializationOptions,
       networking: {
-        enabled: true,
-        supportsMediaStreams: true,
+        ...DefaultInitializationOptions.networking,
         schema: networkSchema,
-      },
-      physics: {
-        enabled: true,
-      },
-      input: {
-        mobile: isMobileOrTablet(),
-      },
+      }
     };
     
     initializeEngine(InitializationOptions);
@@ -122,6 +117,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
     <>
     <NetworkDebug />
     <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
+    <OnBoardingDialog avatarsList={CharacterAvatars} />
+    <OnBoardingBox actorEntity={actorEntity} />
     </>
   );
 };

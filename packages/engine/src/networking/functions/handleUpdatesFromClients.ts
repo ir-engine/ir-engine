@@ -9,8 +9,8 @@ export function handleUpdatesFromClients() {
   // For each
   while (Network.instance.incomingMessageQueue.getBufferLength() > 0) {
     const clientInput = Network.instance.incomingMessageQueue.pop() as any;
-
-    if(clientInput === undefined) return console.warn("Input is undefined, this might be because it was destroyed this frame");
+    
+    console.log(clientInput);
     if(Network.instance.networkObjects[clientInput.networkId] === undefined) return
 
     // Get input component

@@ -33,6 +33,35 @@ module.exports = withImages(
     },
     dir: './',
     distDir: './.next',
+    async redirects() {
+      return [
+        {
+          source: '/s/:slug*',
+          destination: '/scene/:slug*',
+          permanent: true
+        },
+        {
+          source: '/s/id/:slug*',
+          destination: '/scene/id/:slug*',
+          permanent: true
+        },
+        {
+          source: '/t/:slug*',
+          destination: '/test/:slug*',
+          permanent: true
+        },
+        {
+          source: '/c/:slug*',
+          destination: '/create/:slug*',
+          permanent: true
+        },
+        {
+          source: '/home',
+          destination: '/',
+          permanent: true
+        }
+      ]
+    },
     webpack(config) {
       config.resolve.alias.utils = path.join(__dirname, 'utils')
       config.module.rules.push(

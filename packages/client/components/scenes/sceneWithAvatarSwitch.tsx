@@ -9,16 +9,15 @@ import {
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
-import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacter';
+import { setActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/setActorAvatar";
+import { CharacterAvatars } from "@xr3ngine/engine/src/templates/character/CharacterAvatars";
+import { CharacterAvatarComponent } from "@xr3ngine/engine/src/templates/character/components/CharacterAvatarComponent";
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import {
   AmbientLight
 } from "three";
-import { setActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/setActorAvatar";
-import { CharacterAvatars } from "@xr3ngine/engine/src/templates/character/CharacterAvatars";
-import { CharacterAvatarComponent } from "@xr3ngine/engine/src/templates/character/components/CharacterAvatarComponent";
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 
 export const EnginePage: FunctionComponent = (props: any) => {
@@ -34,12 +33,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
     const InitializationOptions = {
       ...DefaultInitializationOptions,
       networking: {
-        enabled: true,
-        supportsMediaStreams: true,
+        ...DefaultInitializationOptions.networking,
         schema: networkSchema
-      },
-      physics: {
-        enabled: true
       }
     };
     initializeEngine(InitializationOptions);

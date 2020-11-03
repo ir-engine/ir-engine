@@ -14,7 +14,6 @@ import { LifecycleValue } from "../../common/enums/LifecycleValue";
  */
 
 export function handleKey(entity: Entity, args: { event: KeyboardEvent; value: BinaryType }): any {
-  console.log("Handle key called");
   // Get immutable reference to Input and check if the button is defined -- ignore undefined keys
   const input = getComponent(entity, Input);
   if (input.schema.keyboardInputMap[args.event.key?.toLowerCase()] === undefined)
@@ -22,7 +21,7 @@ export function handleKey(entity: Entity, args: { event: KeyboardEvent; value: B
   const mappedKey = input.schema.keyboardInputMap[args.event.key.toLowerCase()];
   const element = args.event.target as HTMLElement;
   // Сheck which excludes the possibility of controlling the character (car, etc.) when typing a text
-  if (element?.tagName === 'INPUT' || element?.tagName === 'SELECT' || element?.tagName === 'TEXTAREA') {
+  if (element.tagName === 'INPUT' || element.tagName === 'SELECT' || element.tagName === 'TEXTAREA') {
     return;
   }
 

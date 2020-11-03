@@ -7,6 +7,7 @@ import { observer } from 'mobx-react';
 import { selectAuthState } from '../../../redux/auth/selector';
 import { selectLocationState } from '../../../redux/location/selector';
 import Fab from "@material-ui/core/Fab";
+import { sendCameraStreams, endVideoChat } from '../../../classes/transports/WebRTCFunctions';
 
 interface Props {
   authState?: any;
@@ -32,10 +33,10 @@ const VideoChat = observer((props: Props) => {
   const currentLocation = locationState.get('currentLocation').get('location');
   const gsProvision = async () => {
     if (MediaStreamComponent.instance.mediaStream == null) {
-      await (Network.instance.transport as any).sendCameraStreams(currentLocation?.locationType === 'showroom' ? 'instance' : user.partyId);
+      await sendCameraStreams(currentLocation?.locationType === 'showroom' ? 'instance' : user.partyId);
     } else {
       console.log('Ending video chat');
-      await (Network.instance.transport as any).endVideoChat();
+      await endVideoChat();
     }
   };
   return (

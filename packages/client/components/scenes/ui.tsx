@@ -85,16 +85,9 @@ export const EnginePage: FunctionComponent = (props: any) => {
     const InitializationOptions = {
       ...DefaultInitializationOptions,
       networking: {
-        enabled: false,
-        supportsMediaStreams: false,
+        ...DefaultInitializationOptions.networking,
         schema: networkSchema,
-      },
-      physics: {
-        enabled: true,
-      },
-      input: {
-        mobile: isMobileOrTablet(),
-      },
+      }
     };
     
     initializeEngine(InitializationOptions);
