@@ -146,7 +146,7 @@ export class InputSystem extends System {
       const message = inputs; // clientInputModel.toBuffer(inputs)
       console.log("Sending message", message);
       // TODO: Send unreliably
-      Network.instance.transport.sendData(message); // Use default channel
+      Network.instance.transport.sendReliableData(message); // Use default channel
     });
 
     // Called when input component is added to entity

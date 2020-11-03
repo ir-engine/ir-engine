@@ -6,13 +6,13 @@ import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/Media
 import { UnreliableMessageType } from "@xr3ngine/engine/src/networking/types/NetworkingTypes";
 import { DataProducer, Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
 
-let transport: any;
+let networkTransport: any;
 
 export async function createDataProducer(channel: string = "default", type: UnreliableMessageType = 'raw', customInitInfo: any = {}): Promise<DataProducer | Error> {
-    transport = Network.instance.transport as any;
+    networkTransport = Network.instance.transport as any;
     console.log("createDataProducer");
     // else if (MediaStreamComponent.instance.dataProducers.get(channel)) return Promise.reject(new Error('Data channel already exists!'))
-    transport.dataProducer = await transport.instanceSendTransport.produceData({
+    const dataProducer = await networkTransport.instanceSendTransport.produceData({
         appData: { data: customInitInfo },
         ordered: false,
         label: channel,
@@ -21,58 +21,61 @@ export async function createDataProducer(channel: string = "default", type: Unre
         protocol: type // sub-protocol for type of data to be transmitted on the channel e.g. json, raw etc. maybe make type an enum rather than string
     });
     console.log('data producer created on client!');
-    transport.dataProducer.on("open", () => {
-        console.log(`Data channel: '${transport.dataProducer.label}' open...`);
-        transport.dataProducer.send(JSON.stringify({ info: 'init' }));
+    dataProducer.on("open", () => {
+        console.log(`Data channel: '${networkTransport.dataProducer.label}' open...`);
+        networkTransport.dataProducer.send(JSON.stringify({ info: 'init' }));
     });
-    transport.dataProducer.on("transportclose", () => {
+    dataProducer.on("transportclose", () => {
         MediaStreamComponent.instance.dataProducers.delete(channel);
-        transport.dataProducer.close();
+        networkTransport.dataProducer.close();
     });
     console.log("Setting data producer");
-    MediaStreamComponent.instance.dataProducers.set(channel, transport.dataProducer);
-    return Promise.resolve(transport.dataProducer);
+    MediaStreamComponent.instance.dataProducers.set(channel, networkTransport.dataProducer);
+    return Promise.resolve(networkTransport.dataProducer);
 }
 
 export async function initReceiveTransport(partyId?: string): Promise<MediaSoupTransport | Error> {
     console.log('Creating receive transport');
-    transport = Network.instance.transport as any;
+    console.log("party id is ", partyId);
+    networkTransport = Network.instance.transport as any;
     let newTransport;
     if (partyId === 'instance')
-        newTransport = transport.instanceRecvTransport = await createTransport('recv', 'instance');
+        newTransport = networkTransport.instanceRecvTransport = await createTransport('recv', 'instance');
     else
-        newTransport = transport.partyRecvTransport = await createTransport('recv', partyId);
+        newTransport = networkTransport.partyRecvTransport = await createTransport('recv', partyId);
     return Promise.resolve(newTransport);
 }
 
 export async function initSendTransport(partyId?: string): Promise<MediaSoupTransport | Error> {
     console.log('Creating send transport');
-    transport = Network.instance.transport as any;
+    networkTransport = Network.instance.transport as any;
     let newTransport;
     if (partyId === 'instance')
-        newTransport = transport.instanceSendTransport = await createTransport('send', 'instance');
+        newTransport = networkTransport.instanceSendTransport = await createTransport('send', 'instance');
     else
-        newTransport = transport.partySendTransport = await createTransport('send', partyId);
+        newTransport = networkTransport.partySendTransport = await createTransport('send', partyId);
+
+    console.log("networkTransport.instanceSendTransport is", networkTransport.instanceSendTransport);
     return Promise.resolve(newTransport);
 }
 
 export async function sendCameraStreams(partyId?: string): Promise<void> {
     console.log("send camera streams");
-    transport = Network.instance.transport as any;
+    networkTransport = Network.instance.transport as any;
 
     if (MediaStreamComponent.instance.mediaStream == null)
         await MediaStreamSystem.instance.startCamera();
 
-    if (transport.videoEnabled === true) {
+    if (networkTransport.videoEnabled === true) {
         let newTransport;
-        
+
         if (partyId === 'instance')
-            newTransport = transport.instanceSendTransport;
+            newTransport = networkTransport.instanceSendTransport;
         else {
-            if (transport.partySendTransport == null || transport.partySendTransport.closed === true || transport.partySendTransport.connectionState === 'disconnected')
-                [newTransport,] = await Promise.all([initSendTransport(partyId), transport.initReceiveTransport(partyId)]);
+            if (networkTransport.partySendTransport == null || networkTransport.partySendTransport.closed === true || networkTransport.partySendTransport.connectionState === 'disconnected')
+                [newTransport,] = await Promise.all([initSendTransport(partyId), networkTransport.initReceiveTransport(partyId)]);
             else
-                newTransport = transport.partySendTransport;
+                newTransport = networkTransport.partySendTransport;
         }
 
         MediaStreamComponent.instance.camVideoProducer = await newTransport.produce({
@@ -98,8 +101,8 @@ export async function sendCameraStreams(partyId?: string): Promise<void> {
     MediaStreamComponent.instance.mediaStream.removeTrack(audioTrack);
     MediaStreamComponent.instance.mediaStream.addTrack(dst.stream.getAudioTracks()[0]);
     // same thing for audio, but we can use our already-created
-    const newTransport = partyId === 'instance' ? transport.instanceSendTransport : transport.partySendTransport;
-    
+    const newTransport = partyId === 'instance' ? networkTransport.instanceSendTransport : networkTransport.partySendTransport;
+
     // Create a new transport for audio and start producing
     MediaStreamComponent.instance.camAudioProducer = await newTransport.produce({
         track: MediaStreamComponent.instance.mediaStream.getAudioTracks()[0],
@@ -112,12 +115,12 @@ export async function sendCameraStreams(partyId?: string): Promise<void> {
 
 export async function endVideoChat(leftParty?: boolean): Promise<boolean> {
     console.log('Ending videochat');
-    transport = Network.instance.transport as any;
+    networkTransport = Network.instance.transport as any;
 
     try {
         if (MediaStreamComponent.instance?.camVideoProducer) {
-            if (transport.socket?.connected === true)
-                await transport.request(MessageTypes.WebRTCCloseProducer.toString(), {
+            if (networkTransport.socket?.connected === true)
+                await networkTransport.request(MessageTypes.WebRTCCloseProducer.toString(), {
                     producerId: MediaStreamComponent.instance.camVideoProducer.id
                 });
             await MediaStreamComponent.instance.camVideoProducer?.close();
@@ -125,8 +128,8 @@ export async function endVideoChat(leftParty?: boolean): Promise<boolean> {
         console.log('Closed cam video producer');
 
         if (MediaStreamComponent.instance?.camAudioProducer) {
-            if (transport.socket?.connected === true)
-                await transport.request(MessageTypes.WebRTCCloseProducer.toString(), {
+            if (networkTransport.socket?.connected === true)
+                await networkTransport.request(MessageTypes.WebRTCCloseProducer.toString(), {
                     producerId: MediaStreamComponent.instance.camAudioProducer.id
                 });
             await MediaStreamComponent.instance.camAudioProducer?.close();
@@ -134,15 +137,15 @@ export async function endVideoChat(leftParty?: boolean): Promise<boolean> {
         console.log('Closed cam audio producer');
 
         if (MediaStreamComponent.instance?.screenVideoProducer) {
-            if (transport.socket?.connected === true)
-                await transport.request(MessageTypes.WebRTCCloseProducer.toString(), {
+            if (networkTransport.socket?.connected === true)
+                await networkTransport.request(MessageTypes.WebRTCCloseProducer.toString(), {
                     producerId: MediaStreamComponent.instance.screenVideoProducer.id
                 });
             await MediaStreamComponent.instance.screenVideoProducer?.close();
         }
         if (MediaStreamComponent.instance?.screenAudioProducer) {
-            if (transport.socket?.connected === true)
-                await transport.request(MessageTypes.WebRTCCloseProducer.toString(), {
+            if (networkTransport.socket?.connected === true)
+                await networkTransport.request(MessageTypes.WebRTCCloseProducer.toString(), {
                     producerId: MediaStreamComponent.instance.screenAudioProducer.id
                 });
             await MediaStreamComponent.instance.screenAudioProducer?.close();
@@ -150,8 +153,8 @@ export async function endVideoChat(leftParty?: boolean): Promise<boolean> {
         console.log('Closed screen audio and video producers');
 
         MediaStreamComponent.instance?.consumers.map(async (c) => {
-            if (transport.socket?.connected === true)
-                await transport.request(MessageTypes.WebRTCCloseConsumer.toString(), {
+            if (networkTransport.socket?.connected === true)
+                await networkTransport.request(MessageTypes.WebRTCCloseConsumer.toString(), {
                     consumerId: c.id
                 });
             await c.close();
@@ -159,12 +162,12 @@ export async function endVideoChat(leftParty?: boolean): Promise<boolean> {
         console.log('Closed all consumers');
 
         if (leftParty === true) {
-            if (transport.partyRecvTransport != null && transport.partyRecvTransport.closed !== true)
-                await transport.partyRecvTransport.close();
-            if (transport.partySendTransport != null && transport.partySendTransport.closed !== true)
-                await transport.partySendTransport.close();
+            if (networkTransport.partyRecvTransport != null && networkTransport.partyRecvTransport.closed !== true)
+                await networkTransport.partyRecvTransport.close();
+            if (networkTransport.partySendTransport != null && networkTransport.partySendTransport.closed !== true)
+                await networkTransport.partySendTransport.close();
         }
-    
+
         resetProducer();
         console.log('Finished ending video chat');
         return true;
@@ -187,13 +190,13 @@ export function resetProducer(): void {
 }
 
 export function setPartyId(partyId: string): void {
-    transport = Network.instance.transport as any;
-    transport.partyId = partyId;
+    networkTransport = Network.instance.transport as any;
+    networkTransport.partyId = partyId;
 }
 
 export async function subscribeToTrack(peerId: string, mediaTag: string, partyId) {
     console.log("subscribeToTrack on peer", peerId, "for partyId", partyId)
-    transport = Network.instance.transport as any;
+    networkTransport = Network.instance.transport as any;
 
     // if we do already have a consumer, we shouldn't have called this method
     let consumer = MediaStreamComponent.instance.consumers.find
@@ -201,8 +204,8 @@ export async function subscribeToTrack(peerId: string, mediaTag: string, partyId
 
     console.log('subscribeToTrack sending WebRTCReceiveTrack');
     // ask the server to create a server-side consumer object and send us back the info we need to create a client-side consumer
-    const consumerParameters = await transport.request(MessageTypes.WebRTCReceiveTrack.toString(),
-        { mediaTag, mediaPeerId: peerId, rtpCapabilities: transport.mediasoupDevice.rtpCapabilities, partyId: partyId }
+    const consumerParameters = await networkTransport.request(MessageTypes.WebRTCReceiveTrack.toString(),
+        { mediaTag, mediaPeerId: peerId, rtpCapabilities: networkTransport.mediasoupDevice.rtpCapabilities, partyId: partyId }
     );
 
     console.log(`Requesting consumer for peer ${peerId} of type ${mediaTag} at ${new Date()}`);
@@ -210,8 +213,8 @@ export async function subscribeToTrack(peerId: string, mediaTag: string, partyId
     if (consumerParameters.id == null) return;
 
     consumer = partyId === 'instance' ?
-    await transport.instanceRecvTransport.consume ({ ...consumerParameters, appData: { peerId, mediaTag } })
-        : await transport.partyRecvTransport.consume ({ ...consumerParameters, appData: { peerId, mediaTag, partyId } });
+        await networkTransport.instanceRecvTransport.consume({ ...consumerParameters, appData: { peerId, mediaTag } })
+        : await networkTransport.partyRecvTransport.consume({ ...consumerParameters, appData: { peerId, mediaTag, partyId } });
 
     if (MediaStreamComponent.instance.consumers?.find(c => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag) == null) {
         MediaStreamComponent.instance.consumers.push(consumer);
@@ -230,45 +233,45 @@ export async function unsubscribeFromTrack(peerId: any, mediaTag: any) {
 }
 
 export async function pauseConsumer(consumer: { appData: { peerId: any; mediaTag: any; }; id: any; pause: () => any; }) {
-    transport = Network.instance.transport as any;
-    await transport.request(MessageTypes.WebRTCPauseConsumer.toString(), { consumerId: consumer.id });
+    networkTransport = Network.instance.transport as any;
+    await networkTransport.request(MessageTypes.WebRTCPauseConsumer.toString(), { consumerId: consumer.id });
     await consumer.pause();
 }
 
 export async function resumeConsumer(consumer: { appData: { peerId: any; mediaTag: any; }; id: any; resume: () => any; }) {
-    transport = Network.instance.transport as any;
-    await transport.request(MessageTypes.WebRTCResumeConsumer.toString(), { consumerId: consumer.id });
+    networkTransport = Network.instance.transport as any;
+    await networkTransport.request(MessageTypes.WebRTCResumeConsumer.toString(), { consumerId: consumer.id });
     await consumer.resume();
 }
 
 export async function pauseProducer(producer: { appData: { mediaTag: any; }; id: any; pause: () => any; }) {
-    transport = Network.instance.transport as any;
-    await transport.request(MessageTypes.WebRTCPauseProducer.toString(), { producerId: producer.id });
+    networkTransport = Network.instance.transport as any;
+    await networkTransport.request(MessageTypes.WebRTCPauseProducer.toString(), { producerId: producer.id });
     await producer.pause();
 }
 
 export async function globalMuteProducer(producer: { id: any; }) {
-    transport = Network.instance.transport as any;
-    await transport.request(MessageTypes.WebRTCPauseProducer.toString(), { producerId: producer.id, globalMute: true });
+    networkTransport = Network.instance.transport as any;
+    await networkTransport.request(MessageTypes.WebRTCPauseProducer.toString(), { producerId: producer.id, globalMute: true });
 }
 
 export async function resumeProducer(producer: { appData: { mediaTag: any; }; id: any; resume: () => any; }) {
-    transport = Network.instance.transport as any;
-    await transport.request(MessageTypes.WebRTCResumeProducer.toString(), { producerId: producer.id });
+    networkTransport = Network.instance.transport as any;
+    await networkTransport.request(MessageTypes.WebRTCResumeProducer.toString(), { producerId: producer.id });
     await producer.resume();
 }
 
 export async function globalUnmuteProducer(producer: { id: any; }) {
-    transport = Network.instance.transport as any;
-    await transport.request(MessageTypes.WebRTCResumeProducer.toString(), { producerId: producer.id });
+    networkTransport = Network.instance.transport as any;
+    await networkTransport.request(MessageTypes.WebRTCResumeProducer.toString(), { producerId: producer.id });
 }
 
 export async function closeConsumer(consumer: any) {
     console.log("closing consumer", consumer.appData.peerId, consumer.appData.mediaTag);
     // tell the server we're closing this consumer. (the server-side
     // consumer may have been closed already, but that's okay.)
-    transport = Network.instance.transport as any;
-    await transport.request(MessageTypes.WebRTCCloseConsumer.toString(), { consumerId: consumer.id });
+    networkTransport = Network.instance.transport as any;
+    await networkTransport.request(MessageTypes.WebRTCCloseConsumer.toString(), { consumerId: consumer.id });
     await consumer.close();
 
     const filteredConsumers = MediaStreamComponent.instance.consumers.filter(
@@ -281,26 +284,26 @@ export async function closeConsumer(consumer: any) {
 
 export async function createTransport(direction: string, partyId?: string) {
     console.log("Creating a new transport for", partyId, "in the direction ", direction);
-    transport = Network.instance.transport as any;
+    networkTransport = Network.instance.transport as any;
 
     // ask the server to create a server-side transport object and send
     // us back the info we need to create a client-side transport
-    let newTransport;
-    const { transportOptions } = await transport.request(MessageTypes.WebRTCTransportCreate.toString(), { direction, sctpCapabilities: transport.mediasoupDevice.sctpCapabilities, partyId: partyId });
+    let transport;
+    const { transportOptions } = await networkTransport.request(MessageTypes.WebRTCTransportCreate.toString(), { direction, sctpCapabilities: networkTransport.mediasoupDevice.sctpCapabilities, partyId: partyId });
 
     if (direction === "recv")
-        newTransport = await transport.mediasoupDevice.createRecvTransport(transportOptions);
+        transport = await networkTransport.mediasoupDevice.createRecvTransport(transportOptions);
     else if (direction === "send")
-        newTransport = await transport.mediasoupDevice.createSendTransport(transportOptions);
+        transport = await networkTransport.mediasoupDevice.createSendTransport(transportOptions);
     else
         throw new Error(`bad transport 'direction': ${direction}`);
 
     // mediasoup-client will emit a connect event when media needs to
     // start flowing for the first time. send dtlsParameters to the
     // server, then call callback() on success or errback() on failure.
-    newTransport.on("connect", async ({ dtlsParameters }: any, callback: () => void, errback: () => void) => {
-        const connectResult = await transport.request(MessageTypes.WebRTCTransportConnect.toString(),
-        { transportId: transportOptions.id, dtlsParameters });
+    transport.on("connect", async ({ dtlsParameters }: any, callback: () => void, errback: () => void) => {
+        const connectResult = await networkTransport.request(MessageTypes.WebRTCTransportConnect.toString(),
+            { transportId: transportOptions.id, dtlsParameters });
 
         if (connectResult.error) {
             console.log('Transport connect error');
@@ -316,7 +319,7 @@ export async function createTransport(direction: string, partyId?: string) {
         // sending transports will emit a produce event when a new track
         // needs to be set up to start sending. the producer's appData is
         // passed as a parameter
-        newTransport.on("produce",
+        transport.on("produce",
             async ({ kind, rtpParameters, appData }: any, callback: (arg0: { id: any; }) => void, errback: () => void) => {
                 console.log("transport produce event", appData.mediaTag);
 
@@ -333,7 +336,7 @@ export async function createTransport(direction: string, partyId?: string) {
                 // up a server-side producer object, and get back a
                 // producer.id. call callback() on success or errback() on
                 // failure.
-                const { error, id } = await transport.request(MessageTypes.WebRTCSendTrack.toString(), {
+                const { error, id } = await networkTransport.request(MessageTypes.WebRTCSendTrack.toString(), {
                     transportId: transportOptions.id,
                     kind,
                     rtpParameters,
@@ -348,12 +351,12 @@ export async function createTransport(direction: string, partyId?: string) {
                 callback({ id });
             });
 
-            newTransport.on("producedata",
+        transport.on("producedata",
             async (parameters: any, callback: (arg0: { id: any; }) => void, errback: () => void) => {
                 console.log("transport produce data event, params: ", parameters);
                 const { sctpStreamParameters, label, protocol, appData } = parameters;
-                const { error, id } = await transport.request(MessageTypes.WebRTCProduceData, {
-                    transportId: newTransport.id,
+                const { error, id } = await networkTransport.request(MessageTypes.WebRTCProduceData, {
+                    transportId: transport.id,
                     sctpStreamParameters,
                     label,
                     protocol,
@@ -375,11 +378,11 @@ export async function createTransport(direction: string, partyId?: string) {
 
     // any time a transport transitions to closed,
     // failed, or disconnected, leave the  and reset
-    newTransport.on("connectionstatechange", async (state: string) => {
-        console.log(`transport ${newTransport.id} connectionstatechange ${state}`);
-        if (transport.leaving !== true && (state === "closed" || state === "failed" || state === "disconnected")) {
+    transport.on("connectionstatechange", async (state: string) => {
+        console.log(`transport ${transport.id} connectionstatechange ${state}`);
+        if (networkTransport.leaving !== true && (state === "closed" || state === "failed" || state === "disconnected")) {
             console.log("transport closed ... leaving the and resetting");
-            await transport.request(MessageTypes.WebRTCTransportClose.toString(), { transportId: newTransport.id });
+            await networkTransport.request(MessageTypes.WebRTCTransportClose.toString(), { transportId: transport.id });
         }
     });
 
@@ -387,48 +390,48 @@ export async function createTransport(direction: string, partyId?: string) {
 }
 
 export async function leave(): Promise<boolean> {
-    transport = Network.instance.transport as any;
+    networkTransport = Network.instance.transport as any;
     try {
-      console.log('Attempting to leave');
-      transport.leaving = true;
+        console.log('Attempting to leave');
+        networkTransport.leaving = true;
 
-      if (transport.request) {
-        console.log('Leaving World');
-        // close everything on the server-side (transports, producers, consumers)
-        const result = await transport.request(MessageTypes.LeaveWorld.toString());
-        if (result.error) console.error(result.error);
-      }
+        if (networkTransport.request) {
+            console.log('Leaving World');
+            // close everything on the server-side (transports, producers, consumers)
+            const result = await networkTransport.request(MessageTypes.LeaveWorld.toString());
+            if (result.error) console.error(result.error);
+        }
 
-      transport.leaving = false;
+        networkTransport.leaving = false;
 
-      //Leaving the world should close all transports from the server side.
-      //This will also destroy all the associated producers and consumers.
-      //All we need to do on the client is null all references.
-      transport.instanceRecvTransport = null;
-      transport.instanceSendTransport = null;
-      transport.partyRecvTransport = null;
-      transport.partySendTransport = null;
-      transport.lastPollSyncData = {};
-      if (MediaStreamComponent.instance) {
-        MediaStreamComponent.instance.camVideoProducer = null;
-        MediaStreamComponent.instance.camAudioProducer = null;
-        MediaStreamComponent.instance.screenVideoProducer = null;
-        MediaStreamComponent.instance.screenAudioProducer = null;
-        MediaStreamComponent.instance.mediaStream = null;
-        MediaStreamComponent.instance.localScreen = null;
-        MediaStreamComponent.instance.consumers = [];
-      }
+        //Leaving the world should close all transports from the server side.
+        //This will also destroy all the associated producers and consumers.
+        //All we need to do on the client is null all references.
+        networkTransport.instanceRecvTransport = null;
+        networkTransport.instanceSendTransport = null;
+        networkTransport.partyRecvTransport = null;
+        networkTransport.partySendTransport = null;
+        networkTransport.lastPollSyncData = {};
+        if (MediaStreamComponent.instance) {
+            MediaStreamComponent.instance.camVideoProducer = null;
+            MediaStreamComponent.instance.camAudioProducer = null;
+            MediaStreamComponent.instance.screenVideoProducer = null;
+            MediaStreamComponent.instance.screenAudioProducer = null;
+            MediaStreamComponent.instance.mediaStream = null;
+            MediaStreamComponent.instance.localScreen = null;
+            MediaStreamComponent.instance.consumers = [];
+        }
 
-      if (transport.socket && transport.socket.close)
-        transport.socket.close();
+        if (networkTransport.socket && networkTransport.socket.close)
+            networkTransport.socket.close();
 
-      return true;
+        return true;
     } catch (err) {
-      console.log('Error with leave()');
-      console.log(err);
-      transport.leaving = false;
+        console.log('Error with leave()');
+        console.log(err);
+        networkTransport.leaving = false;
     }
-  }
+}
 
 // async startScreenshare(): Promise<boolean> {
 //   console.log("start screen share");

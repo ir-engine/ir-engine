@@ -40,7 +40,7 @@ export const sendCurrentProducers = (socket: SocketIO.Socket, partyId?: string) 
     producer: Producer
 ): Promise<void> => {
     networkTransport = Network.instance.transport as any;
-    const userId = networkTransport.getUserIdFromSocketId(socket.id);
+    const userId = getUserIdFromSocketId(socket.id);
     const selfClient = Network.instance.clients[userId];
     if (selfClient.socketId != null) {
         Object.entries(Network.instance.clients).forEach(([name, value]) => {
@@ -60,7 +60,7 @@ export const handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
     dataProducer: DataProducer
 ): Promise<void> => {
     networkTransport = Network.instance.transport as any;
-    const userId = networkTransport.getUserIdFromSocketId(socket.id);
+    const userId = getUserIdFromSocketId(socket.id);
     logger.info('Data Consumer being created on server by client: ' + userId);
     const newTransport: Transport = Network.instance.clients[userId].instanceRecvTransport;
     const dataConsumer = await newTransport.consumeData({

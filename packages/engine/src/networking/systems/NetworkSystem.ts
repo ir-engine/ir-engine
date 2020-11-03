@@ -79,7 +79,7 @@ export class NetworkSystem extends System {
     // TODO: to enable snapshots, use worldStateModel.toBuffer(Network.instance.worldState)
     // Send the message to all connected clients
     if(Network.instance.transport !== undefined){
-      Network.instance.transport.sendData(Network.instance.worldState); // Use default channel
+      Network.instance.transport.sendReliableData(Network.instance.worldState); // Use default channel
     }
 
     // CClear collected world state frame and reset after calculating
