@@ -9,13 +9,12 @@ import { getComponent, getMutableComponent } from "@xr3ngine/engine/src/ecs/func
 import { DefaultInput } from "../../templates/shared/DefaultInput";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { NumericalType } from "../../common/types/NumericalTypes";
-import { normalizeMouseCoordinates } from '../../common/functions/normalizeMouseCoordinates';
 
 let follower, target;
 let inputComponent: Input;
 let cameraFollow;
 let camera;
-let inputValue:NumericalType;
+let inputValue: NumericalType;
 const euler = new Euler(0, 0, 0, "YXZ");
 let direction = new Vector3();
 const up = new Vector3(0, 1, 0);
@@ -50,10 +49,8 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
 
     euler.setFromQuaternion(follower.rotation);
 
-  		euler.y -= inputValue[0] * 0.01;
-      euler.x -= inputValue[1] * 0.01;
-            
-      euler.x = Math.max( -PI_2, Math.min( PI_2, euler.x ) );    
+    euler.y -= inputValue[0] * 0.01;
+    euler.x -= inputValue[1] * 0.01;
 
     euler.x = Math.max(-PI_2, Math.min(PI_2, euler.x));
 
@@ -65,9 +62,9 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
       target.position.z
     );
   } else if (cameraFollow.mode === "thirdPerson") {
-    theta -= inputValue[0] * 120;
+    theta -= inputValue[0] * 50;
     theta %= 360;
-    phi -= inputValue[1] * 120;
+    phi -= inputValue[1] * 50;
     phi = Math.min(85, Math.max(0, phi));
 
     follower.position.set(
