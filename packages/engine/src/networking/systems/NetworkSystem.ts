@@ -63,9 +63,9 @@ export class NetworkSystem extends System {
     // note: onChanged needs to currently be handled outside of fixedExecute
     this.queryResults.serverNetworkTransforms.all?.forEach((entity: Entity) => {
       const transform = getComponent(entity, TransformComponent);
-      transforms.push(transform);
-      transform.position.setY(Network.tick/1000);
-      addNetworkTransformToWorldState(entity)
+        transforms.push(transform);
+      // transform.position.setY(Network.tick/1000);
+      addNetworkTransformToWorldState(entity);
     });
 
     // For each networked object + input receiver, add to the frame to send
@@ -78,7 +78,9 @@ export class NetworkSystem extends System {
 
     // TODO: to enable snapshots, use worldStateModel.toBuffer(Network.instance.worldState)
     // Send the message to all connected clients
-    Network.instance.transport.sendReliableData(Network.instance.worldState); // Use default channel
+    if(Network.instance.transport !== undefined){
+      Network.instance.transport.sendData(Network.instance.worldState); // Use default channel
+    }
 
     // CClear collected world state frame and reset after calculating
     Network.instance.worldState = {

@@ -43,6 +43,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
   partyId: string;
 
+
+  dataProducer;
+
     /**
    * Send a message over TCP with socket.io
    * You should probably want {@link @xr3ngine/packages/enginge/src/networking/functions/NetworkFunctions.ts#sendMessage}
@@ -60,54 +63,35 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   // sendTransport should be available before initializing data channel
   // creates data producer on client
   async createDataProducer(channel: string = DEFAULT_DATA_CHANNEL, type: UnreliableMessageType = 'raw', customInitInfo: any = {}): Promise<DataProducer | Error> {
+    console.log("createDataProducer");
     // else if (MediaStreamComponent.instance.dataProducers.get(channel)) return Promise.reject(new Error('Data channel already exists!'))
-    const dataProducer = await this.instanceSendTransport.produceData({
+    this.dataProducer = await this.instanceSendTransport.produceData({
       appData: { data: customInitInfo }, // Probably Add additional info to send to server
-      ordered: true,
+      ordered: false,
       label: channel,
       maxPacketLifeTime: 3000,
       // maxRetransmits: 3,
       protocol: type // sub-protocol for type of data to be transmitted on the channel e.g. json, raw etc. maybe make type an enum rather than string
     });
     console.log('data producer created on client!');
-    dataProducer.on("open", () => {
-      console.log(`Data channel: '${dataProducer.label}' open...`);
-      dataProducer.send(JSON.stringify({ info: 'init' }));
+    this.dataProducer.on("open", () => {
+      console.log(`Data channel: '${this.dataProducer.label}' open...`);
+      this.dataProducer.send(JSON.stringify({ info: 'init' }));
     });
-    dataProducer.on("transportclose", () => {
+    this.dataProducer.on("transportclose", () => {
       MediaStreamComponent.instance.dataProducers.delete(channel);
-      dataProducer.close();
+      this.dataProducer.close();
     });
     console.log("Setting data producer");
-    MediaStreamComponent.instance.dataProducers.set(channel, dataProducer);
-    return Promise.resolve(dataProducer);
-  }
-
-  // Create data consumer and subscribe to the other client's producer when signalled
-  handleDataConsumerCreation = async (options: DataConsumerOptions) => {
-    console.log("Data consumer creation");
-    const dataConsumer = await this.instanceRecvTransport.consumeData(options);
-    console.log("Data consumer created");
-   
-
-    dataConsumer.on('message', (dataConsumer)  => (message: any)  => {
-      Network.instance.incomingMessageQueue.add(message);
-    }); // Handle message received
-    console.log("Setting data consumer");
-    MediaStreamComponent.instance.dataConsumers.set(options.dataProducerId, dataConsumer);
-    dataConsumer.on('close', () => {
-      dataConsumer.close();
-      MediaStreamComponent.instance.dataConsumers.delete(options.dataProducerId);
-    }); // Handle message received
+    MediaStreamComponent.instance.dataProducers.set(channel, this.dataProducer);
+    return Promise.resolve(this.dataProducer);
   }
 
   // This sends message on a data channel (data channel creation is now handled explicitly/default)
-  async sendData(data: any, channel: string = DEFAULT_DATA_CHANNEL): Promise<UnreliableMessageReturn> {
-    const dataProducer: DataProducer | undefined = MediaStreamComponent.instance.dataProducers.get(channel);
-    if (!dataProducer) throw new Error('Data Channel not initialized on client, Data Producer doesn\'t exist!');
+  sendData(data: any, channel: string = DEFAULT_DATA_CHANNEL): void {
     console.log("Sending data on data channel: ", channel);
-    dataProducer.send(data);
-    return Promise.resolve(dataProducer);
+    if (!this.dataProducer) throw new Error('Data Channel not initialized on client, Data Producer doesn\'t exist!');
+    this.dataProducer.send(JSON.stringify(data));
   }
 
   // Adds support for Promise to socket.io-client
@@ -164,17 +148,16 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
     const { worldState, routerRtpCapabilities } = joinWorldResponse as any;
 
-    // TODO: This shouldn't be in the transport, should be in our network system somehow
     // Apply all state to initial frame
     applyNetworkStateToClient(worldState);
 
+    
     if (this.mediasoupDevice.loaded !== true) await this.mediasoupDevice.load({ routerRtpCapabilities });
 
     console.log("Joined world");
-    // return Promise.resolve();
-
       // Send heartbeat every second
-      setInterval(() => {
+      const heartbeat = setInterval(() => {
+        clearInterval(heartbeat);
         this.socket.emit(MessageTypes.Heartbeat.toString());
       }, 1000);
 
@@ -201,17 +184,34 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       console.log('Data Producer created');
       // await this.sendCameraStreams();
       if (startVideo === true) this.sendCameraStreams(partyId);
-    });
     this.socket.on('disconnect', async () => {
+      clearInterval(heartbeat);
       console.log('Socket received disconnect');
       // this.socket.close();
     });
     this.socket.on(MessageTypes.Kick.toString(), async () => {
       console.log("TODO: SNACKBAR HERE");
       console.log('Socket received kick message');
-      this.socket.close();
+      this.socket.disconnect();
+      this.socket?.close();
     });
-    this.socket.on(MessageTypes.WebRTCConsumeData.toString(), this.handleDataConsumerCreation);
+    this.socket.on(MessageTypes.WebRTCConsumeData.toString(), async (options) => {
+    console.log("Data consumer creation");
+    const dataConsumer = await this.instanceRecvTransport.consumeData(options);
+    console.log("Data consumer created");
+   
+    dataConsumer.on('message', (message: any)  => {
+      console.log("Received message from ", dataConsumer);
+      console.log(message);
+      Network.instance.incomingMessageQueue.add(JSON.parse(message));
+    }); // Handle message received
+    console.log("Setting data consumer");
+    MediaStreamComponent.instance.dataConsumers.set(options.dataProducerId, dataConsumer);
+    dataConsumer.on('close', () => {
+      dataConsumer.close();
+      MediaStreamComponent.instance.dataConsumers.delete(options.dataProducerId);
+    }); // Handle message received
+  });
     this.socket.on(MessageTypes.WebRTCCreateProducer.toString(), async (socketId, mediaTag, producerId, localPartyId) => {
       const selfProducerIds = [
           MediaStreamComponent.instance.camVideoProducer?.id,
@@ -235,6 +235,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.socket.on(MessageTypes.WebRTCCloseConsumer.toString(), async(consumerId) => {
       if (MediaStreamComponent.instance) MediaStreamComponent.instance.consumers = MediaStreamComponent.instance.consumers.filter((c) => c.id !== consumerId);
     });
+  });
+
   }
 
   //= =//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//
@@ -627,6 +629,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
             protocol,
             appData
           });
+          console.log("Transport produce data request received")
+          console.log(appData);
           if (error) {
             console.log(error);
             errback();
