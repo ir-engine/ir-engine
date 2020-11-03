@@ -10,6 +10,7 @@ import {
   instanceServerProvisioned,
 } from './actions';
 import store from "../store";
+import { endVideoChat, leave } from "../../classes/transports/WebRTCFunctions";
 
 export function provisionInstanceServer (locationId: string, instanceId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -47,8 +48,8 @@ export function connectToInstanceServer () {
       const videoActive = MediaStreamComponent.instance.camVideoProducer != null || MediaStreamComponent.instance.camAudioProducer != null;
       console.log(videoActive)
       // TODO: Disconnected 
-      await (Network.instance.transport as any).endVideoChat();
-      await (Network.instance.transport as any).leave();
+      await endVideoChat();
+      await leave();
       await connectToServer(instance.get('ipAddress'), instance.get('port'), {
         locationId: locationId,
         token: token,
