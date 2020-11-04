@@ -64,7 +64,7 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
     InputComponent.schema.inputButtonBehaviors[DefaultInput.RIGHT].started.push({behavior:actorMoved});
         
     //
-    InputComponent.schema.inputAxisBehaviors[DefaultInput.MOVEMENT_PLAYERONE].started.push({behavior:actorMoved});
+    InputComponent.schema.inputAxisBehaviors[DefaultInput.MOVEMENT_PLAYERONE].changed.push({behavior:actorMoved});
   }
 
   const actorInteracted = () =>{

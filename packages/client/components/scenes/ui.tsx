@@ -67,6 +67,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   } = props;
   const [hoveredLabel, setHoveredLabel] = useState('');
   const [actorEntity, setActorEntity] = useState(null);
+  const [actorAvatarId, setActorAvatarId] = useState('Rose');
   const [infoBoxData, setInfoBoxData] = useState(null);
   const [progressEntity, setProgressEntity] = useState('');
 
@@ -130,7 +131,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   return (
     <ThemeProvider theme={theme}>
       <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
-      <OnBoardingDialog avatarsList={CharacterAvatars} />
+      <OnBoardingDialog avatarsList={CharacterAvatars} actorAvatarId={actorAvatarId} onAvatarChange={(avatarId) => {setActorAvatarId(avatarId) }} />
       <OnBoardingBox actorEntity={actorEntity} />
       <MediaIconsBox />
       <TooltipContainer message={hoveredLabel.length > 0 ? hoveredLabel : ''} />
