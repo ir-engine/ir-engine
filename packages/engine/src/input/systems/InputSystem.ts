@@ -144,7 +144,6 @@ export class InputSystem extends System {
 
       // Convert to a message buffer
       const message = inputs; // clientInputModel.toBuffer(inputs)
-      console.log("Sending message", message);
       // TODO: Send unreliably
       Network.instance.transport.sendReliableData(message); // Use default channel
     });

@@ -58,29 +58,22 @@ export class NetworkSystem extends System {
     // Advance the tick on the server by one
     Network.tick++;
 
-    let transforms = [];
     // Transforms that are updated are automatically collected
     // note: onChanged needs to currently be handled outside of fixedExecute
-    this.queryResults.serverNetworkTransforms.all?.forEach((entity: Entity) => {
-      const transform = getComponent(entity, TransformComponent);
-        transforms.push(transform);
-      // transform.position.setY(Network.tick/1000);
-      addNetworkTransformToWorldState(entity);
-    });
+    this.queryResults.serverNetworkTransforms.all?.forEach((entity: Entity) =>
+      addNetworkTransformToWorldState(entity));
 
     // For each networked object + input receiver, add to the frame to send
-    this.queryResults.serverNetworkInputs.all?.forEach((entity: Entity) => {
-      addInputToWorldStateOnServer(entity);
-    });
+    this.queryResults.serverNetworkInputs.all?.forEach((entity: Entity) =>
+      addInputToWorldStateOnServer(entity));
 
     // TODO: Create the snapshot and add it to the world state on the server
     // addSnapshot(createSnapshot(Network.instance.worldState.transforms));
 
     // TODO: to enable snapshots, use worldStateModel.toBuffer(Network.instance.worldState)
     // Send the message to all connected clients
-    if(Network.instance.transport !== undefined){
+    if(Network.instance.transport !== undefined)
       Network.instance.transport.sendReliableData(Network.instance.worldState); // Use default channel
-    }
 
     // CClear collected world state frame and reset after calculating
     Network.instance.worldState = {
@@ -100,9 +93,8 @@ export class NetworkSystem extends System {
     // Client logic
     const queue = Network.instance.incomingMessageQueue;
     // For each message, handle and process
-    while (queue.getBufferLength() > 0) {
+    while (queue.getBufferLength() > 0)
       applyNetworkStateToClient(queue.pop(), delta);
-    }
   }
 
   // Call logic based on whether we are the server or the client
