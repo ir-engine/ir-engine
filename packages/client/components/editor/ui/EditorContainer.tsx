@@ -384,14 +384,14 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
             name: "Save As",
             action: this.onDuplicateProject
           },
-          {
-            name: "Publish Scene...",
-            action: this.onPublishProject
-          },
-          {
-            name: "Export as binary glTF (.glb) ...",
-            action: this.onExportProject
-          },
+          // {
+          //   name: "Publish Scene...",
+          //   action: this.onPublishProject
+          // },
+          // {
+          //   name: "Export as binary glTF (.glb) ...", // TODO: Disabled temporarily till workers are working
+          //   action: this.onExportProject
+          // },
           {
             name: "Import legacy .editor project",
             action: this.onImportLegacyProject
