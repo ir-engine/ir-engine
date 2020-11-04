@@ -29,7 +29,7 @@ export async function getFreeSubdomain(gsIdentifier: string, subdomainNumber: nu
     } else {
         const subdomain = (subdomainResult as any).data[0];
         if (subdomain.allocated === true || subdomain.allocated === 1) {
-            return transport.getFreeSubdomain(gsIdentifier, subdomainNumber + 1);
+            return getFreeSubdomain(gsIdentifier, subdomainNumber + 1);
         }
         await transport.app.service('gameserver-subdomain-provision').patch(subdomain.id, {
             allocated: true,
@@ -151,7 +151,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user) {
 
         // Remove network object from list
         delete Network.instance.networkObjects[key];
-    })
+    });
 
     // Create a new client objectr
     const newClient = {
@@ -171,7 +171,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user) {
     // Add to the dictionary
     Network.instance.clients[userId] = newClient;
 
-    Network.instance.worldState.clientsConnected.push({ userId })
+    Network.instance.worldState.clientsConnected.push({ userId });
 
     // Create a new default prefab for client
     const networkObject = initializeNetworkObject(userId, Network.getNetworkId(), Network.instance.schema.defaultClientPrefab);
@@ -275,7 +275,7 @@ export async function handleDisconnect(socket) {
 
             // Remove network object from list
             delete Network.instance.networkObjects[key];
-        })
+        });
 
 
         Network.instance.worldState.clientsDisconnected.push({ userId });

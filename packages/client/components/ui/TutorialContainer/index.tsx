@@ -22,7 +22,7 @@ const TutorialContainer = (props) =>{
   const { onBoardingStep }  = props;
 
   return <>
-    <OnBoardingDialog avatarsList={CharacterAvatars} onAvatarChange={}  />
+    <OnBoardingDialog avatarsList={CharacterAvatars}   />
     <OnBoardingBox />
     <TooltipContainer />
   </>;
