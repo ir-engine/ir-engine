@@ -58,7 +58,7 @@ export class NetworkSystem extends System {
     // Advance the tick on the server by one
     Network.tick++;
 
-    let transforms = [];
+    const transforms = [];
     // Transforms that are updated are automatically collected
     // note: onChanged needs to currently be handled outside of fixedExecute
     this.queryResults.serverNetworkTransforms.all?.forEach((entity: Entity) => {

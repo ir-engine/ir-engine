@@ -35,11 +35,11 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         this.socketIO.of('/realtime').emit(MessageTypes.ReliableMessage.toString(), message);
 
     public sendData = (data: any): void =>
-        this.dataProducers.forEach(producer => { producer.send(JSON.stringify(data)) })
+        this.dataProducers.forEach(producer => { producer.send(JSON.stringify(data)); })
 
     public handleKick(socket: any) {
         logger.info("Kicking ", socket.id);
-        logger.info(this.socketIO.sockets.connected[socket.id])
+        logger.info(this.socketIO.sockets.connected[socket.id]);
         if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.Kick.toString(), socket.id);
     }
 
@@ -83,7 +83,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     `${stringSubdomainNumber}.${config.gameserver.domain}`) : localIp.ipAddress
         }];
 
-        logger.info("Initializing WebRTC Connection")
+        logger.info("Initializing WebRTC Connection");
         await startWebRTC();
 
         setInterval(() => validateNetworkObjects(), 5000);
