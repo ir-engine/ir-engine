@@ -7,6 +7,7 @@ import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { Input } from "../components/Input";
 import { normalizeMouseCoordinates } from '../../common/functions/normalizeMouseCoordinates';
 import { DefaultInput } from '../../templates/shared/DefaultInput';
+import { DefaultInputSchema } from '../../templates/shared/DefaultInputSchema';
 
 /**
  * Touch move
@@ -18,7 +19,9 @@ export const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEv
   const input = getComponent(entity, Input);
   const normalizedPosition = normalizeMouseCoordinates(args.event.touches[0].clientX, args.event.touches[0].clientY, window.innerWidth, window.innerHeight);
   const touchPosition: [number, number] = [normalizedPosition.x, normalizedPosition.y];
+
   const mappedPositionInput = input.schema.touchInputMap?.axes[TouchInputs.Touch1Position];
+  // const savedPositionInput = DefaultInput.POINTER1_POSITION;
 
   if (!mappedPositionInput) {
     return;
