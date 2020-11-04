@@ -3,13 +3,21 @@ $mobileControllButtonsSize:3em;
     position: fixed;
     bottom: 50px;
     width: 50%;
-    left: 0;    
+    left: 0;   
+
+    .nipple{
+        .front{
+            box-shadow: 0 0 10px rgba(255,255,0,1);
+        }
+    }
 }
+    
+    
 
 .controlButtonContainer{
     position: fixed;
     border-radius: 50%;
-    right: 100px;
+    right: 75px;
     bottom: 40px;
     line-height: ($mobileControllButtonsSize+1em);
 

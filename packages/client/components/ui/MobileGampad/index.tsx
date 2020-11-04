@@ -4,7 +4,8 @@ import { Thumbsticks } from '@xr3ngine/engine/src/common/enums/Thumbsticks';
 import { GamepadButtons } from "@xr3ngine/engine/src/input/enums/GamepadButtons";
 import styles from './MobileGamepad.module.scss';
 import { TouchApp } from '@styled-icons/material/TouchApp';
-import { generalStateList } from '../../../redux/app/actions';
+import { generalStateList, setAppOnBoardingStep } from '../../../redux/app/actions';
+import store from '../../../redux/store';
 
 type MobileGamepadProps = {
   hovered?: boolean | false;

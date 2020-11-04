@@ -64,7 +64,7 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
     InputComponent.schema.inputButtonBehaviors[DefaultInput.RIGHT].started.push({behavior:actorMoved});
         
     //
-    InputComponent.schema.inputAxisBehaviors[DefaultInput.MOVEMENT_PLAYERONE].started.push({behavior:actorMoved});
+    InputComponent.schema.inputAxisBehaviors[DefaultInput.MOVEMENT_PLAYERONE].changed.push({behavior:actorMoved});
   }
 
   const actorInteracted = () =>{
@@ -86,7 +86,7 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
     InputComponent.schema.keyboardInputMap.e = DefaultInput.INTERACT;
     InputComponent.schema.gamepadInputMap.buttons[GamepadButtons.A] = DefaultInput.INTERACT;
 
-    InputComponent.schema.inputButtonBehaviors[DefaultInput.INTERACT] = {started : [{behavior:actorInteracted}]};
+    InputComponent.schema.inputButtonBehaviors[DefaultInput.INTERACT] = {ended : [{behavior:actorInteracted}]};
     store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_INTERACT));
   }
 
