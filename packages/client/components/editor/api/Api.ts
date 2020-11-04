@@ -516,7 +516,7 @@ export default class Api extends EventEmitter {
     const {
       file_id: thumbnailFileId,
       meta: { access_token: thumbnailFileToken }
-    } = await this.upload(thumbnailBlob, undefined, signal) as any;
+    } = await this.upload(thumbnailBlob, undefined, signal, projectId) as any;
 
     if (signal.aborted) {
       throw new Error("Save project aborted");
@@ -836,7 +836,7 @@ export default class Api extends EventEmitter {
         }
       };
       /* eslint-enable */
-    
+
       const token = this.getToken();
 
       const headers = {
@@ -886,7 +886,7 @@ export default class Api extends EventEmitter {
     return project;
   }
 
-  async upload(blob, onUploadProgress, signal?): Proimse<void> {
+  async upload(blob, onUploadProgress, signal?, projectId?): Proimse<void> {
     let host, port;
     const token = this.getToken();
 
@@ -946,6 +946,7 @@ export default class Api extends EventEmitter {
       });
 
       const formData = new FormData();
+      formData.set("projectId", projectId);
       formData.set("media", blob);
 
       request.setRequestHeader('Authorization', `Bearer ${token}`);
