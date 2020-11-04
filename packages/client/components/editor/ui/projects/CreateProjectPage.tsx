@@ -20,7 +20,7 @@ import InfiniteScroll from "react-infinite-scroller";
 import { useRouter } from "next/router";
 import { withApi } from "../contexts/ApiContext";
 import usePaginatedSearch from "./usePaginatedSearch";
-import configs from "../../configs"
+import configs from "../../configs";
 import Api from "../../api/Api";
 
 function CreateProjectPage({ api }: { api: Api }) {
@@ -101,7 +101,6 @@ function CreateProjectPage({ api }: { api: Api }) {
   const filteredEntries = Array.isArray(entries) ? entries.map(result => ({
     ...result,
     url: `/editor/projects/new?sceneId=${result.id}`,
-    // eslint-disable-next-line @typescript-eslint/camelcase
     thumbnail_url: result && result.images && result.images.preview && result.images.preview.url
   })) : [];
 
@@ -166,4 +165,4 @@ function CreateProjectPage({ api }: { api: Api }) {
   );
 }
 
-export default withApi(CreateProjectPage)
+export default withApi(CreateProjectPage);

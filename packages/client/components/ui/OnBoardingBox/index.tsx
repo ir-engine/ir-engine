@@ -25,7 +25,7 @@ const mapStateToProps = (state: any): any => {
 
 interface Props {
   onBoardingStep?: number;
-  actorEntity : Entity;
+  actorEntity? : Entity;
 }
 
 const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
@@ -33,7 +33,7 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
   const addLookAroundEventListeners = () =>{
     const InputComponent = getMutableComponent(actorEntity, Input);
     InputComponent.schema.inputAxisBehaviors[DefaultInput.LOOKTURN_PLAYERONE] = {changed : [{behavior:actorLooked}]};
-  }
+  };
 
   const actorLooked = () =>{
     store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_MOVE));
@@ -46,7 +46,7 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
       [GamepadButtons.DPad2]: DefaultInput.BACKWARD, // DPAD 2
       [GamepadButtons.DPad3]: DefaultInput.LEFT, // DPAD 3
       [GamepadButtons.DPad4]: DefaultInput.RIGHT // DPAD 4
-    }
+    };
     InputComponent.schema.gamepadInputMap.axes[Thumbsticks.Left] =  DefaultInput.MOVEMENT_PLAYERONE;           
     InputComponent.schema.gamepadInputMap.buttons = Object.assign(InputComponent.schema.gamepadInputMap.buttons, gamepadInputMap) ;
 
@@ -55,7 +55,7 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
       w: DefaultInput.FORWARD,
       a: DefaultInput.LEFT,
       s: DefaultInput.BACKWARD,
-      d: DefaultInput.RIGHT}
+      d: DefaultInput.RIGHT};
     InputComponent.schema.keyboardInputMap = Object.assign(InputComponent.schema.keyboardInputMap, keyboardInputMap) ;
     //keyboard
     InputComponent.schema.inputButtonBehaviors[DefaultInput.FORWARD].started.push({behavior:actorMoved});
@@ -65,13 +65,13 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
         
     //
     InputComponent.schema.inputAxisBehaviors[DefaultInput.MOVEMENT_PLAYERONE].changed.push({behavior:actorMoved});
-  }
+  };
 
   const actorInteracted = () =>{
     store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_UNMUTE));
     const InputComponent = getMutableComponent(actorEntity, Input);
     InputComponent.schema = CharacterInputSchema;
-  }
+  };
 
   const actorMoved = () =>{
     const InputComponent = getMutableComponent(actorEntity, Input);
@@ -88,7 +88,7 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
 
     InputComponent.schema.inputButtonBehaviors[DefaultInput.INTERACT] = {ended : [{behavior:actorInteracted}]};
     store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_INTERACT));
-  }
+  };
 
   const exitTutorialHandle = () =>store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));
 
