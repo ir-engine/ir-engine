@@ -20,9 +20,6 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered,l
     const eventType = pressed? "mobilegamepadbuttondown" : "mobilegamepadbuttonup";
     const event = new CustomEvent(eventType, { "detail": { button } });
     document.dispatchEvent(event);
-    if(onBoardingStep === generalStateList.TUTOR_INTERACT){
-      store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_UNMUTE));
-    }
   };
 
   const buttonsConfig: Array<{ button: GamepadButtons; label: string }> = [
