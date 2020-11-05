@@ -21,7 +21,7 @@ const MediaIconsBox = (props) =>{
     if(props.onBoardingStep === generalStateList.TUTOR_UNMUTE){
       store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_END));
     }
-  }
+  };
   return props.onBoardingStep >= generalStateList.TUTOR_UNMUTE ? 
         <section className={styles.drawerBoxContainer}>
           <section className={styles.drawerBox}>

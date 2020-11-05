@@ -30,7 +30,7 @@ export function getLocation(locationId: string) {
     try {
       dispatch(fetchingCurrentLocation());
       const location = await client.service('location').get(locationId);
-      console.log('getLocation location:')
+      console.log('getLocation location:');
       console.log(location);
       dispatch(locationRetrieved(location));
     } catch(err) {

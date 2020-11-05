@@ -8,7 +8,7 @@ import { DataProducer, Transport as MediaSoupTransport } from "mediasoup-client/
 
 let networkTransport: any;
 
-export async function createDataProducer(channel: string = "default", type: UnreliableMessageType = 'raw', customInitInfo: any = {}): Promise<DataProducer | Error> {
+export async function createDataProducer(channel = "default", type: UnreliableMessageType = 'raw', customInitInfo: any = {}): Promise<DataProducer | Error> {
     networkTransport = Network.instance.transport as any;
     console.log("createDataProducer");
     // else if (MediaStreamComponent.instance.dataProducers.get(channel)) return Promise.reject(new Error('Data channel already exists!'))
@@ -73,7 +73,7 @@ export async function sendCameraStreams(partyId?: string): Promise<void> {
             newTransport = networkTransport.instanceSendTransport;
         else {
             if (networkTransport.partySendTransport == null || networkTransport.partySendTransport.closed === true || networkTransport.partySendTransport.connectionState === 'disconnected')
-                [newTransport,] = await Promise.all([initSendTransport(partyId), networkTransport.initReceiveTransport(partyId)]);
+                [newTransport,] = await Promise.all([initSendTransport(partyId), initReceiveTransport(partyId)]);
             else
                 newTransport = networkTransport.partySendTransport;
         }
@@ -195,7 +195,7 @@ export function setPartyId(partyId: string): void {
 }
 
 export async function subscribeToTrack(peerId: string, mediaTag: string, partyId) {
-    console.log("subscribeToTrack on peer", peerId, "for partyId", partyId)
+    console.log("subscribeToTrack on peer", peerId, "for partyId", partyId);
     networkTransport = Network.instance.transport as any;
 
     // if we do already have a consumer, we shouldn't have called this method
