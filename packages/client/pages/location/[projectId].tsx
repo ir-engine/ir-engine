@@ -30,7 +30,7 @@ async function init (projectId: string): Promise<any> { // auth: any,
     entity.components.forEach((component) => {
       console.log(component.name);
       console.log(component);
-      EditorNodeLoader(scene, newEntity, component);
+      // EditorNodeLoader(scene, newEntity, component);
     });
     console.log(newEntity);
   });
