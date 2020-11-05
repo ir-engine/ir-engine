@@ -128,7 +128,7 @@ describe("remove component", () => {
     expect(removeEntityMock).not.toBeCalled()
   })
 
-  it("delete entity with last SystemStateComponent deleted, if there is no other components", () => {
+  it.skip("delete entity with last SystemStateComponent deleted, if there is no other components", () => {
     let removeEntityMock = jest.spyOn(EntityFunctions, 'removeEntity')
 
     addComponent(entity, TestSystemStateComponent1)
