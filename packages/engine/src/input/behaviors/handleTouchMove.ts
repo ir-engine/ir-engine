@@ -20,11 +20,24 @@ export const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEv
   const normalizedPosition = normalizeMouseCoordinates(args.event.touches[0].clientX, args.event.touches[0].clientY, window.innerWidth, window.innerHeight);
   const touchPosition: [number, number] = [normalizedPosition.x, normalizedPosition.y];
 
+  // Store raw pointer positions to use in other behaviours, like gesture detection
+  input.data.set(DefaultInput.POINTER1_POSITION, {
+    type: InputType.TWODIM,
+    value: touchPosition,
+    lifecycleState: LifecycleValue.CHANGED // TODO: should we handle lifecycle here?
+  });
+  if (args.event.touches.length >= 2) {
+    const normalizedPosition2 = normalizeMouseCoordinates(args.event.touches[1].clientX, args.event.touches[1].clientY, window.innerWidth, window.innerHeight);
+
+    input.data.set(DefaultInput.POINTER2_POSITION, {
+      type: InputType.TWODIM,
+      value: [normalizedPosition2.x, normalizedPosition2.y],
+      lifecycleState: LifecycleValue.CHANGED // TODO: should we handle lifecycle here?
+    });
+  }
+
   const mappedPositionInput = input.schema.touchInputMap?.axes[TouchInputs.Touch1Position];
   const previousPositionValue = input.data.get(mappedPositionInput)?.value;
-
-  const defaultPositionInput1 = DefaultInput.POINTER1_POSITION;
-  // const defaultPositionInput2 = DefaultInput.POINTER1_POSITION;
 
   if (!mappedPositionInput) {
     return;
@@ -37,39 +50,6 @@ export const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEv
       value: touchPosition,
       lifecycleState: hasData ? LifecycleValue.CHANGED : LifecycleValue.STARTED
     });
-  }
-
-  if (!defaultPositionInput1) {
-    return;
-  }
-
-  const hasData1 = input.data.has(defaultPositionInput1);
-  if (!hasData1) {
-    input.data.set(defaultPositionInput1, {
-      type: InputType.TWODIM,
-      value: touchPosition,
-      lifecycleState: hasData1 ? LifecycleValue.CHANGED : LifecycleValue.STARTED
-    });
-  }
-
-  if (args.event.targetTouches.length == 2) {
-    const normalizedPosition2 = normalizeMouseCoordinates(args.event.touches[1].clientX, args.event.touches[1].clientY, window.innerWidth, window.innerHeight);
-    const touchPosition2: [number, number] = [normalizedPosition2.x, normalizedPosition2.y];
-
-    const defaultPositionInput2 = DefaultInput.POINTER2_POSITION;
-
-    if (!defaultPositionInput2) {
-      return;
-    }
-
-    const hasData2 = input.data.has(defaultPositionInput2);
-    if (!hasData2) {
-      input.data.set(defaultPositionInput2, {
-        type: InputType.TWODIM,
-        value: touchPosition2,
-        lifecycleState: hasData2 ? LifecycleValue.CHANGED : LifecycleValue.STARTED
-      });
-    }
   }
 
   const movementStart = args.event.type === 'touchstart';

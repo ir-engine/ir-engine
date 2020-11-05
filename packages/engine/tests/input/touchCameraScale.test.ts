@@ -44,6 +44,12 @@ const testInputSchema: InputSchema = {
       },
       {
         behavior: handleTouchMove
+      },
+      {
+        behavior: handleTouchScale,
+        args: {
+          value: DefaultInput.CAMERA_SCROLL
+        }
       }
     ],
     touchend: [
@@ -65,16 +71,14 @@ const testInputSchema: InputSchema = {
     touchmove: [
       {
         behavior: handleTouchMove
-      }
-    ],
-    touchscale: [
-        {
-          behavior: handleTouchScale,
-          args: {
-            value: DefaultInput.CAMERA_SCROLL
-          }
+      },
+      {
+        behavior: handleTouchScale,
+        args: {
+          value: DefaultInput.CAMERA_SCROLL
         }
-      ],
+      }
+    ]
   },
   touchInputMap: {
     buttons: {
@@ -197,14 +201,14 @@ describe("gestures", () => {
   describe("touch scale", () => {
     it ("lifecycle STARTED", () => {
       let data
-      triggerTouch({ touches: [ windowPoint1_1, windowPoint1_2 ], type: 'touchmove' });
+      triggerTouch({ touches: [ windowPoint1_1, windowPoint1_2 ], type: 'touchstart' });
       execute();
       triggerTouch({ touches: [ windowPoint2_1, windowPoint2_2 ], type: 'touchmove' });
       execute();
 
       expect(input.data.has(DefaultInput.CAMERA_SCROLL)).toBeTruthy();
       const data2 = input.data.get(DefaultInput.CAMERA_SCROLL);
-      expect(data2.value).toMatchObject([ distance1 - distance2 ]);
+      expect(data2.value).toBe((distance2 - distance1)*100);  // TODO: remove 100 multiplication after mouse scroll will be normalized (or divided by 100)
 
       // expect(data2.lifecycleState).toBe(LifecycleValue.CHANGED);
       //expect(mockedButtonBehaviorOnStarted.mock.calls.length).toBe(1);
@@ -231,7 +235,7 @@ function triggerTouch({ touches, type}: { touches:{x:number,y:number,id?:number}
       clientX: touch.x,
       clientY: touch.y,
     };
-    });
+  });
 
   const typeListenerCalls = addListenerMock.mock.calls.filter(call => call[0] === type);
   typeListenerCalls.forEach(typeListenerCall => {
@@ -239,7 +243,7 @@ function triggerTouch({ touches, type}: { touches:{x:number,y:number,id?:number}
       type,
       changedTouches: _touches,
       targetTouches: _touches,
-      touches: touches,
+      touches: _touches,
       view: window,
       cancelable: true,
       bubbles: true,
