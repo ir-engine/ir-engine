@@ -3,6 +3,7 @@ import { Application } from '../../declarations';
 import { GroupUser } from './group-user.class';
 import createModel from '../../models/group-user.model';
 import hooks from './group-user.hooks';
+import logger from '../../app/logger';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -66,7 +67,7 @@ export default (app: Application): any => {
         });
       }));
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       throw err;
     }
   });
@@ -115,7 +116,7 @@ export default (app: Application): any => {
         });
       }));
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       throw err;
     }
   });
@@ -154,7 +155,7 @@ export default (app: Application): any => {
         });
       }));
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       throw err;
     }
   });

@@ -130,7 +130,7 @@ export default (app: Application): void => {
   app.configure(Tag);
   app.configure(SubscriptionConfirm);
   app.configure(Upload);
-  app.configure(Video);
+  // app.configure(Video);
 
   // Editor
   app.configure(MediaSearch);

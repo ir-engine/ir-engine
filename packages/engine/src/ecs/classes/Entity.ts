@@ -1,4 +1,4 @@
-import { addComponent, getComponent, removeEntity } from '../functions/EntityFunctions';
+import { addComponent, getComponent } from '../functions/EntityFunctions';
 import { Engine } from './Engine';
 
 export class Entity {
@@ -86,14 +86,5 @@ export class Entity {
     for (const componentId in this.components) {
       delete this.components[componentId];
     }
-  }
-
-  /**
-   * Remove entity
-   * Permanently destroys entity and removes from pool
-   * Along with all components
-   */
-  remove (forceImmediate?: boolean): void {
-    return removeEntity(this, forceImmediate);
   }
 }

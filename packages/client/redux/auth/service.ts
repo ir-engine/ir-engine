@@ -38,6 +38,7 @@ import { resolveAuthUser } from '@xr3ngine/common/interfaces/AuthUser';
 import { resolveUser } from '@xr3ngine/common/interfaces/User';
 import store from "../store";
 import { Network } from '@xr3ngine/engine/src/networking/components/Network';
+import { endVideoChat, leave } from '../../classes/transports/WebRTCFunctions';
 
 const { publicRuntimeConfig } = getConfig();
 const apiServer: string = publicRuntimeConfig.apiServer;
@@ -517,8 +518,8 @@ client.service('location-ban').on('created', async(params) => {
   console.log('Current location id: ' + currentLocation.id);
   console.log(locationBan);
   if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
-    await (Network.instance.transport as any).endVideoChat(true);
-    await (Network.instance.transport as any).leave();
+    endVideoChat(true);
+    leave();
     if (selfPartyUser.id != null) {
       await client.service('party-user').remove(selfPartyUser.id);
     }

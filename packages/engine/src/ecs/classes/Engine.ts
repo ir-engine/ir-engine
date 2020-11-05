@@ -18,8 +18,8 @@ export class Engine {
   // public static sky: Sky;
   public static isExecuting = false;
 
-  public static framerateLimit = 60;
   public static physicsFrameRate = 60;
+  public static networkFramerate = 30;
 
   public static accumulator: number;
 	public static justExecuted: boolean;

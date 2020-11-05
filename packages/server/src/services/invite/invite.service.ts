@@ -4,6 +4,7 @@ import { Application } from '../../declarations';
 import { Invite } from './invite.class';
 import createModel from '../../models/invite.model';
 import hooks from './invite.hooks';
+import logger from '../../app/logger';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -50,7 +51,7 @@ export default (app: Application): any => {
         });
       }));
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       throw err;
     }
   });
@@ -79,7 +80,7 @@ export default (app: Application): any => {
         });
       }));
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       throw err;
     }
   });

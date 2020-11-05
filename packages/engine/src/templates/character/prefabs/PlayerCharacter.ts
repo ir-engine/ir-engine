@@ -15,6 +15,7 @@ import { CharacterComponent } from "../components/CharacterComponent";
 import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
 import { Interactor } from "../../../interaction/components/Interactor";
 import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
+import { loadActorAvatar } from "../behaviors/loadActorAvatar";
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const PlayerCharacter: Prefab = {
@@ -38,7 +39,10 @@ export const PlayerCharacter: Prefab = {
       //  { type: LocalInputReceiver }
         { type: Interactor }
     ],
-    onAfterCreate: [
+    onAfterCreate: [{
+        behavior: loadActorAvatar
+    }
+
         // {
         //     behavior: addComponentFromSchema,
         //     args: {
@@ -52,9 +56,9 @@ export const PlayerCharacter: Prefab = {
         //         }
         //     }
         // },
-        {
-            behavior: initializeCharacter
-        }
+        // {
+        //     behavior: initializeCharacter
+        // }
     ],
     onBeforeDestroy: [
 

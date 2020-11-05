@@ -86,7 +86,7 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
           this.setState({
             projects: projects.map(project => ({
               ...project,
-              url: `/projects/${project.project_id}`
+              url: `/editor/projects/${project.project_id}`
             })),
             loading: false
           });
@@ -123,8 +123,7 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
   renderContextMenu = props => {
     return (
       <>
-      { /* ts-ignore */ }
-      <ContextMenu>
+      <ContextMenu id={contextMenuId}>
         <MenuItem onClick={e => this.onDeleteProject(props.trigger.project)}>
           Delete Project
         </MenuItem>
@@ -134,7 +133,6 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
   };
   ProjectContextMenu = connectMenu(contextMenuId)(this.renderContextMenu);
   render() {
-    const theme = this.context;
     const { error, loading, projects } = this.state;
     const ProjectContextMenu = this.ProjectContextMenu;
     const topTemplates = [];

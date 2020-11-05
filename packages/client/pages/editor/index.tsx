@@ -85,7 +85,7 @@ export default class LandingPage extends Component {
     return (
         <main>
           <Section>
-                <a href="/editor/create">
+                <a href="/editor/projects">
                   Get Started
                 </a>
           </Section>

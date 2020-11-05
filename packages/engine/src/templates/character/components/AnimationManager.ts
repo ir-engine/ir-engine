@@ -4,7 +4,7 @@ import { Component } from '../../../ecs/classes/Component';
 import { AnimationClip } from 'three';
 
 import GLTFLoader from 'three-gltf-loader';
-import { isBrowser } from "../../../common/functions/isBrowser";
+import { isClient } from "../../../common/functions/isClient";
 import { Types } from '../../../ecs/types/Types';
 
 export class AnimationManager extends Component<AnimationManager> {
@@ -14,13 +14,12 @@ export class AnimationManager extends Component<AnimationManager> {
 	_animations: AnimationClip[] = []
 	getAnimations(): Promise<AnimationClip[]> {
 		return new Promise(resolve => {
-			if (!isBrowser) {
+			if (!isClient) {
 				resolve([]);
 				return;
 			}
 
-
-			new GLTFLoader().load('models/avatars/Animation.glb', gltf => {
+			new GLTFLoader().load('/models/avatars/Animation.glb', gltf => {
 					this._animations = gltf.animations;
 					this._animations.forEach(clip => {
 						// TODO: make list of morph targets names

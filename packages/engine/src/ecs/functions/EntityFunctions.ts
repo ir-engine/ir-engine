@@ -181,7 +181,7 @@ export function removeComponent<C extends Component<C>>(
 
     // Check if the entity was a ghost waiting for the last system state component to be removed
     if (entity.componentTypes.length === 0) {
-      entity.remove();
+      removeEntity(entity);
     }
   } return component;
 }
@@ -252,7 +252,10 @@ export function createEntity(): Entity {
 export function removeEntity(entity: Entity, immediately?: boolean): void {
   const index = Engine.entities.indexOf(entity);
 
-  if (!~index) throw new Error('Tried to remove entity not in list');
+  if (!~index) {
+    console.error('Tried to remove entity not in list');
+    return;
+  }
 
   if (entity.numStateComponents === 0) {
     // Remove from entity list

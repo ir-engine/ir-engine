@@ -1,3 +1,5 @@
+import { isClient } from "./isClient";
+
 const keys = { 37: 1, 38: 1, 39: 1, 40: 1 };
 
 function preventDefault (e) {
@@ -31,6 +33,7 @@ const wheelOpt = supportsPassive ? { passive: false } : false;
 
 // call this to Disable
 export function disableScroll (): void {
+  if(!isClient) return
   window.addEventListener('DOMMouseScroll', preventDefault, false); // older FF
   // window.addEventListener(wheelEvent, preventDefault, wheelOpt) // modern desktop
   window.addEventListener('touchmove', preventDefault, wheelOpt); // mobile
@@ -39,6 +42,7 @@ export function disableScroll (): void {
 
 // call this to Enable
 export function enableScroll (): void {
+  if(!isClient) return
   window.removeEventListener('DOMMouseScroll', preventDefault, false);
   // window.removeEventListener(wheelEvent, preventDefault)
   window.removeEventListener('touchmove', preventDefault);

@@ -1,3 +1,4 @@
+import { ThemeProvider } from '@material-ui/core';
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { addObject3DComponent } from '@xr3ngine/engine/src/common/behaviors/Object3DBehaviors';
 import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
@@ -7,6 +8,8 @@ import { createEntity, getMutableComponent } from '@xr3ngine/engine/src/ecs/func
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
+import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
+import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacterWithEmptyInputSchema';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { WorldPrefab } from '@xr3ngine/engine/src/templates/world/prefabs/WorldPrefab';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
@@ -23,6 +26,7 @@ import { selectInstanceConnectionState } from '../../redux/instanceConnection/se
 import { connectToInstanceServer, provisionInstanceServer } from '../../redux/instanceConnection/service';
 import { selectPartyState } from '../../redux/party/selector';
 import store from '../../redux/store';
+import theme from '../../theme';
 import { InfoBox } from "../ui/InfoBox";
 import LinearProgressComponent from '../ui/LinearProgress';
 import MediaIconsBox from "../ui/MediaIconsBox";
@@ -62,6 +66,8 @@ export const EnginePage: FunctionComponent = (props: any) => {
     onBoardingStep
   } = props;
   const [hoveredLabel, setHoveredLabel] = useState('');
+  const [actorEntity, setActorEntity] = useState(null);
+  const [actorAvatarId, setActorAvatarId] = useState('Rose');
   const [infoBoxData, setInfoBoxData] = useState(null);
   const [progressEntity, setProgressEntity] = useState('');
 
@@ -85,16 +91,9 @@ export const EnginePage: FunctionComponent = (props: any) => {
     const InitializationOptions = {
       ...DefaultInitializationOptions,
       networking: {
-        enabled: false,
-        supportsMediaStreams: false,
+        ...DefaultInitializationOptions.networking,
         schema: networkSchema,
-      },
-      physics: {
-        enabled: true,
-      },
-      input: {
-        mobile: isMobileOrTablet(),
-      },
+      }
     };
     
     initializeEngine(InitializationOptions);
@@ -115,6 +114,9 @@ export const EnginePage: FunctionComponent = (props: any) => {
     // createPrefab(WorldPrefab);
     createPrefab(staticWorldColliders);
 
+    const actorEntity = createPrefab(PlayerCharacter);
+    setActorEntity(actorEntity);
+
     return (): void => {
       document.removeEventListener('scene-loaded-entity', sceneLoadedEntity);
       document.removeEventListener('scene-loaded', sceneLoaded);
@@ -124,18 +126,18 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
   //mobile gamepad
   const mobileGamepadProps = {hovered:hoveredLabel.length > 0, layout: 'default' };
-  const mobileGamepad = isMobileOrTablet()? <MobileGamepad {...mobileGamepadProps} /> : null;
+  const mobileGamepad = isMobileOrTablet() && onBoardingStep >= generalStateList.TUTOR_MOVE ? <MobileGamepad {...mobileGamepadProps} /> : null;
 
   return (
-    <>
-    <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
-    <OnBoardingDialog />
-    <OnBoardingBox />
-    <MediaIconsBox />
-    <TooltipContainer message={hoveredLabel.length > 0 ? hoveredLabel : ''} />
-    <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} />
-    {mobileGamepad}
-    </>
+    <ThemeProvider theme={theme}>
+      <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
+      <OnBoardingDialog avatarsList={CharacterAvatars} actorAvatarId={actorAvatarId} onAvatarChange={(avatarId) => {setActorAvatarId(avatarId); }} />
+      <OnBoardingBox actorEntity={actorEntity} />
+      <MediaIconsBox />
+      <TooltipContainer message={hoveredLabel.length > 0 ? hoveredLabel : ''} />
+      <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} />
+      {mobileGamepad}
+    </ThemeProvider>
   );
 };
 
