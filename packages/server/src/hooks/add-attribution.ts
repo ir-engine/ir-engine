@@ -1,3 +1,5 @@
+import logger from "../app/logger";
+
 export default async function (context: any): Promise<void> {
   const { result, app, data } = context;
 
@@ -12,7 +14,7 @@ export default async function (context: any): Promise<void> {
       return context;
     } catch (err) {
       console.log('add-attribution error');
-      console.log(err);
+      logger.error(err);
     }
   } else {
     return context;

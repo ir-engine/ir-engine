@@ -18,11 +18,12 @@ import { Button } from "../inputs/Button";
 import { ProjectsSection, ProjectsContainer, ProjectsHeader } from "./ProjectsPage";
 import InfiniteScroll from "react-infinite-scroller";
 import { useRouter } from "next/router";
-// import { ApiContext } from "../contexts/ApiContext";
-// import usePaginatedSearch from "./usePaginatedSearch";
+import { withApi } from "../contexts/ApiContext";
+import usePaginatedSearch from "./usePaginatedSearch";
+import configs from "../../configs";
+import Api from "../../api/Api";
 
-export default function CreateProjectPage() {
-  // const api = useContext(ApiContext);
+function CreateProjectPage({ api }: { api: Api }) {
   const router = useRouter();
 
   const queryParams = new Map(Object.entries(router.query));
@@ -88,19 +89,20 @@ export default function CreateProjectPage() {
     scene => {
       const search = new URLSearchParams();
       search.set("sceneId", scene.id);
-      router.push(`/projects/new?${search}`);
+      router.push(`/editor/projects/new?${search}`);
     },
     [router]
   );
 
   // MODIFIED FROM ORIGINAL
-  const { loading, error, entries } = { loading: false, error: false, entries: [] };
+  const { loading, error, entries } = usePaginatedSearch(`${api.apiURL}${(configs as any).API_MEDIA_SEARCH_ROUTE}`, params);
+  // const { loading, error, entries } = { loading: false, error: false, entries: [] };
   const hasMore = false;
-  const filteredEntries = entries.map(result => ({
+  const filteredEntries = Array.isArray(entries) ? entries.map(result => ({
     ...result,
-    url: `/projects/new?sceneId=${result.id}`,
+    url: `/editor/projects/new?sceneId=${result.id}`,
     thumbnail_url: result && result.images && result.images.preview && result.images.preview.url
-  }));
+  })) : [];
 
   return (
     <>
@@ -124,10 +126,10 @@ export default function CreateProjectPage() {
                   </Filter>
                   <Separator />
                   {/* @ts-ignore */}
-                  <SearchInput placeholder="Search scenes..." onChange={onChangeQuery} />
+                  <SearchInput placeholder="Search scenes..." value={params.q} onChange={onChangeQuery} />
                 </ProjectGridHeaderRow>
                 <ProjectGridHeaderRow>
-                  <Button onClick={routeTo('/projects/new')}>
+                  <Button onClick={routeTo('/editor/projects/new')}>
                     New Empty Project
                   </Button>
                 </ProjectGridHeaderRow>
@@ -163,7 +165,4 @@ export default function CreateProjectPage() {
   );
 }
 
-// CreateProjectPage.propTypes = {
-//   history: PropTypes.object.isRequired,
-//   location: PropTypes.object.isRequired
-// };
+export default withApi(CreateProjectPage);

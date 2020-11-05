@@ -4,6 +4,7 @@ import {BadRequest} from '@feathersjs/errors';
 import _ from 'lodash';
 import Sequelize, { Op } from 'sequelize';
 import getLocalServerIp from '../../util/get-local-server-ip';
+import logger from '../../app/logger';
 
 interface Data {}
 
@@ -101,6 +102,20 @@ export class InstanceProvision implements ServiceMethods<Data> {
             paramsCopy.query = {};
             await this.app.service('party-user').remove((partyUser as any).data[0].id, paramsCopy);
           }
+        } else if (partyOwner?.userId === userId && partyOwner?.user.instanceId) {
+          const partyInstance = await this.app.service('instance').get(partyOwner.user.instanceId);
+          if (partyInstance.locationId === locationId) {
+            if (process.env.KUBERNETES !== 'true') {
+              return getLocalServerIp();
+            }
+            const addressSplit = partyInstance.ipAddress.split(':');
+            console.log('addressSplit:');
+            console.log(addressSplit);
+            return {
+              ipAddress: addressSplit[0],
+              port: addressSplit[1]
+            };
+          }
         }
       }
       const friendsAtLocationResult = await this.app.service('user').Model.findAndCountAll({
@@ -143,7 +158,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
         });
         const maxInstance = await this.app.service('instance').get(maxInstanceId);
         if (process.env.KUBERNETES !== 'true') {
-          console.log('Resetting local instance to ' + maxInstanceId);
+          logger.info('Resetting local instance to ' + maxInstanceId);
           (this.app as any).instance = maxInstance;
           return getLocalServerIp();
         }
@@ -175,7 +190,6 @@ export class InstanceProvision implements ServiceMethods<Data> {
           return getLocalServerIp();
         }
         console.log('Getting free gameserver');
-        console.log((this.app as any).k8AgonesClient);
         const serverResult = await (this.app as any).k8AgonesClient.get('gameservers');
         const readyServers = _.filter(serverResult.items, (server: any) => server.status.state === 'Ready');
         const server = readyServers[Math.floor(Math.random() * readyServers.length)];
@@ -192,7 +206,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
       } else {
         const instanceUserSort = _.sortBy(availableLocationInstances, (instance: typeof instanceModel) => instance.currentUsers);
         if (process.env.KUBERNETES !== 'true') {
-          console.log('Resetting local instance to ' + instanceUserSort[0].id);
+          logger.info('Resetting local instance to ' + instanceUserSort[0].id);
           (this.app as any).instance = instanceUserSort[0];
           return getLocalServerIp();
         }
@@ -203,7 +217,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
         };
       }
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       throw err;
     }
   }

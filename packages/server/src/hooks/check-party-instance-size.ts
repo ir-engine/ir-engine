@@ -2,6 +2,7 @@ import { HookContext } from '@feathersjs/feathers';
 import Sequelize, {Op} from "sequelize";
 import _ from "lodash";
 import getLocalServerIp from "../util/get-local-server-ip";
+import logger from '../app/logger';
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
@@ -20,9 +21,8 @@ export default () => {
       if (party.instanceId != null) {
         const instance = await context.app.service('instance').get(party.instanceId);
         const location = await context.app.service('location').get(instance.locationId);
-        console.log(instance.currentUsers + 1 > location.maxUsersPerInstance);
         if (params.oldInstanceId !== instance.id && instance.currentUsers + 1 > location.maxUsersPerInstance) {
-          console.log('Putting party onto a new server');
+          logger.info('Putting party onto a new server');
           const availableLocationInstances = await context.app.service('instance').Model.findAll({
             where: {
               locationId: location.id,
@@ -38,9 +38,8 @@ export default () => {
               }
             ]
           });
-          console.log('availableLocationInstances count: ' + availableLocationInstances.length);
           if (availableLocationInstances.length === 0) {
-            console.log('Spinning up new instance server');
+            logger.info('Spinning up new instance server');
             let selfIpAddress, status;
             const emittedIp = (process.env.KUBERNETES !== 'true') ? await getLocalServerIp() : { ipAddress: status.address, port: status.portsList[0].port};
             if (process.env.KUBERNETES === 'true') {
@@ -72,14 +71,14 @@ export default () => {
               port: emittedIp.port
             });
           } else {
-            console.log('Putting party on existing server with space');
+            logger.info('Putting party on existing server with space');
             const instanceModel = context.app.service('instance').Model;
             const instanceUserSort = _.sortBy(availableLocationInstances, (instance: typeof instanceModel) => instance.currentUsers);
             const selectedInstance = instanceUserSort[0];
             if (process.env.KUBERNETES !== 'true') {
               (context.app as any).instance.id = selectedInstance.id;
             }
-            console.log('Putting party users on instance ' + selectedInstance.id);
+            logger.info('Putting party users on instance ' + selectedInstance.id);
             const addressSplit = selectedInstance.ipAddress.split(':');
             const emittedIp = (process.env.KUBERNETES !== 'true') ? await getLocalServerIp() : { ipAddress: addressSplit[0], port: addressSplit[1]};
             await context.app.service('instance-provision').emit('created', {
@@ -94,8 +93,8 @@ export default () => {
       }
       return context;
     } catch(err) {
-      console.log('check-party-instance error');
-      console.log(err);
+      logger.error('check-party-instance error');
+      logger.error(err);
     }
   };
 };

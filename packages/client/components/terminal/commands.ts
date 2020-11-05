@@ -1,5 +1,5 @@
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { createEntity } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
+import { createEntity, removeEntity } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
 import { ComponentConstructor } from "@xr3ngine/engine/src/ecs/interfaces/ComponentInterfaces";
 //import {curryRight} from "lodash";
 
@@ -142,7 +142,7 @@ export const commands = {
                         const ids = options;
 	                    ids.forEach(id => {
 		                      const entity = Engine.entities.find(element => element.id === id);
-                              if (entity !== undefined) entity.remove();
+                              if (entity !== undefined) removeEntity(entity);
 	                    });
 
                     } else if (command === 'cat') {

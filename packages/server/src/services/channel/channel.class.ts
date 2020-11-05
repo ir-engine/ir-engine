@@ -4,6 +4,7 @@ import { Params } from '@feathersjs/feathers';
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils';
 import { Op, Sequelize } from 'sequelize';
 import _ from 'lodash';
+import logger from '../../app/logger';
 
 export class Channel extends Service {
   app: Application
@@ -218,8 +219,8 @@ export class Channel extends Service {
         };
       }
     } catch (err) {
-      console.log('Channel find failed');
-      console.log(err);
+      logger.error('Channel find failed');
+      logger.error(err);
       throw err;
     }
   }

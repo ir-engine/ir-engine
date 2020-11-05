@@ -26,6 +26,7 @@ export function createPrefab (prefab: Prefab): Entity {
         // Get the component on the entity, and set it to the initializing value from the prefab
         if (typeof component.type.schema[initValueKey] === 'undefined') {
           console.warn('property', initValueKey, ' not exists in component schema of ', component.type.name);
+          console.log(component);
         } else {
           if (
             typeof component.type.schema[initValueKey].default !== 'undefined' &&
@@ -42,8 +43,6 @@ export function createPrefab (prefab: Prefab): Entity {
       });
       // The component to the entity
       addComponent(entity, component.type, initData);
-      console.log("Added component", component.type)
-      console.log(component);
     });
   }
   prefab.onAfterCreate?.forEach(action => {

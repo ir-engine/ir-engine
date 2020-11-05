@@ -3,23 +3,30 @@ $mobileControllButtonsSize:3em;
     position: fixed;
     bottom: 50px;
     width: 50%;
-    left: 0;    
+    left: 0;   
+
+    .nipple{
+        .front{
+            box-shadow: 0 0 10px rgba(255,255,0,1);
+        }
+    }
 }
+    
+    
 
 .controlButtonContainer{
     position: fixed;
     border-radius: 50%;
-    right: 100px;
+    right: 75px;
     bottom: 40px;
     line-height: ($mobileControllButtonsSize+1em);
-
 
     .controllButton{
         position: absolute;
         border-radius: 50%;
         background:rgba(255,255,255,0.4);
         opacity: 0.75;
-        bottom: 50px;
+        bottom: 20px;
         font-size: 20px;
         height: $mobileControllButtonsSize;
         width: $mobileControllButtonsSize;
@@ -66,7 +73,7 @@ $mobileControllButtonsSize:3em;
         }
 
         &.notAvailableButton{
-            opacity: 0;
+            opacity: 0.6;
         }
     }
 }

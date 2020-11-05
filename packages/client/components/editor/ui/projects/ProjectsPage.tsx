@@ -98,7 +98,7 @@ class ProjectsPage extends Component {
           this.setState({
             projects: projects.map(project => ({
               ...project,
-              url: `/projects/${project.project_id}`
+              url: `/editor/projects/${project.project_id}`
             })),
             loading: false
           });
@@ -108,7 +108,7 @@ class ProjectsPage extends Component {
 
           if (error.response && error.response.status === 401) {
             // User has an invalid auth token. Prompt them to login again.
-            return (this.props as any).history.push("/", { from: "/projects" });
+            return (this.props as any).history.push("/", { from: "/editor/projects" });
           }
 
           this.setState({ error, loading: false });
@@ -184,7 +184,7 @@ class ProjectsPage extends Component {
                     <ProjectGrid
                       loading={loading}
                       projects={projects}
-                      newProjectPath="/projects/templates"
+                      newProjectPath="/editor/projects/templates"
                       contextMenuId={contextMenuId}
                     />
                   )}

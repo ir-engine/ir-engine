@@ -17,6 +17,7 @@ import {
 import { connect } from 'react-redux';
 import VideoChat from "../VideoChat";
 import NoSSR from "react-no-ssr";
+import { Network } from "@xr3ngine/engine/src/networking/components/Network";
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -57,8 +58,10 @@ export const DrawerControls = (props: Props): JSX.Element => {
   const party = partyState.get('party');
   const selfUser = authState.get('user');
   const currentLocation = locationState.get('currentLocation').get('location');
-  const enablePartyVideoChat = selfUser && selfUser.instanceId != null && selfUser.partyId != null && party?.id != null;
-  const enableInstanceVideoChat = selfUser && selfUser.instanceId != null && currentLocation?.locationType === 'showroom';
+  console.log('Network transport in DrawerControls');
+  console.log(Network?.instance?.transport);
+  const enablePartyVideoChat = selfUser && selfUser.instanceId != null && selfUser.partyId != null && party?.id != null && (Network?.instance?.transport as any)?.socket?.connected === true;
+  const enableInstanceVideoChat = selfUser && selfUser.instanceId != null && currentLocation?.locationType === 'showroom' && (Network?.instance?.transport as any).socket?.connected === true;
   const openChat = (): void => {
     setLeftDrawerOpen(false);
     setTopDrawerOpen(false);

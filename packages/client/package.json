@@ -106,7 +106,7 @@
     "socket.io-client": "^2.3.0",
     "string-similarity": "^4.0.2",
     "styled-components": "^5.1.1",
-    "three": "^0.121.1",
+    "three": "^0.122.0",
     "three-gltf-loader": "^1.111.0",
     "three-mesh-bvh": "^0.2.0",
     "url-toolkit": "^2.2.0",

@@ -1,18 +1,20 @@
-import { isBrowser } from './isBrowser';
+import { isClient } from './isClient';
 import { now } from "./now";
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 
+type TimerUpdateCallback = (delta: number, elapsedTime?: number) => any;
+
 export function Timer (
-  callbacks: { update?: Function; render?: Function },
-  step?: number
+  callbacks: { update?: TimerUpdateCallback; fixedUpdate?: TimerUpdateCallback; networkUpdate?: TimerUpdateCallback; render?: Function },
+  fixedFrameRate?: number, networkTickRate?: number
 ): { start: Function; stop: Function } {
-  const increment = step || 1 / 60;
+  const fixedRate = fixedFrameRate || 60;
+  const networkRate = networkTickRate || 20;
 
   let last = 0;
   let accumulated = 0;
   let delta = 0;
   let frameId;
-  let defaultAnimationFrame = isBrowser ? requestAnimationFrame : requestAnimationFrameOnServer;
 
   function render() {
     if (Engine.xrSession) {
@@ -24,17 +26,30 @@ export function Timer (
     }
 	}
 
+  const fixedRunner = callbacks.fixedUpdate? new FixedStepsRunner(fixedRate, callbacks.fixedUpdate) : null;
+  const networkRunner = callbacks.fixedUpdate? new FixedStepsRunner(networkRate, callbacks.networkUpdate) : null;
+
+  const updateFunction = (isClient ? requestAnimationFrame : requestAnimationFrameOnServer);
+
   function onFrame (time) {
     if (Engine.xrSession) {
       stop();
       Engine.renderer.setAnimationLoop( render );
-    //  frameId = Engine.xrSession.requestAnimationFrame(toXR)
+      //  frameId = Engine.xrSession.requestAnimationFrame(toXR)
     } else {
-      frameId = defaultAnimationFrame(onFrame);
+      frameId = updateFunction(onFrame);
 
       if (last !== null) {
         delta = (time - last) / 1000;
         accumulated = accumulated + delta;
+
+        if (fixedRunner) {
+          fixedRunner.run(delta);
+        }
+
+        if (networkRunner) {
+          networkRunner.run(delta);
+        }
 
         if (callbacks.update) callbacks.update(delta, accumulated);
       }
@@ -55,7 +70,7 @@ export function Timer (
 */
   function start () {
     last = null;
-    frameId = defaultAnimationFrame(onFrame);
+    frameId = updateFunction(onFrame);
   }
 
   function stop () {

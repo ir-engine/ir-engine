@@ -41,10 +41,10 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     { type: Interactor }
   ],
   onAfterCreate: [
-    {
-      behavior: initializeCharacter,
-      networked: true
-    }
+    // {
+    //   behavior: initializeCharacter,
+    //   networked: true
+    // }
   ],
   onBeforeDestroy: [
 

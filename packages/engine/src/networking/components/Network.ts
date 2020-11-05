@@ -11,7 +11,8 @@ export interface NetworkClientList {
   [key: string]: {
     userId?: string;
     name?: string;
-    socket?: any;
+    socket?: SocketIO.Socket;
+    socketId?: string;
     lastSeenTs?: any;
     joinTs?: any;
     media?: {};
@@ -43,6 +44,7 @@ export class Network extends Component<Network> {
   socketId: string
   userId: string
   accessToken: string
+
   private static availableNetworkId = 0
   static getNetworkId() {
     return this.availableNetworkId++;
@@ -59,7 +61,7 @@ export class Network extends Component<Network> {
     clientsDisconnected: [],
     createObjects: [],
     destroyObjects: []
-  }
+  };
 
   static sceneId = "default"
   static Network: any

@@ -24,6 +24,8 @@ export enum MessageTypes {
   ReliableMessage = 22,
   WebRTCCreateProducer = 23,
   Authorization = 24,
+  Kick = 26,
+  Ban = 27,
   Synchronization = 100,
   ClientInput = 101,
   StateUpdate = 102,

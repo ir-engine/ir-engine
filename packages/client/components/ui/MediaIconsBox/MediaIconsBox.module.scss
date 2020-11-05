@@ -1,19 +1,30 @@
+$mobileControllButtonsSize:3em;
 .drawerBoxContainer{
-    position: fixed;
-    top:0;
-    width: 100vw;
+    position: absolute;
+    bottom: 150px;
+    right: 15px;
+    z-index: 2;
     .drawerBox{        
         margin: 0 auto;
         width: fit-content;    
         height: fit-content;
         display: flex;
-        justify-content: space-between;   
-        background: rgba(0,0,0,0.6);
-        border-radius:  0 0 5px 5px;
-        svg{
-            height: 3em;
+        background:rgba(255,255,255,0.4);
+        opacity: 0.75;
+        font-size: 20px;
+        height: $mobileControllButtonsSize;
+        width: $mobileControllButtonsSize;
+        text-align: center;
+        border: 1px solid #ffffff;
+        font-size: 20px;
+        border-radius: 50%;
+        line-height: ($mobileControllButtonsSize+1em);
+
+        > svg{
+            height: 2em;
             color: white;        
-            margin: 10px;
+            margin: 0.5em;
+            cursor: pointer;
         }
     }
 }

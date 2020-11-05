@@ -5,7 +5,7 @@ import { InputType } from "../enums/InputType";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { Input } from "../components/Input";
-import { DefaultInput } from '../../templates/shared/DefaultInput';
+import { normalizeMouseCoordinates } from '../../common/functions/normalizeMouseCoordinates';
 
 /**
  * Touch move
@@ -15,35 +15,38 @@ import { DefaultInput } from '../../templates/shared/DefaultInput';
  */
 export const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEvent }): void => {
   const input = getComponent(entity, Input);
+  const normalizedPosition = normalizeMouseCoordinates(args.event.touches[0].clientX, args.event.touches[0].clientY, window.innerWidth, window.innerHeight);
+  const touchPosition: [number, number] = [normalizedPosition.x, normalizedPosition.y];
+  const mappedPositionInput = input.schema.touchInputMap?.axes[TouchInputs.Touch1Position];
 
-  let s = 'Touch move.';
-  // A list of contact points on a touch surface.
-  if (args.event.targetTouches.length) {
-    s +=
-      ' x: ' +
-      Math.trunc(args.event.targetTouches[0].clientX) +
-      ', y: ' +
-      Math.trunc(args.event.targetTouches[0].clientY);
-
-    if (args.event.targetTouches.length == 2) {
-      if ((args.event as any).scale) {
-        debugger;
-      }
-
-
-      const scaleMappedInputKey = input.schema.touchInputMap?.axes[TouchInputs.Scale];
-      if (scaleMappedInputKey) {
-
-        if ((args.event as any).scale) {
-          input.data.set(scaleMappedInputKey, {
-            type: InputType.ONEDIM,
-            value: (args.event as any).scale,
-            lifecycleState: LifecycleValue.CHANGED
-          });
-        }
-      }
-    }
-
+  if (!mappedPositionInput) {
+    return;
   }
-  // console.log(s);
+
+  const hasData = input.data.has(mappedPositionInput);
+  const previousPositionValue = (input.prevData.has(mappedPositionInput)? input.prevData.get(mappedPositionInput) : input.data.get(mappedPositionInput))?.value;
+
+  input.data.set(mappedPositionInput, {
+    type: InputType.TWODIM,
+    value: touchPosition,
+    lifecycleState: hasData? LifecycleValue.CHANGED : LifecycleValue.STARTED
+  });
+
+  const movementStart = args.event.type === 'touchstart';
+  const mappedMovementInput = input.schema.touchInputMap?.axes[TouchInputs.Touch1Movement];
+  if (!mappedMovementInput) {
+    return;
+  }
+
+  const touchMovement: [number, number] = [ 0,0 ];
+  if (!movementStart && previousPositionValue) {
+    touchMovement[0] = touchPosition[0] - previousPositionValue[0];
+    touchMovement[1] = touchPosition[1] - previousPositionValue[1];
+  }
+
+  input.data.set(mappedMovementInput, {
+    type: InputType.TWODIM,
+    value: touchMovement,
+    lifecycleState: input.data.has(mappedMovementInput)? LifecycleValue.CHANGED : LifecycleValue.STARTED
+  });
 };

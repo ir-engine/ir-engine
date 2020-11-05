@@ -11,7 +11,7 @@ function collectMenuProps({ project }) {
   return { project };
 }
 
-const StyledProjectGridItem = (styled as any).div`
+const StyledProjectGridItem = styled.div`
   display: flex;
   flex-direction: column;
   height: 220px;
@@ -26,16 +26,15 @@ const StyledProjectGridItem = (styled as any).div`
   }
 `;
 
-const StyledContextMenuTrigger = StylableContextMenuTrigger;
-// styled(StylableContextMenuTrigger)`
-//   display: flex;
-//   flex-direction: column;
-//   flex: 1;
-//   border-top-left-radius: inherit;
-//   border-top-right-radius: inherit;
-// `;
+const StyledContextMenuTrigger = styled(StylableContextMenuTrigger)`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+`;
 
-const TitleContainer = (styled as any).div`
+const TitleContainer = styled.div`
   display: flex;
   height: 50px;
   align-items: center;
@@ -55,7 +54,7 @@ const TitleContainer = (styled as any).div`
   }
 `;
 
-const ThumbnailContainer = (styled as any).div`
+const ThumbnailContainer = styled.div`
   display: flex;
   flex: 1 0 auto;
   justify-content: center;
@@ -66,7 +65,7 @@ const ThumbnailContainer = (styled as any).div`
   border-top-right-radius: inherit;
 `;
 
-const Thumbnail = (styled as any).div`
+const Thumbnail = styled.div<{ src: string }>`
   display: flex;
   flex: 1;
   background-size: cover;
@@ -75,7 +74,7 @@ const Thumbnail = (styled as any).div`
   background-image: url(${props => props.src});
 `;
 
-const Col = (styled as any).div`
+const Col = styled.div`
   display: flex;
   flex-direction: column;
 
@@ -84,7 +83,7 @@ const Col = (styled as any).div`
   }
 `;
 
-export default class ProjectGridItem extends Component {
+export default class ProjectGridItem extends Component<{ contextMenuId: string, project: any }> {
   static propTypes = {
     contextMenuId: PropTypes.string,
     project: PropTypes.object.isRequired
@@ -99,9 +98,9 @@ export default class ProjectGridItem extends Component {
     showMenu({
       position: { x, y },
       target: event.currentTarget,
-      id: (this.props as any).contextMenuId,
+      id: this.props.contextMenuId,
       data: {
-        project: (this.props as any).project
+        project: this.props.project
       }
     });
   };
@@ -112,7 +111,7 @@ export default class ProjectGridItem extends Component {
 
     const content = (
       <>
-        <ThumbnailContainer>{project.thumbnail_url && <Thumbnail src={project.thumbnail_url} />}</ThumbnailContainer>
+        <ThumbnailContainer>{project.thumbnailUrl && <Thumbnail src={project.thumbnailUrl} />}</ThumbnailContainer>
         <TitleContainer>
           <Col>
             <h3>{project.name}</h3>

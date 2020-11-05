@@ -1,6 +1,7 @@
 import { System, SystemConstructor } from '../classes/System';
 import { Engine } from '../classes/Engine';
 import { now } from '../../common/functions/now';
+import { SystemUpdateType } from './SystemUpdateType';
 
 /**
  * Register a system with the simulation
@@ -59,15 +60,13 @@ export function getSystems (): System[] {
 /**
  * Call execute() function on a system instance
  */
-export function executeSystem (system: System, delta: number, time: number): void {
-  if (system.initialized) {
-    if (system.canExecute(delta)) {
+export function executeSystem (system: System, delta: number, time: number, updateType = SystemUpdateType.Free): void {
+  if (system.initialized  && updateType === system.updateType) {
       const startTime = now();
-      system.execute(delta, time);
-      system.executeTime = now() - startTime;
-      system.clearEventQueues();
+        system.execute(delta, time);
+        system.executeTime = now() - startTime;
+        system.clearEventQueues();
     }
-  }
 }
 
 /**
