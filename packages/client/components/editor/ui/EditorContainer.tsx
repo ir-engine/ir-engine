@@ -621,7 +621,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   onNewProject = async () => {
-    this.props.router.push("/projects/templates");
+    this.props.router.push("/editor/projects/new");
   };
 
   onOpenProject = () => {

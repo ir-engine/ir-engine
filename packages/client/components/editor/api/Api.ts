@@ -946,7 +946,9 @@ export default class Api extends EventEmitter {
       });
 
       const formData = new FormData();
-      formData.set("projectId", projectId);
+      if (projectId) {
+        formData.set("projectId", projectId);
+      }
       formData.set("media", blob);
 
       request.setRequestHeader('Authorization', `Bearer ${token}`);
