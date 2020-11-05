@@ -52,9 +52,14 @@ export class InputSystem extends System {
     // Handle XR input
     this.queryResults.controllersComponent.added?.forEach(entity => addPhysics(entity));
     this.queryResults.controllersComponent.all?.forEach(entity => {
+      const xRControllers = getComponent(entity, XRControllersComponent)
+    	if(xRControllers.physicsBody1 !== null && xRControllers.physicsBody2 !== null && this.mainControllerId) {
+        this.mainControllerId = xRControllers.physicsBody1;
+        this.secondControllerId = xRControllers.physicsBody2;
+      }
       updatePhysics(entity)
     });
-    this.queryResults.controllersComponent.removed?.forEach(entity => removePhysics(entity));
+    this.queryResults.controllersComponent.removed?.forEach(entity => removePhysics(entity, { controllerPhysicalBody1: this.mainControllerId, controllerPhysicalBody2:  this.secondControllerId });
     // Called every frame on all input components
     this.queryResults.inputs.all.forEach(entity => {
       if (!hasComponent(entity, Input)) {

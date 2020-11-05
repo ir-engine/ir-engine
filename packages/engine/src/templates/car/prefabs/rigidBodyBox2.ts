@@ -18,7 +18,7 @@ import { attachCamera } from "@xr3ngine/engine/src/camera/behaviors/attachCamera
 export const rigidBodyBox2: Prefab = {
     components: [
       { type: TransformComponent, data: { position: [0.4, 1,-0.4]} },
-      { type: ColliderComponent, data: { type: 'sphere', scale: [0.3, 1, 1], mass: 10 }},
+      { type: ColliderComponent, data: { type: 'sphere', scale: [0.3, 1, 1], mass: 1 }},
       { type: RigidBody },
     ],
     onAfterCreate: [
@@ -28,7 +28,7 @@ export const rigidBodyBox2: Prefab = {
               obj3d: new Mesh(
                 new SphereBufferGeometry( 0.15, 64, 64 ),
                 new MeshStandardMaterial({
-                  color: new Color(0.513410553336143494, 0.81341053336143494, 0.40206481294706464),
+                  color: new Color(0.813410553336143494, 0.81341053336143494, 0.80206481294706464),
                   metalness: 0.8323529362678528,
                   refractionRatio: 0.98,
                   roughness: 0.5527864098548889,
