@@ -98,12 +98,13 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
     case generalStateList.TUTOR_MOVE: message= isMobileOrTablet() ? ' Use joystick to move' : 'Use mouse to move'; break;
     case generalStateList.TUTOR_INTERACT: message= isMobileOrTablet() ? 'Use to interact' : 'Press E to interact'; break;
     case generalStateList.TUTOR_UNMUTE: message='Tap to toggle Mic'; break;
+    // case generalStateList.TUTOR_UNMUTE: message='Tap to toggle Mic'; break;
     default : message= '';break;
   }     
   return message ? 
                 <>
                   <section className={styles.exitButtonContainer}>
-                    <Button variant="outlined" color="primary" className={styles.exitButton} 
+                    <Button variant="contained" className={styles.exitButton} 
                         onClick={exitTutorialHandle}>Exit Tutorial</Button>
                   </section>
                   <Snackbar 
