@@ -10,7 +10,7 @@ import logger from "../../app/logger";
 import { localConfig, sctpParameters } from './config';
 import { getUserIdFromSocketId } from "./NetworkFunctions";
 
-let networkTransport: any
+let networkTransport: any;
 export async function startWebRTC(): Promise<void> {
     networkTransport = Network.instance.transport as any;
     logger.info("Starting WebRTC Server");
@@ -278,7 +278,7 @@ export async function handleWebRtcTransportConnect(socket, data, callback) {
     await transport.connect({ dtlsParameters }).catch(err => {
         logger.error(err);
         callback({ connected: false });
-        return
+        return;
     });
     logger.info(`transport for user ${userId} connected successfully`);
     callback({ connected: true });

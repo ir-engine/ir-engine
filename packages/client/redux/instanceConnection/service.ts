@@ -46,7 +46,7 @@ export function connectToInstanceServer () {
       console.log('Connect to instance server');
       console.log(MediaStreamComponent.instance);
       const videoActive = MediaStreamComponent.instance.camVideoProducer != null || MediaStreamComponent.instance.camAudioProducer != null;
-      console.log(videoActive)
+      console.log(videoActive);
       // TODO: Disconnected 
       await endVideoChat();
       await leave();

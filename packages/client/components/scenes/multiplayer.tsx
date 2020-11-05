@@ -76,14 +76,14 @@ export const EnginePage: FunctionComponent = (props: any) => {
     light.position.set( - 1, 1.75, 1 );
     light.position.multiplyScalar( 30 );
     light.castShadow = true;
-    Engine.scene.add(light);
+    Engine.scene.add(light as any);
 
     const hemiLight = new HemisphereLight( 0xffffff, 0xffffff, 2 );
     hemiLight.color.setHSL( 0.6, 1, 0.6 );
     hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
     hemiLight.position.set( 0, 50, 0 );
 
-    Engine.scene.add(hemiLight);
+    Engine.scene.add(hemiLight as any);
 
     addObject3DComponent(createEntity(), {
       obj3d: AmbientLight,

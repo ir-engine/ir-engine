@@ -6,7 +6,7 @@ import app from './app';
 import logger from './app/logger';
 import config from './config';
 
-process.on('unhandledRejection', function(error, promise) {
+process.on('unhandledRejection', (error, promise) => {
   console.error('UNHANDLED REJECTION - Promise: ', promise, ', Error: ', error, ').');
 });
 

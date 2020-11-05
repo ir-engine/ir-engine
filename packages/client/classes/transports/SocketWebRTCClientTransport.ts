@@ -48,7 +48,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   // This sends message on a data channel (data channel creation is now handled explicitly/default)
-  sendData(data: any, channel: string = "default"): void {
+  sendData(data: any, channel = "default"): void {
     console.log("Sending data on data channel: ", channel);
     if (!this.dataProducer)
       throw new Error('Data Channel not initialized on client, Data Producer doesn\'t exist!');
