@@ -158,11 +158,12 @@ export const updatePhysics: Behavior = (entity: Entity) => {
 	);
 
 };
-export const removePhysics: Behavior = (entity: Entity) => {
-	const xRControllers = getComponent(entity, XRControllersComponent)
-	PhysicsManager.instance.physicsWorld.removeBody(xRControllers.physicsBody1)
-	PhysicsManager.instance.physicsWorld.removeBody(xRControllers.physicsBody2)
-	console.warn('deleted');
+export const removePhysics: Behavior = (entity: Entity, args: any) => {
+if (args.controllerPhysicalBody1) {
+	PhysicsManager.instance.physicsWorld.removeBody(args.controllerPhysicalBody1)
+	PhysicsManager.instance.physicsWorld.removeBody(args.controllerPhysicalBody2)
+}
+	console.warn(args);
 //  Engine.context
 //  Engine.xrSession
 };

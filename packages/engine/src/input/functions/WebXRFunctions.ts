@@ -74,7 +74,7 @@ export function initControllersVR(actorEntity) {
 
       //    console.warn(obj);
 
-          mesh.applyMatrix4(new Matrix4().makeScale(-1, 1, 1));
+          mesh2.applyMatrix4(new Matrix4().makeScale(-1, 1, 1));
 
           controllerGrip1.add( mesh );
           Engine.scene.add( controllerGrip1 );

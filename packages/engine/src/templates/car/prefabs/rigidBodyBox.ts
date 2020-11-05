@@ -1,4 +1,4 @@
-import { BoxBufferGeometry, Mesh, MeshPhongMaterial } from "three";
+import { BoxBufferGeometry, Mesh, MeshPhongMaterial, Color } from "three";
 import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
 import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
 
@@ -10,7 +10,7 @@ import { addMeshRigidBody } from "@xr3ngine/engine/src/physics/behaviors/addMesh
 import { attachCamera } from "@xr3ngine/engine/src/camera/behaviors/attachCamera";
 
 const boxGeometry = new BoxBufferGeometry(0.3, 0.3, 0.3);
-const boxMaterial = new MeshPhongMaterial({ color: 'red' });
+const boxMaterial = new MeshPhongMaterial({ color: new Color(0.813410553336143494, 0.81341053336143494, 0.80206481294706464) });
 const boxMesh = new Mesh(boxGeometry, boxMaterial);
 boxMesh.name = 'simpleBox';
 
