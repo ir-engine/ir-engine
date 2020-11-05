@@ -16,6 +16,7 @@ describe('CRUD operation on \'Location\' model', () => {
     console.log(model)
     await model.create({
       name: 'test',
+      slugifiedName: 'test',
       maxUsersPerInstance: 10
     })
   })
