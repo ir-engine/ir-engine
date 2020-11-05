@@ -16,6 +16,7 @@ import { Location } from '@xr3ngine/common/interfaces/Location';
 import PartyVideoWindows from '../PartyVideoWindows';
 import InstanceChat from '../InstanceChat';
 import Me from '../Me';
+import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 
 const { publicRuntimeConfig } = getConfig();
 const siteTitle: string = publicRuntimeConfig.siteTitle;
@@ -56,7 +57,7 @@ const Layout = (props: Props): any => {
         </title>
       </Head>
       <header>
-        <NavMenu login={login} />
+        {!isMobileOrTablet && <NavMenu login={login} />}
         {authUser?.accessToken != null && authUser.accessToken.length > 0 && <PartyVideoWindows />}
       </header>
       <Fragment>
@@ -80,7 +81,7 @@ const Layout = (props: Props): any => {
                 </Fragment>
       }
       <footer>
-        { authState.get('authUser') != null && authState.get('isLoggedIn') === true && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
+        { !isMobileOrTablet && authState.get('authUser') != null && authState.get('isLoggedIn') === true && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
                 <DrawerControls setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/> }
         { authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
         { authState.get('authUser') != null && authState.get('isLoggedIn') === true && user.partyId != null && user.instanceId != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
