@@ -646,8 +646,16 @@ export default class Api extends EventEmitter {
       await new Promise(resolve => setTimeout(resolve, 5));
 
       // Take a screenshot of the scene from the current camera position to use as the thumbnail
-      const { blob: screenshotBlob, cameraTransform: screenshotCameraTransform } = await editor.takeScreenshot();
+      const screenshot = await editor.takeScreenshot();
+      console.log("Screenshot is");
+      console.log(screenshot);
+      const { blob: screenshotBlob, cameraTransform: screenshotCameraTransform } = screenshot;
+      console.log("screenshotBlob is");
+      console.log(screenshotBlob);
+
       screenshotUrl = URL.createObjectURL(screenshotBlob);
+
+      console.log("Screenshot url is", screenshotUrl);
 
       if (signal.aborted) {
         const error = new Error("Publish project aborted");

@@ -518,11 +518,13 @@ export default class Editor extends EventEmitter {
   }
 
   async takeScreenshot(width, height) {
-    return this.renderer.takeScreenshot(width, height);
+    return await this.renderer.takeScreenshot(width, height);
   }
 
   async generateFileThumbnail(file, width, height) {
     const url = URL.createObjectURL(file);
+    console.log("URL IS")
+    console.log(url);
 
     let blob;
 
