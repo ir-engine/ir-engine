@@ -92,9 +92,11 @@ const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAv
            } 
       case generalStateList.AVATAR_SELECTION: {
             isOpened= true; title = 'Select An Avatar'; submitButtonText = 'Accept';          
-            children = <section className={styles.selectionButtons}>
-                          <ArrowIosBackOutline onClick={(): void => onAvatarChange(prevAvatarId)} />
-                          <ArrowIosForwardOutline onClick={(): void => onAvatarChange(nextAvatarId)} />
+            children = <section className={styles.selectionButtonsWrapper}>
+                          <section className={styles.selectionButtons}>
+                            <ArrowIosBackOutline onClick={(): void => onAvatarChange(prevAvatarId)} />
+                            <ArrowIosForwardOutline onClick={(): void => onAvatarChange(nextAvatarId)} />
+                          </section>
                         </section>;
             submitButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.AVATAR_SELECTED));
             break;

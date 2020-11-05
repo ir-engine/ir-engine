@@ -2,6 +2,7 @@
     position: absolute;
     top: 10px;
     width: 100vw;
+    z-index: 1200;
 
     .exitButton{
         cursor: pointer;
@@ -10,9 +11,16 @@
     }
 }
 .helpHintSnackBar{
-    padding: 2em;
     user-select: none;
     text-align: center;
+    .helpHintSnackBarContent{
+        padding: 20px;
+        .helpHintSnackBarContentMessage{
+            width: 100%;
+            text-align: center;
+        }
+    }
+    
     
     &.bottomPos{
         bottom: 50px;
@@ -20,7 +28,7 @@
 
     &.tutor_lookaround{
         .helpHintSnackBarContent{
-            padding-top: 100px;
+            padding-top: 110px;
             background-image: url('../assets/swipe.svg');
             background-position: center 10px;
             background-repeat: no-repeat;
@@ -37,12 +45,12 @@
         
         @media (max-width: 768px) {
             width: fit-content;
-            margin: 0 10em 0 0;
+            margin: 0 0 0 10em;
 
             .helpHintSnackBarContent{
-                padding-top: 70px;
+                padding-top: 80px;
                 background-image: url('../assets/interactico.svg');
-                background-position: center 10px;
+                background-position: center 20px;
                 background-repeat: no-repeat;
                 background-size: 40px;
             }
@@ -51,15 +59,15 @@
 
     &.tutor_unmute{
         .helpHintSnackBarContent{
-            padding-top: 70px;
+            padding-top: 80px;
             background-image: url('../assets/mic.svg');
-            background-position: center 10px;
+            background-position: center 20px;
             background-repeat: no-repeat;
             background-size: 40px;
         }
         @media (max-width: 768px) {
             width: fit-content;
-            margin: 0 10em 0 0;
+            margin: 0 0 0 10em;
         }
     }
     .helpHintSnackBarContent{

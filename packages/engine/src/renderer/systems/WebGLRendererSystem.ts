@@ -183,7 +183,6 @@ export const resize: Behavior = entity => {
 
     canvas.width = width;
     canvas.height = height;
-    canvas.style.position='fixed';
 
     Engine.renderer.setSize(width, height);
     rendererComponent.composer ? rendererComponent.composer.setSize(width, height):'';
