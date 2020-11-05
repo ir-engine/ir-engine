@@ -25,7 +25,6 @@ export default (app: Application): void => {
       if (req?.feathers) {
         req.feathers.file = (req as any).files.media ? (req as any).files.media[0] : null;
         req.feathers.body = (req as any).body;
-        req.feathers.body.projectId = req.feathers.body.projectId === "undefined" ? undefined : req.feathers.body.projectId;
         req.feathers.body.fileId = uuidv1();
         req.feathers.mimeType = req.feathers.file.mimetype;
         req.feathers.storageProvider = provider;
