@@ -14,6 +14,8 @@ import { DefaultInput } from "../../src/templates/shared/DefaultInput";
 import { LifecycleValue } from "../../src/common/enums/LifecycleValue";
 import { normalizeMouseCoordinates } from "../../src/common/functions/normalizeMouseCoordinates";
 import { handleTouchScale } from "../../src/input/behaviors/handleTouchScale";
+import { Vector2 } from "three";
+import { Entity } from "../../src/ecs/classes/Entity";
 
 let addListenerMock:jest.SpyInstance;
 
@@ -141,7 +143,7 @@ const testInputSchema: InputSchema = {
   },
 }
 
-let entity, input
+let entity:Entity, input:Input;
 
 beforeAll(() => {
   addListenerMock = jest.spyOn(document, 'addEventListener')
@@ -170,53 +172,43 @@ afterEach(() => {
   removeEntity(entity, true);
 });
 
+function normalizeMouseCoordinatesV2(vector:Vector2, elementWidth: number, elementHeight: number): Vector2 {
+  const n = normalizeMouseCoordinates(vector.x, vector.y, elementWidth, elementHeight);
+  return new Vector2(n.x, n.y);
+}
 
 // buttons + move
 describe("gestures", () => {
-  const windowPoint1 = { x: 100, y:20 };
-  const normalPoint1 = normalizeMouseCoordinates(windowPoint1.x, windowPoint1.y, window.innerWidth, window.innerHeight);
-  const windowPoint2 = { x: 120, y:25 };
-  const normalPoint2 = normalizeMouseCoordinates(windowPoint2.x, windowPoint2.y, window.innerWidth, window.innerHeight);
-  const normalDiff = { x: normalPoint2.x - normalPoint1.x, y: normalPoint2.y - normalPoint1.y };
+  const windowPoint1_1 = new Vector2( 100, 20 );
+  const normalPoint1_1 = normalizeMouseCoordinatesV2(windowPoint1_1, window.innerWidth, window.innerHeight);
+  const windowPoint1_2 = new Vector2( 110, 30 );
+  const normalPoint1_2 = normalizeMouseCoordinatesV2(windowPoint1_2, window.innerWidth, window.innerHeight);
+
+  const windowPoint2_1 = new Vector2( 90, 10 );
+  const normalPoint2_1 = normalizeMouseCoordinatesV2(windowPoint2_1, window.innerWidth, window.innerHeight);
+  const windowPoint2_2 = new Vector2( 120, 40 );
+  const normalPoint2_2 = normalizeMouseCoordinatesV2(windowPoint2_2, window.innerWidth, window.innerHeight);
+
+  const distance1 = normalPoint1_1.distanceTo(normalPoint1_2);
+  const distance2 = normalPoint2_1.distanceTo(normalPoint2_2);
 
 
 // check Scale(Pinch)
   describe("touch scale", () => {
     it ("lifecycle STARTED", () => {
       let data
-      triggerTouch({ touches: [ windowPoint1 ], type: 'touchmove' });
+      triggerTouch({ touches: [ windowPoint1_1, windowPoint1_2 ], type: 'touchmove' });
       execute();
-      triggerTouch({ touches: [ windowPoint2 ], type: 'touchmove' });
+      triggerTouch({ touches: [ windowPoint2_1, windowPoint2_2 ], type: 'touchmove' });
       execute();
 
       expect(input.data.has(DefaultInput.CAMERA_SCROLL)).toBeTruthy();
       const data2 = input.data.get(DefaultInput.CAMERA_SCROLL);
-      expect(data2.value).toMatchObject([ normalDiff.y ]);
+      expect(data2.value).toMatchObject([ distance1 - distance2 ]);
+
       // expect(data2.lifecycleState).toBe(LifecycleValue.CHANGED);
       //expect(mockedButtonBehaviorOnStarted.mock.calls.length).toBe(1);
     });
-
-    // it ("lifecycle CONTINUED", () => {
-    //   triggerTouch({  touches: [ windowPoint1 ], type: 'touchstart' });
-    //   execute();
-    //   execute();
-    
-    //   expect(input.data.has(DefaultInput.INTERACT)).toBeTruthy();
-    //   const data1 = input.data.get(DefaultInput.INTERACT);
-    // expect(data1.value).toBe(BinaryValue.ON);
-    //   expect(data1.lifecycleState).toBe(LifecycleValue.CONTINUED);
-    //   expect(mockedButtonBehaviorOnContinued.mock.calls.length).toBe(1);
-    // });
-    //
-    // it ("lifecycle ENDED", () => {
-    //   triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 });
-    //   execute();
-    //   triggerTouch({ ...windowPoint1, type: 'touchend', id: 1 });
-    //   execute();
-    //
-    //   expect(input.data.has(DefaultInput.INTERACT)).toBeFalsy();
-    //   expect(mockedButtonBehaviorOnEnded.mock.calls.length).toBe(1);
-    // });
   });
 
   // zoom
