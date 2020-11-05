@@ -93,6 +93,8 @@ export class InputSystem extends System {
     this.queryResults.localClientInput.all?.forEach(entity => {
       // Apply input to local client
       handleInput(entity, {}, delta);
+      const networkId = getComponent(entity, NetworkObject)?.networkId;
+      if(!networkId) return;
 
       // Client sends input and *only* input to the server (for now)
       // console.log("Handling input for entity ", entity.id);
@@ -106,7 +108,6 @@ export class InputSystem extends System {
       input.lastData.clear();
       input.data.forEach((value, key) => input.lastData.set(key, value));
 
-      const networkId = getComponent(entity, NetworkObject).networkId;
       let numInputs = 0;
 
       // Create a schema for input to send

@@ -21,8 +21,6 @@ import { generalStateList, setAppOnBoardingStep, setAppLoaded } from '../../redu
 import store from '../../redux/store';
 import LinearProgressComponent from '../ui/LinearProgress';
 import NetworkDebug from '../ui/NetworkDebug/NetworkDebug';
-import OnBoardingBox from '../ui/OnBoardingBox';
-import OnBoardingDialog from '../ui/OnBoardingDialog';
 
 const mapStateToProps = (state: any): any => {
   return { };
@@ -117,8 +115,6 @@ export const EnginePage: FunctionComponent = (props: any) => {
     <>
     <NetworkDebug />
     <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
-    <OnBoardingDialog avatarsList={CharacterAvatars} />
-    <OnBoardingBox actorEntity={actorEntity} />
     </>
   );
 };
