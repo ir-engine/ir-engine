@@ -15,7 +15,9 @@ export default class S3Provider implements StorageProviderInterface {
     ACL: 'public-read'
   })
 
-  getProvider = (): any => this.provider
+  getProvider = (): any => {
+    return this.provider
+  }
 
   getStorage = (): S3BlobStore => this.blob
 }
