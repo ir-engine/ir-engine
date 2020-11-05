@@ -16,6 +16,19 @@ import makeS3FilesPublic from '../../hooks/make-s3-files-public';
 
 const { authenticate } = authentication.hooks;
 
+const logRequest = (options = {}) => {
+  return async (context: HookContext): Promise<HookContext> => {
+    const { data, params } = context;
+    if(context.error){
+      console.log("***** Error");
+      console.log(context.error);
+    }
+    const body = params.body || {};
+    console.log(body);
+    return context;
+  };
+}
+
 const createOwnedFile = (options = {}) => {
   return async (context: HookContext): Promise<HookContext> => {
     const { data, params } = context;
@@ -68,7 +81,7 @@ const createOwnedFile = (options = {}) => {
 
 export default {
   before: {
-    all: [],
+    all: [logRequest()],
     find: [disallow()],
     get: [disallow()],
     create: [authenticate('jwt'), attachOwnerIdInSavingContact('userId'), addUriToFile(), makeS3FilesPublic()],
@@ -88,7 +101,7 @@ export default {
   },
 
   error: {
-    all: [],
+    all: [logRequest()],
     find: [],
     get: [],
     create: [],

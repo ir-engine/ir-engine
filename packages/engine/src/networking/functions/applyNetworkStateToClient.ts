@@ -9,10 +9,10 @@ import { initializeNetworkObject } from './initializeNetworkObject';
 
 export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
   const worldState = worldStateBuffer; // worldStateModel.fromBuffer(worldStateBuffer);
-  if(worldState.clientsConnected.length > 0) {
-    console.log("worldState.clientsConnected");
-    console.log(worldState.clientsConnected);
-  }
+  // if(worldState.clientsConnected.length > 0) {
+  //   console.log("worldState.clientsConnected");
+  //   console.log(worldState.clientsConnected);
+  // }
 
   // if(worldState.createObjects.length > 0) {
   //   console.log("worldState.networkObjects");
