@@ -95,7 +95,7 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
   let message = '';
   switch(onBoardingStep){
     case generalStateList.TUTOR_LOOKAROUND:message='Touch and Drag to look around'; addLookAroundEventListeners(); break;      
-    case generalStateList.TUTOR_MOVE: message= isMobileOrTablet() ? ' Use joystick to move' : 'Use mouse to move'; break;
+    case generalStateList.TUTOR_MOVE: message= isMobileOrTablet() ? ' Use joystick to move' : 'Use keybuttons W S A D to move'; break;
     case generalStateList.TUTOR_INTERACT: message= isMobileOrTablet() ? 'Use to interact' : 'Press E to interact'; break;
     case generalStateList.TUTOR_UNMUTE: message='Tap to toggle Mic'; break;
     // case generalStateList.TUTOR_UNMUTE: message='Tap to toggle Mic'; break;

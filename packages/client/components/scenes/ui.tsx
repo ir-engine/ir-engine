@@ -11,7 +11,6 @@ import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs
 import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
 import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacterWithEmptyInputSchema';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
-import { WorldPrefab } from '@xr3ngine/engine/src/templates/world/prefabs/WorldPrefab';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import dynamic from 'next/dynamic';
 import React, { FunctionComponent, useEffect, useState } from 'react';
@@ -74,10 +73,10 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const sceneLoadedEntity = (event: CustomEvent): void =>
     setProgressEntity(' left '+ event.detail.left);
 
-  const sceneLoaded = (event: CustomEvent): void => {
-    if (event.detail.loaded)
+  const sceneLoaded = (event: CustomEvent): void => 
+    (event.detail.loaded)
       store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));      
-  };
+  
   
   useEffect(() => {
     document.addEventListener('scene-loaded-entity', sceneLoadedEntity);
@@ -111,7 +110,6 @@ export const EnginePage: FunctionComponent = (props: any) => {
     );
     cameraTransform.position.set(0, 1.2, 3);
 
-    // createPrefab(WorldPrefab);
     createPrefab(staticWorldColliders);
 
     const actorEntity = createPrefab(PlayerCharacter);

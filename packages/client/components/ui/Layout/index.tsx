@@ -46,9 +46,9 @@ const Layout = (props: Props): any => {
   const [topDrawerOpen, setTopDrawerOpen] = useState(false);
   const [bottomDrawerOpen, setBottomDrawerOpen] = useState(false);
   const user = authState.get('user');
-
+  //info about current mode to conditional render menus
+  const mode = locationState.get('currentLocation').get('location').displayMode || 'simple';
 // TODO: Uncomment alerts when we can fix issues
-
   return (
     <section>
       <Head>
@@ -57,7 +57,7 @@ const Layout = (props: Props): any => {
         </title>
       </Head>
       <header>
-        {!isMobileOrTablet && <NavMenu login={login} />}
+        {mode !== 'simple' && <NavMenu login={login} />}
         {authUser?.accessToken != null && authUser.accessToken.length > 0 && <PartyVideoWindows />}
       </header>
       <Fragment>
@@ -81,7 +81,7 @@ const Layout = (props: Props): any => {
                 </Fragment>
       }
       <footer>
-        { !isMobileOrTablet && authState.get('authUser') != null && authState.get('isLoggedIn') === true && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
+        { mode !== 'simple' && authState.get('authUser') != null && authState.get('isLoggedIn') === true && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
                 <DrawerControls setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/> }
         { authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
         { authState.get('authUser') != null && authState.get('isLoggedIn') === true && user.partyId != null && user.instanceId != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
