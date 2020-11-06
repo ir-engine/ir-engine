@@ -81,12 +81,12 @@ export const DefaultInputSchema: InputSchema = {
           value: BinaryValue.ON
         }
       },
-      {
-        behavior: handleTouchScale,
-        args: {
-          value: DefaultInput.CAMERA_SCROLL
-        }
-      }
+      // {
+      //   behavior: handleTouchScale,
+      //   args: {
+      //     value: DefaultInput.CAMERA_SCROLL
+      //   }
+      // }
     ],
     touchend: [
       {
@@ -108,12 +108,12 @@ export const DefaultInputSchema: InputSchema = {
       {
         behavior: handleTouchMove
       },
-      {
-        behavior: handleTouchScale,
-        args: {
-          value: DefaultInput.CAMERA_SCROLL
-        }
-      }
+      // {
+      //   behavior: handleTouchScale,
+      //   args: {
+      //     value: DefaultInput.CAMERA_SCROLL
+      //   }
+      // }
     ],
     // Keys
     keyup: [
