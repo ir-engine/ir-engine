@@ -133,7 +133,7 @@ export default (app: Application): void => {
 
             if (instanceId != null) {
               await app.service('instance').patch(instanceId, {
-                currentUsers: instance.currentUsers - 1
+                currentUsers: --instance.currentUsers
               }).catch((err) => {
                 console.warn("Failed to remove user, probably because instance was destroyed");
               });
