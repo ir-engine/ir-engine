@@ -2,7 +2,7 @@ import { Vector3, Vector4, PerspectiveCamera, ArrayCamera } from "three";
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { createWebGLContext } from '../functions/WebXRFunctions';
+
 import { getComponent, hasComponent, getMutableComponent, addComponent } from '../../ecs/functions/EntityFunctions';
 import { WebXRSession } from "../components/WebXRSession";
 import { XRWebGLLayerOptions, XRSession } from '../types/WebXR';
