@@ -2,6 +2,7 @@ import { Dispatch } from 'redux';
 import { client } from '../feathers';
 import {
   createdMessage,
+  loadedChannel,
   loadedChannels,
   loadedMessages,
   patchedMessage,
@@ -20,14 +21,14 @@ import {dispatchAlertError} from '../alert/service';
 export function getChannels(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      console.log('FETCHING CHANNELS');
+      // console.log('FETCHING CHANNELS');
       const channelResult = await client.service('channel').find({
         query: {
           $limit: limit != null ? limit : getState().get('chat').get('channels').get('channels').get('limit'),
           $skip: skip != null ? skip : getState().get('chat').get('channels').get('channels').get('skip')
         }
       });
-      console.log(channelResult);
+      // console.log(channelResult);
       dispatch(loadedChannels(channelResult));
     } catch(err) {
       console.log(err);
@@ -70,22 +71,26 @@ export function getChannels(skip?: number, limit?: number) {
 //   }
 // }
 //
-// export function getPartyChannel() {
-//   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-//     try {
-//       const channelResult = await client.service('channel').find({
-//         query: {
-//           channelType: 'party'
-//         }
-//       })
-//       dispatch(loadedPartyChannel(channelResult))
-//     } catch(err) {
-//       dispatchAlertError(dispatch, err.message)}
-//   }
-// }
+export function getInstanceChannel() {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    try {
+      console.log('Getting instance channel');
+      const channelResult = await client.service('channel').find({
+        query: {
+          channelType: 'instance'
+        }
+      });
+      console.log('Instance channel:');
+      console.log(channelResult);
+      dispatch(loadedChannel(channelResult.data[0], 'instance'));
+    } catch(err) {
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
 
 export function createMessage(values: any) {
-  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+  return async (dispatch: Dispatch): Promise<any> => {
     try {
       await client.service('message').create({
         targetObjectId: values.targetObjectId,

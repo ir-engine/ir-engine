@@ -196,7 +196,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     const editor = this.state.editor;
     
     try {
-      // const templateFile = await this.props.api.fetch(templateUrl).then(response => response.json());
+      // const templateFile = await this.props.api.fetchUrl(templateUrl).then(response => response.json());
       
       await editor.init();
       
@@ -239,7 +239,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
     try {
       const scene: any = await this.props.api.getScene(sceneId);
-      const projectFile = await this.props.api.fetch(scene.scene_project_url).then(response => response.json());
+      const projectFile = await this.props.api.fetchUrl(scene.scene_project_url).then(response => response.json());
 
       if (projectFile.metadata) {
         delete projectFile.metadata.sceneUrl;
@@ -328,7 +328,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     try {
       project = await this.props.api.getProject(projectId);
 
-      const projectFile = await this.props.api.fetch(project.project_url).then(response => response.json());
+      const projectFile = await this.props.api.fetchUrl(project.project_url).then(response => response.json());
 
       await editor.init();
 
@@ -360,7 +360,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     } else if (then) {
       then();
     }
-  };
+  }
 
   generateToolbarMenu = () => {
     return [

@@ -6,16 +6,16 @@ import { Component } from '../classes/Component';
 
 export interface ComponentSchema {
   [propName: string]: {
-    default?: any
-    type: PropType<any, any>
-  }
+    default?: any;
+    type: PropType<any, any>;
+  };
 }
 /**
  * Interface for defining new component
  */
 
 export interface ComponentConstructor<C extends Component<C>> {
-  schema: ComponentSchema
-  _typeId: any
-  new(props?: Partial<Omit<C, keyof Component<C>>> | false): C
+  schema: ComponentSchema;
+  _typeId: any;
+  new(props?: Partial<Omit<C, keyof Component<C>>> | false): C;
 }

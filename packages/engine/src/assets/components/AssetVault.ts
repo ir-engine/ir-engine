@@ -13,7 +13,7 @@ export default class AssetVault extends Component<AssetVault> {
     AssetVault.instance = this;
   }
 
-  dispose():void {
+  dispose(): void {
     super.dispose();
     this.assets.clear();
     AssetVault.instance = null;

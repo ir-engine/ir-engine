@@ -6,11 +6,12 @@
 # xr3ngine
 An end-to-end solution for hosting humans and AI in a virtual space, built on top of react, three.js and express/feathers.
 
-[![Build Status](https://travis-ci.org/xr3ngine/xr3ngine.svg?branch=dev)](https://travis-ci.org/xr3ngine/xr3ngine)[![Codecov](https://img.shields.io/codecov/c/github/xr3ngine/xr3ngine?logo=codecov&style=flat-square)](https://codecov.io/gh/xr3ngine/xr3ngine)
-
 This repo includes a fully-feature client, API server, realtime gamerserver, game engine and devops for scalable deployment. Pick and choose what you need or deploy the whole stack and start building your aplication on top.
 
 </div>
+
+[![Build Status](https://travis-ci.org/xr3ngine/xr3ngine.svg?branch=dev)](https://travis-ci.org/xr3ngine/xr3ngine)[![Codecov](https://img.shields.io/codecov/c/github/xr3ngine/xr3ngine?logo=codecov&style=flat-square)](https://codecov.io/gh/xr3ngine/xr3ngine)	
+
 
 ## Popular features
 Player rigs to support 2D, 3D and XR interaction
@@ -59,8 +60,27 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
     cd scripts && ./start-db.sh
     ```
     This creates a docker image of mariadb named xr3ngine_db.
+    
+3. Open a new tab and start the Agones sidecar in local mode
 
-3. Start your app
+    ```
+   cd scripts
+   sh start-agones.sh
+   ```
+   
+   You can also go to vendor/agones/ and run
+   
+   ```./sdk-server.linux.amd64 --local```
+   
+   If you are using a Windows machine, run
+   
+   ```sdk-server.windows.amd64.exe --local```
+   
+   and for mac, run
+   
+   ```./sdk-server.darwin.amd64 --local``` 
+
+4. Start your app
 
     ```
     yarn start
@@ -69,6 +89,20 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
     ```
     yarn dev
     ```
+   
+5. (Optional) Run client and server separately
+
+    The primary runnable components of xr3ngine are the server and the client.
+    Running ```yarn dev``` from the root directory will start both of them via Lerna.
+    
+    You may find it easier to run each of them separately in different tabs.
+    Make sure you do not have them running from the root directory, then
+    go to ```packages/<client or server>``` and run ```yarn dev```.
+    
+    Running them this way allows you to start one of the components with specific
+    scripts, such as ```yarn dev-reinit-db``` in server, which will reset the
+    database and re-populate all of the table schemas and seed values.
+    This script is not specified in the root package.json. 
 
 ### Notes
 
@@ -102,6 +136,29 @@ mysql.server stop
 
 
 ### Troubleshooting
+
+#### Invalid Certificate errors in local environment
+
+As of this writing, the cert provided in the xr3ngine package for local use
+is not adequately signed. Browsers will throw up warnings about going to insecure pages.
+You should be able to tell the browser to ignore it, usually by clicking on some sort
+of 'advanced options' button or link and then something along the lines of 'go there anyway'.
+
+Chrome sometimes does not show a clickable option on the warning. If so, just
+type ```badidea``` or ```thisisunsafe``` when on that page. You don't enter that into the
+address bar or into a text box, Chrome is just passively listening for those commands.
+
+##### Allow gameserver address connection with invalid certificate
+
+The gameserver functionality is hosted on an address other than localhost in the local
+environment. Accepting an invalid certificate for localhost will not apply to this address.
+Open the dev console for Chrome/Firefox by pressing ```Ctrl+Shift+i``` simultaneously, and
+go to the Console or Network tabs. 
+
+If you see errors about not being able to connect to
+something like ```https://192.168.0.81/socket.io/?location=<foobar>```, right click on
+that URL and open it in a new tab. You should again get a warning page about an invalid
+certificate, and you again need to allow it.  
 
 #### AccessDenied connecting to mariadb
 

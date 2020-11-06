@@ -1,7 +1,7 @@
 import { EntityPool } from './EntityPool';
 import { EventDispatcher } from './EventDispatcher';
 import { Query } from './Query';
-import { WebGLRenderer, Camera, Scene, Clock } from 'three';
+import { WebGLRenderer, PerspectiveCamera, Scene, Clock } from 'three';
 import { EngineOptions } from '../interfaces/EngineOptions';
 import { DefaultOptions } from '../constants/DefaultOptions';
 import { Entity } from './Entity';
@@ -10,7 +10,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 
 export class Engine {
 
-  public static engineTimer:{ start: Function, stop: Function } = null
+  public static engineTimer: { start: Function; stop: Function } = null
   public static engineTimerTimeout;
 
   //public static stats: Stats
@@ -18,8 +18,8 @@ export class Engine {
   // public static sky: Sky;
   public static isExecuting = false;
 
-  public static framerateLimit = 60;
   public static physicsFrameRate = 60;
+  public static networkFramerate = 30;
 
   public static accumulator: number;
 	public static justExecuted: boolean;
@@ -43,8 +43,8 @@ export class Engine {
  * Reference to the three.js camera object
  * This is set in {@link @xr3ngine/engine/src/initialize#initializeEngine}
  */
-  static camera: Camera = null
-  
+  static camera: PerspectiveCamera = null
+
   /**
  * Reference to the three.js camera object
  * This is set in {@link @xr3ngine/engine/src/initialize#initializeEngine}
@@ -146,4 +146,5 @@ export class Engine {
   static vehicles: any;
   static lastTime: number;
   static tick = 0;
+  static viewportElement: HTMLElement;
 }

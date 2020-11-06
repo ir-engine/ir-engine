@@ -5,16 +5,17 @@ import { Vector3, Group, Material, AnimationMixer, Mesh, BoxBufferGeometry, Anim
 import { CapsuleCollider } from '../../../physics/components/CapsuleCollider';
 import { VectorSpringSimulator } from '../../../physics/classes/VectorSpringSimulator';
 import { RelativeSpringSimulator } from '../../../physics/classes/RelativeSpringSimulator';
-import { RaycastResult } from 'cannon-es';
+import { RaycastResult, Vec3 } from 'cannon-es';
 
 export class CharacterComponent extends Component<CharacterComponent> {
 
-	public initialized = false
+	public initialized = false;
 
 // TODO: Move these... but for now...
-	public currentAnimationAction:AnimationAction = null
-	public currentAnimationLength = 0
-	public timer = 0
+	public currentAnimationAction: AnimationAction = null;
+	public currentAnimationLength = 0;
+	public timer = 0;
+	public animationsTimeScale = 0.7;
 
 	public height = 0;
 	public tiltContainer: Group;
@@ -50,10 +51,18 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public actions: any;
 	public actorCapsule: CapsuleCollider;
 
+	// Actor collision Capsule
+	public actorMass = 1;
+	public actorHeight = 1;
+	public capsuleRadius = 0.25;
+	public capsuleSegments = 8;
+	public capsuleFriction = 0.0;
+	public capsulePosition: Vec3 = new Vec3();
+
 	// Ray casting
 	public rayResult: RaycastResult = new RaycastResult();
 	public rayHasHit = false;
-	public rayCastLength = 0.57;
+	public rayCastLength = 0.85; // depends on the height of the actor
 	public raySafeOffset = 0.03;
 	public wantsToJump = false;
 	public initJumpSpeed = -1;

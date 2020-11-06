@@ -31,12 +31,10 @@ const StepperButton = (styled as any).button`
   width: 20px;
   padding: 0;
 
-  /* stylelint-disable */
   ${props =>
     props.left
       ? `border-top-left-radius: 4px; border-bottom-left-radius: 4px;`
       : `border-top-right-radius: 4px; border-bottom-right-radius: 4px;`}
-  /* stylelint-enable */
 
   :hover {
     background-color: ${props => props.theme.blueHover};

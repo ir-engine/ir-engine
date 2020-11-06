@@ -1,40 +1,20 @@
 import { createMuiTheme } from '@material-ui/core/styles';
-import red from '@material-ui/core/colors/red';
+import { yellow, red } from '@material-ui/core/colors';
 
-// // Create a theme instance.
-// const theme = createMuiTheme({
-//   palette: {
-//     primary: {
-//       main: '#556cd6'
-//     },
-//     secondary: {
-//       main: '#19857b'
-//     },
-//     error: {
-//       main: red.A400
-//     },
-//     background: {
-//       default: '#fff'
-//     }
-//   },
-//   typography: {
-//     fontFamily: '"Roboto", sans-serif'
-//   }
-// });
-
+// Create a theme instance.
 const theme = createMuiTheme({
   palette: {
     primary: {
-      main: '#66B933'
+      main: '#0076ff'
     },
     secondary: {
-      main: '#633d6d'
+      main: '#09fc3b'
     },
     error: {
       main: red.A400
     },
     background: {
-      default: '#121212'
+      default: '#000000'
     }
   },
   typography: {
@@ -43,15 +23,15 @@ const theme = createMuiTheme({
         color: '#FFF'        
       },
   },
-  overrides: {
+  
+  overrides: { 
     MuiFab: {
       root: {
         text:{
           color: '#FFF' 
         }           
       },
-    },
+    },  
   },
 });
-
 export default theme;

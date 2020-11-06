@@ -10,13 +10,13 @@ import { WebXRSession } from '../components/WebXRSession';
 import { WebXRSpace } from '../components/WebXRSpace';
 import { WebXRViewPoint } from '../components/WebXRViewPoint';
 import { getInputSources } from '../functions/WebXRFunctions';
-import { getComponent, hasComponent, getMutableComponent, addComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, hasComponent, getMutableComponent, addComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
 import { XRWebGLLayerOptions, XRWebGLLayer, XRSession } from '../types/WebXR';
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 
 declare let XRWebGLLayerClass: {
-  prototype: XRWebGLLayer
-  new(session: XRSession, context: WebGLRenderingContext | undefined, options?: XRWebGLLayerOptions): XRWebGLLayer
+  prototype: XRWebGLLayer;
+  new(session: XRSession, context: WebGLRenderingContext | undefined, options?: XRWebGLLayerOptions): XRWebGLLayer;
 };
 
 let mainControllerId: any;
@@ -84,7 +84,7 @@ export const initializeSession: Behavior = (entity: Entity, args: { webXRRendere
   // Getting session and is immersive properties from the component
   const { session, isImmersive } = getComponent(entity, WebXRSession) as any;
   session.addEventListener('end', () => {
-    entity.remove();
+    removeEntity(entity);
     args.webXRRenderer.requestAnimationFrame = WebXRRenderer.schema.requestAnimationFrame.default;
   });
   // console.log("XR session added to", entity, "isImmersive", isImmersive)

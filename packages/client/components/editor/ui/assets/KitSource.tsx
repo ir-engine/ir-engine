@@ -1,5 +1,5 @@
 import Fuse from "fuse.js";
-import { proxiedUrlFor } from "../../api/Api";
+import Api, { proxiedUrlFor } from "../../api/Api";
 import { BaseSource } from "./sources";
 import { ItemTypes } from "../dnd";
 import KitSourcePanel from "./KitSourcePanel";
@@ -13,13 +13,13 @@ function hasTags(result, tags) {
   return true;
 }
 export default class KitSource extends BaseSource {
-  api: any;
+  api: Api;
   kitUrl: any;
   component: typeof KitSourcePanel;
   assets: any[];
   tags: any[];
   loaded: boolean;
-  fuse: Fuse<unknown, { shouldSort: boolean; threshold: number; location: number; distance: number; maxPatternLength: number; minMatchCharLength: number; keys: string[] }>;
+  fuse: Fuse<any>;
   constructor(api, kitUrl) {
     super();
     this.api = api;
@@ -31,7 +31,7 @@ export default class KitSource extends BaseSource {
     this.searchDebounceTimeout = 0;
   }
   async load() {
-    const response = await this.api.fetch(this.kitUrl);
+    const response = await this.api.fetchUrl(this.kitUrl);
     const gltf = await response.json();
     const tagsSet = new Set();
     if (gltf.nodes) {

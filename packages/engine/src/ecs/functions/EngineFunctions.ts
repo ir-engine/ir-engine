@@ -6,6 +6,7 @@ import { EngineOptions } from '../interfaces/EngineOptions';
 import { Timer } from "../../common/functions/Timer";
 import { now } from "../../common/functions/now";
 import { removeAllComponents, removeAllEntities } from "./EntityFunctions";
+import { SystemUpdateType } from "./SystemUpdateType";
 
 /**
  * Initialize options on the engine object and fire a command for devtools
@@ -23,8 +24,6 @@ export function initialize (options?: EngineOptions) {
 }
 
 export function reset(): void {
-  console.log('reset start');
-
   // clear all entities components
   Engine.entities.forEach(entity => {
     removeAllComponents(entity, false);
@@ -81,8 +80,6 @@ export function reset(): void {
     Engine.renderer.dispose();
     Engine.renderer = null;
   }
-
-  console.log('reset finished');
 }
 
 /**
@@ -91,7 +88,7 @@ export function reset(): void {
  * WARNING: This is called by initializeEngine() in {@link @xr3ngine/engine/initialize#initializeEngine}
  * (You probably don't want to use this) 
  */
-export function execute (delta?: number, time?: number): void {
+export function execute (delta?: number, time?: number, updateType = SystemUpdateType.Free): void {
   Engine.tick++;
   if (!delta) {
     time = now() / 1000;
@@ -100,7 +97,8 @@ export function execute (delta?: number, time?: number): void {
   }
 
   if (Engine.enabled) {
-    Engine.systemsToExecute.forEach(system => system.enabled && executeSystem(system, delta, time));
+    Engine.systemsToExecute
+      .forEach(system => executeSystem(system, delta, time, updateType));
     processDeferredEntityRemoval();
   }
 }
@@ -149,7 +147,7 @@ export function pause (): void {
 /**
  * Get stats for all entities, components and systems in the simulation
  */
-export function stats (): { entities: any, system: any } {
+export function stats (): { entities: any; system: any } {
   const queryStats = {};
   for (const queryName in Engine.queries) {
     queryStats[queryName] = Engine.queries[queryName].stats();
@@ -201,12 +199,4 @@ export function resetEngine() {
   Engine.engineTimer?.stop();
 
   reset();
-}
-
-export function startTimer () {
-  setTimeout(() => {
-    Engine.engineTimer = Timer({
-      update: (delta, elapsedTime) => execute(delta, elapsedTime)
-    }).start();
-  }, 1);
 }

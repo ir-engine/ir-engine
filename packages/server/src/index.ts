@@ -6,6 +6,10 @@ import app from './app';
 import logger from './app/logger';
 import config from './config';
 
+process.on('unhandledRejection', (error, promise) => {
+  console.error('UNHANDLED REJECTION - Promise: ', promise, ', Error: ', error, ').');
+});
+
 // SSL setup
 const useSSL = process.env.NODE_ENV !== 'production' && fs.existsSync(path.join(appRootPath.path, 'certs', 'key.pem'));
 
@@ -13,8 +17,8 @@ const certOptions = {
   key: useSSL && process.env.NODE_ENV !== 'production' ? fs.readFileSync(path.join(appRootPath.path, 'certs', 'key.pem')) : null,
   cert: useSSL && process.env.NODE_ENV !== 'production' ? fs.readFileSync(path.join(appRootPath.path, 'certs', 'cert.pem')) : null
 };
-if (useSSL) console.log('Starting server with HTTPS');
-else console.warn('Starting server with NO HTTPS, if you meant to use HTTPS try \'npm run generate-certs\'');
+if (useSSL) logger.info('Starting server with HTTPS');
+else logger.warn('Starting server with NO HTTPS, if you meant to use HTTPS try \'npm run generate-certs\'');
 const port = config.server.port;
 
 // http redirects for development

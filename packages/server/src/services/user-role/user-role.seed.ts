@@ -10,7 +10,8 @@ export const seed = {
       { role: 'admin' },
       { role: 'moderator' },
       { role: 'user' },
-      { role: 'guest' }
+      { role: 'guest' },
+      { role: 'location-admin' }
     ]
 };
 

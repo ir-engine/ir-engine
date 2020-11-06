@@ -25,7 +25,7 @@ module.exports = {
   rules: {
     "no-unused-expressions": "off",
     "no-unused-vars": "off",
-    "no-var": "error",
+    "no-var": "off",
     "prefer-arrow-callback": "error",
     "semi": ['warn', 'always'],
     "space-before-function-paren": "off",
@@ -35,6 +35,7 @@ module.exports = {
     "@typescript-eslint/ban-ts-ignore": "off",
     "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/camelcase": "off",
+    "@typescript-eslint/no-use-before-define": "off",
     "@typescript-eslint/default-param-last": "off",
     "@typescript-eslint/no-empty-interface": "off",
     "@typescript-eslint/require-await": "off",

@@ -1,6 +1,7 @@
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import moment from 'moment';
+import logger from '../../app/logger';
 
 interface Data {}
 
@@ -45,7 +46,7 @@ export class Login implements ServiceMethods<Data> {
         token: token
       };
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       throw err;
     }
   }

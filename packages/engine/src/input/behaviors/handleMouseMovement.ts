@@ -1,18 +1,12 @@
-import { Behavior } from '../../common/interfaces/Behavior';
-import { Entity } from '../../ecs/classes/Entity';
-import { InputType } from '../enums/InputType';
-import { Input } from '../components/Input';
-import { getComponent } from '../../ecs/functions/EntityFunctions';
-import { MouseInput } from '../enums/MouseInput';
-import { LifecycleValue } from '../../common/enums/LifecycleValue';
+import { Behavior } from "../../common/interfaces/Behavior";
+import { Entity } from "../../ecs/classes/Entity";
+import { InputType } from "../enums/InputType";
+import { Input } from "../components/Input";
+import { getComponent } from "../../ecs/functions/EntityFunctions";
+import { MouseInput } from "../enums/MouseInput";
+import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { normalizeMouseCoordinates } from "../../common/functions/normalizeMouseCoordinates";
-import { DefaultInput } from '../../templates/shared/DefaultInput';
-
-/**
- * Local reference to input component
- */
-const mousePosition: [number, number] = [0, 0];
-const mouseMovement: [number, number] = [0, 0];
+import { DefaultInput } from "../../templates/shared/DefaultInput";
 
 /**
  * System behavior called whenever the mouse pressed
@@ -21,68 +15,50 @@ const mouseMovement: [number, number] = [0, 0];
  * @param args is argument object. Events that occur due to the user interacting with a pointing device (such as a mouse).
  */
 
-export const handleMouseMovement: Behavior = (entity: Entity, args: { event: MouseEvent; }): void => {
+export const handleMouseMovement: Behavior = (entity: Entity, args: { event: MouseEvent }): void => {
   const input = getComponent(entity, Input);
   const normalizedPosition = normalizeMouseCoordinates(args.event.clientX, args.event.clientY, window.innerWidth, window.innerHeight);
   const mousePosition: [number, number] = [ normalizedPosition.x, normalizedPosition.y ];
-  // TODO: should movement be also normalized?
-  const mouseMovement: [number, number] = [ args.event.movementX, args.event.movementY ];
+ 
+  const mappedPositionInput = input.schema.mouseInputMap.axes[MouseInput.MousePosition];
+  const mappedMovementInput = input.schema.mouseInputMap.axes[MouseInput.MouseMovement];
+  const mappedDragMovementInput = input.schema.mouseInputMap.axes[MouseInput.MouseClickDownMovement];
 
-  const mappedPositionInput = input.schema.mouseInputMap.axes[MouseInput.MousePosition]
-  const mappedMovementInput = input.schema.mouseInputMap.axes[MouseInput.MouseMovement]
-  const mappedDragMovementInput = input.schema.mouseInputMap.axes[MouseInput.MouseClickDownMovement]
+  const previousPosition = (input.prevData.has(mappedPositionInput)? input.prevData.get(mappedPositionInput) : input.data.get(mappedPositionInput))?.value;
 
   // If mouse position not set, set it with lifecycle started
   if (mappedPositionInput) {
-    if (!input.data.has(mappedPositionInput)) {
-      input.data.set(mappedPositionInput, {
-        type: InputType.TWODIM,
-        value: mousePosition,
-        lifecycleState: LifecycleValue.STARTED
-      });
-    } else {
-      input.data.set(mappedPositionInput, {
-        type: InputType.TWODIM,
-        value: mousePosition,
-        lifecycleState: LifecycleValue.CHANGED
-      });
-    }
+    input.data.set(mappedPositionInput, {
+      type: InputType.TWODIM,
+      value: mousePosition,
+      lifecycleState: input.data.has(mappedPositionInput)? LifecycleValue.CHANGED : LifecycleValue.STARTED
+    });
+  }
+
+  const mouseMovement: [number, number] = [0, 0];
+  if (previousPosition) {
+    mouseMovement[0] = mousePosition[0] - previousPosition[0];
+    mouseMovement[1] = mousePosition[1] - previousPosition[1];
   }
 
   if (mappedMovementInput) {
-    if (!input.data.has(mappedMovementInput)) {
-      input.data.set(mappedMovementInput, {
-        type: InputType.TWODIM,
-        value: mouseMovement,
-        lifecycleState: LifecycleValue.STARTED
-      });
-    } else {
-      input.data.set(mappedMovementInput, {
-        type: InputType.TWODIM,
-        value: mouseMovement,
-        lifecycleState: LifecycleValue.CHANGED
-      });
-    }
+    input.data.set(mappedMovementInput, {
+      type: InputType.TWODIM,
+      value: mouseMovement,
+      lifecycleState: input.data.has(mappedMovementInput)? LifecycleValue.CHANGED : LifecycleValue.STARTED
+    });
   }
 
   // TODO: it looks like hack... MouseInput.MousePosition doesn't know that it is SCREENXY, and it could be anything ... same should be here
-  const SCREENXY_START = input.data.get(DefaultInput.SCREENXY_START)
+  const SCREENXY_START = input.data.get(DefaultInput.SCREENXY_START);
   if (SCREENXY_START && SCREENXY_START.lifecycleState !== LifecycleValue.ENDED) {
     // Set dragging movement delta
     if (mappedDragMovementInput) {
-      if (!input.data.has(mappedDragMovementInput)) {
-        input.data.set(mappedDragMovementInput, {
-          type: InputType.TWODIM,
-          value: mouseMovement,
-          lifecycleState: LifecycleValue.STARTED
-        });
-      } else {
-        input.data.set(mappedDragMovementInput, {
-          type: InputType.TWODIM,
-          value: mouseMovement,
-          lifecycleState: LifecycleValue.CHANGED
-        });
-      }
+      input.data.set(mappedDragMovementInput, {
+        type: InputType.TWODIM,
+        value: mouseMovement,
+        lifecycleState: input.data.has(mappedDragMovementInput)? LifecycleValue.CHANGED : LifecycleValue.STARTED
+      });
     }
   }
 };

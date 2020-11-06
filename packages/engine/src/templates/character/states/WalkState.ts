@@ -10,7 +10,7 @@ import { findVehicle } from '../functions/findVehicle';
 import { getComponent } from '../../../ecs/functions/EntityFunctions';
 import { Input } from '../../../input/components/Input';
 import { isMoving } from '../functions/isMoving';
-import { addState } from '../../../state/behaviors/StateBehaviors';
+import { addState } from "../../../state/behaviors/addState";
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { DefaultInput } from '../../shared/DefaultInput';
 
@@ -20,7 +20,7 @@ export const WalkState: StateSchemaValue = {
     component: CharacterComponent,
     properties: {
       ['canEnterVehicles']: true,
-      ['arcadeVelocityTarget']: { x: 0.0, y: 0.0, z: 0.8 },
+      ['moveSpeed']: 4
     }
   }],
   onEntry: [
@@ -30,7 +30,7 @@ export const WalkState: StateSchemaValue = {
     {
       behavior: setActorAnimation,
       args: {
-        name: 'walk_forward',
+        name: 'walking',
         transitionDuration: 1
       }
     }
@@ -51,7 +51,7 @@ export const WalkState: StateSchemaValue = {
           const input = getComponent(entity, Input);
 
           if (input.data.has(DefaultInput.BACKWARD)) {
-            addState(entity, { state: CharacterStateTypes.WALK_START_BACK_RIGHT });
+            addState(entity, { state: CharacterStateTypes.WALK_START_BACKWARD });
           } else if (input.data.has(DefaultInput.LEFT)) {
             addState(entity, { state: CharacterStateTypes.WALK_START_LEFT });
           } else if (input.data.has(DefaultInput.RIGHT)) {

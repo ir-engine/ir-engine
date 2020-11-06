@@ -1,6 +1,5 @@
-import { addObject3DComponent, removeObject3DComponent } from '../../common/behaviors/Object3DBehaviors';
+import { removeObject3DComponent } from '../../common/behaviors/Object3DBehaviors';
 import { Object3DComponent } from '../../common/components/Object3DComponent';
-import { Engine } from '../../ecs/classes/Engine';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { Not } from '../../ecs/functions/ComponentFunctions';
@@ -11,8 +10,6 @@ import {
   hasComponent,
   removeComponent
 } from '../../ecs/functions/EntityFunctions';
-import { TransformChildComponent } from '../../transform/components/TransformChildComponent';
-import { TransformParentComponent } from '../../transform/components/TransformParentComponent';
 import { AssetLoader } from '../components/AssetLoader';
 import { AssetLoaderState } from '../components/AssetLoaderState';
 import AssetVault from '../components/AssetVault';
@@ -20,26 +17,44 @@ import { Model } from '../components/Model';
 import { Unload } from '../components/Unload';
 import { AssetClass } from '../enums/AssetClass';
 import { getAssetClass, getAssetType, loadAsset } from '../functions/LoadingFunctions';
-import { isBrowser } from '../../common/functions/isBrowser';
-import { MeshPhysicalMaterial } from "three";
+import { isClient } from '../../common/functions/isClient';
+import { MeshPhysicalMaterial, TorusGeometry } from "three";
+import { ProcessModelAsset } from "../functions/ProcessModelAsset";
+import { CharacterAvatarComponent } from "../../templates/character/components/CharacterAvatarComponent";
+import { loadActorAvatar } from "../../templates/character/behaviors/loadActorAvatar";
+import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 
 export default class AssetLoadingSystem extends System {
+  updateType = SystemUpdateType.Fixed;
+  
   loaded = new Map<Entity, any>()
+  loadingCount = 0;
 
   constructor() {
     super();
     addComponent(createEntity(), AssetVault);
   }
 
-  execute () {
+  execute(): void {
+    if (isClient) {
+      if (this.queryResults.toLoad.all.length > 0) {
+        document.dispatchEvent(new CustomEvent('scene-loaded', { detail: { loaded: false } }));
+      } else {
+        document.dispatchEvent(new CustomEvent('scene-loaded', { detail: { loaded: true } }));
+      }
+    }
+
     this.queryResults.assetVault.all.forEach(entity => {
       // Do things here
     });
     this.queryResults.toLoad.all.forEach((entity: Entity) => {
-      if(hasComponent(entity, AssetLoaderState)) return console.log("Returning because already has assetloader");
-      console.log("To load query has members!");
-      // Create a new entity
-      addComponent(entity, AssetLoaderState);
+      if (hasComponent(entity, AssetLoaderState)) {
+        //return console.log("Returning because already has AssetLoaderState");
+        console.log("??? already has AssetLoaderState");
+      } else {
+        // Create a new AssetLoaderState
+        addComponent(entity, AssetLoaderState);
+      }
       const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader);
       // Set the filetype
       assetLoader.assetType = getAssetType(assetLoader.url);
@@ -48,72 +63,48 @@ export default class AssetLoadingSystem extends System {
       // Check if the vault already contains the asset
       // If it does, get it so we don't need to reload it
       // Load the asset with a calback to add it to our processing queue
-      if(isBrowser) // Only load asset on browser, as it uses browser-specific requests
-      loadAsset(assetLoader.url, entity, (entity, { asset }) => {
-        // This loads the editor scene
-        this.loaded.set(entity, asset);
-      });
+      if (isClient) { // Only load asset on browser, as it uses browser-specific requests
+        this.loadingCount++;
+
+        const eventEntity = new CustomEvent('scene-loaded-entity', { detail: { left: this.loadingCount } });
+        document.dispatchEvent(eventEntity);
+
+        loadAsset(assetLoader.url, entity, (entity, { asset }) => {
+          // This loads the editor scene
+          this.loaded.set(entity, asset);
+          this.loadingCount--;
+
+          if (this.loadingCount === 0) {
+            //loading finished
+            const event = new CustomEvent('scene-loaded', { detail: { loaded: true } });
+            document.dispatchEvent(event);
+          } else {
+            //show progress by entitites
+            const event = new CustomEvent('scene-loaded-entity', { detail: { left: this.loadingCount } });
+            document.dispatchEvent(event);
+          }
+        });
+      }
+
     });
 
     // Do the actual entity creation inside the system tick not in the loader callback
-    this.loaded.forEach( (asset, entity) =>{
+    this.loaded.forEach((asset, entity) => {
       const component = getComponent<AssetLoader>(entity, AssetLoader);
       if (component.assetClass === AssetClass.Model) {
-        const replacedMaterials = new Map();
-        if(asset.scene !== undefined)
-        asset.scene.traverse((child) => {
-          if (child.isMesh) {
-            child.receiveShadow = component.receiveShadow;
-            child.castShadow = component.castShadow;
-
-            if (component.envMapOverride) {
-              child.material.envMap = component.envMapOverride;
-            }
-
-            if (replacedMaterials.has(child.material)) {
-              child.material = replacedMaterials.get(child.material);
-            } else {
-              if (child?.material?.userData?.gltfExtensions?.KHR_materials_clearcoat) {
-                const newMaterial = new MeshPhysicalMaterial({});
-                newMaterial.setValues(child.material); // to copy properties of original material
-                newMaterial.clearcoat = child.material.userData.gltfExtensions.KHR_materials_clearcoat.clearcoatFactor;
-                newMaterial.clearcoatRoughness = child.material.userData.gltfExtensions.KHR_materials_clearcoat.clearcoatRoughnessFactor;
-                newMaterial.defines = { STANDARD: '', PHYSICAL: '' }; // override if it's replaced by non PHYSICAL defines of child.material
-
-                replacedMaterials.set(child.material, newMaterial);
-                child.material = newMaterial;
-              }
-            }
-          }
-        });
-        replacedMaterials.clear();
+        addComponent(entity, Model, { value: asset });
+        ProcessModelAsset(entity, component, asset);
       }
 
-      addComponent(entity, Model, { value: asset });
-      if (hasComponent(entity, Object3DComponent)) {
-        if (getComponent<Object3DComponent>(entity, Object3DComponent).value !== undefined)
-          getMutableComponent<Object3DComponent>(entity, Object3DComponent).value.add(asset.scene);
-        else getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = (asset.scene);
-      } else {
-        addObject3DComponent(entity, {obj3d: asset.scene ?? asset});
-      }
-
-      //const transformParent = addComponent<TransformParentComponent>(entity, TransformParentComponent) as TransformParentComponent
-      const a = asset.scene ?? asset;
-      a.children.forEach(obj => {
-        const e = createEntity();
-        addObject3DComponent(e, { obj3d: obj, parentEntity: entity });
-        // const transformChild = addComponent<TransformChildComponent>(e, TransformChildComponent) as TransformChildComponent
-        // transformChild.parent = entity
-        //transformParent.children.push(e)
-      });
       getMutableComponent<AssetLoader>(entity, AssetLoader).loaded = true;
-      
+
       AssetVault.instance.assets.set(hashResourceString(component.url), asset.scene);
-      
+
       if (component.onLoaded) {
         component.onLoaded(entity, { asset });
       }
+
+      console.log('loaded number ', entity)
     });
 
     this.loaded?.clear();
@@ -123,14 +114,14 @@ export default class AssetLoadingSystem extends System {
       removeComponent(entity, AssetLoaderState);
       removeComponent(entity, Unload);
 
-      if(hasComponent(entity, Object3DComponent)){
+      if (hasComponent(entity, Object3DComponent)) {
         removeObject3DComponent(entity);
       }
     });
   }
 }
 
-export function hashResourceString (str) {
+export function hashResourceString(str: string): string {
   let hash = 0;
   let i = 0;
   const len = str.length;
@@ -149,9 +140,21 @@ AssetLoadingSystem.queries = {
     components: [AssetVault]
   },
   toLoad: {
-    components: [AssetLoader, Not(AssetLoaderState)]
+    components: [AssetLoader, Not(AssetLoaderState)],
+    listen: {
+      added: true,
+      removed: true
+    }
   },
   toUnload: {
     components: [AssetLoaderState, Unload, Not(AssetLoader)]
+  },
+  // TODO: Remove this
+  characterAvatar: {
+    components: [CharacterAvatarComponent],
+    listen: {
+      added: true,
+      changed: true
+    }
   }
 };

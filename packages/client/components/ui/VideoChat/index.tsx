@@ -1,19 +1,24 @@
-import {AppBar, Button} from '@material-ui/core';
 import {VideoCall, CallEnd, PersonAdd} from '@material-ui/icons';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { useEffect } from 'react';
-import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
 import { MediaStreamComponent } from '@xr3ngine/engine/src/networking/components/MediaStreamComponent';
 import { Network } from '@xr3ngine/engine/src/networking/components/Network';
 import { observer } from 'mobx-react';
+import { selectAuthState } from '../../../redux/auth/selector';
+import { selectLocationState } from '../../../redux/location/selector';
 import Fab from "@material-ui/core/Fab";
+import { sendCameraStreams, endVideoChat } from '../../../classes/transports/WebRTCFunctions';
 
-const locationId = 'e3523270-ddb7-11ea-9251-75ab611a30da';
-interface Props {}
+interface Props {
+  authState?: any;
+  locationState?: any;
+}
 
 const mapStateToProps = (state: any): any => {
-  return {};
+  return {
+    authState: selectAuthState(state),
+    locationState: selectLocationState(state)
+  };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
@@ -21,13 +26,17 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const VideoChat = observer((props: Props) => {
   const {
+    authState,
+    locationState
   } = props;
+  const user = authState.get('user');
+  const currentLocation = locationState.get('currentLocation').get('location');
   const gsProvision = async () => {
     if (MediaStreamComponent.instance.mediaStream == null) {
-      await (Network.instance.transport as any).sendCameraStreams();
+      await sendCameraStreams(currentLocation?.locationType === 'showroom' ? 'instance' : user.partyId);
     } else {
       console.log('Ending video chat');
-      await (Network.instance.transport as any).endVideoChat();
+      await endVideoChat();
     }
   };
   return (

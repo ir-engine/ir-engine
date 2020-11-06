@@ -7,6 +7,7 @@ import CollectionType from './collection-type/collection-type.service';
 import EntityType from './entity-type/entity-type.service';
 import GroupUserRank from './group-user-rank/group-user-rank.service';
 import InviteType from './invite-type/invite-type.service';
+import LocationType from './location-type/location-type.service';
 import StaticResourceType from './static-resource-type/static-resource-type.service';
 import SubscriptionLevel from './subscription-level/subscription-level.service';
 import SeatStatus from './seat-status/seat-status.service';
@@ -27,6 +28,7 @@ import License from './license/license.service';
 import GameserverSubdomainProvision from './gameserver-subdomain-provision/gameserver-subdomain-provision.service';
 import LoginToken from './login-token/login-token.service';
 import Location from './location/location.service';
+import LocationBan from './location-ban/location-ban.service';
 import Party from './party/party.service';
 import Project from './project/project.service';
 import RtcPorts from './rtc-ports/rtc-ports.service';
@@ -39,6 +41,7 @@ import UserSettings from './user-settings/user-settings.service';
 // Junctions
 import GroupUser from './group-user/group-user.service';
 import PartyUser from './party-user/party-user.service';
+import LocationAdmin from './location-admin/location-admin.service';
 
 // Services
 import AcceptInvite from './accept-invite/accept-invite.service';
@@ -71,16 +74,17 @@ import GraphQL from './graphql/graphql.service';
 export default (app: Application): void => {
   // Dynamic types
   app.configure(ChannelType);
-  app.configure(ComponentType);
   app.configure(CollectionType);
-  app.configure(StaticResourceType);
+  app.configure(ComponentType);
   app.configure(EntityType);
-  app.configure(UserRelationshipType);
-  app.configure(SeatStatus);
-  app.configure(SubscriptionType);
   app.configure(GroupUserRank);
-  app.configure(SubscriptionLevel);
   app.configure(InviteType);
+  app.configure(LocationType);
+  app.configure(SeatStatus);
+  app.configure(StaticResourceType);
+  app.configure(SubscriptionLevel);
+  app.configure(SubscriptionType);
+  app.configure(UserRelationshipType);
 
   // Objects
   app.configure(Attribution);
@@ -94,6 +98,7 @@ export default (app: Application): void => {
   app.configure(License);
   app.configure(GameserverSubdomainProvision);
   app.configure(Location);
+  app.configure(LocationBan);
   app.configure(LoginToken);
   app.configure(Party);
   app.configure(Project);
@@ -109,6 +114,7 @@ export default (app: Application): void => {
   // Junctions
   app.configure(PartyUser);
   app.configure(GroupUser);
+  app.configure(LocationAdmin);
 
   // Services
   app.configure(AcceptInvite);
@@ -124,7 +130,7 @@ export default (app: Application): void => {
   app.configure(Tag);
   app.configure(SubscriptionConfirm);
   app.configure(Upload);
-  app.configure(Video);
+  // app.configure(Video);
 
   // Editor
   app.configure(MediaSearch);

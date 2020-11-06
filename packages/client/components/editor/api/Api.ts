@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import EventEmitter from "eventemitter3";
 import jwtDecode from "jwt-decode";
 import { buildAbsoluteURL } from "url-toolkit";
@@ -15,30 +13,8 @@ import PublishedSceneDialog from "./PublishedSceneDialog";
 const resolveUrlCache = new Map();
 const resolveMediaCache = new Map();
 
-const API_SERVER_ADDRESS = (configs as any).API_SERVER_ADDRESS || (process.browser ? `${document.location.hostname}:3030` : "localhost:3030");
-
-const {
-  API_ASSETS_ROUTE,
-  API_ASSETS_ACTION,
-  API_MEDIA_ROUTE,
-  API_MEDIA_SEARCH_ROUTE,
-  API_META_ROUTE,
-  API_PROJECT_PUBLISH_ACTION,
-  API_PROJECTS_ROUTE,
-  API_RESOLVE_MEDIA_ROUTE,
-  API_SCENES_ROUTE,
-  CLIENT_ADDRESS,
-  CLIENT_SCENE_ROUTE,
-  CLIENT_LOCAL_SCENE_ROUTE,
-  CORS_PROXY_SERVER,
-  THUMBNAIL_ROUTE,
-  THUMBNAIL_SERVER,
-  USE_DIRECT_UPLOAD_API,
-  NON_CORS_PROXY_DOMAINS,
-  USE_HTTPS
-} = configs as any;
-
-const prefix = USE_HTTPS ? "https://" : "http://";
+const SERVER_URL = (configs as any).SERVER_URL;
+const APP_URL = (configs as any).APP_URL;
 
 function b64EncodeUnicode(str): string {
   // first we use encodeURIComponent to get percent-encoded UTF-8, then we convert the percent-encodings
@@ -47,7 +23,7 @@ function b64EncodeUnicode(str): string {
   return btoa(encodeURIComponent(str).replace(CHAR_RE, (_, p1) => String.fromCharCode(("0x" + p1) as any)));
 }
 
-const farsparkEncodeUrl = (url): string => {
+const serverEncodeURL = (url): string => {
   // farspark doesn't know how to read '=' base64 padding characters
   // translate base64 + to - and / to _ for URL safety
   return b64EncodeUnicode(url)
@@ -56,10 +32,8 @@ const farsparkEncodeUrl = (url): string => {
     .replace(/\//g, "_");
 };
 
-const nonCorsProxyDomains = (NON_CORS_PROXY_DOMAINS || "").split(",");
-if (CORS_PROXY_SERVER) {
-  nonCorsProxyDomains.push(CORS_PROXY_SERVER);
-}
+const nonCorsProxyDomains = (SERVER_URL || "").split(",");
+  nonCorsProxyDomains.push(SERVER_URL);
 
 function shouldCorsProxy(url): boolean {
   // Skip known domains that do not require CORS proxying.
@@ -80,16 +54,12 @@ export const proxiedUrlFor = url => {
   //   return url;
   // }
 
-  // return `${prefix}${CORS_PROXY_SERVER}/${url}`;
+  // return `${SERVER_URL}/${url}`;
   return url;
 };
 
 export const scaledThumbnailUrlFor = (url, width, height) => {
-  if (API_SERVER_ADDRESS.includes("localhost") && url.includes("localhost")) {
-    return url;
-  }
-
-  return `${prefix}${THUMBNAIL_SERVER}${THUMBNAIL_ROUTE}${farsparkEncodeUrl(url)}?w=${width}&h=${height}`;
+  return `${SERVER_URL}/thumbnail/${serverEncodeURL(url)}?w=${width}&h=${height}`;
 };
 
 const CommonKnownContentTypes = {
@@ -123,7 +93,7 @@ export default class Api extends EventEmitter {
       this.serverURL = protocol + "//" + host;
     }
     
-    this.apiURL = `${prefix}${API_SERVER_ADDRESS}`;
+    this.apiURL = `${SERVER_URL}`;
 
     this.projectDirectoryPath = "/api/files/";
 
@@ -163,7 +133,7 @@ export default class Api extends EventEmitter {
     return jwtDecode(token).sub;
   }
 
-  async getProjects(): any {
+  async getProjects(): Promise<any> {
     const token = this.getToken();
 
     const headers = {
@@ -171,20 +141,21 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    const response = await this.fetch(`${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}`, { headers });
+    const response = await this.fetchUrl(`${SERVER_URL}/project`, { headers });
 
-    console.log("Response: " + Object.values(response));
+    const json = await response.json().catch(err => {
+      console.log("Error fetching JSON");
+      console.log(err);
+    });
 
-    const json = await response.json();
-
-    if (!Array.isArray(json.projects)) {
+    if (!Array.isArray(json.projects) || json.projects) {
       throw new Error(`Error fetching projects: ${json.error || "Unknown error."}`);
     }
 
     return json.projects;
   }
 
-  async getProject(projectId): JSON {
+  async getProject(projectId): Promise<JSON> {
     const token = this.getToken();
 
     const headers = {
@@ -192,7 +163,7 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    const response = await this.fetch(`${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}/${projectId}`, {
+    const response = await this.fetchUrl(`${SERVER_URL}/project/${projectId}`, {
       headers
     });
 
@@ -202,14 +173,14 @@ export default class Api extends EventEmitter {
     return json;
   }
 
-  async resolveUrl(url, index?): string {
+  async resolveUrl(url, index?): Promise<any> {
     if (!shouldCorsProxy(url)) {
       return { origin: url };
     }
 
     const cacheKey = `${url}|${index}`;
     if (resolveUrlCache.has(cacheKey)) return resolveUrlCache.get(cacheKey);
-    const request = this.fetch(`${prefix}${API_SERVER_ADDRESS}${API_RESOLVE_MEDIA_ROUTE}`, {
+    const request = this.fetchUrl(`${SERVER_URL}/resolve-media`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ media: { url, index } })
@@ -229,7 +200,7 @@ export default class Api extends EventEmitter {
 
       return response.json();
     }).catch(e => {
-      console.warn(e)
+      console.warn(e);
     });
 
     resolveUrlCache.set(cacheKey, request);
@@ -237,14 +208,14 @@ export default class Api extends EventEmitter {
     return request;
   }
 
-  fetchContentType(accessibleUrl): string {
-    const f = this.fetch(accessibleUrl, { method: "HEAD" }).then(r => r.headers.get("content-type"));
+  async fetchContentType(accessibleUrl): Promise<any> {
+    const f = await this.fetchUrl(accessibleUrl, { method: "HEAD" }).then(r => r.headers.get("content-type"));
     console.log("Response: " + Object.values(f));
 
     return f;
   }
 
-  async getContentType(url): string {
+  async getContentType(url): Promise<any> {
     const result = await this.resolveUrl(url);
     const canonicalUrl = result.origin;
     const accessibleUrl = proxiedUrlFor(canonicalUrl);
@@ -256,7 +227,7 @@ export default class Api extends EventEmitter {
     );
   }
 
-  async resolveMedia(url, index): any {
+  async resolveMedia(url, index): Promise<any> {
     const absoluteUrl = new URL(url, (window as any).location).href;
 
     if (absoluteUrl.startsWith(this.serverURL)) {
@@ -309,8 +280,7 @@ export default class Api extends EventEmitter {
   }
 
   unproxyUrl(baseUrl, url): any {
-    if (CORS_PROXY_SERVER) {
-      const corsProxyPrefix = `${prefix}${CORS_PROXY_SERVER}/`;
+      const corsProxyPrefix = `${SERVER_URL}/`;
 
       if (baseUrl.startsWith(corsProxyPrefix)) {
         baseUrl = baseUrl.substring(corsProxyPrefix.length);
@@ -319,7 +289,6 @@ export default class Api extends EventEmitter {
       if (url.startsWith(corsProxyPrefix)) {
         url = url.substring(corsProxyPrefix.length);
       }
-    }
 
     // HACK HLS.js resolves relative urls internally, but our CORS proxying screws it up. Resolve relative to the original unproxied url.
     // TODO extend HLS.js to allow overriding of its internal resolving instead
@@ -330,8 +299,8 @@ export default class Api extends EventEmitter {
     return proxiedUrlFor(url);
   }
   
-  async searchMedia(source, params, cursor, signal): any {
-    const url = new URL(`${prefix}${API_SERVER_ADDRESS}${API_MEDIA_ROUTE}${API_MEDIA_SEARCH_ROUTE}`);
+  async searchMedia(source, params, cursor, signal): Promise<any> {
+    const url = new URL(`${SERVER_URL}/media-search`);
 
     const headers: any = {
       "content-type": "application/json"
@@ -368,7 +337,7 @@ export default class Api extends EventEmitter {
     }
 
     console.log("Fetching...");
-    const resp = await this.fetch(url, { headers, signal });
+    const resp = await this.fetchUrl(url, { headers, signal });
     console.log("Response: " + Object.values(resp));
 
     if (signal.aborted) {
@@ -440,7 +409,6 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    /* eslint-disable @typescript-eslint/camelcase */
     const project = {
       name: scene.name,
       thumbnail_file_id: thumbnailFileId,
@@ -448,7 +416,6 @@ export default class Api extends EventEmitter {
       project_file_id: projectFileId,
       project_file_token: projectFileToken
     };
-    /* eslint-enable */
 
     if (parentSceneId) {
       project["parent_scene_id"] = parentSceneId;
@@ -456,9 +423,9 @@ export default class Api extends EventEmitter {
 
     const body = JSON.stringify({ project });
 
-    const projectEndpoint = `${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}`;
+    const projectEndpoint = `${SERVER_URL}/project`;
 
-    const resp = await this.fetch(projectEndpoint, { method: "POST", headers, body, signal });
+    const resp = await this.fetchUrl(projectEndpoint, { method: "POST", headers, body, signal });
     console.log("Response: " + Object.values(resp));
 
     if (signal.aborted) {
@@ -476,7 +443,7 @@ export default class Api extends EventEmitter {
     return json;
   }
 
-  async deleteProject(projectId): any {
+  async deleteProject(projectId): Promise<any> {
     const token = this.getToken();
 
     const headers = {
@@ -484,9 +451,9 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    const projectEndpoint = `${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}/${projectId}`;
+    const projectEndpoint = `${SERVER_URL}/project/${projectId}`;
 
-    const resp = await this.fetch(projectEndpoint, { method: "DELETE", headers });
+    const resp = await this.fetchUrl(projectEndpoint, { method: "DELETE", headers });
     console.log("Response: " + Object.values(resp));
 
     if (resp.status === 401) {
@@ -500,7 +467,7 @@ export default class Api extends EventEmitter {
     return true;
   }
 
-  async saveProject(projectId, editor, signal, showDialog, hideDialog): any {
+  async saveProject(projectId, editor, signal, showDialog, hideDialog): Promise<any> {
     this.emit("project-saving");
 
     if (signal.aborted) {
@@ -540,7 +507,6 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    /* eslint-disable @typescript-eslint/camelcase */
     const project = {
       name: editor.scene.name,
       thumbnail_file_id: thumbnailFileId,
@@ -548,7 +514,6 @@ export default class Api extends EventEmitter {
       project_file_id: projectFileId,
       project_file_token: projectFileToken
     };
-    /* eslint-enable */
 
     const sceneId = editor.scene.metadata && editor.scene.metadata.sceneId ? editor.scene.metadata.sceneId : null;
 
@@ -560,9 +525,9 @@ export default class Api extends EventEmitter {
       project
     });
 
-    const projectEndpoint = `${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}/${projectId}`;
+    const projectEndpoint = `${SERVER_URL}/project/${projectId}`;
 
-    const resp = await this.fetch(projectEndpoint, { method: "PATCH", headers, body, signal });
+    const resp = await this.fetchUrl(projectEndpoint, { method: "PATCH", headers, body, signal });
     console.log("Response: " + Object.values(resp));
 
     const json = await resp.json();
@@ -580,19 +545,19 @@ export default class Api extends EventEmitter {
     return json;
   }
 
-  async getProjectFile(sceneId): any {
+  async getProjectFile(sceneId): Promise<any> {
     return await this.props.api.getScene(sceneId);
     // TODO: Make this a main branch thing
     // const scene = await this.props.api.getScene(sceneId);
     // return await this.props.api.fetch(scene.scene_project_url).then(response => response.json());
   }
 
-  async getScene(sceneId): JSON {
+  async getScene(sceneId): Promise<JSON> {
     const headers = {
       "content-type": "application/json"
     };
 
-    const response = await this.fetch(`${prefix}${API_SERVER_ADDRESS}${API_SCENES_ROUTE}/${sceneId}`, {
+    const response = await this.fetchUrl(`${SERVER_URL}/project/${sceneId}`, {
       headers
     });
 
@@ -604,17 +569,11 @@ export default class Api extends EventEmitter {
   }
 
   getSceneUrl(sceneId): string {
-    // If we recognize a local address relative to this Editor instance
-    if (CLIENT_ADDRESS === "localhost:8080") {
-      return `${prefix}${CLIENT_ADDRESS}${CLIENT_LOCAL_SCENE_ROUTE}${sceneId}`;
-    } else {
-      return `${prefix}${CLIENT_ADDRESS}${CLIENT_SCENE_ROUTE}${sceneId}`;
-    }
+      return `${APP_URL}/scenes/${sceneId}`;
   }
 
-  async publishProject(project, editor, showDialog, hideDialog?): any {
+  async publishProject(project, editor, showDialog, hideDialog?): Promise<any> {
     let screenshotUrl;
-
     try {
       const scene = editor.scene;
 
@@ -650,8 +609,16 @@ export default class Api extends EventEmitter {
       await new Promise(resolve => setTimeout(resolve, 5));
 
       // Take a screenshot of the scene from the current camera position to use as the thumbnail
-      const { blob: screenshotBlob, cameraTransform: screenshotCameraTransform } = await editor.takeScreenshot();
+      const screenshot = await editor.takeScreenshot();
+      console.log("Screenshot is");
+      console.log(screenshot);
+      const { blob: screenshotBlob, cameraTransform: screenshotCameraTransform } = screenshot;
+      console.log("screenshotBlob is");
+      console.log(screenshotBlob);
+
       screenshotUrl = URL.createObjectURL(screenshotBlob);
+
+      console.log("Screenshot url is", screenshotUrl);
 
       if (signal.aborted) {
         const error = new Error("Publish project aborted");
@@ -659,7 +626,7 @@ export default class Api extends EventEmitter {
         throw error;
       }
 
-      const userInfo = this.getUserInfo();
+      const userInfo = this.getUserInfo() as any;
 
       // Gather all the info needed to display the publish dialog
       let { name, creatorAttribution, allowRemixing, allowPromotion } = scene.metadata;
@@ -819,7 +786,6 @@ export default class Api extends EventEmitter {
         throw error;
       }
 
-      /* eslint-disable @typescript-eslint/camelcase */
       const sceneParams = {
         screenshot_file_id: screenshotId,
         screenshot_file_token: screenshotToken,
@@ -835,7 +801,6 @@ export default class Api extends EventEmitter {
           content: publishParams.contentAttributions
         }
       };
-      /* eslint-enable */
 
       const token = this.getToken();
 
@@ -845,8 +810,8 @@ export default class Api extends EventEmitter {
       };
       const body = JSON.stringify({ scene: sceneParams });
 
-      const resp = await this.fetch(
-        `${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}/${project.project_id}${API_PROJECT_PUBLISH_ACTION}`,
+      const resp = await this.fetchUrl(
+        `${SERVER_URL}/publish-project/${project.project_id}`,
         {
           method: "POST",
           headers,
@@ -886,18 +851,9 @@ export default class Api extends EventEmitter {
     return project;
   }
 
-  async upload(blob, onUploadProgress, signal?, projectId?): Proimse<void> {
+  async upload(blob, onUploadProgress, signal?, projectId?): Promise<void> {
     let host, port;
     const token = this.getToken();
-
-    if (USE_DIRECT_UPLOAD_API) {
-      const { phx_host: uploadHost } = await (
-        await this.fetch(`${prefix}${API_SERVER_ADDRESS}${API_META_ROUTE}`)
-      ).json();
-      const uploadPort = new URL(`${prefix}${API_SERVER_ADDRESS}`).port;
-      host = uploadHost;
-      port = uploadPort;
-    }
 
     return await new Promise((resolve, reject) => {
       const request = new XMLHttpRequest();
@@ -912,12 +868,9 @@ export default class Api extends EventEmitter {
       if (signal) {
         signal.addEventListener("abort", onAbort);
       }
+      console.log("Posting to: ", `${SERVER_URL}/media`);
 
-      if (USE_DIRECT_UPLOAD_API) {
-        request.open("post", `${host}${API_MEDIA_ROUTE}`, true);
-      } else {
-        request.open("post", `${prefix}${API_SERVER_ADDRESS}${API_MEDIA_ROUTE}`, true);
-      }
+        request.open("post", `${SERVER_URL}/media`, true);
 
       request.upload.addEventListener("progress", e => {
         if (onUploadProgress) {
@@ -958,10 +911,10 @@ export default class Api extends EventEmitter {
   }
 
   uploadAssets(editor, files, onProgress, signal): any {
-    return this._uploadAssets(`${prefix}${API_SERVER_ADDRESS}${API_ASSETS_ROUTE}`, editor, files, onProgress, signal);
+    return this._uploadAssets(`${SERVER_URL}/static-resource`, editor, files, onProgress, signal);
   }
 
-  async _uploadAssets(endpoint, editor, files, onProgress, signal): any {
+  async _uploadAssets(endpoint, editor, files, onProgress, signal): Promise<any> {
     const assets = [];
 
     for (const file of Array.from(files)) {
@@ -993,12 +946,12 @@ export default class Api extends EventEmitter {
   }
 
   uploadAsset(editor, file, onProgress, signal): any {
-    return this._uploadAsset(`${prefix}${API_SERVER_ADDRESS}${API_ASSETS_ROUTE}`, editor, file, onProgress, signal);
+    return this._uploadAsset(`${SERVER_URL}/static-resource`, editor, file, onProgress, signal);
   }
 
   uploadProjectAsset(editor, projectId, file, onProgress, signal): any {
     return this._uploadAsset(
-      `${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}/${projectId}${API_ASSETS_ACTION}`,
+      `${SERVER_URL}/project/${projectId}/assets`,
       editor,
       file,
       onProgress,
@@ -1008,7 +961,7 @@ export default class Api extends EventEmitter {
 
   lastUploadAssetRequest = 0;
 
-  async _uploadAsset(endpoint, editor, file, onProgress, signal): any {
+  async _uploadAsset(endpoint, editor, file, onProgress, signal): Promise<any> {
     let thumbnailFileId = null;
     let thumbnailAccessToken = null;
 
@@ -1039,7 +992,6 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    /* eslint-disable @typescript-eslint/camelcase */
     const body = JSON.stringify({
       asset: {
         name: file.name,
@@ -1049,9 +1001,8 @@ export default class Api extends EventEmitter {
         thumbnail_access_token: thumbnailAccessToken
       }
     });
-    /* eslint-enable */
 
-    const resp = await this.fetch(endpoint, { method: "POST", headers, body, signal });
+    const resp = await this.fetchUrl(endpoint, { method: "POST", headers, body, signal });
     console.log("Response: " + Object.values(resp));
 
     const json = await resp.json();
@@ -1072,7 +1023,7 @@ export default class Api extends EventEmitter {
     };
   }
 
-  async deleteAsset(assetId): boolean {
+  async deleteAsset(assetId): Promise<any> {
     const token = this.getToken();
 
     const headers = {
@@ -1080,9 +1031,9 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    const assetEndpoint = `${prefix}${API_SERVER_ADDRESS}${API_ASSETS_ROUTE}/${assetId}`;
+    const assetEndpoint = `${SERVER_URL}/static-resource/${assetId}`;
 
-    const resp = await this.fetch(assetEndpoint, { method: "DELETE", headers });
+    const resp = await this.fetchUrl(assetEndpoint, { method: "DELETE", headers });
     console.log("Response: " + Object.values(resp));
 
     if (resp.status === 401) {
@@ -1096,7 +1047,7 @@ export default class Api extends EventEmitter {
     return true;
   }
 
-  async deleteProjectAsset(projectId, assetId): boolean {
+  async deleteProjectAsset(projectId, assetId): Promise<any> {
     const token = this.getToken();
 
     const headers = {
@@ -1104,9 +1055,9 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    const projectAssetEndpoint = `${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}/${projectId}${API_ASSETS_ACTION}/${assetId}`;
+    const projectAssetEndpoint = `${SERVER_URL}/project/${projectId}/assets/${assetId}`;
 
-    const resp = await this.fetch(projectAssetEndpoint, { method: "DELETE", headers });
+    const resp = await this.fetchUrl(projectAssetEndpoint, { method: "DELETE", headers });
     console.log("Response: " + Object.values(resp));
 
     if (resp.status === 401) {
@@ -1132,16 +1083,22 @@ export default class Api extends EventEmitter {
     localStorage.setItem(LOCAL_STORE_KEY, JSON.stringify({ credentials: { email, token } }));
   }
 
-  async fetch(url, options: any = {}): Promise<any> {
-    try {
+  async fetchUrl(url, options: any = {}): Promise<any> {
       const token = this.getToken();
       if (options.headers == null) {
         options.headers = {};
       }
       options.headers.authorization = `Bearer ${token}`;
-      const res = await fetch(url, options);
-      console.log("Response: " + Object.values(res));
-
+      console.log("Post to: ", url);
+      console.log("Options")
+      console.log(options);
+      const res = await fetch(url, options).catch((error) => {
+        console.log(error);
+        if (error.message === "Failed to fetch") {
+          error.message += " (Possibly a CORS error)";
+        }
+        throw new RethrownError(`Failed to fetch "${url}"`, error);
+      });
       if (res.ok) {
         return res;
       }
@@ -1149,14 +1106,8 @@ export default class Api extends EventEmitter {
       const err = new Error(
         `Network Error: ${res.status || "Unknown Status."} ${res.statusText || "Unknown Error. Possibly a CORS error."}`
       );
-      err.response = res;
+      err["response"] = res;
       throw err;
-    } catch (error) {
-      if (error.message === "Failed to fetch") {
-        error.message += " (Possibly a CORS error)";
-      }
-      throw new RethrownError(`Failed to fetch "${url}"`, error);
-    }
   }
 
   handleAuthorization(): void {

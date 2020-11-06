@@ -91,7 +91,7 @@ if (config.server.enabled) {
     }));
 
     (app as any).sync.ready.then(() => {
-      console.log('Feathers-sync started');
+      logger.info('Feathers-sync started');
     });
   }
 
@@ -114,23 +114,22 @@ if (config.server.enabled) {
 
   app.hooks(appHooks);
 
-  if ((process.env.KUBERNETES === 'true' && (config.server.mode === 'realtime' || config.server.mode === 'api')) || process.env.NODE_ENV === 'development' || config.server.mode === 'local') {
+  if (config.server.mode === 'api' || config.server.mode === 'realtime') {
+    (app as any).k8AgonesClient = K8s.api({ endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`, version: '/apis/agones.dev/v1', auth: { caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'), token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token') } });
+    (app as any).k8DefaultClient = K8s.api({ endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`, version: '/api/v1', auth: { caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'), token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token') } });
+  }
+
+  if ((process.env.KUBERNETES === 'true' && config.server.mode === 'realtime') || process.env.NODE_ENV === 'development' || config.server.mode === 'local') {
     agonesSDK.connect();
     agonesSDK.ready();
     (app as any).agonesSDK = agonesSDK;
     healthPing(agonesSDK);
 
-    if (config.server.mode === 'api' || config.server.mode === 'realtime') {
-      (app as any).k8AgonesClient = K8s.api({ endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`, version: '/apis/agones.dev/v1', auth: { caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'), token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token') } });
-      (app as any).k8DefaultClient = K8s.api({ endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`, version: '/api/v1', auth: { caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'), token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token') } });
-    }
-
     // Create new gameserver instance
     const gameServer = new WebRTCGameServer(app);
-    console.log("Created new gameserver instance");
-    console.log(gameServer);
+    logger.info("Created new gameserver instance");
   } else {
-    console.log("Could not create new game server instance!!");
+    console.warn('Did not create gameserver');
   }
 
   app.use('/healthcheck', (req, res) => {
@@ -145,13 +144,13 @@ app.use(express.static(editorPath));
 app.all('/editor/*', (req, res) => res.sendFile(path.join(editorPath, 'editor/index.html')));
 
 process.on('exit', async () => {
-  console.log('Server exiting');
+  logger.info('Server exiting');
   const gsName = (app as any).gsName;
-  console.log('App\'s gameserver name:');
-  console.log(gsName);
-  console.log(gsName != null);
-  console.log(process.env.NODE_ENV !== 'development');
-  console.log((app as any).k8DefaultClient != null);
+  logger.info('App\'s gameserver name:');
+  logger.info(gsName);
+  logger.info(gsName != null);
+  logger.info(process.env.NODE_ENV !== 'development');
+  logger.info((app as any).k8DefaultClient != null);
   if ((app as any).gsSubdomainNumber != null) {
     await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
       allocated: false
@@ -160,14 +159,14 @@ process.on('exit', async () => {
 });
 
 process.on('SIGTERM', async () => {
-  console.log('Server exiting');
+  logger.info('Server exiting');
   const gsName = (app as any).gsName;
-  console.log('App\'s gameserver name:');
-  console.log(gsName);
-  console.log(gsName);
-  console.log(gsName != null);
-  console.log(process.env.NODE_ENV !== 'development');
-  console.log((app as any).k8DefaultClient != null);
+  logger.info('App\'s gameserver name:');
+  logger.info(gsName);
+  logger.info(gsName);
+  logger.info(gsName != null);
+  logger.info(process.env.NODE_ENV !== 'development');
+  logger.info((app as any).k8DefaultClient != null);
   if ((app as any).gsSubdomainNumber != null) {
     await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
       allocated: false

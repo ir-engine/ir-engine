@@ -4,6 +4,7 @@ import { User } from './user.class';
 import createModel from '../../models/user.model';
 import hooks from './user.hooks';
 import _ from 'lodash';
+import logger from '../../app/logger';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -46,6 +47,16 @@ export default (app: Application): void => {
       let targetIds = [data.id];
       const updatePromises = [];
 
+      let layerUsers = [];
+      if (data.instanceId != null || params.params?.instanceId != null) {
+        layerUsers = await app.service('user').Model.findAll({
+          where: {
+            instanceId: data.instanceId || params.params?.instanceId
+          }
+        });
+        targetIds = targetIds.concat(layerUsers.map(user => user.id));
+      }
+
       groupUsers.forEach((groupUser) => {
         updatePromises.push(app.service('group-user').patch(groupUser.id, {
           groupUserRank: groupUser.groupUserRank
@@ -75,7 +86,7 @@ export default (app: Application): void => {
         });
       }));
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       throw err;
     }
   });

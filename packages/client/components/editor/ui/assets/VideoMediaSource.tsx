@@ -2,9 +2,10 @@ import { BaseSource } from "./sources";
 import { ItemTypes } from "../dnd";
 import VideoSourcePanel from "./VideoSourcePanel";
 import VideoNode from "../../nodes/VideoNode";
+import Api from "../../api/Api";
 export default class VideoMediaSource extends BaseSource {
   component: typeof VideoSourcePanel;
-  api: any;
+  api: Api;
   constructor(api) {
     super();
     this.component = VideoSourcePanel;

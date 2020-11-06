@@ -2,6 +2,7 @@ import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/f
 import { Application } from '../../declarations';
 import { BadRequest } from '@feathersjs/errors';
 import chargebee from 'chargebee';
+import logger from '../../app/logger';
 
 interface Data {}
 
@@ -61,7 +62,7 @@ export class SubscriptionConfirm implements ServiceMethods<Data> {
         });
         return await Promise.resolve({});
       } catch (err) {
-        console.log(err);
+        logger.error(err);
       }
     } else {
       throw new BadRequest('Invalid subscription information');

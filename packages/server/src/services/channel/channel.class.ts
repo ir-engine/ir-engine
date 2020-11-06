@@ -4,6 +4,7 @@ import { Params } from '@feathersjs/feathers';
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils';
 import { Op, Sequelize } from 'sequelize';
 import _ from 'lodash';
+import logger from '../../app/logger';
 
 export class Channel extends Service {
   app: Application
@@ -55,6 +56,14 @@ export class Channel extends Service {
                 ]
               }
             ]
+          },
+          {
+            model: this.app.service('instance').Model,
+            include: [
+              {
+                model: this.app.service('user').Model,
+              }
+            ]
           }
         ],
         where: {
@@ -74,13 +83,16 @@ export class Channel extends Service {
             },
             {
               '$party.party_users.userId$': userId
+            },
+            {
+              '$instance.users.id$': userId
             }
           ]
         }
       });
 
       if (query.findTargetId === true) {
-        const match = _.find(results.rows, (result: any) => query.targetObjectType === 'user' ? (result.userId1 === query.targetObjectId || result.userId2 === query.targetObjectId) : query.targetObjectType === 'group' ? result.groupId === query.targetObjectId : result.partyId === query.targetObjectId);
+        const match = _.find(results.rows, (result: any) => query.targetObjectType === 'user' ? (result.userId1 === query.targetObjectId || result.userId2 === query.targetObjectId) : query.targetObjectType === 'group' ? result.groupId === query.targetObjectId : query.targetObjectType === 'instance' ? result.instanceId === query.targetObjectId : result.partyId === query.targetObjectId);
         return {
           data: [match] || [],
           total: match == null ? 0 : 1,
@@ -169,9 +181,35 @@ export class Channel extends Service {
               }));
               channel.party.dataValues.partyUsers = partyUsers;
               resolve();
+            } else if (channel.channelType === 'instance') {
+              const instanceUsers = await this.app.service('user').Model.findAll({
+                where: {
+                  instanceId: channel.instanceId
+                }
+              });
+              await Promise.all(instanceUsers.map(async(user) => {
+                const avatarResult = await this.app.service('static-resource').find({
+                  query: {
+                    staticResourceType: 'user-thumbnail',
+                    userId: user.id
+                  }
+                }) as any;
+
+                if (avatarResult.total > 0) {
+                  user.dataValues.avatarUrl = avatarResult.data[0].url;
+                }
+
+                return await Promise.resolve();
+              }));
+              channel.instance.dataValues.instanceUsers = instanceUsers;
+              resolve();
             }
           });
         }));
+
+        if (query.channelType) {
+          results.rows = results.rows.filter((row) => row.channelType === query.channelType);
+        }
 
         return {
           data: results.rows,
@@ -181,8 +219,8 @@ export class Channel extends Service {
         };
       }
     } catch (err) {
-      console.log('Channel find failed');
-      console.log(err);
+      logger.error('Channel find failed');
+      logger.error(err);
       throw err;
     }
   }

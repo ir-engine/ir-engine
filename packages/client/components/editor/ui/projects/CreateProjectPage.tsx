@@ -20,7 +20,7 @@ import InfiniteScroll from "react-infinite-scroller";
 import { useRouter } from "next/router";
 import { withApi } from "../contexts/ApiContext";
 import usePaginatedSearch from "./usePaginatedSearch";
-import configs from "../../configs"
+import configs from "../../configs";
 import Api from "../../api/Api";
 
 function CreateProjectPage({ api }: { api: Api }) {
@@ -95,13 +95,12 @@ function CreateProjectPage({ api }: { api: Api }) {
   );
 
   // MODIFIED FROM ORIGINAL
-  const { loading, error, entries } = usePaginatedSearch(`${api.apiURL}${(configs as any).API_MEDIA_SEARCH_ROUTE}`, params);
+  const { loading, error, entries } = usePaginatedSearch(`${api.apiURL}/media-search`, params);
   // const { loading, error, entries } = { loading: false, error: false, entries: [] };
   const hasMore = false;
   const filteredEntries = Array.isArray(entries) ? entries.map(result => ({
     ...result,
     url: `/editor/projects/new?sceneId=${result.id}`,
-    // eslint-disable-next-line @typescript-eslint/camelcase
     thumbnail_url: result && result.images && result.images.preview && result.images.preview.url
   })) : [];
 
@@ -166,4 +165,4 @@ function CreateProjectPage({ api }: { api: Api }) {
   );
 }
 
-export default withApi(CreateProjectPage)
+export default withApi(CreateProjectPage);
