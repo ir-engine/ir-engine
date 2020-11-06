@@ -15,30 +15,8 @@ import PublishedSceneDialog from "./PublishedSceneDialog";
 const resolveUrlCache = new Map();
 const resolveMediaCache = new Map();
 
-const API_SERVER_ADDRESS = (configs as any).API_SERVER_ADDRESS;
-
-const {
-  API_ASSETS_ROUTE,
-  API_ASSETS_ACTION,
-  API_MEDIA_ROUTE,
-  API_MEDIA_SEARCH_ROUTE,
-  API_META_ROUTE,
-  API_PROJECT_PUBLISH_ACTION,
-  API_PROJECTS_ROUTE,
-  API_RESOLVE_MEDIA_ROUTE,
-  API_SCENES_ROUTE,
-  CLIENT_ADDRESS,
-  CLIENT_SCENE_ROUTE,
-  CLIENT_LOCAL_SCENE_ROUTE,
-  CORS_PROXY_SERVER,
-  THUMBNAIL_ROUTE,
-  THUMBNAIL_SERVER,
-  USE_DIRECT_UPLOAD_API,
-  NON_CORS_PROXY_DOMAINS,
-  USE_HTTPS
-} = configs as any;
-
-const prefix = USE_HTTPS ? "https://" : "http://";
+const SERVER_URL = (configs as any).SERVER_URL;
+console.log("Server URL is ", SERVER_URL);
 
 function b64EncodeUnicode(str): string {
   // first we use encodeURIComponent to get percent-encoded UTF-8, then we convert the percent-encodings
@@ -47,7 +25,7 @@ function b64EncodeUnicode(str): string {
   return btoa(encodeURIComponent(str).replace(CHAR_RE, (_, p1) => String.fromCharCode(("0x" + p1) as any)));
 }
 
-const farsparkEncodeUrl = (url): string => {
+const serverEncodeURL = (url): string => {
   // farspark doesn't know how to read '=' base64 padding characters
   // translate base64 + to - and / to _ for URL safety
   return b64EncodeUnicode(url)
@@ -56,10 +34,8 @@ const farsparkEncodeUrl = (url): string => {
     .replace(/\//g, "_");
 };
 
-const nonCorsProxyDomains = (NON_CORS_PROXY_DOMAINS || "").split(",");
-if (CORS_PROXY_SERVER) {
-  nonCorsProxyDomains.push(CORS_PROXY_SERVER);
-}
+const nonCorsProxyDomains = (SERVER_URL || "").split(",");
+  nonCorsProxyDomains.push(SERVER_URL);
 
 function shouldCorsProxy(url): boolean {
   // Skip known domains that do not require CORS proxying.
@@ -80,16 +56,12 @@ export const proxiedUrlFor = url => {
   //   return url;
   // }
 
-  // return `${prefix}${CORS_PROXY_SERVER}/${url}`;
+  // return `${SERVER_URL}/${url}`;
   return url;
 };
 
 export const scaledThumbnailUrlFor = (url, width, height) => {
-  if (API_SERVER_ADDRESS.includes("localhost") && url.includes("localhost")) {
-    return url;
-  }
-
-  return `${prefix}${THUMBNAIL_SERVER}${THUMBNAIL_ROUTE}${farsparkEncodeUrl(url)}?w=${width}&h=${height}`;
+  return `${SERVER_URL}/thumbnail/${serverEncodeURL(url)}?w=${width}&h=${height}`;
 };
 
 const CommonKnownContentTypes = {
@@ -123,7 +95,7 @@ export default class Api extends EventEmitter {
       this.serverURL = protocol + "//" + host;
     }
     
-    this.apiURL = `${prefix}${API_SERVER_ADDRESS}`;
+    this.apiURL = `${SERVER_URL}`;
 
     this.projectDirectoryPath = "/api/files/";
 
@@ -171,13 +143,20 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    const response = await this.fetch(`${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}`, { headers });
+    console.log("SERVER URL IN API is ", SERVER_URL)
 
-    console.log("Response: " + Object.values(response));
+    const response = await this.fetchUrl(`${SERVER_URL}/project`, { headers });
 
-    const json = await response.json();
+    console.log("Response: ");
+    console.log(response.body);
 
-    if (!Array.isArray(json.projects)) {
+    const json = await response.json().catch(err => {
+      console.log("Error fetching JSON");
+      console.log(err);
+    });
+    console.log("JSON is", json);
+
+    if (!Array.isArray(json.projects) || json.projects) {
       throw new Error(`Error fetching projects: ${json.error || "Unknown error."}`);
     }
 
@@ -192,7 +171,7 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    const response = await this.fetch(`${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}/${projectId}`, {
+    const response = await this.fetchUrl(`${SERVER_URL}/project/${projectId}`, {
       headers
     });
 
@@ -209,7 +188,7 @@ export default class Api extends EventEmitter {
 
     const cacheKey = `${url}|${index}`;
     if (resolveUrlCache.has(cacheKey)) return resolveUrlCache.get(cacheKey);
-    const request = this.fetch(`${prefix}${API_SERVER_ADDRESS}${API_RESOLVE_MEDIA_ROUTE}`, {
+    const request = this.fetchUrl(`${SERVER_URL}/resolve-media`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ media: { url, index } })
@@ -238,7 +217,7 @@ export default class Api extends EventEmitter {
   }
 
   fetchContentType(accessibleUrl): string {
-    const f = this.fetch(accessibleUrl, { method: "HEAD" }).then(r => r.headers.get("content-type"));
+    const f = this.fetchUrl(accessibleUrl, { method: "HEAD" }).then(r => r.headers.get("content-type"));
     console.log("Response: " + Object.values(f));
 
     return f;
@@ -309,8 +288,7 @@ export default class Api extends EventEmitter {
   }
 
   unproxyUrl(baseUrl, url): any {
-    if (CORS_PROXY_SERVER) {
-      const corsProxyPrefix = `${prefix}${CORS_PROXY_SERVER}/`;
+      const corsProxyPrefix = `${SERVER_URL}/`;
 
       if (baseUrl.startsWith(corsProxyPrefix)) {
         baseUrl = baseUrl.substring(corsProxyPrefix.length);
@@ -319,7 +297,6 @@ export default class Api extends EventEmitter {
       if (url.startsWith(corsProxyPrefix)) {
         url = url.substring(corsProxyPrefix.length);
       }
-    }
 
     // HACK HLS.js resolves relative urls internally, but our CORS proxying screws it up. Resolve relative to the original unproxied url.
     // TODO extend HLS.js to allow overriding of its internal resolving instead
@@ -331,7 +308,7 @@ export default class Api extends EventEmitter {
   }
   
   async searchMedia(source, params, cursor, signal): any {
-    const url = new URL(`${prefix}${API_SERVER_ADDRESS}${API_MEDIA_ROUTE}${API_MEDIA_SEARCH_ROUTE}`);
+    const url = new URL(`${SERVER_URL}/media-search`);
 
     const headers: any = {
       "content-type": "application/json"
@@ -368,7 +345,7 @@ export default class Api extends EventEmitter {
     }
 
     console.log("Fetching...");
-    const resp = await this.fetch(url, { headers, signal });
+    const resp = await this.fetchUrl(url, { headers, signal });
     console.log("Response: " + Object.values(resp));
 
     if (signal.aborted) {
@@ -454,9 +431,9 @@ export default class Api extends EventEmitter {
 
     const body = JSON.stringify({ project });
 
-    const projectEndpoint = `${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}`;
+    const projectEndpoint = `${SERVER_URL}/project`;
 
-    const resp = await this.fetch(projectEndpoint, { method: "POST", headers, body, signal });
+    const resp = await this.fetchUrl(projectEndpoint, { method: "POST", headers, body, signal });
     console.log("Response: " + Object.values(resp));
 
     if (signal.aborted) {
@@ -482,9 +459,9 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    const projectEndpoint = `${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}/${projectId}`;
+    const projectEndpoint = `${SERVER_URL}/project/${projectId}`;
 
-    const resp = await this.fetch(projectEndpoint, { method: "DELETE", headers });
+    const resp = await this.fetchUrl(projectEndpoint, { method: "DELETE", headers });
     console.log("Response: " + Object.values(resp));
 
     if (resp.status === 401) {
@@ -556,9 +533,9 @@ export default class Api extends EventEmitter {
       project
     });
 
-    const projectEndpoint = `${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}/${projectId}`;
+    const projectEndpoint = `${SERVER_URL}/project/${projectId}`;
 
-    const resp = await this.fetch(projectEndpoint, { method: "PATCH", headers, body, signal });
+    const resp = await this.fetchUrl(projectEndpoint, { method: "PATCH", headers, body, signal });
     console.log("Response: " + Object.values(resp));
 
     const json = await resp.json();
@@ -588,7 +565,7 @@ export default class Api extends EventEmitter {
       "content-type": "application/json"
     };
 
-    const response = await this.fetch(`${prefix}${API_SERVER_ADDRESS}${API_SCENES_ROUTE}/${sceneId}`, {
+    const response = await this.fetchUrl(`${SERVER_URL}/project/${sceneId}`, {
       headers
     });
 
@@ -600,17 +577,11 @@ export default class Api extends EventEmitter {
   }
 
   getSceneUrl(sceneId): string {
-    // If we recognize a local address relative to this Editor instance
-    if (CLIENT_ADDRESS === "localhost:8080") {
-      return `${prefix}${CLIENT_ADDRESS}${CLIENT_LOCAL_SCENE_ROUTE}${sceneId}`;
-    } else {
-      return `${prefix}${CLIENT_ADDRESS}${CLIENT_SCENE_ROUTE}${sceneId}`;
-    }
+      return `${APP_URL}/scenes/${sceneId}`;
   }
 
   async publishProject(project, editor, showDialog, hideDialog?): any {
     let screenshotUrl;
-
     try {
       const scene = editor.scene;
 
@@ -847,8 +818,8 @@ export default class Api extends EventEmitter {
       };
       const body = JSON.stringify({ scene: sceneParams });
 
-      const resp = await this.fetch(
-        `${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}/${project.project_id}${API_PROJECT_PUBLISH_ACTION}`,
+      const resp = await this.fetchUrl(
+        `${SERVER_URL}/publish-project/${project.project_id}`,
         {
           method: "POST",
           headers,
@@ -892,15 +863,6 @@ export default class Api extends EventEmitter {
     let host, port;
     const token = this.getToken();
 
-    if (USE_DIRECT_UPLOAD_API) {
-      const { phx_host: uploadHost } = await (
-        await this.fetch(`${prefix}${API_SERVER_ADDRESS}${API_META_ROUTE}`)
-      ).json();
-      const uploadPort = new URL(`${prefix}${API_SERVER_ADDRESS}`).port;
-      host = uploadHost;
-      port = uploadPort;
-    }
-
     return await new Promise((resolve, reject) => {
       const request = new XMLHttpRequest();
       const onAbort = () => {
@@ -914,13 +876,9 @@ export default class Api extends EventEmitter {
       if (signal) {
         signal.addEventListener("abort", onAbort);
       }
-      console.log("Posting to: ", `https://${API_SERVER_ADDRESS}/media`);
+      console.log("Posting to: ", `${SERVER_URL}/media`);
 
-      if (USE_DIRECT_UPLOAD_API) {
-        request.open("post", `${host}${API_MEDIA_ROUTE}`, true);
-      } else {
-        request.open("post", `${prefix}${API_SERVER_ADDRESS}${API_MEDIA_ROUTE}`, true);
-      }
+        request.open("post", `${SERVER_URL}/media`, true);
 
       request.upload.addEventListener("progress", e => {
         if (onUploadProgress) {
@@ -958,7 +916,7 @@ export default class Api extends EventEmitter {
   }
 
   uploadAssets(editor, files, onProgress, signal): any {
-    return this._uploadAssets(`${prefix}${API_SERVER_ADDRESS}${API_ASSETS_ROUTE}`, editor, files, onProgress, signal);
+    return this._uploadAssets(`${SERVER_URL}/static-resource`, editor, files, onProgress, signal);
   }
 
   async _uploadAssets(endpoint, editor, files, onProgress, signal): any {
@@ -993,12 +951,12 @@ export default class Api extends EventEmitter {
   }
 
   uploadAsset(editor, file, onProgress, signal): any {
-    return this._uploadAsset(`${prefix}${API_SERVER_ADDRESS}${API_ASSETS_ROUTE}`, editor, file, onProgress, signal);
+    return this._uploadAsset(`${SERVER_URL}/static-resource`, editor, file, onProgress, signal);
   }
 
   uploadProjectAsset(editor, projectId, file, onProgress, signal): any {
     return this._uploadAsset(
-      `${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}/${projectId}${API_ASSETS_ACTION}`,
+      `${SERVER_URL}/project/${projectId}/assets`,
       editor,
       file,
       onProgress,
@@ -1049,7 +1007,7 @@ export default class Api extends EventEmitter {
       }
     });
 
-    const resp = await this.fetch(endpoint, { method: "POST", headers, body, signal });
+    const resp = await this.fetchUrl(endpoint, { method: "POST", headers, body, signal });
     console.log("Response: " + Object.values(resp));
 
     const json = await resp.json();
@@ -1078,9 +1036,9 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    const assetEndpoint = `${prefix}${API_SERVER_ADDRESS}${API_ASSETS_ROUTE}/${assetId}`;
+    const assetEndpoint = `${SERVER_URL}/static-resource/${assetId}`;
 
-    const resp = await this.fetch(assetEndpoint, { method: "DELETE", headers });
+    const resp = await this.fetchUrl(assetEndpoint, { method: "DELETE", headers });
     console.log("Response: " + Object.values(resp));
 
     if (resp.status === 401) {
@@ -1102,9 +1060,9 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    const projectAssetEndpoint = `${prefix}${API_SERVER_ADDRESS}${API_PROJECTS_ROUTE}/${projectId}${API_ASSETS_ACTION}/${assetId}`;
+    const projectAssetEndpoint = `${SERVER_URL}/project/${projectId}/assets/${assetId}`;
 
-    const resp = await this.fetch(projectAssetEndpoint, { method: "DELETE", headers });
+    const resp = await this.fetchUrl(projectAssetEndpoint, { method: "DELETE", headers });
     console.log("Response: " + Object.values(resp));
 
     if (resp.status === 401) {
@@ -1130,16 +1088,22 @@ export default class Api extends EventEmitter {
     localStorage.setItem(LOCAL_STORE_KEY, JSON.stringify({ credentials: { email, token } }));
   }
 
-  async fetch(url, options: any = {}): Promise<any> {
-    try {
+  async fetchUrl(url, options: any = {}): Promise<any> {
       const token = this.getToken();
       if (options.headers == null) {
         options.headers = {};
       }
       options.headers.authorization = `Bearer ${token}`;
-      const res = await fetch(url, options);
-      console.log("Response: " + Object.values(res));
-
+      console.log("Post to: ", url);
+      console.log("Options")
+      console.log(options);
+      const res = await fetch(url, options).catch((error) => {
+        console.log(error);
+        if (error.message === "Failed to fetch") {
+          error.message += " (Possibly a CORS error)";
+        }
+        throw new RethrownError(`Failed to fetch "${url}"`, error);
+      });
       if (res.ok) {
         return res;
       }
@@ -1149,12 +1113,6 @@ export default class Api extends EventEmitter {
       );
       err.response = res;
       throw err;
-    } catch (error) {
-      if (error.message === "Failed to fetch") {
-        error.message += " (Possibly a CORS error)";
-      }
-      throw new RethrownError(`Failed to fetch "${url}"`, error);
-    }
   }
 
   handleAuthorization(): void {
