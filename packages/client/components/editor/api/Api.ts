@@ -857,7 +857,7 @@ export default class Api extends EventEmitter {
     return project;
   }
 
-  async upload(blob, onUploadProgress, signal?, projectId?): Proimse<void> {
+  async upload(blob, onUploadProgress, signal?, projectId?): Promise<void> {
     let host, port;
     const token = this.getToken();
 
