@@ -119,8 +119,6 @@ export default (app: Application): void => {
     if ((process.env.KUBERNETES === 'true' && config.server.mode === 'realtime') || process.env.NODE_ENV === 'development' || config.server.mode === 'local') {
       try {
         const token = (connection as any).socketQuery?.token;
-        console.log('Disconnecting connection:');
-        console.log(connection);
         if (token != null) {
           const authResult = await app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {});
           const identityProvider = authResult['identity-provider'];
@@ -135,7 +133,7 @@ export default (app: Application): void => {
 
             if (instanceId != null) {
               await app.service('instance').patch(instanceId, {
-                currentUsers: instance.currentUsers - 1
+                currentUsers: --instance.currentUsers
               }).catch((err) => {
                 console.warn("Failed to remove user, probably because instance was destroyed");
               });

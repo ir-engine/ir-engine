@@ -196,7 +196,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     const editor = this.state.editor;
     
     try {
-      // const templateFile = await this.props.api.fetch(templateUrl).then(response => response.json());
+      // const templateFile = await this.props.api.fetchUrl(templateUrl).then(response => response.json());
       
       await editor.init();
       
@@ -239,7 +239,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
     try {
       const scene: any = await this.props.api.getScene(sceneId);
-      const projectFile = await this.props.api.fetch(scene.scene_project_url).then(response => response.json());
+      const projectFile = await this.props.api.fetchUrl(scene.scene_project_url).then(response => response.json());
 
       if (projectFile.metadata) {
         delete projectFile.metadata.sceneUrl;
@@ -328,7 +328,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     try {
       project = await this.props.api.getProject(projectId);
 
-      const projectFile = await this.props.api.fetch(project.project_url).then(response => response.json());
+      const projectFile = await this.props.api.fetchUrl(project.project_url).then(response => response.json());
 
       await editor.init();
 
@@ -384,14 +384,14 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
             name: "Save As",
             action: this.onDuplicateProject
           },
-          {
-            name: "Publish Scene...",
-            action: this.onPublishProject
-          },
-          {
-            name: "Export as binary glTF (.glb) ...",
-            action: this.onExportProject
-          },
+          // {
+          //   name: "Publish Scene...",
+          //   action: this.onPublishProject
+          // },
+          // {
+          //   name: "Export as binary glTF (.glb) ...", // TODO: Disabled temporarily till workers are working
+          //   action: this.onExportProject
+          // },
           {
             name: "Import legacy .editor project",
             action: this.onImportLegacyProject
@@ -621,7 +621,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   onNewProject = async () => {
-    this.props.router.push("/projects/templates");
+    this.props.router.push("/editor/projects/new");
   };
 
   onOpenProject = () => {

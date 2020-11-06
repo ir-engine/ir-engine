@@ -62,7 +62,7 @@ const Layout = (props: Props): any => {
       </header>
       <Fragment>
         <UIDialog />
-        {/* <Alerts /> */}
+         <Alerts />
         {children}
       </Fragment>
       { authUser?.accessToken != null && authUser.accessToken.length > 0 &&

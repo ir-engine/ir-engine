@@ -6,6 +6,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Slider from '@material-ui/core/Slider';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
+import { globalMuteProducer, globalUnmuteProducer, pauseConsumer, pauseProducer, resumeConsumer, resumeProducer } from '../../../classes/transports/WebRTCFunctions';
 
 import {
     Mic,
@@ -168,19 +169,22 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
 
     const toggleVideo = async () => {
         if (peerId === 'me_cam') {
-            await MediaStreamSystem.instance.toggleWebcamVideoPauseState();
+            const videoPaused = MediaStreamComponent.instance.toggleVideoPaused();
+            if (videoPaused) await pauseProducer(MediaStreamComponent.instance.camVideoProducer);
+            else await resumeProducer(MediaStreamComponent.instance.camVideoProducer);
             setVideoStreamPaused(videoStream.paused);
         }
         else if (peerId === 'me_screen') {
-            await MediaStreamSystem.instance.toggleScreenshareVideoPauseState();
+            if (MediaStreamSystem.instance.getScreenPausedState()) await pauseProducer(MediaStreamComponent.instance.screenVideoProducer); else await resumeProducer(MediaStreamComponent.instance.screenVideoProducer);
+            MediaStreamComponent.instance.screenShareVideoPaused = !MediaStreamComponent.instance.screenShareVideoPaused;
             setVideoStreamPaused(videoStream.paused);
         } else {
             if (videoStream.paused === false) {
-                await (Network.instance.transport as any).pauseConsumer(videoStream);
+                await pauseConsumer(videoStream);
                 setVideoStreamPaused(videoStream.paused);
             }
             else {
-                await (Network.instance.transport as any).resumeConsumer(videoStream);
+                await resumeConsumer(videoStream);
                 setVideoStreamPaused(videoStream.paused);
             }
         }
@@ -188,19 +192,22 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
 
     const toggleAudio = async () => {
         if (peerId === 'me_cam') {
-            await MediaStreamSystem.instance.toggleWebcamAudioPauseState();
+            const audioPaused = MediaStreamComponent.instance.toggleAudioPaused();
+            if (audioPaused) await pauseProducer(MediaStreamComponent.instance.camAudioProducer);
+            else await resumeProducer(MediaStreamComponent.instance.camAudioProducer);
             setAudioStreamPaused(audioStream.paused);
         }
         else if (peerId === 'me_screen') {
-            await MediaStreamSystem.instance.toggleScreenshareAudioPauseState();
+            if (MediaStreamSystem.instance.getScreenAudioPausedState()) await pauseProducer(MediaStreamComponent.instance.screenAudioProducer); else await resumeProducer(MediaStreamComponent.instance.screenAudioProducer);
+            MediaStreamComponent.instance.screenShareAudioPaused = !MediaStreamComponent.instance.screenShareAudioPaused;
             setAudioStreamPaused(audioStream.paused);
         } else {
             if (audioStream.paused === false) {
-                await (Network.instance.transport as any).pauseConsumer(audioStream);
+                await pauseConsumer(audioStream);
                 setAudioStreamPaused(audioStream.paused);
             }
             else {
-                await (Network.instance.transport as any).resumeConsumer(audioStream);
+                await resumeConsumer(audioStream);
                 setAudioStreamPaused(audioStream.paused);
             }
         }
@@ -208,10 +215,10 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
 
     const toggleGlobalMute = async () => {
         if (audioProducerGlobalMute === false) {
-            await (Network.instance.transport as any).globalMuteProducer({ id: audioStream.producerId });
+            await globalMuteProducer({ id: audioStream.producerId });
             setAudioProducerGlobalMute(true);
         } else if (audioProducerGlobalMute === true) {
-            await (Network.instance.transport as any).globalUnmuteProducer({ id: audioStream.producerId });
+            await globalUnmuteProducer({ id: audioStream.producerId });
             setAudioProducerGlobalMute(false);
         }
     };

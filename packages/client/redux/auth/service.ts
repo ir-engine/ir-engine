@@ -38,7 +38,7 @@ import { resolveAuthUser } from '@xr3ngine/common/interfaces/AuthUser';
 import { resolveUser } from '@xr3ngine/common/interfaces/User';
 import store from "../store";
 import { Network } from '@xr3ngine/engine/src/networking/components/Network';
-import { endVideoChat, leave } from '../../classes/transports/WebRTCFunctions';
+import { endVideoChat, leave, setPartyId } from '../../classes/transports/WebRTCFunctions';
 
 const { publicRuntimeConfig } = getConfig();
 const apiServer: string = publicRuntimeConfig.apiServer;
@@ -494,7 +494,7 @@ client.service('user').on('patched', async (params) => {
     }
     store.dispatch(userUpdated(user));
     if (user.partyId) {
-      (Network.instance.transport as any).setPartyId(user.partyId);
+      setPartyId(user.partyId);
     }
   } else {
     console.log('Not self user');

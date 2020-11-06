@@ -1,11 +1,12 @@
 import VideoMediaSource from "../VideoMediaSource";
 import { ItemTypes } from "../../dnd";
 import VideoNode from "../../../nodes/VideoNode";
+import Api from "../../../api/Api";
 export default class TenorSource extends VideoMediaSource {
   searchPlaceholder: string;
   searchLegalCopy: string;
   privacyPolicyUrl: string;
-  api: any;
+  api: Api;
   constructor(api) {
     super(api);
     this.id = "tenor";

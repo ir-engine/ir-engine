@@ -5,6 +5,19 @@ import collectAnalytics from '../../hooks/collect-analytics';
 import { HookContext } from '@feathersjs/feathers';
 import * as authentication from '@feathersjs/authentication';
 
+const logRequest = (options = {}) => {
+  return async (context: HookContext): Promise<HookContext> => {
+    const { data, params } = context;
+    if(context.error){
+      console.log("***** Error");
+      console.log(context.error);
+    }
+    const body = params.body || {};
+    console.log(body);
+    return context;
+  };
+}
+
 function processCollectionEntities (collection: any): any {
   const entitesObject: { [key: string]: {} } = {};
   const collectionJson = collection.toJSON();
@@ -33,7 +46,7 @@ const { authenticate } = authentication.hooks;
 
 export default {
   before: {
-    all: [collectAnalytics(), authenticate('jwt')], /* authenticate('jwt') */
+    all: [logRequest(), collectAnalytics(), authenticate('jwt')], /* authenticate('jwt') */
     find: [
       attachOwnerIdInQuery('userId'),
       addAssociations({
@@ -87,7 +100,7 @@ export default {
   },
 
   error: {
-    all: [],
+    all: [logRequest()],
     find: [],
     get: [],
     create: [],

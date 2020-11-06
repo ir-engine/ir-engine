@@ -97,6 +97,12 @@ export default (options = {}): Hook => {
         staticResourceChildrenRemovePromise,
         attributionRemovePromise
       ]);
+
+      await staticResourceService.Model.destroy({ // Remove static resource itself
+        where: {
+          id: id
+        }
+      })
     }
 
     return context;

@@ -8,7 +8,7 @@ import { LocalInputReceiver } from "../../src/input/components/LocalInputReceive
 import { normalizeMouseCoordinates } from "../../src/common/functions/normalizeMouseCoordinates";
 import { normalizeMouseMovement } from "../../src/common/functions/normalizeMouseMovement";
 
-test("cleanup event listeners", () => {
+test.skip("cleanup event listeners", () => {
   const addListener = jest.spyOn(document, 'addEventListener');
   const removeListener = jest.spyOn(document, 'removeEventListener');
 

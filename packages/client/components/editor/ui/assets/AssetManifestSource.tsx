@@ -48,8 +48,10 @@ export default class AssetManifestSource extends BaseSource {
     this.searchDebounceTimeout = 0;
   }
   async load() {
-    const response = await this.editor.api.fetch(this.manifestUrl);
-    const manifest = await response.json();
+    const response = await this.editor.api.fetchUrl(this.manifestUrl);
+    const manifest = await response.json().catch(err => {
+      console.log(err);
+    });
     if (manifest.searchPlaceholder) {
       this.searchPlaceholder = manifest.searchPlaceholder;
     }
