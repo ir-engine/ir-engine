@@ -190,6 +190,13 @@ export class Project implements ServiceMethods<Data> {
         }
         console.log('Project temp Owned file removed result: ', result);
       });
+      
+      // Remove the static-resource because entities and components have been extracted from that resource
+      await StaticResourceModel.destroy({
+        where: {
+          id: ownedFile.id
+        }
+      }, { transaction })
     });
 
     const savedProject = await this.reloadProject(project.id, project);

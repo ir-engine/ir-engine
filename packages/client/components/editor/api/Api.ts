@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import EventEmitter from "eventemitter3";
 import jwtDecode from "jwt-decode";
 import { buildAbsoluteURL } from "url-toolkit";
@@ -16,7 +14,7 @@ const resolveUrlCache = new Map();
 const resolveMediaCache = new Map();
 
 const SERVER_URL = (configs as any).SERVER_URL;
-console.log("Server URL is ", SERVER_URL);
+const APP_URL = (configs as any).APP_URL;
 
 function b64EncodeUnicode(str): string {
   // first we use encodeURIComponent to get percent-encoded UTF-8, then we convert the percent-encodings
@@ -135,7 +133,7 @@ export default class Api extends EventEmitter {
     return jwtDecode(token).sub;
   }
 
-  async getProjects(): any {
+  async getProjects(): Promise<any> {
     const token = this.getToken();
 
     const headers = {
@@ -163,7 +161,7 @@ export default class Api extends EventEmitter {
     return json.projects;
   }
 
-  async getProject(projectId): JSON {
+  async getProject(projectId): Promise<JSON> {
     const token = this.getToken();
 
     const headers = {
@@ -181,7 +179,7 @@ export default class Api extends EventEmitter {
     return json;
   }
 
-  async resolveUrl(url, index?): string {
+  async resolveUrl(url, index?): Promise<any> {
     if (!shouldCorsProxy(url)) {
       return { origin: url };
     }
@@ -216,14 +214,14 @@ export default class Api extends EventEmitter {
     return request;
   }
 
-  fetchContentType(accessibleUrl): string {
-    const f = this.fetchUrl(accessibleUrl, { method: "HEAD" }).then(r => r.headers.get("content-type"));
+  async fetchContentType(accessibleUrl): Promise<any> {
+    const f = await this.fetchUrl(accessibleUrl, { method: "HEAD" }).then(r => r.headers.get("content-type"));
     console.log("Response: " + Object.values(f));
 
     return f;
   }
 
-  async getContentType(url): string {
+  async getContentType(url): Promise<any> {
     const result = await this.resolveUrl(url);
     const canonicalUrl = result.origin;
     const accessibleUrl = proxiedUrlFor(canonicalUrl);
@@ -235,7 +233,7 @@ export default class Api extends EventEmitter {
     );
   }
 
-  async resolveMedia(url, index): any {
+  async resolveMedia(url, index): Promise<any> {
     const absoluteUrl = new URL(url, (window as any).location).href;
 
     if (absoluteUrl.startsWith(this.serverURL)) {
@@ -307,7 +305,7 @@ export default class Api extends EventEmitter {
     return proxiedUrlFor(url);
   }
   
-  async searchMedia(source, params, cursor, signal): any {
+  async searchMedia(source, params, cursor, signal): Promise<any> {
     const url = new URL(`${SERVER_URL}/media-search`);
 
     const headers: any = {
@@ -451,7 +449,7 @@ export default class Api extends EventEmitter {
     return json;
   }
 
-  async deleteProject(projectId): any {
+  async deleteProject(projectId): Promise<any> {
     const token = this.getToken();
 
     const headers = {
@@ -475,7 +473,7 @@ export default class Api extends EventEmitter {
     return true;
   }
 
-  async saveProject(projectId, editor, signal, showDialog, hideDialog): any {
+  async saveProject(projectId, editor, signal, showDialog, hideDialog): Promise<any> {
     this.emit("project-saving");
 
     if (signal.aborted) {
@@ -491,7 +489,7 @@ export default class Api extends EventEmitter {
     const {
       file_id: thumbnailFileId,
       meta: { access_token: thumbnailFileToken }
-    } = await this.upload(thumbnailBlob, undefined, signal) as any;
+    } = await this.upload(thumbnailBlob, undefined, signal, projectId) as any;
 
     if (signal.aborted) {
       throw new Error("Save project aborted");
@@ -553,14 +551,14 @@ export default class Api extends EventEmitter {
     return json;
   }
 
-  async getProjectFile(sceneId): any {
+  async getProjectFile(sceneId): Promise<any> {
     return await this.props.api.getScene(sceneId);
     // TODO: Make this a main branch thing
     // const scene = await this.props.api.getScene(sceneId);
     // return await this.props.api.fetch(scene.scene_project_url).then(response => response.json());
   }
 
-  async getScene(sceneId): JSON {
+  async getScene(sceneId): Promise<JSON> {
     const headers = {
       "content-type": "application/json"
     };
@@ -580,7 +578,7 @@ export default class Api extends EventEmitter {
       return `${APP_URL}/scenes/${sceneId}`;
   }
 
-  async publishProject(project, editor, showDialog, hideDialog?): any {
+  async publishProject(project, editor, showDialog, hideDialog?): Promise<any> {
     let screenshotUrl;
     try {
       const scene = editor.scene;
@@ -634,7 +632,7 @@ export default class Api extends EventEmitter {
         throw error;
       }
 
-      const userInfo = this.getUserInfo();
+      const userInfo = this.getUserInfo() as any;
 
       // Gather all the info needed to display the publish dialog
       let { name, creatorAttribution, allowRemixing, allowPromotion } = scene.metadata;
@@ -809,7 +807,8 @@ export default class Api extends EventEmitter {
           content: publishParams.contentAttributions
         }
       };
-    
+      /* eslint-enable */
+
       const token = this.getToken();
 
       const headers = {
@@ -859,7 +858,7 @@ export default class Api extends EventEmitter {
     return project;
   }
 
-  async upload(blob, onUploadProgress, signal?): Proimse<void> {
+  async upload(blob, onUploadProgress, signal?, projectId?): Promise<void> {
     let host, port;
     const token = this.getToken();
 
@@ -907,6 +906,9 @@ export default class Api extends EventEmitter {
       });
 
       const formData = new FormData();
+      if (projectId) {
+        formData.set("projectId", projectId);
+      }
       formData.set("media", blob);
 
       request.setRequestHeader('Authorization', `Bearer ${token}`);
@@ -919,7 +921,7 @@ export default class Api extends EventEmitter {
     return this._uploadAssets(`${SERVER_URL}/static-resource`, editor, files, onProgress, signal);
   }
 
-  async _uploadAssets(endpoint, editor, files, onProgress, signal): any {
+  async _uploadAssets(endpoint, editor, files, onProgress, signal): Promise<any> {
     const assets = [];
 
     for (const file of Array.from(files)) {
@@ -966,7 +968,7 @@ export default class Api extends EventEmitter {
 
   lastUploadAssetRequest = 0;
 
-  async _uploadAsset(endpoint, editor, file, onProgress, signal): any {
+  async _uploadAsset(endpoint, editor, file, onProgress, signal): Promise<any> {
     let thumbnailFileId = null;
     let thumbnailAccessToken = null;
 
@@ -1028,7 +1030,7 @@ export default class Api extends EventEmitter {
     };
   }
 
-  async deleteAsset(assetId): boolean {
+  async deleteAsset(assetId): Promise<any> {
     const token = this.getToken();
 
     const headers = {
@@ -1052,7 +1054,7 @@ export default class Api extends EventEmitter {
     return true;
   }
 
-  async deleteProjectAsset(projectId, assetId): boolean {
+  async deleteProjectAsset(projectId, assetId): Promise<any> {
     const token = this.getToken();
 
     const headers = {
@@ -1111,7 +1113,7 @@ export default class Api extends EventEmitter {
       const err = new Error(
         `Network Error: ${res.status || "Unknown Status."} ${res.statusText || "Unknown Error. Possibly a CORS error."}`
       );
-      err.response = res;
+      err["response"] = res;
       throw err;
   }
 
