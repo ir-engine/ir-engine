@@ -807,7 +807,6 @@ export default class Api extends EventEmitter {
           content: publishParams.contentAttributions
         }
       };
-      /* eslint-enable */
 
       const token = this.getToken();
 
@@ -858,7 +857,7 @@ export default class Api extends EventEmitter {
     return project;
   }
 
-  async upload(blob, onUploadProgress, signal?, projectId?): Promise<void> {
+  async upload(blob, onUploadProgress, signal?, projectId?): Proimse<void> {
     let host, port;
     const token = this.getToken();
 
