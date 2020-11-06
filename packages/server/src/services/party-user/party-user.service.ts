@@ -3,6 +3,7 @@ import { Application } from '../../declarations';
 import { PartyUser } from './party-user.class';
 import createModel from '../../models/party-user.model';
 import hooks from './party-user.hooks';
+import logger from '../../app/logger';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -66,7 +67,7 @@ export default (app: Application): void => {
         });
       }));
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       throw err;
     }
   });
@@ -116,7 +117,7 @@ export default (app: Application): void => {
         });
       }));
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       throw err;
     }
   });
@@ -157,7 +158,7 @@ export default (app: Application): void => {
         });
       }));
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       throw err;
     }
   });

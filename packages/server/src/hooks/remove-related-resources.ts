@@ -2,6 +2,7 @@ import config from '../config';
 import { Hook, HookContext } from '@feathersjs/feathers';
 import StorageProvider from '../storage/storageprovider';
 import { StaticResource } from '../services/static-resource/static-resource.class';
+import logger from '../app/logger';
 
 
 const getAllChildren = async (service: StaticResource, id: string | number | undefined, $skip: number): Promise<Record<string, any>[]> => {
@@ -56,8 +57,8 @@ export default (options = {}): Hook => {
             key: key
           }, (err: any, result: any) => {
             if (err) {
-              console.log('Storage removal error');
-              console.log(err);
+              logger.error('Storage removal error');
+              logger.error(err);
               reject(err);
             }
 
@@ -76,9 +77,8 @@ export default (options = {}): Hook => {
           try {
             await staticResourceService.remove(child.id);
           } catch (err) {
-            console.log('Failed to remove child: ');
-            console.log(child.id);
-            console.log(err);
+            logger.error('Failed to remove child:', child.id);
+            logger.error(err);
             reject(err);
           }
 
@@ -97,6 +97,12 @@ export default (options = {}): Hook => {
         staticResourceChildrenRemovePromise,
         attributionRemovePromise
       ]);
+
+      await staticResourceService.Model.destroy({ // Remove static resource itself
+        where: {
+          id: id
+        }
+      })
     }
 
     return context;

@@ -44,7 +44,7 @@ const testInputSchema: InputSchema = {
   inputAxisBehaviors: {},
 };
 
-describe('full lifecycle', () => {
+describe.skip('full lifecycle', () => {
   let entity, input;
   beforeAll(() => {
     addListenerMock = jest.spyOn(document, 'addEventListener');

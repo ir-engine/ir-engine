@@ -99,6 +99,12 @@ export default (options: any) => {
     }
     await ComponentModel.bulkCreate(components);
 
+    // Remove the static-resource because entities and components have been extracted from that resource
+    await StaticResourceModel.destroy({
+      where: {
+        id: ownedFile.id
+      }
+    })
     context.params.collection = savedCollection;
     context.params.ownedFile = ownedFile;
     return context;

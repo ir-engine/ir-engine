@@ -3,6 +3,7 @@ import { Application } from '../../declarations';
 import { Channel } from './channel.class';
 import createModel from '../../models/channel.model';
 import hooks from './channel.hooks';
+import logger from '../../app/logger';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -169,7 +170,7 @@ export default (app: Application): any => {
         });
       }));
     } catch(err) {
-      console.log(err);
+      logger.error(err);
       throw err;
     }
   });
@@ -320,7 +321,7 @@ export default (app: Application): any => {
         });
       }));
     } catch(err) {
-      console.log(err);
+      logger.error(err);
       throw err;
     }
   });

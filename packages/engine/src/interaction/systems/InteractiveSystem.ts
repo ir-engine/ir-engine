@@ -19,9 +19,12 @@ import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody
 import { RigidBody } from "@xr3ngine/engine/src/physics/components/RigidBody";
 import { interactFocused } from "../behaviors/interactFocused";
 import { subFocused } from "../behaviors/subFocused";
+import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 
 
 export class InteractiveSystem extends System {
+  updateType = SystemUpdateType.Fixed;
+
   /**
    * Elements that was in focused state on last execution
    */

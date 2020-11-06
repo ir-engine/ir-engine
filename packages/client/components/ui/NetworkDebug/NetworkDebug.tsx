@@ -32,12 +32,12 @@ export const NetworkDebug = () => {
     setShowing(!isShowing);
     forceUpdate();
     refresh();
-  }
+  };
 
       if(Network.instance !== null)
       return (
-        <div style={{ position: "absolute", top: 0, zIndex: 100000, height: "50%", width: "50%", minWidth: "400px" }}>
-            <button value="toggleShowing" onClick={ toggleShowing }>{ isShowing ? "Hide" : "Show" }</button>
+        <div style={{ position: "absolute", top: 0, zIndex: 100000, height: "auto", maxWidth: "50%", width: 'auto' }}>
+            <button type="submit" value="toggleShowing" onClick={ toggleShowing }>{ isShowing ? "Hide" : "Show" }</button>
             { isShowing &&
             <div>
             <div>
@@ -56,7 +56,7 @@ export const NetworkDebug = () => {
               <h1>Engine Entities</h1>
               <JSONTree data={{...Engine.entities}} />
               </div>
-              <button value="Refresh" onClick={ refresh }>Refresh</button>
+              <button type="submit" value="Refresh" onClick={ refresh }>Refresh</button>
               </div>
             }
         </div>

@@ -15,6 +15,10 @@ export default (app: Application): any => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    slugifiedName: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     maxUsersPerInstance: {
       type: DataTypes.INTEGER,
       allowNull: false,

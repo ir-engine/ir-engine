@@ -30,7 +30,31 @@ export function getLocation(locationId: string) {
     try {
       dispatch(fetchingCurrentLocation());
       const location = await client.service('location').get(locationId);
+      console.log('getLocation location:');
+      console.log(location);
       dispatch(locationRetrieved(location));
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
+export function getLocationByName(locationName: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const locationResult = await client.service('location').find({
+        query: {
+          slugifiedName: locationName
+        }
+      });
+      console.log('Get location by name result:');
+      console.log(locationName);
+      console.log(locationResult);
+      console.log(locationResult.data[0]);
+      if (locationResult.total > 0) {
+        dispatch(locationRetrieved(locationResult.data[0]));
+      }
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);

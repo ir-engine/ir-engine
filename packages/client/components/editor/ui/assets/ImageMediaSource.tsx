@@ -2,9 +2,10 @@ import { BaseSource } from "./sources";
 import { ItemTypes } from "../dnd";
 import ImageSourcePanel from "./ImageSourcePanel";
 import ImageNode from "../../nodes/ImageNode";
+import Api from "../../api/Api";
 export default class ImageMediaSource extends BaseSource {
   component: typeof ImageSourcePanel;
-  api: any;
+  api: Api;
   constructor(api) {
     super();
     this.component = ImageSourcePanel;

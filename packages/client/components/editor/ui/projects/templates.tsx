@@ -1,11 +1,5 @@
 const templates = [
   {
-    project_id: "crater",
-    name: "Crater",
-    thumbnail_url: "editor/templates/crater.jpg",
-    project_url: "editor/templates/crater.world"
-  },
-  {
     project_id: "surroundedlake",
     name: "Surrounded Lake",
     thumbnail_url: "editor/templates/surrounded-lake.jpg",

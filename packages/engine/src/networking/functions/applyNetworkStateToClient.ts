@@ -1,13 +1,11 @@
-import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
 import { handleInput } from '../../input/behaviors/handleInput';
 import { Input } from '../../input/components/Input';
+import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { InputType } from '../../input/enums/InputType';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { Network } from '../components/Network';
-import { destroyNetworkObject } from './destroyNetworkObject';
-import { addSnapshot, calculateInterpolation, createSnapshot } from './NetworkInterpolationFunctions';
 import { initializeNetworkObject } from './initializeNetworkObject';
-import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 
 export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
   const worldState = worldStateBuffer; // worldStateModel.fromBuffer(worldStateBuffer);
@@ -36,7 +34,7 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
 
   Network.tick = worldState.tick;
 
-  Network.instance.worldState = worldState; // cache latest world state, we might be able to delete this
+  Network.instance.worldState = worldState;
 
   // Handle all clients that connected this frame
   for (const connectingClient in worldState.clientsConnected) {
@@ -73,7 +71,6 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
     }
   }
 
-
   // TODO: Re-enable for snapshot interpolation
   // if (worldState.transforms !== undefined && worldState.transforms.length > 0) {
   //   // Add world state to our snapshot vault
@@ -86,8 +83,16 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
 
   // Handle all network objects destroyed this frame
   for (const objectToDestroy in worldState.destroyObjects) {
-    destroyNetworkObject(worldState.destroyObjects[objectToDestroy].networkId);
-    console.log("Destroying network object");
+    const objectKey = worldState.destroyObjects[objectToDestroy].networkId;
+    if (Network.instance.networkObjects[objectKey] === undefined)
+      return console.warn("Can't destroy object as it doesn't appear to exist")
+    console.log("Destroying network object ", Network.instance.networkObjects[objectKey].component.networkId);
+    // get network object
+    const entity = Network.instance.networkObjects[objectKey].component.entity;
+    // Remove the entity and all of it's components
+    removeEntity(entity);
+    // Remove network object from list
+    delete Network.instance.networkObjects[objectKey];
   }
 
   worldState.inputs?.forEach(stateData => {
@@ -99,7 +104,7 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
     // Ignore input applied to local user input object that the client is currently controlling
     if(networkComponent.ownerId === Network.instance.userId && hasComponent(networkComponent.entity, LocalInputReceiver)) return;
 
-    console.log("Setting input on ", networkComponent.ownerId)
+    console.log("Setting input on ", networkComponent.networkId);
 
     // Get input object attached
     const input = getComponent(networkComponent.entity, Input);
@@ -138,10 +143,11 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
     handleInput(networkComponent.entity, {}, delta);
   });
 
-  if(Network.instance.worldState.transforms.length < 1) return console.warn("Network transforms is empty");
+  if(worldState.transforms.length < 1)
+    return
 
   // Update transforms
-  Network.instance.worldState.transforms?.forEach(transformData => {
+  worldState.transforms?.forEach(transformData => {
     if(!Network.instance.networkObjects[transformData.networkId]){
       return console.warn("Network object not found in list: ", transformData.networkId);
     }
@@ -161,7 +167,7 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
       transformData.qZ,
       transformData.qW
     );
-    console.log("Updated transform on ", transformData.networkId);
-    console.log([transformData.x, transformData.y, transformData.z]);
+    // console.log("Updated transform on ", transformData.networkId);
+    // console.log([transformData.x, transformData.y, transformData.z]);
   });
 }

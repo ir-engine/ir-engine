@@ -5,24 +5,23 @@ import { Button } from '@material-ui/core';
 import NoSSR from 'react-no-ssr';
 import { connect } from 'react-redux';
 import { Store, Dispatch, bindActionCreators } from 'redux';
-import Loading from '../components/scenes/loading';
-import Scene from '../components/scenes/multiplayer';
-import Layout from '../components/ui/Layout';
-import { selectAppState } from '../redux/app/selector';
-import { selectAuthState } from '../redux/auth/selector';
-import { selectInstanceConnectionState } from '../redux/instanceConnection/selector';
-import { selectPartyState } from '../redux/party/selector';
-import { selectLocationState } from '../redux/location/selector';
-import { doLoginAuto } from '../redux/auth/service';
+import Loading from '../../components/scenes/loading';
+import Scene from '../../components/scenes/multiplayer';
+import Layout from '../../components/ui/Layout';
+import { selectAppState } from '../../redux/app/selector';
+import { selectAuthState } from '../../redux/auth/selector';
+import { selectInstanceConnectionState } from '../../redux/instanceConnection/selector';
+import { selectPartyState } from '../../redux/party/selector';
+import { selectLocationState } from '../../redux/location/selector';
+import { doLoginAuto } from '../../redux/auth/service';
 import {
-    getLocation,
-    joinLocationParty
-} from '../redux/location/service';
+    getLocation
+} from '../../redux/location/service';
 import {
     connectToInstanceServer,
     provisionInstanceServer,
-} from '../redux/instanceConnection/service';
-import { client } from "../redux/feathers";
+} from '../../redux/instanceConnection/service';
+import { client } from '../../redux/feathers';
 
 interface Props {
     appState?: any;
@@ -32,12 +31,11 @@ interface Props {
     instanceConnectionState?: any;
     doLoginAuto?: typeof doLoginAuto;
     getLocation?: typeof getLocation;
-    joinLocationParty?: typeof joinLocationParty;
     connectToInstanceServer?: typeof connectToInstanceServer;
     provisionInstanceServer?: typeof provisionInstanceServer;
 }
 
-const arenaLocationId = 'a98b8470-fd2d-11ea-bc7c-cd4cac9a8d61';
+const locationId = 'b5cf2a70-fd2d-11ea-bc7c-cd4cac9a8d61';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -52,12 +50,11 @@ const mapStateToProps = (state: any): any => {
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
     getLocation: bindActionCreators(getLocation, dispatch),
-    joinLocationParty: bindActionCreators(joinLocationParty, dispatch),
     connectToInstanceServer: bindActionCreators(connectToInstanceServer, dispatch),
     provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch)
 });
 
-export const ArenaPage = (props: Props): any => {
+export const MVPPage = (props: Props): any => {
     const {
         appState,
         authState,
@@ -66,7 +63,6 @@ export const ArenaPage = (props: Props): any => {
         instanceConnectionState,
         doLoginAuto,
         getLocation,
-        joinLocationParty,
         connectToInstanceServer,
         provisionInstanceServer
     } = props;
@@ -75,7 +71,7 @@ export const ArenaPage = (props: Props): any => {
     const party = partyState.get('party');
     const instanceId = selfUser?.instanceId ?? party?.instanceId;
 
-    const userBanned = selfUser?.locationBans?.find(ban => ban.locationId === arenaLocationId) != null;
+    const userBanned = selfUser?.locationBans?.find(ban => ban.locationId === locationId) != null;
     useEffect(() => {
         doLoginAuto(true);
     }, []);
@@ -83,7 +79,7 @@ export const ArenaPage = (props: Props): any => {
     useEffect(() => {
         const currentLocation = locationState.get('currentLocation').get('location');
         if (authState.get('isLoggedIn') === true && authState.get('user').id != null && authState.get('user').id.length > 0 && currentLocation.id == null && userBanned === false && locationState.get('fetchingCurrentLocation') !== true) {
-            getLocation(arenaLocationId);
+            getLocation(locationId);
         }
     }, [authState]);
 
@@ -93,7 +89,7 @@ export const ArenaPage = (props: Props): any => {
             userBanned === false &&
             instanceConnectionState.get('instanceProvisioned') !== true &&
             instanceConnectionState.get('instanceProvisioning') === false)
-                provisionInstanceServer(currentLocation.id);
+            provisionInstanceServer(currentLocation.id);
     }, [locationState]);
 
     useEffect(() => {
@@ -132,4 +128,4 @@ export const ArenaPage = (props: Props): any => {
     );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ArenaPage);
+export default connect(mapStateToProps, mapDispatchToProps)(MVPPage);

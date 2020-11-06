@@ -174,7 +174,7 @@ describe("move", () => {
   // const windowPoint3 = { x: 140, y:30 };
   // const normalPoint3 = normalizeMouseCoordinates(windowPoint2.x, windowPoint2.y, window.innerWidth, window.innerHeight);
 
-  describe("position", () => {
+  describe.skip("position", () => {
     it ("lifecycle STARTED", () => {
       triggerTouch({ ...windowPoint1, type: 'touchmove', id: 1 });
       execute();
@@ -234,7 +234,7 @@ describe("move", () => {
     // });
   })
 
-  describe("movement", () => {
+  describe.skip("movement", () => {
     it ("lifecycle STARTED", () => {
       triggerTouch({ ...windowPoint1, type: 'touchmove', id: 1 });
       execute();
@@ -284,7 +284,7 @@ describe("gestures", () => {
   const normalPoint2 = normalizeMouseCoordinates(windowPoint2.x, windowPoint2.y, window.innerWidth, window.innerHeight);
   const normalDiff = { x: normalPoint2.x - normalPoint1.x, y: normalPoint2.y - normalPoint1.y };
 
-  describe("touch", () => {
+  describe.skip("touch", () => {
     it ("lifecycle STARTED", () => {
       triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 });
       execute();
@@ -336,7 +336,7 @@ describe("gestures", () => {
     // });
   });
 
-  describe("touch drag", () => {
+  describe.skip("touch drag", () => {
     it ("lifecycle STARTED", () => {
       let data
       triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 });
@@ -378,7 +378,7 @@ describe("gestures", () => {
   // TODO: check Scale(Pinch)
 });
 
-describe("special cases", () => {
+describe.skip("special cases", () => {
   test("start+move happening between execute", () => {
     const windowPoint1 = { x: 10, y:20 };
     const normalPoint1 = normalizeMouseCoordinates(windowPoint1.x, windowPoint1.y, window.innerWidth, window.innerHeight);

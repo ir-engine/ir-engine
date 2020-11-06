@@ -143,6 +143,7 @@
     "s3-blob-store": "^4.1.1",
     "sequelize": "^5.21.8",
     "serve-favicon": "^2.5.0",
+    "slugify": "^1.4.5",
     "universal-analytics": "^0.4.20",
     "uuid": "^8.0.0",
     "winston": "^3.3.3"

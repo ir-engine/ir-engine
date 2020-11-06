@@ -2,7 +2,7 @@ import { Vec3 } from "cannon-es";
 import { AnimationMixer, BoxGeometry, Group, Mesh, MeshLambertMaterial, Vector3 } from "three";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { Behavior } from "../../../common/interfaces/Behavior";
-import { addComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
+import { addComponent, getComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
 import { CapsuleCollider } from "../../../physics/components/CapsuleCollider";
 import { RelativeSpringSimulator } from "../../../physics/classes/RelativeSpringSimulator";
 import { VectorSpringSimulator } from "../../../physics/classes/VectorSpringSimulator";
@@ -14,6 +14,8 @@ import { Engine } from "../../../ecs/classes/Engine";
 import { PhysicsManager } from "../../../physics/components/PhysicsManager";
 import { AnimationManager } from "@xr3ngine/engine/src/templates/character/components/AnimationManager";
 import { addObject3DComponent } from "../../../common/behaviors/Object3DBehaviors";
+import { LifecycleValue } from "../../../common/enums/LifecycleValue";
+import { State } from "../../../state/components/State";
 
 export const initializeCharacter: Behavior = (entity): void => {
 	console.log("Initializing character");
@@ -21,6 +23,19 @@ export const initializeCharacter: Behavior = (entity): void => {
 		addComponent(entity, CharacterComponent as any);
 
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+	actor.mixer?.stopAllAction();
+      
+	// forget that we have any animation playing
+	actor.currentAnimationAction = null;
+
+	// clear current avatar mesh
+	if(actor.modelContainer !== undefined)
+	  ([ ...actor.modelContainer.children ])
+		.forEach(child => actor.modelContainer.remove(child));
+	const stateComponent = getComponent(entity, State);
+	// trigger all states to restart?
+	stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
+	
 	// The visuals group is centered for easy actor tilting
 	actor.tiltContainer = new Group();
 	actor.tiltContainer.name = 'Actor (tiltContainer)';

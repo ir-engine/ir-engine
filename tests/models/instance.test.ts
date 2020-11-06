@@ -8,6 +8,7 @@ describe('CRUD operation on \'Instance\' model', () => {
   beforeAll(async () => {
     const location = await locationModel.create({
       name: 'test location',
+      slugifiedName: 'test-location',
       maxUsersPerInstance: 10
     })
     locationId = location.id

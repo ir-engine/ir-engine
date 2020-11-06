@@ -81,8 +81,7 @@ const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAv
     switch(onBoardingStep){
       case  generalStateList.SCENE_LOADED : { 
             isOpened=true; dialogText = 'Virtual Conference / Retail Demo'; submitButtonText =  'Join World';
-            // childrenBeforeText = <CardMedia image="packages/client/components/ui/assets/ArenaLogo.png" title="Arena Logo" />
-            submitButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.DEVICE_SETUP));
+            submitButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.AVATAR_SELECTION));
             break;
           }
       case generalStateList.DEVICE_SETUP: {
@@ -93,9 +92,11 @@ const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAv
            } 
       case generalStateList.AVATAR_SELECTION: {
             isOpened= true; title = 'Select An Avatar'; submitButtonText = 'Accept';          
-            children = <section className={styles.selectionButtons}>
-                          <ArrowIosBackOutline onClick={(): void => onAvatarChange(prevAvatarId)} />
-                          <ArrowIosForwardOutline onClick={(): void => onAvatarChange(nextAvatarId)} />
+            children = <section className={styles.selectionButtonsWrapper}>
+                          <section className={styles.selectionButtons}>
+                            <ArrowIosBackOutline onClick={(): void => onAvatarChange(prevAvatarId)} />
+                            <ArrowIosForwardOutline onClick={(): void => onAvatarChange(nextAvatarId)} />
+                          </section>
                         </section>;
             submitButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.AVATAR_SELECTED));
             break;

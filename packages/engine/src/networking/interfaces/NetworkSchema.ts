@@ -6,12 +6,6 @@ export interface NetworkSchema {
   messageTypes: {
     [key: string]: any;
   };
-  messageHandlers: {
-    [key: string]: {
-      behavior: any;
-      args?: any;
-    }[];
-  };
   defaultClientPrefab: PrefabAlias;
   prefabs: {
     [key: string]: NetworkPrefab;
