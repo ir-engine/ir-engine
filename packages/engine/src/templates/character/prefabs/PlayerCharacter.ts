@@ -8,14 +8,10 @@ import { CharacterInputSchema } from "@xr3ngine/engine/src/templates/character/C
 import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/CharacterStateSchema";
 import { CharacterSubscriptionSchema } from "@xr3ngine/engine/src/templates/character/CharacterSubscriptionSchema";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
-import { AssetLoader } from "../../../assets/components/AssetLoader";
-//import { setCameraFollow } from "../../../camera/behaviors/setCameraFollow";
-import { initializeCharacter } from "../behaviors/initializeCharacter";
-import { CharacterComponent } from "../components/CharacterComponent";
-import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
 import { Interactor } from "../../../interaction/components/Interactor";
-import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
 import { loadActorAvatar } from "../behaviors/loadActorAvatar";
+import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
+import { CharacterComponent } from "../components/CharacterComponent";
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const PlayerCharacter: Prefab = {

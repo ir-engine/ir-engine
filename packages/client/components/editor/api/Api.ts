@@ -141,18 +141,12 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    console.log("SERVER URL IN API is ", SERVER_URL)
-
     const response = await this.fetchUrl(`${SERVER_URL}/project`, { headers });
-
-    console.log("Response: ");
-    console.log(response.body);
 
     const json = await response.json().catch(err => {
       console.log("Error fetching JSON");
       console.log(err);
     });
-    console.log("JSON is", json);
 
     if (!Array.isArray(json.projects) || json.projects) {
       throw new Error(`Error fetching projects: ${json.error || "Unknown error."}`);

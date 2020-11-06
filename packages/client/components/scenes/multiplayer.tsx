@@ -1,9 +1,12 @@
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
+import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
 import { /*getComponent,*/ getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { loadScene } from "@xr3ngine/engine/src/scene/functions/SceneLoading";
+import { staticWorldColliders } from '@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders';
+import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacterWithEmptyInputSchema';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import React, { useEffect, useState } from 'react';
@@ -74,12 +77,6 @@ export const EnginePage = (props: Props) => {
 
     initializeEngine(InitializationOptions);
 
-    const cameraTransform = getMutableComponent<TransformComponent>(
-      CameraComponent.instance.entity,
-      TransformComponent
-    );
-    cameraTransform.position.set(0, 1.2, 3);
-
     init(sceneId).catch((e) => { console.log(e); });
 
     return (): void => {
@@ -103,14 +100,14 @@ export const EnginePage = (props: Props) => {
     console.log("Result is ")
     console.log(result);
     loadScene(result);
-    Object.keys(result.entities).forEach((key) => {
-      const entity = result.entities[key];
-      // const newEntity = createEntity();
-      entity.components.forEach((component) => {
-        console.log(component.name);
-        console.log(component);
-      });
-    });
+    const cameraTransform = getMutableComponent<TransformComponent>(
+      CameraComponent.instance.entity,
+      TransformComponent
+    );
+    cameraTransform.position.set(0, 1.2, 10);
+    
+    createPrefab(staticWorldColliders);
+
   }
 
   return (
