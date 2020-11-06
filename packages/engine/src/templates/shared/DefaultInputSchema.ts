@@ -14,6 +14,7 @@ import {
   handleOnScreenGamepadMovement
 } from "../../input/behaviors/handleOnScreenJoystick";
 import { disableScroll, enableScroll } from "../../common/functions/enableDisableScrolling";
+import { handleTouchScale } from "../../input/behaviors/handleTouchScale";
 
 export const DefaultInputSchema: InputSchema = {
   inputAxisBehaviors: {},
@@ -79,6 +80,12 @@ export const DefaultInputSchema: InputSchema = {
         args: {
           value: BinaryValue.ON
         }
+      },
+      {
+        behavior: handleTouchScale,
+        args: {
+          value: DefaultInput.CAMERA_SCROLL
+        }
       }
     ],
     touchend: [
@@ -100,6 +107,12 @@ export const DefaultInputSchema: InputSchema = {
     touchmove: [
       {
         behavior: handleTouchMove
+      },
+      {
+        behavior: handleTouchScale,
+        args: {
+          value: DefaultInput.CAMERA_SCROLL
+        }
       }
     ],
     // Keys
