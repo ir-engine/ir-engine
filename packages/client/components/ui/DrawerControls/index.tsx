@@ -58,8 +58,6 @@ export const DrawerControls = (props: Props): JSX.Element => {
   const party = partyState.get('party');
   const selfUser = authState.get('user');
   const currentLocation = locationState.get('currentLocation').get('location');
-  console.log('Network transport in DrawerControls');
-  console.log(Network?.instance?.transport);
   const enablePartyVideoChat = selfUser && selfUser.instanceId != null && selfUser.partyId != null && party?.id != null && (Network?.instance?.transport as any)?.socket?.connected === true;
   const enableInstanceVideoChat = selfUser && selfUser.instanceId != null && currentLocation?.locationType === 'showroom' && (Network?.instance?.transport as any).socket?.connected === true;
   const openChat = (): void => {

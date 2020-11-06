@@ -1,12 +1,11 @@
-import { Transform } from 'cannon-es';
-import { AmbientLight, DirectionalLight, HemisphereLight, Mesh, PointLight, SpotLight, PlaneGeometry, MeshBasicMaterial, DoubleSide } from 'three';
-import GLTFLoader from 'three-gltf-loader';
-import { Sky } from 'three/examples/jsm/objects/Sky';
+import { Sky } from '@xr3ngine/engine/src/scene/classes/Sky';
+import { AmbientLight, DirectionalLight, DoubleSide, HemisphereLight, Mesh, MeshBasicMaterial, PlaneGeometry, PointLight, SpotLight } from 'three';
+import { AssetLoader } from '../../assets/components/AssetLoader';
+import { addComponentFromBehavior, addObject3DComponent, addTagComponentFromBehavior } from '../../common/behaviors/Object3DBehaviors';
 import { VisibleTagComponent } from '../../common/components/Object3DTagComponents';
-import { addObject3DComponent, addTagComponentFromBehavior } from '../../common/behaviors/Object3DBehaviors';
-import { addComponent } from '../../ecs/functions/EntityFunctions';
-import createSkybox from '../components/createSkybox';
+import { TransformComponent } from '../../transform/components/TransformComponent';
 import CollidableTagComponent from '../components/Collidable';
+import createSkybox from '../components/createSkybox';
 import Image from '../components/Image';
 import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
@@ -39,7 +38,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       }
     ]
   },
-  collidable: {
+  'collidable': {
     components: [
       {
         type: CollidableTagComponent
@@ -59,12 +58,9 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'gltf-model': {
     behaviors: [
       {
-        behavior: addComponent,
+        behavior: addComponentFromBehavior,
         args: {
-          obj3d: GLTFLoader,
-          onLoaded: () => {
-            console.log('gltf loaded');
-          }
+          component: AssetLoader,
         },
         values: [{ from: 'src', to: 'url' }]
       }
@@ -109,7 +105,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       }
     ]
   },
-  skybox: {
+  'skybox': {
     behaviors: [
       {
         behavior: createSkybox,
@@ -121,13 +117,12 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
           { from: 'mieCoefficient', to: 'mieCoefficient' },
           { from: 'mieDirectionalG', to: 'mieDirectionalG' },
           { from: 'rayleigh', to: 'rayleigh' },
-          { from: 'turbidity', to: 'turbidity' },
-          { from: 'material', to: 'material' }
+          { from: 'turbidity', to: 'turbidity' }
         ]
       }
     ]
   },
-  image: {
+  'image': {
     behaviors: [
       {
         behavior: addObject3DComponent,
@@ -145,17 +140,18 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       }
     ]
   },
-  transform: {
+  'transform': {
     behaviors: [
       {
         // TODO: This is a js transform, we might need to handle binding this properly
-        behavior: addObject3DComponent,
-        args: { obj3d: Transform },
+        
+        behavior: addComponentFromBehavior,
+        args: { component: TransformComponent },
         values: ['position', 'rotation', 'scale']
       }
     ]
   },
-  visible: {
+  'visible': {
     behaviors: [
       {
         behavior: addTagComponentFromBehavior,
@@ -163,7 +159,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       }
     ]
   },
-  walkable: {
+  'walkable': {
     behaviors: [
       {
         behavior: addTagComponentFromBehavior,
