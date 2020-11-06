@@ -37,11 +37,7 @@ export default class AssetLoadingSystem extends System {
 
   execute(): void {
     if (isClient) {
-      if (this.queryResults.toLoad.all.length > 0) {
-        document.dispatchEvent(new CustomEvent('scene-loaded', { detail: { loaded: false } }));
-      } else {
-        document.dispatchEvent(new CustomEvent('scene-loaded', { detail: { loaded: true } }));
-      }
+        document.dispatchEvent(new CustomEvent('scene-loaded', { detail: { loaded: this.queryResults.toLoad.all.length > 0 ? false : true } }));
     }
 
     this.queryResults.assetVault.all.forEach(entity => {
@@ -76,6 +72,7 @@ export default class AssetLoadingSystem extends System {
 
           if (this.loadingCount === 0) {
             //loading finished
+            console.log('this.loadingCount', this.loadingCount)
             const event = new CustomEvent('scene-loaded', { detail: { loaded: true } });
             document.dispatchEvent(event);
           } else {
