@@ -16,9 +16,23 @@ export function Timer (
   let delta = 0;
   let frameId;
 
-  function render() {
+  function render(time) {
     if (Engine.xrSession) {
-      if (callbacks.update) callbacks.update();
+      if (last !== null) {
+        delta = (time - last) / 1000;
+        accumulated = accumulated + delta;
+
+        if (fixedRunner) {
+          fixedRunner.run(delta);
+        }
+
+        if (networkRunner) {
+          networkRunner.run(delta);
+        }
+
+        if (callbacks.update) callbacks.update(delta, accumulated);
+      }
+      last = time;
   		Engine.renderer.render( Engine.scene, Engine.camera );
     } else {
       Engine.renderer.setAnimationLoop( null );

@@ -8,7 +8,7 @@ import { Engine } from "../../ecs/classes/Engine";
 import { Entity } from "../../ecs/classes/Entity";
 import { System } from '../../ecs/classes/System';
 import { Not } from "../../ecs/functions/ComponentFunctions";
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { Network } from "../../networking/components/Network";
 import { NetworkObject } from "../../networking/components/NetworkObject";
@@ -16,7 +16,7 @@ import { Server } from "../../networking/components/Server";
 import { handleUpdatesFromClients } from "../../networking/functions/handleUpdatesFromClients";
 import { handleInput } from '../behaviors/handleInput';
 import { handleInputPurge } from "../behaviors/handleInputPurge";
-import { initializeSession, processSession } from '../behaviors/WebXRInputBehaviors';
+//import { initializeSession, processSession } from '../behaviors/WebXRInputBehaviors';
 import { webXRControllersBehaviors, addPhysics, updatePhysics, removePhysics } from '../behaviors/webXRControllersBehaviors';
 import { Input } from '../components/Input';
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
@@ -43,8 +43,8 @@ export class InputSystem extends System {
   private _inputComponent: Input
 
   // Client only variables
-  readonly mainControllerId //= 0
-  readonly secondControllerId //= 1
+  public mainControllerId //= 0
+  public secondControllerId //= 1
   private readonly boundListeners //= new Set()
   private entityListeners: Map<Entity, Array<ListenerBindingData>>
 
@@ -80,7 +80,7 @@ export class InputSystem extends System {
       }
       //updatePhysics(entity)
     });
-    this.queryResults.controllersComponent.removed?.forEach(entity => removePhysics(entity, { controllerPhysicalBody1: this.mainControllerId, controllerPhysicalBody2:  this.secondControllerId });
+    this.queryResults.controllersComponent.removed?.forEach(entity => removePhysics(entity, { controllerPhysicalBody1: this.mainControllerId, controllerPhysicalBody2:  this.secondControllerId }));
     // Called every frame on all input components
     this.queryResults.inputs.all.forEach(entity => {
       if (!hasComponent(entity, Input)) {
