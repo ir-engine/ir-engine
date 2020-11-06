@@ -1,5 +1,5 @@
 import { Vector3Type } from '../../common/types/NumericalTypes';
-import { RaycastVehicle } from 'cannon-es';
+import { RaycastVehicle, Vec3 } from 'cannon-es';
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 
@@ -12,6 +12,9 @@ export class VehicleBody extends Component<VehicleBody> {
   vehicleCollider: any
   vehicleSphereColliders: any
   vehicleDoorsArray: any
+
+  colliderTrimOffset: Vec3
+  collidersSphereOffset: Vec3
 
   arrayWheelsMesh: any
   arrayWheelsPosition: any
@@ -39,6 +42,9 @@ VehicleBody.schema = {
   vehicleCollider: { type: Types.Ref, default: null },
   vehicleSphereColliders: { type: Types.Ref, default: [] },
   vehicleDoorsArray: { type: Types.Ref, default: [] },
+
+  colliderTrimOffset: { type: Types.Ref, default: [0, -1, 0] },
+  collidersSphereOffset: { type: Types.Ref, default: [0, -0.2, 0] },
 
   arrayWheelsMesh: { type: Types.Ref, default: [] },
   arrayWheelsPosition: { type: Types.Ref, default: [] },

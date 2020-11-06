@@ -1,5 +1,12 @@
 export enum TouchInputs {
-  Touch1,
-  Touch2,
+  Touch,
+  LongTouch,
+  Touch1Position,
+  Touch1Movement,
+  Touch2Move,
+  SwipeLeft,
+  SwipeRight,
+  SwipeUp,
+  SwipeDown,
   Scale,
 }

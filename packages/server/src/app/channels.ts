@@ -3,6 +3,8 @@ import { Application } from '../declarations';
 import getLocalServerIp from '../util/get-local-server-ip';
 import config from '../config';
 import app from "../app";
+import { Network } from '@xr3ngine/engine/src/networking/components/Network';
+import logger from './logger';
 
 export default (app: Application): void => {
   if (typeof app.channel !== 'function') {
@@ -29,7 +31,7 @@ export default (app: Application): void => {
           const authResult = await app.service('authentication').strategies.jwt.authenticate({ accessToken: token }, {});
           const identityProvider = authResult['identity-provider'];
           if (identityProvider != null) {
-            console.log(`user ${identityProvider.userId} joining ${(connection as any).socketQuery.locationId}`);
+            logger.info(`user ${identityProvider.userId} joining ${(connection as any).socketQuery.locationId}`);
             const userId = identityProvider.userId;
             const user = await app.service('user').get(userId);
             const locationId = (connection as any).socketQuery.locationId;
@@ -37,12 +39,13 @@ export default (app: Application): void => {
             const gsResult = await agonesSDK.getGameServer();
             const { status } = gsResult;
             if (status.state === 'Ready' || ((process.env.NODE_ENV === 'development' && status.state === 'Shutdown') || (app as any).instance == null)) {
-              console.log('Starting new instance');
+              logger.info('Starting new instance');
+              const localIp = await getLocalServerIp();
               const selfIpAddress = `${(status.address as string)}:${(status.portsList[0].port as string)}`;
               const instanceResult = await app.service('instance').create({
                 currentUsers: 1,
                 locationId: locationId,
-                ipAddress: selfIpAddress
+                ipAddress: config.server.mode === 'local' ? `${localIp.ipAddress}:3030` : selfIpAddress
               });
               await agonesSDK.allocate();
               (app as any).instance = instanceResult;
@@ -63,21 +66,20 @@ export default (app: Application): void => {
               //   }
               // })
             } else {
-              console.log('Joining allocated instance');
-              console.log(user.instanceId);
-              console.log((app as any).instance.id);
-              if (user.instanceId !== (app as any).instance.id) {
+              // console.log('Joining allocated instance');
+              // console.log(user.instanceId);
+              // console.log((app as any).instance.id);
                 const instance = await app.service('instance').get((app as any).instance.id);
                 await app.service('instance').patch((app as any).instance.id, {
                   currentUsers: (instance.currentUsers as number) + 1
                 });
-              }
             }
-            console.log('Patching user instanceId to ' + (app as any).instance.id);
+            // console.log(`Patching user ${user.id} instanceId to ${(app as any).instance.id}`);
             await app.service('user').patch(userId, {
               instanceId: (app as any).instance.id
             });
-            console.log('Patched user instanceId');
+            (connection as any).instanceId = (app as any).instance.id;
+            // console.log('Patched user instanceId');
             app.channel(`instanceIds/${(app as any).instance.id as string}`).join(connection);
             if (user.partyId != null) {
               const partyUserResult = await app.service('party-user').find({
@@ -85,17 +87,15 @@ export default (app: Application): void => {
                   partyId: user.partyId
                 }
               });
+              const party = await app.service('party').get(user.partyId);
               const partyUsers = (partyUserResult as any).data;
               const partyOwner = partyUsers.find((partyUser) => partyUser.isOwner === 1);
-              if (partyOwner.userId === userId) {
-                console.log('Patching party instanceId');
+              if (partyOwner?.userId === userId && party.instanceId !== (app as any).instance.id) {
                 await app.service('party').patch(user.partyId, {
                   instanceId: (app as any).instance.id
                 });
                 const nonOwners = partyUsers.filter((partyUser) => partyUser.isOwner !== 1 && partyUser.isOwner !== true);
                 const emittedIp = (process.env.KUBERNETES !== 'true') ? await getLocalServerIp() : { ipAddress: status.address, port: status.portsList[0].port};
-                console.log('Emitting instance-provision to other party users:');
-                console.log(emittedIp);
                 await Promise.all(nonOwners.map(async partyUser => {
                   await app.service('instance-provision').emit('created', {
                     userId: partyUser.userId,
@@ -109,7 +109,7 @@ export default (app: Application): void => {
           }
         }
       } catch (err) {
-        console.log(err);
+        logger.error(err);
         throw err;
       }
     }
@@ -125,42 +125,63 @@ export default (app: Application): void => {
           if (identityProvider != null) {
             const userId = identityProvider.userId;
             const user = await app.service('user').get(userId);
-            console.log('Socket disconnect from ' + userId);
-            const instanceId = process.env.KUBERNETES !== 'true' ? user.instanceId : (app as any).instance?.id;
-            const instance = (app as any).instance ? await app.service('instance').get(instanceId) : {};
-            if (user.instanceId === instanceId) {
+            logger.info('Socket disconnect from ' + userId);
+            const instanceId = process.env.KUBERNETES !== 'true' ? (connection as any).instanceId : (app as any).instance?.id;
+            const instance = ((app as any).instance && instanceId != null) ? await app.service('instance').get(instanceId) : {};
+            console.log('instanceId: ' + instanceId);
+            console.log('user instanceId: ' + user.instanceId);
+
+            if (instanceId != null) {
               await app.service('instance').patch(instanceId, {
-                currentUsers: instance.currentUsers - 1
+                currentUsers: --instance.currentUsers
+              }).catch((err) => {
+                console.warn("Failed to remove user, probably because instance was destroyed");
               });
-            }
 
-            app.channel(`instanceIds/${instanceId as string}`).leave(connection);
+              const user = await app.service('user').get(userId);
+              if (Network.instance.clients[userId] == null && process.env.KUBERNETES === 'true') await app.service('user').patch(null, {
+                instanceId: null
+              }, {
+                query: {
+                  id: user.id,
+                  instanceId: instanceId
+                },
+                instanceId: instanceId
+              }).catch((err) => {
+                console.warn("Failed to patch user, probably because they don't have an ID yet"),
+                    console.log(err);
+              });
 
-            if (instance.currentUsers === 1) {
-              console.log('Deleting instance ' + instanceId);
-              await app.service('instance').remove(instanceId);
-              if ((app as any).gsSubdomainNumber != null) {
-                await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
-                  allocated: false
-                });
+              app.channel(`instanceIds/${instanceId as string}`).leave(connection);
+
+              if (instance.currentUsers < 1) {
+                console.log('Deleting instance ' + instanceId);
+                await app.service('instance').remove(instanceId);
+                if ((app as any).gsSubdomainNumber != null) {
+                  await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
+                    allocated: false
+                  });
+                }
+                if (process.env.KUBERNETES === 'true') {
+                  delete (app as any).instance;
+                }
+                const gsName = (app as any).gsName;
+                if (gsName !== undefined) {
+                  logger.info('App\'s gameserver name:');
+                  logger.info(gsName);
+                }
+                if ((app as any).gsSubdomainNumber != null) {
+                  await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
+                    allocated: false
+                  });
+                }
+                await (app as any).agonesSDK.shutdown();
               }
-              if (process.env.KUBERNETES === 'true') {
-                delete (app as any).instance;
-              }
-              const gsName = (app as any).gsName;
-              console.log('App\'s gameserver name:');
-              console.log(gsName);
-              if ((app as any).gsSubdomainNumber != null) {
-                await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
-                  allocated: false
-                });
-              }
-              await (app as any).agonesSDK.shutdown();
             }
           }
         }
       } catch (err) {
-        console.log(err);
+        logger.info(err);
         throw err;
       }
     }

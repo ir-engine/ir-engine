@@ -16,7 +16,7 @@ import {
   updateVideo,
   deleteVideo
 } from '../../../redux/admin/service';
-import './admin.scss';
+import styles from './Admin.module.scss';
 import { selectAdminState } from '../../../redux/admin/selector';
 interface Props {
   open: boolean;
@@ -50,7 +50,6 @@ const VideoModal = (props: Props): any => {
     rating: props.video?.metadata?.rating ? props.video.metadata.rating : '',
     category1: props.video?.metadata?.categories ? props.video.metadata.categories[0] : '',
     category2: props.video?.metadata?.categories ? props.video.metadata.categories[1] : '',
-    // eslint-disable-next-line camelcase
     thumbnailUrl: props.video?.metadata?.thumbnailUrl ? props.video.metadata.thumbnailUrl : '',
     runtime: props.video?.metadata?.runtime ? props.video.metadata.runtime : '',
     stereoscopic: props.video?.metadata?.stereoscopic ? props.video.metadata.stereoscopic : false,
@@ -69,7 +68,6 @@ const VideoModal = (props: Props): any => {
       rating: props.video?.metadata?.rating ? props.video.metadata.rating : '',
       category1: props.video?.metadata?.categories ? props.video.metadata.categories[0] : '',
       category2: props.video?.metadata?.categories ? props.video.metadata.categories[1] : '',
-      // eslint-disable-next-line camelcase
       thumbnailUrl: props.video?.metadata?.thumbnailUrl ? props.video.metadata.thumbnailUrl : '',
       runtime: props.video?.metadata?.runtime ? props.video.metadata.runtime : '',
       stereoscopic: props.video?.metadata?.stereoscopic ? props.video.metadata.stereoscopic : false,
@@ -134,7 +132,7 @@ const VideoModal = (props: Props): any => {
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
-        className={'modal'}
+        className={styles.modal}
         open={props.open}
         onClose={props.handleClose}
         closeAfterTransition
@@ -143,14 +141,14 @@ const VideoModal = (props: Props): any => {
           timeout: 500
         }}
       >
-        <div className={'paper-modal'}>
+        <div className={styles['paper-modal']}>
           <Button
-            className={'close'}
+            className={styles.close}
             onClick={props.handleClose}
           >
             X
           </Button>
-          <form className={'form'} noValidate onSubmit={(e) => createVideo(e)}>
+          <form className={styles.form} noValidate onSubmit={(e) => createVideo(e)}>
             <Grid container>
               <Grid item xs={12}>
                 <TextField
@@ -311,7 +309,7 @@ const VideoModal = (props: Props): any => {
                   fullWidth
                   variant="contained"
                   color="primary"
-                  className={'submit'}
+                  className={styles.submit}
                 >
                   {props.mode === 'create' && 'Upload Video'}
                   {props.mode === 'edit' && 'Update Video'}
@@ -320,7 +318,7 @@ const VideoModal = (props: Props): any => {
                   <Button
                     fullWidth
                     variant="contained"
-                    className='submit delete'
+                    className={styles.delete}
                     onClick={() => deleteVideo(props.video.id)}
                   >
                     Delete Video

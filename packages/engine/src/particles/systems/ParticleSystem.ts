@@ -57,7 +57,7 @@ export class ParticleSystem extends System {
     }
 
     for (const entity of this.queryResults.emitterStates.removed) {
-      const emitterState = getComponent(entity, ParticleEmitterState, true) as ParticleEmitterState;
+      const emitterState = getComponent(entity, ParticleEmitterState) as ParticleEmitterState;
       deleteParticleEmitter(emitterState.emitter3D);
     }
   }

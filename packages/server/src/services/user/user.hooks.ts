@@ -3,6 +3,7 @@ import addAssociations from '../../hooks/add-associations';
 import { HookContext } from '@feathersjs/feathers';
 import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query';
 import * as commonHooks from 'feathers-hooks-common';
+import logger from '../../app/logger';
 
 const { authenticate } = authentication.hooks;
 
@@ -21,6 +22,12 @@ export default {
           },
           {
             model: 'subscription'
+          },
+          {
+            model: 'location-admin'
+          },
+          {
+            model: 'location-ban'
           }
         ]
       })
@@ -33,13 +40,36 @@ export default {
           },
           {
             model: 'subscription'
+          },
+          {
+            model: 'location-admin'
+          },
+          {
+            model: 'location-ban'
           }
         ]
       })
     ],
     create: [],
     update: [],
-    patch: [],
+    patch: [
+      addAssociations({
+        models: [
+          {
+            model: 'identity-provider'
+          },
+          {
+            model: 'subscription'
+          },
+          {
+            model: 'location-admin'
+          },
+          {
+            model: 'location-ban'
+          }
+        ]
+      })
+    ],
     remove: []
   },
 
@@ -69,8 +99,8 @@ export default {
           });
           return context;
         } catch (err) {
-          console.log('USER AFTER FIND ERROR');
-          console.log(err);
+          logger.error('USER AFTER FIND ERROR');
+          logger.error(err);
         }
       }
     ],
@@ -97,8 +127,8 @@ export default {
 
           return context;
         } catch (err) {
-          console.log('USER AFTER GET ERROR');
-          console.log(err);
+          logger.error('USER AFTER GET ERROR');
+          logger.error(err);
         }
       }
     ],

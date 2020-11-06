@@ -328,7 +328,7 @@ export default class Sky extends Object3D {
     //   this.cubeCamera.renderTarget.texture as any
     // );
     const pmremGenerator = new PMREMGenerator(renderer);
-    const texture = pmremGenerator.fromCubemap(this.cubeCamera.renderTarget.texture as CubeTexture)
+    const texture = pmremGenerator.fromCubemap(this.cubeCamera.renderTarget.texture as CubeTexture);
     // pmremGenerator.update(renderer);
     // const pmremCubeUVPacker = new PMREMCubeUVPacker((pmremGenerator as any).cubeLods);
     const pmremCubeUVPacker = new PMREMCubeUVPacker([texture]);

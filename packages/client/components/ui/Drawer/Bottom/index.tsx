@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import './style.scss';
+import styles from './Bottom.module.scss';
 import {
     Avatar,
     Button,
@@ -35,6 +35,7 @@ import moment from 'moment';
 import {User} from "@xr3ngine/common/interfaces/User";
 import { Message } from '@xr3ngine/common/interfaces/Message';
 import _ from 'lodash';
+import classNames from 'classnames';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -168,7 +169,7 @@ const BottomDrawer = (props: Props): any => {
         console.log('setActiveChat:');
         updateMessageScrollInit(true);
         const channelType = channel.channelType;
-        const target = channelType === 'user' ? (channel.user1?.id === user.id ? channel.user2 : channel.user2?.id === user.id ? channel.user1 : {}) : channelType === 'group' ? channel.group : channel.party;
+        const target = channelType === 'user' ? (channel.user1?.id === user.id ? channel.user2 : channel.user2?.id === user.id ? channel.user1 : {}) : channelType === 'group' ? channel.group : channelType === 'instance' ? channel.instance : channel.party;
         updateChatTarget(channelType, target, channel.id);
         setMessageDeletePending('');
         setMessageUpdatePending('');
@@ -183,7 +184,6 @@ const BottomDrawer = (props: Props): any => {
     };
 
     const onMessageScroll = (e): void => {
-        console.log(messageScrollInit);
         if (e.target.scrollTop === 0 && (e.target.scrollHeight > e.target.clientHeight) && messageScrollInit !== true && (activeChannel.skip + activeChannel.limit) < activeChannel.total) {
             setMessageScrollUpdate(true);
             setTopMessage((messageEl as any).firstElementChild);
@@ -221,6 +221,11 @@ const BottomDrawer = (props: Props): any => {
                 return partyUser.userId === message.senderId;
             });
             user = partyUser != null ? partyUser.user : {};
+        } else if (channel.channelType === 'instance') {
+            const instanceUser = _.find(channel.instance.instanceUsers, (instanceUser) => {
+                return instanceUser.id === message.senderId;
+            });
+            user = instanceUser != null ? instanceUser : {};
         }
 
         return user;
@@ -287,18 +292,18 @@ const BottomDrawer = (props: Props): any => {
     return (
         <div>
             <SwipeableDrawer
-                className="flex-column"
+                className={styles['flex-column']}
                 anchor="bottom"
-                open={props.bottomDrawerOpen === true}
+                open={bottomDrawerOpen === true}
                 onClose={() => {setBottomDrawerOpen(false);}}
                 onOpen={() => {}}
             >
-                <div className="bottom-container">
-                    <List onScroll={(e) => onChannelScroll(e)} className="chat-container">
+                <div className={styles['bottom-container']}>
+                    <List onScroll={(e) => onChannelScroll(e)} className={styles['chat-container']}>
                         { channels && channels.size > 0 && Array.from(channels).sort(([channelId1, channel1], [channelId2, channel2]) => new Date(channel2.updatedAt).getTime() - new Date(channel1.updatedAt).getTime()).map(([channelId, channel], index) => {
                             return <ListItem
                                 key={channelId}
-                                className="selectable"
+                                className={styles.selectable}
                                 onClick={() => setActiveChat(channel)}
                                 selected={ channelId === targetChannelId }
                                 divider={ index < channels.size - 1 }
@@ -308,7 +313,7 @@ const BottomDrawer = (props: Props): any => {
                                             <Avatar src={channel.userId1 === user.id ? channel.user2.avatarUrl: channel.user1.avatarUrl}/>
                                         </ListItemAvatar>
                                     }
-                                    <ListItemText primary={channel.channelType === 'user' ? (channel.user1?.id === user.id ? channel.user2.name : channel.user2?.id === user.id ? channel.user1.name : '') : channel.channelType === 'group' ? channel.group.name : 'Current party'}/>
+                                    <ListItemText primary={channel.channelType === 'user' ? (channel.user1?.id === user.id ? channel.user2.name : channel.user2?.id === user.id ? channel.user1.name : '') : channel.channelType === 'group' ? channel.group.name : channel.channelType === 'instance' ? 'Current layer' : 'Current party'}/>
                                 </ListItem>;
                         })
                         }
@@ -318,99 +323,105 @@ const BottomDrawer = (props: Props): any => {
                             </ListItem>
                         }
                     </List>
-                    <div className="list-container">
-                        <List ref={(messageRef as any)} onScroll={(e) => onMessageScroll(e)} className="message-container">
+                    <div className={styles['list-container']}>
+                        <List ref={(messageRef as any)} onScroll={(e) => onMessageScroll(e)} className={styles['message-container']}>
                             { activeChannel != null && activeChannel.messages && activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).map((message) => {
                                 return <ListItem
-                                    className={message.senderId === user.id ? "message self" : "message other"}
+                                    className={classNames({
+                                        [styles.message]: true,
+                                        [styles.self]: message.senderId === user.id,
+                                        [styles.other]: message.senderId !== user.id
+                                    })}
                                     key={message.id}
                                     onMouseEnter={(e) => toggleMessageCrudSelect(e, message)}
                                     onMouseLeave={(e) => toggleMessageCrudSelect(e, message)}
                                     onTouchEnd={(e) => toggleMessageCrudSelect(e, message)}
                                 >
-                                    { message.senderId !== user.id &&
-                                        <ListItemAvatar>
-                                            <Avatar src={getMessageUser(message).avatarUrl}/>
-                                        </ListItemAvatar>
-                                    }
-                                    {messageUpdatePending !== message.id &&
-                                        <ListItemText
-                                            primary={message.text}
-                                            secondary={generateMessageSecondary(message)}
-                                        />
-                                    }
-                                    {message.senderId === user.id && messageUpdatePending !== message.id &&
-                                        <div>
-                                            { messageDeletePending !== message.id && messageCrudSelected === message.id &&
-                                            <div className="crud-controls">
-                                                    {messageDeletePending !== message.id &&
-                                                    <Edit className="edit"
-                                                          onClick={(e) => loadMessageEdit(e, message)}
-                                                          onTouchEnd={(e) => loadMessageEdit(e, message)}
-                                                    />
-                                                    }
-                                                    {messageDeletePending !== message.id &&
-                                                    <Delete className="delete"
-                                                            onClick={(e) => showMessageDeleteConfirm(e, message)}
-                                                            onTouchEnd={(e) => showMessageDeleteConfirm(e, message)}
-                                                    />
-                                                    }
-                                                </div>
-                                            }
-                                            {messageDeletePending === message.id &&
-                                                <div className="crud-controls">
-                                                    {messageDeletePending === message.id &&
-                                                    <Delete className="delete"
-                                                            onClick={(e) => confirmMessageDelete(e, message)}
-                                                            onTouchEnd={(e) => confirmMessageDelete(e, message)}
-                                                    />
-                                                    }
-                                                    {messageDeletePending === message.id &&
-                                                    <Clear className="cancel"
-                                                           onClick={(e) => cancelMessageDelete(e)}
-                                                           onTouchEnd={(e) => cancelMessageDelete(e)}
-                                                    />
-                                                    }
-                                                </div>
-                                            }
-                                        </div>
-                                    }
-                                    {messageUpdatePending === message.id &&
-                                        <div className="message-edit">
-                                            <TextField
-                                                variant="outlined"
-                                                margin="normal"
-                                                multiline
-                                                fullWidth
-                                                id="editingMessage"
-                                                label="Message text"
-                                                name="editingMessage"
-                                                autoFocus
-                                                value={editingMessage}
-                                                inputProps={{
-                                                    maxLength: 1000
-                                                }}
-                                                onChange={handleEditingMessageChange}
+                                    <div>
+                                        { message.senderId !== user.id &&
+                                            <ListItemAvatar>
+                                                <Avatar src={getMessageUser(message).avatarUrl}/>
+                                            </ListItemAvatar>
+                                        }
+                                        {messageUpdatePending !== message.id &&
+                                            <ListItemText
+                                                primary={message.text}
+                                                secondary={generateMessageSecondary(message)}
                                             />
-                                            <div className="editing-controls">
-	                                            <Clear className="cancel" onClick={(e) => cancelMessageUpdate(e)} onTouchEnd={(e) => cancelMessageUpdate(e)}/>
-                                                <Save className="save" onClick={(e) => confirmMessageUpdate(e, message)} onTouchEnd={(e) => confirmMessageUpdate(e, message)}/>
+                                        }
+                                        {message.senderId === user.id && messageUpdatePending !== message.id &&
+                                            <div>
+                                                { messageDeletePending !== message.id && messageCrudSelected === message.id &&
+                                                <div className={styles['crud-controls']}>
+                                                        {messageDeletePending !== message.id &&
+                                                        <Edit className={styles.edit}
+                                                              onClick={(e) => loadMessageEdit(e, message)}
+                                                              onTouchEnd={(e) => loadMessageEdit(e, message)}
+                                                        />
+                                                        }
+                                                        {messageDeletePending !== message.id &&
+                                                        <Delete className={styles.delete}
+                                                                onClick={(e) => showMessageDeleteConfirm(e, message)}
+                                                                onTouchEnd={(e) => showMessageDeleteConfirm(e, message)}
+                                                        />
+                                                        }
+                                                    </div>
+                                                }
+                                                {messageDeletePending === message.id &&
+                                                    <div className={styles['crud-controls']}>
+                                                        {messageDeletePending === message.id &&
+                                                        <Delete className={styles.delete}
+                                                                onClick={(e) => confirmMessageDelete(e, message)}
+                                                                onTouchEnd={(e) => confirmMessageDelete(e, message)}
+                                                        />
+                                                        }
+                                                        {messageDeletePending === message.id &&
+                                                        <Clear className={styles.cancel}
+                                                               onClick={(e) => cancelMessageDelete(e)}
+                                                               onTouchEnd={(e) => cancelMessageDelete(e)}
+                                                        />
+                                                        }
+                                                    </div>
+                                                }
                                             </div>
-                                        </div>
-                                    }
+                                        }
+                                        {messageUpdatePending === message.id &&
+                                            <div className={styles['message-edit']}>
+                                                <TextField
+                                                    variant="outlined"
+                                                    margin="normal"
+                                                    multiline
+                                                    fullWidth
+                                                    id="editingMessage"
+                                                    label="Message text"
+                                                    name="editingMessage"
+                                                    autoFocus
+                                                    value={editingMessage}
+                                                    inputProps={{
+                                                        maxLength: 1000
+                                                    }}
+                                                    onChange={handleEditingMessageChange}
+                                                />
+                                                <div className={styles['editing-controls']}>
+                                                    <Clear className={styles.cancel} onClick={(e) => cancelMessageUpdate(e)} onTouchEnd={(e) => cancelMessageUpdate(e)}/>
+                                                    <Save className={styles.save} onClick={(e) => confirmMessageUpdate(e, message)} onTouchEnd={(e) => confirmMessageUpdate(e, message)}/>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
                                 </ListItem>;
                             })
                             }
                             { targetChannelId.length === 0 && targetObject.id != null &&
-                                <div className="first-message-placeholder">
+                                <div className={styles['first-message-placeholder']}>
                                     <div>{targetChannelId}</div>
-                                    Start a chat with {(targetObjectType === 'user' || targetObjectType === 'group') ? targetObject.name : 'your current party'}
+                                    Start a chat with {(targetObjectType === 'user' || targetObjectType === 'group') ? targetObject.name : targetObjectType === 'instance' ? 'your current layer' : 'your current party'}
                                 </div>
                             }
                         </List>
                         {targetObject != null && targetObject.id != null &&
-                            <div className="flex-center">
-                                <div className="chat-box">
+                            <div className={styles['flex-center']}>
+                                <div className={styles['chat-box']}>
                                     <TextField
                                         variant="outlined"
                                         margin="normal"
@@ -437,7 +448,7 @@ const BottomDrawer = (props: Props): any => {
                             </div>
                         }
                         { (targetObject == null || targetObject.id == null) &&
-                            <div className="no-chat">
+                            <div className={styles['no-chat']}>
                                 <div>
                                     Start a chat with a friend or group from the left drawer
                                 </div>

@@ -14,10 +14,10 @@ import { InputAlias } from '../types/InputAlias';
  * @property {Number[]} gamepadInput Map gamepad buttons to abstract input
 */
 export interface InputProps {
-  gamepadConnected: boolean
-  gamepadThreshold: number
-  gamepadButtons: BinaryType[]
-  gamepadInput: number[]
+  gamepadConnected: boolean;
+  gamepadThreshold: number;
+  gamepadButtons: BinaryType[];
+  gamepadInput: number[];
 }
 
 /**

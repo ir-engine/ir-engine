@@ -16,7 +16,7 @@ import { loginUserByPassword, addConnectionByPassword } from '../../../redux/aut
 import { showDialog, closeDialog } from '../../../redux/dialog/service';
 import SignUp from './Register';
 import ForgotPassword from './ForgotPassword';
-import './style.scss';
+import styles from './Auth.module.scss';
 import { User } from '@xr3ngine/common/interfaces/User';
 
 const mapStateToProps = (state: any): any => {
@@ -85,15 +85,15 @@ export const PasswordLogin = (props: Props): any => {
 
   return (
     <Container component="main" maxWidth="xs">
-      <div className={'paper'}>
-        <Avatar className={'avatar'}>
+      <div className={styles.paper}>
+        <Avatar className={styles.avatar}>
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
         <form
-          className={'form'}
+          className={styles.form}
           noValidate
           onSubmit={(e) => handleEmailLogin(e)}
         >
@@ -138,7 +138,7 @@ export const PasswordLogin = (props: Props): any => {
                 fullWidth
                 variant="contained"
                 color="primary"
-                className={'submit'}
+                className={styles.submit}
               >
                 Sign In
               </Button>

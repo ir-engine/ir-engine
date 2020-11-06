@@ -1,13 +1,6 @@
 import { cameraPointerLock } from "@xr3ngine/engine/src/camera/behaviors/cameraPointerLock";
-import { BinaryValue } from '../../common/enums/BinaryValue';
+import { switchCameraMode } from "@xr3ngine/engine/src/camera/behaviors/switchCameraMode";
 import { Thumbsticks } from '../../common/enums/Thumbsticks';
-import { disableScroll, enableScroll } from '../../common/functions/enableDisableScrolling';
-import { preventDefault } from '../../common/functions/preventDefault';
-import { handleMouseMovement } from "../../input/behaviors/handleMouseMovement";
-import { handleMouseButton } from "../../input/behaviors/handleMouseButton";
-import { handleKey } from "../../input/behaviors/handleKey";
-import { handleGamepadConnected, handleGamepadDisconnected } from '../../input/behaviors/GamepadInputBehaviors';
-import { handleTouch, handleTouchMove } from '../../input/behaviors/TouchBehaviors';
 import { GamepadButtons } from '../../input/enums/GamepadButtons';
 import { MouseInput } from '../../input/enums/MouseInput';
 import { InputRelationship } from '../../input/interfaces/InputRelationship';
@@ -15,152 +8,21 @@ import { InputSchema } from '../../input/interfaces/InputSchema';
 import { DefaultInput } from '../shared/DefaultInput';
 import { updateCharacterState } from "./behaviors/updateCharacterState";
 import { interact } from "../../interaction/behaviors/interact";
-import {
-  handleOnScreenGamepadButton,
-  handleOnScreenGamepadMovement
-} from "../../input/behaviors/handleOnScreenJoystick";
 import { moveByInputAxis } from "./behaviors/move";
 import { InputType } from "../../input/enums/InputType";
 import { setLocalMovementDirection } from "./behaviors/setLocalMovementDirection";
-import { handleMouseWheel } from "../../input/behaviors/handleMouseWheel";
 import { changeCameraDistanceByDelta } from "../../camera/behaviors/changeCameraDistanceByDelta";
+import { LifecycleValue } from "../../common/enums/LifecycleValue";
+import { TouchInputs } from "../../input/enums/TouchInputs";
+import { DefaultInputSchema } from "../shared/DefaultInputSchema";
 
 export const CharacterInputSchema: InputSchema = {
-  // When an Input component is added, the system will call this array of behaviors
-  onAdded: [
-    {
-      behavior: disableScroll
-    }
-  ],
-  // When an Input component is removed, the system will call this array of behaviors
-  onRemoved: [
-    {
-      behavior: enableScroll
-    }
-  ],
-  // When the input component is added or removed, the system will bind/unbind these events to the DOM
-  eventBindings: {
-    // Mouse
-    contextmenu: [
-      {
-        behavior: preventDefault
-      }
-    ],
-    mousemove: [
-      {
-        behavior: handleMouseMovement
-      }
-    ],
-    mouseup: [
-      {
-        behavior: handleMouseButton,
-        args: {
-          value: BinaryValue.OFF
-        }
-      }
-    ],
-    mousedown: [
-      {
-        behavior: handleMouseButton,
-        args: {
-          value: BinaryValue.ON
-        }
-      }
-    ],
-    wheel: [
-      {
-        behavior: handleMouseWheel,
-        args: {
-          value: DefaultInput.CAMERA_SCROLL
-        }
-      }
-    ],
-
-    // Touch
-    touchstart: [
-      {
-        behavior: handleTouch,
-        args: {
-          value: BinaryValue.ON
-        }
-      }
-    ],
-    touchend: [
-      {
-        behavior: handleTouch,
-        args: {
-          value: BinaryValue.OFF
-        }
-      }
-    ],
-    touchcancel: [
-      {
-        behavior: handleTouch,
-        args: {
-          value: BinaryValue.OFF
-        }
-      }
-    ],
-    touchmove: [
-      {
-        behavior: handleTouchMove
-      }
-    ],
-    // Keys
-    keyup: [
-      {
-        behavior: handleKey,
-        args: {
-          value: BinaryValue.OFF
-        }
-      }
-    ],
-    keydown: [
-      {
-        behavior: handleKey,
-        args: {
-          value: BinaryValue.ON
-        }
-      }
-    ],
-    // Gamepad
-    gamepadconnected: [
-      {
-        behavior: handleGamepadConnected
-      }
-    ],
-    gamepaddisconnected: [
-      {
-        behavior: handleGamepadDisconnected
-      }
-    ],
-    // mobile onscreen gamepad
-    stickmove: [
-      {
-        behavior: handleOnScreenGamepadMovement
-      }
-    ],
-    mobilegamepadbuttondown: [
-      {
-        behavior: handleOnScreenGamepadButton,
-        args: {
-          value: BinaryValue.ON
-        }
-      }
-    ],
-    mobilegamepadbuttonup: [
-      {
-        behavior: handleOnScreenGamepadButton,
-        args: {
-          value: BinaryValue.OFF
-        }
-      }
-    ]
-  },
+  ...DefaultInputSchema,
   // Map mouse buttons to abstract input
   mouseInputMap: {
     buttons: {
       [MouseInput.LeftButton]: DefaultInput.PRIMARY,
+    //  [MouseInput.LeftButton]: DefaultInput.INTERACT,
       [MouseInput.RightButton]: DefaultInput.SECONDARY,
       [MouseInput.MiddleButton]: DefaultInput.INTERACT
     },
@@ -173,13 +35,24 @@ export const CharacterInputSchema: InputSchema = {
       [MouseInput.MouseScroll]: DefaultInput.CAMERA_SCROLL
     }
   },
+  // Map touch buttons to abstract input
+  touchInputMap: {
+    buttons: {
+      [TouchInputs.Touch]: DefaultInput.INTERACT,
+    },
+    axes: {
+      [TouchInputs.Touch1Position]: DefaultInput.SCREENXY,
+      [TouchInputs.Touch1Movement]: DefaultInput.LOOKTURN_PLAYERONE
+    }
+  },
   // Map gamepad buttons to abstract input
   gamepadInputMap: {
     buttons: {
-      [GamepadButtons.A]: DefaultInput.JUMP,
-      [GamepadButtons.B]: DefaultInput.CROUCH, // B - back
-      [GamepadButtons.X]: DefaultInput.SPRINT, // X - secondary input
-      [GamepadButtons.Y]: DefaultInput.INTERACT, // Y - tertiary input
+      [GamepadButtons.A]: DefaultInput.INTERACT,
+      // [GamepadButtons.A]: DefaultInput.JUMP,
+      // [GamepadButtons.B]: DefaultInput.CROUCH, // B - back
+      // [GamepadButtons.X]: DefaultInput.SPRINT, // X - secondary input
+      // [GamepadButtons.Y]: DefaultInput.INTERACT, // Y - tertiary input
       // 4: DefaultInput.DEFAULT, // LB
       // 5: DefaultInput.DEFAULT, // RB
       // 6: DefaultInput.DEFAULT, // LT
@@ -206,7 +79,9 @@ export const CharacterInputSchema: InputSchema = {
     d: DefaultInput.RIGHT,
     e: DefaultInput.INTERACT,
     ' ': DefaultInput.JUMP,
-    p: DefaultInput.POINTER_LOCK
+    shift: DefaultInput.SPRINT,
+    p: DefaultInput.POINTER_LOCK,
+    v: DefaultInput.SWITCH_CAMERA
   },
   // Map how inputs relate to each other
   inputRelationships: {
@@ -226,15 +101,47 @@ export const CharacterInputSchema: InputSchema = {
           }
         ]
     },
+    [DefaultInput.SWITCH_CAMERA]: {
+        started: [
+          {
+            behavior: switchCameraMode,
+            args: {}
+          }
+        ]
+    },
     [DefaultInput.INTERACT]: {
+      started: [
+        {
+          behavior: interact,
+          args: {
+            phaze:LifecycleValue.STARTED
+          }
+        }
+      ],
       ended: [
         {
           behavior: interact,
-          args: {}
+          args: {
+            phaze:LifecycleValue.ENDED
+          }
         }
       ]
     },
     [DefaultInput.JUMP]: {
+        started: [
+          {
+            behavior: updateCharacterState,
+            args: {}
+          }
+        ],
+      ended: [
+        {
+          behavior: updateCharacterState,
+          args: {}
+        }
+      ]
+    },
+    [DefaultInput.SPRINT]: {
         started: [
           {
             behavior: updateCharacterState,

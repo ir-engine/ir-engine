@@ -32,10 +32,6 @@ export function handleLogging(method, addToOutput) {
   Object.defineProperty(console[method], 'name', { value: method, writable: false }); // eslint-disable-line no-console
 }
 
-export function isServer() {
-  return !(typeof window !== 'undefined' && window.document);
-}
-
 const linuxPlatforms = ['Ubuntu', 'Debian', 'Fedora', 'Red Hat', 'SuSE', 'Android'];
 const darwinPlatforms = ['OS X', 'iOS'];
 

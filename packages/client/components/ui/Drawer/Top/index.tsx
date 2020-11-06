@@ -71,41 +71,10 @@ interface Props {
 
 const TopDrawer = (props: Props): any => {
     const {
-        auth,
-        friendState,
-        getFriends,
-        unfriend,
-        groupState,
-        groupUserState,
-        getGroups,
-        createGroup,
-        patchGroup,
-        removeGroup,
-        getGroupUsers,
-        getSelfGroupUser,
-        removeGroupUser,
-        partyState,
-        getParty,
-        createParty,
-        removeParty,
-        getPartyUsers,
-        getSelfPartyUser,
-        removePartyUser,
     } = props;
 
-    const user = auth.get('user') as User;
-    const friendSubState = friendState.get('friends');
-    const friends = friendSubState.get('friends');
-    const groupSubState = groupState.get('groups');
-    const groups = groupSubState.get('groups');
-    const groupUserSubState = groupUserState.get('groupUsers');
-    const groupUsers = groupUserSubState.get('groupUsers');
-    const party = partyState.get('party');
-    const partyUserSubState = partyState.get('partyUsers');
-    const partyUsers = partyUserSubState.get('partyUsers');
-    const selfPartyUser = partyState.get('selfPartyUser');
     return (
-        <div className="left-drawer">
+        <div className="top-drawer">
             <AppBar position="fixed" className="drawer" />
         </div>
     );

@@ -1,4 +1,5 @@
 import { Dispatch } from 'redux';
+import { v1 } from 'uuid';
 import {
   EmailLoginForm,
   EmailRegistrationForm,
@@ -36,22 +37,36 @@ import axios from 'axios';
 import { resolveAuthUser } from '@xr3ngine/common/interfaces/AuthUser';
 import { resolveUser } from '@xr3ngine/common/interfaces/User';
 import store from "../store";
+import { Network } from '@xr3ngine/engine/src/networking/components/Network';
+import { endVideoChat, leave, setPartyId } from '../../classes/transports/WebRTCFunctions';
 
 const { publicRuntimeConfig } = getConfig();
 const apiServer: string = publicRuntimeConfig.apiServer;
 const authConfig = publicRuntimeConfig.auth;
 
-export async function doLoginAuto (dispatch: Dispatch) {
-  const authData = getStoredState('auth');
-  const accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined;
+export function doLoginAuto (allowGuest?: boolean) {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    try {
+      const authData = getStoredState('auth');
+      let accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined;
 
-  if (!accessToken) {
-    return;
-  }
+      // console.log(allowGuest);
+      // console.log(accessToken);
+      if (allowGuest !== true && !accessToken) {
+        return;
+      }
 
-  await (client as any).authentication.setAccessToken(accessToken as string);
-  (client as any).reAuthenticate()
-    .then((res: any) => {
+      if (allowGuest === true && !accessToken) {
+        console.log('Logging in as guest');
+        const newProvider = await client.service('identity-provider').create({
+          type: 'guest',
+          token: v1()
+        });
+        accessToken = newProvider.accessToken;
+      }
+
+      await (client as any).authentication.setAccessToken(accessToken as string);
+      const res = await (client as any).reAuthenticate();
       if (res) {
         const authUser = resolveAuthUser(res);
         dispatch(loginUserSuccess(authUser));
@@ -59,15 +74,15 @@ export async function doLoginAuto (dispatch: Dispatch) {
       } else {
         console.log('****************');
       }
-    })
-    .catch((e) => {
+    } catch (err) {
+      console.log(err);
       dispatch(didLogout());
 
-      console.log(e);
       if (window.location.pathname !== '/') {
         window.location.href = '/';
       }
-    });
+    }
+  };
 }
 
 export function loadUserData (dispatch: Dispatch, userId: string): any {
@@ -145,41 +160,37 @@ export function loginUserByFacebook () {
 }
 
 export function loginUserByJwt (accessToken: string, redirectSuccess: string, redirectError: string, subscriptionId?: string): any {
-  return (dispatch: Dispatch): any => {
-    dispatch(actionProcessing(true));
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      dispatch(actionProcessing(true));
+      const res = await (client as any).authenticate({
+        strategy: 'jwt',
+        accessToken
+      });
 
-    (client as any).authenticate({
-      strategy: 'jwt',
-      accessToken
-    })
-      .then((res: any) => {
-        const authUser = resolveAuthUser(res);
+      const authUser = resolveAuthUser(res);
 
-        if (subscriptionId != null && subscriptionId.length > 0) {
-          client.service('seat').patch(authUser.identityProvider.userId, {
-            subscriptionId: subscriptionId
-          })
-            .catch((err) => {
-              console.log(err);
-            })
-            .finally(() => {
-              dispatch(loginUserSuccess(authUser));
-              loadUserData(dispatch, authUser.identityProvider.userId);
-              window.location.href = redirectSuccess;
-            });
-        } else {
-          dispatch(loginUserSuccess(authUser));
-          loadUserData(dispatch, authUser.identityProvider.userId);
-          window.location.href = redirectSuccess;
-        }
-      })
-      .catch((err: any) => {
-        console.log(err);
-        dispatch(loginUserError('Failed to login'));
-        dispatchAlertError(dispatch, err.message);
-        window.location.href = `${redirectError}?error=${err.message}`;
-      })
-      .finally(() => dispatch(actionProcessing(false)));
+      if (subscriptionId != null && subscriptionId.length > 0) {
+        await client.service('seat').patch(authUser.identityProvider.userId, {
+          subscriptionId: subscriptionId
+        });
+        dispatch(loginUserSuccess(authUser));
+        loadUserData(dispatch, authUser.identityProvider.userId);
+      } else {
+        console.log('JWT login succeeded');
+        console.log(authUser);
+        dispatch(loginUserSuccess(authUser));
+        loadUserData(dispatch, authUser.identityProvider.userId);
+      }
+      dispatch(actionProcessing(false));
+      window.location.href = redirectSuccess;
+    } catch(err) {
+      console.log(err);
+      dispatch(loginUserError('Failed to login'));
+      dispatchAlertError(dispatch, err.message);
+      window.location.href = `${redirectError}?error=${err.message}`;
+      dispatch(actionProcessing(false));
+    }
   };
 }
 
@@ -474,19 +485,47 @@ export function updateUsername (userId: string, name: string) {
   };
 }
 
-client.service('user').on('patched', (params) => {
+client.service('user').on('patched', async (params) => {
   const selfUser = (store.getState() as any).get('auth').get('user');
-  const user = params.userRelationship;
+  const user = resolveUser(params.userRelationship);
   if (selfUser.id === user.id) {
     if (selfUser.instanceId !== user.instanceId) {
       store.dispatch(clearLayerUsers());
     }
     store.dispatch(userUpdated(user));
+    if (user.partyId) {
+      setPartyId(user.partyId);
+    }
   } else {
+    console.log('Not self user');
+    console.log(user);
     if (user.instanceId === selfUser.instanceId) {
       store.dispatch(addedLayerUser(user));
     } else {
       store.dispatch(removedLayerUser(user));
     }
+  }
+});
+
+client.service('location-ban').on('created', async(params) => {
+  console.log('Location Ban created');
+  const state = store.getState() as any;
+  const selfUser = state.get('auth').get('user');
+  const party = state.get('party');
+  const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === selfUser.id) : {};
+  const currentLocation = state.get('locations').get('currentLocation').get('location');
+  const locationBan = params.locationBan;
+  console.log('Current location id: ' + currentLocation.id);
+  console.log(locationBan);
+  if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
+    endVideoChat(true);
+    leave();
+    if (selfPartyUser.id != null) {
+      await client.service('party-user').remove(selfPartyUser.id);
+    }
+    const user = resolveUser(await client.service('user').get(selfUser.id));
+    console.log('Fetched user');
+    console.log(user);
+    store.dispatch(userUpdated(user));
   }
 });

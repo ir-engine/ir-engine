@@ -120,7 +120,7 @@ export class Component<C> {
    * Put the component back into it's component pool
    * Called when component is removed from an entity
    */
-  dispose ():void {
+  dispose (): void {
     if (this._pool) {
       this._pool.release(this);
     }

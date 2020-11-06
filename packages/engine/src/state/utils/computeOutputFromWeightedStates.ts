@@ -3,13 +3,13 @@ import { ScalarType, Vector2Type, Vector3Type } from '../../common/types/Numeric
 import { StateAlias } from '../types/StateAlias';
 
 interface weightedState {
-  type: StateAlias
-  value: ScalarType | Vector2Type | Vector3Type
+  type: StateAlias;
+  value: ScalarType | Vector2Type | Vector3Type;
 }
 
 interface outputState {
-  type: StateAlias
-  weight: number
+  type: StateAlias;
+  weight: number;
 }
 
 // get ring buffer

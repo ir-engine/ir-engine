@@ -8,6 +8,7 @@ import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query';
 import { HookContext } from '@feathersjs/feathers';
 import inviteRemoveAuthenticate from '../../hooks/invite-remove-authenticate';
 import * as commonHooks from 'feathers-hooks-common';
+import logger from '../../app/logger';
 
 const { authenticate } = authentication.hooks;
 
@@ -65,8 +66,8 @@ export default {
           }));
           return context;
         } catch (err) {
-          console.log('INVITE AFTER HOOK ERROR');
-          console.log(err);
+          logger.error('INVITE AFTER HOOK ERROR');
+          logger.error(err);
         }
       }
     ],

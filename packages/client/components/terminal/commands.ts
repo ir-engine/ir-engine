@@ -1,11 +1,6 @@
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { Entity } from "@xr3ngine/engine/src/ecs/classes/Entity";
-import { System } from "@xr3ngine/engine/src/ecs/classes/System";
-import { Component } from "@xr3ngine/engine/src/ecs/classes/Component";
-import { Query } from "@xr3ngine/engine/src/ecs/classes/Query";
+import { createEntity, removeEntity } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
 import { ComponentConstructor } from "@xr3ngine/engine/src/ecs/interfaces/ComponentInterfaces";
-import Left from "../ui/Drawer/Left";
-import { createEntity } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
 //import {curryRight} from "lodash";
 
 function round(number: number): number {
@@ -86,7 +81,6 @@ export const commands = {
                     Update data.
                 `);
             }
-//          console.log(args);
 
             switch (args._[0]) {
                 case 'entities':
@@ -126,9 +120,8 @@ export const commands = {
                         print(s);
 
                     } else if (command === 'make') {
-                        print(`(create entity)`);
                         const entity = createEntity();
-                        print(`entity #${entity.id} created.`);
+                        print(`Entity ${entity.id} was created.`);
                     
                     } else if (command === 'cp') {
                         print(`(copy entity)`);
@@ -146,12 +139,10 @@ export const commands = {
                         }
 
                     } else if (command === 'rm') {
-                        print(`(removing entities and components)`);
-                        // ecs entities rm 1 2 3
                         const ids = options;
 	                    ids.forEach(id => {
 		                      const entity = Engine.entities.find(element => element.id === id);
-                              if (entity !== undefined) entity.remove();
+                              if (entity !== undefined) removeEntity(entity);
 	                    });
 
                     } else if (command === 'cat') {
@@ -175,85 +166,53 @@ export const commands = {
                     }
                     break;
 
-                    case 'entity': {
-                        if (args._.length < 2) {
-                            print('An entity id was not speciffied.');
-                            return;
-                        }
-                        
-                        const entityId = args._[1];
-                        // console.log('check', args);
+                case 'entity': {
+                    if (args._.length < 2) {
+                        print('An entity id was not speciffied.');
+                        return;
+                    }
+                    
+                    const entityId = args._[1];
+                    // console.log('check', args);
 
-                        const entity = Engine.entities.find(element => element.id === entityId);
-                        if (entity === undefined) {
-                            print(`An entity ${entityId} was not found.`);
-                            return;
-                        }
-
-                        let s = '';
-
-                        for (const componentId in entity.components) {
-                            const component = entity.components[componentId];
-                            s += (componentId + ': ' + component.name);
-                            if (component.name === 'TransformComponent' && ('p' in args))
-                                s += (' (position: x: ' + round(component.position.x) +
-                                    ', y: ' + round(component.position.y) +
-                                    ', z: ' + round(component.position.z) +
-                                    '; rotation: x: ' + round(component.rotation._x) +
-                                    ', y: ' + round(component.rotation._y) +
-                                    ', z: ' + round(component.rotation._z) +
-                                    ', w: ' + round(component.rotation._w) + ')');
-                            s += '\n';
-
-                            if ('a' in args)
-                                s += objectToString(component, 1, 2);
-                        }
-                        print(s);
-                        break;
+                    const entity = Engine.entities.find(element => element.id === entityId);
+                    if (entity === undefined) {
+                        print(`An entity ${entityId} was not found.`);
+                        return;
                     }
 
-                    case 'components':
-                    // User passed a number, which should align with an entity ID
-                    // - show breakdown of data on entity.
-                    /*
-                    if (!isNaN(args._[1])) {
-                        let cstring = "";
-                        Object.values(Engine.components[args._[1]]).forEach((c: any) => {
-                            cstring += '\n';
-                            Object.keys(c).forEach((p: any) => {
-                                cstring += '\n';
-                                // TODO: If is object or array, drill down into values
-                                cstring += p.toString() + ": " + c[p].toString();
-                            });
-                            cstring += '\n';
-                        });
-                        console.log(cstring);
-                        print(cstring);
-                    } else {
-                        let cstring = "\n";
-                        Engine.components.forEach((component: ComponentConstructor<any>) => {
-                            cstring +=  component.name + "\n";
-                            Object.keys(component).forEach(k => {
-                                cstring += k + ": " + component[k].toString() + "\n";
-                            });
-                            cstring += "\n --------------- \n";
-                        });
-                        console.log(cstring);
-                        print(cstring);
+                    let s = '';
+
+                    for (const componentId in entity.components) {
+                        const component = entity.components[componentId];
+                        s += (componentId + ': ' + component.name);
+                        if (component.name === 'TransformComponent' && ('p' in args))
+                            s += (' (position: x: ' + round(component.position.x) +
+                                ', y: ' + round(component.position.y) +
+                                ', z: ' + round(component.position.z) +
+                                '; rotation: x: ' + round(component.rotation._x) +
+                                ', y: ' + round(component.rotation._y) +
+                                ', z: ' + round(component.rotation._z) +
+                                ', w: ' + round(component.rotation._w) + ')');
+                        s += '\n';
+
+                        if ('a' in args)
+                            s += objectToString(component, 1, 2);
                     }
-                    */
+                    print(s);
+                    break;
+                }
+
+                case 'components': {
                     let s = '';
                     Engine.components.forEach((component: ComponentConstructor<any>) => {
                         s += component.name + "\n";
-                        if (args.originalArgs.includes('-a')) {
-                            Object.keys(component).forEach(k => {
-                                s += ('\t' + k + ": " + component[k].toString() + '\n');
-                            });
-                        }
+                        if ('a' in args)
+                            s += objectToString(component, 1, 1);
                     });
                     print(s);
                     break;
-                
+                }
                 case 'component': {
                     if (args._.length < 2) {
                         print('An component id was not speciffied.');
@@ -312,11 +271,18 @@ export const commands = {
       }
 };
 
-export const description = {
-    /*
-    ecs: {
-         play: '',
-         pause: '',
-    }
-    */
+export const descriptions = {
+   ecs: `control of entities and components
+List entities: ecs entities ls
+List entities and its components: ecs entities ls -a
+List entities and its components, show position and rotation for TransformComponent:
+ecs entities ls -p
+List entity components: ecs entity (id)
+List entity components and its attributes: ecs entity (id) -a
+List entity components, show position and rotation for TransformComponent: ecs entity (id) -p
+List component attributes: ecs component (id)
+List registered components: ecs components
+List registered components and its attributes: ecs components -a
+Make entity: ecs entities make
+Remove entity: ecs entities rm (ids list)`
 };

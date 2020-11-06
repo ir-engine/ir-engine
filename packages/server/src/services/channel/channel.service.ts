@@ -3,6 +3,7 @@ import { Application } from '../../declarations';
 import { Channel } from './channel.class';
 import createModel from '../../models/channel.model';
 import hooks from './channel.hooks';
+import logger from '../../app/logger';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -128,6 +129,39 @@ export default (app: Application): any => {
           data.party.partyUsers = partyUsers;
         }
         targetIds = partyUsers.map((partyUser) => partyUser.userId);
+      } else if (data.channelType === 'instance') {
+        if (data.instance == null) {
+          data.instance = await app.service('instance').Model.findOne({
+            where: {
+              id: data.instanceId
+            }
+          });
+        }
+        const instanceUsers = await app.service('user').Model.findAll({
+          where: {
+            instanceId: data.instanceId
+          }
+        });
+        await Promise.all(instanceUsers.map(async (instanceUser) => {
+          const avatarResult = await app.service('static-resource').find({
+            query: {
+              staticResourceType: 'user-thumbnail',
+              userId: instanceUser.id
+            }
+          }) as any;
+
+          if (avatarResult.total > 0) {
+            instanceUser.dataValues.avatarUrl = avatarResult.data[0].url;
+          }
+
+          return await Promise.resolve();
+        }));
+        if (data.instance.dataValues) {
+          data.instance.dataValues.instanceUsers = instanceUsers;
+        } else {
+          data.instance.instanceUsers = instanceUsers;
+        }
+        targetIds = instanceUsers.map((instanceUser) => instanceUser.id);
       }
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       return Promise.all(targetIds.map((userId) => {
@@ -136,7 +170,7 @@ export default (app: Application): any => {
         });
       }));
     } catch(err) {
-      console.log(err);
+      logger.error(err);
       throw err;
     }
   });
@@ -246,6 +280,39 @@ export default (app: Application): any => {
           data.party.partyUsers = partyUsers;
         }
         targetIds = partyUsers.map((partyUser) => partyUser.userId);
+      } else if (data.channelType === 'instance') {
+        if (data.instance == null) {
+          data.instance = await app.service('instance').Model.findOne({
+            where: {
+              id: data.instanceId
+            }
+          });
+        }
+        const instanceUsers = await app.service('user').Model.findAll({
+          where: {
+            instanceId: data.instanceId
+          }
+        });
+        await Promise.all(instanceUsers.map(async (instanceUser) => {
+          const avatarResult = await app.service('static-resource').find({
+            query: {
+              staticResourceType: 'user-thumbnail',
+              userId: instanceUser.id
+            }
+          }) as any;
+
+          if (avatarResult.total > 0) {
+            instanceUser.dataValues.avatarUrl = avatarResult.data[0].url;
+          }
+
+          return await Promise.resolve();
+        }));
+        if (data.instance.dataValues) {
+          data.instance.dataValues.instanceUsers = instanceUsers;
+        } else {
+          data.instance.instanceUsers = instanceUsers;
+        }
+        targetIds = instanceUsers.map((instanceUser) => instanceUser.id);
       }
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       return Promise.all(targetIds.map((userId) => {
@@ -254,7 +321,7 @@ export default (app: Application): any => {
         });
       }));
     } catch(err) {
-      console.log(err);
+      logger.error(err);
       throw err;
     }
   });
@@ -277,6 +344,13 @@ export default (app: Application): any => {
         }
       });
       targetIds = partyUsers.map((partyUser) => partyUser.userId);
+    } else if (data.channelType === 'instance') {
+      const instanceUsers = await app.service('user').Model.findAll({
+        where: {
+          instanceId: data.instanceId
+        }
+      });
+      targetIds = instanceUsers.map((instanceUser) => instanceUser.id);
     }
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     return Promise.all(targetIds.map((userId) => {

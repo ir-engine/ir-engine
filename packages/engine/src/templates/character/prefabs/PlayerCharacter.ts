@@ -8,12 +8,10 @@ import { CharacterInputSchema } from "@xr3ngine/engine/src/templates/character/C
 import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/CharacterStateSchema";
 import { CharacterSubscriptionSchema } from "@xr3ngine/engine/src/templates/character/CharacterSubscriptionSchema";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
-import { AssetLoader } from "../../../assets/components/AssetLoader";
-//import { setCameraFollow } from "../../../camera/behaviors/setCameraFollow";
-import { initializeCharacter } from "../behaviors/initializeCharacter";
+import { Interactor } from "../../../interaction/components/Interactor";
+import { loadActorAvatar } from "../behaviors/loadActorAvatar";
+import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
 import { CharacterComponent } from "../components/CharacterComponent";
-import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
-import { Interacts } from "../../../interaction/components/Interacts";
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const PlayerCharacter: Prefab = {
@@ -26,7 +24,7 @@ export const PlayerCharacter: Prefab = {
         { type: TransformComponent },
         // Local player input mapped to behaviors in the input map
         { type: Input, data: { schema: CharacterInputSchema } },
-
+        { type: CharacterAvatarComponent, data: { avatarId: 'Rose' }},
         { type: LocalInputReceiver },
         // Follow Camera for thet entity
         { type: FollowCameraComponent, data: { distance: 3, mode: "thirdPerson" }},
@@ -35,27 +33,30 @@ export const PlayerCharacter: Prefab = {
         // Similar to Unity's Update(), LateUpdate(), and Start()
         { type: Subscription, data: { schema: CharacterSubscriptionSchema } },
       //  { type: LocalInputReceiver }
-        { type: Interacts }
+        { type: Interactor }
     ],
-    onCreate: [
-        {
-            behavior: addComponentFromSchema,
-            args: {
-                // addObject3DComponent is going to call new obj(objArgs)
-                // so this will be new Mesh(new BoxBufferGeometry(0.2, 0.2, 0.2))
-                component: AssetLoader,
-                componentArgs: {
-                    url: "models/avatars/ToonFemale.glb",
-                    receiveShadow: true,
-                    castShadow: true
-                }
-            }
-        },
-        {
-            behavior: initializeCharacter
-        }
+    onAfterCreate: [{
+        behavior: loadActorAvatar
+    }
+
+        // {
+        //     behavior: addComponentFromSchema,
+        //     args: {
+        //         // addObject3DComponent is going to call new obj(objArgs)
+        //         // so this will be new Mesh(new BoxBufferGeometry(0.2, 0.2, 0.2))
+        //         component: AssetLoader,
+        //         componentArgs: {
+        //             url: "models/avatars/Rose.glb",
+        //             receiveShadow: true,
+        //             castShadow: true
+        //         }
+        //     }
+        // },
+        // {
+        //     behavior: initializeCharacter
+        // }
     ],
-    onDestroy: [
+    onBeforeDestroy: [
 
     ]
 };

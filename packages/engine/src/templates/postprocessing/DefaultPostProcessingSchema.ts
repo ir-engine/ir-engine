@@ -58,31 +58,29 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
     },
     */
     // Bloom
-    /*
     {
       effect: BloomEffect,
       options: {
         blendFunction: BlendFunction.SCREEN,
-        kernelSize: KernelSize.MEDIUM,
+        kernelSize: KernelSize.SMALL,
         luminanceThreshold: 1.05,
         luminanceSmoothing: 0.1,
         intensity: 1
       }
     },
-    */
-    // Tonemapping
-    {
-      effect: ToneMappingEffect,
-      options: {
-        blendFunction: BlendFunction.NORMAL,
-        adaptive: true,
-        resolution: 512,
-        middleGrey: 0.6,
-        maxLuminance: 32.0,
-        averageLuminance: 1.0,
-        adaptationRate: 2.0
-      }
-    },
+    // // Tonemapping
+    // {
+    //   effect: ToneMappingEffect,
+    //   options: {
+    //     blendFunction: BlendFunction.NORMAL,
+    //     adaptive: true,
+    //     resolution: 512,
+    //     middleGrey: 0.6,
+    //     maxLuminance: 32.0,
+    //     averageLuminance: 1.0,
+    //     adaptationRate: 2.0
+    //   }
+    // },
     // DOF
         // // Color Grading
         /*

@@ -4,12 +4,10 @@ import { createSchema } from "../functions/createSchema";
 import { inputKeyArraySchema } from "./clientInputSchema";
 
 const clientConnectedSchema = createSchema('clientConnected', {
-    clientId: { type: string8, length: 20 },
     userId: { type: string8, length: 36 }
 });
 
 const clientDisconnectedSchema = createSchema('clientDisconnected', {
-    clientId: { type: string8, length: 20 },
     userId: { type: string8, length: 36 }
 });
 

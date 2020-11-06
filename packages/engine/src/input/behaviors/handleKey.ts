@@ -13,13 +13,17 @@ import { LifecycleValue } from "../../common/enums/LifecycleValue";
  * @param args is argument object
  */
 
-export function handleKey(entity: Entity, args: { event: KeyboardEvent; value: BinaryType; }): any {
-  console.log("Handle key called");
+export function handleKey(entity: Entity, args: { event: KeyboardEvent; value: BinaryType }): any {
   // Get immutable reference to Input and check if the button is defined -- ignore undefined keys
   const input = getComponent(entity, Input);
-  if (input.schema.keyboardInputMap[args.event.key] === undefined)
+  if (input.schema.keyboardInputMap[args.event.key?.toLowerCase()] === undefined)
     return;
-  const mappedKey = input.schema.keyboardInputMap[args.event.key];
+  const mappedKey = input.schema.keyboardInputMap[args.event.key.toLowerCase()];
+  const element = args.event.target as HTMLElement;
+  // Сheck which excludes the possibility of controlling the character (car, etc.) when typing a text
+  if (element?.tagName === 'INPUT' || element?.tagName === 'SELECT' || element?.tagName === 'TEXTAREA') {
+    return;
+  }
 
   if (args.value === BinaryValue.ON) {
     // If the key is in the map but it's in the same state as now, let's skip it (debounce)
@@ -35,14 +39,14 @@ export function handleKey(entity: Entity, args: { event: KeyboardEvent; value: B
       return;
     }
     // Set type to BUTTON (up/down discrete state) and value to up or down, depending on what the value is set to
-    input.data.set(input.schema.keyboardInputMap[args.event.key], {
+    input.data.set(input.schema.keyboardInputMap[args.event.key.toLowerCase()], {
       type: InputType.BUTTON,
       value: args.value,
       lifecycleState: LifecycleValue.STARTED
     });
   }
   else {
-    input.data.set(input.schema.keyboardInputMap[args.event.key], {
+    input.data.set(input.schema.keyboardInputMap[args.event.key.toLowerCase()], {
       type: InputType.BUTTON,
       value: args.value,
       lifecycleState: LifecycleValue.ENDED

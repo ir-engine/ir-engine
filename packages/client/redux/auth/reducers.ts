@@ -49,7 +49,7 @@ const authReducer = (state = immutableState, action: any): any => {
         .set('isProcessing', (action as AuthProcessingAction).processing)
         .set('error', '');
     case LOGIN_USER_SUCCESS:
-      console.log('*****************Logged in****************');
+      // console.log('*****************Logged in****************');
       return state
         .set('isLoggedIn', true)
         .set('authUser', (action as LoginResultAction).authUser);
@@ -101,7 +101,8 @@ const authReducer = (state = immutableState, action: any): any => {
       return state.set('user', updatedUser);
     }
     case USER_UPDATED: {
-      return state.set('user', (action as UserUpdatedAction).user);
+      const updatedUser = Object.assign({}, state.get('user'), {...(action as UserUpdatedAction).user});
+      return state.set('user', updatedUser);
     }
   }
 

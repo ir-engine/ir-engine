@@ -6,8 +6,8 @@ import { addComponentFromSchema } from "../../../common/behaviors/addComponentFr
 import { addWorldColliders } from "../behaviors/addWorldColliders";
 
 export const WorldPrefab: Prefab = {
-    components: [{ type: TransformComponent, data: { position: [0, 0.01, 0]} }],
-    onCreate: [
+    components: [{ type: TransformComponent, data: { position: [0, 0.01, 0] } }],
+    onAfterCreate: [
         {
             behavior: addComponentFromSchema,
             args: {
@@ -15,7 +15,7 @@ export const WorldPrefab: Prefab = {
                 componentArgs: {
                     url: "models/worlds/Showroom.glb",
                     receiveShadow: true,
-                    castShadow: false,
+                    castShadow: true,
                     onLoaded: addWorldColliders
                 }
             }

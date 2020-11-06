@@ -222,6 +222,7 @@ export default class Renderer {
     this.renderMode.onResize();
   };
   takeScreenshot = async (width = 1920, height = 1080) => {
+    console.log("Taking screenshot");
     const { screenshotRenderer, camera } = this;
     const originalRenderer = this.renderer;
     this.renderer = screenshotRenderer;
@@ -264,6 +265,8 @@ export default class Renderer {
         child.onRendererChanged();
       }
     });
+    console.log("Returning blob");
+    console.log(blob);
     return blob;
   };
   dispose() {

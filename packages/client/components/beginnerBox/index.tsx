@@ -1,6 +1,6 @@
 import { Dialog, Fab, Snackbar, Tooltip, DialogTitle, DialogContent,DialogContentText, DialogActions,Button } from "@material-ui/core";
 import React, { FunctionComponent } from "react";
-import './style.scss';
+import styles from './BeginnerBox.module.scss';
 
 export const BeginnerBox: FunctionComponent = (props: any) => {
   const [snackBarOpened, setSnackBarOpened] = React.useState(localStorage.getItem('skipHelpHighlight') === 'true' ? false : true);
@@ -29,14 +29,14 @@ export const BeginnerBox: FunctionComponent = (props: any) => {
   const beginnerHintButton = 
     <>
       <Tooltip title="Info / Help" aria-label="Info / Help">
-        <Fab onClick={handleClickDialogOpen} className="helpButton" color="secondary" aria-label="Info / Help">i</Fab>
+        <Fab onClick={handleClickDialogOpen} className={styles.helpButton} color="secondary" aria-label="Info / Help">i</Fab>
       </Tooltip>
       <Snackbar
           anchorOrigin={{
             vertical: 'bottom',
             horizontal: 'right',
           }}
-          className='helpHintSnackBar'
+          className={styles.helpHintSnackBar}
           open={snackBarOpened}
           onClose={handleCSnackBarlose}
           autoHideDuration={10000}

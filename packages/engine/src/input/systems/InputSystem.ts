@@ -1,18 +1,31 @@
+import _ from "lodash";
+import { AssetLoaderState } from "../../assets/components/AssetLoaderState";
+import { LifecycleValue } from "../../common/enums/LifecycleValue";
+import { isClient } from "../../common/functions/isClient";
+import { DomEventBehaviorValue } from "../../common/interfaces/DomEventBehaviorValue";
+import { NumericalType } from "../../common/types/NumericalTypes";
+import { Engine } from "../../ecs/classes/Engine";
 import { Entity } from "../../ecs/classes/Entity";
 import { System } from '../../ecs/classes/System';
-import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
+import { Not } from "../../ecs/functions/ComponentFunctions";
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
+import { Network } from "../../networking/components/Network";
+import { NetworkObject } from "../../networking/components/NetworkObject";
+import { Server } from "../../networking/components/Server";
+import { handleUpdatesFromClients } from "../../networking/functions/handleUpdatesFromClients";
 import { handleInput } from '../behaviors/handleInput';
+import { handleInputPurge } from "../behaviors/handleInputPurge";
 import { initializeSession, processSession } from '../behaviors/WebXRInputBehaviors';
 import { Input } from '../components/Input';
+import { LocalInputReceiver } from "../components/LocalInputReceiver";
 import { WebXRRenderer } from '../components/WebXRRenderer';
 import { WebXRSession } from '../components/WebXRSession';
+import { InputType } from "../enums/InputType";
 import { initVR } from '../functions/WebXRFunctions';
-import { ListenerBindingData } from "../interfaces/ListenerBindingData";
-import { LocalInputReceiver } from "../components/LocalInputReceiver";
 import { InputValue } from "../interfaces/InputValue";
-import { NumericalType } from "../../common/types/NumericalTypes";
+import { ListenerBindingData } from "../interfaces/ListenerBindingData";
 import { InputAlias } from "../types/InputAlias";
-import { handleInputPurge } from "../behaviors/handleInputPurge";
 /**
  * Input System
  *
@@ -23,42 +36,49 @@ import { handleInputPurge } from "../behaviors/handleInputPurge";
  */
 
 export class InputSystem extends System {
-  readonly mainControllerId //= 0
-  readonly secondControllerId //= 1
-
+  updateType = SystemUpdateType.Fixed;
   // Temp/ref variables
   private _inputComponent: Input
+
+  // Client only variables
+  readonly mainControllerId //= 0
+  readonly secondControllerId //= 1
   private readonly boundListeners //= new Set()
   readonly useWebXR
   readonly onVRSupportRequested
-  private entityListeners:Map<Entity, Array<ListenerBindingData>>
+  private entityListeners: Map<Entity, Array<ListenerBindingData>>
 
-  constructor ({ useWebXR, onVRSupportRequested }) {
+  constructor({ useWebXR, onVRSupportRequested }) {
     super();
-    this.useWebXR = useWebXR;
-    this.onVRSupportRequested = onVRSupportRequested;
-    this.mainControllerId = 0;
-    this.secondControllerId = 1;
-    this.boundListeners = new Set();
-    this.entityListeners = new Map();
+    // Client only
+    if (isClient) {
+      console.log("Initing on client")
+      this.useWebXR = useWebXR;
+      this.onVRSupportRequested = onVRSupportRequested;
+      this.mainControllerId = 0;
+      this.secondControllerId = 1;
+      this.boundListeners = new Set();
+      this.entityListeners = new Map();
 
-    if (this.useWebXR) {
-      if (this.onVRSupportRequested) {
-        initVR(this.onVRSupportRequested);
-      } else initVR();
+      if (this.useWebXR) {
+        if (this.onVRSupportRequested) {
+          initVR(this.onVRSupportRequested);
+        } else initVR();
+      }
     }
   }
 
   dispose(): void {
     // disposeVR();
-    this._inputComponent = null;
   }
 
   /**
-   *
-   * @param {Number} delta Time since last frame
-   */
-  public execute(delta: number): void {
+ *
+ * @param {Number} delta Time since last frame
+ */
+  public execute = (isClient ? this.clientExecute : this.serverExecute);
+
+  public clientExecute(delta: number): void {
     // Handle XR input
     if (this.queryResults.xrRenderer.all.length > 0) {
       console.log("XR RENDERING");
@@ -66,31 +86,103 @@ export class InputSystem extends System {
       // Called when WebXRSession component is added to entity
       this.queryResults.xrSession.added?.forEach(entity => initializeSession(entity, { webXRRenderer }));
       // Called every frame on all WebXRSession components
-      this.queryResults.xrSession.all.forEach(entity => processSession(entity));
+      this.queryResults.xrSession.all?.forEach(entity => processSession(entity));
     }
 
-    // Called every frame on all input components
-    this.queryResults.inputs.all.forEach(entity => {
-      if (!hasComponent(entity, Input)) {
-        return;
+    // Apply input for local user input onto client
+    this.queryResults.localClientInput.all?.forEach(entity => {
+      // Apply input to local client
+      handleInput(entity, {}, delta);
+      const networkId = getComponent(entity, NetworkObject)?.networkId;
+      if(!networkId) return;
+
+      // Client sends input and *only* input to the server (for now)
+      // console.log("Handling input for entity ", entity.id);
+      const input = getComponent(entity, Input);
+
+      // If input is the same as last frame, return
+      if(_.isEqual(input.data, input.lastData))
+        return
+
+      // Repopulate lastData
+      input.lastData.clear();
+      input.data.forEach((value, key) => input.lastData.set(key, value));
+
+      let numInputs = 0;
+
+      // Create a schema for input to send
+      const inputs = {
+        networkId: networkId,
+        buttons: {},
+        axes1d: {},
+        axes2d: {}
+      };
+      
+      // Add all values in input component to schema
+      for (const [key, value] of input.data.entries()) {
+
+        switch (value.type) {
+          case InputType.BUTTON:
+            inputs.buttons[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
+            numInputs++;
+            break;
+          case InputType.ONEDIM:
+            if (value.lifecycleState !== LifecycleValue.UNCHANGED) {
+              inputs.axes1d[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
+              numInputs++;
+            }
+            break;
+          case InputType.TWODIM:
+            if (value.lifecycleState !== LifecycleValue.UNCHANGED) {
+              inputs.axes2d[key] = { input: key, valueX: value.value[0], valueY: value.value[1], lifecycleState: value.lifecycleState };
+              numInputs++;
+            }
+            break;
+          default:
+            console.error("Input type has no network handler (maybe we should add one?)");
+        }
       }
-      handleInput(entity, { }, delta);
+
+      // Convert to a message buffer
+      const message = inputs; // clientInputModel.toBuffer(inputs)
+      // TODO: Send unreliably
+      Network.instance.transport.sendReliableData(message); // Use default channel
     });
 
     // Called when input component is added to entity
-    this.queryResults.inputs.added?.forEach(entity => {
+    this.queryResults.localClientInput.added?.forEach(entity => {
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
+      if (this._inputComponent === undefined)
+        return console.warn("Tried to execute on a newly added input component, but it was undefined")
       // Call all behaviors in "onAdded" of input map
       this._inputComponent.schema.onAdded.forEach(behavior => {
         behavior.behavior(entity, { ...behavior.args });
       });
       // Bind DOM events to event behavior
-      const listenersDataArray:ListenerBindingData[] = [];
+      const listenersDataArray: ListenerBindingData[] = [];
       this.entityListeners.set(entity, listenersDataArray);
       Object.keys(this._inputComponent.schema.eventBindings)?.forEach((eventName: string) => {
-        this._inputComponent.schema.eventBindings[eventName].forEach((behaviorEntry: any) => {
-          const domElement = behaviorEntry.selector ? document.querySelector(behaviorEntry.selector) : document;
+        this._inputComponent.schema.eventBindings[eventName].forEach((behaviorEntry: DomEventBehaviorValue) => {
+          // const domParentElement:EventTarget = document;
+          let domParentElement: EventTarget = Engine.viewportElement ?? document;
+          if (behaviorEntry.element) {
+            switch (behaviorEntry.element) {
+              case "window":
+                domParentElement = window;
+                break;
+              case "document":
+                domParentElement = document;
+                break;
+              case "viewport":
+              default:
+                domParentElement = Engine.viewportElement;
+            }
+          }
+
+          const domElement = (behaviorEntry.selector && domParentElement instanceof Element) ? domParentElement.querySelector(behaviorEntry.selector) : domParentElement;
+          //console.log('InputSystem addEventListener:', eventName, domElement, ' (', behaviorEntry.element, behaviorEntry.selector, ')');
+
           if (domElement) {
             const listener = (event: Event) => behaviorEntry.behavior(entity, { event, ...behaviorEntry.args });
             domElement.addEventListener(eventName, listener);
@@ -109,10 +201,11 @@ export class InputSystem extends System {
     });
 
     // Called when input component is removed from entity
-    this.queryResults.inputs.removed.forEach(entity => {
+    this.queryResults.localClientInput.removed.forEach(entity => {
       // Get component reference
-      this._inputComponent = getComponent(entity, Input, true);
-
+      this._inputComponent = getComponent(entity, Input);
+      if (this._inputComponent === undefined)
+        return console.warn("Tried to execute on a newly added input component, but it was undefined")
       if (this._inputComponent.data.size) {
         this._inputComponent.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
           handleInputPurge(entity);
@@ -124,7 +217,7 @@ export class InputSystem extends System {
         behavior.behavior(entity, behavior.args);
       });
       // Unbind events from DOM
-      this.entityListeners.get(entity).forEach(listenerData => listenerData.domElement?.removeEventListener(listenerData.eventName, listenerData.listener) );
+      this.entityListeners.get(entity).forEach(listenerData => listenerData.domElement?.removeEventListener(listenerData.eventName, listenerData.listener));
 
       const bound = this.boundListeners[entity.id];
       if (bound) {
@@ -138,13 +231,54 @@ export class InputSystem extends System {
       this.entityListeners.delete(entity);
     });
   }
+
+  public serverExecute(delta: number): void {
+    // handle client input, apply to local objects and add to world state snapshot
+    handleUpdatesFromClients();
+    
+    // Called when input component is added to entity
+    this.queryResults.inputOnServer.added?.forEach(entity => {
+      // Get component reference
+      this._inputComponent = getComponent(entity, Input);
+
+      if (this._inputComponent === undefined)
+        return console.warn("Tried to execute on a newly added input component, but it was undefined")
+      // Call all behaviors in "onAdded" of input map
+      this._inputComponent.schema.onAdded?.forEach(behavior => {
+        behavior.behavior(entity, { ...behavior.args });
+      });
+    });
+
+    // Apply input for local user input onto client
+    this.queryResults.inputOnServer.all?.forEach(entity => {
+      handleInput(entity, {}, delta);
+    });
+
+    // Called when input component is removed from entity
+    this.queryResults.inputOnServer.removed?.forEach(entity => {
+      // Get component reference
+      this._inputComponent = getComponent(entity, Input);
+
+      // Call all behaviors in "onRemoved" of input map
+      this._inputComponent?.schema?.onRemoved?.forEach(behavior => {
+        behavior.behavior(entity, behavior.args);
+      });
+    });
+  }
 }
 
 /**
  * Queries must have components attribute which defines the list of components
  */
 InputSystem.queries = {
-  inputs: {
+  inputOnServer: {
+    components: [NetworkObject, Input, Server, Not(AssetLoaderState)],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  localClientInput: {
     components: [Input, LocalInputReceiver],
     listen: {
       added: true,

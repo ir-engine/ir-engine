@@ -5,8 +5,8 @@ import { Network } from '../components/Network';
 import { NetworkObject } from '../components/NetworkObject';
 import { createNetworkPrefab } from './createNetworkPrefab';
 
-export function initializeNetworkObject(ownerId: string, networkId: number, prefabType: number, position?: Vector3, rotation?: Quaternion) {
-
+export function initializeNetworkObject(ownerId: string, networkId: number, prefabType: string | number, position?: Vector3, rotation?: Quaternion): NetworkObject {
+console.log("Initializing network object")
   // Instantiate into the world
   const networkEntity = createNetworkPrefab(
     // Prefab from the Network singleton's schema, using the defaultClientPrefab as a key
@@ -21,14 +21,18 @@ export function initializeNetworkObject(ownerId: string, networkId: number, pref
   transform.position = position ? position: new Vector3();
   transform.rotation = rotation ? rotation : new Quaternion();
 
+  const networkObject = getComponent(networkEntity, NetworkObject);
+
   // Add network object to list Network.networkObjects with user
   Network.instance.networkObjects[networkId] =
   {
     ownerId,
     prefabType,
-    component: getComponent(networkEntity, NetworkObject)
+    component: networkObject
   };
 
   // Tell the client
   console.log("Object ", networkId, " added to the simulation for owner ", ownerId, " with a prefab type: ", prefabType);
+
+  return networkObject;
 }

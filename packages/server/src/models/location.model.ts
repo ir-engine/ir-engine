@@ -15,6 +15,10 @@ export default (app: Application): any => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    slugifiedName: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     maxUsersPerInstance: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -31,6 +35,8 @@ export default (app: Application): any => {
   (location as any).associate = (models: any): void => {
     (location as any).hasMany(models.instance);
     (location as any).hasOne(models.collection); // scene
+    (location as any).belongsToMany(models.user, { through: 'location_admin'});
+    (location as any).belongsTo(models.location_type, { foreignKey: 'locationType', defaultValue: 'private' });
   };
 
   return location;

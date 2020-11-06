@@ -3,8 +3,11 @@ import { SoundEffect } from "../components/SoundEffect";
 import { BackgroundMusic } from "../components/BackgroundMusic";
 import { PlaySoundEffect } from "../components/PlaySoundEffect";
 import { AudioEnabled } from "../components/AudioEnabled";
+import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 
 export class AudioSystem extends System {
+    updateType = SystemUpdateType.Fixed;
+
     audioReady: boolean
     callbacks: any[]
     queries: any
@@ -22,7 +25,7 @@ export class AudioSystem extends System {
         window.addEventListener('click', this.startAudio);
     }
 
-    dispose():void {
+    dispose(): void {
         this.audioReady = false;
         this.callbacks = [];
         window.removeEventListener('touchstart',this.startAudio);

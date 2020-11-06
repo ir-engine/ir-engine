@@ -1,22 +1,19 @@
+import { getComponent } from '../../../ecs/functions/EntityFunctions';
+import { Input } from '../../../input/components/Input';
+import { addState } from "../../../state/behaviors/addState";
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { setMovingState } from '../behaviors/setMovingState';
+import { DefaultInput } from '../../shared/DefaultInput';
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { onAnimationEnded } from '../behaviors/onAnimationEnded';
 import { setActorAnimation } from "../behaviors/setActorAnimation";
 import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
+import { setAppropriateStartWalkState } from '../behaviors/setStartWalkState';
+import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { CharacterComponent } from '../components/CharacterComponent';
-import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
 import { findVehicle } from '../functions/findVehicle';
-import { jumpIdle } from '../behaviors/jumpIdle';
-import { DefaultInput } from '../../shared/DefaultInput';
-import { addState } from '../../../state/behaviors/StateBehaviors';
-import { Input } from '../../../input/components/Input';
-import { getComponent } from '../../../ecs/functions/EntityFunctions';
-import { getLocalMovementDirection } from '../functions/getLocalMovementDirection';
-import { setJumpingState } from '../behaviors/setJumpingState';
 
 export const DropIdleState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
@@ -38,7 +35,7 @@ export const DropIdleState: StateSchemaValue = {
       {
         behavior: setActorAnimation,
         args: {
-          name: 'idle6',
+          name: 'idle',
           transitionDuration: 0.5
         }
       }
@@ -60,9 +57,20 @@ export const DropIdleState: StateSchemaValue = {
         if (input.data.has(DefaultInput.JUMP))
           return addState(entity, { state: CharacterStateTypes.JUMP_IDLE });
         // Check if we're trying to move
-        setMovingState(entity, {
-          transitionToState: CharacterStateTypes.WALK_START_FORWARD
-        });
+        if (input.data.has(DefaultInput.SPRINT)) {
+
+          if (input.data.has(DefaultInput.FORWARD)) {
+            return addState(entity, { state: CharacterStateTypes.SPRINT })
+          } else if (input.data.has(DefaultInput.LEFT)) {
+            return addState(entity, { state: CharacterStateTypes.SPRINT_LEFT })
+          } else if (input.data.has(DefaultInput.RIGHT)) {
+            return addState(entity, { state: CharacterStateTypes.SPRINT_RIGHT })
+          } else if (input.data.has(DefaultInput.BACKWARD)) {
+            return addState(entity, { state: CharacterStateTypes.SPRINT_BACKWARD })
+          }
+        }
+
+        setAppropriateStartWalkState(entity);
       }
     }
   },

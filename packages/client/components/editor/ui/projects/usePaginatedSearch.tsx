@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useFetch } from "use-http";
 
@@ -48,7 +47,7 @@ export default function usePaginatedSearch(path, queryParams, options = {}) {
       },
       onNewData: (data, newData) => {
         if (!cursor) {
-          return { entries: newData, meta: { next_cursor: null } }
+          return { entries: newData, meta: { next_cursor: null } };
         } else {
           return {
             entries: [...data.entries, ...newData.entries],

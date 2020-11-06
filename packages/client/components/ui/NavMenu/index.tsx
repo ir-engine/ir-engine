@@ -1,19 +1,17 @@
 import React from 'react';
 import NavUserWidget from '../NavUserWidget';
 import AppBar from '@material-ui/core/AppBar';
-import Router from 'next/router';
-import Logo from '../Logo';
-import './style.scss';
+import styles from './NavMenu.module.scss';
 
-export const NavMenu = (): any => {
-  const homeNav = (): void => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    Router.push('/');
-  };
+interface Props {
+    login?: boolean;
+}
+
+export const NavMenu = (props: Props): any => {
+  const { login } = props;
   return (
-    <AppBar className="appbar">
-      <Logo onClick={homeNav} />
-      <NavUserWidget />
+    <AppBar className={styles.appbar}>
+      <NavUserWidget login={login} />
     </AppBar>
   );
 };

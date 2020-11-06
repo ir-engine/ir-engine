@@ -32,7 +32,7 @@ export default class AssetManifestSource extends BaseSource {
   loaded: boolean;
   searchDebounceTimeout: number;
   searchPlaceholder: any;
-  fuse: Fuse<unknown, { shouldSort: boolean; threshold: number; location: number; distance: number; maxPatternLength: number; minMatchCharLength: number; keys: string[] }>;
+  fuse: Fuse<any>;
   constructor(editor, name, manifestUrl) {
     super();
     this.editor = editor;
@@ -48,8 +48,10 @@ export default class AssetManifestSource extends BaseSource {
     this.searchDebounceTimeout = 0;
   }
   async load() {
-    const response = await this.editor.api.fetch(this.manifestUrl);
-    const manifest = await response.json();
+    const response = await this.editor.api.fetchUrl(this.manifestUrl);
+    const manifest = await response.json().catch(err => {
+      console.log(err);
+    });
     if (manifest.searchPlaceholder) {
       this.searchPlaceholder = manifest.searchPlaceholder;
     }
