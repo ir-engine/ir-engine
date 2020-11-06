@@ -109,7 +109,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       }
     ]
   },
-  skybox: {
+  'skybox': {
     behaviors: [
       {
         behavior: createSkybox,
@@ -127,7 +127,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       }
     ]
   },
-  image: {
+  'image': {
     behaviors: [
       {
         behavior: addObject3DComponent,
@@ -145,7 +145,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       }
     ]
   },
-  transform: {
+  'transform': {
     behaviors: [
       {
         // TODO: This is a js transform, we might need to handle binding this properly
@@ -155,7 +155,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       }
     ]
   },
-  visible: {
+  'visible': {
     behaviors: [
       {
         behavior: addTagComponentFromBehavior,
@@ -163,7 +163,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       }
     ]
   },
-  walkable: {
+  'walkable': {
     behaviors: [
       {
         behavior: addTagComponentFromBehavior,
