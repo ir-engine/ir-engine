@@ -1,5 +1,4 @@
-import { SystemAttributes, System } from '../../ecs/classes/System';
-import { Engine } from '../../ecs/classes/Engine';
+import { System } from '../../ecs/classes/System';
 import { MediaStreamComponent } from '../components/MediaStreamComponent';
 import { Network } from '../components/Network';
 import { localMediaConstraints } from '../constants/VideoConstants';
@@ -82,28 +81,6 @@ export class MediaStreamSystem extends System {
 
   getScreenAudioPausedState () {
     return MediaStreamComponent.instance.screenShareAudioPaused;
-  }
-
-  async toggleWebcamVideoPauseState () {
-    const videoPaused = MediaStreamComponent.instance.toggleVideoPaused();
-    if (videoPaused) await (Network.instance.transport as any).pauseProducer(MediaStreamComponent.instance.camVideoProducer);
-    else await (Network.instance.transport as any).resumeProducer(MediaStreamComponent.instance.camVideoProducer);
-  }
-
-  async toggleWebcamAudioPauseState () {
-    const audioPaused = MediaStreamComponent.instance.toggleAudioPaused();
-    if (audioPaused) await (Network.instance.transport as any).pauseProducer(MediaStreamComponent.instance.camAudioProducer);
-    else await (Network.instance.transport as any).resumeProducer(MediaStreamComponent.instance.camAudioProducer);
-  }
-
-  async toggleScreenshareVideoPauseState () {
-    if (this.getScreenPausedState()) { await (Network.instance.transport as any).pauseProducer(MediaStreamComponent.instance.screenVideoProducer); } else await (Network.instance.transport as any).resumeProducer(MediaStreamComponent.instance.screenVideoProducer);
-    MediaStreamComponent.instance.screenShareVideoPaused = !MediaStreamComponent.instance.screenShareVideoPaused;
-  }
-
-  async toggleScreenshareAudioPauseState () {
-    if (this.getScreenAudioPausedState()) { await (Network.instance.transport as any).pauseProducer(MediaStreamComponent.instance.screenAudioProducer); } else await (Network.instance.transport as any).resumeProducer(MediaStreamComponent.instance.screenAudioProducer);
-    MediaStreamComponent.instance.screenShareAudioPaused = !MediaStreamComponent.instance.screenShareAudioPaused;
   }
 
   removeVideoAudio (consumer: any) {
