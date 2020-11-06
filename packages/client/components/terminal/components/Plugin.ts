@@ -1,3 +1,5 @@
+import Api from "../../editor/api/Api";
+
 export default class Plugin {
   static displayName = '';
   static version = '1.0.0';
@@ -10,7 +12,7 @@ export default class Plugin {
   descriptions = {};
   shortcuts = {};
 
-  api: any;
+  api: Api;
   config: {};
   updateApi: (newApi: any) => void;
   getPublicMethods: () => {};

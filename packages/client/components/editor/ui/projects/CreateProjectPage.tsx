@@ -95,7 +95,7 @@ function CreateProjectPage({ api }: { api: Api }) {
   );
 
   // MODIFIED FROM ORIGINAL
-  const { loading, error, entries } = usePaginatedSearch(`${api.apiURL}${(configs as any).API_MEDIA_SEARCH_ROUTE}`, params);
+  const { loading, error, entries } = usePaginatedSearch(`${api.apiURL}/media-search`, params);
   // const { loading, error, entries } = { loading: false, error: false, entries: [] };
   const hasMore = false;
   const filteredEntries = Array.isArray(entries) ? entries.map(result => ({
