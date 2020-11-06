@@ -4,7 +4,6 @@ import generateShortId from '../util/generate-short-id';
 
 const COLLECTION_API_ENDPOINT = `https://localhost:3030/collection`;
 
-console.log("COLLECTION_API_ENDPOINT is ", COLLECTION_API_ENDPOINT);
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const collection = sequelizeClient.define('collection', {
