@@ -23,7 +23,7 @@ const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
 
 interface Props {
   setAppLoaded?: any
-  sceneId: string
+  sceneId?: string
 }
 
 const mapStateToProps = (state: any): any => {
@@ -42,7 +42,7 @@ export const EnginePage = (props: Props) => {
 
   const [progressEntity, setProgressEntity] = useState('');
 
-  //all scene entities is loaded 
+  //all scene entities are loaded 
   const onSceneLoaded = (event: CustomEvent): void => {
     if (event.detail.loaded) {
       store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));

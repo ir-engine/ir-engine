@@ -53,7 +53,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 const EditorRoomPage = (props: Props) => {
-  const { projectId } = useRouter().query as string;
+  const { projectId } = useRouter().query as any;
 
   const {
     appState,
