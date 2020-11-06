@@ -90,7 +90,7 @@ export default class Api extends EventEmitter {
     super();
     if (process.browser) {
       const { protocol, host } = new URL((window as any).location.href);
-      this.serverURL = protocol + "//" + host;
+      this.serverURL = SERVER_URL;
     }
     
     this.apiURL = `${SERVER_URL}`;
@@ -148,7 +148,7 @@ export default class Api extends EventEmitter {
       console.log(err);
     });
 
-    if (!Array.isArray(json.projects) || json.projects) {
+    if (!Array.isArray(json.projects) || json.projects == null) {
       throw new Error(`Error fetching projects: ${json.error || "Unknown error."}`);
     }
 

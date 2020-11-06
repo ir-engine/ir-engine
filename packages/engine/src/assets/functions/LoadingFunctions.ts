@@ -19,6 +19,10 @@ export function loadAssets (
 export function loadAsset (url: AssetUrl, entity: Entity, onAssetLoaded: AssetsLoadedHandler): void {
   if (!AssetVault.instance.assets.has(url)) {
     const loader = getLoaderForAssetType(getAssetType(url));
+    if (loader == null) {
+      console.error('Loader failed on ', url);
+      return;
+    }
     loader.load(url, resource => {
       AssetVault.instance.assets.set(url, resource);
       onAssetLoaded(entity, { asset: resource });
