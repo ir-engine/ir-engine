@@ -49,25 +49,38 @@ import { hasRegisteredComponent } from '../../ecs/functions/ComponentFunctions';
 import { SkyboxComponent } from '../../scene/components/SkyboxComponent';
 import { Engine } from '../../ecs/classes/Engine';
 
+export function addComponentFromBehavior<C> (
+  entity: Entity,
+  args: { 
+    component: ComponentConstructor<Component<C>> 
+    objArgs: any
+  }
+): void {
+  console.log("Adding component with values");
+  console.log(args);
+  addComponent(entity, args.component, args.objArgs);
+}
+
 export function addTagComponentFromBehavior<C> (
   entity: Entity,
   args: { component: ComponentConstructor<Component<C>> }
 ): void {
-  addComponent(entity, args.component, args);
+  addComponent(entity, args.component);
 }
 
 const getClassOf = Function.prototype.call.bind(Object.prototype.toString);
 const isObj = o => o?.constructor === Object;
-
 
 export const addObject3DComponent: Behavior = (
   entity: Entity,
   args: { obj3d: any; obj3dArgs?: any; parentEntity?: Entity }
 ) => {
 
-  const isObject3d =(typeof args.obj3d === 'object');
-  const object3d =
-  isObject3d ? args.obj3d : new args.obj3d(args.obj3dArgs);
+  const isObject3d = typeof args.obj3d === 'object';
+  let object3d;
+  
+  if(isObject3d) object3d = args.obj3d
+  else object3d = new args.obj3d(args.obj3dArgs)
 
   // object3d = new args.obj(args.objArgs)
   addComponent(entity, Object3DComponent, { value: object3d });
@@ -199,7 +212,7 @@ export function getComponentTags (object3d: Object3D): Array<Component<any>> {
   } else if ((object3d as any).isScene) {
     components.push(SceneTagComponent as any);
   } else if ((object3d as any).isSky) {
-    components.push(SceneTagComponent as any);
+    components.push(SkyboxComponent as any);
   }
   return components;
 }

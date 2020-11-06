@@ -49,8 +49,6 @@ const locationReducer = (state = immutableState, action: LocationsAction): any =
       return state.set('fetchingCurrentLocation', true);
 
     case LOCATION_RETRIEVED:
-      console.log('PANTS');
-      console.log(action);
       newValues = (action as LocationRetrievedAction).location;
       updateMap = new Map();
       if (newValues.locationType == null) {
