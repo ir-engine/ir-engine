@@ -2,9 +2,10 @@ import { BaseSource } from "./sources";
 import { ItemTypes } from "../dnd";
 import ModelSourcePanel from "./ModelSourcePanel";
 import ModelNode from "../../nodes/ModelNode";
+import Api from "../../api/Api";
 export default class ModelMediaSource extends BaseSource {
   component: typeof ModelSourcePanel;
-  api: any;
+  api: Api;
   constructor(api) {
     super();
     this.component = ModelSourcePanel;

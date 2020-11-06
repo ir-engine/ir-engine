@@ -159,7 +159,7 @@ export default class FloorPlanNode extends EditorNodeMixin(FloorPlan) {
         regionMinSize: this.regionMinSize,
         wasmUrl: new URL(
           recastWasmUrl,
-          (configs as any).BASE_ASSETS_PATH || (window as any).location
+          (configs as any).APP_URL || (window as any).location
         ).href
       },
       signal

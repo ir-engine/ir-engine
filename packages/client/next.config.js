@@ -4,32 +4,13 @@ process.env.NODE_CONFIG_DIR = path.join(appRootPath.path, 'packages/client/confi
 const conf = require('config');
 const withImages = require('next-images')
 
-console.log({
-  API_SERVER: process.env.API_SERVER,
-  API_SERVER_ADDRESS: process.env.API_SERVER_ADDRESS,
-  API_RESOLVE_MEDIA_ROUTE: process.env.API_RESOLVE_MEDIA_ROUTE,
-  API_PROJECTS_ROUTE: process.env.API_PROJECTS_ROUTE,
-  USE_HTTPS: process.env.USE_HTTPS === 'true',
-  API_MEDIA_ROUTE: process.env.API_MEDIA_ROUTE
-})
-
 module.exports = withImages(
   {
     /* config options here */
     publicRuntimeConfig: conf.get('publicRuntimeConfig'),
     env: {
-      API_MEDIA_ROUTE: process.env.API_MEDIA_ROUTE,
-      API_MEDIA_SEARCH_ROUTE: process.env.API_MEDIA_SEARCH_ROUTE,
-      API_META_ROUTE: process.env.API_META_ROUTE,
-      API_PROJECTS_ROUTE: process.env.API_PROJECTS_ROUTE,
-      API_RESOLVE_MEDIA_ROUTE: process.env.API_RESOLVE_MEDIA_ROUTE,
-      API_SCENES_ROUTE: process.env.API_SCENES_ROUTE,
-      API_SERVER_ADDRESS: process.env.API_SERVER_ADDRESS,
-      API_SERVER: process.env.API_SERVER,
-      API_SOCKET_ENDPOINT: process.env.API_SOCKET_ENDPOINT,
-      IS_XR3: process.env.IS_XR3 === 'true',
-      USE_DIRECT_UPLOAD_API: process.env.USE_DIRECT_UPLOAD_API === 'true',
-      USE_HTTPS: process.env.USE_HTTPS === 'true',
+      APP_URL: process.env.APP_URL,
+      SERVER_URL: process.env.SERVER_URL
     },
     dir: './',
     distDir: './.next',
