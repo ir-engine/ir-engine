@@ -6,6 +6,7 @@ import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { Input } from "../components/Input";
 import { normalizeMouseCoordinates } from '../../common/functions/normalizeMouseCoordinates';
+import { DefaultInput } from "../../templates/shared/DefaultInput";
 
 /**
  * Touch move
@@ -17,8 +18,24 @@ export const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEv
   const input = getComponent(entity, Input);
   const normalizedPosition = normalizeMouseCoordinates(args.event.touches[0].clientX, args.event.touches[0].clientY, window.innerWidth, window.innerHeight);
   const touchPosition: [number, number] = [normalizedPosition.x, normalizedPosition.y];
-  const mappedPositionInput = input.schema.touchInputMap?.axes[TouchInputs.Touch1Position];
 
+  // Store raw pointer positions to use in other behaviours, like gesture detection
+  input.data.set(DefaultInput.POINTER1_POSITION, {
+    type: InputType.TWODIM,
+    value: touchPosition,
+    lifecycleState: LifecycleValue.CHANGED // TODO: should we handle lifecycle here?
+  });
+  if (args.event.touches.length >= 2) {
+    const normalizedPosition2 = normalizeMouseCoordinates(args.event.touches[1].clientX, args.event.touches[1].clientY, window.innerWidth, window.innerHeight);
+
+    input.data.set(DefaultInput.POINTER2_POSITION, {
+      type: InputType.TWODIM,
+      value: [normalizedPosition2.x, normalizedPosition2.y],
+      lifecycleState: LifecycleValue.CHANGED // TODO: should we handle lifecycle here?
+    });
+  }
+
+  const mappedPositionInput = input.schema.touchInputMap?.axes[TouchInputs.Touch1Position];
   if (!mappedPositionInput) {
     return;
   }
