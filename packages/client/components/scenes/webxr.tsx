@@ -1,3 +1,4 @@
+import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
 import { ThemeProvider } from '@material-ui/core';
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { addObject3DComponent } from '@xr3ngine/engine/src/common/behaviors/Object3DBehaviors';
@@ -12,12 +13,15 @@ import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/Chara
 import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacterWithEmptyInputSchema';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { WorldPrefab } from '@xr3ngine/engine/src/templates/world/prefabs/WorldPrefab';
+import { rigidBodyBox3 } from '@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox3';
+import { rigidBodyBox4 } from '@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox4';
+import { rigidBodyBox5 } from '@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox5';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import dynamic from 'next/dynamic';
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { AmbientLight } from 'three';
+import { AmbientLight, TextureLoader, EquirectangularReflectionMapping, sRGBEncoding } from 'three';
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import { generalStateList, setAppOnBoardingStep } from '../../redux/app/actions';
 import { selectAppOnBoardingStep } from '../../redux/app/selector';
@@ -33,6 +37,7 @@ import MediaIconsBox from "../ui/MediaIconsBox";
 import OnBoardingBox from "../ui/OnBoardingBox";
 import OnBoardingDialog from '../ui/OnBoardingDialog';
 import TooltipContainer from '../ui/TooltipContainer';
+import { initVR } from '@xr3ngine/engine/src/input/functions/WebXRFunctions';
 
 const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
@@ -111,16 +116,37 @@ export const EnginePage: FunctionComponent = (props: any) => {
     );
     cameraTransform.position.set(0, 1.2, 3);
 
-    // createPrefab(WorldPrefab);
+    const envMapURL = '../hdr/mvp-cloud-skybox.png';
+
+   const loader = new TextureLoader();
+   (loader as any).load(
+       envMapURL,
+       (data) => {
+         const map = loader.load(envMapURL);
+         map.mapping = EquirectangularReflectionMapping;
+         map.encoding = sRGBEncoding;
+         Engine.scene.environment = map;
+         Engine.scene.background = map;
+       },
+       null
+     );
+
+
+    createPrefab(WorldPrefab);
     createPrefab(staticWorldColliders);
+    createPrefab(rigidBodyBox3);
+    createPrefab(rigidBodyBox4);
+    createPrefab(rigidBodyBox5);
 
     const actorEntity = createPrefab(PlayerCharacter);
     setActorEntity(actorEntity);
+    navigator.xr ? initVR(actorEntity) : '';
 
     return (): void => {
       document.removeEventListener('scene-loaded-entity', sceneLoadedEntity);
       document.removeEventListener('scene-loaded', sceneLoaded);
-      resetEngine();
+      document.location.reload();
+      //resetEngine();
     };
   }, []);
 

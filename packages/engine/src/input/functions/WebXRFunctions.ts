@@ -54,7 +54,7 @@ export function initControllersVR(actorEntity) {
 
 
 
-    new GLTFLoader().load('models/webxr/controllers/valve_controller_knu_1_0_right.glb', obj => {
+    new GLTFLoader().load('../models/webxr/controllers/valve_controller_knu_1_0_right.glb', obj => {
 
     //  new TextureLoader().load('./models/controllers/valve_controller_knu_1_0_right_spec.png',
   //    texture => {
