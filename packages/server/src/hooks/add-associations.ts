@@ -1,4 +1,5 @@
 import { HookContext } from '@feathersjs/feathers';
+import logger from '../app/logger';
 
 function processInclude (includeCollection: any, context: HookContext): any {
   if (!includeCollection) {
@@ -28,8 +29,8 @@ export default (options = {}): any => {
       context.params.sequelize = sequelize;
       return context;
     } catch (err) {
-      console.log('Add association error');
-      console.log(err);
+      logger.error('Add association error');
+      logger.error(err);
     }
   };
 };

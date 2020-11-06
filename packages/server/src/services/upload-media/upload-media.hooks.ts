@@ -16,41 +16,66 @@ import makeS3FilesPublic from '../../hooks/make-s3-files-public';
 
 const { authenticate } = authentication.hooks;
 
+const logRequest = (options = {}) => {
+  return async (context: HookContext): Promise<HookContext> => {
+    const { data, params } = context;
+    if(context.error){
+      console.log("***** Error");
+      console.log(context.error);
+    }
+    const body = params.body || {};
+    console.log(body);
+    return context;
+  };
+}
+
 const createOwnedFile = (options = {}) => {
   return async (context: HookContext): Promise<HookContext> => {
     const { data, params } = context;
     const body = params.body || {};
 
     const domain: string = config.aws.cloudfront.domain;
-    const resourceData = {
-      id: body.fileId,
-      name: data.name || body.name,
-      url: data.uri || data.url,
-      key: (data.uri || data.url)
-        .replace(`https://${domain}/`, ''),
-
-      content_type: data.mimeType || params.mimeType,
-      userId: body.userId,
-      metadata: data.metadata || body.metadata
-    };
-
-    /* if (context.params.skipResourceCreation === true) {
-      context.result = await context.app.service('owned-file').patch(context.params.patchId, {
-        url: resourceData.url,
-        metadata: resourceData.metadata
+    let savedFile;
+    if (body.projectId) { // Check if projectId is sent by the client and update thumbnail URL instead of creating new resource
+      const { thumbnailOwnedFileId } = await context.app.service('collection').Model.findOne({
+        where: {
+          sid: body.projectId
+        }
       })
-    } else { */
-    if (context.params.parentResourceId) {
-      (resourceData as any).parentResourceId = context.params.parentResourceId;
-    }
-    (resourceData as any).type = getBasicMimetype(resourceData.content_type);
+      savedFile = await context.app.service('static-resource').patch(thumbnailOwnedFileId, {
+        url: data.uri || data.url
+      });
+    } else {
+        const resourceData = {
+        id: body.fileId,
+        name: data.name || body.name,
+        url: data.uri || data.url,
+        key: (data.uri || data.url)
+          .replace(`https://${domain}/`, ''),
 
-    // Remap input from Editor to fit
-    const modifiedResourceData = {
-      ...resourceData,
-      mimeType: resourceData.content_type
-    };
-    const savedFile = await context.app.service('static-resource').create(modifiedResourceData);
+        content_type: data.mimeType || params.mimeType,
+        userId: body.userId,
+        metadata: data.metadata || body.metadata
+      };
+
+      /* if (context.params.skipResourceCreation === true) {
+        context.result = await context.app.service('owned-file').patch(context.params.patchId, {
+          url: resourceData.url,
+          metadata: resourceData.metadata
+        })
+      } else { */
+      if (context.params.parentResourceId) {
+        (resourceData as any).parentResourceId = context.params.parentResourceId;
+      }
+      (resourceData as any).type = getBasicMimetype(resourceData.content_type);
+
+      // Remap input from Editor to fit
+      const modifiedResourceData = {
+        ...resourceData,
+        mimeType: resourceData.content_type
+      };
+      savedFile = await context.app.service('static-resource').create(modifiedResourceData);
+    }
     context.result = {
       // This is to fulfill the editor response, as editor is expecting the below object
       file_id: savedFile.id,
@@ -68,7 +93,7 @@ const createOwnedFile = (options = {}) => {
 
 export default {
   before: {
-    all: [],
+    all: [logRequest()],
     find: [disallow()],
     get: [disallow()],
     create: [authenticate('jwt'), attachOwnerIdInSavingContact('userId'), addUriToFile(), makeS3FilesPublic()],
@@ -88,7 +113,7 @@ export default {
   },
 
   error: {
-    all: [],
+    all: [logRequest()],
     find: [],
     get: [],
     create: [],

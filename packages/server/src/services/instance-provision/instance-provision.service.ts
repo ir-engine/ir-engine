@@ -1,5 +1,6 @@
 // Initializes the `instance-provision` service on path `/instance-provision`
 import { ServiceAddons } from '@feathersjs/feathers';
+import logger from '../../app/logger';
 import { Application } from '../../declarations';
 import { InstanceProvision } from './instance-provision.class';
 import hooks from './instance-provision.hooks';
@@ -33,7 +34,7 @@ export default (app: Application): any => {
         locationId: data.locationId
       });
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       throw err;
     }
   });

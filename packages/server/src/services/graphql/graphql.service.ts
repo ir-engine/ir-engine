@@ -8,6 +8,7 @@ import jwt from 'jsonwebtoken';
 import config from '../../config';
 
 import { Sequelize } from 'sequelize';
+import logger from '../../app/logger';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -28,7 +29,6 @@ export default (app: Application): any => {
     const declarations: any[] = [];
     Object.keys(models).forEach((model: any) => {
       declarations.push({ model: model, actions });
-      console.log(sequelizeClient.modelManager.getModel(model));
     });
 
     // TO-DO: Move Seqeuelize key assocation somewhere else -- for now it's working here
@@ -83,7 +83,7 @@ export default (app: Application): any => {
             user: user.dataValues
           };
         } catch (err) {
-          console.log(err);
+          logger.error(err);
           throw err;
         }
       },
@@ -104,7 +104,7 @@ export default (app: Application): any => {
               user: user.dataValues
             };
           } catch (err) {
-            console.log(err);
+            logger.error(err);
             throw err;
           }
         }

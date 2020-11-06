@@ -2,7 +2,8 @@ $mobileControllButtonsSize:3em;
 .drawerBoxContainer{
     position: absolute;
     bottom: 150px;
-    right: 40px;
+    right: 15px;
+    z-index: 2;
     .drawerBox{        
         margin: 0 auto;
         width: fit-content;    
@@ -23,6 +24,7 @@ $mobileControllButtonsSize:3em;
             height: 2em;
             color: white;        
             margin: 0.5em;
+            cursor: pointer;
         }
     }
 }

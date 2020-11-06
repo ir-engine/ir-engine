@@ -50,7 +50,7 @@ export default class App extends Component<AppProps, AppState> {
     return (
       // <ApiContextProvider value={api}>
         // <ThemeProvider theme={theme}>
-          {/* <Router basename={process.env.ROUTER_BASE_PATH}>
+          {/* <Router basename={"/editor"}>
             <GlobalStyle />
             <Column
             >

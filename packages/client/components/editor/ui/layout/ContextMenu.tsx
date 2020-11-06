@@ -84,12 +84,11 @@ export const ContextMenuStyles = createGlobalStyle<{ theme: Theme}>`
     vertical-align: middle;
   }
 `;
-export const ContextMenu: React.FC<{}> = ({ children, ...rest }) => {
-  const theme = React.useContext(ThemeContext);
+export const ContextMenu: React.FC<{ id: string }> = ({ children, id, ...rest }) => {
   return (
     <>
-      <ReactContextMenu id="ContextMenu" {...rest}>{children}</ReactContextMenu>
-      <ContextMenuStyles theme={theme} />
+      <ReactContextMenu id={id} {...rest}>{children}</ReactContextMenu>
+      <ContextMenuStyles />
     </>
   );
 };

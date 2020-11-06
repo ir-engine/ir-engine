@@ -7,6 +7,7 @@ import collectAnalytics from '../../hooks/collect-analytics';
 import unsetSelfPartyOwner from '../../hooks/unset-self-party-owner';
 import checkPartyInstanceSize from '../../hooks/check-party-instance-size';
 import {extractLoggedInUserFromParams} from "../auth-management/auth-management.utils";
+import logger from '../../app/logger';
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
@@ -44,7 +45,7 @@ export default {
             context.params.oldInstanceId = user.instanceId;
             return context;
           } catch(err) {
-            console.log(err);
+            logger.error(err);
           }
         },
         partyPermissionAuthenticate()

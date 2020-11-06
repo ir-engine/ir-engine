@@ -4,6 +4,7 @@ import { Application } from '../../declarations';
 import { Login } from './login.class';
 import hooks from './login.hooks';
 import config from '../../config';
+import logger from '../../app/logger';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -19,7 +20,7 @@ function redirect (req, res, next): Promise<any> {
     }
     return res.redirect(`${(config.client.url)}/auth/magiclink?type=login&token=${(res.data.token as string)}`);
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     throw err;
   }
 }

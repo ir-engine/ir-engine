@@ -181,7 +181,7 @@ export function removeComponent<C extends Component<C>>(
 
     // Check if the entity was a ghost waiting for the last system state component to be removed
     if (entity.componentTypes.length === 0) {
-      entity.remove();
+      removeEntity(entity);
     }
   } return component;
 }

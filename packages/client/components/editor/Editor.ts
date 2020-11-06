@@ -222,7 +222,7 @@ export default class Editor extends EventEmitter {
 
   async installAssetSource(manifestUrl) {
     const proxiedUrl = this.api.proxyUrl(new URL(manifestUrl, (window as any).location).href);
-    const res = await this.api.fetch(proxiedUrl);
+    const res = await this.api.fetchUrl(proxiedUrl);
     const json = await res.json();
     this.sources.push(new AssetManifestSource(this, json.name, manifestUrl));
     this.emit("settingsChanged");
@@ -518,11 +518,13 @@ export default class Editor extends EventEmitter {
   }
 
   async takeScreenshot(width, height) {
-    return this.renderer.takeScreenshot(width, height);
+    return await this.renderer.takeScreenshot(width, height);
   }
 
   async generateFileThumbnail(file, width, height) {
     const url = URL.createObjectURL(file);
+    console.log("URL IS")
+    console.log(url);
 
     let blob;
 
