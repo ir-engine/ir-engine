@@ -13,7 +13,7 @@ export const WorldPrefab: Prefab = {
             args: {
                 component: AssetLoader,
                 componentArgs: {
-                    url: "models/worlds/island_zero_dark_green2.glb",
+                    url: "../models/worlds/island_zero_dark_green2.glb",
                     receiveShadow: true,
                     castShadow: true,
                     onLoaded: addWorldColliders

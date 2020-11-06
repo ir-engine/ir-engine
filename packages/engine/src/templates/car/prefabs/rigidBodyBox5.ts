@@ -14,9 +14,9 @@ const boxMaterial = new MeshPhongMaterial({ color: new Color(0.81341055333614349
 const boxMesh = new Mesh(boxGeometry, boxMaterial);
 boxMesh.name = 'simpleBox';
 
-export const rigidBodyBox3: Prefab = {
+export const rigidBodyBox5: Prefab = {
     components: [
-      { type: TransformComponent, data: { position: [0.7, 2,-0.7]} },
+      { type: TransformComponent, data: { position: [0.7, 5,-0.7]} },
       { type: ColliderComponent, data: { type: 'box', scale: [0.3, 0.3, 0.3], mass: 10 }},
       { type: RigidBody }
     ],

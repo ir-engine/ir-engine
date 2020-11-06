@@ -78,16 +78,9 @@ export class InputSystem extends System {
         this.mainControllerId = xRControllers.physicsBody1;
         this.secondControllerId = xRControllers.physicsBody2;
       }
-      //updatePhysics(entity)
+      updatePhysics(entity)
     });
     this.queryResults.controllersComponent.removed?.forEach(entity => removePhysics(entity, { controllerPhysicalBody1: this.mainControllerId, controllerPhysicalBody2:  this.secondControllerId }));
-    // Called every frame on all input components
-    this.queryResults.inputs.all.forEach(entity => {
-      if (!hasComponent(entity, Input)) {
-        return;
-      }
-      handleInput(entity, { }, delta);
-    });
 
     // Apply input for local user input onto client
     this.queryResults.localClientInput.all?.forEach(entity => {
