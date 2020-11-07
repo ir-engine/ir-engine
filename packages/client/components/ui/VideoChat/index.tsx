@@ -33,7 +33,7 @@ const VideoChat = observer((props: Props) => {
   const currentLocation = locationState.get('currentLocation').get('location');
   const gsProvision = async () => {
     if (MediaStreamComponent.instance.mediaStream == null) {
-      await sendCameraStreams(currentLocation?.locationType === 'showroom' ? 'instance' : user.partyId);
+      await sendCameraStreams(currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId);
     } else {
       console.log('Ending video chat');
       await endVideoChat();

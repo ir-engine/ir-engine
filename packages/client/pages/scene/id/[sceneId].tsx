@@ -16,8 +16,7 @@ import { selectPartyState } from '../../../redux/party/selector';
 import { selectLocationState } from '../../../redux/location/selector';
 import { doLoginAuto } from '../../../redux/auth/service';
 import {
-    getLocation,
-    joinLocationParty
+    getLocation
 } from '../../../redux/location/service';
 import {
     connectToInstanceServer,
@@ -33,7 +32,6 @@ interface Props {
     instanceConnectionState?: any;
     doLoginAuto?: typeof doLoginAuto;
     getLocation?: typeof getLocation;
-    joinLocationParty?: typeof joinLocationParty;
     connectToInstanceServer?: typeof connectToInstanceServer;
     provisionInstanceServer?: typeof provisionInstanceServer;
 }
@@ -51,7 +49,6 @@ const mapStateToProps = (state: any): any => {
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
     getLocation: bindActionCreators(getLocation, dispatch),
-    joinLocationParty: bindActionCreators(joinLocationParty, dispatch),
     connectToInstanceServer: bindActionCreators(connectToInstanceServer, dispatch),
     provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch)
 });
@@ -67,7 +64,6 @@ export const SceneByIdPage = (props: Props): any => {
         instanceConnectionState,
         doLoginAuto,
         getLocation,
-        joinLocationParty,
         connectToInstanceServer,
         provisionInstanceServer
     } = props;

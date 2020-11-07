@@ -7,8 +7,31 @@ const { authenticate } = authentication.hooks;
 export default {
   before: {
     all: [authenticate('jwt'), collectAnalytics()],
-    find: [],
-    get: [],
+    find: [
+      addAssociations({
+        models: [
+          {
+            model: 'location-ban'
+          },
+          {
+            model: 'location-settings'
+          }
+        ]
+      }),
+      (context) => console.log(context.params.sequelize.include)
+    ],
+    get: [
+      addAssociations({
+        models: [
+          {
+            model: 'location-ban'
+          },
+          {
+            model: 'location-settings'
+          }
+        ]
+      })
+    ],
     create: [],
     update: [],
     patch: [],
@@ -17,24 +40,8 @@ export default {
 
   after: {
     all: [],
-    find: [
-      addAssociations({
-        models: [
-          {
-            model: 'location-ban'
-          }
-        ]
-      })
-    ],
-    get: [
-      addAssociations({
-        models: [
-          {
-            model: 'location-ban'
-          }
-        ]
-      })
-    ],
+    find: [(context) => console.log(context.result.data)],
+    get: [],
     create: [],
     update: [],
     patch: [],
