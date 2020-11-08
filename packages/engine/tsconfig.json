@@ -13,6 +13,6 @@
     "resolveJsonModule": true,
     "allowJs": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../client/components/editor/assets/sources", "../client/components/editor/Nodes.ts"],
   "exclude": ["node_modules", "dist", "tsconfig.json"]
 }

@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { Store, Dispatch, bindActionCreators } from 'redux';
 import Loading from '../../components/scenes/loading';
 import Scene from '../../components/scenes/multiplayer';
-import Layout from '../../components/ui/Layout';
+import Layout from '../../components/Layout';
 import { selectAppState } from '../../redux/app/selector';
 import { selectAuthState } from '../../redux/auth/selector';
 import { selectInstanceConnectionState } from '../../redux/instanceConnection/selector';

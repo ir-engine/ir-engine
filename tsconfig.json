@@ -23,6 +23,6 @@
   ],
   "include": [
     "packages/**/*.ts",
-    "packages/**/*.tsx"
+    "packages/**/*.tsx", "packages/engine/src/editor/commands/SelectCommand.tsx="
   ]
 }

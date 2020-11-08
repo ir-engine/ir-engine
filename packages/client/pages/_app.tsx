@@ -7,7 +7,7 @@ import { fromJS } from 'immutable';
 import { configureStore } from '../redux/store';
 import {bindActionCreators, Dispatch, Store} from 'redux';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import theme from "./../components/editor/ui/theme";
+import theme from "./../components/editor/theme";
 import { ThemeProvider } from "styled-components";
 import { restoreState } from '../redux/persisted.store';
 import { doLoginAuto } from '../redux/auth/service';
@@ -21,9 +21,9 @@ import { dispatchAlertError } from '../redux/alert/service';
 import { connect } from 'react-redux';
 
 import getConfig from 'next/config';
-import { ApiContext } from '../components/editor/ui/contexts/ApiContext';
-import Api from "../components/editor/api/Api";
-import GlobalStyle from '../components/editor/ui/GlobalStyle';
+import { ApiContext } from '../components/editor/contexts/ApiContext';
+import Api from "../components/editor/Api";
+import GlobalStyle from '../components/editor/GlobalStyle';
 import './styles.scss';
 
 const config = getConfig().publicRuntimeConfig;
