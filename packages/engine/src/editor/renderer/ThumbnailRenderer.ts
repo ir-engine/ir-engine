@@ -6,7 +6,7 @@ import {
   Box3,
   Vector3
 } from "three";
-import { environmentMap } from "../functions/EnvironmentMap";
+import { environmentMap } from "../../../../client/components/editor/EnvironmentMap";
 import { traverseMaterials } from "../functions/materials";
 import { getCanvasBlob } from "../functions/thumbnails";
 import makeRenderer from "./makeRenderer";

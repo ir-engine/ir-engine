@@ -33,8 +33,8 @@ export class Engine {
    */
   static renderer: WebGLRenderer = null
   static xrSession: any = null
-//  static xrReferenceSpace = null
-//  static context = null
+  static xrReferenceSpace = null
+  static context = null
   /**
  * Reference to the three.js scene object
  * This is set in {@link @xr3ngine/engine/src/initialize#initializeEngine}

@@ -6,15 +6,13 @@ import {
   Mesh,
   DoubleSide
 } from "three";
-// @ts-ignore
-import linkIconUrl from "../../../public/editor/link-icon.png";
 import loadTexture from "../functions/loadTexture";
 let linkHelperTexture = null;
 export default class LinkNode extends EditorNodeMixin(Object3D) {
   static legacyComponentName = "link";
   static nodeName = "Link";
   static async load() {
-    linkHelperTexture = await loadTexture(linkIconUrl);
+    linkHelperTexture = await loadTexture("./public/editor/link-icon.png");
   }
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json);

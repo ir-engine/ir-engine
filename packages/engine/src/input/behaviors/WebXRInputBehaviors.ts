@@ -1,23 +1,21 @@
-import { Vector3, Vector4, PerspectiveCamera, ArrayCamera } from "three";
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
+import { ArrayCamera, PerspectiveCamera, Vector3, Vector4, XRWebGLLayer } from "three";
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-
-import { getComponent, hasComponent, getMutableComponent, addComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { WebXRSession } from "../components/WebXRSession";
-import { XRWebGLLayerOptions, XRSession } from '../types/WebXR';
-import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
+
 
 const cameraLPos = new Vector3();
 const cameraRPos = new Vector3();
 
 const cameraL = new PerspectiveCamera();
 cameraL.layers.enable( 1 );
-cameraL.viewport = new Vector4();
+// cameraL.viewport = new Vector4();
 
 const cameraR = new PerspectiveCamera();
 cameraR.layers.enable( 2 );
-cameraR.viewport = new Vector4();
+// cameraR.viewport = new Vector4();
 
 const cameras = [ cameraL, cameraR ];
 
@@ -76,7 +74,7 @@ export function onFrameXR(timestamp, xrFrame, callbacks) {
 				const camera = cameras[ i ];
 				camera.matrix.fromArray( view.transform.matrix );
 				camera.projectionMatrix.fromArray( view.projectionMatrix );
-				camera.viewport.set( viewport.x, viewport.y, viewport.width, viewport.height );
+				// camera.viewport.set( viewport.x, viewport.y, viewport.width, viewport.height );
 
 				if ( i === 0 ) {
 
@@ -101,7 +99,7 @@ export function onFrameXR(timestamp, xrFrame, callbacks) {
 export const initializeSession: Behavior = (entity: Entity) => {
 
   const { session } = getComponent(entity, WebXRSession);
-  const context = createWebGLContext();
+  const context = null; // createWebGLContext();
 
    session.requestReferenceSpace("local").then((referenceSpace) => {
      Engine.xrReferenceSpace = referenceSpace

@@ -1,7 +1,5 @@
 import EditorNodeMixin from "./EditorNodeMixin";
 import Image, { ImageAlphaMode } from "../../scene/classes/Image";
-// @ts-ignore
-import editorLogoSrc from "../../../public/editor/favicon-editor.ico";
 import { RethrownError } from "../functions/errors";
 import {
   getObjectPerfIssues,
@@ -12,7 +10,7 @@ export default class ImageNode extends EditorNodeMixin(Image) {
   static legacyComponentName = "image";
   static nodeName = "Image";
   static initialElementProps = {
-    src: new URL(editorLogoSrc, location as any).href
+    src: new URL('/editor/favicon-editor.ico', location as any).href
   };
   static async deserialize(editor, json, loadAsync, onError) {
     const node = await super.deserialize(editor, json);

@@ -1,8 +1,8 @@
 // @ts-nocheck
 
 import EditorNodeMixin from "./EditorNodeMixin";
-import PhysicalPointLight from "../objects/PhysicalPointLight";
-import EditorPointLightHelper from "../helpers/EditorPointLightHelper";
+import PhysicalPointLight from "@xr3ngine/engine/src/scene/classes/PhysicalPointLight";
+import EditorPointLightHelper from "@xr3ngine/engine/src/editor/classes/EditorPointLightHelper";
 export default class PointLightNode extends EditorNodeMixin(
   PhysicalPointLight
 ) {

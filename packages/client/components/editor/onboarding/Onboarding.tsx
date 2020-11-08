@@ -2,11 +2,11 @@ import { cmdOrCtrlString } from "@xr3ngine/engine/src/editor/functions/utils";
 import PropTypes from "prop-types";
 import React, { Component } from "react";
 // @ts-ignore
-import lmbIcon from "../../../../public/onboarding/lmb.svg";
+import lmbIcon from "../../../public/onboarding/lmb.svg";
 // @ts-ignore
-import rmbIcon from "../../../../public/onboarding/rmb.svg";
+import rmbIcon from "../../../public/onboarding/rmb.svg";
 // @ts-ignore
-import wasdIcon from "../../../../public/onboarding/wasd.svg";
+import wasdIcon from "../../../public/onboarding/wasd.svg";
 import { withApi } from "../contexts/ApiContext";
 import { withEditor } from "../contexts/EditorContext";
 import { Button } from "../inputs/Button";

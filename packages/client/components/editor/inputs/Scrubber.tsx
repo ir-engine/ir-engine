@@ -2,7 +2,7 @@
 import React, { Component, createRef } from "react";
 import PropTypes from "prop-types";
 import Portal from "../layout/Portal";
-import { getStepSize, clamp, toPrecision } from "../utils";
+import { getStepSize, clamp, toPrecision } from "@xr3ngine/engine/src/editor/functions/utils";
 import styled from "styled-components";
 import { ArrowsAltH } from "@styled-icons/fa-solid/ArrowsAltH";
 import Overlay from "../layout/Overlay";

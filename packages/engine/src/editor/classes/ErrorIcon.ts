@@ -5,8 +5,6 @@ import {
   DoubleSide
 } from "three";
 import { RGBAFormat, NearestFilter } from "three";
-// @ts-ignore
-import mediaErrorImageUrl from "../../../public/editor/media-error.png";
 import loadTexture from "../functions/loadTexture";
 let errorTexturePromise = null;
 let errorTexture = null;
@@ -15,7 +13,7 @@ export default class ErrorIcon extends Mesh {
     if (errorTexturePromise) {
       return errorTexturePromise;
     }
-    errorTexturePromise = loadTexture(mediaErrorImageUrl).then((texture: any) => {
+    errorTexturePromise = loadTexture("./public/editor/media-error.png").then((texture: any) => {
       texture.format = RGBAFormat;
       texture.magFilter = NearestFilter;
       return texture;

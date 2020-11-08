@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import NodeEditor from "./NodeEditor";
 import InputGroup from "../inputs/InputGroup";
 import SelectInput from "../inputs/SelectInput";
-import { VideoProjection } from "../../objects/Video";
+import { VideoProjection } from "@xr3ngine/engine/src/scene/classes/Video";
 import VideoInput from "../inputs/VideoInput";
 import { Video } from "@styled-icons/fa-solid/Video";
 import AudioSourceProperties from "./AudioSourceProperties";
