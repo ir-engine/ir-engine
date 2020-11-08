@@ -32,7 +32,7 @@ export class Engine {
    * This is set in {@link @xr3ngine/engine/src/initialize#initializeEngine}
    */
   static renderer: WebGLRenderer = null
-  static xrSession = null
+  static xrSession: any = null
 //  static xrReferenceSpace = null
 //  static context = null
   /**

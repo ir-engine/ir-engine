@@ -1,12 +1,9 @@
-import { Vector3,  MeshPhongMaterial, TextureLoader, Matrix4, RepeatWrapping } from 'three';
-import GLTFLoader from 'three-gltf-loader';
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { Entity } from '../../ecs/classes/Entity';
-import { createEntity, addComponent, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
+import { Matrix4, MeshPhongMaterial, Vector3 } from 'three';
+import GLTFLoader from 'three-gltf-loader';
+import { addComponent, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { WebXRSession } from '../components/WebXRSession';
 import { XRControllersComponent } from '../components/XRControllersComponent';
-import { WebXRSpace } from '../components/WebXRSpace';
-import { XRSession, XRFrame, XRReferenceSpace, XRInputSource } from '../types/WebXR';
 
 var container;
 
@@ -61,7 +58,7 @@ export function initControllersVR(actorEntity) {
   //      new TextureLoader().load('./models/controllers/valve_controller_knu_1_0_right_diff.png',
   //      texture2 => {
       //    console.warn(obj);
-          let mesh = obj.scene.children[2]
+          let mesh = obj.scene.children[2] as any;
 
           mesh.material = new MeshPhongMaterial()
       //    texture.anisotropy = 16
@@ -74,7 +71,7 @@ export function initControllersVR(actorEntity) {
 
       //    console.warn(obj);
 
-          mesh2.applyMatrix4(new Matrix4().makeScale(-1, 1, 1));
+          mesh2.scale.multiply(new Vector3(-1, 1, 1));
 
           controllerGrip1.add( mesh );
           Engine.scene.add( controllerGrip1 );
@@ -129,11 +126,7 @@ function selectStart( event, n ) {
 
 
 function onSelectEnd( event, n ) {
-	if (!n) {
-		window.clothSimulatorApp.booleanNeed = false
-	} else {
-		window.clothSimulatorApp.booleanNeed2 = false
-	}
+
 }
 /*
 function getIntersections( controller ) {
@@ -147,8 +140,11 @@ function getIntersections( controller ) {
 
 }
 */
+let button
+
 export function initVR (actorEntity) {
-  const button = document.createElement( 'button' );
+
+	button = document.createElement( 'button' );
 	button.id = 'VRButton';
 	button.style.display = 'none';
 
@@ -157,7 +153,7 @@ export function initVR (actorEntity) {
   document.body.appendChild( button );
 	Engine.renderer.xr.enabled = true;
 	Engine.renderer.xr.setReferenceSpaceType( 'local-floor' );
-	navigator.xr.isSessionSupported( 'immersive-vr' ).then( function ( supported ) {
+	(navigator as any).xr.isSessionSupported( 'immersive-vr' ).then( function ( supported ) {
 		supported ? showEnterVR(actorEntity, button) : showWebXRNotFound(button);
 	});
 };
@@ -180,7 +176,7 @@ function showEnterVR(actorEntity, button ) {
 			const sessionInit = { optionalFeatures: [ 'local-floor', 'bounded-floor' ] };
 		//	var sessionInit = { optionalFeatures: [ "unbounded" ] };
 		//	var sessionInit = { optionalFeatures:  [ "local" ] };
-			navigator.xr.requestSession( "immersive-vr", sessionInit ).then((session) => {
+			(navigator as any).xr.requestSession( "immersive-vr", sessionInit ).then((session) => {
         addComponent(actorEntity, WebXRSession, { session });
 				Engine.xrSession = session;
         onSessionStarted(session)
