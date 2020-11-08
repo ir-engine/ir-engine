@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import getConfig from 'next/config';
 import NavMenu from '../NavMenu';
 import Head from 'next/head';
-import styles from './Layout.module.scss';
 import Alerts from '../Common/Alerts';
 import UIDialog from '../Dialog/Dialog';
 import DrawerControls from '../DrawerControls';
@@ -12,7 +11,6 @@ import RightDrawer from '../Drawer/Right';
 import BottomDrawer from '../Drawer/Bottom';
 import { selectAuthState } from '../../../redux/auth/selector';
 import { selectLocationState } from '../../../redux/location/selector';
-import { Location } from '@xr3ngine/common/interfaces/Location';
 import PartyVideoWindows from '../PartyVideoWindows';
 import InstanceChat from '../InstanceChat';
 import Me from '../Me';
@@ -38,7 +36,6 @@ const mapDispatchToProps = (): any => ({});
 
 const Layout = (props: Props): any => {
   const { pageTitle, children, authState, locationState, login } = props;
-  const currentLocation = locationState.get('currentLocation').get('location') as Location;
   const authUser = authState.get('authUser');
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false);
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false);

@@ -17,20 +17,6 @@ export function getGLTFComponent(gltfDef, componentName) {
   const components = getGLTFComponents(gltfDef);
   return components && components[componentName];
 }
-export function isKitPieceNode(nodeDef, kitPieceId) {
-  const kitPiece = getGLTFComponent(nodeDef, "kit-piece");
-  return kitPiece && kitPiece.id === kitPieceId;
-}
-export function getKitPieceComponent(object) {
-  return getComponent(object, "kit-piece");
-}
-export function isPiece(object, pieceId) {
-  const component = getKitPieceComponent(object);
-  return component && component.id == pieceId;
-}
-export function findKitPiece(object, pieceId) {
-  return findObject(object, child => isPiece(child, pieceId));
-}
 export function traverseGltfNode(gltf, nodeIndex, callback) {
   const nodeDef = gltf.nodes && gltf.nodes[nodeIndex];
   if (nodeDef) {
