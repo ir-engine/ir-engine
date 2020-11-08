@@ -28,6 +28,7 @@ import License from './license/license.service';
 import GameserverSubdomainProvision from './gameserver-subdomain-provision/gameserver-subdomain-provision.service';
 import LoginToken from './login-token/login-token.service';
 import Location from './location/location.service';
+import LocationSettings from './location-settings/location-settings.service';
 import LocationBan from './location-ban/location-ban.service';
 import Party from './party/party.service';
 import Project from './project/project.service';
@@ -98,6 +99,7 @@ export default (app: Application): void => {
   app.configure(License);
   app.configure(GameserverSubdomainProvision);
   app.configure(Location);
+  app.configure(LocationSettings);
   app.configure(LocationBan);
   app.configure(LoginToken);
   app.configure(Party);

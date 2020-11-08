@@ -62,39 +62,6 @@ export function getLocationByName(locationName: string) {
   };
 }
 
-export function joinLocationParty(locationId: string) {
-  return async(dispatch: Dispatch, getState: any): Promise<any> => {
-    try {
-      let showroomParty;
-      const selfUser = getState().get('auth').get('user');
-      console.log('joinShowroomParty selfUser:');
-      console.log(selfUser);
-      console.log(locationId);
-      const showroomPartyResult = await client.service('party').find({
-        query: {
-          locationId: locationId
-        }
-      });
-      console.log('showroomPartyResult:');
-      console.log(showroomPartyResult);
-      console.log('length: ' + showroomPartyResult.length);
-      if (showroomPartyResult.length === 0) {
-        showroomParty = await client.service('party').create({
-          locationId: locationId
-        });
-      } else {
-        showroomParty = showroomPartyResult[0];
-      }
-
-      await client.service('party-user').create({
-        partyId: showroomParty.id
-      });
-    } catch(err) {
-      console.log(err);
-    }
-  };
-}
-
 export function banUserFromLocation(userId: string, locationId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
