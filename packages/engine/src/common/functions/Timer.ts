@@ -1,5 +1,6 @@
 import { isClient } from './isClient';
 import { now } from "./now";
+import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 
 type TimerUpdateCallback = (delta: number, elapsedTime?: number) => any;
 
@@ -15,35 +16,75 @@ export function Timer (
   let delta = 0;
   let frameId;
 
+  function render(time) {
+    if (Engine.xrSession) {
+      if (last !== null) {
+        delta = (time - last) / 1000;
+        accumulated = accumulated + delta;
+
+        if (fixedRunner) {
+          fixedRunner.run(delta);
+        }
+
+        if (networkRunner) {
+          networkRunner.run(delta);
+        }
+
+        if (callbacks.update) callbacks.update(delta, accumulated);
+      }
+      last = time;
+  		Engine.renderer.render( Engine.scene, Engine.camera );
+    } else {
+      Engine.renderer.setAnimationLoop( null );
+      start();
+    }
+	}
+
   const fixedRunner = callbacks.fixedUpdate? new FixedStepsRunner(fixedRate, callbacks.fixedUpdate) : null;
   const networkRunner = callbacks.fixedUpdate? new FixedStepsRunner(networkRate, callbacks.networkUpdate) : null;
 
   const updateFunction = (isClient ? requestAnimationFrame : requestAnimationFrameOnServer);
 
   function onFrame (time) {
-    frameId = updateFunction(onFrame);
+    if (Engine.xrSession) {
+      stop();
+      Engine.renderer.setAnimationLoop( render );
+      //  frameId = Engine.xrSession.requestAnimationFrame(toXR)
+    } else {
+      frameId = updateFunction(onFrame);
 
-    if (last !== null) {
-      delta = (time - last) / 1000;
-      accumulated = accumulated + delta;
+      if (last !== null) {
+        delta = (time - last) / 1000;
+        accumulated = accumulated + delta;
 
-      if (fixedRunner) {
-        fixedRunner.run(delta);
+        if (fixedRunner) {
+          fixedRunner.run(delta);
+        }
+
+        if (networkRunner) {
+          networkRunner.run(delta);
+        }
+
+        if (callbacks.update) callbacks.update(delta, accumulated);
       }
-
-      if (networkRunner) {
-        networkRunner.run(delta);
-      }
-
-      if (callbacks.update) callbacks.update(delta, accumulated);
+      last = time;
+      if (callbacks.render) callbacks.render();
     }
-    last = time;
-    if (callbacks.render) callbacks.render();
   }
-
+/*
+  function toXR (timestamp, xrFrame) {
+    if (Engine.xrSession) {
+      Engine.xrSession.requestAnimationFrame(toXR)
+      onFrameXR(timestamp, xrFrame, callbacks)
+    } else {
+      xrFrame.session.end();
+      frameId = defaultAnimationFrame(onFrame)
+    }
+  }
+*/
   function start () {
     last = null;
-    frameId = (isClient ? requestAnimationFrame : requestAnimationFrameOnServer)(onFrame);
+    frameId = updateFunction(onFrame);
   }
 
   function stop () {

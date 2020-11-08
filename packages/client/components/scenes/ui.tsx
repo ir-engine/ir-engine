@@ -76,9 +76,9 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
   const sceneLoaded = (event: CustomEvent): void => {
     if (event.detail.loaded)
-      store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));      
+      store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
   };
-  
+
   useEffect(() => {
     document.addEventListener('scene-loaded-entity', sceneLoadedEntity);
     document.addEventListener('scene-loaded', sceneLoaded);
@@ -95,7 +95,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
         schema: networkSchema,
       }
     };
-    
+
     initializeEngine(InitializationOptions);
 
     addObject3DComponent(createEntity(), {

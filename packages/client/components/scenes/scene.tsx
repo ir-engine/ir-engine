@@ -21,6 +21,7 @@ import { generalStateList, setAppOnBoardingStep, setAppLoaded } from '../../redu
 import store from '../../redux/store';
 import LinearProgressComponent from '../ui/LinearProgress';
 import NetworkDebug from '../ui/NetworkDebug/NetworkDebug';
+import { initVR } from '@xr3ngine/engine/src/input/functions/WebXRFunctions';
 
 const mapStateToProps = (state: any): any => {
   return { };
@@ -38,7 +39,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   } = props;
   const [progressEntity, setProgressEntity] = useState('');
 
-  //all scene entities is loaded 
+  //all scene entities is loaded
   const onSceneLoaded= (event: CustomEvent): void => {
     if (event.detail.loaded) {
       store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
@@ -50,7 +51,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const onSceneLoadedEntity= (event: CustomEvent): void => {
     setProgressEntity(' left '+event.detail.left);
   };
-  
+
   const addEventListeners = () =>{
     document.addEventListener('scene-loaded', onSceneLoaded);
     document.addEventListener('scene-loaded-entity', onSceneLoadedEntity);
@@ -71,7 +72,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
         schema: networkSchema,
       }
     };
-    
+
     initializeEngine(InitializationOptions);
 
     const light = new DirectionalLight(0xffffff, 1.0);
@@ -100,6 +101,9 @@ export const EnginePage: FunctionComponent = (props: any) => {
       TransformComponent
     );
     cameraTransform.position.set(0, 1.2, 3);
+
+    // VR Button
+    navigator.xr ? initVR() : '';
 
     createPrefab(staticWorldColliders);
 

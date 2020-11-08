@@ -69,6 +69,8 @@ export function addColliderWithoutEntity( type, position, rotation, scale, mesh 
       rotation.z,
       rotation.w
     );
+    console.warn(body);
 
   PhysicsManager.instance.physicsWorld.addBody(body);
+  return body;
 }
