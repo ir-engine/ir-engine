@@ -1,14 +1,25 @@
 import { Sky } from '@xr3ngine/engine/src/scene/classes/Sky';
-import { AmbientLight, DirectionalLight, DoubleSide, HemisphereLight, Mesh, MeshBasicMaterial, PlaneGeometry, PointLight, SpotLight } from 'three';
+import { AmbientLight, DirectionalLight, DoubleSide, HemisphereLight, Mesh, MeshBasicMaterial, Plane, PlaneGeometry, PointLight, SpotLight } from 'three';
 import { AssetLoader } from '../../assets/components/AssetLoader';
 import { addComponentFromBehavior, addObject3DComponent, addTagComponentFromBehavior } from '../../common/behaviors/Object3DBehaviors';
 import { VisibleTagComponent } from '../../common/components/Object3DTagComponents';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import CollidableTagComponent from '../components/Collidable';
-import createSkybox from '../components/createSkybox';
-import Image from '../components/Image';
+import createSkybox from '../behaviors/createSkybox';
+import ImageComponent from '../components/Image';
 import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
+import { createBackground } from '../behaviors/createBackground';
+import { createBoxCollider } from '../behaviors/createBoxCollider';
+import { createGroup } from '../behaviors/createGroup';
+import { createLink } from '../behaviors/createLink';
+import { createScenePreviewCamera } from '../behaviors/createScenePreviewCamera';
+import { createShadow } from '../behaviors/createShadow';
+import { createSpawnPoint } from '../behaviors/createSpawnPoint';
+import { createTriggerVolume } from '../behaviors/createTriggerVolume';
+import { handleAudioSettings } from '../behaviors/handleAudioSettings';
+import { setFog } from '../behaviors/setFog';
+import { createImage } from '../behaviors/createImage';
 
 export const SceneObjectLoadingSchema: LoadingSchema = {
   'ambient-light': {
@@ -45,16 +56,16 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       }
     ]
   },
-  // ["floor-plan"]: {
+  ["floor-plan"]: {
   // TODO
-  //   behaviors: [
-  //     {
-  //       behavior: addObject3DComponent,
-  //       args: { obj: Plane },
-  //       values: ["color", "intensity"]
-  //     }
-  //   ]
-  // },
+    behaviors: [
+      {
+        behavior: addObject3DComponent,
+        args: { obj: Plane },
+        values: ["color", "intensity"]
+      }
+    ]
+  },
   'gltf-model': {
     behaviors: [
       {
@@ -125,9 +136,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'image': {
     behaviors: [
       {
-        behavior: addObject3DComponent,
-        args: { obj3d: Image },
-        values: ['src', 'projection', 'parent']
+        behavior: createImage
       }
     ]
   },
@@ -164,6 +173,78 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       {
         behavior: addTagComponentFromBehavior,
         args: { component: WalkableTagComponent }
+      }
+    ]
+  },
+  'fog': {
+    behaviors: [
+      {
+        behavior: setFog,
+        // TODO: Get fog values and set
+        values: ['position', 'rotation', 'scale']
+      }
+    ]
+  },
+  'background': {
+    behaviors: [
+      {
+        behavior: createBackground
+      }
+    ]
+  },
+  'audio-settings': {
+    behaviors: [
+      {
+        behavior: handleAudioSettings
+      }
+    ]
+  },
+  'spawn-point': {
+    behaviors: [
+      {
+        behavior: createSpawnPoint
+      }
+    ]
+  },
+  'scene-preview-camera': {
+    behaviors: [
+      {
+        behavior: createScenePreviewCamera
+      }
+    ]
+  },
+  'shadow': {
+    behaviors: [
+      {
+        behavior: createShadow
+      }
+    ]
+  },
+  'group': {
+    behaviors: [
+      {
+        behavior: createGroup
+      }
+    ]
+  },
+  'box-collider': {
+    behaviors: [
+      {
+        behavior: createBoxCollider
+      }
+    ]
+  },
+  'trigger-volume': {
+    behaviors: [
+      {
+        behavior: createTriggerVolume
+      }
+    ]
+  },
+  'link': {
+    behaviors: [
+      {
+        behavior: createLink
       }
     ]
   }
