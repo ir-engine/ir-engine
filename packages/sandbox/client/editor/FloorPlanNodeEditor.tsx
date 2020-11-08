@@ -167,8 +167,7 @@ class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
             onChange={this.onChangeForceTrimesh}
           />
         </InputGroup>
-        {!node.forceTrimesh &&
-          settings.enableExperimentalFeatures && (
+        {!node.forceTrimesh && (
             /* @ts-ignore */
             <NumericInputGroup
               name="Collision Geo Triangle Threshold"

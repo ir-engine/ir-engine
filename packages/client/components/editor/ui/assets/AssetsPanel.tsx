@@ -64,7 +64,7 @@ export default function AssetsPanel() {
   const editor = useContext(EditorContext);
 
   const [sources, setSources] = useState(
-    getSources(editor).filter(source => !source.experimental || editor.settings.enableExperimentalFeatures)
+    getSources(editor)
   );
   const [selectedSource, setSelectedSource] = useState(sources.length > 0 ? sources[0] : null);
   const SourceComponent = selectedSource && selectedSource.component;
@@ -84,8 +84,7 @@ export default function AssetsPanel() {
     };
 
     const onSettingsChanged = () => {
-      const enableExperimentalFeatures = editor.settings.enableExperimentalFeatures;
-      const nextSources = getSources(editor).filter(source => !source.experimental || enableExperimentalFeatures);
+      const nextSources = getSources(editor);
       setSources(nextSources);
     };
 

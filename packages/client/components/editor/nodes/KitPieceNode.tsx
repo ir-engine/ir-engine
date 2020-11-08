@@ -12,7 +12,6 @@ import {
 import { RethrownError } from "../utils/errors";
 export default class KitPieceNode extends EditorNodeMixin(Model) {
   static legacyComponentName = "kit-piece";
-  static experimental = true;
   static hideInElementsPanel = true;
   static useMultiplePlacementMode = true;
   static nodeName = "Kit Piece";
