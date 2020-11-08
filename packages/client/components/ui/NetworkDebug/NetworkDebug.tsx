@@ -2,7 +2,7 @@ import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { Network } from "@xr3ngine/engine/src/networking/components/Network";
 import { setDropState } from "@xr3ngine/engine/src/templates/character/behaviors/setDropState";
 import React, { useReducer, useLayoutEffect, useState } from "react";
-import JSONTree from 'react-json-tree';
+// import JSONTree from 'react-json-tree';
 
 export const NetworkDebug = () => {
     const [networkData, setNetworkData] = useState({});
@@ -42,19 +42,19 @@ export const NetworkDebug = () => {
             <div>
             <div>
               <h1>Network Object</h1>
-              <JSONTree data={{...Network.instance}} />
+              {/* <JSONTree data={{...Network.instance}} /> */}
               </div>
               <div>
               <h1>Network Clients</h1>
-              <JSONTree data={{...Network.instance.clients}} />
+              {/* <JSONTree data={{...Network.instance.clients}} /> */}
               </div>
               <div>
               <h1>Network Objects</h1>
-              <JSONTree data={{...Network.instance.networkObjects}} />
+              {/* <JSONTree data={{...Network.instance.networkObjects}} /> */}
               </div>
                 <div>
               <h1>Engine Entities</h1>
-              <JSONTree data={{...Engine.entities}} />
+              {/* <JSONTree data={{...Engine.entities}} /> */}
               </div>
               <button type="submit" value="Refresh" onClick={ refresh }>Refresh</button>
               </div>
