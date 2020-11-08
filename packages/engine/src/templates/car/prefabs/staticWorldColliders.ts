@@ -11,12 +11,14 @@ const mat = new MeshPhongMaterial({ color: "#ffffff" });
 const floorMesh = new Mesh( floor, mat );
 floorMesh.receiveShadow = true;
 floorMesh.castShadow = false;
+floorMesh.hide = true;
 
 export const staticWorldColliders: Prefab = {
     components: [
       { type: TransformComponent, data: { position: [ 0, -0.05, 0 ]  } },
       { type: ColliderComponent, data: { type: 'box', scale: scale, mass: 0 }}
     ],
+    /*
     onAfterCreate: [
         // add a 3d object
          {
@@ -26,4 +28,5 @@ export const staticWorldColliders: Prefab = {
              }
          },
     ]
+    */
 };
