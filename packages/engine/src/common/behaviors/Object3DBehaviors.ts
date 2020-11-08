@@ -68,9 +68,6 @@ export function addTagComponentFromBehavior<C> (
   addComponent(entity, args.component);
 }
 
-const getClassOf = Function.prototype.call.bind(Object.prototype.toString);
-const isObj = o => o?.constructor === Object;
-
 export const addObject3DComponent: Behavior = (
   entity: Entity,
   args: { obj3d: any; obj3dArgs?: any; parentEntity?: Entity }

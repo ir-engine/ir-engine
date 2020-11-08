@@ -70,12 +70,6 @@ export default function DragLayer() {
     } else {
       preview = <div>{item.value.label}</div>;
     }
-  } else if (itemType === ItemTypes.KitPiece) {
-    if (item.multiple) {
-      preview = <div>{`${item.value.length} Kit Pieces Selected`}</div>;
-    } else {
-      preview = <div>{item.value.label}</div>;
-    }
   } else {
     preview = <div>{item.type}</div>;
   }

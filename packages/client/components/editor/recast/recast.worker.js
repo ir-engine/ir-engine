@@ -1,4 +1,4 @@
-import Recast from "recast-wasm/dist/recast.js";
+import Recast from "./recast.js";
 const defaultParams = {
   cellSize: 0.166,
   cellHeight: 0.1,
@@ -29,7 +29,6 @@ self.onmessage = async event => {
     }
     await recast.ready;
     if (!recast.loadArray(message.verts, message.faces)) {
-      // @ts-ignore
       self.postMessage({ error: "error loading navmesh data" });
     }
     const {
@@ -64,13 +63,11 @@ self.onmessage = async event => {
     );
     if (status === 13) {
       // No contours could be generated. This happens when there are zero walkable cells.
-      // @ts-ignore
       self.postMessage({ indices: [], verts: [], heightfield: null });
       recast.freeNavMesh();
       return;
     }
     if (status !== 0) {
-      // @ts-ignore
       self.postMessage({ error: "unknown error building nav mesh", status });
       recast.freeNavMesh();
       return;
@@ -103,13 +100,11 @@ self.onmessage = async event => {
         indices,
         verts
       },
-      // @ts-ignore
       [indices.buffer, verts.buffer]
     );
     recast.freeNavMesh();
   } catch (err) {
     console.error(err);
-    // @ts-ignore
     self.postMessage({
       error: err.message || "unknown error building nav mesh"
     });

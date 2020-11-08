@@ -55,7 +55,7 @@ export function connectToInstanceServer () {
         token: token,
         startVideo: videoActive,
         partyId: user.partyId,
-        videoEnabled: !(currentLocation.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null)
+        videoEnabled: currentLocation?.locationSettings?.videoEnabled === true || !(currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null)
       });
       // setClient(instanceClient);
       dispatch(instanceServerConnected());
