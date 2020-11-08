@@ -1,27 +1,27 @@
-import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
 import { ThemeProvider } from '@material-ui/core';
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { addObject3DComponent } from '@xr3ngine/engine/src/common/behaviors/Object3DBehaviors';
 import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
 import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
-import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
+import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
 import { createEntity, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
+import { initVR } from '@xr3ngine/engine/src/input/functions/WebXRFunctions';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
+import { rigidBodyBox3 } from '@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox3';
+import { rigidBodyBox4 } from '@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox4';
+import { rigidBodyBox5 } from '@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox5';
 import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
 import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
 import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacterWithEmptyInputSchema';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { WorldPrefab } from '@xr3ngine/engine/src/templates/world/prefabs/WorldPrefab';
-import { rigidBodyBox3 } from '@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox3';
-import { rigidBodyBox4 } from '@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox4';
-import { rigidBodyBox5 } from '@xr3ngine/engine/src/templates/car/prefabs/rigidBodyBox5';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import dynamic from 'next/dynamic';
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { AmbientLight, TextureLoader, EquirectangularReflectionMapping, sRGBEncoding } from 'three';
+import { AmbientLight, EquirectangularReflectionMapping, sRGBEncoding, TextureLoader } from 'three';
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import { generalStateList, setAppOnBoardingStep } from '../../redux/app/actions';
 import { selectAppOnBoardingStep } from '../../redux/app/selector';
@@ -37,7 +37,6 @@ import MediaIconsBox from "../ui/MediaIconsBox";
 import OnBoardingBox from "../ui/OnBoardingBox";
 import OnBoardingDialog from '../ui/OnBoardingDialog';
 import TooltipContainer from '../ui/TooltipContainer';
-import { initVR } from '@xr3ngine/engine/src/input/functions/WebXRFunctions';
 
 const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
@@ -122,7 +121,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
    (loader as any).load(
        envMapURL,
        (data) => {
-         const map = loader.load(envMapURL);
+         const map = loader.load(envMapURL) as any;
          map.mapping = EquirectangularReflectionMapping;
          map.encoding = sRGBEncoding;
          Engine.scene.environment = map;
@@ -140,7 +139,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
     const actorEntity = createPrefab(PlayerCharacter);
     setActorEntity(actorEntity);
-    navigator.xr ? initVR(actorEntity) : '';
+    if((navigator as any)?.xr) initVR(actorEntity);
 
     return (): void => {
       document.removeEventListener('scene-loaded-entity', sceneLoadedEntity);

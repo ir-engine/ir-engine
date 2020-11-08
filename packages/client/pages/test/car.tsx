@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
 import Loading from '../../components/scenes/loading';
 import Scene from "../../components/scenes/ui";
-import Layout from '../../components/ui/Layout';
+import Layout from '../../components/Layout';
 import { selectAuthState } from "../../redux/auth/selector";
 import { doLoginAuto } from '../../redux/auth/service';
 import { selectInstanceConnectionState } from '../../redux/instanceConnection/selector';

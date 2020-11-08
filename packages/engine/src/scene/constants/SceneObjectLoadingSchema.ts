@@ -1,25 +1,23 @@
-import { Sky } from '@xr3ngine/engine/src/scene/classes/Sky';
-import { AmbientLight, DirectionalLight, DoubleSide, HemisphereLight, Mesh, MeshBasicMaterial, Plane, PlaneGeometry, PointLight, SpotLight } from 'three';
+import { AmbientLight, DirectionalLight, DoubleSide, HemisphereLight, Mesh, MeshBasicMaterial, PlaneGeometry, PointLight, SpotLight } from 'three';
 import { AssetLoader } from '../../assets/components/AssetLoader';
 import { addComponentFromBehavior, addObject3DComponent, addTagComponentFromBehavior } from '../../common/behaviors/Object3DBehaviors';
 import { VisibleTagComponent } from '../../common/components/Object3DTagComponents';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import CollidableTagComponent from '../components/Collidable';
-import createSkybox from '../behaviors/createSkybox';
-import ImageComponent from '../components/Image';
-import WalkableTagComponent from '../components/Walkable';
-import { LoadingSchema } from '../interfaces/LoadingSchema';
 import { createBackground } from '../behaviors/createBackground';
 import { createBoxCollider } from '../behaviors/createBoxCollider';
 import { createGroup } from '../behaviors/createGroup';
+import { createImage } from '../behaviors/createImage';
 import { createLink } from '../behaviors/createLink';
 import { createScenePreviewCamera } from '../behaviors/createScenePreviewCamera';
 import { createShadow } from '../behaviors/createShadow';
+import createSkybox from '../behaviors/createSkybox';
 import { createSpawnPoint } from '../behaviors/createSpawnPoint';
 import { createTriggerVolume } from '../behaviors/createTriggerVolume';
 import { handleAudioSettings } from '../behaviors/handleAudioSettings';
 import { setFog } from '../behaviors/setFog';
-import { createImage } from '../behaviors/createImage';
+import CollidableTagComponent from '../components/Collidable';
+import WalkableTagComponent from '../components/Walkable';
+import { LoadingSchema } from '../interfaces/LoadingSchema';
 
 export const SceneObjectLoadingSchema: LoadingSchema = {
   'ambient-light': {
@@ -56,16 +54,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       }
     ]
   },
-  ["floor-plan"]: {
-  // TODO
-    behaviors: [
-      {
-        behavior: addObject3DComponent,
-        args: { obj: Plane },
-        values: ["color", "intensity"]
-      }
-    ]
-  },
+  "floor-plan": {}, // Doesn't do anything in client mode
   'gltf-model': {
     behaviors: [
       {
@@ -120,7 +109,6 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
     behaviors: [
       {
         behavior: createSkybox,
-        args: { obj3d: Sky },
         values: [
           { from: 'distance', to: 'distance' },
           { from: 'inclination', to: 'inclination' },
@@ -136,7 +124,14 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'image': {
     behaviors: [
       {
-        behavior: createImage
+        behavior: createImage,
+        values: [
+          { from: 'src', to: 'src' },
+          { from: 'projection', to: 'projection' },
+          { from: 'controls', to: 'controls' },
+          { from: 'alphaMode', to: 'alphaMode' },
+          { from: 'alphaCutoff', to: 'alphaCutoff' }
+        ]
       }
     ]
   },

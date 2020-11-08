@@ -11,7 +11,6 @@ import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs
 import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
 import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacterWithEmptyInputSchema';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
-import { WorldPrefab } from '@xr3ngine/engine/src/templates/world/prefabs/WorldPrefab';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import dynamic from 'next/dynamic';
 import React, { FunctionComponent, useEffect, useState } from 'react';

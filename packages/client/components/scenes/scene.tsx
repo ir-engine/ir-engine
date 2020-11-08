@@ -102,14 +102,15 @@ export const EnginePage: FunctionComponent = (props: any) => {
     );
     cameraTransform.position.set(0, 1.2, 3);
 
-    // VR Button
-    navigator.xr ? initVR() : '';
+
 
     createPrefab(staticWorldColliders);
 
     const actorEntity = createPrefab(PlayerCharacter);
     setActorEntity(actorEntity);
 
+    // VR Button
+    if ((navigator as any)?.xr) initVR(actorEntity);
     return (): void => {
       resetEngine();
     };
