@@ -7,7 +7,7 @@ import {
   LineBasicMaterial,
   Float32BufferAttribute
 } from "three";
-import { addIsHelperFlag } from "../functions/utils";
+import { addIsHelperFlag } from "../functions/addIsHelperFlag";
 export default class EditorDirectionalLightHelper extends Object3D {
   light: any;
   color: any;

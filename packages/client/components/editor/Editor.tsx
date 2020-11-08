@@ -18,10 +18,10 @@ import Renderer from "@xr3ngine/engine/src/editor/renderer/Renderer";
 import ThumbnailRenderer from "@xr3ngine/engine/src/editor/renderer/ThumbnailRenderer";
 
 import SceneNode from "@xr3ngine/engine/src/editor/nodes/SceneNode";
-// import FloorPlanNode from "../../../sandbox/client/editor/FloorPlanNode";
+import FloorPlanNode from "@xr3ngine/engine/src/editor/nodes/FloorPlanNode";
 
 import LoadingCube from "@xr3ngine/engine/src/scene/classes/LoadingCube";
-import ErrorIcon from "@xr3ngine/engine/src/scene/classes//ErrorIcon";
+import ErrorIcon from "@xr3ngine/engine/src/editor/classes/ErrorIcon";
 import TransformGizmo from "@xr3ngine/engine/src/scene/classes//TransformGizmo";
 import EditorInfiniteGridHelper from "@xr3ngine/engine/src/editor/classes/EditorInfiniteGridHelper";
 
@@ -29,7 +29,7 @@ import GLTFCache from "@xr3ngine/engine/src/editor/caches/GLTFCache";
 import TextureCache from "@xr3ngine/engine/src/editor/caches/TextureCache";
 
 import getDetachedObjectsRoots from "@xr3ngine/engine/src/editor/functions/getDetachedObjectsRoots";
-import { loadEnvironmentMap } from "@xr3ngine/engine/src/editor/functions/EnvironmentMap";
+import { loadEnvironmentMap } from "./EnvironmentMap";
 import makeUniqueName from "@xr3ngine/engine/src/editor/functions/makeUniqueName";
 import { RethrownError, MultiError } from "@xr3ngine/engine/src/editor/functions/errors";
 import cloneObject3D from "@xr3ngine/engine/src/editor/functions/cloneObject3D";
@@ -382,11 +382,15 @@ export default class Editor extends EventEmitter {
 
     const scene = this.scene;
 
-    // const floorPlanNode = scene.findNodeByType(FloorPlanNode);
+    const floorPlanNode = scene.findNodeByType(FloorPlanNode);
 
-    // if (floorPlanNode) {
-    //   await floorPlanNode.generate(signal);
-    // }
+    if (floorPlanNode) {
+      try {
+        await floorPlanNode.generate(signal);
+      } catch (error){
+        console.warn("Failed to generate floorplan", error);
+      }
+    }
 
     const clonedScene = cloneObject3D(scene, true);
     const animations = clonedScene.getAnimationClips();

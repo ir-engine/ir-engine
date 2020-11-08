@@ -13,8 +13,8 @@
  * @author Don McCurdy / https://www.donmccurdy.com
  */
 
-import { RethrownError } from "../utils/errors";
-import loadTexture from "../utils/loadTexture";
+import { RethrownError } from "../../../editor/functions/errors";
+import loadTexture from "../../../editor/functions/loadTexture";
 
 import {
   AnimationClip,

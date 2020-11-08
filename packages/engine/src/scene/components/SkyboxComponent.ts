@@ -1,4 +1,5 @@
-import { Sky } from 'three/examples/jsm/objects/Sky';
+import { Sky } from "@xr3ngine/engine/src/scene/classes/Sky";
+
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 
