@@ -25,9 +25,8 @@ export default class RecastClient {
   worker: any;
   working: boolean;
   constructor() {
-    // BUG: Recast worker doesn't seem to work in Spoke, def broken here
     // @ts-ignore
-    // this.worker = new RecastWorker();
+    this.worker = new RecastWorker();
     this.working = false;
   }
   async buildNavMesh(geometry, params, signal) {
@@ -60,8 +59,7 @@ export default class RecastClient {
       };
       onAbort = () => {
         this.worker.terminate();
-            // BUG: Recast worker doesn't seem to work in Spoke, def broken here
-        // @ts-ignore
+            // @ts-ignore
         this.worker = new RecastWorker();
         const error = new Error("Canceled navmesh generation.");
         error["aborted"] = true;

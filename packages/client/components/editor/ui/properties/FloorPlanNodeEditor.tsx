@@ -1,13 +1,13 @@
 import React, { Component } from "react";
-import NodeEditor from "../../../client/components/editor/ui/properties/NodeEditor";
-import InputGroup from "../../../client/components/editor/ui/inputs/InputGroup";
-import BooleanInput from "../../../client/components/editor/ui/inputs/BooleanInput";
-import NumericInputGroup from "../../../client/components/editor/ui/inputs/NumericInputGroup";
-import { PropertiesPanelButton } from "../../../client/components/editor/ui/inputs/Button";
-import ProgressDialog from "../../../client/components/editor/ui/dialogs/ProgressDialog";
-import ErrorDialog from "../../../client/components/editor/ui/dialogs/ErrorDialog";
-import { withDialog } from "../../../client/components/editor/ui/contexts/DialogContext";
-import { withSettings } from "../../../client/components/editor/ui/contexts/SettingsContext";
+import NodeEditor from "./NodeEditor";
+import InputGroup from "../inputs/InputGroup";
+import BooleanInput from "../inputs/BooleanInput";
+import NumericInputGroup from "../inputs/NumericInputGroup";
+import { PropertiesPanelButton } from "../inputs/Button";
+import ProgressDialog from "../dialogs/ProgressDialog";
+import ErrorDialog from "../dialogs/ErrorDialog";
+import { withDialog } from "../contexts/DialogContext";
+import { withSettings } from "../contexts/SettingsContext";
 import { ShoePrints } from "@styled-icons/fa-solid/ShoePrints";
 type FloorPlanNodeEditorProps = {
   hideDialog: (...args: any[]) => any;
