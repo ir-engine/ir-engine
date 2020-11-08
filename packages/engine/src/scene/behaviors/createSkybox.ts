@@ -1,4 +1,4 @@
-import { Sky } from '@xr3ngine/engine/src/scene/classes/Sky';
+import Sky from '@xr3ngine/engine/src/scene/classes/Sky';
 import { Vector3 } from 'three';
 import { addObject3DComponent } from '../../common/behaviors/Object3DBehaviors';
 import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
@@ -9,10 +9,7 @@ export default function createSkybox (entity, args: {
   obj3d;
   objArgs: any
 }): void {
-  console.log("Creating skybox");
-  addObject3DComponent(entity, { obj3d: args.obj3d });
-  addObject3DComponent(entity, { obj3d: args.obj3d });
-  addComponent(entity, SkyboxComponent);
+  addObject3DComponent(entity, { obj3d: args.obj3d, objArgs: args.objArgs });
   addComponent(entity, ScaleComponent);
   const scaleComponent = getMutableComponent<ScaleComponent>(entity, ScaleComponent);
   scaleComponent.scale = [args.objArgs.distance, args.objArgs.distance, args.objArgs.distance];
