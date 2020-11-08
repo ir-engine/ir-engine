@@ -55,9 +55,7 @@ export function addComponentFromBehavior<C> (
     component: ComponentConstructor<Component<C>> 
     objArgs: any
   }
-): void {
-  console.log("Adding component with values");
-  console.log(args);
+): void { 
   addComponent(entity, args.component, args.objArgs);
 }
 

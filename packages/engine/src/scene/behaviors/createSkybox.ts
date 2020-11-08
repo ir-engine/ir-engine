@@ -3,13 +3,16 @@ import { Vector3 } from 'three';
 import { addObject3DComponent } from '../../common/behaviors/Object3DBehaviors';
 import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { ScaleComponent } from '../../transform/components/ScaleComponent';
+import { SkyboxComponent } from '../components/SkyboxComponent';
 
 export default function createSkybox (entity, args: {
   obj3d;
   objArgs: any
 }): void {
+  console.log("Creating skybox");
   addObject3DComponent(entity, { obj3d: args.obj3d });
-  // Add entity
+  addObject3DComponent(entity, { obj3d: args.obj3d });
+  addComponent(entity, SkyboxComponent);
   addComponent(entity, ScaleComponent);
   const scaleComponent = getMutableComponent<ScaleComponent>(entity, ScaleComponent);
   scaleComponent.scale = [args.objArgs.distance, args.objArgs.distance, args.objArgs.distance];
