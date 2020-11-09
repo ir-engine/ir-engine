@@ -2,7 +2,7 @@
 {{- $fullName := include "xr3ngine.api.fullname" . -}}
 {{- $svcPort := .Values.api.service.port -}}
 {{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
-apiVersion: networking.k8s.io/v1
+apiVersion: networking.k8s.io/v1beta1
 {{- else -}}
 apiVersion: extensions/v1beta1
 {{- end }}
@@ -33,12 +33,9 @@ spec:
         paths:
         {{- range .paths }}
           - path: {{ . }}
-            pathType: Prefix
             backend:
-              service:
-                name: {{ $fullName }}
-                port:
-                  number: {{ $svcPort }}
+              serviceName: {{ $fullName }}
+              servicePort: {{ $svcPort }}
         {{- end }}
   {{- end }}
 {{- end }}
