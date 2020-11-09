@@ -194,12 +194,12 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     });
 
     const editor = this.state.editor;
-    
+
     try {
       // const templateFile = await this.props.api.fetchUrl(templateUrl).then(response => response.json());
-      
+
       await editor.init();
-      
+
       if (templateFile.metadata) {
         delete templateFile.metadata.sceneUrl;
         delete templateFile.metadata.sceneId;
@@ -207,7 +207,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
         delete templateFile.metadata.allowRemixing;
         delete templateFile.metadata.allowPromotion;
       }
-      
+
       await editor.loadProject(templateFile);
 
       this.hideDialog();
@@ -365,100 +365,57 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   generateToolbarMenu = () => {
     return [
       {
-        name: "Back to Projects",
+        name: "New Project",
+        action: this.onNewProject
+      },
+      {
+        name: "Save Project",
+        hotkey: `${cmdOrCtrlString} + S`,
+        action: this.onSaveProject
+      },
+      {
+        name: "Save As",
+        action: this.onDuplicateProject
+      },
+      {
+        name: "Publish Scene...",
+        action: this.onPublishProject
+      },
+      // {
+      //   name: "Export as binary glTF (.glb) ...", // TODO: Disabled temporarily till workers are working
+      //   action: this.onExportProject
+      // },
+      {
+        name: "Import editor project",
+        action: this.onImportLegacyProject
+      },
+      {
+        name: "Export editor project",
+        action: this.onExportLegacyProject
+      },
+      {
+        name: "Quit",
         action: this.onOpenProject
       },
-      {
-        name: "File",
-        items: [
-          {
-            name: "New Project",
-            action: this.onNewProject
-          },
-          {
-            name: "Save Project",
-            hotkey: `${cmdOrCtrlString} + S`,
-            action: this.onSaveProject
-          },
-          {
-            name: "Save As",
-            action: this.onDuplicateProject
-          },
-          // {
-          //   name: "Publish Scene...",
-          //   action: this.onPublishProject
-          // },
-          // {
-          //   name: "Export as binary glTF (.glb) ...", // TODO: Disabled temporarily till workers are working
-          //   action: this.onExportProject
-          // },
-          {
-            name: "Import legacy .editor project",
-            action: this.onImportLegacyProject
-          },
-          {
-            name: "Export legacy .editor project",
-            action: this.onExportLegacyProject
-          }
-        ]
-      },
-      {
-        name: "Help",
-        items: [
-          {
-            name: "Tutorial",
-            action: () => {
-              // const { projectId } = this.props.match.params;
-              const projectId = null;
 
-              if (projectId === "tutorial") {
-                this.setState({ onboardingContext: { enabled: true } });
-              } else {
-                this.props.router.push("/editor/projects/tutorial");
-              }
-            }
-          },
-          {
-            name: "Keyboard and Mouse Controls",
-            action: () => window.open("https://github.com/xr3ngine/xr3ngine/wiki/Keyboard-and-Mouse-Controls")
-          },
-          {
-            name: "Get Support",
-            action: () => this.showDialog(SupportDialog)
-          },
-          {
-            name: "Report an Issue",
-            action: () => window.open("https://github.com/xr3ngine/xr3ngine/issues/new")
-          },
-          {
-            name: "Join us on Discord",
-            action: () => window.open("https://discord.gg/mQ3D4FE")
-          },
-          {
-            name: "Terms of Use",
-            action: () => window.open("https://github.com/xr3ngine/xr3ngine/blob/master/TERMS.md")
-          },
-          {
-            name: "Privacy Notice",
-            action: () => window.open("https://github.com/xr3ngine/xr3ngine/blob/master/PRIVACY.md")
-          }
-        ]
-      },
-      {
-        name: "Developer",
-        items: [
-          {
-            name: this.state.settingsContext.settings.enableExperimentalFeatures
-              ? "Disable Experimental Features"
-              : "Enable Experimental Features",
-            action: () =>
-              this.updateSetting(
-                "enableExperimentalFeatures",
-                !this.state.settingsContext.settings.enableExperimentalFeatures
-              )
-          }
-        ]
-      }
+      // {
+      //   name: "Help",
+      //   items: [
+      //     {
+      //       name: "Tutorial",
+      //       action: () => {
+      //         // const { projectId } = this.props.match.params;
+      //         const projectId = null;
+
+      //         if (projectId === "tutorial") {
+      //           this.setState({ onboardingContext: { enabled: true } });
+      //         } else {
+      //           this.props.router.push("/editor/projects/tutorial");
+      //         }
+      //       }
+      //     }
+      //   ]
+      // }
     ];
   };
 
