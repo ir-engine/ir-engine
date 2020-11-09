@@ -41,7 +41,15 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
     inputAxes = DefaultInput.LOOKTURN_PLAYERONE;
   }
   inputValue = getInputData(inputComponent, inputAxes);
+
+  //This block was made for check distance as a separeted action, without any connections with mouse or touch move.
   if (!inputValue) {
+    const distanceNeedsUpdate = cameraFollow.distance != follower.position.distanceTo(target.position);
+    console.log(distanceNeedsUpdate);
+    console.log('Changed distance?', cameraFollow.distance);
+    if (distanceNeedsUpdate){
+      follower.position.sub(target.position).normalize().multiplyScalar(cameraFollow.distance).add(target.position);
+    }
     return;
   }
 

@@ -14,7 +14,7 @@ import { DefaultInput } from "../../src/templates/shared/DefaultInput";
 import { LifecycleValue } from "../../src/common/enums/LifecycleValue";
 import { normalizeMouseCoordinates } from "../../src/common/functions/normalizeMouseCoordinates";
 import { Vector2 } from "three";
-import { handleTouchScale } from "../../src/input/behaviors/handleTouchScale";
+// import { handleTouchScale } from "../../src/input/behaviors/handleTouchScale";
 
 function normalizeMouseCoordinatesV2(vector:Vector2, elementWidth: number, elementHeight: number): Vector2 {
   const n = normalizeMouseCoordinates(vector.x, vector.y, elementWidth, elementHeight);
@@ -49,12 +49,12 @@ const testInputSchema: InputSchema = {
       {
         behavior: handleTouchMove
       },
-      {
-        behavior: handleTouchScale,
-        args: {
-          value: DefaultInput.CAMERA_SCROLL
-        }
-      }
+      // {
+      //   behavior: handleTouchScale,
+      //   args: {
+      //     value: DefaultInput.CAMERA_SCROLL
+      //   }
+      // }
     ],
     touchend: [
       {
@@ -76,12 +76,12 @@ const testInputSchema: InputSchema = {
       {
         behavior: handleTouchMove
       },
-      {
-        behavior: handleTouchScale,
-        args: {
-          value: DefaultInput.CAMERA_SCROLL
-        }
-      }
+      // {
+      //   behavior: handleTouchScale,
+      //   args: {
+      //     value: DefaultInput.CAMERA_SCROLL
+      //   }
+      // }
     ],
   },
   touchInputMap: {
