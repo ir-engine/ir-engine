@@ -64,13 +64,13 @@ export const EnginePage: FunctionComponent = (props: any) => {
     setProgressEntity(' left '+ event.detail.left);
 
   const onObjectHover = (event: CustomEvent): void =>{
-    console.log('onObjectHover event',event)
+    // console.log('onObjectHover event',event)
     setHoveredLabel(event.detail.focused ? event.detail.interactionText : '');
   }
   
 
   const onObjectActivation = (event: CustomEvent): void =>{
-    console.log('onObjectActivation event',event);
+    // console.log('onObjectActivation event',event);
     setInfoBoxData(event.detail.payload);
     setHoveredLabel('');
   }

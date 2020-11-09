@@ -214,7 +214,7 @@ const lightTheme = createMuiTheme({
       },
       contained:{
         color: '#0076ff', 
-        backgroundColor: 'rgba(0,0,0,1)',       
+        backgroundColor: 'rgba(255,255,255,0.8)',       
         width: 'auto',
         fontWeight: 'bold',
         padding: '15px 30x',
@@ -232,5 +232,5 @@ const lightTheme = createMuiTheme({
   },
 });
 
-export default darkTheme;
-// export default lightTheme;
+// export default darkTheme;
+export default lightTheme;
