@@ -8,7 +8,6 @@ export default class ElementsSource extends BaseSource {
   editor: Editor;
   id: string;
   name: string;
-  enableExperimentalFeatures: any;
   disableUrl: boolean;
   searchDebounceTimeout: number;
   constructor(editor: Editor) {
@@ -17,15 +16,12 @@ export default class ElementsSource extends BaseSource {
     this.editor = editor;
     this.id = "elements";
     this.name = "Elements";
-    this.enableExperimentalFeatures =
-      editor.settings.enableExperimentalFeatures;
     this.editor.addListener("settingsChanged", this.onSettingsChanged);
     this.editor.addListener("sceneGraphChanged", this.onSceneGraphChanged);
     this.disableUrl = true;
     this.searchDebounceTimeout = 0;
   }
   onSettingsChanged = () => {
-    this.enableExperimentalFeatures = this.editor.settings.enableExperimentalFeatures;
     this.emit("resultsChanged");
   };
   onSceneGraphChanged = () => {
@@ -38,10 +34,7 @@ export default class ElementsSource extends BaseSource {
       if (!nodeType.canAddNode(editor)) {
         return acc;
       }
-      if (
-        (nodeType.experimental && !this.enableExperimentalFeatures) ||
-        nodeType.hideInElementsPanel
-      ) {
+      if (nodeType.hideInElementsPanel) {
         return acc;
       }
       const nodeEditor = editor.nodeEditors.get(nodeType);

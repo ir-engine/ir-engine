@@ -11,6 +11,7 @@ import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraCo
 export const switchCameraMode: Behavior = (entity: Entity, args: any): void => {
   const follower = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent); // Camera
   const camera = getMutableComponent<CameraComponent>(entity, CameraComponent); // Camera
+  if(follower === undefined) return console.warn("Follower is undefined on switchCameraMode");
   if (follower.mode == 'firstPerson') {
     follower.mode = 'thirdPerson'
     Engine.camera.near = 0.1

@@ -12,28 +12,28 @@ export class Location extends Service {
     this.app = app;
   }
 
-  async create (data: any, params: Params): Promise<any> {
-    console.log(data);
-    const { id } = data;
-
-    if (id) {
-      await this.app.service('location').get(id).then((existingLocation: any) => {
-        new Promise((resolve) =>
-          setTimeout(() => resolve(super.update(id, data, params)), 1000)
-        ).then((updatedLocation: any) => {
-          this.createInstances({ id: updatedLocation.id, instance: data.instance }).then(() => {}, () => {});
-        }, (reason: any) => {
-          console.error(reason);
-        });
-      }, (newLoc: any) => {
-        this.createNewLocation({ data, params }).then(() => {}, () => {});
-      });
-    } else {
-      this.createNewLocation({ data, params }).then(() => {}, () => {});
-    }
-
-    return 'success';
-  }
+  // async create (data: any, params: Params): Promise<any> {
+  //   console.log(data);
+  //   const { id } = data;
+  //
+  //   if (id) {
+  //     await this.app.service('location').get(id).then((existingLocation: any) => {
+  //       new Promise((resolve) =>
+  //         setTimeout(() => resolve(super.update(id, data, params)), 1000)
+  //       ).then((updatedLocation: any) => {
+  //         this.createInstances({ id: updatedLocation.id, instance: data.instance }).then(() => {}, () => {});
+  //       }, (reason: any) => {
+  //         console.error(reason);
+  //       });
+  //     }, (newLoc: any) => {
+  //       this.createNewLocation({ data, params }).then(() => {}, () => {});
+  //     });
+  //   } else {
+  //     this.createNewLocation({ data, params }).then(() => {}, () => {});
+  //   }
+  //
+  //   return 'success';
+  // }
 
   async createNewLocation ({ data, params }: { data: any; params: Params }): Promise<any> {
     await new Promise((resolve) =>
@@ -104,6 +104,14 @@ export class Location extends Service {
               [Op.lt]: Sequelize.col('location.maxUsersPerInstance')
             }
           }
+        },
+        {
+          model: this.app.service('location-settings').Model,
+          required: false
+        },
+        {
+          model: this.app.service('location-ban').Model,
+          required: false
         }
       ]
     });
