@@ -1,4 +1,4 @@
-import Sky from '@xr3ngine/engine/src/scene/classes/Sky';
+import { Sky } from '@xr3ngine/engine/src/scene/classes/Sky';
 import { Vector3 } from 'three';
 import { addObject3DComponent } from '../../common/behaviors/Object3DBehaviors';
 import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';

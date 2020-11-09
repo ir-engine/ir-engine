@@ -168,7 +168,7 @@ void main() {
   #include <fog_fragment>
 }
 `;
-export default class Sky extends Object3D {
+export class Sky extends Object3D {
   static shader = {
     uniforms: UniformsUtils.merge([
       UniformsLib.fog,

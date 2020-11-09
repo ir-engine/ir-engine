@@ -1,5 +1,5 @@
 import EditorNodeMixin from "./EditorNodeMixin";
-import Sky from "../../scene/classes/Sky";
+import { Sky } from "../../scene/classes/Sky";
 export default class SkyboxNode extends EditorNodeMixin(Sky) {
   static legacyComponentName = "skybox";
   static disableTransform = true;
