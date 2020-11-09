@@ -1,13 +1,15 @@
+import { ThemeProvider } from '@material-ui/core';
 import React, { useEffect } from 'react';
 import NoSSR from 'react-no-ssr';
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
 import Loading from '../../components/scenes/loading';
-import Scene from "../../components/scenes/ui";
+import Scene from "../../components/scenes/uiInteractive";
 import Layout from '../../components/ui/Layout';
 import { selectAuthState } from "../../redux/auth/selector";
 import { doLoginAuto } from '../../redux/auth/service';
 import { selectInstanceConnectionState } from '../../redux/instanceConnection/selector';
+import theme from '../../theme';
 
 interface Props {
     authState?: any;
@@ -49,11 +51,13 @@ export const objectInteractPage = (props: any): any => {
   // <Button className="right-bottom" variant="contained" color="secondary" aria-label="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }}>scene</Button>
 
   return(
-    <Layout pageTitle="Home">
-      <NoSSR onSSR={<Loading/>}>
-        {sceneIsVisible? (<Scene />) : null}
-      </NoSSR>
-    </Layout>
+    <ThemeProvider theme={theme}>
+      <Layout pageTitle="Home">
+        <NoSSR onSSR={<Loading/>}>
+          {sceneIsVisible? (<Scene />) : null}
+        </NoSSR>
+      </Layout>
+    </ThemeProvider>
   );
 };
 

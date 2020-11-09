@@ -90,7 +90,11 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
     store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_INTERACT));
   };
 
-  const exitTutorialHandle = () =>store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));
+  const exitTutorialHandle = () => {
+    const InputComponent = getMutableComponent(actorEntity, Input);
+    InputComponent.schema = CharacterInputSchema;
+    store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));
+  }
 
   let message = '';
   switch(onBoardingStep){
