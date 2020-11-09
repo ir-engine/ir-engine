@@ -474,7 +474,6 @@ export default class ToolBar extends Component {
               decrementTooltip="[=] Decrement Grid Height"
             />
           </ToolbarInputGroup>
-          {(this.props as any).editor.settings.enableExperimentalFeatures && (
             <ToolbarInputGroup id="preview">
               <ToggleButton
                 onClick={this.onTogglePlayMode}
@@ -483,7 +482,6 @@ export default class ToolBar extends Component {
                 {(this.props as any).editor.playing ? <Pause size={14} /> : <Play size={14} />}
               </ToggleButton>
             </ToolbarInputGroup>
-          )}
         </ToolToggles>
         <Spacer />
         {(this.props as any).isPublishedScene && (

@@ -1,27 +1,24 @@
-import { AppProps } from 'next/app';
 import React, { useEffect } from 'react';
-//import './Admin.module.scss';
-import { Button } from '@material-ui/core';
 import NoSSR from 'react-no-ssr';
 import { connect } from 'react-redux';
-import { Store, Dispatch, bindActionCreators } from 'redux';
+import { bindActionCreators, Dispatch } from 'redux';
 import Loading from '../../components/scenes/loading';
 import Scene from '../../components/scenes/multiplayer';
 import Layout from '../../components/ui/Layout';
 import { selectAppState } from '../../redux/app/selector';
 import { selectAuthState } from '../../redux/auth/selector';
-import { selectInstanceConnectionState } from '../../redux/instanceConnection/selector';
-import { selectPartyState } from '../../redux/party/selector';
-import { selectLocationState } from '../../redux/location/selector';
 import { doLoginAuto } from '../../redux/auth/service';
+import { client } from '../../redux/feathers';
+import { selectInstanceConnectionState } from '../../redux/instanceConnection/selector';
+import {
+    connectToInstanceServer,
+    provisionInstanceServer
+} from '../../redux/instanceConnection/service';
+import { selectLocationState } from '../../redux/location/selector';
 import {
     getLocation
 } from '../../redux/location/service';
-import {
-    connectToInstanceServer,
-    provisionInstanceServer,
-} from '../../redux/instanceConnection/service';
-import { client } from '../../redux/feathers';
+import { selectPartyState } from '../../redux/party/selector';
 
 interface Props {
     appState?: any;

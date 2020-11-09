@@ -90,9 +90,9 @@ export default class Api extends EventEmitter {
     super();
     if (process.browser) {
       const { protocol, host } = new URL((window as any).location.href);
-      this.serverURL = protocol + "//" + host;
+      this.serverURL = SERVER_URL;
     }
-    
+
     this.apiURL = `${SERVER_URL}`;
 
     this.projectDirectoryPath = "/api/files/";
@@ -141,20 +141,14 @@ export default class Api extends EventEmitter {
       authorization: `Bearer ${token}`
     };
 
-    console.log("SERVER URL IN API is ", SERVER_URL)
-
     const response = await this.fetchUrl(`${SERVER_URL}/project`, { headers });
-
-    console.log("Response: ");
-    console.log(response.body);
 
     const json = await response.json().catch(err => {
       console.log("Error fetching JSON");
       console.log(err);
     });
-    console.log("JSON is", json);
 
-    if (!Array.isArray(json.projects) || json.projects) {
+    if (!Array.isArray(json.projects) && json.projects) {
       throw new Error(`Error fetching projects: ${json.error || "Unknown error."}`);
     }
 

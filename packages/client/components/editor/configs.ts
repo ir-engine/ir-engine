@@ -14,11 +14,8 @@ const get = (configs, key, defaultValue) => {
   }
 };
 
-console.log("Server URL is", process.env.SERVER_URL);
-console.log(process.env.SERVER_URL);
-
-get(configs, "APP_URL", process.env.APP_URL);
-get(configs, "SERVER_URL", process.env.SERVER_URL);
+get(configs, "APP_URL", process.env.APP_URL ?? "https://localhost:3000");
+get(configs, "SERVER_URL", process.env.SERVER_URL ?? "https://localhost:3030");
 get(configs, "GA_TRACKING_ID", process.env.GA_TRACKING_ID);
 get(configs, "SENTRY_DSN", process.env.SENTRY_DSN);
 

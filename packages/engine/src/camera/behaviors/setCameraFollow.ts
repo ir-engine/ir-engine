@@ -26,6 +26,7 @@ let theta = 0;
 let phi = 0;
 
 export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: any, entityOut: Entity): void => {
+  return;
   follower = getMutableComponent<TransformComponent>(entityIn, TransformComponent); // Camera
   target = getMutableComponent<TransformComponent>(entityOut, TransformComponent); // Player
 

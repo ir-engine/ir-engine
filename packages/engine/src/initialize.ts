@@ -57,6 +57,8 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
   // Add the three.js scene to our manager -- it is now available anywhere
   Engine.scene = scene;
 
+  if(typeof window !== 'undefined') (window as any).engine = Engine;
+
   // Networking
   registerSystem(NetworkSystem, { schema: options.networking.schema, app: options.networking.app });
 

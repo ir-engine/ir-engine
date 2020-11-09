@@ -1,20 +1,6 @@
 import { BackSide, BoxBufferGeometry, Mesh, ShaderMaterial, UniformsUtils, Vector3 } from 'three';
 
-export class Sky extends Mesh {
-  geometry = new BoxBufferGeometry(1, 1, 1)
-  material = new ShaderMaterial({
-    name: 'SkyShader',
-    fragmentShader: SkyShader.fragmentShader,
-    vertexShader: SkyShader.vertexShader,
-    uniforms: UniformsUtils.clone(SkyShader.uniforms),
-    side: BackSide,
-    depthWrite: false
-  })
-
-  shader = SkyShader
-}
-
-export const SkyShader = {
+const SkyShader = {
   uniforms: {
     turbidity: { value: 2 },
     rayleigh: { value: 1 },
@@ -185,3 +171,17 @@ export const SkyShader = {
     '}'
   ].join('\n')
 };
+
+export class Sky extends Mesh {
+  static geometry = new BoxBufferGeometry(1, 1, 1)
+  static material = new ShaderMaterial({
+    name: 'SkyShader',
+    fragmentShader: SkyShader.fragmentShader,
+    vertexShader: SkyShader.vertexShader,
+    uniforms: UniformsUtils.clone(SkyShader.uniforms),
+    side: BackSide,
+    depthWrite: false
+  })
+
+  shader = SkyShader
+}
