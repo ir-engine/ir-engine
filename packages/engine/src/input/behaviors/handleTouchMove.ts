@@ -20,9 +20,6 @@ export const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEv
   const normalizedPosition = normalizeMouseCoordinates(args.event.touches[0].clientX, args.event.touches[0].clientY, window.innerWidth, window.innerHeight);
   const touchPosition: [number, number] = [normalizedPosition.x, normalizedPosition.y];
 
-  console.log(args.event.targetTouches.length);
-  console.log(args.event.touches.length);
-
   // Store raw pointer positions to use in other behaviours, like gesture detection
   input.data.set(DefaultInput.POINTER1_POSITION, {
     type: InputType.TWODIM,
@@ -32,13 +29,16 @@ export const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEv
 
   if (args.event.touches.length >= 2) {
     const normalizedPosition2 = normalizeMouseCoordinates(args.event.touches[1].clientX, args.event.touches[1].clientY, window.innerWidth, window.innerHeight);
+    const touchPosition2: [number, number] = [normalizedPosition2.x, normalizedPosition2.y];
 
     input.data.set(DefaultInput.POINTER2_POSITION, {
       type: InputType.TWODIM,
-      value: [normalizedPosition2.x, normalizedPosition2.y],
-      lifecycleState: LifecycleValue.CHANGED // TODO: should we handle lifecycle here?
+      value: touchPosition2,
+      lifecycleState: LifecycleValue.CHANGED 
     });
-  }if (args.event.touches.length == 1){
+  }
+
+  if (args.event.touches.length == 1){
   const mappedPositionInput = input.schema.touchInputMap?.axes[TouchInputs.Touch1Position];
   if (!mappedPositionInput) {
     return;
@@ -92,42 +92,16 @@ export const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEv
 
   const scaleMappedInputKey = input.schema.touchInputMap?.axes[TouchInputs.Scale];
 
-  // console.log(lastTouchPosition1);
-  // console.log(lastTouchPosition2);
-  // console.log(currentTouchPosition1);
-  // console.log(currentTouchPosition2);
-
   const currentDistance = currentTouchPosition1.distanceTo(currentTouchPosition2);
   const lastDistance = lastTouchPosition1.distanceTo(lastTouchPosition2);
 
   const touchScaleValue =   (lastDistance  - currentDistance) ;
-
   const signVal = Math.sign(touchScaleValue);
-
-  
-
-  // console.log(currentDistance);
-  // console.log(lastDistance);
-  console.log(touchScaleValue);
-  console.log(signVal);
-  // console.log(currentTouchPosition2);
-
-  // If mouse position not set, set it with lifecycle started
-  // input.data.set(scaleMappedInputKey, {
-  //   type: InputType.TWODIM,
-  //   value: touchScaleValue * 100, // TODO: remove 100 multiplication after mouse scroll will be normalized (or divided by 100)
-  //   lifecycleState: input.data.has(scaleMappedInputKey)? LifecycleValue.CHANGED : LifecycleValue.STARTED
-  // });
-  // input.data.set(scaleMappedInputKey, {
-  //   type: InputType.TWODIM,
-  //   value: Math.sign(touchScaleValue) , // TODO: remove 100 multiplication after mouse scroll will be normalized (or divided by 100)
-  //   lifecycleState:LifecycleValue.CHANGED
-  // });
 
   // If mouse position not set, set it with lifecycle started
   if (!input.data.has(scaleMappedInputKey)) {
     input.data.set(scaleMappedInputKey, {
-      type: InputType.ONEDIM,
+      type: InputType.TWODIM,
       value:signVal ,
       lifecycleState: LifecycleValue.STARTED
     });
@@ -137,7 +111,7 @@ export const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEv
 
     // If it's not the same, set it and update the lifecycle value to changed
     input.data.set(scaleMappedInputKey, {
-      type: InputType.ONEDIM,
+      type: InputType.TWODIM,
       value: oldValue + signVal,
       lifecycleState: LifecycleValue.CHANGED
     });
