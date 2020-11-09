@@ -150,6 +150,7 @@
   },
   "devDependencies": {
     "@types/bent": "^7.0.2",
+    "@types/bluebird": "^3.5.33",
     "@types/compression": "^1.7.0",
     "@types/cors": "^2.8.7",
     "@types/dotenv-flow": "^3.0.0",

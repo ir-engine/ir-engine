@@ -2,7 +2,6 @@
 import Fuse from "fuse.js";
 import { proxiedUrlFor } from "../../api/Api";
 import { BaseSource } from "./sources";
-import KitSourcePanel from "./KitSourcePanel";
 import { ItemTypes } from "../dnd";
 import ImageNode from "../../nodes/ImageNode";
 import VideoNode from "../../nodes/VideoNode";
@@ -26,7 +25,6 @@ export default class AssetManifestSource extends BaseSource {
   id: any;
   name: any;
   manifestUrl: any;
-  component: typeof KitSourcePanel;
   assets: any[];
   tags: any[];
   loaded: boolean;
@@ -41,7 +39,6 @@ export default class AssetManifestSource extends BaseSource {
     this.manifestUrl = proxiedUrlFor(
       new URL(manifestUrl, (window as any).location).href
     );
-    this.component = KitSourcePanel;
     this.assets = [];
     this.tags = [];
     this.loaded = false;
