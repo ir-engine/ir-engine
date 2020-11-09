@@ -12,7 +12,6 @@ import {
 import { CharacterAvatars } from "../CharacterAvatars";
 import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
 import { CharacterComponent } from "../components/CharacterComponent";
-import { initializeCharacter } from "./initializeCharacter";
 
 export const loadActorAvatar: Behavior = (entity) => {
   const avatarId: string = getComponent(entity, CharacterAvatarComponent)?.avatarId ?? "Andy";
@@ -28,7 +27,6 @@ export const loadActorAvatar: Behavior = (entity) => {
     castShadow: true,
     parent: tmpGroup,
     onLoaded: (entity, args) => {
-      initializeCharacter(entity);
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
       tmpGroup.children.forEach(child => actor.modelContainer.add(child));
     }
