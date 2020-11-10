@@ -49,6 +49,10 @@ export default (app: Application): void => {
               });
               await agonesSDK.allocate();
               (app as any).instance = instanceResult;
+
+              
+
+
               // Here's an example of sending data to the channel 'instanceIds/<instanceId>'
               // This .publish is a publish handler that controls which connections to send data to.
               // app.service('instance-provision').publish('created', async (data): Promise<any> => {
