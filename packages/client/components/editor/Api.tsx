@@ -1088,7 +1088,7 @@ export default class Api extends EventEmitter {
       }
       options.headers.authorization = `Bearer ${token}`;
       console.log("Post to: ", url);
-      console.log("Options")
+      console.log("Options");
       console.log(options);
       const res = await fetch(url, options).catch((error) => {
         console.log(error);

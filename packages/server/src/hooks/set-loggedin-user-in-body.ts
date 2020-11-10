@@ -3,7 +3,7 @@ import { extractLoggedInUserFromParams } from '../services/auth-management/auth-
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default (propertyName: string) => {
-  return (context: HookContext): HookContext => {
+  return (context: HookContext): any => {
     // Getting logged in user and attaching owner of user
     const loggedInUser = extractLoggedInUserFromParams(context.params);
     if (Array.isArray(context.data)) {

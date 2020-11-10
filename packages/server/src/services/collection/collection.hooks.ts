@@ -16,7 +16,7 @@ const logRequest = (options = {}) => {
     console.log(body);
     return context;
   };
-}
+};
 
 function processCollectionEntities (collection: any): any {
   const entitesObject: { [key: string]: {} } = {};
