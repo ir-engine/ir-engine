@@ -1,10 +1,5 @@
-.customDialog{
-
-  
+.customDialog{  
   .customDialogInner{
-    background-color: rgba(0,0,0,0.8);
-    color: #fff;
-
     &.avatarDialog{
       position: absolute;
       top: 10%;      
@@ -15,17 +10,24 @@
 
     &.scene_loaded{
       .dialogContent {
-        padding-top: 125px;
+        padding-top: 225px;
         background-image: url('../assets/ArenaLogo.png');
-        background-position: center top;
+        background-position: center 25px;
         background-repeat: no-repeat;
-        background-size: 150px;
+        background-size: 225px;
       }
     }
 
+
+    &.tutor_end{
+      @media (max-width: 768px) {
+        top: 30%;
+      }
+  }
+
     .dialogTitle {
       margin: 0;
-      padding: 10px;
+      padding: 30px 0 10px;
       text-align: center;
     
       .dialogCloseButton {
@@ -37,18 +39,14 @@
     }
   
     .dialogContent {
-      font-size: 1em;    
-      padding-bottom: 24px;
+      padding-bottom: 30px;
       text-align: center;
   
       .innerText{
-        padding: 10px 0;
+        padding: 20px 0;       
       }
-  
-      button{
-        display: block;
-        margin: 5px auto;
-        cursor: pointer;
+      a{
+        color: #0076ff;
       }
   
       .selectionButtons{

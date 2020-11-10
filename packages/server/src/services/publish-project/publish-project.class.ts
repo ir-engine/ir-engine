@@ -3,7 +3,6 @@ import { Forbidden } from '@feathersjs/errors';
 import { Transaction } from 'sequelize/types';
 import { Application } from '../../declarations';
 import { mapProjectDetailData, defaultProjectImport } from '../project/project-helper';
-// import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 import StorageProvider from '../../storage/storageprovider';
 import { collectionType } from '../../enums/collection';
 

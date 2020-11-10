@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import Router from 'next/router';
-import {Dialog, DialogTitle, DialogContent, Button, IconButton, Typography, CardMedia} from '@material-ui/core';
+import {Dialog, DialogTitle, DialogContent, Button, IconButton, Typography} from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import { selectDialogState } from '../../../redux/dialog/selector';
 import { closeDialog } from '../../../redux/dialog/service';
@@ -16,7 +16,10 @@ import { CharacterAvatarData } from '@xr3ngine/engine/src/templates/character/Ch
 import { ArrowIosBackOutline } from '@styled-icons/evaicons-outline/ArrowIosBackOutline';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline/ArrowIosForwardOutline';
 import styles from './OnBoardingDialog.module.scss';
-
+import { CharacterInputSchema } from '@xr3ngine/engine/src/templates/character/CharacterInputSchema';
+import { getMutableComponent } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
+import { Input } from "@xr3ngine/engine/src/input/components/Input";
+import { Entity } from "@xr3ngine/engine/src/ecs/classes/Entity";
 const mapStateToProps = (state: any): any => {
   return {
     dialog: selectDialogState(state),
@@ -34,8 +37,9 @@ interface DialogProps{
   avatarsList?: CharacterAvatarData[];
   actorAvatarId?:string;
   onAvatarChange?:any;
+  actorEntity? : Entity;
 }
-const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAvatarChange}:DialogProps): any => {
+const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAvatarChange, actorEntity}:DialogProps): any => {
 
   useEffect(() => {
     Router.events.on('routeChangeStart', () => {
@@ -81,33 +85,35 @@ const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAv
     switch(onBoardingStep){
       case  generalStateList.SCENE_LOADED : { 
             isOpened=true; dialogText = 'Virtual Conference / Retail Demo'; submitButtonText =  'Join World';
-            submitButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.AVATAR_SELECTION));
+            submitButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.SELECT_TUTOR));
             break;
           }
-      case generalStateList.DEVICE_SETUP: {
-            isOpened = true; title = 'Device Setup'; dialogText = 'Please accept the permissions request to user your microphone.'; 
-            children =  <UserSettings />; submitButtonText = 'Set Up Microphone';
-            submitButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.AVATAR_SELECTION));
-            break;
-           } 
-      case generalStateList.AVATAR_SELECTION: {
-            isOpened= true; title = 'Select An Avatar'; submitButtonText = 'Accept';          
-            children = <section className={styles.selectionButtonsWrapper}>
-                          <section className={styles.selectionButtons}>
-                            <ArrowIosBackOutline onClick={(): void => onAvatarChange(prevAvatarId)} />
-                            <ArrowIosForwardOutline onClick={(): void => onAvatarChange(nextAvatarId)} />
-                          </section>
-                        </section>;
-            submitButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.AVATAR_SELECTED));
-            break;
-          }
+      // case generalStateList.DEVICE_SETUP: {
+      //       isOpened = true; title = 'Device Setup'; dialogText = 'Please accept the permissions request to user your microphone.'; 
+      //       children =  <UserSettings />; submitButtonText = 'Set Up Microphone';
+      //       submitButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.AVATAR_SELECTION));
+      //       break;
+      //      } 
+      // case generalStateList.AVATAR_SELECTION: {
+      //       isOpened= true; title = 'Select An Avatar'; submitButtonText = 'Accept';          
+      //       children = <section className={styles.selectionButtonsWrapper}>
+      //                     <section className={styles.selectionButtons}>
+      //                       <ArrowIosBackOutline onClick={(): void => onAvatarChange(prevAvatarId)} />
+      //                       <ArrowIosForwardOutline onClick={(): void => onAvatarChange(nextAvatarId)} />
+      //                     </section>
+      //                   </section>;
+      //       submitButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.AVATAR_SELECTED));
+      //       break;
+      //     }
       case generalStateList.AVATAR_SELECTED: {
             store.dispatch(setAppOnBoardingStep(generalStateList.SELECT_TUTOR));            
            break;}
       case generalStateList.SELECT_TUTOR: {
             isOpened= true; title = 'Ready Player One!'; dialogText = 'If this is your first time, we suggest starting with the tutorial.'; 
             submitButtonText = 'Enter World'; otherButtonText = 'Start Tutorial';
-            submitButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));
+            submitButtonAction = ()=>{const InputComponent = getMutableComponent(actorEntity, Input);
+            InputComponent.schema = CharacterInputSchema;
+            store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));}
             otherButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_LOOKAROUND));
            break;}  
       case generalStateList.TUTOR_END: {

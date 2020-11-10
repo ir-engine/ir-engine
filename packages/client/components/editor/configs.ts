@@ -3,7 +3,7 @@
 // Read configs from meta tags if available, otherwise use the process.env injected from build.
 const configs = {};
 const get = (configs, key, defaultValue) => {
-  if (!process.browser) {
+  if (!(process as any)?.browser) {
     return;
   }
   const el = document.querySelector(`meta[name='env:${key.toLowerCase()}']`);

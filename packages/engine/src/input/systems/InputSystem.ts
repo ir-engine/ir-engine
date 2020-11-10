@@ -8,7 +8,7 @@ import { Engine } from "../../ecs/classes/Engine";
 import { Entity } from "../../ecs/classes/Entity";
 import { System } from '../../ecs/classes/System';
 import { Not } from "../../ecs/functions/ComponentFunctions";
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { Network } from "../../networking/components/Network";
 import { NetworkObject } from "../../networking/components/NetworkObject";
@@ -16,13 +16,13 @@ import { Server } from "../../networking/components/Server";
 import { handleUpdatesFromClients } from "../../networking/functions/handleUpdatesFromClients";
 import { handleInput } from '../behaviors/handleInput';
 import { handleInputPurge } from "../behaviors/handleInputPurge";
-import { initializeSession, processSession } from '../behaviors/WebXRInputBehaviors';
+//import { initializeSession, processSession } from '../behaviors/WebXRInputBehaviors';
+import { addPhysics, removePhysics, updatePhysics } from '../behaviors/WebXRControllersBehaviors';
 import { Input } from '../components/Input';
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
-import { WebXRRenderer } from '../components/WebXRRenderer';
 import { WebXRSession } from '../components/WebXRSession';
+import { XRControllersComponent } from '../components/XRControllersComponent';
 import { InputType } from "../enums/InputType";
-import { initVR } from '../functions/WebXRFunctions';
 import { InputValue } from "../interfaces/InputValue";
 import { ListenerBindingData } from "../interfaces/ListenerBindingData";
 import { InputAlias } from "../types/InputAlias";
@@ -41,30 +41,19 @@ export class InputSystem extends System {
   private _inputComponent: Input
 
   // Client only variables
-  readonly mainControllerId //= 0
-  readonly secondControllerId //= 1
+  public mainControllerId //= 0
+  public secondControllerId //= 1
   private readonly boundListeners //= new Set()
-  readonly useWebXR
-  readonly onVRSupportRequested
   private entityListeners: Map<Entity, Array<ListenerBindingData>>
 
-  constructor({ useWebXR, onVRSupportRequested }) {
+  constructor () {
     super();
     // Client only
     if (isClient) {
-      console.log("Initing on client")
-      this.useWebXR = useWebXR;
-      this.onVRSupportRequested = onVRSupportRequested;
       this.mainControllerId = 0;
       this.secondControllerId = 1;
       this.boundListeners = new Set();
       this.entityListeners = new Map();
-
-      if (this.useWebXR) {
-        if (this.onVRSupportRequested) {
-          initVR(this.onVRSupportRequested);
-        } else initVR();
-      }
     }
   }
 
@@ -80,14 +69,16 @@ export class InputSystem extends System {
 
   public clientExecute(delta: number): void {
     // Handle XR input
-    if (this.queryResults.xrRenderer.all.length > 0) {
-      console.log("XR RENDERING");
-      const webXRRenderer = getMutableComponent(this.queryResults.xrRenderer.all[0], WebXRRenderer);
-      // Called when WebXRSession component is added to entity
-      this.queryResults.xrSession.added?.forEach(entity => initializeSession(entity, { webXRRenderer }));
-      // Called every frame on all WebXRSession components
-      this.queryResults.xrSession.all?.forEach(entity => processSession(entity));
-    }
+    this.queryResults.controllersComponent.added?.forEach(entity => addPhysics(entity));
+    this.queryResults.controllersComponent.all?.forEach(entity => {
+      const xRControllers = getComponent(entity, XRControllersComponent)
+      if(xRControllers.physicsBody1 !== null && xRControllers.physicsBody2 !== null && this.mainControllerId) {
+        this.mainControllerId = xRControllers.physicsBody1;
+        this.secondControllerId = xRControllers.physicsBody2;
+      }
+      updatePhysics(entity)
+    });
+    this.queryResults.controllersComponent.removed?.forEach(entity => removePhysics(entity, { controllerPhysicalBody1: this.mainControllerId, controllerPhysicalBody2:  this.secondControllerId }));
 
     // Apply input for local user input onto client
     this.queryResults.localClientInput.all?.forEach(entity => {
@@ -117,35 +108,19 @@ export class InputSystem extends System {
         axes1d: {},
         axes2d: {}
       };
-      
+
       // Add all values in input component to schema
       for (const [key, value] of input.data.entries()) {
-
-        switch (value.type) {
-          case InputType.BUTTON:
+          if (value.type === InputType.BUTTON)
             inputs.buttons[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
-            numInputs++;
-            break;
-          case InputType.ONEDIM:
-            if (value.lifecycleState !== LifecycleValue.UNCHANGED) {
+          else if(value.type === InputType.ONEDIM && value.lifecycleState !== LifecycleValue.UNCHANGED)
               inputs.axes1d[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
-              numInputs++;
-            }
-            break;
-          case InputType.TWODIM:
-            if (value.lifecycleState !== LifecycleValue.UNCHANGED) {
+          else if(value.type === InputType.TWODIM && value.lifecycleState !== LifecycleValue.UNCHANGED)
               inputs.axes2d[key] = { input: key, valueX: value.value[0], valueY: value.value[1], lifecycleState: value.lifecycleState };
-              numInputs++;
-            }
-            break;
-          default:
-            console.error("Input type has no network handler (maybe we should add one?)");
-        }
       }
 
-      // Convert to a message buffer
+      // TODO: Convert to a message buffer
       const message = inputs; // clientInputModel.toBuffer(inputs)
-      // TODO: Send unreliably
       Network.instance.transport.sendReliableData(message); // Use default channel
     });
 
@@ -235,7 +210,7 @@ export class InputSystem extends System {
   public serverExecute(delta: number): void {
     // handle client input, apply to local objects and add to world state snapshot
     handleUpdatesFromClients();
-    
+
     // Called when input component is added to entity
     this.queryResults.inputOnServer.added?.forEach(entity => {
       // Get component reference
@@ -285,6 +260,6 @@ InputSystem.queries = {
       removed: true
     }
   },
-  xrRenderer: { components: [WebXRRenderer] },
-  xrSession: { components: [WebXRSession], listen: { added: true } }
+  xrSession: { components: [WebXRSession], listen: { added: true } },
+  controllersComponent: { components: [XRControllersComponent], listen: { added: true, removed: true } }
 };

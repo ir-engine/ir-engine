@@ -2,7 +2,7 @@ import dynamic from "next/dynamic";
 import React, { lazy, Suspense, useEffect, useState } from "react";
 import NoSSR from "react-no-ssr";
 
-const EditorContainer = dynamic(() => import("./../../../components/editor/ui/EditorContainer"), { ssr: false });
+const EditorContainer = dynamic(() => import("./../../../components/editor/EditorContainer"), { ssr: false });
 
 const Project = (props) => {
     const [hasMounted, setHasMounted] = useState(false);

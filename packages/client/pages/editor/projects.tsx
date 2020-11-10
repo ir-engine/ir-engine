@@ -1,13 +1,13 @@
 import React, { Component } from "react";
 import styled from "styled-components";
-import { withApi } from "../../components/editor/ui/contexts/ApiContext";
-import { Button, MediumButton } from "../../components/editor/ui/inputs/Button";
-import { connectMenu, ContextMenu, MenuItem } from "../../components/editor/ui/layout/ContextMenu";
-import { ErrorMessage, ProjectGrid, ProjectGridContainer, ProjectGridContent, ProjectGridHeader, ProjectGridHeaderRow } from "../../components/editor/ui/projects/ProjectGrid";
-import templates from "../../components/editor/ui/projects/templates";
-import Api from "../../components/editor/api/Api";
+import { withApi } from "../../components/editor/contexts/ApiContext";
+import { Button, MediumButton } from "../../components/editor/inputs/Button";
+import { connectMenu, ContextMenu, MenuItem } from "../../components/editor/layout/ContextMenu";
+import { ErrorMessage, ProjectGrid, ProjectGridContainer, ProjectGridContent, ProjectGridHeader, ProjectGridHeaderRow } from "../../components/editor/projects/ProjectGrid";
+import templates from "../../components/editor/projects/templates";
+import Api from "../../components/editor/Api";
 import { Router, withRouter } from "next/router";
-import { ThemeContext } from "../../components/editor/ui/theme";
+import { ThemeContext } from "../../components/editor/theme";
 export const ProjectsSection = (styled as any).section<{ flex?: number }>`
   padding-bottom: 100px;
   display: flex;

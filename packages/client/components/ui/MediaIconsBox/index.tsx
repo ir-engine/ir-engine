@@ -22,7 +22,7 @@ const MediaIconsBox = (props) =>{
       store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_END));
     }
   };
-  return props.onBoardingStep >= generalStateList.TUTOR_UNMUTE ? 
+  return props.onBoardingStep >= generalStateList.TUTOR_INTERACT ? 
         <section className={styles.drawerBoxContainer}>
           <section className={styles.drawerBox}>
             <Microphone onClick={handleMicClick} />

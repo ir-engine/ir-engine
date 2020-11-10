@@ -21,6 +21,7 @@ export const initialState = {
   },
   socket: {},
   locationId: '',
+  sceneId: '',
   instanceProvisioned: false,
   connected: false,
   readyToConnect: false,
@@ -55,6 +56,7 @@ const instanceConnectionReducer = (state = immutableState, action: InstanceServe
       return state
         .set('instance', newInstance)
         .set('locationId', newValues.locationId)
+        .set('sceneId', newValues.sceneId)
         .set('instanceProvisioning', false)
         .set('instanceProvisioned', true)
         .set('readyToConnect', true)
@@ -73,9 +75,11 @@ const instanceConnectionReducer = (state = immutableState, action: InstanceServe
       return state
         .set('instance', new Map(Object.entries(initialState.instance)))
         .set('locationId', initialState.locationId)
+        .set('sceneId', initialState.sceneId)
         .set('connected', false)
         .set('instanceProvisioned', false);
     case SOCKET_CREATED:
+      console.log("SOCKET CREATED");
       console.log(connectionSocket);
       console.log(action);
       if (connectionSocket != null) {
