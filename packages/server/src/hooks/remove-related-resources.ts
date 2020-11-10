@@ -102,7 +102,7 @@ export default (options = {}): Hook => {
         where: {
           id: id
         }
-      })
+      });
     }
 
     return context;
