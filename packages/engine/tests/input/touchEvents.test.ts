@@ -14,6 +14,12 @@ import { DefaultInput } from "../../src/templates/shared/DefaultInput";
 import { LifecycleValue } from "../../src/common/enums/LifecycleValue";
 import { normalizeMouseCoordinates } from "../../src/common/functions/normalizeMouseCoordinates";
 import { Vector2 } from "three";
+import { handleTouchScale } from "../../src/input/behaviors/handleTouchScale";
+
+function normalizeMouseCoordinatesV2(vector:Vector2, elementWidth: number, elementHeight: number): Vector2 {
+  const n = normalizeMouseCoordinates(vector.x, vector.y, elementWidth, elementHeight);
+  return new Vector2(n.x, n.y);
+}
 
 let addListenerMock:jest.SpyInstance;
 
@@ -42,6 +48,12 @@ const testInputSchema: InputSchema = {
       },
       {
         behavior: handleTouchMove
+      },
+      {
+        behavior: handleTouchScale,
+        args: {
+          value: DefaultInput.CAMERA_SCROLL
+        }
       }
     ],
     touchend: [
@@ -63,6 +75,12 @@ const testInputSchema: InputSchema = {
     touchmove: [
       {
         behavior: handleTouchMove
+      },
+      {
+        behavior: handleTouchScale,
+        args: {
+          value: DefaultInput.CAMERA_SCROLL
+        }
       }
     ],
   },
@@ -72,7 +90,8 @@ const testInputSchema: InputSchema = {
     },
     axes: {
       [TouchInputs.Touch1Position]: DefaultInput.SCREENXY,
-      [TouchInputs.Touch1Movement]: DefaultInput.LOOKTURN_PLAYERONE
+      [TouchInputs.Touch1Movement]: DefaultInput.LOOKTURN_PLAYERONE,
+      [TouchInputs.Scale]: DefaultInput.CAMERA_SCROLL
     }
   },
   inputButtonBehaviors: {
@@ -176,7 +195,7 @@ describe("move", () => {
 
   describe.skip("position", () => {
     it ("lifecycle STARTED", () => {
-      triggerTouch({ ...windowPoint1, type: 'touchmove', id: 1 });
+      triggerTouch({ touches: [ windowPoint1 ], type: 'touchmove' });
       execute();
 
       expect(input.data.has(DefaultInput.SCREENXY)).toBeTruthy();
@@ -187,9 +206,9 @@ describe("move", () => {
     });
 
     it ("lifecycle CHANGED", () => {
-      triggerTouch({ ...windowPoint1, type: 'touchmove', id: 1 });
+      triggerTouch({ touches: [ windowPoint1 ], type: 'touchmove' });
       execute();
-      triggerTouch({...windowPoint2, type: 'touchmove', id: 1 });
+      triggerTouch({ touches: [ windowPoint2 ], type: 'touchmove' });
       execute();
       // triggerTouch({...windowPoint3, type: 'touchmove', id: 1 })
       // execute();
@@ -202,9 +221,9 @@ describe("move", () => {
     });
 
     it ("lifecycle UNCHANGED", () => {
-      triggerTouch({ ...windowPoint1, type: 'touchmove', id: 1 });
+      triggerTouch({ touches: [ windowPoint1 ], type: 'touchmove' });
       execute();
-      triggerTouch({ ...windowPoint2, type: 'touchmove', id: 1 });
+      triggerTouch({ touches: [ windowPoint2 ], type: 'touchmove' });
       execute(); // changed
       execute(); // unchanged from previous execution
 
@@ -236,7 +255,7 @@ describe("move", () => {
 
   describe.skip("movement", () => {
     it ("lifecycle STARTED", () => {
-      triggerTouch({ ...windowPoint1, type: 'touchmove', id: 1 });
+      triggerTouch({ touches: [ windowPoint1 ], type: 'touchmove' });
       execute();
 
       expect(input.data.has(DefaultInput.LOOKTURN_PLAYERONE)).toBeTruthy();
@@ -247,9 +266,9 @@ describe("move", () => {
     });
 
     it ("lifecycle CHANGED", () => {
-      triggerTouch({ ...windowPoint1, type: 'touchmove', id: 1 });
+      triggerTouch({ touches: [ windowPoint1 ], type: 'touchmove' });
       execute();
-      triggerTouch({...windowPoint2, type: 'touchmove', id: 1 });
+      triggerTouch({ touches: [ windowPoint2 ], type: 'touchmove' });
       execute();
 
       expect(input.data.has(DefaultInput.LOOKTURN_PLAYERONE)).toBeTruthy();
@@ -260,9 +279,9 @@ describe("move", () => {
     });
 
     it ("lifecycle UNCHANGED", () => {
-      triggerTouch({ ...windowPoint1, type: 'touchmove', id: 1 });
+      triggerTouch({ touches: [ windowPoint1 ], type: 'touchmove' });
       execute();
-      triggerTouch({ ...windowPoint2, type: 'touchmove', id: 1 });
+      triggerTouch({ touches: [ windowPoint2 ], type: 'touchmove' });
       execute(); // changed
       execute(); // unchanged from previous execution
 
@@ -286,7 +305,7 @@ describe("gestures", () => {
 
   describe.skip("touch", () => {
     it ("lifecycle STARTED", () => {
-      triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 });
+      triggerTouch({ touches: [ windowPoint1 ], type: 'touchstart' });
       execute();
 
       expect(input.data.has(DefaultInput.INTERACT)).toBeTruthy();
@@ -297,7 +316,7 @@ describe("gestures", () => {
     });
 
     it ("lifecycle CONTINUED", () => {
-      triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 });
+      triggerTouch({ touches: [ windowPoint1 ], type: 'touchstart' });
       execute();
       execute();
 
@@ -309,9 +328,9 @@ describe("gestures", () => {
     });
 
     it ("lifecycle ENDED", () => {
-      triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 });
+      triggerTouch({ touches: [ windowPoint1 ], type: 'touchstart' });
       execute();
-      triggerTouch({ ...windowPoint1, type: 'touchend', id: 1 });
+      triggerTouch({ touches: [ windowPoint1 ], type: 'touchend' });
       execute();
 
       expect(input.data.has(DefaultInput.INTERACT)).toBeFalsy();
@@ -339,9 +358,9 @@ describe("gestures", () => {
   describe.skip("touch drag", () => {
     it ("lifecycle STARTED", () => {
       let data
-      triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 });
+      triggerTouch({ touches: [ windowPoint1 ], type: 'touchstart' });
       execute();
-      triggerTouch({ ...windowPoint2, type: 'touchmove', id: 1 });
+      triggerTouch({ touches: [ windowPoint2 ], type: 'touchmove' });
       execute();
 
       expect(input.data.has(DefaultInput.LOOKTURN_PLAYERONE)).toBeTruthy();
@@ -376,6 +395,35 @@ describe("gestures", () => {
 
   // zoom
   // TODO: check Scale(Pinch)
+  describe.skip("touch scale", () => {
+    const windowPoint1_1 = new Vector2( 100, 20 );
+    const normalPoint1_1 = normalizeMouseCoordinatesV2(windowPoint1_1, window.innerWidth, window.innerHeight);
+    const windowPoint1_2 = new Vector2( 110, 30 );
+    const normalPoint1_2 = normalizeMouseCoordinatesV2(windowPoint1_2, window.innerWidth, window.innerHeight);
+
+    const windowPoint2_1 = new Vector2( 90, 10 );
+    const normalPoint2_1 = normalizeMouseCoordinatesV2(windowPoint2_1, window.innerWidth, window.innerHeight);
+    const windowPoint2_2 = new Vector2( 120, 40 );
+    const normalPoint2_2 = normalizeMouseCoordinatesV2(windowPoint2_2, window.innerWidth, window.innerHeight);
+
+    const distance1 = normalPoint1_1.distanceTo(normalPoint1_2);
+    const distance2 = normalPoint2_1.distanceTo(normalPoint2_2);
+
+    it ("lifecycle STARTED", () => {
+      let data
+      triggerTouch({ touches: [ windowPoint1_1, windowPoint1_2 ], type: 'touchstart' });
+      execute();
+      triggerTouch({ touches: [ windowPoint2_1, windowPoint2_2 ], type: 'touchmove' });
+      execute();
+
+      expect(input.data.has(DefaultInput.CAMERA_SCROLL)).toBeTruthy();
+      const data2 = input.data.get(DefaultInput.CAMERA_SCROLL);
+      expect(data2.value).toBe((distance2 - distance1)*100);  // TODO: remove 100 multiplication after mouse scroll will be normalized (or divided by 100)
+
+      // expect(data2.lifecycleState).toBe(LifecycleValue.CHANGED);
+      //expect(mockedButtonBehaviorOnStarted.mock.calls.length).toBe(1);
+    });
+  });
 });
 
 describe.skip("special cases", () => {
@@ -391,15 +439,15 @@ describe.skip("special cases", () => {
     const normalDiff1to3 = { x: normalPoint3.x - normalPoint1.x, y: normalPoint3.y - normalPoint1.y };
 
 
-    triggerTouch({ ...windowPoint1, type: 'touchstart', id: 1 });
-    triggerTouch({ ...windowPoint2, type: 'touchmove', id: 1 });
+    triggerTouch({ touches: [ windowPoint1 ], type: 'touchstart' });
+    triggerTouch({ touches: [ windowPoint2 ], type: 'touchmove' });
     execute();
     const data = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
     expect(data.value).toMatchObject([ normalDiff1.x, normalDiff1.y ]);
 
-    triggerTouch({ ...windowPoint1, type: 'touchmove', id: 1 });
-    triggerTouch({ ...windowPoint2, type: 'touchmove', id: 1 });
-    triggerTouch({ ...windowPoint3, type: 'touchmove', id: 1 });
+    triggerTouch({ touches: [ windowPoint1 ], type: 'touchmove' });
+    triggerTouch({ touches: [ windowPoint2 ], type: 'touchmove' });
+    triggerTouch({ touches: [ windowPoint3 ], type: 'touchmove' });
     execute();
 
     expect(input.data.has(DefaultInput.LOOKTURN_PLAYERONE)).toBeTruthy();
@@ -438,10 +486,10 @@ describe.skip("special cases", () => {
 
     const nMoveTotal = normalizeCoordinatesV(pointEnd, width, height).sub(normalizeCoordinatesV(pointStart, width, height));
 
-    triggerTouch({ ...pointStart, type: 'touchmove', id: 1 });
+    triggerTouch({ touches: [ pointStart ], type: 'touchmove' });
     execute();
     points.forEach(data => {
-      triggerTouch({ ...data.point, type: 'touchmove', id: 1 });
+      triggerTouch({ touches: [ data.point ], type: 'touchmove' });
     })
     execute();
     const data = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
@@ -449,27 +497,26 @@ describe.skip("special cases", () => {
   })
 })
 
-function triggerTouch({ x, y, type, id = 0}: { x:number, y:number, type?:string, id?:number }):void {
-  const touch = {
-    identifier: id,
-    target: document,
-    clientX: x,
-    clientY: y,
-  };
-  const touches = [
-    touch
-  ];
+function triggerTouch({ touches, type}: { touches:{x:number,y:number,id?:number}[], type?:string }):void {
+  const _touches = touches.map(touch => {
+    return {
+      identifier: touch.id,
+      target: document,
+      clientX: touch.x,
+      clientY: touch.y,
+    };
+  });
 
   const typeListenerCalls = addListenerMock.mock.calls.filter(call => call[0] === type);
   typeListenerCalls.forEach(typeListenerCall => {
     typeListenerCall[1]({
       type,
-      changedTouches: touches,
-      targetTouches: touches,
-      touches: touches,
+      changedTouches: _touches,
+      targetTouches: _touches,
+      touches: _touches,
       view: window,
       cancelable: true,
       bubbles: true,
     });
-  })
+  });
 }

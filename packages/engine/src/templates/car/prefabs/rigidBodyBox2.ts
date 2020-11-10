@@ -19,8 +19,8 @@ import { onInteraction, onInteractionHover } from "../../interactive/functions/c
 
 export const rigidBodyBox2: Prefab = {
     components: [
-      { type: TransformComponent, data: { position: [-2.6, 2,-2.6]} },
-      { type: ColliderComponent, data: { type: 'sphere', scale: [1, 1, 1], mass: 10 }},
+      { type: TransformComponent, data: { position: [0.4, 1,-0.4]} },
+      { type: ColliderComponent, data: { type: 'sphere', scale: [0.3, 1, 1], mass: 1 }},
       { type: RigidBody },
       { type: Interactable, data: {
           onInteraction: onInteraction,
@@ -55,9 +55,9 @@ export const rigidBodyBox2: Prefab = {
             behavior: addObject3DComponent,
             args: {
               obj3d: new Mesh(
-                new SphereBufferGeometry( 0.5, 32, 32 ),
+                new SphereBufferGeometry( 0.15, 64, 64 ),
                 new MeshStandardMaterial({
-                  color: new Color(0.513410553336143494, 0, 0.002206481294706464),
+                  color: new Color(0.813410553336143494, 0.81341053336143494, 0.80206481294706464),
                   metalness: 0.8323529362678528,
                   refractionRatio: 0.98,
                   roughness: 0.5527864098548889,

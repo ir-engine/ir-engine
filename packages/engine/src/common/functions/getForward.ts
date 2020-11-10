@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Space } from '../../../common/enums/Space';
+import { Space } from '../enums/Space';
 import { getMatrix } from './getMatrix';
 
 export function getForward(obj: THREE.Object3D, space: Space = Space.Global): THREE.Vector3 {

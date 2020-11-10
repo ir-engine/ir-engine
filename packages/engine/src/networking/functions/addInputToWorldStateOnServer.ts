@@ -6,19 +6,16 @@ import { NetworkObject } from '../components/NetworkObject';
 import { InputType } from '../../input/enums/InputType';
 import { Network } from '../components/Network';
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
+import _ from 'lodash';
 
 export const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
-  let lastSize = 0
+  console.log("addInputToWorldStateOnServer", entity.id);
   const input = getComponent(entity, Input);
   const networkId = getComponent(entity, NetworkObject).networkId;
-  // Get all input receivers
   
   // If there's no input, don't send the frame, unless the last frame had input
-  if (input.data.size < 1 && lastSize < 1) {
+  if (input.data.size < 1 && !_.isEqual(input.data, input.lastData))
     return
-  }
-
-  lastSize = input.data.size;
 
   // Create a schema for input to send
   const inputs = {
