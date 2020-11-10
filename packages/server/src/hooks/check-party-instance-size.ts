@@ -67,6 +67,7 @@ export default () => {
             await context.app.service('instance-provision').emit('created', {
               userId: partyOwner.userId,
               locationId: location.id,
+              sceneId: location.sceneId,
               ipAddress: emittedIp.ipAddress,
               port: emittedIp.port
             });
@@ -84,6 +85,7 @@ export default () => {
             await context.app.service('instance-provision').emit('created', {
               userId: partyOwner.userId,
               locationId: location.id,
+              sceneId: location.sceneId,
               instanceId: instance.id,
               ipAddress: emittedIp.ipAddress,
               port: emittedIp.port
