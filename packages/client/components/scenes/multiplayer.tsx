@@ -85,11 +85,9 @@ export const EnginePage = (props: Props) => {
   }, []);
 
 
-  async function init(projectId: string): Promise<any> { // auth: any,
+  async function init(sceneId: string): Promise<any> { // auth: any,
     let service, serviceId;
-    const r = await client.service('project').find();
-
-    const projectResult = await client.service('project').get(projectId);
+    const projectResult = await client.service('project').get(sceneId);
     const projectUrl = projectResult.project_url;
     const regexResult = projectUrl.match(projectRegex);
     if (regexResult) {
@@ -97,7 +95,7 @@ export const EnginePage = (props: Props) => {
       serviceId = regexResult[2];
     }
     const result = await client.service(service).get(serviceId);
-    console.log("Result is ")
+    console.log("Result is ");
     console.log(result);
     loadScene(result);
     const cameraTransform = getMutableComponent<TransformComponent>(

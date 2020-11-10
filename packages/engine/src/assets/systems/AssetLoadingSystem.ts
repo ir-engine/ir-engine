@@ -1,15 +1,13 @@
 import { removeObject3DComponent } from '../../common/behaviors/Object3DBehaviors';
 import { Object3DComponent } from '../../common/components/Object3DComponent';
+import { isClient } from '../../common/functions/isClient';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { Not } from '../../ecs/functions/ComponentFunctions';
 import {
-  addComponent,
-  createEntity, getComponent, getMutableComponent,
-
-  hasComponent,
-  removeComponent
+  addComponent, createEntity, getComponent, getMutableComponent, hasComponent, removeComponent
 } from '../../ecs/functions/EntityFunctions';
+import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { AssetLoader } from '../components/AssetLoader';
 import { AssetLoaderState } from '../components/AssetLoaderState';
 import AssetVault from '../components/AssetVault';
@@ -17,12 +15,7 @@ import { Model } from '../components/Model';
 import { Unload } from '../components/Unload';
 import { AssetClass } from '../enums/AssetClass';
 import { getAssetClass, getAssetType, loadAsset } from '../functions/LoadingFunctions';
-import { isClient } from '../../common/functions/isClient';
-import { MeshPhysicalMaterial, TorusGeometry } from "three";
 import { ProcessModelAsset } from "../functions/ProcessModelAsset";
-import { CharacterAvatarComponent } from "../../templates/character/components/CharacterAvatarComponent";
-import { loadActorAvatar } from "../../templates/character/behaviors/loadActorAvatar";
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 
 export default class AssetLoadingSystem extends System {
   updateType = SystemUpdateType.Fixed;
@@ -145,13 +138,5 @@ AssetLoadingSystem.queries = {
   },
   toUnload: {
     components: [AssetLoaderState, Unload, Not(AssetLoader)]
-  },
-  // TODO: Remove this
-  characterAvatar: {
-    components: [CharacterAvatarComponent],
-    listen: {
-      added: true,
-      changed: true
-    }
   }
 };

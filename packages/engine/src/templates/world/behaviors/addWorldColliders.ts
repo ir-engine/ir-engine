@@ -20,10 +20,10 @@ export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
          // console.log(mesh);
          if(mesh.type == 'Group') {
            for (let i = 0; i < mesh.children.length; i++) {
-             addColliderWithoutEntity(mesh.userData.type, mesh.children[i].position, mesh.children[i].quaternion, mesh.children[i].scale, mesh.children[i]);
+          //   addColliderWithoutEntity(mesh.userData.type, mesh.children[i].position, mesh.children[i].quaternion, mesh.children[i].scale, mesh.children[i]);
            }
          } else if (mesh.type == 'Mesh') {
-           addColliderWithoutEntity(mesh.userData.type, mesh.position, mesh.quaternion, mesh.scale, mesh);
+        //   addColliderWithoutEntity(mesh.userData.type, mesh.position, mesh.quaternion, mesh.scale, mesh);
          }
 
        }

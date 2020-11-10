@@ -94,7 +94,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
         schema: networkSchema,
       }
     };
-    
+
     initializeEngine(InitializationOptions);
 
     addObject3DComponent(createEntity(), {
