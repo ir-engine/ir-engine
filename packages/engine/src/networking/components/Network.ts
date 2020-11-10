@@ -27,18 +27,11 @@ export interface NetworkClientList {
   };
 }
 
-
 export class Network extends Component<Network> {
   static instance: Network = null
   isInitialized: boolean
   transport: NetworkTransport
   schema: NetworkSchema
-  // Add more data channels if needed, probably use sort of an enums just like MessageTypes for them
-  dataChannels: string[] = [
-    // examples
-    // 'physics',
-    // 'location' 
-  ]
   clients: NetworkClientList = {}
   networkObjects: NetworkObjectList = {}
   socketId: string
@@ -57,6 +50,7 @@ export class Network extends Component<Network> {
     tick: Network.tick,
     transforms: [],
     inputs: [],
+    states: [],
     clientsConnected: [],
     clientsDisconnected: [],
     createObjects: [],
@@ -71,7 +65,6 @@ export class Network extends Component<Network> {
     Network.instance = this;
     Network.tick = 0;
 
-    // TODO: Replace default message queue sizes
     this.incomingMessageQueue = new RingBuffer<ArrayBuffer>(100);
   }
 

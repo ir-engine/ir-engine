@@ -1,19 +1,19 @@
-import { InputSchema } from "../../input/interfaces/InputSchema";
-import { preventDefault } from "../../common/functions/preventDefault";
-import { handleMouseMovement } from "../../input/behaviors/handleMouseMovement";
-import { handleMouseButton } from "../../input/behaviors/handleMouseButton";
 import { BinaryValue } from "../../common/enums/BinaryValue";
-import { handleMouseWheel } from "../../input/behaviors/handleMouseWheel";
-import { DefaultInput } from "./DefaultInput";
-import { handleTouch } from "../../input/behaviors/handleTouch";
-import { handleTouchMove } from "../../input/behaviors/handleTouchMove";
-import { handleKey } from "../../input/behaviors/handleKey";
+import { disableScroll, enableScroll } from "../../common/functions/enableDisableScrolling";
+import { preventDefault } from "../../common/functions/preventDefault";
 import { handleGamepadConnected, handleGamepadDisconnected } from "../../input/behaviors/GamepadInputBehaviors";
+import { handleKey } from "../../input/behaviors/handleKey";
+import { handleMouseButton } from "../../input/behaviors/handleMouseButton";
+import { handleMouseMovement } from "../../input/behaviors/handleMouseMovement";
+import { handleMouseWheel } from "../../input/behaviors/handleMouseWheel";
 import {
   handleOnScreenGamepadButton,
   handleOnScreenGamepadMovement
 } from "../../input/behaviors/handleOnScreenJoystick";
-import { disableScroll, enableScroll } from "../../common/functions/enableDisableScrolling";
+import { handleTouch } from "../../input/behaviors/handleTouch";
+import { handleTouchMove } from "../../input/behaviors/handleTouchMove";
+import { InputSchema } from "../../input/interfaces/InputSchema";
+import { DefaultInput } from "./DefaultInput";
 
 export const DefaultInputSchema: InputSchema = {
   inputAxisBehaviors: {},
@@ -79,7 +79,13 @@ export const DefaultInputSchema: InputSchema = {
         args: {
           value: BinaryValue.ON
         }
-      }
+      },
+      // {
+      //   behavior: handleTouchScale,
+      //   args: {
+      //     value: DefaultInput.CAMERA_SCROLL
+      //   }
+      // }
     ],
     touchend: [
       {
@@ -100,7 +106,13 @@ export const DefaultInputSchema: InputSchema = {
     touchmove: [
       {
         behavior: handleTouchMove
-      }
+      },
+      // {
+      //   behavior: handleTouchScale,
+      //   args: {
+      //     value: DefaultInput.CAMERA_SCROLL
+      //   }
+      // }
     ],
     // Keys
     keyup: [

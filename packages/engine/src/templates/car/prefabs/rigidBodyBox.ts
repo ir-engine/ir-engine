@@ -1,4 +1,4 @@
-import { BoxBufferGeometry, Mesh, MeshPhongMaterial } from "three";
+import { BoxBufferGeometry, Mesh, MeshPhongMaterial, Color } from "three";
 import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
 import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
 
@@ -11,15 +11,16 @@ import { attachCamera } from "@xr3ngine/engine/src/camera/behaviors/attachCamera
 import { Interactable } from "../../../interaction/components/Interactable";
 import { onInteraction, onInteractionHover } from "../../interactive/functions/commonInteractive";
 
-const boxGeometry = new BoxBufferGeometry(1, 1, 1);
-const boxMaterial = new MeshPhongMaterial({ color: 'red' });
+const boxGeometry = new BoxBufferGeometry(0.3, 0.3, 0.3);
+const boxMaterial = new MeshPhongMaterial({ color: new Color(0.813410553336143494, 0.81341053336143494, 0.80206481294706464) });
 const boxMesh = new Mesh(boxGeometry, boxMaterial);
 boxMesh.name = 'simpleBox';
 
 export const rigidBodyBox: Prefab = {
     components: [
-      { type: TransformComponent, data: { position: [-3, 1,-3]} },
-      { type: ColliderComponent, data: { type: 'box', scale: [1, 1, 1], mass: 10 }},
+      { type: TransformComponent, data: { position: [0.8, 1,-0.8]} },
+      { type: ColliderComponent, data: { type: 'box', scale: [0.3, 0.3, 0.3], mass: 10 }},
+      { type: RigidBody },
 
       { type: Interactable, data: {
           onInteraction: onInteraction,

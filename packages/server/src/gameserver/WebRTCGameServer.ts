@@ -10,7 +10,7 @@ const networkSchema = {
 
 const options = {
   input: {
-    useWebXR: true
+    useWebXR: false
   },
   networking: {
     schema: networkSchema
@@ -21,8 +21,10 @@ const options = {
 };
 
 export class WebRTCGameServer {
+  static instance: WebRTCGameServer = null
   constructor(app: any) {
     (options.networking as any).app = app;
+    WebRTCGameServer.instance = this;
     initializeEngine(options);
   }
 }

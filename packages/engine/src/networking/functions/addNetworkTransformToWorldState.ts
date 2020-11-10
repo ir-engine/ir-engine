@@ -5,6 +5,7 @@ import { Network } from '../components/Network';
 import { NetworkObject } from '../components/NetworkObject';
 
 export const addNetworkTransformToWorldState: Behavior = (entity) => {
+    console.log("addNetworkTransformToWorldState", entity.id);
     const transformComponent = getComponent(entity, TransformComponent);
     const networkObject = getComponent(entity, NetworkObject);
 

@@ -32,32 +32,21 @@ export const PlayerCharacter: Prefab = {
         { type: Input, data: { schema: EmptyCharacterInputSchema } },
         { type: CharacterAvatarComponent, data: { avatarId: 'Rose' }},
         { type: LocalInputReceiver },
-        // Follow Camera for thet entity
+        // Follow Camera for the entity
         { type: FollowCameraComponent, data: { distance: 3, mode: "thirdPerson" }},
         // Current state (isJumping, isidle, etc)
         { type: State, data: { schema: CharacterStateSchema } },
         // Similar to Unity's Update(), LateUpdate(), and Start()
         { type: Subscription, data: { schema: CharacterSubscriptionSchema } },
-      //  { type: LocalInputReceiver }
         { type: Interactor }
     ],
     onAfterCreate: [
         {
-            behavior: loadActorAvatar
+            behavior: initializeCharacter
         },
-        // {
-        //     behavior: addComponentFromSchema,
-        //     args: {
-        //         // addObject3DComponent is going to call new obj(objArgs)
-        //         // so this will be new Mesh(new BoxBufferGeometry(0.2, 0.2, 0.2))
-        //         component: AssetLoader,
-        //         componentArgs: {
-        //             url: "models/avatars/Rose.glb",
-        //             receiveShadow: true,
-        //             castShadow: true
-        //         }
-        //     }
-        // },
+        {
+            behavior: loadActorAvatar
+        }
     ],
     onBeforeDestroy: [
 
