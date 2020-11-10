@@ -12,7 +12,7 @@ export default {
     find: [
       commonHooks.iff(
         commonHooks.isProvider('external'),
-        async (context: HookContext): Promise<HookContext> => {
+        async (context: HookContext): Promise<any> => {
           const { app, params } = context;
 
           const ownedSubscription = await app.service('subscription').find({

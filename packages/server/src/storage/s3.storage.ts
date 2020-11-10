@@ -16,7 +16,7 @@ export default class S3Provider implements StorageProviderInterface {
   })
 
   getProvider = (): any => {
-    return this.provider
+    return this.provider;
   }
 
   getStorage = (): S3BlobStore => this.blob

@@ -17,8 +17,6 @@ type FloorPlanNodeEditorProps = {
   node?: object;
 };
 class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
-    static iconComponent = ShoePrints;
-    static description = "Sets the walkable surface area in your scene.";
     constructor(props) {
         super(props);
         const createPropSetter = propName => value =>
@@ -34,6 +32,8 @@ class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
         this.onChangeMaxTriangles = createPropSetter("maxTriangles");
         this.onChangeForceTrimesh = createPropSetter("forceTrimesh");
     }
+    static iconComponent = ShoePrints;
+    static description = "Sets the walkable surface area in your scene.";
   onChangeAutoCellSize: (value: any) => any;
   onChangeCellSize: (value: any) => any;
   onChangeCellHeight: (value: any) => any;
