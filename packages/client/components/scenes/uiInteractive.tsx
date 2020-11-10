@@ -63,21 +63,18 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const sceneLoadedEntity = (event: CustomEvent): void =>
     setProgressEntity(' left '+ event.detail.left);
 
-  const onObjectHover = (event: CustomEvent): void =>{
-    // console.log('onObjectHover event',event)
+  const onObjectHover = (event: CustomEvent): void =>
     setHoveredLabel(event.detail.focused ? event.detail.interactionText : '');
-  }
   
 
   const onObjectActivation = (event: CustomEvent): void =>{
-    // console.log('onObjectActivation event',event);
     setInfoBoxData(event.detail.payload);
     setHoveredLabel('');
   }
 
-  const sceneLoaded = (event: CustomEvent): void => 
-    (event.detail.loaded)
-      store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));      
+  const sceneLoaded = (event: CustomEvent) => 
+    (event.detail.loaded == true) &&
+        store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));          
   
   
   useEffect(() => {

@@ -102,7 +102,6 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
     case generalStateList.TUTOR_MOVE: message= isMobileOrTablet() ? ' Use joystick to move' : 'Use keybuttons W S A D to move'; break;
     case generalStateList.TUTOR_INTERACT: message= isMobileOrTablet() ? 'Use to interact' : 'Press E to interact'; break;
     case generalStateList.TUTOR_UNMUTE: message='Tap to toggle Mic'; break;
-    // case generalStateList.TUTOR_UNMUTE: message='Tap to toggle Mic'; break;
     default : message= '';break;
   }     
   return message ? 

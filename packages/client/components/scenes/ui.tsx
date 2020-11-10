@@ -73,10 +73,10 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const sceneLoadedEntity = (event: CustomEvent): void =>
     setProgressEntity(' left '+ event.detail.left);
 
-  const sceneLoaded = (event: CustomEvent): void => 
-    (event.detail.loaded)
-      store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));      
-  
+  const sceneLoaded = (event: CustomEvent)  => 
+    (event.detail.loaded === true) &&
+      store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED))
+    
   
   useEffect(() => {
     document.addEventListener('scene-loaded-entity', sceneLoadedEntity);
