@@ -1,3 +1,4 @@
+import { ThemeProvider } from '@material-ui/core';
 import { useRouter } from 'next/router';
 import React, { useEffect } from 'react';
 import NoSSR from 'react-no-ssr';
@@ -20,6 +21,8 @@ import {
   getLocation
 } from '../../redux/location/service';
 import { selectPartyState } from '../../redux/party/selector';
+
+import theme from '../../theme';
 
 interface Props {
   appState?: any;
@@ -118,12 +121,14 @@ const EditorRoomPage = (props: Props) => {
   }, [appState]);
 
   return (
-    <Layout pageTitle="Home">
-      <NoSSR onSSR={<Loading />}>
-        {userBanned === false ? (<Scene sceneId={projectId} />) : null}
-        {userBanned !== false ? (<div className="banned">You have been banned from this location</div>) : null}
-      </NoSSR>
-    </Layout>
+    <ThemeProvider theme={theme}>
+      <Layout pageTitle="Home">
+        <NoSSR onSSR={<Loading />}>
+          {userBanned === false ? (<Scene sceneId={projectId} />) : null}
+          {userBanned !== false ? (<div className="banned">You have been banned from this location</div>) : null}
+        </NoSSR>
+      </Layout>
+    </ThemeProvider>
   );
 };
 
