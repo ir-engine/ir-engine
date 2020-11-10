@@ -55,11 +55,11 @@ export class NetworkSystem extends System {
 
     // Transforms that are updated are automatically collected
     // note: onChanged needs to currently be handled outside of fixedExecute
-    this.queryResults.serverNetworkTransforms.changed?.forEach((entity: Entity) =>
+    this.queryResults.serverNetworkTransforms.all?.forEach((entity: Entity) =>
       addNetworkTransformToWorldState(entity));
 
     // For each networked object + input receiver, add to the frame to send
-    this.queryResults.serverNetworkInputs.changed?.forEach((entity: Entity) =>
+    this.queryResults.serverNetworkInputs.all?.forEach((entity: Entity) =>
       addInputToWorldStateOnServer(entity));
 
     // For each networked object + input receiver, add to the frame to send

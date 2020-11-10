@@ -149,13 +149,14 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
   // });
 
   if(worldState.transforms.length < 1)
-    return
+    return console.warn("Worldstate transforms is null");
 
   // Update transforms
   worldState.transforms?.forEach(transformData => {
     if(!Network.instance.networkObjects[transformData.networkId]){
       return console.warn("Network object not found in list: ", transformData.networkId);
     }
+
     // Get network component from data
     const networkComponent = Network.instance.networkObjects[transformData.networkId].component;
     const transform = getMutableComponent(networkComponent.entity, TransformComponent);
@@ -172,7 +173,7 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
       transformData.qZ,
       transformData.qW
     );
-    // console.log("Updated transform on ", transformData.networkId);
-    // console.log([transformData.x, transformData.y, transformData.z]);
+    console.log("Updated transform on ", transformData.networkId);
+    console.log([transformData.x, transformData.y, transformData.z]);
   });
 }
