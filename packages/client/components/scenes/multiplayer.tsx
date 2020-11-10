@@ -1,7 +1,7 @@
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
-import { /*getComponent,*/ getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { loadScene } from "@xr3ngine/engine/src/scene/functions/SceneLoading";
@@ -18,16 +18,30 @@ import { client } from '../../redux/feathers';
 import store from '../../redux/store';
 import LinearProgressComponent from '../ui/LinearProgress';
 import NetworkDebug from '../ui/NetworkDebug/NetworkDebug';
+import MediaIconsBox from "../ui/MediaIconsBox";
+import OnBoardingBox from "../ui/OnBoardingBox";
+import OnBoardingDialog from '../ui/OnBoardingDialog';
+import TooltipContainer from '../ui/TooltipContainer';
+import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
+import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
+import { selectAppOnBoardingStep } from '../../redux/app/selector';
+import { InfoBox } from '../ui/InfoBox';
+import dynamic from 'next/dynamic';
+
+const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
 
 interface Props {
   setAppLoaded?: any
   sceneId?: string
+  onBoardingStep?:number
 }
 
 const mapStateToProps = (state: any): any => {
-  return {};
+  return {
+    onBoardingStep: selectAppOnBoardingStep(state)
+  };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
@@ -37,9 +51,14 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 export const EnginePage = (props: Props) => {
   const {
     sceneId,
-    setAppLoaded
+    setAppLoaded,
+    onBoardingStep
   } = props;
 
+  const [hoveredLabel, setHoveredLabel] = useState('');
+  const [actorEntity, setActorEntity] = useState(null);
+  const [actorAvatarId, setActorAvatarId] = useState('Rose');
+  const [infoBoxData, setInfoBoxData] = useState(null);
   const [progressEntity, setProgressEntity] = useState('');
 
   //all scene entities are loaded 
@@ -50,7 +69,7 @@ export const EnginePage = (props: Props) => {
     }
   };
 
-  //started loading scene intities
+  //started loading scene entities
   const onSceneLoadedEntity = (event: CustomEvent): void => {
     setProgressEntity(' left ' + event.detail.left);
   };
@@ -106,12 +125,25 @@ export const EnginePage = (props: Props) => {
     
     createPrefab(staticWorldColliders);
 
+    const actorEntity = createPrefab(PlayerCharacter);
+    setActorEntity(actorEntity);
   }
+
+
+  //mobile gamepad
+  const mobileGamepadProps = {hovered:hoveredLabel.length > 0, layout: 'default' };
+  const mobileGamepad = isMobileOrTablet() && onBoardingStep >= generalStateList.TUTOR_MOVE ? <MobileGamepad {...mobileGamepadProps} /> : null;
 
   return (
     <>
       <NetworkDebug />
       <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
+      <OnBoardingDialog  actorEntity={actorEntity} avatarsList={CharacterAvatars} actorAvatarId={actorAvatarId} onAvatarChange={(avatarId) => {setActorAvatarId(avatarId); }} />
+      <OnBoardingBox actorEntity={actorEntity} />
+      <MediaIconsBox />
+      <TooltipContainer message={hoveredLabel.length > 0 ? hoveredLabel : ''} />
+      <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} />
+      {mobileGamepad}
     </>
   );
 };
