@@ -196,7 +196,7 @@ export class Project implements ServiceMethods<Data> {
         where: {
           id: ownedFile.id
         }
-      }, { transaction })
+      }, { transaction });
     });
 
     const savedProject = await this.reloadProject(project.id, project);

@@ -97,7 +97,7 @@ export const EnginePage = (props: Props) => {
       serviceId = regexResult[2];
     }
     const result = await client.service(service).get(serviceId);
-    console.log("Result is ")
+    console.log("Result is ");
     console.log(result);
     loadScene(result);
     const cameraTransform = getMutableComponent<TransformComponent>(
