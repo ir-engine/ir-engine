@@ -27,7 +27,7 @@ const logRequest = (options = {}) => {
     console.log(body);
     return context;
   };
-}
+};
 
 const createOwnedFile = (options = {}) => {
   return async (context: HookContext): Promise<HookContext> => {
@@ -41,7 +41,7 @@ const createOwnedFile = (options = {}) => {
         where: {
           sid: body.projectId
         }
-      })
+      });
       savedFile = await context.app.service('static-resource').patch(thumbnailOwnedFileId, {
         url: data.uri || data.url
       });
