@@ -39,7 +39,6 @@ export const InfoBox: FunctionComponent<InfoBoxProps> = ({ onClose, data }: Info
         <DialogContent className={styles.dialogContent}>
           {modelView}
           { data.url && (<p>{data.url}</p>)}
-
           { data.buyUrl && (<Button  variant="outlined" color="primary" onClick={()=>handleLinkClick(data.buyUrl)}>Buy</Button>)}
           { data.learnMoreUrl && (<Button  variant="outlined" color="secondary" onClick={()=>handleLinkClick(data.learnMoreUrl)}>Learn more</Button>)}
           {/* { data.url? <iframe className="iframe" src={data.url} /> : null } */}
