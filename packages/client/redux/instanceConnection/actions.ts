@@ -18,6 +18,7 @@ export interface InstanceServerProvisionedAction {
   ipAddress: string;
   port: string;
   locationId: string;
+  sceneId: string;
 }
 
 export interface InstanceServerConnectingAction {
@@ -50,12 +51,13 @@ export function instanceServerProvisioning (): InstanceServerProvisioningAction 
     type: INSTANCE_SERVER_PROVISIONING
   };
 }
-export function instanceServerProvisioned (provisionResult: InstanceServerProvisionResult, locationId: string): InstanceServerProvisionedAction {
+export function instanceServerProvisioned (provisionResult: InstanceServerProvisionResult, locationId: string, sceneId: string): InstanceServerProvisionedAction {
   return {
     type: INSTANCE_SERVER_PROVISIONED,
     ipAddress: provisionResult.ipAddress,
     port: provisionResult.port,
-    locationId: locationId
+    locationId: locationId,
+    sceneId: sceneId
   };
 }
 export function instanceServerConnecting (): InstanceServerConnectingAction {

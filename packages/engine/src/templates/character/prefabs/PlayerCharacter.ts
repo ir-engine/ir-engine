@@ -9,6 +9,7 @@ import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/C
 import { CharacterSubscriptionSchema } from "@xr3ngine/engine/src/templates/character/CharacterSubscriptionSchema";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { Interactor } from "../../../interaction/components/Interactor";
+import { initializeCharacter } from "../behaviors/initializeCharacter";
 import { loadActorAvatar } from "../behaviors/loadActorAvatar";
 import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
 import { CharacterComponent } from "../components/CharacterComponent";
@@ -32,31 +33,16 @@ export const PlayerCharacter: Prefab = {
         { type: State, data: { schema: CharacterStateSchema } },
         // Similar to Unity's Update(), LateUpdate(), and Start()
         { type: Subscription, data: { schema: CharacterSubscriptionSchema } },
-      //  { type: LocalInputReceiver }
         { type: Interactor }
     ],
-    onAfterCreate: [{
-        behavior: loadActorAvatar
-    }
-
-        // {
-        //     behavior: addComponentFromSchema,
-        //     args: {
-        //         // addObject3DComponent is going to call new obj(objArgs)
-        //         // so this will be new Mesh(new BoxBufferGeometry(0.2, 0.2, 0.2))
-        //         component: AssetLoader,
-        //         componentArgs: {
-        //             url: "models/avatars/Rose.glb",
-        //             receiveShadow: true,
-        //             castShadow: true
-        //         }
-        //     }
-        // },
-        // {
-        //     behavior: initializeCharacter
-        // }
+    onAfterCreate: [
+        {
+            behavior: initializeCharacter
+        },
+        {
+            behavior: loadActorAvatar
+        }
     ],
     onBeforeDestroy: [
-
     ]
 };
