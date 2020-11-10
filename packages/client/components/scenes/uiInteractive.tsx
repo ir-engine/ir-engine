@@ -8,11 +8,10 @@ import { createEntity, getMutableComponent } from '@xr3ngine/engine/src/ecs/func
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
-import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
+import { RazerLaptop } from '@xr3ngine/engine/src/templates/devices/prefabs/RazerLaptop'
 import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacterWithEmptyInputSchema';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
-import dynamic from 'next/dynamic';
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -26,12 +25,12 @@ import { connectToInstanceServer, provisionInstanceServer } from '../../redux/in
 import { selectPartyState } from '../../redux/party/selector';
 import store from '../../redux/store';
 import theme from '../../theme';
-import { InfoBox } from "../ui/InfoBox";
 import LinearProgressComponent from '../ui/LinearProgress';
-import MediaIconsBox from "../ui/MediaIconsBox";
-import OnBoardingBox from "../ui/OnBoardingBox";
-import OnBoardingDialog from '../ui/OnBoardingDialog';
+import { Input } from "@xr3ngine/engine/src/input/components/Input";
+import { CharacterInputSchema } from '@xr3ngine/engine/src/templates/character/CharacterInputSchema';
 import TooltipContainer from '../ui/TooltipContainer';
+import { InfoBox } from '../ui/InfoBox';
+import dynamic from 'next/dynamic';
 
 const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
@@ -56,31 +55,33 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 export const EnginePage: FunctionComponent = (props: any) => {
-  const {
-    authState,
-    instanceConnectionState,
-    partyState,
-    connectToInstanceServer,
-    provisionInstanceServer,
-    onBoardingStep
-  } = props;
   const [hoveredLabel, setHoveredLabel] = useState('');
   const [actorEntity, setActorEntity] = useState(null);
-  const [actorAvatarId, setActorAvatarId] = useState('Rose');
   const [infoBoxData, setInfoBoxData] = useState(null);
   const [progressEntity, setProgressEntity] = useState('');
 
   const sceneLoadedEntity = (event: CustomEvent): void =>
     setProgressEntity(' left '+ event.detail.left);
 
-  const sceneLoaded = (event: CustomEvent)  => 
-    (event.detail.loaded === true) &&
-      store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED))
-    
+  const onObjectHover = (event: CustomEvent): void =>
+    setHoveredLabel(event.detail.focused ? event.detail.interactionText : '');
+  
+
+  const onObjectActivation = (event: CustomEvent): void =>{
+    setInfoBoxData(event.detail.payload);
+    setHoveredLabel('');
+  }
+
+  const sceneLoaded = (event: CustomEvent) => 
+    (event.detail.loaded == true) &&
+        store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));          
+  
   
   useEffect(() => {
     document.addEventListener('scene-loaded-entity', sceneLoadedEntity);
     document.addEventListener('scene-loaded', sceneLoaded);
+    document.addEventListener('object-activation', onObjectActivation); 
+    document.addEventListener('object-hover', onObjectHover);   
 
     const networkSchema: NetworkSchema = {
       ...DefaultNetworkSchema,
@@ -94,7 +95,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
         schema: networkSchema,
       }
     };
-
+    
     initializeEngine(InitializationOptions);
 
     addObject3DComponent(createEntity(), {
@@ -114,25 +115,29 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
     const actorEntity = createPrefab(PlayerCharacter);
     setActorEntity(actorEntity);
+    const InputComponent = getMutableComponent(actorEntity, Input);
+    InputComponent.schema = CharacterInputSchema;
+
+    createPrefab(RazerLaptop);
 
     return (): void => {
       document.removeEventListener('scene-loaded-entity', sceneLoadedEntity);
       document.removeEventListener('scene-loaded', sceneLoaded);
+      document.removeEventListener('object-activation', onObjectActivation);    
+      document.removeEventListener('object-hover', onObjectHover);   
+
       resetEngine();
     };
   }, []);
 
-  //mobile gamepad
-  const mobileGamepadProps = {hovered:hoveredLabel.length > 0, layout: 'default' };
-  const mobileGamepad = isMobileOrTablet() && onBoardingStep >= generalStateList.TUTOR_MOVE ? <MobileGamepad {...mobileGamepadProps} /> : null;
+   //mobile gamepad
+   const mobileGamepadProps = {hovered:hoveredLabel.length > 0, layout: 'default' };
+   const mobileGamepad = isMobileOrTablet() ? <MobileGamepad {...mobileGamepadProps} /> : null; 
 
   return (
     <ThemeProvider theme={theme}>
       <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
-      <OnBoardingDialog  actorEntity={actorEntity} avatarsList={CharacterAvatars} actorAvatarId={actorAvatarId} onAvatarChange={(avatarId) => {setActorAvatarId(avatarId); }} />
-      <OnBoardingBox actorEntity={actorEntity} />
-      <MediaIconsBox />
-      <TooltipContainer message={hoveredLabel.length > 0 ? hoveredLabel : ''} />
+      <TooltipContainer message={hoveredLabel} />
       <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} />
       {mobileGamepad}
     </ThemeProvider>
