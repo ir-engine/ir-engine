@@ -174,7 +174,7 @@ export async function createWebRtcTransport({ peerId, direction, sctpCapabilitie
     return newTransport;
 }
 
-export async function handleWebRtcTransportCreate(socket, data: CreateWebRtcTransportParams, callback) {
+export async function handleWebRtcTransportCreate(socket, data: CreateWebRtcTransportParams, callback): Promise<any> {
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
     const { direction, peerId, sctpCapabilities, partyId } = Object.assign(data, { peerId: userId });
@@ -227,7 +227,7 @@ export async function handleWebRtcTransportCreate(socket, data: CreateWebRtcTran
     callback({ transportOptions: clientTransportOptions });
 }
 
-export async function handleWebRtcProduceData(socket, data, callback) {
+export async function handleWebRtcProduceData(socket, data, callback): Promise<any> {
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
     if (!data.label) throw ({ error: 'data producer label i.e. channel name is not provided!' });
@@ -260,7 +260,7 @@ export async function handleWebRtcProduceData(socket, data, callback) {
     return callback({ id: dataProducer.id });
 }
 
-export async function handleWebRtcTransportClose(socket, data, callback) {
+export async function handleWebRtcTransportClose(socket, data, callback): Promise<any> {
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
     logger.info("close-transport for user: " + userId);
@@ -270,7 +270,7 @@ export async function handleWebRtcTransportClose(socket, data, callback) {
     callback({ closed: true });
 }
 
-export async function handleWebRtcTransportConnect(socket, data, callback) {
+export async function handleWebRtcTransportConnect(socket, data, callback): Promise<any> {
     const userId = getUserIdFromSocketId(socket.id);
     const { transportId, dtlsParameters } = data,
         transport = MediaStreamComponent.instance.transports[transportId];
@@ -284,14 +284,14 @@ export async function handleWebRtcTransportConnect(socket, data, callback) {
     callback({ connected: true });
 }
 
-export async function handleWebRtcCloseProducer(socket, data, callback) {
+export async function handleWebRtcCloseProducer(socket, data, callback): Promise<any> {
     const userId = getUserIdFromSocketId(socket.id);
     const { producerId } = data, producer = MediaStreamComponent.instance.producers.find(p => p.id === producerId);
     await closeProducerAndAllPipeProducers(producer, userId).catch(err => logger.error(err));
     callback({ closed: true });
 }
 
-export async function handleWebRtcSendTrack(socket, data, callback) {
+export async function handleWebRtcSendTrack(socket, data, callback): Promise<any> {
     const userId = getUserIdFromSocketId(socket.id);
     const { transportId, kind, rtpParameters, paused = false, appData } =
         data, transport = MediaStreamComponent.instance.transports[transportId];
@@ -325,7 +325,7 @@ export async function handleWebRtcSendTrack(socket, data, callback) {
     callback({ id: producer.id });
 }
 
-export async function handleWebRtcReceiveTrack(socket, data, callback) {
+export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<any> {
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
     const { mediaPeerId, mediaTag, rtpCapabilities, partyId } = data;
@@ -399,7 +399,7 @@ export async function handleWebRtcReceiveTrack(socket, data, callback) {
     });
 }
 
-export async function handleWebRtcPauseConsumer(socket, data, callback) {
+export async function handleWebRtcPauseConsumer(socket, data, callback): Promise<any> {
     const { consumerId } = data,
         consumer = MediaStreamComponent.instance.consumers.find(c => c.id === consumerId);
     logger.info("pause-consumer", consumer.appData);
@@ -407,7 +407,7 @@ export async function handleWebRtcPauseConsumer(socket, data, callback) {
     callback({ paused: true });
 }
 
-export async function handleWebRtcResumeConsumer(socket, data, callback) {
+export async function handleWebRtcResumeConsumer(socket, data, callback): Promise<any> {
     const { consumerId } = data,
         consumer = MediaStreamComponent.instance.consumers.find(c => c.id === consumerId);
     logger.info("resume-consumer", consumer.appData);
@@ -415,7 +415,7 @@ export async function handleWebRtcResumeConsumer(socket, data, callback) {
     callback({ resumed: true });
 }
 
-export async function handleWebRtcCloseConsumer(socket, data, callback) {
+export async function handleWebRtcCloseConsumer(socket, data, callback): Promise<any> {
     const { consumerId } = data,
         consumer = MediaStreamComponent.instance.consumers.find(c => c.id === consumerId);
     logger.info(`Close Consumer handler: ${consumerId}`);
@@ -423,7 +423,7 @@ export async function handleWebRtcCloseConsumer(socket, data, callback) {
     callback({ closed: true });
 }
 
-export async function handleWebRtcConsumerSetLayers(socket, data, callback) {
+export async function handleWebRtcConsumerSetLayers(socket, data, callback): Promise<any> {
     const { consumerId, spatialLayer } = data,
         consumer = MediaStreamComponent.instance.consumers.find(c => c.id === consumerId);
     logger.info("consumer-set-layers: ", spatialLayer, consumer.appData);
@@ -431,7 +431,7 @@ export async function handleWebRtcConsumerSetLayers(socket, data, callback) {
     callback({ layersSet: true });
 }
 
-export async function handleWebRtcResumeProducer(socket, data, callback) {
+export async function handleWebRtcResumeProducer(socket, data, callback): Promise<any> {
     const userId = getUserIdFromSocketId(socket.id);
     const { producerId } = data,
         producer = MediaStreamComponent.instance.producers.find(p => p.id === producerId);
@@ -446,7 +446,7 @@ export async function handleWebRtcResumeProducer(socket, data, callback) {
     callback({ resumed: true });
 }
 
-export async function handleWebRtcPauseProducer(socket, data, callback) {
+export async function handleWebRtcPauseProducer(socket, data, callback): Promise<any> {
     const userId = getUserIdFromSocketId(socket.id);
     const { producerId, globalMute } = data,
         producer = MediaStreamComponent.instance.producers.find(p => p.id === producerId);

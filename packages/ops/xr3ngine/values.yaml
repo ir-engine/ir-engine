@@ -12,7 +12,7 @@ client:
   image:
     repository: xr3ngine/xr3ngine
     tag: latest
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
 
   imagePullSecrets: []
   nameOverride: ""
@@ -64,7 +64,7 @@ api:
   image:
     repository: xr3ngine/xr3ngine
     tag: latest
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
 
   imagePullSecrets: []
   nameOverride: ""
@@ -159,7 +159,7 @@ media:
   image:
     repository: xr3ngine/xr3ngine
     tag: latest
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
 
   imagePullSecrets: []
   nameOverride: ""
@@ -255,7 +255,7 @@ editor:
     # Reminder: Editor image still on xr3ngine we didn't create image for xr3ngine
     repository: xr3ngine/editor
     tag: latest
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
 
   imagePullSecrets: []
   nameOverride: ""
@@ -301,7 +301,7 @@ gameserver:
   image:
     repository: xr3ngine/xr3ngine
     tag: latest
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
 
   imagePullSecrets: []
   nameOverride: ""

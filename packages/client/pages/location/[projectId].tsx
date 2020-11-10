@@ -128,4 +128,4 @@ const EditorRoomPage = (props: Props) => {
 };
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditorRoomPage)
+export default connect(mapStateToProps, mapDispatchToProps)(EditorRoomPage);
