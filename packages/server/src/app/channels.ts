@@ -27,15 +27,20 @@ export default (app: Application): void => {
   app.on('connection', async (connection) => {
     if ((process.env.KUBERNETES === 'true' && config.server.mode === 'realtime') || (process.env.NODE_ENV === 'development') || config.server.mode === 'local') {
       try {
+        console.log("socket query is: ", (connection as any).socketQuery);
         const token = (connection as any).socketQuery?.token;
         if (token != null) {
           const authResult = await app.service('authentication').strategies.jwt.authenticate({ accessToken: token }, {});
           const identityProvider = authResult['identity-provider'];
           if (identityProvider != null) {
-            logger.info(`user ${identityProvider.userId} joining ${(connection as any).socketQuery.locationId}`);
+            logger.info(`user ${identityProvider.userId} joining ${(connection as any).socketQuery.locationId} with sceneId ${(connection as any).socketQuery.sceneId}`);
             const userId = identityProvider.userId;
             const user = await app.service('user').get(userId);
             const locationId = (connection as any).socketQuery.locationId;
+            const sceneId = (connection as any).socketQuery.sceneId;
+
+            if(sceneId === "") return console.warn("Scene ID is empty, can't init")
+            
             const agonesSDK = (app as any).agonesSDK;
             const gsResult = await agonesSDK.getGameServer();
             const { status } = gsResult;
@@ -46,27 +51,20 @@ export default (app: Application): void => {
               const instanceResult = await app.service('instance').create({
                 currentUsers: 1,
                 locationId: locationId,
+                sceneId: sceneId,
                 ipAddress: config.server.mode === 'local' ? `${localIp.ipAddress}:3030` : selfIpAddress
               });
               await agonesSDK.allocate();
               (app as any).instance = instanceResult;
 
-              const locationResult = await app.service('location').Model.findOne({
-                where: {
-                  id: locationId
-                }
-              });
 
-              console.log("location result is: ", locationResult);
-              const sceneId = locationResult.sceneId;
-
-              if (isNullOrUndefined(sceneId)){
+              if (sceneId === ""){
                 console.warn("Scene ID is undefined");
               }
               else {
                 let service, serviceId;
                 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
-                const projectResult = await app.service('project').get({id: sceneId });
+                const projectResult = await app.service('project').get(sceneId);
                 console.log("Project result is: ", projectResult);
                 const projectUrl = projectResult.project_url;
                 const regexResult = projectUrl.match(projectRegex);
@@ -134,7 +132,8 @@ export default (app: Application): void => {
                     userId: partyUser.userId,
                     ipAddress: emittedIp.ipAddress,
                     port: emittedIp.port,
-                    locationId: locationId
+                    locationId: locationId,
+                    sceneId: sceneId
                   });
                 }));
               }

@@ -90,7 +90,7 @@ const EditorRoomPage = (props: Props) => {
       userBanned === false &&
       instanceConnectionState.get('instanceProvisioned') !== true &&
       instanceConnectionState.get('instanceProvisioning') === false)
-      provisionInstanceServer(currentLocation.id);
+      provisionInstanceServer(currentLocation.id, undefined, projectId);
   }, [locationState]);
 
   useEffect(() => {
@@ -111,7 +111,7 @@ const EditorRoomPage = (props: Props) => {
         client.service('instance').get(instanceId)
           .then((instance) => {
             console.log('Provisioning instance from arena page init useEffect');
-            provisionInstanceServer(instance.locationId);
+            provisionInstanceServer(instance.locationId, instanceId, projectId);
           });
       }
     }
