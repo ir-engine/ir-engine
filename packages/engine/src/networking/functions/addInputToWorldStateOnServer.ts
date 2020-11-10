@@ -9,7 +9,6 @@ import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import _ from 'lodash';
 
 export const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
-  console.log("addInputToWorldStateOnServer", entity.id);
   const input = getComponent(entity, Input);
   const networkId = getComponent(entity, NetworkObject).networkId;
   

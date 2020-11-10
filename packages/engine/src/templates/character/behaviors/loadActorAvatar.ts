@@ -14,6 +14,7 @@ import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent
 import { CharacterComponent } from "../components/CharacterComponent";
 
 export const loadActorAvatar: Behavior = (entity) => {
+  console.log("Calling load actor avatar for ", entity.id)
   const avatarId: string = getComponent(entity, CharacterAvatarComponent)?.avatarId ?? "Andy";
   const avatarSource = CharacterAvatars.find(avatarData => avatarData.id === avatarId)?.src;
   
@@ -27,6 +28,7 @@ export const loadActorAvatar: Behavior = (entity) => {
     castShadow: true,
     parent: tmpGroup,
     onLoaded: (entity, args) => {
+      console.log("onLoaded fired on loadActorAvatrar for ", entity.id)
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
       tmpGroup.children.forEach(child => actor.modelContainer.add(child));
     }

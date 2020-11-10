@@ -18,7 +18,7 @@ import { LifecycleValue } from "../../../common/enums/LifecycleValue";
 import { State } from "../../../state/components/State";
 
 export const initializeCharacter: Behavior = (entity): void => {
-	console.log("Initializing character");
+	console.log("Initializing character for ", entity.id);
 	if (!hasComponent(entity, CharacterComponent as any))
 		addComponent(entity, CharacterComponent as any);
 
