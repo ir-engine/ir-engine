@@ -58,17 +58,15 @@ export default (app: Application): void => {
               });
 
               console.log("location result is: ", locationResult);
+              const sceneId = locationResult.sceneId;
 
-              if (isNullOrUndefined(locationResult))
-                console.warn("Location result is undefined");
-
+              if (isNullOrUndefined(sceneId)){
+                console.warn("Scene ID is undefined");
+              }
               else {
-                const sceneId = locationResult.sceneId;
                 let service, serviceId;
-                const r = await app.service('project').find();
                 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
-
-                const projectResult = await app.service('project').get(sceneId);
+                const projectResult = await app.service('project').get({id: sceneId });
                 console.log("Project result is: ", projectResult);
                 const projectUrl = projectResult.project_url;
                 const regexResult = projectUrl.match(projectRegex);
@@ -80,6 +78,7 @@ export default (app: Application): void => {
                 console.log("Result is ")
                 console.log(result);
                 loadScene(result);
+                console.log("Loaded scene");
               }
 
 
