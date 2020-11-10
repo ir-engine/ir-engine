@@ -3,6 +3,7 @@ import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions'
 import { SceneObjectLoadingSchema } from '../constants/SceneObjectLoadingSchema';
 
 export function loadScene (scene) {
+  console.log("Loading scene", scene);
   Object.keys(scene.entities).forEach(key => {
     const sceneEntity = scene.entities[key];
     const entity = createEntity();
