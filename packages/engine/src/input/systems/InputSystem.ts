@@ -111,32 +111,16 @@ export class InputSystem extends System {
 
       // Add all values in input component to schema
       for (const [key, value] of input.data.entries()) {
-
-        switch (value.type) {
-          case InputType.BUTTON:
+          if (value.type === InputType.BUTTON)
             inputs.buttons[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
-            numInputs++;
-            break;
-          case InputType.ONEDIM:
-            if (value.lifecycleState !== LifecycleValue.UNCHANGED) {
+          else if(value.type === InputType.ONEDIM && value.lifecycleState !== LifecycleValue.UNCHANGED)
               inputs.axes1d[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
-              numInputs++;
-            }
-            break;
-          case InputType.TWODIM:
-            if (value.lifecycleState !== LifecycleValue.UNCHANGED) {
+          else if(value.type === InputType.TWODIM && value.lifecycleState !== LifecycleValue.UNCHANGED)
               inputs.axes2d[key] = { input: key, valueX: value.value[0], valueY: value.value[1], lifecycleState: value.lifecycleState };
-              numInputs++;
-            }
-            break;
-          default:
-            console.error("Input type has no network handler (maybe we should add one?)");
-        }
       }
 
-      // Convert to a message buffer
+      // TODO: Convert to a message buffer
       const message = inputs; // clientInputModel.toBuffer(inputs)
-      // TODO: Send unreliably
       Network.instance.transport.sendReliableData(message); // Use default channel
     });
 
