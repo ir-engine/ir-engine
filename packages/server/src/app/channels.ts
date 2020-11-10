@@ -5,6 +5,9 @@ import config from '../config';
 import app from "../app";
 import { Network } from '@xr3ngine/engine/src/networking/components/Network';
 import logger from './logger';
+import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
+import { staticWorldColliders } from '@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders';
+
 import isNullOrUndefined from '@xr3ngine/engine/src/common/functions/isNullOrUndefined';
 import { loadScene } from "@xr3ngine/engine/src/scene/functions/SceneLoading"
 export default (app: Application): void => {
@@ -76,6 +79,9 @@ export default (app: Application): void => {
                 console.log("Result is ")
                 console.log(result);
                 loadScene(result);
+                // TODO: Remove
+                createPrefab(staticWorldColliders);
+
                 console.log("Loaded scene");
               }
 
