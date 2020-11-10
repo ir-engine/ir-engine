@@ -523,7 +523,7 @@ export default class Editor extends EventEmitter {
 
   async generateFileThumbnail(file, width, height) {
     const url = URL.createObjectURL(file);
-    console.log("URL IS")
+    console.log("URL IS");
     console.log(url);
 
     let blob;
