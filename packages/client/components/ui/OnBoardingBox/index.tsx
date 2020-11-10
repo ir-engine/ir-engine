@@ -97,11 +97,12 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
   }
 
   let message = '';
+  let imageSrc = null;
   switch(onBoardingStep){
-    case generalStateList.TUTOR_LOOKAROUND:message='Touch and Drag to look around'; addLookAroundEventListeners(); break;      
+    case generalStateList.TUTOR_LOOKAROUND:message='Touch and Drag to look around'; imageSrc = isMobileOrTablet() ? "/assets/swipe.svg":"/assets/leftclick.svg"; addLookAroundEventListeners(); break;      
     case generalStateList.TUTOR_MOVE: message= isMobileOrTablet() ? ' Use joystick to move' : 'Use keybuttons W S A D to move'; break;
-    case generalStateList.TUTOR_INTERACT: message= isMobileOrTablet() ? 'Use to interact' : 'Press E to interact'; break;
-    case generalStateList.TUTOR_UNMUTE: message='Tap to toggle Mic'; break;
+    case generalStateList.TUTOR_INTERACT: message= isMobileOrTablet() ? 'Use to interact' : 'Press E to interact'; isMobileOrTablet() && (imageSrc = "/assets/interact.svg"); break;
+    case generalStateList.TUTOR_UNMUTE: message='Tap to toggle Mic';  imageSrc = "/assets/mic.svg";break;
     default : message= '';break;
   }     
   return message ? 
@@ -118,12 +119,10 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
                   }}
                   open={true} 
                   autoHideDuration={10000}>
-                      <SnackbarContent 
-                      classes={{
-                        root: styles.helpHintSnackBarContent,
-                        message: styles.helpHintSnackBarContentMessage
-                      }}
-                      message={message} />                      
+                      <section>
+                        { imageSrc && <p><img className={styles.tipImage} src={imageSrc} /></p> }
+                        <p>{message}</p>
+                      </section>
                   </Snackbar>
                 </>
               :null;

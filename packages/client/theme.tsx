@@ -57,6 +57,9 @@ const darkTheme = createMuiTheme({
         userSelect: 'none',
         borderRadius: '5px',
         fontSize: 16,  
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        color: '#FFFFFF' ,
+        padding: '20px',  
         '@media (max-width: 768px)': {
           maxWidth: '90%',
           width: '90%',
@@ -133,13 +136,12 @@ const lightTheme = createMuiTheme({
     }
   },
   typography: {
-    fontFamily: '"Roboto", sans-serif',
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: 14,
       button: {
         color: '#FFFFFF'        
       },
   },
-  
   overrides: { 
     MuiDialog:{
       paperWidthSm:{
@@ -172,6 +174,9 @@ const lightTheme = createMuiTheme({
         userSelect: 'none',
         borderRadius: '5px',
         fontSize: 16,    
+        backgroundColor: 'rgba(255,255,255,0.8)',
+        color: '#000000' ,
+        padding: '20px',        
         '@media (max-width: 768px)': {
           maxWidth: '90%',
           width: '90%',
