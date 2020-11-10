@@ -4,7 +4,7 @@ import { BadRequest, Forbidden } from '@feathersjs/errors';
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
-  return async (context: HookContext): Promise<HookContext> => {
+  return async (context: HookContext): Promise<any> => {
     let fetchedGroupId;
     const { id, method, params, app, path } = context;
     const loggedInUser = extractLoggedInUserFromParams(params);

@@ -5,7 +5,7 @@ import _ from 'lodash';
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
-  return async (context: HookContext): Promise<HookContext> => {
+  return async (context: HookContext): Promise<any> => {
     const { id, params, method, app, path } = context;
     const loggedInUser = extractLoggedInUserFromParams(params);
     const groupId = params.query.groupId;
