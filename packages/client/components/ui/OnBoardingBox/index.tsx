@@ -90,12 +90,16 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
     store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_INTERACT));
   };
 
-  const exitTutorialHandle = () =>store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));
+  const exitTutorialHandle = () => {
+    const InputComponent = getMutableComponent(actorEntity, Input);
+    InputComponent.schema = CharacterInputSchema;
+    store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));
+  }
 
   let message = '';
   switch(onBoardingStep){
     case generalStateList.TUTOR_LOOKAROUND:message='Touch and Drag to look around'; addLookAroundEventListeners(); break;      
-    case generalStateList.TUTOR_MOVE: message= isMobileOrTablet() ? ' Use joystick to move' : 'Use mouse to move'; break;
+    case generalStateList.TUTOR_MOVE: message= isMobileOrTablet() ? ' Use joystick to move' : 'Use keybuttons W S A D to move'; break;
     case generalStateList.TUTOR_INTERACT: message= isMobileOrTablet() ? 'Use to interact' : 'Press E to interact'; break;
     case generalStateList.TUTOR_UNMUTE: message='Tap to toggle Mic'; break;
     default : message= '';break;
@@ -103,7 +107,7 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
   return message ? 
                 <>
                   <section className={styles.exitButtonContainer}>
-                    <Button variant="outlined" color="primary" className={styles.exitButton} 
+                    <Button variant="contained" className={styles.exitButton} 
                         onClick={exitTutorialHandle}>Exit Tutorial</Button>
                   </section>
                   <Snackbar 
