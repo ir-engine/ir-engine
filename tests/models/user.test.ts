@@ -19,10 +19,6 @@ describe('CRUD operation on \'User\' model', () => {
     await userRoleModel.create({
       role: 'testrole'
     })
-    await model.create({
-      name: 'test',
-      userRole: 'testrole'
-    })
     done()
   })
 

@@ -2,7 +2,7 @@ import { LoadingManager } from 'three';
 import * as GLTFExporter from 'three-gltf-exporter';
 import GLTFLoader from 'three-gltf-loader';
 import { SkeletonUtils } from 'three/examples/jsm/utils/SkeletonUtils';
-import FBXLoader from '../loaders/FBXLoader/FBXLoader';
+import FBXLoader from '../loaders/fbx/FBXLoader';
 
 const getFileType = filename => {
   if (/\.(?:gltf|glb|vrm)$/.test(filename)) {
@@ -82,7 +82,7 @@ export const ModelLoader = async (href, filename = href) => {
   } else if (fileType === 'fbx') {
     const { manager, managerLoadPromise } = managerFactory();
     const model = await new Promise((accept, reject) => {
-      new FBXLoader.FBXLoader(manager).load(
+      new FBXLoader().load(
         href,
         scene => {
           accept({ scene });

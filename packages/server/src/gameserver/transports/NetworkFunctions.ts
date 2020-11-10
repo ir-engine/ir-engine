@@ -124,7 +124,7 @@ export function validateNetworkObjects(): void {
 }
 
 
-export async function handleJoinWorld(socket, data, callback, userId, user) {
+export async function handleJoinWorld(socket, data, callback, userId, user): Promise<any> {
     logger.info("JoinWorld received");
     const transport = Network.instance.transport as any;
     // If we are already logged in, kick the other socket
@@ -237,17 +237,17 @@ export async function handleJoinWorld(socket, data, callback, userId, user) {
     });
 }
 
-export async function handleIncomingMessage(socket, message) {
+export async function handleIncomingMessage(socket, message): Promise<any> {
     Network.instance.incomingMessageQueue.add(message);
 }
 
-export async function handleHeartbeat(socket) {
+export async function handleHeartbeat(socket): Promise<any> {
     const userId = getUserIdFromSocketId(socket.id);
     if (Network.instance.clients[userId] != undefined)
         Network.instance.clients[userId].lastSeenTs = Date.now();
 }
 
-export async function handleDisconnect(socket) {
+export async function handleDisconnect(socket): Promise<any> {
     const userId = getUserIdFromSocketId(socket.id);
     const disconnectedClient = Network.instance.clients[userId];
     if (disconnectedClient === undefined)
@@ -291,7 +291,7 @@ export async function handleDisconnect(socket) {
     }
 }
 
-export async function handleLeaveWorld(socket, data, callback) {
+export async function handleLeaveWorld(socket, data, callback): Promise<any> {
     const userId = getUserIdFromSocketId(socket.id);
     if (MediaStreamComponent.instance.transports)
         for (const [, transport] of Object.entries(MediaStreamComponent.instance.transports))
