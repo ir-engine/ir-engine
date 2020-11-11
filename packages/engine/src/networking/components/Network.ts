@@ -5,6 +5,7 @@ import { MessageSchema } from '../classes/MessageSchema';
 import { NetworkSchema } from '../interfaces/NetworkSchema';
 import { NetworkTransport } from '../interfaces/NetworkTransport';
 import { NetworkObjectList } from '../interfaces/NetworkObjectList';
+import { Entity } from '../../ecs/classes/Entity';
 
 export interface NetworkClientList {
   // Key is socket ID
@@ -34,6 +35,7 @@ export class Network extends Component<Network> {
   schema: NetworkSchema
   clients: NetworkClientList = {}
   networkObjects: NetworkObjectList = {}
+  localClientEntity: Entity = null
   socketId: string
   userId: string
   accessToken: string
