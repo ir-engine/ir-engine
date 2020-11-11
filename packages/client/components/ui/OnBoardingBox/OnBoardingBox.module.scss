@@ -12,6 +12,18 @@
 .helpHintSnackBar{
     user-select: none;
     text-align: center;
+
+    svg {       
+        margin: 15px;       
+    }
+    .IconSwipe, .IconLeftClick{
+        height: 120px;
+        width: auto;
+    }
+    .TouchApp, .Microphone{
+        height: 3em;
+        width: 3em;        
+    }
     .helpHintSnackBarContent{
         padding: 20px;
         .helpHintSnackBarContentMessage{
@@ -19,20 +31,9 @@
             text-align: center;
         }
     }
-    
-    
+        
     &.bottomPos{
         bottom: 50px;
-    }
-
-    &.tutor_lookaround{
-        .helpHintSnackBarContent{
-            padding-top: 130px;
-            background-image: url('../assets/swipe.svg');
-            background-position: center 20px;
-            background-repeat: no-repeat;
-            background-size: 120px;
-        }
     }
     &.tutor_move{
         @media (max-width: 768px) {
@@ -46,25 +47,10 @@
             width: auto;
             bottom: 125px;
             margin: 0 5em 0 0;
-
-            .helpHintSnackBarContent{
-                padding-top: 80px;
-                background-image: url('../assets/interactico.svg');
-                background-position: center 20px;
-                background-repeat: no-repeat;
-                background-size: 30px;
-            }
         }
     }
 
     &.tutor_unmute{
-        .helpHintSnackBarContent{
-            padding-top: 80px;
-            background-image: url('../assets/mic.svg');
-            background-position: center 20px;
-            background-repeat: no-repeat;
-            background-size: 40px;
-        }
         @media (max-width: 768px) {
             width: auto;
             bottom: 120px;
@@ -73,8 +59,6 @@
     }
 
     .helpHintSnackBarContent{
-        // background-color: rgba(0,0,0, 0.6);
-        // color: #FFFFFF;
         text-align: center;
     }    
 }
@@ -95,8 +79,6 @@
     opacity: 1
 }
 
-
 .front{
     box-shadow: 0 0 10px rgba(255,255,0,1);
-
 }

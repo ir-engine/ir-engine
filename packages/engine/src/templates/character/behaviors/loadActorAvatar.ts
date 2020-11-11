@@ -12,6 +12,8 @@ import {
 import { CharacterAvatars } from "../CharacterAvatars";
 import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
 import { CharacterComponent } from "../components/CharacterComponent";
+import { State } from "../../../state/components/State";
+import { LifecycleValue } from "../../../common/enums/LifecycleValue";
 
 export const loadActorAvatar: Behavior = (entity) => {
   console.log("Calling load actor avatar for ", entity.id)
@@ -30,7 +32,19 @@ export const loadActorAvatar: Behavior = (entity) => {
     onLoaded: (entity, args) => {
       console.log("onLoaded fired on loadActorAvatrar for ", entity.id)
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+      actor.mixer.stopAllAction();
+      // forget that we have any animation playing
+      actor.currentAnimationAction = null;
+
+      // clear current avatar mesh
+      ([ ...actor.modelContainer.children ])
+        .forEach(child => actor.modelContainer.remove(child) );
+
       tmpGroup.children.forEach(child => actor.modelContainer.add(child));
+
+      const stateComponent = getComponent(entity, State);
+      // trigger all states to restart?
+      stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
     }
   });
 };

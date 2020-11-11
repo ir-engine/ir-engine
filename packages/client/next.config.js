@@ -68,6 +68,14 @@ module.exports = withImages(
           }]
         },
         {
+          test: /\.svg$/,
+          use: [
+            {
+              loader: 'url-loader',
+            },
+          ],
+        },
+        {
           test: /\.(world)(\?.*$|$)/,
           use: ['cache-loader', 'thread-loader', {
             loader: "file-loader",
