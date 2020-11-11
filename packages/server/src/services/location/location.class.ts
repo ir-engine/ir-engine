@@ -3,6 +3,7 @@ import { Application } from '../../declarations';
 import { Params } from '@feathersjs/feathers';
 import {extractLoggedInUserFromParams} from "../auth-management/auth-management.utils";
 import Sequelize, { Op } from 'sequelize';
+import slugify from 'slugify';
 
 export class Location extends Service {
   app: Application
@@ -84,17 +85,22 @@ export class Location extends Service {
 
   async find (params: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params);
+    console.log('location find query:');
+    console.log(params.query);
     // eslint-disable-next-line prefer-const
-    let {skip, limit, ...strippedQuery} = params.query;
-    if (skip == null) skip = 0;
-    if (limit == null) limit = 10;
+    let {$skip, $limit, $sort, ...strippedQuery} = params.query;
+    if ($skip == null) $skip = 0;
+    if ($limit == null) $limit = 10;
+    console.log($sort);
+    const order = [];
+    Object.keys($sort).forEach((name, val) => {
+      order.push([name, $sort[name] === -1 ? 'DESC' : 'ASC']);
+    });
     const locationResult = await this.app.service('location').Model.findAndCountAll({
-      offset: skip,
-      limit: limit,
+      offset: $skip,
+      limit: $limit,
       where: strippedQuery,
-      order: [
-        ['name', 'ASC']
-      ],
+      order: order,
       include: [
         {
           model: this.app.service('instance').Model,
@@ -116,10 +122,18 @@ export class Location extends Service {
       ]
     });
     return {
-      skip: skip,
-      limit: limit,
+      skip: $skip,
+      limit: $limit,
       total: locationResult.count,
       data: locationResult.rows
     };
+  }
+
+  async create (data: any, params: Params): Promise<any> {
+    console.log('Location create');
+    console.log(data);
+    data.slugifiedName = slugify(data.name);
+    console.log(data);
+    return super.create(data, params);
   }
 }
