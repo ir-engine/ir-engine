@@ -82,13 +82,13 @@ export class PhysicsSystem extends System {
     this.queryResults.playerInCar.removed?.forEach(entity => {
       playerModelInCar(entity, { phase: 'onRemoved' }, delta);
     });
-
-    this.queryResults.character.all?.forEach(entity => physicsPreStep(entity, null, delta));
-    PhysicsManager.instance.frame++;
-    PhysicsManager.instance.physicsWorld.step(PhysicsManager.instance.physicsFrameTime);
-    this.queryResults.character.all?.forEach(entity => updateCharacter(entity, null, delta));
-
-   this.queryResults.character.all?.forEach(entity => physicsPostStep(entity, null, delta));
+    if (PhysicsManager.instance.simulate) { // pause physics until loading all component scene
+      this.queryResults.character.all?.forEach(entity => physicsPreStep(entity, null, delta));
+      PhysicsManager.instance.frame++;
+      PhysicsManager.instance.physicsWorld.step(PhysicsManager.instance.physicsFrameTime);
+      this.queryResults.character.all?.forEach(entity => updateCharacter(entity, null, delta));
+      this.queryResults.character.all?.forEach(entity => physicsPostStep(entity, null, delta));
+    }
   }
 }
 

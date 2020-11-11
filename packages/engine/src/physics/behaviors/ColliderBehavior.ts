@@ -6,7 +6,8 @@ import {
   createBox,
   createCylinder,
   createSphere,
-  createTrimesh
+  createTrimesh,
+  createGround
 } from './physicalPrimitives';
 import { CollisionGroups } from "../enums/CollisionGroups";
 import { Entity } from '../../ecs/classes/Entity';
@@ -36,10 +37,17 @@ export const addCollider: Behavior = (entity: Entity, args: { type: string; phas
     }
   }
 
+  console.warn(collider);
+
+
   let body;
   switch (collider.type) {
     case 'box':
       body = createBox(entity)
+      break;
+
+    case 'ground':
+      body = createGround(entity)
       break;
 
     case 'cylinder':
@@ -63,11 +71,13 @@ export const addCollider: Behavior = (entity: Entity, args: { type: string; phas
       break;
   }
 
-  body.position.set(
-    transform.position.x,
-    transform.position.y,
-    transform.position.z
-  );
+  if (transform) {
+    body.position.set(
+      transform.position.x,
+      transform.position.y,
+      transform.position.z
+    );
+  }
 
 /*
     body.shapes.forEach((shape) => {

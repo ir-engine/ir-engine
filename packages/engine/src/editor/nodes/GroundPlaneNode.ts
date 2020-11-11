@@ -55,6 +55,11 @@ export default class GroundPlaneNode extends EditorNodeMixin(GroundPlane) {
       "ground-plane": {
         color: this.color
       },
+      "box-collider": {
+        type: 'ground',
+        mass: 0,
+        scale: [10000, 0.1, 10000]
+      },
       shadow: {
         receive: this.receiveShadow
       }
@@ -67,25 +72,23 @@ export default class GroundPlaneNode extends EditorNodeMixin(GroundPlane) {
   prepareForExport() {
     super.prepareForExport();
     const groundPlaneCollider = new Object3D();
+
     groundPlaneCollider.scale.set(
       this.walkableMesh.scale.x,
       0.1,
       this.walkableMesh.scale.z
     );
+/*
     groundPlaneCollider.userData.gltfExtensions = {
       componentData: {
         "box-collider": {
-          // TODO: Remove exporting these properties. They are already included in the transform props.
-          position: groundPlaneCollider.position,
-          rotation: {
-            x: groundPlaneCollider.rotation.x,
-            y: groundPlaneCollider.rotation.y,
-            z: groundPlaneCollider.rotation.z
-          },
+          type: 'box',
+          mass: 0,
           scale: groundPlaneCollider.scale
         }
       }
     };
+    */
     this.add(groundPlaneCollider);
     this.remove(this.walkableMesh);
     this.addGLTFComponent("shadow", {
