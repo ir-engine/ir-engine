@@ -51,11 +51,11 @@ import { Engine } from '../../ecs/classes/Engine';
 
 export function addComponentFromBehavior<C> (
   entity: Entity,
-  args: { 
-    component: ComponentConstructor<Component<C>> 
+  args: {
+    component: ComponentConstructor<Component<C>>
     objArgs: any
   }
-): void { 
+): void {
   addComponent(entity, args.component, args.objArgs);
 }
 
@@ -73,7 +73,7 @@ export const addObject3DComponent: Behavior = (
 
   const isObject3d = typeof args.obj3d === 'object';
   let object3d;
-  
+
   if(isObject3d) object3d = args.obj3d
   else object3d = new args.obj3d(args.obj3dArgs)
 

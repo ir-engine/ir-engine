@@ -27,6 +27,7 @@ import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/Chara
 import { selectAppOnBoardingStep } from '../../redux/app/selector';
 import { InfoBox } from '../ui/InfoBox';
 import dynamic from 'next/dynamic';
+import { isClient } from "@xr3ngine/engine/src/common/functions/isClient";
 
 const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
@@ -61,7 +62,7 @@ export const EnginePage = (props: Props) => {
   const [infoBoxData, setInfoBoxData] = useState(null);
   const [progressEntity, setProgressEntity] = useState('');
 
-  //all scene entities are loaded 
+  //all scene entities are loaded
   const onSceneLoaded = (event: CustomEvent): void => {
     if (event.detail.loaded) {
       store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
@@ -122,11 +123,15 @@ export const EnginePage = (props: Props) => {
       TransformComponent
     );
     cameraTransform.position.set(0, 1.2, 10);
-    
-    createPrefab(staticWorldColliders);
 
-    const actorEntity = createPrefab(PlayerCharacter);
-    setActorEntity(actorEntity);
+
+  //  createPrefab(staticWorldColliders);
+
+
+  //  if (!isClient) {
+      const actorEntity = createPrefab(PlayerCharacter);
+      setActorEntity(actorEntity);
+
   }
 
 
