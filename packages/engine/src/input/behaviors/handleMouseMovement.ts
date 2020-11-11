@@ -53,8 +53,6 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
   // TODO: it looks like hack... MouseInput.MousePosition doesn't know that it is SCREENXY, and it could be anything ... same should be here
   const SCREENXY_START = input.data.get(DefaultInput.SCREENXY_START);
   if (SCREENXY_START && SCREENXY_START.lifecycleState !== LifecycleValue.ENDED) {
-
-    const element = args.event.target as HTMLElement;
     
     // Set dragging movement delta
     if (mappedDragMovementInput) {
@@ -63,25 +61,6 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
         value: mouseMovement,
         lifecycleState: input.data.has(mappedDragMovementInput) ? LifecycleValue.CHANGED : LifecycleValue.STARTED
       });
-     
-      element.onmouseleave = function () {
-        console.log('Mouse LEAVED Canvas');
-
-        input.data.set(input.schema.mouseInputMap.axes[MouseInput.MouseClickDownPosition], {
-          type: InputType.TWODIM,
-          value: BinaryValue.OFF,
-          lifecycleState: LifecycleValue.ENDED
-        });
-        input.data.set(input.schema.mouseInputMap.axes[MouseInput.MouseClickDownTransformRotation], {
-          type: InputType.TWODIM,
-          value: BinaryValue.OFF,
-          lifecycleState: LifecycleValue.ENDED
-        });
-
-        // const targetMouseArr = ['DOCUMENT', 'WINDOW', 'CANVAS'];
-        // if (!targetMouseArr.includes(element?.tagName)) {}
-      
-      };   
     }
 }
 };

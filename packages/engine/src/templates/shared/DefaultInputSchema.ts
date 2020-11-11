@@ -2,6 +2,7 @@ import { BinaryValue } from "../../common/enums/BinaryValue";
 import { disableScroll, enableScroll } from "../../common/functions/enableDisableScrolling";
 import { preventDefault } from "../../common/functions/preventDefault";
 import { handleGamepadConnected, handleGamepadDisconnected } from "../../input/behaviors/GamepadInputBehaviors";
+import { handleMouseLeave } from "../../input/behaviors/handelMouseLeave";
 import { handleKey } from "../../input/behaviors/handleKey";
 import { handleMouseButton } from "../../input/behaviors/handleMouseButton";
 import { handleMouseMovement } from "../../input/behaviors/handleMouseMovement";
@@ -67,6 +68,11 @@ export const DefaultInputSchema: InputSchema = {
         args: {
           value: DefaultInput.CAMERA_SCROLL
         }
+      }
+    ],
+    mouseleave: [
+      {
+        behavior: handleMouseLeave,
       }
     ],
     // Touch
