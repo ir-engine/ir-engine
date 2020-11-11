@@ -92,8 +92,6 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
     // Ignore input applied to local user input object that the client is currently controlling
     if(networkComponent.ownerId === Network.instance.userId && hasComponent(networkComponent.entity, LocalInputReceiver)) return;
 
-    console.log("Setting input on ", networkComponent.networkId);
-
     // Get input object attached
     const input = getComponent(networkComponent.entity, Input);
 
@@ -173,7 +171,5 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
       transformData.qZ,
       transformData.qW
     );
-    console.log("Updated transform on ", transformData.networkId);
-    console.log([transformData.x, transformData.y, transformData.z]);
   });
 }

@@ -43,7 +43,8 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
       networked: true
     },
     {
-      behavior: loadActorAvatar
+      behavior: loadActorAvatar,
+      networked: true
     }
 
   ],

@@ -4,6 +4,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { Network } from '../components/Network';
 import { NetworkObject } from '../components/NetworkObject';
 import { createNetworkPrefab } from './createNetworkPrefab';
+import { PrefabType } from "../../templates/networking/DefaultNetworkSchema";
 
 export function initializeNetworkObject(ownerId: string, networkId: number, prefabType: string | number, position?: Vector3, rotation?: Quaternion): NetworkObject {
 console.log("Initializing network object")
@@ -30,6 +31,11 @@ console.log("Initializing network object")
     prefabType,
     component: networkObject
   };
+
+  if (prefabType === PrefabType.Player && ownerId === (Network.instance).userId) {
+    console.log('Set localClientEntity', networkEntity);
+    Network.instance.localClientEntity = networkEntity;
+  }
 
   // Tell the client
   console.log("Object ", networkId, " added to the simulation for owner ", ownerId, " with a prefab type: ", prefabType);

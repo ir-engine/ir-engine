@@ -27,6 +27,7 @@ import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/Chara
 import { selectAppOnBoardingStep } from '../../redux/app/selector';
 import { InfoBox } from '../ui/InfoBox';
 import dynamic from 'next/dynamic';
+import { Network } from "../../../engine/src/networking/components/Network";
 
 const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
@@ -125,8 +126,15 @@ export const EnginePage = (props: Props) => {
     
     createPrefab(staticWorldColliders);
 
-    const actorEntity = createPrefab(PlayerCharacter);
-    setActorEntity(actorEntity);
+    // const actorEntity = createPrefab(PlayerCharacter);
+    // setActorEntity(actorEntity);
+    const actorEntityWaitInterval = setInterval(() => {
+      if (Network.instance.localClientEntity) {
+        console.log('setActorEntity');
+        setActorEntity(Network.instance.localClientEntity);
+        clearInterval(actorEntityWaitInterval);
+      }
+    }, 300);
   }
 
 
