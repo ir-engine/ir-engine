@@ -28,6 +28,8 @@ import { selectAppOnBoardingStep } from '../../redux/app/selector';
 import { InfoBox } from '../ui/InfoBox';
 import dynamic from 'next/dynamic';
 import { Network } from "../../../engine/src/networking/components/Network";
+import { setActorAvatar } from "../../../engine/src/templates/character/behaviors/setActorAvatar";
+import { loadActorAvatar } from "../../../engine/src/templates/character/behaviors/loadActorAvatar";
 
 const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
@@ -103,6 +105,13 @@ export const EnginePage = (props: Props) => {
       resetEngine();
     };
   }, []);
+
+  useEffect(() => {
+    if (actorEntity) {
+      setActorAvatar(actorEntity, {avatarId: actorAvatarId});
+      loadActorAvatar(actorEntity);
+    }
+  }, [ actorEntity, actorAvatarId ]);
 
 
   async function init(sceneId: string): Promise<any> { // auth: any,
