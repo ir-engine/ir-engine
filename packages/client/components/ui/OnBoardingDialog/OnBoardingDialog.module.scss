@@ -52,7 +52,9 @@
       .selectionButtons{
         position: fixed;
         top: 40%;
-        left: 40%;
+        left: 50%;
+        transform: translateX(-50%);
+
         svg{
           height: 10em;
           cursor: pointer;
