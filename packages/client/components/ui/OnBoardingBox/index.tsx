@@ -17,6 +17,11 @@ import { getMutableComponent } from "@xr3ngine/engine/src/ecs/functions/EntityFu
 import { Input } from "@xr3ngine/engine/src/input/components/Input";
 import { Entity } from "@xr3ngine/engine/src/ecs/classes/Entity";
 
+import { IconSwipe } from '../IconSwipe';
+import { IconLeftClick } from '../IconLeftClick';
+import { Microphone } from '@styled-icons/boxicons-regular/Microphone';
+import { TouchApp } from "@material-ui/icons";
+
 const mapStateToProps = (state: any): any => {
   return {   
     onBoardingStep: selectAppOnBoardingStep(state)
@@ -97,12 +102,16 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
   }
 
   let message = '';
-  let imageSrc = null;
+  let imageTip = null;
   switch(onBoardingStep){
-    case generalStateList.TUTOR_LOOKAROUND:message='Touch and Drag to look around'; imageSrc = isMobileOrTablet() ? "/assets/swipe.svg":"/assets/leftclick.svg"; addLookAroundEventListeners(); break;      
+    case generalStateList.TUTOR_LOOKAROUND:message='Touch and Drag to look around'; 
+                                          imageTip = isMobileOrTablet() ? <IconSwipe className={styles.IconSwipe} width="125.607" height="120.04" viewBox="0 0 125.607 120.04" />:<IconLeftClick className={styles.IconLeftClick}  width="136.742" height="144.242" viewBox="0 0 136.742 144.242" />; 
+                                          addLookAroundEventListeners(); 
+                                          break;      
     case generalStateList.TUTOR_MOVE: message= isMobileOrTablet() ? ' Use joystick to move' : 'Use keybuttons W S A D to move'; break;
-    case generalStateList.TUTOR_INTERACT: message= isMobileOrTablet() ? 'Use to interact' : 'Press E to interact'; isMobileOrTablet() && (imageSrc = "/assets/interact.svg"); break;
-    case generalStateList.TUTOR_UNMUTE: message='Tap to toggle Mic';  imageSrc = "/assets/mic.svg";break;
+    case generalStateList.TUTOR_INTERACT: message= isMobileOrTablet() ? 'Use to interact' : 'Press E to interact'; 
+                                          isMobileOrTablet() && (imageTip = <TouchApp className={styles.TouchApp} />); break;
+    case generalStateList.TUTOR_UNMUTE: message='Tap to toggle Mic';  imageTip = <Microphone className={styles.Microphone} />;break;
     default : message= '';break;
   }     
   return message ? 
@@ -120,7 +129,7 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
                   open={true} 
                   autoHideDuration={10000}>
                       <section>
-                        { imageSrc && <p><img className={styles.tipImage} src={imageSrc} /></p> }
+                        {imageTip}
                         <p>{message}</p>
                       </section>
                   </Snackbar>
