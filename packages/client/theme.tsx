@@ -18,7 +18,7 @@ const darkTheme = createMuiTheme({
     }
   },
   typography: {
-    fontFamily: '"Roboto", sans-serif',
+    fontFamily: ["Roboto", "Helvetica", "Arial", "sans-serif"].join(','),
     fontSize: 14,
       button: {
         color: '#FFFFFF'        
@@ -65,7 +65,14 @@ const darkTheme = createMuiTheme({
           width: '90%',
           left: '5%',
           right: '5%',
-        }     
+        },
+        MuiSvgIcon:{
+          root:{
+            height:'7em',
+            width:'auto',
+            color:'#FFFFFF'
+          }
+        }
       }
     },
     MuiPaper:{
@@ -133,10 +140,14 @@ const lightTheme = createMuiTheme({
     },
     background: {
       default: '#000000'
-    }
+    },
+    text:{
+      primary: '#FFFFFF',
+    },
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: ["Roboto", "Helvetica", "Arial", "sans-serif"].join(','),
+    
     fontSize: 14,
       button: {
         color: '#FFFFFF'        
@@ -182,7 +193,14 @@ const lightTheme = createMuiTheme({
           width: '90%',
           left: '5%',
           right: '5%',
-        }   
+        } ,
+        MuiSvgIcon:{
+          root:{
+            height:'7em',
+            width:'auto',
+            color:'#000000'
+          }
+        }      
       },
     },
     MuiPaper:{

@@ -13,8 +13,16 @@
     user-select: none;
     text-align: center;
 
-    .tipImage{       
-        margin: 15px;
+    svg {       
+        margin: 15px;       
+    }
+    .IconSwipe, .IconLeftClick{
+        height: 120px;
+        width: auto;
+    }
+    .TouchApp, .Microphone{
+        height: 3em;
+        width: 3em;        
     }
     .helpHintSnackBarContent{
         padding: 20px;
