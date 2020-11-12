@@ -15,4 +15,4 @@ export const  IconSwipe = (props: SvgIconProps) => {
       </svg>
     </SvgIcon>
   );
-}
+};

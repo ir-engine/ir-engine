@@ -13,6 +13,7 @@ import { doLoginAuto } from '../../redux/auth/service';
 import { Admin, Resource, ListGuesser } from 'react-admin';
 import { client } from '../../redux/feathers';
 import { restClient, authClient } from 'ra-data-feathers';
+import { CollectionList } from '../../components/react-admin/Collection/CollectionList';
 import { LocationCreate } from '../../components/react-admin/Location/LocationCreate';
 import { LocationEdit } from '../../components/react-admin/Location/LocationEdit';
 import { LocationList } from '../../components/react-admin/Location/LocationList';
@@ -45,11 +46,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 const restClientOptions = {
-  usePatch: true
-};
-
-const authClientOptions = {
-  storageKey: publicRuntimeConfig.localStorageKey
+  usePatch: true,
+  'location-type': {
+    id: 'type'
+  }
 };
 
 const LocationAdminConsolePage = (props: Props) => {
@@ -77,6 +77,16 @@ const LocationAdminConsolePage = (props: Props) => {
                 create={LocationCreate}
                 edit={LocationEdit}
                 list={LocationList}
+            />
+            <Resource
+                name='location-settings'
+            />
+            <Resource
+                name='collection'
+                list={CollectionList}
+            />
+            <Resource
+                name='location-type'
             />
           </Admin>
         </EmptyLayout>

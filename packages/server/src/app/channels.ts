@@ -9,7 +9,7 @@ import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab
 import { staticWorldColliders } from '@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders';
 
 import isNullOrUndefined from '@xr3ngine/engine/src/common/functions/isNullOrUndefined';
-import { loadScene } from "@xr3ngine/engine/src/scene/functions/SceneLoading"
+import { loadScene } from "@xr3ngine/engine/src/scene/functions/SceneLoading";
 export default (app: Application): void => {
   if (typeof app.channel !== 'function') {
     // If no real-time functionality has been configured just return
@@ -41,7 +41,7 @@ export default (app: Application): void => {
             const locationId = (connection as any).socketQuery.locationId;
             const sceneId = (connection as any).socketQuery.sceneId;
 
-            if(sceneId === "") return console.warn("Scene ID is empty, can't init")
+            if(sceneId === "") return console.warn("Scene ID is empty, can't init");
             
             const agonesSDK = (app as any).agonesSDK;
             const gsResult = await agonesSDK.getGameServer();
@@ -75,7 +75,7 @@ export default (app: Application): void => {
                   serviceId = regexResult[2];
                 }
                 const result = await app.service(service).get(serviceId);
-                console.log("Result is ")
+                console.log("Result is ");
                 console.log(result);
                 loadScene(result);
               }
