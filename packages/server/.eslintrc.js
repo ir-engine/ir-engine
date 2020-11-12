@@ -41,7 +41,8 @@ module.exports = {
     "@typescript-eslint/require-await": "off",
     "@typescript-eslint/strict-boolean-expressions": "off",
     "@typescript-eslint/promise-function-async": "off",
-    "@typescript-eslint/no-explicit-any": "off"
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-this-alias": "off"
   },
   overrides: [
     {
