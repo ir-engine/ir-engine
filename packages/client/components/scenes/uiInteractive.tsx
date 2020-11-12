@@ -8,7 +8,7 @@ import { createEntity, getMutableComponent } from '@xr3ngine/engine/src/ecs/func
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
-import { RazerLaptop } from '@xr3ngine/engine/src/templates/devices/prefabs/RazerLaptop'
+import { RazerLaptop } from '@xr3ngine/engine/src/templates/devices/prefabs/RazerLaptop';
 import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacterWithEmptyInputSchema';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
@@ -70,7 +70,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const onObjectActivation = (event: CustomEvent): void =>{
     setInfoBoxData(event.detail.payload);
     setHoveredLabel('');
-  }
+  };
 
   const sceneLoaded = (event: CustomEvent) => 
     (event.detail.loaded == true) &&
