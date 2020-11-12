@@ -125,8 +125,8 @@ export const EnginePage = (props: Props) => {
     
     createPrefab(staticWorldColliders);
 
-    const actorEntity = createPrefab(PlayerCharacter);
-    setActorEntity(actorEntity);
+    // const actorEntity = createPrefab(PlayerCharacter);
+    // setActorEntity(actorEntity);
   }
 
 
@@ -138,8 +138,8 @@ export const EnginePage = (props: Props) => {
     <>
       <NetworkDebug />
       <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
-      <OnBoardingDialog  actorEntity={actorEntity} avatarsList={CharacterAvatars} actorAvatarId={actorAvatarId} onAvatarChange={(avatarId) => {setActorAvatarId(avatarId); }} />
-      <OnBoardingBox actorEntity={actorEntity} />
+      {/* <OnBoardingDialog  actorEntity={actorEntity} avatarsList={CharacterAvatars} actorAvatarId={actorAvatarId} onAvatarChange={(avatarId) => {setActorAvatarId(avatarId); }} /> */}
+      {/* <OnBoardingBox actorEntity={actorEntity} /> */}
       <MediaIconsBox />
       <TooltipContainer message={hoveredLabel.length > 0 ? hoveredLabel : ''} />
       <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} />
