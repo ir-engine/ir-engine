@@ -30,6 +30,8 @@ import { selectLocationState } from '../../redux/location/selector';
 import { getLocationByName
 } from '../../redux/location/service';
 import { selectPartyState } from '../../redux/party/selector';
+import { createPrefab } from "../../../engine/src/common/functions/createPrefab";
+import { staticWorldColliders } from "../../../engine/src/templates/car/prefabs/staticWorldColliders";
 
 import theme from '../../theme';
 
@@ -182,7 +184,7 @@ const EditorRoomPage = (props: Props) => {
       };
 
       initializeEngine(InitializationOptions);
-
+      createPrefab(staticWorldColliders);
     loadScene(result);
     const cameraTransform = getMutableComponent<TransformComponent>(
       CameraComponent.instance.entity,

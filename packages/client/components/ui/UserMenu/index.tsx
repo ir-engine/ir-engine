@@ -1,16 +1,31 @@
 import React from 'react';
 // import AppBar from '@material-ui/core/AppBar';
 import styles from './UserMenu.module.scss';
-import { Button, MenuItem, Menu, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@material-ui/core';
+import { Button, MenuItem, Menu, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, IconButton } from '@material-ui/core';
 import { generalStateList, setAppSpecificOnBoardingStep } from '../../../redux/app/actions';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 import store from '../../../redux/store';
 import { Network } from '@xr3ngine/engine/src/networking/components/Network';
+import { selectAppOnBoardingStep } from '../../../redux/app/selector';
+import { selectAuthState } from '../../../redux/auth/selector';
+import { connect } from 'react-redux';
 interface Props {
     login?: boolean;
+    authState?:any;
 }
 
-export const UserMenu = (props: Props): any => {
-  const { login } = props;
+const mapStateToProps = (state: any): any => {
+  return {
+    onBoardingStep: selectAppOnBoardingStep(state),
+    authState: selectAuthState(state),
+  };
+};
+
+
+const UserMenu = (props: Props): any => {    
+  const { login, authState} = props;
+  const selfUser = authState.get('user');
+  console.log('selfUser', selfUser)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -31,7 +46,6 @@ export const UserMenu = (props: Props): any => {
     setAnchorEl(null);
   }
 
-
   const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
@@ -43,17 +57,25 @@ export const UserMenu = (props: Props): any => {
   };
 
   const handleChangeNameClick = () =>{
-    // setAnchorEl(null);
-    console.log('handleChangeNameClick')
-    console.log('Network.instance', Network.instance)
-    setOpen(!open);
+    setAnchorEl(null);
+    handleClickOpen();
   }
   return (
     <>
     <section className={styles.appbar}>
-     <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
-        Open Menu
-      </Button>
+      {/* <IconButton
+          aria-label="more"
+          aria-controls="long-menu"
+          aria-haspopup="true"
+          onClick={handleClick}
+        >
+          {selfUser ? selfUser.name : ''}
+          <MoreVertIcon />
+        </IconButton> */}
+        <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
+        { selfUser ? selfUser.name : ''}
+          <MoreVertIcon />
+        </Button>
       <Menu
         id="simple-menu"
         anchorEl={anchorEl}
@@ -77,6 +99,7 @@ export const UserMenu = (props: Props): any => {
           id="name"
           label="Name"
           type="text"
+          value={selfUser ? selfUser.name : ''}
           fullWidth
         />
       </DialogContent>
@@ -93,4 +116,4 @@ export const UserMenu = (props: Props): any => {
   );
 };
 
-export default UserMenu;
+export default connect(mapStateToProps)(UserMenu);
