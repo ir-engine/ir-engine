@@ -6,6 +6,7 @@ export default class GLTFCache {
     this.cache = new Map();
   }
   getLoader(url, options) {
+    console.log("getLoader", url);
     const absoluteURL = new URL(url, (window as any).location).href;
     if (this.cache.has(absoluteURL)) {
       return this.cache.get(absoluteURL);
