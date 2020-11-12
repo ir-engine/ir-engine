@@ -28,6 +28,7 @@ import { selectAppOnBoardingStep } from '../../redux/app/selector';
 import { InfoBox } from '../ui/InfoBox';
 import dynamic from 'next/dynamic';
 import { isClient } from "@xr3ngine/engine/src/common/functions/isClient";
+import { Network } from '@xr3ngine/engine/src/networking/components/Network';
 
 const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
@@ -129,8 +130,17 @@ export const EnginePage = (props: Props) => {
 
 
   //  if (!isClient) {
-      const actorEntity = createPrefab(PlayerCharacter);
-      setActorEntity(null);
+  //     const actorEntity = createPrefab(PlayerCharacter);
+  //     setActorEntity(actorEntity);
+    if (!isClient) {
+      const actorEntityWaitInterval = setInterval(() => {
+        if (Network.instance && Network.instance.localClientEntity) {
+          console.log('setActorEntity');
+          setActorEntity(Network.instance.localClientEntity);
+          clearInterval(actorEntityWaitInterval);
+        }
+      }, 300);
+    }
 
   }
 
