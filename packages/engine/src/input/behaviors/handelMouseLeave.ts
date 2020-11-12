@@ -16,26 +16,30 @@ import { BinaryValue } from "../../common/enums/BinaryValue";
 
 export const handleMouseLeave: Behavior = (entity: Entity, args: { event: MouseEvent }): void => {
     const input = getComponent(entity, Input);
-    //   const element = args.event.target as HTMLElement;
-    const mappedDragMovementInput = input.schema.mouseInputMap.axes[MouseInput.MouseClickDownMovement];
 
-    if (mappedDragMovementInput) {
+    console.log('Mouse LEAVED Canvas');
 
-        console.log('Mouse LEAVED Canvas');
-        input.data.set(input.schema.mouseInputMap.buttons[args.event.button], {
+    Object.keys(input.schema.mouseInputMap.buttons).forEach(button => {
+        input.data.set(button, {
             type: InputType.BUTTON,
             value: BinaryValue.OFF,
             lifecycleState: LifecycleValue.ENDED
         });
+    });
+
+    if (input.schema.mouseInputMap.axes[MouseInput.MouseClickDownPosition]) {
         input.data.set(input.schema.mouseInputMap.axes[MouseInput.MouseClickDownPosition], {
             type: InputType.TWODIM,
-            value: BinaryValue.OFF,
-            lifecycleState: LifecycleValue.ENDED
-        });
-        input.data.set(input.schema.mouseInputMap.axes[MouseInput.MouseClickDownTransformRotation], {
-            type: InputType.TWODIM,
-            value: BinaryValue.OFF,
+            value: [0, 0],
             lifecycleState: LifecycleValue.ENDED
         });
     }
+    if (input.schema.mouseInputMap.axes[MouseInput.MouseClickDownTransformRotation]) {
+        input.data.set(input.schema.mouseInputMap.axes[MouseInput.MouseClickDownTransformRotation], {
+            type: InputType.TWODIM,
+            value: [0, 0],
+            lifecycleState: LifecycleValue.ENDED
+        });
+    }
+
 };
