@@ -182,9 +182,11 @@ export class Location extends Service {
     return location;
   }
 
-  async remove (id: string): Promise<any> {
-    const location = await this.app.service('location').get(id);
-    if (location.locationSettingsId != null) await this.app.service('location-settings').remove(location.locationSettingsId);
-    return super.remove(location.id);
+  async remove (id: string, params: Params): Promise<any> {
+    if (id != null) {
+      const location = await this.app.service('location').get(id);
+      if (location.locationSettingsId != null) await this.app.service('location-settings').remove(location.locationSettingsId);
+    }
+    return super.remove(id);
   }
 }
