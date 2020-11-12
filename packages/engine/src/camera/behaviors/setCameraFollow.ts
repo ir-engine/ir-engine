@@ -46,7 +46,12 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
   if (!inputValue) {
     const distanceNeedsUpdate = cameraFollow.distance != follower.position.distanceTo(target.position);
     if (distanceNeedsUpdate){
-      follower.position.sub(target.position).normalize().multiplyScalar(cameraFollow.distance).add(target.position);
+      //follower.position.sub(target.position).normalize().multiplyScalar(cameraFollow.distance).add(target.position);
+      follower.position.set(
+        target.position.x + cameraFollow.distance * Math.sin(theta * Math.PI / 180) * Math.cos(phi * Math.PI / 180),
+        target.position.y + cameraFollow.distance * Math.sin(phi * Math.PI / 180),
+        target.position.z + cameraFollow.distance * Math.cos(theta * Math.PI / 180) * Math.cos(phi * Math.PI / 180)
+      );
     }
     return;
   }

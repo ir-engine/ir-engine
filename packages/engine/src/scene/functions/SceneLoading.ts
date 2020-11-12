@@ -1,9 +1,12 @@
+import { Engine } from '../../ecs/classes/Engine';
 import { SceneTagComponent } from '../../common/components/Object3DTagComponents';
 import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions';
 import { SceneObjectLoadingSchema } from '../constants/SceneObjectLoadingSchema';
+import { PhysicsManager } from '../../physics/components/PhysicsManager';
 
 export function loadScene (scene) {
-  console.log("Loading scene", scene);
+  console.warn(Engine.scene);
+  console.warn("Loading scene", scene);
   Object.keys(scene.entities).forEach(key => {
     const sceneEntity = scene.entities[key];
     const entity = createEntity();
@@ -12,6 +15,7 @@ export function loadScene (scene) {
       loadComponent(entity, component);
     });
   });
+  //PhysicsManager.instance.simulate = true;
 }
 
 export function loadComponent (entity, component) {
@@ -20,7 +24,7 @@ export function loadComponent (entity, component) {
   // for each component in component name, call behavior
   componentSchema.behaviors?.forEach(b => {
     // For each value, from component.data
-    const values = {}    
+    const values = {}
     b.values?.forEach(val => {
       // Does it have a from and to field? Let's map to that
       if(val['from'] !== undefined) {
