@@ -84,16 +84,12 @@ export class Location extends Service {
   }
 
   async find (params: Params): Promise<any> {
-    const loggedInUser = extractLoggedInUserFromParams(params);
-    console.log('location find query:');
-    console.log(params.query);
     // eslint-disable-next-line prefer-const
     let {$skip, $limit, $sort, ...strippedQuery} = params.query;
     if ($skip == null) $skip = 0;
     if ($limit == null) $limit = 10;
-    console.log($sort);
     const order = [];
-    Object.keys($sort).forEach((name, val) => {
+    if ($sort != null) Object.keys($sort).forEach((name, val) => {
       order.push([name, $sort[name] === -1 ? 'DESC' : 'ASC']);
     });
     const locationResult = await this.app.service('location').Model.findAndCountAll({
@@ -130,10 +126,65 @@ export class Location extends Service {
   }
 
   async create (data: any, params: Params): Promise<any> {
-    console.log('Location create');
-    console.log(data);
-    data.slugifiedName = slugify(data.name);
-    console.log(data);
-    return super.create(data, params);
+    let location;
+    // eslint-disable-next-line prefer-const
+    let {location_setting, ...locationData} = data;
+    locationData.slugifiedName = slugify(locationData.name, {
+      lower: true
+    });
+    try {
+      location = await super.create(locationData, params);
+    } catch(err) {
+      console.log(err);
+      if (err.errors[0].message === 'slugifiedName must be unique') {
+        throw new Error('That name is already in use');
+      }
+      throw err;
+    }
+
+    if (location_setting == null) location_setting = {};
+    if (location_setting.videoEnabled == null) location_setting.videoEnabled = false;
+    if (location_setting.instanceMediaChatEnabled == null) location_setting.instanceMediaChatEnabled = false;
+    if (location_setting.maxUsersPerInstance == null) location_setting.maxUsersPerInstance = 10;
+    if (location_setting.locationType == null) location_setting.locationType = 'private';
+    location_setting.locationId = location.id;
+    const locationSettings = await this.app.service('location-settings').create(location_setting);
+    return super.patch(location.id, {
+      locationSettingsId: locationSettings.id
+    });
+  }
+
+  async patch (id: string, data: any, params: Params): Promise<any> {
+    let location;
+    // eslint-disable-next-line prefer-const
+    let {location_setting, ...locationData} = data;
+    if (locationData.name) locationData.slugifiedName = slugify(locationData.name, {
+      lower: true
+    });
+
+    try {
+      location = await super.create(locationData, params);
+    } catch(err) {
+      console.log(err);
+      if (err.errors[0].message === 'slugifiedName must be unique') {
+        throw new Error('That name is already in use');
+      }
+      throw err;
+    }
+
+    if (location_setting == null) location_setting = {};
+    if (location_setting.videoEnabled == null) location_setting.videoEnabled = false;
+    if (location_setting.instanceMediaChatEnabled == null) location_setting.instanceMediaChatEnabled = false;
+    if (location_setting.maxUsersPerInstance == null) location_setting.maxUsersPerInstance = 10;
+    if (location_setting.locationType == null) location_setting.locationType = 'private';
+    location_setting.locationId = location.id;
+    await this.app.service('location-settings').patch(location_setting.id, location_setting);
+    return location
+  }
+
+  async remove (id: string): Promise<any> {
+    const location = await this.app.service('location').get(id);
+    if (location.locationSettingsId != null) await this.app.service('location-settings').remove(location.locationSettingsId);
+    return super.remove(location.id);
   }
 }
