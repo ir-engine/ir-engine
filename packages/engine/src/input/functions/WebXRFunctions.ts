@@ -5,17 +5,18 @@ import { addComponent, getComponent, removeComponent } from '../../ecs/functions
 import { WebXRSession } from '../components/WebXRSession';
 import { XRControllersComponent } from '../components/XRControllersComponent';
 
-var container;
+let container;
 
-var controller1, controller2;
-var controllerGrip1, controllerGrip2;
+let controller1, controller2;
+let controllerGrip1, controllerGrip2;
 
 let particularArray
 
-var raycaster, intersected = [];
-var tempMatrix = new Matrix4();
+// eslint-disable-next-line prefer-const
+let raycaster, intersected = [];
+const tempMatrix = new Matrix4();
 
-var controls, group;
+let controls, group;
 
 export function initControllersVR(actorEntity) {
   // controllers
@@ -58,7 +59,7 @@ export function initControllersVR(actorEntity) {
   //      new TextureLoader().load('./models/controllers/valve_controller_knu_1_0_right_diff.png',
   //      texture2 => {
       //    console.warn(obj);
-          let mesh = obj.scene.children[2] as any;
+          const mesh = obj.scene.children[2] as any;
 
           mesh.material = new MeshPhongMaterial()
       //    texture.anisotropy = 16
@@ -67,7 +68,7 @@ export function initControllersVR(actorEntity) {
     //      mesh.material.specularMap = texture;
           //mesh.position.y = 0.1;
           mesh.position.z = -0.08 ;
-          let mesh2 = mesh.clone()
+          const mesh2 = mesh.clone()
 
       //    console.warn(obj);
 
@@ -91,8 +92,8 @@ export function initControllersVR(actorEntity) {
 function selectStart( event, n ) {
 
 
-	let currentIndex = []
-	let controllerPosition = new Vector3(
+	const currentIndex = []
+	const controllerPosition = new Vector3(
 		event.target.position.x,
 		event.target.position.y,
 		event.target.position.z
@@ -153,10 +154,10 @@ export function initVR (actorEntity) {
   document.body.appendChild( button );
 	Engine.renderer.xr.enabled = true;
 	Engine.renderer.xr.setReferenceSpaceType( 'local-floor' );
-	(navigator as any).xr.isSessionSupported( 'immersive-vr' ).then( function ( supported ) {
+	(navigator as any).xr.isSessionSupported( 'immersive-vr' ).then( ( supported ) => {
 		supported ? showEnterVR(actorEntity, button) : showWebXRNotFound(button);
 	});
-};
+}
 
 
 function showEnterVR(actorEntity, button ) {
@@ -191,7 +192,7 @@ function showEnterVR(actorEntity, button ) {
 			onSessionEnded();
 		}
 	};
-};
+}
 /*
 export function createWebGLContext() {
   let webglCanvas = document.querySelector("canvas");
@@ -249,4 +250,4 @@ function stylizeElement( element ) {
 	element.onmouseleave = function () {
 		element.style.opacity = '0.5';
 	}
-};
+}

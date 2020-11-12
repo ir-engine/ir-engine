@@ -1,4 +1,4 @@
-import { AmbientLight, DirectionalLight, DoubleSide, HemisphereLight, Mesh, MeshBasicMaterial, PlaneGeometry, PointLight, SpotLight } from 'three';
+import { AmbientLight, DirectionalLight, DoubleSide, HemisphereLight, Color, Matrix4, Vector3, Mesh, MeshBasicMaterial, MeshPhongMaterial, CircleBufferGeometry, PointLight, SpotLight } from 'three';
 import { AssetLoader } from '../../assets/components/AssetLoader';
 import { addComponentFromBehavior, addObject3DComponent, addTagComponentFromBehavior } from '../../common/behaviors/Object3DBehaviors';
 import { VisibleTagComponent } from '../../common/components/Object3DTagComponents';
@@ -71,8 +71,12 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       {
         behavior: addObject3DComponent,
         args: {
-          obj3d: Mesh,
-          objArgs: [new PlaneGeometry(40000, 40000), new MeshBasicMaterial({ side: DoubleSide })]
+          obj3d: new Mesh(
+            new CircleBufferGeometry(1000, 32).rotateX(-Math.PI/2),
+            new MeshPhongMaterial({
+              color: new Color(0.313410553336143494, 0.31341053336143494, 0.30206481294706464)
+            })
+          )
         },
         values: ['color', 'material.color']
       }
@@ -148,7 +152,6 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
     behaviors: [
       {
         // TODO: This is a js transform, we might need to handle binding this properly
-        
         behavior: addComponentFromBehavior,
         args: { component: TransformComponent },
         values: ['position', 'rotation', 'scale']
@@ -225,7 +228,8 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'box-collider': {
     behaviors: [
       {
-        behavior: createBoxCollider
+        behavior: createBoxCollider,
+        values: ['type', 'mass']
       }
     ]
   },

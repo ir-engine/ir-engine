@@ -9,4 +9,4 @@ export const  IconLeftClick = (props: SvgIconProps) => {
      </svg>
     </SvgIcon>
   );
-}
+};

@@ -1,4 +1,4 @@
-import ImageMediaSource from "../ImageMediaSource"
+import ImageMediaSource from "../ImageMediaSource";
 export default class BingImagesSource extends ImageMediaSource {
   id: string;
   name: string;

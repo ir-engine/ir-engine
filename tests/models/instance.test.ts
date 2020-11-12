@@ -6,11 +6,16 @@ describe('CRUD operation on \'Instance\' model', () => {
   let locationId: any
 
   beforeAll(async () => {
+    await locationModel.destroy({
+      where: {
+        slugifiedName: 'test-location'
+      }
+    });
     const location = await locationModel.create({
       name: 'test location',
       slugifiedName: 'test-location',
       maxUsersPerInstance: 10
-    })
+    });
     locationId = location.id
   })
 
