@@ -54,8 +54,7 @@ const appReducer = (state = immutableState, action: AppLoadedAction | SetViewpor
           return state
             .set('onBoardingStep', action.onBoardingStep >= state.get('onBoardingStep') ? action.onBoardingStep : state.get('onBoardingStep'));
     case SET_APP_SPECIFIC_ONBOARDING_STEP: 
-    return state
-      .set('onBoardingStep', action.onBoardingStep);
+          return state.set('onBoardingStep', action.onBoardingStep);
     default:
       break;
   }

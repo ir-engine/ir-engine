@@ -102,12 +102,12 @@ const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAv
                             <ArrowIosForwardOutline onClick={(): void => onAvatarChange(nextAvatarId)} />
                           </section>
                         </section>;
-            submitButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));
+            submitButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.AVATAR_SELECTED));
             break;
           }
-      // case generalStateList.AVATAR_SELECTED: {
-      //       store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));            
-      //      break;}
+      case generalStateList.AVATAR_SELECTED: {
+            store.dispatch(setAppOnBoardingStep(generalStateList.SELECT_TUTOR));            
+           break;}
       case generalStateList.SELECT_TUTOR: {
             isOpened= true; title = 'Ready Player One!'; dialogText = 'If this is your first time, we suggest starting with the tutorial.'; 
             submitButtonText = 'Enter World'; otherButtonText = 'Start Tutorial';

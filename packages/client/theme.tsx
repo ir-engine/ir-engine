@@ -231,6 +231,11 @@ const lightTheme = createMuiTheme({
         color: '#000000' ,
       }
     },
+    MuiInputBase:{
+      input:{
+        color: '#000000',
+      }
+    },
     MuiButton: {
       root:{
         width: '220px',    

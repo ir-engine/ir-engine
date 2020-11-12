@@ -18,6 +18,7 @@ import { setActorAvatar } from "../../../engine/src/templates/character/behavior
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '../../redux/app/actions';
 import { selectAppOnBoardingStep } from '../../redux/app/selector';
+import { selectAuthState } from '../../redux/auth/selector';
 import { client } from '../../redux/feathers';
 import store from '../../redux/store';
 import { InfoBox } from '../ui/InfoBox';
@@ -33,14 +34,14 @@ const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => m
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
 
 interface Props {
-  setAppLoaded?: any
-  sceneId?: string
-  onBoardingStep?:number
+  setAppLoaded?: any,
+  sceneId?: string,
+  onBoardingStep?:number,
 }
 
 const mapStateToProps = (state: any): any => {
   return {
-    onBoardingStep: selectAppOnBoardingStep(state)
+    onBoardingStep: selectAppOnBoardingStep(state),
   };
 };
 
@@ -52,7 +53,7 @@ export const EnginePage = (props: Props) => {
   const {
     sceneId,
     setAppLoaded,
-    onBoardingStep
+    onBoardingStep,
   } = props;
 
   const [hoveredLabel, setHoveredLabel] = useState('');
@@ -64,6 +65,7 @@ export const EnginePage = (props: Props) => {
   //all scene entities are loaded
   const onSceneLoaded = (event: CustomEvent): void => {
     if (event.detail.loaded) {
+      console.warn('onSceneLoaded')
       store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));
       setAppLoaded(true);
     }
@@ -84,7 +86,7 @@ export const EnginePage = (props: Props) => {
     console.log("LOAD SCENE WITH ID ", sceneId)
 
     const actorEntityWaitInterval = setInterval(() => {
-      if (Network.instance.localClientEntity) {
+      if (Network.instance?.localClientEntity) {
         console.log('setActorEntity');
         setActorEntity(Network.instance.localClientEntity);
         clearInterval(actorEntityWaitInterval);
