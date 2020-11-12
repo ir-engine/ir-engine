@@ -43,9 +43,9 @@ export function connectToInstanceServer () {
       const instanceConnectionState = getState().get('instanceConnection');
       const instance = instanceConnectionState.get('instance');
       const locationId = instanceConnectionState.get('locationId');
-      const sceneId = instanceConnectionState.get('sceneId');
       const locationState = getState().get('locations');
       const currentLocation = locationState.get('currentLocation').get('location');
+      const sceneId = currentLocation.sceneId;
       const videoActive = MediaStreamComponent.instance !== null && MediaStreamComponent.instance !== undefined && (MediaStreamComponent.instance.camVideoProducer != null || MediaStreamComponent.instance.camAudioProducer != null);
       // TODO: Disconnected 
       if(Network.instance !== undefined && Network.instance !== null){
