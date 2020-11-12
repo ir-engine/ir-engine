@@ -88,8 +88,9 @@ const AdminConsole = (props: Props): any => {
   };
 
   const goToRoot = (): void => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    router.push('/');
+    router.push('/').catch(err => {
+      console.warn("Failed to push to root");
+    });
   };
 
   return (

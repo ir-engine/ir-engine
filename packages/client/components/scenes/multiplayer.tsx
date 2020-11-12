@@ -82,20 +82,6 @@ export const EnginePage = (props: Props) => {
   useEffect(() => {
     addEventListeners();
 
-    const networkSchema: NetworkSchema = {
-      ...DefaultNetworkSchema,
-      transport: SocketWebRTCClientTransport,
-    };
-
-    const InitializationOptions = {
-      ...DefaultInitializationOptions,
-      networking: {
-        schema: networkSchema,
-      }
-    };
-
-    initializeEngine(InitializationOptions);
-
     init(sceneId).catch((e) => { console.log(e); });
 
     return (): void => {
@@ -113,6 +99,7 @@ export const EnginePage = (props: Props) => {
 
   async function init(sceneId: string): Promise<any> { // auth: any,
     let service, serviceId;
+    console.log("Loading scene with scene ", sceneId);
     const projectResult = await client.service('project').get(sceneId);
     const projectUrl = projectResult.project_url;
     const regexResult = projectUrl.match(projectRegex);
