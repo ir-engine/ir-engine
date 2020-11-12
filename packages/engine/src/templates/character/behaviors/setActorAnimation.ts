@@ -9,75 +9,43 @@ export const setActorAnimation: Behavior = (entity, args: { name: string; transi
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 
   // Actor isn't initialized yet, so skip the animation
-  if(!actor.initialized) return
+  if(!actor.initialized) return;
+  // if actor model is not yet loaded mixer could be empty
+  if (!actor.mixer) return;
+
+  const animationRoot = actor.modelContainer.children[0];
+  if (!animationRoot) {
+    console.error('Animation root/model is undefined', animationRoot);
+  }
 
   const clip = AnimationClip.findByName(actor.animations, args.name );
-  const newAction = actor.mixer.clipAction(clip, actor.modelContainer.children[0]);
+  let newAction = actor.mixer.existingAction(clip, animationRoot);
+  if (!newAction) {
+    // get new action
+    newAction = actor.mixer.clipAction(clip, animationRoot);
+  }
 
   if (newAction === null) {
     console.warn('setActorAnimation', args.name, ', not found');
     return;
   }
 
-  if (actor.currentAnimationAction === null) {
-    actor.currentAnimationAction = newAction;
-    newAction.play();
-    return;
-  }
-
-
-  if (args.name == actor.currentAnimationAction.getClip().name) {
+  if (actor.currentAnimationAction && args.name == actor.currentAnimationAction.getClip().name) {
     console.warn('setActorAnimation', args.name, ', same animation already playing');
     return;
   }
-/*
-  console.warn('///////////////////////////////');
-  console.warn(args.name);
-  console.warn(actor.currentAnimationAction.getClip().name);
-  console.warn('//////////////////////////////');
-*/
 
-  actor.mixer.stopAllAction();
-
-	actor.currentAnimationAction.setEffectiveTimeScale( 1 );
-  actor.currentAnimationAction.setEffectiveWeight( 1 );
-
-	newAction.setEffectiveTimeScale( 1 );
-	newAction.setEffectiveWeight( 1 );
-
-	//action.time = 0;
-
-// Crossfade with warping - you can also try without warping by setting the third parameter to false
-
-  actor.currentAnimationAction.crossFadeTo(newAction, args.transitionDuration, true);
-  newAction.play();
-  actor.currentAnimationAction.play();
-  actor.currentAnimationAction = newAction;
-  /*
-    if (actor.currentAnimationAction) {
-    if (actor.currentAnimationAction === action) {
-      return 1;
-    }
-
-    // const currentClip = AnimationClip.findByName(actor.animations, actor.currentAnimationName);
-    // const currentAction = actor.mixer.clipAction(currentClip);
-    // currentAction.fadeOut(args.transitionDuration);
-    action.fadeIn(args.transitionDuration);
-    action.play();
-
-    actor.currentAnimationAction.fadeOut(args.transitionDuration).stop();
-    setTimeout(() => {
-
-    }, args.transitionDuration);
-
-    actor.currentAnimationAction = action;
-  } else {
-    action.fadeIn(args.transitionDuration);
-    action.play();
-
-    actor.currentAnimationAction = action;
+  if (actor.currentAnimationAction) {
+    actor.currentAnimationAction.fadeOut(args.transitionDuration);
   }
-   */
 
+  newAction
+    .reset()
+    .setEffectiveTimeScale( 1 )
+    .setEffectiveWeight( 1 )
+    .fadeIn( args.transitionDuration )
+    .play();
+
+  actor.currentAnimationAction = newAction;
   actor.currentAnimationLength = newAction.getClip().duration;
 };

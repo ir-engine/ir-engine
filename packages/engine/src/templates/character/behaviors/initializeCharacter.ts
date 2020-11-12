@@ -57,8 +57,8 @@ export const initializeCharacter: Behavior = (entity): void => {
 		actor.animations = animations;
 	});
 
-	actor.mixer = new AnimationMixer(actor.modelContainer);
-	actor.mixer.timeScale = actor.animationsTimeScale;
+	// actor.mixer = new AnimationMixer(actor.modelContainer);
+	// actor.mixer.timeScale = actor.animationsTimeScale;
 
 
 	actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
