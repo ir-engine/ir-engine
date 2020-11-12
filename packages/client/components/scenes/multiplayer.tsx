@@ -1,39 +1,32 @@
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
-import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
+import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
 import { getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { loadScene } from "@xr3ngine/engine/src/scene/functions/SceneLoading";
-import { staticWorldColliders } from '@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders';
-import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacterWithEmptyInputSchema';
+import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
+import dynamic from 'next/dynamic';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
+import { Network } from "../../../engine/src/networking/components/Network";
+import { loadActorAvatar } from "../../../engine/src/templates/character/behaviors/loadActorAvatar";
+import { setActorAvatar } from "../../../engine/src/templates/character/behaviors/setActorAvatar";
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '../../redux/app/actions';
+import { selectAppOnBoardingStep } from '../../redux/app/selector';
 import { client } from '../../redux/feathers';
 import store from '../../redux/store';
+import { InfoBox } from '../ui/InfoBox';
 import LinearProgressComponent from '../ui/LinearProgress';
-import NetworkDebug from '../ui/NetworkDebug/NetworkDebug';
 import MediaIconsBox from "../ui/MediaIconsBox";
-import OnBoardingBox from "../ui/OnBoardingBox";
+import NetworkDebug from '../ui/NetworkDebug/NetworkDebug';
+import OnBoardingBox from '../ui/OnBoardingBox';
 import OnBoardingDialog from '../ui/OnBoardingDialog';
 import TooltipContainer from '../ui/TooltipContainer';
-import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
-import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
-import { selectAppOnBoardingStep } from '../../redux/app/selector';
-import { InfoBox } from '../ui/InfoBox';
-import dynamic from 'next/dynamic';
-<<<<<<< HEAD
-import { Network } from "../../../engine/src/networking/components/Network";
-import { setActorAvatar } from "../../../engine/src/templates/character/behaviors/setActorAvatar";
-import { loadActorAvatar } from "../../../engine/src/templates/character/behaviors/loadActorAvatar";
-=======
-import { isClient } from "@xr3ngine/engine/src/common/functions/isClient";
->>>>>>> origin/625-ground-plane
 
 const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
@@ -157,8 +150,8 @@ export const EnginePage = (props: Props) => {
     <>
       <NetworkDebug />
       <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
-      {/* <OnBoardingDialog  actorEntity={actorEntity} avatarsList={CharacterAvatars} actorAvatarId={actorAvatarId} onAvatarChange={(avatarId) => {setActorAvatarId(avatarId); }} /> */}
-      {/* <OnBoardingBox actorEntity={actorEntity} /> */}
+    <OnBoardingDialog  actorEntity={actorEntity} avatarsList={CharacterAvatars} actorAvatarId={actorAvatarId} onAvatarChange={(avatarId) => {setActorAvatarId(avatarId); }} />
+    <OnBoardingBox actorEntity={actorEntity} />
       <MediaIconsBox />
       <TooltipContainer message={hoveredLabel.length > 0 ? hoveredLabel : ''} />
       <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} />
