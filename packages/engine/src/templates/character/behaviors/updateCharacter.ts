@@ -19,7 +19,9 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
   // actor.vehicleEntryInstance?.update(timeStep);
   // console.log(this.occupyingSeat);
   // this.charState?.update(timeStep);
-  actor.mixer.update(deltaTime);
+  if (actor.mixer) {
+    actor.mixer.update(deltaTime);
+  }
   if (actor.physicsEnabled) {
 
     // transfer localMovementDirection into velocityTarget
