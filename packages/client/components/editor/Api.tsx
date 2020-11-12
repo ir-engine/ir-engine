@@ -522,7 +522,9 @@ export default class Api extends EventEmitter {
     const body = JSON.stringify({
       project
     });
-
+    console.log("EDITOR JSON IS")
+    console.log(project);
+    
     const projectEndpoint = `${SERVER_URL}/project/${projectId}`;
 
     const resp = await this.fetchUrl(projectEndpoint, { method: "PATCH", headers, body, signal });
@@ -539,6 +541,8 @@ export default class Api extends EventEmitter {
     }
 
     this.emit("project-saved");
+
+
 
     return json;
   }
