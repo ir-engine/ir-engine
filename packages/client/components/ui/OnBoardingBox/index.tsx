@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
 import { Button, Snackbar, SnackbarContent } from '@material-ui/core';
@@ -36,6 +36,7 @@ interface Props {
 const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
 
   const addLookAroundEventListeners = () =>{
+    console.log('actorEntity', actorEntity)
     const InputComponent = getMutableComponent(actorEntity, Input);
     InputComponent.schema.inputAxisBehaviors[DefaultInput.LOOKTURN_PLAYERONE] = {changed : [{behavior:actorLooked}]};
   };
@@ -103,17 +104,22 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
 
   let message = '';
   let imageTip = null;
-  switch(onBoardingStep){
-    case generalStateList.TUTOR_LOOKAROUND:message='Touch and Drag to look around'; 
-                                          imageTip = isMobileOrTablet() ? <IconSwipe className={styles.IconSwipe} width="125.607" height="120.04" viewBox="0 0 125.607 120.04" />:<IconLeftClick className={styles.IconLeftClick}  width="136.742" height="144.242" viewBox="0 0 136.742 144.242" />; 
-                                          addLookAroundEventListeners(); 
-                                          break;      
-    case generalStateList.TUTOR_MOVE: message= isMobileOrTablet() ? ' Use joystick to move' : 'Use keybuttons W S A D to move'; break;
-    case generalStateList.TUTOR_INTERACT: message= isMobileOrTablet() ? 'Use to interact' : 'Press E to interact'; 
-                                          isMobileOrTablet() && (imageTip = <TouchApp className={styles.TouchApp} />); break;
-    case generalStateList.TUTOR_UNMUTE: message='Tap to toggle Mic';  imageTip = <Microphone className={styles.Microphone} />;break;
-    default : message= '';break;
-  }     
+
+  useEffect(() => {
+    switch(onBoardingStep){
+      case generalStateList.TUTOR_LOOKAROUND:message='Touch and Drag to look around'; 
+                                            imageTip = isMobileOrTablet() ? <IconSwipe className={styles.IconSwipe} width="125.607" height="120.04" viewBox="0 0 125.607 120.04" />:<IconLeftClick className={styles.IconLeftClick}  width="136.742" height="144.242" viewBox="0 0 136.742 144.242" />; 
+                                            addLookAroundEventListeners(); 
+                                            break;      
+      case generalStateList.TUTOR_MOVE: message= isMobileOrTablet() ? ' Use joystick to move' : 'Use keybuttons W S A D to move'; break;
+      case generalStateList.TUTOR_INTERACT: message= isMobileOrTablet() ? 'Use to interact' : 'Press E to interact'; 
+                                            isMobileOrTablet() && (imageTip = <TouchApp className={styles.TouchApp} />); break;
+      case generalStateList.TUTOR_UNMUTE: message='Tap to toggle Mic';  imageTip = <Microphone className={styles.Microphone} />;break;
+      default : message= '';break;
+    } 
+  console.log('!!!!!!!!!!!!!!!!!OnBoardingBox onBoardingStep', onBoardingStep)
+  }, [ onBoardingStep ]);
+      
   return message ? 
                 <>
                   <section className={styles.exitButtonContainer}>

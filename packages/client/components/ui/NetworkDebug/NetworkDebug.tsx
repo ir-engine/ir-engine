@@ -16,8 +16,8 @@ export const NetworkDebug = () => {
     const numberOfNetworkObjects = Network.instance != null ? Object.keys(Network.instance.networkObjects).length : 0;
     const interval = setInterval(() => {
         if( Network.instance != null &&
-            Object.keys(Network.instance.clients).length !== numberOfClients ||
-            Object.keys(Network.instance.networkObjects).length !== numberOfNetworkObjects
+            (Object.keys(Network.instance.clients).length !== numberOfClients ||
+            Object.keys(Network.instance.networkObjects).length !== numberOfNetworkObjects)
         ) {
             setNetworkData({...Network.instance});
             forceUpdate();

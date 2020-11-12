@@ -64,7 +64,7 @@ export const EnginePage = (props: Props) => {
   //all scene entities are loaded
   const onSceneLoaded = (event: CustomEvent): void => {
     if (event.detail.loaded) {
-      store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
+      store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));
       setAppLoaded(true);
     }
   };
@@ -119,7 +119,7 @@ export const EnginePage = (props: Props) => {
 
 
     const actorEntityWaitInterval = setInterval(() => {
-      if (Network.instance.localClientEntity) {
+      if (Network.instance?.localClientEntity) {
         console.log('setActorEntity');
         setActorEntity(Network.instance.localClientEntity);
         clearInterval(actorEntityWaitInterval);
@@ -133,12 +133,14 @@ export const EnginePage = (props: Props) => {
   const mobileGamepadProps = {hovered:hoveredLabel.length > 0, layout: 'default' };
   const mobileGamepad = isMobileOrTablet() && onBoardingStep >= generalStateList.TUTOR_MOVE ? <MobileGamepad {...mobileGamepadProps} /> : null;
 
+
+
   return (
     <>
       <NetworkDebug />
       <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
-    <OnBoardingDialog  actorEntity={actorEntity} avatarsList={CharacterAvatars} actorAvatarId={actorAvatarId} onAvatarChange={(avatarId) => {setActorAvatarId(avatarId); }} />
-    <OnBoardingBox actorEntity={actorEntity} />
+      <OnBoardingDialog actorEntity={actorEntity} avatarsList={CharacterAvatars} actorAvatarId={actorAvatarId} onAvatarChange={(avatarId) => {setActorAvatarId(avatarId); }} />
+      <OnBoardingBox actorEntity={actorEntity} />
       <MediaIconsBox />
       <TooltipContainer message={hoveredLabel.length > 0 ? hoveredLabel : ''} />
       <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} />
