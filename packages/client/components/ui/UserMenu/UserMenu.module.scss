@@ -3,16 +3,10 @@
 }
 
 .appbar {
-    box-shadow: none!important;
-    background-color: rgba(0, 0, 0, 0)!important;
-    color: rgba(0, 0, 0, 0)!important;
-    padding: 2em !important;
-    flex-direction: row !important;
-    align-items: center !important;
-}
-
-.logo {
-    height: 3em;
+    position: fixed;
+    right: 20px;
+    padding: 2em;
+    flex-direction: row;
+    align-items: center;
     width: auto;
-    cursor: pointer;
 }

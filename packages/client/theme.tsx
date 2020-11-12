@@ -169,11 +169,27 @@ const lightTheme = createMuiTheme({
         }
       }
     },
+    MuiButtonBase:{
+      root:  {
+        backgroundColor: 'rgba(255,255,255,0.8)',
+        color: '#000000' ,
+        fontSize: 16,       
+        textAlign: 'center',
+      }
+    },
     MuiIconButton:{
       root:{
         right: '-46%',
         top: '-10px',
         color: '#000000',
+        '&:hover':{
+          backgroundColor: 'transparent',
+        }
+      }
+    },
+    MuiMenuItem:{
+      root:{
+        padding: '5px',
       }
     },
     MuiSnackbar:{

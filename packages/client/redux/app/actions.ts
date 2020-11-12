@@ -4,7 +4,7 @@ import {
   SET_VIEWPORT_SIZE,
   SET_IN_VR_MODE,
   SET_APP_ONBOARDING_STEP,
-  SET_APP_RESTART_ONBOARDING_STEP
+  SET_APP_SPECIFIC_ONBOARDING_STEP
 } from '../actions';
 
 export enum generalStateList {START_STATE, SCENE_LOADING, SCENE_LOADED, DEVICE_SETUP, AVATAR_SELECTION, AVATAR_SELECTED, 
@@ -40,7 +40,7 @@ export const setAppLoadPercent = (loadPercent: number): AppLoadPercentAction => 
 //onboarding progress
 export const setAppOnBoardingStep = (onBoardingStep: number): AppOnBoardingStepAction => ({ type: SET_APP_ONBOARDING_STEP, onBoardingStep });
 //restart tutorial walkthrought
-export const setAppRestartOnBoardingStep = () => ({ type: SET_APP_RESTART_ONBOARDING_STEP });
+export const setAppSpecificOnBoardingStep =(onBoardingStep: number): AppOnBoardingStepAction => ({ type: SET_APP_SPECIFIC_ONBOARDING_STEP, onBoardingStep });
 
 // used for getting window.innerWidth and height.
 export const setViewportSize = (width: number, height: number) => ({
