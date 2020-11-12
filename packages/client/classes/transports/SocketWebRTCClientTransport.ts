@@ -112,6 +112,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // Apply all state to initial frame
       applyNetworkStateToClient(worldState);
 
+      
+
       if (this.mediasoupDevice.loaded !== true)
         await this.mediasoupDevice.load({ routerRtpCapabilities });
 
