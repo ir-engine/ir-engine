@@ -1,10 +1,7 @@
-import { SAPBroadphase, ContactMaterial, Material, World } from 'cannon-es';
-import { Component } from '../../ecs/classes/Component';
-import { Types } from '../../ecs/types/Types';
-import { Engine } from '../../ecs/classes/Engine';
-import { Shape, Body } from 'cannon-es';
+import { Body, ContactMaterial, Material, SAPBroadphase, Shape, World } from 'cannon-es';
 import { Mesh } from 'three';
-import debug from "cannon-es-debugger";
+import { Component } from '../../ecs/classes/Component';
+import { Engine } from '../../ecs/classes/Engine';
 
 export class PhysicsManager extends Component<any> {
   static instance: PhysicsManager

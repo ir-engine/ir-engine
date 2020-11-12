@@ -1,16 +1,13 @@
-import { Vec3, Shape, Body } from "cannon-es";
+import { Vec3 } from "cannon-es";
+import { Object3DComponent } from "../../../common/components/Object3DComponent";
+import { cannonFromThreeVector } from "../../../common/functions/cannonFromThreeVector";
 import { Behavior } from "../../../common/interfaces/Behavior";
 import { Entity } from "../../../ecs/classes/Entity";
 import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { PhysicsManager } from "../../../physics/components/PhysicsManager";
 import { CollisionGroups } from "../../../physics/enums/CollisionGroups";
-import { CharacterComponent } from "../components/CharacterComponent";
 import { TransformComponent } from "../../../transform/components/TransformComponent";
-import { Object3DComponent } from "../../../common/components/Object3DComponent";
-import { cannonFromThreeVector } from "../../../common/functions/cannonFromThreeVector";
-import debug from "cannon-es-debugger";
-import { Color, Mesh } from "three";
-import { Engine } from "../../../ecs/classes/Engine";
+import { CharacterComponent } from "../components/CharacterComponent";
 
 export const raycastDown: Behavior = (entity: Entity): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);

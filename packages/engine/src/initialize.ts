@@ -1,3 +1,4 @@
+import { isBrowser } from 'face-api.js/build/commonjs/env/isBrowser';
 import _ from 'lodash';
 import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
