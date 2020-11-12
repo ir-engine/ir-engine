@@ -12,9 +12,9 @@ import dynamic from 'next/dynamic';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { Network } from "../../../engine/src/networking/components/Network";
-import { loadActorAvatar } from "../../../engine/src/templates/character/behaviors/loadActorAvatar";
-import { setActorAvatar } from "../../../engine/src/templates/character/behaviors/setActorAvatar";
+import { Network } from "@xr3ngine/engine/src/networking/components/Network";
+import { loadActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/loadActorAvatar";
+import { setActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/setActorAvatar";
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '../../redux/app/actions';
 import { selectAppOnBoardingStep } from '../../redux/app/selector';
@@ -84,7 +84,7 @@ export const EnginePage = (props: Props) => {
     console.log("LOAD SCENE WITH ID ", sceneId)
 
     const actorEntityWaitInterval = setInterval(() => {
-      if (Network.instance.localClientEntity) {
+      if (Network.instance && Network.instance.localClientEntity) {
         console.log('setActorEntity');
         setActorEntity(Network.instance.localClientEntity);
         clearInterval(actorEntityWaitInterval);

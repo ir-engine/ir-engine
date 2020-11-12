@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
     "experimentalDecorators": true,
-    "module": "es2015",
+    "module": "esnext",
     "declaration": true,
     "noImplicitAny": false,
     "noImplicitThis": true,
-    "target": "es2019",
+    "target": "esnext",
     "moduleResolution": "node",
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
