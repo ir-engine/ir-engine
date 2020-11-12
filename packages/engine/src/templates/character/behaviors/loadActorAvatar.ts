@@ -1,4 +1,4 @@
-import { Group } from "three";
+import { AnimationMixer, Group } from "three";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { AssetLoaderState } from "../../../assets/components/AssetLoaderState";
 import { Behavior } from "../../../common/interfaces/Behavior";
@@ -32,7 +32,7 @@ export const loadActorAvatar: Behavior = (entity) => {
     onLoaded: (entity, args) => {
       console.log("onLoaded fired on loadActorAvatrar for ", entity.id)
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-      actor.mixer.stopAllAction();
+      actor.mixer && actor.mixer.stopAllAction();
       // forget that we have any animation playing
       actor.currentAnimationAction = null;
 
@@ -41,6 +41,9 @@ export const loadActorAvatar: Behavior = (entity) => {
         .forEach(child => actor.modelContainer.remove(child) );
 
       tmpGroup.children.forEach(child => actor.modelContainer.add(child));
+
+      actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
+      actor.mixer.timeScale = actor.animationsTimeScale;
 
       const stateComponent = getComponent(entity, State);
       // trigger all states to restart?
