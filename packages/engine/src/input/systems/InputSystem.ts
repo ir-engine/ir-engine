@@ -99,7 +99,7 @@ export class InputSystem extends System {
       input.lastData.clear();
       input.data.forEach((value, key) => input.lastData.set(key, value));
 
-      let numInputs = 0;
+      const numInputs = 0;
 
       // Create a schema for input to send
       const inputs = {

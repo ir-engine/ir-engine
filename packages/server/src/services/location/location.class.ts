@@ -179,7 +179,7 @@ export class Location extends Service {
     if (location_setting.locationType == null) location_setting.locationType = 'private';
     location_setting.locationId = location.id;
     await this.app.service('location-settings').patch(location_setting.id, location_setting);
-    return location
+    return location;
   }
 
   async remove (id: string): Promise<any> {
