@@ -36,19 +36,22 @@ export function connectToInstanceServer () {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
       dispatch(instanceServerConnecting());
+      console.log("connectToInstanceServer");
       const authState = getState().get('auth');
       const user = authState.get('user');
       const token = authState.get('authUser').accessToken;
       const instanceConnectionState = getState().get('instanceConnection');
       const instance = instanceConnectionState.get('instance');
       const locationId = instanceConnectionState.get('locationId');
-      const sceneId = instanceConnectionState.get('sceneId');
       const locationState = getState().get('locations');
       const currentLocation = locationState.get('currentLocation').get('location');
-      const videoActive = MediaStreamComponent.instance.camVideoProducer != null || MediaStreamComponent.instance.camAudioProducer != null;
+      const sceneId = currentLocation.sceneId;
+      const videoActive = MediaStreamComponent.instance !== null && MediaStreamComponent.instance !== undefined && (MediaStreamComponent.instance.camVideoProducer != null || MediaStreamComponent.instance.camAudioProducer != null);
       // TODO: Disconnected 
-      await endVideoChat();
-      await leave();
+      if(Network.instance !== undefined && Network.instance !== null){
+        await endVideoChat();
+        await leave();
+      }
       await connectToServer(instance.get('ipAddress'), instance.get('port'), {
         locationId: locationId,
         token: token,
