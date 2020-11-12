@@ -17,8 +17,6 @@ import { BinaryValue } from "../../common/enums/BinaryValue";
 export const handleMouseLeave: Behavior = (entity: Entity, args: { event: MouseEvent }): void => {
     const input = getComponent(entity, Input);
 
-    console.log('Mouse LEAVED Canvas');
-
     Object.keys(input.schema.mouseInputMap.buttons).forEach(button => {
         input.data.set(button, {
             type: InputType.BUTTON,
