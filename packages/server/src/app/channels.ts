@@ -78,10 +78,6 @@ export default (app: Application): void => {
                 console.log("Result is ")
                 console.log(result);
                 loadScene(result);
-                // TODO: Remove
-                createPrefab(staticWorldColliders);
-
-                console.log("Loaded scene");
               }
 
 
