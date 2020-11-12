@@ -7,7 +7,6 @@ import { MouseInput } from "../enums/MouseInput";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { normalizeMouseCoordinates } from "../../common/functions/normalizeMouseCoordinates";
 import { DefaultInput } from "../../templates/shared/DefaultInput";
-import { BinaryValue } from "../../common/enums/BinaryValue";
 
 /**
  * System behavior called whenever the mouse pressed
@@ -35,7 +34,7 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
       lifecycleState: input.data.has(mappedPositionInput)? LifecycleValue.CHANGED : LifecycleValue.STARTED
     });
   }
-  
+
   const mouseMovement: [number, number] = [0, 0];
   if (previousPosition) {
     mouseMovement[0] = mousePosition[0] - previousPosition[0];
@@ -53,14 +52,13 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
   // TODO: it looks like hack... MouseInput.MousePosition doesn't know that it is SCREENXY, and it could be anything ... same should be here
   const SCREENXY_START = input.data.get(DefaultInput.SCREENXY_START);
   if (SCREENXY_START && SCREENXY_START.lifecycleState !== LifecycleValue.ENDED) {
-    
     // Set dragging movement delta
     if (mappedDragMovementInput) {
       input.data.set(mappedDragMovementInput, {
         type: InputType.TWODIM,
         value: mouseMovement,
-        lifecycleState: input.data.has(mappedDragMovementInput) ? LifecycleValue.CHANGED : LifecycleValue.STARTED
+        lifecycleState: input.data.has(mappedDragMovementInput)? LifecycleValue.CHANGED : LifecycleValue.STARTED
       });
     }
-}
+  }
 };
