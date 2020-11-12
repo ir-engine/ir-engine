@@ -87,7 +87,7 @@ export default (app: Application): any => {
     (scene as any).belongsTo(models.scene_listing, { foreignKey: 'parentSceneListingId' });
     (scene as any).belongsTo(models.owned_file, { foreignKey: 'modelOwnedFileId', allowNull: false });
     (scene as any).belongsTo(models.owned_file, { foreignKey: 'screenshotOwnedFileId', allowNull: false });
-    (scene as any).belongsTo(models.collection, { foreignKey: 'collectionId' });
+    // (scene as any).belongsTo(models.collection, { foreignKey: 'collectionId' });
   };
 
   return scene;

@@ -9,7 +9,11 @@ export const seed = {
       [
         // Default Aframe components
         { type: 'animation' },
+        { type: 'ambient-light'},
         { type: 'background' },
+        { type: 'box-collider' },
+        { type: 'skybox' },
+        { type: 'scene-preview-camera' },
         { type: 'camera' },
         { type: 'cursor' },
         { type: 'debug' },

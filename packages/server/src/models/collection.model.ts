@@ -66,7 +66,7 @@ export default (app: Application): any => {
     (collection as any).belongsTo(models.collection_type, { foreignKey: 'type', required: true });
     (collection as any).hasOne(models.attribution);
     (collection as any).belongsTo(models.static_resource, { as: 'thumbnail_owned_file' });
-    (collection as any).hasMany(models.entity, { onDelete: 'cascade', hooks: true });
+    (collection as any).hasMany(models.entity, { foreignKey: 'collectionId', required: false, constraints: false, onDelete: 'cascade' });
     (collection as any).hasMany(models.tag);
     (collection as any).belongsTo(models.user); // Reticulum foreignKey: 'creatorUserId'
     (collection as any).belongsTo(models.location);
