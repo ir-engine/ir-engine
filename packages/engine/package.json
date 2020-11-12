@@ -17,7 +17,6 @@
   "main": "dist/engine.js",
   "entry": "dist/",
   "type": "module",
-  "module": "esnext",
   "types": "dist/index.d.ts",
   "repository": {
     "type": "git",

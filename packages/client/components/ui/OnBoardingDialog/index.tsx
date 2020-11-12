@@ -111,8 +111,9 @@ const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAv
       case generalStateList.SELECT_TUTOR: {
             isOpened= true; title = 'Ready Player One!'; dialogText = 'If this is your first time, we suggest starting with the tutorial.'; 
             submitButtonText = 'Enter World'; otherButtonText = 'Start Tutorial';
-            submitButtonAction = ()=>{const InputComponent = getMutableComponent(actorEntity, Input);
-            InputComponent.schema = CharacterInputSchema;
+            submitButtonAction = ()=>{
+            //   const InputComponent = getMutableComponent(actorEntity, Input);
+            // InputComponent.schema = CharacterInputSchema;
             store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));};
             otherButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_LOOKAROUND));
            break;}  
