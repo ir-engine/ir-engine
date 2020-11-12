@@ -63,7 +63,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   public async initialize(address = "https://127.0.0.1", port = 3030, opts?: any): Promise<void> {
-    console.log("TRANSPORT INIT: ")
+    console.log("TRANSPORT INIT: ");
     console.log(opts);
     const token = (store.getState() as any).get('auth').get('authUser').accessToken;
     const selfUser = (store.getState() as any).get('auth').get('user') as User;
@@ -111,6 +111,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       // Apply all state to initial frame
       applyNetworkStateToClient(worldState);
+
+      
 
       if (this.mediasoupDevice.loaded !== true)
         await this.mediasoupDevice.load({ routerRtpCapabilities });

@@ -99,7 +99,7 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
     const InputComponent = getMutableComponent(actorEntity, Input);
     InputComponent.schema = CharacterInputSchema;
     store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));
-  }
+  };
 
   let message = '';
   let imageTip = null;

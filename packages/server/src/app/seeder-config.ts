@@ -16,6 +16,7 @@ import UserRoleSeed from '../services/user-role/user-role.seed';
 
 export const services = [
     LocationTypeSeed,
+    LocationSeed,
     ChannelTypeSeed,
     CollectionTypeSeed,
     MessageStatusSeed,
@@ -23,7 +24,6 @@ export const services = [
     EntityTypeSeed,
     GroupUserRankSeed,
     InviteTypeSeed,
-    LocationSeed,
     SeatStatusSeed,
     StaticResourceTypeSeed,
     SubscriptionLevelSeed,

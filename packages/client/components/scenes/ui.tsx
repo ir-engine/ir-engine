@@ -75,7 +75,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
   const sceneLoaded = (event: CustomEvent)  => 
     (event.detail.loaded === true) &&
-      store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED))
+      store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
     
   
   useEffect(() => {

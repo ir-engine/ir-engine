@@ -19,9 +19,13 @@ export default (app: Application): any => {
       type: DataTypes.STRING,
       allowNull: true
     },
+    locationSettingsId: {
+      type: DataTypes.STRING
+    },
     slugifiedName: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      unique: true
     },
     maxUsersPerInstance: {
       type: DataTypes.INTEGER,

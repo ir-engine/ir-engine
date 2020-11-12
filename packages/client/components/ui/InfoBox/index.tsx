@@ -43,5 +43,5 @@ export const InfoBox: FunctionComponent<InfoBoxProps> = ({ onClose, data }: Info
           { data.learnMoreUrl && (<Button  variant="outlined" color="secondary" onClick={()=>handleLinkClick(data.learnMoreUrl)}>Learn more</Button>)}
           {/* { data.url? <iframe className="iframe" src={data.url} /> : null } */}
         </DialogContent>
-    </Dialog>)
+    </Dialog>);
 };

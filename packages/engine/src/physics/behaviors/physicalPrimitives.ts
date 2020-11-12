@@ -24,6 +24,15 @@ export function createTrimesh (mesh, position, mass) {
 		return body;
 }
 
+
+export function createGround (entity: Entity) {
+  const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
+  const shape = new Box(new Vec3(10000, 0.1, 10000));
+  const body = new Body({ mass: 0 });
+  body.addShape(shape);
+  return body;
+}
+
 export function createBox (entity: Entity) {
   const object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent);
   //const offset = new Vec3();

@@ -4,6 +4,8 @@ import styles from './UserMenu.module.scss';
 import { IconButton, Menu } from '@material-ui/core';
 import { MenuItem } from 'react-contextmenu';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import { setAppRestartOnBoardingStep } from '../../../redux/app/actions';
+import store from '../../../redux/store';
 
 interface Props {
     login?: boolean;

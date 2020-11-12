@@ -10,6 +10,7 @@ export class PhysicsManager extends Component<any> {
   static instance: PhysicsManager
   frame: number
   physicsWorld: World
+  simulate: boolean
   groundMaterial = new Material('groundMaterial')
   wheelMaterial = new Material('wheelMaterial')
   trimMeshMaterial = new Material('trimMeshMaterial')
@@ -43,6 +44,7 @@ export class PhysicsManager extends Component<any> {
     this.physicsFrameTime = 1 / this.physicsFrameRate;
     this.physicsMaxPrediction = this.physicsFrameRate;
     this.physicsWorld.allowSleep = false;
+    this.simulate = true;
   //  this.groundMaterial.friction = 5
     // this.physicsWorld.solver.iterations = 10;
 

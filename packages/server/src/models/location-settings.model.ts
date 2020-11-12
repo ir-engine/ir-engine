@@ -28,7 +28,7 @@ export default function (app: Application): typeof Model {
   });
   
   (LocationSettings as any).associate = function (models: any): void {
-    (LocationSettings as any).belongsTo(models.location, { primaryKey: true, required: true, allowNull: false });
+    (LocationSettings as any).belongsTo(models.location, { required: true, allowNull: false });
     (LocationSettings as any).belongsTo(models.location_type, { foreignKey: 'locationType', defaultValue: 'private' });
   };
 
