@@ -21,25 +21,25 @@ import UserRelationshipTypeSeed from '../services/user-relationship-type/user-re
 import UserRoleSeed from '../services/user-role/user-role.seed';
 
 export const services = [
+  StaticResourceSeed,
     LocationTypeSeed,
     EntityTypeSeed,
     CollectionTypeSeed,
-    LocationSeed,
-    StaticResourceSeed,
-    CollectionSeed,
-    EntitySeed,
-    ComponentSeed,
-    ChannelTypeSeed,
-    MessageStatusSeed,
     ComponentTypeSeed,
-    GroupUserRankSeed,
-    InviteTypeSeed,
-    SeatStatusSeed,
     StaticResourceTypeSeed,
-    SubscriptionLevelSeed,
     SubscriptionTypeSeed,
     UserRelationshipTypeSeed,
-    UserRoleSeed
+    LocationSeed,
+    SubscriptionLevelSeed,
+    CollectionSeed,
+    ChannelTypeSeed,
+    MessageStatusSeed,
+    GroupUserRankSeed,
+    InviteTypeSeed,
+    EntitySeed,
+    UserRoleSeed,
+    SeatStatusSeed,
+    ComponentSeed
   ];
 
 export default services;
