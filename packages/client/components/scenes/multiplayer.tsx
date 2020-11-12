@@ -81,8 +81,15 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     addEventListeners();
+    console.log("LOAD SCENE WITH ID ", sceneId)
 
-    init(sceneId).catch((e) => { console.log(e); });
+    const actorEntityWaitInterval = setInterval(() => {
+      if (Network.instance.localClientEntity) {
+        console.log('setActorEntity');
+        setActorEntity(Network.instance.localClientEntity);
+        clearInterval(actorEntityWaitInterval);
+      }
+    }, 300);
 
     return (): void => {
       resetEngine();
@@ -95,39 +102,6 @@ export const EnginePage = (props: Props) => {
       loadActorAvatar(actorEntity);
     }
   }, [ actorEntity, actorAvatarId ]);
-
-
-  async function init(sceneId: string): Promise<any> { // auth: any,
-    let service, serviceId;
-    console.log("Loading scene with scene ", sceneId);
-    const projectResult = await client.service('project').get(sceneId);
-    const projectUrl = projectResult.project_url;
-    const regexResult = projectUrl.match(projectRegex);
-    if (regexResult) {
-      service = regexResult[1];
-      serviceId = regexResult[2];
-    }
-    const result = await client.service(service).get(serviceId);
-    console.log("Result is ");
-    console.log(result);
-    loadScene(result);
-    const cameraTransform = getMutableComponent<TransformComponent>(
-      CameraComponent.instance.entity,
-      TransformComponent
-    );
-    cameraTransform.position.set(0, 1.2, 10);
-
-
-    const actorEntityWaitInterval = setInterval(() => {
-      if (Network.instance.localClientEntity) {
-        console.log('setActorEntity');
-        setActorEntity(Network.instance.localClientEntity);
-        clearInterval(actorEntityWaitInterval);
-      }
-    }, 300);
-
-  }
-
 
   //mobile gamepad
   const mobileGamepadProps = {hovered:hoveredLabel.length > 0, layout: 'default' };
