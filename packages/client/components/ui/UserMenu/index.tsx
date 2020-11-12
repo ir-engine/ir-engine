@@ -20,6 +20,11 @@ export const UserMenu = (props: Props): any => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const handleTutorialClick = () =>{
+    setAnchorEl(null);
+    store.dispatch(setAppRestartOnBoardingStep());
+  }
   return (
     <AppBar className={styles.appbar}>
       <IconButton
@@ -37,9 +42,10 @@ export const UserMenu = (props: Props): any => {
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        <MenuItem onClick={handleClose}>Profile</MenuItem>
-        <MenuItem onClick={handleClose}>My account</MenuItem>
-        <MenuItem onClick={handleClose}>Logout</MenuItem>
+        <MenuItem onClick={handleClose}>Change Name</MenuItem>
+        <MenuItem onClick={handleClose}>Change avatar</MenuItem>
+        <MenuItem onClick={handleClose}>Share with a friend</MenuItem>
+        <MenuItem onClick={handleTutorialClick}>Tutorial</MenuItem>
       </Menu>
     </AppBar>
   );

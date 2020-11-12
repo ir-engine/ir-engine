@@ -10,7 +10,8 @@ import {
   SET_APP_LOADING_PERCENT,
   SET_VIEWPORT_SIZE,
   SET_IN_VR_MODE,
-  SET_APP_ONBOARDING_STEP
+  SET_APP_ONBOARDING_STEP,
+  SET_APP_RESTART_ONBOARDING_STEP
 } from '../actions';
 
 type AppState = {
@@ -52,6 +53,9 @@ const appReducer = (state = immutableState, action: AppLoadedAction | SetViewpor
     case SET_APP_ONBOARDING_STEP: 
           return state
             .set('onBoardingStep', action.onBoardingStep >= state.get('onBoardingStep') ? action.onBoardingStep : state.get('onBoardingStep'));
+    case SET_APP_RESTART_ONBOARDING_STEP: 
+    return state
+      .set('onBoardingStep', generalStateList.TUTOR_LOOKAROUND);
     default:
       break;
   }

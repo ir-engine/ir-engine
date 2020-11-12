@@ -7,6 +7,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 import Loading from '../../components/scenes/loading';
 import Scene from '../../components/scenes/multiplayer';
 import Layout from '../../components/ui/Layout';
+import UserMenu from '../../components/ui/UserMenu';
 import { selectAppState } from '../../redux/app/selector';
 import { selectAuthState } from '../../redux/auth/selector';
 import { doLoginAuto } from '../../redux/auth/service';
@@ -124,6 +125,7 @@ const EditorRoomPage = (props: Props) => {
     <ThemeProvider theme={theme}>
       <Layout pageTitle="Home">
         <NoSSR onSSR={<Loading />}>
+          <UserMenu />
           {userBanned === false ? (<Scene sceneId={projectId} />) : null}
           {userBanned !== false ? (<div className="banned">You have been banned from this location</div>) : null}
         </NoSSR>
