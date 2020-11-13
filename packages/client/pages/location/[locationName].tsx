@@ -1,11 +1,20 @@
 import { ThemeProvider } from '@material-ui/core';
+import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
+import { getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
+import { Network } from '@xr3ngine/engine/src/networking/components/Network';
+import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
+import { loadScene } from '@xr3ngine/engine/src/scene/functions/SceneLoading';
+import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
+import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { useRouter } from 'next/router';
 import React, { useEffect } from 'react';
 import NoSSR from 'react-no-ssr';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
+import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import Loading from '../../components/scenes/loading';
-import Scene from '../../components/scenes/multiplayer';
+import Scene from '../../components/scenes/location';
 import Layout from '../../components/ui/Layout';
 import { selectAppState } from '../../redux/app/selector';
 import { selectAuthState } from '../../redux/auth/selector';
@@ -17,8 +26,7 @@ import {
   provisionInstanceServer
 } from '../../redux/instanceConnection/service';
 import { selectLocationState } from '../../redux/location/selector';
-import {
-  getLocation
+import { getLocationByName
 } from '../../redux/location/service';
 import { selectPartyState } from '../../redux/party/selector';
 
@@ -31,12 +39,10 @@ interface Props {
   partyState?: any;
   instanceConnectionState?: any;
   doLoginAuto?: typeof doLoginAuto;
-  getLocation?: typeof getLocation;
+  getLocationByName?: typeof getLocationByName;
   connectToInstanceServer?: typeof connectToInstanceServer;
   provisionInstanceServer?: typeof provisionInstanceServer;
 }
-
-const locationId = 'a98b8470-fd2d-11ea-bc7c-cd4cac9a8d61';
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -50,13 +56,13 @@ const mapStateToProps = (state: any): any => {
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
-  getLocation: bindActionCreators(getLocation, dispatch),
+  getLocationByName: bindActionCreators(getLocationByName, dispatch),
   connectToInstanceServer: bindActionCreators(connectToInstanceServer, dispatch),
   provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch)
 });
 
 const EditorRoomPage = (props: Props) => {
-  const { projectId } = useRouter().query as any;
+  const { locationName } = useRouter().query as any;
 
   const {
     appState,
@@ -65,7 +71,7 @@ const EditorRoomPage = (props: Props) => {
     partyState,
     instanceConnectionState,
     doLoginAuto,
-    getLocation,
+    getLocationByName,
     connectToInstanceServer,
     provisionInstanceServer
   } = props;
@@ -74,16 +80,24 @@ const EditorRoomPage = (props: Props) => {
   const selfUser = authState.get('user');
   const party = partyState.get('party');
   const instanceId = selfUser?.instanceId ?? party?.instanceId;
-
-  const userBanned = selfUser?.locationBans?.find(ban => ban.locationId === locationId) != null;
+  let sceneId = null;
+  let userBanned = false;
+  let locationId = null;
   useEffect(() => {
     doLoginAuto(true);
   }, []);
 
   useEffect(() => {
     const currentLocation = locationState.get('currentLocation').get('location');
+    console.log("Current location from authState useEffect is ", currentLocation)
+    locationId = currentLocation.id;
+    userBanned = selfUser?.locationBans?.find(ban => ban.locationId === locationId) != null;
     if (authState.get('isLoggedIn') === true && authState.get('user').id != null && authState.get('user').id.length > 0 && currentLocation.id == null && userBanned === false && locationState.get('fetchingCurrentLocation') !== true) {
-      getLocation(locationId);
+      getLocationByName(locationName);
+      if(sceneId === null) {
+        console.log("authState: Set scene ID to", sceneId);
+        sceneId = currentLocation.sceneId;
+      }
     }
   }, [authState]);
 
@@ -93,7 +107,11 @@ const EditorRoomPage = (props: Props) => {
       userBanned === false &&
       instanceConnectionState.get('instanceProvisioned') !== true &&
       instanceConnectionState.get('instanceProvisioning') === false)
-      provisionInstanceServer(currentLocation.id, undefined, projectId);
+      provisionInstanceServer(currentLocation.id, undefined, sceneId);
+      if(sceneId === null) {
+        console.log("locationState: Set scene ID to", sceneId);
+        sceneId = currentLocation.sceneId;
+      }
   }, [locationState]);
 
   useEffect(() => {
@@ -103,8 +121,17 @@ const EditorRoomPage = (props: Props) => {
       instanceConnectionState.get('instanceServerConnecting') === false &&
       instanceConnectionState.get('connected') === false
     ) {
-      console.log('Calling connectToInstanceServer from arena page');
-      connectToInstanceServer();
+      console.log('Calling connectToInstanceServer from location page');
+      const currentLocation = locationState.get('currentLocation').get('location');
+      console.log("Current location is ", currentLocation);
+      if(sceneId === null && currentLocation.sceneId !== null) {
+        console.log("instanceConnectionState: Set scene ID to", sceneId);
+        sceneId = currentLocation.sceneId;
+      }
+      init(sceneId).then(() => {
+        connectToInstanceServer();
+      });
+
     }
   }, [instanceConnectionState]);
 
@@ -113,18 +140,62 @@ const EditorRoomPage = (props: Props) => {
       if (instanceId != null) {
         client.service('instance').get(instanceId)
           .then((instance) => {
-            console.log('Provisioning instance from arena page init useEffect');
-            provisionInstanceServer(instance.locationId, instanceId, projectId);
+            const currentLocation = locationState.get('currentLocation').get('location');
+            console.log("provisionInstanceServer for location ", currentLocation);
+            console.log('Provisioning instance from arena page init useEffect, ', currentLocation.sceneId);
+            provisionInstanceServer(instance.locationId, instanceId, currentLocation.sceneId);
+            if(sceneId === null) {
+              console.log("Set scene ID to, sceneId");
+              sceneId = currentLocation.sceneId;
+            }
           });
       }
     }
   }, [appState]);
+  const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
+
+  async function init(sceneId: string): Promise<any> { // auth: any,
+    let service, serviceId;
+    console.log("Loading scene with scene ", sceneId);
+    const projectResult = await client.service('project').get(sceneId);
+    const projectUrl = projectResult.project_url;
+    const regexResult = projectUrl.match(projectRegex);
+    if (regexResult) {
+      service = regexResult[1];
+      serviceId = regexResult[2];
+    }
+    const result = await client.service(service).get(serviceId);
+    console.log("Result is ");
+    console.log(result);
+
+      const networkSchema: NetworkSchema = {
+        ...DefaultNetworkSchema,
+        transport: SocketWebRTCClientTransport,
+      };
+  
+      const InitializationOptions = {
+        ...DefaultInitializationOptions,
+        networking: {
+          schema: networkSchema,
+        }
+      };
+
+      initializeEngine(InitializationOptions);
+
+    loadScene(result);
+    const cameraTransform = getMutableComponent<TransformComponent>(
+      CameraComponent.instance.entity,
+      TransformComponent
+    );
+    cameraTransform.position.set(0, 1.2, 10);
+  }
+
 
   return (
     <ThemeProvider theme={theme}>
       <Layout pageTitle="Home">
         <NoSSR onSSR={<Loading />}>
-          {userBanned === false ? (<Scene sceneId={projectId} />) : null}
+          {userBanned === false && sceneId !== null && sceneId !== undefined ? (<Scene sceneId={sceneId} />) : null}
           {userBanned !== false ? (<div className="banned">You have been banned from this location</div>) : null}
         </NoSSR>
       </Layout>

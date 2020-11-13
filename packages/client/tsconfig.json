@@ -10,7 +10,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": false,
-    "module": "commonjs",
+    "module": "esnext",
     "strict": false,
     "noImplicitAny": false,
     "resolveJsonModule": true,
@@ -29,6 +29,6 @@
   "include": [
     "next-env.d.ts",
     "./**/*.ts",
-    "./**/*.tsx", "../engine/src/editor/functions/addIsHelperFlag.ts", "../engine/src/scene/classes/DirectionalPlaneHelper.ts", "../engine/src/common/functions/arrayShallowEqual.tsx", "../engine/src/scene/classes/AudioSource.tsx", "../engine/src/scene/constants/FogType.tsx"
+    "./**/*.tsx"
   ]
 }

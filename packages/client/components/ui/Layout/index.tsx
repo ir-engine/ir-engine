@@ -15,6 +15,7 @@ import PartyVideoWindows from '../PartyVideoWindows';
 import InstanceChat from '../InstanceChat';
 import Me from '../Me';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
+import { useRouter } from 'next/router';
 
 const { publicRuntimeConfig } = getConfig();
 const siteTitle: string = publicRuntimeConfig.siteTitle;
@@ -36,6 +37,7 @@ const mapStateToProps = (state: any): any => {
 const mapDispatchToProps = (): any => ({});
 
 const Layout = (props: Props): any => {
+  const path = useRouter().pathname;
   const { pageTitle, children, authState, locationState, login } = props;
   const authUser = authState.get('authUser');
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false);
@@ -54,7 +56,7 @@ const Layout = (props: Props): any => {
         </title>
       </Head>
       <header>
-        {mode !== 'simple' && <NavMenu login={login} />}
+        {(mode !== 'simple' || path === '/login') && <NavMenu login={login} />}
         {authUser?.accessToken != null && authUser.accessToken.length > 0 && <PartyVideoWindows />}
       </header>
       <Fragment>

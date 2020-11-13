@@ -1,4 +1,4 @@
-import { Group } from "three";
+import { AnimationMixer, Group } from "three";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { AssetLoaderState } from "../../../assets/components/AssetLoaderState";
 import { Behavior } from "../../../common/interfaces/Behavior";
@@ -12,6 +12,8 @@ import {
 import { CharacterAvatars } from "../CharacterAvatars";
 import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
 import { CharacterComponent } from "../components/CharacterComponent";
+import { State } from "../../../state/components/State";
+import { LifecycleValue } from "../../../common/enums/LifecycleValue";
 
 export const loadActorAvatar: Behavior = (entity) => {
   console.log("Calling load actor avatar for ", entity.id)
@@ -30,7 +32,22 @@ export const loadActorAvatar: Behavior = (entity) => {
     onLoaded: (entity, args) => {
       console.log("onLoaded fired on loadActorAvatrar for ", entity.id)
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+      actor.mixer && actor.mixer.stopAllAction();
+      // forget that we have any animation playing
+      actor.currentAnimationAction = null;
+
+      // clear current avatar mesh
+      ([ ...actor.modelContainer.children ])
+        .forEach(child => actor.modelContainer.remove(child) );
+
       tmpGroup.children.forEach(child => actor.modelContainer.add(child));
+
+      actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
+      actor.mixer.timeScale = actor.animationsTimeScale;
+
+      const stateComponent = getComponent(entity, State);
+      // trigger all states to restart?
+      stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
     }
   });
 };
