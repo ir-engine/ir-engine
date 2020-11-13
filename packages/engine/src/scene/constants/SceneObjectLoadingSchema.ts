@@ -78,7 +78,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
             })
           )
         },
-        values: ['color', 'material.color']
+        values: [ { from: 'color', to: 'material.color' } ]
       }
     ]
   },
