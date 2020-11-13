@@ -6,11 +6,11 @@ import {Dialog, DialogTitle, DialogContent, Button, IconButton, Typography} from
 import CloseIcon from '@material-ui/icons/Close';
 import { selectDialogState } from '../../../redux/dialog/selector';
 import { closeDialog } from '../../../redux/dialog/service';
-import { selectAppOnBoardingStep } from '../../../redux/app/selector';
+import { selectAppOnBoardingStep, selectAppIsTutorial } from '../../../redux/app/selector';
 import { generalStateList, setAppOnBoardingStep } from '../../../redux/app/actions';
 import store from '../../../redux/store';
 
-import UserSettings from '../Profile/UserSettings';
+// import UserSettings from '../Profile/UserSettings';
 import { CharacterAvatarData } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
 
 import { ArrowIosBackOutline } from '@styled-icons/evaicons-outline/ArrowIosBackOutline';
@@ -23,7 +23,8 @@ import { Entity } from "@xr3ngine/engine/src/ecs/classes/Entity";
 const mapStateToProps = (state: any): any => {
   return {
     dialog: selectDialogState(state),
-    onBoardingStep: selectAppOnBoardingStep(state)
+    onBoardingStep: selectAppOnBoardingStep(state),
+    isTutorial: selectAppIsTutorial(state),
   };
 };
 
@@ -33,14 +34,14 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 interface DialogProps{
   onBoardingStep?:number;
+  isTutorial?:boolean;
   title?:string;
   avatarsList?: CharacterAvatarData[];
   actorAvatarId?:string;
   onAvatarChange?:any;
   actorEntity? : Entity;
 }
-const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAvatarChange, actorEntity}:DialogProps): any => {
-
+const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAvatarChange, actorEntity, isTutorial = false}:DialogProps): any => {
   useEffect(() => {
     Router.events.on('routeChangeStart', () => {
       closeDialog();
@@ -95,6 +96,7 @@ const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAv
       //       break;
       //      } 
       case generalStateList.AVATAR_SELECTION: {
+              console.log('onBoardingStep', onBoardingStep)
             isOpened= true; title = 'Select An Avatar'; submitButtonText = 'Accept';
             children = <section className={styles.selectionButtonsWrapper}>
                           <section className={styles.selectionButtons}>
@@ -102,7 +104,7 @@ const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAv
                             <ArrowIosForwardOutline onClick={(): void => onAvatarChange(nextAvatarId)} />
                           </section>
                         </section>;
-            submitButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.AVATAR_SELECTED));
+            submitButtonAction = () => {store.dispatch(setAppOnBoardingStep(isTutorial ? generalStateList.AVATAR_SELECTED : generalStateList.ALL_DONE));}  
             break;
           }
       case generalStateList.AVATAR_SELECTED: {
@@ -111,9 +113,11 @@ const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAv
       case generalStateList.SELECT_TUTOR: {
             isOpened= true; title = 'Ready Player One!'; dialogText = 'If this is your first time, we suggest starting with the tutorial.'; 
             submitButtonText = 'Enter World'; otherButtonText = 'Start Tutorial';
-            submitButtonAction = ()=>{const InputComponent = getMutableComponent(actorEntity, Input);
-            InputComponent.schema = CharacterInputSchema;
-            store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));};
+            submitButtonAction = ()=>{
+              const InputComponent = getMutableComponent(actorEntity, Input);
+              InputComponent.schema = CharacterInputSchema;
+              store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));
+            }
             otherButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_LOOKAROUND));
            break;}  
       case generalStateList.TUTOR_END: {

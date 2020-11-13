@@ -67,6 +67,7 @@ export const EnginePage = (props: Props) => {
     if (event.detail.loaded) {
       console.warn('onSceneLoaded')
       store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));
+      document.removeEventListener('scene-loaded', onSceneLoaded);
       setAppLoaded(true);
     }
   };
@@ -113,7 +114,7 @@ export const EnginePage = (props: Props) => {
     <>
       <NetworkDebug />
       <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
-      <OnBoardingDialog actorEntity={actorEntity} avatarsList={CharacterAvatars} actorAvatarId={actorAvatarId} onAvatarChange={(avatarId) => {setActorAvatarId(avatarId); }} />
+      <OnBoardingDialog actorEntity={actorEntity} avatarsList={CharacterAvatars} actorAvatarId={actorAvatarId} onAvatarChange={(avatarId) => {console.log('setActorAvatarId', avatarId);setActorAvatarId(avatarId); }} />
       <OnBoardingBox actorEntity={actorEntity} />
       <MediaIconsBox />
       <TooltipContainer message={hoveredLabel.length > 0 ? hoveredLabel : ''} />

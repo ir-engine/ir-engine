@@ -22,6 +22,7 @@ type AppState = {
     height: number;
   };
   onBoardingStep: number;
+  isTutorial: boolean | false;
 }
 
 export const initialState: AppState = {
@@ -31,7 +32,8 @@ export const initialState: AppState = {
     width: 1400,
     height: 900
   },
-  onBoardingStep: generalStateList.START_STATE
+  onBoardingStep: generalStateList.START_STATE,
+  isTutorial: false,
 };
 
 const immutableState = Immutable.fromJS(initialState);
@@ -51,10 +53,22 @@ const appReducer = (state = immutableState, action: AppLoadedAction | SetViewpor
       return state
         .set('inVrMode', action.inVrMode);
     case SET_APP_ONBOARDING_STEP: 
-          return state
-            .set('onBoardingStep', action.onBoardingStep >= state.get('onBoardingStep') ? action.onBoardingStep : state.get('onBoardingStep'));
+    console.log('onBoardingStep', action.onBoardingStep, 'isTutorial', action.isTutorial, '   -----',state.get('onBoardingStep'))
+
+        return (action.onBoardingStep === generalStateList.ALL_DONE) ?
+           state
+            .set('onBoardingStep', action.onBoardingStep >= state.get('onBoardingStep') ? action.onBoardingStep : state.get('onBoardingStep')) : 
+            (action.onBoardingStep === generalStateList.SCENE_LOADED) ?
+              state
+                .set('onBoardingStep', action.onBoardingStep >= state.get('onBoardingStep') ? action.onBoardingStep : state.get('onBoardingStep'))
+                .set('isTutorial', true)
+              :
+            state
+            .set('onBoardingStep', action.onBoardingStep >= state.get('onBoardingStep') ? action.onBoardingStep : state.get('onBoardingStep'))
+            .set('isTutorial', false);
     case SET_APP_SPECIFIC_ONBOARDING_STEP: 
-          return state.set('onBoardingStep', action.onBoardingStep);
+    console.log('onBoardingStep', action.onBoardingStep, 'isTutorial', action.isTutorial)
+          return state.set('onBoardingStep', action.onBoardingStep).set('isTutorial', action.isTutorial);
     default:
       break;
   }
