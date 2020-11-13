@@ -163,7 +163,7 @@ export class Location extends Service {
     });
 
     try {
-      location = await super.create(locationData, params);
+      location = await super.patch(id, locationData, params);
     } catch(err) {
       console.log(err);
       if (err.errors[0].message === 'slugifiedName must be unique') {
@@ -178,7 +178,7 @@ export class Location extends Service {
     if (location_setting.maxUsersPerInstance == null) location_setting.maxUsersPerInstance = 10;
     if (location_setting.locationType == null) location_setting.locationType = 'private';
     location_setting.locationId = location.id;
-    await this.app.service('location-settings').patch(location_setting.id, location_setting);
+    await this.app.service('location-settings').patch(location.locationSettingsId, location_setting);
     return location;
   }
 

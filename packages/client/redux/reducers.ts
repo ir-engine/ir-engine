@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux-immutable';
+import adminReducer from './admin/reducers';
 import appReducer from './app/reducers';
 import authReducer from './auth/reducers';
 import chatReducer from './chat/reducers';
@@ -19,6 +20,7 @@ import seatReducer from './seats/reducers';
 import locationReducer from './location/reducers';
 
 export default combineReducers({
+  admin: adminReducer,
   app: appReducer,
   auth: authReducer,
   chat: chatReducer,
