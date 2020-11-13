@@ -4,7 +4,15 @@ import { Types } from '../../ecs/types/Types';
 import { Engine } from '../../ecs/classes/Engine';
 import { Shape, Body } from 'cannon-es';
 import { Mesh } from 'three';
+import { isClient } from "../../common/functions/isClient";
 import debug from "cannon-es-debugger";
+
+/*
+const cannonDebugger = isClient ? import('cannon-es-debugger').then((module) => {
+  module.default;
+  console.log(module.default);
+}) : null;
+*/
 
 export class PhysicsManager extends Component<any> {
   static instance: PhysicsManager
@@ -67,7 +75,9 @@ export class PhysicsManager extends Component<any> {
          //if (body === Engine.actor
          //console.log("PH  UPD: body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape) }
      }};
-     //debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions);
+     if (isClient) {
+       debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions);
+     }
   }
 
   dispose(): void {
