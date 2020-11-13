@@ -5,7 +5,6 @@ import NoSSR from 'react-no-ssr';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import Loading from '../../../components/scenes/loading';
-import Scene from '../../../components/scenes/multiplayer';
 import Layout from '../../../components/ui/Layout';
 import { selectAdminState } from '../../../redux/admin/selector';
 import { selectAppState } from '../../../redux/app/selector';
