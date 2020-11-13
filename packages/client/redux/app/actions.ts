@@ -31,7 +31,9 @@ export interface AppLoadPercentAction extends Action {
 
 export interface AppOnBoardingStepAction extends Action {
   onBoardingStep: number;
+  isTutorial ?: boolean;
 }
+
 // used for displaying loading screen
 
 export const setAppLoaded = (loaded: boolean): AppLoadedAction => ({ type: SET_APP_LOADED, loaded });
@@ -40,8 +42,7 @@ export const setAppLoadPercent = (loadPercent: number): AppLoadPercentAction => 
 //onboarding progress
 export const setAppOnBoardingStep = (onBoardingStep: number): AppOnBoardingStepAction => ({ type: SET_APP_ONBOARDING_STEP, onBoardingStep });
 //restart tutorial walkthrought
-export const setAppSpecificOnBoardingStep =(onBoardingStep: number): AppOnBoardingStepAction => ({ type: SET_APP_SPECIFIC_ONBOARDING_STEP, onBoardingStep });
-
+export const setAppSpecificOnBoardingStep =(onBoardingStep: number, isTutorial:boolean): AppOnBoardingStepAction => ({ type: SET_APP_SPECIFIC_ONBOARDING_STEP, onBoardingStep, isTutorial});
 // used for getting window.innerWidth and height.
 export const setViewportSize = (width: number, height: number) => ({
   type: SET_VIEWPORT_SIZE,

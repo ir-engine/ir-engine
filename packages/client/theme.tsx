@@ -158,7 +158,7 @@ const lightTheme = createMuiTheme({
       paperWidthSm:{
         maxWidth: '40%',
         width: '40%',
-        margin: '5% auto',   
+        margin: '0 auto',   
         backgroundColor: 'rgba(255,255,255,0.8)',
         color: '#000000' ,
         fontSize: 16,       
@@ -268,6 +268,9 @@ const lightTheme = createMuiTheme({
     },    
     MuiFab: {
       root: {
+        height: '3em',
+        width: '3em',
+        margin: '0px 5px',
         text:{
           color: '#FFFFFF' 
         }           

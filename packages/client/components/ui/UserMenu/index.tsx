@@ -1,17 +1,19 @@
-import React from 'react';
-// import AppBar from '@material-ui/core/AppBar';
+import React, { useRef, useState } from 'react';
 import styles from './UserMenu.module.scss';
-import { Button, MenuItem, Menu, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, IconButton } from '@material-ui/core';
+import { Button, MenuItem, Menu, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Fab } from '@material-ui/core';
 import { generalStateList, setAppSpecificOnBoardingStep } from '../../../redux/app/actions';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+import MenuIcon from '@material-ui/icons/Menu';
 import store from '../../../redux/store';
-import { Network } from '@xr3ngine/engine/src/networking/components/Network';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
 import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
+
+import { uploadAvatar, updateUsername } from '../../../redux/auth/service';
 interface Props {
     login?: boolean;
     authState?:any;
+    updateUsername?: typeof updateUsername;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -21,12 +23,16 @@ const mapStateToProps = (state: any): any => {
   };
 };
 
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
+  updateUsername: bindActionCreators(updateUsername, dispatch)
+});
+
 
 const UserMenu = (props: Props): any => {    
   const { login, authState} = props;
   const selfUser = authState.get('user');
-  console.log('selfUser', selfUser)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [dialogType, setDialogType] = useState('username');
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -38,11 +44,12 @@ const UserMenu = (props: Props): any => {
 
   const handleTutorialClick = () =>{
     setAnchorEl(null);
-    store.dispatch(setAppSpecificOnBoardingStep(generalStateList.TUTOR_LOOKAROUND));
+    store.dispatch(setAppSpecificOnBoardingStep(generalStateList.TUTOR_LOOKAROUND, true));
   }
 
   const handleAvatarChangeClick = () =>{
-    store.dispatch(setAppSpecificOnBoardingStep(generalStateList.AVATAR_SELECTION));
+    console.log('handleAvatarChangeClick')
+    store.dispatch(setAppSpecificOnBoardingStep(generalStateList.AVATAR_SELECTION, false));
     setAnchorEl(null);
   }
 
@@ -57,63 +64,97 @@ const UserMenu = (props: Props): any => {
   };
 
   const handleChangeNameClick = () =>{
+    setDialogType('username');
     setAnchorEl(null);
     handleClickOpen();
   }
+
+  const handleShareClick = () =>{
+    setDialogType('share');
+    setAnchorEl(null);
+    handleClickOpen();
+  }
+
+  const [username, setUsername] = useState(selfUser.name);
+
+  const handleUsernameChange = (e: any): void => {
+    const newName = e.target.value;
+    setUsername(newName);
+  };
+
+  const updateUsername = async (): Promise<void> => {
+    await props.updateUsername(selfUser.id, username);
+    handleClickClose();
+  };
+
+  const invitationLink = window.location.href;
+  const refLink = useRef(null);
+  const copyCodeToClipboard = (e) => {    
+    refLink.current.select();
+    document.execCommand("copy");
+    e.target.focus();
+  }
+
   return (
     <>
     <section className={styles.appbar}>
-      {/* <IconButton
-          aria-label="more"
-          aria-controls="long-menu"
-          aria-haspopup="true"
-          onClick={handleClick}
-        >
-          {selfUser ? selfUser.name : ''}
-          <MoreVertIcon />
-        </IconButton> */}
-        <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
-        { selfUser ? selfUser.name : ''}
-          <MoreVertIcon />
-        </Button>
+        <span className={styles.userTitle}>{ selfUser ? selfUser.name : ''}
+           <Fab color="primary" onClick={handleClick}><MenuIcon  /></Fab>
+        </span>
       <Menu
         id="simple-menu"
         anchorEl={anchorEl}
         keepMounted
         open={Boolean(anchorEl)}
         onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}   
+        getContentAnchorEl={null}     
       >
         <MenuItem onClick={()=>handleChangeNameClick()}>Change Name</MenuItem>
         <MenuItem onClick={handleAvatarChangeClick}>Change Avatar</MenuItem>
-        <MenuItem onClick={handleClose}>Share with a friend</MenuItem>
+        <MenuItem onClick={handleShareClick}>Share Location</MenuItem>
         <MenuItem onClick={handleTutorialClick}>Tutorial</MenuItem>
       </Menu>
     </section>
 
       <Dialog open={open} onClose={handleClickClose} aria-labelledby="form-dialog-title">
-      <DialogTitle id="form-dialog-title">Change your Name</DialogTitle>
-      <DialogContent>
-        <TextField
-          autoFocus
-          margin="dense"
-          id="name"
-          label="Name"
-          type="text"
-          value={selfUser ? selfUser.name : ''}
-          fullWidth
-        />
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose} color="primary">
-          Cancel
-        </Button>
-        <Button onClick={handleClose} color="primary">
-          Save
-        </Button>
-      </DialogActions>
+        <DialogTitle id="form-dialog-title">{dialogType === 'username' ? 'Change your Name':'Share Location'}</DialogTitle>
+        <DialogContent>
+          {dialogType === 'username' ? 
+          <TextField
+                  variant="outlined"
+                  margin="normal"
+                  fullWidth
+                  id="username"
+                  label="Your Name"
+                  name="name"
+                  autoFocus
+                  defaultValue={selfUser.name}
+                  onChange={(e) => handleUsernameChange(e)}
+              /> : 
+              <section>
+                <p>Send this link to other users to have them join you</p>
+                <p>(click on link to copy)</p>
+                <textarea readOnly className={styles.linkField} ref={refLink} onClick={copyCodeToClipboard} value={invitationLink} />
+                {/* <Button variant="outlined" color="primary" onClick={copyCodeToClipboard}>Copy</Button> */}
+              </section>
+              }
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClickClose} variant="outlined" color="secondary">
+            Cancel
+          </Button>
+          {dialogType === 'username' && 
+            <Button onClick={updateUsername} variant="outlined" color="primary">
+              Save
+            </Button>}
+        </DialogActions>
       </Dialog>
     </>
   );
 };
 
-export default connect(mapStateToProps)(UserMenu);
+export default connect(mapStateToProps, mapDispatchToProps)(UserMenu);
