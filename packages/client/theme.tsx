@@ -41,13 +41,13 @@ const darkTheme = createMuiTheme({
         }
       }
     },
-    MuiIconButton:{
-      root:{
-        right: '-46%',
-        top: '-10px',
-        color: '#FFFFFF',
-      }
-    },
+    // MuiIconButton:{
+    //   root:{
+    //     right: '-46%',
+    //     top: '-10px',
+    //     color: '#FFFFFF',
+    //   }
+    // },
     MuiSnackbar:{
       root: {
         maxWidth: '40%',
@@ -142,7 +142,7 @@ const lightTheme = createMuiTheme({
       default: '#000000'
     },
     text:{
-      primary: '#FFFFFF',
+      primary: '#000000',
     },
   },
   typography: {
@@ -169,13 +169,13 @@ const lightTheme = createMuiTheme({
         }
       }
     },
-    MuiIconButton:{
-      root:{
-        right: '-46%',
-        top: '-10px',
-        color: '#000000',
-      }
-    },
+    // MuiIconButton:{
+    //   root:{
+    //     right: '-46%',
+    //     top: '-10px',
+    //     color: '#000000',
+    //   }
+    // },
     MuiSnackbar:{
       root: {
         maxWidth: '40%',
