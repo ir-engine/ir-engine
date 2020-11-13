@@ -3,6 +3,7 @@ import { Application } from '../../declarations';
 import { Params } from '@feathersjs/feathers';
 import {extractLoggedInUserFromParams} from "../auth-management/auth-management.utils";
 import Sequelize, { Op } from 'sequelize';
+import slugify from 'slugify';
 
 export class Location extends Service {
   app: Application
@@ -83,18 +84,19 @@ export class Location extends Service {
   }
 
   async find (params: Params): Promise<any> {
-    const loggedInUser = extractLoggedInUserFromParams(params);
     // eslint-disable-next-line prefer-const
-    let {skip, limit, ...strippedQuery} = params.query;
-    if (skip == null) skip = 0;
-    if (limit == null) limit = 10;
+    let {$skip, $limit, $sort, ...strippedQuery} = params.query;
+    if ($skip == null) $skip = 0;
+    if ($limit == null) $limit = 10;
+    const order = [];
+    if ($sort != null) Object.keys($sort).forEach((name, val) => {
+      order.push([name, $sort[name] === -1 ? 'DESC' : 'ASC']);
+    });
     const locationResult = await this.app.service('location').Model.findAndCountAll({
-      offset: skip,
-      limit: limit,
+      offset: $skip,
+      limit: $limit,
       where: strippedQuery,
-      order: [
-        ['name', 'ASC']
-      ],
+      order: order,
       include: [
         {
           model: this.app.service('instance').Model,
@@ -116,10 +118,75 @@ export class Location extends Service {
       ]
     });
     return {
-      skip: skip,
-      limit: limit,
+      skip: $skip,
+      limit: $limit,
       total: locationResult.count,
       data: locationResult.rows
     };
+  }
+
+  async create (data: any, params: Params): Promise<any> {
+    let location;
+    // eslint-disable-next-line prefer-const
+    let {location_setting, ...locationData} = data;
+    locationData.slugifiedName = slugify(locationData.name, {
+      lower: true
+    });
+    try {
+      location = await super.create(locationData, params);
+    } catch(err) {
+      console.log(err);
+      if (err.errors[0].message === 'slugifiedName must be unique') {
+        throw new Error('That name is already in use');
+      }
+      throw err;
+    }
+
+    if (location_setting == null) location_setting = {};
+    if (location_setting.videoEnabled == null) location_setting.videoEnabled = false;
+    if (location_setting.instanceMediaChatEnabled == null) location_setting.instanceMediaChatEnabled = false;
+    if (location_setting.maxUsersPerInstance == null) location_setting.maxUsersPerInstance = 10;
+    if (location_setting.locationType == null) location_setting.locationType = 'private';
+    location_setting.locationId = location.id;
+    const locationSettings = await this.app.service('location-settings').create(location_setting);
+    return super.patch(location.id, {
+      locationSettingsId: locationSettings.id
+    });
+  }
+
+  async patch (id: string, data: any, params: Params): Promise<any> {
+    let location;
+    // eslint-disable-next-line prefer-const
+    let {location_setting, ...locationData} = data;
+    if (locationData.name) locationData.slugifiedName = slugify(locationData.name, {
+      lower: true
+    });
+
+    try {
+      location = await super.patch(id, locationData, params);
+    } catch(err) {
+      console.log(err);
+      if (err.errors[0].message === 'slugifiedName must be unique') {
+        throw new Error('That name is already in use');
+      }
+      throw err;
+    }
+
+    if (location_setting == null) location_setting = {};
+    if (location_setting.videoEnabled == null) location_setting.videoEnabled = false;
+    if (location_setting.instanceMediaChatEnabled == null) location_setting.instanceMediaChatEnabled = false;
+    if (location_setting.maxUsersPerInstance == null) location_setting.maxUsersPerInstance = 10;
+    if (location_setting.locationType == null) location_setting.locationType = 'private';
+    location_setting.locationId = location.id;
+    await this.app.service('location-settings').patch(location.locationSettingsId, location_setting);
+    return location;
+  }
+
+  async remove (id: string, params: Params): Promise<any> {
+    if (id != null) {
+      const location = await this.app.service('location').get(id);
+      if (location.locationSettingsId != null) await this.app.service('location-settings').remove(location.locationSettingsId);
+    }
+    return super.remove(id);
   }
 }

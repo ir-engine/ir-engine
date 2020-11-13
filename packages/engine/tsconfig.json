@@ -5,7 +5,7 @@
     "declaration": true,
     "noImplicitAny": false,
     "noImplicitThis": true,
-    "target": "es2019",
+    "target": "es2015",
     "moduleResolution": "node",
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,

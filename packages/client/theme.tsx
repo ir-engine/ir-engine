@@ -18,7 +18,7 @@ const darkTheme = createMuiTheme({
     }
   },
   typography: {
-    fontFamily: '"Roboto", sans-serif',
+    fontFamily: ["Roboto", "Helvetica", "Arial", "sans-serif"].join(','),
     fontSize: 14,
       button: {
         color: '#FFFFFF'        
@@ -41,13 +41,13 @@ const darkTheme = createMuiTheme({
         }
       }
     },
-    MuiIconButton:{
-      root:{
-        right: '-46%',
-        top: '-10px',
-        color: '#FFFFFF',
-      }
-    },
+    // MuiIconButton:{
+    //   root:{
+    //     right: '-46%',
+    //     top: '-10px',
+    //     color: '#FFFFFF',
+    //   }
+    // },
     MuiSnackbar:{
       root: {
         maxWidth: '40%',
@@ -57,12 +57,22 @@ const darkTheme = createMuiTheme({
         userSelect: 'none',
         borderRadius: '5px',
         fontSize: 16,  
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        color: '#FFFFFF' ,
+        padding: '20px',  
         '@media (max-width: 768px)': {
           maxWidth: '90%',
           width: '90%',
           left: '5%',
           right: '5%',
-        }     
+        },
+        MuiSvgIcon:{
+          root:{
+            height:'7em',
+            width:'auto',
+            color:'#FFFFFF'
+          }
+        }
       }
     },
     MuiPaper:{
@@ -130,16 +140,19 @@ const lightTheme = createMuiTheme({
     },
     background: {
       default: '#000000'
-    }
+    },
+    text:{
+      primary: '#000000',
+    },
   },
   typography: {
-    fontFamily: '"Roboto", sans-serif',
+    fontFamily: ["Roboto", "Helvetica", "Arial", "sans-serif"].join(','),
+    
     fontSize: 14,
       button: {
         color: '#FFFFFF'        
       },
   },
-  
   overrides: { 
     MuiDialog:{
       paperWidthSm:{
@@ -156,13 +169,13 @@ const lightTheme = createMuiTheme({
         }
       }
     },
-    MuiIconButton:{
-      root:{
-        right: '-46%',
-        top: '-10px',
-        color: '#000000',
-      }
-    },
+    // MuiIconButton:{
+    //   root:{
+    //     right: '-46%',
+    //     top: '-10px',
+    //     color: '#000000',
+    //   }
+    // },
     MuiSnackbar:{
       root: {
         maxWidth: '40%',
@@ -172,12 +185,22 @@ const lightTheme = createMuiTheme({
         userSelect: 'none',
         borderRadius: '5px',
         fontSize: 16,    
+        backgroundColor: 'rgba(255,255,255,0.8)',
+        color: '#000000' ,
+        padding: '20px',        
         '@media (max-width: 768px)': {
           maxWidth: '90%',
           width: '90%',
           left: '5%',
           right: '5%',
-        }   
+        } ,
+        MuiSvgIcon:{
+          root:{
+            height:'7em',
+            width:'auto',
+            color:'#000000'
+          }
+        }      
       },
     },
     MuiPaper:{

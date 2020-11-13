@@ -1,6 +1,6 @@
-import { SAPBroadphase, ContactMaterial, Material, World } from 'cannon-es';
+import { Body, ContactMaterial, Material, SAPBroadphase, Shape, World } from 'cannon-es';
+import { Mesh } from 'three';
 import { Component } from '../../ecs/classes/Component';
-import { Types } from '../../ecs/types/Types';
 import { Engine } from '../../ecs/classes/Engine';
 import { Shape, Body } from 'cannon-es';
 import { Mesh } from 'three';

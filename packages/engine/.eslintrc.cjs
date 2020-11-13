@@ -39,6 +39,7 @@ module.exports = {
     "@typescript-eslint/promise-function-async": "off",
     "prefer-arrow-callback": "error",
     "@typescript-eslint/camelcase": "off",
-    "@typescript-eslint/class-name-casing:": "off"
+    "@typescript-eslint/class-name-casing:": "off",
+    "@typescript-eslint/no-this-alias": "off"
   }
 }

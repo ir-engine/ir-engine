@@ -3,7 +3,7 @@ import NoSSR from 'react-no-ssr';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import Loading from '../../components/scenes/loading';
-import Scene from '../../components/scenes/multiplayer';
+import Scene from '../../components/scenes/location';
 import Layout from '../../components/ui/Layout';
 import { selectAppState } from '../../redux/app/selector';
 import { selectAuthState } from '../../redux/auth/selector';
