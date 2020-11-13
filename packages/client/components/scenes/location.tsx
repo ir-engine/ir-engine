@@ -81,7 +81,7 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     addEventListeners();
-    console.log("LOAD SCENE WITH ID ", sceneId)
+    console.log("LOAD SCENE WITH ID ", sceneId);
 
     const actorEntityWaitInterval = setInterval(() => {
       if (Network.instance && Network.instance.localClientEntity) {
