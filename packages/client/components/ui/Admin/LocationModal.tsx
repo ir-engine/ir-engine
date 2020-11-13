@@ -193,7 +193,7 @@ const LocationModal = (props: Props): any => {
                                 value={sceneId}
                                 onChange={(e) => setSceneId(e.target.value as string)}
                             >
-                                {adminScenes.map(scene => <MenuItem key={scene.id} value={scene.id}>{`${scene.name} (${scene.sid})`}</MenuItem>)}
+                                {adminScenes.map(scene => <MenuItem key={scene.sid} value={scene.sid}>{`${scene.name} (${scene.sid})`}</MenuItem>)}
                             </Select>
                         </FormControl>
                         <FormControl>

@@ -130,7 +130,7 @@ const AdminConsole = (props: Props) => {
     }
 
     const getScene = (id: string): string => {
-        const sceneMatch = adminScenes.find(scene => scene.id === id);
+        const sceneMatch = adminScenes.find(scene => scene.sid === id);
         return sceneMatch != null ? `${sceneMatch.name} (${sceneMatch.sid})` : '';
     };
 
