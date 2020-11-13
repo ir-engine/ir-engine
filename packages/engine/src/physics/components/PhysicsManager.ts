@@ -2,8 +2,6 @@ import { Body, ContactMaterial, Material, SAPBroadphase, Shape, World } from 'ca
 import { Mesh } from 'three';
 import { Component } from '../../ecs/classes/Component';
 import { Engine } from '../../ecs/classes/Engine';
-import { Shape, Body } from 'cannon-es';
-import { Mesh } from 'three';
 import { isClient } from "../../common/functions/isClient";
 import debug from "cannon-es-debugger";
 
