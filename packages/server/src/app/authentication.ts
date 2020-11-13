@@ -15,7 +15,7 @@ declare module '../declarations' {
 }
 
 export default (app: Application): void => {
-  const authentication = new AuthenticationService(app);
+  const authentication = new AuthenticationService(app as any);
 
   authentication.register('jwt', new MyJwtStrategy());
   authentication.register('local', new MyLocalStrategy());

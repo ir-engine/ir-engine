@@ -1,5 +1,6 @@
 import { AmbientLight, DirectionalLight, DoubleSide, HemisphereLight, Color, Matrix4, Vector3, Mesh, MeshBasicMaterial, MeshPhongMaterial, CircleBufferGeometry, PointLight, SpotLight } from 'three';
 import { AssetLoader } from '../../assets/components/AssetLoader';
+import { Entity } from '../../ecs/classes/Entity';
 import { addComponentFromBehavior, addObject3DComponent, addTagComponentFromBehavior } from '../../common/behaviors/Object3DBehaviors';
 import { VisibleTagComponent } from '../../common/components/Object3DTagComponents';
 import { TransformComponent } from '../../transform/components/TransformComponent';
@@ -18,6 +19,8 @@ import { setFog } from '../behaviors/setFog';
 import CollidableTagComponent from '../components/Collidable';
 import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
+import { addWorldColliders } from "@xr3ngine/engine/src/templates/world/behaviors/addWorldColliders";
+import { addCarPhysics } from "@xr3ngine/engine/src/physics/behaviors/addCarPhysics";
 
 export const SceneObjectLoadingSchema: LoadingSchema = {
   'ambient-light': {
@@ -62,7 +65,8 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
         args: {
           component: AssetLoader,
         },
-        values: [{ from: 'src', to: 'url' }]
+        values: [{ from: 'src', to: 'url' }],
+        onLoaded: addWorldColliders
       }
     ]
   },

@@ -21,7 +21,7 @@ export const addCollider: Behavior = (entity: Entity, args: { type: string; phas
   if (args.phase === 'onRemoved') {
     const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent, true);
     if (colliderComponent) {
-      //PhysicsManager.instance.physicsWorld.removeBody(colliderComponent.collider);
+      PhysicsManager.instance.physicsWorld.removeBody(colliderComponent.collider);
     }
     return;
   }
