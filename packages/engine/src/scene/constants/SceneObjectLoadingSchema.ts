@@ -229,7 +229,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
     behaviors: [
       {
         behavior: createBoxCollider,
-        values: ['type', 'mass']
+        values: ['type', 'position', 'rotation', 'scale', 'mass']
       }
     ]
   },
