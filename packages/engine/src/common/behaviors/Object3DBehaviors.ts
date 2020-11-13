@@ -1,4 +1,4 @@
-import { Object3D } from 'three';
+import { Color, Object3D } from "three";
 import { Object3DComponent } from '../components/Object3DComponent';
 import {
   AmbientLightProbeTagComponent,
@@ -17,7 +17,6 @@ import {
   InstancedMeshTagComponent,
   LightProbeTagComponent,
   LightTagComponent,
-  LineLoopTagComponent,
   LineSegmentsTagComponent,
   LineTagComponent,
   LODTagComponent,
@@ -38,14 +37,12 @@ import { Entity } from '../../ecs/classes/Entity';
 import { Component } from '../../ecs/classes/Component';
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 import {
-  getMutableComponent,
   hasComponent,
   getComponent,
   removeComponent,
   removeEntity
   , addComponent
 } from '../../ecs/functions/EntityFunctions';
-import { hasRegisteredComponent } from '../../ecs/functions/ComponentFunctions';
 import { SkyboxComponent } from '../../scene/components/SkyboxComponent';
 import { Engine } from '../../ecs/classes/Engine';
 
@@ -68,16 +65,52 @@ export function addTagComponentFromBehavior<C> (
 
 export const addObject3DComponent: Behavior = (
   entity: Entity,
-  args: { obj3d: any; obj3dArgs?: any; parentEntity?: Entity }
+  args: { obj3d: any; objArgs?: any; parentEntity?: Entity }
 ) => {
 
   const isObject3d = typeof args.obj3d === 'object';
   let object3d;
 
-  if(isObject3d) object3d = args.obj3d
-  else object3d = new args.obj3d(args.obj3dArgs)
+  /**
+   * apply value to sub object by path, like material.color = '#fff' will set { material:{ color }}
+   * @param subj
+   * @param path
+   * @param value
+   */
+  const applyDeepValue = (subj:object, path:string, value:unknown):void => {
+    // console.log('applyDeepValue', subj, path, value);
+    if (!subj) {
+      console.warn('subj is not an object', subj);
+      return;
+    }
+    const groups = path.match(/(?<property>[^.]+)(\.(?<nextPath>.*))?/)?.groups;
+    if (!groups) {
+      return;
+    }
+    const { property, nextPath } = groups;
 
-  // object3d = new args.obj(args.objArgs)
+    if (!property || typeof subj[property] === 'undefined') {
+      console.warn('property not found', property);
+      return;
+    }
+    if (nextPath) {
+      return applyDeepValue(subj[property], nextPath, value);
+    }
+
+    if (subj[property] instanceof Color && (typeof value === "number" || typeof value === "string")) {
+      subj[property] = new Color(value);
+    } else {
+      subj[property] = value;
+    }
+  };
+
+  if(isObject3d) object3d = args.obj3d;
+  else object3d = new args.obj3d();
+
+  typeof args.objArgs === 'object' && Object.keys(args.objArgs).forEach(key => {
+    applyDeepValue(object3d, key, args.objArgs[key]);
+  });
+
   addComponent(entity, Object3DComponent, { value: object3d });
   // getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = object3d;
 
@@ -91,7 +124,7 @@ export const addObject3DComponent: Behavior = (
   return entity;
 };
 
-export function removeObject3DComponent (entity, unparent = true) {
+export function removeObject3DComponent (entity: Entity, unparent = true): void {
   const object3d = getComponent<Object3DComponent>(entity, Object3DComponent, true).value;
   if(object3d == undefined) return;
   Engine.scene.remove(object3d);
@@ -113,7 +146,7 @@ export function removeObject3DComponent (entity, unparent = true) {
   (object3d as any).entity = null;
 }
 
-export function remove (entity, forceImmediate) {
+export function remove (entity: Entity, forceImmediate: boolean):void {
   if (hasComponent<Object3DComponent>(entity, Object3DComponent)) {
     const obj = getObject3D(entity);
     obj.traverse(o => {
@@ -125,7 +158,7 @@ export function remove (entity, forceImmediate) {
   removeEntity(entity, forceImmediate);
 }
 
-export function getObject3D (entity) {
+export function getObject3D (entity:Entity):Object3D {
   const component = getComponent<Object3DComponent>(entity, Object3DComponent);
   return component && component.value;
 }
