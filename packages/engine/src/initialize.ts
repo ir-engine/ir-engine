@@ -1,3 +1,4 @@
+import { isBrowser } from 'face-api.js/build/commonjs/env/isBrowser';
 import _ from 'lodash';
 import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
@@ -19,7 +20,6 @@ import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { WebGLRendererSystem } from './renderer/systems/WebGLRendererSystem';
 import { StateSystem } from './state/systems/StateSystem';
 import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
-import { EmptyCharacterInputSchema } from './templates/character/EmptyCharacterInputSchema';
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
 import { CharacterSubscriptionSchema } from './templates/character/CharacterSubscriptionSchema';
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';

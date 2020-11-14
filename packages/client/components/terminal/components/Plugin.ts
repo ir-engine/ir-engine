@@ -1,4 +1,4 @@
-import Api from "../../editor/api/Api";
+import Api from "../../editor/Api";
 
 export default class Plugin {
   static displayName = '';

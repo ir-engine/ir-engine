@@ -1,15 +1,13 @@
-import { SAPBroadphase, ContactMaterial, Material, World } from 'cannon-es';
-import { Component } from '../../ecs/classes/Component';
-import { Types } from '../../ecs/types/Types';
-import { Engine } from '../../ecs/classes/Engine';
-import { Shape, Body } from 'cannon-es';
+import { Body, ContactMaterial, Material, SAPBroadphase, Shape, World } from 'cannon-es';
 import { Mesh } from 'three';
-import debug from "cannon-es-debugger";
+import { Component } from '../../ecs/classes/Component';
+import { Engine } from '../../ecs/classes/Engine';
 
 export class PhysicsManager extends Component<any> {
   static instance: PhysicsManager
   frame: number
   physicsWorld: World
+  simulate: boolean
   groundMaterial = new Material('groundMaterial')
   wheelMaterial = new Material('wheelMaterial')
   trimMeshMaterial = new Material('trimMeshMaterial')
@@ -43,6 +41,7 @@ export class PhysicsManager extends Component<any> {
     this.physicsFrameTime = 1 / this.physicsFrameRate;
     this.physicsMaxPrediction = this.physicsFrameRate;
     this.physicsWorld.allowSleep = false;
+    this.simulate = true;
   //  this.groundMaterial.friction = 5
     // this.physicsWorld.solver.iterations = 10;
 
@@ -65,7 +64,7 @@ export class PhysicsManager extends Component<any> {
          //if (body === Engine.actor
          //console.log("PH  UPD: body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape) }
      }};
-    // debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions);
+     //debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions);
   }
 
   dispose(): void {

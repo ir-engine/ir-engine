@@ -122,7 +122,7 @@ export default (options: any) => {
       where: {
         id: ownedFile.id
       }
-    })
+    });
     context.params.collection = savedCollection;
     context.params.ownedFile = ownedFile;
     return context;

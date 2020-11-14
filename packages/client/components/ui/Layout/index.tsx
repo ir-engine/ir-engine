@@ -14,6 +14,8 @@ import { selectLocationState } from '../../../redux/location/selector';
 import PartyVideoWindows from '../PartyVideoWindows';
 import InstanceChat from '../InstanceChat';
 import Me from '../Me';
+import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
+import { useRouter } from 'next/router';
 
 const { publicRuntimeConfig } = getConfig();
 const siteTitle: string = publicRuntimeConfig.siteTitle;
@@ -35,6 +37,7 @@ const mapStateToProps = (state: any): any => {
 const mapDispatchToProps = (): any => ({});
 
 const Layout = (props: Props): any => {
+  const path = useRouter().pathname;
   const { pageTitle, children, authState, locationState, login } = props;
   const authUser = authState.get('authUser');
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false);
@@ -42,9 +45,8 @@ const Layout = (props: Props): any => {
   const [topDrawerOpen, setTopDrawerOpen] = useState(false);
   const [bottomDrawerOpen, setBottomDrawerOpen] = useState(false);
   const user = authState.get('user');
-
+  //info about current mode to conditional render menus
 // TODO: Uncomment alerts when we can fix issues
-
   return (
     <section>
       <Head>
@@ -53,7 +55,7 @@ const Layout = (props: Props): any => {
         </title>
       </Head>
       <header>
-        <NavMenu login={login} />
+        { path === '/login' && <NavMenu login={login} />}
         {authUser?.accessToken != null && authUser.accessToken.length > 0 && <PartyVideoWindows />}
       </header>
       <Fragment>

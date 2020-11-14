@@ -26,7 +26,6 @@ let theta = 0;
 let phi = 0;
 
 export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: any, entityOut: Entity): void => {
-  return;
   follower = getMutableComponent<TransformComponent>(entityIn, TransformComponent); // Camera
   target = getMutableComponent<TransformComponent>(entityOut, TransformComponent); // Player
 
@@ -42,7 +41,18 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
     inputAxes = DefaultInput.LOOKTURN_PLAYERONE;
   }
   inputValue = getInputData(inputComponent, inputAxes);
+
+  //This block was made for check distance as a separeted action, without any connections with mouse or touch move.
   if (!inputValue) {
+    const distanceNeedsUpdate = cameraFollow.distance != follower.position.distanceTo(target.position);
+    if (distanceNeedsUpdate){
+      //follower.position.sub(target.position).normalize().multiplyScalar(cameraFollow.distance).add(target.position);
+      follower.position.set(
+        target.position.x + cameraFollow.distance * Math.sin(theta * Math.PI / 180) * Math.cos(phi * Math.PI / 180),
+        target.position.y + cameraFollow.distance * Math.sin(phi * Math.PI / 180),
+        target.position.z + cameraFollow.distance * Math.cos(theta * Math.PI / 180) * Math.cos(phi * Math.PI / 180)
+      );
+    }
     return;
   }
 
