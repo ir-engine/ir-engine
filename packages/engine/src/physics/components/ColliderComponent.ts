@@ -5,12 +5,16 @@ export class ColliderComponent extends Component<ColliderComponent> {
   collider: any
   type: string
   mass: number
-  scale = [1, 1, 1]
+  position: any
+  rotation: any
+  scale: any
 }
 
 ColliderComponent.schema = {
   collider: { type: Types.Ref, default: null },
+  type: { type: Types.String, default: 'box' },
   mass: { type: Types.Number, default: 0 },
-  scale: { type: Types.Array, default: [1, 1, 1] },
-  type: { type: Types.String, default: 'box' }
+  position: { type: Types.Ref, default: null },
+  rotation: { type: Types.Ref, default: {x:0, y:0, z:0} },
+  scale: { type: Types.Ref, default: {x:1, y:1, z:1} }
 };

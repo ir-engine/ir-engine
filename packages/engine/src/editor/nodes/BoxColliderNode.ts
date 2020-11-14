@@ -46,7 +46,17 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
   }
   serialize() {
     const components = {
-      "box-collider": {}
+      "box-collider": {
+        type: 'box',
+        mass: 0,
+        position: this.position,
+        rotation: {
+          x: this.rotation.x,
+          y: this.rotation.y,
+          z: this.rotation.z
+        },
+        scale: this.scale
+      }
     } as any;
     if (this.walkable) {
       components.walkable = {};
