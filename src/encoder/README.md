@@ -1,6 +1,11 @@
 # Instruction to create .drcs
 - Put .obj, .ply and .png into /assets/ folder
 - Run
+bash:
+```
+for FILE in *.ply; do ../corto $FILE; done
+```
+fish:
 ```
 for file in *.ply
 ../corto $file
