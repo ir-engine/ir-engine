@@ -6,8 +6,9 @@ import { Input } from '../components/Input';
 import { InputType } from '../enums/InputType';
 import { InputValue } from '../interfaces/InputValue';
 import { InputAlias } from '../types/InputAlias';
-import { getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { BinaryValue } from '../../common/enums/BinaryValue';
+import { NetworkObject } from '../../networking/components/NetworkObject';
 
 /**
  * Call all behaviors associated with current input in it's current lifecycle phase
@@ -21,12 +22,20 @@ import { BinaryValue } from '../../common/enums/BinaryValue';
  * @param args
  * @param {Number} delta Time since last frame
  */
- export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): void => {
+ export const handleInput: Behavior = (entity: Entity, args: { isLocal: boolean, isServer: boolean }, delta: number): void => {
+  
   // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
   const input = getMutableComponent(entity, Input);
 
+  if(!args.isLocal && !args.isServer){
+    console.log("Handling input data for ", entity.id)
+    console.log(input.data);
+  }
+
   // check CHANGED/UNCHANGED axis inputs
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+    if(args.isLocal){
+
     if (!input.prevData.has(key)) {
       return;
     }
@@ -58,6 +67,8 @@ import { BinaryValue } from '../../common/enums/BinaryValue';
       return;
     }
 
+
+
     if (input.prevData.has(key)) {
       if (JSON.stringify(value.value) === JSON.stringify(input.prevData.get(key).value)) {
         value.lifecycleState = LifecycleValue.UNCHANGED;
@@ -66,6 +77,12 @@ import { BinaryValue } from '../../common/enums/BinaryValue';
       }
       input.data.set(key, value);
     }
+  }    else{
+    const networkObject = getComponent(entity, NetworkObject);
+    if(!args.isLocal && !args.isServer){
+    console.log("Handling input on non-local networking object", networkObject.networkId, "on entity", entity.id);
+    }
+  }
   });
 
   // For each input currently on the input object:
@@ -80,9 +97,18 @@ import { BinaryValue } from '../../common/enums/BinaryValue';
         if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED;
 
         if(value.lifecycleState === LifecycleValue.STARTED) {
+          if(!args.isLocal){
+
+          console.log("Input from ", getComponent(entity, NetworkObject).networkId);
+          }
           // Set the value of the input to continued to debounce
-          input.schema.inputButtonBehaviors[key].started?.forEach(element =>
+          input.schema.inputButtonBehaviors[key].started?.forEach(element =>{
+            if(!args.isLocal){
+
+            console.log(element.behavior);
+            }
             element.behavior(entity, element.args, delta)
+          }
           );
         } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
           // If the lifecycle equal continued
