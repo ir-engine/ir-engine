@@ -31,7 +31,8 @@ export default (app: Application): any => {
       return app.channel(`userIds/${data.userId}`).send({
         ipAddress: data.ipAddress,
         port: data.port,
-        locationId: data.locationId
+        locationId: data.locationId,
+        sceneId: data.sceneId
       });
     } catch (err) {
       logger.error(err);

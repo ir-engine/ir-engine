@@ -37,7 +37,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     public sendData = (data: any): void =>
         this.dataProducers.forEach(producer => { producer.send(JSON.stringify(data)); })
 
-    public handleKick(socket: any) {
+    public handleKick(socket: any): void {
         logger.info("Kicking ", socket.id);
         logger.info(this.socketIO.sockets.connected[socket.id]);
         if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.Kick.toString(), socket.id);
@@ -91,7 +91,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         // Set up realtime channel on socket.io
         this.socketIO = (this.app as any)?.io;
 
-        this.socketIO.of('/realtime').on("connect", (socket: Socket) => {
+        if (this.socketIO != null) this.socketIO.of('/realtime').on("connect", (socket: Socket) => {
             // Authorize user and make sure everything is valid before allowing them to join the world
             socket.on(MessageTypes.Authorization.toString(), async (data, callback) => {
                 const userId = data.userId;

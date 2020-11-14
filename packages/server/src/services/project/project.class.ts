@@ -41,8 +41,8 @@ export class Project implements ServiceMethods<Data> {
     const project = await this.models.collection.findOne({
       attributes: ['name', 'id', 'sid', 'url', 'type'],
       where: {
-        sid: id,
-        userId: loggedInUser.userId
+        sid: id
+        // userId: loggedInUser.userId
       },
       include: defaultProjectImport(this.app.get('sequelizeClient').models)
     });
@@ -90,8 +90,8 @@ export class Project implements ServiceMethods<Data> {
 
     const project = await CollectionModel.findOne({
       where: {
-        sid: projectId,
-        userId: loggedInUser.userId
+        sid: projectId
+        // userId: loggedInUser.userId
       }
     });
 
@@ -211,7 +211,7 @@ export class Project implements ServiceMethods<Data> {
         where: {
           id: ownedFile.id
         }
-      }, { transaction })
+      }, { transaction });
     });
 
     const savedProject = await this.reloadProject(project.id, project);

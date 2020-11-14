@@ -4,7 +4,7 @@ import AssetVault from '../components/AssetVault';
 import { AssetClass } from '../enums/AssetClass';
 import { AssetType } from '../enums/AssetType';
 import { AssetId, AssetMap, AssetsLoadedHandler, AssetTypeAlias, AssetUrl } from '../types/AssetTypes';
-import * as FBXLoader from './../loaders/FBXLoader/FBXLoader';
+import * as FBXLoader from '../loaders/fbx/FBXLoader';
 import { Entity } from '../../ecs/classes/Entity';
 
 // Kicks off an i{terator to load the list of assets and add them to the vault

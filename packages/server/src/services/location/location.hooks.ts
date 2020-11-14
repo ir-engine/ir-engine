@@ -17,8 +17,7 @@ export default {
             model: 'location-settings'
           }
         ]
-      }),
-      (context) => console.log(context.params.sequelize.include)
+      })
     ],
     get: [
       addAssociations({
@@ -40,7 +39,7 @@ export default {
 
   after: {
     all: [],
-    find: [(context) => console.log(context.result.data)],
+    find: [],
     get: [],
     create: [],
     update: [],

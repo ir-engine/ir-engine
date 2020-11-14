@@ -6,14 +6,14 @@ import { addComponentFromSchema } from "../../../common/behaviors/addComponentFr
 import { addWorldColliders } from "../behaviors/addWorldColliders";
 
 export const WorldPrefab: Prefab = {
-    components: [{ type: TransformComponent, data: { position: [0, 0.01, 0] } }],
+    components: [{ type: TransformComponent, data: { position: [0, -0.03, 0] } }],
     onAfterCreate: [
         {
             behavior: addComponentFromSchema,
             args: {
                 component: AssetLoader,
                 componentArgs: {
-                    url: "models/worlds/Showroom.glb",
+                    url: "../models/worlds/island_zero_dark_green2.glb",
                     receiveShadow: true,
                     castShadow: true,
                     onLoaded: addWorldColliders

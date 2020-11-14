@@ -1,21 +1,18 @@
-import { BoxBufferGeometry } from 'three';
+import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
 import { Input } from '../../../input/components/Input';
 import { LocalInputReceiver } from '../../../input/components/LocalInputReceiver';
-import { NetworkObject } from '../../../networking/components/NetworkObject';
+import { Interactor } from '../../../interaction/components/Interactor';
 import { NetworkPrefab } from '../../../networking/interfaces/NetworkPrefab';
 import { State } from '../../../state/components/State';
+import { Subscription } from '../../../subscription/components/Subscription';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
+import { initializeCharacter } from '../behaviors/initializeCharacter';
+import { loadActorAvatar } from '../behaviors/loadActorAvatar';
 import { CharacterInputSchema } from '../CharacterInputSchema';
 import { CharacterStateSchema } from '../CharacterStateSchema';
-import { CharacterComponent } from '../components/CharacterComponent';
-import { Subscription } from '../../../subscription/components/Subscription';
 import { CharacterSubscriptionSchema } from '../CharacterSubscriptionSchema';
-import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
-import { addComponentFromSchema } from '../../../common/behaviors/addComponentFromSchema';
-import { AssetLoader } from '../../../assets/components/AssetLoader';
-import { initializeCharacter } from '../behaviors/initializeCharacter';
 import { CharacterAvatarComponent } from '../components/CharacterAvatarComponent';
-import { Interactor } from '../../../interaction/components/Interactor';
+import { CharacterComponent } from '../components/CharacterComponent';
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const NetworkPlayerCharacter: NetworkPrefab = {
@@ -41,10 +38,15 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     { type: Interactor }
   ],
   onAfterCreate: [
-    // {
-    //   behavior: initializeCharacter,
-    //   networked: true
-    // }
+    {
+      behavior: initializeCharacter,
+      networked: true
+    },
+    {
+      behavior: loadActorAvatar,
+      networked: true
+    }
+
   ],
   onBeforeDestroy: [
 

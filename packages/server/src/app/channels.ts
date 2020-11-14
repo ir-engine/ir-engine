@@ -5,7 +5,11 @@ import config from '../config';
 import app from "../app";
 import { Network } from '@xr3ngine/engine/src/networking/components/Network';
 import logger from './logger';
+import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
+import { staticWorldColliders } from '@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders';
 
+import isNullOrUndefined from '@xr3ngine/engine/src/common/functions/isNullOrUndefined';
+import { loadScene } from "@xr3ngine/engine/src/scene/functions/SceneLoading";
 export default (app: Application): void => {
   if (typeof app.channel !== 'function') {
     // If no real-time functionality has been configured just return
@@ -31,10 +35,14 @@ export default (app: Application): void => {
           const authResult = await app.service('authentication').strategies.jwt.authenticate({ accessToken: token }, {});
           const identityProvider = authResult['identity-provider'];
           if (identityProvider != null) {
-            logger.info(`user ${identityProvider.userId} joining ${(connection as any).socketQuery.locationId}`);
+            logger.info(`user ${identityProvider.userId} joining ${(connection as any).socketQuery.locationId} with sceneId ${(connection as any).socketQuery.sceneId}`);
             const userId = identityProvider.userId;
             const user = await app.service('user').get(userId);
             const locationId = (connection as any).socketQuery.locationId;
+            const sceneId = (connection as any).socketQuery.sceneId;
+
+            if(sceneId === "") return console.warn("Scene ID is empty, can't init");
+            
             const agonesSDK = (app as any).agonesSDK;
             const gsResult = await agonesSDK.getGameServer();
             const { status } = gsResult;
@@ -45,10 +53,34 @@ export default (app: Application): void => {
               const instanceResult = await app.service('instance').create({
                 currentUsers: 1,
                 locationId: locationId,
+                sceneId: sceneId,
                 ipAddress: config.server.mode === 'local' ? `${localIp.ipAddress}:3030` : selfIpAddress
               });
               await agonesSDK.allocate();
               (app as any).instance = instanceResult;
+
+
+              if (sceneId === ""){
+                console.warn("Scene ID is undefined");
+              }
+              else {
+                let service, serviceId;
+                const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
+                const projectResult = await app.service('project').get(sceneId);
+                console.log("Project result is: ", projectResult);
+                const projectUrl = projectResult.project_url;
+                const regexResult = projectUrl.match(projectRegex);
+                if (regexResult) {
+                  service = regexResult[1];
+                  serviceId = regexResult[2];
+                }
+                const result = await app.service(service).get(serviceId);
+                console.log("Result is ");
+                console.log(result);
+                loadScene(result);
+              }
+
+
               // Here's an example of sending data to the channel 'instanceIds/<instanceId>'
               // This .publish is a publish handler that controls which connections to send data to.
               // app.service('instance-provision').publish('created', async (data): Promise<any> => {
@@ -69,10 +101,10 @@ export default (app: Application): void => {
               // console.log('Joining allocated instance');
               // console.log(user.instanceId);
               // console.log((app as any).instance.id);
-                const instance = await app.service('instance').get((app as any).instance.id);
-                await app.service('instance').patch((app as any).instance.id, {
-                  currentUsers: (instance.currentUsers as number) + 1
-                });
+              const instance = await app.service('instance').get((app as any).instance.id);
+              await app.service('instance').patch((app as any).instance.id, {
+                currentUsers: (instance.currentUsers as number) + 1
+              });
             }
             // console.log(`Patching user ${user.id} instanceId to ${(app as any).instance.id}`);
             await app.service('user').patch(userId, {
@@ -95,13 +127,14 @@ export default (app: Application): void => {
                   instanceId: (app as any).instance.id
                 });
                 const nonOwners = partyUsers.filter((partyUser) => partyUser.isOwner !== 1 && partyUser.isOwner !== true);
-                const emittedIp = (process.env.KUBERNETES !== 'true') ? await getLocalServerIp() : { ipAddress: status.address, port: status.portsList[0].port};
+                const emittedIp = (process.env.KUBERNETES !== 'true') ? await getLocalServerIp() : { ipAddress: status.address, port: status.portsList[0].port };
                 await Promise.all(nonOwners.map(async partyUser => {
                   await app.service('instance-provision').emit('created', {
                     userId: partyUser.userId,
                     ipAddress: emittedIp.ipAddress,
                     port: emittedIp.port,
-                    locationId: locationId
+                    locationId: locationId,
+                    sceneId: sceneId
                   });
                 }));
               }
@@ -120,7 +153,7 @@ export default (app: Application): void => {
       try {
         const token = (connection as any).socketQuery?.token;
         if (token != null) {
-          const authResult = await app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {});
+          const authResult = await app.service('authentication').strategies.jwt.authenticate({ accessToken: token }, {});
           const identityProvider = authResult['identity-provider'];
           if (identityProvider != null) {
             const userId = identityProvider.userId;
@@ -149,7 +182,7 @@ export default (app: Application): void => {
                 instanceId: instanceId
               }).catch((err) => {
                 console.warn("Failed to patch user, probably because they don't have an ID yet"),
-                    console.log(err);
+                  console.log(err);
               });
 
               app.channel(`instanceIds/${instanceId as string}`).leave(connection);

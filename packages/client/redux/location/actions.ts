@@ -2,8 +2,12 @@ import {
   FETCH_CURRENT_LOCATION,
   LOCATIONS_RETRIEVED,
   LOCATION_RETRIEVED,
+  LOCATION_CREATED,
+  LOCATION_PATCHED,
+  LOCATION_REMOVED,
   LOCATION_BAN_CREATED
 } from '../actions';
+import { Location } from '@xr3ngine/common/interfaces/Location';
 
 export interface LocationsRetrievedAction {
   type: string;
@@ -23,6 +27,20 @@ export interface FetchingCurrentLocationAction {
   type: string;
 }
 
+export interface LocationCreatedAction {
+  type: string;
+  location: Location
+}
+
+export interface LocationPatchedAction {
+  type: string;
+  location: Location;
+}
+
+export interface LocationRemovedAction {
+  type: string;
+}
+
 export type LocationsAction =
   LocationsRetrievedAction
   | LocationRetrievedAction
@@ -39,6 +57,27 @@ export function locationsRetrieved (locations: any): LocationsRetrievedAction {
 export function locationRetrieved (location: any): LocationRetrievedAction {
   return {
     type: LOCATION_RETRIEVED,
+    location: location
+  };
+}
+
+export function locationCreated (location: Location): LocationCreatedAction {
+  return {
+    type: LOCATION_CREATED,
+    location: location
+  };
+}
+
+export function locationPatched (location: Location): LocationCreatedAction {
+  return {
+    type: LOCATION_PATCHED,
+    location: location
+  };
+}
+
+export function locationRemoved (location: Location): LocationCreatedAction {
+  return {
+    type: LOCATION_REMOVED,
     location: location
   };
 }

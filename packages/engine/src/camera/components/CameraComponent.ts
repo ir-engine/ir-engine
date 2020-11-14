@@ -3,7 +3,7 @@
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 
-export class CameraComponent extends Component<CameraComponent> {
+export class CameraComponent extends Component<any> {
   static instance: CameraComponent = null
   followTarget: any = null // Reference to the object that should be followed
   fov: number // Field of view

@@ -1,5 +1,11 @@
 import ChannelTypeSeed from '../services/channel-type/channel-type.seed';
 import CollectionTypeSeed from '../services/collection-type/collection-type.seed';
+import CollectionSeed from '../services/collection/collection.seed';
+import StaticResourceSeed from '../services/static-resource/static-resource.seed';
+
+import EntitySeed from '../services/entity/entity.seed';
+import ComponentSeed from '../services/component/component.seed';
+
 import ComponentTypeSeed from '../services/component-type/component-type.seed';
 import EntityTypeSeed from '../services/entity-type/entity-type.seed';
 import GroupUserRankSeed from '../services/group-user-rank/group-user-rank.seed';
@@ -15,21 +21,25 @@ import UserRelationshipTypeSeed from '../services/user-relationship-type/user-re
 import UserRoleSeed from '../services/user-role/user-role.seed';
 
 export const services = [
+  StaticResourceSeed,
     LocationTypeSeed,
-    ChannelTypeSeed,
-    CollectionTypeSeed,
-    MessageStatusSeed,
-    ComponentTypeSeed,
     EntityTypeSeed,
-    GroupUserRankSeed,
-    InviteTypeSeed,
-    LocationSeed,
-    SeatStatusSeed,
+    CollectionTypeSeed,
+    ComponentTypeSeed,
     StaticResourceTypeSeed,
-    SubscriptionLevelSeed,
     SubscriptionTypeSeed,
     UserRelationshipTypeSeed,
-    UserRoleSeed
+    LocationSeed,
+    SubscriptionLevelSeed,
+    CollectionSeed,
+    ChannelTypeSeed,
+    MessageStatusSeed,
+    GroupUserRankSeed,
+    InviteTypeSeed,
+    EntitySeed,
+    UserRoleSeed,
+    SeatStatusSeed,
+    ComponentSeed
   ];
 
 export default services;
