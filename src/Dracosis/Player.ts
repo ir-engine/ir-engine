@@ -30,6 +30,7 @@ import {
   DataTexture,
   RGBFormat,
   sRGBEncoding,
+  LinearEncoding,
   Color,
   RepeatWrapping,
   TextureLoader,
@@ -42,6 +43,7 @@ import ReadStream from 'fs-readstream-seek';
 import { MessageType } from './Enums';
 const worker = new Worker('./Worker.js');
 import CortoDecoder from './corto/cortodecoder.js'
+import { fileURLToPath } from 'url';
 
 // Class draco / basis player
 export default class DracosisPlayer {
@@ -53,6 +55,7 @@ export default class DracosisPlayer {
   public scene: Scene;
   public renderer: Renderer;
   public mesh: Mesh;
+  public filePath: String;
   public material: any;
   public bufferGeometry: BufferGeometry;
   public compressedTexture: CompressedTexture;
@@ -60,8 +63,14 @@ export default class DracosisPlayer {
 
   // Private Fields
   private _startFrame = 1;
+  private _scale = 1;
   private _endFrame = 0;
   private _renderFrame = 0;
+  private _renderCount = 0;
+
+  private _frameTime = 0;
+  private _elapsedTime = 0;
+  private _prevTime = 0;
   private _numberOfFrames = 0;
   private _bufferSize = 99;
   private _audio = Howl;
@@ -139,30 +148,35 @@ export default class DracosisPlayer {
   constructor({
     scene,
     renderer,
-    filePath: string,
+    filePath,
     onLoaded,
     playOnStart = true,
     loop = true,
     startFrame = 1,
     endFrame = -1,
+    frameRate = 30,
     speedMultiplier = 1,
+    scale = 1,
     bufferSize = 99,
     serverUrl,
     audioUrl
   }) {
     this.scene = scene;
     this.renderer = renderer;
+    this.filePath = filePath;
     this._onLoaded = onLoaded;
     this._loop = loop;
+    this._scale = scale;
     this.speed = speedMultiplier;
     this._startFrame = startFrame;
     this._playOnStart = playOnStart;
     this._currentFrame = startFrame;
     this._bufferSize = bufferSize;
-    this._audio = new Howl({
-        src: audioUrl,
-        format: ['mp3']
-    });
+    this._frameTime = (1000 / frameRate) * this.speed;
+    // this._audio = new Howl({
+    //     src: audioUrl,
+    //     format: ['mp3']
+    // });
     
 
     this.bufferGeometry = new PlaneBufferGeometry(1, 1);
@@ -191,6 +205,9 @@ export default class DracosisPlayer {
     //   }`
     // });
     this.mesh = new Mesh(this.bufferGeometry, this.material);
+    this.mesh.scale.set(this._scale,this._scale,this._scale)
+    // console.log(this.scene,'this.scene');
+    
     this.scene.add(this.mesh);
 
     this._basisTextureLoader.setTranscoderPath(
@@ -204,6 +221,7 @@ export default class DracosisPlayer {
     
     let player = this;
     let dracoUrl = serverUrl + '/dracosis';
+      dracoUrl = filePath;
 
     this.httpGetAsync(dracoUrl, function (data: any) {
       data = JSON.parse(data);
@@ -264,7 +282,7 @@ export default class DracosisPlayer {
       decoder
     );
 
-    bufferGeometry.computeVertexNormals();
+    // bufferGeometry.computeVertexNormals();
 
     return bufferGeometry;
   }
@@ -287,7 +305,9 @@ export default class DracosisPlayer {
       'uv',
       new Float32BufferAttribute(meshData.uv, 2)
     );
-    geometry.computeVertexNormals();
+    // console.log(geometry);
+    
+    // geometry.computeVertexNormals();
     return geometry;
   }
 
@@ -458,6 +478,7 @@ export default class DracosisPlayer {
         texture.magFilter = NearestFilter;
         texture.minFilter = NearestFilter;
         texture.encoding = sRGBEncoding;
+        // texture.encoding = LinearEncoding;
         texture.wrapS = RepeatWrapping;
         texture.wrapT = RepeatWrapping;
         texture.repeat.y = -1;
@@ -520,7 +541,7 @@ export default class DracosisPlayer {
           player._ringBuffer.get(pos).compressedTexture = texture;
           if (!player._isPlaying && count < this._bufferSize) count++;
           // @todo create some bufferReady flag, to know when buffer is filled
-          // if (count == this._bufferSize) this.play();
+          if (count == this._bufferSize) {this.play();player._isPlaying = true;}
         });
 
     });
@@ -607,7 +628,7 @@ export default class DracosisPlayer {
     // Every 2 second, make sure our workers are working
     setTimeout(function () {
       player.handleBuffers(player);
-    }, 16.6*4);
+    }, 16.6*3);
   }
 
   showFrame(frame: number){
@@ -616,7 +637,7 @@ export default class DracosisPlayer {
     if(!this._ringBuffer || !this._ringBuffer.getFirst()) return;
 
     
-    console.log('playing frame---------',frame);
+    // console.log('playing frame---------',frame);
     let frameToPlay = frame%this._endFrame ;
 
     this.cleanBeforeNeeded(frameToPlay);
@@ -624,7 +645,7 @@ export default class DracosisPlayer {
     if (
       this._ringBuffer.getFirst().frameNumber == frameToPlay
     ) {
-      console.log('+++we have frame',this._ringBuffer.getFirst().frameNumber);
+      // console.log('+++we have frame',this._ringBuffer.getFirst().frameNumber);
 
       this.bufferGeometry = this._ringBuffer.getFirst().bufferGeometry;
       this.mesh.geometry = this.bufferGeometry;
@@ -634,10 +655,12 @@ export default class DracosisPlayer {
       this.mesh.material.map = this.compressedTexture;
       // @ts-ignore
       this.mesh.material.needsUpdate = true;
+      // console.log(this.mesh);
+      
 
       
     } else{
-      console.log('---we dont have needed frame', this._ringBuffer.getFirst().frameNumber);
+      // console.log('---we dont have needed frame', this._ringBuffer.getFirst().frameNumber);
     }
   }
 
@@ -646,7 +669,7 @@ export default class DracosisPlayer {
     let index = 0;
     while(this._ringBuffer.getFirst().frameNumber !== frameToPlay && index<maxDeleteConstant){
       index++;
-      console.log('deleting frame no ',this._ringBuffer.getFirst().frameNumber );
+      // console.log('deleting frame no ',this._ringBuffer.getFirst().frameNumber );
       this._ringBuffer.remove(0);
     }
   }
@@ -698,18 +721,23 @@ export default class DracosisPlayer {
       //     this._ringBuffer.getFirst().frameNumber +
       //     ' did not exist in ring buffer'
       // );
-      console.log('frame did not exist yet');
+      // console.log('frame did not exist yet');
     }
 
     const player = this;
+    // console.log('from update');
+    
+    setTimeout(function () {
+      player.update();
+    }, (1000 / player.frameRate) * player.speed);
   }
 
   play() {
-    this._isPlaying = true;
+    // this._isPlaying = true;
     this.show();
     // this.update();
     this.render();
-    this._audio.play()
+    // this._audio.play()
   }
 
   pause() {
@@ -769,12 +797,28 @@ export default class DracosisPlayer {
   }
 
   render(){
-    this._renderFrame++;
-    let frameToPlay = 40 + Math.round(this._audio.seek()*30) || 0;
-    if(this._renderFrame%2===0 || !this._isPlaying){
-      console.log(frameToPlay,'frametoplay');
-      this.showFrame(frameToPlay)
+    this._renderCount++;
+    let frameToPlay //= 40 + Math.round(this._audio.seek()*30) || 0;
+    
+    let now = Date.now();
+    this._elapsedTime = now - this._prevTime;
+
+    
+    if (this._elapsedTime > this._frameTime && this._isPlaying) {
+      
+        this._prevTime = now - (this._elapsedTime % this._frameTime);
+        this._renderFrame++;
+        frameToPlay = this._renderFrame;
+        // console.log(frameToPlay,'frametoplay');c
+        this.showFrame(frameToPlay)
     }
+    
+    // if(this._renderCount%2===0 || !this._isPlaying){
+    //   this._renderFrame++;
+    //   frameToPlay = this._renderFrame;
+    //   // console.log(frameToPlay,'frametoplay');
+    //   this.showFrame(frameToPlay)
+    // }
     window.requestAnimationFrame(this.render.bind(this))
   }
 
