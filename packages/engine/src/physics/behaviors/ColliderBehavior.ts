@@ -19,15 +19,16 @@ import { Vec3, Shape, Body } from 'cannon-es';
 
 export const addCollider: Behavior = (entity: Entity, args: { type: string; phase?: string }): void => {
   if (args.phase === 'onRemoved') {
-    const collider = getComponent<ColliderComponent>(entity, ColliderComponent, true);
-    if (collider) {
-      PhysicsManager.instance.physicsWorld.removeBody(collider.collider);
+    const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent, true);
+    if (colliderComponent) {
+      PhysicsManager.instance.physicsWorld.removeBody(colliderComponent.collider);
     }
     return;
   }
 
-  const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
-  const transform = getComponent<TransformComponent>(entity, TransformComponent);
+  // onAdd
+  const colliderComponent = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
+  console.warn(colliderComponent);
 
   // if simple mesh do computeBoundingBox()
   if (hasComponent(entity, Object3DComponent)){
@@ -37,11 +38,8 @@ export const addCollider: Behavior = (entity: Entity, args: { type: string; phas
     }
   }
 
-  console.warn(collider);
-
-
   let body;
-  switch (collider.type) {
+  switch (colliderComponent.type) {
     case 'box':
       body = createBox(entity)
       break;
@@ -62,21 +60,13 @@ export const addCollider: Behavior = (entity: Entity, args: { type: string; phas
     body = createTrimesh(
         getMutableComponent<Object3DComponent>(entity, Object3DComponent as any).value,
         new Vec3(),
-        collider.mass
+        colliderComponent.mass
       );
       break;
 
     default:
       body = createBox(entity)
       break;
-  }
-
-  if (transform) {
-    body.position.set(
-      transform.position.x,
-      transform.position.y,
-      transform.position.z
-    );
   }
 
 /*
@@ -86,7 +76,4 @@ export const addCollider: Behavior = (entity: Entity, args: { type: string; phas
 */
 		//body.collisionFilterGroup = 1;
 
-  collider.collider = body;
-
-  PhysicsManager.instance.physicsWorld.addBody(collider.collider);
 };

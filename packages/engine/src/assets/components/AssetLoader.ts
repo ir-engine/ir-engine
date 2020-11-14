@@ -14,7 +14,7 @@ export class AssetLoader extends Component<AssetLoader> {
   castShadow = false
   envMapOverride: any = null
   append = true
-  onLoaded: AssetsLoadedHandler = null
+  onLoaded: any
   parent: Object3D = null
 }
 AssetLoader.schema = {

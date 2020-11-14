@@ -1,0 +1,29 @@
+.gap {
+    flex-grow: 1;
+}
+
+.appbar {
+    position: fixed;
+    right: 20px;
+    padding: 2em;
+    flex-direction: row;
+    align-items: center;
+    width: auto;
+}
+.menuIcon{
+    margin: 5px;
+}
+.linkField{
+    padding: 5px;
+    resize: none;
+    border: none;
+    width: 100%;
+    display: block;
+    text-align: center;
+    border-radius: 5px;
+    margin: 10px 0;
+    
+}
+.linkField:hover{
+    cursor: pointer;
+}

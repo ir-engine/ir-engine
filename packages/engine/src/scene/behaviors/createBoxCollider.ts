@@ -5,5 +5,6 @@ import { TransformComponent } from "@xr3ngine/engine/src/transform/components/Tr
 import { ColliderComponent } from '../../physics/components/ColliderComponent';
 
 export const createBoxCollider: Behavior = (entity, args: any) => {
+   //console.warn(args.objArgs);
    addComponent(entity, ColliderComponent, args.objArgs);
 };
