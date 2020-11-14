@@ -1,4 +1,4 @@
-import { Vec3, Box, Cylinder, ConvexPolyhedron, Quaternion, Sphere, Body } from 'cannon-es';
+import { Vec3, Box, Plane, Cylinder, ConvexPolyhedron, Quaternion, Sphere, Body } from 'cannon-es';
 import { Vector3 } from 'three';
 import { Object3DComponent } from '@xr3ngine/engine/src/common/components/Object3DComponent';
 import { Entity } from '../../ecs/classes/Entity';
@@ -26,64 +26,76 @@ export function createTrimesh (mesh, position, mass) {
 
 
 export function createGround (entity: Entity) {
-  const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
-  const shape = new Box(new Vec3(10000, 0.1, 10000));
+  const colliderComponent = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
+  const transformComponent = getComponent<TransformComponent>(entity, TransformComponent);
+  const shape = new Plane();
   const body = new Body({ mass: 0 });
+  body.quaternion.setFromAxisAngle(new Vec3(1, 0, 0), -Math.PI / 2);
+
+  if (colliderComponent.position) {
+    body.position.set(
+      colliderComponent.position.x,
+      colliderComponent.position.y,
+      colliderComponent.position.z
+    );
+  } else {
+    body.position.set(
+      transformComponent.position.x,
+      transformComponent.position.y,
+      transformComponent.position.z
+    );
+  }
   body.addShape(shape);
-  return body;
+  PhysicsManager.instance.physicsWorld.addBody(body);
+  colliderComponent.collider = body;
 }
 
 export function createBox (entity: Entity) {
-  const object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent);
-  //const offset = new Vec3();
-  const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
-  const rigidBody = getComponent<RigidBody>(entity, RigidBody);
+  const colliderComponent = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
+  const transformComponent = getComponent<TransformComponent>(entity, TransformComponent);
+  console.warn(colliderComponent.scale);
 
-  const mass = rigidBody ? collider.mass : 0;
-
-  const shape = new Box(new Vec3(collider.scale[0] / 2, collider.scale[1] / 2, collider.scale[2] / 2));
-
+  const shape = new Box( new Vec3(
+      colliderComponent.scale.x / 2,
+      colliderComponent.scale.y / 2,
+      colliderComponent.scale.z / 2
+    )
+  );
   const body = new Body({
-    mass: mass,
+    mass: colliderComponent.mass,
   //  material: PhysicsManager.instance.groundMaterial
   });
 
-
-//  const q = new Quaternion();
-//  q.setFromAxisAngle(new Vec3(1, 0, 0), -Math.PI / 2);
-/*
-  if (hasComponent(entity, Object3DComponent)) {
-    offset.copy(cannonFromThreeVector(object3DComponent.value.position));
+  if (colliderComponent.position) {
+    body.position.set(
+      colliderComponent.position.x,
+      colliderComponent.position.y,
+      colliderComponent.position.z
+    );
+  } else {
+    body.position.set(
+      transformComponent.position.x,
+      transformComponent.position.y,
+      transformComponent.position.z
+    );
   }
-*/
 
   body.addShape(shape);
+  PhysicsManager.instance.physicsWorld.addBody(body);
+  colliderComponent.collider = body;
+  /*
+    if (hasComponent(entity, Object3DComponent)) {
+      offset.copy(cannonFromThreeVector(object3DComponent.value.position));
+    }
+    //  const q = new Quaternion();
+    //  q.setFromAxisAngle(new Vec3(1, 0, 0), -Math.PI / 2);
 
-  //  body.quaternion.setFromAxisAngle(new Vec3(1,0,0),-Math.PI/2);
-  //  body.angularVelocity.set(0,1,1);
-  //body.angularDamping = 0.5;
-
-  return body;
+    //  body.quaternion.setFromAxisAngle(new Vec3(1,0,0),-Math.PI/2);
+    //  body.angularVelocity.set(0,1,1);
+    //  body.angularDamping = 0.5;
+  */
 }
 
-export function createGroundGeometry (entity: Entity) {
-  const rigidBody = getComponent<ColliderComponent>(entity, ColliderComponent);
-
-  const shape = new Box(new Vec3(rigidBody.scale[0] / 2, rigidBody.scale[1] / 2, rigidBody.scale[2] / 2));
-
-  const body = new Body({
-    mass: rigidBody.mass
-  });
-  const q = new Quaternion();
-  q.setFromAxisAngle(new Vec3(1, 0, 0), -Math.PI / 2);
-  body.addShape(shape);
-
-  //  body.quaternion.setFromAxisAngle(new Vec3(1,0,0),-Math.PI/2);
-  //  body.angularVelocity.set(0,1,1);
-  body.angularDamping = 0.5;
-
-  return body;
-}
 
 export function createCylinder (entity: Entity) {
   const rigidBody = getComponent<ColliderComponent>(entity, ColliderComponent);
