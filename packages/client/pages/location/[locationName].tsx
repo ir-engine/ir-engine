@@ -16,6 +16,7 @@ import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebR
 import Loading from '../../components/scenes/loading';
 import Scene from '../../components/scenes/location';
 import Layout from '../../components/ui/Layout';
+import UserMenu from '../../components/ui/UserMenu';
 import { selectAppState } from '../../redux/app/selector';
 import { selectAuthState } from '../../redux/auth/selector';
 import { doLoginAuto } from '../../redux/auth/service';
@@ -29,6 +30,8 @@ import { selectLocationState } from '../../redux/location/selector';
 import { getLocationByName
 } from '../../redux/location/service';
 import { selectPartyState } from '../../redux/party/selector';
+import { createPrefab } from "../../../engine/src/common/functions/createPrefab";
+import { staticWorldColliders } from "../../../engine/src/templates/car/prefabs/staticWorldColliders";
 
 import theme from '../../theme';
 
@@ -180,7 +183,7 @@ const EditorRoomPage = (props: Props) => {
       };
 
       initializeEngine(InitializationOptions);
-
+      createPrefab(staticWorldColliders);
     loadScene(result);
     const cameraTransform = getMutableComponent<TransformComponent>(
       CameraComponent.instance.entity,
@@ -194,7 +197,9 @@ const EditorRoomPage = (props: Props) => {
     <ThemeProvider theme={theme}>
       <Layout pageTitle="Home">
         <NoSSR onSSR={<Loading />}>
-          {userBanned === false && sceneId !== null && sceneId !== undefined ? (<Scene sceneId={sceneId} />) : null}
+          <UserMenu />
+          {userBanned === false ? (<Scene sceneId={sceneId} />) : null}
+          {/* {userBanned === false && sceneId !== null ? (<Scene sceneId={sceneId} />) : null} */}
           {userBanned !== false ? (<div className="banned">You have been banned from this location</div>) : null}
         </NoSSR>
       </Layout>

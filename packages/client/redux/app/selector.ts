@@ -11,3 +11,6 @@ export const selectInVrModeState = createSelector([selectInVrModeFn], inVrMode =
 
 const selectOnBoardingStep = (state: any): any => state.getIn(['app', 'onBoardingStep']);
 export const selectAppOnBoardingStep = createSelector([selectOnBoardingStep], onBoardingStep => onBoardingStep);
+
+const selectIsTutorial = (state: any): any => state.getIn(['app', 'isTutorial']);
+export const selectAppIsTutorial = createSelector([selectIsTutorial], isTutorial => isTutorial);
