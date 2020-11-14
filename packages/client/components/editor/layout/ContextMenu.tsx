@@ -1,4 +1,6 @@
 import React from "react";
+// react-contextmenu has a bug when built, and the only viable
+// workaround is to import from the /dist bunled copy of it.
 import {
   connectMenu as _connectMenu,
   ContextMenu as ReactContextMenu,
@@ -6,7 +8,7 @@ import {
   showMenu as _showMenu,
   SubMenu as _SubMenu,
   ContextMenuTrigger as _ContextMenuTrigger
-} from "react-contextmenu";
+} from "react-contextmenu/dist/react-contextmenu";
 import { Theme, ThemeContext } from "./../theme";
 import { createGlobalStyle } from "styled-components";
 export const connectMenu = _connectMenu;
