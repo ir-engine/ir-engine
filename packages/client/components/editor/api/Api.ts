@@ -148,7 +148,7 @@ export default class Api extends EventEmitter {
       console.log(err);
     });
 
-    if (!Array.isArray(json.projects) && json.projects) {
+    if (!Array.isArray(json.projects) || json.projects == null) {
       throw new Error(`Error fetching projects: ${json.error || "Unknown error."}`);
     }
 

@@ -40,6 +40,7 @@ const server = {
   rootDir: path.resolve(appRootPath.path, 'packages', 'server'),
   publicDir: process.env.SERVER_PUBLIC_DIR ?? path.resolve(appRootPath.path, 'packages', 'server', 'public'),
   nodeModulesDir: path.resolve(__dirname, '../..', 'node_modules'),
+  localStorageProvider: process.env.LOCAL_PROVIDER_DOMAIN ?? '',
   // Used for CI/tests to force Sequelize init an empty database
   performDryRun: process.env.PERFORM_DRY_RUN === 'true',
   storageProvider: process.env.STORAGE_PROVIDER ?? 'local',

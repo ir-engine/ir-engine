@@ -34,7 +34,7 @@ const createOwnedFile = (options = {}) => {
     const { data, params } = context;
     const body = params.body || {};
 
-    const domain: string = config.aws.cloudfront.domain;
+    const domain: string = config.server.storageProvider === 'aws' ? config.aws.cloudfront.domain : config.server.localStorageProvider;
     let savedFile;
     if (body.projectId) { // Check if projectId is sent by the client and update thumbnail URL instead of creating new resource
       const { thumbnailOwnedFileId } = await context.app.service('collection').Model.findOne({
@@ -95,7 +95,7 @@ export default {
   before: {
     all: [logRequest()],
     find: [disallow()],
-    get: [disallow()],
+    get: [],
     create: [authenticate('jwt'), attachOwnerIdInSavingContact('userId'), addUriToFile(), makeS3FilesPublic()],
     update: [disallow()],
     patch: [disallow()],
