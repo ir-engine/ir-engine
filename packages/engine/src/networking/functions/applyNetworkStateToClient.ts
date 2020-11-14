@@ -83,50 +83,58 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
     delete Network.instance.networkObjects[objectKey];
   }
 
-  worldState.inputs?.forEach(stateData => {
-    if (Network.instance.networkObjects[stateData.networkId] === undefined)
+  worldState.inputs?.forEach(inputData => {
+    if (Network.instance === undefined)
+    return console.warn("Network.instance undefined");
+
+    if(Object.keys(inputData.buttons).length > 0){
+      console.log("input is", inputData);
+    }
+
+    if(Network.instance.networkObjects[inputData.networkId] === undefined)
       return console.warn("network object undefined, but inputs not");
     // Get network object with networkId
-    const networkComponent = Network.instance.networkObjects[stateData.networkId].component;
+    const networkComponent = Network.instance.networkObjects[inputData.networkId].component;
 
     // Ignore input applied to local user input object that the client is currently controlling
-    if(networkComponent.ownerId === Network.instance.userId && hasComponent(networkComponent.entity, LocalInputReceiver)) return;
+    if(networkComponent.ownerId === Network.instance.userId) return; //  && hasComponent(networkComponent.entity, LocalInputReceiver)
+
 
     // Get input object attached
     const input = getComponent(networkComponent.entity, Input);
 
     // Clear current data
-    input.data.clear();
+    // input.data.clear();
 
     // Apply new input
-    for (const button in stateData.buttons)
-      input.data.set(stateData.buttons[button].input,
+    for (const button in inputData.buttons)
+      input.data.set(inputData.buttons[button].input,
         {
           type: InputType.BUTTON,
-          value: stateData.buttons[button].value,
-          lifecycleState: stateData.buttons[button].lifeCycleState
+          value: inputData.buttons[button].value,
+          lifecycleState: inputData.buttons[button].lifeCycleState
         });
 
     // Axis 1D input
-    for (const axis in stateData.axes1d)
-      input.data.set(stateData.axes1d[axis].input,
+    for (const axis in inputData.axes1d)
+      input.data.set(inputData.axes1d[axis].input,
         {
           type: InputType.BUTTON,
-          value: stateData.axes1d[axis].value,
-          lifecycleState: stateData.axes1d[axis].lifeCycleState
+          value: inputData.axes1d[axis].value,
+          lifecycleState: inputData.axes1d[axis].lifeCycleState
         });
 
     // Axis 2D input
-    for (const axis in stateData.axes2d)
-      input.data.set(stateData.axes2d[axis].input,
+    for (const axis in inputData.axes2d)
+      input.data.set(inputData.axes2d[axis].input,
         {
           type: InputType.BUTTON,
-          value: stateData.axes2d[axis].value,
-          lifecycleState: stateData.axes2d[axis].lifeCycleState
+          value: inputData.axes2d[axis].value,
+          lifecycleState: inputData.axes2d[axis].lifeCycleState
         });
 
     // Call behaviors on map
-    handleInput(networkComponent.entity, {}, delta);
+    handleInput(networkComponent.entity, {isLocal:(networkComponent.ownerId === Network.instance.userId), isServer: false}, delta);
   });
 
   // worldState.states?.forEach(stateData => {
@@ -146,7 +154,7 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
   //   console.log("stateData.data is now: ", stateData.states);
   // });
 
-  if(worldState.transforms.length < 1)
+  if(worldState.transforms === undefined || worldState.transforms.length < 1)
     return console.warn("Worldstate transforms is null");
 
   // Update transforms

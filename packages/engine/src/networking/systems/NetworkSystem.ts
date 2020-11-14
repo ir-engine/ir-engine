@@ -58,9 +58,9 @@ export class NetworkSystem extends System {
     this.queryResults.serverNetworkTransforms.all?.forEach((entity: Entity) =>
       addNetworkTransformToWorldState(entity));
 
-    // For each networked object + input receiver, add to the frame to send
-    this.queryResults.serverNetworkInputs.all?.forEach((entity: Entity) =>
-      addInputToWorldStateOnServer(entity));
+    // // For each networked object + input receiver, add to the frame to send
+    // this.queryResults.serverNetworkInputs.all?.forEach((entity: Entity) =>
+    //   addInputToWorldStateOnServer(entity));
 
     // For each networked object + input receiver, add to the frame to send
     // this.queryResults.serverNetworkStates.changed?.forEach((entity: Entity) =>
