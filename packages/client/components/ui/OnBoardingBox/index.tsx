@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
 import { Button, Snackbar, SnackbarContent } from '@material-ui/core';
@@ -101,40 +101,40 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
     store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));
   };
 
-  let message = '';
-  let imageTip = null;
-  switch(onBoardingStep){
-    case generalStateList.TUTOR_LOOKAROUND:message='Touch and Drag to look around'; 
-                                          imageTip = isMobileOrTablet() ? <IconSwipe className={styles.IconSwipe} width="125.607" height="120.04" viewBox="0 0 125.607 120.04" />:<IconLeftClick className={styles.IconLeftClick}  width="136.742" height="144.242" viewBox="0 0 136.742 144.242" />; 
-                                          addLookAroundEventListeners(); 
-                                          break;      
-    case generalStateList.TUTOR_MOVE: message= isMobileOrTablet() ? ' Use joystick to move' : 'Use keybuttons W S A D to move'; break;
-    case generalStateList.TUTOR_INTERACT: message= isMobileOrTablet() ? 'Use to interact' : 'Press E to interact'; 
-                                          isMobileOrTablet() && (imageTip = <TouchApp className={styles.TouchApp} />); break;
-    case generalStateList.TUTOR_UNMUTE: message='Tap to toggle Mic';  imageTip = <Microphone className={styles.Microphone} />;break;
-    default : message= '';break;
-  }     
-  return message ? 
-                <>
-                  <section className={styles.exitButtonContainer}>
-                    <Button variant="contained" className={styles.exitButton} 
-                        onClick={exitTutorialHandle}>Exit Tutorial</Button>
-                  </section>
-                  <Snackbar 
-                  anchorOrigin={{vertical: 'bottom',horizontal: 'center'}} 
-                  classes={{
-                    root: styles.helpHintSnackBar +' '+ styles[generalStateList[onBoardingStep].toLowerCase()]+ ' ' + styles[`isMobile${isMobileOrTablet()}`],
-                    anchorOriginBottomCenter: styles.bottomPos,                    
-                  }}
-                  open={true} 
-                  autoHideDuration={10000}>
-                      <section>
-                        {imageTip}
-                        <p>{message}</p>
-                      </section>
-                  </Snackbar>
-                </>
-              :null;
+  var message = '';
+  var imageTip = null;
+
+    switch(onBoardingStep){
+      case generalStateList.TUTOR_LOOKAROUND:message='Touch and Drag to look around'; 
+                                            imageTip = isMobileOrTablet() ? <IconSwipe className={styles.IconSwipe} width="125.607" height="120.04" viewBox="0 0 125.607 120.04" />:<IconLeftClick className={styles.IconLeftClick}  width="136.742" height="144.242" viewBox="0 0 136.742 144.242" />; 
+                                            addLookAroundEventListeners(); 
+                                            break;      
+      case generalStateList.TUTOR_MOVE: message= isMobileOrTablet() ? ' Use joystick to move' : 'Use keybuttons W S A D to move'; break;
+      case generalStateList.TUTOR_INTERACT: message= isMobileOrTablet() ? 'Use to interact' : 'Press E to interact'; 
+                                            isMobileOrTablet() && (imageTip = <TouchApp className={styles.TouchApp} />); break;
+      case generalStateList.TUTOR_UNMUTE: message='Tap to toggle Mic';  imageTip = <Microphone className={styles.Microphone} />;break;
+      default : message= '';break;
+    } 
+ 
+  return message.length > 0 ? <>
+      <section className={styles.exitButtonContainer}>
+        <Button variant="contained" className={styles.exitButton} 
+            onClick={exitTutorialHandle}>Exit Tutorial</Button>
+      </section>
+      <Snackbar 
+      anchorOrigin={{vertical: 'bottom',horizontal: 'center'}} 
+      classes={{
+        root: styles.helpHintSnackBar +' '+ styles[generalStateList[onBoardingStep].toLowerCase()]+ ' ' + styles[`isMobile${isMobileOrTablet()}`],
+        anchorOriginBottomCenter: styles.bottomPos,                    
+      }}
+      open={true} 
+      autoHideDuration={10000}>
+          <section>
+            {imageTip}
+            <p>{message}</p>
+          </section>
+      </Snackbar>
+    </>  : null;
 };
 
 export default connect(mapStateToProps)(OnBoardingBox);
