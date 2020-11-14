@@ -13,7 +13,7 @@ export const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
   const networkId = getComponent(entity, NetworkObject).networkId;
   
   // If there's no input, don't send the frame, unless the last frame had input
-  if (input.data.size < 1 && !_.isEqual(input.data, input.lastData))
+  if (input.data.size < 1 && _.isEqual(input.data, input.lastData))
     return
 
   // Create a schema for input to send
@@ -50,6 +50,7 @@ export const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
     }
   }
 
+  console.log("Pushing inputs", inputs);
   // Add inputs to world state
   Network.instance.worldState.inputs.push(inputs);
 };
