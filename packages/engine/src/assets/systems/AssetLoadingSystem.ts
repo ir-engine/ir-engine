@@ -29,10 +29,6 @@ export default class AssetLoadingSystem extends System {
   }
 
   execute(): void {
-    if (isClient) {
-        document.dispatchEvent(new CustomEvent('scene-loaded', { detail: { loaded: this.queryResults.toLoad.all.length > 0 ? false : true } }));
-    }
-
     this.queryResults.assetVault.all.forEach(entity => {
       // Do things here
     });

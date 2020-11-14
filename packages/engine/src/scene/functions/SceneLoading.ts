@@ -36,7 +36,7 @@ export function loadComponent (entity, component) {
       }
     });
     // run behavior after load model
-    b.onLoaded ? values['onLoaded'] = b.onLoaded:'';
+    if((b as any).onLoaded) values['onLoaded'] = (b as any).onLoaded;
     // Invoke behavior with args and spread args
     b.behavior(entity, { ...b.args, objArgs: { ...values } });
   });
