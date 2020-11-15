@@ -22,15 +22,13 @@ import { NetworkObject } from '../../networking/components/NetworkObject';
  * @param args
  * @param {Number} delta Time since last frame
  */
- export const handleInput: Behavior = (entity: Entity, args: { isLocal: boolean, isServer: boolean }, delta: number): void => {
+ export const handleInputOnClient: Behavior = (entity: Entity, args: { isLocal: boolean, isServer: boolean }, delta: number): void => {
   
   // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
   const input = getMutableComponent(entity, Input);
 
-  if(!args.isLocal && !args.isServer){
-    console.log("Handling input data for ", entity.id)
-    console.log(input.data);
-  }
+    // console.log("Handling input data for ", entity.id)
+    // console.log(input.data);
 
   // check CHANGED/UNCHANGED axis inputs
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
@@ -67,8 +65,6 @@ import { NetworkObject } from '../../networking/components/NetworkObject';
       return;
     }
 
-
-
     if (input.prevData.has(key)) {
       if (JSON.stringify(value.value) === JSON.stringify(input.prevData.get(key).value)) {
         value.lifecycleState = LifecycleValue.UNCHANGED;
@@ -97,16 +93,8 @@ import { NetworkObject } from '../../networking/components/NetworkObject';
         if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED;
 
         if(value.lifecycleState === LifecycleValue.STARTED) {
-          if(!args.isLocal){
-
-          console.log("Input from ", getComponent(entity, NetworkObject).networkId);
-          }
           // Set the value of the input to continued to debounce
           input.schema.inputButtonBehaviors[key].started?.forEach(element =>{
-            if(!args.isLocal){
-
-            console.log(element.behavior);
-            }
             element.behavior(entity, element.args, delta)
           }
           );
@@ -167,23 +155,5 @@ import { NetworkObject } from '../../networking/components/NetworkObject';
   input.prevData.clear();
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
     input.prevData.set(key, value);
-  });
-
-  // clean processed LifecycleValue.ENDED inputs
-  input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-    if (value.type === InputType.BUTTON) {
-      if (value.lifecycleState === LifecycleValue.ENDED) {
-        input.data.delete(key);
-      }
-    }
-    // else if (
-    //   value.type === InputType.ONEDIM ||
-    //   value.type === InputType.TWODIM ||
-    //   value.type === InputType.THREEDIM
-    // ) {
-    //   // if (value.lifecycleState === LifecycleValue.UNCHANGED) {
-    //   //   input.data.delete(key)
-    //   // }
-    // }
   });
 };

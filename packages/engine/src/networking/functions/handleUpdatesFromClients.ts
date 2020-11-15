@@ -3,13 +3,9 @@ import { Input } from "../../input/components/Input";
 import { InputType } from "../../input/enums/InputType";
 import { Network } from "../components/Network";
 
-// TODO: A lot of this logic can be combined with handleInputFromServer
 export function handleUpdatesFromClients() {
-  console.log("handleUpdatesFromClients", Network.instance.incomingMessageQueue.getBufferLength() )
   // Parse incoming message queue
-  // For each
   while (Network.instance.incomingMessageQueue.getBufferLength() > 0) {
-    console.log("Handling message");
     const clientInput = Network.instance.incomingMessageQueue.pop() as any;
     if(Network.instance.networkObjects[clientInput.networkId] === undefined) return;
 
@@ -44,8 +40,5 @@ export function handleUpdatesFromClients() {
           value: [clientInput.axes2d[axis].valueX, clientInput.axes2d[axis].valueY],
           lifecycleState: clientInput.axes2d[axis].lifecycleState
         });
-
-        // console.log("Input data is ", input?.data);
-        // console.log("Client input is ", clientInput);
   }
 }
