@@ -64,7 +64,7 @@ export function validateNetworkObjects(): void {
 
             const disconnectedClient = Object.assign({}, Network.instance.clients[client]);
 
-            Network.instance.worldState.clientsDisconnected.push({ client });
+            Network.instance.clientsDisconnected.push({ client });
             logger.info('Disconnected Client:');
             logger.info(disconnectedClient);
             if (disconnectedClient?.instanceRecvTransport)
@@ -171,7 +171,8 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     // Add to the dictionary
     Network.instance.clients[userId] = newClient;
 
-    Network.instance.worldState.clientsConnected.push({ userId });
+    // Push to our worldstate to send out to other users
+    Network.instance.clientsConnected.push({ userId });
 
     // Create a new default prefab for client
     const networkObject = initializeNetworkObject(userId, Network.getNetworkId(), Network.instance.schema.defaultClientPrefab);
@@ -278,7 +279,7 @@ export async function handleDisconnect(socket): Promise<any> {
         });
 
 
-        Network.instance.worldState.clientsDisconnected.push({ userId });
+        Network.instance.clientsDisconnected.push({ userId });
         logger.info('Disconnecting clients for user ' + userId);
         if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close();
         if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close();
