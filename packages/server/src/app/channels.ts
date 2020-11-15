@@ -60,10 +60,7 @@ export default (app: Application): void => {
               (app as any).instance = instanceResult;
 
 
-              if (sceneId === ""){
-                console.warn("Scene ID is undefined");
-              }
-              else {
+
                 let service, serviceId;
                 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
                 const projectResult = await app.service('project').get(sceneId);
@@ -78,7 +75,6 @@ export default (app: Application): void => {
                 console.log("Result is ");
                 console.log(result);
                 loadScene(result);
-              }
 
 
               // Here's an example of sending data to the channel 'instanceIds/<instanceId>'

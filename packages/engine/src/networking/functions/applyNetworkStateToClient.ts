@@ -87,10 +87,6 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
     if (Network.instance === undefined)
     return console.warn("Network.instance undefined");
 
-    if(Object.keys(inputData.buttons).length > 0){
-      console.log("input is", inputData);
-    }
-
     if(Network.instance.networkObjects[inputData.networkId] === undefined)
       return console.warn("network object undefined, but inputs not");
     // Get network object with networkId
@@ -160,6 +156,7 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
       return console.warn("Network object not found in list: ", transformData.networkId);
     }
 
+    console.log("Apply transform from client inputs to", transformData.networkId)
     // Get network component from data
     const networkComponent = Network.instance.networkObjects[transformData.networkId].component;
     const transform = getMutableComponent(networkComponent.entity, TransformComponent);

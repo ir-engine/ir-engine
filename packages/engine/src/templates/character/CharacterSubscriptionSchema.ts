@@ -3,9 +3,9 @@ import { updateCharacter } from './behaviors/updateCharacter';
 
 export const CharacterSubscriptionSchema: SubscriptionSchema = {
   onUpdate: [
-    {
-     behavior: updateCharacter
-    }
+    // {
+    //  behavior: updateCharacter
+    // }
   ]
 };
 
