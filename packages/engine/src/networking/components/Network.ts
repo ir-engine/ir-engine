@@ -36,6 +36,8 @@ export class Network extends Component<Network> {
   clients: NetworkClientList = {}
   clientsConnected = []
   clientsDisconnected = []
+  createObjects = []
+  destroyObjects = []
   networkObjects: NetworkObjectList = {}
   localClientEntity: Entity = null
   socketId: string
