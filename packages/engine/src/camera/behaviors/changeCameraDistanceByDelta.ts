@@ -17,6 +17,7 @@ export const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:in
   const inputValue = inputComponent.data.get(inputAxes).value as number;
 
   const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent);
+  if(cameraFollow === undefined) return console.warn("cameraFollow is undefined");
   const newDistance = cameraFollow.distance - 0.1 * (inputPrevValue - inputValue);
   cameraFollow.distance = Math.max(cameraFollow.minDistance, Math.min( cameraFollow.maxDistance, newDistance));
 };
