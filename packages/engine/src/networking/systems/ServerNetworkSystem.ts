@@ -1,10 +1,10 @@
 import { isServer } from '../../common/functions/isServer';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
-import { Not } from '../../ecs/functions/ComponentFunctions';
 import { addComponent, createEntity, getComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
-import { handleInput } from '../../input/behaviors/handleInput';
+import { cleanupInput } from '../../input/behaviors/cleanupInput';
+import { handleInputOnClient } from '../../input/behaviors/handleInputOnClient';
 import { Input } from '../../input/components/Input';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { State } from '../../state/components/State';
@@ -16,11 +16,11 @@ import { NetworkObject } from '../components/NetworkObject';
 import { Server } from '../components/Server';
 import { addInputToWorldStateOnServer } from '../functions/addInputToWorldStateOnServer';
 import { addNetworkTransformToWorldState } from '../functions/addNetworkTransformToWorldState';
-import { addStateToWorldStateOnServer } from '../functions/addStateToWorldStateOnServer';
 import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClient';
+import { handleInputOnServer } from '../functions/handleInputOnServer';
 import { handleUpdatesFromClients } from '../functions/handleUpdatesFromClients';
 
-export class NetworkSystem extends System {
+export class ServerNetworkSystem extends System {
   private _inputComponent: Input
 
   updateType = SystemUpdateType.Fixed;
@@ -67,13 +67,15 @@ export class NetworkSystem extends System {
       destroyObjects: []
     };
 
-    // handle client input, apply to local objects and add to world state snapshot
+    // Set input values on server to values sent from clients
     handleUpdatesFromClients();
 
     // Apply input for local user input onto client
     this.queryResults.inputOnServer.all?.forEach(entity => {
-      handleInput(entity, {isLocal:false, isServer: true}, delta);
+      // Call behaviors associated with input
+      handleInputOnServer(entity, {isLocal:false, isServer: true}, delta);
       addInputToWorldStateOnServer(entity);
+      cleanupInput(entity);
     });
 
     // Called when input component is added to entity

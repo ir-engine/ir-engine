@@ -28,7 +28,6 @@ export const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
 
   // Add all values in input component to schema
   input.data.forEach((value, key) => {
-    console.log("value key is", value, key);
     switch (value.type) {
       case InputType.BUTTON:
         inputs.buttons[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
@@ -53,4 +52,8 @@ export const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
 
   // Add inputs to world state
   Network.instance.worldState.inputs.push(inputs);
+  console.log("Input data is")
+  console.log(input.data)
+  console.log("Inputs are")
+  console.log(inputs);
 };

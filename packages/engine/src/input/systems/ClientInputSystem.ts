@@ -11,7 +11,8 @@ import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { Client } from "../../networking/components/Client";
 import { Network } from "../../networking/components/Network";
 import { NetworkObject } from "../../networking/components/NetworkObject";
-import { handleInput } from '../behaviors/handleInput';
+import { handleInputOnClient } from '../behaviors/handleInputOnClient';
+import { cleanupInput } from '../behaviors/cleanupInput';
 import { handleInputPurge } from "../behaviors/handleInputPurge";
 //import { initializeSession, processSession } from '../behaviors/WebXRInputBehaviors';
 import { addPhysics, removeWebXRPhysics, updateWebXRPhysics } from '../behaviors/WebXRControllersBehaviors';
@@ -62,9 +63,8 @@ export class InputSystem extends System {
  *
  * @param {Number} delta Time since last frame
  */
-  public execute = (isClient ? this.clientExecute : this.serverExecute);
 
-  public clientExecute(delta: number): void {
+  public execute(delta: number): void {
     // Handle XR input
     this.queryResults.controllersComponent.added?.forEach(entity => addPhysics(entity));
     this.queryResults.controllersComponent.all?.forEach(entity => {
@@ -80,7 +80,7 @@ export class InputSystem extends System {
     // Apply input for local user input onto client
     this.queryResults.localClientInput.all?.forEach(entity => {
       // Apply input to local client
-      handleInput(entity, {isLocal:true, isServer: false}, delta);
+      handleInputOnClient(entity, {isLocal:true, isServer: false}, delta);
       const networkId = getComponent(entity, NetworkObject)?.networkId;
       if (!networkId) return;
 
@@ -105,19 +105,21 @@ export class InputSystem extends System {
       };
 
       // Add all values in input component to schema
-      for (const [key, value] of input.data.entries()) {
-        console.log("key value is ", [key, value]);
+      input.data.forEach((value, key) => {
         if (value.type === InputType.BUTTON)
           inputs.buttons[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
         else if (value.type === InputType.ONEDIM) // && value.lifecycleState !== LifecycleValue.UNCHANGED
           inputs.axes1d[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
         else if (value.type === InputType.TWODIM) //  && value.lifecycleState !== LifecycleValue.UNCHANGED
           inputs.axes2d[key] = { input: key, valueX: value.value[0], valueY: value.value[1], lifecycleState: value.lifecycleState };
-      }
+      })
 
       // TODO: Convert to a message buffer
       const message = inputs; // clientInputModel.toBuffer(inputs)
       Network.instance.transport.sendReliableData(message); // Use default channel
+
+      cleanupInput(entity);
+
     });
 
     // Called when input component is added to entity
@@ -230,8 +232,6 @@ export class InputSystem extends System {
       });
     });
   }
-
-  public serverExecute(delta: number): void {}
 }
 
 /**

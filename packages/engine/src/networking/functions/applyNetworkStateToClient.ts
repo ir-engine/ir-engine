@@ -1,5 +1,5 @@
 import { getComponent, getMutableComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
-import { handleInput } from '../../input/behaviors/handleInput';
+import { handleInputOnClient } from '../../input/behaviors/handleInputOnClient';
 import { Input } from '../../input/components/Input';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { InputType } from '../../input/enums/InputType';
@@ -104,7 +104,7 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
     const input = getComponent(networkComponent.entity, Input);
 
     // Clear current data
-    // input.data.clear();
+    input.data.clear();
 
     // Apply new input
     for (const button in inputData.buttons)
@@ -132,9 +132,6 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
           value: inputData.axes2d[axis].value,
           lifecycleState: inputData.axes2d[axis].lifecycleState
         });
-
-    // Call behaviors on map
-    handleInput(networkComponent.entity, {isLocal:(networkComponent.ownerId === Network.instance.userId), isServer: false}, delta);
   });
 
   // worldState.states?.forEach(stateData => {
