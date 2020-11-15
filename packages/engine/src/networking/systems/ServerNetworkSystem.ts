@@ -63,13 +63,22 @@ export class ServerNetworkSystem extends System {
       states: [],
       clientsConnected: Network.instance.clientsConnected,
       clientsDisconnected: Network.instance.clientsDisconnected,
-      createObjects: [],
-      destroyObjects: []
+      createObjects: Network.instance.createObjects,
+      destroyObjects: Network.instance.destroyObjects
     };
+
+    if(Network.instance.createObjects.length >0){
+      console.log("Network.instance.createObjects is ", Network.instance.createObjects)
+    }
+
+    if(Network.instance.destroyObjects.length >0){
+      console.log("Network.instance.destroyObjects is ", Network.instance.destroyObjects)
+    }
 
     Network.instance.clientsConnected = []
     Network.instance.clientsDisconnected = []
-
+    Network.instance.createObjects = []
+    Network.instance.destroyObjects = []
     // Set input values on server to values sent from clients
     handleUpdatesFromClients();
 

@@ -71,16 +71,18 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
 
   // Handle all network objects destroyed this frame
   for (const objectToDestroy in worldState.destroyObjects) {
-    const objectKey = worldState.destroyObjects[objectToDestroy].networkId;
-    if (Network.instance.networkObjects[objectKey] === undefined)
+    const networkId = worldState.destroyObjects[objectToDestroy].networkId;
+    console.log("Destroying ", networkId)
+    if (Network.instance.networkObjects[networkId] === undefined)
       return console.warn("Can't destroy object as it doesn't appear to exist")
-    console.log("Destroying network object ", Network.instance.networkObjects[objectKey].component.networkId);
+    console.log("Destroying network object ", Network.instance.networkObjects[networkId].component.networkId);
     // get network object
-    const entity = Network.instance.networkObjects[objectKey].component.entity;
+    const entity = Network.instance.networkObjects[networkId].component.entity;
     // Remove the entity and all of it's components
     removeEntity(entity);
+    console.warn("Entity is removed, but character might not be");
     // Remove network object from list
-    delete Network.instance.networkObjects[objectKey];
+    delete Network.instance.networkObjects[networkId];
   }
 
   worldState.inputs?.forEach(inputData => {
@@ -156,7 +158,6 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
       return console.warn("Network object not found in list: ", transformData.networkId);
     }
 
-    console.log("Apply transform from client inputs to", transformData.networkId)
     // Get network component from data
     const networkComponent = Network.instance.networkObjects[transformData.networkId].component;
     const transform = getMutableComponent(networkComponent.entity, TransformComponent);

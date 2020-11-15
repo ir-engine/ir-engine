@@ -52,8 +52,4 @@ export const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
 
   // Add inputs to world state
   Network.instance.worldState.inputs.push(inputs);
-  console.log("Input data is")
-  console.log(input.data)
-  console.log("Inputs are")
-  console.log(inputs);
 };
