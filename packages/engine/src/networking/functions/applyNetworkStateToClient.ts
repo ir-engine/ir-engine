@@ -112,7 +112,7 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
         {
           type: InputType.BUTTON,
           value: inputData.buttons[button].value,
-          lifecycleState: inputData.buttons[button].lifeCycleState
+          lifecycleState: inputData.buttons[button].lifecycleState
         });
 
     // Axis 1D input
@@ -121,7 +121,7 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
         {
           type: InputType.BUTTON,
           value: inputData.axes1d[axis].value,
-          lifecycleState: inputData.axes1d[axis].lifeCycleState
+          lifecycleState: inputData.axes1d[axis].lifecycleState
         });
 
     // Axis 2D input
@@ -130,7 +130,7 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
         {
           type: InputType.BUTTON,
           value: inputData.axes2d[axis].value,
-          lifecycleState: inputData.axes2d[axis].lifeCycleState
+          lifecycleState: inputData.axes2d[axis].lifecycleState
         });
 
     // Call behaviors on map

@@ -1,6 +1,4 @@
 import _ from "lodash";
-import { AssetLoaderState } from "../../assets/components/AssetLoaderState";
-import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { isClient } from "../../common/functions/isClient";
 import { DomEventBehaviorValue } from "../../common/interfaces/DomEventBehaviorValue";
 import { NumericalType } from "../../common/types/NumericalTypes";
@@ -13,13 +11,10 @@ import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { Client } from "../../networking/components/Client";
 import { Network } from "../../networking/components/Network";
 import { NetworkObject } from "../../networking/components/NetworkObject";
-import { Server } from "../../networking/components/Server";
-import { addInputToWorldStateOnServer } from "../../networking/functions/addInputToWorldStateOnServer";
-import { handleUpdatesFromClients } from "../../networking/functions/handleUpdatesFromClients";
 import { handleInput } from '../behaviors/handleInput';
 import { handleInputPurge } from "../behaviors/handleInputPurge";
 //import { initializeSession, processSession } from '../behaviors/WebXRInputBehaviors';
-import { addPhysics, removePhysics, updatePhysics } from '../behaviors/WebXRControllersBehaviors';
+import { addPhysics, removeWebXRPhysics, updateWebXRPhysics } from '../behaviors/WebXRControllersBehaviors';
 import { Input } from '../components/Input';
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
 import { WebXRSession } from '../components/WebXRSession';
@@ -78,9 +73,9 @@ export class InputSystem extends System {
         this.mainControllerId = xRControllers.physicsBody1;
         this.secondControllerId = xRControllers.physicsBody2;
       }
-      updatePhysics(entity)
+      updateWebXRPhysics(entity)
     });
-    this.queryResults.controllersComponent.removed?.forEach(entity => removePhysics(entity, { controllerPhysicalBody1: this.mainControllerId, controllerPhysicalBody2: this.secondControllerId }));
+    this.queryResults.controllersComponent.removed?.forEach(entity => removeWebXRPhysics(entity, { controllerPhysicalBody1: this.mainControllerId, controllerPhysicalBody2: this.secondControllerId }));
 
     // Apply input for local user input onto client
     this.queryResults.localClientInput.all?.forEach(entity => {
@@ -111,11 +106,12 @@ export class InputSystem extends System {
 
       // Add all values in input component to schema
       for (const [key, value] of input.data.entries()) {
+        console.log("key value is ", [key, value]);
         if (value.type === InputType.BUTTON)
           inputs.buttons[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
-        else if (value.type === InputType.ONEDIM && value.lifecycleState !== LifecycleValue.UNCHANGED)
+        else if (value.type === InputType.ONEDIM) // && value.lifecycleState !== LifecycleValue.UNCHANGED
           inputs.axes1d[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
-        else if (value.type === InputType.TWODIM && value.lifecycleState !== LifecycleValue.UNCHANGED)
+        else if (value.type === InputType.TWODIM) //  && value.lifecycleState !== LifecycleValue.UNCHANGED
           inputs.axes2d[key] = { input: key, valueX: value.value[0], valueY: value.value[1], lifecycleState: value.lifecycleState };
       }
 
@@ -235,53 +231,13 @@ export class InputSystem extends System {
     });
   }
 
-  public serverExecute(delta: number): void {
-    // handle client input, apply to local objects and add to world state snapshot
-    handleUpdatesFromClients();
-
-    // Called when input component is added to entity
-    this.queryResults.inputOnServer.added?.forEach(entity => {
-      // Get component reference
-      this._inputComponent = getComponent(entity, Input);
-
-      if (this._inputComponent === undefined)
-        return console.warn("Tried to execute on a newly added input component, but it was undefined")
-      // Call all behaviors in "onAdded" of input map
-      this._inputComponent.schema.onAdded?.forEach(behavior => {
-        behavior.behavior(entity, { ...behavior.args });
-      });
-    });
-
-    // Apply input for local user input onto client
-    this.queryResults.inputOnServer.all?.forEach(entity => {
-      handleInput(entity, {isLocal:false, isServer: true}, delta);
-      addInputToWorldStateOnServer(entity);
-    });
-
-    // Called when input component is removed from entity
-    this.queryResults.inputOnServer.removed?.forEach(entity => {
-      // Get component reference
-      this._inputComponent = getComponent(entity, Input);
-
-      // Call all behaviors in "onRemoved" of input map
-      this._inputComponent?.schema?.onRemoved?.forEach(behavior => {
-        behavior.behavior(entity, behavior.args);
-      });
-    });
-  }
+  public serverExecute(delta: number): void {}
 }
 
 /**
  * Queries must have components attribute which defines the list of components
  */
 InputSystem.queries = {
-  inputOnServer: {
-    components: [NetworkObject, Input, Server],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
   networkClientInput: {
     components: [NetworkObject, Input, Client, Not(LocalInputReceiver)],
     listen: {
