@@ -61,11 +61,14 @@ export class ServerNetworkSystem extends System {
       transforms: [],
       inputs: [],
       states: [],
-      clientsConnected: [],
-      clientsDisconnected: [],
+      clientsConnected: Network.instance.clientsConnected,
+      clientsDisconnected: Network.instance.clientsDisconnected,
       createObjects: [],
       destroyObjects: []
     };
+
+    Network.instance.clientsConnected = []
+    Network.instance.clientsDisconnected = []
 
     // Set input values on server to values sent from clients
     handleUpdatesFromClients();

@@ -34,6 +34,8 @@ export class Network extends Component<Network> {
   transport: NetworkTransport
   schema: NetworkSchema
   clients: NetworkClientList = {}
+  clientsConnected = []
+  clientsDisconnected = []
   networkObjects: NetworkObjectList = {}
   localClientEntity: Entity = null
   socketId: string
