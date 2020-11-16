@@ -1,6 +1,6 @@
 import "./webxr-input.mock"
 
-import { InputSystem } from "../../src/input/systems/InputSystem"
+import { InputSystem } from "../../src/input/systems/ClientInputSystem"
 import { initializeEngine } from "../../src/initialize"
 import { registerSystem, getSystem } from "../../src/ecs/functions/SystemFunctions"
 
