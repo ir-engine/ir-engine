@@ -46,17 +46,15 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
 
   // Handle all network objects created this frame
   for (const objectToCreate in worldState.createObjects) {
-    const networkId = Network.instance.networkObjects[worldState.createObjects[objectToCreate].networkId];
     // If we already have a network object with this network id, throw a warning and ignore this update
-    if (networkId !== undefined) {
-      console.warn("WARNING: Object with networkId", networkId, "already exists, but received create command in this frame");
-    } else {
+    if (Network.instance.networkObjects[worldState.createObjects[objectToCreate].networkId] !== undefined)
+      console.warn("Not creating object because it already exists");
+     else
       initializeNetworkObject(
         worldState.createObjects[objectToCreate].ownerId,
         worldState.createObjects[objectToCreate].networkId,
         worldState.createObjects[objectToCreate].prefabType
       );
-    }
   }
 
   // TODO: Re-enable for snapshot interpolation
@@ -80,7 +78,7 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
     const entity = Network.instance.networkObjects[networkId].component.entity;
     // Remove the entity and all of it's components
     removeEntity(entity);
-    console.warn("Entity is removed, but character might not be");
+    console.warn("Entity is removed, but character imight not be");
     // Remove network object from list
     delete Network.instance.networkObjects[networkId];
   }

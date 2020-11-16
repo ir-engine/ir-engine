@@ -150,6 +150,7 @@ export class Location extends Service {
     if (location_setting.locationType == null) location_setting.locationType = 'private';
     location_setting.locationId = location.id;
     const locationSettings = await this.app.service('location-settings').create(location_setting);
+    if(loggedInUser)
     await this.app.service('location-admin').create({
       locationId: location.id,
       userId: loggedInUser.userId
