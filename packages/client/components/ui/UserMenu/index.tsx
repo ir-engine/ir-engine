@@ -3,13 +3,15 @@ import styles from './UserMenu.module.scss';
 import { Button, MenuItem, Menu, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Fab } from '@material-ui/core';
 import { generalStateList, setAppSpecificOnBoardingStep } from '../../../redux/app/actions';
 import MenuIcon from '@material-ui/icons/Menu';
+import ShareIcon from '@material-ui/icons/Share';
 import store from '../../../redux/store';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 
-import { uploadAvatar, updateUsername } from '../../../redux/auth/service';
+import { updateUsername } from '../../../redux/auth/service';
+import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 interface Props {
     login?: boolean;
     authState?:any;
@@ -48,7 +50,6 @@ const UserMenu = (props: Props): any => {
   }
 
   const handleAvatarChangeClick = () =>{
-    console.log('handleAvatarChangeClick')
     store.dispatch(setAppSpecificOnBoardingStep(generalStateList.AVATAR_SELECTION, false));
     setAnchorEl(null);
   }
@@ -95,6 +96,25 @@ const UserMenu = (props: Props): any => {
     e.target.focus();
   }
 
+  const postTitle = 'AR/VR world';
+  const siteTitle = 'XREngine';
+  const handleMobileShareOnClick = () =>{
+    if (navigator.share) {
+      navigator
+        .share({
+          title: "`${postTitle} | ${siteTitle}`,",
+          text: `Check out ${postTitle} on ${siteTitle}`,
+          url: document.location.href,
+        })
+        .then(() => {
+          console.log('Successfully shared');
+        })
+        .catch(error => {
+          console.error('Something went wrong sharing the world', error);
+        });
+    }
+  }
+
   return (
     <>
     <section className={styles.appbar}>
@@ -136,10 +156,17 @@ const UserMenu = (props: Props): any => {
                   onChange={(e) => handleUsernameChange(e)}
               /> : 
               <section>
-                <p>Send this link to other users to have them join you</p>
-                <p>(click on link to copy)</p>
-                <textarea readOnly className={styles.linkField} ref={refLink} onClick={copyCodeToClipboard} value={invitationLink} />
-                {/* <Button variant="outlined" color="primary" onClick={copyCodeToClipboard}>Copy</Button> */}
+                   { isMobileOrTablet() && navigator.share ? 
+                      (<>
+                        <p>Share world to other users to have them join you</p>
+                        <Button variant="outlined" color="primary" onClick={handleMobileShareOnClick}>
+                          <ShareIcon />Share
+                        </Button>
+                      </>)
+                  : (<><p>Send this link to other users to have them join you</p>
+                  <p>(click on link to copy)</p>
+                  <textarea readOnly className={styles.linkField} ref={refLink} onClick={copyCodeToClipboard} value={invitationLink} /></>)
+                  }
               </section>
               }
         </DialogContent>
