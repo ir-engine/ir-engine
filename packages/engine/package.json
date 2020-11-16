@@ -37,7 +37,6 @@
     "cannon-es": "^0.15.1",
     "cannon-es-debugger": "^0.0.3",
     "face-api.js": "^0.22.2",
-    "mobx": "^5.15.7",
     "mousetrap": "^1.6.5",
     "three": "^0.121.01",
     "three-gltf-exporter": "^0.0.1",

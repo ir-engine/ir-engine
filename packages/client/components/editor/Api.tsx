@@ -146,7 +146,7 @@ export default class Api extends EventEmitter {
       console.log(err);
     });
 
-    if (!Array.isArray(json.projects) && json.projects) {
+    if (!Array.isArray(json.projects) || json.projects == null) {
       throw new Error(`Error fetching projects: ${json.error || "Unknown error."}`);
     }
 
@@ -172,9 +172,7 @@ export default class Api extends EventEmitter {
   }
 
   async resolveUrl(url, index?): Promise<any> {
-    if (!shouldCorsProxy(url)) {
       return { origin: url };
-    }
 
     const cacheKey = `${url}|${index}`;
     if (resolveUrlCache.has(cacheKey)) return resolveUrlCache.get(cacheKey);
@@ -215,6 +213,7 @@ export default class Api extends EventEmitter {
 
   async getContentType(url): Promise<any> {
     const result = await this.resolveUrl(url);
+    console.log("CONTEXT TYPE IS", result);
     const canonicalUrl = result.origin;
     const accessibleUrl = proxiedUrlFor(canonicalUrl);
 
@@ -522,7 +521,7 @@ export default class Api extends EventEmitter {
     const body = JSON.stringify({
       project
     });
-    console.log("EDITOR JSON IS")
+    console.log("EDITOR JSON IS");
     console.log(project);
     
     const projectEndpoint = `${SERVER_URL}/project/${projectId}`;
@@ -1119,10 +1118,6 @@ export default class Api extends EventEmitter {
       if((accessToken && email) || this.isAuthenticated()){
         this.saveCredentials(email, accessToken);
       }
-      // TODO: Disabled unauthorized redirection temporarily
-      // else {
-      //   (window as any).location = `${(window as any).location.origin}?redirectTo=editor&login=true`;
-      // }
     }
   }
 }

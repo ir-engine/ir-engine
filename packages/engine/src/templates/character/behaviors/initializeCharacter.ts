@@ -1,26 +1,28 @@
-import { Vec3 } from "cannon-es";
-import { AnimationMixer, BoxGeometry, Group, Mesh, MeshLambertMaterial, Vector3 } from "three";
-import { AssetLoader } from "../../../assets/components/AssetLoader";
-import { Behavior } from "../../../common/interfaces/Behavior";
-import { addComponent, getComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
-import { CapsuleCollider } from "../../../physics/components/CapsuleCollider";
-import { RelativeSpringSimulator } from "../../../physics/classes/RelativeSpringSimulator";
-import { VectorSpringSimulator } from "../../../physics/classes/VectorSpringSimulator";
-import { CollisionGroups } from "../../../physics/enums/CollisionGroups";
-import { addState } from "../../../state/behaviors/addState";
-import { CharacterComponent } from "../components/CharacterComponent";
-import { CharacterStateTypes } from "../CharacterStateTypes";
-import { Engine } from "../../../ecs/classes/Engine";
-import { PhysicsManager } from "../../../physics/components/PhysicsManager";
 import { AnimationManager } from "@xr3ngine/engine/src/templates/character/components/AnimationManager";
+import { Vec3 } from "cannon-es";
+import { BoxGeometry, Group, Mesh, MeshLambertMaterial, Vector3 } from "three";
 import { addObject3DComponent } from "../../../common/behaviors/Object3DBehaviors";
 import { LifecycleValue } from "../../../common/enums/LifecycleValue";
+import { Behavior } from "../../../common/interfaces/Behavior";
+import { addComponent, getComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
+import { RelativeSpringSimulator } from "../../../physics/classes/RelativeSpringSimulator";
+import { VectorSpringSimulator } from "../../../physics/classes/VectorSpringSimulator";
+import { CapsuleCollider } from "../../../physics/components/CapsuleCollider";
+import { PhysicsManager } from "../../../physics/components/PhysicsManager";
+import { CollisionGroups } from "../../../physics/enums/CollisionGroups";
+import { addState } from "../../../state/behaviors/addState";
 import { State } from "../../../state/components/State";
+import { CharacterStateTypes } from "../CharacterStateTypes";
+import { CharacterComponent } from "../components/CharacterComponent";
 
 export const initializeCharacter: Behavior = (entity): void => {
 	console.log("Initializing character for ", entity.id);
-	if (!hasComponent(entity, CharacterComponent as any))
+	if (!hasComponent(entity, CharacterComponent as any)){
+		console.warn("Character does not have a character component, adding");
 		addComponent(entity, CharacterComponent as any);
+	} else {
+		console.warn("Character already had a character component, not adding, but we should handle")
+	}
 
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	actor.mixer?.stopAllAction();
@@ -57,8 +59,8 @@ export const initializeCharacter: Behavior = (entity): void => {
 		actor.animations = animations;
 	});
 
-	actor.mixer = new AnimationMixer(actor.modelContainer);
-	actor.mixer.timeScale = actor.animationsTimeScale;
+	// actor.mixer = new AnimationMixer(actor.modelContainer);
+	// actor.mixer.timeScale = actor.animationsTimeScale;
 
 
 	actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);

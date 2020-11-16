@@ -129,6 +129,7 @@ export class Location extends Service {
     let location;
     // eslint-disable-next-line prefer-const
     let {location_setting, ...locationData} = data;
+    const loggedInUser = extractLoggedInUserFromParams(params);
     locationData.slugifiedName = slugify(locationData.name, {
       lower: true
     });
@@ -149,6 +150,10 @@ export class Location extends Service {
     if (location_setting.locationType == null) location_setting.locationType = 'private';
     location_setting.locationId = location.id;
     const locationSettings = await this.app.service('location-settings').create(location_setting);
+    await this.app.service('location-admin').create({
+      locationId: location.id,
+      userId: loggedInUser.userId
+    });
     return super.patch(location.id, {
       locationSettingsId: locationSettings.id
     });
@@ -163,7 +168,7 @@ export class Location extends Service {
     });
 
     try {
-      location = await super.create(locationData, params);
+      location = await super.patch(id, locationData, params);
     } catch(err) {
       console.log(err);
       if (err.errors[0].message === 'slugifiedName must be unique') {
@@ -178,14 +183,25 @@ export class Location extends Service {
     if (location_setting.maxUsersPerInstance == null) location_setting.maxUsersPerInstance = 10;
     if (location_setting.locationType == null) location_setting.locationType = 'private';
     location_setting.locationId = location.id;
-    await this.app.service('location-settings').patch(location_setting.id, location_setting);
+    await this.app.service('location-settings').patch(location.locationSettingsId, location_setting);
     return location;
   }
 
   async remove (id: string, params: Params): Promise<any> {
     if (id != null) {
+      const loggedInUser = extractLoggedInUserFromParams(params);
       const location = await this.app.service('location').get(id);
       if (location.locationSettingsId != null) await this.app.service('location-settings').remove(location.locationSettingsId);
+      try {
+        await this.app.service('location-admin').remove(null, {
+          query: {
+            locationId: id,
+            userId: loggedInUser.userId
+          }
+        });
+      } catch(err) {
+        console.log('Could not remove location-admin');
+      }
     }
     return super.remove(id);
   }

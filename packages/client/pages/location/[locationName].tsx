@@ -14,7 +14,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import Loading from '../../components/scenes/loading';
-import Scene from '../../components/scenes/multiplayer';
+import Scene from '../../components/scenes/location';
 import Layout from '../../components/ui/Layout';
 import UserMenu from '../../components/ui/UserMenu';
 import { selectAppState } from '../../redux/app/selector';
@@ -92,7 +92,6 @@ const EditorRoomPage = (props: Props) => {
 
   useEffect(() => {
     const currentLocation = locationState.get('currentLocation').get('location');
-    console.log("Current location from authState useEffect is ", currentLocation)
     locationId = currentLocation.id;
     userBanned = selfUser?.locationBans?.find(ban => ban.locationId === locationId) != null;
     if (authState.get('isLoggedIn') === true && authState.get('user').id != null && authState.get('user').id.length > 0 && currentLocation.id == null && userBanned === false && locationState.get('fetchingCurrentLocation') !== true) {

@@ -26,7 +26,10 @@ export default (app: Application): void => {
     app.set('sequelizeSync',
       sequelize.sync({ force: forceRefresh })
         .then(() => {
-          (app as any).configure(seeder({ services: seederConfig })).seed().catch(console.error);
+          (app as any).configure(seeder({ services: seederConfig })).seed().catch(console.error).then(()=> {
+            console.log("Seeded");
+          });
+
           if (performDryRun) {
             setTimeout(() => process.exit(0), 5000);
           }

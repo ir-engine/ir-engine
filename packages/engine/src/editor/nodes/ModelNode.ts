@@ -34,6 +34,9 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         const { src, attribution } = json.components.find(
           c => c.name === "gltf-model"
         ).props;
+
+          console.log("LOADING SRC", src);
+
         await node.load(src, onError);
         // Legacy, might be a raw string left over before switch to JSON.
         if (attribution && typeof attribution === "string") {
@@ -117,6 +120,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
   // Overrides Model's load method and resolves the src url before loading.
   async load(src, onError?) {
+    console.log("Attempting to load model");
     const nextSrc = src || "";
     if (nextSrc === this._canonicalUrl && nextSrc !== "") {
       return;
@@ -126,14 +130,17 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this.issues = [];
     this.stats = defaultStats;
     this.gltfJson = null;
+    console.log("Got this far 1");
     if (this.model) {
       this.editor.renderer.removeBatchedObject(this.model);
       this.remove(this.model);
       this.model = null;
     }
     this.hideErrorIcon();
-    this.showLoadingCube();
+    // this.showLoadingCube();
     try {
+      console.log("Try");
+
       const { accessibleUrl, files } = await this.editor.api.resolveMedia(src);
       if (this.model) {
         this.editor.renderer.removeBatchedObject(this.model);

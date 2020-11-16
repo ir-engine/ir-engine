@@ -1,3 +1,4 @@
+import { isBrowser } from 'face-api.js/build/commonjs/env/isBrowser';
 import _ from 'lodash';
 import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
@@ -11,10 +12,11 @@ import { execute, initialize } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
 import { HighlightSystem } from './effects/systems/EffectSystem';
-import { InputSystem } from './input/systems/InputSystem';
+import { InputSystem } from './input/systems/ClientInputSystem';
 import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
+import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
-import { NetworkSystem } from './networking/systems/NetworkSystem';
+import { ServerNetworkSystem } from './networking/systems/ServerNetworkSystem';
 import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { WebGLRendererSystem } from './renderer/systems/WebGLRendererSystem';
 import { StateSystem } from './state/systems/StateSystem';
@@ -57,9 +59,10 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
   Engine.scene = scene;
 
   if(typeof window !== 'undefined') (window as any).engine = Engine;
-
+  
   // Networking
-  registerSystem(NetworkSystem, { schema: options.networking.schema, app: options.networking.app });
+  registerSystem(isClient ? ClientNetworkSystem : ServerNetworkSystem,
+    { schema: options.networking.schema, app: options.networking.app });
 
   // Do we want audio and video streams?
   registerSystem(MediaStreamSystem);
@@ -68,7 +71,7 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
 
   registerSystem(PhysicsSystem);
 
-  registerSystem(InputSystem, { useWebXR: isClient });
+  if(isClient) registerSystem(InputSystem, { useWebXR: true });
 
   registerSystem(StateSystem);
 

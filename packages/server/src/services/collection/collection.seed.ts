@@ -7,7 +7,7 @@ export const seed = {
   randomize: false,
   templates: [
     {
-      id: "825514a0-24d5-11eb-b79e-9fcc0de52fce",
+      id: "d4457fc0-24e4-11eb-bc2e-e7e742fb069f",
       sid: "j9o2NLiD",
       name: "Arena",
       description: null,
@@ -17,7 +17,7 @@ export const seed = {
       createdAt: "2020-11-12 10:54:59",
       updatedAt: "2020-11-12 10:54:59",
       type: "project",
-      thumbnailOwnedFileId: "80a038b0-24d5-11eb-83cc-f5ed32cf09b2",
+      thumbnailOwnedFileId: "d0828450-24e4-11eb-8630-81b209daf73a",
     }
   ]
 };

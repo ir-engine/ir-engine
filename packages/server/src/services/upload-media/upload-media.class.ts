@@ -19,9 +19,7 @@ export class UploadMedia implements ServiceMethods<Data> {
   }
 
   async get (id: Id, params?: Params): Promise<Data> {
-    return {
-      id, text: `A new message with ID: ${id}!`
-    };
+    return {};
   }
 
   async create (data: Data, params?: Params): Promise<Data> {

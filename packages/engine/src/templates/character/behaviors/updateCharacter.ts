@@ -10,16 +10,18 @@ import { Object3DComponent } from '../../../common/components/Object3DComponent'
 import { cannonFromThreeVector } from "../../../common/functions/cannonFromThreeVector";
 import { Vector3 } from 'three';
 import { Engine } from '../../../ecs/classes/Engine';
+import { isClient } from '../../../common/functions/isClient';
 
 export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime) => {
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const actorTransform = getMutableComponent<TransformComponent>(entity, TransformComponent as any);
-  if(!actor.initialized) return;
   // actor.behaviour?.update(timeStep);
   // actor.vehicleEntryInstance?.update(timeStep);
   // console.log(this.occupyingSeat);
   // this.charState?.update(timeStep);
-  actor.mixer.update(deltaTime);
+  if (actor.mixer) {
+    actor.mixer.update(deltaTime);
+  }
   if (actor.physicsEnabled) {
 
     // transfer localMovementDirection into velocityTarget
@@ -46,6 +48,7 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
     actor.actorCapsule.body.position.copy(cannonFromThreeVector(newPos));
     actor.actorCapsule.body.interpolatedPosition.copy(cannonFromThreeVector(newPos));
   }
+
   if(Engine.camera)
     actor.viewVector = new Vector3(0, 0,-1).applyQuaternion(Engine.camera.quaternion);
 };

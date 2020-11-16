@@ -1,8 +1,10 @@
 import { isServer } from '../../common/functions/isServer';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
-import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions';
+import { addComponent, createEntity, getComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
+import { cleanupInput } from '../../input/behaviors/cleanupInput';
+import { handleInputOnClient } from '../../input/behaviors/handleInputOnClient';
 import { Input } from '../../input/components/Input';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { State } from '../../state/components/State';
@@ -14,10 +16,13 @@ import { NetworkObject } from '../components/NetworkObject';
 import { Server } from '../components/Server';
 import { addInputToWorldStateOnServer } from '../functions/addInputToWorldStateOnServer';
 import { addNetworkTransformToWorldState } from '../functions/addNetworkTransformToWorldState';
-import { addStateToWorldStateOnServer } from '../functions/addStateToWorldStateOnServer';
 import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClient';
+import { handleInputOnServer } from '../functions/handleInputOnServer';
+import { handleUpdatesFromClients } from '../functions/handleUpdatesFromClients';
 
-export class NetworkSystem extends System {
+export class ServerNetworkSystem extends System {
+  private _inputComponent: Input
+
   updateType = SystemUpdateType.Fixed;
 
   isServer;
@@ -49,18 +54,74 @@ export class NetworkSystem extends System {
 
   // Call execution on server
   fixedExecuteOnServer = (delta: number) => {
-    // Server-only
-    // Advance the tick on the server by one
-    Network.tick++;
+      // Create a new worldstate frame for next tick
+      Network.tick++;
+    Network.instance.worldState = {
+      tick: Network.tick,
+      transforms: [],
+      inputs: [],
+      states: [],
+      clientsConnected: Network.instance.clientsConnected,
+      clientsDisconnected: Network.instance.clientsDisconnected,
+      createObjects: Network.instance.createObjects,
+      destroyObjects: Network.instance.destroyObjects
+    };
+
+    if(Network.instance.createObjects.length >0){
+      console.log("Network.instance.createObjects is ", Network.instance.createObjects)
+    }
+
+    if(Network.instance.destroyObjects.length >0){
+      console.log("Network.instance.destroyObjects is ", Network.instance.destroyObjects)
+    }
+
+    Network.instance.clientsConnected = []
+    Network.instance.clientsDisconnected = []
+    Network.instance.createObjects = []
+    Network.instance.destroyObjects = []
+    // Set input values on server to values sent from clients
+    handleUpdatesFromClients();
+
+    // Apply input for local user input onto client
+    this.queryResults.inputOnServer.all?.forEach(entity => {
+      // Call behaviors associated with input
+      handleInputOnServer(entity, {isLocal:false, isServer: true}, delta);
+      addInputToWorldStateOnServer(entity);
+      cleanupInput(entity);
+    });
+
+    // Called when input component is added to entity
+    this.queryResults.inputOnServer.added?.forEach(entity => {
+      // Get component reference
+      this._inputComponent = getComponent(entity, Input);
+
+      if (this._inputComponent === undefined)
+        return console.warn("Tried to execute on a newly added input component, but it was undefined")
+      // Call all behaviors in "onAdded" of input map
+      this._inputComponent.schema.onAdded?.forEach(behavior => {
+        behavior.behavior(entity, { ...behavior.args });
+      });
+    });
+
+    // Called when input component is removed from entity
+    this.queryResults.inputOnServer.removed?.forEach(entity => {
+      // Get component reference
+      this._inputComponent = getComponent(entity, Input);
+
+      // Call all behaviors in "onRemoved" of input map
+      this._inputComponent?.schema?.onRemoved?.forEach(behavior => {
+        behavior.behavior(entity, behavior.args);
+      });
+    });
 
     // Transforms that are updated are automatically collected
     // note: onChanged needs to currently be handled outside of fixedExecute
     this.queryResults.serverNetworkTransforms.all?.forEach((entity: Entity) =>
       addNetworkTransformToWorldState(entity));
 
-    // For each networked object + input receiver, add to the frame to send
-    this.queryResults.serverNetworkInputs.all?.forEach((entity: Entity) =>
-      addInputToWorldStateOnServer(entity));
+    // // For each networked object + input receiver, add to the frame to send
+    // this.queryResults.serverNetworkInputs.all?.forEach((entity: Entity) =>
+    //   addInputToWorldStateOnServer(entity));
 
     // For each networked object + input receiver, add to the frame to send
     // this.queryResults.serverNetworkStates.changed?.forEach((entity: Entity) =>
@@ -74,17 +135,6 @@ export class NetworkSystem extends System {
     if(Network.instance.transport !== undefined)
       Network.instance.transport.sendReliableData(Network.instance.worldState); // Use default channel
 
-    // CClear collected world state frame and reset after calculating
-    Network.instance.worldState = {
-      tick: Network.tick,
-      transforms: [],
-      inputs: [],
-      states: [],
-      clientsConnected: [],
-      clientsDisconnected: [],
-      createObjects: [],
-      destroyObjects: []
-    };
   }
 
   // Call execution on client
@@ -102,6 +152,13 @@ export class NetworkSystem extends System {
     this.fixedExecuteOnClient;
 
   static queries: any = {
+    inputOnServer: {
+      components: [NetworkObject, Input, Server],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
     networkServer: {
       components: [Network, Server]
     },

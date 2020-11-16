@@ -7,201 +7,188 @@ export const seed = {
   randomize: false,
   templates: [
     {
-      id: "82b84340-24d5-11eb-b79e-9fcc0de52fce",
-      data: { type: "disabled", color:"#ffffff", near: 0.0025, far: 1000, density: 0.0025 },
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
+      id: "08cc03a0-24e9-11eb-bc2e-e7e742fb069f",
+      data: `{ type: "disabled", color:#ffffff, near: 0.0025, far: 1000, density: 0.0025 }`,
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
       type: "fog",
-      entityId: "82639390-24d5-11eb-b79e-9fcc0de52fce"
+      entityId: "08c8a840-24e9-11eb-bc2e-e7e742fb069f"
     },
     {
-      id: "82b84341-24d5-11eb-b79e-9fcc0de52fce",
-      data: { color:"#aaaaaa" },
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
+      id: "08cc03a1-24e9-11eb-bc2e-e7e742fb069f",
+      data: `{ color:#aaaaaa }`,
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
       type: "background",
-      entityId: "82639390-24d5-11eb-b79e-9fcc0de52fce"
+      entityId: "08c8a840-24e9-11eb-bc2e-e7e742fb069f"
     },
+    // {
+    //   id: "08cc03a2-24e9-11eb-bc2e-e7e742fb069f",
+    //   data: `{ overrideAudioSettings: false, avatarDistanceModel: "inverse", avatarRolloffFactor: 2, avatarRefDistance: 1, avatarMaxDistance: 10000, mediaVolume: 0.5, mediaDistanceModel: "inverse", mediaRolloffFactor: 1, mediaRefDistance: 1, mediaMaxDistance: 10000, mediaConeInnerAngle: 360, mediaConeOuterAngle: 0, mediaConeOuterGain: 0 }`,
+    //   createdAt: "2020-11-12 13:14:45",
+    //   updatedAt: "2020-11-12 13:14:45",
+    //   type: "audio-settings",
+    //   entityId: "08c8a840-24e9-11eb-bc2e-e7e742fb069f"
+    // },
     {
-      id: "82b84342-24d5-11eb-b79e-9fcc0de52fce",
-      data: { overrideAudioSettings: false, avatarDistanceModel: "inverse", avatarRolloffFactor: 2, avatarRefDistance: 1, avatarMaxDistance: 10000, mediaVolume: 0.5, mediaDistanceModel: "inverse", mediaRolloffFactor: 1, mediaRefDistance: 1, mediaMaxDistance: 10000, mediaConeInnerAngle: 360, mediaConeOuterAngle: 0, mediaConeOuterGain: 0 },
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
-      type: "audio-settings",
-      entityId: "82639390-24d5-11eb-b79e-9fcc0de52fce"
-    },
-    {
-      id: "82b84343-24d5-11eb-b79e-9fcc0de52fce",
-      data: { position: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
+      id: "08cc03a3-24e9-11eb-bc2e-e7e742fb069f",
+      data: `{ position: { x: 2.5, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } }`,
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
       type: "transform",
-      entityId: "82639391-24d5-11eb-b79e-9fcc0de52fce"
+      entityId: "08c8a841-24e9-11eb-bc2e-e7e742fb069f"
     },
     {
-      id: "82b84344-24d5-11eb-b79e-9fcc0de52fce",
-      data: { visible: true },
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
+      id: "08cc03a4-24e9-11eb-bc2e-e7e742fb069f",
+      data: `{ visible: true }`,
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
       type: "visible",
-      entityId: "82639391-24d5-11eb-b79e-9fcc0de52fce"
+      entityId: "08c8a841-24e9-11eb-bc2e-e7e742fb069f"
     },
     {
-      id: "82b84345-24d5-11eb-b79e-9fcc0de52fce",
-      data: { turbidity: 6.09, rayleigh: 0.82, luminance: 1.055, mieCoefficient: 0.043, mieDirectionalG: 0.8, inclination: 0.10471975511965978, azimuth: 0.2333333333333333, distance: 8000 },
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
-      type: "skybox",
-      entityId: "82639391-24d5-11eb-b79e-9fcc0de52fce"
-    },
-    {
-      id: "82b84346-24d5-11eb-b79e-9fcc0de52fce",
-      data: {
-        position
-          : {
-          x: -1, y: 3, z: 0
-        }, rotation: { x: 1.0256860445560714, y: 0.3490658503988659, z: -0.4417643021697627 }, scale: { x: 0.9999999999999996, y: 0.9999999999999998, z: 0.9999999999999997 }
+      id: "08cc03a5-24e9-11eb-bc2e-e7e742fb069f",
+      data: `{ src: "https://localhost:3000/models/debug/cube.glb", attribution:null}`,
+        createdAt: "2020-11-12 13:14:45",
+        updatedAt: "2020-11-12 13:14:45",
+        type: "gltf-model",
+        entityId: "08c8a841-24e9-11eb-bc2e-e7e742fb069f"
       },
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
-      type: "transform",
-      entityId: "82639392-24d5-11eb-b79e-9fcc0de52fce"
-    },
     {
-      id: "82b84347-24d5-11eb-b79e-9fcc0de52fce",
-      data: { visible: true },
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
-      type: "visible",
-      entityId: "82639392-24d5-11eb-b79e-9fcc0de52fce"
-    },
-    {
-      id: "82b84348-24d5-11eb-b79e-9fcc0de52fce",
-      data: { color: "#ffffff", intensity: 3, castShadow: true, shadowMapResolution: [1024, 1024], shadowBias: -0.000030000000000000004, shadowRadius: 1 },
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
-      type: "directional-light",
-      entityId: "82639392-24d5-11eb-b79e-9fcc0de52fce"
-    },
-    {
-      id: "82b84349-24d5-11eb-b79e-9fcc0de52fce",
-      data: { position: { x: 2, y: 0, z: 2 }, rotation: { x: 3.141592653589793, y: -0.7853981633974483, z: 3.141592653589793 }, scale: { x: 1, y: 1, z: 1 } },
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
-      type: "transform",
-      entityId: "82639393-24d5-11eb-b79e-9fcc0de52fce"
-    },
-    {
-      id: "82b8434a-24d5-11eb-b79e-9fcc0de52fce",
-      data: { visible: true },
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
-      type: "visible",
-      entityId: "82639393-24d5-11eb-b79e-9fcc0de52fce"
-    },
-    {
-      id: "82b8434b-24d5-11eb-b79e-9fcc0de52fce",
-      data: {},
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
-      type: "spawn-point",
-      entityId: "82639393-24d5-11eb-b79e-9fcc0de52fce"
-    },
-    {
-      id: "82b8434c-24d5-11eb-b79e-9fcc0de52fce",
-      data: { position: { x: 0, y: 0.005, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
-      type: "transform",
-      entityId: "82639394-24d5-11eb-b79e-9fcc0de52fce"
-    },
-    {
-      id: "82b8434d-24d5-11eb-b79e-9fcc0de52fce",
-      data: { visible: true },
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
-      type: "visible",
-      entityId: "82639394-24d5-11eb-b79e-9fcc0de52fce"
-    },
-    {
-      id: "82b8434e-24d5-11eb-b79e-9fcc0de52fce",
-      data: { autoCellSize: false, cellSize: 0.1200000000000001, cellHeight: 0.1, agentHeight: 1.7, agentRadius: 0.19999999999999996, agentMaxClimb: 0.5, agentMaxSlope: 60, regionMinSize: 4, maxTriangles: 1000, forceTrimesh: false },
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
-      type: "floor-plan",
-      entityId: "82639394-24d5-11eb-b79e-9fcc0de52fce"
-    },
-    {
-      id: "82b8434f-24d5-11eb-b79e-9fcc0de52fce",
-      data: { position: { x: 0, y: -2, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
-      type: "transform",
-      entityId: "82639395-24d5-11eb-b79e-9fcc0de52fce"
-    },
-    {
-      id: "82b84350-24d5-11eb-b79e-9fcc0de52fce",
-      data: { visible: true },
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
-      type: "visible",
-      entityId: "82639395-24d5-11eb-b79e-9fcc0de52fce"
-    },
-    {
-      id: "82b84351-24d5-11eb-b79e-9fcc0de52fce",
-      data: { color: "#5de336" },
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
-      type: "ground-plane",
-      entityId: "82639395-24d5-11eb-b79e-9fcc0de52fce"
-    },
-    {
-      id: "82b84352-24d5-11eb-b79e-9fcc0de52fce",
-      data: { type: "ground", mass: 0, scale: [10000, 0.1, 10000] },
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
-      type: "box-collider",
-      entityId: "82639395-24d5-11eb-b79e-9fcc0de52fce"
-    },
-    {
-      id: "82b84353-24d5-11eb-b79e-9fcc0de52fce",
-      data: { receive: true },
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
+      id: "08cc03a6-24e9-11eb-bc2e-e7e742fb069f",
+      data: `{ cast: false, receive: false }`,
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
       type: "shadow",
-      entityId: "82639395-24d5-11eb-b79e-9fcc0de52fce"
+      entityId: "08c8a841-24e9-11eb-bc2e-e7e742fb069f"
     },
     {
-      id: "82b84354-24d5-11eb-b79e-9fcc0de52fce",
-      data: {},
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
-      type: "walkable",
-      entityId: "82639395-24d5-11eb-b79e-9fcc0de52fce"
-    },
-    {
-      id: "82b84355-24d5-11eb-b79e-9fcc0de52fce",
-      data: { position: { x: 0, y: 8.262653939292617, z: 15.998323580675336 }, rotation: { x: -0.4767366142364083, y: 0, z: 0 }, scale: { x: 1, y: 0.9999999999999999, z: 0.9999999999999999 } },
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
+      id: "08cc03a7-24e9-11eb-bc2e-e7e742fb069f",
+      data: `{ position: { x: -4, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } }`,
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
       type: "transform",
-      entityId: "82639396-24d5-11eb-b79e-9fcc0de52fce"
+      entityId: "08c8a842-24e9-11eb-bc2e-e7e742fb069f"
     },
     {
-      id: "82b84356-24d5-11eb-b79e-9fcc0de52fce",
-      data: { visible: true },
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
+      id: "08cc03a8-24e9-11eb-bc2e-e7e742fb069f",
+      data: `{ visible: true }`,
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
       type: "visible",
-      entityId: "82639396-24d5-11eb-b79e-9fcc0de52fce"
+      entityId: "08c8a842-24e9-11eb-bc2e-e7e742fb069f"
     },
     {
-      id: "82b84357-24d5-11eb-b79e-9fcc0de52fce",
-      data: {},
-      createdAt: "2020-11-12 10:55:00",
-      updatedAt: "2020-11-12 10:55:00",
+      id: "08cc03a9-24e9-11eb-bc2e-e7e742fb069f",
+      data: `{src: "https://localhost:3000/models/vehicles/Sportscar.glb", attribution:null}`,
+        createdAt: "2020-11-12 13:14:45",
+        updatedAt: "2020-11-12 13:14:45",
+        type: "gltf-model",
+        entityId: "08c8a842-24e9-11eb-bc2e-e7e742fb069f"
+      },
+    {
+      id: "08cc03aa-24e9-11eb-bc2e-e7e742fb069f",
+      data: `{ cast: false, receive: false }`,
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
+      type: "shadow",
+      entityId: "08c8a842-24e9-11eb-bc2e-e7e742fb069f"
+    },
+    {
+      id: "08cc03ab-24e9-11eb-bc2e-e7e742fb069f",
+      data: `{ position: { x: 0, y: 7.3205, z: 14.641000000000005 }, rotation: { x: -0.463647609000806, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } }`,
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
+      type: "transform",
+      entityId: "08c8a843-24e9-11eb-bc2e-e7e742fb069f"
+    },
+    {
+      id: "08cc03ac-24e9-11eb-bc2e-e7e742fb069f",
+      data: `{ visible: true }`,
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
+      type: "visible",
+      entityId: "08c8a843-24e9-11eb-bc2e-e7e742fb069f"
+    },
+    {
+      id: "08cc03ad-24e9-11eb-bc2e-e7e742fb069f",
+      data: `{}`,
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
       type: "scene-preview-camera",
-      entityId: "82639396-24d5-11eb-b79e-9fcc0de52fce"
+      entityId: "08c8a843-24e9-11eb-bc2e-e7e742fb069f"
+    },
+    {
+      id: "08cc03ae-24e9-11eb-bc2e-e7e742fb069f",
+      data: `{ position: { x: 0, y: 7.3205, z: 14.641000000000005 }, rotation: { x: -0.463647609000806, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } }`,
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
+      type: "transform",
+      entityId: "08c8a844-24e9-11eb-bc2e-e7e742fb069f"
+    },
+    {
+      id: "08cc03af-24e9-11eb-bc2e-e7e742fb069f",
+      data: `{ visible: true }`,
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
+      type: "visible",
+      entityId: "08c8a844-24e9-11eb-bc2e-e7e742fb069f"
+    },
+    {
+      id: "08cc03b0-24e9-11eb-bc2e-e7e742fb069f",
+      data: `{}`,
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
+      type: "box-collider",
+      entityId: "08c8a844-24e9-11eb-bc2e-e7e742fb069f"
+    },
+    {
+      id: "08cc03b1-24e9-11eb-bc2e-e7e742fb069f",
+      data: `{ position: { x: 0, y: 7.3205, z: 14.641000000000005 }, rotation: { x: -0.463647609000806, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } }`,
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
+      type: "transform",
+      entityId: "08c8a845-24e9-11eb-bc2e-e7e742fb069f"
+    },
+    {
+      id: "08cc03b2-24e9-11eb-bc2e-e7e742fb069f",
+      data: `{ visible: true }`,
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
+      type: "visible",
+      entityId: "08c8a845-24e9-11eb-bc2e-e7e742fb069f"
+    },
+    {
+      id: "08cc03b3-24e9-11eb-bc2e-e7e742fb069f",
+      data: `{ color:#ffffff, intensity: 1 }`,
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
+      type: "ambient-light",
+      entityId: "08c8a845-24e9-11eb-bc2e-e7e742fb069f"
+    },
+    {
+      id: "08cc03b4-24e9-11eb-bc2e-e7e742fb069f",
+      data: `{ position: { x: 0, y: 7.3205, z: 14.641000000000005 }, rotation: { x: -0.463647609000806, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } }`,
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
+      type: "transform",
+      entityId: "08c8a846-24e9-11eb-bc2e-e7e742fb069f"
+    },
+    {
+      id: "08cc03b5-24e9-11eb-bc2e-e7e742fb069f",
+      data: `{ visible: true }`,
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
+      type: "visible",
+      entityId: "08c8a846-24e9-11eb-bc2e-e7e742fb069f"
+    },
+    {
+      id: "08cc03b6-24e9-11eb-bc2e-e7e742fb069f",
+      data: `{ turbidity: 10.0, rayleigh: 2.0, luminance: 1.0, mieCoefficient: 0.005, mieDirectionalG: 0.8, inclination: 0.0, azimuth: 0.15, distance: 8000.0 }`,
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
+      type: "skybox",
+      entityId: "08c8a846-24e9-11eb-bc2e-e7e742fb069f"
     }
   ]
 };
