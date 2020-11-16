@@ -113,16 +113,22 @@ export class Project implements ServiceMethods<Data> {
     }
     let sceneData;
     if (config.server.storageProvider === 'aws') {
-      sceneData = await fetch(ownedFile.url).then(res => res.json());
+      sceneData = await fetch(ownedFile.url).then(res => res.json())
     } else {
+      let chunks = {}
       sceneData = await new Promise((resolve, reject) => {
-        storage.createReadStream({
-          key: ownedFile.key
-        }).on("data", (d: object) => {
-          resolve(JSON.parse(d.toString()))
-        }).on('error', (e: Error) => {
-          reject(e)
-        })
+        storage
+          .createReadStream({
+            key: ownedFile.key
+          })
+          .on('data', (d: object) => {
+            const parsedData = JSON.parse(d.toString())
+            chunks = Object.assign(chunks, parsedData)
+          })
+          .on('end', () => {
+            resolve(chunks)
+          })
+          .on('error', reject)
       })
     }
     await seqeulizeClient.transaction(async (transaction: Transaction) => {
