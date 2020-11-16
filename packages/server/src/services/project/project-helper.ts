@@ -84,6 +84,24 @@ export function defaultProjectImport (models: any): any[] {
   return includedEntities;
 }
 
+export function readJSONFromBlobStore(storage, key) {
+  return new Promise((resolve, reject) => {
+    let chunks = {}
+    storage
+      .createReadStream({
+        key
+      })
+      .on('data', (data: object) => {
+        const parsedData = JSON.parse(data.toString())
+        chunks = Object.assign(chunks, parsedData)
+      })
+      .on('end', () => {
+        resolve(chunks)
+      })
+      .on('error', reject)
+  })
+}
+
 export function mapProjectDetailData (project: any): any {
   const _proj = {
     name: project.name,

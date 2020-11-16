@@ -7,6 +7,7 @@ import { collectionType } from '../../enums/collection';
 import logger from '../../app/logger';
 import config from '../../config';
 import StorageProvider from '../../storage/storageprovider';
+import { readJSONFromBlobStore } from "./project-helper"
 import { resolve } from 'bluebird';
 
 export default (options: any) => {
@@ -39,17 +40,9 @@ export default (options: any) => {
     }
     let sceneData;
     if (config.server.storageProvider === 'aws') {
-      sceneData = await fetch(ownedFile.url).then(res => res.json());
+      sceneData = await fetch(ownedFile.url).then(res => res.json())
     } else {
-      sceneData = await new Promise((resolve, reject) => {
-        storage.createReadStream({
-          key: ownedFile.key
-        }).on("data", (d: object) => {
-          resolve(JSON.parse(d.toString()))
-        }).on("error", (e: Error) => {
-          reject(e)
-        })
-      })
+      sceneData = await readJSONFromBlobStore(storage, ownedFile.key)
     }
     const savedCollection = await CollectionModel.create({
       thumbnailOwnedFileId: context.data.thumbnailOwnedFileId,
