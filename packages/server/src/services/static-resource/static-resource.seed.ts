@@ -1,5 +1,4 @@
 import config from '../../config';
-import LocationSettingsSeed from '../location-settings/location-settings.seed';
 
 export const seed = {
   disabled: !config.db.forceRefresh,
