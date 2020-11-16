@@ -129,7 +129,7 @@ export const seed = {
     },
     {
       id: "08cc03b0-24e9-11eb-bc2e-e7e742fb069f",
-      data: `{ "type":"ground","position":{"x":-1,"y":-1.5,"z":2.5} }`,
+      data: `{ "type":"ground","position":{"x":-1,"y":-1.5,"z":2.5},"scale":{"x":100, "y":0.1, "z":100} }`,
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
       type: "box-collider",
