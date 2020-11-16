@@ -3,12 +3,12 @@ set -e
 # before you run this you need to run 
 # $ source .xr3ngine-secrets to load tokens and passwords
 
-cd ../xrsocial-client
+cd ../client
 
 git fetch --tags
 TAG="$(git describe --abbrev=0 --tags)"
 
-cd ../xrsocial-ops
+cd ../ops
 
 export NEW_TAG=rc0.0.5
 docker-compose -f docker-compose-local.yml build

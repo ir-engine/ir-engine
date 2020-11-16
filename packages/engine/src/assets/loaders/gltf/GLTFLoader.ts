@@ -256,6 +256,7 @@ const defaultOptions = {
 
 class GLTFLoader {
   constructor(url, manager?, options?) {
+    console.log("Constructing new gltf loader for ", url);
     this.url = url;
     this.manager = manager !== undefined ? manager : DefaultLoadingManager;
     this.options = Object.assign({}, defaultOptions, options);

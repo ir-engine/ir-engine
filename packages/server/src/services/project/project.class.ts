@@ -8,6 +8,7 @@ import { Application } from '../../declarations';
 import StorageProvider from '../../storage/storageprovider';
 import { BadRequest } from '@feathersjs/errors';
 import logger from '../../app/logger';
+import config from '../../config';
 interface Data { }
 interface ServiceOptions {}
 
@@ -99,6 +100,7 @@ export class Project implements ServiceMethods<Data> {
     }
 
     // Find the project owned_file from database
+    // TODO: Create a hook for create and patch methods to avoid code duplication.
     const ownedFile = await StaticResourceModel.findOne({
       where: {
         id: data.ownedFileId
@@ -109,7 +111,20 @@ export class Project implements ServiceMethods<Data> {
     if (!ownedFile) {
       return await Promise.reject(new BadRequest('Project File not found!'));
     }
-    const sceneData = await fetch(ownedFile.url).then(res => res.json());
+    let sceneData;
+    if (config.server.storageProvider === 'aws') {
+      sceneData = await fetch(ownedFile.url).then(res => res.json());
+    } else {
+      sceneData = await new Promise((resolve, reject) => {
+        storage.createReadStream({
+          key: ownedFile.key
+        }).on("data", (d: object) => {
+          resolve(JSON.parse(d.toString()))
+        }).on('error', (e: Error) => {
+          reject(e)
+        })
+      })
+    }
     await seqeulizeClient.transaction(async (transaction: Transaction) => {
       project.update({
         name: data.name,
@@ -179,7 +194,7 @@ export class Project implements ServiceMethods<Data> {
       }
       await ComponentModel.bulkCreate(components, { transaction });
 
-      // After saving project, remove the project json file from s3, as we have saved that on database in collection table
+      // After saving project, remove the project json file from s3/local, as we have saved that on database in collection table
       const tempOwnedFileKey = ownedFile.key;
       storage.remove({
         key: tempOwnedFileKey

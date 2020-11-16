@@ -10,6 +10,7 @@ import { CharacterComponent } from "../components/CharacterComponent";
 import { appplyVectorMatrixXZ } from "../functions/appplyVectorMatrixXZ";
 import { haveDifferentSigns } from "../../../common/functions/haveDifferentSigns";
 import { TransformComponent } from "../../../transform/components/TransformComponent";
+import { isClient } from "../../../common/functions/isClient";
 
 const up = new Vector3(0, 1, 0);
 
@@ -122,6 +123,8 @@ export const physicsPostStep: Behavior = (entity): void => {
 		// Reset flag
 		actor.wantsToJump = false;
 	}
-	const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
-	transform.position.set(body.position.x, body.position.y, body.position.z);
+	if(isClient) return;
+
+	// const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
+	// transform.position.set(body.position.x, body.position.y, body.position.z);
 };

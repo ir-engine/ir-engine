@@ -131,7 +131,7 @@ export const addPhysics: Behavior = (entity: Entity) => {
 
 
 };
-export const updatePhysics: Behavior = (entity: Entity) => {
+export const updateWebXRPhysics: Behavior = (entity: Entity) => {
 	const xRControllers = getComponent(entity, XRControllersComponent)
 
 	xRControllers.physicsBody1.position.set(
@@ -158,7 +158,7 @@ export const updatePhysics: Behavior = (entity: Entity) => {
 	);
 
 };
-export const removePhysics: Behavior = (entity: Entity, args: any) => {
+export const removeWebXRPhysics: Behavior = (entity: Entity, args: any) => {
 if (args.controllerPhysicalBody1) {
 	PhysicsManager.instance.physicsWorld.removeBody(args.controllerPhysicalBody1)
 	PhysicsManager.instance.physicsWorld.removeBody(args.controllerPhysicalBody2)

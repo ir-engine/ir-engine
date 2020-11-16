@@ -9,20 +9,20 @@ export const seed = {
   templates:
   [
     {
-      "id" : "80a038b0-24d5-11eb-83cc-f5ed32cf09b2",
-      "sid" : "j9o2NLiD",
-      "name" : null,
-      "description" : null,
-      "url" : "https://resources.xr3.xrengine.io/de5f08e0-24db-11eb-a67d-059c7ea6ab31.jpeg",
-      "key" : "de5f08e0-24db-11eb-a67d-059c7ea6ab31.jpeg",
-      "mimeType" : "image/jpeg",
-      "metadata" : null,
-      "createdAt" : "2020-11-12 11:40:32",
-      "updatedAt" : "2020-11-12 11:40:32",
-      "staticResourceType" : null,
-      "subscriptionLevel" : null,
-      "componentId" : null,
-      "parentResourceId" : null
+      id : "d0828450-24e4-11eb-8630-81b209daf73a",
+      sid : "j9o2NLiD",
+      name : null,
+      description : null,
+      url : "https://resources.xr3.xrengine.io/19176bb0-24e8-11eb-8630-81b209daf73a.jpeg",
+      key : "d0828450-24e4-11eb-8630-81b209daf73a.jpeg",
+      mimeType : "image/jpeg",
+      metadata : null,
+      createdAt : "2020-11-12 12:44:37",
+      updatedAt : "2020-11-12 13:08:04",
+      staticResourceType : null,
+      subscriptionLevel : null,
+      componentId : null,
+      parentResourceId : null
     }
   ]
 };
