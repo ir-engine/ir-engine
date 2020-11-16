@@ -17,8 +17,12 @@ import { CharacterComponent } from "../components/CharacterComponent";
 
 export const initializeCharacter: Behavior = (entity): void => {
 	console.log("Initializing character for ", entity.id);
-	if (!hasComponent(entity, CharacterComponent as any))
+	if (!hasComponent(entity, CharacterComponent as any)){
+		console.warn("Character does not have a character component, adding");
 		addComponent(entity, CharacterComponent as any);
+	} else {
+		console.warn("Character already had a character component, not adding, but we should handle")
+	}
 
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	actor.mixer?.stopAllAction();

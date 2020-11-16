@@ -4,6 +4,10 @@ import fetch from 'node-fetch';
 
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils';
 import { collectionType } from '../../enums/collection';
+import logger from '../../app/logger';
+import config from '../../config';
+import StorageProvider from '../../storage/storageprovider';
+import { resolve } from 'bluebird';
 
 export default (options: any) => {
   return async (context: HookContext): Promise<HookContext> => {
@@ -14,6 +18,8 @@ export default (options: any) => {
     const StaticResourceModel = models.static_resource;
     const ComponentModel = models.component;
     const ComponentTypeModel = models.component_type;
+    const provider = new StorageProvider();
+    const storage = provider.getStorage();
     const loggedInUser = extractLoggedInUserFromParams(context.params);
 
     // TODO: Get other scene data too if there is any parent too
@@ -31,8 +37,20 @@ export default (options: any) => {
     if (!ownedFile) {
       return await Promise.reject(new BadRequest('Project File not found!'));
     }
-    const sceneData = await fetch(ownedFile.url).then(res => res.json());
-
+    let sceneData;
+    if (config.server.storageProvider === 'aws') {
+      sceneData = await fetch(ownedFile.url).then(res => res.json());
+    } else {
+      sceneData = await new Promise((resolve, reject) => {
+        storage.createReadStream({
+          key: ownedFile.key
+        }).on("data", (d: object) => {
+          resolve(JSON.parse(d.toString()))
+        }).on("error", (e: Error) => {
+          reject(e)
+        })
+      })
+    }
     const savedCollection = await CollectionModel.create({
       thumbnailOwnedFileId: context.data.thumbnailOwnedFileId,
       type: options.type ?? collectionType.scene,

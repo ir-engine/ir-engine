@@ -26,7 +26,7 @@ export const RigidBodyBehavior: Behavior = (entity: Entity, args): void => {
         //  quaternion.set(collider.quaternion.x, collider.quaternion.y, collider.quaternion.z, collider.quaternion.w)
         //  transform.rotation = quaternion.toArray()
       } else {
-
+        console.log("Setting rigidbody");
         transform.position.set(
           colliderComponent.collider.position.x,
           colliderComponent.collider.position.y,
