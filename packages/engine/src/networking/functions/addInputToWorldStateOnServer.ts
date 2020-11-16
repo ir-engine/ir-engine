@@ -13,7 +13,7 @@ export const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
   const networkId = getComponent(entity, NetworkObject).networkId;
   
   // If there's no input, don't send the frame, unless the last frame had input
-  if (input.data.size < 1 && !_.isEqual(input.data, input.lastData))
+  if (input.data.size < 1 && _.isEqual(input.data, input.lastData))
     return
 
   // Create a schema for input to send
@@ -27,28 +27,28 @@ export const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
   let numInputs;
 
   // Add all values in input component to schema
-  for (const key in input.data.keys()) {
-    switch (input.data.keys[key].type) {
+  input.data.forEach((value, key) => {
+    switch (value.type) {
       case InputType.BUTTON:
-        inputs.buttons[key] = { input: key, value: input.data.keys[key].value, lifecycleState: input.data.keys[key].lifecycleState };
+        inputs.buttons[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
         numInputs++;
         break;
       case InputType.ONEDIM:
-        if (input.data.keys[key].lifecycleState !== LifecycleValue.UNCHANGED) {
-          inputs.axes1d[key] = { input: key, value: input.data.keys[key].value, lifecycleState: input.data.keys[key].lifecycleState };
+        if (value.lifecycleState !== LifecycleValue.UNCHANGED) {
+          inputs.axes1d[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
           numInputs++;
         }
         break;
       case InputType.TWODIM:
-        if (input.data.keys[key].lifecycleState !== LifecycleValue.UNCHANGED) {
-          inputs.axes2d[key] = { input: key, valueX: input.data.keys[key].value[0], valueY: input.data.keys[key].value[1], lifecycleState: input.data.keys[key].lifecycleState };
+        if (value.lifecycleState !== LifecycleValue.UNCHANGED) {
+          inputs.axes2d[key] = { input: key, valueX: value.value[0], valueY: value.value[1], lifecycleState: value.lifecycleState };
           numInputs++;
         }
         break;
       default:
         console.error("Input type has no network handler (maybe we should add one?)");
     }
-  }
+  })
 
   // Add inputs to world state
   Network.instance.worldState.inputs.push(inputs);

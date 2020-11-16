@@ -1,6 +1,4 @@
 import _ from "lodash";
-import { AssetLoaderState } from "../../assets/components/AssetLoaderState";
-import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { isClient } from "../../common/functions/isClient";
 import { DomEventBehaviorValue } from "../../common/interfaces/DomEventBehaviorValue";
 import { NumericalType } from "../../common/types/NumericalTypes";
@@ -10,14 +8,14 @@ import { System } from '../../ecs/classes/System';
 import { Not } from "../../ecs/functions/ComponentFunctions";
 import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
+import { Client } from "../../networking/components/Client";
 import { Network } from "../../networking/components/Network";
 import { NetworkObject } from "../../networking/components/NetworkObject";
-import { Server } from "../../networking/components/Server";
-import { handleUpdatesFromClients } from "../../networking/functions/handleUpdatesFromClients";
-import { handleInput } from '../behaviors/handleInput';
+import { handleInputOnClient } from '../behaviors/handleInputOnClient';
+import { cleanupInput } from '../behaviors/cleanupInput';
 import { handleInputPurge } from "../behaviors/handleInputPurge";
 //import { initializeSession, processSession } from '../behaviors/WebXRInputBehaviors';
-import { addPhysics, removePhysics, updatePhysics } from '../behaviors/WebXRControllersBehaviors';
+import { addPhysics, removeWebXRPhysics, updateWebXRPhysics } from '../behaviors/WebXRControllersBehaviors';
 import { Input } from '../components/Input';
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
 import { WebXRSession } from '../components/WebXRSession';
@@ -46,7 +44,7 @@ export class InputSystem extends System {
   private readonly boundListeners //= new Set()
   private entityListeners: Map<Entity, Array<ListenerBindingData>>
 
-  constructor () {
+  constructor() {
     super();
     // Client only
     if (isClient) {
@@ -65,41 +63,38 @@ export class InputSystem extends System {
  *
  * @param {Number} delta Time since last frame
  */
-  public execute = (isClient ? this.clientExecute : this.serverExecute);
 
-  public clientExecute(delta: number): void {
+  public execute(delta: number): void {
     // Handle XR input
     this.queryResults.controllersComponent.added?.forEach(entity => addPhysics(entity));
     this.queryResults.controllersComponent.all?.forEach(entity => {
       const xRControllers = getComponent(entity, XRControllersComponent)
-      if(xRControllers.physicsBody1 !== null && xRControllers.physicsBody2 !== null && this.mainControllerId) {
+      if (xRControllers.physicsBody1 !== null && xRControllers.physicsBody2 !== null && this.mainControllerId) {
         this.mainControllerId = xRControllers.physicsBody1;
         this.secondControllerId = xRControllers.physicsBody2;
       }
-      updatePhysics(entity)
+      updateWebXRPhysics(entity)
     });
-    this.queryResults.controllersComponent.removed?.forEach(entity => removePhysics(entity, { controllerPhysicalBody1: this.mainControllerId, controllerPhysicalBody2:  this.secondControllerId }));
+    this.queryResults.controllersComponent.removed?.forEach(entity => removeWebXRPhysics(entity, { controllerPhysicalBody1: this.mainControllerId, controllerPhysicalBody2: this.secondControllerId }));
 
     // Apply input for local user input onto client
     this.queryResults.localClientInput.all?.forEach(entity => {
       // Apply input to local client
-      handleInput(entity, {}, delta);
+      handleInputOnClient(entity, {isLocal:true, isServer: false}, delta);
       const networkId = getComponent(entity, NetworkObject)?.networkId;
-      if(!networkId) return;
+      if (!networkId) return;
 
       // Client sends input and *only* input to the server (for now)
       // console.log("Handling input for entity ", entity.id);
       const input = getComponent(entity, Input);
 
       // If input is the same as last frame, return
-      if(_.isEqual(input.data, input.lastData))
+      if (_.isEqual(input.data, input.lastData))
         return
 
       // Repopulate lastData
       input.lastData.clear();
       input.data.forEach((value, key) => input.lastData.set(key, value));
-
-      const numInputs = 0;
 
       // Create a schema for input to send
       const inputs = {
@@ -110,18 +105,21 @@ export class InputSystem extends System {
       };
 
       // Add all values in input component to schema
-      for (const [key, value] of input.data.entries()) {
-          if (value.type === InputType.BUTTON)
-            inputs.buttons[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
-          else if(value.type === InputType.ONEDIM && value.lifecycleState !== LifecycleValue.UNCHANGED)
-              inputs.axes1d[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
-          else if(value.type === InputType.TWODIM && value.lifecycleState !== LifecycleValue.UNCHANGED)
-              inputs.axes2d[key] = { input: key, valueX: value.value[0], valueY: value.value[1], lifecycleState: value.lifecycleState };
-      }
+      input.data.forEach((value, key) => {
+        if (value.type === InputType.BUTTON)
+          inputs.buttons[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
+        else if (value.type === InputType.ONEDIM) // && value.lifecycleState !== LifecycleValue.UNCHANGED
+          inputs.axes1d[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
+        else if (value.type === InputType.TWODIM) //  && value.lifecycleState !== LifecycleValue.UNCHANGED
+          inputs.axes2d[key] = { input: key, valueX: value.value[0], valueY: value.value[1], lifecycleState: value.lifecycleState };
+      })
 
       // TODO: Convert to a message buffer
       const message = inputs; // clientInputModel.toBuffer(inputs)
       Network.instance.transport.sendReliableData(message); // Use default channel
+
+      cleanupInput(entity);
+
     });
 
     // Called when input component is added to entity
@@ -205,14 +203,10 @@ export class InputSystem extends System {
 
       this.entityListeners.delete(entity);
     });
-  }
 
-  public serverExecute(delta: number): void {
-    // handle client input, apply to local objects and add to world state snapshot
-    handleUpdatesFromClients();
 
     // Called when input component is added to entity
-    this.queryResults.inputOnServer.added?.forEach(entity => {
+    this.queryResults.networkClientInput.added?.forEach(entity => {
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
 
@@ -220,17 +214,15 @@ export class InputSystem extends System {
         return console.warn("Tried to execute on a newly added input component, but it was undefined")
       // Call all behaviors in "onAdded" of input map
       this._inputComponent.schema.onAdded?.forEach(behavior => {
+        console.log("Added behaviors");
+        console.log(behavior.behavior);
         behavior.behavior(entity, { ...behavior.args });
       });
     });
 
-    // Apply input for local user input onto client
-    this.queryResults.inputOnServer.all?.forEach(entity => {
-      handleInput(entity, {}, delta);
-    });
 
     // Called when input component is removed from entity
-    this.queryResults.inputOnServer.removed?.forEach(entity => {
+    this.queryResults.networkClientInput.removed?.forEach(entity => {
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
 
@@ -246,15 +238,15 @@ export class InputSystem extends System {
  * Queries must have components attribute which defines the list of components
  */
 InputSystem.queries = {
-  inputOnServer: {
-    components: [NetworkObject, Input, Server, Not(AssetLoaderState)],
+  networkClientInput: {
+    components: [NetworkObject, Input, Client, Not(LocalInputReceiver)],
     listen: {
       added: true,
       removed: true
     }
   },
   localClientInput: {
-    components: [Input, LocalInputReceiver],
+    components: [Input, Client, LocalInputReceiver],
     listen: {
       added: true,
       removed: true

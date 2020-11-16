@@ -6,8 +6,9 @@ import { Input } from '../components/Input';
 import { InputType } from '../enums/InputType';
 import { InputValue } from '../interfaces/InputValue';
 import { InputAlias } from '../types/InputAlias';
-import { getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { BinaryValue } from '../../common/enums/BinaryValue';
+import { NetworkObject } from '../../networking/components/NetworkObject';
 
 /**
  * Call all behaviors associated with current input in it's current lifecycle phase
@@ -21,12 +22,18 @@ import { BinaryValue } from '../../common/enums/BinaryValue';
  * @param args
  * @param {Number} delta Time since last frame
  */
- export const handleInput: Behavior = (entity: Entity, args: {}, delta: number): void => {
+ export const handleInputOnClient: Behavior = (entity: Entity, args: { isLocal: boolean, isServer: boolean }, delta: number): void => {
+  
   // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
   const input = getMutableComponent(entity, Input);
 
+    // console.log("Handling input data for ", entity.id)
+    // console.log(input.data);
+
   // check CHANGED/UNCHANGED axis inputs
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+    if(args.isLocal){
+
     if (!input.prevData.has(key)) {
       return;
     }
@@ -66,6 +73,12 @@ import { BinaryValue } from '../../common/enums/BinaryValue';
       }
       input.data.set(key, value);
     }
+  }    else{
+    const networkObject = getComponent(entity, NetworkObject);
+    if(!args.isLocal && !args.isServer){
+    console.log("Handling input on non-local networking object", networkObject.networkId, "on entity", entity.id);
+    }
+  }
   });
 
   // For each input currently on the input object:
@@ -81,8 +94,9 @@ import { BinaryValue } from '../../common/enums/BinaryValue';
 
         if(value.lifecycleState === LifecycleValue.STARTED) {
           // Set the value of the input to continued to debounce
-          input.schema.inputButtonBehaviors[key].started?.forEach(element =>
+          input.schema.inputButtonBehaviors[key].started?.forEach(element =>{
             element.behavior(entity, element.args, delta)
+          }
           );
         } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
           // If the lifecycle equal continued
@@ -141,23 +155,5 @@ import { BinaryValue } from '../../common/enums/BinaryValue';
   input.prevData.clear();
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
     input.prevData.set(key, value);
-  });
-
-  // clean processed LifecycleValue.ENDED inputs
-  input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-    if (value.type === InputType.BUTTON) {
-      if (value.lifecycleState === LifecycleValue.ENDED) {
-        input.data.delete(key);
-      }
-    }
-    // else if (
-    //   value.type === InputType.ONEDIM ||
-    //   value.type === InputType.TWODIM ||
-    //   value.type === InputType.THREEDIM
-    // ) {
-    //   // if (value.lifecycleState === LifecycleValue.UNCHANGED) {
-    //   //   input.data.delete(key)
-    //   // }
-    // }
   });
 };
