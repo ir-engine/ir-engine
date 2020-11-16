@@ -5,7 +5,7 @@ import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFun
 import { ScaleComponent } from '../../transform/components/ScaleComponent';
 import { SkyboxComponent } from '../components/SkyboxComponent';
 
-export default function createSkybox (entity, args: {
+export default function createSkybox(entity, args: {
   obj3d;
   objArgs: any
 }): void {
