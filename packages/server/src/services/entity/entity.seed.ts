@@ -1,5 +1,5 @@
 import config from '../../config';
-
+import CollectionSeed from '../collection/collection.seed'
 export const seed = {
   disabled: !config.db.forceRefresh,
   delete: config.db.forceRefresh,
@@ -14,30 +14,7 @@ export const seed = {
       index: null,
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
-      collectionId: "d4457fc0-24e4-11eb-bc2e-e7e742fb069f",
-      entityType: null
-    },
-    {
-      id: "08c8a841-24e9-11eb-bc2e-e7e742fb069f",
-      entityId: "7205D4C8-9AB9-48F1-8A9C-741CC628FA8E",
-      name: "model",
-      parent: "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      index: 0,
-      createdAt: "2020-11-12 13:14:45",
-      updatedAt: "2020-11-12 13:14:45",
-      collectionId: "d4457fc0-24e4-11eb-bc2e-e7e742fb069f",
-      entityType: null
-    },
-    {
-      id: "08c8a842-24e9-11eb-bc2e-e7e742fb069f",
-      entityId: "53F712C9-0FA7-4C9D-A77C-9640B44EA187",
-      name: "model",
-      parent: "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      index: 1,
-      createdAt: "2020-11-12 13:14:45",
-      updatedAt: "2020-11-12 13:14:45",
-      collectionId: "d4457fc0-24e4-11eb-bc2e-e7e742fb069f",
-      entityType: null
+      collectionId: CollectionSeed.templates.find(template => template.id === "d4457fc0-24e4-11eb-bc2e-e7e742fb069f").id
     },
     {
       id: "08c8a843-24e9-11eb-bc2e-e7e742fb069f",
@@ -47,8 +24,7 @@ export const seed = {
       index: 2,
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
-      collectionId: "d4457fc0-24e4-11eb-bc2e-e7e742fb069f",
-      entityType: null
+      collectionId: CollectionSeed.templates.find(template => template.id === "d4457fc0-24e4-11eb-bc2e-e7e742fb069f").id
     },
     {
       id: "08c8a844-24e9-11eb-bc2e-e7e742fb069f",
@@ -58,19 +34,7 @@ export const seed = {
       index: 3,
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
-      collectionId: "d4457fc0-24e4-11eb-bc2e-e7e742fb069f",
-      entityType: null
-    },
-    {
-      id: "08c8a845-24e9-11eb-bc2e-e7e742fb069f",
-      entityId: "A1C6FE67-B2CC-4FB2-B06F-990D4C66CE99",
-      name: "ambient light",
-      parent: "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      index: 4,
-      createdAt: "2020-11-12 13:14:45",
-      updatedAt: "2020-11-12 13:14:45",
-      collectionId: "d4457fc0-24e4-11eb-bc2e-e7e742fb069f",
-      entityType: null
+      collectionId: CollectionSeed.templates.find(template => template.id === "d4457fc0-24e4-11eb-bc2e-e7e742fb069f").id
     },
     {
       id: "08c8a846-24e9-11eb-bc2e-e7e742fb069f",
@@ -80,8 +44,17 @@ export const seed = {
       index: 5,
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
-      collectionId: "d4457fc0-24e4-11eb-bc2e-e7e742fb069f",
-      entityType: null
+      collectionId: CollectionSeed.templates.find(template => template.id === "d4457fc0-24e4-11eb-bc2e-e7e742fb069f").id
+    },
+    {
+      id: "1B698482-C15A-4CEC-9247-03873520DF70",
+      entityId: "1B698482-C15A-4CEC-9247-03873520DF70",
+      name: "Ground Plane",
+      parent: "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      index: 5,
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
+      collectionId: CollectionSeed.templates.find(template => template.id === "d4457fc0-24e4-11eb-bc2e-e7e742fb069f").id
     }
   ]
 };

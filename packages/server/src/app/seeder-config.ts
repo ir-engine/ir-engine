@@ -7,7 +7,6 @@ import EntitySeed from '../services/entity/entity.seed';
 import ComponentSeed from '../services/component/component.seed';
 
 import ComponentTypeSeed from '../services/component-type/component-type.seed';
-import EntityTypeSeed from '../services/entity-type/entity-type.seed';
 import GroupUserRankSeed from '../services/group-user-rank/group-user-rank.seed';
 import InviteTypeSeed from '../services/invite-type/invite-type.seed';
 import LocationSeed from '../services/location/location.seed';
@@ -22,16 +21,15 @@ import UserRoleSeed from '../services/user-role/user-role.seed';
 
 export const services = [
   StaticResourceSeed,
+  ComponentTypeSeed,
     LocationTypeSeed,
-    EntityTypeSeed,
     CollectionTypeSeed,
-    ComponentTypeSeed,
     StaticResourceTypeSeed,
     SubscriptionTypeSeed,
     UserRelationshipTypeSeed,
+    CollectionSeed,
     LocationSeed,
     SubscriptionLevelSeed,
-    CollectionSeed,
     ChannelTypeSeed,
     MessageStatusSeed,
     GroupUserRankSeed,

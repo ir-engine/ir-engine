@@ -68,8 +68,6 @@ export default (options: any) => {
 
     const entites = sceneEntitiesArray.map((entity: any) => {
       entity.name = entity.name.toLowerCase();
-      entity.entityType = 'default';
-      entity.userId = loggedInUser.userId;
       entity.collectionId = savedCollection.id;
       return entity;
     });
