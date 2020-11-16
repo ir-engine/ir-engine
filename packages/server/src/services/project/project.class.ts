@@ -2,7 +2,7 @@ import { Params, Id, NullableId, ServiceMethods } from '@feathersjs/feathers';
 import { Transaction } from 'sequelize/types';
 import fetch from 'node-fetch';
 
-import { mapProjectDetailData, defaultProjectImport } from '../project/project-helper';
+import { mapProjectDetailData, defaultProjectImport, readJSONFromBlobStore } from '../project/project-helper';
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils';
 import { Application } from '../../declarations';
 import StorageProvider from '../../storage/storageprovider';
@@ -113,17 +113,9 @@ export class Project implements ServiceMethods<Data> {
     }
     let sceneData;
     if (config.server.storageProvider === 'aws') {
-      sceneData = await fetch(ownedFile.url).then(res => res.json());
+      sceneData = await fetch(ownedFile.url).then(res => res.json())
     } else {
-      sceneData = await new Promise((resolve, reject) => {
-        storage.createReadStream({
-          key: ownedFile.key
-        }).on("data", (d: object) => {
-          resolve(JSON.parse(d.toString()))
-        }).on('error', (e: Error) => {
-          reject(e)
-        })
-      })
+      sceneData = await readJSONFromBlobStore(storage, ownedFile.key);
     }
     await seqeulizeClient.transaction(async (transaction: Transaction) => {
       project.update({
