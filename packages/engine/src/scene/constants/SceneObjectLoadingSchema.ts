@@ -21,6 +21,7 @@ import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
 import { addWorldColliders } from "@xr3ngine/engine/src/templates/world/behaviors/addWorldColliders";
 import { addCarPhysics } from "@xr3ngine/engine/src/physics/behaviors/addCarPhysics";
+import { Sky } from '../classes/Sky';
 
 export const SceneObjectLoadingSchema: LoadingSchema = {
   'ambient-light': {
@@ -114,20 +115,21 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
     ]
   },
   'skybox': {
-    // behaviors: [
-    //   {
-    //     behavior: createSkybox,
-    //     values: [
-    //       { from: 'distance', to: 'distance' },
-    //       { from: 'inclination', to: 'inclination' },
-    //       { from: 'azimuth', to: 'azimuth' },
-    //       { from: 'mieCoefficient', to: 'mieCoefficient' },
-    //       { from: 'mieDirectionalG', to: 'mieDirectionalG' },
-    //       { from: 'rayleigh', to: 'rayleigh' },
-    //       { from: 'turbidity', to: 'turbidity' }
-    //     ]
-    //   }
-    // ]
+    behaviors: [
+      {
+        behavior: createSkybox,
+        args: { obj3d: Sky },
+        values: [
+          { from: 'distance', to: 'distance' },
+          { from: 'inclination', to: 'inclination' },
+          { from: 'azimuth', to: 'azimuth' },
+          { from: 'mieCoefficient', to: 'mieCoefficient' },
+          { from: 'mieDirectionalG', to: 'mieDirectionalG' },
+          { from: 'rayleigh', to: 'rayleigh' },
+          { from: 'turbidity', to: 'turbidity' }
+        ]
+      }
+    ]
   },
   'image': {
     behaviors: [
