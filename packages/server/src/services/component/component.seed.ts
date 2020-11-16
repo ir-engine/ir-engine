@@ -33,7 +33,7 @@ export const seed = {
     },
     {
       id: "08cc03ab-24e9-11eb-bc2e-e7e742fb069f",
-      data: `{ "position": { "x:" 0, "y:" 7.3205, "z:" 14.641000000000005 }, "rotation": { "x:" -0.463647609000806, "y:" 0, "z:" 0 }, "scale": { "x:" 1, "y:" 1, "z:" 1 } }`,
+      data: `{ "position": { "x": 0, "y": 7.3205, "z": 14.641000000000005 }, "rotation": { "x": -0.463647609000806, "y": 0, "z": 0 }, "scale": { "x": 1, "y": 1, "z": 1 } }`,
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
       type: "transform",
@@ -57,7 +57,7 @@ export const seed = {
     },
     {
       id: "08cc03ae-24e9-11eb-bc2e-e7e742fb069f",
-      data: `{ "position": { "x:" 0, "y:" 7.3205, "z:" 14.641000000000005 }, "rotation": { "x:" -0.463647609000806, "y:" 0, "z:" 0 }, "scale": { "x:" 1, "y:" 1, "z:" 1 } }`,
+      data: `{ "position": { "x": 0, "y": 7.3205, "z": 14.641000000000005 }, "rotation": { "x": -0.463647609000806, "y": 0, "z": 0 }, "scale": { "x": 1, "y": 1, "z": 1 } }`,
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
       type: "transform",
@@ -81,7 +81,7 @@ export const seed = {
     },
     {
       id: "08cc03b4-24e9-11eb-bc2e-e7e742fb069f",
-      data: `{ "position": { "x:" 0, "y:" 7.3205, "z:" 14.641000000000005 }, "rotation": { "x:" -0.463647609000806, "y:" 0, "z:" 0 }, "scale": { "x:" 1, "y:" 1, "z:" 1 } }`,
+      data: `{ "position": { "x": 0, "y": 0, "z": 0 }, "rotation": { "x": 0, "y": 0, "z": 0 }, "scale": { "x": 100, "y": 1, "z": 100 } }`,
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
       type: "transform",
@@ -105,7 +105,7 @@ export const seed = {
     },
     {
       id: "08cc03b7-24e9-11eb-bc2e-e7e742fb069f",
-      data: `"position":{"x":-1,"y":-1.5,"z":2.5},"rotation":{"x":0,"y":0,"z":0},"scale":{"x":1,"y":1,"z":1}`,
+      data: `{"position":{"x":-1,"y":-1.5,"z":2.5},"rotation":{"x":0,"y":0,"z":0},"scale":{"x":1,"y":1,"z":1}}`,
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
       type: "skybox",
