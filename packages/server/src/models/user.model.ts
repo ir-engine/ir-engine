@@ -34,7 +34,6 @@ export default (app: Application): any => {
     (User as any).hasOne(models.user_settings);
     (User as any).belongsTo(models.party, { through: 'party_user' }); // user can only be part of one party at a time
     (User as any).hasMany(models.collection);
-    (User as any).hasMany(models.entity);
     (User as any).belongsToMany(models.user, {
       as: 'relatedUser',
       through: models.user_relationship

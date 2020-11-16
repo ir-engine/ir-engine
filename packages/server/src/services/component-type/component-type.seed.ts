@@ -7,8 +7,8 @@ export const seed = {
   randomize: false,
   templates:
       [
-        // Default Aframe components
         { type: 'animation' },
+        { type: 'audio-settings' },
         { type: 'ambient-light'},
         { type: 'background' },
         { type: 'box-collider' },
@@ -43,6 +43,7 @@ export const seed = {
         { type: 'sound' },
         { type: 'stats' },
         { type: 'text' },
+        { type: 'transform' },
         { type: 'tracked-controls' },
         { type: 'visible' },
         { type: 'vive-controls' },
