@@ -7,7 +7,7 @@ import { handleKey } from "../../src/input/behaviors/handleKey";
 import { Input } from "../../src/input/components/Input";
 import { LocalInputReceiver } from "../../src/input/components/LocalInputReceiver";
 import { InputSchema } from "../../src/input/interfaces/InputSchema";
-import { InputSystem } from "../../src/input/systems/InputSystem";
+import { InputSystem } from "../../src/input/systems/ClientInputSystem";
 import { DefaultInput } from "../../src/templates/shared/DefaultInput";
 
 let addListenerMock:jest.SpyInstance;
