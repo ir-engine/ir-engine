@@ -72,7 +72,7 @@ export const seed = {
       entityId: EntitySeed.templates.find(template => template.id === "08c8a844-24e9-11eb-bc2e-e7e742fb069f").id
     },
     {
-      id: "08cc03b0-24e9-11eb-bc2e-e7e742fb069f",
+      id: "08cc03b3-24e9-11eb-bc2e-e7e742fb069f",
       data: `{}`,
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
