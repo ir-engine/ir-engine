@@ -1,9 +1,12 @@
 .anchorContainer {
-    width: 100wv;
-    // text-align: right;
+    // width: 100wv;
     .anchorDrawer{
-        top: 5px;
-        right: 5px;
+        position: absolute;
+        // position: -webkit-sticky;
+        // position: sticky;
+        top: 20px;
+        right: 20px;
+        cursor: pointer;
     }
     .drawer{
         display: flex;   
@@ -18,12 +21,14 @@
 .userTitle{
     line-height: 2em;
     width: 100%;
-    display: flex;    
+    display: flex;  
+    margin: 5px 0; 
+    cursor: pointer;
+
     svg{
         flex-grow: 0;
-        cursor: pointer;
     }
-    span{
+    h6{
         flex-grow: 1;
     }
 }
