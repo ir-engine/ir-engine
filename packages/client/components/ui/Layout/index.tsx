@@ -56,7 +56,7 @@ const Layout = (props: Props): any => {
       </Head>
       <header>
         { path === '/login' && <NavMenu login={login} />}
-        {authUser?.accessToken != null && authUser.accessToken.length > 0 && <PartyVideoWindows />}
+        {<PartyVideoWindows />}
       </header>
       <Fragment>
         <UIDialog />

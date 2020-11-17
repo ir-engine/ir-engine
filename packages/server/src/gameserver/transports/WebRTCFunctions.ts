@@ -326,6 +326,7 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
 }
 
 export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<any> {
+    console.log("*** handleWebRtcReceiveTrack")
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
     const { mediaPeerId, mediaTag, rtpCapabilities, partyId } = data;
@@ -343,6 +344,7 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
         t => (t as any)._appData.peerId === userId && (t as any)._appData.clientDirection === "recv" && (t as any)._appData.partyId === partyId && t.closed === false
     );
 
+    console.log("Creating consumer for ", producer.id);
     const consumer = await (transport as any).consume({
         producerId: producer.id,
         rtpCapabilities,
