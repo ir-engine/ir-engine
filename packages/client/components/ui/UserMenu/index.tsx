@@ -46,6 +46,7 @@ const UserMenu = (props: Props): any => {
   console.log('authState', authState.get('user'))
   const selfUser = authState.get('user');
   const [isEditName, setIsEditName] = useState(false);
+  const [isOpenDrawer, setIsOpenDrawer] = useState(false);
   const [username, setUsername] = useState(selfUser.name);
   const invitationLink = window.location.href;
   const refLink = useRef(null);
@@ -61,7 +62,8 @@ const UserMenu = (props: Props): any => {
     right: false,
   });
 
-  type Anchor = 'top' | 'left' | 'bottom' | 'right';
+  type Anchor = 'right';
+  // type Anchor = 'top' | 'left' | 'bottom' | 'right';
 
   const handleEditClick = () => {
     setIsEditName(true);
@@ -87,10 +89,9 @@ const UserMenu = (props: Props): any => {
     setIsEditName(false)
   };
   
-  const copyCodeToClipboard = (e) => {    
+  const copyCodeToClipboard = () => {    
     refLink.current.select();
     document.execCommand("copy");
-    // e.target.focus();
   }
   
   const handleMobileShareOnClick = () =>{
@@ -113,6 +114,7 @@ const UserMenu = (props: Props): any => {
   const toggleDrawer = (anchor: Anchor, open: boolean) => (
     event: React.KeyboardEvent | React.MouseEvent,
   ) => {
+    setIsOpenDrawer(open);
     if (
       event &&
       event.type === 'keydown' &&
@@ -168,16 +170,16 @@ const UserMenu = (props: Props): any => {
 
 const renderShareLocation = () =>
       <section>
-        <p className={styles.userTitle}>
-          <span>{invitationLink}</span>
-          <Tooltip title="Share"><ShareIcon  color="primary" onClick={() => isMobileOrTablet() && navigator.share ? handleMobileShareOnClick() : copyCodeToClipboard()}/></Tooltip>
+        <p className={styles.userTitle} onClick={() => isMobileOrTablet() && navigator.share ? handleMobileShareOnClick() : copyCodeToClipboard()}>
+          <Typography variant="subtitle2" color="primary">{invitationLink}</Typography>
+          <Tooltip title="Share"><ShareIcon color="primary" /></Tooltip>
         </p>
         {(!isMobileOrTablet() || !navigator.share) && <textarea readOnly className={styles.linkField} ref={refLink} value={invitationLink} />}
     </section>;
 
   return (
         <section key={anchor} className={styles.anchorContainer}>
-          <Button className={styles.anchorDrawer} onClick={toggleDrawer(anchor, true)}><MenuIcon /></Button>
+          { !isOpenDrawer && <MenuIcon className={styles.anchorDrawer} onClick={toggleDrawer(anchor, true)} />}
           <Drawer
             anchor={anchor}
             open={state[anchor]}

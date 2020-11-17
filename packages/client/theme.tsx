@@ -249,7 +249,7 @@ const lightTheme = createMuiTheme({
     },
     MuiDrawer:{
       paper:{
-        padding: '20px',       
+        padding: '20px',  
       }
     },
     MuiInputBase:{
