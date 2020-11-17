@@ -12,6 +12,12 @@ const { create } = require('domain');
 
 global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 
+function getFilesizeInBytes(filename) {
+    var stats = fs.statSync(filename)
+    var fileSizeInBytes = stats["size"]
+    return fileSizeInBytes
+}
+
 var DracoFileCreator = /** @class */ (function () {
   function DracoFileCreator(
     // renderer,
@@ -80,7 +86,21 @@ var DracoFileCreator = /** @class */ (function () {
         i
       );
       // load obj
-      var rawObjData = fs.readFileSync(this._meshFiles[i], 'utf8');
+      let objPath = this._meshFiles[i].replace('.crt','.obj');
+
+      var rawObjData = fs.readFileSync(objPath, 'utf8');
+
+
+
+
+      var rawObjDataCRT = fs.readFileSync(this._meshFiles[i]);
+      let rawCRTFrame = Buffer.from(rawObjDataCRT)
+      // console.log(rawCRTFrame.byteLength,this._meshFiles[i],'rawCRTFrame');
+
+
+
+
+      // console.log(this._meshFiles[i],rawCRTFrame.byteLength,'===================');
       var objData = this._loader.parse(rawObjData);
       var noNormals = rawObjData.indexOf('vn ') === -1;
       //   var children = objData.children;
@@ -126,12 +146,14 @@ var DracoFileCreator = /** @class */ (function () {
 
       var encodedTexture = await promiseTexture;
 
-      let promiseMesh = new Promise((resolve, reject) => {
-        var encodedMesh = CodecHelpers_1.encodeMeshToDraco(encoder.geometry);
-        resolve(encodedMesh);
-      });
+      // let promiseMesh = new Promise((resolve, reject) => {
+      //   var encodedMesh = CodecHelpers_1.encodeMeshToDraco(encoder.geometry);
+      //   resolve(encodedMesh);
+      // });
 
-      var encodedMesh = await promiseMesh;
+      // var encodedMesh = await promiseMesh;
+      var encodedMesh = rawCRTFrame;
+      // console.log(rawObjData,'rawObjData')
 
       var frame = {
         frameNumber: i,
@@ -228,6 +250,14 @@ var DracoFileCreator = /** @class */ (function () {
   return DracoFileCreator;
 })();
 
-new DracoFileCreator('obj', 'png', 0, 299, 'sample1_v35_299frames.drcs', function () {
+// obj->ply
+// for file in /path/to/*.obj
+//     ./meshlabserver  -i "$file" -o "$file.ply" -m wt # -om vc
+// end
+// ply->crt
+// for file in *.ply
+// ../corto $file
+// end
+new DracoFileCreator('crt', 'png', 0, 2759, 'PLY-luna-med2760.drcs', function () {
   console.log('Converted to Dracosis');
 });
