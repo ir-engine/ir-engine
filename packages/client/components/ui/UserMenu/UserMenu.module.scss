@@ -1,29 +1,38 @@
-.gap {
+.anchorContainer {
+    // width: 100wv;
+    .anchorDrawer{
+        position: absolute;
+        // position: -webkit-sticky;
+        // position: sticky;
+        top: 20px;
+        right: 20px;
+        cursor: pointer;
+    }
+    .drawer{
+        display: flex;   
+    }    
+}
+.placeholder{
     flex-grow: 1;
 }
-
-.appbar {
-    position: fixed;
-    right: 20px;
-    padding: 2em;
-    flex-direction: row;
-    align-items: center;
-    width: auto;
-}
-.menuIcon{
-    margin: 5px;
-}
 .linkField{
-    padding: 5px;
-    resize: none;
-    border: none;
-    width: 100%;
-    display: block;
-    text-align: center;
-    border-radius: 5px;
-    margin: 10px 0;
-    
+    display: none;
 }
-.linkField:hover{
+.userTitle{
+    line-height: 2em;
+    width: 100%;
+    display: flex;  
+    margin: 5px 0; 
     cursor: pointer;
+
+    svg{
+        flex-grow: 0;
+    }
+    h6{
+        flex-grow: 1;
+    }
+}
+.autoWidth{
+    width: auto !important;
+    margin: 0px 5px !important;
 }
