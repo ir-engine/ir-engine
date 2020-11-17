@@ -22,6 +22,8 @@ import { LoadingSchema } from '../interfaces/LoadingSchema';
 import { addWorldColliders } from "@xr3ngine/engine/src/templates/world/behaviors/addWorldColliders";
 import { addCarPhysics } from "@xr3ngine/engine/src/physics/behaviors/addCarPhysics";
 import { Sky } from '../classes/Sky';
+import ScenePreviewCameraTagComponent from "../components/ScenePreviewCamera";
+import SpawnPointTagComponent from "../components/SpawnPoint";
 
 export const SceneObjectLoadingSchema: LoadingSchema = {
   'ambient-light': {
@@ -206,14 +208,16 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'spawn-point': {
     behaviors: [
       {
-        behavior: createSpawnPoint
+        behavior: addTagComponentFromBehavior,
+        args: { component: SpawnPointTagComponent }
       }
     ]
   },
   'scene-preview-camera': {
     behaviors: [
       {
-        behavior: createScenePreviewCamera
+        behavior: addTagComponentFromBehavior,
+        args: { component: ScenePreviewCameraTagComponent }
       }
     ]
   },
