@@ -161,7 +161,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       await createDataProducer();
 
       console.log("Send camera streams called from SocketWebRTCClientTransport");
-      // if (startVideo === true) sendCameraStreams(partyId);
+      sendCameraStreams(partyId || 'instance');
 
       // Get information for how to consume data from server and init a data consumer
       this.socket.on(MessageTypes.WebRTCConsumeData.toString(), async (options) => {
@@ -187,7 +187,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           MediaStreamComponent.instance.camAudioProducer?.id
         ];
         if (
-          // (MediaStreamComponent.instance.mediaStream !== null) &&
+          (MediaStreamComponent.instance.mediaStream !== null) &&
           (producerId != null) &&
           (selfProducerIds.indexOf(producerId) < 0) &&
           (MediaStreamComponent.instance.consumers?.find(
