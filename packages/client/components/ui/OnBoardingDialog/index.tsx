@@ -96,7 +96,7 @@ const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAv
       //       break;
       //      } 
       case generalStateList.AVATAR_SELECTION: {
-              console.log('onBoardingStep', onBoardingStep)
+              console.log('onBoardingStep', onBoardingStep);
             isOpened= true; title = 'Select An Avatar'; submitButtonText = 'Accept';
             children = <section className={styles.selectionButtonsWrapper}>
                           <section className={styles.selectionButtons}>
@@ -104,7 +104,7 @@ const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAv
                             <ArrowIosForwardOutline onClick={(): void => onAvatarChange(nextAvatarId)} />
                           </section>
                         </section>;
-            submitButtonAction = () => {store.dispatch(setAppOnBoardingStep(isTutorial ? generalStateList.AVATAR_SELECTED : generalStateList.ALL_DONE));}  
+            submitButtonAction = () => {store.dispatch(setAppOnBoardingStep(isTutorial ? generalStateList.AVATAR_SELECTED : generalStateList.ALL_DONE));};  
             break;
           }
       case generalStateList.AVATAR_SELECTED: {
@@ -117,7 +117,7 @@ const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAv
               const InputComponent = getMutableComponent(actorEntity, Input);
               InputComponent.schema = CharacterInputSchema;
               store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));
-            }
+            };
             otherButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_LOOKAROUND));
            break;}  
       case generalStateList.TUTOR_END: {
