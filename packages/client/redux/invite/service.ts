@@ -122,7 +122,7 @@ export function removeInvite(invite: Invite) {
 export function acceptInvite(inviteId: string, passcode: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      await client.service('accept-invite').get(inviteId, {
+      await client.service('a-i').get(inviteId, {
         query: {
           passcode: passcode
         }

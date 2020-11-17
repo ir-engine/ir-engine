@@ -156,7 +156,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                 if(peerId !== 'me_cam'){
                     console.log("*** New mediastream created for audio track for peer id ", peerId);
                     // Create positional audio and attach mediastream here
-                    console.log("MediaStreamComponent.instance.consumers is ")
+                    console.log("MediaStreamComponent.instance.consumers is ");
                     console.log(MediaStreamComponent.instance.consumers);
                 }
                 if (peerId === 'me_cam') {
