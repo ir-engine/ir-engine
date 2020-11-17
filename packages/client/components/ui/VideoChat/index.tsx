@@ -8,6 +8,7 @@ import { selectAuthState } from '../../../redux/auth/selector';
 import { selectLocationState } from '../../../redux/location/selector';
 import Fab from "@material-ui/core/Fab";
 import { sendCameraStreams, endVideoChat } from '../../../classes/transports/WebRTCFunctions';
+import { useEffect, useState } from 'react';
 
 interface Props {
   authState?: any;
@@ -29,11 +30,13 @@ const VideoChat = observer((props: Props) => {
     authState,
     locationState
   } = props;
+
   const user = authState.get('user');
   const currentLocation = locationState.get('currentLocation').get('location');
   const gsProvision = async () => {
     if (MediaStreamComponent.instance.mediaStream == null) {
       await sendCameraStreams(currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId);
+      console.log("Send camera streams called from gsProvision");
     } else {
       console.log('Ending video chat');
       await endVideoChat();
