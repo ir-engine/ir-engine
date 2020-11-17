@@ -1,5 +1,5 @@
 import config from '../../config';
-import EntitySeed from "../entity/entity.seed"
+import EntitySeed from "../entity/entity.seed";
 
 export const seed = {
   disabled: !config.db.forceRefresh,
