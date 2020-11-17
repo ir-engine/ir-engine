@@ -42,8 +42,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const UserMenu = (props: Props): any => {    
   const { login, authState, logoutUser, showDialog} = props;
-  console.log('props', props)
-  console.log('authState', authState.get('user'))
+  console.log('props', props);
+  console.log('authState', authState.get('user'));
   const selfUser = authState.get('user');
   const [isEditName, setIsEditName] = useState(false);
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
@@ -70,14 +70,14 @@ const UserMenu = (props: Props): any => {
   };
 
   const handleTutorialClick = () =>{
-    toggleDrawer(anchor, false)
+    toggleDrawer(anchor, false);
     store.dispatch(setAppSpecificOnBoardingStep(generalStateList.TUTOR_LOOKAROUND, true));
-  }
+  };
 
   const handleAvatarChangeClick = () =>{
-    toggleDrawer(anchor, false)
+    toggleDrawer(anchor, false);
     store.dispatch(setAppSpecificOnBoardingStep(generalStateList.AVATAR_SELECTION, false));
-  }
+  };
 
   const handleUsernameChange = (e: any): void => {
     const newName = e.target.value;
@@ -86,13 +86,13 @@ const UserMenu = (props: Props): any => {
 
   const updateUsername = async (): Promise<void> => {
     await props.updateUsername(selfUser.id, username);
-    setIsEditName(false)
+    setIsEditName(false);
   };
   
   const copyCodeToClipboard = () => {    
     refLink.current.select();
     document.execCommand("copy");
-  }
+  };
   
   const handleMobileShareOnClick = () =>{
     if (navigator.share) {
@@ -109,7 +109,7 @@ const UserMenu = (props: Props): any => {
           console.error('Something went wrong sharing the world', error);
         });
     }
-  }
+  };
   
   const toggleDrawer = (anchor: Anchor, open: boolean) => (
     event: React.KeyboardEvent | React.MouseEvent,
@@ -193,7 +193,7 @@ const renderShareLocation = () =>
             <Typography variant="h2" color="primary" onClick={handleTutorialClick}>Tutorial</Typography>
             {selfUser && selfUser.userRole === 'guest' && <Typography variant="h2" color="primary" onClick={handleLogin}>Login</Typography>}
             {selfUser && selfUser.userRole !== 'guest' && <Typography variant="h2" color="primary" onClick={handleLogout}>Logout</Typography>}
-            <section className={styles.placeholder}></section>
+            <section className={styles.placeholder} />
             <Typography variant="h2" color="secondary">About</Typography>
             <Typography variant="h2" color="secondary">Privacy & Terms</Typography>
           </Drawer>

@@ -7,7 +7,7 @@ import multer from 'multer';
 import StorageProvider from '../../storage/storageprovider';
 import blobService from 'feathers-blob';
 import { v1 as uuidv1 } from 'uuid';
-import dauria from "dauria"
+import dauria from "dauria";
 import config from '../../config';
 const multipartMiddleware = multer();
 
@@ -40,10 +40,10 @@ export default (app: Application): void => {
       // Only returns jpeg format image i.e. the ones uploaded to server.
       if (req.method === 'GET' && config.server.storageProvider !== 'aws' && res.data.id && res.data.id.split('.')[1] === 'jpeg') {
         // Parse data uri 'Base64' to 'Buffer/Binary data'
-        const { buffer } = dauria.parseDataURI(res.data.uri)
-        res.setHeader('Content-Type', 'image/jpeg') // Set content-type header to image for client
-        res.write(buffer, 'binary')
-        res.end(null, 'binary')
+        const { buffer } = dauria.parseDataURI(res.data.uri);
+        res.setHeader('Content-Type', 'image/jpeg'); // Set content-type header to image for client
+        res.write(buffer, 'binary');
+        res.end(null, 'binary');
       } else {
         next();
       }
