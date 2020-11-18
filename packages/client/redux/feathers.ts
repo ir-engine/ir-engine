@@ -11,7 +11,8 @@ const featherStoreKey: string = publicRuntimeConfig.featherStoreKey;
 // Socket.io is exposed as the `io` global.
 const socket = io(apiServer, {
   transports: ['websocket'],
-  upgrade: false
+  upgrade: false,
+  
 });
 
 // @feathersjs/client is exposed as the `feathers` global.
