@@ -53,7 +53,7 @@ const appReducer = (state = immutableState, action: AppLoadedAction | SetViewpor
       return state
         .set('inVrMode', action.inVrMode);
     case SET_APP_ONBOARDING_STEP: 
-    console.log('onBoardingStep', action.onBoardingStep, 'isTutorial', action.isTutorial, '   -----',state.get('onBoardingStep'))
+    console.log('onBoardingStep', action.onBoardingStep, 'isTutorial', action.isTutorial, '   -----',state.get('onBoardingStep'));
 
         return (action.onBoardingStep === generalStateList.ALL_DONE) ?
            state
@@ -67,7 +67,7 @@ const appReducer = (state = immutableState, action: AppLoadedAction | SetViewpor
             .set('onBoardingStep', action.onBoardingStep >= state.get('onBoardingStep') ? action.onBoardingStep : state.get('onBoardingStep'))
             .set('isTutorial', false);
     case SET_APP_SPECIFIC_ONBOARDING_STEP: 
-    console.log('onBoardingStep', action.onBoardingStep, 'isTutorial', action.isTutorial)
+    console.log('onBoardingStep', action.onBoardingStep, 'isTutorial', action.isTutorial);
           return state.set('onBoardingStep', action.onBoardingStep).set('isTutorial', action.isTutorial);
     default:
       break;
