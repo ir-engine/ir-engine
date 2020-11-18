@@ -71,3 +71,19 @@
 .user-id {
     text-align: center;
 }
+
+/**/
+.settingRow{
+  display: flex;
+  .settingLabel{
+    width: 50%;
+    text-transform: uppercase;
+    font-weight: normal;
+  }
+  .settingValue{
+    width: 50%;
+    .controlsSvg span{
+      background-color: transparent;
+    }
+  }
+}

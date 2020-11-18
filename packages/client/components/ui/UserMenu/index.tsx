@@ -23,6 +23,7 @@ import SignIn from '../Auth/Login';
 import { logoutUser } from '../../../redux/auth/service';
 import { Network } from '@xr3ngine/engine/src/networking/components/Network';
 import { loadActorAvatar } from '@xr3ngine/engine/src/templates/character/behaviors/loadActorAvatar';
+import UserSettings from '../Profile/UserSettings';
 interface Props {
     login?: boolean;
     authState?:any;
@@ -67,24 +68,19 @@ const UserMenu = (props: Props): any => {
     right: false,
   });
 
-  type Anchor = 'right';
-  // type Anchor = 'top' | 'left' | 'bottom' | 'right';
+  type Anchor = 'top' | 'left' | 'bottom' | 'right';
 
   const handleEditClick = () => {
     setIsEditName(true);
   };
 
-  const handleTutorialClick = () =>{
-    toggleDrawer(anchor, false)
+  const handleTutorialClick = (event: React.KeyboardEvent | React.MouseEvent) =>{
+    toggleDrawer(anchor, false)(event);
     store.dispatch(setAppSpecificOnBoardingStep(generalStateList.TUTOR_LOOKAROUND, true));
   }
 
-  const handleAvatarChangeClick = () =>{
-    setDrawerType('avatar')
-    // toggleDrawer(anchor, false)
-    // store.dispatch(setAppSpecificOnBoardingStep(generalStateList.AVATAR_SELECTION, false));
-
-  }
+  const handleAvatarChangeClick = () => setDrawerType('avatar')
+  const handleDeviceSetupClick = () => setDrawerType('device')
 
   const handleUsernameChange = (e: any): void => {
     const newName = e.target.value;
@@ -220,12 +216,18 @@ const renderAvatarSelectionPage = () =><>
       </section>
       </>
 
+const renderDeviceSetupPage = () =><>
+  <Typography variant="h2" color="primary"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} />Device Setup</Typography>
+  <UserSettings />
+</>
+
 const renderUserMenu = () =><>
           {renderChangeNameForm()}
           <Typography variant="h1">{worldName}</Typography>
           {renderShareLocation()}
           <Typography variant="h2" color="primary" onClick={handleAvatarChangeClick}>Change Avatar</Typography>
-          <Typography variant="h2" color="primary" onClick={handleTutorialClick}>Tutorial</Typography>
+          <Typography variant="h2" color="primary" onClick={(event)=>handleTutorialClick(event)}>Tutorial</Typography>
+          <Typography variant="h2" color="primary" onClick={handleDeviceSetupClick}>Device Setup</Typography>
           {selfUser && selfUser.userRole === 'guest' && <Typography variant="h2" color="primary" onClick={handleLogin}>Login</Typography>}
           {selfUser && selfUser.userRole !== 'guest' && <Typography variant="h2" color="primary" onClick={handleLogout}>Logout</Typography>}
           <section className={styles.placeholder}></section>
@@ -236,6 +238,7 @@ const renderUserMenu = () =><>
 const renderDrawerContent = () =>{
   switch(drawerType){
     case 'avatar': return renderAvatarSelectionPage();
+    case 'device': return renderDeviceSetupPage();
     default: return renderUserMenu();
   }
 }
