@@ -113,7 +113,7 @@ export class Project implements ServiceMethods<Data> {
     }
     let sceneData;
     if (config.server.storageProvider === 'aws') {
-      sceneData = await fetch(ownedFile.url).then(res => res.json())
+      sceneData = await fetch(ownedFile.url).then(res => res.json());
     } else {
       sceneData = await readJSONFromBlobStore(storage, ownedFile.key);
     }

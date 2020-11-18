@@ -1,5 +1,5 @@
 import config from '../../config';
-import CollectionSeed from '../collection/collection.seed'
+import CollectionSeed from '../collection/collection.seed';
 export const seed = {
   disabled: !config.db.forceRefresh,
   delete: config.db.forceRefresh,
