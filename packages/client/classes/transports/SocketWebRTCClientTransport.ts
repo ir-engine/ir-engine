@@ -153,12 +153,19 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         console.log("Client has been kicked from the world");
       });
 
+      console.log("Initing send and receive transports")
+
       // Init Receive and Send Transports initially since we need them for unreliable message consumption and production
       await Promise.all([initSendTransport('instance'), initReceiveTransport('instance')]);
 
       await createDataProducer();
 
-      if (startVideo === true) sendCameraStreams(partyId);
+      console.log("Send camera streams called from SocketWebRTCClientTransport");
+<<<<<<< HEAD
+      // if (startVideo === true) sendCameraStreams(partyId);
+=======
+      sendCameraStreams(partyId || 'instance');
+>>>>>>> 5c75f1f2623268f552d329b60580839c8b32b888
 
       // Get information for how to consume data from server and init a data consumer
       this.socket.on(MessageTypes.WebRTCConsumeData.toString(), async (options) => {
@@ -184,7 +191,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           MediaStreamComponent.instance.camAudioProducer?.id
         ];
         if (
-          (MediaStreamComponent.instance.mediaStream !== null) &&
+          // (MediaStreamComponent.instance.mediaStream !== null) &&
           (producerId != null) &&
           (selfProducerIds.indexOf(producerId) < 0) &&
           (MediaStreamComponent.instance.consumers?.find(
