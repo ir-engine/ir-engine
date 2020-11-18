@@ -250,6 +250,11 @@ const lightTheme = createMuiTheme({
     MuiDrawer:{
       paper:{
         padding: '20px',  
+      },
+      paperAnchorRight: {
+        '@media (max-width: 768px)':{
+          width: '50%',
+        }
       }
     },
     MuiInputBase:{
