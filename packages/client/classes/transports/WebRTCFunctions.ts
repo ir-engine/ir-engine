@@ -161,14 +161,14 @@ export async function endVideoChat(leftParty?: boolean): Promise<boolean> {
         }
         console.log('Closed screen audio and video producers');
 
-        MediaStreamComponent.instance?.consumers.map(async (c) => {
-            if (networkTransport.socket?.connected === true)
-                await networkTransport.request(MessageTypes.WebRTCCloseConsumer.toString(), {
-                    consumerId: c.id
-                });
-            await c.close();
-        });
-        console.log('Closed all consumers');
+        // MediaStreamComponent.instance?.consumers.map(async (c) => {
+        //     if (networkTransport.socket?.connected === true)
+        //         await networkTransport.request(MessageTypes.WebRTCCloseConsumer.toString(), {
+        //             consumerId: c.id
+        //         });
+        //     await c.close();
+        // });
+        // console.log('Closed all consumers');
 
         if (leftParty === true) {
             if (networkTransport.partyRecvTransport != null && networkTransport.partyRecvTransport.closed !== true)
@@ -194,7 +194,7 @@ export function resetProducer(): void {
         MediaStreamComponent.instance.screenAudioProducer = null;
         MediaStreamComponent.instance.mediaStream = null;
         MediaStreamComponent.instance.localScreen = null;
-        MediaStreamComponent.instance.consumers = [];
+        // MediaStreamComponent.instance.consumers = [];
     }
 }
 
@@ -222,8 +222,8 @@ export async function subscribeToTrack(peerId: string, mediaTag: string, partyId
     if (consumerParameters.id == null) return;
 
     consumer = partyId === 'instance' ?
-        await networkTransport.instanceRecvTransport.consume({ ...consumerParameters, appData: { peerId, mediaTag } })
-        : await networkTransport.partyRecvTransport.consume({ ...consumerParameters, appData: { peerId, mediaTag, partyId } });
+        await networkTransport.instanceRecvTransport.consume({ ...consumerParameters, appData: { peerId, mediaTag }, paused: true })
+        : await networkTransport.partyRecvTransport.consume({ ...consumerParameters, appData: { peerId, mediaTag, partyId }, paused: true });
 
     if (MediaStreamComponent.instance.consumers?.find(c => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag) == null) {
         MediaStreamComponent.instance.consumers.push(consumer);
@@ -251,6 +251,8 @@ export async function resumeConsumer(consumer: { appData: { peerId: any; mediaTa
     networkTransport = Network.instance.transport as any;
     await networkTransport.request(MessageTypes.WebRTCResumeConsumer.toString(), { consumerId: consumer.id });
     await consumer.resume();
+    console.log(networkTransport);
+    console.log(consumer);
 }
 
 export async function pauseProducer(producer: { appData: { mediaTag: any; }; id: any; pause: () => any; }) {
