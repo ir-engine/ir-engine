@@ -35,7 +35,7 @@ const emitter = new EventEmitter();
 const app = express(feathers()) as Application;
 const agonesSDK = new AgonesSDK();
 
-function healthPing (agonesSDK: AgonesSDK): void {
+function healthPing(agonesSDK: AgonesSDK): void {
   agonesSDK.health();
   setTimeout(() => healthPing(agonesSDK), 1000);
 }
@@ -68,9 +68,9 @@ if (config.server.enabled) {
   app.use(helmet());
   app.use(cors(
     {
-    origin: true,
-    credentials: true
-  }
+      origin: true,
+      credentials: true
+    }
   ));
   app.use(compress());
   app.use(express.json());
@@ -79,15 +79,17 @@ if (config.server.enabled) {
 
   // Set up Plugins and providers
   app.configure(express.rest());
-  app.configure(socketio({serveClient: false, handlePreflightRequest: (server, req, res) => {
-// Set CORS headers
-res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
-res.setHeader('Access-Control-Request-Method', '*');
-res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
-res.setHeader('Access-Control-Allow-Headers', '*');
-res.writeHead(200);
-res.end();
-}, transports: ['websocket'], wsEngine: 'uws', allowUpgrades: false },(io) => {
+  app.configure(socketio({
+    serveClient: false, handlePreflightRequest: (server, req, res) => {
+      // Set CORS headers
+      res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+      res.setHeader('Access-Control-Request-Method', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET`');
+      res.setHeader('Access-Control-Allow-Headers', '*');
+      res.writeHead(200);
+      res.end();
+    }
+  }, (io) => {
     io.use((socket, next) => {
       (socket as any).feathers.socketQuery = socket.handshake.query;
       (socket as any).socketQuery = socket.handshake.query;
