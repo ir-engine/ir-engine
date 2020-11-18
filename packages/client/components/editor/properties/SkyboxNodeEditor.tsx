@@ -28,8 +28,8 @@ const SkyOption = [
 const TexturesOption = [
   {
     label: "texture1",
-    value: "..server/public/textures/kazuend-2KXEb_8G5vo-unsplash.jpg"
-    // "@xr3ngine/engine/src/scene/classes/Image";packages/server/public/textures/kazuend-2KXEb_8G5vo-unsplash.jpg
+    value: "server/public/textures/kazuend-2KXEb_8G5vo-unsplash.jpg"
+    // packages/server/public/textures/kazuend-2KXEb_8G5vo-unsplash.jpg?
   }
   // {
   //   label: "texture2",
