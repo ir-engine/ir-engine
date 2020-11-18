@@ -1,10 +1,11 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styles from './UserMenu.module.scss';
 import { Button, MenuItem, TextField, Drawer, Typography } from '@material-ui/core';
 import { generalStateList, setAppSpecificOnBoardingStep } from '../../../redux/app/actions';
 import EditIcon from '@material-ui/icons/Edit';
 import MenuIcon from '@material-ui/icons/Menu';
 import ShareIcon from '@material-ui/icons/Share';
+import PermIdentityIcon from '@material-ui/icons/PermIdentity';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import Tooltip from '@material-ui/core/Tooltip';
 import store from '../../../redux/store';
@@ -12,12 +13,16 @@ import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
+import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
+import { setActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/setActorAvatar";
 
 import { updateUsername } from '../../../redux/auth/service';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { showDialog } from '../../../redux/dialog/service';
 import SignIn from '../Auth/Login';
 import { logoutUser } from '../../../redux/auth/service';
+import { Network } from '@xr3ngine/engine/src/networking/components/Network';
+import { loadActorAvatar } from '@xr3ngine/engine/src/templates/character/behaviors/loadActorAvatar';
 interface Props {
     login?: boolean;
     authState?:any;
@@ -42,12 +47,12 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const UserMenu = (props: Props): any => {    
   const { login, authState, logoutUser, showDialog} = props;
-  console.log('props', props)
-  console.log('authState', authState.get('user'))
   const selfUser = authState.get('user');
   const [isEditName, setIsEditName] = useState(false);
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
   const [username, setUsername] = useState(selfUser.name);
+  const [drawerType, setDrawerType] = useState('default');
+
   const invitationLink = window.location.href;
   const refLink = useRef(null);
   const postTitle = 'AR/VR world';
@@ -75,8 +80,10 @@ const UserMenu = (props: Props): any => {
   }
 
   const handleAvatarChangeClick = () =>{
-    toggleDrawer(anchor, false)
-    store.dispatch(setAppSpecificOnBoardingStep(generalStateList.AVATAR_SELECTION, false));
+    setDrawerType('avatar')
+    // toggleDrawer(anchor, false)
+    // store.dispatch(setAppSpecificOnBoardingStep(generalStateList.AVATAR_SELECTION, false));
+
   }
 
   const handleUsernameChange = (e: any): void => {
@@ -160,15 +167,15 @@ const UserMenu = (props: Props): any => {
             </Button>
         </section>) 
                 : 
-        (<span className={styles.userTitle}>
-          <ArrowBackIosIcon onClick={toggleDrawer(anchor, false)} />
+        (<span className={styles.userTitle}>    
+          <ArrowBackIosIcon onClick={toggleDrawer(anchor, false)} />      
           <span>{ selfUser ? selfUser.name : ''}</span>
            <Tooltip title="Edit Username"><EditIcon color="primary" onClick={handleEditClick}  /></Tooltip>
         </span>)}
       </section>;
 
 
-const renderShareLocation = () =>
+  const renderShareLocation = () =>
       <section>
         <p className={styles.userTitle} onClick={() => isMobileOrTablet() && navigator.share ? handleMobileShareOnClick() : copyCodeToClipboard()}>
           <Typography variant="subtitle2" color="primary">{invitationLink}</Typography>
@@ -176,6 +183,62 @@ const renderShareLocation = () =>
         </p>
         {(!isMobileOrTablet() || !navigator.share) && <textarea readOnly className={styles.linkField} ref={refLink} value={invitationLink} />}
     </section>;
+
+
+  const [actorEntity, setActorEntity] = useState(null);
+  const [actorAvatarId, setActorAvatarId] = useState('Rose');
+
+    useEffect(() => {
+
+      const actorEntityWaitInterval = setInterval(() => {
+        if (Network.instance?.localClientEntity) {
+          console.log('setActorEntity');
+          setActorEntity(Network.instance.localClientEntity);
+          clearInterval(actorEntityWaitInterval);
+        }
+      }, 300);
+    }, []);
+
+    useEffect(() => {
+      if (actorEntity) {
+        setActorAvatar(actorEntity, {avatarId: actorAvatarId});
+        loadActorAvatar(actorEntity);
+      }
+    }, [ actorEntity, actorAvatarId ]);
+   
+
+const renderAvatarSelectionPage = () =><>
+      <Typography variant="h2" color="primary"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} />Change Avatar</Typography>
+      <section className={styles.avatarCountainer}>
+          {CharacterAvatars.map(characterAvatar=>
+              <div className={styles.avatarPreviewWrapper}>
+                <PermIdentityIcon color="primary" 
+                className={styles.avatarPreview+(actorAvatarId === characterAvatar.id ? ' '+styles.currentAvatar : '')} 
+                onClick={()=>setActorAvatarId(characterAvatar.id)} />
+              </div>
+            )}
+      </section>
+      </>
+
+const renderUserMenu = () =><>
+          {renderChangeNameForm()}
+          <Typography variant="h1">{worldName}</Typography>
+          {renderShareLocation()}
+          <Typography variant="h2" color="primary" onClick={handleAvatarChangeClick}>Change Avatar</Typography>
+          <Typography variant="h2" color="primary" onClick={handleTutorialClick}>Tutorial</Typography>
+          {selfUser && selfUser.userRole === 'guest' && <Typography variant="h2" color="primary" onClick={handleLogin}>Login</Typography>}
+          {selfUser && selfUser.userRole !== 'guest' && <Typography variant="h2" color="primary" onClick={handleLogout}>Logout</Typography>}
+          <section className={styles.placeholder}></section>
+          <Typography variant="h2" color="secondary">About</Typography>
+          <Typography variant="h2" color="secondary">Privacy & Terms</Typography>
+      </>;
+
+const renderDrawerContent = () =>{
+  switch(drawerType){
+    case 'avatar': return renderAvatarSelectionPage();
+    default: return renderUserMenu();
+  }
+}
 
   return (
         <section key={anchor} className={styles.anchorContainer}>
@@ -186,16 +249,7 @@ const renderShareLocation = () =>
             onClose={toggleDrawer(anchor, false)}
             className={styles.drawer}
           >
-            {renderChangeNameForm()}
-            <Typography variant="h1">{worldName}</Typography>
-            {renderShareLocation()}
-            <Typography variant="h2" color="primary" onClick={handleAvatarChangeClick}>Change Avatar</Typography>
-            <Typography variant="h2" color="primary" onClick={handleTutorialClick}>Tutorial</Typography>
-            {selfUser && selfUser.userRole === 'guest' && <Typography variant="h2" color="primary" onClick={handleLogin}>Login</Typography>}
-            {selfUser && selfUser.userRole !== 'guest' && <Typography variant="h2" color="primary" onClick={handleLogout}>Logout</Typography>}
-            <section className={styles.placeholder}></section>
-            <Typography variant="h2" color="secondary">About</Typography>
-            <Typography variant="h2" color="secondary">Privacy & Terms</Typography>
+            {renderDrawerContent()}            
           </Drawer>
         </section>
   );
