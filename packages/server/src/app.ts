@@ -66,7 +66,12 @@ if (config.server.enabled) {
 
   // Enable security, CORS, compression, favicon and body parsing
   app.use(helmet());
-  app.use(cors());
+  app.use(cors(
+    // {
+    // origin: config.client.url,
+    // credentials: true
+  // }
+  ));
   app.use(compress());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
@@ -74,7 +79,7 @@ if (config.server.enabled) {
 
   // Set up Plugins and providers
   app.configure(express.rest());
-  app.configure(socketio({serveClient: false, origins: '*:*'},(io) => {
+  app.configure(socketio({serveClient: false, origins: '*:*', transports: ['websocket']},(io) => {
     io.use((socket, next) => {
       (socket as any).feathers.socketQuery = socket.handshake.query;
       (socket as any).socketQuery = socket.handshake.query;
