@@ -66,6 +66,9 @@ export async function sendCameraStreams(partyId?: string): Promise<void> {
     if (MediaStreamComponent.instance.mediaStream == null)
         await MediaStreamSystem.instance.startCamera();
 
+    if (MediaStreamComponent.instance.mediaStream == null || MediaStreamComponent.instance.mediaStream == undefined)
+        console.warn("Media stream is null, camera must have failed");
+
     if (networkTransport.videoEnabled === true) {
         let newTransport;
 
@@ -78,15 +81,19 @@ export async function sendCameraStreams(partyId?: string): Promise<void> {
                 newTransport = networkTransport.partySendTransport;
         }
 
-        MediaStreamComponent.instance.camVideoProducer = await newTransport.produce({
-            track: MediaStreamComponent.instance.mediaStream.getVideoTracks()[0],
-            encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
-            appData: { mediaTag: "cam-video", partyId: partyId }
-        });
-
-        if (MediaStreamComponent.instance.videoPaused)
-            await MediaStreamComponent.instance.camVideoProducer.pause();
+        if (MediaStreamComponent.instance.mediaStream !== null){
+            MediaStreamComponent.instance.camVideoProducer = await newTransport.produce({
+                track: MediaStreamComponent.instance.mediaStream.getVideoTracks()[0],
+                encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
+                appData: { mediaTag: "cam-video", partyId: partyId }
+            });
+    
+            if (MediaStreamComponent.instance.videoPaused)
+                await MediaStreamComponent.instance.camVideoProducer.pause();
+        }
     }
+
+    if (MediaStreamComponent.instance.mediaStream !== null){
 
     //To control the producer audio volume, we need to clone the audio track and connect a Gain to it.
     //This Gain is saved on MediaStreamComponent so it can be accessed from the user's component and controlled.
@@ -111,6 +118,8 @@ export async function sendCameraStreams(partyId?: string): Promise<void> {
 
     if (MediaStreamComponent.instance.audioPaused)
         MediaStreamComponent.instance.camAudioProducer.pause();
+
+    }
 }
 
 export async function endVideoChat(leftParty?: boolean): Promise<boolean> {
