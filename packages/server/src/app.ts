@@ -78,6 +78,7 @@ if (config.server.enabled) {
   // Set up Plugins and providers
   app.configure(express.rest());
   app.configure(socketio({serveClient: false},(io) => {
+    io.origins('*:*');
     io.use((socket, next) => {
       (socket as any).feathers.socketQuery = socket.handshake.query;
       (socket as any).socketQuery = socket.handshake.query;
