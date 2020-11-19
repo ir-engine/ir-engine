@@ -12,6 +12,28 @@
         display: flex;   
     }    
 }
+.avatarCountainer{
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    height: 100%;
+    .avatarPreviewWrapper{
+        width: 50%;
+        padding: 5px;
+        cursor: pointer;    
+        @media (max-width: 768px){
+            width: 100%;
+          }    
+        .avatarPreview{
+            width: 100%;
+            height: 100%;
+            &:hover, &.currentAvatar{
+                background-color: blue;                
+            }
+        }
+    }
+}
+
 .placeholder{
     flex-grow: 1;
 }
@@ -24,12 +46,12 @@
     display: flex;  
     margin: 5px 0; 
     cursor: pointer;
-
     svg{
         flex-grow: 0;
     }
     h6{
         flex-grow: 1;
+        word-break: break-all;
     }
 }
 .autoWidth{
