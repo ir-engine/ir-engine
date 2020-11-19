@@ -1,6 +1,7 @@
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { Input } from "../../input/components/Input";
 import { InputType } from "../../input/enums/InputType";
+import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { Network } from "../components/Network";
 
 export function handleUpdatesFromClients() {
@@ -9,6 +10,8 @@ export function handleUpdatesFromClients() {
     const clientInput = Network.instance.incomingMessageQueue.pop() as any;
     if(Network.instance.networkObjects[clientInput.networkId] === undefined) return;
 
+    const actor = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, CharacterComponent);
+    actor.viewVector.fromArray(clientInput.viewVector)
     // Get input component
     const input = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, Input);
     // Clear current data
