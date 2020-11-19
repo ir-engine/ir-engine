@@ -12,6 +12,7 @@ declare module '../../declarations' {
 
 export default (app: Application): any => {
   const options = {
+    events: ['refresh'],
     Model: createModel(app),
     paginate: app.get('paginate'),
     multi: true
@@ -105,5 +106,9 @@ export default (app: Application): any => {
         group: data
       });
     }));
+  });
+
+  service.publish('refresh', async (data): Promise<any> => {
+    return app.channel(`userIds/${data.userId}`).send({});
   });
 };

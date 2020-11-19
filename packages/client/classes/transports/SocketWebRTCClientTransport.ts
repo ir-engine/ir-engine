@@ -153,13 +153,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         console.log("Client has been kicked from the world");
       });
 
-      // Init Receive and Send Transports initially since we need them for unreliable message consumption and production
-      await Promise.all([initSendTransport('instance'), initReceiveTransport('instance')]);
-
-      await createDataProducer();
-
-      if (startVideo === true) sendCameraStreams(partyId);
-
       // Get information for how to consume data from server and init a data consumer
       this.socket.on(MessageTypes.WebRTCConsumeData.toString(), async (options) => {
         const dataConsumer = await this.instanceRecvTransport.consumeData(options);
@@ -184,13 +177,13 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           MediaStreamComponent.instance.camAudioProducer?.id
         ];
         if (
-          (MediaStreamComponent.instance.mediaStream !== null) &&
-          (producerId != null) &&
-          (selfProducerIds.indexOf(producerId) < 0) &&
-          (MediaStreamComponent.instance.consumers?.find(
-            c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
-          ) == null &&
-            (this.partyId === localPartyId) || localPartyId === 'instance')
+            // (MediaStreamComponent.instance.mediaStream !== null) &&
+            (producerId != null) &&
+            (selfProducerIds.indexOf(producerId) < 0) &&
+            (MediaStreamComponent.instance.consumers?.find(
+                c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
+                ) == null &&
+                (this.partyId === localPartyId) || localPartyId === 'instance')
         ) {
           // that we don't already have consumers for...
           console.log(`auto subscribing to ${mediaTag} track that ${socketId} has added at ${new Date()}`);
@@ -201,6 +194,16 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       this.socket.on(MessageTypes.WebRTCCloseConsumer.toString(), async (consumerId) => {
         if (MediaStreamComponent.instance) MediaStreamComponent.instance.consumers = MediaStreamComponent.instance.consumers.filter((c) => c.id !== consumerId);
       });
+
+      console.log("Initing send and receive transports")
+
+      // Init Receive and Send Transports initially since we need them for unreliable message consumption and production
+      await Promise.all([initSendTransport('instance'), initReceiveTransport('instance')]);
+
+      await createDataProducer();
+
+      console.log("Send camera streams called from SocketWebRTCClientTransport");
+      // sendCameraStreams(partyId || 'instance');
     });
   }
 }
