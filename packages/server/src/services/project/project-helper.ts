@@ -84,22 +84,22 @@ export function defaultProjectImport (models: any): any[] {
   return includedEntities;
 }
 
-export function readJSONFromBlobStore(storage, key) {
+export function readJSONFromBlobStore(storage, key): any {
   return new Promise((resolve, reject) => {
-    let chunks = {}
+    let chunks = {};
     storage
       .createReadStream({
         key
       })
       .on('data', (data: object) => {
-        const parsedData = JSON.parse(data.toString())
-        chunks = Object.assign(chunks, parsedData)
+        const parsedData = JSON.parse(data.toString());
+        chunks = Object.assign(chunks, parsedData);
       })
       .on('end', () => {
-        resolve(chunks)
+        resolve(chunks);
       })
-      .on('error', reject)
-  })
+      .on('error', reject);
+  });
 }
 
 export function mapProjectDetailData (project: any): any {

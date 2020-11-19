@@ -21,9 +21,10 @@ export class AcceptInvite implements ServiceMethods<Data> {
   }
 
   async get (id: Id, params?: Params): Promise<Data> {
-    console.log('ACCEPT_INVITE');
-    console.log(id);
-    console.log(params);
+    if (params.query.t) {
+      params.query.passcode = params.query.t;
+      delete params.query.t;
+    }
     try {
       params.provider = null;
       const invite = await this.app.service('invite').get(id, params);

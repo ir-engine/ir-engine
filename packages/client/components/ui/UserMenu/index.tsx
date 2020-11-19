@@ -77,7 +77,7 @@ const UserMenu = (props: Props): any => {
   const handleTutorialClick = (event: React.KeyboardEvent | React.MouseEvent) =>{
     toggleDrawer(anchor, false)(event);
     store.dispatch(setAppSpecificOnBoardingStep(generalStateList.TUTOR_LOOKAROUND, true));
-  }
+  };
 
   const handleAvatarChangeClick = () => setDrawerType('avatar')
   const handleDeviceSetupClick = () => setDrawerType('device')
@@ -89,13 +89,13 @@ const UserMenu = (props: Props): any => {
 
   const updateUsername = async (): Promise<void> => {
     await props.updateUsername(selfUser.id, username);
-    setIsEditName(false)
+    setIsEditName(false);
   };
   
   const copyCodeToClipboard = () => {    
     refLink.current.select();
     document.execCommand("copy");
-  }
+  };
   
   const handleMobileShareOnClick = () =>{
     if (navigator.share) {
@@ -112,7 +112,7 @@ const UserMenu = (props: Props): any => {
           console.error('Something went wrong sharing the world', error);
         });
     }
-  }
+  };
   
   const toggleDrawer = (anchor: Anchor, open: boolean) => (
     event: React.KeyboardEvent | React.MouseEvent,
