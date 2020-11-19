@@ -276,6 +276,27 @@ const lightTheme = createMuiTheme({
         }
       }
     },
+    MuiList:{
+      root:{
+        background:'rgba(206,206,206,0.1)',
+        color: '#FFFFFF',
+      },
+    },
+    MuiListItem:{
+      root:{
+        paddingTop: '0px',
+        paddingBottom: '0px',       
+      },
+      
+    },
+    MuiCardContent:{
+      root:{
+        background:'rgba(255,255,255,1)',
+        '&:last-child': {
+          paddingBottom: '0px',
+        }
+      }
+    },
     MuiInputBase:{
       input:{
         color: '#000000',
