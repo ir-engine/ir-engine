@@ -43,6 +43,8 @@ export class PhysicsSystem extends System {
       addCollider(entity, { phase: 'onRemoved' });
     });
 
+    //console.warn(PhysicsManager.instance.physicsWorld.bodies.length);
+
     // RigidBody
 /*
     this.queryResults.rigidBody.added?.forEach(entity => {
