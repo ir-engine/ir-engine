@@ -10,6 +10,7 @@ import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { Client } from "../../networking/components/Client";
 import { Network } from "../../networking/components/Network";
+import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { NetworkObject } from "../../networking/components/NetworkObject";
 import { handleInputOnClient } from '../behaviors/handleInputOnClient';
 import { cleanupInput } from '../behaviors/cleanupInput';
@@ -101,7 +102,8 @@ export class InputSystem extends System {
         networkId: networkId,
         buttons: {},
         axes1d: {},
-        axes2d: {}
+        axes2d: {},
+        viewVector: {}
       };
 
       // Add all values in input component to schema
@@ -113,6 +115,10 @@ export class InputSystem extends System {
         else if (value.type === InputType.TWODIM) //  && value.lifecycleState !== LifecycleValue.UNCHANGED
           inputs.axes2d[key] = { input: key, valueX: value.value[0], valueY: value.value[1], lifecycleState: value.lifecycleState };
       })
+
+
+      const viewVector = getComponent(entity, CharacterComponent)?.viewVector;
+      inputs.viewVector = viewVector.toArray();
 
       // TODO: Convert to a message buffer
       const message = inputs; // clientInputModel.toBuffer(inputs)

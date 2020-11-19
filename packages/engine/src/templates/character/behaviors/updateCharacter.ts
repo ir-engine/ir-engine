@@ -22,6 +22,7 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
   if (actor.mixer) {
     actor.mixer.update(deltaTime);
   }
+
   if (actor.physicsEnabled) {
 
     // transfer localMovementDirection into velocityTarget
@@ -30,11 +31,28 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
     springMovement(entity, null, deltaTime);
     springRotation(entity, null, deltaTime);
     rotateModel(entity);
-    actorTransform.position.set(
-      actor.actorCapsule.body.position.x,
-      actor.actorCapsule.body.position.y,
-      actor.actorCapsule.body.position.z
-    );
+    if (!isClient) {
+
+      actorTransform.position.set(
+        actor.actorCapsule.body.position.x,
+        actor.actorCapsule.body.position.y,
+        actor.actorCapsule.body.position.z
+      );
+    } else {
+      //// ***
+      // That part just for seen colliders, if its remove, you may seen difference between server position and client-side prediction
+      //// ***
+
+  //    if(Network.instance.networkObjects[networkObject.networkId].ownerId !== Network.instance.userId) {
+        
+        actor.actorCapsule.body.position.set(
+          actorTransform.position.x,
+          actorTransform.position.y,
+          actorTransform.position.z
+        );
+    //  }
+      //
+    }
 
     // actorTransform.position.set(
     //   actor.actorCapsule.body.interpolatedPosition.x,
@@ -43,12 +61,14 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
     // );
   }
   else {
+
     const newPos = new Vector3();
     getMutableComponent(entity, Object3DComponent).value.getWorldPosition(newPos);
     actor.actorCapsule.body.position.copy(cannonFromThreeVector(newPos));
     actor.actorCapsule.body.interpolatedPosition.copy(cannonFromThreeVector(newPos));
-  }
 
+  }
+  // Must be only on Client
   if(Engine.camera)
     actor.viewVector = new Vector3(0, 0,-1).applyQuaternion(Engine.camera.quaternion);
 };

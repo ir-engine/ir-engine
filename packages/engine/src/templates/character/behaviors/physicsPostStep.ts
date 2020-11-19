@@ -79,9 +79,13 @@ export const physicsPostStep: Behavior = (entity): void => {
 		// Compensate for gravity
 		// newVelocity.y -= body.world.physicsWorld.gravity.y / body.actor.world.physicsFrameRate;
 		// Apply velocity
-		body.velocity.x = newVelocity.x;
-		body.velocity.y = newVelocity.y;
-		body.velocity.z = newVelocity.z;
+	//	if (!isClient) {
+			//console.error(body.velocity.x);
+
+			body.velocity.x = newVelocity.x;
+			body.velocity.y = newVelocity.y;
+			body.velocity.z = newVelocity.z;
+	//	}
 		// Ground actor
 		body.position.y = actor.rayResult.hitPointWorld.y + actor.rayCastLength + (newVelocity.y / Engine.physicsFrameRate);
 	}
