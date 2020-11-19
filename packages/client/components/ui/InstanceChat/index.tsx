@@ -5,6 +5,8 @@ import styles from './InstanceChat.module.scss';
 import {
     Avatar,
     Button,
+    Card,
+    CardContent,
     List,
     ListItem,
     ListItemAvatar,
@@ -159,8 +161,9 @@ const InstanceChat = (props: Props): any => {
     return (
         <div className={styles['instance-chat-container']}>
             <div className={styles['list-container']}>
-                <List ref={(messageRef as any)} className={styles['message-container']}>
-                    { activeChannel != null && activeChannel.messages && activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).slice(activeChannel.messages.length >= 3 ? activeChannel.messages?.length - 3 : 0, activeChannel.mesages?.length).map((message) => {
+                { activeChannel != null && activeChannel.messages && <List ref={(messageRef as any)} className={styles['message-container']}>
+                    { activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).slice(activeChannel.messages.length >= 3 ? activeChannel.messages?.length - 3 : 0, activeChannel.mesages?.length).map((message) => {
+                        console.log('getMessageUser(message', getMessageUser(message))
                         return <ListItem
                             className={classNames({
                                 [styles.message]: true,
@@ -176,32 +179,25 @@ const InstanceChat = (props: Props): any => {
                                 </ListItemAvatar>
                                 }
                                 <ListItemText
-                                    primary={message.text}
-                                    secondary={generateMessageSecondary(message)}
+                                    primary={<p><span className={styles.userName}>{getMessageUser(message).name+': '}</span>{message.text}</p>}
                                 />
                             </div>
                         </ListItem>;
                     })
                     }
-                    {(activeChannel == null || activeChannel.messages?.length === 0) &&
+                    {/* {(activeChannel == null || activeChannel.messages?.length === 0) &&
                     <div className={styles['first-message-placeholder']}>
                         No messages to this layer
                     </div>
-                    }
-                </List>
-                <div className={styles['flex-center']}>
-                    <div className={styles['chat-box']}>
-                        {/* <Button variant="contained"
-                                color="primary"
-                                startIcon={}
-                                onClick={openDrawer}
-                        /> */}
+                    } */}
+                </List> }
+                <Card  className={styles['flex-center']}>
+                    <CardContent className={styles['chat-box']}>
                         <div className={styles.iconContainer} onClick={openDrawer}>
                             <MessageIcon/>
                         </div>
                         <TextField
                             className={styles.messageFieldContainer}
-                            variant="outlined"
                             margin="normal"
                             multiline
                             fullWidth
@@ -219,13 +215,8 @@ const InstanceChat = (props: Props): any => {
                         <div className={styles.iconContainerSend} onClick={packageMessage}>
                             <Send/>
                         </div>
-                        {/* <Button variant="contained"
-                                color="primary"
-                                startIcon={<Send/>}
-                                onClick={packageMessage}
-                        /> */}
-                    </div>
-                </div>
+                    </CardContent>
+                </Card>
             </div>
         </div>
     );
