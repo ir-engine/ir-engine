@@ -1,9 +1,10 @@
-export const AssetClass = {
-  Model: 0,
-  Image: 1,
-  Video: 2,
-  Audio: 3,
-  Document: 4,
-  Text: 5,
-  Script: 6
-};
+export enum AssetClass {
+  Model,
+  Image,
+  Video,
+  Audio,
+  Document,
+  Text,
+  Script
+}
+
