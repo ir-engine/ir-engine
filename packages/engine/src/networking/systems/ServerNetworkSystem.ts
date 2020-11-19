@@ -20,6 +20,7 @@ import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClien
 import { handleInputOnServer } from '../functions/handleInputOnServer';
 import { handleUpdatesFromClients } from '../functions/handleUpdatesFromClients';
 
+
 export class ServerNetworkSystem extends System {
   private _inputComponent: Input
 
@@ -81,7 +82,6 @@ export class ServerNetworkSystem extends System {
     Network.instance.destroyObjects = []
     // Set input values on server to values sent from clients
     handleUpdatesFromClients();
-
     // Apply input for local user input onto client
     this.queryResults.inputOnServer.all?.forEach(entity => {
       // Call behaviors associated with input
@@ -182,4 +182,3 @@ export class ServerNetworkSystem extends System {
     }
   }
 }
-
