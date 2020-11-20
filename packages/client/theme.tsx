@@ -172,7 +172,9 @@ const lightTheme = createMuiTheme({
     },
     MuiBackdrop:{
       root:{
-        backgroundColor: 'rgba(255,255,255,0.8)',
+        backgroundColor: 'rgba(255,255,255,0.3)',
+        zIndex:1,
+        backdropFilter: 'blur(10px)',
       }
     },
     MuiDialog:{
@@ -306,8 +308,7 @@ const lightTheme = createMuiTheme({
       root:{
         height: '15px',
         borderRadius: '5px',
-        color: 'rgb(0,153,255)',
-        // margin: '30px 0',
+        color: 'rgb(0,153,255)',        
       },
       colorPrimary:{
         backgroundColor:'#FFFFFF',
