@@ -38,7 +38,6 @@ const VideoChat = observer((props: Props) => {
       await sendCameraStreams(currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId);
       console.log("Send camera streams called from gsProvision");
     } else {
-      console.log('Ending video chat');
       await endVideoChat();
     }
   };
