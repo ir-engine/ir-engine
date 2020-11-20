@@ -19,6 +19,7 @@ import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
 import { ServerNetworkSystem } from './networking/systems/ServerNetworkSystem';
 import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { WebGLRendererSystem } from './renderer/systems/WebGLRendererSystem';
+import { ServerSpawnSystem } from './scene/systems/SpawnSystem';
 import { StateSystem } from './state/systems/StateSystem';
 import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
@@ -76,6 +77,8 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
   registerSystem(StateSystem);
 
   // registerSystem(SubscriptionSystem);
+
+  if(!isClient) registerSystem(ServerSpawnSystem, { priority: 899 });
 
   registerSystem(TransformSystem, { priority: 900 });
 

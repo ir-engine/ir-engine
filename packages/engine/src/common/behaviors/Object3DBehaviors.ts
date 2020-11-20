@@ -60,6 +60,7 @@ export function addTagComponentFromBehavior<C> (
   entity: Entity,
   args: { component: ComponentConstructor<Component<C>> }
 ): void {
+  console.log("Adding ", args.component, " to ", entity);
   addComponent(entity, args.component);
 }
 

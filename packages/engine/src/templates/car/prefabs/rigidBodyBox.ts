@@ -17,7 +17,7 @@ const boxMesh = new Mesh(boxGeometry, boxMaterial);
 boxMesh.name = 'simpleBox';
 
 export const rigidBodyBox: Prefab = {
-    components: [
+    localClientComponents: [
       { type: TransformComponent, data: { position: [0.8, 1,-0.8]} },
       { type: ColliderComponent, data: { type: 'box', scale: [0.3, 0.3, 0.3], mass: 10 }},
       { type: RigidBody },

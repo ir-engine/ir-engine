@@ -9,7 +9,7 @@ import { Entity } from "../../../ecs/classes/Entity";
 import { onInteraction, onInteractionHover } from "../../interactive/functions/commonInteractive";
 
 export const RazerLaptop: Prefab = {
-  components: [
+  localClientComponents: [
     { type: TransformComponent, data: { position: [3,3,3]} },
     { type: RigidBody },
     { type: Interactable, data: {
