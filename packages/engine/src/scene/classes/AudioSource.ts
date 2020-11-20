@@ -170,7 +170,7 @@ export default class AudioSource extends Object3D {
       this.audio.panner.coneOuterGain = value;
     }
   }
-  loadMedia(src) {
+  loadMedia(src): Promise<void> {
     return new Promise((resolve, reject) => {
       (this.el as any).src = src;
       let cleanup = null;

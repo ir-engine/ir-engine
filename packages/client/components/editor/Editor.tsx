@@ -238,7 +238,7 @@ export default class Editor extends EventEmitter {
     return false;
   }
 
-  async init() {
+  async init(): Promise<void> {
     if (this.initialized) {
       return;
     }
@@ -248,7 +248,7 @@ export default class Editor extends EventEmitter {
         let cleanup = null;
 
         const onInitialize = () => {
-          resolve(void);
+          resolve();
           cleanup();
         };
         const onError = err => {
