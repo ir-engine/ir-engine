@@ -195,7 +195,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         if (MediaStreamComponent.instance) MediaStreamComponent.instance.consumers = MediaStreamComponent.instance.consumers.filter((c) => c.id !== consumerId);
       });
 
-      console.log("Initing send and receive transports")
+      console.log("Initing send and receive transports");
 
       // Init Receive and Send Transports initially since we need them for unreliable message consumption and production
       await Promise.all([initSendTransport('instance'), initReceiveTransport('instance')]);

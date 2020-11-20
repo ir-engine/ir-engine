@@ -248,7 +248,7 @@ export default class Editor extends EventEmitter {
         let cleanup = null;
 
         const onInitialize = () => {
-          resolve();
+          resolve(void);
           cleanup();
         };
         const onError = err => {

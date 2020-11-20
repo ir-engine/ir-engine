@@ -163,7 +163,7 @@ const InstanceChat = (props: Props): any => {
             <div className={styles['list-container']}>
                 { activeChannel != null && activeChannel.messages && <List ref={(messageRef as any)} className={styles['message-container']}>
                     { activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).slice(activeChannel.messages.length >= 3 ? activeChannel.messages?.length - 3 : 0, activeChannel.mesages?.length).map((message) => {
-                        console.log('getMessageUser(message', getMessageUser(message))
+                        console.log('getMessageUser(message', getMessageUser(message));
                         return <ListItem
                             className={classNames({
                                 [styles.message]: true,
