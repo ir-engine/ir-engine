@@ -45,8 +45,8 @@ process.on('unhandledRejection', (reason, p) =>
 );
 if (process.env.NODE_ENV === 'production' && fs.existsSync('/var/log')) {
   console.log("Writing access log to ", '/var/log/api.access.log');
-const access = fs.createWriteStream('/var/log/api.access.log');
-process.stdout.write = process.stderr.write = access.write.bind(access);
+  const access = fs.createWriteStream('/var/log/api.access.log');
+  process.stdout.write = process.stderr.write = access.write.bind(access);
 } else {
   console.warn("Directory /var/log not found, not writing access log");
 }
