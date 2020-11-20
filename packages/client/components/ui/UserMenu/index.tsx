@@ -79,8 +79,8 @@ const UserMenu = (props: Props): any => {
     store.dispatch(setAppSpecificOnBoardingStep(generalStateList.TUTOR_LOOKAROUND, true));
   };
 
-  const handleAvatarChangeClick = () => setDrawerType('avatar')
-  const handleDeviceSetupClick = () => setDrawerType('device')
+  const handleAvatarChangeClick = () => setDrawerType('avatar');
+  const handleDeviceSetupClick = () => setDrawerType('device');
 
   const handleUsernameChange = (e: any): void => {
     const newName = e.target.value;
@@ -214,12 +214,12 @@ const renderAvatarSelectionPage = () =><>
               </div>
             )}
       </section>
-      </>
+      </>;
 
 const renderDeviceSetupPage = () =><>
   <Typography variant="h2" color="primary"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} />Device Setup</Typography>
   <UserSettings />
-</>
+</>;
 
 const renderUserMenu = () =><>
           {renderChangeNameForm()}
@@ -230,7 +230,7 @@ const renderUserMenu = () =><>
           <Typography variant="h2" color="primary" onClick={handleDeviceSetupClick}>Device Setup</Typography>
           {selfUser && selfUser.userRole === 'guest' && <Typography variant="h2" color="primary" onClick={handleLogin}>Login</Typography>}
           {selfUser && selfUser.userRole !== 'guest' && <Typography variant="h2" color="primary" onClick={handleLogout}>Logout</Typography>}
-          <section className={styles.placeholder}></section>
+          <section className={styles.placeholder} />
           <Typography variant="h2" color="secondary">About</Typography>
           <Typography variant="h2" color="secondary">Privacy & Terms</Typography>
       </>;
@@ -241,7 +241,7 @@ const renderDrawerContent = () =>{
     case 'device': return renderDeviceSetupPage();
     default: return renderUserMenu();
   }
-}
+};
 
   return (
         <section key={anchor} className={styles.anchorContainer}>
