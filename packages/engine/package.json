@@ -29,7 +29,7 @@
   },
   "version": "0.2.0",
   "peerDependencies": {
-    "three": "^0.121.1"
+    "three": "^0.122.0"
   },
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "^4.4.1",
@@ -38,7 +38,7 @@
     "cannon-es-debugger": "^0.0.3",
     "face-api.js": "^0.22.2",
     "mousetrap": "^1.6.5",
-    "three": "^0.121.01",
+    "three": "^0.122.0",
     "three-gltf-exporter": "^0.0.1",
     "three-mesh-bvh": "^0.2.0",
     "three-to-cannon": "^3.0.2",
