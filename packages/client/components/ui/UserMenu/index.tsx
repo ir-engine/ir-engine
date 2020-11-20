@@ -251,6 +251,7 @@ const renderDrawerContent = () =>{
             open={state[anchor]}
             onClose={toggleDrawer(anchor, false)}
             className={styles.drawer}
+            BackdropProps={{ style: { backgroundColor: "transparent" } }}
           >
             {renderDrawerContent()}            
           </Drawer>
