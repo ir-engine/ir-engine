@@ -170,13 +170,13 @@ const lightTheme = createMuiTheme({
         }
       }
     },
-    MuiBackdrop:{
-      root:{
-        backgroundColor: 'rgba(255,255,255,0.3)',
-        zIndex:1,
-        backdropFilter: 'blur(10px)',
-      }
-    },
+    // MuiBackdrop:{
+    //   root:{
+    //     backgroundColor: 'rgba(255,255,255,0.3)',
+    //     zIndex:1,
+    //     backdropFilter: 'blur(10px)',
+    //   }
+    // },
     MuiDialog:{
       paperWidthSm:{
         maxWidth: '40%',
