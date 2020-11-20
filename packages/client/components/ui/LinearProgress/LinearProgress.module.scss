@@ -1,25 +1,24 @@
-.overlay{
+.linearProgressContainer{
   display: block;
   position: fixed;
-  top: 0;
-  width: 100vw;
-  height: 100vh;
-  left: 0;
-  background: rgba(0,0,0,0.95);
-  z-index: 2000;
-  
-  .linearProgressContainer{
-    display: block;
-    position: fixed;
-    top: 45%;
-    width: 60%;
-    left: 20%;
-  
-      .loadingProgressTile{
-          color: #FFFFFF;
-          display: block;
-          text-align: center;
-          width: 100%;
-      }
+  top: 45%;
+  width: 60%;
+  left: 20%; 
+  @media (max-width: 768px) {
+    width: 80%;
+    left: 10%; 
+  }  
+  .loadingProgressTile{
+    text-align: left;
+    font-size: 2em;
+    margin-bottom: 20px;
   }
+  
+  .loadingProgressInfo{
+    text-align: center;
+    font-size: 1.2em;
+    text-transform: uppercase;
+    margin-top: 30px;
+  }
+  
 }

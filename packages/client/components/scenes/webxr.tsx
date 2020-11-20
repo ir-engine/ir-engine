@@ -76,7 +76,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const [progressEntity, setProgressEntity] = useState('');
 
   const sceneLoadedEntity = (event: CustomEvent): void =>
-    setProgressEntity(' left '+ event.detail.left);
+    setProgressEntity(event.detail.left);
 
   const sceneLoaded = (event: CustomEvent): void => {
     if (event.detail.loaded)
@@ -155,7 +155,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
   return (
     <ThemeProvider theme={theme}>
-      <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
+      <LinearProgressComponent label={progressEntity} />
       <OnBoardingDialog avatarsList={CharacterAvatars} actorAvatarId={actorAvatarId} onAvatarChange={(avatarId) => {setActorAvatarId(avatarId); }} />
       <OnBoardingBox actorEntity={actorEntity} />
       <MediaIconsBox />
