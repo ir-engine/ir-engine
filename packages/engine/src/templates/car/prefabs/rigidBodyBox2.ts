@@ -18,7 +18,7 @@ import { Interactable } from "../../../interaction/components/Interactable";
 import { onInteraction, onInteractionHover } from "../../interactive/functions/commonInteractive";
 
 export const rigidBodyBox2: Prefab = {
-    components: [
+    localClientComponents: [
       { type: TransformComponent, data: { position: [0.4, 1,-0.4]} },
       { type: ColliderComponent, data: { type: 'sphere', scale: [0.3, 1, 1], mass: 1 }},
       { type: RigidBody },

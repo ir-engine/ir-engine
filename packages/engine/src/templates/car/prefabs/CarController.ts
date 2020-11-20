@@ -20,7 +20,7 @@ import { changeColor } from "../behaviors/changeColor";
 import { onInteractionHover } from "../../interactive/functions/commonInteractive";
 
 export const CarController: Prefab = {
-    components: [
+    localClientComponents: [
       { type: TransformComponent, data: { position: [-3,6,3]} },
       // Local player input mapped to behaviors in the input map
        { type: Input, data: { schema: VehicleInputSchema } },

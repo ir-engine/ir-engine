@@ -19,7 +19,7 @@ const boxMaterial = [
 const boxMesh = new Mesh(boxGeometry, boxMaterial);
 
 export const googleBox: Prefab = {
-    components: [
+    localClientComponents: [
         { type: TransformComponent, data: { position: [3, 1, 3] } },
         {
             type: Interactable,

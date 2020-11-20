@@ -39,7 +39,7 @@ const meshStandard = new Mesh(geometry, materialStandard);
 const meshPhysical = new Mesh(geometry, materialPhysical);
 
 export const carMetalSphereStandard: Prefab = {
-    components: [
+    localClientComponents: [
       { type: TransformComponent, data: { position: [-3, 2,-3]} },
       { type: ColliderComponent, data: { type: 'sphere', scale: [2, 2, 2], mass: 0.1 }},
       { type: RigidBody }
@@ -56,7 +56,7 @@ export const carMetalSphereStandard: Prefab = {
 };
 
 export const carMetalSpherePhysical: Prefab = {
-  components: [
+  localClientComponents: [
     { type: TransformComponent, data: { position: [3, 2,-3]} },
     { type: ColliderComponent, data: { type: 'sphere', scale: [1, 1, 1], mass: 0 }},
     { type: RigidBody }

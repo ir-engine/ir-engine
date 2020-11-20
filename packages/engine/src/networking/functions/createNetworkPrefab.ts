@@ -30,10 +30,27 @@ export function createNetworkPrefab(prefab: NetworkPrefab, ownerId, networkId: n
     // Instantiate local components
   // If this is the local player, spawn the local components (these will not be spawned for other clients)
   // This is good for input, camera, etc
-  if (ownerId === Network.instance.userId && prefab.components)
+  if (ownerId === Network.instance.userId && prefab.localClientComponents)
   // For each local component on the prefab...
   {
-    prefab.components?.forEach(component => {
+    prefab.localClientComponents?.forEach(component => {
+      // The component to the entity
+      addComponent(entity, component.type);
+      // If the component has no initialization data, return
+      if (component.data == undefined) return;
+      // Get a mutable reference to the component
+      const addedComponent = getMutableComponent(entity, component.type);
+      // Set initialization data for each key
+      Object.keys(component.data).forEach(initValue => {
+        // Get the component on the entity, and set it to the initializing value from the prefab
+        addedComponent[initValue] = component.data[initValue];
+      });
+    });
+  }
+  if (Network.instance.transport.isServer)
+  // For each server component on the prefab...
+  {
+    prefab.serverComponents?.forEach(component => {
       // The component to the entity
       addComponent(entity, component.type);
       // If the component has no initialization data, return

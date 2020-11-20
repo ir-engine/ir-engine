@@ -6,7 +6,7 @@ import { addComponentFromSchema } from "../../../common/behaviors/addComponentFr
 import { addWorldColliders } from "../behaviors/addWorldColliders";
 
 export const WorldPrefab: Prefab = {
-    components: [{ type: TransformComponent, data: { position: [0, -0.03, 0] } }],
+    localClientComponents: [{ type: TransformComponent, data: { position: [0, -0.03, 0] } }],
     onAfterCreate: [
         {
             behavior: addComponentFromSchema,

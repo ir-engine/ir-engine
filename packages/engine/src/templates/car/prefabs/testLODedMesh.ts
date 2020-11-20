@@ -27,7 +27,7 @@ for (let i = 0; i < 4; i++) {
 }
 
 export const testLODedMesh: Prefab = {
-  components: [
+  localClientComponents: [
     {type: TransformComponent, data: {position: [-3, 8, -3]}},
     {type: ColliderComponent, data: {type: "box", scale: [2, 4, 2], mass: 10}},
     {type: RigidBody}

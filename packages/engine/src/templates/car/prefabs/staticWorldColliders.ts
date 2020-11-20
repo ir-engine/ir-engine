@@ -13,7 +13,7 @@ floorMesh.castShadow = false;
 floorMesh.visible = true;
 
 export const staticWorldColliders: Prefab = {
-    components: [
+    localClientComponents: [
       { type: TransformComponent, data: { position: [ 0, -1, 0 ]  } },
       { type: ColliderComponent, data: { type: 'box', scale: scale, mass: 0 }}
     ],
