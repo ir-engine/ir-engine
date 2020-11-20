@@ -1,6 +1,6 @@
-import { AmbientLight, DirectionalLight, DoubleSide, HemisphereLight, Color, Matrix4, Vector3, Mesh, MeshBasicMaterial, MeshPhongMaterial, CircleBufferGeometry, PointLight, SpotLight } from 'three';
+import { addWorldColliders } from "@xr3ngine/engine/src/templates/world/behaviors/addWorldColliders";
+import { AmbientLight, CircleBufferGeometry, Color, DirectionalLight, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight } from 'three';
 import { AssetLoader } from '../../assets/components/AssetLoader';
-import { Entity } from '../../ecs/classes/Entity';
 import { addComponentFromBehavior, addObject3DComponent, addTagComponentFromBehavior } from '../../common/behaviors/Object3DBehaviors';
 import { VisibleTagComponent } from '../../common/components/Object3DTagComponents';
 import { TransformComponent } from '../../transform/components/TransformComponent';
@@ -9,21 +9,17 @@ import { createBoxCollider } from '../behaviors/createBoxCollider';
 import { createGroup } from '../behaviors/createGroup';
 import { createImage } from '../behaviors/createImage';
 import { createLink } from '../behaviors/createLink';
-import { createScenePreviewCamera } from '../behaviors/createScenePreviewCamera';
 import { createShadow } from '../behaviors/createShadow';
 import createSkybox from '../behaviors/createSkybox';
-import { createSpawnPoint } from '../behaviors/createSpawnPoint';
 import { createTriggerVolume } from '../behaviors/createTriggerVolume';
 import { handleAudioSettings } from '../behaviors/handleAudioSettings';
 import { setFog } from '../behaviors/setFog';
+import { Sky } from '../classes/Sky';
 import CollidableTagComponent from '../components/Collidable';
+import ScenePreviewCameraTagComponent from "../components/ScenePreviewCamera";
+import SpawnPointComponent from "../components/SpawnPointComponent";
 import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
-import { addWorldColliders } from "@xr3ngine/engine/src/templates/world/behaviors/addWorldColliders";
-import { addCarPhysics } from "@xr3ngine/engine/src/physics/behaviors/addCarPhysics";
-import { Sky } from '../classes/Sky';
-import ScenePreviewCameraTagComponent from "../components/ScenePreviewCamera";
-import SpawnPointTagComponent from "../components/SpawnPoint";
 
 export const SceneObjectLoadingSchema: LoadingSchema = {
   'ambient-light': {
@@ -209,7 +205,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
     behaviors: [
       {
         behavior: addTagComponentFromBehavior,
-        args: { component: SpawnPointTagComponent }
+        args: { component: SpawnPointComponent }
       }
     ]
   },
