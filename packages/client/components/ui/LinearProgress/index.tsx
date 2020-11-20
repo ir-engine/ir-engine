@@ -20,13 +20,14 @@ const mapStateToProps = (state: any): any => {
 
 const LinearProgressComponent = (props: Props) => {
   const{ onBoardingStep, label} = props;
+  // const openLinear = true;
   const openLinear = onBoardingStep === generalStateList.START_STATE ? true : false;
-  return <Backdrop className={styles.overlay} open={openLinear}>
-      <section className={styles.linearProgressContainer}>
-          <p className={styles.loadingProgressTile}>Loading...</p>
-          <LinearProgress className={styles.linearProgress} />
-          {label.length > 0 && (<p className={styles.loadingProgressInfo}>{label} objects remaining</p>)}        
-      </section>
-    </Backdrop>;
+  return openLinear === true ? <section className={styles.overlay}>
+          <section className={styles.linearProgressContainer}>
+              <p className={styles.loadingProgressTile}>Loading...</p>
+              <LinearProgress className={styles.linearProgress} />
+              {label.length > 0 && (<p className={styles.loadingProgressInfo}>{label} objects remaining</p>)}        
+          </section>
+        </section> : null;
 };
 export default connect(mapStateToProps)(LinearProgressComponent);
