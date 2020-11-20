@@ -11,7 +11,7 @@ import { staticWorldColliders } from '@xr3ngine/engine/src/templates/car/prefabs
 import isNullOrUndefined from '@xr3ngine/engine/src/common/functions/isNullOrUndefined';
 import { loadScene } from "@xr3ngine/engine/src/scene/functions/SceneLoading";
 
-let forTest = 0
+let forTest = 0;
 
 export default (app: Application): void => {
   if (typeof app.channel !== 'function') {
@@ -80,7 +80,7 @@ export default (app: Application): void => {
 
                 if (!forTest) {
                   loadScene(result);
-                  forTest += 1
+                  forTest += 1;
                 }
 
 
