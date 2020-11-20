@@ -20,16 +20,7 @@ const mapStateToProps = (state: any): any => {
 
 const LinearProgressComponent = (props: Props) => {
   const{ onBoardingStep, label} = props;
-  // const openLinear = true;
   const openLinear = onBoardingStep === generalStateList.START_STATE ? true : false;
-  const canvas = document.querySelector('canvas');
-  if(canvas){
-    if(openLinear === true){
-      canvas.style.filter = 'blur(30px)';
-    }else{
-      canvas.style.filter = 'none';
-    }
-  }
   return <Backdrop className={styles.overlay} open={openLinear}>
       <section className={styles.linearProgressContainer}>
           <p className={styles.loadingProgressTile}>Loading...</p>
