@@ -44,6 +44,9 @@ process.on('unhandledRejection', (reason, p) =>
   logger.error('Unhandled Rejection at: Promise ', p, reason)
 );
 
+const access = fs.createWriteStream('/var/log/node/api.access.log');
+process.stdout.write = process.stderr.write = access.write.bind(access);
+
 server.on('listening', () =>
   logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
 );
