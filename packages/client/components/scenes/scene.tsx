@@ -49,7 +49,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
   //started loading scene intities
   const onSceneLoadedEntity= (event: CustomEvent): void => {
-    setProgressEntity(' left '+event.detail.left);
+    setProgressEntity(event.detail.left);
   };
 
   const addEventListeners = () =>{
@@ -119,7 +119,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   return (
     <>
     <NetworkDebug />
-    <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
+    <LinearProgressComponent label={progressEntity} />
     </>
   );
 };

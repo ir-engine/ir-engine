@@ -170,6 +170,11 @@ const lightTheme = createMuiTheme({
         }
       }
     },
+    MuiBackdrop:{
+      root:{
+        backgroundColor: 'rgba(255,255,255,0.8)',
+      }
+    },
     MuiDialog:{
       paperWidthSm:{
         maxWidth: '40%',
@@ -296,6 +301,17 @@ const lightTheme = createMuiTheme({
           paddingBottom: '0px',
         }
       }
+    },
+    MuiLinearProgress:{
+      root:{
+        height: '15px',
+        borderRadius: '5px',
+        color: 'rgb(0,153,255)',
+        // margin: '30px 0',
+      },
+      colorPrimary:{
+        backgroundColor:'#FFFFFF',
+      },
     },
     MuiInputBase:{
       input:{
