@@ -30,6 +30,8 @@ import dynamic from 'next/dynamic';
 import { isClient } from "@xr3ngine/engine/src/common/functions/isClient";
 import { Network } from '@xr3ngine/engine/src/networking/components/Network';
 
+import { VRMPrefab } from '@xr3ngine/engine/src/templates/devices/prefabs/VRMPrefab';
+
 const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
@@ -127,6 +129,7 @@ export const EnginePage = (props: Props) => {
 
 
   //  createPrefab(staticWorldColliders);
+   createPrefab(VRMPrefab);
 
 
   //  if (!isClient) {
