@@ -28,7 +28,7 @@ const SkyOption = [
 const TexturesOption = [
   {
     label: "texture1",
-    value: "server/public/textures/kazuend-2KXEb_8G5vo-unsplash.jpg"
+    value: "/hdr/mvp-cloud-skybox.png"
     // packages/server/public/textures/kazuend-2KXEb_8G5vo-unsplash.jpg?
   }
   // {

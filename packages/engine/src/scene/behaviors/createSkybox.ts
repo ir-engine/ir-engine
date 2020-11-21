@@ -34,10 +34,10 @@ export default function createSkybox(entity, args: {
     uniforms.turbidity.value = args.objArgs.turbidity;
     uniforms.sunPosition.value = sun;
 
-  } else if (args.objArgs.skyOptionValue === "cubemap") {
-    // const path = 'server/public/cubemaps';
-
+  } else if (args.objArgs.skytype === "cubemap") {
+    
     const imageObj = new Image();
+    imageObj.src = args.objArgs.texture;
 
     imageObj.onload = function () {
       
@@ -62,10 +62,15 @@ export default function createSkybox(entity, args: {
 
       Engine.scene.background = textureCube;
     };
-    console.log(args.objArgs);
-    imageObj.src = args.objArgs.texture;
+    
+    
+
+    console.log(imageObj);
+    
+    // src= "/packages/server/upload/kazuend-2KXEb_8G5vo-unsplash.jpg"
+    
   }
-  else if (args.objArgs.skyOptionValue === "equirectangular") {
+  else if (args.objArgs.skytype === "equirectangular") {
     Engine.scene.background = new TextureLoader().load(args.objArgs.texture);
   }
 }

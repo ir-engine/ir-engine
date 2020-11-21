@@ -183,7 +183,7 @@ const EditorRoomPage = (props: Props) => {
       };
 
       initializeEngine(InitializationOptions);
-      createPrefab(staticWorldColliders);
+      // createPrefab(staticWorldColliders);
     loadScene(result);
     const cameraTransform = getMutableComponent<TransformComponent>(
       CameraComponent.instance.entity,
