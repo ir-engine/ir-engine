@@ -43,12 +43,12 @@ app.setup(server);
 process.on('unhandledRejection', (reason, p) =>
   logger.error('Unhandled Rejection at: Promise ', p, reason)
 );
-if (fs.existsSync('/var/log/node')) {
-  console.log("Writing access log to ", '/var/log/node/api.access.log');
-const access = fs.createWriteStream('/var/log/node/api.access.log');
-process.stdout.write = process.stderr.write = access.write.bind(access);
+if (process.env.NODE_ENV === 'production' && fs.existsSync('/var/log')) {
+  console.log("Writing access log to ", '/var/log/api.access.log');
+  const access = fs.createWriteStream('/var/log/api.access.log');
+  process.stdout.write = process.stderr.write = access.write.bind(access);
 } else {
-  console.warn("Directory /var/log/node not found, not writing access log");
+  console.warn("Directory /var/log not found, not writing access log");
 }
 server.on('listening', () =>
   logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)

@@ -69,7 +69,7 @@ export const sendInitialProducers = async (socket: SocketIO.Socket, partyId?: st
             });
         });
     }
-}
+};
 // Create consumer for each client!
 
 export const handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
@@ -344,7 +344,7 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
 }
 
 export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<any> {
-    console.log("*** handleWebRtcReceiveTrack")
+    console.log("*** handleWebRtcReceiveTrack");
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
     const { mediaPeerId, mediaTag, rtpCapabilities, partyId } = data;
