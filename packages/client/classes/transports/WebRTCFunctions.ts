@@ -120,7 +120,7 @@ export async function sendCameraStreams(partyId?: string): Promise<void> {
     }
 }
 
-export async function endVideoChat(leftParty?: boolean): Promise<boolean> {
+export async function endVideoChat(options: { leftParty?: boolean, endConsumers?: boolean }): Promise<boolean> {
     console.log('Ending videochat');
     networkTransport = Network.instance.transport as any;
 
@@ -159,16 +159,17 @@ export async function endVideoChat(leftParty?: boolean): Promise<boolean> {
         }
         console.log('Closed screen audio and video producers');
 
-        // MediaStreamComponent.instance?.consumers.map(async (c) => {
-        //     if (networkTransport.socket?.connected === true)
-        //         await networkTransport.request(MessageTypes.WebRTCCloseConsumer.toString(), {
-        //             consumerId: c.id
-        //         });
-        //     await c.close();
-        // });
-        // console.log('Closed all consumers');
+        if (options?.endConsumers === true) {
+            MediaStreamComponent.instance?.consumers.map(async (c) => {
+                if (networkTransport.socket?.connected === true)
+                    await networkTransport.request(MessageTypes.WebRTCCloseConsumer.toString(), {
+                        consumerId: c.id
+                    });
+                await c.close();
+            });
+        }
 
-        if (leftParty === true) {
+        if (options?.leftParty === true) {
             if (networkTransport.partyRecvTransport != null && networkTransport.partyRecvTransport.closed !== true)
                 await networkTransport.partyRecvTransport.close();
             if (networkTransport.partySendTransport != null && networkTransport.partySendTransport.closed !== true)
