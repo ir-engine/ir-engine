@@ -35,7 +35,7 @@ export const NetworkDebug = () => {
 
       if(Network.instance !== null)
       return (
-        <div style={{ position: "absolute", top: 0, zIndex: 100000, height: "auto", width: "auto", maxWidth: "50%" }}>
+        <div style={{ position: "absolute", overflowY: "auto", top: 0, zIndex: 100000, height: "auto", maxHeight: "100vh", width: "auto", maxWidth: "50%" }}>
             <button type="submit" value="toggleShowing" onClick={ toggleShowing }>{ isShowing ? "Hide" : "Show" }</button>
             { isShowing &&
             <div>
