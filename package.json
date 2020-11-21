@@ -82,8 +82,6 @@
     "ts-jest": "^26.4.1"
   },
   "dependencies": {
-    "@pixiv/three-vrm": "^0.5.2",
-    "cannon-es-debugger": "^0.0.4",
     "ts-jest": "^26.4.1"
   }
 }
