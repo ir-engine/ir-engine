@@ -33,6 +33,8 @@ import { selectPartyState } from '../../redux/party/selector';
 import { createPrefab } from "../../../engine/src/common/functions/createPrefab";
 import { staticWorldColliders } from "../../../engine/src/templates/car/prefabs/staticWorldColliders";
 
+import { VRMPrefab } from "../../../engine/src/templates/devices/prefabs/VRMPrefab";
+
 import theme from '../../theme';
 
 interface Props {
@@ -170,20 +172,22 @@ const EditorRoomPage = (props: Props) => {
     console.log("Result is ");
     console.log(result);
 
-      const networkSchema: NetworkSchema = {
-        ...DefaultNetworkSchema,
-        transport: SocketWebRTCClientTransport,
-      };
-  
-      const InitializationOptions = {
-        ...DefaultInitializationOptions,
-        networking: {
-          schema: networkSchema,
-        }
-      };
+    const networkSchema: NetworkSchema = {
+      ...DefaultNetworkSchema,
+      transport: SocketWebRTCClientTransport,
+    };
 
-      initializeEngine(InitializationOptions);
-      createPrefab(staticWorldColliders);
+    const InitializationOptions = {
+      ...DefaultInitializationOptions,
+      networking: {
+        schema: networkSchema,
+      }
+    };
+
+    initializeEngine(InitializationOptions);
+    createPrefab(staticWorldColliders);
+    createPrefab(VRMPrefab);
+
     loadScene(result);
     const cameraTransform = getMutableComponent<TransformComponent>(
       CameraComponent.instance.entity,
