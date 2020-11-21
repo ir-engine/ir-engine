@@ -2,6 +2,16 @@ import { Sequelize, DataTypes } from 'sequelize';
 import { Application } from '../declarations';
 import GenerateRandomAnimalName from 'random-animal-name-generator';
 
+function capitalize(words){
+const wordArray = words.split(" ");
+
+for (let i = 0; i < words.length; i++) {
+  wordArray[i] = words[i][0].toUpperCase() + words[i].substr(1);
+}
+
+return wordArray.join(" ");
+}
+
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const User = sequelizeClient.define(
@@ -15,7 +25,7 @@ export default (app: Application): any => {
       },
       name: {
         type: DataTypes.STRING,
-        defaultValue: GenerateRandomAnimalName().toUpperCase(),
+        defaultValue: capitalize(GenerateRandomAnimalName()),
         allowNull: false
       }
     },
