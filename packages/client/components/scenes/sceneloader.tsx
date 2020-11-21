@@ -73,7 +73,7 @@ export const EnginePage = (props: Props) => {
 
   //started loading scene entities
   const onSceneLoadedEntity = (event: CustomEvent): void => {
-    setProgressEntity(' left ' + event.detail.left);
+    setProgressEntity(event.detail.left);
   };
 
   const addEventListeners = () => {
@@ -152,7 +152,7 @@ export const EnginePage = (props: Props) => {
   return (
     <>
       <NetworkDebug />
-      <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
+      <LinearProgressComponent label={progressEntity} />
       <OnBoardingDialog  actorEntity={actorEntity} avatarsList={CharacterAvatars} actorAvatarId={actorAvatarId} onAvatarChange={(avatarId) => {setActorAvatarId(avatarId); }} />
       <OnBoardingBox actorEntity={actorEntity} />
       <MediaIconsBox />
