@@ -1,6 +1,8 @@
 import { Sky } from '@xr3ngine/engine/src/scene/classes/Sky';
+import { CanvasTexture, RGBFormat, sRGBEncoding } from 'three';
 import { CubeTexture, TextureLoader } from 'three';
 import { CubeRefractionMapping } from 'three';
+import { EquirectangularReflectionMapping } from 'three';
 import { Vector3 } from 'three';
 import { addObject3DComponent } from '../../common/behaviors/Object3DBehaviors';
 import { Engine } from '../../ecs/classes/Engine';
@@ -37,7 +39,7 @@ export default function createSkybox(entity, args: {
   } else if (args.objArgs.skytype === "cubemap") {
     
     const imageObj = new Image();
-    imageObj.src = args.objArgs.texture;
+    
 
     imageObj.onload = function () {
       
@@ -53,17 +55,22 @@ export default function createSkybox(entity, args: {
         canvas.height = tileWidth;
         canvas.width = tileWidth;
         context.drawImage(imageObj, tileWidth * i, 0, tileWidth, tileWidth, 0, 0, tileWidth, tileWidth);
+        // context.drawImage();
         canvases.push(canvas);
 
       }
+      console.log(canvases);
 
       const textureCube = new CubeTexture(canvases);
-      // textureCube.mapping = CubeRefractionMapping;
+      //  const textureCube = new CanvasTexture(canvases);
+      textureCube.mapping = CubeRefractionMapping;
+      textureCube.needsUpdate = true;
+      // textureCube.format = RGBFormat;
 
       Engine.scene.background = textureCube;
     };
     
-    
+    imageObj.src = args.objArgs.texture;
 
     console.log(imageObj);
     
@@ -71,6 +78,20 @@ export default function createSkybox(entity, args: {
     
   }
   else if (args.objArgs.skytype === "equirectangular") {
-    Engine.scene.background = new TextureLoader().load(args.objArgs.texture);
+    // Engine.scene.background = new TextureLoader().load(args.objArgs.texture);
+
+    const textureLoader = new TextureLoader();
+
+			textureLoader.load( args.objArgs.texture, ( texture ) => {
+
+				texture.encoding = sRGBEncoding;
+				texture.mapping = EquirectangularReflectionMapping;
+
+				// init( texture );
+        // animate();
+        
+        Engine.scene.background = texture;
+
+			} );
   }
 }
