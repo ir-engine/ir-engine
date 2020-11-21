@@ -21,9 +21,9 @@ import {
     VolumeUp,
 } from '@material-ui/icons';
 import { MediaStreamComponent } from '@xr3ngine/engine/src/networking/components/MediaStreamComponent';
-import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
 import { Network } from "@xr3ngine/engine/src/networking/components/Network";
 import {MessageTypes} from "@xr3ngine/engine/src/networking/enums/MessageTypes";
+import { selectAppState } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
 import { selectLocationState } from '../../../redux/location/selector';
 import {connect} from "react-redux";
@@ -38,12 +38,14 @@ interface ContainerProportions {
 interface Props {
     containerProportions?: ContainerProportions;
     peerId?: string;
+    appState?: any;
     authState?: any;
     locationState?: any;
 }
 
 const mapStateToProps = (state: any): any => {
     return {
+        appState: selectAppState(state),
         authState: selectAuthState(state),
         locationState: selectLocationState(state)
     };
@@ -64,6 +66,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     const [volume, setVolume] = useState(0);
     const {
         peerId,
+        appState,
         authState,
         locationState,
         containerProportions
@@ -71,6 +74,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     const videoRef = React.createRef<HTMLVideoElement>();
     const audioRef = React.createRef<HTMLAudioElement>();
 
+    const userHasInteracted = appState.get('userHasInteracted');
     const user = authState.get('user');
     const currentLocation = locationState.get('currentLocation').get('location');
     const enableGlobalMute = currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => currentLocation.id === locationAdmin.locationId) != null;
@@ -114,6 +118,13 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     });
 
     useEffect(() => {
+        if (userHasInteracted === true && peerId !== 'me_cam' && peerId !== 'me_screen') {
+            videoRef.current?.play();
+            audioRef.current?.play();
+        }
+    }, [userHasInteracted]);
+
+    useEffect(() => {
         autorun(() => {
             if (peerId === 'me_cam') {
                 setVideoStream(MediaStreamComponent.instance.camVideoProducer);
@@ -131,8 +142,8 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     useEffect(() => {
         if (audioRef.current != null) {
             audioRef.current.id = `${peerId}_audio`;
-            audioRef.current.setAttribute('playsinline', 'true');
             audioRef.current.autoplay = true;
+            audioRef.current.setAttribute('playsinline', 'true');
             if (peerId === 'me_cam' || peerId === 'me_screen') {
                 audioRef.current.muted = true;
             }
@@ -161,6 +172,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
         if (videoRef.current != null) {
             videoRef.current.id = `${peerId}_video`;
             videoRef.current.autoplay = true;
+            videoRef.current.muted = true;
             videoRef.current.setAttribute('playsinline', 'true');
             if (videoStream) {
                 videoRef.current.srcObject = new MediaStream([videoStream.track.clone()]);
@@ -174,7 +186,6 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             }
         }
     }, [videoStream]);
-    // Add mediasoup integration logic here to feed single peer's stream to these video/audio elements
 
     useEffect(() => {
         if (peerId === 'me_cam' || peerId === 'me_screen') setAudioStreamPaused(MediaStreamComponent.instance.audioPaused);
@@ -316,8 +327,8 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                     </Tooltip>
                 </div>
             </div>
-            <video ref={videoRef}/>
-            <audio ref={audioRef}/>
+            <video key={peerId + '_cam'} ref={videoRef}/>
+            <audio key={peerId + '_audio'} ref={audioRef}/>
         </div>
     );
 });
