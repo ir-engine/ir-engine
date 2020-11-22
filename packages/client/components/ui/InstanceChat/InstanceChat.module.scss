@@ -6,6 +6,8 @@
   left: 0;
   width: 100vw;
   justify-content: flex-end;
+  z-index: 1400;
+
 
   .chat-box {
     display: flex;
@@ -55,17 +57,9 @@
       height: 100%;
     }
 
-    .message-container {
-      display: flex;
-      flex-direction: column;
-      border-radius: 5px 5px 0 0 ;
 
-      .first-message-placeholder {
-        font-size: 2em;
-        margin: auto;
-      }
-    }
   }
+
 
   ul {
     min-height: 0;
@@ -109,5 +103,21 @@
         display: flex;
       }
     }
+  }
+}
+
+.message-container {
+  display: flex;
+  flex-direction: column;
+  border-radius: 5px 5px 0 0 ;
+  height: 35vh !important;
+  width: 50%;
+  left: 50% !important;
+  right: 50%;
+  padding-bottom: 40px;
+
+  .first-message-placeholder {
+    font-size: 2em;
+    margin: auto;
   }
 }
