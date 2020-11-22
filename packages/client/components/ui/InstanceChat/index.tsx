@@ -7,12 +7,15 @@ import {
     Button,
     Card,
     CardContent,
+    Drawer,
     List,
     ListItem,
     ListItemAvatar,
     ListItemText,
     TextField
 } from '@material-ui/core';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import {
     getInstanceChannel,
     createMessage,
@@ -158,11 +161,42 @@ const InstanceChat = (props: Props): any => {
         openBottomDrawer(e);
     };
 
+    //messagelist drawer
+    const anchor = 'bottom';
+    const [state, setState] = React.useState({
+        top: false,
+        left: false,
+        bottom: true,
+        right: false,
+      });
+    type Anchor = 'top' | 'left' | 'bottom' | 'right';
+
+    const toggleDrawer = (anchor: Anchor, open: boolean) => (
+        event: React.KeyboardEvent | React.MouseEvent,
+      ) => {
+        if (
+          event &&
+          event.type === 'keydown' &&
+          ((event as React.KeyboardEvent).key === 'Tab' ||
+            (event as React.KeyboardEvent).key === 'Shift')
+        ) {
+          return;
+        }
+        setState({ ...state, [anchor]: open });
+      };
+    
+
     return (
         <div className={styles['instance-chat-container']}>
             <div className={styles['list-container']}>
-                { activeChannel != null && activeChannel.messages && <List ref={(messageRef as any)} className={styles['message-container']}>
-                    { activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).slice(activeChannel.messages.length >= 3 ? activeChannel.messages?.length - 3 : 0, activeChannel.mesages?.length).map((message) => {
+                <Drawer 
+                anchor={anchor}
+                open={state[anchor]}
+                onClose={toggleDrawer(anchor, false)}
+                ref={(messageRef as any)} 
+                classes={{paper:styles['message-container']}}
+                BackdropProps={{ style: { backgroundColor: "transparent" } }} >
+                    { activeChannel != null && activeChannel.messages && activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).slice(activeChannel.messages.length >= 3 ? activeChannel.messages?.length - 3 : 0, activeChannel.mesages?.length).map((message) => {
                         console.log('getMessageUser(message', getMessageUser(message));
                         return <ListItem
                             className={classNames({
@@ -190,7 +224,7 @@ const InstanceChat = (props: Props): any => {
                         No messages to this layer
                     </div>
                     } */}
-                </List> }
+                </Drawer>
                 <Card  className={styles['flex-center']}>
                     <CardContent className={styles['chat-box']}>
                         <div className={styles.iconContainer} onClick={openDrawer}>
@@ -211,9 +245,12 @@ const InstanceChat = (props: Props): any => {
                                 // padding: 0
                             }}
                             onChange={handleComposingMessageChange}
+                            onClick={toggleDrawer(anchor, true)}
                         />
                         <div className={styles.iconContainerSend} onClick={packageMessage}>
                             <Send/>
+                            {state[anchor] === true ? <ExpandMoreIcon onClick={toggleDrawer(anchor, false)} /> :
+                            <ExpandLessIcon onClick={toggleDrawer(anchor, true)} />}
                         </div>
                     </CardContent>
                 </Card>
