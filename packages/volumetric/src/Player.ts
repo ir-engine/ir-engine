@@ -1,7 +1,7 @@
 // import fs from 'fs';
 import * as draco3d from 'draco3d';
 import {Howl, Howler} from 'howler';  
-import { byteArrayToLong, lerp } from '../Shared/Utilities';
+import { byteArrayToLong, lerp } from '../Utilities';
 import {
   Action,
   IFileHeader,
