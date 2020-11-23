@@ -1,6 +1,6 @@
 import { IFileHeader, WorkerDataRequest, IBuffer, WorkerDataResponse, WorkerInitializationResponse, WorkerInitializationRequest } from "./Interfaces"
 import ReadStream from "fs-readstream-seek"
-import { RingBuffer } from "ring-buffer-ts"
+import { RingBuffer } from "../../worker/worker/node_modules/ring-buffer-ts"
 import { MessageType } from "./Enums"
 
 let fileHeader: IFileHeader
