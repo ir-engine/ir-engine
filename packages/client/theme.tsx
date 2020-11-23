@@ -283,6 +283,13 @@ const lightTheme = createMuiTheme({
         }
       }
     },
+    MuiCardActionArea:{
+      root:{      
+        focusHighlight:{        
+            backgroungColor:'#0478ff',        
+        }
+      }
+    },
     MuiList:{
       root:{
         background:'rgba(206,206,206,0.1)',
