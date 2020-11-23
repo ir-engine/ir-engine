@@ -125,7 +125,6 @@ body{
 .menuDrawerOpened{
   [class*=MediaIconsBox_drawerBoxContainer],
   [class*=InstanceChat_instance-chat-container],
-  [class*=InstanceChat_message-wrapper] > [class*=InstanceChat_message-container],
   [class*=UserMenu_anchorDrawer]{
     right: 270px;
     left: auto;
