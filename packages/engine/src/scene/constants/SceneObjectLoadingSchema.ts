@@ -122,8 +122,10 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
     behaviors: [
       {
         behavior: createSkybox,
-        args: { obj3d: Sky },
+        // args: { obj3d: Sky },
         values: [
+          { from: 'texture', to: 'texture' },
+          { from: 'skytype', to: 'skytype' },
           { from: 'distance', to: 'distance' },
           { from: 'inclination', to: 'inclination' },
           { from: 'azimuth', to: 'azimuth' },
