@@ -40,7 +40,7 @@ const TexturesOption = [
   },
   {
     label: "texture4",
-    value: "/hdr/texture444.jpg"
+    value: "/hdr/skyCubemap2_red.png"
   }
 
 ];

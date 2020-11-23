@@ -1,5 +1,6 @@
 import EditorNodeMixin from "./EditorNodeMixin";
 import { Sky } from "../../scene/classes/Sky";
+import { CubeRefractionMapping, CubeTexture, EquirectangularReflectionMapping, sRGBEncoding, Texture, TextureLoader } from "three";
 export default class SkyboxNode extends EditorNodeMixin(Sky) {
   static legacyComponentName = "skybox";
   static disableTransform = true;
@@ -52,11 +53,56 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
   onRemove() {
     this.editor.scene.updateEnvironmentMap(null);
   }
-  updateEnvironmentMap() {
-    const renderer = this.editor.renderer.renderer;
-    const envMap = this.generateEnvironmentMap(renderer);
-    this.editor.scene.updateEnvironmentMap(envMap);
+
+  getTexture() {
+    let texture;
+    switch (this.skyOptionValue) {
+      case "equirectangular":
+        const textureLoader = new TextureLoader();
+        texture = textureLoader.load(this.textureOptionValue);
+        texture.encoding = sRGBEncoding;
+        texture.mapping = EquirectangularReflectionMapping;
+        return texture;                                                                          
+      // case "cubemap":
+      //   const imageObj = new Image();
+      //   imageObj.src = this.textureOptionValue;
+      //   imageObj.onload = function () {
+      //     let canvas, context;
+      //     const tileWidth = imageObj.height;
+      //     const canvases = [];
+      //     for (let i = 0; i < 6; i++) {
+
+      //       canvas = document.createElement('canvas');
+      //       context = canvas.getContext('2d');
+      //       canvas.height = tileWidth;
+      //       canvas.width = tileWidth;
+      //       context.drawImage(imageObj, tileWidth * i, 0, tileWidth, tileWidth, 0, 0, tileWidth, tileWidth);
+      //       canvases.push(canvas);
+      //     }
+      //     const textureCube = new CubeTexture(canvases);
+      //     textureCube.mapping = CubeRefractionMapping;
+      //     textureCube.needsUpdate = true;
+      //     texture = textureCube;           
+      //   };
+      //   console.log(texture);
+      //   return texture;
+      default:
+        const renderer = this.editor.renderer.renderer;
+        const envMap = this.generateEnvironmentMap(renderer);
+        texture = envMap;
+        return texture;
+    }
   }
+
+  updateEnvironmentMap() {
+    // const renderer = this.editor.renderer.renderer;
+    // const envMap = this.generateEnvironmentMap(renderer);
+
+    // this.editor.scene.updateEnvironmentMap(envMap);
+    console.log(this.getTexture());
+    this.editor.scene.updateEnvironmentMap(this.getTexture());
+  }
+
   serialize() {
     let data: any = {};
     switch (this.skyOptionValue) {
