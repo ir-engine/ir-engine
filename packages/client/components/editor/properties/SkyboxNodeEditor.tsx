@@ -28,14 +28,23 @@ const SkyOption = [
 const TexturesOption = [
   {
     label: "texture1",
-    value: "server/public/textures/kazuend-2KXEb_8G5vo-unsplash.jpg"
-    // packages/server/public/textures/kazuend-2KXEb_8G5vo-unsplash.jpg?
+    value: "/hdr/mvp-cloud-skybox.png"
+  },
+  {
+    label: "texture2",
+    value: "/hdr/texture222.jpg"
+  },
+  {
+    label: "texture3",
+    value: "/hdr/texture333.jpg"
+  },
+  {
+    label: "texture4",
+    value: "/hdr/texture444.jpg"
   }
-  // {
-  //   label: "texture2",
-  //   value: "texture2"
-  // }
+
 ];
+
 
 type SkyboxNodeEditorProps = {
   editor?: object;

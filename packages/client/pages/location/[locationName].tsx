@@ -172,22 +172,20 @@ const EditorRoomPage = (props: Props) => {
     console.log("Result is ");
     console.log(result);
 
-    const networkSchema: NetworkSchema = {
-      ...DefaultNetworkSchema,
-      transport: SocketWebRTCClientTransport,
-    };
+      const networkSchema: NetworkSchema = {
+        ...DefaultNetworkSchema,
+        transport: SocketWebRTCClientTransport,
+      };
+  
+      const InitializationOptions = {
+        ...DefaultInitializationOptions,
+        networking: {
+          schema: networkSchema,
+        }
+      };
 
-    const InitializationOptions = {
-      ...DefaultInitializationOptions,
-      networking: {
-        schema: networkSchema,
-      }
-    };
-
-    initializeEngine(InitializationOptions);
-    createPrefab(staticWorldColliders);
-    createPrefab(VRMPrefab);
-
+      initializeEngine(InitializationOptions);
+      // createPrefab(staticWorldColliders);
     loadScene(result);
     const cameraTransform = getMutableComponent<TransformComponent>(
       CameraComponent.instance.entity,
