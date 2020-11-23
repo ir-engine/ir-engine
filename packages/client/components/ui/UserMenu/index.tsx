@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './UserMenu.module.scss';
-import { Button, TextField, Drawer, Typography, CardContent, Card } from '@material-ui/core';
+import { Button, TextField, Drawer, Typography, CardMedia, Card, CardActionArea } from '@material-ui/core';
 import { generalStateList, setAppSpecificOnBoardingStep } from '../../../redux/app/actions';
 import EditIcon from '@material-ui/icons/Edit';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -204,16 +204,34 @@ const UserMenu = (props: Props): any => {
       }
     }, [ actorEntity, actorAvatarId ]);
    
-
+//filter avatars by some attribute
+const avatarsForRender = CharacterAvatars.filter(avatar=>avatar.id !== 'Animation');
+function imageExists(image_url){
+  var http = new XMLHttpRequest();
+  http.open('HEAD', image_url, false);
+  http.send();
+  return http.status != 404;
+}
 const renderAvatarSelectionPage = () =><>
       <Typography variant="h2" color="primary"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} />Change Avatar</Typography>
       <section className={styles.avatarCountainer}>
-          {CharacterAvatars.map(characterAvatar=>
-              <div className={styles.avatarPreviewWrapper}>
-                <PermIdentityIcon color="primary" 
-                className={styles.avatarPreview+(actorAvatarId === characterAvatar.id ? ' '+styles.currentAvatar : '')} 
-                onClick={()=>setActorAvatarId(characterAvatar.id)} />
-              </div>
+          {avatarsForRender.map(characterAvatar=>
+              <Card key={characterAvatar.id} className={styles.avatarPreviewWrapper}> 
+                <CardActionArea>
+                  {imageExists('/static/'+characterAvatar.id.toLocaleLowerCase()+'.png') ? 
+                  <CardMedia
+                    component="img"
+                    alt={characterAvatar.title}
+                    height="145"
+                    image={'/static/'+characterAvatar.id.toLocaleLowerCase()+'.png'}
+                    title={characterAvatar.title}
+                    className={styles.avatarPreview+(actorAvatarId === characterAvatar.id ? ' '+'currentAvatar' : '')} 
+                    onClick={()=>setActorAvatarId(characterAvatar.id)}                    
+                  /> : <PermIdentityIcon color="primary" height="145" 
+                      className={styles.avatarPreview+(actorAvatarId === characterAvatar.id ? ' '+styles.currentAvatar : '')} 
+                      onClick={()=>setActorAvatarId(characterAvatar.id)} /> }
+                </CardActionArea>
+              </Card>
             )}
       </section>
       </>;

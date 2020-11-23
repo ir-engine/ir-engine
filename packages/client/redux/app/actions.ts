@@ -4,7 +4,8 @@ import {
   SET_VIEWPORT_SIZE,
   SET_IN_VR_MODE,
   SET_APP_ONBOARDING_STEP,
-  SET_APP_SPECIFIC_ONBOARDING_STEP
+  SET_APP_SPECIFIC_ONBOARDING_STEP,
+  SET_USER_HAS_INTERACTED
 } from '../actions';
 
 export enum generalStateList {START_STATE, SCENE_LOADING, SCENE_LOADED, DEVICE_SETUP, AVATAR_SELECTION, AVATAR_SELECTED, 
@@ -53,4 +54,8 @@ export const setViewportSize = (width: number, height: number) => ({
 export const setAppInVrMode = (inVrMode: boolean) => ({
   type: SET_IN_VR_MODE,
   inVrMode
+});
+
+export const setUserHasInteracted = () => ({
+  type: SET_USER_HAS_INTERACTED
 });

@@ -518,7 +518,7 @@ client.service('location-ban').on('created', async(params) => {
   console.log('Current location id: ' + currentLocation.id);
   console.log(locationBan);
   if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
-    endVideoChat(true);
+    endVideoChat({ leftParty: true });
     leave();
     if (selfPartyUser.id != null) {
       await client.service('party-user').remove(selfPartyUser.id);
