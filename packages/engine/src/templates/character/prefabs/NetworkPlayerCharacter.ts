@@ -22,7 +22,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     // ActorComponent has values like movement speed, deceleration, jump height, etc
     { type: CharacterComponent },
     // Handle character's body
-    { type: CharacterAvatarComponent, data: { avatarId: 'Rose' }},
+    { type: CharacterAvatarComponent, data: { avatarId: 'VRMAvatar' }},
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
     // Local player input mapped to behaviors in the input map

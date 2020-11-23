@@ -57,7 +57,7 @@ export function connectToInstanceServer () {
       const videoActive = MediaStreamComponent.instance !== null && MediaStreamComponent.instance !== undefined && (MediaStreamComponent.instance.camVideoProducer != null || MediaStreamComponent.instance.camAudioProducer != null);
       // TODO: Disconnected 
       if(Network.instance !== undefined && Network.instance !== null){
-        await endVideoChat();
+        await endVideoChat({ endConsumers: true });
         await leave();
       }
       await connectToServer(instance.get('ipAddress'), instance.get('port'), {

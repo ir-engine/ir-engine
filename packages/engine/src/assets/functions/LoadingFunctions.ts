@@ -80,6 +80,7 @@ function getLoaderForAssetType (assetType: AssetTypeAlias): GLTFLoader | any | T
   else if (assetType == AssetType.glTF) return new GLTFLoader();
   else if (assetType == AssetType.PNG) return new TextureLoader();
   else if (assetType == AssetType.JPEG) return new TextureLoader();
+  else if (assetType == AssetType.VRM) return new GLTFLoader();
 }
 
 export function getAssetType (assetFileName:string):AssetType {

@@ -154,7 +154,7 @@ client.service('party-user').on('removed', (params) => {
   store.dispatch(removedPartyUser(params.partyUser));
   if (params.partyUser.userId === selfUser.id) {
     console.log('Attempting to end video call');
-    endVideoChat(true);
+    endVideoChat({ leftParty: true });
     // (Network.instance?.transport as any)?.leave();
   }
 });

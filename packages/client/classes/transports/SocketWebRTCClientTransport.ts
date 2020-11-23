@@ -136,7 +136,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       });
 
       this.socket.on('disconnect', async () => {
-        await endVideoChat();
+        await endVideoChat({ endConsumers: true });
         await leave();
         clearInterval(heartbeat);
         console.log('Socket received disconnect');
@@ -147,7 +147,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         console.log("TODO: SNACKBAR HERE");
         console.log('Socket received kick message');
         clearInterval(heartbeat);
-        await endVideoChat();
+        await endVideoChat({ endConsumers: true });
         await leave();
         this.socket.close();
         console.log("Client has been kicked from the world");
