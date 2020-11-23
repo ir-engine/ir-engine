@@ -1,17 +1,24 @@
-.anchorContainer {
-    // width: 100wv;
-    .anchorDrawer{
-        position: absolute;
-        // position: -webkit-sticky;
-        // position: sticky;
-        top: 20px;
-        right: 20px;
+.anchorContainer .anchorDrawer{
+    padding: 0px;
+    z-index: 1301;
+}
+.anchorDrawer{
+    position: absolute;
+    top: 20px;
+    right: 0px;
+    cursor: pointer;
+    padding: 0px;
+    border-radius: 5px 0 0 5px;
+    > svg{
+        height: 1em;
+        width: 1em;
+        margin: 7px;
         cursor: pointer;
     }
-    .drawer{
-        display: flex;   
-    }    
 }
+.drawer{
+    display: flex;   
+}    
 .avatarCountainer{
     display: flex;
     align-items: flex-start;

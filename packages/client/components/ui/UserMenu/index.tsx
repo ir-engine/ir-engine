@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './UserMenu.module.scss';
-import { Button, MenuItem, TextField, Drawer, Typography } from '@material-ui/core';
+import { Button, TextField, Drawer, Typography, CardContent, Card } from '@material-ui/core';
 import { generalStateList, setAppSpecificOnBoardingStep } from '../../../redux/app/actions';
 import EditIcon from '@material-ui/icons/Edit';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -127,6 +127,9 @@ const UserMenu = (props: Props): any => {
       return;
     }
     setState({ ...state, [anchor]: open });
+
+    open === true ? window.document.querySelector('body').classList.add('menuDrawerOpened')
+               : window.document.querySelector('body').classList.remove('menuDrawerOpened');
   };
 
   const handleLogin = () => {
@@ -188,7 +191,6 @@ const UserMenu = (props: Props): any => {
 
       const actorEntityWaitInterval = setInterval(() => {
         if (Network.instance?.localClientEntity) {
-          console.log('setActorEntity');
           setActorEntity(Network.instance.localClientEntity);
           clearInterval(actorEntityWaitInterval);
         }
@@ -245,13 +247,13 @@ const renderDrawerContent = () =>{
 
   return (
         <section key={anchor} className={styles.anchorContainer}>
-          { !isOpenDrawer && <MenuIcon className={styles.anchorDrawer} onClick={toggleDrawer(anchor, true)} />}
+          <Card><CardContent className={styles.anchorDrawer}><MenuIcon onClick={toggleDrawer(anchor, isOpenDrawer === true ? false : true)} /></CardContent></Card>
           <Drawer
             anchor={anchor}
             open={state[anchor]}
             onClose={toggleDrawer(anchor, false)}
             className={styles.drawer}
-            BackdropProps={{ style: { backgroundColor: "transparent" } }}
+            BackdropProps={{invisible:true, open:false }}
           >
             {renderDrawerContent()}            
           </Drawer>

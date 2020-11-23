@@ -190,14 +190,13 @@ const InstanceChat = (props: Props): any => {
         <div className={styles['instance-chat-container']}>
             <div className={styles['list-container']}>
                 <Drawer 
-                anchor={anchor}
-                open={state[anchor]}
-                onClose={toggleDrawer(anchor, false)}
-                ref={(messageRef as any)} 
-                classes={{paper:styles['message-container']}}
-                BackdropProps={{ style: { backgroundColor: "transparent" } }} >
+                    anchor={anchor}
+                    open={state[anchor]}
+                    onClose={toggleDrawer(anchor, false)}
+                    ref={(messageRef as any)} 
+                    classes={{root:styles['message-wrapper'],paper:styles['message-container']}}
+                    BackdropProps={{invisible:true, open:false }} >
                     { activeChannel != null && activeChannel.messages && activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).slice(activeChannel.messages.length >= 3 ? activeChannel.messages?.length - 3 : 0, activeChannel.mesages?.length).map((message) => {
-                        console.log('getMessageUser(message', getMessageUser(message));
                         return <ListItem
                             className={classNames({
                                 [styles.message]: true,
@@ -219,16 +218,13 @@ const InstanceChat = (props: Props): any => {
                         </ListItem>;
                     })
                     }
-                    {/* {(activeChannel == null || activeChannel.messages?.length === 0) &&
-                    <div className={styles['first-message-placeholder']}>
-                        No messages to this layer
-                    </div>
-                    } */}
                 </Drawer>
-                <Card  className={styles['flex-center']}>
+                <Card className={styles['flex-center']}>
                     <CardContent className={styles['chat-box']}>
-                        <div className={styles.iconContainer} onClick={openDrawer}>
-                            <MessageIcon/>
+                        <div className={styles.iconContainer} /*onClick={openDrawer}*/>
+                            <MessageIcon />
+                            {state[anchor] === true ? <ExpandMoreIcon onClick={toggleDrawer(anchor, false)} /> :
+                            <ExpandLessIcon onClick={toggleDrawer(anchor, true)} />}
                         </div>
                         <TextField
                             className={styles.messageFieldContainer}
@@ -242,15 +238,11 @@ const InstanceChat = (props: Props): any => {
                             value={composingMessage}
                             inputProps={{
                                 maxLength: 1000,
-                                // padding: 0
                             }}
                             onChange={handleComposingMessageChange}
-                            onClick={toggleDrawer(anchor, true)}
                         />
                         <div className={styles.iconContainerSend} onClick={packageMessage}>
-                            <Send/>
-                            {state[anchor] === true ? <ExpandMoreIcon onClick={toggleDrawer(anchor, false)} /> :
-                            <ExpandLessIcon onClick={toggleDrawer(anchor, true)} />}
+                            <Send/>                            
                         </div>
                     </CardContent>
                 </Card>
