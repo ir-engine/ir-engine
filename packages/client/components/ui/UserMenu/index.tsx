@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './UserMenu.module.scss';
-import { Button, TextField, Drawer, Typography, CardMedia, Card, CardActionArea } from '@material-ui/core';
+import { Button, TextField, Drawer, Typography, CardMedia, Card, CardActionArea, CardContent } from '@material-ui/core';
 import { generalStateList, setAppSpecificOnBoardingStep } from '../../../redux/app/actions';
 import EditIcon from '@material-ui/icons/Edit';
 import MenuIcon from '@material-ui/icons/Menu';
