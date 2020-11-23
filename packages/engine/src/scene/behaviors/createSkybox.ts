@@ -1,6 +1,8 @@
 import { Sky } from '@xr3ngine/engine/src/scene/classes/Sky';
+import { CanvasTexture, RGBFormat, sRGBEncoding } from 'three';
 import { CubeTexture, TextureLoader } from 'three';
 import { CubeRefractionMapping } from 'three';
+import { EquirectangularReflectionMapping } from 'three';
 import { Vector3 } from 'three';
 import { addObject3DComponent } from '../../common/behaviors/Object3DBehaviors';
 import { Engine } from '../../ecs/classes/Engine';
@@ -34,10 +36,10 @@ export default function createSkybox(entity, args: {
     uniforms.turbidity.value = args.objArgs.turbidity;
     uniforms.sunPosition.value = sun;
 
-  } else if (args.objArgs.skyOptionValue === "cubemap") {
-    // const path = 'server/public/cubemaps';
-
+  } else if (args.objArgs.skytype === "cubemap") {
+    
     const imageObj = new Image();
+    
 
     imageObj.onload = function () {
       
@@ -53,19 +55,43 @@ export default function createSkybox(entity, args: {
         canvas.height = tileWidth;
         canvas.width = tileWidth;
         context.drawImage(imageObj, tileWidth * i, 0, tileWidth, tileWidth, 0, 0, tileWidth, tileWidth);
+        // context.drawImage();
         canvases.push(canvas);
 
       }
+      console.log(canvases);
 
       const textureCube = new CubeTexture(canvases);
-      // textureCube.mapping = CubeRefractionMapping;
+      //  const textureCube = new CanvasTexture(canvases);
+      textureCube.mapping = CubeRefractionMapping;
+      textureCube.needsUpdate = true;
+      // textureCube.format = RGBFormat;
 
       Engine.scene.background = textureCube;
     };
-    console.log(args.objArgs);
+    
     imageObj.src = args.objArgs.texture;
+
+    console.log(imageObj);
+    
+    // src= "/packages/server/upload/kazuend-2KXEb_8G5vo-unsplash.jpg"
+    
   }
-  else if (args.objArgs.skyOptionValue === "equirectangular") {
-    Engine.scene.background = new TextureLoader().load(args.objArgs.texture);
+  else if (args.objArgs.skytype === "equirectangular") {
+    // Engine.scene.background = new TextureLoader().load(args.objArgs.texture);
+
+    const textureLoader = new TextureLoader();
+
+			textureLoader.load( args.objArgs.texture, ( texture ) => {
+
+				texture.encoding = sRGBEncoding;
+				texture.mapping = EquirectangularReflectionMapping;
+
+				// init( texture );
+        // animate();
+        
+        Engine.scene.background = texture;
+
+			} );
   }
 }
