@@ -1,5 +1,5 @@
 import { registerSystem } from "../../src/ecs/functions/SystemFunctions";
-import { InputSystem } from "../../src/input/systems/InputSystem";
+import { InputSystem } from "../../src/input/systems/ClientInputSystem";
 import { execute } from "../../src/ecs/functions/EngineFunctions";
 import { addComponent, createEntity, removeComponent, removeEntity } from "../../src/ecs/functions/EntityFunctions";
 import { Input } from "../../src/input/components/Input";

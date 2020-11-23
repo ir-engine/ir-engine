@@ -2,7 +2,7 @@ import { BehaviorValue } from './BehaviorValue';
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export interface Prefab {
-  components?: Array<{
+  localClientComponents?: Array<{
     type: any;
     data?: any;
   }>;

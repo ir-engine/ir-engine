@@ -23,7 +23,7 @@ const boxMaterial = new MeshPhongMaterial({ color: 'blue' });
 const boxMesh = new Mesh(boxGeometry, boxMaterial);
 
 export const interactiveBox: Prefab = {
-    components: [
+    localClientComponents: [
         { type: TransformComponent, data: { position: [-3, 2,-3] } },
         {
             type: Interactable,

@@ -22,7 +22,7 @@ import { loadActorAvatar } from "../behaviors/loadActorAvatar";
 export const PlayerCharacter: Prefab = {
     // These will be created for all players on the network
     // These are only created for the local player who owns this prefab
-    components: [
+    localClientComponents: [
         // ActorComponent has values like movement speed, deceleration, jump height, etc
         { type: CharacterComponent },
         // Transform system applies values from transform component to three.js object (position, rotation, etc)

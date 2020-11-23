@@ -57,8 +57,7 @@ export default class GroundPlaneNode extends EditorNodeMixin(GroundPlane) {
       },
       "box-collider": {
         type: 'ground',
-        mass: 0,
-        scale: [10000, 0.1, 10000]
+        position: this.position
       },
       shadow: {
         receive: this.receiveShadow

@@ -1,16 +1,7 @@
-import { Behavior } from '../../common/interfaces/Behavior';
-import { Entity } from '../../ecs/classes/Entity';
+import { Body, Box, Sphere, Vec3 } from 'cannon-es';
 import { PhysicsManager } from '../components/PhysicsManager';
-import { getMutableComponent, hasComponent, getComponent, addComponent } from '../../ecs/functions/EntityFunctions';
-import { Object3DComponent } from '../../common/components/Object3DComponent';
-import { cannonFromThreeVector } from '../../common/functions/cannonFromThreeVector';
-import { Vec3, Box, Cylinder, Material, ContactMaterial, Quaternion, Sphere, Body } from 'cannon-es';
-import { threeToCannon } from '@xr3ngine/engine/src/templates/world/three-to-cannon';
-import { createTrimesh } from './physicalPrimitives';
 import { CollisionGroups } from "../enums/CollisionGroups";
-
-
-
+import { createTrimesh } from './physicalPrimitives';
 
 function createBox (position, scale) {
   const shape = new Box(new Vec3(scale.x, scale.y, scale.z));
@@ -36,11 +27,6 @@ function createSphere (radius) {
   body.addShape(shape);
   return body;
 }
-
-
-
-
-
 
 export function addColliderWithoutEntity( type, position, rotation, scale, mesh ) {
 

@@ -34,6 +34,10 @@ export class Network extends Component<Network> {
   transport: NetworkTransport
   schema: NetworkSchema
   clients: NetworkClientList = {}
+  clientsConnected = []
+  clientsDisconnected = []
+  createObjects = []
+  destroyObjects = []
   networkObjects: NetworkObjectList = {}
   localClientEntity: Entity = null
   socketId: string
@@ -59,7 +63,7 @@ export class Network extends Component<Network> {
     destroyObjects: []
   };
 
-  static sceneId = "default"
+  static sceneId = '547Y45f7'//"default"
   static Network: any
   static tick: any = 0
   constructor() {

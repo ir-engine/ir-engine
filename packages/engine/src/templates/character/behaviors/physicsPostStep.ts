@@ -10,6 +10,7 @@ import { CharacterComponent } from "../components/CharacterComponent";
 import { appplyVectorMatrixXZ } from "../functions/appplyVectorMatrixXZ";
 import { haveDifferentSigns } from "../../../common/functions/haveDifferentSigns";
 import { TransformComponent } from "../../../transform/components/TransformComponent";
+import { isClient } from "../../../common/functions/isClient";
 
 const up = new Vector3(0, 1, 0);
 
@@ -78,9 +79,13 @@ export const physicsPostStep: Behavior = (entity): void => {
 		// Compensate for gravity
 		// newVelocity.y -= body.world.physicsWorld.gravity.y / body.actor.world.physicsFrameRate;
 		// Apply velocity
-		body.velocity.x = newVelocity.x;
-		body.velocity.y = newVelocity.y;
-		body.velocity.z = newVelocity.z;
+	//	if (!isClient) {
+			//console.error(body.velocity.x);
+
+			body.velocity.x = newVelocity.x;
+			body.velocity.y = newVelocity.y;
+			body.velocity.z = newVelocity.z;
+	//	}
 		// Ground actor
 		body.position.y = actor.rayResult.hitPointWorld.y + actor.rayCastLength + (newVelocity.y / Engine.physicsFrameRate);
 	}
@@ -122,6 +127,8 @@ export const physicsPostStep: Behavior = (entity): void => {
 		// Reset flag
 		actor.wantsToJump = false;
 	}
-	const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
-	transform.position.set(body.position.x, body.position.y, body.position.z);
+	if(isClient) return;
+
+	// const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
+	// transform.position.set(body.position.x, body.position.y, body.position.z);
 };

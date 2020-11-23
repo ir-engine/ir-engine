@@ -17,9 +17,13 @@ export default (app: Application): any => {
     },
     name: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     parent: {
+      type: DataTypes.UUID,
+      allowNull: true
+    },
+    collectionId: {
       type: DataTypes.UUID
     },
     index: DataTypes.INTEGER
@@ -32,10 +36,9 @@ export default (app: Application): any => {
   });
 
   (entity as any).associate = (models: any): void => {
-    (entity as any).hasMany(models.component, { foreignKey: 'entityId', onDelete: 'cascade', hooks: true });
-    (entity as any).belongsTo(models.entity_type, { foreignKey: 'entityType', required: true });
-    (entity as any).belongsTo(models.collection, { foreignKey: 'collectionId', required: false, constraints: false });
-    (entity as any).belongsTo(models.user);
+    (entity as any).hasMany(models.component, { foreignKey: 'entityId', required: false, constraints: false });
+    // Temporarily remove assocation
+    // (entity as any).belongsTo(models.collection, { foreignKey: 'collectionId', required: false, constraints: false });
   };
 
   return entity;

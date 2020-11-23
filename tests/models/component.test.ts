@@ -5,12 +5,9 @@ describe('CRUD operation on \'Component\' model', () => {
   const model = app.service('component').Model
   const componentTypeModel = app.service('component-type').Model
   const entityModel = app.service('entity').Model
-  const entityTypeModel = app.service('entity-type').Model
-  const newEntityType = 'newType'
   const newComponentType = 'testcomponenttype'
   const newEntityName = 'testentitytype'
 
-  let entityType: any
   let componentType: any
   let entityId: any
 
@@ -20,26 +17,15 @@ describe('CRUD operation on \'Component\' model', () => {
         name: newEntityName
       }
     })
-    await entityTypeModel.destroy({
-      where: {
-        type: newEntityType
-      }
-    })
     await componentTypeModel.destroy({
       where: {
         type: newComponentType
       }
     })
-    const entityTypeModelInstance = await entityTypeModel.create({
-      type: newEntityType
-    })
-
-    entityType = entityTypeModelInstance.type
 
     const entityModelInstance = await entityModel.create({
-      name: newEntityType,
+      name: newEntityName,
       entityId: v1(),
-      entityType: entityType
     })
 
     const componentTypeModelInstance = await componentTypeModel.create({
@@ -85,11 +71,6 @@ describe('CRUD operation on \'Component\' model', () => {
     await entityModel.destroy({
       where: {
         id: entityId
-      }
-    })
-    await entityTypeModel.destroy({
-      where: {
-        type: entityType
       }
     })
     await componentTypeModel.destroy({

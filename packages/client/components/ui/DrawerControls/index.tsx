@@ -59,7 +59,7 @@ export const DrawerControls = (props: Props): JSX.Element => {
   const selfUser = authState.get('user');
   const currentLocation = locationState.get('currentLocation').get('location');
   const enablePartyVideoChat = selfUser && selfUser.instanceId != null && selfUser.partyId != null && party?.id != null && (Network?.instance?.transport as any)?.socket?.connected === true;
-  const enableInstanceVideoChat = selfUser && selfUser.instanceId != null && currentLocation?.locationSettings?.instanceMediaChatEnabled === true && (Network?.instance?.transport as any).socket?.connected === true;
+  const enableInstanceVideoChat = selfUser && selfUser.instanceId != null && currentLocation?.locationSettings?.instanceMediaChatEnabled === true && (Network?.instance?.transport as any)?.socket?.connected === true;
   const openChat = (): void => {
     setLeftDrawerOpen(false);
     setTopDrawerOpen(false);

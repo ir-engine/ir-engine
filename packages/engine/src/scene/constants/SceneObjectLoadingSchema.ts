@@ -1,21 +1,23 @@
-import { AmbientLight, DirectionalLight, DoubleSide, HemisphereLight, Color, Matrix4, Vector3, Mesh, MeshBasicMaterial, MeshPhongMaterial, CircleBufferGeometry, PointLight, SpotLight } from 'three';
+import { addWorldColliders } from "@xr3ngine/engine/src/templates/world/behaviors/addWorldColliders";
+import { AmbientLight, CircleBufferGeometry, Color, DirectionalLight, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight } from 'three';
 import { AssetLoader } from '../../assets/components/AssetLoader';
 import { addComponentFromBehavior, addObject3DComponent, addTagComponentFromBehavior } from '../../common/behaviors/Object3DBehaviors';
-import { VisibleTagComponent } from '../../common/components/Object3DTagComponents';
+import { LightTagComponent, VisibleTagComponent } from '../../common/components/Object3DTagComponents';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { createBackground } from '../behaviors/createBackground';
 import { createBoxCollider } from '../behaviors/createBoxCollider';
 import { createGroup } from '../behaviors/createGroup';
 import { createImage } from '../behaviors/createImage';
 import { createLink } from '../behaviors/createLink';
-import { createScenePreviewCamera } from '../behaviors/createScenePreviewCamera';
 import { createShadow } from '../behaviors/createShadow';
 import createSkybox from '../behaviors/createSkybox';
-import { createSpawnPoint } from '../behaviors/createSpawnPoint';
 import { createTriggerVolume } from '../behaviors/createTriggerVolume';
 import { handleAudioSettings } from '../behaviors/handleAudioSettings';
 import { setFog } from '../behaviors/setFog';
+import { Sky } from '../classes/Sky';
 import CollidableTagComponent from '../components/Collidable';
+import ScenePreviewCameraTagComponent from "../components/ScenePreviewCamera";
+import SpawnPointComponent from "../components/SpawnPointComponent";
 import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
 
@@ -30,7 +32,10 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
           { from: 'intensity', to: 'intensity' }
         ]
       }
-    ]
+    ],
+        components: [{
+          type: LightTagComponent
+        }]
   },
   'directional-light': {
     behaviors: [
@@ -45,7 +50,10 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
           { from: 'color', to: 'color' }
         ]
       }
-    ]
+    ],
+      components: [{
+        type: LightTagComponent
+      }]
   },
   'collidable': {
     components: [
@@ -62,7 +70,8 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
         args: {
           component: AssetLoader,
         },
-        values: [{ from: 'src', to: 'url' }]
+        values: [{ from: 'src', to: 'url' }],
+        onLoaded: addWorldColliders
       }
     ]
   },
@@ -110,20 +119,23 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
     ]
   },
   'skybox': {
-    // behaviors: [
-    //   {
-    //     behavior: createSkybox,
-    //     values: [
-    //       { from: 'distance', to: 'distance' },
-    //       { from: 'inclination', to: 'inclination' },
-    //       { from: 'azimuth', to: 'azimuth' },
-    //       { from: 'mieCoefficient', to: 'mieCoefficient' },
-    //       { from: 'mieDirectionalG', to: 'mieDirectionalG' },
-    //       { from: 'rayleigh', to: 'rayleigh' },
-    //       { from: 'turbidity', to: 'turbidity' }
-    //     ]
-    //   }
-    // ]
+    behaviors: [
+      {
+        behavior: createSkybox,
+        // args: { obj3d: Sky },
+        values: [
+          { from: 'texture', to: 'texture' },
+          { from: 'skytype', to: 'skytype' },
+          { from: 'distance', to: 'distance' },
+          { from: 'inclination', to: 'inclination' },
+          { from: 'azimuth', to: 'azimuth' },
+          { from: 'mieCoefficient', to: 'mieCoefficient' },
+          { from: 'mieDirectionalG', to: 'mieDirectionalG' },
+          { from: 'rayleigh', to: 'rayleigh' },
+          { from: 'turbidity', to: 'turbidity' }
+        ]
+      }
+    ]
   },
   'image': {
     behaviors: [
@@ -200,14 +212,16 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'spawn-point': {
     behaviors: [
       {
-        behavior: createSpawnPoint
+        behavior: addTagComponentFromBehavior,
+        args: { component: SpawnPointComponent }
       }
     ]
   },
   'scene-preview-camera': {
     behaviors: [
       {
-        behavior: createScenePreviewCamera
+        behavior: addTagComponentFromBehavior,
+        args: { component: ScenePreviewCameraTagComponent }
       }
     ]
   },
@@ -229,7 +243,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
     behaviors: [
       {
         behavior: createBoxCollider,
-        values: ['type', 'mass']
+        values: ['type', 'position', 'rotation', 'scale', 'mass']
       }
     ]
   },

@@ -6,8 +6,10 @@ import { AssetType } from '../enums/AssetType';
 import { AssetId, AssetMap, AssetsLoadedHandler, AssetTypeAlias, AssetUrl } from '../types/AssetTypes';
 import * as FBXLoader from '../loaders/fbx/FBXLoader';
 import { Entity } from '../../ecs/classes/Entity';
+import { clone as SkeletonUtilsClone } from '../../common/functions/SkeletonUtils';
+import { hashResourceString } from './hashResourceString';
 
-// Kicks off an i{terator to load the list of assets and add them to the vault
+// Kicks off an iterator to load the list of assets and add them to the vault
 export function loadAssets (
   assets: AssetMap,
   onAssetLoaded: AssetsLoadedHandler,
@@ -17,18 +19,23 @@ export function loadAssets (
 }
 
 export function loadAsset (url: AssetUrl, entity: Entity, onAssetLoaded: AssetsLoadedHandler): void {
-  if (!AssetVault.instance.assets.has(url)) {
+  const urlHashed = hashResourceString(url);
+  if (AssetVault.instance.assets.has(urlHashed)) {
+    onAssetLoaded(entity, { asset: SkeletonUtilsClone(AssetVault.instance.assets.get(urlHashed)) });
+  } else {
     const loader = getLoaderForAssetType(getAssetType(url));
     if (loader == null) {
       console.error('Loader failed on ', url);
       return;
     }
     loader.load(url, resource => {
-      AssetVault.instance.assets.set(url, resource);
+      if (resource.scene) {
+        // store just scene, no need in all gltf metadata?
+        resource = resource.scene;
+      }
+      AssetVault.instance.assets.set(urlHashed, resource);
       onAssetLoaded(entity, { asset: resource });
     });
-  } else {
-    onAssetLoaded(entity, { asset: AssetVault.instance.assets.get(url) });
   }
 }
 
@@ -43,7 +50,8 @@ function iterateLoadAsset (
     return onAllAssetsLoaded(null, {});
   } else {
     const [{ url }] = current.value;
-    if (!AssetVault.instance.assets.has(url)) {
+    const urlHashed = hashResourceString(url);
+    if (!AssetVault.instance.assets.has(urlHashed)) {
       const loader = getLoaderForAssetType(getAssetType(url));
 
       if (loader == null) {
@@ -56,8 +64,9 @@ function iterateLoadAsset (
           resource.scene.traverse(child => {
           // Do stuff with metadata here
           });
+          resource = resource.scene;
         }
-        AssetVault.instance.assets.set(url, resource);
+        AssetVault.instance.assets.set(urlHashed, resource);
         iterateLoadAsset(iterable, onAssetLoaded, onAllAssetsLoaded);
       });
     } else {
@@ -71,9 +80,10 @@ function getLoaderForAssetType (assetType: AssetTypeAlias): GLTFLoader | any | T
   else if (assetType == AssetType.glTF) return new GLTFLoader();
   else if (assetType == AssetType.PNG) return new TextureLoader();
   else if (assetType == AssetType.JPEG) return new TextureLoader();
+  else if (assetType == AssetType.VRM) return new GLTFLoader();
 }
 
-export function getAssetType (assetFileName) {
+export function getAssetType (assetFileName:string):AssetType {
   if (/\.(?:gltf|glb)$/.test(assetFileName))
     return AssetType.glTF;
   else if (/\.(?:fbx)$/.test(assetFileName))
@@ -88,7 +98,7 @@ export function getAssetType (assetFileName) {
     return null;
 }
 
-export function getAssetClass (assetFileName) {
+export function getAssetClass (assetFileName:string):AssetClass {
   if (/\.(?:gltf|glb|vrm|fbx|obj)$/.test(assetFileName)) {
     return AssetClass.Model;
   } else if (/\.png|jpg|jpeg$/.test(assetFileName)) {

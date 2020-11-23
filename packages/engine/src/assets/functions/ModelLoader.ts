@@ -4,12 +4,18 @@ import GLTFLoader from 'three-gltf-loader';
 import { SkeletonUtils } from 'three/examples/jsm/utils/SkeletonUtils';
 import FBXLoader from '../loaders/fbx/FBXLoader';
 
+import { VRM } from '@pixiv/three-vrm';
+
 const getFileType = filename => {
-  if (/\.(?:gltf|glb|vrm)$/.test(filename)) {
+  if (/\.(?:gltf|glb)$/.test(filename)) {
     return 'gltf';
   } else if (/\.fbx$/.test(filename)) {
     return 'fbx';
-  } else {
+  } else if (/\.vrm$/.test(filename)) 
+  {
+    return 'vrm';
+  }
+  else {
     return null;
   }
 };
@@ -96,7 +102,39 @@ export const ModelLoader = async (href, filename = href) => {
     await managerLoadPromise;
     patchModel(model);
     return model;
-  } else {
+  }
+  else if (fileType === 'vrm')
+  {
+    const { manager, managerLoadPromise } = managerFactory();
+    const model = await new Promise((accept, reject) => {
+      new GLTFLoader(manager).load(
+        href,
+        scene => {
+
+          // generate a VRM instance from gltf
+          VRM.from( scene ).then( ( vrm ) => {
+      
+            // deal with vrm features
+            console.log( "vrm = " + vrm );
+            
+            // return vrm scene
+            accept( vrm );
+      
+      
+          } );
+      
+        },
+	      xhr => {
+          //
+        },
+        reject
+      );
+    });
+    await managerLoadPromise;
+    patchModel(model);
+    return model;
+  }
+  else {
     throw new Error(`unknown file type: ${filename} (${fileType})`);
   }
 };

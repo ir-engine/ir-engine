@@ -16,11 +16,12 @@ import { Unload } from '../components/Unload';
 import { AssetClass } from '../enums/AssetClass';
 import { getAssetClass, getAssetType, loadAsset } from '../functions/LoadingFunctions';
 import { ProcessModelAsset } from "../functions/ProcessModelAsset";
+import { Object3D } from 'three';
 
 export default class AssetLoadingSystem extends System {
   updateType = SystemUpdateType.Fixed;
   
-  loaded = new Map<Entity, any>()
+  loaded = new Map<Entity, Object3D>()
   loadingCount = 0;
 
   constructor() {
@@ -29,10 +30,6 @@ export default class AssetLoadingSystem extends System {
   }
 
   execute(): void {
-    if (isClient) {
-        document.dispatchEvent(new CustomEvent('scene-loaded', { detail: { loaded: this.queryResults.toLoad.all.length > 0 ? false : true } }));
-    }
-
     this.queryResults.assetVault.all.forEach(entity => {
       // Do things here
     });
@@ -65,7 +62,6 @@ export default class AssetLoadingSystem extends System {
 
           if (this.loadingCount === 0) {
             //loading finished
-            console.log('this.loadingCount', this.loadingCount)
             const event = new CustomEvent('scene-loaded', { detail: { loaded: true } });
             document.dispatchEvent(event);
           } else {
@@ -88,13 +84,15 @@ export default class AssetLoadingSystem extends System {
 
       getMutableComponent<AssetLoader>(entity, AssetLoader).loaded = true;
 
-      AssetVault.instance.assets.set(hashResourceString(component.url), asset.scene);
+      // asset is already set into Vault in it's raw unprocessed state
+      // const urlHashed = hashResourceString(component.url);
+      // if (!AssetVault.instance.assets.has(urlHashed)) {
+      //   AssetVault.instance.assets.set(urlHashed, asset);
+      // }
 
       if (component.onLoaded) {
         component.onLoaded(entity, { asset });
       }
-
-      console.log('loaded number ', entity)
     });
 
     this.loaded?.clear();
@@ -109,17 +107,6 @@ export default class AssetLoadingSystem extends System {
       }
     });
   }
-}
-
-export function hashResourceString(str: string): string {
-  let hash = 0;
-  let i = 0;
-  const len = str.length;
-  while (i < len) {
-    hash = ((hash << 5) - hash + str.charCodeAt(i++)) << 0;
-  }
-  // Return the hash plus part of the file name
-  return `${hash}${str.substr(Math.max(str.length - 7, 0))}`;
 }
 
 AssetLoadingSystem.queries = {

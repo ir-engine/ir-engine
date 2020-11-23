@@ -1,5 +1,5 @@
 import { getComponent, getMutableComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
-import { handleInput } from '../../input/behaviors/handleInput';
+import { handleInputOnClient } from '../../input/behaviors/handleInputOnClient';
 import { Input } from '../../input/components/Input';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { InputType } from '../../input/enums/InputType';
@@ -46,17 +46,15 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
 
   // Handle all network objects created this frame
   for (const objectToCreate in worldState.createObjects) {
-    const networkId = Network.instance.networkObjects[worldState.createObjects[objectToCreate].networkId];
     // If we already have a network object with this network id, throw a warning and ignore this update
-    if (networkId !== undefined) {
-      console.warn("WARNING: Object with networkId", networkId, "already exists, but received create command in this frame");
-    } else {
+    if (Network.instance.networkObjects[worldState.createObjects[objectToCreate].networkId] !== undefined)
+      console.warn("Not creating object because it already exists");
+     else
       initializeNetworkObject(
         worldState.createObjects[objectToCreate].ownerId,
         worldState.createObjects[objectToCreate].networkId,
         worldState.createObjects[objectToCreate].prefabType
       );
-    }
   }
 
   // TODO: Re-enable for snapshot interpolation
@@ -71,26 +69,32 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
 
   // Handle all network objects destroyed this frame
   for (const objectToDestroy in worldState.destroyObjects) {
-    const objectKey = worldState.destroyObjects[objectToDestroy].networkId;
-    if (Network.instance.networkObjects[objectKey] === undefined)
+    const networkId = worldState.destroyObjects[objectToDestroy].networkId;
+    console.log("Destroying ", networkId)
+    if (Network.instance.networkObjects[networkId] === undefined)
       return console.warn("Can't destroy object as it doesn't appear to exist")
-    console.log("Destroying network object ", Network.instance.networkObjects[objectKey].component.networkId);
+    console.log("Destroying network object ", Network.instance.networkObjects[networkId].component.networkId);
     // get network object
-    const entity = Network.instance.networkObjects[objectKey].component.entity;
+    const entity = Network.instance.networkObjects[networkId].component.entity;
     // Remove the entity and all of it's components
     removeEntity(entity);
+    console.warn("Entity is removed, but character imight not be");
     // Remove network object from list
-    delete Network.instance.networkObjects[objectKey];
+    delete Network.instance.networkObjects[networkId];
   }
 
-  worldState.inputs?.forEach(stateData => {
-    if (Network.instance.networkObjects[stateData.networkId] === undefined)
+  worldState.inputs?.forEach(inputData => {
+    if (Network.instance === undefined)
+    return console.warn("Network.instance undefined");
+
+    if(Network.instance.networkObjects[inputData.networkId] === undefined)
       return console.warn("network object undefined, but inputs not");
     // Get network object with networkId
-    const networkComponent = Network.instance.networkObjects[stateData.networkId].component;
+    const networkComponent = Network.instance.networkObjects[inputData.networkId].component;
 
     // Ignore input applied to local user input object that the client is currently controlling
-    if(networkComponent.ownerId === Network.instance.userId && hasComponent(networkComponent.entity, LocalInputReceiver)) return;
+    if(networkComponent.ownerId === Network.instance.userId) return; //  && hasComponent(networkComponent.entity, LocalInputReceiver)
+
 
     // Get input object attached
     const input = getComponent(networkComponent.entity, Input);
@@ -99,34 +103,31 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
     input.data.clear();
 
     // Apply new input
-    for (const button in stateData.buttons)
-      input.data.set(stateData.buttons[button].input,
+    for (const button in inputData.buttons)
+      input.data.set(inputData.buttons[button].input,
         {
           type: InputType.BUTTON,
-          value: stateData.buttons[button].value,
-          lifecycleState: stateData.buttons[button].lifeCycleState
+          value: inputData.buttons[button].value,
+          lifecycleState: inputData.buttons[button].lifecycleState
         });
 
     // Axis 1D input
-    for (const axis in stateData.axes1d)
-      input.data.set(stateData.axes1d[axis].input,
+    for (const axis in inputData.axes1d)
+      input.data.set(inputData.axes1d[axis].input,
         {
           type: InputType.BUTTON,
-          value: stateData.axes1d[axis].value,
-          lifecycleState: stateData.axes1d[axis].lifeCycleState
+          value: inputData.axes1d[axis].value,
+          lifecycleState: inputData.axes1d[axis].lifecycleState
         });
 
     // Axis 2D input
-    for (const axis in stateData.axes2d)
-      input.data.set(stateData.axes2d[axis].input,
+    for (const axis in inputData.axes2d)
+      input.data.set(inputData.axes2d[axis].input,
         {
           type: InputType.BUTTON,
-          value: stateData.axes2d[axis].value,
-          lifecycleState: stateData.axes2d[axis].lifeCycleState
+          value: inputData.axes2d[axis].value,
+          lifecycleState: inputData.axes2d[axis].lifecycleState
         });
-
-    // Call behaviors on map
-    handleInput(networkComponent.entity, {}, delta);
   });
 
   // worldState.states?.forEach(stateData => {
@@ -146,7 +147,7 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
   //   console.log("stateData.data is now: ", stateData.states);
   // });
 
-  if(worldState.transforms.length < 1)
+  if(worldState.transforms === undefined || worldState.transforms.length < 1)
     return console.warn("Worldstate transforms is null");
 
   // Update transforms

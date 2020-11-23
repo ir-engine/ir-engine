@@ -17,6 +17,13 @@ export function provisionInstanceServer (locationId: string, instanceId?: string
       dispatch(instanceServerProvisioning());
       const token = getState().get('auth').get('authUser').accessToken;
       console.log(`Provisioning instance server for location ${locationId} and instance ${instanceId}`);
+      console.log("Query is");
+      console.log({
+        locationId: locationId,
+        instanceId: instanceId,
+        sceneId: sceneId,
+        token: token
+      });
       const provisionResult = await client.service('instance-provision').find({
         query: {
           locationId: locationId,
@@ -25,6 +32,7 @@ export function provisionInstanceServer (locationId: string, instanceId?: string
           token: token
         }
       });
+      console.log("Provision result is: ");
       console.log(provisionResult);
       if (provisionResult.ipAddress != null && provisionResult.port != null) {
         dispatch(instanceServerProvisioned(provisionResult, locationId, sceneId));
@@ -49,7 +57,7 @@ export function connectToInstanceServer () {
       const videoActive = MediaStreamComponent.instance !== null && MediaStreamComponent.instance !== undefined && (MediaStreamComponent.instance.camVideoProducer != null || MediaStreamComponent.instance.camAudioProducer != null);
       // TODO: Disconnected 
       if(Network.instance !== undefined && Network.instance !== null){
-        await endVideoChat();
+        await endVideoChat({ endConsumers: true });
         await leave();
       }
       await connectToServer(instance.get('ipAddress'), instance.get('port'), {

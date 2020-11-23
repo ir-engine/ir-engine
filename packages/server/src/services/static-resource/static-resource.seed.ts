@@ -1,5 +1,4 @@
 import config from '../../config';
-import LocationSettingsSeed from '../location-settings/location-settings.seed';
 
 export const seed = {
   disabled: !config.db.forceRefresh,
@@ -13,7 +12,7 @@ export const seed = {
       sid : "j9o2NLiD",
       name : null,
       description : null,
-      url : "https://resources.xr3.xrengine.io/19176bb0-24e8-11eb-8630-81b209daf73a.jpeg",
+      url : "https://resources.xrengine.io/19176bb0-24e8-11eb-8630-81b209daf73a.jpeg",
       key : "d0828450-24e4-11eb-8630-81b209daf73a.jpeg",
       mimeType : "image/jpeg",
       metadata : null,

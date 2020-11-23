@@ -66,6 +66,9 @@ export async function sendCameraStreams(partyId?: string): Promise<void> {
     if (MediaStreamComponent.instance.mediaStream == null)
         await MediaStreamSystem.instance.startCamera();
 
+    if (MediaStreamComponent.instance.mediaStream == null || MediaStreamComponent.instance.mediaStream == undefined)
+        console.warn("Media stream is null, camera must have failed");
+
     if (networkTransport.videoEnabled === true) {
         let newTransport;
 
@@ -78,42 +81,46 @@ export async function sendCameraStreams(partyId?: string): Promise<void> {
                 newTransport = networkTransport.partySendTransport;
         }
 
-        MediaStreamComponent.instance.camVideoProducer = await newTransport.produce({
-            track: MediaStreamComponent.instance.mediaStream.getVideoTracks()[0],
-            encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
-            appData: { mediaTag: "cam-video", partyId: partyId }
-        });
-
-        if (MediaStreamComponent.instance.videoPaused)
-            await MediaStreamComponent.instance.camVideoProducer.pause();
+        if (MediaStreamComponent.instance.mediaStream !== null) {
+            MediaStreamComponent.instance.camVideoProducer = await newTransport.produce({
+                track: MediaStreamComponent.instance.mediaStream.getVideoTracks()[0],
+                encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
+                appData: { mediaTag: "cam-video", partyId: partyId }
+            });
+    
+            if (MediaStreamComponent.instance.videoPaused)
+                await MediaStreamComponent.instance.camVideoProducer.pause();
+        }
     }
 
-    //To control the producer audio volume, we need to clone the audio track and connect a Gain to it.
-    //This Gain is saved on MediaStreamComponent so it can be accessed from the user's component and controlled.
-    const audioTrack = MediaStreamComponent.instance.mediaStream.getAudioTracks()[0];
-    const ctx = new AudioContext();
-    const src = ctx.createMediaStreamSource(new MediaStream([audioTrack]));
-    const dst = ctx.createMediaStreamDestination();
-    const gainNode = ctx.createGain();
-    gainNode.gain.value = 1;
-    [src, gainNode, dst].reduce((a, b) => a && (a.connect(b) as any));
-    MediaStreamComponent.instance.audioGainNode = gainNode;
-    MediaStreamComponent.instance.mediaStream.removeTrack(audioTrack);
-    MediaStreamComponent.instance.mediaStream.addTrack(dst.stream.getAudioTracks()[0]);
-    // same thing for audio, but we can use our already-created
-    const newTransport = partyId === 'instance' ? networkTransport.instanceSendTransport : networkTransport.partySendTransport;
+    if (MediaStreamComponent.instance.mediaStream !== null) {
+        //To control the producer audio volume, we need to clone the audio track and connect a Gain to it.
+        //This Gain is saved on MediaStreamComponent so it can be accessed from the user's component and controlled.
+        const audioTrack = MediaStreamComponent.instance.mediaStream.getAudioTracks()[0];
+        const ctx = new AudioContext();
+        const src = ctx.createMediaStreamSource(new MediaStream([audioTrack]));
+        const dst = ctx.createMediaStreamDestination();
+        const gainNode = ctx.createGain();
+        gainNode.gain.value = 1;
+        [src, gainNode, dst].reduce((a, b) => a && (a.connect(b) as any));
+        MediaStreamComponent.instance.audioGainNode = gainNode;
+        MediaStreamComponent.instance.mediaStream.removeTrack(audioTrack);
+        MediaStreamComponent.instance.mediaStream.addTrack(dst.stream.getAudioTracks()[0]);
+        // same thing for audio, but we can use our already-created
+        const newTransport = partyId === 'instance' ? networkTransport.instanceSendTransport : networkTransport.partySendTransport;
 
-    // Create a new transport for audio and start producing
-    MediaStreamComponent.instance.camAudioProducer = await newTransport.produce({
-        track: MediaStreamComponent.instance.mediaStream.getAudioTracks()[0],
-        appData: { mediaTag: "cam-audio", partyId: partyId }
-    });
+        // Create a new transport for audio and start producing
+        MediaStreamComponent.instance.camAudioProducer = await newTransport.produce({
+            track: MediaStreamComponent.instance.mediaStream.getAudioTracks()[0],
+            appData: { mediaTag: "cam-audio", partyId: partyId }
+        });
 
-    if (MediaStreamComponent.instance.audioPaused)
-        MediaStreamComponent.instance.camAudioProducer.pause();
+        if (MediaStreamComponent.instance.audioPaused)
+            MediaStreamComponent.instance.camAudioProducer.pause();
+    }
 }
 
-export async function endVideoChat(leftParty?: boolean): Promise<boolean> {
+export async function endVideoChat(options: { leftParty?: boolean, endConsumers?: boolean }): Promise<boolean> {
     console.log('Ending videochat');
     networkTransport = Network.instance.transport as any;
 
@@ -152,16 +159,17 @@ export async function endVideoChat(leftParty?: boolean): Promise<boolean> {
         }
         console.log('Closed screen audio and video producers');
 
-        MediaStreamComponent.instance?.consumers.map(async (c) => {
-            if (networkTransport.socket?.connected === true)
-                await networkTransport.request(MessageTypes.WebRTCCloseConsumer.toString(), {
-                    consumerId: c.id
-                });
-            await c.close();
-        });
-        console.log('Closed all consumers');
+        if (options?.endConsumers === true) {
+            MediaStreamComponent.instance?.consumers.map(async (c) => {
+                if (networkTransport.socket?.connected === true)
+                    await networkTransport.request(MessageTypes.WebRTCCloseConsumer.toString(), {
+                        consumerId: c.id
+                    });
+                await c.close();
+            });
+        }
 
-        if (leftParty === true) {
+        if (options?.leftParty === true) {
             if (networkTransport.partyRecvTransport != null && networkTransport.partyRecvTransport.closed !== true)
                 await networkTransport.partyRecvTransport.close();
             if (networkTransport.partySendTransport != null && networkTransport.partySendTransport.closed !== true)
@@ -185,7 +193,7 @@ export function resetProducer(): void {
         MediaStreamComponent.instance.screenAudioProducer = null;
         MediaStreamComponent.instance.mediaStream = null;
         MediaStreamComponent.instance.localScreen = null;
-        MediaStreamComponent.instance.consumers = [];
+        // MediaStreamComponent.instance.consumers = [];
     }
 }
 
@@ -213,8 +221,8 @@ export async function subscribeToTrack(peerId: string, mediaTag: string, partyId
     if (consumerParameters.id == null) return;
 
     consumer = partyId === 'instance' ?
-        await networkTransport.instanceRecvTransport.consume({ ...consumerParameters, appData: { peerId, mediaTag } })
-        : await networkTransport.partyRecvTransport.consume({ ...consumerParameters, appData: { peerId, mediaTag, partyId } });
+        await networkTransport.instanceRecvTransport.consume({ ...consumerParameters, appData: { peerId, mediaTag }, paused: true })
+        : await networkTransport.partyRecvTransport.consume({ ...consumerParameters, appData: { peerId, mediaTag, partyId }, paused: true });
 
     if (MediaStreamComponent.instance.consumers?.find(c => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag) == null) {
         MediaStreamComponent.instance.consumers.push(consumer);
@@ -242,6 +250,8 @@ export async function resumeConsumer(consumer: { appData: { peerId: any; mediaTa
     networkTransport = Network.instance.transport as any;
     await networkTransport.request(MessageTypes.WebRTCResumeConsumer.toString(), { consumerId: consumer.id });
     await consumer.resume();
+    console.log(networkTransport);
+    console.log(consumer);
 }
 
 export async function pauseProducer(producer: { appData: { mediaTag: any; }; id: any; pause: () => any; }) {

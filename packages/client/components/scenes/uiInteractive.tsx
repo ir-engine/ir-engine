@@ -61,7 +61,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
   const [progressEntity, setProgressEntity] = useState('');
 
   const sceneLoadedEntity = (event: CustomEvent): void =>
-    setProgressEntity(' left '+ event.detail.left);
+    setProgressEntity(event.detail.left);
 
   const onObjectHover = (event: CustomEvent): void =>
     setHoveredLabel(event.detail.focused ? event.detail.interactionText : '');
@@ -136,7 +136,7 @@ export const EnginePage: FunctionComponent = (props: any) => {
 
   return (
     <ThemeProvider theme={theme}>
-      <LinearProgressComponent label={`Please wait while the World is loading ...${progressEntity}`} />
+      <LinearProgressComponent label={progressEntity} />
       <TooltipContainer message={hoveredLabel} />
       <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} />
       {mobileGamepad}
