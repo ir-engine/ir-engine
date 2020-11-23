@@ -1,0 +1,20 @@
+{
+  "name": "drcs_server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "fs-readstream-seek": "^1.1.1",
+    "hexdump-nodejs": "^0.1.0",
+    "nodemon": "^2.0.4"
+  }
+}
