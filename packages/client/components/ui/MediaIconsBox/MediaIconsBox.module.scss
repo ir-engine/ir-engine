@@ -3,10 +3,12 @@ $mobileControllButtonsSize:3em;
     position: absolute;
     top: 48%;
     right: 0;
-    z-index: 2;
+    z-index: 1301;
+    border-radius: 5px 0 0 5px;
     @media (max-width: 768px) {
         top: 0px;
         right: 35%;
+        border-radius: 0 0 5px 5px;      
     }
     .drawerBox{        
         margin: 0 auto;
