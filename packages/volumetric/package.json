@@ -1,7 +1,16 @@
 {
-  "name": "three-volumetric",
-  "version": "0.0.14",
-  "description": "Three.js Volumetric Player",
+  "name": "@xr3ngine/volumetric",
+  "version": "0.2.0",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/xr3ngine/xr3ngine.git"
+  },
+  "engines": {
+    "yarn": ">= 0.18.0"
+  },
+  "npmClient": "yarn",
+  "jest": "ts-jest",
   "scripts": {
     "build": "rollup -c",
     "preversion": "npm run lint",
@@ -10,10 +19,6 @@
     "dev": "rollup -cw &  (sleep 10 && http-server ./dist/examples)",
     "lint": "eslint ./src/**/*",
     "start": "npm run build"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/xr3ngine/three-volumetric.git"
   },
   "author": "XR3 Group",
   "license": "ISC",

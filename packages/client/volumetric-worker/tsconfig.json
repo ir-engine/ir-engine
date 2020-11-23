@@ -2,7 +2,7 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "esnext",
-    "lib": ["dom", ;"es2015", "webworker"],
+    "lib": ["dom", "es2015", "webworker"],
     "jsx": "react",
     "noImplicitAny": true,
     "preserveConstEnums": true,
