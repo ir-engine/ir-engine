@@ -99,39 +99,39 @@ export class WebGLRendererSystem extends System {
     composer.addPass(renderPass);
     // This sets up the render
     const passes: any[] = [];
-    // const normalPass = new NormalPass(renderPass.scene, renderPass.camera, { renderTarget: new WebGLRenderTarget(1, 1, {
-    //   minFilter: NearestFilter,
-    //   magFilter: NearestFilter,
-    //   format: RGBFormat,
-    //   stencilBuffer: false
-    // }) });
-    // const depthDownsamplingPass = new DepthDownsamplingPass({
-    //   normalBuffer: normalPass.texture,
-    //   resolutionScale: 0.5
-    // });
-    // const normalDepthBuffer =	depthDownsamplingPass.texture;
+    const normalPass = new NormalPass(renderPass.scene, renderPass.camera, { renderTarget: new WebGLRenderTarget(1, 1, {
+      minFilter: NearestFilter,
+      magFilter: NearestFilter,
+      format: RGBFormat,
+      stencilBuffer: false
+    }) });
+    const depthDownsamplingPass = new DepthDownsamplingPass({
+      normalBuffer: normalPass.texture,
+      resolutionScale: 0.5
+    });
+    const normalDepthBuffer =	depthDownsamplingPass.texture;
 
-    // RendererComponent.instance.postProcessingSchema.effects.forEach((pass: any) => {
-    //   if ( pass.effect === SSAOEffect){
-    //     passes.push(new pass.effect(Engine.camera, normalPass.texture, {...pass.options, normalDepthBuffer }));
-    //   }
-    //   else if ( pass.effect === DepthOfFieldEffect)
-    //     passes.push(new pass.effect(Engine.camera, pass.options))
-    //   else if ( pass.effect === OutlineEffect){
-    //   const effect = new pass.effect(Engine.scene, Engine.camera, pass.options)
-    //     passes.push(effect)
-    //     composer.outlineEffect = effect
-    //   }
-    //   else passes.push(new pass.effect(pass.options))
-    // })
-    // const textureEffect = new TextureEffect({
-		// 	blendFunction: BlendFunction.SKIP,
-		// 	texture: depthDownsamplingPass.texture
-		// });
-    // if (passes.length) {
-    //   composer.addPass(depthDownsamplingPass);
-    //   composer.addPass(new EffectPass(Engine.camera, ...passes, textureEffect));
-    // }
+    RendererComponent.instance.postProcessingSchema.effects.forEach((pass: any) => {
+      if ( pass.effect === SSAOEffect){
+        passes.push(new pass.effect(Engine.camera, normalPass.texture, {...pass.options, normalDepthBuffer }));
+      }
+      else if ( pass.effect === DepthOfFieldEffect)
+        passes.push(new pass.effect(Engine.camera, pass.options))
+      else if ( pass.effect === OutlineEffect){
+      const effect = new pass.effect(Engine.scene, Engine.camera, pass.options)
+        passes.push(effect)
+        composer.outlineEffect = effect
+      }
+      else passes.push(new pass.effect(pass.options))
+    })
+    const textureEffect = new TextureEffect({
+			blendFunction: BlendFunction.SKIP,
+			texture: depthDownsamplingPass.texture
+		});
+    if (passes.length) {
+      composer.addPass(depthDownsamplingPass);
+      composer.addPass(new EffectPass(Engine.camera, ...passes, textureEffect));
+    }
   }
 
   /**

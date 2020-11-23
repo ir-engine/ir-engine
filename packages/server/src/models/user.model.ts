@@ -1,16 +1,7 @@
 import { Sequelize, DataTypes } from 'sequelize';
 import { Application } from '../declarations';
 import GenerateRandomAnimalName from 'random-animal-name-generator';
-
-function capitalize(words){
-const wordArray = words.split(" ");
-
-for (let i = 0; i < words.length; i++) {
-  wordArray[i] = words[i][0].toUpperCase() + words[i].substr(1);
-}
-
-return wordArray.join(" ");
-}
+import { capitalize } from '../util/capitalize';
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient');
@@ -31,7 +22,7 @@ export default (app: Application): any => {
     },
     {
       hooks: {
-        beforeCount (options: any): void {
+        beforeCount(options: any): void {
           options.raw = true;
         }
       }
@@ -40,7 +31,7 @@ export default (app: Application): any => {
 
   (User as any).associate = (models: any): void => {
     (User as any).belongsTo(models.user_role, { foreignKey: 'userRole' });
-    (User as any).belongsTo(models.instance, { foreignKey: {allowNull: true }}); // user can only be in one room at a time
+    (User as any).belongsTo(models.instance, { foreignKey: { allowNull: true } }); // user can only be in one room at a time
     (User as any).hasOne(models.user_settings);
     (User as any).belongsTo(models.party, { through: 'party_user' }); // user can only be part of one party at a time
     (User as any).hasMany(models.collection);

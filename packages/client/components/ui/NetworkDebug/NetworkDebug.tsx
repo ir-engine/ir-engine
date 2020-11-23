@@ -1,8 +1,7 @@
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { Network } from "@xr3ngine/engine/src/networking/components/Network";
-import React, { useEffect, useLayoutEffect, useReducer, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import JSONTree from 'react-json-tree';
-import { useKeyPress } from "../../../functions/useKeyPress";
 
 export const NetworkDebug = () => {
   const [isShowing, setShowing] = useState(false);

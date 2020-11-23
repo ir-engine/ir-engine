@@ -2,7 +2,7 @@ import { addWorldColliders } from "@xr3ngine/engine/src/templates/world/behavior
 import { AmbientLight, CircleBufferGeometry, Color, DirectionalLight, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight } from 'three';
 import { AssetLoader } from '../../assets/components/AssetLoader';
 import { addComponentFromBehavior, addObject3DComponent, addTagComponentFromBehavior } from '../../common/behaviors/Object3DBehaviors';
-import { VisibleTagComponent } from '../../common/components/Object3DTagComponents';
+import { LightTagComponent, VisibleTagComponent } from '../../common/components/Object3DTagComponents';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { createBackground } from '../behaviors/createBackground';
 import { createBoxCollider } from '../behaviors/createBoxCollider';
@@ -32,7 +32,10 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
           { from: 'intensity', to: 'intensity' }
         ]
       }
-    ]
+    ],
+        components: [{
+          type: LightTagComponent
+        }]
   },
   'directional-light': {
     behaviors: [
@@ -47,7 +50,10 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
           { from: 'color', to: 'color' }
         ]
       }
-    ]
+    ],
+      components: [{
+        type: LightTagComponent
+      }]
   },
   'collidable': {
     components: [
