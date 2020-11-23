@@ -11,7 +11,7 @@ export default (options = {}): Hook => {
     
     const domain = config.server.storageProvider === 'aws' ? config.aws.cloudfront.domain : config.server.localStorageProvider;
 
-    const url = `https://${domain}/${context.result.id || context.data.id}`
+    const url = `https://${domain}/${context.result.id || context.data.id}`;
 
     context.data.url = url;
 

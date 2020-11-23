@@ -139,3 +139,7 @@ client.service('group').on('patched', (params) => {
 client.service('group').on('removed', (params) => {
   store.dispatch(removedGroup(params.group));
 });
+
+client.service('group').on('refresh', (params) => {
+  store.dispatch(createdGroup(params.group));
+});

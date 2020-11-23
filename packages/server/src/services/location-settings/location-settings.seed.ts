@@ -13,20 +13,6 @@ export const seed = {
           locationType: 'public',
           videoEnabled: true,
           instanceMediaChatEnabled: true
-      },
-      {
-          id: '44c80990-208d-11eb-b02f-37cfdadfe58c',
-          locationId: 'a98b8470-fd2d-11ea-bc7c-cd4cac9a8d61',
-          locationType: 'showroom',
-          videoEnabled: false,
-          instanceMediaChatEnabled: true
-      },
-      {
-          id: '5189b930-208d-11eb-b02f-37cfdadfe58c',
-          locationId: 'b5cf2a70-fd2d-11ea-bc7c-cd4cac9a8d61',
-          locationType: 'private',
-          videoEnabled: false,
-          instanceMediaChatEnabled: false
       }
     ]
 };

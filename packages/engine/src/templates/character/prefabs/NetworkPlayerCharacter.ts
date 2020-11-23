@@ -3,6 +3,7 @@ import { Input } from '../../../input/components/Input';
 import { LocalInputReceiver } from '../../../input/components/LocalInputReceiver';
 import { Interactor } from '../../../interaction/components/Interactor';
 import { NetworkPrefab } from '../../../networking/interfaces/NetworkPrefab';
+import TeleportToSpawnPoint from '../../../scene/components/TeleportToSpawnPoint';
 import { State } from '../../../state/components/State';
 import { Subscription } from '../../../subscription/components/Subscription';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
@@ -21,7 +22,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     // ActorComponent has values like movement speed, deceleration, jump height, etc
     { type: CharacterComponent },
     // Handle character's body
-    { type: CharacterAvatarComponent, data: { avatarId: 'Rose' }},
+    { type: CharacterAvatarComponent, data: { avatarId: 'VRMAvatar' }},
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
     // Local player input mapped to behaviors in the input map
@@ -32,10 +33,13 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     { type: State, data: { schema: CharacterStateSchema } },
   ],
   // These are only created for the local player who owns this prefab
-  components: [
+  localClientComponents: [
     { type: LocalInputReceiver },
     { type: FollowCameraComponent, data: { distance: 3, mode: "thirdPerson" } },
     { type: Interactor }
+  ],
+  serverComponents: [
+    { type: TeleportToSpawnPoint }
   ],
   onAfterCreate: [
     {

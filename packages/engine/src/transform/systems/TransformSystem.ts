@@ -5,11 +5,18 @@ import { TransformParentComponent } from '../components/TransformParentComponent
 import { System, SystemAttributes } from '../../ecs/classes/System';
 import { hasComponent } from "../../ecs/functions/EntityFunctions";
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
+import { DesiredTransformComponent } from "../components/DesiredTransformComponent";
+import { setDesiredTransformBehavior } from "../behaviors/setDesiredTransformBehavior";
 
 export class TransformSystem extends System {
   updateType = SystemUpdateType.Fixed;
 
   execute (delta) {
+
+    this.queryResults.desiredTransforms.all?.forEach(entity => {
+      setDesiredTransformBehavior(entity, {}, delta);
+    });
+
     this.queryResults.transforms.all?.forEach(entity => {
       transformBehavior(entity, {}, delta);
     });
@@ -36,5 +43,8 @@ TransformSystem.queries = {
       added: true,
       changed: true
     }
+  },
+  desiredTransforms: {
+    components: [DesiredTransformComponent]
   }
 };

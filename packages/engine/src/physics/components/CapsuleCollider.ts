@@ -3,6 +3,7 @@ import { Component } from "../../ecs/classes/Component";
 import { setDefaults } from "../../templates/character/functions/setDefaults";
 import { Types } from "../../ecs/types/Types";
 import { Vector3 } from "three";
+import { PhysicsManager } from './PhysicsManager';
 
 export class CapsuleCollider extends Component<CapsuleCollider>
 {
@@ -57,6 +58,11 @@ export class CapsuleCollider extends Component<CapsuleCollider>
 
 		this.body = capsuleBody;
 	}
+
+	dispose(): void {
+    super.dispose();
+    PhysicsManager.instance.physicsWorld.removeBody(this.body);
+  }
 }
 
 CapsuleCollider.schema = {

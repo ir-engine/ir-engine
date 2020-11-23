@@ -35,9 +35,12 @@ export default (app: Application): any => {
         if (!data) {
           return '';
         } else {
-          return JSON.parse(data);
+          return data;
         }
       }
+    },
+    entityId: {
+      type: DataTypes.UUID
     }
   }, {
     hooks: {
@@ -47,8 +50,8 @@ export default (app: Application): any => {
     }
   });
   (component as any).associate = (models: any): void => {
-    (component as any).belongsTo(models.component_type, { foreignKey: 'type', required: true, primaryKey: true });
-    (component as any).belongsTo(models.entity, { as: 'entity', foreignKey: 'entityId', required: true, primaryKey: true, onDelete: 'cascade', hooks: true });
+    (component as any).belongsTo(models.component_type, { foreignKey: 'type', required: false, constraints: false });
+    (component as any).belongsTo(models.entity, { as: 'entity', foreignKey: 'entityId', required: false, constraints: false, onDelete: 'cascade', hooks: true });
     (component as any).hasMany(models.static_resource, { constraints: false });
   };
 

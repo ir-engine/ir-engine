@@ -39,5 +39,10 @@ export const CharacterAvatars: CharacterAvatarData[] = [
     id: "Rose",
     title: "Rose",
     src: "/models/avatars/Rose.glb"
+  },
+  {
+    id: "VRMAvatar",
+    title: "VRMAvatar",
+    src: "/models/vrm/three-vrm-girl.vrm"
   }
 ];

@@ -26,6 +26,9 @@ export default (app: Application): any => {
 
   service.publish('created', async (data): Promise<any> => {
     try {
+      await app.service('group').emit('refresh', {
+        userId: data.userId
+      });
       const channel = await app.service('channel').Model.findOne({
         where: {
           groupId: data.groupId
@@ -60,7 +63,6 @@ export default (app: Application): any => {
       const targetIds = (groupUsers as any).data.map((groupUser) => {
         return groupUser.userId;
       });
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       return Promise.all(targetIds.map((userId: string) => {
         return app.channel(`userIds/${userId}`).send({
           groupUser: data

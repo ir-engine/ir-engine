@@ -53,7 +53,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
 
       }
 
-
+      console.log("Setting vehicle transform position");
       transform.position.set(
         chassisBody.position.x,
         chassisBody.position.y,

@@ -1,11 +1,12 @@
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
-import { AssetId, AssetMap, AssetUrl } from '../types/AssetTypes';
+import { AssetId, AssetMap, AssetStorage, AssetUrl } from '../types/AssetTypes';
+import { Object3D } from 'three';
 
 // This component should only be used once per game
 export default class AssetVault extends Component<AssetVault> {
   static instance: AssetVault
-  assets: AssetMap
+  assets: AssetStorage
   assetsLoaded!: boolean
 
   constructor () {
@@ -21,6 +22,6 @@ export default class AssetVault extends Component<AssetVault> {
 
   static schema = {
     assetsLoaded: { type: Types.Boolean, default: false },
-    assets: { type: Types.Ref, default: new Map<AssetId, AssetUrl>() }
+    assets: { type: Types.Ref, default: new Map<Object3D, AssetUrl>() }
   }
 }

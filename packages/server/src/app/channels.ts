@@ -10,6 +10,9 @@ import { staticWorldColliders } from '@xr3ngine/engine/src/templates/car/prefabs
 
 import isNullOrUndefined from '@xr3ngine/engine/src/common/functions/isNullOrUndefined';
 import { loadScene } from "@xr3ngine/engine/src/scene/functions/SceneLoading";
+
+let forTest = 0;
+
 export default (app: Application): void => {
   if (typeof app.channel !== 'function') {
     // If no real-time functionality has been configured just return
@@ -42,7 +45,7 @@ export default (app: Application): void => {
             const sceneId = (connection as any).socketQuery.sceneId;
 
             if(sceneId === "") return console.warn("Scene ID is empty, can't init");
-            
+
             const agonesSDK = (app as any).agonesSDK;
             const gsResult = await agonesSDK.getGameServer();
             const { status } = gsResult;
@@ -60,10 +63,7 @@ export default (app: Application): void => {
               (app as any).instance = instanceResult;
 
 
-              if (sceneId === ""){
-                console.warn("Scene ID is undefined");
-              }
-              else {
+
                 let service, serviceId;
                 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
                 const projectResult = await app.service('project').get(sceneId);
@@ -77,8 +77,12 @@ export default (app: Application): void => {
                 const result = await app.service(service).get(serviceId);
                 console.log("Result is ");
                 console.log(result);
-                loadScene(result);
-              }
+
+                if (!forTest) {
+                  loadScene(result);
+                  forTest += 1;
+                }
+
 
 
               // Here's an example of sending data to the channel 'instanceIds/<instanceId>'

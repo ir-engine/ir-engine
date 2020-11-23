@@ -8,7 +8,7 @@ import { onInteraction, onInteractionHover } from "../../interactive/functions/c
 
 
 export const JoystickPrefab: Prefab = {
-    components: [{ type: TransformComponent, data: { position: [3, 1, 0] } }],
+    localClientComponents: [{ type: TransformComponent, data: { position: [3, 1, 0] } }],
     onAfterCreate: [
         {
             behavior: addComponentFromSchema,

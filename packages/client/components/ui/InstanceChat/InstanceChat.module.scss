@@ -5,39 +5,40 @@
   flex-direction: row;
   left: 0;
   width: 100vw;
+  justify-content: flex-end;
 
   .chat-box {
     display: flex;
     flex-grow: 1;
     align-items: stretch;
+    padding: 0px;
+    border: 1px solid #000000;
+    .chat-box:last-child {
+      padding-bottom: 0px;
+    }
 
     .iconContainer{
       display: flex;
-      // flex: 1;
       height: inherit;
-      padding: 15px 10px;
-      background: rgba(0,0,0,0.7);
+      align-items: center;
+      padding: 0px 10px;
       &:hover {
         cursor: pointer;
-        background: rgba(0,0,0,0.9);
       }
     }
     .messageFieldContainer{
       margin:0px;
-      background-color: rgba(255,255,255,0.8);     
       .PrivateNotchedOutline-root-1{
         border: 0px;
       } 
     }
     .iconContainerSend{
       display: flex;
-      // flex: 1;
       height: inherit;
-      padding: 15px 10px;
-      background: rgba(0,0,0,0.7);
+      align-items: center;
+      padding: 0px 10px;
       &:hover {
         cursor: pointer;
-        background: rgba(0,0,0,0.9);
       }
     }
   }
@@ -45,8 +46,6 @@
   .list-container {
     display: flex;
     flex-direction: column;
-
-    margin: 0 auto;
     width: 50%;
 
     z-index: 100;
@@ -59,6 +58,7 @@
     .message-container {
       display: flex;
       flex-direction: column;
+      border-radius: 5px 5px 0 0 ;
 
       .first-message-placeholder {
         font-size: 2em;
@@ -72,20 +72,23 @@
   }
 
   .message {
-    color: black;
+    // color: black;
+    .userName{
+      font-weight: bold;
+    }
     &.self {
-      &:before {
-        content: '';
-        width: 40%;
-        display: block;
-      }
+      // &:before {
+      //   content: '';
+      //   width: 40%;
+      //   display: block;
+      // }
 
       & > div {
-        background-color: #fff8dc;
-        padding: 5px 10px;
-        border-radius: 10px;
-        width: 60%;
-        margin-bottom: 5px;
+        // background-color: #fff8dc;
+        // padding: 5px 10px;
+        // border-radius: 10px;
+        width: 100%;
+        // margin-bottom: 5px;
         display: flex;
       }
     }
@@ -99,10 +102,10 @@
 
       & > div {
         background-color: #f0fff0;
-        padding: 5px 10px;
+        // padding: 5px 10px;
         border-radius: 10px;
         width: 60%;
-        margin-bottom: 5px;
+        // margin-bottom: 5px;
         display: flex;
       }
     }

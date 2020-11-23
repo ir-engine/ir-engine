@@ -12,12 +12,14 @@ import { execute, initialize } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
 import { HighlightSystem } from './effects/systems/EffectSystem';
-import { InputSystem } from './input/systems/InputSystem';
+import { InputSystem } from './input/systems/ClientInputSystem';
 import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
+import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
-import { NetworkSystem } from './networking/systems/NetworkSystem';
+import { ServerNetworkSystem } from './networking/systems/ServerNetworkSystem';
 import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { WebGLRendererSystem } from './renderer/systems/WebGLRendererSystem';
+import { ServerSpawnSystem } from './scene/systems/SpawnSystem';
 import { StateSystem } from './state/systems/StateSystem';
 import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
@@ -58,9 +60,10 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
   Engine.scene = scene;
 
   if(typeof window !== 'undefined') (window as any).engine = Engine;
-
+  
   // Networking
-  registerSystem(NetworkSystem, { schema: options.networking.schema, app: options.networking.app });
+  registerSystem(isClient ? ClientNetworkSystem : ServerNetworkSystem,
+    { schema: options.networking.schema, app: options.networking.app });
 
   // Do we want audio and video streams?
   registerSystem(MediaStreamSystem);
@@ -69,18 +72,20 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
 
   registerSystem(PhysicsSystem);
 
-  registerSystem(InputSystem, { useWebXR: isClient });
+  if(isClient) registerSystem(InputSystem, { useWebXR: true });
 
   registerSystem(StateSystem);
 
   // registerSystem(SubscriptionSystem);
+
+  if(!isClient) registerSystem(ServerSpawnSystem, { priority: 899 });
 
   registerSystem(TransformSystem, { priority: 900 });
 
   //Object HighlightSystem
   if (isClient) {
     // Create a new camera
-    const camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.3, 500);
+    const camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.3, 10000);
     // Add the camera to the camera manager so it's available anywhere
     Engine.camera = camera;
     // Add the camera to the three.js scene

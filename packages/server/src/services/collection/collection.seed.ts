@@ -9,7 +9,7 @@ export const seed = {
     {
       id: "d4457fc0-24e4-11eb-bc2e-e7e742fb069f",
       sid: "j9o2NLiD",
-      name: "Arena",
+      name: "Test",
       description: null,
       version: 4,
       metadata: "{\"name\":\"Crater\"}",

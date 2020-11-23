@@ -17,6 +17,7 @@ import { physicsPostStep } from '../../templates/character/behaviors/physicsPost
 import { updateCharacter } from '../../templates/character/behaviors/updateCharacter';
 import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
+import { isClient } from '../../common/functions/isClient';
 
 export class PhysicsSystem extends System {
   updateType = SystemUpdateType.Fixed;
@@ -41,6 +42,8 @@ export class PhysicsSystem extends System {
     this.queryResults.collider.removed?.forEach(entity => {
       addCollider(entity, { phase: 'onRemoved' });
     });
+
+    //console.warn(PhysicsManager.instance.physicsWorld.bodies.length);
 
     // RigidBody
 /*

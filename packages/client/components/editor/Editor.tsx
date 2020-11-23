@@ -238,7 +238,7 @@ export default class Editor extends EventEmitter {
     return false;
   }
 
-  async init() {
+  async init(): Promise<void> {
     if (this.initialized) {
       return;
     }

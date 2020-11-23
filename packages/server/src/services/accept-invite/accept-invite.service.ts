@@ -8,7 +8,7 @@ import config from '../../config';
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    'accept-invite': AcceptInvite & ServiceAddons<any>;
+    'a-i': AcceptInvite & ServiceAddons<any>;
   }
 }
 
@@ -23,10 +23,10 @@ export default (app: Application): any => {
   };
 
   // Initialize our service with any options it requires
-  app.use('/accept-invite', new AcceptInvite(options, app), redirect);
+  app.use('/a-i', new AcceptInvite(options, app), redirect);
 
   // Get our initialized service so that we can register hooks
-  const service = app.service('accept-invite');
+  const service = app.service('a-i');
 
   service.hooks(hooks);
 };

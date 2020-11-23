@@ -13,7 +13,7 @@
   "jest": "ts-jest",
   "scripts": {
     "copyfiles-client": "copyfiles design/** design/**/* public/** public/**/* **/*.scss lib/client",
-    "dev": "cross-env NODE_ENV=development node ./index.js --port 3000",
+    "dev": "cross-env NODE_ENV=development node --max-old-space-size=4096 ./index.js --port 3000",
     "build": "NODE_OPTIONS=--max_old_space_size=4096 next build ./",
     "start": "next start",
     "watch": "cross-env NODE_ENV=development next --port 3001 --hostname localhost",

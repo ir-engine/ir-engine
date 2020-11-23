@@ -12,7 +12,7 @@ export function createPrefab (prefab: Prefab): Entity {
   });
   // For each component on the prefab...
   {
-    prefab.components?.forEach(component => {
+    prefab.localClientComponents?.forEach(component => {
       if (typeof component.data === 'undefined') {
         // The component to the entity
         addComponent(entity, component.type);

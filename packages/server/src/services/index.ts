@@ -4,7 +4,6 @@ import { Application } from '../declarations';
 import ChannelType from './channel-type/channel-type.service';
 import ComponentType from './component-type/component-type.service';
 import CollectionType from './collection-type/collection-type.service';
-import EntityType from './entity-type/entity-type.service';
 import GroupUserRank from './group-user-rank/group-user-rank.service';
 import InviteType from './invite-type/invite-type.service';
 import LocationType from './location-type/location-type.service';
@@ -77,7 +76,6 @@ export default (app: Application): void => {
   app.configure(ChannelType);
   app.configure(CollectionType);
   app.configure(ComponentType);
-  app.configure(EntityType);
   app.configure(GroupUserRank);
   app.configure(InviteType);
   app.configure(LocationType);

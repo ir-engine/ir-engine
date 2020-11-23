@@ -113,7 +113,7 @@ export class Project implements ServiceMethods<Data> {
     }
     let sceneData;
     if (config.server.storageProvider === 'aws') {
-      sceneData = await fetch(ownedFile.url).then(res => res.json())
+      sceneData = await fetch(ownedFile.url).then(res => res.json());
     } else {
       sceneData = await readJSONFromBlobStore(storage, ownedFile.key);
     }
@@ -141,8 +141,6 @@ export class Project implements ServiceMethods<Data> {
 
       const entites = sceneEntitiesArray.map((entity: any) => {
         entity.name = entity.name.toLowerCase();
-        entity.type = 'default';
-        entity.userId = loggedInUser.userId;
         entity.collectionId = project.id;
         return entity;
       });
