@@ -5,6 +5,7 @@ import { CubeRefractionMapping } from 'three';
 import { EquirectangularReflectionMapping } from 'three';
 import { Vector3 } from 'three';
 import { addObject3DComponent } from '../../common/behaviors/Object3DBehaviors';
+import { isClient } from '../../common/functions/isClient';
 import { Engine } from '../../ecs/classes/Engine';
 import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { ScaleComponent } from '../../transform/components/ScaleComponent';
@@ -14,6 +15,10 @@ export default function createSkybox(entity, args: {
   obj3d;
   objArgs: any
 }): void {
+  if (!isClient){
+    return;
+  }
+  
   console.log(args.objArgs);
 
   if (args.objArgs.skytype === "skybox") {
@@ -86,9 +91,6 @@ export default function createSkybox(entity, args: {
 
 				texture.encoding = sRGBEncoding;
 				texture.mapping = EquirectangularReflectionMapping;
-
-				// init( texture );
-        // animate();
         
         Engine.scene.background = texture;
 
