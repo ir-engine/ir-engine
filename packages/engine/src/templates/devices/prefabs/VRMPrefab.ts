@@ -8,7 +8,7 @@ import { onInteraction, onInteractionHover } from "../../interactive/functions/c
 
 
 export const VRMPrefab: Prefab = {
-    components: [{ type: TransformComponent, data: { position: [10, -2.5, 0] } }],
+    localClientComponents: [{ type: TransformComponent, data: { position: [10, -2.5, 0] } }],
     onAfterCreate: [
         {
             behavior: addComponentFromSchema,
