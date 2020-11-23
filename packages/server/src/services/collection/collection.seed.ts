@@ -17,7 +17,7 @@ export const seed = {
       createdAt: "2020-11-12 10:54:59",
       updatedAt: "2020-11-12 10:54:59",
       type: "project",
-      thumbnailOwnedFileId: "44a11500-2b1f-11eb-a470-b153dec5b223",
+      thumbnailOwnedFileId: "d0828450-24e4-11eb-8630-81b209daf73a",
     }
   ]
 };
