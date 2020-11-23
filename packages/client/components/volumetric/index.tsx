@@ -1,9 +1,10 @@
-import { DracosisPlayer } from '@xr3ngine/voluemtric/src/Player.ts';
+import DracosisPlayer from '@xr3ngine/volumetric/src/Player';
+import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine'
 
 export function LoadPlayer() {
 
   const DracosisSequence = new DracosisPlayer({
-    Engine.scene,
+    scene: Engine.scene,
     renderer: Engine.renderer,
     // filePath: 'https://s3-us-west-1.amazonaws.com/wildcapture.io/files/hula_med_590_1k.drcs',
     filePath: 'http://localhost:8000/dracosis',
