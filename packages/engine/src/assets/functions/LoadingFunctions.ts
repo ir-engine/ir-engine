@@ -9,8 +9,6 @@ import { Entity } from '../../ecs/classes/Entity';
 import { clone as SkeletonUtilsClone } from '../../common/functions/SkeletonUtils';
 import { hashResourceString } from './hashResourceString';
 
-import { VRM } from '@pixiv/three-vrm';
-
 // Kicks off an iterator to load the list of assets and add them to the vault
 export function loadAssets (
   assets: AssetMap,
