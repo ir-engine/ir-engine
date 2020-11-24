@@ -57,6 +57,7 @@
   "dependencies": {
     "axios": "^0.19.2",
     "file-type": "^14.7.0",
+    "fs-readstream-seek": "^1.1.1",
     "howler": "^2.2.0",
     "prepend": "^1.0.2"
   }

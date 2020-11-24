@@ -81,7 +81,7 @@ function createTestPrefab() {
         args: onAfterCreateArgs
       }
     ],
-    components: [
+    localClientComponents: [
       {
         type: TestComponent,
         data: {
