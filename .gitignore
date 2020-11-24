@@ -1,3 +1,34 @@
+#next
+.next
+.next/*
+
+#node
+node_modules/
+
+#vim
+*.swp
+*.swo
+
+#vscode
+.vscode/
+
+# npm / yarn
+package-lock.json
+yarn.lock
+yarn-error.log
+
+#local files
+.env*
+
+#macos
+.DS_Store
+
+#config
+config/*
+!config/default.json
+!config/server.json
+!config/custom-environment-variables.json
+
 # Logs
 logs
 *.log
@@ -106,10 +137,19 @@ dist
 # TernJS port file
 .tern-port
 
-**/xrchat-secrets.env
-**/xrchat-dev-secrets.env
+**/xr3ngine-secrets.env
+**/xr3ngine-dev-secrets.env
 lib/
-
-config/
+bin/
 
 .vscode/
+
+# JetBrains WebStorm/PhpStorm
+.idea
+
+# Hugo publish files
+packages/docs/public/
+
+.history
+.history/*
+packages/server/upload/

@@ -1,0 +1,72 @@
+.customDialog{  
+  .customDialogInner{
+    &.avatarDialog{
+      position: absolute;
+      top: 10%;      
+      @media (max-width: 768px) {
+        top: 5%;
+      }
+    }
+
+    &.scene_loaded{
+      .dialogContent {
+        padding-top: 225px;
+        background-image: url('../assets/ArenaLogo.png');
+        background-position: center 25px;
+        background-repeat: no-repeat;
+        background-size: 225px;
+      }
+    }
+
+
+    &.tutor_end{
+      @media (max-width: 768px) {
+        top: 30%;
+      }
+  }
+
+    .dialogTitle {
+      margin: 0;
+      padding: 30px 0 10px;
+      text-align: center;
+    
+      .dialogCloseButton {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        z-index: 2000;
+      }
+    }
+  
+    .dialogContent {
+      padding-bottom: 30px;
+      text-align: center;
+  
+      .innerText{
+        padding: 20px 0;       
+      }
+      a{
+        color: #0076ff;
+      }
+  
+      .selectionButtons{
+        position: fixed;
+        top: 40%;
+        left: 50%;
+        transform: translateX(-50%);
+
+        svg{
+          height: 10em;
+          cursor: pointer;
+          color: blue;
+          @media (max-width: 768px) {
+              bottom: 15%;
+          }
+        }
+        @media (max-width: 768px) {
+          left: 18%;
+        }
+      }
+    }  
+  }
+}

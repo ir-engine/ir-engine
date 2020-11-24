@@ -1,0 +1,9 @@
+{
+  "name": "@xr3ngine/ops",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Dev Ops tooling for XR3ngine",
+  "repository": "http://github.com/xr3ngine/xr3ngine",
+  "author": "XR3ngine",
+  "license": "MIT"
+}

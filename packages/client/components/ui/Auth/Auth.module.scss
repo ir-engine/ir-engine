@@ -1,0 +1,45 @@
+.paper {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avatar {
+  margin: 7px;
+  background-color: #3f51b5;
+}
+
+.form {
+  width: 100%;
+  margin-top: 14px;
+}
+
+.submit {
+  margin: 14px 0 !important;
+}
+
+.MuiButton-contained.facebook {
+  background-color: #4267b2;
+  color: white;
+}
+
+.MuiButton-contained.google {
+  background-color: red;
+  color: white;
+}
+
+.MuiButton-contained.github {
+  background-color: grey;
+  color: white;
+}
+
+.termsLink {
+  & > a {
+    color: blue;
+
+    &:hover {
+      color: green;
+    }
+  }
+}

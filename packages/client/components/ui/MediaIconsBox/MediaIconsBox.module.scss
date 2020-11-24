@@ -1,0 +1,38 @@
+$mobileControllButtonsSize:3em;
+.drawerBoxContainer{
+    position: absolute;
+    top: 48%;
+    right: 0;
+    z-index: 1301;
+    border-radius: 5px 0 0 5px;
+    @media (max-width: 768px) {
+        top: 0px;
+        right: 35%;
+        border-radius: 0 0 5px 5px;      
+    }
+    .drawerBox{        
+        margin: 0 auto;
+        display: flex;
+        font-size: 20px;
+        height: auto;
+        width: $mobileControllButtonsSize;
+        text-align: center;
+        flex-direction: column;
+        padding: 0px;
+        &:last-child{
+            padding-bottom: 0px;
+        }
+        @media (max-width: 768px) {
+            height: $mobileControllButtonsSize;
+            width: auto;
+            flex-direction: row;
+        }
+
+        > svg{
+            height: 1.5em;
+            width: 1.5em;
+            margin: 12px;
+            cursor: pointer;
+        }
+    }
+}

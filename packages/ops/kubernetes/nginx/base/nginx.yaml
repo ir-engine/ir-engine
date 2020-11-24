@@ -1,0 +1,227 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nginx-ingress
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nginx-ingress
+  namespace: nginx-ingress
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: nginx-ingress
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - services
+      - endpoints
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+      - create
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
+  - apiGroups:
+      - extensions
+    resources:
+      - ingresses
+    verbs:
+      - list
+      - watch
+      - get
+  - apiGroups:
+      - "extensions"
+    resources:
+      - ingresses/status
+    verbs:
+      - update
+  - apiGroups:
+      - k8s.nginx.org
+    resources:
+      - virtualservers
+      - virtualserverroutes
+    verbs:
+      - list
+      - watch
+      - get
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta
+metadata:
+  name: nginx-ingress
+subjects:
+  - kind: ServiceAccount
+    name: nginx-ingress
+    namespace: nginx-ingress
+roleRef:
+  kind: ClusterRole
+  name: nginx-ingress
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: default-server-secret
+  namespace: nginx-ingress
+type: Opaque
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUdHakNDQkFLZ0F3SUJBZ0lKQUlnS3FZQ09xWVVDTUEwR0NTcUdTSWIzRFFFQkN3VUFNSUdOTVFzd0NRWUQKVlFRR0V3SlZVekVUTUJFR0ExVUVDQXdLUTJGc2FXWnZjbTVwWVRFV01CUUdBMVVFQnd3TlRHRm5kVzVoSUU1cApaM1ZsYkRFV01CUUdBMVVFQ2d3TlFtbDBVMk52YjNBZ1RHRmljekVWTUJNR0ExVUVBd3dNYkdsbVpYTmpiM0JsCkxtbHZNU0l3SUFZSktvWklodmNOQVFrQkZoTnJZbUZ5WVc1QVltbDBjMk52YjNBdVkyOXRNQjRYRFRFNU1ETXoKTURBd05UWXpNRm9YRFRJeE1USXlOREF3TlRZek1Gb3dnWTB4Q3pBSkJnTlZCQVlUQWxWVE1STXdFUVlEVlFRSQpEQXBEWVd4cFptOXlibWxoTVJZd0ZBWURWUVFIREExTVlXZDFibUVnVG1sbmRXVnNNUll3RkFZRFZRUUtEQTFDCmFYUlRZMjl2Y0NCTVlXSnpNUlV3RXdZRFZRUUREQXhzYVdabGMyTnZjR1V1YVc4eElqQWdCZ2txaGtpRzl3MEIKQ1FFV0UydGlZWEpoYmtCaWFYUnpZMjl2Y0M1amIyMHdnZ0lpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElDRHdBdwpnZ0lLQW9JQ0FRQ1RQYlJvUjNrTFpFdEhsWlhsSit5UXpLVzQ5b1FLeXZGUXFTQnZEVnFhK2Z3bnI4N1NsZ01vCnk3NnMrZmVhVUQzRVlJL1FMZnJ4RHg5Q3NmRDRaZ1o2YzFvWXN5L1cyQXFFQnIrak9sOWs2eDVCT0FBQkd0VG4KUUw0UDFxWFQ3V3VWZHZMb0trOW9JTkpDK3hKOHlKTlV4RmRZL0ZhdlZ3bytWUjFWeXk4QTVkWC85M2xUUmdPWAo1YWlJaENOTlVhNWNyeGIzeXlDSVk5NTgvTE5qVk9SeVozWlRIWjVmRlFqTGdxSmM2OE1DSzIwRlBvN2FtMXlBCi9RcjZKSDZMMncrWUtydjA4RkVySk02SEp1d1BiL3NNUWUrRlFWaWlWL1BPYkF5TXBzMjc0SGp3T3VPMmlHUFoKWjRZYklGaUZVTGJxSzNaQ2VGUjhaQVY0NnA4OVBQSnBvc2xsQlg2Ylo5ZE1JODJPcC9nOURLejZjN3NaOWc0Wgp1ODFOalJSQzJweVNHdzEzVWpITC8raDN1dVh0bFJBVGJZTFQwWVRIblBXUzVRbSt2S2ZLZ3UwUlVCaUdCand0CnBnNC8rYXZRNC9HVkR6NkVnWjQrZWNCSXVySG9BcjZvVnFtTHpmODZObUljWmM0UzZyWHFRcSs2WkVUd2JKU0UKcHRMREd4ellLN1ZmeG1tUk9zRzJtN3V1TUIrVkkxZ1dtMmNGUSttejV4Ylo3by9hS29Gem9ndlZPRTlkWDNjTApZSmkybTRpckRZejNJbnFnaGZXcWt4Q2pHU1M2RnA2ZWc0cWtRQ055VWxXeS9qNWRjWUFxL0NKam9iVk8vYmNqCjdNYVoxTU0yZEZKeW9IcVVoTWJ1cWlmTjd0L0ZjeE5KL3lZQlNxRk1TSXpwaDcrSXRDVEp3UUlEQVFBQm8zc3cKZVRBZEJnTlZIUTRFRmdRVXRld2V2OU5TU3c5dDZVVWxIMXE3ZUM4amZja3dId1lEVlIwakJCZ3dGb0FVdGV3ZQp2OU5TU3c5dDZVVWxIMXE3ZUM4amZja3dEd1lEVlIwVEFRSC9CQVV3QXdFQi96QUxCZ05WSFE4RUJBTUNCYUF3CkdRWURWUjBSQkJJd0VJSU9LaTVzYVdabGMyTnZjR1V1YVc4d0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dJQkFISkQKUytibXQ2dW9QRU9aQmx3N0c5ZGExUmRyaWpKUWE1M0dGc0U3eWlRMTU0Rk5GMEFoNUoreHQxWm1SUkZMR3liWApjK2R3ZjliRnMvWXUvWG9wbWR1WE1BK2krcGVnSUxEcytWdFRRNkEvdCs3UmVmOW8ySUs4UlNBRHNXbGJwZkpyCmVBUGhKcERIOVI3YU9ycitxY1AxaE1zbWl1T0VrbUpLbk5WbjMrUmoxZ0ZBYzVvR2dMTGd0RTZzWUtRNmg2aEkKQ292RFRBNytqL0pIK2xwOTlQZmVQcGNFeFY0TlNQcnZ6NzVCOGhWRXFEZG5NbmFYT3ZHVnFXLzlsdkY0WFNlYgo0Tzl3dUN6VU1zY0R1R1kxand0b3ROTWVxSnh1V3BmcEpZNXVQK2JPb2I4d2VTOEswbU9wRUxPUjQ0MWV5dzdUCmlrZGxYZW9tVXBVMmd2bDVxOXhHdXVvRjFESVMvZGQ4Z1FCNXhLdkUyZm52NnpLcWxHRUNiSlhpV1NTQk1Zd0IKYnlvdWNXUjhGZ2JSQjNFMFkvNVFMcG5VVWhDZnVYQXNPV0duV1NUdHBDb3lvM0VlSVVRbTdvb3QrTUJUQ2MvWgpBK2hLL0RBWUp6OTJVSWtWN21KejhmUGV1RjJTZ2kzNjlRUEFjaTZscm1vMmFyQ29hN0lrS041TFpCNktSN1NPCjdwTEdIRWFFbFhUL1BneUhGbUljc0xqdlQ2eXVlT0gwaStwTkp0TVlveDJXWVJWTHpKUWdwS2NzbEJwbnZoN04KZkxMVmVUdlJYUzI4cDA4dkJBbjJCRW41akRicVRlUXR3WG9xYUQ4aWpXK2ROZXEwaitmRG1SSk1vclVHMlVvVwoyVEgxWFBLYUQ0bWx6ZDNaTHNaV2JGb2JpTUtoKzNwS3oxTWpLck4vCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+  tls.key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUpRZ0lCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQ1N3d2dna29BZ0VBQW9JQ0FRQ1RQYlJvUjNrTFpFdEgKbFpYbEoreVF6S1c0OW9RS3l2RlFxU0J2RFZxYStmd25yODdTbGdNb3k3NnMrZmVhVUQzRVlJL1FMZnJ4RHg5QwpzZkQ0WmdaNmMxb1lzeS9XMkFxRUJyK2pPbDlrNng1Qk9BQUJHdFRuUUw0UDFxWFQ3V3VWZHZMb0trOW9JTkpDCit4Sjh5Sk5VeEZkWS9GYXZWd28rVlIxVnl5OEE1ZFgvOTNsVFJnT1g1YWlJaENOTlVhNWNyeGIzeXlDSVk5NTgKL0xOalZPUnlaM1pUSFo1ZkZRakxncUpjNjhNQ0syMEZQbzdhbTF5QS9RcjZKSDZMMncrWUtydjA4RkVySk02SApKdXdQYi9zTVFlK0ZRVmlpVi9QT2JBeU1wczI3NEhqd091TzJpR1BaWjRZYklGaUZVTGJxSzNaQ2VGUjhaQVY0CjZwODlQUEpwb3NsbEJYNmJaOWRNSTgyT3AvZzlES3o2YzdzWjlnNFp1ODFOalJSQzJweVNHdzEzVWpITC8raDMKdXVYdGxSQVRiWUxUMFlUSG5QV1M1UW0rdktmS2d1MFJVQmlHQmp3dHBnNC8rYXZRNC9HVkR6NkVnWjQrZWNCSQp1ckhvQXI2b1ZxbUx6Zjg2Tm1JY1pjNFM2clhxUXErNlpFVHdiSlNFcHRMREd4ellLN1ZmeG1tUk9zRzJtN3V1Ck1CK1ZJMWdXbTJjRlErbXo1eGJaN28vYUtvRnpvZ3ZWT0U5ZFgzY0xZSmkybTRpckRZejNJbnFnaGZXcWt4Q2oKR1NTNkZwNmVnNHFrUUNOeVVsV3kvajVkY1lBcS9DSmpvYlZPL2JjajdNYVoxTU0yZEZKeW9IcVVoTWJ1cWlmTgo3dC9GY3hOSi95WUJTcUZNU0l6cGg3K0l0Q1RKd1FJREFRQUJBb0lDQURJdnZBZzNKRmp2cklFUHlYRzhNL1ArCjdSV29ZTVZVK3YrbFJmclVNR2ZXZ1UzOXJKODJwb2tIT1V5NFB0OElMcVY2ekVvSEFodWNMZW1Md1RqSmZiZkwKRFpDUnN1S2w3SitudFRZcnRVd3VuN2RYSVJrL1RnWXNtUnZJNitqYWFlc2VDaGw4SW1pNWx6RmhacUhGdEFJVwpramN3ZTFOMGRYZGRoNHd3bnlyTkxDMzg2Z3VxTjV0VW1pYzk4dEp0M3VLVWcxMmVqTTR3VEN1SjdwTVM0bkxrCk5QNkxmK21rdjhTdUdDMVg1clljbXlKSWVtU2t3OWpyWnd4djEvcFBobmMxU2E5cElpRjBnRGlzMlpWQmMrNXYKb3ZabW1aRnNMUnZVMUVvMHFMYzdBYjNRTk1HSXA0LzRxMHNmc1V4dmdJazhteWg0MzBNdXpIYTBjZVpybWF4SAppQmduTlEvcXZGQnpjSGZzWXNKN282OFdWUlNrQmxMUDhsZDFyOXA3YTdmcUUrdDNTcksvaENYWTM3bTFDajNsClJSa3FqaWdmckVxTmtNbHFrUGNpNEhlZWwzaWhSSFEwdVRtalh5S0RGOWp3R0hCVUpOY3BENVBtK3MwZ3ZGT1UKMStyMThQcFVxTko5RW9Lb1E2YmxkL2tjOWhDK25oTVhBZUF6OFpkcllEeldEY0JBWU03YWplTVVudXhPUDNnegpBSm90amVkUFIwSlhsaTUyQVVBVE1BbUF2cEtnQXhnZXdnL05KaG1VNHZMRi9sTXlReWUzejlldjFBc21NeEE4CkNVcTdJN2VSazVybDYwUjB5eXdPSFdiRzhiTXR3WEFNbE5VNHNkWVl2czhibFBWT3gyUyt2V3F3bjRkbGFoR24KMTl3TVJVOGh0OW1CeDJENzR1K0JBb0lCQVFEQ2hOZjYxck81UERXMGU1eHVXMG5UcVNlWWgySXM3MUNSSS9VMQprSEgxL1NNYlgwY3RSTVcycngrR3NuQ2dEUGdDRWRIblQzZWpYNHkzTlZyMXRUOEtEeEFxWVUyRm41OFJkTm1TCisrYUNIYTYzODhDRlA1QWVKQWhLbkZoQUNrTTNPVGU4SlpFUS9vRWkra0x2cXo4VUk1cy9wTDdYN1dsaTROSlQKdDBSKzBna0JiYWlWZStwTGpEWS9YNWZKYzNzQ2laWDliT0FFMkNONW5SQUVzOXFXSVZsSGk5Y3MxUlFVckIxcgpFRHdveHBOZjNuMWttR1FTckpzM1ZXUS9HdGNRQnFkYnpHTCtPUVpFWkNTUlZBZG5JUW9mR3h2SWNRREZ1M0c2CjZtNFhjUW5uY1VaYlRJZmJ4a1Z6bG55QjZKT1ZsV3U3d2ZuaGxRaU1jU3RINjdMNUFvSUJBUURCeDNRNkJNL3EKYlFiT1N0NzhJZHRKLzBidENFV3lmSkUyNDB1TlJZUVNVdnBuY1owN2VsUlo0SUw4Skd3eGdBbFhTR2orSWsydgpVWTdKajBYZmlXODJmbVdrVnVUNHFEckU4ZnZoNEY3NS9rMXdQSjVqcnJSdTFRK1FrOXBOdVdrMlVidE9QeVpqClppTTBTTWQ5dXpadk9DSkxuNEpwNjE0TEtPUG1TOHhxWmp4b1R6TGNhRTFveFUzM2pxMUdzQ2tPdklIVzF5dXoKcjg2bXVkVFpkVHp5VmRZVUE4Y2dCajMyWWV3bDRkd0h1UWZvR0d3QzFJSXM5d0RaWnJFUUlFeCtIRDJSb3pHbQpGZUtBelJ0M3hmN0J3S0oyWVZVbzQ4bU9SSTFTM0hEZVI1MFhnNlVyN0M5UVhKeWErNkU0cVlyMHVLQ3lMV3RPCkhISXdGUUpHcURjSkFvSUJBUUNpNzRPNnFYMkIrOTFBZ1FwWHBrQUEvQUFlMDhoNHV6MVJWajFmME02a3JwVnAKcURXR3hjU1hjYm1HcXBHTWYxQis2MDVYNDBqam9IWE9RUE1nUGVIQUd6My9RZUlkdThjU2FENlgwRWtWVktlMQpqb2dGRldreTFodmI0M3BJcWxBRFFmcGRyMW9FVWlyNWtZZmdHaUdNVFFjT0dJR0RmV3A1V0xqVlJ2NG8vT1p1Ck85eXEybEUzVnd0WnFra0toYURVVDB0RUxKNjVjQkxIRzdqL04yZ3h1VjEvZ0xPTTZpOFg0ZFFDaW1iYUFQd1IKb2R5SEZ0ODhoVGkrOE5nM3c5UEJxTkVuSTkwSDlkdzZEV2hVRTM3Zjg5ejJrVTZFWjZPdC9ZVVdmS2diR3FTaApLVkUxeUxWRWNxQmFZZ09KRGJnUjVFZUp6c0h4STFVMXp0WGlPSnlCQW9JQkFHZVdrZ0U1OVZPaU9OTXFudzAxCnBCNW9ncWZQbGtLVjZLTG8yc2lJY3RQQTIrOVVndkw2c0FEanplR3dMczQvWGI3MURIdGVKeDBqZ2lzcGxmYXIKWjNKQUcySEF1ZUpiUEI5d0pIQlpHeXlVenh6Q3F3RXFzWFhXRzkzenkrMWt3bU94U1duSXhHSzZoUE04UExodgp6ZWVpb0dMQXdGeVMzOUVqYU1FQm9DTDR5QzRTdUdPdXRrTGR4cElpQ1dzU1hNQnQ4UkxDTDdCOHVRSFRzWDhWCjl5Q3MxaVlZNXVldHJvMzVSdDN4WVVnWGw2eHc4YnlKa1pVcjdaNUtFVGxIcXR4M2lFcEViUlFWK3VGVHcrMUIKUUxDZW83cVl5WWQwVFpqcCtJcGxJVWtTQzE0NGw2RmxQdDI4eEZMdFZRQVBVaU1FVjVNb1NJYVhHa3V0ejJ1cQpITkVDZ2dFQUxuaGdRSDBkK1J5SGVqdHdYTWhOenRGQWtsMHFFMFdQZm1oU3dRTElMK0NQN01ZYzFwY0oxeTlSClROSzJtSUxUdkhpUW9tRi9VQ25oZ29pTldpM3RHem9WYWtqM2RYNHRJbFRoUHd3Q1V4Tk9qblRlbmszeC92M0MKSElLb2g4WDhVeVcyWklnZXVRb05Sc2lXU2Z6ZGh1aDdUYzJ3czcrQStMTXVwbGlVSERLMGdES3lnYm9QRko1bwpnQWt4ZXVXNWhkamRiUUF1ZWtNUFA0VDUwc1ZWbkszV1hnem03ZjA1eTRMYVg3REg1SjVMNzNMQ0gvOFo4TUpYClVJVmxZR05nbXd2QjhabGtEaFZUQld6Z3YrMERJSDMzOVRMMWlxY2Z5RURsZDFWMnhkcmtwS0l2NksreVRLWWwKYkpiajdDMjVjYllFaThUOFdvUENuOFV1TmJnYjBRPT0KLS0tLS1FTkQgUFJJVkFURSBLRVktLS0tLQo=
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: nginx-ingress
+data:
+  proxy-connect-timeout: "300s"
+  proxy-read-timeout: "300s"
+  proxy-send-timeout: "300s"
+  client-max-body-size: "15m"
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: virtualservers.k8s.nginx.org
+spec:
+  group: k8s.nginx.org
+  versions:
+    - name: v1
+      served: true
+      storage: true
+  scope: Namespaced
+  names:
+    plural: virtualservers
+    singular: virtualserver
+    kind: VirtualServer
+    shortNames:
+      - vs
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: virtualserverroutes.k8s.nginx.org
+spec:
+  group: k8s.nginx.org
+  versions:
+    - name: v1
+      served: true
+      storage: true
+  scope: Namespaced
+  names:
+    plural: virtualserverroutes
+    singular: virtualserverroute
+    kind: VirtualServerRoute
+    shortNames:
+      - vsr
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: nginx-ingress
+  namespace: nginx-ingress
+spec:
+  selector:
+    matchLabels:
+      app: nginx-ingress
+  template:
+    metadata:
+      labels:
+        app: nginx-ingress
+        #annotations:
+        #prometheus.io/scrape: "true"
+        #prometheus.io/port: "9113"
+    spec:
+      serviceAccountName: nginx-ingress
+      containers:
+        - image: nginx/nginx-ingress:edge
+          imagePullPolicy: Always
+          name: nginx-ingress
+          ports:
+            - name: http
+              containerPort: 80
+              hostPort: 80
+            - name: https
+              containerPort: 443
+              hostPort: 443
+            #- name: prometheus
+            #containerPort: 9113
+          securityContext:
+            allowPrivilegeEscalation: true
+            runAsUser: 101 #nginx
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - NET_BIND_SERVICE
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          args:
+            - -nginx-configmaps=$(POD_NAMESPACE)/nginx-config
+            - -default-server-tls-secret=$(POD_NAMESPACE)/default-server-secret
+#            - -v=3 # Enables extensive logging. Useful for troubleshooting.
+#            - -report-ingress-status
+#            - -external-service=nginx-ingress
+#            - -enable-leader-election
+#            - -enable-prometheus-metrics
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-ingress
+  namespace: nginx-ingress
+spec:
+  type: NodePort
+  ports:
+    - port: 443
+      targetPort: 443
+      protocol: TCP
+      name: https
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app: nginx-ingress
+

@@ -1,0 +1,5 @@
+charts:
+  - name: xr3ngine
+    repo:
+      git: xr3ngine/xrsocial-ops
+      published: https://school.xr3ngine.dev
