@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
 import { Button, Snackbar, SnackbarContent } from '@material-ui/core';
@@ -34,19 +34,12 @@ interface Props {
 }
 
 const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
+  const [hiddenSnackbar, setHiddenSnackBar] = useState(false);
   const cardFadeInOut = step =>{    
-    const fadeOutInterval = setTimeout(()=>
-    //works ok-but it's very ugly
-    {document.querySelector('[class*=helpHintSnackBar]').style.opacity = '0'}
-    //not works nice
-    // document.querySelector('[class*=helpHintSnackBar]').classList.add('OnBoardingBox_hidden')
-    , 0)
+    const fadeOutInterval = setTimeout(()=>setHiddenSnackBar(true),0)
     const fadeIntInterval = setTimeout(()=>{
       store.dispatch(setAppOnBoardingStep(step));
-      //works ok-but it's very ugly
-      if(step !== generalStateList.ALL_DONE){document.querySelector('[class*=helpHintSnackBar]').style.opacity = '1';}
-      //not works nice
-      // step !== generalStateList.ALL_DONE && document.querySelector('[class*=helpHintSnackBar]').classList.remove('OnBoardingBox_hidden');
+      step !== generalStateList.ALL_DONE && setHiddenSnackBar(false);
     }, 2000);
     if(step === generalStateList.TUTOR_END){
       clearInterval(fadeOutInterval);
@@ -136,6 +129,11 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
       default : message= '';break;
     } 
  
+  const snackBarClasses = {
+    root: styles.helpHintSnackBar +' '+ styles[generalStateList[onBoardingStep].toLowerCase()],
+    anchorOriginBottomCenter: styles.bottomPos};
+  hiddenSnackbar && (snackBarClasses.root += ' '+styles.hidden);
+  
   return message ? <>
       <section className={styles.exitButtonContainer}>
         <Button variant="contained" className={styles.exitButton} 
@@ -143,10 +141,7 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
       </section>
       <Snackbar 
       anchorOrigin={{vertical: 'bottom',horizontal: 'center'}} 
-      classes={{
-        root: styles.helpHintSnackBar +' '+ styles[generalStateList[onBoardingStep].toLowerCase()]+ ' ' + styles[`isMobile${isMobileOrTablet()}`],
-        anchorOriginBottomCenter: styles.bottomPos,                    
-      }}
+      classes={snackBarClasses}
       open={true} 
       autoHideDuration={10000}>
           <section>
