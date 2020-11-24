@@ -35,7 +35,11 @@ export default (app: Application): any => {
         if (!data) {
           return '';
         } else {
-          return data;
+          if (data.match(/^{.*}$/)) {
+            return JSON.parse(data);
+          } else {
+            return data;
+          }
         }
       }
     },
