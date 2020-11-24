@@ -30,7 +30,6 @@ import classNames from 'classnames';
 import {selectAppState} from "../../../redux/app/selector";
 import {selectAuthState} from "../../../redux/auth/selector";
 import {bindActionCreators, Dispatch} from "redux";
-import {doLoginAuto} from "../../../redux/auth/service";
 import {
     createLocation,
     patchLocation,
@@ -58,7 +57,6 @@ const mapStateToProps = (state: any): any => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-    doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
     createLocation: bindActionCreators(createLocation, dispatch),
     patchLocation: bindActionCreators(patchLocation, dispatch),
     removeLocation: bindActionCreators(removeLocation, dispatch)

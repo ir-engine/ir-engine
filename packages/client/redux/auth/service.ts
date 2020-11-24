@@ -50,14 +50,11 @@ export function doLoginAuto (allowGuest?: boolean) {
       const authData = getStoredState('auth');
       let accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined;
 
-      // console.log(allowGuest);
-      // console.log(accessToken);
-      if (allowGuest !== true && !accessToken) {
+      if (allowGuest !== true && accessToken == null) {
         return;
       }
 
-      if (allowGuest === true && !accessToken) {
-        console.log('Logging in as guest');
+      if (allowGuest === true && accessToken == null) {
         const newProvider = await client.service('identity-provider').create({
           type: 'guest',
           token: v1()
@@ -66,7 +63,24 @@ export function doLoginAuto (allowGuest?: boolean) {
       }
 
       await (client as any).authentication.setAccessToken(accessToken as string);
-      const res = await (client as any).reAuthenticate();
+      let res;
+      try {
+        res = await (client as any).reAuthenticate();
+      } catch(err) {
+        if (err.className === 'not-found') {
+          await dispatch(didLogout());
+          await (client as any).authentication.reset();
+          const newProvider = await client.service('identity-provider').create({
+            type: 'guest',
+            token: v1()
+          });
+          accessToken = newProvider.accessToken;
+          await (client as any).authentication.setAccessToken(accessToken as string);
+          res = await (client as any).reAuthenticate();
+        } else {
+          throw err;
+        }
+      }
       if (res) {
         const authUser = resolveAuthUser(res);
         dispatch(loginUserSuccess(authUser));
