@@ -85,7 +85,7 @@ const Layout = (props: Props): any => {
       </Head>
       <header>
         { path === '/login' && <NavMenu login={login} />}
-        {<PartyVideoWindows />}F
+        {<PartyVideoWindows />}
       </header>
       <Fragment>
         <UIDialog />
@@ -112,9 +112,8 @@ const Layout = (props: Props): any => {
             <DrawerControls setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/> }
         { authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
 
-        { authState.get('authUser') != null && authState.get('isLoggedIn') === true &&  user?.instanceId != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
-        // { authState.get('authUser') != null && authState.get('isLoggedIn') === true && user.partyId != null && user.instanceId != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
-          <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen}/> }
+        {authState.get('authUser') != null && authState.get('isLoggedIn') === true &&  user?.instanceId != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
+            <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen}/> }
       </footer>
     </section>
   );
