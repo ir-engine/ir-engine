@@ -77,7 +77,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     const userHasInteracted = appState.get('userHasInteracted');
     const user = authState.get('user');
     const currentLocation = locationState.get('currentLocation').get('location');
-    const enableGlobalMute = currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => currentLocation.id === locationAdmin.locationId) != null;
+    const enableGlobalMute = currentLocation?.locationSettings?.locationType === 'showroom' && user?.locationAdmins?.find(locationAdmin => currentLocation.id === locationAdmin.locationId) != null;
 
     autorun(() => {
         (Network.instance?.transport as any)?.socket.on(MessageTypes.WebRTCPauseConsumer.toString(), (consumerId: string) => {

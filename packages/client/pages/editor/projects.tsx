@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { withApi } from "../../components/editor/contexts/ApiContext";
 import { Button, MediumButton } from "../../components/editor/inputs/Button";
@@ -8,6 +8,10 @@ import templates from "../../components/editor/projects/templates";
 import Api from "../../components/editor/Api";
 import { Router, withRouter } from "next/router";
 import { ThemeContext } from "../../components/editor/theme";
+import { connect } from 'react-redux';
+import {selectAuthState} from "../../redux/auth/selector";
+import {bindActionCreators, Dispatch} from "redux";
+import {doLoginAuto} from "../../redux/auth/service";
 export const ProjectsSection = (styled as any).section<{ flex?: number }>`
   padding-bottom: 100px;
   display: flex;
@@ -52,10 +56,12 @@ export const ProjectsHeader = (styled as any).div`
   align-items: center;
 `;
 const contextMenuId = "project-menu";
-type ProjectsPageProps = {
+type Props = {
   api: Api;
   history: object;
   router: Router;
+  authState?: any;
+  doLoginAuto?: any;
 };
 type ProjectsPageState = { projects: any } & {
   error: any;
@@ -65,97 +71,114 @@ type ProjectsPageState = { projects: any } & {
     loading: any;
     isAuthenticated: any;
     error: null;
+    authUser: any;
+    user: any;
   };
-class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
-  constructor(props: ProjectsPageProps) {
-    super(props);
-    const isAuthenticated = this.props.api.isAuthenticated();
-    this.state = {
-      projects: [],
-      loading: false,
-      isAuthenticated,
-      error: null
-    };
-  }
-  componentDidMount() {
-    console.warn("PROJECTS PAGE PROPS: ", this.props);
+const mapStateToProps = (state: any): any => {
+  return {
+    authState: selectAuthState(state),
+  };
+};
+
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
+  doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
+});
+const ProjectsPage = (props: Props) => {
+  const {
+    api,
+    history,
+    router,
+    authState,
+    doLoginAuto
+  } = props;
+
+
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const isAuthenticated = api.isAuthenticated();
+  const [error, setError] = useState(null);
+  const authUser = authState.get('authUser');
+  const user = authState.get('user');
+  useEffect(() => {
+    doLoginAuto(true);
+    console.warn("PROJECTS PAGE PROPS: ", props);
+    console.log(authState);
     // We dont need to load projects if the user isn't logged in
-    if (this.state.isAuthenticated) {
-      this.props.api.getProjects()
-        .then(projects => {
-          this.setState({
-            projects: projects.map(project => ({
+
+  }, []);
+
+  useEffect(() => {
+    if (authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null) {
+      api.getProjects()
+          .then(projects => {
+            setProjects(projects.map(project => ({
               ...project,
               url: `/editor/projects/${project.project_id}`
-            })),
-            loading: false
+            })));
+            setLoading(false);
+          })
+          .catch(error => {
+            console.error(error);
+            if (error.response && error.response.status === 401) {
+              // User has an invalid auth token. Prompt them to login again.
+              // return (this.props as any).history.push("/", { from: "/projects" });
+              return router.push("/editor/projects");
+            }
+            setError(error);
+            setLoading(false);
           });
-        })
-        .catch(error => {
-          console.error(error);
-          if (error.response && error.response.status === 401) {
-            // User has an invalid auth token. Prompt them to login again.
-            // return (this.props as any).history.push("/", { from: "/projects" });
-            return this.props.router.push("/editor/projects");
-          }
-          this.setState({ error, loading: false });
-        });
     }
-  }
+  }, [authUser, user]);
 
-  static contextType = ThemeContext
+  const contextType = ThemeContext;
 
-  onDeleteProject = project => {
-    this.props.api
-      .deleteProject(project.project_id)
-      .then(() =>
-        this.setState({
-          projects: this.state.projects.filter(
-            (p) => p.project_id !== project.project_id
-          ),
-        })
-      )
-      .catch((error) => this.setState({ error }));
+  const onDeleteProject = async (project) => {
+    try {
+      await api.deleteProject(project.project_id);
+      setProjects(projects.filter(
+          (p) => p.project_id !== project.project_id
+      ));
+    } catch (error) {
+      console.log('Delete project error');
+    }
   };
-  routeTo = (route: string) => () => {
-    this.props.router.push(route);
-  }
-  renderContextMenu = props => {
+  const routeTo = (route: string) => () => {
+    router.push(route);
+  };
+  const renderContextMenu = props => {
     return (
       <>
       <ContextMenu id={contextMenuId}>
-        <MenuItem onClick={e => this.onDeleteProject(props.trigger.project)}>
+        <MenuItem onClick={e => onDeleteProject(props.trigger.project)}>
           Delete Project
         </MenuItem>
       </ContextMenu>
       </>
     );
   };
-  ProjectContextMenu = connectMenu(contextMenuId)(this.renderContextMenu);
-  render() {
-    const { error, loading, projects } = this.state;
-    const ProjectContextMenu = this.ProjectContextMenu;
-    const topTemplates = [];
-    for (let i = 0; i < templates.length && i < 4; i++) {
-      topTemplates.push(templates[i]);
-    }
-    return (
+  const ProjectContextMenu = connectMenu(contextMenuId)(renderContextMenu);
+
+  const topTemplates = [];
+  for (let i = 0; i < templates.length && i < 4; i++) {
+    topTemplates.push(templates[i]);
+  }
+  return (
       <>
-        <main>
+        { authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null && <main>
           {(projects.length === 0 && !loading) ? (
-            <ProjectsSection flex={0}>
-              <WelcomeContainer>
-                <h1>Welcome</h1>
-                <h2>
-                  If you&#39;re new here we recommend going through the
-                  tutorial. Otherwise, jump right in and create a project from
-                  scratch or from one of our templates.
-                </h2>
-                <MediumButton onClick={this.routeTo("/editor/tutorial")}>
-                  Start Tutorial
-                </MediumButton>
-              </WelcomeContainer>
-            </ProjectsSection>
+              <ProjectsSection flex={0}>
+                <WelcomeContainer>
+                  <h1>Welcome</h1>
+                  <h2>
+                    If you&#39;re new here we recommend going through the
+                    tutorial. Otherwise, jump right in and create a project from
+                    scratch or from one of our templates.
+                  </h2>
+                  <MediumButton onClick={routeTo("/editor/tutorial")}>
+                    Start Tutorial
+                  </MediumButton>
+                </WelcomeContainer>
+              </ProjectsSection>
           ) : null}
           <ProjectsSection>
             <ProjectsContainer>
@@ -166,32 +189,31 @@ class ProjectsPage extends Component<ProjectsPageProps, ProjectsPageState> {
                 <ProjectGridHeader>
                   <ProjectGridHeaderRow />
                   <ProjectGridHeaderRow>
-                    <Button onClick={this.routeTo("/editor/create")}>
+                    <Button onClick={routeTo("/editor/create")}>
                       New Project
                     </Button>
                   </ProjectGridHeaderRow>
                 </ProjectGridHeader>
                 <ProjectGridContent>
-                  {error && <ErrorMessage>{error.message}</ErrorMessage>}
+                  {error && <ErrorMessage>{(error as any).message}</ErrorMessage>}
                   {!error && (
-                    <ProjectGrid
-                      loading={loading}
-                      projects={projects}
-                      // newProjectPath="/editor/templates"
-                      newProjectPath="/editor/create"
-                      newProjectLabel="New Project"
-                      contextMenuId={contextMenuId}
-                    />
+                      <ProjectGrid
+                          loading={loading}
+                          projects={projects}
+                          // newProjectPath="/editor/templates"
+                          newProjectPath="/editor/create"
+                          newProjectLabel="New Project"
+                          contextMenuId={contextMenuId}
+                      />
                   )}
                 </ProjectGridContent>
               </ProjectGridContainer>
             </ProjectsContainer>
           </ProjectsSection>
           <ProjectContextMenu />
-        </main>
+        </main> }
       </>
     );
-  }
-}
+};
 
-export default withRouter(withApi(ProjectsPage));
+export default withRouter(withApi(connect(mapStateToProps,mapDispatchToProps)(ProjectsPage)));
