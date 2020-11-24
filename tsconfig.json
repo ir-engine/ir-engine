@@ -1,18 +1,28 @@
 {
   "compilerOptions": {
     "target": "es2019",
-    "lib": ["es2019", "DOM"],
-    "module": "commonjs",
-    "outDir": "./lib",
-    "rootDir": "./src",
-    "strict": true,
+    "lib": ["es2019", "DOM", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": false,
+    "module": "esnext",
+    "strict": false,
+    "noImplicitAny": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "moduleResolution":"node",
-    "typeRoots": ["./types", "./node_modules/@types"],
-    "sourceMap": true
+    "typeRoots": ["../packages/common/types", "packages/common/types", "./node_modules/@types"],
+    "sourceMap": true,
+    "jsx": "preserve",
+    "outDir": "./lib",
+    "experimentalDecorators": true
   },
+  "exclude": [
+    "node_modules"
+  ],
   "include": [
-    "src"
+    "packages/**/*.ts",
+    "packages/**/*.tsx", "packages/engine/src/editor/commands/SelectCommand.tsx="
   ]
 }

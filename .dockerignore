@@ -4,7 +4,20 @@
 *docker-compose*
 node_modules
 lib/
+packages/docs
+packages/ops
+readme/
+tests/
+vendor/
+
 
 kubernetes/**
 .vscode
 config/prod.json
+
+.next/
+client/.next/
+packages/client/.next/
+.env
+.env.local
+.idea/

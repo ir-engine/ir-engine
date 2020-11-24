@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../xr3ngine"
+		},
+		{
+			"path": "../Editor"
+		}
+	],
+	"settings": {}
+}

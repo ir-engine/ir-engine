@@ -1,0 +1,53 @@
+import { AnimationMixer, Group } from "three";
+import { AssetLoader } from "../../../assets/components/AssetLoader";
+import { AssetLoaderState } from "../../../assets/components/AssetLoaderState";
+import { Behavior } from "../../../common/interfaces/Behavior";
+import {
+  addComponent,
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  removeComponent
+} from "../../../ecs/functions/EntityFunctions";
+import { CharacterAvatars } from "../CharacterAvatars";
+import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
+import { CharacterComponent } from "../components/CharacterComponent";
+import { State } from "../../../state/components/State";
+import { LifecycleValue } from "../../../common/enums/LifecycleValue";
+
+export const loadActorAvatar: Behavior = (entity) => {
+  console.log("Calling load actor avatar for ", entity.id)
+  const avatarId: string = getComponent(entity, CharacterAvatarComponent)?.avatarId ?? "Andy";
+  const avatarSource = CharacterAvatars.find(avatarData => avatarData.id === avatarId)?.src;
+  
+  if(hasComponent(entity, AssetLoader)) removeComponent(entity, AssetLoader, true);
+  if(hasComponent(entity, AssetLoaderState)) removeComponent(entity, AssetLoaderState, true);
+
+  const tmpGroup = new Group();
+  addComponent(entity, AssetLoader, {
+    url: avatarSource,
+    receiveShadow: true,
+    castShadow: true,
+    parent: tmpGroup,
+    onLoaded: (entity, args) => {
+      console.log("onLoaded fired on loadActorAvatrar for ", entity.id)
+      const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+      actor.mixer && actor.mixer.stopAllAction();
+      // forget that we have any animation playing
+      actor.currentAnimationAction = null;
+
+      // clear current avatar mesh
+      ([ ...actor.modelContainer.children ])
+        .forEach(child => actor.modelContainer.remove(child) );
+
+      tmpGroup.children.forEach(child => actor.modelContainer.add(child));
+
+      actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
+      actor.mixer.timeScale = actor.animationsTimeScale;
+
+      const stateComponent = getComponent(entity, State);
+      // trigger all states to restart?
+      stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
+    }
+  });
+};

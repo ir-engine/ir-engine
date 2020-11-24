@@ -3,11 +3,12 @@ version: '2.3'
 services:
   db:
     image: mariadb:10.4
-    container_name: xrchat_db
+    container_name: xr3ngine_db
     environment:
-      MYSQL_ROOT_PASSWORD: xrchat-root-pa$$w0rd
-      MYSQL_DATABASE: xrchat
+      MYSQL_ROOT_PASSWORD: xr3ngine-root-pa$$w0rd
+      MYSQL_DATABASE: xr3ngine
       MYSQL_USER: server
       MYSQL_PASSWORD: password
     ports:
       - '3306:3306'
+    

@@ -1,0 +1,117 @@
+{{- if .Values.media.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "xr3ngine.media.fullname" . }}
+  labels:
+    {{- include "xr3ngine.media.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.media.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "xr3ngine.media.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "xr3ngine.media.selectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/media-server-configmap.yaml") . | sha256sum }}
+    spec:
+    {{- with .Values.media.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "xr3ngine.media.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.media.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.media.securityContext | nindent 12 }}
+          image: "{{ .Values.media.image.repository }}:{{ .Values.media.image.tag }}"
+          imagePullPolicy: {{ .Values.media.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "xr3ngine.media.fullname" . }}
+                optional: true
+            - configMapRef:
+                name: {{ include "xr3ngine.api.fullname" . }}
+                optional: true
+          env:
+            - name: SERVER_MODE
+              value: "media"
+            - name: KUBERNETES
+              value: "true"
+            - name: MYSQL_USER
+              value: {{ .Values.mariadb.db.user }}
+            - name: MYSQL_DATABASE
+              value: {{ .Values.mariadb.db.name }}
+            - name: MYSQL_PASSWORD
+              {{- if not .Values.mariadb.enabled }}
+              value: {{ .Values.mariadb.db.password }}
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  {{- if .Values.mariadb.existingSecret }}
+                  name: {{ .Values.mariadb.existingSecret }}
+                  {{- else }}
+                  name: {{ template "xr3ngine.mariadb.fullname" . }}
+                  {{- end }}
+                  key: mariadb-password
+              {{- end }}
+            - name: MYSQL_HOST
+              value: {{ template "xr3ngine.mariadb.host" . }}
+            - name: REDIS_ENABLED
+              value: "true"
+            - name: REDIS_ADDRESS
+              value: "$({{ .Release.Name | upper }}_REDIS_MASTER_SERVICE_HOST)"
+            - name: REDIS_PORT
+              value: "$({{ .Release.Name | upper }}_REDIS_MASTER_SERVICE_PORT)"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-redis
+                  key: redis-password
+          ports:
+            - name: http
+              containerPort: 3030
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: http
+            initialDelaySeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: http
+            initialDelaySeconds: 30
+          resources:
+            {{- toYaml .Values.media.resources | nindent 12 }}
+      initContainers:
+        - name: init-redis
+          image: busybox:1.28
+          command: [ 'sh', '-c', 'until (printf "AUTH $REDIS_PASSWORD\r\nPING\r\n";) | nc $REDIS_ADDRESS $REDIS_PORT ; do echo waiting for redis-master; sleep 2; done' ]
+          env:
+            - name: REDIS_ADDRESS
+              value: "$({{ .Release.Name | upper }}_REDIS_MASTER_SERVICE_HOST)"
+            - name: REDIS_PORT
+              value: "$({{ .Release.Name | upper }}_REDIS_MASTER_SERVICE_PORT)"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-redis
+                  key: redis-password
+      {{- with .Values.media.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.media.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.media.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+{{- end }}

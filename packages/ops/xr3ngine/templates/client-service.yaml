@@ -1,0 +1,17 @@
+{{- if .Values.client.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "xr3ngine.client.fullname" . }}
+  labels:
+    {{- include "xr3ngine.client.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.client.service.type }}
+  ports:
+    - port: {{ .Values.client.service.port }}
+      targetPort: {{ .Values.client.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "xr3ngine.client.selectorLabels" . | nindent 4 }}
+{{- end -}}

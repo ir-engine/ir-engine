@@ -1,0 +1,30 @@
+{
+  "name": "@xr3ngine/docs",
+  "version": "0.2.0",
+  "description": "XREngine technical documentation.",
+  "private": true,
+  "main": "none.js",
+  "scripts": {
+    "start": "yarn run dev",
+    "dev": "hugo server --watch=false",
+    "watch": "hugo server",
+    "validate": "yarn run lint && yarn run test",
+    "build": "hugo",
+    "deploy": "bash deploy.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xr3ngine/xr3ngine"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xr3ngine/xr3ngine/issues"
+  },
+  "homepage": "https://github.com/xr3ngine/xr3ngine#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "autoprefixer": "^9.4.6",
+    "postcss-cli": "^5.0.1"
+  }
+}

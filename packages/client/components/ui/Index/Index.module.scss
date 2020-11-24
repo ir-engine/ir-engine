@@ -1,0 +1,14 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.box {
+    display: flex;
+    width: 200px;
+    height: 150px;
+    margin: 10px;
+    border: solid black 2px;
+    text-align: center;
+}

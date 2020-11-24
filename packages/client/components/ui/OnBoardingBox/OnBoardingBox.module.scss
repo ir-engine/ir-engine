@@ -1,0 +1,95 @@
+.exitButtonContainer{
+    position: absolute;
+    top: 10px;
+    width: 100vw;
+    z-index: 1200;
+
+    .exitButton{
+        display: block;
+        margin: 0 auto;
+    }
+}
+.helpHintSnackBar{
+    user-select: none;
+    text-align: center;
+    opacity: 1;
+
+    -webkit-transition: opacity 2s ease-in-out;
+    -moz-transition: opacity 2s ease-in-out;
+    -ms-transition: opacity 2s ease-in-out;
+    -o-transition: opacity 2s ease-in-out;
+    transition: opacity 2s ease-in-out;
+    
+    &.hidden{
+        opacity: 0;
+    }
+
+    svg {       
+        margin: 15px;       
+    }
+    .IconSwipe, .IconLeftClick{
+        height: 120px;
+        width: auto;
+    }
+    .TouchApp, .Microphone{
+        height: 3em;
+        width: 3em;        
+    }
+    .helpHintSnackBarContent{
+        padding: 20px;
+        .helpHintSnackBarContentMessage{
+            width: 100%;
+            text-align: center;
+        }
+    }
+        
+    &.bottomPos{
+        bottom: 50px;
+    }
+    &.tutor_move{
+        @media (max-width: 768px) {
+            width: auto;
+            margin: 0 0 0 8em;
+            bottom: 115px;
+        }
+    }
+    &.tutor_interact{        
+        @media (max-width: 768px) {
+            width: auto;
+            bottom: 125px;
+            margin: 0 5em 0 0;
+        }
+    }
+
+    &.tutor_unmute{
+        @media (max-width: 768px) {
+            width: auto;
+            bottom: 120px;
+            margin: 0 5em 0 0;
+        }
+    }
+
+    .helpHintSnackBarContent{
+        text-align: center;
+    }    
+}
+
+.keyButton{
+    background-color: rgba(0,0,0,0.6);
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(102,185,51,0.5);
+    box-sizing: border-box;
+    display: inline-block;
+    height: 2em;
+    line-height: 2em;
+    margin: 3px 10px 3px 0;
+    min-width: 2em;
+    padding: 0px 5px;
+    text-align: center;
+    text-transform: capitalize;
+    opacity: 1
+}
+
+.front{
+    box-shadow: 0 0 10px rgba(255,255,0,1);
+}
