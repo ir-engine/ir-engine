@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
 import { Button, Snackbar, SnackbarContent } from '@material-ui/core';
@@ -34,14 +34,25 @@ interface Props {
 }
 
 const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
-
+  const [hiddenSnackbar, setHiddenSnackBar] = useState(false);
+  const cardFadeInOut = step =>{    
+    const fadeOutInterval = setTimeout(()=>setHiddenSnackBar(true),0)
+    const fadeIntInterval = setTimeout(()=>{
+      store.dispatch(setAppOnBoardingStep(step));
+      step !== generalStateList.ALL_DONE && setHiddenSnackBar(false);
+    }, 2000);
+    if(step === generalStateList.TUTOR_END){
+      clearInterval(fadeOutInterval);
+      clearInterval(fadeIntInterval);
+    }
+  }
   const addLookAroundEventListeners = () =>{
     const InputComponent = getMutableComponent(actorEntity, Input);
     InputComponent.schema.inputAxisBehaviors[DefaultInput.LOOKTURN_PLAYERONE] = {changed : [{behavior:actorLooked}]};
   };
 
   const actorLooked = () =>{
-    store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_MOVE));
+    cardFadeInOut(generalStateList.TUTOR_MOVE)
     const InputComponent = getMutableComponent(actorEntity, Input);
     delete InputComponent.schema.inputAxisBehaviors[DefaultInput.LOOKTURN_PLAYERONE];
    
@@ -73,7 +84,7 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
   };
 
   const actorInteracted = () =>{
-    store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_UNMUTE));
+    cardFadeInOut(generalStateList.TUTOR_UNMUTE);
     const InputComponent = getMutableComponent(actorEntity, Input);
     InputComponent.schema = CharacterInputSchema;
   };
@@ -92,16 +103,16 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
     InputComponent.schema.gamepadInputMap.buttons[GamepadButtons.A] = DefaultInput.INTERACT;
 
     InputComponent.schema.inputButtonBehaviors[DefaultInput.INTERACT] = {ended : [{behavior:actorInteracted}]};
-    store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_INTERACT));
+    cardFadeInOut(generalStateList.TUTOR_INTERACT)
   };
 
   const exitTutorialHandle = () => {
     const InputComponent = getMutableComponent(actorEntity, Input);
     InputComponent.schema = CharacterInputSchema;
-    store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));
+    cardFadeInOut(generalStateList.ALL_DONE)
   };
 
-  var message = '';
+  var message = null;
   var imageTip = null;
 
     switch(onBoardingStep){
@@ -109,24 +120,28 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
                                             imageTip = isMobileOrTablet() ? <IconSwipe className={styles.IconSwipe} width="125.607" height="120.04" viewBox="0 0 125.607 120.04" />:<IconLeftClick className={styles.IconLeftClick}  width="136.742" height="144.242" viewBox="0 0 136.742 144.242" />; 
                                             addLookAroundEventListeners(); 
                                             break;      
-      case generalStateList.TUTOR_MOVE: message= isMobileOrTablet() ? ' Use joystick to move' : 'Use keybuttons W S A D to move'; break;
-      case generalStateList.TUTOR_INTERACT: message= isMobileOrTablet() ? 'Use to interact' : 'Press E to interact'; 
+      case generalStateList.TUTOR_MOVE: message= isMobileOrTablet() ? ' Use joystick to move' : 
+                            <span>Use keybuttons <span className={styles.keyButton}>W</span><span className={styles.keyButton}>S</span>
+                            <span className={styles.keyButton}>A</span><span className={styles.keyButton}>D</span> to move</span>; break;
+      case generalStateList.TUTOR_INTERACT: message= isMobileOrTablet() ? 'Use to interact' : <span>Press <span className={styles.keyButton}>E</span> to interact</span>; 
                                             isMobileOrTablet() && (imageTip = <TouchApp className={styles.TouchApp} />); break;
       case generalStateList.TUTOR_UNMUTE: message='Tap to toggle Mic';  imageTip = <Microphone className={styles.Microphone} />;break;
       default : message= '';break;
     } 
  
-  return message.length > 0 ? <>
+  const snackBarClasses = {
+    root: styles.helpHintSnackBar +' '+ styles[generalStateList[onBoardingStep].toLowerCase()],
+    anchorOriginBottomCenter: styles.bottomPos};
+  hiddenSnackbar && (snackBarClasses.root += ' '+styles.hidden);
+  
+  return message ? <>
       <section className={styles.exitButtonContainer}>
         <Button variant="contained" className={styles.exitButton} 
             onClick={exitTutorialHandle}>Exit Tutorial</Button>
       </section>
       <Snackbar 
       anchorOrigin={{vertical: 'bottom',horizontal: 'center'}} 
-      classes={{
-        root: styles.helpHintSnackBar +' '+ styles[generalStateList[onBoardingStep].toLowerCase()]+ ' ' + styles[`isMobile${isMobileOrTablet()}`],
-        anchorOriginBottomCenter: styles.bottomPos,                    
-      }}
+      classes={snackBarClasses}
       open={true} 
       autoHideDuration={10000}>
           <section>
