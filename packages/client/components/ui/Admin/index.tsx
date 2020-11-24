@@ -9,7 +9,6 @@ import Layout from '../../../components/ui/Layout';
 import { selectAdminState } from '../../../redux/admin/selector';
 import { selectAppState } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
-import { doLoginAuto } from '../../../redux/auth/service';
 import theme from '../../../theme';
 import {
     fetchAdminLocations,
@@ -51,7 +50,6 @@ if (!global.setImmediate) {
 interface Props {
     adminState?: any;
     authState?: any;
-    doLoginAuto?: typeof doLoginAuto;
     locationState?: any;
     fetchAdminLocations?: any;
     fetchAdminScenes?: any;
@@ -74,7 +72,6 @@ const mapStateToProps = (state: any): any => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-    doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
     fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch),
     fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch),
     fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch)
@@ -84,7 +81,6 @@ const AdminConsole = (props: Props) => {
     const {
         adminState,
         authState,
-        doLoginAuto,
         fetchAdminLocations,
         fetchAdminScenes,
         fetchLocationTypes

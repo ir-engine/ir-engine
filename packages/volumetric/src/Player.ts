@@ -1,7 +1,7 @@
 // import fs from 'fs';
 import * as draco3d from 'draco3d';
 import {Howl, Howler} from 'howler';  
-import { byteArrayToLong, lerp } from '../Utilities';
+import { byteArrayToLong, lerp } from './Utilities';
 import {
   Action,
   IFileHeader,
@@ -43,7 +43,7 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import ReadStream from 'fs-readstream-seek';
 import { MessageType } from './Enums';
 const worker = new Worker('./Worker.js');
-import CortoDecoder from './corto/cortodecoder.js.js'
+import CortoDecoder from './corto/cortodecoder.js'
 import { fileURLToPath } from 'url';
 
 // Class draco / basis player
