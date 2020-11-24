@@ -2,7 +2,6 @@ import { ThemeProvider } from '@material-ui/core';
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
-import { Network } from '@xr3ngine/engine/src/networking/components/Network';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { loadScene } from '@xr3ngine/engine/src/scene/functions/SceneLoading';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
@@ -66,7 +65,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch)
 });
 
-const EditorRoomPage = (props: Props) => {
+const LocationPage = (props: Props) => {
   const { locationName } = useRouter().query as any;
 
   const {
@@ -96,7 +95,7 @@ const EditorRoomPage = (props: Props) => {
     const currentLocation = locationState.get('currentLocation').get('location');
     locationId = currentLocation.id;
     userBanned = selfUser?.locationBans?.find(ban => ban.locationId === locationId) != null;
-    if (authState.get('isLoggedIn') === true && authState.get('user').id != null && authState.get('user').id.length > 0 && currentLocation.id == null && userBanned === false && locationState.get('fetchingCurrentLocation') !== true) {
+    if (authState.get('isLoggedIn') === true && authState.get('user')?.id != null && authState.get('user')?.id.length > 0 && currentLocation.id == null && userBanned === false && locationState.get('fetchingCurrentLocation') !== true) {
       getLocationByName(locationName);
       if(sceneId === null) {
         console.log("authState: Set scene ID to", sceneId);
@@ -210,4 +209,4 @@ const EditorRoomPage = (props: Props) => {
 };
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditorRoomPage);
+export default connect(mapStateToProps, mapDispatchToProps)(LocationPage);
