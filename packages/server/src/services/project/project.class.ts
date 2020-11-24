@@ -8,6 +8,7 @@ import { Application } from '../../declarations';
 import StorageProvider from '../../storage/storageprovider';
 import { BadRequest } from '@feathersjs/errors';
 import logger from '../../app/logger';
+import { Op } from "sequelize"
 import config from '../../config';
 interface Data { }
 interface ServiceOptions {}
@@ -27,7 +28,10 @@ export class Project implements ServiceMethods<Data> {
     const loggedInUser = extractLoggedInUserFromParams(params);
     const projects = await this.models.collection.findAll({
       where: {
-        userId: loggedInUser.userId
+        [Op.or]: [
+          { userId: loggedInUser.userId },
+          { userId: null },
+        ]
       },
       attributes: ['name', 'id', 'sid', 'url'],
       include: defaultProjectImport(this.app.get('sequelizeClient').models)

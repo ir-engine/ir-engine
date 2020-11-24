@@ -4,11 +4,9 @@ import fetch from 'node-fetch';
 
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils';
 import { collectionType } from '../../enums/collection';
-import logger from '../../app/logger';
 import config from '../../config';
 import StorageProvider from '../../storage/storageprovider';
-import { readJSONFromBlobStore } from "./project-helper";
-import { resolve } from 'bluebird';
+import { readJSONFromBlobStore } from "./project-helper"
 
 export default (options: any) => {
   return async (context: HookContext): Promise<HookContext> => {

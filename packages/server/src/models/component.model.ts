@@ -30,16 +30,12 @@ export default (app: Application): any => {
     data: {
       type: DataTypes.JSON,
       allowNull: true,
-      get (this: any): string | JSON {
+      get (this: any): object {
         const data = this.getDataValue('data');
         if (!data) {
-          return '';
+          return {};
         } else {
-          if (typeof data === 'string' && data.match(/^{.*}$/)) {
-            return JSON.parse(data);
-          } else {
-            return data;
-          }
+          return JSON.parse(data);
         }
       }
     },
