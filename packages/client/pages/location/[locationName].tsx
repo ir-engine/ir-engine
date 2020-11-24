@@ -199,9 +199,7 @@ const LocationPage = (props: Props) => {
       <Layout pageTitle="Home">
         <NoSSR onSSR={<Loading />}>
           <UserMenu />
-          {userBanned === false ? (<Scene sceneId={sceneId} />) : null}
-          {/* {userBanned === false && sceneId !== null ? (<Scene sceneId={sceneId} />) : null} */}
-          {userBanned !== false ? (<div className="banned">You have been banned from this location</div>) : null}
+          {userBanned === false ? (<Scene sceneId={sceneId} />) : (<div className="banned">You have been banned from this location</div>)}
         </NoSSR>
       </Layout>
     </ThemeProvider>
