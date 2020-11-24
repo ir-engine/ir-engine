@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './UserMenu.module.scss';
-import { Button, TextField, Drawer, Typography, CardMedia, Card, CardActionArea, CardContent } from '@material-ui/core';
+import { Button, TextField, Drawer, Typography, CardMedia, Card, CardActionArea, CardContent, Snackbar } from '@material-ui/core';
 import { generalStateList, setAppSpecificOnBoardingStep } from '../../../redux/app/actions';
 import EditIcon from '@material-ui/icons/Edit';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -95,6 +95,7 @@ const UserMenu = (props: Props): any => {
   const copyCodeToClipboard = () => {    
     refLink.current.select();
     document.execCommand("copy");
+    setOpenSnackBar(true);
   };
   
   const handleMobileShareOnClick = () =>{
@@ -143,6 +144,26 @@ const UserMenu = (props: Props): any => {
   const handleLogout = () => {
     logoutUser();
   };
+
+
+  const [openSnackBar, setOpenSnackBar] = React.useState(false);
+  const handleCloseSnackBar = (event?: React.SyntheticEvent, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackBar(false);
+  };
+
+  const renderSuccessMessage = ()=>
+    <Snackbar open={openSnackBar} 
+    autoHideDuration={3000} 
+    onClose={handleCloseSnackBar} 
+    anchorOrigin={{
+      vertical: 'top',
+      horizontal: 'center',
+    }}>
+      <section>Link successfully added to clipboard</section>
+    </Snackbar>;
 
   const renderChangeNameForm = () =>
       <section>
@@ -253,6 +274,7 @@ const renderUserMenu = () =><>
           <section className={styles.placeholder} />
           <Typography variant="h2" color="secondary">About</Typography>
           <Typography variant="h2" color="secondary">Privacy & Terms</Typography>
+          {renderSuccessMessage()}
       </>;
 
 const renderDrawerContent = () =>{
@@ -265,7 +287,11 @@ const renderDrawerContent = () =>{
 
   return (
         <section key={anchor} className={styles.anchorContainer}>
-          <Card><CardContent className={styles.anchorDrawer}><MenuIcon onClick={toggleDrawer(anchor, isOpenDrawer === true ? false : true)} /></CardContent></Card>
+          <Card>
+            <CardContent className={styles.anchorDrawer}>
+              <MenuIcon onClick={toggleDrawer(anchor, isOpenDrawer === true ? false : true)} />
+            </CardContent>
+          </Card>
           <Drawer
             anchor={anchor}
             open={state[anchor]}
