@@ -24,6 +24,7 @@ import { logoutUser } from '../../../redux/auth/service';
 import { Network } from '@xr3ngine/engine/src/networking/components/Network';
 import { loadActorAvatar } from '@xr3ngine/engine/src/templates/character/behaviors/loadActorAvatar';
 import UserSettings from '../Profile/UserSettings';
+
 interface Props {
     login?: boolean;
     authState?:any;
@@ -49,6 +50,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const UserMenu = (props: Props): any => {    
   const { login, authState, logoutUser, showDialog} = props;
   const selfUser = authState.get('user');
+  console.log('authState', authState)
   const [isEditName, setIsEditName] = useState(false);
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
   const [username, setUsername] = useState(selfUser?.name);
@@ -134,11 +136,7 @@ const UserMenu = (props: Props): any => {
   };
 
   const handleLogin = () => {
-    const params = new URLSearchParams(document.location.search);
-    const showLoginDialog = params.get('login');
-    if (showLoginDialog === String(true)) {
-      showDialog({ children: <SignIn /> });
-    }
+    showDialog({ children: <SignIn /> });
   };
 
   const handleLogout = () => {
@@ -269,8 +267,9 @@ const renderUserMenu = () =><>
           <Typography variant="h2" color="primary" onClick={handleAvatarChangeClick}>Change Avatar</Typography>
           <Typography variant="h2" color="primary" onClick={(event)=>handleTutorialClick(event)}>Tutorial</Typography>
           <Typography variant="h2" color="primary" onClick={handleDeviceSetupClick}>Device Setup</Typography>
-          {selfUser && selfUser?.userRole === 'guest' && <Typography variant="h2" color="primary" onClick={handleLogin}>Login</Typography>}
-          {selfUser && selfUser?.userRole !== 'guest' && <Typography variant="h2" color="primary" onClick={handleLogout}>Logout</Typography>}
+          { selfUser?.userRole === 'guest' ? 
+                <Typography variant="h2" color="primary" onClick={handleLogin}>Login</Typography> :
+                <Typography variant="h2" color="primary" onClick={handleLogout}>Logout</Typography>}
           <section className={styles.placeholder} />
           <Typography variant="h2" color="secondary">About</Typography>
           <Typography variant="h2" color="secondary">Privacy & Terms</Typography>
