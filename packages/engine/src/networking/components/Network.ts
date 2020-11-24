@@ -50,7 +50,7 @@ export class Network extends Component<Network> {
   }
   static _schemas: Map<string, MessageSchema> = new Map()
 
-  incomingMessageQueue: RingBuffer<ArrayBuffer>
+  incomingMessageQueue: RingBuffer<any>
 
   worldState = {
     tick: Network.tick,
@@ -71,7 +71,7 @@ export class Network extends Component<Network> {
     Network.instance = this;
     Network.tick = 0;
 
-    this.incomingMessageQueue = new RingBuffer<ArrayBuffer>(100);
+    this.incomingMessageQueue = new RingBuffer<any>(100);
   }
 
   dispose(): void {
