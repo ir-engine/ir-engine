@@ -26,6 +26,7 @@ import {MessageTypes} from "@xr3ngine/engine/src/networking/enums/MessageTypes";
 import { selectAppState } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
 import { selectLocationState } from '../../../redux/location/selector';
+import { selectUserState } from '../../../redux/user/selector';
 import {connect} from "react-redux";
 import {Dispatch} from "redux";
 
@@ -41,13 +42,15 @@ interface Props {
     appState?: any;
     authState?: any;
     locationState?: any;
+    userState?: any;
 }
 
 const mapStateToProps = (state: any): any => {
     return {
         appState: selectAppState(state),
         authState: selectAuthState(state),
-        locationState: selectLocationState(state)
+        locationState: selectLocationState(state),
+        userState: selectUserState(state)
     };
 };
 
@@ -63,21 +66,23 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     const [audioProducerPaused, setAudioProducerPaused] = useState(false);
     const [videoProducerGlobalMute, setVideoProducerGlobalMute] = useState(false);
     const [audioProducerGlobalMute, setAudioProducerGlobalMute] = useState(false);
+    const [focused, setFocused] = useState(false);
     const [volume, setVolume] = useState(0);
     const {
         peerId,
         appState,
         authState,
         locationState,
-        containerProportions
+        userState
     } = props;
     const videoRef = React.createRef<HTMLVideoElement>();
     const audioRef = React.createRef<HTMLAudioElement>();
 
     const userHasInteracted = appState.get('userHasInteracted');
-    const user = authState.get('user');
+    const selfUser = authState.get('user');
     const currentLocation = locationState.get('currentLocation').get('location');
-    const enableGlobalMute = currentLocation?.locationSettings?.locationType === 'showroom' && user?.locationAdmins?.find(locationAdmin => currentLocation.id === locationAdmin.locationId) != null;
+    const enableGlobalMute = currentLocation?.locationSettings?.locationType === 'showroom' && selfUser?.locationAdmins?.find(locationAdmin => currentLocation.id === locationAdmin.locationId) != null;
+    const user = userState.get('layerUsers').find(user => user.id === peerId);
 
     autorun(() => {
         (Network.instance?.transport as any)?.socket.on(MessageTypes.WebRTCPauseConsumer.toString(), (consumerId: string) => {
@@ -195,7 +200,8 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
         if (peerId === 'me_cam' || peerId === 'me_screen') setVideoStreamPaused(MediaStreamComponent.instance.videoPaused);
     }, [MediaStreamComponent.instance.videoPaused]);
 
-    const toggleVideo = async () => {
+    const toggleVideo = async (e) => {
+        e.stopPropagation();
         if (peerId === 'me_cam') {
             const videoPaused = MediaStreamComponent.instance.toggleVideoPaused();
             if (videoPaused === true) await pauseProducer(MediaStreamComponent.instance.camVideoProducer);
@@ -219,7 +225,8 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
         }
     };
 
-    const toggleAudio = async () => {
+    const toggleAudio = async (e) => {
+        e.stopPropagation();
         if (peerId === 'me_cam') {
             const audioPaused = MediaStreamComponent.instance.toggleAudioPaused();
             if (audioPaused === true) await pauseProducer(MediaStreamComponent.instance.camAudioProducer);
@@ -243,7 +250,8 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
         }
     };
 
-    const toggleGlobalMute = async () => {
+    const toggleGlobalMute = async (e) => {
+        e.stopPropagation();
         if (audioProducerGlobalMute === false) {
             await globalMuteProducer({ id: audioStream.producerId });
             setAudioProducerGlobalMute(true);
@@ -262,16 +270,27 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
         setVolume(newValue);
     };
 
+    const truncateUsername = () => {
+        const name = user?.name;
+        if (peerId === 'me_cam') return 'You';
+        if (focused === true) return name.length > 20 ? name.slice(0, 20) + '...' : name;
+        if (focused === false) return name.length > 10 ? name.slice(0, 10) + '...' : name;
+    };
+
     return (
         <div
             id={peerId + '_container'}
             className={classNames({
                 [styles['party-chat-user']]: true,
+                [styles['focused']]: focused,
+                [styles['self-user']]: peerId === 'me_cam' || peerId === 'me_screen',
                 [styles['no-video']]: videoStream == null,
                 [styles['video-paused']]: (videoStream && (videoProducerPaused === true || videoStreamPaused === true))
             })}
-            style={containerProportions || {}}
+            style={{ backgroundImage: user?.avatarUrl?.length > 0 ? `url(${user.avatarUrl}` : `url(/placeholders/default-silhouette.svg)`} }
+            onClick={() => { if (peerId !== 'me_cam' && peerId !== 'me_screen') setFocused(!focused); } }
         >
+            <div className={styles['username']}>{truncateUsername()}</div>
             {
                 audioProducerGlobalMute === true && <div className={styles['global-mute']}>Muted by Admin</div>
             }
@@ -280,7 +299,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                     <IconButton
                         size="small"
                         className={styles['video-control']}
-                        onClick={toggleVideo}
+                        onClick={(e) => toggleVideo(e)}
                         style={{visibility : (videoStream == null || videoProducerPaused === true || videoProducerGlobalMute) ? 'hidden' : 'visible' }}
                     >
                         { (videoStream && videoProducerPaused === false && videoStreamPaused === false) && <Videocam /> }
@@ -302,7 +321,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                             <IconButton
                                 size="small"
                                 className={styles['audio-control']}
-                                onClick={toggleGlobalMute}
+                                onClick={(e) => toggleGlobalMute(e)}
                             >
                                 { audioStream && audioProducerGlobalMute === false && <RecordVoiceOver /> }
                                 { audioStream && audioProducerGlobalMute === true && <VoiceOverOff /> }
@@ -316,7 +335,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                         <IconButton
                             size="small"
                             className={styles['audio-control']}
-                            onClick={toggleAudio}
+                            onClick={(e) => toggleAudio(e)}
                             style={{visibility : (audioProducerPaused === true || audioProducerGlobalMute === true) ? 'hidden' : 'visible' }}
                         >
                             { ((peerId === 'me_cam' || peerId === 'me_screen') && audioStream && audioProducerPaused === false && audioStreamPaused === false) && <Mic /> }
