@@ -50,7 +50,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const UserMenu = (props: Props): any => {    
   const { login, authState, logoutUser, showDialog} = props;
   const selfUser = authState.get('user');
-  console.log('authState', authState)
   const [isEditName, setIsEditName] = useState(false);
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
   const [username, setUsername] = useState(selfUser?.name);
