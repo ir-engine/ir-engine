@@ -51,7 +51,7 @@ const UserMenu = (props: Props): any => {
   const selfUser = authState.get('user');
   const [isEditName, setIsEditName] = useState(false);
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
-  const [username, setUsername] = useState(selfUser.name);
+  const [username, setUsername] = useState(selfUser?.name);
   const [drawerType, setDrawerType] = useState('default');
 
   const invitationLink = window.location.href;
@@ -88,7 +88,7 @@ const UserMenu = (props: Props): any => {
   };
 
   const updateUsername = async (): Promise<void> => {
-    await props.updateUsername(selfUser.id, username);
+    await props.updateUsername(selfUser?.id, username);
     setIsEditName(false);
   };
   
@@ -155,7 +155,7 @@ const UserMenu = (props: Props): any => {
                 label="Your Name"
                 name="name"
                 autoFocus
-                defaultValue={selfUser.name}
+                defaultValue={selfUser?.name}
                 onChange={(e) => handleUsernameChange(e)}
             />
             <Button onClick={()=>setIsEditName(false)} variant="outlined" color="secondary" className={styles.autoWidth}>
@@ -168,7 +168,7 @@ const UserMenu = (props: Props): any => {
                 : 
         (<span className={styles.userTitle}>    
           <ArrowBackIosIcon onClick={toggleDrawer(anchor, false)} />      
-          <span>{ selfUser ? selfUser.name : ''}</span>
+          <span>{ selfUser ? selfUser?.name : ''}</span>
            <Tooltip title="Edit Username"><EditIcon color="primary" onClick={handleEditClick}  /></Tooltip>
         </span>)}
       </section>;
@@ -248,8 +248,8 @@ const renderUserMenu = () =><>
           <Typography variant="h2" color="primary" onClick={handleAvatarChangeClick}>Change Avatar</Typography>
           <Typography variant="h2" color="primary" onClick={(event)=>handleTutorialClick(event)}>Tutorial</Typography>
           <Typography variant="h2" color="primary" onClick={handleDeviceSetupClick}>Device Setup</Typography>
-          {selfUser && selfUser.userRole === 'guest' && <Typography variant="h2" color="primary" onClick={handleLogin}>Login</Typography>}
-          {selfUser && selfUser.userRole !== 'guest' && <Typography variant="h2" color="primary" onClick={handleLogout}>Logout</Typography>}
+          {selfUser && selfUser?.userRole === 'guest' && <Typography variant="h2" color="primary" onClick={handleLogin}>Login</Typography>}
+          {selfUser && selfUser?.userRole !== 'guest' && <Typography variant="h2" color="primary" onClick={handleLogout}>Logout</Typography>}
           <section className={styles.placeholder} />
           <Typography variant="h2" color="secondary">About</Typography>
           <Typography variant="h2" color="secondary">Privacy & Terms</Typography>

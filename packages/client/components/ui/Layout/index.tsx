@@ -85,36 +85,34 @@ const Layout = (props: Props): any => {
       </Head>
       <header>
         { path === '/login' && <NavMenu login={login} />}
-        {<PartyVideoWindows />}
+        {<PartyVideoWindows />}F
       </header>
       <Fragment>
         <UIDialog />
          <Alerts />
         {children}
       </Fragment>
-      { authUser?.accessToken != null && authUser.accessToken.length > 0 &&
-                <Fragment>
-                  <LeftDrawer leftDrawerOpen={leftDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen}/>
-                </Fragment>
+      { authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&
+        <Fragment>
+          <LeftDrawer leftDrawerOpen={leftDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen}/>
+        </Fragment>
       }
-      { authUser?.accessToken != null && authUser.accessToken.length > 0 &&
-      <Fragment>
-        <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/>
-      </Fragment>
+      { authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&
+        <Fragment>
+          <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/>
+        </Fragment>
       }
-      { authUser?.accessToken != null && authUser.accessToken.length > 0 &&
-                <Fragment>
-                  <BottomDrawer bottomDrawerOpen={bottomDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen}/>
-                </Fragment>
+      { authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&
+        <Fragment>
+          <BottomDrawer bottomDrawerOpen={bottomDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen}/>
+        </Fragment>
       }
       <footer>
-        { authState.get('authUser') != null && authState.get('isLoggedIn') === true && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
-                <DrawerControls setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/> }
+        { authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.id != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
+            <DrawerControls setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/> }
         { authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
 
-
-        {console.log('authState', authState, 'user', user, 'leftDrawerOpen',leftDrawerOpen, 'rightDrawerOpen',rightDrawerOpen, 'topDrawerOpen',topDrawerOpen, 'bottomDrawerOpen',bottomDrawerOpen)}
-        { authState.get('authUser') != null && authState.get('isLoggedIn') === true &&  user.instanceId != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
+        { authState.get('authUser') != null && authState.get('isLoggedIn') === true &&  user?.instanceId != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
         // { authState.get('authUser') != null && authState.get('isLoggedIn') === true && user.partyId != null && user.instanceId != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
           <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen}/> }
       </footer>

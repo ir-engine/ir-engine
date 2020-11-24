@@ -10,7 +10,6 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import theme from "./../components/editor/theme";
 import { ThemeProvider } from "styled-components";
 import { restoreState } from '../redux/persisted.store';
-import { doLoginAuto } from '../redux/auth/service';
 import DeviceDetector from 'device-detector-js';
 import { getDeviceType } from '../redux/devicedetect/actions';
 import React, { useEffect, Fragment, useState } from 'react';
@@ -30,7 +29,6 @@ const config = getConfig().publicRuntimeConfig;
 
 interface Props extends AppProps {
   store: Store;
-  doLoginAuto: typeof doLoginAuto;
 }
 
 
@@ -39,11 +37,10 @@ const mapStateToProps = (state: any): any => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
 });
 
 const MyApp = (props: Props): any => {
-  const { Component, pageProps, store, doLoginAuto } = props;
+  const { Component, pageProps, store } = props;
 
   const [api, setApi] = useState<Api>();
 
@@ -71,8 +68,6 @@ const MyApp = (props: Props): any => {
     initGA();
     logPageView();
     getDeviceInfo();
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    doLoginAuto();
     const urlParts = url.parse(window.location.href);
     const query = querystring.parse(urlParts.query);
     if (query.error != null) {
