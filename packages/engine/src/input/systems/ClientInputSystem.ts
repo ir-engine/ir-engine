@@ -25,6 +25,10 @@ import { InputType } from "../enums/InputType";
 import { InputValue } from "../interfaces/InputValue";
 import { ListenerBindingData } from "../interfaces/ListenerBindingData";
 import { InputAlias } from "../types/InputAlias";
+
+import supportsPassive from "../../common/functions/supportsPassive";
+import { BehaviorComponent } from '../../common/components/BehaviorComponent'
+
 /**
  * Input System
  *
@@ -164,7 +168,15 @@ export class InputSystem extends System {
 
           if (domElement) {
             const listener = (event: Event) => behaviorEntry.behavior(entity, { event, ...behaviorEntry.args });
-            domElement.addEventListener(eventName, listener);
+            if (behaviorEntry.passive && supportsPassive())
+            {
+              domElement.addEventListener(eventName, listener, {passive: behaviorEntry.passive});
+            }
+            else
+            {
+              domElement.addEventListener(eventName, listener);
+            }
+
             listenersDataArray.push({
               domElement,
               eventName,
