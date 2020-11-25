@@ -55,7 +55,6 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
     }
     return;
   }
-
   if (cameraFollow.mode === "firstPerson") {
 
     euler.setFromQuaternion(follower.rotation);
@@ -66,6 +65,7 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
     euler.x = Math.max(-PI_2, Math.min(PI_2, euler.x));
 
     follower.rotation.setFromEuler(euler);
+    follower.rotation.multiply(target.rotation);
 
     follower.position.set(
       target.position.x,
@@ -88,15 +88,15 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
     direction = direction.sub(target.position).normalize();
 
     mx.lookAt(direction, empty, up);
-
     follower.rotation.setFromRotationMatrix(mx);
+    follower.rotation.multiply(target.rotation);
   }
 };
 
 function getInputData(inputComponent: Input, inputAxes: number): NumericalType {
   const emptyInputValue = [0, 0] as NumericalType;
 
-  if (inputComponent.data.has(inputAxes)) {
+  if (inputComponent?.data.has(inputAxes)) {
     const inputData = inputComponent.data.get(inputAxes);
     const inputValue = inputData.value;
     if (inputData.lifecycleState === LifecycleValue.ENDED || inputData.lifecycleState === LifecycleValue.UNCHANGED) {
