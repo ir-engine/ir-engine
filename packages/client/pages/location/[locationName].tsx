@@ -1,4 +1,4 @@
-import { ThemeProvider } from '@material-ui/core';
+import { Snackbar, ThemeProvider } from '@material-ui/core';
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
@@ -35,6 +35,8 @@ import { staticWorldColliders } from "../../../engine/src/templates/car/prefabs/
 import { VRMPrefab } from "../../../engine/src/templates/devices/prefabs/VRMPrefab";
 
 import theme from '../../theme';
+import { generalStateList, setAppSpecificOnBoardingStep } from '../../redux/app/actions';
+import store from '../../redux/store';
 
 interface Props {
   appState?: any;
@@ -67,6 +69,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const LocationPage = (props: Props) => {
   const { locationName } = useRouter().query as any;
+  const [openSnackBar, setOpenSnackBar] = React.useState(false);
 
   const {
     appState,
@@ -94,12 +97,14 @@ const LocationPage = (props: Props) => {
   useEffect(() => {
     const currentLocation = locationState.get('currentLocation').get('location');
     locationId = currentLocation.id;
+    
     userBanned = selfUser?.locationBans?.find(ban => ban.locationId === locationId) != null;
     if (authState.get('isLoggedIn') === true && authState.get('user')?.id != null && authState.get('user')?.id.length > 0 && currentLocation.id == null && userBanned === false && locationState.get('fetchingCurrentLocation') !== true) {
       getLocationByName(locationName);
       if(sceneId === null) {
         console.log("authState: Set scene ID to", sceneId);
         sceneId = currentLocation.sceneId;
+        // if(!locationId){store.dispatch(setAppSpecificOnBoardingStep(generalStateList.LOCATION_FAILED, false));setOpenSnackBar(true);return;}
       }
     }
   }, [authState]);
@@ -198,8 +203,16 @@ const LocationPage = (props: Props) => {
     <ThemeProvider theme={theme}>
       <Layout pageTitle="Home">
         <NoSSR onSSR={<Loading />}>
-          <UserMenu />
+          {!openSnackBar && <UserMenu />}
           {userBanned === false ? (<Scene sceneId={sceneId} />) : (<div className="banned">You have been banned from this location</div>)}
+          <Snackbar open={openSnackBar} 
+            // onClose={handleCloseSnackBar} 
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'center',
+            }}>
+              <section>Location is invalid</section>
+            </Snackbar>
         </NoSSR>
       </Layout>
     </ThemeProvider>
