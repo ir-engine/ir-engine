@@ -84,6 +84,7 @@ import LoadMaterialSlotMultipleCommand from "@xr3ngine/engine/src/editor/command
 import GroupNode from "@xr3ngine/engine/src/editor/nodes/GroupNode";
 import ModelNode from "@xr3ngine/engine/src/editor/nodes/ModelNode";
 import VideoNode from "@xr3ngine/engine/src/editor/nodes/VideoNode";
+import VolumetricNode from "@xr3ngine/engine/src/editor/nodes/VolumetricNode";
 import ImageNode from "@xr3ngine/engine/src/editor/nodes/ImageNode";
 import AudioNode from "@xr3ngine/engine/src/editor/nodes/AudioNode";
 import LinkNode from "@xr3ngine/engine/src/editor/nodes/LinkNode";
@@ -1950,7 +1951,13 @@ export default class Editor extends EventEmitter {
       this.getSpawnPosition(node.position);
       this.addObject(node, parent, before);
       await node.load(url);
-    } else {
+     } else if(url.contains(".drcs")) {
+      console.log("Dracosis volumetric file detected");
+      node = new VolumetricNode(this);
+      this.getSpawnPosition(node.position);
+      this.addObject(node, parent, before);
+     }
+     else {
       node = new LinkNode(this);
       this.getSpawnPosition(node.position);
       node.href = url;
