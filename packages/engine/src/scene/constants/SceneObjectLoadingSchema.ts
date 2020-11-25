@@ -12,9 +12,10 @@ import { createLink } from '../behaviors/createLink';
 import { createShadow } from '../behaviors/createShadow';
 import createSkybox from '../behaviors/createSkybox';
 import { createTriggerVolume } from '../behaviors/createTriggerVolume';
+import { createVideo } from "../behaviors/createVideo";
+import { createVolumetric } from "../behaviors/createVolumetric";
 import { handleAudioSettings } from '../behaviors/handleAudioSettings';
 import { setFog } from '../behaviors/setFog';
-import { Sky } from '../classes/Sky';
 import CollidableTagComponent from '../components/Collidable';
 import ScenePreviewCameraTagComponent from "../components/ScenePreviewCamera";
 import SpawnPointComponent from "../components/SpawnPointComponent";
@@ -147,6 +148,51 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
           { from: 'controls', to: 'controls' },
           { from: 'alphaMode', to: 'alphaMode' },
           { from: 'alphaCutoff', to: 'alphaCutoff' }
+        ]
+      }
+    ]
+  },
+  'video': {
+    behaviors: [
+      {
+        behavior: createVideo,
+        values: [
+          { from: 'src', to: 'src' },
+          { from: 'projection', to: 'projection' },
+          { from: 'controls', to: 'controls' },
+          { from: 'autoPlay', to: 'autoPlay' },
+          { from: 'loop', to: 'loop' },
+          { from: 'audioType', to: 'audioType' },
+          { from: 'volume', to: 'volume' },
+          { from: 'distanceModel', to: 'distanceModel' },
+          { from: 'rolloffFactor', to: 'rolloffFactor' },
+          { from: 'refDistance', to: 'refDistance' },
+          { from: 'maxDistance', to: 'maxDistance' },
+          { from: 'coneInnerAngle', to: 'coneInnerAngle' },
+          { from: 'coneOuterAngle', to: 'coneOuterAngle' },
+          { from: 'coneOuterGain', to: 'coneOuterGain' }
+        ]
+      }
+    ]
+  },
+  'volumetric': {
+    behaviors: [
+      {
+        behavior: createVolumetric,
+        values: [
+          { from: 'src', to: 'src' },
+          { from: 'controls', to: 'controls' },
+          { from: 'autoPlay', to: 'alphaMode' },
+          { from: 'loop', to: 'loop' },
+          { from: 'audioType', to: 'audioType' },
+          { from: 'volume', to: 'volume' },
+          { from: 'distanceModel', to: 'distanceModel' },
+          { from: 'rolloffFactor', to: 'rolloffFactor' },
+          { from: 'refDistance', to: 'refDistance' },
+          { from: 'maxDistance', to: 'maxDistance' },
+          { from: 'coneInnerAngle', to: 'coneInnerAngle' },
+          { from: 'coneOuterAngle', to: 'coneOuterAngle' },
+          { from: 'coneOuterGain', to: 'coneOuterGain' }
         ]
       }
     ]
