@@ -1,20 +1,19 @@
-.anchorContainer .anchorDrawer{
-    padding: 0px;
-    z-index: 1301;
-}
 .anchorDrawer{
     position: absolute;
-    top: 20px;
+    z-index: 1301;
+    top: 5px;
     right: 0px;
     cursor: pointer;
     padding: 0px;
-    border-radius: 5px 0 0 5px;
-    > svg{
+    height: 1.5em;
+    width: 1.5em;
+    margin: 12px;
+    cursor: pointer;
+    @media (max-width: 768px){
         height: 1em;
         width: 1em;
         margin: 7px;
-        cursor: pointer;
-    }
+    } 
 }
 .drawer{
     display: flex;   
