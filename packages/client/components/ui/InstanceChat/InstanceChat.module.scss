@@ -7,14 +7,13 @@
   width: 50vw;
   justify-content: flex-end;
   z-index: 1400;
-
+  margin: 5px;
 
   .chat-box {
     display: flex;
     flex-grow: 1;
     align-items: stretch;
     padding: 0px;
-    // border: 1px solid #000000;
     .chat-box:last-child {
       padding-bottom: 0px;
     }
@@ -58,33 +57,19 @@
 
   }
 
-
   ul {
     min-height: 0;
   }
-
   .message {
-    // color: black;
     .userName{
       font-weight: bold;
     }
     &.self {
-      // &:before {
-      //   content: '';
-      //   width: 40%;
-      //   display: block;
-      // }
-
       & > div {
-        // background-color: #fff8dc;
-        // padding: 5px 10px;
-        // border-radius: 10px;
         width: 100%;
-        // margin-bottom: 5px;
         display: flex;
       }
     }
-
     &.other {
       &:after {
         content: '';
