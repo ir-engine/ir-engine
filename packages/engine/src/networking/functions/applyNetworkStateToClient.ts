@@ -173,7 +173,7 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
   // });
 
   if(worldState.transforms === undefined || worldState.transforms.length < 1)
-    return console.warn("Worldstate transforms is null");
+    return;// console.warn("Worldstate transforms is null");
 
   // Update transforms
   worldState.transforms?.forEach(transformData => {
