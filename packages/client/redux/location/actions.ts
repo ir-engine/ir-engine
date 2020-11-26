@@ -5,7 +5,8 @@ import {
   LOCATION_CREATED,
   LOCATION_PATCHED,
   LOCATION_REMOVED,
-  LOCATION_BAN_CREATED
+  LOCATION_BAN_CREATED,
+  LOCATION_NOT_FOUND
 } from '../actions';
 import { Location } from '@xr3ngine/common/interfaces/Location';
 
@@ -40,12 +41,16 @@ export interface LocationPatchedAction {
 export interface LocationRemovedAction {
   type: string;
 }
+export interface LocationNotFoundAction{
+  type: string;
+}
 
 export type LocationsAction =
   LocationsRetrievedAction
   | LocationRetrievedAction
   | LocationBanCreatedAction
   | FetchingCurrentLocationAction
+  | LocationNotFoundAction
 
 export function locationsRetrieved (locations: any): LocationsRetrievedAction {
   return {
@@ -91,5 +96,11 @@ export function locationBanCreated (): LocationBanCreatedAction {
 export function fetchingCurrentLocation (): FetchingCurrentLocationAction {
   return {
     type: FETCH_CURRENT_LOCATION
+  };
+}
+
+export function locationNotFound (): LocationNotFoundAction {
+  return {
+    type: LOCATION_NOT_FOUND
   };
 }

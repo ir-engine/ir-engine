@@ -1,4 +1,4 @@
-import { ThemeProvider } from '@material-ui/core';
+import { Snackbar, ThemeProvider, Button } from '@material-ui/core';
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
@@ -7,7 +7,7 @@ import { loadScene } from '@xr3ngine/engine/src/scene/functions/SceneLoading';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { useRouter } from 'next/router';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import NoSSR from 'react-no-ssr';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -35,6 +35,8 @@ import { staticWorldColliders } from "../../../engine/src/templates/car/prefabs/
 import { VRMPrefab } from "../../../engine/src/templates/devices/prefabs/VRMPrefab";
 
 import theme from '../../theme';
+import { setAppSpecificOnBoardingStep, generalStateList } from '../../redux/app/actions';
+import store from '../../redux/store';
 
 interface Props {
   appState?: any;
@@ -67,6 +69,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const LocationPage = (props: Props) => {
   const { locationName } = useRouter().query as any;
+  const [isValidLocation, setIsValidLocation] = useState(true);
 
   const {
     appState,
@@ -114,6 +117,11 @@ const LocationPage = (props: Props) => {
       if(sceneId === null) {
         console.log("locationState: Set scene ID to", sceneId);
         sceneId = currentLocation.sceneId;
+      }
+
+      if(!currentLocation.id && !locationState.get('currentLocationUpdateNeeded') && !locationState.get('fetchingCurrentLocation')){
+        setIsValidLocation(false);
+        store.dispatch(setAppSpecificOnBoardingStep(generalStateList.FAILED, false));
       }
   }, [locationState]);
 
@@ -193,12 +201,23 @@ const LocationPage = (props: Props) => {
     cameraTransform.position.set(0, 1.2, 10);
   }
 
+  const goHome = () => window.location.href = window.location.origin;
 
   return (
     <ThemeProvider theme={theme}>
       <Layout pageTitle="Home">
         <NoSSR onSSR={<Loading />}>
-          <UserMenu />
+          {isValidLocation && <UserMenu />}
+          <Snackbar open={!isValidLocation} 
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'center',
+            }}>
+            <section>
+                <p>Invalid Location</p>  
+                <Button variant="outlined" color="primary" onClick={goHome}>Back Home</Button>              
+            </section>
+          </Snackbar>
           {userBanned === false ? (<Scene sceneId={sceneId} />) : (<div className="banned">You have been banned from this location</div>)}
         </NoSSR>
       </Layout>
