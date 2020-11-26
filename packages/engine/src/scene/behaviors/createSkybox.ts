@@ -1,5 +1,5 @@
 import { Sky } from '@xr3ngine/engine/src/scene/classes/Sky';
-import { CanvasTexture, RGBFormat, sRGBEncoding } from 'three';
+import { CanvasTexture, CubeTextureLoader, RGBFormat, sRGBEncoding } from 'three';
 import { CubeTexture, TextureLoader } from 'three';
 import { CubeRefractionMapping } from 'three';
 import { EquirectangularReflectionMapping } from 'three';
@@ -40,38 +40,15 @@ export default function createSkybox(entity, args: {
     uniforms.sunPosition.value = sun;
 
   } else if (args.objArgs.skytype === "cubemap") {
-
-    const imageObj = new Image();
-
-    imageObj.onload = function () {
-
-      let canvas, context;
-      const tileWidth = imageObj.height;
-      const canvases = [];
-
-      for (let i = 0; i < 6; i++) {
-        canvas = document.createElement('canvas');
-        context = canvas.getContext('2d');
-        canvas.height = tileWidth;
-        canvas.width = tileWidth;
-        context.drawImage(imageObj, tileWidth * i, 0, tileWidth, tileWidth, 0, 0, tileWidth, tileWidth);
-        canvases.push(canvas);
-      }
-
-      const textureCube = new CubeTexture(canvases);
-      textureCube.mapping = CubeRefractionMapping;
-      textureCube.needsUpdate = true;
-      Engine.scene.background = textureCube;
-    };
-
-    imageObj.src = args.objArgs.texture;
+    const textureBox = new CubeTextureLoader()
+      .setPath(args.objArgs.texture)
+      .load(['posx.jpg', 'negx.jpg', 'posy.jpg', 'negy.jpg', 'posz.jpg', 'negz.jpg']);
+    Engine.scene.background = textureBox;
   }
   else if (args.objArgs.skytype === "equirectangular") {
 
     const textureLoader = new TextureLoader();
-
     textureLoader.load(args.objArgs.texture, (texture) => {
-
       texture.encoding = sRGBEncoding;
       texture.mapping = EquirectangularReflectionMapping;
       Engine.scene.background = texture;
