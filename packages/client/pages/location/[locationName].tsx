@@ -191,11 +191,6 @@ const LocationPage = (props: Props) => {
       initializeEngine(InitializationOptions);
       // createPrefab(staticWorldColliders);
     loadScene(result);
-    const cameraTransform = getMutableComponent<TransformComponent>(
-      CameraComponent.instance.entity,
-      TransformComponent
-    );
-    cameraTransform.position.set(0, 1.2, 10);
   }
 
 
