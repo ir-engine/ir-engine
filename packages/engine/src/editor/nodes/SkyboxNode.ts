@@ -1,5 +1,6 @@
 import EditorNodeMixin from "./EditorNodeMixin";
 import { Sky } from "../../scene/classes/Sky";
+import { CubeTextureLoader, EquirectangularReflectionMapping, sRGBEncoding, TextureLoader } from "three";
 export default class SkyboxNode extends EditorNodeMixin(Sky) {
   static legacyComponentName = "skybox";
   static disableTransform = true;
@@ -11,23 +12,23 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json);
     const skybox = json.components.find(c => c.name === "skybox");
-    
+
     switch (skybox.props.skytype) {
-      case "cubemap": 
-      case "equirectangular": 
-      node.texture = skybox.props.texture;
-      break;
-      default: 
-      const {
-        turbidity,
-        rayleigh,
-        luminance,
-        mieCoefficient,
-        mieDirectionalG,
-        inclination,
-        azimuth,
-        distance
-      } = skybox.props;
+      case "cubemap":
+      case "equirectangular":
+        node.texture = skybox.props.texture;
+        break;
+      default:
+        const {
+          turbidity,
+          rayleigh,
+          luminance,
+          mieCoefficient,
+          mieDirectionalG,
+          inclination,
+          azimuth,
+          distance
+        } = skybox.props;
         node.turbidity = turbidity;
         node.rayleigh = rayleigh;
         node.luminance = luminance;
@@ -47,36 +48,69 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
     this.updateEnvironmentMap();
   }
   onChange() {
+    switch (this.skyOptionValue) {
+      case "equirectangular":
+      case "cubemap":
+        this.sky.visible = false;
+        this.editor.scene.background = this.getTexture();
+        break;
+      default:
+        this.sky.visible = true;
+        this.editor.scene.background = null;
+        const renderer = this.editor.renderer.renderer;
+        const envMap = this.generateEnvironmentMap(renderer);
+        return envMap;
+    }
     this.updateEnvironmentMap();
   }
   onRemove() {
     this.editor.scene.updateEnvironmentMap(null);
   }
-  updateEnvironmentMap() {
-    const renderer = this.editor.renderer.renderer;
-    const envMap = this.generateEnvironmentMap(renderer);
-    this.editor.scene.updateEnvironmentMap(envMap);
+
+  getTexture() {
+    switch (this.skyOptionValue) {
+      case "equirectangular":
+        const texture = new TextureLoader().load(this.textureOptionValue);
+        texture.encoding = sRGBEncoding;
+        texture.mapping = EquirectangularReflectionMapping;
+        texture.needsUpdate = true;
+        return texture;
+      case "cubemap":
+        const textureBox = new CubeTextureLoader()
+          .setPath(this.textureOptionValue)
+          .load(['posx.jpg', 'negx.jpg', 'posy.jpg', 'negy.jpg', 'posz.jpg', 'negz.jpg']);
+        return textureBox;
+      default:
+        const renderer = this.editor.renderer.renderer;
+        const envMap = this.generateEnvironmentMap(renderer);
+        return envMap;
+    }
   }
+
+  updateEnvironmentMap() {
+    this.editor.scene.updateEnvironmentMap(this.getTexture());
+  }
+
   serialize() {
     let data: any = {};
     switch (this.skyOptionValue) {
-      case "cubemap": 
-      case "equirectangular": 
-      data = {
-        texture: this.textureOptionValue
-      };
-      break;
+      case "cubemap":
+      case "equirectangular":
+        data = {
+          texture: this.textureOptionValue
+        };
+        break;
       default:
-      data ={
-        turbidity: this.turbidity,
-        rayleigh: this.rayleigh,
-        luminance: this.luminance,
-        mieCoefficient: this.mieCoefficient,
-        mieDirectionalG: this.mieDirectionalG,
-        inclination: this.inclination,
-        azimuth: this.azimuth,
-        distance: this.distance
-      };
+        data = {
+          turbidity: this.turbidity,
+          rayleigh: this.rayleigh,
+          luminance: this.luminance,
+          mieCoefficient: this.mieCoefficient,
+          mieDirectionalG: this.mieDirectionalG,
+          inclination: this.inclination,
+          azimuth: this.azimuth,
+          distance: this.distance
+        };
     }
     data.skytype = this.skyOptionValue;
     return super.serialize({
