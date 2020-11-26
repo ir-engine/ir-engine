@@ -1,4 +1,4 @@
-import { Snackbar, ThemeProvider } from '@material-ui/core';
+import { Snackbar, ThemeProvider, Button } from '@material-ui/core';
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
@@ -201,6 +201,7 @@ const LocationPage = (props: Props) => {
     cameraTransform.position.set(0, 1.2, 10);
   }
 
+  const goHome = () => window.location.href = window.location.origin;
 
   return (
     <ThemeProvider theme={theme}>
@@ -212,7 +213,10 @@ const LocationPage = (props: Props) => {
               vertical: 'top',
               horizontal: 'center',
             }}>
-            <section>Invalid Location</section>
+            <section>
+                <p>Invalid Location</p>  
+                <Button variant="outlined" color="primary" onClick={goHome}>Back Home</Button>              
+            </section>
           </Snackbar>
           {userBanned === false ? (<Scene sceneId={sceneId} />) : (<div className="banned">You have been banned from this location</div>)}
         </NoSSR>
