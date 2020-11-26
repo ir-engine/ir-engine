@@ -15,11 +15,9 @@ export default function createSkybox(entity, args: {
   obj3d;
   objArgs: any
 }): void {
-  if (!isClient){
+  if (!isClient) {
     return;
   }
-  
-  console.log(args.objArgs);
 
   if (args.objArgs.skytype === "skybox") {
 
@@ -42,58 +40,41 @@ export default function createSkybox(entity, args: {
     uniforms.sunPosition.value = sun;
 
   } else if (args.objArgs.skytype === "cubemap") {
-    
+
     const imageObj = new Image();
-    
 
     imageObj.onload = function () {
-      
+
       let canvas, context;
       const tileWidth = imageObj.height;
       const canvases = [];
 
-
       for (let i = 0; i < 6; i++) {
-
         canvas = document.createElement('canvas');
         context = canvas.getContext('2d');
         canvas.height = tileWidth;
         canvas.width = tileWidth;
         context.drawImage(imageObj, tileWidth * i, 0, tileWidth, tileWidth, 0, 0, tileWidth, tileWidth);
-        // context.drawImage();
         canvases.push(canvas);
-
       }
-      console.log(canvases);
 
       const textureCube = new CubeTexture(canvases);
-      //  const textureCube = new CanvasTexture(canvases);
       textureCube.mapping = CubeRefractionMapping;
       textureCube.needsUpdate = true;
-      // textureCube.format = RGBFormat;
-
       Engine.scene.background = textureCube;
     };
-    
-    imageObj.src = args.objArgs.texture;
 
-    console.log(imageObj);
-    
-    // src= "/packages/server/upload/kazuend-2KXEb_8G5vo-unsplash.jpg"
-    
+    imageObj.src = args.objArgs.texture;
   }
   else if (args.objArgs.skytype === "equirectangular") {
-    // Engine.scene.background = new TextureLoader().load(args.objArgs.texture);
 
     const textureLoader = new TextureLoader();
 
-			textureLoader.load( args.objArgs.texture, ( texture ) => {
+    textureLoader.load(args.objArgs.texture, (texture) => {
 
-				texture.encoding = sRGBEncoding;
-				texture.mapping = EquirectangularReflectionMapping;
-        
-        Engine.scene.background = texture;
-
-			} );
+      texture.encoding = sRGBEncoding;
+      texture.mapping = EquirectangularReflectionMapping;
+      Engine.scene.background = texture;
+    });
   }
 }
