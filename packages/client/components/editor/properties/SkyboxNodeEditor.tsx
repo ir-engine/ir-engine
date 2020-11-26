@@ -6,6 +6,9 @@ import NumericInputGroup from "../inputs/NumericInputGroup";
 import RadianNumericInputGroup from "../inputs/RadianNumericInputGroup";
 import NodeEditor from "./NodeEditor";
 import { Cloud } from "@styled-icons/fa-solid/Cloud";
+import { EquirectangularOption } from "./EquirectangularList";
+import { CubemapOption } from "./CubemapList";
+import { node } from "prop-types";
 
 const hoursToRadians = hours => hours / 24;
 const radiansToHours = rads => rads * 24;
@@ -24,27 +27,6 @@ const SkyOption = [
     value: "equirectangular"
   }
 ];
-
-const TexturesOption = [
-  {
-    label: "texture1",
-    value: "/hdr/mvp-cloud-skybox.png"
-  },
-  {
-    label: "texture2",
-    value: "/hdr/texture222.jpg"
-  },
-  {
-    label: "texture3",
-    value: "/hdr/texture333.jpg"
-  },
-  {
-    label: "texture4",
-    value: "/hdr/texture444.jpg"
-  }
-
-];
-
 
 type SkyboxNodeEditorProps = {
   editor?: object;
@@ -81,12 +63,16 @@ export default class SkyboxNodeEditor extends Component<
   onChangeDistance = distance => {
     (this.props.editor as any).setPropertySelected("distance", distance);
   };
+  
   onChangeSkyOption = skyOptionValue => {
+    this.onChangeTextureOption(null);
     (this.props.editor as any).setPropertySelected(
       "skyOptionValue",
       skyOptionValue
     );
+    this.setDefaultTextureOptionValue(skyOptionValue);
   };
+
   onChangeTextureOption = textureOptionValue => {
     (this.props.editor as any).setPropertySelected(
       "textureOptionValue",
@@ -94,10 +80,24 @@ export default class SkyboxNodeEditor extends Component<
     );
   };
 
-  renderSkyboxSettings = node => 
-  
+  setDefaultTextureOptionValue = (skyOptionValue) => {
+
+    switch (skyOptionValue) {
+      case "cubemap" as any:
+        this.onChangeTextureOption(CubemapOption[0].value);
+        break;
+      case "equirectangular" as any:
+        this.onChangeTextureOption(EquirectangularOption[0].value);
+        break;
+      default:
+        this.onChangeTextureOption(null);
+        break;
+    }
+  }
+
+  renderSkyboxSettings = node =>
     <>
-      { /* @ts-ignore */ }
+      { /* @ts-ignore */}
       <NumericInputGroup
         name="Time of Day"
         smallStep={0.1}
@@ -132,7 +132,7 @@ export default class SkyboxNodeEditor extends Component<
           onChange={this.onChangeLuminance}
         />
       </InputGroup>
-      { /* @ts-ignore */ }
+      { /* @ts-ignore */}
       <InputGroup name="Scattering Amount">
         <CompoundNumericInput
           min={0}
@@ -142,7 +142,7 @@ export default class SkyboxNodeEditor extends Component<
           onChange={this.onChangeMieCoefficient}
         />
       </InputGroup>
-      { /* @ts-ignore */ }
+      { /* @ts-ignore */}
       <InputGroup name="Scattering Distance">
         <CompoundNumericInput
           min={0}
@@ -152,7 +152,7 @@ export default class SkyboxNodeEditor extends Component<
           onChange={this.onChangeMieDirectionalG}
         />
       </InputGroup>
-      { /* @ts-ignore */ }
+      { /* @ts-ignore */}
       <InputGroup name="Horizon Start">
         <CompoundNumericInput
           min={1}
@@ -161,7 +161,7 @@ export default class SkyboxNodeEditor extends Component<
           onChange={this.onChangeTurbidity}
         />
       </InputGroup>
-      { /* @ts-ignore */ }
+      { /* @ts-ignore */}
       <InputGroup name="Horizon End">
         <CompoundNumericInput
           min={0}
@@ -172,13 +172,26 @@ export default class SkyboxNodeEditor extends Component<
       </InputGroup>
     </>;
 
-  renderTextureSettings = (node) =>
+  renderEquirectangularSettings = (node) =>
     <>
-    { /* @ts-ignore */ }
+      { /* @ts-ignore */}
       <InputGroup name="Texture">
         { /* @ts-ignore */}
         <SelectInput
-          options={TexturesOption}
+          options={EquirectangularOption}
+          value={(node as any).textureOptionValue}
+          onChange={this.onChangeTextureOption}
+        />
+      </InputGroup>
+    </>
+
+  renderCubemapSettings = (node) =>
+    <>
+      { /* @ts-ignore */}
+      <InputGroup name="Texture">
+        { /* @ts-ignore */}
+        <SelectInput
+          options={CubemapOption}
           value={(node as any).textureOptionValue}
           onChange={this.onChangeTextureOption}
         />
@@ -186,21 +199,18 @@ export default class SkyboxNodeEditor extends Component<
     </>
 
   renderSkyBoxProps = (node) => {
-    console.log(this.props);
-    console.log(node.skyOptionValue);
-
     switch (node.skyOptionValue) {
       case "cubemap" as any:
-      case "equirectangular" as any:  
-      return this.renderTextureSettings(node);
-      default: 
-      return this.renderSkyboxSettings(node);
+        return this.renderCubemapSettings(node);
+      case "equirectangular" as any:
+        return this.renderEquirectangularSettings(node);
+      default:
+        return this.renderSkyboxSettings(node);
     }
   }
 
   render() {
     const node = this.props.node as any;
-    console.log(node);
     return (
       /* @ts-ignore */
       <NodeEditor description={SkyboxNodeEditor.description} {...this.props}>
@@ -209,7 +219,7 @@ export default class SkyboxNodeEditor extends Component<
           { /* @ts-ignore */}
           <SelectInput
             options={SkyOption}
-            value={(node as any).skyOptionValue? (node as any).skyOptionValue: SkyOption[0].value}
+            value={(node as any).skyOptionValue ? (node as any).skyOptionValue : SkyOption[0].value}
             onChange={this.onChangeSkyOption}
           />
         </InputGroup>
