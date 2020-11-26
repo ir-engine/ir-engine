@@ -14,7 +14,6 @@ export class FollowCameraComponent extends Component<FollowCameraComponent> {
   rx2: number // second right x point of screen
   ry2: number // second right y point of screen
   farDistance: number // distance to which interactive objects from the camera will be highlighted
-  useRotation: boolean //add rotation of target
 }
 
 FollowCameraComponent.schema = {
@@ -28,5 +27,4 @@ FollowCameraComponent.schema = {
   rx2: { type: Types.Number, default: 0.1 },
   ry2: { type: Types.Number, default: 0.1 },
   farDistance: { type: Types.Number, default: 5 },
-  useRotation: { type: Types.Boolean, default: false },
 };

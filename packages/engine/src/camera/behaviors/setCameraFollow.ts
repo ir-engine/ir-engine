@@ -65,7 +65,6 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
     euler.x = Math.max(-PI_2, Math.min(PI_2, euler.x));
 
     follower.rotation.setFromEuler(euler);
-    follower.rotation.multiply(target.rotation);
 
     follower.position.set(
       target.position.x,
@@ -89,7 +88,6 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
 
     mx.lookAt(direction, empty, up);
     follower.rotation.setFromRotationMatrix(mx);
-    follower.rotation.multiply(target.rotation);
   }
 };
 

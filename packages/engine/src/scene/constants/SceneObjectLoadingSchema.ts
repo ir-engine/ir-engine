@@ -10,6 +10,7 @@ import { createBoxCollider } from '../behaviors/createBoxCollider';
 import { createGroup } from '../behaviors/createGroup';
 import { createImage } from '../behaviors/createImage';
 import { createLink } from '../behaviors/createLink';
+import { createScenePreviewCamera } from "../behaviors/createScenePreviewCamera";
 import { createShadow } from '../behaviors/createShadow';
 import createSkybox from '../behaviors/createSkybox';
 import { createTriggerVolume } from '../behaviors/createTriggerVolume';
@@ -225,8 +226,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
         args: { component: ScenePreviewCameraTagComponent }
       },
       {
-        behavior: addComponentFromBehavior,
-        args: {component: FollowCameraComponent, objArgs:{ distance: 1, mode: "firstPerson", useRotation:true}}
+        behavior: createScenePreviewCamera       
       }
     ]
   },
