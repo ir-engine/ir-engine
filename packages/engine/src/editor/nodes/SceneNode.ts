@@ -222,11 +222,11 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         node.fogNearDistance = near;
         node.fogFarDistance = far;
       }
-      const background = json.components.find(c => c.name === "background");
-      if (background) {
-        const { color } = background.props;
-        node.background.set(color);
-      }
+      // const background = json.components.find(c => c.name === "background");
+      // if (background) {
+      //   const { color } = background.props;
+      //   node.background.set(color);
+      // }
       const audioSettings = json.components.find(
         c => c.name === "audio-settings"
       );
@@ -253,7 +253,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     super(editor);
     this.url = null;
     this.metadata = {};
-    this.background = new Color(0xaaaaaa);
+    // this.background = new Color(0xaaaaaa);
     this._environmentMap = null;
     this._fogType = FogType.Disabled;
     this._fog = new Fog(0xffffff, 0.0025);
@@ -373,12 +373,12 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
                 density: this.fogDensity
               }
             },
-            {
-              name: "background",
-              props: {
-                color: serializeColor(this.background)
-              }
-            },
+            // {
+            //   name: "background",
+            //   props: {
+            //     color: serializeColor(this.background)
+            //   }
+            // },
             {
               name: "audio-settings",
               props: {
@@ -432,9 +432,9 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     for (const node of nodeList) {
       node.prepareForExport(ctx);
     }
-    this.addGLTFComponent("background", {
-      color: this.background
-    });
+    // this.addGLTFComponent("background", {
+    //   color: this.background
+    // });
     if (this.fogType === FogType.Linear) {
       this.addGLTFComponent("fog", {
         type: this.fogType,
