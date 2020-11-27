@@ -3,6 +3,7 @@ const appRootPath = require('app-root-path')
 process.env.NODE_CONFIG_DIR = path.join(appRootPath.path, 'packages/client/config')
 const conf = require('config');
 const withImages = require('next-images')
+const WorkerPlugin = require('worker-plugin');
 
 module.exports = withImages(
   {
@@ -145,21 +146,6 @@ module.exports = withImages(
         }]
       })
       config.module.rules.push({
-        test: /\.worker\.js$/,
-        include: path.join(__dirname, "src"),
-        use: ['cache-loader', 'thread-loader', {
-          loader: "worker-loader",
-          options: {
-            // Workers must be inlined because they are hosted on a CDN and CORS doesn't permit us
-            // from loading worker scripts from another origin. To minimize bundle size, dynamically
-            // import a wrapper around the worker. See SketchfabZipLoader.js and API.js for an example.
-            name: "editor/assets/js/workers/[name]-[hash].js",
-            inline: true,
-            fallback: false
-          }
-        }]
-      })
-      config.module.rules.push({
         test: /\.tmp$/,
         type: "javascript/auto",
         use: ['cache-loader', 'thread-loader', {
@@ -179,6 +165,10 @@ module.exports = withImages(
             name: "[name]-[hash].[ext]"
           }
         }]
+      })
+      config.module.rules.push( {
+        test: /\.worker\.js$/,
+        use: { loader: 'worker-loader' }
       })
       return config
     }
