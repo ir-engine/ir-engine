@@ -16,7 +16,6 @@ export class AssetLoader extends Component<AssetLoader> {
   append = true
   onLoaded: any
   parent: Object3D = null
-  ineractable = false
 }
 AssetLoader.schema = {
   assetType: { default: AssetType.glTF, type: Types.Number },
@@ -29,5 +28,4 @@ AssetLoader.schema = {
   append: { default: true, type: Types.Boolean },
   onLoaded: { default: null, type: Types.Ref },
   parent: { default: null, type: Types.Ref },
-  ineractable: { default: false, type: Types.Boolean },
 };

@@ -70,7 +70,17 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
         args: {
           component: AssetLoader,
         },
-        values: [{ from: 'src', to: 'url' }],
+        values: [
+          { from: 'src', to: 'url' },
+          { from: 'interactable', to: 'interactable' },
+          { from: 'interactionType', to: 'interactionType' },
+          { from: 'interactionText', to: 'interactionText' },
+          { from: 'payloadName', to: 'payloadName' },
+          { from: 'payloadUrl', to: 'payloadUrl' },
+          { from: 'payloadBuyUrl', to: 'payloadBuyUrl' },
+          { from: 'payloadLearnMoreUrl', to: 'payloadLearnMoreUrl' },
+          { from: 'payloadHtmlContent', to: 'payloadHtmlContent' },
+        ],
         onLoaded: addWorldColliders
       }
     ]
