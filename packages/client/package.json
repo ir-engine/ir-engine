@@ -48,6 +48,7 @@
     "@typescript-eslint/eslint-plugin": "^4.5.0",
     "@xr3ngine/common": "^0.2.0",
     "@xr3ngine/engine": "^0.2.0",
+    "@zeit/next-workers": "^1.0.0",
     "app-root-path": "^3.0.0",
     "autobind-decorator": "^2.4.0",
     "autoprefixer": "^9.7.5",
@@ -114,7 +115,9 @@
     "use-debounce": "^4.0.0",
     "use-http": "^1.0.13",
     "uuid": "^8.3.1",
-    "whatkey": "^2.0.1"
+    "whatkey": "^2.0.1",
+    "worker-loader": "^3.0.5",
+    "worker-plugin": "^5.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",

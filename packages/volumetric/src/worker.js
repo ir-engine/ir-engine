@@ -1,20 +1,19 @@
-import { IFileHeader, WorkerDataRequest, IBuffer, WorkerDataResponse, WorkerInitializationResponse, WorkerInitializationRequest } from "./Interfaces"
 import ReadStream from "fs-read-stream-over-http"
 import RingBuffer from "./RingBuffer"
 import { MessageType } from "./Enums"
 
-let fileHeader: IFileHeader
-let filePath: string
-let fileReadStream: ReadStream
+let fileHeader
+let filePath
+let fileReadStream
 let isInitialized = false
 const bufferSize = 100
-const ringBuffer = new RingBuffer<IBuffer>(bufferSize)
-let tempBufferObject: IBuffer
+const ringBuffer = new RingBuffer(bufferSize)
+let tempBufferObject
 
 let startFrame = 0
 let endFrame = 0
 let loop = true
-let message: WorkerDataResponse
+let message
 
 self.addEventListener("message", ({ data }) => {
   switch (data.type) {
@@ -38,7 +37,7 @@ self.addEventListener("message", ({ data }) => {
   }
 })
 
-function initialize(data: WorkerInitializationRequest): void {
+function initialize(data) {
   if (isInitialized) return console.error("Worker has already been initialized for file " + data.filePath)
 
   isInitialized = true
@@ -50,14 +49,14 @@ function initialize(data: WorkerInitializationRequest): void {
   // Create readstream starting from after the file header and long
   fileReadStream = new ReadStream(filePath, { start: data.readStreamOffset })
 
-  postMessage({ type: MessageType.InitializationResponse } as WorkerInitializationResponse, "*")
+  postMessage({ type: MessageType.InitializationResponse }, "*")
 }
 
-function fetch(data: WorkerDataRequest): void {
+function fetch(data) {
   // Clear Ring Buffer
   this.ringBuffer.Clear()
   // Make a list of buffers to transfer
-  const transferableBuffers: Buffer[] = []
+  const transferableBuffers = []
   let lastFrame = -1
   let endOfRangeReached = false
 

@@ -1,6 +1,7 @@
 import { addWorldColliders } from "@xr3ngine/engine/src/templates/world/behaviors/addWorldColliders";
 import { AmbientLight, CircleBufferGeometry, Color, DirectionalLight, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight } from 'three';
 import { AssetLoader } from '../../assets/components/AssetLoader';
+import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { addComponentFromBehavior, addObject3DComponent, addTagComponentFromBehavior } from '../../common/behaviors/Object3DBehaviors';
 import { LightTagComponent, VisibleTagComponent } from '../../common/components/Object3DTagComponents';
 import { TransformComponent } from '../../transform/components/TransformComponent';
@@ -9,6 +10,7 @@ import { createBoxCollider } from '../behaviors/createBoxCollider';
 import { createGroup } from '../behaviors/createGroup';
 import { createImage } from '../behaviors/createImage';
 import { createLink } from '../behaviors/createLink';
+import { createScenePreviewCamera } from "../behaviors/createScenePreviewCamera";
 import { createShadow } from '../behaviors/createShadow';
 import createSkybox from '../behaviors/createSkybox';
 import { createTriggerVolume } from '../behaviors/createTriggerVolume';
@@ -268,6 +270,9 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       {
         behavior: addTagComponentFromBehavior,
         args: { component: ScenePreviewCameraTagComponent }
+      },
+      {
+        behavior: createScenePreviewCamera       
       }
     ]
   },
