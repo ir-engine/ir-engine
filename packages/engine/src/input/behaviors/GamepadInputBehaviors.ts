@@ -27,9 +27,9 @@ let _index: number; // temp var for iterator loops
  * @param {Entity} entity The entity
  */
 export const handleGamepads: Behavior = (entity: Entity) => {
-  if (!input.gamepadConnected) return;
   // Get an immutable reference to input
   input = getComponent(entity, Input);
+  if (!input?.gamepadConnected) return;
   // Get gamepads from the DOM
   gamepads = navigator.getGamepads();
 
@@ -144,6 +144,7 @@ export const handleGamepadAxis: Behavior = (
 export const handleGamepadConnected: Behavior = (entity: Entity, args: { event: any }): void => {
   input = getMutableComponent(entity, Input);
 
+  console.log("args: " + args);
   console.log('A gamepad connected:', args.event.gamepad, args.event.gamepad.mapping);
 
   if (args.event.gamepad.mapping !== 'standard') { return console.error('Non-standard gamepad mapping detected, not properly handled'); }
