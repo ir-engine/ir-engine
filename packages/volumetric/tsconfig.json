@@ -6,11 +6,10 @@
     "target": "esnext",
     "moduleResolution": "Node",
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "typeRoots": ["./typings"]
+    "esModuleInterop": true
   },
   "include": [
-    "src/**/*", "worker"
+    "src/**/*"
   ],
   "exclude": ["node_modules", "dist"]
 }
