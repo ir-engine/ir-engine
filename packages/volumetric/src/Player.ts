@@ -29,18 +29,7 @@ import { lerp } from './Utilities';
 import Blob from "cross-blob";
 
 import ReadStream from "fs-read-stream-over-http"
-
-export const MessageType = {
-  InitializationRequest: 0,
-  InitializationResponse: 1,
-  DataRequest: 2,
-  DataResponse: 3,
-  SetLoopRequest: 4,
-  SetStartFrameRequest: 5,
-  SetEndFrameRequest: 6,
-}
-
-
+import MessageType from './MessageType';
 
 export default class DracosisPlayer {
   // Public Fields
@@ -70,6 +59,8 @@ export default class DracosisPlayer {
   private _isinitialized = false;
   private _ringBuffer: RingBuffer<IBufferGeometryCompressedTexture>;
   private _isPlaying = false;
+
+  private hasInited = false;
 
   private _basisTextureLoader = new BasisTextureLoader();
   private _nullBufferGeometry = new BufferGeometry();
@@ -120,17 +111,6 @@ export default class DracosisPlayer {
   set loop(value: boolean) {
     this._loop = value;
     this.worker.postMessage({ type: MessageType.SetLoopRequest, value } as Action);
-  }
-
-  httpGetAsync(theUrl: any, callback: any) {
-    const xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function () {
-      if (xmlHttp.readyState === 4 && xmlHttp.status === 200)
-        callback(xmlHttp.responseText);
-    };
-
-    xmlHttp.open('GET', theUrl, true); // true for asynchronous
-    xmlHttp.send(null);
   }
 
   constructor({
@@ -276,6 +256,11 @@ export default class DracosisPlayer {
     let player = this;
 
     this.httpGetAsync(meshFilePath, function (data: any) {
+
+      if (data === undefined) {
+        return console.warning("Data is undefined at", meshFilePath);
+      }
+      console.log("data is ", data);
       data = JSON.parse(data);
       if (endFrame > 1) {
         player._endFrame = endFrame;
@@ -304,10 +289,114 @@ export default class DracosisPlayer {
       // Add event handler for manging worker responses
       this.worker.addEventListener('message', ({ data }) => player.handleMessage(data));
     });
-    if(autoplay) {
+    if (autoplay) {
       console.log("Autoplaying dracosis sequence")
-        this.play();
+      // Create an event listener that removed itself on input
+      const eventListener = () => {
+        // If we haven't inited yet, notify that we have, autoplay content and remove the event listener
+        if (!this.hasInited) {
+          this.hasInited = true;
+          this.play();
+          document.body.removeEventListener("mousemove", eventListener);
+        }
+
+      }
+      document.body.addEventListener("mousemove", eventListener)
     }
+  }
+
+  httpGetAsync(theUrl: any, callback: any) {
+    const xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function () {
+      if (xmlHttp.readyState === 4 && xmlHttp.status === 200)
+        callback(xmlHttp.responseText);
+    };
+
+    xmlHttp.open('GET', theUrl, true); // true for asynchronous
+    xmlHttp.send(null);
+  }
+
+
+  play() {
+    this.show();
+    this._video.play()
+  }
+
+  pause() {
+    this._isPlaying = false;
+  }
+
+  reset() {
+    this._currentFrame = this._startFrame;
+  }
+
+  goToFrame(frame: number, play: boolean) {
+    this._currentFrame = frame;
+    if (play) this.play();
+  }
+
+  setSpeed(multiplyScalar: number) {
+    this.speed = multiplyScalar;
+  }
+
+  show() {
+    this.mesh.visible = true;
+  }
+
+  hide() {
+    this.mesh.visible = false;
+    this.pause();
+  }
+
+  fadeIn(stepLength = 0.1, fadeTime: number, currentTime = 0) {
+    if (!this._isPlaying) this.play();
+    this.material.opacity = lerp(0, 1, currentTime / fadeTime);
+    currentTime = currentTime + stepLength * fadeTime;
+    if (currentTime >= fadeTime) {
+      this.material.opacity = 1;
+      return;
+    }
+
+    setTimeout(() => {
+      this.fadeIn(fadeTime, currentTime);
+    }, stepLength * fadeTime);
+  }
+
+  fadeOut(stepLength = 0.1, fadeTime: number, currentTime = 0) {
+    this.material.opacity = lerp(1, 0, currentTime / fadeTime);
+    currentTime = currentTime + stepLength * fadeTime;
+    if (currentTime >= fadeTime) {
+      this.material.opacity = 0;
+      this.pause();
+      return;
+    }
+
+    setTimeout(() => {
+      this.fadeOut(fadeTime, currentTime);
+    }, stepLength * fadeTime);
+  }
+
+  videoUpdateHandler(now, metadata) {
+    let frameToPlay = metadata.presentedFrames - 1;
+    console.log('==========DIFF', Math.round(this._video.currentTime * 30), Math.round(metadata.mediaTime * 30), metadata.presentedFrames, metadata);
+
+    if (frameToPlay !== this._prevFrame) {
+      this.showFrame(frameToPlay)
+      this._prevFrame = frameToPlay;
+      this.handleBuffers();
+    }
+    this._video.requestVideoFrameCallback(this.videoUpdateHandler.bind(this));
+  }
+
+  render() {
+    this._renderFrame++;
+    let frameToPlay = Math.floor(this._video.currentTime * 30) || 0;
+    if (this._renderFrame % 2 === 0 || !this._isPlaying) {
+      console.log(frameToPlay, 'frametoplay');
+      this.showFrame(frameToPlay)
+    }
+
+    window.requestAnimationFrame(this.render.bind(this))
   }
 
   decodeCORTOData(rawBuffer: Buffer) {
@@ -516,87 +605,5 @@ export default class DracosisPlayer {
     setTimeout(function () {
       player.update();
     }, (1000 / player.frameRate) * player.speed);
-  }
-
-  play() {
-    this.show();
-    this._video.play()
-  }
-
-  pause() {
-    this._isPlaying = false;
-  }
-
-  reset() {
-    this._currentFrame = this._startFrame;
-  }
-
-  goToFrame(frame: number, play: boolean) {
-    this._currentFrame = frame;
-    if (play) this.play();
-  }
-
-  setSpeed(multiplyScalar: number) {
-    this.speed = multiplyScalar;
-  }
-
-  show() {
-    this.mesh.visible = true;
-  }
-
-  hide() {
-    this.mesh.visible = false;
-    this.pause();
-  }
-
-  fadeIn(stepLength = 0.1, fadeTime: number, currentTime = 0) {
-    if (!this._isPlaying) this.play();
-    this.material.opacity = lerp(0, 1, currentTime / fadeTime);
-    currentTime = currentTime + stepLength * fadeTime;
-    if (currentTime >= fadeTime) {
-      this.material.opacity = 1;
-      return;
-    }
-
-    setTimeout(() => {
-      this.fadeIn(fadeTime, currentTime);
-    }, stepLength * fadeTime);
-  }
-
-  fadeOut(stepLength = 0.1, fadeTime: number, currentTime = 0) {
-    this.material.opacity = lerp(1, 0, currentTime / fadeTime);
-    currentTime = currentTime + stepLength * fadeTime;
-    if (currentTime >= fadeTime) {
-      this.material.opacity = 0;
-      this.pause();
-      return;
-    }
-
-    setTimeout(() => {
-      this.fadeOut(fadeTime, currentTime);
-    }, stepLength * fadeTime);
-  }
-
-  videoUpdateHandler(now, metadata) {
-    let frameToPlay = metadata.presentedFrames - 1;
-    console.log('==========DIFF', Math.round(this._video.currentTime * 30), Math.round(metadata.mediaTime * 30), metadata.presentedFrames, metadata);
-
-    if (frameToPlay !== this._prevFrame) {
-      this.showFrame(frameToPlay)
-      this._prevFrame = frameToPlay;
-      this.handleBuffers();
-    }
-    this._video.requestVideoFrameCallback(this.videoUpdateHandler.bind(this));
-  }
-
-  render() {
-    this._renderFrame++;
-    let frameToPlay = Math.floor(this._video.currentTime * 30) || 0;
-    if (this._renderFrame % 2 === 0 || !this._isPlaying) {
-      console.log(frameToPlay, 'frametoplay');
-      this.showFrame(frameToPlay)
-    }
-
-    window.requestAnimationFrame(this.render.bind(this))
   }
 }
