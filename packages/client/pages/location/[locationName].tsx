@@ -204,7 +204,7 @@ const LocationPage = (props: Props) => {
   const goHome = () => window.location.href = window.location.origin;
 
   return (
-    <ThemeProvider theme={theme}>
+    // <ThemeProvider theme={theme}>
       <Layout pageTitle="Home">
         <NoSSR onSSR={<Loading />}>
           {isValidLocation && <UserMenu />}
@@ -221,7 +221,7 @@ const LocationPage = (props: Props) => {
           {userBanned === false ? (<Scene sceneId={sceneId} />) : (<div className="banned">You have been banned from this location</div>)}
         </NoSSR>
       </Layout>
-    </ThemeProvider>
+    // </ThemeProvider>
   );
 };
 
