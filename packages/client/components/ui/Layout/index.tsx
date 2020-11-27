@@ -79,7 +79,6 @@ const Layout = (props: Props): any => {
   }, []);
 
 
-  console.log('locationState', locationState, 'appState', appState, 'authState', authState)
 
   //info about current mode to conditional render menus
 // TODO: Uncomment alerts when we can fix issues
