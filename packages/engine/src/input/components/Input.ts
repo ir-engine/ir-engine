@@ -39,11 +39,19 @@ export class Input extends BehaviorComponent<InputAlias, InputSchema, InputValue
     super();
 
     this.prevData = new Map();
+    this.gamepadConnected = false;
+    this.gamepadThreshold = 0.1;
+    this.gamepadButtons = [];
+    this.gamepadInput = [];
   }
 
   reset(): void {
     super.reset();
     this.prevData.clear();
+    this.gamepadConnected = false;
+    this.gamepadThreshold = 0.1;
+    this.gamepadButtons = [];
+    this.gamepadInput = [];
   }
 }
 
