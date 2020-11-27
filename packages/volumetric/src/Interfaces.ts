@@ -1,5 +1,5 @@
 import { BufferGeometry, CompressedTexture } from 'three'
-import { MessageType } from './Enums'
+import MessageType from './MessageType'
 
 export interface Action {
     type: MessageType,
