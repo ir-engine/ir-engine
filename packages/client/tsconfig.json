@@ -20,7 +20,8 @@
     "jsx": "preserve",
     "isolatedModules": true,
     "experimentalDecorators": true,
-    "outDir": "./lib"
+    "outDir": "./lib",
+    "typeRoots": ["./node_modules/@types", "./typings"]
   },
   "exclude": [
     "node_modules",

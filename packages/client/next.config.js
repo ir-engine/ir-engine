@@ -3,7 +3,6 @@ const appRootPath = require('app-root-path')
 process.env.NODE_CONFIG_DIR = path.join(appRootPath.path, 'packages/client/config')
 const conf = require('config');
 const withImages = require('next-images')
-const WorkerPlugin = require('worker-plugin');
 
 module.exports = withImages(
   {
@@ -166,10 +165,15 @@ module.exports = withImages(
           }
         }]
       })
-      config.module.rules.push( {
+      config.module.rules.push({
         test: /\.worker\.js$/,
-        use: { loader: 'worker-loader' }
-      })
+        loader: 'worker-loader',
+        // options: { inline: true }, // also works
+        options: {
+          name: 'static/[hash].worker.js',
+          publicPath: '/_next/',
+        },
+      });
       return config
     }
   })
