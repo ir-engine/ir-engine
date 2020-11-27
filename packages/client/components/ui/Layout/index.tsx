@@ -52,7 +52,8 @@ const Layout = (props: Props): any => {
       appState,
       authState,
       setUserHasInteracted,
-      login
+      login,
+      locationState
   } = props;
   const userHasInteracted = appState.get('userHasInteracted');
   const authUser = authState.get('authUser');
@@ -112,7 +113,7 @@ const Layout = (props: Props): any => {
             <DrawerControls setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/> }
         { authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
 
-        {authState.get('authUser') != null && authState.get('isLoggedIn') === true &&  user?.instanceId != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
+        { locationState.get('currentLocation')?.get('location')?.id && authState.get('authUser') != null && authState.get('isLoggedIn') === true &&  user?.instanceId != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
             <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen}/> }
       </footer>
     </section>
