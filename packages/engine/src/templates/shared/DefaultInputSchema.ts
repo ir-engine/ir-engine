@@ -137,13 +137,13 @@ export const DefaultInputSchema: InputSchema = {
     gamepadconnected: [
       {
         behavior: handleGamepadConnected,
-        element: 'document'
+        element: 'window'
       }
     ],
     gamepaddisconnected: [
       {
         behavior: handleGamepadDisconnected,
-        element: 'document'
+        element: 'window'
       }
     ],
     // mobile onscreen gamepad
