@@ -14,8 +14,8 @@ const InteractableOption = [
     value: "infoBox"
   },
   {
-    label: "Drive",
-    value: "drive"
+    label: "Open link",
+    value: "link"
   },
 ];
 
