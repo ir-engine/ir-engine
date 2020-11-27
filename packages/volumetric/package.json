@@ -42,8 +42,10 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
+    "cross-blob": "^2.0.0",
     "fs-read-stream-over-http": "^0.2.2",
     "prepend": "^1.0.2",
+    "web-worker": "^1.0.0",
     "workerpool": "^6.0.3"
   }
 }

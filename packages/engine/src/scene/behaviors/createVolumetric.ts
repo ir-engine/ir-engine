@@ -8,11 +8,15 @@ export const createVolumetric: Behavior = (entity, args: any) => {
     // Create new volumetric player component
    addComponent(entity, VolumetricComponent);
    const volumetricComponent = getMutableComponent(entity, VolumetricComponent);
+
+   console.log("Args src is ", args.src)
+   const drcs = args.src.replace(".drcs", ".mp4");
+
     const DracosisSequence = new DracosisPlayer({
         scene: Engine.scene,
         renderer: Engine.renderer,
         meshFilePath: args.src,
-        videoFilePath: args.src.replace('.drcs', '.mp4'),
+        videoFilePath: drcs,
         loop: args.loop,
         autoplay: args.autoPlay,
         startFrame: 0,

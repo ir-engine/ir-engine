@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import {
   BufferGeometry,
   CompressedTexture,
@@ -16,7 +18,6 @@ import {
 } from 'three';
 import { BasisTextureLoader } from 'three/examples/jsm/loaders/BasisTextureLoader.js';
 import CortoDecoder from './libs/corto/cortodecoder.js';
-import { MessageType } from './Enums';
 import {
   Action,
   IBufferGeometryCompressedTexture,
@@ -25,8 +26,21 @@ import {
 } from './Interfaces';
 import RingBuffer from './RingBuffer';
 import { lerp } from './Utilities';
-// @ts-ignore
-import Worker from 'worker-loader!./worker.js';
+import Blob from "cross-blob";
+
+import ReadStream from "fs-read-stream-over-http"
+
+export const MessageType = {
+  InitializationRequest: 0,
+  InitializationResponse: 1,
+  DataRequest: 2,
+  DataResponse: 3,
+  SetLoopRequest: 4,
+  SetStartFrameRequest: 5,
+  SetEndFrameRequest: 6,
+}
+
+
 
 export default class DracosisPlayer {
   // Public Fields
@@ -41,7 +55,7 @@ export default class DracosisPlayer {
   public material: any;
   public bufferGeometry: BufferGeometry;
   public compressedTexture: CompressedTexture;
-  worker = new Worker();
+  worker
   // Private Fields
   private _startFrame = 1;
   private _scale = 1;
@@ -147,6 +161,106 @@ export default class DracosisPlayer {
     this._video.requestVideoFrameCallback(this.videoUpdateHandler.bind(this));
 
     document.body.appendChild(this._video);
+    var blob = new Blob([
+      `
+    let fileHeader
+    let filePath
+    let fileReadStream
+    let isInitialized = false
+    const bufferSize = 100
+    const ringBuffer = new ${RingBuffer}(bufferSize)
+    let tempBufferObject
+    
+    let startFrame = 0
+    let endFrame = 0
+    let loop = true
+    let message
+    
+    addEventListener("message", ({ data }) => {
+      switch (data.type) {
+        case ${MessageType.InitializationRequest}:
+        initialize(data)
+          break;
+      case ${MessageType.DataRequest}:
+          fetch(data)
+        break
+      case ${MessageType.SetLoopRequest}:
+          loop = data.value
+        break
+      case ${MessageType.SetStartFrameRequest}:
+          startFrame = data.values.startFrame
+        break
+      case ${MessageType.SetEndFrameRequest}:
+          endFrame = data.values.endFrame
+        break
+      default:
+          console.error(data.action + " was not understood by the worker")
+      }
+    })
+    
+    function initialize(data) {
+      if (isInitialized)
+        return console.error("Worker has already been initialized for file " + data.filePath)
+      isInitialized = true
+      fileHeader = data.fileHeader
+      filePath = data.filePath
+      endFrame = data.endFrame
+      startFrame = data.startFrame
+      loop = data.loop
+      fileReadStream = new ${ReadStream}(filePath, { start: data.readStreamOffset })
+    
+      postMessage({ type: ${MessageType.InitializationResponse} })
+    }
+    
+    function fetch(data) {
+      this.ringBuffer.Clear()
+      const transferableBuffers = []
+      let lastFrame = -1
+      let endOfRangeReached = false
+    
+      data.framesToFetch.sort().forEach(frame => {
+        console.warn("Frame fetched outside of loop range")
+        if (frame > endFrame) {
+          if (!loop) {
+            endOfRangeReached = true
+            return
+          }
+          frame %= endFrame
+          if (frame < startFrame) frame += startFrame
+        }
+    
+        if (!(frame == lastFrame + 1 && frame != startFrame)) {
+          fileReadStream.seek(fileHeader.frameData[frame].startBytePosition)
+        }
+    
+        tempBufferObject.frameNumber = frame
+    
+        tempBufferObject.bufferGeometry = fileReadStream.read(fileHeader.frameData[frame].meshLength)
+    
+        tempBufferObject.compressedTexture = fileReadStream.read(fileHeader.frameData[frame].textureLength)
+    
+        ringBuffer.add(tempBufferObject)
+    
+        transferableBuffers.push(tempBufferObject.bufferGeometry)
+        transferableBuffers.push(tempBufferObject.compressedTexture)
+    
+        lastFrame = frame
+      })
+    
+      message = {
+        type: ${MessageType.DataResponse},
+        buffers: ringBuffer.toArray(),
+        endReached: endOfRangeReached
+      }
+      postMessage(message, transferableBuffers)
+    }
+    
+      `
+    ]);
+
+    // Obtain a blob URL reference to our worker 'file'.
+    var blobURL = window.URL.createObjectURL(blob);
+    this.worker = new Worker(blobURL);
 
     this.bufferGeometry = new PlaneBufferGeometry(1, 1);
     this.material = new MeshBasicMaterial({ map: this._videoTexture });
