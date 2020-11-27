@@ -6,6 +6,19 @@ import BooleanInput from "../inputs/BooleanInput";
 import ModelInput from "../inputs/ModelInput";
 import { Cube } from "@styled-icons/fa-solid/Cube";
 import { GLTFInfo } from "../inputs/GLTFInfo";
+import StringInput from "../inputs/StringInput";
+
+const InteractableOption = [
+  {
+    label: "InfoBox",
+    value: "infoBox"
+  },
+  {
+    label: "Drive",
+    value: "drive"
+  },
+];
+
 type ModelNodeEditorProps = {
   editor?: object;
   node?: object;
@@ -35,6 +48,30 @@ export default class ModelNodeEditor extends Component<
   onChangeReceiveShadow = receiveShadow => {
     (this.props.editor as any).setPropertySelected("receiveShadow", receiveShadow);
   };
+  onChangeInteractable = interactable => {
+    (this.props.editor as any).setPropertySelected("interactable", interactable);
+  };
+  onChangeInteractionType = interactionType => {
+    (this.props.editor as any).setPropertySelected("interactionType", interactionType);
+  };
+  onChangeInteractionText = interactionText => {
+    (this.props.editor as any).setPropertySelected("interactionText", interactionText);
+  };
+  onChangePayloadName = payloadName => {
+    (this.props.editor as any).setPropertySelected("payloadName", payloadName);
+  };
+  onChangePayloadUrl = payloadUrl => {
+    (this.props.editor as any).setPropertySelected("payloadUrl", payloadUrl);
+  };
+  onChangePayloadBuyUrl = payloadBuyUrl => {
+    (this.props.editor as any).setPropertySelected("payloadBuyUrl", payloadBuyUrl);
+  };
+  onChangePayloadLearnMoreUrl = payloadLearnMoreUrl => {
+    (this.props.editor as any).setPropertySelected("payloadLearnMoreUrl", payloadLearnMoreUrl);
+  };
+  onChangePayloadHtmlContent = payloadHtmlContent => {
+    (this.props.editor as any).setPropertySelected("payloadHtmlContent", payloadHtmlContent);
+  };
   isAnimationPropertyDisabled() {
     const { multiEdit, editor, node } = this.props as any;
     if (multiEdit) {
@@ -43,6 +80,79 @@ export default class ModelNodeEditor extends Component<
       );
     }
     return false;
+  }
+  renderInteractableTypeOptions = (node) =>{
+    switch (node.interactionType){
+      case 'infoBox': return <>
+        { /* @ts-ignore */ }
+        <InputGroup name="Name">
+          <StringInput
+            /* @ts-ignore */
+            value={node.payloadName}
+            onChange={this.onChangePayloadName}
+          />
+        </InputGroup>
+        { /* @ts-ignore */ }
+        <InputGroup name="Url">
+          <StringInput
+            /* @ts-ignore */
+            value={node.payloadUrl}
+            onChange={this.onChangePayloadUrl}
+          />
+        </InputGroup>
+         { /* @ts-ignore */ }
+        <InputGroup name="BuyUrl">
+          <StringInput
+            /* @ts-ignore */
+            value={node.payloadBuyUrl}
+            onChange={this.onChangePayloadBuyUrl}
+          />
+        </InputGroup>
+        { /* @ts-ignore */ }
+        <InputGroup name="LearnMoreUrl">
+          <StringInput
+            /* @ts-ignore */
+            value={node.payloadLearnMoreUrl}
+            onChange={this.onChangePayloadLearnMoreUrl}
+          />
+        </InputGroup>
+        { /* @ts-ignore */ }
+        <InputGroup name="HtmlContent">
+          <StringInput
+            /* @ts-ignore */
+            value={node.payloadHtmlContent}
+            onChange={this.onChangePayloadHtmlContent}
+          />
+        </InputGroup>
+      </>;
+      default: break;
+    }
+  }
+  renderInteractableDependantFields = (node) => {
+    switch (node.interactable){
+      case true: return <>
+        { /* @ts-ignore */ }
+        <InputGroup name="Interaction Text">
+        { /* @ts-ignore */ }
+          <StringInput
+            /* @ts-ignore */
+            value={node.interactionText}
+            onChange={this.onChangeInteractionText}
+          />
+        </InputGroup>
+        { /* @ts-ignore */ }
+        <InputGroup name="Interaction Type">
+          { /* @ts-ignore */}
+          <SelectInput
+            options={InteractableOption}
+            value={node.interactionType}
+            onChange={this.onChangeInteractionType}
+          />
+        </InputGroup>
+        {this.renderInteractableTypeOptions(node)}
+      </>;
+      default: break;
+    }
   }
   render() {
     const node = this.props.node as any;
@@ -91,6 +201,14 @@ export default class ModelNodeEditor extends Component<
             onChange={this.onChangeReceiveShadow}
           />
         </InputGroup>
+        { /* @ts-ignore */ }
+        <InputGroup name="Interactable">
+          <BooleanInput
+            value={node.interactable}
+            onChange={this.onChangeInteractable}
+          />
+        </InputGroup>
+        {this.renderInteractableDependantFields(node)}
         {node.model && <GLTFInfo node={node} />}
       </NodeEditor>
     );

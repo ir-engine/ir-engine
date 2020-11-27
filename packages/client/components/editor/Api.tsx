@@ -487,6 +487,8 @@ export default class Api extends EventEmitter {
     }
 
     const serializedScene = editor.scene.serialize();
+    console.warn('editor', editor)
+
     const projectBlob = new Blob([JSON.stringify(serializedScene)], { type: "application/json" });
     const {
       file_id: projectFileId,
