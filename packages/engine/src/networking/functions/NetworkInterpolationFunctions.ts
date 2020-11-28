@@ -1,5 +1,6 @@
 import { degreeLerp, lerp, quatSlerp, radianLerp } from '../../common/functions/MathLerpFunctions';
 import { randomId } from '../../common/functions/MathRandomFunctions';
+import { Quat } from '../../networking/types/SnapshotDataTypes';
 import { NetworkInterpolation } from '../components/NetworkInterpolation';
 import { InterpolatedSnapshot, Snapshot, StateEntityGroup, StateEntity, Time, Value } from '../types/SnapshotDataTypes';
 
@@ -15,16 +16,17 @@ export function snapshot () {
   };
 }
 
+
 /** Create a new Snapshot */
 export function createSnapshot (state: StateEntityGroup | { [key: string]: StateEntityGroup }): Snapshot {
-  console.log("state is");
-  console.log(state);
+//  console.log("state is");
+//  console.log(state);
   const check = (state: StateEntityGroup) => {
     // check if state is an array
     if (!Array.isArray(state)) throw new Error('You have to pass an Array to createSnapshot()');
 
     // check if each entity has an id
-    const withoutID = state.filter(e => typeof e.id !== 'string' && typeof e.id !== 'number');
+    const withoutID = state.filter(e => typeof e.networkId !== 'string' && typeof e.networkId !== 'number');
     if (withoutID.length > 0) throw new Error('Each Entity needs to have a id');
   };
 
@@ -118,34 +120,36 @@ export function interpolate (
   const tmpSnapshot: Snapshot = JSON.parse(JSON.stringify({ ...newer, state: newerState }));
 
   newerState.forEach((e: StateEntity, i: number) => {
-    const id = e.id;
-    const other: StateEntity | undefined = olderState.find((e: any) => e.id === id);
+    const networkId = e.networkId;
+    const other: StateEntity | undefined = olderState.find((e: any) => e.networkId === networkId);
     if (!other) return;
 
     params.forEach(p => {
-      // TODO: improve this code
-      const match = p.match(/\w\(([\w]+)\)/);
-      const lerpMethod = match ? match?.[1] : 'linear';
-      if (match) p = match?.[0].replace(/\([\S]+$/gm, '');
+      // TODO: improve 'linear' part of code
+      if (p != 'quat') return;
+      const lerpMethod = p == 'quat' ? 'quat' : 'linear';
 
       if(lerpMethod === 'quat'){
-        const p0 = e?.[params['qX'], params['qY'], params['qZ'], params['qw']];
 
-        const p1 = other?.[params['qX'], params['qY'], params['qZ'], params['qw']];
+        const p0: Quat = {x: e.qX, y: e.qY, z: e.qZ, w: e.qW };
+        const p1: Quat = { x: other.qX, y: other.qY, z: other.qZ, w: other.qW };
 
         const pn = lerpFnc(lerpMethod, p1, p0, pPercent);
-        if (Array.isArray(tmpSnapshot.state)) tmpSnapshot.state[i]['qX'] = pn['qX'];
-        if (Array.isArray(tmpSnapshot.state)) tmpSnapshot.state[i]['qY'] = pn['qY'];
-        if (Array.isArray(tmpSnapshot.state)) tmpSnapshot.state[i]['qZ'] = pn['qZ'];
-        if (Array.isArray(tmpSnapshot.state)) tmpSnapshot.state[i]['qW'] = pn['qW'];
+
+        if (Array.isArray(tmpSnapshot.state)) tmpSnapshot.state[i].qX = pn.x;
+        if (Array.isArray(tmpSnapshot.state)) tmpSnapshot.state[i].qY = pn.y;
+        if (Array.isArray(tmpSnapshot.state)) tmpSnapshot.state[i].qZ = pn.z;
+        if (Array.isArray(tmpSnapshot.state)) tmpSnapshot.state[i].qW = pn.w;
 
       }
       else {
-        const p0 = e?.[p];
-        const p1 = other?.[p];
-  
+/*
+        const p0: Quat = {x: e.qX, y: e.qY, z: e.qZ, w: e.qW };
+        const p1: Quat = { x: other.qX, y: other.qY, z: other.qZ, w: other.qW };
+
         const pn = lerpFnc(lerpMethod, p1, p0, pPercent);
         if (Array.isArray(tmpSnapshot.state)) tmpSnapshot.state[i][p] = pn;
+*/
       }
     });
   });

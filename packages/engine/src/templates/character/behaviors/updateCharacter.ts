@@ -1,6 +1,6 @@
 import { Behavior } from '../../../common/interfaces/Behavior';
 import { Entity } from '../../../ecs/classes/Entity';
-import { getMutableComponent } from '../../../ecs/functions/EntityFunctions';
+import { getMutableComponent, hasComponent } from '../../../ecs/functions/EntityFunctions';
 import { CharacterComponent } from '../components/CharacterComponent';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
 import { rotateModel } from "./rotateModel";
@@ -28,31 +28,20 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
     // transfer localMovementDirection into velocityTarget
     actor.velocityTarget.copy(actor.localMovementDirection);
 
+
     springMovement(entity, null, deltaTime);
     springRotation(entity, null, deltaTime);
     rotateModel(entity);
-    if (!isClient) {
 
-      actorTransform.position.set(
-        actor.actorCapsule.body.position.x,
-        actor.actorCapsule.body.position.y,
-        actor.actorCapsule.body.position.z
-      );
-    } else {
-      //// ***
-      // That part just for seen colliders, if its remove, you may seen difference between server position and client-side prediction
-      //// ***
 
-  //    if(Network.instance.networkObjects[networkObject.networkId].ownerId !== Network.instance.userId) {
-        
-        actor.actorCapsule.body.position.set(
-          actorTransform.position.x,
-          actorTransform.position.y,
-          actorTransform.position.z
-        );
-    //  }
-      //
-    }
+
+    actorTransform.position.set(
+      actor.actorCapsule.body.position.x,
+      actor.actorCapsule.body.position.y,
+      actor.actorCapsule.body.position.z
+    );
+
+
 
     // actorTransform.position.set(
     //   actor.actorCapsule.body.interpolatedPosition.x,
@@ -68,7 +57,7 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
     actor.actorCapsule.body.interpolatedPosition.copy(cannonFromThreeVector(newPos));
 
   }
-  // Must be only on Client
-  if(Engine.camera)
-    actor.viewVector = new Vector3(0, 0,-1).applyQuaternion(Engine.camera.quaternion);
+  if (isClient && Engine.camera) {
+      actor.viewVector = new Vector3(0, 0,-1).applyQuaternion(Engine.camera.quaternion);
+  }
 };
