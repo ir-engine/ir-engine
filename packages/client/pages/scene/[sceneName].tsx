@@ -122,14 +122,14 @@ const EditorRoomPage = (props: Props) => {
   }, [appState]);
 
   return (
-    <ThemeProvider theme={theme}>
+    // <ThemeProvider theme={theme}>
       <Layout pageTitle="Home">
         <NoSSR onSSR={<Loading />}>
           {userBanned === false ? (<Scene sceneId={sceneName} />) : null}
           {userBanned !== false ? (<div className="banned">You have been banned from this location</div>) : null}
         </NoSSR>
       </Layout>
-    </ThemeProvider>
+    // </ThemeProvider>
   );
 };
 

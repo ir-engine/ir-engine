@@ -202,7 +202,7 @@ const LocationPage = (props: Props) => {
   const goHome = () => window.location.href = window.location.origin;
 
   return (
-    <ThemeProvider theme={theme}>
+    // <ThemeProvider theme={theme}>
       <Layout pageTitle="Home">
         <NoSSR onSSR={<Loading />}>
           {!openSnackBar && <UserMenu />}
@@ -217,7 +217,7 @@ const LocationPage = (props: Props) => {
             </Snackbar>
         </NoSSR>
       </Layout>
-    </ThemeProvider>
+    // </ThemeProvider>
   );
 };
 
