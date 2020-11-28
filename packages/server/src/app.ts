@@ -164,7 +164,12 @@ process.on('exit', async () => {
   logger.info(process.env.NODE_ENV !== 'development');
   logger.info((app as any).k8DefaultClient != null);
   if ((app as any).gsSubdomainNumber != null) {
-    await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
+    const gsSubdomainProvision = await app.service('gameserver-subdomain-provision').find({
+      query: {
+        gs_number: (app as any).gsSubdomainNumber
+      }
+    });
+    await app.service('gameserver-subdomain-provision').patch(gsSubdomainProvision.data[0].id, {
       allocated: false
     });
   }
@@ -180,7 +185,12 @@ process.on('SIGTERM', async () => {
   logger.info(process.env.NODE_ENV !== 'development');
   logger.info((app as any).k8DefaultClient != null);
   if ((app as any).gsSubdomainNumber != null) {
-    await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
+    const gsSubdomainProvision = await app.service('gameserver-subdomain-provision').find({
+      query: {
+        gs_number: (app as any).gsSubdomainNumber
+      }
+    });
+    await app.service('gameserver-subdomain-provision').patch(gsSubdomainProvision.data[0].id, {
       allocated: false
     });
   }
