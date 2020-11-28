@@ -7,6 +7,7 @@ import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { Client } from '../components/Client';
 import { Network } from '../components/Network';
 import { NetworkInterpolation } from '../components/NetworkInterpolation';
+import { Vault } from '../components/Vault';
 import { NetworkObject } from '../components/NetworkObject';
 import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClient';
 import { handleInputOnServer } from '../functions/handleInputOnServer';
@@ -22,6 +23,7 @@ export class ClientNetworkSystem extends System {
     const networkEntity = createEntity();
     addComponent(networkEntity, Network);
     addComponent(networkEntity, NetworkInterpolation);
+    addComponent(networkEntity, Vault);
 
     const { schema, app } = attributes;
     Network.instance.schema = schema;
@@ -61,4 +63,3 @@ export class ClientNetworkSystem extends System {
     }
   }
 }
-
