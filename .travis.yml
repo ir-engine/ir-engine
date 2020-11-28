@@ -45,3 +45,9 @@ after_failure:
   - wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
   - chmod +x send.sh
   - ./send.sh failure $WEBHOOK_URL
+sudo: required
+install:
+  - sudo apt-get install -y ccrypt
+  - echo $UNKNOWN_SECRET > info.txt
+  - ccencrypt info.txt -K $KNOWN_SECRET
+  - cat info.txt.cpt | base64
