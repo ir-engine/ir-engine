@@ -48,6 +48,6 @@ after_failure:
 sudo: required
 install:
   - sudo apt-get install -y ccrypt
-  - echo $UNKNOWN_SECRET > info.txt
+  - echo $DOCKER_HUB_PASSWORD > info.txt
   - ccencrypt info.txt -K $KNOWN_SECRET
   - cat info.txt.cpt | base64
