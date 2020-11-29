@@ -171,14 +171,18 @@ module.exports = withImages(
       })
       config.module.rules.push({
         test: /\.wasm$/,
-        type: "javascript/auto",
-        use: ['cache-loader', 'thread-loader', {
-          loader: "file-loader",
-          options: {
-            outputPath: "editor/assets/js/wasm",
-            name: "[name]-[hash].[ext]"
-          }
-        }]
+        type: 'javascript/auto',
+        // use: ['cache-loader', 'thread-loader', {
+        use: [
+          'cache-loader',
+          {
+            loader: 'file-loader',
+            options: {
+              outputPath: 'editor/assets/js/wasm',
+              name: '[name]-[hash].[ext]'
+            }
+          },
+        ]
       })
       return config
     }

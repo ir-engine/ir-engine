@@ -1,21 +1,25 @@
 // TODO: Uncomment code to enable recast
 
 import {
-  Box3, Mesh,
+  Box3,
+  Mesh,
   MeshBasicMaterial,
-  Object3D, Vector3
-} from "three";
+  PlaneBufferGeometry,
+  Object3D,
+  Vector3
+} from 'three'
 import mergeMeshGeometries from "../functions/mergeMeshGeometries";
-// import RecastClient from "../recast/RecastClient";
+import RecastClient from "../recast/RecastClient";
 import HeightfieldClient from "../heightfield/HeightfieldClient";
 import FloorPlan from "../../scene/classes/FloorPlan";
 import BoxColliderNode from "./BoxColliderNode";
 import EditorNodeMixin from "./EditorNodeMixin";
 import GroundPlaneNode from "./GroundPlaneNode";
 // @ts-ignore
-// import * as recastWasmUrl from "../recast/recast.wasm";
-// const recastClient = new RecastClient();
-const heightfieldClient = new HeightfieldClient();
+import * as recastWasmUrl from "../recast/recast.wasm";
+import SpawnPointNode from './SpawnPointNode';
+
+// const heightfieldClient = new HeightfieldClient();
 export default class FloorPlanNode extends EditorNodeMixin(FloorPlan) {
   static nodeName = "Floor Plan";
   static legacyComponentName = "floor-plan";
@@ -49,6 +53,7 @@ export default class FloorPlanNode extends EditorNodeMixin(FloorPlan) {
     node.forceTrimesh = forceTrimesh || false;
     return node;
   }
+  recastClient: RecastClient;
   constructor(editor) {
     super(editor);
     this.autoCellSize = true;
@@ -62,6 +67,7 @@ export default class FloorPlanNode extends EditorNodeMixin(FloorPlan) {
     this.maxTriangles = 1000;
     this.forceTrimesh = false;
     this.heightfieldMesh = null;
+    this.recastClient = new RecastClient();
   }
   onSelect() {
     if (this.navMesh) {
@@ -144,23 +150,26 @@ export default class FloorPlanNode extends EditorNodeMixin(FloorPlan) {
     const cellSize = this.autoCellSize
       ? Math.pow(area, 1 / 3) / 50
       : this.cellSize;
-    // const navGeometry = await recastClient.buildNavMesh(
-    //   walkableGeometry,
-    //   {
-    //     cellSize,
-    //     cellHeight: this.cellHeight,
-    //     agentHeight: this.agentHeight,
-    //     agentRadius: this.agentRadius,
-    //     agentMaxClimb: this.agentMaxClimb,
-    //     agentMaxSlope: this.agentMaxSlope,
-    //     regionMinSize: this.regionMinSize,
-    //     wasmUrl: new URL(
-    //       recastWasmUrl,
-    //       (configs as any).APP_URL || (window as any).location
-    //     ).href
-    //   },
-    //   signal
-    // );
+    // debugger
+    const navGeometry = await this.recastClient.buildNavMesh(
+      walkableGeometry,
+      {
+        cellSize,
+        cellHeight: this.cellHeight,
+        agentHeight: this.agentHeight,
+        agentRadius: this.agentRadius,
+        agentMaxClimb: this.agentMaxClimb,
+        agentMaxSlope: this.agentMaxSlope,
+        regionMinSize: this.regionMinSize,
+        wasmUrl: new URL(
+          recastWasmUrl,
+          // (configs as any).APP_URL || (window as any).location
+          (window as any).location
+        ).href,
+        // wasmUrl: '/recast/recast.wasm'
+      },
+      signal
+    );
     // const navMesh = new Mesh(
     //   navGeometry,
     //   new MeshBasicMaterial({
@@ -235,7 +244,7 @@ export default class FloorPlanNode extends EditorNodeMixin(FloorPlan) {
     //     trimesh.visible = true;
     //   }
     // }
-    return this;
+    // return this;
   }
   copy(source, recursive = true) {
     if (recursive) {
