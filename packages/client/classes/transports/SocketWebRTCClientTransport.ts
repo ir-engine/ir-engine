@@ -101,13 +101,13 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       if (!success) return console.error("Unable to connect with credentials");
 
-      console.log("Connect to world");
+      console.log("Joining world");
 
-      const ConnectToWorldResponse = await this.request(MessageTypes.ConnectToWorld.toString());
+      const joinWorldResponse = await this.request(MessageTypes.JoinWorld.toString());
 
-      const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any;
+      const { worldState, routerRtpCapabilities } = joinWorldResponse as any;
 
-      console.log("Connected to world");
+      console.log("Joined world");
 
       // Apply all state to initial frame
       applyNetworkStateToClient(worldState);
