@@ -70,7 +70,7 @@ const InstanceChat = (props: Props): any => {
     } = props;
 
     let activeChannel;
-    const messageRef = React.useRef();
+    const messageRef = React.useRef<HTMLInputElement>();
     const user = authState.get('user') as User;
     const channelState = chatState.get('channels');
     const channels = channelState.get('channels');
@@ -157,7 +157,7 @@ const InstanceChat = (props: Props): any => {
     };
 
     const [openMessageContainer, setOpenMessageContainer] = React.useState(false);
-    const hideShowMessagesContainer = () => setOpenMessageContainer(!openMessageContainer)    
+    const hideShowMessagesContainer = () => setOpenMessageContainer(!openMessageContainer);
     return (
         <div className={styles['instance-chat-container']}>
             <div className={styles['list-container']}>
