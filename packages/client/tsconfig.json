@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "es2019",
     "lib": [
+      "webworker",
       "es2019",
       "dom",
       "dom.iterable"
