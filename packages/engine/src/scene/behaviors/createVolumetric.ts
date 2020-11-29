@@ -1,5 +1,5 @@
 import { Behavior } from '../../common/interfaces/Behavior';
-import DracosisPlayer from '@xr3ngine/volumetric/src/Player'
+import DracosisPlayer from '@xr3ngine/volumetric/src/Player';
 import { Engine } from '../../ecs/classes/Engine';
 import VolumetricComponent from "../components/VolumetricComponent"
 import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
@@ -8,10 +8,6 @@ export const createVolumetric: Behavior = (entity, args: { objArgs }) => {
     // Create new volumetric player component
    addComponent(entity, VolumetricComponent);
    const volumetricComponent = getMutableComponent(entity, VolumetricComponent);
-<<<<<<< HEAD
-    // Create new sequence with arg values
-=======
->>>>>>> origin/error-logging-fixes
 
    console.log("Args src is ", args.objArgs.src)
    const drcs = args.objArgs.src.replace(".drcs", ".mp4");
@@ -26,20 +22,9 @@ export const createVolumetric: Behavior = (entity, args: { objArgs }) => {
         startFrame: 0,
         endFrame: -1,
         scale: 0.001,
-<<<<<<< HEAD
-        speedMultiplier: 1,
-        bufferSize: 80
-      });
-    
-      volumetricComponent.player = DracosisSequence;
-      DracosisSequence.play();
-
-};
-=======
         bufferSize: 80,
       });
     
       volumetricComponent.player = DracosisSequence;
 
 };
->>>>>>> origin/error-logging-fixes
