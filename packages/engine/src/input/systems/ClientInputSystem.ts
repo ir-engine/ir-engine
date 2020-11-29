@@ -26,10 +26,11 @@ import { InputType } from "../enums/InputType";
 import { InputValue } from "../interfaces/InputValue";
 import { ListenerBindingData } from "../interfaces/ListenerBindingData";
 import { InputAlias } from "../types/InputAlias";
+import { Vault } from '../../networking/components/Vault';
+import { createSnapshot } from '../../networking/functions/NetworkInterpolationFunctions';
 
 import supportsPassive from "../../common/functions/supportsPassive";
 import { BehaviorComponent } from '../../common/components/BehaviorComponent'
-
 /**
  * Input System
  *
@@ -123,8 +124,22 @@ export class InputSystem extends System {
       })
 
 
-      const viewVector = getComponent(entity, CharacterComponent)?.viewVector;
-      inputs.viewVector = viewVector.toArray();
+      const actor = getComponent<CharacterComponent>(entity, CharacterComponent)
+      inputs.viewVector = actor.viewVector.toArray();
+
+/*
+      const playerSnapshot = createSnapshot([{
+         networkId: 0,
+         x: actor.actorCapsule.body.position.x,
+         y: actor.actorCapsule.body.position.y,
+         z: actor.actorCapsule.body.position.z,
+         qX: 0,
+         qY: 0,
+         qZ: 0,
+         qW: 0
+       }])
+      Vault.instance.add(playerSnapshot);
+*/
 
       // TODO: Convert to a message buffer
       const message = inputs; // clientInputModel.toBuffer(inputs)
