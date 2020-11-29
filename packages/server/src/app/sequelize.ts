@@ -38,28 +38,28 @@ export default (app: Application): void => {
                 throw err;
               })
               .then(() => {
-                console.log('Seeded')
-              })
+                console.log('Seeded');
+              });
 
             if (performDryRun) {
-              setTimeout(() => process.exit(0), 5000)
+              setTimeout(() => process.exit(0), 5000);
             }
           })
           .catch((err) => {
             console.log('Sequelize setup error');
             console.log(err);
             throw err;
-          })
+          });
       })
       .then(sync => {
-        app.set('sequelizeSync', sync)
-        return sequelize.query('SET FOREIGN_KEY_CHECKS = 1')
+        app.set('sequelizeSync', sync);
+        return sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
       })
       .catch((err) => {
         console.log('Sequelize sync error');
         console.log(err);
         throw err;
-      })
-    return oldSetup.apply(this, args)
-  }
+      });
+    return oldSetup.apply(this, args);
+  };
 };
