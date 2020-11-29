@@ -11,12 +11,16 @@ import { CharacterComponent } from '../../templates/character/components/Charact
 import { Interactor } from '../../interaction/components/Interactor';
 import { Network } from '../components/Network';
 import { initializeNetworkObject } from './initializeNetworkObject';
-import { calculateInterpolation, addSnapshot } from '../functions/NetworkInterpolationFunctions';
+import { calculateInterpolation, addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions';
 import { WorldStateInterface } from "../interfaces/WorldState";
 import { Quaternion, Vector3 } from "three";
 
+let ppp = 14
+
 export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, delta = 0.033):void {
   const worldState = worldStateBuffer; // worldStateModel.fromBuffer(worldStateBuffer);
+
+
 
   if (Network.tick < worldState.tick - 1) {
     // we dropped packets
@@ -76,7 +80,7 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
       ) {
         rotation = new Quaternion( objectToCreate.qX, objectToCreate.qY, objectToCreate.qZ, objectToCreate.qW );
       }
-
+      console.warn(objectToCreate);
       initializeNetworkObject(
         String(objectToCreate.ownerId),
         parseInt(objectToCreate.networkId),
@@ -85,6 +89,16 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
         rotation,
       );
     }
+  }
+
+
+  ppp += 1
+  if (ppp == 15) {
+    ppp = 0
+    if(worldState.snapshot === undefined || worldState.snapshot.length < 1)
+      return console.warn("Worldstate snapshot is null");
+
+    addSnapshot(worldState.snapshot);
   }
 
 
@@ -124,7 +138,7 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
     const networkComponent = Network.instance.networkObjects[inputData.networkId].component;
 
     // Ignore input applied to local user input object that the client is currently controlling
-    if(networkComponent.ownerId === Network.instance.userId) return; //  && hasComponent(networkComponent.entity, LocalInputReceiver)
+    if(networkComponent.ownerId === Network.instance.userId && hasComponent(networkComponent.entity, LocalInputReceiver)) return; //
 
 
     // Get input object attached
@@ -171,6 +185,15 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
   // if(networkComponent.ownerId === Network.instance.userId && hasComponent(networkComponent.entity, LocalInputReceiver))
   //   return;
 
+
+
+
+
+//worldState
+  // // Ignore state applied to local user input object that the client is currently controlling
+
+
+
   //   const state = getComponent(networkComponent.entity, State);
 
   //   console.warn("Setting state to ", stateData.states);
@@ -179,78 +202,9 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
   // });
 
 
-  if(worldState.snapshot === undefined || worldState.snapshot.length < 1)
-    return console.warn("Worldstate snapshot is null");
-
-  addSnapshot(worldState.snapshot);
 
 
-  const interpolationSnapshot = calculateInterpolation('x y z quat')
 
-  if(interpolationSnapshot === undefined)
-    return console.warn("interpolationSnapshot is null");
 
-  // Update transforms
-
-  interpolationSnapshot.state?.forEach((interpolationData, i) => {
-    if(!Network.instance.networkObjects[interpolationData.networkId]){
-      return console.warn("Network object not found in list: ", interpolationData.networkId);
-    }
-
-    // Get network component from data
-    const networkComponent = Network.instance.networkObjects[interpolationData.networkId].component;
-    const transform = getMutableComponent(networkComponent.entity, TransformComponent);
-
-    if (hasComponent(networkComponent.entity, CharacterComponent)) {
-      const actor = getMutableComponent<CharacterComponent>(networkComponent.entity, CharacterComponent as any);
-
-      if (hasComponent(networkComponent.entity, Interactor)) {
-        let offsetX = 0, offsetY = 0, offsetZ = 0;
-
-        const playerSnapshot = Vault.instance.get(worldState.snapshot.time, true);
-        if (playerSnapshot && playerSnapshot.older) {
-          /*
-          console.warn('serverTime');
-          console.warn(worldState.snapshot.time);
-          console.warn('playerSnapshot');
-          console.warn(playerSnapshot.older.time);
-*/
-          offsetX = playerSnapshot.older.state[0].x - worldState.snapshot.state[i].x
-          offsetY = playerSnapshot.older.state[0].y - worldState.snapshot.state[i].y
-          offsetZ = playerSnapshot.older.state[0].z - worldState.snapshot.state[i].z
-        }
-        // we correct the position faster if the player moves
-        const correction = 30
-        // apply a step by step correction of the player's position
-        actor.actorCapsule.body.position.set(
-          actor.actorCapsule.body.position.x - (offsetX / correction),
-          actor.actorCapsule.body.position.y - (offsetY / correction),
-          actor.actorCapsule.body.position.z - (offsetZ / correction)
-        )
-
-      } else {
-        // apply the interpolated values to you game objects
-        actor.actorCapsule.body.position.set(
-          interpolationData.x,
-          interpolationData.y,
-          interpolationData.z
-        );
-      }
-    } else {
-      transform.position.set(
-        interpolationData.x,
-        interpolationData.y,
-        interpolationData.z
-      );
-    }
-    // Apply rot to object
-    transform.rotation.set(
-      interpolationData.qX,
-      interpolationData.qY,
-      interpolationData.qZ,
-      interpolationData.qW
-    );
-
-  });
 
 }

@@ -122,7 +122,7 @@ export class InputSystem extends System {
       const actor = getComponent<CharacterComponent>(entity, CharacterComponent)
       inputs.viewVector = actor.viewVector.toArray();
 
-
+/*
       const playerSnapshot = createSnapshot([{
          networkId: 0,
          x: actor.actorCapsule.body.position.x,
@@ -133,14 +133,8 @@ export class InputSystem extends System {
          qZ: 0,
          qW: 0
        }])
-/*
-      if (Vault.instance.timeOffset === -1) {
-        Vault.instance.timeOffset = Date.now() - playerSnapshot.time;
-      }
-      */
-      
       Vault.instance.add(playerSnapshot);
-
+*/
 
       // TODO: Convert to a message buffer
       const message = inputs; // clientInputModel.toBuffer(inputs)

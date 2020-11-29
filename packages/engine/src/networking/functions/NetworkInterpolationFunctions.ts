@@ -125,10 +125,7 @@ export function interpolate (
     if (!other) return;
 
     params.forEach(p => {
-      // TODO: improve 'linear' part of code
-      if (p != 'quat') return;
       const lerpMethod = p == 'quat' ? 'quat' : 'linear';
-
       if(lerpMethod === 'quat'){
 
         const p0: Quat = {x: e.qX, y: e.qY, z: e.qZ, w: e.qW };
@@ -143,13 +140,11 @@ export function interpolate (
 
       }
       else {
-/*
-        const p0: Quat = {x: e.qX, y: e.qY, z: e.qZ, w: e.qW };
-        const p1: Quat = { x: other.qX, y: other.qY, z: other.qZ, w: other.qW };
+        const p0 = e?.[p]
+        const p1 = other?.[p]
 
-        const pn = lerpFnc(lerpMethod, p1, p0, pPercent);
-        if (Array.isArray(tmpSnapshot.state)) tmpSnapshot.state[i][p] = pn;
-*/
+        const pn = lerpFnc(lerpMethod, p1, p0, pPercent)
+        if (Array.isArray(tmpSnapshot.state)) tmpSnapshot.state[i][p] = pn
       }
     });
   });
