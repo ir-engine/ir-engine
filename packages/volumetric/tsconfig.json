@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "module": "es6",
+    "module": "esnext",
     "declaration": true,
     "noImplicitAny": false,
-    "target": "es6",
+    "target": "esnext",
     "moduleResolution": "Node",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true
