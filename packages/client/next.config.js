@@ -145,21 +145,6 @@ module.exports = withImages(
         }]
       })
       config.module.rules.push({
-        test: /\.worker\.js$/,
-        include: path.join(__dirname, "src"),
-        use: ['cache-loader', 'thread-loader', {
-          loader: "worker-loader",
-          options: {
-            // Workers must be inlined because they are hosted on a CDN and CORS doesn't permit us
-            // from loading worker scripts from another origin. To minimize bundle size, dynamically
-            // import a wrapper around the worker. See SketchfabZipLoader.js and API.js for an example.
-            name: "editor/assets/js/workers/[name]-[hash].js",
-            inline: true,
-            fallback: false
-          }
-        }]
-      })
-      config.module.rules.push({
         test: /\.tmp$/,
         type: "javascript/auto",
         use: ['cache-loader', 'thread-loader', {
@@ -180,6 +165,15 @@ module.exports = withImages(
           }
         }]
       })
+      config.module.rules.push({
+        test: /\.worker\.js$/,
+        loader: 'worker-loader',
+        // options: { inline: true }, // also works
+        options: {
+          name: 'static/[hash].worker.js',
+          publicPath: '/_next/',
+        },
+      });
       return config
     }
   })

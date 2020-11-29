@@ -11,20 +11,9 @@
   },
   "npmClient": "yarn",
   "jest": "ts-jest",
-  "scripts": {
-    "build": "rollup -c",
-    "preversion": "npm run lint",
-    "version": "npm run build && git add -A",
-    "postversion": "git push && git push --tags && sudo npm publish",
-    "dev": "rollup -cw &  (sleep 10 && http-server ./dist/examples)",
-    "lint": "eslint ./src/**/*",
-    "start": "npm run build"
-  },
+  "scripts": {},
   "author": "XR3 Group",
-  "license": "ISC",
-  "main": "dist/three-volumetric.js",
-  "module": "dist/three-volumetric.js",
-  "types": "dist/three-volumetric.d.ts",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/xr3ngine/three-volumetric/issues"
   },
@@ -38,10 +27,7 @@
     "browserify-fs": "^1.0.0",
     "child_process": "^1.0.2",
     "cyclist": "^1.0.1",
-    "draco3d": "^1.3.6",
     "esm": "^3.2.25",
-    "glslify": "^7.0.0",
-    "http-server": "^0.12.3",
     "image-size": "^0.8.3",
     "leveldown": "^5.6.0",
     "prepend-file": "^1.3.1",
@@ -56,9 +42,10 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
-    "file-type": "^14.7.0",
-    "fs-readstream-seek": "^1.1.1",
-    "howler": "^2.2.0",
-    "prepend": "^1.0.2"
+    "cross-blob": "^2.0.0",
+    "fs-read-stream-over-http": "^0.2.2",
+    "prepend": "^1.0.2",
+    "web-worker": "^1.0.0",
+    "workerpool": "^6.0.3"
   }
 }
