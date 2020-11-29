@@ -3,35 +3,19 @@ import { ID, Snapshot } from '../types/SnapshotDataTypes';
 
 /** Snapshot interpolation, based on this library by yandeu
  * https://github.com/geckosio/snapshot-interpolation */
-export class NetworkInterpolation extends Component<any> {
-  static instance: NetworkInterpolation
+export class Vault extends Component<any> {
+  static instance: Vault
   public vault: Snapshot[] = []
-  vaultSize = 120
-  timeOffset = -1
-
-  _interpolationBuffer = 1000
-  /** The current server time based on the current snapshot interpolation. */
-  public serverTime = 0
+  vaultSize = 320
 
   constructor () {
     super();
-    NetworkInterpolation.instance = this;
+    Vault.instance = this;
   }
 
   dispose(): void {
     super.dispose();
-    NetworkInterpolation.instance = null;
-  }
-
-  public get interpolationBuffer () {
-    return {
-      /** Get the Interpolation Buffer time in milliseconds. */
-      get: () => this._interpolationBuffer,
-      /** Set the Interpolation Buffer time in milliseconds. */
-      set: (milliseconds: number) => {
-        this._interpolationBuffer = milliseconds;
-      }
-    };
+    Vault.instance = null;
   }
 
   /** Get a Snapshot by its ID. */
@@ -57,7 +41,7 @@ export class NetworkInterpolation extends Component<any> {
         const snaps = { older: sorted[i], newer: sorted[i - 1] };
         if (closest) {
           const older = Math.abs(time - snaps.older.time);
-          if (snaps.newer === undefined) return sorted[0];
+          if (snaps.newer === undefined) return snaps.older;
           const newer = Math.abs(time - snaps.newer.time);
           if (newer <= older) return snaps.older;
           else return snaps.newer;

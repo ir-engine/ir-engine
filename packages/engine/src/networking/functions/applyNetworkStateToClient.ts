@@ -5,13 +5,20 @@ import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { InputType } from '../../input/enums/InputType';
 import { State } from '../../state/components/State';
 import { TransformComponent } from '../../transform/components/TransformComponent';
+import { NetworkInterpolation } from '../components/NetworkInterpolation';
+import { Vault } from '../components/Vault';
+import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
+import { Interactor } from '../../interaction/components/Interactor';
 import { Network } from '../components/Network';
 import { initializeNetworkObject } from './initializeNetworkObject';
+import { calculateInterpolation, addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions';
 import { WorldStateInterface } from "../interfaces/WorldState";
 import { Quaternion, Vector3 } from "three";
 
 export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, delta = 0.033):void {
   const worldState = worldStateBuffer; // worldStateModel.fromBuffer(worldStateBuffer);
+
+
 
   if (Network.tick < worldState.tick - 1) {
     // we dropped packets
@@ -71,7 +78,7 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
       ) {
         rotation = new Quaternion( objectToCreate.qX, objectToCreate.qY, objectToCreate.qZ, objectToCreate.qW );
       }
-
+      console.warn(objectToCreate);
       initializeNetworkObject(
         String(objectToCreate.ownerId),
         parseInt(objectToCreate.networkId),
@@ -81,6 +88,17 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
       );
     }
   }
+
+
+
+    if(worldState.snapshot !== undefined && worldState.snapshot.length < 1){
+        addSnapshot(worldState.snapshot);
+    }
+
+
+
+
+
 
   // TODO: Re-enable for snapshot interpolation
   // if (worldState.transforms !== undefined && worldState.transforms.length > 0) {
@@ -118,7 +136,7 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
     const networkComponent = Network.instance.networkObjects[inputData.networkId].component;
 
     // Ignore input applied to local user input object that the client is currently controlling
-    if(networkComponent.ownerId === Network.instance.userId) return; //  && hasComponent(networkComponent.entity, LocalInputReceiver)
+    if(networkComponent.ownerId === Network.instance.userId && hasComponent(networkComponent.entity, LocalInputReceiver)) return; //
 
 
     // Get input object attached
@@ -165,6 +183,15 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
   // if(networkComponent.ownerId === Network.instance.userId && hasComponent(networkComponent.entity, LocalInputReceiver))
   //   return;
 
+
+
+
+
+//worldState
+  // // Ignore state applied to local user input object that the client is currently controlling
+
+
+
   //   const state = getComponent(networkComponent.entity, State);
 
   //   console.warn("Setting state to ", stateData.states);
@@ -175,27 +202,8 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
   if(worldState.transforms === undefined || worldState.transforms.length < 1)
     return;// console.warn("Worldstate transforms is null");
 
-  // Update transforms
-  worldState.transforms?.forEach(transformData => {
-    if(!Network.instance.networkObjects[transformData.networkId]){
-      return console.warn("Network object not found in list: ", transformData.networkId);
-    }
 
-    // Get network component from data
-    const networkComponent = Network.instance.networkObjects[transformData.networkId].component;
-    const transform = getMutableComponent(networkComponent.entity, TransformComponent);
-    // Apply pos to object
-    transform.position.set(
-      transformData.x,
-      transformData.y,
-      transformData.z
-    );
-    // Apply rot to object
-    transform.rotation.set(
-      transformData.qX,
-      transformData.qY,
-      transformData.qZ,
-      transformData.qW
-    );
-  });
+
+
+
 }
