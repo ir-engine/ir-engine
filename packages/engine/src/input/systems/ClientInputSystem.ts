@@ -128,7 +128,7 @@ export class InputSystem extends System {
 
       // TODO: Convert to a message buffer
       const message = inputs; // clientInputModel.toBuffer(inputs)
-      Network.instance.transport.sendReliableData(message); // Use default channel
+      Network.instance.transport.sendData(message); // Use default channel
 
       cleanupInput(entity);
 
