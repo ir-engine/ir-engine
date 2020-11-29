@@ -6,7 +6,7 @@ import { ID, Snapshot } from '../types/SnapshotDataTypes';
 export class Vault extends Component<any> {
   static instance: Vault
   public vault: Snapshot[] = []
-  vaultSize = 120
+  vaultSize = 320
 
   constructor () {
     super();
@@ -39,8 +39,9 @@ export class Vault extends Component<any> {
       const snap = sorted[i];
       if (snap.time <= time) {
         const snaps = { older: sorted[i], newer: sorted[i - 1] };
-        if (closest && snaps.newer) {
+        if (closest) {
           const older = Math.abs(time - snaps.older.time);
+          if (snaps.newer === undefined) return snaps.older;
           const newer = Math.abs(time - snaps.newer.time);
           if (newer <= older) return snaps.older;
           else return snaps.newer;
