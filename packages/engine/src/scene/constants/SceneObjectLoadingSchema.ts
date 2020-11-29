@@ -1,6 +1,7 @@
 import { addWorldColliders } from "@xr3ngine/engine/src/templates/world/behaviors/addWorldColliders";
 import { AmbientLight, CircleBufferGeometry, Color, DirectionalLight, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight } from 'three';
 import { AssetLoader } from '../../assets/components/AssetLoader';
+import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { addComponentFromBehavior, addObject3DComponent, addTagComponentFromBehavior } from '../../common/behaviors/Object3DBehaviors';
 import { LightTagComponent, VisibleTagComponent } from '../../common/components/Object3DTagComponents';
 import { TransformComponent } from '../../transform/components/TransformComponent';
@@ -9,17 +10,20 @@ import { createBoxCollider } from '../behaviors/createBoxCollider';
 import { createGroup } from '../behaviors/createGroup';
 import { createImage } from '../behaviors/createImage';
 import { createLink } from '../behaviors/createLink';
+import { createScenePreviewCamera } from "../behaviors/createScenePreviewCamera";
 import { createShadow } from '../behaviors/createShadow';
 import createSkybox from '../behaviors/createSkybox';
 import { createTriggerVolume } from '../behaviors/createTriggerVolume';
+import { createVideo } from "../behaviors/createVideo";
+import { createVolumetric } from "../behaviors/createVolumetric";
 import { handleAudioSettings } from '../behaviors/handleAudioSettings';
 import { setFog } from '../behaviors/setFog';
-import { Sky } from '../classes/Sky';
 import CollidableTagComponent from '../components/Collidable';
 import ScenePreviewCameraTagComponent from "../components/ScenePreviewCamera";
 import SpawnPointComponent from "../components/SpawnPointComponent";
 import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
+import { createCommonInteractive } from "../behaviors/createCommonInteractive";
 
 export const SceneObjectLoadingSchema: LoadingSchema = {
   'ambient-light': {
@@ -70,8 +74,24 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
         args: {
           component: AssetLoader,
         },
-        values: [{ from: 'src', to: 'url' }],
         onLoaded: addWorldColliders
+      }
+    ]
+  },
+  'interact': {
+    behaviors: [
+      {
+        behavior: createCommonInteractive,
+        values: [
+          { from: 'interactable', to: 'interactable' },
+          { from: 'interactionType', to: 'interactionType' },
+          { from: 'interactionText', to: 'interactionText' },
+          { from: 'payloadName', to: 'payloadName' },
+          { from: 'payloadUrl', to: 'payloadUrl' },
+          { from: 'payloadBuyUrl', to: 'payloadBuyUrl' },
+          { from: 'payloadLearnMoreUrl', to: 'payloadLearnMoreUrl' },
+          { from: 'payloadHtmlContent', to: 'payloadHtmlContent' },
+        ],
       }
     ]
   },
@@ -151,6 +171,51 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       }
     ]
   },
+  'video': {
+    behaviors: [
+      {
+        behavior: createVideo,
+        values: [
+          { from: 'src', to: 'src' },
+          { from: 'projection', to: 'projection' },
+          { from: 'controls', to: 'controls' },
+          { from: 'autoPlay', to: 'autoPlay' },
+          { from: 'loop', to: 'loop' },
+          { from: 'audioType', to: 'audioType' },
+          { from: 'volume', to: 'volume' },
+          { from: 'distanceModel', to: 'distanceModel' },
+          { from: 'rolloffFactor', to: 'rolloffFactor' },
+          { from: 'refDistance', to: 'refDistance' },
+          { from: 'maxDistance', to: 'maxDistance' },
+          { from: 'coneInnerAngle', to: 'coneInnerAngle' },
+          { from: 'coneOuterAngle', to: 'coneOuterAngle' },
+          { from: 'coneOuterGain', to: 'coneOuterGain' }
+        ]
+      }
+    ]
+  },
+  'volumetric': {
+    behaviors: [
+      {
+        behavior: createVolumetric,
+        values: [
+          { from: 'src', to: 'src' },
+          { from: 'controls', to: 'controls' },
+          { from: 'autoPlay', to: 'alphaMode' },
+          { from: 'loop', to: 'loop' },
+          { from: 'audioType', to: 'audioType' },
+          { from: 'volume', to: 'volume' },
+          { from: 'distanceModel', to: 'distanceModel' },
+          { from: 'rolloffFactor', to: 'rolloffFactor' },
+          { from: 'refDistance', to: 'refDistance' },
+          { from: 'maxDistance', to: 'maxDistance' },
+          { from: 'coneInnerAngle', to: 'coneInnerAngle' },
+          { from: 'coneOuterAngle', to: 'coneOuterAngle' },
+          { from: 'coneOuterGain', to: 'coneOuterGain' }
+        ]
+      }
+    ]
+  },
   'spot-light': {
     behaviors: [
       {
@@ -222,6 +287,9 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       {
         behavior: addTagComponentFromBehavior,
         args: { component: ScenePreviewCameraTagComponent }
+      },
+      {
+        behavior: createScenePreviewCamera       
       }
     ]
   },

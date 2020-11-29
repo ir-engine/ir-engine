@@ -26,5 +26,5 @@ FollowCameraComponent.schema = {
   ry1: { type: Types.Number, default: -0.1 },
   rx2: { type: Types.Number, default: 0.1 },
   ry2: { type: Types.Number, default: 0.1 },
-  farDistance: { type: Types.Number, default: 5 }
+  farDistance: { type: Types.Number, default: 5 },
 };

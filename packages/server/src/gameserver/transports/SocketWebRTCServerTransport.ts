@@ -10,7 +10,16 @@ import logger from '../../app/logger';
 import config from '../../config';
 import getLocalServerIp from '../../util/get-local-server-ip';
 import { localConfig } from './config';
-import { getFreeSubdomain, handleDisconnect, handleHeartbeat, handleIncomingMessage, handleJoinWorld, handleLeaveWorld, validateNetworkObjects } from './NetworkFunctions';
+import {
+    getFreeSubdomain,
+    handleConnectToWorld,
+    handleDisconnect,
+    handleHeartbeat,
+    handleIncomingMessage,
+    handleJoinWorld,
+    handleLeaveWorld,
+    validateNetworkObjects
+} from "./NetworkFunctions";
 import { handleWebRtcCloseConsumer, handleWebRtcCloseProducer, handleWebRtcConsumerSetLayers, handleWebRtcPauseConsumer, handleWebRtcPauseProducer, handleWebRtcProduceData, handleWebRtcReceiveTrack, handleWebRtcResumeConsumer, handleWebRtcResumeProducer, handleWebRtcSendTrack, handleWebRtcTransportClose, handleWebRtcTransportConnect, handleWebRtcTransportCreate, startWebRTC } from './WebRTCFunctions';
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
@@ -122,6 +131,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
                 // Return an authorization success messaage to client
                 callback({ success: true });
+
+                socket.on(MessageTypes.ConnectToWorld.toString(), async (data, callback) =>
+                  handleConnectToWorld(socket, data, callback, userId, user));
 
                 socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) =>
                     handleJoinWorld(socket, data, callback, userId, user));

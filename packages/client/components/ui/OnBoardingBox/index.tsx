@@ -36,7 +36,7 @@ interface Props {
 const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
   const [hiddenSnackbar, setHiddenSnackBar] = useState(false);
   const cardFadeInOut = step =>{    
-    const fadeOutInterval = setTimeout(()=>setHiddenSnackBar(true),0)
+    const fadeOutInterval = setTimeout(()=>setHiddenSnackBar(true),0);
     const fadeIntInterval = setTimeout(()=>{
       store.dispatch(setAppOnBoardingStep(step));
       step !== generalStateList.ALL_DONE && setHiddenSnackBar(false);
@@ -45,14 +45,14 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
       clearInterval(fadeOutInterval);
       clearInterval(fadeIntInterval);
     }
-  }
+  };
   const addLookAroundEventListeners = () =>{
     const InputComponent = getMutableComponent(actorEntity, Input);
     InputComponent.schema.inputAxisBehaviors[DefaultInput.LOOKTURN_PLAYERONE] = {changed : [{behavior:actorLooked}]};
   };
 
   const actorLooked = () =>{
-    cardFadeInOut(generalStateList.TUTOR_MOVE)
+    cardFadeInOut(generalStateList.TUTOR_MOVE);
     const InputComponent = getMutableComponent(actorEntity, Input);
     delete InputComponent.schema.inputAxisBehaviors[DefaultInput.LOOKTURN_PLAYERONE];
    
@@ -103,13 +103,13 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
     InputComponent.schema.gamepadInputMap.buttons[GamepadButtons.A] = DefaultInput.INTERACT;
 
     InputComponent.schema.inputButtonBehaviors[DefaultInput.INTERACT] = {ended : [{behavior:actorInteracted}]};
-    cardFadeInOut(generalStateList.TUTOR_INTERACT)
+    cardFadeInOut(generalStateList.TUTOR_INTERACT);
   };
 
   const exitTutorialHandle = () => {
     const InputComponent = getMutableComponent(actorEntity, Input);
     InputComponent.schema = CharacterInputSchema;
-    cardFadeInOut(generalStateList.ALL_DONE)
+    cardFadeInOut(generalStateList.ALL_DONE);
   };
 
   var message = null;
@@ -121,8 +121,8 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
                                             addLookAroundEventListeners(); 
                                             break;      
       case generalStateList.TUTOR_MOVE: message= isMobileOrTablet() ? ' Use joystick to move' : 
-                            <span>Use keybuttons <span className={styles.keyButton}>W</span><span className={styles.keyButton}>S</span>
-                            <span className={styles.keyButton}>A</span><span className={styles.keyButton}>D</span> to move</span>; break;
+                            <span>Use keybuttons <span className={styles.keyButton}>W</span> <span className={styles.keyButton}>S</span>
+                            <span className={styles.keyButton}>A</span> <span className={styles.keyButton}>D</span> to move</span>; break;
       case generalStateList.TUTOR_INTERACT: message= isMobileOrTablet() ? 'Use to interact' : <span>Press <span className={styles.keyButton}>E</span> to interact</span>; 
                                             isMobileOrTablet() && (imageTip = <TouchApp className={styles.TouchApp} />); break;
       case generalStateList.TUTOR_UNMUTE: message='Tap to toggle Mic';  imageTip = <Microphone className={styles.Microphone} />;break;

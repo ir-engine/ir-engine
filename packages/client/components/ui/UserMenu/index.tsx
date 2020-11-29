@@ -285,11 +285,7 @@ const renderDrawerContent = () =>{
 
   return (
         <section key={anchor} className={styles.anchorContainer}>
-          <Card>
-            <CardContent className={styles.anchorDrawer}>
-              <MenuIcon onClick={toggleDrawer(anchor, isOpenDrawer === true ? false : true)} />
-            </CardContent>
-          </Card>
+          <MenuIcon className={styles.anchorDrawer} onClick={toggleDrawer(anchor, isOpenDrawer === true ? false : true)} />
           <Drawer
             anchor={anchor}
             open={state[anchor]}

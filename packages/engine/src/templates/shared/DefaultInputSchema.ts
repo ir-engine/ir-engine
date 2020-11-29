@@ -65,6 +65,7 @@ export const DefaultInputSchema: InputSchema = {
     wheel: [
       {
         behavior: handleMouseWheel,
+        passive: true,
         args: {
           value: DefaultInput.CAMERA_SCROLL
         }
@@ -79,9 +80,11 @@ export const DefaultInputSchema: InputSchema = {
     touchstart: [
       {
         behavior: handleTouchMove,
+        passive: true
       },
       {
         behavior: handleTouch,
+        passive: true,
         args: {
           value: BinaryValue.ON
         }
@@ -90,6 +93,7 @@ export const DefaultInputSchema: InputSchema = {
     touchend: [
       {
         behavior: handleTouch,
+        passive: true,
         args: {
           value: BinaryValue.OFF
         }
@@ -98,6 +102,7 @@ export const DefaultInputSchema: InputSchema = {
     touchcancel: [
       {
         behavior: handleTouch,
+        passive: true,
         args: {
           value: BinaryValue.OFF
         }
@@ -106,6 +111,7 @@ export const DefaultInputSchema: InputSchema = {
     touchmove: [
       {
         behavior: handleTouchMove,
+        passive: true
       }
     ],
     // Keys
@@ -131,13 +137,13 @@ export const DefaultInputSchema: InputSchema = {
     gamepadconnected: [
       {
         behavior: handleGamepadConnected,
-        element: 'document'
+        element: 'window'
       }
     ],
     gamepaddisconnected: [
       {
         behavior: handleGamepadDisconnected,
-        element: 'document'
+        element: 'window'
       }
     ],
     // mobile onscreen gamepad
