@@ -75,6 +75,18 @@ export default class ModelNode extends EditorNodeMixin(Model) {
           node.castShadow = shadowComponent.props.cast;
           node.receiveShadow = shadowComponent.props.receive;
         }
+        const ineractableComponent = json.components.find(c => c.name === "interact");
+        if(ineractableComponent){
+          node.interactable = ineractableComponent.props.interactable;
+          node.interactionType = ineractableComponent.props.interactionType;
+          node.interactionText = ineractableComponent.props.interactionText;
+          node.payloadName = ineractableComponent.props.payloadName;
+          node.payloadUrl = ineractableComponent.props.payloadUrl;
+          node.payloadBuyUrl = ineractableComponent.props.payloadBuyUrl;
+          node.payloadLearnMoreUrl = ineractableComponent.props.payloadLearnMoreUrl;
+          node.payloadHtmlContent = ineractableComponent.props.payloadHtmlContent;
+          node.payloadUrl = ineractableComponent.props.payloadUrl;
+        }
       })()
     );
     return node;
@@ -282,6 +294,16 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       shadow: {
         cast: this.castShadow,
         receive: this.receiveShadow
+      },
+      interact: {
+        interactable: this.interactable,
+        interactionType : this.interactionType,
+        interactionText : this.interactionText,
+        payloadName : this.payloadName,
+        payloadUrl : this.payloadUrl,
+        payloadBuyUrl : this.payloadBuyUrl,
+        payloadLearnMoreUrl : this.payloadLearnMoreUrl,
+        payloadHtmlContent : this.payloadHtmlContent,
       }
     };
     if (this.activeClipIndex !== -1) {

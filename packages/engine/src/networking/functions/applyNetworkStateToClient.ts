@@ -7,8 +7,10 @@ import { State } from '../../state/components/State';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { Network } from '../components/Network';
 import { initializeNetworkObject } from './initializeNetworkObject';
+import { WorldStateInterface } from "../interfaces/WorldState";
+import { Quaternion, Vector3 } from "three";
 
-export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
+export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, delta = 0.033):void {
   const worldState = worldStateBuffer; // worldStateModel.fromBuffer(worldStateBuffer);
 
   if (Network.tick < worldState.tick - 1) {
@@ -45,16 +47,39 @@ export function applyNetworkStateToClient(worldStateBuffer, delta = 0.033) {
   }
 
   // Handle all network objects created this frame
-  for (const objectToCreate in worldState.createObjects) {
+  for (const objectToCreateKey in worldState.createObjects) {
     // If we already have a network object with this network id, throw a warning and ignore this update
-    if (Network.instance.networkObjects[worldState.createObjects[objectToCreate].networkId] !== undefined)
+    if (Network.instance.networkObjects[worldState.createObjects[objectToCreateKey].networkId] !== undefined)
       console.warn("Not creating object because it already exists");
-     else
+    else {
+      const objectToCreate = worldState.createObjects[objectToCreateKey];
+      let position = null;
+      let rotation = null;
+      if (
+        typeof objectToCreate.x === 'number' ||
+        typeof objectToCreate.y === 'number' ||
+        typeof objectToCreate.z === 'number'
+      ) {
+        position = new Vector3( objectToCreate.x, objectToCreate.y, objectToCreate.z );
+      }
+
+      if (
+        typeof objectToCreate.qX === 'number' ||
+        typeof objectToCreate.qY === 'number' ||
+        typeof objectToCreate.qZ === 'number' ||
+        typeof objectToCreate.qW === 'number'
+      ) {
+        rotation = new Quaternion( objectToCreate.qX, objectToCreate.qY, objectToCreate.qZ, objectToCreate.qW );
+      }
+
       initializeNetworkObject(
-        worldState.createObjects[objectToCreate].ownerId,
-        worldState.createObjects[objectToCreate].networkId,
-        worldState.createObjects[objectToCreate].prefabType
+        String(objectToCreate.ownerId),
+        parseInt(objectToCreate.networkId),
+        objectToCreate.prefabType,
+        position,
+        rotation,
       );
+    }
   }
 
   // TODO: Re-enable for snapshot interpolation

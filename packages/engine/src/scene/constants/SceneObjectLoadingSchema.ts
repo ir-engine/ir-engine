@@ -20,6 +20,7 @@ import ScenePreviewCameraTagComponent from "../components/ScenePreviewCamera";
 import SpawnPointComponent from "../components/SpawnPointComponent";
 import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
+import { createCommonInteractive } from "../behaviors/createCommonInteractive";
 
 export const SceneObjectLoadingSchema: LoadingSchema = {
   'ambient-light': {
@@ -70,8 +71,24 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
         args: {
           component: AssetLoader,
         },
-        values: [{ from: 'src', to: 'url' }],
         onLoaded: addWorldColliders
+      }
+    ]
+  },
+  'interact': {
+    behaviors: [
+      {
+        behavior: createCommonInteractive,
+        values: [
+          { from: 'interactable', to: 'interactable' },
+          { from: 'interactionType', to: 'interactionType' },
+          { from: 'interactionText', to: 'interactionText' },
+          { from: 'payloadName', to: 'payloadName' },
+          { from: 'payloadUrl', to: 'payloadUrl' },
+          { from: 'payloadBuyUrl', to: 'payloadBuyUrl' },
+          { from: 'payloadLearnMoreUrl', to: 'payloadLearnMoreUrl' },
+          { from: 'payloadHtmlContent', to: 'payloadHtmlContent' },
+        ],
       }
     ]
   },

@@ -5,7 +5,8 @@ import {
   fetchingCurrentLocation,
   locationsRetrieved,
   locationRetrieved,
-  locationBanCreated
+  locationBanCreated,
+  locationNotFound
 } from './actions';
 
 export function getLocations(skip?: number, limit?: number) {
@@ -56,6 +57,8 @@ export function getLocationByName(locationName: string) {
       console.log(locationResult.data[0]);
       if (locationResult.total > 0) {
         dispatch(locationRetrieved(locationResult.data[0]));
+      }else{
+        dispatch(locationNotFound());
       }
   };
 }
