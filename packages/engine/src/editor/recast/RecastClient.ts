@@ -3,7 +3,10 @@ import {
   Float32BufferAttribute,
   Uint16BufferAttribute
 } from "three";
-import * as RecastWorker from "./recast.worker";
+// @ts-ignore
+// import * as RecastWorker from "./recast.worker";
+import RecastWorker from "file-loader?name=[name].js!./recast.worker";
+
 const statuses = [
   "success",
   "unknown error",
@@ -21,18 +24,24 @@ const statuses = [
   "error generating navmesh data",
   "error generating navmesh detail geometry"
 ];
+// @ts-ignore
+// const worker = new RecastWorker();
+let worker = new Worker(RecastWorker);
+
 export default class RecastClient {
-  worker: any;
+  // worker: RecastWorker;
   working: boolean;
   constructor() {
     // @ts-ignore
-    this.worker = new RecastWorker();
     this.working = false;
   }
   async buildNavMesh(geometry, params, signal) {
     if (this.working) {
       throw new Error("Already building nav mesh");
     }
+    // debugger
+    // this.worker = new RecastWorker(params.wasmUrl);
+    // this.worker = new RecastWorker();
     this.working = true;
     if (geometry.attributes.position.count === 0) {
       this.working = false;
@@ -44,37 +53,39 @@ export default class RecastClient {
       faces[i] = i;
     }
     const navMeshPromise = new Promise((resolve, reject) => {
-      let onMessage = null;
-      let onError = null;
-      let onAbort = null;
       const cleanUp = () => {
         signal.removeEventListener("abort", onAbort);
-        this.worker.removeEventListener("message", onMessage);
-        this.worker.removeEventListener("message", onError);
+        worker.removeEventListener("message", onMessage);
+        worker.removeEventListener("error", onError);
         this.working = false;
       };
-      onMessage = event => {
+      const onMessage = event => {
+        // debugger
         resolve(event.data);
         cleanUp();
       };
-      onAbort = () => {
-        this.worker.terminate();
+      const onAbort = () => {
+        // debugger
+        worker.terminate();
             // @ts-ignore
-        this.worker = new RecastWorker();
+        worker = new Worker(RecastWorker);
+        // this.worker = new RecastWorker(params.wasmUrl);
         const error = new Error("Canceled navmesh generation.");
         error["aborted"] = true;
         reject(error);
         cleanUp();
       };
-      onError = error => {
+      const onError = error => {
+        // debugger
         reject(error);
         cleanUp();
       };
       signal.addEventListener("abort", onAbort);
-      this.worker.addEventListener("message", onMessage);
-      this.worker.addEventListener("error", onError);
+      worker.addEventListener("message", onMessage);
+      worker.addEventListener("error", onError);
+      this.working = false
     });
-    this.worker.postMessage(
+    worker.postMessage(
       {
         verts,
         faces,
@@ -87,7 +98,7 @@ export default class RecastClient {
       throw new Error(statuses[result.status] || result.error);
     }
     const navmesh = new BufferGeometry();
-    navmesh.addAttribute(
+    navmesh.setAttribute(
       "position",
       new Float32BufferAttribute(result.verts, 3)
     );

@@ -9,12 +9,13 @@ import ErrorDialog from "../dialogs/ErrorDialog";
 import { withDialog } from "../contexts/DialogContext";
 import { withSettings } from "../contexts/SettingsContext";
 import { ShoePrints } from "@styled-icons/fa-solid/ShoePrints";
+import FloorPlanNode from "@xr3ngine/engine/src/editor/nodes/FloorPlanNode";
 type FloorPlanNodeEditorProps = {
   hideDialog: (...args: any[]) => any;
   showDialog: (...args: any[]) => any;
   editor?: object;
   settings: object;
-  node?: object;
+  node?: FloorPlanNode;
 };
 class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
     constructor(props) {
@@ -53,7 +54,7 @@ class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
       onCancel: () => abortController.abort()
     });
     try {
-      await (this.props.node as any).generate(abortController.signal);
+      await this.props.node?.generate(abortController.signal);
       this.props.hideDialog();
     } catch (error) {
       if (error["aborted"]) {
