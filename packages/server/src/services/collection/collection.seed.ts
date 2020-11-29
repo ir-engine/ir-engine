@@ -12,7 +12,7 @@ export const seed = {
       name: "Test",
       description: null,
       version: 4,
-      metadata: "{\"name\":\"Crater\"}",
+      metadata: { name:'Crater' },
       isPublic: 1,
       createdAt: "2020-11-12 10:54:59",
       updatedAt: "2020-11-12 10:54:59",
