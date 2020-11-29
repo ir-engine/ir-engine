@@ -15,8 +15,6 @@ import { calculateInterpolation, addSnapshot, createSnapshot } from '../function
 import { WorldStateInterface } from "../interfaces/WorldState";
 import { Quaternion, Vector3 } from "three";
 
-let ppp = 14
-
 export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, delta = 0.033):void {
   const worldState = worldStateBuffer; // worldStateModel.fromBuffer(worldStateBuffer);
 
@@ -92,14 +90,14 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
   }
 
 
-  ppp += 1
-  if (ppp == 15) {
-    ppp = 0
-    if(worldState.snapshot === undefined || worldState.snapshot.length < 1)
-      return console.warn("Worldstate snapshot is null");
 
-    addSnapshot(worldState.snapshot);
-  }
+    if(worldState.snapshot !== undefined && worldState.snapshot.length < 1){
+        addSnapshot(worldState.snapshot);
+    }
+
+
+
+
 
 
   // TODO: Re-enable for snapshot interpolation
