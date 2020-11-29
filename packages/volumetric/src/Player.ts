@@ -1,33 +1,18 @@
-<<<<<<< HEAD
 import Blob from "cross-blob";
 import ReadStream from "fs-read-stream-over-http";
-=======
-// @ts-nocheck
-
->>>>>>> origin/error-logging-fixes
 import {
   BufferGeometry,
   CompressedTexture,
   Float32BufferAttribute,
   Mesh,
   MeshBasicMaterial,
-<<<<<<< HEAD
   PlaneBufferGeometry,
   Renderer,
   Scene,
-=======
-  NearestFilter,
-  PlaneBufferGeometry,
-  Renderer,
-  RepeatWrapping,
-  Scene,
-  sRGBEncoding,
->>>>>>> origin/error-logging-fixes
   Uint16BufferAttribute,
   Uint32BufferAttribute,
   VideoTexture
 } from 'three';
-<<<<<<< HEAD
 import {
   Action,
   IBuffer,
@@ -38,22 +23,6 @@ import CortoDecoder from './libs/corto/cortodecoder.js';
 import MessageType from './MessageType';
 import RingBuffer from './RingBuffer';
 import { byteArrayToLong, lerp } from './Utilities';
-=======
-import { BasisTextureLoader } from 'three/examples/jsm/loaders/BasisTextureLoader.js';
-import CortoDecoder from './libs/corto/cortodecoder.js';
-import {
-  Action,
-  IBufferGeometryCompressedTexture,
-  WorkerDataRequest,
-  WorkerInitializationResponse
-} from './Interfaces';
-import RingBuffer from './RingBuffer';
-import { lerp } from './Utilities';
-import Blob from "cross-blob";
-
-import ReadStream from "fs-read-stream-over-http"
-import MessageType from './MessageType';
->>>>>>> origin/error-logging-fixes
 
 export default class DracosisPlayer {
   // Public Fields
@@ -81,19 +50,11 @@ export default class DracosisPlayer {
   private _videoTexture = null;
   private _loop = true;
   private _isinitialized = false;
-<<<<<<< HEAD
   private _ringBuffer: RingBuffer<IBuffer>;
-=======
-  private _ringBuffer: RingBuffer<IBufferGeometryCompressedTexture>;
->>>>>>> origin/error-logging-fixes
   private _isPlaying = false;
 
   private hasInited = false;
 
-<<<<<<< HEAD
-=======
-  private _basisTextureLoader = new BasisTextureLoader();
->>>>>>> origin/error-logging-fixes
   private _nullBufferGeometry = new BufferGeometry();
   private _nullCompressedTexture = new CompressedTexture(
     [new ImageData(200, 200)],
@@ -281,7 +242,6 @@ export default class DracosisPlayer {
 
     this.scene.add(this.mesh);
 
-<<<<<<< HEAD
     let player = this;
 
     this.httpGetAsync(meshFilePath, (headerData: string) => {
@@ -356,73 +316,6 @@ export default class DracosisPlayer {
       xhr.setRequestHeader('Range', rangeRequest); // the bytes (incl.) you request
 
     xhr.send();
-=======
-    this._basisTextureLoader.setTranscoderPath(
-      'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/js/libs/basis/'
-    );
-    this._basisTextureLoader.detectSupport(renderer);
-    let player = this;
-
-    this.httpGetAsync(meshFilePath, function (data: any) {
-
-      if (data === undefined) {
-        return console.warning("Data is undefined at", meshFilePath);
-      }
-      console.log("data is ", data);
-      data = JSON.parse(data);
-      if (endFrame > 1) {
-        player._endFrame = endFrame;
-      } else {
-        player._endFrame = data.fileHeader.frameData.length;
-      }
-      player._numberOfFrames = player._endFrame - player._startFrame + 1;
-
-      // init buffers with settings
-      player._ringBuffer = new RingBuffer(bufferSize);
-
-      const initializeMessage = {
-        startFrame: player._startFrame,
-        endFrame: player._endFrame,
-        type: MessageType.InitializationRequest,
-        data: data,
-        loop: player._loop,
-        meshFilePath: data.meshFilePath,
-        fileHeader: data.fileHeader,
-        isInitialized: true,
-        readStreamOffset: data.readStreamOffset,
-      };
-
-      this.worker.postMessage(initializeMessage);
-
-      // Add event handler for manging worker responses
-      this.worker.addEventListener('message', ({ data }) => player.handleMessage(data));
-    });
-    if (autoplay) {
-      console.log("Autoplaying dracosis sequence")
-      // Create an event listener that removed itself on input
-      const eventListener = () => {
-        // If we haven't inited yet, notify that we have, autoplay content and remove the event listener
-        if (!this.hasInited) {
-          this.hasInited = true;
-          this.play();
-          document.body.removeEventListener("mousemove", eventListener);
-        }
-
-      }
-      document.body.addEventListener("mousemove", eventListener)
-    }
-  }
-
-  httpGetAsync(theUrl: any, callback: any) {
-    const xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function () {
-      if (xmlHttp.readyState === 4 && xmlHttp.status === 200)
-        callback(xmlHttp.responseText);
-    };
-
-    xmlHttp.open('GET', theUrl, true); // true for asynchronous
-    xmlHttp.send(null);
->>>>>>> origin/error-logging-fixes
   }
 
 
@@ -528,30 +421,6 @@ export default class DracosisPlayer {
     return geometry;
   }
 
-<<<<<<< HEAD
-=======
-  async decodeTexture(compressedTexture, frameNumber) {
-    var decodedTexture;
-
-    await (this._basisTextureLoader as any)
-      ._createTexture(compressedTexture, frameNumber.toString())
-      .then(function (texture, param) {
-        texture.magFilter = NearestFilter;
-        texture.minFilter = NearestFilter;
-        texture.encoding = sRGBEncoding;
-        texture.wrapS = RepeatWrapping;
-        texture.wrapT = RepeatWrapping;
-        texture.repeat.y = -1;
-        decodedTexture = texture;
-      })
-      .catch(function (error) {
-        console.log('Error:', error);
-      });
-
-    return { texture: decodedTexture, frameNumber: frameNumber };
-  }
-
->>>>>>> origin/error-logging-fixes
   handleMessage(data: any) {
     switch (data.type) {
       case MessageType.InitializationResponse:
@@ -584,11 +453,7 @@ export default class DracosisPlayer {
 
       player._ringBuffer.get(
         player._pos
-<<<<<<< HEAD
       ).bufferGeometry = player.decodeCORTOData(geomTex.bufferGeometry) as any;
-=======
-      ).bufferGeometry = player.decodeCORTOData(geomTex.bufferGeometry);
->>>>>>> origin/error-logging-fixes
     });
   }
 
@@ -625,18 +490,10 @@ export default class DracosisPlayer {
 
     const framesToFetch: number[] = [];
     if (this._ringBuffer.empty() && this._currentFrame == 0) {
-<<<<<<< HEAD
       const frameData: IBuffer = {
         frameNumber: this.startFrame,
         bufferGeometry: this._nullBufferGeometry as any
       } as any;
-=======
-      const frameData: IBufferGeometryCompressedTexture = {
-        frameNumber: this.startFrame,
-        bufferGeometry: this._nullBufferGeometry,
-        compressedTexture: this._nullCompressedTexture,
-      };
->>>>>>> origin/error-logging-fixes
       framesToFetch.push(this.startFrame);
       this._ringBuffer.add(frameData);
     }
@@ -674,14 +531,8 @@ export default class DracosisPlayer {
     this.cleanBeforeNeeded(frameToPlay);
 
     if (this._ringBuffer.getFirst().frameNumber == frameToPlay) {
-<<<<<<< HEAD
       this.bufferGeometry = this._ringBuffer.getFirst().bufferGeometry as any;
       this.mesh.geometry = this.bufferGeometry;
-=======
-      this.bufferGeometry = this._ringBuffer.getFirst().bufferGeometry;
-      this.mesh.geometry = this.bufferGeometry;
-      this.compressedTexture = this._ringBuffer.getFirst().compressedTexture;
->>>>>>> origin/error-logging-fixes
       (this.mesh.material as any).needsUpdate = true;
     }
   }
@@ -695,45 +546,4 @@ export default class DracosisPlayer {
       this._ringBuffer.remove(0);
     }
   }
-<<<<<<< HEAD
-=======
-
-  update() {
-    if (this._currentFrame > this._endFrame) {
-      if (this._loop) this._currentFrame = this._startFrame;
-      else {
-        this._isPlaying = false;
-        return;
-      }
-    }
-
-    // If playback is paused, stop updating
-    if (!this._isPlaying) return;
-
-    // If we aren't initialized yet, skip logic but come back next frame
-    if (!this._isinitialized) return;
-
-    // If the frame exists in the ring buffer, use it
-    if (this._ringBuffer &&
-      this._ringBuffer.getFirst() &&
-      (this._ringBuffer.getFirst().frameNumber == this._currentFrame || this._ringBuffer.getFirst().frameNumber == 1 + this._currentFrame)) {
-      this.bufferGeometry = this._ringBuffer.getFirst().bufferGeometry;
-      this.mesh.geometry = this.bufferGeometry;
-
-      this.compressedTexture = this._ringBuffer.getFirst().compressedTexture;
-      (this.mesh.material as any).map = this.compressedTexture;
-      (this.mesh.material as any).needsUpdate = true;
-      this._ringBuffer.remove(0);
-      this._currentFrame++;
-    } else {
-      console.warn('Frame ', this._ringBuffer.getFirst().frameNumber, ' did not exist in ring buffer');
-    }
-
-    const player = this;
-
-    setTimeout(function () {
-      player.update();
-    }, (1000 / player.frameRate) * player.speed);
-  }
->>>>>>> origin/error-logging-fixes
 }

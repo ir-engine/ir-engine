@@ -1,34 +1,18 @@
 var glob = require('glob');
 var fs = require('fs');
 var THREE = require('three');
-<<<<<<< HEAD
 var OBJLoader = require('three/examples/jsm/loaders/OBJLoader');
 var Utilities = require('./Utilities');
-=======
-var OBJLoader_1 = require('three/examples/jsm/loaders/OBJLoader');
-var CodecHelpers_1 = require('./CodecHelpers');
-var image_size_1 = require('image-size');
-var Utilities_1 = require('./Utilities');
->>>>>>> origin/error-logging-fixes
 
 global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 
 export default class CortosisFileCreator {
   _meshFiles: any[];
-<<<<<<< HEAD
-=======
-  _textureFiles: any[];
->>>>>>> origin/error-logging-fixes
   _frameData: any[];
   _maxVertices: number;
   _maxFaces: number;
   _manager: any;
   _loader: any;
-<<<<<<< HEAD
-=======
-  textureWidth: number;
-  textureHeight: number;
->>>>>>> origin/error-logging-fixes
   mesh: any;
   geometry: any;
   _frameIn: any;
@@ -37,31 +21,17 @@ export default class CortosisFileCreator {
   constructor(
     // renderer,
     meshFileSuffix,
-<<<<<<< HEAD
-=======
-    textureFileSuffix,
->>>>>>> origin/error-logging-fixes
     frameIn,
     frameOut,
     outputFileName,
     progressCallback
   ) {
     this._meshFiles = [];
-<<<<<<< HEAD
-=======
-    this._textureFiles = [];
->>>>>>> origin/error-logging-fixes
     this._frameData = [];
     this._maxVertices = 0;
     this._maxFaces = 0;
     this._manager = new THREE.LoadingManager();
-<<<<<<< HEAD
     this._loader = new OBJLoader.OBJLoader(this._manager);
-=======
-    this._loader = new OBJLoader_1.OBJLoader(this._manager);
-    this.textureWidth = 0;
-    this.textureHeight = 0;
->>>>>>> origin/error-logging-fixes
     this.mesh = new THREE.Mesh();
     this.geometry = new THREE.Geometry();
     this._frameIn = frameIn;
@@ -78,29 +48,12 @@ export default class CortosisFileCreator {
       if (err) console.log(err);
       this._meshFiles = files;
     });
-<<<<<<< HEAD
-=======
-
-    // Get path to jpg, png and make array
-    glob('assets/*.' + textureFileSuffix, {}, function (err, files) {
-      if (err) console.log(err);
-      this._textureFiles = files;
-      this.createEncodedFile('assets/' + this._outputFileName, undefined);
-    });
->>>>>>> origin/error-logging-fixes
   }
 
   createEncodedFile = async function (
     fileName,
     callback
   ) {
-<<<<<<< HEAD
-=======
-    if (this._meshFiles.length != this._textureFiles.length)
-      return console.error(
-        'Mesh and texture sequence lengths are not the same, Mesh[] is ', this._meshFiles.length, ', Texture[] is ', this._textureFiles.length
-      );
->>>>>>> origin/error-logging-fixes
     console.log('Writing file to ' + fileName);
     var writeStream = fs.createWriteStream('./assets/temp.drcs');
     var currentPositionInWriteStream = 0;
@@ -108,10 +61,6 @@ export default class CortosisFileCreator {
     var frameOut = this._frameOut > 0 ? this._frameOut : this._meshFiles.length;
     // Iterate over all files and write an output file
     for (var i = this._frameIn; i < frameOut; i++) {
-<<<<<<< HEAD
-=======
-      console.log( 'Index--------------------------------------------------------', i);
->>>>>>> origin/error-logging-fixes
       // load obj
       let objPath = this._meshFiles[i].replace('.crt','.obj');
 
@@ -145,24 +94,7 @@ export default class CortosisFileCreator {
       rawObjData = null;
       objData = null;
       noNormals = null;
-<<<<<<< HEAD
       
-=======
-
-      // If we haven't set the texture width yet, do that here automatically so we can store in the file
-      if (this.textureWidth === 0) {
-        var dimensions = image_size_1.imageSize(this._textureFiles[i]);
-        this.textureWidth = dimensions.width;
-        this.textureHeight = dimensions.height;
-      }
-
-      let promiseTexture = new Promise((resolve, reject) => {
-        var encodedTexture = CodecHelpers_1.PNGToBasis(this._textureFiles[i]); // Takes a path, returns a buffer
-        resolve(encodedTexture);
-      });
-
-      var encodedTexture = await promiseTexture as any;
->>>>>>> origin/error-logging-fixes
       // var encodedMesh = await promiseMesh;
       var encodedMesh = rawCRTFrame;
       // console.log(rawObjData,'rawObjData')
@@ -172,12 +104,7 @@ export default class CortosisFileCreator {
         startBytePosition: currentPositionInWriteStream,
         vertices: this.geometry.vertices.length,
         faces: this.geometry.faces.length,
-<<<<<<< HEAD
         meshLength: encodedMesh.byteLength
-=======
-        meshLength: encodedMesh.byteLength,
-        textureLength: encodedTexture.byteLength,
->>>>>>> origin/error-logging-fixes
       };
 
       // Add to the data array
@@ -185,19 +112,9 @@ export default class CortosisFileCreator {
       // Write to file stream, mesh first
       writeStream.write(encodedMesh);
       console.log('Wrote ' + encodedMesh.byteLength + ' bytes');
-<<<<<<< HEAD
       // update progress callback
       currentPositionInWriteStream += encodedMesh.byteLength
       encodedMesh = null;
-=======
-      writeStream.write(encodedTexture);
-      console.log('Wrote ' + encodedTexture.byteLength + ' bytes');
-      // update progress callback
-      currentPositionInWriteStream += encodedMesh.byteLength + encodedTexture.byteLength;
-      encodedMesh = null;
-      encodedTexture = null;
-      promiseTexture = null;
->>>>>>> origin/error-logging-fixes
       this.geometry = null;
       console.log("Memory Usage", process.memoryUsage());
 
@@ -209,11 +126,6 @@ export default class CortosisFileCreator {
 
     // create object with maxVertices, textureWidth and textureHeight, then pack frames {} in
     var fileData = {
-<<<<<<< HEAD
-=======
-      textureHeight: this.textureHeight,
-      textureWidth: this.textureWidth,
->>>>>>> origin/error-logging-fixes
       maxVertices: this._maxVertices,
       maxTriangles: this._maxFaces,
       frameData: this._frameData,
@@ -224,25 +136,12 @@ export default class CortosisFileCreator {
     var fileDataBuffer = Buffer.from(JSON.stringify(fileData), 'utf-8');
     // Write the length so we know how to read it back out into an object
     var fileDataBufferLengthEncoded = new Buffer(
-<<<<<<< HEAD
       Utilities.longToByteArray(fileDataBuffer.byteLength)
-=======
-      Utilities_1.longToByteArray(fileDataBuffer.byteLength)
->>>>>>> origin/error-logging-fixes
     );
     console.log('Byte array length: ' + fileDataBufferLengthEncoded.length);
     console.log('Data buffer byte length: ' + fileDataBuffer.byteLength);
     // Get length of that buffer and save as 32 bit number, append to end of file
-<<<<<<< HEAD
     console.log('Wrote ' + this._frameData.length + ' meshes into file ' + this._outputFileName);
-=======
-    console.log(
-      'Wrote ' +
-      this._frameData.length +
-      ' meshes and textures into file ' +
-      this._outputFileName
-    );
->>>>>>> origin/error-logging-fixes
 
     // console.log('FileDataBuffer', JSON.stringify(fileData));
 
@@ -272,10 +171,6 @@ export default class CortosisFileCreator {
     if (callback) callback(1);
   };
 }
-<<<<<<< HEAD
 new CortosisFileCreator('crt', 0, 2759, 'PLY-luna-med2760.drcs', function () {
-=======
-new CortosisFileCreator('crt', 'png', 0, 2759, 'PLY-luna-med2760.drcs', function () {
->>>>>>> origin/error-logging-fixes
   console.log('Converted to Dracosis');
 });
