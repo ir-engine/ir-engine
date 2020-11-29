@@ -15,6 +15,7 @@ import { changeCameraDistanceByDelta } from "../../camera/behaviors/changeCamera
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { TouchInputs } from "../../input/enums/TouchInputs";
 import { DefaultInputSchema } from "../shared/DefaultInputSchema";
+import { lookByInputAxis } from "./behaviors/lookByInputAxis";
 
 export const CharacterInputSchema: InputSchema = {
   ...DefaultInputSchema,
@@ -50,7 +51,7 @@ export const CharacterInputSchema: InputSchema = {
   gamepadInputMap: {
     buttons: {
       [GamepadButtons.A]: DefaultInput.INTERACT,
-      // [GamepadButtons.A]: DefaultInput.JUMP,
+      [GamepadButtons.B]: DefaultInput.JUMP,
       // [GamepadButtons.B]: DefaultInput.CROUCH, // B - back
       // [GamepadButtons.X]: DefaultInput.SPRINT, // X - secondary input
       // [GamepadButtons.Y]: DefaultInput.INTERACT, // Y - tertiary input
@@ -69,7 +70,7 @@ export const CharacterInputSchema: InputSchema = {
     },
     axes: {
       [Thumbsticks.Left]: DefaultInput.MOVEMENT_PLAYERONE,
-      [Thumbsticks.Right]: DefaultInput.LOOKTURN_PLAYERONE
+      [Thumbsticks.Right]: DefaultInput.GAMEPAD_STICK_RIGHT
     }
   },
   // Map keyboard buttons to abstract input
@@ -321,6 +322,41 @@ export const CharacterInputSchema: InputSchema = {
           behavior: updateCharacterState,
           args: {
             setCameraRelativeOrientationTarget: true
+          }
+        }
+      ]
+    },
+    [DefaultInput.GAMEPAD_STICK_RIGHT]: {
+      started: [
+        {
+          behavior: lookByInputAxis,
+          args: {
+            input: DefaultInput.GAMEPAD_STICK_RIGHT,
+            output: DefaultInput.LOOKTURN_PLAYERONE,
+            multiplier: 0.1,
+            inputType: InputType.TWODIM
+          }
+        }
+      ],
+      changed: [
+        {
+          behavior: lookByInputAxis,
+          args: {
+            input: DefaultInput.GAMEPAD_STICK_RIGHT,
+            output: DefaultInput.LOOKTURN_PLAYERONE,
+            multiplier: 0.1,
+            inputType: InputType.TWODIM
+          }
+        }
+      ],
+      unchanged: [
+        {
+          behavior: lookByInputAxis,
+          args: {
+            input: DefaultInput.GAMEPAD_STICK_RIGHT,
+            output: DefaultInput.LOOKTURN_PLAYERONE,
+            multiplier: 0.1,
+            inputType: InputType.TWODIM
           }
         }
       ]

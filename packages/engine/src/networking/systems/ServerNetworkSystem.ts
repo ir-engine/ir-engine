@@ -135,7 +135,7 @@ export class ServerNetworkSystem extends System {
     // TODO: to enable snapshots, use worldStateModel.toBuffer(Network.instance.worldState)
     // Send the message to all connected clients
     if(Network.instance.transport !== undefined)
-      Network.instance.transport.sendReliableData(Network.instance.worldState); // Use default channel
+      Network.instance.transport.sendData(Network.instance.worldState); // Use default channel
 
   }
 

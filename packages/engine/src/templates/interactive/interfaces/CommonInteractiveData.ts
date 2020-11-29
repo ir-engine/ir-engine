@@ -3,6 +3,7 @@ import { CommonInteractiveAction } from "../types/CommonInteractiveAction";
 export interface CommonInteractiveData {
   action: CommonInteractiveAction;
   payload: CommonInteractiveDataPayload;
+  interactionText?: string;
 }
 
 export interface CommonInteractiveDataPayload {

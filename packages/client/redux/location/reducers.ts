@@ -9,7 +9,8 @@ import {
   FETCH_CURRENT_LOCATION,
   LOCATIONS_RETRIEVED,
   LOCATION_RETRIEVED,
-  LOCATION_BAN_CREATED
+  LOCATION_BAN_CREATED,
+  LOCATION_NOT_FOUND
 } from '../actions';
 
 export const initialState = {
@@ -64,6 +65,14 @@ const locationReducer = (state = immutableState, action: LocationsAction): any =
           .set('currentLocation', updateMap)
           .set('currentLocationUpdateNeeded', false)
           .set('fetchingCurrentLocation', false);
+
+    case LOCATION_NOT_FOUND:
+      updateMap = new Map();
+      updateMap.set('location', {});
+      updateMap.set('bannedUsers', []);
+      return state.set('currentLocation', updateMap)
+                  .set('currentLocationUpdateNeeded', false)
+                  .set('fetchingCurrentLocation', false);
 
     case LOCATION_BAN_CREATED:
       return state.set('currentLocationUpdateNeeded', true);

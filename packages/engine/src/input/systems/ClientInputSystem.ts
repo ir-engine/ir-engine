@@ -15,6 +15,7 @@ import { NetworkObject } from "../../networking/components/NetworkObject";
 import { handleInputOnClient } from '../behaviors/handleInputOnClient';
 import { cleanupInput } from '../behaviors/cleanupInput';
 import { handleInputPurge } from "../behaviors/handleInputPurge";
+import { handleGamepadConnected, handleGamepads } from "../behaviors/GamepadInputBehaviors"
 //import { initializeSession, processSession } from '../behaviors/WebXRInputBehaviors';
 import { addPhysics, removeWebXRPhysics, updateWebXRPhysics } from '../behaviors/WebXRControllersBehaviors';
 import { Input } from '../components/Input';
@@ -27,6 +28,9 @@ import { ListenerBindingData } from "../interfaces/ListenerBindingData";
 import { InputAlias } from "../types/InputAlias";
 import { Vault } from '../../networking/components/Vault';
 import { createSnapshot } from '../../networking/functions/NetworkInterpolationFunctions';
+
+import supportsPassive from "../../common/functions/supportsPassive";
+import { BehaviorComponent } from '../../common/components/BehaviorComponent'
 /**
  * Input System
  *
@@ -83,6 +87,7 @@ export class InputSystem extends System {
     // Apply input for local user input onto client
     this.queryResults.localClientInput.all?.forEach(entity => {
       // Apply input to local client
+      handleGamepads(entity);
       handleInputOnClient(entity, {isLocal:true, isServer: false}, delta);
       const networkId = getComponent(entity, NetworkObject)?.networkId;
       if (!networkId) return;
@@ -138,7 +143,7 @@ export class InputSystem extends System {
 
       // TODO: Convert to a message buffer
       const message = inputs; // clientInputModel.toBuffer(inputs)
-      Network.instance.transport.sendReliableData(message); // Use default channel
+      Network.instance.transport.sendData(message); // Use default channel
 
       cleanupInput(entity);
 
@@ -180,7 +185,15 @@ export class InputSystem extends System {
 
           if (domElement) {
             const listener = (event: Event) => behaviorEntry.behavior(entity, { event, ...behaviorEntry.args });
-            domElement.addEventListener(eventName, listener);
+            if (behaviorEntry.passive && supportsPassive())
+            {
+              domElement.addEventListener(eventName, listener, {passive: behaviorEntry.passive});
+            }
+            else
+            {
+              domElement.addEventListener(eventName, listener);
+            }
+
             listenersDataArray.push({
               domElement,
               eventName,

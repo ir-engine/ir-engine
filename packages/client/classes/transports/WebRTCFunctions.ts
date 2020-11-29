@@ -29,7 +29,7 @@ export async function createDataProducer(channel = "default", type: UnreliableMe
         MediaStreamComponent.instance.dataProducers.delete(channel);
         networkTransport.dataProducer.close();
     });
-    console.log("Setting data producer");
+    networkTransport.dataProducer = dataProducer;
     MediaStreamComponent.instance.dataProducers.set(channel, networkTransport.dataProducer);
     return Promise.resolve(networkTransport.dataProducer);
 }

@@ -199,7 +199,8 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
   //   console.log("stateData.data is now: ", stateData.states);
   // });
 
-
+  if(worldState.transforms === undefined || worldState.transforms.length < 1)
+    return;// console.warn("Worldstate transforms is null");
 
 
 
