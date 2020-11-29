@@ -3,31 +3,28 @@ import DracosisPlayer from '@xr3ngine/volumetric/src/Player'
 import { Engine } from '../../ecs/classes/Engine';
 import VolumetricComponent from "../components/VolumetricComponent"
 import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-export const createVolumetric: Behavior = (entity, args: any) => {
+export const createVolumetric: Behavior = (entity, args: { objArgs }) => {
     console.warn("TODO: handle volumetric, args are", args);
     // Create new volumetric player component
    addComponent(entity, VolumetricComponent);
    const volumetricComponent = getMutableComponent(entity, VolumetricComponent);
     // Create new sequence with arg values
 
-    // If autoplay, autoplay
+   console.log("Args src is ", args.objArgs.src)
+   const drcs = args.objArgs.src.replace(".drcs", ".mp4");
 
     const DracosisSequence = new DracosisPlayer({
         scene: Engine.scene,
         renderer: Engine.renderer,
-        // filePath: 'https://s3-us-west-1.amazonaws.com/wildcapture.io/files/hula_med_590_1k.drcs',
-        filePath: args.src,
-        onLoaded: () => console.log("Loaded volumetric"),
-        playOnStart: true,
-        loop: true,
+        meshFilePath: args.objArgs.src,
+        videoFilePath: drcs,
+        loop: args.objArgs.loop,
+        autoplay: args.objArgs.autoPlay,
         startFrame: 0,
         endFrame: -1,
         scale: 0.001,
-        frameRate: 10,
         speedMultiplier: 1,
-        bufferSize: 80,
-        serverUrl: 'http://localhost:8000',
-        audioUrl:"https://cssing.org.ua/captainmorgan_audio09.mp3"
+        bufferSize: 80
       });
     
       volumetricComponent.player = DracosisSequence;
