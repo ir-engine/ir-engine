@@ -37,7 +37,7 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
 
 
 if (isClient) {
-    Network.instance.worldState.snapshot?.state.forEach(stateData => {
+    (Network.instance.worldState.snapshot as any)?.state?.forEach(stateData => {
       if (Network.instance.networkObjects[stateData.networkId] === undefined) return;
       const networkComponent = Network.instance.networkObjects[stateData.networkId].component;
       if(networkComponent.ownerId === Network.instance.userId && hasComponent(networkComponent.entity, LocalInputReceiver)) {
