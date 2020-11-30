@@ -4,6 +4,8 @@ import { CylinderGeometry, Matrix4, Mesh, Vector3 } from "three";
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
 import { addColliderWithoutEntity } from '@xr3ngine/engine/src/physics/behaviors/addColliderWithoutEntity';
+import { ProcessModelAsset } from "../../../assets/functions/ProcessModelAsset";
+import { AssetLoader } from "../../../assets/components/AssetLoader";
 
 export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
 
@@ -12,7 +14,12 @@ export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
   console.log(asset);
 
    asset.traverse( mesh => {
-     // console.log(mesh.userData.data);
+     console.log(mesh);
+
+    //  if (mesh.type == 'Object3D')  {
+    //    console.log('ITs LOD');
+    //   ProcessModelAsset(entity, mesh, asset);
+    // }
 
      if (mesh.userData.data == "physics") {
        if (mesh.userData.type == "box" || mesh.userData.type == "trimesh") {
@@ -26,6 +33,7 @@ export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
          } else if (mesh.type == 'Mesh') {
            addColliderWithoutEntity(mesh.userData.type, mesh.position, mesh.quaternion, mesh.scale, mesh);
          }
+         
 
        }
      }
