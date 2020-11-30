@@ -54,14 +54,15 @@ if (isClient) {
            qY: 0,
            qZ: 0,
            qW: 0
-         }])
+         }]);
         Vault.instance.add(playerSnapshot);
 
 
         let offsetX = 0, offsetY = 0, offsetZ = 0;
 
 
-        const oldPlayerSnapshot = Vault.instance.get(Network.instance.worldState.snapshot.time - NetworkInterpolation.instance.timeOffset+1000, true)
+        // TODO: proper typings to Network.instance.worldState.snapshot
+        const oldPlayerSnapshot = Vault.instance.get((Network.instance.worldState.snapshot as any).time - NetworkInterpolation.instance.timeOffset+1000, true)
 
         if (oldPlayerSnapshot) {
       //    console.warn('playerSnapshot');
