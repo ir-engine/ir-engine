@@ -22,6 +22,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 14.x
+      - run: yarn install
       - name: Setup Helm
         run: scripts/setup_helm.sh
       - name: Setup AWS
@@ -30,7 +31,7 @@ jobs:
           AWS_ACESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET: ${{ secrets.AWS_SECRET }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
-          CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
+          CLUSTER_NAME: xr3ngine-demo
       - name: Publish to DockerHub
         run: bash scripts/publish_dockerhub.sh dev $GITHUB_REF lagunalabs/xrengine && scripts/deploy.sh dev $GITHUB_REF
         env:
