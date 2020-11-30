@@ -207,7 +207,7 @@ const InstanceChat = (props: Props): any => {
                             }}
                             onChange={handleComposingMessageChange}
                             inputRef={messageRef}
-                            onClick={()=> messageRef?.current.focus()}
+                            onClick={()=> (messageRef as any)?.current?.focus()}
                         />
                         <div className={styles.iconContainerSend} onClick={packageMessage}>
                             <Send/>                            
