@@ -17,6 +17,11 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/dev'
     steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
       - name: Setup Helm
         run: scripts/setup_helm.sh
       - name: Setup AWS
