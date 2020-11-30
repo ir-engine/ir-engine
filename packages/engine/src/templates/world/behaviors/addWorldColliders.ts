@@ -9,8 +9,9 @@ export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
 
   const asset = args.asset;
   const deleteArr = [];
+  console.log(asset);
 
-   asset.scene.traverse( mesh => {
+   asset.traverse( mesh => {
      // console.log(mesh.userData.data);
 
      if (mesh.userData.data == "physics") {
