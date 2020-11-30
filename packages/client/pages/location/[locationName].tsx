@@ -37,6 +37,9 @@ import { VRMPrefab } from "../../../engine/src/templates/devices/prefabs/VRMPref
 import theme from '../../theme';
 import { setAppSpecificOnBoardingStep, generalStateList } from '../../redux/app/actions';
 import store from '../../redux/store';
+import { Network } from "@xr3ngine/engine/src/networking/components/Network";
+import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
+import { applyNetworkStateToClient } from "@xr3ngine/engine/src/networking/functions/applyNetworkStateToClient";
 
 interface Props {
   appState?: any;
@@ -197,6 +200,20 @@ const LocationPage = (props: Props) => {
       initializeEngine(InitializationOptions);
       // createPrefab(staticWorldColliders);
     loadScene(result);
+
+    console.log('!! --- JOIN in 5 sec');
+    setTimeout(async () => {
+      console.log('!! --- JOIN now!');
+      console.log("Joining world");
+
+      // TODO: make it proper way!?
+      const joinWorldResponse = await (Network.instance.transport as SocketWebRTCClientTransport).request(MessageTypes.JoinWorld.toString());
+      const { worldState } = joinWorldResponse as any;
+      console.log("Joined world");
+      // Apply all state to initial frame
+      console.log("Apply state?", worldState);
+      applyNetworkStateToClient(worldState);
+    }, 10000);
   }
 
   const goHome = () => window.location.href = window.location.origin;
