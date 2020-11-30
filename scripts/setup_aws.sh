@@ -7,8 +7,12 @@ sudo ./aws/install
 
 set +x
 
+echo setting access_key
 aws configure set aws_access_key_id $1
+echo setting secret_key
 aws configure set aws_secret_access_key $2
+echo setting region
 aws configure set default.region $3
 
-aws eks update-kubeconfig --name $4
+echo updating kubeconfig
+aws eks update-kubeconfig --name xr3ngine-demo
