@@ -31,6 +31,7 @@ import { createSnapshot } from '../../networking/functions/NetworkInterpolationF
 
 import supportsPassive from "../../common/functions/supportsPassive";
 import { BehaviorComponent } from '../../common/components/BehaviorComponent'
+import { NetworkInputInterface } from "../../networking/interfaces/WorldState";
 /**
  * Input System
  *
@@ -105,12 +106,12 @@ export class InputSystem extends System {
       input.data.forEach((value, key) => input.lastData.set(key, value));
 
       // Create a schema for input to send
-      const inputs = {
-        networkId: networkId,
+      const inputs:NetworkInputInterface = {
+        networkId: String(networkId),
         buttons: {},
         axes1d: {},
         axes2d: {},
-        viewVector: {}
+        viewVector: [0,0,0]
       };
 
       // Add all values in input component to schema

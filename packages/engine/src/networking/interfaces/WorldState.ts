@@ -1,25 +1,34 @@
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { BinaryValue } from "../../common/enums/BinaryValue";
 import { PrefabAlias } from "../../common/types/PrefabAlias";
+import { InputAlias } from "../../input/types/InputAlias";
+import { NumericalType } from "../../common/types/NumericalTypes";
 
 export interface NetworkInputInterface {
   networkId: string
   buttons: {
-    input: string,
-    value: BinaryValue,
-    lifecycleState: LifecycleValue
+    [key: string]: {
+      input: InputAlias,
+      value: NumericalType,
+      lifecycleState: LifecycleValue
+    }
   }
   axes1d: {
-    input: string,
-    value: number,
-    lifecycleState: LifecycleValue
+    [key: string]: {
+      input: InputAlias,
+      value: NumericalType,
+      lifecycleState: LifecycleValue
+    }
   }
   axes2d: {
-    input: string,
-    valueX: number,
-    valueY: number,
-    lifecycleState: LifecycleValue
+    [key: string]: {
+      input: InputAlias,
+      valueX: number,
+      valueY: number,
+      lifecycleState: LifecycleValue
+    }
   }
+  viewVector: number[]
 }
 
 export interface NetworkClientDataInterface {
