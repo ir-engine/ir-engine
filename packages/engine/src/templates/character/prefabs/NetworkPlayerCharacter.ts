@@ -31,6 +31,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     { type: Subscription, data: { schema: CharacterSubscriptionSchema } },
     // Current state (isJumping, isidle, etc)
     { type: State, data: { schema: CharacterStateSchema } },
+    { type: TeleportToSpawnPoint }
   ],
   // These are only created for the local player who owns this prefab
   localClientComponents: [
@@ -39,7 +40,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     { type: Interactor }
   ],
   serverComponents: [
-    { type: TeleportToSpawnPoint }
+
   ],
   onAfterCreate: [
     {

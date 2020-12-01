@@ -9,7 +9,7 @@ export class NetworkInterpolation extends Component<any> {
   vaultSize = 120
   timeOffset = -1
 
-  _interpolationBuffer = 1000
+  _interpolationBuffer = (1000 / 15) * 3
   /** The current server time based on the current snapshot interpolation. */
   public serverTime = 0
 
