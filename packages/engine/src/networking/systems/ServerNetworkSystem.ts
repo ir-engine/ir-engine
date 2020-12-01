@@ -61,7 +61,9 @@ export class ServerNetworkSystem extends System {
     Network.instance.worldState = {
       tick: Network.tick,
       transforms: [],
-      snapshot: {},
+      snapshot: {
+        state: undefined
+      },
       inputs: [],
       states: [],
       clientsConnected: Network.instance.clientsConnected,
