@@ -78,7 +78,7 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
       ) {
         rotation = new Quaternion( objectToCreate.qX, objectToCreate.qY, objectToCreate.qZ, objectToCreate.qW );
       }
-      console.warn(objectToCreate);
+  
       initializeNetworkObject(
         String(objectToCreate.ownerId),
         parseInt(objectToCreate.networkId),
@@ -91,8 +91,10 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
 
 
 
-    if(worldState.snapshot !== undefined && worldState.snapshot.length < 1){
-        addSnapshot(worldState.snapshot);
+    if( worldState.snapshot != undefined ) {
+      addSnapshot(worldState.snapshot);
+    } else {
+      console.warn('Interpolation Snapshot is null');
     }
 
 

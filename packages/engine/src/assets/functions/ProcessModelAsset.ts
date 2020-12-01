@@ -26,6 +26,10 @@ export function ProcessModelAsset(entity: Entity, component: AssetLoader, asset:
 
   ReplaceMaterials(object, component);
   object = HandleLODs(entity,object);
+  
+  if (asset.children.length) {
+    asset.children.forEach(child => HandleLODs(entity, child));
+    }
 
   if (component.parent) {
     component.parent.add(object);
@@ -46,6 +50,7 @@ export function ProcessModelAsset(entity: Entity, component: AssetLoader, asset:
       // const transformChild = addComponent<TransformChildComponent>(e, TransformChildComponent) as TransformChildComponent
       // transformChild.parent = entity
       //transformParent.children.push(e)
+      
     });
   }
 }
@@ -58,7 +63,11 @@ function HandleLODs(entity: Entity, asset: Object3D): Object3D {
 
   const LODs = new Map<string,{object: Object3D; level: string}[]>();
   asset.children.forEach(child => {
-    const [ _, name, level ]: string[] = child.name.match(LODS_REGEXP);
+    const childMatch = child.name.match(LODS_REGEXP);
+    if (!childMatch){
+      return;
+    }
+    const [ _, name, level ]: string[] = childMatch;
     if (!name || !level) {
       return;
     }
