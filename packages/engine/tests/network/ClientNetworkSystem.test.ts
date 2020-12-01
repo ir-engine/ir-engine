@@ -20,7 +20,7 @@ import { LocalInputReceiver } from "../../src/input/components/LocalInputReceive
 const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
 
 class TestTransport implements NetworkTransport {
-  isServer: boolean;
+  isServer = false;
 
   handleKick(socket: any) {
   }
@@ -61,6 +61,7 @@ test("create", () => {
   // TODO: mock initializeNetworkObject
 
   const message: WorldStateInterface = {
+    snapshot: undefined,
     clientsConnected: [],
     clientsDisconnected: [],
     createObjects: [],

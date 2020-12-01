@@ -168,7 +168,7 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
       input.data.set(inputData.axes2d[axis].input,
         {
           type: InputType.BUTTON,
-          value: inputData.axes2d[axis].value,
+          value: [ inputData.axes2d[axis].valueX, inputData.axes2d[axis].valueY ],
           lifecycleState: inputData.axes2d[axis].lifecycleState
         });
   });
