@@ -153,23 +153,26 @@ export function loginUserByPassword (form: EmailLoginForm) {
 }
 
 export function loginUserByGithub () {
-  return (dispatch: Dispatch): any => {
+  return (dispatch: Dispatch, getState: any): any => {
     dispatch(actionProcessing(true));
-    window.location.href = `${apiServer}/oauth/github`;
+    const token = getState().get('auth').get('authUser').accessToken;
+    window.location.href = `${apiServer}/oauth/github?feathers_token=${token}`;
   };
 }
 
 export function loginUserByGoogle () {
-  return (dispatch: Dispatch): any => {
+  return (dispatch: Dispatch, getState: any): any => {
     dispatch(actionProcessing(true));
-    window.location.href = `${apiServer}/oauth/google`;
+    const token = getState().get('auth').get('authUser').accessToken;
+    window.location.href = `${apiServer}/oauth/google?feathers_token=${token}`;
   };
 }
 
 export function loginUserByFacebook () {
-  return (dispatch: Dispatch): any => {
+  return (dispatch: Dispatch, getState: any): any => {
     dispatch(actionProcessing(true));
-    window.location.href = `${apiServer}/oauth/facebook`;
+    const token = getState().get('auth').get('authUser').accessToken;
+    window.location.href = `${apiServer}/oauth/facebook?feathers_token=${token}`;
   };
 }
 
