@@ -55,6 +55,7 @@ export class Network extends Component<Network> {
   worldState = {
     tick: Network.tick,
     transforms: [],
+    snapshot: {},
     inputs: [],
     states: [],
     clientsConnected: [],

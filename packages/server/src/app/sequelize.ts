@@ -32,22 +32,34 @@ export default (app: Application): void => {
             ;(app as any)
               .configure(seeder({ services: seederConfig }))
               .seed()
-              .catch(console.error)
-              .then(() => {
-                console.log('Seeded')
+              .catch((err) => {
+                console.log('Feathers seeding error');
+                console.log(err);
+                throw err;
               })
+              .then(() => {
+                console.log('Seeded');
+              });
 
             if (performDryRun) {
-              setTimeout(() => process.exit(0), 5000)
+              setTimeout(() => process.exit(0), 5000);
             }
           })
-          .catch(console.error)
+          .catch((err) => {
+            console.log('Sequelize setup error');
+            console.log(err);
+            throw err;
+          });
       })
       .then(sync => {
-        app.set('sequelizeSync', sync)
-        return sequelize.query('SET FOREIGN_KEY_CHECKS = 1')
+        app.set('sequelizeSync', sync);
+        return sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
       })
-      .catch(console.error)
-    return oldSetup.apply(this, args)
-  }
+      .catch((err) => {
+        console.log('Sequelize sync error');
+        console.log(err);
+        throw err;
+      });
+    return oldSetup.apply(this, args);
+  };
 };

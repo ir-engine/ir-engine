@@ -27,5 +27,5 @@ AssetLoader.schema = {
   envMapOverride: { default: null, type: Types.Ref },
   append: { default: true, type: Types.Boolean },
   onLoaded: { default: null, type: Types.Ref },
-  parent: { default: null, type: Types.Ref }
+  parent: { default: null, type: Types.Ref },
 };

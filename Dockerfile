@@ -17,6 +17,7 @@ COPY packages/client/package.json ./packages/client/
 COPY packages/common/package.json ./packages/common/
 COPY packages/engine/package.json ./packages/engine/
 COPY packages/server/package.json ./packages/server/
+COPY packages/volumetric/package.json ./packages/volumetric/
 
 #RUN  npm ci --verbose  # we should make lockfile or shrinkwrap then use npm ci for predicatble builds
 RUN yarn install --production=false

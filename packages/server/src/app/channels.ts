@@ -185,8 +185,8 @@ export default (app: Application): void => {
                 },
                 instanceId: instanceId
               }).catch((err) => {
-                console.warn("Failed to patch user, probably because they don't have an ID yet"),
-                  console.log(err);
+                console.warn("Failed to patch user, probably because they don't have an ID yet");
+                console.log(err);
               });
 
               app.channel(`instanceIds/${instanceId as string}`).leave(connection);
@@ -195,7 +195,12 @@ export default (app: Application): void => {
                 console.log('Deleting instance ' + instanceId);
                 await app.service('instance').remove(instanceId);
                 if ((app as any).gsSubdomainNumber != null) {
-                  await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
+                  const gsSubdomainProvision = await app.service('gameserver-subdomain-provision').find({
+                    query: {
+                      gs_number: (app as any).gsSubdomainNumber
+                    }
+                  });
+                  await app.service('gameserver-subdomain-provision').patch(gsSubdomainProvision.data[0].id, {
                     allocated: false
                   });
                 }
@@ -206,11 +211,6 @@ export default (app: Application): void => {
                 if (gsName !== undefined) {
                   logger.info('App\'s gameserver name:');
                   logger.info(gsName);
-                }
-                if ((app as any).gsSubdomainNumber != null) {
-                  await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
-                    allocated: false
-                  });
                 }
                 await (app as any).agonesSDK.shutdown();
               }

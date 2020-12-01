@@ -57,6 +57,7 @@ export interface NetworkObjectCreateInterface {
 export interface WorldStateInterface {
   tick: number
   transforms: NetworkTransformsInterface[]
+  snapshot: any
   inputs: NetworkInputInterface[]
   states: any[],
   clientsConnected: NetworkClientDataInterface[]

@@ -29,11 +29,11 @@ const AdminConsolePage = (props: Props) => {
   }, []);
 
   return (
-      <ThemeProvider theme={theme}>
+      // <ThemeProvider theme={theme}>
         <Layout pageTitle='Admin Panel'>
             <AdminConsole />
         </Layout>
-      </ThemeProvider>
+      // </ThemeProvider>
   );
 };
 

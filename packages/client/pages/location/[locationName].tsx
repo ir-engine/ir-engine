@@ -1,4 +1,4 @@
-import { Snackbar, ThemeProvider, Button } from '@material-ui/core';
+import { Snackbar, ThemeProvider } from '@material-ui/core';
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
@@ -70,6 +70,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const LocationPage = (props: Props) => {
   const { locationName } = useRouter().query as any;
   const [isValidLocation, setIsValidLocation] = useState(true);
+  const [openSnackBar, setOpenSnackBar] = React.useState(false);
 
   const {
     appState,
@@ -97,12 +98,14 @@ const LocationPage = (props: Props) => {
   useEffect(() => {
     const currentLocation = locationState.get('currentLocation').get('location');
     locationId = currentLocation.id;
+    
     userBanned = selfUser?.locationBans?.find(ban => ban.locationId === locationId) != null;
     if (authState.get('isLoggedIn') === true && authState.get('user')?.id != null && authState.get('user')?.id.length > 0 && currentLocation.id == null && userBanned === false && locationState.get('fetchingCurrentLocation') !== true) {
       getLocationByName(locationName);
       if(sceneId === null) {
         console.log("authState: Set scene ID to", sceneId);
         sceneId = currentLocation.sceneId;
+        // if(!locationId){store.dispatch(setAppSpecificOnBoardingStep(generalStateList.LOCATION_FAILED, false));setOpenSnackBar(true);return;}
       }
     }
   }, [authState]);
@@ -194,34 +197,27 @@ const LocationPage = (props: Props) => {
       initializeEngine(InitializationOptions);
       // createPrefab(staticWorldColliders);
     loadScene(result);
-    const cameraTransform = getMutableComponent<TransformComponent>(
-      CameraComponent.instance.entity,
-      TransformComponent
-    );
-    cameraTransform.position.set(0, 1.2, 10);
   }
 
   const goHome = () => window.location.href = window.location.origin;
 
   return (
-    <ThemeProvider theme={theme}>
+    // <ThemeProvider theme={theme}>
       <Layout pageTitle="Home">
         <NoSSR onSSR={<Loading />}>
-          {isValidLocation && <UserMenu />}
-          <Snackbar open={!isValidLocation} 
+          {!openSnackBar && <UserMenu />}
+          {userBanned === false ? (<Scene sceneId={sceneId} />) : (<div className="banned">You have been banned from this location</div>)}
+          <Snackbar open={openSnackBar} 
+            // onClose={handleCloseSnackBar} 
             anchorOrigin={{
               vertical: 'top',
               horizontal: 'center',
             }}>
-            <section>
-                <p>Invalid Location</p>  
-                <Button variant="outlined" color="primary" onClick={goHome}>Back Home</Button>              
-            </section>
-          </Snackbar>
-          {userBanned === false ? (<Scene sceneId={sceneId} />) : (<div className="banned">You have been banned from this location</div>)}
+              <section>Location is invalid</section>
+            </Snackbar>
         </NoSSR>
       </Layout>
-    </ThemeProvider>
+    // </ThemeProvider>
   );
 };
 
