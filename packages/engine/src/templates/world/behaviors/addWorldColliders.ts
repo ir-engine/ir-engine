@@ -4,21 +4,18 @@ import { CylinderGeometry, Matrix4, Mesh, Vector3 } from "three";
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
 import { addColliderWithoutEntity } from '@xr3ngine/engine/src/physics/behaviors/addColliderWithoutEntity';
-import { ProcessModelAsset } from "../../../assets/functions/ProcessModelAsset";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
 
 export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
 
   const asset = args.asset;
   const deleteArr = [];
-  console.log(asset);
-
+ 
    asset.traverse( mesh => {
-     console.warn(mesh);
-    
+       
      if (mesh.userData.data == "physics") {
        if (mesh.userData.type == "box" || mesh.userData.type == "trimesh") {
-         console.warn('ADD COLLIDER');
+        //  console.warn('ADD COLLIDER');
          deleteArr.push(mesh);
         //  console.log(mesh);
          if(mesh.type == 'Group') {
@@ -30,7 +27,6 @@ export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
          }
        }
      }
-
    });
 
    for (let i = 0; i < deleteArr.length; i++) {
