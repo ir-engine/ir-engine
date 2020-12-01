@@ -12,3 +12,5 @@ aws configure set aws_secret_access_key $2
 aws configure set default.region $3
 
 aws eks update-kubeconfig --name $4
+
+cat ~/.kube/config
