@@ -14,3 +14,4 @@ aws configure set default.region $3
 aws eks update-kubeconfig --name $4
 
 cat ~/.kube/config
+aws sts get-caller-identity
