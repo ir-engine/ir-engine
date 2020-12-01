@@ -12,7 +12,6 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 14.x
-      #      - run: yarn install
       - name: Setup Helm
         run: scripts/setup_helm.sh
       - name: Setup AWS
