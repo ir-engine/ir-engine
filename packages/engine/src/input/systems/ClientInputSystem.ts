@@ -127,24 +127,11 @@ export class InputSystem extends System {
       const actor = getComponent<CharacterComponent>(entity, CharacterComponent)
       inputs.viewVector = actor.viewVector.toArray();
 
-/*
-      const playerSnapshot = createSnapshot([{
-         networkId: 0,
-         x: actor.actorCapsule.body.position.x,
-         y: actor.actorCapsule.body.position.y,
-         z: actor.actorCapsule.body.position.z,
-         qX: 0,
-         qY: 0,
-         qZ: 0,
-         qW: 0
-       }])
-      Vault.instance.add(playerSnapshot);
-*/
 
       // TODO: Convert to a message buffer
       const message = inputs; // clientInputModel.toBuffer(inputs)
       Network.instance.transport.sendReliableData(message); // Use default channel
-
+      
       cleanupInput(entity);
 
     });

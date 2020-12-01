@@ -60,7 +60,7 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
   Engine.scene = scene;
 
   if(typeof window !== 'undefined') (window as any).engine = Engine;
-  
+
   // Networking
   registerSystem(isClient ? ClientNetworkSystem : ServerNetworkSystem,
     { schema: options.networking.schema, app: options.networking.app });
@@ -78,7 +78,7 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
 
   // registerSystem(SubscriptionSystem);
 
-  if(!isClient) registerSystem(ServerSpawnSystem, { priority: 899 });
+  registerSystem(ServerSpawnSystem, { priority: 899 });
 
   registerSystem(TransformSystem, { priority: 900 });
 

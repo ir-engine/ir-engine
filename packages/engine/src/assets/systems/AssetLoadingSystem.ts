@@ -20,7 +20,7 @@ import { Object3D } from 'three';
 
 export default class AssetLoadingSystem extends System {
   updateType = SystemUpdateType.Fixed;
-  
+
   loaded = new Map<Entity, Object3D>()
   loadingCount = 0;
 
@@ -42,6 +42,7 @@ export default class AssetLoadingSystem extends System {
         addComponent(entity, AssetLoaderState);
       }
       const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader);
+      console.warn(assetLoader);
       // Set the filetype
       assetLoader.assetType = getAssetType(assetLoader.url);
       // Set the class (model, image, etc)
