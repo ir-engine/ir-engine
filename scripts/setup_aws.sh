@@ -18,6 +18,6 @@ aws configure set default.region $3
 
 aws configure list
 echo updating kubeconfig
-aws eks update-kubeconfig --name xr3ngine-demo
+aws eks update-kubeconfig --name $4
 aws configure list
 echo finished setup_aws
