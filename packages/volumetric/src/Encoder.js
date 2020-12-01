@@ -75,7 +75,7 @@ const dir = process.cwd() + '/' + 'assets/';
     callback
   ) => {
     console.log('Writing file to ' + fileName);
-    var writeStream = fs.createWriteStream(`./assets/${fileName}.drcs`);
+    var writeStream = fs.createWriteStream(`./assets/temp.drcs`);
     var currentPositionInWriteStream = 0;
     // If user specificies frame out, this it the range we process
     var frameOut = this._frameOut > 0 ? this._frameOut : this._meshFiles.length;
@@ -176,7 +176,7 @@ const dir = process.cwd() + '/' + 'assets/';
     var createStream = fs.createWriteStream(fileName);
     createStream.write(combinedBuffer);
 
-    fs.readFile(`./assets/${fileName}.drcs`, (err, data) => {
+    fs.readFile(`./assets/temp.drcs`, (err, data) => {
       if (err) {
         return console.log(err);
       }
