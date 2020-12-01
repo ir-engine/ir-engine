@@ -1,24 +1,13 @@
-.exitButtonContainer{
-    position: absolute;
-    top: 10px;
-    width: 100vw;
-    z-index: 1200;
-
-    .exitButton{
-        display: block;
-        margin: 0 auto;
-    }
-}
 .helpHintSnackBar{
     user-select: none;
     text-align: center;
     opacity: 1;
 
-    -webkit-transition: opacity 2s ease-in-out;
-    -moz-transition: opacity 2s ease-in-out;
-    -ms-transition: opacity 2s ease-in-out;
-    -o-transition: opacity 2s ease-in-out;
-    transition: opacity 2s ease-in-out;
+    -webkit-transition: opacity 0.5s ease-in-out;
+    -moz-transition: opacity 0.5s ease-in-out;
+    -ms-transition: opacity 0.5s ease-in-out;
+    -o-transition: opacity 0.5s ease-in-out;
+    transition: opacity 0.5s ease-in-out;
     
     &.hidden{
         opacity: 0;
