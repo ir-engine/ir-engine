@@ -63,7 +63,11 @@ function HandleLODs(entity: Entity, asset: Object3D): Object3D {
 
   const LODs = new Map<string,{object: Object3D; level: string}[]>();
   asset.children.forEach(child => {
-    const [ _, name, level ]: string[] = child.name.match(LODS_REGEXP);
+    const childMatch = child.name.match(LODS_REGEXP);
+    if (!childMatch){
+      return;
+    }
+    const [ _, name, level ]: string[] = childMatch;
     if (!name || !level) {
       return;
     }

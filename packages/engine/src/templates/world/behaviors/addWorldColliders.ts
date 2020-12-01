@@ -14,18 +14,13 @@ export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
   console.log(asset);
 
    asset.traverse( mesh => {
-     console.log(mesh);
-
-    //  if (mesh.type == 'Object3D')  {
-    //    console.log('ITs LOD');
-    //   ProcessModelAsset(entity, mesh, asset);
-    // }
-
+     console.warn(mesh);
+    
      if (mesh.userData.data == "physics") {
        if (mesh.userData.type == "box" || mesh.userData.type == "trimesh") {
-         // console.log('ADD COLLIDER');
+         console.warn('ADD COLLIDER');
          deleteArr.push(mesh);
-         // console.log(mesh);
+        //  console.log(mesh);
          if(mesh.type == 'Group') {
            for (let i = 0; i < mesh.children.length; i++) {
              addColliderWithoutEntity(mesh.userData.type, mesh.children[i].position, mesh.children[i].quaternion, mesh.children[i].scale, mesh.children[i]);
@@ -33,8 +28,6 @@ export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
          } else if (mesh.type == 'Mesh') {
            addColliderWithoutEntity(mesh.userData.type, mesh.position, mesh.quaternion, mesh.scale, mesh);
          }
-         
-
        }
      }
 
