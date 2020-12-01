@@ -33,6 +33,7 @@ import { now } from "../../src/common/functions/now";
 import { PhysicsManager } from "../../src/physics/components/PhysicsManager";
 import { RaycastResult } from "collision/RaycastResult";
 import { Body } from 'cannon-es';
+import { StateSystem } from "../../src/state/systems/StateSystem";
 
 //const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
 const handleInputOnServer = jest.spyOn(handleInputOnServerModule, 'handleInputOnServer');
@@ -90,6 +91,8 @@ beforeAll(() => {
     return true;
   });
   // physicsWorldRaycastClosest = jest.spyOn(PhysicsManager.instance.physicsWorld, 'raycastClosest');
+
+  registerSystem(StateSystem);
 });
 
 beforeEach(() => {
@@ -106,7 +109,7 @@ function runFixed() {
   localTime += oneFixedRunTimeSpan;
 }
 
-test.skip("move forward changes transforms", () => {
+test("move forward changes transforms", () => {
   // TODO: mock initializeNetworkObject
   Network.instance.userId = userId;
   const networkId = 13;
@@ -135,37 +138,31 @@ test.skip("move forward changes transforms", () => {
     value: BinaryValue.ON
   };
 
-  // WorldStateInterface
-  Network.instance.incomingMessageQueue.add(message);
-  runFixed();
-  expect(Network.instance.incomingMessageQueue.getBufferLength()).toBe(0);
-
-  // keep pressing
-  Network.instance.incomingMessageQueue.add(message);
-  runFixed();
-  //execute(oneFixedRunTimeSpan, oneFixedRunTimeSpan * 3, SystemUpdateType.Fixed);
-  expect(Network.instance.incomingMessageQueue.getBufferLength()).toBe(0);
-
-
-  expect(PhysicsManager.instance.frame).toBe(2);
-
+  const runsCount = 20;
+  for (let i = 0; i < runsCount; i++) {
+    Network.instance.incomingMessageQueue.add(message);
+    runFixed();
+    // expect(Network.instance.incomingMessageQueue.getBufferLength()).toBe(0);
+  }
+  // // keep pressing
   // Network.instance.incomingMessageQueue.add(message);
-  // execute(0, 1 / Engine.physicsFrameRate, SystemUpdateType.Fixed);
-  // execute(0, 1 / Engine.physicsFrameRate, SystemUpdateType.Fixed);
-  // execute(0, 1 / Engine.physicsFrameRate, SystemUpdateType.Fixed);
+  // runFixed();
 
-  expect(fixedExecuteOnServer.mock.calls.length).toBe(2);
-  expect(handleInputOnServer.mock.calls.length).toBe(2);
+  expect(Network.instance.incomingMessageQueue.getBufferLength()).toBe(0);
+
+  expect(PhysicsManager.instance.frame).toBe(runsCount);
+  expect(fixedExecuteOnServer.mock.calls.length).toBe(runsCount);
+  expect(handleInputOnServer.mock.calls.length).toBe(runsCount);
 
   const actor: CharacterComponent = getMutableComponent(networkEntity, CharacterComponent);
   expect(actor.localMovementDirection.z).toBe(1);
   expect(actor.velocityTarget.z).toBe(1);
-  //expect(setLocalMovementDirection.mock.calls.length).toBe(1);
+  expect(actor.velocity.z).toBeGreaterThan(0);
 
   expect(Network.instance.worldState.transforms.length).toBe(1);
   const transform = Network.instance.worldState.transforms[0] as NetworkTransformsInterface;
   expect(transform.networkId).toBe(networkObject.networkId);
   expect(transform.x).toBe(0);
   expect(transform.y).toBe(0);
-  expect(transform.z).not.toBe(0);
+  expect(transform.z).toBeGreaterThan(0);
 })
