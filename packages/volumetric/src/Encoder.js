@@ -1,23 +1,34 @@
-var glob = require('glob');
-var fs = require('fs');
-var THREE = require('three');
-var OBJLoader = require('three/examples/jsm/loaders/OBJLoader');
-var Utilities = require('./Utilities');
+import glob from 'glob';
+import fs from 'fs';
+import THREE from 'three';
+import OBJLoader from 'three-obj-loader-cjs-module';
 
-global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
+import HttpRequest from 'xmlhttprequest';
+global.XMLHttpRequest = HttpRequest.XMLHttpRequest;
 
-export default class CortosisFileCreator {
-  _meshFiles: any[];
-  _frameData: any[];
-  _maxVertices: number;
-  _maxFaces: number;
-  _manager: any;
-  _loader: any;
-  mesh: any;
-  geometry: any;
-  _frameIn: any;
-  _frameOut: any;
-  _outputFileName: any;
+function longToByteArray(/*long*/long) {
+  // we want to represent the input as a 8-bytes array
+  let byteArray = [0, 0, 0, 0, 0, 0, 0, 0];
+  for (let index = 0; index < byteArray.length; index++) {
+      const byte = long & 0xff;
+      byteArray[index] = byte;
+      long = (long - byte) / 256;
+  }
+  return byteArray;
+};
+
+class CortosisFileCreator {
+  _meshFile;
+  _frameData;
+  _maxVertices;
+  _maxFaces;
+  _manager;
+  _loader;
+  mesh;
+  geometry;
+  _frameIn;
+  _frameOut;
+  _outputFileName;
   constructor(
     // renderer,
     meshFileSuffix,
@@ -31,31 +42,40 @@ export default class CortosisFileCreator {
     this._maxVertices = 0;
     this._maxFaces = 0;
     this._manager = new THREE.LoadingManager();
-    this._loader = new OBJLoader.OBJLoader(this._manager);
+    this._loader = new OBJLoader(this._manager);
     this.mesh = new THREE.Mesh();
     this.geometry = new THREE.Geometry();
     this._frameIn = frameIn;
     this._frameOut = frameOut;
     this._frameIn = frameIn;
     this._outputFileName = outputFileName;
-    this._manager.onProgress = function (item, loaded, total) {
+    this._manager.onProgress = (item, loaded, total) => {
       console.log(item, loaded, total);
       if (progressCallback) progressCallback(item, loaded, total);
     };
 
+    console.log("Constructed");
+const dir = process.cwd() + '/' + 'assets/';
+    if (fs.existsSync(dir))
+      console.log("Directory exists");
+      else console.log("Directory does not exist");
+      console.log(dir);
     // Read path to OBJs and make array
-    glob('assets/*.' + meshFileSuffix, {}, function (err, files) {
+    glob(dir + '*.crt', {}, (err, files) => {
       if (err) console.log(err);
       this._meshFiles = files;
+
+      this.createEncodedFile(this._outputFileName, () => { "file created! "});
     });
   }
 
-  createEncodedFile = async function (
+
+  createEncodedFile = async (
     fileName,
     callback
-  ) {
+  ) => {
     console.log('Writing file to ' + fileName);
-    var writeStream = fs.createWriteStream('./assets/temp.drcs');
+    var writeStream = fs.createWriteStream(`./assets/${fileName}.drcs`);
     var currentPositionInWriteStream = 0;
     // If user specificies frame out, this it the range we process
     var frameOut = this._frameOut > 0 ? this._frameOut : this._meshFiles.length;
@@ -70,7 +90,7 @@ export default class CortosisFileCreator {
       var objData = this._loader.parse(rawObjData);
       var noNormals = rawObjData.indexOf('vn ') === -1;
       //   var children = objData.children;
-      objData.traverse(function (child) {
+      objData.traverse((child) => {
         if (child.type == 'Mesh') {
           this.mesh = child;
           var bufferGeometry = child.geometry;
@@ -136,7 +156,7 @@ export default class CortosisFileCreator {
     var fileDataBuffer = Buffer.from(JSON.stringify(fileData), 'utf-8');
     // Write the length so we know how to read it back out into an object
     var fileDataBufferLengthEncoded = new Buffer(
-      Utilities.longToByteArray(fileDataBuffer.byteLength)
+      longToByteArray(fileDataBuffer.byteLength)
     );
     console.log('Byte array length: ' + fileDataBufferLengthEncoded.length);
     console.log('Data buffer byte length: ' + fileDataBuffer.byteLength);
@@ -156,7 +176,7 @@ export default class CortosisFileCreator {
     var createStream = fs.createWriteStream(fileName);
     createStream.write(combinedBuffer);
 
-    fs.readFile('./assets/temp.drcs', function (err, data) {
+    fs.readFile(`./assets/${fileName}.drcs`, (err, data) => {
       if (err) {
         return console.log(err);
       }
@@ -171,6 +191,10 @@ export default class CortosisFileCreator {
     if (callback) callback(1);
   };
 }
-new CortosisFileCreator('crt', 0, 2759, 'PLY-luna-med2760.drcs', function () {
+
+var myArgs = process.argv.slice(2);
+console.log('myArgs: ', myArgs);
+
+new CortosisFileCreator('crt', myArgs[1] ? myArgs[1] : 0, myArgs[2] ? myArgs[2] : -1, myArgs[0], () => {
   console.log('Converted to Dracosis');
 });
