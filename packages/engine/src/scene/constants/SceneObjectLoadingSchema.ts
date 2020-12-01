@@ -74,6 +74,9 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
         args: {
           component: AssetLoader,
         },
+        values: [
+          { from: 'src', to: 'url' }
+        ],
         onLoaded: addWorldColliders
       }
     ]
@@ -289,7 +292,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
         args: { component: ScenePreviewCameraTagComponent }
       },
       {
-        behavior: createScenePreviewCamera       
+        behavior: createScenePreviewCamera
       }
     ]
   },
