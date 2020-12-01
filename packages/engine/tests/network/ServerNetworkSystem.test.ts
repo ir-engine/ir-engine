@@ -27,10 +27,19 @@ import { Entity } from "../../src/ecs/classes/Entity";
 import { Server } from "../../src/networking/components/Server";
 import * as handleInputOnServerModule from "../../src/networking/functions/handleInputOnServer";
 import * as setLocalMovementDirectionModule from "../../src/templates/character/behaviors/setLocalMovementDirection";
+import { System } from "../../src/ecs/classes/System";
+import { Timer } from "../../src/common/functions/Timer";
+import { now } from "../../src/common/functions/now";
+import { PhysicsManager } from "../../src/physics/components/PhysicsManager";
+import { RaycastResult } from "collision/RaycastResult";
+import { Body } from 'cannon-es';
 
 //const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
 const handleInputOnServer = jest.spyOn(handleInputOnServerModule, 'handleInputOnServer');
 const setLocalMovementDirection = jest.spyOn(setLocalMovementDirectionModule, 'setLocalMovementDirection');
+let fixedExecuteOnServer:jest.SpyInstance;
+let physicsWorldRaycastClosest:jest.SpyInstance;
+let serverNetworkSystem:System;
 
 const userId = "oid";
 
@@ -68,16 +77,36 @@ beforeAll(() => {
 
   Engine.scene = new Scene();
 
-  registerSystem(ServerNetworkSystem, { schema: networkSchema });
+  serverNetworkSystem = registerSystem(ServerNetworkSystem, { schema: networkSchema });
+  fixedExecuteOnServer = jest.spyOn(serverNetworkSystem, 'execute');
+
   registerSystem(PhysicsSystem);
+  // pretend player has floor
+  PhysicsManager.instance.physicsWorld.raycastClosest = jest.fn((start, end, rayCastOptions, rayResult:RaycastResult) => {
+    rayResult.body = new Body({mass:1});
+    rayResult.hasHit = true;
+    rayResult.hitPointWorld.set(0,0,0);
+    rayResult.hitNormalWorld.set(0,1,0);
+    return true;
+  });
+  // physicsWorldRaycastClosest = jest.spyOn(PhysicsManager.instance.physicsWorld, 'raycastClosest');
 });
 
 beforeEach(() => {
   handleInputOnServer.mockClear();
-  setLocalMovementDirection.mockClear();
+  if (setLocalMovementDirection) {
+    setLocalMovementDirection.mockClear();
+  }
 });
 
-test("move forward changes transforms", () => {
+const oneFixedRunTimeSpan = 1 / Engine.physicsFrameRate;
+let localTime = now();
+function runFixed() {
+  execute(oneFixedRunTimeSpan, localTime, SystemUpdateType.Fixed);
+  localTime += oneFixedRunTimeSpan;
+}
+
+test.skip("move forward changes transforms", () => {
   // TODO: mock initializeNetworkObject
   Network.instance.userId = userId;
   const networkId = 13;
@@ -108,22 +137,35 @@ test("move forward changes transforms", () => {
 
   // WorldStateInterface
   Network.instance.incomingMessageQueue.add(message);
-  execute(0, 1 / Engine.physicsFrameRate, SystemUpdateType.Fixed);
+  runFixed();
   expect(Network.instance.incomingMessageQueue.getBufferLength()).toBe(0);
 
+  // keep pressing
   Network.instance.incomingMessageQueue.add(message);
-  execute(0, 1 / Engine.physicsFrameRate, SystemUpdateType.Fixed);
+  runFixed();
+  //execute(oneFixedRunTimeSpan, oneFixedRunTimeSpan * 3, SystemUpdateType.Fixed);
+  expect(Network.instance.incomingMessageQueue.getBufferLength()).toBe(0);
 
+
+  expect(PhysicsManager.instance.frame).toBe(2);
+
+  // Network.instance.incomingMessageQueue.add(message);
+  // execute(0, 1 / Engine.physicsFrameRate, SystemUpdateType.Fixed);
+  // execute(0, 1 / Engine.physicsFrameRate, SystemUpdateType.Fixed);
+  // execute(0, 1 / Engine.physicsFrameRate, SystemUpdateType.Fixed);
+
+  expect(fixedExecuteOnServer.mock.calls.length).toBe(2);
   expect(handleInputOnServer.mock.calls.length).toBe(2);
 
   const actor: CharacterComponent = getMutableComponent(networkEntity, CharacterComponent);
   expect(actor.localMovementDirection.z).toBe(1);
+  expect(actor.velocityTarget.z).toBe(1);
   //expect(setLocalMovementDirection.mock.calls.length).toBe(1);
 
   expect(Network.instance.worldState.transforms.length).toBe(1);
   const transform = Network.instance.worldState.transforms[0] as NetworkTransformsInterface;
   expect(transform.networkId).toBe(networkObject.networkId);
   expect(transform.x).toBe(0);
-  //expect(transform.y).toBe(0);
+  expect(transform.y).toBe(0);
   expect(transform.z).not.toBe(0);
 })
