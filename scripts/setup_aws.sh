@@ -15,3 +15,4 @@ aws eks update-kubeconfig --name $4
 
 cat ~/.kube/config
 aws sts get-caller-identity
+kubectl get svc
