@@ -20,7 +20,7 @@ import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClien
 import { handleInputOnServer } from '../functions/handleInputOnServer';
 import { handleUpdatesFromClients } from '../functions/handleUpdatesFromClients';
 import { createSnapshot, addSnapshot } from '../functions/NetworkInterpolationFunctions';
-let t = 0, m = true
+const t = 0, m = true
 
 export class ServerNetworkSystem extends System {
   private _inputComponent: Input
@@ -61,7 +61,9 @@ export class ServerNetworkSystem extends System {
     Network.instance.worldState = {
       tick: Network.tick,
       transforms: [],
-      snapshot: {},
+      snapshot: {
+        state: undefined
+      },
       inputs: [],
       states: [],
       clientsConnected: Network.instance.clientsConnected,
