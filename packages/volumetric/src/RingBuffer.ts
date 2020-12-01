@@ -1,6 +1,4 @@
 export default class RingBuffer<T> {
-  private _newInputBuffer: RingBuffer<T>
-
   public static fromArray<T>(data: T[], size = 0): RingBuffer<T> {
     const actionBuffer = new RingBuffer<T>(size)
     actionBuffer.fromArray(data, size === 0)

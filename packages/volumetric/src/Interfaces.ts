@@ -1,5 +1,5 @@
 import { BufferGeometry, CompressedTexture } from 'three'
-import { MessageType } from './Enums'
+import MessageType from './MessageType'
 
 export interface Action {
     type: MessageType,
@@ -12,12 +12,9 @@ export interface IFrameData {
     vertices: number;
     faces: number;
     meshLength: number;
-    textureLength: number;
 }
 
 export interface IFileHeader {
-    textureHeight: number;
-    textureWidth: number;
     maxVertices: number;
     maxTriangles: number;
     frameData: IFrameData[];
@@ -26,19 +23,11 @@ export interface IFileHeader {
 export interface IMeshTextureData {
     frameNumber: number;
     mesh: Buffer;
-    texture: Buffer;
 }
 
 export interface IBuffer {
     frameNumber: number;
-    bufferGeometry: Buffer;
-    compressedTexture: Buffer;
-}
-
-export interface IBufferGeometryCompressedTexture {
-    frameNumber: number;
-    bufferGeometry: BufferGeometry;
-    compressedTexture: CompressedTexture;
+    bufferGeometry: Buffer | BufferGeometry;
 }
 
 export interface WorkerInitializationRequest extends Action {

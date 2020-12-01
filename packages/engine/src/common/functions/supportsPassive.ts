@@ -1,7 +1,7 @@
 export default function supportsPassive() :boolean {
   let supportsPassiveValue = false;
   try {
-    let opts = Object.defineProperty({}, 'passive', {
+    const opts = Object.defineProperty({}, 'passive', {
       get: function() {
         supportsPassiveValue = true;
       }

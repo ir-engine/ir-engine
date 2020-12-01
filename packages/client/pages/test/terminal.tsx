@@ -1,7 +1,7 @@
 import React from 'react';
 import Layout from '../../components/ui/Layout';
 import Terminal from '../../components/terminal';
-import Scene  from '../scene/mvp';
+import Scene  from '../../components/scenes/ui';
 
 export const IndexPage = (props: any): any => {
  
