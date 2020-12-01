@@ -33,7 +33,7 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
       - name: Publish to DockerHub
-        run: bash scripts/publish_dockerhub.sh dev $GITHUB_REF lagunalabs/xrengine && scripts/deploy.sh dev $GITHUB_REF
+        run: bash scripts/publish_dockerhub.sh dev $GITHUB_SHA lagunalabs/xrengine && scripts/deploy.sh dev $GITHUB_SHA
         env:
           DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
