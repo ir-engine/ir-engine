@@ -135,7 +135,7 @@ const UserMenu = (props: Props): any => {
   };
 
   const handleLogin = () => {
-    showDialog({ children: <SignIn /> });
+    setDrawerType('login')
   };
 
   const handleLogout = () => {
@@ -259,6 +259,11 @@ const renderDeviceSetupPage = () =><>
   <UserSettings />
 </>;
 
+const renderLoginPage = () =><>
+  <Typography variant="h2" color="primary"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} />Login</Typography>
+  <SignIn />
+</>;
+
 const renderUserMenu = () =><>
           {renderChangeNameForm()}
           <Typography variant="h1">{worldName}</Typography>
@@ -279,6 +284,7 @@ const renderDrawerContent = () =>{
   switch(drawerType){
     case 'avatar': return renderAvatarSelectionPage();
     case 'device': return renderDeviceSetupPage();
+    case 'login': return renderLoginPage();
     default: return renderUserMenu();
   }
 };
