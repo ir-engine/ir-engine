@@ -1,6 +1,15 @@
 import { BufferGeometry, CompressedTexture } from 'three'
-import MessageType from './MessageType'
 
+
+export enum MessageType {
+    InitializationRequest,
+    InitializationResponse,
+    DataRequest,
+    DataResponse,
+    SetLoopRequest,
+    SetStartFrameRequest,
+    SetEndFrameRequest,
+  };
 export interface Action {
     type: MessageType,
     value?: number | boolean | string
