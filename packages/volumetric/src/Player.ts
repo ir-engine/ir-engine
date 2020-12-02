@@ -1,5 +1,3 @@
-import Blob from "cross-blob";
-import ReadStream from "fs-read-stream-over-http";
 import {
   BufferGeometry,
   CompressedTexture,
@@ -14,15 +12,16 @@ import {
   VideoTexture
 } from 'three';
 import {
-  MessageType,
   Action,
-  IBuffer,
+  IBuffer, MessageType,
+
+
   WorkerDataRequest,
   WorkerInitializationResponse
 } from './Interfaces';
 import CortoDecoder from './libs/cortodecoder.js';
 import RingBuffer from './RingBuffer';
-import workerBlobUrl from './Worker'
+import workerBlobUrl from './Worker';
 
 export function byteArrayToLong(/*byte[]*/byteArray: Buffer) {
   let value = 0;
@@ -135,10 +134,10 @@ export default class DracosisPlayer {
     this._startFrame = startFrame;
     this._currentFrame = startFrame;
     this._video = document.createElement('video');
+    this._video.crossorigin = "anonymous";
     this._video.src = videoFilePath;
     this._videoTexture = new VideoTexture(this._video);
-
-    this._video.requestVideoFrameCallback(this.videoUpdateHandler.bind(this));
+    this._videoTexture.crossorigin = "anonymous";
 
     document.body.appendChild(this._video);
 
@@ -205,6 +204,7 @@ export default class DracosisPlayer {
         // If we haven't inited yet, notify that we have, autoplay content and remove the event listener
         if (!this.hasInited) {
           this.hasInited = true;
+          this._video.requestVideoFrameCallback(this.videoUpdateHandler.bind(this));
           this.play();
           document.body.removeEventListener("mousedown", eventListener);
         }

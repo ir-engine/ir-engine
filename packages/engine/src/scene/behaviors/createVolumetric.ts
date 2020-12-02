@@ -27,4 +27,6 @@ export const createVolumetric: Behavior = (entity, args: { objArgs }) => {
     
       volumetricComponent.player = DracosisSequence;
 
+      console.log("Created volumetric");
+
 };
