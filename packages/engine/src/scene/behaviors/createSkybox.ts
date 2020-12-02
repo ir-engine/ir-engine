@@ -9,7 +9,6 @@ import { isClient } from '../../common/functions/isClient';
 import { Engine } from '../../ecs/classes/Engine';
 import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { ScaleComponent } from '../../transform/components/ScaleComponent';
-import { SkyboxComponent } from '../components/SkyboxComponent';
 
 export default function createSkybox(entity, args: {
   obj3d;
@@ -19,8 +18,17 @@ export default function createSkybox(entity, args: {
     return;
   }
 
-  if (args.objArgs.skytype === "skybox") {
-
+  if (args.objArgs.skytype === "cubemap") {
+    Engine.scene.background = new CubeTextureLoader()
+      .setPath(args.objArgs.texture)
+      .load(['posx.jpg', 'negx.jpg', 'posy.jpg', 'negy.jpg', 'posz.jpg', 'negz.jpg']);
+  }
+  else if (args.objArgs.skytype === "equirectangular") {
+    Engine.scene.background = new TextureLoader().load(args.objArgs.texture);
+    Engine.scene.background.encoding = sRGBEncoding;
+    Engine.scene.background.mapping = EquirectangularReflectionMapping;
+  }
+  else {
     addObject3DComponent(entity, { obj3d: Sky, objArgs: args.objArgs });
     addComponent(entity, ScaleComponent);
     const scaleComponent = getMutableComponent<ScaleComponent>(entity, ScaleComponent);
@@ -38,20 +46,5 @@ export default function createSkybox(entity, args: {
     uniforms.rayleigh.value = args.objArgs.rayleigh;
     uniforms.turbidity.value = args.objArgs.turbidity;
     uniforms.sunPosition.value = sun;
-
-  } else if (args.objArgs.skytype === "cubemap") {
-    const textureBox = new CubeTextureLoader()
-      .setPath(args.objArgs.texture)
-      .load(['posx.jpg', 'negx.jpg', 'posy.jpg', 'negy.jpg', 'posz.jpg', 'negz.jpg']);
-    Engine.scene.background = textureBox;
-  }
-  else if (args.objArgs.skytype === "equirectangular") {
-
-    const textureLoader = new TextureLoader();
-    textureLoader.load(args.objArgs.texture, (texture) => {
-      texture.encoding = sRGBEncoding;
-      texture.mapping = EquirectangularReflectionMapping;
-      Engine.scene.background = texture;
-    });
   }
 }
