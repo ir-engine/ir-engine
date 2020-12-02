@@ -1,4 +1,4 @@
-import { BufferGeometry, CompressedTexture } from 'three'
+import { BufferGeometry } from 'three';
 
 
 export enum MessageType {
