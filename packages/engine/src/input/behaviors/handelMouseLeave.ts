@@ -18,6 +18,10 @@ export const handleMouseLeave: Behavior = (entity: Entity, args: { event: MouseE
     const input = getComponent(entity, Input);
 
     Object.keys(input.schema.mouseInputMap.buttons).forEach(button => {
+        if (!input.data.has(button)) {
+            return;
+        }
+
         input.data.set(button, {
             type: InputType.BUTTON,
             value: BinaryValue.OFF,
@@ -26,18 +30,33 @@ export const handleMouseLeave: Behavior = (entity: Entity, args: { event: MouseE
     });
 
     if (input.schema.mouseInputMap.axes[MouseInput.MouseClickDownPosition]) {
-        input.data.set(input.schema.mouseInputMap.axes[MouseInput.MouseClickDownPosition], {
-            type: InputType.TWODIM,
-            value: [0, 0],
-            lifecycleState: LifecycleValue.ENDED
-        });
+        const axis = input.schema.mouseInputMap.axes[MouseInput.MouseClickDownPosition];
+        if (input.data.has(axis)) {
+            const value = input.data.get(axis).value;
+
+            if (value[0] !== 0 || value[1] !== 0) {
+                input.data.set(input.schema.mouseInputMap.axes[MouseInput.MouseClickDownPosition], {
+                    type: InputType.TWODIM,
+                    value: [0, 0],
+                    lifecycleState: LifecycleValue.ENDED
+                });
+            }
+        }
     }
+
     if (input.schema.mouseInputMap.axes[MouseInput.MouseClickDownTransformRotation]) {
-        input.data.set(input.schema.mouseInputMap.axes[MouseInput.MouseClickDownTransformRotation], {
-            type: InputType.TWODIM,
-            value: [0, 0],
-            lifecycleState: LifecycleValue.ENDED
-        });
+        const axis = input.schema.mouseInputMap.axes[MouseInput.MouseClickDownTransformRotation];
+        if (input.data.has(axis)) {
+            const value = input.data.get(axis).value;
+
+            if (value[0] !== 0 || value[1] !== 0) {
+                input.data.set(axis, {
+                    type: InputType.TWODIM,
+                    value: [0, 0],
+                    lifecycleState: LifecycleValue.ENDED
+                });
+            }
+        }
     }
 
 };
