@@ -95,8 +95,8 @@ if (isClient) {
       //  )
 
 
-        springMovement(networkComponent.entity, null, deltaTime);
-        springRotation(networkComponent.entity, null, deltaTime);
+
+
         rotateModel(networkComponent.entity);
       }
     })
@@ -140,7 +140,7 @@ if (isClient) {
             interpolationData.qZ,
             interpolationData.qW
           );
-          
+
         }
   /*    } else {
         transform.position.set(
@@ -157,9 +157,8 @@ if (isClient) {
 }
 
 
-
-
-
+  springRotation(entity, null, deltaTime);
+  springMovement(entity, null, deltaTime);
 
     actorTransform.position.set(
       actor.actorCapsule.body.position.x,

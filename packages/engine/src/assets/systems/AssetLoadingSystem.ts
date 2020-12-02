@@ -20,7 +20,6 @@ import { Object3D } from 'three';
 
 export default class AssetLoadingSystem extends System {
   updateType = SystemUpdateType.Fixed;
-  
   loaded = new Map<Entity, Object3D>()
   loadingCount = 0;
 
