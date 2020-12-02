@@ -141,8 +141,10 @@ export default class DracosisPlayer {
     this._video.requestVideoFrameCallback(this.videoUpdateHandler.bind(this));
 
     document.body.appendChild(this._video);
-    
-    this.worker = new Worker(workerBlobUrl);
+
+    const workerUrl = URL.createObjectURL(workerBlobUrl);
+
+    this.worker = new Worker(workerUrl);
 
     this.bufferGeometry = new PlaneBufferGeometry(1, 1);
     this.material = new MeshBasicMaterial({ map: this._videoTexture });
