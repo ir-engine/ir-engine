@@ -8,7 +8,11 @@ export default class SpawnPointNode extends EditorNodeMixin(THREE.Object3D) {
   static legacyComponentName = "spawn-point";
   static nodeName = "Spawn Point";
   static async load() {
-    const { scene } = await new GLTFLoader(GLTF_PATH).loadGLTF();
+    // const { scene } = await new GLTFLoader(GLTF_PATH).loadGLTF();
+    const { scene } = await new Promise<{ scene: any; json: any; stats: any }>((resolve)=>{
+      const loader = new GLTFLoader()
+      loader.load(GLTF_PATH, (gltf) => { resolve({ scene: gltf.scene, json: {}, stats: {} }) })
+      });
     // scene.traverse(child => {
     //   if (child.isMesh) {
     //     child.layers.set(2);
