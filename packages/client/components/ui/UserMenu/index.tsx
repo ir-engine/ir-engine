@@ -5,7 +5,6 @@ import { generalStateList, setAppSpecificOnBoardingStep } from '../../../redux/a
 import EditIcon from '@material-ui/icons/Edit';
 import MenuIcon from '@material-ui/icons/Menu';
 import ShareIcon from '@material-ui/icons/Share';
-import PermIdentityIcon from '@material-ui/icons/PermIdentity';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import Tooltip from '@material-ui/core/Tooltip';
 import store from '../../../redux/store';
@@ -24,6 +23,7 @@ import { logoutUser } from '../../../redux/auth/service';
 import { Network } from '@xr3ngine/engine/src/networking/components/Network';
 import { loadActorAvatar } from '@xr3ngine/engine/src/templates/character/behaviors/loadActorAvatar';
 import UserSettings from '../Profile/UserSettings';
+import { LazyImage } from '../LazyImage';
 
 interface Props {
     login?: boolean;
@@ -224,30 +224,17 @@ const UserMenu = (props: Props): any => {
    
 //filter avatars by some attribute
 const avatarsForRender = CharacterAvatars.filter(avatar=>avatar.id !== 'Animation');
-function imageExists(image_url){
-  var http = new XMLHttpRequest();
-  http.open('HEAD', image_url, false);
-  http.send();
-  return http.status != 404;
-}
 const renderAvatarSelectionPage = () =><>
       <Typography variant="h2" color="primary"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} />Change Avatar</Typography>
       <section className={styles.avatarCountainer}>
           {avatarsForRender.map(characterAvatar=>
               <Card key={characterAvatar.id} className={styles.avatarPreviewWrapper}> 
-                <CardActionArea>
-                  {imageExists('/static/'+characterAvatar.id.toLocaleLowerCase()+'.png') ? 
-                  <CardMedia
-                    component="img"
-                    alt={characterAvatar.title}
-                    height="145"
-                    image={'/static/'+characterAvatar.id.toLocaleLowerCase()+'.png'}
-                    title={characterAvatar.title}
-                    className={styles.avatarPreview+(actorAvatarId === characterAvatar.id ? ' '+'currentAvatar' : '')} 
-                    onClick={()=>setActorAvatarId(characterAvatar.id)}                    
-                  /> : <PermIdentityIcon color="primary" height="145" 
-                      className={styles.avatarPreview+(actorAvatarId === characterAvatar.id ? ' '+styles.currentAvatar : '')} 
-                      onClick={()=>setActorAvatarId(characterAvatar.id)} /> }
+                <CardActionArea onClick={()=>setActorAvatarId(characterAvatar.id)} >
+                  <LazyImage
+                    key={characterAvatar.id}
+                    src={'/static/'+characterAvatar.id.toLocaleLowerCase()+'.png'}
+                    alt={characterAvatar.title}                  
+                  />
                 </CardActionArea>
               </Card>
             )}
