@@ -1,0 +1,24 @@
+.lazyImage{
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+    height: auto;
+
+    // Add a smooth animation on loading
+    @keyframes loaded {
+        0% {
+        opacity: 0.1;
+        }
+        100% {
+        opacity: 1;
+        }
+    }
+
+    &.loaded:not(.hasError) {
+        animation: loaded 300ms ease-in-out;
+    }
+    &.hasError {
+        // fallback to placeholder image on error
+        content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII=");
+    }
+}
