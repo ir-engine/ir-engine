@@ -24,6 +24,7 @@ import { logoutUser } from '../../../redux/auth/service';
 import { Network } from '@xr3ngine/engine/src/networking/components/Network';
 import { loadActorAvatar } from '@xr3ngine/engine/src/templates/character/behaviors/loadActorAvatar';
 import UserSettings from '../Profile/UserSettings';
+import { LazyImage } from '../LazyImage';
 
 interface Props {
     login?: boolean;
@@ -235,8 +236,13 @@ const renderAvatarSelectionPage = () =><>
       <section className={styles.avatarCountainer}>
           {avatarsForRender.map(characterAvatar=>
               <Card key={characterAvatar.id} className={styles.avatarPreviewWrapper}> 
-                <CardActionArea>
-                  {imageExists('/static/'+characterAvatar.id.toLocaleLowerCase()+'.png') ? 
+                <CardActionArea onClick={()=>setActorAvatarId(characterAvatar.id)} >
+                  <LazyImage
+                    key={characterAvatar.id}
+                    src={'/static/'+characterAvatar.id.toLocaleLowerCase()+'.png'}
+                    alt={characterAvatar.title}                  
+                  />
+                  {/* {imageExists('/static/'+characterAvatar.id.toLocaleLowerCase()+'.png') ? 
                   <CardMedia
                     component="img"
                     alt={characterAvatar.title}
@@ -247,7 +253,7 @@ const renderAvatarSelectionPage = () =><>
                     onClick={()=>setActorAvatarId(characterAvatar.id)}                    
                   /> : <PermIdentityIcon color="primary" height="145" 
                       className={styles.avatarPreview+(actorAvatarId === characterAvatar.id ? ' '+styles.currentAvatar : '')} 
-                      onClick={()=>setActorAvatarId(characterAvatar.id)} /> }
+                      onClick={()=>setActorAvatarId(characterAvatar.id)} /> } */}
                 </CardActionArea>
               </Card>
             )}
