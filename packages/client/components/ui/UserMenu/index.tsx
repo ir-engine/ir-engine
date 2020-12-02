@@ -135,7 +135,7 @@ const UserMenu = (props: Props): any => {
   };
 
   const handleLogin = () => {
-    setDrawerType('login')
+    setDrawerType('login');
   };
 
   const handleLogout = () => {
