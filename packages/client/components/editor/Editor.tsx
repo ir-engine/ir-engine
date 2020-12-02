@@ -1530,7 +1530,7 @@ export default class Editor extends EventEmitter {
     object.updateMatrixWorld();
 
     const matrixWorld = tempMatrix1.copy(object.matrixWorld);
-    const inverseParentMatrixWorld = tempMatrix2.getInverse(object.parent.matrixWorld);
+    const inverseParentMatrixWorld = object.parent.matrixWorld.inverse();
 
     const pivotToOriginMatrix = tempMatrix3.makeTranslation(-pivot.x, -pivot.y, -pivot.z);
     const originToPivotMatrix = tempMatrix4.makeTranslation(pivot.x, pivot.y, pivot.z);

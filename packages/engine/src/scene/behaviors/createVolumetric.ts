@@ -21,7 +21,7 @@ export const createVolumetric: Behavior = (entity, args: { objArgs }) => {
         autoplay: args.objArgs.autoPlay,
         startFrame: 0,
         endFrame: -1,
-        scale: 0.001,
+        scale: 1,
         bufferSize: 80,
       });
     
