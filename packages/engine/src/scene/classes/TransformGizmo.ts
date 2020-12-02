@@ -37,7 +37,11 @@ export default class TransformGizmo extends Object3D {
       return Promise.resolve(gizmoGltf);
     }
 
-    const gltf = await new GLTFLoader(GLTF_PATH).loadGLTF();
+    // const gltf = await new GLTFLoader(GLTF_PATH).loadGLTF();
+    const gltf = await new Promise<{ scene: any; json: any; stats: any }>((resolve)=>{
+      const loader = new GLTFLoader()
+      loader.load(GLTF_PATH, (gltf) => { resolve({ scene: gltf.scene, json: {}, stats: {} }) })
+      });
 
     gizmoGltf = gltf;
 
