@@ -102,6 +102,4 @@ const workerBlob = new Blob([
     `
   ]);
 
-  const workerUrl = window.URL.createObjectURL(workerBlob);
-
-  export default workerUrl;
+  export default workerBlob;
