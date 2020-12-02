@@ -14,15 +14,26 @@ import {
   VideoTexture
 } from 'three';
 import {
+  MessageType,
   Action,
   IBuffer,
   WorkerDataRequest,
   WorkerInitializationResponse
 } from './Interfaces';
-import CortoDecoder from './libs/corto/cortodecoder.js';
-import MessageType from './MessageType';
+import CortoDecoder from './libs/cortodecoder.js';
 import RingBuffer from './RingBuffer';
-import { byteArrayToLong, lerp } from './Utilities';
+
+export function byteArrayToLong(/*byte[]*/byteArray: Buffer) {
+  let value = 0;
+  for (let i = byteArray.length - 1; i >= 0; i--) {
+      value = (value * 256) + byteArray[i];
+  }
+  return value;
+};
+
+export function lerp(v0: number, v1: number, t: number) {
+  return v0 * (1 - t) + v1 * t
+}
 
 export default class DracosisPlayer {
   // Public Fields
