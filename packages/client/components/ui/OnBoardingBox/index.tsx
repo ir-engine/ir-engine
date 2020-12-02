@@ -40,7 +40,7 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
     const fadeIntInterval = setTimeout(()=>{
       store.dispatch(setAppOnBoardingStep(step));
       step !== generalStateList.ALL_DONE && setHiddenSnackBar(false);
-    }, 2000);
+    }, 500);
     if(step === generalStateList.TUTOR_END){
       clearInterval(fadeOutInterval);
       clearInterval(fadeIntInterval);
@@ -106,12 +106,6 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
     cardFadeInOut(generalStateList.TUTOR_INTERACT);
   };
 
-  const exitTutorialHandle = () => {
-    const InputComponent = getMutableComponent(actorEntity, Input);
-    InputComponent.schema = CharacterInputSchema;
-    cardFadeInOut(generalStateList.ALL_DONE);
-  };
-
   var message = null;
   var imageTip = null;
 
@@ -134,11 +128,7 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
     anchorOriginBottomCenter: styles.bottomPos};
   hiddenSnackbar && (snackBarClasses.root += ' '+styles.hidden);
   
-  return message ? <>
-      <section className={styles.exitButtonContainer}>
-        <Button variant="contained" className={styles.exitButton} 
-            onClick={exitTutorialHandle}>Exit Tutorial</Button>
-      </section>
+  return message ? 
       <Snackbar 
       anchorOrigin={{vertical: 'bottom',horizontal: 'center'}} 
       classes={snackBarClasses}
@@ -149,7 +139,7 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
             <p>{message}</p>
           </section>
       </Snackbar>
-    </>  : null;
+    : null;
 };
 
 export default connect(mapStateToProps)(OnBoardingBox);
