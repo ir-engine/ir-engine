@@ -28,6 +28,8 @@ config/*
 !config/default.json
 !config/server.json
 !config/custom-environment-variables.json
+!config/development.json
+!config/dev.json
 
 # Logs
 logs
