@@ -62,6 +62,7 @@ import {
 	VectorKeyframeTrack,
 	sRGBEncoding
 } from "three";
+// import { DRACOLoader } from "./DRACOLoader"
 
 var GLTFLoader = ( function () {
 
@@ -70,6 +71,7 @@ var GLTFLoader = ( function () {
 		Loader.call( this, manager );
 
 		this.dracoLoader = null;
+		// this.dracoLoader = new DRACOLoader();
 		this.ddsLoader = null;
 		this.ktx2Loader = null;
 		this.meshoptDecoder = null;
@@ -278,6 +280,7 @@ var GLTFLoader = ( function () {
 
 			}
 
+			console.log(content);
 			var json = JSON.parse( content );
 
 			if ( json.asset === undefined || json.asset.version[ 0 ] < 2 ) {

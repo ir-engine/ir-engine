@@ -2,6 +2,7 @@ import * as THREE from "three";
 import EditorNodeMixin from "./EditorNodeMixin";
 //@ts-ignore
 import { GLTFLoader } from "@xr3ngine/engine/src/assets/loaders/gltf/GLTFLoader";
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 let spawnPointHelperModel = null;
 const GLTF_PATH = "/editor/spawn-point.glb"; // Static
 export default class SpawnPointNode extends EditorNodeMixin(THREE.Object3D) {
@@ -10,8 +11,11 @@ export default class SpawnPointNode extends EditorNodeMixin(THREE.Object3D) {
   static async load() {
     // const { scene } = await new GLTFLoader(GLTF_PATH).loadGLTF();
     const { scene } = await new Promise<{ scene: any; json: any; stats: any }>((resolve)=>{
-      const loader = new GLTFLoader()
-      loader.load(GLTF_PATH, (gltf) => { resolve({ scene: gltf.scene, json: {}, stats: {} }) })
+      const loader = new GLTFLoader();
+        const dracoLoader = new DRACOLoader();
+        dracoLoader.setDecoderPath('/loader_decoders/');
+        loader.setDRACOLoader(dracoLoader);
+        loader.load(GLTF_PATH, (gltf) => { resolve({ scene: gltf.scene, json: {}, stats: {} }); });
       });
     // scene.traverse(child => {
     //   if (child.isMesh) {
