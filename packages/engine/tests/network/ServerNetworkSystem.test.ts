@@ -33,7 +33,7 @@ import { InputAlias } from "../../src/input/types/InputAlias";
 const handleInputOnServer = jest.spyOn(handleInputOnServerModule, 'handleInputOnServer');
 const setLocalMovementDirection = jest.spyOn(setLocalMovementDirectionModule, 'setLocalMovementDirection');
 let fixedExecuteOnServer:jest.SpyInstance;
-let physicsWorldRaycastClosest:jest.SpyInstance;
+//let physicsWorldRaycastClosest:jest.SpyInstance;
 let serverNetworkSystem:System;
 
 const userId = "oid";
@@ -98,7 +98,7 @@ afterEach(() => {
     removeEntity(entity);
     // Remove network object from list
     delete Network.instance.networkObjects[key];
-  })
+  });
 
   handleInputOnServer.mockClear();
 
@@ -160,7 +160,7 @@ test("continuous move forward changes transforms z", () => {
   expect(transform.x).toBe(0);
   // expect(transform.y).toBe(0); // why it's greater than zero??
   expect(transform.z).toBeGreaterThan(0);
-})
+});
 
 test("continuous move forward and then stop", () => {
   expect(handleInputOnServer.mock.calls.length).toBe(0);
@@ -219,13 +219,10 @@ test("continuous move forward and then stop", () => {
   expect(Network.instance.worldState.transforms.length).toBe(1);
   const transform = Network.instance.worldState.transforms[0] as NetworkTransformsInterface;
   expect(transform.networkId).toBe(networkObject.networkId);
-  // expect(transform.x).toBe(0);
-  // expect(transform.y).toBe(0); // why it's greater than zero??
-  // expect(transform.z).toBeGreaterThan(0);
-})
+});
 
 function createButtonServerMessage(networkId:number, button:InputAlias, value:BinaryValue, lifecycle = null):NetworkInputInterface {
-  const lifecycleState = lifecycle ?? ( value === BinaryValue.OFF? LifecycleValue.ENDED : LifecycleValue.CONTINUED )
+  const lifecycleState = lifecycle ?? ( value === BinaryValue.OFF? LifecycleValue.ENDED : LifecycleValue.CONTINUED );
   return {
     networkId: String(networkId),
     buttons: {
@@ -238,5 +235,5 @@ function createButtonServerMessage(networkId:number, button:InputAlias, value:Bi
     axes1d: {},
     axes2d: {},
     viewVector: [0,0,1]
-  }
+  };
 }
