@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-import {Tunstall} from  './tunstall'
+import {Tunstall} from  './tunstall.js'
 export function Attribute(name, q, components, type, strategy) {
 	var t = this;
 	t.name = name;

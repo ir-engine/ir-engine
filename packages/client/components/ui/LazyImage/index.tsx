@@ -13,7 +13,7 @@ export const LazyImage = ({ src, alt }) => {
 
   const onLoad = event => {
     event.target.classList.add(styles.loaded);
-    setIsLoadedImage(true)
+    setIsLoadedImage(true);
   };
 
   const onError = () => setIsLoadedImage(false);
@@ -63,7 +63,7 @@ export const LazyImage = ({ src, alt }) => {
     <CardMedia
       component="img"
       alt={alt}
-      ref={setImageRef}
+      ref={imageRef}
       height="145"
       onLoad={onLoad}
       onError={onError}
