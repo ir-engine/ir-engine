@@ -28,21 +28,34 @@ export default (app: Application): void => {
     app.setup = function (...args: any): Application {
       sequelize
           .query('SET FOREIGN_KEY_CHECKS = 0')
+          .catch((err) => {
+              console.log('Sequelize set foreign key check error');
+              console.log(err);
+              return Promise.reject(err);
+          })
           .then(() => {
             // Sync to the database
+              console.log('Syncing sequelize');
             return sequelize
                 .sync({force: forceRefresh})
+                .catch(err => {
+                    console.log('Sequelize sync error');
+                    console.log(err);
+                    return Promise.reject(err);
+                })
                 .then(() => {
-                  ;(app as any)
+                  console.log('Configuring and calling seeder');
+                  return (app as any)
                       .configure(seeder({services: seederConfig}))
                       .seed()
-                      .catch((err) => {
-                        console.log('Feathers seeding error');
-                        console.log(err);
-                        throw err;
-                      })
                       .then(() => {
                         console.log('Seeded');
+                        return Promise.resolve();
+                      })
+                      .catch((err) => {
+                          console.log('Feathers seeding error');
+                          console.log(err);
+                          throw err;
                       });
 
                   if (performDryRun) {
@@ -64,7 +77,12 @@ export default (app: Application): void => {
             console.log(err);
             throw err;
           });
-      return oldSetup.apply(this, args);
+      try {
+          return oldSetup.apply(this, args);
+      } catch(err) {
+          console.log('Setup apply error');
+          console.log(err);
+        }
     };
   } catch(err) {
     console.log('Error in app/sequelize.ts');
