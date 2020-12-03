@@ -14,8 +14,8 @@ import { observer } from 'mobx-react';
 
 import styles from './MediaIconsBox.module.scss';
 import store from "../../../redux/store";
-import {MediaStreamComponent} from "@xr3ngine/engine/src/networking/components/MediaStreamComponent";
-import {endVideoChat, pauseProducer, resumeProducer, sendCameraStreams} from "../../../classes/transports/WebRTCFunctions";
+import { MediaStreamComponent } from "@xr3ngine/engine/src/networking/components/MediaStreamComponent";
+import { endVideoChat, pauseProducer, resumeProducer, sendCameraStreams} from "../../../classes/transports/WebRTCFunctions";
 import { selectAuthState } from "../../../redux/auth/selector";
 import { selectLocationState } from "../../../redux/location/selector";
 
@@ -33,41 +33,54 @@ const MediaIconsBox = observer((props) =>{
 
   const user = authState.get('user');
   const currentLocation = locationState.get('currentLocation').get('location');
+  
+  const checkMediaStream = async (type) =>{
+    if(!MediaStreamComponent?.instance?.mediaStream){      
+      await sendCameraStreams(currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId);
+      switch(type){
+        case 'mic': MediaStreamComponent.instance.toggleVideoPaused(); 
+                    await pauseProducer(MediaStreamComponent.instance.camVideoProducer); 
+                    break;
+        case 'cam': MediaStreamComponent.instance.toggleAudioPaused(); 
+                    await pauseProducer(MediaStreamComponent.instance.camAudioProducer); 
+                    break;
+      }
+    }
+  }
+
+  const checkEndVideoChat = async () =>{
+    if(MediaStreamComponent?.instance.audioPaused && MediaStreamComponent?.instance.videoPaused){
+      await endVideoChat({});
+    }
+  }
   const handleMicClick = async () =>{
     if(onBoardingStep === generalStateList.TUTOR_UNMUTE){
       store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_END));
       return;
     } 
-    console.log('handleMicClick MediaStreamComponent?.instance=',MediaStreamComponent?.instance )
-
-    // if(!MediaStreamComponent?.instance?.camAudioProducer){MediaStreamComponent.instance.camAudioProducer}
-    // if (MediaStreamComponent?.instance?.camAudioProducer) {
-
-    //   const audioPaused = MediaStreamComponent?.instance.toggleAudioPaused();
-    //   console.log('handleMicClick audioPaused=',audioPaused, 'MediaStreamComponent?.instance?.audioPaused=', MediaStreamComponent?.instance?.audioPaused )
-        
-    //     if (audioPaused) await pauseProducer(MediaStreamComponent.instance.camAudioProducer);
-    //     else await resumeProducer(MediaStreamComponent.instance.camAudioProducer);
-    // }
+    await checkMediaStream('mic');
+    const audioPaused = MediaStreamComponent.instance.toggleAudioPaused();
+    if (audioPaused === true) await pauseProducer(MediaStreamComponent.instance.camAudioProducer)
+      else await resumeProducer(MediaStreamComponent.instance.camAudioProducer);
+    checkEndVideoChat();
   };
 
   const handleCamClick = async () => {
-      if (MediaStreamComponent.instance.mediaStream == null) {
-        await sendCameraStreams(currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId);
-        console.log("Send camera streams called from handleCamClick in MediaIconsBox ui component");
-      } else {
-        await endVideoChat({});
-      }
+    await checkMediaStream('cam');
+    const videoPaused = MediaStreamComponent.instance.toggleVideoPaused();
+    if (videoPaused === true) await pauseProducer(MediaStreamComponent.instance.camVideoProducer)
+      else await resumeProducer(MediaStreamComponent.instance.camVideoProducer);
+    checkEndVideoChat();
   };
+
+  const audioPaused = MediaStreamComponent?.instance?.mediaStream === null || MediaStreamComponent?.instance?.audioPaused === true;
+  const videoPaused = MediaStreamComponent?.instance?.mediaStream === null || MediaStreamComponent?.instance?.videoPaused === true;
 
   return props.onBoardingStep >= generalStateList.TUTOR_INTERACT ?
         <Card className={styles.drawerBoxContainer}>
           <CardContent className={styles.drawerBox}>
-              { MediaStreamComponent?.instance?.audioPaused !== true && <Mic onClick={handleMicClick} /> }
-              { MediaStreamComponent?.instance?.audioPaused === true && <MicOff onClick={handleMicClick} /> }
-              { MediaStreamComponent?.instance?.mediaStream !== null && <Videocam onClick={handleCamClick} /> }
-              { MediaStreamComponent?.instance?.mediaStream == null && <VideocamOff onClick={handleCamClick} />}
-            {/* <Face size="3em" /> */}
+            {audioPaused ? <MicOff onClick={handleMicClick} /> : <Mic onClick={handleMicClick} />}
+            {videoPaused ? <VideocamOff onClick={handleCamClick} /> : <Videocam onClick={handleCamClick} />}
           </CardContent>
         </Card>
       :null;
