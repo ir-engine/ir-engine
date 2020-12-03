@@ -16,6 +16,10 @@ export function loadScene (scene) {
     });
   });
   //PhysicsManager.instance.simulate = true;
+
+  // TODO: temporary! we need to catch assets to load, and if there is no assets - then nothing to wait
+  const event = new CustomEvent('scene-loaded', { detail: { loaded: true } });
+  document.dispatchEvent(event);
 }
 
 export function loadComponent (entity, component) {

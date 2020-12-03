@@ -66,7 +66,7 @@ export const EnginePage = (props: Props) => {
   const onSceneLoaded = (event: CustomEvent): void => {
     if (event.detail.loaded) {
       console.warn('onSceneLoaded');
-      store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));
+      store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
       document.removeEventListener('scene-loaded', onSceneLoaded);
       setAppLoaded(true);
     }
