@@ -205,13 +205,7 @@ app.all('/editor/*', (req, res) => res.sendFile(path.join(editorPath, 'editor/in
 console.log('Editor redirects configured');
 
 process.on('exit', async () => {
-  logger.info('Server exiting');
-  const gsName = (app as any).gsName;
-  logger.info('App\'s gameserver name:');
-  logger.info(gsName);
-  logger.info(gsName != null);
-  logger.info(process.env.NODE_ENV !== 'development');
-  logger.info((app as any).k8DefaultClient != null);
+  console.log('Server EXIT');
   if ((app as any).gsSubdomainNumber != null) {
     const gsSubdomainProvision = await app.service('gameserver-subdomain-provision').find({
       query: {
@@ -224,15 +218,10 @@ process.on('exit', async () => {
   }
 });
 
-process.on('SIGTERM', async () => {
-  logger.info('Server exiting');
+process.on('SIGTERM', async (err) => {
+  console.log('Server SIGTERM');
+  console.log(err);
   const gsName = (app as any).gsName;
-  logger.info('App\'s gameserver name:');
-  logger.info(gsName);
-  logger.info(gsName);
-  logger.info(gsName != null);
-  logger.info(process.env.NODE_ENV !== 'development');
-  logger.info((app as any).k8DefaultClient != null);
   if ((app as any).gsSubdomainNumber != null) {
     const gsSubdomainProvision = await app.service('gameserver-subdomain-provision').find({
       query: {
