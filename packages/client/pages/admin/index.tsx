@@ -1,9 +1,7 @@
-import { ThemeProvider } from '@material-ui/core';
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import Layout from '../../components/ui/Layout';
-import theme from '../../theme';
+import EmptyLayout from '../../components/ui/Layout/EmptyLayout';
 import AdminConsole from '../../components/ui/Admin';
 import {doLoginAuto} from "../../redux/auth/service";
 
@@ -30,9 +28,9 @@ const AdminConsolePage = (props: Props) => {
 
   return (
       // <ThemeProvider theme={theme}>
-        <Layout pageTitle='Admin Panel'>
+        <EmptyLayout>
             <AdminConsole />
-        </Layout>
+        </EmptyLayout>
       // </ThemeProvider>
   );
 };
