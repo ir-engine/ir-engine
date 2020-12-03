@@ -10,7 +10,16 @@ import logger from '../../app/logger';
 import config from '../../config';
 import getLocalServerIp from '../../util/get-local-server-ip';
 import { localConfig } from './config';
-import { getFreeSubdomain, handleDisconnect, handleHeartbeat, handleIncomingMessage, handleJoinWorld, handleLeaveWorld, validateNetworkObjects } from './NetworkFunctions';
+import {
+    getFreeSubdomain,
+    handleConnectToWorld,
+    handleDisconnect,
+    handleHeartbeat,
+    handleIncomingMessage,
+    handleJoinWorld,
+    handleLeaveWorld,
+    validateNetworkObjects
+} from "./NetworkFunctions";
 import { handleWebRtcCloseConsumer, handleWebRtcCloseProducer, handleWebRtcConsumerSetLayers, handleWebRtcPauseConsumer, handleWebRtcPauseProducer, handleWebRtcProduceData, handleWebRtcReceiveTrack, handleWebRtcResumeConsumer, handleWebRtcResumeProducer, handleWebRtcSendTrack, handleWebRtcTransportClose, handleWebRtcTransportConnect, handleWebRtcTransportCreate, startWebRTC } from './WebRTCFunctions';
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
@@ -32,10 +41,10 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     }
 
     public sendReliableData = (message: any): any =>
-        this.socketIO.of('/realtime').emit(MessageTypes.ReliableMessage.toString(), message);
+      this.socketIO.of('/realtime').emit(MessageTypes.ReliableMessage.toString(), message);
 
     public sendData = (data: any): void =>
-        this.dataProducers.forEach(producer => { producer.send(JSON.stringify(data)); })
+      this.dataProducers.forEach(producer => { producer.send(JSON.stringify(data)); })
 
     public handleKick(socket: any): void {
         logger.info("Kicking ", socket.id);
@@ -79,8 +88,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         localConfig.mediasoup.webRtcTransport.listenIps = [{
             ip: '0.0.0.0',
             announcedIp: process.env.KUBERNETES === 'true' ?
-                (config.gameserver.local === true ? gsResult.status.address :
-                    `${stringSubdomainNumber}.${config.gameserver.domain}`) : localIp.ipAddress
+              (config.gameserver.local === true ? gsResult.status.address :
+                `${stringSubdomainNumber}.${config.gameserver.domain}`) : localIp.ipAddress
         }];
 
         logger.info("Initializing WebRTC Connection");
@@ -122,6 +131,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
                 // Return an authorization success messaage to client
                 callback({ success: true });
+
+                socket.on(MessageTypes.ConnectToWorld.toString(), async (data, callback) =>
+                    handleConnectToWorld(socket, data, callback, userId, user));
 
                 socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) =>
                     handleJoinWorld(socket, data, callback, userId, user));
