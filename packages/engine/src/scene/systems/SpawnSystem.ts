@@ -30,8 +30,6 @@ export class ServerSpawnSystem extends System {
             // Copy spawn transform to entity transform
             const transform = getMutableComponent(entity, TransformComponent);
             const spawnTransform = getMutableComponent(this.spawnPoints[this.lastSpawnIndex], TransformComponent);
-            console.log('spawnTransform.position', spawnTransform.position.toArray());
-            console.log('spawnTransform.rotation', spawnTransform.rotation.toArray());
             transform.position.copy(spawnTransform.position);
             transform.rotation.copy(spawnTransform.rotation);
 
