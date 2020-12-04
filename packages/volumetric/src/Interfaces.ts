@@ -36,7 +36,7 @@ export interface IMeshTextureData {
 
 export interface IBuffer {
     frameNumber: number;
-    bufferGeometry: Buffer | BufferGeometry;
+    bufferGeometry: Buffer | BufferGeometry | null;
 }
 
 export interface WorkerInitializationRequest extends Action {

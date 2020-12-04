@@ -1,3 +1,4 @@
+import { HttpRangeFetcher } from 'http-range-fetcher';
 import {
   BufferGeometry,
   CompressedTexture,
@@ -11,13 +12,8 @@ import {
   Uint32BufferAttribute,
   VideoTexture
 } from 'three';
-import ReadStream from 'fs-read-stream-over-http';
-import Blob from 'cross-blob';
 import {
-  Action,
-  IBuffer, MessageType,
-  WorkerDataRequest,
-  WorkerInitializationResponse
+  IBuffer
 } from './Interfaces';
 import CortoDecoder from './libs/cortodecoder.js';
 import RingBuffer from './RingBuffer';
@@ -52,17 +48,21 @@ export default class DracosisPlayer {
 
   private hasInited = false;
 
+  rangeFetcher = new HttpRangeFetcher({})
+
+
   private _nullBufferGeometry = new BufferGeometry();
 
   // Temp variables -- reused in loops, etc (beware of initialized value!)
-  private _pos = 0;
   private _frameNumber = 0;
   private _numberOfBuffersRemoved = 0; // TODO: Remove after debug
-  readStreamOffset: any;
-  fileReadStream: any;
-  ringBuffer: any;
   fileHeader: any;
-  tempBufferObject: any;
+  tempBufferObject: IBuffer = {
+    frameNumber: 0,
+    bufferGeometry: null
+  }
+
+  manifestFilePath: any;
 
   // public getters and settings
   get currentFrame(): number {
@@ -109,6 +109,8 @@ export default class DracosisPlayer {
     this.scene = scene;
     this.renderer = renderer;
     this.meshFilePath = meshFilePath;
+    this.manifestFilePath = meshFilePath.replace('drcs', 'manifest');
+
     this._loop = loop;
     this._scale = scale;
     this.speed = speedMultiplier;
@@ -130,64 +132,45 @@ export default class DracosisPlayer {
 
     this.scene.add(this.mesh);
 
-    console.log("Mesh file path is ", meshFilePath);
 
-    this.httpGetAsync(meshFilePath, (headerData: string) => {
+    const xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState !== 4) return;
+        this.fileHeader = JSON.parse(xhr.responseText);
 
-      console.log("Header data is", headerData);
-
-      const fileHeaderLength = this.byteArrayToLong(Buffer.from(headerData));
-
-      console.log("fileHeaderLength is", fileHeaderLength);
-
-      this.httpGetAsync(meshFilePath, (incomingData: string) => {
-
-        console.log("Incoming data is: ", incomingData);
-
-        const frameData = JSON.parse(incomingData);
-
-        console.log("frameData is", frameData);
-
-        if (endFrame > 1) {
-          this._endFrame = endFrame;
-        } else {
-          this._endFrame = frameData.length;
-        }
+        this._endFrame = (endFrame > 1) ? endFrame : this.fileHeader.frameData.length;
         this._numberOfFrames = this._endFrame - this._startFrame + 1;
 
         this._ringBuffer = new RingBuffer(bufferSize);
-
-        this.fileReadStream = new ReadStream(this.meshFilePath, { start: this.readStreamOffset });
+        if (autoplay) {
+          // Create an event listener that removed itself on input
+          const eventListener = () => {
+            // If we haven't inited yet, notify that we have, autoplay content and remove the event listener
+            if (!this.hasInited) {
+              this.hasInited = true;
+              this.play();
+              document.body.removeEventListener("mousedown", eventListener);
+            }
+    
+          }
+          document.body.addEventListener("mousedown", eventListener)
+        }
         this._isinitialized = true;
         this.handleBuffers();
+    };
 
-      }, 8, fileHeaderLength + 8)
-    }, 0, 7);
-    if (autoplay) {
-      // Create an event listener that removed itself on input
-      const eventListener = () => {
-        // If we haven't inited yet, notify that we have, autoplay content and remove the event listener
-        if (!this.hasInited) {
-          this.hasInited = true;
-          this.play();
-          document.body.removeEventListener("mousedown", eventListener);
-        }
-
-      }
-      document.body.addEventListener("mousedown", eventListener)
-    }
+    xhr.open('GET', this.manifestFilePath, true); // true for asynchronous
+    xhr.send();
   }
 
 
-  fetch(data) {
-    // Clear Ring Buffer
-    this.ringBuffer.Clear();
+  fetchData(data) {
+    console.log("Fetch data called, ", data);
     // Make a list of buffers to transfer
-    let transferableBuffers = [];
     let lastFrame = -1;
     let endOfRangeReached = false;
     // Iterate over values in ascending order...
-    data.framesToFetch.sort().forEach((frame) => {
+    data.sort().forEach((frame) => {
       //  If this frame > end frame...
       // ... warn the dev, since this might be unexpected
       console.warn("Frame fetched outside of loop range");
@@ -206,26 +189,26 @@ export default class DracosisPlayer {
       // If we're not reading from the position of the last frame, seek to start frame
       if (!(frame == lastFrame + 1 && frame != this.startFrame)) {
         // Get frame start byte pose
-        this.fileReadStream.seek(this.fileHeader.frameData[frame].startBytePosition);
       }
       // tell the stream reader to read out the next bytes..
       // Set temp buffer object frame number
       this.tempBufferObject.frameNumber = frame;
-      // Then mesh
-      this.tempBufferObject.bufferGeometry = this.fileReadStream.read(this.fileHeader.frameData[frame].meshLength);
-      // Then texture
-      this.tempBufferObject.compressedTexture = this.fileReadStream.read(this.fileHeader.frameData[frame].textureLength);
-      // Add it to the ring buffer
-      this.ringBuffer.add(this.tempBufferObject);
-      // Add buffers to transferableBuffers
-      transferableBuffers.push(this.tempBufferObject.bufferGeometry);
-      transferableBuffers.push(this.tempBufferObject.compressedTexture);
-      // Set the last frame
-      lastFrame = frame;
+      this.rangeFetcher.getRange(this.meshFilePath, this.fileHeader.frameData[frame].startBytePosition, this.fileHeader.frameData[frame].meshLength)
+      .then( response => {
+        console.log("Response length is", response.buffer.length);
+        console.log("Intended length is", this.fileHeader.frameData[frame].meshLength)
+        console.log("Response buffer is ", response.buffer);
+        this.tempBufferObject.bufferGeometry = this.decodeCORTOData(response.buffer.buffer as any);
+
+        const _pos = this.getPositionInBuffer(this._frameNumber);
+
+        this._ringBuffer.get(_pos).bufferGeometry =  this.tempBufferObject.bufferGeometry;
+        this._ringBuffer.get(_pos).frameNumber =  this.tempBufferObject.frameNumber;
+
+        // Set the last frame
+        lastFrame = frame;
+      });
     });
-
-
-    this.handleDataResponse(this.ringBuffer.toArray());
   }
 
   byteArrayToLong(/*byte[]*/byteArray: Buffer) {
@@ -238,22 +221,6 @@ export default class DracosisPlayer {
 
   lerp(v0: number, v1: number, t: number) {
     return v0 * (1 - t) + v1 * t
-  }
-
-  httpGetAsync(theUrl: any, callback: any, rangeIn, rangeOut) {
-    console.log("httpGetAsync", theUrl);
-    const xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4)
-        callback(xhr.responseText);
-    };
-
-    xhr.open('GET', theUrl, true); // true for asynchronous
-    const rangeRequest = 'bytes=' + rangeIn + '-' + rangeOut;
-    console.log("Range request is ", rangeRequest);
-    xhr.setRequestHeader('Range', rangeRequest); // the bytes (incl.) you request
-
-    xhr.send();
   }
 
 
@@ -359,20 +326,6 @@ export default class DracosisPlayer {
     return geometry;
   }
 
-  handleDataResponse(data) {
-    const player = this;
-
-    data.forEach((geomTex, index) => {
-      player._frameNumber = geomTex.frameNumber;
-
-      player._pos = player.getPositionInBuffer(player._frameNumber);
-
-      player._ringBuffer.get(
-        player._pos
-      ).bufferGeometry = player.decodeCORTOData(geomTex.bufferGeometry) as any;
-    });
-  }
-
   getPositionInBuffer(frameNumber: number): number {
     // Search backwards, which should make the for loop shorter on longer buffer
     for (let i = this._ringBuffer.getBufferLength(); i >= 0; i--) {
@@ -386,9 +339,6 @@ export default class DracosisPlayer {
   }
 
   handleBuffers() {
-    // If not initialized, skip.
-    if (!this._isinitialized) return setTimeout(this.handleBuffers, 100);
-
     while (true) {
       // Peek the current frame. if it's frame number is below current frame, trash it
       if (!this._ringBuffer ||
@@ -429,7 +379,7 @@ export default class DracosisPlayer {
       this._ringBuffer.add(frameData);
     }
 
-    this.fetch(framesToFetch);
+    this.fetchData(framesToFetch);
   }
 
   showFrame(frame: number) {
