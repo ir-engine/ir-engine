@@ -12,22 +12,14 @@ export default class LoadingCube extends Object3D {
     if (cubeGltf) {
       return Promise.resolve(cubeGltf);
     }
-
     // const gltf = await new GLTFLoader(GLTF_PATH).loadGLTF();
-
-    // load( url: string, onLoad: ( gltf: GLTF ) => void, onProgress?: ( event: ProgressEvent ) => void, onError?: ( event: ErrorEvent ) => void ) : void;
-    
-    // const gltf = await new Promise((resolve)=>{
-    //   const loader = new GLTFLoader()
-    //   loader.load(GLTF_PATH, (result) => { resolve(result) })
-    //   });
-    const gltf = await new Promise<{ scene: any; json: any; stats: any }>((resolve)=>{
-        const loader = new GLTFLoader();
-        const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath('/loader_decoders/');
-        loader.setDRACOLoader(dracoLoader);
-        loader.load(GLTF_PATH, (gltf) => { resolve({ scene: gltf.scene, json: {}, stats: {} }); });
-        });
+    const gltf = await new Promise<{ scene: any; json: any; stats: any }>((resolve) => {
+      const loader = new GLTFLoader();
+      const dracoLoader = new DRACOLoader();
+      dracoLoader.setDecoderPath('/loader_decoders/');
+      loader.setDRACOLoader(dracoLoader);
+      loader.load(GLTF_PATH, (gltf) => { resolve({ scene: gltf.scene, json: {}, stats: {} }); });
+    });
 
     cubeGltf = gltf;
 
