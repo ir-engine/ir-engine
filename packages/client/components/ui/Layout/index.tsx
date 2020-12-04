@@ -1,6 +1,7 @@
 import React, {Fragment, useEffect, useState} from 'react';
 import { connect } from 'react-redux';
 import getConfig from 'next/config';
+import { ThemeProvider } from '@material-ui/core';
 import NavMenu from '../NavMenu';
 import Head from 'next/head';
 import Alerts from '../Common/Alerts';
@@ -15,10 +16,12 @@ import { selectLocationState } from '../../../redux/location/selector';
 import PartyVideoWindows from '../PartyVideoWindows';
 import InstanceChat from '../InstanceChat';
 import Me from '../Me';
-import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
+// import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { useRouter } from 'next/router';
 import { setUserHasInteracted } from '../../../redux/app/actions';
 import { bindActionCreators, Dispatch } from 'redux';
+import theme from '../../../theme';
+import { Network } from '@xr3ngine/engine/src/networking/components/Network';
 
 const { publicRuntimeConfig } = getConfig();
 const siteTitle: string = publicRuntimeConfig.siteTitle;
@@ -52,7 +55,8 @@ const Layout = (props: Props): any => {
       appState,
       authState,
       setUserHasInteracted,
-      login
+      login,
+      locationState
   } = props;
   const userHasInteracted = appState.get('userHasInteracted');
   const authUser = authState.get('authUser');
@@ -77,6 +81,7 @@ const Layout = (props: Props): any => {
   //info about current mode to conditional render menus
 // TODO: Uncomment alerts when we can fix issues
   return (
+    <ThemeProvider theme={theme}>
     <section>
       <Head>
         <title>
@@ -92,33 +97,31 @@ const Layout = (props: Props): any => {
          <Alerts />
         {children}
       </Fragment>
-      { authUser?.accessToken != null && authUser.accessToken.length > 0 &&
-                <Fragment>
-                  <LeftDrawer leftDrawerOpen={leftDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen}/>
-                </Fragment>
+      { authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&
+        <Fragment>
+          <LeftDrawer leftDrawerOpen={leftDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen}/>
+        </Fragment>
       }
-      { authUser?.accessToken != null && authUser.accessToken.length > 0 &&
-      <Fragment>
-        <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/>
-      </Fragment>
+      { authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&
+        <Fragment>
+          <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/>
+        </Fragment>
       }
-      { authUser?.accessToken != null && authUser.accessToken.length > 0 &&
-                <Fragment>
-                  <BottomDrawer bottomDrawerOpen={bottomDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen}/>
-                </Fragment>
+      { authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&
+        <Fragment>
+          <BottomDrawer bottomDrawerOpen={bottomDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen}/>
+        </Fragment>
       }
       <footer>
-        { authState.get('authUser') != null && authState.get('isLoggedIn') === true && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
-                <DrawerControls setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/> }
+        { authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.id != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
+            <DrawerControls setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/> }
         { authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
 
-
-        {console.log('authState', authState, 'user', user, 'leftDrawerOpen',leftDrawerOpen, 'rightDrawerOpen',rightDrawerOpen, 'topDrawerOpen',topDrawerOpen, 'bottomDrawerOpen',bottomDrawerOpen)}
-        { authState.get('authUser') != null && authState.get('isLoggedIn') === true &&  user.instanceId != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
-        // { authState.get('authUser') != null && authState.get('isLoggedIn') === true && user.partyId != null && user.instanceId != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
-          <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen}/> }
+        { locationState.get('currentLocation')?.get('location')?.id && authState.get('authUser') != null && authState.get('isLoggedIn') === true &&  user?.instanceId != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
+            <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen}/> }
       </footer>
     </section>
+    </ThemeProvider>
   );
 };
 

@@ -122,3 +122,31 @@
 body{
   overflow: hidden;
 }
+
+.menuDrawerOpened{
+  [class*=UserMenu_anchorDrawer]{
+    visibility: hidden;
+  }
+  
+  [class*=InstanceChat_instance-chat-container]{
+    right: 30vw;
+    left: auto;
+    transition: right 225ms cubic-bezier(0, 0, 0.2, 1) 0ms;
+    @media (orientation: portrait) {
+      height: 0;
+    }
+    @media (max-width: 768px){
+      right: 50%;      
+    } 
+  }
+
+  [class*=MediaIconsBox_drawerBoxContainer]{
+    @media (orientation: portrait) {
+      visibility: hidden;
+    }
+    @media (max-width: 768px){
+      left: 5px;
+      right: auto;
+    }
+  }
+}

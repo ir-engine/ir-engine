@@ -8,7 +8,7 @@ import { Application } from '../../declarations';
 import StorageProvider from '../../storage/storageprovider';
 import { BadRequest } from '@feathersjs/errors';
 import logger from '../../app/logger';
-import { Op } from "sequelize"
+import { Op } from "sequelize";
 import config from '../../config';
 interface Data { }
 interface ServiceOptions {}

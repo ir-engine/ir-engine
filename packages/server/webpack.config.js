@@ -4,9 +4,10 @@ const fs = require('fs');
 const WebpackHookPlugin = require('webpack-hook-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const dev = process.env.NODE_ENV !== 'production';
+const WorkerPlugin = require('worker-plugin');
 
 const root = [path.resolve(__dirname)];
-const plugins = [new ForkTsCheckerWebpackPlugin({
+const plugins = [new WorkerPlugin(), new ForkTsCheckerWebpackPlugin({
     typescript: {
         diagnosticOptions: {
             semantic: true,
@@ -46,19 +47,20 @@ module.exports = {
         ]
     },
     module: {
-        rules: [{
-            // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
-            test: /\.tsx?$/,
-            // Cache loader references cached files before trying to rebuild them
-            use: [
-                {
-                    // Process typescript only after caching and threading have been initializeds
-                    loader: 'ts-loader',
-                    options: {
-                        happyPackMode: true // IMPORTANT! use happyPackMode mode to speed-up compilation and reduce errors reported to webpack
-                    }
-                }]
-        }]
+        rules: [
+            {
+                // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
+                test: /\.tsx?$/,
+                // Cache loader references cached files before trying to rebuild them
+                use: [
+                    {
+                        // Process typescript only after caching and threading have been initializeds
+                        loader: 'ts-loader',
+                        options: {
+                            happyPackMode: true // IMPORTANT! use happyPackMode mode to speed-up compilation and reduce errors reported to webpack
+                        }
+                    }]
+            }]
     },
     plugins
 };

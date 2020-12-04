@@ -30,10 +30,6 @@ const PartyVideoWindows = observer((): JSX.Element => {
     <Grid className={ styles['party-user-container']} container direction="row" wrap="nowrap">
       { parsedConsumers.map(([key, tracks]) => (
         <PartyParticipantWindow
-            containerProportions={{
-              height: 135,
-              width: 240
-            }}
             peerId={tracks.video ? tracks.video._appData.peerId : tracks.audio._appData.peerId}
             key={key}
         />

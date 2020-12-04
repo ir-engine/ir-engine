@@ -19,7 +19,8 @@ import { addNetworkTransformToWorldState } from '../functions/addNetworkTransfor
 import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClient';
 import { handleInputOnServer } from '../functions/handleInputOnServer';
 import { handleUpdatesFromClients } from '../functions/handleUpdatesFromClients';
-
+import { createSnapshot, addSnapshot } from '../functions/NetworkInterpolationFunctions';
+const t = 0, m = true
 
 export class ServerNetworkSystem extends System {
   private _inputComponent: Input
@@ -60,6 +61,9 @@ export class ServerNetworkSystem extends System {
     Network.instance.worldState = {
       tick: Network.tick,
       transforms: [],
+      snapshot: {
+        state: undefined
+      },
       inputs: [],
       states: [],
       clientsConnected: Network.instance.clientsConnected,
@@ -127,8 +131,8 @@ export class ServerNetworkSystem extends System {
     // this.queryResults.serverNetworkStates.changed?.forEach((entity: Entity) =>
     //   addStateToWorldStateOnServer(entity));
 
-    // TODO: Create the snapshot and add it to the world state on the server
-    // addSnapshot(createSnapshot(Network.instance.worldState.transforms));
+     addSnapshot(createSnapshot(Network.instance.worldState.transforms));
+     Network.instance.worldState.snapshot = NetworkInterpolation.instance.get();
 
     // TODO: to enable snapshots, use worldStateModel.toBuffer(Network.instance.worldState)
     // Send the message to all connected clients

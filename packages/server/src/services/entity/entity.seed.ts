@@ -55,6 +55,26 @@ export const seed = {
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
       collectionId: CollectionSeed.templates.find(template => template.id === "d4457fc0-24e4-11eb-bc2e-e7e742fb069f").id
+    },
+    {
+      id: "1B698483-C15A-4CEC-9247-03873520DF70",
+      entityId: "1B698483-C15A-4CEC-9247-03873520DF70",
+      name: "Spawn Point",
+      parent: "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      index: 6,
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
+      collectionId: CollectionSeed.templates.find(template => template.id === "d4457fc0-24e4-11eb-bc2e-e7e742fb069f").id
+    },
+    {
+      id: "1B698484-C15A-4CEC-9247-03873520DF70",
+      entityId: "1B698484-C15A-4CEC-9247-03873520DF70",
+      name: "Hemisphere Light",
+      parent: "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      index: 7,
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
+      collectionId: CollectionSeed.templates.find(template => template.id === "d4457fc0-24e4-11eb-bc2e-e7e742fb069f").id
     }
   ]
 };

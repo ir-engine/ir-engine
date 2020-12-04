@@ -4,10 +4,8 @@ import { connect } from 'react-redux';
 import styles from './InstanceChat.module.scss';
 import {
     Avatar,
-    Button,
     Card,
     CardContent,
-    List,
     ListItem,
     ListItemAvatar,
     ListItemText,
@@ -72,7 +70,7 @@ const InstanceChat = (props: Props): any => {
     } = props;
 
     let activeChannel;
-    const messageRef = React.useRef();
+    const messageRef = React.useRef<HTMLInputElement>();
     const user = authState.get('user') as User;
     const channelState = chatState.get('channels');
     const channels = channelState.get('channels');
@@ -158,12 +156,14 @@ const InstanceChat = (props: Props): any => {
         openBottomDrawer(e);
     };
 
+    const [openMessageContainer, setOpenMessageContainer] = React.useState(false);
+    const hideShowMessagesContainer = () => setOpenMessageContainer(!openMessageContainer);
     return (
         <div className={styles['instance-chat-container']}>
             <div className={styles['list-container']}>
-                { activeChannel != null && activeChannel.messages && <List ref={(messageRef as any)} className={styles['message-container']}>
-                    { activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).slice(activeChannel.messages.length >= 3 ? activeChannel.messages?.length - 3 : 0, activeChannel.mesages?.length).map((message) => {
-                        console.log('getMessageUser(message', getMessageUser(message));
+                <Card className={styles['message-wrapper']+' '+(openMessageContainer === false && styles['messageContainerClosed'])}>
+                    <CardContent className={styles['message-container']}>
+                    { activeChannel != null && activeChannel.messages && activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).slice(activeChannel.messages.length >= 3 ? activeChannel.messages?.length - 3 : 0, activeChannel.mesages?.length).map((message) => {
                         return <ListItem
                             className={classNames({
                                 [styles.message]: true,
@@ -185,16 +185,12 @@ const InstanceChat = (props: Props): any => {
                         </ListItem>;
                     })
                     }
-                    {/* {(activeChannel == null || activeChannel.messages?.length === 0) &&
-                    <div className={styles['first-message-placeholder']}>
-                        No messages to this layer
-                    </div>
-                    } */}
-                </List> }
-                <Card  className={styles['flex-center']}>
+                    </CardContent>
+                    </Card>
+                <Card className={styles['flex-center']}>
                     <CardContent className={styles['chat-box']}>
-                        <div className={styles.iconContainer} onClick={openDrawer}>
-                            <MessageIcon/>
+                        <div className={styles.iconContainer} >
+                            <MessageIcon onClick={()=>hideShowMessagesContainer()} />
                         </div>
                         <TextField
                             className={styles.messageFieldContainer}
@@ -208,12 +204,13 @@ const InstanceChat = (props: Props): any => {
                             value={composingMessage}
                             inputProps={{
                                 maxLength: 1000,
-                                // padding: 0
                             }}
                             onChange={handleComposingMessageChange}
+                            inputRef={messageRef}
+                            onClick={()=> (messageRef as any)?.current?.focus()}
                         />
                         <div className={styles.iconContainerSend} onClick={packageMessage}>
-                            <Send/>
+                            <Send/>                            
                         </div>
                     </CardContent>
                 </Card>

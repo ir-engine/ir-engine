@@ -7,20 +7,23 @@ import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { Client } from '../components/Client';
 import { Network } from '../components/Network';
 import { NetworkInterpolation } from '../components/NetworkInterpolation';
+import { Vault } from '../components/Vault';
 import { NetworkObject } from '../components/NetworkObject';
 import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClient';
 import { handleInputOnServer } from '../functions/handleInputOnServer';
+import { NetworkSchema } from "../interfaces/NetworkSchema";
 
 export class ClientNetworkSystem extends System {
   updateType = SystemUpdateType.Fixed;
 
-  constructor(attributes) {
+  constructor(attributes:{ schema: NetworkSchema, app:any }) {
     super();
 
     // Create a Network entity (singleton)
     const networkEntity = createEntity();
     addComponent(networkEntity, Network);
     addComponent(networkEntity, NetworkInterpolation);
+    addComponent(networkEntity, Vault);
 
     const { schema, app } = attributes;
     Network.instance.schema = schema;
@@ -42,8 +45,11 @@ export class ClientNetworkSystem extends System {
     // Client logic
     const queue = Network.instance.incomingMessageQueue;
     // For each message, handle and process
-    while (queue.getBufferLength() > 0)
-      applyNetworkStateToClient(queue.pop(), delta);
+    while (queue.getBufferLength() > 0) {
+      const state = queue.pop();
+      // debugger;
+      applyNetworkStateToClient(state, delta);
+    }
 
       this.queryResults.clientNetworkInputReceivers.all?.forEach((entity) => {
         // Call behaviors on map
@@ -57,4 +63,3 @@ export class ClientNetworkSystem extends System {
     }
   }
 }
-

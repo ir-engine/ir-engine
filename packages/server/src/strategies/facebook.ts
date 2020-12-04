@@ -1,6 +1,7 @@
 import CustomOAuthStrategy from './custom-oauth';
 import { Params } from '@feathersjs/feathers';
 import config from '../config';
+import app from "../app";
 
 export default class FacebookStrategy extends CustomOAuthStrategy {
   async getEntityData (profile: any, params?: Params): Promise<any> {
@@ -12,6 +13,19 @@ export default class FacebookStrategy extends CustomOAuthStrategy {
       type: 'facebook',
       userId
     };
+  }
+
+  async updateEntity(entity: any, profile: any, params?: Params): Promise<any> {
+    const authResult = await app.service('authentication').strategies.jwt.authenticate({ accessToken: params?.authentication?.accessToken }, {});
+    const identityProvider = authResult['identity-provider'];
+    await app.service('user').patch(entity.userId, {
+      userRole: 'user'
+    });
+    if (entity.type !== 'guest') {
+      await app.service('identity-provider').remove(identityProvider.id);
+      await app.service('user').remove(identityProvider.userId);
+    }
+    return super.updateEntity(entity, profile, params);
   }
 
   async getRedirect (data: any, params?: Params): Promise<string> {

@@ -5,7 +5,8 @@ import {
   fetchingCurrentLocation,
   locationsRetrieved,
   locationRetrieved,
-  locationBanCreated
+  locationBanCreated,
+  locationNotFound
 } from './actions';
 
 export function getLocations(skip?: number, limit?: number) {
@@ -15,6 +16,7 @@ export function getLocations(skip?: number, limit?: number) {
         query: {
           $limit: limit != null ? limit : getState().get('locations').get('limit'),
           $skip: skip != null ? skip : getState().get('locations').get('skip'),
+          joinableLocations: true
         }
       });
       dispatch(locationsRetrieved(locationResults));
@@ -45,17 +47,16 @@ export function getLocationByName(locationName: string) {
   return async (dispatch: Dispatch): Promise<any> => {
       const locationResult = await client.service('location').find({
         query: {
-          slugifiedName: locationName
+          slugifiedName: locationName,
+          joinableLocations: true
         }
       }).catch(error => {
         console.log("Couldn't get location by name", error);
       });
-      console.log('Get location by name result:');
-      console.log(locationName);
-      console.log(locationResult);
-      console.log(locationResult.data[0]);
       if (locationResult.total > 0) {
         dispatch(locationRetrieved(locationResult.data[0]));
+      }else{
+        dispatch(locationNotFound());
       }
   };
 }

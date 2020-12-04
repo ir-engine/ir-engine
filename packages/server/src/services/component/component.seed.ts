@@ -33,7 +33,7 @@ export const seed = {
     },
     {
       id: "08cc03ab-24e9-11eb-bc2e-e7e742fb069f",
-      data: { "position": { "x": 0, "y": 7.3205, "z": 14.641000000000005 }, "rotation": { "x": -0.463647609000806, "y": 0, "z": 0 }, "scale": { "x": 1, "y": 1, "z": 1 } },
+      data: { "position": { "x": 0, "y": 0, "z": 0 }, "rotation": { "x": 0, "y": 0, "z": 0 }, "scale": { "x": 1, "y": 1, "z": 1 } },
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
       type: "transform",
@@ -57,7 +57,7 @@ export const seed = {
     },
     {
       id: "08cc03ae-24e9-11eb-bc2e-e7e742fb069f",
-      data: { "position": { "x": 0, "y": 7.3205, "z": 14.641000000000005 }, "rotation": { "x": -0.463647609000806, "y": 0, "z": 0 }, "scale": { "x": 1, "y": 1, "z": 1 } },
+      data: { "position": { "x": 0, "y": 0, "z": 0 }, "rotation": { "x": 0, "y": 0, "z": 0 }, "scale": { "x": 1, "y": 1, "z": 1 } },
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
       type: "transform",
@@ -97,7 +97,7 @@ export const seed = {
     },
     {
       id: "08cc03b0-24e9-11eb-bc2e-e7e742fb069f",
-      data: { "type":"ground","position":{"x":-1,"y":-1.5,"z":2.5},"scale":{"x":100, "y":0.1, "z":100} },
+      data: { "type":"ground","position":{"x":0,"y":-3,"z":0}},
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
       type: "box-collider",
@@ -142,7 +142,39 @@ export const seed = {
       updatedAt: "2020-11-12 13:14:45",
       type: "walkable",
       entityId: EntitySeed.templates.find(template => template.id === '1B698482-C15A-4CEC-9247-03873520DF70').id
-    }
+    },
+    {
+      id:"08cc03c3-24e9-11eb-bc2e-e7e742fb069f",
+      data:{"position":{"x":0,"y":10.0,"z":0},"rotation":{"x":0,"y":0,"z":0},"scale":{"x":1,"y":1,"z":1}},
+      createdAt:"2020-11-12 13:14:45",
+      updatedAt:"2020-11-12 13:14:45",
+      type:"transform",
+      entityId:EntitySeed.templates.find(template => template.id === '1B698483-C15A-4CEC-9247-03873520DF70').id
+   },
+    {
+      id:"08cc03c4-24e9-11eb-bc2e-e7e742fb069f",
+      data:{},
+      createdAt:"2020-11-12 13:14:45",
+      updatedAt:"2020-11-12 13:14:45",
+      type:"spawn-point",
+      entityId:EntitySeed.templates.find(template => template.id === '1B698483-C15A-4CEC-9247-03873520DF70').id
+   },
+   {
+    id:"09cc03c3-24e9-11eb-bc2e-e7e742fb069f",
+    data:{"position":{"x":0,"y":10.0,"z":0},"rotation":{"x":0,"y":0,"z":0},"scale":{"x":1,"y":1,"z":1}},
+    createdAt:"2020-11-12 13:14:45",
+    updatedAt:"2020-11-12 13:14:45",
+    type:"transform",
+    entityId:EntitySeed.templates.find(template => template.id === '1B698484-C15A-4CEC-9247-03873520DF70').id
+ },
+  {
+    id:"09cc03c4-24e9-11eb-bc2e-e7e742fb069f",
+    data:{"skyColor":"#ffffff","groundColor":"#ffffff","intensity":1},
+    createdAt:"2020-11-12 13:14:45",
+    updatedAt:"2020-11-12 13:14:45",
+    type:"hemisphere-light",
+    entityId:EntitySeed.templates.find(template => template.id === '1B698484-C15A-4CEC-9247-03873520DF70').id
+ }
   ]
 };
 

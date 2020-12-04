@@ -74,7 +74,7 @@ export class PhysicsManager extends Component<any> {
          //console.log("PH  UPD: body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape) }
      }};
      if (isClient) {
-      //  debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions);
+        debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions);
      }
   }
 
