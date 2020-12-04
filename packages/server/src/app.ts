@@ -37,6 +37,7 @@ const agonesSDK = new AgonesSDK();
 
 function healthPing(agonesSDK: AgonesSDK): void {
   try {
+    console.log('Making health ping');
     agonesSDK.health();
     setTimeout(() => healthPing(agonesSDK), 1000);
   } catch(err) {
