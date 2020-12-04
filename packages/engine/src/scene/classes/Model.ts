@@ -1,5 +1,6 @@
 import { Object3D, AnimationMixer } from "three";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
+import { LoadGLTF } from "../../assets/functions/LoadGLTF";
 import { GLTFLoader } from "../../assets/loaders/gltf/GLTFLoader";
 import cloneObject3D from "../../editor/functions/cloneObject3D";
 export default class Model extends Object3D {
@@ -30,13 +31,7 @@ export default class Model extends Object3D {
   }
   async loadGLTF(src) {
     // const gltf = await new GLTFLoader(src).loadGLTF();
-    const gltf = await new Promise<{ scene: any; json: any; stats: any }>((resolve) => {
-      const loader = new GLTFLoader();
-      const dracoLoader = new DRACOLoader();
-      dracoLoader.setDecoderPath('/loader_decoders/');
-      loader.setDRACOLoader(dracoLoader);
-      loader.load(src, (gltf) => { resolve({ scene: gltf.scene, json: {}, stats: {} }); });
-    });
+    const gltf = await LoadGLTF(src);
     const model = gltf.scene;
     model.animations = model.animations || [];
     return model;
