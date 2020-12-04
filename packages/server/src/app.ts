@@ -206,31 +206,31 @@ console.log('Editor redirects configured');
 
 process.on('exit', async () => {
   console.log('Server EXIT');
-  if ((app as any).gsSubdomainNumber != null) {
-    const gsSubdomainProvision = await app.service('gameserver-subdomain-provision').find({
-      query: {
-        gs_number: (app as any).gsSubdomainNumber
-      }
-    });
-    await app.service('gameserver-subdomain-provision').patch(gsSubdomainProvision.data[0].id, {
-      allocated: false
-    });
-  }
+  // if ((app as any).gsSubdomainNumber != null) {
+  //   const gsSubdomainProvision = await app.service('gameserver-subdomain-provision').find({
+  //     query: {
+  //       gs_number: (app as any).gsSubdomainNumber
+  //     }
+  //   });
+  //   await app.service('gameserver-subdomain-provision').patch(gsSubdomainProvision.data[0].id, {
+  //     allocated: false
+  //   });
+  // }
 });
 
 process.on('SIGTERM', async (err) => {
   console.log('Server SIGTERM');
   console.log(err);
-  const gsName = (app as any).gsName;
-  if ((app as any).gsSubdomainNumber != null) {
-    const gsSubdomainProvision = await app.service('gameserver-subdomain-provision').find({
-      query: {
-        gs_number: (app as any).gsSubdomainNumber
-      }
-    });
-    await app.service('gameserver-subdomain-provision').patch(gsSubdomainProvision.data[0].id, {
-      allocated: false
-    });
-  }
+  // const gsName = (app as any).gsName;
+  // if ((app as any).gsSubdomainNumber != null) {
+  //   const gsSubdomainProvision = await app.service('gameserver-subdomain-provision').find({
+  //     query: {
+  //       gs_number: (app as any).gsSubdomainNumber
+  //     }
+  //   });
+  //   await app.service('gameserver-subdomain-provision').patch(gsSubdomainProvision.data[0].id, {
+  //     allocated: false
+  //   });
+  // }
 });
 export default app;
