@@ -46,10 +46,7 @@ export default class DracosisPlayer {
   private _ringBuffer: RingBuffer<IBuffer>;
   private _isPlaying = false;
 
-  private hasInited = false;
-
   rangeFetcher = new HttpRangeFetcher({})
-
 
   private _nullBufferGeometry = new BufferGeometry();
 
@@ -146,12 +143,8 @@ export default class DracosisPlayer {
           // Create an event listener that removed itself on input
           const eventListener = () => {
             // If we haven't inited yet, notify that we have, autoplay content and remove the event listener
-            if (!this.hasInited) {
-              this.hasInited = true;
               this.play();
-              document.body.removeEventListener("mousedown", eventListener);
-            }
-    
+              document.body.removeEventListener("mousedown", eventListener);    
           }
           document.body.addEventListener("mousedown", eventListener)
         }
@@ -200,10 +193,14 @@ export default class DracosisPlayer {
         console.log("Response buffer is ", response.buffer);
         this.tempBufferObject.bufferGeometry = this.decodeCORTOData(response.buffer.buffer as any);
 
-        const _pos = this.getPositionInBuffer(this._frameNumber);
-
-        this._ringBuffer.get(_pos).bufferGeometry =  this.tempBufferObject.bufferGeometry;
-        this._ringBuffer.get(_pos).frameNumber =  this.tempBufferObject.frameNumber;
+        const _pos = this.getPositionInBuffer(frame);
+        if(_pos === -1){
+          this._ringBuffer.add(this.tempBufferObject);
+        }
+        else {
+          this._ringBuffer.get(_pos).bufferGeometry =  this.tempBufferObject.bufferGeometry;
+          this._ringBuffer.get(_pos).frameNumber =  this.tempBufferObject.frameNumber;
+        }
 
         // Set the last frame
         lastFrame = frame;
@@ -219,36 +216,25 @@ export default class DracosisPlayer {
     return value;
   };
 
-  lerp(v0: number, v1: number, t: number) {
-    return v0 * (1 - t) + v1 * t
-  }
-
+  lerp = (v0: number, v1: number, t: number) =>  v0 * (1 - t) + v1 * t;
 
   play() {
     this.show();
     this._video.play()
   }
 
-  pause() {
-    this._isPlaying = false;
-  }
+  pause = () => this._isPlaying = false;
 
-  reset() {
-    this._currentFrame = this._startFrame;
-  }
+  reset = () => this._currentFrame = this._startFrame;
 
   goToFrame(frame: number, play: boolean) {
     this._currentFrame = frame;
     if (play) this.play();
   }
 
-  setSpeed(multiplyScalar: number) {
-    this.speed = multiplyScalar;
-  }
+  setSpeed = (multiplyScalar: number) => this.speed = multiplyScalar;
 
-  show() {
-    this.mesh.visible = true;
-  }
+  show = () => this.mesh.visible = true;
 
   hide() {
     this.mesh.visible = false;
@@ -285,10 +271,8 @@ export default class DracosisPlayer {
 
   videoUpdateHandler(now, metadata) {
     let frameToPlay = metadata.presentedFrames - 1;
-    console.log('==========DIFF', Math.round(this._video.currentTime * 30), Math.round(metadata.mediaTime * 30), metadata.presentedFrames, metadata);
-
     if (frameToPlay !== this._prevFrame) {
-      this.showFrame(frameToPlay)
+      this.showFrame(frameToPlay);
       this._prevFrame = frameToPlay;
       this.handleBuffers();
     }
