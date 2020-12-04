@@ -37,7 +37,6 @@ const agonesSDK = new AgonesSDK();
 
 function healthPing(agonesSDK: AgonesSDK): void {
   try {
-    console.log('Making health ping');
     agonesSDK.health();
     setTimeout(() => healthPing(agonesSDK), 1000);
   } catch(err) {
@@ -50,7 +49,6 @@ app.set('nextReadyEmitter', emitter);
 
 if (config.server.enabled) {
   try {
-    console.log('Server is enabled, setting up app');
     app.configure(
         swagger({
           docsPath: '/openapi',
@@ -67,35 +65,26 @@ if (config.server.enabled) {
         })
     );
 
-    console.log('Swagger configured');
     app.set('paginate', config.server.paginate);
     app.set('authentication', config.authentication);
 
     app.configure(sequelize);
-    console.log('Sequelize configured');
 
     // Enable security, CORS, compression, favicon and body parsing
     app.use(helmet());
-    console.log('App using helmet');
     app.use(cors(
         {
           origin: true,
           credentials: true
         }
     ));
-    console.log('CORS configured');
     app.use(compress());
-    console.log('Compress configured');
     app.use(express.json());
-    console.log('Express.json configured');
     app.use(express.urlencoded({extended: true}));
-    console.log('Express.urlencoded configured');
     app.use(favicon(path.join(config.server.publicDir, 'favicon.ico')));
-    console.log('Favicon configured');
 
     // Set up Plugins and providers
     app.configure(express.rest());
-    console.log('Express.rest configured');
     app.configure(socketio({
       serveClient: false, handlePreflightRequest: (server, req, res) => {
         // Set CORS headers
@@ -114,7 +103,6 @@ if (config.server.enabled) {
       });
     }));
 
-    console.log('Socketio configured');
     if (config.redis.enabled) {
       app.configure(sync({
         uri: config.redis.password != null ? `redis://${config.redis.address}:${config.redis.port}?password=${config.redis.password}` : `redis://${config.redis.address}:${config.redis.port}`
@@ -124,23 +112,17 @@ if (config.server.enabled) {
         logger.info('Feathers-sync started');
       });
     }
-    console.log('Redis configured');
 
     // Configure other middleware (see `middleware/index.js`)
     app.configure(middleware);
-    console.log('Middleware configured');
     app.configure(authentication);
-    console.log('Authentication configured');
     // Set up our services (see `services/index.js`)
 
     app.configure(feathersLogger(winston));
-    console.log('Winston featherLogger configured');
 
     app.configure(services);
-    console.log('Services configured');
     // Set up event channels (see channels.js)
     app.configure(channels);
-    console.log('Channels configured');
 
     // Host the public folder
     // Configure a middleware for 404s and the error handler
@@ -149,7 +131,6 @@ if (config.server.enabled) {
     // Configure a middleware for 404s and the error handler
 
     app.hooks(appHooks);
-    console.log('appHooks configured');
 
     if (config.server.mode === 'api' || config.server.mode === 'realtime') {
       (app as any).k8AgonesClient = K8s.api({
@@ -160,7 +141,6 @@ if (config.server.enabled) {
           token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
         }
       });
-      console.log('K8s Agones client configured');
       (app as any).k8DefaultClient = K8s.api({
         endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`,
         version: '/api/v1',
@@ -169,7 +149,6 @@ if (config.server.enabled) {
           token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
         }
       });
-      console.log('K8s default client configured');
     }
 
     if ((process.env.KUBERNETES === 'true' && config.server.mode === 'realtime') || process.env.NODE_ENV === 'development' || config.server.mode === 'local') {
@@ -177,12 +156,10 @@ if (config.server.enabled) {
       agonesSDK.ready();
       (app as any).agonesSDK = agonesSDK;
       healthPing(agonesSDK);
-      console.log('Agones SDK set up and pinging');
 
       // Create new gameserver instance
       const gameServer = new WebRTCGameServer(app);
-      console.log('Gameserver created');
-      logger.info("Created new gameserver instance");
+      console.log("Created new gameserver instance");
     } else {
       console.warn('Did not create gameserver');
     }
@@ -190,7 +167,6 @@ if (config.server.enabled) {
     app.use('/healthcheck', (req, res) => {
       res.sendStatus(200);
     });
-    console.log('App setup done');
   } catch(err) {
     console.log('Server init failure');
     console.log(err);
@@ -198,12 +174,10 @@ if (config.server.enabled) {
 }
 
 app.use(express.errorHandler({ logger } as any));
-console.log('express errorHandler configured');
 
 const editorPath = process.env.NODE_ENV === 'production' ? path.join(config.server.nodeModulesDir, '/xr3-editor/dist') : path.join(config.server.rootDir, '/node_modules/xr3-editor/dist');
 app.use(express.static(editorPath));
 app.all('/editor/*', (req, res) => res.sendFile(path.join(editorPath, 'editor/index.html')));
-console.log('Editor redirects configured');
 
 process.on('exit', async () => {
   console.log('Server EXIT');
@@ -243,6 +217,7 @@ process.on('SIGINT', () => {
 process.on('uncaughtException', (err) => {
   console.log('UNCAUGHT EXCEPTION');
   console.log(err);
+  process.exit();
 });
 
 //emitted whenever a Promise is rejected and no error handler is attached to it
@@ -250,6 +225,7 @@ process.on('unhandledRejection', (reason, p) => {
   console.log('UNHANDLED REJECTION');
   console.log(reason);
   console.log(p);
+  process.exit();
 });
 
 export default app;
