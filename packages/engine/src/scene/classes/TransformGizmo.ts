@@ -2,7 +2,6 @@ import { Object3D, Color, Vector3, Raycaster } from "three";
 import cloneObject3D from "../../editor/functions/cloneObject3D";
 import { TransformMode, TransformAxis } from "../../editor/controls/EditorControls";
 import { GLTFLoader } from "../../assets/loaders/gltf/GLTFLoader";
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { LoadGLTF } from "../../assets/functions/LoadGLTF";
 let gizmoGltf: { scene: any; json: any; stats: any } = null;
 const GLTF_PATH = "/editor/TransformGizmo.glb"; // STATIC

@@ -1,7 +1,6 @@
 import { Object3D, AnimationMixer, Vector3 } from "three";
 import { GLTFLoader } from "../../assets/loaders/gltf/GLTFLoader";
 import cloneObject3D from "@xr3ngine/engine/src/editor/functions/cloneObject3D";
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { LoadGLTF } from "../../assets/functions/LoadGLTF";
 let cubeGltf: { scene: any; json: any; stats: any } = null;
 const GLTF_PATH = "/editor/loading-cube.glb"; // Static
