@@ -91,6 +91,7 @@ import LinkNode from "@xr3ngine/engine/src/editor/nodes/LinkNode";
 import AssetManifestSource from "./assets/AssetManifestSource";
 import Api from "./Api";
 import { TransformSpace } from "@xr3ngine/engine/src/editor/constants/TransformSpace";
+import { LoadGLTF } from "@xr3ngine/engine/src/assets/functions/LoadGLTF";
 
 const tempMatrix1 = new Matrix4();
 const tempMatrix2 = new Matrix4();
@@ -528,7 +529,9 @@ export default class Editor extends EventEmitter {
     let blob;
 
     if (file.name.toLowerCase().endsWith(".glb")) {
-      const { scene } = await new GLTFLoader(url).loadGLTF();
+      // const { scene } = await new GLTFLoader(url).loadGLTF();
+      const { scene } = await LoadGLTF(url);
+
       blob = await this.thumbnailRenderer.generateThumbnail(scene, width, height);
     } else if ([".png", ".jpg", ".jpeg", ".gif", ".webp"].some(ext => file.name.toLowerCase().endsWith(ext))) {
       blob = await generateImageFileThumbnail(file);
