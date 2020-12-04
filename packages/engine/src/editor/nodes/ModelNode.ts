@@ -112,7 +112,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this.load(value).catch(console.error);
   }
   // Overrides Model's loadGLTF method and uses the Editor's gltf cache.
-  async loadGLTF(src) {
+  async load(src) {
     const loader = this.editor.gltfCache.getLoader(src);
     const { scene, json, stats } = await loader.getDependency("gltf");
     this.stats = stats;
