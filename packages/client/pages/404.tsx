@@ -1,8 +1,8 @@
 import React, { Fragment, useEffect } from 'react';
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/router';
 
 export const Custom404 = (): any => {
-  const router = useRouter()
+  const router = useRouter();
   useEffect(() => {
     router.push("/");
   });

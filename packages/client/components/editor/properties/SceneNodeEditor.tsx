@@ -30,7 +30,7 @@ const FogTypeOptions = [
 export default function SceneNodeEditor(props) {
   const { editor, node } = props;
 
-  const onChangeBackground = useSetPropertySelected(editor, "background");
+  // const onChangeBackground = useSetPropertySelected(editor, "background");
   const onChangeFogType = useSetPropertySelected(editor, "fogType");
   const onChangeFogColor = useSetPropertySelected(editor, "fogColor");
   const onChangeFogNearDistance = useSetPropertySelected(editor, "fogNearDistance");
@@ -54,10 +54,10 @@ export default function SceneNodeEditor(props) {
   return (
     <NodeEditor {...props} description={SceneNodeEditor.description}>
       { /* @ts-ignore */ }
-      <InputGroup name="Background Color">
+      {/* <InputGroup name="Background Color"> */}
       { /* @ts-ignore */ }
-        <ColorInput value={node.background} onChange={onChangeBackground} />
-      </InputGroup>
+        {/* <ColorInput value={node.background} onChange={onChangeBackground} /> */}
+      {/* </InputGroup> */}
       { /* @ts-ignore */ }
       <InputGroup name="Fog Type">
       { /* @ts-ignore */ }

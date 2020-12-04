@@ -44,20 +44,18 @@ const { publicRuntimeConfig } = getConfig();
 const apiServer: string = publicRuntimeConfig.apiServer;
 const authConfig = publicRuntimeConfig.auth;
 
-export function doLoginAuto (allowGuest?: boolean) {
-  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+export function doLoginAuto (allowGuest?: boolean, forceClientAuthReset?: boolean) {
+  return async (dispatch: Dispatch): Promise<any> => {
     try {
       const authData = getStoredState('auth');
       let accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined;
 
-      // console.log(allowGuest);
-      // console.log(accessToken);
-      if (allowGuest !== true && !accessToken) {
+      if (allowGuest !== true && accessToken == null) {
         return;
       }
 
-      if (allowGuest === true && !accessToken) {
-        console.log('Logging in as guest');
+      if (forceClientAuthReset === true) await (client as any).authentication.reset();
+      if (allowGuest === true && accessToken == null) {
         const newProvider = await client.service('identity-provider').create({
           type: 'guest',
           token: v1()
@@ -66,7 +64,24 @@ export function doLoginAuto (allowGuest?: boolean) {
       }
 
       await (client as any).authentication.setAccessToken(accessToken as string);
-      const res = await (client as any).reAuthenticate();
+      let res;
+      try {
+        res = await (client as any).reAuthenticate();
+      } catch(err) {
+        if (err.className === 'not-found') {
+          await dispatch(didLogout());
+          await (client as any).authentication.reset();
+          const newProvider = await client.service('identity-provider').create({
+            type: 'guest',
+            token: v1()
+          });
+          accessToken = newProvider.accessToken;
+          await (client as any).authentication.setAccessToken(accessToken as string);
+          res = await (client as any).reAuthenticate();
+        } else {
+          throw err;
+        }
+      }
       if (res) {
         const authUser = resolveAuthUser(res);
         dispatch(loginUserSuccess(authUser));
@@ -139,23 +154,26 @@ export function loginUserByPassword (form: EmailLoginForm) {
 }
 
 export function loginUserByGithub () {
-  return (dispatch: Dispatch): any => {
+  return (dispatch: Dispatch, getState: any): any => {
     dispatch(actionProcessing(true));
-    window.location.href = `${apiServer}/oauth/github`;
+    const token = getState().get('auth').get('authUser').accessToken;
+    window.location.href = `${apiServer}/oauth/github?feathers_token=${token}`;
   };
 }
 
 export function loginUserByGoogle () {
-  return (dispatch: Dispatch): any => {
+  return (dispatch: Dispatch, getState: any): any => {
     dispatch(actionProcessing(true));
-    window.location.href = `${apiServer}/oauth/google`;
+    const token = getState().get('auth').get('authUser').accessToken;
+    window.location.href = `${apiServer}/oauth/google?feathers_token=${token}`;
   };
 }
 
 export function loginUserByFacebook () {
-  return (dispatch: Dispatch): any => {
+  return (dispatch: Dispatch, getState: any): any => {
     dispatch(actionProcessing(true));
-    window.location.href = `${apiServer}/oauth/facebook`;
+    const token = getState().get('auth').get('authUser').accessToken;
+    window.location.href = `${apiServer}/oauth/facebook?feathers_token=${token}`;
   };
 }
 
@@ -200,7 +218,10 @@ export function logoutUser () {
     (client as any).logout()
       .then(() => dispatch(didLogout()))
       .catch(() => dispatch(didLogout()))
-      .finally(() => dispatch(actionProcessing(false)));
+      .finally(() => {
+        dispatch(actionProcessing(false));
+        doLoginAuto(true, true)(dispatch);
+      });
   };
 }
 
@@ -485,6 +506,18 @@ export function updateUsername (userId: string, name: string) {
   };
 }
 
+export function removeUser (userId: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    await client.service('user').remove(userId);
+    await client.service('identity-provider').remove(null, {
+      where: {
+        userId: userId
+      }
+    });
+    logoutUser()(dispatch);
+  };
+}
+
 client.service('user').on('patched', async (params) => {
   const selfUser = (store.getState() as any).get('auth').get('user');
   const user = resolveUser(params.userRelationship);
@@ -497,8 +530,6 @@ client.service('user').on('patched', async (params) => {
       setPartyId(user.partyId);
     }
   } else {
-    console.log('Not self user');
-    console.log(user);
     if (user.instanceId === selfUser.instanceId) {
       store.dispatch(addedLayerUser(user));
     } else {
@@ -508,15 +539,12 @@ client.service('user').on('patched', async (params) => {
 });
 
 client.service('location-ban').on('created', async(params) => {
-  console.log('Location Ban created');
   const state = store.getState() as any;
   const selfUser = state.get('auth').get('user');
   const party = state.get('party');
   const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === selfUser.id) : {};
   const currentLocation = state.get('locations').get('currentLocation').get('location');
   const locationBan = params.locationBan;
-  console.log('Current location id: ' + currentLocation.id);
-  console.log(locationBan);
   if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
     endVideoChat({ leftParty: true });
     leave();
@@ -524,8 +552,6 @@ client.service('location-ban').on('created', async(params) => {
       await client.service('party-user').remove(selfPartyUser.id);
     }
     const user = resolveUser(await client.service('user').get(selfUser.id));
-    console.log('Fetched user');
-    console.log(user);
     store.dispatch(userUpdated(user));
   }
 });

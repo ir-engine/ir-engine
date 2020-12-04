@@ -6,6 +6,7 @@ export const ItemTypes = {
   Image: "Image",
   Video: "Video",
   Audio: "Audio",
+  Volumetric: "Volumetric",
   Element: "Element"
 };
 export const AssetTypes = [
@@ -13,6 +14,7 @@ export const AssetTypes = [
   ItemTypes.Image,
   ItemTypes.Video,
   ItemTypes.Audio,
+  ItemTypes.Volumetric,
   ItemTypes.Element
 ];
 export function isAsset(item) {

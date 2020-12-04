@@ -2,6 +2,7 @@ import { Entity } from "../../ecs/classes/Entity";
 import { System } from "../../ecs/classes/System";
 import { getMutableComponent, hasComponent, removeComponent } from "../../ecs/functions/EntityFunctions";
 import { TransformComponent } from "../../transform/components/TransformComponent";
+import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
 import SpawnPointComponent from "../components/SpawnPointComponent";
 import TeleportToSpawnPoint from "../components/TeleportToSpawnPoint";
 
@@ -28,11 +29,20 @@ export class ServerSpawnSystem extends System {
             this.lastSpawnIndex = (this.lastSpawnIndex + 1) % this.spawnPoints.length;
 
             // Copy spawn transform to entity transform
-            const transform = getMutableComponent(entity, TransformComponent);
+            const actor = getMutableComponent(entity, CharacterComponent);
             const spawnTransform = getMutableComponent(this.spawnPoints[this.lastSpawnIndex], TransformComponent);
-            transform.position.copy(spawnTransform.position);
-            transform.rotation.copy(spawnTransform.rotation);
-
+            actor.actorCapsule.body.position.set(
+              spawnTransform.position.x,
+              spawnTransform.position.y,
+              spawnTransform.position.z
+            );
+            actor.actorCapsule.body.quaternion.set(
+              spawnTransform.rotation.x,
+              spawnTransform.rotation.y,
+              spawnTransform.rotation.z,
+              spawnTransform.rotation.w
+            );
+            console.warn(actor.actorCapsule);
             // Remove the component
             removeComponent(entity, TeleportToSpawnPoint);
         });

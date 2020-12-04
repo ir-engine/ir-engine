@@ -1,17 +1,23 @@
-.anchorContainer {
-    // width: 100wv;
-    .anchorDrawer{
-        position: absolute;
-        // position: -webkit-sticky;
-        // position: sticky;
-        top: 20px;
-        right: 20px;
-        cursor: pointer;
-    }
-    .drawer{
-        display: flex;   
-    }    
+.anchorDrawer{
+    position: absolute;
+    z-index: 1301;
+    top: 5px;
+    right: 0px;
+    cursor: pointer;
+    padding: 0px;
+    height: 1.5em;
+    width: 1.5em;
+    margin: 12px;
+    cursor: pointer;
+    @media (max-width: 768px){
+        height: 1em;
+        width: 1em;
+        margin: 7px;
+    } 
 }
+.drawer{
+    display: flex;   
+}    
 .avatarCountainer{
     display: flex;
     align-items: flex-start;
@@ -19,18 +25,22 @@
     height: auto;
     .avatarPreviewWrapper{
         width: 48%;
-        padding: 5px;
         cursor: pointer;
-        margin: 5px 1%;    
-        flex-grow: 0;
-        @media (max-width: 768px){
-            width: 100%;
-          }    
+        margin: 1%;    
+        flex-grow: 0; 
         .avatarPreview{
             width: 100%;
             height: 100%;
         }
     }
+}
+
+.deleteAccountButtons {
+    display: flex;
+}
+
+.header {
+    text-align: center;
 }
 
 .placeholder{

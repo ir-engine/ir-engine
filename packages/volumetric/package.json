@@ -1,0 +1,36 @@
+{
+  "name": "@xr3ngine/volumetric",
+  "version": "0.2.0",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/xr3ngine/xr3ngine.git"
+  },
+  "engines": {
+    "yarn": ">= 0.18.0"
+  },
+  "npmClient": "yarn",
+  "jest": "ts-jest",
+  "scripts": {},
+  "author": "XR3 Group",
+  "license": "MIT",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/xr3ngine/three-volumetric/issues"
+  },
+  "homepage": "https://github.com/xr3ngine/xr3ngine/packages/volumetric#readme",
+  "devDependencies": {
+    "@types/glob": "^7.1.2",
+    "ts-loader": "^7.0.5",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.5"
+  },
+  "dependencies": {
+    "cross-blob": "^2.0.0",
+    "fs-read-stream-over-http": "^0.2.2",
+    "http-stream": "^0.1.1",
+    "stream-http": "^3.1.1",
+    "three": "^0.123.0",
+    "xmlhttprequest": "^1.8.0"
+  }
+}
