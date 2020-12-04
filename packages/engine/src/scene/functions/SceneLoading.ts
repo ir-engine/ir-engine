@@ -3,6 +3,7 @@ import { SceneTagComponent } from '../../common/components/Object3DTagComponents
 import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions';
 import { SceneObjectLoadingSchema } from '../constants/SceneObjectLoadingSchema';
 import { PhysicsManager } from '../../physics/components/PhysicsManager';
+import { isClient } from "../../common/functions/isClient";
 
 export function loadScene (scene) {
   console.warn(Engine.scene);
@@ -18,8 +19,10 @@ export function loadScene (scene) {
   //PhysicsManager.instance.simulate = true;
 
   // TODO: temporary! we need to catch assets to load, and if there is no assets - then nothing to wait
-  const event = new CustomEvent('scene-loaded', { detail: { loaded: true } });
-  document.dispatchEvent(event);
+  if (isClient) {
+    const event = new CustomEvent('scene-loaded', {detail: {loaded: true}});
+    document.dispatchEvent(event);
+  }
 }
 
 export function loadComponent (entity, component) {
