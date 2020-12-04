@@ -7,11 +7,17 @@ import { hasComponent } from "../../ecs/functions/EntityFunctions";
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { DesiredTransformComponent } from "../components/DesiredTransformComponent";
 import { setDesiredTransformBehavior } from "../behaviors/setDesiredTransformBehavior";
+import { copyTransformBehavior } from "../behaviors/copyTransformBehavior";
+import { CopyTransformComponent } from "../components/CopyTransformComponent";
 
 export class TransformSystem extends System {
   updateType = SystemUpdateType.Fixed;
 
   execute (delta) {
+
+    this.queryResults.copyTransform.all?.forEach(entity => {
+      copyTransformBehavior(entity, {}, delta);
+    });
 
     this.queryResults.desiredTransforms.all?.forEach(entity => {
       setDesiredTransformBehavior(entity, {}, delta);
@@ -46,5 +52,8 @@ TransformSystem.queries = {
   },
   desiredTransforms: {
     components: [DesiredTransformComponent]
+  },
+  copyTransform: {
+    components: [CopyTransformComponent]
   }
 };

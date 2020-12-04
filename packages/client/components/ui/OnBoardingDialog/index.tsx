@@ -20,6 +20,7 @@ import { CharacterInputSchema } from '@xr3ngine/engine/src/templates/character/C
 import { getMutableComponent } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
 import { Input } from "@xr3ngine/engine/src/input/components/Input";
 import { Entity } from "@xr3ngine/engine/src/ecs/classes/Entity";
+import { joinWorld } from "@xr3ngine/engine/src/networking/functions/joinWorld";
 const mapStateToProps = (state: any): any => {
   return {
     dialog: selectDialogState(state),
@@ -86,7 +87,11 @@ const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAv
     switch(onBoardingStep){
       case  generalStateList.SCENE_LOADED : { 
             isOpened=true; dialogText = 'Virtual Conference / Retail Demo'; submitButtonText =  'Join World';
-            submitButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.AVATAR_SELECTION));
+            submitButtonAction = async ()=> {
+              console.log("Joining world");
+              await joinWorld();
+              store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));
+            };
             break;
           }
       // case generalStateList.DEVICE_SETUP: {
