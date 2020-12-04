@@ -234,4 +234,22 @@ process.on('SIGTERM', async (err) => {
   //   });
   // }
 });
+process.on('SIGINT', () => {
+  console.log('RECEIVED SIGINT');
+  process.exit();
+});
+
+//emitted when an uncaught JavaScript exception bubbles
+process.on('uncaughtException', (err) => {
+  console.log('UNCAUGHT EXCEPTION');
+  console.log(err);
+});
+
+//emitted whenever a Promise is rejected and no error handler is attached to it
+process.on('unhandledRejection', (reason, p) => {
+  console.log('UNHANDLED REJECTION');
+  console.log(reason);
+  console.log(p);
+});
+
 export default app;
