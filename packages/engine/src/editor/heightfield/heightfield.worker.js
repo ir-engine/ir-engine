@@ -1,5 +1,21 @@
-import * as THREE from "three";
+import { Vector3, Mesh, BufferGeometry, Raycaster, Float32BufferAttribute } from "three";
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
+
+// TODO: The worker script is exported as string as a workaround to create worker with webpack and nextjs. Implement better solution.
+export default `
+// Adding modules to worker global scope 
+
+self.THREE = {};
+self.THREE.Vector3 = ${Vector3};
+self.THREE.Mesh = ${Mesh};
+self.THREE.BufferGeometry = ${BufferGeometry};
+self.THREE.Vector3 = ${Vector3};
+self.THREE.Raycaster = ${Raycaster};
+self.THREE.Float32BufferAttribute = ${Float32BufferAttribute};
+self.acceleratedRaycast = ${acceleratedRaycast};
+self.computeBoundsTree = ${computeBoundsTree};
+
+// Script
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 THREE.BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 function exceedsDensityThreshold(count, subtree, params) {
@@ -133,5 +149,5 @@ self.onmessage = async event => {
     new THREE.Float32BufferAttribute(message.verts, 3)
   );
   const heightfield = generateHeightfield(geometry, params);
-  (self as any).postMessage({ heightfield });
-};
+  self.postMessage({ heightfield });
+};`

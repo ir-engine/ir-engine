@@ -1,14 +1,18 @@
 // @ts-ignore
-// import HeightfieldWorker  from "./heightfield.worker";
-// import HeightfieldWorker from "./heightfield.worker";
+import HeightfieldWorker from "./heightfield.worker";
 export default class HeightfieldClient {
   worker: any;
   working: boolean;
+  workerUrl: string;
   constructor() {
-    if ((process as any).browser) {
-      // this.worker = new HeightfieldWorker();
-    }
     this.working = false;
+    // Creating blob out of worker script as a workaround.
+    const blob = new Blob([HeightfieldWorker])
+    this.workerUrl = URL.createObjectURL(blob)
+    this.worker = new Worker(this.workerUrl);
+  }
+  initWorker() {
+    
   }
   async buildHeightfield(geometry, params, signal) {
     if (this.working) {
@@ -26,7 +30,7 @@ export default class HeightfieldClient {
       const cleanUp = () => {
         signal.removeEventListener("abort", onAbort);
         this.worker.removeEventListener("message", onMessage);
-        this.worker.removeEventListener("message", onError);
+        this.worker.removeEventListener("error", onError);
         this.working = false;
       };
       onMessage = event => {
@@ -36,7 +40,7 @@ export default class HeightfieldClient {
       onAbort = () => {
         this.worker.terminate();
         if ((process as any).browser) {
-          // this.worker = new HeightfieldWorker();
+          this.worker = new Worker(this.workerUrl);
         }
         const error = new Error("Canceled heightfield generation.");
         error["aborted"] = true;
@@ -60,6 +64,6 @@ export default class HeightfieldClient {
     if (result.error) {
       throw new Error(result.error);
     }
-    return result.heightfield;
+    return Promise.resolve(result.heightfield);
   }
 }
