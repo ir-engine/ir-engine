@@ -90,7 +90,6 @@ import LinkNode from "@xr3ngine/engine/src/editor/nodes/LinkNode";
 import AssetManifestSource from "./assets/AssetManifestSource";
 import Api from "./Api";
 import { TransformSpace } from "@xr3ngine/engine/src/editor/constants/TransformSpace";
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { LoadGLTF } from "@xr3ngine/engine/src/assets/functions/LoadGLTF";
 
 const tempMatrix1 = new Matrix4();

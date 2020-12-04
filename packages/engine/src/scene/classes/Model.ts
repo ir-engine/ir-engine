@@ -1,5 +1,4 @@
 import { Object3D, AnimationMixer } from "three";
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { LoadGLTF } from "../../assets/functions/LoadGLTF";
 import { GLTFLoader } from "../../assets/loaders/gltf/GLTFLoader";
 import cloneObject3D from "../../editor/functions/cloneObject3D";

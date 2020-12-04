@@ -2,7 +2,6 @@ import * as THREE from "three";
 import EditorNodeMixin from "./EditorNodeMixin";
 //@ts-ignore
 import { GLTFLoader } from "@xr3ngine/engine/src/assets/loaders/gltf/GLTFLoader";
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { LoadGLTF } from "../../assets/functions/LoadGLTF";
 let spawnPointHelperModel = null;
 const GLTF_PATH = "/editor/spawn-point.glb"; // Static
