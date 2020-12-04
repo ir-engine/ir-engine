@@ -4,8 +4,11 @@ import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions'
 import { SceneObjectLoadingSchema } from '../constants/SceneObjectLoadingSchema';
 import { PhysicsManager } from '../../physics/components/PhysicsManager';
 import { isClient } from "../../common/functions/isClient";
+import { Entity } from "../../ecs/classes/Entity";
+import { SceneData } from "../interfaces/SceneData";
+import { SceneDataComponent } from "../interfaces/SceneDataComponent";
 
-export function loadScene (scene) {
+export function loadScene (scene: SceneData): void {
   console.warn(Engine.scene);
   console.warn("Loading scene", scene);
   Object.keys(scene.entities).forEach(key => {
@@ -25,13 +28,13 @@ export function loadScene (scene) {
   }
 }
 
-export function loadComponent (entity, component) {
+export function loadComponent (entity: Entity, component: SceneDataComponent): void {
   if (SceneObjectLoadingSchema[component.name] === undefined) return console.warn("Couldn't load ", component.name);
   const componentSchema = SceneObjectLoadingSchema[component.name];
   // for each component in component name, call behavior
   componentSchema.behaviors?.forEach(b => {
     // For each value, from component.data
-    const values = {}
+    const values = {};
     b.values?.forEach(val => {
       // Does it have a from and to field? Let's map to that
       if(val['from'] !== undefined) {
@@ -48,7 +51,7 @@ export function loadComponent (entity, component) {
     b.behavior(entity, { ...b.args, objArgs: { ...values } });
   });
 
-  // for each component in component name, add copmponent
+  // for each component in component name, add component
   componentSchema.components?.forEach(c => {
     // For each value, from component.data, add to args object
     const values = c.values ? c.values.map(val => component.data[val]) : {};
