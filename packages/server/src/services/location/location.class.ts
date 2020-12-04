@@ -75,8 +75,8 @@ export class Location extends Service {
             setTimeout(() =>
               resolve(this.app.services.instance.create(element)), 1000)).then((value: any) => {
             console.log(value);
-          }, (reasone: any) => {
-            console.error(reasone);
+          }, (reason: any) => {
+            console.error(reason);
           });
         }
       });
@@ -92,37 +92,73 @@ export class Location extends Service {
     if ($sort != null) Object.keys($sort).forEach((name, val) => {
       order.push([name, $sort[name] === -1 ? 'DESC' : 'ASC']);
     });
-    const locationResult = await this.app.service('location').Model.findAndCountAll({
-      offset: $skip,
-      limit: $limit,
-      where: strippedQuery,
-      order: order,
-      include: [
-        {
-          model: this.app.service('instance').Model,
-          required: false,
-          where: {
-            currentUsers: {
-              [Op.lt]: Sequelize.col('location.maxUsersPerInstance')
+    if (strippedQuery.joinableLocations != null) {
+      delete strippedQuery.joinableLocations;
+      const locationResult = await this.app.service('location').Model.findAndCountAll({
+        offset: $skip,
+        limit: $limit,
+        where: strippedQuery,
+        order: order,
+        include: [
+          {
+            model: this.app.service('instance').Model,
+            required: false,
+            where: {
+              currentUsers: {
+                [Op.lt]: Sequelize.col('location.maxUsersPerInstance')
+              }
             }
+          },
+          {
+            model: this.app.service('location-settings').Model,
+            required: false
+          },
+          {
+            model: this.app.service('location-ban').Model,
+            required: false
           }
-        },
-        {
-          model: this.app.service('location-settings').Model,
-          required: false
-        },
-        {
-          model: this.app.service('location-ban').Model,
-          required: false
-        }
-      ]
-    });
-    return {
-      skip: $skip,
-      limit: $limit,
-      total: locationResult.count,
-      data: locationResult.rows
-    };
+        ]
+      });
+      return {
+        skip: $skip,
+        limit: $limit,
+        total: locationResult.count,
+        data: locationResult.rows
+      };
+    } else if (strippedQuery.adminnedLocations != null) {
+      delete strippedQuery.adminnedLocations;
+      const loggedInUser = extractLoggedInUserFromParams(params);
+      const locationResult = await this.app.service('location').Model.findAndCountAll({
+        offset: $skip,
+        limit: $limit,
+        where: strippedQuery,
+        order: order,
+        include: [
+          {
+            model: this.app.service('location-admin').Model,
+            where: {
+              userId: loggedInUser.userId
+            }
+          },
+          {
+            model: this.app.service('location-settings').Model,
+            required: false
+          },
+          {
+            model: this.app.service('location-ban').Model,
+            required: false
+          }
+        ]
+      });
+      return {
+        skip: $skip,
+        limit: $limit,
+        total: locationResult.count,
+        data: locationResult.rows
+      };
+    } else{
+      return super.find(params);
+    }
   }
 
   async create (data: any, params: Params): Promise<any> {

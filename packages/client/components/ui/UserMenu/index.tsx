@@ -5,7 +5,6 @@ import { generalStateList, setAppSpecificOnBoardingStep } from '../../../redux/a
 import EditIcon from '@material-ui/icons/Edit';
 import MenuIcon from '@material-ui/icons/Menu';
 import ShareIcon from '@material-ui/icons/Share';
-import PermIdentityIcon from '@material-ui/icons/PermIdentity';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import Tooltip from '@material-ui/core/Tooltip';
 import store from '../../../redux/store';
@@ -24,6 +23,10 @@ import { logoutUser } from '../../../redux/auth/service';
 import { Network } from '@xr3ngine/engine/src/networking/components/Network';
 import { loadActorAvatar } from '@xr3ngine/engine/src/templates/character/behaviors/loadActorAvatar';
 import UserSettings from '../Profile/UserSettings';
+import { LazyImage } from '../LazyImage';
+import ClearIcon from '@material-ui/icons/Clear';
+import DeleteIcon from '@material-ui/icons/Delete';
+import { removeUser } from '../../../redux/auth/service';
 
 interface Props {
     login?: boolean;
@@ -31,6 +34,7 @@ interface Props {
     updateUsername?: typeof updateUsername;
     logoutUser?: typeof logoutUser;
     showDialog?: typeof showDialog;
+    removeUser?: typeof removeUser;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -44,11 +48,12 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   updateUsername: bindActionCreators(updateUsername, dispatch),
   logoutUser: bindActionCreators(logoutUser, dispatch),
   showDialog: bindActionCreators(showDialog, dispatch),
+  removeUser: bindActionCreators(removeUser, dispatch),
 });
 
 
 const UserMenu = (props: Props): any => {    
-  const { login, authState, logoutUser, showDialog} = props;
+  const { login, authState, logoutUser, removeUser, showDialog} = props;
   const selfUser = authState.get('user');
   const [isEditName, setIsEditName] = useState(false);
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
@@ -80,6 +85,7 @@ const UserMenu = (props: Props): any => {
     store.dispatch(setAppSpecificOnBoardingStep(generalStateList.TUTOR_LOOKAROUND, true));
   };
 
+  const handleAccountDeleteClick = () => setDrawerType('accountDelete');
   const handleAvatarChangeClick = () => setDrawerType('avatar');
   const handleDeviceSetupClick = () => setDrawerType('device');
 
@@ -98,7 +104,12 @@ const UserMenu = (props: Props): any => {
     document.execCommand("copy");
     setOpenSnackBar(true);
   };
-  
+
+  const confirmAccountDelete = () => {
+    removeUser(selfUser.id);
+    setDrawerType('default');
+  };
+
   const handleMobileShareOnClick = () =>{
     if (navigator.share) {
       navigator
@@ -224,30 +235,17 @@ const UserMenu = (props: Props): any => {
    
 //filter avatars by some attribute
 const avatarsForRender = CharacterAvatars.filter(avatar=>avatar.id !== 'Animation');
-function imageExists(image_url){
-  var http = new XMLHttpRequest();
-  http.open('HEAD', image_url, false);
-  http.send();
-  return http.status != 404;
-}
 const renderAvatarSelectionPage = () =><>
       <Typography variant="h2" color="primary"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} />Change Avatar</Typography>
       <section className={styles.avatarCountainer}>
           {avatarsForRender.map(characterAvatar=>
               <Card key={characterAvatar.id} className={styles.avatarPreviewWrapper}> 
-                <CardActionArea>
-                  {imageExists('/static/'+characterAvatar.id.toLocaleLowerCase()+'.png') ? 
-                  <CardMedia
-                    component="img"
+                <CardActionArea onClick={()=>setActorAvatarId(characterAvatar.id)} >
+                  <LazyImage
+                    key={characterAvatar.id}
+                    src={'/static/'+characterAvatar.id.toLocaleLowerCase()+'.png'}
                     alt={characterAvatar.title}
-                    height="145"
-                    image={'/static/'+characterAvatar.id.toLocaleLowerCase()+'.png'}
-                    title={characterAvatar.title}
-                    className={styles.avatarPreview+(actorAvatarId === characterAvatar.id ? ' '+'currentAvatar' : '')} 
-                    onClick={()=>setActorAvatarId(characterAvatar.id)}                    
-                  /> : <PermIdentityIcon color="primary" height="145" 
-                      className={styles.avatarPreview+(actorAvatarId === characterAvatar.id ? ' '+styles.currentAvatar : '')} 
-                      onClick={()=>setActorAvatarId(characterAvatar.id)} /> }
+                  />
                 </CardActionArea>
               </Card>
             )}
@@ -264,6 +262,30 @@ const renderLoginPage = () =><>
   <SignIn />
 </>;
 
+const renderAccountDeletePage = () => <>
+  <Typography variant="h2" color="primary"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} />Delete Account</Typography>
+  <div>
+    <Typography variant="h5" color="primary" className={styles.header}>Delete account?</Typography>
+    <div className={styles.deleteAccountButtons}>
+      <Button
+          onClick={() => setDrawerType('default')}
+          startIcon={<ClearIcon />}
+          variant="contained"
+      >
+        Cancel
+      </Button>
+      <Button
+          onClick={() => confirmAccountDelete()}
+          startIcon={<DeleteIcon />}
+          variant="contained"
+          color='secondary'
+      >
+        Confirm
+      </Button>
+    </div>
+  </div>
+</>;
+
 const renderUserMenu = () =><>
           {renderChangeNameForm()}
           <Typography variant="h1">{worldName}</Typography>
@@ -274,6 +296,7 @@ const renderUserMenu = () =><>
           { selfUser?.userRole === 'guest' ? 
                 <Typography variant="h2" color="primary" onClick={handleLogin}>Login</Typography> :
                 <Typography variant="h2" color="primary" onClick={handleLogout}>Logout</Typography>}
+          { selfUser?.userRole !== 'guest' && <Typography variant="h2" color="primary" onClick={handleAccountDeleteClick}>Delete account</Typography>}
           <section className={styles.placeholder} />
           <Typography variant="h2" color="secondary">About</Typography>
           <Typography variant="h2" color="secondary">Privacy & Terms</Typography>
@@ -285,6 +308,7 @@ const renderDrawerContent = () =>{
     case 'avatar': return renderAvatarSelectionPage();
     case 'device': return renderDeviceSetupPage();
     case 'login': return renderLoginPage();
+    case 'accountDelete': return renderAccountDeletePage();
     default: return renderUserMenu();
   }
 };
