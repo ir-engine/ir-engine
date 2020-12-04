@@ -38,37 +38,42 @@ export default (app: Application): void => {
             // Sync to the database
               console.log('Syncing sequelize');
               try {
-                  return sequelize
-                      .sync({force: forceRefresh})
-                      .catch(err => {
-                          console.log('Sequelize sync error');
-                          console.log(err);
-                          return Promise.reject(err);
-                      })
-                      .then(() => {
-                          console.log('Configuring and calling seeder');
-                          return (app as any)
-                              .configure(seeder({services: seederConfig}))
-                              .seed()
-                              .then(() => {
-                                  console.log('Seeded');
-                                  return Promise.resolve();
-                              })
-                              .catch((err) => {
-                                  console.log('Feathers seeding error');
-                                  console.log(err);
-                                  throw err;
-                              });
+                  if (forceRefresh === true) {
+                      return sequelize
+                          .sync({force: forceRefresh})
+                          .catch(err => {
+                              console.log('Sequelize sync error');
+                              console.log(err);
+                              return Promise.reject(err);
+                          })
+                          .then(() => {
+                              console.log('Configuring and calling seeder');
+                              return (app as any)
+                                  .configure(seeder({services: seederConfig}))
+                                  .seed()
+                                  .then(() => {
+                                      console.log('Seeded');
+                                      return Promise.resolve();
+                                  })
+                                  .catch((err) => {
+                                      console.log('Feathers seeding error');
+                                      console.log(err);
+                                      throw err;
+                                  });
 
-                          if (performDryRun) {
-                              setTimeout(() => process.exit(0), 5000);
-                          }
-                      })
-                      .catch((err) => {
-                          console.log('Sequelize setup error');
-                          console.log(err);
-                          throw err;
-                      });
+                              if (performDryRun) {
+                                  setTimeout(() => process.exit(0), 5000);
+                              }
+                          })
+                          .catch((err) => {
+                              console.log('Sequelize setup error');
+                              console.log(err);
+                              throw err;
+                          });
+                  } else {
+                      console.log('Skipping sequelize.sync and seeding');
+                      return sequelize;
+                  }
               } catch(err) {
                   console.log('SEQUELIZE SYNC FAILURE');
                   console.log(err);
