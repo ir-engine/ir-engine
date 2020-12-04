@@ -63,7 +63,8 @@ export const LazyImage = ({ src, alt }) => {
     <CardMedia
       component="img"
       alt={alt}
-      ref={imageRef}
+      // @ts-ignore
+      ref={setImageRef}
       height="145"
       onLoad={onLoad}
       onError={onError}
