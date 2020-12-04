@@ -40,11 +40,12 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         this.app = app;
     }
 
-    public sendReliableData = (message: any): any =>
-      this.socketIO.of('/realtime').emit(MessageTypes.ReliableMessage.toString(), message);
+    public sendReliableData = (message: any): any => {
+        if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.ReliableMessage.toString(), message);
+    }
 
     public sendData = (data: any): void =>
-      this.dataProducers.forEach(producer => { producer.send(JSON.stringify(data)); })
+      this.dataProducers?.forEach(producer => { producer.send(JSON.stringify(data)); })
 
     public handleKick(socket: any): void {
         logger.info("Kicking ", socket.id);
