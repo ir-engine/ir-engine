@@ -2,6 +2,7 @@ import { Object3D, AnimationMixer, Vector3 } from "three";
 import { GLTFLoader } from "../../assets/loaders/gltf/GLTFLoader";
 import cloneObject3D from "@xr3ngine/engine/src/editor/functions/cloneObject3D";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
+import { LoadGLTF } from "../../assets/functions/LoadGLTF";
 let cubeGltf: { scene: any; json: any; stats: any } = null;
 const GLTF_PATH = "/editor/loading-cube.glb"; // Static
 export default class LoadingCube extends Object3D {
@@ -13,13 +14,7 @@ export default class LoadingCube extends Object3D {
       return Promise.resolve(cubeGltf);
     }
     // const gltf = await new GLTFLoader(GLTF_PATH).loadGLTF();
-    const gltf = await new Promise<{ scene: any; json: any; stats: any }>((resolve) => {
-      const loader = new GLTFLoader();
-      const dracoLoader = new DRACOLoader();
-      dracoLoader.setDecoderPath('/loader_decoders/');
-      loader.setDRACOLoader(dracoLoader);
-      loader.load(GLTF_PATH, (gltf) => { resolve({ scene: gltf.scene, json: {}, stats: {} }); });
-    });
+    const gltf = await LoadGLTF(GLTF_PATH);
 
     cubeGltf = gltf;
 
