@@ -8,7 +8,6 @@ import {SetupMethod} from "@feathersjs/feathers";
 
 export default (app: Application): void => {
   try {
-    console.log('Sequelize.ts');
     const {forceRefresh} = config.db;
     const {performDryRun} = config.server;
 
@@ -19,66 +18,40 @@ export default (app: Application): void => {
         freezeTableName: true
       }
     });
-    console.log('Instantiated sequelize');
-    console.log(sequelize);
     const oldSetup = app.setup;
 
     app.set('sequelizeClient', sequelize);
 
-    console.log('Defining/calling app.setup');
     app.setup = function (...args: any): Application {
       sequelize
           .query('SET FOREIGN_KEY_CHECKS = 0')
-          .catch((err) => {
-              console.log('Sequelize set foreign key check error');
-              console.log(err);
-              return Promise.reject(err);
-          })
           .then(() => {
             // Sync to the database
-              console.log('Syncing sequelize');
-              try {
-                  if (forceRefresh === true) {
-                      return sequelize
-                          .sync({force: forceRefresh})
-                          .catch(err => {
-                              console.log('Sequelize sync error');
-                              console.log(err);
-                              return Promise.reject(err);
-                          })
+              return sequelize
+                  .sync({force: forceRefresh})
+                  .then(() => {
+                      return (app as any)
+                          .configure(seeder({services: seederConfig}))
+                          .seed()
                           .then(() => {
-                              console.log('Configuring and calling seeder');
-                              return (app as any)
-                                  .configure(seeder({services: seederConfig}))
-                                  .seed()
-                                  .then(() => {
-                                      console.log('Seeded');
-                                      return Promise.resolve();
-                                  })
-                                  .catch((err) => {
-                                      console.log('Feathers seeding error');
-                                      console.log(err);
-                                      throw err;
-                                  });
-
-                              if (performDryRun) {
-                                  setTimeout(() => process.exit(0), 5000);
-                              }
+                              console.log('Seeded');
+                              return Promise.resolve();
                           })
                           .catch((err) => {
-                              console.log('Sequelize setup error');
+                              console.log('Feathers seeding error');
                               console.log(err);
                               throw err;
                           });
-                  } else {
-                      console.log('Skipping sequelize.sync and seeding');
-                      return sequelize;
-                  }
-              } catch(err) {
-                  console.log('SEQUELIZE SYNC FAILURE');
-                  console.log(err);
-                  return Promise.reject(err);
-              }
+
+                      if (performDryRun) {
+                          setTimeout(() => process.exit(0), 5000);
+                      }
+                  })
+                  .catch((err) => {
+                      console.log('Sequelize setup error');
+                      console.log(err);
+                      throw err;
+                  });
           })
           .then(sync => {
             app.set('sequelizeSync', sync);
@@ -89,12 +62,7 @@ export default (app: Application): void => {
             console.log(err);
             throw err;
           });
-      try {
-          return oldSetup.apply(this, args);
-      } catch(err) {
-          console.log('Setup apply error');
-          console.log(err);
-        }
+      return oldSetup.apply(this, args);
     };
   } catch(err) {
     console.log('Error in app/sequelize.ts');
