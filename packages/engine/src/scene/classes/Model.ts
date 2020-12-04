@@ -30,13 +30,13 @@ export default class Model extends Object3D {
   }
   async loadGLTF(src) {
     // const gltf = await new GLTFLoader(src).loadGLTF();
-    const gltf = await new Promise<{ scene: any; json: any; stats: any }>((resolve)=>{
+    const gltf = await new Promise<{ scene: any; json: any; stats: any }>((resolve) => {
       const loader = new GLTFLoader();
-        const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath('/loader_decoders/');
-        loader.setDRACOLoader(dracoLoader);
-        loader.load(src, (gltf) => { resolve({ scene: gltf.scene, json: {}, stats: {} }); });
-      });
+      const dracoLoader = new DRACOLoader();
+      dracoLoader.setDecoderPath('/loader_decoders/');
+      loader.setDRACOLoader(dracoLoader);
+      loader.load(src, (gltf) => { resolve({ scene: gltf.scene, json: {}, stats: {} }); });
+    });
     const model = gltf.scene;
     model.animations = model.animations || [];
     return model;
