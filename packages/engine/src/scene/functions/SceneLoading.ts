@@ -3,24 +3,25 @@ import { SceneTagComponent } from '../../common/components/Object3DTagComponents
 import { addComponent, createEntity, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { SceneObjectLoadingSchema } from '../constants/SceneObjectLoadingSchema';
 import { PhysicsManager } from '../../physics/components/PhysicsManager';
-import AssetVault from '../../assets/components/AssetVault';
-import { hashResourceString } from '../../assets/functions/hashResourceString';
 import { AssetLoader } from '../../assets/components/AssetLoader';
+import { isClient } from "../../common/functions/isClient";
 
 export function loadScene (scene) {
   console.warn(Engine.scene);
   console.warn("Loading scene", scene);
   const loadPromises = [];
   let loaded = 0;
-  const event = new CustomEvent('scene-loaded-entity', { detail: { left: loadPromises.length } });
-  document.dispatchEvent(event);
+  if (isClient) {
+    const event = new CustomEvent('scene-loaded-entity', {detail: {left: loadPromises.length}});
+    document.dispatchEvent(event);
+  }
   Object.keys(scene.entities).forEach(key => {
     const sceneEntity = scene.entities[key];
     const entity = createEntity();
     addComponent(entity, SceneTagComponent);
     sceneEntity.components.forEach(component => {
       loadComponent(entity, component);
-      if(component.name === 'gltf-model'){
+      if(isClient && component.name === 'gltf-model'){
         const loaderComponent = getMutableComponent(entity, AssetLoader);
         loadPromises.push(new Promise((resolve, reject)=>{ 
           loaderComponent.onLoaded = ()=> {
@@ -28,13 +29,13 @@ export function loadScene (scene) {
             const event = new CustomEvent('scene-loaded-entity', { detail: { left: (loadPromises.length-loaded) } });
             document.dispatchEvent(event);
           };
-        }))
+        }));
       }
     });
   });
   //PhysicsManager.instance.simulate = true;
 
-  Promise.all(loadPromises).then(()=>{
+  isClient && Promise.all(loadPromises).then(()=>{
     const event = new CustomEvent('scene-loaded', { detail: { loaded: true } });
     document.dispatchEvent(event);
   });
