@@ -1,6 +1,5 @@
-import { Object3D, AnimationMixer } from "three";
+import { AnimationMixer, Object3D } from "three";
 import { LoadGLTF } from "../../assets/functions/LoadGLTF";
-import { GLTFLoader } from "../../assets/loaders/gltf/GLTFLoader";
 import cloneObject3D from "../../editor/functions/cloneObject3D";
 export default class Model extends Object3D {
   model: any;
