@@ -10,6 +10,12 @@ export class CapsuleCollider extends Component<CapsuleCollider>
 	public options: any;
 	public body: Body;
 	// public visual: Mesh;
+	public mass: number;
+	public position: Vec3;
+	public height: number;
+	public radius: number;
+	public segments: number;
+	public friction: number;
 
 	constructor(options: any)
 	{
@@ -67,7 +73,7 @@ export class CapsuleCollider extends Component<CapsuleCollider>
 
 CapsuleCollider.schema = {
 	mass: { type: Types.Number, default: 0 },
-	position: { type: Types.Vector3Type, default: new Vector3( 0, 0, 0 ) },
+	position: { type: Types.Ref, default: new Vec3( 0, 0, 0 ) },
 	height: { type: Types.Number, default: 0.5 },
 	radius: { type: Types.Number, default: 0.3 },
 	segments: { type: Types.Number, default: 8 },
