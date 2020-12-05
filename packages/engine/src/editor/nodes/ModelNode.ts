@@ -109,10 +109,10 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
   // When getters are overridden you must also override the setter.
   set src(value) {
-    this.load(value).catch(console.error);
+    this.loadGLTF(value).catch(console.error);
   }
   // Overrides Model's loadGLTF method and uses the Editor's gltf cache.
-  async load(src) {
+  async loadGLTF(src) {
     const loader = this.editor.gltfCache.getLoader(src);
     const { scene, json, stats } = await loader.getDependency("gltf");
     this.stats = stats;
