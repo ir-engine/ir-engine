@@ -1,5 +1,5 @@
 import { TextureLoader } from 'three';
-import GLTFLoader from 'three-gltf-loader';
+import { GLTFLoader } from "../loaders/gltf/GLTFLoader";
 import AssetVault from '../components/AssetVault';
 import { AssetClass } from '../enums/AssetClass';
 import { AssetType } from '../enums/AssetType';
@@ -8,6 +8,8 @@ import * as FBXLoader from '../loaders/fbx/FBXLoader';
 import { Entity } from '../../ecs/classes/Entity';
 import { clone as SkeletonUtilsClone } from '../../common/functions/SkeletonUtils';
 import { hashResourceString } from './hashResourceString';
+import { DRACOLoader } from '../loaders/gltf/DRACOLoader';
+
 
 // Kicks off an iterator to load the list of assets and add them to the vault
 export function loadAssets (
@@ -77,7 +79,14 @@ function iterateLoadAsset (
 
 function getLoaderForAssetType (assetType: AssetTypeAlias): GLTFLoader | any | TextureLoader {
   if (assetType == AssetType.FBX) return new FBXLoader.FBXLoader();
-  else if (assetType == AssetType.glTF) return new GLTFLoader();
+  // else if (assetType == AssetType.glTF) return new GLTFLoader();
+  else if (assetType == AssetType.glTF) { 
+    const loader = new GLTFLoader();
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('/loader_decoders/');
+    loader.setDRACOLoader(dracoLoader);
+    return loader;
+  }
   else if (assetType == AssetType.PNG) return new TextureLoader();
   else if (assetType == AssetType.JPEG) return new TextureLoader();
   else if (assetType == AssetType.VRM) return new GLTFLoader();
