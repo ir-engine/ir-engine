@@ -14,6 +14,7 @@ import { addState } from "../../../state/behaviors/addState";
 import { State } from "../../../state/components/State";
 import { CharacterStateTypes } from "../CharacterStateTypes";
 import { CharacterComponent } from "../components/CharacterComponent";
+import {TransformComponent} from "../../../transform/components/TransformComponent";
 
 export const initializeCharacter: Behavior = (entity): void => {
 	console.warn("Initializing character for ", entity.id);
@@ -68,11 +69,13 @@ export const initializeCharacter: Behavior = (entity): void => {
 
 	actor.viewVector = new Vector3();
 
+	const transform = getComponent(entity, TransformComponent);
+
 	// Physics
 	// Player Capsule
-	addComponent(entity, CapsuleCollider as any, {
+	addComponent(entity, CapsuleCollider, {
 		mass: actor.actorMass,
-		position: actor.capsulePosition,
+		position: new Vec3( ...transform.position.toArray() ), // actor.capsulePosition ?
 		height: actor.actorHeight,
 		radius: actor.capsuleRadius,
 		segments: actor.capsuleSegments,
@@ -84,7 +87,7 @@ export const initializeCharacter: Behavior = (entity): void => {
 		shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
 	});
 	actor.actorCapsule.body.allowSleep = false;
-	actor.actorCapsule.body.position = new Vec3(0, 1, 0);
+	//actor.actorCapsule.body.position = new Vec3(0, 1, 0);
 	// Move actor to different collision group for raycasting
 	actor.actorCapsule.body.collisionFilterGroup = 2;
 
