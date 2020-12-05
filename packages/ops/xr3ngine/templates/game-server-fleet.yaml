@@ -461,7 +461,7 @@ spec:
           containerPort: 40099
           protcol: UDP
       health:
-        initialDelaySeconds: 15
+        initialDelaySeconds: 30
         periodSeconds: 30
         # Parameters for game server sidecar
         # sdkServer:
