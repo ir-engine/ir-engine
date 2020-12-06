@@ -11,7 +11,7 @@ export default class GLTFCache {
     if (this.cache.has(absoluteURL)) {
       return this.cache.get(absoluteURL);
     } else {
-      const loader = new GLTFLoader(absoluteURL, undefined, { revokeObjectURLs: false, ...options });
+      const loader = new GLTFLoader();
       this.cache.set(absoluteURL, loader);
       return loader;
     }
