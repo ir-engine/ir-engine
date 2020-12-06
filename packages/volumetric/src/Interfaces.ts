@@ -2,13 +2,13 @@ import { BufferGeometry } from 'three';
 
 
 export enum MessageType {
-    InitializationRequest,
-    InitializationResponse,
-    DataRequest,
-    DataResponse,
-    SetLoopRequest,
-    SetStartFrameRequest,
-    SetEndFrameRequest,
+    InitializationRequest = 0,
+    InitializationResponse = 1,
+    DataRequest = 2,
+    DataResponse = 3,
+    SetLoopRequest = 4,
+    SetStartFrameRequest = 5,
+    SetEndFrameRequest = 6,
   };
 export interface Action {
     type: MessageType,
@@ -36,7 +36,7 @@ export interface IMeshTextureData {
 
 export interface IBuffer {
     frameNumber: number;
-    bufferGeometry: Buffer | BufferGeometry;
+    bufferGeometry: Buffer | BufferGeometry | null;
 }
 
 export interface WorkerInitializationRequest extends Action {

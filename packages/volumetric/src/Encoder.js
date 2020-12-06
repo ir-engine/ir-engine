@@ -159,26 +159,23 @@ const dir = process.cwd() + '/' + 'assets/';
     console.log('FileData', fileData);
     // // Convert our file info into buffer and save to file stream
     const fileDataBuffer = Buffer.from(JSON.stringify(fileData), 'utf-8');
-    // Write the length so we know how to read it back out into an object
-    const fileDataBufferLengthEncoded = Buffer.from(
-      longToByteArray(fileDataBuffer.byteLength)
-    );
+ 
+    const manifestStream = fs.createWriteStream(fileName.replace('drcs', 'manifest'));
+    manifestStream.write(fileDataBuffer, err => {
+      if(err) console.log("ERROR", err);
+    });
 
-    // // We're going to prepend our data (and the length of that data), so combine buffers in order
-    const combinedBuffer = Buffer.concat([
-      fileDataBufferLengthEncoded,
-      fileDataBuffer,
-      writeBuffer
-    ]);
+    manifestStream.close;
 
-    const createStream = fs.createWriteStream(fileName);
-    createStream.write(combinedBuffer, err => {
+
+    const dracosisStream = fs.createWriteStream(fileName);
+    dracosisStream.write(writeBuffer, err => {
       if(err)
       console.log("ERROR", err);
     });
 
-    console.log("Bytes written to createStream", createStream.path);
-    createStream.close;
+    console.log("Bytes written to createStream", dracosisStream.path);
+    dracosisStream.close;
 
     // Progress callback
     if (callback) callback(1);

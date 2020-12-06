@@ -15,11 +15,9 @@ import FloorPlan from "../../scene/classes/FloorPlan";
 import BoxColliderNode from "./BoxColliderNode";
 import EditorNodeMixin from "./EditorNodeMixin";
 import GroundPlaneNode from "./GroundPlaneNode";
-// @ts-ignore
-import * as recastWasmUrl from "../recast/recast.wasm";
 import SpawnPointNode from './SpawnPointNode';
 
-// const heightfieldClient = new HeightfieldClient();
+const heightfieldClient = new HeightfieldClient();
 export default class FloorPlanNode extends EditorNodeMixin(FloorPlan) {
   static nodeName = "Floor Plan";
   static legacyComponentName = "floor-plan";
@@ -150,7 +148,6 @@ export default class FloorPlanNode extends EditorNodeMixin(FloorPlan) {
     const cellSize = this.autoCellSize
       ? Math.pow(area, 1 / 3) / 50
       : this.cellSize;
-    // debugger
     const navGeometry = await this.recastClient.buildNavMesh(
       walkableGeometry,
       {
@@ -161,90 +158,85 @@ export default class FloorPlanNode extends EditorNodeMixin(FloorPlan) {
         agentMaxClimb: this.agentMaxClimb,
         agentMaxSlope: this.agentMaxSlope,
         regionMinSize: this.regionMinSize,
-        wasmUrl: new URL(
-          recastWasmUrl,
-          // (configs as any).APP_URL || (window as any).location
-          (window as any).location
-        ).href,
-        // wasmUrl: '/recast/recast.wasm'
+        wasmUrl: 'https://localhost:3000/recast/recast.wasm', // TODO: Use env var
       },
       signal
     );
-    // const navMesh = new Mesh(
-    //   navGeometry,
-    //   new MeshBasicMaterial({
-    //     color: 0x0000ff,
-    //     transparent: true,
-    //     opacity: 0.2
-    //   })
-    // );
-    // this.setNavMesh(navMesh);
-    // navMesh.visible = this.editor.selected.indexOf(this) !== -1;
-    // const collidableGeometry = mergeMeshGeometries(collidableMeshes);
-    // let heightfield = null;
-    // if (!this.forceTrimesh) {
-    //   const spawnPoints = this.editor.scene.getNodesByType(SpawnPointNode);
-    //   let minY = Number.POSITIVE_INFINITY;
-    //   for (let j = 0; j < spawnPoints.length; j++) {
-    //     minY = Math.min(minY, spawnPoints[j].position.y);
-    //   }
-    //   heightfield = await heightfieldClient.buildHeightfield(
-    //     collidableGeometry,
-    //     {
-    //       minY: minY,
-    //       agentHeight: this.agentHeight,
-    //       triangleThreshold: this.maxTriangles
-    //     },
-    //     signal
-    //   );
-    // }
-    // if (heightfield !== null) {
-    //   this.setTrimesh(null);
-    //   this.setHeightfield(heightfield);
-    //   if (this.heightfieldMesh) {
-    //     this.remove(this.heightfieldMesh);
-    //   }
-    //   const segments = heightfield.data[0].length;
-    //   const heightfieldMeshGeometry = new PlaneBufferGeometry(
-    //     heightfield.width,
-    //     heightfield.length,
-    //     segments - 1,
-    //     segments - 1
-    //   );
-    //   heightfieldMeshGeometry.rotateX(-Math.PI / 2);
-    //   const vertices = heightfieldMeshGeometry.attributes.position.array as any;
-    //   for (let i = 0, j = 0, l = vertices.length; i < l / 3; i++, j += 3) {
-    //     vertices[j + 1] =
-    //       heightfield.data[Math.floor(i / segments)][i % segments];
-    //   }
-    //   const heightfieldMesh = new Mesh(
-    //     heightfieldMeshGeometry,
-    //     new MeshBasicMaterial({ wireframe: true, color: 0xffff00 })
-    //   );
-    //   heightfieldMesh.name = "HeightfieldMesh";
-    //   this.heightfieldMesh = heightfieldMesh;
-    //   this.add(heightfieldMesh);
-    //   this.heightfieldMesh.layers.set(1);
-    //   heightfieldMesh.position.set(
-    //     heightfield.offset.x,
-    //     0,
-    //     heightfield.offset.z
-    //   );
-    //   this.heightfieldMesh.visible = this.editor.selected.indexOf(this) !== -1;
-    // } else {
-    //   const trimesh = new Mesh(
-    //     collidableGeometry,
-    //     new MeshBasicMaterial({ wireframe: true, color: 0xff0000 })
-    //   );
-    //   this.setTrimesh(trimesh);
-    //   if (this.heightfieldMesh) {
-    //     this.remove(this.heightfieldMesh);
-    //   }
-    //   if (this.editor.selected.indexOf(this) !== -1) {
-    //     trimesh.visible = true;
-    //   }
-    // }
-    // return this;
+    const navMesh = new Mesh(
+      navGeometry,
+      new MeshBasicMaterial({
+        color: 0x0000ff,
+        transparent: true,
+        opacity: 0.2
+      })
+    );
+    this.setNavMesh(navMesh);
+    navMesh.visible = this.editor.selected.indexOf(this) !== -1;
+    const collidableGeometry = mergeMeshGeometries(collidableMeshes);
+    let heightfield = null;
+    if (!this.forceTrimesh) {
+      const spawnPoints = this.editor.scene.getNodesByType(SpawnPointNode);
+      let minY = Number.POSITIVE_INFINITY;
+      for (let j = 0; j < spawnPoints.length; j++) {
+        minY = Math.min(minY, spawnPoints[j].position.y);
+      }
+      heightfield = await heightfieldClient.buildHeightfield(
+        collidableGeometry,
+        {
+          minY: minY,
+          agentHeight: this.agentHeight,
+          triangleThreshold: this.maxTriangles
+        },
+        signal
+      );
+    }
+    if (heightfield !== null) {
+      this.setTrimesh(null);
+      this.setHeightfield(heightfield);
+      if (this.heightfieldMesh) {
+        this.remove(this.heightfieldMesh);
+      }
+      const segments = heightfield.data[0].length;
+      const heightfieldMeshGeometry = new PlaneBufferGeometry(
+        heightfield.width,
+        heightfield.length,
+        segments - 1,
+        segments - 1
+      );
+      heightfieldMeshGeometry.rotateX(-Math.PI / 2);
+      const vertices = heightfieldMeshGeometry.attributes.position.array as any;
+      for (let i = 0, j = 0, l = vertices.length; i < l / 3; i++, j += 3) {
+        vertices[j + 1] =
+          heightfield.data[Math.floor(i / segments)][i % segments];
+      }
+      const heightfieldMesh = new Mesh(
+        heightfieldMeshGeometry,
+        new MeshBasicMaterial({ wireframe: true, color: 0xffff00 })
+      );
+      heightfieldMesh.name = "HeightfieldMesh";
+      this.heightfieldMesh = heightfieldMesh;
+      this.add(heightfieldMesh);
+      this.heightfieldMesh.layers.set(1);
+      heightfieldMesh.position.set(
+        heightfield.offset.x,
+        0,
+        heightfield.offset.z
+      );
+      this.heightfieldMesh.visible = this.editor.selected.indexOf(this) !== -1;
+    } else {
+      const trimesh = new Mesh(
+        collidableGeometry,
+        new MeshBasicMaterial({ wireframe: true, color: 0xff0000 })
+      );
+      this.setTrimesh(trimesh);
+      if (this.heightfieldMesh) {
+        this.remove(this.heightfieldMesh);
+      }
+      if (this.editor.selected.indexOf(this) !== -1) {
+        trimesh.visible = true;
+      }
+    }
+    return this;
   }
   copy(source, recursive = true) {
     if (recursive) {
