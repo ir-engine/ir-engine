@@ -1,5 +1,5 @@
 import { TextureLoader } from 'three';
-import GLTFLoader from 'three-gltf-loader';
+import { GLTFLoader } from "../loaders/gltf/GLTFLoader";
 import AssetVault from '../components/AssetVault';
 import { AssetClass } from '../enums/AssetClass';
 import { AssetType } from '../enums/AssetType';
