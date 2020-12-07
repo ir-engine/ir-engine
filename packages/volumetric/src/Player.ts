@@ -17,8 +17,17 @@ import {
 } from './Interfaces';
 import CortoDecoder from './libs/cortodecoder.js';
 import RingBuffer from './RingBuffer';
+import Blob from 'cross-blob';
 
 import mediainfo from 'mediainfo';
+
+function workerFunction() {
+  var self = this;
+  self.onmessage = function(e) {
+      console.log('Received input: ', e.data); // message received from main thread
+      self.postMessage("Response back to main thread");
+  }
+}
 
 export default class DracosisPlayer {
   // Public Fields
@@ -82,6 +91,19 @@ export default class DracosisPlayer {
     keyframeBufferSize = 20,
     iframeBufferSize = 100
   }) {
+    var dataObj = '(' + workerFunction + ')();'; // here is the trick to convert the above fucntion to string
+    var blob = new Blob([dataObj.replace('"use strict";', '')]); // firefox adds "use strict"; to any function which might block worker execution so knock it off
+    
+    var blobURL = (window.URL ? URL : webkitURL).createObjectURL(blob);
+    
+    
+    var worker = new Worker(blobURL); // spawn new worker
+    
+    worker.onmessage = function(e) {
+        console.log('Worker said: ', e.data); // message received from worker
+    };
+    worker.postMessage("some input to worker"); // Send data to our worker.
+
 
     // Set class values from constructor
     this.scene = scene;
