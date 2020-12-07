@@ -2,6 +2,7 @@ import glob from 'glob';
 import fs from 'fs';
 import THREE from 'three';
 import OBJLoader from 'three-obj-loader-cjs-module';
+import CortoDecoder from './libs/cortodecoder.js';
 
 import HttpRequest from 'xmlhttprequest';
 global.XMLHttpRequest = HttpRequest.XMLHttpRequest;
@@ -10,9 +11,9 @@ function longToByteArray(/*long*/long) {
   // we want to represent the input as a 8-bytes array
   let byteArray = [0, 0, 0, 0, 0, 0, 0, 0];
   for (let index = 0; index < byteArray.length; index++) {
-      const byte = long & 0xff;
-      byteArray[index] = byte;
-      long = (long - byte) / 256;
+    const byte = long & 0xff;
+    byteArray[index] = byte;
+    long = (long - byte) / 256;
   }
   return byteArray;
 };
@@ -24,13 +25,14 @@ class CortosisFileCreator {
   _maxFaces;
   _manager;
   _loader;
-  lastMesh;
   mesh;
-  geometry;
+  keyframeGeometry;
   _frameIn;
   _frameOut;
   _outputFileName;
-  keyframes = [];
+
+  lastKeyframe = 0;
+
   constructor(
     frameIn,
     frameOut,
@@ -43,8 +45,7 @@ class CortosisFileCreator {
     this._maxFaces = 0;
     this._manager = new THREE.LoadingManager();
     this._loader = new OBJLoader(this._manager);
-    this.mesh = new THREE.Mesh();
-    this.geometry = new THREE.Geometry();
+    this.keyframeGeometry = new THREE.Geometry();
     this._frameIn = frameIn;
     this._frameOut = frameOut;
     this._frameIn = frameIn;
@@ -54,14 +55,13 @@ class CortosisFileCreator {
       if (progressCallback) progressCallback(item, loaded, total);
     };
 
-const dir = process.cwd() + '/' + 'assets/';
+    const dir = process.cwd() + '/' + 'assets/';
     glob(dir + '*.crt', {}, (err, files) => {
       if (err) console.log(err);
       this._meshFiles = files;
-      this.createEncodedFile(this._outputFileName, () => { "file created! "});
+      this.createEncodedFile(this._outputFileName, () => { "file created! " });
     });
   }
-
 
   createEncodedFile = async (
     fileName,
@@ -75,79 +75,84 @@ const dir = process.cwd() + '/' + 'assets/';
     // Iterate over all files and write an output file
     for (let i = this._frameIn; i < frameOut; i++) {
       // load obj
-      let objPath = this._meshFiles[i].replace('.crt','.obj');
+      let objPath = this._meshFiles[i].replace('.crt', '.obj');
 
       let rawObjData = fs.readFileSync(objPath, 'utf8');
       let rawObjDataCRT = fs.readFileSync(this._meshFiles[i]);
       let rawCRTFrame = Buffer.from(rawObjDataCRT)
       let objData = this._loader.parse(rawObjData);
       let noNormals = rawObjData.indexOf('vn ') === -1;
-      
-      // Set last mesh for comparison
-      this.lastMesh = this.mesh;
-      
+
       //   const children = objData.children;
       objData.traverse((child) => {
-        if (child.type == 'Mesh') {
-          this.mesh = child;
-          const bufferGeometry = child.geometry;
+          if (child.type == 'Mesh') {
+            console.log("Mesh found in child");
+            this.keyframeGeometry = new THREE.Geometry().fromBufferGeometry(child.geometry);
 
-          this.geometry = new THREE.Geometry().fromBufferGeometry(bufferGeometry);
+            if (this.keyframeGeometry.vertices.length > this._maxVertices)
+            this._maxVertices = this.keyframeGeometry.vertices.length;
+          if (this.keyframeGeometry.faces && this.keyframeGeometry.faces.length > this._maxFaces)
+            this._maxFaces = this.keyframeGeometry.faces.length;
 
-          if (this.geometry.vertices.length > this._maxVertices)
-            this._maxVertices = this.geometry.vertices.length;
-          if (this.geometry.faces.length > this._maxFaces)
-            this._maxFaces = this.geometry.faces.length;
+            console.log("Vertices is", this.keyframeGeometry.vertices.length)
+            console.log("Faces is", this.keyframeGeometry.vertices.length)
 
-          return; // Only get the first mesh in the obj
-        }
+          if (this.keyframeGeometry.faces && this.keyframeGeometry.faces.length > 0) {
+            console.log(i, "is a keyframe");
+            this.lastKeyframe = i;
+          }
+
+
+          if (noNormals && this.keyframeGeometry.faces && this.keyframeGeometry.faces.length > 0) {
+            // this.geometry.mergeVertices();
+            this.keyframeGeometry.computeVertexNormals();
+          }
+
+          const frame = {
+            frameNumber: i,
+            keyframeNumber: this.lastKeyframe,
+            startBytePosition: currentPositionInWriteStream,
+            vertices: this.keyframeGeometry.vertices.length,
+            faces: this.keyframeGeometry.faces.length,
+            meshLength: rawCRTFrame.byteLength
+          };
+
+          // Add to the data array
+          this._frameData.push(frame);
+
+
+          } else {
+            console.log(child.type, "found in child");
+
+          const frame = {
+            frameNumber: i,
+            keyframeNumber: this.lastKeyframe,
+            startBytePosition: currentPositionInWriteStream,
+            vertices: this.keyframeGeometry.vertices.length,
+            faces: this.keyframeGeometry.faces.length,
+            meshLength: rawCRTFrame.byteLength
+          };
+        this._frameData.push(frame);
+      }
+
       });
 
-      if(this.lastMesh !== undefined){
-        console.log("Mesh geo is", this.lastMesh.geometry);
+          // Write to file stream, mesh first
+          writeBuffer = Buffer.concat([writeBuffer, Buffer.from(rawCRTFrame)]);
+          currentPositionInWriteStream += rawCRTFrame.byteLength
 
-        const lastMeshVertexCount = new THREE.Geometry().fromBufferGeometry(this.lastMesh.geometry).vertices.length;
-        const meshVertexCount = new THREE.Geometry().fromBufferGeometry(this.mesh.geometry).vertices.length;
+          console.log('Wrote ' + rawCRTFrame.byteLength + ' bytes');
+          // update progress callback
+          rawCRTFrame = null;
+          rawObjData = null;
+          objData = null;
+          noNormals = null;
 
-        if(lastMeshVertexCount === meshVertexCount) console.log("Vertex count is the same between meshes");
-      }
-        
-
-      if (noNormals) {
-        // this.geometry.mergeVertices();
-        this.geometry.computeVertexNormals();
-      }
-
-      rawObjData = null;
-      objData = null;
-      noNormals = null;
-      
-      // const encodedMesh = await promiseMesh;
-      let encodedMesh = rawCRTFrame;
-      // console.log(rawObjData,'rawObjData')
-
-      const frame = {
-        frameNumber: i,
-        startBytePosition: currentPositionInWriteStream,
-        vertices: this.geometry.vertices.length,
-        faces: this.geometry.faces.length,
-        meshLength: encodedMesh.byteLength
-      };
-
-      // Add to the data array
-      this._frameData.push(frame);
-      // Write to file stream, mesh first
-      writeBuffer = Buffer.concat([writeBuffer, Buffer.from(encodedMesh)]);
-      console.log('Wrote ' + encodedMesh.byteLength + ' bytes');
-      // update progress callback
-      currentPositionInWriteStream += encodedMesh.byteLength
-      encodedMesh = null;
-      this.geometry = null;
-      console.log("Memory Usage", process.memoryUsage());
 
       // progress callback
       if (callback) callback(i - this._frameIn / frameOut - this._frameIn);
     }
+
 
     // create object with maxVertices, textureWidth and textureHeight, then pack frames {} in
     const fileData = {
@@ -159,10 +164,10 @@ const dir = process.cwd() + '/' + 'assets/';
     console.log('FileData', fileData);
     // // Convert our file info into buffer and save to file stream
     const fileDataBuffer = Buffer.from(JSON.stringify(fileData), 'utf-8');
- 
+
     const manifestStream = fs.createWriteStream(fileName.replace('drcs', 'manifest'));
     manifestStream.write(fileDataBuffer, err => {
-      if(err) console.log("ERROR", err);
+      if (err) console.log("ERROR", err);
     });
 
     manifestStream.close;
@@ -170,8 +175,8 @@ const dir = process.cwd() + '/' + 'assets/';
 
     const dracosisStream = fs.createWriteStream(fileName);
     dracosisStream.write(writeBuffer, err => {
-      if(err)
-      console.log("ERROR", err);
+      if (err)
+        console.log("ERROR", err);
     });
 
     console.log("Bytes written to createStream", dracosisStream.path);
