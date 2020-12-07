@@ -14,12 +14,12 @@ const workerBlob = new Blob([
   const bufferSize = 100
   const ringBuffer = new ${RingBuffer}(bufferSize)
   let tempBufferObject
-  
+
   let startFrame = 0
   let endFrame = 0
   let loop = true
   let message
-  
+
   addEventListener("message", ({ data }) => {
     switch (data.type) {
       case ${MessageType.InitializationRequest}:
@@ -41,7 +41,7 @@ const workerBlob = new Blob([
         console.error(data.action + " was not understood by the worker")
     }
   })
-  
+
   function initialize(data) {
     if (isInitialized)
       return console.error("Worker has already been initialized for file " + data.filePath)
@@ -52,16 +52,16 @@ const workerBlob = new Blob([
     startFrame = data.startFrame
     loop = data.loop
     fileReadStream = new ${ReadStream}(filePath, { start: data.readStreamOffset })
-  
+
     postMessage({ type: ${MessageType.InitializationResponse} })
   }
-  
+
   function fetch(data) {
     this.ringBuffer.Clear()
     const transferableBuffers = []
     let lastFrame = -1
     let endOfRangeReached = false
-  
+
     data.framesToFetch.sort().forEach(frame => {
       console.warn("Frame fetched outside of loop range")
       if (frame > endFrame) {
@@ -72,25 +72,25 @@ const workerBlob = new Blob([
         frame %= endFrame
         if (frame < startFrame) frame += startFrame
       }
-  
+
       if (!(frame == lastFrame + 1 && frame != startFrame)) {
         fileReadStream.seek(fileHeader.frameData[frame].startBytePosition)
       }
-  
+
       tempBufferObject.frameNumber = frame
-  
+
       tempBufferObject.bufferGeometry = fileReadStream.read(fileHeader.frameData[frame].meshLength)
-  
+
       tempBufferObject.compressedTexture = fileReadStream.read(fileHeader.frameData[frame].textureLength)
-  
+
       ringBuffer.add(tempBufferObject)
-  
+
       transferableBuffers.push(tempBufferObject.bufferGeometry)
       transferableBuffers.push(tempBufferObject.compressedTexture)
-  
+
       lastFrame = frame
     })
-  
+
     message = {
       type: ${MessageType.DataResponse},
       buffers: ringBuffer.toArray(),
@@ -98,10 +98,10 @@ const workerBlob = new Blob([
     }
     postMessage(message, transferableBuffers)
   }
-  
+
     `
   ]);
 
-  const workerUrl = window.URL.createObjectURL(workerBlob);
+//  const workerUrl = window.URL.createObjectURL(workerBlob);
 
-  export default workerUrl;
+//  export default workerUrl;

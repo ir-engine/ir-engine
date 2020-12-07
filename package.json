@@ -37,7 +37,7 @@
   "scripts": {
     "start": "yarn run dev",
     "dev": "lerna run dev --parallel",
-    "test": "jest",
+    "test": "jest ./packages/engine/tests/network/bufferPacking.test.ts",
     "lint": "lerna run lint",
     "version-increment": "lerna version --conventional-commits --yes",
     "validate": "lerna run validate",
@@ -82,6 +82,7 @@
     "ts-jest": "^26.4.1"
   },
   "dependencies": {
+    "@geckos.io/typed-array-buffer-schema": "^1.0.2",
     "ts-jest": "^26.4.1"
   }
 }

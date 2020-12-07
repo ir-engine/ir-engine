@@ -22,7 +22,7 @@ import {
 } from './Interfaces';
 import CortoDecoder from './libs/cortodecoder.js';
 import RingBuffer from './RingBuffer';
-import workerBlobUrl from './Worker'
+//import workerBlobUrl from './Worker'
 
 export function byteArrayToLong(/*byte[]*/byteArray: Buffer) {
   let value = 0;
@@ -141,8 +141,8 @@ export default class DracosisPlayer {
     this._video.requestVideoFrameCallback(this.videoUpdateHandler.bind(this));
 
     document.body.appendChild(this._video);
-    
-    this.worker = new Worker(workerBlobUrl);
+
+  //  this.worker = new Worker(workerBlobUrl);
 
     this.bufferGeometry = new PlaneBufferGeometry(1, 1);
     this.material = new MeshBasicMaterial({ map: this._videoTexture });
@@ -156,7 +156,7 @@ export default class DracosisPlayer {
     this.httpGetAsync(meshFilePath, (headerData: string) => {
 
       console.log("Incoming data is ", headerData);
-    
+
         const fileHeader = byteArrayToLong(Buffer.from(headerData.substring(0, 7)));
 
         console.log("fileHeader is", fileHeader);
@@ -166,17 +166,17 @@ export default class DracosisPlayer {
           const frameData = JSON.parse(incomingData.substring(8, incomingData.length));
 
           console.log("frameData is", frameData)
-    
+
           if (endFrame > 1) {
             this._endFrame = endFrame;
           } else {
             this._endFrame = frameData.length;
           }
           this._numberOfFrames = this._endFrame - this._startFrame + 1;
-    
+
           // init buffers with settings
           this._ringBuffer = new RingBuffer(bufferSize);
-    
+
           const initializeMessage = {
             startFrame: this._startFrame,
             endFrame: this._endFrame,
@@ -188,9 +188,9 @@ export default class DracosisPlayer {
             isInitialized: true,
             readStreamOffset: this.readStreamOffset,
           };
-    
+
           this.worker.postMessage(initializeMessage);
-    
+
           // Add event handler for manging worker responses
           this.worker.addEventListener('message', ({ data }) => player.handleMessage(data));
 
