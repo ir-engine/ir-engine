@@ -12,6 +12,7 @@ import { NetworkObject } from '../components/NetworkObject';
 import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClient';
 import { handleInputOnServer } from '../functions/handleInputOnServer';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
+import { worldStateModel } from '../schema/worldStateSchema';
 
 export class ClientNetworkSystem extends System {
   updateType = SystemUpdateType.Fixed;
@@ -49,6 +50,28 @@ export class ClientNetworkSystem extends System {
       const state = queue.pop();
       // debugger;
       applyNetworkStateToClient(state, delta);
+
+
+      state.inputs = state.inputs?.map(input => {
+        return {
+          networkId: input.networkId,
+          axes1d: Object.keys(input.axes1d).length ? Object.keys(input.axes1d).map(v => input.axes1d[v]): {},
+          axes2d: Object.keys(input.axes2d).length ? Object.keys(input.axes2d).map(v => input.axes2d[v]): {},
+          buttons: Object.keys(input.buttons).length ? Object.keys(input.buttons).map(v => input.buttons[v]): {},
+          viewVector: {x:0,y:0,z:0}
+        }
+      })
+
+      state.kkk = [{m:1, aaa:[{bbb:6},{bbb:7}] }]
+
+      state.snapshot.state = []; // in client copy state from transforms
+      console.warn(state);
+      const buffer = worldStateModel.toBuffer(state)
+      const test = worldStateModel.fromBuffer(buffer)
+      test.snapshot.state = test.transforms;
+      console.warn(test);
+      console.warn('/////////////////////');
+
     }
 
       this.queryResults.clientNetworkInputReceivers.all?.forEach((entity) => {

@@ -28,6 +28,7 @@ import { ListenerBindingData } from "../interfaces/ListenerBindingData";
 import { InputAlias } from "../types/InputAlias";
 import { Vault } from '../../networking/components/Vault';
 import { createSnapshot } from '../../networking/functions/NetworkInterpolationFunctions';
+import { clientInputModel } from '../../networking/schema/clientInputSchema';
 
 import supportsPassive from "../../common/functions/supportsPassive";
 import { BehaviorComponent } from '../../common/components/BehaviorComponent'
@@ -110,7 +111,9 @@ export class InputSystem extends System {
         buttons: {},
         axes1d: {},
         axes2d: {},
-        viewVector: {}
+        viewVector: {
+          x:0, y: 0, z :0
+        }
       };
 
       // Add all values in input component to schema
@@ -123,15 +126,23 @@ export class InputSystem extends System {
           inputs.axes2d[key] = { input: key, valueX: value.value[0], valueY: value.value[1], lifecycleState: value.lifecycleState };
       })
 
-
       const actor = getComponent<CharacterComponent>(entity, CharacterComponent)
-      inputs.viewVector = actor.viewVector.toArray();
+      inputs.viewVector.x = actor.viewVector.x;
+      inputs.viewVector.y = actor.viewVector.y;
+      inputs.viewVector.z = actor.viewVector.z;
 
-
-      // TODO: Convert to a message buffer
-      const message = inputs; // clientInputModel.toBuffer(inputs)
+      inputs.axes1d = Object.keys(inputs.axes1d).map(v => inputs.axes1d[v])
+      inputs.axes2d = Object.keys(inputs.axes2d).map(v => inputs.axes2d[v])
+      inputs.buttons = Object.keys(inputs.buttons).map(v => inputs.buttons[v])
+    //  console.warn(inputs);
+    //  const buffer = clientInputModel.toBuffer(inputs)
+  //    const inputDebbug = clientInputModel.fromBuffer(buffer)
+//      console.warn(inputDebbug);
+  //    console.warn(JSON.stringify(inputs).length) // 241
+  //    console.warn(buffer.byteLength) // 56
+      const message = clientInputModel.toBuffer(inputs);
       Network.instance.transport.sendReliableData(message); // Use default channel
-      
+
       cleanupInput(entity);
 
     });

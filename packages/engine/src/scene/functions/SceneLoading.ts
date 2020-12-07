@@ -3,10 +3,13 @@ import { SceneTagComponent } from '../../common/components/Object3DTagComponents
 import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions';
 import { SceneObjectLoadingSchema } from '../constants/SceneObjectLoadingSchema';
 import { PhysicsManager } from '../../physics/components/PhysicsManager';
+import { isClient } from '../../common/functions/isClient';
 
 export function loadScene (scene) {
-  console.warn(Engine.scene);
-  console.warn("Loading scene", scene);
+  if (isClient) {
+    console.warn(Engine.scene);
+    console.warn("Loading scene", scene);
+  }
   Object.keys(scene.entities).forEach(key => {
     const sceneEntity = scene.entities[key];
     const entity = createEntity();

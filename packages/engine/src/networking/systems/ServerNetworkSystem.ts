@@ -20,7 +20,9 @@ import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClien
 import { handleInputOnServer } from '../functions/handleInputOnServer';
 import { handleUpdatesFromClients } from '../functions/handleUpdatesFromClients';
 import { createSnapshot, addSnapshot } from '../functions/NetworkInterpolationFunctions';
-const t = 0, m = true
+import { worldStateModel } from '../schema/worldStateSchema';
+
+
 
 export class ServerNetworkSystem extends System {
   private _inputComponent: Input
@@ -31,7 +33,6 @@ export class ServerNetworkSystem extends System {
 
   constructor(attributes) {
     super();
-
     // Create a Network entity (singleton)
     const networkEntity = createEntity();
     addComponent(networkEntity, Network);
@@ -41,6 +42,8 @@ export class ServerNetworkSystem extends System {
     Network.instance.schema = schema;
     // Instantiate the provided transport (SocketWebRTCClientTransport / SocketWebRTCServerTransport by default)
     Network.instance.transport = new schema.transport(app);
+    // Buffer model for worldState
+  //  Network.instance.snapshotModel = new Model(snapshotSchema)
 
     this.isServer = Network.instance.transport.isServer;
 
@@ -61,9 +64,7 @@ export class ServerNetworkSystem extends System {
     Network.instance.worldState = {
       tick: Network.tick,
       transforms: [],
-      snapshot: {
-        state: undefined
-      },
+      snapshot: {},
       inputs: [],
       states: [],
       clientsConnected: Network.instance.clientsConnected,
@@ -134,7 +135,7 @@ export class ServerNetworkSystem extends System {
      addSnapshot(createSnapshot(Network.instance.worldState.transforms));
      Network.instance.worldState.snapshot = NetworkInterpolation.instance.get();
 
-    // TODO: to enable snapshots, use worldStateModel.toBuffer(Network.instance.worldState)
+  //   const buffer = worldStateModel.toBuffer(Network.instance.worldState)
     // Send the message to all connected clients
     if(Network.instance.transport !== undefined)
       Network.instance.transport.sendReliableData(Network.instance.worldState); // Use default channel

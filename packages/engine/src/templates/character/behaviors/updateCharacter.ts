@@ -86,7 +86,7 @@ if (isClient) {
       //    }
         }
         // we correct the position faster if the player moves
-        const correction = 120
+        const correction = 30
         // apply a step by step correction of the player's position
       //  actor.actorCapsule.body.position.set(
           actor.actorCapsule.body.position.x -= (offsetX / correction);

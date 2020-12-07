@@ -3,15 +3,26 @@ import { Input } from "../../input/components/Input";
 import { InputType } from "../../input/enums/InputType";
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { Network } from "../components/Network";
+import { clientInputModel } from '../schema/clientInputSchema';
 
 export function handleUpdatesFromClients() {
   // Parse incoming message queue
   while (Network.instance.incomingMessageQueue.getBufferLength() > 0) {
-    const clientInput = Network.instance.incomingMessageQueue.pop() as any;
+    const buffer = Network.instance.incomingMessageQueue.pop() as any;
+    const clientInput = clientInputModel.fromBuffer(new Uint8Array(buffer).buffer);
+
+    clientInput.buttons = clientInput.buttons?.reduce((a,b) => Object.assign(a, {[b.input]:b} ),{})
+    clientInput.axes2d = clientInput.axes2d?.reduce((a,b) => Object.assign(a, {[b.input]:b} ),{})
+    clientInput.axes1d = clientInput.axes1d?.reduce((a,b) => Object.assign(a, {[b.input]:b} ),{})
+
     if(Network.instance.networkObjects[clientInput.networkId] === undefined) return;
 
     const actor = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, CharacterComponent);
-    actor.viewVector.fromArray(clientInput.viewVector)
+    actor.viewVector.set(
+      clientInput.viewVector.x,
+      clientInput.viewVector.y,
+      clientInput.viewVector.z
+    )
     // Get input component
     const input = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, Input);
     // Clear current data
