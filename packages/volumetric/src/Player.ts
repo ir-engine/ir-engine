@@ -46,8 +46,6 @@ export default class DracosisPlayer {
   private iframeVertexBuffer: RingBuffer<IFrameBuffer>;
   private rangeFetcher = new HttpRangeFetcher({})
   
-  private lastKeyframe = -1;
-
   fileHeader: any;
   tempBufferObject: KeyframeBuffer = {
     frameNumber: 0,
@@ -114,9 +112,8 @@ export default class DracosisPlayer {
     this._video.requestVideoFrameCallback(this.videoUpdateHandler.bind(this));
 
     // Create a default mesh
-    this.bufferGeometry = new PlaneBufferGeometry(1, 1);
     this.material = new MeshBasicMaterial({ map: this._videoTexture });
-    this.mesh = new Mesh(this.bufferGeometry, this.material);
+    this.mesh = new Mesh(new PlaneBufferGeometry(1, 1), this.material);
     this.mesh.scale.set(this._scale, this._scale, this._scale);
     this.scene.add(this.mesh);
 
@@ -148,46 +145,48 @@ export default class DracosisPlayer {
 
   videoUpdateHandler(now, metadata) {
     let frameToPlay = metadata.presentedFrames - 1;
+    if (!this._isinitialized) return console.warn("Not inited");
     if (frameToPlay !== this._prevFrame) {
 
 
-      if (!this._isinitialized) return console.warn("Not inited");
 
-    let loopedFrameToPlay = frameToPlay % this._numberOfFrames;
+      let loopedFrameToPlay = frameToPlay % this._numberOfFrames;
 
+      const keyframeToPlay = this.fileHeader.frameData[loopedFrameToPlay].keyframe;
+      const newKeyframe = keyframeToPlay !== this.currentKeyframe;
 
-
-    // TODO:
-        // Get keyframe of the frame to play
-    // Is it the same as the last keyframe?
-    
-    // If yes, leave the keyuframe mesh, remove any iframe meshes below this one
-    // If not, remove the keyframe mesh, set new mesh to the keyframe mesh and remove any iframe meshes below this keyframe
-
-
-    while (this.meshBuffer.getFirst().frameNumber % this._numberOfFrames < loopedFrameToPlay )
-      this.meshBuffer.remove(0);
-
-    while (this.iframeVertexBuffer.getFirst().frameNumber % this._numberOfFrames < loopedFrameToPlay % this._numberOfFrames )
-      this.iframeVertexBuffer.remove(0);
-
-
-
-      // TODO: If keyframe changed, set mesh buffer to new keyframe
-      // If last frame was a keyframe, add positions from this iframe
-      // Otherwise, if last frame wasn't a keyframe, vertex positions are vertex positions from keyframe + iframe positions
-
-      // Update meshes and finish
-
-
-    if (this.meshBuffer.getFirst().frameNumber == loopedFrameToPlay) {
-      this.bufferGeometry = this.meshBuffer.getFirst().bufferGeometry as any;
-      this.mesh.geometry = this.bufferGeometry;
-      (this.mesh.material as any).needsUpdate = true;
+    if(newKeyframe){
+          // remove the keyframe mesh
+          this.currentKeyframe = keyframeToPlay;
+          // set new mesh to the keyframe mesh
+          while (this.meshBuffer.getFirst().keyframeNumber % this._numberOfFrames < keyframeToPlay ){
+            console.log("Removing keyframe mesh", this.meshBuffer.get(0).frameNumber);
+            this.meshBuffer.remove(0);
+          }
     } else {
-      console.warn("Frame", loopedFrameToPlay, "isn't frame to play");
+        //  leave the keyframe mesh, remove any iframe meshes below this one
+        while (this.iframeVertexBuffer.getFirst().frameNumber % this._numberOfFrames < loopedFrameToPlay )
+        console.log("Removing frames", this.iframeVertexBuffer.get(0).frameNumber);
+        this.iframeVertexBuffer.remove(0);
     }
-
+    
+    if (this.meshBuffer.getFirst().keyframeNumber == keyframeToPlay) {
+    if(newKeyframe){
+            // If keyframe changed, set mesh buffer to new keyframe
+        this.mesh.geometry =  this.meshBuffer.getFirst().bufferGeometry as any;
+        (this.mesh.material as any).needsUpdate = true;
+ 
+    } else {
+      this.mesh.geometry = this.meshBuffer.getFirst().bufferGeometry as any;
+      (this.mesh.geometry as any).setAttribute(
+        'position',
+        this.iframeVertexBuffer.getFirst().vertexBuffer
+      );
+    }
+  } else {
+    console.warn("Frame", loopedFrameToPlay, "isn't frame to play");
+  }
+      // Update meshes and finish
 
       this._prevFrame = frameToPlay;
     }
@@ -196,7 +195,6 @@ export default class DracosisPlayer {
 
   // Start loop to check if we're ready to play
   public play = () => {
-    this.startFetchLoop();
     const buffering = setInterval(() => {
       if(this.meshBuffer.getBufferLength() > 10){
         console.log("Keyframe buffer length is ", this.meshBuffer.getBufferLength(), ", playing video");
@@ -205,10 +203,7 @@ export default class DracosisPlayer {
         this.mesh.visible = true
       }
     }, 100)
-  }
 
-  // Start loop to fetch keyframes
-  startFetchLoop = () => {
     if(this.fetchLoop !== undefined)
       return console.warn("Fetch loop already inited");
     this.fetchLoop = setInterval(() => {
@@ -218,7 +213,7 @@ export default class DracosisPlayer {
         // Get last keyframe and add one, then get the frame data for it
         // if keyframe is outside of range, start fetching from the front
         // TODO: Is this login on modulo correct? We could be off by one on final keyframe
-        const newKeyframe = (this.lastKeyframe + 1) % this.fileHeader.frameData.length;
+        const newKeyframe = (this.currentKeyframe + 1) % this.fileHeader.frameData.length;
 
         console.log("New keyframe is", newKeyframe)
 
@@ -284,13 +279,12 @@ export default class DracosisPlayer {
               let decoder = new CortoDecoder(response.buffer.buffer.slice(frameStartPosition, frameEndPosition), null, null);
               let meshData = decoder.decode();
               console.log("Iframe meshData is", meshData);
-              const positionBuffer = new Float32BufferAttribute(meshData.position, 3);
               // Check if iframe position is in ring buffer -- if so, update it, otherwise set it
               // decode corto data and create a temp buffer geometry
               const bufferObject: IFrameBuffer = {
                 frameNumber: iframe.frameNumber,
                 keyframeNumber: iframe.keyframeNumber,
-                vertexBuffer = positionBuffer
+                vertexBuffer: new Float32BufferAttribute(meshData.position, 3)
               }
 
               // Check if position is in ring buffer -- if so, update it, otherwise set it
