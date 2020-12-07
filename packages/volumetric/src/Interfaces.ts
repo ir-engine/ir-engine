@@ -1,4 +1,4 @@
-import { BufferGeometry } from 'three';
+import { BufferGeometry, Float32BufferAttribute } from 'three';
 
 
 export enum MessageType {
@@ -34,9 +34,16 @@ export interface IMeshTextureData {
     mesh: Buffer;
 }
 
-export interface IBuffer {
+export interface KeyframeBuffer {
+    keyframeNumber: number;
     frameNumber: number;
     bufferGeometry: Buffer | BufferGeometry | null;
+}
+
+export interface IFrameBuffer {
+    keyframeNumber: number;
+    frameNumber: number;
+    vertexBuffer: Float32BufferAttribute;
 }
 
 export interface WorkerInitializationRequest extends Action {
@@ -57,6 +64,6 @@ export interface WorkerDataRequest extends Action {
 }
 
 export interface WorkerDataResponse extends Action {
-    buffers?: IBuffer[]
+    buffers?: KeyframeBuffer[]
     endReached: boolean;
 }
