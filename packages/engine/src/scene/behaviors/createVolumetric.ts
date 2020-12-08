@@ -19,11 +19,13 @@ export const createVolumetric: Behavior = (entity, args: { objArgs }) => {
         videoFilePath: drcs,
         loop: args.objArgs.loop,
         autoplay: args.objArgs.autoPlay,
-        startFrame: 0,
-        endFrame: -1,
         scale: 1,
-        bufferSize: 80,
+        frameRate: 25,
+        keyframeBufferSize: 20,
+        iframeBufferSize: 100
       });
+
+      
     
       volumetricComponent.player = DracosisSequence;
 

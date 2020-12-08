@@ -19,8 +19,6 @@ import CortoDecoder from './libs/cortodecoder.js';
 import RingBuffer from './RingBuffer';
 import Blob from 'cross-blob';
 
-import mediainfo from 'mediainfo';
-
 function workerFunction() {
   var self = this;
   self.onmessage = function(e) {
@@ -77,14 +75,12 @@ export default class DracosisPlayer {
     this._loop = value;
   }
 
-  mediaInfo = null;
-
   constructor({
     scene,
     renderer,
     meshFilePath,
     videoFilePath,
-    frameRate = 30,
+    frameRate = 25,
     loop = true,
     autoplay = true,
     scale = 1,
@@ -117,16 +113,7 @@ export default class DracosisPlayer {
     this._video.src = videoFilePath;
     this._videoTexture = new VideoTexture(this._video);
     this._videoTexture.crossorigin = "anonymous";
-
-    if(frameRate) this.frameRate = frameRate;
-    else {
-      mediainfo(videoFilePath, (err, res) => {
-        if(err) return console.error(err);
-        this.mediaInfo = res;
-        console.log("Video media info is", this.mediaInfo);
-        // TODO: Set framerate here
-      })
-    }
+    this.frameRate = frameRate;
 
 
     // Add video to dom and bind the upgdate handler to playback
