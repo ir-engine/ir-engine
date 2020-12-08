@@ -154,17 +154,17 @@ export default class DracosisPlayer {
   }
 
   videoUpdateHandler(now, metadata) {
-    console.log("Video update handler", metadata);
-    let frameToPlay = metadata.presentedFrames - 1;
     if (!this._isinitialized) return console.warn("Not inited");
+    let frameToPlay = metadata.presentedFrames - 1;
+    
     if (frameToPlay !== this._prevFrame) {
-
-
 
       let loopedFrameToPlay = frameToPlay % this._numberOfFrames;
 
-      const keyframeToPlay = this.fileHeader.frameData[loopedFrameToPlay].keyframe;
+      const keyframeToPlay = this.fileHeader.frameData[loopedFrameToPlay].keyframeNumber;
       const newKeyframe = keyframeToPlay !== this.currentKeyframe;
+
+      console.log("Looped frame to play is", loopedFrameToPlay, "| Keyframe to play is", keyframeToPlay, "|Is new keyframe?", newKeyframe);
 
     if(newKeyframe){
           // remove the keyframe mesh
@@ -176,7 +176,7 @@ export default class DracosisPlayer {
           }
     } else {
         //  leave the keyframe mesh, remove any iframe meshes below this one
-        while (this.iframeVertexBuffer.getFirst().frameNumber % this._numberOfFrames < loopedFrameToPlay )
+        while (this.iframeVertexBuffer.getBufferLength() > 0 && this.iframeVertexBuffer.getFirst().frameNumber % this._numberOfFrames < loopedFrameToPlay )
         console.log("Removing frames", this.iframeVertexBuffer.get(0).frameNumber);
         this.iframeVertexBuffer.remove(0);
     }
@@ -204,6 +204,8 @@ export default class DracosisPlayer {
     this._video.requestVideoFrameCallback(this.videoUpdateHandler.bind(this));
   }
 
+  lastKeyframeFetched = -1;
+
   // Start loop to check if we're ready to play
   public play = () => {
     const buffering = setInterval(() => {
@@ -226,9 +228,10 @@ export default class DracosisPlayer {
         // Get last keyframe and add one, then get the frame data for it
         // if keyframe is outside of range, start fetching from the front
         // TODO: Is this login on modulo correct? We could be off by one on final keyframe
-        const newKeyframe = (this.currentKeyframe + 1) % this.fileHeader.frameData.length;
+        const newKeyframe = (Math.max(this.lastKeyframeFetched, this.currentKeyframe) + 1) % this.fileHeader.frameData.length;
 
         const totalFrames = this.fileHeader.frameData.filter(frame => frame.keyframeNumber === newKeyframe);
+        this.lastKeyframeFetched = newKeyframe;
 
         // Get count of frames associated with keyframe
         const iframes = this.fileHeader.frameData.filter(frame => frame.keyframeNumber === newKeyframe && frame.keyframeNumber !== frame.frameNumber).sort((a, b) => (a.frameNumber < b.frameNumber));
@@ -275,6 +278,7 @@ export default class DracosisPlayer {
 
             // Check if position is in ring buffer -- if so, update it, otherwise set it
             const _pos = this.getPositionInKeyframeBuffer(keyframe.frameNumber);
+            console.log("Keyframe position is", _pos);
             if (_pos === -1) {
               this.meshBuffer.add(bufferObject);
             }
