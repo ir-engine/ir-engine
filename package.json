@@ -83,6 +83,8 @@
   },
   "dependencies": {
     "@geckos.io/typed-array-buffer-schema": "^1.0.2",
+    "superbuffer": "^1.0.1",
+    "text-encoding": "^0.7.0",
     "ts-jest": "^26.4.1"
   }
 }
