@@ -37,6 +37,7 @@ class CortosisFileCreator {
     frameIn,
     frameOut,
     outputFileName,
+    frameRate,
     progressCallback
   ) {
     this._meshFiles = [];
@@ -49,6 +50,7 @@ class CortosisFileCreator {
     this._frameIn = frameIn;
     this._frameOut = frameOut;
     this._frameIn = frameIn;
+    this.frameRate = frameRate;
     this._outputFileName = outputFileName;
     this._manager.onProgress = (item, loaded, total) => {
       console.log(item, loaded, total);
@@ -82,66 +84,66 @@ class CortosisFileCreator {
       let rawCRTFrame = Buffer.from(rawObjDataCRT)
       let objData = this._loader.parse(rawObjData);
       let noNormals = rawObjData.indexOf('vn ') === -1;
-
+      let returnedMesh = null;
       //   const children = objData.children;
       objData.traverse((child) => {
           if (child.type == 'Mesh') {
-            console.log("Mesh found in child");
-            this.keyframeGeometry = new THREE.Geometry().fromBufferGeometry(child.geometry);
+            returnedMesh = child;
+            return;
+      }
+      });
 
-            if (this.keyframeGeometry.vertices.length > this._maxVertices)
-            this._maxVertices = this.keyframeGeometry.vertices.length;
-          if (this.keyframeGeometry.faces && this.keyframeGeometry.faces.length > this._maxFaces)
-            this._maxFaces = this.keyframeGeometry.faces.length;
+      if(returnedMesh !== null){
+        console.log(returnedMesh.type, "found in child", i);
 
-            console.log("Vertices is", this.keyframeGeometry.vertices.length)
-            console.log("Faces is", this.keyframeGeometry.vertices.length)
+        this.lastKeyframe = i;
 
-          if (this.keyframeGeometry.faces && this.keyframeGeometry.faces.length > 0) {
-            console.log(i, "is a keyframe");
-            this.lastKeyframe = i;
-          }
+        this.keyframeGeometry = new THREE.Geometry().fromBufferGeometry(returnedMesh.geometry);
 
-
-          if (noNormals && this.keyframeGeometry.faces && this.keyframeGeometry.faces.length > 0) {
-            // this.geometry.mergeVertices();
-            this.keyframeGeometry.computeVertexNormals();
-          }
-
-          const frame = {
-            frameNumber: i,
-            keyframeNumber: this.lastKeyframe,
-            startBytePosition: currentPositionInWriteStream,
-            vertices: this.keyframeGeometry.vertices.length,
-            faces: this.keyframeGeometry.faces.length,
-            meshLength: rawCRTFrame.byteLength
-          };
-
-          // Add to the data array
-          this._frameData.push(frame);
+        if (this.keyframeGeometry.vertices.length > this._maxVertices)
+        this._maxVertices = this.keyframeGeometry.vertices.length;
+      if (this.keyframeGeometry.faces && this.keyframeGeometry.faces.length > this._maxFaces)
+        this._maxFaces = this.keyframeGeometry.faces.length;
 
 
-          } else {
-            console.log(child.type, "found in child");
 
-          const frame = {
-            frameNumber: i,
-            keyframeNumber: this.lastKeyframe,
-            startBytePosition: currentPositionInWriteStream,
-            vertices: this.keyframeGeometry.vertices.length,
-            faces: this.keyframeGeometry.faces.length,
-            meshLength: rawCRTFrame.byteLength
-          };
-        this._frameData.push(frame);
+      if (noNormals && this.keyframeGeometry.faces && this.keyframeGeometry.faces.length > 0) {
+        console.log("No normals");
+        this.keyframeGeometry.computeVertexNormals();
       }
 
-      });
+      const frame = {
+        frameNumber: i,
+        keyframeNumber: i,
+        startBytePosition: currentPositionInWriteStream,
+        vertices: this.keyframeGeometry.vertices.length,
+        faces: this.keyframeGeometry.faces.length,
+        meshLength: rawCRTFrame.byteLength,
+        type: 'mesh'
+      };
+
+      // Add to the data array
+      this._frameData.push(frame);
+      } else {
+        console.log("Mesh not returned, must be iframe");
+
+      const frame = {
+        frameNumber: i,
+        keyframeNumber: this.lastKeyframe,
+        startBytePosition: currentPositionInWriteStream,
+        vertices: this.keyframeGeometry.vertices.length,
+        faces: this.keyframeGeometry.faces.length,
+        meshLength: rawCRTFrame.byteLength,
+        type: 'group'
+      };
+
+    this._frameData.push(frame);
+      }
 
           // Write to file stream, mesh first
           writeBuffer = Buffer.concat([writeBuffer, Buffer.from(rawCRTFrame)]);
           currentPositionInWriteStream += rawCRTFrame.byteLength
 
-          console.log('Wrote ' + rawCRTFrame.byteLength + ' bytes');
           // update progress callback
           rawCRTFrame = null;
           rawObjData = null;
@@ -156,12 +158,14 @@ class CortosisFileCreator {
 
     // create object with maxVertices, textureWidth and textureHeight, then pack frames {} in
     const fileData = {
+      frameRate: this.frameRate,
       maxVertices: this._maxVertices,
       maxTriangles: this._maxFaces,
       frameData: this._frameData,
     };
 
-    console.log('FileData', fileData);
+
+    console.log(this._frameData);
     // // Convert our file info into buffer and save to file stream
     const fileDataBuffer = Buffer.from(JSON.stringify(fileData), 'utf-8');
 
@@ -179,7 +183,6 @@ class CortosisFileCreator {
         console.log("ERROR", err);
     });
 
-    console.log("Bytes written to createStream", dracosisStream.path);
     dracosisStream.close;
 
     // Progress callback
@@ -188,8 +191,7 @@ class CortosisFileCreator {
 }
 
 const myArgs = process.argv.slice(2);
-console.log('myArgs: ', myArgs);
 
-new CortosisFileCreator(myArgs[1] ? myArgs[1] : 0, myArgs[2] ? myArgs[2] : -1, myArgs[0], () => {
+new CortosisFileCreator(myArgs[2] ?? 0, myArgs[3] ?? -1, myArgs[0], myArgs[1] ?? 30, () => {
   console.log('Converted to Dracosis');
 });
