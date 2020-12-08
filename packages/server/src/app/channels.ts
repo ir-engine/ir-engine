@@ -62,7 +62,20 @@ export default (app: Application): void => {
               await agonesSDK.allocate();
               (app as any).instance = instanceResult;
 
+              if ((app as any).gsSubdomainNumber != null) {
+                const gsSubProvision = await app.service('gameserver-subdomain-provision').find({
+                  query: {
+                    gs_number: (app as any).gsSubdomainNumber
+                  }
+                });
 
+                if (gsSubProvision.total > 0) {
+                  const provision = gsSubProvision.data[0];
+                  await app.service('gameserver-subdomain-provision').patch(provision.id, {
+                    instanceId: instanceResult.id
+                  });
+                }
+              }
 
                 let service, serviceId;
                 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
