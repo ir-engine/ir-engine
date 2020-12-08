@@ -518,6 +518,8 @@ spec:
                     secretKeyRef:
                       name: {{ .Release.Name }}-redis
                       key: redis-password
+                - name: RELEASE_NAME
+                  value: {{ .Release.Name }}
           initContainers:
             - name: init-redis
               image: busybox:1.28

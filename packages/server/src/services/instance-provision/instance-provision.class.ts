@@ -5,6 +5,9 @@ import _ from 'lodash';
 import Sequelize, { Op } from 'sequelize';
 import getLocalServerIp from '../../util/get-local-server-ip';
 import logger from '../../app/logger';
+import config from '../../config';
+
+const releaseRegex = /^([a-zA-Z0-9]+)-/
 
 interface Data {}
 
@@ -191,7 +194,10 @@ export class InstanceProvision implements ServiceMethods<Data> {
         }
         console.log('Getting free gameserver');
         const serverResult = await (this.app as any).k8AgonesClient.get('gameservers');
-        const readyServers = _.filter(serverResult.items, (server: any) => server.status.state === 'Ready');
+        const readyServers = _.filter(serverResult.items, (server: any) => {
+          const releaseMatch = releaseRegex.exec(server.metadata.name);
+          return server.status.state === 'Ready' && releaseMatch != null && releaseMatch[1] === config.server.releaseName;
+        } );
         const server = readyServers[Math.floor(Math.random() * readyServers.length)];
         if (server == null) {
           return {
