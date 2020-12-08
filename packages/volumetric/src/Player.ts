@@ -1,7 +1,6 @@
 import { HttpRangeFetcher } from 'http-range-fetcher';
 import {
   BufferGeometry,
-  CompressedTexture,
   Float32BufferAttribute,
   Mesh,
   MeshBasicMaterial,
@@ -13,10 +12,22 @@ import {
   VideoTexture
 } from 'three';
 import {
-  IBuffer
+  IFrameBuffer,
+  KeyframeBuffer
 } from './Interfaces';
 import CortoDecoder from './libs/cortodecoder.js';
 import RingBuffer from './RingBuffer';
+import Blob from 'cross-blob';
+
+import mediainfo from 'mediainfo';
+
+function workerFunction() {
+  var self = this;
+  self.onmessage = function(e) {
+      console.log('Received input: ', e.data); // message received from main thread
+      self.postMessage("Response back to main thread");
+  }
+}
 
 export default class DracosisPlayer {
   // Public Fields
@@ -30,57 +41,33 @@ export default class DracosisPlayer {
   public meshFilePath: String;
   public material: any;
   public bufferGeometry: BufferGeometry;
-  public compressedTexture: CompressedTexture;
+
   // Private Fields
-  private _startFrame = 1;
   private _scale = 1;
-  private _endFrame = 0;
   private _prevFrame = 0;
-  private _renderFrame = 0;
   private _numberOfFrames = 0;
-  private _currentFrame = 1;
+  private currentKeyframe = 1;
   private _video = null;
   private _videoTexture = null;
   private _loop = true;
   private _isinitialized = false;
-  private _ringBuffer: RingBuffer<IBuffer>;
-  private _isPlaying = false;
-
-  rangeFetcher = new HttpRangeFetcher({})
-
-  private _nullBufferGeometry = new BufferGeometry();
-
-  // Temp variables -- reused in loops, etc (beware of initialized value!)
-  private _frameNumber = 0;
-  private _numberOfBuffersRemoved = 0; // TODO: Remove after debug
+  private meshBuffer: RingBuffer<KeyframeBuffer>;
+  private iframeVertexBuffer: RingBuffer<IFrameBuffer>;
+  private rangeFetcher = new HttpRangeFetcher({})
+  
   fileHeader: any;
-  tempBufferObject: IBuffer = {
+  tempBufferObject: KeyframeBuffer = {
     frameNumber: 0,
+    keyframeNumber: 0,
     bufferGeometry: null
   }
 
   manifestFilePath: any;
+  fetchLoop: any;
 
   // public getters and settings
   get currentFrame(): number {
-    return this._currentFrame;
-  }
-
-  get startFrame(): number {
-    return this._startFrame;
-  }
-
-  set startFrame(value: number) {
-    this._startFrame = value;
-    this._numberOfFrames = this._endFrame - this._startFrame;
-  }
-
-  get endFrame(): number {
-    return this._endFrame;
-  }
-  set endFrame(value: number) {
-    this._endFrame = value;
-    this._numberOfFrames = this._endFrame - this._startFrame;
+    return this.currentKeyframe;
   }
 
   get loop(): boolean {
@@ -90,307 +77,276 @@ export default class DracosisPlayer {
     this._loop = value;
   }
 
+  mediaInfo = null;
+
   constructor({
     scene,
     renderer,
     meshFilePath,
     videoFilePath,
+    frameRate = 30,
     loop = true,
     autoplay = true,
-    startFrame = 1,
-    endFrame = -1,
-    speedMultiplier = 1,
     scale = 1,
-    bufferSize = 99
+    keyframeBufferSize = 20,
+    iframeBufferSize = 100
   }) {
+    var dataObj = '(' + workerFunction + ')();'; // here is the trick to convert the above fucntion to string
+    var blob = new Blob([dataObj.replace('"use strict";', '')]); // firefox adds "use strict"; to any function which might block worker execution so knock it off
+    
+    var blobURL = (window.URL ? URL : webkitURL).createObjectURL(blob);
+    
+    
+    var worker = new Worker(blobURL); // spawn new worker
+    
+    worker.onmessage = function(e) {
+        console.log('Worker said: ', e.data); // message received from worker
+    };
+    worker.postMessage("some input to worker"); // Send data to our worker.
+
+
+    // Set class values from constructor
     this.scene = scene;
     this.renderer = renderer;
     this.meshFilePath = meshFilePath;
     this.manifestFilePath = meshFilePath.replace('drcs', 'manifest');
-
     this._loop = loop;
     this._scale = scale;
-    this.speed = speedMultiplier;
-    this._startFrame = startFrame;
-    this._currentFrame = startFrame;
     this._video = document.createElement('video');
     this._video.crossorigin = "anonymous";
     this._video.src = videoFilePath;
     this._videoTexture = new VideoTexture(this._video);
     this._videoTexture.crossorigin = "anonymous";
+
+    if(frameRate) this.frameRate = frameRate;
+    else {
+      mediainfo(videoFilePath, (err, res) => {
+        if(err) return console.error(err);
+        this.mediaInfo = res;
+        console.log("Video media info is", this.mediaInfo);
+        // TODO: Set framerate here
+      })
+    }
+
+
+    // Add video to dom and bind the upgdate handler to playback
+    document.body.appendChild(this._video);
     this._video.requestVideoFrameCallback(this.videoUpdateHandler.bind(this));
 
-    document.body.appendChild(this._video);
-
-    this.bufferGeometry = new PlaneBufferGeometry(1, 1);
+    // Create a default mesh
     this.material = new MeshBasicMaterial({ map: this._videoTexture });
-    this.mesh = new Mesh(this.bufferGeometry, this.material);
+    this.mesh = new Mesh(new PlaneBufferGeometry(1, 1), this.material);
     this.mesh.scale.set(this._scale, this._scale, this._scale);
-
     this.scene.add(this.mesh);
-
 
     const xhr = new XMLHttpRequest();
     xhr.onreadystatechange = () => {
       if (xhr.readyState !== 4) return;
         this.fileHeader = JSON.parse(xhr.responseText);
 
-        this._endFrame = (endFrame > 1) ? endFrame : this.fileHeader.frameData.length;
-        this._numberOfFrames = this._endFrame - this._startFrame + 1;
+        this._numberOfFrames = this.fileHeader.frameData.length;
+        
+        this.meshBuffer = new RingBuffer(keyframeBufferSize);
+        this.iframeVertexBuffer = new RingBuffer(iframeBufferSize);
 
-        this._ringBuffer = new RingBuffer(bufferSize);
         if (autoplay) {
           // Create an event listener that removed itself on input
           const eventListener = () => {
             // If we haven't inited yet, notify that we have, autoplay content and remove the event listener
-              this.play();
+            this.play();
               document.body.removeEventListener("mousedown", eventListener);    
           }
           document.body.addEventListener("mousedown", eventListener)
         }
         this._isinitialized = true;
-        this.handleBuffers();
     };
 
     xhr.open('GET', this.manifestFilePath, true); // true for asynchronous
     xhr.send();
   }
 
-
-  fetchData(data) {
-    console.log("Fetch data called, ", data);
-    // Make a list of buffers to transfer
-    let lastFrame = -1;
-    let endOfRangeReached = false;
-    // Iterate over values in ascending order...
-    data.sort().forEach((frame) => {
-      //  If this frame > end frame...
-      // ... warn the dev, since this might be unexpected
-      console.warn("Frame fetched outside of loop range");
-      if (frame > this.endFrame) {
-        // If loop is off, flag end reached
-        if (!this.loop) {
-          endOfRangeReached = true;
-          return;
-        }
-        // If loop is on, make sure the frame request fits within start and end frame range
-        frame %= this.endFrame;
-        // If the start frame is not zero, add to the current frame number
-        if (frame < this.startFrame)
-          frame += this.startFrame;
-      }
-      // If we're not reading from the position of the last frame, seek to start frame
-      if (!(frame == lastFrame + 1 && frame != this.startFrame)) {
-        // Get frame start byte pose
-      }
-      // tell the stream reader to read out the next bytes..
-      // Set temp buffer object frame number
-      this.tempBufferObject.frameNumber = frame;
-      this.rangeFetcher.getRange(this.meshFilePath, this.fileHeader.frameData[frame].startBytePosition, this.fileHeader.frameData[frame].meshLength)
-      .then( response => {
-        console.log("Response length is", response.buffer.length);
-        console.log("Intended length is", this.fileHeader.frameData[frame].meshLength)
-        console.log("Response buffer is ", response.buffer);
-        this.tempBufferObject.bufferGeometry = this.decodeCORTOData(response.buffer.buffer as any);
-
-        const _pos = this.getPositionInBuffer(frame);
-        if(_pos === -1){
-          this._ringBuffer.add(this.tempBufferObject);
-        }
-        else {
-          this._ringBuffer.get(_pos).bufferGeometry =  this.tempBufferObject.bufferGeometry;
-          this._ringBuffer.get(_pos).frameNumber =  this.tempBufferObject.frameNumber;
-        }
-
-        // Set the last frame
-        lastFrame = frame;
-      });
-    });
-  }
-
-  byteArrayToLong(/*byte[]*/byteArray: Buffer) {
-    let value = 0;
-    for (let i = byteArray.length - 1; i >= 0; i--) {
-      value = (value * 256) + byteArray[i];
-    }
-    return value;
-  };
-
-  lerp = (v0: number, v1: number, t: number) =>  v0 * (1 - t) + v1 * t;
-
-  play() {
-    this.show();
-    this._video.play()
-  }
-
-  pause = () => this._isPlaying = false;
-
-  reset = () => this._currentFrame = this._startFrame;
-
-  goToFrame(frame: number, play: boolean) {
-    this._currentFrame = frame;
-    if (play) this.play();
-  }
-
-  setSpeed = (multiplyScalar: number) => this.speed = multiplyScalar;
-
-  show = () => this.mesh.visible = true;
-
-  hide() {
-    this.mesh.visible = false;
-    this.pause();
-  }
-
-  fadeIn(stepLength = 0.1, fadeTime: number, currentTime = 0) {
-    if (!this._isPlaying) this.play();
-    this.material.opacity = this.lerp(0, 1, currentTime / fadeTime);
-    currentTime = currentTime + stepLength * fadeTime;
-    if (currentTime >= fadeTime) {
-      this.material.opacity = 1;
-      return;
-    }
-
-    setTimeout(() => {
-      this.fadeIn(fadeTime, currentTime);
-    }, stepLength * fadeTime);
-  }
-
-  fadeOut(stepLength = 0.1, fadeTime: number, currentTime = 0) {
-    this.material.opacity = this.lerp(1, 0, currentTime / fadeTime);
-    currentTime = currentTime + stepLength * fadeTime;
-    if (currentTime >= fadeTime) {
-      this.material.opacity = 0;
-      this.pause();
-      return;
-    }
-
-    setTimeout(() => {
-      this.fadeOut(fadeTime, currentTime);
-    }, stepLength * fadeTime);
-  }
-
   videoUpdateHandler(now, metadata) {
     let frameToPlay = metadata.presentedFrames - 1;
+    if (!this._isinitialized) return console.warn("Not inited");
     if (frameToPlay !== this._prevFrame) {
-      this.showFrame(frameToPlay);
+
+
+
+      let loopedFrameToPlay = frameToPlay % this._numberOfFrames;
+
+      const keyframeToPlay = this.fileHeader.frameData[loopedFrameToPlay].keyframe;
+      const newKeyframe = keyframeToPlay !== this.currentKeyframe;
+
+    if(newKeyframe){
+          // remove the keyframe mesh
+          this.currentKeyframe = keyframeToPlay;
+          // set new mesh to the keyframe mesh
+          while (this.meshBuffer.getFirst().keyframeNumber % this._numberOfFrames < keyframeToPlay ){
+            console.log("Removing keyframe mesh", this.meshBuffer.get(0).frameNumber);
+            this.meshBuffer.remove(0);
+          }
+    } else {
+        //  leave the keyframe mesh, remove any iframe meshes below this one
+        while (this.iframeVertexBuffer.getFirst().frameNumber % this._numberOfFrames < loopedFrameToPlay )
+        console.log("Removing frames", this.iframeVertexBuffer.get(0).frameNumber);
+        this.iframeVertexBuffer.remove(0);
+    }
+    
+    if (this.meshBuffer.getFirst().keyframeNumber == keyframeToPlay) {
+    if(newKeyframe){
+            // If keyframe changed, set mesh buffer to new keyframe
+        this.mesh.geometry =  this.meshBuffer.getFirst().bufferGeometry as any;
+        (this.mesh.material as any).needsUpdate = true;
+ 
+    } else {
+      this.mesh.geometry = this.meshBuffer.getFirst().bufferGeometry as any;
+      (this.mesh.geometry as any).setAttribute(
+        'position',
+        this.iframeVertexBuffer.getFirst().vertexBuffer
+      );
+    }
+  } else {
+    console.warn("Frame", loopedFrameToPlay, "isn't frame to play");
+  }
+      // Update meshes and finish
+
       this._prevFrame = frameToPlay;
-      this.handleBuffers();
     }
     this._video.requestVideoFrameCallback(this.videoUpdateHandler.bind(this));
   }
 
-  render() {
-    this._renderFrame++;
-    let frameToPlay = Math.floor(this._video.currentTime * 30) || 0;
-    if (this._renderFrame % 2 === 0 || !this._isPlaying) {
-      console.log(frameToPlay, 'frametoplay');
-      this.showFrame(frameToPlay)
-    }
+  // Start loop to check if we're ready to play
+  public play = () => {
+    const buffering = setInterval(() => {
+      if(this.meshBuffer.getBufferLength() > 10){
+        console.log("Keyframe buffer length is ", this.meshBuffer.getBufferLength(), ", playing video");
+        clearInterval(buffering);
+        this._video.play()
+        this.mesh.visible = true
+      }
+    }, 100)
 
-    window.requestAnimationFrame(this.render.bind(this))
+    if(this.fetchLoop !== undefined)
+      return console.warn("Fetch loop already inited");
+    this.fetchLoop = setInterval(() => {
+      if (this.meshBuffer.getBufferLength() < this.meshBuffer.getSize()) {
+        console.log("Keyframe buffer length is ", this.meshBuffer.getBufferLength(), ", fetching more frames");
+
+        // Get last keyframe and add one, then get the frame data for it
+        // if keyframe is outside of range, start fetching from the front
+        // TODO: Is this login on modulo correct? We could be off by one on final keyframe
+        const newKeyframe = (this.currentKeyframe + 1) % this.fileHeader.frameData.length;
+
+        console.log("New keyframe is", newKeyframe)
+
+        // Get count of frames associated with keyframe
+        const frames = this.fileHeader.frameData.filter(frame => frame.keyframeNumber === newKeyframe && frame.keyframeNumber !== frame.frameNumber).sort((a, b) => (a.frameNumber < b.frameNumber));
+        const keyframe = this.fileHeader.frameData.filter(frame => frame.keyframeNumber === newKeyframe && frame.keyframeNumber === frame.frameNumber)[0];
+
+        const requestStartBytePosition = keyframe.startBytePosition;
+        const requestEndBytePosition = frames[frames.length - 1].startBytePosition + frames[frames.length - 1].meshLength;
+
+        // request next keyframe + iframe byterange
+        this.rangeFetcher.getRange(this.meshFilePath, requestStartBytePosition, requestEndBytePosition)
+          .then(response => {
+            console.log("Response length is", response.buffer.length);
+            console.log("Intended length is", requestStartBytePosition - requestEndBytePosition);
+
+            // Slice keyframe out by byte position
+            const keyframeStartPosition = 0;
+            const keyframeEndPosition = keyframe.meshLength;
+
+            // Slice data from returned response and decode
+            let decoder = new CortoDecoder(response.buffer.buffer.slice(keyframeStartPosition, keyframeEndPosition), null, null);
+            let meshData = decoder.decode();
+            let geometry = new BufferGeometry();
+            geometry.setIndex(
+              new (meshData.index.length > 65535
+                ? Uint32BufferAttribute
+                : Uint16BufferAttribute)(meshData.index, 1)
+            );
+            geometry.setAttribute(
+              'position',
+              new Float32BufferAttribute(meshData.position, 3)
+            );
+            geometry.setAttribute(
+              'uv',
+              new Float32BufferAttribute(meshData.uv, 2)
+            );
+
+            // decode corto data and create a temp buffer geometry
+            const bufferObject: KeyframeBuffer = {
+              frameNumber: keyframe.frameNumber,
+              keyframeNumber: keyframe.keyframeNumber,
+              bufferGeometry: geometry
+            }
+
+            // Check if position is in ring buffer -- if so, update it, otherwise set it
+            const _pos = this.getPositionInKeyframeBuffer(keyframe.frameNumber);
+            if (_pos === -1) {
+              this.meshBuffer.add(bufferObject);
+            }
+            else {
+              this.meshBuffer.get(_pos).bufferGeometry = bufferObject.bufferGeometry;
+              this.meshBuffer.get(_pos).frameNumber = bufferObject.frameNumber;
+              this.meshBuffer.get(_pos).keyframeNumber = bufferObject.keyframeNumber;
+            }
+
+            // For each iframe...
+            for (const frameNo in frames) {
+              const iframe = frames[frameNo];
+              const frameStartPosition = iframe.startBytePosition - requestStartBytePosition;
+              const frameEndPosition = iframe.meshLength + iframe.startBytePosition - requestStartBytePosition
+              // Slice iframe out, decode into list of position vectors
+              let decoder = new CortoDecoder(response.buffer.buffer.slice(frameStartPosition, frameEndPosition), null, null);
+              let meshData = decoder.decode();
+              console.log("Iframe meshData is", meshData);
+              // Check if iframe position is in ring buffer -- if so, update it, otherwise set it
+              // decode corto data and create a temp buffer geometry
+              const bufferObject: IFrameBuffer = {
+                frameNumber: iframe.frameNumber,
+                keyframeNumber: iframe.keyframeNumber,
+                vertexBuffer: new Float32BufferAttribute(meshData.position, 3)
+              }
+
+              // Check if position is in ring buffer -- if so, update it, otherwise set it
+              const _pos = this.getPositionInIFrameBuffer(iframe.frameNumber);
+              if (_pos === -1) {
+                this.iframeVertexBuffer.add(bufferObject);
+              }
+              else {
+                this.iframeVertexBuffer.get(_pos).vertexBuffer = bufferObject.vertexBuffer;
+                this.iframeVertexBuffer.get(_pos).frameNumber = bufferObject.frameNumber;
+                this.iframeVertexBuffer.get(_pos).keyframeNumber = bufferObject.keyframeNumber;
+              }
+            }
+          });
+      }
+    }, 100)
   }
 
-  decodeCORTOData(rawBuffer: Buffer) {
-    let decoder = new CortoDecoder(rawBuffer, null, null);
-    let meshData = decoder.decode();
-    let geometry = new BufferGeometry();
-    geometry.setIndex(
-      new (meshData.index.length > 65535
-        ? Uint32BufferAttribute
-        : Uint16BufferAttribute)(meshData.index, 1)
-    );
-    geometry.setAttribute(
-      'position',
-      new Float32BufferAttribute(meshData.position, 3)
-    );
-    geometry.setAttribute(
-      'uv',
-      new Float32BufferAttribute(meshData.uv, 2)
-    );
-    return geometry;
-  }
-
-  getPositionInBuffer(frameNumber: number): number {
+  getPositionInKeyframeBuffer(keyframeNumber: number): number {
     // Search backwards, which should make the for loop shorter on longer buffer
-    for (let i = this._ringBuffer.getBufferLength(); i >= 0; i--) {
+    for (let i = this.meshBuffer.getBufferLength(); i >= 0; i--) {
       if (
-        this._ringBuffer.get(i) &&
-        frameNumber == this._ringBuffer.get(i).frameNumber
+        this.meshBuffer.get(i) &&
+        keyframeNumber == this.meshBuffer.get(i).frameNumber &&
+        keyframeNumber == this.meshBuffer.get(i).keyframeNumber
       )
         return i;
     }
     return -1;
   }
 
-  handleBuffers() {
-    while (true) {
-      // Peek the current frame. if it's frame number is below current frame, trash it
-      if (!this._ringBuffer ||
-        !this._ringBuffer.getFirst() ||
-        this._ringBuffer.getFirst().frameNumber >= this._currentFrame)
-        break;
-
-      // if it's equal to or greater than current frame, break the loop
-      this._ringBuffer.remove(0);
-      this._numberOfBuffersRemoved++;
+  getPositionInIFrameBuffer(frameNumber: number): number {
+    // Search backwards, which should make the for loop shorter on longer buffer
+    for (let i = this.iframeVertexBuffer.getBufferLength(); i >= 0; i--) {
+      if (
+        this.iframeVertexBuffer.get(i) &&
+        frameNumber == this.iframeVertexBuffer.get(i).frameNumber
+      )
+        return i;
     }
-
-    if (this._numberOfBuffersRemoved > 0)
-      console.warn('Removed ', this._numberOfBuffersRemoved, ' since they were skipped in playback');
-
-    const framesToFetch: number[] = [];
-    if (this._ringBuffer.empty() && this._currentFrame == 0) {
-      const frameData: IBuffer = {
-        frameNumber: this.startFrame,
-        bufferGeometry: this._nullBufferGeometry as any
-      } as any;
-      framesToFetch.push(this.startFrame);
-      this._ringBuffer.add(frameData);
-    }
-
-    // Fill buffers with new data
-    while (!this._ringBuffer.full()) {
-      // Increment onto the last frame
-      let lastFrame = (this._ringBuffer.getLast() && this._ringBuffer.getLast().frameNumber) || Math.max(this._currentFrame - 1, 0);
-      if (this._ringBuffer.getLast()) lastFrame = this._ringBuffer.getLast().frameNumber;
-      const nextFrame = (lastFrame + 1) % this._numberOfFrames;
-
-      const frameData: IBuffer = {
-        frameNumber: nextFrame,
-        bufferGeometry: this._nullBufferGeometry as any
-      } as any;
-      framesToFetch.push(nextFrame);
-      this._ringBuffer.add(frameData);
-    }
-
-    this.fetchData(framesToFetch);
-  }
-
-  showFrame(frame: number) {
-    if (!this._isinitialized) return console.warn("Not inited");
-
-    if (!this._ringBuffer || !this._ringBuffer.getFirst()) return console.warn("No ringbuffer");
-
-    let frameToPlay = frame % this._endFrame;
-
-    this.cleanBeforeNeeded(frameToPlay);
-
-    if (this._ringBuffer.getFirst().frameNumber == frameToPlay) {
-      this.bufferGeometry = this._ringBuffer.getFirst().bufferGeometry as any;
-      this.mesh.geometry = this.bufferGeometry;
-      (this.mesh.material as any).needsUpdate = true;
-    } else {
-      console.warn("First frame isn't frame to play");
-    }
-  }
-
-  cleanBeforeNeeded(frameToPlay: number) {
-    const maxDeleteConstant = 50;
-    let index = 0;
-    while (this._ringBuffer.getFirst().frameNumber !== frameToPlay && index < maxDeleteConstant) {
-      index++;
-      // console.log('deleting frame no ',this._ringBuffer.getFirst().frameNumber );
-      this._ringBuffer.remove(0);
-    }
+    return -1;
   }
 }
