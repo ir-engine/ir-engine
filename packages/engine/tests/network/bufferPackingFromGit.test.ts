@@ -1,25 +1,22 @@
-import { uint8, float32, uint16, uint32, int16, int64, string8 } from "@xr3ngine/engine/src/common/types/DataTypes";
-import { createSchema } from "@xr3ngine/engine/src/networking/functions/createSchema";
-import { Model } from "@xr3ngine/engine/src/networking/classes/Model";
-//import {BufferSchema, int16, int64, Model, string8, uint16} from '@geckos.io/typed-array-buffer-schema'
-//import { uint8, uint32, float32 } from '@geckos.io/typed-array-buffer-schema'
+import {BufferSchema, int16, int64, Model, string8, uint16} from '@geckos.io/typed-array-buffer-schema'
+import { uint8, uint32, float32 } from '@geckos.io/typed-array-buffer-schema'
 import {DefaultInput} from "../../src/templates/shared/DefaultInput";
 import {LifecycleValue} from "../../src/common/enums/LifecycleValue";
 import {BinaryValue} from "../../src/common/enums/BinaryValue";
 import {expect} from "@jest/globals";
 
-const inputKeySchema = createSchema('button', {
+const inputKeySchema = BufferSchema.schema('button', {
     input: uint8,
     value: float32,
     lifecycleValue: uint8
 });
 
-const inputKeyArraySchema = createSchema('main', {
+const inputKeyArraySchema = BufferSchema.schema('main', {
     networkId: uint32,
     buttons: [inputKeySchema],
 });
 
-const inputsArraySchema = createSchema('inputs', {
+const inputsArraySchema = BufferSchema.schema('inputs', {
     inputs: [inputKeyArraySchema],
 });
 
@@ -39,24 +36,24 @@ const inputs = [
         ]
     }
 ];
-const nameSchema = createSchema('name', {
+const nameSchema = BufferSchema.schema('name', {
     first: { type: string8, length: 6 },
     second: { type: string8, length: 6 }
 })
-const playerSchema = createSchema('player', {
+const playerSchema = BufferSchema.schema('player', {
     id: uint8,
     name: [nameSchema],
     x: { type: int16, digits: 2 },
     y: { type: int16, digits: 2 }
 })
 
-const towerSchema = createSchema('tower', {
+const towerSchema = BufferSchema.schema('tower', {
     id: uint8,
     health: uint8,
     team: uint8
 })
 
-const mainSchema = createSchema('main', {
+const mainSchema = BufferSchema.schema('main', {
     time: int64,
     tick: uint16,
     players: [playerSchema],
