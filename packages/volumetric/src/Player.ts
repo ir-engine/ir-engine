@@ -130,7 +130,7 @@ export default class DracosisPlayer {
     xhr.onreadystatechange = () => {
       if (xhr.readyState !== 4) return;
         this.fileHeader = JSON.parse(xhr.responseText);
-
+      console.log("Setting fileheader to", this.fileHeader);
         this._numberOfFrames = this.fileHeader.frameData.length;
         
         this.meshBuffer = new RingBuffer(keyframeBufferSize);
@@ -150,9 +150,11 @@ export default class DracosisPlayer {
 
     xhr.open('GET', this.manifestFilePath, true); // true for asynchronous
     xhr.send();
+    console.log("Sending xhr request");
   }
 
   videoUpdateHandler(now, metadata) {
+    console.log("Video update handler", metadata);
     let frameToPlay = metadata.presentedFrames - 1;
     if (!this._isinitialized) return console.warn("Not inited");
     if (frameToPlay !== this._prevFrame) {
@@ -216,28 +218,31 @@ export default class DracosisPlayer {
     if(this.fetchLoop !== undefined)
       return console.warn("Fetch loop already inited");
     this.fetchLoop = setInterval(() => {
+      if(!this._isinitialized) return console.log("not inited");
       if (this.meshBuffer.getBufferLength() < this.meshBuffer.getSize()) {
         console.log("Keyframe buffer length is ", this.meshBuffer.getBufferLength(), ", fetching more frames");
 
+        console.log("this.fileHeader.frameData.length is", this.fileHeader.frameData.length);
         // Get last keyframe and add one, then get the frame data for it
         // if keyframe is outside of range, start fetching from the front
         // TODO: Is this login on modulo correct? We could be off by one on final keyframe
         const newKeyframe = (this.currentKeyframe + 1) % this.fileHeader.frameData.length;
 
-        console.log("New keyframe is", newKeyframe)
+        const totalFrames = this.fileHeader.frameData.filter(frame => frame.keyframeNumber === newKeyframe);
 
         // Get count of frames associated with keyframe
-        const frames = this.fileHeader.frameData.filter(frame => frame.keyframeNumber === newKeyframe && frame.keyframeNumber !== frame.frameNumber).sort((a, b) => (a.frameNumber < b.frameNumber));
+        const iframes = this.fileHeader.frameData.filter(frame => frame.keyframeNumber === newKeyframe && frame.keyframeNumber !== frame.frameNumber).sort((a, b) => (a.frameNumber < b.frameNumber));
         const keyframe = this.fileHeader.frameData.filter(frame => frame.keyframeNumber === newKeyframe && frame.keyframeNumber === frame.frameNumber)[0];
 
         const requestStartBytePosition = keyframe.startBytePosition;
-        const requestEndBytePosition = frames[frames.length - 1].startBytePosition + frames[frames.length - 1].meshLength;
 
+        const requestEndBytePosition = iframes.length > 0 ?
+          iframes[iframes.length - 1].startBytePosition + iframes[iframes.length - 1].meshLength
+          : keyframe.startBytePosition + keyframe.meshLength;
+          
         // request next keyframe + iframe byterange
-        this.rangeFetcher.getRange(this.meshFilePath, requestStartBytePosition, requestEndBytePosition)
+        this.rangeFetcher.getRange(this.meshFilePath, requestStartBytePosition, requestEndBytePosition - requestStartBytePosition)
           .then(response => {
-            console.log("Response length is", response.buffer.length);
-            console.log("Intended length is", requestStartBytePosition - requestEndBytePosition);
 
             // Slice keyframe out by byte position
             const keyframeStartPosition = 0;
@@ -280,8 +285,8 @@ export default class DracosisPlayer {
             }
 
             // For each iframe...
-            for (const frameNo in frames) {
-              const iframe = frames[frameNo];
+            for (const frameNo in iframes) {
+              const iframe = iframes[frameNo];
               const frameStartPosition = iframe.startBytePosition - requestStartBytePosition;
               const frameEndPosition = iframe.meshLength + iframe.startBytePosition - requestStartBytePosition
               // Slice iframe out, decode into list of position vectors
