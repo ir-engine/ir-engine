@@ -3,14 +3,10 @@ import { int16, int64, string8, uint16, uint32, uint8 } from "@xr3ngine/engine/s
 import { Model } from "@xr3ngine/engine/src/networking/classes/Model";
 import { createSchema } from "@xr3ngine/engine/src/networking/functions/createSchema";
 
-const nameSchema = createSchema('name', {
-    first: { type: string8, length: 6 },
-    second: { type: string8, length: 6 }
-})
-
 const playerSchema = createSchema('player', {
     id: uint8,
-    name: [nameSchema],
+    first: { type: string8, length: 3 },
+    second: { type: string8, length: 3 },
     x: { type: int16, digits: 2 },
     y: { type: int16, digits: 2 }
 })
@@ -20,8 +16,6 @@ const towerSchema = createSchema('tower', {
     health: uint8,
     team: uint8
 })
-
-
 
 const mainSchema = createSchema('gamestate', {
     time: int64,
@@ -39,23 +33,19 @@ test("compress/decompress", () => {
         tick: 32580,
         players: [
             {
-              id: 0,
-              name: [{
-                first: 'TTT' ,
-                second: 'FFF'
-              }],
-              x: -14,
-              y: 47
+                id: 0,
+                first: 'TTT',
+                second: 'FFF',
+                x: -14,
+                y: 47
             },
             {
-              id: 1,
-              name: [{
-                first: 'TTT' ,
-                second: 'FFF'
-              }],
-              x: 21,
-              y: -78
-           }
+                id: 1,
+                first: 'TTT',
+                second: 'FFF',
+                x: 21,
+                y: -78
+            }
         ],
         towers: [
             { id: 0, health: 100, team: 0 },
