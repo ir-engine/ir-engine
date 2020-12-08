@@ -38,7 +38,7 @@ const server = useSSL
   ? https.createServer(certOptions, app).listen(port)
   : app.listen(port);
 
-// app.setup(server);
+app.setup(server);
 
 process.on('unhandledRejection', (reason, p) =>
   logger.error('Unhandled Rejection at: Promise ', p, reason)
