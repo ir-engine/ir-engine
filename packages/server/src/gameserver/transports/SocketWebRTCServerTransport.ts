@@ -11,6 +11,7 @@ import config from '../../config';
 import getLocalServerIp from '../../util/get-local-server-ip';
 import { localConfig } from './config';
 import {
+    cleanupOldGameservers,
     getFreeSubdomain,
     handleConnectToWorld,
     handleDisconnect,
@@ -58,6 +59,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         const localIp = await getLocalServerIp();
         let stringSubdomainNumber, gsResult;
         if (process.env.KUBERNETES === 'true') {
+            await cleanupOldGameservers();
             this.gameServer = await (this.app as any).agonesSDK.getGameServer();
             const name = this.gameServer.objectMeta.name;
             (this.app as any).gsName = name;
