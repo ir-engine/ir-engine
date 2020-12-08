@@ -10,6 +10,8 @@ import logger from "../../app/logger";
 import config from '../../config';
 import { closeTransport } from './WebRTCFunctions';
 
+const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
+
 export async function getFreeSubdomain(gsIdentifier: string, subdomainNumber: number): Promise<string> {
     const transport = Network.instance.transport as any;
     const stringSubdomainNumber = subdomainNumber.toString().padStart(config.gameserver.identifierDigits, '0');
@@ -25,7 +27,15 @@ export async function getFreeSubdomain(gsIdentifier: string, subdomainNumber: nu
             gs_id: gsIdentifier
         });
 
-        return stringSubdomainNumber;
+        await new Promise(resolve => setTimeout(async () => { resolve();}, 500));
+
+        const newSubdomainResult = await transport.app.service('gameserver-subdomain-provision').find({
+            query: {
+                gs_number: stringSubdomainNumber
+            }
+        });
+        if (newSubdomainResult.total > 0 && newSubdomainResult.data[0].gs_id === gsIdentifier) return stringSubdomainNumber;
+        else return getFreeSubdomain(gsIdentifier, subdomainNumber + 1);
     } else {
         const subdomain = (subdomainResult as any).data[0];
         if (subdomain.allocated === true || subdomain.allocated === 1) {
@@ -36,8 +46,49 @@ export async function getFreeSubdomain(gsIdentifier: string, subdomainNumber: nu
             gs_id: gsIdentifier
         });
 
-        return stringSubdomainNumber;
+        await new Promise(resolve => setTimeout(async () => { resolve();}, 500));
+
+        const newSubdomainResult = await transport.app.service('gameserver-subdomain-provision').find({
+            query: {
+                gs_number: stringSubdomainNumber
+            }
+        });
+        if (newSubdomainResult.total > 0 && newSubdomainResult.data[0].gs_id === gsIdentifier) return stringSubdomainNumber;
+        else return getFreeSubdomain(gsIdentifier, subdomainNumber + 1);
     }
+}
+
+export async function cleanupOldGameservers(): Promise<void> {
+    const transport = Network.instance.transport as any;
+    const instances = await transport.app.service('instance').Model.findAndCountAll({
+        offset: 0,
+        limit: 1000
+    });
+    const gameservers = await (transport.app as any).k8AgonesClient.get('gameservers');
+    const gsIds = gameservers.items.map(gs => gsNameRegex.exec(gs.metadata.name)[1]);
+
+    await Promise.all(instances.rows.map(instance => {
+        const [ip, port] = instance.ipAddress.split(':');
+        const match = gameservers.items.find(gs => {
+            const inputPort = gs.status.ports.find(port => port.name === 'default');
+            const gsIdentifier = gsNameRegex.exec(gs.metadata.name);
+            return gs.status.address === ip && inputPort.port.toString() === port;
+        });
+        return match == null ? transport.app.service('instance').remove(instance.id) : Promise.resolve();
+    }));
+
+    await transport.app.service('gameserver-subdomain-provision').patch(null, {
+        allocated: false
+    }, {
+        query: {
+            instanceId: null,
+            gs_id: {
+                $nin: gsIds
+            }
+        }
+    });
+
+    return;
 }
 
 export function getUserIdFromSocketId(socketId): string | null {
