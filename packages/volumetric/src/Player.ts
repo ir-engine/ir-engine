@@ -63,7 +63,7 @@ export default class DracosisPlayer {
   }
 
   manifestFilePath: any;
-  fetchLoop: number;
+  fetchLoop: any;
 
   // public getters and settings
   get currentFrame(): number {
