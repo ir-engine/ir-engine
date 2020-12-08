@@ -44,7 +44,7 @@ export default class DracosisPlayer {
   private _scale = 1;
   private _prevFrame = 0;
   private _numberOfFrames = 0;
-  private currentKeyframe = 1;
+  private currentKeyframe = 0;
   private _video = null;
   private _videoTexture = null;
   private _loop = true;
@@ -84,8 +84,8 @@ export default class DracosisPlayer {
     loop = true,
     autoplay = true,
     scale = 1,
-    keyframeBufferSize = 100,
-    iframeBufferSize = 100
+    keyframeBufferSize = 50,
+    iframeBufferSize = 250
   }) {
     var dataObj = '(' + workerFunction + ')();'; // here is the trick to convert the above fucntion to string
     var blob = new Blob([dataObj.replace('"use strict";', '')]); // firefox adds "use strict"; to any function which might block worker execution so knock it off
@@ -189,34 +189,40 @@ export default class DracosisPlayer {
         (this.mesh.material as any).needsUpdate = true;
  
     } else {
+      if(this.iframeVertexBuffer.getBufferLength() > 0){
       this.mesh.geometry = this.meshBuffer.getFirst().bufferGeometry as any;
       (this.mesh.geometry as any).setAttribute(
         'position',
         this.iframeVertexBuffer.getFirst().vertexBuffer
       );
+      } else {
+        console.warn("Skipped iframe playback, not in buffer");
+      }
     }
   } else {
     console.warn("Frame", loopedFrameToPlay, "isn't frame to play, buffer length is", this.meshBuffer.getBufferLength());
   }
-      // Update meshes and finish
-
+      console.log("Setting current keyuframe to", this.currentFrame);
       this._prevFrame = frameToPlay;
     }
     this._video.requestVideoFrameCallback(this.videoUpdateHandler.bind(this));
   }
 
-  lastKeyframeFetched = -1;
+lastRequestedKeyframe = 0;
 
   // Start loop to check if we're ready to play
   public play = () => {
     const buffering = setInterval(() => {
-      if(this.meshBuffer.getBufferLength() > 30
-      ){
+      setTimeout(() => {
+      if(this.meshBuffer.getBufferLength() === this.meshBuffer.getSize())
+      {
         console.log("Keyframe buffer length is ", this.meshBuffer.getBufferLength(), ", playing video");
         clearInterval(buffering);
         this._video.play()
         this.mesh.visible = true
       }
+    }, 3000);
+
     }, 100)
 
     if(this.fetchLoop !== undefined)
@@ -227,17 +233,32 @@ export default class DracosisPlayer {
         console.log("Keyframe buffer length is ", this.meshBuffer.getBufferLength(), ", fetching more frames");
 
         console.log("this.fileHeader.frameData.length is", this.fileHeader.frameData.length);
+
+        // New keyframe to fetch
+        let newKeyframe
+        // If buffer has some keyframes, get the next keyframe from the last one in the buffer
+        if(this.meshBuffer.getBufferLength() > 0){
+          // Check if the last requested frame is less than the last frame in the buffer, if so set equal
+          if(this.lastRequestedKeyframe < this.meshBuffer.getBufferLength()) this.lastRequestedKeyframe = this.meshBuffer.getBufferLength();
+          // Now increment one more
+          this.lastRequestedKeyframe++;
+          // This is our new keyframe
+          newKeyframe = this.lastRequestedKeyframe % this.fileHeader.frameData.length;
+          console.log("Mesh buffer length is", this.meshBuffer.getBufferLength(), "last keyuframe is", this.meshBuffer.getLast().keyframeNumber, " and new keyframe is", newKeyframe);
+        }
+          // Otherwise get the next expected keyframe from where playback currently is
+        else newKeyframe = this.currentKeyframe;
+        
         // Get last keyframe and add one, then get the frame data for it
         // if keyframe is outside of range, start fetching from the front
         // TODO: Is this login on modulo correct? We could be off by one on final keyframe
-        const newKeyframe = (Math.max(this.lastKeyframeFetched, this.currentKeyframe) + 1) % this.fileHeader.frameData.length;
 
 
         console.log("New keyframe is", newKeyframe)
 
-        this.lastKeyframeFetched = newKeyframe;
 
-        console.log("In fileheader", this.fileHeader.frameData[newKeyframe])
+        console.log("In fileheader", this.fileHeader.frameData.filter(value => value.keyframeNumber === value.frameNumber && value.frameNumber === newKeyframe));
+
         const keyframe = this.fileHeader.frameData[newKeyframe];
         // Get count of frames associated with keyframe
         const iframes = this.fileHeader.frameData.filter(frame => frame.keyframeNumber === newKeyframe && frame.keyframeNumber !== frame.frameNumber).sort((a, b) => (a.frameNumber < b.frameNumber));
@@ -262,9 +283,7 @@ export default class DracosisPlayer {
             let meshData = decoder.decode();
             let geometry = new BufferGeometry();
             geometry.setIndex(
-              new (meshData.index.length > 65535
-                ? Uint32BufferAttribute
-                : Uint16BufferAttribute)(meshData.index, 1)
+              new Uint32BufferAttribute(meshData.index, 1)
             );
             geometry.setAttribute(
               'position',
