@@ -1,51 +1,11 @@
-import { uint8, float32, uint16, uint32, int16, int64, string8 } from "@xr3ngine/engine/src/common/types/DataTypes";
-import { createSchema } from "@xr3ngine/engine/src/networking/functions/createSchema";
+import { expect } from "@jest/globals";
+import { int16, int64, string8, uint16, uint32, uint8 } from "@xr3ngine/engine/src/common/types/DataTypes";
 import { Model } from "@xr3ngine/engine/src/networking/classes/Model";
-//import {BufferSchema, int16, int64, Model, string8, uint16} from '@geckos.io/typed-array-buffer-schema'
-//import { uint8, uint32, float32 } from '@geckos.io/typed-array-buffer-schema'
-import {DefaultInput} from "../../src/templates/shared/DefaultInput";
-import {LifecycleValue} from "../../src/common/enums/LifecycleValue";
-import {BinaryValue} from "../../src/common/enums/BinaryValue";
-import {expect} from "@jest/globals";
+import { createSchema } from "@xr3ngine/engine/src/networking/functions/createSchema";
 
-const inputKeySchema = createSchema('button', {
-    input: uint8,
-    value: float32,
-    lifecycleValue: uint8
-});
-
-const inputKeyArraySchema = createSchema('main', {
-    networkId: uint32,
-    buttons: [inputKeySchema],
-});
-
-const inputsArraySchema = createSchema('inputs', {
-    inputs: [inputKeyArraySchema],
-});
-
-const networkId = 13;
-const button = DefaultInput.FORWARD;
-const lifecycleState = LifecycleValue.CONTINUED;
-const value = BinaryValue.ON;
-const inputs = [
-    {
-        networkId: networkId,
-        buttons: [
-            {
-                input: button,
-                lifecycleState,
-                value
-            }
-        ]
-    }
-];
-const nameSchema = createSchema('name', {
-    first: { type: string8, length: 6 },
-    second: { type: string8, length: 6 }
-})
 const playerSchema = createSchema('player', {
     id: uint8,
-    name: [nameSchema],
+    name: { type: string8, length: 3 },
     x: { type: int16, digits: 2 },
     y: { type: int16, digits: 2 }
 })
@@ -56,15 +16,16 @@ const towerSchema = createSchema('tower', {
     team: uint8
 })
 
-const mainSchema = createSchema('main', {
+const mainSchema = createSchema('gamestate', {
     time: int64,
-    tick: uint16,
+    tick: uint32,
     players: [playerSchema],
     towers: [towerSchema]
 })
 
 test("compress/decompress", () => {
-    const mainModel = new Model(mainSchema)
+    const mainModel = new Model(mainSchema);
+    console.log("Main model is", mainModel);
 
     const gameState = {
         time: new Date().getTime(),
@@ -72,22 +33,15 @@ test("compress/decompress", () => {
         players: [
             {
               id: 0,
-              name: [{
-                first: 'TTT' ,
-                second: 'FFF'
-              }],
-              x: -14.43,
-              y: 47.78
+              name: 'TTT',
+              x: -14,
+              y: 47
             },
             {
               id: 1,
-              name:[
-              {
-                first: 'TTT' ,
-                second: 'FFF'
-              }],
-              x: 21.85,
-              y: -78.48
+              name: 'FFF',
+              x: 21,
+              y: -78
            }
         ],
         towers: [
@@ -97,9 +51,11 @@ test("compress/decompress", () => {
         ]
     }
 
+    console.log("Game state is", gameState);
+
     const buffer = mainModel.toBuffer(gameState)
     const unpackedGameState = mainModel.fromBuffer(buffer);
-    console.log(unpackedGameState.players);
+    console.log(unpackedGameState);
     expect(unpackedGameState).toMatchObject(gameState);
 
     // const clientInputModel = new Model(inputsArraySchema);
