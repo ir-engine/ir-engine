@@ -105,7 +105,7 @@ export class BufferManager {
           break;
         }
       }
-      this._dataView[`set${bufferView.type}` as const](this._offset, data as never);
+      this._dataView[`set${bufferView.type}`](this._offset, data as never);
     }
     this._offset += bufferView.bytes;
   }
@@ -138,7 +138,7 @@ export class BufferManager {
     }
     // Number
     else {
-      result = this._dataView[`get${bufferView.type}` as const](this._offset);
+      result = this._dataView[`get${bufferView.type}`](this._offset);
       if (bufferView.type === 'Float32' || bufferView.type === 'Float64') {
         result = Number(Number(result).toPrecision(bufferView.type === 'Float32' ? 7 : 16));
       }

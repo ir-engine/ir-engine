@@ -21,7 +21,7 @@ const proxyHandler = {
  */
 export function Not<C extends Component<any>>(Component: ComponentConstructor<C>): NotComponent<C> {
   return {
-    type: 'not' as const,
+    type: 'not',
     Component: Component
   } as NotComponent<C>;
 }

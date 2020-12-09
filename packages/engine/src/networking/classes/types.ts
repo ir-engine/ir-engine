@@ -12,13 +12,7 @@ export type Serializable = string | number | bigint | boolean;
  * Defines a TypedArray within an ArrayBuffer.
  */
 export type BufferView<T extends Serializable = Serializable> = {
-  readonly type: T extends string
-    ? 'String'
-    : T extends boolean
-    ? 'Boolean'
-    : T extends number
-    ? 'Uint8' | 'Uint16' | 'Uint32' | 'Int8' | 'Int16' | 'Int32' | 'Float32' | 'Float64'
-    : 'BigInt64' | 'BigUint64';
+  readonly type: any;
   readonly bytes: number;
 };
 
@@ -64,3 +58,4 @@ export type ExtractSchemaDefinition<T> = T extends Model<infer U> ? SchemaDefini
  * Extract the SchemaObject type from a Model.
  */
 export type ExtractSchemaObject<T> = T extends Model<infer U> ? SchemaObject<U> : never;
+
