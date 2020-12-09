@@ -10,7 +10,7 @@ export class Component<C> {
    * Defines the attributes and attribute types on the constructed component class
    * All component variables should be reflected in the component schema
    */
-  static schema: ComponentSchema
+  static _schema: ComponentSchema
 
   /**
    * The unique ID for this type of component (<C>)
@@ -44,7 +44,7 @@ export class Component<C> {
   constructor (props?: Partial<Omit<C, keyof Component<any>>> | false) {
     this.name = this.constructor.name;
     if (props !== false) {
-      const schema = (this.constructor as ComponentConstructor<Component<C>>).schema;
+      const schema = (this.constructor as ComponentConstructor<Component<C>>)._schema;
 
       for (const key in schema) {
         if (props && (props as any).key != undefined) {
@@ -74,7 +74,7 @@ export class Component<C> {
    * @returns this new component as a copy of the source
    */
   copy (source) {
-    const schema = (this.constructor as ComponentConstructor<Component<C>>).schema;
+    const schema = (this.constructor as ComponentConstructor<Component<C>>)._schema;
 
     for (const key in schema) {
       if (source[key] !== undefined) { this[key] = schema[key].type.copy(source[key], this[key]); }
@@ -102,7 +102,7 @@ export class Component<C> {
    * Each component class can override this
    */
   reset () {
-    const schema = (this.constructor as ComponentConstructor<Component<C>>).schema;
+    const schema = (this.constructor as ComponentConstructor<Component<C>>)._schema;
 
     for (const key in schema) {
       const schemaProp = schema[key];
@@ -138,7 +138,7 @@ export class Component<C> {
    * Make sure attributes on this component have been defined in the schema
    */
   checkUndefinedAttributes (src) {
-    const schema = (this.constructor as ComponentConstructor<Component<C>>).schema;
+    const schema = (this.constructor as ComponentConstructor<Component<C>>)._schema;
     Object.keys(src).forEach(srcKey => {
       if (!schema[srcKey]) {
         console.warn(
@@ -149,7 +149,7 @@ export class Component<C> {
   }
 }
 
-Component.schema = {};
+Component._schema = {};
 Component.getName = function () {
   return this.name;
 };

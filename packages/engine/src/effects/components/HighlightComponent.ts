@@ -5,6 +5,6 @@ export class HighlightComponent extends Component<HighlightComponent> {
     
 }
 
-HighlightComponent.schema = {
+HighlightComponent._schema = {
       
 }
