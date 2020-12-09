@@ -336,7 +336,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                             size="small"
                             className={styles['audio-control']}
                             onClick={(e) => toggleAudio(e)}
-                            style={{visibility : (audioProducerPaused === true || audioProducerGlobalMute === true) ? 'hidden' : 'visible' }}
+                            style={{visibility : (audioStream == null || audioProducerPaused === true || audioProducerGlobalMute === true) ? 'hidden' : 'visible' }}
                         >
                             { ((peerId === 'me_cam' || peerId === 'me_screen') && audioStream && audioProducerPaused === false && audioStreamPaused === false) && <Mic /> }
                             { ((peerId === 'me_cam' || peerId === 'me_screen') && audioStream && audioProducerPaused === false && audioStreamPaused === true) && <MicOff /> }

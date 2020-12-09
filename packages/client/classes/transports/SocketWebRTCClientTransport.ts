@@ -9,7 +9,7 @@ import { Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
 import getConfig from "next/config";
 import ioclient from "socket.io-client";
 import store from "../../redux/store";
-import { createDataProducer, endVideoChat, initReceiveTransport, initSendTransport, leave, sendCameraStreams, subscribeToTrack } from "./WebRTCFunctions";
+import { createDataProducer, endVideoChat, initReceiveTransport, initSendTransport, leave, subscribeToTrack } from "./WebRTCFunctions";
 
 const { publicRuntimeConfig } = getConfig();
 const gameserver = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.gameserver : 'https://localhost:3030';
@@ -200,7 +200,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       await createDataProducer();
 
       console.log("Send camera streams called from SocketWebRTCClientTransport");
-      // sendCameraStreams(partyId || 'instance');
     });
   }
 }
