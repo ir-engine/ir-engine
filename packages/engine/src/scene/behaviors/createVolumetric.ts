@@ -24,9 +24,8 @@ export const createVolumetric: Behavior = (entity, args: { objArgs }) => {
         autoplay: args.objArgs.autoPlay,
         scale: 1,
         frameRate: 25,
-        keyframeBufferSize: 20,
-        iframeBufferSize: 100
-      });
+        keyframesToBufferBeforeStart: 250
+            });
 
       
     
