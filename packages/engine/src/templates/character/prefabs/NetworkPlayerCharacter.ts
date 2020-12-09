@@ -22,7 +22,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     // ActorComponent has values like movement speed, deceleration, jump height, etc
     { type: CharacterComponent },
     // Handle character's body
-    { type: CharacterAvatarComponent, data: { avatarId: 'VRMAvatar' }},
+    { type: CharacterAvatarComponent, data: { avatarId: 'Rose' }},
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
     // Local player input mapped to behaviors in the input map
@@ -31,6 +31,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     { type: Subscription, data: { schema: CharacterSubscriptionSchema } },
     // Current state (isJumping, isidle, etc)
     { type: State, data: { schema: CharacterStateSchema } },
+    { type: TeleportToSpawnPoint }
   ],
   // These are only created for the local player who owns this prefab
   localClientComponents: [
@@ -39,7 +40,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     { type: Interactor }
   ],
   serverComponents: [
-    { type: TeleportToSpawnPoint }
+
   ],
   onAfterCreate: [
     {

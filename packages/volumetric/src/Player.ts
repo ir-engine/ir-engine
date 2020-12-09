@@ -1,92 +1,33 @@
-// import fs from 'fs';
-import { Howl } from 'howler';
+import { HttpRangeFetcher } from 'http-range-fetcher';
+
 import {
   BufferGeometry,
-
-  CompressedTexture,
-
-
-
-
-
-
-
-
-
-
-  Float32BufferAttribute, Mesh, MeshBasicMaterial,
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  NearestFilter, PlaneBufferGeometry, Renderer,
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  RepeatWrapping, Scene,
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  sRGBEncoding, Uint16BufferAttribute,
-  Uint32BufferAttribute, VideoTexture
+  Float32BufferAttribute,
+  Mesh,
+  MeshBasicMaterial,
+  PlaneBufferGeometry,
+  Renderer,
+  Scene,
+  Uint16BufferAttribute,
+  Uint32BufferAttribute,
+  VideoTexture
 } from 'three';
-import { BasisTextureLoader } from 'three/examples/jsm/loaders/BasisTextureLoader.js';
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
-import CortoDecoder from './corto/cortodecoder.js';
-import { MessageType } from './Enums';
 import {
-  Action,
-
-  IBufferGeometryCompressedTexture,
-  WorkerDataRequest,
-
-  WorkerInitializationResponse
+  IFrameBuffer,
+  KeyframeBuffer
 } from './Interfaces';
+import CortoDecoder from './libs/cortodecoder.js';
 import RingBuffer from './RingBuffer';
-import { lerp } from './Utilities';
-const worker = new Worker('./Worker.js');
+import Blob from 'cross-blob';
 
-// Class draco / basis player
+function workerFunction() {
+  var self = this;
+  self.onmessage = function(e) {
+      console.log('Received input: ', e.data); // message received from main thread
+      self.postMessage("Response back to main thread");
+  }
+}
+
 export default class DracosisPlayer {
   // Public Fields
   public frameRate = 30;
@@ -96,77 +37,37 @@ export default class DracosisPlayer {
   public scene: Scene;
   public renderer: Renderer;
   public mesh: Mesh;
-  public filePath: String;
+  public meshFilePath: String;
   public material: any;
   public bufferGeometry: BufferGeometry;
-  public compressedTexture: CompressedTexture;
-  public dracoLoader = new DRACOLoader();
 
   // Private Fields
-  private _startFrame = 1;
   private _scale = 1;
-  private _endFrame = 0;
   private _prevFrame = 0;
-  private _renderFrame = 0;
-  private _renderCount = 0;
-
-  private _frameTime = 0;
-  private _elapsedTime = 0;
-  private _prevTime = 0;
   private _numberOfFrames = 0;
-  private _bufferSize = 99;
-  private _audio = Howl;
-  private _currentFrame = 1;
+  private currentKeyframe = 0;
   private _video = null;
   private _videoTexture = null;
   private _loop = true;
-  private _playOnStart = true;
   private _isinitialized = false;
-  private _onLoaded: any; // External callback when volumetric is loaded
-  private _ringBuffer: RingBuffer<IBufferGeometryCompressedTexture>;
-  private _isPlaying = false;
+  private meshBuffer: RingBuffer<KeyframeBuffer>;
+  private iframeVertexBuffer: RingBuffer<IFrameBuffer>;
+  private rangeFetcher = new HttpRangeFetcher({})
+  
+  fileHeader: any;
+  tempBufferObject: KeyframeBuffer = {
+    frameNumber: 0,
+    keyframeNumber: 0,
+    bufferGeometry: null
+  }
 
-  private _basisTextureLoader = new BasisTextureLoader();
-  private _nullBufferGeometry = new BufferGeometry();
-  private _nullCompressedTexture = new CompressedTexture(
-    [new ImageData(200, 200)],
-    0,
-    0
-  );
-
-  // Temp variables -- reused in loops, etc (beware of initialized value!)
-  private _pos = 0;
-  private _frameNumber = 0;
-  // private _framesUpdated = 0; // TODO: Remove after debug
-  private _numberOfBuffersRemoved = 0; // TODO: Remove after debug
+  manifestFilePath: any;
+  fetchLoop: any;
+  keyframesToBufferBeforeStart: number;
 
   // public getters and settings
   get currentFrame(): number {
-    return this._currentFrame;
-  }
-
-  get startFrame(): number {
-    return this._startFrame;
-  }
-  set startFrame(value: number) {
-    this._startFrame = value;
-    this._numberOfFrames = this._endFrame - this._startFrame;
-    worker.postMessage({
-      type: MessageType.SetEndFrameRequest,
-      value,
-    } as Action);
-  }
-
-  get endFrame(): number {
-    return this._endFrame;
-  }
-  set endFrame(value: number) {
-    this._endFrame = value;
-    this._numberOfFrames = this._endFrame - this._startFrame;
-    worker.postMessage({
-      type: MessageType.SetEndFrameRequest,
-      value,
-    } as Action);
+    return this.currentKeyframe;
   }
 
   get loop(): boolean {
@@ -174,524 +75,297 @@ export default class DracosisPlayer {
   }
   set loop(value: boolean) {
     this._loop = value;
-    worker.postMessage({ type: MessageType.SetLoopRequest, value } as Action);
-  }
-
-  httpGetAsync(theUrl: any, callback: any) {
-    const xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function () {
-      if (xmlHttp.readyState === 4 && xmlHttp.status === 200)
-        callback(xmlHttp.responseText);
-    };
-
-    xmlHttp.open('GET', theUrl, true); // true for asynchronous
-    xmlHttp.send(null);
   }
 
   constructor({
     scene,
     renderer,
-    filePath,
-    onLoaded,
-    playOnStart = true,
+    meshFilePath,
+    videoFilePath,
+    frameRate = 25,
     loop = true,
-    startFrame = 1,
-    endFrame = -1,
-    frameRate = 30,
-    speedMultiplier = 1,
+    autoplay = true,
     scale = 1,
-    bufferSize = 99,
-    serverUrl,
-    audioUrl
+    keyframesToBufferBeforeStart = 50
   }) {
+    var dataObj = '(' + workerFunction + ')();'; // here is the trick to convert the above fucntion to string
+    var blob = new Blob([dataObj.replace('"use strict";', '')]); // firefox adds "use strict"; to any function which might block worker execution so knock it off
+    
+    var blobURL = (window.URL ? URL : webkitURL).createObjectURL(blob);
+    
+    var worker = new Worker(blobURL); // spawn new worker
+    
+    worker.onmessage = function(e) {
+        console.log('Worker said: ', e.data); // message received from worker
+    };
+    worker.postMessage("some input to worker"); // Send data to our worker.
+
+    this.keyframesToBufferBeforeStart = keyframesToBufferBeforeStart;
+    // Set class values from constructor
     this.scene = scene;
     this.renderer = renderer;
-    this.filePath = filePath;
-    this._onLoaded = onLoaded;
+    this.meshFilePath = meshFilePath;
+    this.manifestFilePath = meshFilePath.replace('drcs', 'manifest');
     this._loop = loop;
     this._scale = scale;
-    this.speed = speedMultiplier;
-    this._startFrame = startFrame;
-    this._playOnStart = playOnStart;
-    this._currentFrame = startFrame;
-    this._bufferSize = bufferSize;
-    // this._audio = new Howl({
-    //     src: audioUrl,
-    //     format: ['mp3']
-    // });
     this._video = document.createElement('video');
-    this._video.src = 'http://localhost:3000/morgan-sound.mp4';
+    this._video.crossorigin = "anonymous";
+    this._video.src = videoFilePath;
     this._videoTexture = new VideoTexture(this._video);
+    this._videoTexture.crossorigin = "anonymous";
+    this.frameRate = frameRate;
 
-    this._video.requestVideoFrameCallback(this.videoUpdateHandler.bind(this));
-    
+    // Add video to dom and bind the upgdate handler to playback
     document.body.appendChild(this._video);
+    this._video.requestVideoFrameCallback(this.videoUpdateHandler.bind(this));
 
-    this.bufferGeometry = new PlaneBufferGeometry(1, 1);
-    this.material = new MeshBasicMaterial({map:this._videoTexture});
-    // this is to debug UVs
-    //@ts-ignore
-    // this.material = new ShaderMaterial({
-    //   uniforms: {
-    //     map: { value: null},
-    //   },
-    //   // wireframe: true,
-    //   // transparent: true,
-    //   vertexShader: `
-    //   varying vec2 vUv;
-    //   void main() {
-    //     vUv = uv;
-    //     gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-    //   }`,
-    //   fragmentShader: `
-    //   varying vec2 vUv;
-    //   uniform sampler2D map;
-    //   void main()  {
-    //     gl_FragColor = vec4(vUv,0.0,1.);
-    //     // gl_FragColor = vec4(1.,0.,0.0,1.);
-    //     gl_FragColor = texture2D(map,vUv);
-    //   }`
-    // });
-    this.mesh = new Mesh(this.bufferGeometry, this.material);
-    this.mesh.scale.set(this._scale,this._scale,this._scale)
-    // console.log(this.scene,'this.scene');
-    
+    // Create a default mesh
+    this.material = new MeshBasicMaterial({ map: this._videoTexture });
+    this.mesh = new Mesh(new PlaneBufferGeometry(1, 1), this.material);
+    this.mesh.scale.set(this._scale, this._scale, this._scale);
     this.scene.add(this.mesh);
 
-    this._basisTextureLoader.setTranscoderPath(
-      'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/js/libs/basis/'
-    );
-    this._basisTextureLoader.detectSupport(renderer);
-    let player = this;
-    let dracoUrl = serverUrl + '/dracosis';
-      dracoUrl = filePath;
+    const xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState !== 4) return;
+        this.fileHeader = JSON.parse(xhr.responseText);
+        this.frameRate = this.fileHeader.frameRate;
+        this._numberOfFrames = this.fileHeader.frameData.length;
+      
+        // Get count of frames associated with keyframe
+        const numberOfIframes = this.fileHeader.frameData.filter(frame => frame.keyframeNumber !== frame.frameNumber).length;
+        const numberOfKeyframes = this.fileHeader.frameData.filter(frame => frame.keyframeNumber === frame.frameNumber).length;
 
-    this.httpGetAsync(dracoUrl, function (data: any) {
-      data = JSON.parse(data);
-      if (endFrame > 1) {
-        player._endFrame = endFrame;
-      } else {
-        player._endFrame = data.fileHeader.frameData.length;
-      }
-      player._numberOfFrames = player._endFrame - player._startFrame + 1;
+        this.meshBuffer = new RingBuffer(numberOfKeyframes);
+        this.iframeVertexBuffer = new RingBuffer(numberOfIframes);
 
-      // init buffers with settings
-      player._ringBuffer = new RingBuffer(bufferSize);
-
-      const initializeMessage = {
-        startFrame: player._startFrame,
-        endFrame: player._endFrame,
-        type: MessageType.InitializationRequest,
-        data: data,
-        loop: player._loop,
-        filePath: data.filePath,
-        fileHeader: data.fileHeader,
-        isInitialized: true,
-        readStreamOffset: data.readStreamOffset,
-      };
-
-      worker.postMessage(initializeMessage);
-
-      // Add event handler for manging worker responses
-      worker.addEventListener('message', ({ data }) => {
-        player.handleMessage(data);
-      });
-    });
-  }
-
-  decodeCORTOData(rawBuffer: Buffer) {
-    let decoder = new CortoDecoder(rawBuffer,null,null);
-    let meshData = decoder.decode();
-    // Import data to Three JS geometry.
-    let geometry = new BufferGeometry();
-    geometry.setIndex(
-      new (meshData.index.length > 65535
-        ? Uint32BufferAttribute
-        : Uint16BufferAttribute)(meshData.index, 1)
-    );
-    geometry.setAttribute(
-      'position',
-      new Float32BufferAttribute(meshData.position, 3)
-    );
-    geometry.setAttribute(
-      'uv',
-      new Float32BufferAttribute(meshData.uv, 2)
-    );
-    // geometry.computeVertexNormals();
-    return geometry;
-  }
-
-  async decodeTexture(compressedTexture, frameNumber) {
-    var decodedTexture;
-
-    // debug decoded image
-    // console.log(compressedTexture, 'in decodeTexture compressedTexture');
-    // let blob = new Blob([compressedTexture]);
-    // let link = document.createElement('a');
-    // link.href = window.URL.createObjectURL(blob);
-    // let fileName = 'imageTexture.basis';
-    // link.download = fileName;
-    // link.click()
-    // let that = this;
-
-    await this._basisTextureLoader
-      //@ts-ignore
-      ._createTexture(compressedTexture, frameNumber.toString())
-      .then(function (texture, param) {
-        texture.magFilter = NearestFilter;
-        texture.minFilter = NearestFilter;
-        texture.encoding = sRGBEncoding;
-        // texture.encoding = LinearEncoding;
-        texture.wrapS = RepeatWrapping;
-        texture.wrapT = RepeatWrapping;
-        texture.repeat.y = -1;
-        decodedTexture = texture;
-        // debug random texture here
-        // decodedTexture = new TextureLoader().load('https://images.unsplash.com/photo-1599687350404-88b32c067289?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60');
-        // console.log('succesfully decoded texture');
-      })
-      .catch(function (error) {
-        console.log('Error:', error);
-      });
-
-    return { texture: decodedTexture, frameNumber: frameNumber };
-  }
-
-  handleMessage(data: any) {
-    switch (data.type) {
-      case MessageType.InitializationResponse:
-        this.handleInitializationResponse(data);
-        break;
-      case MessageType.DataResponse: {
-        if (data && data.buffers) {
-          this.handleDataResponse(data.buffers);
+        if (autoplay) {
+          // Create an event listener that removed itself on input
+          const eventListener = () => {
+            // If we haven't inited yet, notify that we have, autoplay content and remove the event listener
+            this.play();
+              document.body.removeEventListener("mousedown", eventListener);    
+          }
+          document.body.addEventListener("mousedown", eventListener)
         }
-        break;
+        this._isinitialized = true;
+    };
+
+    xhr.open('GET', this.manifestFilePath, true); // true for asynchronous
+    xhr.send();
+  }
+
+  videoUpdateHandler(now, metadata) {
+    if (!this._isinitialized) return console.warn("Not inited");
+    let frameToPlay = metadata.presentedFrames - 1;
+    
+    if (frameToPlay !== this._prevFrame) {
+
+      let loopedFrameToPlay = Math.max(0, frameToPlay % this._numberOfFrames);
+
+      const keyframeToPlay = this.fileHeader.frameData[loopedFrameToPlay].keyframeNumber;
+      const newKeyframe = keyframeToPlay !== this.currentKeyframe;
+
+      // console.log("Looped frame to play is", loopedFrameToPlay, "| Keyframe to play is", keyframeToPlay, "|Is new keyframe?", newKeyframe);
+
+    if(newKeyframe){
+      console.log("Is keyframe");
+          // remove the keyframe mesh
+          this.currentKeyframe = keyframeToPlay;
+          // set new mesh to the keyframe mesh
+          while (this.meshBuffer.getBufferLength() > 0 && this.meshBuffer.getFirst().keyframeNumber % this._numberOfFrames < keyframeToPlay ){
+            // console.log("Removing keyframe mesh", this.meshBuffer.get(0).frameNumber);
+            this.meshBuffer.remove(0);
+          }
+    } else {
+        // leave the keyframe mesh, remove any iframe meshes below this one
+        while (this.iframeVertexBuffer.getBufferLength() > 0 && this.iframeVertexBuffer.getFirst().frameNumber % this._numberOfFrames < loopedFrameToPlay )
+        // console.log("Removing frames", this.iframeVertexBuffer.get(0).frameNumber);
+        {
+          this.iframeVertexBuffer.remove(0);
+        }
+    }
+    
+    if (this.meshBuffer.getBufferLength() > 0) { // && this.meshBuffer.getFirst().keyframeNumber == keyframeToPlay
+    if(newKeyframe){
+            // If keyframe changed, set mesh buffer to new keyframe
+        this.mesh.geometry =  this.meshBuffer.getFirst().bufferGeometry as any;
+        (this.mesh.material as any).needsUpdate = true;
+ 
+    } else {
+      if(this.iframeVertexBuffer.getBufferLength() > 0){
+      const pos = this.getPositionInKeyframeBuffer(keyframeToPlay);
+      if(this.meshBuffer.get(pos) !== undefined)
+      this.mesh.geometry = this.meshBuffer.get(pos).bufferGeometry as any;
+      else console.log("Meshbuffer at pos is undefined");
+      (this.mesh.geometry as any).setAttribute(
+        'position',
+        this.iframeVertexBuffer.getFirst().vertexBuffer
+      );
+      } else {
+        console.warn("Skipped iframe playback, not in buffer");
       }
     }
+  } else {
+    console.warn("Frame", loopedFrameToPlay, "isn't frame to play, buffer length is", this.meshBuffer.getBufferLength());
+  }
+      this._prevFrame = frameToPlay;
+    }
+    this._video.requestVideoFrameCallback(this.videoUpdateHandler.bind(this));
   }
 
-  handleInitializationResponse(data: WorkerInitializationResponse) {
-    if (data.isInitialized) {
-      this._isinitialized = true;
-      this.handleBuffers(this);
-      // if (this._playOnStart) this.play();
-      console.log('Received initialization response from worker');
-    } else console.error('Initialization failed');
+lastRequestedKeyframe = 0;
+
+  // Start loop to check if we're ready to play
+  public play = () => {
+    const buffering = setInterval(() => {
+      if(this.meshBuffer.getBufferLength() >= this.keyframesToBufferBeforeStart)
+      {
+        console.log("Keyframe buffer length is ", this.meshBuffer.getBufferLength(), ", playing video");
+        clearInterval(buffering);
+        this._video.play()
+        this.mesh.visible = true
+      }
+
+    }, 1000/60)
+
+    if(this.fetchLoop !== undefined)
+      return console.warn("Fetch loop already inited");
+    this.fetchLoop = setInterval(() => {
+      if(!this._isinitialized) return console.log("not inited");
+      if (this.meshBuffer.getBufferLength() < this.meshBuffer.getSize()) {
+        // console.log("Keyframe buffer length is ", this.meshBuffer.getBufferLength(), ", fetching more frames");
+
+        // console.log("this.fileHeader.frameData.length is", this.fileHeader.frameData.length);
+
+        // New keyframe to fetch
+        let newKeyframe
+        // If buffer has some keyframes, get the next keyframe from the last one in the buffer
+        if(this.meshBuffer.getBufferLength() > 0){
+          // Check if the last requested frame is less than the last frame in the buffer, if so set equal
+          if(this.lastRequestedKeyframe < this.meshBuffer.getBufferLength()) this.lastRequestedKeyframe = this.meshBuffer.getBufferLength();
+          // Now increment one more
+          this.lastRequestedKeyframe++;
+          // This is our new keyframe
+          newKeyframe = this.lastRequestedKeyframe % this.fileHeader.frameData.length;
+          // console.log("Mesh buffer length is", this.meshBuffer.getBufferLength(), "last keyframe is", this.meshBuffer.getLast().keyframeNumber, " and new keyframe is", newKeyframe);
+        }
+          // Otherwise get the next expected keyframe from where playback currently is
+        else newKeyframe = this.currentKeyframe;
+        
+        // Get last keyframe and add one, then get the frame data for it
+        // if keyframe is outside of range, start fetching from the front
+        // TODO: Is this login on modulo correct? We could be off by one on final keyframe
+
+        // console.log("In fileheader", this.fileHeader.frameData.filter(value => value.keyframeNumber === value.frameNumber && value.frameNumber === newKeyframe));
+
+        const keyframe = this.fileHeader.frameData[newKeyframe];
+        // Get count of frames associated with keyframe
+        const iframes = this.fileHeader.frameData.filter(frame => frame.keyframeNumber === newKeyframe && frame.keyframeNumber !== frame.frameNumber).sort((a, b) => (a.frameNumber < b.frameNumber));
+
+        const requestStartBytePosition = keyframe.startBytePosition;
+
+        const requestEndBytePosition = iframes.length > 0 ?
+          iframes[iframes.length - 1].startBytePosition + iframes[iframes.length - 1].meshLength
+          : keyframe.startBytePosition + keyframe.meshLength;
+          
+        // request next keyframe + iframe byterange
+        this.rangeFetcher.getRange(this.meshFilePath, requestStartBytePosition, requestEndBytePosition - requestStartBytePosition)
+          .then(response => {
+
+            // Slice keyframe out by byte position
+            const keyframeStartPosition = 0;
+            const keyframeEndPosition = keyframe.meshLength;
+
+            // Slice data from returned response and decode
+            let decoder = new CortoDecoder(response.buffer.buffer.slice(keyframeStartPosition, keyframeEndPosition), null, null);
+            let meshData = decoder.decode();
+            let geometry = new BufferGeometry();
+            geometry.setIndex(
+              new Uint32BufferAttribute(meshData.index, 1)
+            );
+            geometry.setAttribute(
+              'position',
+              new Float32BufferAttribute(meshData.position, 3)
+            );
+            geometry.setAttribute(
+              'uv',
+              new Float32BufferAttribute(meshData.uv, 2)
+            );
+
+            // decode corto data and create a temp buffer geometry
+            const bufferObject: KeyframeBuffer = {
+              frameNumber: keyframe.frameNumber,
+              keyframeNumber: keyframe.keyframeNumber,
+              bufferGeometry: geometry
+            }
+
+            // Check if position is in ring buffer -- if so, update it, otherwise set it
+            const _pos = this.getPositionInKeyframeBuffer(keyframe.frameNumber);
+            if (_pos === -1) {
+              this.meshBuffer.add(bufferObject);
+            }
+            else {
+              this.meshBuffer.get(_pos).bufferGeometry = bufferObject.bufferGeometry;
+              this.meshBuffer.get(_pos).frameNumber = bufferObject.frameNumber;
+              this.meshBuffer.get(_pos).keyframeNumber = bufferObject.keyframeNumber;
+            }
+
+            // For each iframe...
+            for (const frameNo in iframes) {
+              const iframe = iframes[frameNo];
+              const frameStartPosition = iframe.startBytePosition - requestStartBytePosition;
+              const frameEndPosition = iframe.meshLength + iframe.startBytePosition - requestStartBytePosition
+              // Slice iframe out, decode into list of position vectors
+              let decoder = new CortoDecoder(response.buffer.buffer.slice(frameStartPosition, frameEndPosition), null, null);
+              let meshData = decoder.decode();
+              console.log("Iframe meshData is", meshData);
+              // Check if iframe position is in ring buffer -- if so, update it, otherwise set it
+              // decode corto data and create a temp buffer geometry
+              const bufferObject: IFrameBuffer = {
+                frameNumber: iframe.frameNumber,
+                keyframeNumber: iframe.keyframeNumber,
+                vertexBuffer: new Float32BufferAttribute(meshData.position, 3)
+              }
+
+              // Check if position is in ring buffer -- if so, update it, otherwise set it
+              const _pos = this.getPositionInIFrameBuffer(iframe.frameNumber);
+              if (_pos === -1) {
+                this.iframeVertexBuffer.add(bufferObject);
+              }
+              else {
+                this.iframeVertexBuffer.get(_pos).vertexBuffer = bufferObject.vertexBuffer;
+                this.iframeVertexBuffer.get(_pos).frameNumber = bufferObject.frameNumber;
+                this.iframeVertexBuffer.get(_pos).keyframeNumber = bufferObject.keyframeNumber;
+              }
+            }
+          });
+      }
+    }, 1000/60)
   }
 
-  handleDataResponse(data) {
-    // For each object in the array...
-
-    const player = this;
-
-    var count = 0;
-
-    data.forEach((geomTex, index) => {
-      player._frameNumber = geomTex.frameNumber;
-
-      // Find the frame in our circular buffer
-      player._pos = player.getPositionInBuffer(player._frameNumber);
-
-      player._ringBuffer.get(
-        player._pos
-      ).bufferGeometry = player.decodeCORTOData(geomTex.bufferGeometry);
-
-      // player
-      //   .decodeTexture(geomTex.compressedTexture, geomTex.frameNumber)
-      //   .then(({ texture, frameNumber }) => {
-      //     var pos = player.getPositionInBuffer(frameNumber);
-      //     player._ringBuffer.get(pos).compressedTexture = texture;
-      //     if (!player._isPlaying && count < this._bufferSize) count++;
-      //     // @todo create some bufferReady flag, to know when buffer is filled
-      //     // if (count == this._bufferSize) this.play();
-      //   });
-
-    });
-
-  }
-
-  getPositionInBuffer(frameNumber: number): number {
+  getPositionInKeyframeBuffer(keyframeNumber: number): number {
     // Search backwards, which should make the for loop shorter on longer buffer
-    for (let i = this._ringBuffer.getBufferLength(); i >= 0; i--) {
+    for (let i = this.meshBuffer.getBufferLength(); i >= 0; i--) {
       if (
-        this._ringBuffer.get(i) &&
-        frameNumber == this._ringBuffer.get(i).frameNumber
+        this.meshBuffer.get(i) &&
+        keyframeNumber == this.meshBuffer.get(i).frameNumber &&
+        keyframeNumber == this.meshBuffer.get(i).keyframeNumber
       )
         return i;
     }
     return -1;
   }
 
-  handleBuffers(context) {
-    // If not initialized, skip.
-    if (!this._isinitialized) return setTimeout(this.handleBuffers, 100);
-    // Clear the buffers
-
-    while (true) {
-      // Peek the current frame. if it's frame number is below current frame, trash it
+  getPositionInIFrameBuffer(frameNumber: number): number {
+    // Search backwards, which should make the for loop shorter on longer buffer
+    for (let i = this.iframeVertexBuffer.getBufferLength(); i >= 0; i--) {
       if (
-        !this._ringBuffer ||
-        !this._ringBuffer.getFirst() ||
-        this._ringBuffer.getFirst().frameNumber >= this._currentFrame
+        this.iframeVertexBuffer.get(i) &&
+        frameNumber == this.iframeVertexBuffer.get(i).frameNumber
       )
-        break;
-
-      // if it's equal to or greater than current frame, break the loop
-      this._ringBuffer.remove(0);
-      this._numberOfBuffersRemoved++;
+        return i;
     }
-
-    if (this._numberOfBuffersRemoved > 0)
-      console.warn(
-        'Removed ' +
-          this._numberOfBuffersRemoved +
-          ' since they were skipped in playback'
-      );
-
-    const framesToFetch: number[] = [];
-    if (this._ringBuffer.empty() && this._currentFrame==0) {
-      const frameData: IBufferGeometryCompressedTexture = {
-        frameNumber: this.startFrame,
-        bufferGeometry: this._nullBufferGeometry,
-        compressedTexture: this._nullCompressedTexture,
-      };
-        framesToFetch.push(this.startFrame);
-        this._ringBuffer.add(frameData);
-    }
-
-    // Fill buffers with new data
-    while (!this._ringBuffer.full()) {
-      // Increment onto the last frame
-      let lastFrame =
-        (this._ringBuffer.getLast() &&
-          this._ringBuffer.getLast().frameNumber) ||
-        Math.max(this._currentFrame-1,0);
-      if(this._ringBuffer.getLast()) lastFrame = this._ringBuffer.getLast().frameNumber;
-      const nextFrame = (lastFrame + 1) % this._numberOfFrames;
-
-      const frameData: IBufferGeometryCompressedTexture = {
-        frameNumber: nextFrame,
-        bufferGeometry: this._nullBufferGeometry,
-        compressedTexture: this._nullCompressedTexture,
-      };
-      framesToFetch.push(nextFrame);
-      this._ringBuffer.add(frameData);
-    }
-
-    const fetchFramesMessage: WorkerDataRequest = {
-      type: MessageType.DataRequest,
-      framesToFetch,
-    };
-
-    if (framesToFetch.length > 0) worker.postMessage(fetchFramesMessage);
-
-    const player = this;
-
-    // Every 2 second, make sure our workers are working
-    // setTimeout(function () {
-    //   player.handleBuffers(player);
-    // }, 16.6*4);
+    return -1;
   }
-
-  showFrame(frame: number){
-    if (!this._isinitialized) return;
-
-    if(!this._ringBuffer || !this._ringBuffer.getFirst()) return;
-
-    
-    // console.log('playing frame---------',frame);
-    let frameToPlay = frame%this._endFrame ;
-
-    this.cleanBeforeNeeded(frameToPlay);
-    
-    if (
-      this._ringBuffer.getFirst().frameNumber == frameToPlay
-    ) {
-      // console.log('+++we have frame',this._ringBuffer.getFirst().frameNumber);
-
-      this.bufferGeometry = this._ringBuffer.getFirst().bufferGeometry;
-      this.mesh.geometry = this.bufferGeometry;
-
-      this.compressedTexture = this._ringBuffer.getFirst().compressedTexture;
-      // @ts-ignore
-      // this.mesh.material.map = this.compressedTexture;
-      // @ts-ignore
-      this.mesh.material.needsUpdate = true;
-      // console.log(this.mesh);
-      
-
-      
-    } else{
-      // console.log('---we dont have needed frame', this._ringBuffer.getFirst().frameNumber);
-    }
-  }
-
-  cleanBeforeNeeded(frameToPlay:number) {
-    const maxDeleteConstant = 50;
-    let index = 0;
-    while(this._ringBuffer.getFirst().frameNumber !== frameToPlay && index<maxDeleteConstant){
-      index++;
-      // console.log('deleting frame no ',this._ringBuffer.getFirst().frameNumber );
-      this._ringBuffer.remove(0);
-    }
-  }
-
-  update() {
-    
-
-
-    // Loop logic
-    if (this._currentFrame > this._endFrame) {
-      // if (this._loop) this._currentFrame = 0;
-      if (this._loop) this._currentFrame = this._startFrame;
-      else {
-        this._isPlaying = false;
-        return;
-      }
-    }
-
-    // If playback is paused, stop updating
-    if (!this._isPlaying) return;
-
-    // If we aren't initialized yet, skip logic but come back next frame
-    if (!this._isinitialized) return;
-
-    // If the frame exists in the ring buffer, use it
-    if (
-      this._ringBuffer &&
-      this._ringBuffer.getFirst() &&
-      (this._ringBuffer.getFirst().frameNumber == this._currentFrame || this._ringBuffer.getFirst().frameNumber == 1+this._currentFrame)
-    ) {
-      this.bufferGeometry = this._ringBuffer.getFirst().bufferGeometry;
-      // this.bufferGeometry = this._ringBuffer.get(this._currentFrame).bufferGeometry
-      this.mesh.geometry = this.bufferGeometry;
-
-      this.compressedTexture = this._ringBuffer.getFirst().compressedTexture;
-      // @ts-ignore
-      this.mesh.material.map = this.compressedTexture;
-      // this.mesh.material.uniforms.map.value = this.compressedTexture;
-      // @ts-ignore
-      this.mesh.material.needsUpdate = true;
-
-
-      this._ringBuffer.remove(0);
-      this._currentFrame++;
-    } else {
-      // Frame doesn't exist in ring buffer, so throw an error
-      // console.warn(
-      //   'Frame ' +
-      //     this._ringBuffer.getFirst().frameNumber +
-      //     ' did not exist in ring buffer'
-      // );
-      // console.log('frame did not exist yet');
-    }
-
-    const player = this;
-    // console.log('from update');
-    
-    setTimeout(function () {
-      player.update();
-    }, (1000 / player.frameRate) * player.speed);
-  }
-
-  play() {
-    // this._isPlaying = true;
-    this.show();
-    // this.update();
-    // this.render();
-    // this._audio.play()
-    this._video.play()
-  }
-
-  pause() {
-    this._isPlaying = false;
-  }
-
-  reset() {
-    this._currentFrame = this._startFrame;
-  }
-
-  goToFrame(frame: number, play: boolean) {
-    this._currentFrame = frame;
-    // this.handleBuffers();
-    if (play) this.play();
-  }
-  
-
-  setSpeed(multiplyScalar: number) {
-    this.speed = multiplyScalar;
-  }
-
-  show() {
-    this.mesh.visible = true;
-  }
-
-  hide() {
-    this.mesh.visible = false;
-    this.pause();
-  }
-
-  fadeIn(stepLength = 0.1, fadeTime: number, currentTime = 0) {
-    if (!this._isPlaying) this.play();
-    this.material.opacity = lerp(0, 1, currentTime / fadeTime);
-    currentTime = currentTime + stepLength * fadeTime;
-    if (currentTime >= fadeTime) {
-      this.material.opacity = 1;
-      return;
-    }
-
-    setTimeout(() => {
-      this.fadeIn(fadeTime, currentTime);
-    }, stepLength * fadeTime);
-  }
-
-  fadeOut(stepLength = 0.1, fadeTime: number, currentTime = 0) {
-    this.material.opacity = lerp(1, 0, currentTime / fadeTime);
-    currentTime = currentTime + stepLength * fadeTime;
-    if (currentTime >= fadeTime) {
-      this.material.opacity = 0;
-      this.pause();
-      return;
-    }
-
-    setTimeout(() => {
-      this.fadeOut(fadeTime, currentTime);
-    }, stepLength * fadeTime);
-  }
-
-  videoUpdateHandler(now,metadata){
-    
-    let frameToPlay =  metadata.presentedFrames -1 ;
-    // console.log(frameToPlay,'frameToPlay',now,metadata);
-    console.log('==========DIFF',Math.round(this._video.currentTime*30), Math.round(metadata.mediaTime*30),metadata.presentedFrames,metadata);
-    
-    if(frameToPlay!==this._prevFrame){
-      this.showFrame(frameToPlay)
-      this._prevFrame = frameToPlay;
-      this.handleBuffers(this);
-    }
-    this._video.requestVideoFrameCallback(this.videoUpdateHandler.bind(this));
-  }
-
-  render(){
-    this._renderFrame++;
-    // console.log(this._video.currentTime,'curtime');
-    
-    // let frameToPlay = 40 + Math.round(this._audio.seek()*30) || 0;
-    let frameToPlay =  Math.floor(this._video.currentTime*30) || 0;
-    if(this._renderFrame%2===0 || !this._isPlaying){
-      console.log(frameToPlay,'frametoplay');
-      this.showFrame(frameToPlay)
-    }
-    
-    // if(this._renderCount%2===0 || !this._isPlaying){
-    //   this._renderFrame++;
-    //   frameToPlay = this._renderFrame;
-    //   // console.log(frameToPlay,'frametoplay');
-    //   this.showFrame(frameToPlay)
-    // }
-    window.requestAnimationFrame(this.render.bind(this))
-  }
-
 }

@@ -1,14 +1,13 @@
 import * as THREE from "three";
+import { LoadGLTF } from "../../assets/functions/LoadGLTF";
 import EditorNodeMixin from "./EditorNodeMixin";
-//@ts-ignore
-import { GLTFLoader } from "@xr3ngine/engine/src/assets/loaders/gltf/GLTFLoader";
 let spawnPointHelperModel = null;
 const GLTF_PATH = "/editor/spawn-point.glb"; // Static
 export default class SpawnPointNode extends EditorNodeMixin(THREE.Object3D) {
   static legacyComponentName = "spawn-point";
   static nodeName = "Spawn Point";
   static async load() {
-    const { scene } = await new GLTFLoader(GLTF_PATH).loadGLTF();
+    const { scene } = await LoadGLTF(GLTF_PATH);
     // scene.traverse(child => {
     //   if (child.isMesh) {
     //     child.layers.set(2);

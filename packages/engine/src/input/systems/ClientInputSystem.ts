@@ -26,10 +26,11 @@ import { InputType } from "../enums/InputType";
 import { InputValue } from "../interfaces/InputValue";
 import { ListenerBindingData } from "../interfaces/ListenerBindingData";
 import { InputAlias } from "../types/InputAlias";
+import { Vault } from '../../networking/components/Vault';
+import { createSnapshot } from '../../networking/functions/NetworkInterpolationFunctions';
 
 import supportsPassive from "../../common/functions/supportsPassive";
 import { BehaviorComponent } from '../../common/components/BehaviorComponent'
-
 /**
  * Input System
  *
@@ -123,13 +124,14 @@ export class InputSystem extends System {
       })
 
 
-      const viewVector = getComponent(entity, CharacterComponent)?.viewVector;
-      inputs.viewVector = viewVector.toArray();
+      const actor = getComponent<CharacterComponent>(entity, CharacterComponent)
+      inputs.viewVector = actor.viewVector.toArray();
+
 
       // TODO: Convert to a message buffer
       const message = inputs; // clientInputModel.toBuffer(inputs)
-      Network.instance.transport.sendData(message); // Use default channel
-
+      Network.instance.transport.sendReliableData(message); // Use default channel
+      
       cleanupInput(entity);
 
     });

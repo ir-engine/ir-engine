@@ -1,6 +1,15 @@
-import { BufferGeometry, CompressedTexture } from 'three'
-import { MessageType } from './Enums'
+import { BufferGeometry, Float32BufferAttribute } from 'three';
 
+
+export enum MessageType {
+    InitializationRequest = 0,
+    InitializationResponse = 1,
+    DataRequest = 2,
+    DataResponse = 3,
+    SetLoopRequest = 4,
+    SetStartFrameRequest = 5,
+    SetEndFrameRequest = 6,
+  };
 export interface Action {
     type: MessageType,
     value?: number | boolean | string
@@ -12,12 +21,9 @@ export interface IFrameData {
     vertices: number;
     faces: number;
     meshLength: number;
-    textureLength: number;
 }
 
 export interface IFileHeader {
-    textureHeight: number;
-    textureWidth: number;
     maxVertices: number;
     maxTriangles: number;
     frameData: IFrameData[];
@@ -26,19 +32,18 @@ export interface IFileHeader {
 export interface IMeshTextureData {
     frameNumber: number;
     mesh: Buffer;
-    texture: Buffer;
 }
 
-export interface IBuffer {
+export interface KeyframeBuffer {
+    keyframeNumber: number;
     frameNumber: number;
-    bufferGeometry: Buffer;
-    compressedTexture: Buffer;
+    bufferGeometry: Buffer | BufferGeometry | null;
 }
 
-export interface IBufferGeometryCompressedTexture {
+export interface IFrameBuffer {
+    keyframeNumber: number;
     frameNumber: number;
-    bufferGeometry: BufferGeometry;
-    compressedTexture: CompressedTexture;
+    vertexBuffer: Float32BufferAttribute;
 }
 
 export interface WorkerInitializationRequest extends Action {
@@ -59,6 +64,6 @@ export interface WorkerDataRequest extends Action {
 }
 
 export interface WorkerDataResponse extends Action {
-    buffers?: IBuffer[]
+    buffers?: KeyframeBuffer[]
     endReached: boolean;
 }

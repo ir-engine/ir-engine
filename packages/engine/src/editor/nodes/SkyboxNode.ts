@@ -38,6 +38,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
         node.azimuth = azimuth;
         node.distance = distance;
     }
+    node.skyOptionValue = skybox.props.skytype;
 
     return node;
   }
@@ -45,6 +46,9 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
     this.updateEnvironmentMap();
   }
   onAdd() {
+    if (typeof this.skyOptionValue === 'undefined') {
+      this.skyOptionValue = 'skybox';
+    }
     this.updateEnvironmentMap();
   }
   onChange() {
@@ -114,7 +118,6 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
     }
     data.skytype = this.skyOptionValue;
     return super.serialize({
-
       skybox: data 
     });
   }

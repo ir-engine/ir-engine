@@ -3,8 +3,14 @@ export type Value = number | string | Quat | undefined
 
 // TODO: Conslidate me
 export interface StateEntity {
-  id: string;
-  [key: string]: Value;
+  networkId: number;
+  x: number;
+  y: number;
+  z: number;
+  qX: number;
+  qY: number;
+  qZ: number;
+  qW: number;
 }
 
 export type ID = string

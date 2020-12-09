@@ -62,7 +62,20 @@ export default (app: Application): void => {
               await agonesSDK.allocate();
               (app as any).instance = instanceResult;
 
+              if ((app as any).gsSubdomainNumber != null) {
+                const gsSubProvision = await app.service('gameserver-subdomain-provision').find({
+                  query: {
+                    gs_number: (app as any).gsSubdomainNumber
+                  }
+                });
 
+                if (gsSubProvision.total > 0) {
+                  const provision = gsSubProvision.data[0];
+                  await app.service('gameserver-subdomain-provision').patch(provision.id, {
+                    instanceId: instanceResult.id
+                  });
+                }
+              }
 
                 let service, serviceId;
                 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
@@ -185,8 +198,8 @@ export default (app: Application): void => {
                 },
                 instanceId: instanceId
               }).catch((err) => {
-                console.warn("Failed to patch user, probably because they don't have an ID yet"),
-                  console.log(err);
+                console.warn("Failed to patch user, probably because they don't have an ID yet");
+                console.log(err);
               });
 
               app.channel(`instanceIds/${instanceId as string}`).leave(connection);
@@ -195,7 +208,12 @@ export default (app: Application): void => {
                 console.log('Deleting instance ' + instanceId);
                 await app.service('instance').remove(instanceId);
                 if ((app as any).gsSubdomainNumber != null) {
-                  await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
+                  const gsSubdomainProvision = await app.service('gameserver-subdomain-provision').find({
+                    query: {
+                      gs_number: (app as any).gsSubdomainNumber
+                    }
+                  });
+                  await app.service('gameserver-subdomain-provision').patch(gsSubdomainProvision.data[0].id, {
                     allocated: false
                   });
                 }
@@ -206,11 +224,6 @@ export default (app: Application): void => {
                 if (gsName !== undefined) {
                   logger.info('App\'s gameserver name:');
                   logger.info(gsName);
-                }
-                if ((app as any).gsSubdomainNumber != null) {
-                  await app.service('gameserver-subdomain-provision').patch((app as any).gsSubdomainNumber, {
-                    allocated: false
-                  });
                 }
                 await (app as any).agonesSDK.shutdown();
               }

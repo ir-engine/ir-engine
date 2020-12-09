@@ -35,7 +35,7 @@ export default (app: Application): any => {
         if (!data) {
           return {};
         } else {
-          if (data.match(/^{.*}$/)) {
+          if (typeof data === 'string' && data.match(/^{.*}$/)) {
             return JSON.parse(data);
           } else {
             return data;

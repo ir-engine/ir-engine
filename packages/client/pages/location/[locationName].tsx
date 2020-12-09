@@ -1,11 +1,8 @@
-import { Snackbar, ThemeProvider, Button } from '@material-ui/core';
-import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
-import { getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { Button, Snackbar } from '@material-ui/core';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { loadScene } from '@xr3ngine/engine/src/scene/functions/SceneLoading';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
-import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import NoSSR from 'react-no-ssr';
@@ -29,12 +26,7 @@ import { selectLocationState } from '../../redux/location/selector';
 import { getLocationByName
 } from '../../redux/location/service';
 import { selectPartyState } from '../../redux/party/selector';
-import { createPrefab } from "../../../engine/src/common/functions/createPrefab";
-import { staticWorldColliders } from "../../../engine/src/templates/car/prefabs/staticWorldColliders";
 
-import { VRMPrefab } from "../../../engine/src/templates/devices/prefabs/VRMPrefab";
-
-import theme from '../../theme';
 import { setAppSpecificOnBoardingStep, generalStateList } from '../../redux/app/actions';
 import store from '../../redux/store';
 
@@ -97,6 +89,7 @@ const LocationPage = (props: Props) => {
   useEffect(() => {
     const currentLocation = locationState.get('currentLocation').get('location');
     locationId = currentLocation.id;
+    
     userBanned = selfUser?.locationBans?.find(ban => ban.locationId === locationId) != null;
     if (authState.get('isLoggedIn') === true && authState.get('user')?.id != null && authState.get('user')?.id.length > 0 && currentLocation.id == null && userBanned === false && locationState.get('fetchingCurrentLocation') !== true) {
       getLocationByName(locationName);
@@ -152,8 +145,6 @@ const LocationPage = (props: Props) => {
         client.service('instance').get(instanceId)
           .then((instance) => {
             const currentLocation = locationState.get('currentLocation').get('location');
-            console.log("provisionInstanceServer for location ", currentLocation);
-            console.log('Provisioning instance from arena page init useEffect, ', currentLocation.sceneId);
             provisionInstanceServer(instance.locationId, instanceId, currentLocation.sceneId);
             if(sceneId === null) {
               console.log("Set scene ID to, sceneId");
@@ -192,36 +183,28 @@ const LocationPage = (props: Props) => {
       };
 
       initializeEngine(InitializationOptions);
-      // createPrefab(staticWorldColliders);
     loadScene(result);
-    const cameraTransform = getMutableComponent<TransformComponent>(
-      CameraComponent.instance.entity,
-      TransformComponent
-    );
-    cameraTransform.position.set(0, 1.2, 10);
   }
 
   const goHome = () => window.location.href = window.location.origin;
 
   return (
-    // <ThemeProvider theme={theme}>
       <Layout pageTitle="Home">
         <NoSSR onSSR={<Loading />}>
           {isValidLocation && <UserMenu />}
+          {userBanned === false ? (<Scene sceneId={sceneId} />) : (<div className="banned">You have been banned from this location</div>)}
           <Snackbar open={!isValidLocation} 
             anchorOrigin={{
               vertical: 'top',
               horizontal: 'center',
             }}>
-            <section>
-                <p>Invalid Location</p>  
-                <Button variant="outlined" color="primary" onClick={goHome}>Back Home</Button>              
-            </section>
-          </Snackbar>
-          {userBanned === false ? (<Scene sceneId={sceneId} />) : (<div className="banned">You have been banned from this location</div>)}
+              <>
+                <section>Location is invalid</section>
+                <Button onClick={goHome}>Return Home</Button>
+              </>
+            </Snackbar>
         </NoSSR>
       </Layout>
-    // </ThemeProvider>
   );
 };
 

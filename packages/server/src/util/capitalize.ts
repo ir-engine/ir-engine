@@ -1,5 +1,5 @@
 
-export function capitalize(words) {
+export function capitalize(words): string {
   const wordArray = words.split(" ");
 
   for (let i = 0; i < wordArray.length; i++) {

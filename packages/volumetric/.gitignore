@@ -114,3 +114,4 @@ package-lock.json
 
 examples/assets
 src/worker/node_modules
+*.drcs
