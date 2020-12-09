@@ -8,6 +8,7 @@ import {
   getObjectPerfIssues,
   maybeAddLargeFileIssue
 } from "../functions/performance";
+import { LoadGLTF } from "../../assets/functions/LoadGLTF";
 const defaultStats = {
   nodes: 0,
   meshes: 0,
@@ -113,8 +114,8 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
   // Overrides Model's loadGLTF method and uses the Editor's gltf cache.
   async loadGLTF(src) {
-    const loader = this.editor.gltfCache.getLoader(src);
-    const { scene, json, stats } = await loader.getDependency("gltf");
+    const loadPromise = this.editor.gltfCache.get(src);
+    const{ scene, json, stats} = await loadPromise;
     this.stats = stats;
     this.gltfJson = json;
     const clonedScene = cloneObject3D(scene);
