@@ -59,40 +59,34 @@ export async function initSendTransport(partyId?: string): Promise<MediaSoupTran
     return Promise.resolve(newTransport);
 }
 
-export async function sendCameraStreams(partyId?: string): Promise<void> {
+export async function configureMediaTransports(partyId?: string): Promise<void> {
     console.log("send camera streams");
     networkTransport = Network.instance.transport as any;
 
     if (MediaStreamComponent.instance.mediaStream == null)
         await MediaStreamSystem.instance.startCamera();
 
-    if (MediaStreamComponent.instance.mediaStream == null || MediaStreamComponent.instance.mediaStream == undefined)
+    if (MediaStreamComponent.instance.mediaStream == null)
         console.warn("Media stream is null, camera must have failed");
 
-    if (networkTransport.videoEnabled === true) {
-        let newTransport;
+    if (partyId !== 'instance' && (networkTransport.partySendTransport == null || networkTransport.partySendTransport.closed === true || networkTransport.partySendTransport.connectionState === 'disconnected'))
+        await Promise.all([initSendTransport(partyId), initReceiveTransport(partyId)]);
+}
 
-        if (partyId === 'instance')
-            newTransport = networkTransport.instanceSendTransport;
-        else {
-            if (networkTransport.partySendTransport == null || networkTransport.partySendTransport.closed === true || networkTransport.partySendTransport.connectionState === 'disconnected')
-                [newTransport,] = await Promise.all([initSendTransport(partyId), initReceiveTransport(partyId)]);
-            else
-                newTransport = networkTransport.partySendTransport;
-        }
+export async function createCamVideoProducer(partyId?: string): Promise<void> {
+    if (MediaStreamComponent.instance.mediaStream !== null && networkTransport.videoEnabled === true) {
+        const transport = partyId === 'instance' ? networkTransport.instanceSendTransport : networkTransport.partySendTransport;
+        MediaStreamComponent.instance.camVideoProducer = await transport.produce({
+            track: MediaStreamComponent.instance.mediaStream.getVideoTracks()[0],
+            encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
+            appData: { mediaTag: "cam-video", partyId: partyId }
+        });
 
-        if (MediaStreamComponent.instance.mediaStream !== null) {
-            MediaStreamComponent.instance.camVideoProducer = await newTransport.produce({
-                track: MediaStreamComponent.instance.mediaStream.getVideoTracks()[0],
-                encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
-                appData: { mediaTag: "cam-video", partyId: partyId }
-            });
-    
-            if (MediaStreamComponent.instance.videoPaused)
-                await MediaStreamComponent.instance.camVideoProducer.pause();
-        }
+        if (MediaStreamComponent.instance.videoPaused) await MediaStreamComponent.instance.camVideoProducer.pause();
     }
+}
 
+export async function createCamAudioProducer(partyId?: string): Promise<void> {
     if (MediaStreamComponent.instance.mediaStream !== null) {
         //To control the producer audio volume, we need to clone the audio track and connect a Gain to it.
         //This Gain is saved on MediaStreamComponent so it can be accessed from the user's component and controlled.
@@ -107,16 +101,15 @@ export async function sendCameraStreams(partyId?: string): Promise<void> {
         MediaStreamComponent.instance.mediaStream.removeTrack(audioTrack);
         MediaStreamComponent.instance.mediaStream.addTrack(dst.stream.getAudioTracks()[0]);
         // same thing for audio, but we can use our already-created
-        const newTransport = partyId === 'instance' ? networkTransport.instanceSendTransport : networkTransport.partySendTransport;
+        const transport = partyId === 'instance' ? networkTransport.instanceSendTransport : networkTransport.partySendTransport;
 
         // Create a new transport for audio and start producing
-        MediaStreamComponent.instance.camAudioProducer = await newTransport.produce({
+        MediaStreamComponent.instance.camAudioProducer = await transport.produce({
             track: MediaStreamComponent.instance.mediaStream.getAudioTracks()[0],
             appData: { mediaTag: "cam-audio", partyId: partyId }
         });
 
-        if (MediaStreamComponent.instance.audioPaused)
-            MediaStreamComponent.instance.camAudioProducer.pause();
+        if (MediaStreamComponent.instance.audioPaused) MediaStreamComponent.instance.camAudioProducer.pause();
     }
 }
 

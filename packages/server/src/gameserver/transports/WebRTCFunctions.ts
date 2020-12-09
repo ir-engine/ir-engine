@@ -55,6 +55,27 @@ export const sendCurrentProducers = (socket: SocketIO.Socket, partyId?: string) 
     }
 };
 // Create consumer for each client!
+export const sendInitialProducers = async (socket: SocketIO.Socket, partyId?: string): Promise<void> => {
+    networkTransport = Network.instance.transport as any;
+    const userId = getUserIdFromSocketId(socket.id);
+    const selfClient = Network.instance.clients[userId];
+    if (selfClient.socketId != null) {
+        Object.entries(Network.instance.clients).forEach(([name, value]) => {
+            console.log(name);
+            console.log(value);
+            if (name === userId || value.media == null || value.socketId == null)
+                return;
+            logger.info(`Sending media for ${name}`);
+            Object.entries(value.media).map(([subName, subValue]) => {
+                if (partyId === (subValue as any).partyId) {
+                    console.log('Sending media for ' + subName);
+                    console.log((subValue as any).producerId);
+                    selfClient.socket.emit(MessageTypes.WebRTCCreateProducer.toString(), value.userId, subName, (subValue as any).producerId, partyId);
+                }
+            });
+        });
+    }
+};
 
 export const handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
     dataProducer: DataProducer
@@ -221,6 +242,7 @@ export async function handleWebRtcTransportCreate(socket, data: CreateWebRtcTran
         dtlsParameters
     };
 
+    sendInitialProducers(socket, partyId);
     // Create data consumers for other clients if the current client transport receives data producer on it
     newTransport.observer.on('newdataproducer', handleConsumeDataEvent(socket));
     newTransport.observer.on('newproducer', sendCurrentProducers(socket, partyId));

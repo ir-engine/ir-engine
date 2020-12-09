@@ -81,7 +81,6 @@ export const DrawerControls = (props: Props): JSX.Element => {
   };
   return (
     <AppBar className={styles['bottom-appbar']}>
-      { (enableInstanceVideoChat || enablePartyVideoChat) && <NoSSR><VideoChat/></NoSSR> }
       { selfUser.userRole !== 'guest' &&
         <Fab color="primary" aria-label="PersonAdd" onClick={openInvite}>
           <PersonAdd/>
