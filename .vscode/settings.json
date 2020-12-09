@@ -1,13 +1,24 @@
 {
-<<<<<<< HEAD
     "eslint.workingDirectories": [
         {
             "directory": "./xr3ngine",
             "changeProcessCWD": true
         }
+    ],
+    "liveServer.settings.port": 5501,
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "driver": "MariaDB",
+            "name": "xrengine_local",
+            "database": "xr3ngine",
+            "username": "server",
+            "password": "password"
+        }
     ]
 }
-=======
-    "liveServer.settings.port": 5501
-}
->>>>>>> 2e57e8530721ade5698e8908bb46d8d895a998d5

@@ -1,4 +1,4 @@
-import { Snackbar, ThemeProvider } from '@material-ui/core';
+import { Button, Snackbar, ThemeProvider } from '@material-ui/core';
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
@@ -70,7 +70,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const LocationPage = (props: Props) => {
   const { locationName } = useRouter().query as any;
   const [isValidLocation, setIsValidLocation] = useState(true);
-  const [openSnackBar, setOpenSnackBar] = React.useState(false);
 
   const {
     appState,
@@ -205,15 +204,18 @@ const LocationPage = (props: Props) => {
     // <ThemeProvider theme={theme}>
       <Layout pageTitle="Home">
         <NoSSR onSSR={<Loading />}>
-          {!openSnackBar && <UserMenu />}
+          {isValidLocation && <UserMenu />}
           {userBanned === false ? (<Scene sceneId={sceneId} />) : (<div className="banned">You have been banned from this location</div>)}
-          <Snackbar open={openSnackBar} 
+          <Snackbar open={!isValidLocation} 
             // onClose={handleCloseSnackBar} 
             anchorOrigin={{
               vertical: 'top',
               horizontal: 'center',
             }}>
+              <>
               <section>Location is invalid</section>
+              <Button onClick={()=> window.location.href = window.location.origin}>Return Home</Button>
+              </>
             </Snackbar>
         </NoSSR>
       </Layout>
