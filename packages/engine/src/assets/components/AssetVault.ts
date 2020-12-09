@@ -20,7 +20,7 @@ export default class AssetVault extends Component<AssetVault> {
     AssetVault.instance = null;
   }
 
-  static schema = {
+  static _schema = {
     assetsLoaded: { type: Types.Boolean, default: false },
     assets: { type: Types.Ref, default: new Map<Object3D, AssetUrl>() }
   }
