@@ -87,7 +87,7 @@ export class Network extends Component<Network> {
   }
 }
 
-Network.schema = {
+Network._schema = {
   isInitialized: { type: Types.Boolean },
   transport: { type: Types.Ref },
   schema: { type: Types.Ref },

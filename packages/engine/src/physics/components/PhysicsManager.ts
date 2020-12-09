@@ -95,5 +95,5 @@ export class PhysicsManager extends Component<any> {
     this.physicsWorld = null;
   }
 }
-PhysicsManager.schema = {
+PhysicsManager._schema = {
 };

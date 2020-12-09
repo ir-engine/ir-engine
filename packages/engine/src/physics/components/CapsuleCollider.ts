@@ -65,7 +65,7 @@ export class CapsuleCollider extends Component<CapsuleCollider>
   }
 }
 
-CapsuleCollider.schema = {
+CapsuleCollider._schema = {
 	mass: { type: Types.Number, default: 0 },
 	position: { type: Types.Vector3Type, default: new Vector3( 0, 0, 0 ) },
 	height: { type: Types.Number, default: 0.5 },
