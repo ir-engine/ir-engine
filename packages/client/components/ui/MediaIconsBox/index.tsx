@@ -46,13 +46,13 @@ const MediaIconsBox = observer((props) =>{
                     break;
       }
     }
-  }
+  };
 
   const checkEndVideoChat = async () =>{
     if(MediaStreamComponent?.instance.audioPaused && MediaStreamComponent?.instance.videoPaused){
       await endVideoChat({});
     }
-  }
+  };
   const handleMicClick = async () =>{
     if(onBoardingStep === generalStateList.TUTOR_UNMUTE){
       store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_END));
@@ -60,7 +60,7 @@ const MediaIconsBox = observer((props) =>{
     } 
     await checkMediaStream('mic');
     const audioPaused = MediaStreamComponent.instance.toggleAudioPaused();
-    if (audioPaused === true) await pauseProducer(MediaStreamComponent.instance.camAudioProducer)
+    if (audioPaused === true) await pauseProducer(MediaStreamComponent.instance.camAudioProducer);
       else await resumeProducer(MediaStreamComponent.instance.camAudioProducer);
     checkEndVideoChat();
   };
@@ -68,7 +68,7 @@ const MediaIconsBox = observer((props) =>{
   const handleCamClick = async () => {
     await checkMediaStream('cam');
     const videoPaused = MediaStreamComponent.instance.toggleVideoPaused();
-    if (videoPaused === true) await pauseProducer(MediaStreamComponent.instance.camVideoProducer)
+    if (videoPaused === true) await pauseProducer(MediaStreamComponent.instance.camVideoProducer);
       else await resumeProducer(MediaStreamComponent.instance.camVideoProducer);
     checkEndVideoChat();
   };

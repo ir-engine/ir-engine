@@ -11,6 +11,7 @@ import config from '../../config';
 import getLocalServerIp from '../../util/get-local-server-ip';
 import { localConfig } from './config';
 import {
+    cleanupOldGameservers,
     getFreeSubdomain,
     handleConnectToWorld,
     handleDisconnect,
@@ -40,11 +41,12 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         this.app = app;
     }
 
-    public sendReliableData = (message: any): any =>
-      this.socketIO.of('/realtime').emit(MessageTypes.ReliableMessage.toString(), message);
+    public sendReliableData = (message: any): any => {
+        if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.ReliableMessage.toString(), message);
+    }
 
     public sendData = (data: any): void =>
-      this.dataProducers.forEach(producer => { producer.send(JSON.stringify(data)); })
+      this.dataProducers?.forEach(producer => { producer.send(JSON.stringify(data)); })
 
     public handleKick(socket: any): void {
         logger.info("Kicking ", socket.id);
@@ -57,6 +59,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         const localIp = await getLocalServerIp();
         let stringSubdomainNumber, gsResult;
         if (process.env.KUBERNETES === 'true') {
+            await cleanupOldGameservers();
             this.gameServer = await (this.app as any).agonesSDK.getGameServer();
             const name = this.gameServer.objectMeta.name;
             (this.app as any).gsName = name;
