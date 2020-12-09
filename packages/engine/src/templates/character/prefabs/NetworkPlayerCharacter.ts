@@ -1,3 +1,4 @@
+import { PositionalAudioComponent } from '../../../audio/components/PositionalAudioComponent';
 import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
 import { Input } from '../../../input/components/Input';
 import { LocalInputReceiver } from '../../../input/components/LocalInputReceiver';
@@ -15,6 +16,7 @@ import { CharacterSubscriptionSchema } from '../CharacterSubscriptionSchema';
 import { CharacterAvatarComponent } from '../components/CharacterAvatarComponent';
 import { CharacterComponent } from '../components/CharacterComponent';
 
+
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const NetworkPlayerCharacter: NetworkPrefab = {
   // These will be created for all players on the network
@@ -31,7 +33,8 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     { type: Subscription, data: { schema: CharacterSubscriptionSchema } },
     // Current state (isJumping, isidle, etc)
     { type: State, data: { schema: CharacterStateSchema } },
-    { type: TeleportToSpawnPoint }
+    { type: TeleportToSpawnPoint },
+    { type: PositionalAudioComponent }
   ],
   // These are only created for the local player who owns this prefab
   localClientComponents: [
