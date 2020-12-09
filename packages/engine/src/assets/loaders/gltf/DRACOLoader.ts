@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {
 	BufferAttribute,
 	BufferGeometry,
@@ -5,7 +6,7 @@ import {
 	Loader
 } from "three";
 
-var DRACOLoader = function ( manager ) {
+export const DRACOLoader = function ( manager? ) {
 
 	Loader.call( this, manager );
 
@@ -636,5 +637,3 @@ DRACOLoader.getDecoderModule = function () {
 	console.warn( 'THREE.DRACOLoader: The .getDecoderModule() method has been removed. Use instance methods.' );
 
 };
-
-export { DRACOLoader }

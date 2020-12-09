@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {
 	AnimationClip,
 	Bone,
@@ -66,7 +67,7 @@ import {
 
 var GLTFLoader = ( function () {
 
-	function GLTFLoader( manager ) {
+	function GLTFLoader( manager? ) {
 
 		Loader.call( this, manager );
 

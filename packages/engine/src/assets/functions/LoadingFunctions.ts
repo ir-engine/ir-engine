@@ -77,7 +77,7 @@ function iterateLoadAsset (
   }
 }
 
-function getLoaderForAssetType (assetType: AssetTypeAlias): GLTFLoader | any | TextureLoader {
+function getLoaderForAssetType (assetType: AssetTypeAlias): typeof GLTFLoader | any | TextureLoader {
   if (assetType == AssetType.FBX) return new FBXLoader.FBXLoader();
   // else if (assetType == AssetType.glTF) return new GLTFLoader();
   else if (assetType == AssetType.glTF) { 
