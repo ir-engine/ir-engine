@@ -1,60 +1,24 @@
-import EventEmitter from "eventemitter3";
-import {
-  Matrix4,
-  Vector2,
-  Vector3,
-  Quaternion,
-  PropertyBinding,
-  PerspectiveCamera,
-  AudioListener,
-  Raycaster,
-  Clock,
-  Scene
-} from "three";
+import { LoadGLTF } from "@xr3ngine/engine/src/assets/functions/LoadGLTF";
 import { GLTFExporter } from "@xr3ngine/engine/src/assets/loaders/gltf/GLTFExporter";
-import { GLTFLoader } from "@xr3ngine/engine/src/assets/loaders/gltf/GLTFLoader";
-import History from "@xr3ngine/engine/src/editor/classes/History";
-import Renderer from "@xr3ngine/engine/src/editor/renderer/Renderer";
-import ThumbnailRenderer from "@xr3ngine/engine/src/editor/renderer/ThumbnailRenderer";
-
-import SceneNode from "@xr3ngine/engine/src/editor/nodes/SceneNode";
-import FloorPlanNode from "@xr3ngine/engine/src/editor/nodes/FloorPlanNode";
-
-import LoadingCube from "@xr3ngine/engine/src/scene/classes/LoadingCube";
-import ErrorIcon from "@xr3ngine/engine/src/editor/classes/ErrorIcon";
-import TransformGizmo from "@xr3ngine/engine/src/scene/classes//TransformGizmo";
-import EditorInfiniteGridHelper from "@xr3ngine/engine/src/editor/classes/EditorInfiniteGridHelper";
-
 import GLTFCache from "@xr3ngine/engine/src/editor/caches/GLTFCache";
 import TextureCache from "@xr3ngine/engine/src/editor/caches/TextureCache";
-
-import getDetachedObjectsRoots from "@xr3ngine/engine/src/editor/functions/getDetachedObjectsRoots";
-import { loadEnvironmentMap } from "./EnvironmentMap";
-import makeUniqueName from "@xr3ngine/engine/src/editor/functions/makeUniqueName";
-import { RethrownError, MultiError } from "@xr3ngine/engine/src/editor/functions/errors";
-import cloneObject3D from "@xr3ngine/engine/src/editor/functions/cloneObject3D";
-import isEmptyObject from "@xr3ngine/engine/src/editor/functions/isEmptyObject";
-import getIntersectingNode from "@xr3ngine/engine/src/editor/functions/getIntersectingNode";
-import { generateImageFileThumbnail, generateVideoFileThumbnail } from "@xr3ngine/engine/src/editor/functions/thumbnails";
-import resizeShadowCameraFrustum from "@xr3ngine/engine/src/editor/functions/resizeShadowCameraFrustum";
-import isInputSelected from "@xr3ngine/engine/src/editor/functions/isInputSelected";
-import { calculateGLTFPerformanceScores } from "@xr3ngine/engine/src/editor/functions/performance";
-
-import InputManager from "@xr3ngine/engine/src/editor/controls/InputManager";
-import FlyControls from "@xr3ngine/engine/src/editor/controls/FlyControls";
-import EditorControls, { TransformMode } from "@xr3ngine/engine/src/editor/controls/EditorControls";
-import PlayModeControls from "@xr3ngine/engine/src/editor/controls/PlayModeControls";
-
+import EditorInfiniteGridHelper from "@xr3ngine/engine/src/editor/classes/EditorInfiniteGridHelper";
+import ErrorIcon from "@xr3ngine/engine/src/editor/classes/ErrorIcon";
+import History from "@xr3ngine/engine/src/editor/classes/History";
 import AddMultipleObjectsCommand from "@xr3ngine/engine/src/editor/commands/AddMultipleObjectsCommand";
 import AddObjectCommand from "@xr3ngine/engine/src/editor/commands/AddObjectCommand";
 import DeselectCommand from "@xr3ngine/engine/src/editor/commands/DeselectCommand";
 import DeselectMultipleCommand from "@xr3ngine/engine/src/editor/commands/DeselectMultipleCommand";
 import DuplicateCommand from "@xr3ngine/engine/src/editor/commands/DuplicateCommand";
 import DuplicateMultipleCommand from "@xr3ngine/engine/src/editor/commands/DuplicateMultipleCommand";
+import GroupMultipleCommand from "@xr3ngine/engine/src/editor/commands/GroupMultipleCommand";
+import LoadMaterialSlotCommand from "@xr3ngine/engine/src/editor/commands/LoadMaterialSlotCommand";
+import LoadMaterialSlotMultipleCommand from "@xr3ngine/engine/src/editor/commands/LoadMaterialSlotMultipleCommand";
 import RemoveMultipleObjectsCommand from "@xr3ngine/engine/src/editor/commands/RemoveMultipleObjectsCommand";
 import RemoveObjectCommand from "@xr3ngine/engine/src/editor/commands/RemoveObjectCommand";
 import ReparentCommand from "@xr3ngine/engine/src/editor/commands/ReparentCommand";
 import ReparentMultipleCommand from "@xr3ngine/engine/src/editor/commands/ReparentMultipleCommand";
+import ReparentMultipleWithPositionCommand from "@xr3ngine/engine/src/editor/commands/ReparentMultipleWithPositionCommand";
 import RotateAroundCommand from "@xr3ngine/engine/src/editor/commands/RotateAroundCommand";
 import RotateAroundMultipleCommand from "@xr3ngine/engine/src/editor/commands/RotateAroundMultipleCommand";
 import RotateOnAxisCommand from "@xr3ngine/engine/src/editor/commands/RotateOnAxisCommand";
@@ -76,21 +40,62 @@ import SetScaleMultipleCommand from "@xr3ngine/engine/src/editor/commands/SetSca
 import SetSelectionCommand from "@xr3ngine/engine/src/editor/commands/SetSelectionCommand";
 import TranslateCommand from "@xr3ngine/engine/src/editor/commands/TranslateCommand";
 import TranslateMultipleCommand from "@xr3ngine/engine/src/editor/commands/TranslateMultipleCommand";
-import GroupMultipleCommand from "@xr3ngine/engine/src/editor/commands/GroupMultipleCommand";
-import ReparentMultipleWithPositionCommand from "@xr3ngine/engine/src/editor/commands/ReparentMultipleWithPositionCommand";
-import LoadMaterialSlotCommand from "@xr3ngine/engine/src/editor/commands/LoadMaterialSlotCommand";
-import LoadMaterialSlotMultipleCommand from "@xr3ngine/engine/src/editor/commands/LoadMaterialSlotMultipleCommand";
-
+import { TransformSpace } from "@xr3ngine/engine/src/editor/constants/TransformSpace";
+import EditorControls, { TransformMode } from "@xr3ngine/engine/src/editor/controls/EditorControls";
+import FlyControls from "@xr3ngine/engine/src/editor/controls/FlyControls";
+import InputManager from "@xr3ngine/engine/src/editor/controls/InputManager";
+import PlayModeControls from "@xr3ngine/engine/src/editor/controls/PlayModeControls";
+import cloneObject3D from "@xr3ngine/engine/src/editor/functions/cloneObject3D";
+import { MultiError, RethrownError } from "@xr3ngine/engine/src/editor/functions/errors";
+import getDetachedObjectsRoots from "@xr3ngine/engine/src/editor/functions/getDetachedObjectsRoots";
+import getIntersectingNode from "@xr3ngine/engine/src/editor/functions/getIntersectingNode";
+import isEmptyObject from "@xr3ngine/engine/src/editor/functions/isEmptyObject";
+import isInputSelected from "@xr3ngine/engine/src/editor/functions/isInputSelected";
+import makeUniqueName from "@xr3ngine/engine/src/editor/functions/makeUniqueName";
+import { calculateGLTFPerformanceScores } from "@xr3ngine/engine/src/editor/functions/performance";
+import resizeShadowCameraFrustum from "@xr3ngine/engine/src/editor/functions/resizeShadowCameraFrustum";
+import { generateImageFileThumbnail, generateVideoFileThumbnail } from "@xr3ngine/engine/src/editor/functions/thumbnails";
+import AudioNode from "@xr3ngine/engine/src/editor/nodes/AudioNode";
+import FloorPlanNode from "@xr3ngine/engine/src/editor/nodes/FloorPlanNode";
 import GroupNode from "@xr3ngine/engine/src/editor/nodes/GroupNode";
+import ImageNode from "@xr3ngine/engine/src/editor/nodes/ImageNode";
+import LinkNode from "@xr3ngine/engine/src/editor/nodes/LinkNode";
 import ModelNode from "@xr3ngine/engine/src/editor/nodes/ModelNode";
+import SceneNode from "@xr3ngine/engine/src/editor/nodes/SceneNode";
 import VideoNode from "@xr3ngine/engine/src/editor/nodes/VideoNode";
 import VolumetricNode from "@xr3ngine/engine/src/editor/nodes/VolumetricNode";
-import ImageNode from "@xr3ngine/engine/src/editor/nodes/ImageNode";
-import AudioNode from "@xr3ngine/engine/src/editor/nodes/AudioNode";
-import LinkNode from "@xr3ngine/engine/src/editor/nodes/LinkNode";
-import AssetManifestSource from "./assets/AssetManifestSource";
+import Renderer from "@xr3ngine/engine/src/editor/renderer/Renderer";
+import ThumbnailRenderer from "@xr3ngine/engine/src/editor/renderer/ThumbnailRenderer";
+import TransformGizmo from "@xr3ngine/engine/src/scene/classes//TransformGizmo";
+import LoadingCube from "@xr3ngine/engine/src/scene/classes/LoadingCube";
+import EventEmitter from "eventemitter3";
+import {
+  AudioListener,
+
+  Clock, Matrix4,
+
+
+
+
+  PerspectiveCamera, PropertyBinding, Quaternion,
+
+
+
+  Raycaster,
+
+  Scene, Vector2,
+  Vector3
+} from "three";
 import Api from "./Api";
-import { TransformSpace } from "@xr3ngine/engine/src/editor/constants/TransformSpace";
+import AssetManifestSource from "./assets/AssetManifestSource";
+import { loadEnvironmentMap } from "./EnvironmentMap";
+
+
+
+
+
+
+
 
 const tempMatrix1 = new Matrix4();
 const tempMatrix2 = new Matrix4();
@@ -528,7 +533,8 @@ export default class Editor extends EventEmitter {
     let blob;
 
     if (file.name.toLowerCase().endsWith(".glb")) {
-      const { scene } = await new GLTFLoader(url).loadGLTF();
+      const { scene } = await LoadGLTF(url);
+
       blob = await this.thumbnailRenderer.generateThumbnail(scene, width, height);
     } else if ([".png", ".jpg", ".jpeg", ".gif", ".webp"].some(ext => file.name.toLowerCase().endsWith(ext))) {
       blob = await generateImageFileThumbnail(file);
