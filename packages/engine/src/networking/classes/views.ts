@@ -7,7 +7,7 @@ import type {BufferView} from './types';
  * @param type Bit length of the integer.
  */
 const int = (type: 8 | 16 | 32): BufferView<number> => ({
-  type: `Int${type}` as const,
+  type: `Int${type}`,
   bytes: type === 8 ? 1 : type === 16 ? 2 : 4,
 });
 
@@ -31,7 +31,7 @@ export const int32 = int(32);
  * @param type Bit length of the integer.
  */
 const uint = (type: 8 | 16 | 32): BufferView<number> => ({
-  type: `Uint${type}` as const,
+  type: `Uint${type}`,
   bytes: type === 8 ? 1 : type === 16 ? 2 : 4,
 });
 
@@ -55,7 +55,7 @@ export const uint32 = uint(32);
  * @param signed Control whether the bigint is signed or unsigned.
  */
 const bigint = (signed: boolean): BufferView<bigint> => ({
-  type: `Big${signed ? 'Int' : 'Uint'}64` as const,
+  type: `Big${signed ? 'Int' : 'Uint'}64`,
   bytes: 8,
 });
 
@@ -74,7 +74,7 @@ export const uint64 = bigint(false);
  * @param type Bit length of the float.
  */
 const float = (type: 32 | 64): BufferView<number> => ({
-  type: `Float${type}` as const,
+  type: `Float${type}`,
   bytes: type === 32 ? 4 : 8,
 });
 
@@ -92,7 +92,7 @@ export const float64 = float(64);
  * `string`: UTF-8 encoding (variable byte length of Uint8Array)
  */
 export const string: BufferView<string> = {
-  type: 'String' as const,
+  type: 'String',
   bytes: 1,
 };
 
@@ -100,6 +100,6 @@ export const string: BufferView<string> = {
  * `boolean`: True (1) and false (0) (1 byte)
  */
 export const boolean: BufferView<boolean> = {
-  type: 'Boolean' as const,
+  type: 'Boolean',
   bytes: 1,
 };
