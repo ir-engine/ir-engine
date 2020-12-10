@@ -43,7 +43,7 @@ export interface KeyframeBuffer {
 export interface IFrameBuffer {
     keyframeNumber: number;
     frameNumber: number;
-    vertexBuffer: Float32BufferAttribute;
+    vertexBuffer: any;
 }
 
 export interface WorkerInitializationRequest extends Action {
