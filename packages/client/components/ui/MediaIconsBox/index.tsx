@@ -1,13 +1,12 @@
 import React from "react";
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
 import { generalStateList, setAppOnBoardingStep } from '../../../redux/app/actions';
 import {
     Mic,
     MicOff,
     Videocam,
-    VideocamOff
+    VideocamOff    
 } from '@material-ui/icons';
+import FaceIcon from '@material-ui/icons/Face';
 import { connect } from "react-redux";
 import { selectAppOnBoardingStep } from "../../../redux/app/selector";
 import { observer } from 'mobx-react';
@@ -84,12 +83,13 @@ const MediaIconsBox = observer((props) =>{
     const videoPaused = MediaStreamComponent?.instance?.mediaStream === null || MediaStreamComponent?.instance?.camVideoProducer == null || MediaStreamComponent?.instance?.videoPaused === true;
 
     return props.onBoardingStep >= generalStateList.TUTOR_INTERACT ?
-        <Card className={styles.drawerBoxContainer}>
-            <CardContent className={styles.drawerBox}>
-                {audioPaused ? <MicOff onClick={handleMicClick} /> : <Mic onClick={handleMicClick} />}
-                {videoPaused ? <VideocamOff onClick={handleCamClick} /> : <Videocam onClick={handleCamClick} />}
-            </CardContent>
-        </Card>
+        <section className={styles.drawerBoxContainer}>
+            <section className={styles.drawerBox}>
+                <div className={styles.iconContainer}>{audioPaused ? <MicOff onClick={handleMicClick} /> : <Mic onClick={handleMicClick} />}</div>
+                <div className={styles.iconContainer}>{videoPaused ? <VideocamOff onClick={handleCamClick} /> : <Videocam onClick={handleCamClick} />}</div>
+                <div className={styles.iconContainer}><FaceIcon /></div>
+            </section>
+        </section>
         :null;
 });
 

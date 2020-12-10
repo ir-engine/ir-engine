@@ -27,6 +27,7 @@ import { LazyImage } from '../LazyImage';
 import ClearIcon from '@material-ui/icons/Clear';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { removeUser } from '../../../redux/auth/service';
+import { Section } from '@xr3ngine/engine/src/postprocessing/materials/EffectMaterial';
 
 interface Props {
     login?: boolean;
@@ -315,7 +316,7 @@ const renderDrawerContent = () =>{
 
   return (
         <section key={anchor} className={styles.anchorContainer}>
-          <MenuIcon className={styles.anchorDrawer} onClick={toggleDrawer(anchor, isOpenDrawer === true ? false : true)} />
+          <span className={styles.anchorDrawer} onClick={toggleDrawer(anchor, isOpenDrawer === true ? false : true)} ></span>
           <Drawer
             anchor={anchor}
             open={state[anchor]}

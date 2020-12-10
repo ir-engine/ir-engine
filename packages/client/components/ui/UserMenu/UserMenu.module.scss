@@ -1,19 +1,16 @@
 .anchorDrawer{
-    position: absolute;
     z-index: 1301;
-    top: 5px;
     right: 0px;
     cursor: pointer;
     padding: 0px;
-    height: 1.5em;
-    width: 1.5em;
-    margin: 12px;
-    cursor: pointer;
-    @media (max-width: 768px){
-        height: 1em;
-        width: 1em;
-        margin: 7px;
-    } 
+    position: absolute;
+    width: 81px;
+    height: 53px;
+    top: 18px;
+    background: rgba(0, 0, 0, 0.31);
+    background-image: url('../assets/ll_hamburger.png');
+    background-position: 30% center;
+    background-repeat: no-repeat;
 }
 .drawer{
     display: flex;   
