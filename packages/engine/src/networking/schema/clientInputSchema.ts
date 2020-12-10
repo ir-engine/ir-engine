@@ -1,5 +1,5 @@
-import {Schema, Model, views, ExtractSchemaObject} from "@xr3ngine/engine/src/networking/classes/index"//"superbuffer"
-const {int16, int32, uint8, uint32, uint64, int64, float32, boolean, string} = views;
+import {Schema, Model, ExtractSchemaObject} from "../classes"; //"superbuffer"
+import { int16, int32, uint8, uint32, uint64, int64, float32, boolean, string } from "../classes";
 //import { uint8, float32, uint16, uint32 } from "../../common/types/DataTypes";
 //import { createSchema } from "../functions/createSchema";
 //import { Model } from "../classes/Model";
