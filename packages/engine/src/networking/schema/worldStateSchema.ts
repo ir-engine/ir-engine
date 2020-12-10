@@ -1,20 +1,17 @@
-import { BufferSchema, Model } from '@geckos.io/typed-array-buffer-schema'
-import { string8, uint64, uint8, uint32, float32 } from '@geckos.io/typed-array-buffer-schema'
-//import { float32, string8, uint16, uint64, uint8, uint32 } from "../../common/types/DataTypes";
-//import { Model } from "../classes/Model";
-//import { createSchema } from "../functions/createSchema";
+import {Schema, Model, views, ExtractSchemaObject} from "@xr3ngine/engine/src/networking/classes/index"//"superbuffer"
+const {int16, int32, uint8, uint32, uint64, int64, float32, boolean, string} = views;
 import { inputKeyArraySchema } from "./clientInputSchema";
 
 
-const clientConnectedSchema = BufferSchema.schema('clientConnected', {
-    userId: { type: string8, length: 36 }
+const clientConnectedSchema = new Schema({
+    userId: string
 });
 
-const clientDisconnectedSchema = BufferSchema.schema('clientDisconnected', {
-    userId: { type: string8, length: 36 }
+const clientDisconnectedSchema = new Schema({
+    userId: string
 });
 
-const transformSchema = BufferSchema.schema('transform', {
+const transformSchema = new Schema({
     networkId: uint32,
     x: float32,
     y: float32,
@@ -25,14 +22,15 @@ const transformSchema = BufferSchema.schema('transform', {
     qW: float32
 });
 
-const snapshotSchema = BufferSchema.schema('snapshot', {
-  id: { type: string8, length: 6 },
+const snapshotSchema = new Schema({
+  id: string,
+  state: [transformSchema],
   time: uint64
 })
 
-const createNetworkObjectSchema = BufferSchema.schema('createNetworkObject', {
+const createNetworkObjectSchema = new Schema({
     networkId: uint32,
-    ownerId: { type: string8, length: 36 },
+    ownerId: string,
     prefabType: uint8,
     x: float32,
     y: float32,
@@ -43,28 +41,17 @@ const createNetworkObjectSchema = BufferSchema.schema('createNetworkObject', {
     qW: float32
 });
 
-const bbbSchema = BufferSchema.schema('bbb', {
-  bbb: uint8
-});
-
-const kkkSchema = BufferSchema.schema('kkk', {
-  m: uint32,
-  aaa: [bbbSchema],
-});
-
-const destroyNetworkObjectSchema = BufferSchema.schema('destroyNetworkObject', {
+const destroyNetworkObjectSchema = new Schema({
     networkId: uint32
 });
 
-const worldStateSchema = BufferSchema.schema('worldState', {
+const worldStateSchema = new Schema({
     clientsConnected: [clientConnectedSchema],
     clientsDisconnected: [clientDisconnectedSchema],
     createObjects: [createNetworkObjectSchema],
     destroyObjects: [destroyNetworkObjectSchema],
     inputs: [inputKeyArraySchema],
-    kkk:[kkkSchema],
-    snapshot: [snapshotSchema],
-    states: [bbbSchema],
+    snapshot: snapshotSchema,
     tick: uint64,
     transforms: [transformSchema]
 });

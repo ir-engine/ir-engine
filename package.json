@@ -37,7 +37,7 @@
   "scripts": {
     "start": "yarn run dev",
     "dev": "lerna run dev --parallel",
-    "test": "jest ./packages/engine/tests/network/bufferPacking.test.ts",
+    "test": "jest",
     "lint": "lerna run lint",
     "version-increment": "lerna version --conventional-commits --yes",
     "validate": "lerna run validate",
@@ -68,7 +68,7 @@
     "chokidar": "3.4.2",
     "mediasoup-client": "^3.6.12",
     "sequelize": "~5.21.8",
-    "three": "^0.122.0"
+    "three": "^0.123.0"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.11.5",
@@ -82,8 +82,6 @@
     "ts-jest": "^26.4.1"
   },
   "dependencies": {
-    "@geckos.io/typed-array-buffer-schema": "^1.0.2",
-    "superbuffer": "^1.0.1",
     "text-encoding": "^0.7.0",
     "ts-jest": "^26.4.1"
   }

@@ -15,7 +15,8 @@ const inputKeySchema = new Schema({
 
 const inputAxis1DSchema = new Schema({
   input: uint8,
-  value: float32,
+  valueX: float32,
+  valueY: float32,
   lifecycleState: uint8
 });
 
@@ -41,7 +42,7 @@ const inputKeyArraySchema = new Schema({
   viewVector: viewVectorSchema
 });
 
-
+/*
 
 const clientConnectedSchema = new Schema({
     userId: string
@@ -95,7 +96,7 @@ const worldStateSchema = new Schema({
     tick: uint64,
     transforms: [transformSchema]
 });
-
+*/
 
 
 /*
@@ -130,47 +131,36 @@ console.log(Date.now());
 test("compress/decompress", () => {
 
     const gameState = {
-      clientsConnected: [],
-      clientsDisconnected: [],
-      createObjects: [],
-      destroyObjects: [],
-      inputs: [
-        {
-          networkId: 8,
-          axes1d: [],
-          axes2d: [{
-            input: 15,
-            valueX: 0.3455443,
-            valueY: 0.3456554,
-            lifecycleState: 1
-          }],
-          buttons: [],
-          viewVector: {x: 0.34534,y:0.4343,z:0.34534}
-        },
-        {
-          networkId: 9,
-          axes1d: [],
-          axes2d: [{
-            input: 17,
-            valueX: 0.3455443,
-            valueY: 0.3456554,
-            lifecycleState: 1
-          }],
-          buttons: [],
-          viewVector: {x: 0.34534,y:0.4343,z:0.34534}
-        }
-      ],
-      snapshot: {
-        id:"f5huik",
-        time: BigInt(1607096225814)
-      },
-      tick: BigInt(77081),
-      transforms: []
+  networkId: 1,
+  viewVector: { x: 0.6531652, y: -0.4165249, z: 0.6323624 },
+  axes1d: [],
+  axes2d: [
+    {
+      input: 15,
+      lifecycleState: 4,
+      valueX: 0.9144216,
+      valueY: -0.7661538
+    },
+    { input: 16, lifecycleState: 2, valueX: 0, valueY: 0 },
+    { input: 17, lifecycleState: 2, valueX: 0, valueY: 0 },
+    { input: 19, lifecycleState: 4, valueX: 0.003169572, valueY: 0 },
+    {
+      input: 23,
+      lifecycleState: 4,
+      valueX: 0.177496,
+      valueY: -0.2707692
     }
+  ],
+  buttons: [
+    { input: 0, lifecycleState: 2, value: 0 },
+    { input: 1, lifecycleState: 2, value: 0 },
+    { input: 2, lifecycleState: 2, value: 0 }
+  ]
+}
 
     console.log("Game state is", gameState);
 
-    const worldStateModel = new Model(worldStateSchema);
+    const worldStateModel = new Model(inputKeyArraySchema);
     const buffer = worldStateModel.toBuffer(gameState)
 
 
