@@ -10,7 +10,7 @@ export class ColliderComponent extends Component<ColliderComponent> {
   scale: any
 }
 
-ColliderComponent.schema = {
+ColliderComponent._schema = {
   collider: { type: Types.Ref, default: null },
   type: { type: Types.String, default: 'box' },
   mass: { type: Types.Number, default: 0 },
