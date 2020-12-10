@@ -131,15 +131,57 @@ export class ServerNetworkSystem extends System {
     // For each networked object + input receiver, add to the frame to send
     // this.queryResults.serverNetworkStates.changed?.forEach((entity: Entity) =>
     //   addStateToWorldStateOnServer(entity));
+    if (Network.instance.packetCompression) {
+      let state = {
+        clientsConnected: [],
+        clientsDisconnected: [],
+        createObjects: [],
+        destroyObjects: [],
+        inputs: [],
+        snapshot: {},
+        tick: 0,
+        transforms: []
+      }
 
-     addSnapshot(createSnapshot(Network.instance.worldState.transforms));
-     Network.instance.worldState.snapshot = NetworkInterpolation.instance.get();
+      state.clientsConnected = Network.instance.worldState.clientsConnected
+      state.clientsDisconnected = Network.instance.worldState.clientsDisconnected
+      state.createObjects = Network.instance.worldState.createObjects
+      state.destroyObjects = Network.instance.worldState.destroyObjects
+      state.transforms = Network.instance.worldState.transforms
 
-  //   const buffer = worldStateModel.toBuffer(Network.instance.worldState)
+
+      state.inputs = Network.instance.worldState.inputs?.map(input => {
+        return {
+          networkId: input.networkId,
+          axes1d: Object.keys(input.axes1d).map(v => input.axes1d[v]),
+          axes2d: Object.keys(input.axes2d).map(v => input.axes2d[v]),
+          buttons: Object.keys(input.buttons).map(v => input.buttons[v]),
+          viewVector: { x:0, y:0, z:0 }
+        }
+      })
+
+      addSnapshot(createSnapshot(Network.instance.worldState.transforms));
+      Network.instance.worldState.snapshot = NetworkInterpolation.instance.get();
+
+      let snapshot = { time: 0, id: 'string', state: [] } // in client copy state from transforms
+      //@ts-ignore
+      snapshot.time = BigInt( Network.instance.worldState.snapshot.time )
+      //@ts-ignore
+      snapshot.id = Network.instance.worldState.snapshot.id
+      //@ts-ignore
+      state.tick = BigInt( Network.instance.worldState.tick )
+
+      state.snapshot = snapshot
+      //@ts-ignore
+      const buffer = worldStateModel.toBuffer(state)
     // Send the message to all connected clients
     if(Network.instance.transport !== undefined)
-      Network.instance.transport.sendReliableData(Network.instance.worldState); // Use default channel
-
+      Network.instance.transport.sendReliableData(buffer); // Use default channel
+    } else {
+      addSnapshot(createSnapshot(Network.instance.worldState.transforms));
+      Network.instance.worldState.snapshot = NetworkInterpolation.instance.get();
+      Network.instance.transport.sendReliableData(Network.instance.worldState)
+    }
   }
 
   // Call execution on client

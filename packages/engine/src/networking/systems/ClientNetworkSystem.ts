@@ -47,30 +47,21 @@ export class ClientNetworkSystem extends System {
     const queue = Network.instance.incomingMessageQueue;
     // For each message, handle and process
     while (queue.getBufferLength() > 0) {
-      const state = queue.pop();
+      const buffer = queue.pop();
       // debugger;
-      applyNetworkStateToClient(state, delta);
-
-
-      state.inputs = state.inputs?.map(input => {
-        return {
-          networkId: input.networkId,
-          axes1d: Object.keys(input.axes1d).length ? Object.keys(input.axes1d).map(v => input.axes1d[v]): {},
-          axes2d: Object.keys(input.axes2d).length ? Object.keys(input.axes2d).map(v => input.axes2d[v]): {},
-          buttons: Object.keys(input.buttons).length ? Object.keys(input.buttons).map(v => input.buttons[v]): {},
-          viewVector: {x:0,y:0,z:0}
-        }
-      })
-
-      state.kkk = [{m:1, aaa:[{bbb:6},{bbb:7}] }]
-
-      state.snapshot.state = []; // in client copy state from transforms
-      console.warn(state);
-      const buffer = worldStateModel.toBuffer(state)
-      const test = worldStateModel.fromBuffer(buffer)
-      test.snapshot.state = test.transforms;
-      console.warn(test);
-      console.warn('/////////////////////');
+      if (Network.instance.packetCompression) {
+        const state = worldStateModel.fromBuffer(new Uint8Array(buffer).buffer)
+        //@ts-ignore
+        state.snapshot.time = parseInt(state.snapshot.time);
+        //@ts-ignore
+        state.tick = parseInt(state.tick);
+        //@ts-ignore
+        state.snapshot.state = state.transforms;
+        //@ts-ignore
+        applyNetworkStateToClient(state, delta);
+      } else {
+        applyNetworkStateToClient(buffer, delta);
+      }
 
     }
 

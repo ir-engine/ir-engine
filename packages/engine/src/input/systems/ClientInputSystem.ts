@@ -92,7 +92,7 @@ export class InputSystem extends System {
       handleInputOnClient(entity, {isLocal:true, isServer: false}, delta);
       const networkId = getComponent(entity, NetworkObject)?.networkId;
       if (!networkId) return;
-
+      if (!isClient) return;
       // Client sends input and *only* input to the server (for now)
       // console.log("Handling input for entity ", entity.id);
       const input = getComponent(entity, Input);
@@ -106,11 +106,13 @@ export class InputSystem extends System {
       input.data.forEach((value, key) => input.lastData.set(key, value));
 
       // Create a schema for input to send
+
+
       const inputs = {
         networkId: networkId,
-        buttons: {},
-        axes1d: {},
-        axes2d: {},
+        buttons: [],
+        axes1d: [],
+        axes2d: [],
         viewVector: {
           x:0, y: 0, z :0
         }
@@ -119,29 +121,32 @@ export class InputSystem extends System {
       // Add all values in input component to schema
       input.data.forEach((value, key) => {
         if (value.type === InputType.BUTTON)
-          inputs.buttons[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
+          inputs.buttons.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
         else if (value.type === InputType.ONEDIM) // && value.lifecycleState !== LifecycleValue.UNCHANGED
-          inputs.axes1d[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
+          inputs.axes1d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
         else if (value.type === InputType.TWODIM) //  && value.lifecycleState !== LifecycleValue.UNCHANGED
-          inputs.axes2d[key] = { input: key, valueX: value.value[0], valueY: value.value[1], lifecycleState: value.lifecycleState };
+          inputs.axes2d.push({ input: key, valueX: value.value[0], valueY: value.value[1], lifecycleState: value.lifecycleState });
       })
+
+
 
       const actor = getComponent<CharacterComponent>(entity, CharacterComponent)
       inputs.viewVector.x = actor.viewVector.x;
       inputs.viewVector.y = actor.viewVector.y;
       inputs.viewVector.z = actor.viewVector.z;
 
-      inputs.axes1d = Object.keys(inputs.axes1d).map(v => inputs.axes1d[v])
-      inputs.axes2d = Object.keys(inputs.axes2d).map(v => inputs.axes2d[v])
-      inputs.buttons = Object.keys(inputs.buttons).map(v => inputs.buttons[v])
-    //  console.warn(inputs);
+      if (Network.instance.packetCompression) {
+        Network.instance.transport.sendReliableData(clientInputModel.toBuffer(inputs));
+      } else {
+        Network.instance.transport.sendReliableData(inputs);
+      }
+
     //  const buffer = clientInputModel.toBuffer(inputs)
   //    const inputDebbug = clientInputModel.fromBuffer(buffer)
-//      console.warn(inputDebbug);
-  //    console.warn(JSON.stringify(inputs).length) // 241
-  //    console.warn(buffer.byteLength) // 56
-      const message = clientInputModel.toBuffer(inputs);
-      Network.instance.transport.sendReliableData(message); // Use default channel
+//     console.warn(inputDebbug);
+    //  console.warn(JSON.stringify(inputs).length) // 241
+  //    console.warn(message.byteLength) // 56
+       // Use default channel
 
       cleanupInput(entity);
 
