@@ -25,18 +25,22 @@
     height: auto;
     .avatarPreviewWrapper{
         width: 48%;
-        padding: 5px;
         cursor: pointer;
-        margin: 5px 1%;    
-        flex-grow: 0;
-        @media (max-width: 768px){
-            width: 100%;
-          }    
+        margin: 1%;    
+        flex-grow: 0; 
         .avatarPreview{
             width: 100%;
             height: 100%;
         }
     }
+}
+
+.deleteAccountButtons {
+    display: flex;
+}
+
+.header {
+    text-align: center;
 }
 
 .placeholder{

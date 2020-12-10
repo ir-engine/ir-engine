@@ -35,35 +35,6 @@ $mobileControllButtonsSize:3em;
         > svg {
             height: 2em;
         }
-
-        // &.gamepadButton_{
-        //     &A{
-        //         // background-color: #00bb00;
-        //         // right: 0;
-        //         // bottom: $mobileControllButtonsSize;
-        //     }
-        //     // &A{
-        //     //     background-color: #00bb00;
-        //     //     right: 0;
-        //     //     top: 0;
-        //     // }
-        //     // &B{
-        //     //     background-color: #bb0000;
-        //     //     right: -$mobileControllButtonsSize;
-        //     //     bottom: 0;
-        //     // }
-        //     // &X{
-        //     //     background-color: #0000ff;
-        //     //     right: $mobileControllButtonsSize;
-        //     //     bottom: 0;
-        //     // }
-        //     // &Y{
-        //     //     background-color: #ffbb00;
-        //     //     right: 0;
-        //     //     bottom: $mobileControllButtonsSize;
-        //     // }            
-        // }
-
         &.availableButton{
             opacity: 1;
             border: 1px solid #ffff00;
@@ -71,7 +42,7 @@ $mobileControllButtonsSize:3em;
         }
 
         &.notAvailableButton{
-            opacity: 0.4;
+            opacity: 0;
         }
     }
 }

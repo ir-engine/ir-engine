@@ -1,6 +1,6 @@
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { Matrix4, MeshPhongMaterial, Vector3 } from 'three';
-import GLTFLoader from 'three-gltf-loader';
+import { GLTFLoader } from "../../assets/loaders/gltf/GLTFLoader";
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { WebXRSession } from '../components/WebXRSession';
 import { XRControllersComponent } from '../components/XRControllersComponent';

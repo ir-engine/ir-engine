@@ -72,6 +72,8 @@ spec:
                 secretKeyRef:
                   name: {{ .Release.Name }}-redis
                   key: redis-password
+            - name: RELEASE_NAME
+              value: {{ .Release.Name }}
           ports:
             - name: http
               containerPort: 3030

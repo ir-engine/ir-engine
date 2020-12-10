@@ -1,6 +1,6 @@
-import  './tunstall'
-import {IndexAttr,NormalAttr,ColorAttr,Attribute} from './attribute'
-import {Stream,BitStream} from './tunstall'
+import  './tunstall.js'
+import {IndexAttr,NormalAttr,ColorAttr,Attribute} from './attribute.js'
+import {Stream,BitStream} from './tunstall.js'
 /*
 Corto
 Copyright (c) 2017-2020, Visual Computing Lab, ISTI - CNR

@@ -10,6 +10,8 @@ import logger from "../../app/logger";
 import config from '../../config';
 import { closeTransport } from './WebRTCFunctions';
 
+const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
+
 export async function getFreeSubdomain(gsIdentifier: string, subdomainNumber: number): Promise<string> {
     const transport = Network.instance.transport as any;
     const stringSubdomainNumber = subdomainNumber.toString().padStart(config.gameserver.identifierDigits, '0');
@@ -25,7 +27,15 @@ export async function getFreeSubdomain(gsIdentifier: string, subdomainNumber: nu
             gs_id: gsIdentifier
         });
 
-        return stringSubdomainNumber;
+        await new Promise(resolve => setTimeout(async () => { resolve();}, 500));
+
+        const newSubdomainResult = await transport.app.service('gameserver-subdomain-provision').find({
+            query: {
+                gs_number: stringSubdomainNumber
+            }
+        });
+        if (newSubdomainResult.total > 0 && newSubdomainResult.data[0].gs_id === gsIdentifier) return stringSubdomainNumber;
+        else return getFreeSubdomain(gsIdentifier, subdomainNumber + 1);
     } else {
         const subdomain = (subdomainResult as any).data[0];
         if (subdomain.allocated === true || subdomain.allocated === 1) {
@@ -36,8 +46,49 @@ export async function getFreeSubdomain(gsIdentifier: string, subdomainNumber: nu
             gs_id: gsIdentifier
         });
 
-        return stringSubdomainNumber;
+        await new Promise(resolve => setTimeout(async () => { resolve();}, 500));
+
+        const newSubdomainResult = await transport.app.service('gameserver-subdomain-provision').find({
+            query: {
+                gs_number: stringSubdomainNumber
+            }
+        });
+        if (newSubdomainResult.total > 0 && newSubdomainResult.data[0].gs_id === gsIdentifier) return stringSubdomainNumber;
+        else return getFreeSubdomain(gsIdentifier, subdomainNumber + 1);
     }
+}
+
+export async function cleanupOldGameservers(): Promise<void> {
+    const transport = Network.instance.transport as any;
+    const instances = await transport.app.service('instance').Model.findAndCountAll({
+        offset: 0,
+        limit: 1000
+    });
+    const gameservers = await (transport.app as any).k8AgonesClient.get('gameservers');
+    const gsIds = gameservers.items.map(gs => gsNameRegex.exec(gs.metadata.name)[1]);
+
+    await Promise.all(instances.rows.map(instance => {
+        const [ip, port] = instance.ipAddress.split(':');
+        const match = gameservers.items.find(gs => {
+            const inputPort = gs.status.ports.find(port => port.name === 'default');
+            const gsIdentifier = gsNameRegex.exec(gs.metadata.name);
+            return gs.status.address === ip && inputPort.port.toString() === port;
+        });
+        return match == null ? transport.app.service('instance').remove(instance.id) : Promise.resolve();
+    }));
+
+    await transport.app.service('gameserver-subdomain-provision').patch(null, {
+        allocated: false
+    }, {
+        query: {
+            instanceId: null,
+            gs_id: {
+                $nin: gsIds
+            }
+        }
+    });
+
+    return;
 }
 
 export function getUserIdFromSocketId(socketId): string | null {
@@ -81,7 +132,7 @@ export function validateNetworkObjects(): void {
 
             // Loop through network objects in world
             for (const obj in Network.instance.networkObjects)
-                // If this client owns the object, add it to our array
+              // If this client owns the object, add it to our array
                 if (Network.instance.networkObjects[obj].ownerId === client)
                     networkObjectsClientOwns.push(Network.instance.networkObjects[obj]);
 
@@ -124,12 +175,57 @@ export function validateNetworkObjects(): void {
 }
 
 
-export async function handleJoinWorld(socket, data, callback, userId, user): Promise<any> {
-    logger.info("JoinWorld received");
+export async function handleConnectToWorld(socket, data, callback, userId, user): Promise<any> {
     const transport = Network.instance.transport as any;
+
+    disconnectClientIfConnected(socket, userId);
+
+    // Create a new client object
+    // and add to the dictionary
+    Network.instance.clients[userId] = {
+        userId: userId,
+        name: user.dataValues.name,
+        socket: socket,
+        socketId: socket.id,
+        lastSeenTs: Date.now(),
+        joinTs: Date.now(),
+        media: {},
+        consumerLayers: {},
+        stats: {},
+        dataConsumers: new Map<string, DataConsumer>(), // Key => id of data producer
+        dataProducers: new Map<string, DataProducer>() // Key => label of data channel
+    };
+
+    // Push to our worldstate to send out to other users
+    Network.instance.clientsConnected.push({ userId });
+
+    // Create a new worldtate object that we can fill
+    const worldState = {
+        tick: Network.tick,
+        transforms: [],
+        inputs: [],
+        clientsConnected: [],
+        clientsDisconnected: [],
+        createObjects: [],
+        destroyObjects: []
+    };
+
+    // Get all clients and add to clientsConnected and push to world state frame
+    Object.keys(Network.instance.clients).forEach(userId => {
+        worldState.clientsConnected.push({ userId: Network.instance.clients[userId].userId });
+    });
+
+    // Return initial world state to client to set things up
+    callback({
+        worldState /* worldState: worldStateModel.toBuffer(worldState) */,
+        routerRtpCapabilities: transport.routers.instance.rtpCapabilities
+    });
+}
+
+function disconnectClientIfConnected(socket, userId: string): void {
     // If we are already logged in, kick the other socket
     if (Network.instance.clients[userId] !== undefined &&
-        Network.instance.clients[userId].socketId !== socket.id) {
+      Network.instance.clients[userId].socketId !== socket.id) {
         logger.info("Client already exists, kicking the old client and disconnecting");
         Network.instance.clients[userId].socket.emit(MessageTypes.Kick.toString());
         Network.instance.clients[userId].socket.disconnect();
@@ -152,27 +248,11 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
         // Remove network object from list
         delete Network.instance.networkObjects[key];
     });
+}
 
-    // Create a new client objectr
-    const newClient = {
-        userId: userId,
-        name: user.dataValues.name,
-        socket: socket,
-        socketId: socket.id,
-        lastSeenTs: Date.now(),
-        joinTs: Date.now(),
-        media: {},
-        consumerLayers: {},
-        stats: {},
-        dataConsumers: new Map<string, DataConsumer>(), // Key => id of data producer
-        dataProducers: new Map<string, DataProducer>() // Key => label of data channel
-    };
-
-    // Add to the dictionary
-    Network.instance.clients[userId] = newClient;
-
-    // Push to our worldstate to send out to other users
-    Network.instance.clientsConnected.push({ userId });
+export async function handleJoinWorld(socket, data, callback, userId, user): Promise<any> {
+    logger.info("JoinWorld received");
+    const transport = Network.instance.transport as any;
 
     // Create a new default prefab for client
     const networkObject = initializeNetworkObject(userId, Network.getNetworkId(), Network.instance.schema.defaultClientPrefab);
@@ -211,11 +291,12 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     };
 
     // Get all clients and add to clientsConnected and push to world state frame
-    for (const userId in Network.instance.clients)
+    Object.keys(Network.instance.clients).forEach(userId => {
         worldState.clientsConnected.push({ userId: Network.instance.clients[userId].userId });
+    });
 
     // Get all network objects and add to createObjects
-    for (const networkId in Network.instance.networkObjects) {
+    Object.keys(Network.instance.networkObjects).forEach(networkId => {
         const transform = getComponent(Network.instance.networkObjects[networkId].component.entity, TransformComponent);
         worldState.createObjects.push({
             prefabType: Network.instance.networkObjects[networkId].prefabType,
@@ -229,7 +310,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
             qZ: transform.rotation.z,
             qW: transform.rotation.w
         });
-    }
+    });
 
     // Return initial world state to client to set things up
     callback({
