@@ -47,6 +47,18 @@ then click Next. On the second page, Choose the instance type(s) you'd like for 
 set the minimum/maximum/desired scaling sizes, and hit Next. The default subnets should be fine,
 so hit Next, review everything, and click Create.
 
+## Edit security group to allow gameserver traffic
+You'll need to edit the new cluster's main security group to allow gameserver traffic.
+On the AWS web client, go to EC2 -> Security Groups. There should be three SGs that have
+the node's name somewhere in there name; look for the one that is in the form
+```eks-cluster-sg-<cluster_name>-<random_numbers>```. It should NOT end with /ControlPlaneSecurityGroup
+or /ClusterSharedNodeSecurityGroup.
+Click on that, then the Inbound Rules tab, then click Edit Inbound Rules.
+
+You'll need to add two rule sets:
+* Type: Custom UDP; Port Range 30000-32767; Source: Custom 0.0.0.0/0
+* Type: Custom TCP; Port Range 7000-8000; Source: Custom 0.0.0.0/0
+
 ## Create Route 53 Hosted Zone and set up ACM certificates
 
 Before installing Nginx to the cluster, you'll need to have all of the networking squared away.
@@ -133,6 +145,13 @@ up, just hit Create and then Close once it finishes.
 
 When you go back to the Load Balancer list, make note of the DNS name of the Application
 loadbalancer you just created. It should be similar to the name of the classic one.
+
+Highlight the new ALB and click on the Listeners tab. Select the HTTPS:443 listener and click Edit.
+There should be one entry under Default Action(s), and it should be Forward To <ID of both load balancers>.
+Click the pencil icon on the left to edit it, then open the accordion for Group-Level Stickiness,
+check the checkbox next to Enable Up To and switch 'hours' to 'days', leaving it as 'Enable up to 1 days'.
+(Several hours would also be an acceptable setting; we just don't want connections to time out after an hour).
+Click the checkmark at the bottom of this accordion, then the Update button near the top of the screen.
 
 ## Set up Simple Email Service
 
