@@ -6,7 +6,7 @@ describe('CRUD operation on \'Location\' model', () => {
   beforeAll(async () => {
     await model.destroy({
       where: {
-        name: 'test'
+        name: 'model-test'
       }
     })
   })
@@ -15,8 +15,8 @@ describe('CRUD operation on \'Location\' model', () => {
     console.log('CREATE')
     console.log(model)
     await model.create({
-      name: 'test',
-      slugifiedName: 'test',
+      name: 'model-test',
+      slugifiedName: 'model-test',
       maxUsersPerInstance: 10
     })
   })
@@ -24,7 +24,7 @@ describe('CRUD operation on \'Location\' model', () => {
   it('Read', async () => {
     await model.findOne({
       where: {
-        name: 'test'
+        name: 'model-test'
       }
     })
   })
@@ -32,13 +32,13 @@ describe('CRUD operation on \'Location\' model', () => {
   it('Update', async () => {
     await model.update(
       { maxUsersPerInstance: 11 },
-      { where: { name: 'test' } }
+      { where: { name: 'model-test' } }
     )
   })
 
   it('Delete', async () => {
     await model.destroy({
-      where: { name: 'test' }
+      where: { name: 'model-test' }
     })
   })
 })

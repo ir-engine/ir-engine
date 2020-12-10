@@ -1,13 +1,9 @@
 {
-<<<<<<< HEAD
     "eslint.workingDirectories": [
         {
             "directory": "./xr3ngine",
             "changeProcessCWD": true
         }
-    ]
-}
-=======
+    ],
     "liveServer.settings.port": 5501
 }
->>>>>>> 2e57e8530721ade5698e8908bb46d8d895a998d5

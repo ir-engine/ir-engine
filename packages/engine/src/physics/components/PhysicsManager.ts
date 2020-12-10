@@ -12,6 +12,8 @@ const cannonDebugger = isClient ? import('cannon-es-debugger').then((module) => 
 }) : null;
 */
 
+const DEBUG_PHYSICS = false;
+
 export class PhysicsManager extends Component<any> {
   static instance: PhysicsManager
   frame: number
@@ -65,15 +67,16 @@ export class PhysicsManager extends Component<any> {
 
     this.parallelPairs = [];
 
-     const DebugOptions = {
-       onInit: (body: Body, mesh: Mesh, shape: Shape) => 	{
-        // console.log("PH INIT: body: ", body, " | mesh: ", mesh, " | shape: ", shape)
-       },
-       onUpdate: (body: Body, mesh: Mesh, shape: Shape) => {
-         //if (body === Engine.actor
-         //console.log("PH  UPD: body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape) }
-     }};
-     if (isClient) {
+    if (isClient && DEBUG_PHYSICS) {
+      const DebugOptions = {
+        onInit: (body: Body, mesh: Mesh, shape: Shape) => {
+          // console.log("PH INIT: body: ", body, " | mesh: ", mesh, " | shape: ", shape)
+        },
+        onUpdate: (body: Body, mesh: Mesh, shape: Shape) => {
+          //if (body === Engine.actor
+          //console.log("PH  UPD: body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape) }
+        }
+      };
       //  debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions);
      }
   }

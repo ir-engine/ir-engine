@@ -4,8 +4,7 @@ import {
   Uint16BufferAttribute
 } from "three";
 // @ts-ignore
-// import * as RecastWorker from "./recast.worker";
-import RecastWorker from "file-loader?name=[name].js!./recast.worker";
+import RecastWorker from "./recast.worker";
 
 const statuses = [
   "success",
@@ -24,24 +23,22 @@ const statuses = [
   "error generating navmesh data",
   "error generating navmesh detail geometry"
 ];
-// @ts-ignore
-// const worker = new RecastWorker();
-let worker = new Worker(RecastWorker);
 
 export default class RecastClient {
-  // worker: RecastWorker;
+  worker: Worker;
   working: boolean;
+  workerUrl: string;
   constructor() {
-    // @ts-ignore
     this.working = false;
+    // Creating blob out of worker script as a workaround.
+    const blob = new Blob([RecastWorker]);
+    this.workerUrl = URL.createObjectURL(blob)
+    this.worker = new Worker(this.workerUrl)
   }
   async buildNavMesh(geometry, params, signal) {
     if (this.working) {
       throw new Error("Already building nav mesh");
     }
-    // debugger
-    // this.worker = new RecastWorker(params.wasmUrl);
-    // this.worker = new RecastWorker();
     this.working = true;
     if (geometry.attributes.position.count === 0) {
       this.working = false;
@@ -55,37 +52,32 @@ export default class RecastClient {
     const navMeshPromise = new Promise((resolve, reject) => {
       const cleanUp = () => {
         signal.removeEventListener("abort", onAbort);
-        worker.removeEventListener("message", onMessage);
-        worker.removeEventListener("error", onError);
+        this.worker.removeEventListener("message", onMessage);
+        this.worker.removeEventListener("error", onError);
         this.working = false;
       };
       const onMessage = event => {
-        // debugger
         resolve(event.data);
         cleanUp();
       };
       const onAbort = () => {
-        // debugger
-        worker.terminate();
-            // @ts-ignore
-        worker = new Worker(RecastWorker);
-        // this.worker = new RecastWorker(params.wasmUrl);
+        this.worker.terminate();
+        this.worker = new Worker(this.workerUrl);
         const error = new Error("Canceled navmesh generation.");
         error["aborted"] = true;
         reject(error);
         cleanUp();
       };
       const onError = error => {
-        // debugger
         reject(error);
         cleanUp();
       };
       signal.addEventListener("abort", onAbort);
-      worker.addEventListener("message", onMessage);
-      worker.addEventListener("error", onError);
+      this.worker.addEventListener("message", onMessage);
+      this.worker.addEventListener("error", onError);
       this.working = false
     });
-    worker.postMessage(
+    this.worker.postMessage(
       {
         verts,
         faces,
