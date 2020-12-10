@@ -7,6 +7,6 @@ export class PlayerInCar extends Component<any> {
   entityCar: any
 
 }
-PlayerInCar.schema = {
+PlayerInCar._schema = {
   entityCar: { type: Types.Ref, default: null }
 };

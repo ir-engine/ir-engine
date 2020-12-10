@@ -15,7 +15,7 @@ export interface ComponentSchema {
  */
 
 export interface ComponentConstructor<C extends Component<C>> {
-  schema: ComponentSchema;
+  _schema: ComponentSchema;
   _typeId: any;
   new(props?: Partial<Omit<C, keyof Component<C>>> | false): C;
 }

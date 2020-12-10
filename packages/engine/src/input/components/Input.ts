@@ -58,8 +58,8 @@ export class Input extends BehaviorComponent<InputAlias, InputSchema, InputValue
 /**
  * Set schema to itself plus gamepad data
  */
-Input.schema = {
-  ...Input.schema,
+Input._schema = {
+  ...Input._schema,
   gamepadConnected: { type: Types.Boolean, default: false },
   gamepadThreshold: { type: Types.Number, default: 0.1 },
   gamepadButtons: { type: Types.Array, default: [] },
