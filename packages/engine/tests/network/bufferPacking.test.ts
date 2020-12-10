@@ -1,11 +1,7 @@
 import { expect } from "@jest/globals";
-import {Schema, Model, views, ExtractSchemaObject} from "@xr3ngine/engine/src/networking/classes/index"//"superbuffer"
-
-const {int16, int32, uint8, uint32, uint64, int64, float32, boolean, string} = views;
-
+import {Schema, Model, ExtractSchemaObject} from "@xr3ngine/engine/src/networking/classes"; //"superbuffer"
+import {int16, int32, uint8, uint32, uint64, int64, float32, boolean, string} from "@xr3ngine/engine/src/networking/classes";
 //import { inputKeyArraySchema } from "@xr3ngine/engine/src/networking/schema/clientInputSchema";
-
-
 
 const inputKeySchema = new Schema({
   input: uint8,
@@ -130,50 +126,47 @@ console.log(Date.now());
 */
 test("compress/decompress", () => {
 
-    const gameState = {
-  networkId: 1,
-  viewVector: { x: 0.6531652, y: -0.4165249, z: 0.6323624 },
-  axes1d: [],
-  axes2d: [
-    {
-      input: 15,
-      lifecycleState: 4,
-      valueX: 0.9144216,
-      valueY: -0.7661538
-    },
-    { input: 16, lifecycleState: 2, valueX: 0, valueY: 0 },
-    { input: 17, lifecycleState: 2, valueX: 0, valueY: 0 },
-    { input: 19, lifecycleState: 4, valueX: 0.003169572, valueY: 0 },
-    {
-      input: 23,
-      lifecycleState: 4,
-      valueX: 0.177496,
-      valueY: -0.2707692
-    }
-  ],
-  buttons: [
-    { input: 0, lifecycleState: 2, value: 0 },
-    { input: 1, lifecycleState: 2, value: 0 },
-    { input: 2, lifecycleState: 2, value: 0 }
-  ]
-}
+  const gameState = {
+    networkId: 1,
+    viewVector: { x: 0.6531652, y: -0.4165249, z: 0.6323624 },
+    axes1d: [],
+    axes2d: [
+      {
+        input: 15,
+        lifecycleState: 4,
+        valueX: 0.9144216,
+        valueY: -0.7661538
+      },
+      { input: 16, lifecycleState: 2, valueX: 0, valueY: 0 },
+      { input: 17, lifecycleState: 2, valueX: 0, valueY: 0 },
+      { input: 19, lifecycleState: 4, valueX: 0.003169572, valueY: 0 },
+      {
+        input: 23,
+        lifecycleState: 4,
+        valueX: 0.177496,
+        valueY: -0.2707692
+      }
+    ],
+    buttons: [
+      { input: 0, lifecycleState: 2, value: 0 },
+      { input: 1, lifecycleState: 2, value: 0 },
+      { input: 2, lifecycleState: 2, value: 0 }
+    ]
+  }
 
-    console.log("Game state is", gameState);
+  console.log("Game state is", gameState);
 
-    const worldStateModel = new Model(inputKeyArraySchema);
-    const buffer = worldStateModel.toBuffer(gameState)
-
-
-   const result = worldStateModel.fromBuffer(buffer);
-   console.log(result);
-   expect(result).toMatchObject(gameState);
+  const worldStateModel = new Model(inputKeyArraySchema);
+  const buffer = worldStateModel.toBuffer(gameState)
 
 
+  const result = worldStateModel.fromBuffer(buffer);
+  console.log(result);
+  expect(result).toMatchObject(gameState);
 
+  // const clientInputModel = new Model(inputsArraySchema);
+  // const buffer = clientInputModel.toBuffer(inputs);
+  // const unpackedInputs = clientInputModel.fromBuffer(buffer);
 
-    // const clientInputModel = new Model(inputsArraySchema);
-    // const buffer = clientInputModel.toBuffer(inputs);
-    // const unpackedInputs = clientInputModel.fromBuffer(buffer);
-
-    // expect(unpackedInputs).toMatchObject(inputs);
+  // expect(unpackedInputs).toMatchObject(inputs);
 })
