@@ -21,7 +21,23 @@ import {
     handleLeaveWorld,
     validateNetworkObjects
 } from "./NetworkFunctions";
-import { handleWebRtcCloseConsumer, handleWebRtcCloseProducer, handleWebRtcConsumerSetLayers, handleWebRtcPauseConsumer, handleWebRtcPauseProducer, handleWebRtcProduceData, handleWebRtcReceiveTrack, handleWebRtcResumeConsumer, handleWebRtcResumeProducer, handleWebRtcSendTrack, handleWebRtcTransportClose, handleWebRtcTransportConnect, handleWebRtcTransportCreate, startWebRTC } from './WebRTCFunctions';
+import {
+    handleWebRtcCloseConsumer,
+    handleWebRtcCloseProducer,
+    handleWebRtcConsumerSetLayers,
+    handleWebRtcPauseConsumer,
+    handleWebRtcPauseProducer,
+    handleWebRtcProduceData,
+    handleWebRtcReceiveTrack,
+    handleWebRtcResumeConsumer,
+    handleWebRtcResumeProducer,
+    handleWebRtcSendTrack,
+    handleWebRtcTransportClose,
+    handleWebRtcTransportConnect,
+    handleWebRtcTransportCreate,
+    handleWebRtcRequestCurrentProducers,
+    startWebRTC
+} from './WebRTCFunctions';
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
 const Route53 = new AWS.Route53({ ...config.aws.route53.keys });
@@ -190,6 +206,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
                 socket.on(MessageTypes.WebRTCPauseProducer.toString(), async (data, callback) =>
                     handleWebRtcPauseProducer(socket, data, callback));
+
+                socket.on(MessageTypes.WebRTCRequestCurrentProducers.toString(), async(data, callback) =>
+                    handleWebRtcRequestCurrentProducers(socket, data, callback));
             });
         });
     }
