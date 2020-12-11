@@ -2,7 +2,7 @@
 export function workerFunction() {
 
    //@ts-ignore 
-    importScripts('https://localhost:3000/corto/corto.js', 'https://localhost:3000/corto/rangeFetcher.js');
+    importScripts(location.origin+'/corto/corto.js', location.origin+'/corto/rangeFetcher.js');
 
   var self = this;
   let _meshFilePath;
