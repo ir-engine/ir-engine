@@ -7,7 +7,6 @@
     width: 81px;
     height: 53px;
     top: 18px;
-    background: rgba(0, 0, 0, 0.31);
     background-image: url('../assets/ll_hamburger.png');
     background-position: 30% center;
     background-repeat: no-repeat;
@@ -47,20 +46,42 @@
     display: none;
 }
 .userTitle{
-    line-height: 2em;
-    width: 100%;
-    display: flex;  
-    margin: 5px 0; 
-    cursor: pointer;
-    svg{
-        flex-grow: 0;
-    }
-    h6{
-        flex-grow: 1;
-        word-break: break-all;
-    }
+    text-align: center;
+    margin: 15px 0;
+    font-size: 2em;
 }
+:global(.MuiSvgIcon-root).userPreview{
+    margin: 15px auto;
+    height: 10em;
+    width: 10em;
+}
+// .userTitle{
+//     line-height: 2em;
+//     width: 100%;
+//     display: flex;  
+//     margin: 5px 0; 
+//     cursor: pointer;
+//     svg{
+//         flex-grow: 0;
+//     }
+//     h6{
+//         flex-grow: 1;
+//         word-break: break-all;        
+//     }
+// }
 .autoWidth{
     width: auto !important;
     margin: 0px 5px !important;
+}
+
+.horizontalContainer{
+    display: flex;
+    h2{
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        >svg{
+            margin: 0px 5px;
+        }
+    }
 }
