@@ -68,8 +68,6 @@ export const sendInitialProducers = async (socket: SocketIO.Socket, partyId?: st
             logger.info(`Sending media for ${name}`);
             Object.entries(value.media).map(([subName, subValue]) => {
                 if (partyId === (subValue as any).partyId) {
-                    console.log('Sending media for ' + subName);
-                    console.log((subValue as any).producerId);
                     selfClient.socket.emit(MessageTypes.WebRTCCreateProducer.toString(), value.userId, subName, (subValue as any).producerId, partyId);
                 }
             });
@@ -242,7 +240,6 @@ export async function handleWebRtcTransportCreate(socket, data: CreateWebRtcTran
         dtlsParameters
     };
 
-    sendInitialProducers(socket, partyId);
     // Create data consumers for other clients if the current client transport receives data producer on it
     newTransport.observer.on('newdataproducer', handleConsumeDataEvent(socket));
     newTransport.observer.on('newproducer', sendCurrentProducers(socket, partyId));
@@ -482,4 +479,11 @@ export async function handleWebRtcPauseProducer(socket, data, callback): Promise
         hostClient[1].socket.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true);
     }
     callback({ paused: true });
+}
+
+export async function handleWebRtcRequestCurrentProducers(socket, data, callback): Promise<any> {
+    const { partyId } = data;
+
+    await sendInitialProducers(socket, partyId);
+    callback({requested: true});
 }

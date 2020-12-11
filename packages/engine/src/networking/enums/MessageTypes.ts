@@ -27,6 +27,7 @@ export enum MessageTypes {
   Authorization = 24,
   Kick = 26,
   Ban = 27,
+  WebRTCRequestCurrentProducers = 28,
   Synchronization = 100,
   ClientInput = 101,
   StateUpdate = 102,

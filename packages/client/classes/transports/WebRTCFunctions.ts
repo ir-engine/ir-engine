@@ -387,6 +387,9 @@ export async function createTransport(direction: string, partyId?: string) {
             console.log("transport closed ... leaving the and resetting");
             await networkTransport.request(MessageTypes.WebRTCTransportClose.toString(), { transportId: transport.id });
         }
+        if (networkTransport.leaving !== true && state === 'connected' && transport.direction === 'recv') {
+            await networkTransport.request(MessageTypes.WebRTCRequestCurrentProducers.toString(), { partyId: partyId });
+        }
     });
 
     return Promise.resolve(transport);
