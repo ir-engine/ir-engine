@@ -21,11 +21,16 @@ import { getMutableComponent } from "@xr3ngine/engine/src/ecs/functions/EntityFu
 import { Input } from "@xr3ngine/engine/src/input/components/Input";
 import { Entity } from "@xr3ngine/engine/src/ecs/classes/Entity";
 import { joinWorld } from "@xr3ngine/engine/src/networking/functions/joinWorld";
+import { selectScenesCurrentScene } from "../../../redux/scenes/selector";
+import { ImageMediaGridItem } from '../../editor/layout/MediaGrid';
+
+
 const mapStateToProps = (state: any): any => {
   return {
     dialog: selectDialogState(state),
     onBoardingStep: selectAppOnBoardingStep(state),
     isTutorial: selectAppIsTutorial(state),
+    currentScene: selectScenesCurrentScene(state),
   };
 };
 
@@ -41,8 +46,9 @@ interface DialogProps{
   actorAvatarId?:string;
   onAvatarChange?:any;
   actorEntity? : Entity;
+  currentScene?: any;
 }
-const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAvatarChange, actorEntity, isTutorial = false}:DialogProps): any => {
+const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAvatarChange, actorEntity, isTutorial = false, currentScene}:DialogProps): any => {
   useEffect(() => {
     Router.events.on('routeChangeStart', () => {
       closeDialog();
@@ -83,10 +89,15 @@ const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAv
   let children = null;
   let childrenBeforeText = null;
   const isCloseButton = false;
+
+  console.log('currentScene', currentScene)
   const defineDialog = () =>{
     switch(onBoardingStep){
       case  generalStateList.SCENE_LOADED : { 
-            isOpened=true; dialogText = 'Virtual Conference / Retail Demo'; submitButtonText =  'Join World';
+            isOpened=true; 
+            dialogText = 'Virtual Conference / Retail Demo'; 
+            submitButtonText =  'Join World';
+            childrenBeforeText = <ImageMediaGridItem src={currentScene.thumbnailOwnedFileId} label={currentScene.name} />;
             submitButtonAction = async ()=> {
               console.log("Joining world");
               await joinWorld();
@@ -94,14 +105,7 @@ const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAv
             };
             break;
           }
-      // case generalStateList.DEVICE_SETUP: {
-      //       isOpened = true; title = 'Device Setup'; dialogText = 'Please accept the permissions request to user your microphone.'; 
-      //       children =  <UserSettings />; submitButtonText = 'Set Up Microphone';
-      //       submitButtonAction = ()=>store.dispatch(setAppOnBoardingStep(generalStateList.AVATAR_SELECTION));
-      //       break;
-      //      } 
       case generalStateList.AVATAR_SELECTION: {
-              console.log('onBoardingStep', onBoardingStep);
             isOpened= true; title = 'Select An Avatar'; submitButtonText = 'Accept';
             children = <section className={styles.selectionButtonsWrapper}>
                           <section className={styles.selectionButtons}>
