@@ -244,3 +244,18 @@ You should make the following 'A' records to the loadbalancer, substituting your
 * dev.theoverlay.io
 
 You also need to make an 'A' record pointing 'resources.theoverlay.io' to the CloudFront distribution you made earlier.
+
+## Deploy to EKS using Helm
+
+With all of the networking set up, you can finally deploy the codebase to EKS.
+You should have a .yaml file with various configuration variables specified for your deployment.
+The Helm chart will pull a Docker image from the lagunalabs/xrengine Docker Hub account.
+There's a CI/CD pipeline attached to the XR3ngine GitHub account that builds every
+time the dev and master branches are updated, and tags each build with the GitHub SHA
+of the latest commit. You'll have to provide this SHA as part of the configuration, most
+easily as one-off settings as demonstrated below.
+
+Run ```helm install -f </path/to/config.yaml> --set api.image.tag=<latest_github_commit_SHA>,client.image.tag=<latest_github_commit_SHA>,gameserver.image.tag=<latest_github_commit_SHA> <stage_name> xr3ngine/xr3ngine```
+
+After a minute or so, all of the pods should be up and running, and you should be able to
+go to the root domain you have this deployment running on and see something.
