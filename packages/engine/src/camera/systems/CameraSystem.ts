@@ -11,6 +11,7 @@ import { attachCamera } from '../behaviors/attachCamera';
 import { setCameraFollow } from '../behaviors/setCameraFollow';
 import { CameraComponent } from '../components/CameraComponent';
 import { FollowCameraComponent } from '../components/FollowCameraComponent';
+import { isClient } from '../../common/functions/isClient';
 
 export class CameraSystem extends System {
   constructor() {
@@ -33,6 +34,7 @@ export class CameraSystem extends System {
     });
 
     this.queryResults.cameraComponent.all?.forEach(entity => {
+      if (!isClient) return;
       const cam = getComponent(entity, CameraComponent) as CameraComponent;
       if (!!cam.followTarget && hasComponent(cam.followTarget, FollowCameraComponent)) {
         setCameraFollow(entity, null, delta, cam.followTarget);

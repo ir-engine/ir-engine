@@ -28,7 +28,7 @@ export class DesiredTransformComponent extends Component<DesiredTransformCompone
   }
 }
 
-DesiredTransformComponent.schema = {
+DesiredTransformComponent._schema = {
   position: { default: new Vector3(), type: Types.Ref },
   rotation: { default: new Quaternion(), type: Types.Ref }
 };

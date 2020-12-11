@@ -5,6 +5,6 @@ import { Entity } from "../../ecs/classes/Entity";
 export class CopyTransformComponent extends Component<CopyTransformComponent> {
   input: Entity
 }
-CopyTransformComponent.schema = {
+CopyTransformComponent._schema = {
   input: { default: [], type: Types.Ref }
 };

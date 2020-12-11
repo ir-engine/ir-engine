@@ -273,8 +273,8 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     const truncateUsername = () => {
         const name = user?.name;
         if (peerId === 'me_cam') return 'You';
-        if (focused === true) return name.length > 20 ? name.slice(0, 20) + '...' : name;
-        if (focused === false) return name.length > 10 ? name.slice(0, 10) + '...' : name;
+        if (focused === true) return name?.length > 20 ? name.slice(0, 20) + '...' : name;
+        if (focused === false) return name?.length > 10 ? name.slice(0, 10) + '...' : name;
     };
 
     return (

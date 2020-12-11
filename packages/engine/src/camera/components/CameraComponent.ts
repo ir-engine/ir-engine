@@ -27,7 +27,7 @@ export class CameraComponent extends Component<any> {
   * Set the default values of a component.
   * The type field must be set for each property.
  */
-CameraComponent.schema = {
+CameraComponent._schema = {
   camera: { type: Types.Ref, default: null },
   followTarget: { type: Types.Ref, default: null }
 };

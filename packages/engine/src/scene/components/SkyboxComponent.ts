@@ -7,6 +7,6 @@ export class SkyboxComponent extends Component<SkyboxComponent> {
   value: Sky
 }
 
-SkyboxComponent.schema = {
+SkyboxComponent._schema = {
   value: { type: Types.Ref, default: null }
 };

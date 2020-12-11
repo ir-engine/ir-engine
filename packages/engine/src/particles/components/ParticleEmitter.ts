@@ -14,8 +14,8 @@ export class ParticleEmitterState extends SystemStateComponent<ParticleEmitterSt
   syncTransform: boolean
 }
 
-ParticleEmitterState.schema = {
-  ...ParticleEmitterState.schema,
+ParticleEmitterState._schema = {
+  ...ParticleEmitterState._schema,
   emitter3D: { type: Types.Ref },
   useEntityRotation: { type: Types.Boolean, default: true },
   syncTransform: { type: Types.Boolean, default: false }
@@ -58,8 +58,8 @@ export class ParticleEmitter extends Component<ParticleEmitterInterface> {
   velocityScaleMax: number
 }
 
-ParticleEmitter.schema = {
-  ...ParticleEmitter.schema,
+ParticleEmitter._schema = {
+  ...ParticleEmitter._schema,
   particleMesh: { type: Types.Ref, default: null },
   enabled: { type: Types.Boolean, default: true },
   count: { type: Types.Number, default: -1 },

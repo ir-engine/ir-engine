@@ -34,7 +34,7 @@ export class VehicleBody extends Component<VehicleBody> {
 
 
 
-VehicleBody.schema = {
+VehicleBody._schema = {
   currentDriver: { type: Types.Ref, default: null },
 
   vehicleMesh: { type: Types.Ref, default: null },

@@ -17,7 +17,7 @@ export class AssetLoader extends Component<AssetLoader> {
   onLoaded: any
   parent: Object3D = null
 }
-AssetLoader.schema = {
+AssetLoader._schema = {
   assetType: { default: AssetType.glTF, type: Types.Number },
   assetClass: { default: AssetClass, type: Types.Number },
   url: { default: '', type: Types.Number },
