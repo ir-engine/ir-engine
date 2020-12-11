@@ -11,7 +11,9 @@
   },
   "npmClient": "yarn",
   "jest": "ts-jest",
-  "scripts": {},
+  "scripts": {
+    "corto": "babel ./src/libs/cortodecoder.js --out-file corto.js --plugins @@babel/plugin-transform-modules-umd"
+  },
   "author": "XR3 Group",
   "license": "MIT",
   "type": "module",
@@ -20,6 +22,9 @@
   },
   "homepage": "https://github.com/xr3ngine/xr3ngine/packages/volumetric#readme",
   "devDependencies": {
+    "@babel/cli": "^7.12.10",
+    "@babel/core": "^7.12.10",
+    "@babel/plugin-transform-modules-commonjs": "^7.12.1",
     "@types/glob": "^7.1.2",
     "ts-loader": "^7.0.5",
     "ts-node": "^8.10.2",
