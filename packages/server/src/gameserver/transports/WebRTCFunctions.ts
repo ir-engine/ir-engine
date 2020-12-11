@@ -176,7 +176,9 @@ export async function createWebRtcTransport({ peerId, direction, sctpCapabilitie
             networkTransport.routers[partyId] = await networkTransport.worker.createRouter({ mediaCodecs });
         logger.info("Worker created router for party " + partyId);
     }
+    
     const router = networkTransport.routers[partyId];
+    console.warn("Router",router);
     const newTransport = await router.createWebRtcTransport({
         listenIps: listenIps,
         enableUdp: true,
