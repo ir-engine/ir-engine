@@ -9,19 +9,19 @@ import {
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent';
 import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
-import { AudioLoader, PositionalAudio, Vector3 } from 'three';
+import { AudioLoader, PositionalAudio } from 'three';
 import { Engine } from '../../ecs/classes/Engine';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { MediaStreamComponent } from '../../networking/components/MediaStreamComponent';
 import { Network } from '../../networking/components/Network';
 
-let networkTransport: any;
+// let networkTransport: any;
 
-export function setPartyId(partyId: string): void {
-  networkTransport = Network.instance.transport as any;
-  networkTransport.partyId = partyId;
-}
+// export function setPartyId(partyId: string): void {
+//   networkTransport = Network.instance.transport as any;
+//   networkTransport.partyId = partyId;
+// }
 
 export class PositionalAudioSystem extends System {
   // updateType = SystemUpdateType.Fixed;
@@ -30,11 +30,11 @@ export class PositionalAudioSystem extends System {
     super(attributes);
   }
   
-  const newTransport = partyId === 'instance' ? networkTransport.instanceSendTransport : networkTransport.partySendTransport;
-  MediaStreamComponent.instance.camAudioProducer = await this.newTransport.produce({
-    track: MediaStreamComponent.instance.mediaStream.getAudioTracks()[0],
-    appData: { mediaTag: "cam-audio", partyId: partyId }
-});
+//   const newTransport = partyId === 'instance' ? networkTransport.instanceSendTransport : networkTransport.partySendTransport;
+//   MediaStreamComponent.instance.camAudioProducer = await this.newTransport.produce({
+//     track: MediaStreamComponent.instance.mediaStream.getAudioTracks()[0],
+//     appData: { mediaTag: "cam-audio", partyId: partyId }
+// });
 
   execute(): void {
     for (const entity of this.queryResults.positional_audio.added) {
@@ -43,7 +43,7 @@ export class PositionalAudioSystem extends System {
       const soundUrl = "/audio/zz_top_sharp_dressed_man.mp3";
 
       console.warn (entity);
-      // const mediaStreamSource = getComponent (entity, MediaStreamComponent);
+      const mediaStreamSource = MediaStreamComponent.instance.mediaStream;
       // console.warn ("MediaStrem", mediaStreamSource);
 
       const positionalAudio = getMutableComponent(entity, PositionalAudioComponent);

@@ -6,6 +6,6 @@ export class PositionalAudioComponent extends Component<PositionalAudioComponent
   value?: PositionalAudio
 }
 
-PositionalAudioComponent.schema = {
+PositionalAudioComponent._schema = {
   value: { type: Types.Ref, default: null }
 };
