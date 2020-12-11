@@ -43,6 +43,6 @@ export class AnimationManager extends Component<AnimationManager> {
 // DO TO
 new AnimationManager();
 
-AnimationManager.schema = {
+AnimationManager._schema = {
 	animations: { type: Types.Array, default: [] }
 };

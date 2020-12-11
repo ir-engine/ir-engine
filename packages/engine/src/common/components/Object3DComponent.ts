@@ -6,6 +6,6 @@ export class Object3DComponent extends Component<Object3DComponent> {
   value?: Object3D
 }
 
-Object3DComponent.schema = {
+Object3DComponent._schema = {
   value: { type: Types.Ref, default: null }
 };
