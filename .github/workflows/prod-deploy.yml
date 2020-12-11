@@ -19,8 +19,8 @@ jobs:
         env:
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET: ${{ secrets.AWS_SECRET }}
-          AWS_REGION: us-east-1
-          CLUSTER_NAME: xr3ngine-demo
+          AWS_REGION: us-west-1
+          CLUSTER_NAME: theoverlay-production
       - name: Publish to DockerHub
         run: bash scripts/publish_dockerhub.sh prod $GITHUB_SHA lagunalabs/xrengine && scripts/deploy.sh prod $GITHUB_SHA
         env:

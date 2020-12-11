@@ -1,11 +1,8 @@
-import { Snackbar, ThemeProvider } from '@material-ui/core';
-import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
-import { getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { Button, Snackbar } from '@material-ui/core';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { loadScene } from '@xr3ngine/engine/src/scene/functions/SceneLoading';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
-import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import NoSSR from 'react-no-ssr';
@@ -29,12 +26,7 @@ import { selectLocationState } from '../../redux/location/selector';
 import { getLocationByName
 } from '../../redux/location/service';
 import { selectPartyState } from '../../redux/party/selector';
-import { createPrefab } from "../../../engine/src/common/functions/createPrefab";
-import { staticWorldColliders } from "../../../engine/src/templates/car/prefabs/staticWorldColliders";
 
-import { VRMPrefab } from "../../../engine/src/templates/devices/prefabs/VRMPrefab";
-
-import theme from '../../theme';
 import { setAppSpecificOnBoardingStep, generalStateList } from '../../redux/app/actions';
 import store from '../../redux/store';
 
@@ -70,7 +62,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const LocationPage = (props: Props) => {
   const { locationName } = useRouter().query as any;
   const [isValidLocation, setIsValidLocation] = useState(true);
-  const [openSnackBar, setOpenSnackBar] = React.useState(false);
 
   const {
     appState,
@@ -105,7 +96,6 @@ const LocationPage = (props: Props) => {
       if(sceneId === null) {
         console.log("authState: Set scene ID to", sceneId);
         sceneId = currentLocation.sceneId;
-        // if(!locationId){store.dispatch(setAppSpecificOnBoardingStep(generalStateList.LOCATION_FAILED, false));setOpenSnackBar(true);return;}
       }
     }
   }, [authState]);
@@ -155,8 +145,6 @@ const LocationPage = (props: Props) => {
         client.service('instance').get(instanceId)
           .then((instance) => {
             const currentLocation = locationState.get('currentLocation').get('location');
-            console.log("provisionInstanceServer for location ", currentLocation);
-            console.log('Provisioning instance from arena page init useEffect, ', currentLocation.sceneId);
             provisionInstanceServer(instance.locationId, instanceId, currentLocation.sceneId);
             if(sceneId === null) {
               console.log("Set scene ID to, sceneId");
@@ -195,29 +183,28 @@ const LocationPage = (props: Props) => {
       };
 
       initializeEngine(InitializationOptions);
-      // createPrefab(staticWorldColliders);
     loadScene(result);
   }
 
   const goHome = () => window.location.href = window.location.origin;
 
   return (
-    // <ThemeProvider theme={theme}>
       <Layout pageTitle="Home">
         <NoSSR onSSR={<Loading />}>
-          {!openSnackBar && <UserMenu />}
+          {isValidLocation && <UserMenu />}
           {userBanned === false ? (<Scene sceneId={sceneId} />) : (<div className="banned">You have been banned from this location</div>)}
-          <Snackbar open={openSnackBar} 
-            // onClose={handleCloseSnackBar} 
+          <Snackbar open={!isValidLocation} 
             anchorOrigin={{
               vertical: 'top',
               horizontal: 'center',
             }}>
-              <section>Location is invalid</section>
+              <>
+                <section>Location is invalid</section>
+                <Button onClick={goHome}>Return Home</Button>
+              </>
             </Snackbar>
         </NoSSR>
       </Layout>
-    // </ThemeProvider>
   );
 };
 

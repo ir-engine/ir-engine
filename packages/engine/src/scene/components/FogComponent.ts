@@ -9,7 +9,7 @@ export class FogComponent extends Component<any> {
     far: any;
 }
 
-FogComponent.schema = {
+FogComponent._schema = {
   type: { type: Types.String, default: "disabled" },
   color: { type: Types.String, default: "#FFFFFF" },
   density: { type: Types.Number, default: .0025 },

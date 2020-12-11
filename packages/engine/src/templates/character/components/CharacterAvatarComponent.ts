@@ -5,6 +5,6 @@ export class CharacterAvatarComponent extends Component<CharacterAvatarComponent
   avatarId:string
 }
 
-CharacterAvatarComponent.schema = {
+CharacterAvatarComponent._schema = {
   avatarId: { type: Types.String }
 };

@@ -62,7 +62,6 @@ import {
 	VectorKeyframeTrack,
 	sRGBEncoding
 } from "three";
-// import { DRACOLoader } from "./DRACOLoader"
 
 var GLTFLoader = ( function () {
 
@@ -71,7 +70,6 @@ var GLTFLoader = ( function () {
 		Loader.call( this, manager );
 
 		this.dracoLoader = null;
-		// this.dracoLoader = new DRACOLoader();
 		this.ddsLoader = null;
 		this.ktx2Loader = null;
 		this.meshoptDecoder = null;
@@ -195,7 +193,6 @@ var GLTFLoader = ( function () {
 
 			this.dracoLoader = dracoLoader;
 			return this;
-
 		},
 
 		// setDDSLoader: function ( ddsLoader ) {
@@ -2121,77 +2118,77 @@ var GLTFLoader = ( function () {
 	 * @param {number} index
 	 * @return {Promise<Object3D|Material|THREE.Texture|AnimationClip|ArrayBuffer|Object>}
 	 */
-	GLTFParser.prototype.getDependency = function ( type, index ) {
+	GLTFParser.prototype.getDependency = function ( type, index, url ) {
 
 		var cacheKey = type + ':' + index;
 		var dependency = this.cache.get( cacheKey );
 
 		if ( ! dependency ) {
 
-			switch ( type ) {
-
+			switch (type) {
+				
 				case 'scene':
-					dependency = this.loadScene( index );
+					dependency = this.loadScene(index);
 					break;
 
 				case 'node':
-					dependency = this.loadNode( index );
+					dependency = this.loadNode(index);
 					break;
 
 				case 'mesh':
-					dependency = this._invokeOne( function ( ext ) {
+					dependency = this._invokeOne(function (ext) {
 
-						return ext.loadMesh && ext.loadMesh( index );
+						return ext.loadMesh && ext.loadMesh(index);
 
-					} );
+					});
 					break;
 
 				case 'accessor':
-					dependency = this.loadAccessor( index );
+					dependency = this.loadAccessor(index);
 					break;
 
 				case 'bufferView':
-					dependency = this._invokeOne( function ( ext ) {
+					dependency = this._invokeOne(function (ext) {
 
-						return ext.loadBufferView && ext.loadBufferView( index );
+						return ext.loadBufferView && ext.loadBufferView(index);
 
-					} );
+					});
 					break;
 
 				case 'buffer':
-					dependency = this.loadBuffer( index );
+					dependency = this.loadBuffer(index);
 					break;
 
 				case 'material':
-					dependency = this._invokeOne( function ( ext ) {
+					dependency = this._invokeOne(function (ext) {
 
-						return ext.loadMaterial && ext.loadMaterial( index );
+						return ext.loadMaterial && ext.loadMaterial(index);
 
-					} );
+					});
 					break;
 
 				case 'texture':
-					dependency = this._invokeOne( function ( ext ) {
+					dependency = this._invokeOne(function (ext) {
 
-						return ext.loadTexture && ext.loadTexture( index );
+						return ext.loadTexture && ext.loadTexture(index);
 
-					} );
+					});
 					break;
 
 				case 'skin':
-					dependency = this.loadSkin( index );
+					dependency = this.loadSkin(index);
 					break;
 
 				case 'animation':
-					dependency = this.loadAnimation( index );
+					dependency = this.loadAnimation(index);
 					break;
 
 				case 'camera':
-					dependency = this.loadCamera( index );
+					dependency = this.loadCamera(index);
 					break;
 
 				default:
-					throw new Error( 'Unknown type: ' + type );
+					throw new Error('Unknown type: ' + type);
 
 			}
 

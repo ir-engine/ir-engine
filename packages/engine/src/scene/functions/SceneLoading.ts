@@ -10,8 +10,10 @@ import { SceneData } from "../interfaces/SceneData";
 import { SceneDataComponent } from "../interfaces/SceneDataComponent";
 
 export function loadScene (scene: SceneData): void {
-  console.warn(Engine.scene);
-  console.warn("Loading scene", scene);
+  if (isClient) {
+    console.warn(Engine.scene);
+    console.warn("Loading scene", scene);
+  }
   const loadPromises = [];
   let loaded = 0;
   if (isClient) {
