@@ -13,6 +13,15 @@ import { AudioLoader, PositionalAudio, Vector3 } from 'three';
 import { Engine } from '../../ecs/classes/Engine';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
+import { MediaStreamComponent } from '../../networking/components/MediaStreamComponent';
+import { Network } from '../../networking/components/Network';
+
+let networkTransport: any;
+
+export function setPartyId(partyId: string): void {
+  networkTransport = Network.instance.transport as any;
+  networkTransport.partyId = partyId;
+}
 
 export class PositionalAudioSystem extends System {
   // updateType = SystemUpdateType.Fixed;
@@ -20,6 +29,12 @@ export class PositionalAudioSystem extends System {
   constructor(attributes?: SystemAttributes) {
     super(attributes);
   }
+  
+  const newTransport = partyId === 'instance' ? networkTransport.instanceSendTransport : networkTransport.partySendTransport;
+  MediaStreamComponent.instance.camAudioProducer = await this.newTransport.produce({
+    track: MediaStreamComponent.instance.mediaStream.getAudioTracks()[0],
+    appData: { mediaTag: "cam-audio", partyId: partyId }
+});
 
   execute(): void {
     for (const entity of this.queryResults.positional_audio.added) {
@@ -27,10 +42,13 @@ export class PositionalAudioSystem extends System {
       const audioLoader = new AudioLoader();
       const soundUrl = "/audio/zz_top_sharp_dressed_man.mp3";
 
+      console.warn (entity);
+      // const mediaStreamSource = getComponent (entity, MediaStreamComponent);
+      // console.warn ("MediaStrem", mediaStreamSource);
+
       const positionalAudio = getMutableComponent(entity, PositionalAudioComponent);
       positionalAudio.value = new PositionalAudio(Engine.audioListener);
       
-
       if (!hasComponent(entity, LocalInputReceiver)){
         audioLoader.load(soundUrl, (buffer) => {
           positionalAudio.value.setBuffer(buffer);
