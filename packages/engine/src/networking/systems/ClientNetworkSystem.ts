@@ -12,6 +12,7 @@ import { NetworkObject } from '../components/NetworkObject';
 import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClient';
 import { handleInputOnServer } from '../functions/handleInputOnServer';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
+import { worldStateModel } from '../schema/worldStateSchema';
 
 export class ClientNetworkSystem extends System {
   updateType = SystemUpdateType.Fixed;
@@ -46,9 +47,22 @@ export class ClientNetworkSystem extends System {
     const queue = Network.instance.incomingMessageQueue;
     // For each message, handle and process
     while (queue.getBufferLength() > 0) {
-      const state = queue.pop();
+      const buffer = queue.pop();
       // debugger;
-      applyNetworkStateToClient(state, delta);
+      if (Network.instance.packetCompression) {
+        const state = worldStateModel.fromBuffer(new Uint8Array(buffer).buffer)
+        //@ts-ignore
+        state.snapshot.time = parseInt(state.snapshot.time);
+        //@ts-ignore
+        state.tick = parseInt(state.tick);
+        //@ts-ignore
+        state.snapshot.state = state.transforms;
+        //@ts-ignore
+        applyNetworkStateToClient(state, delta);
+      } else {
+        applyNetworkStateToClient(buffer, delta);
+      }
+
     }
 
       this.queryResults.clientNetworkInputReceivers.all?.forEach((entity) => {

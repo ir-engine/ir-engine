@@ -7,7 +7,7 @@ export class NetworkObject extends Component<NetworkObject> {
   componentMap: any
 }
 
-NetworkObject.schema = {
+NetworkObject._schema = {
   ownerId: { type: Types.String },
   networkId: { type: Types.Number },
   componentMap: { type: Types.Ref }
