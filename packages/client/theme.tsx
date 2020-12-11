@@ -157,8 +157,10 @@ const lightTheme = createMuiTheme({
   overrides: { 
     MuiTypography:{
       h1:{
-        fontSize: 18,
+        fontSize: 24,
         margin: '15px 0px',
+        display: 'flex',
+        alignItems: 'center',        
       },
       h2:{
         fontSize: 16,
@@ -250,7 +252,7 @@ const lightTheme = createMuiTheme({
     },
     MuiPaper:{
       root:{
-        backgroundColor: 'rgba(255,255,255,0.8)',
+        backgroundColor: 'rgba(255,255,255,1)',
         color: '#000000' ,
       }
     },
