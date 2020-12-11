@@ -78,7 +78,7 @@ export class MediaStreamComponent extends Component<any> {
   }
 }
 
-MediaStreamComponent.schema = {
+MediaStreamComponent._schema = {
   initialized: { type: Types.Boolean },
   localScreen: { type: Types.Ref },
   camVideoProducer: { type: Types.Ref },

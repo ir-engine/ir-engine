@@ -11,7 +11,6 @@ import _ from 'lodash';
 export const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
   const input = getComponent(entity, Input);
   const networkId = getComponent(entity, NetworkObject).networkId;
-  
   // If there's no input, don't send the frame, unless the last frame had input
   if (input.data.size < 1 && _.isEqual(input.data, input.lastData))
     return

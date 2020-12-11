@@ -1,19 +1,36 @@
-import { float32, string8, uint16, uint64, uint8, uint32 } from "../../common/types/DataTypes";
-import { Model } from "../classes/Model";
-import { createSchema } from "../functions/createSchema";
+import {Schema, Model, ExtractSchemaObject} from "../classes"; //"superbuffer"
+import { int16, int32, uint8, uint32, uint64, int64, float32, boolean, string } from '../classes';
 import { inputKeyArraySchema } from "./clientInputSchema";
 
-const clientConnectedSchema = createSchema('clientConnected', {
-    userId: { type: string8, length: 36 }
+
+const clientConnectedSchema = new Schema({
+    userId: string
 });
 
-const clientDisconnectedSchema = createSchema('clientDisconnected', {
-    userId: { type: string8, length: 36 }
+const clientDisconnectedSchema = new Schema({
+    userId: string
 });
 
-const createNetworkObjectSchema = createSchema('createNetworkObject', {
+const transformSchema = new Schema({
     networkId: uint32,
-    ownerId: { type: string8, length: 36 },
+    x: float32,
+    y: float32,
+    z: float32,
+    qX: float32,
+    qY: float32,
+    qZ: float32,
+    qW: float32
+});
+
+const snapshotSchema = new Schema({
+  id: string,
+  state: [transformSchema],
+  time: uint64
+})
+
+const createNetworkObjectSchema = new Schema({
+    networkId: uint32,
+    ownerId: string,
     prefabType: uint8,
     x: float32,
     y: float32,
@@ -24,29 +41,19 @@ const createNetworkObjectSchema = createSchema('createNetworkObject', {
     qW: float32
 });
 
-const destroyNetworkObjectSchema = createSchema('destroyNetworkObject', {
+const destroyNetworkObjectSchema = new Schema({
     networkId: uint32
 });
 
-const transformSchema = createSchema('transform', {
-    networkId: uint32,
-    x: float32,
-    y: float32,
-    z: float32,
-    qX: float32,
-    qY: float32,
-    qZ: float32,
-    qW: float32
-});
-
-const worldStateSchema = createSchema('worldState', {
-    tick: uint64,
-    transforms: [transformSchema],
-    inputs: [inputKeyArraySchema],
+const worldStateSchema = new Schema({
     clientsConnected: [clientConnectedSchema],
     clientsDisconnected: [clientDisconnectedSchema],
     createObjects: [createNetworkObjectSchema],
-    destroyObjects: [destroyNetworkObjectSchema]
+    destroyObjects: [destroyNetworkObjectSchema],
+    inputs: [inputKeyArraySchema],
+    snapshot: snapshotSchema,
+    tick: uint64,
+    transforms: [transformSchema]
 });
 
 export const worldStateModel = new Model(worldStateSchema);

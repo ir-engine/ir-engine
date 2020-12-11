@@ -30,7 +30,7 @@ PropTypes<TDataType, BehaviorSchema, TValue>
   }
 }
 
-BehaviorComponent.schema = {
+BehaviorComponent._schema = {
   schema: { type: Types.Ref, default: null},
   data: { type: Types.Ref, default: null}
 };

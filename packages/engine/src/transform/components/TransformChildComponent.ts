@@ -5,6 +5,6 @@ import { Types } from '../../ecs/types/Types';
 export class TransformChildComponent extends Component<TransformChildComponent> {
   parent: any
 }
-TransformChildComponent.schema = {
+TransformChildComponent._schema = {
   parent: { default: [], type: Types.Ref }
 };

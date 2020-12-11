@@ -34,7 +34,6 @@ export class GLTFLoader extends Loader {
 	dracoLoader: DRACOLoader | null;
 	load( url: string, onLoad: ( gltf: GLTF ) => void, onProgress?: ( event: ProgressEvent ) => void, onError?: ( event: ErrorEvent ) => void ) : void;
 	setDRACOLoader( dracoLoader: DRACOLoader ): GLTFLoader;
-	
 	setMeshoptDecoder( meshoptDecoder: /* MeshoptDecoder */ any ): GLTFLoader;
 
 	parse( data: ArrayBuffer | string, path: string, onLoad: ( gltf: GLTF ) => void, onError?: ( event: ErrorEvent ) => void ) : void;
