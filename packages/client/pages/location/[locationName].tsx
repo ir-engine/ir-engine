@@ -29,6 +29,7 @@ import { selectPartyState } from '../../redux/party/selector';
 
 import { setAppSpecificOnBoardingStep, generalStateList } from '../../redux/app/actions';
 import store from '../../redux/store';
+import { setCurrentScene } from '../../redux/scenes/actions';
 
 interface Props {
   appState?: any;
@@ -40,6 +41,7 @@ interface Props {
   getLocationByName?: typeof getLocationByName;
   connectToInstanceServer?: typeof connectToInstanceServer;
   provisionInstanceServer?: typeof provisionInstanceServer;
+  setCurrentScene?: typeof setCurrentScene;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -56,7 +58,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
   getLocationByName: bindActionCreators(getLocationByName, dispatch),
   connectToInstanceServer: bindActionCreators(connectToInstanceServer, dispatch),
-  provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch)
+  provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
+  setCurrentScene: bindActionCreators(setCurrentScene, dispatch),
 });
 
 const LocationPage = (props: Props) => {
@@ -72,7 +75,8 @@ const LocationPage = (props: Props) => {
     doLoginAuto,
     getLocationByName,
     connectToInstanceServer,
-    provisionInstanceServer
+    provisionInstanceServer,
+    setCurrentScene
   } = props;
 
   const appLoaded = appState.get('loaded');
@@ -88,7 +92,7 @@ const LocationPage = (props: Props) => {
 
   useEffect(() => {
     const currentLocation = locationState.get('currentLocation').get('location');
-    locationId = currentLocation.id;
+    locationId = currentLocation.id;    
     
     userBanned = selfUser?.locationBans?.find(ban => ban.locationId === locationId) != null;
     if (authState.get('isLoggedIn') === true && authState.get('user')?.id != null && authState.get('user')?.id.length > 0 && currentLocation.id == null && userBanned === false && locationState.get('fetchingCurrentLocation') !== true) {
@@ -167,10 +171,11 @@ const LocationPage = (props: Props) => {
       serviceId = regexResult[2];
     }
     const result = await client.service(service).get(serviceId);
+    setCurrentScene(result);
     console.log("Result is ");
     console.log(result);
 
-      const networkSchema: NetworkSchema = {
+    const networkSchema: NetworkSchema = {
         ...DefaultNetworkSchema,
         transport: SocketWebRTCClientTransport,
       };
@@ -182,7 +187,7 @@ const LocationPage = (props: Props) => {
         }
       };
 
-      initializeEngine(InitializationOptions);
+    initializeEngine(InitializationOptions);
     loadScene(result);
   }
 
