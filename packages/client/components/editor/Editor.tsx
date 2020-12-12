@@ -1336,7 +1336,7 @@ export default class Editor extends EventEmitter {
         spaceMatrix = space;
       }
 
-      tempMatrix1.getInverse(spaceMatrix);
+      tempMatrix1.copy(spaceMatrix).invert();
       tempVector1.applyMatrix4(tempMatrix1);
       object.position.copy(tempVector1);
     }
