@@ -105,12 +105,12 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this.gltfJson = null;
   }
   // Overrides Model's src property and stores the original (non-resolved) url.
-  get src() {
+  get src(): string {
     return this._canonicalUrl;
   }
   // When getters are overridden you must also override the setter.
-  set src(value) {
-    this.loadGLTF(value).catch(console.error);
+  set src(value: string) {
+    this.load(value).catch(console.error);
   }
   // Overrides Model's loadGLTF method and uses the Editor's gltf cache.
   async loadGLTF(src) {
@@ -133,7 +133,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
   // Overrides Model's load method and resolves the src url before loading.
   async load(src, onError?) {
-    console.log("Attempting to load model");
+    console.log("Attempting to load model", src);
     const nextSrc = src || "";
     if (nextSrc === this._canonicalUrl && nextSrc !== "") {
       return;
@@ -238,6 +238,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       }
       console.error(modelError);
       this.issues.push({ severity: "error", message: "Error loading model." });
+      this._canonicalUrl = "";
     }
     this.editor.emit("objectsChanged", [this]);
     this.editor.emit("selectionChanged");
