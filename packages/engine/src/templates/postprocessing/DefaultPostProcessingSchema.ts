@@ -9,6 +9,7 @@ import { DepthOfFieldEffect } from '../../postprocessing/effects/DepthOfFieldEff
 import { BrightnessContrastEffect } from '../../postprocessing/effects/BrightnessContrastEffect';
 import { Resizer } from '../../postprocessing/core/Resizer';
 import { OutlineEffect } from '../../postprocessing/effects/OutlineEffect';
+import { LinearTosRGBEffect } from "../../postprocessing/effects/LinearTosRGBEffect";
 
 export const DefaultPostProcessingSchema: PostProcessingSchema = {
   effects: [
@@ -118,5 +119,8 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
     //     bits: 16
     //   }
     // }
+    {
+      effect: LinearTosRGBEffect
+    }
   ]
 };
