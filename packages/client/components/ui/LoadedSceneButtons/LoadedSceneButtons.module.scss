@@ -1,0 +1,10 @@
+.loadedSceneButtonsContainer{
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  transform: translate(-50%, -70%);
+  button{
+    display: block;
+    margin: 20px auto;
+  }
+}
