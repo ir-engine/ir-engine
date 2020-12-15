@@ -8,6 +8,7 @@ import {
   getObjectPerfIssues,
   maybeAddLargeFileIssue
 } from "../functions/performance";
+import { LoadGLTF } from "../../assets/functions/LoadGLTF";
 const defaultStats = {
   nodes: 0,
   meshes: 0,
@@ -75,6 +76,18 @@ export default class ModelNode extends EditorNodeMixin(Model) {
           node.castShadow = shadowComponent.props.cast;
           node.receiveShadow = shadowComponent.props.receive;
         }
+        const ineractableComponent = json.components.find(c => c.name === "interact");
+        if(ineractableComponent){
+          node.interactable = ineractableComponent.props.interactable;
+          node.interactionType = ineractableComponent.props.interactionType;
+          node.interactionText = ineractableComponent.props.interactionText;
+          node.payloadName = ineractableComponent.props.payloadName;
+          node.payloadUrl = ineractableComponent.props.payloadUrl;
+          node.payloadBuyUrl = ineractableComponent.props.payloadBuyUrl;
+          node.payloadLearnMoreUrl = ineractableComponent.props.payloadLearnMoreUrl;
+          node.payloadHtmlContent = ineractableComponent.props.payloadHtmlContent;
+          node.payloadUrl = ineractableComponent.props.payloadUrl;
+        }
       })()
     );
     return node;
@@ -92,17 +105,17 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this.gltfJson = null;
   }
   // Overrides Model's src property and stores the original (non-resolved) url.
-  get src() {
+  get src(): string {
     return this._canonicalUrl;
   }
   // When getters are overridden you must also override the setter.
-  set src(value) {
+  set src(value: string) {
     this.load(value).catch(console.error);
   }
   // Overrides Model's loadGLTF method and uses the Editor's gltf cache.
   async loadGLTF(src) {
-    const loader = this.editor.gltfCache.getLoader(src);
-    const { scene, json, stats } = await loader.getDependency("gltf");
+    const loadPromise = this.editor.gltfCache.get(src);
+    const{ scene, json, stats} = await loadPromise;
     this.stats = stats;
     this.gltfJson = json;
     const clonedScene = cloneObject3D(scene);
@@ -120,7 +133,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
   // Overrides Model's load method and resolves the src url before loading.
   async load(src, onError?) {
-    console.log("Attempting to load model");
+    console.log("Attempting to load model", src);
     const nextSrc = src || "";
     if (nextSrc === this._canonicalUrl && nextSrc !== "") {
       return;
@@ -225,6 +238,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       }
       console.error(modelError);
       this.issues.push({ severity: "error", message: "Error loading model." });
+      this._canonicalUrl = "";
     }
     this.editor.emit("objectsChanged", [this]);
     this.editor.emit("selectionChanged");
@@ -282,6 +296,16 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       shadow: {
         cast: this.castShadow,
         receive: this.receiveShadow
+      },
+      interact: {
+        interactable: this.interactable,
+        interactionType : this.interactionType,
+        interactionText : this.interactionText,
+        payloadName : this.payloadName,
+        payloadUrl : this.payloadUrl,
+        payloadBuyUrl : this.payloadBuyUrl,
+        payloadLearnMoreUrl : this.payloadLearnMoreUrl,
+        payloadHtmlContent : this.payloadHtmlContent,
       }
     };
     if (this.activeClipIndex !== -1) {

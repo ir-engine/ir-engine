@@ -32,29 +32,30 @@ export default (options = {}): Hook => {
     const provider = new StorageProvider();
     const storage = provider.getStorage();
 
-    const { app, id } = context;
-    if (id) {
+    const { app, params } = context;
+    if (params.query && params.query.resourceId) {
+      const { resourceId } = params.query;
       const staticResourceService = app.service('static-resource');
 
       const staticResourceResult = await staticResourceService.find({
         query: {
-          id: id
+          id: resourceId
         }
       });
 
       const staticResource = staticResourceResult.data[0];
 
       const storageRemovePromise = new Promise((resolve, reject) => {
-        if (staticResource.url && staticResource.url.length > 0) {
-          const key = staticResource.url.replace('https://' +
-            config.aws.cloudfront.domain + '/', '');
+        // if (staticResource.url && staticResource.url.length > 0) {
+          // const key = staticResource.url.replace('https://' +
+          //   config.aws.cloudfront.domain + '/', '');
 
           if (storage === undefined) {
             reject(new Error('Storage is undefined'));
           }
 
           storage.remove({
-            key: key
+            key: staticResource.key
           }, (err: any, result: any) => {
             if (err) {
               logger.error('Storage removal error');
@@ -64,12 +65,12 @@ export default (options = {}): Hook => {
 
             resolve(result);
           });
-        } else {
-          resolve();
-        }
+        // } else {
+        //   resolve();
+        // }
       });
 
-      const children = await getAllChildren(staticResourceService, id, 0);
+      const children = await getAllChildren(staticResourceService, resourceId, 0);
 
       const childRemovalPromises = children.map(async (child: any) => {
         // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
@@ -100,7 +101,7 @@ export default (options = {}): Hook => {
 
       await staticResourceService.Model.destroy({ // Remove static resource itself
         where: {
-          id: id
+          id: resourceId
         }
       });
     }

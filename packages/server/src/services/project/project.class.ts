@@ -8,7 +8,7 @@ import { Application } from '../../declarations';
 import StorageProvider from '../../storage/storageprovider';
 import { BadRequest } from '@feathersjs/errors';
 import logger from '../../app/logger';
-import { Op } from "sequelize"
+import { Op } from "sequelize";
 import config from '../../config';
 interface Data { }
 interface ServiceOptions {}
@@ -199,7 +199,7 @@ export class Project implements ServiceMethods<Data> {
         }
         console.log('Project temp Owned file removed result: ', result);
       });
-      
+
       // Remove the static-resource because entities and components have been extracted from that resource
       await StaticResourceModel.destroy({
         where: {
@@ -213,16 +213,16 @@ export class Project implements ServiceMethods<Data> {
   }
 
   async remove (id: NullableId, params?: Params): Promise<Data> {
-    if (!params.query.projectId) return { id };
+    if (!id) return { id };
 
     const { collection } = this.models;
     await collection.destroy({
       where: {
-        sid: params.query.projectId
+        sid: id
       }
     });
     return {
-      id: params.query.projectId
+      id
     };
   }
 

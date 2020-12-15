@@ -3,7 +3,7 @@
 import { Component } from '../../../ecs/classes/Component';
 import { AnimationClip } from 'three';
 
-import GLTFLoader from 'three-gltf-loader';
+import { GLTFLoader } from "../../../assets/loaders/gltf/GLTFLoader";
 import { isClient } from "../../../common/functions/isClient";
 import { Types } from '../../../ecs/types/Types';
 
@@ -43,6 +43,6 @@ export class AnimationManager extends Component<AnimationManager> {
 // DO TO
 new AnimationManager();
 
-AnimationManager.schema = {
+AnimationManager._schema = {
 	animations: { type: Types.Array, default: [] }
 };

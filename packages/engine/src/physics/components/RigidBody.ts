@@ -5,6 +5,6 @@ export class RigidBody extends Component<any> {
   isKinematic = 0
 }
 
-RigidBody.schema = {
+RigidBody._schema = {
   isKinematic: { type: Types.Number, default: 0 }
 };

@@ -1,6 +1,7 @@
 import { Object3D, AnimationMixer, Vector3 } from "three";
 import { GLTFLoader } from "../../assets/loaders/gltf/GLTFLoader";
 import cloneObject3D from "@xr3ngine/engine/src/editor/functions/cloneObject3D";
+import { LoadGLTF } from "../../assets/functions/LoadGLTF";
 let cubeGltf: { scene: any; json: any; stats: any } = null;
 const GLTF_PATH = "/editor/loading-cube.glb"; // Static
 export default class LoadingCube extends Object3D {
@@ -11,8 +12,8 @@ export default class LoadingCube extends Object3D {
     if (cubeGltf) {
       return Promise.resolve(cubeGltf);
     }
-
-    const gltf = await new GLTFLoader(GLTF_PATH).loadGLTF();
+    // const gltf = await new GLTFLoader(GLTF_PATH).loadGLTF();
+    const gltf = await LoadGLTF(GLTF_PATH);
 
     cubeGltf = gltf;
 

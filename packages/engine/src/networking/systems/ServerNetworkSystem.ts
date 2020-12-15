@@ -19,6 +19,9 @@ import { addNetworkTransformToWorldState } from '../functions/addNetworkTransfor
 import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClient';
 import { handleInputOnServer } from '../functions/handleInputOnServer';
 import { handleUpdatesFromClients } from '../functions/handleUpdatesFromClients';
+import { createSnapshot, addSnapshot } from '../functions/NetworkInterpolationFunctions';
+import { worldStateModel } from '../schema/worldStateSchema';
+
 
 
 export class ServerNetworkSystem extends System {
@@ -30,7 +33,6 @@ export class ServerNetworkSystem extends System {
 
   constructor(attributes) {
     super();
-
     // Create a Network entity (singleton)
     const networkEntity = createEntity();
     addComponent(networkEntity, Network);
@@ -40,6 +42,8 @@ export class ServerNetworkSystem extends System {
     Network.instance.schema = schema;
     // Instantiate the provided transport (SocketWebRTCClientTransport / SocketWebRTCServerTransport by default)
     Network.instance.transport = new schema.transport(app);
+    // Buffer model for worldState
+  //  Network.instance.snapshotModel = new Model(snapshotSchema)
 
     this.isServer = Network.instance.transport.isServer;
 
@@ -60,6 +64,7 @@ export class ServerNetworkSystem extends System {
     Network.instance.worldState = {
       tick: Network.tick,
       transforms: [],
+      snapshot: {},
       inputs: [],
       states: [],
       clientsConnected: Network.instance.clientsConnected,
@@ -126,15 +131,57 @@ export class ServerNetworkSystem extends System {
     // For each networked object + input receiver, add to the frame to send
     // this.queryResults.serverNetworkStates.changed?.forEach((entity: Entity) =>
     //   addStateToWorldStateOnServer(entity));
+    if (Network.instance.packetCompression) {
+      let state = {
+        clientsConnected: [],
+        clientsDisconnected: [],
+        createObjects: [],
+        destroyObjects: [],
+        inputs: [],
+        snapshot: {},
+        tick: 0,
+        transforms: []
+      }
 
-    // TODO: Create the snapshot and add it to the world state on the server
-    // addSnapshot(createSnapshot(Network.instance.worldState.transforms));
+      state.clientsConnected = Network.instance.worldState.clientsConnected
+      state.clientsDisconnected = Network.instance.worldState.clientsDisconnected
+      state.createObjects = Network.instance.worldState.createObjects
+      state.destroyObjects = Network.instance.worldState.destroyObjects
+      state.transforms = Network.instance.worldState.transforms
 
-    // TODO: to enable snapshots, use worldStateModel.toBuffer(Network.instance.worldState)
+
+      state.inputs = Network.instance.worldState.inputs?.map(input => {
+        return {
+          networkId: input.networkId,
+          axes1d: Object.keys(input.axes1d).map(v => input.axes1d[v]),
+          axes2d: Object.keys(input.axes2d).map(v => input.axes2d[v]),
+          buttons: Object.keys(input.buttons).map(v => input.buttons[v]),
+          viewVector: { x:0, y:0, z:0 }
+        }
+      })
+
+      addSnapshot(createSnapshot(Network.instance.worldState.transforms));
+      Network.instance.worldState.snapshot = NetworkInterpolation.instance.get();
+
+      let snapshot = { time: 0, id: 'string', state: [] } // in client copy state from transforms
+      //@ts-ignore
+      snapshot.time = BigInt( Network.instance.worldState.snapshot.time )
+      //@ts-ignore
+      snapshot.id = Network.instance.worldState.snapshot.id
+      //@ts-ignore
+      state.tick = BigInt( Network.instance.worldState.tick )
+
+      state.snapshot = snapshot
+      //@ts-ignore
+      const buffer = worldStateModel.toBuffer(state)
     // Send the message to all connected clients
     if(Network.instance.transport !== undefined)
-      Network.instance.transport.sendReliableData(Network.instance.worldState); // Use default channel
-
+      Network.instance.transport.sendReliableData(buffer); // Use default channel
+    } else {
+      addSnapshot(createSnapshot(Network.instance.worldState.transforms));
+      Network.instance.worldState.snapshot = NetworkInterpolation.instance.get();
+      Network.instance.transport.sendReliableData(Network.instance.worldState)
+    }
   }
 
   // Call execution on client

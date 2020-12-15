@@ -5,7 +5,6 @@ import styles from './LinearProgress.module.scss';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { connect } from 'react-redux';
 import { generalStateList } from '../../../redux/app/actions';
-import Backdrop from '@material-ui/core/Backdrop';
 
 interface Props {
   label?: string;
@@ -26,7 +25,7 @@ const LinearProgressComponent = (props: Props) => {
           <section className={styles.linearProgressContainer}>
               <p className={styles.loadingProgressTile}>Loading...</p>
               <LinearProgress className={styles.linearProgress} />
-              {label.length > 0 && (<p className={styles.loadingProgressInfo}>{label} objects remaining</p>)}        
+              {label && (<p className={styles.loadingProgressInfo}>{label} objects remaining</p>)}        
           </section>
         </section> : null;
 };

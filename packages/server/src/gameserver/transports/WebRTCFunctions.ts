@@ -46,7 +46,7 @@ export const sendCurrentProducers = (socket: SocketIO.Socket, partyId?: string) 
         Object.entries(Network.instance.clients).forEach(([name, value]) => {
             if (name === userId || value.media == null || value.socketId == null)
                 return;
-            console.log(`Sending media for ${name}`);
+            logger.info(`Sending media for ${name}`);
             Object.entries(value.media).map(([subName, subValue]) => {
                 if (partyId === (subValue as any).partyId)
                     selfClient.socket.emit(MessageTypes.WebRTCCreateProducer.toString(), value.userId, subName, producer.id, partyId);
@@ -54,23 +54,26 @@ export const sendCurrentProducers = (socket: SocketIO.Socket, partyId?: string) 
         });
     }
 };
-
+// Create consumer for each client!
 export const sendInitialProducers = async (socket: SocketIO.Socket, partyId?: string): Promise<void> => {
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
     const selfClient = Network.instance.clients[userId];
     if (selfClient.socketId != null) {
         Object.entries(Network.instance.clients).forEach(([name, value]) => {
+            console.log(name);
+            console.log(value);
             if (name === userId || value.media == null || value.socketId == null)
                 return;
+            logger.info(`Sending media for ${name}`);
             Object.entries(value.media).map(([subName, subValue]) => {
-                if (partyId === (subValue as any).partyId)
+                if (partyId === (subValue as any).partyId) {
                     selfClient.socket.emit(MessageTypes.WebRTCCreateProducer.toString(), value.userId, subName, (subValue as any).producerId, partyId);
+                }
             });
         });
     }
 };
-// Create consumer for each client!
 
 export const handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
     dataProducer: DataProducer
@@ -194,8 +197,10 @@ export async function handleWebRtcTransportCreate(socket, data: CreateWebRtcTran
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
     const { direction, peerId, sctpCapabilities, partyId } = Object.assign(data, { peerId: userId });
-    console.log(`WebRTCTransportCreateRequest: ${peerId} ${partyId} ${direction}`);
+    logger.info(`WebRTCTransportCreateRequest: ${peerId} ${partyId} ${direction}`);
 
+    const existingTransports = MediaStreamComponent.instance.transports.filter(t => t.appData.peerId === peerId && t.appData.direction === direction && t.appData.partyId === partyId);
+    await Promise.all(existingTransports.map(t => closeTransport(t)));
     const newTransport: WebRtcTransport = await createWebRtcTransport(
         { peerId, direction, sctpCapabilities, partyId }
     );
@@ -237,8 +242,9 @@ export async function handleWebRtcTransportCreate(socket, data: CreateWebRtcTran
         dtlsParameters
     };
 
-    if (direction === 'recv') await sendInitialProducers(socket, partyId);
-
+    newTransport.observer.on('dtlsstatechange', (dtlsState) => {
+        if (dtlsState === 'closed') closeTransport(newTransport);
+    });
     // Create data consumers for other clients if the current client transport receives data producer on it
     newTransport.observer.on('newdataproducer', handleConsumeDataEvent(socket));
     newTransport.observer.on('newproducer', sendCurrentProducers(socket, partyId));
@@ -344,7 +350,6 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
 }
 
 export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<any> {
-    console.log("*** handleWebRtcReceiveTrack");
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
     const { mediaPeerId, mediaTag, rtpCapabilities, partyId } = data;
@@ -362,7 +367,6 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
         t => (t as any)._appData.peerId === userId && (t as any)._appData.clientDirection === "recv" && (t as any)._appData.partyId === partyId && t.closed === false
     );
 
-    console.log("Creating consumer for ", producer.id);
     const consumer = await (transport as any).consume({
         producerId: producer.id,
         rtpCapabilities,
@@ -480,4 +484,11 @@ export async function handleWebRtcPauseProducer(socket, data, callback): Promise
         hostClient[1].socket.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true);
     }
     callback({ paused: true });
+}
+
+export async function handleWebRtcRequestCurrentProducers(socket, data, callback): Promise<any> {
+    const { partyId } = data;
+
+    await sendInitialProducers(socket, partyId);
+    callback({requested: true});
 }

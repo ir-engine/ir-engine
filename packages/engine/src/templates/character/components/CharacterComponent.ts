@@ -1,5 +1,5 @@
 // Default component, holds data about what behaviors our actor has.
-
+import { Types } from '../../../ecs/types/Types';
 import { Component } from '../../../ecs/classes/Component';
 import { Vector3, Group, Material, AnimationMixer, Mesh, BoxBufferGeometry, AnimationAction } from 'three';
 import { CapsuleCollider } from '../../../physics/components/CapsuleCollider';
@@ -8,6 +8,13 @@ import { RelativeSpringSimulator } from '../../../physics/classes/RelativeSpring
 import { RaycastResult, Vec3 } from 'cannon-es';
 
 export class CharacterComponent extends Component<CharacterComponent> {
+
+	dispose(): void {
+    super.dispose();
+		this.modelContainer.parent.remove(this.modelContainer);
+		//this.modelContainer = null;
+		this.tiltContainer = null;
+  }
 
 	public initialized = false;
 
@@ -82,6 +89,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 
 }
 
-CharacterComponent.schema = {
-	// Fill this out!
+CharacterComponent._schema = {
+	tiltContainer: { type: Types.Ref, default: null },
+	//modelContainer: { type: Types.Ref, default: null }
 };

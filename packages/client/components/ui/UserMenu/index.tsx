@@ -1,13 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './UserMenu.module.scss';
-import { Button, TextField, Drawer, Typography, CardMedia, Card, CardActionArea, CardContent, Snackbar } from '@material-ui/core';
+import { Button, Drawer, Typography, Card, CardActionArea, Snackbar } from '@material-ui/core';
 import { generalStateList, setAppSpecificOnBoardingStep } from '../../../redux/app/actions';
-import EditIcon from '@material-ui/icons/Edit';
-import MenuIcon from '@material-ui/icons/Menu';
-import ShareIcon from '@material-ui/icons/Share';
-import PermIdentityIcon from '@material-ui/icons/PermIdentity';
+import ToysIcon from '@material-ui/icons/Toys';
+import PolicyIcon from '@material-ui/icons/Policy';
+import LinkIcon from '@material-ui/icons/Link';
+import SettingsIcon from '@material-ui/icons/Settings';
+import VideoLibraryIcon from '@material-ui/icons/VideoLibrary';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
-import Tooltip from '@material-ui/core/Tooltip';
 import store from '../../../redux/store';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
@@ -24,13 +26,17 @@ import { logoutUser } from '../../../redux/auth/service';
 import { Network } from '@xr3ngine/engine/src/networking/components/Network';
 import { loadActorAvatar } from '@xr3ngine/engine/src/templates/character/behaviors/loadActorAvatar';
 import UserSettings from '../Profile/UserSettings';
-
+import { LazyImage } from '../LazyImage';
+import ClearIcon from '@material-ui/icons/Clear';
+import DeleteIcon from '@material-ui/icons/Delete';
+import { removeUser } from '../../../redux/auth/service';
 interface Props {
     login?: boolean;
     authState?:any;
     updateUsername?: typeof updateUsername;
     logoutUser?: typeof logoutUser;
     showDialog?: typeof showDialog;
+    removeUser?: typeof removeUser;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -44,13 +50,13 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   updateUsername: bindActionCreators(updateUsername, dispatch),
   logoutUser: bindActionCreators(logoutUser, dispatch),
   showDialog: bindActionCreators(showDialog, dispatch),
+  removeUser: bindActionCreators(removeUser, dispatch),
 });
 
 
 const UserMenu = (props: Props): any => {    
-  const { login, authState, logoutUser, showDialog} = props;
+  const { login, authState, logoutUser, removeUser, showDialog} = props;
   const selfUser = authState.get('user');
-  const [isEditName, setIsEditName] = useState(false);
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
   const [username, setUsername] = useState(selfUser?.name);
   const [drawerType, setDrawerType] = useState('default');
@@ -71,34 +77,27 @@ const UserMenu = (props: Props): any => {
 
   type Anchor = 'top' | 'left' | 'bottom' | 'right';
 
-  const handleEditClick = () => {
-    setIsEditName(true);
-  };
 
   const handleTutorialClick = (event: React.KeyboardEvent | React.MouseEvent) =>{
     toggleDrawer(anchor, false)(event);
     store.dispatch(setAppSpecificOnBoardingStep(generalStateList.TUTOR_LOOKAROUND, true));
   };
 
+  const handleAccountDeleteClick = () => setDrawerType('accountDelete');
   const handleAvatarChangeClick = () => setDrawerType('avatar');
   const handleDeviceSetupClick = () => setDrawerType('device');
-
-  const handleUsernameChange = (e: any): void => {
-    const newName = e.target.value;
-    setUsername(newName);
-  };
-
-  const updateUsername = async (): Promise<void> => {
-    await props.updateUsername(selfUser?.id, username);
-    setIsEditName(false);
-  };
   
   const copyCodeToClipboard = () => {    
     refLink.current.select();
     document.execCommand("copy");
     setOpenSnackBar(true);
   };
-  
+
+  const confirmAccountDelete = () => {
+    removeUser(selfUser.id);
+    setDrawerType('default');
+  };
+
   const handleMobileShareOnClick = () =>{
     if (navigator.share) {
       navigator
@@ -135,7 +134,7 @@ const UserMenu = (props: Props): any => {
   };
 
   const handleLogin = () => {
-    showDialog({ children: <SignIn /> });
+    setDrawerType('login');
   };
 
   const handleLogout = () => {
@@ -162,46 +161,6 @@ const UserMenu = (props: Props): any => {
       <section>Link successfully added to clipboard</section>
     </Snackbar>;
 
-  const renderChangeNameForm = () =>
-      <section>
-        {isEditName === true ? (<section>
-          <TextField
-                variant="outlined"
-                margin="normal"
-                fullWidth
-                id="username"
-                label="Your Name"
-                name="name"
-                autoFocus
-                defaultValue={selfUser?.name}
-                onChange={(e) => handleUsernameChange(e)}
-            />
-            <Button onClick={()=>setIsEditName(false)} variant="outlined" color="secondary" className={styles.autoWidth}>
-              Cancel
-            </Button>
-            <Button onClick={updateUsername} variant="outlined" color="primary"className={styles.autoWidth}>
-              Save
-            </Button>
-        </section>) 
-                : 
-        (<span className={styles.userTitle}>    
-          <ArrowBackIosIcon onClick={toggleDrawer(anchor, false)} />      
-          <span>{ selfUser ? selfUser?.name : ''}</span>
-           <Tooltip title="Edit Username"><EditIcon color="primary" onClick={handleEditClick}  /></Tooltip>
-        </span>)}
-      </section>;
-
-
-  const renderShareLocation = () =>
-      <section>
-        <p className={styles.userTitle} onClick={() => isMobileOrTablet() && navigator.share ? handleMobileShareOnClick() : copyCodeToClipboard()}>
-          <Typography variant="subtitle2" color="primary">{invitationLink}</Typography>
-          <Tooltip title="Share"><ShareIcon color="primary" /></Tooltip>
-        </p>
-        {(!isMobileOrTablet() || !navigator.share) && <textarea readOnly className={styles.linkField} ref={refLink} value={invitationLink} />}
-    </section>;
-
-
   const [actorEntity, setActorEntity] = useState(null);
   const [actorAvatarId, setActorAvatarId] = useState('Rose');
 
@@ -224,30 +183,17 @@ const UserMenu = (props: Props): any => {
    
 //filter avatars by some attribute
 const avatarsForRender = CharacterAvatars.filter(avatar=>avatar.id !== 'Animation');
-function imageExists(image_url){
-  var http = new XMLHttpRequest();
-  http.open('HEAD', image_url, false);
-  http.send();
-  return http.status != 404;
-}
 const renderAvatarSelectionPage = () =><>
       <Typography variant="h2" color="primary"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} />Change Avatar</Typography>
       <section className={styles.avatarCountainer}>
           {avatarsForRender.map(characterAvatar=>
               <Card key={characterAvatar.id} className={styles.avatarPreviewWrapper}> 
-                <CardActionArea>
-                  {imageExists('/static/'+characterAvatar.id.toLocaleLowerCase()+'.png') ? 
-                  <CardMedia
-                    component="img"
+                <CardActionArea onClick={()=>setActorAvatarId(characterAvatar.id)} >
+                  <LazyImage
+                    key={characterAvatar.id}
+                    src={'/static/'+characterAvatar.id.toLocaleLowerCase()+'.png'}
                     alt={characterAvatar.title}
-                    height="145"
-                    image={'/static/'+characterAvatar.id.toLocaleLowerCase()+'.png'}
-                    title={characterAvatar.title}
-                    className={styles.avatarPreview+(actorAvatarId === characterAvatar.id ? ' '+'currentAvatar' : '')} 
-                    onClick={()=>setActorAvatarId(characterAvatar.id)}                    
-                  /> : <PermIdentityIcon color="primary" height="145" 
-                      className={styles.avatarPreview+(actorAvatarId === characterAvatar.id ? ' '+styles.currentAvatar : '')} 
-                      onClick={()=>setActorAvatarId(characterAvatar.id)} /> }
+                  />
                 </CardActionArea>
               </Card>
             )}
@@ -259,19 +205,59 @@ const renderDeviceSetupPage = () =><>
   <UserSettings />
 </>;
 
+const renderLoginPage = () =><>
+  <Typography variant="h2" color="primary"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} />Login</Typography>
+  <SignIn />
+</>;
+
+const renderAccountDeletePage = () => <>
+  <Typography variant="h2" color="primary"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} />Delete Account</Typography>
+  <div>
+    <Typography variant="h5" color="primary" className={styles.header}>Delete account?</Typography>
+    <div className={styles.deleteAccountButtons}>
+      <Button
+          onClick={() => setDrawerType('default')}
+          startIcon={<ClearIcon />}
+          variant="contained"
+      >
+        Cancel
+      </Button>
+      <Button
+          onClick={() => confirmAccountDelete()}
+          startIcon={<DeleteIcon />}
+          variant="contained"
+          color='secondary'
+      >
+        Confirm
+      </Button>
+    </div>
+  </div>
+</>;
+
+const renderHorizontalItems = () => 
+  <section className={styles.horizontalContainer}>
+          {(!isMobileOrTablet() || !navigator.share) && <textarea readOnly className={styles.linkField} ref={refLink} value={invitationLink} />}
+          <Typography variant="h2" color="primary" onClick={() => isMobileOrTablet() && navigator.share ? handleMobileShareOnClick() : copyCodeToClipboard()}><LinkIcon />Share</Typography>
+          <Typography variant="h2" color="primary" onClick={handleDeviceSetupClick}><SettingsIcon />Setup</Typography>
+          <Typography variant="h2" color="primary" onClick={(event)=>handleTutorialClick(event)}><VideoLibraryIcon />Tutorial</Typography>    
+  </section>;
+
 const renderUserMenu = () =><>
-          {renderChangeNameForm()}
-          <Typography variant="h1">{worldName}</Typography>
-          {renderShareLocation()}
-          <Typography variant="h2" color="primary" onClick={handleAvatarChangeClick}>Change Avatar</Typography>
-          <Typography variant="h2" color="primary" onClick={(event)=>handleTutorialClick(event)}>Tutorial</Typography>
-          <Typography variant="h2" color="primary" onClick={handleDeviceSetupClick}>Device Setup</Typography>
+          <Typography variant="h1" color="primary"><ArrowBackIosIcon color="primary" onClick={toggleDrawer(anchor, false)} />{worldName}</Typography>
+          {renderHorizontalItems()}
+          <AccountCircleIcon color="primary" className={styles.userPreview} />
+          <span className={styles.userTitle}>{ selfUser ? selfUser?.name : ''}</span>
+          <Button variant="outlined" color="primary" onClick={handleAvatarChangeClick}>Change Avatar</Button>
           { selfUser?.userRole === 'guest' ? 
-                <Typography variant="h2" color="primary" onClick={handleLogin}>Login</Typography> :
-                <Typography variant="h2" color="primary" onClick={handleLogout}>Logout</Typography>}
+                <>
+                  <Button variant="outlined" color="secondary" onClick={handleLogin}>Login</Button>
+                  <Button variant="outlined" color="primary">Create Account</Button>
+                </> :
+                <Button variant="outlined" color="secondary" onClick={handleLogout}>Logout</Button>}
+          { selfUser?.userRole !== 'guest' && <Button variant="outlined" color="primary" onClick={handleAccountDeleteClick}>Delete account</Button>}
           <section className={styles.placeholder} />
-          <Typography variant="h2" color="secondary">About</Typography>
-          <Typography variant="h2" color="secondary">Privacy & Terms</Typography>
+          <Typography variant="h2" color="secondary" align="right">About <ToysIcon color="primary" /></Typography>
+          <Typography variant="h2" color="secondary" align="right">Privacy & Terms <PolicyIcon color="primary" /></Typography>
           {renderSuccessMessage()}
       </>;
 
@@ -279,13 +265,15 @@ const renderDrawerContent = () =>{
   switch(drawerType){
     case 'avatar': return renderAvatarSelectionPage();
     case 'device': return renderDeviceSetupPage();
+    case 'login': return renderLoginPage();
+    case 'accountDelete': return renderAccountDeletePage();
     default: return renderUserMenu();
   }
 };
 
   return (
         <section key={anchor} className={styles.anchorContainer}>
-          <MenuIcon className={styles.anchorDrawer} onClick={toggleDrawer(anchor, isOpenDrawer === true ? false : true)} />
+          <span className={styles.anchorDrawer} onClick={toggleDrawer(anchor, isOpenDrawer === true ? false : true)} ></span>
           <Drawer
             anchor={anchor}
             open={state[anchor]}

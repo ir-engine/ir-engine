@@ -273,8 +273,8 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     const truncateUsername = () => {
         const name = user?.name;
         if (peerId === 'me_cam') return 'You';
-        if (focused === true) return name.length > 20 ? name.slice(0, 20) + '...' : name;
-        if (focused === false) return name.length > 10 ? name.slice(0, 10) + '...' : name;
+        if (focused === true) return name?.length > 20 ? name.slice(0, 20) + '...' : name;
+        if (focused === false) return name?.length > 10 ? name.slice(0, 10) + '...' : name;
     };
 
     return (
@@ -336,7 +336,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                             size="small"
                             className={styles['audio-control']}
                             onClick={(e) => toggleAudio(e)}
-                            style={{visibility : (audioProducerPaused === true || audioProducerGlobalMute === true) ? 'hidden' : 'visible' }}
+                            style={{visibility : (audioStream == null || audioProducerPaused === true || audioProducerGlobalMute === true) ? 'hidden' : 'visible' }}
                         >
                             { ((peerId === 'me_cam' || peerId === 'me_screen') && audioStream && audioProducerPaused === false && audioStreamPaused === false) && <Mic /> }
                             { ((peerId === 'me_cam' || peerId === 'me_screen') && audioStream && audioProducerPaused === false && audioStreamPaused === true) && <MicOff /> }

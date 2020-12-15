@@ -6,10 +6,10 @@ import { ID, Snapshot } from '../types/SnapshotDataTypes';
 export class NetworkInterpolation extends Component<any> {
   static instance: NetworkInterpolation
   public vault: Snapshot[] = []
-  vaultSize = 120
+  vaultSize = 80
   timeOffset = -1
 
-  _interpolationBuffer = 100
+  _interpolationBuffer = 15
   /** The current server time based on the current snapshot interpolation. */
   public serverTime = 0
 
@@ -57,6 +57,7 @@ export class NetworkInterpolation extends Component<any> {
         const snaps = { older: sorted[i], newer: sorted[i - 1] };
         if (closest) {
           const older = Math.abs(time - snaps.older.time);
+          if (snaps.newer === undefined) return sorted[0];
           const newer = Math.abs(time - snaps.newer.time);
           if (newer <= older) return snaps.older;
           else return snaps.newer;

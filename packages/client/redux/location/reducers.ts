@@ -68,8 +68,8 @@ const locationReducer = (state = immutableState, action: LocationsAction): any =
 
     case LOCATION_NOT_FOUND:
       updateMap = new Map();
-      updateMap.set('location', {})
-      updateMap.set('bannedUsers', [])
+      updateMap.set('location', {});
+      updateMap.set('bannedUsers', []);
       return state.set('currentLocation', updateMap)
                   .set('currentLocationUpdateNeeded', false)
                   .set('fetchingCurrentLocation', false);
