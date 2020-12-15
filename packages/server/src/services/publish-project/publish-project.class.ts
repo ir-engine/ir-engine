@@ -60,6 +60,7 @@ export class PublishProject implements ServiceMethods<Data> {
         if (err) {
           console.log('Storage removal error');
           console.log('Error in removing project temp Owned file: ', err);
+          return err;
         }
         console.log('Project temp Owned file removed result: ', result);
       });

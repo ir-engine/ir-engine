@@ -4,7 +4,7 @@ export default (options = {}): Hook => async (context: HookContext): Promise<Hoo
   if (!context.id || !context.params.query.userId) return context;
   const { collection } = context.app.get('sequelizeClient').models;
 
-  const project = await collection.findOne({
+  const { thumbnailOwnedFileId } = await collection.findOne({
     attributes: ['thumbnailOwnedFileId'],
     where: {
       sid: context.id,
@@ -14,9 +14,8 @@ export default (options = {}): Hook => async (context: HookContext): Promise<Hoo
 
   context.params.query = {
     ...context.params.query,
-    projectId: context.id
+    resourceId: thumbnailOwnedFileId
   };
-  context.id = project.thumbnailOwnedFileId;
 
   return context;
 };

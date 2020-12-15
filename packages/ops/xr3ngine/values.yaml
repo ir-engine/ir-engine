@@ -10,7 +10,7 @@ client:
 
   replicaCount: 1
   image:
-    repository: xr3ngine/xr3ngine
+    repository: lagunalabs/xrengine
     tag: latest
     pullPolicy: IfNotPresent
 
@@ -62,7 +62,7 @@ api:
 
   replicaCount: 1
   image:
-    repository: xr3ngine/xr3ngine
+    repository: lagunalabs/xrengine
     tag: latest
     pullPolicy: IfNotPresent
 
@@ -157,7 +157,7 @@ media:
 
   replicaCount: 1
   image:
-    repository: xr3ngine/xr3ngine
+    repository: lagunalabs/xrengine
     tag: latest
     pullPolicy: IfNotPresent
 
@@ -299,7 +299,7 @@ gameserver:
 
   replicaCount: 1
   image:
-    repository: xr3ngine/xr3ngine
+    repository: lagunalabs/xrengine
     tag: latest
     pullPolicy: IfNotPresent
 

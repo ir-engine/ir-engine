@@ -3,7 +3,7 @@ import { Types } from '../../ecs/types/Types';
 
 export class WebXRButton extends Component<any> {}
 
-WebXRButton.schema = {
+WebXRButton._schema = {
   domEl: { type: Types.Ref },
   onVRSupportRequested: { type: Types.Ref }
 };

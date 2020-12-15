@@ -16,7 +16,7 @@ export class FollowCameraComponent extends Component<FollowCameraComponent> {
   farDistance: number // distance to which interactive objects from the camera will be highlighted
 }
 
-FollowCameraComponent.schema = {
+FollowCameraComponent._schema = {
   mode: { type: Types.String, default: 'thirdPerson' },
   distance: { type: Types.Number, default: 3 },
   minDistance: { type: Types.Number, default: 2 },
@@ -26,5 +26,5 @@ FollowCameraComponent.schema = {
   ry1: { type: Types.Number, default: -0.1 },
   rx2: { type: Types.Number, default: 0.1 },
   ry2: { type: Types.Number, default: 0.1 },
-  farDistance: { type: Types.Number, default: 5 }
+  farDistance: { type: Types.Number, default: 5 },
 };

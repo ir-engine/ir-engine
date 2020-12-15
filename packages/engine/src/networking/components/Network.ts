@@ -31,6 +31,7 @@ export interface NetworkClientList {
 export class Network extends Component<Network> {
   static instance: Network = null
   isInitialized: boolean
+  packetCompression : boolean = true
   transport: NetworkTransport
   schema: NetworkSchema
   clients: NetworkClientList = {}
@@ -55,6 +56,7 @@ export class Network extends Component<Network> {
   worldState = {
     tick: Network.tick,
     transforms: [],
+    snapshot: {},
     inputs: [],
     states: [],
     clientsConnected: [],
@@ -70,7 +72,6 @@ export class Network extends Component<Network> {
     super();
     Network.instance = this;
     Network.tick = 0;
-
     this.incomingMessageQueue = new RingBuffer<any>(100);
   }
 
@@ -86,7 +87,7 @@ export class Network extends Component<Network> {
   }
 }
 
-Network.schema = {
+Network._schema = {
   isInitialized: { type: Types.Boolean },
   transport: { type: Types.Ref },
   schema: { type: Types.Ref },

@@ -17,14 +17,30 @@ $mobileControllButtonsSize:3em;
         width: auto;
         flex-direction: row;
         padding: 0px;
+       
+
         &:last-child{
             padding-bottom: 0px;
         }
-        > svg{
-            height: 1.5em;
-            width: 1.5em;
+        .iconContainer{
+            background: rgba(162, 162, 162, 0.5);
+            border: 1px solid rgba(208, 208, 208, 0.5);
+            filter: drop-shadow(2px 2px 8px rgba(0, 0, 0, 0.2));
+            box-sizing: border-box;
+            border-radius: 50%;
             margin: 12px;
-            cursor: pointer;
+            height: 43px;
+            width: 43px;
+            cursor: pointer;              
+
+            > svg{
+                height: 1em;
+                width: 1em;                
+                box-sizing: border-box;
+                cursor: pointer;   
+                margin: 8px;             
+            }
         }
+        
     }
 }

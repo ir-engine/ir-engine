@@ -3844,8 +3844,8 @@ function generateTransform( transformData ) {
   // Global Shear*Scaling
   const lParentTM = new Matrix4();
   lParentTM.copyPosition( lParentGX );
-  const lParentGRSM = lParentTM.getInverse( lParentTM ).multiply( lParentGX );
-  const lParentGSM = lParentGRM.getInverse( lParentGRM ).multiply( lParentGRSM );
+  const lParentGRSM = lParentTM.invert().multiply( lParentGX );
+  const lParentGSM = lParentGRM.invert().multiply( lParentGRSM );
   const lLSM = lScalingM;
 
   let lGlobalRS;
@@ -3861,14 +3861,18 @@ function generateTransform( transformData ) {
 
     const lParentLSM = new Matrix4().copy( lScalingM );
 
-    const lParentGSM_noLocal = lParentGSM.multiply( lParentLSM.getInverse( lParentLSM ) );
+    const lParentGSM_noLocal = lParentGSM.multiply( lParentLSM.invert() );
 
     lGlobalRS = lParentGRM.multiply( lLRM ).multiply( lParentGSM_noLocal ).multiply( lLSM );
 
   }
 
   // Calculate the local transform matrix
-  let lTransform = lTranslationM.multiply( lRotationOffsetM ).multiply( lRotationPivotM ).multiply( lPreRotationM ).multiply( lRotationM ).multiply( lPostRotationM ).multiply( lRotationPivotM.getInverse( lRotationPivotM ) ).multiply( lScalingOffsetM ).multiply( lScalingPivotM ).multiply( lScalingM ).multiply( lScalingPivotM.getInverse( lScalingPivotM ) );
+  let lTransform =
+  lTranslationM.multiply( lRotationOffsetM )
+  .multiply( lRotationPivotM ).multiply( lPreRotationM )
+  .multiply( lRotationM ).multiply( lPostRotationM )
+  .multiply( lRotationPivotM.invert() ).multiply( lScalingOffsetM ).multiply( lScalingPivotM ).multiply( lScalingM ).multiply( lScalingPivotM.invert( ) );
 
   const lLocalTWithAllPivotAndOffsetInfo = new Matrix4().copyPosition( lTransform );
 

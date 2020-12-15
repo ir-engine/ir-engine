@@ -25,7 +25,7 @@ export const PlayerCharacter: Prefab = {
         { type: TransformComponent },
         // Local player input mapped to behaviors in the input map
         { type: Input, data: { schema: CharacterInputSchema } },
-        { type: CharacterAvatarComponent, data: { avatarId: 'Rose' }},
+        { type: CharacterAvatarComponent, data: { avatarId: 'VRMAvatar' }},
         { type: LocalInputReceiver },
         // Follow Camera for thet entity
         { type: FollowCameraComponent, data: { distance: 3, mode: "thirdPerson" }},
