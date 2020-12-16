@@ -164,6 +164,7 @@ const LocationPage = (props: Props) => {
     let service, serviceId;
     console.log("Loading scene with scene ", sceneId);
     const projectResult = await client.service('project').get(sceneId);
+    setCurrentScene(projectResult);
     const projectUrl = projectResult.project_url;
     const regexResult = projectUrl.match(projectRegex);
     if (regexResult) {
@@ -171,7 +172,6 @@ const LocationPage = (props: Props) => {
       serviceId = regexResult[2];
     }
     const result = await client.service(service).get(serviceId);
-    setCurrentScene(result);
     console.log("Result is ");
     console.log(result);
 
