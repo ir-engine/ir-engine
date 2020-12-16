@@ -78,7 +78,7 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
       ) {
         rotation = new Quaternion( objectToCreate.qX, objectToCreate.qY, objectToCreate.qZ, objectToCreate.qW );
       }
-  
+
       initializeNetworkObject(
         String(objectToCreate.ownerId),
         parseInt(objectToCreate.networkId),
@@ -94,7 +94,7 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
     if( worldState.snapshot != undefined ) {
       addSnapshot(worldState.snapshot);
     } else {
-      console.warn('Interpolation Snapshot is null');
+      console.warn('server do not send Interpolation Snapshot');
     }
 
 
@@ -148,31 +148,68 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
     input.data.clear();
 
     // Apply new input
-    for (const button in inputData.buttons)
-      input.data.set(inputData.buttons[button].input,
+    if (Network.instance.packetCompression) {
+      //@ts-ignore
+      for (let i = 0; i < inputData.buttons.length; i++)
+      input.data.set(inputData.buttons[i].input,
         {
           type: InputType.BUTTON,
-          value: inputData.buttons[button].value,
-          lifecycleState: inputData.buttons[button].lifecycleState
+          value: inputData.buttons[i].value,
+          lifecycleState: inputData.buttons[i].lifecycleState
         });
 
     // Axis 1D input
-    for (const axis in inputData.axes1d)
-      input.data.set(inputData.axes1d[axis].input,
+    //@ts-ignore
+    for (let i = 0; i < inputData.axes1d.length; i++)
+      input.data.set(inputData.axes1d[i].input,
         {
           type: InputType.BUTTON,
-          value: inputData.axes1d[axis].value,
-          lifecycleState: inputData.axes1d[axis].lifecycleState
+          value: inputData.axes1d[i].value,
+          lifecycleState: inputData.axes1d[i].lifecycleState
         });
 
     // Axis 2D input
-    for (const axis in inputData.axes2d)
-      input.data.set(inputData.axes2d[axis].input,
+    //@ts-ignore
+    for (let i = 0; i < inputData.axes2d.length; i++)
+      input.data.set(inputData.axes2d[i].input,
         {
           type: InputType.BUTTON,
-          value: [ inputData.axes2d[axis].valueX, inputData.axes2d[axis].valueY ],
-          lifecycleState: inputData.axes2d[axis].lifecycleState
+          value: inputData.axes2d[i].value,
+          lifecycleState: inputData.axes2d[i].lifecycleState
         });
+
+
+    } else {
+
+
+      for (const button in inputData.buttons)
+        input.data.set(inputData.buttons[button].input,
+          {
+            type: InputType.BUTTON,
+            value: inputData.buttons[button].value,
+            lifecycleState: inputData.buttons[button].lifecycleState
+          });
+
+      // Axis 1D input
+      for (const axis in inputData.axes1d)
+        input.data.set(inputData.axes1d[axis].input,
+          {
+            type: InputType.BUTTON,
+            value: inputData.axes1d[axis].value,
+            lifecycleState: inputData.axes1d[axis].lifecycleState
+          });
+
+      // Axis 2D input
+      for (const axis in inputData.axes2d)
+        input.data.set(inputData.axes2d[axis].input,
+          {
+            type: InputType.BUTTON,
+            value: inputData.axes2d[axis].value,
+            // value: [ inputData.axes2d[axis].valueX, inputData.axes2d[axis].valueY ],
+            lifecycleState: inputData.axes2d[axis].lifecycleState
+          });
+    }
+
   });
 
   // worldState.states?.forEach(stateData => {

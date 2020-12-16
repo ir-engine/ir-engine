@@ -1,6 +1,6 @@
 import { LoadingManager } from 'three';
 import * as GLTFExporter from 'three-gltf-exporter';
-import GLTFLoader from 'three-gltf-loader';
+import { GLTFLoader } from "../loaders/gltf/GLTFLoader";
 import { SkeletonUtils } from 'three/examples/jsm/utils/SkeletonUtils';
 import FBXLoader from '../loaders/fbx/FBXLoader';
 

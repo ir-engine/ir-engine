@@ -7,6 +7,12 @@ export class TransformComponent extends Component<TransformComponent> {
   rotation: Quaternion
   velocity: Vector3
 
+  static _schema = {
+    position: { default: new Vector3(), type: Types.Ref },
+    rotation: { default: new Quaternion(), type: Types.Ref },
+    velocity: { default: new Vector3(), type: Types.Ref }
+  }
+
   constructor () {
     super();
     this.reset();
@@ -32,9 +38,3 @@ export class TransformComponent extends Component<TransformComponent> {
     this.velocity = new Vector3();
   }
 }
-
-TransformComponent.schema = {
-  position: { default: new Vector3(), type: Types.Ref },
-  rotation: { default: new Quaternion(), type: Types.Ref },
-  velocity: { default: new Vector3(), type: Types.Ref }
-};

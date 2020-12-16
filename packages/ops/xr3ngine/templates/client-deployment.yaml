@@ -39,6 +39,8 @@ spec:
               value: "client"
             - name: KUBERNETES
               value: "true"
+            - name: RELEASE_NAME
+              value: {{ .Release.Name }}
           ports:
             - name: http
               containerPort: 3000

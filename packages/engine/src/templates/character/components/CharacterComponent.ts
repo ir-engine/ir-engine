@@ -89,7 +89,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 
 }
 
-CharacterComponent.schema = {
+CharacterComponent._schema = {
 	tiltContainer: { type: Types.Ref, default: null },
 	//modelContainer: { type: Types.Ref, default: null }
 };
