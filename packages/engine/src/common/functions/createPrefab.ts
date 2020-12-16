@@ -24,17 +24,17 @@ export function createPrefab (prefab: Prefab): Entity {
       Object.keys(component.data).forEach(initValueKey => {
         let initValue = component.data[initValueKey];
         // Get the component on the entity, and set it to the initializing value from the prefab
-        if (typeof component.type.schema[initValueKey] === 'undefined') {
+        if (typeof component.type._schema[initValueKey] === 'undefined') {
           console.warn('property', initValueKey, ' not exists in component schema of ', component.type.name);
           console.log(component);
         } else {
           if (
-            typeof component.type.schema[initValueKey].default !== 'undefined' &&
+            typeof component.type._schema[initValueKey].default !== 'undefined' &&
             Array.isArray(initValue)
           ) {
-            if (component.type.schema[initValueKey].default instanceof Vector3) {
+            if (component.type._schema[initValueKey].default instanceof Vector3) {
               initValue = new Vector3().fromArray(initValue);
-            } else if (component.type.schema[initValueKey].default instanceof Quaternion) {
+            } else if (component.type._schema[initValueKey].default instanceof Quaternion) {
               initValue = new Quaternion().fromArray(initValue);
             }
           }

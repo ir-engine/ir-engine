@@ -85,7 +85,8 @@ export function fetchAdminLocations () {
       query: {
         $sort: {
           name: -1
-        }
+        },
+        adminnedLocations: true
       }
     });
     dispatch(locationsRetrieved(locations));

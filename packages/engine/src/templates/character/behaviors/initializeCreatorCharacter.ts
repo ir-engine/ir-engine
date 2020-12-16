@@ -13,7 +13,7 @@ import { CharacterStateTypes } from "../CharacterStateTypes";
 import { Engine } from "../../../ecs/classes/Engine";
 import { PhysicsManager } from "../../../physics/components/PhysicsManager";
 import { addObject3DComponent } from "../../../common/behaviors/Object3DBehaviors";
-import GLTFLoader from "three-gltf-loader";
+import { GLTFLoader } from "../../../assets/loaders/gltf/GLTFLoader";
 
 export const initializeCreatorCharacter: Behavior = (entity): void => {
     console.log("Init creator character")

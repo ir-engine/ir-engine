@@ -1,18 +1,14 @@
+import { LOD, MeshPhysicalMaterial, Object3D } from "three";
+import { addObject3DComponent } from "../../common/behaviors/Object3DBehaviors";
+import { Object3DComponent } from "../../common/components/Object3DComponent";
 import { Entity } from "../../ecs/classes/Entity";
-import { MeshPhysicalMaterial, Object3D, LOD } from "three";
-import { AssetLoader } from "../components/AssetLoader";
 import {
-  addComponent,
   createEntity,
   getComponent,
   getMutableComponent,
   hasComponent
 } from "../../ecs/functions/EntityFunctions";
-import { Model } from "../components/Model";
-import { Object3DComponent } from "../../common/components/Object3DComponent";
-import { addObject3DComponent } from "../../common/behaviors/Object3DBehaviors";
-import { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
-import { Engine } from "../../ecs/classes/Engine";
+import { AssetLoader } from "../components/AssetLoader";
 
 const LODS_DISTANCES = {
   "0": 5,

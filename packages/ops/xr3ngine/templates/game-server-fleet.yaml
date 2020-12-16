@@ -518,6 +518,8 @@ spec:
                     secretKeyRef:
                       name: {{ .Release.Name }}-redis
                       key: redis-password
+                - name: RELEASE_NAME
+                  value: {{ .Release.Name }}
           initContainers:
             - name: init-redis
               image: busybox:1.28
@@ -532,6 +534,14 @@ spec:
                     secretKeyRef:
                       name: {{ .Release.Name }}-redis
                       key: redis-password
+        {{- with .Values.gameserver.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.gameserver.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+        {{- end }}
 {{- end }}
 
 

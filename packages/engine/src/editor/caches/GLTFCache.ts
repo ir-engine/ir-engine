@@ -1,19 +1,22 @@
 import { GLTFLoader } from "@xr3ngine/engine/src/assets/loaders/gltf/GLTFLoader";
+import { LoadGLTF } from "../../assets/functions/LoadGLTF";
 
 export default class GLTFCache {
   cache: Map<any, any>;
   constructor() {
     this.cache = new Map();
   }
-  getLoader(url, options) {
-    console.log("getLoader", url);
+  get(url, options) {
     const absoluteURL = new URL(url, (window as any).location).href;
     if (this.cache.has(absoluteURL)) {
       return this.cache.get(absoluteURL);
     } else {
-      const loader = new GLTFLoader(absoluteURL, undefined, { revokeObjectURLs: false, ...options });
-      this.cache.set(absoluteURL, loader);
-      return loader;
+      const loadPromise =  LoadGLTF(url);
+      this.cache.set(absoluteURL, loadPromise);
+      loadPromise.catch(e => {
+        this.cache.delete(absoluteURL);
+      });
+      return loadPromise;
     }
   }
   disposeAndClear() {

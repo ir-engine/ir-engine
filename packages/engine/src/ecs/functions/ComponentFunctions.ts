@@ -21,7 +21,7 @@ const proxyHandler = {
  */
 export function Not<C extends Component<any>>(Component: ComponentConstructor<C>): NotComponent<C> {
   return {
-    type: 'not' as const,
+    type: 'not',
     Component: Component
   } as NotComponent<C>;
 }
@@ -58,7 +58,7 @@ export function registerComponent<C extends Component<any>> (
     return;
   }
 
-  const schema = Component.schema;
+  const schema = Component._schema;
 
   if (!schema && (Component as any).type !== undefined && (Component as any).type !== 'not') {
     throw new Error(`Component "${getName(Component)}" has no schema property.`);

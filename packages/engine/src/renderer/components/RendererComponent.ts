@@ -28,7 +28,7 @@ export class RendererComponent extends Component<any> {
   * The scheme is used to set the default values of a component. 
   * The type field must be set for each property.
   */
-RendererComponent.schema = {
+RendererComponent._schema = {
   composer: { type: Types.Ref },
   needsResize: { type: Types.Boolean },
   postProcessingSchema: { type: Types.Ref }

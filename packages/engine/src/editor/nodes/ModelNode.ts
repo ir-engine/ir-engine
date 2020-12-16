@@ -8,6 +8,7 @@ import {
   getObjectPerfIssues,
   maybeAddLargeFileIssue
 } from "../functions/performance";
+import { LoadGLTF } from "../../assets/functions/LoadGLTF";
 const defaultStats = {
   nodes: 0,
   meshes: 0,
@@ -104,17 +105,17 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this.gltfJson = null;
   }
   // Overrides Model's src property and stores the original (non-resolved) url.
-  get src() {
+  get src(): string {
     return this._canonicalUrl;
   }
   // When getters are overridden you must also override the setter.
-  set src(value) {
+  set src(value: string) {
     this.load(value).catch(console.error);
   }
   // Overrides Model's loadGLTF method and uses the Editor's gltf cache.
   async loadGLTF(src) {
-    const loader = this.editor.gltfCache.getLoader(src);
-    const { scene, json, stats } = await loader.getDependency("gltf");
+    const loadPromise = this.editor.gltfCache.get(src);
+    const{ scene, json, stats} = await loadPromise;
     this.stats = stats;
     this.gltfJson = json;
     const clonedScene = cloneObject3D(scene);
@@ -132,7 +133,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
   // Overrides Model's load method and resolves the src url before loading.
   async load(src, onError?) {
-    console.log("Attempting to load model");
+    console.log("Attempting to load model", src);
     const nextSrc = src || "";
     if (nextSrc === this._canonicalUrl && nextSrc !== "") {
       return;
@@ -237,6 +238,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       }
       console.error(modelError);
       this.issues.push({ severity: "error", message: "Error loading model." });
+      this._canonicalUrl = "";
     }
     this.editor.emit("objectsChanged", [this]);
     this.editor.emit("selectionChanged");

@@ -9,7 +9,7 @@ import { Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
 import getConfig from "next/config";
 import ioclient from "socket.io-client";
 import store from "../../redux/store";
-import { createDataProducer, endVideoChat, initReceiveTransport, initSendTransport, leave, sendCameraStreams, subscribeToTrack } from "./WebRTCFunctions";
+import { createDataProducer, endVideoChat, initReceiveTransport, initSendTransport, leave, subscribeToTrack } from "./WebRTCFunctions";
 
 const { publicRuntimeConfig } = getConfig();
 const gameserver = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.gameserver : 'https://localhost:3030';
@@ -101,18 +101,15 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       if (!success) return console.error("Unable to connect with credentials");
 
-      console.log("Joining world");
+      console.log("Connect to world");
 
-      const joinWorldResponse = await this.request(MessageTypes.JoinWorld.toString());
+      const ConnectToWorldResponse = await this.request(MessageTypes.ConnectToWorld.toString());
+      const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any;
 
-      const { worldState, routerRtpCapabilities } = joinWorldResponse as any;
-
-      console.log("Joined world");
+      console.log("Connected to world");
 
       // Apply all state to initial frame
       applyNetworkStateToClient(worldState);
-
-      
 
       if (this.mediasoupDevice.loaded !== true)
         await this.mediasoupDevice.load({ routerRtpCapabilities });
@@ -203,7 +200,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       await createDataProducer();
 
       console.log("Send camera streams called from SocketWebRTCClientTransport");
-      // sendCameraStreams(partyId || 'instance');
     });
   }
 }
