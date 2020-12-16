@@ -31,6 +31,8 @@ jobs:
           DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
+      - name: npm-install 'cli' and 'aws-sdk'
+        run: npm install cli aws-sdk
       - name: Publish to Elastic Container Registry
         run: bash scripts/publish_ecr.sh prod $GITHUB_SHA $DOCKER_LABEL
         env:
