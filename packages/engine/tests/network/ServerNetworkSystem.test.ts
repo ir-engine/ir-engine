@@ -13,7 +13,7 @@ import { execute } from "../../src/ecs/functions/EngineFunctions";
 import { SystemUpdateType } from "../../src/ecs/functions/SystemUpdateType";
 import { getMutableComponent, hasComponent, removeEntity } from "../../src/ecs/functions/EntityFunctions";
 import { CharacterComponent } from "../../src/templates/character/components/CharacterComponent";
-import { ServerNetworkSystem } from "../../src/networking/systems/ServerNetworkSystem";
+import { ServerNetworkIncomingSystem } from "../../src/networking/systems/ServerNetworkIncomingSystem";
 import { DefaultInput } from "../../src/templates/shared/DefaultInput";
 import { LifecycleValue } from "../../src/common/enums/LifecycleValue";
 import { BinaryValue } from "../../src/common/enums/BinaryValue";
@@ -28,13 +28,16 @@ import { RaycastResult } from "collision/RaycastResult";
 import { Body } from 'cannon-es';
 import { StateSystem } from "../../src/state/systems/StateSystem";
 import { InputAlias } from "../../src/input/types/InputAlias";
+import { ClientInputModel } from "../../src/networking/schema/clientInputSchema";
+import { ServerNetworkOutgoingSystem } from "../../src/networking/systems/ServerNetworkOutgoingSystem";
 
 //const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
 const handleInputOnServer = jest.spyOn(handleInputOnServerModule, 'handleInputOnServer');
 const setLocalMovementDirection = jest.spyOn(setLocalMovementDirectionModule, 'setLocalMovementDirection');
 let fixedExecuteOnServer:jest.SpyInstance;
 //let physicsWorldRaycastClosest:jest.SpyInstance;
-let serverNetworkSystem:System;
+let serverNetworkSystemIn:System;
+let serverNetworkSystemOut:System;
 
 const userId = "oid";
 
@@ -72,8 +75,10 @@ beforeAll(() => {
 
   Engine.scene = new Scene();
 
-  serverNetworkSystem = registerSystem(ServerNetworkSystem, { schema: networkSchema });
-  fixedExecuteOnServer = jest.spyOn(serverNetworkSystem, 'execute');
+  serverNetworkSystemIn = registerSystem(ServerNetworkIncomingSystem, { schema: networkSchema, priority: -1 });
+  serverNetworkSystemOut = registerSystem(ServerNetworkOutgoingSystem, { schema: networkSchema, priority: 10000 });
+  fixedExecuteOnServer = jest.spyOn(serverNetworkSystemIn, 'execute');
+  Network.instance.packetCompression = true;
 
   registerSystem(PhysicsSystem);
   // pretend player has floor
@@ -139,7 +144,11 @@ test("continuous move forward changes transforms z", () => {
 
   const runsCount = 4; // in my case it needs at least 4 frames to accumulate z transform
   for (let i = 0; i < runsCount; i++) {
-    Network.instance.incomingMessageQueue.add(message);
+    if (Network.instance.packetCompression) {
+      Network.instance.incomingMessageQueue.add(ClientInputModel.toBuffer(message));
+    } else {
+      Network.instance.incomingMessageQueue.add(message);
+    }
     runFixed();
     // expect(Network.instance.incomingMessageQueue.getBufferLength()).toBe(0);
   }
@@ -182,14 +191,17 @@ test("continuous move forward and then stop", () => {
   const messagePressing = createButtonServerMessage(networkObject.networkId, DefaultInput.FORWARD, BinaryValue.ON);
   const messageStopped = createButtonServerMessage(networkObject.networkId, DefaultInput.FORWARD, BinaryValue.OFF, LifecycleValue.ENDED);
   const messageEmpty:NetworkInputInterface = {
-    axes1d: {}, axes2d: {}, buttons: {},
-    networkId: String(networkObject.networkId),
-    viewVector: [0,0,1]
+    axes1d: [], axes2d: [], buttons: [],
+    networkId: networkObject.networkId,
+    viewVector: { x:0, y:0, z:1 }
   };
+  const messagePressingToQueue = !Network.instance.packetCompression? messagePressing : ClientInputModel.toBuffer(messagePressing);
+  const messageStoppedToQueue = !Network.instance.packetCompression? messageStopped : ClientInputModel.toBuffer(messageStopped);
+  const messageEmptyToQueue = !Network.instance.packetCompression? messageEmpty : ClientInputModel.toBuffer(messageEmpty);
 
   const runsCount = 4; // in my case it needs at least 4 frames to accumulate z transform
   for (let i = 0; i < runsCount; i++) {
-    Network.instance.incomingMessageQueue.add(messagePressing);
+    Network.instance.incomingMessageQueue.add(messagePressingToQueue);
     runFixed();
     // expect(Network.instance.incomingMessageQueue.getBufferLength()).toBe(0);
   }
@@ -198,12 +210,12 @@ test("continuous move forward and then stop", () => {
   const movingVelocityZ = actor.velocity.z;
 
   console.log('STOP!');
-  Network.instance.incomingMessageQueue.add(messageStopped);
+  Network.instance.incomingMessageQueue.add(messageStoppedToQueue);
   runFixed();
 
   const emptyRunsCount = 20; // we need some time for speed falloff
   for (let i = 0; i < emptyRunsCount; i++) {
-    Network.instance.incomingMessageQueue.add(messageEmpty);
+    Network.instance.incomingMessageQueue.add(messageEmptyToQueue);
     runFixed();
   }
 
@@ -224,16 +236,16 @@ test("continuous move forward and then stop", () => {
 function createButtonServerMessage(networkId:number, button:InputAlias, value:BinaryValue, lifecycle = null):NetworkInputInterface {
   const lifecycleState = lifecycle ?? ( value === BinaryValue.OFF? LifecycleValue.ENDED : LifecycleValue.CONTINUED );
   return {
-    networkId: String(networkId),
-    buttons: {
-      [button]: {
+    networkId: networkId,
+    buttons: [
+      {
         input: button,
-          lifecycleState,
-          value
+        lifecycleState,
+        value
       }
-    },
-    axes1d: {},
-    axes2d: {},
-    viewVector: [0,0,1]
+    ],
+    axes1d: [],
+    axes2d: [],
+    viewVector: { x:0, y:0, z:1 }
   };
 }

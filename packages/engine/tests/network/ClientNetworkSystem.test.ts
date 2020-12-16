@@ -4,7 +4,7 @@ import { NetworkSchema } from "../../src/networking/interfaces/NetworkSchema";
 import { DefaultNetworkSchema, PrefabType } from "../../src/templates/networking/DefaultNetworkSchema";
 import { NetworkTransport } from "../../src/networking/interfaces/NetworkTransport";
 import { Network } from "../../src/networking/components/Network";
-import { WorldStateInterface } from "../../src/networking/interfaces/WorldState";
+import { PacketReadyWorldState, WorldStateInterface } from "../../src/networking/interfaces/WorldState";
 import { execute } from "../../src/ecs/functions/EngineFunctions";
 import { SystemUpdateType } from "../../src/ecs/functions/SystemUpdateType";
 import { Engine } from "../../src/ecs/classes/Engine";
@@ -16,6 +16,8 @@ import { TransformComponent } from "../../src/transform/components/TransformComp
 import { getComponent, hasComponent } from "../../src/ecs/functions/EntityFunctions";
 import { CharacterComponent } from "../../src/templates/character/components/CharacterComponent";
 import { LocalInputReceiver } from "../../src/input/components/LocalInputReceiver";
+import { WorldStateModel } from "../../src/networking/schema/worldStateSchema";
+import { addSnapshot, createSnapshot } from "../../src/networking/functions/NetworkInterpolationFunctions";
 
 const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
 
@@ -60,20 +62,24 @@ beforeAll(() => {
 test("create", () => {
   // TODO: mock initializeNetworkObject
 
-  const message: WorldStateInterface = {
-    snapshot: undefined,
+  const message: PacketReadyWorldState = {
+    snapshot: {
+      time: BigInt( 0 ),
+      id: '1',
+      state: []
+    },
     clientsConnected: [],
     clientsDisconnected: [],
     createObjects: [],
     destroyObjects: [],
     inputs: [],
     states: [],
-    tick: 0,
+    tick: BigInt(0),
     transforms: []
   };
 
   const createMessage = {
-    networkId: "3",
+    networkId: 3,
     ownerId: "oid",
     prefabType: PrefabType.Player,
     x: 1, y: 2, z: 3,
@@ -84,17 +90,17 @@ test("create", () => {
   const expected = {
     position: new Vector3(createMessage.x,createMessage.y,createMessage.z),
     rotation: new Quaternion(createMessage.qX,createMessage.qY,createMessage.qZ, createMessage.qW)
-  }
+  };
 
   // WorldStateInterface
-  Network.instance.incomingMessageQueue.add(message);
+  Network.instance.incomingMessageQueue.add(WorldStateModel.toBuffer(message));
   execute(0, 1 / Engine.physicsFrameRate, SystemUpdateType.Fixed);
 
   expect(initializeNetworkObject.mock.calls.length).toBe(1);
 
   const newNetworkObject = initializeNetworkObject.mock.results[0].value as NetworkObject;
-  expect(String(newNetworkObject.networkId)).toBe(createMessage.networkId)
-  expect(newNetworkObject.ownerId).toBe(createMessage.ownerId)
+  expect(newNetworkObject.networkId).toBe(createMessage.networkId);
+  expect(newNetworkObject.ownerId).toBe(createMessage.ownerId);
 
   const entity = newNetworkObject.entity;
   const transform = getComponent(entity, TransformComponent);
@@ -103,4 +109,4 @@ test("create", () => {
 
   expect(hasComponent(entity, CharacterComponent)).toBeTruthy();
   // expect(hasComponent(entity, LocalInputReceiver)).toBeTruthy();
-})
+});

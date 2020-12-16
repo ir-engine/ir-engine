@@ -18,8 +18,6 @@ import { Quaternion, Vector3 } from "three";
 export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, delta = 0.033):void {
   const worldState = worldStateBuffer; // worldStateModel.fromBuffer(worldStateBuffer);
 
-
-
   if (Network.tick < worldState.tick - 1) {
     // we dropped packets
     // Check how many
@@ -81,7 +79,7 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
 
       initializeNetworkObject(
         String(objectToCreate.ownerId),
-        parseInt(objectToCreate.networkId),
+        objectToCreate.networkId,
         objectToCreate.prefabType,
         position,
         rotation,
@@ -115,9 +113,9 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
   // Handle all network objects destroyed this frame
   for (const objectToDestroy in worldState.destroyObjects) {
     const networkId = worldState.destroyObjects[objectToDestroy].networkId;
-    console.log("Destroying ", networkId)
+    console.log("Destroying ", networkId);
     if (Network.instance.networkObjects[networkId] === undefined)
-      return console.warn("Can't destroy object as it doesn't appear to exist")
+      return console.warn("Can't destroy object as it doesn't appear to exist");
     console.log("Destroying network object ", Network.instance.networkObjects[networkId].component.networkId);
     // get network object
     const entity = Network.instance.networkObjects[networkId].component.entity;
@@ -148,18 +146,16 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
     input.data.clear();
 
     // Apply new input
-    if (Network.instance.packetCompression) {
-      //@ts-ignore
-      for (let i = 0; i < inputData.buttons.length; i++)
+    for (let i = 0; i < inputData.buttons.length; i++) {
       input.data.set(inputData.buttons[i].input,
         {
           type: InputType.BUTTON,
           value: inputData.buttons[i].value,
           lifecycleState: inputData.buttons[i].lifecycleState
         });
+    }
 
     // Axis 1D input
-    //@ts-ignore
     for (let i = 0; i < inputData.axes1d.length; i++)
       input.data.set(inputData.axes1d[i].input,
         {
@@ -169,7 +165,6 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
         });
 
     // Axis 2D input
-    //@ts-ignore
     for (let i = 0; i < inputData.axes2d.length; i++)
       input.data.set(inputData.axes2d[i].input,
         {
@@ -177,38 +172,6 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
           value: inputData.axes2d[i].value,
           lifecycleState: inputData.axes2d[i].lifecycleState
         });
-
-
-    } else {
-
-
-      for (const button in inputData.buttons)
-        input.data.set(inputData.buttons[button].input,
-          {
-            type: InputType.BUTTON,
-            value: inputData.buttons[button].value,
-            lifecycleState: inputData.buttons[button].lifecycleState
-          });
-
-      // Axis 1D input
-      for (const axis in inputData.axes1d)
-        input.data.set(inputData.axes1d[axis].input,
-          {
-            type: InputType.BUTTON,
-            value: inputData.axes1d[axis].value,
-            lifecycleState: inputData.axes1d[axis].lifecycleState
-          });
-
-      // Axis 2D input
-      for (const axis in inputData.axes2d)
-        input.data.set(inputData.axes2d[axis].input,
-          {
-            type: InputType.BUTTON,
-            value: inputData.axes2d[axis].value,
-            // value: [ inputData.axes2d[axis].valueX, inputData.axes2d[axis].valueY ],
-            lifecycleState: inputData.axes2d[axis].lifecycleState
-          });
-    }
 
   });
 

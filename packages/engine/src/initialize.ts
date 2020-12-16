@@ -16,7 +16,8 @@ import { InputSystem } from './input/systems/ClientInputSystem';
 import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
 import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
-import { ServerNetworkSystem } from './networking/systems/ServerNetworkSystem';
+import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkIncomingSystem';
+import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem';
 import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { WebGLRendererSystem } from './renderer/systems/WebGLRendererSystem';
 import { ServerSpawnSystem } from './scene/systems/SpawnSystem';
@@ -47,7 +48,7 @@ export const DefaultInitializationOptions = {
   }
 };
 
-export function initializeEngine(initOptions: any = DefaultInitializationOptions) {
+export function initializeEngine(initOptions: any = DefaultInitializationOptions): void {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
   // Create a new world -- this holds all of our simulation state, entities, etc
@@ -62,8 +63,13 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
   if(typeof window !== 'undefined') (window as any).engine = Engine;
 
   // Networking
-  registerSystem(isClient ? ClientNetworkSystem : ServerNetworkSystem,
-    { schema: options.networking.schema, app: options.networking.app });
+  const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
+  if (isClient) {
+    registerSystem(ClientNetworkSystem, { ...networkSystemOptions, priority: -1 });
+  } else {
+    registerSystem(ServerNetworkIncomingSystem, { ...networkSystemOptions, priority: -1 });
+    registerSystem(ServerNetworkOutgoingSystem, { ...networkSystemOptions, priority: 10000 });
+  }
 
   // Do we want audio and video streams?
   registerSystem(MediaStreamSystem);
@@ -95,17 +101,17 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
     registerSystem(InteractiveSystem);
     // registerSystem(ParticleSystem);
     registerSystem(CameraSystem);
-    registerSystem(WebGLRendererSystem);
+    registerSystem(WebGLRendererSystem, { priority: 1001 });
     Engine.viewportElement = Engine.renderer.domElement;
   }
 
   // Start our timer!
-    Engine.engineTimerTimeout = setTimeout(() => {
-      Engine.engineTimer = Timer(
-        {
-          networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
-          fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
-          update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
-        }).start();
-    }, 1000);
+  Engine.engineTimerTimeout = setTimeout(() => {
+    Engine.engineTimer = Timer(
+      {
+        networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
+        fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
+        update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
+      }).start();
+  }, 1000);
 }
