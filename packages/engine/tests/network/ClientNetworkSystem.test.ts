@@ -105,7 +105,9 @@ test("create", () => {
   const entity = newNetworkObject.entity;
   const transform = getComponent(entity, TransformComponent);
   expect(transform.rotation).toMatchObject(expected.rotation);
-  expect(transform.position).toMatchObject(expected.position);
+  expect(transform.position.x).toBe(expected.position.x);
+  expect(expected.position.y - transform.position.y).toBeLessThan(0.01); // affected by gravity
+  expect(transform.position.z).toBe(expected.position.z);
 
   expect(hasComponent(entity, CharacterComponent)).toBeTruthy();
   // expect(hasComponent(entity, LocalInputReceiver)).toBeTruthy();
