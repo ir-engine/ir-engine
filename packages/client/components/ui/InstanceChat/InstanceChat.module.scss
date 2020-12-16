@@ -1,3 +1,19 @@
+.iconCallChat{
+  display: flex;
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  margin: 5px 0 15px 5px;
+  background-color: rgba(255,255,255,1);
+  align-items: center;
+  color: #000;
+  &:hover {
+    cursor: pointer;
+  }
+  >svg{
+    margin: 10px;
+  }
+}
 .instance-chat-container {
   position: absolute;
   bottom: 0;
@@ -8,6 +24,13 @@
   justify-content: flex-end;
   z-index: 1400;
   margin: 5px;
+  transition: all 225ms cubic-bezier(0, 0, 0.2, 1) 0ms;
+  overflow: hidden;
+
+  &.messageContainerClosed{
+    width: 0;
+  }
+
   @media (max-width: 768px) {
     margin: 0;
     width: 100vw;
@@ -92,16 +115,14 @@
 }
 
 .message-wrapper{
-   display: flex;
+    display: flex;
     flex-direction: column;
-    height: 30vh;
-    transition: right 225ms cubic-bezier(0, 0, 0.2, 1) 0ms;
-    &.messageContainerClosed{
-      height: 0;
-      display: none;
-      transition: right 225ms cubic-bezier(0, 0, 0.2, 1) 0ms;
-    }
+    height: 30vh;   
+    
   .message-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
     height: 100%;
     background: transparent;
     .first-message-placeholder {
