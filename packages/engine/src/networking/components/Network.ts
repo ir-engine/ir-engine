@@ -6,6 +6,7 @@ import { NetworkSchema } from '../interfaces/NetworkSchema';
 import { NetworkTransport } from '../interfaces/NetworkTransport';
 import { NetworkObjectList } from '../interfaces/NetworkObjectList';
 import { Entity } from '../../ecs/classes/Entity';
+import { WorldStateInterface } from "../interfaces/WorldState";
 
 export interface NetworkClientList {
   // Key is socket ID
@@ -31,7 +32,7 @@ export interface NetworkClientList {
 export class Network extends Component<Network> {
   static instance: Network = null
   isInitialized: boolean
-  packetCompression : boolean = true
+  packetCompression = true
   transport: NetworkTransport
   schema: NetworkSchema
   clients: NetworkClientList = {}
@@ -53,10 +54,10 @@ export class Network extends Component<Network> {
 
   incomingMessageQueue: RingBuffer<any>
 
-  worldState = {
+  worldState:WorldStateInterface = {
     tick: Network.tick,
     transforms: [],
-    snapshot: {},
+    snapshot: null,
     inputs: [],
     states: [],
     clientsConnected: [],
