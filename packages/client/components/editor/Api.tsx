@@ -13,6 +13,7 @@ const resolveMediaCache = new Map();
 
 const SERVER_URL = (configs as any).SERVER_URL;
 const APP_URL = (configs as any).APP_URL;
+const FEATHER_STORE_KEY = (configs as any).FEATHER_STORE_KEY;
 
 function b64EncodeUnicode(str): string {
   // first we use encodeURIComponent to get percent-encoded UTF-8, then we convert the percent-encodings
@@ -1113,7 +1114,7 @@ export default class Api extends EventEmitter {
 
   handleAuthorization(): void {
     if (process.browser) {
-      const accessToken = localStorage.getItem('XREngine-Auth-Store');
+      const accessToken = localStorage.getItem(FEATHER_STORE_KEY);
       const email = 'test@test.com';
       if((accessToken && email) || this.isAuthenticated()){
         this.saveCredentials(email, accessToken);

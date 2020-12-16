@@ -1,11 +1,13 @@
 import {
   SCENES_FETCHED_SUCCESS,
   SCENES_FETCHED_ERROR,
-  SCENES_RETRIEVED
+  SCENES_RETRIEVED,
+  SET_CURRENT_SCENE,
 } from '../actions';
 
 export interface PublicScenesState {
     scenes: PublicScene[];
+    currentScene : PublicScene;
     error: string;
 }
 
@@ -18,6 +20,7 @@ export interface PublicScene {
 export interface ScenesFetchedAction {
     type: string;
     scenes?: PublicScene[];
+    scene?: PublicScene;
     message?: string;
 }
 
@@ -45,4 +48,11 @@ export function collectionsFetched (collections: any[]): CollectionsFetchedActio
         type: SCENES_RETRIEVED,
         collections: collections
     };
+}
+
+export function setCurrentScene (scene: PublicScene): ScenesFetchedAction {
+  return {
+    type: SET_CURRENT_SCENE,
+    scene: scene
+  };
 }
