@@ -49,18 +49,24 @@ export const DefaultInitializationOptions = {
 
 export function initializeEngine(initOptions: any = DefaultInitializationOptions) {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
-
+  
+  
   // Create a new world -- this holds all of our simulation state, entities, etc
   initialize();
-
+  
   // Create a new three.js scene
   const scene = new Scene();
 
   // Add the three.js scene to our manager -- it is now available anywhere
   Engine.scene = scene;
 
-  if(typeof window !== 'undefined') (window as any).engine = Engine;
-
+  if(typeof window !== 'undefined') {
+    (window as any).engine = Engine;
+    // Add iOS and safari flag to window object -- To use it for creating an iOS compatible WebGLRenderer for example
+    (window as any).iOS = !window.MSStream && /iPad|iPhone|iPod/.test(navigator.userAgent);
+    (window as any).safariWebBrowser = !window.MSStream && /Safari/.test(navigator.userAgent);
+  }
+  
   // Networking
   registerSystem(isClient ? ClientNetworkSystem : ServerNetworkSystem,
     { schema: options.networking.schema, app: options.networking.app });
