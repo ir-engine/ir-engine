@@ -1,4 +1,4 @@
-import { WebGLRenderer, PCFSoftShadowMap } from "three";
+import { WebGL1Renderer, WebGLRenderer, PCFSoftShadowMap } from "three";
 export default function makeRenderer(width, height, props = {}) {
   let { canvas } = props as any;
   if (!canvas) {
@@ -10,13 +10,15 @@ export default function makeRenderer(width, height, props = {}) {
   } catch (error) {
     context = canvas.getContext("webgl", { antialias: true });
   }
-  const renderer = new WebGLRenderer({
+  const options = {
     ...props,
     canvas,
     context,
     antialias: true,
     preserveDrawingBuffer: true
-  });
+  };
+  const { iOS, safariWebBrowser } = window as any
+  const renderer = iOS && safariWebBrowser ? new WebGL1Renderer(options) : new WebGLRenderer(options);
   renderer.gammaFactor = 2.2;
   renderer.physicallyCorrectLights = true;
   renderer.shadowMap.enabled = true;

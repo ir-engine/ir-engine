@@ -61,6 +61,7 @@ test("create", () => {
   // TODO: mock initializeNetworkObject
 
   const message: WorldStateInterface = {
+    snapshot: undefined,
     clientsConnected: [],
     clientsDisconnected: [],
     createObjects: [],
@@ -97,8 +98,8 @@ test("create", () => {
 
   const entity = newNetworkObject.entity;
   const transform = getComponent(entity, TransformComponent);
-  expect(transform.position).toMatchObject(expected.position);
   expect(transform.rotation).toMatchObject(expected.rotation);
+  expect(transform.position).toMatchObject(expected.position);
 
   expect(hasComponent(entity, CharacterComponent)).toBeTruthy();
   // expect(hasComponent(entity, LocalInputReceiver)).toBeTruthy();
