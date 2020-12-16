@@ -83,6 +83,7 @@
   },
   "dependencies": {
     "aws-sdk": "^2.811.0",
+    "cli": "^1.0.1",
     "text-encoding": "^0.7.0",
     "ts-jest": "^26.4.1"
   }
