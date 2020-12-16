@@ -14,13 +14,28 @@ console.log("Initializing network object")
     Network.instance.schema.prefabs[prefabType],
     // Connecting client's ID as a string
     ownerId,
-    networkId
+    networkId,
+    // Initialize with starting position and rotation
+    {
+      localClientComponents: [],
+      networkComponents: [
+        {
+          type: TransformComponent,
+          data: {
+            position: position ? position.clone() : new Vector3(),
+            rotation: rotation ? rotation.clone() : new Quaternion()
+          }
+        }
+      ],
+      serverComponents: []
+    }
   );
 
-  // Initialize with starting position and rotation
-  const transform = getMutableComponent(networkEntity, TransformComponent);
-  transform.position = position ? position: new Vector3();
-  transform.rotation = rotation ? rotation : new Quaternion();
+  // // Initialize with starting position and rotation
+  // const transform = getMutableComponent(networkEntity, TransformComponent);
+  // transform.position = position ? position.clone() : new Vector3();
+  // transform.rotation = rotation ? rotation.clone() : new Quaternion();
+  // (Network.instance as any).transform = transform;
 
   const networkObject = getComponent(networkEntity, NetworkObject);
 
