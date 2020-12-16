@@ -277,7 +277,7 @@ const lightTheme = createMuiTheme({
     },
     MuiPaper:{
       root:{
-        backgroundColor: 'rgba(255,255,255,1)',
+        backgroundColor: 'transparent',
         color: '#000000' ,
       }
     },
@@ -320,16 +320,27 @@ const lightTheme = createMuiTheme({
     },
     MuiListItem:{
       root:{
+        padding: '0px',
         paddingTop: '0px',
-        paddingBottom: '0px',       
-      },
-      
+        margin: '2px 0'
+      },      
+    },    
+    MuiListItemText:{
+      root:{
+        background:'rgba(255,255,255,1)',
+        borderRadius: '5px',
+        padding: '5px 10px',
+        width: 'fit-content',
+        flex: 'inherit',
+      }
     },
     MuiCardContent:{
       root:{
         background:'rgba(255,255,255,1)',
         '&:last-child': {
           paddingBottom: '0px',
+          paddingLeft: '0px',
+          paddingRight: '0px',
         }
       }
     },

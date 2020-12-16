@@ -158,10 +158,13 @@ const InstanceChat = (props: Props): any => {
 
     const [openMessageContainer, setOpenMessageContainer] = React.useState(false);
     const hideShowMessagesContainer = () => setOpenMessageContainer(!openMessageContainer);
+
+
     return (
-        <div className={styles['instance-chat-container']}>
+        <>
+        <div className={styles['instance-chat-container'] + ' '+ (!openMessageContainer && styles['messageContainerClosed'])}>
             <div className={styles['list-container']}>
-                <Card className={styles['message-wrapper']+' '+(openMessageContainer === false && styles['messageContainerClosed'])}>
+                <Card square={true} elevation={0} className={styles['message-wrapper']}>
                     <CardContent className={styles['message-container']}>
                     { activeChannel != null && activeChannel.messages && activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).slice(activeChannel.messages.length >= 3 ? activeChannel.messages?.length - 3 : 0, activeChannel.mesages?.length).map((message) => {
                         return <ListItem
@@ -170,14 +173,13 @@ const InstanceChat = (props: Props): any => {
                                 [styles.self]: message.senderId === user.id,
                                 [styles.other]: message.senderId !== user.id
                             })}
+                            disableGutters={true}
                             key={message.id}
                         >
                             <div>
-                                { message.senderId !== user.id &&
                                 <ListItemAvatar>
                                     <Avatar src={getMessageUser(message).avatarUrl}/>
                                 </ListItemAvatar>
-                                }
                                 <ListItemText
                                     primary={<p><span className={styles.userName}>{getMessageUser(message).name+': '}</span>{message.text}</p>}
                                 />
@@ -186,7 +188,7 @@ const InstanceChat = (props: Props): any => {
                     })
                     }
                     </CardContent>
-                    </Card>
+                </Card>
                 <Card className={styles['flex-center']}>
                     <CardContent className={styles['chat-box']}>
                         <div className={styles.iconContainer} >
@@ -216,7 +218,10 @@ const InstanceChat = (props: Props): any => {
                 </Card>
             </div>
         </div>
-    );
+       {!openMessageContainer && (<div className={styles.iconCallChat} >
+            <MessageIcon onClick={()=>hideShowMessagesContainer()} />
+        </div>)}
+    </>);
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(InstanceChat);
