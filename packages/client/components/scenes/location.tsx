@@ -28,6 +28,8 @@ import NetworkDebug from '../ui/NetworkDebug/NetworkDebug';
 import OnBoardingBox from '../ui/OnBoardingBox';
 import OnBoardingDialog from '../ui/OnBoardingDialog';
 import TooltipContainer from '../ui/TooltipContainer';
+import LoadedSceneButtons from '../ui/LoadedSceneButtons';
+import SceneTitle from '../ui/SceneTitle';
 
 const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
@@ -114,7 +116,9 @@ export const EnginePage = (props: Props) => {
     <>
       <NetworkDebug />
       <LinearProgressComponent label={progressEntity} />
-      <OnBoardingDialog actorEntity={actorEntity} avatarsList={CharacterAvatars} actorAvatarId={actorAvatarId} onAvatarChange={(avatarId) => {console.log('setActorAvatarId', avatarId);setActorAvatarId(avatarId); }} />
+      <SceneTitle />
+      <LoadedSceneButtons />
+      {/* <OnBoardingDialog actorEntity={actorEntity} avatarsList={CharacterAvatars} actorAvatarId={actorAvatarId} onAvatarChange={(avatarId) => {console.log('setActorAvatarId', avatarId);setActorAvatarId(avatarId); }} /> */}
       <OnBoardingBox actorEntity={actorEntity} />
       <MediaIconsBox />
       <TooltipContainer message={hoveredLabel.length > 0 ? hoveredLabel : ''} />
