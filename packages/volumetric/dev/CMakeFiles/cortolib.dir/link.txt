@@ -1,0 +1,2 @@
+/usr/bin/ar qc libcorto.a  CMakeFiles/cortolib.dir/src/bitstream.cpp.o CMakeFiles/cortolib.dir/src/color_attribute.cpp.o CMakeFiles/cortolib.dir/src/cstream.cpp.o CMakeFiles/cortolib.dir/src/decoder.cpp.o CMakeFiles/cortolib.dir/src/encoder.cpp.o CMakeFiles/cortolib.dir/src/normal_attribute.cpp.o CMakeFiles/cortolib.dir/src/tunstall.cpp.o CMakeFiles/cortolib.dir/src/corto_codec.cpp.o
+/usr/bin/ranlib libcorto.a

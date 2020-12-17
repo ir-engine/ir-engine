@@ -1,0 +1,9 @@
+/home/beast/Documents/GitHub/corto/CMakeFiles/install/strip.dir
+/home/beast/Documents/GitHub/corto/CMakeFiles/install/local.dir
+/home/beast/Documents/GitHub/corto/CMakeFiles/install.dir
+/home/beast/Documents/GitHub/corto/CMakeFiles/list_install_components.dir
+/home/beast/Documents/GitHub/corto/CMakeFiles/rebuild_cache.dir
+/home/beast/Documents/GitHub/corto/CMakeFiles/edit_cache.dir
+/home/beast/Documents/GitHub/corto/CMakeFiles/cortoexe.dir
+/home/beast/Documents/GitHub/corto/CMakeFiles/cortocodec_unity.dir
+/home/beast/Documents/GitHub/corto/CMakeFiles/cortolib.dir
