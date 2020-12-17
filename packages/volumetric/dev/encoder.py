@@ -9,57 +9,35 @@ from numpy.lib.recfunctions import merge_arrays
 
 current_keyframe = 0
 frame_number = 0
-
 vertex_count_in_last_ply = 0
 meshes_in_group = []
 
 axes = ['x', 'y', 'z']
 
-data_type = [('x0', '<f4'), ('x1', '<f4'), ('x2', '<f4'), ('x3', '<f4'), ('y0', '<f4'), ('y1', '<f4'), ('y2', '<f4'), ('y3', '<f4'), ('z0', '<f4'), ('z1', '<f4'), ('z2', '<f4'), ('z3', '<f4')]
+# data_type = [('x0', '<f4'), ('x1', '<f4'), ('x2', '<f4'), ('x3', '<f4'), ('y0', '<f4'), ('y1', '<f4'), ('y2', '<f4'), ('y3', '<f4'), ('z0', '<f4'), ('z1', '<f4'), ('z2', '<f4'), ('z3', '<f4')]
+#full_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4')]
 
 full_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('x0', '<f4'), ('x1', '<f4'), ('x2', '<f4'), ('x3', '<f4'), ('y0', '<f4'), ('y1', '<f4'), ('y2', '<f4'), ('y3', '<f4'), ('z0', '<f4'), ('z1', '<f4'), ('z2', '<f4'), ('z3', '<f4')]
 
-full_data_type_names = [  'x', 'y', 'z', 'x0', 'x1', 'x2', 'x3', 'y0', 'y1', 'y2', 'y3', 'z0', 'z1', 'z2', 'z3']
-
-# testmeshes = []
-# for subdir, dirs, files in os.walk('./encode'):
-#     for file in sorted(files):     #for each mesh
-#         testmeshes.append(PlyData.read('./encode/' + file))
-# test_output = vertex_positions_to_polynomial(testmeshes)
-# # print("Vertex positions to polynomial test output:")
-# # print(test_output)
-
 def create_poly_mesh_from_sequence(meshes):
     number_of_vertices = len(meshes[0]['vertex']['x'])
-    print("**********************************************************number_of_vertices before we fuck with it")
-    print(str(number_of_vertices))
-    print("x is")
-    print(meshes[0]['vertex']['x'])
     for mesh in range(len(meshes)):
         for i in axes:
             print("Axes: ", i, " meshes[mesh].elements[0].data[i]: ", meshes[mesh].elements[0].data[i])
             for vert in range(len(meshes[mesh].elements[0].data[i])):
                 # offset meshes so first mesh is always 0 vals
-                meshes[mesh].elements[0].data[i][vert] = meshes[mesh].elements[0].data[i][vert] - meshes[0].elements[0].data[i][vert]
+                meshes[mesh].elements[0].data[i][vert] = meshes[mesh].elements[0].data[i][vert]# - meshes[0].elements[0].data[i][vert]
         # For all meshes in group, subtract position from self and add to offset mesh group
 
     # vertex_positions_to_polynomial(vertex_positions) # Convert X to polynomial, Y to polynomial, Z to polynomial
     # Set polynomial mesh vertex to this value
     number_of_meshes = len(meshes)
     number_of_vertices = len(meshes[0]['vertex']['x'])
-    print("x is")
-    print(meshes[0]['vertex']['x'])
-    print("**********************************************************number of meshes")
-    print(str(number_of_meshes))
-    print("**********************************************************number_of_vertices")
-    print(str(number_of_vertices))
 
     polynomial_array = []
 
     # for each vert in total length
     for current_vertex in range(number_of_vertices):
-        print("**********************************************************Fetching vertex: ")
-        print(str(current_vertex))
         # get an axis
         polyAxes = []
         # for each in xyz
@@ -80,18 +58,9 @@ def create_poly_mesh_from_sequence(meshes):
             # add poly
         polynomial_array.append(polyAxes)
 
-    print("**********************************************")
-    print(polynomial_array)
-
-
     p = meshes[0]
     v = p.elements[0]
     f = p.elements[1]
-
-    print("Poly mesh lengtrh is", str(len(polynomial_array)))
-    print("A range is", str(len(polynomial_array[0])))
-    print("N range is", str(len(polynomial_array[0][0])))
-    print("N0 is", str(polynomial_array[0][0][0]))
 
     encoded_vertices = []
     channel = []
@@ -103,44 +72,18 @@ def create_poly_mesh_from_sequence(meshes):
             for n in range(len(polynomial_array[i][a])):
                 encoded_vertex.append(polynomial_array[i][a][n])
                 print("Encoding", polynomial_array[i][a][n])
-        print("Encoded vertex")
-        print(encoded_vertex)
-        print ("channels")
-        print(channel)
         vals = []
         for val in v[i]:
             vals.append(val)
         for val in encoded_vertex:
             vals.append(val)
         valsArray = np.array(vals)
-        print("Vals array")
-        print(valsArray)
-        # merge_vertex = np.concatenate(v[i], np.array(encoded_vertex, dtype=data_type))
-        # print("*********")
-        # print("merged arrays are")
-        # print(merge_vertex)
         encoded_vertices.append(valsArray)
-    # for each, push into array so 0, 1, 2, 3 = x0, x1, x2, x3, 4, 5, 6, 7 = y0, y1, y2, y3 8 9 10 11 = z0, z1, z2, z3
 
-    print("Encoded verts after algo is")
-    print(encoded_vertices)
     poly_data = encoded_vertices
 
     poly_data_transpose = np.array(poly_data).T
 
-
-    print("poly_data_transpose")
-    print(poly_data_transpose)
-    print("poly_data_transpose length is")
-    print(str(len(poly_data_transpose)))
-    # vertices = np.empty(len(encoded_vertices), full_data_type)
-
-    # print("vertices data is")
-    # print(vertices)
-
-    print("Original mesh length is", str(len(meshes[0]['vertex']['x'])))
-    print(meshes[0]['vertex']['x'])
-    print("x0 length is", str(len(poly_data_transpose)))
     x = meshes[0]['vertex']['x']
     y = meshes[0]['vertex']['y']
     z = meshes[0]['vertex']['z']
@@ -194,6 +137,7 @@ for subdir, dirs, files in os.walk('./encode'):
             create_poly_mesh_from_sequence(meshes_in_group) #end of coherent meshes / keyframe max reached? start encoding
             current_keyframe = frame_number
             meshes_in_group = [mesh] # set meshes in group to new keyframe mesh
+            print("Encoded mesh at " + str(frame_number))
         else:
             meshes_in_group.append(mesh)
             print("Adding mesh to group" + str(frame_number))
