@@ -978,7 +978,8 @@ export default class Api extends EventEmitter {
 
     const {
       file_id: assetFileId,
-      meta: { access_token: assetAccessToken }
+      meta: { access_token: assetAccessToken, expected_content_type: expectedContentType },
+      origin: origin
     } = await this.upload(file, onProgress, signal) as any;
 
     const delta = Date.now() - this.lastUploadAssetRequest;
@@ -1004,23 +1005,23 @@ export default class Api extends EventEmitter {
       }
     });
 
-    const resp = await this.fetchUrl(endpoint, { method: "POST", headers, body, signal });
-    console.log("Response: " + Object.values(resp));
-
-    const json = await resp.json();
-
-    const asset = json.assets[0];
-
+    // const resp = await this.fetchUrl(endpoint, { method: "POST", headers, body, signal });
+    // console.log("Response: " + Object.values(resp));
+    //
+    // const json = await resp.json();
+    //
+    // const asset = json.assets[0];
+    //
     this.lastUploadAssetRequest = Date.now();
 
     return {
-      id: asset.asset_id,
-      name: asset.name,
-      url: asset.file_url,
-      type: asset.type,
+      id: assetFileId,
+      name: file.name,
+      url: origin,
+      type: 'application/octet-stream',
       attributions: {},
       images: {
-        preview: { url: asset.thumbnail_url }
+        preview: { url: file.thumbnail_url }
       }
     };
   }
