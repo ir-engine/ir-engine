@@ -177,7 +177,7 @@ int main(int argc, char *argv[]) {
 	crt::Timer timer;
 
 	crt::Encoder encoder(loader.nvert, loader.nface, crt::Stream::TUNSTALL);
-
+	coutr << "Attempting encode" << endl;
 	encoder.exif = loader.exif;
 	//add and override exif properties
 	for(auto it: exif)
@@ -225,7 +225,13 @@ int main(int argc, char *argv[]) {
 
 
 	cout << "Encoding time: " << timer.elapsed() << "ms" << endl;
-
+	if(loader.xPos.size()){
+	cout << "xPos size is" << loader.xPos.size() << endl;
+	}
+	else {
+		cout << "No xpos :(" << endl;
+	}
+	
 	//encoder might actually change these number (unreferenced vertices, degenerate faces, duplicated coords in point clouds)
 	uint32_t nvert = encoder.nvert;
 	uint32_t nface = encoder.nface;
