@@ -162,6 +162,7 @@ def create_poly_mesh_from_sequence(meshes):
     vertices['x'] = x.astype('f4')
     vertices['y'] = y.astype('f4')
     vertices['z'] = z.astype('f4')
+    vertices['x0'] = x0.astype('f4')
     vertices['x1'] = x1.astype('f4')
     vertices['x2'] = x2.astype('f4')
     vertices['x3'] = x3.astype('f4')
