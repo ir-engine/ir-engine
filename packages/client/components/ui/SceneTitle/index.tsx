@@ -19,18 +19,17 @@ interface Props{
   currentScene?: any;
 }
 const SceneTitle = ({onBoardingStep, currentScene}:Props): any => {
-  console.log('onBoardingStep', onBoardingStep, 'currentScene',currentScene)
   const invitationLink = window.location.href;
 
   return (onBoardingStep === 0 || onBoardingStep === generalStateList.SCENE_LOADED || onBoardingStep === generalStateList.SCENE_LOADING) && 
     (<Snackbar 
-      anchorOrigin={{vertical: 'top',horizontal: 'left'}} 
+      anchorOrigin={{vertical: 'top',horizontal: 'center'}} 
       classes={{root:styles.parentContainer}}
       open={true} 
       autoHideDuration={10000}>
         <>
-          <Typography variant="h1" color="primary" align="right">{currentScene?.name}</Typography>
-          <Typography variant="h6" color="primary" align="right">{invitationLink}</Typography>
+          <Typography variant="h1" color="primary" align="center">{currentScene?.name}</Typography>
+          <Typography variant="h6" color="primary" align="center">{invitationLink}</Typography>
         </>
       </Snackbar>)   
 };
