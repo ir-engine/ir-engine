@@ -138,10 +138,10 @@ import { red } from '@material-ui/core/colors';
 const lightTheme = createMuiTheme({
   palette: {
     primary: {
-      main: '#0478ff',
+      main: '#5151FF',
     },
     secondary: {
-      main: '#ff0100'
+      main: '#FFFFFF'
     },
     error: {
       main: red.A400
@@ -150,7 +150,7 @@ const lightTheme = createMuiTheme({
       default: '#000000'
     },
     text:{
-      primary: '#000000',      
+      primary: '#FFFFFF',      
     },
   },
   typography: {
@@ -182,6 +182,16 @@ const lightTheme = createMuiTheme({
         textAlign: 'right',
         justifyContent: 'flex-end',
         alignItems: 'right',
+      },
+      alignLeft : {
+        textAlign: 'left',
+        justifyContent: 'flex-start',
+        alignItems: 'left',
+      },
+      alignCenter : {
+        textAlign: 'center',
+        justifyContent: 'center',
+        alignItems: 'center',
       }
     },
     MuiDialog:{
@@ -220,33 +230,52 @@ const lightTheme = createMuiTheme({
         color: '#484848'
       },
       thumb:{
-        height:'20px',
+        height:'36px',
         width:'20px',
         marginTop: '-10px',
       },
       thumbColorPrimary:{
         color: '#FFFFFF',
-        border: '1px solid #0478ff'
+        border: '1px solid #5151FF'
+      }
+    },
+    MuiLinearProgress:{
+      root:{
+        height: '34px',
+        backgroundColor:'#FFFFFF',
+        borderRadius: '8px',
+        '@media (max-width: 768px)': {
+          height: '16px',
+          borderRadius: '4px',
+        },
+      },
+      bar:{
+        borderRadius: 'inherit',
+        // '@media (max-width: 768px)': {
+        //   borderRadius: '4px',
+        // },
       }
     },
     MuiMenuItem:{
       root:{
         padding: '5px',
+        borderRadius: '8px',
       }
     },
     MuiSnackbar:{
       root: {
-        maxWidth: '40%',
-        width: '40%',
+        maxWidth: '80%',
+        minWidth: '40%',
+        width: 'auto',
         left: '30%',
         right: '30%',        
         userSelect: 'none',
-        // borderRadius: '5px',
+        borderRadius: '8px',
         fontSize: 16,    
         backgroundColor: 'rgba(255,255,255,0.8)',
         color: '#000000' ,
         padding: '20px',
-        // textAlign: 'center',        
+        boxSizing: 'border-box',
         '@media (max-width: 768px)': {
           maxWidth: '90%',
           width: '90%',
@@ -261,12 +290,17 @@ const lightTheme = createMuiTheme({
           }
         }      
       },
+      anchorOriginTopCenter:{
+        top: '2%',
+        '@media (max-width: 768px)': {
+          top: '10%',
+        },
+      },
       anchorOriginTopLeft:{
         left: '0px',
         top: '24px',
         width: '52%',
         maxWidth: '80%',
-        // textAlign: 'right',        
         '@media (max-width: 768px)': {
           width: '90%',
         },
@@ -308,7 +342,7 @@ const lightTheme = createMuiTheme({
     MuiCardActionArea:{
       root:{      
         focusHighlight:{        
-            backgroungColor:'#0478ff',        
+            backgroungColor:'#5151FF',        
         }
       }
     },
@@ -344,16 +378,6 @@ const lightTheme = createMuiTheme({
         }
       }
     },
-    MuiLinearProgress:{
-      root:{
-        height: '15px',
-        borderRadius: '5px',
-        color: 'rgb(0,153,255)',        
-      },
-      colorPrimary:{
-        backgroundColor:'#FFFFFF',
-      },
-    },
     MuiInputBase:{
       input:{
         color: '#000000',
@@ -371,23 +395,23 @@ const lightTheme = createMuiTheme({
       },
       outlinedPrimary:{
         '&:hover':{
-          boxShadow: '0 0 10px #0478ff'
+          boxShadow: '0 0 10px #5151FF'
         }        
       },
       outlinedSecondary:{
         '&:hover':{
-          boxShadow: '0 0 10px #ff0100'
+          boxShadow: '0 0 10px #FFFFFF'
         }        
       },
-      contained:{
-        color: '#0076ff', 
-        backgroundColor: 'rgba(255,255,255,0.8)',       
-        width: 'auto',
-        fontWeight: 'bold',
-        padding: '15px 30x',
-        borderRadius: '5px',
-        fontSize: 18,
-      }
+      // contained:{
+      //   color: '#0076ff', 
+      //   backgroundColor: 'rgba(255,255,255,0.8)',       
+      //   // width: 'auto',
+      //   fontWeight: 'bold',
+      //   padding: '15px 30x',
+      //   borderRadius: '5px',
+      //   fontSize: 18,
+      // }
     },    
     MuiFab: {
       root: {
