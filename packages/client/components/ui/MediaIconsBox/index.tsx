@@ -81,13 +81,22 @@ const MediaIconsBox = observer((props) =>{
 
     const audioPaused = MediaStreamComponent?.instance?.mediaStream === null || MediaStreamComponent?.instance?.camAudioProducer == null || MediaStreamComponent?.instance?.audioPaused === true;
     const videoPaused = MediaStreamComponent?.instance?.mediaStream === null || MediaStreamComponent?.instance?.camVideoProducer == null || MediaStreamComponent?.instance?.videoPaused === true;
-
+    const faceStreaming = false;
     return props.onBoardingStep >= generalStateList.TUTOR_INTERACT ?
         <section className={styles.drawerBoxContainer}>
             <section className={styles.drawerBox}>
-                <div className={styles.iconContainer}>{audioPaused ? <MicOff onClick={handleMicClick} /> : <Mic onClick={handleMicClick} />}</div>
-                <div className={styles.iconContainer}>{videoPaused ? <VideocamOff onClick={handleCamClick} /> : <Videocam onClick={handleCamClick} />}</div>
-                <div className={styles.iconContainer}><FaceIcon /></div>
+                <div className={styles.iconContainer + ' ' + (audioPaused ? styles.off : styles.on)}>
+                    <MicOff className={styles.offIcon} onClick={handleMicClick} />
+                    <Mic className={styles.onIcon} onClick={handleMicClick} />
+                </div>
+                <div className={styles.iconContainer + ' ' + (videoPaused ? styles.off : styles.on)}>
+                    <VideocamOff className={styles.offIcon} onClick={handleCamClick} />
+                    <Videocam className={styles.onIcon} onClick={handleCamClick} />
+                </div>
+                <div className={styles.iconContainer + ' ' + (!faceStreaming ? styles.off : styles.on)}>
+                    <FaceIcon className={styles.offIcon} />
+                    <FaceIcon className={styles.onIcon} />
+                </div>
             </section>
         </section>
         :null;
