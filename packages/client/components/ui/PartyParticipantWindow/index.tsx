@@ -168,7 +168,9 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                     // toggleAudio();
                 }
             }
-            audioRef.current.volume = 1;
+            // TODO: handle 3d audio switch on/off
+            // audioRef.current.muted = true;
+            audioRef.current.volume = 0;
             setVolume(100);
         }
     }, [audioStream]);
