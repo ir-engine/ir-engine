@@ -48,7 +48,7 @@ export class Network extends Component<Network> {
 
   private static availableNetworkId = 0
   static getNetworkId() {
-    return this.availableNetworkId++;
+    return ++this.availableNetworkId;
   }
   static _schemas: Map<string, MessageSchema> = new Map()
 
