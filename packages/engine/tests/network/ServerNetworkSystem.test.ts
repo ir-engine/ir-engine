@@ -31,6 +31,7 @@ import { InputAlias } from "../../src/input/types/InputAlias";
 import { ClientInputModel } from "../../src/networking/schema/clientInputSchema";
 import { ServerNetworkOutgoingSystem } from "../../src/networking/systems/ServerNetworkOutgoingSystem";
 import { expect } from "@jest/globals";
+import { WorldStateModel } from "../../src/networking/schema/worldStateSchema";
 
 //const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
 const handleInputOnServer = jest.spyOn(handleInputOnServerModule, 'handleInputOnServer');
@@ -46,6 +47,7 @@ const playerTwoUserId = "oidTwo";
 
 class TestTransport implements NetworkTransport {
   isServer = true;
+  sentData = [];
 
   handleKick(socket: any) {
   }
@@ -58,6 +60,7 @@ class TestTransport implements NetworkTransport {
   }
 
   sendReliableData(data: any): void {
+    this.sentData.push(data);
   }
 
 }
@@ -316,6 +319,13 @@ test("incoming input propagates to network", () => {
   // TODO: check input
   const p2input = Network.instance.worldState.inputs.find(t => t.networkId === p2NetworkObject.networkId);
   expect(p2input).toMatchObject(p2message as any);
+
+  const sentData = (Network.instance.transport as TestTransport).sentData;
+  const lastSent = sentData[sentData.length - 1];
+  // if (Network.instance.packetCompression) {
+  const message = WorldStateModel.fromBuffer(lastSent);
+  const p2inputsFromSentData = message.inputs.find(t => t.networkId === p2NetworkObject.networkId);
+  expect(p2inputsFromSentData).toMatchObject(p2message as any);
 });
 
 function createButtonServerMessage(networkId:number, button:InputAlias, value:BinaryValue, lifecycle:LifecycleValue = null, viewVector:{x:number,y:number,z:number} = null):NetworkInputInterface {
