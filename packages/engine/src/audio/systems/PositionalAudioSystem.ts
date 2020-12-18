@@ -16,13 +16,8 @@ import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { MediaStreamComponent } from '../../networking/components/MediaStreamComponent';
 import { Network } from '../../networking/components/Network';
 import { MediaStreamSystem } from '../../networking/systems/MediaStreamSystem';
+import { NetworkObject } from '../../networking/components/NetworkObject';
 
-// let networkTransport: any;
-
-// export function setPartyId(partyId: string): void {
-//   networkTransport = Network.instance.transport as any;
-//   networkTransport.partyId = partyId;
-// }
 
 export class PositionalAudioSystem extends System {
   // updateType = SystemUpdateType.Fixed;
@@ -36,14 +31,21 @@ export class PositionalAudioSystem extends System {
   //   MediaStreamComponent.instance.camAudioProducer = await this.newTransport.produce({
   //     track: MediaStreamComponent.instance.mediaStream.getAudioTracks()[0],
   //     appData: { mediaTag: "cam-audio", partyId: partyId }
-  // });
+  // });c.appData.peerId === peerId &&
 
   execute(): void {
     
 
     for (const entity of this.queryResults.audio_stream.all) {
+      const entityNetworkObject = getComponent(entity, NetworkObject);
+      const peerId = entityNetworkObject.ownerId;
+
+      // if (this.characterAudioStream.has(entity)) {
+      //   continue;
+      //   }
+
       const consumer = MediaStreamComponent.instance.consumers.find
-        ((c: any) => c.appData.mediaTag === 'cam-audio');
+        ((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio');
 
       if (consumer) {
         let consumerLive = consumer?.track;
@@ -65,15 +67,42 @@ export class PositionalAudioSystem extends System {
           positionalAudio.value = new PositionalAudio(Engine.audioListener);
 
           for(const streams of this.characterAudioStream.values()){
-            const streamsLive = new MediaStream([streams]);
-            // console.warn('CONSUMER STREAM!',streamsLive);
-          positionalAudio.value.setMediaStreamSource(streamsLive);
+            const streamsLive = new MediaStream([streams.clone()]);
 
-          positionalAudio.value.setBuffer(streams);
-          positionalAudio.value.setRefDistance(2);
+            // const oscillator = Engine.audioListener.context.createOscillator();
+            // oscillator.type = 'sine';
+            // oscillator.frequency.setValueAtTime(144, positionalAudio.value.context.currentTime);
+            // oscillator.start(0);
+            // positionalAudio.value.setNodeSource(oscillator);
+            // console.warn('CONSUMER STREAM!',streamsLive);
+
+            const audio = positionalAudio.value.context.createMediaStreamSource(streamsLive);
+            // console.log(audio);
+            positionalAudio.value.setNodeSource(audio as unknown as AudioBufferSourceNode);
+            // const audio = new AudioContext();
+            // const source = audio.createBufferSource();
+            // // source.connect(audio.destination);
+
+            // console.log(streams)    
+
+            // audio.decodeAudioData(streams, (bufer)=> {
+            //     source.buffer = bufer; 
+            //     source.start(); 
+            //   });
+            
+            
+
+            // const audioCtx = new AudioContext();
+            // const source = audioCtx.createMediaStreamSource(streamsLive);
+            // const source = audioCtx.createBufferSource();
+            // positionalAudio.value.setNodeSource(source);
+          // positionalAudio.value.setMediaStreamSource(streamsLive);
+
+          // positionalAudio.value.setBuffer(streams);
+            // positionalAudio.value.setRefDistance(2);
           // positionalAudio.value.loop = true;
           // positionalAudio.value.play();
-          positionalAudio.value.setDirectionalCone(180, 230, 0.1);
+          // positionalAudio.value.setDirectionalCone(180, 230, 0.1);
           }
           // audioLoader.load(soundUrl, (buffer) => {
           
@@ -91,6 +120,8 @@ export class PositionalAudioSystem extends System {
       // const consumer = MediaStreamComponent.instance.consumers.find
       //   ((c: any) => c.appData.mediaTag === 'cam-audio');
       //   const consumerLive = consumer.track;
+
+        console.log(entity);
       
       const positionalAudio = getMutableComponent(entity, PositionalAudioComponent);
       positionalAudio.value = new PositionalAudio(Engine.audioListener);
