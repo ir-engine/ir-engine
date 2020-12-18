@@ -137,6 +137,7 @@ function profile() {
 	var ms = performance.now() - now;
 
 	console.log("xPos is: ", model.xPos);
+
 	decode_times.push(ms);
 	console.log((model.nvert/1024.0).toFixed(1) + "KV", ms.toFixed(1) + "ms", ((model.nvert/1000)/ms).toFixed(2) + "MV/s");
 	console.log("js:", ms);

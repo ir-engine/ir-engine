@@ -163,6 +163,19 @@ void MeshLoader::splitWedges() {
 				for(int j = 0; j < 4; j++)
 					colors.push_back(colors[k*4 + j]);
 
+
+			if(xPos.size())
+				for(int j = 0; j < 4; j++)
+					xPos.push_back(xPos[k*4 + j]);
+
+			if(yPos.size())
+				for(int j = 0; j < 4; j++)
+					yPos.push_back(yPos[k*4 + j]);
+
+			if(zPos.size())
+				for(int j = 0; j < 4; j++)
+					zPos.push_back(zPos[k*4 + j]);
+
 			//TODO do the same thing for all other attributes
 			duplicated.insert(std::make_pair(k, found));
 		}
@@ -171,6 +184,7 @@ void MeshLoader::splitWedges() {
 	}
 	nface = index.size()/3;
 	nvert = coords.size()/3;
+	cout << " Coords is now " << nvert << endl;
 }
 
 bool MeshLoader::savePly(const string &filename, std::vector<std::string> &comments) {
