@@ -93,15 +93,8 @@ int main(int argc, char *argv[]) {
 	while((c = getopt(argc, argv, "pAo:v:n:c:u:q:N:e:P:G:")) != -1) {
 		switch(c) {
 		case 'o': output = optarg;  break;  //output filename
-		case 'p': pointcloud = true; break; //force pointcloud
 		case 'v': vertex_bits = atoi(optarg); break;
 		case 'n': norm_bits   = atoi(optarg); break;
-		case 'c': r_bits = g_bits = a_bits = b_bits  = atoi(optarg); break;
-		case 'r': r_bits = atoi(optarg); break;
-		case 'g': g_bits = atoi(optarg); break;
-		case 'b': b_bits = atoi(optarg); break;
-		case 'a': a_bits = atoi(optarg); break;
-
 		case 'u': uv_bits     = atoi(optarg); break;
 		case 'q': vertex_q    = (float)atof(optarg); break;
 		case 'A': add_normals = true; break;
@@ -156,9 +149,6 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	if(pointcloud)
-		loader.nface = 0;
-	pointcloud = (loader.nface == 0 || pointcloud);
 	crt::NormalAttr::Prediction prediction = crt::NormalAttr::BORDER;
 	if(!normal_prediction.empty()) {
 		if(normal_prediction == "delta")
@@ -198,17 +188,17 @@ int main(int argc, char *argv[]) {
 
 	if(loader.xPos.size()){
 		cout << "xPos size is " << loader.xPos.size() << endl;
-		encoder.addAttribute("xPos", (char *)loader.xPos.data(), crt::VertexAttribute::FLOAT, 4, 1.0f);
+		encoder.addAttribute("xPos", (char *)loader.xPos.data(), crt::VertexAttribute::FLOAT, 4, 1.0f/1000.0f);
 	}
 
 	if(loader.yPos.size()){
 		cout << "yPos size is " << loader.yPos.size() << endl;
-		encoder.addAttribute("yPos", (char *)loader.yPos.data(), crt::VertexAttribute::FLOAT, 4, 1.0f);
+		encoder.addAttribute("yPos", (char *)loader.yPos.data(), crt::VertexAttribute::FLOAT, 4, 1.0f/1000.0f);
 	}
 
 	if(loader.zPos.size()){
 		cout << "zPos size is " << loader.zPos.size() << endl;
-		encoder.addAttribute("zPos", (char *)loader.zPos.data(), crt::VertexAttribute::FLOAT, 4, 1.0f);
+		encoder.addAttribute("zPos", (char *)loader.zPos.data(), crt::VertexAttribute::FLOAT, 4, 1.0f/1000.0f);
 	}
 
 	encoder.encode();
@@ -230,18 +220,6 @@ int main(int argc, char *argv[]) {
 	crt::VertexAttribute *coord = encoder.data["position"];
 	cout << "Coord bpv; " << 8.0f*coord->size/nvert << endl;
 	cout << "Coord q: " << coord->q << " bits: " << coord->bits << endl << endl;
-
-	crt::VertexAttribute *norm = encoder.data["normal"];
-	if(norm) {
-		cout << "Normal bpv; " << 8.0f*norm->size/nvert << endl;
-		cout << "Normal q: " << norm->q << " bits: " << norm->bits << endl << endl;
-	}
-
-	crt::ColorAttr *color = dynamic_cast<crt::ColorAttr *>(encoder.data["color"]);
-	if(color) {
-		cout << "Color bpv; " << 8.0f*color->size/nvert << endl;
-		cout << "Color q: " << color->qc[0] << " " << color->qc[1] << " " << color->qc[2] << " " << color->qc[3] << endl;
-	}
 
 	crt::GenericAttr<int> *uv = dynamic_cast<crt::GenericAttr<int> *>(encoder.data["uv"]);
 	if(uv) {
@@ -270,15 +248,7 @@ int main(int argc, char *argv[]) {
 	out.nface = encoder.nface;
 	out.coords.resize(nvert*3);
 	decoder.setPositions(out.coords.data());
-	if(decoder.data.count("normal")) {
-		out.norms.resize(nvert*3);
-		decoder.setNormals(out.norms.data());
-	}
-	if(decoder.data.count("color")) {
-		out.colors.resize(nvert*loader.nColorsComponents);
-		out.nColorsComponents = loader.nColorsComponents;
-		decoder.setColors(out.colors.data(), loader.nColorsComponents);
-	}
+
 	if(decoder.data.count("uv")) {
 		out.uvs.resize(nvert*2);
 		decoder.setUvs(out.uvs.data());
