@@ -177,7 +177,7 @@ int main(int argc, char *argv[]) {
 	crt::Timer timer;
 
 	crt::Encoder encoder(loader.nvert, loader.nface, crt::Stream::TUNSTALL);
-	coutr << "Attempting encode" << endl;
+	cout << "Attempting encode" << endl;
 	encoder.exif = loader.exif;
 	//add and override exif properties
 	for(auto it: exif)
@@ -186,52 +186,30 @@ int main(int argc, char *argv[]) {
 	for(auto &g: loader.groups)
 		encoder.addGroup(g.end, g.properties);
 
-	if(pointcloud) {
-		if(vertex_bits)
-			encoder.addPositionsBits(loader.coords.data(), vertex_bits);
-		else
-			encoder.addPositions(loader.coords.data(), vertex_q);
-
-	} else {
-		if(vertex_bits)
-			encoder.addPositionsBits(loader.coords.data(), loader.index.data(), vertex_bits);
-		else
-			encoder.addPositions(loader.coords.data(), loader.index.data(), vertex_q);
-	}
-	//TODO add suppor for wedge and face attributes adding simplex attribute
-	if(loader.norms.size() && norm_bits > 0)
-		encoder.addNormals(loader.norms.data(), norm_bits, prediction);
-
-	if(loader.colors.size() && r_bits > 0) {
-		if(loader.nColorsComponents == 3) {
-			encoder.addColors3(loader.colors.data(), r_bits, g_bits, b_bits);
-		} else
-			encoder.addColors(loader.colors.data(), r_bits, g_bits, b_bits, a_bits);
-	}
+	if(vertex_bits)
+		encoder.addPositionsBits(loader.coords.data(), loader.index.data(), vertex_bits);
+	else
+		encoder.addPositions(loader.coords.data(), loader.index.data(), vertex_q);
 
 	if(loader.uvs.size() && uv_bits > 0)
 		encoder.addUvs(loader.uvs.data(), pow(2, -uv_bits));
 
-	if(loader.xPos.size())
-		encoder.addAttribute("xPos", (char *)loader.xPos.data(), crt::VertexAttribute::FLOAT, 4, 1.0f);
+	// if(loader.xPos.size()){
+	// 	cout << "xPos size is " << loader.xPos.size() << endl;
+	// 	encoder.addAttribute("xPos", (char *)loader.xPos.data(), crt::VertexAttribute::FLOAT, 4, 1.0f);
+	// }
 
-	if(loader.yPos.size())
-		encoder.addAttribute("yPos", (char *)loader.yPos.data(), crt::VertexAttribute::FLOAT, 4, 1.0f);
+	// if(loader.yPos.size())
+	// 	encoder.addAttribute("yPos", (char *)loader.yPos.data(), crt::VertexAttribute::FLOAT, 4, 1.0f);
 
-	if(loader.zPos.size())
-		encoder.addAttribute("zPos", (char *)loader.zPos.data(), crt::VertexAttribute::FLOAT, 4, 1.0f);
+	// if(loader.zPos.size())
+	// 	encoder.addAttribute("zPos", (char *)loader.zPos.data(), crt::VertexAttribute::FLOAT, 4, 1.0f);
 
 	encoder.encode();
 
 
 	cout << "Encoding time: " << timer.elapsed() << "ms" << endl;
-	if(loader.xPos.size()){
-	cout << "xPos size is" << loader.xPos.size() << endl;
-	}
-	else {
-		cout << "No xpos :(" << endl;
-	}
-	
+
 	//encoder might actually change these number (unreferenced vertices, degenerate faces, duplicated coords in point clouds)
 	uint32_t nvert = encoder.nvert;
 	uint32_t nface = encoder.nface;
@@ -265,12 +243,25 @@ int main(int argc, char *argv[]) {
 		cout << "Uv q: " << uv->q << " bits: " << uv->bits << endl << endl;
 	}
 
-
-	crt::GenericAttr<int> *radius = dynamic_cast<crt::GenericAttr<int> *>(encoder.data["radius"]);
-	if(radius) {
-		cout << "Radius  bpv; " << 8.0f*radius->size/nvert << endl;
-		cout << "Radius q: " << radius->q << " bits: " << radius->bits << endl << endl;
+	crt::GenericAttr<int> *xPosOut = dynamic_cast<crt::GenericAttr<int> *>(encoder.data["xPos"]);
+	if(xPosOut) {
+		cout << "xPosOut " << endl;
+		cout << xPosOut << endl;
 	}
+
+	crt::GenericAttr<int> *yPosOut = dynamic_cast<crt::GenericAttr<int> *>(encoder.data["yPos"]);
+	if(yPosOut) {
+		cout << "yPosOut " << endl;
+		cout << yPosOut << endl;
+	}
+
+
+	crt::GenericAttr<int> *zPosOut = dynamic_cast<crt::GenericAttr<int> *>(encoder.data["zPos"]);
+	if(zPosOut) {
+		cout << "zPosOut " << endl;
+		cout << zPosOut << endl;
+	}
+
 
 	cout << "Face bpv; " << 8.0f*encoder.index.size/nvert << endl;
 
@@ -300,19 +291,20 @@ int main(int argc, char *argv[]) {
 		out.uvs.resize(nvert*2);
 		decoder.setUvs(out.uvs.data());
 	}
-	if(decoder.data.count("xPos")) {
-		cout << "SUCCESS! Position encoded data detected";
-		out.xPos.resize(nvert);
-		decoder.setAttribute("xPos", (char *)out.xPos.data(), crt::VertexAttribute::FLOAT);
-	}
-		if(decoder.data.count("yPos")) {
-		out.yPos.resize(nvert);
-		decoder.setAttribute("yPos", (char *)out.yPos.data(), crt::VertexAttribute::FLOAT);
-	}
-		if(decoder.data.count("zPos")) {
-		out.zPos.resize(nvert);
-		decoder.setAttribute("zPos", (char *)out.zPos.data(), crt::VertexAttribute::FLOAT);
-	}
+	// if(decoder.data.count("xPos")) {
+	// 	cout << "SUCCESS! Position encoded data detected" << endl;
+	// 	out.xPos.resize(nvert*4);
+	// 	decoder.setAttribute("xPos", (char *)out.xPos.data(), crt::VertexAttribute::FLOAT);
+	// }
+	// 	if(decoder.data.count("yPos")) {
+	// 	out.yPos.resize(nvert*4);
+	// 	decoder.setAttribute("yPos", (char *)out.yPos.data(), crt::VertexAttribute::FLOAT);
+	// }
+	// 	if(decoder.data.count("zPos")) {
+	// 	out.zPos.resize(nvert*4);
+	// 	decoder.setAttribute("zPos", (char *)out.zPos.data(), crt::VertexAttribute::FLOAT);
+	// }
+
 	if(decoder.nface) {
 		out.index.resize(nface*3);
 		decoder.setIndex(out.index.data());

@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/beast/Documents/GitHub/corto
+CMAKE_SOURCE_DIR = /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/beast/Documents/GitHub/corto
+CMAKE_BINARY_DIR = /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev
 
 # Include any dependencies generated for this target.
 include CMakeFiles/cortolib.dir/depend.make
@@ -59,107 +59,107 @@ include CMakeFiles/cortolib.dir/flags.make
 
 CMakeFiles/cortolib.dir/src/bitstream.cpp.o: CMakeFiles/cortolib.dir/flags.make
 CMakeFiles/cortolib.dir/src/bitstream.cpp.o: src/bitstream.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beast/Documents/GitHub/corto/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/cortolib.dir/src/bitstream.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cortolib.dir/src/bitstream.cpp.o -c /home/beast/Documents/GitHub/corto/src/bitstream.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/cortolib.dir/src/bitstream.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cortolib.dir/src/bitstream.cpp.o -c /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/bitstream.cpp
 
 CMakeFiles/cortolib.dir/src/bitstream.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/cortolib.dir/src/bitstream.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/beast/Documents/GitHub/corto/src/bitstream.cpp > CMakeFiles/cortolib.dir/src/bitstream.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/bitstream.cpp > CMakeFiles/cortolib.dir/src/bitstream.cpp.i
 
 CMakeFiles/cortolib.dir/src/bitstream.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/cortolib.dir/src/bitstream.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/beast/Documents/GitHub/corto/src/bitstream.cpp -o CMakeFiles/cortolib.dir/src/bitstream.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/bitstream.cpp -o CMakeFiles/cortolib.dir/src/bitstream.cpp.s
 
 CMakeFiles/cortolib.dir/src/color_attribute.cpp.o: CMakeFiles/cortolib.dir/flags.make
 CMakeFiles/cortolib.dir/src/color_attribute.cpp.o: src/color_attribute.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beast/Documents/GitHub/corto/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/cortolib.dir/src/color_attribute.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cortolib.dir/src/color_attribute.cpp.o -c /home/beast/Documents/GitHub/corto/src/color_attribute.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/cortolib.dir/src/color_attribute.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cortolib.dir/src/color_attribute.cpp.o -c /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/color_attribute.cpp
 
 CMakeFiles/cortolib.dir/src/color_attribute.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/cortolib.dir/src/color_attribute.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/beast/Documents/GitHub/corto/src/color_attribute.cpp > CMakeFiles/cortolib.dir/src/color_attribute.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/color_attribute.cpp > CMakeFiles/cortolib.dir/src/color_attribute.cpp.i
 
 CMakeFiles/cortolib.dir/src/color_attribute.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/cortolib.dir/src/color_attribute.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/beast/Documents/GitHub/corto/src/color_attribute.cpp -o CMakeFiles/cortolib.dir/src/color_attribute.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/color_attribute.cpp -o CMakeFiles/cortolib.dir/src/color_attribute.cpp.s
 
 CMakeFiles/cortolib.dir/src/cstream.cpp.o: CMakeFiles/cortolib.dir/flags.make
 CMakeFiles/cortolib.dir/src/cstream.cpp.o: src/cstream.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beast/Documents/GitHub/corto/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/cortolib.dir/src/cstream.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cortolib.dir/src/cstream.cpp.o -c /home/beast/Documents/GitHub/corto/src/cstream.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/cortolib.dir/src/cstream.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cortolib.dir/src/cstream.cpp.o -c /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/cstream.cpp
 
 CMakeFiles/cortolib.dir/src/cstream.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/cortolib.dir/src/cstream.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/beast/Documents/GitHub/corto/src/cstream.cpp > CMakeFiles/cortolib.dir/src/cstream.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/cstream.cpp > CMakeFiles/cortolib.dir/src/cstream.cpp.i
 
 CMakeFiles/cortolib.dir/src/cstream.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/cortolib.dir/src/cstream.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/beast/Documents/GitHub/corto/src/cstream.cpp -o CMakeFiles/cortolib.dir/src/cstream.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/cstream.cpp -o CMakeFiles/cortolib.dir/src/cstream.cpp.s
 
 CMakeFiles/cortolib.dir/src/decoder.cpp.o: CMakeFiles/cortolib.dir/flags.make
 CMakeFiles/cortolib.dir/src/decoder.cpp.o: src/decoder.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beast/Documents/GitHub/corto/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/cortolib.dir/src/decoder.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cortolib.dir/src/decoder.cpp.o -c /home/beast/Documents/GitHub/corto/src/decoder.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/cortolib.dir/src/decoder.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cortolib.dir/src/decoder.cpp.o -c /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/decoder.cpp
 
 CMakeFiles/cortolib.dir/src/decoder.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/cortolib.dir/src/decoder.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/beast/Documents/GitHub/corto/src/decoder.cpp > CMakeFiles/cortolib.dir/src/decoder.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/decoder.cpp > CMakeFiles/cortolib.dir/src/decoder.cpp.i
 
 CMakeFiles/cortolib.dir/src/decoder.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/cortolib.dir/src/decoder.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/beast/Documents/GitHub/corto/src/decoder.cpp -o CMakeFiles/cortolib.dir/src/decoder.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/decoder.cpp -o CMakeFiles/cortolib.dir/src/decoder.cpp.s
 
 CMakeFiles/cortolib.dir/src/encoder.cpp.o: CMakeFiles/cortolib.dir/flags.make
 CMakeFiles/cortolib.dir/src/encoder.cpp.o: src/encoder.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beast/Documents/GitHub/corto/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/cortolib.dir/src/encoder.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cortolib.dir/src/encoder.cpp.o -c /home/beast/Documents/GitHub/corto/src/encoder.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/cortolib.dir/src/encoder.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cortolib.dir/src/encoder.cpp.o -c /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/encoder.cpp
 
 CMakeFiles/cortolib.dir/src/encoder.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/cortolib.dir/src/encoder.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/beast/Documents/GitHub/corto/src/encoder.cpp > CMakeFiles/cortolib.dir/src/encoder.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/encoder.cpp > CMakeFiles/cortolib.dir/src/encoder.cpp.i
 
 CMakeFiles/cortolib.dir/src/encoder.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/cortolib.dir/src/encoder.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/beast/Documents/GitHub/corto/src/encoder.cpp -o CMakeFiles/cortolib.dir/src/encoder.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/encoder.cpp -o CMakeFiles/cortolib.dir/src/encoder.cpp.s
 
 CMakeFiles/cortolib.dir/src/normal_attribute.cpp.o: CMakeFiles/cortolib.dir/flags.make
 CMakeFiles/cortolib.dir/src/normal_attribute.cpp.o: src/normal_attribute.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beast/Documents/GitHub/corto/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/cortolib.dir/src/normal_attribute.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cortolib.dir/src/normal_attribute.cpp.o -c /home/beast/Documents/GitHub/corto/src/normal_attribute.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/cortolib.dir/src/normal_attribute.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cortolib.dir/src/normal_attribute.cpp.o -c /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/normal_attribute.cpp
 
 CMakeFiles/cortolib.dir/src/normal_attribute.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/cortolib.dir/src/normal_attribute.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/beast/Documents/GitHub/corto/src/normal_attribute.cpp > CMakeFiles/cortolib.dir/src/normal_attribute.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/normal_attribute.cpp > CMakeFiles/cortolib.dir/src/normal_attribute.cpp.i
 
 CMakeFiles/cortolib.dir/src/normal_attribute.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/cortolib.dir/src/normal_attribute.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/beast/Documents/GitHub/corto/src/normal_attribute.cpp -o CMakeFiles/cortolib.dir/src/normal_attribute.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/normal_attribute.cpp -o CMakeFiles/cortolib.dir/src/normal_attribute.cpp.s
 
 CMakeFiles/cortolib.dir/src/tunstall.cpp.o: CMakeFiles/cortolib.dir/flags.make
 CMakeFiles/cortolib.dir/src/tunstall.cpp.o: src/tunstall.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beast/Documents/GitHub/corto/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/cortolib.dir/src/tunstall.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cortolib.dir/src/tunstall.cpp.o -c /home/beast/Documents/GitHub/corto/src/tunstall.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/cortolib.dir/src/tunstall.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cortolib.dir/src/tunstall.cpp.o -c /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/tunstall.cpp
 
 CMakeFiles/cortolib.dir/src/tunstall.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/cortolib.dir/src/tunstall.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/beast/Documents/GitHub/corto/src/tunstall.cpp > CMakeFiles/cortolib.dir/src/tunstall.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/tunstall.cpp > CMakeFiles/cortolib.dir/src/tunstall.cpp.i
 
 CMakeFiles/cortolib.dir/src/tunstall.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/cortolib.dir/src/tunstall.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/beast/Documents/GitHub/corto/src/tunstall.cpp -o CMakeFiles/cortolib.dir/src/tunstall.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/tunstall.cpp -o CMakeFiles/cortolib.dir/src/tunstall.cpp.s
 
 CMakeFiles/cortolib.dir/src/corto_codec.cpp.o: CMakeFiles/cortolib.dir/flags.make
 CMakeFiles/cortolib.dir/src/corto_codec.cpp.o: src/corto_codec.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beast/Documents/GitHub/corto/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/cortolib.dir/src/corto_codec.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cortolib.dir/src/corto_codec.cpp.o -c /home/beast/Documents/GitHub/corto/src/corto_codec.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/cortolib.dir/src/corto_codec.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cortolib.dir/src/corto_codec.cpp.o -c /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/corto_codec.cpp
 
 CMakeFiles/cortolib.dir/src/corto_codec.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/cortolib.dir/src/corto_codec.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/beast/Documents/GitHub/corto/src/corto_codec.cpp > CMakeFiles/cortolib.dir/src/corto_codec.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/corto_codec.cpp > CMakeFiles/cortolib.dir/src/corto_codec.cpp.i
 
 CMakeFiles/cortolib.dir/src/corto_codec.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/cortolib.dir/src/corto_codec.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/beast/Documents/GitHub/corto/src/corto_codec.cpp -o CMakeFiles/cortolib.dir/src/corto_codec.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/corto_codec.cpp -o CMakeFiles/cortolib.dir/src/corto_codec.cpp.s
 
 # Object files for target cortolib
 cortolib_OBJECTS = \
@@ -185,7 +185,7 @@ libcorto.a: CMakeFiles/cortolib.dir/src/tunstall.cpp.o
 libcorto.a: CMakeFiles/cortolib.dir/src/corto_codec.cpp.o
 libcorto.a: CMakeFiles/cortolib.dir/build.make
 libcorto.a: CMakeFiles/cortolib.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/beast/Documents/GitHub/corto/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX static library libcorto.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX static library libcorto.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/cortolib.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/cortolib.dir/link.txt --verbose=$(VERBOSE)
 
@@ -199,6 +199,6 @@ CMakeFiles/cortolib.dir/clean:
 .PHONY : CMakeFiles/cortolib.dir/clean
 
 CMakeFiles/cortolib.dir/depend:
-	cd /home/beast/Documents/GitHub/corto && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/beast/Documents/GitHub/corto /home/beast/Documents/GitHub/corto /home/beast/Documents/GitHub/corto /home/beast/Documents/GitHub/corto /home/beast/Documents/GitHub/corto/CMakeFiles/cortolib.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/CMakeFiles/cortolib.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/cortolib.dir/depend
 

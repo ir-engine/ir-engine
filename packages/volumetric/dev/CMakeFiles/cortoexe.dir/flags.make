@@ -6,5 +6,5 @@ CXX_FLAGS =   -O2 -W -Wall -c -std=c++11 -pedantic -fPIC
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/beast/Documents/GitHub/corto/src 
+CXX_INCLUDES = -I/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src 
 

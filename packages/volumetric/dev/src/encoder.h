@@ -84,12 +84,9 @@ private:
 	uint32_t current_vertex;
 	uint32_t last_index; //moved here so that it works across groups
 
-
 	std::vector<bool> boundary;
 	std::vector<int> encoded;    //encoded vertex number
 	std::vector<Quad> prediction;
-
-	void encodePointCloud();
 
 	void encodeMesh();
 	void encodeFaces(int start, int end);

@@ -1,4 +1,4 @@
-# Install script for directory: /home/beast/Documents/GitHub/corto
+# Install script for directory: /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -38,7 +38,7 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/beast/Documents/GitHub/corto/libcorto.a")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/libcorto.a")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
@@ -48,7 +48,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/corto"
          RPATH "")
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE EXECUTABLE FILES "/home/beast/Documents/GitHub/corto/corto")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE EXECUTABLE FILES "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/corto")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/corto" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/corto")
     if(CMAKE_INSTALL_DO_STRIP)
@@ -59,18 +59,18 @@ endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/corto" TYPE FILE FILES
-    "/home/beast/Documents/GitHub/corto/src/bitstream.h"
-    "/home/beast/Documents/GitHub/corto/src/color_attribute.h"
-    "/home/beast/Documents/GitHub/corto/src/corto.h"
-    "/home/beast/Documents/GitHub/corto/src/cstream.h"
-    "/home/beast/Documents/GitHub/corto/src/decoder.h"
-    "/home/beast/Documents/GitHub/corto/src/encoder.h"
-    "/home/beast/Documents/GitHub/corto/src/index_attribute.h"
-    "/home/beast/Documents/GitHub/corto/src/normal_attribute.h"
-    "/home/beast/Documents/GitHub/corto/src/point.h"
-    "/home/beast/Documents/GitHub/corto/src/tunstall.h"
-    "/home/beast/Documents/GitHub/corto/src/vertex_attribute.h"
-    "/home/beast/Documents/GitHub/corto/src/zpoint.h"
+    "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/bitstream.h"
+    "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/color_attribute.h"
+    "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/corto.h"
+    "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/cstream.h"
+    "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/decoder.h"
+    "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/encoder.h"
+    "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/index_attribute.h"
+    "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/normal_attribute.h"
+    "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/point.h"
+    "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/tunstall.h"
+    "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/vertex_attribute.h"
+    "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/zpoint.h"
     )
 endif()
 
@@ -82,5 +82,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/beast/Documents/GitHub/corto/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

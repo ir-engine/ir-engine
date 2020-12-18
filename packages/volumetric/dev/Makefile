@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/beast/Documents/GitHub/corto
+CMAKE_SOURCE_DIR = /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/beast/Documents/GitHub/corto
+CMAKE_BINARY_DIR = /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -126,9 +126,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/beast/Documents/GitHub/corto/CMakeFiles /home/beast/Documents/GitHub/corto/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/CMakeFiles /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/beast/Documents/GitHub/corto/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
