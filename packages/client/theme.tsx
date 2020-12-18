@@ -41,6 +41,8 @@ const lightTheme = createMuiTheme({
         fontWeight: 'bold',
         margin: '10px 0px',
         cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',  
         '&.MuiTypography-colorSecondary':{
           color: '#FFD600',
         }
@@ -66,7 +68,7 @@ const lightTheme = createMuiTheme({
         maxWidth: '40%',
         width: '40%',
         margin: '0 auto',   
-        backgroundColor: 'rgba(255,255,255,0.8)',
+        backgroundColor: 'rgba(0, 0, 0, ,0.8)',
         color: '#000000' ,
         fontSize: 16,       
         textAlign: 'center',
@@ -78,7 +80,7 @@ const lightTheme = createMuiTheme({
     },
     MuiButtonBase:{
       root:  {
-        backgroundColor: 'rgba(255,255,255,0.8)',
+        backgroundColor: 'rgba(0, 0, 0, ,0.8)',
         color: '#000000' ,
         fontSize: 16,       
         textAlign: 'center',
@@ -97,13 +99,14 @@ const lightTheme = createMuiTheme({
         color: '#484848'
       },
       thumb:{
-        height:'36px',
-        width:'20px',
-        marginTop: '-10px',
+        height:'24px',
+        width:'24px',
+        marginTop: '-10px',        
+        boxSizing: 'border-box',
       },
       thumbColorPrimary:{
-        color: '#FFFFFF',
-        border: '1px solid #5151FF'
+        background: 'rgba(0, 0, 0, 0.8)',
+        border: '2px solid #A8A8FF',
       }
     },
     MuiLinearProgress:{
@@ -183,25 +186,32 @@ const lightTheme = createMuiTheme({
     },
     MuiPaper:{
       root:{
-        backgroundColor: 'transparent',
-        color: '#000000' ,
+        // backgroundColor: 'transparent',
+        // color: '#000000' ,
       }
     },
     MuiSnackbarContent:{
       root:{
-        backgroundColor: 'rgba(255,255,255,0.8)',
-        color: '#000000' ,
+        backgroundColor: 'rgba(0, 0, 0, ,0.8)',
+        // color: '#000000' ,
       }
     },
-    MuiDrawer:{
+    MuiDrawer:{      
       paper:{
         padding: '20px',
+        backgroundColor: 'rgba(0,0,0,0.8)',        
         MuiButtonBase:{
           root:  {
             backgroundColor: 'transparent',
           }
-        }  
+        },
+        MuiSvgIcon:{
+          colorPrimary:{
+            color: '#A8A8FF',
+          }
+        },  
       },
+      
       paperAnchorRight: {
         '@media (max-width: 768px)':{
           width: '50%',
@@ -233,7 +243,7 @@ const lightTheme = createMuiTheme({
     },    
     MuiListItemText:{
       root:{
-        background:'rgba(255,255,255,1)',
+        background:'rgba(0, 0, 0, ,1)',
         borderRadius: '5px',
         padding: '5px 10px',
         width: 'fit-content',
@@ -242,7 +252,7 @@ const lightTheme = createMuiTheme({
     },
     MuiCardContent:{
       root:{
-        background:'rgba(255,255,255,1)',
+        background:'rgba(0, 0, 0, ,1)',
         '&:last-child': {
           paddingBottom: '0px',
           paddingLeft: '0px',
@@ -277,7 +287,7 @@ const lightTheme = createMuiTheme({
       },
       // contained:{
       //   color: '#0076ff', 
-      //   backgroundColor: 'rgba(255,255,255,0.8)',       
+      //   backgroundColor: 'rgba(0, 0, 0, ,0.8)',       
       //   // width: 'auto',
       //   fontWeight: 'bold',
       //   padding: '15px 30x',
