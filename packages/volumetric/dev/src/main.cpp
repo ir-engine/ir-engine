@@ -194,16 +194,16 @@ int main(int argc, char *argv[]) {
 	if(loader.uvs.size() && uv_bits > 0)
 		encoder.addUvs(loader.uvs.data(), pow(2, -uv_bits));
 
-	// if(loader.xPos.size()){
-	// 	cout << "xPos size is " << loader.xPos.size() << endl;
-	// 	encoder.addAttribute("xPos", (char *)loader.xPos.data(), crt::VertexAttribute::FLOAT, 4, 1.0f);
-	// }
+	if(loader.xPos.size()){
+		cout << "xPos size is " << loader.xPos.size() << endl;
+		encoder.addAttribute("xPos", (char *)loader.xPos.data(), crt::VertexAttribute::FLOAT, 4, 1.0f);
+	}
 
-	// if(loader.yPos.size())
-	// 	encoder.addAttribute("yPos", (char *)loader.yPos.data(), crt::VertexAttribute::FLOAT, 4, 1.0f);
+	if(loader.yPos.size())
+		encoder.addAttribute("yPos", (char *)loader.yPos.data(), crt::VertexAttribute::FLOAT, 4, 1.0f);
 
-	// if(loader.zPos.size())
-	// 	encoder.addAttribute("zPos", (char *)loader.zPos.data(), crt::VertexAttribute::FLOAT, 4, 1.0f);
+	if(loader.zPos.size())
+		encoder.addAttribute("zPos", (char *)loader.zPos.data(), crt::VertexAttribute::FLOAT, 4, 1.0f);
 
 	encoder.encode();
 
@@ -291,19 +291,19 @@ int main(int argc, char *argv[]) {
 		out.uvs.resize(nvert*2);
 		decoder.setUvs(out.uvs.data());
 	}
-	// if(decoder.data.count("xPos")) {
-	// 	cout << "SUCCESS! Position encoded data detected" << endl;
-	// 	out.xPos.resize(nvert*4);
-	// 	decoder.setAttribute("xPos", (char *)out.xPos.data(), crt::VertexAttribute::FLOAT);
-	// }
-	// 	if(decoder.data.count("yPos")) {
-	// 	out.yPos.resize(nvert*4);
-	// 	decoder.setAttribute("yPos", (char *)out.yPos.data(), crt::VertexAttribute::FLOAT);
-	// }
-	// 	if(decoder.data.count("zPos")) {
-	// 	out.zPos.resize(nvert*4);
-	// 	decoder.setAttribute("zPos", (char *)out.zPos.data(), crt::VertexAttribute::FLOAT);
-	// }
+	if(decoder.data.count("xPos")) {
+		cout << "SUCCESS! Position encoded data detected" << endl;
+		out.xPos.resize(nvert*4);
+		decoder.setAttribute("xPos", (char *)out.xPos.data(), crt::VertexAttribute::FLOAT);
+	}
+		if(decoder.data.count("yPos")) {
+		out.yPos.resize(nvert*4);
+		decoder.setAttribute("yPos", (char *)out.yPos.data(), crt::VertexAttribute::FLOAT);
+	}
+		if(decoder.data.count("zPos")) {
+		out.zPos.resize(nvert*4);
+		decoder.setAttribute("zPos", (char *)out.zPos.data(), crt::VertexAttribute::FLOAT);
+	}
 
 	if(decoder.nface) {
 		out.index.resize(nface*3);
