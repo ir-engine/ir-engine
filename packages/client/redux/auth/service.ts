@@ -90,12 +90,12 @@ export function doLoginAuto (allowGuest?: boolean, forceClientAuthReset?: boolea
         console.log('****************');
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
       dispatch(didLogout());
 
-      if (window.location.pathname !== '/') {
-        window.location.href = '/';
-      }
+      // if (window.location.pathname !== '/') {
+      //   window.location.href = '/';
+      // }
     }
   };
 }
