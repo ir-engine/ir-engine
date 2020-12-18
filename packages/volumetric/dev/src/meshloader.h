@@ -37,7 +37,6 @@ public:
 	MeshLoader(): add_normals(false) {}
 	bool load(const std::string &filename, const std::string &group = "");
 	bool loadPly(const std::string &filename);
-	void splitWedges();
 	bool savePly(const std::string &filename, std::vector<std::string> &comments);
 
 	bool add_normals;    //add normals (if not present) before splitting groups.

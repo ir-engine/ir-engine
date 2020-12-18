@@ -71,8 +71,10 @@ bool MeshLoader::loadPly(const std::string &filename) {
 	nface = index.size()/3;
 	nvert = coords.size()/3;
 
-	if(wedge_uvs.size())
-		splitWedges();
+	if(wedge_uvs.size()){
+		cout << " ERROR: Model has UV wedges, please remove before encoding with Meshlab" << endl;
+		// splitWedges();
+	}
 
 	for(uint32_t i = 0; i < index.size(); i++)
 		assert(index[i] < coords.size()/3);
@@ -83,92 +85,6 @@ bool MeshLoader::loadPly(const std::string &filename) {
 	return true;
 }
 
-void MeshLoader::splitWedges() {
-	if(wedge_uvs.size() == 0 && wedge_norms.size() == 0)
-		return;
-
-	std::vector<bool> visited(nvert, false);
-	bool has_wedge_uvs = wedge_uvs.size();
-
-	if(has_wedge_uvs)
-	uvs.resize(nvert*2);
-
-	std::multimap<uint32_t, uint32_t> duplicated;
-	
-	cout << "Index size is " << index.size() << endl;
-
-	for(uint32_t i = 0; i < index.size(); i++) {
-		uint32_t k = index[i];
-		Point3f p = *(Point3f *)&coords[k*3];
-
-		bool split = false;
-
-		if(has_wedge_uvs) {
-			Point2f wuv = *(Point2f *)&wedge_uvs[i*2]; //wedge uv
-			Point2f &uv = *(Point2f *)&uvs[k*2];
-			if(!visited[k])
-				uv = wuv;
-			else
-				split |= (uv != wuv);
-		}
-
-		if(!visited[k]) {
-			visited[k] = true;
-			continue;
-		}
-		if(!split)
-			continue;
-
-		uint32_t found = 0xffffffff;
-		auto d = duplicated.find(k);
-		if(d != duplicated.end()) {
-			auto range = duplicated.equal_range(k);
-			for (auto it = range.first; it != range.second; ++it) {
-				uint32_t j = it->second;
-				if((!has_wedge_uvs || *(Point2f *)&uvs[j*2] == *(Point2f *)&wedge_uvs[i*2]))
-					found = j;
-			}
-		}
-
-		if(found == 0xffffffff) {
-			found = coords.size()/3;
-			coords.push_back(p[0]);
-			coords.push_back(p[1]);
-			coords.push_back(p[2]);
-
-			if(has_wedge_uvs) {
-				uvs.push_back(wedge_uvs[i*2 + 0]);
-				uvs.push_back(wedge_uvs[i*2 + 1]);
-			}
-
-
-			// if(xPos.size()){
-			// 	cout << "xPos size is " << xPos.size() << " and k is " << k << endl;
-			// 	for(int j = 0; j < 4; j++){
-			// 		cout << "Writing to " << k*4 + j << endl;
-			// 		xPos.push_back(xPos[k + j]);
-			// 	}
-			// }
-
-			// if(yPos.size())
-			// 	for(int j = 0; j < 4; j++)
-			// 		yPos.push_back(yPos[k + j]);
-
-			// if(zPos.size())
-			// 	for(int j = 0; j < 4; j++)
-			// 		zPos.push_back(zPos[k + j]);
-
-			//TODO do the same thing for all other attributes
-			duplicated.insert(std::make_pair(k, found));
-		}
-		assert(found < coords.size()/3);
-		index[i] = found;
-	}
-	nface = index.size()/3;
-	nvert = coords.size()/3;
-	cout << " Coords is now " << nvert << endl;
-}
-
 bool MeshLoader::savePly(const string &filename, std::vector<std::string> &comments) {
 	std::filebuf fb;
 	fb.open(filename, std::ios::out | std::ios::binary);
@@ -176,7 +92,7 @@ bool MeshLoader::savePly(const string &filename, std::vector<std::string> &comme
 		return false;
 	std::ostream outputStream(&fb);
 	PlyFile out;
-	out.comments = comments;
+	// out.comments = comments;
 
 	out.add_properties_to_element("vertex", { "x", "y", "z" }, coords);
 
@@ -195,24 +111,13 @@ bool MeshLoader::savePly(const string &filename, std::vector<std::string> &comme
 		out.add_properties_to_element("vertex", { "z0", "z1", "z2", "z3" }, zPos);
 	}
 
-	if(norms.size())
-		out.add_properties_to_element("vertex", { "nx", "ny", "nz" }, norms);
-	
-	if(colors.size()) {
-		if(nColorsComponents == 4)
-			out.add_properties_to_element("vertex", { "red", "green", "blue", "alpha" }, colors);
-		else if(nColorsComponents == 3)
-			out.add_properties_to_element("vertex", { "red", "green", "blue" }, colors);
-	}
 	if(uvs.size()) {
 		out.add_properties_to_element("vertex", { "texture_u", "texture_v" }, uvs);
 	}
 
+	out.add_properties_to_element("face", { "vertex_indices" }, index, 3, PlyProperty::Type::UINT8);
 
-	if(nface > 0)
-		out.add_properties_to_element("face", { "vertex_indices" }, index, 3, PlyProperty::Type::UINT8);
-
-	out.write(outputStream, true);
+	out.write(outputStream, false);
 	fb.close();
 	return true;
 }

@@ -16,10 +16,14 @@ meshes_in_group = []
 
 axes = ['x', 'y', 'z']
 
-# data_type = [('x0', '<f4'), ('x1', '<f4'), ('x2', '<f4'), ('x3', '<f4'), ('y0', '<f4'), ('y1', '<f4'), ('y2', '<f4'), ('y3', '<f4'), ('z0', '<f4'), ('z1', '<f4'), ('z2', '<f4'), ('z3', '<f4')]
-short_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('texture_u', '<f4'), ('texture_v', '<f4')]
+# short_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('texture_u', '<f4'), ('texture_v', '<f4')]
 
-full_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('texture_u', '<f4'), ('texture_v', '<f4'), ('x0', '<f4'), ('x1', '<f4'), ('x2', '<f4'), ('x3', '<f4'), ('y0', '<f4'), ('y1', '<f4'), ('y2', '<f4'), ('y3', '<f4'), ('z0', '<f4'), ('z1', '<f4'), ('z2', '<f4'), ('z3', '<f4')]
+# full_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('texture_u', '<f4'), ('texture_v', '<f4'), ('x0', '<f4'), ('x1', '<f4'), ('x2', '<f4'), ('x3', '<f4'), ('y0', '<f4'), ('y1', '<f4'), ('y2', '<f4'), ('y3', '<f4'), ('z0', '<f4'), ('z1', '<f4'), ('z2', '<f4'), ('z3', '<f4')]
+
+
+short_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4')]
+
+full_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('x0', '<f4'), ('x1', '<f4'), ('x2', '<f4'), ('x3', '<f4'), ('y0', '<f4'), ('y1', '<f4'), ('y2', '<f4'), ('y3', '<f4'), ('z0', '<f4'), ('z1', '<f4'), ('z2', '<f4'), ('z3', '<f4')]
 
 def create_poly_mesh_from_sequence(meshes):
     mesh_count_is_one = len(meshes) == 1
@@ -88,30 +92,45 @@ def create_poly_mesh_from_sequence(meshes):
     x = meshes[0]['vertex']['x']
     y = meshes[0]['vertex']['y']
     z = meshes[0]['vertex']['z']
-    texU = meshes[0]['vertex']['texture_u']
-    texV = meshes[0]['vertex']['texture_v']
+
+    # texU = meshes[0]['vertex']['texture_u']
+    # texV = meshes[0]['vertex']['texture_v']
 
     if(mesh_count_is_one != True):
-        x0 = poly_data_transpose[5]
-        x1 = poly_data_transpose[6]
-        x2 = poly_data_transpose[7]
-        x3 = poly_data_transpose[8]
-        y0 = poly_data_transpose[9]
-        y1 = poly_data_transpose[10]
-        y2 = poly_data_transpose[11]
-        y3 = poly_data_transpose[12]
-        z0 = poly_data_transpose[13]
-        z1 = poly_data_transpose[14]
-        z2 = poly_data_transpose[15]
-        z3 = poly_data_transpose[16]
+        x0 = poly_data_transpose[3]
+        x1 = poly_data_transpose[4]
+        x2 = poly_data_transpose[5]
+        x3 = poly_data_transpose[6]
+        y0 = poly_data_transpose[7]
+        y1 = poly_data_transpose[8]
+        y2 = poly_data_transpose[9]
+        y3 = poly_data_transpose[10]
+        z0 = poly_data_transpose[11]
+        z1 = poly_data_transpose[12]
+        z2 = poly_data_transpose[13]
+        z3 = poly_data_transpose[14]
+
+        # x0 = poly_data_transpose[5]
+        # x1 = poly_data_transpose[6]
+        # x2 = poly_data_transpose[7]
+        # x3 = poly_data_transpose[8]
+        # y0 = poly_data_transpose[9]
+        # y1 = poly_data_transpose[10]
+        # y2 = poly_data_transpose[11]
+        # y3 = poly_data_transpose[12]
+        # z0 = poly_data_transpose[13]
+        # z1 = poly_data_transpose[14]
+        # z2 = poly_data_transpose[15]
+        # z3 = poly_data_transpose[16]
 
     # connect the proper data structures
     vertices = np.empty(len(x), dtype=(short_data_type if mesh_count_is_one else full_data_type))
     vertices['x'] = x.astype('f4')
     vertices['y'] = y.astype('f4')
     vertices['z'] = z.astype('f4')
-    vertices['texture_u'] = texU.astype('f4')
-    vertices['texture_v'] = texV.astype('f4')
+
+    # vertices['texture_u'] = texU.astype('f4')
+    # vertices['texture_v'] = texV.astype('f4')
 
     if(mesh_count_is_one != True):
         vertices['x0'] = x0.astype('f4')
