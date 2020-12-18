@@ -1,6 +1,5 @@
-.helpHintSnackBar{
+.helpHintSnackBar{    
     user-select: none;
-    text-align: center;
     opacity: 1;
 
     -webkit-transition: opacity 0.5s ease-in-out;
@@ -8,59 +7,75 @@
     -ms-transition: opacity 0.5s ease-in-out;
     -o-transition: opacity 0.5s ease-in-out;
     transition: opacity 0.5s ease-in-out;
-    
+
+    display: flex;
+
     &.hidden{
         opacity: 0;
     }
 
-    svg {       
-        margin: 15px;       
+    .textHint{
+        flex-grow: 1;
     }
-    .IconSwipe, .IconLeftClick{
-        height: 120px;
-        width: auto;
-    }
-    .TouchApp, .Microphone{
-        height: 3em;
-        width: 3em;        
-    }
-    .helpHintSnackBarContent{
-        padding: 20px;
-        .helpHintSnackBarContentMessage{
-            width: 100%;
-            text-align: center;
+    .imageHint{
+        flex-grow: 0;
+        .columnImageHints{
+            svg {       
+                height: 1.5em;
+                width: auto;
+            }
         }
-    }
-        
-    &.bottomPos{
-        bottom: 50px;
-    }
+        .inlineImageHints{
+            width: 100%;
+            svg {       
+                height: 1.5em;
+                width: auto;
+            }
+        }
+        svg {       
+            height: 75px;
+            width: auto;
+        }
+    }   
+
     &.tutor_move{
         @media (max-width: 768px) {
+            transform: translate(-16%,-16%);
             width: auto;
-            margin: 0 0 0 8em;
-            bottom: 115px;
-        }
+        } 
     }
-    &.tutor_interact{        
-        @media (max-width: 768px) {
-            width: auto;
-            bottom: 125px;
-            margin: 0 5em 0 0;
-        }
-    }
-
     &.tutor_unmute{
+        flex-direction: column; 
+        top: 100px;     
         @media (max-width: 768px) {
-            width: auto;
-            bottom: 120px;
-            margin: 0 5em 0 0;
+            flex-direction: row;
+        }   
+        .imageHint{
+            width: 100%;  
+            margin: 10px 0 0 0;     
+            justify-content: space-between;
+            @media (max-width: 768px) {
+               width: 3em;
+            }
+            .inlineImageHints{
+                width: 100%;       
+                justify-content: space-between;
+                display: flex;
+                >span{
+                    display: flex;
+                    align-items: center;
+                 }
+            }
+            .columnImageHints{
+                display: flex;
+                align-items: center;
+                flex-direction: column; 
+                >span{
+                    flex-direction: column; 
+                }
+            }
         }
-    }
-
-    .helpHintSnackBarContent{
-        text-align: center;
-    }    
+    }  
 }
 
 .keyButton{
@@ -77,8 +92,4 @@
     text-align: center;
     text-transform: capitalize;
     opacity: 1
-}
-
-.front{
-    box-shadow: 0 0 10px rgba(255,255,0,1);
 }

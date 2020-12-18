@@ -118,7 +118,6 @@ export const EnginePage = (props: Props) => {
       <LinearProgressComponent label={progressEntity} />
       <SceneTitle />
       <LoadedSceneButtons />
-      {/* <OnBoardingDialog actorEntity={actorEntity} avatarsList={CharacterAvatars} actorAvatarId={actorAvatarId} onAvatarChange={(avatarId) => {console.log('setActorAvatarId', avatarId);setActorAvatarId(avatarId); }} /> */}
       <OnBoardingBox actorEntity={actorEntity} />
       <MediaIconsBox />
       <TooltipContainer message={hoveredLabel.length > 0 ? hoveredLabel : ''} />

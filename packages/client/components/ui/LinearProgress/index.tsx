@@ -24,13 +24,14 @@ const mapStateToProps = (state: any): any => {
 const LinearProgressComponent = (props: Props) => {
   const{ onBoardingStep, label, currentScene} = props;
   const openLinear = onBoardingStep === generalStateList.START_STATE ? true : false;
+  const count = parseInt(label) || null;
   return openLinear === true ? <>
     <section className={styles.overlay}>
       <ImageMediaGridItem className={styles.imageOverlay} src={currentScene?.thumbnailUrl} label={''} />
       <section className={styles.linearProgressContainer}>
           <p className={styles.loadingProgressTile}>Loading...</p>
           <LinearProgress className={styles.linearProgress} />
-          {label && (<p className={styles.loadingProgressInfo}>{label} objects remaining</p>)}        
+          {count && count > 0 && (<p className={styles.loadingProgressInfo}>{count} object{count > 1 && 's'} remaining</p>)}        
       </section>
     </section></> : null;
 };
