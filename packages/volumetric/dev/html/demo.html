@@ -67,7 +67,7 @@ function getURLParameter(name) {
 var model = getURLParameter('model');
 var path = getURLParameter('path');
 if(!path) path = 'models/';
-if(!model) model = 'tarta.crt';
+if(!model) model = 'poly0.crt';
 
 var loader = new THREE.CORTOLoader({ path: path }); //can pass a material or a multimaterial if you know whats' in the model.
 
@@ -135,6 +135,8 @@ function profile() {
 	var decoder = new CortoDecoder(blob);
 	var model = decoder.decode();
 	var ms = performance.now() - now;
+
+	console.log("X0 is: ", model.xPos);
 	decode_times.push(ms);
 	console.log((model.nvert/1024.0).toFixed(1) + "KV", ms.toFixed(1) + "ms", ((model.nvert/1000)/ms).toFixed(2) + "MV/s");
 	console.log("js:", ms);

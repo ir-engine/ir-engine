@@ -6,19 +6,19 @@
 
 #IncludeRegexTransform: 
 
-/home/beast/Documents/GitHub/corto/src/bitstream.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/bitstream.h
 vector
 -
 stdint.h
 -
 
-/home/beast/Documents/GitHub/corto/src/color_attribute.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/color_attribute.h
 vertex_attribute.h
-/home/beast/Documents/GitHub/corto/src/vertex_attribute.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/vertex_attribute.h
 point.h
-/home/beast/Documents/GitHub/corto/src/point.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/point.h
 
-/home/beast/Documents/GitHub/corto/src/cstream.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/cstream.h
 assert.h
 -
 stdlib.h
@@ -28,9 +28,9 @@ string.h
 iostream
 -
 bitstream.h
-/home/beast/Documents/GitHub/corto/src/bitstream.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/bitstream.h
 
-/home/beast/Documents/GitHub/corto/src/decoder.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/decoder.h
 vector
 -
 map
@@ -38,21 +38,21 @@ map
 algorithm
 -
 cstream.h
-/home/beast/Documents/GitHub/corto/src/cstream.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/cstream.h
 tunstall.h
-/home/beast/Documents/GitHub/corto/src/tunstall.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/tunstall.h
 zpoint.h
-/home/beast/Documents/GitHub/corto/src/zpoint.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/zpoint.h
 index_attribute.h
-/home/beast/Documents/GitHub/corto/src/index_attribute.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/index_attribute.h
 vertex_attribute.h
-/home/beast/Documents/GitHub/corto/src/vertex_attribute.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/vertex_attribute.h
 color_attribute.h
-/home/beast/Documents/GitHub/corto/src/color_attribute.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/color_attribute.h
 normal_attribute.h
-/home/beast/Documents/GitHub/corto/src/normal_attribute.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/normal_attribute.h
 
-/home/beast/Documents/GitHub/corto/src/encoder.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/encoder.h
 vector
 -
 map
@@ -62,21 +62,21 @@ limits.h
 float.h
 -
 cstream.h
-/home/beast/Documents/GitHub/corto/src/cstream.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/cstream.h
 index_attribute.h
-/home/beast/Documents/GitHub/corto/src/index_attribute.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/index_attribute.h
 vertex_attribute.h
-/home/beast/Documents/GitHub/corto/src/vertex_attribute.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/vertex_attribute.h
 color_attribute.h
-/home/beast/Documents/GitHub/corto/src/color_attribute.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/color_attribute.h
 normal_attribute.h
-/home/beast/Documents/GitHub/corto/src/normal_attribute.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/normal_attribute.h
 
-/home/beast/Documents/GitHub/corto/src/index_attribute.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/index_attribute.h
 cstream.h
-/home/beast/Documents/GitHub/corto/src/cstream.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/cstream.h
 
-/home/beast/Documents/GitHub/corto/src/main.cpp
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/main.cpp
 assert.h
 -
 sstream
@@ -88,15 +88,15 @@ iostream
 map
 -
 encoder.h
-/home/beast/Documents/GitHub/corto/src/encoder.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/encoder.h
 decoder.h
-/home/beast/Documents/GitHub/corto/src/decoder.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/decoder.h
 tinyply.h
-/home/beast/Documents/GitHub/corto/src/tinyply.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/tinyply.h
 meshloader.h
-/home/beast/Documents/GitHub/corto/src/meshloader.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/meshloader.h
 timer.h
-/home/beast/Documents/GitHub/corto/src/timer.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/timer.h
 unistd.h
 -
 stdio.h
@@ -104,7 +104,7 @@ stdio.h
 string.h
 -
 
-/home/beast/Documents/GitHub/corto/src/meshloader.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/meshloader.h
 string
 -
 vector
@@ -112,13 +112,13 @@ vector
 map
 -
 
-/home/beast/Documents/GitHub/corto/src/normal_attribute.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/normal_attribute.h
 point.h
-/home/beast/Documents/GitHub/corto/src/point.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/point.h
 vertex_attribute.h
-/home/beast/Documents/GitHub/corto/src/vertex_attribute.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/vertex_attribute.h
 
-/home/beast/Documents/GitHub/corto/src/point.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/point.h
 math.h
 -
 stdint.h
@@ -126,13 +126,13 @@ stdint.h
 stdlib.h
 -
 
-/home/beast/Documents/GitHub/corto/src/timer.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/timer.h
 windows.h
 -
 sys/time.h
 -
 
-/home/beast/Documents/GitHub/corto/src/tinyply.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/tinyply.h
 vector
 -
 algorithm
@@ -156,11 +156,11 @@ functional
 cstring
 -
 
-/home/beast/Documents/GitHub/corto/src/tunstall.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/tunstall.h
 vector
 -
 
-/home/beast/Documents/GitHub/corto/src/vertex_attribute.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/vertex_attribute.h
 map
 -
 string
@@ -168,13 +168,13 @@ string
 algorithm
 -
 cstream.h
-/home/beast/Documents/GitHub/corto/src/cstream.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/cstream.h
 index_attribute.h
-/home/beast/Documents/GitHub/corto/src/index_attribute.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/index_attribute.h
 
-/home/beast/Documents/GitHub/corto/src/zpoint.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/zpoint.h
 stdint.h
 -
 point.h
-/home/beast/Documents/GitHub/corto/src/point.h
+/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/point.h
 

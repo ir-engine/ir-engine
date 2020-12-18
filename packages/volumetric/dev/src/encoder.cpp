@@ -227,69 +227,7 @@ void Encoder::encode() {
 		stream.write<uchar>(it.second->strategy);
 	}
 
-	if(nface > 0)
-		encodeMesh();
-	else
-		encodePointCloud();
-}
-
-
-//TODO: test pointclouds
-void Encoder::encodePointCloud() {
-	//look for positions
-	if(data.find("position") == data.end())
-		throw "No position attribute found. Use DIFF normal strategy instead.";
-
-	GenericAttr<int> *coord = dynamic_cast<GenericAttr<int> *>(data["position"]);
-	if(!coord)
-		throw "Position attr has been overloaded, Use DIFF normal strategy instead.";
-
-	Point3i *coords = (Point3i *)coord->values.data();
-
-	std::vector<ZPoint> zpoints(nvert);
-
-	Point3i min(0, 0, 0);
-	for(uint32_t i = 0; i < nvert; i++) {
-		Point3i &q = coords[i];
-		min.setMin(q);
-	}
-	for(uint32_t i = 0; i < nvert; i++) {
-		Point3i q = coords[i] - min;
-		zpoints[i] = ZPoint(q[0], q[1], q[2], 21, i);
-	}
-	sort(zpoints.rbegin(), zpoints.rend());//, greater<ZPoint>());
-
-	int count = 0;
-	for(unsigned int i = 1; i < nvert; i++) {
-		if(zpoints[i] == zpoints[count])
-			continue;
-		count++;
-		zpoints[count] = zpoints[i];
-	}
-	count++;
-	nvert = count;
-	zpoints.resize(nvert);
-
-	header_size = stream.elapsed();
-
-	stream.write<uint32_t>(nvert);
-	stream.write<uint32_t>(0); //nface
-
-	index.encodeGroups(stream);
-
-	prediction.resize(nvert);
-	prediction[0] = Quad(zpoints[0].pos, -1, -1, -1);
-	for(uint32_t i = 1; i < nvert; i++)
-		prediction[i] = Quad(zpoints[i].pos, zpoints[i-1].pos, zpoints[i-1].pos, zpoints[i-1].pos);
-
-	for(auto it: data)
-		it.second->preDelta(nvert, nface, data, index);
-
-	for(auto it: data)
-		it.second->deltaEncode(prediction);
-
-	for(auto it: data)
-		it.second->encode(nvert, stream);
+	encodeMesh();
 }
 
 /*	Zpoint encoding gain 1 bit (because we know it's sorted, but it's 3/2 slower and limited to 22 bits precision.

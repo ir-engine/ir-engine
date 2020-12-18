@@ -37,11 +37,7 @@ static bool startsWith(const std::string& str, const std::string& prefix) {
 }
 
 bool MeshLoader::load(const std::string &filename, const string &group) {
-	if(endsWith(filename, ".ply") || endsWith(filename, ".PLY"))
 		return loadPly(filename);
-	if(endsWith(filename, ".obj") || endsWith(filename, ".OBJ"))
-		return loadObj(filename, group);
-	return false;
 }
 
 
@@ -51,18 +47,26 @@ bool MeshLoader::loadPly(const std::string &filename) {
 		return false;
 	PlyFile ply(ss);
 
-	cout << "Requesting ply";
+	cout << "Requesting ply" << endl;
 
 	ply.request_properties_from_element("vertex", { "x", "y", "z" }, coords);
-	ply.request_properties_from_element("vertex", { "x0" "x1", "x2", "x3" }, xPos);
-	ply.request_properties_from_element("vertex", { "y0" "y1", "y2", "y3" }, yPos);
-	ply.request_properties_from_element("vertex", { "z0" "z1", "z2", "z3" }, zPos);
+
+	ply.request_properties_from_element("vertex", { "x0", "x1", "x2", "x3" }, xPos);
+	ply.request_properties_from_element("vertex", { "y0", "y1", "y2", "y3" }, yPos);
+	ply.request_properties_from_element("vertex", { "z0", "z1", "z2", "z3" }, zPos);
 
 	ply.request_properties_from_element("face", { "vertex_indices" }, index, 3);
 	ply.request_properties_from_element("face", { "texcoord" }, wedge_uvs, 6);
-	ply.request_properties_from_element("face", { "texnumber" }, tex_number, 1);
 
 	ply.read(ss);
+	cout << "coords is" << endl;
+	cout << coords.size() / 3 << endl;
+	cout << "xPos is " << endl;
+	cout << xPos.size() / 4 << endl;
+	cout << "yPos is " << endl;
+	cout << yPos.size() / 4 << endl;
+		cout << "zPos is " << endl;
+	cout << zPos.size() / 4 << endl;
 
 	nface = index.size()/3;
 	nvert = coords.size()/3;
@@ -74,120 +78,9 @@ bool MeshLoader::loadPly(const std::string &filename) {
 		assert(index[i] < coords.size()/3);
 
 	//create groups:
-	if(tex_number.size()) {
-		uint32_t notexcount = 0;
-		vector<uint32_t> count;
-		//count each tex numner (including no texture ones.
-		for(int t: tex_number) {
-			if(t >= (int)count.size()) {
-				count.resize(t+1, 0);
-			}
-			if(t < 0)
-				notexcount++;
-			else
-				count[t]++;
-		}
-		if(notexcount)
-			count.push_back(notexcount);
-
-		//init each end with what is actually the start, we will increase it later.
-		groups.resize(count.size(), 0);
-		for(size_t i = 0; i < count.size()-1; i++)
-			groups[i+1].end = groups[i].end + count[i];
-
-		vector<uint32_t> tmp(index.size());
-		for(size_t i = 0; i < tex_number.size(); i++) {
-			int t = tex_number[i];
-			if(t < 0) t = groups.size()-1;
-			uint32_t &o = groups[t].end;
-			tmp[o*3] = index[i*3];
-			tmp[o*3+1] = index[i*3+1];
-			tmp[o*3+2] = index[i*3+2];
-			o++;
-		}
-		swap(tmp, index);
-	} else {
-		groups.push_back(Group(index.size()/3));
-	}
-
-	uint32_t texcount = 0;
-	for(auto &str: ply.comments)
-		if(startsWith(str, "TextureFile") && texcount < groups.size())
-			groups[texcount++].properties["texture"] = str.substr(12, str.size());
+	groups.push_back(Group(index.size()/3));
 
 	return true;
-}
-
-bool MeshLoader::loadObj(const std::string &filename, const std::string &groupname) {
-
-	obj::IndexedModel m = obj::loadModelFromFile(filename);
-
-	for(auto &mat: m.mtllibs)
-		exif["mtllib"] = mat;
-	swap(m.vertex, coords);
-	swap(m.texCoord, uvs);
-	swap(m.normal, norms);
-	swap(m.faces, index);
-
-
-	int keepgroup = -1;
-	for(auto &block: m.blocks) {
-		Group g(block.end);
-		if(block.material.size())
-			g.properties["material"] = block.material;
-		if(block.groups.size()) {
-			std::string str;
-			for(auto &group: block.groups) {
-				if(groupname.size() && group == groupname)
-					keepgroup = groups.size();
-				str.append(group);
-				str.append(" ");
-			}
-			str.pop_back();
-			g.properties["groups"] = str;
-		}
-		groups.push_back(g);
-	}
-
-
-	if(keepgroup != -1) { //remove all other groups
-		int start = 0;
-		if(keepgroup > 0)
-			start = groups[keepgroup-1].end;
-		Group g = groups[keepgroup];
-		vector<int> reorder(coords.size(), -1);
-		int facecount = 0;
-		int vertcount = 0;
-		vector<float> newcoords(coords.size());
-		for(int i = start; i < g.end; i++) {
-			for(int k = 0; k < 3; k++) {
-				int v = index[i*3+k];
-				if(reorder[v] == -1) {
-					newcoords[vertcount*3] = coords[v*3];
-					newcoords[vertcount*3+1] = coords[v*3+1];
-					newcoords[vertcount*3+2] = coords[v*3+2];
-					reorder[v] = vertcount++;
-				}
-				index[facecount*3 + k] = reorder[v];
-			}
-			facecount++;
-		}
-		newcoords.resize(vertcount*3);
-		index.resize(facecount*3);
-		swap(coords, newcoords);
-		g.end = facecount;
-		groups[0] = g;
-		groups.resize(1);
-
-	}
-
-	nvert = coords.size()/3;
-	nface = index.size()/3;
-
-	for(uint32_t i = 0; i < index.size(); i++)
-		assert(index[i] < nvert);
-
-	return nvert > 0;
 }
 
 void MeshLoader::splitWedges() {
@@ -290,6 +183,22 @@ bool MeshLoader::savePly(const string &filename, std::vector<std::string> &comme
 	out.comments = comments;
 
 	out.add_properties_to_element("vertex", { "x", "y", "z" }, coords);
+
+	if(xPos.size()){
+		cout << "xPoseSize is legit" << endl;
+		out.add_properties_to_element("vertex", { "x0", "x1", "x2", "x3" }, xPos);
+	}
+
+	if(yPos.size()){
+		cout << "yPoseSize is legit" << endl;
+		out.add_properties_to_element("vertex", { "y0", "y1", "y2", "y3" }, yPos);
+	}
+
+	if(zPos.size()){
+		cout << "zPoseSize is legit" << endl;
+		out.add_properties_to_element("vertex", { "z0", "z1", "z2", "z3" }, zPos);
+	}
+
 	if(norms.size())
 		out.add_properties_to_element("vertex", { "nx", "ny", "nz" }, norms);
 	
@@ -300,20 +209,9 @@ bool MeshLoader::savePly(const string &filename, std::vector<std::string> &comme
 			out.add_properties_to_element("vertex", { "red", "green", "blue" }, colors);
 	}
 	if(uvs.size()) {
-	/*		for(int i = 0; i < reindex.size(); i++) {
-			tex[i*2] = reuvs[reindex[i]*2];
-			tex[i*2+1] = reuvs[reindex[i]*2+1];
-	}*/
 		out.add_properties_to_element("vertex", { "texture_u", "texture_v" }, uvs);
 	}
-	if(xPos.size())
-		out.add_properties_to_element("vertex", { "x0", "x1", "x2", "x3" }, xPos);
 
-	if(yPos.size())
-		out.add_properties_to_element("vertex", { "y0", "y1", "y2", "y3" }, yPos);
-
-	if(zPos.size())
-		out.add_properties_to_element("vertex", { "z0", "z1", "z2", "z3" }, zPos);
 
 	if(nface > 0)
 		out.add_properties_to_element("face", { "vertex_indices" }, index, 3, PlyProperty::Type::UINT8);

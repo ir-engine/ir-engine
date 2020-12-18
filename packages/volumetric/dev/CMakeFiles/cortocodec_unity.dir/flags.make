@@ -6,5 +6,5 @@ CXX_FLAGS = -fPIC   -Wall -Wextra
 
 CXX_DEFINES = -Dcortocodec_unity_EXPORTS
 
-CXX_INCLUDES = -I/home/beast/Documents/GitHub/corto/src 
+CXX_INCLUDES = -I/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src 
 

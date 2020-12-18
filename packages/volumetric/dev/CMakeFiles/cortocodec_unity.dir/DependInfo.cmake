@@ -4,14 +4,14 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/beast/Documents/GitHub/corto/src/bitstream.cpp" "/home/beast/Documents/GitHub/corto/CMakeFiles/cortocodec_unity.dir/src/bitstream.cpp.o"
-  "/home/beast/Documents/GitHub/corto/src/color_attribute.cpp" "/home/beast/Documents/GitHub/corto/CMakeFiles/cortocodec_unity.dir/src/color_attribute.cpp.o"
-  "/home/beast/Documents/GitHub/corto/src/corto_codec.cpp" "/home/beast/Documents/GitHub/corto/CMakeFiles/cortocodec_unity.dir/src/corto_codec.cpp.o"
-  "/home/beast/Documents/GitHub/corto/src/cstream.cpp" "/home/beast/Documents/GitHub/corto/CMakeFiles/cortocodec_unity.dir/src/cstream.cpp.o"
-  "/home/beast/Documents/GitHub/corto/src/decoder.cpp" "/home/beast/Documents/GitHub/corto/CMakeFiles/cortocodec_unity.dir/src/decoder.cpp.o"
-  "/home/beast/Documents/GitHub/corto/src/encoder.cpp" "/home/beast/Documents/GitHub/corto/CMakeFiles/cortocodec_unity.dir/src/encoder.cpp.o"
-  "/home/beast/Documents/GitHub/corto/src/normal_attribute.cpp" "/home/beast/Documents/GitHub/corto/CMakeFiles/cortocodec_unity.dir/src/normal_attribute.cpp.o"
-  "/home/beast/Documents/GitHub/corto/src/tunstall.cpp" "/home/beast/Documents/GitHub/corto/CMakeFiles/cortocodec_unity.dir/src/tunstall.cpp.o"
+  "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/bitstream.cpp" "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/CMakeFiles/cortocodec_unity.dir/src/bitstream.cpp.o"
+  "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/color_attribute.cpp" "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/CMakeFiles/cortocodec_unity.dir/src/color_attribute.cpp.o"
+  "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/corto_codec.cpp" "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/CMakeFiles/cortocodec_unity.dir/src/corto_codec.cpp.o"
+  "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/cstream.cpp" "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/CMakeFiles/cortocodec_unity.dir/src/cstream.cpp.o"
+  "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/decoder.cpp" "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/CMakeFiles/cortocodec_unity.dir/src/decoder.cpp.o"
+  "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/encoder.cpp" "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/CMakeFiles/cortocodec_unity.dir/src/encoder.cpp.o"
+  "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/normal_attribute.cpp" "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/CMakeFiles/cortocodec_unity.dir/src/normal_attribute.cpp.o"
+  "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/src/tunstall.cpp" "/home/beast/Documents/GitHub/xr3ngine-monorepo/packages/volumetric/dev/CMakeFiles/cortocodec_unity.dir/src/tunstall.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
