@@ -157,10 +157,11 @@ export function validateNetworkObjects(): void {
         if (networkObject.ownerId !== undefined && Network.instance.clients[networkObject.ownerId] !== undefined)
             return;
 
+        logger.info("Culling ownerless object: ", networkObject.component.networkId, "owned by ", networkObject.ownerId);
+
         // If it does, tell clients to destroy it
         const removeMessage = { networkId: networkObject.component.networkId };
         Network.instance.destroyObjects.push(removeMessage);
-        logger.info("Culling ownerless object: ", networkObject.component.networkId, "owned by ", networkObject.ownerId);
 
         // get network object
         const entity = networkObject.component.entity;
@@ -237,7 +238,14 @@ function disconnectClientIfConnected(socket, userId: string): void {
         if (networkObject.ownerId !== userId) return;
 
         // If it does, tell clients to destroy it
-        Network.instance.destroyObjects.push({ networkId: networkObject.component.networkId });
+        console.log('destroyObjects.push({ networkId: networkObject.component.networkId', networkObject.component.networkId);
+        if (typeof networkObject.component.networkId === "number") {
+            Network.instance.destroyObjects.push({ networkId: networkObject.component.networkId });
+        } else {
+            console.error('networkObject.component.networkId is invalid', networkObject);
+            logger.error('networkObject.component.networkId is invalid');
+            logger.error(networkObject);
+        }
 
         // get network object
         const entity = Network.instance.networkObjects[key].component.entity;
