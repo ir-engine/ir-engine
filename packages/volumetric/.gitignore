@@ -117,6 +117,6 @@ src/worker/node_modules
 *.drcs
 *.ply
 *.crt
-CMakeFiles
-CMakeFiles/
-*/CMakeFiles/
+dev/CMakeFiles
+dev/CMakeFiles/
+dev/CMakeFiles/*
