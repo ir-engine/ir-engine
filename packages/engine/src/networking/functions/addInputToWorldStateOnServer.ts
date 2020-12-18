@@ -31,18 +31,18 @@ export const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
   input.data.forEach((value, key) => {
     switch (value.type) {
       case InputType.BUTTON:
-        inputs.buttons[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
+        inputs.buttons.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
         numInputs++;
         break;
       case InputType.ONEDIM:
         if (value.lifecycleState !== LifecycleValue.UNCHANGED) {
-          inputs.axes1d[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
+          inputs.axes1d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
           numInputs++;
         }
         break;
       case InputType.TWODIM:
         if (value.lifecycleState !== LifecycleValue.UNCHANGED) {
-          inputs.axes2d[key] = { input: key, value: value.value, lifecycleState: value.lifecycleState };
+          inputs.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
           numInputs++;
         }
         break;
