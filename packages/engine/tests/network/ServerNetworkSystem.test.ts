@@ -5,7 +5,7 @@ import { NetworkSchema } from "../../src/networking/interfaces/NetworkSchema";
 import { DefaultNetworkSchema } from "../../src/templates/networking/DefaultNetworkSchema";
 import { Network } from "../../src/networking/components/Network";
 import { Engine } from "../../src/ecs/classes/Engine";
-import { Scene } from "three";
+import { Scene, Vector3, Quaternion } from "three";
 import { registerSystem } from "../../src/ecs/functions/SystemFunctions";
 import { PhysicsSystem } from "../../src/physics/systems/PhysicsSystem";
 import { NetworkInputInterface, NetworkTransformsInterface } from "../../src/networking/interfaces/WorldState";
@@ -30,6 +30,7 @@ import { StateSystem } from "../../src/state/systems/StateSystem";
 import { InputAlias } from "../../src/input/types/InputAlias";
 import { ClientInputModel } from "../../src/networking/schema/clientInputSchema";
 import { ServerNetworkOutgoingSystem } from "../../src/networking/systems/ServerNetworkOutgoingSystem";
+import { expect } from "@jest/globals";
 
 //const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
 const handleInputOnServer = jest.spyOn(handleInputOnServerModule, 'handleInputOnServer');
@@ -40,6 +41,8 @@ let serverNetworkSystemIn:System;
 let serverNetworkSystemOut:System;
 
 const userId = "oid";
+const playerOneUserId = "oidOne";
+const playerTwoUserId = "oidTwo";
 
 class TestTransport implements NetworkTransport {
   isServer = true;
@@ -83,7 +86,7 @@ beforeAll(() => {
   registerSystem(PhysicsSystem);
   // pretend player has floor
   PhysicsManager.instance.physicsWorld.raycastClosest = jest.fn((start, end, rayCastOptions, rayResult:RaycastResult) => {
-    rayResult.body = new Body({mass:1});
+    rayResult.body = new Body({mass:0});
     rayResult.hasHit = true;
     rayResult.hitPointWorld.set(0,0,0);
     rayResult.hitNormalWorld.set(0,1,0);
@@ -233,8 +236,91 @@ test("continuous move forward and then stop", () => {
   expect(transform.networkId).toBe(networkObject.networkId);
 });
 
-function createButtonServerMessage(networkId:number, button:InputAlias, value:BinaryValue, lifecycle = null):NetworkInputInterface {
+test("incoming input propagates to network", () => {
+  // Network.instance.userId = userId;
+  const playerOneNetworkId = 1;
+  const playerTwoNetworkId = 2;
+
+  // create player one
+  const p1position = new Vector3();
+  const p1viewVector = new Vector3(0,0,1);
+  const p1NetworkObject = initializeNetworkObject(playerOneUserId, playerOneNetworkId, Network.instance.schema.defaultClientPrefab, p1position);
+  Network.instance.networkObjects[p1NetworkObject.networkId] = {
+    ownerId: userId, // Owner's socket ID
+    prefabType: Network.instance.schema.defaultClientPrefab, // All network objects need to be a registered prefab
+    component: p1NetworkObject
+  };
+  const p1NetworkEntity = p1NetworkObject.entity as Entity;
+
+  // create player two
+  const p2rotation = new Quaternion();
+  p2rotation.setFromAxisAngle(new Vector3(0,1,0), Math.PI);
+  const p2position = new Vector3();
+  const p2viewVector = new Vector3(0,0,-1);
+  const p2NetworkObject = initializeNetworkObject(playerTwoUserId, playerTwoNetworkId, Network.instance.schema.defaultClientPrefab, p2position, p2rotation);
+  Network.instance.networkObjects[p2NetworkObject.networkId] = {
+    ownerId: userId, // Owner's socket ID
+    prefabType: Network.instance.schema.defaultClientPrefab, // All network objects need to be a registered prefab
+    component: p2NetworkObject
+  };
+  const p2NetworkEntity = p2NetworkObject.entity as Entity;
+
+  // handle creation, update transforms, etc.
+  runFixed();
+
+  // get input messages from both players
+  const p1message = createButtonServerMessage(p1NetworkObject.networkId, DefaultInput.FORWARD, BinaryValue.ON, null, p1viewVector);
+  const p2message = createButtonServerMessage(p2NetworkObject.networkId, DefaultInput.FORWARD, BinaryValue.ON, null, p2viewVector);
+
+  // const runsCount = 4; // in my case it needs at least 4 frames to accumulate z transform
+  // for (let i = 0; i < runsCount; i++) {
+    if (Network.instance.packetCompression) {
+      Network.instance.incomingMessageQueue.add(ClientInputModel.toBuffer(p1message));
+      Network.instance.incomingMessageQueue.add(ClientInputModel.toBuffer(p2message));
+    } else {
+      Network.instance.incomingMessageQueue.add(p1message);
+      Network.instance.incomingMessageQueue.add(p2message);
+    }
+    runFixed();
+  // }
+  expect(Network.instance.worldState.transforms.length).toBe(2);
+
+  const actor1: CharacterComponent = getMutableComponent(p1NetworkEntity, CharacterComponent);
+  const actor2: CharacterComponent = getMutableComponent(p2NetworkEntity, CharacterComponent);
+
+  // expect(actor1.localMovementDirection.z).toBe(1);
+  // expect(actor1.velocityTarget.z).toBe(1);
+  // expect(actor1.velocity.z).toBeGreaterThan(0);
+  //
+  //
+  // expect(actor2.localMovementDirection.z).toBe(-1);
+  // expect(actor2.velocityTarget.z).toBe(-1);
+  // expect(actor2.velocity.z).toBeLessThan(0);
+  //
+  //
+  // const p1transform = Network.instance.worldState.transforms.find(t => t.networkId === p1NetworkObject.networkId);
+  // expect(p1transform).toBeTruthy();
+  // expect(p1transform.networkId).toBe(p1NetworkObject.networkId);
+  // expect(p1transform.x).toBe(0);
+  // // expect(transform.y).toBe(0); // why it's greater than zero??
+  // expect(p1transform.z).toBeGreaterThan(0);
+  //
+  //
+  // const p2transform = Network.instance.worldState.transforms.find(t => t.networkId === p2NetworkObject.networkId);
+  // expect(p2transform).toBeTruthy();
+  // expect(p2transform.networkId).toBe(p2NetworkObject.networkId);
+  // expect(p2transform.x).toBe(0);
+  // // expect(transform.y).toBe(0); // why it's greater than zero??
+  // expect(p2transform.z).toBeGreaterThan(0);
+
+  // TODO: check input
+  const p2input = Network.instance.worldState.inputs.find(t => t.networkId === p2NetworkObject.networkId);
+  expect(p2input).toMatchObject(p2message as any);
+});
+
+function createButtonServerMessage(networkId:number, button:InputAlias, value:BinaryValue, lifecycle:LifecycleValue = null, viewVector:{x:number,y:number,z:number} = null):NetworkInputInterface {
   const lifecycleState = lifecycle ?? ( value === BinaryValue.OFF? LifecycleValue.ENDED : LifecycleValue.CONTINUED );
+  const _viewVector = viewVector ?? { x:0, y:0, z:1 };
   return {
     networkId: networkId,
     buttons: [
@@ -246,6 +332,10 @@ function createButtonServerMessage(networkId:number, button:InputAlias, value:Bi
     ],
     axes1d: [],
     axes2d: [],
-    viewVector: { x:0, y:0, z:1 }
+    viewVector: {
+      x: _viewVector.x,
+      y: _viewVector.y,
+      z: _viewVector.z
+    }
   };
 }
