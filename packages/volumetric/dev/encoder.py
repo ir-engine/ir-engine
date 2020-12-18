@@ -31,7 +31,6 @@ def create_poly_mesh_from_sequence(meshes):
     if(mesh_count_is_one != True):
         for mesh in range(len(meshes)):
             for i in axes:
-                print("Axes: ", i, " meshes[mesh].elements[0].data[i]: ", meshes[mesh].elements[0].data[i])
                 for vert in range(len(meshes[mesh].elements[0].data[i])):
                     # offset meshes so first mesh is always 0 vals
                     meshes[mesh].elements[0].data[i][vert] = meshes[mesh].elements[0].data[i][vert]# - meshes[0].elements[0].data[i][vert]
@@ -74,7 +73,6 @@ def create_poly_mesh_from_sequence(meshes):
             for a in range(len(polynomial_array[i])):
                 for n in range(len(polynomial_array[i][a])):
                     encoded_vertex.append(polynomial_array[i][a][n])
-                    print("Encoding", polynomial_array[i][a][n])
             vals = []
             for val in v[i]:
                 vals.append(val)
@@ -92,9 +90,6 @@ def create_poly_mesh_from_sequence(meshes):
     z = meshes[0]['vertex']['z']
     texU = meshes[0]['vertex']['texture_u']
     texV = meshes[0]['vertex']['texture_v']
-
-    print(texU)
-    print(texV)
 
     if(mesh_count_is_one != True):
         x0 = poly_data_transpose[5]
