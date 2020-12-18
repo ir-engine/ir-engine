@@ -177,7 +177,9 @@ int main(int argc, char *argv[]) {
 	crt::Timer timer;
 
 	crt::Encoder encoder(loader.nvert, loader.nface, crt::Stream::TUNSTALL);
-	cout << "Attempting encode" << endl;
+
+	cout << "Loader nvert: " << loader.nvert << endl;
+
 	encoder.exif = loader.exif;
 	//add and override exif properties
 	for(auto it: exif)
@@ -199,11 +201,15 @@ int main(int argc, char *argv[]) {
 		encoder.addAttribute("xPos", (char *)loader.xPos.data(), crt::VertexAttribute::FLOAT, 4, 1.0f);
 	}
 
-	if(loader.yPos.size())
+	if(loader.yPos.size()){
+		cout << "yPos size is " << loader.yPos.size() << endl;
 		encoder.addAttribute("yPos", (char *)loader.yPos.data(), crt::VertexAttribute::FLOAT, 4, 1.0f);
+	}
 
-	if(loader.zPos.size())
+	if(loader.zPos.size()){
+		cout << "zPos size is " << loader.zPos.size() << endl;
 		encoder.addAttribute("zPos", (char *)loader.zPos.data(), crt::VertexAttribute::FLOAT, 4, 1.0f);
+	}
 
 	encoder.encode();
 
@@ -244,34 +250,20 @@ int main(int argc, char *argv[]) {
 	}
 
 	crt::GenericAttr<int> *xPosOut = dynamic_cast<crt::GenericAttr<int> *>(encoder.data["xPos"]);
-	if(xPosOut) {
-		cout << "xPosOut " << endl;
-		cout << xPosOut << endl;
-	}
-
 	crt::GenericAttr<int> *yPosOut = dynamic_cast<crt::GenericAttr<int> *>(encoder.data["yPos"]);
-	if(yPosOut) {
-		cout << "yPosOut " << endl;
-		cout << yPosOut << endl;
-	}
-
-
 	crt::GenericAttr<int> *zPosOut = dynamic_cast<crt::GenericAttr<int> *>(encoder.data["zPos"]);
-	if(zPosOut) {
-		cout << "zPosOut " << endl;
-		cout << zPosOut << endl;
-	}
-
 
 	cout << "Face bpv; " << 8.0f*encoder.index.size/nvert << endl;
 
 
 
 	timer.start();
+	cout << "encoder.nvert is" << encoder.nvert << endl;
+	 cout << "Nvert is " << nvert << endl;
 
 	crt::Decoder decoder(encoder.stream.size(), encoder.stream.data());
 	assert(decoder.nface == nface);
-	assert(decoder.nvert = nvert);
+	assert(decoder.nvert == nvert);
 
 	crt::MeshLoader out;
 	out.nvert = encoder.nvert;
@@ -292,7 +284,8 @@ int main(int argc, char *argv[]) {
 		decoder.setUvs(out.uvs.data());
 	}
 	if(decoder.data.count("xPos")) {
-		cout << "SUCCESS! Position encoded data detected" << endl;
+		cout << "Resize to " << endl;
+		cout << nvert*4 << endl;
 		out.xPos.resize(nvert*4);
 		decoder.setAttribute("xPos", (char *)out.xPos.data(), crt::VertexAttribute::FLOAT);
 	}

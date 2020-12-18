@@ -230,6 +230,7 @@ void Encoder::encode() {
 	encodeMesh();
 }
 
+
 /*	Zpoint encoding gain 1 bit (because we know it's sorted, but it's 3/2 slower and limited to 22 bits precision.
  *
  * bitstream.write(zpoints[0].bits, 63);

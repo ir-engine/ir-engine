@@ -45,13 +45,9 @@ public:
 	virtual void dequantize(uint32_t nvert);
 
 	virtual void encode(uint32_t nvert, OutStream &stream) {
-		cout << "Encode attribute" << endl;
 		stream.restart();
-		for(int c = 0; c < N; c++){
+		for(int c = 0; c < N; c++)
 			stream.write<uchar>((uchar)qc[c]);
-			cout << qc[c];
-		}
-		cout << endl;
 
 		stream.encodeValues<char>(nvert, (char *)diffs.data(), N);
 		size = stream.elapsed();

@@ -67,7 +67,6 @@ private:
 
 	uint32_t vertex_count; //keep tracks of current decoding vertex
 
-	void decodePointCloud();
 	void decodeMesh();
 	void decodeFaces(uint32_t start, uint32_t end, uint32_t &cler);
 };
