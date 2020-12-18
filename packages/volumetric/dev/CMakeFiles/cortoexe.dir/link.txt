@@ -1,1 +1,0 @@
-/usr/bin/c++    -rdynamic CMakeFiles/cortoexe.dir/src/main.cpp.o CMakeFiles/cortoexe.dir/src/meshloader.cpp.o CMakeFiles/cortoexe.dir/src/tinyply.cpp.o  -o corto  libcorto.a 
