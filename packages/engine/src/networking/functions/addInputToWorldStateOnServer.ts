@@ -8,6 +8,7 @@ import { Network } from '../components/Network';
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import _ from 'lodash';
 import { NetworkInputInterface } from "../interfaces/WorldState";
+import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 
 export const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
   const input = getComponent(entity, Input);
@@ -16,13 +17,19 @@ export const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
   if (input.data.size < 1 && _.isEqual(input.data, input.lastData))
     return;
 
+  const actor = getComponent(entity, CharacterComponent);
+
   // Create a schema for input to send
   const inputs:NetworkInputInterface = {
     networkId: networkId,
     buttons: [],
     axes1d: [],
     axes2d: [],
-    viewVector: { x:0, y:0, z:0 }
+    viewVector: {
+      x: actor.viewVector.x,
+      y: actor.viewVector.y,
+      z: actor.viewVector.z
+    }
   };
 
   let numInputs;
