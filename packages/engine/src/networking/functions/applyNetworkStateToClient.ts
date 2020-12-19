@@ -15,6 +15,8 @@ import { calculateInterpolation, addSnapshot, createSnapshot } from '../function
 import { WorldStateInterface } from "../interfaces/WorldState";
 import { Quaternion, Vector3 } from "three";
 
+let test = 0
+
 export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, delta = 0.033):void {
   const worldState = worldStateBuffer; // worldStateModel.fromBuffer(worldStateBuffer);
 
@@ -86,13 +88,16 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
         position,
         rotation,
       );
+      test++
     }
   }
 
 
 
     if( worldState.snapshot != undefined ) {
-      addSnapshot(worldState.snapshot);
+      if (test != 0) {
+        addSnapshot(worldState.snapshot);
+      }
     } else {
       console.warn('server do not send Interpolation Snapshot');
     }
@@ -113,6 +118,7 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
   // }
 
   // Handle all network objects destroyed this frame
+
   for (const objectToDestroy in worldState.destroyObjects) {
     const networkId = worldState.destroyObjects[objectToDestroy].networkId;
     console.log("Destroying ", networkId)
