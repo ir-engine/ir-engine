@@ -133,11 +133,12 @@ export function validateNetworkObjects(): void {
             // Loop through network objects in world
             for (const obj in Network.instance.networkObjects)
               // If this client owns the object, add it to our array
-                if (Network.instance.networkObjects[obj].ownerId === client)
+                if (Network.instance.networkObjects[obj].ownerId !== "server" && Network.instance.networkObjects[obj].ownerId === client)
                     networkObjectsClientOwns.push(Network.instance.networkObjects[obj]);
 
             // Remove all objects for disconnecting user
             networkObjectsClientOwns.forEach(obj => {
+
                 // Get the entity attached to the NetworkObjectComponent and remove it
                 logger.info("Removed entity ", (obj.component.entity as Entity).id, " for user ", client);
                 const removeMessage = { networkId: obj.networkId };
@@ -154,11 +155,12 @@ export function validateNetworkObjects(): void {
     Object.keys(Network.instance.networkObjects).forEach((key: string) => {
         const networkObject = Network.instance.networkObjects[key];
         // Validate that the object has an associated user and doesn't belong to a non-existant user
-        if (networkObject.ownerId !== undefined && Network.instance.clients[networkObject.ownerId] !== undefined)
+        if (networkObject.ownerId !== undefined && Network.instance.clients[networkObject.ownerId] !== undefined || networkObject.ownerId === "server")
             return;
 
         // If it does, tell clients to destroy it
         const removeMessage = { networkId: networkObject.component.networkId };
+
         Network.instance.destroyObjects.push(removeMessage);
         logger.info("Culling ownerless object: ", networkObject.component.networkId, "owned by ", networkObject.ownerId);
 
@@ -237,6 +239,7 @@ function disconnectClientIfConnected(socket, userId: string): void {
         if (networkObject.ownerId !== userId) return;
 
         // If it does, tell clients to destroy it
+
         Network.instance.destroyObjects.push({ networkId: networkObject.component.networkId });
 
         // get network object
@@ -266,6 +269,8 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     };
 
     // Added new object to the worldState with networkId and ownerId
+    console.warn(Network.instance.createObjects);
+
     Network.instance.createObjects.push({
         networkId: networkObject.networkId,
         ownerId: userId,
@@ -278,6 +283,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
         qZ: transform.rotation.z,
         qW: transform.rotation.w
     });
+
 
     // Create a new worldtate object that we can fill
     const worldState = {
