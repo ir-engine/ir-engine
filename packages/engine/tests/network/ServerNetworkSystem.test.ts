@@ -322,8 +322,9 @@ test("incoming input propagates to network", () => {
 
   const sentData = (Network.instance.transport as TestTransport).sentData;
   const lastSent = sentData[sentData.length - 1];
+
   // if (Network.instance.packetCompression) {
-  const message = WorldStateModel.fromBuffer(lastSent);
+  const message = !Network.instance.packetCompression? lastSent : WorldStateModel.fromBuffer(lastSent);
   const p2inputsFromSentData = message.inputs.find(t => t.networkId === p2NetworkObject.networkId);
   expect(p2inputsFromSentData).toMatchObject(p2message as any);
 });

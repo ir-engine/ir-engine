@@ -72,7 +72,7 @@ export class ServerNetworkOutgoingSystem extends System {
           axes1d: Object.keys(input.axes1d).map(v => input.axes1d[v]),
           axes2d: Object.keys(input.axes2d).map(v => input.axes2d[v]),
           buttons: Object.keys(input.buttons).map(v => input.buttons[v]),
-          viewVector: { x:0, y:0, z:0 }
+          viewVector: { ...input.viewVector }
         };
       });
 
