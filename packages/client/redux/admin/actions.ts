@@ -2,9 +2,11 @@ import {
   VIDEO_CREATED,
   VIDEO_UPDATED,
   VIDEO_DELETED,
-  LOCATION_TYPES_RETRIEVED
+  LOCATION_TYPES_RETRIEVED,
+  INSTANCES_RETRIEVED
 } from '../actions';
 import { StaticResource } from '@xr3ngine/common/interfaces/StaticResource';
+import { Instance } from '@xr3ngine/common/interfaces/Instance';
 
 export interface VideoCreationForm {
   name: string;
@@ -64,6 +66,11 @@ export interface VideoDeletedResponse {
   staticResourceType: string;
 }
 
+export interface InstancesRetrievedResponse {
+  type: string,
+  instances: any[]
+}
+
 export interface LocationTypesRetrievedResponse {
   type: string;
   types: any[];
@@ -108,5 +115,12 @@ export function locationTypesRetrieved(data: any): LocationTypesRetrievedRespons
   return {
     type: LOCATION_TYPES_RETRIEVED,
     types: data
+  };
+}
+
+export function instancesRetrievedAction(instances: any): InstancesRetrievedResponse {
+  return {
+    type: INSTANCES_RETRIEVED,
+    instances: instances
   };
 }
