@@ -4,7 +4,9 @@ import {
   VideoUpdateForm,
   videoCreated,
   videoUpdated,
-  videoDeleted, locationTypesRetrieved
+  videoDeleted,
+  locationTypesRetrieved,
+  instancesRetrievedAction
 } from './actions';
 import {
   locationCreated,
@@ -12,6 +14,9 @@ import {
   locationRemoved,
   locationsRetrieved
 } from "../location/actions";
+import {
+  loadedUsers
+} from '../user/actions';
 import { client } from '../feathers';
 import { PublicVideo, videosFetchedError, videosFetchedSuccess } from '../video/actions';
 import axios from 'axios';
@@ -80,16 +85,47 @@ export function fetchAdminVideos () {
 
 export function fetchAdminLocations () {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    const locationAdmins = await client.service('location-admin').find();
     const locations = await client.service('location').find({
       query: {
         $sort: {
-          name: -1
+          name: 1
         },
+        $skip: getState().get('admin').get('locations').get('skip'),
+        $limit: getState().get('admin').get('locations').get('limit'),
         adminnedLocations: true
       }
     });
     dispatch(locationsRetrieved(locations));
+  };
+}
+
+export function fetchUsersAsAdmin () {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    const users = await client.service('user').find({
+      query: {
+        $sort: {
+          name: 1
+        },
+        $skip: getState().get('admin').get('users').get('skip'),
+        $limit: getState().get('admin').get('users').get('limit'),
+        action: 'admin'
+      }
+    });
+    dispatch(loadedUsers(users));
+  };
+}
+
+export function fetchAdminInstances () {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    const instances = await client.service('instance').find({
+      $sort: {
+        createdAt: -1
+      },
+      $skip: getState().get('admin').get('users').get('skip'),
+      $limit: getState().get('admin').get('users').get('limit'),
+      action: 'admin'
+    });
+    dispatch(instancesRetrievedAction(instances));
   };
 }
 

@@ -1,21 +1,21 @@
-import {Button, ThemeProvider} from '@material-ui/core';
-import { useRouter } from 'next/router';
+import {
+    Button,
+    Tab,
+    Tabs
+} from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
-import NoSSR from 'react-no-ssr';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import Loading from '../../../components/scenes/loading';
-import Layout from '../../../components/ui/Layout';
 import { selectAdminState } from '../../../redux/admin/selector';
 import { selectAppState } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
-import theme from '../../../theme';
 import {
     fetchAdminLocations,
     fetchAdminScenes,
-    fetchLocationTypes
+    fetchLocationTypes,
+    fetchUsersAsAdmin,
+    fetchAdminInstances
 } from '../../../redux/admin/service';
-import getConfig from "next/config";
 import {
     Table,
     TableBody,
@@ -25,21 +25,11 @@ import {
     TableCell,
     TableSortLabel,
     Paper,
-    Checkbox,
-    Toolbar,
-    Typography,
-    Tooltip,
-    IconButton,
-    TablePagination,
-    Switch,
-    FormControlLabel
+    TablePagination
 } from '@material-ui/core';
-import {
-    Delete,
-    FilterList,
-} from '@material-ui/icons';
 import styles from './Admin.module.scss';
 import LocationModal from './LocationModal';
+import moment from 'moment';
 import {closeDialog} from "../../../redux/dialog/service";
 
 if (!global.setImmediate) {
@@ -54,6 +44,8 @@ interface Props {
     fetchAdminLocations?: any;
     fetchAdminScenes?: any;
     fetchLocationTypes?: any;
+    fetchUsersAsAdmin?: any;
+    fetchAdminInstances?: any;
 }
 
 interface HeadCell {
@@ -74,7 +66,9 @@ const mapStateToProps = (state: any): any => {
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch),
     fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch),
-    fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch)
+    fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch),
+    fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch),
+    fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch)
 });
 
 const AdminConsole = (props: Props) => {
@@ -83,7 +77,9 @@ const AdminConsole = (props: Props) => {
         authState,
         fetchAdminLocations,
         fetchAdminScenes,
-        fetchLocationTypes
+        fetchLocationTypes,
+        fetchUsersAsAdmin,
+        fetchAdminInstances
     } = props;
 
     const initialLocation = {
@@ -105,15 +101,30 @@ const AdminConsole = (props: Props) => {
     const [selectedLocation, setSelectedLocation] = useState(initialLocation);
     const adminScenes = adminState.get('scenes').get('scenes');
 
-    const headCells: HeadCell[] = [
-        { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
-        { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
-        { id: 'sceneId', numeric: false, disablePadding: false, label: 'Scene' },
-        { id: 'maxUsersPerInstance', numeric: true, disablePadding: false, label: 'Max Users'},
-        { id: 'type', numeric: false, disablePadding: false, label: 'Type' },
-        { id: 'instanceMediaChatEnabled', numeric: false, disablePadding: false, label: 'Enable public media chat' },
-        { id: 'videoEnabled', numeric: false, disablePadding: false, label: 'Video Enabled' }
-    ];
+    const headCells = {
+        locations: [
+            { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
+            { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
+            { id: 'sceneId', numeric: false, disablePadding: false, label: 'Scene' },
+            { id: 'maxUsersPerInstance', numeric: true, disablePadding: false, label: 'Max Users'},
+            { id: 'type', numeric: false, disablePadding: false, label: 'Type' },
+            { id: 'instanceMediaChatEnabled', numeric: false, disablePadding: false, label: 'Enable public media chat' },
+            { id: 'videoEnabled', numeric: false, disablePadding: false, label: 'Video Enabled' }
+        ],
+        users: [
+            { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
+            { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
+            { id: 'instanceId', numeric: false, disablePadding: false, label: 'Instance ID' },
+            { id: 'userRole', numeric: false, disablePadding: false, label: 'User Role'},
+            { id: 'partyId', numeric: false, disablePadding: false, label: 'Party ID' }
+        ],
+        instances: [
+            { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
+            { id: 'ipAddress', numeric: false, disablePadding: false, label: 'IP address' },
+            { id: 'currentUsers', numeric: true, disablePadding: false, label: 'Current # of Users' },
+            { id: 'locationId', numeric: false, disablePadding: false, label: 'Location ID'}
+        ]
+    };
 
     function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
         if (b[orderBy] < a[orderBy]) {
@@ -152,25 +163,35 @@ const AdminConsole = (props: Props) => {
     }
 
     interface Data {
-        id: string,
-        name: string,
-        sceneId: string,
-        maxUsersPerInstance: number,
-        type: string,
-        instanceMediaChatEnabled: boolean,
-        videoEnabled: boolean
+        locations: {
+            id: string,
+            name: string,
+            sceneId: string,
+            maxUsersPerInstance: number,
+            type: string,
+            instanceMediaChatEnabled: boolean,
+            videoEnabled: boolean
+        },
+        users: {
+            id: string,
+            name: string,
+            instanceId: string,
+            userRole: string,
+            partyId: string
+        }
     }
 
     interface HeadCell {
         disablePadding: boolean;
-        id: keyof Data;
+        id: string;
         label: string;
         numeric: boolean;
     }
 
     interface EnhancedTableProps {
+        object: string,
         numSelected: number;
-        onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Data) => void;
+        onRequestSort: (event: React.MouseEvent<unknown>, property) => void;
         onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
         order: Order;
         orderBy: string;
@@ -178,15 +199,15 @@ const AdminConsole = (props: Props) => {
     }
 
     function EnhancedTableHead(props: EnhancedTableProps) {
-        const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
-        const createSortHandler = (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
+        const { object, order, orderBy, numSelected, rowCount, onRequestSort } = props;
+        const createSortHandler = (property) => (event: React.MouseEvent<unknown>) => {
             onRequestSort(event, property);
         };
 
         return (
             <TableHead className={styles.thead}>
                 <TableRow className={styles.trow}>
-                    {headCells.map((headCell) => (
+                    {headCells[object].map((headCell) => (
                         <TableCell
                             className={styles.tcell}
                             key={headCell.id}
@@ -209,13 +230,17 @@ const AdminConsole = (props: Props) => {
     }
 
     const [order, setOrder] = React.useState<Order>('asc');
-    const [orderBy, setOrderBy] = React.useState<keyof Data>('name');
+    const [orderBy, setOrderBy] = React.useState<any>('name');
     const [selected, setSelected] = React.useState<string[]>([]);
     const [page, setPage] = React.useState(0);
     const [dense, setDense] = React.useState(false);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    const [selectedTab, setSelectedTab] = React.useState('locations');
+    const [refetch, setRefetch] = React.useState(false);
 
     const adminLocations = adminState.get('locations').get('locations');
+    const adminUsers = adminState.get('users').get('users');
+    const adminInstances = adminState.get('instances').get('instances');
     const displayLocations = adminLocations.map(location => {
         return {
             id: location.id,
@@ -228,7 +253,7 @@ const AdminConsole = (props: Props) => {
         };
     });
 
-    const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Data) => {
+    const handleRequestSort = (event: React.MouseEvent<unknown>, property) => {
         const isAsc = orderBy === property && order === 'asc';
         setOrder(isAsc ? 'desc' : 'asc');
         setOrderBy(property);
@@ -243,7 +268,7 @@ const AdminConsole = (props: Props) => {
         setSelected([]);
     };
 
-    const handleClick = (event: React.MouseEvent<unknown>, id: string) => {
+    const handleLocationClick = (event: React.MouseEvent<unknown>, id: string) => {
         const selected = adminLocations.find(location => location.id === id);
         setSelectedLocation(selected);
         setEditing(true);
@@ -273,28 +298,57 @@ const AdminConsole = (props: Props) => {
         setSelectedLocation(initialLocation);
     };
 
+    const handleTabChange = (e: any, newValue: string) => {
+        setSelectedTab(newValue);
+    };
+
+
+    const fetchTick = () => {
+        setTimeout(() => {
+            setRefetch(true);
+            fetchTick();
+        }, 5000);
+    };
+
     useEffect(() => {
-        if (user?.id != null && adminState.get('locations').get('updateNeeded') === true) {
+      fetchTick();
+    }, []);
+
+    useEffect(() => {
+        if (user?.id != null && (adminState.get('locations').get('updateNeeded') === true || refetch === true)) {
             fetchAdminLocations();
         }
-        if (user?.id != null && adminState.get('scenes').get('updateNeeded') === true) {
+        if (user?.id != null && (adminState.get('scenes').get('updateNeeded') === true || refetch === true)) {
             fetchAdminScenes();
         }
         if (user?.id != null && adminState.get('locationTypes').get('updateNeeded') === true) {
             fetchLocationTypes();
         }
-    }, [authState, adminState]);
+        if (user?.id != null && (adminState.get('users').get('updateNeeded') === true || refetch === true)) {
+            fetchUsersAsAdmin();
+        }
+        if (user?.id != null && (adminState.get('instances').get('updateNeeded') === true || refetch === true )) {
+            fetchAdminInstances();
+        }
+        setRefetch(false);
+    }, [authState, adminState, refetch]);
 
 
     return (
         <Paper>
-            <TableContainer>
+            <Tabs value={selectedTab} onChange={handleTabChange} aria-label="tabs">
+                <Tab label="Locations" value="locations" />
+                <Tab label="Users" value="users" />
+                <Tab label="Instances" value="instances" />
+            </Tabs>
+            {selectedTab === 'locations' && <TableContainer>
                 <Table
                     aria-labelledby="tableTitle"
                     size={dense ? 'small' : 'medium'}
                     aria-label="enhanced table"
                 >
                     <EnhancedTableHead
+                        object='locations'
                         numSelected={selected.length}
                         order={order}
                         orderBy={orderBy}
@@ -311,19 +365,23 @@ const AdminConsole = (props: Props) => {
                                         hover
                                         className={styles.trow}
                                         style={{color: 'black !important'}}
-                                        onClick={(event) => handleClick(event, row.id.toString())}
+                                        onClick={(event) => handleLocationClick(event, row.id.toString())}
                                         tabIndex={-1}
                                         key={row.id}
                                     >
-                                        <TableCell className={styles.tcell} component="th" id={row.id.toString()} align="right" scope="row" padding="none">
+                                        <TableCell className={styles.tcell} component="th" id={row.id.toString()}
+                                                   align="right" scope="row" padding="none">
                                             {row.id}
                                         </TableCell>
                                         <TableCell className={styles.tcell} align="right">{row.name}</TableCell>
-                                        <TableCell className={styles.tcell} align="right">{getScene(row.sceneId as string)}</TableCell>
-                                        <TableCell className={styles.tcell} align="right">{row.maxUsersPerInstance}</TableCell>
+                                        <TableCell className={styles.tcell}
+                                                   align="right">{getScene(row.sceneId as string)}</TableCell>
+                                        <TableCell className={styles.tcell}
+                                                   align="right">{row.maxUsersPerInstance}</TableCell>
                                         <TableCell className={styles.tcell} align="right">{row.type}</TableCell>
                                         <TableCell className={styles.tcell} align="right">{row.videoEnabled}</TableCell>
-                                        <TableCell className={styles.tcell} align="right">{row.instanceMediaChatEnabled}</TableCell>
+                                        <TableCell className={styles.tcell}
+                                                   align="right">{row.instanceMediaChatEnabled}</TableCell>
                                     </TableRow>
                                 );
                             })}
@@ -347,10 +405,110 @@ const AdminConsole = (props: Props) => {
                     </TableBody>
                 </Table>
             </TableContainer>
+            }
+            {selectedTab === 'users' && <TableContainer>
+                <Table
+                    aria-labelledby="tableTitle"
+                    size={dense ? 'small' : 'medium'}
+                    aria-label="enhanced table"
+                >
+                    <EnhancedTableHead
+                        object='users'
+                        numSelected={selected.length}
+                        order={order}
+                        orderBy={orderBy}
+                        onSelectAllClick={handleSelectAllClick}
+                        onRequestSort={handleRequestSort}
+                        rowCount={adminUsers.length || 0}
+                    />
+                    <TableBody className={styles.thead}>
+                        {stableSort(adminUsers, getComparator(order, orderBy))
+                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                            .map((row, index) => {
+                                return (
+                                    <TableRow
+                                        hover
+                                        className={styles.trow}
+                                        style={{color: 'black !important'}}
+                                        // onClick={(event) => handleClick(event, row.id.toString())}
+                                        tabIndex={-1}
+                                        key={row.id}
+                                    >
+                                        <TableCell className={styles.tcell} component="th" id={row.id.toString()}
+                                                   align="right" scope="row" padding="none">
+                                            {row.id}
+                                        </TableCell>
+                                        <TableCell className={styles.tcell} align="right">{row.name}</TableCell>
+                                        <TableCell className={styles.tcell}
+                                                   align="right">{row.instanceId}</TableCell>
+                                        <TableCell className={styles.tcell}
+                                                   align="right">{row.userRole}</TableCell>
+                                        <TableCell className={styles.tcell} align="right">{row.partyId}</TableCell>
+                                    </TableRow>
+                                );
+                            })}
+                        {/*{emptyRows > 0 && (*/}
+                        {/*    <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>*/}
+                        {/*        <TableCell colSpan={6} />*/}
+                        {/*    </TableRow>*/}
+                        {/*)}*/}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            }
+            {selectedTab === 'instances' && <TableContainer>
+            <Table
+                aria-labelledby="tableTitle"
+                size={dense ? 'small' : 'medium'}
+                aria-label="enhanced table"
+            >
+                <EnhancedTableHead
+                    object='instances'
+                    numSelected={selected.length}
+                    order={order}
+                    orderBy={orderBy}
+                    onSelectAllClick={handleSelectAllClick}
+                    onRequestSort={handleRequestSort}
+                    rowCount={adminInstances.length || 0}
+                />
+                <TableBody className={styles.thead}>
+                    {stableSort(adminInstances, getComparator(order, orderBy))
+                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                        .map((row, index) => {
+                            return (
+                                <TableRow
+                                    hover
+                                    className={styles.trow}
+                                    style={{color: 'black !important'}}
+                                    // onClick={(event) => handleClick(event, row.id.toString())}
+                                    tabIndex={-1}
+                                    key={row.id}
+                                >
+                                    <TableCell className={styles.tcell} component="th" id={row.id.toString()}
+                                               align="right" scope="row" padding="none">
+                                        {row.id}
+                                    </TableCell>
+                                    <TableCell className={styles.tcell} align="right">{row.ipAddress}</TableCell>
+                                    <TableCell className={styles.tcell}
+                                               align="right">{row.currentUsers}</TableCell>
+                                    <TableCell className={styles.tcell}
+                                               align="right">{row.locationId}</TableCell>
+                                </TableRow>
+                            );
+                        })}
+                    {/*{emptyRows > 0 && (*/}
+                    {/*    <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>*/}
+                    {/*        <TableCell colSpan={6} />*/}
+                    {/*    </TableRow>*/}
+                    {/*)}*/}
+                </TableBody>
+            </Table>
+        </TableContainer>
+        }
             <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
                 component="div"
-                count={displayLocations.length || 0}
+                count={selectedTab === 'locations' ? displayLocations.length : selectedTab === 'users' ? adminUsers.length : 0}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onChangePage={handleChangePage}

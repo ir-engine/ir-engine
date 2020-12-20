@@ -1,5 +1,6 @@
 import Immutable from 'immutable';
 import {
+  InstancesRetrievedResponse,
   LocationTypesRetrievedResponse,
   VideoCreatedAction
 } from './actions';
@@ -10,17 +11,20 @@ import {
   LOCATION_CREATED,
   LOCATION_PATCHED,
   LOCATION_REMOVED,
-  SCENES_RETRIEVED, LOCATION_TYPES_RETRIEVED
+  SCENES_RETRIEVED,
+  LOCATION_TYPES_RETRIEVED,
+  LOADED_USERS,
+  INSTANCES_RETRIEVED
 } from '../actions';
 import { UserSeed } from '@xr3ngine/common/interfaces/User';
 import { IdentityProviderSeed } from '@xr3ngine/common/interfaces/IdentityProvider';
 import { AuthUserSeed } from '@xr3ngine/common/interfaces/AuthUser';
 import {
-  LocationCreatedAction,
   LocationsRetrievedAction,
-  LocationPatchedAction,
-  LocationRemovedAction
 } from "../location/actions";
+import {
+  LoadedUsersAction
+} from "../user/actions";
 import {CollectionsFetchedAction} from "../scenes/actions";
 
 export const initialState = {
@@ -37,7 +41,8 @@ export const initialState = {
     total: 0,
     retrieving: false,
     fetched: false,
-    updateNeeded: true
+    updateNeeded: true,
+    lastFetched: new Date()
   },
   locationTypes: {
     locationTypes: [],
@@ -50,7 +55,28 @@ export const initialState = {
     total: 0,
     retrieving: false,
     fetched: false,
-    updateNeeded: true
+    updateNeeded: true,
+    lastFetched: new Date()
+  },
+  users: {
+    users: [],
+    skip: 0,
+    limit: 100,
+    total: 0,
+    retrieving: false,
+    fetched: false,
+    updateNeeded: true,
+    lastFetched: new Date()
+  },
+  instances: {
+    instances: [],
+    skip: 0,
+    limit: 100,
+    total: 0,
+    retrieving: false,
+    fetched: false,
+    updateNeeded: true,
+    lastFetched: new Date()
   }
 };
 
@@ -73,6 +99,7 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set('retrieving', false);
       updateMap.set('fetched', true);
       updateMap.set('updateNeeded', false);
+      updateMap.set('lastFetched', new Date());
       return state
           .set('locations', updateMap);
 
@@ -94,6 +121,34 @@ const adminReducer = (state = immutableState, action: any): any => {
       return state
           .set('locations', updateMap);
 
+    case LOADED_USERS:
+      result = (action as LoadedUsersAction).users;
+      updateMap = new Map(state.get('users'));
+      updateMap.set('users', (result as any).data);
+      updateMap.set('skip', (result as any).skip);
+      updateMap.set('limit', (result as any).limit);
+      updateMap.set('total', (result as any).total);
+      updateMap.set('retrieving', false);
+      updateMap.set('fetched', true);
+      updateMap.set('updateNeeded', false);
+      updateMap.set('lastFetched', new Date());
+      return state
+          .set('users', updateMap);
+
+    case INSTANCES_RETRIEVED:
+      result = (action as InstancesRetrievedResponse).instances;
+      updateMap = new Map(state.get('instances'));
+      updateMap.set('instances', (result as any).data);
+      updateMap.set('skip', (result as any).skip);
+      updateMap.set('limit', (result as any).limit);
+      updateMap.set('total', (result as any).total);
+      updateMap.set('retrieving', false);
+      updateMap.set('fetched', true);
+      updateMap.set('updateNeeded', false);
+      updateMap.set('lastFetched', new Date());
+      return state
+          .set('instances', updateMap);
+
     case SCENES_RETRIEVED:
       result = (action as CollectionsFetchedAction).collections;
       updateMap = new Map(state.get('scenes'));
@@ -104,6 +159,7 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set('retrieving', false);
       updateMap.set('fetched', true);
       updateMap.set('updateNeeded', false);
+      updateMap.set('lastFetched', new Date());
       return state
           .set('scenes', updateMap);
 

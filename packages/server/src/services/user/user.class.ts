@@ -168,6 +168,16 @@ export class User extends Service {
           instanceId: user.instanceId
         }
       });
+    } else if (action === 'admin') {
+      const loggedInUser = extractLoggedInUserFromParams(params);
+      const user = await super.get(loggedInUser.userId);
+      return super.find({
+        query: {
+          $sort: params.query.$sort,
+          $skip: params.query.$skip || 0,
+          $limit: params.query.$limit || 10
+        }
+      });
     } else {
       return await super.find(params);
     }
