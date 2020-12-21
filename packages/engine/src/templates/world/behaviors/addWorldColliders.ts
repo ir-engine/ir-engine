@@ -19,7 +19,7 @@ export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
     if (mesh.userData.data == "physics") {
       if (mesh.userData.type == "collider" || mesh.userData.type == "rigidbody") {
         if (mesh.userData.geometry == "box" || mesh.userData.geometry == "trimesh") {
-           //console.warn('ADD COLLIDER');
+           console.warn('ADD COLLIDER');
           deleteArr.push(mesh);
           if(mesh.type == 'Group') {
             for (let i = 0; i < mesh.children.length; i++) {

@@ -13,6 +13,7 @@ const resolveMediaCache = new Map();
 
 const SERVER_URL = (configs as any).SERVER_URL;
 const APP_URL = (configs as any).APP_URL;
+const FEATHER_STORE_KEY = (configs as any).FEATHER_STORE_KEY;
 
 function b64EncodeUnicode(str): string {
   // first we use encodeURIComponent to get percent-encoded UTF-8, then we convert the percent-encodings
@@ -977,7 +978,8 @@ export default class Api extends EventEmitter {
 
     const {
       file_id: assetFileId,
-      meta: { access_token: assetAccessToken }
+      meta: { access_token: assetAccessToken, expected_content_type: expectedContentType },
+      origin: origin
     } = await this.upload(file, onProgress, signal) as any;
 
     const delta = Date.now() - this.lastUploadAssetRequest;
@@ -1003,23 +1005,23 @@ export default class Api extends EventEmitter {
       }
     });
 
-    const resp = await this.fetchUrl(endpoint, { method: "POST", headers, body, signal });
-    console.log("Response: " + Object.values(resp));
-
-    const json = await resp.json();
-
-    const asset = json.assets[0];
-
+    // const resp = await this.fetchUrl(endpoint, { method: "POST", headers, body, signal });
+    // console.log("Response: " + Object.values(resp));
+    //
+    // const json = await resp.json();
+    //
+    // const asset = json.assets[0];
+    //
     this.lastUploadAssetRequest = Date.now();
 
     return {
-      id: asset.asset_id,
-      name: asset.name,
-      url: asset.file_url,
-      type: asset.type,
+      id: assetFileId,
+      name: file.name,
+      url: origin,
+      type: 'application/octet-stream',
       attributions: {},
       images: {
-        preview: { url: asset.thumbnail_url }
+        preview: { url: file.thumbnail_url }
       }
     };
   }
@@ -1113,7 +1115,7 @@ export default class Api extends EventEmitter {
 
   handleAuthorization(): void {
     if (process.browser) {
-      const accessToken = localStorage.getItem('TheOverlay-Auth-Store');
+      const accessToken = localStorage.getItem(FEATHER_STORE_KEY);
       const email = 'test@test.com';
       if((accessToken && email) || this.isAuthenticated()){
         this.saveCredentials(email, accessToken);

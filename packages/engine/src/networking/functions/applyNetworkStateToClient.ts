@@ -1,19 +1,12 @@
-import { getComponent, getMutableComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
-import { handleInputOnClient } from '../../input/behaviors/handleInputOnClient';
+import { Quaternion, Vector3 } from "three";
+import { getComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
 import { Input } from '../../input/components/Input';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { InputType } from '../../input/enums/InputType';
-import { State } from '../../state/components/State';
-import { TransformComponent } from '../../transform/components/TransformComponent';
-import { NetworkInterpolation } from '../components/NetworkInterpolation';
-import { Vault } from '../components/Vault';
-import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
-import { Interactor } from '../../interaction/components/Interactor';
 import { Network } from '../components/Network';
-import { initializeNetworkObject } from './initializeNetworkObject';
-import { calculateInterpolation, addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions';
+import { addSnapshot } from '../functions/NetworkInterpolationFunctions';
 import { WorldStateInterface } from "../interfaces/WorldState";
-import { Quaternion, Vector3 } from "three";
+import { initializeNetworkObject } from './initializeNetworkObject';
 
 let test = 0
 
@@ -155,8 +148,7 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
 
     // Apply new input
     if (Network.instance.packetCompression) {
-      //@ts-ignore
-      for (let i = 0; i < inputData.buttons.length; i++)
+      for (let i = 0; i < Object.keys(inputData.buttons).length; i++)
       input.data.set(inputData.buttons[i].input,
         {
           type: InputType.BUTTON,
@@ -165,8 +157,7 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
         });
 
     // Axis 1D input
-    //@ts-ignore
-    for (let i = 0; i < inputData.axes1d.length; i++)
+    for (let i = 0; i < Object.keys(inputData.axes1d).length; i++)
       input.data.set(inputData.axes1d[i].input,
         {
           type: InputType.BUTTON,

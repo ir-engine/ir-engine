@@ -106,16 +106,16 @@ export function getUserIdFromSocketId(socketId): string | null {
 
 export function validateNetworkObjects(): void {
     const transport = Network.instance.transport as any;
-    for (const client in Network.instance.clients) {
+    for (const userId in Network.instance.clients) {
         // Validate that user has phoned home in last 5 seconds
-        if (Date.now() - Network.instance.clients[client].lastSeenTs > 5000) {
-            logger.info("Removing client ", client, " due to activity");
-            if (!Network.instance.clients[client])
+        if (Date.now() - Network.instance.clients[userId].lastSeenTs > 5000) {
+            logger.info("Removing client ", userId, " due to activity");
+            if (!Network.instance.clients[userId])
                 return console.warn('Client is not in client list');
 
-            const disconnectedClient = Object.assign({}, Network.instance.clients[client]);
+            const disconnectedClient = Object.assign({}, Network.instance.clients[userId]);
 
-            Network.instance.clientsDisconnected.push({ client });
+            Network.instance.clientsDisconnected.push({ userId });
             logger.info('Disconnected Client:');
             logger.info(disconnectedClient);
             if (disconnectedClient?.instanceRecvTransport)
@@ -133,14 +133,14 @@ export function validateNetworkObjects(): void {
             // Loop through network objects in world
             for (const obj in Network.instance.networkObjects)
               // If this client owns the object, add it to our array
-                if (Network.instance.networkObjects[obj].ownerId !== "server" && Network.instance.networkObjects[obj].ownerId === client)
+                if (Network.instance.networkObjects[obj].ownerId === userId)
                     networkObjectsClientOwns.push(Network.instance.networkObjects[obj]);
 
             // Remove all objects for disconnecting user
             networkObjectsClientOwns.forEach(obj => {
 
                 // Get the entity attached to the NetworkObjectComponent and remove it
-                logger.info("Removed entity ", (obj.component.entity as Entity).id, " for user ", client);
+                logger.info("Removed entity ", (obj.component.entity as Entity).id, " for user ", userId);
                 const removeMessage = { networkId: obj.networkId };
                 Network.instance.destroyObjects.push(removeMessage);
                 // if (Network.instance.worldState.inputs[obj.networkId])
@@ -148,8 +148,8 @@ export function validateNetworkObjects(): void {
                 removeEntity(obj.component.entity);
             });
 
-            if (Network.instance.clients[client])
-                delete Network.instance.clients[client];
+            if (Network.instance.clients[userId])
+                delete Network.instance.clients[userId];
         }
     }
     Object.keys(Network.instance.networkObjects).forEach((key: string) => {

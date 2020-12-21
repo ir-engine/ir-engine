@@ -1,12 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './UserMenu.module.scss';
-import { Button, TextField, Drawer, Typography, CardMedia, Card, CardActionArea, CardContent, Snackbar } from '@material-ui/core';
+import { Button, Drawer, Typography, Card, CardActionArea, Snackbar } from '@material-ui/core';
 import { generalStateList, setAppSpecificOnBoardingStep } from '../../../redux/app/actions';
-import EditIcon from '@material-ui/icons/Edit';
-import MenuIcon from '@material-ui/icons/Menu';
-import ShareIcon from '@material-ui/icons/Share';
+import ToysIcon from '@material-ui/icons/Toys';
+import PolicyIcon from '@material-ui/icons/Policy';
+import LinkIcon from '@material-ui/icons/Link';
+import SettingsIcon from '@material-ui/icons/Settings';
+import VideoLibraryIcon from '@material-ui/icons/VideoLibrary';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
-import Tooltip from '@material-ui/core/Tooltip';
 import store from '../../../redux/store';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
@@ -27,8 +30,6 @@ import { LazyImage } from '../LazyImage';
 import ClearIcon from '@material-ui/icons/Clear';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { removeUser } from '../../../redux/auth/service';
-import { Section } from '@xr3ngine/engine/src/postprocessing/materials/EffectMaterial';
-
 interface Props {
     login?: boolean;
     authState?:any;
@@ -56,7 +57,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const UserMenu = (props: Props): any => {    
   const { login, authState, logoutUser, removeUser, showDialog} = props;
   const selfUser = authState.get('user');
-  const [isEditName, setIsEditName] = useState(false);
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
   const [username, setUsername] = useState(selfUser?.name);
   const [drawerType, setDrawerType] = useState('default');
@@ -77,9 +77,6 @@ const UserMenu = (props: Props): any => {
 
   type Anchor = 'top' | 'left' | 'bottom' | 'right';
 
-  const handleEditClick = () => {
-    setIsEditName(true);
-  };
 
   const handleTutorialClick = (event: React.KeyboardEvent | React.MouseEvent) =>{
     toggleDrawer(anchor, false)(event);
@@ -89,16 +86,6 @@ const UserMenu = (props: Props): any => {
   const handleAccountDeleteClick = () => setDrawerType('accountDelete');
   const handleAvatarChangeClick = () => setDrawerType('avatar');
   const handleDeviceSetupClick = () => setDrawerType('device');
-
-  const handleUsernameChange = (e: any): void => {
-    const newName = e.target.value;
-    setUsername(newName);
-  };
-
-  const updateUsername = async (): Promise<void> => {
-    await props.updateUsername(selfUser?.id, username);
-    setIsEditName(false);
-  };
   
   const copyCodeToClipboard = () => {    
     refLink.current.select();
@@ -174,46 +161,6 @@ const UserMenu = (props: Props): any => {
       <section>Link successfully added to clipboard</section>
     </Snackbar>;
 
-  const renderChangeNameForm = () =>
-      <section>
-        {isEditName === true ? (<section>
-          <TextField
-                variant="outlined"
-                margin="normal"
-                fullWidth
-                id="username"
-                label="Your Name"
-                name="name"
-                autoFocus
-                defaultValue={selfUser?.name}
-                onChange={(e) => handleUsernameChange(e)}
-            />
-            <Button onClick={()=>setIsEditName(false)} variant="outlined" color="secondary" className={styles.autoWidth}>
-              Cancel
-            </Button>
-            <Button onClick={updateUsername} variant="outlined" color="primary"className={styles.autoWidth}>
-              Save
-            </Button>
-        </section>) 
-                : 
-        (<span className={styles.userTitle}>    
-          <ArrowBackIosIcon onClick={toggleDrawer(anchor, false)} />      
-          <span>{ selfUser ? selfUser?.name : ''}</span>
-           <Tooltip title="Edit Username"><EditIcon color="primary" onClick={handleEditClick}  /></Tooltip>
-        </span>)}
-      </section>;
-
-
-  const renderShareLocation = () =>
-      <section>
-        <p className={styles.userTitle} onClick={() => isMobileOrTablet() && navigator.share ? handleMobileShareOnClick() : copyCodeToClipboard()}>
-          <Typography variant="subtitle2" color="primary">{invitationLink}</Typography>
-          <Tooltip title="Share"><ShareIcon color="primary" /></Tooltip>
-        </p>
-        {(!isMobileOrTablet() || !navigator.share) && <textarea readOnly className={styles.linkField} ref={refLink} value={invitationLink} />}
-    </section>;
-
-
   const [actorEntity, setActorEntity] = useState(null);
   const [actorAvatarId, setActorAvatarId] = useState('Rose');
 
@@ -287,20 +234,30 @@ const renderAccountDeletePage = () => <>
   </div>
 </>;
 
+const renderHorizontalItems = () => 
+  <section className={styles.horizontalContainer}>
+          {(!isMobileOrTablet() || !navigator.share) && <textarea readOnly className={styles.linkField} ref={refLink} value={invitationLink} />}
+          <Typography variant="h2" align="center" onClick={() => isMobileOrTablet() && navigator.share ? handleMobileShareOnClick() : copyCodeToClipboard()}><LinkIcon color="primary" />Share</Typography>
+          <Typography variant="h2" align="center" onClick={(event)=>handleTutorialClick(event)}><VideoLibraryIcon color="primary" />Tutorial</Typography>    
+  </section>;
+
 const renderUserMenu = () =><>
-          {renderChangeNameForm()}
-          <Typography variant="h1">{worldName}</Typography>
-          {renderShareLocation()}
-          <Typography variant="h2" color="primary" onClick={handleAvatarChangeClick}>Change Avatar</Typography>
-          <Typography variant="h2" color="primary" onClick={(event)=>handleTutorialClick(event)}>Tutorial</Typography>
-          <Typography variant="h2" color="primary" onClick={handleDeviceSetupClick}>Device Setup</Typography>
+          <Typography variant="h1" color="primary"><ArrowBackIosIcon color="primary" onClick={toggleDrawer(anchor, false)} />{worldName}</Typography>
+          {renderHorizontalItems()}
+          {/* <AccountCircleIcon color="primary" className={styles.userPreview} /> */}
+          {/* <span className={styles.userTitle}>{ selfUser ? selfUser?.name : ''}</span> */}
+          {/* <Button variant="outlined" color="primary" onClick={handleAvatarChangeClick}>Change Avatar</Button> */}
           { selfUser?.userRole === 'guest' ? 
-                <Typography variant="h2" color="primary" onClick={handleLogin}>Login</Typography> :
-                <Typography variant="h2" color="primary" onClick={handleLogout}>Logout</Typography>}
-          { selfUser?.userRole !== 'guest' && <Typography variant="h2" color="primary" onClick={handleAccountDeleteClick}>Delete account</Typography>}
+                <>
+                  <Button variant="outlined" color="primary" onClick={handleLogin}>Login</Button>
+                  <Button variant="contained" color="primary">Create Account</Button>
+                </> :
+                <Button variant="outlined" color="secondary" onClick={handleLogout}>Logout</Button>}
+          { selfUser?.userRole !== 'guest' && <Button variant="outlined" color="primary" onClick={handleAccountDeleteClick}>Delete account</Button>}
           <section className={styles.placeholder} />
-          <Typography variant="h2" color="secondary">About</Typography>
-          <Typography variant="h2" color="secondary">Privacy & Terms</Typography>
+          <Typography variant="h2" align="left" onClick={handleDeviceSetupClick}><SettingsIcon color="primary" /> Settings</Typography>
+          <Typography variant="h2" align="left"><ToysIcon color="primary" /> About</Typography>
+          <Typography variant="h2" align="left"><PolicyIcon color="primary" /> Privacy & Terms</Typography>
           {renderSuccessMessage()}
       </>;
 
