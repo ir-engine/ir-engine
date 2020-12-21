@@ -91,22 +91,19 @@ export class InputSystem extends System {
       handleGamepads(entity);
       handleInputOnClient(entity, {isLocal:true, isServer: false}, delta);
       const networkId = getComponent(entity, NetworkObject)?.networkId;
-      if (!networkId) return;
-      if (!isClient) return;
       // Client sends input and *only* input to the server (for now)
       // console.log("Handling input for entity ", entity.id);
       const input = getComponent(entity, Input);
 
       // If input is the same as last frame, return
-      if (_.isEqual(input.data, input.lastData))
-        return
+      // if (_.isEqual(input.data, input.lastData))
+      //   return
 
       // Repopulate lastData
       input.lastData.clear();
       input.data.forEach((value, key) => input.lastData.set(key, value));
 
       // Create a schema for input to send
-
 
       const inputs = {
         networkId: networkId,

@@ -1,183 +1,24 @@
 {
   "publicRuntimeConfig": {
-    "title": "XREngine",
+    "title": "The Overlay",
     "dev": false,
     "loginDisabled": false,
     "logo": "./logo.svg",
-    "loader": "space",
-    "xr": {
-      "style": {
-        "borderColor": "0x131313",
-        "hoverColor": "0x04004E",
-        "activeColor": "0xB64800"
-      },
-      "enterVRbuttonSrc": "",
-      "networked-scene": {
-        "app": "xr3ngine",
-        "room": "lobby",
-        "audio": true,
-        "adapter": "socketio",
-        "serverURL": "nxr.xr3ngine.dev"
-      },
-      "avatar": {
-        "defaultAvatarModelSrc" : "/gltf/avatars/head/scene.gltf",
-        "defaultAvatarModelScale" : 0.02
-      },
-      "environment": {
-        "floor": {
-          "src": "/textures/floor.png",
-          "height": 100,
-          "width": 100
-        },
-        "skybox": {
-          "src": "/textures/nightsky.jpg",
-          "radius": 5000,
-          "height": 2048,
-          "width": 2048,
-          "rotation": {
-            "x": 90,
-            "y": 0,
-            "z": 90
-          },
-          "thetaLength": 180
-        },
-        "scene-gltf": {
-          "src": "",
-          "name": ""
-        }
-      },
-      "grid": {
-        "gridCellsPerRow": 20, 
-        "cellWidth": 1,
-        "cellHeight": 1.2,
-        "cellContentHeight": 1,
-        "radius": 4,
-        "rows": 3,
-        "columns": 5,
-        "placeholderImageSrc": "",
-        "skybox": {
-          "src": "https://cdn.aframe.io/a-painter/images/sky.jpg",
-          "radius": 30,
-          "height": 2048,
-          "width": 2048,
-          "rotation": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "thetaLength": 90
-        }
-      },
-      "playerHeight": 1,
-      "landing": {
-        "cellWidth": 6,
-        "cellContentHeight": 0.45,
-        "cellHeight": 0.5,
-        "offset": {
-          "x": 0,
-          "y": 1.4,
-          "z": 4.5
-        }
-      },
-      "vrRoomGrid": {
-        "enabled": true,
-        "name": "vrRoomGrid",
-        "src": "",
-        "link": "/vrRoomGrid",
-        "contentWidth": 1,
-        "contentHeight": 1,
-        "borderSize": 0.1,
-        "cellMargin": 0.1,
-        "offset": {
-          "x": 0,
-          "y": 1.4,
-          "z": 3
-        },
-        "rows": 3,
-        "columns": 5,
-        "comingSoon": {
-          "enabled": false,
-          "src": ""
-        },
-        "scenes": []
-      },
-      "videoGrid": {
-        "enabled": true,
-        "name": "videoGrid",
-        "src": "",
-        "link": "/video",
-        "rows": 3,
-        "columns": 5,
-        "contentWidth": 1,
-        "contentHeight": 1,
-        "borderSize": 0.1,
-        "cellMargin": 0.1,
-        "scale": {
-          "x": 1,
-          "y": 1,
-          "z": 1
-        },
-        "offset": {
-          "x": 0,
-          "y": 1.4,
-          "z": 3
-        },
-        "focusedOffset": {
-          "x": 0,
-          "y": 0,
-          "z": -6
-        },
-        "comingSoon": {
-          "enabled": false,
-          "src": ""
-        },
-        "scene-gltf": {
-          "src": "",
-          "name": ""
-        }
-      },
-      "editor": {
-        "enabled": true,
-        "name": "editor",
-        "src": "",
-        "link": "",
-        "comingSoon": {
-          "enabled": false,
-          "src": ""
-        }
-      },
-      "store": {
-        "enabled": true,
-        "name": "store",
-        "src": "",
-        "link": "",
-        "comingSoon": {
-          "enabled": false,
-          "src": ""
-        }
-      }
-    },
     "apiServer": "https://localhost:3030",
-    "siteTitle": "XREngine",
+    "siteTitle": "The Overlay",
     "siteDescription": "Connected Worlds for Everyone",
-    "featherStoreKey": "XREngine-Auth-Store",
-    "localStorageKey": "xr3ngine-client-store-key-v1",
+    "featherStoreKey": "TheOverlay-Auth-Store",
+    "localStorageKey": "theoverlay-client-store-key-v1",
     "auth": {
       "enableSmsMagicLink": true,
       "enableEmailMagicLink": true,
-      "enableUserPassword": false,
-      "enableGithubSocial": false,
-      "enableFacebookSocial": false,
-      "enableGoogleSocial": false
+      "enableUserPassword": true,
+      "enableGithubSocial": true,
+      "enableFacebookSocial": true,
+      "enableGoogleSocial": true
     },
-
     "alert": {
       "timeout": 10000
-    },
-
-    "staticPages": {
-      "termsOfService": "/terms-of-service",
-      "privacyPolicy": "/privacy-policy"
     }
   }
 }

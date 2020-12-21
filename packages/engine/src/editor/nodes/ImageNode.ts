@@ -83,7 +83,7 @@ export default class ImageNode extends EditorNodeMixin(Image) {
     }
     this.editor.emit("objectsChanged", [this]);
     this.editor.emit("selectionChanged");
-    this.hideLoadingCube();
+    // this.hideLoadingCube();
     return this;
   }
   copy(source, recursive = true) {

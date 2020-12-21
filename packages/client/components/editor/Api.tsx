@@ -1113,7 +1113,7 @@ export default class Api extends EventEmitter {
 
   handleAuthorization(): void {
     if (process.browser) {
-      const accessToken = localStorage.getItem('XREngine-Auth-Store');
+      const accessToken = localStorage.getItem('TheOverlay-Auth-Store');
       const email = 'test@test.com';
       if((accessToken && email) || this.isAuthenticated()){
         this.saveCredentials(email, accessToken);
