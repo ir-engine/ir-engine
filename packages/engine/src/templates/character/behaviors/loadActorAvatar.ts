@@ -32,7 +32,7 @@ export const loadActorAvatar: Behavior = (entity) => {
   });
   const loader = getComponent(entity, AssetLoader);
   loader.onLoaded.push((entity, args) => {
-    console.log("onSceneLoaded fired on loadActorAvatrar for ", entity.id)
+    console.log("onLoaded fired on loadActorAvatar for ", entity.id)
     const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
     actor.mixer && actor.mixer.stopAllAction();
     // forget that we have any animation playing
