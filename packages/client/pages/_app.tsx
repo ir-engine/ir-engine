@@ -70,22 +70,22 @@ const MyApp = (props: Props): any => {
     initGA()
     logPageView()
     getDeviceInfo()
-    const urlParts = url.parse(window.location.href)
-    const query = querystring.parse(urlParts.query)
+    const urlParts = url.parse(window.location.href);
+    const query = querystring.parse(urlParts.query);
     if (query.error != null) {
-      store.dispatch(dispatchAlertError(store.dispatch, query.error as string))
-      delete query.error
-      const stringifiedQuery = querystring.stringify(query)
+      store.dispatch(dispatchAlertError(store.dispatch, query.error as string));
+      delete query.error;
+      const stringifiedQuery = querystring.stringify(query);
       window.history.replaceState(
         {},
         document.title,
         urlParts.pathname + stringifiedQuery
-      )
+      );
     }
-    setApi(new Api())
-    setIsMounted(true)
-    return () => setIsMounted(false)
-  }, [])
+    setApi(new Api());
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
 
   useEffect(initApp, []);
 

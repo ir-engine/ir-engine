@@ -93,13 +93,26 @@
 }
 
 .thead {
-
   .trow {
+    .tcell {
+      color: lighten(black, 0.80);
+    }
+
+    .tcellSelectable {
+      color: lighten(black, 0.80);
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.07);
+        cursor: pointer;
+      }
+    }
+  }
+
+  .trowHover {
     cursor: pointer;
 
     .tcell {
       color: lighten(black, 0.80);
-
     }
   }
 }

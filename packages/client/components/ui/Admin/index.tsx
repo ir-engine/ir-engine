@@ -9,6 +9,8 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { selectAdminState } from '../../../redux/admin/selector';
 import { selectAppState } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
+import {client} from "../../../redux/feathers";
+import { Router, withRouter } from "next/router";
 import {
     fetchAdminLocations,
     fetchAdminScenes,
@@ -38,6 +40,7 @@ if (!global.setImmediate) {
 
 
 interface Props {
+    router: Router;
     adminState?: any;
     authState?: any;
     locationState?: any;
@@ -73,6 +76,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const AdminConsole = (props: Props) => {
     const {
+        router,
         adminState,
         authState,
         fetchAdminLocations,
@@ -302,6 +306,17 @@ const AdminConsole = (props: Props) => {
         setSelectedTab(newValue);
     };
 
+    const redirectToInstance = async (e: any, instanceId: string) => {
+        try {
+            const instance = await client.service('instance').get(instanceId);
+            const location = await client.service('location').get(instance.locationId);
+            const route = `/location/${location.slugifiedName}?instanceId=${instance.id}`;
+            router.push(route);
+        } catch(err) {
+            console.log('Error redirecting to instance:');
+            console.log(err);
+        }
+    };
 
     const fetchTick = () => {
         setTimeout(() => {
@@ -363,7 +378,7 @@ const AdminConsole = (props: Props) => {
                                 return (
                                     <TableRow
                                         hover
-                                        className={styles.trow}
+                                        className={styles.trowHover}
                                         style={{color: 'black !important'}}
                                         onClick={(event) => handleLocationClick(event, row.id.toString())}
                                         tabIndex={-1}
@@ -427,7 +442,6 @@ const AdminConsole = (props: Props) => {
                             .map((row, index) => {
                                 return (
                                     <TableRow
-                                        hover
                                         className={styles.trow}
                                         style={{color: 'black !important'}}
                                         // onClick={(event) => handleClick(event, row.id.toString())}
@@ -439,8 +453,10 @@ const AdminConsole = (props: Props) => {
                                             {row.id}
                                         </TableCell>
                                         <TableCell className={styles.tcell} align="right">{row.name}</TableCell>
-                                        <TableCell className={styles.tcell}
-                                                   align="right">{row.instanceId}</TableCell>
+                                        <TableCell className={styles.tcellSelectable}
+                                                   align="right"
+                                                   onClick={(event) => redirectToInstance(event, row.instanceId.toString())}
+                                        >{row.instanceId}</TableCell>
                                         <TableCell className={styles.tcell}
                                                    align="right">{row.userRole}</TableCell>
                                         <TableCell className={styles.tcell} align="right">{row.partyId}</TableCell>
@@ -478,7 +494,7 @@ const AdminConsole = (props: Props) => {
                             return (
                                 <TableRow
                                     hover
-                                    className={styles.trow}
+                                    className={styles.trowHover}
                                     style={{color: 'black !important'}}
                                     // onClick={(event) => handleClick(event, row.id.toString())}
                                     tabIndex={-1}
@@ -525,4 +541,4 @@ const AdminConsole = (props: Props) => {
 };
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(AdminConsole);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AdminConsole));

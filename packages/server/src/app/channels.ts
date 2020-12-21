@@ -187,7 +187,7 @@ export default (app: Application): void => {
               });
 
               const user = await app.service('user').get(userId);
-              if (Network.instance.clients[userId] == null && process.env.KUBERNETES === 'true') await app.service('user').patch(null, {
+              if ((Network.instance.clients[userId] == null && process.env.KUBERNETES === 'true') || (process.env.NODE_ENV === 'development')) await app.service('user').patch(null, {
                 instanceId: null
               }, {
                 query: {
