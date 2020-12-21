@@ -32,6 +32,8 @@ export function addColliderWithoutEntity( type, position, rotation, scale, mesh 
 
     let body;
     if (type === 'box') {
+      mesh.visible = false;
+
       body = createBox(position, scale);
     //  body.computeAABB();
   		body.shapes.forEach((shape) => {
@@ -39,6 +41,7 @@ export function addColliderWithoutEntity( type, position, rotation, scale, mesh 
   		});
     } else
     if (type === 'sphere') {
+      mesh.visible = false;
       body = createSphere(scale);
     } else
     if (type === 'trimesh') body = createTrimesh(mesh, new Vec3(), 0);
@@ -56,6 +59,8 @@ export function addColliderWithoutEntity( type, position, rotation, scale, mesh 
       rotation.w
     );
     console.warn(body);
+
+    mesh.visible = false;
 
   PhysicsManager.instance.physicsWorld.addBody(body);
   return body;

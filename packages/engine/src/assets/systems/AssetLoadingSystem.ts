@@ -89,8 +89,8 @@ export default class AssetLoadingSystem extends System {
       //   AssetVault.instance.assets.set(urlHashed, asset);
       // }
 
-      if (component.onLoaded) {
-        component.onLoaded(entity, { asset });
+      if (component.onLoaded.length > 0) {
+        component.onLoaded.forEach (onLoaded => onLoaded(entity, { asset }));
       }
     });
 

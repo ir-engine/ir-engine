@@ -53,6 +53,7 @@ export function addComponentFromBehavior<C> (
     objArgs: any
   }
 ): void {
+  console.log("ADD COMPONENT FROM BEHAVIOR")
   addComponent(entity, args.component, args.objArgs);
 }
 

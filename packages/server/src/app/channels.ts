@@ -88,8 +88,6 @@ export default (app: Application): void => {
                   serviceId = regexResult[2];
                 }
                 const result = await app.service(service).get(serviceId);
-                console.log("Result is ");
-                console.log(result);
 
                 if (!forTest) {
                   loadScene(result);

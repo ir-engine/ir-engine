@@ -12,7 +12,7 @@ const cannonDebugger = isClient ? import('cannon-es-debugger').then((module) => 
 }) : null;
 */
 
-const DEBUG_PHYSICS = false;
+const DEBUG_PHYSICS = true;
 
 export class PhysicsManager extends Component<any> {
   static instance: PhysicsManager
