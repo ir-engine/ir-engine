@@ -55,29 +55,33 @@ export const interactiveBox: Prefab = {
                         url: "models/avatars/" + nextAvatarSrc,
                         receiveShadow: true,
                         castShadow: true,
-                        parent: tmpGroup,
-                        onLoaded: (entity, args) => {
-                            // console.log('loaded new avatar model', args);
-
-                            // if (actor.currentAnimationAction) {
-                            //     // should we do something here?
-                            // }
-                            actor.mixer.stopAllAction();
-                            // forget that we have any animation playing
-                            actor.currentAnimationAction = null;
-
-                            // clear current avatar mesh
-                            ([ ...actor.modelContainer.children ])
-                              .forEach(child => actor.modelContainer.remove(child) );
-                            console.log('actor.mixer', actor.mixer);
-
-                            tmpGroup.children.forEach(child => actor.modelContainer.add(child));
-
-                            const stateComponent = getComponent(entity, State);
-                            // trigger all states to restart?
-                            stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
-                        }
+                        parent: tmpGroup
                     });
+
+                    const loader = getMutableComponent(entity, AssetLoader)
+                    
+                    loader.onLoaded.push((entity, args) => {
+                        // console.log('loaded new avatar model', args);
+
+                        // if (actor.currentAnimationAction) {
+                        //     // should we do something here?
+                        // }
+                        actor.mixer.stopAllAction();
+                        // forget that we have any animation playing
+                        actor.currentAnimationAction = null;
+
+                        // clear current avatar mesh
+                        ([ ...actor.modelContainer.children ])
+                          .forEach(child => actor.modelContainer.remove(child) );
+                        console.log('actor.mixer', actor.mixer);
+
+                        tmpGroup.children.forEach(child => actor.modelContainer.add(child));
+
+                        const stateComponent = getComponent(entity, State);
+                        // trigger all states to restart?
+                        stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
+                    })
+
                     //debugger;
                 }
             }

@@ -80,7 +80,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     this.issues = [];
     this._mesh.visible = false;
     this.hideErrorIcon();
-    this.showLoadingCube();
+    // this.showLoadingCube();
     if (this.editor.playing) {
       (this.el as any).pause();
     }
@@ -120,7 +120,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     }
     this.editor.emit("objectsChanged", [this]);
     this.editor.emit("selectionChanged");
-    this.hideLoadingCube();
+    // this.hideLoadingCube();
     return this;
   }
   onPlay(): void {
