@@ -29,10 +29,7 @@ export function loadScene (scene: SceneData): void {
       if(isClient && component.name === 'gltf-model'){
         const loaderComponent = getMutableComponent(entity, AssetLoader);
         loadPromises.push(new Promise((resolve, reject)=>{
-          console.log("********* LOADER COMPONENT IS")
-          console.log(loaderComponent.onLoaded);
           if(loaderComponent.onLoaded === null || loaderComponent.onLoaded === undefined){
-            console.warn("************* ONLOADED UNDEFINED")
           }
           loaderComponent.onLoaded.push(()=> {
             loaded++;
@@ -68,18 +65,8 @@ export function loadComponent (entity: Entity, component: SceneDataComponent): v
       values[val] = component.data[val];
       }
     });
-
-    if(component.toString().includes("Asset")){
-      console.log("Loading ", component)
-      console.log("B args is: ",  b.args);
-      console.log("B values is: ",  b.values);
-    }
-    
-
-
     // run behavior after load model
     if((b as any).onLoaded) values['onLoaded'] = (b as any).onLoaded;
-    if((b as any).onLoaded) console.log("********************** ONLOADED ADDED")
     // Invoke behavior with args and spread args
     b.behavior(entity, { ...b.args, objArgs: { ...values } });
   });
