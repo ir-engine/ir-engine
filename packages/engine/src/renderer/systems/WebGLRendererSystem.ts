@@ -1,4 +1,13 @@
-import { NearestFilter, PCFSoftShadowMap, PerspectiveCamera, RGBFormat, WebGLRenderer, WebGLRenderTarget } from 'three';
+import {
+  NearestFilter,
+  PCFSoftShadowMap,
+  PerspectiveCamera,
+  RGBFormat,
+  sRGBEncoding,
+  WebGLRenderer,
+  WebGL1Renderer,
+  WebGLRenderTarget
+} from 'three';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Engine } from '../../ecs/classes/Engine';
 import { Entity } from '../../ecs/classes/Entity';
@@ -44,15 +53,20 @@ export class WebGLRendererSystem extends System {
     } catch (error) {
       context = canvas.getContext("webgl", { antialias: true });
     }
-    const renderer = new WebGLRenderer({
+    const options = {
       canvas,
       context,
       antialias: true,
       preserveDrawingBuffer: true
-    });
+    };
+    
+    const { iOS, safariWebBrowser } = window as any;
+    
+    const renderer = iOS || safariWebBrowser ? new WebGL1Renderer(options) : new WebGLRenderer(options);
     renderer.physicallyCorrectLights = true;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = PCFSoftShadowMap;
+    // renderer.outputEncoding = sRGBEncoding; // need this if postprocessing is not used
 
     Engine.renderer = renderer;
     // Add the renderer to the body of the HTML document

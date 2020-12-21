@@ -1,16 +1,18 @@
 import Immutable from 'immutable';
 import {
   ScenesFetchedAction,
-  PublicScenesState
+  PublicScenesState,
 } from './actions';
 
 import {
   SCENES_FETCHED_SUCCESS,
-  SCENES_FETCHED_ERROR
+  SCENES_FETCHED_ERROR,
+  SET_CURRENT_SCENE,
 } from '../actions';
 
 export const initialState: PublicScenesState = {
   scenes: [],
+  currentScene: null,
   error: ''
 };
 
@@ -24,8 +26,11 @@ const sceneReducer = (state = immutableState, action: ScenesFetchedAction): any 
     case SCENES_FETCHED_ERROR:
       return state
         .set('error', (action as ScenesFetchedAction).message);
+    case SET_CURRENT_SCENE:
+        return state
+        .set('currentScene', (action as ScenesFetchedAction).scene);
   }
-
+  
   return state;
 };
 

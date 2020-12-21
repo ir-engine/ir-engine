@@ -12,7 +12,7 @@ import { ThemeProvider } from "styled-components";
 import { restoreState } from '../redux/persisted.store';
 import DeviceDetector from 'device-detector-js';
 import { getDeviceType } from '../redux/devicedetect/actions';
-import React, { useEffect, Fragment, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { initGA, logPageView } from '../components/analytics';
 import url from 'url';
 import querystring from 'querystring';
@@ -43,6 +43,8 @@ const MyApp = (props: Props): any => {
   const { Component, pageProps, store } = props;
 
   const [api, setApi] = useState<Api>();
+  // State that is used to render the page component if this one is mounted on client side.
+  const [isMounted, setIsMounted] = useState(false);
 
   const getDeviceInfo = async (): Promise<any> => {
     const deviceInfo = { device: {}, WebXRSupported: false };
@@ -56,28 +58,36 @@ const MyApp = (props: Props): any => {
     }
     store.dispatch(getDeviceType(deviceInfo));
   };
-
-  useEffect(() => {
-    const jssStyles = document.querySelector('#jss-server-side');
+  
+  const initApp = useCallback(() => {
+    const jssStyles = document.querySelector('#jss-server-side')
     if (jssStyles?.parentNode) {
-      jssStyles.parentNode.removeChild(jssStyles);
+      jssStyles.parentNode.removeChild(jssStyles)
     }
     // NOTE: getDeviceInfo is an async function, but here is running
     // without `await`.
-    store.dispatch(restoreState());
-    initGA();
-    logPageView();
-    getDeviceInfo();
-    const urlParts = url.parse(window.location.href);
-    const query = querystring.parse(urlParts.query);
+    store.dispatch(restoreState())
+    initGA()
+    logPageView()
+    getDeviceInfo()
+    const urlParts = url.parse(window.location.href)
+    const query = querystring.parse(urlParts.query)
     if (query.error != null) {
-      store.dispatch(dispatchAlertError(store.dispatch, (query.error as string)));
-      delete query.error;
-      const stringifiedQuery = querystring.stringify(query);
-      window.history.replaceState({}, document.title, urlParts.pathname + stringifiedQuery);
+      store.dispatch(dispatchAlertError(store.dispatch, query.error as string))
+      delete query.error
+      const stringifiedQuery = querystring.stringify(query)
+      window.history.replaceState(
+        {},
+        document.title,
+        urlParts.pathname + stringifiedQuery
+      )
     }
-    setApi(new Api());
-  }, []);
+    setApi(new Api())
+    setIsMounted(true)
+    return () => setIsMounted(false)
+  }, [])
+
+  useEffect(initApp, []);
 
   return (
     <Fragment>
@@ -93,7 +103,7 @@ const MyApp = (props: Props): any => {
           {/* <CssBaseline /> */}
           <GlobalStyle />
           <Provider store={store}>
-            <Component {...pageProps} />
+            {isMounted && <Component {...pageProps} />}
           </Provider>
         </ApiContext.Provider>
       </ThemeProvider>

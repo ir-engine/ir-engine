@@ -199,6 +199,8 @@ export async function handleWebRtcTransportCreate(socket, data: CreateWebRtcTran
     const { direction, peerId, sctpCapabilities, partyId } = Object.assign(data, { peerId: userId });
     logger.info(`WebRTCTransportCreateRequest: ${peerId} ${partyId} ${direction}`);
 
+    const existingTransports = MediaStreamComponent.instance.transports.filter(t => t.appData.peerId === peerId && t.appData.direction === direction && t.appData.partyId === partyId);
+    await Promise.all(existingTransports.map(t => closeTransport(t)));
     const newTransport: WebRtcTransport = await createWebRtcTransport(
         { peerId, direction, sctpCapabilities, partyId }
     );
@@ -240,6 +242,9 @@ export async function handleWebRtcTransportCreate(socket, data: CreateWebRtcTran
         dtlsParameters
     };
 
+    newTransport.observer.on('dtlsstatechange', (dtlsState) => {
+        if (dtlsState === 'closed') closeTransport(newTransport);
+    });
     // Create data consumers for other clients if the current client transport receives data producer on it
     newTransport.observer.on('newdataproducer', handleConsumeDataEvent(socket));
     newTransport.observer.on('newproducer', sendCurrentProducers(socket, partyId));

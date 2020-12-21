@@ -13,6 +13,9 @@ export default class GLTFCache {
     } else {
       const loadPromise =  LoadGLTF(url);
       this.cache.set(absoluteURL, loadPromise);
+      loadPromise.catch(e => {
+        this.cache.delete(absoluteURL);
+      });
       return loadPromise;
     }
   }

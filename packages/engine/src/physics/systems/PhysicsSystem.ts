@@ -4,7 +4,7 @@ import { RigidBody } from "../components/RigidBody";
 import { VehicleBody } from "../components/VehicleBody";
 import { CapsuleCollider } from "../components/CapsuleCollider";
 
-import { addCollider } from '../behaviors/ColliderBehavior';
+import { handleCollider } from '../behaviors/ColliderBehavior';
 import { RigidBodyBehavior } from '../behaviors/RigidBodyBehavior';
 import { VehicleBehavior } from '../behaviors/VehicleBehavior';
 import { capsuleColliderBehavior } from '../behaviors/capsuleColliderBehavior';
@@ -56,11 +56,11 @@ export class PhysicsSystem extends System {
     // Collider
 
     this.queryResults.collider.added?.forEach(entity => {
-      addCollider(entity, { phase: 'onAdded' });
+      handleCollider(entity, { phase: 'onAdded' });
     });
 
     this.queryResults.collider.removed?.forEach(entity => {
-      addCollider(entity, { phase: 'onRemoved' });
+      handleCollider(entity, { phase: 'onRemoved' });
     });
 
     // Capsule

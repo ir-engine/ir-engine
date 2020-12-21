@@ -109,9 +109,31 @@ dist/
 .vscode
 node_modules
 assets
+CMakeFiles
 
 package-lock.json
 
 examples/assets
 src/worker/node_modules
 *.drcs
+*.ply
+*.crt
+
+*.cpp.o
+(.ply
+
+dev/CMakeFiles
+dev/CMakeFiles/
+dev/CMakeFiles/*
+
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
