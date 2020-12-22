@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './UserMenu.module.scss';
-import { Button, Drawer, Typography, Card, CardActionArea, Snackbar } from '@material-ui/core';
+import { Button, Drawer, Typography, Card, CardActionArea, Snackbar, TextField } from '@material-ui/core';
 import { generalStateList, setAppSpecificOnBoardingStep } from '../../../redux/app/actions';
 import ToysIcon from '@material-ui/icons/Toys';
 import PolicyIcon from '@material-ui/icons/Policy';
@@ -29,7 +29,12 @@ import UserSettings from '../Profile/UserSettings';
 import { LazyImage } from '../LazyImage';
 import ClearIcon from '@material-ui/icons/Clear';
 import DeleteIcon from '@material-ui/icons/Delete';
+import CreateIcon from '@material-ui/icons/Create';
+import CachedIcon from '@material-ui/icons/Cached';
 import { removeUser } from '../../../redux/auth/service';
+import { selectScenesCurrentScene } from '../../../redux/scenes/selector';
+import { ImageMediaGridItem } from '../../editor/layout/MediaGrid';
+
 interface Props {
     login?: boolean;
     authState?:any;
@@ -37,12 +42,14 @@ interface Props {
     logoutUser?: typeof logoutUser;
     showDialog?: typeof showDialog;
     removeUser?: typeof removeUser;
+    currentScene?: any;
 }
 
 const mapStateToProps = (state: any): any => {
   return {
     onBoardingStep: selectAppOnBoardingStep(state),
     authState: selectAuthState(state),
+    currentScene : selectScenesCurrentScene(state),
   };
 };
 
@@ -55,16 +62,19 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 
 const UserMenu = (props: Props): any => {    
-  const { login, authState, logoutUser, removeUser, showDialog} = props;
+  const { login, authState, logoutUser, removeUser, showDialog, currentScene, updateUsername} = props;
   const selfUser = authState.get('user');
+  console.log('selfUser?.name', selfUser?.name);
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
+  const [isEditUsername, setIsEditUsername] = useState(false);
   const [username, setUsername] = useState(selfUser?.name);
   const [drawerType, setDrawerType] = useState('default');
+  console.log('username', username)
 
   const invitationLink = window.location.href;
   const refLink = useRef(null);
   const postTitle = 'AR/VR world';
-  const siteTitle = 'XREngine';
+  const siteTitle = 'TheOverlay';
   const anchor = 'right';
   const worldName = 'Lobbyworld Demo';
 
@@ -133,14 +143,8 @@ const UserMenu = (props: Props): any => {
                : window.document.querySelector('body').classList.remove('menuDrawerOpened');
   };
 
-  const handleLogin = () => {
-    setDrawerType('login');
-  };
-
-  const handleLogout = () => {
-    logoutUser();
-  };
-
+  const handleLogin = () => setDrawerType('login');
+  const handleLogout = () => logoutUser();
 
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const handleCloseSnackBar = (event?: React.SyntheticEvent, reason?: string) => {
@@ -149,6 +153,14 @@ const UserMenu = (props: Props): any => {
     }
     setOpenSnackBar(false);
   };
+
+  const handleShowEditUsername = () => setIsEditUsername(!isEditUsername);
+  const handleUpdateUsername = () => {
+    if(selfUser.name.trim() !== username.trim()){
+      updateUsername(selfUser.id, username);
+    }
+    setIsEditUsername(false);
+  }
 
   const renderSuccessMessage = ()=>
     <Snackbar open={openSnackBar} 
@@ -165,7 +177,6 @@ const UserMenu = (props: Props): any => {
   const [actorAvatarId, setActorAvatarId] = useState('Rose');
 
     useEffect(() => {
-
       const actorEntityWaitInterval = setInterval(() => {
         if (Network.instance?.localClientEntity) {
           setActorEntity(Network.instance.localClientEntity);
@@ -180,6 +191,10 @@ const UserMenu = (props: Props): any => {
         loadActorAvatar(actorEntity);
       }
     }, [ actorEntity, actorAvatarId ]);
+
+    useEffect(() => {
+      setUsername(selfUser.name);
+    }, [ selfUser ]);
    
 //filter avatars by some attribute
 const avatarsForRender = CharacterAvatars.filter(avatar=>avatar.id !== 'Animation');
@@ -234,26 +249,58 @@ const renderAccountDeletePage = () => <>
   </div>
 </>;
 
-const renderHorizontalItems = () => 
-  <section className={styles.horizontalContainer}>
-          {(!isMobileOrTablet() || !navigator.share) && <textarea readOnly className={styles.linkField} ref={refLink} value={invitationLink} />}
-          <Typography variant="h2" align="center" onClick={() => isMobileOrTablet() && navigator.share ? handleMobileShareOnClick() : copyCodeToClipboard()}><LinkIcon color="primary" />Share</Typography>
-          <Typography variant="h2" align="center" onClick={(event)=>handleTutorialClick(event)}><VideoLibraryIcon color="primary" />Tutorial</Typography>    
-  </section>;
+const renderWorldInfoHorizontalItems = () => 
+  <>
+    <section className={styles.locationInfo} style={{ backgroundImage: `url(${currentScene?.thumbnailUrl})` }}>
+      <span className={styles.sceneName}>{worldName}</span>
+      <span className={styles.sceneLink}>{invitationLink}</span>
+    </section>
+    <section className={styles.horizontalContainer}>  
+            {(!isMobileOrTablet() || !navigator.share) && <textarea readOnly className={styles.linkField} ref={refLink} value={invitationLink} />}
+            <Typography variant="h2" align="center" onClick={() => isMobileOrTablet() && navigator.share ? handleMobileShareOnClick() : copyCodeToClipboard()}><LinkIcon color="primary" />Share</Typography>
+            <Typography variant="h2" align="center" onClick={(event)=>handleTutorialClick(event)}><VideoLibraryIcon color="primary" />Tutorial</Typography>    
+    </section>
+  </>;
 
 const renderUserMenu = () =><>
-          <Typography variant="h1" color="primary"><ArrowBackIosIcon color="primary" onClick={toggleDrawer(anchor, false)} />{worldName}</Typography>
-          {renderHorizontalItems()}
-          {/* <AccountCircleIcon color="primary" className={styles.userPreview} /> */}
-          {/* <span className={styles.userTitle}>{ selfUser ? selfUser?.name : ''}</span> */}
-          {/* <Button variant="outlined" color="primary" onClick={handleAvatarChangeClick}>Change Avatar</Button> */}
-          { selfUser?.userRole === 'guest' ? 
+          <section className={styles.userTitle}>
+              <AccountCircleIcon color="primary" className={styles.userPreview} />
+              <section className={styles.userTitleLine}>            
+                <span className={styles.userTitle}>
+                  {isEditUsername ? 
+                      <TextField
+                      variant="standard"
+                      color="secondary"
+                      margin="normal"
+                      required
+                      fullWidth
+                      id="username"
+                      label='Username'
+                      name="username"
+                      autoFocus
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                    />
+                      : selfUser?.name}
+                  {isEditUsername ?
+                       <CachedIcon color="secondary" onClick={handleUpdateUsername} /> :
+                       <CreateIcon color="primary" onClick={handleShowEditUsername}/> }
+                  </span>
+                  <span className={styles.userTitleRole}>{ selfUser?.userRole}</span>
+              </section>            
+          </section> 
+          {renderWorldInfoHorizontalItems()}
+          <Button variant="outlined" color="secondary" onClick={handleAvatarChangeClick}>Change Avatar</Button>   
+          <section className={styles.socialSection}>
+            { selfUser?.userRole === 'guest' ? 
                 <>
+                  <Typography variant="h2" align="center">Connect An Social For Social Features</Typography>
                   <Button variant="outlined" color="primary" onClick={handleLogin}>Login</Button>
                   <Button variant="contained" color="primary">Create Account</Button>
                 </> :
                 <Button variant="outlined" color="secondary" onClick={handleLogout}>Logout</Button>}
-          { selfUser?.userRole !== 'guest' && <Button variant="outlined" color="primary" onClick={handleAccountDeleteClick}>Delete account</Button>}
+            { selfUser?.userRole !== 'guest' && <Button variant="outlined" color="primary" onClick={handleAccountDeleteClick}>Delete account</Button>}
+          </section>
           <section className={styles.placeholder} />
           <Typography variant="h2" align="left" onClick={handleDeviceSetupClick}><SettingsIcon color="primary" /> Settings</Typography>
           <Typography variant="h2" align="left"><ToysIcon color="primary" /> About</Typography>
