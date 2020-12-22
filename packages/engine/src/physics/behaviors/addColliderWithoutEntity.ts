@@ -1,50 +1,70 @@
-import { Body, Box, Sphere, Vec3 } from 'cannon-es';
+import { Body, Box, Sphere, Cylinder, Plane, Vec3 } from 'cannon-es';
 import { PhysicsManager } from '../components/PhysicsManager';
 import { CollisionGroups } from "../enums/CollisionGroups";
 import { createTrimesh } from './physicalPrimitives';
 
-function createBox (position, scale) {
+function createBox (scale) {
   const shape = new Box(new Vec3(scale.x, scale.y, scale.z));
-  const body = new Body({
-    mass: 0
-  });
-/*
-  const q = new Quaternion();
-  q.setFromAxisAngle(new Vec3(1, 0, 0), -Math.PI / 2);
-  //body.quaternion.setFromAxisAngle(new Vec3(1,0,0),-Math.PI/2);
-*/
+  const body = new Body({ mass: 0 });
   body.addShape(shape);
   return body;
 }
 
 function createSphere (radius) {
   const shape = new Sphere(radius);
-
-  const body = new Body({
-    mass: 0,
-    });
-
+  const body = new Body({ mass: 0 });
   body.addShape(shape);
   return body;
 }
 
-export function addColliderWithoutEntity( type, position, rotation, scale, mesh ) {
+export function createGround () {
+  const shape = new Plane();
+  const body = new Body({ mass: 0 });
+  body.quaternion.setFromAxisAngle(new Vec3(1, 0, 0), -Math.PI / 2);
+  body.addShape(shape);
+  return body;
+}
 
-    let body;
-    if (type === 'box') {
-      mesh.visible = false;
+export function createCylinder (scale) {
+  const shape = new Cylinder(scale.x, scale.y, scale.z, 20);
+  const body = new Body({ mass: 0 });
+  body.addShape(shape);
+  return body;
+}
 
-      body = createBox(position, scale);
-    //  body.computeAABB();
-  		body.shapes.forEach((shape) => {
+export function addColliderWithoutEntity( type, position, quaternion, scale, mesh ) {
+  //  mesh.visible = false;
+  let body;
+
+  switch (type) {
+    case 'box':
+      body = createBox(scale);
+      body.shapes.forEach((shape) => {
   			shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
   		});
-    } else
-    if (type === 'sphere') {
-      mesh.visible = false;
+      break;
+
+    case 'ground':
+      body = createGround()
+      break;
+
+    case 'cylinder':
+      body = createCylinder(scale);
+      break;
+
+    case 'sphere':
       body = createSphere(scale);
-    } else
-    if (type === 'trimesh') body = createTrimesh(mesh, new Vec3(), 0);
+      break;
+
+    case 'trimesh':
+    body = createTrimesh(mesh, new Vec3(), 0);
+      break;
+
+    default:
+      console.warn('create Collider undefined type !!!');
+      body = createBox(scale);
+      break;
+    }
 
     body.position.set(
       position.x,
@@ -52,15 +72,13 @@ export function addColliderWithoutEntity( type, position, rotation, scale, mesh 
       position.z
     );
 
+    if (quaternion)
     body.quaternion.set(
-      rotation.x,
-      rotation.y,
-      rotation.z,
-      rotation.w
+      quaternion.x,
+      quaternion.y,
+      quaternion.z,
+      quaternion.w
     );
-    console.warn(body);
-
-    mesh.visible = false;
 
   PhysicsManager.instance.physicsWorld.addBody(body);
   return body;
