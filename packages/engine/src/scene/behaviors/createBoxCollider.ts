@@ -4,14 +4,16 @@ import { getComponent, createEntity, addComponent, removeComponent } from '../..
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { ColliderComponent } from '../../physics/components/ColliderComponent';
 import { RigidBody } from '../../physics/components/RigidBody';
+import { addColliderWithoutEntity } from '../../physics/behaviors/addColliderWithoutEntity';
+/*
 import { Vector3 } from 'three';
 import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
 import { Network } from "@xr3ngine/engine/src/networking/components/Network";
 import { initializeNetworkObject } from '@xr3ngine/engine/src/networking/functions/initializeNetworkObject';
 import { isServer } from '../../common/functions/isServer';
+*/
 
-
-
+/*
 function test() {
   const userId = 'server';
    const networkObject2 = initializeNetworkObject(userId, Network.getNetworkId(), PrefabType.worldObject);
@@ -38,15 +40,16 @@ function test() {
        qW: transform2.rotation.w
    });
 }
-
+*/
 export const createBoxCollider: Behavior = (entity, args: any) => {
-   //console.warn(args.objArgs);
-   addComponent(entity, ColliderComponent, args.objArgs);
-
+   console.warn(args.objArgs);
+  // addComponent(entity, ColliderComponent, args.objArgs);
+   addColliderWithoutEntity( args.objArgs.type, args.objArgs.position, args.objArgs.quaternion, args.objArgs.scale, args.objArgs.mesh );
+/*
    if (isServer) {
      for (let i = 0; i < 50; i++) {
        test()
      }
-
    }
+   */
 };
