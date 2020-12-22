@@ -37,7 +37,6 @@ export class PositionalAudioSystem extends System {
   }
 
   execute(): void {
-
     for (const entity of this.queryResults.audio.added) {
       const positionalAudio = getMutableComponent(entity, PositionalAudioComponent);
       positionalAudio.value = new PositionalAudio(Engine.audioListener);
@@ -45,7 +44,7 @@ export class PositionalAudioSystem extends System {
 
     for (const entity of this.queryResults.audio.removed) {
       const positionalAudio = getComponent(entity, PositionalAudioComponent, true);
-      positionalAudio.value?.disconnect();
+      positionalAudio?.value?.disconnect();
     }
 
     for (const entity of this.queryResults.character_audio.all) {
@@ -100,7 +99,7 @@ export class PositionalAudioSystem extends System {
     for (const entity of this.queryResults.positional_audio.removed) {
       const positionalAudio = getComponent(entity, PositionalAudioComponent, true);
 
-      Engine.scene.remove(positionalAudio.value);
+      if (positionalAudio != null) Engine.scene.remove(positionalAudio.value);
     }
   }
 }
