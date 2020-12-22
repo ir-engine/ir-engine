@@ -13,9 +13,10 @@
 }
 .drawer{
     display: flex;   
-    h2{
+    h2, h1{
         >svg{
             margin: 0 5px 0 0;
+            cursor: pointer;
         }
     }
 }    
@@ -62,6 +63,7 @@
         flex-grow: 0;
         width: 1.5em;
         height: 1.5em;
+        cursor: pointer;
     }
     .userTitleLine{
        flex-grow: 1;
@@ -71,6 +73,7 @@
         padding-right: 60px;
         svg{
             margin: 0px 5px;
+            cursor: pointer;
         }
        .userTitleRole{
            font-style: italic;

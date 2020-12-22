@@ -272,11 +272,7 @@ const lightTheme = createMuiTheme({
     },  
     MuiSvgIcon:{
       colorPrimary : {
-        color: '#A8A8FF',        
-        '&:hover':{
-          backgroundColor:'#A8A8FF', 
-          color: '#5151FF',       
-        }
+        color: '#A8A8FF', 
       },
     },
     MuiFab: {
@@ -288,7 +284,14 @@ const lightTheme = createMuiTheme({
           color: '#FFFFFF' 
         }           
       },
-    },  
+    },
+    MuiFormGroup:{
+      root:{
+        display: 'flex',
+        flexWrap: 'wrap',
+        flexDirection: 'row',
+      }
+    } , 
   },
 });
 
