@@ -17,29 +17,27 @@ export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
     // console.warn(mesh.userData.data);
 
     if (mesh.userData.data == "physics") {
-      if (mesh.userData.type == "collider" || mesh.userData.type == "rigidbody") {
-        if (mesh.userData.geometry == "box" || mesh.userData.geometry == "trimesh") {
-           console.warn('ADD COLLIDER');
-          deleteArr.push(mesh);
-          if(mesh.type == 'Group') {
-            for (let i = 0; i < mesh.children.length; i++) {
-              mesh.position.set(
-                transform.position.x + mesh.position.x,
-                transform.position.y + mesh.position.y,
-                transform.position.z + mesh.position.z
-              )
-              addColliderWithoutEntity(mesh.userData.type, mesh.position, mesh.children[i].quaternion, mesh.children[i].scale, mesh.children[i]);
-            }
-          } else if (mesh.type == 'Mesh') {
+      if (mesh.userData.type == "box" || mesh.userData.type == "trimesh") {
+         //console.warn('ADD COLLIDER');
+        deleteArr.push(mesh);
+        if(mesh.type == 'Group') {
+          for (let i = 0; i < mesh.children.length; i++) {
             mesh.position.set(
               transform.position.x + mesh.position.x,
               transform.position.y + mesh.position.y,
               transform.position.z + mesh.position.z
             )
-            addColliderWithoutEntity(mesh.userData.type, mesh.position, mesh.quaternion, mesh.scale, mesh);
+            addColliderWithoutEntity(mesh.userData.type, mesh.position, mesh.children[i].quaternion, mesh.children[i].scale, mesh.children[i]);
           }
-
+        } else if (mesh.type == 'Mesh') {
+          mesh.position.set(
+            transform.position.x + mesh.position.x,
+            transform.position.y + mesh.position.y,
+            transform.position.z + mesh.position.z
+          )
+          addColliderWithoutEntity(mesh.userData.type, mesh.position, mesh.quaternion, mesh.scale, mesh);
         }
+
       }
     }
   }
