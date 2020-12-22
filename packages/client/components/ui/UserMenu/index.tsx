@@ -33,7 +33,6 @@ import CreateIcon from '@material-ui/icons/Create';
 import CachedIcon from '@material-ui/icons/Cached';
 import { removeUser } from '../../../redux/auth/service';
 import { selectScenesCurrentScene } from '../../../redux/scenes/selector';
-import { ImageMediaGridItem } from '../../editor/layout/MediaGrid';
 
 interface Props {
     login?: boolean;
@@ -199,7 +198,7 @@ const UserMenu = (props: Props): any => {
 //filter avatars by some attribute
 const avatarsForRender = CharacterAvatars.filter(avatar=>avatar.id !== 'Animation');
 const renderAvatarSelectionPage = () =><>
-      <Typography variant="h1"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} />Select Avatar</Typography>
+      <Typography variant="h1"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} focusable={true} />Select Avatar</Typography>
       <section className={styles.avatarCountainer}>
           {avatarsForRender.map(characterAvatar=>
               <Card key={characterAvatar.id} className={styles.avatarPreviewWrapper}> 
@@ -216,12 +215,12 @@ const renderAvatarSelectionPage = () =><>
       </>;
 
 const renderDeviceSetupPage = () =><>
-  <Typography variant="h2" color="primary"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} />Device Setup</Typography>
+  <Typography variant="h1"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} />Device Setup</Typography>
   <UserSettings />
 </>;
 
 const renderLoginPage = () =><>
-  <Typography variant="h2" color="primary"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} />Login</Typography>
+  <Typography variant="h1"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} />Login</Typography>
   <SignIn />
 </>;
 
