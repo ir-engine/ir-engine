@@ -47,6 +47,27 @@ const lightTheme = createMuiTheme({
           color: '#FFD600',
         }
       },
+      h3:{
+        fontSize: 14,
+        margin: '5px 0px',
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',  
+        '&.MuiTypography-colorSecondary':{
+          color: '#FFD600',
+        }
+      },
+      h4:{
+        fontSize: 14,
+        margin: '5px 0px',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',  
+        '&.MuiTypography-colorSecondary':{
+          color: '#FFD600',
+        }
+      },
       alignRight : {
         textAlign: 'right',
         justifyContent: 'flex-end',
