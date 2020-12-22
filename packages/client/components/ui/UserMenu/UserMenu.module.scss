@@ -26,9 +26,9 @@
     flex-wrap: wrap;
     height: auto;
     .avatarPreviewWrapper{
-        width: 48%;
+        width: 46%;
         cursor: pointer;
-        margin: 1%;    
+        margin: 2%;    
         flex-grow: 0; 
         .avatarPreview{
             width: 100%;
@@ -116,7 +116,7 @@
     }
 }
 .socialSection{
-    margin: 40px auto 20px;
+    margin: 40px 0px 20px;
     text-align: center;
     display: flex;
     flex-direction: column;

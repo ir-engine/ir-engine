@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
+import getConfig from 'next/config';
+
 import styles from './UserMenu.module.scss';
 import { Button, Drawer, Typography, Card, CardContent, Snackbar, TextField } from '@material-ui/core';
 import { generalStateList, setAppSpecificOnBoardingStep } from '../../../redux/app/actions';
@@ -31,6 +33,9 @@ import ClearIcon from '@material-ui/icons/Clear';
 import DeleteIcon from '@material-ui/icons/Delete';
 import CreateIcon from '@material-ui/icons/Create';
 import CachedIcon from '@material-ui/icons/Cached';
+import MailIcon from '@material-ui/icons/Mail';
+import MeetingRoomIcon from '@material-ui/icons/MeetingRoom';
+import SmsIcon from '@material-ui/icons/Sms';
 import { removeUser } from '../../../redux/auth/service';
 import { selectScenesCurrentScene } from '../../../redux/scenes/selector';
 
@@ -63,7 +68,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const UserMenu = (props: Props): any => {    
   const { login, authState, logoutUser, removeUser, showDialog, currentScene, updateUsername} = props;
   const selfUser = authState.get('user');
-  console.log('selfUser?.name', selfUser?.name);
+  console.log('selfUser', selfUser);
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
   const [isEditUsername, setIsEditUsername] = useState(false);
   const [username, setUsername] = useState(selfUser?.name);
@@ -95,6 +100,7 @@ const UserMenu = (props: Props): any => {
   const handleAccountDeleteClick = () => setDrawerType('accountDelete');
   const handleAvatarChangeClick = () => setDrawerType('avatar');
   const handleDeviceSetupClick = () => setDrawerType('device');
+  const handleAccountSettings = () => setDrawerType('account');
   
   const copyCodeToClipboard = () => {    
     refLink.current.select();
@@ -224,6 +230,20 @@ const renderLoginPage = () =><>
   <SignIn />
 </>;
 
+const config = getConfig().publicRuntimeConfig;
+console.log('config', config)
+const renderAccountPage = () => <>
+  <Typography variant="h1"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} />Account Settings</Typography>
+
+  <Typography variant="h3">Available Connections</Typography>
+  <section className={styles.horizontalContainer}>
+    {Object.entries(config.auth).map(([key, value]) => value && renderProviderIcon(key))}
+  </section>
+  <Typography variant="h3">Account Options</Typography>
+  <Typography variant="h4" align="left" onClick={handleLogout}><MeetingRoomIcon color="primary" /> Logout</Typography>
+  <Typography variant="h4" align="left" onClick={handleAccountDeleteClick}><DeleteIcon color="primary" /> Delete account</Typography>
+</>;
+
 const renderAccountDeletePage = () => <>
   <Typography variant="h2" color="primary"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} />Delete Account</Typography>
   <div>
@@ -261,6 +281,16 @@ const renderWorldInfoHorizontalItems = () =>
     </section>
   </>;
 
+
+const renderProviderIcon = type =>{
+  switch(type){
+    case 'email': 
+    case 'enableEmailMagicLink': 
+        return <MailIcon />;
+    case 'enableSmsMagicLink': return <SmsIcon />;
+  }
+}
+
 const renderUserMenu = () =><>
           <section className={styles.userTitle}>
               <AccountCircleIcon color="primary" className={styles.userPreview} />
@@ -297,8 +327,19 @@ const renderUserMenu = () =><>
                   <Button variant="outlined" color="primary" onClick={handleLogin}>Login</Button>
                   <Button variant="contained" color="primary">Create Account</Button>
                 </> :
-                <Button variant="outlined" color="secondary" onClick={handleLogout}>Logout</Button>}
-            { selfUser?.userRole !== 'guest' && <Button variant="outlined" color="primary" onClick={handleAccountDeleteClick}>Delete account</Button>}
+                <>
+                  {selfUser && selfUser.identityProviders && 
+                    <>
+                    <Typography variant="h2" align="center">Public Social Accounts</Typography>
+                      {selfUser.identityProviders.map(provider=>
+                        <Typography variant="h3">
+                          {renderProviderIcon(provider.type)}
+                          {provider.token}
+                        </Typography>)
+                      }
+                    </>}
+                  <Button variant="outlined" color="primary" onClick={handleAccountSettings}>Account Settings</Button>
+                </>}
           </section>
           <section className={styles.placeholder} />
           <Typography variant="h2" align="left" onClick={handleDeviceSetupClick}><SettingsIcon color="primary" /> Settings</Typography>
@@ -312,6 +353,7 @@ const renderDrawerContent = () =>{
     case 'avatar': return renderAvatarSelectionPage();
     case 'device': return renderDeviceSetupPage();
     case 'login': return renderLoginPage();
+    case 'account': return renderAccountPage();
     case 'accountDelete': return renderAccountDeletePage();
     default: return renderUserMenu();
   }
