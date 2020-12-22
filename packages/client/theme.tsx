@@ -202,10 +202,10 @@ const lightTheme = createMuiTheme({
         }
       }
     },
-    MuiCardActionArea:{
-      root:{      
-        focusHighlight:{        
-            backgroungColor:'#5151FF',        
+    MuiCardMedia:{
+      media:{  
+        '&:hover':{
+          backgroundColor:'#A8A8FF',        
         }
       }
     },
@@ -233,11 +233,11 @@ const lightTheme = createMuiTheme({
     },
     MuiCardContent:{
       root:{
-        background:'rgba(0, 0, 0, ,1)',
         '&:last-child': {
           paddingBottom: '0px',
           paddingLeft: '0px',
           paddingRight: '0px',
+          paddingTop: '0px',
         }
       }
     },
@@ -272,7 +272,11 @@ const lightTheme = createMuiTheme({
     },  
     MuiSvgIcon:{
       colorPrimary : {
-        color: '#A8A8FF',
+        color: '#A8A8FF',        
+        '&:hover':{
+          backgroundColor:'#A8A8FF', 
+          color: '#5151FF',       
+        }
       },
     },
     MuiFab: {

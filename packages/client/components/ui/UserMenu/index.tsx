@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './UserMenu.module.scss';
-import { Button, Drawer, Typography, Card, CardActionArea, Snackbar, TextField } from '@material-ui/core';
+import { Button, Drawer, Typography, Card, CardContent, Snackbar, TextField } from '@material-ui/core';
 import { generalStateList, setAppSpecificOnBoardingStep } from '../../../redux/app/actions';
 import ToysIcon from '@material-ui/icons/Toys';
 import PolicyIcon from '@material-ui/icons/Policy';
@@ -199,17 +199,17 @@ const UserMenu = (props: Props): any => {
 //filter avatars by some attribute
 const avatarsForRender = CharacterAvatars.filter(avatar=>avatar.id !== 'Animation');
 const renderAvatarSelectionPage = () =><>
-      <Typography variant="h2" color="primary"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} />Change Avatar</Typography>
+      <Typography variant="h1"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} />Select Avatar</Typography>
       <section className={styles.avatarCountainer}>
           {avatarsForRender.map(characterAvatar=>
               <Card key={characterAvatar.id} className={styles.avatarPreviewWrapper}> 
-                <CardActionArea onClick={()=>setActorAvatarId(characterAvatar.id)} >
+                <CardContent onClick={()=>setActorAvatarId(characterAvatar.id)} >
                   <LazyImage
                     key={characterAvatar.id}
                     src={'/static/'+characterAvatar.id.toLocaleLowerCase()+'.png'}
                     alt={characterAvatar.title}
                   />
-                </CardActionArea>
+                </CardContent>
               </Card>
             )}
       </section>
