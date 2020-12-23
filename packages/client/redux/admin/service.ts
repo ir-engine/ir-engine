@@ -99,15 +99,17 @@ export function fetchAdminLocations () {
   };
 }
 
-export function fetchUsersAsAdmin () {
+export function fetchUsersAsAdmin (offset: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    const skip = getState().get('admin').get('users').get('skip');
+    const limit = getState().get('admin').get('users').get('limit');
     const users = await client.service('user').find({
       query: {
         $sort: {
           name: 1
         },
-        $skip: getState().get('admin').get('users').get('skip'),
-        $limit: getState().get('admin').get('users').get('limit'),
+        $skip: offset === 'decrement' ? skip - limit : offset === 'increment' ? skip + limit : skip,
+        $limit: limit,
         action: 'admin'
       }
     });

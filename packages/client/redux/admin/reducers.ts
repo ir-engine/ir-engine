@@ -27,6 +27,8 @@ import {
 } from "../user/actions";
 import {CollectionsFetchedAction} from "../scenes/actions";
 
+export const PAGE_LIMIT = 100;
+
 export const initialState = {
   isLoggedIn: false,
   isProcessing: false,
@@ -37,7 +39,7 @@ export const initialState = {
   locations: {
     locations: [],
     skip: 0,
-    limit: 10,
+    limit: PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -51,7 +53,7 @@ export const initialState = {
   scenes: {
     scenes: [],
     skip: 0,
-    limit: 100,
+    limit: 1000,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -61,7 +63,7 @@ export const initialState = {
   users: {
     users: [],
     skip: 0,
-    limit: 100,
+    limit: PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -71,7 +73,7 @@ export const initialState = {
   instances: {
     instances: [],
     skip: 0,
-    limit: 100,
+    limit: PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -92,7 +94,16 @@ const adminReducer = (state = immutableState, action: any): any => {
     case LOCATIONS_RETRIEVED:
       result = (action as LocationsRetrievedAction).locations;
       updateMap = new Map(state.get('locations'));
-      updateMap.set('locations', (result as any).data);
+      let combinedLocations = state.get('locations').get('locations');
+      (result as any).data.forEach(item => {
+        const match = combinedLocations.find(location => location.id === item.id);
+        if (match == null) {
+          combinedLocations = combinedLocations.concat(item);
+        } else {
+          combinedLocations = combinedLocations.map((location) => location.id === item.id ? item : location);
+        }
+      });
+      updateMap.set('locations', combinedLocations);
       updateMap.set('skip', (result as any).skip);
       updateMap.set('limit', (result as any).limit);
       updateMap.set('total', (result as any).total);
@@ -124,7 +135,16 @@ const adminReducer = (state = immutableState, action: any): any => {
     case LOADED_USERS:
       result = (action as LoadedUsersAction).users;
       updateMap = new Map(state.get('users'));
-      updateMap.set('users', (result as any).data);
+      let combinedUsers = state.get('users').get('users');
+      (result as any).data.forEach(item => {
+        const match = combinedUsers.find(user => user.id === item.id);
+        if (match == null) {
+          combinedUsers = combinedUsers.concat(item);
+        } else {
+          combinedUsers = combinedUsers.map((user) => user.id === item.id ? item : user);
+        }
+      });
+      updateMap.set('users', combinedUsers);
       updateMap.set('skip', (result as any).skip);
       updateMap.set('limit', (result as any).limit);
       updateMap.set('total', (result as any).total);
@@ -138,7 +158,16 @@ const adminReducer = (state = immutableState, action: any): any => {
     case INSTANCES_RETRIEVED:
       result = (action as InstancesRetrievedResponse).instances;
       updateMap = new Map(state.get('instances'));
-      updateMap.set('instances', (result as any).data);
+      let combinedInstances = state.get('instances').get('instances');
+      (result as any).data.forEach(item => {
+        const match = combinedInstances.find(instance => instance.id === item.id);
+        if (match == null) {
+          combinedInstances = combinedInstances.concat(item);
+        } else {
+          combinedInstances = combinedInstances.map((instance) => instance.id === item.id ? item : instance);
+        }
+      });
+      updateMap.set('instances', combinedInstances);
       updateMap.set('skip', (result as any).skip);
       updateMap.set('limit', (result as any).limit);
       updateMap.set('total', (result as any).total);

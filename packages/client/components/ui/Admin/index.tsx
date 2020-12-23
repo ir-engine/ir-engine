@@ -1,5 +1,5 @@
 import {
-    Button,
+    Button, MenuItem, Select,
     Tab,
     Tabs
 } from '@material-ui/core';
@@ -9,8 +9,9 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { selectAdminState } from '../../../redux/admin/selector';
 import { selectAppState } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
-import {client} from "../../../redux/feathers";
+import { client } from "../../../redux/feathers";
 import { Router, withRouter } from "next/router";
+import { PAGE_LIMIT } from '../../../redux/admin/reducers';
 import {
     fetchAdminLocations,
     fetchAdminScenes,
@@ -31,8 +32,7 @@ import {
 } from '@material-ui/core';
 import styles from './Admin.module.scss';
 import LocationModal from './LocationModal';
-import moment from 'moment';
-import {closeDialog} from "../../../redux/dialog/service";
+import InstanceModal from './InstanceModal';
 
 if (!global.setImmediate) {
     global.setImmediate = setTimeout as any;
@@ -99,10 +99,19 @@ const AdminConsole = (props: Props) => {
         }
     };
 
+    const initialInstance = {
+        id: '',
+        ipAddress: '',
+        currentUsers: 0,
+        locationId: ''
+    };
+
     const user = authState.get('user');
-    const [modalOpen, setModalOpen] = useState(false);
-    const [editing, setEditing] = useState(false);
+    const [locationModalOpen, setLocationModalOpen] = useState(false);
+    const [instanceModalOpen, setInstanceModalOpen] = useState(false);
+    const [locationEditing, setLocationEditing] = useState(false);
     const [selectedLocation, setSelectedLocation] = useState(initialLocation);
+    const [selectedInstance, setSelectedInstance] = useState(initialInstance);
     const adminScenes = adminState.get('scenes').get('scenes');
 
     const headCells = {
@@ -238,13 +247,18 @@ const AdminConsole = (props: Props) => {
     const [selected, setSelected] = React.useState<string[]>([]);
     const [page, setPage] = React.useState(0);
     const [dense, setDense] = React.useState(false);
-    const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT);
     const [selectedTab, setSelectedTab] = React.useState('locations');
     const [refetch, setRefetch] = React.useState(false);
 
     const adminLocations = adminState.get('locations').get('locations');
+    const adminLocationCount = adminState.get('locations').get('total');
     const adminUsers = adminState.get('users').get('users');
+    const adminUserCount = adminState.get('users').get('total');
     const adminInstances = adminState.get('instances').get('instances');
+    const adminInstanceCount = adminState.get('instances').get('total');
+
+    const selectCount = selectedTab === 'locations' ? adminLocationCount : selectedTab === 'users' ? adminUserCount : selectedTab === 'instances' ? adminInstanceCount : 0;
     const displayLocations = adminLocations.map(location => {
         return {
             id: location.id,
@@ -275,17 +289,40 @@ const AdminConsole = (props: Props) => {
     const handleLocationClick = (event: React.MouseEvent<unknown>, id: string) => {
         const selected = adminLocations.find(location => location.id === id);
         setSelectedLocation(selected);
-        setEditing(true);
-        setModalOpen(true);
+        setLocationEditing(true);
+        setLocationModalOpen(true);
     };
 
     const openModalCreate = () => {
         setSelectedLocation(initialLocation);
-        setEditing(false);
-        setModalOpen(true);
+        setLocationEditing(false);
+        setLocationModalOpen(true);
+    };
+
+    const handleInstanceClick = (event: React.MouseEvent<unknown>, id: string) => {
+        console.log('instanceClick');
+        console.log(event);
+        console.log(id);
+        const selected = adminInstances.find(instance => instance.id === id);
+        console.log('Selected instance:');
+        console.log(selected);
+        setSelectedInstance(selected);
+        setInstanceModalOpen(true);
     };
 
     const handleChangePage = (event: unknown, newPage: number) => {
+        const incDec = page < newPage ? 'increment' : 'decrement';
+        switch (selectedTab) {
+            case 'locations':
+                fetchAdminLocations(incDec);
+                break;
+            case 'users':
+                fetchUsersAsAdmin(incDec);
+                break;
+            case 'instances':
+                fetchAdminInstances(incDec);
+                break;
+        }
         setPage(newPage);
     };
 
@@ -296,10 +333,16 @@ const AdminConsole = (props: Props) => {
 
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, adminLocations.length - page * rowsPerPage);
 
-    const handleClose = (e: any): void => {
-        setEditing(false);
-        setModalOpen(false);
+    const handleLocationClose = (e: any): void => {
+        setLocationEditing(false);
+        setLocationModalOpen(false);
         setSelectedLocation(initialLocation);
+    };
+
+    const handleInstanceClose = (e: any): void => {
+        console.log('handleInstanceClosed');
+        setInstanceModalOpen(false);
+        setSelectedInstance(initialInstance);
     };
 
     const handleTabChange = (e: any, newValue: string) => {
@@ -325,8 +368,14 @@ const AdminConsole = (props: Props) => {
         }, 5000);
     };
 
+    const patchUserRole = async (e: any, user: any, role: string) => {
+        await client.service('user').patch(user.id, {
+            userRole: role
+        });
+    };
+
     useEffect(() => {
-      fetchTick();
+        fetchTick();
     }, []);
 
     useEffect(() => {
@@ -350,14 +399,15 @@ const AdminConsole = (props: Props) => {
 
 
     return (
-        <Paper>
+        <Paper className={styles.adminRoot}>
             <Tabs value={selectedTab} onChange={handleTabChange} aria-label="tabs">
                 <Tab label="Locations" value="locations" />
-                <Tab label="Users" value="users" />
-                <Tab label="Instances" value="instances" />
+                { user?.userRole === 'admin' && <Tab label="Users" value="users" /> }
+                { user?.userRole === 'admin' && <Tab label="Instances" value="instances" /> }
             </Tabs>
-            {selectedTab === 'locations' && <TableContainer>
+            {selectedTab === 'locations' && <TableContainer className={styles.tableContainer}>
                 <Table
+                    stickyHeader
                     aria-labelledby="tableTitle"
                     size={dense ? 'small' : 'medium'}
                     aria-label="enhanced table"
@@ -369,7 +419,7 @@ const AdminConsole = (props: Props) => {
                         orderBy={orderBy}
                         onSelectAllClick={handleSelectAllClick}
                         onRequestSort={handleRequestSort}
-                        rowCount={displayLocations.length || 0}
+                        rowCount={adminLocationCount || 0}
                     />
                     <TableBody className={styles.thead}>
                         {stableSort(displayLocations, getComparator(order, orderBy))
@@ -421,8 +471,9 @@ const AdminConsole = (props: Props) => {
                 </Table>
             </TableContainer>
             }
-            {selectedTab === 'users' && <TableContainer>
+            {selectedTab === 'users' && <TableContainer className={styles.tableContainer}>
                 <Table
+                    stickyHeader
                     aria-labelledby="tableTitle"
                     size={dense ? 'small' : 'medium'}
                     aria-label="enhanced table"
@@ -434,7 +485,7 @@ const AdminConsole = (props: Props) => {
                         orderBy={orderBy}
                         onSelectAllClick={handleSelectAllClick}
                         onRequestSort={handleRequestSort}
-                        rowCount={adminUsers.length || 0}
+                        rowCount={adminUserCount || 0}
                     />
                     <TableBody className={styles.thead}>
                         {stableSort(adminUsers, getComparator(order, orderBy))
@@ -457,8 +508,18 @@ const AdminConsole = (props: Props) => {
                                                    align="right"
                                                    onClick={(event) => redirectToInstance(event, row.instanceId.toString())}
                                         >{row.instanceId}</TableCell>
-                                        <TableCell className={styles.tcell}
-                                                   align="right">{row.userRole}</TableCell>
+                                        <TableCell className={styles.tcell} align="right">
+                                            { (row.userRole === 'guest' || row.userRole === 'admin' && row.id === user.id) && <div>{row.userRole}</div>}
+                                            { (row.userRole !== 'guest' && row.id !== user.id) && <Select
+                                                labelId="userRole"
+                                                id="userRole"
+                                                value={row.userRole}
+                                                onChange={(e) => patchUserRole(e, row, e.target.value as string)}
+                                            >
+                                                <MenuItem key='user' value='user'>User</MenuItem>)
+                                                <MenuItem key='admin' value='admin'>Admin</MenuItem>
+                                            </Select>}
+                                        </TableCell>
                                         <TableCell className={styles.tcell} align="right">{row.partyId}</TableCell>
                                     </TableRow>
                                 );
@@ -472,73 +533,80 @@ const AdminConsole = (props: Props) => {
                 </Table>
             </TableContainer>
             }
-            {selectedTab === 'instances' && <TableContainer>
-            <Table
-                aria-labelledby="tableTitle"
-                size={dense ? 'small' : 'medium'}
-                aria-label="enhanced table"
-            >
-                <EnhancedTableHead
-                    object='instances'
-                    numSelected={selected.length}
-                    order={order}
-                    orderBy={orderBy}
-                    onSelectAllClick={handleSelectAllClick}
-                    onRequestSort={handleRequestSort}
-                    rowCount={adminInstances.length || 0}
-                />
-                <TableBody className={styles.thead}>
-                    {stableSort(adminInstances, getComparator(order, orderBy))
-                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                        .map((row, index) => {
-                            return (
-                                <TableRow
-                                    hover
-                                    className={styles.trowHover}
-                                    style={{color: 'black !important'}}
-                                    // onClick={(event) => handleClick(event, row.id.toString())}
-                                    tabIndex={-1}
-                                    key={row.id}
-                                >
-                                    <TableCell className={styles.tcell} component="th" id={row.id.toString()}
-                                               align="right" scope="row" padding="none">
-                                        {row.id}
-                                    </TableCell>
-                                    <TableCell className={styles.tcell} align="right">{row.ipAddress}</TableCell>
-                                    <TableCell className={styles.tcell}
-                                               align="right">{row.currentUsers}</TableCell>
-                                    <TableCell className={styles.tcell}
-                                               align="right">{row.locationId}</TableCell>
-                                </TableRow>
-                            );
-                        })}
-                    {/*{emptyRows > 0 && (*/}
-                    {/*    <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>*/}
-                    {/*        <TableCell colSpan={6} />*/}
-                    {/*    </TableRow>*/}
-                    {/*)}*/}
-                </TableBody>
-            </Table>
-        </TableContainer>
-        }
+            {selectedTab === 'instances' && <TableContainer className={styles.tableContainer}>
+                <Table
+                    stickyHeader
+                    aria-labelledby="tableTitle"
+                    size={dense ? 'small' : 'medium'}
+                    aria-label="enhanced table"
+                >
+                    <EnhancedTableHead
+                        object='instances'
+                        numSelected={selected.length}
+                        order={order}
+                        orderBy={orderBy}
+                        onSelectAllClick={handleSelectAllClick}
+                        onRequestSort={handleRequestSort}
+                        rowCount={adminInstanceCount || 0}
+                    />
+                    <TableBody className={styles.thead}>
+                        {stableSort(adminInstances, getComparator(order, orderBy))
+                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                            .map((row, index) => {
+                                return (
+                                    <TableRow
+                                        className={styles.trow}
+                                        style={{color: 'black !important'}}
+                                        // onClick={(event) => handleClick(event, row.id.toString())}
+                                        tabIndex={-1}
+                                        key={row.id}
+                                    >
+                                        <TableCell className={styles.tcell} component="th" id={row.id.toString()}
+                                                   align="right" scope="row" padding="none">
+                                            {row.id}
+                                        </TableCell>
+                                        <TableCell className={styles.tcell} align="right">{row.ipAddress}</TableCell>
+                                        <TableCell className={styles.tcellSelectable}
+                                                   align="right"
+                                                   onClick={(event) => handleInstanceClick(event, row.id.toString())}
+                                        >{row.currentUsers}</TableCell>
+                                        <TableCell className={styles.tcell}
+                                                   align="right">{row.locationId}</TableCell>
+                                    </TableRow>
+                                );
+                            })}
+                        {/*{emptyRows > 0 && (*/}
+                        {/*    <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>*/}
+                        {/*        <TableCell colSpan={6} />*/}
+                        {/*    </TableRow>*/}
+                        {/*)}*/}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            }
             <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
+                rowsPerPageOptions={[PAGE_LIMIT]}
                 component="div"
-                count={selectedTab === 'locations' ? displayLocations.length : selectedTab === 'users' ? adminUsers.length : 0}
+                count={selectCount}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onChangePage={handleChangePage}
                 onChangeRowsPerPage={handleChangeRowsPerPage}
+                className={styles.tablePagination}
             />
             <LocationModal
-                editing={editing}
+                editing={locationEditing}
                 location={selectedLocation}
-                open={modalOpen}
-                handleClose={handleClose}
+                open={locationModalOpen}
+                handleClose={handleLocationClose}
+            />
+            <InstanceModal
+                instance={selectedInstance}
+                open={instanceModalOpen}
+                handleClose={handleInstanceClose}
             />
         </Paper>
     );
 };
-
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AdminConsole));
