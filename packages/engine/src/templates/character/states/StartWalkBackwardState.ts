@@ -36,7 +36,7 @@ export const StartWalkBackwardState: StateSchemaValue = {
        behavior: setActorAnimation,
        args: {
          name: 'walking_backward',
-         transitionDuration: 1
+         transitionDuration: 0.4
        }
      }
   ],

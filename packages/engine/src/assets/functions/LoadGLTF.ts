@@ -14,6 +14,7 @@ export async function LoadGLTF(url: AssetUrl): Promise<LoadGLTFResultInterface> 
         const dracoLoader = new DRACOLoader();
         dracoLoader.setDecoderPath('/loader_decoders/');
         loader.setDRACOLoader(dracoLoader);
-        loader.load(url, (gltf) => { resolve({ scene: gltf.scene, json: {}, stats: {} }); }, null, (e) => { reject(e); });
+        loader.load(url, (gltf) => {
+             resolve({ scene: gltf.scene, json: {}, stats: {} }); }, null, (e) => { reject(e); });
     });
 }

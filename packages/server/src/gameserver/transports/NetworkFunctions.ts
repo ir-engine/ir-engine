@@ -154,7 +154,7 @@ export function validateNetworkObjects(): void {
     Object.keys(Network.instance.networkObjects).forEach((key: string) => {
         const networkObject = Network.instance.networkObjects[key];
         // Validate that the object has an associated user and doesn't belong to a non-existant user
-        if (networkObject.ownerId !== undefined && Network.instance.clients[networkObject.ownerId] !== undefined)
+        if (networkObject.ownerId !== undefined && Network.instance.clients[networkObject.ownerId] !== undefined || networkObject.ownerId === "server")
             return;
 
         logger.info("Culling ownerless object: ", networkObject.component.networkId, "owned by ", networkObject.ownerId);

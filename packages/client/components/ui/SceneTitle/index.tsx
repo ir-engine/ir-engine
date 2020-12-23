@@ -28,8 +28,8 @@ const SceneTitle = ({onBoardingStep, currentScene}:Props): any => {
       open={true} 
       autoHideDuration={10000}>
         <>
-          <Typography variant="h1" color="primary" align="center">{currentScene?.name}</Typography>
-          <Typography variant="h6" color="primary" align="center">{invitationLink}</Typography>
+          <Typography variant="h1" align="center">{currentScene?.name}</Typography>
+          <Typography variant="h6" align="center">{invitationLink}</Typography>
         </>
       </Snackbar>)   
 };

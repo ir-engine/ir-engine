@@ -1,23 +1,21 @@
+import { Vec3 } from 'cannon-es';
 import { Mesh } from 'three';
+import { Object3DComponent } from '../../common/components/Object3DComponent';
 import { Behavior } from '../../common/interfaces/Behavior';
-import { TransformComponent } from '../../transform/components/TransformComponent';
+import { Entity } from '../../ecs/classes/Entity';
+import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { ColliderComponent } from '../components/ColliderComponent';
+import { PhysicsManager } from '../components/PhysicsManager';
 import {
   createBox,
   createCylinder,
-  createSphere,
-  createTrimesh,
-  createGround
+  createGround, createSphere,
+  createTrimesh
 } from './physicalPrimitives';
-import { CollisionGroups } from "../enums/CollisionGroups";
-import { Entity } from '../../ecs/classes/Entity';
-import { PhysicsManager } from '../components/PhysicsManager';
-import { getMutableComponent, hasComponent, getComponent, addComponent } from '../../ecs/functions/EntityFunctions';
-import { Object3DComponent } from '../../common/components/Object3DComponent';
-import { cannonFromThreeVector } from '../../common/functions/cannonFromThreeVector';
-import { Vec3, Shape, Body } from 'cannon-es';
 
-export const addCollider: Behavior = (entity: Entity, args: { type: string; phase?: string }): void => {
+export const handleCollider: Behavior = (entity: Entity, args: { phase?: string }): void => {
+
+
   if (args.phase === 'onRemoved') {
     const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent, true);
     if (colliderComponent) {
@@ -38,7 +36,10 @@ export const addCollider: Behavior = (entity: Entity, args: { type: string; phas
     }
   }
 
+
   let body;
+  console.log("Adding collider of type", colliderComponent.type);
+
   switch (colliderComponent.type) {
     case 'box':
       body = createBox(entity)

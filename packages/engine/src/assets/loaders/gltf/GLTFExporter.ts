@@ -810,20 +810,9 @@ class GLTFExporter {
         geometryTemp.fromGeometry(geometry);
         geometry = geometryTemp;
       }
-      if (mesh.drawMode === TriangleFanDrawMode) {
-        console.warn(
-          "GLTFExporter: TriangleFanDrawMode and wireframe incompatible."
-        );
-        mode = WEBGL_CONSTANTS.TRIANGLE_FAN;
-      } else if (mesh.drawMode === TriangleStripDrawMode) {
-        mode = mesh.material.wireframe
-          ? WEBGL_CONSTANTS.LINE_STRIP
-          : WEBGL_CONSTANTS.TRIANGLE_STRIP;
-      } else {
-        mode = mesh.material.wireframe
-          ? WEBGL_CONSTANTS.LINES
-          : WEBGL_CONSTANTS.TRIANGLES;
-      }
+      mode = mesh.material.wireframe
+        ? WEBGL_CONSTANTS.LINES
+        : WEBGL_CONSTANTS.TRIANGLES;
     }
     const gltfMesh = {};
     const attributes = {};

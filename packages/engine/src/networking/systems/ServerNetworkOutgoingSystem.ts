@@ -92,7 +92,7 @@ export class ServerNetworkOutgoingSystem extends System {
       if(Network.instance.transport !== undefined)
         Network.instance.transport.sendReliableData(buffer); // Use default channel
     } else {
-      addSnapshot(createSnapshot(Network.instance.worldState.transforms));
+      //addSnapshot(createSnapshot(Network.instance.worldState.transforms));
       Network.instance.worldState.snapshot = NetworkInterpolation.instance.get();
       Network.instance.transport.sendReliableData(Network.instance.worldState);
     }
