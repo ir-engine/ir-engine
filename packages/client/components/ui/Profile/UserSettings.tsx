@@ -4,7 +4,6 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
-import Switch from '@material-ui/core/Switch';
 import styles from './Profile.module.scss';
 
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
@@ -15,10 +14,10 @@ const UserSettings = (): any => {
   const [volume, setvolume] = useState<number>(30);
   const [audio, setAudio] = useState<number>(30);
   const [radiovalue, setradiovalue] = useState('high');
-  const [state, setState] = useState({
-    checkedA: true,
-    checkedB: true
-  });
+  // const [state, setState] = useState({
+  //   checkedA: true,
+  //   checkedB: true
+  // });
   const handleVolume = (event: any, newValue: number | number[]): void => {
     setvolume(newValue as number);
   };
@@ -29,9 +28,9 @@ const UserSettings = (): any => {
   const handleRadioValue = (event: ChangeEvent<HTMLInputElement>): void => {
     setradiovalue((event.target as HTMLInputElement).value);
   };
-  const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    setState({ ...state, [event.target.name]: event.target.checked });
-  };
+  // const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
+  //   setState({ ...state, [event.target.name]: event.target.checked });
+  // };
 
   return (
     <div className={styles.root}>
@@ -65,7 +64,7 @@ const UserSettings = (): any => {
             </RadioGroup>
         </span>
       </section>
-      <section className={styles.settingRow}>
+      {/* <section className={styles.settingRow}>
       <Typography variant="h2" color="primary" className={styles.settingLabel}>Enter room muted</Typography>
       <span className={styles.settingValue}>
         <Switch
@@ -75,7 +74,7 @@ const UserSettings = (): any => {
               color="primary"
             />
         </span>
-      </section>      
+      </section>       */}
     </div>
   );
 };
