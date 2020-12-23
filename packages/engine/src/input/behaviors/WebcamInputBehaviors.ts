@@ -10,15 +10,25 @@ export const startFaceTracking: Behavior = (entity) => {
     const video = document.createElement('video');
     video.srcObject = MediaStreamComponent.instance.mediaStream;
     Promise.all([
+        console.log("Start load detectors" + faceapi),
         faceapi.nets.tinyFaceDetector.loadFromUri('/facetracking'),
         faceapi.nets.faceExpressionNet.loadFromUri('/facetracking')
     ]).then(() => {
+        console.log("Face detectors loaded!");
         video.addEventListener('play', () => {
+            console.log("Video starts playing");
             // Record input at 30 FPS for now
             setInterval(async () => faceToInput(entity, video), 33);
         });
+
+        video.muted = true;
+        video.play();
     });
 };
+
+export const stopFaceTracking = () => {
+    clearInterval();
+}
 
 export const startLipsyncTracking: Behavior = (entity) => {
     const BoundingFrequencyMasc = [0, 400, 560, 2400, 4800];
