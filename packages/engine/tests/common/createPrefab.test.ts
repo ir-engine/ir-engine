@@ -21,7 +21,7 @@ class TestComponent extends Component<TestComponent> {
   position: Vector3;
   rotation: Quaternion;
 }
-TestComponent.schema = {
+TestComponent._schema = {
   value: { type: Types.Number, default: 0 },
   position: { type: Types.Ref, default: new Vector3(1,2,3)},
   rotation: { type: Types.Ref, default: new Quaternion(1,2,3, 4)}
