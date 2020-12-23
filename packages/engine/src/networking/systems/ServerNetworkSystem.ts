@@ -184,6 +184,12 @@ export class ServerNetworkSystem extends System {
       Network.instance.worldState.snapshot = createSnapshot(Network.instance.worldState.transforms)//NetworkInterpolation.instance.get();
       Network.instance.transport.sendReliableData(Network.instance.worldState)
     }
+
+    this.queryResults.inputOnServer.all?.forEach(entity => {
+      if (hasComponent(entity, Input)) {
+        cleanupInput(entity);
+      }
+    });
   }
 
   // Call execution on client
