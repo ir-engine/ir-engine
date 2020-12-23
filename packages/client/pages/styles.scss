@@ -123,11 +123,7 @@ body{
   overflow: hidden;
 }
 
-.menuDrawerOpened{
-  [class*=UserMenu_anchorDrawer]{
-    visibility: hidden;
-  }
-  
+.menuDrawerOpened{  
   [class*=InstanceChat_instance-chat-container]{
     right: 30vw;
     left: auto;
