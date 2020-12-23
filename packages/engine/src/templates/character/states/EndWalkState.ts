@@ -31,7 +31,7 @@ export const EndWalkState: StateSchemaValue = {
       behavior: setActorAnimation,
       args: {
         name: 'idle',
-        transitionDuration: 1
+        transitionDuration: 0.4
       }
     }
   ],

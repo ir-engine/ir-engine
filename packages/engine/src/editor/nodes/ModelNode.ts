@@ -242,7 +242,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     }
     this.editor.emit("objectsChanged", [this]);
     this.editor.emit("selectionChanged");
-    this.hideLoadingCube();
+    // this.hideLoadingCube();
     return this;
   }
   onAdd() {

@@ -484,15 +484,6 @@ export default class ToolBar extends Component {
             </ToolbarInputGroup>
         </ToolToggles>
         <Spacer />
-        {(this.props as any).isPublishedScene && (
-          <PublishButton onClick={(this.props as any).onOpenScene}>
-            "Open Scene"
-          </PublishButton>
-        )}
-        <PublishButton id="publish-button" onClick={(this.props as any).onPublish}>
-          "Publish Scene..."
-        </PublishButton>
-        { /* @ts-ignore */ }
         <ContextMenu id="menu">
           {(this.props as any).menu.map(menu => {
             return this.renderMenu(menu);
