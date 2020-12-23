@@ -6,7 +6,8 @@ import {
   videoUpdated,
   videoDeleted,
   locationTypesRetrieved,
-  instancesRetrievedAction
+  instancesRetrievedAction,
+  instanceRemovedAction
 } from './actions';
 import {
   locationCreated,
@@ -23,6 +24,7 @@ import axios from 'axios';
 import { apiUrl } from '../service.common';
 import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service';
 import {collectionsFetched} from "../scenes/actions";
+import store from "../store";
 
 export function createVideo (data: VideoCreationForm) {
   return async (dispatch: Dispatch, getState: any) => {
@@ -181,3 +183,7 @@ export function fetchLocationTypes () {
     dispatch(locationTypesRetrieved(locationTypes));
   };
 }
+
+client.service('instance').on('removed', (params) => {
+  store.dispatch(instanceRemovedAction(params.instance));
+});

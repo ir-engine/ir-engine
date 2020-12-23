@@ -53,7 +53,7 @@ const InstanceModal = (props: Props): any => {
     const [instanceUsers, setInstanceUsers] = useState([]);
 
     const getInstanceUsers = async () => {
-        if (instance?.id != null && instance?.id !== '') {
+        if (instance?.id != null && instance?.id !== '' && currentInstanceId.current === instance.id) {
             const instanceUserResult = await client.service('user').find({
                 query: {
                     $limit: 1000,
@@ -61,11 +61,11 @@ const InstanceModal = (props: Props): any => {
                 }
             });
             setInstanceUsers(instanceUserResult.data);
+            if (instanceUserResult.total === 0) handleClose();
+            else setTimeout(() => {
+                getInstanceUsers();
+            }, 2000);
         }
-
-        if (instance?.id != null && instance?.id !== '' && currentInstanceId.current === instance.id) setTimeout(() => {
-            getInstanceUsers();
-        }, 2000);
     };
 
     useEffect(() => {

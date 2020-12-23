@@ -2,6 +2,7 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { Application } from '../../declarations';
 import {Params} from "@feathersjs/feathers";
 import {extractLoggedInUserFromParams} from "../auth-management/auth-management.utils";
+import { Forbidden } from "@feathersjs/errors";
 
 export class Instance extends Service {
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
@@ -13,6 +14,7 @@ export class Instance extends Service {
     if (action === 'admin') {
       const loggedInUser = extractLoggedInUserFromParams(params);
       const user = await super.get(loggedInUser.userId);
+      if (user.userRole !== 'admin') throw new Forbidden ('Must be system admin to execute this action');
       return super.find({
         query: {
           $sort: params.query.$sort,

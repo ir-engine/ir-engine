@@ -1,3 +1,4 @@
+import getConfig from 'next/config';
 import {
     Button, MenuItem, Select,
     Tab,
@@ -38,6 +39,7 @@ if (!global.setImmediate) {
     global.setImmediate = setTimeout as any;
 }
 
+const { publicRuntimeConfig } = getConfig();
 
 interface Props {
     router: Router;
@@ -116,26 +118,28 @@ const AdminConsole = (props: Props) => {
 
     const headCells = {
         locations: [
-            { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
-            { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
-            { id: 'sceneId', numeric: false, disablePadding: false, label: 'Scene' },
-            { id: 'maxUsersPerInstance', numeric: true, disablePadding: false, label: 'Max Users'},
-            { id: 'type', numeric: false, disablePadding: false, label: 'Type' },
-            { id: 'instanceMediaChatEnabled', numeric: false, disablePadding: false, label: 'Enable public media chat' },
-            { id: 'videoEnabled', numeric: false, disablePadding: false, label: 'Video Enabled' }
+            {id: 'id', numeric: false, disablePadding: true, label: 'ID'},
+            {id: 'name', numeric: false, disablePadding: false, label: 'Name'},
+            {id: 'sceneId', numeric: false, disablePadding: false, label: 'Scene'},
+            {id: 'maxUsersPerInstance', numeric: true, disablePadding: false, label: 'Max Users'},
+            {id: 'type', numeric: false, disablePadding: false, label: 'Type'},
+            {id: 'instanceMediaChatEnabled', numeric: false, disablePadding: false, label: 'Enable public media chat'},
+            {id: 'videoEnabled', numeric: false, disablePadding: false, label: 'Video Enabled'}
         ],
         users: [
-            { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
-            { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
-            { id: 'instanceId', numeric: false, disablePadding: false, label: 'Instance ID' },
-            { id: 'userRole', numeric: false, disablePadding: false, label: 'User Role'},
-            { id: 'partyId', numeric: false, disablePadding: false, label: 'Party ID' }
+            {id: 'id', numeric: false, disablePadding: true, label: 'ID'},
+            {id: 'name', numeric: false, disablePadding: false, label: 'Name'},
+            {id: 'instanceId', numeric: false, disablePadding: false, label: 'Instance ID'},
+            {id: 'userRole', numeric: false, disablePadding: false, label: 'User Role'},
+            {id: 'partyId', numeric: false, disablePadding: false, label: 'Party ID'}
         ],
         instances: [
-            { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
-            { id: 'ipAddress', numeric: false, disablePadding: false, label: 'IP address' },
-            { id: 'currentUsers', numeric: true, disablePadding: false, label: 'Current # of Users' },
-            { id: 'locationId', numeric: false, disablePadding: false, label: 'Location ID'}
+            {id: 'id', numeric: false, disablePadding: true, label: 'ID'},
+            {id: 'ipAddress', numeric: false, disablePadding: false, label: 'IP address'},
+            {id: 'gsId', numeric: false, disablePadding: false, label: 'Gameserver ID'},
+            {id: 'serverAddress', numeric: false, disablePadding: false, label: 'Public address'},
+            {id: 'currentUsers', numeric: true, disablePadding: false, label: 'Current # of Users'},
+            {id: 'locationId', numeric: false, disablePadding: false, label: 'Location ID'}
         ]
     };
 
@@ -212,7 +216,7 @@ const AdminConsole = (props: Props) => {
     }
 
     function EnhancedTableHead(props: EnhancedTableProps) {
-        const { object, order, orderBy, numSelected, rowCount, onRequestSort } = props;
+        const {object, order, orderBy, onRequestSort} = props;
         const createSortHandler = (property) => (event: React.MouseEvent<unknown>) => {
             onRequestSort(event, property);
         };
@@ -271,6 +275,17 @@ const AdminConsole = (props: Props) => {
         };
     });
 
+    const displayInstances = adminInstances.map(instance => {
+        return {
+            id: instance.id,
+            ipAddress: instance.ipAddress,
+            currentUsers: instance.currentUsers,
+            locationId: instance.locationId,
+            gsId: instance.gameserver_subdomain_provision?.gs_id,
+            serverAddress: instance.gameserver_subdomain_provision != null ? `https://${instance.gameserver_subdomain_provision.gs_number}.${publicRuntimeConfig.gameserverDomain}` : ''
+        };
+    });
+
     const handleRequestSort = (event: React.MouseEvent<unknown>, property) => {
         const isAsc = orderBy === property && order === 'asc';
         setOrder(isAsc ? 'desc' : 'asc');
@@ -300,12 +315,7 @@ const AdminConsole = (props: Props) => {
     };
 
     const handleInstanceClick = (event: React.MouseEvent<unknown>, id: string) => {
-        console.log('instanceClick');
-        console.log(event);
-        console.log(id);
         const selected = adminInstances.find(instance => instance.id === id);
-        console.log('Selected instance:');
-        console.log(selected);
         setSelectedInstance(selected);
         setInstanceModalOpen(true);
     };
@@ -331,8 +341,6 @@ const AdminConsole = (props: Props) => {
         setPage(0);
     };
 
-    const emptyRows = rowsPerPage - Math.min(rowsPerPage, adminLocations.length - page * rowsPerPage);
-
     const handleLocationClose = (e: any): void => {
         setLocationEditing(false);
         setLocationModalOpen(false);
@@ -355,7 +363,7 @@ const AdminConsole = (props: Props) => {
             const location = await client.service('location').get(instance.locationId);
             const route = `/location/${location.slugifiedName}?instanceId=${instance.id}`;
             router.push(route);
-        } catch(err) {
+        } catch (err) {
             console.log('Error redirecting to instance:');
             console.log(err);
         }
@@ -391,7 +399,7 @@ const AdminConsole = (props: Props) => {
         if (user?.id != null && (adminState.get('users').get('updateNeeded') === true || refetch === true)) {
             fetchUsersAsAdmin();
         }
-        if (user?.id != null && (adminState.get('instances').get('updateNeeded') === true || refetch === true )) {
+        if (user?.id != null && (adminState.get('instances').get('updateNeeded') === true || refetch === true)) {
             fetchAdminInstances();
         }
         setRefetch(false);
@@ -401,11 +409,11 @@ const AdminConsole = (props: Props) => {
     return (
         <Paper className={styles.adminRoot}>
             <Tabs value={selectedTab} onChange={handleTabChange} aria-label="tabs">
-                <Tab label="Locations" value="locations" />
-                { user?.userRole === 'admin' && <Tab label="Users" value="users" /> }
-                { user?.userRole === 'admin' && <Tab label="Instances" value="instances" /> }
+                <Tab label="Locations" value="locations"/>
+                {user?.userRole === 'admin' && <Tab label="Users" value="users"/>}
+                {user?.userRole === 'admin' && <Tab label="Instances" value="instances"/>}
             </Tabs>
-            {selectedTab === 'locations' && <TableContainer className={styles.tableContainer}>
+            <TableContainer className={styles.tableContainer}>
                 <Table
                     stickyHeader
                     aria-labelledby="tableTitle"
@@ -413,7 +421,7 @@ const AdminConsole = (props: Props) => {
                     aria-label="enhanced table"
                 >
                     <EnhancedTableHead
-                        object='locations'
+                        object={selectedTab}
                         numSelected={selected.length}
                         order={order}
                         orderBy={orderBy}
@@ -421,7 +429,7 @@ const AdminConsole = (props: Props) => {
                         onRequestSort={handleRequestSort}
                         rowCount={adminLocationCount || 0}
                     />
-                    <TableBody className={styles.thead}>
+                    {selectedTab === 'locations' && <TableBody className={styles.thead}>
                         {stableSort(displayLocations, getComparator(order, orderBy))
                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                             .map((row, index) => {
@@ -450,44 +458,9 @@ const AdminConsole = (props: Props) => {
                                     </TableRow>
                                 );
                             })}
-                        {/*{emptyRows > 0 && (*/}
-                        {/*    <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>*/}
-                        {/*        <TableCell colSpan={6} />*/}
-                        {/*    </TableRow>*/}
-                        {/*)}*/}
-                        <TableRow>
-                            <TableCell>
-                                <Button
-                                    type="submit"
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={openModalCreate}
-                                >
-                                    Create New Location
-                                </Button>
-                            </TableCell>
-                        </TableRow>
                     </TableBody>
-                </Table>
-            </TableContainer>
-            }
-            {selectedTab === 'users' && <TableContainer className={styles.tableContainer}>
-                <Table
-                    stickyHeader
-                    aria-labelledby="tableTitle"
-                    size={dense ? 'small' : 'medium'}
-                    aria-label="enhanced table"
-                >
-                    <EnhancedTableHead
-                        object='users'
-                        numSelected={selected.length}
-                        order={order}
-                        orderBy={orderBy}
-                        onSelectAllClick={handleSelectAllClick}
-                        onRequestSort={handleRequestSort}
-                        rowCount={adminUserCount || 0}
-                    />
-                    <TableBody className={styles.thead}>
+                    }
+                    {selectedTab === 'users' && <TableBody className={styles.thead}>
                         {stableSort(adminUsers, getComparator(order, orderBy))
                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                             .map((row, index) => {
@@ -504,13 +477,14 @@ const AdminConsole = (props: Props) => {
                                             {row.id}
                                         </TableCell>
                                         <TableCell className={styles.tcell} align="right">{row.name}</TableCell>
-                                        <TableCell className={styles.tcellSelectable}
+                                        <TableCell className={(row.instanceId != null && row.instanceId !== '') ? styles.tcellSelectable : styles.tcell}
                                                    align="right"
-                                                   onClick={(event) => redirectToInstance(event, row.instanceId.toString())}
+                                                   onClick={(event) => (row.instanceId != null && row.instancedId !== '') ? redirectToInstance(event, row.instanceId.toString()) : {}}
                                         >{row.instanceId}</TableCell>
                                         <TableCell className={styles.tcell} align="right">
-                                            { (row.userRole === 'guest' || row.userRole === 'admin' && row.id === user.id) && <div>{row.userRole}</div>}
-                                            { (row.userRole !== 'guest' && row.id !== user.id) && <Select
+                                            {(row.userRole === 'guest' || row.userRole === 'admin' && row.id === user.id) &&
+                                            <div>{row.userRole}</div>}
+                                            {(row.userRole !== 'guest' && row.id !== user.id) && <Select
                                                 labelId="userRole"
                                                 id="userRole"
                                                 value={row.userRole}
@@ -524,33 +498,10 @@ const AdminConsole = (props: Props) => {
                                     </TableRow>
                                 );
                             })}
-                        {/*{emptyRows > 0 && (*/}
-                        {/*    <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>*/}
-                        {/*        <TableCell colSpan={6} />*/}
-                        {/*    </TableRow>*/}
-                        {/*)}*/}
                     </TableBody>
-                </Table>
-            </TableContainer>
-            }
-            {selectedTab === 'instances' && <TableContainer className={styles.tableContainer}>
-                <Table
-                    stickyHeader
-                    aria-labelledby="tableTitle"
-                    size={dense ? 'small' : 'medium'}
-                    aria-label="enhanced table"
-                >
-                    <EnhancedTableHead
-                        object='instances'
-                        numSelected={selected.length}
-                        order={order}
-                        orderBy={orderBy}
-                        onSelectAllClick={handleSelectAllClick}
-                        onRequestSort={handleRequestSort}
-                        rowCount={adminInstanceCount || 0}
-                    />
-                    <TableBody className={styles.thead}>
-                        {stableSort(adminInstances, getComparator(order, orderBy))
+                    }
+                    {selectedTab === 'instances' && <TableBody className={styles.thead}>
+                        {stableSort(displayInstances, getComparator(order, orderBy))
                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                             .map((row, index) => {
                                 return (
@@ -566,6 +517,14 @@ const AdminConsole = (props: Props) => {
                                             {row.id}
                                         </TableCell>
                                         <TableCell className={styles.tcell} align="right">{row.ipAddress}</TableCell>
+                                        <TableCell className={styles.tcell}
+                                                   align="right">
+                                            {row.gsId}
+                                        </TableCell>
+                                        <TableCell className={styles.tcell}
+                                                   align="right">
+                                            {row.serverAddress}
+                                        </TableCell>
                                         <TableCell className={styles.tcellSelectable}
                                                    align="right"
                                                    onClick={(event) => handleInstanceClick(event, row.id.toString())}
@@ -575,25 +534,33 @@ const AdminConsole = (props: Props) => {
                                     </TableRow>
                                 );
                             })}
-                        {/*{emptyRows > 0 && (*/}
-                        {/*    <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>*/}
-                        {/*        <TableCell colSpan={6} />*/}
-                        {/*    </TableRow>*/}
-                        {/*)}*/}
                     </TableBody>
+                    }
                 </Table>
             </TableContainer>
-            }
-            <TablePagination
-                rowsPerPageOptions={[PAGE_LIMIT]}
-                component="div"
-                count={selectCount}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onChangePage={handleChangePage}
-                onChangeRowsPerPage={handleChangeRowsPerPage}
-                className={styles.tablePagination}
-            />
+            <div className={styles.tableFooter}>
+                {selectedTab === 'locations' && <Button
+                    className={styles.createLocation}
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    onClick={openModalCreate}
+                >
+                    Create New Location
+                </Button>
+                }
+                {selectedTab !== 'locations' && <div/>}
+                <TablePagination
+                    rowsPerPageOptions={[PAGE_LIMIT]}
+                    component="div"
+                    count={selectCount}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onChangePage={handleChangePage}
+                    onChangeRowsPerPage={handleChangeRowsPerPage}
+                    className={styles.tablePagination}
+                />
+            </div>
             <LocationModal
                 editing={locationEditing}
                 location={selectedLocation}
