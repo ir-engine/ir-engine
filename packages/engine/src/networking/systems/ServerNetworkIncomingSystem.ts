@@ -84,14 +84,18 @@ export class ServerNetworkIncomingSystem extends System {
     Network.instance.createObjects = [];
     Network.instance.destroyObjects = [];
     // Set input values on server to values sent from clients
-    handleUpdatesFromClients();
-    // Apply input for local user input onto client
-    this.queryResults.inputOnServer.all?.forEach(entity => {
-      // Call behaviors associated with input
-      handleInputOnServer(entity, {isLocal:false, isServer: true}, delta);
-      addInputToWorldStateOnServer(entity);
-      cleanupInput(entity);
-    });
+    // Parse incoming message queue
+    while (Network.instance.incomingMessageQueue.getBufferLength() > 0) {
+      const buffer = Network.instance.incomingMessageQueue.pop() as any;
+      handleUpdatesFromClients(buffer);
+      // Apply input for local user input onto client
+      this.queryResults.inputOnServer.all?.forEach(entity => {
+        // Call behaviors associated with input
+        handleInputOnServer(entity, {isLocal: false, isServer: true}, delta);
+        addInputToWorldStateOnServer(entity);
+        cleanupInput(entity);
+      });
+    }
 
     // Called when input component is added to entity
     this.queryResults.inputOnServer.added?.forEach(entity => {
