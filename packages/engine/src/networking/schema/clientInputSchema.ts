@@ -1,5 +1,5 @@
-import {Schema, Model, ExtractSchemaObject} from "../classes"; //"superbuffer"
-import { int16, int32, uint8, uint32, uint64, int64, float32, boolean, string } from "../classes";
+import {Schema, Model, ExtractSchemaObject} from "superbuffer"
+import { int16, int32, uint8, uint32, uint64, int64, float32, boolean, string } from "superbuffer"
 //import { uint8, float32, uint16, uint32 } from "../../common/types/DataTypes";
 //import { createSchema } from "../functions/createSchema";
 //import { Model } from "../classes/Model";

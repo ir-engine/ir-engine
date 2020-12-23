@@ -24,6 +24,7 @@ import SpawnPointComponent from "../components/SpawnPointComponent";
 import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
 import { createCommonInteractive } from "../behaviors/createCommonInteractive";
+import { getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
 
 export const SceneObjectLoadingSchema: LoadingSchema = {
   'ambient-light': {
@@ -76,8 +77,13 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
         },
         values: [
           { from: 'src', to: 'url' }
-        ],
-        onLoaded: addWorldColliders
+        ]
+      },
+      {
+        behavior: (entity) => {
+          console.log("EXECUTING ADD WORLD COLLIDERS BEHAVIOR")
+          getMutableComponent<AssetLoader>(entity, AssetLoader).onLoaded.push(addWorldColliders);
+        }
       }
     ]
   },
@@ -314,7 +320,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
     behaviors: [
       {
         behavior: createBoxCollider,
-        values: ['type', 'position', 'rotation', 'scale', 'mass']
+        values: ['type', 'position', 'quaternion', 'scale']
       }
     ]
   },

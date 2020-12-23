@@ -98,7 +98,7 @@
     "@feathersjs/transport-commons": "^4.5.9",
     "@google-cloud/agones-sdk": "^1.7.0",
     "@xr3ngine/common": "^0.2.0",
-    "aws-sdk": "^2.658.0",
+    "aws-sdk": "^2.811.0",
     "bent": "^7.3.0",
     "cannon-es-debugger": "^0.0.4",
     "chargebee": "^2.5.7",

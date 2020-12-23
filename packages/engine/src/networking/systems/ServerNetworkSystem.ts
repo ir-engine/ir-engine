@@ -160,8 +160,10 @@ export class ServerNetworkSystem extends System {
         }
       })
 
-      addSnapshot(createSnapshot(Network.instance.worldState.transforms));
-      Network.instance.worldState.snapshot = NetworkInterpolation.instance.get();
+    //  addSnapshot(createSnapshot(Network.instance.worldState.transforms));
+      Network.instance.worldState.snapshot = createSnapshot(Network.instance.worldState.transforms)//NetworkInterpolation.instance.get();
+
+
 
       let snapshot = { time: 0, id: 'string', state: [] } // in client copy state from transforms
       //@ts-ignore
@@ -178,8 +180,8 @@ export class ServerNetworkSystem extends System {
     if(Network.instance.transport !== undefined)
       Network.instance.transport.sendReliableData(buffer); // Use default channel
     } else {
-      addSnapshot(createSnapshot(Network.instance.worldState.transforms));
-      Network.instance.worldState.snapshot = NetworkInterpolation.instance.get();
+    //  addSnapshot(createSnapshot(Network.instance.worldState.transforms));
+      Network.instance.worldState.snapshot = createSnapshot(Network.instance.worldState.transforms)//NetworkInterpolation.instance.get();
       Network.instance.transport.sendReliableData(Network.instance.worldState)
     }
   }

@@ -1,12 +1,24 @@
+
 .overlay{
   background-color: rgba(255,255,255,0.3);
   z-index:1500;
-  backdrop-filter: blur(30px);
+  backdrop-filter: blur(15px);
   top: 0;
   left: 0;
   height: 100vh;
   width: 100vw;
   position: absolute;
+
+  .imageOverlay{
+    filter: blur(15px);
+    position: absolute;
+    background-color: rgba(255,255,255,0.3);
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    position: absolute;
+  }
 
   .linearProgressContainer{
     display: block;
@@ -20,13 +32,13 @@
     }  
     .loadingProgressTile{
       text-align: left;
-      font-size: 2em;
+      font-size: 3em;
       margin-bottom: 20px;
     }
     
     .loadingProgressInfo{
       text-align: center;
-      font-size: 1.2em;
+      font-size: 1.5em;
       text-transform: uppercase;
       margin-top: 30px;
     }

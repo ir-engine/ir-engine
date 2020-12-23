@@ -1,7 +1,7 @@
 import { RingBuffer } from '../../common/classes/RingBuffer';
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
-import { MessageSchema } from '../classes/MessageSchema';
+import { Schema } from "superbuffer"
 import { NetworkSchema } from '../interfaces/NetworkSchema';
 import { NetworkTransport } from '../interfaces/NetworkTransport';
 import { NetworkObjectList } from '../interfaces/NetworkObjectList';
@@ -49,7 +49,7 @@ export class Network extends Component<Network> {
   static getNetworkId() {
     return this.availableNetworkId++;
   }
-  static _schemas: Map<string, MessageSchema> = new Map()
+  static _schemas: Map<string, Schema> = new Map()
 
   incomingMessageQueue: RingBuffer<any>
 
