@@ -84,7 +84,7 @@ const UserMenu = (props: Props): any => {
   const invitationLink = window.location.href;
   const refLink = useRef(null);
   const postTitle = 'AR/VR world';
-  const siteTitle = 'TheOverlay';
+  const siteTitle = 'The Overlay';
   const anchor = 'right';
   const worldName = 'Lobbyworld Demo';
 

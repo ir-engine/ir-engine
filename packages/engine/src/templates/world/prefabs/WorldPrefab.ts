@@ -1,8 +1,8 @@
 import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
-import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
 import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
+import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { addWorldColliders } from "../behaviors/addWorldColliders";
 
 export const WorldPrefab: Prefab = {
@@ -15,9 +15,14 @@ export const WorldPrefab: Prefab = {
                 componentArgs: {
                     url: "../models/worlds/island_zero_dark_green2.glb",
                     receiveShadow: true,
-                    castShadow: true,
-                    onLoaded: addWorldColliders
+                    castShadow: true
                 }
+            }
+        },
+        {
+            behavior: (entity) => {
+                const loader = getMutableComponent(entity, AssetLoader)
+                loader.onLoaded.push(addWorldColliders)
             }
         }
     ]
