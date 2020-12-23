@@ -1,5 +1,6 @@
 import Immutable from 'immutable';
 import {
+  InstanceRemovedResponse,
   InstancesRetrievedResponse,
   LocationTypesRetrievedResponse,
   VideoCreatedAction
@@ -14,7 +15,7 @@ import {
   SCENES_RETRIEVED,
   LOCATION_TYPES_RETRIEVED,
   LOADED_USERS,
-  INSTANCES_RETRIEVED
+  INSTANCES_RETRIEVED, INSTANCE_REMOVED
 } from '../actions';
 import { UserSeed } from '@xr3ngine/common/interfaces/User';
 import { IdentityProviderSeed } from '@xr3ngine/common/interfaces/IdentityProvider';
@@ -199,6 +200,15 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set('updateNeeded', false);
       return state
           .set('locationTypes', updateMap);
+
+    case INSTANCE_REMOVED:
+      result = (action as InstanceRemovedResponse).instance;
+      updateMap = new Map(state.get('instances'));
+      let instances = updateMap.get('instances');
+      instances = instances.filter(instance => instance.id !== result.id);
+      updateMap.set('instances', instances);
+      return state
+          .set('instances', updateMap);
   }
 
   return state;

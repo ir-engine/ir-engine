@@ -135,3 +135,17 @@
     width: 90%;
   }
 }
+
+.tableFooter {
+  display: flex;
+  justify-content: space-between;
+
+  .createLocation {
+    height: 40px;
+    margin: auto 5px;
+  }
+}
+
+.locationModalButtons {
+  justify-content: space-between;
+}
