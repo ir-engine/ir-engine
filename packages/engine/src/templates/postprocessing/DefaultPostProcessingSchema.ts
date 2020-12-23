@@ -30,7 +30,6 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
         xRay: true
       }
     },
-/*
    {
       effect: SSAOEffect,
       options: {
@@ -57,7 +56,6 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
         bokehScale: 1
       }
     },
-    */
     // Bloom
     {
       effect: BloomEffect,
