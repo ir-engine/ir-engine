@@ -45,6 +45,12 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
       store.dispatch(setAppOnBoardingStep(step));
       step !== generalStateList.ALL_DONE && setHiddenSnackBar(false);
     }, 500);
+    if(step === generalStateList.TUTOR_UNMUTE){
+      const unmuteInterval = setTimeout(()=>{
+        store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE));
+        clearInterval(unmuteInterval);
+      }, 8000);
+    }
     if(step === generalStateList.TUTOR_END){
       clearInterval(fadeOutInterval);
       clearInterval(fadeIntInterval);
