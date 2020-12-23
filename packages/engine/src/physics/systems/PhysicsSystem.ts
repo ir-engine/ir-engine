@@ -2,10 +2,12 @@ import { System } from '../../ecs/classes/System';
 import { PhysicsManager } from '../components/PhysicsManager';
 import { RigidBody } from "../components/RigidBody";
 import { VehicleBody } from "../components/VehicleBody";
+import { CapsuleCollider } from "../components/CapsuleCollider";
 
-import { addCollider } from '../behaviors/ColliderBehavior';
+import { handleCollider } from '../behaviors/ColliderBehavior';
 import { RigidBodyBehavior } from '../behaviors/RigidBodyBehavior';
 import { VehicleBehavior } from '../behaviors/VehicleBehavior';
+import { capsuleColliderBehavior } from '../behaviors/capsuleColliderBehavior';
 import { playerModelInCar } from '@xr3ngine/engine/src/templates/car/behaviors/playerModelInCar';
 
 import { ColliderComponent } from '../components/ColliderComponent';
@@ -17,7 +19,12 @@ import { physicsPostStep } from '../../templates/character/behaviors/physicsPost
 import { updateCharacter } from '../../templates/character/behaviors/updateCharacter';
 import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
+
+import { Network } from '../../networking/components/Network';
+import { NetworkInterpolation } from '../../networking/components/NetworkInterpolation';
 import { isClient } from '../../common/functions/isClient';
+import { Vault } from '../../networking/components/Vault';
+import { calculateInterpolation, addSnapshot, createSnapshot } from '../../networking/functions/NetworkInterpolationFunctions';
 
 export class PhysicsSystem extends System {
   updateType = SystemUpdateType.Fixed;
@@ -34,29 +41,42 @@ export class PhysicsSystem extends System {
   }
 
   execute(delta: number): void {
-    // // Collider
+
+    const clientSnapshot = {
+      old: null,
+      new: [],
+      interpolationSnapshot: calculateInterpolation('x y z quat'),
+      correction: (NetworkInterpolation.instance.timeOffset / 30) //speed correction client form server positions
+    }
+
+    if (isClient && Network.instance.worldState.snapshot) {
+      clientSnapshot.old = Vault.instance.get((Network.instance.worldState.snapshot as any).time + NetworkInterpolation.instance.timeOffset, true)
+    }
+
+    // Collider
+
     this.queryResults.collider.added?.forEach(entity => {
-      addCollider(entity, { phase: 'onAdded' });
+      handleCollider(entity, { phase: 'onAdded' });
     });
 
     this.queryResults.collider.removed?.forEach(entity => {
-      addCollider(entity, { phase: 'onRemoved' });
+      handleCollider(entity, { phase: 'onRemoved' });
     });
 
-    //console.warn(PhysicsManager.instance.physicsWorld.bodies.length);
+    // Capsule
+
+    this.queryResults.capsuleCollider.all?.forEach(entity => {
+      capsuleColliderBehavior(entity, { phase: 'onUpdate', clientSnapshot });
+    });
 
     // RigidBody
-/*
+
     this.queryResults.rigidBody.added?.forEach(entity => {
       RigidBodyBehavior(entity, { phase: 'onAdded' });
     });
-*/
-    this.queryResults.rigidBody.all?.forEach(entity => {
-      RigidBodyBehavior(entity, { phase: 'onUpdate' });
-    });
 
-    this.queryResults.rigidBody.removed?.forEach(entity => {
-      RigidBodyBehavior(entity, { phase: 'onRemoved' });
+    this.queryResults.rigidBody.all?.forEach(entity => {
+      RigidBodyBehavior(entity, { phase: 'onUpdate', clientSnapshot });
     });
 
     // Vehicle
@@ -91,6 +111,7 @@ export class PhysicsSystem extends System {
       PhysicsManager.instance.physicsWorld.step(PhysicsManager.instance.physicsFrameTime);
       this.queryResults.character.all?.forEach(entity => updateCharacter(entity, null, delta));
       this.queryResults.character.all?.forEach(entity => physicsPostStep(entity, null, delta));
+      if (isClient) { Vault.instance.add(createSnapshot(clientSnapshot.new)) };
     }
   }
 }
@@ -98,6 +119,13 @@ export class PhysicsSystem extends System {
 PhysicsSystem.queries = {
   character: {
     components: [CharacterComponent],
+  },
+  capsuleCollider: {
+    components: [CapsuleCollider, TransformComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
   },
   collider: {
     components: [ColliderComponent, TransformComponent],
@@ -109,8 +137,7 @@ PhysicsSystem.queries = {
   rigidBody: {
     components: [RigidBody, TransformComponent],
     listen: {
-      added: true,
-      removed: true
+      added: true
     }
   },
   vehicleBody: {

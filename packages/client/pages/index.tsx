@@ -13,16 +13,14 @@ import {client} from "../redux/feathers";
 import {connectToInstanceServer, provisionInstanceServer} from "../redux/instanceConnection/service";
 import {selectPartyState} from "../redux/party/selector";
 
-import theme from '../theme';
-import { ThemeProvider } from '@material-ui/core';
-
 interface Props {
     appState?: any;
-    authState?: any;
-    instanceConnectionState?: any;
-    connectToInstanceServer?: any;
-    provisionInstanceServer?: any;
+    authState?: any
+    partyState?: any;
     doLoginAuto?: any;
+    connectToInstanceServer?: any;
+    instanceConnectionState?: any;
+    provisionInstanceServer?: any;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -40,7 +38,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch)
 });
 
-export const IndexPage = (props: any): any => {
+export const IndexPage = (props: Props): any => {
     const {
         appState,
         authState,
@@ -86,13 +84,11 @@ export const IndexPage = (props: any): any => {
     // <Button className="right-bottom" variant="contained" color="secondary" aria-label="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }}>scene</Button>
 
     return (
-        <ThemeProvider theme={theme}>
-            <Layout pageTitle="Home" login={false}>
-                <NoSSR onSSR={<Loading/>}>
-                    <Scene/>
-                </NoSSR>
-            </Layout>
-        </ThemeProvider>
+        <Layout pageTitle="Home" login={false}>
+            <NoSSR onSSR={<Loading/>}>
+                <Scene/>
+            </NoSSR>
+        </Layout>
     );
 };
 

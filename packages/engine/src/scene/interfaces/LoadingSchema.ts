@@ -8,7 +8,7 @@ export interface LoadingSchema {
       behavior: any;
       args?: any;
       values?: any;
-      onLoaded?: any;
+      onLoaded?: [];
     }>;
   };
 }

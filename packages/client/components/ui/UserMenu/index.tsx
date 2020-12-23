@@ -64,7 +64,7 @@ const UserMenu = (props: Props): any => {
   const invitationLink = window.location.href;
   const refLink = useRef(null);
   const postTitle = 'AR/VR world';
-  const siteTitle = 'XREngine';
+  const siteTitle = 'The Overlay';
   const anchor = 'right';
   const worldName = 'Lobbyworld Demo';
 
@@ -237,27 +237,27 @@ const renderAccountDeletePage = () => <>
 const renderHorizontalItems = () => 
   <section className={styles.horizontalContainer}>
           {(!isMobileOrTablet() || !navigator.share) && <textarea readOnly className={styles.linkField} ref={refLink} value={invitationLink} />}
-          <Typography variant="h2" color="primary" onClick={() => isMobileOrTablet() && navigator.share ? handleMobileShareOnClick() : copyCodeToClipboard()}><LinkIcon />Share</Typography>
-          <Typography variant="h2" color="primary" onClick={handleDeviceSetupClick}><SettingsIcon />Setup</Typography>
-          <Typography variant="h2" color="primary" onClick={(event)=>handleTutorialClick(event)}><VideoLibraryIcon />Tutorial</Typography>    
+          <Typography variant="h2" align="center" onClick={() => isMobileOrTablet() && navigator.share ? handleMobileShareOnClick() : copyCodeToClipboard()}><LinkIcon color="primary" />Share</Typography>
+          <Typography variant="h2" align="center" onClick={(event)=>handleTutorialClick(event)}><VideoLibraryIcon color="primary" />Tutorial</Typography>    
   </section>;
 
 const renderUserMenu = () =><>
           <Typography variant="h1" color="primary"><ArrowBackIosIcon color="primary" onClick={toggleDrawer(anchor, false)} />{worldName}</Typography>
           {renderHorizontalItems()}
-          <AccountCircleIcon color="primary" className={styles.userPreview} />
-          <span className={styles.userTitle}>{ selfUser ? selfUser?.name : ''}</span>
-          <Button variant="outlined" color="primary" onClick={handleAvatarChangeClick}>Change Avatar</Button>
+          {/* <AccountCircleIcon color="primary" className={styles.userPreview} /> */}
+          {/* <span className={styles.userTitle}>{ selfUser ? selfUser?.name : ''}</span> */}
+          {/* <Button variant="outlined" color="primary" onClick={handleAvatarChangeClick}>Change Avatar</Button> */}
           { selfUser?.userRole === 'guest' ? 
                 <>
-                  <Button variant="outlined" color="secondary" onClick={handleLogin}>Login</Button>
-                  <Button variant="outlined" color="primary">Create Account</Button>
+                  <Button variant="outlined" color="primary" onClick={handleLogin}>Login</Button>
+                  <Button variant="contained" color="primary">Create Account</Button>
                 </> :
                 <Button variant="outlined" color="secondary" onClick={handleLogout}>Logout</Button>}
           { selfUser?.userRole !== 'guest' && <Button variant="outlined" color="primary" onClick={handleAccountDeleteClick}>Delete account</Button>}
           <section className={styles.placeholder} />
-          <Typography variant="h2" color="secondary" align="right">About <ToysIcon color="primary" /></Typography>
-          <Typography variant="h2" color="secondary" align="right">Privacy & Terms <PolicyIcon color="primary" /></Typography>
+          <Typography variant="h2" align="left" onClick={handleDeviceSetupClick}><SettingsIcon color="primary" /> Settings</Typography>
+          <Typography variant="h2" align="left"><ToysIcon color="primary" /> About</Typography>
+          <Typography variant="h2" align="left"><PolicyIcon color="primary" /> Privacy & Terms</Typography>
           {renderSuccessMessage()}
       </>;
 

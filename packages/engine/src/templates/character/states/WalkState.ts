@@ -31,7 +31,7 @@ export const WalkState: StateSchemaValue = {
       behavior: setActorAnimation,
       args: {
         name: 'walking',
-        transitionDuration: 1
+        transitionDuration: 0.4
       }
     }
   ],

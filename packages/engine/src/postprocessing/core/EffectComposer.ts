@@ -311,12 +311,15 @@ export class EffectComposer {
       type
     };
 
-    const renderTarget = (multisampling > 0)
-      ? new WebGLMultisampleRenderTarget(size.width, size.height, options)
-      : new WebGLRenderTarget(size.width, size.height, options);
+    let renderTarget;
+    
+    const { iOS, safariWebBrowser } = window as any
 
-    if (multisampling > 0) {
+    if (multisampling > 0 && !iOS && !safariWebBrowser) {
+      renderTarget = new WebGLMultisampleRenderTarget(size.width, size.height, options);
       (renderTarget as any).samples = multisampling;
+    } else {
+      renderTarget = new WebGLRenderTarget(size.width, size.height, options);
     }
 
     renderTarget.texture.name = 'EffectComposer.Buffer';
