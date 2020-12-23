@@ -239,6 +239,64 @@ test("continuous move forward and then stop", () => {
   expect(transform.networkId).toBe(networkObject.networkId);
 });
 
+test("move forward, then 2 messages stop + empty in execution", () => {
+  expect(handleInputOnServer.mock.calls.length).toBe(0);
+
+  Network.instance.userId = userId;
+  const networkId = 13;
+  const networkObject = initializeNetworkObject(userId, networkId, Network.instance.schema.defaultClientPrefab);
+
+  Network.instance.networkObjects[networkObject.networkId] = {
+    ownerId: userId, // Owner's socket ID
+    prefabType: Network.instance.schema.defaultClientPrefab, // All network objects need to be a registered prefab
+    component: networkObject
+  };
+
+  const networkEntity = networkObject.entity as Entity;
+  expect(hasComponent(networkEntity, Server)).toBe(true);
+  const actor: CharacterComponent = getMutableComponent(networkEntity, CharacterComponent);
+
+  const messagePressing = createButtonServerMessage(networkObject.networkId, DefaultInput.FORWARD, BinaryValue.ON);
+  const messageStopped = createButtonServerMessage(networkObject.networkId, DefaultInput.FORWARD, BinaryValue.OFF, LifecycleValue.ENDED);
+  const messageEmpty:NetworkInputInterface = {
+    axes1d: [], axes2d: [], buttons: [],
+    networkId: networkObject.networkId,
+    viewVector: { x:0, y:0, z:1 }
+  };
+  const messagePressingToQueue = !Network.instance.packetCompression? messagePressing : ClientInputModel.toBuffer(messagePressing);
+  const messageStoppedToQueue = !Network.instance.packetCompression? messageStopped : ClientInputModel.toBuffer(messageStopped);
+  const messageEmptyToQueue = !Network.instance.packetCompression? messageEmpty : ClientInputModel.toBuffer(messageEmpty);
+
+  const runsCount = 4; // in my case it needs at least 4 frames to accumulate z transform
+  for (let i = 0; i < runsCount; i++) {
+    Network.instance.incomingMessageQueue.add(messagePressingToQueue);
+    runFixed();
+    // expect(Network.instance.incomingMessageQueue.getBufferLength()).toBe(0);
+  }
+  expect(actor.localMovementDirection.z).toBe(1);
+
+  const movingVelocityZ = actor.velocity.z;
+
+  console.log('STOP!');
+  Network.instance.incomingMessageQueue.add(messageStoppedToQueue);
+  Network.instance.incomingMessageQueue.add(messageEmptyToQueue);
+  runFixed();
+
+  expect(actor.localMovementDirection.z).toBe(0);
+  expect(actor.velocityTarget.z).toBe(0);
+
+  console.log('empty runs...');
+  const emptyRunsCount = 20; // we need some time for speed falloff
+  for (let i = 0; i < emptyRunsCount; i++) {
+    Network.instance.incomingMessageQueue.add(messageEmptyToQueue);
+    runFixed();
+  }
+
+  // expect(fixedExecuteOnServer.mock.calls.length).toBe(runsCount + 1 + emptyRunsCount);
+  // expect(handleInputOnServer.mock.calls.length).toBe(runsCount + 2 + emptyRunsCount);
+  expect(actor.velocity.z).toBeLessThan(movingVelocityZ);
+});
+
 test("incoming input propagates to network", () => {
   // Network.instance.userId = userId;
   const playerOneNetworkId = 1;
@@ -253,7 +311,7 @@ test("incoming input propagates to network", () => {
     prefabType: Network.instance.schema.defaultClientPrefab, // All network objects need to be a registered prefab
     component: p1NetworkObject
   };
-  const p1NetworkEntity = p1NetworkObject.entity as Entity;
+  // const p1NetworkEntity = p1NetworkObject.entity as Entity;
 
   // create player two
   const p2rotation = new Quaternion();
@@ -266,7 +324,7 @@ test("incoming input propagates to network", () => {
     prefabType: Network.instance.schema.defaultClientPrefab, // All network objects need to be a registered prefab
     component: p2NetworkObject
   };
-  const p2NetworkEntity = p2NetworkObject.entity as Entity;
+  // const p2NetworkEntity = p2NetworkObject.entity as Entity;
 
   // handle creation, update transforms, etc.
   runFixed();
@@ -288,9 +346,9 @@ test("incoming input propagates to network", () => {
   // }
   expect(Network.instance.worldState.transforms.length).toBe(2);
 
-  const actor1: CharacterComponent = getMutableComponent(p1NetworkEntity, CharacterComponent);
-  const actor2: CharacterComponent = getMutableComponent(p2NetworkEntity, CharacterComponent);
-
+  // const actor1: CharacterComponent = getMutableComponent(p1NetworkEntity, CharacterComponent);
+  // const actor2: CharacterComponent = getMutableComponent(p2NetworkEntity, CharacterComponent);
+  //
   // expect(actor1.localMovementDirection.z).toBe(1);
   // expect(actor1.velocityTarget.z).toBe(1);
   // expect(actor1.velocity.z).toBeGreaterThan(0);
