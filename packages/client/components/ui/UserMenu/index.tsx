@@ -36,8 +36,14 @@ import CachedIcon from '@material-ui/icons/Cached';
 import MailIcon from '@material-ui/icons/Mail';
 import MeetingRoomIcon from '@material-ui/icons/MeetingRoom';
 import SmsIcon from '@material-ui/icons/Sms';
+import GitHubIcon from '@material-ui/icons/GitHub';
+import VpnKeyIcon from '@material-ui/icons/VpnKey';
 import { removeUser } from '../../../redux/auth/service';
 import { selectScenesCurrentScene } from '../../../redux/scenes/selector';
+import { FacebookIcon } from '../Icons/FacebookIcon';
+import { GoogleIcon } from '../Icons/GoogleIcon';
+import { LinkedInIcon } from '../Icons/LinkedInIcon';
+import { TwitterIcon } from '../Icons/TwitterIcon';
 
 interface Props {
     login?: boolean;
@@ -198,7 +204,7 @@ const UserMenu = (props: Props): any => {
     }, [ actorEntity, actorAvatarId ]);
 
     useEffect(() => {
-      setUsername(selfUser.name);
+      selfUser && setUsername(selfUser.name);
     }, [ selfUser ]);
    
 //filter avatars by some attribute
@@ -231,26 +237,39 @@ const renderLoginPage = () =><>
 </>;
 
 const config = getConfig().publicRuntimeConfig;
-console.log('config', config)
 const renderAccountPage = () => <>
   <Typography variant="h1"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} />Account Settings</Typography>
-
-  <Typography variant="h3">Available Connections</Typography>
-  <section className={styles.horizontalContainer}>
-    {Object.entries(config.auth).map(([key, value]) => value && renderProviderIcon(key))}
+  <section className={styles.subContainer}>
+    <Typography variant="h2">Connected Accounts</Typography>
+    {selfUser && selfUser.identityProviders && 
+      selfUser.identityProviders.map(provider=>
+        <Typography variant="h3">
+          {renderProviderIcon(provider.type)}
+          {provider.token}
+        </Typography>)
+      
+    }
   </section>
-  <Typography variant="h3">Account Options</Typography>
-  <Typography variant="h4" align="left" onClick={handleLogout}><MeetingRoomIcon color="primary" /> Logout</Typography>
-  <Typography variant="h4" align="left" onClick={handleAccountDeleteClick}><DeleteIcon color="primary" /> Delete account</Typography>
+  <section className={styles.subContainer}>
+    <Typography variant="h2">Available Connections</Typography>
+    <section className={styles.horizontalContainer}>
+      {Object.entries(config.auth).map(([key, value]) => value && (<Typography variant="h2" align="center">{renderProviderIcon(key)}</Typography>))}
+    </section>
+  </section>
+  <section className={styles.subContainer}>
+    <Typography variant="h2">Account Options</Typography>
+    <Typography variant="h4" align="left" onClick={handleLogout}><MeetingRoomIcon color="primary" /> Logout</Typography>
+    <Typography variant="h4" align="left" onClick={handleAccountDeleteClick}><DeleteIcon color="primary" /> Delete account</Typography>
+  </section>
 </>;
 
 const renderAccountDeletePage = () => <>
-  <Typography variant="h2" color="primary"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} />Delete Account</Typography>
+  <Typography variant="h1"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} />Delete Account</Typography>
   <div>
     <Typography variant="h5" color="primary" className={styles.header}>Delete account?</Typography>
     <div className={styles.deleteAccountButtons}>
       <Button
-          onClick={() => setDrawerType('default')}
+          onClick={() => setDrawerType('account')}
           startIcon={<ClearIcon />}
           variant="contained"
       >
@@ -287,7 +306,19 @@ const renderProviderIcon = type =>{
     case 'email': 
     case 'enableEmailMagicLink': 
         return <MailIcon />;
+    case 'facebook': 
+    case 'enableFacebookSocial': 
+        return <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />;
+    case 'github': 
+    case 'enableGithubSocial': 
+        return <GitHubIcon />;
+    case 'google': 
+    case 'enableGoogleSocial': 
+        return <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />;
     case 'enableSmsMagicLink': return <SmsIcon />;
+    case 'enableUserPassword': return <VpnKeyIcon />;
+    case 'linkedin': return <LinkedInIcon width="40" height="40" viewBox="0 0 40 40"/>;
+    case 'twitter': return <TwitterIcon width="40" height="40" viewBox="0 0 40 40" />;
   }
 }
 

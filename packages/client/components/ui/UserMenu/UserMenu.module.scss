@@ -12,12 +12,18 @@
     background-repeat: no-repeat; 
 }
 .drawer{
-    display: flex;   
-    h2, h1{
+    display: flex; 
+    h1{
+        padding-right: 55px;
+    }  
+    h3, h2, h1{
         >svg{
             margin: 0 5px 0 0;
             cursor: pointer;
         }
+    }
+    .subContainer{
+        margin: 30px 0 0 0;
     }
 }    
 .avatarCountainer{
