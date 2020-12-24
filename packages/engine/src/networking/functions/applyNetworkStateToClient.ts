@@ -7,6 +7,7 @@ import { Network } from '../components/Network';
 import { addSnapshot } from '../functions/NetworkInterpolationFunctions';
 import { WorldStateInterface } from "../interfaces/WorldState";
 import { initializeNetworkObject } from './initializeNetworkObject';
+import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 
 let test = 0
 
@@ -136,6 +137,13 @@ export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, 
     // Ignore input applied to local user input object that the client is currently controlling
     if(networkComponent.ownerId === Network.instance.userId && hasComponent(networkComponent.entity, LocalInputReceiver)) return; //
 
+    // set view vector
+    const actor = getComponent(networkComponent.entity, CharacterComponent);
+    actor.viewVector.set(
+      inputData.viewVector.x,
+      inputData.viewVector.y,
+      inputData.viewVector.z,
+    );
 
     // Get input object attached
     const input = getComponent(networkComponent.entity, Input);
