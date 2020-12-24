@@ -47,12 +47,9 @@ const instanceConnectionReducer = (state = immutableState, action: InstanceServe
           .set('instanceProvisioning', true);
     case INSTANCE_SERVER_PROVISIONED:
       newInstance = new Map(state.get('instance'));
-      console.log(newInstance);
       newValues = (action as InstanceServerProvisionedAction);
-      console.log(newValues);
       newInstance.set('ipAddress', newValues.ipAddress);
       newInstance.set('port', newValues.port);
-      console.log(newInstance);
       return state
         .set('instance', newInstance)
         .set('locationId', newValues.locationId)

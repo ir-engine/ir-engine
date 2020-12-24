@@ -1,3 +1,5 @@
+import url from 'url';
+import querystring from 'querystring';
 import { Button, Snackbar } from '@material-ui/core';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
@@ -109,20 +111,29 @@ const LocationPage = (props: Props) => {
 
   useEffect(() => {
     const currentLocation = locationState.get('currentLocation').get('location');
+
     if (currentLocation.id != null &&
       userBanned === false &&
       instanceConnectionState.get('instanceProvisioned') !== true &&
-      instanceConnectionState.get('instanceProvisioning') === false)
-      provisionInstanceServer(currentLocation.id, undefined, sceneId);
-      if(sceneId === null) {
-        console.log("locationState: Set scene ID to", sceneId);
-        sceneId = currentLocation.sceneId;
+      instanceConnectionState.get('instanceProvisioning') === false) {
+      const search = window.location.search;
+      let instanceId;
+      if (search != null) {
+        const parsed = url.parse(window.location.href);
+        const query = querystring.parse(parsed.query);
+        instanceId = query.instanceId;
       }
+      provisionInstanceServer(currentLocation.id, instanceId || undefined, sceneId);
+    }
+    if (sceneId === null) {
+      console.log("locationState: Set scene ID to", sceneId);
+      sceneId = currentLocation.sceneId;
+    }
 
-      if(!currentLocation.id && !locationState.get('currentLocationUpdateNeeded') && !locationState.get('fetchingCurrentLocation')){
-        setIsValidLocation(false);
-        store.dispatch(setAppSpecificOnBoardingStep(generalStateList.FAILED, false));
-      }
+    if(!currentLocation.id && !locationState.get('currentLocationUpdateNeeded') && !locationState.get('fetchingCurrentLocation')){
+      setIsValidLocation(false);
+      store.dispatch(setAppSpecificOnBoardingStep(generalStateList.FAILED, false));
+    }
   }, [locationState]);
 
   useEffect(() => {

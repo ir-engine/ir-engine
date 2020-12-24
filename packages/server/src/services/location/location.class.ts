@@ -128,27 +128,34 @@ export class Location extends Service {
     } else if (strippedQuery.adminnedLocations != null) {
       delete strippedQuery.adminnedLocations;
       const loggedInUser = extractLoggedInUserFromParams(params);
+      const selfUser = await this.app.service('user').get(loggedInUser.userId);
+      const include = [
+        {
+          model: this.app.service('location-settings').Model,
+          required: false
+        },
+        {
+          model: this.app.service('location-ban').Model,
+          required: false
+        }
+      ];
+
+      if (selfUser.userRole !== 'admin')  {
+        (include as any).push(
+            {
+              model: this.app.service('location-admin').Model,
+              where: {
+                userId: loggedInUser.userId
+              }
+            });
+      }
+
       const locationResult = await this.app.service('location').Model.findAndCountAll({
         offset: $skip,
         limit: $limit,
         where: strippedQuery,
         order: order,
-        include: [
-          {
-            model: this.app.service('location-admin').Model,
-            where: {
-              userId: loggedInUser.userId
-            }
-          },
-          {
-            model: this.app.service('location-settings').Model,
-            required: false
-          },
-          {
-            model: this.app.service('location-ban').Model,
-            required: false
-          }
-        ]
+        include: include
       });
       return {
         skip: $skip,

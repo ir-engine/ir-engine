@@ -69,39 +69,49 @@
   //max-height: 1000px;
 }
 
-#__next {
-  height:100%;
-  width: 100%;
-  position: fixed;
-
-  .page-container {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-
-    .header {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
+.thead {
+  .trow {
+    .tcell {
+      color: lighten(black, 0.80);
     }
 
-    main {
-      overflow-y: auto;
+    .tcellSelectable {
+      color: lighten(black, 0.80);
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.07);
+        cursor: pointer;
+      }
     }
   }
-}
 
-.thead {
-
-  .trow {
+  .trowHover {
     cursor: pointer;
 
     .tcell {
       color: lighten(black, 0.80);
-
     }
   }
+}
+
+.tableContainer {
+  overflow-y: auto;
+}
+.tablePagination {
+  min-height: 55px;
+}
+
+.adminRoot {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.instanceUsersHeader {
+  color: black;
+  font-size: 20px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .modal {
@@ -124,4 +134,18 @@
   @media (max-width: 768px) {
     width: 90%;
   }
+}
+
+.tableFooter {
+  display: flex;
+  justify-content: space-between;
+
+  .createLocation {
+    height: 40px;
+    margin: auto 5px;
+  }
+}
+
+.locationModalButtons {
+  justify-content: space-between;
 }
