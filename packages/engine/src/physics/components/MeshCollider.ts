@@ -3,7 +3,7 @@ import { threeToCannon } from 'three-to-cannon';
 import { Body, Material } from 'cannon-es';
 import { Component } from "../../ecs/classes/Component";
 import { setDefaults } from "../../templates/character/functions/setDefaults";
-export class TrimeshCollider extends Component<TrimeshCollider>
+export class MeshCollider extends Component<MeshCollider>
 {
 	public mesh: any;
 	public options: any;
@@ -24,7 +24,7 @@ export class TrimeshCollider extends Component<TrimeshCollider>
 		options = setDefaults(options, defaults);
 		this.options = options;
 
-		const mat = new Material('triMat');
+		const mat = new Material('meshColliderMaterial');
 		mat.friction = options.friction;
 		// mat.restitution = 0.7;
 

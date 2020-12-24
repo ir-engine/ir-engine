@@ -63,8 +63,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   public async initialize(address = "https://127.0.0.1", port = 3030, opts?: any): Promise<void> {
-    console.log("TRANSPORT INIT: ");
-    console.log(opts);
+    // console.log("TRANSPORT INIT: ");
+    // console.log(opts);
     const token = (store.getState() as any).get('auth').get('authUser').accessToken;
     const selfUser = (store.getState() as any).get('auth').get('user') as User;
 
@@ -156,8 +156,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         MediaStreamComponent.instance.dataConsumers.set(options.dataProducerId, dataConsumer);
 
         dataConsumer.on('message', (message: any) => {
-          console.log("Received message from ", dataConsumer);
-          console.log(message);
+          // console.log("Received message from ", dataConsumer);
+          // console.log(message);
           Network.instance.incomingMessageQueue.add(JSON.parse(message));
         }); // Handle message received
         console.log("Setting data consumer");

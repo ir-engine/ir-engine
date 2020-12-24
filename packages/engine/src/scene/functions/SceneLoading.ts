@@ -49,8 +49,12 @@ export function loadScene (scene: SceneData): void {
 }
 
 export function loadComponent (entity: Entity, component: SceneDataComponent): void {
-  if (SceneObjectLoadingSchema[component.name] === undefined) return console.warn("Couldn't load ", component.name);
-  const componentSchema = SceneObjectLoadingSchema[component.name];
+  let name = component.name.replace(/-\d/, "")
+  // Override for loading mesh colliders
+
+  if (SceneObjectLoadingSchema[name] === undefined) return console.warn("Couldn't load ", name);
+
+  const componentSchema = SceneObjectLoadingSchema[name];
   // for each component in component name, call behavior
   componentSchema.behaviors?.forEach(b => {
     // For each value, from component.data
