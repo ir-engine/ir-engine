@@ -299,12 +299,20 @@ const lightTheme = createMuiTheme({
     MuiFab: {
       root: {
         height: '3em',
-        width: '3em',
+        width: 'fit-content',
+        padding: '10px',
         margin: '0px 5px',
+        display: 'flex',
+        alignItems: 'center', 
+        textTransform: 'capitalize',
         text:{
           color: '#FFFFFF' 
         }           
       },
+      primary:{
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        borderRadius: '8px',
+      }
     },
     MuiFormGroup:{
       root:{

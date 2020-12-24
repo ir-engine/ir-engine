@@ -4,8 +4,10 @@ import { connect } from 'react-redux';
 import styles from './InstanceChat.module.scss';
 import {
     Avatar,
+    Badge,
     Card,
     CardContent,
+    Fab,
     ListItem,
     ListItemAvatar,
     ListItemText,
@@ -160,6 +162,8 @@ const InstanceChat = (props: Props): any => {
     const hideShowMessagesContainer = () => setOpenMessageContainer(!openMessageContainer);
 
 
+    console.log('activeChannel.messages', activeChannel?.messages)
+
     return (
         <>
         <div className={styles['instance-chat-container'] + ' '+ (!openMessageContainer && styles['messageContainerClosed'])}>
@@ -219,7 +223,12 @@ const InstanceChat = (props: Props): any => {
             </div>
         </div>
        {!openMessageContainer && (<div className={styles.iconCallChat} >
-            <MessageIcon onClick={()=>hideShowMessagesContainer()} />
+        <Badge color="secondary" variant="dot" invisible={false} 
+        anchorOrigin={{vertical: 'top', horizontal: 'left',}}>
+            <Fab color="primary">
+                <MessageIcon onClick={()=>hideShowMessagesContainer()} />Chat
+            </Fab>
+        </Badge>
         </div>)}
     </>);
 };
