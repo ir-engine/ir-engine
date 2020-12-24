@@ -27,6 +27,7 @@ import { CharacterStateSchema } from './templates/character/CharacterStateSchema
 import { CharacterSubscriptionSchema } from './templates/character/CharacterSubscriptionSchema';
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
+import { DebugHelpersSystem } from "./debug/systems/DebugHelpersSystem";
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -106,6 +107,9 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
     registerSystem(HighlightSystem);
     registerSystem(InteractiveSystem);
     // registerSystem(ParticleSystem);
+    if (process.env.NODE_ENV === 'development') {
+      // registerSystem(DebugHelpersSystem);
+    }
     registerSystem(CameraSystem);
     registerSystem(WebGLRendererSystem, { priority: 1001 });
     Engine.viewportElement = Engine.renderer.domElement;
