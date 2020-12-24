@@ -53,7 +53,6 @@ export function createGround (entity: Entity) {
 export function createBox (entity: Entity) {
   const colliderComponent = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
   const transformComponent = getComponent<TransformComponent>(entity, TransformComponent);
-  console.warn(colliderComponent.scale);
 
   const shape = new Box( new Vec3(
       colliderComponent.scale.x / 2,
@@ -66,6 +65,7 @@ export function createBox (entity: Entity) {
   //  material: PhysicsManager.instance.groundMaterial
   });
 
+  // Set position
   if (colliderComponent.position) {
     body.position.set(
       colliderComponent.position.x,
@@ -77,6 +77,24 @@ export function createBox (entity: Entity) {
       transformComponent.position.x,
       transformComponent.position.y,
       transformComponent.position.z
+    );
+  }
+
+  // Set Rotation
+
+  if (colliderComponent.quaternion) {
+    body.quaternion.set(
+      colliderComponent.quaternion.x,
+      colliderComponent.quaternion.y,
+      colliderComponent.quaternion.z,
+      colliderComponent.quaternion.w
+    );
+  } else {
+    body.quaternion.set(
+      transformComponent.rotation.x,
+      transformComponent.rotation.y,
+      transformComponent.rotation.z,
+      transformComponent.rotation.w
     );
   }
 

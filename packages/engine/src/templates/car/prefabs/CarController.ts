@@ -1,23 +1,20 @@
-import { Color } from "three";
-
 import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
-
-import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { Input } from "@xr3ngine/engine/src/input/components/Input";
-import { State } from "@xr3ngine/engine/src/state/components/State";
-import { AssetLoader } from "../../../assets/components/AssetLoader";
-import { attachCamera } from "@xr3ngine/engine/src/camera/behaviors/attachCamera";
 import { addCarPhysics } from "@xr3ngine/engine/src/physics/behaviors/addCarPhysics";
-import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/CharacterStateSchema";
-import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
+import { VehicleInputSchema } from "@xr3ngine/engine/src/templates/car/VehicleInputSchema";
+import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
+import { Color } from "three";
+import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
- import { VehicleInputSchema } from "@xr3ngine/engine/src/templates/car/VehicleInputSchema";
+import { Entity } from "../../../ecs/classes/Entity";
+import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { Interactable } from "../../../interaction/components/Interactable";
+import { onInteractionHover } from "../../interactive/functions/commonInteractive";
+import { changeColor } from "../behaviors/changeColor";
 import { getInCar } from "../behaviors/getInCarBehavior";
 import { getInCarPossible } from "../behaviors/getInCarPossible";
-import { Entity } from "../../../ecs/classes/Entity";
-import { changeColor } from "../behaviors/changeColor";
-import { onInteractionHover } from "../../interactive/functions/commonInteractive";
+
+
 
 export const CarController: Prefab = {
     localClientComponents: [
@@ -51,24 +48,20 @@ export const CarController: Prefab = {
                 componentArgs: {
                     url: "models/vehicles/Sportscar.glb", //  "models/car.glb"
                     receiveShadow: true,
-                    castShadow: true,
-                    onLoaded: (entityIn: Entity, args: unknown, delta: number, entityOut: Entity): void => {
-                      addCarPhysics(entityIn, args, delta, entityOut);
-                      changeColor(entityIn, {
-                        materialName: "Main",
-                        color: new Color(1,1,1)
-                      });
-                    }
+                    castShadow: true
                 }
             }
         },
-        // {
-        //     behavior: addCarPhysics
-        // },
-/*
         {
-            behavior: attachCamera
-        }
-*/
-    ]
+          behavior: (entity) => {
+              const loader = getMutableComponent(entity, AssetLoader)
+              loader.onLoaded.push((entityIn: Entity, args: unknown, delta: number, entityOut: Entity): void => {
+                addCarPhysics(entityIn, args, delta, entityOut);
+                changeColor(entityIn, {
+                  materialName: "Main",
+                  color: new Color(1,1,1)
+                });
+              })
+          }
+      }]
 };

@@ -1,6 +1,6 @@
 import { expect } from "@jest/globals";
-import {Schema, Model, ExtractSchemaObject} from "@xr3ngine/engine/src/networking/classes"; //"superbuffer"
-import {int16, int32, uint8, uint32, uint64, int64, float32, boolean, string} from "@xr3ngine/engine/src/networking/classes";
+import {Schema, Model, ExtractSchemaObject} from "superbuffer";
+import {int16, int32, uint8, uint32, uint64, int64, float32, boolean, string} from "superbuffer";
 //import { inputKeyArraySchema } from "@xr3ngine/engine/src/networking/schema/clientInputSchema";
 
 const inputKeySchema = new Schema({

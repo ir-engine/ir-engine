@@ -29,11 +29,13 @@ export function loadScene (scene: SceneData): void {
       if(isClient && component.name === 'gltf-model'){
         const loaderComponent = getMutableComponent(entity, AssetLoader);
         loadPromises.push(new Promise((resolve, reject)=>{
-          loaderComponent.onLoaded = ()=> {
+          if(loaderComponent.onLoaded === null || loaderComponent.onLoaded === undefined){
+          }
+          loaderComponent.onLoaded.push(()=> {
             loaded++;
             const event = new CustomEvent('scene-loaded-entity', { detail: { left: (loadPromises.length-loaded) } });
             document.dispatchEvent(event);
-          };
+          });
         }));
       }
     });
