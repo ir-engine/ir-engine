@@ -245,7 +245,7 @@ const lightTheme = createMuiTheme({
     },    
     MuiListItemText:{
       root:{
-        background:'rgba(0, 0, 0, ,1)',
+        background:'rgba(0, 0, 0, .5)',
         borderRadius: '5px',
         padding: '5px 10px',
         width: 'fit-content',
@@ -262,8 +262,18 @@ const lightTheme = createMuiTheme({
         }
       }
     },
+    MuiPaper:{
+      root: {
+        backgroundColor: 'rgba(0,0,0,0.8)',
+      }
+    },
     MuiInputBase:{
       input:{
+        color: '#FFFFFF',
+      }
+    },
+    MuiFormLabel:{
+      root:{
         color: '#FFFFFF',
       }
     },
