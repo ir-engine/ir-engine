@@ -152,7 +152,7 @@ const authentication = {
   },
   oauth: {
     defaults: {
-      host: server.hostname && server.port ? (server.hostname) + ':' + (server.port as string) : 'localhost:3030',
+      host: server.hostname && server.hostname !== 'localhost' ? (server.hostname) : 'localhost:3030',
       protocol: 'https'
     },
     facebook: {

@@ -52,7 +52,8 @@ export default (app: Application): any => {
       const instanceUsers = await app.service('user').find({
         query: {
           $limit: 1000,
-          instanceId: channel.instanceId
+          instanceId: channel.instanceId,
+          action: 'layer-users'
         }
       });
 
@@ -99,7 +100,8 @@ export default (app: Application): any => {
       const instanceUsers = await app.service('user').find({
         query: {
           $limit: 1000,
-          instanceId: channel.instanceId
+          instanceId: channel.instanceId,
+          action: 'layer-users'
         }
       });
 
@@ -146,7 +148,8 @@ export default (app: Application): any => {
       const instanceUsers = await app.service('user').find({
         query: {
           $limit: 1000,
-          instanceId: channel.instanceId
+          instanceId: channel.instanceId,
+          action: 'layer-users'
         }
       });
 

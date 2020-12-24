@@ -53,6 +53,7 @@ export function getLayerUsers() {
   return async (dispatch: Dispatch): Promise<any> => {
     const layerUsers = await client.service('user').find({
       query: {
+        $limit: 1000,
         action: 'layer-users'
       }
     });

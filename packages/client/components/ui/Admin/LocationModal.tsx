@@ -223,7 +223,7 @@ const LocationModal = (props: Props): any => {
                                 />
                             </FormControl>
                         </FormGroup>
-                        <FormGroup row>
+                        <FormGroup row className={styles.locationModalButtons}>
                             { editing === true && <Button
                                 type="submit"
                                 variant="contained"
