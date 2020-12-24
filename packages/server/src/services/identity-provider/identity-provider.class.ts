@@ -85,13 +85,14 @@ export class IdentityProvider extends Service {
     const User = sequelizeClient.model('user');
 
     // check if there is a user with userId
-    const foundUser = ((await userService.find({
-      query: {
-        id: userId
-      }
-    }))).data;
+    let foundUser
+    try {
+      foundUser = await userService.get(userId);
+    } catch (err) {
+      console.log(err);
+    }
 
-    if (foundUser.length > 0) {
+    if (foundUser != null) {
       // if there is the user with userId, then we add the identity provider to the user
       return await super.create({
         ...data,
@@ -111,7 +112,7 @@ export class IdentityProvider extends Service {
       ...identityProvider,
       user: {
         id: userId,
-        userRole: type === 'guest' ? 'guest' : 'user'
+        userRole: type === 'guest' ? 'guest' : type === 'admin' ? 'admin' : 'user'
       }
     }, params);
 

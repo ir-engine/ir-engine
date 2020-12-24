@@ -18,8 +18,9 @@ export default class GithubStrategy extends CustomOAuthStrategy {
   async updateEntity(entity: any, profile: any, params?: Params): Promise<any> {
     const authResult = await app.service('authentication').strategies.jwt.authenticate({ accessToken: params?.authentication?.accessToken }, {});
     const identityProvider = authResult['identity-provider'];
+    const user = await app.service('user').get(entity.userId);
     await app.service('user').patch(entity.userId, {
-      userRole: 'user'
+      userRole: user?.userRole === 'admin' ? 'admin' : 'user'
     });
     if (entity.type !== 'guest') {
       await app.service('identity-provider').remove(identityProvider.id);
