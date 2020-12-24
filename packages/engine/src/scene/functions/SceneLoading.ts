@@ -49,10 +49,10 @@ export function loadScene (scene: SceneData): void {
 }
 
 export function loadComponent (entity: Entity, component: SceneDataComponent): void {
-  let name = component.name.replace(/-\d/, "")
+  let name = component.name.replace(/-\d+/, "").replace(" ", "")
   // Override for loading mesh colliders
 
-  if (SceneObjectLoadingSchema[name] === undefined) return console.warn("Couldn't load ", name);
+  if (SceneObjectLoadingSchema[name] === undefined)return console.warn("Couldn't load ", name);
 
   const componentSchema = SceneObjectLoadingSchema[name];
   // for each component in component name, call behavior
