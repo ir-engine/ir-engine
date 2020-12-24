@@ -119,7 +119,9 @@ export class Message extends Service {
       channelId = channel.id;
       const instanceUsers = await this.app.service('user').find({
         query: {
-          instanceId: targetObjectId
+          $limit: 1000,
+          instanceId: targetObjectId,
+          action: 'layer-users'
         }
       });
       userIdList = (instanceUsers as any).data.map((instanceUser) => {
