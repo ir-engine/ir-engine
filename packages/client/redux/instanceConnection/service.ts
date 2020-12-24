@@ -1,3 +1,5 @@
+import url from 'url';
+import querystring from 'querystring';
 import { connectToServer } from "@xr3ngine/engine/src/networking/functions/connectToServer";
 import { Network } from "@xr3ngine/engine/src/networking/components/Network";
 import { MediaStreamComponent } from "@xr3ngine/engine/src/networking/components/MediaStreamComponent";
@@ -24,6 +26,16 @@ export function provisionInstanceServer (locationId: string, instanceId?: string
         sceneId: sceneId,
         token: token
       });
+      if (instanceId != null) {
+        const instance = await client.service('instance').find({
+          query: {
+            id: instanceId
+          }
+        });
+        if (instance.total === 0) {
+          instanceId = null;
+        }
+      }
       const provisionResult = await client.service('instance-provision').find({
         query: {
           locationId: locationId,
