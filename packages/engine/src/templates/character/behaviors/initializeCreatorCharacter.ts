@@ -29,7 +29,7 @@ export const initializeCreatorCharacter: Behavior = (entity): void => {
     // we should keep it clean till asset loaded and all it's content moved into modelContainer
     addObject3DComponent(entity, { obj3d: actor.tiltContainer })
     const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader as any);
-    assetLoader.onLoaded = (entity, { asset }) => {
+    assetLoader.onLoaded.push((entity, { asset }) => {
         // Model container is used to reliably ground the actor, as animation can alter the position of the model itself
         actor.modelContainer = new Group();
         actor.modelContainer.name = 'Actor (modelContainer)';
@@ -249,5 +249,5 @@ export const initializeCreatorCharacter: Behavior = (entity): void => {
                 }
             });
         }
-    };
+    });
 };

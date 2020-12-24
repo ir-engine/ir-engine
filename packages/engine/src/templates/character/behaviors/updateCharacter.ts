@@ -41,124 +41,13 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
 
 
 if (isClient) {
-    (Network.instance.worldState.snapshot as any)?.state?.forEach(stateData => {
-      if (Network.instance.networkObjects[stateData.networkId] === undefined) return;
-      const networkComponent = Network.instance.networkObjects[stateData.networkId].component;
-      if(networkComponent.ownerId === Network.instance.userId && hasComponent(networkComponent.entity, LocalInputReceiver)) {
-        const actor = getComponent<CharacterComponent>(networkComponent.entity, CharacterComponent)
-
-
-
-        const playerSnapshot = createSnapshot([{
-           networkId: 0,
-           x: actor.actorCapsule.body.position.x,
-           y: actor.actorCapsule.body.position.y,
-           z: actor.actorCapsule.body.position.z,
-           qX: 0,
-           qY: 0,
-           qZ: 0,
-           qW: 0
-         }]);
-        Vault.instance.add(playerSnapshot);
-
-
-        let offsetX = 0, offsetY = 0, offsetZ = 0;
-
-
-        // TODO: proper typings to Network.instance.worldState.snapshot
-        const oldPlayerSnapshot = Vault.instance.get((Network.instance.worldState.snapshot as any).time - NetworkInterpolation.instance.timeOffset+1000, true)
-
-        if (oldPlayerSnapshot) {
-      //    console.warn('playerSnapshot');
-      //    console.warn(oldPlayerSnapshot.time - 1606631900000);
-      //  const serverSnapshot = NetworkInterpolation.instance.get(playerSnapshot.time + NetworkInterpolation.instance.timeOffset, true)
-        //  worldState.snapshot.time - NetworkInterpolation.instance.timeOffset, true);
-      //  if (serverSnapshot) {
-
-
-      //      console.warn('serverTime');
-      //      console.warn(Network.instance.worldState.snapshot.time - 1606631900000);
-      //      console.warn('//////////////////');
-
-            offsetX = oldPlayerSnapshot.state[0].x - stateData.x
-            offsetY = oldPlayerSnapshot.state[0].y - stateData.y
-            offsetZ = oldPlayerSnapshot.state[0].z - stateData.z
-      //    }
-        }
-        // we correct the position faster if the player moves
-        const correction = 30
-        // apply a step by step correction of the player's position
-      //  actor.actorCapsule.body.position.set(
-          actor.actorCapsule.body.position.x -= (offsetX / correction);
-          actor.actorCapsule.body.position.y -= (offsetY / correction);
-          actor.actorCapsule.body.position.z -= (offsetZ / correction);
-      //  )
-
-
-
-
-        rotateModel(networkComponent.entity);
-      }
-    })
-
-
-
-    const interpolationSnapshot = calculateInterpolation('x y z quat')
-    if (interpolationSnapshot === undefined)
-        return console.warn("interpolationSnapshot is null");
-
-    const { state } = interpolationSnapshot
-
-
-    // Update transforms
-
-    state.forEach(interpolationData => {
-      if(!Network.instance.networkObjects[interpolationData.networkId]){
-        return console.warn("Network object not found in list: ", interpolationData.networkId);
-      }
-
-      // Get network component from data
-      const networkComponent = Network.instance.networkObjects[interpolationData.networkId].component;
-      const transform = getMutableComponent(networkComponent.entity, TransformComponent);
-
-      //if (hasComponent(networkComponent.entity, CharacterComponent)) {
-        if (!hasComponent(networkComponent.entity, LocalInputReceiver)) {
-        const actor = getMutableComponent<CharacterComponent>(networkComponent.entity, CharacterComponent as any);
-
-
-
-          // apply the interpolated values to you game objects
-          actor.actorCapsule.body.position.set(
-            interpolationData.x,
-            interpolationData.y,
-            interpolationData.z
-          );
-
-          transform.rotation.set(
-            interpolationData.qX,
-            interpolationData.qY,
-            interpolationData.qZ,
-            interpolationData.qW
-          );
-
-        }
-  /*    } else {
-        transform.position.set(
-          interpolationData.x,
-          interpolationData.y,
-          interpolationData.z
-        );*/
-    //  }
-      // Apply rot to object
-
-
-    });
 
 }
 
 
   springRotation(entity, null, deltaTime);
   springMovement(entity, null, deltaTime);
+  rotateModel(entity);
 
     actorTransform.position.set(
       actor.actorCapsule.body.position.x,

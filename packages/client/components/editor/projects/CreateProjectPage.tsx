@@ -125,7 +125,6 @@ function CreateProjectPage({ api }: { api: Api }) {
                     All
                   </Filter>
                   <Separator />
-                  {/* @ts-ignore */}
                   <SearchInput placeholder="Search scenes..." value={params.q} onChange={onChangeQuery} />
                 </ProjectGridHeaderRow>
                 <ProjectGridHeaderRow>

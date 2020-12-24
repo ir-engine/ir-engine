@@ -36,7 +36,7 @@ export const StartWalkLeftState: StateSchemaValue = {
       behavior: setActorAnimation,
       args: {
         name: 'walk_left',
-        transitionDuration: 1
+        transitionDuration: 0.4
       }
     }
   ],

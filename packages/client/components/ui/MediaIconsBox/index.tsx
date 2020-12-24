@@ -40,6 +40,9 @@ const MediaIconsBox = observer((props) =>{
     const user = authState.get('user');
     const currentLocation = locationState.get('currentLocation').get('location');
 
+    const videoEnabled = currentLocation.locationSettings ? currentLocation.locationSettings.videoEnabled : false;
+    const instanceMediaChatEnabled = currentLocation.locationSettings ? currentLocation.locationSettings.instanceMediaChatEnabled : false;
+
     const checkMediaStream = async (partyId: string) => {
         if (!MediaStreamComponent?.instance?.mediaStream)
             await configureMediaTransports(partyId);
@@ -85,18 +88,18 @@ const MediaIconsBox = observer((props) =>{
     return props.onBoardingStep >= generalStateList.TUTOR_INTERACT ?
         <section className={styles.drawerBoxContainer}>
             <section className={styles.drawerBox}>
-                <div className={styles.iconContainer + ' ' + (audioPaused ? styles.off : styles.on)}>
+                { instanceMediaChatEnabled && (<div className={styles.iconContainer + ' ' + (audioPaused ? styles.off : styles.on)}>
                     <MicOff className={styles.offIcon} onClick={handleMicClick} />
                     <Mic className={styles.onIcon} onClick={handleMicClick} />
-                </div>
-                <div className={styles.iconContainer + ' ' + (videoPaused ? styles.off : styles.on)}>
+                </div>) }
+                { videoEnabled && (<div className={styles.iconContainer + ' ' + (videoPaused ? styles.off : styles.on)}>
                     <VideocamOff className={styles.offIcon} onClick={handleCamClick} />
                     <Videocam className={styles.onIcon} onClick={handleCamClick} />
-                </div>
-                <div className={styles.iconContainer + ' ' + (!faceStreaming ? styles.off : styles.on)}>
+                </div>) }
+                { videoEnabled && (<div className={styles.iconContainer + ' ' + (!faceStreaming ? styles.off : styles.on)}>
                     <FaceIcon className={styles.offIcon} />
                     <FaceIcon className={styles.onIcon} />
-                </div>
+                </div>)}
             </section>
         </section>
         :null;

@@ -75,13 +75,11 @@
 /**/
 .settingRow{
   display: flex;
+  flex-direction: column;
   .settingLabel{
-    width: 50%;
-    text-transform: uppercase;
     font-weight: normal;
   }
   .settingValue{
-    width: 50%;
     .controlsSvg span{
       background-color: transparent;
     }

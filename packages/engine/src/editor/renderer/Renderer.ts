@@ -3,6 +3,7 @@ import {
   Layers,
   MeshBasicMaterial,
   MeshNormalMaterial,
+  sRGBEncoding,
   Vector2
 } from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
@@ -166,6 +167,8 @@ export default class Renderer {
         canvas
       }
     );
+    renderer.physicallyCorrectLights = true;
+    renderer.outputEncoding = sRGBEncoding; // need this if postprocessing is not used
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.info.autoReset = false;
     this.renderer = renderer;

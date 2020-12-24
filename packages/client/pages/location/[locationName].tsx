@@ -13,7 +13,7 @@ import Loading from '../../components/scenes/loading';
 import Scene from '../../components/scenes/location';
 import Layout from '../../components/ui/Layout';
 import UserMenu from '../../components/ui/UserMenu';
-import { selectAppState } from '../../redux/app/selector';
+import { selectAppOnBoardingStep, selectAppState } from '../../redux/app/selector';
 import { selectAuthState } from '../../redux/auth/selector';
 import { doLoginAuto } from '../../redux/auth/service';
 import { client } from '../../redux/feathers';
@@ -42,6 +42,7 @@ interface Props {
   connectToInstanceServer?: typeof connectToInstanceServer;
   provisionInstanceServer?: typeof provisionInstanceServer;
   setCurrentScene?: typeof setCurrentScene;
+  onBoardingStep?: number;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -50,7 +51,8 @@ const mapStateToProps = (state: any): any => {
     authState: selectAuthState(state),
     instanceConnectionState: selectInstanceConnectionState(state),
     locationState: selectLocationState(state),
-    partyState: selectPartyState(state)
+    partyState: selectPartyState(state),
+    onBoardingStep: selectAppOnBoardingStep(state),
   };
 };
 
@@ -72,11 +74,12 @@ const LocationPage = (props: Props) => {
     locationState,
     partyState,
     instanceConnectionState,
+    onBoardingStep,
     doLoginAuto,
     getLocationByName,
     connectToInstanceServer,
     provisionInstanceServer,
-    setCurrentScene
+    setCurrentScene,
   } = props;
 
   const appLoaded = appState.get('loaded');
@@ -196,7 +199,7 @@ const LocationPage = (props: Props) => {
   return (
       <Layout pageTitle="Home">
         <NoSSR onSSR={<Loading />}>
-          {isValidLocation && <UserMenu />}
+          {isValidLocation && onBoardingStep === generalStateList.ALL_DONE && <UserMenu />}
           {userBanned === false ? (<Scene sceneId={sceneId} />) : (<div className="banned">You have been banned from this location</div>)}
           <Snackbar open={!isValidLocation} 
             anchorOrigin={{
