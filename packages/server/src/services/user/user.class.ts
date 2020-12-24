@@ -163,12 +163,13 @@ export class User extends Service {
       };
     } else if (action === 'layer-users') {
       const loggedInUser = extractLoggedInUserFromParams(params);
-      const user = await super.get(loggedInUser.userId);
+      let user;
+      if (loggedInUser) user = await super.get(loggedInUser.userId);
       return super.find({
         query: {
           $limit: params.query.$limit || 10,
           $skip: params.query.$skip || 0,
-          instanceId: params.query.instanceId || user.instanceId
+          instanceId: params.query.instanceId || user.instanceId || 'intentionalBadId'
         }
       });
     } else if (action === 'admin') {
