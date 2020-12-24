@@ -4,8 +4,11 @@ import { connect } from 'react-redux';
 import styles from './InstanceChat.module.scss';
 import {
     Avatar,
+    Badge,
+    Button,
     Card,
     CardContent,
+    Fab,
     ListItem,
     ListItemAvatar,
     ListItemText,
@@ -29,6 +32,7 @@ import {User} from "@xr3ngine/common/interfaces/User";
 import { Message } from '@xr3ngine/common/interfaces/Message';
 import _ from 'lodash';
 import classNames from 'classnames';
+import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 
 
 const mapStateToProps = (state: any): any => {
@@ -75,6 +79,7 @@ const InstanceChat = (props: Props): any => {
     const channelState = chatState.get('channels');
     const channels = channelState.get('channels');
     const [composingMessage, setComposingMessage] = useState('');
+    const [unreadMessages, setUnreadMessages] = useState(false);
     const activeChannelMatch = [...channels].find(([, channel]) => channel.channelType === 'instance');
     if (activeChannelMatch && activeChannelMatch.length > 0) {
         activeChannel = activeChannelMatch[1];
@@ -105,6 +110,7 @@ const InstanceChat = (props: Props): any => {
                 text: composingMessage
             });
             setComposingMessage('');
+            setUnreadMessages(true);
         }
     };
 
@@ -159,14 +165,14 @@ const InstanceChat = (props: Props): any => {
     const [openMessageContainer, setOpenMessageContainer] = React.useState(false);
     const hideShowMessagesContainer = () => setOpenMessageContainer(!openMessageContainer);
 
-
     return (
         <>
         <div className={styles['instance-chat-container'] + ' '+ (!openMessageContainer && styles['messageContainerClosed'])}>
             <div className={styles['list-container']}>
                 <Card square={true} elevation={0} className={styles['message-wrapper']}>
                     <CardContent className={styles['message-container']}>
-                    { activeChannel != null && activeChannel.messages && activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).slice(activeChannel.messages.length >= 3 ? activeChannel.messages?.length - 3 : 0, activeChannel.mesages?.length).map((message) => {
+                    { activeChannel != null && activeChannel.messages && 
+                    activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).slice(activeChannel.messages.length >= 3 ? activeChannel.messages?.length - 3 : 0, activeChannel.mesages?.length).map((message) => {
                         return <ListItem
                             className={classNames({
                                 [styles.message]: true,
@@ -177,11 +183,11 @@ const InstanceChat = (props: Props): any => {
                             key={message.id}
                         >
                             <div>
-                                <ListItemAvatar>
+                                {!isMobileOrTablet() && <ListItemAvatar>
                                     <Avatar src={getMessageUser(message).avatarUrl}/>
-                                </ListItemAvatar>
+                                </ListItemAvatar>}
                                 <ListItemText
-                                    primary={<p><span className={styles.userName}>{getMessageUser(message).name+': '}</span>{message.text}</p>}
+                                    primary={<p><span className={styles.userName} color="primary">{getMessageUser(message).name+': '}</span>{message.text}</p>}
                                 />
                             </div>
                         </ListItem>;
@@ -200,7 +206,7 @@ const InstanceChat = (props: Props): any => {
                             multiline
                             fullWidth
                             id="newMessage"
-                            label="Chat with users at this location"
+                            label="World Chat..."
                             name="newMessage"
                             autoFocus
                             value={composingMessage}
@@ -211,15 +217,17 @@ const InstanceChat = (props: Props): any => {
                             inputRef={messageRef}
                             onClick={()=> (messageRef as any)?.current?.focus()}
                         />
-                        <div className={styles.iconContainerSend} onClick={packageMessage}>
-                            <Send/>                            
-                        </div>
+                        <Button variant="contained" color="primary" className={styles.iconContainerSend} onClick={packageMessage}  ><Send/></Button>                         
                     </CardContent>
                 </Card>
             </div>
         </div>
        {!openMessageContainer && (<div className={styles.iconCallChat} >
-            <MessageIcon onClick={()=>hideShowMessagesContainer()} />
+        <Badge color="secondary" variant="dot" invisible={!unreadMessages} anchorOrigin={{vertical: 'top', horizontal: 'left',}}>
+            <Fab color="primary">
+                <MessageIcon onClick={()=>hideShowMessagesContainer()} />Chat
+            </Fab>
+        </Badge>
         </div>)}
     </>);
 };
