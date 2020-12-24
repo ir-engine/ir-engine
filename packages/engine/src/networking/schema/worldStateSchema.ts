@@ -1,6 +1,7 @@
 import {Schema, Model, ExtractSchemaObject} from "superbuffer"
 import { int16, int32, uint8, uint32, uint64, int64, float32, boolean, string } from "superbuffer";
 import { inputKeyArraySchema } from "./clientInputSchema";
+import { NetworkInputInterface, PacketReadyWorldState, WorldStateInterface } from "../interfaces/WorldState";
 
 
 const clientConnectedSchema = new Schema({
@@ -56,4 +57,15 @@ const worldStateSchema = new Schema({
     transforms: [transformSchema]
 });
 
-export const worldStateModel = new Model(worldStateSchema);
+// TODO: convert WorldStateInterface to PacketReadyWorldState in toBuffer and back in fromBuffer
+export class WorldStateModel {
+    static model: Model = new Model(worldStateSchema)
+    static toBuffer(objectOrArray: PacketReadyWorldState): ArrayBuffer {
+        // @ts-ignore
+        return this.model.toBuffer(objectOrArray);
+    }
+    static fromBuffer(buffer:unknown): PacketReadyWorldState {
+        // @ts-ignore
+        return this.model.fromBuffer(buffer);
+    }
+}
