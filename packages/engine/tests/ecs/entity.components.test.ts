@@ -19,7 +19,7 @@ class TestComponentWithData extends Component<TestComponentWithData> {
   rotation: Quaternion;
 }
 
-TestComponentWithData.schema = {
+TestComponentWithData._schema = {
   count: { default: 123, type: Types.Number },
   title: { default: "test string", type: Types.String },
   position: { default: new Vector3(1,2,3), type: Types.Ref },

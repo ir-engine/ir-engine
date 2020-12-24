@@ -4,7 +4,10 @@ import {
   VideoUpdateForm,
   videoCreated,
   videoUpdated,
-  videoDeleted, locationTypesRetrieved
+  videoDeleted,
+  locationTypesRetrieved,
+  instancesRetrievedAction,
+  instanceRemovedAction
 } from './actions';
 import {
   locationCreated,
@@ -12,12 +15,16 @@ import {
   locationRemoved,
   locationsRetrieved
 } from "../location/actions";
+import {
+  loadedUsers
+} from '../user/actions';
 import { client } from '../feathers';
 import { PublicVideo, videosFetchedError, videosFetchedSuccess } from '../video/actions';
 import axios from 'axios';
 import { apiUrl } from '../service.common';
 import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service';
 import {collectionsFetched} from "../scenes/actions";
+import store from "../store";
 
 export function createVideo (data: VideoCreationForm) {
   return async (dispatch: Dispatch, getState: any) => {
@@ -80,16 +87,49 @@ export function fetchAdminVideos () {
 
 export function fetchAdminLocations () {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    const locationAdmins = await client.service('location-admin').find();
     const locations = await client.service('location').find({
       query: {
         $sort: {
-          name: -1
+          name: 1
         },
+        $skip: getState().get('admin').get('locations').get('skip'),
+        $limit: getState().get('admin').get('locations').get('limit'),
         adminnedLocations: true
       }
     });
     dispatch(locationsRetrieved(locations));
+  };
+}
+
+export function fetchUsersAsAdmin (offset: string) {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    const skip = getState().get('admin').get('users').get('skip');
+    const limit = getState().get('admin').get('users').get('limit');
+    const users = await client.service('user').find({
+      query: {
+        $sort: {
+          name: 1
+        },
+        $skip: offset === 'decrement' ? skip - limit : offset === 'increment' ? skip + limit : skip,
+        $limit: limit,
+        action: 'admin'
+      }
+    });
+    dispatch(loadedUsers(users));
+  };
+}
+
+export function fetchAdminInstances () {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    const instances = await client.service('instance').find({
+      $sort: {
+        createdAt: -1
+      },
+      $skip: getState().get('admin').get('users').get('skip'),
+      $limit: getState().get('admin').get('users').get('limit'),
+      action: 'admin'
+    });
+    dispatch(instancesRetrievedAction(instances));
   };
 }
 
@@ -143,3 +183,7 @@ export function fetchLocationTypes () {
     dispatch(locationTypesRetrieved(locationTypes));
   };
 }
+
+client.service('instance').on('removed', (params) => {
+  store.dispatch(instanceRemovedAction(params.instance));
+});
