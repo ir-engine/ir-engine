@@ -28,7 +28,7 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
     actor.mixer.update(deltaTime);
   }
 
-  if (isClient && Engine.camera) {
+  if (isClient && Engine.camera && hasComponent(entity, LocalInputReceiver)) {
     actor.viewVector = new Vector3(0, 0,-1).applyQuaternion(Engine.camera.quaternion);
   }
 

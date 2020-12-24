@@ -103,33 +103,39 @@ export function fetchAdminLocations () {
 
 export function fetchUsersAsAdmin (offset: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    const user = getState().get('auth').get('user');
     const skip = getState().get('admin').get('users').get('skip');
     const limit = getState().get('admin').get('users').get('limit');
-    const users = await client.service('user').find({
-      query: {
-        $sort: {
-          name: 1
-        },
-        $skip: offset === 'decrement' ? skip - limit : offset === 'increment' ? skip + limit : skip,
-        $limit: limit,
-        action: 'admin'
-      }
-    });
-    dispatch(loadedUsers(users));
+    if (user.userRole === 'admin') {
+      const users = await client.service('user').find({
+        query: {
+          $sort: {
+            name: 1
+          },
+          $skip: offset === 'decrement' ? skip - limit : offset === 'increment' ? skip + limit : skip,
+          $limit: limit,
+          action: 'admin'
+        }
+      });
+      dispatch(loadedUsers(users));
+    }
   };
 }
 
 export function fetchAdminInstances () {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    const instances = await client.service('instance').find({
-      $sort: {
-        createdAt: -1
-      },
-      $skip: getState().get('admin').get('users').get('skip'),
-      $limit: getState().get('admin').get('users').get('limit'),
-      action: 'admin'
-    });
-    dispatch(instancesRetrievedAction(instances));
+    const user = getState().get('auth').get('user');
+    if (user.userRole === 'admin') {
+      const instances = await client.service('instance').find({
+        $sort: {
+          createdAt: -1
+        },
+        $skip: getState().get('admin').get('users').get('skip'),
+        $limit: getState().get('admin').get('users').get('limit'),
+        action: 'admin'
+      });
+      dispatch(instancesRetrievedAction(instances));
+    }
   };
 }
 

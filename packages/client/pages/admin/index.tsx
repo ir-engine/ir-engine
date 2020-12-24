@@ -24,11 +24,17 @@ const AdminConsolePage = (props: Props) => {
 
   useEffect(() => {
     doLoginAuto(true);
+      document.getElementById('__next').classList.add('adminPage');
   }, []);
 
   return (
       // <ThemeProvider theme={theme}>
         <EmptyLayout>
+            <style jsx global> {`
+                .adminPage {
+                    height: 100%;
+                }
+            `}</style>
             <AdminConsole />
         </EmptyLayout>
       // </ThemeProvider>
