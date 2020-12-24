@@ -1,17 +1,23 @@
 .party-chat-user {
-    background-position: bottom;
-    background-repeat: no-repeat;
-    background-size: 65% auto;
+    // background-position: bottom;
+    // background-repeat: no-repeat;
+    // background-size: 65% auto;
     margin: 5px;
     overflow: hidden;
     position: relative;
     height: 65px;
     width: 100px;
-    border: 3px solid rgba(0,0,0,0);
+    display: flex;
+    flex-direction: row;
+
 
     & > video {
-        height: 100%;
-        width: 100%;
+        // height: 100%;
+        // width: 100%;
+        height: 80px;
+        width: 80px;
+        border-radius: 50%;
+        background-color: #FFFFFF;
     }
 
     &.video-paused,
@@ -32,9 +38,7 @@
     }
 
     .username {
-        position: absolute;
-        top: 0;
-        text-align: center;
+        text-align: right;
         width: 100%;
     }
 
@@ -47,8 +51,8 @@
 
     &.focused,
     &.self-user {
-        height: 130px;
-        width: 200px;
+        height: 80px;
+        width: fit-content;
         .global-mute {
             position: absolute;
             height: 100%;
@@ -61,17 +65,30 @@
         }
 
         .user-controls {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
+            // position: absolute;
+            // bottom: 0;
+            flex-direction: column;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 8px;
+            width: fit-content;
+            padding: 15px 15px 15px 75px;
+            margin-left: -50px;
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
+
+            .controls{
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: flex-end;
+            }
 
             .right-controls {
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
+                margin: 0 5px;
 
                 & > .spacer {
                     height: 5px;
@@ -79,10 +96,12 @@
             }
 
             button {
-                background-color: white;
+                // background-color: white;
                 opacity: 40%;
                 z-index: 200;
                 width: 30px;
+                margin: 0 5px;
+
                 //bottom: 10px;
                 //position: absolute;
 
@@ -105,7 +124,7 @@
                 display: flex;
                 align-items: center;
                 z-index: 100;
-                background-color: white;
+                // background-color: white;
                 opacity: 40%;
                 border-radius: 15px;
 
