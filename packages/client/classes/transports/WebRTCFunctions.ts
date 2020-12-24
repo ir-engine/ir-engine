@@ -243,8 +243,8 @@ export async function resumeConsumer(consumer: { appData: { peerId: any; mediaTa
     networkTransport = Network.instance.transport as any;
     await networkTransport.request(MessageTypes.WebRTCResumeConsumer.toString(), { consumerId: consumer.id });
     await consumer.resume();
-    console.log(networkTransport);
-    console.log(consumer);
+    // console.log(networkTransport);
+    // console.log(consumer);
 }
 
 export async function pauseProducer(producer: { appData: { mediaTag: any; }; id: any; pause: () => any; }) {
@@ -373,7 +373,7 @@ export async function createTransport(direction: string, partyId?: string) {
                 }
 
                 console.log("Transport produce data request successful");
-                console.log(appData);
+                // console.log(appData);
                 return callback({ id });
             }
         );

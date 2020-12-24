@@ -522,8 +522,8 @@ export default class Api extends EventEmitter {
     const body = JSON.stringify({
       project
     });
-    console.log("EDITOR JSON IS");
-    console.log(project);
+    // console.log("EDITOR JSON IS");
+    // console.log(project);
     
     const projectEndpoint = `${SERVER_URL}/project/${projectId}`;
 

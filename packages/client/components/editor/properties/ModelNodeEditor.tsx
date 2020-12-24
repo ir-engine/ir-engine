@@ -5,7 +5,6 @@ import InputGroup from "../inputs/InputGroup";
 import BooleanInput from "../inputs/BooleanInput";
 import ModelInput from "../inputs/ModelInput";
 import { Cube } from "@styled-icons/fa-solid/Cube";
-import { GLTFInfo } from "../inputs/GLTFInfo";
 import StringInput from "../inputs/StringInput";
 
 const InteractableOption = [
@@ -81,6 +80,7 @@ export default class ModelNodeEditor extends Component<
     }
     return false;
   }
+
   renderInteractableTypeOptions = (node) =>{
     switch (node.interactionType){
       case 'infoBox': return <>
@@ -209,7 +209,6 @@ export default class ModelNodeEditor extends Component<
           />
         </InputGroup>
         {this.renderInteractableDependantFields(node)}
-        {node.model && <GLTFInfo node={node} />}
       </NodeEditor>
     );
   }

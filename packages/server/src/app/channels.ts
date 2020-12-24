@@ -80,7 +80,7 @@ export default (app: Application): void => {
                 let service, serviceId;
                 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
                 const projectResult = await app.service('project').get(sceneId);
-                console.log("Project result is: ", projectResult);
+                // console.log("Project result is: ", projectResult);
                 const projectUrl = projectResult.project_url;
                 const regexResult = projectUrl.match(projectRegex);
                 if (regexResult) {
