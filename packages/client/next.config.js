@@ -44,6 +44,7 @@ module.exports = withImages(
       ]
     },
     webpack(config) {
+      config.externals.push({xmlhttprequest: 'xmlhttprequest'})
       config.resolve.alias.utils = path.join(__dirname, 'utils')
       config.module.rules.push(
         {

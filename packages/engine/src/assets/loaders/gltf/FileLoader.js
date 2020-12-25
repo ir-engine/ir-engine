@@ -1,4 +1,7 @@
-import { Cache, Loader } from 'three'
+import { Cache, Loader } from 'three';
+import fetch from "cross-fetch"
+
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0
 
 const loading = {};
 
@@ -59,7 +62,6 @@ FileLoader.prototype = Object.assign( Object.create( Loader.prototype ), {
 		// Check for data: URI
 		const dataUriRegex = /^data:(.*?)(;base64)?,(.*)$/;
 		const dataUriRegexResult = url.match( dataUriRegex );
-		let request;
 
 		// Safari can not handle Data URIs through XMLHttpRequest so process manually
 		if ( dataUriRegexResult ) {
@@ -160,30 +162,30 @@ FileLoader.prototype = Object.assign( Object.create( Loader.prototype ), {
 
 			} );
 
-			request = new XMLHttpRequest();
 
-			request.open( 'GET', url, true );
+			fetch(url).then(res => res.blob()).then(async (res) => {
 
-			request.addEventListener( 'load', function ( event ) {
-
-				const response = this.response;
+				const response = await res.arrayBuffer();
 
 				const callbacks = loading[ url ];
+				scope.manager.itemStart( url );
 
 				delete loading[ url ];
 
-				if ( this.status === 200 || this.status === 0 ) {
+				console.log("********* FileLoader LOADED")
+				console.log(res);
 
 					// Some browsers return HTTP Status 0 when using non-http protocol
 					// e.g. 'file://' or 'data://'. Handle as success.
 
-					if ( this.status === 0 ) console.warn( 'THREE.FileLoader: HTTP Status 0 received.' );
+					if ( res.status === 0 ) console.warn( 'THREE.FileLoader: HTTP Status 0 received.' );
 
 					// Add to cache only on HTTP success, so that we do not cache
 					// error response bodies as proper responses to requests.
-					Cache.add( url, response );
+					Cache.add( url, res );
 
 					for ( let i = 0, il = callbacks.length; i < il; i ++ ) {
+						console.log("*************** CALLBACK")
 
 						const callback = callbacks[ i ];
 						if ( callback.onLoad ) callback.onLoad( response );
@@ -191,38 +193,7 @@ FileLoader.prototype = Object.assign( Object.create( Loader.prototype ), {
 					}
 
 					scope.manager.itemEnd( url );
-
-				} else {
-
-					for ( let i = 0, il = callbacks.length; i < il; i ++ ) {
-
-						const callback = callbacks[ i ];
-						if ( callback.onError ) callback.onError( event );
-
-					}
-
-					scope.manager.itemError( url );
-					scope.manager.itemEnd( url );
-
-				}
-
-			}, false );
-
-			request.addEventListener( 'progress', function ( event ) {
-
-				const callbacks = loading[ url ];
-
-				for ( let i = 0, il = callbacks.length; i < il; i ++ ) {
-
-					const callback = callbacks[ i ];
-					if ( callback.onProgress ) callback.onProgress( event );
-
-				}
-
-			}, false );
-
-			request.addEventListener( 'error', function ( event ) {
-
+			}).catch((event) => {
 				const callbacks = loading[ url ];
 
 				delete loading[ url ];
@@ -236,46 +207,8 @@ FileLoader.prototype = Object.assign( Object.create( Loader.prototype ), {
 
 				scope.manager.itemError( url );
 				scope.manager.itemEnd( url );
-
-			}, false );
-
-			request.addEventListener( 'abort', function ( event ) {
-
-				const callbacks = loading[ url ];
-
-				delete loading[ url ];
-
-				for ( let i = 0, il = callbacks.length; i < il; i ++ ) {
-
-					const callback = callbacks[ i ];
-					if ( callback.onError ) callback.onError( event );
-
-				}
-
-				scope.manager.itemError( url );
-				scope.manager.itemEnd( url );
-
-			}, false );
-
-			if ( this.responseType !== undefined ) request.responseType = this.responseType;
-			if ( this.withCredentials !== undefined ) request.withCredentials = this.withCredentials;
-
-			if ( request.overrideMimeType ) request.overrideMimeType( this.mimeType !== undefined ? this.mimeType : 'text/plain' );
-
-			for ( const header in this.requestHeader ) {
-
-				request.setRequestHeader( header, this.requestHeader[ header ] );
-
-			}
-
-			request.send( null );
-
+			});
 		}
-
-		scope.manager.itemStart( url );
-
-		return request;
-
 	},
 
 	setResponseType: function ( value ) {

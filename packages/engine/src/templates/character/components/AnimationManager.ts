@@ -20,8 +20,10 @@ export class AnimationManager extends Component<AnimationManager> {
 			}
 
 			new GLTFLoader().load('/models/avatars/Animation.glb', gltf => {
+				console.log("GLTF IS", gltf)
+				console.log("GLTFG ANIMATIONS ARE", gltf.animations)
 					this._animations = gltf.animations;
-					this._animations.forEach(clip => {
+					this._animations?.forEach(clip => {
 						// TODO: make list of morph targets names
 						clip.tracks = clip.tracks.filter(track => !track.name.match(/^CC_Base_/));
 					});
