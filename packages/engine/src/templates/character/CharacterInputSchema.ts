@@ -16,6 +16,8 @@ import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { TouchInputs } from "../../input/enums/TouchInputs";
 import { DefaultInputSchema } from "../shared/DefaultInputSchema";
 import { lookByInputAxis } from "./behaviors/lookByInputAxis";
+import { CameraInput } from '../../input/enums/CameraInput';
+import { setCharacterExpression } from './behaviors/setCharacterExpression';
 
 export const CharacterInputSchema: InputSchema = {
   ...DefaultInputSchema,
@@ -280,6 +282,24 @@ export const CharacterInputSchema: InputSchema = {
   },
   // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
   inputAxisBehaviors: {
+    [CameraInput.Neutral]: {
+      started: [
+        {
+          behavior: setCharacterExpression,
+          args: {
+            input: CameraInput.Neutral
+          }
+        }
+      ],
+      changed: [
+        {
+          behavior: setCharacterExpression,
+          args: {
+            input: CameraInput.Neutral
+          }
+        }
+      ]
+    },
     [DefaultInput.CAMERA_SCROLL]: {
       started: [
         {
