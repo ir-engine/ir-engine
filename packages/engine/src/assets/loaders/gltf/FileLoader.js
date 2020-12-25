@@ -164,7 +164,7 @@ FileLoader.prototype = Object.assign( Object.create( Loader.prototype ), {
 
 
 			fetch(url).then(res => res.blob()).then(async (res) => {
-
+				console.log("***************** URL IS", url);
 				const response = await res.arrayBuffer();
 
 				const callbacks = loading[ url ];
