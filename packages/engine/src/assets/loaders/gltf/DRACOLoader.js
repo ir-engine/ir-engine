@@ -1,9 +1,10 @@
 import {
 	BufferAttribute,
 	BufferGeometry,
-	FileLoader,
 	Loader
 } from "three";
+
+import { 	FileLoader } from "./FileLoader.js";
 
 var DRACOLoader = function ( manager ) {
 

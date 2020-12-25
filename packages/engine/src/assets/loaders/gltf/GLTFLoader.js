@@ -2459,8 +2459,8 @@ var GLTFLoader = ( function () {
 		var options = this.options;
 
 		var textureDef = json.textures[ textureIndex ];
-
-		var URL = self.URL || self.webkitURL;
+		if(self === undefined) self = this;
+		var URL = self.URL || self.webkitURL || this.URL;
 
 		var sourceURI = source.uri;
 		var isObjectURL = false;
