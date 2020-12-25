@@ -17,6 +17,7 @@ import { AssetClass } from '../enums/AssetClass';
 import { getAssetClass, getAssetType, loadAsset } from '../functions/LoadingFunctions';
 import { ProcessModelAsset } from "../functions/ProcessModelAsset";
 import { Object3D } from 'three';
+import { CharacterAvatarComponent } from '../../templates/character/components/CharacterAvatarComponent';
 
 export default class AssetLoadingSystem extends System {
   updateType = SystemUpdateType.Fixed;
@@ -34,6 +35,9 @@ export default class AssetLoadingSystem extends System {
     });
     this.queryResults.toLoad.all.forEach((entity: Entity) => {
       console.log("**************** TO LOAD");
+      console.log(entity)
+      const isCharacter = hasComponent(entity, CharacterAvatarComponent);
+
       if (hasComponent(entity, AssetLoaderState)) {
         //return console.log("Returning because already has AssetLoaderState");
         console.log("??? already has AssetLoaderState");
@@ -55,6 +59,12 @@ export default class AssetLoadingSystem extends System {
         const eventEntity = new CustomEvent('scene-loaded-entity', { detail: { left: this.loadingCount } });
         document.dispatchEvent(eventEntity);
       }
+
+      console.log("************ IS CHARACTER? ", isCharacter);
+      console.log("*********** IS CLIENT? ", isClient);
+
+      if(!isCharacter || isClient){
+        try {
         loadAsset(assetLoader.url, entity, (entity, { asset }) => {
           // This loads the editor scene
           this.loaded.set(entity, asset);
@@ -72,6 +82,11 @@ export default class AssetLoadingSystem extends System {
           }
         }
         });
+      } catch (error) {
+        console.log("**** Loading error; failed to load because ", error);
+      }
+  }
+
     });
 
     // Do the actual entity creation inside the system tick not in the loader callback
