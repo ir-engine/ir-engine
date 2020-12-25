@@ -13,8 +13,8 @@ export const setDropState: Behavior = (entity, args = null, deltaTime) => {
   const input = getComponent<Input>(entity, Input as any);
   if(!actor.initialized) return;
   if (!actor.rayHasHit) return;
-  console.log("Setting drop state");
-  console.log("isMoving: ", isMoving(entity));
+  // console.log("Setting drop state");
+  // console.log("isMoving: ", isMoving(entity));
 
   if (actor.groundImpactVelocity.y < -6)
   {

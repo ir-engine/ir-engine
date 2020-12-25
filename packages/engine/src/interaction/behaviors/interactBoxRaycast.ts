@@ -1,7 +1,7 @@
 import { Object3D, Ray, Raycaster, Vector3, Vector2, Mesh, Frustum, Matrix4, Box3, Scene } from "three";
 import { Behavior } from "../../common/interfaces/Behavior";
 import { Entity } from "../../ecs/classes/Entity";
-import { InteractBehaviorArguments } from "../types";
+import { InteractBehaviorArguments } from "../types/InteractionTypes";
 import { getComponent, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 
 import { Object3DComponent } from "../../common/components/Object3DComponent";

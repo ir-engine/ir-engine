@@ -33,6 +33,7 @@ export default class AssetLoadingSystem extends System {
       // Do things here
     });
     this.queryResults.toLoad.all.forEach((entity: Entity) => {
+      console.log("**************** TO LOAD");
       if (hasComponent(entity, AssetLoaderState)) {
         //return console.log("Returning because already has AssetLoaderState");
         console.log("??? already has AssetLoaderState");
@@ -53,10 +54,11 @@ export default class AssetLoadingSystem extends System {
 
         const eventEntity = new CustomEvent('scene-loaded-entity', { detail: { left: this.loadingCount } });
         document.dispatchEvent(eventEntity);
-
+      }
         loadAsset(assetLoader.url, entity, (entity, { asset }) => {
           // This loads the editor scene
           this.loaded.set(entity, asset);
+          if (isClient) {
           this.loadingCount--;
 
           if (this.loadingCount === 0) {
@@ -68,9 +70,8 @@ export default class AssetLoadingSystem extends System {
             const event = new CustomEvent('scene-loaded-entity', { detail: { left: this.loadingCount } });
             document.dispatchEvent(event);
           }
+        }
         });
-      }
-
     });
 
     // Do the actual entity creation inside the system tick not in the loader callback
@@ -89,7 +90,9 @@ export default class AssetLoadingSystem extends System {
       //   AssetVault.instance.assets.set(urlHashed, asset);
       // }
 
+      console.log("************ HANDLING ONLOADED")
       if (component.onLoaded.length > 0) {
+        console.log(component.onLoaded)
         component.onLoaded.forEach (onLoaded => onLoaded(entity, { asset }));
       }
     });

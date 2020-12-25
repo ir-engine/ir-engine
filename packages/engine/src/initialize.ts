@@ -1,4 +1,3 @@
-import { isBrowser } from 'face-api.js/build/commonjs/env/isBrowser';
 import _ from 'lodash';
 import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
@@ -24,10 +23,8 @@ import { ServerSpawnSystem } from './scene/systems/SpawnSystem';
 import { StateSystem } from './state/systems/StateSystem';
 import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
-import { CharacterSubscriptionSchema } from './templates/character/CharacterSubscriptionSchema';
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
-import { DebugHelpersSystem } from "./debug/systems/DebugHelpersSystem";
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -42,10 +39,6 @@ export const DefaultInitializationOptions = {
   },
   state: {
     schema: CharacterStateSchema
-  },
-  subscriptions: {
-    enabled: true,
-    schema: CharacterSubscriptionSchema
   }
 };
 
