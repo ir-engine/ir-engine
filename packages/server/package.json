@@ -148,7 +148,8 @@
     "slugify": "^1.4.5",
     "universal-analytics": "^0.4.20",
     "uuid": "^8.0.0",
-    "winston": "^3.3.3"
+    "winston": "^3.3.3",
+    "xmlhttprequest-ssl": "^1.6.0"
   },
   "devDependencies": {
     "@types/bent": "^7.0.2",

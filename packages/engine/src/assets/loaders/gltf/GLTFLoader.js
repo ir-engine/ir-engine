@@ -62,7 +62,7 @@ import {
 	sRGBEncoding
 } from "three";
 
-import { FileLoader } from "./FileLoader.js";
+import { FileLoader } from "./FileLoader.js"
 
 var GLTFLoader = ( function () {
 
@@ -247,26 +247,12 @@ var GLTFLoader = ( function () {
 			var extensions = {};
 			var plugins = {};
 
-			if ( typeof data === 'string' ) {
-
-				content = data;
-
-			} else {
 
 				var magic = LoaderUtils.decodeText( new Uint8Array( data, 0, 4 ) );
 
 				if ( magic === BINARY_EXTENSION_HEADER_MAGIC ) {
 
-					try {
-
-						extensions[ EXTENSIONS.KHR_BINARY_GLTF ] = new GLTFBinaryExtension( data );
-
-					} catch ( error ) {
-
-						if ( onError ) onError( error );
-						return;
-
-					}
+					extensions[ EXTENSIONS.KHR_BINARY_GLTF ] = new GLTFBinaryExtension( data );
 
 					content = extensions[ EXTENSIONS.KHR_BINARY_GLTF ].content;
 
@@ -276,7 +262,9 @@ var GLTFLoader = ( function () {
 
 				}
 
-			}
+				console.log("*************** Content is ", content);
+				console.log("*************** Data is ", data);
+
 
 			var json = JSON.parse( content );
 
