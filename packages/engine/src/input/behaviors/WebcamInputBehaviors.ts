@@ -10,13 +10,14 @@ export const startFaceTracking: Behavior = (entity) => {
     const video = document.createElement('video');
     video.srcObject = MediaStreamComponent.instance.mediaStream;
     Promise.all([
-        console.log("Start load detectors" + faceapi),
+        console.log("Start load detectors"),
         faceapi.nets.tinyFaceDetector.loadFromUri('/facetracking'),
         faceapi.nets.faceExpressionNet.loadFromUri('/facetracking')
     ]).then(() => {
         console.log("Face detectors loaded!");
         video.addEventListener('play', () => {
-            console.log("Video starts playing");
+            console.log("Video start playing");
+            // console.dir(video);
             // Record input at 30 FPS for now
             setInterval(async () => faceToInput(entity, video), 33);
         });
