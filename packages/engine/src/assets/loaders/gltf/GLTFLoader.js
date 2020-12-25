@@ -62,7 +62,8 @@ import {
 	sRGBEncoding
 } from "three";
 
-import { FileLoader } from "./FileLoader.js"
+import { FileLoader } from "./FileLoader.js";
+import  Blob from "cross-blob";
 
 var GLTFLoader = ( function () {
 
@@ -2158,8 +2159,9 @@ var GLTFLoader = ( function () {
 
 				case 'texture':
 					dependency = this._invokeOne(function (ext) {
-
-						return ext.loadTexture && ext.loadTexture(index);
+						if (typeof window !== 'undefined') {
+							return ext.loadTexture && ext.loadTexture(index);
+						}
 
 					});
 					break;
@@ -2453,14 +2455,14 @@ var GLTFLoader = ( function () {
 	};
 
 	GLTFParser.prototype.loadTextureImage = function ( textureIndex, source, loader ) {
-
+console.log("********* LOADING TEXTURE IMAGE")
 		var parser = this;
 		var json = this.json;
 		var options = this.options;
 
 		var textureDef = json.textures[ textureIndex ];
-		if(self === undefined) self = this;
-		var URL = self.URL || self.webkitURL || this.URL;
+		var self = this;
+		var URL = self.URL || self.webkitURL || window.URL || URL;
 
 		var sourceURI = source.uri;
 		var isObjectURL = false;
@@ -2562,6 +2564,8 @@ var GLTFLoader = ( function () {
 	GLTFParser.prototype.assignTexture = function ( materialParams, mapName, mapDef ) {
 
 		var parser = this;
+
+		if(typeof window === 'undefined') return;
 
 		return this.getDependency( 'texture', mapDef.index ).then( function ( texture ) {
 
