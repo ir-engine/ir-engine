@@ -1,7 +1,6 @@
-import {Schema, Model, ExtractSchemaObject} from "superbuffer"
-import { int16, int32, uint8, uint32, uint64, int64, float32, boolean, string } from "superbuffer";
+import { float32, Model, Schema, string, uint32, uint64, uint8 } from "superbuffer";
+import { PacketReadyWorldState } from "../interfaces/WorldState";
 import { inputKeyArraySchema } from "./clientInputSchema";
-import { NetworkInputInterface, PacketReadyWorldState, WorldStateInterface } from "../interfaces/WorldState";
 
 
 const clientConnectedSchema = new Schema({

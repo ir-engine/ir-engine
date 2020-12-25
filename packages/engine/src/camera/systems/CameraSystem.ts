@@ -1,17 +1,16 @@
 import { addObject3DComponent } from '../../common/behaviors/Object3DBehaviors';
 import { CameraTagComponent } from '../../common/components/Object3DTagComponents';
+import { isClient } from '../../common/functions/isClient';
 import { Engine } from '../../ecs/classes/Engine';
 import { System } from '../../ecs/classes/System';
 import {
   addComponent, createEntity, getComponent, hasComponent
 } from '../../ecs/functions/EntityFunctions';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { applySettingsToCamera } from "../behaviors/applySettingsToCamera";
 import { attachCamera } from '../behaviors/attachCamera';
 import { setCameraFollow } from '../behaviors/setCameraFollow';
 import { CameraComponent } from '../components/CameraComponent';
 import { FollowCameraComponent } from '../components/FollowCameraComponent';
-import { isClient } from '../../common/functions/isClient';
 
 export class CameraSystem extends System {
   constructor() {

@@ -26,7 +26,7 @@ export function createPrefab (prefab: Prefab): Entity {
         // Get the component on the entity, and set it to the initializing value from the prefab
         if (typeof component.type._schema[initValueKey] === 'undefined') {
           console.warn('property', initValueKey, ' not exists in component schema of ', component.type.name);
-          console.log(component);
+          // console.log(component);
         } else {
           if (
             typeof component.type._schema[initValueKey].default !== 'undefined' &&

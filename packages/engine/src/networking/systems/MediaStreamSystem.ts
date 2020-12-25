@@ -1,8 +1,7 @@
 import { System } from '../../ecs/classes/System';
+import { addComponent, createEntity, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { MediaStreamComponent } from '../components/MediaStreamComponent';
-import { Network } from '../components/Network';
 import { localMediaConstraints } from '../constants/VideoConstants';
-import { addComponent, getMutableComponent, createEntity } from '../../ecs/functions/EntityFunctions';
 
 export class MediaStreamSystem extends System {
   public static instance: MediaStreamSystem = null

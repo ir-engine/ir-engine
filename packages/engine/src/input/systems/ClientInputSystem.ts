@@ -1,4 +1,3 @@
-import _ from "lodash";
 import { isClient } from "../../common/functions/isClient";
 import { DomEventBehaviorValue } from "../../common/interfaces/DomEventBehaviorValue";
 import { NumericalType } from "../../common/types/NumericalTypes";
@@ -10,12 +9,14 @@ import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { Client } from "../../networking/components/Client";
 import { Network } from "../../networking/components/Network";
-import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { NetworkObject } from "../../networking/components/NetworkObject";
-import { handleInputOnClient } from '../behaviors/handleInputOnClient';
+import { NetworkInputInterface } from "../../networking/interfaces/WorldState";
+import { ClientInputModel } from '../../networking/schema/clientInputSchema';
+import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { cleanupInput } from '../behaviors/cleanupInput';
+import { handleGamepads } from "../behaviors/GamepadInputBehaviors";
+import { handleInputOnClient } from '../behaviors/handleInputOnClient';
 import { handleInputPurge } from "../behaviors/handleInputPurge";
-import { handleGamepadConnected, handleGamepads } from "../behaviors/GamepadInputBehaviors";
 //import { initializeSession, processSession } from '../behaviors/WebXRInputBehaviors';
 import { addPhysics, removeWebXRPhysics, updateWebXRPhysics } from '../behaviors/WebXRControllersBehaviors';
 import { Input } from '../components/Input';
@@ -24,15 +25,8 @@ import { WebXRSession } from '../components/WebXRSession';
 import { XRControllersComponent } from '../components/XRControllersComponent';
 import { InputType } from "../enums/InputType";
 import { InputValue } from "../interfaces/InputValue";
-import { ListenerBindingData } from "../interfaces/ListenerBindingData";
 import { InputAlias } from "../types/InputAlias";
-import { Vault } from '../../networking/components/Vault';
-import { createSnapshot } from '../../networking/functions/NetworkInterpolationFunctions';
-import { ClientInputModel } from '../../networking/schema/clientInputSchema';
 
-import supportsPassive from "../../common/functions/supportsPassive";
-import { BehaviorComponent } from '../../common/components/BehaviorComponent';
-import { NetworkInputInterface } from "../../networking/interfaces/WorldState";
 
 /**
  * Input System
@@ -42,6 +36,26 @@ import { NetworkInputInterface } from "../../networking/interfaces/WorldState";
  * @property {Number} secondControllerId set value 1
  * @property {} boundListeners set of values without keys
  */
+
+function supportsPassive(): boolean {
+  let supportsPassiveValue = false;
+  try {
+    const opts = Object.defineProperty({}, 'passive', {
+      get: function() {
+        supportsPassiveValue = true;
+      }
+    });
+    window.addEventListener("testPassive", null, opts);
+    window.removeEventListener("testPassive", null, opts);
+  } catch (error) {}
+  return supportsPassiveValue;
+}
+
+interface ListenerBindingData {
+  domElement: any;
+  eventName: string;
+  listener: Function;
+}
 
 export class InputSystem extends System {
   updateType = SystemUpdateType.Fixed;
