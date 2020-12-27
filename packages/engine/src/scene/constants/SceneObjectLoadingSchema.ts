@@ -81,6 +81,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       },
       {
         behavior: (entity) => {
+          console.log("*********** ADDING WORLD COLLIDERS TO ONLOADED")
           getMutableComponent<AssetLoader>(entity, AssetLoader).onLoaded.push(addWorldColliders);
         }
       }

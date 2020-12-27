@@ -34,8 +34,8 @@ export default class AssetLoadingSystem extends System {
       // Do things here
     });
     this.queryResults.toLoad.all.forEach((entity: Entity) => {
-      console.log("**************** TO LOAD");
-      console.log(entity)
+      // console.log("**************** TO LOAD");
+      // console.log(entity)
       const isCharacter = hasComponent(entity, CharacterAvatarComponent);
 
       if (hasComponent(entity, AssetLoaderState)) {
