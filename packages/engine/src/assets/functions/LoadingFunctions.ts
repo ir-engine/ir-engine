@@ -7,6 +7,10 @@ import { AssetId, AssetMap, AssetsLoadedHandler, AssetTypeAlias, AssetUrl } from
 import * as FBXLoader from '../loaders/fbx/FBXLoader';
 import { Entity } from '../../ecs/classes/Entity';
 import { DRACOLoader } from '../loaders/gltf/DRACOLoader';
+// @ts-ignore
+import NodeDRACOLoader from "../loaders/gltf/NodeDRACOLoader";
+import { isClient } from "../../common/functions/isClient";
+import * as THREE from "three";
 
 function parallelTraverse( a, b, callback ) {
   callback( a, b );
@@ -113,8 +117,17 @@ function getLoaderForAssetType (assetType: AssetTypeAlias): GLTFLoader | any | T
   // else if (assetType == AssetType.glTF) return new GLTFLoader();
   else if (assetType == AssetType.glTF) { 
     const loader = new GLTFLoader();
-    const dracoLoader = new DRACOLoader();
-    dracoLoader.setDecoderPath('/loader_decoders/');
+
+let dracoLoader;
+    if(isClient) {
+      console.log("************* IS CLIENT");
+      dracoLoader = new DRACOLoader();
+      dracoLoader.setDecoderPath('/loader_decoders/');
+  }
+  else {
+      console.log("IS SERVER!")
+      dracoLoader = new NodeDRACOLoader(THREE.DefaultLoadingManager);
+  }
     loader.setDRACOLoader(dracoLoader);
     return loader;
   }

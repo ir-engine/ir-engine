@@ -1006,7 +1006,7 @@ var GLTFLoader = ( function () {
 		this.name = EXTENSIONS.KHR_DRACO_MESH_COMPRESSION;
 		this.json = json;
 		this.dracoLoader = dracoLoader;
-		this.dracoLoader.preload();
+		if(this.dracoLoader.preload) this.dracoLoader.preload();
 
 	}
 
