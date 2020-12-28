@@ -53,7 +53,7 @@ export class ClientNetworkSystem extends System {
       if (Network.instance.packetCompression) {
         const state = WorldStateModel.fromBuffer(new Uint8Array(buffer).buffer);
         // TODO: get rid of this conversions? isn't it lossy converting bigint to number and back?
-        const state2:WorldStateInterface = {
+        const unbufferedState:WorldStateInterface = {
           ...state,
           tick: Number(state.tick),
           snapshot: {
@@ -63,7 +63,7 @@ export class ClientNetworkSystem extends System {
           }
         };
 
-        applyNetworkStateToClient(state2, delta);
+        applyNetworkStateToClient(unbufferedState, delta);
       } else {
         applyNetworkStateToClient(buffer, delta);
       }
