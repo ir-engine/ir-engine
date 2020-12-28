@@ -2,7 +2,6 @@ import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { Input } from '@xr3ngine/engine/src/input/components/Input';
 import { getComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { Object3DComponent } from '../../../common/components/Object3DComponent';
 import { DefaultInput } from "../../shared/DefaultInput";
 import { Mesh } from "three";
@@ -22,7 +21,7 @@ const morphNameByInput = {
 
 export const setCharacterExpression: Behavior = (entity: Entity, args: any): void => {
   // console.log('setCharacterExpression', args.input, morphNameByInput[args.input]);
-  const object: Object3DComponent = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
+  const object: Object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent);
   const body = object.value?.getObjectByName("Body") as Mesh;
 
   if (!body?.isMesh) {
