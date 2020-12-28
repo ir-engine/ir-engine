@@ -1,9 +1,8 @@
-import { Object3D, Ray, Raycaster, Vector3, Vector2, Mesh, Frustum, Matrix4, Box3, Scene } from "three";
+import { Frustum, Matrix4, Box3 } from "three";
 import { Behavior } from "../../common/interfaces/Behavior";
 import { Entity } from "../../ecs/classes/Entity";
 import { InteractBehaviorArguments } from "../types";
 import { getComponent, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
-
 import { Object3DComponent } from "../../common/components/Object3DComponent";
 import { Interactable } from "../components/Interactable";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
@@ -36,7 +35,7 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }: In
       const interactive = getComponent(interactiveEntity, Interactable);
       // - onInteractionCheck is not set or passed
       return (typeof interactive.onInteractionCheck !== 'function' || interactive.onInteractionCheck(entity, interactiveEntity));
-    })
+    });
 
   if (!raycastList.length) {
     return;
@@ -69,12 +68,12 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }: In
           const aabb = new Box3();
           aabb.setFromObject(object3D);
           return [entityIn, frustum.intersectsBox(aabb), aabb.distanceToPoint(transform.position), index];
-        }).filter(value => value[1]).sort((a: any, b: any) => a[2] - b[2])
+        }).filter(value => value[1]).sort((a: any, b: any) => a[2] - b[2]);
 
         if (arr.length) {
-          return arr[0]
+          return arr[0];
         } else {
-          return [null, false]
+          return [ null, false ];
         }
 
       }
@@ -91,7 +90,7 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }: In
     }
   }).filter(value => value[1]);
 
-  const selectNearest = subFocusedArray.sort((a: any, b: any) => a[2] - b[2])
+  const selectNearest = subFocusedArray.sort((a: any, b: any) => a[2] - b[2]);
 
   const interacts = getMutableComponent(entity, Interactor);
   interacts.subFocusedArray = subFocusedArray.map((v: any) => getComponent(v[0], Object3DComponent).value);
