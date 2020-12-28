@@ -179,10 +179,10 @@ const lightTheme = createMuiTheme({
         }      
       },
       anchorOriginTopCenter:{
-        top: '2%',
-        '@media (max-width: 768px)': {
-          top: '10%',
-        },
+        top: '10%',
+        // '@media (max-width: 768px)': {
+        //   top: '10%',
+        // },
       },
       anchorOriginBottomCenter:{
         bottom: '60px',
