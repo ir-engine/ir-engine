@@ -5,6 +5,7 @@ import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile
 import Snackbar from '@material-ui/core/Snackbar';
 import { connect } from "react-redux";
 import TouchApp from "@material-ui/icons/TouchApp";
+import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 
 interface Props {
   message?: string;
@@ -23,7 +24,10 @@ const TooltipContainer = (props: Props) =>{
             <Snackbar anchorOrigin={{vertical: 'bottom',horizontal: 'center'}} 
             className={styles.TooltipSnackBar} open={true} 
             autoHideDuration={10000}>
-              <section className={styles.innerHtml+' MuiSnackbarContent-root'}>Press {interactTip} to {props.message}</section>
+              <section className={styles.innerHtml+' MuiSnackbarContent-root'}>
+                <ErrorOutlineIcon color="secondary" />
+                Press {interactTip} to {props.message}
+              </section>
             </Snackbar>
           :null;
 };
