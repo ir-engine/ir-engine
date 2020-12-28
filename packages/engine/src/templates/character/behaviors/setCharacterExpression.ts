@@ -4,8 +4,7 @@ import { Input } from '@xr3ngine/engine/src/input/components/Input';
 import { getComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { CameraInput } from '../../../input/enums/CameraInput';
-import { CharacterComponent } from '../components/CharacterComponent';
-import { Object3D } from 'three';
+import { Object3DComponent } from '../../../common/components/Object3DComponent'
 
 const morphNameByInput = {
   [CameraInput.Angry]: "Frown",
@@ -20,8 +19,9 @@ const morphNameByInput = {
 };
 
 export const setCharacterExpression: Behavior = (entity: Entity, args: any): void => {
-  const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-  const body: Object3D = actor.modelContainer.getObjectByName("BODY");
+  const actor: Object3DComponent = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
+  // const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+  const body = actor.entity.getObjectByName("BODY");
 
   const input: Input = getComponent(entity, Input);
   const morphValue = input.data.get(args.input)?.value;
