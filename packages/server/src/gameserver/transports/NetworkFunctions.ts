@@ -138,7 +138,6 @@ export function validateNetworkObjects(): void {
 
             // Remove all objects for disconnecting user
             networkObjectsClientOwns.forEach(obj => {
-
                 // Get the entity attached to the NetworkObjectComponent and remove it
                 logger.info("Removed entity ", (obj.component.entity as Entity).id, " for user ", userId);
                 const removeMessage = { networkId: obj.networkId };
@@ -158,11 +157,11 @@ export function validateNetworkObjects(): void {
         if (networkObject.ownerId !== undefined && Network.instance.clients[networkObject.ownerId] !== undefined || networkObject.ownerId === "server")
             return;
 
+        logger.info("Culling ownerless object: ", networkObject.component.networkId, "owned by ", networkObject.ownerId);
+
         // If it does, tell clients to destroy it
         const removeMessage = { networkId: networkObject.component.networkId };
-
         Network.instance.destroyObjects.push(removeMessage);
-        logger.info("Culling ownerless object: ", networkObject.component.networkId, "owned by ", networkObject.ownerId);
 
         // get network object
         const entity = networkObject.component.entity;
@@ -239,8 +238,14 @@ function disconnectClientIfConnected(socket, userId: string): void {
         if (networkObject.ownerId !== userId) return;
 
         // If it does, tell clients to destroy it
-
-        Network.instance.destroyObjects.push({ networkId: networkObject.component.networkId });
+        console.log('destroyObjects.push({ networkId: networkObject.component.networkId', networkObject.component.networkId);
+        if (typeof networkObject.component.networkId === "number") {
+            Network.instance.destroyObjects.push({ networkId: networkObject.component.networkId });
+        } else {
+            console.error('networkObject.component.networkId is invalid', networkObject);
+            logger.error('networkObject.component.networkId is invalid');
+            logger.error(networkObject);
+        }
 
         // get network object
         const entity = Network.instance.networkObjects[key].component.entity;
@@ -269,8 +274,6 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     };
 
     // Added new object to the worldState with networkId and ownerId
-    console.warn(Network.instance.createObjects);
-
     Network.instance.createObjects.push({
         networkId: networkObject.networkId,
         ownerId: userId,
@@ -283,7 +286,6 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
         qZ: transform.rotation.z,
         qW: transform.rotation.w
     });
-
 
     // Create a new worldtate object that we can fill
     const worldState = {

@@ -15,7 +15,7 @@ import { AssetLoaderState } from "../../src/assets/components/AssetLoaderState";
 import { Not } from "../../src/ecs/functions/ComponentFunctions";
 
 class TestComponent extends Component<TestComponent> {}
-TestComponent.schema = {
+TestComponent._schema = {
   value: { type: Types.Number, default: 0 },
 };
 

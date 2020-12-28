@@ -123,13 +123,9 @@ body{
   overflow: hidden;
 }
 
-.menuDrawerOpened{
-  [class*=UserMenu_anchorDrawer]{
-    visibility: hidden;
-  }
-  
+.menuDrawerOpened{  
   [class*=InstanceChat_instance-chat-container]{
-    right: 30vw;
+    right: 25vw;
     left: auto;
     transition: right 225ms cubic-bezier(0, 0, 0.2, 1) 0ms;
     @media (orientation: portrait) {
@@ -138,6 +134,9 @@ body{
     @media (max-width: 768px){
       right: 50%;      
     } 
+  }
+  [class*=InstanceChat_iconCallChat]{
+    right: 25vw;
   }
 
   [class*=MediaIconsBox_drawerBoxContainer]{

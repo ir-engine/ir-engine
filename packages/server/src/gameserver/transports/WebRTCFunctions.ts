@@ -61,8 +61,8 @@ export const sendInitialProducers = async (socket: SocketIO.Socket, partyId?: st
     const selfClient = Network.instance.clients[userId];
     if (selfClient.socketId != null) {
         Object.entries(Network.instance.clients).forEach(([name, value]) => {
-            console.log(name);
-            console.log(value);
+            // console.log(name);
+            // console.log(value);
             if (name === userId || value.media == null || value.socketId == null)
                 return;
             logger.info(`Sending media for ${name}`);
