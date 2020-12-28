@@ -74,12 +74,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const UserMenu = (props: Props): any => {    
   const { login, authState, logoutUser, removeUser, showDialog, currentScene, updateUsername} = props;
   const selfUser = authState.get('user');
-  console.log('selfUser', selfUser);
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
   const [isEditUsername, setIsEditUsername] = useState(false);
   const [username, setUsername] = useState(selfUser?.name);
   const [drawerType, setDrawerType] = useState('default');
-  console.log('username', username)
 
   const invitationLink = window.location.href;
   const refLink = useRef(null);
