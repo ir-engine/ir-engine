@@ -79,9 +79,21 @@ export const EnginePage = (props: Props) => {
     setProgressEntity(event.detail.left);
   };
 
+  const onObjectHover = (event: CustomEvent): void => {
+    setHoveredLabel(event.detail.focused ? event.detail.interactionText : '');
+  };
+
+
+  const onObjectActivation = (event: CustomEvent): void =>{
+    setInfoBoxData(event.detail.payload);
+    setHoveredLabel('');
+  };
+
   const addEventListeners = () => {
     document.addEventListener('scene-loaded', onSceneLoaded);
     document.addEventListener('scene-loaded-entity', onSceneLoadedEntity);
+    document.addEventListener('object-activation', onObjectActivation);
+    document.addEventListener('object-hover', onObjectHover);
   };
 
   useEffect(() => {
