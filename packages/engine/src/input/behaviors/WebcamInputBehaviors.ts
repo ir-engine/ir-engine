@@ -27,19 +27,21 @@ export const startFaceTracking: Behavior = (entity) => {
     const video = document.createElement('video');
     video.srcObject = MediaStreamComponent.instance.mediaStream;
     Promise.all([
+        console.log("Start load detectors"),
         faceapi.nets.tinyFaceDetector.loadFromUri('/facetracking'),
         faceapi.nets.faceExpressionNet.loadFromUri('/facetracking')
     ]).then(() => {
-        console.log("**************** NETS LOADED")
-
+        console.log("Face detectors loaded!");
         video.addEventListener('play', () => {
-            console.log("****************  PLAYING STREAM")
-
+            console.log("Video start playing");
+            // console.dir(video);
             // Record input at 30 FPS for now
             const interval = setInterval(async () => faceToInput(entity, video), 33);
             faceTrackingTimers.push(interval);
             console.log("*************** RUNNING FACE TRACKING")
         });
+
+        video.muted = true;
         video.play();
     });
 };

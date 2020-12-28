@@ -27,9 +27,9 @@ import { selectLocationState } from "../../../redux/location/selector";
 
 import {
     startFaceTracking,
-    // startLipsyncTracking,
+    startLipsyncTracking,
     stopFaceTracking,
-    // stopLipsyncTracking
+    stopLipsyncTracking
 } from "@xr3ngine/engine/src/input/behaviors/WebcamInputBehaviors";
 import { Network } from "@xr3ngine/engine/src/networking/components/Network";
 
@@ -60,19 +60,17 @@ const MediaIconsBox = observer((props) =>{
     const handleFaceClick = async () =>{
         const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId;
         await checkMediaStream(partyId);
-        if (MediaStreamComponent.instance.camAudioProducer == null) await createCamAudioProducer(partyId);
-        if (MediaStreamComponent.instance.camVideoProducer == null) await createCamVideoProducer(partyId);
 
         const entity = Network.instance.localClientEntity;
         // if face tracking is false, start face and lip sync tracking
         if(!faceStreaming){
             // get local input receiver entity
             startFaceTracking(entity);
-            // startLipsyncTracking(entity);
+            startLipsyncTracking(entity);
             setFaceStreaming(true);
         } else {
             stopFaceTracking();
-            // stopLipsyncTracking();
+            stopLipsyncTracking();
             setFaceStreaming(false);
         }
         // If face tracking is true, stop face and lip sync tracking
