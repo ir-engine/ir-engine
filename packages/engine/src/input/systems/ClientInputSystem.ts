@@ -15,7 +15,7 @@ import { ClientInputModel } from '../../networking/schema/clientInputSchema';
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { cleanupInput } from '../behaviors/cleanupInput';
 import { handleGamepads } from "../behaviors/GamepadInputBehaviors";
-import { handleInputOnClient } from '../behaviors/handleInputOnClient';
+import { handleInputOnLocalClient } from '../behaviors/handleInputOnLocalClient';
 import { handleInputPurge } from "../behaviors/handleInputPurge";
 //import { initializeSession, processSession } from '../behaviors/WebXRInputBehaviors';
 import { addPhysics, removeWebXRPhysics, updateWebXRPhysics } from '../behaviors/WebXRControllersBehaviors';
@@ -108,7 +108,7 @@ export class InputSystem extends System {
     this.queryResults.localClientInput.all?.forEach(entity => {
       // Apply input to local client
       handleGamepads(entity);
-      handleInputOnClient(entity, { isLocal: true, isServer: false }, delta);
+      handleInputOnLocalClient(entity, { isServer: false }, delta);
       const networkId = getComponent(entity, NetworkObject)?.networkId;
       // Client sends input and *only* input to the server (for now)
       // console.log("Handling input for entity ", entity.id);

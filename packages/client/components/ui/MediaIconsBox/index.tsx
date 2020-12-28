@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { generalStateList, setAppOnBoardingStep } from '../../../redux/app/actions';
 import {
     Mic,
@@ -25,6 +25,13 @@ import {
 import { selectAuthState } from "../../../redux/auth/selector";
 import { selectLocationState } from "../../../redux/location/selector";
 
+import {
+    startFaceTracking,
+    // startLipsyncTracking,
+    stopFaceTracking,
+    // stopLipsyncTracking
+} from "@xr3ngine/engine/src/input/behaviors/WebcamInputBehaviors";
+import { Network } from "@xr3ngine/engine/src/networking/components/Network";
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -37,6 +44,8 @@ const mapStateToProps = (state: any): any => {
 const MediaIconsBox = observer((props) =>{
     const { onBoardingStep, authState, locationState } = props;
 
+    const [faceStreaming, setFaceStreaming] = useState(false);
+
     const user = authState.get('user');
     const currentLocation = locationState.get('currentLocation').get('location');
 
@@ -47,6 +56,27 @@ const MediaIconsBox = observer((props) =>{
         if (!MediaStreamComponent?.instance?.mediaStream)
             await configureMediaTransports(partyId);
     };
+
+    const handleFaceClick = async () =>{
+        const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId;
+        await checkMediaStream(partyId);
+        if (MediaStreamComponent.instance.camAudioProducer == null) await createCamAudioProducer(partyId);
+        if (MediaStreamComponent.instance.camVideoProducer == null) await createCamVideoProducer(partyId);
+
+        const entity = Network.instance.localClientEntity;
+        // if face tracking is false, start face and lip sync tracking
+        if(!faceStreaming){
+            // get local input receiver entity
+            startFaceTracking(entity);
+            // startLipsyncTracking(entity);
+            setFaceStreaming(true);
+        } else {
+            stopFaceTracking();
+            // stopLipsyncTracking();
+            setFaceStreaming(false);
+        }
+        // If face tracking is true, stop face and lip sync tracking
+    }
 
     const checkEndVideoChat = async () =>{
         if((MediaStreamComponent?.instance?.audioPaused || MediaStreamComponent?.instance?.camAudioProducer == null) && (MediaStreamComponent?.instance?.videoPaused || MediaStreamComponent?.instance?.camVideoProducer == null)) {
@@ -84,7 +114,6 @@ const MediaIconsBox = observer((props) =>{
 
     const audioPaused = MediaStreamComponent?.instance?.mediaStream === null || MediaStreamComponent?.instance?.camAudioProducer == null || MediaStreamComponent?.instance?.audioPaused === true;
     const videoPaused = MediaStreamComponent?.instance?.mediaStream === null || MediaStreamComponent?.instance?.camVideoProducer == null || MediaStreamComponent?.instance?.videoPaused === true;
-    const faceStreaming = false;
     return props.onBoardingStep >= generalStateList.TUTOR_INTERACT ?
         <section className={styles.drawerBoxContainer}>
             <section className={styles.drawerBox}>
@@ -97,8 +126,8 @@ const MediaIconsBox = observer((props) =>{
                     <Videocam className={styles.onIcon} onClick={handleCamClick} />
                 </div>) }
                 { videoEnabled && (<div className={styles.iconContainer + ' ' + (!faceStreaming ? styles.off : styles.on)}>
-                    <FaceIcon className={styles.offIcon} />
-                    <FaceIcon className={styles.onIcon} />
+                    <FaceIcon className={styles.offIcon} onClick={handleFaceClick} />
+                    <FaceIcon className={styles.onIcon} onClick={handleFaceClick} />
                 </div>)}
             </section>
         </section>
