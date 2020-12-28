@@ -52,7 +52,7 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }: In
   );
 
   Engine.camera.updateMatrixWorld();
-  Engine.camera.matrixWorldInverse.getInverse(Engine.camera.matrixWorld);
+  Engine.camera.matrixWorldInverse.copy(Engine.camera.matrixWorld).invert();
 
   const viewProjectionMatrix = new Matrix4().multiplyMatrices(projectionMatrix, Engine.camera.matrixWorldInverse);
   const frustum = new Frustum().setFromProjectionMatrix(viewProjectionMatrix);
