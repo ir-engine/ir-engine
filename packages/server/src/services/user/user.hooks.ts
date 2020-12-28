@@ -11,10 +11,6 @@ export default {
   before: {
     all: [authenticate('jwt')],
     find: [
-      commonHooks.iff(
-        commonHooks.isProvider('external'),
-        attachOwnerIdInQuery('userId')
-      ),
       addAssociations({
         models: [
           {

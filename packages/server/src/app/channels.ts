@@ -80,7 +80,7 @@ export default (app: Application): void => {
                 let service, serviceId;
                 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
                 const projectResult = await app.service('project').get(sceneId);
-                console.log("Project result is: ", projectResult);
+                // console.log("Project result is: ", projectResult);
                 const projectUrl = projectResult.project_url;
                 const regexResult = projectUrl.match(projectRegex);
                 if (regexResult) {
@@ -187,7 +187,7 @@ export default (app: Application): void => {
               });
 
               const user = await app.service('user').get(userId);
-              if (Network.instance.clients[userId] == null && process.env.KUBERNETES === 'true') await app.service('user').patch(null, {
+              if ((Network.instance.clients[userId] == null && process.env.KUBERNETES === 'true') || (process.env.NODE_ENV === 'development')) await app.service('user').patch(null, {
                 instanceId: null
               }, {
                 query: {

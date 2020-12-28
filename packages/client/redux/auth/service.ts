@@ -529,6 +529,15 @@ client.service('user').on('patched', async (params) => {
     if (user.partyId) {
       setPartyId(user.partyId);
     }
+    if (user.instanceId !== selfUser.instanceId) {
+      const parsed = new URL(window.location.href);
+      let query = parsed.searchParams;
+      query.set('instanceId', user.instanceId);
+      parsed.search = query.toString();
+      if (history.pushState) {
+        window.history.replaceState({}, '', parsed.toString());
+      }
+    }
   } else {
     if (user.instanceId === selfUser.instanceId) {
       store.dispatch(addedLayerUser(user));

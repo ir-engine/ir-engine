@@ -5,6 +5,7 @@ import {
 } from '@feathersjs/feathers';
 import { QueryTypes } from 'sequelize';
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils';
+import { Forbidden } from '@feathersjs/errors';
 
 export class User extends Service {
   app: Application
@@ -162,13 +163,30 @@ export class User extends Service {
       };
     } else if (action === 'layer-users') {
       const loggedInUser = extractLoggedInUserFromParams(params);
-      const user = await super.get(loggedInUser.userId);
+      let user;
+      if (loggedInUser) user = await super.get(loggedInUser.userId);
       return super.find({
         query: {
-          instanceId: user.instanceId
+          $limit: params.query.$limit || 10,
+          $skip: params.query.$skip || 0,
+          instanceId: params.query.instanceId || user.instanceId || 'intentionalBadId'
+        }
+      });
+    } else if (action === 'admin') {
+      const loggedInUser = extractLoggedInUserFromParams(params);
+      const user = await super.get(loggedInUser.userId);
+      if (user.userRole !== 'admin') throw new Forbidden ('Must be system admin to execute this action');
+      return super.find({
+        query: {
+          $sort: params.query.$sort,
+          $skip: params.query.$skip || 0,
+          $limit: params.query.$limit || 10
         }
       });
     } else {
+      const loggedInUser = extractLoggedInUserFromParams(params);
+      const user = await super.get(loggedInUser.userId);
+      if (user.userRole !== 'admin') throw new Forbidden ('Must be system admin to execute this action');
       return await super.find(params);
     }
   }

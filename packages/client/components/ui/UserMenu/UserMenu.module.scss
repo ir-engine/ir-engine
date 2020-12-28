@@ -9,10 +9,22 @@
     top: 18px;
     background-image: url('../assets/ll_hamburger.png');
     background-position: 30% center;
-    background-repeat: no-repeat;
+    background-repeat: no-repeat; 
 }
 .drawer{
-    display: flex;   
+    display: flex; 
+    h1{
+        padding-right: 55px;
+    }  
+    h3, h2, h1{
+        >svg{
+            margin: 0 5px 0 0;
+            cursor: pointer;
+        }
+    }
+    .subContainer{
+        margin: 30px 0 0 0;
+    }
 }    
 .avatarCountainer{
     display: flex;
@@ -20,9 +32,9 @@
     flex-wrap: wrap;
     height: auto;
     .avatarPreviewWrapper{
-        width: 48%;
+        width: 46%;
         cursor: pointer;
-        margin: 1%;    
+        margin: 2%;    
         flex-grow: 0; 
         .avatarPreview{
             width: 100%;
@@ -45,30 +57,76 @@
 .linkField{
     display: none;
 }
+
 .userTitle{
+    width: 100%;
+    display: flex;  
+    cursor: pointer;
+    align-items: center;
+
+    :global(.MuiSvgIcon-root).userPreview{
+        margin: 5px;
+        flex-grow: 0;
+        width: 1.5em;
+        height: 1.5em;
+        cursor: pointer;
+    }
+    .userTitleLine{
+       flex-grow: 1;
+       display: flex;
+       flex-direction: column;
+       font-size: 18px;
+        padding-right: 60px;
+        svg{
+            margin: 0px 5px;
+            cursor: pointer;
+        }
+       .userTitleRole{
+           font-style: italic;
+       }
+    }    
+}
+.locationInfo{
+    display: flex;
+    align-content: center;
+    flex-direction: column;
+    margin-top: 20px;
+    width: 100%;
+    height: auto;
+    min-height: 15em;
+    background-color: #DDDDDD;
+    border-radius: 4px;
+    word-break: break-all;
+    align-items: center;
+    justify-content: center;
     text-align: center;
-    margin: 15px 0;
-    font-size: 2em;
+
+    .sceneName{
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 4px;
+        box-sizing: border-box;
+        padding: 10px 20px;
+        width: 80%;
+        font-size: 20px;
+        margin: 10px auto;
+    }
+
+    .sceneLink{
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 4px;
+        box-sizing: border-box;
+        padding: 10px 20px;
+        width: fit-content;
+        max-width: 90%;
+        margin: 10px auto;
+    }
 }
-:global(.MuiSvgIcon-root).userPreview{
-    margin: 15px auto;
-    height: 10em;
-    width: 10em;
+.socialSection{
+    margin: 40px 0px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
 }
-// .userTitle{
-//     line-height: 2em;
-//     width: 100%;
-//     display: flex;  
-//     margin: 5px 0; 
-//     cursor: pointer;
-//     svg{
-//         flex-grow: 0;
-//     }
-//     h6{
-//         flex-grow: 1;
-//         word-break: break-all;        
-//     }
-// }
 .autoWidth{
     width: auto !important;
     margin: 0px 5px !important;
@@ -76,12 +134,10 @@
 
 .horizontalContainer{
     display: flex;
+    margin: 10px 0 0 0;
     h2{
         flex-grow: 1;
         display: flex;
         align-items: center;
-        >svg{
-            margin: 0px 5px;
-        }
     }
 }

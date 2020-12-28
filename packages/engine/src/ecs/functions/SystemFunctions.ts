@@ -72,7 +72,7 @@ export function executeSystem (system: System, delta: number, time: number, upda
 /**
  * Sort systems by order if order has been set explicitly
  */
-export function sortSystems () {
+export function sortSystems (): void {
   Engine.systemsToExecute.sort((a, b) => {
     return a.priority - b.priority || a.order - b.order;
   });

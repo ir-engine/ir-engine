@@ -287,14 +287,15 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                 [styles['no-video']]: videoStream == null,
                 [styles['video-paused']]: (videoStream && (videoProducerPaused === true || videoStreamPaused === true))
             })}
-            style={{ backgroundImage: user?.avatarUrl?.length > 0 ? `url(${user.avatarUrl}` : `url(/placeholders/default-silhouette.svg)`} }
+            // style={{ backgroundImage: user?.avatarUrl?.length > 0 ? `url(${user.avatarUrl}` : `url(/placeholders/default-silhouette.svg)`} }
             onClick={() => { if (peerId !== 'me_cam' && peerId !== 'me_screen') setFocused(!focused); } }
         >
-            <div className={styles['username']}>{truncateUsername()}</div>
-            {
-                audioProducerGlobalMute === true && <div className={styles['global-mute']}>Muted by Admin</div>
-            }
+           
+            <video key={peerId + '_cam'} ref={videoRef}/>
+            <audio key={peerId + '_audio'} ref={audioRef}/>
             <div className={styles['user-controls']}>
+                <div className={styles['username']}>{truncateUsername()}</div>
+                <div className={styles['controls']}>
                 <Tooltip title={videoProducerPaused === false && videoStreamPaused === false ? 'Pause Video' : 'Resume Video'}>
                     <IconButton
                         size="small"
@@ -307,6 +308,9 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                     </IconButton>
                 </Tooltip>
                 {
+                    audioProducerGlobalMute === true && <div className={styles['global-mute']}>Muted by Admin</div>
+                }
+                {/* {
                     audioStream && audioProducerPaused === false && audioProducerGlobalMute === false &&
                         <div className={styles['audio-slider']}>
                             { volume > 0 && <VolumeDown/> }
@@ -314,7 +318,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                             <Slider value={volume} onChange={adjustVolume} aria-labelledby="continuous-slider"/>
                             <VolumeUp/>
                         </div>
-                }
+                } */}
                 <div className={styles['right-controls']}>
                     {
                         enableGlobalMute && peerId !== 'me_cam' && peerId !== 'me_screen' && <Tooltip title={audioProducerGlobalMute === false ? 'Mute for everyone' : 'Unmute for everyone'}>
@@ -344,10 +348,9 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                             { ((peerId !== 'me_cam' && peerId !== 'me_screen') && audioStream && audioProducerPaused === false && audioStream.paused === true) && <VolumeOff /> }
                         </IconButton>
                     </Tooltip>
+                    </div>
                 </div>
-            </div>
-            <video key={peerId + '_cam'} ref={videoRef}/>
-            <audio key={peerId + '_audio'} ref={audioRef}/>
+            </div>            
         </div>
     );
 });

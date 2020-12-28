@@ -39,7 +39,28 @@ const lightTheme = createMuiTheme({
       h2:{
         fontSize: 16,
         fontWeight: 'bold',
-        margin: '10px 0px',
+        margin: '5px 0px',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',  
+        '&.MuiTypography-colorSecondary':{
+          color: '#FFD600',
+        }
+      },
+      h3:{
+        fontSize: 14,
+        margin: '5px 0px',
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',  
+        '&.MuiTypography-colorSecondary':{
+          color: '#FFD600',
+        }
+      },
+      h4:{
+        fontSize: 14,
+        margin: '5px 0px',
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',  
@@ -68,7 +89,7 @@ const lightTheme = createMuiTheme({
         maxWidth: '40%',
         width: '40%',
         margin: '0 auto',   
-        backgroundColor: 'rgba(0, 0, 0, ,0.8)',
+        backgroundColor: 'rgba(0, 0, 0, ,0.9)',
         color: '#000000' ,
         fontSize: 16,       
         textAlign: 'center',
@@ -80,7 +101,7 @@ const lightTheme = createMuiTheme({
     },
     MuiButtonBase:{
       root:  {
-        backgroundColor: 'rgba(0, 0, 0, ,0.8)',
+        backgroundColor: 'rgba(0, 0, 0, ,0.9)',
         color: '#000000' ,
         fontSize: 16,       
         textAlign: 'center',
@@ -121,9 +142,6 @@ const lightTheme = createMuiTheme({
       },
       bar:{
         borderRadius: 'inherit',
-        // '@media (max-width: 768px)': {
-        //   borderRadius: '4px',
-        // },
       }
     },
     MuiMenuItem:{
@@ -142,7 +160,7 @@ const lightTheme = createMuiTheme({
         userSelect: 'none',
         borderRadius: '8px',
         fontSize: 16,    
-        backgroundColor: 'rgba(0,0,0,0.8)',
+        backgroundColor: 'rgba(0,0,0,0.9)',
         boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.2)',
         padding: '20px',
         boxSizing: 'border-box',
@@ -184,35 +202,19 @@ const lightTheme = createMuiTheme({
         }
       }
     },
-    MuiPaper:{
-      root:{
-        // backgroundColor: 'transparent',
-        // color: '#000000' ,
-      }
-    },
     MuiSnackbarContent:{
       root:{
-        backgroundColor: 'rgba(0, 0, 0, ,0.8)',
-        // color: '#000000' ,
+        backgroundColor: 'rgba(0, 0, 0, ,0.9)',
       }
     },
     MuiDrawer:{      
       paper:{
         padding: '20px',
-        backgroundColor: 'rgba(0,0,0,0.8)',        
-        MuiButtonBase:{
-          root:  {
-            backgroundColor: 'transparent',
-          }
-        },
-        MuiSvgIcon:{
-          colorPrimary:{
-            color: '#A8A8FF',
-          }
-        },  
+        backgroundColor: 'rgba(0,0,0,0.85)',        
       },
       
       paperAnchorRight: {
+        width: '25%',
         '@media (max-width: 768px)':{
           width: '50%',
         },
@@ -221,10 +223,10 @@ const lightTheme = createMuiTheme({
         }
       }
     },
-    MuiCardActionArea:{
-      root:{      
-        focusHighlight:{        
-            backgroungColor:'#5151FF',        
+    MuiCardMedia:{
+      media:{  
+        '&:hover':{
+          backgroundColor:'#A8A8FF',        
         }
       }
     },
@@ -243,7 +245,7 @@ const lightTheme = createMuiTheme({
     },    
     MuiListItemText:{
       root:{
-        background:'rgba(0, 0, 0, ,1)',
+        background:'rgba(0, 0, 0, .5)',
         borderRadius: '5px',
         padding: '5px 10px',
         width: 'fit-content',
@@ -252,17 +254,27 @@ const lightTheme = createMuiTheme({
     },
     MuiCardContent:{
       root:{
-        background:'rgba(0, 0, 0, ,1)',
         '&:last-child': {
           paddingBottom: '0px',
           paddingLeft: '0px',
           paddingRight: '0px',
+          paddingTop: '0px',
         }
+      }
+    },
+    MuiPaper:{
+      root: {
+        backgroundColor: 'rgba(0,0,0,0.8)',
       }
     },
     MuiInputBase:{
       input:{
-        color: '#000000',
+        color: '#FFFFFF',
+      }
+    },
+    MuiFormLabel:{
+      root:{
+        color: '#FFFFFF',
       }
     },
     MuiButton: {
@@ -275,6 +287,9 @@ const lightTheme = createMuiTheme({
       label: {
         textTransform: 'capitalize',
       },
+      outlined:{
+        background: 'transparent',
+      },
       outlinedPrimary:{
         '&:hover':{
           boxShadow: '0 0 10px #5151FF'
@@ -285,26 +300,37 @@ const lightTheme = createMuiTheme({
           boxShadow: '0 0 10px #FFFFFF'
         }        
       },
-      // contained:{
-      //   color: '#0076ff', 
-      //   backgroundColor: 'rgba(0, 0, 0, ,0.8)',       
-      //   // width: 'auto',
-      //   fontWeight: 'bold',
-      //   padding: '15px 30x',
-      //   borderRadius: '5px',
-      //   fontSize: 18,
-      // }
-    },    
+    },  
+    MuiSvgIcon:{
+      colorPrimary : {
+        color: '#A8A8FF', 
+      },
+    },
     MuiFab: {
       root: {
         height: '3em',
-        width: '3em',
+        width: 'fit-content',
+        padding: '10px',
         margin: '0px 5px',
+        display: 'flex',
+        alignItems: 'center', 
+        textTransform: 'capitalize',
         text:{
           color: '#FFFFFF' 
         }           
       },
-    },  
+      primary:{
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        borderRadius: '8px',
+      }
+    },
+    MuiFormGroup:{
+      root:{
+        display: 'flex',
+        flexWrap: 'wrap',
+        flexDirection: 'row',
+      }
+    } , 
   },
 });
 
