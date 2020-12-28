@@ -6,7 +6,7 @@ class ImageComponent extends Component<ImageComponent> {
   projection: string
   parent: any
 
-  static schema = {
+  static _schema = {
     src: { type: Types.String, default: '' },
     projection: { type: Types.String, default: 'flat' },
     parent: { default: null, type: Types.Ref }
