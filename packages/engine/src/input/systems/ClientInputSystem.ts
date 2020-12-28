@@ -14,9 +14,12 @@ import { NetworkInputInterface } from "../../networking/interfaces/WorldState";
 import { ClientInputModel } from '../../networking/schema/clientInputSchema';
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { cleanupInput } from '../behaviors/cleanupInput';
-import { handleGamepads } from "../behaviors/GamepadInputBehaviors";
 import { handleInputOnLocalClient } from '../behaviors/handleInputOnLocalClient';
 import { handleInputPurge } from "../behaviors/handleInputPurge";
+import { handleGamepadConnected, handleGamepads } from "../behaviors/GamepadInputBehaviors";
+import { startFaceTracking, stopFaceTracking, startLipsyncTracking } from "../behaviors/WebcamInputBehaviors";
+import { MediaStreamComponent } from '../../networking/components/MediaStreamComponent';
+
 //import { initializeSession, processSession } from '../behaviors/WebXRInputBehaviors';
 import { addPhysics, removeWebXRPhysics, updateWebXRPhysics } from '../behaviors/WebXRControllersBehaviors';
 import { Input } from '../components/Input';
@@ -60,7 +63,8 @@ interface ListenerBindingData {
 export class InputSystem extends System {
   updateType = SystemUpdateType.Fixed;
   // Temp/ref variables
-  private _inputComponent: Input;
+  private _inputComponent: Input
+  private localUserMediaStream: MediaStream = null;
 
   // Client only variables
   public mainControllerId; //= 0
@@ -108,7 +112,30 @@ export class InputSystem extends System {
     this.queryResults.localClientInput.all?.forEach(entity => {
       // Apply input to local client
       handleGamepads(entity);
-      handleInputOnLocalClient(entity, { isServer: false }, delta);
+      if (this.localUserMediaStream === null) {
+        // check to start video tracking
+        if (MediaStreamComponent.instance.mediaStream) {
+          startFaceTracking(entity);
+          this.localUserMediaStream = MediaStreamComponent.instance.mediaStream;
+        }
+      } else {
+        // check if we need to change face tracking video src
+        if (MediaStreamComponent.instance.mediaStream) {
+          if (this.localUserMediaStream !== MediaStreamComponent.instance.mediaStream) {
+            // stream is changed
+          //... do update video src ...
+          }
+        } else {
+        //... user media stream is null - stop facetracking?
+          stopFaceTracking();
+        }
+        this.localUserMediaStream = MediaStreamComponent.instance.mediaStream;
+      }
+
+      // startFaceTracking(entity);
+      // startLipsyncTracking(entity);
+
+      handleInputOnLocalClient(entity, {isLocal:true, isServer: false}, delta);
       const networkId = getComponent(entity, NetworkObject)?.networkId;
       // Client sends input and *only* input to the server (for now)
       // console.log("Handling input for entity ", entity.id);
