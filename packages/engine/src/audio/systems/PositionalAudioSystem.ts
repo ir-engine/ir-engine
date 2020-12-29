@@ -29,22 +29,24 @@ function createSilentAudioEl(streamsLive) {
 }
 
 export class PositionalAudioSystem extends System {
+  public static instance: PositionalAudioSystem = null
 
   characterAudioStream = new Map();
 
   constructor(attributes?: SystemAttributes) {
     super(attributes);
+    PositionalAudioSystem.instance = this;
   }
 
   execute(): void {
     for (const entity of this.queryResults.audio.added) {
       const positionalAudio = getMutableComponent(entity, PositionalAudioComponent);
-      positionalAudio.value = new PositionalAudio(Engine.audioListener);
+      if (positionalAudio != null) positionalAudio.value = new PositionalAudio(Engine.audioListener);
     }
 
     for (const entity of this.queryResults.audio.removed) {
       const positionalAudio = getComponent(entity, PositionalAudioComponent, true);
-      positionalAudio?.value?.disconnect();
+      if (positionalAudio != null) positionalAudio.value?.disconnect();
     }
 
     for (const entity of this.queryResults.character_audio.all) {
@@ -75,6 +77,7 @@ export class PositionalAudioSystem extends System {
       }
       
       const audioStreamSource = positionalAudio.value.context.createMediaStreamSource(streamsLive);
+      if (positionalAudio.value.context.state === 'suspended') positionalAudio.value.context.resume();
 
       positionalAudio.value.setNodeSource(audioStreamSource as unknown as AudioBufferSourceNode);
     }
@@ -92,8 +95,10 @@ export class PositionalAudioSystem extends System {
       const positionalAudio = getComponent(entity, PositionalAudioComponent);
       const transform = getComponent(entity, TransformComponent);
 
-      positionalAudio.value?.position.copy(transform.position);
-      positionalAudio.value?.rotation.setFromQuaternion(transform.rotation);
+      if (positionalAudio != null) {
+        positionalAudio.value?.position.copy(transform.position);
+        positionalAudio.value?.rotation.setFromQuaternion(transform.rotation);
+      }
     }
 
     for (const entity of this.queryResults.positional_audio.removed) {
