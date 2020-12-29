@@ -63,6 +63,8 @@ export const EnginePage = (props: Props) => {
   const [actorAvatarId, setActorAvatarId] = useState('Rose');
   const [infoBoxData, setInfoBoxData] = useState(null);
   const [progressEntity, setProgressEntity] = useState('');
+  const [objectActivated, setObjectActivated] = useState(false);
+  const [objectHovered, setObjectHovered] = useState(false);
 
   //all scene entities are loaded
   const onSceneLoaded = (event: CustomEvent): void => {
@@ -80,13 +82,14 @@ export const EnginePage = (props: Props) => {
   };
 
   const onObjectHover = (event: CustomEvent): void => {
-    setHoveredLabel(event.detail.focused ? event.detail.interactionText : '');
+    setObjectHovered(event.detail.focused);
+    setHoveredLabel(event.detail.interactionText);
   };
 
 
   const onObjectActivation = (event: CustomEvent): void =>{
     setInfoBoxData(event.detail.payload);
-    setHoveredLabel('');
+    setObjectActivated(true);
   };
 
   const addEventListeners = () => {
@@ -121,7 +124,7 @@ export const EnginePage = (props: Props) => {
   }, [ actorEntity, actorAvatarId ]);
 
   //mobile gamepad
-  const mobileGamepadProps = {hovered:hoveredLabel.length > 0, layout: 'default' };
+  const mobileGamepadProps = {hovered:objectHovered, layout: 'default' };
   const mobileGamepad = isMobileOrTablet() && onBoardingStep >= generalStateList.TUTOR_MOVE ? <MobileGamepad {...mobileGamepadProps} /> : null;
 
   return (
@@ -132,8 +135,8 @@ export const EnginePage = (props: Props) => {
       <LoadedSceneButtons />
       <OnBoardingBox actorEntity={actorEntity} />
       <MediaIconsBox />
-      <TooltipContainer message={hoveredLabel.length > 0 ? hoveredLabel : ''} />
-      <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} />
+      {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel}  />}
+      <InfoBox onClose={() => { setInfoBoxData(null); setObjectActivated(false); }} data={infoBoxData} />
       {mobileGamepad}
     </>
   );
