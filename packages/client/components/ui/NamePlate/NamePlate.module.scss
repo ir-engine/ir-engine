@@ -1,0 +1,33 @@
+.TooltipSnackBar{
+    // top: 55%;
+    // user-select: none;
+    // height: fit-content;
+    // width: fit-content;
+    // border-radius: 5px;
+    // padding: 2em;
+
+    .innerHtml{
+        // text-align: center;  
+        // display: block;   
+        // color: #000000;
+        // border-radius: 5px;
+        // padding: 1em 2em; 
+        // background-color: rgba(255,255,0, 0.85);
+
+        .keyItem{
+            background-color: rgba(0,0,0,0.6);
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0,118,255,0.5);
+            box-sizing: border-box;
+            color: #FFFFFF;
+            display: inline-block;
+            height: 2em;
+            line-height: 2em;
+            margin: 3px;
+            min-width: 2em;
+            padding: 0px 5px;
+            text-align: center;
+            text-transform: capitalize;
+        }    
+    }
+}
