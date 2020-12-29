@@ -36,15 +36,15 @@ export const  interact: Behavior = (entity: Entity, args: any, delta): void => {
     return;
   }
 
-  const startedMousePosition = startedPosition.get(entity);
-  if (
-    startedMousePosition[0] !== mouseScreenPosition.value[0] ||
-    startedMousePosition[1] !== mouseScreenPosition.value[1]
-  ) {
-    // mouse moved, skip "click"
-    console.warn('mouse moved!');
-    return;
-  }
+  // const startedMousePosition = startedPosition.get(entity);
+  // if (
+  //   startedMousePosition[0] !== mouseScreenPosition.value[0] ||
+  //   startedMousePosition[1] !== mouseScreenPosition.value[1]
+  // ) {
+  //   // mouse moved, skip "click"
+  //   console.warn('mouse moved!');
+  //   return;
+  // }
 
   if (!hasComponent(focusedEntity, Interactable)) {
     console.error(
