@@ -28,7 +28,6 @@ const NamePlate = (props: Props) =>{
   const user = userState.get('layerUsers').find(user => user.id === userId);
 
   const [openNamePlate, setOpenNamePlate] = useState(true);
-
   const handleCloseNamePlate = (event?: React.SyntheticEvent, reason?: string) => {
     if (reason === 'clickaway') {
       return;
@@ -40,7 +39,7 @@ const NamePlate = (props: Props) =>{
     open: openNamePlate,    
     className: styles.namePlate, 
     style: {top: position.y, left: position.x },
-    ...(isFocused === false && { autoHideDuration: 2000 }),
+    ...(isFocused === false && { autoHideDuration: 20000 }),
     message: user?.name,
     onClose: handleCloseNamePlate
  }
