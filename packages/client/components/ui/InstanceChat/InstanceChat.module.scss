@@ -9,8 +9,8 @@
   &:hover {
     cursor: pointer;
   }
-  >svg{
-    margin: 10px;
+  svg{
+    margin: 0 5px 0 0 ;
   }
 }
 .instance-chat-container {
@@ -24,10 +24,11 @@
   z-index: 1400;
   margin: 5px;
   transition: all 225ms cubic-bezier(0, 0, 0.2, 1) 0ms;
-  overflow: hidden;
+  // overflow: hidden;
 
   &.messageContainerClosed{
     width: 0;
+    overflow: hidden;
   }
 
   @media (max-width: 768px) {
@@ -124,6 +125,7 @@
     flex-direction: column;
     height: 30vh;   
     background-color: transparent;
+    margin-left: -55px;
     
   .message-container {
     display: flex;

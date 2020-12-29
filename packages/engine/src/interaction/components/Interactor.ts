@@ -9,7 +9,7 @@ export class Interactor extends Component<Interactor> {
   public BoxHitResult: any
   public subFocusedArray: any[] | null
 
-  static schema = {
+  static _schema = {
     subFocusedArray: { type: Types.Array, default: [] }
   }
 }
