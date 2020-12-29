@@ -13,15 +13,13 @@ const inputKeySchema = new Schema({
 
 const inputAxis1DSchema = new Schema({
   input: uint8,
-  valueX: float32,
-  valueY: float32,
+  value: float32,
   lifecycleState: uint8
 });
 
 const inputAxis2DSchema = new Schema({
   input: uint8,
-  valueX: float32,
-  valueY: float32,
+  value: [float32],
   lifecycleState: uint8
 });
 
