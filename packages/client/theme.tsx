@@ -330,7 +330,20 @@ const lightTheme = createMuiTheme({
         flexWrap: 'wrap',
         flexDirection: 'row',
       }
-    } , 
+    } ,
+    MuiBadge:{
+      anchorOriginTopLeftRectangle:{
+        left: '6px',
+      },
+      dot: {
+        height: '12px',
+        width: '12px',
+        borderRadius: '50%',
+      },
+      colorPrimary : {
+        backgroundColor: '#7AFF64', 
+      },
+    },
   },
 });
 
