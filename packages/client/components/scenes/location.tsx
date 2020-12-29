@@ -30,6 +30,7 @@ import OnBoardingDialog from '../ui/OnBoardingDialog';
 import TooltipContainer from '../ui/TooltipContainer';
 import LoadedSceneButtons from '../ui/LoadedSceneButtons';
 import SceneTitle from '../ui/SceneTitle';
+import NamePlate from '../ui/NamePlate';
 
 const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
@@ -39,11 +40,13 @@ interface Props {
   setAppLoaded?: any,
   sceneId?: string,
   onBoardingStep?:number,
+  authState?: any;
 }
 
 const mapStateToProps = (state: any): any => {
   return {
     onBoardingStep: selectAppOnBoardingStep(state),
+    authState: selectAuthState(state),
   };
 };
 
@@ -56,8 +59,9 @@ export const EnginePage = (props: Props) => {
     sceneId,
     setAppLoaded,
     onBoardingStep,
+    authState
   } = props;
-
+  const currentUser = authState.get('user');
   const [hoveredLabel, setHoveredLabel] = useState('');
   const [actorEntity, setActorEntity] = useState(null);
   const [actorAvatarId, setActorAvatarId] = useState('Rose');
@@ -134,6 +138,7 @@ export const EnginePage = (props: Props) => {
       <MediaIconsBox />
       <TooltipContainer message={hoveredLabel.length > 0 ? hoveredLabel : ''} />
       <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} />
+      <NamePlate userId={currentUser.id} position={{x:560, y:200}} isFocused={false}  />
       {mobileGamepad}
     </>
   );
