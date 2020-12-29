@@ -21,8 +21,7 @@ const TooltipContainer = (props: Props) =>{
   const interactTip = isMobileOrTablet() ? <TouchApp /> : <span className={styles.keyItem}>E</span>;
   return !isMobileOrTablet() && props.message ? 
             <Snackbar anchorOrigin={{vertical: 'bottom',horizontal: 'center'}} 
-            className={styles.TooltipSnackBar} open={true} 
-            autoHideDuration={10000}>
+            className={styles.TooltipSnackBar} open={true} >
               <section className={styles.innerHtml+' MuiSnackbarContent-root'}>Press {interactTip} to {props.message}</section>
             </Snackbar>
           :null;
