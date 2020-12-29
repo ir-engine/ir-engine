@@ -14,6 +14,7 @@ interface Props {
   position: Position;
   isFocused: boolean | false;
   userState?: any;
+  autoHideDuration?: any;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -24,7 +25,7 @@ const mapStateToProps = (state: any): any => {
 
 
 const NamePlate = (props: Props) =>{
-  const {userId, position, isFocused, userState} = props;
+  const {userId, position, isFocused, userState, autoHideDuration = 20000} = props;
   const user = userState.get('layerUsers').find(user => user.id === userId);
 
   const [openNamePlate, setOpenNamePlate] = useState(true);
@@ -39,7 +40,7 @@ const NamePlate = (props: Props) =>{
     open: openNamePlate,    
     className: styles.namePlate, 
     style: {top: position.y, left: position.x },
-    ...(isFocused === false && { autoHideDuration: 20000 }),
+    ...(isFocused === false && { autoHideDuration }),
     message: user?.name,
     onClose: handleCloseNamePlate
  }

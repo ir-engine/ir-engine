@@ -138,7 +138,7 @@ export const EnginePage = (props: Props) => {
       <MediaIconsBox />
       <TooltipContainer message={hoveredLabel.length > 0 ? hoveredLabel : ''} />
       <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} />
-      <NamePlate userId={currentUser.id} position={{x:560, y:200}} isFocused={false}  />
+      <NamePlate userId={currentUser.id} position={{x:560, y:200}} isFocused={false} autoHideDuration={10000} />
       {mobileGamepad}
     </>
   );
