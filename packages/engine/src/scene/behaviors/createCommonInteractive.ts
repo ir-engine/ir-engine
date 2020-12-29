@@ -12,8 +12,6 @@ export const createCommonInteractive: Behavior = (entity, args: any) => {
   let data:CommonInteractiveData;
 
   if (args.objArgs.interactionType === "infoBox") {
-
-    console.log('args',args)
     data = {
       action: 'infoBox',
       payload: {
@@ -21,7 +19,7 @@ export const createCommonInteractive: Behavior = (entity, args: any) => {
         url: args.objArgs.payloadUrl,
         buyUrl: args.objArgs.payloadBuyUrl,
         learnMoreUrl: args.objArgs.payloadLearnMoreUrl,
-        modelUrl: args.objArgs.payloadLModelUrl,
+        modelUrl: args.objArgs.payloadModelUrl,
         htmlContent:args.objArgs.payloadHtmlContent,
       },
       interactionText: args.objArgs.interactionText

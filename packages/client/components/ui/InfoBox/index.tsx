@@ -24,8 +24,6 @@ export const InfoBox: FunctionComponent<InfoBoxProps> = ({ onClose, data }: Info
   if (data.modelUrl) {
     modelView = (<ModelView modelUrl={data.modelUrl} />);
   }
-
-  console.log('data',data)
   return  (<Dialog open={true} aria-labelledby="xr-dialog" 
       classes={{
         root: styles.customDialog,
