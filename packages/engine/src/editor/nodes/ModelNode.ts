@@ -152,7 +152,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
 
           const parseColliders = ( mesh ) => {
             // console.warn(mesh.userData.data);
-        
+
             if (mesh.userData.data == "physics") {
               if (mesh.userData.type == "box" || mesh.userData.type == "trimesh") {
                 const meshCollider = {
@@ -177,7 +177,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
             }
           }
              this.model.traverse( parseColliders );
-             this.meshColliders = colliders;
+             this.meshColliders = [];//colliders;
              this.editor.renderer.addBatchedObject(this.model);
         }
 
