@@ -136,7 +136,6 @@ export abstract class System {
               if (eventName === 'changed') {
                 query.reactive = true;
                 if (event === true) {
-  
                   // Any change on the entity from the components in the query
                   const eventList = (this.queryResults[queryName][eventName] = []);
                   query.eventDispatcher.addEventListener(QUERY_COMPONENT_CHANGED, entity => {
