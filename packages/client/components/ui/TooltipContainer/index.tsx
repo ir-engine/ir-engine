@@ -19,8 +19,8 @@ const mapStateToProps = (state: any): any => {
 
 
 const TooltipContainer = (props: Props) =>{
-  const interactTip = isMobileOrTablet() ? <TouchApp /> : <span className={styles.keyItem}>E</span>;
-  return !isMobileOrTablet() && props.message ? 
+  const interactTip = isMobileOrTablet() ? <TouchApp /> : 'E';
+  return props.message ? 
             <Snackbar anchorOrigin={{vertical: 'bottom',horizontal: 'center'}} 
             className={styles.TooltipSnackBar} open={true} 
             autoHideDuration={10000}>
