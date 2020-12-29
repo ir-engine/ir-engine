@@ -1,19 +1,13 @@
-.TooltipSnackBar{
-    // top: 55%;
-    // user-select: none;
-    // height: fit-content;
-    // width: fit-content;
-    // border-radius: 5px;
-    // padding: 2em;
-
+:global(.MuiSnackbar-anchorOriginBottomCenter).TooltipSnackBar{
+    bottom: 30%;
     .innerHtml{
-        // text-align: center;  
-        // display: block;   
-        // color: #000000;
-        // border-radius: 5px;
-        // padding: 1em 2em; 
-        // background-color: rgba(255,255,0, 0.85);
-
+        display: flex;
+        align-items: center;
+        svg{
+            height: 2em;
+            width: 2em;
+            margin: 0px 5px;
+        }
         .keyItem{
             background-color: rgba(0,0,0,0.6);
             border-radius: 4px;

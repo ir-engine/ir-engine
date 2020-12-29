@@ -4,7 +4,7 @@ import { Behavior } from "../../common/interfaces/Behavior";
 import { InteractionCheckHandler } from "../types";
 
 export class Interactable extends Component<Interactable> {
-  static schema = {
+  static _schema = {
     interactiveDistance: { type: Types.Number, default: Infinity },
     onInteractionCheck: { type: Types.Ref },
     onInteractionFocused: { type: Types.Ref },

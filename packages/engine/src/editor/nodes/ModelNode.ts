@@ -301,6 +301,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         payloadBuyUrl : this.payloadBuyUrl,
         payloadLearnMoreUrl : this.payloadLearnMoreUrl,
         payloadHtmlContent : this.payloadHtmlContent,
+        payloadModelUrl : this._canonicalUrl,
       }
     };
     for(let i = 0; i < this.meshColliders.length; i++){
