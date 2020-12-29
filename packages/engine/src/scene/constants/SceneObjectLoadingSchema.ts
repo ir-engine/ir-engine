@@ -100,6 +100,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
           { from: 'payloadBuyUrl', to: 'payloadBuyUrl' },
           { from: 'payloadLearnMoreUrl', to: 'payloadLearnMoreUrl' },
           { from: 'payloadHtmlContent', to: 'payloadHtmlContent' },
+          { from: 'payloadModelUrl', to: 'payloadModelUrl' },          
         ],
       }
     ]
