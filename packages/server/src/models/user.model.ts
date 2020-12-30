@@ -16,7 +16,7 @@ export default (app: Application): any => {
       },
       name: {
         type: DataTypes.STRING,
-        defaultValue: () => capitalize(GenerateRandomAnimalName()),
+        defaultValue: (): string => capitalize(GenerateRandomAnimalName()),
         allowNull: false
       }
     },

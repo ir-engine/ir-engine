@@ -22,7 +22,7 @@ import { PositionalAudioSystem } from '@xr3ngine/engine/src/audio/systems/Positi
 
 interface Props {
     authState?: any;
-    updateUserSettings: any;
+    updateUserSettings?: any;
 }
 
 const mapStateToProps = (state: any): any => {
