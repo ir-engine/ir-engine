@@ -2,7 +2,10 @@
     width: initial !important;
     // bottom: 20px;
     left: 2%;
-    top:2%;
+    top: 60px;
     position: fixed;
     z-index: 100;
+    @media (max-width: 768px) {
+        top: 10px;
+    } 
 }
