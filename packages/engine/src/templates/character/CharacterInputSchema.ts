@@ -282,21 +282,15 @@ export const CharacterInputSchema: InputSchema = {
   },
   // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
   inputAxisBehaviors: {
-    [CameraInput.Neutral]: {
+    [DefaultInput.FACE_EXPRESSION]: {
       started: [
         {
           behavior: setCharacterExpression,
-          args: {
-            input: CameraInput.Neutral
-          }
         }
       ],
       changed: [
         {
           behavior: setCharacterExpression,
-          args: {
-            input: CameraInput.Neutral
-          }
         }
       ]
     },

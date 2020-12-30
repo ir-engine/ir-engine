@@ -81,7 +81,7 @@ export const startLipsyncTracking: Behavior = (entity) => {
     audioProcessor.connect(audioContext.destination);
 
     audioProcessor.onaudioprocess = () => {
-        if(!lipsyncTracking) return;
+        if (!lipsyncTracking) return;
         // bincount returns array which is half the FFT_SIZE
         spectrum = new Float32Array(userSpeechAnalyzer.frequencyBinCount);
         // Populate frequency data for computing frequency intensities
@@ -126,7 +126,7 @@ export const startLipsyncTracking: Behavior = (entity) => {
         else if (input.data.has(nameToInputValue["pucker"]))
             input.data.delete(nameToInputValue["pucker"]);
 
-            // Calculate lips widing and apply as input
+        // Calculate lips widing and apply as input
         const widen = 3 * Math.max(EnergyBinMasc[3], EnergyBinFem[3]);
         if (widen > .2)
             input.data.set(nameToInputValue["widen"], {
@@ -135,8 +135,8 @@ export const startLipsyncTracking: Behavior = (entity) => {
             });
         else if (input.data.has(nameToInputValue["widen"]))
             input.data.delete(nameToInputValue["widen"]);
-            
-            // Calculate mouth opening and apply as input
+
+        // Calculate mouth opening and apply as input
         const open = 0.8 * (Math.max(EnergyBinMasc[1], EnergyBinFem[1]) - Math.max(EnergyBinMasc[3], EnergyBinFem[3]));
         if (open > .2)
             input.data.set(nameToInputValue["open"], {
