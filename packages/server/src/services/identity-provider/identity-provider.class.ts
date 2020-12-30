@@ -85,7 +85,7 @@ export class IdentityProvider extends Service {
     const User = sequelizeClient.model('user');
 
     // check if there is a user with userId
-    let foundUser
+    let foundUser;
     try {
       foundUser = await userService.get(userId);
     } catch (err) {
