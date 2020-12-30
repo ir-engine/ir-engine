@@ -19,6 +19,7 @@ function test() {
    const networkObject2 = initializeNetworkObject(userId, Network.getNetworkId(), PrefabType.worldObject);
    const transform2 = getComponent(networkObject2.entity, TransformComponent);
 
+
    // Add the network object to our list of network objects
    Network.instance.networkObjects[networkObject2.networkId] = {
        ownerId: userId, // Owner's socket ID
@@ -47,9 +48,9 @@ export const createBoxCollider: Behavior = (entity, args: any) => {
    addColliderWithoutEntity( args.objArgs.type, args.objArgs.position, args.objArgs.quaternion, args.objArgs.scale, args.objArgs.mesh );
 /*
    if (isServer) {
-     for (let i = 0; i < 50; i++) {
+     for (let i = 0; i < 5; i++) {
        test()
      }
    }
-   */
+*/
 };

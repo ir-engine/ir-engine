@@ -8,6 +8,19 @@ export interface LoadGLTFResultInterface {
  json: any;
  stats: any;
 }
+let decoder;
+let NodeDRACOLoader;
+
+if(!isClient){
+  import("../loaders/gltf/NodeDRACOLoader")
+  .then(obj => {
+    decoder = obj.createDecoderModule().then(m => {
+      NodeDRACOLoader = m;
+      console.log('Decoder Module Initialized!');
+    })
+  })
+  .catch(err => console.error("Error loading module"));
+}
 
 export async function LoadGLTF(url: AssetUrl): Promise<LoadGLTFResultInterface> {
     return await new Promise<LoadGLTFResultInterface>((resolve, reject) => {
