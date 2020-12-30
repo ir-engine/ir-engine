@@ -101,8 +101,8 @@ export class ServerNetworkOutgoingSystem extends System {
         state: []
       }; // in client copy state from transforms
 
-      console.log("STATE IS")
-      console.log(state);
+      // console.log("STATE IS")
+      // console.log(state);
       const buffer = WorldStateModel.toBuffer(state);
 
       // Send the message to all connected clients

@@ -27,8 +27,8 @@ import { NetworkObject } from '../../networking/components/NetworkObject';
   // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
   const input = getMutableComponent(entity, Input);
 
-    console.log("Handling input data for ", entity.id)
-    console.log(input.data);
+    // console.log("Handling input data for ", entity.id)
+    // console.log(input.data);
 
   // check CHANGED/UNCHANGED axis inputs
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
