@@ -76,7 +76,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         // Set up our gameserver according to our current environment
         const localIp = await getLocalServerIp();
         let stringSubdomainNumber, gsResult;
-        if (process.env.KUBERNETES !== 'true') await this.app.service('instance').Model.destroy({where: {}});
+        if (process.env.KUBERNETES !== 'true') try {await this.app.service('instance').Model.destroy({where: {}})} catch(error){ logger.error(error)}
         else if (process.env.KUBERNETES === 'true') {
             await cleanupOldGameservers();
             this.gameServer = await (this.app as any).agonesSDK.getGameServer();
