@@ -31,7 +31,7 @@ const testInputSchema: InputSchema = {
     // Mouse
     contextmenu: [
       {
-        behavior: preventDefault
+        behavior: (e: any) =>  e.preventDefault()
       }
     ],
     mousemove: [

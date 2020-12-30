@@ -1,8 +1,8 @@
 import { Object3DComponent } from '../../common/components/Object3DComponent';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
+import { getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { TransformComponent } from '../components/TransformComponent';
-import { getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 
 export const transformBehavior: Behavior = (entity: Entity, args: { event: MouseEvent }, delta): void => {
   const transform = getMutableComponent(entity, TransformComponent);

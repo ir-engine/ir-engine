@@ -37,6 +37,9 @@
     "@typescript-eslint/parser": "^4.4.1",
     "cannon-es": "^0.15.1",
     "cannon-es-debugger": "^0.0.3",
+    "cross-blob": "^2.0.0",
+    "cross-fetch": "^3.0.6",
+    "draco3d": "^1.4.1",
     "face-api.js": "^0.22.2",
     "mousetrap": "^1.6.5",
     "superbuffer": "^1.0.1",
@@ -45,7 +48,9 @@
     "three-mesh-bvh": "^0.2.0",
     "three-to-cannon": "^3.0.2",
     "tween": "^0.9.0",
-    "typescript": "^3.9.7"
+    "typescript": "^3.9.7",
+    "url": "^0.11.0",
+    "xmlhttprequest-ssl": "^1.6.0"
   },
   "devDependencies": {
     "@rollup/plugin-babel": "^5.0.4",

@@ -1,5 +1,5 @@
 import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
-import { InteractionCheckHandler } from "../../../interaction/types";
+import { InteractionCheckHandler } from "../../../interaction/types/InteractionTypes";
 import { VehicleBody } from "../../../physics/components/VehicleBody";
 
 export const getInCarPossible: InteractionCheckHandler = (possibleDriverEntity, carEntity) => {

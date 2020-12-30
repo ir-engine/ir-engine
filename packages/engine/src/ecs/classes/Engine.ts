@@ -1,9 +1,8 @@
+import { EngineOptions } from '../interfaces/EngineOptions';
 import { EntityPool } from './EntityPool';
 import { EventDispatcher } from './EventDispatcher';
 import { Query } from './Query';
-import { WebGLRenderer, PerspectiveCamera, Scene, Clock, PositionalAudio, AudioListener,  } from 'three';
-import { EngineOptions } from '../interfaces/EngineOptions';
-import { DefaultOptions } from '../constants/DefaultOptions';
+import { WebGLRenderer, PerspectiveCamera, Scene, Clock, AudioListener,  } from 'three';
 import { Entity } from './Entity';
 import { CameraOperator } from '../../camera/classes/CameraOperator';
 import { TransformComponent } from '../../transform/components/TransformComponent';
@@ -66,7 +65,9 @@ export class Engine {
   /**
 * Initialization options
 */
-  static options: { entityPoolSize: number } & EngineOptions = DefaultOptions
+  static options: { entityPoolSize: number } & EngineOptions = {
+    entityPoolSize: 0
+  };
 
   /**
    * Controls whether engine should execute this frame

@@ -8,7 +8,24 @@ import { InputType } from "../enums/InputType";
 
 const EXPRESSION_THRESHOLD = 0.1;
 
+let faceTrackingTimers = [];
+let lipsyncTracking = false;
+let audioContext = null;
+
+export const stopFaceTracking = () => {
+    faceTrackingTimers.forEach(timer => {
+        clearInterval(timer);
+    });
+}
+
+export const stopLipsyncTracking = () => {
+    lipsyncTracking = false;
+    audioContext?.close();
+    audioContext = null;
+}
+
 export const startFaceTracking: Behavior = (entity) => {
+    console.log("**************** STARTING FACE TRACKING")
     const video = document.createElement('video');
     video.srcObject = MediaStreamComponent.instance.mediaStream;
     Promise.all([
@@ -21,7 +38,9 @@ export const startFaceTracking: Behavior = (entity) => {
             console.log("Video start playing");
             // console.dir(video);
             // Record input at 30 FPS for now
-            setInterval(async () => faceToInput(entity, video), 33);
+            const interval = setInterval(async () => faceToInput(entity, video), 33);
+            faceTrackingTimers.push(interval);
+            console.log("*************** RUNNING FACE TRACKING")
         });
 
         video.muted = true;
@@ -29,14 +48,11 @@ export const startFaceTracking: Behavior = (entity) => {
     });
 };
 
-export const stopFaceTracking = () => {
-    clearInterval();
-}
-
 export const startLipsyncTracking: Behavior = (entity) => {
+    lipsyncTracking = true;
     const BoundingFrequencyMasc = [0, 400, 560, 2400, 4800];
     const BoundingFrequencyFem = [0, 500, 700, 3000, 6000];
-    const audioContext = new AudioContext();
+    audioContext = new AudioContext();
     const FFT_SIZE = 1024;
     const samplingFrequency = 44100;
     let sensitivityPerPole;
@@ -66,7 +82,8 @@ export const startLipsyncTracking: Behavior = (entity) => {
     userSpeechAnalyzer.connect(audioProcessor);
     audioProcessor.connect(audioContext.destination);
 
-    audioProcessor.onaudioprocess = function () {
+    audioProcessor.onaudioprocess = () => {
+        if(!lipsyncTracking) return;
         // bincount returns array which is half the FFT_SIZE
         spectrum = new Float32Array(userSpeechAnalyzer.frequencyBinCount);
         // Populate frequency data for computing frequency intensities
@@ -142,11 +159,16 @@ const nameToInputValue = {
     sad: CameraInput.Sad,
     surprised: CameraInput.Surprised
 };
-
+const faceApiOptions = new faceapi.TinyFaceDetectorOptions();
 async function faceToInput(entity, video) {
-    const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
+    console.log("*************** FACE TO INPUT")
+    const detection = await faceapi.detectSingleFace(video, faceApiOptions).withFaceExpressions();
+    console.log("*************** detection", detection)
+
     if (detection !== undefined && detection.expressions !== undefined) {
-        // console.log(detection.expressions);
+        console.log("EXPRESSIONS");
+        console.log(detection.expressions);
+        const expressions = {};
         const input = getMutableComponent(entity, Input);
         for (const expression in detection.expressions) {
             // If the detected value of the expression is more than 1/3rd-ish of total, record it

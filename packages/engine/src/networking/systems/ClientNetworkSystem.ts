@@ -7,14 +7,13 @@ import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { Client } from '../components/Client';
 import { Network } from '../components/Network';
 import { NetworkInterpolation } from '../components/NetworkInterpolation';
-import { Vault } from '../components/Vault';
 import { NetworkObject } from '../components/NetworkObject';
+import { Vault } from '../components/Vault';
 import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClient';
-import { handleInputOnServer } from '../functions/handleInputOnServer';
+import { handleInputFromNonLocalClients } from '../functions/handleInputOnServer';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
+import { WorldStateInterface } from "../interfaces/WorldState";
 import { WorldStateModel } from '../schema/worldStateSchema';
-import { PacketReadyWorldState, WorldStateInterface } from "../interfaces/WorldState";
-import { snapshot } from "../functions/NetworkInterpolationFunctions";
 
 export class ClientNetworkSystem extends System {
   updateType = SystemUpdateType.Fixed;
@@ -54,7 +53,7 @@ export class ClientNetworkSystem extends System {
       if (Network.instance.packetCompression) {
         const state = WorldStateModel.fromBuffer(new Uint8Array(buffer).buffer);
         // TODO: get rid of this conversions? isn't it lossy converting bigint to number and back?
-        const state2:WorldStateInterface = {
+        const unbufferedState:WorldStateInterface = {
           ...state,
           tick: Number(state.tick),
           snapshot: {
@@ -64,7 +63,7 @@ export class ClientNetworkSystem extends System {
           }
         };
 
-        applyNetworkStateToClient(state2, delta);
+        applyNetworkStateToClient(unbufferedState, delta);
       } else {
         applyNetworkStateToClient(buffer, delta);
       }
@@ -73,7 +72,7 @@ export class ClientNetworkSystem extends System {
 
     this.queryResults.clientNetworkInputReceivers.all?.forEach((entity) => {
       // Call behaviors on map
-      handleInputOnServer(entity, {isLocal:false, isServer: false}, delta);
+      handleInputFromNonLocalClients(entity, {isLocal:false, isServer: false}, delta);
     });
   }
 

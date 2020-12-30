@@ -22,18 +22,16 @@ import { NetworkObject } from '../../networking/components/NetworkObject';
  * @param args
  * @param {Number} delta Time since last frame
  */
- export const handleInputOnClient: Behavior = (entity: Entity, args: { isLocal: boolean, isServer: boolean }, delta: number): void => {
+ export const handleInputOnLocalClient: Behavior = (entity: Entity, args: { }, delta: number): void => {
   
   // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
   const input = getMutableComponent(entity, Input);
 
-    // console.log("Handling input data for ", entity.id)
-    // console.log(input.data);
+    console.log("Handling input data for ", entity.id)
+    console.log(input.data);
 
   // check CHANGED/UNCHANGED axis inputs
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-    if(args.isLocal){
-
     if (!input.prevData.has(key)) {
       return;
     }
@@ -73,12 +71,6 @@ import { NetworkObject } from '../../networking/components/NetworkObject';
       }
       input.data.set(key, value);
     }
-  }    else{
-    const networkObject = getComponent(entity, NetworkObject);
-    if(!args.isLocal && !args.isServer){
-    console.log("Handling input on non-local networking object", networkObject.networkId, "on entity", entity.id);
-    }
-  }
   });
 
   // For each input currently on the input object:

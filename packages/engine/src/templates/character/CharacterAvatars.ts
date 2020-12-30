@@ -4,6 +4,8 @@ export interface CharacterAvatarData {
   src: string;
 }
 
+
+
 export const CharacterAvatars: CharacterAvatarData[] = [
   {
     id: "Allison",

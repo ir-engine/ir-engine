@@ -1,13 +1,8 @@
 // Misc Types required for networking components
 
-import { DataProducer } from "mediasoup/lib/types";
 import { DataProducer as ClientDataProducer, SctpCapabilities } from "mediasoup-client/lib/types";
-import { MessageTypeAlias } from "./MessageTypeAlias";
+import { DataProducer } from "mediasoup/lib/types";
 
-export type SendMessageTypeDetail = {
-    type?: MessageTypeAlias;
-    unreliableChannel?: string;
-}
 
 export type UnreliableMessageType = "json" | "raw"
 
