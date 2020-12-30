@@ -14,6 +14,7 @@ import { CharacterStateSchema } from '../CharacterStateSchema';
 import { CharacterSubscriptionSchema } from '../CharacterSubscriptionSchema';
 import { CharacterAvatarComponent } from '../components/CharacterAvatarComponent';
 import { CharacterComponent } from '../components/CharacterComponent';
+import { NamePlateComponent } from '../components/NamePlateComponent';
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const NetworkPlayerCharacter: NetworkPrefab = {
@@ -31,13 +32,15 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     { type: Subscription, data: { schema: CharacterSubscriptionSchema } },
     // Current state (isJumping, isidle, etc)
     { type: State, data: { schema: CharacterStateSchema } },
-    { type: TeleportToSpawnPoint }
+    { type: TeleportToSpawnPoint },
+    { type: NamePlateComponent }
   ],
   // These are only created for the local player who owns this prefab
   localClientComponents: [
     { type: LocalInputReceiver },
     { type: FollowCameraComponent, data: { distance: 3, mode: "thirdPerson" } },
     { type: Interactor }
+  
   ],
   serverComponents: [
 

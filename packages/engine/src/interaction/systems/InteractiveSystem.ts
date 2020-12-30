@@ -20,6 +20,15 @@ import { RigidBody } from "@xr3ngine/engine/src/physics/components/RigidBody";
 import { interactFocused } from "../behaviors/interactFocused";
 import { subFocused } from "../behaviors/subFocused";
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
+import { NamePlateComponent } from "../../templates/character/components/NamePlateComponent";
+import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
+import { isClient } from "../../common/functions/isClient";
+import { Engine } from "../../ecs/classes/Engine";
+import { NetworkObject } from "../../networking/components/NetworkObject";
+import { vectorToScreenXYZ } from "../../common/functions/vectorToScreenXYZ";
+import { Vector3 } from "three";
+import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
+import { Not } from "../../ecs/functions/ComponentFunctions";
 
 
 export class InteractiveSystem extends System {
@@ -50,6 +59,62 @@ export class InteractiveSystem extends System {
   execute(delta: number, time: number): void {
     this.newFocused.clear();
 
+    if (isClient) {
+      const canvas = Engine.renderer.domElement;
+      const width = canvas.width;
+      const height = canvas.height;
+
+      this.queryResults.local_user?.all.forEach(entity => {
+        const camera = Engine.camera;
+        const localTransform = getComponent(entity, TransformComponent);
+        const localCharacter = getComponent(entity, CharacterComponent);
+
+        const closestHoveredUser = this.queryResults.network_user.all?.filter(entity => {
+          const transform = getComponent(entity, TransformComponent);
+          const dir = transform.position.clone().sub(localTransform.position).normalize();
+          return localCharacter.viewVector.dot(dir) > 0.7;
+        })?.reduce((closestEntity, currentEntity) => {
+          if (!closestEntity) {
+            return currentEntity;
+          }
+          const closestTransform = getComponent(closestEntity, TransformComponent);
+          const currentTransform = getComponent(currentEntity, TransformComponent);
+
+          if (currentTransform.position.distanceTo(localTransform.position) < closestTransform.position.distanceTo(localTransform.position)) {
+            return currentEntity;
+          }
+          else{
+          return closestEntity;
+          }
+        }, null);
+        
+        // console.log(closestHoveredUser); 
+
+        if (!closestHoveredUser) {
+          const userData = new CustomEvent('user-hover', { detail: { isFocused: false } });
+          document.dispatchEvent(userData);
+          return;
+        }
+
+        const networkUserID = getComponent(closestHoveredUser, NetworkObject)?.ownerId;
+        const closestPosition = getComponent(closestHoveredUser, TransformComponent).position.clone();
+        closestPosition.y = 2;
+        const point2DPosition = vectorToScreenXYZ(closestPosition, camera, width, height);
+       
+        const nameplateData = {
+          userId: networkUserID,
+          position: point2DPosition,
+          isFocused: true
+        };
+        
+        console.log(nameplateData);
+
+        const userData = new CustomEvent('user-hover', { detail: nameplateData });
+        document.dispatchEvent(userData);
+
+      });
+    }
+
     this.queryResults.interactors?.all.forEach(entity => {
       if (this.queryResults.interactive?.all.length) {
         //interactRaycast(entity, { interactive: this.queryResults.interactive.all });
@@ -59,7 +124,7 @@ export class InteractiveSystem extends System {
           this.newFocused.add(interacts.focusedInteractive);
           // TODO: can someone else focus object? should we update 'interacts' entity
           if (!hasComponent(interacts.focusedInteractive, InteractiveFocused)) {
-            addComponent(interacts.focusedInteractive, InteractiveFocused, {interacts: entity});
+            addComponent(interacts.focusedInteractive, InteractiveFocused, { interacts: entity });
           }
         }
 
@@ -67,9 +132,9 @@ export class InteractiveSystem extends System {
         // unmark all unfocused
         this.queryResults.interactive?.all.forEach(entityInter => {
           if (!hasComponent(entityInter, BoundingBox) &&
-              hasComponent(entityInter, Object3DComponent) &&
-              hasComponent(entityInter, TransformComponent)
-            ){
+            hasComponent(entityInter, Object3DComponent) &&
+            hasComponent(entityInter, TransformComponent)
+          ) {
 
             addComponent(entityInter, BoundingBox, {
               dynamic: (hasComponent(entityInter, RigidBody) || hasComponent(entityInter, VehicleBody))
@@ -112,31 +177,46 @@ export class InteractiveSystem extends System {
     });
 
     this.focused.clear();
-    this.newFocused.forEach(e => this.focused.add(e) );
+    this.newFocused.forEach(e => this.focused.add(e));
   }
 
   static queries: any = {
-    interactors: { components: [ Interactor ] },
-    interactive: { components: [ Interactable ] },
-    boundingBox: { components: [ BoundingBox ],
+    interactors: { components: [Interactor] },
+    interactive: { components: [Interactable] },
+    boundingBox: {
+      components: [BoundingBox],
       listen: {
         added: true,
         removed: true
       }
     },
     focus: {
-      components: [ Interactable, InteractiveFocused ],
+      components: [Interactable, InteractiveFocused],
       listen: {
         added: true,
         removed: true
       }
     },
     subfocus: {
-      components: [ Interactable, SubFocused ],
+      components: [Interactable, SubFocused],
       listen: {
         added: true,
         removed: true
       }
     },
+    local_user: {
+      components: [LocalInputReceiver, CharacterComponent, TransformComponent],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
+    network_user: {
+      components: [Not(LocalInputReceiver), NamePlateComponent, CharacterComponent, TransformComponent],
+      listen: {
+        added: true,
+        removed: true
+      }
+    }
   }
 }
