@@ -55,6 +55,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 export const EnginePage = (props: Props) => {
+
   const {
     sceneId,
     setAppLoaded,
@@ -67,6 +68,10 @@ export const EnginePage = (props: Props) => {
   const [actorAvatarId, setActorAvatarId] = useState('Rose');
   const [infoBoxData, setInfoBoxData] = useState(null);
   const [progressEntity, setProgressEntity] = useState('');
+  const [userHovered, setonUserHover] = useState(null);
+
+  console.log("PROPS", userHovered);
+  console.log("PROPS", setonUserHover);
 
   //all scene entities are loaded
   const onSceneLoaded = (event: CustomEvent): void => {
@@ -87,6 +92,12 @@ export const EnginePage = (props: Props) => {
     setHoveredLabel(event.detail.focused ? event.detail.interactionText : '');
   };
 
+  const onUserHover = (event: CustomEvent): void => {
+    if (event.detail.focused == true){
+    setonUserHover(event.detail);
+    }
+  };
+
 
   const onObjectActivation = (event: CustomEvent): void =>{
     setInfoBoxData(event.detail.payload);
@@ -98,6 +109,7 @@ export const EnginePage = (props: Props) => {
     document.addEventListener('scene-loaded-entity', onSceneLoadedEntity);
     document.addEventListener('object-activation', onObjectActivation);
     document.addEventListener('object-hover', onObjectHover);
+    document.addEventListener('user-hover', onUserHover);
   };
 
   useEffect(() => {
@@ -137,8 +149,9 @@ export const EnginePage = (props: Props) => {
       <OnBoardingBox actorEntity={actorEntity} />
       <MediaIconsBox />
       <TooltipContainer message={hoveredLabel.length > 0 ? hoveredLabel : ''} />
-      <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} />
-      <NamePlate userId={currentUser.id} position={{x:560, y:200}} isFocused={false} autoHideDuration={10000} />
+      <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} />currentUser.id
+      {userHovered}
+      <NamePlate userId={userHovered?.userId} position={{x:userHovered?.position.x, y:userHovered?.position.y}} isFocused={userHovered?.focused} autoHideDuration={10000} />
       {mobileGamepad}
     </>
   );
