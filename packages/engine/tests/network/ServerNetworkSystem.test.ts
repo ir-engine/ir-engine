@@ -5,7 +5,7 @@ import { NetworkSchema } from "../../src/networking/interfaces/NetworkSchema";
 import { DefaultNetworkSchema } from "../../src/templates/networking/DefaultNetworkSchema";
 import { Network } from "../../src/networking/components/Network";
 import { Engine } from "../../src/ecs/classes/Engine";
-import { Scene, Vector3, Quaternion } from "three";
+import { Quaternion, Scene, Vector3 } from "three";
 import { registerSystem } from "../../src/ecs/functions/SystemFunctions";
 import { PhysicsSystem } from "../../src/physics/systems/PhysicsSystem";
 import { NetworkInputInterface, NetworkTransformsInterface } from "../../src/networking/interfaces/WorldState";
@@ -239,7 +239,7 @@ test("continuous move forward and then stop", () => {
   expect(transform.networkId).toBe(networkObject.networkId);
 });
 
-test("move forward, then 2 messages stop + empty in execution", () => {
+test("move forward, then 2 messages stop + empty in one execution", () => {
   expect(handleInputOnServer.mock.calls.length).toBe(0);
 
   Network.instance.userId = userId;
@@ -330,8 +330,67 @@ test("incoming input propagates to network", () => {
   runFixed();
 
   // get input messages from both players
-  const p1message = createButtonServerMessage(p1NetworkObject.networkId, DefaultInput.FORWARD, BinaryValue.ON, null, p1viewVector);
-  const p2message = createButtonServerMessage(p2NetworkObject.networkId, DefaultInput.FORWARD, BinaryValue.ON, null, p2viewVector);
+  //const p1message = createButtonServerMessage(p1NetworkObject.networkId, DefaultInput.FORWARD, BinaryValue.ON, null, p1viewVector);
+  const p1message:NetworkInputInterface = {
+    networkId: p1NetworkObject.networkId,
+    buttons: [
+    {
+      input: DefaultInput.FORWARD,
+      lifecycleState: LifecycleValue.STARTED,
+      value: BinaryValue.ON
+    }
+  ],
+    axes1d: [
+      {
+        input: DefaultInput.JUMP,
+        value: 0.3,
+        lifecycleState: LifecycleValue.CHANGED
+      }
+    ],
+    axes2d: [
+      {
+        input: DefaultInput.SCREENXY,
+        value: [ 0.1, 0.7 ],
+        lifecycleState: LifecycleValue.CHANGED
+      }
+    ],
+    viewVector: {
+      x: p1viewVector.x,
+      y: p1viewVector.y,
+      z: p1viewVector.z
+    }
+  };
+
+  // const p2message = createButtonServerMessage(p2NetworkObject.networkId, DefaultInput.FORWARD, BinaryValue.ON, null, p2viewVector);
+  const p2message:NetworkInputInterface = {
+    networkId: p2NetworkObject.networkId,
+    buttons: [
+      {
+        input: DefaultInput.FORWARD,
+        lifecycleState: LifecycleValue.STARTED,
+        value: BinaryValue.ON
+      }
+    ],
+    axes1d: [
+      {
+        input: DefaultInput.CROUCH,
+        value: 0.6,
+        lifecycleState: LifecycleValue.CHANGED
+      }
+    ],
+    axes2d: [
+      {
+        input: DefaultInput.SCREENXY,
+        value: [ 0.4, 0.9 ],
+        lifecycleState: LifecycleValue.CHANGED
+      }
+    ],
+    viewVector: {
+      x: p2viewVector.x,
+      y: p2viewVector.y,
+      z: p2viewVector.z
+    }
+  };
 
   // const runsCount = 4; // in my case it needs at least 4 frames to accumulate z transform
   // for (let i = 0; i < runsCount; i++) {

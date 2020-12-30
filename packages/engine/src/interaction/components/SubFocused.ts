@@ -5,7 +5,7 @@ import { Entity } from "../../ecs/classes/Entity";
 export class SubFocused extends Component<SubFocused> {
   subInteracts:Entity
 
-  static schema = {
+  static _schema = {
     subInteracts: { type: Types.Ref }
   }
 }

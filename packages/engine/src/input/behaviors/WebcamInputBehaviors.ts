@@ -6,6 +6,8 @@ import { Input } from "../components/Input";
 import { CameraInput } from "../enums/CameraInput";
 import { InputType } from "../enums/InputType";
 
+const EXPRESSION_THRESHOLD = 0.1;
+
 let faceTrackingTimers = [];
 let lipsyncTracking = false;
 let audioContext = null;
@@ -171,15 +173,17 @@ async function faceToInput(entity, video) {
         for (const expression in detection.expressions) {
             // If the detected value of the expression is more than 1/3rd-ish of total, record it
             // This should allow up to 3 expressions but usually 1-2
-            if (detection.expressions[expression] > 0.28)
-                // set it on the map
-                input.data.set(expressions[nameToInputValue[expression]], {
-                    type: InputType.ONEDIM,
-                    value: detection.expressions[expression]
-                });
-            // check if the map has it and delete it
-            else if (input.data.has(expressions[nameToInputValue[expression]]))
-                input.data.delete(expressions[nameToInputValue[expression]]);
+            const cameraInputKey = nameToInputValue[expression];
+            const inputKey = input.schema.cameraInputMap[cameraInputKey];
+            if (!inputKey) {
+                // skip if expression is not in schema
+                continue;
+            }
+            // set it on the map
+            input.data.set(inputKey, {
+                type: InputType.ONEDIM,
+                value: detection.expressions[expression] < EXPRESSION_THRESHOLD? 0 : detection.expressions[expression]
+            });
         }
     }
 }

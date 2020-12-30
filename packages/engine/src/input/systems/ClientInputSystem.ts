@@ -19,7 +19,6 @@ import { handleInputPurge } from "../behaviors/handleInputPurge";
 import { handleGamepadConnected, handleGamepads } from "../behaviors/GamepadInputBehaviors";
 import { startFaceTracking, stopFaceTracking, startLipsyncTracking } from "../behaviors/WebcamInputBehaviors";
 import { MediaStreamComponent } from '../../networking/components/MediaStreamComponent';
-
 //import { initializeSession, processSession } from '../behaviors/WebXRInputBehaviors';
 import { addPhysics, removeWebXRPhysics, updateWebXRPhysics } from '../behaviors/WebXRControllersBehaviors';
 import { Input } from '../components/Input';
@@ -63,7 +62,7 @@ interface ListenerBindingData {
 export class InputSystem extends System {
   updateType = SystemUpdateType.Fixed;
   // Temp/ref variables
-  private _inputComponent: Input
+  private _inputComponent: Input;
   private localUserMediaStream: MediaStream = null;
 
   // Client only variables
@@ -112,9 +111,12 @@ export class InputSystem extends System {
     this.queryResults.localClientInput.all?.forEach(entity => {
       // Apply input to local client
       handleGamepads(entity);
+
+      // apply face tracking
       if (this.localUserMediaStream === null) {
         // check to start video tracking
         if (MediaStreamComponent.instance.mediaStream) {
+          console.log('start facetracking');
           startFaceTracking(entity);
           this.localUserMediaStream = MediaStreamComponent.instance.mediaStream;
         }
@@ -123,10 +125,12 @@ export class InputSystem extends System {
         if (MediaStreamComponent.instance.mediaStream) {
           if (this.localUserMediaStream !== MediaStreamComponent.instance.mediaStream) {
             // stream is changed
-          //... do update video src ...
+            // TODO: do update video src ...
+            console.log('change facetracking src');
           }
         } else {
-        //... user media stream is null - stop facetracking?
+          //... user media stream is null - stop facetracking?
+          console.log('stop facetracking');
           stopFaceTracking();
         }
         this.localUserMediaStream = MediaStreamComponent.instance.mediaStream;
