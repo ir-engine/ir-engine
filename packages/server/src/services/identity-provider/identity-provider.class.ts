@@ -116,6 +116,10 @@ export class IdentityProvider extends Service {
       }
     }, params);
 
+    await this.app.service('user-settings').create({
+      userId: result.userId
+    });
+
     if (type === 'guest') {
       result.accessToken = await this.app.service('authentication').createAccessToken(
           {},

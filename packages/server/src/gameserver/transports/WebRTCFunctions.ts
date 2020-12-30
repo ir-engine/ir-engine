@@ -42,7 +42,7 @@ export const sendCurrentProducers = (socket: SocketIO.Socket, partyId?: string) 
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
     const selfClient = Network.instance.clients[userId];
-    if (selfClient.socketId != null) {
+    if (selfClient?.socketId != null) {
         Object.entries(Network.instance.clients).forEach(([name, value]) => {
             if (name === userId || value.media == null || value.socketId == null)
                 return;
@@ -59,7 +59,7 @@ export const sendInitialProducers = async (socket: SocketIO.Socket, partyId?: st
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
     const selfClient = Network.instance.clients[userId];
-    if (selfClient.socketId != null) {
+    if (selfClient?.socketId != null) {
         Object.entries(Network.instance.clients).forEach(([name, value]) => {
             // console.log(name);
             // console.log(value);
@@ -335,13 +335,15 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
 
     MediaStreamComponent.instance.producers.push(producer);
 
-    Network.instance.clients[userId].media[appData.mediaTag] = {
-        paused,
-        producerId: producer.id,
-        globalMute: false,
-        encodings: rtpParameters.encodings,
-        partyId: appData.partyId
-    };
+    if (userId != null && Network.instance.clients[userId] != null) {
+        Network.instance.clients[userId].media[appData.mediaTag] = {
+            paused,
+            producerId: producer.id,
+            globalMute: false,
+            encodings: rtpParameters.encodings,
+            partyId: appData.partyId
+        };
+    }
 
     Object.keys(Network.instance.clients).forEach((key) => {
         const client = Network.instance.clients[key];
@@ -462,13 +464,16 @@ export async function handleWebRtcResumeProducer(socket, data, callback): Promis
     const { producerId } = data,
         producer = MediaStreamComponent.instance.producers.find(p => p.id === producerId);
     logger.info("resume-producer", producer.appData);
+    console.log('Resume-producer for user ' + userId);
     await producer.resume();
-    Network.instance.clients[userId].media[producer.appData.mediaTag].paused = false;
-    Network.instance.clients[userId].media[producer.appData.mediaTag].globalMute = false;
-    const hostClient = Object.entries(Network.instance.clients).find(([name, client]) => {
-        return client.media[producer.appData.mediaTag]?.producerId === producerId;
-    });
-    hostClient[1].socket.emit(MessageTypes.WebRTCResumeProducer.toString(), producer.id);
+    if (userId != null && Network.instance.clients[userId] != null) {
+        Network.instance.clients[userId].media[producer.appData.mediaTag].paused = false;
+        Network.instance.clients[userId].media[producer.appData.mediaTag].globalMute = false;
+        const hostClient = Object.entries(Network.instance.clients).find(([name, client]) => {
+            return client.media[producer.appData.mediaTag]?.producerId === producerId;
+        });
+        hostClient[1].socket.emit(MessageTypes.WebRTCResumeProducer.toString(), producer.id);
+    }
     callback({ resumed: true });
 }
 
@@ -477,13 +482,16 @@ export async function handleWebRtcPauseProducer(socket, data, callback): Promise
     const { producerId, globalMute } = data,
         producer = MediaStreamComponent.instance.producers.find(p => p.id === producerId);
     await producer.pause();
-    Network.instance.clients[userId].media[producer.appData.mediaTag].paused = true;
-    Network.instance.clients[userId].media[producer.appData.mediaTag].globalMute = globalMute || false;
-    if (globalMute === true) {
-        const hostClient = Object.entries(Network.instance.clients).find(([name, client]) => {
-            return client.media[producer.appData.mediaTag]?.producerId === producerId;
-        });
-        hostClient[1].socket.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true);
+    console.log('Pause-producer for user ' + userId);
+    if (userId != null && Network.instance.clients[userId] != null) {
+        Network.instance.clients[userId].media[producer.appData.mediaTag].paused = true;
+        Network.instance.clients[userId].media[producer.appData.mediaTag].globalMute = globalMute || false;
+        if (globalMute === true) {
+            const hostClient = Object.entries(Network.instance.clients).find(([name, client]) => {
+                return client.media[producer.appData.mediaTag]?.producerId === producerId;
+            });
+            hostClient[1].socket.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true);
+        }
     }
     callback({ paused: true });
 }
