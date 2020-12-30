@@ -1,7 +1,11 @@
 .party-user-container {
-    left: 5%;
+    left: 2%;
     position: fixed;
-    top: 60px;
+    top: 160px;
     width: calc(100vw - 285px);
     z-index: 100;
+    @media (max-width: 768px) {
+        top: 70px;
+        // height: 56px;
+    } 
 }
