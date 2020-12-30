@@ -85,7 +85,7 @@ export class IdentityProvider extends Service {
     const User = sequelizeClient.model('user');
 
     // check if there is a user with userId
-    let foundUser
+    let foundUser;
     try {
       foundUser = await userService.get(userId);
     } catch (err) {
@@ -115,6 +115,10 @@ export class IdentityProvider extends Service {
         userRole: type === 'guest' ? 'guest' : type === 'admin' ? 'admin' : 'user'
       }
     }, params);
+
+    await this.app.service('user-settings').create({
+      userId: result.userId
+    });
 
     if (type === 'guest') {
       result.accessToken = await this.app.service('authentication').createAccessToken(

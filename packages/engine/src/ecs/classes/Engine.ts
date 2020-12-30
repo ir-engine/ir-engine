@@ -1,7 +1,7 @@
 import { EntityPool } from './EntityPool';
 import { EventDispatcher } from './EventDispatcher';
 import { Query } from './Query';
-import { WebGLRenderer, PerspectiveCamera, Scene, Clock,  } from 'three';
+import { WebGLRenderer, PerspectiveCamera, Scene, Clock, PositionalAudio, AudioListener,  } from 'three';
 import { EngineOptions } from '../interfaces/EngineOptions';
 import { DefaultOptions } from '../constants/DefaultOptions';
 import { Entity } from './Entity';
@@ -52,6 +52,11 @@ export class Engine {
  * This is set in {@link @xr3ngine/engine/src/initialize#initializeEngine}
  */
   static cameraTransform: TransformComponent = null
+
+  /**
+ * Add audioListener into Engine
+ */
+  static audioListener: AudioListener = null
 
   /**
  * Event dispatcher manages sending events which can be interpreted by devtools

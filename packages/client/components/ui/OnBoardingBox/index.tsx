@@ -158,7 +158,7 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
   const snackBarClasses = {
     root: styles.helpHintSnackBar +' '+ styles[generalStateList[onBoardingStep].toLowerCase()],
     // anchorOriginBottomCenter: styles.bottomPos
-  }
+  };
     hiddenSnackbar && (snackBarClasses.root += ' '+styles.hidden);
   
   const vertical = onBoardingStep === generalStateList.TUTOR_UNMUTE ? 'top' : 'bottom';

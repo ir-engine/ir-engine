@@ -38,6 +38,7 @@ export const InfoBox: FunctionComponent<InfoBoxProps> = ({ onClose, data }: Info
         </DialogTitle>}
         <DialogContent className={styles.dialogContent}>
           {modelView}
+          {/* eslint-disable-next-line react/no-danger */}
           { data.htmlContent && (<div dangerouslySetInnerHTML={{__html: data.htmlContent}} />)}
           { data.url && (<p>{data.url}</p>)}
           { data.buyUrl && (<Button  variant="outlined" color="primary" onClick={()=>handleLinkClick(data.buyUrl)}>Buy</Button>)}
