@@ -4,8 +4,24 @@ import { Application } from '../declarations';
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const UserSettings = sequelizeClient.define('user_settings', {
-    microphone: { type: DataTypes.STRING },
-    audio: { type: DataTypes.STRING }
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV1,
+      allowNull: false,
+      primaryKey: true
+    },
+    microphone: {
+      type: DataTypes.INTEGER,
+      defaultValue: 50
+    },
+    audio: {
+      type: DataTypes.INTEGER,
+      defaultValue: 50
+    },
+    spatialAudioEnabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true
+    }
   }, {
     hooks: {
       beforeCount (options: any): void {

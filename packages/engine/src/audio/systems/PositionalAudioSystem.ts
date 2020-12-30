@@ -49,19 +49,29 @@ export class PositionalAudioSystem extends System {
       if (positionalAudio != null) positionalAudio.value?.disconnect();
     }
 
+    for (const entity of this.queryResults.character_audio.changed) {
+      const entityNetworkObject = getComponent(entity, NetworkObject);
+      const peerId = entityNetworkObject.ownerId;
+      const consumer = MediaStreamComponent.instance.consumers
+          .find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio');
+      if (consumer == null && this.characterAudioStream.get(entity) != null) {
+        this.characterAudioStream.delete(entity);
+      }
+    }
+
     for (const entity of this.queryResults.character_audio.all) {
       if (hasComponent(entity, LocalInputReceiver)) {
         continue;
       }
 
-      if (this.characterAudioStream.has(entity)) {
-        continue;
-      }
       const entityNetworkObject = getComponent(entity, NetworkObject);
       const peerId = entityNetworkObject.ownerId;
-
       const consumer = MediaStreamComponent.instance.consumers
-        .find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio');
+          .find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio');
+
+      if (this.characterAudioStream.has(entity) && consumer != null && consumer.id === this.characterAudioStream.get(entity).id) {
+        continue;
+      }
 
       if (!consumer) {
         continue;
@@ -107,6 +117,19 @@ export class PositionalAudioSystem extends System {
       if (positionalAudio != null) Engine.scene.remove(positionalAudio.value);
     }
   }
+
+  suspend(): void {
+    for (const entity of this.queryResults.character_audio.all) {
+      const positionalAudio = getComponent(entity, PositionalAudioComponent);
+      positionalAudio.value.context.suspend();
+    }
+  }
+  resume(): void {
+    for (const entity of this.queryResults.character_audio.all) {
+      const positionalAudio = getComponent(entity, PositionalAudioComponent);
+      positionalAudio.value.context.resume();
+    }
+  }
 }
 PositionalAudioSystem.queries = {
   positional_audio: {
@@ -121,6 +144,7 @@ PositionalAudioSystem.queries = {
     components: [PositionalAudioComponent, CharacterComponent],
     listen: {
       added: true,
+      changed: true,
       removed: true,
     }
   },
