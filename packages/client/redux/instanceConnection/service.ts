@@ -72,7 +72,8 @@ export function connectToInstanceServer () {
         await endVideoChat({ endConsumers: true });
         await leave();
       }
-      await connectToServer(instance.get('ipAddress'), instance.get('port'), {
+
+      await Network.instance.transport.initialize(instance.get('ipAddress'), instance.get('port'), {
         locationId: locationId,
         token: token,
         sceneId: sceneId,
@@ -80,6 +81,8 @@ export function connectToInstanceServer () {
         partyId: user.partyId,
         videoEnabled: currentLocation?.locationSettings?.videoEnabled === true || !(currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null)
       });
+      Network.instance.isInitialized = true;
+
       // setClient(instanceClient);
       dispatch(instanceServerConnected());
       // dispatch(socketCreated(socket));

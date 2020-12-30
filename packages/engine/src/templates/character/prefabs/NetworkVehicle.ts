@@ -1,23 +1,10 @@
-import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
-import { Input } from '../../../input/components/Input';
-import { LocalInputReceiver } from '../../../input/components/LocalInputReceiver';
-import { Interactor } from '../../../interaction/components/Interactor';
+import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
+import { BoxBufferGeometry, Color, Mesh, MeshPhongMaterial } from "three";
 import { NetworkPrefab } from '../../../networking/interfaces/NetworkPrefab';
-import TeleportToSpawnPoint from '../../../scene/components/TeleportToSpawnPoint';
-import { State } from '../../../state/components/State';
-import { Subscription } from '../../../subscription/components/Subscription';
-import { TransformComponent } from '../../../transform/components/TransformComponent';
-import { initializeCharacter } from '../behaviors/initializeCharacter';
-import { loadActorAvatar } from '../behaviors/loadActorAvatar';
-import { CharacterInputSchema } from '../CharacterInputSchema';
-import { CharacterStateSchema } from '../CharacterStateSchema';
-import { CharacterSubscriptionSchema } from '../CharacterSubscriptionSchema';
-import { CharacterAvatarComponent } from '../components/CharacterAvatarComponent';
-
-import { BoxBufferGeometry, Mesh, MeshPhongMaterial, Color } from "three";
 import { ColliderComponent } from '../../../physics/components/ColliderComponent';
 import { RigidBody } from '../../../physics/components/RigidBody';
-import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
+import { TransformComponent } from '../../../transform/components/TransformComponent';
+
 
 const boxGeometry = new BoxBufferGeometry(1, 1, 1);
 const boxMaterial = new MeshPhongMaterial({ color: new Color(0.813410553336143494, 0.81341053336143494, 0.80206481294706464) });

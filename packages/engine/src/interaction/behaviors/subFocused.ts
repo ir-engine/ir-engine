@@ -1,13 +1,12 @@
 import { Behavior } from "../../common/interfaces/Behavior";
 import { Entity } from "../../ecs/classes/Entity";
-import { addComponent, getComponent, hasComponent, removeComponent } from "../../ecs/functions/EntityFunctions";
-
-import { Interactable } from "../components/Interactable";
-import { InteractiveFocused } from "../components/InteractiveFocused";
-import { SubFocused } from "../components/SubFocused";
+import { addComponent, hasComponent, removeComponent } from "../../ecs/functions/EntityFunctions";
 import { HighlightComponent } from "../../effects/components/HighlightComponent";
+import { Interactable } from "../components/Interactable";
+import { SubFocused } from "../components/SubFocused";
 
-// DO TO: add logic what to do if the object is highlighted in a different way, e.g. mouse or quest object
+
+// TO DO: add logic what to do if the object is highlighted in a different way, e.g. mouse or quest object
 
 export const subFocused:Behavior = (entity: Entity, args, delta: number): void => {
 

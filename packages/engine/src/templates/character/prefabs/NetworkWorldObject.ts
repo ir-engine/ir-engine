@@ -1,24 +1,11 @@
-import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
-import { Input } from '../../../input/components/Input';
-import { LocalInputReceiver } from '../../../input/components/LocalInputReceiver';
-import { Interactor } from '../../../interaction/components/Interactor';
+import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
+import { BoxBufferGeometry, Color, Mesh, MeshPhongMaterial } from "three";
+import { isClient } from "../../../common/functions/isClient";
 import { NetworkPrefab } from '../../../networking/interfaces/NetworkPrefab';
-import TeleportToSpawnPoint from '../../../scene/components/TeleportToSpawnPoint';
-import { State } from '../../../state/components/State';
-import { Subscription } from '../../../subscription/components/Subscription';
-import { TransformComponent } from '../../../transform/components/TransformComponent';
-import { initializeCharacter } from '../behaviors/initializeCharacter';
-import { loadActorAvatar } from '../behaviors/loadActorAvatar';
-import { CharacterInputSchema } from '../CharacterInputSchema';
-import { CharacterStateSchema } from '../CharacterStateSchema';
-import { CharacterSubscriptionSchema } from '../CharacterSubscriptionSchema';
-import { CharacterAvatarComponent } from '../components/CharacterAvatarComponent';
-
-import { BoxBufferGeometry, Mesh, MeshPhongMaterial, Color } from "three";
 import { ColliderComponent } from '../../../physics/components/ColliderComponent';
 import { RigidBody } from '../../../physics/components/RigidBody';
-import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
-import { isClient } from "../../../common/functions/isClient";
+import { TransformComponent } from '../../../transform/components/TransformComponent';
+
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const NetworkWorldObject: NetworkPrefab = {

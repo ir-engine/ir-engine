@@ -1,17 +1,10 @@
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { VehicleBody } from "@xr3ngine/engine/src/physics/components/VehicleBody";
-
-import { FollowCameraComponent } from '@xr3ngine/engine/src/camera/components/FollowCameraComponent';
-import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
-import { LocalInputReceiver } from "@xr3ngine/engine/src/input/components/LocalInputReceiver";
-import { CharacterInputSchema } from "@xr3ngine/engine/src/templates/character/CharacterInputSchema";
-import { CylinderGeometry, Matrix4, Mesh, Vector3 } from "three";
-import { addObject3DComponent } from "../../common/behaviors/Object3DBehaviors";
+import { Matrix4, Vector3 } from "three";
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { Input } from "@xr3ngine/engine/src/input/components/Input";
-import { State } from "@xr3ngine/engine/src/state/components/State";
-import { addComponent, createEntity, removeComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+
 
 /*
 const sphereGeo = new CylinderGeometry( 0.3, 0.3, 0.1, 12 )
