@@ -29,7 +29,7 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
            })
 
         let offsetX = 0, offsetY = 0, offsetZ = 0;
-        let offsetqX = 0, offsetqY = 0, offsetqZ = 0, offsetqW = 0;
+        const offsetqX = 0, offsetqY = 0, offsetqZ = 0, offsetqW = 0;
 
         if (args.clientSnapshot.old && Network.instance.worldState.snapshot) {
          const clientSnapshotPos = args.clientSnapshot.old.state.find(v => v.networkId == networkObject.networkId);

@@ -392,6 +392,7 @@ export async function createTransport(direction: string, partyId?: string) {
         }
     });
 
+    transport.partyId = partyId;
     return Promise.resolve(transport);
 }
 

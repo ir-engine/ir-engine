@@ -92,6 +92,11 @@ export interface UserUpdatedAction {
   user: User;
 }
 
+export interface UserSettingsUpdatedAction {
+  type: string;
+  data: any;
+}
+
 export type AuthAction =
   AuthProcessingAction
   | LoginResultAction
@@ -200,10 +205,11 @@ export function loadedUserData (user: User): LoadDataResultAction {
     user
   };
 }
-export function updateSettings (message: any): RegistrationResultAction {
+
+export function updatedUserSettingsAction (data: any): UserSettingsUpdatedAction {
   return {
     type: UPDATE_USER_SETTINGS,
-    message
+    data: data
   };
 }
 

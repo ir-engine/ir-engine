@@ -74,12 +74,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const UserMenu = (props: Props): any => {    
   const { login, authState, logoutUser, removeUser, showDialog, currentScene, updateUsername} = props;
   const selfUser = authState.get('user');
-  console.log('selfUser', selfUser);
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
   const [isEditUsername, setIsEditUsername] = useState(false);
   const [username, setUsername] = useState(selfUser?.name);
   const [drawerType, setDrawerType] = useState('default');
-  console.log('username', username)
 
   const invitationLink = window.location.href;
   const refLink = useRef(null);
@@ -171,7 +169,7 @@ const UserMenu = (props: Props): any => {
       updateUsername(selfUser.id, username);
     }
     setIsEditUsername(false);
-  }
+  };
 
   const renderSuccessMessage = ()=>
     <Snackbar open={openSnackBar} 
@@ -320,7 +318,7 @@ const renderProviderIcon = type =>{
     case 'linkedin': return <LinkedInIcon width="40" height="40" viewBox="0 0 40 40"/>;
     case 'twitter': return <TwitterIcon width="40" height="40" viewBox="0 0 40 40" />;
   }
-}
+};
 
 const renderUserMenu = () =><>
           <section className={styles.userTitle}>
@@ -392,7 +390,7 @@ const renderDrawerContent = () =>{
 
   return (
         <section key={anchor} className={styles.anchorContainer}>
-          <span className={styles.anchorDrawer} onClick={toggleDrawer(anchor, isOpenDrawer === true ? false : true)} ></span>
+          <span className={styles.anchorDrawer} onClick={toggleDrawer(anchor, isOpenDrawer === true ? false : true)}  />
           <Drawer
             anchor={anchor}
             open={state[anchor]}

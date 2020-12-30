@@ -110,7 +110,6 @@ const InstanceChat = (props: Props): any => {
                 text: composingMessage
             });
             setComposingMessage('');
-            setUnreadMessages(true);
         }
     };
 
@@ -147,23 +146,31 @@ const InstanceChat = (props: Props): any => {
         return user;
     };
 
-    const generateMessageSecondary = (message: Message): string => {
-        const date = moment(message.createdAt).format('MMM D YYYY, h:mm a');
-        if (message.senderId !== user.id) {
-            return `${getMessageUser(message).name? getMessageUser(message).name : 'A former user'} on ${date}`;
-        }
-        else {
-            return date;
-        }
-    };
+    // const generateMessageSecondary = (message: Message): string => {
+    //     const date = moment(message.createdAt).format('MMM D YYYY, h:mm a');
+    //     if (message.senderId !== user.id) {
+    //         return `${getMessageUser(message).name? getMessageUser(message).name : 'A former user'} on ${date}`;
+    //     }
+    //     else {
+    //         return date;
+    //     }
+    // };
 
-    const openDrawer = (e): void => {
-        setActiveChat(activeChannel);
-        openBottomDrawer(e);
-    };
+    // const openDrawer = (e): void => {
+    //     setActiveChat(activeChannel);
+    //     openBottomDrawer(e);
+    // };
 
     const [openMessageContainer, setOpenMessageContainer] = React.useState(false);
-    const hideShowMessagesContainer = () => setOpenMessageContainer(!openMessageContainer);
+    const hideShowMessagesContainer = () => {
+        setOpenMessageContainer(!openMessageContainer); 
+        openMessageContainer && setUnreadMessages(false);
+    };
+
+
+    useEffect(() =>  {
+        activeChannel && activeChannel.messages && activeChannel.messages.length > 0 && !openMessageContainer &&  setUnreadMessages(true);
+    }, [activeChannel?.messages]);
 
     return (
         <>
@@ -223,7 +230,7 @@ const InstanceChat = (props: Props): any => {
             </div>
         </div>
        {!openMessageContainer && (<div className={styles.iconCallChat} >
-        <Badge color="secondary" variant="dot" invisible={!unreadMessages} anchorOrigin={{vertical: 'top', horizontal: 'left',}}>
+        <Badge color="primary" variant="dot" invisible={!unreadMessages} anchorOrigin={{vertical: 'top', horizontal: 'left',}}>
             <Fab color="primary">
                 <MessageIcon onClick={()=>hideShowMessagesContainer()} />Chat
             </Fab>
