@@ -34,7 +34,7 @@ import { expect } from "@jest/globals";
 import { WorldStateModel } from "../../src/networking/schema/worldStateSchema";
 
 //const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
-const handleInputOnServer = jest.spyOn(handleInputOnServerModule, 'handleInputOnServer');
+const handleInputFromNonLocalClients = jest.spyOn(handleInputOnServerModule, 'handleInputFromNonLocalClients');
 const setLocalMovementDirection = jest.spyOn(setLocalMovementDirectionModule, 'setLocalMovementDirection');
 let fixedExecuteOnServer:jest.SpyInstance;
 //let physicsWorldRaycastClosest:jest.SpyInstance;
@@ -111,7 +111,7 @@ afterEach(() => {
     delete Network.instance.networkObjects[key];
   });
 
-  handleInputOnServer.mockClear();
+  handleInputFromNonLocalClients.mockClear();
 
   if (setLocalMovementDirection) {
     setLocalMovementDirection.mockClear();
@@ -162,7 +162,7 @@ test("continuous move forward changes transforms z", () => {
   // check that physics updated same
   expect(PhysicsManager.instance.frame).toBe(runsCount);
   expect(fixedExecuteOnServer.mock.calls.length).toBe(runsCount);
-  expect(handleInputOnServer.mock.calls.length).toBe(runsCount);
+  expect(handleInputFromNonLocalClients.mock.calls.length).toBe(runsCount);
 
   const actor: CharacterComponent = getMutableComponent(networkEntity, CharacterComponent);
   expect(actor.localMovementDirection.z).toBe(1);
@@ -178,7 +178,7 @@ test("continuous move forward changes transforms z", () => {
 });
 
 test("continuous move forward and then stop", () => {
-  expect(handleInputOnServer.mock.calls.length).toBe(0);
+  expect(handleInputFromNonLocalClients.mock.calls.length).toBe(0);
 
   Network.instance.userId = userId;
   const networkId = 13;
@@ -228,7 +228,7 @@ test("continuous move forward and then stop", () => {
   // check that physics updated same
   expect(PhysicsManager.instance.frame).toBe(runsCount + 1 + emptyRunsCount);
   expect(fixedExecuteOnServer.mock.calls.length).toBe(runsCount + 1 + emptyRunsCount);
-  expect(handleInputOnServer.mock.calls.length).toBe(runsCount + 1 + emptyRunsCount);
+  expect(handleInputFromNonLocalClients.mock.calls.length).toBe(runsCount + 1 + emptyRunsCount);
 
   expect(actor.localMovementDirection.z).toBe(0);
   expect(actor.velocityTarget.z).toBe(0);
@@ -240,7 +240,7 @@ test("continuous move forward and then stop", () => {
 });
 
 test("move forward, then 2 messages stop + empty in one execution", () => {
-  expect(handleInputOnServer.mock.calls.length).toBe(0);
+  expect(handleInputFromNonLocalClients.mock.calls.length).toBe(0);
 
   Network.instance.userId = userId;
   const networkId = 13;
