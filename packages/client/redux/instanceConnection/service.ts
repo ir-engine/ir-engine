@@ -1,18 +1,15 @@
-import url from 'url';
-import querystring from 'querystring';
-import { connectToServer } from "@xr3ngine/engine/src/networking/functions/connectToServer";
-import { Network } from "@xr3ngine/engine/src/networking/components/Network";
 import { MediaStreamComponent } from "@xr3ngine/engine/src/networking/components/MediaStreamComponent";
+import { Network } from "@xr3ngine/engine/src/networking/components/Network";
 import { Dispatch } from 'redux';
-import { client } from '../feathers';
-import {
-  instanceServerConnecting,
-  instanceServerConnected,
-  instanceServerProvisioning,
-  instanceServerProvisioned,
-} from './actions';
-import store from "../store";
 import { endVideoChat, leave } from "../../classes/transports/WebRTCFunctions";
+import { client } from '../feathers';
+import store from "../store";
+import {
+  instanceServerConnected, instanceServerConnecting,
+
+
+  instanceServerProvisioned, instanceServerProvisioning
+} from './actions';
 
 export function provisionInstanceServer (locationId: string, instanceId?: string, sceneId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {

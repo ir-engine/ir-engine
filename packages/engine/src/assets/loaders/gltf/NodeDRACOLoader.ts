@@ -35,7 +35,7 @@ if(!isClient){
 /**
  * @param {THREE.LoadingManager} manager
  */
-const NodeDRACOLoader = function(manager) {
+const NodeDRACOLoader = function(manager?) {
     this.timeLoaded = 0;
     this.manager = manager || THREE.DefaultLoadingManager;
     this.materials = null;
