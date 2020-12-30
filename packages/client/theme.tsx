@@ -116,7 +116,14 @@ const lightTheme = createMuiTheme({
         color: '#000000' ,
         fontSize: 16,       
         textAlign: 'center',
-      }
+      },
+      // colorPrimary:{
+      //   backgroundColor: 'transparent',
+      //   color: '#FFFFFF',
+      //   '&:hover':{
+      //     backgroundColor: '#5151FF',
+      //   },
+      // },
     },
     MuiIconButton:{
       root:{
@@ -127,6 +134,13 @@ const lightTheme = createMuiTheme({
       },
       colorPrimary:{
         backgroundColor: '#5151FF',
+        color: '#FFFFFF',
+        '&:hover':{
+          backgroundColor: '#5151FF',
+        }
+      },
+      colorSecondary:{
+        backgroundColor: 'transparent',
         color: '#FFFFFF',
         '&:hover':{
           backgroundColor: '#5151FF',
