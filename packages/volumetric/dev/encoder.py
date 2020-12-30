@@ -147,9 +147,17 @@ def create_poly_mesh_from_sequence(meshes):
         vertices['z3'] = z3.astype('f4')
 
     poly_mesh_path = './encoded/poly' + str(current_keyframe) + '.ply'
+    poly_mesh_path_decimate = './encoded/poly' + str(current_keyframe) + '_dec.ply'
 
     ply = PlyData([PlyElement.describe(vertices, 'vertex'), f], text=True)
     ply.write(poly_mesh_path)
+
+
+    
+
+    ply = PlyData([PlyElement.describe(vertices, 'vertex'), f], text=True)
+    ply.write(poly_mesh_path_decimate)
+
 
 for subdir, dirs, files in os.walk('./encode'):
     for file in sorted(files):     #for each mesh

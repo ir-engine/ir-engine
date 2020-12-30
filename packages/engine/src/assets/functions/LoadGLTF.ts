@@ -21,8 +21,8 @@ export async function LoadGLTF(url: AssetUrl): Promise<LoadGLTFResultInterface> 
         else {
             console.log("IS SERVER!")
             dracoLoader = new NodeDRACOLoader();
-            DRACOLoader.getDecoderModule = () => {};
-            DRACOLoader.preload = () => {};
+            (dracoLoader as any).getDecoderModule = () => {};
+            (dracoLoader as any).preload = () => {};
         }
         loader.setDRACOLoader(dracoLoader);
         loader.load(url, (gltf) => {

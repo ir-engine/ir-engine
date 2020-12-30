@@ -3,7 +3,7 @@ import NoSSR from 'react-no-ssr';
 import Loading from '../components/scenes/loading';
 import Layout from '../components/ui/Layout';
 
-export const IndexPage = (props: Props): any => {
+export const IndexPage = (props: any): any => {
     useEffect(() => {
         window.location.href="https://lagunalabs.io";
     }, []);

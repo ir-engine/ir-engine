@@ -1,8 +1,8 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>XREngine – Development</title>
+    <title>The Overlay – Development</title>
     <link>/docs/engine/02-development/</link>
-    <description>Recent content in Development on XREngine</description>
+    <description>Recent content in Development on The Overlay</description>
     <generator>Hugo -- gohugo.io</generator>
     
 	  <atom:link href="/docs/engine/02-development/index.xml" rel="self" type="application/rss+xml" />
