@@ -4,7 +4,8 @@ import { inputKeyArraySchema } from "./clientInputSchema";
 
 
 const clientConnectedSchema = new Schema({
-    userId: string
+    userId: string,
+    name: string
 });
 
 const clientDisconnectedSchema = new Schema({
