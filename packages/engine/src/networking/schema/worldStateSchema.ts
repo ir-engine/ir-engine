@@ -61,8 +61,8 @@ const worldStateSchema = new Schema({
 export class WorldStateModel {
     static model: Model = new Model(worldStateSchema)
     static toBuffer(objectOrArray: PacketReadyWorldState): ArrayBuffer {
-        console.log("Making into buffer");
-        console.log(objectOrArray);
+        // console.log("Making into buffer");
+        // console.log(objectOrArray);
         // @ts-ignore
         return this.model.toBuffer(objectOrArray);
     }
