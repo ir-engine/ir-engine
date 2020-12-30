@@ -1,4 +1,4 @@
-import { db } from '../db-config';
+import { db } from '../config';
 const env = process.env.NODE_ENV || 'development';
 
 module.exports = {

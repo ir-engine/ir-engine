@@ -1,6 +1,7 @@
 export default {
     moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'mjs'],
     //testEnvironment: 'jest-environment-node',
+    testEnvironment: './tests/custom-env.cjs',
     transform: {
       // "^.+\\.jsx?$": "babel-jest",
       ".(ts|tsx)": "ts-jest"

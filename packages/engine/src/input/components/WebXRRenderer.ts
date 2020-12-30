@@ -2,7 +2,7 @@ import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 
 export class WebXRRenderer extends Component<any> {
-  static schema = {
+  static _schema = {
     context: { type: Types.Ref },
     // TODO: window refs will break our server, so let's be aware (or we can exclude this?)
     requestAnimationFrame: {

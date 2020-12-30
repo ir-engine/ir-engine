@@ -8,7 +8,7 @@ export default class RaycastComponent extends Component<RaycastComponent> {
   near!: number
   far!: number
 
-  static schema = {
+  static _schema = {
     position: { type: Types.Vector3Type },
     direction: { type: Types.Vector3Type },
     near: { type: Types.Number, default: 0 },

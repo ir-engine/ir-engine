@@ -94,12 +94,15 @@ export class ServerNetworkOutgoingSystem extends System {
       Network.instance.worldState.snapshot = NetworkInterpolation.instance.get();
 
       state.tick = BigInt( Network.instance.worldState.tick );
+
       state.snapshot = {
         time: BigInt( Network.instance.worldState.snapshot.time ),
         id: Network.instance.worldState.snapshot.id,
         state: []
       }; // in client copy state from transforms
 
+      console.log("STATE IS")
+      console.log(state);
       const buffer = WorldStateModel.toBuffer(state);
 
       // Send the message to all connected clients

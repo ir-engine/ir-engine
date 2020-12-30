@@ -7,7 +7,8 @@ import {
   LoadDataResultAction,
   AvatarUpdatedAction,
   UsernameUpdatedAction,
-  UserUpdatedAction
+  UserUpdatedAction,
+  UserSettingsUpdatedAction
 } from './actions';
 
 import {
@@ -24,7 +25,8 @@ import {
   LOADED_USER_DATA,
   AVATAR_UPDATED,
   USERNAME_UPDATED,
-  USER_UPDATED
+  USER_UPDATED,
+  UPDATE_USER_SETTINGS
 } from '../actions';
 import { getStoredState } from '../persisted.store';
 import { UserSeed } from '@xr3ngine/common/interfaces/User';
@@ -102,6 +104,10 @@ const authReducer = (state = immutableState, action: any): any => {
     }
     case USER_UPDATED: {
       const updatedUser = Object.assign({}, state.get('user'), {...(action as UserUpdatedAction).user});
+      return state.set('user', updatedUser);
+    }
+    case UPDATE_USER_SETTINGS: {
+      const updatedUser = Object.assign({}, state.get('user'), { user_setting: (action as UserSettingsUpdatedAction).data});
       return state.set('user', updatedUser);
     }
   }

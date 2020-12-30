@@ -31,7 +31,7 @@ const SceneTitle = ({onBoardingStep, currentScene}:Props): any => {
           <Typography variant="h1" align="center">{currentScene?.name}</Typography>
           <Typography variant="h6" align="center">{invitationLink}</Typography>
         </>
-      </Snackbar>)   
+      </Snackbar>);   
 };
 
 

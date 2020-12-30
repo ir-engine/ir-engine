@@ -1,5 +1,5 @@
 import { DRACOLoader } from "../loaders/gltf/DRACOLoader";
-//import { NodeDRACOLoader } from "../loaders/gltf/NodeDRACOLoader";
+import NodeDRACOLoader from "../loaders/gltf/NodeDRACOLoader";
 import { GLTFLoader } from "../loaders/gltf/GLTFLoader";
 import { AssetUrl } from "../types/AssetTypes";
 import { isClient } from "../../common/functions/isClient";

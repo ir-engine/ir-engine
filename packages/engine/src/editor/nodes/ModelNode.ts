@@ -148,7 +148,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         // Set up colliders
 
 
-        let colliders = []
+        const colliders = []
 
           const parseColliders = ( mesh ) => {
             // console.warn(mesh.userData.data);
@@ -301,6 +301,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         payloadBuyUrl : this.payloadBuyUrl,
         payloadLearnMoreUrl : this.payloadLearnMoreUrl,
         payloadHtmlContent : this.payloadHtmlContent,
+        payloadModelUrl : this._canonicalUrl,
       }
     };
     for(let i = 0; i < this.meshColliders.length; i++){

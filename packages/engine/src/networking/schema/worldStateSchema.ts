@@ -4,7 +4,8 @@ import { inputKeyArraySchema } from "./clientInputSchema";
 
 
 const clientConnectedSchema = new Schema({
-    userId: string
+    userId: string,
+    name: string
 });
 
 const clientDisconnectedSchema = new Schema({
@@ -60,6 +61,8 @@ const worldStateSchema = new Schema({
 export class WorldStateModel {
     static model: Model = new Model(worldStateSchema)
     static toBuffer(objectOrArray: PacketReadyWorldState): ArrayBuffer {
+        console.log("Making into buffer");
+        console.log(objectOrArray);
         // @ts-ignore
         return this.model.toBuffer(objectOrArray);
     }

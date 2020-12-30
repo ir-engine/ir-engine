@@ -7,7 +7,7 @@ export class BoundingBox extends Component<BoundingBox> {
   public boxArray: any[];
   public dynamic: boolean;
 
-  static schema = {
+  static _schema = {
     box: { type:  Types.Ref, default: new Box3() },
     boxArray: { type: Types.Array, default: [] },
     dynamic: { type: Types.Boolean, default: false },
