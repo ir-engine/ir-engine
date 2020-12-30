@@ -130,6 +130,11 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     }, [userHasInteracted]);
 
     useEffect(() => {
+        if ((selfUser?.user_setting?.spatialAudioEnabled === true || selfUser?.user_setting?.spatialAudioEnabled === 1) && audioRef.current != null) audioRef.current.volume = 0;
+        else if ((selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0) && audioRef.current != null) audioRef.current.volume = 1;
+    }, [selfUser]);
+
+    useEffect(() => {
         autorun(() => {
             if (peerId === 'me_cam') {
                 setVideoStream(MediaStreamComponent.instance.camVideoProducer);
@@ -168,7 +173,8 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                     // toggleAudio();
                 }
             }
-            audioRef.current.volume = 1;
+            // TODO: handle 3d audio switch on/off
+            if (selfUser?.user_setting?.spatialAudioEnabled === true || selfUser?.user_setting?.spatialAudioEnabled === 1) audioRef.current.volume = 0;
             setVolume(100);
         }
     }, [audioStream]);

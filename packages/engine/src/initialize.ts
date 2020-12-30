@@ -1,8 +1,9 @@
 import { isBrowser } from 'face-api.js/build/commonjs/env/isBrowser';
 import _ from 'lodash';
-import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
+import { BufferGeometry, Mesh, Object3D, PerspectiveCamera, Scene, AudioListener } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
 import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
+import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 import { CameraSystem } from './camera/systems/CameraSystem';
 import { isClient } from './common/functions/isClient';
 import { Timer } from './common/functions/Timer';
@@ -104,7 +105,14 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
     // Add the camera to the three.js scene
     scene.add(camera);
 
+    
+    const listener = new AudioListener();
+    camera.add( listener);
+
+    Engine.audioListener = listener;
+
     registerSystem(HighlightSystem);
+    registerSystem(PositionalAudioSystem);
     registerSystem(InteractiveSystem);
     // registerSystem(ParticleSystem);
     if (process.env.NODE_ENV === 'development') {

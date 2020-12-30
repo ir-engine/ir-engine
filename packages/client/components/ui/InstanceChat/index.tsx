@@ -165,7 +165,7 @@ const InstanceChat = (props: Props): any => {
     const hideShowMessagesContainer = () => {
         setOpenMessageContainer(!openMessageContainer); 
         openMessageContainer && setUnreadMessages(false);
-    }
+    };
 
 
     useEffect(() =>  {
