@@ -9,6 +9,10 @@ from pyffi.utils.mathutils import vecNorm
 from collections import defaultdict
 import time
 
+class CollapseItem:
+    old_index = 0
+    new_index = 0
+
 class ProgMeshSettings:
     def __init__(self):
         self.UseEdgelength = True
@@ -408,7 +412,7 @@ class ProgMesh:
         return False
     def RemoveVertex(self, v):
         if self.HasVertex(v):
-#            print ("  DEBUG: RemoveVertex(): ID=%d" % (v.ID))
+            # print ("  DEBUG: RemoveVertex(): ID=%d" % (v.ID))
             self.vertices.remove(v)
             v.RemoveSelf()
             del v
@@ -465,6 +469,7 @@ class ProgMesh:
 #        self.vertices.sort(cmp=SortByCost)        
 #        print ("PROFILING: completed in %f sec" % (time.time()-t1))
         return
+        
     def Collapse(self, u, v, recompute=True):
         if v is None:
 #            print ("DEBUG: Collapse(): u.Faces #=%d, v is None" % (len(u.Faces)))
@@ -474,7 +479,8 @@ class ProgMesh:
         # INTEGRITY CHECK
         num_Faces = len(u.Faces)
         
-#        print ("DEBUG: Collapse(): u[ID=%d] to v[ID=%d]" % (u.ID, v.ID))
+        # print ("DEBUG: Collapse(): u[ID=%d] to v[ID=%d]" % (u.ID, v.ID))
+
         delete_list = list()
         replace_list = list()
 #        print ("  INSPECTING u[ID=%d].Faces (#%d)" % (u.ID, len(u.Faces)))
@@ -520,6 +526,7 @@ class ProgMesh:
 #        self.vertices.sort(cmp=SortByCost)
 #        print ("============ COLLAPSE() completed. =====================")
         return
+        
     def ComputeProgressiveMesh(self):
         t1 = time.time()
         del self.vertices[:]
@@ -598,7 +605,6 @@ class ProgMesh:
 #        print ("PROFIING: Generated self.CollapseOrder, completed in %f sec" % (time.time()-t2))
         t2 = time.time()
         print(("PROFILING: ComputeProgressiveMesh(): completed in %f sec" % (t2-t1)))
-        return
     def DoProgressiveMesh(self, ratio):
         t1 = time.time()
         target = self.RawVertexCount * ratio
@@ -718,7 +724,7 @@ class ProgMesh:
 
 #        print ("Results: new verts = %d, old verts = %d, new faces = %d" % (newVertCount, self.VertexCount, newFaceCount))
                         
-        return (newVertCount, new_Verts, newFaceCount, new_Faces)
+        return (newVertCount, new_Verts, newFaceCount, new_Faces, self.CollapseMap)
         
 
 def main():
