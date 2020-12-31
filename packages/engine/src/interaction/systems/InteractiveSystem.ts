@@ -83,12 +83,10 @@ export class InteractiveSystem extends System {
           if (currentTransform.position.distanceTo(localTransform.position) < closestTransform.position.distanceTo(localTransform.position)) {
             return currentEntity;
           }
-          else{
-          return closestEntity;
+          else {
+            return closestEntity;
           }
         }, null);
-        
-        // console.log(closestHoveredUser); 
 
         if (!closestHoveredUser) {
           const userData = new CustomEvent('user-hover', { detail: { isFocused: false } });
@@ -100,18 +98,14 @@ export class InteractiveSystem extends System {
         const closestPosition = getComponent(closestHoveredUser, TransformComponent).position.clone();
         closestPosition.y = 2;
         const point2DPosition = vectorToScreenXYZ(closestPosition, camera, width, height);
-       
+
         const nameplateData = {
           userId: networkUserID,
           position: point2DPosition,
-          isFocused: true
+          focused: true
         };
-        
-        console.log(nameplateData);
-
         const userData = new CustomEvent('user-hover', { detail: nameplateData });
         document.dispatchEvent(userData);
-
       });
     }
 
@@ -128,18 +122,15 @@ export class InteractiveSystem extends System {
           }
         }
 
-
         // unmark all unfocused
         this.queryResults.interactive?.all.forEach(entityInter => {
           if (!hasComponent(entityInter, BoundingBox) &&
             hasComponent(entityInter, Object3DComponent) &&
             hasComponent(entityInter, TransformComponent)
           ) {
-
             addComponent(entityInter, BoundingBox, {
               dynamic: (hasComponent(entityInter, RigidBody) || hasComponent(entityInter, VehicleBody))
-            })
-
+            });
           }
           if (entityInter !== interacts.focusedInteractive && hasComponent(entityInter, InteractiveFocused)) {
             removeComponent(entityInter, InteractiveFocused);
@@ -154,7 +145,6 @@ export class InteractiveSystem extends System {
         });
       }
     });
-
 
     this.queryResults.boundingBox.added?.forEach(entity => {
       calcBoundingBox(entity, null, delta);
