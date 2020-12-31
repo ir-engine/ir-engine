@@ -1,8 +1,8 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>XREngine – Documentation</title>
+    <title>The Overlay – Documentation</title>
     <link>/docs/</link>
-    <description>Recent content in Documentation on XREngine</description>
+    <description>Recent content in Documentation on The Overlay</description>
     <generator>Hugo -- gohugo.io</generator>
     
 	  <atom:link href="/docs/index.xml" rel="self" type="application/rss+xml" />
@@ -175,14 +175,7 @@ User has a choice in wallet providers and storage providers&lt;/li&gt;
       <description>
         
         
-        
-
-&lt;div class=&#34;pageinfo pageinfo-primary&#34;&gt;
-&lt;p&gt;Demo at: &lt;a href=&#34;https://XREngine.lifescope.io&#34;&gt;https://XREngine.lifescope.io&lt;/a&gt;&lt;/p&gt;
-
-&lt;/div&gt;
-
-&lt;h2 id=&#34;prerequisites&#34;&gt;Prerequisites&lt;/h2&gt;
+        &lt;h2 id=&#34;prerequisites&#34;&gt;Prerequisites&lt;/h2&gt;
 &lt;p&gt;Designed For the Spatial Web&lt;/p&gt;
 &lt;p&gt;Modern Browsers&lt;/p&gt;
 &lt;p&gt;XR&lt;/p&gt;
@@ -191,9 +184,6 @@ User has a choice in wallet providers and storage providers&lt;/li&gt;
 &lt;h2 id=&#34;installation&#34;&gt;Installation&lt;/h2&gt;
 &lt;h2 id=&#34;setup&#34;&gt;Setup&lt;/h2&gt;
 &lt;p&gt;&lt;a href=&#34;https://github.com/xr3ngine/xr3ngine&#34;&gt;https://github.com/xr3ngine/xr3ngine&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&#34;try-it-out&#34;&gt;Try it out!&lt;/h2&gt;
-&lt;p&gt;Demo:&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;https://myxr.chat&#34;&gt;https://myxr.chat&lt;/a&gt;&lt;/p&gt;
 
       </description>
     </item>

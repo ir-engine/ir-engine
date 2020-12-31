@@ -24,20 +24,22 @@ export const InfoBox: FunctionComponent<InfoBoxProps> = ({ onClose, data }: Info
   if (data.modelUrl) {
     modelView = (<ModelView modelUrl={data.modelUrl} />);
   }
-
   return  (<Dialog open={true} aria-labelledby="xr-dialog" 
       classes={{
         root: styles.customDialog,
         paper: styles.customDialogInner, 
       }}
       BackdropProps={{ style: { backgroundColor: "transparent" } }} >
-      { data.name && <DialogTitle disableTypography className={styles.dialogTitle}>
-          <IconButton aria-label="close" className={styles.dialogCloseButton} 
+      { data.name && 
+        <DialogTitle disableTypography className={styles.dialogTitle}>
+          <IconButton aria-label="close" className={styles.dialogCloseButton} color="primary"
               onClick={(): void => { if (typeof onClose === 'function') { onClose(); } }}><CloseIcon /></IconButton>
-          <Typography variant="h6">{data.name}</Typography>          
-          </DialogTitle>}
+          <Typography variant="h2"align="left" >{data.name}</Typography>          
+        </DialogTitle>}
         <DialogContent className={styles.dialogContent}>
           {modelView}
+          {/* eslint-disable-next-line react/no-danger */}
+          { data.htmlContent && (<div dangerouslySetInnerHTML={{__html: data.htmlContent}} />)}
           { data.url && (<p>{data.url}</p>)}
           { data.buyUrl && (<Button  variant="outlined" color="primary" onClick={()=>handleLinkClick(data.buyUrl)}>Buy</Button>)}
           { data.learnMoreUrl && (<Button  variant="outlined" color="secondary" onClick={()=>handleLinkClick(data.learnMoreUrl)}>Learn more</Button>)}

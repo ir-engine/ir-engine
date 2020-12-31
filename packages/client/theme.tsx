@@ -89,8 +89,6 @@ const lightTheme = createMuiTheme({
         maxWidth: '40%',
         width: '40%',
         margin: '0 auto',   
-        backgroundColor: 'rgba(0, 0, 0, ,0.9)',
-        color: '#000000' ,
         fontSize: 16,       
         textAlign: 'center',
         '@media (max-width: 768px)': {
@@ -99,19 +97,53 @@ const lightTheme = createMuiTheme({
         }
       }
     },
+    MuiDialogTitle:{
+      root: {        
+        display: 'flex',
+        flexDirection: 'row-reverse',
+        alignItems: 'center',
+        }
+    },
+    MuiDialogContent:{
+      root:{
+        textAlign : 'justify',
+        padding: ' 0 24px 24px 24px',
+      }
+    },
     MuiButtonBase:{
       root:  {
         backgroundColor: 'rgba(0, 0, 0, ,0.9)',
         color: '#000000' ,
         fontSize: 16,       
         textAlign: 'center',
-      }
+      },
+      // colorPrimary:{
+      //   backgroundColor: 'transparent',
+      //   color: '#FFFFFF',
+      //   '&:hover':{
+      //     backgroundColor: '#5151FF',
+      //   },
+      // },
     },
     MuiIconButton:{
       root:{
         color: '#000000',
         '&:hover':{
           backgroundColor: 'transparent',
+        }
+      },
+      colorPrimary:{
+        backgroundColor: '#5151FF',
+        color: '#FFFFFF',
+        '&:hover':{
+          backgroundColor: '#5151FF',
+        }
+      },
+      colorSecondary:{
+        backgroundColor: 'transparent',
+        color: '#FFFFFF',
+        '&:hover':{
+          backgroundColor: '#5151FF',
         }
       }
     },
@@ -179,10 +211,10 @@ const lightTheme = createMuiTheme({
         }      
       },
       anchorOriginTopCenter:{
-        top: '2%',
-        '@media (max-width: 768px)': {
-          top: '10%',
-        },
+        top: '10%',
+        // '@media (max-width: 768px)': {
+        //   top: '10%',
+        // },
       },
       anchorOriginBottomCenter:{
         bottom: '60px',

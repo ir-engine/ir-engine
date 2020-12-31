@@ -1,6 +1,5 @@
 import { BinaryValue } from "../../common/enums/BinaryValue";
 import { disableScroll, enableScroll } from "../../common/functions/enableDisableScrolling";
-import { preventDefault } from "../../common/functions/preventDefault";
 import { handleGamepadConnected, handleGamepadDisconnected } from "../../input/behaviors/GamepadInputBehaviors";
 import { handleMouseLeave } from "../../input/behaviors/handelMouseLeave";
 import { handleKey } from "../../input/behaviors/handleKey";
@@ -36,7 +35,7 @@ export const DefaultInputSchema: InputSchema = {
     // Mouse
     contextmenu: [
       {
-        behavior: preventDefault
+        behavior: (e: any) => e.preventDefault()
       }
     ],
     mousemove: [

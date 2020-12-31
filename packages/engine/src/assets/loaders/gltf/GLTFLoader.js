@@ -9,7 +9,6 @@ import {
 	Color,
 	DirectionalLight,
 	DoubleSide,
-	FileLoader,
 	FrontSide,
 	Group,
 	ImageBitmapLoader,
@@ -62,6 +61,9 @@ import {
 	VectorKeyframeTrack,
 	sRGBEncoding
 } from "three";
+
+import { FileLoader } from "./FileLoader.js";
+import  Blob from "cross-blob";
 
 var GLTFLoader = ( function () {
 
@@ -246,26 +248,12 @@ var GLTFLoader = ( function () {
 			var extensions = {};
 			var plugins = {};
 
-			if ( typeof data === 'string' ) {
-
-				content = data;
-
-			} else {
 
 				var magic = LoaderUtils.decodeText( new Uint8Array( data, 0, 4 ) );
 
 				if ( magic === BINARY_EXTENSION_HEADER_MAGIC ) {
 
-					try {
-
-						extensions[ EXTENSIONS.KHR_BINARY_GLTF ] = new GLTFBinaryExtension( data );
-
-					} catch ( error ) {
-
-						if ( onError ) onError( error );
-						return;
-
-					}
+					extensions[ EXTENSIONS.KHR_BINARY_GLTF ] = new GLTFBinaryExtension( data );
 
 					content = extensions[ EXTENSIONS.KHR_BINARY_GLTF ].content;
 
@@ -275,7 +263,9 @@ var GLTFLoader = ( function () {
 
 				}
 
-			}
+				console.log("*************** Content is ", content);
+				console.log("*************** Data is ", data);
+
 
 			var json = JSON.parse( content );
 
@@ -1016,7 +1006,7 @@ var GLTFLoader = ( function () {
 		this.name = EXTENSIONS.KHR_DRACO_MESH_COMPRESSION;
 		this.json = json;
 		this.dracoLoader = dracoLoader;
-		this.dracoLoader.preload();
+		if(this.dracoLoader.preload) this.dracoLoader.preload();
 
 	}
 
@@ -2169,8 +2159,9 @@ var GLTFLoader = ( function () {
 
 				case 'texture':
 					dependency = this._invokeOne(function (ext) {
-
-						return ext.loadTexture && ext.loadTexture(index);
+						if (typeof window !== 'undefined') {
+							return ext.loadTexture && ext.loadTexture(index);
+						}
 
 					});
 					break;
@@ -2464,14 +2455,14 @@ var GLTFLoader = ( function () {
 	};
 
 	GLTFParser.prototype.loadTextureImage = function ( textureIndex, source, loader ) {
-
+console.log("********* LOADING TEXTURE IMAGE")
 		var parser = this;
 		var json = this.json;
 		var options = this.options;
 
 		var textureDef = json.textures[ textureIndex ];
-
-		var URL = self.URL || self.webkitURL;
+		var self = this;
+		var URL = self.URL || self.webkitURL || window.URL || URL;
 
 		var sourceURI = source.uri;
 		var isObjectURL = false;
@@ -2573,6 +2564,8 @@ var GLTFLoader = ( function () {
 	GLTFParser.prototype.assignTexture = function ( materialParams, mapName, mapDef ) {
 
 		var parser = this;
+
+		if(typeof window === 'undefined') return;
 
 		return this.getDependency( 'texture', mapDef.index ).then( function ( texture ) {
 

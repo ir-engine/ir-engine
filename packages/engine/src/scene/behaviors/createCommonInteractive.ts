@@ -18,8 +18,8 @@ export const createCommonInteractive: Behavior = (entity, args: any) => {
         name: args.objArgs.payloadName,
         url: args.objArgs.payloadUrl,
         buyUrl: args.objArgs.payloadBuyUrl,
-        learnMoreUrl: args.objArgs.payloadName,
-        modelUrl: args.objArgs.payloadLearnMoreUrl,
+        learnMoreUrl: args.objArgs.payloadLearnMoreUrl,
+        modelUrl: args.objArgs.payloadModelUrl,
         htmlContent:args.objArgs.payloadHtmlContent,
       },
       interactionText: args.objArgs.interactionText

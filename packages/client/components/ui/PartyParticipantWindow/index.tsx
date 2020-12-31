@@ -130,6 +130,11 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     }, [userHasInteracted]);
 
     useEffect(() => {
+        if ((selfUser?.user_setting?.spatialAudioEnabled === true || selfUser?.user_setting?.spatialAudioEnabled === 1) && audioRef.current != null) audioRef.current.volume = 0;
+        else if ((selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0) && audioRef.current != null) audioRef.current.volume = 1;
+    }, [selfUser]);
+
+    useEffect(() => {
         autorun(() => {
             if (peerId === 'me_cam') {
                 setVideoStream(MediaStreamComponent.instance.camVideoProducer);
@@ -168,7 +173,8 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                     // toggleAudio();
                 }
             }
-            audioRef.current.volume = 1;
+            // TODO: handle 3d audio switch on/off
+            if (selfUser?.user_setting?.spatialAudioEnabled === true || selfUser?.user_setting?.spatialAudioEnabled === 1) audioRef.current.volume = 0;
             setVolume(100);
         }
     }, [audioStream]);
@@ -291,13 +297,14 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             onClick={() => { if (peerId !== 'me_cam' && peerId !== 'me_screen') setFocused(!focused); } }
         >
            
-            <video key={peerId + '_cam'} ref={videoRef}/>
+            <div className={styles['video-wrapper']}><video key={peerId + '_cam'} ref={videoRef}/></div>
             <audio key={peerId + '_audio'} ref={audioRef}/>
             <div className={styles['user-controls']}>
                 <div className={styles['username']}>{truncateUsername()}</div>
                 <div className={styles['controls']}>
                 <Tooltip title={videoProducerPaused === false && videoStreamPaused === false ? 'Pause Video' : 'Resume Video'}>
                     <IconButton
+                        color="secondary"
                         size="small"
                         className={styles['video-control']}
                         onClick={(e) => toggleVideo(e)}
@@ -323,6 +330,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                     {
                         enableGlobalMute && peerId !== 'me_cam' && peerId !== 'me_screen' && <Tooltip title={audioProducerGlobalMute === false ? 'Mute for everyone' : 'Unmute for everyone'}>
                             <IconButton
+                                color="secondary"
                                 size="small"
                                 className={styles['audio-control']}
                                 onClick={(e) => toggleGlobalMute(e)}
@@ -337,6 +345,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                     }
                     <Tooltip title={(peerId === 'me_cam' || peerId === 'me_screen') && audioStream?.paused === false ? 'Mute me' : (peerId === 'me_cam' || peerId === 'me_screen') && audioStream?.paused === true ? 'Unmute me' : (peerId !== 'me_cam' && peerId !== 'me_screen') && audioStream?.paused === false ? 'Mute this person' : 'Unmute this person' }>
                         <IconButton
+                            color="secondary"
                             size="small"
                             className={styles['audio-control']}
                             onClick={(e) => toggleAudio(e)}

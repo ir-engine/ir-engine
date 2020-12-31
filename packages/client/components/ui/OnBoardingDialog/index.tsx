@@ -90,7 +90,7 @@ const OnBoardingDialog = ({onBoardingStep,title,avatarsList, actorAvatarId, onAv
   let childrenBeforeText = null;
   const isCloseButton = false;
 
-  console.log('currentScene', currentScene)
+  console.log('currentScene', currentScene);
   const defineDialog = () =>{
     switch(onBoardingStep){
       case  generalStateList.SCENE_LOADED : { 
