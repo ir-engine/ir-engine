@@ -6,6 +6,7 @@ import copy
 from plyfile import PlyData, PlyElement
 import json
 from numpy.lib.recfunctions import merge_arrays
+import pyprogmesh
 
 np.set_printoptions(precision=3)
 
@@ -15,6 +16,8 @@ vertex_count_in_last_ply = 0
 meshes_in_group = []
 
 axes = ['x', 'y', 'z']
+
+
 
 # short_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('texture_u', '<f4'), ('texture_v', '<f4')]
 
@@ -147,16 +150,111 @@ def create_poly_mesh_from_sequence(meshes):
         vertices['z3'] = z3.astype('f4')
 
     poly_mesh_path = './encoded/poly' + str(current_keyframe) + '.ply'
-    poly_mesh_path_decimate = './encoded/poly' + str(current_keyframe) + '_dec.ply'
-
     ply = PlyData([PlyElement.describe(vertices, 'vertex'), f], text=True)
     ply.write(poly_mesh_path)
 
+    # Read ply data back out
+    mesh = PlyData.read(poly_mesh_path)
+    DecimateMesh(mesh)
 
-    
+class Mesh:
+    vertices = []
+    has_normals = false
+    has_uvs = false
 
-    ply = PlyData([PlyElement.describe(vertices, 'vertex'), f], text=True)
-    ply.write(poly_mesh_path_decimate)
+class Vertex:
+    x = 0
+    y = 0
+    z = 0
+
+def DecimateMesh(mesh):
+
+    processMesh = Mesh()
+
+    number_of_vertices = len(mesh['vertex']['x'])
+    (x, y, z) = (mesh['vertex'][t] for t in ('x', 'y', 'z'))
+
+    originalMeshVerts = []
+    for i in range(0, number_of_vertices):
+        vertex = Vertex()
+        vertex.x = x[i]
+        vertex.y = y[i]
+        vertex.z = z[i]
+        originalMeshVerts.append(vertex)
+
+    processMesh.vertices = originalMeshVerts
+
+    print("Original mesh verts is")
+    print(originalMeshVerts);
+
+    # create a set of vertices with an x, y, z
+    print("******* Vertex length is")
+    print(number_of_vertices)
+    originalMeshFaces = mesh.elements[1]
+
+    print ("========================DECIMATING=========================")
+    verts = list()
+    faces = list()
+    PMSettings = pyprogmesh.ProgMeshSettings()
+    PMSettings.ProtectTexture = True
+    PMSettings.RemoveDuplicate = False
+    PMSettings.KeepBorder = True
+
+    for i in range(0, number_of_vertices):
+        print("Original mesh verts is")
+        print(originalMeshVerts)
+        _v = originalMeshVerts[i]
+        print("Vertex is ")
+        v = [_v.x, _v.y, _v.z]
+        # _uv = [mesh.uv_sets[0][i].u, mesh.uv_sets[0][i].v]
+        _uv = None
+        if mesh.has_normals:
+            _normal = [mesh.normals[i].x, mesh.normals[i].y, mesh.normals[i].z]
+        else:
+            _normal = None
+        verts.append(pyprogmesh.RawVertex(Position=v, UV=_uv, Normal=_normal, RGBA=None))
+    for i in range(0, len(originalMeshFaces)):
+        _t = originalMeshFaces[i]
+        f = [_t.v_1, _t.v_2, _t.v_3]
+        faces.append(f)
+    print ("PREP: old verts = %d, old faces = %d" % (len(verts), len(faces)))
+    pm = pyprogmesh.ProgMesh(len(verts), len(faces), verts, faces, PMSettings)
+    pm.ComputeProgressiveMesh()
+    result = pm.DoProgressiveMesh(0.25)
+    if result == 0:
+        return
+    else:
+        numVerts, verts, numFaces, faces = result[0], result[1], result[2], result[3]
+        print ("RESULTS: new verts = %d, new faces = %d" % (numVerts, numFaces))
+        mesh.num_vertices = numVerts
+        mesh.vertices.update_size()
+        if mesh.num_uv_sets > 0:
+            mesh.uv_sets.update_size()
+        if mesh.has_normals:
+            mesh.normals.update_size()
+        for i in range(0, numVerts):
+            rawVert = verts[i]
+            v = mesh.vertices[i]
+            v.x = rawVert.Position[0]
+            v.y = rawVert.Position[1]
+            v.z = rawVert.Position[2]
+            if mesh.num_uv_sets > 0:
+                uv = mesh.uv_sets[0][i]
+                uv.u = rawVert.UV[0]
+                uv.v = rawVert.UV[1]
+            if mesh.has_normals:
+                normals = mesh.normals[i]
+                normals.x = rawVert.Normal[0]
+                normals.y = rawVert.Normal[1]
+                normals.z = rawVert.Normal[2]
+        mesh.num_triangles = numFaces
+        mesh.triangles.update_size()
+        for i in range(0, numFaces):
+            triangle = faces[i]
+            t = mesh.triangles[i]
+            t.v_1 = triangle[0]
+            t.v_2 = triangle[1]
+            t.v_3 = triangle[2]
 
 
 for subdir, dirs, files in os.walk('./encode'):
@@ -182,4 +280,3 @@ for subdir, dirs, files in os.walk('./encode'):
     create_poly_mesh_from_sequence(meshes_in_group) #end of coherent meshes / keyframe max reached? start encoding
     current_keyframe = frame_number
     meshes_in_group = [mesh] # set meshes in group to new keyframe mesh
-    

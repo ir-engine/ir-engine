@@ -1,0 +1,13 @@
+.DS_Store
+*.o
+*.dSYM
+*.pyc
+*.pyo
+profile.out
+/*.pickle
+/node_modules
+
+cmake_install.cmake
+CMakeFiles
+CMakeCache.txt
+build/*
