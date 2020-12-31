@@ -102,8 +102,8 @@ class CollapseVertex:
             s = ""
             for f in self.Faces:
                 s = s + ("f[%d %d %d]" % (f.vertex[0].ID, f.vertex[1].ID, f.vertex[2].ID)) + " "
-            print(("ASSERTION FAILURE: vertex[ID=%d] deleted without removal of all faces (#%d): %s" % (self.ID, len(self.Faces), s)))
-            eval(input("PRESS ENTER TO CONTINUE.\n"))
+            print ("ASSERTION FAILURE: vertex[ID=%d] deleted without removal of all faces (#%d): %s" % (self.ID, len(self.Faces), s))
+            input("PRESS ENTER TO CONTINUE.\n")
         for n in self.Neighbors:
             n.RemoveNeighbor(self)
             self.Neighbors.remove(n)
@@ -150,8 +150,8 @@ class CollapseVertex:
         return
     def RemoveFace(self, f):
         if f.HasVertex(self) == False:
-            print(("ASSERTION FAILURE: v[%d].RemoveFace() face [%d %d %d] does not contain this vertex" % (self.ID, f.vertex[0], f.vertex[1], f.vertex[2])))
-            eval(input("PRESS ENTER TO CONTINUE.\n"))
+            print ("ASSERTION FAILURE: v[%d].RemoveFace() face [%d %d %d] does not contain this vertex" % (self.ID, f.vertex[0], f.vertex[1], f.vertex[2]))
+            input("PRESS ENTER TO CONTINUE.\n")
         if self.IsFace(f):
             self.Faces.remove(f)
             for v in f.vertex:
@@ -189,7 +189,7 @@ class CollapseVertex:
             self.Candidate = v
         return
     def RemoveCost(self, v):
-        for c, verts in list(self.n_costs.items()):
+        for c, verts in self.n_costs.items():
             if v in verts:
                 verts.remove(v)
                 if (len(verts) == 0):
@@ -205,13 +205,13 @@ class CollapseVertex:
                     self.Cost = c
                     self.Candidate = verts[0]
                 else:
-                    self.Cost, verts = list(self.n_costs.items())[0]
+                    self.Cost, verts = self.n_costs.items()[0]
                     self.Candidate = verts[0]
         return
     def GetCost(self, v):
         if not self.use_cost:
             return -1.0
-        for c, verts in list(self.n_costs.items()):
+        for c, verts in self.n_costs.items():
             if v in verts:
                 return c
         return -1.0
@@ -327,8 +327,8 @@ class CollapseTriangle:
             if v_self == v:
                 continue
             if v_self.IsNeighbor(u) == False:
-                print(("ASSERTION FAILURE: ReplaceVertex(%d to %d): v_self.ID[%d] is not Neighbor to u.ID[%d]" % (u.ID, v.ID, v_self.ID, u.ID)))
-                eval(input("PRESS ENTER TO CONTINUE.\n"))
+                print ("ASSERTION FAILURE: ReplaceVertex(%d to %d): v_self.ID[%d] is not Neighbor to u.ID[%d]" % (u.ID, v.ID, v_self.ID, u.ID))
+                input("PRESS ENTER TO CONTINUE.\n")
             v_self.RemoveIfNotNeighbor(u)
             v_self.AddNeighbor(v)
         self.ComputeNormal()
@@ -597,7 +597,7 @@ class ProgMesh:
 ##        print ("CollapseOrder (#%d): %s" % (len(self.CollapseOrder), s))
 #        print ("PROFIING: Generated self.CollapseOrder, completed in %f sec" % (time.time()-t2))
         t2 = time.time()
-        print(("PROFILING: ComputeProgressiveMesh(): completed in %f sec" % (t2-t1)))
+        print ("PROFILING: ComputeProgressiveMesh(): completed in %f sec" % (t2-t1))
         return
     def DoProgressiveMesh(self, ratio):
         t1 = time.time()
@@ -660,13 +660,13 @@ class ProgMesh:
 ##                CollapseList.pop()
 ##                continue
             if mn.Cost > 999999.0:
-                print(("  Stopping: v.ID[%d] cost > 999999.0" % (mn.ID)))
+                print ("  Stopping: v.ID[%d] cost > 999999.0" % (mn.ID))
                 break
 #            print ("  Collapsing vertices: ID: %d to %d, cost=%f..." % (mn.ID, mn.Candidate.ID, mn.Cost))
             CollapseCount = CollapseCount+1
             self.Collapse(mn, mn.Candidate, False)
             CollapseList.pop()
-        print(("  Completed. [%d] vertices collapsed." % (CollapseCount)))
+        print ("  Completed. [%d] vertices collapsed." % (CollapseCount))
 
 ##        print ("INSPECTION: self.vertices #=%d, self.triangles #=%d" % (len(self.vertices), len(self.triangles)))
 ##        s = ""
@@ -691,7 +691,7 @@ class ProgMesh:
             for i in [0,1,2]:
                 if t.vertex[i].ID >= len(self.vertices):
                     if found_error is False:
-                        print(("ERROR: triangle[%d] contains invalid v.ID: [%d %d %d]" % (self.triangles.index(t), t.vertex[0].ID, t.vertex[1].ID, t.vertex[2].ID)))
+                        print ("ERROR: triangle[%d] contains invalid v.ID: [%d %d %d]" % (self.triangles.index(t), t.vertex[0].ID, t.vertex[1].ID, t.vertex[2].ID))
                         found_error = True
             face.append(t.vertex[0].ID)
             face.append(t.vertex[1].ID)
@@ -700,7 +700,7 @@ class ProgMesh:
         result = len(new_Verts)
 
         t2 = time.time()
-        print(("PROFILING: DoProgressiveMesh(): completed in %f sec" % (t2-t1)))
+        print ("PROFILING: DoProgressiveMesh(): completed in %f sec" % (t2-t1))
         if result == 0:
             print ("No new_Verts")
             return 0
@@ -735,7 +735,7 @@ def main():
     print ("=========================================="    )
     p.ComputeProgressiveMesh()
     # Inspection, Integrity Checks
-    print(("INSPECTION:\n  ComputeProgressiveMesh() num verts = %d, num triangles = %d" % ( len(p.vertices), len(p.triangles) )))
+    print ("INSPECTION:\n  ComputeProgressiveMesh() num verts = %d, num triangles = %d" % ( len(p.vertices), len(p.triangles) ))
 ##    for f in p.triangles:
 ##        v1, v2, v3 = f.vertex
 ##        print ("  Triangle [%d]: [ %d, %d, %d ] " % ( p.triangles.index(f), v1.ID, v2.ID, v3.ID ))
@@ -750,25 +750,25 @@ def main():
     print ("==========================================")
     numVerts, verts, numFaces, faces = p.DoProgressiveMesh(0.7)
     # Inspection, Integrity Checks
-    print(("INSPECTION:\n  DoProgressiveMesh() p.vertices = %d, p.triangles = %d" % ( len(p.vertices), len(p.triangles) )))
+    print ("INSPECTION:\n  DoProgressiveMesh() p.vertices = %d, p.triangles = %d" % ( len(p.vertices), len(p.triangles) ))
     for f in p.triangles:
         v1, v2, v3 = f.vertex
-        print(("  Triangle [%d]: [ %d, %d, %d ] " % ( p.triangles.index(f), v1.ID, v2.ID, v3.ID )))
+        print ("  Triangle [%d]: [ %d, %d, %d ] " % ( p.triangles.index(f), v1.ID, v2.ID, v3.ID ))
         for v in f.vertex:
             s = ""
             for n in v.Neighbors:
                 s = s + " " + str(n.ID)
-            print(("    v[%d], v.ID[%d].Neighbors (#%d): %s " % (f.vertex.index(v), v.ID, len(v.Neighbors), s)))
-    print(("RESULTS: vertices = %d, faces = %d " % (numVerts, numFaces)))
+            print ("    v[%d], v.ID[%d].Neighbors (#%d): %s " % (f.vertex.index(v), v.ID, len(v.Neighbors), s))
+    print ("RESULTS: vertices = %d, faces = %d " % (numVerts, numFaces))
     s = ""
     for v1 in verts:
         v = v1.Position
         s = s + "[" + str(v[0]) + ", " + str(v[1]) + ", " + str(v[2]) + "] "
-    print(("verts: %s" % (s)))
+    print ("verts: %s" % (s))
     s = ""
     for f in faces:
         s = s + "[" + str(f[0]) + " " + str(f[1]) + " " + str(f[2]) + "] "
-    print(("faces: %s" % (s)))
+    print ("faces: %s" % (s))
 
 
 if __name__ == '__main__':

@@ -153,19 +153,23 @@ def create_poly_mesh_from_sequence(meshes):
     ply = PlyData([PlyElement.describe(vertices, 'vertex'), f], text=True)
     ply.write(poly_mesh_path)
 
-    # Read ply data back out
-    mesh = PlyData.read(poly_mesh_path)
-    DecimateMesh(mesh)
-
 class Mesh:
     vertices = []
-    has_normals = false
-    has_uvs = false
-
+    has_normals = False
+    has_uvs = False
+    num_uv_sets = 0
+    normals = []
+    faces = []
+    uv_sets = []
 class Vertex:
     x = 0
     y = 0
     z = 0
+
+class Face:
+    v_1 = 0
+    v_2 = 0
+    v_3 = 0
 
 def DecimateMesh(mesh):
 
@@ -184,15 +188,6 @@ def DecimateMesh(mesh):
 
     processMesh.vertices = originalMeshVerts
 
-    print("Original mesh verts is")
-    print(originalMeshVerts);
-
-    # create a set of vertices with an x, y, z
-    print("******* Vertex length is")
-    print(number_of_vertices)
-    originalMeshFaces = mesh.elements[1]
-
-    print ("========================DECIMATING=========================")
     verts = list()
     faces = list()
     PMSettings = pyprogmesh.ProgMeshSettings()
@@ -201,20 +196,42 @@ def DecimateMesh(mesh):
     PMSettings.KeepBorder = True
 
     for i in range(0, number_of_vertices):
-        print("Original mesh verts is")
-        print(originalMeshVerts)
-        _v = originalMeshVerts[i]
-        print("Vertex is ")
+        _v = processMesh.vertices[i]
         v = [_v.x, _v.y, _v.z]
         # _uv = [mesh.uv_sets[0][i].u, mesh.uv_sets[0][i].v]
         _uv = None
-        if mesh.has_normals:
-            _normal = [mesh.normals[i].x, mesh.normals[i].y, mesh.normals[i].z]
-        else:
-            _normal = None
+        # if mesh.has_normals:
+        #     _normal = [mesh.normals[i].x, mesh.normals[i].y, mesh.normals[i].z]
+        # else:
+        _normal = None
         verts.append(pyprogmesh.RawVertex(Position=v, UV=_uv, Normal=_normal, RGBA=None))
-    for i in range(0, len(originalMeshFaces)):
-        _t = originalMeshFaces[i]
+    #HANDLE FACES
+    print("********** # FACES")
+    print(mesh.elements[1].count)
+
+    print("******** mesh['face'].data['vertex_indices']")
+    print(mesh.elements[1].data)
+    print("**************** VERTEX INDICES")
+    print(mesh['face'].data['vertex_indices'])
+
+    print("**************** VERTEX INDICES 0 v_1")
+    print(mesh['face'].data['vertex_indices'][0][0])
+
+    # For each in vertex indicies
+    # Create a new face
+    # populate with v_1, v_2, v_3
+    # append to face list
+    processMesh.faces = []
+    for i in range(0, mesh.elements[1].count):
+        face = Face()
+        face.v_1 = mesh['face'].data['vertex_indices'][i][0]
+        face.v_2 = mesh['face'].data['vertex_indices'][i][1]
+        face.v_3 = mesh['face'].data['vertex_indices'][i][2]
+        processMesh.faces.append(face)
+
+    for i in range(0, mesh.elements[1].count):
+        _t = processMesh.faces[i]
+        print(_t)
         f = [_t.v_1, _t.v_2, _t.v_3]
         faces.append(f)
     print ("PREP: old verts = %d, old faces = %d" % (len(verts), len(faces)))
@@ -226,36 +243,48 @@ def DecimateMesh(mesh):
     else:
         numVerts, verts, numFaces, faces = result[0], result[1], result[2], result[3]
         print ("RESULTS: new verts = %d, new faces = %d" % (numVerts, numFaces))
-        mesh.num_vertices = numVerts
-        mesh.vertices.update_size()
-        if mesh.num_uv_sets > 0:
-            mesh.uv_sets.update_size()
-        if mesh.has_normals:
-            mesh.normals.update_size()
+        processMesh.num_vertices = numVerts
+
+        newVertices = []
+        newUVs = []
+        newNormals = []
         for i in range(0, numVerts):
             rawVert = verts[i]
-            v = mesh.vertices[i]
+            v = processMesh.vertices[i]
             v.x = rawVert.Position[0]
             v.y = rawVert.Position[1]
             v.z = rawVert.Position[2]
-            if mesh.num_uv_sets > 0:
-                uv = mesh.uv_sets[0][i]
+            if processMesh.num_uv_sets > 0:
+                uv = processMesh.uv_sets[0][i]
                 uv.u = rawVert.UV[0]
                 uv.v = rawVert.UV[1]
-            if mesh.has_normals:
-                normals = mesh.normals[i]
+                newUVs.append(uv)
+            if processMesh.has_normals:
+                normals = processMesh.normals[i]
                 normals.x = rawVert.Normal[0]
                 normals.y = rawVert.Normal[1]
                 normals.z = rawVert.Normal[2]
-        mesh.num_triangles = numFaces
-        mesh.triangles.update_size()
+                newNormals.append(normals)
+            newVertices.append(v)
+        processMesh.vertices = newVertices
+        processMesh.normals = newNormals
+        processMesh.uv_sets = newUVs
+        processMesh.num_faces = numFaces
+
+        newFaces = []
+
         for i in range(0, numFaces):
             triangle = faces[i]
-            t = mesh.triangles[i]
+            t = processMesh.faces[i]
             t.v_1 = triangle[0]
             t.v_2 = triangle[1]
             t.v_3 = triangle[2]
+            newFaces.append(triangle)
+        
+        processMesh.faces = newFaces
 
+        print("Finished with decimation")
+        return processMesh
 
 for subdir, dirs, files in os.walk('./encode'):
     for file in sorted(files):     #for each mesh
@@ -277,6 +306,7 @@ for subdir, dirs, files in os.walk('./encode'):
             print("Adding mesh to group" + str(frame_number))
         frame_number = frame_number + 1
         vertex_count_in_last_ply = vertex_count_in_current_ply # set new vertex count
-    create_poly_mesh_from_sequence(meshes_in_group) #end of coherent meshes / keyframe max reached? start encoding
+    # create_poly_mesh_from_sequence(meshes_in_group) #end of coherent meshes / keyframe max reached? start encoding
+    DecimateMesh(mesh)
     current_keyframe = frame_number
     meshes_in_group = [mesh] # set meshes in group to new keyframe mesh
