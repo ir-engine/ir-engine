@@ -1,11 +1,9 @@
-import { hasWindow } from "../../common/functions/hasWindow";
-import { System } from '../classes/System';
-import { executeSystem } from './SystemFunctions';
-import { Engine } from '../classes/Engine';
-import { EngineOptions } from '../interfaces/EngineOptions';
-import { Timer } from "../../common/functions/Timer";
 import { now } from "../../common/functions/now";
+import { Engine } from '../classes/Engine';
+import { System } from '../classes/System';
+import { EngineOptions } from '../interfaces/EngineOptions';
 import { removeAllComponents, removeAllEntities } from "./EntityFunctions";
+import { executeSystem } from './SystemFunctions';
 import { SystemUpdateType } from "./SystemUpdateType";
 
 /**
@@ -15,7 +13,7 @@ import { SystemUpdateType } from "./SystemUpdateType";
  */
 export function initialize (options?: EngineOptions) {
   Engine.options = { ...Engine.options, ...options };
-  if (hasWindow && typeof CustomEvent !== 'undefined') {
+  if ( typeof window !== 'undefined' && typeof CustomEvent !== 'undefined') {
     const event = new CustomEvent('world-created');
     window.dispatchEvent(event);
   }

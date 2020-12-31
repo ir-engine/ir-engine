@@ -1,6 +1,8 @@
 import { isServer } from '../../common/functions/isServer';
+import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
+import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { Input } from '../../input/components/Input';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
@@ -11,16 +13,28 @@ import { Network } from '../components/Network';
 import { NetworkInterpolation } from '../components/NetworkInterpolation';
 import { NetworkObject } from '../components/NetworkObject';
 import { Server } from '../components/Server';
-import { addNetworkTransformToWorldState } from '../functions/addNetworkTransformToWorldState';
 import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClient';
-import { createSnapshot, addSnapshot } from '../functions/NetworkInterpolationFunctions';
-import { WorldStateModel } from '../schema/worldStateSchema';
-import { PacketReadyWorldState, WorldStateInterface, WorldStateSnapshot } from "../interfaces/WorldState";
+import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
+import { PacketReadyWorldState } from "../interfaces/WorldState";
+import { WorldStateModel } from '../schema/worldStateSchema';
 
-/**
- * Collects all data and send WorldState to clients
- */
+const addNetworkTransformToWorldState: Behavior = (entity) => {
+  const transformComponent = getComponent(entity, TransformComponent);
+  const networkObject = getComponent(entity, NetworkObject);
+
+  Network.instance.worldState.transforms.push({
+      networkId: networkObject.networkId,
+      x: transformComponent.position.x,
+      y: transformComponent.position.y,
+      z: transformComponent.position.z,
+      qX: transformComponent.rotation.x,
+      qY: transformComponent.rotation.y,
+      qZ: transformComponent.rotation.z,
+      qW: transformComponent.rotation.w
+  });
+};
+
 export class ServerNetworkOutgoingSystem extends System {
 
   updateType = SystemUpdateType.Fixed;
@@ -80,12 +94,15 @@ export class ServerNetworkOutgoingSystem extends System {
       Network.instance.worldState.snapshot = NetworkInterpolation.instance.get();
 
       state.tick = BigInt( Network.instance.worldState.tick );
+
       state.snapshot = {
         time: BigInt( Network.instance.worldState.snapshot.time ),
         id: Network.instance.worldState.snapshot.id,
         state: []
       }; // in client copy state from transforms
 
+      // console.log("STATE IS")
+      // console.log(state);
       const buffer = WorldStateModel.toBuffer(state);
 
       // Send the message to all connected clients

@@ -1,16 +1,11 @@
-import { Quaternion } from 'three';
-import { Behavior } from '../../common/interfaces/Behavior';
-import { TransformComponent } from '../../transform/components/TransformComponent';
-import { ColliderComponent } from '../components/ColliderComponent';
-import { RigidBody } from '../components/RigidBody';
-import { hasComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { Object3DComponent } from '../../common/components/Object3DComponent';
-import { Entity } from '../../ecs/classes/Entity';
 import { isClient } from "../../common/functions/isClient";
+import { Behavior } from '../../common/interfaces/Behavior';
+import { Entity } from '../../ecs/classes/Entity';
+import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
+import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { Network } from '../../networking/components/Network';
 import { NetworkObject } from '../../networking/components/NetworkObject';
 import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
-import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 
 export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void => {
 
@@ -34,7 +29,7 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
            })
 
         let offsetX = 0, offsetY = 0, offsetZ = 0;
-        let offsetqX = 0, offsetqY = 0, offsetqZ = 0, offsetqW = 0;
+        const offsetqX = 0, offsetqY = 0, offsetqZ = 0, offsetqW = 0;
 
         if (args.clientSnapshot.old && Network.instance.worldState.snapshot) {
          const clientSnapshotPos = args.clientSnapshot.old.state.find(v => v.networkId == networkObject.networkId);

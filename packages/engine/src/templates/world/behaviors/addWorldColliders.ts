@@ -7,7 +7,8 @@ import { getComponent } from "../../../ecs/functions/EntityFunctions";
 import { addColliderWithoutEntity } from '@xr3ngine/engine/src/physics/behaviors/addColliderWithoutEntity';
 
 export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
-
+  console.log("******************* addWorldColliders called");
+  
   const asset = args.asset;
   const deleteArr = [];
 
@@ -15,6 +16,8 @@ export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
 
   function parseColliders( mesh ) {
     // console.warn(mesh.userData.data);
+    console.log("MeshData: ", mesh.userData.data);
+    console.log("Type: ", mesh.userData.type);
 
     if (mesh.userData.data == "physics") {
       if (mesh.userData.type == "box" || mesh.userData.type == "trimesh") {
@@ -35,6 +38,8 @@ export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
             transform.position.y + mesh.position.y,
             transform.position.z + mesh.position.z
           )
+
+          console.log("************** Adding ", mesh.userData.type);
           addColliderWithoutEntity(mesh.userData.type, mesh.position, mesh.quaternion, mesh.scale, mesh);
         }
 

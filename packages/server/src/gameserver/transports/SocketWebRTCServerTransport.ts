@@ -1,4 +1,3 @@
-import isNullOrUndefined from '@xr3ngine/engine/src/common/functions/isNullOrUndefined';
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
 import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
 import { CreateWebRtcTransportParams } from "@xr3ngine/engine/src/networking/types/NetworkingTypes";
@@ -42,6 +41,9 @@ import {
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
 const Route53 = new AWS.Route53({ ...config.aws.route53.keys });
 
+function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | undefined {
+    return typeof obj === "undefined" || obj === null;
+}
 export class SocketWebRTCServerTransport implements NetworkTransport {
     isServer = true
     server: https.Server
@@ -74,7 +76,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         // Set up our gameserver according to our current environment
         const localIp = await getLocalServerIp();
         let stringSubdomainNumber, gsResult;
-        if (process.env.KUBERNETES !== 'true') await this.app.service('instance').Model.destroy({where: {}});
+        if (process.env.KUBERNETES !== 'true') try {await this.app.service('instance').Model.destroy({where: {}})} catch(error){ logger.warn(error)}
         else if (process.env.KUBERNETES === 'true') {
             await cleanupOldGameservers();
             this.gameServer = await (this.app as any).agonesSDK.getGameServer();

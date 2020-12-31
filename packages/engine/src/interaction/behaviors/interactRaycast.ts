@@ -1,6 +1,6 @@
 import { Behavior } from "../../common/interfaces/Behavior";
 import { Entity } from "../../ecs/classes/Entity";
-import { InteractBehaviorArguments } from "../types";
+import { InteractBehaviorArguments } from "../types/InteractionTypes";
 import { getComponent, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { Object3D, Ray, Raycaster, Vector3,Vector2 } from "three";

@@ -1,14 +1,9 @@
 import { Object3DComponent } from '../../common/components/Object3DComponent'
-import { HighlightComponent } from '../components/HighlightComponent'
 import { System, SystemAttributes } from '../../ecs/classes/System'
-import { registerComponent } from '../../ecs/functions/ComponentFunctions'
-import {
-  getComponent,
-  addComponent,
-  removeComponent
-} from '../../ecs/functions/EntityFunctions'
-import { RendererComponent } from '../../renderer/components/RendererComponent'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
+import { RendererComponent } from '../../renderer/components/RendererComponent'
+import { HighlightComponent } from '../components/HighlightComponent'
 
 export class HighlightSystem extends System {
   updateType = SystemUpdateType.Fixed;

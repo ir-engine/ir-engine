@@ -7,7 +7,7 @@ import getLocalServerIp from '../../util/get-local-server-ip';
 import logger from '../../app/logger';
 import config from '../../config';
 
-const releaseRegex = /^([a-zA-Z0-9]+)-/
+const releaseRegex = /^([a-zA-Z0-9]+)-/;
 
 interface Data {}
 

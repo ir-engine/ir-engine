@@ -5,6 +5,7 @@ import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile
 import Snackbar from '@material-ui/core/Snackbar';
 import { connect } from "react-redux";
 import TouchApp from "@material-ui/icons/TouchApp";
+import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 
 interface Props {
   message?: string;
@@ -18,11 +19,15 @@ const mapStateToProps = (state: any): any => {
 
 
 const TooltipContainer = (props: Props) =>{
-  const interactTip = isMobileOrTablet() ? <TouchApp /> : <span className={styles.keyItem}>E</span>;
-  return !isMobileOrTablet() && props.message ? 
+  const interactTip = isMobileOrTablet() ? <TouchApp /> : 'E';
+  return props.message ? 
             <Snackbar anchorOrigin={{vertical: 'bottom',horizontal: 'center'}} 
-            className={styles.TooltipSnackBar} open={true} >
-              <section className={styles.innerHtml+' MuiSnackbarContent-root'}>Press {interactTip} to {props.message}</section>
+            className={styles.TooltipSnackBar} open={true} 
+            autoHideDuration={10000}>
+              <section className={styles.innerHtml+' MuiSnackbarContent-root'}>
+                <ErrorOutlineIcon color="secondary" />
+                Press {interactTip} to {props.message}
+              </section>
             </Snackbar>
           :null;
 };

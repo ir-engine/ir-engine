@@ -60,16 +60,16 @@ const MyApp = (props: Props): any => {
   };
   
   const initApp = useCallback(() => {
-    const jssStyles = document.querySelector('#jss-server-side')
+    const jssStyles = document.querySelector('#jss-server-side');
     if (jssStyles?.parentNode) {
-      jssStyles.parentNode.removeChild(jssStyles)
+      jssStyles.parentNode.removeChild(jssStyles);
     }
     // NOTE: getDeviceInfo is an async function, but here is running
     // without `await`.
-    store.dispatch(restoreState())
-    initGA()
-    logPageView()
-    getDeviceInfo()
+    store.dispatch(restoreState());
+    initGA();
+    logPageView();
+    getDeviceInfo();
     const urlParts = url.parse(window.location.href);
     const query = querystring.parse(urlParts.query);
     if (query.error != null) {

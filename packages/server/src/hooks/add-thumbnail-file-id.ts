@@ -1,4 +1,4 @@
-import { HookContext } from "@feathersjs/feathers"
+import { HookContext } from "@feathersjs/feathers";
 
 export default (options = {}) => {
   return async (context: HookContext): Promise<HookContext> => {
@@ -9,9 +9,9 @@ export default (options = {}) => {
           where: {
             sid: context.params.body.projectId
           }
-        })
-      context.params.thumbnailOwnedFileId = thumbnailOwnedFileId
+        });
+      context.params.thumbnailOwnedFileId = thumbnailOwnedFileId;
     }
-    return context
-  }
-}
+    return context;
+  };
+};

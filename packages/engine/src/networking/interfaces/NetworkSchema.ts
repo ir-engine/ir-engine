@@ -1,4 +1,3 @@
-import { PrefabAlias } from '../../common/types/PrefabAlias';
 import { NetworkPrefab } from './NetworkPrefab';
 
 export interface NetworkSchema {
@@ -6,7 +5,7 @@ export interface NetworkSchema {
   messageTypes: {
     [key: string]: any;
   };
-  defaultClientPrefab: PrefabAlias;
+  defaultClientPrefab: string | number;
   prefabs: {
     [key: string]: NetworkPrefab;
   };

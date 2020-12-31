@@ -1,18 +1,29 @@
 import { Vec3 } from "cannon-es";
 import { Matrix4, Quaternion, Vector3 } from "three";
-import { cannonFromThreeVector } from "../../../common/functions/cannonFromThreeVector";
+import * as THREE from "three";
+import * as CANNON from "cannon-es";
+import { isClient } from "../../../common/functions/isClient";
 import { lerp } from "../../../common/functions/MathLerpFunctions";
-import { threeFromCannonVector } from "../../../common/functions/threeFromCannonVector";
 import { Behavior } from "../../../common/interfaces/Behavior";
 import { Engine } from "../../../ecs/classes/Engine";
 import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { CharacterComponent } from "../components/CharacterComponent";
 import { appplyVectorMatrixXZ } from "../functions/appplyVectorMatrixXZ";
-import { haveDifferentSigns } from "../../../common/functions/haveDifferentSigns";
-import { TransformComponent } from "../../../transform/components/TransformComponent";
-import { isClient } from "../../../common/functions/isClient";
 
 const up = new Vector3(0, 1, 0);
+
+function haveDifferentSigns(n1: number, n2: number): boolean {
+	return (n1 < 0) !== (n2 < 0);
+}
+
+function threeFromCannonVector(vec: CANNON.Vec3): THREE.Vector3 {
+	return new THREE.Vector3(vec.x, vec.y, vec.z);
+}
+
+function threeFromCannonQuat(quat: CANNON.Quaternion): THREE.Quaternion {
+	return new THREE.Quaternion(quat.x, quat.y, quat.z, quat.w);
+}
+
 
 export const physicsPostStep: Behavior = (entity): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);

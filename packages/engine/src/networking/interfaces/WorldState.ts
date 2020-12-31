@@ -1,8 +1,6 @@
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
-import { BinaryValue } from "../../common/enums/BinaryValue";
-import { PrefabAlias } from "../../common/types/PrefabAlias";
-import { InputAlias } from "../../input/types/InputAlias";
 import { NumericalType } from "../../common/types/NumericalTypes";
+import { InputAlias } from "../../input/types/InputAlias";
 import { Snapshot, StateEntityGroup } from "../types/SnapshotDataTypes";
 
 // export interface NetworkInputInterface {
@@ -54,7 +52,7 @@ export interface NetworkObjectRemoveInterface {
 export interface NetworkObjectCreateInterface {
   networkId: number,
   ownerId: string,
-  prefabType: PrefabAlias,
+  prefabType: string | number,
   x: number,
   y: number,
   z: number,

@@ -3,10 +3,8 @@ import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
 import { Input } from "@xr3ngine/engine/src/input/components/Input";
 import { LocalInputReceiver } from "@xr3ngine/engine/src/input/components/LocalInputReceiver";
 import { State } from "@xr3ngine/engine/src/state/components/State";
-import { Subscription } from "@xr3ngine/engine/src/subscription/components/Subscription";
 import { CharacterInputSchema } from "@xr3ngine/engine/src/templates/character/CharacterInputSchema";
 import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/CharacterStateSchema";
-import { CharacterSubscriptionSchema } from "@xr3ngine/engine/src/templates/character/CharacterSubscriptionSchema";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { Interactor } from "../../../interaction/components/Interactor";
 import { initializeCharacter } from "../behaviors/initializeCharacter";
@@ -31,8 +29,6 @@ export const PlayerCharacter: Prefab = {
         { type: FollowCameraComponent, data: { distance: 3, mode: "thirdPerson" }},
         // Current state (isJumping, isidle, etc)
         { type: State, data: { schema: CharacterStateSchema } },
-        // Similar to Unity's Update(), LateUpdate(), and Start()
-        { type: Subscription, data: { schema: CharacterSubscriptionSchema } },
         { type: Interactor }
     ],
     onAfterCreate: [

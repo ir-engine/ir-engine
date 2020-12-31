@@ -14,7 +14,7 @@ import {
   didForgotPassword,
   didResetPassword,
   didCreateMagicLink,
-  updateSettings,
+  updatedUserSettingsAction,
   loadedUserData,
   avatarUpdated,
   usernameUpdated,
@@ -103,6 +103,27 @@ export function doLoginAuto (allowGuest?: boolean, forceClientAuthReset?: boolea
 export function loadUserData (dispatch: Dispatch, userId: string): any {
   client.service('user').get(userId)
     .then((res: any) => {
+      if (res.user_setting == null) {
+        return client.service('user-settings').find({
+          query: {
+            userId: userId
+          }
+        }).then((settingsRes) => {
+          if (settingsRes.total === 0) {
+            return client.service('user-settings').create({
+              userId: userId
+            }).then((newSettings) => {
+              res.user_setting = newSettings;
+
+              return Promise.resolve(res);
+            });
+          }
+          res.user_setting = settingsRes.data[0];
+          return Promise.resolve(res);
+        });
+      }
+      return Promise.resolve(res);
+    }).then((res: any) => {
       const user = resolveUser(res);
       dispatch(loadedUserData(user));
     })
@@ -471,8 +492,8 @@ export function removeConnection (identityProviderId: number, userId: string) {
 export function refreshConnections (userId: string) { (dispatch: Dispatch): any => loadUserData(dispatch, userId); }
 
 export const updateUserSettings = (id: any, data: any) => async (dispatch: any) => {
-  const res = await axiosRequest('PATCH', `${apiUrl}/user-settings/${id}`, data);
-  dispatch(updateSettings(res.data));
+  const res = await client.service('user-settings').patch(id, data);
+  dispatch(updatedUserSettingsAction(res));
 };
 
 export function uploadAvatar (data: any) {

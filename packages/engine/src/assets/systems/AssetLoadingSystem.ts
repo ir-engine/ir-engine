@@ -17,6 +17,7 @@ import { AssetClass } from '../enums/AssetClass';
 import { getAssetClass, getAssetType, loadAsset } from '../functions/LoadingFunctions';
 import { ProcessModelAsset } from "../functions/ProcessModelAsset";
 import { Object3D } from 'three';
+import { CharacterAvatarComponent } from '../../templates/character/components/CharacterAvatarComponent';
 
 export default class AssetLoadingSystem extends System {
   updateType = SystemUpdateType.Fixed;
@@ -33,6 +34,10 @@ export default class AssetLoadingSystem extends System {
       // Do things here
     });
     this.queryResults.toLoad.all.forEach((entity: Entity) => {
+      // console.log("**************** TO LOAD");
+      // console.log(entity)
+      const isCharacter = hasComponent(entity, CharacterAvatarComponent);
+
       if (hasComponent(entity, AssetLoaderState)) {
         //return console.log("Returning because already has AssetLoaderState");
         console.log("??? already has AssetLoaderState");
@@ -53,10 +58,17 @@ export default class AssetLoadingSystem extends System {
 
         const eventEntity = new CustomEvent('scene-loaded-entity', { detail: { left: this.loadingCount } });
         document.dispatchEvent(eventEntity);
+      }
 
+      console.log("************ IS CHARACTER? ", isCharacter);
+      console.log("*********** IS CLIENT? ", isClient);
+
+      if(!isCharacter || isClient){
+        try {
         loadAsset(assetLoader.url, entity, (entity, { asset }) => {
           // This loads the editor scene
           this.loaded.set(entity, asset);
+          if (isClient) {
           this.loadingCount--;
 
           if (this.loadingCount === 0) {
@@ -68,8 +80,12 @@ export default class AssetLoadingSystem extends System {
             const event = new CustomEvent('scene-loaded-entity', { detail: { left: this.loadingCount } });
             document.dispatchEvent(event);
           }
+        }
         });
+      } catch (error) {
+        console.log("**** Loading error; failed to load because ", error);
       }
+  }
 
     });
 
@@ -89,7 +105,9 @@ export default class AssetLoadingSystem extends System {
       //   AssetVault.instance.assets.set(urlHashed, asset);
       // }
 
+      console.log("************ HANDLING ONLOADED")
       if (component.onLoaded.length > 0) {
+        console.log(component.onLoaded)
         component.onLoaded.forEach (onLoaded => onLoaded(entity, { asset }));
       }
     });
