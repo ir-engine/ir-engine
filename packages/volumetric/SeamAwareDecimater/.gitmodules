@@ -1,3 +1,0 @@
-[submodule "ext/libigl"]
-	path = ext/libigl
-	url = https://github.com/libigl/libigl/
