@@ -31,6 +31,8 @@ import TooltipContainer from '../ui/TooltipContainer';
 import LoadedSceneButtons from '../ui/LoadedSceneButtons';
 import SceneTitle from '../ui/SceneTitle';
 import NamePlate from '../ui/NamePlate';
+import { number } from 'prop-types';
+import { Vector3 } from 'three';
 
 const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
@@ -55,7 +57,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 export const EnginePage = (props: Props) => {
-
+  
   const {
     sceneId,
     setAppLoaded,
@@ -68,10 +70,9 @@ export const EnginePage = (props: Props) => {
   const [actorAvatarId, setActorAvatarId] = useState('Rose');
   const [infoBoxData, setInfoBoxData] = useState(null);
   const [progressEntity, setProgressEntity] = useState('');
-  const [userHovered, setonUserHover] = useState(null);
-
-  console.log("PROPS", userHovered);
-  console.log("PROPS", setonUserHover);
+  const [userHovered, setonUserHover] = useState(false);
+  const [userId, setonUserId] = useState(null);
+  const [position, setonUserPosition] = useState(null);
 
   //all scene entities are loaded
   const onSceneLoaded = (event: CustomEvent): void => {
@@ -93,11 +94,10 @@ export const EnginePage = (props: Props) => {
   };
 
   const onUserHover = (event: CustomEvent): void => {
-    if (event.detail.focused == true){
-    setonUserHover(event.detail);
-    }
+    setonUserHover(event.detail.focused);
+    setonUserId(event.detail.focused ? event.detail.userId : null);
+    setonUserPosition(event.detail.focused ? event.detail.position: null); 
   };
-
 
   const onObjectActivation = (event: CustomEvent): void =>{
     setInfoBoxData(event.detail.payload);
@@ -149,9 +149,8 @@ export const EnginePage = (props: Props) => {
       <OnBoardingBox actorEntity={actorEntity} />
       <MediaIconsBox />
       <TooltipContainer message={hoveredLabel.length > 0 ? hoveredLabel : ''} />
-      <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} />currentUser.id
-      {userHovered}
-      <NamePlate userId={userHovered?.userId} position={{x:userHovered?.position.x, y:userHovered?.position.y}} isFocused={userHovered?.focused} autoHideDuration={10000} />
+      <InfoBox onClose={() => { setInfoBoxData(null); }} data={infoBoxData} />
+      { userHovered && <NamePlate userId={userId} position={{x:position?.x, y:position?.y}} isFocused={userHovered} autoHideDuration={10000} />}
       {mobileGamepad}
     </>
   );

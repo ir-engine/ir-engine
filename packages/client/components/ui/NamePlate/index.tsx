@@ -23,14 +23,9 @@ const mapStateToProps = (state: any): any => {
   };
 };
 
-
 const NamePlate = (props: Props) =>{
   const {userId, position, isFocused, userState, autoHideDuration = 20000} = props;
   const user = userState.get('layerUsers').find(user => user.id === userId);
-
-  console.log(props);
-  console.log(userId);
-  console.log(user);
 
   const [openNamePlate, setOpenNamePlate] = useState(true);
   const handleCloseNamePlate = (event?: React.SyntheticEvent, reason?: string) => {
