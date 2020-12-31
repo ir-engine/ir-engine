@@ -30,6 +30,9 @@ import OnBoardingDialog from '../ui/OnBoardingDialog';
 import TooltipContainer from '../ui/TooltipContainer';
 import LoadedSceneButtons from '../ui/LoadedSceneButtons';
 import SceneTitle from '../ui/SceneTitle';
+import NamePlate from '../ui/NamePlate';
+import { number } from 'prop-types';
+import { Vector3 } from 'three';
 
 const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
@@ -39,11 +42,13 @@ interface Props {
   setAppLoaded?: any,
   sceneId?: string,
   onBoardingStep?:number,
+  authState?: any;
 }
 
 const mapStateToProps = (state: any): any => {
   return {
     onBoardingStep: selectAppOnBoardingStep(state),
+    authState: selectAuthState(state),
   };
 };
 
@@ -52,17 +57,22 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 export const EnginePage = (props: Props) => {
+  
   const {
     sceneId,
     setAppLoaded,
     onBoardingStep,
+    authState
   } = props;
-
+  const currentUser = authState.get('user');
   const [hoveredLabel, setHoveredLabel] = useState('');
   const [actorEntity, setActorEntity] = useState(null);
   const [actorAvatarId, setActorAvatarId] = useState('Rose');
   const [infoBoxData, setInfoBoxData] = useState(null);
   const [progressEntity, setProgressEntity] = useState('');
+  const [userHovered, setonUserHover] = useState(false);
+  const [userId, setonUserId] = useState(null);
+  const [position, setonUserPosition] = useState(null);
   const [objectActivated, setObjectActivated] = useState(false);
   const [objectHovered, setObjectHovered] = useState(false);
 
@@ -86,6 +96,11 @@ export const EnginePage = (props: Props) => {
     setHoveredLabel(event.detail.interactionText);
   };
 
+  const onUserHover = (event: CustomEvent): void => {
+    setonUserHover(event.detail.focused);
+    setonUserId(event.detail.focused ? event.detail.userId : null);
+    setonUserPosition(event.detail.focused ? event.detail.position: null); 
+  };
 
   const onObjectActivation = (event: CustomEvent): void =>{
     setInfoBoxData(event.detail.payload);
@@ -97,6 +112,7 @@ export const EnginePage = (props: Props) => {
     document.addEventListener('scene-loaded-entity', onSceneLoadedEntity);
     document.addEventListener('object-activation', onObjectActivation);
     document.addEventListener('object-hover', onObjectHover);
+    document.addEventListener('user-hover', onUserHover);
   };
 
   useEffect(() => {
@@ -135,6 +151,7 @@ export const EnginePage = (props: Props) => {
       <LoadedSceneButtons />
       <OnBoardingBox actorEntity={actorEntity} />
       <MediaIconsBox />
+      { userHovered && <NamePlate userId={userId} position={{x:position?.x, y:position?.y}} isFocused={userHovered} autoHideDuration={10000} />}
       {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel}  />}
       <InfoBox onClose={() => { setInfoBoxData(null); setObjectActivated(false); }} data={infoBoxData} />
       {mobileGamepad}

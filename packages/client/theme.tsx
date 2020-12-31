@@ -236,7 +236,12 @@ const lightTheme = createMuiTheme({
     },
     MuiSnackbarContent:{
       root:{
-        backgroundColor: 'rgba(0, 0, 0, ,0.9)',
+        color: '#FFFFFF',
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        minWidth: '0px',
+        '@media (min-width: 600px)':{
+          minWidth: '0px',
+        }
       }
     },
     MuiDrawer:{      
