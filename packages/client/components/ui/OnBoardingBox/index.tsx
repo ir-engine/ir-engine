@@ -166,8 +166,7 @@ const OnBoardingBox = ({ onBoardingStep,actorEntity } : Props) =>{
       <Snackbar 
       anchorOrigin={{vertical, horizontal: 'center'}} 
       classes={snackBarClasses}
-      open={true} 
-      autoHideDuration={10000}>
+      open={true}>
           <>
             <div className={styles.textHint}>
               {title && <Typography variant="h2" color="secondary" align="left">{title}</Typography>}            
