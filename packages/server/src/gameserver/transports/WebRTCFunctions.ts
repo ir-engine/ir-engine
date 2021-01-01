@@ -178,7 +178,6 @@ export async function createWebRtcTransport({ peerId, direction, sctpCapabilitie
     }
     
     const router = networkTransport.routers[partyId];
-    console.warn("Router",router);
     const newTransport = await router.createWebRtcTransport({
         listenIps: listenIps,
         enableUdp: true,
@@ -219,8 +218,8 @@ export async function handleWebRtcTransportCreate(socket, data: CreateWebRtcTran
         else if (partyId != null) Network.instance.clients[userId].partyRecvTransport = newTransport;
 
     } else if (direction === 'send') {
-        if (partyId === 'instance') Network.instance.clients[userId].instanceSendTransport = newTransport;
-        else if (partyId != null) Network.instance.clients[userId].partySendTransport = newTransport;
+        if (partyId === 'instance' && Network.instance.clients[userId] != null) Network.instance.clients[userId].instanceSendTransport = newTransport;
+        else if (partyId != null && Network.instance.clients[userId] != null) Network.instance.clients[userId].partySendTransport = newTransport;
     }
 
     const { id, iceParameters, iceCandidates, dtlsParameters } = newTransport;
