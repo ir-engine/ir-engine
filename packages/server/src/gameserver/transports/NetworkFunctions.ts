@@ -108,16 +108,16 @@ export function validateNetworkObjects(): void {
     const transport = Network.instance.transport as any;
     for (const userId in Network.instance.clients) {
         // Validate that user has phoned home in last 5 seconds
-        if (Date.now() - Network.instance.clients[userId].lastSeenTs > 5000) {
-            logger.info("Removing client ", userId, " due to activity");
+        if (Date.now() - Network.instance.clients[userId].lastSeenTs > 15000) {
+            console.log("Removing client ", userId, " due to inactivity");
             if (!Network.instance.clients[userId])
                 return console.warn('Client is not in client list');
 
             const disconnectedClient = Object.assign({}, Network.instance.clients[userId]);
 
             Network.instance.clientsDisconnected.push({ userId });
-            logger.info('Disconnected Client:');
-            logger.info(disconnectedClient);
+            console.log('Disconnected Client:');
+            console.log(disconnectedClient);
             if (disconnectedClient?.instanceRecvTransport)
                 disconnectedClient.instanceRecvTransport.close();
             if (disconnectedClient?.instanceSendTransport)
@@ -333,6 +333,7 @@ export async function handleIncomingMessage(socket, message): Promise<any> {
 
 export async function handleHeartbeat(socket): Promise<any> {
     const userId = getUserIdFromSocketId(socket.id);
+    // console.log('Got heartbeat from user ' + userId + ' at ' + Date.now());
     if (Network.instance.clients[userId] != undefined)
         Network.instance.clients[userId].lastSeenTs = Date.now();
 }

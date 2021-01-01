@@ -116,6 +116,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       // Send heartbeat every second
       const heartbeat = setInterval(() => {
+        // console.log('Sending heartbeat at ' + new Date());
         this.socket.emit(MessageTypes.Heartbeat.toString());
       }, 1000);
 
