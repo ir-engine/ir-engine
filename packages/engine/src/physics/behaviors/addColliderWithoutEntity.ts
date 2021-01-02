@@ -32,7 +32,7 @@ export function createCylinder (scale = {x: 1, y: 1, z: 1}) {
   return body;
 }
 
-export function addColliderWithoutEntity( type, position = {x: 0, y: 0, z: 0}, quaternion= {x: 1, y: 0, z: 0, w: 0}, scale= {x: 1, y: 1, z: 1}, mesh ) {
+export function addColliderWithoutEntity( type, position, quaternion, scale, mesh ) {
   //  mesh.visible = false;
   let body;
 
