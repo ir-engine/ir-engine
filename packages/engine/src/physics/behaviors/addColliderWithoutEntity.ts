@@ -38,7 +38,7 @@ export function addColliderWithoutEntity( type, position = {x: 0, y: 0, z: 0}, q
 
   switch (type) {
     case 'box':
-      body = createBox(scale = {x: 1, y: 1, z: 1});
+      body = createBox(scale);
       body.shapes.forEach((shape) => {
   			shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
   		});

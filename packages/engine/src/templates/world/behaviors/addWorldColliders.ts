@@ -8,7 +8,7 @@ import { addColliderWithoutEntity } from '@xr3ngine/engine/src/physics/behaviors
 
 export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
   console.log("******************* addWorldColliders called");
-  
+
   const asset = args.asset;
   const deleteArr = [];
 
