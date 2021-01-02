@@ -17,10 +17,10 @@ class ProgMeshSettings:
     def __init__(self):
         self.UseEdgelength = True
         self.UseCurvature = True
-        self.ProtectTexture = False
+        self.ProtectTexture = True
         self.ProtectColor = False
-        self.KeepBorder = False
-        self.RemoveDuplicate = True
+        self.KeepBorder = True
+        self.RemoveDuplicate = False
 
 class RawTriangle:
 ##    v1 = None
@@ -41,13 +41,13 @@ class RawVertex:
         self.Normal = [0.0, 0.0, 0.0]
         self.RGBA = [0, 0, 0, 0]
         self.UV = [0.0, 0.0]
-        if Position is not None:
+        if Position != None:
             self.Position = Position
-        if Normal is not None:
+        if Normal != None:
             self.Normal = Normal
-        if RGBA is not None:
+        if RGBA != None:
             self.RGBA = RGBA
-        if UV is not None:
+        if UV != None:
             self.UV = UV
 
 def SortByBorderAndCost(u, v):
@@ -116,7 +116,7 @@ class CollapseVertex:
             return True
         return False
     def AddNeighbor(self, v):
-        if (not self.IsNeighbor(v)) and (v is not self):
+        if (not self.IsNeighbor(v)) and (v != self):
             self.Neighbors.append(v)
             if self.use_cost:
                 c = self.ComputeCost(v)
@@ -331,7 +331,7 @@ class CollapseTriangle:
             if v_self == v:
                 continue
             if v_self.IsNeighbor(u) == False:
-                print(("ASSERTION FAILURE: ReplaceVertex(%d to %d): v_self.ID[%d] is not Neighbor to u.ID[%d]" % (u.ID, v.ID, v_self.ID, u.ID)))
+                print(("ASSERTION FAILURE: ReplaceVertex(%d to %d): v_self.ID[%d] != Neighbor to u.ID[%d]" % (u.ID, v.ID, v_self.ID, u.ID)))
                 eval(input("PRESS ENTER TO CONTINUE.\n"))
             v_self.RemoveIfNotNeighbor(u)
             v_self.AddNeighbor(v)
@@ -585,7 +585,7 @@ class ProgMesh:
             v = self.vertices[i]
             costMap.append(v.Cost)
         self.CollapseMap.clear()
-        while len(self.vertices) is not 0:
+        while len(self.vertices) != 0:
             mn = self.vertices[-1]
             cv = mn.Candidate
 ##            # integrity check
@@ -593,7 +593,7 @@ class ProgMesh:
 ##                print ("ERROR FOUND: mn.ID = %d at index=%d, self.vertices #=%d" % (mn.ID, self.vertices.index(mn), len(self.vertices)))
 #            print ("DEBUG: ComputeProgressiveMesh(): mn.ID = %d, i = %d" % (mn.ID, len(self.vertices)-1))
             self.CollapseOrder[len(self.vertices)-1] = [mn.ID, costMap[len(self.vertices)-1] ]
-            if cv is not None:
+            if cv != None:
                 self.CollapseMap[mn.ID] = cv.ID
             else:
                 self.CollapseMap[mn.ID] = -1
