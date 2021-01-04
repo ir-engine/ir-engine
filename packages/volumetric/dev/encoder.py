@@ -8,8 +8,6 @@ import json
 from numpy.lib.recfunctions import merge_arrays
 import pyprogmesh
 
-np.set_printoptions(precision=3)
-
 current_keyframe = 0
 frame_number = 0
 vertex_count_in_last_ply = 0
@@ -17,28 +15,25 @@ meshes_in_group = []
 
 axes = ['x', 'y', 'z']
 
-
-
+# If a mesh doesn't have multiple corresponding frames to make a fit from, don't encode additional vertex data
 short_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('texture_u', '<f4'), ('texture_v', '<f4')]
-
+# If a mesh has multiple coherent frames, encode additional vertex data
 full_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('texture_u', '<f4'), ('texture_v', '<f4'), ('x0', '<f4'), ('x1', '<f4'), ('x2', '<f4'), ('x3', '<f4'), ('y0', '<f4'), ('y1', '<f4'), ('y2', '<f4'), ('y3', '<f4'), ('z0', '<f4'), ('z1', '<f4'), ('z2', '<f4'), ('z3', '<f4')]
 
-
-# short_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4')]
-
-# full_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('x0', '<f4'), ('x1', '<f4'), ('x2', '<f4'), ('x3', '<f4'), ('y0', '<f4'), ('y1', '<f4'), ('y2', '<f4'), ('y3', '<f4'), ('z0', '<f4'), ('z1', '<f4'), ('z2', '<f4'), ('z3', '<f4')]
-
 def create_poly_mesh_from_sequence(meshes):
-    mesh_count_is_one = len(meshes) == 1
+    # Is it a sequence of meshes or a single mesh? Skip the fit algorithm for single meshes
+    is_sequence = len(meshes) > 1
+    # Count the number of 'x' entries in the first mesh, assuming all meshes have the same count and xyz are the same
     number_of_vertices = len(meshes[0]['vertex']['x'])
-    p = meshes[0]
-    v = p.elements[0]
-    f = p.elements[1]
+    # Input vertices from first frame
+    v = meshes[0].elements[0]
+    # Input faces from first frame
+    f = meshes[0].elements[1]
 
-    print("Face is")
-    print(meshes[0]['face'])
+
     poly_data_transpose = []
-    if(mesh_count_is_one != True):
+
+    if(is_sequence == True):
         for mesh in range(len(meshes)):
             for i in axes:
                 for vert in range(len(meshes[mesh].elements[0].data[i])):
@@ -51,28 +46,32 @@ def create_poly_mesh_from_sequence(meshes):
         number_of_meshes = len(meshes)
         number_of_vertices = len(meshes[0]['vertex']['x'])
 
+        # Array of polynomial data we will append to vertices later
         polynomial_array = []
 
-        # for each vert in total length
+        # for each vert in our meshes...
         for current_vertex in range(number_of_vertices):
             # get an axis
             polyAxes = []
             # for each in xyz
             for axis in axes:
                 # new array of vertex positions
-                vPositions = []
-                frameCounter = []
-                frame = 0
+                vertex_positions = []
+                # Frame list encodes a single integer for each mesh in the sequence, to give polyfit a second dimension
+                frame_list = []
+                # Will be incremented with each frame processed and add to frame list
+                current_frame = 0
                 # for each mesh in count
                 for m in range(number_of_meshes):
-                    frameCounter.append(frame)
-                    frame = frame + 1
-                    # add to new array
-                    vPositions.append(meshes[m]['vertex'][axis][current_vertex] - meshes[0]['vertex'][axis][current_vertex])
+                    # Add the mesh number, with the first mesh in this sequence being 0
+                    frame_list.append(current_frame)
+                    # Increment the current frame
+                    current_frame = current_frame + 1
+                    # add the normalized 
+                    vertex_positions.append(meshes[m]['vertex'][axis][current_vertex] - meshes[0]['vertex'][axis][current_vertex])
                 # model = polyfit
-                # print("Attempting polyfit with these values")
-                # print(vPositions)
-                model = np.polyfit(frameCounter, vPositions, 4)
+                model = np.polyfit(frame_list, vertex_positions, 4)
+                # Add the model data. We are removing the last term, which will always be 0 on a normalized trajectory
                 polyAxes.append( model[:-1] )
                 # add poly
             polynomial_array.append(polyAxes)
@@ -104,7 +103,7 @@ def create_poly_mesh_from_sequence(meshes):
     texU = meshes[0]['vertex']['texture_u']
     texV = meshes[0]['vertex']['texture_v']
 
-    if(mesh_count_is_one != True):
+    if(is_sequence == True):
         x0 = poly_data_transpose[5]
         x1 = poly_data_transpose[6]
         x2 = poly_data_transpose[7]
@@ -119,7 +118,7 @@ def create_poly_mesh_from_sequence(meshes):
         z3 = poly_data_transpose[16]
 
     # connect the proper data structures
-    vertices = np.empty(len(x), dtype=(short_data_type if mesh_count_is_one else full_data_type))
+    vertices = np.empty(len(x), dtype=(short_data_type if is_sequence != True else full_data_type))
     vertices['x'] = x.astype('f4')
     vertices['y'] = y.astype('f4')
     vertices['z'] = z.astype('f4')
@@ -127,7 +126,7 @@ def create_poly_mesh_from_sequence(meshes):
     vertices['texture_u'] = texU.astype('f4')
     vertices['texture_v'] = texV.astype('f4')
 
-    if(mesh_count_is_one != True):
+    if(is_sequence == True):
         vertices['x0'] = x0.astype('f4')
         vertices['x1'] = x1.astype('f4')
         vertices['x2'] = x2.astype('f4')
@@ -144,7 +143,7 @@ def create_poly_mesh_from_sequence(meshes):
     poly_mesh_path = './encoded/poly' + str(current_keyframe) + '.ply'
     ply = PlyData([PlyElement.describe(vertices, 'vertex'), f], text=True)
     ply.write(poly_mesh_path)
-    read_back_and_decimate(poly_mesh_path, mesh_count_is_one != True)
+    read_back_and_decimate(poly_mesh_path, is_sequence)
 
 def read_back_and_decimate(poly_mesh_path, isPoly):
     mesh = PlyData.read(poly_mesh_path)
@@ -278,11 +277,14 @@ def DecimateMesh(mesh, decimateAmount, isCurveEncoded = True):
         face.v_1 = mesh['face'].data['vertex_indices'][i][0]
         face.v_2 = mesh['face'].data['vertex_indices'][i][1]
         face.v_3 = mesh['face'].data['vertex_indices'][i][2]
+        print("Adding face: " + str(face.v_1) + " | " + str(face.v_2) + " | " + str(face.v_3))
         processMesh.faces.append(face)
 
     for i in range(0, mesh.elements[1].count):
         _t = processMesh.faces[i]
         f = [_t.v_1, _t.v_2, _t.v_3]
+        print("Adding face:")
+        print([_t.v_1, _t.v_2, _t.v_3])
         faces.append(f)
 
     print ("PREP: old verts = %d, old faces = %d" % (len(verts), len(faces)))
