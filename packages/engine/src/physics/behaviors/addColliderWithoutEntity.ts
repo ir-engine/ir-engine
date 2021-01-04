@@ -3,7 +3,8 @@ import { PhysicsManager } from '../components/PhysicsManager';
 import { CollisionGroups } from "../enums/CollisionGroups";
 import { createTrimesh } from './physicalPrimitives';
 
-function createBox (scale = {x: 1, y: 1, z: 1}) {
+function createBox (scale) {
+  if(scale == undefined) return console.error("Scale is  null");
   const shape = new Box(new Vec3(scale.x, scale.y, scale.z));
   const body = new Body({ mass: 0 });
   body.addShape(shape);
@@ -25,14 +26,15 @@ export function createGround () {
   return body;
 }
 
-export function createCylinder (scale = {x: 1, y: 1, z: 1}) {
+export function createCylinder (scale) {
+  if(scale == undefined) return console.error("Scale is  null");
   const shape = new Cylinder(scale.x, scale.y, scale.z, 20);
   const body = new Body({ mass: 0 });
   body.addShape(shape);
   return body;
 }
 
-export function addColliderWithoutEntity( type, position = {x: 0, y: 0, z: 0}, quaternion= {x: 1, y: 0, z: 0, w: 0}, scale= {x: 1, y: 1, z: 1}, mesh ) {
+export function addColliderWithoutEntity( type, position, quaternion, scale, mesh ) {
   //  mesh.visible = false;
   let body;
 
