@@ -222,6 +222,8 @@ class CollapseVertex:
     def IsSameUV(self, v):
         return (self.Vert.UV == v.Vert.UV)
     def __eq__(self, v):
+        if(v == None):
+            return False;
         return (self.ID == v.ID and self.parent == v.parent)
     def __lt__(self, v):
         return (self.Cost > v.Cost)
@@ -722,7 +724,7 @@ class ProgMesh:
         newFaceCount = len(new_Faces)
         newVertCount = len(new_Verts)
 
-#        print ("Results: new verts = %d, old verts = %d, new faces = %d" % (newVertCount, self.VertexCount, newFaceCount))
+        print ("Results: new verts = %d, new faces = %d" % (newVertCount, newFaceCount))
                         
         return (newVertCount, new_Verts, newFaceCount, new_Faces, self.CollapseMap)
         
@@ -732,8 +734,6 @@ def main():
     _verts = [ [0.0,0.0,0.0], [1.0,0.0,0.0], [1.0,1.0,0.0], [0.0,1.0,0.0], [0.0,0.0,1.0], [1.0,0.0,1.0], [1.0,1.0,1.0], [0.0,1.0,1.0] ]
     _faces = [ [0,1,2], [0,2,3], [0,1,5], [0,5,4], [4,5,6], [4,6,7], [1,2,6], [1,6,5], [0,3,7], [0,7,4], [2,3,7], [2,7,6] ]
 
-    
-    
     p = ProgMesh(vertCount=len(_verts), faceCount=len(_faces), verts=_verts, faces=_faces)
 
     print ("\n\n==========================================")
@@ -754,7 +754,7 @@ def main():
     print ("\n\n==========================================")
     print ("DoProgressiveMesh()")
     print ("==========================================")
-    numVerts, verts, numFaces, faces = p.DoProgressiveMesh(0.7)
+    numVerts, verts, numFaces, faces, collapsemap = p.DoProgressiveMesh(0.7)
     # Inspection, Integrity Checks
     print(("INSPECTION:\n  DoProgressiveMesh() p.vertices = %d, p.triangles = %d" % ( len(p.vertices), len(p.triangles) )))
     for f in p.triangles:
