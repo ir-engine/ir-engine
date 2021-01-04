@@ -82,7 +82,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     const selfUser = authState.get('user');
     const currentLocation = locationState.get('currentLocation').get('location');
     const enableGlobalMute = currentLocation?.locationSettings?.locationType === 'showroom' && selfUser?.locationAdmins?.find(locationAdmin => currentLocation.id === locationAdmin.locationId) != null;
-    const user = userState.get('layerUsers').find(user => user.id === peerId);
+    const user = userState.get('layerUsers').find(user => user.id === selfUser.id);
 
     autorun(() => {
         (Network.instance?.transport as any)?.socket.on(MessageTypes.WebRTCPauseConsumer.toString(), (consumerId: string) => {
@@ -148,6 +148,28 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             }
         });
     }, []);
+
+
+    const [actorEntity, setActorEntity] = useState(null);
+    // const [actorAvatarId, setActorAvatarId] = useState('Rose');
+    useEffect(() => {
+        const actorEntityWaitInterval = setInterval(() => {
+          if (Network.instance?.localClientEntity) {
+            setActorEntity(Network.instance.localClientEntity);
+
+
+            console.log('actorEntity', actorEntity, 'Network.instance.localClientEntity', Network.instance.localClientEntity)
+            clearInterval(actorEntityWaitInterval);
+          }
+        }, 300);
+      }, []);
+  
+    //   useEffect(() => {
+    //     if (actorEntity) {
+    //       setActorAvatar(actorEntity, {avatarId: actorAvatarId});
+    //       loadActorAvatar(actorEntity);
+    //     }
+    //   }, [ actorEntity, actorAvatarId ]);
 
     useEffect(() => {
         if (audioRef.current != null) {
