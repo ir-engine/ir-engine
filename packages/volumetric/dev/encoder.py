@@ -9,12 +9,12 @@ from numpy.lib.recfunctions import merge_arrays
 import pyprogmesh
 
 decimation_amount = .25 # Decimation percentage
-axes = ['x', 'y', 'z']
-current_keyframe = 0
+
+_current_keyframe = 0
 # If a mesh doesn't have multiple corresponding frames to make a fit from, don't encode additional vertex data
-short_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('texture_u', '<f4'), ('texture_v', '<f4')]
+_short_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('texture_u', '<f4'), ('texture_v', '<f4')]
 # If a mesh has multiple coherent frames, encode additional vertex data
-full_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('texture_u', '<f4'), ('texture_v', '<f4'), ('x0', '<f4'), ('x1', '<f4'), ('x2', '<f4'), ('x3', '<f4'), ('y0', '<f4'), ('y1', '<f4'), ('y2', '<f4'), ('y3', '<f4'), ('z0', '<f4'), ('z1', '<f4'), ('z2', '<f4'), ('z3', '<f4')]
+_full_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('texture_u', '<f4'), ('texture_v', '<f4'), ('x0', '<f4'), ('x1', '<f4'), ('x2', '<f4'), ('x3', '<f4'), ('y0', '<f4'), ('y1', '<f4'), ('y2', '<f4'), ('y3', '<f4'), ('z0', '<f4'), ('z1', '<f4'), ('z2', '<f4'), ('z3', '<f4')]
 
 def main():
     frame_number = 0
@@ -63,7 +63,7 @@ def create_poly_mesh_from_sequence(meshes):
 
     if(is_sequence == True):
         for mesh in range(len(meshes)):
-            for v in axes:
+            for v in ['x', 'y', 'z']:
                 for vert in range(len(meshes[mesh].elements[0].data[v])):
                     # offset meshes so first mesh is always 0 vals
                     meshes[mesh].elements[0].data[v][vert] = meshes[mesh].elements[0].data[v][vert]# - meshes[0].elements[0].data[i][vert]
@@ -81,7 +81,7 @@ def create_poly_mesh_from_sequence(meshes):
             # get an axis
             polyAxes = []
             # for each in xyz
-            for axis in axes:
+            for axis in ['x', 'y', 'z']:
                 # new array of vertex positions
                 vertex_positions = []
                 # Frame list encodes a single integer for each mesh in the sequence, to give polyfit a second dimension
@@ -127,7 +127,7 @@ def create_poly_mesh_from_sequence(meshes):
         encoded_vertices_transposed = np.array(encoded_vertices).T
 
     # Create an array for our final vertices
-    vertices = np.empty(number_of_vertices, dtype=(short_data_type if is_sequence != True else full_data_type))
+    vertices = np.empty(number_of_vertices, dtype=(_short_data_type if is_sequence != True else _full_data_type))
 
     # Populate with original data
     vertices['x'] = meshes[0]['vertex']['x'].astype('f4')
@@ -152,7 +152,7 @@ def create_poly_mesh_from_sequence(meshes):
         vertices['z3'] = encoded_vertices_transposed[16].astype('f4')
 
     # Write the py file
-    poly_mesh_path = './encoded/poly' + str(current_keyframe) + '.ply'
+    poly_mesh_path = './encoded/poly' + str(_current_keyframe) + '.ply'
     ply = PlyData([PlyElement.describe(vertices, 'vertex'), input_faces], text=True)
     ply.write(poly_mesh_path)
 
@@ -282,7 +282,7 @@ def decimate_mesh(poly_mesh_path, decimate_amount, is_sequence):
     decimatedMesh.faces = outFaces
 
     # Make a new empty container for our final output vertices
-    output_vertices = np.empty(len(decimatedMesh.vertices), dtype=(short_data_type if is_sequence != True else full_data_type))
+    output_vertices = np.empty(len(decimatedMesh.vertices), dtype=(_short_data_type if is_sequence != True else _full_data_type))
 
     # Hold the length of the decimated mesh
     decimated_mesh_length = len(decimatedMesh.vertices)
@@ -330,7 +330,7 @@ def decimate_mesh(poly_mesh_path, decimate_amount, is_sequence):
         output_faces['vertex_indices'][i] = face
 
     # Set the write path    
-    poly_mesh_path = './decimated/poly' + str(current_keyframe) + '.ply'
+    poly_mesh_path = './decimated/poly' + str(_current_keyframe) + '.ply'
     # Create ply and write it
     ply = PlyData([PlyElement.describe(output_vertices, 'vertex'), PlyElement.describe(output_faces, 'face')], text=True)
     ply.write(poly_mesh_path)
