@@ -19,14 +19,14 @@ axes = ['x', 'y', 'z']
 
 
 
-# short_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('texture_u', '<f4'), ('texture_v', '<f4')]
+short_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('texture_u', '<f4'), ('texture_v', '<f4')]
 
-# full_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('texture_u', '<f4'), ('texture_v', '<f4'), ('x0', '<f4'), ('x1', '<f4'), ('x2', '<f4'), ('x3', '<f4'), ('y0', '<f4'), ('y1', '<f4'), ('y2', '<f4'), ('y3', '<f4'), ('z0', '<f4'), ('z1', '<f4'), ('z2', '<f4'), ('z3', '<f4')]
+full_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('texture_u', '<f4'), ('texture_v', '<f4'), ('x0', '<f4'), ('x1', '<f4'), ('x2', '<f4'), ('x3', '<f4'), ('y0', '<f4'), ('y1', '<f4'), ('y2', '<f4'), ('y3', '<f4'), ('z0', '<f4'), ('z1', '<f4'), ('z2', '<f4'), ('z3', '<f4')]
 
 
-short_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4')]
+# short_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4')]
 
-full_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('x0', '<f4'), ('x1', '<f4'), ('x2', '<f4'), ('x3', '<f4'), ('y0', '<f4'), ('y1', '<f4'), ('y2', '<f4'), ('y3', '<f4'), ('z0', '<f4'), ('z1', '<f4'), ('z2', '<f4'), ('z3', '<f4')]
+# full_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('x0', '<f4'), ('x1', '<f4'), ('x2', '<f4'), ('x3', '<f4'), ('y0', '<f4'), ('y1', '<f4'), ('y2', '<f4'), ('y3', '<f4'), ('z0', '<f4'), ('z1', '<f4'), ('z2', '<f4'), ('z3', '<f4')]
 
 def create_poly_mesh_from_sequence(meshes):
     mesh_count_is_one = len(meshes) == 1
@@ -37,7 +37,7 @@ def create_poly_mesh_from_sequence(meshes):
 
     print("Face is")
     print(meshes[0]['face'])
-
+    poly_data_transpose = []
     if(mesh_count_is_one != True):
         for mesh in range(len(meshes)):
             for i in axes:
@@ -68,8 +68,10 @@ def create_poly_mesh_from_sequence(meshes):
                     frameCounter.append(frame)
                     frame = frame + 1
                     # add to new array
-                    vPositions.append(meshes[m]['vertex'][axis][current_vertex])
+                    vPositions.append(meshes[m]['vertex'][axis][current_vertex] - meshes[0]['vertex'][axis][current_vertex])
                 # model = polyfit
+                # print("Attempting polyfit with these values")
+                # print(vPositions)
                 model = np.polyfit(frameCounter, vPositions, 4)
                 polyAxes.append( model[:-1] )
                 # add poly
@@ -99,35 +101,22 @@ def create_poly_mesh_from_sequence(meshes):
     y = meshes[0]['vertex']['y']
     z = meshes[0]['vertex']['z']
 
-    # texU = meshes[0]['vertex']['texture_u']
-    # texV = meshes[0]['vertex']['texture_v']
+    texU = meshes[0]['vertex']['texture_u']
+    texV = meshes[0]['vertex']['texture_v']
 
     if(mesh_count_is_one != True):
-        x0 = poly_data_transpose[3]
-        x1 = poly_data_transpose[4]
-        x2 = poly_data_transpose[5]
-        x3 = poly_data_transpose[6]
-        y0 = poly_data_transpose[7]
-        y1 = poly_data_transpose[8]
-        y2 = poly_data_transpose[9]
-        y3 = poly_data_transpose[10]
-        z0 = poly_data_transpose[11]
-        z1 = poly_data_transpose[12]
-        z2 = poly_data_transpose[13]
-        z3 = poly_data_transpose[14]
-
-        # x0 = poly_data_transpose[5]
-        # x1 = poly_data_transpose[6]
-        # x2 = poly_data_transpose[7]
-        # x3 = poly_data_transpose[8]
-        # y0 = poly_data_transpose[9]
-        # y1 = poly_data_transpose[10]
-        # y2 = poly_data_transpose[11]
-        # y3 = poly_data_transpose[12]
-        # z0 = poly_data_transpose[13]
-        # z1 = poly_data_transpose[14]
-        # z2 = poly_data_transpose[15]
-        # z3 = poly_data_transpose[16]
+        x0 = poly_data_transpose[5]
+        x1 = poly_data_transpose[6]
+        x2 = poly_data_transpose[7]
+        x3 = poly_data_transpose[8]
+        y0 = poly_data_transpose[9]
+        y1 = poly_data_transpose[10]
+        y2 = poly_data_transpose[11]
+        y3 = poly_data_transpose[12]
+        z0 = poly_data_transpose[13]
+        z1 = poly_data_transpose[14]
+        z2 = poly_data_transpose[15]
+        z3 = poly_data_transpose[16]
 
     # connect the proper data structures
     vertices = np.empty(len(x), dtype=(short_data_type if mesh_count_is_one else full_data_type))
@@ -135,8 +124,8 @@ def create_poly_mesh_from_sequence(meshes):
     vertices['y'] = y.astype('f4')
     vertices['z'] = z.astype('f4')
 
-    # vertices['texture_u'] = texU.astype('f4')
-    # vertices['texture_v'] = texV.astype('f4')
+    vertices['texture_u'] = texU.astype('f4')
+    vertices['texture_v'] = texV.astype('f4')
 
     if(mesh_count_is_one != True):
         vertices['x0'] = x0.astype('f4')
@@ -155,42 +144,50 @@ def create_poly_mesh_from_sequence(meshes):
     poly_mesh_path = './encoded/poly' + str(current_keyframe) + '.ply'
     ply = PlyData([PlyElement.describe(vertices, 'vertex'), f], text=True)
     ply.write(poly_mesh_path)
+    read_back_and_decimate(poly_mesh_path, mesh_count_is_one != True)
 
-
+def read_back_and_decimate(poly_mesh_path, isPoly):
     mesh = PlyData.read(poly_mesh_path)
-
-    decimatedMesh = DecimateMesh(mesh, .25, mesh_count_is_one != True)
+    decimatedMesh = DecimateMesh(mesh, .25, isPoly == True)
     faces = decimatedMesh.faces
     print("Faces length is " + str(len(faces)))
     vertexShifts = decimatedMesh.vertex_index_shifts
 
-    newVertices = np.empty(len(decimatedMesh.vertices), dtype=(short_data_type if mesh_count_is_one else full_data_type))
+    newVertices = np.empty(len(decimatedMesh.vertices), dtype=(short_data_type if isPoly != True else full_data_type))
 
     decimatedMeshLength = len(decimatedMesh.vertices)
 
     # Fill vertex values with their original values, albeit truncated
-    newVertices['x'] = x[0:decimatedMeshLength].astype('f4')
-    newVertices['y'] = y[0:decimatedMeshLength].astype('f4')
-    newVertices['z'] = z[0:decimatedMeshLength].astype('f4')
-        # newVertices['texture_u'] = texU.astype('f4')
-        # newVertices['texture_v'] = texV.astype('f4')
+    newVertices['x'] = mesh['vertex']['x'][0:decimatedMeshLength].astype('f4')
+    newVertices['y'] = mesh['vertex']['y'][0:decimatedMeshLength].astype('f4')
+    newVertices['z'] = mesh['vertex']['z'][0:decimatedMeshLength].astype('f4')
+
 
     # Now iterate through and fill them with the proper values
     for i in range(0, len(vertexShifts)):
         # Look up old index
         oldIndex = vertexShifts[i]
-        # TODO: transfer vertex poly data over
-        newVertices[i]['x'] = x[oldIndex].astype('f4')
-        newVertices[i]['y'] = y[oldIndex].astype('f4')
-        newVertices[i]['z'] = z[oldIndex].astype('f4')
-        
-        
+        newVertices[i]['x'] = mesh['vertex']['x'][oldIndex].astype('f4')
+        newVertices[i]['y'] = mesh['vertex']['y'][oldIndex].astype('f4')
+        newVertices[i]['z'] = mesh['vertex']['z'][oldIndex].astype('f4')
+
+        newVertices['texture_u'] = mesh['vertex']['texture_u'][oldIndex].astype('f4')
+        newVertices['texture_v'] = mesh['vertex']['texture_v'][oldIndex].astype('f4')   
+                             
+        newVertices[i]['x0'] = mesh['vertex']['x0'][oldIndex].astype('f4')
+        newVertices[i]['x1'] = mesh['vertex']['x1'][oldIndex].astype('f4')
+        newVertices[i]['x2'] = mesh['vertex']['x2'][oldIndex].astype('f4')
+        newVertices[i]['y0'] = mesh['vertex']['y0'][oldIndex].astype('f4')
+        newVertices[i]['y1'] = mesh['vertex']['y1'][oldIndex].astype('f4')
+        newVertices[i]['y2'] = mesh['vertex']['y2'][oldIndex].astype('f4')
+        newVertices[i]['z0'] = mesh['vertex']['z0'][oldIndex].astype('f4')
+        newVertices[i]['z1'] = mesh['vertex']['z1'][oldIndex].astype('f4')
+        newVertices[i]['z2'] = mesh['vertex']['z3'][oldIndex].astype('f4')
+
         # Get all of the poly data for that index
         # add it to the new index
 
-    faceData = np.array(f.data['vertex_indices']).copy()
-    texCoords = np.array(f.data['texcoords']).copy()
-    newFaceData = np.empty([len(faces)], dtype=[('vertex_indices', 'i4', (3,)), ('texcoords', 'f4', (2,))])
+    newFaceData = np.empty([len(faces)], dtype=[('vertex_indices', 'i4', (3,))])
 
     print("Encoding faces")
     for i in range(0, len(faces)):
@@ -205,7 +202,6 @@ def create_poly_mesh_from_sequence(meshes):
     poly_mesh_path = './decimated/poly' + str(current_keyframe) + '.ply'
     ply = PlyData([PlyElement.describe(newVertices, 'vertex'), f], text=True)
     ply.write(poly_mesh_path)
-
 
 class Mesh:
     vertices = []
@@ -232,11 +228,14 @@ class VertexIndex:
     new_index = 0
 
 def DecimateMesh(mesh, decimateAmount, isCurveEncoded = True):
-
+    print("Mesh is")
+    print(mesh)
     processMesh = Mesh()
 
     number_of_vertices = len(mesh['vertex']['x'])
     (x, y, z) = (mesh['vertex'][t] for t in ('x', 'y', 'z'))
+
+    print ("Decimating mesh, who's length is" + str(number_of_vertices))
 
     originalMeshVerts = []
     for i in range(0, number_of_vertices):
@@ -272,14 +271,14 @@ def DecimateMesh(mesh, decimateAmount, isCurveEncoded = True):
     # populate with v_1, v_2, v_3
     # append to face list
     processMesh.faces = []
+    print("Processing faces, count is " + str(mesh.elements[1].count))
+    print(mesh.elements[1])
     for i in range(0, mesh.elements[1].count):
         face = Face()
         face.v_1 = mesh['face'].data['vertex_indices'][i][0]
         face.v_2 = mesh['face'].data['vertex_indices'][i][1]
         face.v_3 = mesh['face'].data['vertex_indices'][i][2]
         processMesh.faces.append(face)
-
-    # TODO: if texcoords isn't null, propagate that
 
     for i in range(0, mesh.elements[1].count):
         _t = processMesh.faces[i]
@@ -291,6 +290,8 @@ def DecimateMesh(mesh, decimateAmount, isCurveEncoded = True):
     pm = pyprogmesh.ProgMesh(len(verts), len(faces), verts, faces, PMSettings)
     pm.ComputeProgressiveMesh()
     result = pm.DoProgressiveMesh(decimateAmount)
+    print("Result is")
+    print(result)
     numVerts, verts, numFaces, newFaces, vertexPositionShifts = result[0], result[1], result[2], result[3], result[4]
 
     print ("RESULTS: new verts = %d, new faces = %d" % (numVerts, numFaces))
@@ -340,27 +341,30 @@ def DecimateMesh(mesh, decimateAmount, isCurveEncoded = True):
     print("Finished with decimation")
     return processMesh
 
-for subdir, dirs, files in os.walk('./encode'):
-    for file in sorted(files):     #for each mesh
-        if frame_number >= len(files):
-            print("FINISHED")
-            break
+# for subdir, dirs, files in os.walk('./encode'):
+#     for file in sorted(files):     #for each mesh
+#         if frame_number >= len(files):
+#             print("FINISHED")
+#             break
 
-        mesh = PlyData.read('./encode/' + file)
-        (x, y, z) = (mesh['vertex'][t] for t in ('x', 'y', 'z'))
-        vertex_count_in_current_ply = len(x)
+#         mesh = PlyData.read('./encode/' + file)
+#         (x, y, z) = (mesh['vertex'][t] for t in ('x', 'y', 'z'))
+#         vertex_count_in_current_ply = len(x)
 
-        if frame_number > 0 and (vertex_count_in_current_ply != vertex_count_in_last_ply or frame_number >= len(files)):
-            create_poly_mesh_from_sequence(meshes_in_group) #end of coherent meshes / keyframe max reached? start encoding
-            current_keyframe = frame_number
-            meshes_in_group = [mesh] # set meshes in group to new keyframe mesh
-            print("Encoded mesh at " + str(frame_number))
-        else:
-            meshes_in_group.append(mesh)
-            print("Adding mesh to group" + str(frame_number))
-        frame_number = frame_number + 1
-        vertex_count_in_last_ply = vertex_count_in_current_ply # set new vertex count
-    create_poly_mesh_from_sequence(meshes_in_group) #end of coherent meshes / keyframe max reached? start encoding
+#         if frame_number > 0 and (vertex_count_in_current_ply != vertex_count_in_last_ply or frame_number >= len(files)):
+#             create_poly_mesh_from_sequence(meshes_in_group)
+#             current_keyframe = frame_number
+#             meshes_in_group = [mesh] # set meshes in group to new keyframe mesh
+#             print("Encoded mesh at " + str(frame_number))
+#         else:
+#             meshes_in_group.append(mesh)
+#             print("Adding mesh to group" + str(frame_number))
+#         frame_number = frame_number + 1
+#         vertex_count_in_last_ply = vertex_count_in_current_ply # set new vertex count
+#     create_poly_mesh_from_sequence(meshes_in_group)
 
-    current_keyframe = frame_number
-    meshes_in_group = [mesh] # set meshes in group to new keyframe mesh
+#     current_keyframe = frame_number
+#     meshes_in_group = [mesh] # set meshes in group to new keyframe mesh
+
+poly_mesh_path = './encoded/poly' + str(0) + '.ply'
+read_back_and_decimate(poly_mesh_path, True)
