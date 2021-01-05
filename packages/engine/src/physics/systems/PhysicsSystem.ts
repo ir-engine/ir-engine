@@ -111,7 +111,7 @@ export class PhysicsSystem extends System {
       PhysicsManager.instance.physicsWorld.step(PhysicsManager.instance.physicsFrameTime);
       this.queryResults.character.all?.forEach(entity => updateCharacter(entity, null, delta));
       this.queryResults.character.all?.forEach(entity => physicsPostStep(entity, null, delta));
-      if (isClient) { Vault.instance.add(createSnapshot(clientSnapshot.new)) };
+      if (isClient) { Vault.instance.add(createSnapshot(clientSnapshot.new)) }
     }
   }
 }

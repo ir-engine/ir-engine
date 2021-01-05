@@ -115,14 +115,14 @@ export const addPhysics: Behavior = (entity: Entity) => {
 		'sphere',
 		xRControllers.position1,
 		xRControllers.rotation1,
-	  0.08,
+	  {x: 0.08, y: 0.08, z: 0.08},
 		null
 	)
 	xRControllers.physicsBody2 = addColliderWithoutEntity(
 		'sphere',
 		xRControllers.position2,
 		xRControllers.rotation2,
-	  0.08,
+		{x: 0.08, y: 0.08, z: 0.08},
 		null
 	)
 

@@ -1,14 +1,14 @@
-import { HookContext } from '@feathersjs/feathers'
+import { HookContext } from '@feathersjs/feathers';
 
 export default (options = {}) => {
   return async (context: HookContext): Promise<HookContext> => {
-    const { params } = context
+    const { params } = context;
     if (context.error) {
-      console.log('***** Error')
-      console.log(context.error)
+      console.log('***** Error');
+      console.log(context.error);
     }
-    const body = params.body || {}
-    console.log(body)
-    return context
-  }
-}
+    const body = params.body || {};
+    console.log(body);
+    return context;
+  };
+};

@@ -116,11 +116,9 @@ package-lock.json
 examples/assets
 src/worker/node_modules
 *.drcs
-*.ply
 *.crt
 
 *.cpp.o
-(.ply
 
 dev/CMakeFiles
 dev/CMakeFiles/
@@ -137,3 +135,4 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
+__pycache__

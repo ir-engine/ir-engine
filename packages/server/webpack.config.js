@@ -29,6 +29,10 @@ module.exports = {
     node: {
         __dirname: true
     },
+    experiments: {
+        syncWebAssembly: true,
+        // asyncWebAssembly: true
+    },
     externals: [
         /^[a-z\-0-9]+$/ // Ignore node_modules folder
     ],

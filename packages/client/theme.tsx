@@ -116,7 +116,14 @@ const lightTheme = createMuiTheme({
         color: '#000000' ,
         fontSize: 16,       
         textAlign: 'center',
-      }
+      },
+      // colorPrimary:{
+      //   backgroundColor: 'transparent',
+      //   color: '#FFFFFF',
+      //   '&:hover':{
+      //     backgroundColor: '#5151FF',
+      //   },
+      // },
     },
     MuiIconButton:{
       root:{
@@ -127,6 +134,13 @@ const lightTheme = createMuiTheme({
       },
       colorPrimary:{
         backgroundColor: '#5151FF',
+        color: '#FFFFFF',
+        '&:hover':{
+          backgroundColor: '#5151FF',
+        }
+      },
+      colorSecondary:{
+        backgroundColor: 'transparent',
         color: '#FFFFFF',
         '&:hover':{
           backgroundColor: '#5151FF',
@@ -222,7 +236,12 @@ const lightTheme = createMuiTheme({
     },
     MuiSnackbarContent:{
       root:{
-        backgroundColor: 'rgba(0, 0, 0, ,0.9)',
+        color: '#FFFFFF',
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        minWidth: '0px',
+        '@media (min-width: 600px)':{
+          minWidth: '0px',
+        }
       }
     },
     MuiDrawer:{      

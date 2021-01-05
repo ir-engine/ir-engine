@@ -15,6 +15,7 @@ import { State } from "../../../state/components/State";
 import { CharacterStateTypes } from "../CharacterStateTypes";
 import { CharacterComponent } from "../components/CharacterComponent";
 import {TransformComponent} from "../../../transform/components/TransformComponent";
+import { isClient } from "../../../common/functions/isClient";
 
 export const initializeCharacter: Behavior = (entity): void => {
 	console.warn("Initializing character for ", entity.id);
@@ -53,12 +54,15 @@ export const initializeCharacter: Behavior = (entity): void => {
 	// we should keep it clean till asset loaded and all it's content moved into modelContainer
 	addObject3DComponent(entity, { obj3d: actor.tiltContainer });
 
-	// const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader as any);
-	// assetLoader.parent = actor.modelContainer;
-	// assetLoader.onLoaded = (entity, { asset }) => {
-	AnimationManager.instance.getAnimations().then(animations => {
-		actor.animations = animations;
-	});
+	if(isClient){
+
+		// const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader as any);
+		// assetLoader.parent = actor.modelContainer;
+		// assetLoader.onLoaded = (entity, { asset }) => {
+			AnimationManager.instance.getAnimations().then(animations => {
+				actor.animations = animations;
+			});
+		}
 
 	// actor.mixer = new AnimationMixer(actor.modelContainer);
 	// actor.mixer.timeScale = actor.animationsTimeScale;
