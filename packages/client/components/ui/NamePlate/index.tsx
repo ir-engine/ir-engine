@@ -12,7 +12,7 @@ interface Position{
 interface Props {
   userId: string;
   position: Position;
-  isFocused: boolean | false;
+  focused: boolean | false;
   userState?: any;
   autoHideDuration?: any;
 }
@@ -24,10 +24,17 @@ const mapStateToProps = (state: any): any => {
 };
 
 const NamePlate = (props: Props) =>{
-  const {userId, position, isFocused, userState, autoHideDuration = 20000} = props;
+  const {userId, position, focused, userState} = props;
   const user = userState.get('layerUsers').find(user => user.id === userId);
 
   const [openNamePlate, setOpenNamePlate] = useState(true);
+  // const fadeOutTimer = setTimeout(()=>{setOpenNamePlate(false);clearTimeout(fadeOutTimer);}, 5000);
+
+  const cardFadeInOut = () =>{
+    const fadeOutTimer = setTimeout(()=>{setOpenNamePlate(false);clearTimeout(fadeOutTimer);}, 5000);
+    };
+    cardFadeInOut();
+
   const handleCloseNamePlate = (event?: React.SyntheticEvent, reason?: string) => {
     if (reason === 'clickaway') {
       return;
@@ -39,7 +46,7 @@ const NamePlate = (props: Props) =>{
     open: openNamePlate,    
     className: styles.namePlate, 
     style: {top: position.y, left: position.x },
-    ...(isFocused === false && { autoHideDuration }),
+    // ...(isFocused === false && { autoHideDuration }),
     message: user?.name,
     onClose: handleCloseNamePlate
  };

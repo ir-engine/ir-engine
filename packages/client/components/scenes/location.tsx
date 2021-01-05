@@ -151,7 +151,7 @@ export const EnginePage = (props: Props) => {
       <LoadedSceneButtons />
       <OnBoardingBox actorEntity={actorEntity} />
       <MediaIconsBox />
-      { userHovered && <NamePlate userId={userId} position={{x:position?.x, y:position?.y}} isFocused={userHovered} autoHideDuration={10000} />}
+      { userHovered && <NamePlate userId={userId} position={{x:position?.x, y:position?.y}} focused={userHovered} />}
       {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel}  />}
       <InfoBox onClose={() => { setInfoBoxData(null); setObjectActivated(false); }} data={infoBoxData} />
       {mobileGamepad}
