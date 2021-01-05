@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "bot.fullname" . }}
+  name: {{ template "xr3ngine-bot.bot.fullname" . }}
   labels:
-    {{- include "bot.labels" . | nindent 4 }}
+    {{- include "xr3ngine-bot.bot.labels" . | nindent 4 }}
 data:
 {{- if .Values.bot.extraEnv }}
 {{ toYaml .Values.bot.extraEnv | indent 2 }}

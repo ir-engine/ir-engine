@@ -2,16 +2,16 @@
 {{/*
 Expand the name of the chart.
 */}}
-# {{- define "bot.name" -}}
-# {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
-# {{- end -}}
+{{- define "xr3ngine-bot.bot.name" -}}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 
 {{/*
 Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "bot.fullname" -}}
+{{- define "xr3ngine-bot.bot.fullname" -}}
 {{- if .Values.fullnameOverride -}}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -29,16 +29,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "bot.chart" -}}
+{{- define "xr3ngine-bot.bot.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Common labels
 */}}
-{{- define "bot.labels" -}}
-helm.sh/chart: {{ include "bot.chart" . }}
-{{ include "bot.selectorLabels" . }}
+{{- define "xr3ngine-bot.bot.labels" -}}
+helm.sh/chart: {{ include "xr3ngine-bot.bot.chart" . }}
+{{ include "xr3ngine-bot.bot.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -48,8 +48,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "bot.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "bot.name" . }}
+{{- define "xr3ngine-bot.bot.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "xr3ngine-bot.bot.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: bot
 {{- end -}}
@@ -59,9 +59,9 @@ app.kubernetes.io/component: bot
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "bot.serviceAccountName" -}}
+{{- define "xr3ngine-bot.bot.serviceAccountName" -}}
 {{- if .Values.bot.serviceAccount.create -}}
-    {{ default (include "bot.fullname" .) .Values.bot.serviceAccount.name }}
+    {{ default (include "xr3ngine-bot.bot.fullname" .) .Values.bot.serviceAccount.name }}
 {{- else -}}
     {{ default "default" .Values.bot.serviceAccount.name }}
 {{- end -}}
