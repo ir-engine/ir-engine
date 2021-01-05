@@ -297,6 +297,151 @@ test("move forward, then 2 messages stop + empty in one execution", () => {
   expect(actor.velocity.z).toBeLessThan(movingVelocityZ);
 });
 
+test("2 buttons states in one execution propagate back to client", () => {
+  /**
+   * when we receive two inputs states in one execution, for example button-end, and nothing
+   * back to users we sending only last one,
+   * so they will loose button-end, or whatever else state change that could be important.
+   */
+  expect(handleInputFromNonLocalClients.mock.calls.length).toBe(0);
+
+  Network.instance.userId = userId;
+  const networkId = 13;
+  const networkObject = initializeNetworkObject(userId, networkId, Network.instance.schema.defaultClientPrefab);
+
+  Network.instance.networkObjects[networkObject.networkId] = {
+    ownerId: userId, // Owner's socket ID
+    prefabType: Network.instance.schema.defaultClientPrefab, // All network objects need to be a registered prefab
+    component: networkObject
+  };
+
+  const networkEntity = networkObject.entity as Entity;
+  expect(hasComponent(networkEntity, Server)).toBe(true);
+
+  const message1: NetworkInputInterface = {
+    "axes1d": [
+      {
+        input: DefaultInput.CROUCH,
+        lifecycleState: LifecycleValue.CHANGED,
+        value: 0.2
+      }
+    ],
+    "axes2d": [
+      {
+        input: DefaultInput.SCREENXY,
+        lifecycleState: LifecycleValue.CHANGED,
+        value: [ 0.1, 240 ]
+      }
+    ],
+    "buttons": [
+      {
+        "input": DefaultInput.FORWARD,
+        "lifecycleState": LifecycleValue.CONTINUED,
+        "value": BinaryValue.ON,
+      }
+    ],
+    "networkId": 13,
+    "viewVector": {
+      "x": 0,
+      "y": 0,
+      "z": 1,
+    },
+  };
+  const message2: NetworkInputInterface = {
+    "axes1d": [
+      {
+        input: DefaultInput.CROUCH,
+        lifecycleState: LifecycleValue.CHANGED,
+        value: 0.9
+      }
+    ],
+    "axes2d": [
+      {
+        input: DefaultInput.SCREENXY,
+        lifecycleState: LifecycleValue.CHANGED,
+        value: [ 50, 21 ]
+      }
+    ],
+    "buttons": [
+      {
+        "input": DefaultInput.FORWARD,
+        "lifecycleState": LifecycleValue.ENDED,
+        "value": BinaryValue.OFF,
+      }
+    ],
+    "networkId": 13,
+    "viewVector": {
+      "x": 0,
+      "y": 0,
+      "z": 1,
+    },
+  };
+  const message3:NetworkInputInterface = {
+    axes1d: [], axes2d: [], buttons: [],
+    networkId: networkObject.networkId,
+    viewVector: { x:0, y:0, z:1 }
+  };
+  const message1ToQueue = !Network.instance.packetCompression? message1 : ClientInputModel.toBuffer(message1);
+  const message2ToQueue = !Network.instance.packetCompression? message2 : ClientInputModel.toBuffer(message2);
+  const message3ToQueue = !Network.instance.packetCompression? message3 : ClientInputModel.toBuffer(message3);
+
+  Network.instance.incomingMessageQueue.add(message1ToQueue);
+  Network.instance.incomingMessageQueue.add(message2ToQueue);
+  Network.instance.incomingMessageQueue.add(message3ToQueue);
+  runFixed();
+
+  const sentData = (Network.instance.transport as TestTransport).sentData;
+  const lastSent = sentData[sentData.length - 1];
+
+  const message = !Network.instance.packetCompression? lastSent : WorldStateModel.fromBuffer(lastSent);
+  const inputsFromSentData = message.inputs.find(t => t.networkId === networkObject.networkId);
+  const expectedInputs:NetworkInputInterface = {
+    "axes1d": [
+      {
+        input: DefaultInput.CROUCH,
+        lifecycleState: LifecycleValue.CHANGED,
+        value: 0.2
+      },
+      {
+        input: DefaultInput.CROUCH,
+        lifecycleState: LifecycleValue.CHANGED,
+        value: 0.9
+      }
+    ],
+    "axes2d": [
+      {
+        input: DefaultInput.SCREENXY,
+        lifecycleState: LifecycleValue.CHANGED,
+        value: [ 0.1, 240 ]
+      },
+      {
+        input: DefaultInput.SCREENXY,
+        lifecycleState: LifecycleValue.CHANGED,
+        value: [ 50, 21 ]
+      }
+    ],
+    "buttons": [
+      {
+        "input": DefaultInput.FORWARD,
+        "lifecycleState": LifecycleValue.CONTINUED,
+        "value": BinaryValue.ON,
+      },
+      {
+        "input": DefaultInput.FORWARD,
+        "lifecycleState": LifecycleValue.ENDED,
+        "value": BinaryValue.OFF,
+      },
+    ],
+    "networkId": 13,
+    "viewVector": {
+      "x": 0,
+      "y": 0,
+      "z": 1,
+    },
+  };
+  expect(inputsFromSentData).toMatchObject(expectedInputs as any);
+});
+
 test("incoming input propagates to network", () => {
   // Network.instance.userId = userId;
   const playerOneNetworkId = 1;
