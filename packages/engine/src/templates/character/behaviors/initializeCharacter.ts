@@ -20,12 +20,7 @@ import { NetworkObject } from "../../../networking/components/NetworkObject";
 import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
 import { getPseudoRandomAvatarIdByUserId } from "../functions/pseudoRandomAvatar";
 
-export const initializeCharacter: Behavior = (entity): void => {
-	const ownerId = getComponent(entity, NetworkObject)?.ownerId;
-	if(ownerId){
-		getMutableComponent(entity, CharacterAvatarComponent).avatarId = getPseudoRandomAvatarIdByUserId(ownerId);
-	}
-	console.warn('entity', entity);
+export const initializeCharacter: Behavior = (entity): void => {	
 	console.warn("Initializing character for ", entity.id);
 	if (!hasComponent(entity, CharacterComponent as any)){
 		console.warn("Character does not have a character component, adding");

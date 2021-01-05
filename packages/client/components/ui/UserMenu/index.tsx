@@ -184,7 +184,7 @@ const UserMenu = (props: Props): any => {
     </Snackbar>;
 
   const [actorEntity, setActorEntity] = useState(null);
-   const [actorAvatarId, setActorAvatarId] = useState(getPseudoRandomAvatarIdByUserId[selfUser.id]);
+  const [actorAvatarId, setActorAvatarId] = useState(getPseudoRandomAvatarIdByUserId[selfUser.id]);
 
     useEffect(() => {
       const actorEntityWaitInterval = setInterval(() => {

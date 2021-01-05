@@ -29,6 +29,7 @@ import { selectLocationState } from '../../../redux/location/selector';
 import { selectUserState } from '../../../redux/user/selector';
 import {connect} from "react-redux";
 import {Dispatch} from "redux";
+import { getPseudoRandomAvatarIdByUserId } from '@xr3ngine/engine/src/templates/character/functions/pseudoRandomAvatar';
 
 
 interface ContainerProportions {
@@ -82,7 +83,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     const selfUser = authState.get('user');
     const currentLocation = locationState.get('currentLocation').get('location');
     const enableGlobalMute = currentLocation?.locationSettings?.locationType === 'showroom' && selfUser?.locationAdmins?.find(locationAdmin => currentLocation.id === locationAdmin.locationId) != null;
-    const user = userState.get('layerUsers').find(user => user.id === selfUser.id);
+    const user = userState.get('layerUsers').find(user => user.id === peerId);
 
     autorun(() => {
         (Network.instance?.transport as any)?.socket.on(MessageTypes.WebRTCPauseConsumer.toString(), (consumerId: string) => {
@@ -148,28 +149,6 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             }
         });
     }, []);
-
-
-    const [actorEntity, setActorEntity] = useState(null);
-    // const [actorAvatarId, setActorAvatarId] = useState('Rose');
-    useEffect(() => {
-        const actorEntityWaitInterval = setInterval(() => {
-          if (Network.instance?.localClientEntity) {
-            setActorEntity(Network.instance.localClientEntity);
-
-
-            console.log('actorEntity', actorEntity, 'Network.instance.localClientEntity', Network.instance.localClientEntity)
-            clearInterval(actorEntityWaitInterval);
-          }
-        }, 300);
-      }, []);
-  
-    //   useEffect(() => {
-    //     if (actorEntity) {
-    //       setActorAvatar(actorEntity, {avatarId: actorAvatarId});
-    //       loadActorAvatar(actorEntity);
-    //     }
-    //   }, [ actorEntity, actorAvatarId ]);
 
     useEffect(() => {
         if (audioRef.current != null) {
@@ -305,6 +284,8 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
         if (focused === false) return name?.length > 10 ? name.slice(0, 10) + '...' : name;
     };
 
+    const avatarBgImage = getPseudoRandomAvatarIdByUserId(user ? user.id : selfUser.id) ? 
+    `url(${'/static/'+getPseudoRandomAvatarIdByUserId(user ? user.id : selfUser.id).toLocaleLowerCase()+'.png'})` : null;
     return (
         <div
             id={peerId + '_container'}
@@ -319,7 +300,10 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             onClick={() => { if (peerId !== 'me_cam' && peerId !== 'me_screen') setFocused(!focused); } }
         >
            
-            <div className={styles['video-wrapper']}><video key={peerId + '_cam'} ref={videoRef}/></div>
+            <div className={styles['video-wrapper']}
+            style={{ backgroundImage: user?.avatarUrl?.length > 0 ? `url(${user.avatarUrl}` :
+            avatarBgImage ? avatarBgImage : `url(/placeholders/default-silhouette.svg)`} }
+            ><video key={peerId + '_cam'} ref={videoRef}/></div>
             <audio key={peerId + '_audio'} ref={audioRef}/>
             <div className={styles['user-controls']}>
                 <div className={styles['username']}>{truncateUsername()}</div>

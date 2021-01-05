@@ -51,7 +51,10 @@
     &.video-paused,
     &.no-video {
         .video-wrapper{
-            background-color: #243b55;
+            background-color: #A8A8FF;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
             video{
                 display: none;
             }
