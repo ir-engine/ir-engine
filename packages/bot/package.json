@@ -16,7 +16,7 @@
     "find:unused": "next-unused",
     "dev": "cross-env NODE_ENV=development node --max-old-space-size=4096 ./index.js --port 3000",
     "build": "NODE_OPTIONS=--max_old_space_size=4096 next build ./",
-    "start": "next start",
+    "start": "node run-bot.js",
     "watch": "cross-env NODE_ENV=development next --port 3001 --hostname localhost",
     "validate": "yarn run lint && yarn run test",
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",

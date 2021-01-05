@@ -22,4 +22,4 @@ ENV NODE_ENV=production
 ENV PORT=3030
 
 EXPOSE 3030
-CMD ["node run-bot.js"]
+CMD ["scripts/start-bot.sh"]

@@ -20,13 +20,15 @@ async function runInCircle(bot, numSeconds) {
 async function sendChatMessages(bot) {
     await bot.clickElementByClass('button', 'openChat');
     await bot.clickElementById('textarea', 'newMessage');
-    await bot.typeMessage('Hello World! It\'s a me, LeBot!');
+    await bot.typeMessage('Hello World! It\'s a-me, LeBot!');
     await bot.clickElementByClass('button', 'sendMessage');
 }
 
 async function runBot() {
     const bot = new xr3ngineBot();
-    await bot.enterRoom('https://localhost:3000/location/test', { name: 'bot1'});
+    const domain = process.env.DOMAIN || 'localhost:3000';
+    const locationName = process.env.LOCATION_NAME || 'test';
+    await bot.enterRoom(`https://${domain}/location/${locationName}`, { name: 'bot1'});
     await runInCircle(bot, 2000);
     await sendChatMessages(bot);
 }

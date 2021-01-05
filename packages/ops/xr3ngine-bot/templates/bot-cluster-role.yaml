@@ -2,9 +2,9 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ include bot.fullname" . }}
+  name: {{ include "xr3ngine-bot.bot.fullname" . }}
   labels:
-    {{- include "bot.labels" . | nindent 4 }}
+    {{- include "xr3ngine-bot.bot.labels" . | nindent 4 }}
 rules:
   - apiGroups:
       - ""
