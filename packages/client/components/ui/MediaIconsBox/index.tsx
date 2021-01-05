@@ -123,10 +123,10 @@ const MediaIconsBox = observer((props) =>{
                     <VideocamOff className={styles.offIcon} onClick={handleCamClick} />
                     <Videocam className={styles.onIcon} onClick={handleCamClick} />
                 </div>) }
-                { videoEnabled && (<div className={styles.iconContainer + ' ' + (!faceStreaming ? styles.off : styles.on)}>
+                {/* { videoEnabled && (<div className={styles.iconContainer + ' ' + (!faceStreaming ? styles.off : styles.on)}>
                     <FaceIcon className={styles.offIcon} onClick={handleFaceClick} />
                     <FaceIcon className={styles.onIcon} onClick={handleFaceClick} />
-                </div>)}
+                </div>)} */}
             </section>
         </section>
         :null;
