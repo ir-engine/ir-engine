@@ -4,6 +4,7 @@ import { CollisionGroups } from "../enums/CollisionGroups";
 import { createTrimesh } from './physicalPrimitives';
 
 function createBox (scale) {
+  if(scale == undefined) return console.error("Scale is  null");
   const shape = new Box(new Vec3(scale.x, scale.y, scale.z));
   const body = new Body({ mass: 0 });
   body.addShape(shape);
@@ -26,6 +27,7 @@ export function createGround () {
 }
 
 export function createCylinder (scale) {
+  if(scale == undefined) return console.error("Scale is  null");
   const shape = new Cylinder(scale.x, scale.y, scale.z, 20);
   const body = new Body({ mass: 0 });
   body.addShape(shape);

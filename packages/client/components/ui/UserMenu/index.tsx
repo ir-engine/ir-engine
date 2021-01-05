@@ -169,7 +169,7 @@ const UserMenu = (props: Props): any => {
       updateUsername(selfUser.id, username);
     }
     setIsEditUsername(false);
-  }
+  };
 
   const renderSuccessMessage = ()=>
     <Snackbar open={openSnackBar} 
@@ -183,7 +183,12 @@ const UserMenu = (props: Props): any => {
     </Snackbar>;
 
   const [actorEntity, setActorEntity] = useState(null);
-  const [actorAvatarId, setActorAvatarId] = useState('Rose');
+   //get pseudo random avatar id by userId
+   let pseudoRand = null;
+   for (let i = 0; i < selfUser.id.length; i++) {
+     pseudoRand += selfUser.id.charCodeAt(i);
+   }
+   const [actorAvatarId, setActorAvatarId] = useState(CharacterAvatars[pseudoRand%CharacterAvatars.length].id);
 
     useEffect(() => {
       const actorEntityWaitInterval = setInterval(() => {
@@ -318,7 +323,7 @@ const renderProviderIcon = type =>{
     case 'linkedin': return <LinkedInIcon width="40" height="40" viewBox="0 0 40 40"/>;
     case 'twitter': return <TwitterIcon width="40" height="40" viewBox="0 0 40 40" />;
   }
-}
+};
 
 const renderUserMenu = () =><>
           <section className={styles.userTitle}>
@@ -390,7 +395,7 @@ const renderDrawerContent = () =>{
 
   return (
         <section key={anchor} className={styles.anchorContainer}>
-          <span className={styles.anchorDrawer} onClick={toggleDrawer(anchor, isOpenDrawer === true ? false : true)} ></span>
+          <span className={styles.anchorDrawer} onClick={toggleDrawer(anchor, isOpenDrawer === true ? false : true)}  />
           <Drawer
             anchor={anchor}
             open={state[anchor]}

@@ -1,9 +1,7 @@
 import { BehaviorValue } from '../../common/interfaces/BehaviorValue';
+import { DomEventBehaviorValue } from "../../common/interfaces/DomEventBehaviorValue";
 import { InputAlias } from '../types/InputAlias';
 import { InputRelationship } from './InputRelationship';
-import { BinaryValue } from '../../common/enums/BinaryValue';
-import { TouchInputs } from '../enums/TouchInputs';
-import { DomEventBehaviorValue } from "../../common/interfaces/DomEventBehaviorValue";
 
 export interface InputSchema {
   // Called by input system when an Input component is added

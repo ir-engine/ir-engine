@@ -15,7 +15,6 @@ import groupReducer from './group/reducers';
 import partyReducer from './party/reducers';
 import inviteReducer from './invite/reducers';
 import userReducer from './user/reducers';
-import video360Reducer from './video360/reducers';
 import seatReducer from './seats/reducers';
 import locationReducer from './location/reducers';
 
@@ -31,7 +30,6 @@ export default combineReducers({
   invite: inviteReducer,
   locations: locationReducer,
   videos: videoReducer,
-  video360: video360Reducer,
   scenes: sceneReducer,
   alert: alertReducer,
   dialog: dialogReducer,

@@ -15,7 +15,7 @@ if (process.env.KUBERNETES !== 'true') {
 /**
  * Database
  */
-const db: any = {
+export const db: any = {
   username: process.env.MYSQL_USER ?? 'server',
   password: process.env.MYSQL_PASSWORD ?? 'password',
   database: process.env.MYSQL_DATABASE ?? 'xr3ngine',

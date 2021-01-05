@@ -9,7 +9,6 @@ import { BinaryValue } from "../../src/common/enums/BinaryValue";
 import { DefaultInput } from "../../src/templates/shared/DefaultInput";
 import { LifecycleValue } from "../../src/common/enums/LifecycleValue";
 import { MouseInput } from "../../src/input/enums/MouseInput";
-import { preventDefault } from "../../src/common/functions/preventDefault";
 import { handleMouseMovement } from "../../src/input/behaviors/handleMouseMovement";
 import { handleMouseButton } from "../../src/input/behaviors/handleMouseButton";
 import { handleMouseWheel } from "../../src/input/behaviors/handleMouseWheel";
@@ -31,7 +30,7 @@ const testInputSchema: InputSchema = {
     // Mouse
     contextmenu: [
       {
-        behavior: preventDefault
+        behavior: (e: any) =>  e.preventDefault()
       }
     ],
     mousemove: [

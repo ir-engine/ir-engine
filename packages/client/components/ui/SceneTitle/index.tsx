@@ -25,13 +25,12 @@ const SceneTitle = ({onBoardingStep, currentScene}:Props): any => {
     (<Snackbar 
       anchorOrigin={{vertical: 'top',horizontal: 'center'}} 
       classes={{root:styles.parentContainer}}
-      open={true} 
-      autoHideDuration={10000}>
+      open={true}>
         <>
           <Typography variant="h1" align="center">{currentScene?.name}</Typography>
           <Typography variant="h6" align="center">{invitationLink}</Typography>
         </>
-      </Snackbar>)   
+      </Snackbar>);   
 };
 
 

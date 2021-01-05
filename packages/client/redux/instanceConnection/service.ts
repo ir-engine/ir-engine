@@ -1,18 +1,15 @@
-import url from 'url';
-import querystring from 'querystring';
-import { connectToServer } from "@xr3ngine/engine/src/networking/functions/connectToServer";
-import { Network } from "@xr3ngine/engine/src/networking/components/Network";
 import { MediaStreamComponent } from "@xr3ngine/engine/src/networking/components/MediaStreamComponent";
+import { Network } from "@xr3ngine/engine/src/networking/components/Network";
 import { Dispatch } from 'redux';
-import { client } from '../feathers';
-import {
-  instanceServerConnecting,
-  instanceServerConnected,
-  instanceServerProvisioning,
-  instanceServerProvisioned,
-} from './actions';
-import store from "../store";
 import { endVideoChat, leave } from "../../classes/transports/WebRTCFunctions";
+import { client } from '../feathers';
+import store from "../store";
+import {
+  instanceServerConnected, instanceServerConnecting,
+
+
+  instanceServerProvisioned, instanceServerProvisioning
+} from './actions';
 
 export function provisionInstanceServer (locationId: string, instanceId?: string, sceneId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -72,7 +69,8 @@ export function connectToInstanceServer () {
         await endVideoChat({ endConsumers: true });
         await leave();
       }
-      await connectToServer(instance.get('ipAddress'), instance.get('port'), {
+
+      await Network.instance.transport.initialize(instance.get('ipAddress'), instance.get('port'), {
         locationId: locationId,
         token: token,
         sceneId: sceneId,
@@ -80,6 +78,8 @@ export function connectToInstanceServer () {
         partyId: user.partyId,
         videoEnabled: currentLocation?.locationSettings?.videoEnabled === true || !(currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null)
       });
+      Network.instance.isInitialized = true;
+
       // setClient(instanceClient);
       dispatch(instanceServerConnected());
       // dispatch(socketCreated(socket));

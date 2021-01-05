@@ -10,10 +10,8 @@ import { SceneData } from "../interfaces/SceneData";
 import { SceneDataComponent } from "../interfaces/SceneDataComponent";
 
 export function loadScene (scene: SceneData): void {
-  if (isClient) {
     console.warn(Engine.scene);
     console.warn("Loading scene", scene);
-  }
   const loadPromises = [];
   let loaded = 0;
   if (isClient) {
@@ -49,10 +47,12 @@ export function loadScene (scene: SceneData): void {
 }
 
 export function loadComponent (entity: Entity, component: SceneDataComponent): void {
-  let name = component.name.replace(/-\d+/, "").replace(" ", "")
+  const name = component.name.replace(/-\d+/, "").replace(" ", "")
   // Override for loading mesh colliders
 
-  if (SceneObjectLoadingSchema[name] === undefined)return console.warn("Couldn't load ", name);
+  if (SceneObjectLoadingSchema[name] === undefined)
+    return console.warn("Couldn't load ", name);
+  else console.log("Handling ", name)
 
   const componentSchema = SceneObjectLoadingSchema[name];
   // for each component in component name, call behavior

@@ -148,7 +148,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         // Set up colliders
 
 
-        let colliders = []
+        const colliders = []
 
           const parseColliders = ( mesh ) => {
             // console.warn(mesh.userData.data);

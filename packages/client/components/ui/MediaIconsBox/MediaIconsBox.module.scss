@@ -35,8 +35,7 @@ $mobileControllButtonsSize:3em;
                 width: 56px;
                 margin: 8px;
             }  
-            &.on, 
-            &.off:hover{
+            &.on {
                 .offIcon{
                     display: none;  
                 }
@@ -44,8 +43,7 @@ $mobileControllButtonsSize:3em;
                     display: block;
                 }                
             } 
-            &.off,
-            &.on:hover{
+            &.off{
                 .offIcon{
                     display: block;  
                 }
