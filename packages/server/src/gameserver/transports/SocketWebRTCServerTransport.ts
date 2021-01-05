@@ -125,6 +125,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         if (this.socketIO != null) this.socketIO.of('/realtime').on("connect", (socket: Socket) => {
             // Authorize user and make sure everything is valid before allowing them to join the world
             socket.on(MessageTypes.Authorization.toString(), async (data, callback) => {
+                console.log('AUTHORIZATION CALL HANDLER');
                 const userId = data.userId;
                 const accessToken = data.accessToken;
 
