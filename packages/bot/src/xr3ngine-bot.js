@@ -18,6 +18,15 @@ class PageUtils {
             enterButton.click()
         }, selector, classRegex.toString().slice(1,-1))
     }
+    async clickSelectorId(selector, id) {
+        if (this.autoLog) console.log(`Clicking for a ${selector} matching ${id}`)
+
+        await this.page.evaluate((selector, id) => {
+            let matches = Array.from(document.querySelectorAll(selector))
+            let singleMatch = matches.find(button => button.id === id);
+            singleMatch.click()
+        }, selector, id)
+    }
 }
 
 class El {
@@ -113,10 +122,15 @@ class XR3ngineBot {
 
         const context = this.browser.defaultBrowserContext();
         context.overridePermissions("https://theoverlay.io", ['microphone', 'camera'])
+        this.pu = new PageUtils(this);
     }
 
     async pressKey(keycode) {
         await this.page.keyboard.down(keycode);
+    }
+
+    async releaseKey(keycode) {
+        await this.page.keyboard.up(keycode);
     }
 
     /** Enters the room specified, enabling the first microphone and speaker found
@@ -149,18 +163,32 @@ class XR3ngineBot {
             // await this.page.evaluate(() => { AFRAME.scenes[0].renderer.render = function() {} })
         }
 
-        let pu = new PageUtils(this)
-        const joinable = await this.page.waitFor("button.join_world")
-        console.log('Joinable:');
-        console.log(joinable);
-        await pu.clickSelectorClassRegex("button", /join_world/)
-
         //@ts-ignore
         if (this.setName != null) this.setName(name)
+
+        await new Promise(resolve => {setTimeout(async() => {
+            await this.pu.clickSelectorClassRegex("button", /join_world/);
+            setTimeout(async() => {
+                await this.page.mouse.click(200, 200);
+                resolve();
+            }, 1000)
+        }, 2000) });
     }
 
     onMessage(callback) {
         // window.APP.hubChannel.channel.on('message', callback)
+    }
+
+    async clickElementByClass(elemType, classSelector) {
+        await this.pu.clickSelectorClassRegex(elemType || 'button', classSelector);
+    }
+
+    async clickElementById(elemType, id) {
+        await this.pu.clickSelectorId(elemType, id);
+    }
+
+    async typeMessage(message) {
+        await this.page.keyboard.type(message);
     }
 
     /**

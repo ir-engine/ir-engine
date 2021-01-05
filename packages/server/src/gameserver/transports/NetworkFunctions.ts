@@ -179,6 +179,7 @@ export function validateNetworkObjects(): void {
 export async function handleConnectToWorld(socket, data, callback, userId, user): Promise<any> {
     const transport = Network.instance.transport as any;
 
+    console.log('Connect to world from ' + userId);
     disconnectClientIfConnected(socket, userId);
 
     // Create a new client object
@@ -225,6 +226,9 @@ export async function handleConnectToWorld(socket, data, callback, userId, user)
 
 function disconnectClientIfConnected(socket, userId: string): void {
     // If we are already logged in, kick the other socket
+    console.log('DisconnectClientIfConnected');
+    console.log(userId);
+    console.log(Network.instance.clients[userId]);
     if (Network.instance.clients[userId] !== undefined &&
       Network.instance.clients[userId].socketId !== socket.id) {
         logger.info("Client already exists, kicking the old client and disconnecting");
@@ -232,6 +236,7 @@ function disconnectClientIfConnected(socket, userId: string): void {
         Network.instance.clients[userId].socket.disconnect();
     }
 
+    console.log(Network.instance.networkObjects);
     Object.keys(Network.instance.networkObjects).forEach((key: string) => {
         const networkObject = Network.instance.networkObjects[key];
         // Validate that the object belonged to disconnecting user
@@ -342,7 +347,7 @@ export async function handleDisconnect(socket): Promise<any> {
     const userId = getUserIdFromSocketId(socket.id);
     const disconnectedClient = Network.instance.clients[userId];
     if (disconnectedClient === undefined)
-        return console.warn("Disconnecting client was undefined, probably already handled from JoinWorld handshake");
+        return console.warn("Disconnecting client ' + userId + ' was undefined, probably already handled from JoinWorld handshake");
     //On local, new connections can come in before the old sockets are disconnected.
     //The new connection will overwrite the socketID for the user's client.
     //This will only clear transports if the client's socketId matches the socket that's disconnecting.

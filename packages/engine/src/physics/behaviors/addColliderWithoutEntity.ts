@@ -38,6 +38,12 @@ export function addColliderWithoutEntity( type, position, quaternion, scale, mes
   //  mesh.visible = false;
   let body;
 
+  console.log(type);
+  console.log(position);
+  console.log(quaternion);
+  console.log(scale);
+  console.log(mesh);
+
   switch (type) {
     case 'box':
       body = createBox(scale);

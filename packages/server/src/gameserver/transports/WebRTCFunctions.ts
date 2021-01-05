@@ -429,16 +429,20 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
 export async function handleWebRtcPauseConsumer(socket, data, callback): Promise<any> {
     const { consumerId } = data,
         consumer = MediaStreamComponent.instance.consumers.find(c => c.id === consumerId);
-    logger.info("pause-consumer", consumer.appData);
-    await consumer.pause();
+    if (consumer != null) {
+        logger.info("pause-consumer", consumer.appData);
+        await consumer.pause();
+    }
     callback({ paused: true });
 }
 
 export async function handleWebRtcResumeConsumer(socket, data, callback): Promise<any> {
     const { consumerId } = data,
         consumer = MediaStreamComponent.instance.consumers.find(c => c.id === consumerId);
-    logger.info("resume-consumer", consumer.appData);
-    await consumer.resume();
+    if (consumer != null) {
+        logger.info("resume-consumer", consumer.appData);
+        await consumer.resume();
+    }
     callback({ resumed: true });
 }
 
