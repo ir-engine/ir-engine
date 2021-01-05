@@ -42,16 +42,22 @@ export class InteractiveSystem extends System {
    * Elements that are focused on current execution
    */
   newFocused: Set<Entity>
+  previousEntity: any;
+  previousEntity2DPosition: any;
 
   constructor(attributes?: SystemAttributes) {
     super(attributes);
-
+    
+    this.previousEntity = null;
+    this.previousEntity2DPosition = null;
     this.focused = new Set();
     this.newFocused = new Set();
   }
 
   dispose(): void {
     super.dispose();
+    this.previousEntity?.clear();
+    this.previousEntity2DPosition?.clear();
     this.focused?.clear();
     this.newFocused?.clear();
   }
@@ -66,6 +72,7 @@ export class InteractiveSystem extends System {
 
       this.queryResults.local_user?.all.forEach(entity => {
         const camera = Engine.camera;
+        
         const localTransform = getComponent(entity, TransformComponent);
         const localCharacter = getComponent(entity, CharacterComponent);
 
@@ -79,7 +86,7 @@ export class InteractiveSystem extends System {
           }
           const closestTransform = getComponent(closestEntity, TransformComponent);
           const currentTransform = getComponent(currentEntity, TransformComponent);
-
+          
           if (currentTransform.position.distanceTo(localTransform.position) < closestTransform.position.distanceTo(localTransform.position)) {
             return currentEntity;
           }
@@ -89,12 +96,14 @@ export class InteractiveSystem extends System {
         }, null);
 
         if (!closestHoveredUser) {
-          const userData = new CustomEvent('user-hover', { detail: { isFocused: false } });
+          const userData = new CustomEvent('user-hover', { detail: { focused: false } });
           document.dispatchEvent(userData);
           return;
         }
 
         const networkUserID = getComponent(closestHoveredUser, NetworkObject)?.ownerId;
+        const closestPosition1 = getComponent(closestHoveredUser, TransformComponent);
+        
         const closestPosition = getComponent(closestHoveredUser, TransformComponent).position.clone();
         closestPosition.y = 2;
         const point2DPosition = vectorToScreenXYZ(closestPosition, camera, width, height);
@@ -104,8 +113,30 @@ export class InteractiveSystem extends System {
           position: point2DPosition,
           focused: true
         };
-        const userData = new CustomEvent('user-hover', { detail: nameplateData });
-        document.dispatchEvent(userData);
+
+        // const previousPosition = (input.prevData.has(mappedPositionInput)? input.prevData.get(mappedPositionInput) : input.data.get(mappedPositionInput))?.value;
+
+        const userData = new CustomEvent('user-hover', { detail: nameplateData });       
+
+        if (point2DPosition !== this.previousEntity2DPosition){
+          if (closestHoveredUser !== this.previousEntity ){
+            console.log('ENTITY DATA ON START', closestHoveredUser !== this.previousEntity );
+            console.log('POSITION DATA ON START', point2DPosition !== this.previousEntity2DPosition);
+  
+            document.dispatchEvent(userData);
+            
+            this.previousEntity = closestHoveredUser;
+            this.previousEntity2DPosition = point2DPosition;
+          }else{
+            if (localTransform.position.distanceTo(closestPosition) < 5) {
+              console.log('COMPONENT DATA ON CHANGE');
+              document.dispatchEvent(userData);
+            }else{
+              nameplateData.focused = false;
+              document.dispatchEvent(userData);
+            }
+          }
+        }   
       });
     }
 
