@@ -18,11 +18,6 @@ export const CharacterAvatars: CharacterAvatarData[] = [
     src: "/models/avatars/Andy.glb"
   },
   {
-    id: "Animation",
-    title: "Animation",
-    src: "/models/avatars/Animation.glb"
-  },
-  {
     id: "Erik",
     title: "Erik",
     src: "/models/avatars/Erik.glb"
