@@ -9,6 +9,7 @@ import { normalizeMouseCoordinates } from '../../common/functions/normalizeMouse
 import { DefaultInput } from "../../templates/shared/DefaultInput";
 import { Vector2 } from 'three';
 
+const touchSensitive = 2;
 let prevTouchPosition: [number, number] = [0, 0];
 
 /**
@@ -22,9 +23,6 @@ export const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEv
   const input = getComponent(entity, Input);
   const normalizedPosition = normalizeMouseCoordinates(args.event.touches[0].clientX, args.event.touches[0].clientY, window.innerWidth, window.innerHeight);
   const touchPosition: [number, number] = [normalizedPosition.x, normalizedPosition.y];
-
-  const touchSensitive: number = 2;
-
 
   // Store raw pointer positions to use in other behaviours, like gesture detection
   // input.data.set(DefaultInput.POINTER1_POSITION, {
