@@ -18,6 +18,7 @@ import { selectAuthState } from '../../../redux/auth/selector';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
+import { getPseudoRandomAvatarIdByUserId } from '@xr3ngine/engine/src/templates/character/functions/pseudoRandomAvatar';
 import { setActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/setActorAvatar";
 
 import { updateUsername } from '../../../redux/auth/service';
@@ -183,7 +184,7 @@ const UserMenu = (props: Props): any => {
     </Snackbar>;
 
   const [actorEntity, setActorEntity] = useState(null);
-  const [actorAvatarId, setActorAvatarId] = useState('Rose');
+  const [actorAvatarId, setActorAvatarId] = useState(getPseudoRandomAvatarIdByUserId[selfUser.id]);
 
     useEffect(() => {
       const actorEntityWaitInterval = setInterval(() => {
@@ -205,12 +206,10 @@ const UserMenu = (props: Props): any => {
       selfUser && setUsername(selfUser.name);
     }, [ selfUser ]);
    
-//filter avatars by some attribute
-const avatarsForRender = CharacterAvatars.filter(avatar=>avatar.id !== 'Animation');
 const renderAvatarSelectionPage = () =><>
       <Typography variant="h1"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} focusable={true} />Select Avatar</Typography>
       <section className={styles.avatarCountainer}>
-          {avatarsForRender.map(characterAvatar=>
+          {CharacterAvatars.map(characterAvatar=>
               <Card key={characterAvatar.id} className={styles.avatarPreviewWrapper}> 
                 <CardContent onClick={()=>setActorAvatarId(characterAvatar.id)} >
                   <LazyImage
