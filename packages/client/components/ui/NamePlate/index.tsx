@@ -28,10 +28,9 @@ const NamePlate = (props: Props) =>{
   const user = userState.get('layerUsers').find(user => user.id === userId);
 
   const [openNamePlate, setOpenNamePlate] = useState(true);
-  // const fadeOutTimer = setTimeout(()=>{setOpenNamePlate(false);clearTimeout(fadeOutTimer);}, 5000);
-
+  
   const cardFadeInOut = () =>{
-    const fadeOutTimer = setTimeout(()=>{setOpenNamePlate(false);clearTimeout(fadeOutTimer);}, 5000);
+    const fadeOutTimer = setTimeout(()=>{setOpenNamePlate(false);clearTimeout(fadeOutTimer);}, 4000);
     };
     cardFadeInOut();
 
@@ -46,7 +45,6 @@ const NamePlate = (props: Props) =>{
     open: openNamePlate,    
     className: styles.namePlate, 
     style: {top: position.y, left: position.x },
-    // ...(isFocused === false && { autoHideDuration }),
     message: user?.name,
     onClose: handleCloseNamePlate
  };
