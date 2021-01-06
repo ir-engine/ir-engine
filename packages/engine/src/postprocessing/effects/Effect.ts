@@ -1,4 +1,4 @@
-import { EventDispatcher } from 'three';
+import { EventDispatcher, WebGLRenderer, WebGLRenderTarget } from 'three';
 import { BlendFunction } from './blending/BlendFunction';
 import { BlendMode } from './blending/BlendMode';
 
@@ -235,7 +235,7 @@ export class Effect extends EventDispatcher {
 	 * @param {Number} [deltaTime] - The time between the last frame and the current one in seconds.
 	 */
 
-  update (renderer, inputBuffer, deltaTime) {}
+	update (renderer: WebGLRenderer, inputBuffer: WebGLRenderTarget, deltaTime: number): void {}
 
   /**
 	 * Updates the size of this effect.

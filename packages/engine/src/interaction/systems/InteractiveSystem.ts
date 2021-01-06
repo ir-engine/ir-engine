@@ -42,16 +42,22 @@ export class InteractiveSystem extends System {
    * Elements that are focused on current execution
    */
   newFocused: Set<Entity>
+  previousEntity: Entity;
+  previousEntity2DPosition: Vector3;
 
   constructor(attributes?: SystemAttributes) {
     super(attributes);
-
+    
+    this.previousEntity = null;
+    this.previousEntity2DPosition = null;
     this.focused = new Set();
     this.newFocused = new Set();
   }
 
   dispose(): void {
     super.dispose();
+    this.previousEntity = null;
+    this.previousEntity2DPosition = null;
     this.focused?.clear();
     this.newFocused?.clear();
   }
@@ -66,6 +72,7 @@ export class InteractiveSystem extends System {
 
       this.queryResults.local_user?.all.forEach(entity => {
         const camera = Engine.camera;
+
         const localTransform = getComponent(entity, TransformComponent);
         const localCharacter = getComponent(entity, CharacterComponent);
 
@@ -89,8 +96,13 @@ export class InteractiveSystem extends System {
         }, null);
 
         if (!closestHoveredUser) {
-          const userData = new CustomEvent('user-hover', { detail: { isFocused: false } });
-          document.dispatchEvent(userData);
+          if (this.previousEntity) {
+            const userData = new CustomEvent('user-hover', { detail: { focused: false } });
+            document.dispatchEvent(userData);
+
+            this.previousEntity = null;
+            this.previousEntity2DPosition = null;
+          }
           return;
         }
 
@@ -101,11 +113,33 @@ export class InteractiveSystem extends System {
 
         const nameplateData = {
           userId: networkUserID,
-          position: point2DPosition,
+          position: {
+            x: point2DPosition.x,
+            y: point2DPosition.y,
+            z: point2DPosition.z
+          },
           focused: true
         };
+
         const userData = new CustomEvent('user-hover', { detail: nameplateData });
-        document.dispatchEvent(userData);
+
+        if (!this.previousEntity2DPosition || !point2DPosition.equals(this.previousEntity2DPosition)) {
+          if (closestHoveredUser !== this.previousEntity) {
+
+            document.dispatchEvent(userData);
+
+            this.previousEntity = closestHoveredUser;
+            this.previousEntity2DPosition = point2DPosition;
+          } else {
+            if (localTransform.position.distanceTo(closestPosition) < 5) {
+
+              document.dispatchEvent(userData);
+            } else {
+              nameplateData.focused = false;
+              document.dispatchEvent(userData);
+            }
+          }
+        }
       });
     }
 
