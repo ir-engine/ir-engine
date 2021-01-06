@@ -56,8 +56,8 @@ export class InteractiveSystem extends System {
 
   dispose(): void {
     super.dispose();
-    this.previousEntity?.clear();
-    this.previousEntity2DPosition?.clear();
+    this.previousEntity = null;
+    this.previousEntity2DPosition = null;
     this.focused?.clear();
     this.newFocused?.clear();
   }
