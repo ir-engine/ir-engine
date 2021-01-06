@@ -14,10 +14,14 @@ import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent
 import { CharacterComponent } from "../components/CharacterComponent";
 import { State } from "../../../state/components/State";
 import { LifecycleValue } from "../../../common/enums/LifecycleValue";
+import { NetworkObject } from "../../../networking/components/NetworkObject";
+import { getPseudoRandomAvatarIdByUserId } from "../functions/pseudoRandomAvatar";
 
 export const loadActorAvatar: Behavior = (entity) => {
   console.log("Calling load actor avatar for ", entity.id)
-  const avatarId: string = getComponent(entity, CharacterAvatarComponent)?.avatarId ?? "Andy";
+
+  const ownerId = getComponent(entity, NetworkObject)?.ownerId;
+  const avatarId: string = ownerId ? getPseudoRandomAvatarIdByUserId(ownerId): getComponent(entity, CharacterAvatarComponent)?.avatarId ?? "Andy";
   const avatarSource = CharacterAvatars.find(avatarData => avatarData.id === avatarId)?.src;
   
   if(hasComponent(entity, AssetLoader)) removeComponent(entity, AssetLoader, true);
