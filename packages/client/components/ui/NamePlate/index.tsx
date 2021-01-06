@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import styles from './NamePlate.module.scss';
 import Snackbar from '@material-ui/core/Snackbar';
@@ -26,13 +26,33 @@ const mapStateToProps = (state: any): any => {
 const NamePlate = (props: Props) =>{
   const {userId, position, focused, userState} = props;
   const user = userState.get('layerUsers').find(user => user.id === userId);
+  const fadeOutTimer = useRef<number>();
 
   const [openNamePlate, setOpenNamePlate] = useState(true);
-  
-  const cardFadeInOut = () =>{
-    const fadeOutTimer = setTimeout(()=>{setOpenNamePlate(false);clearTimeout(fadeOutTimer);}, 4000);
+
+  //let fadeOutTimer;
+  useEffect(() => {
+    fadeOutTimer.current = setTimeout(()=>{
+      console.log('close nameplate!');
+      setOpenNamePlate(false);
+    }, 4000);
+
+    return (): void => {
+      // changed dependency
+      if (fadeOutTimer.current) {
+        clearTimeout(fadeOutTimer.current);
+      }
     };
-    cardFadeInOut();
+  }, [ userId ]);
+
+  useEffect(() => {
+    return (): void => {
+      // unmount
+      if (fadeOutTimer.current) {
+        clearTimeout(fadeOutTimer.current);
+      }
+    };
+  }, [ ]);
 
   const handleCloseNamePlate = (event?: React.SyntheticEvent, reason?: string) => {
     if (reason === 'clickaway') {
