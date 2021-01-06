@@ -62,7 +62,12 @@ export const initializeCharacter: Behavior = (entity): void => {
 		// const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader as any);
 		// assetLoader.parent = actor.modelContainer;
 		// assetLoader.onLoaded = (entity, { asset }) => {
-			AnimationManager.instance.getAnimations().then(animations => {
+
+		const ownerId = getComponent(entity, NetworkObject)?.ownerId;
+		const avatar = getMutableComponent(entity, CharacterAvatarComponent);
+		avatar.avatarId = getPseudoRandomAvatarIdByUserId(ownerId);
+		// console.log('getPseudoRandomAvatarIdByUserId(ownerId)', getPseudoRandomAvatarIdByUserId(ownerId), 'entity', entity, 'avatar', avatar)
+			AnimationManager.instance.getAnimations(avatar.avatarId).then(animations => {
 				actor.animations = animations;
 			});
 		}
