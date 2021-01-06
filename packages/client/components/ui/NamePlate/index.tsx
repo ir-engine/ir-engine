@@ -33,7 +33,6 @@ const NamePlate = (props: Props) =>{
   //let fadeOutTimer;
   useEffect(() => {
     fadeOutTimer.current = setTimeout(()=>{
-      console.log('close nameplate!');
       setOpenNamePlate(false);
     }, 4000);
 
