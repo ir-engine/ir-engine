@@ -21,6 +21,7 @@ export const loadActorAvatar: Behavior = (entity) => {
   console.log("Calling load actor avatar for ", entity.id)
 
   const ownerId = getComponent(entity, NetworkObject)?.ownerId;
+  // const avatarId: string = getComponent(entity, CharacterAvatarComponent)?.avatarId ?? "Andy";
   const avatarId: string = ownerId ? getPseudoRandomAvatarIdByUserId(ownerId): getComponent(entity, CharacterAvatarComponent)?.avatarId ?? "Andy";
   const avatarSource = CharacterAvatars.find(avatarData => avatarData.id === avatarId)?.src;
   
