@@ -2,6 +2,7 @@ import { Sequelize, DataTypes } from 'sequelize';
 import { Application } from '../declarations';
 import GenerateRandomAnimalName from 'random-animal-name-generator';
 import { capitalize } from '../util/capitalize';
+import { getPseudoRandomAvatarIdByUserId } from '@xr3ngine/engine/src/templates/character/functions/pseudoRandomAvatar';
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient');
@@ -17,6 +18,11 @@ export default (app: Application): any => {
       name: {
         type: DataTypes.STRING,
         defaultValue: (): string => capitalize(GenerateRandomAnimalName()),
+        allowNull: false
+      },
+      avatarId: {
+        type: DataTypes.STRING,
+        defaultValue: (): string => getPseudoRandomAvatarIdByUserId(DataTypes.UUIDV1 as unknown as string),
         allowNull: false
       }
     },
