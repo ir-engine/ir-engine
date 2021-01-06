@@ -284,8 +284,10 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
         if (focused === false) return name?.length > 10 ? name.slice(0, 10) + '...' : name;
     };
 
-    const avatarBgImage = getPseudoRandomAvatarIdByUserId(user ? user.id : selfUser.id) ? 
-    `url(${'/static/'+getPseudoRandomAvatarIdByUserId(user ? user.id : selfUser.id).toLocaleLowerCase()+'.png'})` : null;
+    const avatarBgImage = user ?
+    `url(${'/static/'+user.avatarId.toLocaleLowerCase()+'.png'})` : selfUser ? `url(${'/static/'+selfUser.avatarId.toLocaleLowerCase()+'.png'})` : null;
+    // const avatarBgImage = getPseudoRandomAvatarIdByUserId(user ? user.id : selfUser.id) ? 
+    // `url(${'/static/'+getPseudoRandomAvatarIdByUserId(user ? user.id : selfUser.id).toLocaleLowerCase()+'.png'})` : null;
     return (
         <div
             id={peerId + '_container'}
