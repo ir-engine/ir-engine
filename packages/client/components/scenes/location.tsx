@@ -139,11 +139,16 @@ export const EnginePage = (props: Props) => {
 
   if(Network.instance){
     userState.get('layerUsers').forEach(user=>{
+      console.log('user',user)
       const networkUser = Object.values(Network.instance.networkObjects).find(networkUser=>networkUser.ownerId === user.id 
         && networkUser.prefabType ===  PrefabType.Player);
         if(networkUser){
+      console.log('networkUser',networkUser)
+
           const changedAvatar = getComponent(networkUser.component.entity, CharacterAvatarComponent);
           if(user.avatarId !== changedAvatar.avatarId){
+            console.log('user.avatarId !== changedAvatar.avatarId',user.avatarId , changedAvatar.avatarId)
+
             setActorAvatar(networkUser.component.entity, {avatarId: user.avatarId});
             loadActorAvatar(networkUser.component.entity);
           }
