@@ -58,11 +58,11 @@ NodeDRACOLoader.prototype = {
     load: function(url, onLoad, onProgress, onError) {
       console.log("******* DECODING. Decoder is")
       console.log(decoder);
-        var scope = this;
-        var loader = new THREE.FileLoader(scope.manager);
+        const scope = this;
+        const loader = new THREE.FileLoader(scope.manager);
         loader.setPath(this.path);
         loader.setResponseType('arraybuffer');
-        loader.load(url, function(blob) {
+        loader.load(url, (blob) => {
             scope.decodeDracoFile(blob, onLoad);
         }, onProgress, onError);
     },
@@ -95,7 +95,7 @@ NodeDRACOLoader.prototype = {
      * added in future.
      */
     setSkipDequantization: function(attributeName, skip) {
-        var skipDequantization = true;
+        let skipDequantization = true;
         if (typeof skip !== 'undefined')
           skipDequantization = skip;
         this.getAttributeOptions(attributeName).skipDequantization =
@@ -129,14 +129,14 @@ NodeDRACOLoader.prototype = {
       /*
        * Here is how to use Draco Javascript decoder and get the geometry.
        */
-      var buffer = new decoderModule.DecoderBuffer();
+      const buffer = new decoderModule.DecoderBuffer();
       buffer.Init(new Int8Array(rawBuffer), rawBuffer.byteLength);
-      var decoder = new decoderModule.Decoder();
+      const decoder = new decoderModule.Decoder();
 
       /*
        * Determine what type is this file: mesh or point cloud.
        */
-      var geometryType = decoder.GetEncodedGeometryType(buffer);
+      const geometryType = decoder.GetEncodedGeometryType(buffer);
       if (geometryType == decoderModule.TRIANGULAR_MESH) {
         if (this.verbosity > 0) {
           console.log('Loaded a mesh.');
@@ -146,7 +146,7 @@ NodeDRACOLoader.prototype = {
           console.log('Loaded a point cloud.');
         }
       } else {
-        var errorMsg = 'NodeDRACOLoader: Unknown geometry type.';
+        const errorMsg = 'NodeDRACOLoader: Unknown geometry type.';
         console.error(errorMsg);
         throw new Error(errorMsg);
       }
@@ -158,16 +158,16 @@ NodeDRACOLoader.prototype = {
                                      attributeName, attributeType, attribute,
                                      geometry, geometryBuffer) {
       if (attribute.ptr === 0) {
-        var errorMsg = 'NodeDRACOLoader: No attribute ' + attributeName;
+        const errorMsg = 'NodeDRACOLoader: No attribute ' + attributeName;
         console.error(errorMsg);
         throw new Error(errorMsg);
       }
 
-      var numComponents = attribute.num_components();
-      var numPoints = dracoGeometry.num_points();
-      var numValues = numPoints * numComponents;
-      var attributeData;
-      var TypedBufferAttribute;
+      const numComponents = attribute.num_components();
+      const numPoints = dracoGeometry.num_points();
+      const numValues = numPoints * numComponents;
+      let attributeData;
+      let TypedBufferAttribute;
 
       switch ( attributeType ) {
 
@@ -228,14 +228,14 @@ NodeDRACOLoader.prototype = {
           break;
 
         default:
-          var errorMsg = 'NodeDRACOLoader: Unexpected attribute type.';
+          const errorMsg = 'NodeDRACOLoader: Unexpected attribute type.';
           console.error( errorMsg );
           throw new Error( errorMsg );
 
       }
 
       // Copy data from decoder.
-      for (var i = 0; i < numValues; i++) {
+      for (let i = 0; i < numValues; i++) {
         geometryBuffer[attributeName][i] = attributeData.GetValue(i);
       }
       // Add attribute to THREEJS geometry for rendering.
@@ -252,8 +252,8 @@ NodeDRACOLoader.prototype = {
         if (this.getAttributeOptions('position').skipDequantization === true) {
           decoder.SkipAttributeTransform(decoderModule.POSITION);
         }
-        var dracoGeometry;
-        var decodingStatus;
+        let dracoGeometry;
+        let decodingStatus;
         // var start_time = performance.now();
         if (geometryType === decoderModule.TRIANGULAR_MESH) {
           dracoGeometry = new decoderModule.Mesh();
@@ -264,7 +264,7 @@ NodeDRACOLoader.prototype = {
               decoder.DecodeBufferToPointCloud(buffer, dracoGeometry);
         }
         if (!decodingStatus.ok() || dracoGeometry.ptr == 0) {
-          var errorMsg = 'NodeDRACOLoader: Decoding failed: ';
+          let errorMsg = 'NodeDRACOLoader: Decoding failed: ';
           errorMsg += decodingStatus.error_msg();
           console.error(errorMsg);
           decoderModule.destroy(decoder);
@@ -277,7 +277,7 @@ NodeDRACOLoader.prototype = {
         /*
          * Example on how to retrieve mesh and attributes.
          */
-        var numFaces;
+        let numFaces;
         if (geometryType == decoderModule.TRIANGULAR_MESH) {
           numFaces = dracoGeometry.num_faces();
           if (this.verbosity > 0) {
@@ -287,8 +287,8 @@ NodeDRACOLoader.prototype = {
           numFaces = 0;
         }
 
-        var numPoints = dracoGeometry.num_points();
-        var numAttributes = dracoGeometry.num_attributes();
+        const numPoints = dracoGeometry.num_points();
+        const numAttributes = dracoGeometry.num_attributes();
         if (this.verbosity > 0) {
           console.log('Number of points loaded: ' + numPoints.toString());
           console.log('Number of attributes loaded: ' +
@@ -297,30 +297,30 @@ NodeDRACOLoader.prototype = {
 
         // Verify if there is position attribute.
         // TODO: Should not assume native Draco attribute IDs apply.
-        var posAttId = decoder.GetAttributeId(dracoGeometry,
+        const posAttId = decoder.GetAttributeId(dracoGeometry,
                                               decoderModule.POSITION);
         if (posAttId == -1) {
-          var errorMsg = 'NodeDRACOLoader: No position attribute found.';
+          const errorMsg = 'NodeDRACOLoader: No position attribute found.';
           console.error(errorMsg);
           decoderModule.destroy(decoder);
           decoderModule.destroy(dracoGeometry);
           throw new Error(errorMsg);
         }
-        var posAttribute = decoder.GetAttribute(dracoGeometry, posAttId);
+        const posAttribute = decoder.GetAttribute(dracoGeometry, posAttId);
 
         // Structure for converting to THREEJS geometry later.
-        var geometryBuffer = {};
+        const geometryBuffer = {};
         // Import data to Three JS geometry.
-        var geometry = new THREE.BufferGeometry();
+        const geometry = new THREE.BufferGeometry();
 
         // Do not use both the native attribute map and a provided (e.g. glTF) map.
         if ( attributeUniqueIdMap ) {
 
           // Add attributes of user specified unique id. E.g. GLTF models.
-          for (var attributeName in attributeUniqueIdMap) {
-            var attributeType = attributeTypeMap[attributeName];
-            var attributeId = attributeUniqueIdMap[attributeName];
-            var attribute = decoder.GetAttributeByUniqueId(dracoGeometry,
+          for (const attributeName in attributeUniqueIdMap) {
+            const attributeType = attributeTypeMap[attributeName];
+            const attributeId = attributeUniqueIdMap[attributeName];
+            const attribute = decoder.GetAttributeByUniqueId(dracoGeometry,
                                                            attributeId);
             this.addAttributeToGeometry(decoderModule, decoder, dracoGeometry,
                 attributeName, attributeType, attribute, geometry, geometryBuffer);
@@ -329,14 +329,14 @@ NodeDRACOLoader.prototype = {
         } else {
 
           // Add native Draco attribute type to geometry.
-          for (var attributeName in this.nativeAttributeMap) {
-            var attId = decoder.GetAttributeId(dracoGeometry,
+          for (const attributeName in this.nativeAttributeMap) {
+            const attId = decoder.GetAttributeId(dracoGeometry,
                 dracoDecoder[this.nativeAttributeMap[attributeName]]);
             if (attId !== -1) {
               if (this.verbosity > 0) {
                 console.log('Loaded ' + attributeName + ' attribute.');
               }
-              var attribute = decoder.GetAttribute(dracoGeometry, attId);
+              const attribute = decoder.GetAttribute(dracoGeometry, attId);
               this.addAttributeToGeometry(decoderModule, decoder, dracoGeometry,
                   attributeName, Float32Array, attribute, geometry, geometryBuffer);
             }
@@ -347,21 +347,21 @@ NodeDRACOLoader.prototype = {
         // For mesh, we need to generate the faces.
         if (geometryType == decoderModule.TRIANGULAR_MESH) {
           if (this.drawMode === THREE.TriangleStripDrawMode) {
-            var stripsArray = new decoderModule.DracoInt32Array();
-            var numStrips = decoder.GetTriangleStripsFromMesh(
+            const stripsArray = new decoderModule.DracoInt32Array();
+            const numStrips = decoder.GetTriangleStripsFromMesh(
                 dracoGeometry, stripsArray);
             geometryBuffer.indices = new Uint32Array(stripsArray.size());
-            for (var i = 0; i < stripsArray.size(); ++i) {
+            for (let i = 0; i < stripsArray.size(); ++i) {
               geometryBuffer.indices[i] = stripsArray.GetValue(i);
             }
             dracoDecoder.destroy(stripsArray);
           } else {
-            var numIndices = numFaces * 3;
+            const numIndices = numFaces * 3;
             geometryBuffer.indices = new Uint32Array(numIndices);
-            var ia = new decoderModule.DracoInt32Array();
-            for (var i = 0; i < numFaces; ++i) {
+            const ia = new decoderModule.DracoInt32Array();
+            for (let i = 0; i < numFaces; ++i) {
               decoder.GetFaceFromMesh(dracoGeometry, i, ia);
-              var index = i * 3;
+              const index = i * 3;
               geometryBuffer.indices[index] = ia.GetValue(0);
               geometryBuffer.indices[index + 1] = ia.GetValue(1);
               geometryBuffer.indices[index + 2] = ia.GetValue(2);
@@ -379,7 +379,7 @@ NodeDRACOLoader.prototype = {
 
         // TODO: Should not assume native Draco attribute IDs apply.
         // TODO: Can other attribute types be quantized?
-        var posTransform = new decoderModule.AttributeQuantizationTransform();
+        const posTransform = new decoderModule.AttributeQuantizationTransform();
         if (posTransform.InitFromAttribute(posAttribute)) {
           // Quantized attribute. Store the quantization parameters into the
           // THREE.js attribute.
@@ -388,7 +388,7 @@ NodeDRACOLoader.prototype = {
           geometry.attributes['position'].numQuantizationBits =
               posTransform.quantization_bits();
           geometry.attributes['position'].minValues = new Float32Array(3);
-          for (var i = 0; i < 3; ++i) {
+          for (let i = 0; i < 3; ++i) {
             geometry.attributes['position'].minValues[i] =
                 posTransform.min_value(i);
           }

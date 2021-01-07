@@ -3,3 +3,4 @@ dist
 lib
 webpack.config.js
 .env
+public
