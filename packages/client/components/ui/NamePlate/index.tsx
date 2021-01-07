@@ -34,7 +34,7 @@ const NamePlate = (props: Props) =>{
   useEffect(() => {
     fadeOutTimer.current = setTimeout(()=>{
       setOpenNamePlate(false);
-    }, 4000);
+    }, 4000) as any;
 
     return (): void => {
       // changed dependency
