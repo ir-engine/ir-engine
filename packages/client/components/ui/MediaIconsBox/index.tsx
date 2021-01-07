@@ -74,7 +74,7 @@ const MediaIconsBox = observer((props) =>{
             setFaceStreaming(false);
         }
         // If face tracking is true, stop face and lip sync tracking
-    }
+    };
 
     const checkEndVideoChat = async () =>{
         if((MediaStreamComponent?.instance?.audioPaused || MediaStreamComponent?.instance?.camAudioProducer == null) && (MediaStreamComponent?.instance?.videoPaused || MediaStreamComponent?.instance?.camVideoProducer == null)) {
