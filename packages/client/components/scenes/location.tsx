@@ -1,12 +1,12 @@
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
-import { getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { loadScene } from "@xr3ngine/engine/src/scene/functions/SceneLoading";
 import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
-import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
+import { DefaultNetworkSchema, PrefabType } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import dynamic from 'next/dynamic';
 import React, { useEffect, useState } from 'react';
@@ -33,6 +33,8 @@ import SceneTitle from '../ui/SceneTitle';
 import NamePlate from '../ui/NamePlate';
 import { number } from 'prop-types';
 import { Vector3 } from 'three';
+import { selectUserState } from '../../redux/user/selector';
+import { CharacterAvatarComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterAvatarComponent';
 
 const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
 
@@ -43,12 +45,14 @@ interface Props {
   sceneId?: string,
   onBoardingStep?:number,
   authState?: any;
+  userState?: any;
 }
 
 const mapStateToProps = (state: any): any => {
   return {
     onBoardingStep: selectAppOnBoardingStep(state),
     authState: selectAuthState(state),
+    userState: selectUserState(state),
   };
 };
 
@@ -62,12 +66,13 @@ export const EnginePage = (props: Props) => {
     sceneId,
     setAppLoaded,
     onBoardingStep,
-    authState
+    authState,
+    userState
   } = props;
   const currentUser = authState.get('user');
   const [hoveredLabel, setHoveredLabel] = useState('');
   const [actorEntity, setActorEntity] = useState(null);
-  const [actorAvatarId, setActorAvatarId] = useState('Rose');
+  const [actorAvatarId, setActorAvatarId] = useState(currentUser.avatarId);
   const [infoBoxData, setInfoBoxData] = useState(null);
   const [progressEntity, setProgressEntity] = useState('');
   const [userHovered, setonUserHover] = useState(false);
@@ -132,12 +137,24 @@ export const EnginePage = (props: Props) => {
     };
   }, []);
 
-  useEffect(() => {
-    if (actorEntity) {
-      setActorAvatar(actorEntity, {avatarId: actorAvatarId});
-      loadActorAvatar(actorEntity);
-    }
-  }, [ actorEntity, actorAvatarId ]);
+  if(Network.instance){
+    userState.get('layerUsers').forEach(user=>{
+      console.log('user',user)
+      const networkUser = Object.values(Network.instance.networkObjects).find(networkUser=>networkUser.ownerId === user.id 
+        && networkUser.prefabType ===  PrefabType.Player);
+        if(networkUser){
+      console.log('networkUser',networkUser)
+
+          const changedAvatar = getComponent(networkUser.component.entity, CharacterAvatarComponent);
+          if(user.avatarId !== changedAvatar.avatarId){
+            console.log('user.avatarId !== changedAvatar.avatarId',user.avatarId , changedAvatar.avatarId)
+
+            setActorAvatar(networkUser.component.entity, {avatarId: user.avatarId});
+            loadActorAvatar(networkUser.component.entity);
+          }
+        }
+    })
+  } 
 
   //mobile gamepad
   const mobileGamepadProps = {hovered:objectHovered, layout: 'default' };
