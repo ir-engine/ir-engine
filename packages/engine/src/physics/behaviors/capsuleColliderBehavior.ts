@@ -32,10 +32,10 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
         let offsetX = 0, offsetY = 0, offsetZ = 0;
         const offsetqX = 0, offsetqY = 0, offsetqZ = 0, offsetqW = 0;
 
-        if (args.clientSnapshot.old && Network.instance.worldState.snapshot) {
+        if (args.clientSnapshot.old && Network.instance.snapshot) {
          const clientSnapshotPos = args.clientSnapshot.old.state.find(v => v.networkId == networkObject.networkId);
-           //@ts-ignore
-         const serverSnapshotPos = Network.instance.worldState.snapshot.state.find(v => v.networkId == networkObject.networkId);
+
+         const serverSnapshotPos = Network.instance.snapshot.state.find(v => v.networkId == networkObject.networkId);
 
          if (clientSnapshotPos && serverSnapshotPos) {
 
@@ -63,14 +63,14 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
          }
        }
 
-     } else if (isClient && hasComponent(entity, CharacterComponent) && Network.instance.worldState.snapshot) {
+     } else if (isClient && hasComponent(entity, CharacterComponent) && Network.instance.snapshot) {
 
        const actor = getComponent<CharacterComponent>(entity, CharacterComponent)
        const actorTransform = getMutableComponent<TransformComponent>(entity, TransformComponent as any);
        const networkObject = getComponent<NetworkObject>(entity, NetworkObject)
 
       // const interpolationSnapshot = args.clientSnapshot.interpolationSnapshot.state.find(v => v.networkId == networkObject.networkId);
-      const serverSnapshotPos = Network.instance.worldState.snapshot.state.find(v => v.networkId == networkObject.networkId);
+      const serverSnapshotPos = Network.instance.snapshot.state.find(v => v.networkId == networkObject.networkId);
 
        if (serverSnapshotPos) {
         actorTransform.position.x = serverSnapshotPos.x;

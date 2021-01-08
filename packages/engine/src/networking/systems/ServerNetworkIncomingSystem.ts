@@ -54,7 +54,7 @@ function handleUpdatesFromClients(buffer:NetworkInputInterface|Iterable<number>)
   );
   //console.warn(clientInput.snapShotTime);
   const networkObject = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, NetworkObject);
-  networkObject.snapShotTime = clientInput.snapShotTime
+  networkObject.snapShotTime = Number(clientInput.snapShotTime)
   // Get input component
   const input = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, Input);
   if (!input) {
@@ -185,7 +185,6 @@ export class ServerNetworkIncomingSystem extends System {
     Network.instance.worldState = {
       tick: Network.tick,
       transforms: [],
-      snapshot: null,
       inputs: [],
       states: [],
       clientsConnected: Network.instance.clientsConnected,
