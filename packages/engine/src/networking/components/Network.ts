@@ -7,6 +7,7 @@ import { NetworkTransport } from '../interfaces/NetworkTransport';
 import { NetworkObjectList } from '../interfaces/NetworkObjectList';
 import { Entity } from '../../ecs/classes/Entity';
 import { WorldStateInterface } from "../interfaces/WorldState";
+import { Snapshot } from "../types/SnapshotDataTypes";
 
 export interface NetworkClientList {
   // Key is socket ID
@@ -45,6 +46,7 @@ export class Network extends Component<Network> {
   socketId: string
   userId: string
   accessToken: string
+  snapshot: Snapshot
 
   private static availableNetworkId = 0
   static getNetworkId() {
@@ -54,10 +56,9 @@ export class Network extends Component<Network> {
 
   incomingMessageQueue: RingBuffer<any>
 
-  worldState:WorldStateInterface = {
+  worldState: WorldStateInterface = {
     tick: Network.tick,
     transforms: [],
-    snapshot: null,
     inputs: [],
     states: [],
     clientsConnected: [],

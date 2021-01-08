@@ -4,7 +4,9 @@ import { addColliderWithoutEntity } from '@xr3ngine/engine/src/physics/behaviors
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { getComponent } from "../../../ecs/functions/EntityFunctions";
 
-export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {  
+export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
+  console.log("******************* addWorldColliders called");
+
   const asset = args.asset;
   const deleteArr = [];
 

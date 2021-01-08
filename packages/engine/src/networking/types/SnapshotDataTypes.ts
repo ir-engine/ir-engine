@@ -11,16 +11,29 @@ export interface StateEntity {
   qY: number;
   qZ: number;
   qW: number;
+  snapShotTime: number;
+}
+
+export interface StateClientEntity {
+  networkId: number;
+  x: number;
+  y: number;
+  z: number;
+  qX: number;
+  qY: number;
+  qZ: number;
+  qW: number;
 }
 
 export type ID = string
 export type Time = number
 export type StateEntityGroup = StateEntity[]
+export type StateEntityClientGroup = StateClientEntity[]
 
 export interface Snapshot {
   id: ID;
   time: Time;
-  state: StateEntityGroup | { [key: string]: StateEntityGroup };
+  state: StateEntityGroup; //| { [key: string]: StateEntityGroup };
 }
 
 export interface InterpolatedSnapshot {

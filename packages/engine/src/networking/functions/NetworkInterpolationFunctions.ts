@@ -10,7 +10,7 @@ import { InterpolatedSnapshot, Snapshot, StateEntityGroup, StateEntity, Time, Va
 export function snapshot () {
   return {
     /** Create the snapshot on the server. */
-    create: (state: StateEntityGroup | { [key: string]: StateEntityGroup }): Snapshot => createSnapshot(state),
+    create: (state: StateEntityGroup ): Snapshot => createSnapshot(state),
     /** Add the snapshot you received from the server to automatically calculate the interpolation with calcInterpolation() */
     add: (snapshot: Snapshot): void => addSnapshot(snapshot)
   };
@@ -18,7 +18,7 @@ export function snapshot () {
 
 
 /** Create a new Snapshot */
-export function createSnapshot (state: StateEntityGroup | { [key: string]: StateEntityGroup }): Snapshot {
+export function createSnapshot (state: StateEntityGroup): Snapshot {
 //  console.log("state is");
 //  console.log(state);
   const check = (state: StateEntityGroup) => {
@@ -30,13 +30,9 @@ export function createSnapshot (state: StateEntityGroup | { [key: string]: State
     if (withoutID.length > 0) throw new Error('Each Entity needs to have a id');
   };
 
-  if (Array.isArray(state)) {
-    check(state);
-  } else {
-    Object.keys(state).forEach(key => {
-      check(state[key]);
-    });
-  }
+  check(state);
+
+
 
   return {
     id: randomId(),

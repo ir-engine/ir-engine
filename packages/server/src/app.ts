@@ -86,7 +86,8 @@ if (config.server.enabled) {
     // Set up Plugins and providers
     app.configure(express.rest());
     app.configure(socketio({
-      serveClient: false, handlePreflightRequest: (server, req, res) => {
+      serveClient: false,
+      handlePreflightRequest: (req, res) => {
         // Set CORS headers
         if (res != null) {
           res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
