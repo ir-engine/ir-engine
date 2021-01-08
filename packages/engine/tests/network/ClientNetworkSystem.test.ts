@@ -4,7 +4,7 @@ import { NetworkSchema } from "../../src/networking/interfaces/NetworkSchema";
 import { DefaultNetworkSchema, PrefabType } from "../../src/templates/networking/DefaultNetworkSchema";
 import { NetworkTransport } from "../../src/networking/interfaces/NetworkTransport";
 import { Network } from "../../src/networking/components/Network";
-import { PacketReadyWorldState, WorldStateInterface } from "../../src/networking/interfaces/WorldState";
+import { PacketWorldState, WorldStateInterface } from "../../src/networking/interfaces/WorldState";
 import { execute } from "../../src/ecs/functions/EngineFunctions";
 import { SystemUpdateType } from "../../src/ecs/functions/SystemUpdateType";
 import { Engine } from "../../src/ecs/classes/Engine";
@@ -62,7 +62,7 @@ beforeAll(() => {
 test.skip("create", () => {
   // TODO: mock initializeNetworkObject
 
-  const message: PacketReadyWorldState = {
+  const message: PacketWorldState = {
     snapshot: {
       time: BigInt( 0 ),
       id: '1',

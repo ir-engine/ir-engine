@@ -1,5 +1,5 @@
 import { float32, Model, Schema, string, uint32, uint64, uint8 } from "superbuffer";
-import { PacketReadyWorldState } from "../interfaces/WorldState";
+import { PacketWorldState, WorldStateInterface } from "../interfaces/WorldState";
 //import { inputKeyArraySchema } from "./clientInputSchema";
 
 const inputKeySchema = new Schema({
@@ -92,14 +92,56 @@ const worldStateSchema = new Schema({
 // TODO: convert WorldStateInterface to PacketReadyWorldState in toBuffer and back in fromBuffer
 export class WorldStateModel {
     static model: Model = new Model(worldStateSchema)
-    static toBuffer(objectOrArray: PacketReadyWorldState): ArrayBuffer {
+    static toBuffer(worldState: WorldStateInterface): ArrayBuffer {
         // console.log("Making into buffer");
         // console.log(objectOrArray);
+
+        const state:PacketWorldState = {
+          clientsConnected: worldState.clientsConnected,
+          clientsDisconnected: worldState.clientsDisconnected,
+          createObjects: worldState.createObjects,
+          destroyObjects: worldState.destroyObjects,
+          inputs: worldState.inputs?.map(input => {
+            return {
+              networkId: input.networkId,
+              axes1d: Object.keys(input.axes1d).map(v => input.axes1d[v]),
+              axes2d: Object.keys(input.axes2d).map(v => input.axes2d[v]),
+              buttons: Object.keys(input.buttons).map(v => input.buttons[v]),
+              viewVector: { ...input.viewVector },
+              snapShotTime: BigInt(0)
+            };
+          }),
+          tick: BigInt( worldState.tick ),
+          transforms: worldState.transforms.map(v=> {
+            return {
+              ...v,
+              snapShotTime: BigInt(v.snapShotTime)
+            }
+          }),
+          states: []
+        };
+
         // @ts-ignore
-        return this.model.toBuffer(objectOrArray);
+        return this.model.toBuffer(state);
     }
-    static fromBuffer(buffer:unknown): PacketReadyWorldState {
+    static fromBuffer(buffer:unknown): WorldStateInterface {
         // @ts-ignore
-        return this.model.fromBuffer(buffer);
+        const state = this.model.fromBuffer(buffer) as PacketWorldState;
+        return {
+          ...state,
+          tick: Number(state.tick),
+          transforms: state.transforms.map(v=> {
+            const { snapShotTime, ...otherValues } = v;
+            return {
+              ...otherValues,
+              snapShotTime: Number(snapShotTime)
+            }
+          }),
+          // inputs: state.inputs.map(v=> {
+          //   return {
+          //     ...v
+          //   }
+          // })
+        };
     }
 }
