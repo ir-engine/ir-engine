@@ -8,7 +8,7 @@ bot:
   enabled: true
   name: bot
 
-  replicaCount: 2
+  replicaCount: 1
   image:
     repository: lagunalabs/xrengine-bot
     tag: latest

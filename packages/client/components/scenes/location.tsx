@@ -152,7 +152,7 @@ export const EnginePage = (props: Props) => {
             }
           }
         }
-    })
+    });
   } 
 
   //mobile gamepad
