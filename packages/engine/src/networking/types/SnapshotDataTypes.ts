@@ -28,7 +28,7 @@ export interface StateClientEntity {
 export type ID = string
 export type Time = number
 export type StateEntityGroup = StateEntity[]
-export type StateEntityClientGroup = StateCEntity[]
+export type StateEntityClientGroup = StateClientEntity[]
 
 export interface Snapshot {
   id: ID;
