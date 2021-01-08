@@ -72,7 +72,7 @@ export const EnginePage = (props: Props) => {
   const currentUser = authState.get('user');
   const [hoveredLabel, setHoveredLabel] = useState('');
   const [actorEntity, setActorEntity] = useState(null);
-  const [actorAvatarId, setActorAvatarId] = useState(currentUser.avatarId);
+  const [actorAvatarId, setActorAvatarId] = useState(currentUser?.avatarId);
   const [infoBoxData, setInfoBoxData] = useState(null);
   const [progressEntity, setProgressEntity] = useState('');
   const [userHovered, setonUserHover] = useState(false);
@@ -137,20 +137,28 @@ export const EnginePage = (props: Props) => {
     };
   }, []);
 
+  // useEffect(() => {
+  //   if (actorEntity) {
+  //     setActorAvatar(actorEntity, {avatarId: actorAvatarId});
+  //     loadActorAvatar(actorEntity);
+  //   }
+  // }, [ actorEntity, actorAvatarId ]);
+
   if(Network.instance){
+    console.log('userState ',userState.get('layerUsers')); 
     userState.get('layerUsers').forEach(user=>{
-      console.log('user',user)
-      const networkUser = Object.values(Network.instance.networkObjects).find(networkUser=>networkUser.ownerId === user.id 
-        && networkUser.prefabType ===  PrefabType.Player);
-        if(networkUser){
-      console.log('networkUser',networkUser)
+      if(user.id !== currentUser.id){
+        const networkUser = Object.values(Network.instance.networkObjects).find(networkUser=>networkUser.ownerId === user.id 
+          && networkUser.prefabType ===  PrefabType.Player);
+          if(networkUser){
+            const changedAvatar = getComponent(networkUser.component.entity, CharacterAvatarComponent);
+            // console.log('before layerUsers user.avatarId',user ,' networkUser', changedAvatar);
 
-          const changedAvatar = getComponent(networkUser.component.entity, CharacterAvatarComponent);
-          if(user.avatarId !== changedAvatar.avatarId){
-            console.log('user.avatarId !== changedAvatar.avatarId',user.avatarId , changedAvatar.avatarId)
-
-            setActorAvatar(networkUser.component.entity, {avatarId: user.avatarId});
-            loadActorAvatar(networkUser.component.entity);
+            if(user.avatarId !== changedAvatar.avatarId){
+              // console.log('from layerUsers user.avatarId',user ,' networkUser', changedAvatar);
+              setActorAvatar(networkUser.component.entity, {avatarId: user.avatarId});
+              loadActorAvatar(networkUser.component.entity);
+            }
           }
         }
     })
