@@ -15,7 +15,7 @@ class PageUtils {
             classRegex = new RegExp(classRegex)
             let buttons = Array.from(document.querySelectorAll(selector))
             let enterButton = buttons.find(button => Array.from(button.classList).some(c => classRegex.test(c)))
-            enterButton.click()
+            if (enterButton) enterButton.click()
         }, selector, classRegex.toString().slice(1,-1))
     }
     async clickSelectorId(selector, id) {
@@ -24,8 +24,18 @@ class PageUtils {
         await this.page.evaluate((selector, id) => {
             let matches = Array.from(document.querySelectorAll(selector))
             let singleMatch = matches.find(button => button.id === id);
-            singleMatch.click()
+            let result;
+            if (singleMatch) result = singleMatch.click()
         }, selector, id)
+    }
+    async clickSelectorFirstMatch(selector) {
+        if (this.autoLog) console.log(`Clicking for first ${selector}`)
+
+        await this.page.evaluate((selector) => {
+            let matches = Array.from(document.querySelectorAll(selector))
+            let singleMatch = matches[0];
+            if (singleMatch) singleMatch.click()
+        }, selector)
     }
 }
 
@@ -48,9 +58,9 @@ class El {
  */
 class XR3ngineBot {
     constructor({
-                    headless = true,
-                    name = "XR3ngineBot",
-                    autoLog = true} = {}
+        headless = true,
+        name = "XR3ngineBot",
+        autoLog = true} = {}
     ) {
         this.headless = headless
         this.browserLaunched = this.launchBrowser()
@@ -120,6 +130,8 @@ class XR3ngineBot {
             this.page.on('console', consoleObj => console.log(">> ", consoleObj.text()));
         }
 
+        this.page.setViewport({ width: 1600, height: 900});
+
         const context = this.browser.defaultBrowserContext();
         context.overridePermissions("https://theoverlay.io", ['microphone', 'camera'])
         this.pu = new PageUtils(this);
@@ -169,9 +181,9 @@ class XR3ngineBot {
         await new Promise(resolve => {setTimeout(async() => {
             await this.pu.clickSelectorClassRegex("button", /join_world/);
             setTimeout(async() => {
-                await this.page.mouse.click(200, 200);
+                await this.page.mouse.click(0, 0);
                 resolve();
-            }, 1000)
+            }, 3000)
         }, 2000) });
     }
 

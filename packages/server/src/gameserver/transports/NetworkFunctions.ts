@@ -65,13 +65,12 @@ export async function cleanupOldGameservers(): Promise<void> {
         limit: 1000
     });
     const gameservers = await (transport.app as any).k8AgonesClient.get('gameservers');
-    const gsIds = gameservers.items.map(gs => gsNameRegex.exec(gs.metadata.name)[1]);
+    const gsIds = gameservers.items.map(gs => gsNameRegex.exec(gs.metadata.name) != null ? gsNameRegex.exec(gs.metadata.name)[1] : null);
 
     await Promise.all(instances.rows.map(instance => {
         const [ip, port] = instance.ipAddress.split(':');
         const match = gameservers.items.find(gs => {
             const inputPort = gs.status.ports.find(port => port.name === 'default');
-            const gsIdentifier = gsNameRegex.exec(gs.metadata.name);
             return gs.status.address === ip && inputPort.port.toString() === port;
         });
         return match == null ? transport.app.service('instance').remove(instance.id) : Promise.resolve();
