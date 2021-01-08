@@ -27,8 +27,8 @@ $mobileControllButtonsSize:3em;
             box-sizing: border-box;
             border-radius: 50%;
             margin: 12px;
-            height: 64px;
-            width: 64px;
+            height: 56px;
+            width: 56px;
             cursor: pointer;  
             @media (max-width: 768px) {
                 height: 56px;
@@ -62,7 +62,7 @@ $mobileControllButtonsSize:3em;
                 width: 1.5em;                
                 box-sizing: border-box;
                 cursor: pointer;   
-                margin: 14px;   
+                margin: 10px;   
                 @media (max-width: 768px) {
                     margin: 10px;
                 }
