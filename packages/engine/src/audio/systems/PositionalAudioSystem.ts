@@ -51,11 +51,13 @@ export class PositionalAudioSystem extends System {
 
     for (const entity of this.queryResults.character_audio.changed) {
       const entityNetworkObject = getComponent(entity, NetworkObject);
-      const peerId = entityNetworkObject.ownerId;
-      const consumer = MediaStreamComponent.instance.consumers
-          .find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio');
-      if (consumer == null && this.characterAudioStream.get(entity) != null) {
-        this.characterAudioStream.delete(entity);
+      if (entityNetworkObject) {
+        const peerId = entityNetworkObject.ownerId;
+        const consumer = MediaStreamComponent.instance.consumers
+            .find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio');
+        if (consumer == null && this.characterAudioStream.get(entity) != null) {
+          this.characterAudioStream.delete(entity);
+        }
       }
     }
 
@@ -65,9 +67,12 @@ export class PositionalAudioSystem extends System {
       }
 
       const entityNetworkObject = getComponent(entity, NetworkObject);
-      const peerId = entityNetworkObject.ownerId;
-      const consumer = MediaStreamComponent.instance.consumers
-          .find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio');
+      let consumer;
+      if (entityNetworkObject != null) {
+        const peerId = entityNetworkObject.ownerId;
+        consumer = MediaStreamComponent.instance.consumers
+            .find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio');
+      }
 
       if (this.characterAudioStream.has(entity) && consumer != null && consumer.id === this.characterAudioStream.get(entity).id) {
         continue;
@@ -98,7 +103,7 @@ export class PositionalAudioSystem extends System {
     for (const entity of this.queryResults.positional_audio.added) {
       const positionalAudio = getComponent(entity, PositionalAudioComponent);
 
-      Engine.scene.add(positionalAudio.value);
+      if (positionalAudio != null) Engine.scene.add(positionalAudio.value);
     }
 
     for (const entity of this.queryResults.positional_audio.changed) {

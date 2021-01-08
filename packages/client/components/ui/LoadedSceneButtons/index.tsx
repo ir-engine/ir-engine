@@ -29,7 +29,7 @@ const LoadedSceneButtons = ({onBoardingStep}:Props): any => {
   return onBoardingStep === generalStateList.SCENE_LOADED && 
     (<section className={styles.loadedSceneButtonsContainer}>
         <Button variant="contained" color="primary" onClick={startTutorialHandler}>Start Tutorial</Button>
-        <Button variant="contained" onClick={joinWorldHandler}>Join World</Button>
+        <Button variant="contained" onClick={joinWorldHandler} className="join_world">Join World</Button>
     </section>);
 };
 
