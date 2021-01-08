@@ -56,7 +56,7 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
     }
 
 if (isClient) {
-  let networkComponent = getComponent<NetworkObject>(entity, NetworkObject)
+  const networkComponent = getComponent<NetworkObject>(entity, NetworkObject)
   if (networkComponent) {
     if (networkComponent.ownerId === Network.instance.userId) {
       actorTransform.position.set(
