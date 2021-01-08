@@ -49,8 +49,8 @@ export class PhysicsSystem extends System {
       correction: 180 //speed correction client form server positions
     }
 
-    if (isClient && Network.instance.worldState.snapshot) {
-      clientSnapshot.old = Vault.instance.get((Network.instance.worldState.snapshot as any).time - 15, true)
+    if (isClient && Network.instance.snapshot) {
+      clientSnapshot.old = Vault.instance.get((Network.instance.snapshot as any).time - 15, true)
 /*
       if (clientSnapshot.old != undefined) {
           console.warn(clientSnapshot.old.time - Network.instance.worldState.snapshot.time);

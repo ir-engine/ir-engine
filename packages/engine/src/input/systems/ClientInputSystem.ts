@@ -11,7 +11,7 @@ import { Client } from "../../networking/components/Client";
 import { Network } from "../../networking/components/Network";
 import { Vault } from '../../networking/components/Vault';
 import { NetworkObject } from "../../networking/components/NetworkObject";
-import { NetworkInputInterface } from "../../networking/interfaces/WorldState";
+import { NetworkInputInterface, PacketReadyNetworkInputInterface } from "../../networking/interfaces/WorldState";
 import { ClientInputModel } from '../../networking/schema/clientInputSchema';
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { cleanupInput } from '../behaviors/cleanupInput';
@@ -159,7 +159,7 @@ export class InputSystem extends System {
         snapShotTime = BigInt(Vault.instance.get().time);
       }
       // Create a schema for input to send
-      const inputs: NetworkInputInterface = {
+      const inputs: PacketReadyNetworkInputInterface = {
         networkId: networkId,
         buttons: [],
         axes1d: [],

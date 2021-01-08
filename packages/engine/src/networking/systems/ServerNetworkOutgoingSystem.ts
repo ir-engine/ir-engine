@@ -23,7 +23,7 @@ const addNetworkTransformToWorldState: Behavior = (entity) => {
   const transformComponent = getComponent(entity, TransformComponent);
   const networkObject = getComponent(entity, NetworkObject);
 
-  let snapShotTime = BigInt(0)
+  let snapShotTime = 0
   if (networkObject.snapShotTime != undefined) {
     snapShotTime = networkObject.snapShotTime;
   }
@@ -73,7 +73,6 @@ export class ServerNetworkOutgoingSystem extends System {
         createObjects: [],
         destroyObjects: [],
         inputs: [],
-        snapshot: null,
         tick: BigInt(0),
         transforms: [],
         states: []
@@ -83,8 +82,12 @@ export class ServerNetworkOutgoingSystem extends System {
       state.clientsDisconnected = Network.instance.worldState.clientsDisconnected;
       state.createObjects = Network.instance.worldState.createObjects;
       state.destroyObjects = Network.instance.worldState.destroyObjects;
-      state.transforms = Network.instance.worldState.transforms;
-
+      state.transforms = Network.instance.worldState.transforms.map(v=> {
+        return {
+          ...v,
+          snapShotTime: BigInt(v.snapShotTime)
+        }
+      });
 
       state.inputs = Network.instance.worldState.inputs?.map(input => {
         return {
@@ -92,7 +95,8 @@ export class ServerNetworkOutgoingSystem extends System {
           axes1d: Object.keys(input.axes1d).map(v => input.axes1d[v]),
           axes2d: Object.keys(input.axes2d).map(v => input.axes2d[v]),
           buttons: Object.keys(input.buttons).map(v => input.buttons[v]),
-          viewVector: { ...input.viewVector }
+          viewVector: { ...input.viewVector },
+          snapShotTime: BigInt(0)
         };
       });
 
@@ -100,13 +104,7 @@ export class ServerNetworkOutgoingSystem extends System {
     //  Network.instance.worldState.snapshot = NetworkInterpolation.instance.get();
 
       state.tick = BigInt( Network.instance.worldState.tick );
-/*
-      state.snapshot = {
-        time: BigInt( Network.instance.worldState.snapshot.time ),
-        id: Network.instance.worldState.snapshot.id,
-        state: []
-      }; // in client copy state from transforms
-*/
+
       // console.log("STATE IS")
       // console.log(state);
       const buffer = WorldStateModel.toBuffer(state);
