@@ -11,6 +11,7 @@ async function runDirection(bot, key, numSeconds) {
 }
 
 async function runInCircle(bot, numSeconds) {
+    console.log('Running in circle');
     await runDirection(bot, 'KeyW', numSeconds);
     await runDirection(bot, 'KeyD', numSeconds);
     await runDirection(bot,'KeyS', numSeconds);
@@ -31,6 +32,9 @@ async function runBot() {
     await bot.enterRoom(`https://${domain}/location/${locationName}`, { name: 'bot1'});
     await runInCircle(bot, 2000);
     await sendChatMessages(bot);
+    setTimeout(() => {
+        process.exit(0);
+    }, 3000)
 }
 
 runBot();
