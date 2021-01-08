@@ -35,12 +35,13 @@ export const inputKeyArraySchema = new Schema({
   axes1d: [inputAxis1DSchema],
   axes2d: [inputAxis2DSchema],
   buttons: [inputKeySchema],
-  viewVector: viewVectorSchema
+  viewVector: viewVectorSchema,
+  snapShotTime: uint64
 });
 
 export class ClientInputModel {
   static model: Model = new Model(inputKeyArraySchema)
-  static toBuffer(objectOrArray: NetworkInputInterface): ArrayBuffer {
+  static toBuffer(objectOrArray): ArrayBuffer {
     // @ts-ignore
     return this.model.toBuffer(objectOrArray);
   }

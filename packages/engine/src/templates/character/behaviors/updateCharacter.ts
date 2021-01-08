@@ -10,6 +10,7 @@ import { Object3DComponent } from '../../../common/components/Object3DComponent'
 import { cannonFromThreeVector } from "../../../common/functions/cannonFromThreeVector";
 import { Vector3 } from 'three';
 import { Network } from '../../../networking/components/Network';
+import { NetworkObject } from '../../../networking/components/NetworkObject';
 import { NetworkInterpolation } from '../../../networking/components/NetworkInterpolation';
 import { LocalInputReceiver } from '../../../input/components/LocalInputReceiver';
 import { Vault } from '../../../networking/components/Vault';
@@ -40,21 +41,32 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
 
 
 
-if (isClient) {
-
-}
 
 
   springRotation(entity, null, deltaTime);
   springMovement(entity, null, deltaTime);
   rotateModel(entity);
 
-    actorTransform.position.set(
-      actor.actorCapsule.body.position.x,
-      actor.actorCapsule.body.position.y,
-      actor.actorCapsule.body.position.z
-    );
+    if (!isClient) {
+      actorTransform.position.set(
+        actor.actorCapsule.body.position.x,
+        actor.actorCapsule.body.position.y,
+        actor.actorCapsule.body.position.z
+      );
+    }
 
+if (isClient) {
+  let networkComponent = getComponent<NetworkObject>(entity, NetworkObject)
+  if (networkComponent) {
+    if (networkComponent.ownerId === Network.instance.userId) {
+      actorTransform.position.set(
+        actor.actorCapsule.body.position.x,
+        actor.actorCapsule.body.position.y,
+        actor.actorCapsule.body.position.z
+      );
+    }
+  }
+}
 
 
     // actorTransform.position.set(
