@@ -4,17 +4,16 @@ import {Input} from '../../input/components/Input';
 import {LocalInputReceiver} from '../../input/components/LocalInputReceiver';
 import {InputType} from '../../input/enums/InputType';
 import {Network} from '../components/Network';
-import {addSnapshot} from '../functions/NetworkInterpolationFunctions';
-import {WorldStateInterface} from "../interfaces/WorldState";
+import {addSnapshot, createSnapshot} from '../functions/NetworkInterpolationFunctions';
+import {WorldStateInterface, WorldStateClientInterface} from "../interfaces/WorldState";
 import {initializeNetworkObject} from './initializeNetworkObject';
 import {CharacterComponent} from "../../templates/character/components/CharacterComponent";
 
 let test = 0
 
 export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface, delta = 0.033): void {
-    const worldState = worldStateBuffer; // worldStateModel.fromBuffer(worldStateBuffer);
 
-    if (Network.tick < worldState.tick - 1) {
+    if (Network.tick < worldStateBuffer.tick - 1) {
         // we dropped packets
         // Check how many
         // If our queue empty? Request immediately
@@ -23,37 +22,37 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
         // Send a request for the ones that didn't
     }
 
-    Network.tick = worldState.tick;
+    Network.tick = worldStateBuffer.tick;
 
-    Network.instance.worldState = worldState;
+    Network.instance.worldState = worldStateBuffer;
 
     // Handle all clients that connected this frame
-    for (const connectingClient in worldState.clientsConnected) {
+    for (const connectingClient in worldStateBuffer.clientsConnected) {
         // Add them to our client list
-        Network.instance.clients[worldState.clientsConnected[connectingClient].userId] = {
-            userId: worldState.clientsConnected[connectingClient].userId
+        Network.instance.clients[worldStateBuffer.clientsConnected[connectingClient].userId] = {
+            userId: worldStateBuffer.clientsConnected[connectingClient].userId
         };
-        console.log(worldState.clientsConnected[connectingClient].userId, " connected");
+        console.log(worldStateBuffer.clientsConnected[connectingClient].userId, " connected");
     }
 
     // Handle all clients that disconnected this frame
-    for (const disconnectingClient in worldState.clientsDisconnected) {
-        if (worldState.clientsConnected[disconnectingClient] !== undefined) {
+    for (const disconnectingClient in worldStateBuffer.clientsDisconnected) {
+        if (worldStateBuffer.clientsConnected[disconnectingClient] !== undefined) {
             // Remove them from our client list
-            console.log(worldState.clientsConnected[disconnectingClient].userId, " disconnected");
-            delete Network.instance.clients[worldState.clientsConnected[disconnectingClient].userId];
+            console.log(worldStateBuffer.clientsConnected[disconnectingClient].userId, " disconnected");
+            delete Network.instance.clients[worldStateBuffer.clientsConnected[disconnectingClient].userId];
         } else {
             console.warn("Client disconnected but was not found in our client list");
         }
     }
 
     // Handle all network objects created this frame
-    for (const objectToCreateKey in worldState.createObjects) {
+    for (const objectToCreateKey in worldStateBuffer.createObjects) {
         // If we already have a network object with this network id, throw a warning and ignore this update
-        if (Network.instance.networkObjects[worldState.createObjects[objectToCreateKey].networkId] !== undefined)
+        if (Network.instance.networkObjects[worldStateBuffer.createObjects[objectToCreateKey].networkId] !== undefined)
             console.warn("Not creating object because it already exists");
         else {
-            const objectToCreate = worldState.createObjects[objectToCreateKey];
+            const objectToCreate = worldStateBuffer.createObjects[objectToCreateKey];
             let position = null;
             let rotation = null;
             if (
@@ -85,27 +84,46 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
     }
 
 
-    if (worldState.snapshot != undefined) {
+    let searchTimeMyPlayer = 0; //state.transforms
+  //  console.warn(worldStateBufferBuffer.transforms);
+  //  console.warn(Network.instance.userId);
+
+
+
+    // Ignore input applied to local user input object that the client is currently controlling
+
+
+
+    let serchh = worldStateBuffer.transforms.find(v => {
+      if (Network.instance.networkObjects[v.networkId]) {
+        const networkComponent = Network.instance.networkObjects[v.networkId].component;
+        return networkComponent.ownerId === Network.instance.userId
+      }
+      return false;
+    });
+  //  console.warn(serchh);
+    if (serchh != undefined) {
+      searchTimeMyPlayer = Number(serchh.snapShotTime)
+    }
+//    console.warn(searchTimeMyPlayer);
+
+
+
+    if (worldStateBuffer.transforms.length > 0) {
         if (test != 0) {
-            addSnapshot(worldState.snapshot);
+          let newServerSnapshot = createSnapshot(worldStateBuffer.transforms)
+          newServerSnapshot.time = searchTimeMyPlayer
+          Network.instance.snapshot = newServerSnapshot
+          addSnapshot(newServerSnapshot);
         }
     } else {
         console.warn('server do not send Interpolation Snapshot');
     }
 
-    // TODO: Re-enable for snapshot interpolation
-    // if (worldState.transforms !== undefined && worldState.transforms.length > 0) {
-    //   // Add world state to our snapshot vault
-    //   addSnapshot(createSnapshot(worldState.transforms));
-    //   // Interpolate it
-    //   const snapshot = calculateInterpolation('x y z q(quat)');
-    //   const { state } = snapshot;
-    //   Network.instance.worldState.transforms = state;
-    // }
 
     // Handle all network objects destroyed this frame
-    for (const objectToDestroy in worldState.destroyObjects) {
-        const networkId = worldState.destroyObjects[objectToDestroy].networkId;
+    for (const objectToDestroy in worldStateBuffer.destroyObjects) {
+        const networkId = worldStateBuffer.destroyObjects[objectToDestroy].networkId;
         console.log("Destroying ", networkId);
         if (Network.instance.networkObjects[networkId] === undefined)
             return console.warn("Can't destroy object as it doesn't appear to exist");
@@ -119,7 +137,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
         delete Network.instance.networkObjects[networkId];
     }
 
-    worldState.inputs?.forEach(inputData => {
+    worldStateBuffer.inputs?.forEach(inputData => {
         if (Network.instance === undefined)
             return console.warn("Network.instance undefined");
 
@@ -175,27 +193,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
 
     });
 
-    // worldState.states?.forEach(stateData => {
-    //   if (Network.instance.networkObjects[stateData.networkId] === undefined)
-    //   return console.warn("network object undefined, but state is not not");
-    // // Get network object with networkId
-    // const networkComponent = Network.instance.networkObjects[stateData.networkId].component;
 
-    // // Ignore state applied to local user input object that the client is currently controlling
-    // if(networkComponent.ownerId === Network.instance.userId && hasComponent(networkComponent.entity, LocalInputReceiver))
-    //   return;
-
-//worldState
-    // // Ignore state applied to local user input object that the client is currently controlling
-
-
-    //   const state = getComponent(networkComponent.entity, State);
-
-    //   console.warn("Setting state to ", stateData.states);
-    //   stateData.data.set(stateData.states);
-    //   console.log("stateData.data is now: ", stateData.states);
-    // });
-
-    if (worldState.transforms === undefined || worldState.transforms.length < 1)
+    if (worldStateBuffer.transforms === undefined || worldStateBuffer.transforms.length < 1)
         return;// console.warn("Worldstate transforms is null");
 }
