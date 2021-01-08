@@ -21,27 +21,13 @@ export interface NetworkInputInterface {
       lifecycleState: LifecycleValue
     }>
   viewVector: {  x: number, y: number, z: number  },
-  snapShotTime?: number
 }
 
-export interface PacketReadyNetworkInputInterface {
-  networkId: number
-  buttons: Array<{
-      input: InputAlias,
-      value: NumericalType,
-      lifecycleState: LifecycleValue
-    }>
-  axes1d: Array<{
-      input: InputAlias,
-      value: NumericalType,
-      lifecycleState: LifecycleValue
-    }>
-  axes2d: Array<{
-      input: InputAlias,
-      value: NumericalType,
-      lifecycleState: LifecycleValue
-    }>
-  viewVector: {  x: number, y: number, z: number  },
+export interface NetworkClientInputInterface extends NetworkInputInterface {
+  snapShotTime: number
+}
+
+export interface PacketNetworkClientInputInterface extends PacketNetworkInputInterface {
   snapShotTime: BigInt
 }
 
@@ -96,15 +82,11 @@ export interface WorldStateInterface {
   destroyObjects: NetworkObjectRemoveInterface[]
 }
 
-export interface WorldStateClientInterface extends WorldStateInterface {
-  transforms: StateEntityClientGroup
-}
-
-export interface PacketReadyWorldState {
+export interface PacketWorldState {
   tick: BigInt
-  transforms: StateEntityClientGroup
+  transforms: NetworkTransformsInterface[]
   //snapshot: WorldStateSnapshot
-  inputs: PacketReadyNetworkInputInterface[]
+  inputs: PacketNetworkInputInterface[]
   states: any[],
   clientsConnected: NetworkClientDataInterface[]
   clientsDisconnected: NetworkClientDataInterface[]
@@ -112,7 +94,7 @@ export interface PacketReadyWorldState {
   destroyObjects: NetworkObjectRemoveInterface[]
 }
 
-export interface PacketReadyNetworkInputInterface {
+export interface PacketNetworkInputInterface {
   networkId: number
   buttons: Array<{
       input: InputAlias,
@@ -131,6 +113,3 @@ export interface PacketReadyNetworkInputInterface {
     }>
   viewVector: {  x: number, y: number, z: number  }
 }
-
-
-//export interface NetworkInputInterface extends PacketReadyNetworkInputInterface {}

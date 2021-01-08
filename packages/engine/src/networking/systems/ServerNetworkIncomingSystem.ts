@@ -20,22 +20,23 @@ import { Behavior } from '../../common/interfaces/Behavior';
 import { InputType } from '../../input/enums/InputType';
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import _ from 'lodash';
-import { NetworkInputInterface } from "../interfaces/WorldState";
+import { NetworkClientInputInterface, NetworkInputInterface } from "../interfaces/WorldState";
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { ClientInputModel } from '../schema/clientInputSchema';
 
-const isNetworkInputInterface = (p: unknown): p is NetworkInputInterface => {
+const isClientNetworkInputInterface = (p: unknown): p is NetworkClientInputInterface => {
   return p.hasOwnProperty('networkId')
+  && p.hasOwnProperty('snapShotTime')
   && p.hasOwnProperty('buttons')
   && p.hasOwnProperty('axes1d')
   && p.hasOwnProperty('axes2d')
   && p.hasOwnProperty('viewVector')
 }
 
-function handleUpdatesFromClients(buffer:NetworkInputInterface|Iterable<number>): void {
-  let clientInput: NetworkInputInterface;
+function handleUpdatesFromClients(buffer:NetworkClientInputInterface|Iterable<number>): void {
+  let clientInput: NetworkClientInputInterface;
 
-  if (isNetworkInputInterface(buffer)) {
+  if (isClientNetworkInputInterface(buffer)) {
     clientInput = buffer;
   } else {
     clientInput = ClientInputModel.fromBuffer(new Uint8Array(buffer).buffer);
@@ -54,7 +55,7 @@ function handleUpdatesFromClients(buffer:NetworkInputInterface|Iterable<number>)
   );
   //console.warn(clientInput.snapShotTime);
   const networkObject = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, NetworkObject);
-  networkObject.snapShotTime = Number(clientInput.snapShotTime)
+  networkObject.snapShotTime = clientInput.snapShotTime;
   // Get input component
   const input = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, Input);
   if (!input) {
