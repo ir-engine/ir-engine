@@ -168,7 +168,7 @@ class XR3ngineBot {
 
         console.log('Going to ' + roomUrl);
         await this.page.goto(roomUrl, {waitUntil: 'domcontentloaded'})
-        await this.page.waitFor("button")
+        await this.page.waitFor("button", { timeout: 60000})
 
         if (this.headless) {
             // Disable rendering for headless, otherwise chromium uses a LOT of CPU
@@ -183,7 +183,7 @@ class XR3ngineBot {
             setTimeout(async() => {
                 await this.page.mouse.click(0, 0);
                 resolve();
-            }, 3000)
+            }, 10000)
         }, 2000) });
     }
 
