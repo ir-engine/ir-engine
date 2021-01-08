@@ -6,7 +6,7 @@ import { ID, Snapshot } from '../types/SnapshotDataTypes';
 export class Vault extends Component<any> {
   static instance: Vault
   public vault: Snapshot[] = []
-  vaultSize = 320
+  vaultSize = 2000
 
   constructor () {
     super();

@@ -1,41 +1,57 @@
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { NumericalType } from "../../common/types/NumericalTypes";
 import { InputAlias } from "../../input/types/InputAlias";
-import { Snapshot, StateEntityGroup } from "../types/SnapshotDataTypes";
+import { Snapshot, StateEntityGroup, StateEntityClientGroup } from "../types/SnapshotDataTypes";
 
-// export interface NetworkInputInterface {
-//   networkId: number
-//   buttons: {
-//     [key: string]: {
-//       input: InputAlias,
-//       value: NumericalType,
-//       lifecycleState: LifecycleValue
-//     }
-//   }
-//   axes1d: {
-//     [key: string]: {
-//       input: InputAlias,
-//       value: NumericalType,
-//       lifecycleState: LifecycleValue
-//     }
-//   }
-//   axes2d: {
-//     [key: string]: {
-//       input: InputAlias,
-//       valueX: number,
-//       valueY: number,
-//       lifecycleState: LifecycleValue
-//     }
-//   }
-//   viewVector: number[]
-// }
+export interface NetworkInputInterface {
+  networkId: number
+  buttons: Array<{
+      input: InputAlias,
+      value: NumericalType,
+      lifecycleState: LifecycleValue
+    }>
+  axes1d: Array<{
+      input: InputAlias,
+      value: NumericalType,
+      lifecycleState: LifecycleValue
+    }>
+  axes2d: Array<{
+      input: InputAlias,
+      value: NumericalType,
+      lifecycleState: LifecycleValue
+    }>
+  viewVector: {  x: number, y: number, z: number  },
+  snapShotTime?: number
+}
+
+export interface PacketReadyNetworkInputInterface {
+  networkId: number
+  buttons: Array<{
+      input: InputAlias,
+      value: NumericalType,
+      lifecycleState: LifecycleValue
+    }>
+  axes1d: Array<{
+      input: InputAlias,
+      value: NumericalType,
+      lifecycleState: LifecycleValue
+    }>
+  axes2d: Array<{
+      input: InputAlias,
+      value: NumericalType,
+      lifecycleState: LifecycleValue
+    }>
+  viewVector: {  x: number, y: number, z: number  },
+  snapShotTime: BigInt
+}
 
 export interface NetworkClientDataInterface {
   userId: string
 }
 
 export interface NetworkTransformsInterface {
-  networkId: number
+  networkId: number,
+  snapShotTime: BigInt,
   x: number
   y: number
   z: number
@@ -71,7 +87,7 @@ export interface WorldStateSnapshot {
 export interface WorldStateInterface {
   tick: number
   transforms: StateEntityGroup
-  snapshot: Snapshot
+  //snapshot: Snapshot
   inputs: NetworkInputInterface[]
   states: any[]
   clientsConnected: NetworkClientDataInterface[]
@@ -80,10 +96,14 @@ export interface WorldStateInterface {
   destroyObjects: NetworkObjectRemoveInterface[]
 }
 
+export interface WorldStateClientInterface extends WorldStateInterface {
+  transforms: StateEntityClientGroup
+}
+
 export interface PacketReadyWorldState {
   tick: BigInt
-  transforms: StateEntityGroup
-  snapshot: WorldStateSnapshot
+  transforms: StateEntityClientGroup
+  //snapshot: WorldStateSnapshot
   inputs: PacketReadyNetworkInputInterface[]
   states: any[],
   clientsConnected: NetworkClientDataInterface[]
@@ -112,4 +132,5 @@ export interface PacketReadyNetworkInputInterface {
   viewVector: {  x: number, y: number, z: number  }
 }
 
-export interface NetworkInputInterface extends PacketReadyNetworkInputInterface {}
+
+//export interface NetworkInputInterface extends PacketReadyNetworkInputInterface {}

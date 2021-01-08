@@ -18,9 +18,10 @@ import { selectAuthState } from '../../../redux/auth/selector';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
+import { getPseudoRandomAvatarIdByUserId } from '@xr3ngine/engine/src/templates/character/functions/pseudoRandomAvatar';
 import { setActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/setActorAvatar";
 
-import { updateUsername } from '../../../redux/auth/service';
+import { updateUsername, updateUserAvatarId } from '../../../redux/auth/service';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { showDialog } from '../../../redux/dialog/service';
 import SignIn from '../Auth/Login';
@@ -49,6 +50,7 @@ interface Props {
     login?: boolean;
     authState?:any;
     updateUsername?: typeof updateUsername;
+    updateUserAvatarId?: typeof updateUserAvatarId;
     logoutUser?: typeof logoutUser;
     showDialog?: typeof showDialog;
     removeUser?: typeof removeUser;
@@ -65,6 +67,7 @@ const mapStateToProps = (state: any): any => {
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   updateUsername: bindActionCreators(updateUsername, dispatch),
+  updateUserAvatarId: bindActionCreators(updateUserAvatarId, dispatch),
   logoutUser: bindActionCreators(logoutUser, dispatch),
   showDialog: bindActionCreators(showDialog, dispatch),
   removeUser: bindActionCreators(removeUser, dispatch),
@@ -72,8 +75,9 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 
 const UserMenu = (props: Props): any => {    
-  const { login, authState, logoutUser, removeUser, showDialog, currentScene, updateUsername} = props;
+  const { login, authState, logoutUser, removeUser, showDialog, currentScene, updateUsername, updateUserAvatarId} = props;
   const selfUser = authState.get('user');
+
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
   const [isEditUsername, setIsEditUsername] = useState(false);
   const [username, setUsername] = useState(selfUser?.name);
@@ -183,7 +187,7 @@ const UserMenu = (props: Props): any => {
     </Snackbar>;
 
   const [actorEntity, setActorEntity] = useState(null);
-  const [actorAvatarId, setActorAvatarId] = useState('Rose');
+  const [actorAvatarId, setActorAvatarId] = useState(selfUser.avatarId);
 
     useEffect(() => {
       const actorEntityWaitInterval = setInterval(() => {
@@ -198,6 +202,7 @@ const UserMenu = (props: Props): any => {
       if (actorEntity) {
         setActorAvatar(actorEntity, {avatarId: actorAvatarId});
         loadActorAvatar(actorEntity);
+        updateUserAvatarId(selfUser.id, actorAvatarId);
       }
     }, [ actorEntity, actorAvatarId ]);
 
@@ -205,12 +210,10 @@ const UserMenu = (props: Props): any => {
       selfUser && setUsername(selfUser.name);
     }, [ selfUser ]);
    
-//filter avatars by some attribute
-const avatarsForRender = CharacterAvatars.filter(avatar=>avatar.id !== 'Animation');
 const renderAvatarSelectionPage = () =><>
       <Typography variant="h1"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} focusable={true} />Select Avatar</Typography>
       <section className={styles.avatarCountainer}>
-          {avatarsForRender.map(characterAvatar=>
+          {CharacterAvatars.map(characterAvatar=>
               <Card key={characterAvatar.id} className={styles.avatarPreviewWrapper}> 
                 <CardContent onClick={()=>setActorAvatarId(characterAvatar.id)} >
                   <LazyImage

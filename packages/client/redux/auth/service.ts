@@ -18,7 +18,8 @@ import {
   loadedUserData,
   avatarUpdated,
   usernameUpdated,
-  userUpdated
+  userUpdated,
+  userAvatarIdUpdated
 } from './actions';
 import {
   addedLayerUser,
@@ -523,6 +524,18 @@ export function updateUsername (userId: string, name: string) {
       .then((res: any) => {
         dispatchAlertSuccess(dispatch, 'Username updated');
         dispatch(usernameUpdated(res));
+      });
+  };
+}
+
+export function updateUserAvatarId (userId: string, avatarId: string) {  
+  return (dispatch: Dispatch): any => {
+    client.service('user').patch(userId, {
+      avatarId: avatarId
+    })
+      .then((res: any) => {
+        // dispatchAlertSuccess(dispatch, 'User Avatar updated');
+        dispatch(userAvatarIdUpdated(res));
       });
   };
 }

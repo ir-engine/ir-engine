@@ -18,6 +18,7 @@ import {
   LOADED_USER_DATA,
   AVATAR_UPDATED,
   USERNAME_UPDATED,
+  USERAVATARID_UPDATED,
   USER_UPDATED
 } from '../actions';
 import { AuthUser } from '@xr3ngine/common/interfaces/AuthUser';
@@ -85,6 +86,10 @@ export interface AvatarUpdatedAction {
 export interface UsernameUpdatedAction {
   type: string;
   name: any;
+}
+export interface UserAvatarIdUpdatedAction{
+  type: string;
+  avatarId: any;
 }
 
 export interface UserUpdatedAction {
@@ -228,6 +233,15 @@ export function usernameUpdated (result: any): UsernameUpdatedAction {
     name
   };
 }
+
+export function userAvatarIdUpdated (result: any): UserAvatarIdUpdatedAction {
+  const avatarId = result.avatarId;
+  return {
+    type: USERAVATARID_UPDATED,
+    avatarId
+  };
+}
+
 
 export function userUpdated (user: User): UserUpdatedAction {
   return {
