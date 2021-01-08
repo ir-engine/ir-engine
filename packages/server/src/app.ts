@@ -87,7 +87,6 @@ if (config.server.enabled) {
     app.configure(express.rest());
     app.configure(socketio({
       serveClient: false,
-      origins: [config.client.url],
       handlePreflightRequest: (req, res) => {
         // Set CORS headers
         if (res != null) {
