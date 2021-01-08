@@ -106,6 +106,7 @@ const authReducer = (state = immutableState, action: any): any => {
     }
     case USERAVATARID_UPDATED: {
       const updatedUser = Object.assign({}, state.get('user'), { avatarId: (action as UserAvatarIdUpdatedAction).avatarId });
+      console.log('updatedUser',updatedUser)
       return state.set('user', updatedUser);
     }
     case USER_UPDATED: {
