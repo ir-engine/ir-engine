@@ -55,12 +55,7 @@ export class ClientNetworkSystem extends System {
         // TODO: get rid of this conversions? isn't it lossy converting bigint to number and back?
         const unbufferedState:WorldStateInterface = {
           ...state,
-          tick: Number(state.tick),
-          snapshot: {
-            ...state.snapshot,
-            time: Number(state.snapshot.time),
-            state: state.transforms
-          }
+          tick: Number(state.tick)
         };
 
         applyNetworkStateToClient(unbufferedState, delta);

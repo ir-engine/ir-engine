@@ -46,11 +46,16 @@ export class PhysicsSystem extends System {
       old: null,
       new: [],
       interpolationSnapshot: calculateInterpolation('x y z quat'),
-      correction: (NetworkInterpolation.instance.timeOffset / 30) //speed correction client form server positions
+      correction: 180 //speed correction client form server positions
     }
 
     if (isClient && Network.instance.worldState.snapshot) {
-      clientSnapshot.old = Vault.instance.get((Network.instance.worldState.snapshot as any).time + NetworkInterpolation.instance.timeOffset, true)
+      clientSnapshot.old = Vault.instance.get((Network.instance.worldState.snapshot as any).time - 15, true)
+/*
+      if (clientSnapshot.old != undefined) {
+          console.warn(clientSnapshot.old.time - Network.instance.worldState.snapshot.time);
+      }
+*/
     }
 
     // Collider

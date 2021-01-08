@@ -52,7 +52,9 @@ function handleUpdatesFromClients(buffer:NetworkInputInterface|Iterable<number>)
     clientInput.viewVector.y,
     clientInput.viewVector.z
   );
-
+  //console.warn(clientInput.snapShotTime);
+  const networkObject = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, NetworkObject);
+  networkObject.snapShotTime = clientInput.snapShotTime
   // Get input component
   const input = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, Input);
   if (!input) {

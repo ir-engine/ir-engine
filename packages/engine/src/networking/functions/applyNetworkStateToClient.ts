@@ -4,7 +4,7 @@ import {Input} from '../../input/components/Input';
 import {LocalInputReceiver} from '../../input/components/LocalInputReceiver';
 import {InputType} from '../../input/enums/InputType';
 import {Network} from '../components/Network';
-import {addSnapshot} from '../functions/NetworkInterpolationFunctions';
+import {addSnapshot, createSnapshot} from '../functions/NetworkInterpolationFunctions';
 import {WorldStateInterface} from "../interfaces/WorldState";
 import {initializeNetworkObject} from './initializeNetworkObject';
 import {CharacterComponent} from "../../templates/character/components/CharacterComponent";
@@ -12,7 +12,22 @@ import {CharacterComponent} from "../../templates/character/components/Character
 let test = 0
 
 export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface, delta = 0.033): void {
-    const worldState = worldStateBuffer; // worldStateModel.fromBuffer(worldStateBuffer);
+    const worldState = {
+      ...worldStateBuffer,
+      transforms: worldStateBuffer.transforms.map(v=> {
+        return {
+          networkId: v.networkId,
+          x: v.x,
+          y: v.y,
+          z: v.z,
+          qX: v.x,
+          qY: v.y,
+          qZ: v.z,
+          qW: v.w
+        }
+      })
+    };
+
 
     if (Network.tick < worldState.tick - 1) {
         // we dropped packets
@@ -85,9 +100,37 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
     }
 
 
-    if (worldState.snapshot != undefined) {
+    let searchTimeMyPlayer = 0; //state.transforms
+  //  console.warn(worldStateBuffer.transforms);
+  //  console.warn(Network.instance.userId);
+
+
+
+    // Ignore input applied to local user input object that the client is currently controlling
+
+
+
+    let serchh = worldStateBuffer.transforms.find(v => {
+      if (Network.instance.networkObjects[v.networkId]) {
+        const networkComponent = Network.instance.networkObjects[v.networkId].component;
+        return networkComponent.ownerId === Network.instance.userId
+      }
+      return false;      
+    });
+  //  console.warn(serchh);
+    if (serchh != undefined) {
+      searchTimeMyPlayer = Number(serchh.snapShotTime)
+    }
+//    console.warn(searchTimeMyPlayer);
+
+
+
+    if (worldState.transforms.length > 0) {
         if (test != 0) {
-            addSnapshot(worldState.snapshot);
+          let newServerSnapshot = createSnapshot(worldState.transforms)
+          newServerSnapshot.time = searchTimeMyPlayer
+          Network.instance.worldState.snapshot = newServerSnapshot
+          addSnapshot(newServerSnapshot);
         }
     } else {
         console.warn('server do not send Interpolation Snapshot');

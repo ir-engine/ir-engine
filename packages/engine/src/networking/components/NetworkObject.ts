@@ -5,10 +5,12 @@ export class NetworkObject extends Component<NetworkObject> {
   networkId: number
   ownerId: string
   componentMap: any
+  snapShotTime: any
 }
 
 NetworkObject._schema = {
   ownerId: { type: Types.String },
   networkId: { type: Types.Number },
-  componentMap: { type: Types.Ref }
+  componentMap: { type: Types.Ref },
+  snapShotTime: { type: Types.Number }
 };

@@ -1,7 +1,8 @@
 import { isClient } from "../../common/functions/isClient";
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
+import { TransformComponent } from '../../transform/components/TransformComponent';
+import { getComponent, hasComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { Network } from '../../networking/components/Network';
 import { NetworkObject } from '../../networking/components/NetworkObject';
@@ -41,15 +42,18 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
            offsetX = clientSnapshotPos.x - serverSnapshotPos.x;
            offsetY = clientSnapshotPos.y - serverSnapshotPos.y;
            offsetZ = clientSnapshotPos.z - serverSnapshotPos.z;
-/*
-           offsetqX = clientSnapshotPos.qX - serverSnapshotPos.qX;
-           offsetqY = clientSnapshotPos.qY - serverSnapshotPos.qY;
-           offsetqZ = clientSnapshotPos.qZ - serverSnapshotPos.qZ;
-           offsetqZ = clientSnapshotPos.qW - serverSnapshotPos.qW;
-*/
-           actor.actorCapsule.body.position.x -= (offsetX / correction);
-           actor.actorCapsule.body.position.y -= (offsetY / correction);
-           actor.actorCapsule.body.position.z -= (offsetZ / correction);
+
+
+          if (Math.abs(offsetX) + Math.abs(offsetY) + Math.abs(offsetZ) > 3) {
+            actor.actorCapsule.body.position.x = serverSnapshotPos.x;
+            actor.actorCapsule.body.position.y = serverSnapshotPos.y;
+            actor.actorCapsule.body.position.z = serverSnapshotPos.z;
+          } else {
+            actor.actorCapsule.body.position.x -= (offsetX / correction);
+            actor.actorCapsule.body.position.y -= (offsetY / correction);
+            actor.actorCapsule.body.position.z -= (offsetZ / correction);
+          }
+
 /*
            actor.actorCapsule.body.quaternion.x = serverSnapshotPos.qX;
            actor.actorCapsule.body.quaternion.y = serverSnapshotPos.qY;
@@ -59,17 +63,20 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
          }
        }
 
-     } else if (isClient && hasComponent(entity, CharacterComponent) && args.clientSnapshot.interpolationSnapshot) {
+     } else if (isClient && hasComponent(entity, CharacterComponent) && Network.instance.worldState.snapshot) {
 
        const actor = getComponent<CharacterComponent>(entity, CharacterComponent)
+       const actorTransform = getMutableComponent<TransformComponent>(entity, TransformComponent as any);
        const networkObject = getComponent<NetworkObject>(entity, NetworkObject)
 
-       const interpolationSnapshot = args.clientSnapshot.interpolationSnapshot.state.find(v => v.networkId == networkObject.networkId);
+      // const interpolationSnapshot = args.clientSnapshot.interpolationSnapshot.state.find(v => v.networkId == networkObject.networkId);
+      const serverSnapshotPos = Network.instance.worldState.snapshot.state.find(v => v.networkId == networkObject.networkId);
 
-       if (interpolationSnapshot) {
-        actor.actorCapsule.body.position.x = interpolationSnapshot.x;
-        actor.actorCapsule.body.position.y = interpolationSnapshot.y;
-        actor.actorCapsule.body.position.z = interpolationSnapshot.z;
+       if (serverSnapshotPos) {
+        actorTransform.position.x = serverSnapshotPos.x;
+        actorTransform.position.y = serverSnapshotPos.y;
+        actorTransform.position.z = serverSnapshotPos.z;
+    //    console.warn(serverSnapshotPos.y);
 /*
         actor.actorCapsule.body.quaternion.x = interpolationSnapshot.qX;
         actor.actorCapsule.body.quaternion.y = interpolationSnapshot.qY;
