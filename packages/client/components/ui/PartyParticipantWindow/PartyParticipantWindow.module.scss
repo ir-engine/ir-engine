@@ -51,7 +51,10 @@
     &.video-paused,
     &.no-video {
         .video-wrapper{
-            background-color: #243b55bf;
+            background-color: #A8A8FF;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
             video{
                 display: none;
             }
@@ -76,6 +79,8 @@
             .user-controls {
                 width: fit-content;
                 display: flex;
+                position: relative;
+                z-index: -1;
 
                 @media (max-width: 768px) {
                     width: 80px;
@@ -112,6 +117,8 @@
             .user-controls {
                 width: fit-content;
                 display: flex;
+                position: relative;
+                z-index: -1;
 
                 @media (max-width: 768px) {
                     width: 80px;

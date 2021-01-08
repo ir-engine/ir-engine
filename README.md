@@ -6,7 +6,7 @@
 # xr3ngine
 An end-to-end solution for hosting humans and AI in a virtual space, built on top of react, three.js and express/feathers.
 
-This repo includes a fully-feature client, API server, realtime gamerserver, game engine and devops for scalable deployment. Pick and choose what you need or deploy the whole stack and start building your aplication on top.
+This repo includes a fully-feature client, API server, realtime gamerserver, game engine and devops for scalable deployment. Pick and choose what you need or deploy the whole stack and start building your application on top.
 
 </div>
 

@@ -10,9 +10,16 @@ import { BrightnessContrastEffect } from '../../postprocessing/effects/Brightnes
 import { Resizer } from '../../postprocessing/core/Resizer';
 import { OutlineEffect } from '../../postprocessing/effects/OutlineEffect';
 import { LinearTosRGBEffect } from "../../postprocessing/effects/LinearTosRGBEffect";
+import { FXAAEffect } from "../../postprocessing/effects/FXAAEffect";
 
 export const DefaultPostProcessingSchema: PostProcessingSchema = {
   effects: [
+    {
+      effect: FXAAEffect,
+      options: {
+        blendFunction: BlendFunction.NORMAL
+      }
+    },
     {
       effect: OutlineEffect,
       options: {
