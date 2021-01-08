@@ -23,8 +23,14 @@ const addNetworkTransformToWorldState: Behavior = (entity) => {
   const transformComponent = getComponent(entity, TransformComponent);
   const networkObject = getComponent(entity, NetworkObject);
 
+  let snapShotTime = BigInt(0)
+  if (networkObject.snapShotTime != undefined) {
+    snapShotTime = networkObject.snapShotTime;
+  }
+
   Network.instance.worldState.transforms.push({
       networkId: networkObject.networkId,
+      snapShotTime: snapShotTime,
       x: transformComponent.position.x,
       y: transformComponent.position.y,
       z: transformComponent.position.z,
@@ -90,17 +96,17 @@ export class ServerNetworkOutgoingSystem extends System {
         };
       });
 
-      addSnapshot(createSnapshot(Network.instance.worldState.transforms));
-      Network.instance.worldState.snapshot = NetworkInterpolation.instance.get();
+    //  addSnapshot(createSnapshot(Network.instance.worldState.transforms));
+    //  Network.instance.worldState.snapshot = NetworkInterpolation.instance.get();
 
       state.tick = BigInt( Network.instance.worldState.tick );
-
+/*
       state.snapshot = {
         time: BigInt( Network.instance.worldState.snapshot.time ),
         id: Network.instance.worldState.snapshot.id,
         state: []
       }; // in client copy state from transforms
-
+*/
       // console.log("STATE IS")
       // console.log(state);
       const buffer = WorldStateModel.toBuffer(state);
@@ -110,7 +116,7 @@ export class ServerNetworkOutgoingSystem extends System {
         Network.instance.transport.sendReliableData(buffer); // Use default channel
     } else {
       //addSnapshot(createSnapshot(Network.instance.worldState.transforms));
-      Network.instance.worldState.snapshot = NetworkInterpolation.instance.get();
+    //  Network.instance.worldState.snapshot = NetworkInterpolation.instance.get();
       Network.instance.transport.sendReliableData(Network.instance.worldState);
     }
   }
