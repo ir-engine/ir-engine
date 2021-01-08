@@ -14,12 +14,10 @@ export async function LoadGLTF(url: AssetUrl): Promise<LoadGLTFResultInterface> 
         const loader = new GLTFLoader();
         let dracoLoader = null;
         if(isClient) {
-            console.log("************* IS CLIENT");
             dracoLoader = new DRACOLoader();
             dracoLoader.setDecoderPath('/loader_decoders/');
         }
         else {
-            console.log("IS SERVER!")
             dracoLoader = new NodeDRACOLoader();
             (dracoLoader as any).getDecoderModule = () => {};
             (dracoLoader as any).preload = () => {};

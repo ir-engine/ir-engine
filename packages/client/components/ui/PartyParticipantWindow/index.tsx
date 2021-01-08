@@ -29,6 +29,7 @@ import { selectLocationState } from '../../../redux/location/selector';
 import { selectUserState } from '../../../redux/user/selector';
 import {connect} from "react-redux";
 import {Dispatch} from "redux";
+import { getPseudoRandomAvatarIdByUserId } from '@xr3ngine/engine/src/templates/character/functions/pseudoRandomAvatar';
 
 
 interface ContainerProportions {
@@ -283,6 +284,10 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
         if (focused === false) return name?.length > 10 ? name.slice(0, 10) + '...' : name;
     };
 
+    const avatarBgImage = user ?
+    `url(${'/static/'+user.avatarId.toLocaleLowerCase()+'.png'})` : selfUser ? `url(${'/static/'+selfUser.avatarId.toLocaleLowerCase()+'.png'})` : null;
+    // const avatarBgImage = getPseudoRandomAvatarIdByUserId(user ? user.id : selfUser.id) ? 
+    // `url(${'/static/'+getPseudoRandomAvatarIdByUserId(user ? user.id : selfUser.id).toLocaleLowerCase()+'.png'})` : null;
     return (
         <div
             id={peerId + '_container'}
@@ -297,7 +302,10 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             onClick={() => { if (peerId !== 'me_cam' && peerId !== 'me_screen') setFocused(!focused); } }
         >
            
-            <div className={styles['video-wrapper']}><video key={peerId + '_cam'} ref={videoRef}/></div>
+            <div className={styles['video-wrapper']}
+            style={{ backgroundImage: user?.avatarUrl?.length > 0 ? `url(${user.avatarUrl}` :
+            avatarBgImage ? avatarBgImage : `url(/placeholders/default-silhouette.svg)`} }
+            ><video key={peerId + '_cam'} ref={videoRef}/></div>
             <audio key={peerId + '_audio'} ref={audioRef}/>
             <div className={styles['user-controls']}>
                 <div className={styles['username']}>{truncateUsername()}</div>

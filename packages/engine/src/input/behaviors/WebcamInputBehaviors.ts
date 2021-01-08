@@ -8,7 +8,7 @@ import { InputType } from "../enums/InputType";
 
 const EXPRESSION_THRESHOLD = 0.1;
 
-let faceTrackingTimers = [];
+const faceTrackingTimers = [];
 let lipsyncTracking = false;
 let audioContext = null;
 

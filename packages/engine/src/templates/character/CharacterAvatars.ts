@@ -18,11 +18,6 @@ export const CharacterAvatars: CharacterAvatarData[] = [
     src: "/models/avatars/Andy.glb"
   },
   {
-    id: "Animation",
-    title: "Animation",
-    src: "/models/avatars/Animation.glb"
-  },
-  {
     id: "Erik",
     title: "Erik",
     src: "/models/avatars/Erik.glb"
@@ -42,9 +37,9 @@ export const CharacterAvatars: CharacterAvatarData[] = [
     title: "Rose",
     src: "/models/avatars/Rose.glb"
   },
-  {
-    id: "VRMAvatar",
-    title: "VRMAvatar",
-    src: "/models/vrm/three-vrm-girl.vrm"
-  }
+  // {
+  //   id: "VRMAvatar",
+  //   title: "VRMAvatar",
+  //   src: "/models/vrm/three-vrm-girl.vrm"
+  // }
 ];
