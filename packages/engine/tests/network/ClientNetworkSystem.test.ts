@@ -1,28 +1,34 @@
-import { registerSystem } from "../../src/ecs/functions/SystemFunctions";
-import { ClientNetworkSystem } from "../../src/networking/systems/ClientNetworkSystem";
-import { NetworkSchema } from "../../src/networking/interfaces/NetworkSchema";
-import { DefaultNetworkSchema, PrefabType } from "../../src/templates/networking/DefaultNetworkSchema";
-import { NetworkTransport } from "../../src/networking/interfaces/NetworkTransport";
-import { Network } from "../../src/networking/components/Network";
-import { PacketWorldState, WorldStateInterface } from "../../src/networking/interfaces/WorldState";
-import { execute } from "../../src/ecs/functions/EngineFunctions";
-import { SystemUpdateType } from "../../src/ecs/functions/SystemUpdateType";
-import { Engine } from "../../src/ecs/classes/Engine";
-import { Quaternion, Scene, Vector3 } from "three";
-import { PhysicsSystem } from "../../src/physics/systems/PhysicsSystem";
+import {registerSystem} from "../../src/ecs/functions/SystemFunctions";
+import {ClientNetworkSystem} from "../../src/networking/systems/ClientNetworkSystem";
+import {NetworkSchema} from "../../src/networking/interfaces/NetworkSchema";
+import {DefaultNetworkSchema, PrefabType} from "../../src/templates/networking/DefaultNetworkSchema";
+import {NetworkTransport} from "../../src/networking/interfaces/NetworkTransport";
+import {Network} from "../../src/networking/components/Network";
+import {WorldStateInterface} from "../../src/networking/interfaces/WorldState";
+import {execute} from "../../src/ecs/functions/EngineFunctions";
+import {SystemUpdateType} from "../../src/ecs/functions/SystemUpdateType";
+import {Engine} from "../../src/ecs/classes/Engine";
+import {Quaternion, Scene, Vector3} from "three";
+import {PhysicsSystem} from "../../src/physics/systems/PhysicsSystem";
 import * as initializeNetworkObjectModule from "../../src/networking/functions/initializeNetworkObject";
-import { NetworkObject } from "../../src/networking/components/NetworkObject";
-import { TransformComponent } from "../../src/transform/components/TransformComponent";
-import { getComponent, hasComponent } from "../../src/ecs/functions/EntityFunctions";
-import { CharacterComponent } from "../../src/templates/character/components/CharacterComponent";
-import { LocalInputReceiver } from "../../src/input/components/LocalInputReceiver";
-import { WorldStateModel } from "../../src/networking/schema/worldStateSchema";
-import { addSnapshot, createSnapshot } from "../../src/networking/functions/NetworkInterpolationFunctions";
+import {NetworkObject} from "../../src/networking/components/NetworkObject";
+import {TransformComponent} from "../../src/transform/components/TransformComponent";
+import {getComponent, hasComponent} from "../../src/ecs/functions/EntityFunctions";
+import {CharacterComponent} from "../../src/templates/character/components/CharacterComponent";
+import {WorldStateModel} from "../../src/networking/schema/worldStateSchema";
 import {PhysicsManager} from "../../src/physics/components/PhysicsManager";
+import {DefaultInput} from "../../src/templates/shared/DefaultInput";
+import {LifecycleValue} from "../../src/common/enums/LifecycleValue";
+import {BinaryValue} from "../../src/common/enums/BinaryValue";
+import {createRemoteUserOnClient} from "../_helpers/createRemoteUserOnClient";
+import {Input} from "../../src/input/components/Input";
+import {Entity} from "../../src/ecs/classes/Entity";
+import {NumericalType} from "../../src/common/types/NumericalTypes";
 
 const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
 
 // turn off physics
+new PhysicsManager();
 PhysicsManager.instance.simulate = false;
 
 class TestTransport implements NetworkTransport {
@@ -133,4 +139,103 @@ test("create", () => {
 
   expect(hasComponent(entity, CharacterComponent)).toBeTruthy();
   // expect(hasComponent(entity, LocalInputReceiver)).toBeTruthy();
+});
+
+test("two inputs messages", () => {
+  const { createMessage, networkObject } = createRemoteUserOnClient({ initializeNetworkObjectMocked: initializeNetworkObject });
+  const buttonCalls: Array<[ Entity, LifecycleValue, NumericalType ]> = [];
+  const axis1dCalls: Array<[ Entity, LifecycleValue, NumericalType ]> = [];
+  const axis2dCalls: Array<[ Entity, LifecycleValue, NumericalType ]> = [];
+
+  const input = getComponent(networkObject.entity, Input);
+  if (typeof input.schema.inputButtonBehaviors[DefaultInput.FORWARD] === "undefined") {
+    input.schema.inputButtonBehaviors[DefaultInput.FORWARD] = {
+      started: [],
+      ended: []
+    };
+  }
+  input.schema.inputButtonBehaviors[DefaultInput.FORWARD].started.push({
+    behavior: e => buttonCalls.push([ e, LifecycleValue.STARTED, null ])
+  });
+  input.schema.inputButtonBehaviors[DefaultInput.FORWARD].ended.push({
+    behavior: e => buttonCalls.push([ e, LifecycleValue.ENDED, null ])
+  });
+
+  const messageWorldState: WorldStateInterface = {
+    clientsConnected: [],
+    clientsDisconnected: [],
+    createObjects: [],
+    destroyObjects: [],
+    inputs: [
+      {
+        "networkId": networkObject.networkId,
+        "axes1d": [
+          {
+            input: DefaultInput.CROUCH,
+            lifecycleState: LifecycleValue.CHANGED,
+            value: 0.2
+          }
+        ],
+        "axes2d": [
+          {
+            input: DefaultInput.SCREENXY,
+            lifecycleState: LifecycleValue.CHANGED,
+            value: [ 0.1, 240 ]
+          }
+        ],
+        "buttons": [
+          {
+            "input": DefaultInput.FORWARD,
+            "lifecycleState": LifecycleValue.STARTED,
+            "value": BinaryValue.ON,
+          }
+        ],
+        "viewVector": {
+          "x": 0,
+          "y": 0,
+          "z": 1,
+        }
+      },
+      {
+        "networkId": networkObject.networkId,
+        "axes1d": [
+          {
+            input: DefaultInput.CROUCH,
+            lifecycleState: LifecycleValue.CHANGED,
+            value: 0.9
+          }
+        ],
+        "axes2d": [
+          {
+            input: DefaultInput.SCREENXY,
+            lifecycleState: LifecycleValue.CHANGED,
+            value: [ 50, 21 ]
+          }
+        ],
+        "buttons": [
+          {
+            "input": DefaultInput.FORWARD,
+            "lifecycleState": LifecycleValue.ENDED,
+            "value": BinaryValue.OFF,
+          }
+        ],
+        "viewVector": {
+          "x": 0,
+          "y": 0,
+          "z": 1,
+        }
+      }
+    ],
+    states: [],
+    tick: 0,
+    transforms: []
+  };
+
+  const messageToQueue = !Network.instance.packetCompression? messageWorldState : WorldStateModel.toBuffer(messageWorldState);
+  Network.instance.incomingMessageQueue.add(messageToQueue);
+
+  execute(0, 1 / Engine.physicsFrameRate, SystemUpdateType.Fixed);
+
+  expect(buttonCalls.length).toBe(2);
+
 });
