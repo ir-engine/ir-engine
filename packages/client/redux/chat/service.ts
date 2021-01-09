@@ -16,7 +16,7 @@ import {
 
 import { User } from '@xr3ngine/common/interfaces/User';
 import store from '../store';
-import {dispatchAlertError} from '../alert/service';
+import { dispatchAlertError } from '../alert/service';
 
 export function getChannels(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -30,7 +30,7 @@ export function getChannels(skip?: number, limit?: number) {
       });
       // console.log(channelResult);
       dispatch(loadedChannels(channelResult));
-    } catch(err) {
+    } catch (err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
     }
@@ -74,16 +74,13 @@ export function getChannels(skip?: number, limit?: number) {
 export function getInstanceChannel() {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      console.log('Getting instance channel');
       const channelResult = await client.service('channel').find({
         query: {
           channelType: 'instance'
         }
       });
-      console.log('Instance channel:');
-      console.log(channelResult);
       dispatch(loadedChannel(channelResult.data[0], 'instance'));
-    } catch(err) {
+    } catch (err) {
       dispatchAlertError(dispatch, err.message);
     }
   };
@@ -97,9 +94,10 @@ export function createMessage(values: any) {
         targetObjectType: values.targetObjectType,
         text: values.text
       });
-    } catch(err) {
+    } catch (err) {
       console.log(err);
-      dispatchAlertError(dispatch, err.message);}
+      dispatchAlertError(dispatch, err.message);
+    }
   };
 }
 
@@ -117,9 +115,10 @@ export function getChannelMessages(channelId: string, skip?: number, limit?: num
         }
       });
       dispatch(loadedMessages(channelId, messageResult));
-    } catch(err) {
+    } catch (err) {
       console.log(err);
-      dispatchAlertError(dispatch, err.message);}
+      dispatchAlertError(dispatch, err.message);
+    }
   };
 }
 
@@ -127,9 +126,10 @@ export function removeMessage(messageId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       await client.service('message').remove(messageId);
-    } catch(err) {
+    } catch (err) {
       console.log(err);
-      dispatchAlertError(dispatch, err.message);}
+      dispatchAlertError(dispatch, err.message);
+    }
   };
 }
 
@@ -139,9 +139,10 @@ export function patchMessage(messageId: string, text: string) {
       await client.service('message').patch(messageId, {
         text: text
       });
-    } catch(err) {
+    } catch (err) {
       console.log(err);
-      dispatchAlertError(dispatch, err.message);}
+      dispatchAlertError(dispatch, err.message);
+    }
   };
 }
 
@@ -159,7 +160,7 @@ export function updateChatTarget(targetObjectType: string, targetObject: any) {
 }
 
 export function updateMessageScrollInit(value: boolean) {
-  return async(dispatch: Dispatch): Promise<any> => {
+  return async (dispatch: Dispatch): Promise<any> => {
     console.log('Dispatching setMessageScrollInit: ' + value);
     dispatch(setMessageScrollInit(value));
   };

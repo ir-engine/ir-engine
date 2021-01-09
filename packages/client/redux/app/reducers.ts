@@ -57,24 +57,21 @@ const appReducer = (state = immutableState, action: AppLoadedAction | SetViewpor
         .set('inVrMode', action.inVrMode);
     case SET_USER_HAS_INTERACTED:
       return state
-          .set('userHasInteracted', true);
-    case SET_APP_ONBOARDING_STEP: 
-      console.log('onBoardingStep', action.onBoardingStep, 'isTutorial', action.isTutorial, '   -----',state.get('onBoardingStep'));
-
+        .set('userHasInteracted', true);
+    case SET_APP_ONBOARDING_STEP:
       return (action.onBoardingStep === generalStateList.ALL_DONE) ?
-         state
+        state
           .set('onBoardingStep', action.onBoardingStep >= state.get('onBoardingStep') ? action.onBoardingStep : state.get('onBoardingStep')) :
-          (action.onBoardingStep === generalStateList.SCENE_LOADED) ?
-            state
-              .set('onBoardingStep', action.onBoardingStep >= state.get('onBoardingStep') ? action.onBoardingStep : state.get('onBoardingStep'))
-              .set('isTutorial', true)
-            :
-            state
-              .set('onBoardingStep', action.onBoardingStep >= state.get('onBoardingStep') ? action.onBoardingStep : state.get('onBoardingStep'))
-              .set('isTutorial', false);
-    case SET_APP_SPECIFIC_ONBOARDING_STEP: 
-    console.log('onBoardingStep', action.onBoardingStep, 'isTutorial', action.isTutorial);
-          return state.set('onBoardingStep', action.onBoardingStep).set('isTutorial', action.isTutorial);
+        (action.onBoardingStep === generalStateList.SCENE_LOADED) ?
+          state
+            .set('onBoardingStep', action.onBoardingStep >= state.get('onBoardingStep') ? action.onBoardingStep : state.get('onBoardingStep'))
+            .set('isTutorial', true)
+          :
+          state
+            .set('onBoardingStep', action.onBoardingStep >= state.get('onBoardingStep') ? action.onBoardingStep : state.get('onBoardingStep'))
+            .set('isTutorial', false);
+    case SET_APP_SPECIFIC_ONBOARDING_STEP:
+      return state.set('onBoardingStep', action.onBoardingStep).set('isTutorial', action.isTutorial);
     default:
       break;
   }
