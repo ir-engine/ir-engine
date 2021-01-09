@@ -96,6 +96,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.request = this.promisedRequest(this.socket);
 
     this.socket.on("connect", async () => {
+      console.log('Socket connected');
       const payload = { userId: Network.instance.userId, accessToken: Network.instance.accessToken };
       const { success } = await this.request(MessageTypes.Authorization.toString(), payload);
 
@@ -116,6 +117,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       // Send heartbeat every second
       const heartbeat = setInterval(() => {
+        // console.log('Sending heartbeat at ' + new Date());
         this.socket.emit(MessageTypes.Heartbeat.toString());
       }, 1000);
 
