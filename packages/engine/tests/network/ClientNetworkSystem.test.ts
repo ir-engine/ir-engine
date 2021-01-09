@@ -18,6 +18,7 @@ import { CharacterComponent } from "../../src/templates/character/components/Cha
 import { LocalInputReceiver } from "../../src/input/components/LocalInputReceiver";
 import { WorldStateModel } from "../../src/networking/schema/worldStateSchema";
 import { addSnapshot, createSnapshot } from "../../src/networking/functions/NetworkInterpolationFunctions";
+import {PhysicsManager} from "../../src/physics/components/PhysicsManager";
 
 const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
 
@@ -59,37 +60,58 @@ beforeAll(() => {
   registerSystem(PhysicsSystem);
 });
 
-test.skip("create", () => {
-  // TODO: mock initializeNetworkObject
+test("create", () => {
+  const simulatePhysics = PhysicsManager.instance.simulate;
+  PhysicsManager.instance.simulate = false;
 
-  const message: PacketWorldState = {
-    snapshot: {
-      time: BigInt( 0 ),
-      id: '1',
-      state: []
-    },
+  // TODO: mock initializeNetworkObject
+  const networkId = 3;
+  const ownerId = "oid";
+  const position = new Vector3(1,2,3);
+  const rotation = new Quaternion(4,5,6,7);
+
+  const message: WorldStateInterface = {
     clientsConnected: [],
     clientsDisconnected: [],
-    createObjects: [],
+    createObjects: [
+      {
+        networkId,
+        ownerId,
+        prefabType: PrefabType.Player,
+        x: 1, y: 2, z: 3,
+        qX: 4, qY: 5, qZ: 6, qW: 7
+      }
+    ],
     destroyObjects: [],
-    inputs: [],
+    inputs: [
+      {
+        networkId,
+        axes1d: [],
+        axes2d: [],
+        buttons: [],
+        viewVector: { x: 0, y: 0, z: 1 }
+      }
+    ],
     states: [],
-    tick: BigInt(0),
-    transforms: []
+    tick: 0,
+    transforms: [
+      {
+        networkId,
+        x: position.x,
+        y: position.y,
+        z: position.z,
+        qX: rotation.x,
+        qY: rotation.y,
+        qZ: rotation.z,
+        qW: rotation.w,
+        snapShotTime: 0
+      }
+    ]
   };
-
-  const createMessage = {
-    networkId: 3,
-    ownerId: "oid",
-    prefabType: PrefabType.Player,
-    x: 1, y: 2, z: 3,
-    qX: 4, qY: 5, qZ: 6, qW: 7
-  };
-  message.createObjects.push(createMessage);
 
   const expected = {
-    position: new Vector3(createMessage.x,createMessage.y,createMessage.z),
-    rotation: new Quaternion(createMessage.qX,createMessage.qY,createMessage.qZ, createMessage.qW)
+    position,
+    rotation
   };
 
   // WorldStateInterface
@@ -99,16 +121,19 @@ test.skip("create", () => {
   expect(initializeNetworkObject.mock.calls.length).toBe(1);
 
   const newNetworkObject = initializeNetworkObject.mock.results[0].value as NetworkObject;
-  expect(newNetworkObject.networkId).toBe(createMessage.networkId);
-  expect(newNetworkObject.ownerId).toBe(createMessage.ownerId);
+  expect(newNetworkObject.networkId).toBe(networkId);
+  expect(newNetworkObject.ownerId).toBe(ownerId);
 
   const entity = newNetworkObject.entity;
   const transform = getComponent(entity, TransformComponent);
   expect(transform.rotation).toMatchObject(expected.rotation);
   expect(transform.position.x).toBe(expected.position.x);
-  expect(expected.position.y - transform.position.y).toBeLessThan(0.01); // affected by gravity
+  expect(transform.position.y).toBe(expected.position.y);
+  // expect(expected.position.y - transform.position.y).toBeLessThan(0.01); // affected by gravity
   expect(transform.position.z).toBe(expected.position.z);
 
   expect(hasComponent(entity, CharacterComponent)).toBeTruthy();
   // expect(hasComponent(entity, LocalInputReceiver)).toBeTruthy();
+
+  PhysicsManager.instance.simulate = simulatePhysics;
 });
