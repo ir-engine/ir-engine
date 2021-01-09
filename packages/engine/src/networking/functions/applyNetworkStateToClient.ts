@@ -8,6 +8,7 @@ import {addSnapshot, createSnapshot} from '../functions/NetworkInterpolationFunc
 import {WorldStateInterface} from "../interfaces/WorldState";
 import {initializeNetworkObject} from './initializeNetworkObject';
 import {CharacterComponent} from "../../templates/character/components/CharacterComponent";
+import {handleInputFromNonLocalClients} from "./handleInputOnServer";
 
 let test = 0
 
@@ -191,6 +192,8 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
                     lifecycleState: inputData.axes2d[i].lifecycleState
                 });
 
+        // handle inputs
+        handleInputFromNonLocalClients(networkComponent.entity, {isLocal:false, isServer: false}, delta);
     });
 
 
