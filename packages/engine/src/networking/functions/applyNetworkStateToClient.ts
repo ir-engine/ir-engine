@@ -1,13 +1,13 @@
-import {Quaternion, Vector3} from "three";
-import {getComponent, hasComponent, removeEntity} from '../../ecs/functions/EntityFunctions';
-import {Input} from '../../input/components/Input';
-import {LocalInputReceiver} from '../../input/components/LocalInputReceiver';
-import {InputType} from '../../input/enums/InputType';
-import {Network} from '../components/Network';
-import {addSnapshot, createSnapshot} from '../functions/NetworkInterpolationFunctions';
-import {WorldStateInterface} from "../interfaces/WorldState";
-import {initializeNetworkObject} from './initializeNetworkObject';
-import {CharacterComponent} from "../../templates/character/components/CharacterComponent";
+import { Quaternion, Vector3 } from "three";
+import { getComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
+import { Input } from '../../input/components/Input';
+import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
+import { InputType } from '../../input/enums/InputType';
+import { Network } from '../components/Network';
+import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions';
+import { WorldStateInterface } from "../interfaces/WorldState";
+import { initializeNetworkObject } from './initializeNetworkObject';
+import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 
 let test = 0
 
@@ -32,7 +32,6 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
         Network.instance.clients[worldStateBuffer.clientsConnected[connectingClient].userId] = {
             userId: worldStateBuffer.clientsConnected[connectingClient].userId
         };
-        console.log(worldStateBuffer.clientsConnected[connectingClient].userId, " connected");
     }
 
     // Handle all clients that disconnected this frame
@@ -85,8 +84,8 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
 
 
     let searchTimeMyPlayer = 0; //state.transforms
-  //  console.warn(worldStateBufferBuffer.transforms);
-  //  console.warn(Network.instance.userId);
+    //  console.warn(worldStateBufferBuffer.transforms);
+    //  console.warn(Network.instance.userId);
 
 
 
@@ -95,26 +94,26 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
 
 
     const serchh = worldStateBuffer.transforms.find(v => {
-      if (Network.instance.networkObjects[v.networkId]) {
-        const networkComponent = Network.instance.networkObjects[v.networkId].component;
-        return networkComponent.ownerId === Network.instance.userId
-      }
-      return false;
+        if (Network.instance.networkObjects[v.networkId]) {
+            const networkComponent = Network.instance.networkObjects[v.networkId].component;
+            return networkComponent.ownerId === Network.instance.userId
+        }
+        return false;
     });
-  //  console.warn(serchh);
+    //  console.warn(serchh);
     if (serchh != undefined) {
-      searchTimeMyPlayer = Number(serchh.snapShotTime)
+        searchTimeMyPlayer = Number(serchh.snapShotTime)
     }
-//    console.warn(searchTimeMyPlayer);
+    //    console.warn(searchTimeMyPlayer);
 
 
 
     if (worldStateBuffer.transforms.length > 0) {
         if (test != 0) {
-          const newServerSnapshot = createSnapshot(worldStateBuffer.transforms)
-          newServerSnapshot.time = searchTimeMyPlayer
-          Network.instance.snapshot = newServerSnapshot
-          addSnapshot(newServerSnapshot);
+            const newServerSnapshot = createSnapshot(worldStateBuffer.transforms)
+            newServerSnapshot.time = searchTimeMyPlayer
+            Network.instance.snapshot = newServerSnapshot
+            addSnapshot(newServerSnapshot);
         }
     } else {
         console.warn('server do not send Interpolation Snapshot');

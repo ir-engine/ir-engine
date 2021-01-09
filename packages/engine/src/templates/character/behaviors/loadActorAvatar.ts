@@ -18,16 +18,15 @@ import { NetworkObject } from "../../../networking/components/NetworkObject";
 import { getPseudoRandomAvatarIdByUserId } from "../functions/pseudoRandomAvatar";
 
 export const loadActorAvatar: Behavior = (entity) => {
-  console.log("Calling load actor avatar for ", entity)
 
   // const ownerId = getComponent(entity, NetworkObject)?.ownerId;
   const avatarId: string = getComponent(entity, CharacterAvatarComponent)?.avatarId;
   // const avatarId: string = getComponent(entity, CharacterAvatarComponent)?.avatarId ?? "Andy";
   // const avatarId: string = ownerId ? getPseudoRandomAvatarIdByUserId(ownerId): getComponent(entity, CharacterAvatarComponent)?.avatarId ?? "Andy";
   const avatarSource = CharacterAvatars.find(avatarData => avatarData.id === avatarId)?.src;
-  
-  if(hasComponent(entity, AssetLoader)) removeComponent(entity, AssetLoader, true);
-  if(hasComponent(entity, AssetLoaderState)) removeComponent(entity, AssetLoaderState, true);
+
+  if (hasComponent(entity, AssetLoader)) removeComponent(entity, AssetLoader, true);
+  if (hasComponent(entity, AssetLoaderState)) removeComponent(entity, AssetLoaderState, true);
 
   const tmpGroup = new Group();
   addComponent(entity, AssetLoader, {
@@ -38,15 +37,15 @@ export const loadActorAvatar: Behavior = (entity) => {
   });
   const loader = getComponent(entity, AssetLoader);
   loader.onLoaded.push((entity, args) => {
-    console.log("onLoaded fired on loadActorAvatar for ", entity.id)
+    console.log("Actor Avatar loaded")
     const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
     actor.mixer && actor.mixer.stopAllAction();
     // forget that we have any animation playing
     actor.currentAnimationAction = null;
 
     // clear current avatar mesh
-    ([ ...actor.modelContainer.children ])
-      .forEach(child => actor.modelContainer.remove(child) );
+    ([...actor.modelContainer.children])
+      .forEach(child => actor.modelContainer.remove(child));
 
     tmpGroup.children.forEach(child => actor.modelContainer.add(child));
 

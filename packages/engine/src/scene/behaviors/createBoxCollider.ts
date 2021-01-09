@@ -42,14 +42,13 @@ function test() {
 }
 */
 export const createBoxCollider: Behavior = (entity, args: any) => {
-   console.warn(args.objArgs);
   // addComponent(entity, ColliderComponent, args.objArgs);
-   addColliderWithoutEntity( args.objArgs.type, args.objArgs.position, args.objArgs.quaternion, args.objArgs.scale, args.objArgs.mesh );
-/*
-   if (isServer) {
-     for (let i = 0; i < 50; i++) {
-       test()
+  addColliderWithoutEntity(args.objArgs.type, args.objArgs.position, args.objArgs.quaternion, args.objArgs.scale, args.objArgs.mesh);
+  /*
+     if (isServer) {
+       for (let i = 0; i < 50; i++) {
+         test()
+       }
      }
-   }
-   */
+     */
 };

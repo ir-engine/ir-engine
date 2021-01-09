@@ -36,14 +36,14 @@ import { Vector3 } from 'three';
 import { selectUserState } from '../../redux/user/selector';
 import { CharacterAvatarComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterAvatarComponent';
 
-const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad),  { ssr: false });
+const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad), { ssr: false });
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
 
 interface Props {
   setAppLoaded?: any,
   sceneId?: string,
-  onBoardingStep?:number,
+  onBoardingStep?: number,
   authState?: any;
   userState?: any;
 }
@@ -61,7 +61,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 export const EnginePage = (props: Props) => {
-  
+
   const {
     sceneId,
     setAppLoaded,
@@ -84,7 +84,6 @@ export const EnginePage = (props: Props) => {
   //all scene entities are loaded
   const onSceneLoaded = (event: CustomEvent): void => {
     if (event.detail.loaded) {
-      console.warn('onSceneLoaded');
       store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
       document.removeEventListener('scene-loaded', onSceneLoaded);
       setAppLoaded(true);
@@ -104,10 +103,10 @@ export const EnginePage = (props: Props) => {
   const onUserHover = (event: CustomEvent): void => {
     setonUserHover(event.detail.focused);
     setonUserId(event.detail.focused ? event.detail.userId : null);
-    setonUserPosition(event.detail.focused ? event.detail.position: null); 
+    setonUserPosition(event.detail.focused ? event.detail.position : null);
   };
 
-  const onObjectActivation = (event: CustomEvent): void =>{
+  const onObjectActivation = (event: CustomEvent): void => {
     setInfoBoxData(event.detail.payload);
     setObjectActivated(true);
   };
@@ -126,7 +125,6 @@ export const EnginePage = (props: Props) => {
 
     const actorEntityWaitInterval = setInterval(() => {
       if (Network.instance?.localClientEntity) {
-        console.log('setActorEntity');
         setActorEntity(Network.instance.localClientEntity);
         clearInterval(actorEntityWaitInterval);
       }
@@ -138,25 +136,25 @@ export const EnginePage = (props: Props) => {
   }, []);
 
 
-  if(Network.instance){
-    userState.get('layerUsers').forEach(user=>{
-      if(user.id !== currentUser.id){
-        const networkUser = Object.values(Network.instance.networkObjects).find(networkUser=>networkUser.ownerId === user.id 
-          && networkUser.prefabType ===  PrefabType.Player);
-          if(networkUser){
-            const changedAvatar = getComponent(networkUser.component.entity, CharacterAvatarComponent);
+  if (Network.instance) {
+    userState.get('layerUsers').forEach(user => {
+      if (user.id !== currentUser.id) {
+        const networkUser = Object.values(Network.instance.networkObjects).find(networkUser => networkUser.ownerId === user.id
+          && networkUser.prefabType === PrefabType.Player);
+        if (networkUser) {
+          const changedAvatar = getComponent(networkUser.component.entity, CharacterAvatarComponent);
 
-            if(user.avatarId !== changedAvatar.avatarId){
-              setActorAvatar(networkUser.component.entity, {avatarId: user.avatarId});
-              loadActorAvatar(networkUser.component.entity);
-            }
+          if (user.avatarId !== changedAvatar.avatarId) {
+            setActorAvatar(networkUser.component.entity, { avatarId: user.avatarId });
+            loadActorAvatar(networkUser.component.entity);
           }
         }
+      }
     });
-  } 
+  }
 
   //mobile gamepad
-  const mobileGamepadProps = {hovered:objectHovered, layout: 'default' };
+  const mobileGamepadProps = { hovered: objectHovered, layout: 'default' };
   const mobileGamepad = isMobileOrTablet() && onBoardingStep >= generalStateList.TUTOR_MOVE ? <MobileGamepad {...mobileGamepadProps} /> : null;
 
   return (
@@ -167,8 +165,8 @@ export const EnginePage = (props: Props) => {
       <LoadedSceneButtons />
       <OnBoardingBox actorEntity={actorEntity} />
       <MediaIconsBox />
-      { userHovered && <NamePlate userId={userId} position={{x:position?.x, y:position?.y}} focused={userHovered} />}
-      {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel}  />}
+      { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
+      {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}
       <InfoBox onClose={() => { setInfoBoxData(null); setObjectActivated(false); }} data={infoBoxData} />
       {mobileGamepad}
     </>
