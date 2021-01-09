@@ -1,12 +1,15 @@
 import { Network } from "../../src/networking/components/Network";
-import { NetworkObjectCreateInterface, PacketReadyWorldState } from "../../src/networking/interfaces/WorldState";
+import {
+  NetworkObjectCreateInterface,
+  PacketWorldState,
+  WorldStateInterface
+} from "../../src/networking/interfaces/WorldState";
 import { PrefabType } from "../../src/templates/networking/DefaultNetworkSchema";
 import { Engine } from "../../src/ecs/classes/Engine";
 import { WorldStateModel } from "../../src/networking/schema/worldStateSchema";
 import { execute } from "../../src/ecs/functions/EngineFunctions";
 import { SystemUpdateType } from "../../src/ecs/functions/SystemUpdateType";
 import { NetworkObject } from "../../src/networking/components/NetworkObject";
-
 
 export function createRemoteUserOnClient(options:{
   initializeNetworkObjectMocked:  jest.SpyInstance,
@@ -24,12 +27,7 @@ export function createRemoteUserOnClient(options:{
     qX: 4, qY: 5, qZ: 6, qW: 7, ...options.rotation
   };
 
-  const message: PacketReadyWorldState = {
-    snapshot: {
-      time: BigInt( 0 ),
-      id: '1',
-      state: []
-    },
+  const message: WorldStateInterface = {
     clientsConnected: [],
     clientsDisconnected: [],
     createObjects: [
@@ -44,12 +42,13 @@ export function createRemoteUserOnClient(options:{
     destroyObjects: [],
     inputs: [],
     states: [],
-    tick: BigInt(Engine.tick),
+    tick: Engine.tick,
     transforms: [
       {
         networkId,
         ...position,
         ...rotation,
+        snapShotTime: 0
       }
     ]
   };
