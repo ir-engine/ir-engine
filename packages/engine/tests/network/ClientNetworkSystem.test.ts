@@ -22,6 +22,9 @@ import {PhysicsManager} from "../../src/physics/components/PhysicsManager";
 
 const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
 
+// turn off physics
+PhysicsManager.instance.simulate = false;
+
 class TestTransport implements NetworkTransport {
   isServer = false;
 
@@ -61,9 +64,6 @@ beforeAll(() => {
 });
 
 test("create", () => {
-  const simulatePhysics = PhysicsManager.instance.simulate;
-  PhysicsManager.instance.simulate = false;
-
   // TODO: mock initializeNetworkObject
   const networkId = 3;
   const ownerId = "oid";
@@ -129,11 +129,8 @@ test("create", () => {
   expect(transform.rotation).toMatchObject(expected.rotation);
   expect(transform.position.x).toBe(expected.position.x);
   expect(transform.position.y).toBe(expected.position.y);
-  // expect(expected.position.y - transform.position.y).toBeLessThan(0.01); // affected by gravity
   expect(transform.position.z).toBe(expected.position.z);
 
   expect(hasComponent(entity, CharacterComponent)).toBeTruthy();
   // expect(hasComponent(entity, LocalInputReceiver)).toBeTruthy();
-
-  PhysicsManager.instance.simulate = simulatePhysics;
 });
