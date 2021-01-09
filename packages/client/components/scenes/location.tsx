@@ -137,31 +137,22 @@ export const EnginePage = (props: Props) => {
     };
   }, []);
 
-  // useEffect(() => {
-  //   if (actorEntity) {
-  //     setActorAvatar(actorEntity, {avatarId: actorAvatarId});
-  //     loadActorAvatar(actorEntity);
-  //   }
-  // }, [ actorEntity, actorAvatarId ]);
 
   if(Network.instance){
-    console.log('userState ',userState.get('layerUsers')); 
     userState.get('layerUsers').forEach(user=>{
       if(user.id !== currentUser.id){
         const networkUser = Object.values(Network.instance.networkObjects).find(networkUser=>networkUser.ownerId === user.id 
           && networkUser.prefabType ===  PrefabType.Player);
           if(networkUser){
             const changedAvatar = getComponent(networkUser.component.entity, CharacterAvatarComponent);
-            // console.log('before layerUsers user.avatarId',user ,' networkUser', changedAvatar);
 
             if(user.avatarId !== changedAvatar.avatarId){
-              // console.log('from layerUsers user.avatarId',user ,' networkUser', changedAvatar);
               setActorAvatar(networkUser.component.entity, {avatarId: user.avatarId});
               loadActorAvatar(networkUser.component.entity);
             }
           }
         }
-    })
+    });
   } 
 
   //mobile gamepad

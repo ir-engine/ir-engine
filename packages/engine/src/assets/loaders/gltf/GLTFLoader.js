@@ -263,8 +263,8 @@ var GLTFLoader = ( function () {
 
 				}
 
-				console.log("*************** Content is ", content);
-				console.log("*************** Data is ", data);
+				// console.log("*************** Content is ", content);
+				// console.log("*************** Data is ", data);
 
 
 			var json = JSON.parse( content );

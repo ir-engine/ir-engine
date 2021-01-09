@@ -224,15 +224,15 @@ const InstanceChat = (props: Props): any => {
                             inputRef={messageRef}
                             onClick={()=> (messageRef as any)?.current?.focus()}
                         />
-                        <Button variant="contained" color="primary" className={styles.iconContainerSend} onClick={packageMessage}  ><Send/></Button>                         
+                        <Button variant="contained" color="primary" className={classNames({[styles.iconContainerSend]: true, 'sendMessage': true})} onClick={packageMessage}  ><Send/></Button>
                     </CardContent>
                 </Card>
             </div>
         </div>
        {!openMessageContainer && (<div className={styles.iconCallChat} >
         <Badge color="primary" variant="dot" invisible={!unreadMessages} anchorOrigin={{vertical: 'top', horizontal: 'left',}}>
-            <Fab color="primary">
-                <MessageIcon onClick={()=>hideShowMessagesContainer()} />Chat
+            <Fab className="openChat" color="primary" onClick={()=>hideShowMessagesContainer()}>
+                <MessageIcon />Chat
             </Fab>
         </Badge>
         </div>)}

@@ -38,11 +38,11 @@
     "start": "yarn run dev",
     "dev": "lerna run dev --parallel",
     "test": "jest",
-    "lint": "lerna run lint",
+    "lint": "lerna run --ignore @xr3ngine/bot lint",
     "version-increment": "lerna version --conventional-commits --yes",
     "validate": "lerna run validate",
     "build": "lerna run build --parallel",
-    "build-docker": "lerna run --ignore @xr3ngine/docs build --parallel",
+    "build-docker": "lerna run --ignore @xr3ngine/docs --ignore @xr3ngine/bot build --parallel",
     "diff": "lerna diff"
   },
   "types": "lib/",

@@ -5,7 +5,7 @@ import {LocalInputReceiver} from '../../input/components/LocalInputReceiver';
 import {InputType} from '../../input/enums/InputType';
 import {Network} from '../components/Network';
 import {addSnapshot, createSnapshot} from '../functions/NetworkInterpolationFunctions';
-import {WorldStateInterface, WorldStateClientInterface} from "../interfaces/WorldState";
+import {WorldStateInterface} from "../interfaces/WorldState";
 import {initializeNetworkObject} from './initializeNetworkObject';
 import {CharacterComponent} from "../../templates/character/components/CharacterComponent";
 
@@ -94,7 +94,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
 
 
 
-    let serchh = worldStateBuffer.transforms.find(v => {
+    const serchh = worldStateBuffer.transforms.find(v => {
       if (Network.instance.networkObjects[v.networkId]) {
         const networkComponent = Network.instance.networkObjects[v.networkId].component;
         return networkComponent.ownerId === Network.instance.userId
@@ -111,7 +111,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
 
     if (worldStateBuffer.transforms.length > 0) {
         if (test != 0) {
-          let newServerSnapshot = createSnapshot(worldStateBuffer.transforms)
+          const newServerSnapshot = createSnapshot(worldStateBuffer.transforms)
           newServerSnapshot.time = searchTimeMyPlayer
           Network.instance.snapshot = newServerSnapshot
           addSnapshot(newServerSnapshot);
