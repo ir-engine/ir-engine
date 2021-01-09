@@ -26,7 +26,7 @@ export const PlayerCharacter: Prefab = {
         { type: CharacterAvatarComponent, data: { avatarId: 'VRMAvatar' }},
         { type: LocalInputReceiver },
         // Follow Camera for thet entity
-        { type: FollowCameraComponent, data: { distance: 3, mode: "thirdPerson" }},
+        { type: FollowCameraComponent, data: { distance: 3, mode: "thirdPersonLocked" }},
         // Current state (isJumping, isidle, etc)
         { type: State, data: { schema: CharacterStateSchema } },
         { type: Interactor }
