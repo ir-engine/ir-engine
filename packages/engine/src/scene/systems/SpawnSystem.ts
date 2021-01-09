@@ -42,7 +42,6 @@ export class ServerSpawnSystem extends System {
               spawnTransform.rotation.z,
               spawnTransform.rotation.w
             );
-            console.warn(actor.actorCapsule);
             // Remove the component
             removeComponent(entity, TeleportToSpawnPoint);
         });
