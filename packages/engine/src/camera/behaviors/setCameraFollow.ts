@@ -27,8 +27,8 @@ let phi = 0;
 
 export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: any, entityOut: Entity): void => {
   follower = getMutableComponent<TransformComponent>(entityIn, TransformComponent); // Camera
-  target = getMutableComponent<TransformComponent>(entityOut, TransformComponent); // Player
-
+  target = getMutableComponent<TransformComponent>(entityOut, TransformComponent); // Player 
+    
   inputComponent = getComponent(entityOut, Input) as Input;
   cameraFollow = getComponent<FollowCameraComponent>(entityOut, FollowCameraComponent);
 
@@ -71,7 +71,7 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
       target.position.y + 1,
       target.position.z
     );
-  } else if (cameraFollow.mode === "thirdPerson") {
+  } else if (cameraFollow.mode === "thirdPerson" || "thirdPersonLocked") {
     theta -= inputValue[0] * 50;
     theta %= 360;
     phi -= inputValue[1] * 50;
@@ -85,7 +85,7 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
 
     direction.copy(follower.position);
     direction = direction.sub(target.position).normalize();
-
+    
     mx.lookAt(direction, empty, up);
     follower.rotation.setFromRotationMatrix(mx);
   }
