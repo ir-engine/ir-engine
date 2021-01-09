@@ -8,7 +8,11 @@ import { Engine } from "../../src/ecs/classes/Engine";
 import { Quaternion, Scene, Vector3 } from "three";
 import { registerSystem } from "../../src/ecs/functions/SystemFunctions";
 import { PhysicsSystem } from "../../src/physics/systems/PhysicsSystem";
-import { NetworkInputInterface, NetworkTransformsInterface } from "../../src/networking/interfaces/WorldState";
+import {
+  NetworkClientInputInterface,
+  NetworkInputInterface,
+  NetworkTransformsInterface, WorldStateInterface
+} from "../../src/networking/interfaces/WorldState";
 import { execute } from "../../src/ecs/functions/EngineFunctions";
 import { SystemUpdateType } from "../../src/ecs/functions/SystemUpdateType";
 import { getMutableComponent, hasComponent, removeEntity } from "../../src/ecs/functions/EntityFunctions";
@@ -32,6 +36,7 @@ import { ClientInputModel } from "../../src/networking/schema/clientInputSchema"
 import { ServerNetworkOutgoingSystem } from "../../src/networking/systems/ServerNetworkOutgoingSystem";
 import { expect } from "@jest/globals";
 import { WorldStateModel } from "../../src/networking/schema/worldStateSchema";
+import {StateEntity} from "../../src/networking/types/SnapshotDataTypes";
 
 //const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
 const handleInputFromNonLocalClients = jest.spyOn(handleInputOnServerModule, 'handleInputFromNonLocalClients');
@@ -170,7 +175,7 @@ test("continuous move forward changes transforms z", () => {
   expect(actor.velocity.z).toBeGreaterThan(0);
 
   expect(Network.instance.worldState.transforms.length).toBe(1);
-  const transform = Network.instance.worldState.transforms[0] as NetworkTransformsInterface;
+  const transform = Network.instance.worldState.transforms[0] as StateEntity;
   expect(transform.networkId).toBe(networkObject.networkId);
   expect(transform.x).toBe(0);
   // expect(transform.y).toBe(0); // why it's greater than zero??
@@ -196,10 +201,11 @@ test("continuous move forward and then stop", () => {
 
   const messagePressing = createButtonServerMessage(networkObject.networkId, DefaultInput.FORWARD, BinaryValue.ON);
   const messageStopped = createButtonServerMessage(networkObject.networkId, DefaultInput.FORWARD, BinaryValue.OFF, LifecycleValue.ENDED);
-  const messageEmpty:NetworkInputInterface = {
+  const messageEmpty:NetworkClientInputInterface = {
     axes1d: [], axes2d: [], buttons: [],
     networkId: networkObject.networkId,
-    viewVector: { x:0, y:0, z:1 }
+    viewVector: { x:0, y:0, z:1 },
+    snapShotTime: 0
   };
   const messagePressingToQueue = !Network.instance.packetCompression? messagePressing : ClientInputModel.toBuffer(messagePressing);
   const messageStoppedToQueue = !Network.instance.packetCompression? messageStopped : ClientInputModel.toBuffer(messageStopped);
@@ -235,7 +241,7 @@ test("continuous move forward and then stop", () => {
   expect(actor.velocity.z).toBeLessThan(movingVelocityZ);
 
   expect(Network.instance.worldState.transforms.length).toBe(1);
-  const transform = Network.instance.worldState.transforms[0] as NetworkTransformsInterface;
+  const transform = Network.instance.worldState.transforms[0] as StateEntity;
   expect(transform.networkId).toBe(networkObject.networkId);
 });
 
@@ -258,10 +264,11 @@ test("move forward, then 2 messages stop + empty in one execution", () => {
 
   const messagePressing = createButtonServerMessage(networkObject.networkId, DefaultInput.FORWARD, BinaryValue.ON);
   const messageStopped = createButtonServerMessage(networkObject.networkId, DefaultInput.FORWARD, BinaryValue.OFF, LifecycleValue.ENDED);
-  const messageEmpty:NetworkInputInterface = {
+  const messageEmpty:NetworkClientInputInterface = {
     axes1d: [], axes2d: [], buttons: [],
     networkId: networkObject.networkId,
-    viewVector: { x:0, y:0, z:1 }
+    viewVector: { x:0, y:0, z:1 },
+    snapShotTime: 0
   };
   const messagePressingToQueue = !Network.instance.packetCompression? messagePressing : ClientInputModel.toBuffer(messagePressing);
   const messageStoppedToQueue = !Network.instance.packetCompression? messageStopped : ClientInputModel.toBuffer(messageStopped);
@@ -295,6 +302,113 @@ test("move forward, then 2 messages stop + empty in one execution", () => {
   // expect(fixedExecuteOnServer.mock.calls.length).toBe(runsCount + 1 + emptyRunsCount);
   // expect(handleInputOnServer.mock.calls.length).toBe(runsCount + 2 + emptyRunsCount);
   expect(actor.velocity.z).toBeLessThan(movingVelocityZ);
+});
+
+test("2 buttons states in one execution propagate back to client", () => {
+  /**
+   * when we receive two inputs states in one execution, for example button-end, and nothing
+   * back to users we sending only last one,
+   * so they will loose button-end, or whatever else state change that could be important.
+   */
+  expect(handleInputFromNonLocalClients.mock.calls.length).toBe(0);
+
+  Network.instance.userId = userId;
+  const networkId = 13;
+  const networkObject = initializeNetworkObject(userId, networkId, Network.instance.schema.defaultClientPrefab);
+
+  Network.instance.networkObjects[networkObject.networkId] = {
+    ownerId: userId, // Owner's socket ID
+    prefabType: Network.instance.schema.defaultClientPrefab, // All network objects need to be a registered prefab
+    component: networkObject
+  };
+
+  const networkEntity = networkObject.entity as Entity;
+  expect(hasComponent(networkEntity, Server)).toBe(true);
+
+  const message1: NetworkClientInputInterface = {
+    "axes1d": [
+      {
+        input: DefaultInput.CROUCH,
+        lifecycleState: LifecycleValue.CHANGED,
+        value: 0.2
+      }
+    ],
+    "axes2d": [
+      {
+        input: DefaultInput.SCREENXY,
+        lifecycleState: LifecycleValue.CHANGED,
+        value: [ 0.1, 240 ]
+      }
+    ],
+    "buttons": [
+      {
+        "input": DefaultInput.FORWARD,
+        "lifecycleState": LifecycleValue.CONTINUED,
+        "value": BinaryValue.ON,
+      }
+    ],
+    "networkId": 13,
+    "viewVector": {
+      "x": 0,
+      "y": 0,
+      "z": 1,
+    },
+    snapShotTime: 1
+  };
+  const message2: NetworkClientInputInterface = {
+    "axes1d": [
+      {
+        input: DefaultInput.CROUCH,
+        lifecycleState: LifecycleValue.CHANGED,
+        value: 0.9
+      }
+    ],
+    "axes2d": [
+      {
+        input: DefaultInput.SCREENXY,
+        lifecycleState: LifecycleValue.CHANGED,
+        value: [ 50, 21 ]
+      }
+    ],
+    "buttons": [
+      {
+        "input": DefaultInput.FORWARD,
+        "lifecycleState": LifecycleValue.ENDED,
+        "value": BinaryValue.OFF,
+      }
+    ],
+    "networkId": 13,
+    "viewVector": {
+      "x": 0,
+      "y": 0,
+      "z": 1,
+    },
+    snapShotTime: 2
+  };
+  const message3:NetworkClientInputInterface = {
+    axes1d: [], axes2d: [], buttons: [],
+    networkId: networkObject.networkId,
+    viewVector: { x:0, y:0, z:1 },
+    snapShotTime: 3
+  };
+  const message1ToQueue = !Network.instance.packetCompression? message1 : ClientInputModel.toBuffer(message1);
+  const message2ToQueue = !Network.instance.packetCompression? message2 : ClientInputModel.toBuffer(message2);
+  const message3ToQueue = !Network.instance.packetCompression? message3 : ClientInputModel.toBuffer(message3);
+
+  Network.instance.incomingMessageQueue.add(message1ToQueue);
+  Network.instance.incomingMessageQueue.add(message2ToQueue);
+  Network.instance.incomingMessageQueue.add(message3ToQueue);
+  runFixed();
+
+  const sentData = (Network.instance.transport as TestTransport).sentData[0] as WorldStateInterface;
+  const lastSentMessage = !Network.instance.packetCompression? sentData : WorldStateModel.fromBuffer(sentData);
+
+  const { snapShotTime:sn1, ...expectedMessages1 } = message1;
+  const { snapShotTime:sn2, ...expectedMessages2 } = message2;
+  expect(lastSentMessage.inputs).toMatchObject([
+      expectedMessages1,
+      expectedMessages2,
+  ] as any);
 });
 
 test("incoming input propagates to network", () => {
@@ -331,7 +445,7 @@ test("incoming input propagates to network", () => {
 
   // get input messages from both players
   //const p1message = createButtonServerMessage(p1NetworkObject.networkId, DefaultInput.FORWARD, BinaryValue.ON, null, p1viewVector);
-  const p1message:NetworkInputInterface = {
+  const p1message: NetworkClientInputInterface = {
     networkId: p1NetworkObject.networkId,
     buttons: [
     {
@@ -358,11 +472,12 @@ test("incoming input propagates to network", () => {
       x: p1viewVector.x,
       y: p1viewVector.y,
       z: p1viewVector.z
-    }
+    },
+    snapShotTime: 1
   };
 
   // const p2message = createButtonServerMessage(p2NetworkObject.networkId, DefaultInput.FORWARD, BinaryValue.ON, null, p2viewVector);
-  const p2message:NetworkInputInterface = {
+  const p2message: NetworkClientInputInterface = {
     networkId: p2NetworkObject.networkId,
     buttons: [
       {
@@ -389,7 +504,8 @@ test("incoming input propagates to network", () => {
       x: p2viewVector.x,
       y: p2viewVector.y,
       z: p2viewVector.z
-    }
+    },
+    snapShotTime: 2
   };
 
   // const runsCount = 4; // in my case it needs at least 4 frames to accumulate z transform
@@ -434,8 +550,9 @@ test("incoming input propagates to network", () => {
   // expect(p2transform.z).toBeGreaterThan(0);
 
   // TODO: check input
+  const { snapShotTime, ...expectedP2Input } = p2message;
   const p2input = Network.instance.worldState.inputs.find(t => t.networkId === p2NetworkObject.networkId);
-  expect(p2input).toMatchObject(p2message as any);
+  expect(p2input).toMatchObject(expectedP2Input as any);
 
   const sentData = (Network.instance.transport as TestTransport).sentData;
   const lastSent = sentData[sentData.length - 1];
@@ -443,14 +560,15 @@ test("incoming input propagates to network", () => {
   // if (Network.instance.packetCompression) {
   const message = !Network.instance.packetCompression? lastSent : WorldStateModel.fromBuffer(lastSent);
   const p2inputsFromSentData = message.inputs.find(t => t.networkId === p2NetworkObject.networkId);
-  expect(p2inputsFromSentData).toMatchObject(p2message as any);
+  expect(p2inputsFromSentData).toMatchObject(expectedP2Input as any);
 });
 
-function createButtonServerMessage(networkId:number, button:InputAlias, value:BinaryValue, lifecycle:LifecycleValue = null, viewVector:{x:number,y:number,z:number} = null):NetworkInputInterface {
+function createButtonServerMessage(networkId:number, button:InputAlias, value:BinaryValue, lifecycle:LifecycleValue = null, viewVector:{x:number,y:number,z:number} = null):NetworkClientInputInterface {
   const lifecycleState = lifecycle ?? ( value === BinaryValue.OFF? LifecycleValue.ENDED : LifecycleValue.CONTINUED );
   const _viewVector = viewVector ?? { x:0, y:0, z:1 };
   return {
     networkId: networkId,
+    snapShotTime: 0,
     buttons: [
       {
         input: button,
