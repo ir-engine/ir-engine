@@ -7,7 +7,8 @@ import { TransformComponent } from "../../../transform/components/TransformCompo
 import { Vector3 } from "three";
 import { FollowCameraComponent } from "../../../camera/components/FollowCameraComponent";
 
-const defaultForwardVector = new Vector3(0, 0, 1.08);
+const defaultForwardVector = new Vector3(0, 0, 1);
+const defaultActorVector = new Vector3(0, 0, 1.08);//when we use a standard vector3 where Z:1 - then a bug appears in which the character spins around itself
 
 export const rotateModel: Behavior = (entity: Entity): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
@@ -18,7 +19,7 @@ export const rotateModel: Behavior = (entity: Entity): void => {
 	if (actorObject3D === undefined) console.warn("Object3D is undefined");
 	else {
 		if (follower.mode == 'thirdPersonLocked') {
-			actorTransform.rotation.setFromUnitVectors(defaultForwardVector, actor.viewVector.clone().setY(0));
+			actorTransform.rotation.setFromUnitVectors(defaultActorVector, actor.viewVector.clone().setY(0));
 		} else {
 			actorTransform.rotation.setFromUnitVectors(defaultForwardVector, actor.orientation.clone().setY(0));
 		}
