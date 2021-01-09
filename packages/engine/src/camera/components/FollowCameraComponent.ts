@@ -17,7 +17,7 @@ export class FollowCameraComponent extends Component<FollowCameraComponent> {
 }
 
 FollowCameraComponent._schema = {
-  mode: { type: Types.String, default: 'thirdPerson' },
+  mode: { type: Types.String, default: 'thirdPersonLocked' },
   distance: { type: Types.Number, default: 3 },
   minDistance: { type: Types.Number, default: 2 },
   maxDistance: { type: Types.Number, default: 7 },
