@@ -17,7 +17,7 @@ export class FXAAEffect extends Effect {
    * @param {BlendFunction} [options.blendFunction=BlendFunction.NORMAL] - The blend function of this effect.
    */
 
-  constructor ({ blendFunction = BlendFunction.NORMAL } = {}) {
+  constructor({ blendFunction = BlendFunction.NORMAL } = {}) {
     super('FXAAEffect', fragmentShader, {
 
       blendFunction,
@@ -38,7 +38,7 @@ export class FXAAEffect extends Effect {
     this.resolution = new Vector2();
   }
 
-  update (renderer: WebGLRenderer, inputBuffer: WebGLRenderTarget, deltaTime: number): void {
+  update(renderer: WebGLRenderer, inputBuffer: WebGLRenderTarget, deltaTime: number): void {
     this.uniforms.get('tDiffuse').value = inputBuffer;
   }
 
@@ -48,9 +48,9 @@ export class FXAAEffect extends Effect {
    * @param {Number} width - The width.
    * @param {Number} height - The height.
    */
-  setSize (width: number, height: number): void {
-    console.log('FXAAEffect.setSize', width, height, 1/width, 1/height);
+  setSize(width: number, height: number): void {
+    // console.log('FXAAEffect.setSize', width, height, 1/width, 1/height);
     this.resolution.set(width, height);
-    this.uniforms.get('resolution').value.set(1/width, 1/height);
+    this.uniforms.get('resolution').value.set(1 / width, 1 / height);
   }
 }

@@ -25,7 +25,8 @@ import {
   provisionInstanceServer
 } from '../../redux/instanceConnection/service';
 import { selectLocationState } from '../../redux/location/selector';
-import { getLocationByName
+import {
+  getLocationByName
 } from '../../redux/location/service';
 import { selectPartyState } from '../../redux/party/selector';
 
@@ -97,13 +98,12 @@ const LocationPage = (props: Props) => {
 
   useEffect(() => {
     const currentLocation = locationState.get('currentLocation').get('location');
-    locationId = currentLocation.id;    
-    
+    locationId = currentLocation.id;
+
     userBanned = selfUser?.locationBans?.find(ban => ban.locationId === locationId) != null;
     if (authState.get('isLoggedIn') === true && authState.get('user')?.id != null && authState.get('user')?.id.length > 0 && currentLocation.id == null && userBanned === false && locationState.get('fetchingCurrentLocation') !== true) {
       getLocationByName(locationName);
-      if(sceneId === null) {
-        console.log("authState: Set scene ID to", sceneId);
+      if (sceneId === null) {
         sceneId = currentLocation.sceneId;
       }
     }
@@ -126,11 +126,10 @@ const LocationPage = (props: Props) => {
       provisionInstanceServer(currentLocation.id, instanceId || undefined, sceneId);
     }
     if (sceneId === null) {
-      console.log("locationState: Set scene ID to", sceneId);
       sceneId = currentLocation.sceneId;
     }
 
-    if(!currentLocation.id && !locationState.get('currentLocationUpdateNeeded') && !locationState.get('fetchingCurrentLocation')){
+    if (!currentLocation.id && !locationState.get('currentLocationUpdateNeeded') && !locationState.get('fetchingCurrentLocation')) {
       setIsValidLocation(false);
       store.dispatch(setAppSpecificOnBoardingStep(generalStateList.FAILED, false));
     }
@@ -143,11 +142,8 @@ const LocationPage = (props: Props) => {
       instanceConnectionState.get('instanceServerConnecting') === false &&
       instanceConnectionState.get('connected') === false
     ) {
-      console.log('Calling connectToInstanceServer from location page');
       const currentLocation = locationState.get('currentLocation').get('location');
-      console.log("Current location is ", currentLocation);
-      if(sceneId === null && currentLocation.sceneId !== null) {
-        console.log("instanceConnectionState: Set scene ID to", sceneId);
+      if (sceneId === null && currentLocation.sceneId !== null) {
         sceneId = currentLocation.sceneId;
       }
       init(sceneId).then(() => {
@@ -164,7 +160,7 @@ const LocationPage = (props: Props) => {
           .then((instance) => {
             const currentLocation = locationState.get('currentLocation').get('location');
             provisionInstanceServer(instance.locationId, instanceId, currentLocation.sceneId);
-            if(sceneId === null) {
+            if (sceneId === null) {
               console.log("Set scene ID to, sceneId");
               sceneId = currentLocation.sceneId;
             }
@@ -176,7 +172,6 @@ const LocationPage = (props: Props) => {
 
   async function init(sceneId: string): Promise<any> { // auth: any,
     let service, serviceId;
-    console.log("Loading scene with scene ", sceneId);
     const projectResult = await client.service('project').get(sceneId);
     setCurrentScene(projectResult);
     const projectUrl = projectResult.project_url;
@@ -186,20 +181,18 @@ const LocationPage = (props: Props) => {
       serviceId = regexResult[2];
     }
     const result = await client.service(service).get(serviceId);
-    console.log("Result is ");
-    console.log(result);
 
     const networkSchema: NetworkSchema = {
-        ...DefaultNetworkSchema,
-        transport: SocketWebRTCClientTransport,
-      };
-  
-      const InitializationOptions = {
-        ...DefaultInitializationOptions,
-        networking: {
-          schema: networkSchema,
-        }
-      };
+      ...DefaultNetworkSchema,
+      transport: SocketWebRTCClientTransport,
+    };
+
+    const InitializationOptions = {
+      ...DefaultInitializationOptions,
+      networking: {
+        schema: networkSchema,
+      }
+    };
 
     initializeEngine(InitializationOptions);
     loadScene(result);
@@ -208,22 +201,22 @@ const LocationPage = (props: Props) => {
   const goHome = () => window.location.href = window.location.origin;
 
   return (
-      <Layout pageTitle="Home">
-        <NoSSR onSSR={<Loading />}>
-          {isValidLocation && onBoardingStep === generalStateList.ALL_DONE && <UserMenu />}
-          {userBanned === false ? (<Scene sceneId={sceneId} />) : (<div className="banned">You have been banned from this location</div>)}
-          <Snackbar open={!isValidLocation} 
-            anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'center',
-            }}>
-              <>
-                <section>Location is invalid</section>
-                <Button onClick={goHome}>Return Home</Button>
-              </>
-            </Snackbar>
-        </NoSSR>
-      </Layout>
+    <Layout pageTitle="Home">
+      <NoSSR onSSR={<Loading />}>
+        {isValidLocation && onBoardingStep === generalStateList.ALL_DONE && <UserMenu />}
+        {userBanned === false ? (<Scene sceneId={sceneId} />) : (<div className="banned">You have been banned from this location</div>)}
+        <Snackbar open={!isValidLocation}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'center',
+          }}>
+          <>
+            <section>Location is invalid</section>
+            <Button onClick={goHome}>Return Home</Button>
+          </>
+        </Snackbar>
+      </NoSSR>
+    </Layout>
   );
 };
 

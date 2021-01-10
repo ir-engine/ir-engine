@@ -11,14 +11,12 @@ import { Server } from '../components/Server';
 import { NetworkPrefab } from '../interfaces/NetworkPrefab';
 
 function createNetworkPrefab(prefab: NetworkPrefab, ownerId, networkId: number, override: NetworkPrefab = null): Entity {
-  console.log("createNetworkPrefab");
   const entity = createEntity();
 
   // Add a NetworkObject component to the entity, this will store information about changing state
   addComponent(entity, NetworkObject, { ownerId, networkId });
   addComponent(entity, Network.instance.transport.isServer ? Server : Client);
 
-  console.log("Create prefab ", networkId, " for ", ownerId);
   // Call each create action
   prefab.onBeforeCreate?.forEach(action => {
     // If it's a networked behavior, or this is the local player, call it
@@ -28,7 +26,7 @@ function createNetworkPrefab(prefab: NetworkPrefab, ownerId, networkId: number, 
   });
 
   // prepare override map
-  const overrideMaps:{
+  const overrideMaps: {
     localClientComponents?: Map<Component<any>, Record<string, unknown>>;
     networkComponents: Map<Component<any>, Record<string, unknown>>;
     serverComponents: Map<Component<any>, Record<string, unknown>>;
@@ -50,7 +48,7 @@ function createNetworkPrefab(prefab: NetworkPrefab, ownerId, networkId: number, 
     })
   }
 
-    // Instantiate local components
+  // Instantiate local components
   // If this is the local player, spawn the local components (these will not be spawned for other clients)
   // This is good for input, camera, etc
   if (ownerId === Network.instance.userId && prefab.localClientComponents)
@@ -66,17 +64,17 @@ function createNetworkPrefab(prefab: NetworkPrefab, ownerId, networkId: number, 
   // Instantiate network components
   // These will be attached to the entity on all clients
   initComponents(entity, prefab.networkComponents, overrideMaps.networkComponents);
-    // Call each after create action
-    prefab.onAfterCreate?.forEach(action => {
-      // If it's a networked behavior, or this is the local player, call it
-      if (action.networked || ownerId === Network.instance.userId)
-      // Call the behavior with the args
-      { action.behavior(entity, action.args); }
-    });
+  // Call each after create action
+  prefab.onAfterCreate?.forEach(action => {
+    // If it's a networked behavior, or this is the local player, call it
+    if (action.networked || ownerId === Network.instance.userId)
+    // Call the behavior with the args
+    { action.behavior(entity, action.args); }
+  });
   return entity;
 }
 
-function initComponents(entity: Entity, components:Array<{ type: any, data?:any }>, override?: Map<any, any>) {
+function initComponents(entity: Entity, components: Array<{ type: any, data?: any }>, override?: Map<any, any>) {
   components?.forEach(component => {
     // The component to the entity
     addComponent(entity, component.type);
@@ -101,7 +99,6 @@ function initComponents(entity: Entity, components:Array<{ type: any, data?:any 
 
 
 export function initializeNetworkObject(ownerId: string, networkId: number, prefabType: string | number, position?: Vector3, rotation?: Quaternion): NetworkObject {
-console.log("Initializing network object")
   // Instantiate into the world
   const networkEntity = createNetworkPrefab(
     // Prefab from the Network singleton's schema, using the defaultClientPrefab as a key
@@ -142,12 +139,11 @@ console.log("Initializing network object")
   };
 
   if (prefabType === PrefabType.Player && ownerId === (Network.instance).userId) {
-    console.log('Set localClientEntity', networkEntity);
     Network.instance.localClientEntity = networkEntity;
   }
 
   // Tell the client
-  console.log("Object ", networkId, " added to the simulation for owner ", ownerId, " with a prefab type: ", prefabType);
+  // console.log("Object ", networkId, " added to the simulation for owner ", ownerId, " with a prefab type: ", prefabType);
 
   return networkObject;
 }
