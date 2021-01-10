@@ -20,7 +20,7 @@ import {
     updateChatTarget,
     updateMessageScrollInit
 } from '../../../redux/chat/service';
-import { selectAuthState} from '../../../redux/auth/selector';
+import { selectAuthState } from '../../../redux/auth/selector';
 import { selectChatState } from '../../../redux/chat/selector';
 import { selectInstanceConnectionState } from '../../../redux/instanceConnection/selector';
 import {
@@ -28,7 +28,7 @@ import {
     Send
 } from '@material-ui/icons';
 import moment from 'moment';
-import {User} from "@xr3ngine/common/interfaces/User";
+import { User } from "@xr3ngine/common/interfaces/User";
 import { Message } from '@xr3ngine/common/interfaces/Message';
 import _ from 'lodash';
 import classNames from 'classnames';
@@ -85,9 +85,7 @@ const InstanceChat = (props: Props): any => {
         activeChannel = activeChannelMatch[1];
     }
 
-    useEffect(() =>  {
-        console.log('InstanceChat instanceConnectionState useEffect');
-        console.log(instanceConnectionState.get('connected'));
+    useEffect(() => {
         if (instanceConnectionState.get('connected') === true && channelState.get('fetchingInstanceChannel') !== true) {
             getInstanceChannel();
         }
@@ -163,80 +161,80 @@ const InstanceChat = (props: Props): any => {
 
     const [openMessageContainer, setOpenMessageContainer] = React.useState(false);
     const hideShowMessagesContainer = () => {
-        setOpenMessageContainer(!openMessageContainer); 
+        setOpenMessageContainer(!openMessageContainer);
         openMessageContainer && setUnreadMessages(false);
     };
 
 
-    useEffect(() =>  {
-        activeChannel && activeChannel.messages && activeChannel.messages.length > 0 && !openMessageContainer &&  setUnreadMessages(true);
+    useEffect(() => {
+        activeChannel && activeChannel.messages && activeChannel.messages.length > 0 && !openMessageContainer && setUnreadMessages(true);
     }, [activeChannel?.messages]);
 
     return (
         <>
-        <div className={styles['instance-chat-container'] + ' '+ (!openMessageContainer && styles['messageContainerClosed'])}>
-            <div className={styles['list-container']}>
-                <Card square={true} elevation={0} className={styles['message-wrapper']}>
-                    <CardContent className={styles['message-container']}>
-                    { activeChannel != null && activeChannel.messages && 
-                    activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).slice(activeChannel.messages.length >= 3 ? activeChannel.messages?.length - 3 : 0, activeChannel.mesages?.length).map((message) => {
-                        return <ListItem
-                            className={classNames({
-                                [styles.message]: true,
-                                [styles.self]: message.senderId === user.id,
-                                [styles.other]: message.senderId !== user.id
-                            })}
-                            disableGutters={true}
-                            key={message.id}
-                        >
-                            <div>
-                                {!isMobileOrTablet() && <ListItemAvatar>
-                                    <Avatar src={getMessageUser(message).avatarUrl}/>
-                                </ListItemAvatar>}
-                                <ListItemText
-                                    primary={<p><span className={styles.userName} color="primary">{getMessageUser(message).name+': '}</span>{message.text}</p>}
-                                />
+            <div className={styles['instance-chat-container'] + ' ' + (!openMessageContainer && styles['messageContainerClosed'])}>
+                <div className={styles['list-container']}>
+                    <Card square={true} elevation={0} className={styles['message-wrapper']}>
+                        <CardContent className={styles['message-container']}>
+                            {activeChannel != null && activeChannel.messages &&
+                                activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).slice(activeChannel.messages.length >= 3 ? activeChannel.messages?.length - 3 : 0, activeChannel.mesages?.length).map((message) => {
+                                    return <ListItem
+                                        className={classNames({
+                                            [styles.message]: true,
+                                            [styles.self]: message.senderId === user.id,
+                                            [styles.other]: message.senderId !== user.id
+                                        })}
+                                        disableGutters={true}
+                                        key={message.id}
+                                    >
+                                        <div>
+                                            {!isMobileOrTablet() && <ListItemAvatar>
+                                                <Avatar src={getMessageUser(message).avatarUrl} />
+                                            </ListItemAvatar>}
+                                            <ListItemText
+                                                primary={<p><span className={styles.userName} color="primary">{getMessageUser(message).name + ': '}</span>{message.text}</p>}
+                                            />
+                                        </div>
+                                    </ListItem>;
+                                })
+                            }
+                        </CardContent>
+                    </Card>
+                    <Card className={styles['flex-center']}>
+                        <CardContent className={styles['chat-box']}>
+                            <div className={styles.iconContainer} >
+                                <MessageIcon onClick={() => hideShowMessagesContainer()} />
                             </div>
-                        </ListItem>;
-                    })
-                    }
-                    </CardContent>
-                </Card>
-                <Card className={styles['flex-center']}>
-                    <CardContent className={styles['chat-box']}>
-                        <div className={styles.iconContainer} >
-                            <MessageIcon onClick={()=>hideShowMessagesContainer()} />
-                        </div>
-                        <TextField
-                            className={styles.messageFieldContainer}
-                            margin="normal"
-                            multiline
-                            fullWidth
-                            id="newMessage"
-                            label="World Chat..."
-                            name="newMessage"
-                            autoFocus
-                            value={composingMessage}
-                            inputProps={{
-                                maxLength: 1000,
-                            }}
-                            onChange={handleComposingMessageChange}
-                            inputRef={messageRef}
-                            onClick={()=> (messageRef as any)?.current?.focus()}
-                        />
-                        <Button variant="contained" color="primary" className={classNames({[styles.iconContainerSend]: true, 'sendMessage': true})} onClick={packageMessage}  ><Send/></Button>
-                    </CardContent>
-                </Card>
+                            <TextField
+                                className={styles.messageFieldContainer}
+                                margin="normal"
+                                multiline
+                                fullWidth
+                                id="newMessage"
+                                label="World Chat..."
+                                name="newMessage"
+                                autoFocus
+                                value={composingMessage}
+                                inputProps={{
+                                    maxLength: 1000,
+                                }}
+                                onChange={handleComposingMessageChange}
+                                inputRef={messageRef}
+                                onClick={() => (messageRef as any)?.current?.focus()}
+                            />
+                            <Button variant="contained" color="primary" className={classNames({ [styles.iconContainerSend]: true, 'sendMessage': true })} onClick={packageMessage}  ><Send /></Button>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
-        </div>
-       {!openMessageContainer && (<div className={styles.iconCallChat} >
-        <Badge color="primary" variant="dot" invisible={!unreadMessages} anchorOrigin={{vertical: 'top', horizontal: 'left',}}>
-            <Fab className="openChat" color="primary" onClick={()=>hideShowMessagesContainer()}>
-                <MessageIcon />Chat
+            {!openMessageContainer && (<div className={styles.iconCallChat} >
+                <Badge color="primary" variant="dot" invisible={!unreadMessages} anchorOrigin={{ vertical: 'top', horizontal: 'left', }}>
+                    <Fab className="openChat" color="primary" onClick={() => hideShowMessagesContainer()}>
+                        <MessageIcon />Chat
             </Fab>
-        </Badge>
-        </div>)}
-    </>);
+                </Badge>
+            </div>)}
+        </>);
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(InstanceChat);

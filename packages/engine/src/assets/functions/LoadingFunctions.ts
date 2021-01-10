@@ -12,42 +12,42 @@ import NodeDRACOLoader from "../loaders/gltf/NodeDRACOLoader";
 import { isClient } from "../../common/functions/isClient";
 import * as THREE from "three";
 
-function parallelTraverse( a, b, callback ) {
-  callback( a, b );
-  for ( let i = 0; i < a.children.length; i ++ )
-    parallelTraverse( a.children[ i ], b.children[ i ], callback );
+function parallelTraverse(a, b, callback) {
+  callback(a, b);
+  for (let i = 0; i < a.children.length; i++)
+    parallelTraverse(a.children[i], b.children[i], callback);
 }
 
-function clone ( source: Object3D ): Object3D {
+function clone(source: Object3D): Object3D {
   const sourceLookup = new Map();
   const cloneLookup = new Map();
   const clone = source.clone();
 
-  parallelTraverse( source, clone, ( sourceNode, clonedNode ) => {
-    sourceLookup.set( clonedNode, sourceNode );
-    cloneLookup.set( sourceNode, clonedNode );
+  parallelTraverse(source, clone, (sourceNode, clonedNode) => {
+    sourceLookup.set(clonedNode, sourceNode);
+    cloneLookup.set(sourceNode, clonedNode);
   });
 
-  clone.traverse( ( node:unknown ) => {
-    if ( ! (node instanceof SkinnedMesh) ) return;
+  clone.traverse((node: unknown) => {
+    if (!(node instanceof SkinnedMesh)) return;
 
     const clonedMesh = node;
-    const sourceMesh = sourceLookup.get( node );
+    const sourceMesh = sourceLookup.get(node);
     const sourceBones = sourceMesh.skeleton.bones;
 
     clonedMesh.skeleton = sourceMesh.skeleton.clone();
-    clonedMesh.bindMatrix.copy( sourceMesh.bindMatrix );
+    clonedMesh.bindMatrix.copy(sourceMesh.bindMatrix);
 
-    clonedMesh.skeleton.bones = sourceBones.map( ( bone ) => {
-      return cloneLookup.get( bone );
-    } );
-    clonedMesh.bind( clonedMesh.skeleton, clonedMesh.bindMatrix );
-  } );
+    clonedMesh.skeleton.bones = sourceBones.map((bone) => {
+      return cloneLookup.get(bone);
+    });
+    clonedMesh.bind(clonedMesh.skeleton, clonedMesh.bindMatrix);
+  });
   return clone;
 }
 
 // Kicks off an iterator to load the list of assets and add them to the vault
-export function loadAssets (
+export function loadAssets(
   assets: AssetMap,
   onAssetLoaded: AssetsLoadedHandler,
   onAllAssetsLoaded: AssetsLoadedHandler
@@ -55,7 +55,7 @@ export function loadAssets (
   iterateLoadAsset(assets.entries(), onAssetLoaded, onAllAssetsLoaded);
 }
 
-export function loadAsset (url: AssetUrl, entity: Entity, onAssetLoaded: AssetsLoadedHandler): void {
+export function loadAsset(url: AssetUrl, entity: Entity, onAssetLoaded: AssetsLoadedHandler): void {
   const urlHashed = hashResourceString(url);
   if (AssetVault.instance.assets.has(urlHashed)) {
     onAssetLoaded(entity, { asset: clone(AssetVault.instance.assets.get(urlHashed)) });
@@ -76,7 +76,7 @@ export function loadAsset (url: AssetUrl, entity: Entity, onAssetLoaded: AssetsL
   }
 }
 
-function iterateLoadAsset (
+function iterateLoadAsset(
   iterable: IterableIterator<[AssetId, AssetUrl]>,
   onAssetLoaded: AssetsLoadedHandler,
   onAllAssetsLoaded: AssetsLoadedHandler
@@ -99,7 +99,7 @@ function iterateLoadAsset (
       loader.load(url, resource => {
         if (resource.scene !== undefined) {
           resource.scene.traverse(child => {
-          // Do stuff with metadata here
+            // Do stuff with metadata here
           });
           resource = resource.scene;
         }
@@ -112,22 +112,21 @@ function iterateLoadAsset (
   }
 }
 
-function getLoaderForAssetType (assetType: AssetTypeAlias): GLTFLoader | any | TextureLoader {
+function getLoaderForAssetType(assetType: AssetTypeAlias): GLTFLoader | any | TextureLoader {
   if (assetType == AssetType.FBX) return new FBXLoader.FBXLoader();
   // else if (assetType == AssetType.glTF) return new GLTFLoader();
-  else if (assetType == AssetType.glTF) { 
+  else if (assetType == AssetType.glTF) {
     const loader = new GLTFLoader();
 
-let dracoLoader;
-    if(isClient) {
-      console.log("************* IS CLIENT");
+    let dracoLoader;
+    if (isClient) {
       dracoLoader = new DRACOLoader();
       dracoLoader.setDecoderPath('/loader_decoders/');
-  }
-  else {
+    }
+    else {
       console.log("IS SERVER!")
       dracoLoader = new NodeDRACOLoader(THREE.DefaultLoadingManager);
-  }
+    }
     loader.setDRACOLoader(dracoLoader);
     return loader;
   }
@@ -136,22 +135,22 @@ let dracoLoader;
   else if (assetType == AssetType.VRM) return new GLTFLoader();
 }
 
-export function getAssetType (assetFileName:string):AssetType {
+export function getAssetType(assetFileName: string): AssetType {
   if (/\.(?:gltf|glb)$/.test(assetFileName))
     return AssetType.glTF;
   else if (/\.(?:fbx)$/.test(assetFileName))
     return AssetType.FBX;
   else if (/\.(?:vrm)$/.test(assetFileName))
     return AssetType.VRM;
-  else  if (/\.(?:png)$/.test(assetFileName))
+  else if (/\.(?:png)$/.test(assetFileName))
     return AssetType.PNG;
-  else if (/\.(?:jpg|jpeg|)$/.test(assetFileName)) 
+  else if (/\.(?:jpg|jpeg|)$/.test(assetFileName))
     return AssetType.JPEG;
-  else 
+  else
     return null;
 }
 
-export function getAssetClass (assetFileName:string):AssetClass {
+export function getAssetClass(assetFileName: string): AssetClass {
   if (/\.(?:gltf|glb|vrm|fbx|obj)$/.test(assetFileName)) {
     return AssetClass.Model;
   } else if (/\.png|jpg|jpeg$/.test(assetFileName)) {
