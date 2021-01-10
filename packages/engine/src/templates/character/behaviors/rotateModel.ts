@@ -1,6 +1,6 @@
 import { Behavior } from "../../../common/interfaces/Behavior";
 import { CharacterComponent } from "../components/CharacterComponent";
-import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
+import {getComponent, getMutableComponent} from "../../../ecs/functions/EntityFunctions";
 import { Object3DComponent } from "../../../common/components/Object3DComponent";
 import { Entity } from "../../../ecs/classes/Entity";
 import { TransformComponent } from "../../../transform/components/TransformComponent";
@@ -12,13 +12,13 @@ const defaultActorVector = new Vector3(0, 0, 1.08);//when we use a standard vect
 
 export const rotateModel: Behavior = (entity: Entity): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-	const follower = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent); // Camera
 	if (!actor.initialized) return;
+	const followerMode = getComponent(entity, FollowCameraComponent)?.mode ?? 'thirdPersonLocked'; // Camera
 	const actorTransform: TransformComponent = getMutableComponent<TransformComponent>(entity, TransformComponent as any);
-	const actorObject3D: Object3DComponent = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
+	const actorObject3D: Object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent);
 	if (actorObject3D === undefined) console.warn("Object3D is undefined");
 	else {
-		if (follower.mode == 'thirdPersonLocked') {
+		if (followerMode === 'thirdPersonLocked') {
 			actorTransform.rotation.setFromUnitVectors(defaultActorVector, actor.viewVector.clone().setY(0));
 		} else {
 			actorTransform.rotation.setFromUnitVectors(defaultForwardVector, actor.orientation.clone().setY(0));
