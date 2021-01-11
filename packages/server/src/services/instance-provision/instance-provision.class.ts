@@ -13,6 +13,8 @@ interface Data {}
 
 interface ServiceOptions {}
 
+const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
+
 export class InstanceProvision implements ServiceMethods<Data> {
   app: Application;
   options: ServiceOptions;
@@ -20,6 +22,79 @@ export class InstanceProvision implements ServiceMethods<Data> {
   constructor (options: ServiceOptions = {}, app: Application) {
     this.options = options;
     this.app = app;
+  }
+
+  async getFreeGameserver(): Promise<any> {
+    if (process.env.KUBERNETES !== 'true') {
+      console.log('Local server spinning up new instance');
+      (this.app as any).instance = null;
+      return getLocalServerIp();
+    }
+    logger.info('Getting free gameserver');
+    const serverResult = await (this.app as any).k8AgonesClient.get('gameservers');
+    const readyServers = _.filter(serverResult.items, (server: any) => {
+      const releaseMatch = releaseRegex.exec(server.metadata.name);
+      return server.status.state === 'Ready' && releaseMatch != null && releaseMatch[1] === config.server.releaseName;
+    } );
+    const server = readyServers[Math.floor(Math.random() * readyServers.length)];
+    if (server == null) {
+      return {
+        ipAddress: null,
+        port: null
+      };
+    }
+    return {
+      ipAddress: server.status.address,
+      port: server.status.ports[0].port
+    };
+  }
+
+  async getGSInService(availableLocationInstances): Promise<any> {
+    const instanceModel = this.app.service('instance').Model;
+    const instanceUserSort = _.sortBy(availableLocationInstances, (instance: typeof instanceModel) => instance.currentUsers);
+    if (process.env.KUBERNETES !== 'true') {
+      logger.info('Resetting local instance to ' + instanceUserSort[0].id);
+      (this.app as any).instance = instanceUserSort[0];
+      return getLocalServerIp();
+    }
+    const gsCleanup = await this.gsCleanup(instanceUserSort[0]);
+    if (gsCleanup === true)  {
+      logger.info('GS did not exist and was cleaned up');
+      if (availableLocationInstances.length > 1) return this.getGSInService(availableLocationInstances.slice(1));
+      else return this.getFreeGameserver();
+    }
+    logger.info('GS existed, using it');
+    const ipAddressSplit = instanceUserSort[0].ipAddress.split(':');
+    return {
+      ipAddress: ipAddressSplit[0],
+      port: ipAddressSplit[1]
+    };
+  }
+
+  async gsCleanup(instance): Promise<boolean> {
+    const gameservers = await (this.app as any).k8AgonesClient.get('gameservers');
+    const gsIds = gameservers.items.map(gs => gsNameRegex.exec(gs.metadata.name) != null ? gsNameRegex.exec(gs.metadata.name)[1] : null);
+    const [ip, port] = instance.ipAddress.split(':');
+    const match = gameservers.items.find(gs => {
+      const inputPort = gs.status.ports.find(port => port.name === 'default');
+      return gs.status.address === ip && inputPort.port.toString() === port;
+    });
+    if (match == null) {
+      await this.app.service('instance').remove(instance.id);
+      await this.app.service('gameserver-subdomain-provision').patch(null, {
+        allocated: false
+      }, {
+        query: {
+          instanceId: null,
+          gs_id: {
+            $nin: gsIds
+          }
+        }
+      });
+      return true;
+    }
+
+    return false;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -186,42 +261,8 @@ export class InstanceProvision implements ServiceMethods<Data> {
           }
         ]
       });
-      if (availableLocationInstances.length === 0) {
-        if (process.env.KUBERNETES !== 'true') {
-          console.log('Local server spinning up new instance');
-          (this.app as any).instance = null;
-          return getLocalServerIp();
-        }
-        console.log('Getting free gameserver');
-        const serverResult = await (this.app as any).k8AgonesClient.get('gameservers');
-        const readyServers = _.filter(serverResult.items, (server: any) => {
-          const releaseMatch = releaseRegex.exec(server.metadata.name);
-          return server.status.state === 'Ready' && releaseMatch != null && releaseMatch[1] === config.server.releaseName;
-        } );
-        const server = readyServers[Math.floor(Math.random() * readyServers.length)];
-        if (server == null) {
-          return {
-            ipAddress: null,
-            port: null
-          };
-        }
-        return {
-          ipAddress: server.status.address,
-          port: server.status.ports[0].port
-        };
-      } else {
-        const instanceUserSort = _.sortBy(availableLocationInstances, (instance: typeof instanceModel) => instance.currentUsers);
-        if (process.env.KUBERNETES !== 'true') {
-          logger.info('Resetting local instance to ' + instanceUserSort[0].id);
-          (this.app as any).instance = instanceUserSort[0];
-          return getLocalServerIp();
-        }
-        const ipAddressSplit = instanceUserSort[0].ipAddress.split(':');
-        return {
-          ipAddress: ipAddressSplit[0],
-          port: ipAddressSplit[1]
-        };
-      }
+      if (availableLocationInstances.length === 0) return this.getFreeGameserver();
+      else return this.getGSInService(availableLocationInstances);
     } catch (err) {
       logger.error(err);
       throw err;
