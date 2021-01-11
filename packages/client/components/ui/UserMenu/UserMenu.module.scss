@@ -123,6 +123,9 @@
         width: fit-content;
         max-width: 90%;
         margin: 10px auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;        
     }
 }
 .socialSection{
