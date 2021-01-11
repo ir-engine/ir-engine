@@ -63,13 +63,26 @@
       .PrivateNotchedOutline-root-1{
         border: 0px;
       } 
+
+      :global(.MuiFormLabel-root.Mui-focused):not(.MuiFormLabel-filled),
+      :global(.MuiFormLabel-root.MuiFormLabel-filled):not(.Mui-focused){
+        display: none;
+      }
+
+      :global(.MuiInput-underline:before),
+      :global(.MuiInput-underline:after){
+        border-bottom: none
+      }
+
     }
+
+    
     :global(.MuiButton-root).iconContainerSend{
       display: flex;
-      height: fit-content;
+      height: 37px;
       align-items: center;
-      padding: 5px 10px;
-      width: fit-content;
+      // padding: 5px 10px;
+      width: 37px;
       margin: 5px;
       min-width: 0px;
       &:hover {
