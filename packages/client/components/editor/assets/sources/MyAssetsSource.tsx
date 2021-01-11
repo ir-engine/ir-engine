@@ -39,7 +39,7 @@ export default class MyAssetsSource extends BaseSource {
       { label: "Videos", value: "video" },
       { label: "Audio", value: "audio" }
     ];
-    this.searchLegalCopy = "Search by Mozilla Hubs";
+    this.searchLegalCopy = "Search";
     this.privacyPolicyUrl =
       "https://github.com/xr3ngine/xr3ngine/blob/master/PRIVACY.md";
     this.uploadSource = true;
