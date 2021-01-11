@@ -49,9 +49,9 @@ function shouldCorsProxy(url): boolean {
 export const proxiedUrlFor = url => {
   // if (!(url.startsWith("http:") || url.startsWith("https:"))) return url;
 
-  // if (!shouldCorsProxy(url)) {
-  //   return url;
-  // }
+  if (!shouldCorsProxy(url)) {
+    return url;
+  }
 
   // return `${SERVER_URL}/${url}`;
   return url;
@@ -1005,23 +1005,23 @@ export default class Api extends EventEmitter {
       }
     });
 
-    // const resp = await this.fetchUrl(endpoint, { method: "POST", headers, body, signal });
-    // console.log("Response: " + Object.values(resp));
-    //
-    // const json = await resp.json();
-    //
-    // const asset = json.assets[0];
-    //
+    const resp = await this.fetchUrl(endpoint, { method: "POST", headers, body, signal });
+    console.log("Response: " + Object.values(resp));
+    
+    const json = await resp.json();
+    
+    const asset = json.assets[0];
+    
     this.lastUploadAssetRequest = Date.now();
 
     return {
       id: assetFileId,
-      name: file.name,
-      url: origin,
+      name: asset.name,
+      url: asset.origin,
       type: 'application/octet-stream',
       attributions: {},
       images: {
-        preview: { url: file.thumbnail_url }
+        preview: { url: asset.thumbnail_url }
       }
     };
   }

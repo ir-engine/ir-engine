@@ -547,7 +547,6 @@ export default class Editor extends EventEmitter {
     if (!blob) {
       throw new Error(`Unsupported file type for file: "${file.name}". File must be an image, video, or glb model.`);
     }
-
     return blob;
   }
 
