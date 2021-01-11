@@ -252,9 +252,12 @@ const lightTheme = createMuiTheme({
       
       paperAnchorRight: {
         width: '25%',
-        '@media (max-width: 768px)':{
-          width: '50%',
+        '@media (max-width: 1280px)':{
+          width: '33%',
         },
+        '@media (max-width: 1024px)':{
+          width: '40%',
+        },        
         '@media (orientation: portrait)':{
           width: '100vw',
         }
