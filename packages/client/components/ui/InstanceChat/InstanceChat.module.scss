@@ -139,6 +139,9 @@
     height: 30vh;   
     background-color: transparent;
     margin-left: -55px;
+    @media (max-width: 768px) {
+      margin-left: 0;
+    }
     
   .message-container {
     display: flex;
