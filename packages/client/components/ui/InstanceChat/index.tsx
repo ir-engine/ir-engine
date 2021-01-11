@@ -217,7 +217,9 @@ const InstanceChat = (props: Props): any => {
                                 value={composingMessage}
                                 inputProps={{
                                     maxLength: 1000,
+                                    'aria-label': 'naked'
                                 }}
+                                InputLabelProps={{shrink: false,}}
                                 onChange={handleComposingMessageChange}
                                 inputRef={messageRef}
                                 onClick={() => (messageRef as any)?.current?.focus()}
