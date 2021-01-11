@@ -400,6 +400,7 @@ const renderDrawerContent = () =>{
             onClose={toggleDrawer(anchor, false)}
             className={styles.drawer}
             BackdropProps={{invisible:true, open:false }}
+            {...(state[anchor] && { variant: "permanent"})}
           >
             {renderDrawerContent()}            
           </Drawer>
