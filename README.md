@@ -46,7 +46,7 @@ Free, open source, MIT-licensed
 
 ## Getting Started
 
-Getting up and running is as easy as 1, 2, 3.
+Getting up and running requires only a few steps.
 
 First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.npmjs.com/) installed (and if you are using it, [docker](https://docs.docker.com/)).
 
@@ -59,7 +59,10 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
     ```
     cd scripts && ./start-db.sh
     ```
-    This creates a docker image of mariadb named xr3ngine_db.
+    This creates a Docker container of mariadb named xr3ngine_db. You must have docker installed on your machine for this script to work.
+    If you do not have Docker installed and do not wish to install it, you'll have to manually create a MariaDB server.
+   
+   The default username is 'server', the default password is 'password', the default database name is 'xr3ngine', the default hostname is 'localhost', and the default port is '3306'.
     
 3. Open a new tab and start the Agones sidecar in local mode
 
@@ -78,31 +81,34 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
    
    and for mac, run
    
-   ```./sdk-server.darwin.amd64 --local``` 
+   ```./sdk-server.darwin.amd64 --local```
 
-4. Start your app
+4. Obtain .env.local file with configuration variable.
+   Many parts of XR3ngine are configured using environment variables.
+   For simplicity, it's recommended that you create a file called ```.env.local``` in the top level of xr3ngine,
+   and have all of your ENV_VAR definitions here in the form ```<VAR_NAME>=<VALUE>```.
+   If you are actively working on this project, contact one of the developers for a copy of the file
+   that has all of the development settings and keys in it.
 
-    ```
-    yarn start
-    ```
-    for development mode
-    ```
-    yarn dev
-    ```
+5. Start the server in database seed mode
+
+   Several tables in the database need to be seeded with default values.
+   Run ```cd packages/server```, then run ```yarn dev-reinit-db```.
+   After several seconds, there should be no more logging.
+   Some of the final lines should read like this:
+   ```Executing (default): SELECT 'id', 'name', 'sceneId', 'locationSettingsId', 'slugifiedName', 'maxUsersPerInstance', 'createdAt', 'updatedAt' FROM 'location' AS 'location' WHERE ('location'.'id' = '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61') AND 'location'.'id' IN ('98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61'); Seeded```
    
-5. (Optional) Run client and server separately
+    At this point, the database has been seeded. You can shut down the server with CTRL+C.
 
-    The primary runnable components of xr3ngine are the server and the client.
-    Running ```yarn dev``` from the root directory will start both of them via Lerna.
-    
-    You may find it easier to run each of them separately in different tabs.
-    Make sure you do not have them running from the root directory, then
-    go to ```packages/<client or server>``` and run ```yarn dev```.
-    
-    Running them this way allows you to start one of the components with specific
-    scripts, such as ```yarn dev-reinit-db``` in server, which will reset the
-    database and re-populate all of the table schemas and seed values.
-    This script is not specified in the root package.json. 
+6. Open two separate tabs and start the server (non-seeding) and the client
+   In /packages/server, run ```yarn dev```.
+   In the other tab, go to /packages/client and run ```yarn dev```.
+   
+7. In a browser, navigate to https://localhost:3000/location/test
+   The database seeding process creates a test empty location called 'test'.
+   It can be navigated to by going to 'https://localhost:3000/location/test'.
+   See the sections below about invalid certificates if you are encountering errors
+   connecting to the client, API, or gameserver.
 
 ### Notes
 
@@ -166,6 +172,12 @@ Make sure you don't have another instance of mariadb running on port 3306
 ```
     lsof -i :3306
 ```
+
+On Linux, you can also check if any processes are running on port 3306 with
+```sudo netstat -utlp | grep 3306```
+The last column should look like ```<ID>/<something```
+You can kill any running process with ```sudo kill <ID>```
+
 #### Error: listen EADDRINUSE :::3030
 
 check which process is using port 3030 and kill
@@ -177,6 +189,11 @@ check which process is using port 3030 and kill
     lsof -i :3030
 	kill -3 <proccessIDfromPreviousCommand>
 ```
+
+#### 'TypeError: Cannot read property 'position' of undefined' when accessing /location/test
+    As of this writing, there's a bug with the default seeded test location.
+    Go to /editor/projects and open the 'Test' project. Save the project, and
+    the error should go away.
 
 #### Weird issues with your database?
 Try
