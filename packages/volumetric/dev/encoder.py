@@ -7,6 +7,12 @@ from plyfile import PlyData, PlyElement
 import json
 from numpy.lib.recfunctions import merge_arrays
 import pyprogmesh
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import warnings
+warnings.simplefilter('ignore', np.RankWarning)
+
+dirname = os.path.dirname(__file__)
 
 decimation_amount = .25 # Decimation percentage
 
@@ -16,44 +22,51 @@ _short_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('texture_u', '<f4
 # If a mesh has multiple coherent frames, encode additional vertex data
 _full_data_type = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('texture_u', '<f4'), ('texture_v', '<f4'), ('x0', '<f4'), ('x1', '<f4'), ('x2', '<f4'), ('x3', '<f4'), ('y0', '<f4'), ('y1', '<f4'), ('y2', '<f4'), ('y3', '<f4'), ('z0', '<f4'), ('z1', '<f4'), ('z2', '<f4'), ('z3', '<f4')]
 
+
+#======================================================================================================================
+#--------------------------------------------- MAIN Function ----------------------------------------------------------
+#======================================================================================================================
+
 def main():
     frame_number = 0
     vertex_count_in_last_ply = 0
     meshes_in_group = []
 
-    for subdir, dirs, files in os.walk('./encode'):
-        for file in sorted(files):     #for each mesh
-            if frame_number >= len(files):
-                print("FINISHED")
-                break
+    Data_Path = dirname + "/output_ply_face_uvs"
+    # Data_Path = dirname + "/encode"
 
-            mesh = PlyData.read('./encode/' + file)
-            (x, y, z) = (mesh['vertex'][t] for t in ('x', 'y', 'z'))
-            vertex_count_in_current_ply = len(x)
+    # Exception Handling : If 'encode' folder is not there, create one
+    assert os.path.exists(Data_Path), 'The Dataset Folder not found. Please consider giving full(absolute) file path.'
 
-            if frame_number > 0 and (vertex_count_in_current_ply != vertex_count_in_last_ply or frame_number >= len(files)):
+    for files in os.listdir(Data_Path):
+        if files.endswith(".ply"): # Exception Handling
+
+            mesh = PlyData.read(Data_Path + '/' + files)
+            print(len(mesh['vertex']['x']))
+            
+            if (frame_number > 0 and len(mesh['vertex']['x']) != vertex_count_in_last_ply):
+                print("New Shape at Frame " + str(frame_number))
                 create_poly_mesh_from_sequence(meshes_in_group)
-                current_keyframe = frame_number
-                meshes_in_group = [mesh] # set meshes in group to new keyframe mesh
-                print("Encoded mesh at " + str(frame_number))
+                meshes_in_group = [mesh]
             else:
                 meshes_in_group.append(mesh)
-                print("Adding mesh to group" + str(frame_number))
+                print("Adding mesh " +  str(frame_number+1) + " to group")
+
             frame_number = frame_number + 1
-            vertex_count_in_last_ply = vertex_count_in_current_ply # set new vertex count
-        create_poly_mesh_from_sequence(meshes_in_group)
+            _current_keyframe = frame_number
+            vertex_count_in_last_ply = len(mesh['vertex']['x']) # set new vertex count
 
-    current_keyframe = frame_number
-    meshes_in_group = [mesh] # set meshes in group to new keyframe mesh
+    create_poly_mesh_from_sequence(meshes_in_group)
 
-    # poly_mesh_path = './encoded/poly' + str(0) + '.ply'
-    # decimate_mesh(poly_mesh_path, decimation_amount, True)
+#======================================================================================================================
+
 
 def create_poly_mesh_from_sequence(meshes):
     # Is it a sequence of meshes or a single mesh? Skip the fit algorithm for single meshes
     is_sequence = len(meshes) > 1
     # Count the number of 'x' entries in the first mesh, assuming all meshes have the same count and xyz are the same
     number_of_vertices = len(meshes[0]['vertex']['x'])
+
     # Input vertices from first frame
     input_vertices = meshes[0].elements[0]
     # Input faces from first frame
@@ -64,20 +77,17 @@ def create_poly_mesh_from_sequence(meshes):
     if(is_sequence == True):
         for mesh in range(len(meshes)):
             for v in ['x', 'y', 'z']:
-                for vert in range(len(meshes[mesh].elements[0].data[v])):
+                for vert in range(min(len(meshes[mesh].elements[0].data[v]), len(meshes[0].elements[0].data[v]))):
                     # offset meshes so first mesh is always 0 vals
-                    meshes[mesh].elements[0].data[v][vert] = meshes[mesh].elements[0].data[v][vert]# - meshes[0].elements[0].data[i][vert]
+                    meshes[mesh].elements[0].data[v][vert] = meshes[mesh].elements[0].data[v][vert] - meshes[0].elements[0].data[v][vert]
             # For all meshes in group, subtract position from self and add to offset mesh group
-
-        # vertex_positions_to_polynomial(vertex_positions) # Convert X to polynomial, Y to polynomial, Z to polynomial
-        # Set polynomial mesh vertex to this value
-        number_of_meshes = len(meshes)
 
         # Array of polynomial data we will append to vertices later
         polynomial_array = []
 
         # for each vert in our meshes...
         for current_vertex in range(number_of_vertices):
+            # print("\nNew Vertex\n")
             # get an axis
             polyAxes = []
             # for each in xyz
@@ -89,14 +99,16 @@ def create_poly_mesh_from_sequence(meshes):
                 # Will be incremented with each frame processed and add to frame list
                 current_frame = 0
                 # for each mesh in count
-                for m in range(number_of_meshes):
+                for m in range(len(meshes)):
                     # Add the mesh number, with the first mesh in this sequence being 0
                     frame_list.append(current_frame)
                     # Increment the current frame
                     current_frame = current_frame + 1
                     # add the normalized 
-                    vertex_positions.append(meshes[m]['vertex'][axis][current_vertex] - meshes[0]['vertex'][axis][current_vertex])
+                    # vertex_positions.append(meshes[m]['vertex'][axis][current_vertex] - meshes[0]['vertex'][axis][current_vertex])
+                    vertex_positions.append(meshes[m]['vertex'][axis][current_vertex])
                 # model = polyfit
+                # print('\nFrames List :', frame_list, '\nVertex Positions :', vertex_positions)
                 model = np.polyfit(frame_list, vertex_positions, 4)
                 # Add the model data. We are removing the last term, which will always be 0 on a normalized trajectory
                 polyAxes.append( model[:-1] )
@@ -151,13 +163,21 @@ def create_poly_mesh_from_sequence(meshes):
         vertices['z2'] = encoded_vertices_transposed[15].astype('f4')
         vertices['z3'] = encoded_vertices_transposed[16].astype('f4')
 
+    # Exception handling
+    if(os.path.exists(dirname + "/encoded") == False):
+        print('The "encoded" folder not found. Creating a new one..', end = '')
+        os.mkdir(dirname + "/encoded"); print('Done')
+
     # Write the py file
-    poly_mesh_path = './encoded/poly' + str(_current_keyframe) + '.ply'
+    poly_mesh_path = (dirname + "/encoded/" + str(_current_keyframe) + '.ply')
     ply = PlyData([PlyElement.describe(vertices, 'vertex'), input_faces], text=True)
     ply.write(poly_mesh_path)
 
     # Chain the decimation on to the end
     decimate_mesh(poly_mesh_path, decimation_amount, is_sequence)
+
+#======================================================================================================================
+
 
 def decimate_mesh(poly_mesh_path, decimate_amount, is_sequence):
 
@@ -176,30 +196,31 @@ def decimate_mesh(poly_mesh_path, decimate_amount, is_sequence):
 
     # Read mesh from path
     mesh = PlyData.read(poly_mesh_path)
+    # print(mesh['vertex']['x'])
+ 
 
     # Get number of vertices in mesh
-    number_of_vertices = len(mesh['vertex']['x'])
-
+    number_of_vertices = len(mesh['vertex']['x']) #14
     # Get x, y and z data in mesh
     (x, y, z) = (mesh['vertex'][t] for t in ('x', 'y', 'z'))
 
     # Extract vertices from x, y and z columns into a single xyz column and append to decimated mesh
-    for i in range(0, number_of_vertices):
-        vertex = Vertex()
+    for i in range(number_of_vertices):
+        vertex = Vertex() # 'Vertex' class object
         vertex.x = x[i]
         vertex.y = y[i]
         vertex.z = z[i]
-        decimatedMesh.vertices.append(vertex)
+        decimatedMesh.vertices.append(vertex) # append vertex object
 
 
-    for i in range(0, number_of_vertices):
-        _v = decimatedMesh.vertices[i]
-        v = [_v.x, _v.y, _v.z]
+    for i in range(number_of_vertices): # 14
+        v = [decimatedMesh.vertices[i].x, decimatedMesh.vertices[i].y, decimatedMesh.vertices[i].z]
         _uv = [mesh['vertex']['texture_u'][i], mesh['vertex']['texture_v'][i]]
+        # print('\nUV :', _uv, '\n')
         # if mesh.has_normals:
         #     _normal = [mesh.normals[i].x, mesh.normals[i].y, mesh.normals[i].z]
         # else:
-        _normal = None
+        _normal = None 
         new_verts.append(pyprogmesh.RawVertex(Position=v, UV=_uv, Normal=_normal, RGBA=None))
     #HANDLE FACES
 
@@ -292,10 +313,11 @@ def decimate_mesh(poly_mesh_path, decimate_amount, is_sequence):
     output_vertices['y'] = mesh['vertex']['y'][0:decimated_mesh_length].astype('f4')
     output_vertices['z'] = mesh['vertex']['z'][0:decimated_mesh_length].astype('f4')
 
+    print("**** COLLAPSE MAP VALUE")
+    print(decimatedMesh.collapse_map)
     # Now iterate through and fill them with the proper values
-    for i in range(0, len(decimatedMesh.collapse_map)):
-        print("**** COLLAPSE MAP VALUE")
-        print(decimatedMesh.collapse_map)
+    # for i in range(0, len(decimatedMesh.collapse_map)):
+    for i in range(3):
         # Look up old index
         # Since we don't have the new index, this is almost certain wrong, unless collapse map is the same value
         old_index = decimatedMesh.collapse_map[i]
@@ -318,6 +340,7 @@ def decimate_mesh(poly_mesh_path, decimate_amount, is_sequence):
             output_vertices[i]['z1'] = mesh['vertex']['z1'][old_index].astype('f4')
             output_vertices[i]['z2'] = mesh['vertex']['z3'][old_index].astype('f4')
 
+
     # New empty array for faces, to be added back to final PLY
     output_faces = np.empty([len(decimatedMesh.faces)], dtype=[('vertex_indices', 'i4', (3,))])
 
@@ -329,11 +352,20 @@ def decimate_mesh(poly_mesh_path, decimate_amount, is_sequence):
         face[2] = decimatedMesh.faces[i].v_2
         output_faces['vertex_indices'][i] = face
 
+
+    # Exception handling
+    if(os.path.exists(dirname + "/decimated") == False):
+        print('The "decimated" folder not found. Creating a new one..', end = '')
+        os.mkdir(dirname + "/decimated")
+        print('Done')
+
     # Set the write path    
-    poly_mesh_path = './decimated/poly' + str(_current_keyframe) + '.ply'
+    poly_mesh_path = dirname + '/decimated/poly' + str(_current_keyframe) + '.ply'
     # Create ply and write it
     ply = PlyData([PlyElement.describe(output_vertices, 'vertex'), PlyElement.describe(output_faces, 'face')], text=True)
     ply.write(poly_mesh_path)
+
+#======================================================================================================================
 
 class Mesh:
     vertices = []
@@ -354,6 +386,10 @@ class Face:
     v_1 = 0
     v_2 = 0
     v_3 = 0
+
+
+#======================================================================================================================
+
 
 if __name__ == '__main__':
     main()
