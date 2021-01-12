@@ -35,7 +35,22 @@ import { OutlineEffect } from '../../postprocessing/effects/OutlineEffect';
    * Handles rendering and post processing to WebGL canvas
    */
 export class WebGLRendererSystem extends System {
-    isInitialized: boolean
+  isInitialized: boolean
+  
+  // resoulion scale
+  scaleFactor: number = 1
+  downGradeTimer: number = 0
+  upGradeTimer: number = 0
+  resolutionLevel: number = 0
+  prevResolutionLevel: number = this.resolutionLevel
+
+  // fps counting
+  now
+  startTime
+  prevTime
+  frames: number
+  interval: number
+  fps: number
   constructor(attributes?: SystemAttributes) {
     super(attributes);
 
@@ -75,7 +90,14 @@ export class WebGLRendererSystem extends System {
     this.onResize();
 
     this.isInitialized = true;
-  }
+
+    // set initial value for counting fps
+    this.now = (self.performance && self.performance.now) ? self.performance.now.bind(performance) : Date.now;
+    this.startTime = this.now();
+    this.prevTime = this.startTime;
+    this.frames = 0;
+    this.interval = 1000;
+  } 
 
   /**
      * Called on resize, sets resize flag
@@ -132,7 +154,7 @@ export class WebGLRendererSystem extends System {
       else if ( pass.effect === DepthOfFieldEffect)
         passes.push(new pass.effect(Engine.camera, pass.options))
       else if ( pass.effect === OutlineEffect){
-      const effect = new pass.effect(Engine.scene, Engine.camera, pass.options)
+        const effect = new pass.effect(Engine.scene, Engine.camera, pass.options)
         passes.push(effect)
         composer.outlineEffect = effect
       }
@@ -158,6 +180,60 @@ export class WebGLRendererSystem extends System {
       RendererComponent.instance.needsResize = true;
       this.configurePostProcessing(entity);
     });
+
+    // count fps
+    let time = this.now();
+    this.frames++;
+    if (time > this.prevTime + this.interval) {
+      this.fps = Math.round((this.frames * this.interval) / (time - this.prevTime));
+      this.prevTime = time;
+      this.frames = 0;
+    }
+
+    // console.log("fps: " + this.fps);
+
+    // start timer when fps changes
+    if (this.fps <= 45) {
+      this.downGradeTimer += delta;
+      this.upGradeTimer = 0;
+    }
+    else if (this.fps >= 55) {
+      this.upGradeTimer += delta;
+      this.downGradeTimer = 0;
+    }
+
+    // change scale factor and set resolution level    
+    if (this.downGradeTimer > 3 || this.upGradeTimer > 3) {
+      if (this.fps >= 55) {
+        this.resolutionLevel = 0;
+        this.scaleFactor = 1;
+      }
+      else if (this.fps <= 45 && this.fps > 20) {
+        this.resolutionLevel = 1;
+        this.scaleFactor = 0.7;
+      }
+      else if (this.fps <= 30 && this.fps > 15) {
+        this.resolutionLevel = 2;
+        this.scaleFactor = 0.5;
+      }
+      else if (this.fps <= 15) {
+        this.resolutionLevel = 3;
+        this.scaleFactor = 0.25;
+      }
+      this.downGradeTimer = 0;
+      this.upGradeTimer = 0;
+    }
+    
+    // set resolution scale
+    if (this.prevResolutionLevel !== this.resolutionLevel) {
+      Engine.renderer?.setPixelRatio(window.devicePixelRatio * this.scaleFactor);
+      this.prevResolutionLevel = this.resolutionLevel;
+    }
+
+    // if (typeof window !== "undefined" && typeof window['slowDownRate'] !== "undefined") {
+    //   // slow down the process
+    //   for (let i = 0; i < (window['slowDownRate'] * 10000000); i++) { }
+    // }
 
     if(this.isInitialized)
       this.queryResults.renderers.all.forEach((entity: Entity) => {
