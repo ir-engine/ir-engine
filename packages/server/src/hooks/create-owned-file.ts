@@ -9,9 +9,10 @@ export default (options = {}) => {
     const body = params.body || {};
 
     const domain: string =
-      config.server.storageProvider === 'aws'
+      config.server.storageProvider === 'aws' && config.aws.cloudfront.domain != '' && config.aws.cloudfront.domain != undefined
         ? config.aws.cloudfront.domain
         : config.server.localStorageProvider;
+
     let savedFile;
     if (body.projectId && context.params.thumbnailOwnedFileId) { // Update File instead of creating a new one if project exists to avoid orphan resources
       savedFile = await context.app
