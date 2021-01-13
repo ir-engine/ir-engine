@@ -116,7 +116,7 @@ export class InputSystem extends System {
       // apply face tracking
       if (this.localUserMediaStream === null) {
         // check to start video tracking
-        if (MediaStreamComponent.instance.mediaStream) {
+          if (MediaStreamComponent.instance.mediaStream && MediaStreamComponent.instance.faceTracking) {
           console.log('start facetracking');
           startFaceTracking(entity);
           this.localUserMediaStream = MediaStreamComponent.instance.mediaStream;
