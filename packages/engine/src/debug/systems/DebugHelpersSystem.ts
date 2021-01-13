@@ -20,9 +20,13 @@ export class DebugHelpersSystem extends System {
   }
 
   execute(delta: number, time: number): void {
+    // artificial engine slowdown
+    if (typeof window !== "undefined" && typeof window['slowDownRate'] !== "undefined") {
+      // slow down the process
+      for (let i = 0; i < (window['slowDownRate'] * 1000000); i++) {}
+    }
 
     // view vector
-
     this.queryResults.viewVectorHelper?.added?.forEach(entity => {
       const actor = getComponent(entity, CharacterComponent);
 
