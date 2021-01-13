@@ -4,6 +4,7 @@ import {
   PerspectiveCamera,
   RGBFormat,
   sRGBEncoding,
+  LinearEncoding,
   WebGLRenderer,
   WebGL1Renderer,
   WebGLRenderTarget
@@ -41,8 +42,8 @@ export class WebGLRendererSystem extends System {
   scaleFactor: number = 1
   downGradeTimer: number = 0
   upGradeTimer: number = 0
-  resolutionLevel: number = 0
-  prevResolutionLevel: number = this.resolutionLevel
+  qualityLevel: number = 0
+  prevQualityLevel: number = this.qualityLevel
 
   // fps counting
   now
@@ -190,8 +191,28 @@ export class WebGLRendererSystem extends System {
       this.frames = 0;
     }
 
-    // console.log("fps: " + this.fps);
+    this.changeQualityLevel(delta);    
 
+    if(this.isInitialized)
+      this.queryResults.renderers.all.forEach((entity: Entity) => {
+        resize(entity);
+
+        if (this.qualityLevel >= 2) {
+          getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta);
+          Engine.renderer.outputEncoding = LinearEncoding; // need this if postprocessing is used
+        }
+        else {
+          Engine.renderer?.render(Engine.scene, Engine.camera);
+          Engine.renderer.outputEncoding = sRGBEncoding; // need this if postprocessing is not used
+        }
+      });
+
+    this.queryResults.renderers.removed.forEach((entity: Entity) => {
+      // cleanup
+    });
+  }
+
+  changeQualityLevel(delta: number) {
     // start timer when fps changes
     if (this.fps <= 45) {
       this.downGradeTimer += delta;
@@ -205,46 +226,32 @@ export class WebGLRendererSystem extends System {
     // change scale factor and set resolution level    
     if (this.downGradeTimer > 3 || this.upGradeTimer > 3) {
       if (this.fps >= 55) {
-        this.resolutionLevel = 0;
+        this.qualityLevel = 3;
         this.scaleFactor = 1;
       }
       else if (this.fps <= 45 && this.fps > 20) {
-        this.resolutionLevel = 1;
+        this.qualityLevel = 2;
         this.scaleFactor = 0.7;
       }
       else if (this.fps <= 30 && this.fps > 15) {
-        this.resolutionLevel = 2;
+        this.qualityLevel = 1;
         this.scaleFactor = 0.5;
       }
       else if (this.fps <= 15) {
-        this.resolutionLevel = 3;
+        this.qualityLevel = 0;
         this.scaleFactor = 0.25;
       }
       this.downGradeTimer = 0;
       this.upGradeTimer = 0;
     }
-    
+
     // set resolution scale
-    if (this.prevResolutionLevel !== this.resolutionLevel) {
+    if (this.prevQualityLevel !== this.qualityLevel) {
       Engine.renderer?.setPixelRatio(window.devicePixelRatio * this.scaleFactor);
-      this.prevResolutionLevel = this.resolutionLevel;
+      this.prevQualityLevel = this.qualityLevel;
     }
-
-    // if (typeof window !== "undefined" && typeof window['slowDownRate'] !== "undefined") {
-    //   // slow down the process
-    //   for (let i = 0; i < (window['slowDownRate'] * 10000000); i++) { }
-    // }
-
-    if(this.isInitialized)
-      this.queryResults.renderers.all.forEach((entity: Entity) => {
-        resize(entity);
-        getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta);
-      });
-
-    this.queryResults.renderers.removed.forEach((entity: Entity) => {
-      // cleanup
-    });
   }
+
 }
 
 /**
