@@ -42,7 +42,8 @@ export class WebGLRendererSystem extends System {
   scaleFactor: number = 1
   downGradeTimer: number = 0
   upGradeTimer: number = 0
-  qualityLevel: number = 0
+  maxQualityLevel: number = 4
+  qualityLevel: number = this.maxQualityLevel
   prevQualityLevel: number = this.qualityLevel
 
   // fps counting
@@ -199,11 +200,13 @@ export class WebGLRendererSystem extends System {
 
         if (this.qualityLevel >= 2) {
           getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta);
-          Engine.renderer.outputEncoding = LinearEncoding; // need this if postprocessing is used
+          if (Engine.renderer) Engine.renderer.outputEncoding = LinearEncoding; // need this if postprocessing is used
         }
         else {
-          Engine.renderer?.render(Engine.scene, Engine.camera);
-          Engine.renderer.outputEncoding = sRGBEncoding; // need this if postprocessing is not used
+          if (Engine.renderer) {
+            Engine.renderer?.render(Engine.scene, Engine.camera);
+            Engine.renderer.outputEncoding = sRGBEncoding; // need this if postprocessing is not used
+          }
         }
       });
 
@@ -222,31 +225,42 @@ export class WebGLRendererSystem extends System {
       this.upGradeTimer += delta;
       this.downGradeTimer = 0;
     }
-
-    // change scale factor and set resolution level    
-    if (this.downGradeTimer > 3 || this.upGradeTimer > 3) {
-      if (this.fps >= 55) {
-        this.qualityLevel = 3;
-        this.scaleFactor = 1;
-      }
-      else if (this.fps <= 45 && this.fps > 20) {
-        this.qualityLevel = 2;
-        this.scaleFactor = 0.7;
-      }
-      else if (this.fps <= 30 && this.fps > 15) {
-        this.qualityLevel = 1;
-        this.scaleFactor = 0.5;
-      }
-      else if (this.fps <= 15) {
-        this.qualityLevel = 0;
-        this.scaleFactor = 0.25;
-      }
+    else {
+      this.upGradeTimer = 0;
       this.downGradeTimer = 0;
+    }
+
+    // change quality level
+    if (this.downGradeTimer > 3) {
+      this.qualityLevel--;
+      this.downGradeTimer = 0;
+    }
+    else if (this.upGradeTimer > 3) {
+      this.qualityLevel++;
       this.upGradeTimer = 0;
     }
+    this.qualityLevel = Math.max(0, Math.min(this.maxQualityLevel, this.qualityLevel));
 
     // set resolution scale
     if (this.prevQualityLevel !== this.qualityLevel) {
+      switch (this.qualityLevel) {
+        case 0:
+          this.scaleFactor = 0.25;
+          break;
+        case 1:
+          this.scaleFactor = 0.5;
+          break;
+        case 2:
+          this.scaleFactor = 0.75;
+          break;
+        case 3:
+          this.scaleFactor = 1;
+          break;
+        default:
+          this.scaleFactor = 1;
+          break;
+      }
+
       Engine.renderer?.setPixelRatio(window.devicePixelRatio * this.scaleFactor);
       this.prevQualityLevel = this.qualityLevel;
     }
