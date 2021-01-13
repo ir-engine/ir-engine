@@ -25,33 +25,17 @@ export const rotateModel: Behavior = (entity: Entity): void => {
 	else {
 		if (followerMode === 'thirdPersonLocked') {
 			
-			const actorInputs = getComponent(entity, Input);
-			// console.log('ENTITY INPUTS', actorInputs);
-			
-			// if (document.pointerLockElement) {
-				// inputAxes = DefaultInput.MOUSE_MOVEMENT;
-			// } else {
+			const actorInputs = getComponent(entity, Input);	
 			const inputAxes = DefaultInput.LOOKTURN_PLAYERONE;
-			// }
 			const inputValue = getInputData(actorInputs, inputAxes);
 			
 			if(inputValue){
 			let theta = Math.atan2( actor.orientation.x, actor.orientation.z) * 180 / Math.PI ;
-			console.log('THETA',theta);
-			theta -= inputValue[0] * 50 ;
-			console.log('THETA2222222',theta );
-			// theta %= 360;
-
-			const t = 0.05;
-			//   // const t = 4.0 * timeElapsed;
-			//   // const t = 1.0 - Math.pow(0.001, timeElapsed);
+	
+			theta -= inputValue[0] * 80 ;
 			
 			actorTransform.rotation.setFromAxisAngle(defaultUpVector, theta * (Math.PI / 180));
 			actor.orientation.copy(defaultForwardVector).applyQuaternion(actorTransform.rotation);
-			
-
-			// console.log('INPUT VALUE AND THETA',inputValue,theta );
-			// console.log('ACTOR TRANSFORM',actor.orientation );
 			}
 			actorTransform.rotation.setFromUnitVectors(defaultForwardVector, actor.orientation.clone().setY(0));
 			

@@ -2,9 +2,10 @@ import { NumericalType } from "../../common/types/NumericalTypes";
 import { Input } from "../../input/components/Input";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 
+
 export function getInputData(inputComponent: Input, inputAxes: number): NumericalType {
     const emptyInputValue = [0, 0] as NumericalType;
-  
+      
     if (inputComponent?.data.has(inputAxes)) {
       const inputData = inputComponent.data.get(inputAxes);
       const inputValue = inputData.value;
