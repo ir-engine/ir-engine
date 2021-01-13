@@ -107,7 +107,7 @@ If that isn't present, you'll have to edit the configuration to make the appropr
 
 You next need to add the Agones and ingress-nginx Helm charts to helm by running 
 ```helm repo add agones https://agones.dev/chart/stable``` and ```helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx```.
-You should also at this time add TheOverlay's repo via ```helm repo add xr3ngine https://school.xrengine.io```.
+You should also at this time add TheOverlay's repo via ```helm repo add xr3ngine https://school.theoverlay.io```.
 
 If you ever suspect that a chart is out-of-date, run ```helm repo update``` to update all of them to the latest.
 
