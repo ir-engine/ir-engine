@@ -1,5 +1,5 @@
 baseURL = "/"
-title = "The overlay"
+title = "XR3ngine"
 
 enableRobotsTXT = true
 
@@ -53,8 +53,8 @@ id = "UA-164023274-1"
 
 [languages]
 [languages.en]
-title = "The Overlay"
-description = "Documentation for the The Overlay/XR3 platform"
+title = "XR3ngine"
+description = "Documentation for the XR3ngine platform"
 languageName ="English"
 
 [markup]
@@ -65,7 +65,7 @@ languageName ="English"
 # Everything below this are Site Params
 
 [params]
-copyright = "The Overlay"
+copyright = "XR3ngine"
 privacy_policy = ""
 
 # First one is picked as the Twitter card image if not set on page.
