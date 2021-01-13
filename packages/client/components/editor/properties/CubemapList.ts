@@ -15,5 +15,9 @@ export const CubemapOption = [
   {
     label: "texture4",
     value: "/hdr/cubemap/skyboxsun25deg/"
+  },
+  {
+    label: "textureAxes",
+    value: "/hdr/cubemap/axes/"
   }
 ];

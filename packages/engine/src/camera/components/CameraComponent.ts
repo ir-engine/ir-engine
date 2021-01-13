@@ -1,6 +1,7 @@
 // TODO: Change camera properties to object and use setter that updates camera
 
 import { Component } from '../../ecs/classes/Component';
+import { Entity } from '../../ecs/classes/Entity';
 import { Types } from '../../ecs/types/Types';
 
 export class CameraComponent extends Component<any> {
@@ -12,6 +13,7 @@ export class CameraComponent extends Component<any> {
   far: number // Geometry farther than this gets removed
   layers: number // Bitmask of layers the camera can see, converted to an int
   handleResize: boolean // Should the camera resize if the window does?
+  entity: Entity;
 
   constructor () {
     super();
