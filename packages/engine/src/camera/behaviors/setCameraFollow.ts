@@ -108,28 +108,17 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
   
   } else if (cameraFollow.mode === "thirdPersonLocked") {
 
-    // theta -= inputValue[0];
-
     const targetTheta = Math.atan2( actor.orientation.x,  actor.orientation.z)  * 180 / Math.PI + 180;// target theta
-    // theta = Math.atan2(actor?.orientation.x, actor?.orientation.z) / Math.PI * 180 + 180;// target theta
-    // Camera system
-    // console.log('THETA targetTheta',targetTheta );
-    // console.log('THETA FolowCAMERA',theta );
-
-    const deltaTheta = anglesDifference(theta,targetTheta );
-
+   
+    // const deltaTheta = anglesDifference(theta,targetTheta );
     // theta -= deltaTheta * 0.015;
+
     theta = targetTheta;
-    // console.log('THETE ANGLE',theta);
     theta %= 360;
-    
-    // console.log('THETE ANGLE360000',theta);
-    // Camera system
-    // theta = theta * (Math.PI / 180);
+   
     phi -= inputValue[1] * 50;
     phi = Math.min(85, Math.max(0, phi));
 
-    // Camera system
     follower.position.set(
       target.position.x + cameraFollow?.distance * Math.sin(theta * Math.PI / 180) * Math.cos(phi * Math.PI / 180),
       target.position.y + cameraFollow?.distance * Math.sin(phi * Math.PI / 180),
@@ -141,10 +130,7 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
 
     mx.lookAt(direction, empty, up);
     follower.rotation.setFromRotationMatrix(mx);
-        // Camera system
-
     }
-  
 };
 
 

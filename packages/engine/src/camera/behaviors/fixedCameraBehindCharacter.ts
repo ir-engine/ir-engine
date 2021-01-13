@@ -6,19 +6,23 @@ import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
 import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { setCameraFollow } from './setCameraFollow';
 
-export const fixedCameraBehindCharacter: Behavior = (entity: Entity, delta: any, args: any): void => {
+/**
+ * 
+ * @param args
+ * @param {Number} delta Time since last frame
+ */
+
+export const fixedCameraBehindCharacter: Behavior = (entity: Entity, delta: number, args: any): void => {
   const follower = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent); // Camera
-  // const cam = getComponent(entity, CameraComponent) as CameraComponent;
-  // const camera = getMutableComponent<CameraComponent>(entity, CameraComponent); // Camera
+
   if(follower === undefined) return console.warn("Follower is undefined on switchCameraMode");
   if (follower.mode == 'thirdPersonLocked') {
     follower.mode = 'thirdPerson';
-    Engine.camera.near = 0.1;
-    // setCameraFollow(CameraComponent.instance.entity, null, delta, CameraComponent.instance.followTarget);
+    Engine.camera.near = 0.1; 
   } else {
     follower.mode = 'thirdPersonLocked';
     Engine.camera.near = 2;
-   
   }
+  setCameraFollow(CameraComponent.instance.entity, null, delta, CameraComponent.instance.followTarget);
   
 };

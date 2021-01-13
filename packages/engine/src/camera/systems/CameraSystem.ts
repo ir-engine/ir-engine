@@ -46,7 +46,6 @@ export class CameraSystem extends System {
       if (!!cam.followTarget && hasComponent(cam.followTarget, FollowCameraComponent)) {
         setCameraFollow(entity, null, delta, cam.followTarget);
       }
-      
     });
 
     this.queryResults.cameraComponent.changed?.forEach(entity => {
