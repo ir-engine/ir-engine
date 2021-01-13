@@ -1,8 +1,8 @@
 {
   "name": "xr3ngine",
-  "description": "Game Engine, Server & Devops powering The Overlay",
+  "description": "Game Engine, Server & Devops powering The XR3ngine",
   "version": "0.2.0",
-  "homepage": "theoverlay.io",
+  "homepage": "lagunalabs.io",
   "private": true,
   "workspaces": [
     "packages/*"
