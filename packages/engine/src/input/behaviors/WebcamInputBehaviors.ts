@@ -161,13 +161,12 @@ const nameToInputValue = {
 };
 const faceApiOptions = new faceapi.TinyFaceDetectorOptions();
 async function faceToInput(entity, video) {
-    console.log("*************** FACE TO INPUT")
     const detection = await faceapi.detectSingleFace(video, faceApiOptions).withFaceExpressions();
-    console.log("*************** detection", detection)
+    // console.log("*************** detection", detection)
 
     if (detection !== undefined && detection.expressions !== undefined) {
-        console.log("EXPRESSIONS");
-        console.log(detection.expressions);
+        // console.log("EXPRESSIONS");
+        // console.log(detection.expressions);
         const expressions = {};
         const input = getMutableComponent(entity, Input);
         for (const expression in detection.expressions) {

@@ -1,7 +1,7 @@
-# Setting up TheOverlay on AWS
+# Setting up XR3ngine on AWS
 
 ## Create EKS cluster
-You first need to set up an EKS cluster for TheOverlay to run on.
+You first need to set up an EKS cluster for XR3ngine to run on.
 While this can be done via AWS' web interface, the ```eksctl``` CLI 
 will automatically provision more of the services you need automatically,
 and is thus recommended.
@@ -25,7 +25,7 @@ As of this writing, the API and client are configured to run on a nodegroup name
 If you name it something else, be sure to change the NodeAffinity in the configuration file.
 
 Make sure to increase the maximum node limit, as by default target, minimum, and maximum are
-set to 2, and TheOverlay's setup will definitely need more than two nodes if you've configured
+set to 2, and XR3ngine's setup will definitely need more than two nodes if you've configured
 them to use relatively small instance types such as t3a.medium.
 
 ### Create nodegroup for gameservers
@@ -67,7 +67,7 @@ various subdomains to the right place.
 
 ### Create Route 53 Hosted Zone
 In the AWS web client, go to Route 53. Make a hosted zone for the domain you plan to use for
-your setup of TheOverlay. You'll be coming back here later to create DNS records.
+your setup of XR3ngine. You'll be coming back here later to create DNS records.
 
 ### Create certificates with ACM
 
@@ -75,8 +75,8 @@ Go to Amazon Certificate Manager. If there are no certs in that region, click on
 otherwise click on Request a Certificate.
 
 You should select Request a Public Certificate, then select Request a Certificate. The next page
-should be headed Add Domain Names. You should add both the top-level domain, such as ```theoverlay.io```, 
-as well as a wildcard for all subdomains e.g. ```*.theoverlay.io```, then click Next.
+should be headed Add Domain Names. You should add both the top-level domain, such as ```xr3ngine.io```, 
+as well as a wildcard for all subdomains e.g. ```*.xr3ngine.io```, then click Next.
 
 Choose DNS Validation on the next page and click Next. You can skip adding tags and just click Review,
 then Confirm on the final page.
@@ -107,7 +107,7 @@ If that isn't present, you'll have to edit the configuration to make the appropr
 
 You next need to add the Agones and ingress-nginx Helm charts to helm by running 
 ```helm repo add agones https://agones.dev/chart/stable``` and ```helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx```.
-You should also at this time add TheOverlay's repo via ```helm repo add xr3ngine https://school.theoverlay.io```.
+You should also at this time add XR3ngine's repo via ```helm repo add xr3ngine https://school.xrengine.io```.
 
 If you ever suspect that a chart is out-of-date, run ```helm repo update``` to update all of them to the latest.
 
@@ -163,7 +163,7 @@ On the modal that pops up, there should be a button to create all the records in
 click it. Then click Close.
 
 ## Set up Simple Notification service
-SNS is used to send text messages from the Overlay platform.
+SNS is used to send text messages from the XR3ngine platform.
 
 In the AWS web client, go to SNS -> Topics and Create a new topic.
 Give it a name, and selected 'Standard' as the type, then click Create Topic.
@@ -174,7 +174,7 @@ Various static files are stored in S3 behind a Cloudfront distribution.
 
 ### Create S3 bucket
 In the AWS web client, go to S3 -> Buckets and click Create Bucket.
-Name the bucket <name>-static-resources, e.g. ```theoverlay-static-resources```.
+Name the bucket <name>-static-resources, e.g. ```xr3ngine-static-resources```.
 You don't need it to be in the same region as your cluster, but it helps.
 Uncheck the checkbox Block *all* Public Access; you need the bucket to be publicly accessible.
 Check the box that pops up confirming that you know the contents are public.
@@ -210,7 +210,7 @@ Cache and origin request settings should be left on 'Use a cache policy and orig
 For Origin Request Policy, select 'Managed-CORS-S3Origin'
 
 Under Distribution Settings, you can change Price Class to 'Use Only U.S. Canada and Europe' to save some money.
-For Alternate Domain Names, enter 'resources.<domain>', e.g. ```resources.theoverlay.io```.
+For Alternate Domain Names, enter 'resources.<domain>', e.g. ```resources.xr3ngine.io```.
 For SSL Certificate, select Custom SSL Certificate, then when you click on the box, choose
 the 'resources.<domain>' certificate you made earlier.
 
@@ -224,7 +224,7 @@ Click on Create Record. If it starts you under Quick Create Record, click the li
 
 Under Routing Policy, leave it on Simple Routing and click Next. Then click Define Simple Record.
 
-The first record should be for the top-level domain, e.g. ```theoverlay.io```, so leave the Record Name
+The first record should be for the top-level domain, e.g. ```xr3ngine.io```, so leave the Record Name
 text field blank. Under Value/Route Traffic To, click on the dropdown and select
 Alias to Application and Classic Load Balancer. Select the region that your cluster is in.
 Where it says Choose Load Balancer, click the dropdown, and select the Application loadbalancer.
@@ -234,16 +234,16 @@ Define Simple Record.
 You can keep clicking Define Simple Record to make more records in one batch. When you're
 done, click Create Records.
 
-You should make the following 'A' records to the loadbalancer, substituting your domain for 'theoverlay.io':
+You should make the following 'A' records to the loadbalancer, substituting your domain for 'xr3ngine.io':
 
-* theoverlay.io
-* *.theoverlay.io
-* @.theoverlay.io
-* api-dev.theoverlay.io
-* api.theoverlay.io
-* dev.theoverlay.io
+* xr3ngine.io
+* *.xr3ngine.io
+* @.xr3ngine.io
+* api-dev.xr3ngine.io
+* api.xr3ngine.io
+* dev.xr3ngine.io
 
-You also need to make an 'A' record pointing 'resources.theoverlay.io' to the CloudFront distribution you made earlier.
+You also need to make an 'A' record pointing 'resources.xr3ngine.io' to the CloudFront distribution you made earlier.
 
 ## Deploy to EKS using Helm
 
