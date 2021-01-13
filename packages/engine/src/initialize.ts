@@ -123,6 +123,6 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
         networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
         fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
         update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
-      }).start();
+      }, Engine.physicsFrameRate, Engine.networkFramerate).start();
   }, 1000);
 }

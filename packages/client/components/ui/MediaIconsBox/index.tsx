@@ -44,7 +44,7 @@ const mapStateToProps = (state: any): any => {
 const MediaIconsBox = observer((props) =>{
     const { onBoardingStep, authState, locationState } = props;
 
-    const [faceStreaming, setFaceStreaming] = useState(false);
+    const [faceTracking, setFaceTracking] = useState(MediaStreamComponent?.instance?.faceTracking);
 
     const user = authState.get('user');
     const currentLocation = locationState.get('currentLocation').get('location');
@@ -60,18 +60,17 @@ const MediaIconsBox = observer((props) =>{
     const handleFaceClick = async () =>{
         const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId;
         await checkMediaStream(partyId);
+        setFaceTracking(MediaStreamComponent.instance.setFaceTracking(!MediaStreamComponent?.instance?.faceTracking));
 
         const entity = Network.instance.localClientEntity;
         // if face tracking is false, start face and lip sync tracking
-        if(!faceStreaming){
+        if(!faceTracking){
             // get local input receiver entity
             startFaceTracking(entity);
             startLipsyncTracking(entity);
-            setFaceStreaming(true);
         } else {
             stopFaceTracking();
             stopLipsyncTracking();
-            setFaceStreaming(false);
         }
         // If face tracking is true, stop face and lip sync tracking
     };
@@ -123,7 +122,7 @@ const MediaIconsBox = observer((props) =>{
                     <VideocamOff className={styles.offIcon} onClick={handleCamClick} />
                     <Videocam className={styles.onIcon} onClick={handleCamClick} />
                 </div>) }
-                {/* { videoEnabled && (<div className={styles.iconContainer + ' ' + (!faceStreaming ? styles.off : styles.on)}>
+                {/* { videoEnabled && (<div className={styles.iconContainer + ' ' + (!faceTracking ? styles.off : styles.on)}>
                     <FaceIcon className={styles.offIcon} onClick={handleFaceClick} />
                     <FaceIcon className={styles.onIcon} onClick={handleFaceClick} />
                 </div>)} */}
