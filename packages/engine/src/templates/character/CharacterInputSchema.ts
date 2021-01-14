@@ -125,9 +125,7 @@ export const CharacterInputSchema: InputSchema = {
       started: [
         {
           behavior: fixedCameraBehindCharacter,
-          args: {
-            forceRefresh: false
-          }
+          args: {}
         }
       ]
     },
