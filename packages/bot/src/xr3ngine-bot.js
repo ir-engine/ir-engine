@@ -58,8 +58,8 @@ class El {
  */
 class XR3ngineBot {
     constructor({
-        headless = true,
         name = "XR3ngineBot",
+        headless = true,
         autoLog = true} = {}
     ) {
         this.headless = headless
@@ -152,7 +152,9 @@ class XR3ngineBot {
      * @param {string} opts.name Name to set as the bot name when joining the room
      */
     async enterRoom(roomUrl, {name = 'bot'} = {}) {
-        await this.browserLaunched
+        if (!this.browser) {
+            await this.browserLaunched
+        }
 
         let parsedUrl = new URL(roomUrl)
         const context = this.browser.defaultBrowserContext();
