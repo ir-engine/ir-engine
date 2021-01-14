@@ -57,7 +57,8 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
   } else {
     inputAxes = DefaultInput.LOOKTURN_PLAYERONE;
   }
-  inputValue = getInputData(inputComponent, inputAxes);
+ 
+  inputValue = getInputData(inputComponent, inputAxes,args?.forceRefresh);
 
   //This block was made for check distance as a separeted action, without any connections with mouse or touch move.
   if (!inputValue) {
@@ -112,6 +113,9 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
    
     // const deltaTheta = anglesDifference(theta,targetTheta );
     // theta -= deltaTheta * 0.015;
+    if (!args?.forceRefresh) {
+      follower.positionRate = 1.5;
+    }
 
     theta = targetTheta;
     theta %= 360;
