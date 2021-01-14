@@ -261,8 +261,10 @@ export class WebGLRendererSystem extends System {
           break;
       }
 
-      Engine.renderer?.setPixelRatio(window.devicePixelRatio * this.scaleFactor);
-      this.prevQualityLevel = this.qualityLevel;
+      if (Engine.renderer) {
+        Engine.renderer.setPixelRatio(window.devicePixelRatio * this.scaleFactor);
+        this.prevQualityLevel = this.qualityLevel;
+      }
     }
   }
 
