@@ -195,7 +195,7 @@ export async function subscribeToTrack(peerId: string, mediaTag: string, partyId
     );
 
     // Only continue if we have a valid id
-    if (consumerParameters.id == null) return;
+    if (consumerParameters?.id == null) return;
 
     consumer = partyId === 'instance' ?
         await networkTransport.instanceRecvTransport.consume({ ...consumerParameters, appData: { peerId, mediaTag }, paused: true })
