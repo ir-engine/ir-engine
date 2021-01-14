@@ -15,14 +15,12 @@ export function getInputData(inputComponent: Input, inputAxes: number, forceRefr
         // skip
         return ;
       }
-    
-    
+      
       // if (inputData.lifecycleState !== LifecycleValue.CHANGED) {
       //   // console.log('! LifecycleValue.CHANGED', LifecycleValue[inputData.lifecycleState])
       //   return emptyInputValue;
       // }
-    
-  
+      
       const preInputData = inputComponent.prevData.get(inputAxes);
       if (inputValue[0] === preInputData?.value[0] && inputValue[1] === preInputData?.value[1]) {
         // debugger
