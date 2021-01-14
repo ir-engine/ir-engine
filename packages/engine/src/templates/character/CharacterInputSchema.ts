@@ -19,6 +19,8 @@ import { lookByInputAxis } from "./behaviors/lookByInputAxis";
 import { CameraInput } from '../../input/enums/CameraInput';
 import { setCharacterExpression } from './behaviors/setCharacterExpression';
 import { fixedCameraBehindCharacter } from "../../camera/behaviors/fixedCameraBehindCharacter";
+import { BinaryValue } from "../../common/enums/BinaryValue";
+
 
 export const CharacterInputSchema: InputSchema = {
   ...DefaultInputSchema,

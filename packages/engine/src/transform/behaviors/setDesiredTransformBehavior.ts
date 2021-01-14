@@ -7,7 +7,7 @@ import { DesiredTransformComponent } from "../components/DesiredTransformCompone
 const MAX_IGNORED_DISTANCE = 0.001;
 const MAX_IGNORED_ANGLE = 0.001;
 
-export const setDesiredTransformBehavior: Behavior = (entity: Entity, args: { event: MouseEvent }, delta): void => {
+export const setDesiredTransformBehavior: Behavior = (entity: Entity, args: { event: MouseEvent }, delta: number): void => {
   const transform = getComponent(entity, TransformComponent);
   const desiredTransform = getComponent(entity, DesiredTransformComponent);
 
@@ -29,7 +29,7 @@ export const setDesiredTransformBehavior: Behavior = (entity: Entity, args: { ev
       // TODO: move to desired position
       // TODO: store alpha in DesiredTransformComponent ?
       // TODO: use speed instead of lerp?
-      mutableTransform.position.lerp(desiredTransform.position, 0.1);
+      mutableTransform.position.lerp(desiredTransform.position, desiredTransform.positionRate * delta);
     }
   }
 
@@ -42,7 +42,7 @@ export const setDesiredTransformBehavior: Behavior = (entity: Entity, args: { ev
       // lerp to desired rotation
       // TODO: lerp to desired rotation
       // TODO: store alpha in DesiredTransformComponent ?
-      mutableTransform.rotation.slerp(desiredTransform.rotation, 0.1);
+      mutableTransform.rotation.slerp(desiredTransform.rotation, desiredTransform.rotationRate * delta);
     }
   }
 };

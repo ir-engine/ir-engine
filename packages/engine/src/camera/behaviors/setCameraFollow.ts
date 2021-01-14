@@ -9,6 +9,12 @@ import { getComponent, getMutableComponent } from "@xr3ngine/engine/src/ecs/func
 import { DefaultInput } from "../../templates/shared/DefaultInput";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { NumericalType } from "../../common/types/NumericalTypes";
+import { Engine } from "../../ecs/classes/Engine";
+import { countActors } from "../../xr/SkeletonFunctions";
+import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
+import { getInputData } from "../functions/getInputData";
+import { anglesDifference } from "../functions/anglesDifference";
+import { DesiredTransformComponent } from "../../transform/components/DesiredTransformComponent";
 
 let follower, target;
 let inputComponent: Input;
@@ -21,18 +27,29 @@ const up = new Vector3(0, 1, 0);
 const empty = new Vector3();
 const PI_2 = Math.PI / 2;
 
+
 const mx = new Matrix4();
 let theta = 0;
 let phi = 0;
 
+
+
+
+
 export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: any, entityOut: Entity): void => {
-  follower = getMutableComponent<TransformComponent>(entityIn, TransformComponent); // Camera
-  target = getMutableComponent<TransformComponent>(entityOut, TransformComponent); // Player 
+  follower = getMutableComponent (entityIn, DesiredTransformComponent); // Camera
+  target = getMutableComponent (entityOut, TransformComponent); // Player 
+
+  const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entityOut, CharacterComponent as any);
+  const actorTransform: TransformComponent = getMutableComponent<TransformComponent>(entityOut, TransformComponent as any);
+  const defaultActorVector = new Vector3(0, 0, 1.08);
     
   inputComponent = getComponent(entityOut, Input) as Input;
   cameraFollow = getComponent<FollowCameraComponent>(entityOut, FollowCameraComponent);
 
   camera = getMutableComponent<CameraComponent>(entityIn, CameraComponent);
+
+  
 
   let inputAxes;
   if (document.pointerLockElement) {
@@ -40,7 +57,8 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
   } else {
     inputAxes = DefaultInput.LOOKTURN_PLAYERONE;
   }
-  inputValue = getInputData(inputComponent, inputAxes);
+ 
+  inputValue = getInputData(inputComponent, inputAxes,args?.forceRefresh);
 
   //This block was made for check distance as a separeted action, without any connections with mouse or touch move.
   if (!inputValue) {
@@ -71,7 +89,7 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
       target.position.y + 1,
       target.position.z
     );
-  } else if (cameraFollow.mode === "thirdPerson" || "thirdPersonLocked") {
+  } else if (cameraFollow.mode === "thirdPerson" ) {
     theta -= inputValue[0] * 50;
     theta %= 360;
     phi -= inputValue[1] * 50;
@@ -88,32 +106,35 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
     
     mx.lookAt(direction, empty, up);
     follower.rotation.setFromRotationMatrix(mx);
-  }
+  
+  } else if (cameraFollow.mode === "thirdPersonLocked") {
+
+    const targetTheta = Math.atan2( actor.orientation.x,  actor.orientation.z)  * 180 / Math.PI + 180;// target theta
+   
+    // const deltaTheta = anglesDifference(theta,targetTheta );
+    // theta -= deltaTheta * 0.015;
+    if (!args?.forceRefresh) {
+      follower.positionRate = 1.5;
+    }
+
+    theta = targetTheta;
+    theta %= 360;
+   
+    phi -= inputValue[1] * 50;
+    phi = Math.min(85, Math.max(0, phi));
+
+    follower.position.set(
+      target.position.x + cameraFollow?.distance * Math.sin(theta * Math.PI / 180) * Math.cos(phi * Math.PI / 180),
+      target.position.y + cameraFollow?.distance * Math.sin(phi * Math.PI / 180),
+      target.position.z + cameraFollow?.distance * Math.cos(theta * Math.PI / 180) * Math.cos(phi * Math.PI / 180)
+    );
+
+    direction.copy(follower?.position);
+    direction = direction.sub(target?.position).normalize();
+
+    mx.lookAt(direction, empty, up);
+    follower.rotation.setFromRotationMatrix(mx);
+    }
 };
 
-function getInputData(inputComponent: Input, inputAxes: number): NumericalType {
-  const emptyInputValue = [0, 0] as NumericalType;
 
-  if (inputComponent?.data.has(inputAxes)) {
-    const inputData = inputComponent.data.get(inputAxes);
-    const inputValue = inputData.value;
-    if (inputData.lifecycleState === LifecycleValue.ENDED || inputData.lifecycleState === LifecycleValue.UNCHANGED) {
-      // skip
-      return;
-    }
-
-    if (inputData.lifecycleState !== LifecycleValue.CHANGED) {
-      // console.log('! LifecycleValue.CHANGED', LifecycleValue[inputData.lifecycleState])
-      return emptyInputValue;
-    }
-
-    const preInputData = inputComponent.prevData.get(inputAxes);
-    if (inputValue[0] === preInputData?.value[0] && inputValue[1] === preInputData?.value[1]) {
-      // debugger
-      // return
-    }
-    return inputValue;
-  }
-
-  return emptyInputValue;
-}
