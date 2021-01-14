@@ -26,6 +26,7 @@
     "webpack": "^5.1.0"
   },
   "dependencies": {
+    "@google-cloud/agones-sdk": "^1.11.0",
     "puppeteer": "^5.5.0",
     "three": "^0.124.0"
   },

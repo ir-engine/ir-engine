@@ -139,11 +139,12 @@ export function validateNetworkObjects(): void {
             networkObjectsClientOwns.forEach(obj => {
                 // Get the entity attached to the NetworkObjectComponent and remove it
                 logger.info("Removed entity ", (obj.component.entity as Entity).id, " for user ", userId);
-                const removeMessage = { networkId: obj.networkId };
+                const removeMessage = { networkId: obj.component.networkId };
                 Network.instance.destroyObjects.push(removeMessage);
                 // if (Network.instance.worldState.inputs[obj.networkId])
-                delete Network.instance.worldState.inputs[obj.networkId];
                 removeEntity(obj.component.entity);
+                delete Network.instance.networkObjects[obj.id];
+                delete Network.instance.worldState.inputs[obj.networkId];
             });
 
             if (Network.instance.clients[userId])
