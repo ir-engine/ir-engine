@@ -7,8 +7,8 @@
     "apiServer": "https://localhost:3030",
     "siteTitle": "The Overlay",
     "siteDescription": "Connected Worlds for Everyone",
-    "featherStoreKey": "XR3ngine-Auth-Store",
-    "localStorageKey": "xr3ngine-client-store-key-v1",
+    "featherStoreKey": "TheOverlay-Auth-Store",
+    "localStorageKey": "theoverlay-client-store-key-v1",
     "auth": {
       "enableSmsMagicLink": true,
       "enableEmailMagicLink": true,
