@@ -93,7 +93,7 @@ const Layout = (props: Props): any => {
       </Head>
       <header>
         { path === '/login' && <NavMenu login={login} />}
-        {<PartyVideoWindows />}
+        {onBoardingStep === generalStateList.ALL_DONE && <PartyVideoWindows />}
       </header>
       <Fragment>
         <UIDialog />
