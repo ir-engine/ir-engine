@@ -7,7 +7,7 @@ Deployment and Operations for xr3ngine services
 You can run the whole platfrom with the following commands:
 
 ``` bash
-helm repo add xr3ngine https://school.xr3ngine.dev
+helm repo add xr3ngine https://helm.xrengine.io
 helm repo update
 helm install my-release xr3ngine/xr3ngine
 ```

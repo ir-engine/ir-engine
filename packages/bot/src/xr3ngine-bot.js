@@ -185,7 +185,7 @@ class XR3ngineBot {
                 // await this.page.waitForSelector('button.openChat');
                 await this.page.mouse.click(0, 0);
                 resolve();
-            }, 100000)
+            }, 30000)
         }, 2000) });
     }
 
