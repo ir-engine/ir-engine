@@ -100,7 +100,7 @@ const InstanceChat = (props: Props): any => {
         setComposingMessage(message);
     };
 
-    const packageMessage = (event: any): void => {
+    const packageMessage = (): void => {
         if (composingMessage.length > 0) {
             createMessage({
                 targetObjectId: user.instanceId,
@@ -160,6 +160,7 @@ const InstanceChat = (props: Props): any => {
     // };
 
     const [openMessageContainer, setOpenMessageContainer] = React.useState(false);
+    const [isMultiline, setIsMultiline] = React.useState(false);
     const hideShowMessagesContainer = () => {
         setOpenMessageContainer(!openMessageContainer);
         openMessageContainer && setUnreadMessages(false);
@@ -208,7 +209,7 @@ const InstanceChat = (props: Props): any => {
                             <TextField
                                 className={styles.messageFieldContainer}
                                 margin="normal"
-                                multiline
+                                multiline={isMultiline}
                                 fullWidth
                                 id="newMessage"
                                 label="World Chat..."
@@ -217,10 +218,18 @@ const InstanceChat = (props: Props): any => {
                                 value={composingMessage}
                                 inputProps={{
                                     maxLength: 1000,
+                                    'aria-label': 'naked'
                                 }}
+                                InputLabelProps={{shrink: false,}}
                                 onChange={handleComposingMessageChange}
                                 inputRef={messageRef}
                                 onClick={() => (messageRef as any)?.current?.focus()}
+                                onKeyDown={(ev) => {
+                                    if (ev.key === 'Enter') {
+                                        ev.preventDefault();
+                                        packageMessage();                  
+                                    }
+                                  }}
                             />
                             <Button variant="contained" color="primary" className={classNames({ [styles.iconContainerSend]: true, 'sendMessage': true })} onClick={packageMessage}  ><Send /></Button>
                         </CardContent>

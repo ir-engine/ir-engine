@@ -1,5 +1,5 @@
 baseURL = "/"
-title = "The overlay"
+title = "XR3ngine"
 
 enableRobotsTXT = true
 
@@ -53,8 +53,8 @@ id = "UA-164023274-1"
 
 [languages]
 [languages.en]
-title = "The Overlay"
-description = "Documentation for the The Overlay/XR3 platform"
+title = "XR3ngine"
+description = "Documentation for the XR3ngine platform"
 languageName ="English"
 
 [markup]
@@ -65,7 +65,7 @@ languageName ="English"
 # Everything below this are Site Params
 
 [params]
-copyright = "The Overlay"
+copyright = "XR3ngine"
 privacy_policy = ""
 
 # First one is picked as the Twitter card image if not set on page.
@@ -87,7 +87,7 @@ version = "0.0"
 
 # A link to latest version of the docs. Used in the "version-banner" partial to
 # point people to the main doc site.
-url_latest_version = "https://school.xr3ngine.dev"
+url_latest_version = "https://helm.xrengine.io"
 
 # Repository configuration (URLs for in-page links to opening issues and suggesting changes)
 github_repo = "https://github.com/xr3ngine/xr3ngine"

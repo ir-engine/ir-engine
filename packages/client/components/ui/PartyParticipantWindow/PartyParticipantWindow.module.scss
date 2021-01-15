@@ -21,30 +21,7 @@
         }
 
         video{
-            max-width: none;     
-            background-color: #FFFFFF;
-
-            height: 80px;
-            width: auto;
-
-            @media (max-width: 768px) {
-                height: 56px;
-            }
-
-            // @media (aspect-ratio: 1/1) {
-            //     height: 80px;
-            //     width: 80px;
-            // }
-            // //landscape video
-            // @media (min-aspect-ratio: 1/1) {
-            //     height: 80px;
-            //     width: auto;
-            // }
-            // //portrait video
-            // @media (max-aspect-ratio: 1/1) {
-            //     height: auto;
-            //     width: 80px;
-            // }            
+            object-fit: cover;                  
         } 
     }
 
@@ -91,8 +68,9 @@
                 .video-wrapper{
                     height: 80px;
                     width: 80px ;
+                    
                     video{
-                        height: 80px;
+                        object-fit: cover;
                     }
                 }
             }
@@ -130,7 +108,7 @@
                     height: 80px;
                     width: 80px ;
                     video{
-                        height: 80px;
+                        object-fit: cover;
                     }
                 }
             }
@@ -139,12 +117,9 @@
 
 
     .user-controls {
-        // position: absolute;
-        // bottom: 0;
         flex-direction: column;
         background: rgba(0, 0, 0, 0.7);
         border-radius: 8px;
-        // width: fit-content;
         padding: 10px 10px 10px 55px;
         margin-left: -50px;
         justify-content: space-between;

@@ -370,60 +370,66 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
         t => (t as any)._appData.peerId === userId && (t as any)._appData.clientDirection === "recv" && (t as any)._appData.partyId === partyId && t.closed === false
     );
 
-    const consumer = await (transport as any).consume({
-        producerId: producer.id,
-        rtpCapabilities,
-        paused: true, // see note above about always starting paused
-        appData: { peerId: userId, mediaPeerId, mediaTag, partyId: partyId }
-    });
+    if (transport != null) {
+        const consumer = await (transport as any).consume({
+            producerId: producer.id,
+            rtpCapabilities,
+            paused: true, // see note above about always starting paused
+            appData: {peerId: userId, mediaPeerId, mediaTag, partyId: partyId}
+        });
 
-    // we need both 'transportclose' and 'producerclose' event handlers,
-    // to make sure we close and clean up consumers in all circumstances
-    consumer.on("transportclose", () => {
-        logger.info(`consumer's transport closed`);
-        logger.info(consumer.id);
-        closeConsumer(consumer);
-    });
-    consumer.on("producerclose", () => {
-        logger.info(`consumer's producer closed`);
-        logger.info(consumer.id);
-        closeConsumer(consumer);
-    });
-    consumer.on('producerpause', () => {
-        logger.info(`consumer's producer paused`);
-        logger.info(consumer.id);
-        consumer.pause();
-        socket.emit(MessageTypes.WebRTCPauseConsumer.toString(), consumer.id);
-    });
-    consumer.on('producerresume', () => {
-        logger.info(`consumer's producer resumed`);
-        logger.info(consumer.id);
-        consumer.resume();
-        socket.emit(MessageTypes.WebRTCResumeConsumer.toString(), consumer.id);
-    });
+        // we need both 'transportclose' and 'producerclose' event handlers,
+        // to make sure we close and clean up consumers in all circumstances
+        consumer.on("transportclose", () => {
+            logger.info(`consumer's transport closed`);
+            logger.info(consumer.id);
+            closeConsumer(consumer);
+        });
+        consumer.on("producerclose", () => {
+            logger.info(`consumer's producer closed`);
+            logger.info(consumer.id);
+            closeConsumer(consumer);
+        });
+        consumer.on('producerpause', () => {
+            logger.info(`consumer's producer paused`);
+            logger.info(consumer.id);
+            consumer.pause();
+            socket.emit(MessageTypes.WebRTCPauseConsumer.toString(), consumer.id);
+        });
+        consumer.on('producerresume', () => {
+            logger.info(`consumer's producer resumed`);
+            logger.info(consumer.id);
+            consumer.resume();
+            socket.emit(MessageTypes.WebRTCResumeConsumer.toString(), consumer.id);
+        });
 
-    // stick this consumer in our list of consumers to keep track of
-    MediaStreamComponent.instance.consumers.push(consumer);
+        // stick this consumer in our list of consumers to keep track of
+        MediaStreamComponent.instance.consumers.push(consumer);
 
-    Network.instance.clients[userId].consumerLayers[consumer.id] = {
-        currentLayer: null,
-        clientSelectedLayer: null
-    };
+        Network.instance.clients[userId].consumerLayers[consumer.id] = {
+            currentLayer: null,
+            clientSelectedLayer: null
+        };
 
-    // update above data structure when layer changes.
-    consumer.on("layerschange", layers => {
-        if (Network.instance.clients[userId] && Network.instance.clients[userId].consumerLayers[consumer.id])
-            Network.instance.clients[userId].consumerLayers[consumer.id].currentLayer = layers && layers.spatialLayer;
-    });
+        // update above data structure when layer changes.
+        consumer.on("layerschange", layers => {
+            if (Network.instance.clients[userId] && Network.instance.clients[userId].consumerLayers[consumer.id])
+                Network.instance.clients[userId].consumerLayers[consumer.id].currentLayer = layers && layers.spatialLayer;
+        });
 
-    callback({
-        producerId: producer.id,
-        id: consumer.id,
-        kind: consumer.kind,
-        rtpParameters: consumer.rtpParameters,
-        type: consumer.type,
-        producerPaused: consumer.producerPaused
-    });
+        callback({
+            producerId: producer.id,
+            id: consumer.id,
+            kind: consumer.kind,
+            rtpParameters: consumer.rtpParameters,
+            type: consumer.type,
+            producerPaused: consumer.producerPaused
+        });
+    } else {
+        callback({
+            id: null
+        });
+    }
 }
 
 export async function handleWebRtcPauseConsumer(socket, data, callback): Promise<any> {

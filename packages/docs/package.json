@@ -1,7 +1,7 @@
 {
   "name": "@xr3ngine/docs",
   "version": "0.2.0",
-  "description": "The Overlay/XR3 technical documentation.",
+  "description": "The XR3ngine technical documentation.",
   "private": true,
   "main": "none.js",
   "scripts": {

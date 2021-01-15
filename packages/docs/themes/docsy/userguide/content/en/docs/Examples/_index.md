@@ -14,7 +14,7 @@ Example sites that have low to no customization:
 | Site  | Repo (if public)  |
 |---|---|
 | [This Docsy documentation site](/docs) | https://github.com/google/docsy |
-| ["The Overlay" - A massively scalable platform for online social gatherings.](https://example.docsy.dev) | https://github.com/google/docsy-example  |
+| ["XR3ngine" - A massively scalable platform for online social gatherings.](https://example.docsy.dev) | https://github.com/google/docsy-example  |
 | https://www.kubeflow.org/  | https://github.com/kubeflow/website  |
 | https://agones.dev/site/ | https://github.com/GoogleCloudPlatform/agones/tree/master/site |
 

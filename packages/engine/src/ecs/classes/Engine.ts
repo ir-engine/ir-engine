@@ -18,7 +18,7 @@ export class Engine {
   public static isExecuting = false;
 
   public static physicsFrameRate = 60;
-  public static networkFramerate = 30;
+  public static networkFramerate = 20;
 
   public static accumulator: number;
 	public static justExecuted: boolean;

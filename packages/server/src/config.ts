@@ -23,7 +23,9 @@ export const db: any = {
   port: process.env.MYSQL_PORT ?? 3306,
   dialect: 'mysql',
   forceRefresh: process.env.FORCE_DB_REFRESH === 'true',
-  url: ''
+  url: '',
+  charset: 'utf8mb4',
+  collate: 'utf8mb4_general_ci'
 };
 db.url = process.env.MYSQL_URL ??
   `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`;
@@ -91,7 +93,7 @@ const gameserver = {
   rtc_port_block_size: process.env.RTC_PORT_BLOCK_SIZE ? parseInt(process.env.RTC_PORT_BLOCK_SIZE) : 100,
   identifierDigits: 5,
   local: process.env.LOCAL === 'true',
-  domain: process.env.GAMESERVER_DOMAIN ?? 'gameserver.xrengine.io',
+  domain: process.env.GAMESERVER_DOMAIN ?? 'gameserver.theoverlay.io',
   releaseName: process.env.RELEASE_NAME ?? ''
 };
 
