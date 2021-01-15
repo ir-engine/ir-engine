@@ -10,9 +10,7 @@ import { NetworkInterpolation } from '../components/NetworkInterpolation';
 import { NetworkObject } from '../components/NetworkObject';
 import { Vault } from '../components/Vault';
 import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClient';
-import { handleInputFromNonLocalClients } from '../functions/handleInputOnServer';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
-import { WorldStateInterface } from "../interfaces/WorldState";
 import { WorldStateModel } from '../schema/worldStateSchema';
 
 export class ClientNetworkSystem extends System {
@@ -56,13 +54,7 @@ export class ClientNetworkSystem extends System {
       } else {
         applyNetworkStateToClient(buffer, delta);
       }
-
     }
-
-    this.queryResults.clientNetworkInputReceivers.all?.forEach((entity) => {
-      // Call behaviors on map
-      handleInputFromNonLocalClients(entity, {isLocal:false, isServer: false}, delta);
-    });
   }
 
   static queries: any = {

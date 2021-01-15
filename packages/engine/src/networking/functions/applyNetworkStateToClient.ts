@@ -1,13 +1,14 @@
-import { Quaternion, Vector3 } from "three";
-import { getComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
-import { Input } from '../../input/components/Input';
-import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
-import { InputType } from '../../input/enums/InputType';
-import { Network } from '../components/Network';
-import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions';
-import { WorldStateInterface } from "../interfaces/WorldState";
-import { initializeNetworkObject } from './initializeNetworkObject';
-import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
+import {Quaternion, Vector3} from "three";
+import {getComponent, hasComponent, removeEntity} from '../../ecs/functions/EntityFunctions';
+import {Input} from '../../input/components/Input';
+import {LocalInputReceiver} from '../../input/components/LocalInputReceiver';
+import {InputType} from '../../input/enums/InputType';
+import {Network} from '../components/Network';
+import {addSnapshot, createSnapshot} from '../functions/NetworkInterpolationFunctions';
+import {WorldStateInterface} from "../interfaces/WorldState";
+import {initializeNetworkObject} from './initializeNetworkObject';
+import {CharacterComponent} from "../../templates/character/components/CharacterComponent";
+import {handleInputFromNonLocalClients} from "./handleInputOnServer";
 
 let test = 0
 
@@ -190,6 +191,8 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
                     lifecycleState: inputData.axes2d[i].lifecycleState
                 });
 
+        // handle inputs
+        handleInputFromNonLocalClients(networkComponent.entity, {isLocal:false, isServer: false}, delta);
     });
 
 

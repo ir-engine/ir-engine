@@ -21,4 +21,19 @@ rules:
       - create
       - update
       - delete
+  - apiGroups:
+      - "agones.dev"
+    resources:
+      - fleets
+      - fleet
+      - fleets.agones.dev
+      - configmap
+      - gameservers
+      - gameserver
+      - gameserversets
+    verbs:
+      - get
+      - update
+      - list
+      - watch
 {{- end }}

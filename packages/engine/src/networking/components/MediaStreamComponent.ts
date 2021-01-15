@@ -6,6 +6,7 @@ export class MediaStreamComponent extends Component<any> {
   @observable static instance: MediaStreamComponent = null
   @observable public videoPaused = false
   @observable public audioPaused = false
+  @observable public faceTracking = false
   @observable public mediaStream: MediaStream
   @observable public audioGainNode: GainNode
 
@@ -35,6 +36,11 @@ export class MediaStreamComponent extends Component<any> {
     MediaStreamComponent.instance = null;
     this.consumers = [];
     this.mediaStream = null;
+  }
+
+  public setFaceTracking (state: boolean): boolean {
+    this.faceTracking = state;
+    return this.faceTracking;
   }
 
   public setVideoPaused (state: boolean): boolean {
@@ -88,6 +94,7 @@ MediaStreamComponent._schema = {
   consumers: { type: Types.Array },
   screenShareVideoPaused: { type: Types.Boolean },
   screenShareAudioPaused: { type: Types.Boolean },
+  faceTracking: { type: Types.Boolean },
   videoPaused: { type: Types.Boolean },
   audioPaused: { type: Types.Boolean },
   mediaStream: { type: Types.Ref }

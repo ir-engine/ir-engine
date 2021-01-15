@@ -121,7 +121,7 @@ class XR3ngineBot {
         console.log('Launching browser')
         this.browser = await BrowserLauncher.browser({headless: this.headless, args: [
             '--ignore-certificate-errors'
-            ]});
+        ]});
         console.log(this.browser)
         this.page = await this.browser.newPage();
 
@@ -131,6 +131,7 @@ class XR3ngineBot {
         }
 
         this.page.setViewport({ width: 1600, height: 900});
+        await this.page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36')
 
         const context = this.browser.defaultBrowserContext();
         context.overridePermissions("https://theoverlay.io", ['microphone', 'camera'])
@@ -167,8 +168,8 @@ class XR3ngineBot {
         }
 
         console.log('Going to ' + roomUrl);
-        await this.page.goto(roomUrl, {waitUntil: 'domcontentloaded'})
-        await this.page.waitFor("button", { timeout: 60000})
+        this.page.goto(roomUrl, {waitUntil: 'domcontentloaded'})
+        await this.page.waitForSelector("button.join_world", { timeout: 60000})
 
         if (this.headless) {
             // Disable rendering for headless, otherwise chromium uses a LOT of CPU
@@ -181,9 +182,10 @@ class XR3ngineBot {
         await new Promise(resolve => {setTimeout(async() => {
             await this.pu.clickSelectorClassRegex("button", /join_world/);
             setTimeout(async() => {
+                // await this.page.waitForSelector('button.openChat');
                 await this.page.mouse.click(0, 0);
                 resolve();
-            }, 10000)
+            }, 30000)
         }, 2000) });
     }
 

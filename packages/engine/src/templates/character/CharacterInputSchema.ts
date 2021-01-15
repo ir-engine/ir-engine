@@ -18,6 +18,9 @@ import { DefaultInputSchema } from "../shared/DefaultInputSchema";
 import { lookByInputAxis } from "./behaviors/lookByInputAxis";
 import { CameraInput } from '../../input/enums/CameraInput';
 import { setCharacterExpression } from './behaviors/setCharacterExpression';
+import { fixedCameraBehindCharacter } from "../../camera/behaviors/fixedCameraBehindCharacter";
+import { BinaryValue } from "../../common/enums/BinaryValue";
+
 
 export const CharacterInputSchema: InputSchema = {
   ...DefaultInputSchema,
@@ -85,7 +88,8 @@ export const CharacterInputSchema: InputSchema = {
     ' ': DefaultInput.JUMP,
     shift: DefaultInput.SPRINT,
     p: DefaultInput.POINTER_LOCK,
-    v: DefaultInput.SWITCH_CAMERA
+    v: DefaultInput.SWITCH_CAMERA,
+    f: DefaultInput.LOCKING_CAMERA
   },
   cameraInputMap: {
     [CameraInput.Happy]: DefaultInput.FACE_EXPRESSION_HAPPY,
@@ -116,6 +120,14 @@ export const CharacterInputSchema: InputSchema = {
             args: {}
           }
         ]
+    },
+    [DefaultInput.LOCKING_CAMERA]: {
+      started: [
+        {
+          behavior: fixedCameraBehindCharacter,
+          args: {}
+        }
+      ]
     },
     [DefaultInput.INTERACT]: {
       started: [

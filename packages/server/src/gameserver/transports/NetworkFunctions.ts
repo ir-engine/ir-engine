@@ -107,7 +107,7 @@ export function validateNetworkObjects(): void {
     const transport = Network.instance.transport as any;
     for (const userId in Network.instance.clients) {
         // Validate that user has phoned home in last 5 seconds
-        if (Date.now() - Network.instance.clients[userId].lastSeenTs > 15000) {
+        if (Date.now() - Network.instance.clients[userId].lastSeenTs > 30000) {
             console.log("Removing client ", userId, " due to inactivity");
             if (!Network.instance.clients[userId])
                 return console.warn('Client is not in client list');
@@ -139,11 +139,12 @@ export function validateNetworkObjects(): void {
             networkObjectsClientOwns.forEach(obj => {
                 // Get the entity attached to the NetworkObjectComponent and remove it
                 logger.info("Removed entity ", (obj.component.entity as Entity).id, " for user ", userId);
-                const removeMessage = { networkId: obj.networkId };
+                const removeMessage = { networkId: obj.component.networkId };
                 Network.instance.destroyObjects.push(removeMessage);
                 // if (Network.instance.worldState.inputs[obj.networkId])
-                delete Network.instance.worldState.inputs[obj.networkId];
                 removeEntity(obj.component.entity);
+                delete Network.instance.networkObjects[obj.id];
+                delete Network.instance.worldState.inputs[obj.networkId];
             });
 
             if (Network.instance.clients[userId])

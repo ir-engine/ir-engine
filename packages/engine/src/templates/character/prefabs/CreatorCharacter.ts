@@ -23,7 +23,7 @@ export const CreatorCharacter: Prefab = {
         // Local player input mapped to behaviors in the input map
         { type: Input, data: { schema: CharacterInputSchema } },
         // Follow Camera for thet entity
-        { type: FollowCameraComponent, data: { distance: 3, mode: "thirdPerson" } },
+        { type: FollowCameraComponent, data: { distance: 3, mode: "thirdPersonLocked" } },
         // Current state (isJumping, isidle, etc)
         { type: State, data: { schema: CharacterStateSchema } },
         { type: Interactor }
