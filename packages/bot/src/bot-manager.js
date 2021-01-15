@@ -40,6 +40,26 @@ class BotManager {
         this.actions.push({botName, action});
     }
 
+    async keyPress(bot, key, numSeconds) {
+        console.log('Running with key ' + key);
+        const interval = setInterval(() => {
+            bot.pressKey(key);
+        }, 100);
+        return new Promise((resolve) => setTimeout(() => {
+            console.log('Clearing button press for ' + key);
+            bot.releaseKey(key);
+            clearInterval(interval);
+            resolve()
+        }, numSeconds));
+    }
+
+    async sendMessage(bot, message) {
+        await bot.clickElementByClass('button', 'openChat');
+        await bot.clickElementById('textarea', 'newMessage');
+        await bot.typeMessage(message);
+        await bot.clickElementByClass('button', 'sendMessage');
+    }
+
     async run() {
         for (const botAction of this.actions) {
             const {botName, action} = botAction;
@@ -60,22 +80,18 @@ class BotManager {
                     break;
 
                 case BotActionType.EnterRoom:
-                    await bot.EnterRoom(ac)
+                    // action.data is type of EnterRoomData.
+                    await bot.enterRoom(`https://${action.data.domain}/location/${action.data.locationName}`, {name: botName});
                     break;
 
                 case BotActionType.LeaveRoom:
+                    // action.data is type of EnterRoomData.
+                    await bot.navigate(`https://${action.data.domain}/location/${action.data.locationName}`)
                     break;
 
-                case BotActionType.MoveLeft:
-                    break;
-
-                case BotActionType.MoveRight:
-                    break;
-
-                case BotActionType.MoveForward:
-                    break;
-
-                case BotActionType.MoveBackward:
+                case BotActionType.KeyPress:
+                    // action.data is type of KeyEventData
+                    await this.keyPress(bot, action.data.key, action.data.preseedTime);
                     break;
 
                 case BotActionType.SendAudio:
@@ -88,6 +104,8 @@ class BotManager {
                     break;
 
                 case BotActionType.SendMessage:
+                    // action.data is type of MessageData
+                    await this.sendMessage(action.data.message);
                     break;
 
                 default:
