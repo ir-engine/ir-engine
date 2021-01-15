@@ -146,32 +146,34 @@ class XR3ngineBot {
         await this.page.keyboard.up(keycode);
     }
 
+    async navigate(url) {
+        if (!this.browser) {
+            await this.browserLaunched
+        }
+
+        let parsedUrl = new URL(url)
+        const context = this.browser.defaultBrowserContext();
+        context.overridePermissions(parsedUrl.origin, ['microphone', 'camera']);
+
+        console.log('Going to ' + url);
+        this.page.goto(url, {waitUntil: 'domcontentloaded'})
+    }
+
     /** Enters the room specified, enabling the first microphone and speaker found
      * @param {string} roomUrl The url of the room to join
      * @param {Object} opts
      * @param {string} opts.name Name to set as the bot name when joining the room
      */
     async enterRoom(roomUrl, {name = 'bot'} = {}) {
-        if (!this.browser) {
-            await this.browserLaunched
-        }
+        await this.navigate(roomUrl);
+        await this.page.waitForSelector("button.join_world", { timeout: 60000})
 
-        let parsedUrl = new URL(roomUrl)
-        const context = this.browser.defaultBrowserContext();
-        context.overridePermissions(parsedUrl.origin, ['microphone', 'camera'])
-
-        if (name)
-        {
+        if (name) {
             this.name = name
         }
-        else
-        {
+        else {
             name = this.name
         }
-
-        console.log('Going to ' + roomUrl);
-        this.page.goto(roomUrl, {waitUntil: 'domcontentloaded'})
-        await this.page.waitForSelector("button.join_world", { timeout: 60000})
 
         if (this.headless) {
             // Disable rendering for headless, otherwise chromium uses a LOT of CPU

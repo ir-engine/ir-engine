@@ -69,21 +69,21 @@ async function run() {
 
     botManager.addAction("bot1", new BotAction.connect(domain));
     botManager.addAction("bot1", new BotAction.enterRoom(locationName));
-    botManager.addAction("bot1", new BotAction.moveLeft(moveDuratioon));
-    botManager.addAction("bot1", new BotAction.moveForward(moveDuratioon));
-    botManager.addAction("bot1", new BotAction.moveRight(moveDuratioon));
-    botManager.addAction("bot1", new BotAction.moveBackward(moveDuratioon));
+    botManager.addAction("bot1", new BotAction.keyPress("KeyW", moveDuratioon));
+    botManager.addAction("bot1", new BotAction.keyPress("KeyD", moveDuratioon));
+    botManager.addAction("bot1", new BotAction.keyPress("KeyS", moveDuratioon));
+    botManager.addAction("bot1", new BotAction.keyPress("KeyA", moveDuratioon));
     botManager.addAction("bot1", new BotAction.sendMessage("Hello World! This is bot1."));
 
     botManager.addAction("bot2", new BotAction.connect(domain));
     botManager.addAction("bot2", new BotAction.enterRoom(locationName));
-    botManager.addAction("bot2", new BotAction.moveLeft(moveDuratioon));
-    botManager.addAction("bot2", new BotAction.moveForward(moveDuratioon));
-    botManager.addAction("bot2", new BotAction.moveRight(moveDuratioon));
-    botManager.addAction("bot2", new BotAction.moveBackward(moveDuratioon));
+    botManager.addAction("bot2", new BotAction.keyPress("KeyW", moveDuratioon));
+    botManager.addAction("bot2", new BotAction.keyPress("KeyD", moveDuratioon));
+    botManager.addAction("bot2", new BotAction.keyPress("KeyS", moveDuratioon));
+    botManager.addAction("bot2", new BotAction.keyPress("KeyA", moveDuratioon));
     botManager.addAction("bot2", new BotAction.sendMessage("Hello World! This is bot2."));
 
-    botManager.addAction("monitor", new BotAction.monitor((stats) => console.log(stats)));
+    botManager.addAction("monitor", new BotAction.opIf((stats) => console.log(stats)));
 
     botManager.addAction("bot1", new BotAction.disconnect());
     botManager.addAction("bot2", new BotAction.disconnect());
