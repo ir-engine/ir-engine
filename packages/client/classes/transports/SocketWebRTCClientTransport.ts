@@ -103,16 +103,16 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       console.log("Connected to world");
 
+      // Send heartbeat every second
+      const heartbeat = setInterval(() => {
+        this.socket.emit(MessageTypes.Heartbeat.toString());
+      }, 1000);
+
       // Apply all state to initial frame
       applyNetworkStateToClient(worldState);
 
       if (this.mediasoupDevice.loaded !== true)
         await this.mediasoupDevice.load({ routerRtpCapabilities });
-
-      // Send heartbeat every second
-      const heartbeat = setInterval(() => {
-        this.socket.emit(MessageTypes.Heartbeat.toString());
-      }, 1000);
 
 
       // If a reliable message is received, add it to the queue
