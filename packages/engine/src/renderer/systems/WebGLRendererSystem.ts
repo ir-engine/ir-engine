@@ -49,13 +49,6 @@ export class WebGLRendererSystem extends System {
   qualityLevel: number = this.maxQualityLevel
   prevQualityLevel: number = this.qualityLevel
 
-  // fps counting
-  now
-  startTime
-  prevTime
-  frames: number
-  interval: number
-  fps: number
   constructor(attributes?: SystemAttributes) {
     super(attributes);
 
@@ -95,13 +88,6 @@ export class WebGLRendererSystem extends System {
     this.onResize();
 
     this.isInitialized = true;
-
-    // set initial value for counting fps
-    this.now = (self.performance && self.performance.now) ? self.performance.now.bind(performance) : Date.now;
-    // this.startTime = this.now();
-    // this.prevTime = this.startTime;
-    // this.frames = 0;
-    this.interval = 1000;
   } 
 
   /**
@@ -187,21 +173,12 @@ export class WebGLRendererSystem extends System {
       RendererComponent.instance.needsResize = true;
       this.configurePostProcessing(entity);
     });
-
-    // count fps
-    // let time = this.now();
-    // this.frames++;
-    // if (time > this.prevTime + this.interval) {
-    //   this.fps = Math.round((this.frames * this.interval) / (time - this.prevTime));
-    //   this.prevTime = time;
-    //   this.frames = 0;
-    // }
     
     if(this.isInitialized)
     this.queryResults.renderers.all.forEach((entity: Entity) => {
       resize(entity);
       
-      if (this.qualityLevel >= 2) {
+      if (this.qualityLevel >= 1) {
         getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta);
         if (Engine.renderer) Engine.renderer.outputEncoding = LinearEncoding; // need this if postprocessing is used
       }
@@ -217,27 +194,18 @@ export class WebGLRendererSystem extends System {
       // cleanup
     });
     
-    if (typeof window !== "undefined" && typeof window['slowDownRate'] !== "undefined") {
-      // slow down the process
-      for (let i = 0; i < (window['slowDownRate'] * 10000000); i++) { }
-    }
-    
     let lastTime = now();
-    let deltaRender = (lastTime - startTime) / this.interval;
-    this.fps = (1 / deltaRender);
+    let deltaRender = (lastTime - startTime);
 
-    // this.changeQualityLevel(delta);
-
-    console.log("fps: " + this.fps);
+    this.changeQualityLevel(deltaRender);
   }
 
   changeQualityLevel(delta: number) {
-    // start timer when fps changes
-    if (this.fps <= 25) {
+    if (delta >= 55) {
       this.downGradeTimer += delta;
       this.upGradeTimer = 0;
     }
-    else if (this.fps >= 55) {
+    else if (delta <= 10) {
       this.upGradeTimer += delta;
       this.downGradeTimer = 0;
     }
@@ -247,11 +215,11 @@ export class WebGLRendererSystem extends System {
     }
 
     // change quality level
-    if (this.downGradeTimer > 3) {
+    if (this.downGradeTimer > 3000) {
       this.qualityLevel--;
       this.downGradeTimer = 0;
     }
-    else if (this.upGradeTimer > 3) {
+    else if (this.upGradeTimer > 500) {
       this.qualityLevel++;
       this.upGradeTimer = 0;
     }
@@ -264,12 +232,15 @@ export class WebGLRendererSystem extends System {
           this.scaleFactor = 0.4;
           break;
         case 1:
-          this.scaleFactor = 0.6;
+          this.scaleFactor = 0.55;
           break;
         case 2:
-          this.scaleFactor = 0.8;
+          this.scaleFactor = 0.7;
           break;
         case 3:
+          this.scaleFactor = 0.85;
+          break;
+        case 4:
           this.scaleFactor = 1;
           break;
         default:
