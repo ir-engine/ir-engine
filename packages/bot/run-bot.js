@@ -45,12 +45,14 @@ async function runBot() {
         await sendChatMessages(bot);
         setTimeout(async () => {
             await bot.browser.close()
+            if (process.env.KUBERNETES === 'true') await agonesSDK.shutdown();
             process.exit(0);
         }, 3000)
     } catch(err) {
         console.log('Bot error');
         console.log(err);
         if (bot && bot.browser) bot.browser.close();
+        if (process.env.KUBERNETES === 'true') await agonesSDK.shutdown();
         process.exit(1);
     }
 }
