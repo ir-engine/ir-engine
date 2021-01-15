@@ -178,7 +178,7 @@ export class WebGLRendererSystem extends System {
     this.queryResults.renderers.all.forEach((entity: Entity) => {
       resize(entity);
       
-      if (this.qualityLevel >= 1) {
+      if (this.qualityLevel >= 2) {
         getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta);
         if (Engine.renderer) Engine.renderer.outputEncoding = LinearEncoding; // need this if postprocessing is used
       }
