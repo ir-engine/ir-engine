@@ -93,7 +93,7 @@ const gameserver = {
   rtc_port_block_size: process.env.RTC_PORT_BLOCK_SIZE ? parseInt(process.env.RTC_PORT_BLOCK_SIZE) : 100,
   identifierDigits: 5,
   local: process.env.LOCAL === 'true',
-  domain: process.env.GAMESERVER_DOMAIN ?? 'gameserver.xrengine.io',
+  domain: process.env.GAMESERVER_DOMAIN ?? 'gameserver.theoverlay.io',
   releaseName: process.env.RELEASE_NAME ?? ''
 };
 

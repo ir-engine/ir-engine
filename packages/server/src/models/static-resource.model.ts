@@ -26,12 +26,12 @@ export default (app: Application): any => {
     },
     url: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     key: DataTypes.STRING,
     mimeType: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     metadata: {
       type: DataTypes.JSON,
