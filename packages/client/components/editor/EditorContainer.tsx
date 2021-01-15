@@ -371,14 +371,14 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
         name: "Save As",
         action: this.onDuplicateProject
       },
-      {
-        name: "Publish Scene...",
-        action: this.onPublishProject
-      },
       // {
-      //   name: "Export as binary glTF (.glb) ...", // TODO: Disabled temporarily till workers are working
-      //   action: this.onExportProject
+      //   name: "Publish Scene...",
+      //   action: this.onPublishProject
       // },
+      {
+        name: "Export as binary glTF (.glb) ...", // TODO: Disabled temporarily till workers are working
+        action: this.onExportProject
+      },
       {
         name: "Import editor project",
         action: this.onImportLegacyProject
@@ -579,54 +579,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     this.props.router.push("/editor/projects");
   };
 
-  onSaveProject = async () => {
 
-    const abortController = new AbortController();
-
-    this.showDialog(ProgressDialog, {
-      title: "Saving Project",
-      message: "Saving project...",
-      cancelable: true,
-      onCancel: () => {
-        abortController.abort();
-        this.hideDialog();
-      }
-    });
-
-    // Wait for 5ms so that the ProgressDialog shows up.
-    await new Promise(resolve => setTimeout(resolve, 5));
-
-    try {
-      const { editor, project } = this.state;
-      if (project) {
-        const newProject = await this.props.api.saveProject(
-          project.project_id,
-          editor,
-          abortController.signal,
-          this.showDialog,
-          this.hideDialog
-        );
-
-        this.setState({ project: newProject });
-      } else {
-        await this.createProject();
-      }
-
-      editor.sceneModified = false;
-      this.updateModifiedState();
-
-      this.hideDialog();
-
-    } catch (error) {
-      console.error(error);
-
-      this.showDialog(ErrorDialog, {
-        title: "Error Saving Project",
-        message: error.message || "There was an error when saving the project."
-      });
-
-    }
-  };
 
   onDuplicateProject = async () => {
     const abortController = new AbortController();
@@ -768,6 +721,56 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     document.body.removeChild(el);
   };
 
+  onSaveProject = async () => {
+
+    const abortController = new AbortController();
+
+    this.showDialog(ProgressDialog, {
+      title: "Saving Project",
+      message: "Saving project...",
+      cancelable: true,
+      onCancel: () => {
+        abortController.abort();
+        this.hideDialog();
+      }
+    });
+
+    // Wait for 5ms so that the ProgressDialog shows up.
+    await new Promise(resolve => setTimeout(resolve, 5));
+
+    try {
+      const { editor, project } = this.state;
+      if (project) {
+        const newProject = await this.props.api.saveProject(
+          project.project_id,
+          editor,
+          abortController.signal,
+          this.showDialog,
+          this.hideDialog
+        );
+
+        this.setState({ project: newProject });
+      } else {
+        await this.createProject();
+      }
+
+      editor.sceneModified = false;
+      this.updateModifiedState();
+
+      this.hideDialog();
+
+    } catch (error) {
+      console.error(error);
+
+      this.showDialog(ErrorDialog, {
+        title: "Error Saving Project",
+        message: error.message || "There was an error when saving the project."
+      });
+
+    }
+  };
+
+  // Currently doesn't work
   onPublishProject = async (): Promise<void> => {
     try {
       const editor = this.state.editor;

@@ -1,9 +1,8 @@
+import { EngineOptions } from '../interfaces/EngineOptions';
 import { EntityPool } from './EntityPool';
 import { EventDispatcher } from './EventDispatcher';
 import { Query } from './Query';
-import { WebGLRenderer, PerspectiveCamera, Scene, Clock,  } from 'three';
-import { EngineOptions } from '../interfaces/EngineOptions';
-import { DefaultOptions } from '../constants/DefaultOptions';
+import { WebGLRenderer, PerspectiveCamera, Scene, Clock, AudioListener,  } from 'three';
 import { Entity } from './Entity';
 import { CameraOperator } from '../../camera/classes/CameraOperator';
 import { TransformComponent } from '../../transform/components/TransformComponent';
@@ -19,7 +18,7 @@ export class Engine {
   public static isExecuting = false;
 
   public static physicsFrameRate = 60;
-  public static networkFramerate = 30;
+  public static networkFramerate = 20;
 
   public static accumulator: number;
 	public static justExecuted: boolean;
@@ -54,6 +53,11 @@ export class Engine {
   static cameraTransform: TransformComponent = null
 
   /**
+ * Add audioListener into Engine
+ */
+  static audioListener: AudioListener = null
+
+  /**
  * Event dispatcher manages sending events which can be interpreted by devtools
  */
   static eventDispatcher = new EventDispatcher()
@@ -61,7 +65,9 @@ export class Engine {
   /**
 * Initialization options
 */
-  static options: { entityPoolSize: number } & EngineOptions = DefaultOptions
+  static options: { entityPoolSize: number } & EngineOptions = {
+    entityPoolSize: 0
+  };
 
   /**
    * Controls whether engine should execute this frame

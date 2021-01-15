@@ -11,10 +11,6 @@ export default {
   before: {
     all: [authenticate('jwt')],
     find: [
-      commonHooks.iff(
-        commonHooks.isProvider('external'),
-        attachOwnerIdInQuery('userId')
-      ),
       addAssociations({
         models: [
           {
@@ -28,6 +24,9 @@ export default {
           },
           {
             model: 'location-ban'
+          },
+          {
+            model: 'user-settings'
           }
         ]
       })
@@ -46,6 +45,9 @@ export default {
           },
           {
             model: 'location-ban'
+          },
+          {
+            model: 'user-settings'
           }
         ]
       })
@@ -66,6 +68,9 @@ export default {
           },
           {
             model: 'location-ban'
+          },
+          {
+            model: 'user-settings'
           }
         ]
       })
@@ -132,7 +137,22 @@ export default {
         }
       }
     ],
-    create: [],
+    create: [
+        async (context: HookContext): Promise<HookContext> => {
+          try {
+            console.log('Created user');
+            console.log(context.result);
+            await context.app.service('user-settings').create({
+              userId: context.result.id
+            });
+
+            return context;
+          } catch(err) {
+            logger.error('USER AFTER CREATE ERROR');
+            logger.error(err);
+          }
+        }
+    ],
     update: [],
     patch: [],
     remove: []

@@ -16,6 +16,11 @@ import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { TouchInputs } from "../../input/enums/TouchInputs";
 import { DefaultInputSchema } from "../shared/DefaultInputSchema";
 import { lookByInputAxis } from "./behaviors/lookByInputAxis";
+import { CameraInput } from '../../input/enums/CameraInput';
+import { setCharacterExpression } from './behaviors/setCharacterExpression';
+import { fixedCameraBehindCharacter } from "../../camera/behaviors/fixedCameraBehindCharacter";
+import { BinaryValue } from "../../common/enums/BinaryValue";
+
 
 export const CharacterInputSchema: InputSchema = {
   ...DefaultInputSchema,
@@ -83,7 +88,12 @@ export const CharacterInputSchema: InputSchema = {
     ' ': DefaultInput.JUMP,
     shift: DefaultInput.SPRINT,
     p: DefaultInput.POINTER_LOCK,
-    v: DefaultInput.SWITCH_CAMERA
+    v: DefaultInput.SWITCH_CAMERA,
+    f: DefaultInput.LOCKING_CAMERA
+  },
+  cameraInputMap: {
+    [CameraInput.Happy]: DefaultInput.FACE_EXPRESSION_HAPPY,
+    [CameraInput.Sad]: DefaultInput.FACE_EXPRESSION_SAD
   },
   // Map how inputs relate to each other
   inputRelationships: {
@@ -110,6 +120,14 @@ export const CharacterInputSchema: InputSchema = {
             args: {}
           }
         ]
+    },
+    [DefaultInput.LOCKING_CAMERA]: {
+      started: [
+        {
+          behavior: fixedCameraBehindCharacter,
+          args: {}
+        }
+      ]
     },
     [DefaultInput.INTERACT]: {
       started: [
@@ -280,6 +298,42 @@ export const CharacterInputSchema: InputSchema = {
   },
   // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
   inputAxisBehaviors: {
+    [DefaultInput.FACE_EXPRESSION_HAPPY]: {
+      started: [
+        {
+          behavior: setCharacterExpression,
+          args: {
+            input: DefaultInput.FACE_EXPRESSION_HAPPY
+          }
+        }
+      ],
+      changed: [
+        {
+          behavior: setCharacterExpression,
+          args: {
+            input: DefaultInput.FACE_EXPRESSION_HAPPY
+          }
+        }
+      ]
+    },
+    [DefaultInput.FACE_EXPRESSION_SAD]: {
+      started: [
+        {
+          behavior: setCharacterExpression,
+          args: {
+            input: DefaultInput.FACE_EXPRESSION_SAD
+          }
+        }
+      ],
+      changed: [
+        {
+          behavior: setCharacterExpression,
+          args: {
+            input: DefaultInput.FACE_EXPRESSION_SAD
+          }
+        }
+      ]
+    },
     [DefaultInput.CAMERA_SCROLL]: {
       started: [
         {

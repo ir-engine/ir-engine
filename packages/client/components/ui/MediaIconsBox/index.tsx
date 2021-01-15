@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { generalStateList, setAppOnBoardingStep } from '../../../redux/app/actions';
 import {
     Mic,
@@ -25,6 +25,13 @@ import {
 import { selectAuthState } from "../../../redux/auth/selector";
 import { selectLocationState } from "../../../redux/location/selector";
 
+import {
+    startFaceTracking,
+    startLipsyncTracking,
+    stopFaceTracking,
+    stopLipsyncTracking
+} from "@xr3ngine/engine/src/input/behaviors/WebcamInputBehaviors";
+import { Network } from "@xr3ngine/engine/src/networking/components/Network";
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -37,12 +44,35 @@ const mapStateToProps = (state: any): any => {
 const MediaIconsBox = observer((props) =>{
     const { onBoardingStep, authState, locationState } = props;
 
+    const [faceTracking, setFaceTracking] = useState(MediaStreamComponent?.instance?.faceTracking);
+
     const user = authState.get('user');
     const currentLocation = locationState.get('currentLocation').get('location');
+
+    const videoEnabled = currentLocation.locationSettings ? currentLocation.locationSettings.videoEnabled : false;
+    const instanceMediaChatEnabled = currentLocation.locationSettings ? currentLocation.locationSettings.instanceMediaChatEnabled : false;
 
     const checkMediaStream = async (partyId: string) => {
         if (!MediaStreamComponent?.instance?.mediaStream)
             await configureMediaTransports(partyId);
+    };
+
+    const handleFaceClick = async () =>{
+        const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId;
+        await checkMediaStream(partyId);
+        setFaceTracking(MediaStreamComponent.instance.setFaceTracking(!MediaStreamComponent?.instance?.faceTracking));
+
+        const entity = Network.instance.localClientEntity;
+        // if face tracking is false, start face and lip sync tracking
+        if(!faceTracking){
+            // get local input receiver entity
+            startFaceTracking(entity);
+            startLipsyncTracking(entity);
+        } else {
+            stopFaceTracking();
+            stopLipsyncTracking();
+        }
+        // If face tracking is true, stop face and lip sync tracking
     };
 
     const checkEndVideoChat = async () =>{
@@ -81,13 +111,21 @@ const MediaIconsBox = observer((props) =>{
 
     const audioPaused = MediaStreamComponent?.instance?.mediaStream === null || MediaStreamComponent?.instance?.camAudioProducer == null || MediaStreamComponent?.instance?.audioPaused === true;
     const videoPaused = MediaStreamComponent?.instance?.mediaStream === null || MediaStreamComponent?.instance?.camVideoProducer == null || MediaStreamComponent?.instance?.videoPaused === true;
-
     return props.onBoardingStep >= generalStateList.TUTOR_INTERACT ?
         <section className={styles.drawerBoxContainer}>
             <section className={styles.drawerBox}>
-                <div className={styles.iconContainer}>{audioPaused ? <MicOff onClick={handleMicClick} /> : <Mic onClick={handleMicClick} />}</div>
-                <div className={styles.iconContainer}>{videoPaused ? <VideocamOff onClick={handleCamClick} /> : <Videocam onClick={handleCamClick} />}</div>
-                <div className={styles.iconContainer}><FaceIcon /></div>
+                { instanceMediaChatEnabled && (<div className={styles.iconContainer + ' ' + (audioPaused ? styles.off : styles.on)}>
+                    <MicOff className={styles.offIcon} onClick={handleMicClick} />
+                    <Mic className={styles.onIcon} onClick={handleMicClick} />
+                </div>) }
+                { videoEnabled && (<div className={styles.iconContainer + ' ' + (videoPaused ? styles.off : styles.on)}>
+                    <VideocamOff className={styles.offIcon} onClick={handleCamClick} />
+                    <Videocam className={styles.onIcon} onClick={handleCamClick} />
+                </div>) }
+                {/* { videoEnabled && (<div className={styles.iconContainer + ' ' + (!faceTracking ? styles.off : styles.on)}>
+                    <FaceIcon className={styles.offIcon} onClick={handleFaceClick} />
+                    <FaceIcon className={styles.onIcon} onClick={handleFaceClick} />
+                </div>)} */}
             </section>
         </section>
         :null;

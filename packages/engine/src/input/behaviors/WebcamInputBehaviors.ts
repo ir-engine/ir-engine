@@ -6,24 +6,53 @@ import { Input } from "../components/Input";
 import { CameraInput } from "../enums/CameraInput";
 import { InputType } from "../enums/InputType";
 
+const EXPRESSION_THRESHOLD = 0.1;
+
+const faceTrackingTimers = [];
+let lipsyncTracking = false;
+let audioContext = null;
+
+export const stopFaceTracking = () => {
+    faceTrackingTimers.forEach(timer => {
+        clearInterval(timer);
+    });
+}
+
+export const stopLipsyncTracking = () => {
+    lipsyncTracking = false;
+    audioContext?.close();
+    audioContext = null;
+}
+
 export const startFaceTracking: Behavior = (entity) => {
+    console.log("**************** STARTING FACE TRACKING")
     const video = document.createElement('video');
     video.srcObject = MediaStreamComponent.instance.mediaStream;
     Promise.all([
+        console.log("Start load detectors"),
         faceapi.nets.tinyFaceDetector.loadFromUri('/facetracking'),
         faceapi.nets.faceExpressionNet.loadFromUri('/facetracking')
     ]).then(() => {
+        console.log("Face detectors loaded!");
         video.addEventListener('play', () => {
+            console.log("Video start playing");
+            // console.dir(video);
             // Record input at 30 FPS for now
-            setInterval(async () => faceToInput(entity, video), 33);
+            const interval = setInterval(async () => faceToInput(entity, video), 33);
+            faceTrackingTimers.push(interval);
+            console.log("*************** RUNNING FACE TRACKING")
         });
+
+        video.muted = true;
+        video.play();
     });
 };
 
 export const startLipsyncTracking: Behavior = (entity) => {
+    lipsyncTracking = true;
     const BoundingFrequencyMasc = [0, 400, 560, 2400, 4800];
     const BoundingFrequencyFem = [0, 500, 700, 3000, 6000];
-    const audioContext = new AudioContext();
+    audioContext = new AudioContext();
     const FFT_SIZE = 1024;
     const samplingFrequency = 44100;
     let sensitivityPerPole;
@@ -53,7 +82,8 @@ export const startLipsyncTracking: Behavior = (entity) => {
     userSpeechAnalyzer.connect(audioProcessor);
     audioProcessor.connect(audioContext.destination);
 
-    audioProcessor.onaudioprocess = function () {
+    audioProcessor.onaudioprocess = () => {
+        if (!lipsyncTracking) return;
         // bincount returns array which is half the FFT_SIZE
         spectrum = new Float32Array(userSpeechAnalyzer.frequencyBinCount);
         // Populate frequency data for computing frequency intensities
@@ -98,7 +128,7 @@ export const startLipsyncTracking: Behavior = (entity) => {
         else if (input.data.has(nameToInputValue["pucker"]))
             input.data.delete(nameToInputValue["pucker"]);
 
-            // Calculate lips widing and apply as input
+        // Calculate lips widing and apply as input
         const widen = 3 * Math.max(EnergyBinMasc[3], EnergyBinFem[3]);
         if (widen > .2)
             input.data.set(nameToInputValue["widen"], {
@@ -107,8 +137,8 @@ export const startLipsyncTracking: Behavior = (entity) => {
             });
         else if (input.data.has(nameToInputValue["widen"]))
             input.data.delete(nameToInputValue["widen"]);
-            
-            // Calculate mouth opening and apply as input
+
+        // Calculate mouth opening and apply as input
         const open = 0.8 * (Math.max(EnergyBinMasc[1], EnergyBinFem[1]) - Math.max(EnergyBinMasc[3], EnergyBinFem[3]));
         if (open > .2)
             input.data.set(nameToInputValue["open"], {
@@ -129,25 +159,30 @@ const nameToInputValue = {
     sad: CameraInput.Sad,
     surprised: CameraInput.Surprised
 };
-
+const faceApiOptions = new faceapi.TinyFaceDetectorOptions();
 async function faceToInput(entity, video) {
-    const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
+    const detection = await faceapi.detectSingleFace(video, faceApiOptions).withFaceExpressions();
+    // console.log("*************** detection", detection)
+
     if (detection !== undefined && detection.expressions !== undefined) {
-        console.log(detection.expressions);
+        // console.log("EXPRESSIONS");
+        // console.log(detection.expressions);
         const expressions = {};
         const input = getMutableComponent(entity, Input);
         for (const expression in detection.expressions) {
             // If the detected value of the expression is more than 1/3rd-ish of total, record it
             // This should allow up to 3 expressions but usually 1-2
-            if (detection.expressions[expression] > 0.28)
-                // set it on the map
-                input.data.set(expressions[nameToInputValue[expression]], {
-                    type: InputType.ONEDIM,
-                    value: detection.expressions[expression]
-                });
-            // check if the map has it and delete it
-            else if (input.data.has(expressions[nameToInputValue[expression]]))
-                input.data.delete(expressions[nameToInputValue[expression]]);
+            const cameraInputKey = nameToInputValue[expression];
+            const inputKey = input.schema.cameraInputMap[cameraInputKey];
+            if (!inputKey) {
+                // skip if expression is not in schema
+                continue;
+            }
+            // set it on the map
+            input.data.set(inputKey, {
+                type: InputType.ONEDIM,
+                value: detection.expressions[expression] < EXPRESSION_THRESHOLD? 0 : detection.expressions[expression]
+            });
         }
     }
 }

@@ -3,20 +3,15 @@ import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
 import { Input } from "@xr3ngine/engine/src/input/components/Input";
 import { LocalInputReceiver } from "@xr3ngine/engine/src/input/components/LocalInputReceiver";
 import { State } from "@xr3ngine/engine/src/state/components/State";
-import { Subscription } from "@xr3ngine/engine/src/subscription/components/Subscription";
-import { CharacterInputSchema } from "@xr3ngine/engine/src/templates/character/CharacterInputSchema";
-import { EmptyCharacterInputSchema } from "@xr3ngine/engine/src/templates/character/EmptyCharacterInputSchema";
 import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/CharacterStateSchema";
-import { CharacterSubscriptionSchema } from "@xr3ngine/engine/src/templates/character/CharacterSubscriptionSchema";
+import { EmptyCharacterInputSchema } from "@xr3ngine/engine/src/templates/character/EmptyCharacterInputSchema";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
-import { AssetLoader } from "../../../assets/components/AssetLoader";
+import { Interactor } from "../../../interaction/components/Interactor";
 //import { setCameraFollow } from "../../../camera/behaviors/setCameraFollow";
 import { initializeCharacter } from "../behaviors/initializeCharacter";
-import { CharacterComponent } from "../components/CharacterComponent";
-import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
-import { Interactor } from "../../../interaction/components/Interactor";
-import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
 import { loadActorAvatar } from "../behaviors/loadActorAvatar";
+import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
+import { CharacterComponent } from "../components/CharacterComponent";
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const PlayerCharacter: Prefab = {
@@ -33,11 +28,9 @@ export const PlayerCharacter: Prefab = {
         { type: CharacterAvatarComponent, data: { avatarId: 'VRMAvatar' }},
         { type: LocalInputReceiver },
         // Follow Camera for the entity
-        { type: FollowCameraComponent, data: { distance: 3, mode: "thirdPerson" }},
+        { type: FollowCameraComponent, data: { distance: 3, mode: "thirdPersonLocked" }},
         // Current state (isJumping, isidle, etc)
         { type: State, data: { schema: CharacterStateSchema } },
-        // Similar to Unity's Update(), LateUpdate(), and Start()
-        { type: Subscription, data: { schema: CharacterSubscriptionSchema } },
         { type: Interactor }
     ],
     onAfterCreate: [

@@ -2,16 +2,14 @@ import { FollowCameraComponent } from "@xr3ngine/engine/src/camera/components/Fo
 import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
 import { Input } from "@xr3ngine/engine/src/input/components/Input";
 import { State } from "@xr3ngine/engine/src/state/components/State";
-import { Subscription } from "@xr3ngine/engine/src/subscription/components/Subscription";
 import { CharacterInputSchema } from "@xr3ngine/engine/src/templates/character/CharacterInputSchema";
 import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/CharacterStateSchema";
-import { CharacterSubscriptionSchema } from "@xr3ngine/engine/src/templates/character/CharacterSubscriptionSchema";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
-import { initializeCreatorCharacter } from "../behaviors/initializeCreatorCharacter";
-import { CharacterComponent } from "../components/CharacterComponent";
 import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
 import { Interactor } from "../../../interaction/components/Interactor";
+import { initializeCreatorCharacter } from "../behaviors/initializeCreatorCharacter";
+import { CharacterComponent } from "../components/CharacterComponent";
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const CreatorCharacter: Prefab = {
@@ -25,11 +23,9 @@ export const CreatorCharacter: Prefab = {
         // Local player input mapped to behaviors in the input map
         { type: Input, data: { schema: CharacterInputSchema } },
         // Follow Camera for thet entity
-        { type: FollowCameraComponent, data: { distance: 3, mode: "thirdPerson" } },
+        { type: FollowCameraComponent, data: { distance: 3, mode: "thirdPersonLocked" } },
         // Current state (isJumping, isidle, etc)
         { type: State, data: { schema: CharacterStateSchema } },
-        // Similar to Unity's Update(), LateUpdate(), and Start()
-        { type: Subscription, data: { schema: CharacterSubscriptionSchema } },
         { type: Interactor }
     ],
     onAfterCreate: [

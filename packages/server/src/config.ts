@@ -15,7 +15,7 @@ if (process.env.KUBERNETES !== 'true') {
 /**
  * Database
  */
-const db: any = {
+export const db: any = {
   username: process.env.MYSQL_USER ?? 'server',
   password: process.env.MYSQL_PASSWORD ?? 'password',
   database: process.env.MYSQL_DATABASE ?? 'xr3ngine',
@@ -23,7 +23,9 @@ const db: any = {
   port: process.env.MYSQL_PORT ?? 3306,
   dialect: 'mysql',
   forceRefresh: process.env.FORCE_DB_REFRESH === 'true',
-  url: ''
+  url: '',
+  charset: 'utf8mb4',
+  collate: 'utf8mb4_general_ci'
 };
 db.url = process.env.MYSQL_URL ??
   `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`;
@@ -91,7 +93,7 @@ const gameserver = {
   rtc_port_block_size: process.env.RTC_PORT_BLOCK_SIZE ? parseInt(process.env.RTC_PORT_BLOCK_SIZE) : 100,
   identifierDigits: 5,
   local: process.env.LOCAL === 'true',
-  domain: process.env.GAMESERVER_DOMAIN ?? 'gameserver.xrengine.io',
+  domain: process.env.GAMESERVER_DOMAIN ?? 'gameserver.theoverlay.io',
   releaseName: process.env.RELEASE_NAME ?? ''
 };
 
@@ -152,7 +154,7 @@ const authentication = {
   },
   oauth: {
     defaults: {
-      host: server.hostname && server.port ? (server.hostname) + ':' + (server.port as string) : 'localhost:3030',
+      host: server.hostname && server.hostname !== 'localhost' ? (server.hostname) : 'localhost:3030',
       protocol: 'https'
     },
     facebook: {

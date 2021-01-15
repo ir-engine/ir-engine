@@ -14,14 +14,19 @@ import { addState } from "../../../state/behaviors/addState";
 import { State } from "../../../state/components/State";
 import { CharacterStateTypes } from "../CharacterStateTypes";
 import { CharacterComponent } from "../components/CharacterComponent";
+import {TransformComponent} from "../../../transform/components/TransformComponent";
+import { isClient } from "../../../common/functions/isClient";
+import { NetworkObject } from "../../../networking/components/NetworkObject";
+import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
+import { getPseudoRandomAvatarIdByUserId } from "../functions/pseudoRandomAvatar";
 
-export const initializeCharacter: Behavior = (entity): void => {
-	console.warn("Initializing character for ", entity.id);
+export const initializeCharacter: Behavior = (entity): void => {	
+	// console.warn("Initializing character for ", entity.id);
 	if (!hasComponent(entity, CharacterComponent as any)){
 		console.warn("Character does not have a character component, adding");
 		addComponent(entity, CharacterComponent as any);
 	} else {
-		console.warn("Character already had a character component, not adding, but we should handle")
+		// console.warn("Character already had a character component, not adding, but we should handle")
 	}
 
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
@@ -52,12 +57,15 @@ export const initializeCharacter: Behavior = (entity): void => {
 	// we should keep it clean till asset loaded and all it's content moved into modelContainer
 	addObject3DComponent(entity, { obj3d: actor.tiltContainer });
 
-	// const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader as any);
-	// assetLoader.parent = actor.modelContainer;
-	// assetLoader.onLoaded = (entity, { asset }) => {
-	AnimationManager.instance.getAnimations().then(animations => {
-		actor.animations = animations;
-	});
+	if(isClient){
+
+		// const assetLoader = getMutableComponent<AssetLoader>(entity, AssetLoader as any);
+		// assetLoader.parent = actor.modelContainer;
+		// assetLoader.onLoaded = (entity, { asset }) => {
+			AnimationManager.instance.getAnimations().then(animations => {
+				actor.animations = animations;
+			});
+		}
 
 	// actor.mixer = new AnimationMixer(actor.modelContainer);
 	// actor.mixer.timeScale = actor.animationsTimeScale;
@@ -68,11 +76,13 @@ export const initializeCharacter: Behavior = (entity): void => {
 
 	actor.viewVector = new Vector3();
 
+	const transform = getComponent(entity, TransformComponent);
+
 	// Physics
 	// Player Capsule
-	addComponent(entity, CapsuleCollider as any, {
+	addComponent(entity, CapsuleCollider, {
 		mass: actor.actorMass,
-		position: actor.capsulePosition,
+		position: new Vec3( ...transform.position.toArray() ), // actor.capsulePosition ?
 		height: actor.actorHeight,
 		radius: actor.capsuleRadius,
 		segments: actor.capsuleSegments,
@@ -84,7 +94,7 @@ export const initializeCharacter: Behavior = (entity): void => {
 		shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
 	});
 	actor.actorCapsule.body.allowSleep = false;
-	actor.actorCapsule.body.position = new Vec3(0, 1, 0);
+	//actor.actorCapsule.body.position = new Vec3(0, 1, 0);
 	// Move actor to different collision group for raycasting
 	actor.actorCapsule.body.collisionFilterGroup = 2;
 

@@ -1,27 +1,42 @@
 .party-chat-user {
-    background-position: bottom;
-    background-repeat: no-repeat;
-    background-size: 65% auto;
     margin: 5px;
     overflow: hidden;
     position: relative;
-    height: 65px;
-    width: 100px;
-    border: 3px solid rgba(0,0,0,0);
+    height: 80px;
+    display: flex;
+    flex-direction: row;
 
-    & > video {
-        height: 100%;
-        width: 100%;
+    .video-wrapper{
+        height: 80px;
+        width: 80px;
+        border-radius: 50%;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;   
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        
+        @media (max-width: 768px) {
+            height: 56px;
+            width: 56px;
+        }
+
+        video{
+            object-fit: cover;                  
+        } 
     }
 
     &.video-paused,
     &.no-video {
-        background-color: #243b55bf;
-
-        & > video {
-            display: none;
+        .video-wrapper{
+            background-color: #A8A8FF;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            video{
+                display: none;
+            }
         }
-    }
+    }    
 
     .global-mute {
         display: none;
@@ -32,23 +47,40 @@
     }
 
     .username {
-        position: absolute;
-        top: 0;
-        text-align: center;
+        text-align: right;
         width: 100%;
     }
 
     &:not(.self-user) {
-        &:hover {
-            cursor: pointer;
-            border: 3px solid #3886a8;
+        &:hover{
+            .user-controls {
+                width: fit-content;
+                display: flex;
+                position: relative;
+                z-index: -1;
+
+                @media (max-width: 768px) {
+                    width: 80px;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .video-wrapper{
+                    height: 80px;
+                    width: 80px ;
+                    
+                    video{
+                        object-fit: cover;
+                    }
+                }
+            }
         }
     }
 
     &.focused,
     &.self-user {
-        height: 130px;
-        width: 200px;
+        height: 80px;
+        width: fit-content;
         .global-mute {
             position: absolute;
             height: 100%;
@@ -59,59 +91,92 @@
             justify-content: center;
             align-items: center;
         }
+        &:hover{
+            .user-controls {
+                width: fit-content;
+                display: flex;
+                position: relative;
+                z-index: -1;
 
-        .user-controls {
+                @media (max-width: 768px) {
+                    width: 80px;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .video-wrapper{
+                    height: 80px;
+                    width: 80px ;
+                    video{
+                        object-fit: cover;
+                    }
+                }
+            }
+        }
+    }
+
+
+    .user-controls {
+        flex-direction: column;
+        background: rgba(0, 0, 0, 0.7);
+        border-radius: 8px;
+        padding: 10px 10px 10px 55px;
+        margin-left: -50px;
+        justify-content: space-between;
+        align-items: flex-end;
+        box-sizing: border-box;
+        width: 0px;
+        transition: all 0.4s ease-out;
+        display: none;
+
+
+        @media (max-width: 768px) {
             position: absolute;
             bottom: 0;
-            width: 100%;
+            margin-left: 0;
+            bottom: 0px;
+            padding: 5px;
+            border-radius: 0 0 40px 40px;
+        } 
+
+        .controls{
             display: flex;
+            flex-direction: row;
             justify-content: space-between;
             align-items: flex-end;
+        }
 
-            .right-controls {
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
+        .right-controls {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            margin: 0 5px;
 
-                & > .spacer {
-                    height: 5px;
-                }
+            & > .spacer {
+                height: 5px;
             }
+        }
 
-            button {
-                background-color: white;
-                opacity: 40%;
-                z-index: 200;
-                width: 30px;
-                //bottom: 10px;
-                //position: absolute;
+        button {
+            z-index: 200;
+            width: 30px;
+            margin: 0 5px;
 
-                //&.video-control {
-                //    left: 10px;
-                //}
-                //
-                //&.audio-control {
-                //    right: 10px;
-                //}
+            @media (max-width: 768px) {
+                margin: 0px;
+                padding: 0px;
+            } 
+        }
 
-                &:hover {
-                    //background-color: gray;
-                    opacity: 60%
-                }
-            }
+        & > .audio-slider {
+            width: 60%;
+            display: flex;
+            align-items: center;
+            z-index: 100;
+            border-radius: 15px;
 
-            & > .audio-slider {
-                width: 60%;
-                display: flex;
-                align-items: center;
-                z-index: 100;
-                background-color: white;
-                opacity: 40%;
-                border-radius: 15px;
-
-                & > span {
-                    margin: 0 10px;
-                }
+            & > span {
+                margin: 0 10px;
             }
         }
     }

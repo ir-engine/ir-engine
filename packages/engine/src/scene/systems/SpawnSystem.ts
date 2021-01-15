@@ -21,7 +21,7 @@ export class ServerSpawnSystem extends System {
         });
 
         this.queryResults.toBeSpawned.all?.forEach(entity => {
-            console.log("Spawning ", entity.id);
+            // console.log("Spawning ", entity.id);
             if (this.spawnPoints.length < 1)
                 return console.warn("Couldn't spawn entity at spawn point, no spawn points available");
 
@@ -42,7 +42,6 @@ export class ServerSpawnSystem extends System {
               spawnTransform.rotation.z,
               spawnTransform.rotation.w
             );
-            console.warn(actor.actorCapsule);
             // Remove the component
             removeComponent(entity, TeleportToSpawnPoint);
         });

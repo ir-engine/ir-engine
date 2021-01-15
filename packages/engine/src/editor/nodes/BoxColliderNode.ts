@@ -50,12 +50,17 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
         type: 'box',
         mass: 0,
         position: this.position,
-        rotation: {
-          x: this.rotation.x,
-          y: this.rotation.y,
-          z: this.rotation.z
+        quaternion: {
+          x: this.quaternion.x,
+          y: this.quaternion.y,
+          z: this.quaternion.z,
+          w: this.quaternion.w
         },
-        scale: this.scale
+        scale: {
+          x: this.scale.x / 2,
+          y: this.scale.y / 2,
+          z: this.scale.z / 2
+        }
       }
     } as any;
     if (this.walkable) {

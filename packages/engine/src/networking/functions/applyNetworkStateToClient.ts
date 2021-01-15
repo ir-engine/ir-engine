@@ -1,247 +1,201 @@
-import { getComponent, getMutableComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
-import { handleInputOnClient } from '../../input/behaviors/handleInputOnClient';
-import { Input } from '../../input/components/Input';
-import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
-import { InputType } from '../../input/enums/InputType';
-import { State } from '../../state/components/State';
-import { TransformComponent } from '../../transform/components/TransformComponent';
-import { NetworkInterpolation } from '../components/NetworkInterpolation';
-import { Vault } from '../components/Vault';
-import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
-import { Interactor } from '../../interaction/components/Interactor';
-import { Network } from '../components/Network';
-import { initializeNetworkObject } from './initializeNetworkObject';
-import { calculateInterpolation, addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions';
-import { WorldStateInterface } from "../interfaces/WorldState";
-import { Quaternion, Vector3 } from "three";
+import {Quaternion, Vector3} from "three";
+import {getComponent, hasComponent, removeEntity} from '../../ecs/functions/EntityFunctions';
+import {Input} from '../../input/components/Input';
+import {LocalInputReceiver} from '../../input/components/LocalInputReceiver';
+import {InputType} from '../../input/enums/InputType';
+import {Network} from '../components/Network';
+import {addSnapshot, createSnapshot} from '../functions/NetworkInterpolationFunctions';
+import {WorldStateInterface} from "../interfaces/WorldState";
+import {initializeNetworkObject} from './initializeNetworkObject';
+import {CharacterComponent} from "../../templates/character/components/CharacterComponent";
+import {handleInputFromNonLocalClients} from "./handleInputOnServer";
 
-export function applyNetworkStateToClient(worldStateBuffer:WorldStateInterface, delta = 0.033):void {
-  const worldState = worldStateBuffer; // worldStateModel.fromBuffer(worldStateBuffer);
+let test = 0
 
+export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface, delta = 0.033): void {
 
-
-  if (Network.tick < worldState.tick - 1) {
-    // we dropped packets
-    // Check how many
-    // If our queue empty? Request immediately
-    // Is our queue not empty? Inspect tick numbers
-    // Did they fall in our range?
-    // Send a request for the ones that didn't
-  }
-
-  Network.tick = worldState.tick;
-
-  Network.instance.worldState = worldState;
-
-  // Handle all clients that connected this frame
-  for (const connectingClient in worldState.clientsConnected) {
-    // Add them to our client list
-    Network.instance.clients[worldState.clientsConnected[connectingClient].userId] = {
-      userId: worldState.clientsConnected[connectingClient].userId
-    };
-    console.log(worldState.clientsConnected[connectingClient].userId, " connected");
-  }
-
-  // Handle all clients that disconnected this frame
-  for (const disconnectingClient in worldState.clientsDisconnected) {
-    if (worldState.clientsConnected[disconnectingClient] !== undefined) {
-      // Remove them from our client list
-      console.log(worldState.clientsConnected[disconnectingClient].userId, " disconnected");
-      delete Network.instance.clients[worldState.clientsConnected[disconnectingClient].userId];
-    } else {
-      console.warn("Client disconnected but was not found in our client list");
+    if (Network.tick < worldStateBuffer.tick - 1) {
+        // we dropped packets
+        // Check how many
+        // If our queue empty? Request immediately
+        // Is our queue not empty? Inspect tick numbers
+        // Did they fall in our range?
+        // Send a request for the ones that didn't
     }
-  }
 
-  // Handle all network objects created this frame
-  for (const objectToCreateKey in worldState.createObjects) {
-    // If we already have a network object with this network id, throw a warning and ignore this update
-    if (Network.instance.networkObjects[worldState.createObjects[objectToCreateKey].networkId] !== undefined)
-      console.warn("Not creating object because it already exists");
-    else {
-      const objectToCreate = worldState.createObjects[objectToCreateKey];
-      let position = null;
-      let rotation = null;
-      if (
-        typeof objectToCreate.x === 'number' ||
-        typeof objectToCreate.y === 'number' ||
-        typeof objectToCreate.z === 'number'
-      ) {
-        position = new Vector3( objectToCreate.x, objectToCreate.y, objectToCreate.z );
-      }
+    Network.tick = worldStateBuffer.tick;
 
-      if (
-        typeof objectToCreate.qX === 'number' ||
-        typeof objectToCreate.qY === 'number' ||
-        typeof objectToCreate.qZ === 'number' ||
-        typeof objectToCreate.qW === 'number'
-      ) {
-        rotation = new Quaternion( objectToCreate.qX, objectToCreate.qY, objectToCreate.qZ, objectToCreate.qW );
-      }
+    Network.instance.worldState = worldStateBuffer;
 
-      initializeNetworkObject(
-        String(objectToCreate.ownerId),
-        parseInt(objectToCreate.networkId),
-        objectToCreate.prefabType,
-        position,
-        rotation,
-      );
+    // Handle all clients that connected this frame
+    for (const connectingClient in worldStateBuffer.clientsConnected) {
+        // Add them to our client list
+        Network.instance.clients[worldStateBuffer.clientsConnected[connectingClient].userId] = {
+            userId: worldStateBuffer.clientsConnected[connectingClient].userId
+        };
     }
-  }
 
+    // Handle all clients that disconnected this frame
+    for (const disconnectingClient in worldStateBuffer.clientsDisconnected) {
+        if (worldStateBuffer.clientsConnected[disconnectingClient] !== undefined) {
+            // Remove them from our client list
+            console.log(worldStateBuffer.clientsConnected[disconnectingClient].userId, " disconnected");
+            delete Network.instance.clients[worldStateBuffer.clientsConnected[disconnectingClient].userId];
+        } else {
+            console.warn("Client disconnected but was not found in our client list");
+        }
+    }
 
+    // Handle all network objects created this frame
+    for (const objectToCreateKey in worldStateBuffer.createObjects) {
+        // If we already have a network object with this network id, throw a warning and ignore this update
+        if (Network.instance.networkObjects[worldStateBuffer.createObjects[objectToCreateKey].networkId] !== undefined)
+            console.warn("Not creating object because it already exists");
+        else {
+            const objectToCreate = worldStateBuffer.createObjects[objectToCreateKey];
+            let position = null;
+            let rotation = null;
+            if (
+                typeof objectToCreate.x === 'number' ||
+                typeof objectToCreate.y === 'number' ||
+                typeof objectToCreate.z === 'number'
+            ) {
+                position = new Vector3(objectToCreate.x, objectToCreate.y, objectToCreate.z);
+            }
 
-    if( worldState.snapshot != undefined ) {
-      addSnapshot(worldState.snapshot);
-    } else {
-      console.warn('server do not send Interpolation Snapshot');
+            if (
+                typeof objectToCreate.qX === 'number' ||
+                typeof objectToCreate.qY === 'number' ||
+                typeof objectToCreate.qZ === 'number' ||
+                typeof objectToCreate.qW === 'number'
+            ) {
+                rotation = new Quaternion(objectToCreate.qX, objectToCreate.qY, objectToCreate.qZ, objectToCreate.qW);
+            }
+
+            initializeNetworkObject(
+                String(objectToCreate.ownerId),
+                objectToCreate.networkId,
+                objectToCreate.prefabType,
+                position,
+                rotation,
+            );
+            test++
+        }
     }
 
 
+    let searchTimeMyPlayer = 0; //state.transforms
+    //  console.warn(worldStateBufferBuffer.transforms);
+    //  console.warn(Network.instance.userId);
 
 
-
-
-  // TODO: Re-enable for snapshot interpolation
-  // if (worldState.transforms !== undefined && worldState.transforms.length > 0) {
-  //   // Add world state to our snapshot vault
-  //   addSnapshot(createSnapshot(worldState.transforms));
-  //   // Interpolate it
-  //   const snapshot = calculateInterpolation('x y z q(quat)');
-  //   const { state } = snapshot;
-  //   Network.instance.worldState.transforms = state;
-  // }
-
-  // Handle all network objects destroyed this frame
-  for (const objectToDestroy in worldState.destroyObjects) {
-    const networkId = worldState.destroyObjects[objectToDestroy].networkId;
-    console.log("Destroying ", networkId)
-    if (Network.instance.networkObjects[networkId] === undefined)
-      return console.warn("Can't destroy object as it doesn't appear to exist")
-    console.log("Destroying network object ", Network.instance.networkObjects[networkId].component.networkId);
-    // get network object
-    const entity = Network.instance.networkObjects[networkId].component.entity;
-    // Remove the entity and all of it's components
-    removeEntity(entity);
-    console.warn("Entity is removed, but character imight not be");
-    // Remove network object from list
-    delete Network.instance.networkObjects[networkId];
-  }
-
-  worldState.inputs?.forEach(inputData => {
-    if (Network.instance === undefined)
-    return console.warn("Network.instance undefined");
-
-    if(Network.instance.networkObjects[inputData.networkId] === undefined)
-      return console.warn("network object undefined, but inputs not");
-    // Get network object with networkId
-    const networkComponent = Network.instance.networkObjects[inputData.networkId].component;
 
     // Ignore input applied to local user input object that the client is currently controlling
-    if(networkComponent.ownerId === Network.instance.userId && hasComponent(networkComponent.entity, LocalInputReceiver)) return; //
 
 
-    // Get input object attached
-    const input = getComponent(networkComponent.entity, Input);
 
-    // Clear current data
-    input.data.clear();
-
-    // Apply new input
-    if (Network.instance.packetCompression) {
-      //@ts-ignore
-      for (let i = 0; i < inputData.buttons.length; i++)
-      input.data.set(inputData.buttons[i].input,
-        {
-          type: InputType.BUTTON,
-          value: inputData.buttons[i].value,
-          lifecycleState: inputData.buttons[i].lifecycleState
-        });
-
-    // Axis 1D input
-    //@ts-ignore
-    for (let i = 0; i < inputData.axes1d.length; i++)
-      input.data.set(inputData.axes1d[i].input,
-        {
-          type: InputType.BUTTON,
-          value: inputData.axes1d[i].value,
-          lifecycleState: inputData.axes1d[i].lifecycleState
-        });
-
-    // Axis 2D input
-    //@ts-ignore
-    for (let i = 0; i < inputData.axes2d.length; i++)
-      input.data.set(inputData.axes2d[i].input,
-        {
-          type: InputType.BUTTON,
-          value: inputData.axes2d[i].value,
-          lifecycleState: inputData.axes2d[i].lifecycleState
-        });
+    const serchh = worldStateBuffer.transforms.find(v => {
+        if (Network.instance.networkObjects[v.networkId]) {
+            const networkComponent = Network.instance.networkObjects[v.networkId].component;
+            return networkComponent.ownerId === Network.instance.userId
+        }
+        return false;
+    });
+    //  console.warn(serchh);
+    if (serchh != undefined) {
+        searchTimeMyPlayer = Number(serchh.snapShotTime)
+    }
+    //    console.warn(searchTimeMyPlayer);
 
 
+
+    if (worldStateBuffer.transforms.length > 0) {
+        if (test != 0) {
+            const newServerSnapshot = createSnapshot(worldStateBuffer.transforms)
+            newServerSnapshot.time = searchTimeMyPlayer
+            Network.instance.snapshot = newServerSnapshot
+            addSnapshot(newServerSnapshot);
+        }
     } else {
-
-
-      for (const button in inputData.buttons)
-        input.data.set(inputData.buttons[button].input,
-          {
-            type: InputType.BUTTON,
-            value: inputData.buttons[button].value,
-            lifecycleState: inputData.buttons[button].lifecycleState
-          });
-
-      // Axis 1D input
-      for (const axis in inputData.axes1d)
-        input.data.set(inputData.axes1d[axis].input,
-          {
-            type: InputType.BUTTON,
-            value: inputData.axes1d[axis].value,
-            lifecycleState: inputData.axes1d[axis].lifecycleState
-          });
-
-      // Axis 2D input
-      for (const axis in inputData.axes2d)
-        input.data.set(inputData.axes2d[axis].input,
-          {
-            type: InputType.BUTTON,
-            value: inputData.axes2d[axis].value,
-            lifecycleState: inputData.axes2d[axis].lifecycleState
-          });
+        console.warn('server do not send Interpolation Snapshot');
     }
 
-  });
 
-  // worldState.states?.forEach(stateData => {
-  //   if (Network.instance.networkObjects[stateData.networkId] === undefined)
-  //   return console.warn("network object undefined, but state is not not");
-  // // Get network object with networkId
-  // const networkComponent = Network.instance.networkObjects[stateData.networkId].component;
+    // Handle all network objects destroyed this frame
+    for (const objectToDestroy in worldStateBuffer.destroyObjects) {
+        const networkId = worldStateBuffer.destroyObjects[objectToDestroy].networkId;
+        console.log("Destroying ", networkId);
+        if (Network.instance.networkObjects[networkId] === undefined)
+            return console.warn("Can't destroy object as it doesn't appear to exist");
+        console.log("Destroying network object ", Network.instance.networkObjects[networkId].component.networkId);
+        // get network object
+        const entity = Network.instance.networkObjects[networkId].component.entity;
+        // Remove the entity and all of it's components
+        removeEntity(entity);
+        console.warn("Entity is removed, but character imight not be");
+        // Remove network object from list
+        delete Network.instance.networkObjects[networkId];
+    }
 
-  // // Ignore state applied to local user input object that the client is currently controlling
-  // if(networkComponent.ownerId === Network.instance.userId && hasComponent(networkComponent.entity, LocalInputReceiver))
-  //   return;
+    worldStateBuffer.inputs?.forEach(inputData => {
+        if (Network.instance === undefined)
+            return console.warn("Network.instance undefined");
+
+        if (Network.instance.networkObjects[inputData.networkId] === undefined)
+            return console.warn("network object undefined, but inputs not");
+        // Get network object with networkId
+        const networkComponent = Network.instance.networkObjects[inputData.networkId].component;
+
+        // Ignore input applied to local user input object that the client is currently controlling
+        if (networkComponent.ownerId === Network.instance.userId && hasComponent(networkComponent.entity, LocalInputReceiver)) return; //
+
+        // set view vector
+        const actor = getComponent(networkComponent.entity, CharacterComponent);
+        actor.viewVector.set(
+            inputData.viewVector.x,
+            inputData.viewVector.y,
+            inputData.viewVector.z,
+        );
+
+        // Get input object attached
+        const input = getComponent(networkComponent.entity, Input);
+
+        // Clear current data
+        input.data.clear();
+
+        // Apply new input
+        for (let i = 0; i < inputData.buttons.length; i++) {
+            input.data.set(inputData.buttons[i].input,
+                {
+                    type: InputType.BUTTON,
+                    value: inputData.buttons[i].value,
+                    lifecycleState: inputData.buttons[i].lifecycleState
+                });
+        }
+
+        // Axis 1D input
+        for (let i = 0; i < inputData.axes1d.length; i++)
+            input.data.set(inputData.axes1d[i].input,
+                {
+                    type: InputType.BUTTON,
+                    value: inputData.axes1d[i].value,
+                    lifecycleState: inputData.axes1d[i].lifecycleState
+                });
+
+        // Axis 2D input
+        for (let i = 0; i < inputData.axes2d.length; i++)
+            input.data.set(inputData.axes2d[i].input,
+                {
+                    type: InputType.BUTTON,
+                    value: inputData.axes2d[i].value,
+                    lifecycleState: inputData.axes2d[i].lifecycleState
+                });
+
+        // handle inputs
+        handleInputFromNonLocalClients(networkComponent.entity, {isLocal:false, isServer: false}, delta);
+    });
 
 
-
-
-
-//worldState
-  // // Ignore state applied to local user input object that the client is currently controlling
-
-
-
-  //   const state = getComponent(networkComponent.entity, State);
-
-  //   console.warn("Setting state to ", stateData.states);
-  //   stateData.data.set(stateData.states);
-  //   console.log("stateData.data is now: ", stateData.states);
-  // });
-
-  if(worldState.transforms === undefined || worldState.transforms.length < 1)
-    return;// console.warn("Worldstate transforms is null");
-
-
-
-
-
+    if (worldStateBuffer.transforms === undefined || worldStateBuffer.transforms.length < 1)
+        return;// console.warn("Worldstate transforms is null");
 }

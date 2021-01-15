@@ -547,7 +547,6 @@ export default class Editor extends EventEmitter {
     if (!blob) {
       throw new Error(`Unsupported file type for file: "${file.name}". File must be an image, video, or glb model.`);
     }
-
     return blob;
   }
 
@@ -1336,7 +1335,7 @@ export default class Editor extends EventEmitter {
         spaceMatrix = space;
       }
 
-      tempMatrix1.getInverse(spaceMatrix);
+      tempMatrix1.copy(spaceMatrix).invert();
       tempVector1.applyMatrix4(tempMatrix1);
       object.position.copy(tempVector1);
     }
@@ -1536,7 +1535,7 @@ export default class Editor extends EventEmitter {
     object.updateMatrixWorld();
 
     const matrixWorld = tempMatrix1.copy(object.matrixWorld);
-    const inverseParentMatrixWorld = object.parent.matrixWorld.inverse();
+    const inverseParentMatrixWorld = object.parent.matrixWorld.clone().invert();
 
     const pivotToOriginMatrix = tempMatrix3.makeTranslation(-pivot.x, -pivot.y, -pivot.z);
     const originToPivotMatrix = tempMatrix4.makeTranslation(pivot.x, pivot.y, pivot.z);

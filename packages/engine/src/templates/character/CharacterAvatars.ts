@@ -4,6 +4,8 @@ export interface CharacterAvatarData {
   src: string;
 }
 
+
+
 export const CharacterAvatars: CharacterAvatarData[] = [
   {
     id: "Allison",
@@ -14,11 +16,6 @@ export const CharacterAvatars: CharacterAvatarData[] = [
     id: "Andy",
     title: "Andy",
     src: "/models/avatars/Andy.glb"
-  },
-  {
-    id: "Animation",
-    title: "Animation",
-    src: "/models/avatars/Animation.glb"
   },
   {
     id: "Erik",
@@ -40,9 +37,9 @@ export const CharacterAvatars: CharacterAvatarData[] = [
     title: "Rose",
     src: "/models/avatars/Rose.glb"
   },
-  {
-    id: "VRMAvatar",
-    title: "VRMAvatar",
-    src: "/models/vrm/three-vrm-girl.vrm"
-  }
+  // {
+  //   id: "VRMAvatar",
+  //   title: "VRMAvatar",
+  //   src: "/models/vrm/three-vrm-girl.vrm"
+  // }
 ];

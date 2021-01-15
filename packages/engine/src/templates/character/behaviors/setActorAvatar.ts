@@ -4,8 +4,8 @@ import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent
 
 const setActorAvatar: Behavior = (entity, args: { avatarId: string }, delta): void => {
   const characterAvatar = getMutableComponent(entity, CharacterAvatarComponent);
-  console.log('setActorAvatar', args.avatarId);
-  characterAvatar.avatarId = args.avatarId;
+  // console.log('setActorAvatar', args.avatarId);
+  if (characterAvatar != null) characterAvatar.avatarId = args.avatarId;
 };
 
 export { setActorAvatar };

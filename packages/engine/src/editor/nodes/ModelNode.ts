@@ -9,25 +9,16 @@ import {
   maybeAddLargeFileIssue
 } from "../functions/performance";
 import { LoadGLTF } from "../../assets/functions/LoadGLTF";
-const defaultStats = {
-  nodes: 0,
-  meshes: 0,
-  materials: 0,
-  textures: 0,
-  polygons: 0,
-  vertices: 0,
-  jsonSize: 0,
-  bufferInfo: {},
-  textureInfo: {},
-  meshInfo: {}
-};
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = "Model";
   static legacyComponentName = "gltf-model";
   static initialElementProps = {
     initialScale: "fit",
-    src: "https://sketchfab.com/models/a4c500d7358a4a199b6a5cd35f416466"
+    src: ""
   };
+
+  meshColliders = []
+
   static async deserialize(editor, json, loadAsync, onError) {
     const node = await super.deserialize(editor, json);
     loadAsync(
@@ -35,8 +26,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         const { src, attribution } = json.components.find(
           c => c.name === "gltf-model"
         ).props;
-
-          console.log("LOADING SRC", src);
 
         await node.load(src, onError);
         // Legacy, might be a raw string left over before switch to JSON.
@@ -77,6 +66,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
           node.receiveShadow = shadowComponent.props.receive;
         }
         const ineractableComponent = json.components.find(c => c.name === "interact");
+
         if(ineractableComponent){
           node.interactable = ineractableComponent.props.interactable;
           node.interactionType = ineractableComponent.props.interactionType;
@@ -101,22 +91,20 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this.initialScale = 1;
     this.boundingBox = new Box3();
     this.boundingSphere = new Sphere();
-    this.stats = defaultStats;
     this.gltfJson = null;
   }
   // Overrides Model's src property and stores the original (non-resolved) url.
-  get src() {
+  get src(): string {
     return this._canonicalUrl;
   }
   // When getters are overridden you must also override the setter.
-  set src(value) {
-    this.loadGLTF(value).catch(console.error);
+  set src(value: string) {
+    this.load(value).catch(console.error);
   }
   // Overrides Model's loadGLTF method and uses the Editor's gltf cache.
   async loadGLTF(src) {
     const loadPromise = this.editor.gltfCache.get(src);
-    const{ scene, json, stats} = await loadPromise;
-    this.stats = stats;
+    const{ scene, json} = await loadPromise;
     this.gltfJson = json;
     const clonedScene = cloneObject3D(scene);
     const sketchfabExtras = json.asset && json.asset.extras;
@@ -133,7 +121,8 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
   // Overrides Model's load method and resolves the src url before loading.
   async load(src, onError?) {
-    console.log("Attempting to load model");
+    console.log("Loading src")
+    console.log(src)
     const nextSrc = src || "";
     if (nextSrc === this._canonicalUrl && nextSrc !== "") {
       return;
@@ -141,9 +130,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this._canonicalUrl = nextSrc;
     this.attribution = null;
     this.issues = [];
-    this.stats = defaultStats;
     this.gltfJson = null;
-    console.log("Got this far 1");
     if (this.model) {
       this.editor.renderer.removeBatchedObject(this.model);
       this.remove(this.model);
@@ -155,36 +142,49 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       console.log("Try");
 
       const { accessibleUrl, files } = await this.editor.api.resolveMedia(src);
+      console.log("accessibleUrl", accessibleUrl);
+
       if (this.model) {
         this.editor.renderer.removeBatchedObject(this.model);
       }
       await super.load(accessibleUrl);
-      if (this.stats) {
-        const textureInfo = this.stats.textureInfo;
-        for (const key in textureInfo) {
-          if (!Object.prototype.hasOwnProperty.call(textureInfo, key)) continue;
-          const info = textureInfo[key];
-          if (info.size === undefined) {
-            let file;
-            for (const name in files) {
-              if (
-                Object.prototype.hasOwnProperty.call(files, name) &&
-                files[name].url === info.url
-              ) {
-                file = files[name];
-                break;
-              }
-            }
-            if (file) {
-              info.size = file.size;
-              this.stats.totalSize += file.size;
+      if (this.model) {
+        // Set up colliders
+
+
+        const colliders = []
+
+          const parseColliders = ( mesh ) => {
+            // console.warn(mesh.userData.data);
+        
+            if (mesh.userData.data == "physics") {
+              if (mesh.userData.type == "box" || mesh.userData.type == "trimesh") {
+                const meshCollider = {
+                    type: 'trimesh',
+                    mass: 0,
+                    position: mesh.position,
+                    quaternion: {
+                      x: mesh.quaternion.x,
+                      y: mesh.quaternion.y,
+                      z: mesh.quaternion.z,
+                      w: mesh.quaternion.w
+                    },
+                    scale: {
+                      x: mesh.scale.x / 2,
+                      y: mesh.scale.y / 2,
+                      z: mesh.scale.z / 2
+                    },
+                    vertices: mesh.vertices
+                  }
+                  colliders.push(meshCollider);
+                }
             }
           }
+             this.model.traverse( parseColliders );
+             this.meshColliders = colliders;
+             this.editor.renderer.addBatchedObject(this.model);
         }
-      }
-      if (this.model) {
-        this.editor.renderer.addBatchedObject(this.model);
-      }
+
       if (this.initialScale === "fit") {
         this.scale.set(1, 1, 1);
         if (this.model) {
@@ -216,7 +216,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
           }
         });
         this.issues = getObjectPerfIssues(this.model);
-        maybeAddLargeFileIssue("gltf", this.stats.totalSize, this.issues);
       }
       this.updateStaticModes();
       // if (files) {
@@ -238,10 +237,11 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       }
       console.error(modelError);
       this.issues.push({ severity: "error", message: "Error loading model." });
+      this._canonicalUrl = "";
     }
     this.editor.emit("objectsChanged", [this]);
     this.editor.emit("selectionChanged");
-    this.hideLoadingCube();
+    // this.hideLoadingCube();
     return this;
   }
   onAdd() {
@@ -305,8 +305,13 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         payloadBuyUrl : this.payloadBuyUrl,
         payloadLearnMoreUrl : this.payloadLearnMoreUrl,
         payloadHtmlContent : this.payloadHtmlContent,
+        payloadModelUrl : this._canonicalUrl,
       }
     };
+    for(let i = 0; i < this.meshColliders.length; i++){
+      components[`mesh-collider-${i}`] = this.meshColliders[i];
+    }
+
     if (this.activeClipIndex !== -1) {
       components["loop-animation"] = {
         activeClipIndex: this.activeClipIndex
@@ -327,7 +332,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       this.load(source.src);
     } else {
       this.updateStaticModes();
-      this.stats = JSON.parse(JSON.stringify(source.stats));
       this.gltfJson = source.gltfJson;
       this._canonicalUrl = source._canonicalUrl;
     }

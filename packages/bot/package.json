@@ -1,0 +1,58 @@
+{
+  "name": "@xr3ngine/bot",
+  "version": "0.2.0",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/xr3ngine/xr3ngine.git"
+  },
+  "engines": {
+    "yarn": ">= 0.18.0"
+  },
+  "npmClient": "yarn",
+  "jest": "ts-jest",
+  "main": "src/xr3ngine-bot.js",
+  "scripts": {
+    "find:unused": "next-unused",
+    "dev": "cross-env NODE_ENV=development node --max-old-space-size=4096 ./index.js --port 3000",
+    "build": "NODE_OPTIONS=--max_old_space_size=4096 next build ./",
+    "start": "node run-bot.js",
+    "watch": "cross-env NODE_ENV=development next --port 3001 --hostname localhost",
+    "validate": "yarn run lint && yarn run test",
+    "test": "echo \"TODO: Add Testing to Client\" && exit 0",
+    "lint": "node node_modules/.bin/eslint --fix --quiet '*.ts' '**/*.ts' '**/*.tsx'"
+  },
+  "resolutions": {
+    "webpack": "^5.1.0"
+  },
+  "dependencies": {
+    "@google-cloud/agones-sdk": "^1.11.0",
+    "puppeteer": "^5.5.0",
+    "three": "^0.124.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@types/node": "^13.13.0",
+    "@types/react": "^16.9.16",
+    "@types/react-dom": "^16.9.4",
+    "babel-loader": "^8.1.0",
+    "cache-loader": "^4.1.0",
+    "config": "^3.3.1",
+    "copyfiles": "^2.3.0",
+    "cross-env": "^7.0.2",
+    "dotenv-webpack": "^3.0.0",
+    "eslint": "^6.8.0",
+    "eslint-plugin-react": "^7.21.4",
+    "next-images": "^1.4.0",
+    "next-optimized-images": "^2.6.2",
+    "next-plugin-node-config": "^1.0.2",
+    "next-redux-wrapper": "^5.0.0",
+    "thread-loader": "^3.0.0",
+    "ts-loader": "^8.0.5",
+    "ts-shader-loader": "^1.0.6",
+    "typescript": "^4.0.3",
+    "webpack": "^5.1.0",
+    "webpack-cli": "^4.0.0"
+  },
+  "license": "ISC"
+}

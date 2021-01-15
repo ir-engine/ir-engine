@@ -14,11 +14,12 @@ import {
   didForgotPassword,
   didResetPassword,
   didCreateMagicLink,
-  updateSettings,
+  updatedUserSettingsAction,
   loadedUserData,
   avatarUpdated,
   usernameUpdated,
-  userUpdated
+  userUpdated,
+  userAvatarIdUpdated
 } from './actions';
 import {
   addedLayerUser,
@@ -55,7 +56,7 @@ export function doLoginAuto (allowGuest?: boolean, forceClientAuthReset?: boolea
       }
 
       if (forceClientAuthReset === true) await (client as any).authentication.reset();
-      if (allowGuest === true && accessToken == null) {
+      if (allowGuest === true && (accessToken == null || accessToken.length === 0)) {
         const newProvider = await client.service('identity-provider').create({
           type: 'guest',
           token: v1()
@@ -90,12 +91,12 @@ export function doLoginAuto (allowGuest?: boolean, forceClientAuthReset?: boolea
         console.log('****************');
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
       dispatch(didLogout());
 
-      if (window.location.pathname !== '/') {
-        window.location.href = '/';
-      }
+      // if (window.location.pathname !== '/') {
+      //   window.location.href = '/';
+      // }
     }
   };
 }
@@ -103,6 +104,27 @@ export function doLoginAuto (allowGuest?: boolean, forceClientAuthReset?: boolea
 export function loadUserData (dispatch: Dispatch, userId: string): any {
   client.service('user').get(userId)
     .then((res: any) => {
+      if (res.user_setting == null) {
+        return client.service('user-settings').find({
+          query: {
+            userId: userId
+          }
+        }).then((settingsRes) => {
+          if (settingsRes.total === 0) {
+            return client.service('user-settings').create({
+              userId: userId
+            }).then((newSettings) => {
+              res.user_setting = newSettings;
+
+              return Promise.resolve(res);
+            });
+          }
+          res.user_setting = settingsRes.data[0];
+          return Promise.resolve(res);
+        });
+      }
+      return Promise.resolve(res);
+    }).then((res: any) => {
       const user = resolveUser(res);
       dispatch(loadedUserData(user));
     })
@@ -471,8 +493,8 @@ export function removeConnection (identityProviderId: number, userId: string) {
 export function refreshConnections (userId: string) { (dispatch: Dispatch): any => loadUserData(dispatch, userId); }
 
 export const updateUserSettings = (id: any, data: any) => async (dispatch: any) => {
-  const res = await axiosRequest('PATCH', `${apiUrl}/user-settings/${id}`, data);
-  dispatch(updateSettings(res.data));
+  const res = await client.service('user-settings').patch(id, data);
+  dispatch(updatedUserSettingsAction(res));
 };
 
 export function uploadAvatar (data: any) {
@@ -506,6 +528,18 @@ export function updateUsername (userId: string, name: string) {
   };
 }
 
+export function updateUserAvatarId (userId: string, avatarId: string) {  
+  return (dispatch: Dispatch): any => {
+    client.service('user').patch(userId, {
+      avatarId: avatarId
+    })
+      .then((res: any) => {
+        // dispatchAlertSuccess(dispatch, 'User Avatar updated');
+        dispatch(userAvatarIdUpdated(res));
+      });
+  };
+}
+
 export function removeUser (userId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     await client.service('user').remove(userId);
@@ -528,6 +562,15 @@ client.service('user').on('patched', async (params) => {
     store.dispatch(userUpdated(user));
     if (user.partyId) {
       setPartyId(user.partyId);
+    }
+    if (user.instanceId !== selfUser.instanceId) {
+      const parsed = new URL(window.location.href);
+      let query = parsed.searchParams;
+      query.set('instanceId', user.instanceId);
+      parsed.search = query.toString();
+      if (history.pushState) {
+        window.history.replaceState({}, '', parsed.toString());
+      }
     }
   } else {
     if (user.instanceId === selfUser.instanceId) {

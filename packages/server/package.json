@@ -98,7 +98,7 @@
     "@feathersjs/transport-commons": "^4.5.9",
     "@google-cloud/agones-sdk": "^1.7.0",
     "@xr3ngine/common": "^0.2.0",
-    "aws-sdk": "^2.658.0",
+    "aws-sdk": "^2.811.0",
     "bent": "^7.3.0",
     "cannon-es-debugger": "^0.0.4",
     "chargebee": "^2.5.7",
@@ -146,9 +146,11 @@
     "sequelize": "^5.21.8",
     "serve-favicon": "^2.5.0",
     "slugify": "^1.4.5",
+    "text-encoding": "^0.7.0",
     "universal-analytics": "^0.4.20",
     "uuid": "^8.0.0",
-    "winston": "^3.3.3"
+    "winston": "^3.3.3",
+    "xmlhttprequest-ssl": "^1.6.0"
   },
   "devDependencies": {
     "@types/bent": "^7.0.2",

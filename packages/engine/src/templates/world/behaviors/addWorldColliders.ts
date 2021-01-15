@@ -1,12 +1,11 @@
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
-import { CylinderGeometry, Matrix4, Mesh, Vector3 } from "three";
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
-import { getComponent } from "../../../ecs/functions/EntityFunctions";
 import { addColliderWithoutEntity } from '@xr3ngine/engine/src/physics/behaviors/addColliderWithoutEntity';
+import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
+import { getComponent } from "../../../ecs/functions/EntityFunctions";
 
 export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
+  console.log("******************* addWorldColliders called");
 
   const asset = args.asset;
   const deleteArr = [];
@@ -14,11 +13,8 @@ export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
   const transform = getComponent(entity, TransformComponent);
 
   function parseColliders( mesh ) {
-    // console.warn(mesh.userData.data);
-
     if (mesh.userData.data == "physics") {
       if (mesh.userData.type == "box" || mesh.userData.type == "trimesh") {
-         //console.warn('ADD COLLIDER');
         deleteArr.push(mesh);
         if(mesh.type == 'Group') {
           for (let i = 0; i < mesh.children.length; i++) {
@@ -37,7 +33,6 @@ export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
           )
           addColliderWithoutEntity(mesh.userData.type, mesh.position, mesh.quaternion, mesh.scale, mesh);
         }
-
       }
     }
   }

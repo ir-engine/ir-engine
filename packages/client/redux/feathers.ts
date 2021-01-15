@@ -9,11 +9,7 @@ const apiServer = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.ap
 const featherStoreKey: string = publicRuntimeConfig.featherStoreKey;
 
 // Socket.io is exposed as the `io` global.
-const socket = io(apiServer, {
-  transports: ['websocket'],
-  upgrade: false,
-  
-});
+const socket = io(apiServer);
 
 // @feathersjs/client is exposed as the `feathers` global.
 export const client = feathers();

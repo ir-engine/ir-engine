@@ -52,7 +52,7 @@ export const BeginnerBox: FunctionComponent = (props: any) => {
         <DialogTitle id="alert-dialog-title">{"OnBoarding Guidance"}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-          Welcome to the XREngine immersive store. You can hang out and explore this virtual place with others.Walk around and discover things to see and do. Invite your friends and share the experience.
+          Welcome to the The XR3ngine immersive store. You can hang out and explore this virtual place with others. Walk around and discover things to see and do. Invite your friends and share the experience.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

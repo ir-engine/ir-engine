@@ -1,4 +1,3 @@
-import _ from "lodash";
 import { isClient } from "../../common/functions/isClient";
 import { DomEventBehaviorValue } from "../../common/interfaces/DomEventBehaviorValue";
 import { NumericalType } from "../../common/types/NumericalTypes";
@@ -10,12 +9,17 @@ import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { Client } from "../../networking/components/Client";
 import { Network } from "../../networking/components/Network";
-import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
+import { Vault } from '../../networking/components/Vault';
 import { NetworkObject } from "../../networking/components/NetworkObject";
-import { handleInputOnClient } from '../behaviors/handleInputOnClient';
+import { NetworkInputInterface, NetworkClientInputInterface, PacketNetworkClientInputInterface } from "../../networking/interfaces/WorldState";
+import { ClientInputModel } from '../../networking/schema/clientInputSchema';
+import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { cleanupInput } from '../behaviors/cleanupInput';
+import { handleInputOnLocalClient } from '../behaviors/handleInputOnLocalClient';
 import { handleInputPurge } from "../behaviors/handleInputPurge";
-import { handleGamepadConnected, handleGamepads } from "../behaviors/GamepadInputBehaviors"
+import { handleGamepadConnected, handleGamepads } from "../behaviors/GamepadInputBehaviors";
+import { startFaceTracking, stopFaceTracking, startLipsyncTracking } from "../behaviors/WebcamInputBehaviors";
+import { MediaStreamComponent } from '../../networking/components/MediaStreamComponent';
 //import { initializeSession, processSession } from '../behaviors/WebXRInputBehaviors';
 import { addPhysics, removeWebXRPhysics, updateWebXRPhysics } from '../behaviors/WebXRControllersBehaviors';
 import { Input } from '../components/Input';
@@ -24,14 +28,9 @@ import { WebXRSession } from '../components/WebXRSession';
 import { XRControllersComponent } from '../components/XRControllersComponent';
 import { InputType } from "../enums/InputType";
 import { InputValue } from "../interfaces/InputValue";
-import { ListenerBindingData } from "../interfaces/ListenerBindingData";
 import { InputAlias } from "../types/InputAlias";
-import { Vault } from '../../networking/components/Vault';
-import { createSnapshot } from '../../networking/functions/NetworkInterpolationFunctions';
-import { clientInputModel } from '../../networking/schema/clientInputSchema';
 
-import supportsPassive from "../../common/functions/supportsPassive";
-import { BehaviorComponent } from '../../common/components/BehaviorComponent'
+
 /**
  * Input System
  *
@@ -41,16 +40,37 @@ import { BehaviorComponent } from '../../common/components/BehaviorComponent'
  * @property {} boundListeners set of values without keys
  */
 
+function supportsPassive(): boolean {
+  let supportsPassiveValue = false;
+  try {
+    const opts = Object.defineProperty({}, 'passive', {
+      get: function() {
+        supportsPassiveValue = true;
+      }
+    });
+    window.addEventListener("testPassive", null, opts);
+    window.removeEventListener("testPassive", null, opts);
+  } catch (error) {}
+  return supportsPassiveValue;
+}
+
+interface ListenerBindingData {
+  domElement: any;
+  eventName: string;
+  listener: Function;
+}
+
 export class InputSystem extends System {
   updateType = SystemUpdateType.Fixed;
   // Temp/ref variables
-  private _inputComponent: Input
+  private _inputComponent: Input;
+  private localUserMediaStream: MediaStream = null;
 
   // Client only variables
-  public mainControllerId //= 0
-  public secondControllerId //= 1
-  private readonly boundListeners //= new Set()
-  private entityListeners: Map<Entity, Array<ListenerBindingData>>
+  public mainControllerId; //= 0
+  public secondControllerId; //= 1
+  private readonly boundListeners; //= new Set()
+  private entityListeners: Map<Entity, Array<ListenerBindingData>>;
 
   constructor() {
     super();
@@ -68,55 +88,84 @@ export class InputSystem extends System {
   }
 
   /**
- *
- * @param {Number} delta Time since last frame
- */
+   *
+   * @param {Number} delta Time since last frame
+   */
 
   public execute(delta: number): void {
     // Handle XR input
     this.queryResults.controllersComponent.added?.forEach(entity => addPhysics(entity));
     this.queryResults.controllersComponent.all?.forEach(entity => {
-      const xRControllers = getComponent(entity, XRControllersComponent)
+      const xRControllers = getComponent(entity, XRControllersComponent);
       if (xRControllers.physicsBody1 !== null && xRControllers.physicsBody2 !== null && this.mainControllerId) {
         this.mainControllerId = xRControllers.physicsBody1;
         this.secondControllerId = xRControllers.physicsBody2;
       }
-      updateWebXRPhysics(entity)
+      updateWebXRPhysics(entity);
     });
-    this.queryResults.controllersComponent.removed?.forEach(entity => removeWebXRPhysics(entity, { controllerPhysicalBody1: this.mainControllerId, controllerPhysicalBody2: this.secondControllerId }));
+    this.queryResults.controllersComponent.removed?.forEach(entity => removeWebXRPhysics(entity, {
+      controllerPhysicalBody1: this.mainControllerId,
+      controllerPhysicalBody2: this.secondControllerId
+    }));
 
     // Apply input for local user input onto client
     this.queryResults.localClientInput.all?.forEach(entity => {
       // Apply input to local client
       handleGamepads(entity);
-      handleInputOnClient(entity, {isLocal:true, isServer: false}, delta);
+
+      // apply face tracking
+      if (this.localUserMediaStream === null) {
+        // check to start video tracking
+          if (MediaStreamComponent.instance.mediaStream && MediaStreamComponent.instance.faceTracking) {
+          console.log('start facetracking');
+          startFaceTracking(entity);
+          this.localUserMediaStream = MediaStreamComponent.instance.mediaStream;
+        }
+      } else {
+        // check if we need to change face tracking video src
+        if (MediaStreamComponent.instance.mediaStream) {
+          if (this.localUserMediaStream !== MediaStreamComponent.instance.mediaStream) {
+            // stream is changed
+            // TODO: do update video src ...
+            console.log('change facetracking src');
+          }
+        } else {
+          //... user media stream is null - stop facetracking?
+          console.log('stop facetracking');
+          stopFaceTracking();
+        }
+        this.localUserMediaStream = MediaStreamComponent.instance.mediaStream;
+      }
+
+      // startFaceTracking(entity);
+      // startLipsyncTracking(entity);
+
+      handleInputOnLocalClient(entity, {isLocal:true, isServer: false}, delta);
       const networkId = getComponent(entity, NetworkObject)?.networkId;
-      if (!networkId) return;
-      if (!isClient) return;
       // Client sends input and *only* input to the server (for now)
       // console.log("Handling input for entity ", entity.id);
       const input = getComponent(entity, Input);
 
       // If input is the same as last frame, return
-      if (_.isEqual(input.data, input.lastData))
-        return
+      // if (_.isEqual(input.data, input.lastData))
+      //   return;
 
       // Repopulate lastData
       input.lastData.clear();
       input.data.forEach((value, key) => input.lastData.set(key, value));
 
       // Create a schema for input to send
-
-
-      const inputs = {
+      const inputs: NetworkClientInputInterface = {
         networkId: networkId,
         buttons: [],
         axes1d: [],
         axes2d: [],
         viewVector: {
-          x:0, y: 0, z :0
-        }
+          x: 0, y: 0, z: 0
+        },
+        snapShotTime: Vault.instance.get().time ?? 0
       };
+
 
       // Add all values in input component to schema
       input.data.forEach((value, key) => {
@@ -125,28 +174,26 @@ export class InputSystem extends System {
         else if (value.type === InputType.ONEDIM) // && value.lifecycleState !== LifecycleValue.UNCHANGED
           inputs.axes1d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
         else if (value.type === InputType.TWODIM) //  && value.lifecycleState !== LifecycleValue.UNCHANGED
-          inputs.axes2d.push({ input: key, valueX: value.value[0], valueY: value.value[1], lifecycleState: value.lifecycleState });
-      })
+          inputs.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
+      });
 
-
-
-      const actor = getComponent<CharacterComponent>(entity, CharacterComponent)
+      const actor = getComponent<CharacterComponent>(entity, CharacterComponent);
       inputs.viewVector.x = actor.viewVector.x;
       inputs.viewVector.y = actor.viewVector.y;
       inputs.viewVector.z = actor.viewVector.z;
 
       if (Network.instance.packetCompression) {
-        Network.instance.transport.sendReliableData(clientInputModel.toBuffer(inputs));
+        Network.instance.transport.sendReliableData(ClientInputModel.toBuffer(inputs));
       } else {
         Network.instance.transport.sendReliableData(inputs);
       }
 
-    //  const buffer = clientInputModel.toBuffer(inputs)
-  //    const inputDebbug = clientInputModel.fromBuffer(buffer)
+      //  const buffer = clientInputModel.toBuffer(inputs)
+      //    const inputDebbug = clientInputModel.fromBuffer(buffer)
 //     console.warn(inputDebbug);
-    //  console.warn(JSON.stringify(inputs).length) // 241
-  //    console.warn(message.byteLength) // 56
-       // Use default channel
+      //  console.warn(JSON.stringify(inputs).length) // 241
+      //    console.warn(message.byteLength) // 56
+      // Use default channel
 
       cleanupInput(entity);
 
@@ -157,7 +204,7 @@ export class InputSystem extends System {
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
       if (this._inputComponent === undefined)
-        return console.warn("Tried to execute on a newly added input component, but it was undefined")
+        return console.warn("Tried to execute on a newly added input component, but it was undefined");
       // Call all behaviors in "onAdded" of input map
       this._inputComponent.schema.onAdded.forEach(behavior => {
         behavior.behavior(entity, { ...behavior.args });
@@ -188,12 +235,9 @@ export class InputSystem extends System {
 
           if (domElement) {
             const listener = (event: Event) => behaviorEntry.behavior(entity, { event, ...behaviorEntry.args });
-            if (behaviorEntry.passive && supportsPassive())
-            {
-              domElement.addEventListener(eventName, listener, {passive: behaviorEntry.passive});
-            }
-            else
-            {
+            if (behaviorEntry.passive && supportsPassive()) {
+              domElement.addEventListener(eventName, listener, { passive: behaviorEntry.passive });
+            } else {
               domElement.addEventListener(eventName, listener);
             }
 
@@ -216,7 +260,7 @@ export class InputSystem extends System {
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
       if (this._inputComponent === undefined)
-        return console.warn("Tried to execute on a newly added input component, but it was undefined")
+        return console.warn("Tried to execute on a newly added input component, but it was undefined");
       if (this._inputComponent.data.size) {
         this._inputComponent.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
           handleInputPurge(entity);
@@ -249,7 +293,7 @@ export class InputSystem extends System {
       this._inputComponent = getComponent(entity, Input);
 
       if (this._inputComponent === undefined)
-        return console.warn("Tried to execute on a newly added input component, but it was undefined")
+        return console.warn("Tried to execute on a newly added input component, but it was undefined");
       // Call all behaviors in "onAdded" of input map
       this._inputComponent.schema.onAdded?.forEach(behavior => {
         console.log("Added behaviors");

@@ -7,18 +7,17 @@ import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { Client } from '../components/Client';
 import { Network } from '../components/Network';
 import { NetworkInterpolation } from '../components/NetworkInterpolation';
-import { Vault } from '../components/Vault';
 import { NetworkObject } from '../components/NetworkObject';
+import { Vault } from '../components/Vault';
 import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClient';
-import { handleInputOnServer } from '../functions/handleInputOnServer';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
-import { worldStateModel } from '../schema/worldStateSchema';
+import { WorldStateModel } from '../schema/worldStateSchema';
 
 export class ClientNetworkSystem extends System {
   updateType = SystemUpdateType.Fixed;
 
   constructor(attributes:{ schema: NetworkSchema, app:any }) {
-    super();
+    super(attributes);
 
     // Create a Network entity (singleton)
     const networkEntity = createEntity();
@@ -42,7 +41,7 @@ export class ClientNetworkSystem extends System {
   }
 
   // Call logic based on whether we are the server or the client
-  execute = (delta: number) => {
+  execute = (delta: number): void => {
     // Client logic
     const queue = Network.instance.incomingMessageQueue;
     // For each message, handle and process
@@ -50,25 +49,12 @@ export class ClientNetworkSystem extends System {
       const buffer = queue.pop();
       // debugger;
       if (Network.instance.packetCompression) {
-        const state = worldStateModel.fromBuffer(new Uint8Array(buffer).buffer)
-        //@ts-ignore
-        state.snapshot.time = parseInt(state.snapshot.time);
-        //@ts-ignore
-        state.tick = parseInt(state.tick);
-        //@ts-ignore
-        state.snapshot.state = state.transforms;
-        //@ts-ignore
-        applyNetworkStateToClient(state, delta);
+        const unbufferedState = WorldStateModel.fromBuffer(new Uint8Array(buffer).buffer);
+        applyNetworkStateToClient(unbufferedState, delta);
       } else {
         applyNetworkStateToClient(buffer, delta);
       }
-
     }
-
-      this.queryResults.clientNetworkInputReceivers.all?.forEach((entity) => {
-        // Call behaviors on map
-        handleInputOnServer(entity, {isLocal:false, isServer: false}, delta);
-      })
   }
 
   static queries: any = {

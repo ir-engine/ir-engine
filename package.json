@@ -1,8 +1,8 @@
 {
   "name": "xr3ngine",
-  "description": "Game Engine, Server & Devops for Everyone",
+  "description": "Game Engine, Server & Devops powering The XR3ngine",
   "version": "0.2.0",
-  "homepage": "xrengine.io",
+  "homepage": "lagunalabs.io",
   "private": true,
   "workspaces": [
     "packages/*"
@@ -20,8 +20,8 @@
     "vr"
   ],
   "author": {
-    "name": "XR3 Collective",
-    "email": "supprt@xr3ngine.dev"
+    "name": "Laguna Labs",
+    "email": "info@lagunalabs.io"
   },
   "contributors": [],
   "bugs": {},
@@ -38,11 +38,11 @@
     "start": "yarn run dev",
     "dev": "lerna run dev --parallel",
     "test": "jest",
-    "lint": "lerna run lint",
+    "lint": "lerna run --ignore @xr3ngine/bot lint",
     "version-increment": "lerna version --conventional-commits --yes",
     "validate": "lerna run validate",
     "build": "lerna run build --parallel",
-    "build-docker": "lerna run --ignore @xr3ngine/docs build --parallel",
+    "build-docker": "lerna run --ignore @xr3ngine/docs --ignore @xr3ngine/bot build --parallel",
     "diff": "lerna diff"
   },
   "types": "lib/",

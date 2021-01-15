@@ -354,7 +354,7 @@ export default class EditorControls extends EventEmitter {
         }
         this.inverseGizmoQuaternion
           .copy(this.transformGizmo.quaternion)
-          .inverse();
+          .invert();
       }
       if (
         (this.transformModeChanged || this.transformSpaceChanged) &&

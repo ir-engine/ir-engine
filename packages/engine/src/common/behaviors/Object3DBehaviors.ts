@@ -46,7 +46,7 @@ import {
 import { SkyboxComponent } from '../../scene/components/SkyboxComponent';
 import { Engine } from '../../ecs/classes/Engine';
 
-export function addComponentFromBehavior<C> (
+export function addComponentFromBehavior<C>(
   entity: Entity,
   args: {
     component: ComponentConstructor<Component<C>>
@@ -56,11 +56,11 @@ export function addComponentFromBehavior<C> (
   addComponent(entity, args.component, args.objArgs);
 }
 
-export function addTagComponentFromBehavior<C> (
+export function addTagComponentFromBehavior<C>(
   entity: Entity,
   args: { component: ComponentConstructor<Component<C>> }
 ): void {
-  console.log("Adding ", args.component, " to ", entity);
+  // console.log("Adding ", args.component, " to ", entity);
   addComponent(entity, args.component);
 }
 
@@ -78,7 +78,7 @@ export const addObject3DComponent: Behavior = (
    * @param path
    * @param value
    */
-  const applyDeepValue = (subj:object, path:string, value:unknown):void => {
+  const applyDeepValue = (subj: object, path: string, value: unknown): void => {
     // console.log('applyDeepValue', subj, path, value);
     if (!subj) {
       console.warn('subj is not an object', subj);
@@ -91,7 +91,7 @@ export const addObject3DComponent: Behavior = (
     const { property, nextPath } = groups;
 
     if (!property || typeof subj[property] === 'undefined') {
-      console.warn('property not found', property);
+      // console.warn('property not found', property);
       return;
     }
     if (nextPath) {
@@ -105,7 +105,7 @@ export const addObject3DComponent: Behavior = (
     }
   };
 
-  if(isObject3d) object3d = args.obj3d;
+  if (isObject3d) object3d = args.obj3d;
   else object3d = new args.obj3d();
 
   typeof args.objArgs === 'object' && Object.keys(args.objArgs).forEach(key => {
@@ -125,9 +125,9 @@ export const addObject3DComponent: Behavior = (
   return entity;
 };
 
-export function removeObject3DComponent (entity: Entity, unparent = true): void {
+export function removeObject3DComponent(entity: Entity, unparent = true): void {
   const object3d = getComponent<Object3DComponent>(entity, Object3DComponent, true).value;
-  if(object3d == undefined) return;
+  if (object3d == undefined) return;
   Engine.scene.remove(object3d);
 
   if (unparent) {
@@ -147,24 +147,24 @@ export function removeObject3DComponent (entity: Entity, unparent = true): void 
   (object3d as any).entity = null;
 }
 
-export function remove (entity: Entity, forceImmediate: boolean):void {
+export function remove(entity: Entity, forceImmediate: boolean): void {
   if (hasComponent<Object3DComponent>(entity, Object3DComponent)) {
     const obj = getObject3D(entity);
     obj.traverse(o => {
       if ((o as any).entity) removeEntity((o as any).entity, forceImmediate)
-      ;(o as any).entity = null;
+        ; (o as any).entity = null;
     });
     obj.parent && obj.parent.remove(obj);
   }
   removeEntity(entity, forceImmediate);
 }
 
-export function getObject3D (entity:Entity):Object3D {
+export function getObject3D(entity: Entity): Object3D {
   const component = getComponent<Object3DComponent>(entity, Object3DComponent);
   return component && component.value;
 }
 
-export function getComponentTags (object3d: Object3D): Array<Component<any>> {
+export function getComponentTags(object3d: Object3D): Array<Component<any>> {
   const components: Array<Component<any>> = [];
   if (object3d.type === 'Audio' && (object3d as any).panner !== undefined) {
     components.push(PositionalAudioTagComponent as any);

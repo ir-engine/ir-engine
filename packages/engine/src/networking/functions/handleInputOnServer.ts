@@ -1,14 +1,13 @@
+import { BinaryValue } from '../../common/enums/BinaryValue';
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { NumericalType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
+import { getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { Input } from '../../input/components/Input';
 import { InputType } from '../../input/enums/InputType';
 import { InputValue } from '../../input/interfaces/InputValue';
 import { InputAlias } from '../../input/types/InputAlias';
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { BinaryValue } from '../../common/enums/BinaryValue';
-import { NetworkObject } from '../components/NetworkObject';
 
 /**
  * Call all behaviors associated with current input in it's current lifecycle phase
@@ -22,7 +21,7 @@ import { NetworkObject } from '../components/NetworkObject';
  * @param args
  * @param {Number} delta Time since last frame
  */
-export const handleInputOnServer: Behavior = (entity: Entity, args: { isLocal: boolean, isServer: boolean }, delta: number): void => {
+export const handleInputFromNonLocalClients: Behavior = (entity: Entity, args: { isLocal: boolean, isServer: boolean }, delta: number): void => {
 
   // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
   const input = getMutableComponent(entity, Input);

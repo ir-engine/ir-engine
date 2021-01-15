@@ -9,9 +9,17 @@ import { DepthOfFieldEffect } from '../../postprocessing/effects/DepthOfFieldEff
 import { BrightnessContrastEffect } from '../../postprocessing/effects/BrightnessContrastEffect';
 import { Resizer } from '../../postprocessing/core/Resizer';
 import { OutlineEffect } from '../../postprocessing/effects/OutlineEffect';
+import { LinearTosRGBEffect } from "../../postprocessing/effects/LinearTosRGBEffect";
+import { FXAAEffect } from "../../postprocessing/effects/FXAAEffect";
 
 export const DefaultPostProcessingSchema: PostProcessingSchema = {
   effects: [
+    {
+      effect: FXAAEffect,
+      options: {
+        blendFunction: BlendFunction.NORMAL
+      }
+    },
     {
       effect: OutlineEffect,
       options: {
@@ -29,34 +37,32 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
         xRay: true
       }
     },
-/*
-   {
-      effect: SSAOEffect,
-      options: {
-        blendFunction: BlendFunction.MULTIPLY,
-			distanceScaling: true,
-			depthAwareUpsampling: true,
-			samples: 16,
-			rings: 7,
-			distanceThreshold: .125,	// Render up to a distance of ~20 world units
-			distanceFalloff: 0.02,	// with an additional ~2.5 units of falloff.
-      minRadiusScale: 1,
-      bias: .25,
-			radius: .01,
-      intensity: 2,
-      fade: 0.05
-      }
-    },
-    {
-      effect: DepthOfFieldEffect,
-      options: {
-        blendFunction: BlendFunction.NORMAL,
-        focusDistance: 0.02,
-        focalLength: 0.5,
-        bokehScale: 1
-      }
-    },
-    */
+  //  {
+  //     effect: SSAOEffect,
+  //     options: {
+  //       blendFunction: BlendFunction.MULTIPLY,
+	// 		distanceScaling: true,
+	// 		depthAwareUpsampling: true,
+	// 		samples: 16,
+	// 		rings: 7,
+	// 		distanceThreshold: .125,	// Render up to a distance of ~20 world units
+	// 		distanceFalloff: 0.02,	// with an additional ~2.5 units of falloff.
+  //     minRadiusScale: 1,
+  //     bias: .25,
+	// 		radius: .01,
+  //     intensity: 2,
+  //     fade: 0.05
+  //     }
+  //   },
+    // {
+    //   effect: DepthOfFieldEffect,
+    //   options: {
+    //     blendFunction: BlendFunction.NORMAL,
+    //     focusDistance: 0.02,
+    //     focalLength: 0.5,
+    //     bokehScale: 1
+    //   }
+    // },
     // Bloom
     {
       effect: BloomEffect,
@@ -69,18 +75,18 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
       }
     },
     // // Tonemapping
-    // {
-    //   effect: ToneMappingEffect,
-    //   options: {
-    //     blendFunction: BlendFunction.NORMAL,
-    //     adaptive: true,
-    //     resolution: 512,
-    //     middleGrey: 0.6,
-    //     maxLuminance: 32.0,
-    //     averageLuminance: 1.0,
-    //     adaptationRate: 2.0
-    //   }
-    // },
+    {
+      effect: ToneMappingEffect,
+      options: {
+        blendFunction: BlendFunction.NORMAL,
+        adaptive: true,
+        resolution: 512,
+        middleGrey: 0.6,
+        maxLuminance: 32.0,
+        averageLuminance: 1.0,
+        adaptationRate: 2.0
+      }
+    },
     // DOF
         // // Color Grading
         /*
@@ -118,5 +124,8 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
     //     bits: 16
     //   }
     // }
+    {
+      effect: LinearTosRGBEffect
+    }
   ]
 };

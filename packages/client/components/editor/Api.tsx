@@ -13,7 +13,7 @@ const resolveMediaCache = new Map();
 
 const SERVER_URL = (configs as any).SERVER_URL;
 const APP_URL = (configs as any).APP_URL;
-const FEATHER_STORE_KEY = (configs as any).FEATHER_STORE_KEY;
+const FEATHERS_STORE_KEY = (configs as any).FEATHERS_STORE_KEY;
 
 function b64EncodeUnicode(str): string {
   // first we use encodeURIComponent to get percent-encoded UTF-8, then we convert the percent-encodings
@@ -77,8 +77,6 @@ function guessContentType(url): string {
   return CommonKnownContentTypes[extension];
 }
 
-const LOCAL_STORE_KEY = " ";
-
 export default class Api extends EventEmitter {
   serverURL: string;
   apiURL: string;
@@ -104,27 +102,19 @@ export default class Api extends EventEmitter {
   }
 
   isAuthenticated(): boolean {
-    const value = localStorage.getItem(LOCAL_STORE_KEY);
+    const token = localStorage.getItem(FEATHERS_STORE_KEY);
 
-    const store = JSON.parse(value);
-
-    return !!(store && store.credentials && store.credentials.token);
+    return token != null && token.length > 0;
   }
 
   getToken(): string {
-    const value = localStorage.getItem(LOCAL_STORE_KEY);
+    const token = localStorage.getItem(FEATHERS_STORE_KEY);
 
-    if (!value) {
+    if (token == null || token.length === 0) {
       throw new Error("Not authenticated");
     }
 
-    const store = JSON.parse(value);
-    
-    if (!store || !store.credentials || !store.credentials.token) {
-      throw new Error("Not authenticated");
-    }
-
-    return store.credentials.token;
+    return token;
   }
 
   getAccountId(): string {
@@ -296,7 +286,7 @@ export default class Api extends EventEmitter {
 
     return proxiedUrlFor(url);
   }
-  
+
   async searchMedia(source, params, cursor, signal): Promise<any> {
     const url = new URL(`${SERVER_URL}/media-search`);
 
@@ -522,9 +512,9 @@ export default class Api extends EventEmitter {
     const body = JSON.stringify({
       project
     });
-    console.log("EDITOR JSON IS");
-    console.log(project);
-    
+    // console.log("EDITOR JSON IS");
+    // console.log(project);
+
     const projectEndpoint = `${SERVER_URL}/project/${projectId}`;
 
     const resp = await this.fetchUrl(projectEndpoint, { method: "PATCH", headers, body, signal });
@@ -978,7 +968,8 @@ export default class Api extends EventEmitter {
 
     const {
       file_id: assetFileId,
-      meta: { access_token: assetAccessToken }
+      meta: { access_token: assetAccessToken, expected_content_type: expectedContentType },
+      origin: origin
     } = await this.upload(file, onProgress, signal) as any;
 
     const delta = Date.now() - this.lastUploadAssetRequest;
@@ -1004,23 +995,23 @@ export default class Api extends EventEmitter {
       }
     });
 
-    const resp = await this.fetchUrl(endpoint, { method: "POST", headers, body, signal });
-    console.log("Response: " + Object.values(resp));
-
-    const json = await resp.json();
-
-    const asset = json.assets[0];
-
+    // const resp = await this.fetchUrl(endpoint, { method: "POST", headers, body, signal });
+    // console.log("Response: " + Object.values(resp));
+    //
+    // const json = await resp.json();
+    //
+    // const asset = json.assets[0];
+    //
     this.lastUploadAssetRequest = Date.now();
 
     return {
-      id: asset.asset_id,
-      name: asset.name,
-      url: asset.file_url,
-      type: asset.type,
+      id: assetFileId,
+      name: file.name,
+      url: origin,
+      type: 'application/octet-stream',
       attributions: {},
       images: {
-        preview: { url: asset.thumbnail_url }
+        preview: { url: file.thumbnail_url }
       }
     };
   }
@@ -1082,7 +1073,7 @@ export default class Api extends EventEmitter {
   }
 
   saveCredentials(email, token): void {
-    localStorage.setItem(LOCAL_STORE_KEY, JSON.stringify({ credentials: { email, token } }));
+    // localStorage.setItem(LOCAL_STORE_KEY, JSON.stringify({ credentials: { email, token } }));
   }
 
   async fetchUrl(url, options: any = {}): Promise<any> {
@@ -1101,6 +1092,7 @@ export default class Api extends EventEmitter {
         }
         throw new RethrownError(`Failed to fetch "${url}"`, error);
       });
+      console.log(res);
       if (res.ok) {
         return res;
       }
@@ -1114,7 +1106,7 @@ export default class Api extends EventEmitter {
 
   handleAuthorization(): void {
     if (process.browser) {
-      const accessToken = localStorage.getItem(FEATHER_STORE_KEY);
+      const accessToken = localStorage.getItem(FEATHERS_STORE_KEY);
       const email = 'test@test.com';
       if((accessToken && email) || this.isAuthenticated()){
         this.saveCredentials(email, accessToken);

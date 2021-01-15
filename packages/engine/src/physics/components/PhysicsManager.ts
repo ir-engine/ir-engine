@@ -12,7 +12,7 @@ const cannonDebugger = isClient ? import('cannon-es-debugger').then((module) => 
 }) : null;
 */
 
-const DEBUG_PHYSICS = false;
+const DEBUG_PHYSICS = true;
 
 export class PhysicsManager extends Component<any> {
   static instance: PhysicsManager
@@ -77,7 +77,9 @@ export class PhysicsManager extends Component<any> {
           //console.log("PH  UPD: body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape) }
         }
       };
-      //  debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions);
+      window["physicsDebugView"] = () => {
+        debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions);
+      };
      }
   }
 

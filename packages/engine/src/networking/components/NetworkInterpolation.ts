@@ -6,10 +6,10 @@ import { ID, Snapshot } from '../types/SnapshotDataTypes';
 export class NetworkInterpolation extends Component<any> {
   static instance: NetworkInterpolation
   public vault: Snapshot[] = []
-  vaultSize = 80
+  vaultSize = 200
   timeOffset = -1
 
-  _interpolationBuffer = 15
+  _interpolationBuffer = 5
   /** The current server time based on the current snapshot interpolation. */
   public serverTime = 0
 

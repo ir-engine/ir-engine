@@ -10,7 +10,7 @@ import DrawerControls from '../DrawerControls';
 import LeftDrawer from '../Drawer/Left';
 import RightDrawer from '../Drawer/Right';
 import BottomDrawer from '../Drawer/Bottom';
-import { selectAppState } from '../../../redux/app/selector';
+import { selectAppOnBoardingStep, selectAppState } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
 import { selectLocationState } from '../../../redux/location/selector';
 import PartyVideoWindows from '../PartyVideoWindows';
@@ -18,10 +18,10 @@ import InstanceChat from '../InstanceChat';
 import Me from '../Me';
 // import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { useRouter } from 'next/router';
-import { setUserHasInteracted } from '../../../redux/app/actions';
+import { generalStateList, setUserHasInteracted } from '../../../redux/app/actions';
 import { bindActionCreators, Dispatch } from 'redux';
 import theme from '../../../theme';
-import { Network } from '@xr3ngine/engine/src/networking/components/Network';
+// import { Network } from '@xr3ngine/engine/src/networking/components/Network';
 
 const { publicRuntimeConfig } = getConfig();
 const siteTitle: string = publicRuntimeConfig.siteTitle;
@@ -34,12 +34,14 @@ interface Props {
   pageTitle: string;
   children?: any;
   setUserHasInteracted?: any;
+  onBoardingStep?: number;
 }
 const mapStateToProps = (state: any): any => {
   return {
     appState: selectAppState(state),
     authState: selectAuthState(state),
-    locationState: selectLocationState(state)
+    locationState: selectLocationState(state),
+    onBoardingStep: selectAppOnBoardingStep(state),
   };
 };
 
@@ -56,7 +58,8 @@ const Layout = (props: Props): any => {
       authState,
       setUserHasInteracted,
       login,
-      locationState
+      locationState,
+      onBoardingStep
   } = props;
   const userHasInteracted = appState.get('userHasInteracted');
   const authUser = authState.get('authUser');
@@ -90,7 +93,7 @@ const Layout = (props: Props): any => {
       </Head>
       <header>
         { path === '/login' && <NavMenu login={login} />}
-        {<PartyVideoWindows />}
+        {onBoardingStep === generalStateList.ALL_DONE && <PartyVideoWindows />}
       </header>
       <Fragment>
         <UIDialog />
@@ -113,11 +116,13 @@ const Layout = (props: Props): any => {
         </Fragment>
       }
       <footer>
-        { authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.id != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
-            <DrawerControls setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/> }
+        {/* { authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.id != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
+            <DrawerControls setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/> } */}
         { authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
 
-        { locationState.get('currentLocation')?.get('location')?.id && authState.get('authUser') != null && authState.get('isLoggedIn') === true &&  user?.instanceId != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
+        { locationState.get('currentLocation')?.get('location')?.id && 
+          authState.get('authUser') != null && authState.get('isLoggedIn') === true &&  user?.instanceId != null &&
+           !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen && onBoardingStep === generalStateList.ALL_DONE&&
             <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen}/> }
       </footer>
     </section>
