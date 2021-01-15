@@ -290,6 +290,7 @@ const lightTheme = createMuiTheme({
         padding: '5px 10px',
         width: 'fit-content',
         flex: 'inherit',
+        wordBreak: 'break-all',
       }
     },
     MuiCardContent:{
