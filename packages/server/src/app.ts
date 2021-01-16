@@ -47,13 +47,16 @@ function healthPing(agonesSDK: AgonesSDK): void {
 
 app.set('nextReadyEmitter', emitter);
 
+console.log("***************** OPEN API PATH IS")
+console.log(process.cwd() + '/../openapi.html')
+
 if (config.server.enabled) {
   try {
     app.configure(
         swagger({
           docsPath: '/openapi',
           docsJsonPath: '/openapi.json',
-          uiIndex: path.join(__dirname, '../openapi.html'),
+          uiIndex: path.join(process.cwd() + '/openapi.html'),
           // TODO: Relate to server config, don't hardcode this here
           specs: {
             info: {
@@ -177,10 +180,6 @@ if (config.server.enabled) {
 }
 
 app.use(express.errorHandler({ logger } as any));
-
-const editorPath = process.env.NODE_ENV === 'production' ? path.join(config.server.nodeModulesDir, '/xr3-editor/dist') : path.join(config.server.rootDir, '/node_modules/xr3-editor/dist');
-app.use(express.static(editorPath));
-app.all('/editor/*', (req, res) => res.sendFile(path.join(editorPath, 'editor/index.html')));
 
 process.on('exit', async () => {
   console.log('Server EXIT');
