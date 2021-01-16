@@ -156,3 +156,5 @@ packages/docs/public/
 .history
 .history/*
 packages/server/upload/
+
+.dccache
