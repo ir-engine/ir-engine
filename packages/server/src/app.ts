@@ -27,6 +27,7 @@ import { WebRTCGameServer } from "./gameserver/WebRTCGameServer";
 import winston from 'winston';
 import feathersLogger from 'feathers-logger';
 import { EventEmitter } from 'events';
+import psList from 'ps-list';
 
 const emitter = new EventEmitter();
 
