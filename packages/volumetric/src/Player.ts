@@ -1,22 +1,18 @@
+import Blob from 'cross-blob';
 import {
   BufferGeometry,
-  Geometry,
-  Mesh,
+  Float32BufferAttribute, Mesh,
   MeshBasicMaterial,
   PlaneBufferGeometry,
   Renderer,
   Scene,
-  Uint16BufferAttribute,
-  VideoTexture,
-  Uint32BufferAttribute,
-  Float32BufferAttribute
+  Uint32BufferAttribute, VideoTexture
 } from 'three';
 import {
   IFrameBuffer,
   KeyframeBuffer
 } from './Interfaces';
 import RingBuffer from './RingBuffer';
-import Blob from 'cross-blob';
 import { workerFunction } from './workerFunction';
 
 export default class DracosisPlayer {
