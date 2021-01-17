@@ -1,5 +1,16 @@
 import { addWorldColliders } from "@xr3ngine/engine/src/templates/world/behaviors/addWorldColliders";
-import { AmbientLight, CircleBufferGeometry, Color, DirectionalLight, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight } from 'three';
+import {
+  AmbientLight,
+  CircleBufferGeometry,
+  Color,
+  DirectionalLight,
+  GridHelper,
+  HemisphereLight,
+  Mesh,
+  MeshPhongMaterial,
+  PointLight,
+  SpotLight
+} from 'three';
 import { AssetLoader } from '../../assets/components/AssetLoader';
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { addComponentFromBehavior, addObject3DComponent, addTagComponentFromBehavior } from '../../common/behaviors/Object3DBehaviors';
@@ -110,12 +121,13 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       {
         behavior: addObject3DComponent,
         args: {
-          obj3d: new Mesh(
-            new CircleBufferGeometry(1000, 32).rotateX(-Math.PI/2),
-            new MeshPhongMaterial({
-              color: new Color(0.313410553336143494, 0.31341053336143494, 0.30206481294706464)
-            })
-          )
+          obj3d: new GridHelper( 1000, 1000 )
+          // obj3d: new Mesh(
+          //   new CircleBufferGeometry(1000, 32).rotateX(-Math.PI/2),
+          //   new MeshPhongMaterial({
+          //     color: new Color(0.313410553336143494, 0.31341053336143494, 0.30206481294706464)
+          //   })
+          // )
         },
         values: [ { from: 'color', to: 'material.color' } ]
       }

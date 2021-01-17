@@ -13,6 +13,7 @@ import { isMoving } from '../functions/isMoving';
 import { addState } from "../../../state/behaviors/addState";
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { DefaultInput } from '../../shared/DefaultInput';
+import { Entity } from "../../../ecs/classes/Entity";
 
 export const WalkState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
@@ -24,16 +25,16 @@ export const WalkState: StateSchemaValue = {
     }
   }],
   onEntry: [
-    {
-      behavior: initializeCharacterState
-    },
-    {
-      behavior: setActorAnimation,
-      args: {
-        name: 'walking',
-        transitionDuration: 0.4
-      }
-    }
+    // {
+    //   behavior: initializeCharacterState
+    // },
+    // {
+    //   behavior: setActorAnimation,
+    //   args: {
+    //     name: 'walking',
+    //     transitionDuration: 0.4
+    //   }
+    // }
   ],
   onUpdate: [
     {
@@ -45,18 +46,18 @@ export const WalkState: StateSchemaValue = {
     {
       behavior: triggerActionIfMovementHasChanged,
       args: {
-        action: (entity) => {
+        action: (entity: Entity): void => {
           // Default behavior for all states
-          findVehicle(entity);
+          // findVehicle(entity);
           const input = getComponent(entity, Input);
-
-          if (input.data.has(DefaultInput.BACKWARD)) {
-            addState(entity, { state: CharacterStateTypes.WALK_START_BACKWARD });
-          } else if (input.data.has(DefaultInput.LEFT)) {
-            addState(entity, { state: CharacterStateTypes.WALK_START_LEFT });
-          } else if (input.data.has(DefaultInput.RIGHT)) {
-            addState(entity, { state: CharacterStateTypes.WALK_START_RIGHT});
-          }
+          //
+          // if (input.data.has(DefaultInput.BACKWARD)) {
+          //   addState(entity, { state: CharacterStateTypes.WALK_START_BACKWARD });
+          // } else if (input.data.has(DefaultInput.LEFT)) {
+          //   addState(entity, { state: CharacterStateTypes.WALK_START_LEFT });
+          // } else if (input.data.has(DefaultInput.RIGHT)) {
+          //   addState(entity, { state: CharacterStateTypes.WALK_START_RIGHT});
+          // }
 
           // Check if we stopped moving
           if (!isMoving(entity)) {

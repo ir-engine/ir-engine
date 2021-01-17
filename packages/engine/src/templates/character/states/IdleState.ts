@@ -13,7 +13,7 @@ import { Input } from '../../../input/components/Input';
 import { isMoving } from '../functions/isMoving';
 import { addState } from "../../../state/behaviors/addState";
 import { CharacterStateTypes } from '../CharacterStateTypes';
-import { setAppropriateStartWalkState } from '../behaviors/setStartWalkState';
+import { trySwitchToMovingState, setAppropriateStartWalkState } from '../behaviors/setStartWalkState';
 import { Entity } from '../../../ecs/classes/Entity';
 import { DefaultInput } from "../../shared/DefaultInput";
 import { BinaryValue } from "../../../common/enums/BinaryValue";
@@ -40,7 +40,7 @@ export const IdleState: StateSchemaValue = {
       behavior: setActorAnimation,
       args: {
         name: 'idle',
-        transitionDuration: 0.4
+        transitionDuration: 0.2
       }
     }
   ],
@@ -64,28 +64,30 @@ export const IdleState: StateSchemaValue = {
             return addState(entity, {state: CharacterStateTypes.JUMP_IDLE});
           }
 
-          if (input.data.has(DefaultInput.SPRINT)) {
+          trySwitchToMovingState(entity);
 
-            if (input.data.has(DefaultInput.FORWARD)) {
-              return addState(entity, { state: CharacterStateTypes.SPRINT })
-            } else if (input.data.has(DefaultInput.LEFT)) {
-              return addState(entity, { state: CharacterStateTypes.SPRINT_LEFT })
-            } else if (input.data.has(DefaultInput.RIGHT)) {
-              return addState(entity, { state: CharacterStateTypes.SPRINT_RIGHT })
-            } else if (input.data.has(DefaultInput.BACKWARD)) {
-              return addState(entity, { state: CharacterStateTypes.SPRINT_BACKWARD })
-            }
-          }
-
-          // If we're not moving, don't worry about the rest of this action
-          if (!isMoving(entity)) return;
-
-          // If our character is moving or being moved, go to walk state
-    //      if (getComponent(entity, CharacterComponent).velocity.length() > 0.5)
-  //          return addState(entity, { state: CharacterStateTypes.WALK_START_FORWARD });
-
-          // Otherwise set the appropriate walk state
-          setAppropriateStartWalkState(entity);
+  //         if (input.data.has(DefaultInput.SPRINT)) {
+  //
+  //           if (input.data.has(DefaultInput.FORWARD)) {
+  //             return addState(entity, { state: CharacterStateTypes.SPRINT })
+  //           } else if (input.data.has(DefaultInput.LEFT)) {
+  //             return addState(entity, { state: CharacterStateTypes.SPRINT_LEFT })
+  //           } else if (input.data.has(DefaultInput.RIGHT)) {
+  //             return addState(entity, { state: CharacterStateTypes.SPRINT_RIGHT })
+  //           } else if (input.data.has(DefaultInput.BACKWARD)) {
+  //             return addState(entity, { state: CharacterStateTypes.SPRINT_BACKWARD })
+  //           }
+  //         }
+  //
+  //         // If we're not moving, don't worry about the rest of this action
+  //         if (!isMoving(entity)) return;
+  //
+  //         // If our character is moving or being moved, go to walk state
+  //   //      if (getComponent(entity, CharacterComponent).velocity.length() > 0.5)
+  // //          return addState(entity, { state: CharacterStateTypes.WALK_START_FORWARD });
+  //
+  //         // Otherwise set the appropriate walk state
+  //         setAppropriateStartWalkState(entity);
         }
       }
     },

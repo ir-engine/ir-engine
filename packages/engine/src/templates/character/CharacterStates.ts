@@ -21,6 +21,7 @@ import { StartWalkBackwardState } from './states/StartWalkBackwardState';
 import { DrivingIdleState } from './states/DrivingIdleState';
 import { EnterVehicleState } from './states/EnterVehicleState';
 import { ExitVehicleState } from './states/ExitVehicleState';
+import { MovingState } from "./states/MovingState";
 
 export const CharacterStates = {
   [CharacterStateTypes.DROP_IDLE]: DropIdleState,
@@ -28,6 +29,7 @@ export const CharacterStates = {
   [CharacterStateTypes.DROP_RUNNING]: DropRunningState,
   [CharacterStateTypes.FALLING]: FallingState,
   [CharacterStateTypes.IDLE]: IdleState,
+  [CharacterStateTypes.MOVING]: MovingState,
   [CharacterStateTypes.WALK]: WalkState,
   [CharacterStateTypes.IDLE_ROTATE_LEFT]: IdleRotateLeftState,
   [CharacterStateTypes.IDLE_ROTATE_RIGHT]: IdleRotateRightState,

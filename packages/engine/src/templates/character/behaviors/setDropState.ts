@@ -19,10 +19,7 @@ export const setDropState: Behavior = (entity, args = null, deltaTime) => {
   if (actor.groundImpactVelocity.y < -6)
   {
     addState(entity, { state: CharacterStateTypes.DROP_ROLLING });
-  }
-
-
-  else if(isMoving(entity))    {
+  } else if(isMoving(entity))    {
     if (actor.groundImpactVelocity.y < -2)
     {
     //  console.warn('CharacterStateTypes.DROP_RUNNING');
