@@ -13,9 +13,15 @@ export const setActorAnimation: Behavior = (entity, args: { name: string; transi
   // if actor model is not yet loaded mixer could be empty
   if (!actor.mixer) return;
 
+  if (actor.currentAnimationAction && args.name == actor.currentAnimationAction.getClip().name) {
+    console.warn('setActorAnimation', args.name, ', same animation already playing');
+    return;
+  }
+
   const animationRoot = actor.modelContainer.children[0];
   if (!animationRoot) {
     console.error('Animation root/model is undefined', animationRoot);
+    return;
   }
 
   const clip = AnimationClip.findByName(actor.animations, args.name );
@@ -27,11 +33,6 @@ export const setActorAnimation: Behavior = (entity, args: { name: string; transi
 
   if (newAction === null) {
     console.warn('setActorAnimation', args.name, ', not found');
-    return;
-  }
-
-  if (actor.currentAnimationAction && args.name == actor.currentAnimationAction.getClip().name) {
-    console.warn('setActorAnimation', args.name, ', same animation already playing');
     return;
   }
 

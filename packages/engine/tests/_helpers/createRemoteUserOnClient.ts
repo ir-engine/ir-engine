@@ -55,7 +55,7 @@ export function createRemoteUserOnClient(options:{
 
   // WorldStateInterface
   Network.instance.incomingMessageQueue.add(WorldStateModel.toBuffer(message));
-  execute(0, 1 / Engine.physicsFrameRate, SystemUpdateType.Fixed);
+  execute(1, 1 / Engine.physicsFrameRate, SystemUpdateType.Fixed);
 
   return {
     createMessage: message.createObjects[0],

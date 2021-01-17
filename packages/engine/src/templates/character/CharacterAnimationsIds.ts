@@ -1,0 +1,16 @@
+export enum CharacterAnimationsIds {
+    IDLE,
+    JUMP,
+    JUMP_RUNNING,
+    FALL,
+    DROP,
+    DROP_ROLLING,
+    WALK_FORWARD,
+    WALK_BACKWARD,
+    WALK_STRAFE_RIGHT,
+    WALK_STRAFE_LEFT,
+    RUN_FORWARD,
+    RUN_BACKWARD,
+    RUN_STRAFE_RIGHT,
+    RUN_STRAFE_LEFT,
+}

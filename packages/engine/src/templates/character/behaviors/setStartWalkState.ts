@@ -5,7 +5,21 @@ import { CharacterStateTypes } from '../CharacterStateTypes';
 import { Entity } from '../../../ecs/classes/Entity';
 import { getSignedAngleBetweenVectors } from '../../../common/functions/getSignedAngleBetweenVectors';
 import { getCameraRelativeMovementVector } from '../functions/getCameraRelativeMovementVector';
+import { TransformComponent } from "../../../transform/components/TransformComponent";
+import { setActorAnimation } from "./setActorAnimation";
 
+export const trySwitchToMovingState = (entity: Entity): void => {
+  const actor = getComponent(entity, CharacterComponent);
+  if (!actor.initialized) return;
+  if (!actor.rayHasHit) return; // no switch to movement state while falling
+  if (actor.velocity.length() < 0.001) return; // TODO: change it to localMovementDirection? or velocity?
+
+  addState(entity, { state: CharacterStateTypes.MOVING });
+};
+
+// const transform = getComponent(entity, TransformComponent);
+// // convert to local orientation
+// velocityDirection.applyQuaternion(transform.rotation.clone().invert());
 
 export const setAppropriateStartWalkState = (entity: Entity): void => {
   const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
