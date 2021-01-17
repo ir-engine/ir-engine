@@ -4,6 +4,9 @@ import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 
 type TimerUpdateCallback = (delta: number, elapsedTime?: number) => any;
 
+const TPS_REPORTS_ENABLED = false;
+const TPS_REPORT_INTERVAL_MS = 10000;
+
 export function Timer (
   callbacks: { update?: TimerUpdateCallback; fixedUpdate?: TimerUpdateCallback; networkUpdate?: TimerUpdateCallback; render?: Function },
   fixedFrameRate?: number, networkTickRate?: number
@@ -15,6 +18,26 @@ export function Timer (
   let accumulated = 0;
   let delta = 0;
   let frameId;
+
+  const newEngineTicks = {
+    fixed: 0,
+    net: 0,
+    update: 0,
+    render: 0
+  };
+  const newEngineTimeSpent = {
+    fixed: 0,
+    net: 0,
+    update: 0,
+    render: 0
+  };
+
+  let timerStartTime = 0;
+  let tpsPrevTime = 0;
+  let tpsPrevTicks = 0;
+  let nextTpsReportTime = 0;
+  let timerRuns = 0;
+  let prevTimerRuns = 0;
 
   function render(time) {
     if (Engine.xrSession) {
@@ -46,6 +69,12 @@ export function Timer (
   const updateFunction = (isClient ? requestAnimationFrame : requestAnimationFrameOnServer);
 
   function onFrame (time) {
+    timerRuns+=1;
+    const itsTpsReportTime = TPS_REPORT_INTERVAL_MS && nextTpsReportTime <= time;
+    if (TPS_REPORTS_ENABLED && itsTpsReportTime) {
+      tpsPrintReport(time);
+    }
+
     if (Engine.xrSession) {
       stop();
       Engine.renderer.setAnimationLoop( render );
@@ -58,19 +87,86 @@ export function Timer (
         accumulated = accumulated + delta;
 
         if (fixedRunner) {
+          tpsSubMeasureStart('fixed');
           fixedRunner.run(delta);
+          tpsSubMeasureEnd('fixed');
         }
 
         if (networkRunner) {
+          tpsSubMeasureStart('net');
           networkRunner.run(delta);
+          tpsSubMeasureEnd('net');
         }
 
-        if (callbacks.update) callbacks.update(delta, accumulated);
+        if (callbacks.update) {
+          tpsSubMeasureStart('update');
+          callbacks.update(delta, accumulated);
+          tpsSubMeasureEnd('update');
+        }
       }
       last = time;
-      if (callbacks.render) callbacks.render();
+      if (callbacks.render) {
+        tpsSubMeasureStart('render');
+        callbacks.render();
+        tpsSubMeasureEnd('render');
+      }
     }
   }
+
+  const tpsMeasureStartData = new Map<string, { time: number, ticks: number }>();
+  function tpsSubMeasureStart(name) {
+    let measureData:{ time: number, ticks: number };
+    if (tpsMeasureStartData.has(name)) {
+      measureData = tpsMeasureStartData.get(name);
+    } else {
+      measureData = { time: 0, ticks: 0 };
+      tpsMeasureStartData.set(name, measureData);
+    }
+    measureData.ticks = Engine.tick;
+    measureData.time = now();
+  }
+  function tpsSubMeasureEnd(name) {
+    const measureData = tpsMeasureStartData.get(name);
+    newEngineTicks[name] += Engine.tick - measureData.ticks;
+    newEngineTimeSpent[name] += now() - measureData.time;
+  }
+
+  function tpsReset() {
+    tpsPrevTicks = Engine.tick;
+    timerStartTime = now();
+    tpsPrevTime = now();
+    nextTpsReportTime = now() + TPS_REPORT_INTERVAL_MS;
+  }
+
+  function tpsPrintReport(time:number): void {
+    const seconds = (time -  tpsPrevTime)/1000;
+    const newTicks = Engine.tick - tpsPrevTicks;
+    const tps = newTicks / seconds;
+
+    console.log('Timer - tick:', Engine.tick, ' (+', newTicks,'), seconds', seconds.toFixed(1), ' tps:', tps.toFixed(1));
+    console.log(((time - timerStartTime)/timerRuns).toFixed(3), 'ms per onFrame');
+
+    console.log('Timer - fixed:', newEngineTicks.fixed, ', tps:', (newEngineTicks.fixed / seconds).toFixed(1), " ms per tick:", (newEngineTimeSpent.fixed / newEngineTicks.fixed));
+    console.log('Timer - net  :', newEngineTicks.net, ', tps:', (newEngineTicks.net / seconds).toFixed(1), " ms per tick:", (newEngineTimeSpent.net / newEngineTicks.net));
+    console.log('Timer - other:', newEngineTicks.update, ', tps:', (newEngineTicks.update / seconds).toFixed(1), " ms per tick:", (newEngineTimeSpent.update / newEngineTicks.update));
+    console.log('Timer runs: +', timerRuns - prevTimerRuns);
+
+    tpsPrevTime = time;
+    nextTpsReportTime = time + TPS_REPORT_INTERVAL_MS;
+    tpsPrevTicks = Engine.tick;
+    newEngineTicks.fixed = 0;
+    newEngineTicks.net = 0;
+    newEngineTicks.update = 0;
+    newEngineTicks.render = 0;
+
+    newEngineTimeSpent.fixed = 0;
+    newEngineTimeSpent.net = 0;
+    newEngineTimeSpent.update = 0;
+    newEngineTimeSpent.render = 0;
+
+    prevTimerRuns = timerRuns;
+  }
+
 /*
   function toXR (timestamp, xrFrame) {
     if (Engine.xrSession) {
@@ -85,6 +181,7 @@ export function Timer (
   function start () {
     last = null;
     frameId = updateFunction(onFrame);
+    tpsReset();
   }
 
   function stop () {
