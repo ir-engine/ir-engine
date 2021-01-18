@@ -4,11 +4,13 @@ import { getComponent, getMutableComponent } from '../../../ecs/functions/Entity
 import { CharacterComponent } from '../components/CharacterComponent';
 import { defaultAvatarAnimations, CharacterAvatars } from "../CharacterAvatars";
 import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
+import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
 
 
 
 export const setActorAnimationWeightScale: Behavior = (entity, args: { animationId: number; weight?: number; scale?: number, replaceCurrent?: boolean, transitionDuration?: number }) => {
   const actor = getComponent(entity, CharacterComponent);
+  // console.log('setActorAnimationWS [', CharacterAnimationsIds[args.animationId], '](',args.animationId,') W:', args.weight, ' S:', args.scale);
 
   // Actor isn't initialized yet, so skip the animation
   if(!actor?.initialized) return;
@@ -24,7 +26,7 @@ export const setActorAnimationWeightScale: Behavior = (entity, args: { animation
   }
 
   if (args.replaceCurrent && actor.currentAnimationAction && avatarAnimationName == actor.currentAnimationAction.getClip().name) {
-    console.warn('setActorAnimation', avatarAnimationName, ', same animation already playing');
+    console.log('setActorAnimation', avatarAnimationName, ', same animation already playing');
     return;
   }
 
@@ -42,7 +44,7 @@ export const setActorAnimationWeightScale: Behavior = (entity, args: { animation
   }
 
   if (action === null) {
-    console.warn('setActorAnimation', avatarAnimationName, ', not found');
+    console.warn('setActorAnimation [', avatarAnimationName, '], not found');
     return;
   }
 

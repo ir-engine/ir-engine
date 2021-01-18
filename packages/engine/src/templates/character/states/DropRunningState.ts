@@ -7,7 +7,7 @@ import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { CharacterComponent } from '../components/CharacterComponent';
-import { isMoving } from '../functions/isMoving';
+import { isMovingByInputs } from '../functions/isMovingByInputs';
 import { DefaultInput } from '../../shared/DefaultInput';
 import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
 import { findVehicle } from '../functions/findVehicle';
@@ -48,7 +48,7 @@ export const DropRunningState: StateSchemaValue = {
           findVehicle(entity);
           const input = getComponent(entity, Input);
           // Check if we stopped moving
-          if (!isMoving(entity))
+          if (!isMovingByInputs(entity))
             return addState(entity, { state: CharacterStateTypes.WALK_END });
           // Check if we're trying to sprint
           if (input.data.has(DefaultInput.SPRINT))

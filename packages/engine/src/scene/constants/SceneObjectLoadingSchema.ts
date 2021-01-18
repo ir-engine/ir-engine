@@ -121,7 +121,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       {
         behavior: addObject3DComponent,
         args: {
-          obj3d: new GridHelper( 1000, 1000 )
+          obj3d: new GridHelper( 1000, 10000 )
           // obj3d: new Mesh(
           //   new CircleBufferGeometry(1000, 32).rotateX(-Math.PI/2),
           //   new MeshPhongMaterial({

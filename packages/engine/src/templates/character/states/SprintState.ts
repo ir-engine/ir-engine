@@ -14,7 +14,7 @@ import { Input } from '../../../input/components/Input';
 import { DefaultInput } from '../../shared/DefaultInput';
 import { addState } from "../../../state/behaviors/addState";
 import { CharacterStateTypes } from '../CharacterStateTypes';
-import { isMoving } from '../functions/isMoving';
+import { isMovingByInputs } from '../functions/isMovingByInputs';
 import { setIdleState } from '../behaviors/setIdleState';
 
 export const SprintState: StateSchemaValue = {
@@ -88,7 +88,7 @@ export const SprintState: StateSchemaValue = {
           return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING });
 
         // If we're not moving, don't worry about the rest of this action
-        if (!isMoving(entity))
+        if (!isMovingByInputs(entity))
           return addState(entity, { state: CharacterStateTypes.WALK_END });
       }
     }

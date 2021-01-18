@@ -1,5 +1,7 @@
 export enum CharacterAnimationsIds {
     IDLE,
+    IDLE_ROTATE_RIGHT,
+    IDLE_ROTATE_LEFT,
     JUMP,
     JUMP_RUNNING,
     FALL,
@@ -13,4 +15,7 @@ export enum CharacterAnimationsIds {
     RUN_BACKWARD,
     RUN_STRAFE_RIGHT,
     RUN_STRAFE_LEFT,
+    DRIVING,
+    ENTERING_CAR,
+    EXITING_CAR
 }

@@ -1,11 +1,12 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { CharacterComponent } from '../components/CharacterComponent';
-import { setActorAnimation } from "../behaviors/setActorAnimation";
+import { setActorAnimation, setActorAnimationById } from "../behaviors/setActorAnimation";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
 import { jumpRunning } from "../behaviors/jumpRunning";
 import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
+import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
 
 export const JumpRunningState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
@@ -25,9 +26,9 @@ export const JumpRunningState: StateSchemaValue = {
         behavior: initializeCharacterState
       },
       {
-        behavior: setActorAnimation,
+        behavior: setActorAnimationById,
         args: {
-          name: 'falling', //walk_jump_start
+          animationId: CharacterAnimationsIds.JUMP_RUNNING,
           transitionDuration: 0.3
         }
       }

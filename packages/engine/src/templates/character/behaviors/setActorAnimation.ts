@@ -1,9 +1,28 @@
 import { AnimationClip } from 'three';
 import { Behavior } from '../../../common/interfaces/Behavior';
-import { getMutableComponent } from '../../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { CharacterComponent } from '../components/CharacterComponent';
+import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
+import { CharacterAvatars, defaultAvatarAnimations } from "../CharacterAvatars";
 
 
+
+export const setActorAnimationById: Behavior = (entity, args: { animationId: string; transitionDuration: number }) => {
+  const actor = getComponent(entity, CharacterComponent);
+  // Actor isn't initialized yet, so skip the animation
+  if(!actor?.initialized) return;
+  // if actor model is not yet loaded mixer could be empty
+  if (!actor.mixer) return;
+
+  // TODO: get animation name from current avatar
+  const avatarId = getComponent(entity, CharacterAvatarComponent)?.avatarId;
+  const avatarAnimations = CharacterAvatars.find(a => a.id === avatarId)?.animations ?? defaultAvatarAnimations;
+  const avatarAnimationName = avatarAnimations[args.animationId];
+  if (!avatarAnimationName) {
+    return;
+  }
+  return setActorAnimation(entity, { name: avatarAnimationName, transitionDuration: args.transitionDuration })
+}
 
 export const setActorAnimation: Behavior = (entity, args: { name: string; transitionDuration: number }) => {
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
