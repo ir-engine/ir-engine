@@ -20,12 +20,12 @@ const LoadedSceneButtons = ({onBoardingStep}:Props): any => {
   const [buttonsDisabled, setButtonsDIsabled] = useState(false);
   const joinWorldHandler = async () =>{
     setButtonsDIsabled(true);
-    await joinWorld().then(()=>store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE)));
+    return await joinWorld().then(()=>store.dispatch(setAppOnBoardingStep(generalStateList.ALL_DONE)));
   };
 
   const startTutorialHandler = async () =>{
     setButtonsDIsabled(true);
-    await joinWorld().then(()=>store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_LOOKAROUND)));
+    return await joinWorld().then(()=>store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_LOOKAROUND)));
   };
   return onBoardingStep === generalStateList.SCENE_LOADED && 
     (<section className={styles.loadedSceneButtonsContainer}>
