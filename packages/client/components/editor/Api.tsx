@@ -342,7 +342,7 @@ export default class Api extends EventEmitter {
       throw error;
     }
 
-    const thumbnailedEntries = json && json.entries && json.entries.map(entry => {
+    const thumbnailedEntries = json && json.entries && json.entries.length > 0 && json.entries.map(entry => {
       if (entry.images && entry.images.preview && entry.images.preview.url) {
         if (entry.images.preview.type === "mp4") {
           entry.images.preview.url = proxiedUrlFor(entry.images.preview.url);
