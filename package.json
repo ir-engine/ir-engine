@@ -32,6 +32,7 @@
   "engines": {
     "yarn": ">= 0.18.0"
   },
+  
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
@@ -49,6 +50,9 @@
   "pre-push": [
     "test"
   ],
+  "resolutions": {
+    "socket.io": "^2.3.0"
+  },
   "peerDependencies": {
     "@feathersjs/authentication": "^4.5.8",
     "@feathersjs/authentication-local": "^4.5.8",
@@ -68,7 +72,8 @@
     "chokidar": "3.4.2",
     "mediasoup-client": "^3.6.12",
     "sequelize": "~5.21.8",
-    "three": "^0.123.0"
+    "three": "^0.123.0",
+    "socket.io": "^2.3.0"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.11.5",

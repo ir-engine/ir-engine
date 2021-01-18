@@ -23,7 +23,11 @@
     "lint": "node node_modules/.bin/eslint --fix --quiet '*.ts' '**/*.ts' '**/*.tsx'"
   },
   "resolutions": {
-    "webpack": "^5.1.0"
+    "webpack": "^5.1.0",
+    "socket.io": "^2.3.0"
+  },
+  "peerDependencies": {
+    "socket.io": "^2.3.0"
   },
   "dependencies": {
     "@feathersjs/client": "^4.5.2",
