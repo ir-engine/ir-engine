@@ -6,7 +6,7 @@ import { CharacterStateGroups } from '../CharacterStateGroups';
 import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
 import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { Input } from '../../../input/components/Input';
-import { isMoving } from '../functions/isMoving';
+import { isMovingByInputs } from '../functions/isMovingByInputs';
 import { addState } from "../../../state/behaviors/addState";
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { DefaultInput } from '../../shared/DefaultInput';
@@ -16,6 +16,13 @@ import { getMovingAnimationsByVelocity } from "../functions/getMovingAnimationsB
 import { defaultAvatarAnimations } from "../CharacterAvatars";
 import { setActorAnimationWeightScale } from "../behaviors/setActorAnimationWeightScale";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
+import { Vector3 } from "three";
+import { getPlayerMovementVelocity } from "../functions/getPlayerMovementVelocity";
+import { BinaryValue } from "../../../common/enums/BinaryValue";
+import { trySwitchToJump } from "../behaviors/trySwitchToJump";
+import { trySwitchToMovingState } from "../behaviors/trySwitchToMovingState";
+
+const localSpaceMovementVelocity = new Vector3();
 
 export const MovingState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
@@ -29,13 +36,6 @@ export const MovingState: StateSchemaValue = {
     {
       behavior: initializeCharacterState
     },
-    // {
-    //   behavior: setActorAnimation,
-    //   args: {
-    //     name: 'walking',
-    //     transitionDuration: 0.4
-    //   }
-    // }
   ],
   onUpdate: [
     {
@@ -52,26 +52,28 @@ export const MovingState: StateSchemaValue = {
           // findVehicle(entity);
           const input = getComponent(entity, Input);
           const actor = getComponent(entity, CharacterComponent);
-          const isSprinting = (input.data.get(DefaultInput.SPRINT)?.lifecycleState) !== LifecycleValue.ENDED;
+          const isSprinting = (input.data.get(DefaultInput.SPRINT)?.value) === BinaryValue.ON;
           const neededMovementSpeed = isSprinting? RUN_SPEED : WALK_SPEED;
           if (actor.moveSpeed !== neededMovementSpeed) {
             const writableActor = getMutableComponent(entity, CharacterComponent);
             writableActor.moveSpeed = neededMovementSpeed;
           }
 
-          // actor.velocity.clone().multiplyScalar(actor.moveSpeed);
-
-
           // Check if we're trying to jump
-          if (input.data.has(DefaultInput.JUMP))
-            return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING });
+          if (trySwitchToJump(entity)) {
+            return;
+          }
         }
       }
     },
     {
-      behavior: entity => {
-        const actor = getComponent(entity, CharacterComponent);
-        const animations = getMovingAnimationsByVelocity(actor.localMovementDirection);
+      behavior: (entity:Entity): void => {
+        // TODO: change it to speed relative to the ground?
+        // real speed made by inputs.
+        getPlayerMovementVelocity(entity, localSpaceMovementVelocity);
+        console.log('update moving', isMovingByInputs(entity), localSpaceMovementVelocity.length().toFixed(5));
+
+        const animations = getMovingAnimationsByVelocity(localSpaceMovementVelocity);
         animations.forEach((value, animationId) => {
           setActorAnimationWeightScale(entity, {
             animationId: animationId,
@@ -82,8 +84,7 @@ export const MovingState: StateSchemaValue = {
         // TODO: sync run/walk animation pairs? (run_forward with walk_forward, run_left with walk_left)
 
         // Check if we stopped moving
-        console.log('update moving', isMoving(entity), actor.velocity.length());
-        if (!isMoving(entity) && actor.velocity.length() < 0.001) {
+        if (!isMovingByInputs(entity) && localSpaceMovementVelocity.length() < 0.01) {
           addState(entity, { state: CharacterStateTypes.IDLE });
         }
       }

@@ -114,7 +114,7 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
     // const deltaTheta = anglesDifference(theta,targetTheta );
     // theta -= deltaTheta * 0.015;
     if (!args?.forceRefresh) {
-      follower.positionRate = 1.5;
+      follower.positionRate = 5;
     }
 
     theta = targetTheta;

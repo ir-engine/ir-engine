@@ -4,7 +4,7 @@ import { DefaultInput } from '../../shared/DefaultInput';
 import { Input } from '../../../input/components/Input';
 import { CharacterComponent } from "../components/CharacterComponent";
 
-export const isMoving = (entity: Entity): boolean => {
+export const isMovingByInputs = (entity: Entity): boolean => {
   const { localMovementDirection } = getComponent(entity, CharacterComponent);
   return localMovementDirection.length() > 0;
 };

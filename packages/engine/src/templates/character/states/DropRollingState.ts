@@ -1,12 +1,13 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { setMovingStateOnAnimationEnd } from '../behaviors/setMovingStateOnAnimationEnd';
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
-import { setActorAnimation } from "../behaviors/setActorAnimation";
+import { setActorAnimation, setActorAnimationById } from "../behaviors/setActorAnimation";
 import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { CharacterComponent } from '../components/CharacterComponent';
+import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
 
 export const DropRollingState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
@@ -26,9 +27,9 @@ export const DropRollingState: StateSchemaValue = {
         args: { x: 0, y: 0, z: 0.8 }
       },
       {
-        behavior: setActorAnimation,
+        behavior: setActorAnimationById,
         args: {
-          name: 'sb_drop_running_roll',
+          name: CharacterAnimationsIds.DROP_ROLLING,
           transitionDuration: 0.5
         }
       }
@@ -41,8 +42,8 @@ export const DropRollingState: StateSchemaValue = {
     },
     { behavior: setMovingStateOnAnimationEnd,
       args: {
-        transitionToStateIfMoving: CharacterStateTypes.WALK,
-        transitionToStateIfNotMoving: CharacterStateTypes.WALK_END
+        transitionToStateIfMoving: CharacterStateTypes.MOVING,
+        transitionToStateIfNotMoving: CharacterStateTypes.IDLE
       }
   }]
 };
