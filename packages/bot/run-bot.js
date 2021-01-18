@@ -83,7 +83,7 @@ async function run() {
     botManager.addAction("bot2", new BotAction.keyPress("KeyA", moveDuratioon));
     botManager.addAction("bot2", new BotAction.sendMessage("Hello World! This is bot2."));
 
-    botManager.addAction("monitor", new BotAction.opIf((stats) => console.log(stats)));
+    // botManager.addAction("monitor", new BotAction.opIf((stats) => console.log(stats)));
 
     botManager.addAction("bot1", new BotAction.disconnect());
     botManager.addAction("bot2", new BotAction.disconnect());

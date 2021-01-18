@@ -2,6 +2,8 @@ const  {URL} = require('url')
 const  {BrowserLauncher} = require('./browser-launcher')
 const  InBrowserBot = require('./in-browser-bot')
 const  InBrowserBotBuilder = require('./in-browser-bot-builder')
+const  fs = require('fs');
+const  getOS = require('./platform');
 
 class PageUtils {
     constructor({page, autoLog = true}) {
@@ -114,15 +116,52 @@ class XR3ngineBot {
         })
     }
 
+    /**
+     * Detect OS platform and set google chrome path.
+     */
+    detectOsOption() {
+        const os = getOS();
+        const options = {};
+        let chromePath = '';
+        switch (os) {
+            case 'Mac OS':
+                chromePath = '/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome';
+                break;
+            case 'Windows':
+                chromePath = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe';
+                break;
+            case 'Linux':
+                chromePath = '/usr/bin/google-chrome';
+                break;
+            default:
+                break;
+        }
+
+        if (chromePath) {
+            if (fs.existsSync(chromePath)) {
+                options.executablePath = chromePath;
+            }
+            else {
+                console.warn("Warning! Please install Google Chrome to make bot workiing correctly in headless mode.\n");
+            }
+        }
+        return options;
+    }
+
     /** Launches the puppeteer browser instance. It is not necessary to call this
      *  directly in most cases. It will be done automatically when needed.
      */
     async launchBrowser () {
-        console.log('Launching browser')
-        this.browser = await BrowserLauncher.browser({headless: this.headless, args: [
-            '--ignore-certificate-errors'
-        ]});
-        console.log(this.browser)
+        console.log('Launching browser');
+        const options = {
+            headless: this.headless,
+            args: [
+                '--ignore-certificate-errors'
+            ],
+            ...this.detectOsOption()
+        };
+        
+        this.browser = await BrowserLauncher.browser(options);
         this.page = await this.browser.newPage();
 
         if (this.autoLog)
