@@ -4,7 +4,7 @@ import config from '../config';
 import app from "../app";
 
 export default class FacebookStrategy extends CustomOAuthStrategy {
-  async getEntityData (profile: any, params?: Params): Promise<any> {
+  async getEntityData (profile: any, entity: any, params?: Params): Promise<any> {
     const baseData = await super.getEntityData(profile, null, {});
     const userId = (params?.query) ? params.query.userId : undefined;
     return {
@@ -38,7 +38,16 @@ export default class FacebookStrategy extends CustomOAuthStrategy {
       return redirectHost + `?error=${err}`;
     } else {
       const token = data.accessToken as string;
-      return redirectHost + `?token=${token}&type=${type}`;
+      const redirect = params.redirect;
+      const redirectSplit = redirect.split(',');
+      const split0 = redirectSplit[0].split(':');
+      const split1 = redirectSplit.length > 1 ? redirectSplit[1].split(':') : null;
+      const path = split0[0] === 'path' ? split0[1] : split1 != null && split1[0] === 'path' ? split1[1] : null;
+      const instanceId = split0[0] === 'instanceId' ? split0[1] : split1 != null && split1[0] === 'instanceId' ? split1[1] : null;
+      let returned = redirectHost + `?token=${token}&type=${type}`;
+      if (path != null) returned = returned.concat(`&path=${path}`);
+      if (instanceId != null) returned = returned.concat(`&instanceId=${instanceId}`);
+      return returned;
     }
   }
 }
