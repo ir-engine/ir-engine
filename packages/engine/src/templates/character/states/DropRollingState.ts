@@ -8,6 +8,7 @@ import { CharacterStateGroups } from '../CharacterStateGroups';
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { CharacterComponent } from '../components/CharacterComponent';
 import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
+import { onAnimationEnded } from "../behaviors/onAnimationEnded";
 
 export const DropRollingState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
@@ -40,10 +41,18 @@ export const DropRollingState: StateSchemaValue = {
         setCameraRelativeOrientationTarget: true
       }
     },
-    { behavior: setMovingStateOnAnimationEnd,
+    {
+      behavior: onAnimationEnded,
       args: {
-        transitionToStateIfMoving: CharacterStateTypes.MOVING,
-        transitionToStateIfNotMoving: CharacterStateTypes.IDLE
+        transitionToState: CharacterStateTypes.IDLE
       }
-  }]
+    },
+    // {
+    //   behavior: setMovingStateOnAnimationEnd,
+    //   args: {
+    //     transitionToStateIfMoving: CharacterStateTypes.MOVING,
+    //     transitionToStateIfNotMoving: CharacterStateTypes.IDLE
+    //   }
+    // }
+  ]
 };

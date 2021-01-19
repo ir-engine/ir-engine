@@ -7,6 +7,8 @@ import { CharacterStateGroups } from '../CharacterStateGroups';
 import { jumpRunning } from "../behaviors/jumpRunning";
 import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
 import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
+import { onAnimationEnded } from "../behaviors/onAnimationEnded";
+import { CharacterStateTypes } from "../CharacterStateTypes";
 
 export const JumpRunningState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
@@ -34,11 +36,16 @@ export const JumpRunningState: StateSchemaValue = {
       }
   ],
   onUpdate: [
-    { behavior: updateCharacterState,
-    args: {
-      setCameraRelativeOrientationTarget: true
+    {
+      behavior: updateCharacterState,
+      args: {
+        setCameraRelativeOrientationTarget: true
+      }
+    },
+    { behavior: jumpRunning },
+    {
+      behavior: onAnimationEnded,
+      args: { transitionToState: CharacterStateTypes.FALLING }
     }
-  },
-    { behavior: jumpRunning }
   ]
 };

@@ -89,7 +89,9 @@ export const IdleState: StateSchemaValue = {
         // TODO: change it to speed relative to the ground?
         // real speed made by inputs.
         getPlayerMovementVelocity(entity, localSpaceMovementVelocity);
-        console.log('idle update moving', isMovingByInputs(entity), localSpaceMovementVelocity.length().toFixed(5));
+        // const actor = getComponent(entity, CharacterComponent);
+        // console.log('idle update moving', isMovingByInputs(entity), localSpaceMovementVelocity.length().toFixed(5),
+        //   actor.angularVelocity.toFixed());
 
         const animations = getMovingAnimationsByVelocity(localSpaceMovementVelocity);
         animations.forEach((value, animationId) => {
