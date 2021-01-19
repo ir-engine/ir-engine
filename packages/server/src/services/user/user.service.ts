@@ -7,10 +7,15 @@ import _ from 'lodash';
 import logger from '../../app/logger';
 
 declare module '../../declarations' {
+
+  /**
+   * Interface for users input
+   */
   interface ServiceTypes {
     'user': User & ServiceAddons<any>;
   }
 }
+
 
 export default (app: Application): void => {
   const options = {
@@ -24,7 +29,12 @@ export default (app: Application): void => {
   const service = app.service('user');
 
   service.hooks(hooks);
-
+  
+  /**
+   * This method find all users
+   * @returns users
+   */
+  
   service.publish('patched', async (data, params): Promise<any> => {
     try {
       const groupUsers = await app.service('group-user').Model.findAll({
