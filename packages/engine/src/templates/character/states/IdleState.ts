@@ -1,5 +1,5 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { CharacterComponent } from '../components/CharacterComponent';
+import { CharacterComponent, RUN_SPEED, WALK_SPEED } from '../components/CharacterComponent';
 import { setActorAnimation, setActorAnimationById } from "../behaviors/setActorAnimation";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { updateCharacterState } from "../behaviors/updateCharacterState";
@@ -8,7 +8,7 @@ import { setFallingState } from "../behaviors/setFallingState";
 import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
 import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
 import { findVehicle } from '../functions/findVehicle';
-import { getComponent } from '../../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { Input } from '../../../input/components/Input';
 import { isMovingByInputs } from '../functions/isMovingByInputs';
 import { addState } from "../../../state/behaviors/addState";
@@ -66,6 +66,15 @@ export const IdleState: StateSchemaValue = {
           // Default behavior for all states
           findVehicle(entity);
 
+          const input = getComponent(entity, Input);
+          const actor = getComponent(entity, CharacterComponent);
+          const isSprinting = (input.data.get(DefaultInput.SPRINT)?.value) === BinaryValue.ON;
+          const neededMovementSpeed = isSprinting? RUN_SPEED : WALK_SPEED;
+          if (actor.moveSpeed !== neededMovementSpeed) {
+            const writableActor = getMutableComponent(entity, CharacterComponent);
+            writableActor.moveSpeed = neededMovementSpeed;
+          }
+
           // Check if we're trying to jump
           if (trySwitchToJump(entity)) {
             return;
@@ -87,7 +96,7 @@ export const IdleState: StateSchemaValue = {
           setActorAnimationWeightScale(entity, {
             animationId: animationId,
             weight: value.weight,
-            scale: value.timeScale
+            scale: value.timeScale,
           });
         });
         // // Check if we stopped moving
@@ -96,9 +105,9 @@ export const IdleState: StateSchemaValue = {
         // }
       }
     },
-    {
-      behavior: trySwitchToMovingState
-    },
+    // {
+    //   behavior: trySwitchToMovingState
+    // },
      {
       behavior: setFallingState
     }
