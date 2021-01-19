@@ -158,3 +158,5 @@ packages/docs/public/
 packages/server/upload/
 
 .dccache
+.vscode/*
+.vscode

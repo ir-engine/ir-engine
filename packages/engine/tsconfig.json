@@ -4,14 +4,17 @@
     "module": "es2015",
     "declaration": true,
     "noImplicitAny": false,
-    "noImplicitThis": true,
     "target": "es2015",
     "moduleResolution": "node",
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "allowJs": true
+
+    /* Typedoc Changes */
+    "noImplicitThis": false,
+    "jsx": "preserve",
+    "skipLibCheck": true,
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "tsconfig.json"]
