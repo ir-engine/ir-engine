@@ -1,6 +1,11 @@
 import { Sequelize, DataTypes } from 'sequelize';
 import { Application } from '../declarations';
 
+/**
+ * Model for database entity 
+ * this model contain users setting 
+ */
+
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const UserSettings = sequelizeClient.define('user_settings', {

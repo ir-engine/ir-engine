@@ -38,7 +38,7 @@ const agonesSDK = new AgonesSDK();
 function healthPing(agonesSDK: AgonesSDK): void {
   try {
     agonesSDK.health();
-    setTimeout(() => healthPing(agonesSDK), 1000);
+    setTimeout(() => healthPing(agonesSDK), 100000);
   } catch(err) {
     console.log('Agones healthping error');
     console.log(err);
@@ -47,8 +47,9 @@ function healthPing(agonesSDK: AgonesSDK): void {
 
 app.set('nextReadyEmitter', emitter);
 
-console.log("***************** OPEN API PATH IS")
-console.log(process.cwd() + '/../openapi.html')
+console.log("***************** OPEN API PATH IS");
+console.log(process.cwd() + '/../openapi.html');
+
 
 if (config.server.enabled) {
   try {
@@ -67,6 +68,7 @@ if (config.server.enabled) {
           }
         })
     );
+    
 
     app.set('paginate', config.server.paginate);
     app.set('authentication', config.authentication);
