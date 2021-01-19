@@ -1028,7 +1028,7 @@ var GLTFLoader = (function () {
 
 		}
 
-		for (attributeName in primitive.attributes) {
+		for (let attributeName in primitive.attributes) {
 
 			var threeAttributeName = ATTRIBUTES[attributeName] || attributeName.toLowerCase();
 
