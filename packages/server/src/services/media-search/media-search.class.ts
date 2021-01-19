@@ -43,6 +43,11 @@ export class MediaSearch implements ServiceMethods<Data> {
         result = await googlePolyMediaInsance.searchGooglePolyMedia(params?.query);
         break;
       }
+      case 'asset': {
+        //TODO Do some stuff here to get user's assets
+        result = [];
+        break;
+      }
     }
     return result || [];
   }
