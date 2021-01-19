@@ -2,7 +2,7 @@ import { Matrix4, Quaternion, Scene, SkinnedMesh, Vector3 } from "three"
 import { Component } from "@xr3ngine/engine/src/ecs/classes/Component"
 import {
   copySkeleton,
-  countCharacters,
+  countActors as countCharacters,
   findArmature,
   findClosestParentBone,
   findEye,
@@ -15,7 +15,7 @@ import {
   findSpine,
   getTailBones,
   importSkeleton
-} from "../actor/functions/SkeletonFunctions"
+} from "./SkeletonFunctions"
 import skeletonString from "./Skeleton"
 import LegsManager from "./vrarmik/LegsManager"
 import PoseManager from "./vrarmik/PoseManager"
