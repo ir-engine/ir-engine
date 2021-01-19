@@ -65,7 +65,7 @@ import {
 import { FileLoader } from "./FileLoader.js";
 import Blob from "cross-blob";
 
-var GLTFLoader = (function () {
+let GLTFLoader = (function () {
 
 	function GLTFLoader(manager) {
 
@@ -3925,4 +3925,4 @@ var GLTFLoader = (function () {
 
 })();
 
-export { GLTFLoader };
+module.exports = { GLTFLoader };
