@@ -4,7 +4,7 @@ import config from '../config';
 import app from "../app";
 
 export default class Googlestrategy extends CustomOAuthStrategy {
-  async getEntityData (profile: any, params?: Params): Promise<any> {
+  async getEntityData (profile: any, entity: any, params?: Params): Promise<any> {
     const baseData = await super.getEntityData(profile, null, {});
     const userId = (params?.query) ? params.query.userId : undefined;
     return {
@@ -16,6 +16,7 @@ export default class Googlestrategy extends CustomOAuthStrategy {
   }
 
   async updateEntity(entity: any, profile: any, params?: Params): Promise<any> {
+    console.log('Google JWT auth');
     const authResult = await app.service('authentication').strategies.jwt.authenticate({ accessToken: params?.authentication?.accessToken }, {});
     const identityProvider = authResult['identity-provider'];
     const user = await app.service('user').get(entity.userId);
@@ -38,7 +39,16 @@ export default class Googlestrategy extends CustomOAuthStrategy {
       return redirectHost + `?error=${err}`;
     } else {
       const token = data.accessToken as string;
-      return redirectHost + `?token=${token}&type=${type}`;
+      const redirect = params.redirect;
+      const redirectSplit = redirect.split(',');
+      const split0 = redirectSplit[0].split(':');
+      const split1 = redirectSplit.length > 1 ? redirectSplit[1].split(':') : null;
+      const path = split0[0] === 'path' ? split0[1] : split1 != null && split1[0] === 'path' ? split1[1] : null;
+      const instanceId = split0[0] === 'instanceId' ? split0[1] : split1 != null && split1[0] === 'instanceId' ? split1[1] : null;
+      let returned = redirectHost + `?token=${token}&type=${type}`;
+      if (path != null) returned = returned.concat(`&path=${path}`);
+      if (instanceId != null) returned = returned.concat(`&instanceId=${instanceId}`);
+      return returned;
     }
   }
 }
