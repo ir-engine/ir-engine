@@ -7,7 +7,6 @@ import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/func
 import { DesiredTransformComponent } from '../../transform/components/DesiredTransformComponent';
 import { setCameraFollow } from './setCameraFollow';
 
-
 /**
  * 
  * @param args
