@@ -286,7 +286,7 @@ class LegsManager {
     const leftFootRotation = localQuaternion
     localMatrix3
       .compose(this.leftLeg.foot["stickTransform"].position, this.leftLeg.foot["stickTransform"].quaternion, oneVector)
-      .premultiply(planeMatrixInverse)
+      .premultiply(planeMatrixInverse as Matrix4)
       .decompose(leftFootPosition, leftFootRotation, fakeScale)
 
     const rightFootPosition = localVector5
@@ -297,7 +297,7 @@ class LegsManager {
         this.rightLeg.foot["stickTransform"].quaternion,
         oneVector
       )
-      .premultiply(planeMatrixInverse)
+      .premultiply(planeMatrixInverse as Matrix4)
       .decompose(rightFootPosition, rightFootRotation, fakeScale)
 
     // rotation
