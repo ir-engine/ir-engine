@@ -21,6 +21,6 @@ export const trySwitchToMovingState = (entity: Entity): boolean => {
   getPlayerMovementVelocity(entity, localSpaceMovementVelocity);
   if (!isMovingByInputs(entity) && localSpaceMovementVelocity.length() < 0.01) return false;
 
-  addState(entity, { state: CharacterStateTypes.MOVING });
+  addState(entity, { state: CharacterStateTypes.IDLE });
   return true;
 };

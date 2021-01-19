@@ -2,9 +2,10 @@ import { AnimationClip } from 'three';
 import { Behavior } from '../../../common/interfaces/Behavior';
 import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { CharacterComponent } from '../components/CharacterComponent';
-import { defaultAvatarAnimations, CharacterAvatars } from "../CharacterAvatars";
+import { defaultAvatarAnimations, CharacterAvatars, AnimationConfigInterface } from "../CharacterAvatars";
 import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
 import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
+import { getActorAnimationConfig } from "./getActorAnimationConfig";
 
 
 
@@ -17,16 +18,13 @@ export const setActorAnimationWeightScale: Behavior = (entity, args: { animation
   // if actor model is not yet loaded mixer could be empty
   if (!actor.mixer) return;
 
-  // TODO: get animation name from current avatar
-  const avatarId = getComponent(entity, CharacterAvatarComponent)?.avatarId;
-  const avatarAnimations = CharacterAvatars.find(a => a.id === avatarId)?.animations ?? defaultAvatarAnimations;
-  const avatarAnimationName = avatarAnimations[args.animationId];
-  if (!avatarAnimationName) {
+  const avatarAnimation: AnimationConfigInterface = getActorAnimationConfig(entity, args.animationId);
+  if (!avatarAnimation) {
     return;
   }
 
-  if (args.replaceCurrent && actor.currentAnimationAction && avatarAnimationName == actor.currentAnimationAction.getClip().name) {
-    console.log('setActorAnimation', avatarAnimationName, ', same animation already playing');
+  if (args.replaceCurrent && actor.currentAnimationAction && avatarAnimation.name == actor.currentAnimationAction.getClip().name) {
+    console.log('setActorAnimation', avatarAnimation.name, ', same animation already playing');
     return;
   }
 
@@ -36,16 +34,18 @@ export const setActorAnimationWeightScale: Behavior = (entity, args: { animation
     return;
   }
 
-  const clip = AnimationClip.findByName(actor.animations, avatarAnimationName );
+  const clip = AnimationClip.findByName(actor.animations, avatarAnimation.name );
   let action = actor.mixer.existingAction(clip, animationRoot);
   if (!action) {
     // get new action
     action = actor.mixer.clipAction(clip, animationRoot);
+    if (action === null) {
+      console.warn('setActorAnimation [', avatarAnimation.name, '], not found');
+      return;
+    }
   }
-
-  if (action === null) {
-    console.warn('setActorAnimation [', avatarAnimationName, '], not found');
-    return;
+  if (typeof avatarAnimation.loop !== "undefined") {
+    action.setLoop(avatarAnimation.loop, Infinity);
   }
 
   const weight = args.weight ?? 1;

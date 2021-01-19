@@ -32,7 +32,7 @@ export const FallingState: StateSchemaValue = {
       {
         behavior: setActorAnimationById,
         args: {
-          animationId: CharacterAnimationsIds.FALL,
+          animationId: CharacterAnimationsIds.FALLING,
           transitionDuration: 0.5
         }
       }

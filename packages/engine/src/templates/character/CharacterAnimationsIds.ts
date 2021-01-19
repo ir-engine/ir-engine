@@ -4,9 +4,10 @@ export enum CharacterAnimationsIds {
     IDLE_ROTATE_LEFT,
     JUMP,
     JUMP_RUNNING,
-    FALL,
-    DROP,
-    DROP_ROLLING,
+    FALLING, // light fall
+    FALLING_LONG, // falling for a long time, a bit panic?
+    DROP, // light landing
+    DROP_ROLLING, // hard landing
     WALK_FORWARD,
     WALK_BACKWARD,
     WALK_STRAFE_RIGHT,

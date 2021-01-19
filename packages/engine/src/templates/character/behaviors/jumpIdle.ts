@@ -23,7 +23,7 @@ export const jumpIdle: Behavior = (entity: Entity, args: null, delta: any): void
 	}
 
 	// Physically jump
-	if (actor.timer > 0.6 && !actor.alreadyJumped) {
+	if (!actor.alreadyJumped) {
 		jumpStart(entity, { initJumpSpeed: -1 });
 		actor.alreadyJumped = true;
 
@@ -38,12 +38,12 @@ export const jumpIdle: Behavior = (entity: Entity, args: null, delta: any): void
 
 	}
 
-	else if (actor.timer > 0.3) {
-			//setDropState(entity, null, delta);
-	}
-	if (actor.timer > 0.7) {
-		addState(entity, { state: CharacterStateTypes.FALLING });
-	}
+	// else if (actor.timer > 0.3) {
+	// 		//setDropState(entity, null, delta);
+	// }
+	// if (actor.timer > 0.7) {
+	// 	addState(entity, { state: CharacterStateTypes.FALLING });
+	// }
 //		onAnimationEnded(entity, { transitionToState: CharacterStateTypes.FALLING }, delta);
 
 };

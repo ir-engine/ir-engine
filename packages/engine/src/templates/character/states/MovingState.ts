@@ -24,6 +24,8 @@ import { trySwitchToMovingState } from "../behaviors/trySwitchToMovingState";
 
 const localSpaceMovementVelocity = new Vector3();
 
+// TODO: delete?
+
 export const MovingState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
   componentProperties: [{

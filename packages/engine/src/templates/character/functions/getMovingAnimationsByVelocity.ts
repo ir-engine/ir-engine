@@ -7,34 +7,23 @@ const {
     RUN_FORWARD, RUN_BACKWARD, RUN_STRAFE_LEFT, RUN_STRAFE_RIGHT
 } = CharacterAnimationsIds;
 
-interface AnimationWithTimeScaleAndWeight {
-    name: string,
-    weight: number,
-    timeScale: number
-}
-
 interface AnimationWeightScaleInterface {
     weight: number
     timeScale: number
 }
 
-interface InterfaceMovingAnimationsWeights {
-    [key:number]: AnimationWeightScaleInterface
-}
-
+// speed - what speed is represented by walk animation
+// TODO: move speed into animation config
 const animationAxisSpeed = [
-    { animationId: WALK_FORWARD, axis: 'z', range: [ 0, 1 ], run: false },
-    { animationId: WALK_BACKWARD, axis: 'z', range: [ -1, 0 ], run: false },
-    { animationId: WALK_STRAFE_LEFT, axis: 'x', range: [ 0, 1 ], run: false },
-    { animationId: WALK_STRAFE_RIGHT, axis: 'x', range: [ -1, 0 ], run: false },
-    { animationId: RUN_FORWARD, axis: 'z', range: [ 0, 1 ], run: true },
-    { animationId: RUN_BACKWARD, axis: 'z', range: [ -1, 0 ], run: true },
-    { animationId: RUN_STRAFE_LEFT, axis: 'x', range: [ 0, 1 ], run: true },
-    { animationId: RUN_STRAFE_RIGHT, axis: 'x', range: [ -1, 0 ], run: true },
+    { animationId: WALK_FORWARD, axis: 'z', speed: 2.2, range: [ 0, 1 ], run: false },
+    { animationId: WALK_BACKWARD, axis: 'z', speed: 1.5, range: [ -1, 0 ], run: false },
+    { animationId: WALK_STRAFE_LEFT, axis: 'x', speed: 2.2, range: [ 0, 1 ], run: false },
+    { animationId: WALK_STRAFE_RIGHT, axis: 'x', speed: 2.2, range: [ -1, 0 ], run: false },
+    { animationId: RUN_FORWARD, axis: 'z', speed: 6, range: [ 0, 1 ], run: true },
+    { animationId: RUN_BACKWARD, axis: 'z', speed: 5, range: [ -1, 0 ], run: true },
+    { animationId: RUN_STRAFE_LEFT, axis: 'x', speed: 6, range: [ 0, 1 ], run: true },
+    { animationId: RUN_STRAFE_RIGHT, axis: 'x', speed: 6, range: [ -1, 0 ], run: true },
 ];
-
-const WALK_ANIMATION_SPEED = 1;
-const RUN_ANIMATION_SPEED = 6;
 
 function getWeights(absSpeed): { idle: number, walk: number, run: number } {
     const speeds = {
@@ -69,8 +58,8 @@ export const getMovingAnimationsByVelocity = (localSpaceVelocity: Vector3): Map<
 
     const stateWeights = getWeights(localSpaceVelocity.length());
 
-    animationAxisSpeed.forEach(animationConfig => {
-        const { animationId, axis, range, run: isRun } = animationConfig;
+    animationAxisSpeed.forEach(animationWeightsConfig => {
+        const { animationId, axis, speed, range, run: isRun } = animationWeightsConfig;
 
         let timeScale = 1;
         let weight = Math.abs(MathUtils.clamp(direction[axis], range[0], range[1]));
@@ -82,7 +71,7 @@ export const getMovingAnimationsByVelocity = (localSpaceVelocity: Vector3): Map<
             const absSpeed = Math.abs(localSpaceVelocity[axis]);
 
             weight *= isRun ? stateWeights.run : stateWeights.walk;
-            timeScale = absSpeed / (isRun? RUN_ANIMATION_SPEED : WALK_ANIMATION_SPEED);
+            timeScale = absSpeed / speed;
             if (timeScale < 0.001) {
                 weight = 0;
                 timeScale = 0;
@@ -93,6 +82,11 @@ export const getMovingAnimationsByVelocity = (localSpaceVelocity: Vector3): Map<
     });
 
     animations.set(CharacterAnimationsIds.IDLE, { weight: stateWeights.idle, timeScale: 1 });
+
+    // console.log('active anims', Array.from(animations).filter(value => {
+    //     const [ animationId, weights ] = value;
+    //     return weights.weight > 0.001;
+    // }).map(value => CharacterAnimationsIds[value[0]] + '(' + (value[1].weight.toFixed(3)) + ')').join(','));
 
     return animations;
 };
