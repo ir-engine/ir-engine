@@ -91,17 +91,17 @@ export default function MediaSourcePanel({
         )}
       </AssetsPanelToolbar>
       <AssetPanelContentContainer>
-        {source.tags && (
+        {/*source.tags && (
           <TagList
             multiselect={multiselectTags}
             tags={source.tags}
             /* @ts-ignore */
-            selectedTags={params.tags}
+            /*selectedTags={params.tags}
             onChange={onChangeTags}
             initialExpandedTags={savedState.expandedTags}
             onChangeExpandedTags={onChangeExpandedTags}
           />
-        )}
+        )*/}
         <AssetGrid
           source={source}
           items={results}

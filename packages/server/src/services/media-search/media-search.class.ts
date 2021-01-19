@@ -37,6 +37,11 @@ export class MediaSearch implements ServiceMethods<Data> {
         result = await sketchFabMediaInstance.searchSketchFabMedia(params?.query);
         break;
       }
+      case 'asset': {
+        //TODO Do some stuff here to get user's assets
+        result = [];
+        break;
+      }
     }
     return result || [];
   }
