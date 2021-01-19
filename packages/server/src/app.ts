@@ -157,7 +157,10 @@ if (config.server.enabled) {
 
     if ((process.env.KUBERNETES === 'true' && config.server.mode === 'realtime') || process.env.NODE_ENV === 'development' || config.server.mode === 'local') {
       agonesSDK.connect();
-      agonesSDK.ready();
+      agonesSDK.ready().catch((err) => {
+        throw new Error('\x1b[33mError: Agones is not running!. If you are in local development, please run xr3ngine/scripts/sh start-agones.sh and restart server\x1b[0m');
+      });    
+
       (app as any).agonesSDK = agonesSDK;
       healthPing(agonesSDK);
 
