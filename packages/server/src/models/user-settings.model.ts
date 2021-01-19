@@ -2,6 +2,7 @@ import { Sequelize, DataTypes } from 'sequelize';
 import { Application } from '../declarations';
 
 /**
+ * 
  * Model for database entity 
  * this model contain users setting 
  */

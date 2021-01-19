@@ -3,12 +3,22 @@ import NodeDRACOLoader from "../loaders/gltf/NodeDRACOLoader";
 import { GLTFLoader } from "../loaders/gltf/GLTFLoader";
 import { AssetUrl } from "../types/AssetTypes";
 import { isClient } from "../../common/functions/isClient";
+
+/**
+ * Interface for result of the GLTF Asset load.
+ */
 export interface LoadGLTFResultInterface {
- scene: any;
- json: any;
- stats: any;
+    scene: any;
+    json: any;
+    stats: any;
 }
 
+/**
+ * Loads a Asset which is in GLTF format.
+ * 
+ * @param url - An Asset URL
+ * @returns a promise of LoadGLTFResultInterface
+ */
 export async function LoadGLTF(url: AssetUrl): Promise<LoadGLTFResultInterface> {
     return await new Promise<LoadGLTFResultInterface>((resolve, reject) => {
         const loader = new GLTFLoader();

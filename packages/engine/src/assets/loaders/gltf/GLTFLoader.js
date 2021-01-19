@@ -65,7 +65,7 @@ import {
 import { FileLoader } from "./FileLoader.js";
 import Blob from "cross-blob";
 
-var GLTFLoader = (function () {
+let GLTFLoader = (function () {
 
 	function GLTFLoader(manager) {
 
@@ -1028,7 +1028,7 @@ var GLTFLoader = (function () {
 
 		}
 
-		for (attributeName in primitive.attributes) {
+		for (let attributeName in primitive.attributes) {
 
 			var threeAttributeName = ATTRIBUTES[attributeName] || attributeName.toLowerCase();
 
@@ -3925,4 +3925,4 @@ var GLTFLoader = (function () {
 
 })();
 
-export { GLTFLoader };
+module.exports = { GLTFLoader };
