@@ -50,9 +50,6 @@ const server = {
   sketchFab: {
     authToken: process.env.SKETCH_FAB_AUTH_TOKEN ?? ''
   },
-  googlePoly: {
-    authToken: process.env.GOOGLE_POLY_AUTH_TOKEN ?? ''
-  },
   hub: {
     endpoint: process.env.HUB_ENDPOINT ?? 'https://xr3ngine.io'
   },
