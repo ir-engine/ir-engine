@@ -7,32 +7,32 @@ import logger from './app/logger';
 import config from './config';
 import psList from 'ps-list';
 
+/**
+ * @param status
+ */
+
 process.on('unhandledRejection', (error, promise) => {
   console.error('UNHANDLED REJECTION - Promise: ', promise, ', Error: ', error, ').');
 });
 
 (async () => {
   const processList = await (await psList()).filter(e => {
-    const regexp = /docker-compose up|start-agones|docker-proxy/gi;
+    const regexp = /docker-compose up|docker-proxy|mysql/gi;
     return e.cmd.match(regexp);
   });
-
-  const processDocker = processList.find(
+  const dockerProcess = processList.find(
     c => c.cmd.match(/docker-compose/)
   );
-  const processMysql = processList.find(
+  const dockerProxy = processList.find(
     c => c.cmd.match(/docker-proxy/)
   );
-  const processAgones = processList.find(
-    c => c.cmd.match(/start-agones/)
+  const processMysql = processList.find(
+    c => c.cmd.match(/mysql/)
   );
+  const databaseService = (dockerProcess && dockerProxy) || processMysql;
 
-  if (!processDocker) {
-    throw new Error('\x1b[33mError: Docker is not running!. If you are in local development, please run xr3ngine/scripts/start-db.sh and restart server\x1b[0m');
-  } else if (!processMysql) {
-    throw new Error('\x1b[33mError: Could not find database!. If you are in local development, please run xr3ngine/scripts/start-db.sh and restart server\x1b[0m');
-  } else if (!processAgones) {
-    throw new Error('\x1b[33mError:Agones not running!, please proceed into dir script and run sh start-agones.sh\x1b[0m');
+  if (!databaseService) {
+    throw new Error('\x1b[33mError: DB procces is not running or Docker is not running!. If you are in local development, please run xr3ngine/scripts/start-db.sh and restart server\x1b[0m');
   }
 })();
 
