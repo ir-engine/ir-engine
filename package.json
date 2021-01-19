@@ -51,7 +51,7 @@
     "test"
   ],
   "resolutions": {
-    "socket.io": "^2.4.1"
+    "socket.io": "2.4.1"
   },
   "peerDependencies": {
     "@feathersjs/authentication": "^4.5.8",
@@ -73,7 +73,7 @@
     "mediasoup-client": "^3.6.12",
     "sequelize": "~5.21.8",
     "three": "^0.123.0",
-    "socket.io": "^2.4.1"
+    "socket.io": "2.4.1"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.11.5",
