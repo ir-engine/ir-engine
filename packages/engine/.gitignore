@@ -105,6 +105,7 @@ typings/
 
 build/
 dist/
+**/docs/
 
 .DS_Store
 
