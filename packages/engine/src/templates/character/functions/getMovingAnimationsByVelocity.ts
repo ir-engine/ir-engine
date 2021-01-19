@@ -36,10 +36,38 @@ const animationAxisSpeed = [
 const WALK_ANIMATION_SPEED = 1;
 const RUN_ANIMATION_SPEED = 6;
 
+function getWeights(absSpeed): { idle: number, walk: number, run: number } {
+    const speeds = {
+        idle: 1,
+        walk: 0,
+        run: 0
+    };
+
+    if (absSpeed > 0) {
+        speeds.idle = 0;
+        // idle|   idle  +  walk     |    walk      |    walk + run     |   run
+        // 0   | > WALK_START_SPEED  | > WALK_SPEED | > RUN_START_SPEED | > RUN_SPEED
+        if (absSpeed <= WALK_START_SPEED) {
+            speeds.walk = MathUtils.smoothstep(absSpeed, 0, WALK_START_SPEED);
+            speeds.idle = 1 - speeds.walk;
+        } else if (absSpeed <= WALK_SPEED) {
+            speeds.walk = 1;
+        } else if (absSpeed <= RUN_START_SPEED) {
+            speeds.run = MathUtils.smoothstep(absSpeed, WALK_SPEED, RUN_START_SPEED);
+            speeds.walk = 1 - speeds.run;
+        } else {
+            speeds.run = 1;
+        }
+    }
+
+    return speeds;
+}
+
 export const getMovingAnimationsByVelocity = (localSpaceVelocity: Vector3): Map<number, AnimationWeightScaleInterface> => {
     const animations = new Map<number, AnimationWeightScaleInterface>();
     const direction = localSpaceVelocity.clone().normalize();
-    let idleWeight = 1;
+
+    const stateWeights = getWeights(localSpaceVelocity.length());
 
     animationAxisSpeed.forEach(animationConfig => {
         const { animationId, axis, range, run: isRun } = animationConfig;
@@ -52,41 +80,19 @@ export const getMovingAnimationsByVelocity = (localSpaceVelocity: Vector3): Map<
              */
             // calc influence of each animation by it's weight
             const absSpeed = Math.abs(localSpaceVelocity[axis]);
-            let localIdleWeight = 1;
-            let runWeight = 0;
-            let walkWeight = 0;
-            if (absSpeed > 0) {
-                // idle|   idle  +  walk     |    walk      |    walk + run     |   run
-                // 0   | > WALK_START_SPEED  | > WALK_SPEED | > RUN_START_SPEED | > RUN_SPEED
-                if (absSpeed <= WALK_START_SPEED) {
-                    localIdleWeight = MathUtils.smoothstep(absSpeed, 0, WALK_START_SPEED);
-                    walkWeight = 1 - localIdleWeight;
-                } else if (absSpeed <= WALK_SPEED) {
-                    walkWeight = 1;
-                } else if (absSpeed <= RUN_START_SPEED) {
-                    runWeight = MathUtils.smoothstep(absSpeed, WALK_SPEED, RUN_START_SPEED);
-                    walkWeight = 1 - runWeight;
-                } else {
-                    runWeight = 1;
-                }
-            }
 
-            weight *= isRun ? runWeight : walkWeight;
+            weight *= isRun ? stateWeights.run : stateWeights.walk;
             timeScale = absSpeed / (isRun? RUN_ANIMATION_SPEED : WALK_ANIMATION_SPEED);
             if (timeScale < 0.001) {
                 weight = 0;
                 timeScale = 0;
-            } else {
-                if (localIdleWeight > 0.001) {
-                    idleWeight = Math.min(idleWeight, localIdleWeight);
-                }
             }
         }
 
         animations.set(animationId, { weight, timeScale });
     });
 
-    // animations.set(CharacterAnimationsIds.IDLE, { weight: idleWeight, timeScale: 1 });
+    animations.set(CharacterAnimationsIds.IDLE, { weight: stateWeights.idle, timeScale: 1 });
 
     return animations;
 };
