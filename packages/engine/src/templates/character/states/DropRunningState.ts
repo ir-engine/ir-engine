@@ -1,12 +1,11 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { onAnimationEnded } from '../behaviors/onAnimationEnded';
-import { setActorAnimation } from "../behaviors/setActorAnimation";
+import { setActorAnimationById } from "../behaviors/setActorAnimation";
 import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
 import { CharacterStateTypes } from '../CharacterStateTypes';
-import { CharacterComponent } from '../components/CharacterComponent';
 import { isMovingByInputs } from '../functions/isMovingByInputs';
 import { DefaultInput } from '../../shared/DefaultInput';
 import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
@@ -14,6 +13,7 @@ import { findVehicle } from '../functions/findVehicle';
 import { getComponent } from '../../../ecs/functions/EntityFunctions';
 import { Input } from '../../../input/components/Input';
 import { addState } from "../../../state/behaviors/addState";
+import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
 
 export const DropRunningState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
@@ -26,9 +26,9 @@ export const DropRunningState: StateSchemaValue = {
       args: { x: 0, y: 0, z: 0.8 }
     },
     {
-      behavior: setActorAnimation,
+      behavior: setActorAnimationById,
       args: {
-        name: 'run_to_stop',
+        name: CharacterAnimationsIds.DROP_ROLLING,
         transitionDuration: 0.1
       }
     }

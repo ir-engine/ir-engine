@@ -8,7 +8,7 @@ import { CharacterStateTypes } from "../../templates/character/CharacterStateTyp
 
 export const removeState: Behavior = (entity: Entity, args: { state: StateAlias }): void => {
   // check state group
-  console.log('removeState', CharacterStateTypes[args.state], '(', args.state, ')' );
+  // console.log('removeState', CharacterStateTypes[args.state], '(', args.state, ')' );
   const stateComponent = getComponent(entity, State);
   if (stateComponent.data.has(args.state)) {
     stateComponent.data.delete(args.state);

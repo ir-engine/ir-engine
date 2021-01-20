@@ -9,7 +9,7 @@ import { addState } from './addState';
 import { CharacterStateTypes } from "../../templates/character/CharacterStateTypes";
 
 export const toggleState: Behavior = (entity: Entity, args: { value: BinaryType; stateType: StateAlias }): void => {
-  console.log('--toggleState', CharacterStateTypes[args.stateType], '(', args.stateType, args.value, ')' );
+  // console.log('--toggleState', CharacterStateTypes[args.stateType], '(', args.stateType, args.value, ')' );
   if (args.value === BinaryValue.ON) addState(entity, args);
   else removeState(entity, args);
 };

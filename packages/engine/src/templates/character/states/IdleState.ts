@@ -1,6 +1,6 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { CharacterComponent, RUN_SPEED, WALK_SPEED } from '../components/CharacterComponent';
-import { setActorAnimation, setActorAnimationById } from "../behaviors/setActorAnimation";
+import { setActorAnimationById } from "../behaviors/setActorAnimation";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
@@ -10,9 +10,6 @@ import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfM
 import { findVehicle } from '../functions/findVehicle';
 import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { Input } from '../../../input/components/Input';
-import { isMovingByInputs } from '../functions/isMovingByInputs';
-import { addState } from "../../../state/behaviors/addState";
-import { CharacterStateTypes } from '../CharacterStateTypes';
 import { trySwitchToMovingState } from '../behaviors/trySwitchToMovingState';
 import { Entity } from '../../../ecs/classes/Entity';
 import { DefaultInput } from "../../shared/DefaultInput";
@@ -69,7 +66,7 @@ export const IdleState: StateSchemaValue = {
           const input = getComponent(entity, Input);
           const actor = getComponent(entity, CharacterComponent);
           const isSprinting = (input.data.get(DefaultInput.SPRINT)?.value) === BinaryValue.ON;
-          const neededMovementSpeed = isSprinting? RUN_SPEED : WALK_SPEED;
+          const neededMovementSpeed = isSprinting ? RUN_SPEED : WALK_SPEED;
           if (actor.moveSpeed !== neededMovementSpeed) {
             const writableActor = getMutableComponent(entity, CharacterComponent);
             writableActor.moveSpeed = neededMovementSpeed;
@@ -85,13 +82,8 @@ export const IdleState: StateSchemaValue = {
       }
     },
     {
-      behavior: (entity:Entity): void => {
-        // TODO: change it to speed relative to the ground?
-        // real speed made by inputs.
+      behavior: (entity: Entity): void => {
         getPlayerMovementVelocity(entity, localSpaceMovementVelocity);
-        // const actor = getComponent(entity, CharacterComponent);
-        // console.log('idle update moving', isMovingByInputs(entity), localSpaceMovementVelocity.length().toFixed(5),
-        //   actor.angularVelocity.toFixed());
 
         const animations = getMovingAnimationsByVelocity(localSpaceMovementVelocity);
         animations.forEach((value, animationId) => {
@@ -101,16 +93,9 @@ export const IdleState: StateSchemaValue = {
             scale: value.timeScale,
           });
         });
-        // // Check if we stopped moving
-        // if (!isMovingByInputs(entity) && localSpaceMovementVelocity.length() < 0.001) {
-        //   addState(entity, { state: CharacterStateTypes.IDLE });
-        // }
       }
     },
-    // {
-    //   behavior: trySwitchToMovingState
-    // },
-     {
+    {
       behavior: setFallingState
     }
   ]
