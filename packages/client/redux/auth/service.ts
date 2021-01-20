@@ -68,8 +68,6 @@ export function doLoginAuto (allowGuest?: boolean, forceClientAuthReset?: boolea
       let res;
       try {
         res = await (client as any).reAuthenticate();
-        console.log('reAuthenticate result:');
-        console.log(res);
       } catch(err) {
         if (err.className === 'not-found') {
           await dispatch(didLogout());
@@ -183,9 +181,11 @@ export function loginUserByOAuth(service: string) {
     const token = getState().get('auth').get('authUser').accessToken;
     const path = window.location.pathname;
     const queryString = querystring.parse(window.location.search.slice(1));
-    let redirect = `path:${path}`;
-    if (queryString.instanceId && queryString.instanceId.length > 0) redirect += `,instanceId:${queryString.instanceId}`;
-    let redirectUrl = `${apiServer}/oauth/${service}?feathers_token=${token}&redirect=${redirect}`;
+    const redirectObject = {
+      path: path
+    } as any;
+    if (queryString.instanceId && queryString.instanceId.length > 0) redirectObject.instanceId = queryString.instanceId;
+    let redirectUrl = `${apiServer}/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(redirectObject)}`;
 
     window.location.href = redirectUrl;
   };
