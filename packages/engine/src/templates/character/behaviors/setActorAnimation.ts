@@ -5,6 +5,7 @@ import { CharacterComponent } from '../components/CharacterComponent';
 import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
 import { AnimationConfigInterface, CharacterAvatars, defaultAvatarAnimations } from "../CharacterAvatars";
 import { getActorAnimationConfig } from "./getActorAnimationConfig";
+import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
 
 export const setActorAnimationById: Behavior = (entity, args: { animationId: number; transitionDuration: number }) => {
   const actor = getComponent(entity, CharacterComponent);
@@ -15,6 +16,7 @@ export const setActorAnimationById: Behavior = (entity, args: { animationId: num
 
   const avatarAnimation: AnimationConfigInterface = getActorAnimationConfig(entity, args.animationId);
   if (!avatarAnimation) {
+    console.error(`setActorAnimation - animation not found for:[${CharacterAnimationsIds[args.animationId]}](${args.animationId})`, args.transitionDuration);
     return;
   }
   return setActorAnimationNew(entity, { name: avatarAnimation.name, transitionDuration: args.transitionDuration, loop: avatarAnimation.loop });

@@ -10,9 +10,9 @@ import { RaycastResult, Vec3 } from 'cannon-es';
 // idle|   idle  +  walk     |    walk      |    walk + run     |   run
 // 0   | > WALK_START_SPEED  | > WALK_SPEED | > RUN_START_SPEED | > RUN_SPEED
 export const WALK_START_SPEED = 0.1;
-export const WALK_SPEED = 0.5;
-export const RUN_START_SPEED = 2;
-export const RUN_SPEED = 3;
+export const WALK_SPEED = 2;
+export const RUN_START_SPEED = 3;
+export const RUN_SPEED = 5;
 
 export class CharacterComponent extends Component<CharacterComponent> {
 
