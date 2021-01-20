@@ -1,0 +1,4 @@
+title: db;; workdir: $PWD/scripts;; command: sudo ./start-db.sh;; profile: /bin/bash
+title: agones;; workdir: $PWD/scripts;; command: sh start-agones.sh;; profile: /bin/bash
+title: server;; workdir: $PWD/packages/server;; command: yarn dev;; profile: /bin/bash
+title: client;; workdir: $PWD/packages/client;; command: yarn dev;; profile: /bin/bash
