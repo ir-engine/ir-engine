@@ -206,35 +206,10 @@ const BottomDrawer = (props: Props): any => {
         }
     };
 
-    const getMessageUser = (message: Message): User => {
-        let user;
-        const channel = channels.get(message.channelId);
-        if (channel.channelType === 'user') {
-            user = channel.userId1 === message.senderId ? channel.user1 : channel.user2;
-        } else if (channel.channelType === 'group') {
-            const groupUser = _.find(channel.group.groupUsers, (groupUser) => {
-                return groupUser.userId === message.senderId;
-            });
-            user = groupUser != null ? groupUser.user : {};
-        } else if (channel.channelType === 'party') {
-            const partyUser = _.find(channel.party.partyUsers, (partyUser) => {
-                return partyUser.userId === message.senderId;
-            });
-            user = partyUser != null ? partyUser.user : {};
-        } else if (channel.channelType === 'instance') {
-            const instanceUser = _.find(channel.instance.instanceUsers, (instanceUser) => {
-                return instanceUser.id === message.senderId;
-            });
-            user = instanceUser != null ? instanceUser : {};
-        }
-
-        return user;
-    };
-
     const generateMessageSecondary = (message: Message): string => {
         const date = moment(message.createdAt).format('MMM D YYYY, h:mm a');
         if (message.senderId !== user.id) {
-            return `${getMessageUser(message).name? getMessageUser(message).name : 'A former user'} on ${date}`;
+            return `${message?.sender?.name ? message.sender.name : 'A former user'} on ${date}`;
         }
         else {
             return date;
@@ -340,7 +315,7 @@ const BottomDrawer = (props: Props): any => {
                                     <div>
                                         { message.senderId !== user.id &&
                                             <ListItemAvatar>
-                                                <Avatar src={getMessageUser(message).avatarUrl}/>
+                                                <Avatar src={message.sender?.avatarUrl}/>
                                             </ListItemAvatar>
                                         }
                                         {messageUpdatePending !== message.id &&
