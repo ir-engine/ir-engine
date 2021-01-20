@@ -23,7 +23,7 @@ export const setActorAnimationWeightScale: Behavior = (entity, args: { animation
     return;
   }
 
-  if (args.replaceCurrent && actor.currentAnimationAction && avatarAnimation.name == actor.currentAnimationAction.getClip().name) {
+  if (args.replaceCurrent && actor.currentAnimationAction && avatarAnimation.name === actor.currentAnimationAction.getClip().name) {
     console.log('setActorAnimation', avatarAnimation.name, ', same animation already playing');
     return;
   }
