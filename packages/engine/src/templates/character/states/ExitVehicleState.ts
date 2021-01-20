@@ -1,7 +1,6 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { CharacterComponent } from '../components/CharacterComponent';
-import { setActorAnimation, setActorAnimationById } from "../behaviors/setActorAnimation";
-import { setFallingState } from "../behaviors/setFallingState";
+import { setActorAnimationById } from "../behaviors/setActorAnimation";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';

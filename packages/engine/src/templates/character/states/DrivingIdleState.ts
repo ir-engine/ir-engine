@@ -1,6 +1,6 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
-import { setActorAnimation, setActorAnimationById } from "../behaviors/setActorAnimation";
+import { setActorAnimationById } from "../behaviors/setActorAnimation";
 import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';

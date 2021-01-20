@@ -19,18 +19,12 @@ export const setActorAnimationById: Behavior = (entity, args: { animationId: num
     console.error(`setActorAnimation - animation not found for:[${CharacterAnimationsIds[args.animationId]}](${args.animationId})`, args.transitionDuration);
     return;
   }
-  return setActorAnimationNew(entity, { name: avatarAnimation.name, transitionDuration: args.transitionDuration, loop: avatarAnimation.loop });
+  return setActorAnimation(entity, { name: avatarAnimation.name, transitionDuration: args.transitionDuration, loop: avatarAnimation.loop });
 };
 
 export const setActorAnimation: Behavior = (entity, args: { name: string; transitionDuration: number, loop: AnimationActionLoopStyles }) => {
-  console.warn('setActorAnimation IS OUTDATED! use setActorAnimationById');
-  setActorAnimationNew(entity, args);
-};
-
-export const setActorAnimationNew: Behavior = (entity, args: { name: string; transitionDuration: number, loop: AnimationActionLoopStyles }) => {
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-
-  console.log('setActorAnimation', args.name, args.transitionDuration, args.loop);
+  // console.log('setActorAnimation', args.name, args.transitionDuration, args.loop);
 
   // Actor isn't initialized yet, so skip the animation
   if(!actor.initialized) return;

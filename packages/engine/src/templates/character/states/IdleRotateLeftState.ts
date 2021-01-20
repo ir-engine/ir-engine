@@ -2,7 +2,7 @@ import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { setFallingState } from "../behaviors/setFallingState";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { onAnimationEnded } from '../behaviors/onAnimationEnded';
-import { setActorAnimation, setActorAnimationById } from "../behaviors/setActorAnimation";
+import { setActorAnimationById } from "../behaviors/setActorAnimation";
 import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
@@ -13,6 +13,7 @@ import { findVehicle } from '../functions/findVehicle';
 import { trySwitchToJump } from "../behaviors/trySwitchToJump";
 import { trySwitchToMovingState } from "../behaviors/trySwitchToMovingState";
 import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
+import { Entity } from "../../../ecs/classes/Entity";
 
 // Idle Behavior
 export const IdleRotateLeftState: StateSchemaValue = {
@@ -52,12 +53,12 @@ export const IdleRotateLeftState: StateSchemaValue = {
     {
       behavior: triggerActionIfMovementHasChanged,
       args: {
-        action: (entity) => {
+        action: (entity: Entity): void => {
           // Default behavior for all states
           findVehicle(entity);
           // Check if we're trying to jump
           if (trySwitchToJump(entity)) {
-            return
+            return;
           }
 
           trySwitchToMovingState(entity);

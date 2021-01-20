@@ -1,14 +1,11 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { CharacterComponent } from '../components/CharacterComponent';
-import { setActorAnimation, setActorAnimationById } from "../behaviors/setActorAnimation";
+import { setActorAnimationById } from "../behaviors/setActorAnimation";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
-import { onAnimationEnded } from '../behaviors/onAnimationEnded';
 import { setTargetVelocityIfMoving } from '../behaviors/setTargetVelocityIfMoving';
 import { setDropState } from '../behaviors/setDropState';
-import { IdleState } from './IdleState';
-import { CharacterStateTypes } from '../CharacterStateTypes';
 import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
 import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
 

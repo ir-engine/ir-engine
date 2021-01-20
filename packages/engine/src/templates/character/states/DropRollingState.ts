@@ -1,7 +1,6 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { setMovingStateOnAnimationEnd } from '../behaviors/setMovingStateOnAnimationEnd';
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
-import { setActorAnimation, setActorAnimationById } from "../behaviors/setActorAnimation";
+import { setActorAnimationById } from "../behaviors/setActorAnimation";
 import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
@@ -20,23 +19,24 @@ export const DropRollingState: StateSchemaValue = {
     }
   }],
   onEntry: [
-      {
-        behavior: initializeCharacterState
-      },
-      {
-        behavior: setArcadeVelocityTarget,
-        args: { x: 0, y: 0, z: 0.8 }
-      },
-      {
-        behavior: setActorAnimationById,
-        args: {
-          animationId: CharacterAnimationsIds.DROP_ROLLING,
-          transitionDuration: 0.5
-        }
+    {
+      behavior: initializeCharacterState
+    },
+    {
+      behavior: setArcadeVelocityTarget,
+      args: { x: 0, y: 0, z: 0.8 }
+    },
+    {
+      behavior: setActorAnimationById,
+      args: {
+        animationId: CharacterAnimationsIds.DROP_ROLLING,
+        transitionDuration: 0.5
       }
-    ],
+    }
+  ],
   onUpdate: [
-    { behavior: updateCharacterState,
+    {
+      behavior: updateCharacterState,
       args: {
         setCameraRelativeOrientationTarget: true
       }
@@ -46,13 +46,6 @@ export const DropRollingState: StateSchemaValue = {
       args: {
         transitionToState: CharacterStateTypes.IDLE
       }
-    },
-    // {
-    //   behavior: setMovingStateOnAnimationEnd,
-    //   args: {
-    //     transitionToStateIfMoving: CharacterStateTypes.MOVING,
-    //     transitionToStateIfNotMoving: CharacterStateTypes.IDLE
-    //   }
-    // }
+    }
   ]
 };
