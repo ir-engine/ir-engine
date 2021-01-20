@@ -236,7 +236,7 @@ export function logoutUser () {
       .catch(() => dispatch(didLogout()))
       .finally(() => {
         dispatch(actionProcessing(false));
-        doLoginAuto(true, true)(dispatch);
+        // doLoginAuto(true, true)(dispatch);
       });
   };
 }
