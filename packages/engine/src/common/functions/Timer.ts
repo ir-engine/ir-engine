@@ -15,6 +15,8 @@ export function Timer (
   let accumulated = 0;
   let delta = 0;
   let frameId;
+  let elapsedTime = 0;
+  let interval = 1 / 120;
 
   function render(time) {
     if (Engine.xrSession) {
@@ -56,16 +58,21 @@ export function Timer (
       if (last !== null) {
         delta = (time - last) / 1000;
         accumulated = accumulated + delta;
+        elapsedTime += delta;
 
-        if (fixedRunner) {
-          fixedRunner.run(delta);
+        if (elapsedTime > interval) {
+          if (fixedRunner) {
+            fixedRunner.run(delta);
+          }
+
+          if (networkRunner) {
+            networkRunner.run(delta);
+          }
+
+          if (callbacks.update) callbacks.update(delta, accumulated);
+
+          elapsedTime = elapsedTime % interval;
         }
-
-        if (networkRunner) {
-          networkRunner.run(delta);
-        }
-
-        if (callbacks.update) callbacks.update(delta, accumulated);
       }
       last = time;
       if (callbacks.render) callbacks.render();
@@ -96,7 +103,7 @@ export function Timer (
     stop: stop
   };
 }
-function requestAnimationFrameOnServer (f) {
+function requestAnimationFrameOnServer(f) {
   setImmediate(() => f(Date.now()));
 }
 
