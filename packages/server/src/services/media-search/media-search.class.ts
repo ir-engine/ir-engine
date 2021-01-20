@@ -38,8 +38,15 @@ export class MediaSearch implements ServiceMethods<Data> {
         break;
       }
       case 'asset': {
-        //TODO Do some stuff here to get user's assets
-        result = [];
+         //TODO Do some stuff here to get user's assets
+         result = {
+          meta: {
+            source: null,
+            next_cursor: null
+          },
+          entries: [],
+          suggestions: null
+          };
         break;
       }
     }
