@@ -26,6 +26,7 @@ import { DefaultInput } from "../../../src/templates/shared/DefaultInput";
 import { InputType } from "../../../src/input/enums/InputType";
 import { LifecycleValue } from "../../../src/common/enums/LifecycleValue";
 import { BinaryValue } from "../../../src/common/enums/BinaryValue";
+import { CharacterAnimationsIds } from "../../../src/templates/character/CharacterAnimationsIds";
 
 const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
 // setActorAnimationModule.setActorAnimation = jest.fn((entity, args: { name: string; transitionDuration: number }) => {
@@ -33,20 +34,20 @@ const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initi
 // });
 const dummyObject = new Object3D();
 const dummyMixer = new AnimationMixer(dummyObject);
-const mockedAnimActions = new Map<string, AnimationAction>();
+const mockedAnimActions = new Map<CharacterAnimationsIds, AnimationAction>();
 jest.mock("../../../src/templates/character/behaviors/setActorAnimation", () => {
     return {
         __esModule: true,
         // default: jest.fn(() => 42),
-        setActorAnimation: jest.fn((entity, args: { name: string; transitionDuration: number }) => {
-            const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+        setActorAnimationById: jest.fn((entity, args: { animationId: number; transitionDuration: number }) => {
+            const actor = getMutableComponent(entity, CharacterComponent);
             let action: AnimationAction;
-            if (mockedAnimActions.has(args.name)) {
-                action = mockedAnimActions.get(args.name);
+            if (mockedAnimActions.has(args.animationId)) {
+                action = mockedAnimActions.get(args.animationId);
             } else {
-                const dummyClip = new AnimationClip(args.name, oneFixedRunTimeSpan * 2, []);
+                const dummyClip = new AnimationClip(String(args.animationId), oneFixedRunTimeSpan * 2, []);
                 action = dummyMixer.clipAction(dummyClip);
-                mockedAnimActions.set(args.name, action);
+                mockedAnimActions.set(args.animationId, action);
             }
             actor.currentAnimationAction = action;
             actor.currentAnimationLength = action.getClip().duration;
@@ -57,7 +58,7 @@ jest.mock("../../../src/templates/character/behaviors/setActorAnimation", () => 
 class TestTransport implements NetworkTransport {
     isServer = false;
 
-    handleKick(socket: any) {
+    handleKick(socket: unknown) {
     }
 
     initialize(address?: string, port?: number, opts?: {}): void | Promise<void> {
@@ -67,7 +68,7 @@ class TestTransport implements NetworkTransport {
     sendData(data: any): void {
     }
 
-    sendReliableData(data: any): void {
+    sendReliableData(data: unknown): void {
     }
 
 }

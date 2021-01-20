@@ -88,7 +88,7 @@ export const IdleState: StateSchemaValue = {
         const animations = getMovingAnimationsByVelocity(localSpaceMovementVelocity);
         animations.forEach((value, animationId) => {
           setActorAnimationWeightScale(entity, {
-            animationId: animationId,
+            animationId,
             weight: value.weight,
             scale: value.timeScale,
           });
