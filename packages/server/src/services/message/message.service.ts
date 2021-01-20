@@ -24,6 +24,7 @@ export default (app: Application): any => {
   service.hooks(hooks);
 
   service.publish('created', async (data): Promise<any> => {
+    data.sender = await app.service('user').get(data.senderId);
     const channel = await app.service('channel').get(data.channelId);
     let targetIds = [];
     if (channel.channelType === 'party') {
@@ -72,6 +73,7 @@ export default (app: Application): any => {
   });
 
   service.publish('removed', async (data): Promise<any> => {
+    data.sender = await app.service('user').get(data.senderId);
     const channel = await app.service('channel').get(data.channelId);
     let targetIds = [];
     if (channel.channelType === 'party') {
@@ -120,6 +122,7 @@ export default (app: Application): any => {
   });
 
   service.publish('patched', async (data): Promise<any> => {
+    data.sender = await app.service('user').get(data.senderId);
     const channel = await app.service('channel').get(data.channelId);
     let targetIds = [];
     if (channel.channelType === 'party') {
