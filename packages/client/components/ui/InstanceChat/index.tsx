@@ -119,46 +119,6 @@ const InstanceChat = (props: Props): any => {
         setComposingMessage('');
     };
 
-    const getMessageUser = (message: Message): User => {
-        let user;
-        const channel = channels.get(message.channelId);
-        if (channel.channelType === 'user') {
-            user = channel.userId1 === message.senderId ? channel.user1 : channel.user2;
-        } else if (channel.channelType === 'group') {
-            const groupUser = _.find(channel.group.groupUsers, (groupUser) => {
-                return groupUser.userId === message.senderId;
-            });
-            user = groupUser != null ? groupUser.user : {};
-        } else if (channel.channelType === 'party') {
-            const partyUser = _.find(channel.party.partyUsers, (partyUser) => {
-                return partyUser.userId === message.senderId;
-            });
-            user = partyUser != null ? partyUser.user : {};
-        } else if (channel.channelType === 'instance') {
-            const instanceUser = _.find(channel.instance.instanceUsers, (instanceUser) => {
-                return instanceUser.id === message.senderId;
-            });
-            user = instanceUser != null ? instanceUser : {};
-        }
-
-        return user;
-    };
-
-    // const generateMessageSecondary = (message: Message): string => {
-    //     const date = moment(message.createdAt).format('MMM D YYYY, h:mm a');
-    //     if (message.senderId !== user.id) {
-    //         return `${getMessageUser(message).name? getMessageUser(message).name : 'A former user'} on ${date}`;
-    //     }
-    //     else {
-    //         return date;
-    //     }
-    // };
-
-    // const openDrawer = (e): void => {
-    //     setActiveChat(activeChannel);
-    //     openBottomDrawer(e);
-    // };
-
     const [openMessageContainer, setOpenMessageContainer] = React.useState(false);
     const [isMultiline, setIsMultiline] = React.useState(false);
     const hideShowMessagesContainer = () => {
@@ -166,6 +126,12 @@ const InstanceChat = (props: Props): any => {
         openMessageContainer && setUnreadMessages(false);
     };
 
+    const getMessageUser = (message): string => {
+        let returned = message.sender?.name;
+        if (message.senderId === user.id) returned += ' (you)';
+        returned += ': ';
+        return returned;
+    };
 
     useEffect(() => {
         activeChannel && activeChannel.messages && activeChannel.messages.length > 0 && !openMessageContainer && setUnreadMessages(true);
@@ -190,10 +156,10 @@ const InstanceChat = (props: Props): any => {
                                     >
                                         <div>
                                             {!isMobileOrTablet() && <ListItemAvatar>
-                                                <Avatar src={getMessageUser(message).avatarUrl} />
+                                                <Avatar src={message.sender?.avatarUrl} />
                                             </ListItemAvatar>}
                                             <ListItemText
-                                                primary={<p><span className={styles.userName} color="primary">{getMessageUser(message).name + ': '}</span>{message.text}</p>}
+                                                primary={<p><span className={styles.userName} color="primary">{getMessageUser(message)}</span>{message.text}</p>}
                                             />
                                         </div>
                                     </ListItem>;
