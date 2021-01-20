@@ -637,4 +637,4 @@ DRACOLoader.getDecoderModule = function () {
 
 };
 
-module.exports = { DRACOLoader }
+export { DRACOLoader }

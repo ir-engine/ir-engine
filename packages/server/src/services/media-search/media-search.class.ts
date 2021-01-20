@@ -1,5 +1,4 @@
 import SketchFabMedia from './sketch-fab.class';
-import GooglePolyMedia from './google-poly.class';
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 
@@ -36,11 +35,6 @@ export class MediaSearch implements ServiceMethods<Data> {
       case 'sketchfab': {
         const sketchFabMediaInstance = new SketchFabMedia();
         result = await sketchFabMediaInstance.searchSketchFabMedia(params?.query);
-        break;
-      }
-      case 'poly': {
-        const googlePolyMediaInsance = new GooglePolyMedia();
-        result = await googlePolyMediaInsance.searchGooglePolyMedia(params?.query);
         break;
       }
       case 'asset': {

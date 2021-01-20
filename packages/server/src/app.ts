@@ -51,7 +51,6 @@ app.set('nextReadyEmitter', emitter);
 console.log("***************** OPEN API PATH IS");
 console.log(process.cwd() + '/../openapi.html');
 
-
 if (config.server.enabled) {
   try {
     app.configure(

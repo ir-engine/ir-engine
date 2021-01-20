@@ -3925,4 +3925,4 @@ let GLTFLoader = (function () {
 
 })();
 
-module.exports = { GLTFLoader };
+export { GLTFLoader };
