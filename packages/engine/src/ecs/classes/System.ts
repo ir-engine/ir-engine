@@ -41,7 +41,7 @@ export interface SystemConstructor<T extends System> {
  * Interface for not components.
  * 
  * @typeparam C Subclass of {@link ecs/classes/Component.Component | Component}.
- * */
+ **/
 export interface NotComponent<C extends Component<any>> {
   /** Type is set to 'not' to make a not component. */
   type: 'not';
