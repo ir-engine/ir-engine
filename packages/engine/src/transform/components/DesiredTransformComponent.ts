@@ -13,12 +13,20 @@ export class DesiredTransformComponent extends Component<DesiredTransformCompone
     this.reset();
   }
 
-  copy(src: { position?: Vector3, rotation?: Vector3 }): this {
+  copy(src: { position?: Vector3, rotation?: Quaternion }): this {
     if (src.position) {
-      this.position.copy(src.position);
+      if (this.position) {
+        this.position.copy(src.position);
+      } else {
+        this.position = src.position.clone();
+      }
     }
     if (src.rotation) {
-      this.rotation.setFromEuler(new Euler().setFromVector3(src.rotation,'XYZ'));
+      if (this.rotation) {
+        this.rotation.copy(src.rotation);
+      } else {
+        this.rotation = src.rotation.clone();
+      }
     }
 
     return this;

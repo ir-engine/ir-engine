@@ -60,7 +60,7 @@ class TestTransport implements NetworkTransport {
     handleKick(socket: any) {
     }
 
-    initialize(address?: string, port?: number, opts?: Object): void | Promise<void> {
+    initialize(address?: string, port?: number, opts?: {}): void | Promise<void> {
         return undefined;
     }
 
