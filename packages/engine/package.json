@@ -25,7 +25,8 @@
   "scripts": {
     "lint": "node node_modules/.bin/eslint --fix --quiet --ext .ts src/",
     "test": "jest",
-    "validate": "yarn run lint && yarn run test"
+    "validate": "yarn run lint && yarn run test",
+    "generate-doc": "node_modules/.bin/typedoc"
   },
   "version": "0.2.0",
   "peerDependencies": {

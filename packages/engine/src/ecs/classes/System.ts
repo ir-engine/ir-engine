@@ -7,14 +7,22 @@ import { Engine } from './Engine';
 import { Entity } from './Entity';
 import { Query } from './Query';
 
+/** Interface for System attributes. */
 export interface SystemAttributes {
+  /** Priority of an Attribute. */
   priority?: number;
+
+  /** Name of the property. */
   [propName: string]: any;
 }
 
+/** Interface for system queries. */
 export interface SystemQueries {
+  /** @param queryName name of query. */
   [queryName: string]: {
     components: Array<ComponentConstructor<any> | NotComponent<any>>;
+
+    /** Whether query listens to events like added, removed or changed. */
     listen?: {
       added?: boolean;
       removed?: boolean;
@@ -23,16 +31,28 @@ export interface SystemQueries {
   };
 }
 
+/** Interface for system */
 export interface SystemConstructor<T extends System> {
   isSystem: true;
   new (...args: any): T;
 }
 
+/** 
+ * Interface for not components.
+ * 
+ * @typeparam C Subclass of {@link ecs/classes/Component.Component | Component}.
+ * */
 export interface NotComponent<C extends Component<any>> {
+  /** Type is set to 'not' to make a not component. */
   type: 'not';
+
+  /** Component object. */
   Component: ComponentConstructor<C>;
 }
 
+/**
+ * Abstract class to define System properties.
+ */
 export abstract class System {
   /**
    * Defines what Components the System will query for.
@@ -65,10 +85,20 @@ export abstract class System {
    * Whether the system will execute during the world tick.
    */
   enabled: boolean
+
+  /** Name of the System. */
   name: string
+
+  /** Queries of system instances. */
   _queries: {} = {}
+
+  /** Execute Method definition. */
   execute? (delta: number, time: number): void
 
+  /**
+   * Initializes system
+   * @param attributes User defined system attributes.
+   */
   constructor (attributes?: SystemAttributes) {
     this.enabled = true;
 
@@ -175,10 +205,16 @@ export abstract class System {
     c.order = Engine.systems.length;
   }
 
-  static getName () {
+  /** Get name of the System */
+  static getName (): string {
     return (this.constructor as any).getName();
   }
 
+  /** 
+   * Get query from the component.
+   * 
+   * @param components List of components either component or not component.
+   */
   getQuery (components: Array<ComponentConstructor<any> | NotComponent<any>>): Query {
     const key = queryKeyFromComponents(components);
     let query = this._queries[key];
@@ -188,16 +224,18 @@ export abstract class System {
     return query;
   }
 
+  /** Stop the system. */
   stop (): void {
     this.executeTime = 0;
     this.enabled = false;
   }
 
+  /** Plays the system. */
   play (): void {
     this.enabled = true;
   }
 
-
+  /** Clears event queues. */
   clearEventQueues (): void {
     for (const queryName in this.queryResults) {
       const query = this.queryResults[queryName];
@@ -218,10 +256,11 @@ export abstract class System {
       }
     }
   }
-dispose(){
-  
-}
-  toJSON () {
+
+  dispose(): void {}
+
+  /** Serialize the System */
+  toJSON (): any {
     const json = {
       name: this.name,
       enabled: this.enabled,
