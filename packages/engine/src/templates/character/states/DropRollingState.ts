@@ -30,7 +30,7 @@ export const DropRollingState: StateSchemaValue = {
       {
         behavior: setActorAnimationById,
         args: {
-          name: CharacterAnimationsIds.DROP_ROLLING,
+          animationId: CharacterAnimationsIds.DROP_ROLLING,
           transitionDuration: 0.5
         }
       }

@@ -30,7 +30,7 @@ export const jumpIdle: Behavior = (entity: Entity, args: null, delta: any): void
 		actor.velocitySimulator.mass = 100;
 		actor.rotationSimulator.damping = 0.3;
 
-		if (actor.rayResult.body.velocity.length() > 0) {
+		if (actor.rayResult?.body?.velocity.length() > 0) {
 			actor.arcadeVelocityInfluence.set(0, 0, 0);
 		} else {
 			actor.arcadeVelocityInfluence.set(0.3, 0, 0.3);
