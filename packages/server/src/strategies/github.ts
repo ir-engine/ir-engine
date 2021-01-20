@@ -24,8 +24,13 @@ export default class GithubStrategy extends CustomOAuthStrategy {
       userRole: user?.userRole === 'admin' ? 'admin' : 'user'
     });
     if (entity.type !== 'guest') {
-      await app.service('identity-provider').remove(identityProvider.id);
+      const oldEntity = Object.assign({}, entity);
+      await app.service('identity-provider').remove(oldEntity.id);
       await app.service('user').remove(identityProvider.userId);
+      entity = identityProvider;
+      await app.service('identity-provider').patch(entity.id, {
+        userId: oldEntity.userId
+      });
     }
     return super.updateEntity(entity, profile, params);
   }
@@ -43,15 +48,17 @@ export default class GithubStrategy extends CustomOAuthStrategy {
     } else {
       const token = data.accessToken as string;
       const redirect = params.redirect;
-      const redirectSplit = redirect.split(',');
-      const split0 = redirectSplit[0].split(':');
-      const split1 = redirectSplit.length > 1 ? redirectSplit[1].split(':') : null;
-      const path = split0[0] === 'path' ? split0[1] : split1 != null && split1[0] === 'path' ? split1[1] : null;
-      const instanceId = split0[0] === 'instanceId' ? split0[1] : split1 != null && split1[0] === 'instanceId' ? split1[1] : null;
+      let parsedRedirect;
+      try {
+        parsedRedirect = JSON.parse(redirect);
+      } catch(err) {
+        parsedRedirect = {};
+      }
+      const path = parsedRedirect.path;
+      const instanceId = parsedRedirect.instanceId;
       let returned = redirectHost + `?token=${token}&type=${type}`;
       if (path != null) returned = returned.concat(`&path=${path}`);
       if (instanceId != null) returned = returned.concat(`&instanceId=${instanceId}`);
-      console.log('Redirecting to ' + returned);
       return returned;
     }
   }
