@@ -1,12 +1,10 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { CharacterComponent } from '../components/CharacterComponent';
-import { setActorAnimation } from "../behaviors/setActorAnimation";
+import { setActorAnimationById } from "../behaviors/setActorAnimation";
 import { setFallingState } from "../behaviors/setFallingState";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
-import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
-import { setArcadeVelocityInfluence } from '../behaviors/setArcadeVelocityInfluence';
 import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
 import { findVehicle } from '../functions/findVehicle';
 import { getComponent } from '../../../ecs/functions/EntityFunctions';
@@ -14,8 +12,11 @@ import { Input } from '../../../input/components/Input';
 import { DefaultInput } from '../../shared/DefaultInput';
 import { addState } from "../../../state/behaviors/addState";
 import { CharacterStateTypes } from '../CharacterStateTypes';
-import { isMoving } from '../functions/isMoving';
+import { isMovingByInputs } from '../functions/isMovingByInputs';
 import { setIdleState } from '../behaviors/setIdleState';
+import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
+
+/** @deprecated */
 
 export const SprintState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
@@ -33,9 +34,9 @@ export const SprintState: StateSchemaValue = {
       behavior: initializeCharacterState
     },
     {
-      behavior: setActorAnimation,
+      behavior: setActorAnimationById,
       args: {
-        name: 'run_forward',
+        name: CharacterAnimationsIds.RUN_FORWARD,
         transitionDuration: 1
       }
     }
@@ -88,7 +89,7 @@ export const SprintState: StateSchemaValue = {
           return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING });
 
         // If we're not moving, don't worry about the rest of this action
-        if (!isMoving(entity))
+        if (!isMovingByInputs(entity))
           return addState(entity, { state: CharacterStateTypes.WALK_END });
       }
     }

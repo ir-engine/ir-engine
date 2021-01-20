@@ -1,22 +1,19 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { CharacterComponent } from '../components/CharacterComponent';
-import { setActorAnimation } from "../behaviors/setActorAnimation";
+import { setActorAnimationById } from "../behaviors/setActorAnimation";
 import { setFallingState } from "../behaviors/setFallingState";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
 import { onAnimationEnded } from '../behaviors/onAnimationEnded';
-import { IdleState } from './IdleState';
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
 import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
 import { findVehicle } from '../functions/findVehicle';
-import { getComponent } from '../../../ecs/functions/EntityFunctions';
-import { Input } from '../../../input/components/Input';
-import { DefaultInput } from '../../shared/DefaultInput';
-import { addState } from "../../../state/behaviors/addState";
-import { isMoving } from '../functions/isMoving';
-import { setAppropriateStartWalkState } from '../behaviors/setStartWalkState';
+import { trySwitchToJump } from "../behaviors/trySwitchToJump";
+import { trySwitchToMovingState } from "../behaviors/trySwitchToMovingState";
+import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
+import { Entity } from "../../../ecs/classes/Entity";
 
 export const IdleRotateRightState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
@@ -38,9 +35,9 @@ export const IdleRotateRightState: StateSchemaValue = {
         behavior: initializeCharacterState
       },
       {
-        behavior: setActorAnimation,
+        behavior: setActorAnimationById,
         args: {
-          name: 'sb_rotate_right',
+          animationId: CharacterAnimationsIds.IDLE_ROTATE_RIGHT,
           transitionDuration: 0.1
         }
       }
@@ -55,23 +52,15 @@ export const IdleRotateRightState: StateSchemaValue = {
     {
       behavior: triggerActionIfMovementHasChanged,
       args: {
-        action: (entity) => {
+        action: (entity: Entity): void => {
           // Default behavior for all states
           findVehicle(entity);
-          const input = getComponent(entity, Input);
           // Check if we're trying to jump
-          if (input.data.has(DefaultInput.JUMP))
-            return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING });
-            
-          // If we're not moving, don't worry about the rest of this action
-          if (!isMoving(entity)) return;
+          if (trySwitchToJump(entity)) {
+            return;
+          }
 
-          // If our character is moving or being moved, go to walk state
-          if (getComponent(entity, CharacterComponent).velocity.length() > 0.5)
-            return addState(entity, { state: CharacterStateTypes.WALK });
-
-          // Otherwise set the appropriate walk state
-          setAppropriateStartWalkState(entity);
+          trySwitchToMovingState(entity);
         }
       }
     },
