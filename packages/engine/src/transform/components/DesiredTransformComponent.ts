@@ -3,8 +3,8 @@ import { Vector3, Quaternion, Euler } from 'three';
 import { Types } from '../../ecs/types/Types';
 
 export class DesiredTransformComponent extends Component<DesiredTransformComponent> {
-  position: Vector3
-  rotation: Quaternion
+  position: Vector3|null
+  rotation: Quaternion|null
   positionRate: number
   rotationRate: number
 
@@ -13,26 +13,34 @@ export class DesiredTransformComponent extends Component<DesiredTransformCompone
     this.reset();
   }
 
-  copy(src: { position?: Vector3, rotation?: Vector3 }): this {
+  copy(src: { position?: Vector3, rotation?: Quaternion }): this {
     if (src.position) {
-      this.position.copy(src.position);
+      if (this.position) {
+        this.position.copy(src.position);
+      } else {
+        this.position = src.position.clone();
+      }
     }
     if (src.rotation) {
-      this.rotation.setFromEuler(new Euler().setFromVector3(src.rotation,'XYZ'));
+      if (this.rotation) {
+        this.rotation.copy(src.rotation);
+      } else {
+        this.rotation = src.rotation.clone();
+      }
     }
 
     return this;
   }
 
   reset (): void {
-    this.position = new Vector3();
-    this.rotation = new Quaternion();
+    this.position = null;
+    this.rotation = null;
   }
 }
 
 DesiredTransformComponent._schema = {
-  position: { default: new Vector3(), type: Types.Ref },
-  rotation: { default: new Quaternion(), type: Types.Ref },
+  position: { default: null, type: Types.Ref },
+  rotation: { default: null, type: Types.Ref },
   positionRate: { default: 1.5, type: Types.Number },
   rotationRate: { default: 3.5, type: Types.Number }
 };
