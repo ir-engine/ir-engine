@@ -18,8 +18,11 @@ export function Timer (
   let accumulated = 0;
   let delta = 0;
   let frameId;
+
+  const fpsLimit = 120;
+  const interval = 1 / fpsLimit;
   let elapsedTime = 0;
-  let interval = 1 / 120;
+  let updateFrame = true;
 
   const newEngineTicks = {
     fixed: 0,
@@ -87,28 +90,34 @@ export function Timer (
       if (last !== null) {
         delta = (time - last) / 1000;
         accumulated = accumulated + delta;
+
         elapsedTime += delta;
+        updateFrame = fpsLimit && (elapsedTime > interval)
 
-        if (fixedRunner) {
-          tpsSubMeasureStart('fixed');
-          fixedRunner.run(delta);
-          tpsSubMeasureEnd('fixed');
-        }
+        if (updateFrame) {
+          if (fixedRunner) {
+            tpsSubMeasureStart('fixed');
+            fixedRunner.run(delta);
+            tpsSubMeasureEnd('fixed');
+          }
+  
+          if (networkRunner) {
+            tpsSubMeasureStart('net');
+            networkRunner.run(delta);
+            tpsSubMeasureEnd('net');
+          }
+  
+          if (callbacks.update) {
+            tpsSubMeasureStart('update');
+            callbacks.update(delta, accumulated);
+            tpsSubMeasureEnd('update');
+          }
 
-        if (networkRunner) {
-          tpsSubMeasureStart('net');
-          networkRunner.run(delta);
-          tpsSubMeasureEnd('net');
-        }
-
-        if (callbacks.update) {
-          tpsSubMeasureStart('update');
-          callbacks.update(delta, accumulated);
-          tpsSubMeasureEnd('update');
+          elapsedTime %= interval;
         }
       }
       last = time;
-      if (callbacks.render) {
+      if (callbacks.render && updateFrame) {
         tpsSubMeasureStart('render');
         callbacks.render();
         tpsSubMeasureEnd('render');
@@ -153,6 +162,7 @@ export function Timer (
     console.log('Timer - net  :', newEngineTicks.net, ', tps:', (newEngineTicks.net / seconds).toFixed(1), " ms per tick:", (newEngineTimeSpent.net / newEngineTicks.net));
     console.log('Timer - other:', newEngineTicks.update, ', tps:', (newEngineTicks.update / seconds).toFixed(1), " ms per tick:", (newEngineTimeSpent.update / newEngineTicks.update));
     console.log('Timer runs: +', timerRuns - prevTimerRuns);
+    console.log('==================================================');
 
     tpsPrevTime = time;
     nextTpsReportTime = time + TPS_REPORT_INTERVAL_MS;
