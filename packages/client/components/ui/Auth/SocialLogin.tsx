@@ -8,9 +8,7 @@ import FacebookIcon from '@material-ui/icons/Facebook';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import {
-  loginUserByGithub,
-  loginUserByGoogle,
-  loginUserByFacebook
+  loginUserByOAuth
 } from '../../../redux/auth/service';
 import styles from './Auth.module.scss';
 
@@ -19,9 +17,7 @@ const mapStateToProps = (state: any): any => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  loginUserByGithub: bindActionCreators(loginUserByGithub, dispatch),
-  loginUserByGoogle: bindActionCreators(loginUserByGoogle, dispatch),
-  loginUserByFacebook: bindActionCreators(loginUserByFacebook, dispatch)
+  loginUserByOAuth: bindActionCreators(loginUserByOAuth, dispatch)
 });
 
 interface Props {
@@ -29,9 +25,7 @@ interface Props {
   enableFacebookSocial?: boolean;
   enableGithubSocial?: boolean;
   enableGoogleSocial?: boolean;
-  loginUserByGithub?: typeof loginUserByGithub;
-  loginUserByGoogle?: typeof loginUserByGoogle;
-  loginUserByFacebook?: typeof loginUserByFacebook;
+  loginUserByOAuth?: typeof loginUserByOAuth;
 }
 
 const SocialLogin = (props: Props): any => {
@@ -39,24 +33,22 @@ const SocialLogin = (props: Props): any => {
     enableFacebookSocial,
     enableGithubSocial,
     enableGoogleSocial,
-    loginUserByFacebook,
-    loginUserByGoogle,
-    loginUserByGithub
+    loginUserByOAuth
   } = props;
 
   const handleGithubLogin = (e: any): void => {
     e.preventDefault();
-    loginUserByGithub();
+    loginUserByOAuth('github');
   };
 
   const handleGoogleLogin = (e: any): void => {
     e.preventDefault();
-    loginUserByGoogle();
+    loginUserByOAuth('google');
   };
 
   const handleFacebookLogin = (e: any): void => {
     e.preventDefault();
-    loginUserByFacebook();
+    loginUserByOAuth('facebook');
   };
 
   const githubButton = enableGithubSocial ? (

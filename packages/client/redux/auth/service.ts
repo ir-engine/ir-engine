@@ -38,8 +38,8 @@ import axios from 'axios';
 import { resolveAuthUser } from '@xr3ngine/common/interfaces/AuthUser';
 import { resolveUser } from '@xr3ngine/common/interfaces/User';
 import store from "../store";
-import { Network } from '@xr3ngine/engine/src/networking/components/Network';
 import { endVideoChat, leave, setPartyId } from '../../classes/transports/WebRTCFunctions';
+import querystring from 'querystring';
 
 const { publicRuntimeConfig } = getConfig();
 const apiServer: string = publicRuntimeConfig.apiServer;
@@ -175,33 +175,27 @@ export function loginUserByPassword (form: EmailLoginForm) {
   };
 }
 
-export function loginUserByGithub () {
+export function loginUserByOAuth(service: string) {
   return (dispatch: Dispatch, getState: any): any => {
     dispatch(actionProcessing(true));
     const token = getState().get('auth').get('authUser').accessToken;
-    window.location.href = `${apiServer}/oauth/github?feathers_token=${token}`;
-  };
-}
+    const path = window.location.pathname;
+    const queryString = querystring.parse(window.location.search.slice(1));
+    const redirectObject = {
+      path: path
+    } as any;
+    if (queryString.instanceId && queryString.instanceId.length > 0) redirectObject.instanceId = queryString.instanceId;
+    let redirectUrl = `${apiServer}/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(redirectObject)}`;
 
-export function loginUserByGoogle () {
-  return (dispatch: Dispatch, getState: any): any => {
-    dispatch(actionProcessing(true));
-    const token = getState().get('auth').get('authUser').accessToken;
-    window.location.href = `${apiServer}/oauth/google?feathers_token=${token}`;
-  };
-}
-
-export function loginUserByFacebook () {
-  return (dispatch: Dispatch, getState: any): any => {
-    dispatch(actionProcessing(true));
-    const token = getState().get('auth').get('authUser').accessToken;
-    window.location.href = `${apiServer}/oauth/facebook?feathers_token=${token}`;
+    window.location.href = redirectUrl;
   };
 }
 
 export function loginUserByJwt (accessToken: string, redirectSuccess: string, redirectError: string, subscriptionId?: string): any {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
+      console.log('loginUserByJWT');
+      console.log(accessToken);
       dispatch(actionProcessing(true));
       const res = await (client as any).authenticate({
         strategy: 'jwt',
