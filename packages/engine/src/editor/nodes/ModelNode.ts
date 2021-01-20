@@ -14,7 +14,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   static legacyComponentName = "gltf-model";
   static initialElementProps = {
     initialScale: "fit",
-    src: "https://sketchfab.com/models/a4c500d7358a4a199b6a5cd35f416466"
+    src: ""
   };
 
   meshColliders = []
