@@ -19,10 +19,9 @@ export function Timer (
   let delta = 0;
   let frameId;
 
-  const fpsLimit = 120;
-  const interval = 1 / fpsLimit;
-  let elapsedTime = 0;
-  let updateFrame = true;
+  const freeUpdatesLimit = 120;
+  const freeUpdatesLimitInterval = 1 / freeUpdatesLimit;
+  let freeUpdatesTimer = 0;
 
   const newEngineTicks = {
     fixed: 0,
@@ -91,33 +90,36 @@ export function Timer (
         delta = (time - last) / 1000;
         accumulated = accumulated + delta;
 
-        elapsedTime += delta;
-        updateFrame = fpsLimit && (elapsedTime > interval)
+        if (fixedRunner) {
+          tpsSubMeasureStart('fixed');
+          fixedRunner.run(delta);
+          tpsSubMeasureEnd('fixed');
+        }
 
+        if (networkRunner) {
+          tpsSubMeasureStart('net');
+          networkRunner.run(delta);
+          tpsSubMeasureEnd('net');
+        }
+
+        if (freeUpdatesLimit) {
+          freeUpdatesTimer += delta;
+        }
+        const updateFrame = !freeUpdatesLimit || freeUpdatesTimer > freeUpdatesLimitInterval;
         if (updateFrame) {
-          if (fixedRunner) {
-            tpsSubMeasureStart('fixed');
-            fixedRunner.run(delta);
-            tpsSubMeasureEnd('fixed');
-          }
-  
-          if (networkRunner) {
-            tpsSubMeasureStart('net');
-            networkRunner.run(delta);
-            tpsSubMeasureEnd('net');
-          }
-  
           if (callbacks.update) {
             tpsSubMeasureStart('update');
             callbacks.update(delta, accumulated);
             tpsSubMeasureEnd('update');
           }
 
-          elapsedTime %= interval;
+          if (freeUpdatesLimit) {
+            freeUpdatesTimer %= freeUpdatesLimitInterval;
+          }
         }
       }
       last = time;
-      if (callbacks.render && updateFrame) {
+      if (callbacks.render) {
         tpsSubMeasureStart('render');
         callbacks.render();
         tpsSubMeasureEnd('render');
