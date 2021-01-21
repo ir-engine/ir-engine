@@ -6,8 +6,5 @@ import { getComponent } from '../../ecs/functions/EntityFunctions';
 
 export const hasState: Behavior = (entity: Entity, args: { state: StateAlias }): boolean => {
   // check state group
-  const stateComponent = getComponent(entity, State);
-  if (stateComponent.data.has(args.state))
-    return true;
-  return false;
+  return !!getComponent(entity, State)?.data.has(args.state)
 };

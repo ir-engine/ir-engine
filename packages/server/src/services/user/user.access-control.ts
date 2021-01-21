@@ -1,3 +1,8 @@
+/**
+ * @Object which declare permission of user based 
+ * on their role  
+ */
+
 const accessControls = {
   admin: {
     listScope: 'all',

@@ -7,6 +7,10 @@ import { QueryTypes } from 'sequelize';
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils';
 import { Forbidden } from '@feathersjs/errors';
 
+/**
+ * This class used to find user 
+ * and returns founded users 
+ */
 export class User extends Service {
   app: Application
 
@@ -15,7 +19,14 @@ export class User extends Service {
     this.app = app;
   }
 
-  async find (params: Params): Promise<any> {
+  /**
+   * @function find it is used to find specific users
+   * 
+   * @param params user id 
+   * @returns {@Array} of found users 
+   */
+
+  async find (params: Params): Promise<any> { 
     const action = params.query?.action;
     const skip = params.query?.$skip ? params.query.$skip : 0;
     const limit = params.query?.$limit ? params.query.$limit : 10;
