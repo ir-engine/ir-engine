@@ -57,11 +57,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 export const EnginePage: FunctionComponent = (props: any) => {
   const {
-    authState,
-    instanceConnectionState,
-    partyState,
-    connectToInstanceServer,
-    provisionInstanceServer,
     onBoardingStep
   } = props;
   const [hoveredLabel, setHoveredLabel] = useState('');

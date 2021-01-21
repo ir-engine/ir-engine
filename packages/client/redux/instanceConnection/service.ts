@@ -5,10 +5,10 @@ import { endVideoChat, leave } from "../../classes/transports/WebRTCFunctions";
 import { client } from '../feathers';
 import store from "../store";
 import {
-  instanceServerConnected, instanceServerConnecting,
-
-
-  instanceServerProvisioned, instanceServerProvisioning
+  instanceServerConnected,
+  instanceServerConnecting,
+  instanceServerProvisioned,
+  instanceServerProvisioning
 } from './actions';
 
 export function provisionInstanceServer(locationId: string, instanceId?: string, sceneId?: string) {
