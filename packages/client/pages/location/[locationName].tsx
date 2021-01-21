@@ -33,6 +33,9 @@ import { selectPartyState } from '../../redux/party/selector';
 import { setAppSpecificOnBoardingStep, generalStateList } from '../../redux/app/actions';
 import store from '../../redux/store';
 import { setCurrentScene } from '../../redux/scenes/actions';
+import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
+import { getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 
 interface Props {
   appState?: any;
@@ -196,6 +199,11 @@ const LocationPage = (props: Props) => {
 
     initializeEngine(InitializationOptions);
     loadScene(result);
+    const cameraTransform = getMutableComponent<TransformComponent>(	
+      CameraComponent.instance.entity,	
+      TransformComponent	
+    );	
+    cameraTransform.position.set(0, 1.2, 10);
   }
 
   const goHome = () => window.location.href = window.location.origin;

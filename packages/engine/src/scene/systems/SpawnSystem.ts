@@ -36,12 +36,17 @@ export class ServerSpawnSystem extends System {
               spawnTransform.position.y,
               spawnTransform.position.z
             );
+            console.log('SpawnSystem1')
             actor.actorCapsule.body.quaternion.set(
               spawnTransform.rotation.x,
               spawnTransform.rotation.y,
               spawnTransform.rotation.z,
               spawnTransform.rotation.w
             );
+            console.log('SpawnSystem2')
+            
+            console.log('SPAWN CONSOLE!!!',actor.actorCapsule, spawnTransform)
+            // debugger;
             // Remove the component
             removeComponent(entity, TeleportToSpawnPoint);
         });
