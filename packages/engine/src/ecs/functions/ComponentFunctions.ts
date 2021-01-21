@@ -1,3 +1,5 @@
+/** Functions to provide component level functionalities. */
+
 import { Component } from '../classes/Component';
 import { ComponentConstructor } from '../interfaces/ComponentInterfaces';
 import { ObjectPool } from '../classes/ObjectPool';
@@ -17,7 +19,7 @@ const proxyHandler = {
 };
 
 /**
- * Use the Not function to negate a component query.
+ * Use the Not function to negate a component.
  */
 export function Not<C extends Component<any>>(Component: ComponentConstructor<C>): NotComponent<C> {
   return {
@@ -27,7 +29,7 @@ export function Not<C extends Component<any>>(Component: ComponentConstructor<C>
 }
 
 /**
- * Make a component read-only
+ * Make a component read-only.
  */
 export function wrapImmutableComponent<T> (component: Component<T>): T {
   if (component === undefined) {
@@ -45,8 +47,8 @@ export function wrapImmutableComponent<T> (component: Component<T>): T {
 }
 
 /**
- * Register a component with the engine
- * Note: This happens automatically if a component is a member of a system query
+ * Register a component with the engine.\
+ * **Note:** This happens automatically if a component is a member of a system query.
  */
 export function registerComponent<C extends Component<any>> (
   Component: ComponentConstructor<C>,
@@ -87,26 +89,28 @@ export function registerComponent<C extends Component<any>> (
 }
 
 /**
- * Check if the component has been registered
- * Components will autoregister when added to an entity or included as a member of a query, so you shouldn't need this
+ * Check if the component has been registered.\
+ * Components will autoregister when added to an entity or included as a member of a query, so don't have to check manually.
  */
 export function hasRegisteredComponent<C extends Component<any>> (Component: ComponentConstructor<C>): boolean {
   return Engine.components.includes(Component);
 }
 
 /**
- * Return the pool containing all of the objects for this component type
+ * Return the pool containing all of the objects for this component type.
+ * 
+ * @param component Component to get pool. This component's type is used to get the pool.
  */
 export function getPoolForComponent (component: Component<any>): void {
   Engine.componentPool[component._typeId];
 }
 
 /**
- * Get a key from a list of components
- * @param {Array(Component)} Components Array of components to generate the key
- * @private
+ * Get a key from a list of components.
+ * 
+ * @param Components Array of components to generate the key.
  */
-export function queryKeyFromComponents (Components) {
+export function queryKeyFromComponents (Components: any[]): string {
   const ids = [];
   for (let n = 0; n < Components.length; n++) {
     const T = Components[n];
@@ -125,27 +129,23 @@ export function queryKeyFromComponents (Components) {
   return ids.sort().join('-');
 }
 
-  /**
- * check if component is registered
+/**
+ * Check if component is registered.
  */
-export function componentRegistered (T) {
+export function componentRegistered (T): boolean {
   return (typeof T === 'object' && T.Component._typeId !== undefined) || (T._typeId !== undefined);
 }
 
 /**
  * Return the name of a component
- * @param {Component} Component
- * @private
  */
-export function getName (Component) {
+export function getName (Component): string {
   return Component.getName();
 }
 
 /**
  * Return a valid property name for the Component
- * @param {Component} Component
- * @private
  */
-export function componentPropertyName (Component) {
+export function componentPropertyName (Component): string {
   return getName(Component);
 }

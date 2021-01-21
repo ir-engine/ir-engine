@@ -1,3 +1,5 @@
+/** Functions to provide engine level functionalities. */
+
 import { now } from "../../common/functions/now";
 import { Engine } from '../classes/Engine';
 import { System } from '../classes/System';
@@ -7,11 +9,11 @@ import { executeSystem } from './SystemFunctions';
 import { SystemUpdateType } from "./SystemUpdateType";
 
 /**
- * Initialize options on the engine object and fire a command for devtools
- * WARNING: This is called by initializeEngine() in {@link @xr3ngine/engine/initialize#initializeEngine}
- * (You probably don't want to use this) 
+ * Initialize options on the engine object and fire a command for devtools.\
+ * **WARNING:** This is called by {@link initialize.initializeEngine | initializeEngine()}.\
+ * You probably don't want to use this.
  */
-export function initialize (options?: EngineOptions) {
+export function initialize (options?: EngineOptions): void {
   Engine.options = { ...Engine.options, ...options };
   if ( typeof window !== 'undefined' && typeof CustomEvent !== 'undefined') {
     const event = new CustomEvent('world-created');
@@ -21,6 +23,7 @@ export function initialize (options?: EngineOptions) {
   Engine.lastTime = now() / 1000;
 }
 
+/** Reset the engine and remove everything from memory. */
 export function reset(): void {
   // clear all entities components
   Engine.entities.forEach(entity => {
@@ -81,10 +84,10 @@ export function reset(): void {
 }
 
 /**
- * Execute all systems (a "frame")
- * This is typically called on a loop
- * WARNING: This is called by initializeEngine() in {@link @xr3ngine/engine/initialize#initializeEngine}
- * (You probably don't want to use this) 
+ * Execute all systems (a "frame").
+ * This is typically called on a loop.
+ * **WARNING:** This is called by {@link initialize.initializeEngine | initializeEngine()}.\
+ * You probably don't want to use this. 
  */
 export function execute (delta?: number, time?: number, updateType = SystemUpdateType.Free): void {
   Engine.tick++;
@@ -102,8 +105,8 @@ export function execute (delta?: number, time?: number, updateType = SystemUpdat
 }
 
 /**
- * Remove entities at the end of a simulation frame
- * NOTE: By default, the engine is set to process deferred removal, so this will be called
+ * Remove entities at the end of a simulation frame.
+ * **NOTE:** By default, the engine is set to process deferred removal, so this will be called.
  */
 function processDeferredEntityRemoval () {
   if (!Engine.deferredRemovalEnabled) {
@@ -135,7 +138,7 @@ function processDeferredEntityRemoval () {
 }
 
 /**
- * Disable execution of systems without stopping timer
+ * Disable execution of systems without stopping timer.
  */
 export function pause (): void {
   Engine.enabled = false;
@@ -143,7 +146,7 @@ export function pause (): void {
 }
 
 /**
- * Get stats for all entities, components and systems in the simulation
+ * Get stats for all entities, components and systems in the simulation.
  */
 export function stats (): { entities: any; system: any } {
   const queryStats = {};
@@ -190,7 +193,8 @@ export function stats (): { entities: any; system: any } {
   };
 }
 
-export function resetEngine() {
+/** Reset the engine and clear all the timers. */
+export function resetEngine():void {
   if (Engine.engineTimerTimeout) {
     clearTimeout(Engine.engineTimerTimeout);
   }

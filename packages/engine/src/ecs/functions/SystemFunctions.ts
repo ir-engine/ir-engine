@@ -1,12 +1,17 @@
+/** Functions to provide system level functionalities. */
+
 import { System, SystemConstructor } from '../classes/System';
 import { Engine } from '../classes/Engine';
 import { now } from '../../common/functions/now';
 import { SystemUpdateType } from './SystemUpdateType';
 
 /**
- * Register a system with the simulation
- * System will automatically register all components in queries and be added to execution queue
- * @returns registered system
+ * Register a system with the simulation.\
+ * System will automatically register all components in queries and be added to execution queue.
+ * 
+ * @param SystemClass Type of system to be registered.
+ * @param attributes Attributes of the system being created.
+ * @returns Registered system.
  */
 export function registerSystem (SystemClass: SystemConstructor<any>, attributes?: any): System {
   if (!SystemClass.isSystem) {
@@ -27,13 +32,15 @@ export function registerSystem (SystemClass: SystemConstructor<any>, attributes?
 }
 
 /**
- * Remove a system from the simulation
- * NOTE: System won't unregister components, so make sure you clean up!
+ * Remove a system from the simulation.\
+ * **NOTE:** System won't unregister components, so make sure you clean up!
+ * 
+ * @param SystemClass Type of system being unregistered.
  */
 export function unregisterSystem (SystemClass: SystemConstructor<any>): void {
   const system = getSystem(SystemClass);
   if (system === undefined) {
-    console.warn(`Can unregister system '${SystemClass.name}'. It doesn't exist.`);
+    console.warn(`Can't unregister system '${SystemClass.name}'. It doesn't exist.`);
   }
 
   Engine.systems.splice(Engine.systems.indexOf(system), 1);
@@ -42,23 +49,30 @@ export function unregisterSystem (SystemClass: SystemConstructor<any>): void {
 }
 
 /**
- * Get a system from the simulation
- * @returns system instance
+ * Get a system from the simulation.
+ * 
+ * @param SystemClass Type ot the system.
+ * @returns System instance.
  */
 export function getSystem<S extends System> (SystemClass: SystemConstructor<S>): S {
   return Engine.systems.find(s => s instanceof SystemClass);
 }
 
 /**
- * Get all systems from the simulation
- * @returns array of system instances
+ * Get all systems from the simulation.
+ * @returns Array of system instances.
  */
 export function getSystems (): System[] {
   return Engine.systems;
 }
 
 /**
- * Call execute() function on a system instance
+ * Calls execute() function on a system instance.
+ * 
+ * @param system System to be executed.
+ * @param delta Delta of the system.
+ * @param time Current time of the system.
+ * @param updateType Only system of this Update type will be executed.
  */
 export function executeSystem (system: System, delta: number, time: number, updateType = SystemUpdateType.Free): void {
   if (system.initialized  && updateType === system.updateType) {
@@ -70,7 +84,7 @@ export function executeSystem (system: System, delta: number, time: number, upda
 }
 
 /**
- * Sort systems by order if order has been set explicitly
+ * Sort systems by order if order has been set explicitly.
  */
 export function sortSystems (): void {
   Engine.systemsToExecute.sort((a, b) => {
