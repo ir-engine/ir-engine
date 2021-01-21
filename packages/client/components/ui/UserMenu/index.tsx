@@ -63,7 +63,7 @@ interface Props {
     showDialog?: typeof showDialog;
     removeUser?: typeof removeUser;
     currentScene?: any;
-    provisionInstanceServer: any;
+    provisionInstanceServer?: any;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -244,28 +244,31 @@ const UserMenu = (props: Props): any => {
     }, [ selfUser ]);
 
     useEffect(() => {
-        console.log('Logout re-provision watcher');
-        console.log(authState);
-        console.log('waitingForLogout: ' + waitingForLogout);
         if (waitingForLogout === true && authState.get('authUser') != null && authState.get('user') != null && authState.get('user').userRole === 'guest') {
             setWaitingForLogout(false);
+            location.reload();
+            // TODO: Update engine and scene loading so guest user can be inserted into scene without page reload.
+            // Right now, we're reloading the page when a user logs out so as to avoid any weirdness with trying
+            // to remove the logged-in user and add the new guest user.
+            // The engine seems to have some issues with leaving the world and then rejoining it, namely
+            // that the scene isn't getting reloaded properly.
             // resetEngine();
-            const instanceId = currentLocation.instances && currentLocation.instances.length > 0 ? currentLocation.instances[0].id : null;
-            console.log('Re-provisioning logged out guest user onto location ' + currentLocation.slugifiedName);
-            provisionInstanceServer(currentLocation.id, instanceId);
-            setWaitingForRejoinWorld(true);
+            // const instanceId = currentLocation.instances && currentLocation.instances.length > 0 ? currentLocation.instances[0].id : null;
+            // provisionInstanceServer(currentLocation.id, instanceId);
+            // setWaitingForRejoinWorld(true);
         }
     }, [authState]);
 
-    useEffect(() => {
-        console.log('Rejoin world watcher');
-        console.log(Network.instance);
-        if (waitingToRejoinWorld === true && instanceConnectionState.get('connected') === true) {
-            setTimeout(() => {
-                joinWorld();
-            }, 3000);
-        }
-    }, [instanceConnectionState]);
+    // This is for when the engine can properly handle leaving as logged-in user and rejoining as guest user.
+    // joinWorld() needs to be automatically called when the connection is ready, as opposed to waiting for
+    // the user to click a button.
+    // useEffect(() => {
+        // if (waitingToRejoinWorld === true && instanceConnectionState.get('connected') === true) {
+        //     setTimeout(() => {
+        //         joinWorld();
+        //     }, 3000);
+        // }
+    // }, [instanceConnectionState]);
    
 const renderAvatarSelectionPage = () =><>
       <Typography variant="h1"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} focusable={true} />Select Avatar</Typography>
