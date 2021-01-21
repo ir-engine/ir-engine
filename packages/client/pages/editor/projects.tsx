@@ -104,9 +104,6 @@ const ProjectsPage = (props: Props) => {
   const authUser = authState.get('authUser');
   const user = authState.get('user');
 
-  console.log('authUser', authUser)
-  console.log('user', user)
-  console.log('isAuthenticated', isAuthenticated)
   useEffect(() => {
     doLoginAuto(true);
     console.warn("PROJECTS PAGE PROPS: ", props);
@@ -188,7 +185,12 @@ const ProjectsPage = (props: Props) => {
           </ProjectsContainer>
         </ProjectsSection>
         :
-        <MediumButton onClick={handleLogout}>Logout</MediumButton>
+        <ProjectGridHeader>
+          <ProjectGridHeaderRow />
+          <ProjectGridHeaderRow>
+            <MediumButton onClick={handleLogout}>Logout</MediumButton>
+          </ProjectGridHeaderRow>
+        </ProjectGridHeader>        
       }
         { authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null && <main>
           {(projects.length === 0 && !loading) ? (
