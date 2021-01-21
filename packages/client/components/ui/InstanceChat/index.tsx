@@ -121,7 +121,7 @@ const InstanceChat = (props: Props): any => {
 
     const [openMessageContainer, setOpenMessageContainer] = React.useState(false);
     const [isMultiline, setIsMultiline] = React.useState(false);
-    const [isControl, setIsControl] = React.useState(false);
+    const [cursorPosition, setCursorPosition] = React.useState(0);
     const hideShowMessagesContainer = () => {
         setOpenMessageContainer(!openMessageContainer);
         openMessageContainer && setUnreadMessages(false);
@@ -137,6 +137,12 @@ const InstanceChat = (props: Props): any => {
     useEffect(() => {
         activeChannel && activeChannel.messages && activeChannel.messages.length > 0 && !openMessageContainer && setUnreadMessages(true);
     }, [activeChannel?.messages]);
+
+    useEffect(() => {
+        if(isMultiline){
+            (messageRef.current as HTMLInputElement).selectionStart = cursorPosition+1;
+        }
+    }, [isMultiline]);
 
     return (
         <>
@@ -191,22 +197,18 @@ const InstanceChat = (props: Props): any => {
                                 onChange={handleComposingMessageChange}
                                 inputRef={messageRef}
                                 onClick={() => (messageRef as any)?.current?.focus()}
-                                onKeyDown={(ev) => {
-                                    if (ev.key === 'Control'){
-                                        setIsControl(true);
-                                    }else if (ev.key === 'Enter') {
-                                        console.log('ev', ev)
-                                        if(!isControl){
-                                            ev.preventDefault();
-                                            packageMessage();  
-                                            setIsMultiline(false);
-                                            setIsControl(false);
-                                        }else{
-                                            setIsMultiline(true);
-                                            setIsControl(false);
-                                        }                                                        
-                                    }else{
-                                        setIsControl(false);
+                                onKeyDown={(e) => {            
+                                    if (e.key === 'Enter' && e.ctrlKey){
+                                        e.preventDefault();                                                                              
+                                        const selectionStart  = (e.target as HTMLInputElement).selectionStart;
+                                        setCursorPosition(selectionStart);                                        
+                                        setComposingMessage(composingMessage.substring(0, selectionStart) + '\n' + composingMessage.substring(selectionStart));      
+                                        !isMultiline && setIsMultiline(true);                                         
+                                    }else if(e.key === 'Enter' && !e.ctrlKey) {
+                                        e.preventDefault();
+                                        packageMessage(); 
+                                        isMultiline && setIsMultiline(false);
+                                        setCursorPosition(0);
                                     }
                                   }}
                             />
