@@ -46,7 +46,7 @@ export class PositionalAudioSystem extends System {
 
     for (const entity of this.queryResults.audio.removed) {
       const positionalAudio = getComponent(entity, PositionalAudioComponent, true);
-      if (positionalAudio != null) positionalAudio.value?.disconnect();
+      if (positionalAudio?.value != null) positionalAudio.value.disconnect();
     }
 
     for (const entity of this.queryResults.character_audio.changed) {
