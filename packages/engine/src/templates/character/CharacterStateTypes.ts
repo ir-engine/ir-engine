@@ -1,6 +1,7 @@
 export enum CharacterStateTypes {
   // Main States
   IDLE,
+  MOVING,
   JUMP_IDLE,
   JUMP_RUNNING,
 
@@ -39,5 +40,5 @@ export enum CharacterStateTypes {
   // Driving substates
   DRIVING_IDLE,
   ENTER_VEHICLE,
-  EXIT_VEHICLE
+  EXIT_VEHICLE,
 }

@@ -1,12 +1,16 @@
-import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
+import { getComponent, getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { Vector3 } from "three";
 import { Entity } from "../../../ecs/classes/Entity";
 import { Input } from "../../../input/components/Input";
 import { DefaultInput } from "../../shared/DefaultInput";
 // Not a behavior, it just returns a value
 
+/**
+ * @deprecated
+ * @param entity
+ */
 export const getLocalMovementDirection = (entity: Entity): Vector3 => {
-	const input: Input = getMutableComponent<Input>(entity, Input as any);
+	const input: Input = getComponent(entity, Input);
 
 	// TODO: Incorporate into input system!
 	const positiveX = input.data.has(DefaultInput.RIGHT) ? -1 : 0;
