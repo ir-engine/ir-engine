@@ -12,6 +12,7 @@
     "resolveJsonModule": true,
 
     /* Typedoc Changes */
+    "allowJs": true,
     "noImplicitThis": false,
     "jsx": "preserve",
     "skipLibCheck": true,
