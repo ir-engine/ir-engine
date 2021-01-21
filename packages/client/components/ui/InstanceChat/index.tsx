@@ -121,6 +121,7 @@ const InstanceChat = (props: Props): any => {
 
     const [openMessageContainer, setOpenMessageContainer] = React.useState(false);
     const [isMultiline, setIsMultiline] = React.useState(false);
+    const [isControl, setIsControl] = React.useState(false);
     const hideShowMessagesContainer = () => {
         setOpenMessageContainer(!openMessageContainer);
         openMessageContainer && setUnreadMessages(false);
@@ -191,9 +192,21 @@ const InstanceChat = (props: Props): any => {
                                 inputRef={messageRef}
                                 onClick={() => (messageRef as any)?.current?.focus()}
                                 onKeyDown={(ev) => {
-                                    if (ev.key === 'Enter') {
-                                        ev.preventDefault();
-                                        packageMessage();                  
+                                    if (ev.key === 'Control'){
+                                        setIsControl(true);
+                                    }else if (ev.key === 'Enter') {
+                                        console.log('ev', ev)
+                                        if(!isControl){
+                                            ev.preventDefault();
+                                            packageMessage();  
+                                            setIsMultiline(false);
+                                            setIsControl(false);
+                                        }else{
+                                            setIsMultiline(true);
+                                            setIsControl(false);
+                                        }                                                        
+                                    }else{
+                                        setIsControl(false);
                                     }
                                   }}
                             />
