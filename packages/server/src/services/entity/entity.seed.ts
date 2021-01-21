@@ -27,16 +27,6 @@ export const seed = {
       collectionId: CollectionSeed.templates.find(template => template.id === "d4457fc0-24e4-11eb-bc2e-e7e742fb069f").id
     },
     {
-      id: "08c8a844-24e9-11eb-bc2e-e7e742fb069f",
-      entityId: "2495906F-A39A-47FB-9956-FE988B0F70A5",
-      name: "box collider",
-      parent: "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      index: 3,
-      createdAt: "2020-11-12 13:14:45",
-      updatedAt: "2020-11-12 13:14:45",
-      collectionId: CollectionSeed.templates.find(template => template.id === "d4457fc0-24e4-11eb-bc2e-e7e742fb069f").id
-    },
-    {
       id: "08c8a846-24e9-11eb-bc2e-e7e742fb069f",
       entityId: "ED0888E7-4032-4DD9-9B43-59B02ECCCB7E",
       name: "Skybox",
