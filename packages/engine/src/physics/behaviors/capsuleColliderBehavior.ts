@@ -48,10 +48,13 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
             actor.actorCapsule.body.position.x = serverSnapshotPos.x;
             actor.actorCapsule.body.position.y = serverSnapshotPos.y;
             actor.actorCapsule.body.position.z = serverSnapshotPos.z;
+            console.log('capsuleColliderBehavior1')
           } else {
             actor.actorCapsule.body.position.x -= (offsetX / correction);
             actor.actorCapsule.body.position.y -= (offsetY / correction);
             actor.actorCapsule.body.position.z -= (offsetZ / correction);
+            console.log('capsuleColliderBehavior2')
+            // debugger;
           }
 
 /*

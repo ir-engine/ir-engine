@@ -121,11 +121,11 @@ export const EnginePage = (props: Props) => {
     console.log("Result is ");
     console.log(result);
     loadScene(result);
-    // const cameraTransform = getMutableComponent<TransformComponent>(
-    //   CameraComponent.instance.entity,
-    //   TransformComponent
-    // );
-    // cameraTransform.position.set(0, 1.2, 10);
+    const cameraTransform = getMutableComponent<TransformComponent>(
+      CameraComponent.instance.entity,
+      TransformComponent
+    );
+    cameraTransform.position.set(0, 1.2, 10);
 
 
   //  createPrefab(staticWorldColliders);

@@ -70,6 +70,7 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
   } else {
     registerSystem(ServerNetworkIncomingSystem, { ...networkSystemOptions, priority: -1 });
     registerSystem(ServerNetworkOutgoingSystem, { ...networkSystemOptions, priority: 10000 });
+    registerSystem(ServerSpawnSystem);
   }
 
   // Do we want audio and video streams?
@@ -85,7 +86,7 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
 
   // registerSystem(SubscriptionSystem);
 
-  registerSystem(ServerSpawnSystem, { priority: 899 });
+  // registerSystem(ServerSpawnSystem, { priority: 899 });moved above
 
   registerSystem(TransformSystem, { priority: 900 });
 
