@@ -138,7 +138,7 @@ export const EnginePage = (props: Props) => {
 
   if (Network.instance) {
     userState.get('layerUsers').forEach(user => {
-      if (user.id !== currentUser.id) {
+      if (user.id !== currentUser?.id) {
         const networkUser = Object.values(Network.instance.networkObjects).find(networkUser => networkUser.ownerId === user.id
           && networkUser.prefabType === PrefabType.Player);
         if (networkUser) {

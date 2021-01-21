@@ -15,6 +15,8 @@ import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import store from '../../../redux/store';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
+import { selectLocationState } from '../../../redux/location/selector';
+import { selectInstanceConnectionState } from "../../../redux/instanceConnection/selector";
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
@@ -45,22 +47,31 @@ import { FacebookIcon } from '../Icons/FacebookIcon';
 import { GoogleIcon } from '../Icons/GoogleIcon';
 import { LinkedInIcon } from '../Icons/LinkedInIcon';
 import { TwitterIcon } from '../Icons/TwitterIcon';
+import {endVideoChat, leave} from "../../../classes/transports/WebRTCFunctions";
+import {provisionInstanceServer} from "../../../redux/instanceConnection/service";
+import { joinWorld } from "@xr3ngine/engine/src/networking/functions/joinWorld";
+import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
 
 interface Props {
     login?: boolean;
     authState?:any;
+    instanceConnectionState?: any;
+    locationState?: any;
     updateUsername?: typeof updateUsername;
     updateUserAvatarId?: typeof updateUserAvatarId;
     logoutUser?: typeof logoutUser;
     showDialog?: typeof showDialog;
     removeUser?: typeof removeUser;
     currentScene?: any;
+    provisionInstanceServer: any;
 }
 
 const mapStateToProps = (state: any): any => {
   return {
     onBoardingStep: selectAppOnBoardingStep(state),
     authState: selectAuthState(state),
+    instanceConnectionState: selectInstanceConnectionState(state),
+    locationState: selectLocationState(state),
     currentScene : selectScenesCurrentScene(state),
   };
 };
@@ -71,12 +82,24 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   logoutUser: bindActionCreators(logoutUser, dispatch),
   showDialog: bindActionCreators(showDialog, dispatch),
   removeUser: bindActionCreators(removeUser, dispatch),
+  provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
 });
 
 
 const UserMenu = (props: Props): any => {    
-  const { login, authState, logoutUser, removeUser, showDialog, currentScene, updateUsername, updateUserAvatarId} = props;
+  const {
+      authState,
+      instanceConnectionState,
+      locationState,
+      logoutUser,
+      provisionInstanceServer,
+      removeUser,
+      currentScene,
+      updateUsername,
+      updateUserAvatarId
+  } = props;
   const selfUser = authState.get('user');
+  const currentLocation = locationState.get('currentLocation').get('location');
 
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
   const [isEditUsername, setIsEditUsername] = useState(false);
@@ -99,6 +122,8 @@ const UserMenu = (props: Props): any => {
 
   type Anchor = 'top' | 'left' | 'bottom' | 'right';
 
+  const [waitingForLogout, setWaitingForLogout] = useState(false);
+  const [waitingToRejoinWorld, setWaitingForRejoinWorld] = useState(false);
 
   const handleTutorialClick = (event: React.KeyboardEvent | React.MouseEvent) =>{
     toggleDrawer(anchor, false)(event);
@@ -157,7 +182,15 @@ const UserMenu = (props: Props): any => {
   };
 
   const handleLogin = () => setDrawerType('login');
-  const handleLogout = () => logoutUser();
+  const handleLogout = async () => {
+      if (currentLocation != null && currentLocation.slugifiedName != null) {
+          await endVideoChat({endConsumers: true});
+          await leave();
+          setWaitingForLogout(true);
+      }
+      logoutUser();
+      setDrawerType('default');
+  };
 
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const handleCloseSnackBar = (event?: React.SyntheticEvent, reason?: string) => {
@@ -209,6 +242,30 @@ const UserMenu = (props: Props): any => {
     useEffect(() => {
       selfUser && setUsername(selfUser.name);
     }, [ selfUser ]);
+
+    useEffect(() => {
+        console.log('Logout re-provision watcher');
+        console.log(authState);
+        console.log('waitingForLogout: ' + waitingForLogout);
+        if (waitingForLogout === true && authState.get('authUser') != null && authState.get('user') != null && authState.get('user').userRole === 'guest') {
+            setWaitingForLogout(false);
+            // resetEngine();
+            const instanceId = currentLocation.instances && currentLocation.instances.length > 0 ? currentLocation.instances[0].id : null;
+            console.log('Re-provisioning logged out guest user onto location ' + currentLocation.slugifiedName);
+            provisionInstanceServer(currentLocation.id, instanceId);
+            setWaitingForRejoinWorld(true);
+        }
+    }, [authState]);
+
+    useEffect(() => {
+        console.log('Rejoin world watcher');
+        console.log(Network.instance);
+        if (waitingToRejoinWorld === true && instanceConnectionState.get('connected') === true) {
+            setTimeout(() => {
+                joinWorld();
+            }, 3000);
+        }
+    }, [instanceConnectionState]);
    
 const renderAvatarSelectionPage = () =><>
       <Typography variant="h1"><ArrowBackIosIcon onClick={()=>setDrawerType('default')} focusable={true} />Select Avatar</Typography>
