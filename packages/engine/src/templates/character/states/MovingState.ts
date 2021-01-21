@@ -1,53 +1,43 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { CharacterComponent, RUN_SPEED, WALK_SPEED } from '../components/CharacterComponent';
-import { setActorAnimationById } from "../behaviors/setActorAnimation";
-import { initializeCharacterState } from "../behaviors/initializeCharacterState";
+import { setFallingState } from "../behaviors/setFallingState";
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
-import { setFallingState } from "../behaviors/setFallingState";
-import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
 import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
-import { findVehicle } from '../functions/findVehicle';
 import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { Input } from '../../../input/components/Input';
-import { trySwitchToMovingState } from '../behaviors/trySwitchToMovingState';
-import { Entity } from '../../../ecs/classes/Entity';
-import { DefaultInput } from "../../shared/DefaultInput";
-import { BinaryValue } from "../../../common/enums/BinaryValue";
-import { getPlayerMovementVelocity } from "../functions/getPlayerMovementVelocity";
+import { isMovingByInputs } from '../functions/isMovingByInputs';
+import { addState } from "../../../state/behaviors/addState";
+import { CharacterStateTypes } from '../CharacterStateTypes';
+import { DefaultInput } from '../../shared/DefaultInput';
+import { Entity } from "../../../ecs/classes/Entity";
+import { LifecycleValue } from "../../../common/enums/LifecycleValue";
 import { getMovingAnimationsByVelocity } from "../functions/getMovingAnimationsByVelocity";
+import { defaultAvatarAnimations } from "../CharacterAvatars";
 import { setActorAnimationWeightScale } from "../behaviors/setActorAnimationWeightScale";
+import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { Vector3 } from "three";
+import { getPlayerMovementVelocity } from "../functions/getPlayerMovementVelocity";
+import { BinaryValue } from "../../../common/enums/BinaryValue";
 import { trySwitchToJump } from "../behaviors/trySwitchToJump";
-import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
+import { trySwitchToMovingState } from "../behaviors/trySwitchToMovingState";
 
 const localSpaceMovementVelocity = new Vector3();
 
-// Idle Behavior
-export const IdleState: StateSchemaValue = {
+// TODO: delete?
+
+export const MovingState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
   componentProperties: [{
     component: CharacterComponent,
     properties: {
-      ['velocitySimulator.damping']: 0.6,
-      ['velocitySimulator.mass']: 10
+      ['canEnterVehicles']: true,
     }
   }],
   onEntry: [
     {
-      behavior: setArcadeVelocityTarget,
-      args: { x: 0, y: 0, z: 0 }
-    },
-    {
       behavior: initializeCharacterState
     },
-    {
-      behavior: setActorAnimationById,
-      args: {
-        animationId: CharacterAnimationsIds.IDLE,
-        transitionDuration: 0.2
-      }
-    }
   ],
   onUpdate: [
     {
@@ -61,12 +51,11 @@ export const IdleState: StateSchemaValue = {
       args: {
         action: (entity: Entity): void => {
           // Default behavior for all states
-          findVehicle(entity);
-
+          // findVehicle(entity);
           const input = getComponent(entity, Input);
           const actor = getComponent(entity, CharacterComponent);
           const isSprinting = (input.data.get(DefaultInput.SPRINT)?.value) === BinaryValue.ON;
-          const neededMovementSpeed = isSprinting ? RUN_SPEED : WALK_SPEED;
+          const neededMovementSpeed = isSprinting? RUN_SPEED : WALK_SPEED;
           if (actor.moveSpeed !== neededMovementSpeed) {
             const writableActor = getMutableComponent(entity, CharacterComponent);
             writableActor.moveSpeed = neededMovementSpeed;
@@ -76,23 +65,30 @@ export const IdleState: StateSchemaValue = {
           if (trySwitchToJump(entity)) {
             return;
           }
-
-          trySwitchToMovingState(entity);
         }
       }
     },
     {
-      behavior: (entity: Entity): void => {
+      behavior: (entity:Entity): void => {
+        // TODO: change it to speed relative to the ground?
+        // real speed made by inputs.
         getPlayerMovementVelocity(entity, localSpaceMovementVelocity);
+        console.log('update moving', isMovingByInputs(entity), localSpaceMovementVelocity.length().toFixed(5));
 
         const animations = getMovingAnimationsByVelocity(localSpaceMovementVelocity);
         animations.forEach((value, animationId) => {
           setActorAnimationWeightScale(entity, {
             animationId,
             weight: value.weight,
-            scale: value.timeScale,
+            scale: value.timeScale
           });
         });
+        // TODO: sync run/walk animation pairs? (run_forward with walk_forward, run_left with walk_left)
+
+        // Check if we stopped moving
+        if (!isMovingByInputs(entity) && localSpaceMovementVelocity.length() < 0.01) {
+          addState(entity, { state: CharacterStateTypes.IDLE });
+        }
       }
     },
     {

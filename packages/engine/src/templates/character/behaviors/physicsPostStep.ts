@@ -24,6 +24,9 @@ function threeFromCannonQuat(quat: CANNON.Quaternion): THREE.Quaternion {
 	return new THREE.Quaternion(quat.x, quat.y, quat.z, quat.w);
 }
 
+const arcadeVelocity = new Vector3();
+const simulatedVelocity = new Vector3();
+const newVelocity = new Vector3();
 
 export const physicsPostStep: Behavior = (entity): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
@@ -32,14 +35,12 @@ export const physicsPostStep: Behavior = (entity): void => {
 	const body = actor.actorCapsule.body;
 
 	// Get velocities
-	const simulatedVelocity = new Vector3(body.velocity.x, body.velocity.y, body.velocity.z);
+	simulatedVelocity.set(body.velocity.x, body.velocity.y, body.velocity.z);
 
 	// Take local velocity
-	let arcadeVelocity = new Vector3().copy(actor.velocity).multiplyScalar(actor.moveSpeed);
+	arcadeVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed);
 	// Turn local into global
-	arcadeVelocity = appplyVectorMatrixXZ(actor.orientation, arcadeVelocity);
-
-	let newVelocity = new Vector3();
+	arcadeVelocity.copy(appplyVectorMatrixXZ(actor.orientation, arcadeVelocity));
 
 	// Additive velocity mode
 	if (actor.arcadeVelocityIsAdditive) {
@@ -59,10 +60,11 @@ export const physicsPostStep: Behavior = (entity): void => {
 	}
 	else {
 
-		newVelocity = new Vector3(
+		newVelocity.set(
 			lerp(simulatedVelocity.x, arcadeVelocity.x, actor.arcadeVelocityInfluence.x),
 			lerp(simulatedVelocity.y, arcadeVelocity.y, actor.arcadeVelocityInfluence.y),
-			lerp(simulatedVelocity.z, arcadeVelocity.z, actor.arcadeVelocityInfluence.z));
+			lerp(simulatedVelocity.z, arcadeVelocity.z, actor.arcadeVelocityInfluence.z)
+		);
 	}
 
 	// If we're hitting the ground, stick to ground

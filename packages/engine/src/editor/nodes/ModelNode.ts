@@ -121,8 +121,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
   // Overrides Model's load method and resolves the src url before loading.
   async load(src, onError?) {
-    console.log("Loading src")
-    console.log(src)
     const nextSrc = src || "";
     if (nextSrc === this._canonicalUrl && nextSrc !== "") {
       return;
@@ -142,8 +140,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       console.log("Try");
 
       const { accessibleUrl, files } = await this.editor.api.resolveMedia(src);
-      console.log("accessibleUrl", accessibleUrl);
-
       if (this.model) {
         this.editor.renderer.removeBatchedObject(this.model);
       }
