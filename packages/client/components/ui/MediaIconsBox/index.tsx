@@ -115,12 +115,12 @@ const MediaIconsBox = observer((props) =>{
         <section className={styles.drawerBoxContainer}>
             <section className={styles.drawerBox}>
                 { instanceMediaChatEnabled && (<div className={styles.iconContainer + ' ' + (audioPaused ? styles.off : styles.on)}>
-                    <MicOff className={styles.offIcon} onClick={handleMicClick} />
-                    <Mic className={styles.onIcon} onClick={handleMicClick} />
+                    <MicOff id='micOff' className={styles.offIcon} onClick={handleMicClick} />
+                    <Mic id='micOn' className={styles.onIcon} onClick={handleMicClick} />
                 </div>) }
                 { videoEnabled && (<div className={styles.iconContainer + ' ' + (videoPaused ? styles.off : styles.on)}>
-                    <VideocamOff className={styles.offIcon} onClick={handleCamClick} />
-                    <Videocam className={styles.onIcon} onClick={handleCamClick} />
+                    <VideocamOff id='videoOff' className={styles.offIcon} onClick={handleCamClick} />
+                    <Videocam id='videoOn' className={styles.onIcon} onClick={handleCamClick} />
                 </div>) }
                 {/* { videoEnabled && (<div className={styles.iconContainer + ' ' + (!faceTracking ? styles.off : styles.on)}>
                     <FaceIcon className={styles.offIcon} onClick={handleFaceClick} />

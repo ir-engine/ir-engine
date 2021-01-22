@@ -1,20 +1,12 @@
 function getOS() {
-    var userAgent = window.navigator.userAgent,
-        platform = window.navigator.platform,
-        macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'],
-        windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'],
-        iosPlatforms = ['iPhone', 'iPad', 'iPod'],
-        os = null;
+    const platform = process.platform;
+    console.log(platform);
   
-    if (macosPlatforms.indexOf(platform) !== -1) {
+    if (platform.includes('darwin')) {
       os = 'Mac OS';
-    } else if (iosPlatforms.indexOf(platform) !== -1) {
-      os = 'iOS';
-    } else if (windowsPlatforms.indexOf(platform) !== -1) {
+    } else if (platform.includes('win32')) {
       os = 'Windows';
-    } else if (/Android/.test(userAgent)) {
-      os = 'Android';
-    } else if (!os && /Linux/.test(platform)) {
+    } else if (platform.includes('linux')) {
       os = 'Linux';
     }
   

@@ -81,8 +81,8 @@ class BotAction {
         this.data = data;
     }
 
-    static connect(domain) {
-        
+    static connect() {
+        return new BotAction(BotActionType.Connect, {});
     }
 
     static sendMessage(message) {

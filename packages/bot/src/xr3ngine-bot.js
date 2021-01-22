@@ -27,7 +27,19 @@ class PageUtils {
             let matches = Array.from(document.querySelectorAll(selector))
             let singleMatch = matches.find(button => button.id === id);
             let result;
-            if (singleMatch) result = singleMatch.click()
+            if (singleMatch && singleMatch.click) {
+                console.log('normal click');
+                result = singleMatch.click();
+            }
+            if (singleMatch && !singleMatch.click) {
+                console.log('on click');
+                result = singleMatch.onclick();
+            }
+            if (!singleMatch) {
+                console.log('event click', matches.length);
+                const m = matches[0];
+                result = m.dispatchEvent(new MouseEvent('click', {'bubbles': true}));
+            }
         }, selector, id)
     }
     async clickSelectorFirstMatch(selector) {
@@ -38,12 +50,6 @@ class PageUtils {
             let singleMatch = matches[0];
             if (singleMatch) singleMatch.click()
         }, selector)
-    }
-}
-
-class El {
-    constructor(id) {
-
     }
 }
 
@@ -64,14 +70,13 @@ class XR3ngineBot {
         headless = true,
         autoLog = true} = {}
     ) {
-        this.headless = headless
-        this.browserLaunched = this.launchBrowser()
-        this.name = name
-        this.autoLog = autoLog
+        this.headless = headless;
+        this.name = name;
+        this.autoLog = autoLog;
 
         for (let method of Object.getOwnPropertyNames(InBrowserBot.prototype))
         {
-            if (method in this) continue
+            if (method in this) continue;
 
             this[method] = (...args) => this.evaluate(InBrowserBot.prototype[method], ...args)
         }
@@ -100,7 +105,9 @@ class XR3ngineBot {
      * @param args The arguments to be passed to fn. These will be serailized when passed through puppeteer
      */
     async evaluate(fn, ...args) {
-        await this.browserLaunched
+        if (!this.browser) {
+            await this.launchBrowser();
+        }
         return await this.page.evaluate(fn, ...args)
     }
 
@@ -156,8 +163,15 @@ class XR3ngineBot {
         const options = {
             headless: this.headless,
             args: [
-                '--ignore-certificate-errors'
+                '--ignore-certificate-errors',
+                '--use-fake-ui-for-media-stream',
+                '--disable-web-security',
+            //     '--use-fake-device-for-media-stream',
+            //     '--use-file-for-fake-video-capture=/Users/apple/Downloads/football_qcif_15fps.y4m',
+            //     // '--use-file-for-fake-audio-capture=/Users/apple/Downloads/BabyElephantWalk60.wav',
+                '--allow-file-access',
             ],
+            ignoreDefaultArgs: ['--mute-audio'],
             ...this.detectOsOption()
         };
         
@@ -173,7 +187,7 @@ class XR3ngineBot {
         await this.page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36')
 
         const context = this.browser.defaultBrowserContext();
-        context.overridePermissions("https://theoverlay.io", ['microphone', 'camera'])
+        // context.overridePermissions("https://theoverlay.io", ['microphone', 'camera'])
         this.pu = new PageUtils(this);
     }
 
@@ -187,7 +201,7 @@ class XR3ngineBot {
 
     async navigate(url) {
         if (!this.browser) {
-            await this.browserLaunched
+            await this.launchBrowser();
         }
 
         let parsedUrl = new URL(url)
@@ -248,6 +262,9 @@ class XR3ngineBot {
         await this.page.keyboard.type(message);
     }
 
+    async setFocus(selector) {
+        await this.page.focus(selector);
+    }
     /**
      * Creates an {@link InBrowserBotBuilder} to allow building a bot for use in the
      * developer console.
