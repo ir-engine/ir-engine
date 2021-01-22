@@ -36,16 +36,6 @@ const emitter = new EventEmitter();
 const app = express(feathers()) as Application;
 const agonesSDK = new AgonesSDK();
 
-function healthPing(agonesSDK: AgonesSDK): void {
-  try {
-    agonesSDK.health();
-    setTimeout(() => healthPing(agonesSDK), 100000);
-  } catch(err) {
-    console.log('Agones healthping error');
-    console.log(err);
-  }
-}
-
 app.set('nextReadyEmitter', emitter);
 
 console.log("***************** OPEN API PATH IS");
@@ -166,7 +156,7 @@ if (config.server.enabled) {
       });    
 
       (app as any).agonesSDK = agonesSDK;
-      healthPing(agonesSDK);
+      setInterval(() => agonesSDK.health(), 1000);
 
       // Create new gameserver instance
       const gameServer = new WebRTCGameServer(app);
