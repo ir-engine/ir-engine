@@ -25,6 +25,7 @@ import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
 import { createCommonInteractive } from "../behaviors/createCommonInteractive";
 import { getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
+import { createTransformComponent } from "../behaviors/createTransformComponent";
 
 export const SceneObjectLoadingSchema: LoadingSchema = {
   'ambient-light': {
@@ -239,9 +240,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'transform': {
     behaviors: [
       {
-        // TODO: This is a js transform, we might need to handle binding this properly
-        behavior: addComponentFromBehavior,
-        args: { component: TransformComponent },
+        behavior: createTransformComponent,
         values: ['position', 'rotation', 'scale']
       }
     ]
@@ -266,22 +265,23 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
     behaviors: [
       {
         behavior: setFog,
-        // TODO: Get fog values and set
-        values: ['position', 'rotation', 'scale']
+        values: ['color', 'density', 'far', 'near', 'type']
       }
     ]
   },
   'background': {
     behaviors: [
       {
-        behavior: createBackground
+        behavior: createBackground,
+        values: ['color']
       }
     ]
   },
   'audio-settings': {
     behaviors: [
       {
-        behavior: handleAudioSettings
+        behavior: handleAudioSettings,
+        values:['avatarDistanceModel', 'avatarMaxDistance', 'avatarRefDistance', 'avatarRolloffFactor', 'mediaConeInnerAngle', 'mediaConeOuterAngle', 'mediaConeOuterGain', 'mediaDistanceModel', 'mediaMaxDistance', 'mediaRefDistance', 'mediaRolloffFactor', 'mediaVolume', 'overrideAudioSettings' ]
       }
     ]
   },

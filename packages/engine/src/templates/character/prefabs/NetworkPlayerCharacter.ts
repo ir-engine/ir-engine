@@ -30,7 +30,6 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     { type: Input, data: { schema: CharacterInputSchema } },
     // Current state (isJumping, isidle, etc)
     { type: State, data: { schema: CharacterStateSchema } },
-    { type: TeleportToSpawnPoint },
     { type: NamePlateComponent },
     { type: PositionalAudioComponent }
   ],
@@ -42,7 +41,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
   
   ],
   serverComponents: [
-
+    { type: TeleportToSpawnPoint },
   ],
   onAfterCreate: [
     {

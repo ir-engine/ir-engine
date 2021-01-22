@@ -5,7 +5,11 @@ import { addComponent } from '../../ecs/functions/EntityFunctions';
 import { FogComponent } from '../components/FogComponent';
 import { FogType } from '../constants/FogType';
 
-export const setFog: Behavior = (entity, args: { type, color, density, near, far }) => {
+export const setFog: Behavior = (entity, args: { type:string, color:string, density:number, near:number, far:number }) => {
+    if (args.type === FogType.Disabled) {
+        return;
+    }
+
     let fog;
     if (args.type === FogType.Linear)
         fog = new Fog(args.color, args.near, args.far);
