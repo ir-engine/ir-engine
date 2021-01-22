@@ -1,5 +1,6 @@
-const XR3ngineBot = require('./src/xr3ngine-bot');
-const { BotActionType } = require('./src/bot-action');
+const XR3ngineBot = require('./xr3ngine-bot');
+const { BotActionType } = require('./bot-action');
+const mediaFaker = require('./media-faker');
 
 class BotManager {
     /**
@@ -40,24 +41,64 @@ class BotManager {
         this.actions.push({botName, action});
     }
 
-    async keyPress(bot, key, numSeconds) {
+    async keyPress(bot, key, numMiliSeconds) {
         console.log('Running with key ' + key);
+        await bot.setFocus('canvas');
         const interval = setInterval(() => {
             bot.pressKey(key);
         }, 100);
         return new Promise((resolve) => setTimeout(() => {
-            console.log('Clearing button press for ' + key);
+            console.log('Clearing button press for ' + key, numMiliSeconds);
             bot.releaseKey(key);
             clearInterval(interval);
             resolve()
-        }, numSeconds));
+        }, numMiliSeconds));
     }
 
     async sendMessage(bot, message) {
         await bot.clickElementByClass('button', 'openChat');
-        await bot.clickElementById('textarea', 'newMessage');
+        await bot.clickElementById('input', 'newMessage');
         await bot.typeMessage(message);
         await bot.clickElementByClass('button', 'sendMessage');
+    }
+
+    async sendAudio(bot) {
+        await bot.clickElementById('svg', 'micOff');
+        // const {
+        //     id,
+        //     iceParameters,
+        //     iceCandidates,
+        //     dtlsParameters,
+        //     sctpParameters
+        // } = mediaFaker.generateTransportRemoteParameters();
+    
+        // const device = new Device({ handlerFactory: FakeHandler.createFactory(mediaFaker) });
+        // sendTransport = device.createSendTransport(
+        //     {
+        //         id,
+        //         iceParameters,
+        //         iceCandidates,
+        //         dtlsParameters,
+        //         sctpParameters,
+        //         appData : { baz: 'BAZ' }
+        //     });
+
+    
+        // expect(sendTransport.id).toBe(id);
+        // expect(sendTransport.closed).toBe(false);
+        // expect(sendTransport.direction).toBe('send');
+        // expect(sendTransport.handler).toBeType('object');
+        // expect(sendTransport.handler instanceof FakeHandler).toBe(true);
+        // expect(sendTransport.connectionState).toBe('new');
+        // expect(sendTransport.appData).toEqual({ baz: 'BAZ' }, 500);
+    }
+
+    async recvAudio() {
+
+    }
+
+    async interactObject() {
+
     }
 
     async run() {
@@ -72,7 +113,7 @@ class BotManager {
 
             switch (action.type) {
                 case BotActionType.Connect:
-                    await bot.browserLaunched
+                    await bot.launchBrowser();
                     break;
 
                 case BotActionType.Disconnect:
@@ -91,21 +132,24 @@ class BotManager {
 
                 case BotActionType.KeyPress:
                     // action.data is type of KeyEventData
-                    await this.keyPress(bot, action.data.key, action.data.preseedTime);
+                    await this.keyPress(bot, action.data.key, action.data.pressedTime);
                     break;
 
                 case BotActionType.SendAudio:
+                    await this.sendAudio(bot);
                     break;
 
                 case BotActionType.ReceiveAudio:
+                    await this.recvAudio();
                     break;
 
                 case BotActionType.InteractObject:
+                    await this.interactObject();
                     break;
 
                 case BotActionType.SendMessage:
                     // action.data is type of MessageData
-                    await this.sendMessage(action.data.message);
+                    await this.sendMessage(bot, action.data.message);
                     break;
 
                 default:
@@ -113,6 +157,15 @@ class BotManager {
                     break;
             }
         }
+    }
+
+    async clear() {
+        const bots = Object.values(this.bots);
+        for (const bot of bots) {
+            bot.quit();
+        }
+
+        this.bots = {};
     }
 }
 

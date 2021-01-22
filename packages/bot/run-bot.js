@@ -5,89 +5,59 @@ const BotManager = require('./src/bot-manager');
 
 const agonesSDK = new AgonesSDK();
 
-async function runDirection(bot, key, numSeconds) {
-    console.log('Running with key ' + key);
-    const interval = setInterval(() => {bot.pressKey(key) }, 100);
-    return new Promise((resolve, reject) => setTimeout(() => {
-        console.log('Clearing button press for ' + key);
-        bot.releaseKey(key); clearInterval(interval);
-        resolve()
-    }, numSeconds));
-}
-
-async function runInCircle(bot, numSeconds) {
-    console.log('Running in circle');
-    await runDirection(bot, 'KeyW', numSeconds);
-    await runDirection(bot, 'KeyD', numSeconds);
-    await runDirection(bot,'KeyS', numSeconds);
-    await runDirection(bot,'KeyA', numSeconds);
-}
-
-async function sendChatMessages(bot) {
-    await bot.clickElementByClass('button', 'openChat');
-    await bot.clickElementById('textarea', 'newMessage');
-    await bot.typeMessage('Hello World! It\'s a-me, LeBot!');
-    await bot.clickElementByClass('button', 'sendMessage');
-}
-
-async function runBot() {
-    try {
-        if (process.env.KUBERNETES === 'true') {
-            agonesSDK.connect();
-            agonesSDK.ready();
-            setInterval(() => {
-                agonesSDK.health();
-            }, 1000)
-        }
-        const bot = new xr3ngineBot();
-        const domain = process.env.DOMAIN || 'localhost:3000';
-        const locationName = process.env.LOCATION_NAME || 'test';
-        await bot.enterRoom(`https://${domain}/location/${locationName}`, {name: 'bot1'});
-        await runInCircle(bot, 2000);
-        await sendChatMessages(bot);
-        setTimeout(async () => {
-            await bot.browser.close()
-            process.exit(0);
-        }, 3000)
-    } catch(err) {
-        console.log('Bot error');
-        console.log(err);
-        if (bot && bot.browser) bot.browser.close();
-        process.exit(1);
-    }
-}
-
 async function run() {
-    const domain = process.env.DOMAIN || 'localhost:3000';
+    console.log("=============Start=================");
+    console.log(process.env.DOMAIN);
+
+    const domain = process.env.DOMAIN || 'dev.theoverlay.io';
     const locationName = process.env.LOCATION_NAME || 'test';
     const moveDuratioon = 2000;
+    const botManager = new BotManager({headless: false});
 
-    const botManager = new BotManager();
+    if (process.env.KUBERNETES === 'true') {
+        agonesSDK.connect();
+        agonesSDK.ready();
+        setInterval(() => {
+            agonesSDK.health();
+        }, 1000)
+    }
 
     botManager.addBot("bot1");
     botManager.addBot("bot2");
 
-    botManager.addAction("bot1", new BotAction.connect(domain));
-    botManager.addAction("bot1", new BotAction.enterRoom(locationName));
-    botManager.addAction("bot1", new BotAction.keyPress("KeyW", moveDuratioon));
-    botManager.addAction("bot1", new BotAction.keyPress("KeyD", moveDuratioon));
-    botManager.addAction("bot1", new BotAction.keyPress("KeyS", moveDuratioon));
-    botManager.addAction("bot1", new BotAction.keyPress("KeyA", moveDuratioon));
-    botManager.addAction("bot1", new BotAction.sendMessage("Hello World! This is bot1."));
+    botManager.addAction("bot1", BotAction.connect());
+    botManager.addAction("bot1", BotAction.enterRoom(domain, locationName));
+    // botManager.addAction("bot1", BotAction.keyPress("KeyW", moveDuratioon));
+    // botManager.addAction("bot1", BotAction.keyPress("KeyD", moveDuratioon));
+    // botManager.addAction("bot1", BotAction.keyPress("KeyS", moveDuratioon));
+    // botManager.addAction("bot1", BotAction.keyPress("KeyA", moveDuratioon));
+    // botManager.addAction("bot1", BotAction.sendMessage("Hello World! This is bot1."));
+    botManager.addAction("bot1", BotAction.sendAudio());
 
-    botManager.addAction("bot2", new BotAction.connect(domain));
-    botManager.addAction("bot2", new BotAction.enterRoom(locationName));
-    botManager.addAction("bot2", new BotAction.keyPress("KeyW", moveDuratioon));
-    botManager.addAction("bot2", new BotAction.keyPress("KeyD", moveDuratioon));
-    botManager.addAction("bot2", new BotAction.keyPress("KeyS", moveDuratioon));
-    botManager.addAction("bot2", new BotAction.keyPress("KeyA", moveDuratioon));
-    botManager.addAction("bot2", new BotAction.sendMessage("Hello World! This is bot2."));
+    // botManager.addAction("bot2", BotAction.connect());
+    // botManager.addAction("bot2", BotAction.enterRoom(domaiin, locationName));
+    // botManager.addAction("bot2", BotAction.keyPress("KeyW", moveDuratioon));
+    // botManager.addAction("bot2", BotAction.keyPress("KeyD", moveDuratioon));
+    // botManager.addAction("bot2", BotAction.keyPress("KeyS", moveDuratioon));
+    // botManager.addAction("bot2", BotAction.keyPress("KeyA", moveDuratioon));
+    // botManager.addAction("bot2", BotAction.sendMessage("Hello World! This is bot2."));
 
-    // botManager.addAction("monitor", new BotAction.opIf((stats) => console.log(stats)));
+    // botManager.addAction("monitor", BotAction.opIf((stats) => console.log(stats)));
 
-    botManager.addAction("bot1", new BotAction.disconnect());
-    botManager.addAction("bot2", new BotAction.disconnect());
+    // botManager.addAction("bot1", BotAction.disconnect());
+    // botManager.addAction("bot2", BotAction.disconnect());
+
+    try {
+        await botManager.run();
+    }
+    catch (e) {
+        console.error(e);
+        // await botManager.clear();
+        // process.exit(1);
+    }
+    
+    console.log("=============End=================");
 }
 
-
-runBot();
+// runBot();
+run();
