@@ -149,7 +149,6 @@ const LocationPage = (props: Props) => {
       init(sceneId).then(() => {
         connectToInstanceServer();
       });
-
     }
   }, [instanceConnectionState]);
 

@@ -52,7 +52,7 @@ export class Engine {
 
   /**
    * Reference to the three.js renderer object.
-   * This is set in {@link initialize.initializeEngine | initializeEngine}
+   * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static renderer: WebGLRenderer = null
   static xrSession: any = null
@@ -61,20 +61,20 @@ export class Engine {
 
   /**
    * Reference to the three.js scene object.
-   * This is set in {@link initialize.initializeEngine | initializeEngine}
+   * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static scene: Scene = null
 
   /**
    * Reference to the three.js perspective camera object.
-   * This is set in {@link initialize.initializeEngine | initializeEngine}
+   * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static camera: PerspectiveCamera = null
 
   /**
    * Reference to the Transform component of the three.js camera object.
    * This holds data related to camera position, angle etc.
-   * This is set in {@link initialize.initializeEngine | initializeEngine}
+   * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static cameraTransform: TransformComponent = null
 
