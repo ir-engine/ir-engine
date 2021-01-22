@@ -15,7 +15,7 @@ process.on('unhandledRejection', (error, promise) => {
   console.error('UNHANDLED REJECTION - Promise: ', promise, ', Error: ', error, ').');
 });
 
-(async () => {
+(async (): Promise<void> => {
   if (process.env.KUBERNETES !== 'true') {
     const processList = await (await psList()).filter(e => {
       const regexp = /docker-compose up|docker-proxy|mysql/gi;
