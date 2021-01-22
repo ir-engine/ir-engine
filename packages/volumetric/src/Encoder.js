@@ -1,7 +1,6 @@
 import glob from 'glob';
 import fs from 'fs';
 import THREE from 'three';
-import OBJLoader from 'three-obj-loader-cjs-module';
 import CortoDecoder from './libs/cortodecoder.js';
 
 import HttpRequest from 'xmlhttprequest';
@@ -45,7 +44,6 @@ class CortosisFileCreator {
     this._maxVertices = 0;
     this._maxFaces = 0;
     this._manager = new THREE.LoadingManager();
-    this._loader = new OBJLoader(this._manager);
     this.keyframeGeometry = new THREE.Geometry();
     this._frameIn = frameIn;
     this._frameOut = frameOut;
@@ -76,16 +74,20 @@ class CortosisFileCreator {
     const frameOut = this._frameOut > 0 ? this._frameOut : this._meshFiles.length;
     // Iterate over all files and write an output file
     for (let i = this._frameIn; i < frameOut; i++) {
-      // load obj
-      let objPath = this._meshFiles[i].replace('.crt', '.obj');
 
-      let rawObjData = fs.readFileSync(objPath, 'utf8');
       let rawObjDataCRT = fs.readFileSync(this._meshFiles[i]);
       let rawCRTFrame = Buffer.from(rawObjDataCRT)
-      let objData = this._loader.parse(rawObjData);
-      let noNormals = rawObjData.indexOf('vn ') === -1;
+
+      let noNormals = true;
       let returnedMesh = null;
       //   const children = objData.children;
+
+      let decoder = new CortoDecoder(rawObjDataCRT.buffer);
+      const geometry = decoder.decode();
+      let objData = new THREE.Mesh(geometry);
+
+      console.log("obj data is")
+
       objData.traverse((child) => {
           if (child.type == 'Mesh') {
             returnedMesh = child;
@@ -98,7 +100,7 @@ class CortosisFileCreator {
 
         this.lastKeyframe = i;
 
-        this.keyframeGeometry = new THREE.Geometry().fromBufferGeometry(returnedMesh.geometry);
+        this.keyframeGeometry = new THREE.Geometry(returnedMesh.geometry);
 
         if (this.keyframeGeometry.vertices.length > this._maxVertices)
         this._maxVertices = this.keyframeGeometry.vertices.length;
@@ -146,7 +148,6 @@ class CortosisFileCreator {
 
           // update progress callback
           rawCRTFrame = null;
-          rawObjData = null;
           objData = null;
           noNormals = null;
 
