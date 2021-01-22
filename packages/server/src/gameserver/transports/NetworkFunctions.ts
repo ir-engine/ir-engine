@@ -9,6 +9,7 @@ import { DataConsumer, DataProducer } from 'mediasoup/lib/types';
 import logger from "../../app/logger";
 import config from '../../config';
 import { closeTransport } from './WebRTCFunctions';
+import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
 
@@ -264,8 +265,10 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     logger.info("JoinWorld received");
     const transport = Network.instance.transport as any;
 
+    const spawnPoint = Engine.spawnSystem.getRandomSpawnPoint();
+
     // Create a new default prefab for client
-    const networkObject = initializeNetworkObject(userId, Network.getNetworkId(), Network.instance.schema.defaultClientPrefab);
+    const networkObject = initializeNetworkObject(userId, Network.getNetworkId(), Network.instance.schema.defaultClientPrefab, spawnPoint.position, spawnPoint.rotation);
     const transform = getComponent(networkObject.entity, TransformComponent);
 
     // Add the network object to our list of network objects
