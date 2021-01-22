@@ -1,16 +1,24 @@
 import { ComponentSchema } from "../interfaces/ComponentInterfaces";
 
+/** Copy function definition */
 export type TypeCopyFunction<T> = (src: T, dest: T) => T
+/** Clone function definition */
 export type TypeCloneFunction<T> = (value: T) => T
 
+/** Base Interface for prop type */
 export interface PropTypeDefinition<T, D> {
+  /** Name of the prop. */
   name: string;
+  /** Default value. */
   default?: D;
+  /** Copy Function */
   copy: TypeCopyFunction<T>;
+  /** Clone Function */
   clone: TypeCloneFunction<T>;
 }
 
 export interface PropType<T, D> extends PropTypeDefinition<T, D> {
+  /** Mark the prop as type. */
   isType: true;
 }
 
@@ -49,6 +57,11 @@ export const copyCopyable = <T>(src: T, dest: T): T => {
 
 export const cloneClonable = <T>(value: T): T => value && (value as any).clone();
 
+/** Create a Type
+ * 
+ * @param typeDefinition Definition of the type which will be used to create the type
+ * @returns Props Type created with given type definition.
+ */
 export function createType<T, D> (typeDefinition: PropTypeDefinition<T, D>): PropType<T, D> {
   const mandatoryProperties = ['name', 'copy', 'clone'];
 
@@ -68,8 +81,8 @@ export function createType<T, D> (typeDefinition: PropTypeDefinition<T, D>): Pro
 }
 
 /**
- * Standard types
- * NOTE: Use ref for attaching objects to this entity unless you want to make the object clonable
+ * Standard types.
+ * **NOTE:** Use ref for attaching objects to this entity unless you want to make the object clonable.
  */
 export const Types = {
   Number: createType({
