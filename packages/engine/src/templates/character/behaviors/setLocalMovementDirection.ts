@@ -7,4 +7,5 @@ export const setLocalMovementDirection: Behavior = (entity, args: { z?: number; 
 	actor.localMovementDirection.z = args.z ?? actor.localMovementDirection.z;
 	actor.localMovementDirection.x = args.x ?? actor.localMovementDirection.x;
 	actor.localMovementDirection.y = args.y ?? actor.localMovementDirection.y;
+	actor.localMovementDirection.normalize();
 };
