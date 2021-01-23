@@ -3,6 +3,11 @@ import { Entity } from '../../ecs/classes/Entity';
 import { createEntity, addComponent } from '../../ecs/functions/EntityFunctions';
 import { Quaternion, Vector3 } from "three";
 
+/**
+ * Create Entity from a Prefab.
+ * @param prefab Prefab from which entity will be created.
+ * @returns Newly created Entity.
+ */
 export function createPrefab (prefab: Prefab): Entity {
   const entity = createEntity();
   // Call each create action
