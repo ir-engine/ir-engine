@@ -101,7 +101,7 @@ function CreateProjectPage({ api }: { api: Api }) {
   const filteredEntries = Array.isArray(entries) ? entries.map(result => ({
     ...result,
     url: `/editor/projects/new?sceneId=${result.id}`,
-    thumbnail_url: result && result.images && result.images.preview && result.images.preview.url
+    thumbnailUrl: result && result.images && result.images.preview && result.images.preview.url
   })) : [];
 
   return (
