@@ -2,7 +2,12 @@ import { Params, Id, NullableId, ServiceMethods } from '@feathersjs/feathers';
 import { Transaction } from 'sequelize/types';
 import fetch from 'node-fetch';
 
-import { mapProjectDetailData, defaultProjectImport, readJSONFromBlobStore } from '../project/project-helper';
+import {
+  mapProjectDetailData,
+  defaultProjectImport,
+  readJSONFromBlobStore,
+  mapProjectTemplateDetailData
+} from '../project/project-helper';
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils';
 import { Application } from '../../declarations';
 import StorageProvider from '../../storage/storageprovider';
@@ -10,6 +15,7 @@ import { BadRequest } from '@feathersjs/errors';
 import logger from '../../app/logger';
 import { Op } from "sequelize";
 import config from '../../config';
+import { contents } from "../../scenes-templates";
 interface Data { }
 interface ServiceOptions {}
 
@@ -42,17 +48,27 @@ export class Project implements ServiceMethods<Data> {
 
   async get (id: Id, params: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params);
-    const project = await this.models.collection.findOne({
-      attributes: ['name', 'id', 'sid', 'url', 'type'],
-      where: {
-        sid: id
-        // userId: loggedInUser.userId
-      },
-      include: defaultProjectImport(this.app.get('sequelizeClient').models)
-    });
+
+    let project;
+    if (String(id).match(/^~/)) {
+      project = contents.find(project => project.id === id);
+      if (!project) {
+        return Promise.reject(new BadRequest('Project template not found'));
+      }
+      return mapProjectTemplateDetailData(project);
+    } else {
+      project = await this.models.collection.findOne({
+        attributes: ['name', 'id', 'sid', 'url', 'type'],
+        where: {
+          sid: id
+          // userId: loggedInUser.userId
+        },
+        include: defaultProjectImport(this.app.get('sequelizeClient').models)
+      });
+    }
 
     if (!project) {
-      return await Promise.reject(new BadRequest('Project not found Or you don\'t have access!'));
+      return Promise.reject(new BadRequest('Project not found Or you don\'t have access!'));
     }
 
     return mapProjectDetailData(project.toJSON());
