@@ -35,20 +35,23 @@ import { OutlineEffect } from '../../postprocessing/effects/OutlineEffect';
 
 import { now } from '../../common/functions/now';
 
-  /**
-   * Handles rendering and post processing to WebGL canvas
-   */
+/** Handles rendering and post processing to WebGL canvas. */
 export class WebGLRendererSystem extends System {
+  /** Is system Initialized. */
   isInitialized: boolean
-  
-  // resoulion scale
+
+  /** Resoulion scale. **Default** value is 1. */
   scaleFactor = 1
   downGradeTimer = 0
   upGradeTimer = 0
+  /** Maximum Quality level of the rendered. **Default** value is 4. */
   maxQualityLevel = 4
+  /** Current quality level. */
   qualityLevel: number = this.maxQualityLevel
+  /** Previous Quality leve. */
   prevQualityLevel: number = this.qualityLevel
 
+  /** Constructs WebGL Renderer System. */
   constructor(attributes?: SystemAttributes) {
     super(attributes);
 
@@ -88,19 +91,15 @@ export class WebGLRendererSystem extends System {
     this.onResize();
 
     this.isInitialized = true;
-  } 
+  }
 
-  /**
-     * Called on resize, sets resize flag
-     */
-  onResize() {
+  /** Called on resize, sets resize flag. */
+  onResize(): void {
     RendererComponent.instance.needsResize = true;
   }
 
-  /**
-    * Removes resize listener
-    */
-  dispose() {
+  /** Removes resize listener. */
+  dispose(): void {
     super.dispose();
 
     const rendererComponent = RendererComponent.instance;
@@ -112,11 +111,11 @@ export class WebGLRendererSystem extends System {
   }
 
   /**
-    * Configure post processing
-    * Note: Post processing effects are set in the PostProcessingSchema provided to the system
-    * @param {Entity} entity - The Entity
+    * Configure post processing.
+    * Note: Post processing effects are set in the PostProcessingSchema provided to the system.
+    * @param entity The Entity holding renderer component.
     */
-  private configurePostProcessing(entity: Entity) {
+  private configurePostProcessing(entity: Entity): void {
     const rendererComponent = getMutableComponent<RendererComponent>(entity, RendererComponent);
     const composer = new EffectComposer(Engine.renderer);
     rendererComponent.composer = composer;
@@ -162,11 +161,10 @@ export class WebGLRendererSystem extends System {
   }
 
   /**
-     * Called each frame by default from the Engine
-     *
-     * @param {Number} delta time since last frame
-     */
-  execute(delta: number) {
+   * Executes the system. Called each frame by default from the Engine.
+   * @param delta Time since last frame.
+   */
+  execute(delta: number): void {
     const startTime = now();
 
     this.queryResults.renderers.added?.forEach((entity: Entity) => {
@@ -200,7 +198,11 @@ export class WebGLRendererSystem extends System {
     this.changeQualityLevel(deltaRender);
   }
 
-  changeQualityLevel(delta: number) {
+  /**
+   * Change the quality of the renderer.
+   * @param delta Time since last frame.
+   */
+  changeQualityLevel(delta: number): void {
     if (delta >= 55) {
       this.downGradeTimer += delta;
       this.upGradeTimer = 0;
@@ -254,12 +256,9 @@ export class WebGLRendererSystem extends System {
       }
     }
   }
-
 }
 
-/**
- * Resize the canvas
- */
+/** Resize the canvas. */
 export const resize: Behavior = entity => {
   const rendererComponent = getComponent<RendererComponent>(entity, RendererComponent);
 
