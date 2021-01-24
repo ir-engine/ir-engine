@@ -33,7 +33,7 @@ class PageUtils {
             }
             if (singleMatch && !singleMatch.click) {
                 console.log('on click');
-                result = singleMatch.onclick();
+                result = singleMatch.dispatchEvent(new MouseEvent('click', {'bubbles': true}));
             }
             if (!singleMatch) {
                 console.log('event click', matches.length);
