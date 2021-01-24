@@ -50,9 +50,6 @@ const server = {
   sketchFab: {
     authToken: process.env.SKETCH_FAB_AUTH_TOKEN ?? ''
   },
-  googlePoly: {
-    authToken: process.env.GOOGLE_POLY_AUTH_TOKEN ?? ''
-  },
   hub: {
     endpoint: process.env.HUB_ENDPOINT ?? 'https://xr3ngine.io'
   },
@@ -93,7 +90,7 @@ const gameserver = {
   rtc_port_block_size: process.env.RTC_PORT_BLOCK_SIZE ? parseInt(process.env.RTC_PORT_BLOCK_SIZE) : 100,
   identifierDigits: 5,
   local: process.env.LOCAL === 'true',
-  domain: process.env.GAMESERVER_DOMAIN ?? 'gameserver.xrengine.io',
+  domain: process.env.GAMESERVER_DOMAIN ?? 'gameserver.theoverlay.io',
   releaseName: process.env.RELEASE_NAME ?? ''
 };
 

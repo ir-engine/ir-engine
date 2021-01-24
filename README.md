@@ -57,7 +57,7 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
     ```
 2. Make sure you have a mysql database installed and running -- our recommendation is Mariadb. We've provided a docker container for easy setup:
     ```
-    cd scripts && ./start-db.sh
+    cd scripts && sudo bash start-db.sh
     ```
     This creates a Docker container of mariadb named xr3ngine_db. You must have docker installed on your machine for this script to work.
     If you do not have Docker installed and do not wish to install it, you'll have to manually create a MariaDB server.
@@ -68,7 +68,7 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
 
     ```
    cd scripts
-   sh start-agones.sh
+   sudo bash start-agones.sh
    ```
    
    You can also go to vendor/agones/ and run
@@ -101,8 +101,8 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
     At this point, the database has been seeded. You can shut down the server with CTRL+C.
 
 6. Open two separate tabs and start the server (non-seeding) and the client
-   In /packages/server, run ```yarn dev```.
-   In the other tab, go to /packages/client and run ```yarn dev```.
+   In /packages/server, run ```sudo yarn dev```.
+   In the other tab, go to /packages/client and run ```sudo yarn dev```.
    
 7. In a browser, navigate to https://localhost:3000/location/test
    The database seeding process creates a test empty location called 'test'.

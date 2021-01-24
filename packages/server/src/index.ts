@@ -5,10 +5,38 @@ import path from 'path';
 import app from './app';
 import logger from './app/logger';
 import config from './config';
+import psList from 'ps-list';
+
+/**
+ * @param status
+ */
 
 process.on('unhandledRejection', (error, promise) => {
   console.error('UNHANDLED REJECTION - Promise: ', promise, ', Error: ', error, ').');
 });
+
+(async (): Promise<void> => {
+  if (process.env.KUBERNETES !== 'true') {
+    const processList = await (await psList()).filter(e => {
+      const regexp = /docker-compose up|docker-proxy|mysql/gi;
+      return e.cmd.match(regexp);
+    });
+    const dockerProcess = processList.find(
+        c => c.cmd.match(/docker-compose/)
+    );
+    const dockerProxy = processList.find(
+        c => c.cmd.match(/docker-proxy/)
+    );
+    const processMysql = processList.find(
+        c => c.cmd.match(/mysql/)
+    );
+    const databaseService = (dockerProcess && dockerProxy) || processMysql;
+
+    if (!databaseService) {
+      throw new Error('\x1b[33mError: DB procces is not running or Docker is not running!. If you are in local development, please run xr3ngine/scripts/start-db.sh and restart server\x1b[0m');
+    }
+  }
+})();
 
 // SSL setup
 const useSSL = process.env.NODE_ENV !== 'production' && fs.existsSync(path.join(appRootPath.path, 'certs', 'key.pem'));

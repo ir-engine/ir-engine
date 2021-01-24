@@ -37,32 +37,32 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
         xRay: true
       }
     },
-   {
-      effect: SSAOEffect,
-      options: {
-        blendFunction: BlendFunction.MULTIPLY,
-			distanceScaling: true,
-			depthAwareUpsampling: true,
-			samples: 16,
-			rings: 7,
-			distanceThreshold: .125,	// Render up to a distance of ~20 world units
-			distanceFalloff: 0.02,	// with an additional ~2.5 units of falloff.
-      minRadiusScale: 1,
-      bias: .25,
-			radius: .01,
-      intensity: 2,
-      fade: 0.05
-      }
-    },
-    {
-      effect: DepthOfFieldEffect,
-      options: {
-        blendFunction: BlendFunction.NORMAL,
-        focusDistance: 0.02,
-        focalLength: 0.5,
-        bokehScale: 1
-      }
-    },
+  //  {
+  //     effect: SSAOEffect,
+  //     options: {
+  //       blendFunction: BlendFunction.MULTIPLY,
+	// 		distanceScaling: true,
+	// 		depthAwareUpsampling: true,
+	// 		samples: 16,
+	// 		rings: 7,
+	// 		distanceThreshold: .125,	// Render up to a distance of ~20 world units
+	// 		distanceFalloff: 0.02,	// with an additional ~2.5 units of falloff.
+  //     minRadiusScale: 1,
+  //     bias: .25,
+	// 		radius: .01,
+  //     intensity: 2,
+  //     fade: 0.05
+  //     }
+  //   },
+    // {
+    //   effect: DepthOfFieldEffect,
+    //   options: {
+    //     blendFunction: BlendFunction.NORMAL,
+    //     focusDistance: 0.02,
+    //     focalLength: 0.5,
+    //     bokehScale: 1
+    //   }
+    // },
     // Bloom
     {
       effect: BloomEffect,

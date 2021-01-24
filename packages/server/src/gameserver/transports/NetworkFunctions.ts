@@ -9,6 +9,7 @@ import { DataConsumer, DataProducer } from 'mediasoup/lib/types';
 import logger from "../../app/logger";
 import config from '../../config';
 import { closeTransport } from './WebRTCFunctions';
+import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
 
@@ -107,7 +108,7 @@ export function validateNetworkObjects(): void {
     const transport = Network.instance.transport as any;
     for (const userId in Network.instance.clients) {
         // Validate that user has phoned home in last 5 seconds
-        if (Date.now() - Network.instance.clients[userId].lastSeenTs > 15000) {
+        if (Date.now() - Network.instance.clients[userId].lastSeenTs > 30000) {
             console.log("Removing client ", userId, " due to inactivity");
             if (!Network.instance.clients[userId])
                 return console.warn('Client is not in client list');
@@ -226,9 +227,6 @@ export async function handleConnectToWorld(socket, data, callback, userId, user)
 
 function disconnectClientIfConnected(socket, userId: string): void {
     // If we are already logged in, kick the other socket
-    console.log('DisconnectClientIfConnected');
-    console.log(userId);
-    console.log(Network.instance.clients[userId]);
     if (Network.instance.clients[userId] !== undefined &&
       Network.instance.clients[userId].socketId !== socket.id) {
         logger.info("Client already exists, kicking the old client and disconnecting");
@@ -267,8 +265,10 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     logger.info("JoinWorld received");
     const transport = Network.instance.transport as any;
 
+    const spawnPoint = Engine.spawnSystem.getRandomSpawnPoint();
+
     // Create a new default prefab for client
-    const networkObject = initializeNetworkObject(userId, Network.getNetworkId(), Network.instance.schema.defaultClientPrefab);
+    const networkObject = initializeNetworkObject(userId, Network.getNetworkId(), Network.instance.schema.defaultClientPrefab, spawnPoint.position, spawnPoint.rotation);
     const transform = getComponent(networkObject.entity, TransformComponent);
 
     // Add the network object to our list of network objects
@@ -347,7 +347,7 @@ export async function handleDisconnect(socket): Promise<any> {
     const userId = getUserIdFromSocketId(socket.id);
     const disconnectedClient = Network.instance.clients[userId];
     if (disconnectedClient === undefined)
-        return console.warn("Disconnecting client ' + userId + ' was undefined, probably already handled from JoinWorld handshake");
+        return console.warn('Disconnecting client ' + userId + ' was undefined, probably already handled from JoinWorld handshake');
     //On local, new connections can come in before the old sockets are disconnected.
     //The new connection will overwrite the socketID for the user's client.
     //This will only clear transports if the client's socketId matches the socket that's disconnecting.

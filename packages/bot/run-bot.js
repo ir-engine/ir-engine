@@ -17,14 +17,6 @@ async function run() {
 
     console.log(fakeMediaPath);
 
-    if (process.env.KUBERNETES === 'true') {
-        agonesSDK.connect();
-        agonesSDK.ready();
-        setInterval(() => {
-            agonesSDK.health();
-        }, 1000)
-    }
-
     botManager.addBot("bot1");
     botManager.addBot("bot2");
 
@@ -53,16 +45,25 @@ async function run() {
     // botManager.addAction("bot2", BotAction.disconnect());
 
     try {
+        if (process.env.KUBERNETES === 'true') {
+            agonesSDK.connect();
+            agonesSDK.ready();
+            setInterval(() => {
+                agonesSDK.health();
+            }, 1000)
+        }
+
         await botManager.run();
     }
     catch (e) {
         console.error(e);
         await botManager.clear();
-        process.exit(1);
+    }
+    finally {
+        if (process.env.KUBERNETES === 'true') await agonesSDK.shutdown();
     }
     
     console.log("=============End=================");
 }
 
-// runBot();
 run();

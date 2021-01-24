@@ -5,7 +5,7 @@
 ## TL;DR
 
 ```console
-helm repo add xr3ngine https://charts.myxr.social
+helm repo add xr3ngine https://helm.xrengine.io
 helm install my-release xr3ngine/xr3ngine
 ```
 
@@ -33,7 +33,7 @@ It also optionally packages following which are required for xr3ngine platform:
 To install the chart with the release name `my-release`:
 
 ``` bash
-helm repo add xr3ngine https://school.xr3ngine.dev
+helm repo add xr3ngine https://helm.xrengine.io
 helm repo update
 helm install my-release xr3ngine/xr3ngine            # Helm 3
 helm install --name my-release xr3ngine/xr3ngine     # Helm 2

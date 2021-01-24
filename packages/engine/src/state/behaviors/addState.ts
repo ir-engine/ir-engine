@@ -7,9 +7,11 @@ import { StateType } from '../enums/StateType';
 import { StateValue } from '../interfaces/StateValue';
 import { StateAlias } from '../types/StateAlias';
 import { getComponent } from '../../ecs/functions/EntityFunctions';
+import { CharacterStateTypes } from "../../templates/character/CharacterStateTypes";
 
 
 export const addState: Behavior = (entity: Entity, args: { state: StateAlias }): void => {
+  // console.warn('addState', CharacterStateTypes[args.state], '(', args.state, ')' );
   const stateComponent = getComponent(entity, State);
   
   if(stateComponent === undefined){

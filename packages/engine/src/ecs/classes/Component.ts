@@ -1,45 +1,45 @@
 import { ComponentSchema, ComponentConstructor } from '../interfaces/ComponentInterfaces';
 
 /**
- * Components are added to entities to define behavior
- * Component functions can be found in {@link @xrengine/engine/ecs/functions/ComponentFunctions}
+ * Components are added to entities to define behavior.\
+ * Component functions can be found at {@link ecs/functions/ComponentFunctions | ComponentFunctions}.
  */
 
 export class Component<C> {
   /**
-   * Defines the attributes and attribute types on the constructed component class
-   * All component variables should be reflected in the component schema
+   * Defines the attributes and attribute types on the constructed component class.\
+   * All component variables should be reflected in the component schema.
    */
   static _schema: ComponentSchema
 
   /**
-   * The unique ID for this type of component (<C>)
+   * The unique ID for this type of component (<C>).
    */
   static _typeId: number
 
   /**
-   * The pool an individual instantiated component is attached to
-   * Each component type has a pool, pool size is set on engine initialization
+   * The pool an individual instantiated component is attached to.
+   * Each component type has a pool, pool size is set on engine initialization.
    */
   _pool: any
 
   /**
-   * The type ID of this component, should be the same as the component's constructed class
+   * The type ID of this component, should be the same as the component's constructed class.
    */
   _typeId: any = -1
 
   /**
-   * The name of the component instance, derived from the class name
+   * The name of the component instance, derived from the class name.
    */
   name: any = ""
 
-    /**
-    * The "entity" this component is attached to
+  /**
+   * The "entity" this component is attached to.
    */
   entity: any = ""
 
   /**
-   * Component class constructor
+   * Component class constructor.
    */
   constructor (props?: Partial<Omit<C, keyof Component<any>>> | false) {
     this.name = this.constructor.name;
@@ -69,11 +69,13 @@ export class Component<C> {
   }
 
   /**
-   * Default logic for copying component
-   * Each component class can override this
-   * @returns this new component as a copy of the source
+   * Default logic for copying component.
+   * Each component class can override this.
+   * 
+   * @param source Source Component.
+   * @returns this new component as a copy of the source.
    */
-  copy (source) {
+  copy (source): any {
     const schema = (this.constructor as ComponentConstructor<Component<C>>)._schema;
 
     for (const key in schema) {
@@ -89,19 +91,19 @@ export class Component<C> {
   }
 
   /**
-   * Default logic for cloning component
-   * Each component class can override this
-   * @returns a new component as a clone of itself
+   * Default logic for cloning component.
+   * Each component class can override this.
+   * @returns a new component as a clone of itself.
    */
-  clone () {
+  clone (): any {
     return (this.constructor as any).prototype.copy(this);
   }
 
   /**
-   * Default logic for resetting attributes to default schema values
-   * Each component class can override this
+   * Default logic for resetting attributes to default schema values.
+   * Each component class can override this.
    */
-  reset () {
+  reset (): void {
     const schema = (this.constructor as ComponentConstructor<Component<C>>)._schema;
 
     for (const key in schema) {
@@ -117,8 +119,8 @@ export class Component<C> {
   }
 
   /**
-   * Put the component back into it's component pool
-   * Called when component is removed from an entity
+   * Put the component back into it's component pool.
+   * Called when component is removed from an entity.
    */
   dispose (): void {
     if (this._pool) {
@@ -127,17 +129,17 @@ export class Component<C> {
   }
 
   /**
-   * Get the name of this component class
-   * Useful for JSON serialization, etc
+   * Get the name of this component class.
+   * Useful for JSON serialization, etc.
    */
-  static getName () {
+  static getName (): string {
     return (this.constructor as any).getName();
   }
 
   /**
    * Make sure attributes on this component have been defined in the schema
    */
-  checkUndefinedAttributes (src) {
+  checkUndefinedAttributes (src): void {
     const schema = (this.constructor as ComponentConstructor<Component<C>>)._schema;
     Object.keys(src).forEach(srcKey => {
       if (!schema[srcKey]) {

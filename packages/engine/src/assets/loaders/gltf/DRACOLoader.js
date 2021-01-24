@@ -5,7 +5,7 @@ import {
 	Loader
 } from "three";
 
-var DRACOLoader = function ( manager ) {
+let DRACOLoader = function ( manager ) {
 
 	Loader.call( this, manager );
 

@@ -33,7 +33,7 @@ export const seed = {
     },
     {
       id: "08cc03ab-24e9-11eb-bc2e-e7e742fb069f",
-      data: { "position": { "x": 0, "y": 0, "z": 0 }, "rotation": { "x": 0, "y": 0, "z": 0 }, "scale": { "x": 1, "y": 1, "z": 1 } },
+      data: {"position":{"x":0,"y":5,"z":10},"rotation":{"x":-0.4636,"y":0,"z":0},"scale":{"x":1,"y":1,"z":1}},
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
       type: "transform",
@@ -56,30 +56,6 @@ export const seed = {
       entityId: EntitySeed.templates.find(template => template.id === "08c8a843-24e9-11eb-bc2e-e7e742fb069f").id
     },
     {
-      id: "08cc03ae-24e9-11eb-bc2e-e7e742fb069f",
-      data: { "position": { "x": 0, "y": 0, "z": 0 }, "rotation": { "x": 0, "y": 0, "z": 0 }, "scale": { "x": 1, "y": 1, "z": 1 } },
-      createdAt: "2020-11-12 13:14:45",
-      updatedAt: "2020-11-12 13:14:45",
-      type: "transform",
-      entityId: EntitySeed.templates.find(template => template.id === "08c8a844-24e9-11eb-bc2e-e7e742fb069f").id
-    },
-    {
-      id: "08cc03af-24e9-11eb-bc2e-e7e742fb069f",
-      data: { "visible": true },
-      createdAt: "2020-11-12 13:14:45",
-      updatedAt: "2020-11-12 13:14:45",
-      type: "visible",
-      entityId: EntitySeed.templates.find(template => template.id === "08c8a844-24e9-11eb-bc2e-e7e742fb069f").id
-    },
-    {
-      id: "08cc03b3-24e9-11eb-bc2e-e7e742fb069f",
-      data: {},
-      createdAt: "2020-11-12 13:14:45",
-      updatedAt: "2020-11-12 13:14:45",
-      type: "box-collider",
-      entityId: EntitySeed.templates.find(template => template.id === "08c8a844-24e9-11eb-bc2e-e7e742fb069f").id
-    },
-    {
       id: "08cc03b4-24e9-11eb-bc2e-e7e742fb069f",
       data: { "position": {"x":0,"y":0,"z":0}, "rotation": {"x":0,"y":0,"z":0}, "scale": {"x":1,"y":1,"z":1} },
       createdAt: "2020-11-12 13:14:45",
@@ -96,20 +72,20 @@ export const seed = {
       entityId: EntitySeed.templates.find(template => template.id === '08c8a846-24e9-11eb-bc2e-e7e742fb069f').id
     },
     {
-      id: "08cc03b0-24e9-11eb-bc2e-e7e742fb069f",
-      data: { "type":"ground","position":{"x":0,"y":-3,"z":0}},
-      createdAt: "2020-11-12 13:14:45",
-      updatedAt: "2020-11-12 13:14:45",
-      type: "box-collider",
-      entityId: EntitySeed.templates.find(template => template.id === "08c8a844-24e9-11eb-bc2e-e7e742fb069f").id
-    },
-    {
       id: "08cc03b6-24e9-11eb-bc2e-e7e742fb069f",
       data: {"turbidity":6.09,"rayleigh":0.82,"luminance":1.055,"mieCoefficient":0.043,"mieDirectionalG":0.8,"inclination":0.10471975511965978,"azimuth":0.2333333333333333,"distance":8000},
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
       type: "skybox",
       entityId: EntitySeed.templates.find(template => template.id === '08c8a846-24e9-11eb-bc2e-e7e742fb069f').id
+    },
+    {
+      id: "08cc03b7-24e9-11eb-bc2e-e7e742fb069f",
+      data: { "position": {"x":0,"y":0,"z":0}, "rotation": {"x":0,"y":0,"z":0}, "scale": {"x":1,"y":1,"z":1} },
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
+      type: "transform",
+      entityId: EntitySeed.templates.find(template => template.id === '1B698482-C15A-4CEC-9247-03873520DF70').id
     },
     {
       id: "08cc03b8-24e9-11eb-bc2e-e7e742fb069f",
@@ -126,6 +102,14 @@ export const seed = {
       updatedAt: "2020-11-12 13:14:45",
       type: "ground-plane",
       entityId: EntitySeed.templates.find(template => template.id === '1B698482-C15A-4CEC-9247-03873520DF70').id
+    },
+    {
+      id: "08cc03b0-24e9-11eb-bc2e-e7e742fb069f",
+      data: { "type":"ground","position":{"x":0,"y":0,"z":0}},
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
+      type: "box-collider",
+      entityId: EntitySeed.templates.find(template => template.id === "1B698482-C15A-4CEC-9247-03873520DF70").id
     },
     {
       id: "08cc03c1-24e9-11eb-bc2e-e7e742fb069f",
