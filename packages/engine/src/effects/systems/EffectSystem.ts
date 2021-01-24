@@ -5,40 +5,47 @@ import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { RendererComponent } from '../../renderer/components/RendererComponent'
 import { HighlightComponent } from '../components/HighlightComponent'
 
+/** System Class for Highlight system.\
+ * This system will highlight the entity with {@link effects/components/HighlightComponent.HighlightComponent | Highlight} Component attached.
+ */
 export class HighlightSystem extends System {
+  /** Update type of the system. **Default** value is 
+   * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type.
+   */
   updateType = SystemUpdateType.Fixed;
 
+  /** Constructs Highlight system. */
   constructor(attributes?: SystemAttributes) {
-    super(attributes)
+    super(attributes);
   }
 
+  /** Executes the system. */
   execute(deltaTime, time): void {
-    for (const entity of this.queryResults.hightlights.added) {
-      const hightlightedObject = getComponent(entity, Object3DComponent).value
-      hightlightedObject.traverse(obj => {
+    for (const entity of this.queryResults.highlights.added) {
+      const highlightedObject = getComponent(entity, Object3DComponent).value;
+      highlightedObject.traverse(obj => {
         if (obj !== undefined) {
-          RendererComponent.instance.composer.outlineEffect?.selection.add(obj)
+          RendererComponent.instance.composer.outlineEffect?.selection.add(obj);
         }
-      })
+      });
     }
-    for (const entity of this.queryResults.hightlights.removed) {
-      const hightlightedObject = getComponent(entity, Object3DComponent).value
-      hightlightedObject.traverse(obj => {
+    for (const entity of this.queryResults.highlights.removed) {
+      const highlightedObject = getComponent(entity, Object3DComponent).value;
+      highlightedObject.traverse(obj => {
         if (obj !== undefined) {
-          RendererComponent.instance.composer.outlineEffect?.selection.delete(
-            obj
-          )
+          RendererComponent.instance.composer.outlineEffect?.selection.delete(obj);
         }
-      })
+      });
     }
   }
 }
+
 HighlightSystem.queries = {
-  hightlights: {
+  highlights: {
     components: [Object3DComponent, HighlightComponent],
     listen: {
       removed: true,
       added: true
     }
   }
-}
+};
