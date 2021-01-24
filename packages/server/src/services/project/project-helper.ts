@@ -113,3 +113,39 @@ export function mapProjectDetailData (project: any): any {
   };
   return _proj;
 }
+
+export function mapProjectTemplateDetailData (projectTemplate: any): any {
+  const selectedSceneData = {
+    ...projectTemplate,
+    sceneId: null,
+    project_id: projectTemplate.sid,
+    url: null,
+    model_url: null,
+    screenshot_url: projectTemplate?.thumbnail_file?.url
+  };
+  /*
+id: "251dd580-5caa-11eb-88f7-41085bb160dd"
+isPublic: true
+locationId: null
+metadata: "{"name":"Sky Island"}"
+name: "Sky Island"
+root: "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC"
+sid: "rjexuC2v"
+thumbnailOwnedFileId: "25001450-5caa-11eb-816b-4782c6a01287"
+type: "project"
+updatedAt: "2021-01-22T12:05:40.000Z"
+url: "https://localhost:3030/collection/251dd580-5caa-11eb-88f7-41085bb160dd"
+userId: "084ffae0-5c15-11eb-9c41-59a7d7252cfc"
+version: 4
+   */
+
+  const _proj = {
+    name: projectTemplate.name,
+    parent_scene: null,
+    project_id: projectTemplate.sid,
+    project_url: null,
+    scenes: [ selectedSceneData ],
+    thumbnailUrl: projectTemplate?.thumbnail_file?.url
+  };
+  return _proj;
+}

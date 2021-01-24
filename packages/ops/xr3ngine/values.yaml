@@ -341,4 +341,4 @@ agones:
   enabled: false
 
 redis:
-  enabled: true
+  enabled: false

@@ -29,7 +29,8 @@ const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initi
 
 // turn off physics
 new PhysicsManager();
-PhysicsManager.instance.simulate = false;
+//PhysicsManager.instance.simulate = false;
+PhysicsManager.instance.physicsWorld.gravity.set(0,0,0);
 
 class TestTransport implements NetworkTransport {
   isServer = false;
@@ -122,7 +123,7 @@ test("create", () => {
 
   // WorldStateInterface
   Network.instance.incomingMessageQueue.add(WorldStateModel.toBuffer(message));
-  execute(0, 1 / Engine.physicsFrameRate, SystemUpdateType.Fixed);
+  execute(1, 1 / Engine.physicsFrameRate, SystemUpdateType.Fixed);
 
   expect(initializeNetworkObject.mock.calls.length).toBe(1);
 

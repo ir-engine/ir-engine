@@ -11,6 +11,7 @@ import { WebGLRenderer, PerspectiveCamera, Scene, Clock, AudioListener,  } from 
 import { Entity } from './Entity';
 import { CameraOperator } from '../../camera/classes/CameraOperator';
 import { TransformComponent } from '../../transform/components/TransformComponent';
+import { ServerSpawnSystem } from "../../scene/systems/SpawnSystem";
 
 /** 
  * This is the base class which holds all the data related to the scene, camera,system etc.\
@@ -181,4 +182,6 @@ export class Engine {
   static tick = 0;
   /** HTML Element in which Engine renders. */
   static viewportElement: HTMLElement;
+
+  static spawnSystem: ServerSpawnSystem;
 }

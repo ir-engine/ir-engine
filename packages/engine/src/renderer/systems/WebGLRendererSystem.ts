@@ -42,10 +42,10 @@ export class WebGLRendererSystem extends System {
   isInitialized: boolean
   
   // resoulion scale
-  scaleFactor: number = 1
-  downGradeTimer: number = 0
-  upGradeTimer: number = 0
-  maxQualityLevel: number = 4
+  scaleFactor = 1
+  downGradeTimer = 0
+  upGradeTimer = 0
+  maxQualityLevel = 4
   qualityLevel: number = this.maxQualityLevel
   prevQualityLevel: number = this.qualityLevel
 
@@ -167,7 +167,7 @@ export class WebGLRendererSystem extends System {
      * @param {Number} delta time since last frame
      */
   execute(delta: number) {
-    let startTime = now();
+    const startTime = now();
 
     this.queryResults.renderers.added?.forEach((entity: Entity) => {
       RendererComponent.instance.needsResize = true;
@@ -194,8 +194,8 @@ export class WebGLRendererSystem extends System {
       // cleanup
     });
     
-    let lastTime = now();
-    let deltaRender = (lastTime - startTime);
+    const lastTime = now();
+    const deltaRender = (lastTime - startTime);
 
     this.changeQualityLevel(deltaRender);
   }

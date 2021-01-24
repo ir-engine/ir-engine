@@ -15,34 +15,55 @@ export class DebugHelpersSystem extends System {
     super();
 
     this.helpersByEntity = {
-      "viewVector": new Map()
+      "viewVector": new Map(),
+      "velocityArrow": new Map()
     };
   }
 
   execute(delta: number, time: number): void {
 
-    // view vector
-
-    this.queryResults.viewVectorHelper?.added?.forEach(entity => {
+    this.queryResults.characterDebug?.added?.forEach(entity => {
       const actor = getComponent(entity, CharacterComponent);
 
+      // view vector
       const origin = new Vector3( 0, 2, 0 );
       const length = 0.5;
       const hex = 0xffff00;
-
       const arrowHelper = new ArrowHelper( actor.viewVector.clone().normalize(), origin, length, hex );
       Engine.scene.add( arrowHelper );
-
       this.helpersByEntity.viewVector.set(entity, arrowHelper);
+
+      // velocity
+      const velocityColor = 0x0000ff;
+      const velocityArrowHelper = new ArrowHelper( new Vector3(), new Vector3( 0, 0, 0 ), 0.5, velocityColor );
+      Engine.scene.add( velocityArrowHelper );
+      this.helpersByEntity.velocityArrow.set(entity, velocityArrowHelper);
     });
 
-    this.queryResults.viewVectorHelper?.all?.forEach(entity => {
+    this.queryResults.characterDebug?.removed?.forEach(entity => {
+      // view vector
+      const arrowHelper = this.helpersByEntity.viewVector.get(entity);
+      Engine.scene.remove( arrowHelper );
+
+      // velocity
+      const velocityArrowHelper = this.helpersByEntity.velocityArrow.get(entity);
+      Engine.scene.remove( velocityArrowHelper );
+    });
+
+    this.queryResults.characterDebug?.all?.forEach(entity => {
+      // view vector
       const actor = getComponent(entity, CharacterComponent);
       const transform = getComponent(entity, TransformComponent);
       const arrowHelper = this.helpersByEntity.viewVector.get(entity) as ArrowHelper;
 
       arrowHelper.setDirection(actor.viewVector.clone().setY(0).normalize());
       arrowHelper.position.copy(transform.position);
+
+      // velocity
+      const velocityArrowHelper = this.helpersByEntity.velocityArrow.get(entity) as ArrowHelper;
+      velocityArrowHelper.setDirection(actor.velocity.clone().normalize());
+      velocityArrowHelper.setLength(actor.velocity.length());
+      velocityArrowHelper.position.copy(transform.position);
     });
 
     // bounding box
@@ -70,7 +91,7 @@ export class DebugHelpersSystem extends System {
 }
 
 DebugHelpersSystem.queries = {
-  viewVectorHelper: {
+  characterDebug: {
     components: [ CharacterComponent ],
     listen: {
       added: true,
