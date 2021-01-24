@@ -7,6 +7,13 @@ import { VectorSpringSimulator } from '../../../physics/classes/VectorSpringSimu
 import { RelativeSpringSimulator } from '../../../physics/classes/RelativeSpringSimulator';
 import { RaycastResult, Vec3 } from 'cannon-es';
 
+// idle|   idle  +  walk     |    walk      |    walk + run     |   run
+// 0   | > WALK_START_SPEED  | > WALK_SPEED | > RUN_START_SPEED | > RUN_SPEED
+export const WALK_START_SPEED = 0.1;
+export const WALK_SPEED = 2;
+export const RUN_START_SPEED = 3;
+export const RUN_SPEED = 5;
+
 export class CharacterComponent extends Component<CharacterComponent> {
 
 	dispose(): void {
@@ -35,8 +42,15 @@ export class CharacterComponent extends Component<CharacterComponent> {
   public physicsEnabled = true
 
 	// Movement
+	/**
+	 * desired moving direction from user inputs
+	 */
 	public localMovementDirection = new Vector3();
 	public acceleration: Vector3 = new Vector3();
+	/**
+	 * this needs to be multiplied by moveSpeed to get real speed;
+	 * probably does not represent real physics speed
+	 */
 	public velocity: Vector3 = new Vector3();
 	public arcadeVelocityInfluence: Vector3 = new Vector3();
 	public velocityTarget: Vector3 = new Vector3();
@@ -47,7 +61,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public defaultVelocitySimulatorDamping = 0.8;
 	public defaultVelocitySimulatorMass = 50;
 	public velocitySimulator: VectorSpringSimulator
-	public moveSpeed = 4;
+	public moveSpeed = WALK_SPEED;
 	public angularVelocity = 0;
 	public orientation: Vector3 = new Vector3(0, 0, 1);
 	public orientationTarget: Vector3 = new Vector3(0, 0, 1);

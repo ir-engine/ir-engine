@@ -354,9 +354,9 @@ export default class Api extends EventEmitter {
     });
 
     return {
-      results: thumbnailedEntries,
+      results: thumbnailedEntries ? thumbnailedEntries : [],
       suggestions: json.suggestions,
-      nextCursor: json.meta.next_cursor
+      nextCursor: json.meta?.next_cursor
     };
   }
   searchTermFilteringBlacklist(query: any): any {

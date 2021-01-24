@@ -1,6 +1,11 @@
 import { Sequelize, DataTypes } from 'sequelize';
 import { Application } from '../declarations';
 
+/**
+ * 
+ * this model is associate with users 
+ * it contain role for users
+ */
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const userRole = sequelizeClient.define('user_role', {

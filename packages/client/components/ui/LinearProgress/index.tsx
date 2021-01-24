@@ -28,8 +28,8 @@ const LinearProgressComponent = (props: Props) => {
   if(onBoardingStep === generalStateList.START_STATE){
     openLinear = true;
   }else{
-    const hideLinearProgress = setTimeout(() => {openLinear = false; clearTimeout(hideLinearProgress)}, 1000)
-  };
+    const hideLinearProgress = setTimeout(() => {openLinear = false; clearTimeout(hideLinearProgress);}, 1000);
+  }
   const count = parseInt(label) || null;
   return openLinear === true ? <>
     <section className={styles.overlay} style={{backgroundImage: `url(${currentScene?.thumbnailUrl})`}}>

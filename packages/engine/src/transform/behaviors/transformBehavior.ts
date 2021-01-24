@@ -25,5 +25,8 @@ export const transformBehavior: Behavior = (entity: Entity, args: { event: Mouse
 
   object3DComponent.value.position.copy(transform.position);
   object3DComponent.value.rotation.setFromQuaternion(transform.rotation);
+  if (transform.scale && transform.scale.length() > 0) {
+    object3DComponent.value.scale.copy(transform.scale);
+  }
   object3DComponent.value.updateMatrixWorld();
 };
