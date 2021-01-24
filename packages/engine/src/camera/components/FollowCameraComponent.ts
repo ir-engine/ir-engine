@@ -1,19 +1,31 @@
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
-/**
-  * the component is added to any entity and hangs the camera watching it
- */
+
+/** The component is added to any entity and hangs the camera watching it. */
 export class FollowCameraComponent extends Component<FollowCameraComponent> {
+  /** * **Default** value is ```'thirdPersonLocked'```. */
   mode: string
+  /** * **Default** value is 3. */
   distance: number
+  /** * **Default** value is 2. */
   minDistance: number
+  /** * **Default** value is 7. */
   maxDistance: number
+  /** * **Default** value is ```true```. */
   raycastBoxOn: boolean
-  rx1: number // first right x point of screen, two-dimensional square on the screen, hitting which the interactive objects are highlighted
-  ry1: number // first right y point of screen
-  rx2: number // second right x point of screen
-  ry2: number // second right y point of screen
-  farDistance: number // distance to which interactive objects from the camera will be highlighted
+  /**
+   * First right x point of screen, two-dimensional square on the screen, hitting which the interactive objects are highlighted.\
+   * **Default** value is -0.1.
+   */
+  rx1: number
+  /** First right y point of screen. **Default** value is -0.1. */
+  ry1: number
+  /** Second right x point of screen. **Default** value is 0.1. */
+  rx2: number
+  /** Second right y point of screen. **Default** value is 0.1. */
+  ry2: number
+  /** Distance to which interactive objects from the camera will be highlighted. **Default** value is 5. */
+  farDistance: number
 }
 
 FollowCameraComponent._schema = {

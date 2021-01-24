@@ -27,15 +27,15 @@ const up = new Vector3(0, 1, 0);
 const empty = new Vector3();
 const PI_2 = Math.PI / 2;
 
-
 const mx = new Matrix4();
 let theta = 0;
 let phi = 0;
 
-
-
-
-
+/**
+ * Set camera to follow the entity.
+ * @param entity Camera Entity.
+ * @param entityOut Character Entity which will be followed.
+ */
 export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: any, entityOut: Entity): void => {
   follower = getMutableComponent (entityIn, DesiredTransformComponent); // Camera
   target = getMutableComponent (entityOut, TransformComponent); // Player 
