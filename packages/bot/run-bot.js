@@ -54,13 +54,19 @@ async function run() {
         }
 
         await botManager.run();
+
+        if (process.env.KUBERNETES === 'true') {
+            await agonesSDK.shutdown();
+        }
     }
     catch (e) {
         console.error(e);
+        
         await botManager.clear();
-    }
-    finally {
-        if (process.env.KUBERNETES === 'true') await agonesSDK.shutdown();
+        if (process.env.KUBERNETES === 'true') {
+            await agonesSDK.shutdown();
+        }
+        process.exit(1);
     }
     
     console.log("=============End=================");
