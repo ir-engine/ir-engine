@@ -14,7 +14,13 @@ const BotActionType = {
 
     // audio
     SendAudio:      'sendAudio',
+    StopAudio:      'stopAudio',
     ReceiveAudio:   'receiveAudio',
+
+    // video
+    SendVideo:      'sendVideo',
+    StopVideo:      'stopVideo',
+    ReceiveVideo:   'receiveVideo',
 
     // interact
     InteractObject: 'interactObject',
@@ -24,6 +30,7 @@ const BotActionType = {
 
     // flow control
     OpIf:            'opIf',
+    Delay:           'delay',
 };
 
 class MessageData {
@@ -52,6 +59,18 @@ class KeyEventData {
     constructor(key, pressedTime) {
         this.key = key;
         this.pressedTime = pressedTime; // in milliseconds
+    }
+}
+
+class SendMediaData {
+    constructor(duration) {
+        this.duration = duration;
+    }
+}
+
+class DelayData {
+    constructor(timeout) {
+        this.timeout = timeout;
     }
 }
 
@@ -89,12 +108,28 @@ class BotAction {
         return new BotAction(BotActionType.SendMessage, new MessageData(message));
     }
 
-    static sendAudio() {
-        return new BotAction(BotActionType.SendAudio, {});
+    static sendAudio(duration) {
+        return new BotAction(BotActionType.SendAudio, new SendMediaData(duration));
+    }
+
+    static stopAudio() {
+        return new BotAction(BotActionType.StopAudio, {});
     }
 
     static receiveAudio() {
         return new BotAction(BotActionType.ReceiveAudio, {});
+    }
+
+    static sendVideo(duration) {
+        return new BotAction(BotActionType.SendVideo, new SendMediaData(duration));
+    }
+
+    static stopVideo() {
+        return new BotAction(BotActionType.StopVideo, {});
+    }
+
+    static receiveVideo() {
+        return new BotAction(BotActionType.ReceiveVideo, {});
     }
 
     static keyPress(key, pressedTime) {
@@ -119,6 +154,10 @@ class BotAction {
 
     static opIf(expression, trueCallback, falseCallback) {
         return new BotAction(BotActionType.OpIf, new OperatorData(expression, trueCallback, falseCallback));
+    }
+
+    static delay(timeout) {
+        return new BotAction(BotActionType.Delay, new DelayData(timeout));
     }
 };
 

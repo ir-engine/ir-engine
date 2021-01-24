@@ -11,8 +11,11 @@ async function run() {
 
     const domain = process.env.DOMAIN || 'dev.theoverlay.io';
     const locationName = process.env.LOCATION_NAME || 'test';
+    const fakeMediaPath = __dirname + "/resources";
     const moveDuratioon = 2000;
-    const botManager = new BotManager({headless: false});
+    const botManager = new BotManager({headless: true, fakeMediaPath});
+
+    console.log(fakeMediaPath);
 
     if (process.env.KUBERNETES === 'true') {
         agonesSDK.connect();
@@ -27,12 +30,14 @@ async function run() {
 
     botManager.addAction("bot1", BotAction.connect());
     botManager.addAction("bot1", BotAction.enterRoom(domain, locationName));
+    botManager.addAction("bot1", BotAction.sendAudio(10000));
+    botManager.addAction("bot1", BotAction.receiveAudio(6000));
+    botManager.addAction("bot1", BotAction.delay(6000));
     // botManager.addAction("bot1", BotAction.keyPress("KeyW", moveDuratioon));
     // botManager.addAction("bot1", BotAction.keyPress("KeyD", moveDuratioon));
     // botManager.addAction("bot1", BotAction.keyPress("KeyS", moveDuratioon));
     // botManager.addAction("bot1", BotAction.keyPress("KeyA", moveDuratioon));
     // botManager.addAction("bot1", BotAction.sendMessage("Hello World! This is bot1."));
-    botManager.addAction("bot1", BotAction.sendAudio());
 
     // botManager.addAction("bot2", BotAction.connect());
     // botManager.addAction("bot2", BotAction.enterRoom(domaiin, locationName));
@@ -44,7 +49,7 @@ async function run() {
 
     // botManager.addAction("monitor", BotAction.opIf((stats) => console.log(stats)));
 
-    // botManager.addAction("bot1", BotAction.disconnect());
+    botManager.addAction("bot1", BotAction.disconnect());
     // botManager.addAction("bot2", BotAction.disconnect());
 
     try {
@@ -52,8 +57,8 @@ async function run() {
     }
     catch (e) {
         console.error(e);
-        // await botManager.clear();
-        // process.exit(1);
+        await botManager.clear();
+        process.exit(1);
     }
     
     console.log("=============End=================");
