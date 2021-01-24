@@ -1,7 +1,5 @@
 const XR3ngineBot = require('./xr3ngine-bot');
 const { BotActionType } = require('./bot-action');
-const mediaFaker = require('./media-faker');
-
 class BotManager {
     /**
      * BotManager constructor
@@ -28,8 +26,7 @@ class BotManager {
 
         const bot = new XR3ngineBot({
             name, 
-            headless: this.options.headless, 
-            autoLog: this.options.autoLog
+            ...this.options
         });
 
         this.bots[name] = bot;
@@ -62,39 +59,41 @@ class BotManager {
         await bot.clickElementByClass('button', 'sendMessage');
     }
 
-    async sendAudio(bot) {
+    async sendAudio(bot, duration) {
+        console.log("Sending audio...");
         await bot.clickElementById('svg', 'micOff');
-        // const {
-        //     id,
-        //     iceParameters,
-        //     iceCandidates,
-        //     dtlsParameters,
-        //     sctpParameters
-        // } = mediaFaker.generateTransportRemoteParameters();
-    
-        // const device = new Device({ handlerFactory: FakeHandler.createFactory(mediaFaker) });
-        // sendTransport = device.createSendTransport(
-        //     {
-        //         id,
-        //         iceParameters,
-        //         iceCandidates,
-        //         dtlsParameters,
-        //         sctpParameters,
-        //         appData : { baz: 'BAZ' }
-        //     });
-
-    
-        // expect(sendTransport.id).toBe(id);
-        // expect(sendTransport.closed).toBe(false);
-        // expect(sendTransport.direction).toBe('send');
-        // expect(sendTransport.handler).toBeType('object');
-        // expect(sendTransport.handler instanceof FakeHandler).toBe(true);
-        // expect(sendTransport.connectionState).toBe('new');
-        // expect(sendTransport.appData).toEqual({ baz: 'BAZ' }, 500);
+        await bot.waitForTimeout(duration);
     }
 
-    async recvAudio() {
+    async stopAudio(bot) {
+        console.log("Stop audio...");
+        await bot.clickElementById('svg', 'micOn');
+    }
 
+    async recvAudio(bot, duration) {
+        console.log("Receiving audio...");
+        await bot.waitForSelector('[class*=PartyParticipantWindow]', duration);
+    }
+
+    async sendVideo(bot, duration) {
+        console.log("Sending video...");
+        await bot.clickElementById('svg', 'videoOff');
+        await bot.waitForTimeout(duration);
+    }
+
+    async stopVideo(bot) {
+        console.log("Stop video...");
+        await bot.clickElementById('svg', 'videoOn');
+    }
+
+    async recvVideo(bot, duration) {
+        console.log("Receiving video...");
+        await bot.waitForSelector('[class*=PartyParticipantWindow]', duration);
+    }
+
+    async delay(bot, timeout) {
+        console.log(`Waiting for ${timeout} ms... `);
+        await bot.waitForTimeout(timeout);
     }
 
     async interactObject() {
@@ -136,11 +135,27 @@ class BotManager {
                     break;
 
                 case BotActionType.SendAudio:
-                    await this.sendAudio(bot);
+                    await this.sendAudio(bot, action.data.duration);
+                    break;
+
+                case BotActionType.StopAudio:
+                    await this.stopAudio(bot);
                     break;
 
                 case BotActionType.ReceiveAudio:
-                    await this.recvAudio();
+                    await this.recvAudio(bot, action.data.duration);
+                    break;
+
+                case BotActionType.SendVideo:
+                    await this.sendVideo(bot, action.data.duration);
+                    break;
+
+                case BotActionType.StopVideo:
+                    await this.stopVideo(bot);
+                    break;
+
+                case BotActionType.ReceiveVideo:
+                    await this.recvVideo(bot, action.data.duration);
                     break;
 
                 case BotActionType.InteractObject:
@@ -152,6 +167,9 @@ class BotManager {
                     await this.sendMessage(bot, action.data.message);
                     break;
 
+                case BotActionType.Delay:
+                    await this.delay(bot, action.data.timeout);
+                    break;
                 default:
                     console.error("Unknown bot action");
                     break;

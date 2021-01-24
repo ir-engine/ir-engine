@@ -67,12 +67,14 @@ class PageUtils {
 class XR3ngineBot {
     constructor({
         name = "XR3ngineBot",
+        fakeMediaPath,
         headless = true,
         autoLog = true} = {}
     ) {
         this.headless = headless;
         this.name = name;
         this.autoLog = autoLog;
+        this.fakeMediaPath = fakeMediaPath;
 
         for (let method of Object.getOwnPropertyNames(InBrowserBot.prototype))
         {
@@ -163,13 +165,16 @@ class XR3ngineBot {
         const options = {
             headless: this.headless,
             args: [
-                '--ignore-certificate-errors',
-                '--use-fake-ui-for-media-stream',
-                '--disable-web-security',
+                "--disable-gpu",
+                "--use-fake-ui-for-media-stream=1",
+                "--use-fake-device-for-media-stream=1",
+                `--use-file-for-fake-video-capture=${this.fakeMediaPath}/video.y4m`,
+                `--use-file-for-fake-audio-capture=${this.fakeMediaPath}/audio.wav`,
+                // '--disable-web-security',
             //     '--use-fake-device-for-media-stream',
             //     '--use-file-for-fake-video-capture=/Users/apple/Downloads/football_qcif_15fps.y4m',
             //     // '--use-file-for-fake-audio-capture=/Users/apple/Downloads/BabyElephantWalk60.wav',
-                '--allow-file-access',
+                '--allow-file-access=1',
             ],
             ignoreDefaultArgs: ['--mute-audio'],
             ...this.detectOsOption()
@@ -186,8 +191,6 @@ class XR3ngineBot {
         this.page.setViewport({ width: 1600, height: 900});
         await this.page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36')
 
-        const context = this.browser.defaultBrowserContext();
-        // context.overridePermissions("https://theoverlay.io", ['microphone', 'camera'])
         this.pu = new PageUtils(this);
     }
 
@@ -206,10 +209,16 @@ class XR3ngineBot {
 
         let parsedUrl = new URL(url)
         const context = this.browser.defaultBrowserContext();
+        console.log("permission allow for ", parsedUrl.origin);
         context.overridePermissions(parsedUrl.origin, ['microphone', 'camera']);
 
         console.log('Going to ' + url);
-        this.page.goto(url, {waitUntil: 'domcontentloaded'})
+        await this.page.goto(url, {waitUntil: 'domcontentloaded'});
+
+        const granted = await this.page.evaluate(async () => {
+            return (await navigator.permissions.query({name: 'camera'})).state;
+          });
+        console.log('Granted:', granted);
     }
 
     /** Enters the room specified, enabling the first microphone and speaker found
@@ -219,7 +228,7 @@ class XR3ngineBot {
      */
     async enterRoom(roomUrl, {name = 'bot'} = {}) {
         await this.navigate(roomUrl);
-        await this.page.waitForSelector("button.join_world", { timeout: 60000})
+        await this.page.waitForSelector("button.join_world", { timeout: 100000})
 
         if (name) {
             this.name = name
@@ -242,12 +251,20 @@ class XR3ngineBot {
                 // await this.page.waitForSelector('button.openChat');
                 await this.page.mouse.click(0, 0);
                 resolve();
-            }, 100000)
+            }, 60000)
         }, 2000) });
     }
 
     onMessage(callback) {
         // window.APP.hubChannel.channel.on('message', callback)
+    }
+
+    async waitForTimeout(timeout) {
+        return this.page.waitForTimeout(timeout);
+    }
+
+    async waitForSelector(selector, timeout) {
+        return this.page.waitForSelector(selector, { timeout });
     }
 
     async clickElementByClass(elemType, classSelector) {
@@ -285,8 +302,12 @@ class XR3ngineBot {
      * Leaves the room and closes the browser instance without exiting node
      */
     quit() {
-        this.page.close()
-        this.browser.close()
+        if (this.page) {
+            this.page.close();
+        }
+        if (this.browser) {
+            this.browser.close();
+        }
     }
 }
 
