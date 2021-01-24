@@ -1,3 +1,5 @@
+/** Functions to provide entity level functionalities. */
+
 import { Component } from '../classes/Component';
 import { ComponentConstructor } from '../interfaces/ComponentInterfaces';
 import { Entity } from '../classes/Entity';
@@ -10,8 +12,11 @@ import { QUERY_COMPONENT_CHANGED } from '../constants/Events';
 import { COMPONENT_ADDED, ENTITY_CREATED, ENTITY_REMOVED, COMPONENT_REMOVE } from '../constants/Events';
 
 /**
- * Get direct access to component data to modify
- * This will add the entity to any querying system's onChanged result
+ * Get direct access to component data to modify.\
+ * This will add the entity to any querying system's onChanged result.
+ * 
+ * @param entity Entity.
+ * @param component Type of component.
  */
 export function getMutableComponent<C extends Component<C>>(
   entity: Entity,
@@ -34,8 +39,13 @@ export function getMutableComponent<C extends Component<C>>(
 }
 
 /**
- * Get a component that has been removed from the entity but hasn't been removed this frame
- * This will only work if deferredEntityRemoval is true in the engine (it is by default)
+ * Get a component that has been removed from the entity but hasn't been removed this frame.\
+ * This will only work if {@link ecs/classes/Engine.Engine.deferredRemovalEnabled | Engine.deferredRemovalEnabled } is true in the engine (it is by default).
+ * 
+ * @param entity Entity.
+ * @param component Type of component to be removed.
+ * 
+ * @returns Removed component from the entity which hasn't been removed this frame.
  */
 export function getRemovedComponent<C extends Component<C>>(
   entity: Entity,
@@ -47,30 +57,36 @@ export function getRemovedComponent<C extends Component<C>>(
 }
 
 /**
- * @returns an object with all components on the entity, keyed by component name
+ * @param entity Entity to get components.
+ * @returns An object with all components on the entity, keyed by component name.
  */
 export function getComponents(entity: Entity): { [componentName: string]: ComponentConstructor<any> } {
   return entity.components;
 }
 
 /**
- * @returns all components that are going to be removed from the entity and sent back to the pool at the end of this frame
+ * @param entity Entity to get removed component.
+ * @returns All components that are going to be removed from the entity and sent back to the pool at the end of this frame.
  */
 export function getComponentsToRemove(entity: Entity): { [componentName: string]: ComponentConstructor<any> } {
   return entity.componentsToRemove;
 }
 
 /**
- * @returns an array of component types on this entity
+ * @param entity Entity to get component types.
+ * @returns An array of component types on this entity.
  */
 export function getComponentTypes(entity: Entity): Array<Component<any>> {
   return entity.componentTypes;
 }
 
 /**
- * Add a component to an entity
- * Optional values will be passed to the component constructor
-* @returns the component added to the entity
+ * Add a component to an entity.
+ * 
+ * @param entity Entity.
+ * @param Component Type of component which will be removed.
+ * @param values values to be passed to the component constructor.
+ * @returns The component added to the entity.
  */
 export function addComponent<C extends Component<C>>(
   entity: Entity,
@@ -128,9 +144,12 @@ export function addComponent<C extends Component<C>>(
 }
 
 /**
- * Add a component to an entity
- * Optional values will be passed to the component constructor
-* @returns the component removed from the entity (you probably don't need this)
+ * Remove a component from an entity.
+ * 
+ * @param entity Entity.
+ * @param Component Type of component which will be removed.
+ * @param forceImmediate Remove immediately or wait for the frame to complete.
+ * @returns The component removed from the entity (you probably don't need this).
  */
 export function removeComponent<C extends Component<C>>(
   entity: Entity,
@@ -187,8 +206,11 @@ export function removeComponent<C extends Component<C>>(
 }
 
 /**
- * Check if an entity has a component type
-* @returns true if the entity has the component
+ * Check if an entity has a component type.
+ * @param entity Entity being checked.
+ * @param Components Type of components to check.
+ * @param includeRemoved Also check in {@link ecs/classes/Entity.Entity.componentTypesToRemove | Entity.componentTypesToRemove}.
+ * @returns True if the entity has the component.
  */
 export function hasComponent<C extends Component<C>>(
   entity: Entity,
@@ -203,8 +225,10 @@ export function hasComponent<C extends Component<C>>(
 }
 
 /**
- * Check if an entity had a component type removed this frame
-* @returns true if the entity had the component removed this frame
+ * Check if an entity had a component type removed this frame.
+ * @param entity Entity.
+ * @param Components Type of components to check.
+ * @returns True if the entity had the component removed this frame.
  */
 export function hasRemovedComponent<C extends Component<any>>(
   entity: Entity,
@@ -214,8 +238,10 @@ export function hasRemovedComponent<C extends Component<any>>(
 }
 
 /**
- * Check if an entity has aall component types in an array
-* @returns true if the entity has all components
+ * Check if an entity has aall component types in an array.
+ * @param entity Entity
+ * @param Components Type of components to check.
+ * @returns True if the entity has all components.
  */
 export function hasAllComponents(entity: Entity, Components: Array<ComponentConstructor<any>>): boolean {
   for (let i = 0; i < Components.length; i++) {
@@ -225,8 +251,11 @@ export function hasAllComponents(entity: Entity, Components: Array<ComponentCons
 }
 
 /**
- * Check if an entity has any of the component types in an array
-* @returns true if the entity has any of the components
+ * Check if an entity has any of the component types in an array.
+ * 
+ * @param entity Entity.
+ * @param Components Type of components to check.
+ * @returns True if the entity has any of the components.
  */
 export function hasAnyComponents(entity: Entity, Components: Array<ComponentConstructor<any>>): boolean {
   for (let i = 0; i < Components.length; i++) {
@@ -236,8 +265,8 @@ export function hasAnyComponents(entity: Entity, Components: Array<ComponentCons
 }
 
 /**
- * Create a new entity
-* @returns the new entity
+ * Create a new entity.
+ * @returns Newly created entity.
  */
 export function createEntity(): Entity {
   const entity = Engine.entityPool.acquire();
@@ -247,7 +276,10 @@ export function createEntity(): Entity {
 }
 
 /**
- * Remove the entity from the simulation and return it to the pool
+ * Remove the entity from the simulation and return it to the pool.
+ * 
+ * @param entity Entity which will be removed.
+ * @param immediately Remove immediately or wait for the frame to complete.
  */
 export function removeEntity(entity: Entity, immediately?: boolean): void {
   const index = Engine.entities.indexOf(entity);
@@ -278,7 +310,10 @@ export function removeEntity(entity: Entity, immediately?: boolean): void {
 }
 
 /**
- * Remove all components from an entity
+ * Remove all components from an entity.
+ * 
+ * @param entity Entity whose components will be removed.
+ * @param immediately Remove immediately or wait for the frame to complete.
  */
 export function removeAllComponents(entity: Entity, immediately?: boolean): void {
   const Components = entity.componentTypes;
@@ -288,7 +323,7 @@ export function removeAllComponents(entity: Entity, immediately?: boolean): void
 }
 
 /**
- * Remove all entities from the simulation
+ * Remove all entities from the simulation.
  */
 export function removeAllEntities(): void {
   for (let i = Engine.entities.length - 1; i >= 0; i--) {
@@ -298,7 +333,11 @@ export function removeAllEntities(): void {
 
 /**
  * Get a component from the entity
- * @returns component
+ * 
+ * @param entity Entity to be searched.
+ * @param component Type of the component to be returned.
+ * @param includeRemoved Include Components from {@link ecs/classes/Entity.Entity.componentsToRemove | Entity.componentsToRemove}.
+ * @returns Component.
  */
 export function getComponent<C extends Component<C>>(
   entity: Entity,

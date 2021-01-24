@@ -1,12 +1,13 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { setMovingStateOnAnimationEnd } from '../behaviors/setMovingStateOnAnimationEnd';
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
-import { setActorAnimation } from "../behaviors/setActorAnimation";
+import { setActorAnimationById } from "../behaviors/setActorAnimation";
 import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateGroups } from '../CharacterStateGroups';
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { CharacterComponent } from '../components/CharacterComponent';
+import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
+import { onAnimationEnded } from "../behaviors/onAnimationEnded";
 
 export const DropRollingState: StateSchemaValue = {
   group: CharacterStateGroups.MOVEMENT,
@@ -18,31 +19,33 @@ export const DropRollingState: StateSchemaValue = {
     }
   }],
   onEntry: [
-      {
-        behavior: initializeCharacterState
-      },
-      {
-        behavior: setArcadeVelocityTarget,
-        args: { x: 0, y: 0, z: 0.8 }
-      },
-      {
-        behavior: setActorAnimation,
-        args: {
-          name: 'sb_drop_running_roll',
-          transitionDuration: 0.5
-        }
+    {
+      behavior: initializeCharacterState
+    },
+    {
+      behavior: setArcadeVelocityTarget,
+      args: { x: 0, y: 0, z: 0.8 }
+    },
+    {
+      behavior: setActorAnimationById,
+      args: {
+        animationId: CharacterAnimationsIds.DROP_ROLLING,
+        transitionDuration: 0.5
       }
-    ],
+    }
+  ],
   onUpdate: [
-    { behavior: updateCharacterState,
+    {
+      behavior: updateCharacterState,
       args: {
         setCameraRelativeOrientationTarget: true
       }
     },
-    { behavior: setMovingStateOnAnimationEnd,
+    {
+      behavior: onAnimationEnded,
       args: {
-        transitionToStateIfMoving: CharacterStateTypes.WALK,
-        transitionToStateIfNotMoving: CharacterStateTypes.WALK_END
+        transitionToState: CharacterStateTypes.IDLE
       }
-  }]
+    }
+  ]
 };

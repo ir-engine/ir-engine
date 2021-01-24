@@ -27,6 +27,7 @@ import { WebRTCGameServer } from "./gameserver/WebRTCGameServer";
 import winston from 'winston';
 import feathersLogger from 'feathers-logger';
 import { EventEmitter } from 'events';
+import psList from 'ps-list';
 
 const emitter = new EventEmitter();
 
@@ -35,17 +36,10 @@ const emitter = new EventEmitter();
 const app = express(feathers()) as Application;
 const agonesSDK = new AgonesSDK();
 
-function healthPing(agonesSDK: AgonesSDK): void {
-  try {
-    agonesSDK.health();
-    setTimeout(() => healthPing(agonesSDK), 1000);
-  } catch(err) {
-    console.log('Agones healthping error');
-    console.log(err);
-  }
-}
-
 app.set('nextReadyEmitter', emitter);
+
+console.log("***************** OPEN API PATH IS");
+console.log(process.cwd() + '/../openapi.html');
 
 if (config.server.enabled) {
   try {
@@ -53,7 +47,7 @@ if (config.server.enabled) {
         swagger({
           docsPath: '/openapi',
           docsJsonPath: '/openapi.json',
-          uiIndex: path.join(__dirname, '../openapi.html'),
+          uiIndex: path.join(process.cwd() + '/openapi.html'),
           // TODO: Relate to server config, don't hardcode this here
           specs: {
             info: {
@@ -64,6 +58,7 @@ if (config.server.enabled) {
           }
         })
     );
+    
 
     app.set('paginate', config.server.paginate);
     app.set('authentication', config.authentication);
@@ -87,7 +82,7 @@ if (config.server.enabled) {
     app.configure(express.rest());
     app.configure(socketio({
       serveClient: false,
-      handlePreflightRequest: (req, res) => {
+      handlePreflightRequest: (req: any, res: any) => {
         // Set CORS headers
         if (res != null) {
           res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
@@ -156,9 +151,12 @@ if (config.server.enabled) {
 
     if ((process.env.KUBERNETES === 'true' && config.server.mode === 'realtime') || process.env.NODE_ENV === 'development' || config.server.mode === 'local') {
       agonesSDK.connect();
-      agonesSDK.ready();
+      agonesSDK.ready().catch((err) => {
+        throw new Error('\x1b[33mError: Agones is not running!. If you are in local development, please run xr3ngine/scripts/sh start-agones.sh and restart server\x1b[0m');
+      });    
+
       (app as any).agonesSDK = agonesSDK;
-      healthPing(agonesSDK);
+      setInterval(() => agonesSDK.health(), 1000);
 
       // Create new gameserver instance
       const gameServer = new WebRTCGameServer(app);
@@ -177,10 +175,6 @@ if (config.server.enabled) {
 }
 
 app.use(express.errorHandler({ logger } as any));
-
-const editorPath = process.env.NODE_ENV === 'production' ? path.join(config.server.nodeModulesDir, '/xr3-editor/dist') : path.join(config.server.rootDir, '/node_modules/xr3-editor/dist');
-app.use(express.static(editorPath));
-app.all('/editor/*', (req, res) => res.sendFile(path.join(editorPath, 'editor/index.html')));
 
 process.on('exit', async () => {
   console.log('Server EXIT');

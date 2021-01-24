@@ -7,6 +7,11 @@ import logger from '../../app/logger';
 
 const { authenticate } = authentication.hooks;
 
+/**
+ * This module used to declare and identify database relation 
+ * which will be used later in user service 
+ */
+
 export default {
   before: {
     all: [authenticate('jwt')],

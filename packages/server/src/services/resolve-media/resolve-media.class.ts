@@ -2,7 +2,6 @@ import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/f
 import { Application } from '../../declarations';
 import { BadRequest } from '@feathersjs/errors';
 import SketchFabMediaClass from '../media-search/sketch-fab.class';
-import GooglePolyMediaClass from '../media-search/google-poly.class';
 import StorageProvider from '../../storage/storageprovider';
 import logger from '../../app/logger';
 
@@ -100,11 +99,6 @@ export class ResolveMedia implements ServiceMethods<Data> {
         Handler: SketchFabMediaClass,
         mediaType: 'SketchFab',
         modelId: url.pathname.replace('/models/', '')
-      },
-      '/view/': {
-        Handler: GooglePolyMediaClass,
-        mediaType: 'GooglePoly',
-        modelId: url.pathname.replace('/view/', '')
       }
       // TODO: Add more media types
     };

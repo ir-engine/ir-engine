@@ -11,7 +11,8 @@ import { ThemeContext } from "../../components/editor/theme";
 import { connect } from 'react-redux';
 import {selectAuthState} from "../../redux/auth/selector";
 import {bindActionCreators, Dispatch} from "redux";
-import {doLoginAuto} from "../../redux/auth/service";
+import {doLoginAuto, logoutUser} from "../../redux/auth/service";
+import SignIn from "../../components/ui/Auth/Login";
 export const ProjectsSection = (styled as any).section<{ flex?: number }>`
   padding-bottom: 100px;
   display: flex;
@@ -62,6 +63,7 @@ type Props = {
   router: Router;
   authState?: any;
   doLoginAuto?: any;
+  logoutUser?: typeof logoutUser;
 };
 type ProjectsPageState = { projects: any } & {
   error: any;
@@ -81,7 +83,8 @@ const mapStateToProps = (state: any): any => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
+  doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
+  logoutUser: bindActionCreators(logoutUser, dispatch),
 });
 const ProjectsPage = (props: Props) => {
   const {
@@ -89,7 +92,8 @@ const ProjectsPage = (props: Props) => {
     history,
     router,
     authState,
-    doLoginAuto
+    doLoginAuto,
+    logoutUser
   } = props;
 
 
@@ -99,12 +103,12 @@ const ProjectsPage = (props: Props) => {
   const [error, setError] = useState(null);
   const authUser = authState.get('authUser');
   const user = authState.get('user');
+
   useEffect(() => {
     doLoginAuto(true);
     console.warn("PROJECTS PAGE PROPS: ", props);
     console.log(authState);
     // We dont need to load projects if the user isn't logged in
-
   }, []);
 
   useEffect(() => {
@@ -162,8 +166,32 @@ const ProjectsPage = (props: Props) => {
   for (let i = 0; i < templates.length && i < 4; i++) {
     topTemplates.push(templates[i]);
   }
+
+  const handleLogout = () => logoutUser();
+
   return (
       <>
+      { !isAuthenticated || !authUser ?   
+        <ProjectsSection>
+          <ProjectsContainer>
+            <ProjectsHeader>
+                <h1>Please Login</h1>
+              </ProjectsHeader>
+            <ProjectGridContainer>
+              <ProjectGridContent>  
+                <SignIn />
+              </ProjectGridContent>  
+            </ProjectGridContainer>
+          </ProjectsContainer>
+        </ProjectsSection>
+        :
+        <ProjectGridHeader>
+          <ProjectGridHeaderRow />
+          <ProjectGridHeaderRow>
+            <MediumButton onClick={handleLogout}>Logout</MediumButton>
+          </ProjectGridHeaderRow>
+        </ProjectGridHeader>        
+      }
         { authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null && <main>
           {(projects.length === 0 && !loading) ? (
               <ProjectsSection flex={0}>
@@ -179,7 +207,7 @@ const ProjectsPage = (props: Props) => {
                   </MediumButton>
                 </WelcomeContainer>
               </ProjectsSection>
-          ) : null}
+          ) : null}          
           <ProjectsSection>
             <ProjectsContainer>
               <ProjectsHeader>
@@ -194,7 +222,7 @@ const ProjectsPage = (props: Props) => {
                     </Button>
                   </ProjectGridHeaderRow>
                 </ProjectGridHeader>
-                <ProjectGridContent>
+                <ProjectGridContent>                  
                   {error && <ErrorMessage>{(error as any).message}</ErrorMessage>}
                   {!error && (
                       <ProjectGrid
