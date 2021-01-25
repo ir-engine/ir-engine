@@ -1,4 +1,4 @@
-import { Vector3, Matrix4, Euler } from "three";
+import { Vector3, Quaternion, Matrix4, Euler } from "three";
 import { Entity } from "@xr3ngine/engine/src/ecs/classes/Entity";
 import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { Input } from "@xr3ngine/engine/src/input/components/Input";
@@ -16,7 +16,7 @@ import { getInputData } from "../functions/getInputData";
 import { anglesDifference } from "../functions/anglesDifference";
 import { DesiredTransformComponent } from "../../transform/components/DesiredTransformComponent";
 
-let follower, target;
+let follower: DesiredTransformComponent, target: TransformComponent;
 let inputComponent: Input;
 let cameraFollow;
 let camera;
@@ -27,17 +27,18 @@ const up = new Vector3(0, 1, 0);
 const empty = new Vector3();
 const PI_2 = Math.PI / 2;
 
-
 const mx = new Matrix4();
 let theta = 0;
 let phi = 0;
 
-
-
-
-
 export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: any, entityOut: Entity): void => {
   follower = getMutableComponent (entityIn, DesiredTransformComponent); // Camera
+  if (!follower.position) {
+    follower.position = new Vector3();
+  }
+  if (!follower.rotation) {
+    follower.rotation = new Quaternion();
+  }
   target = getMutableComponent (entityOut, TransformComponent); // Player 
 
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entityOut, CharacterComponent as any);
@@ -114,7 +115,7 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
     // const deltaTheta = anglesDifference(theta,targetTheta );
     // theta -= deltaTheta * 0.015;
     if (!args?.forceRefresh) {
-      follower.positionRate = 1.5;
+      follower.positionRate = 5;
     }
 
     theta = targetTheta;

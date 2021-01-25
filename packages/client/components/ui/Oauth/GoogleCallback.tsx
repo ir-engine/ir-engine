@@ -32,13 +32,15 @@ const GoogleCallback = (props: Props): any => {
     const error = router.query.error as string;
     const token = router.query.token as string;
     const type = router.query.type as string;
+    const path = router.query.path as string;
+    const instanceId = router.query.instanceId as string;
 
     if (!error) {
       if (type === 'connection') {
         const user = auth.get('user');
         refreshConnections(user.id);
       } else {
-        loginUserByJwt(token, '/', '/', '');
+        loginUserByJwt(token, `${path}?instanceId=${instanceId}` || '/', '/', '');
       }
     }
 

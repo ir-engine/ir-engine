@@ -342,7 +342,7 @@ export default class Api extends EventEmitter {
       throw error;
     }
 
-    const thumbnailedEntries = json.entries.map(entry => {
+    const thumbnailedEntries = json && json.entries && json.entries.length > 0 && json.entries.map(entry => {
       if (entry.images && entry.images.preview && entry.images.preview.url) {
         if (entry.images.preview.type === "mp4") {
           entry.images.preview.url = proxiedUrlFor(entry.images.preview.url);
@@ -354,9 +354,9 @@ export default class Api extends EventEmitter {
     });
 
     return {
-      results: thumbnailedEntries,
+      results: thumbnailedEntries ? thumbnailedEntries : [],
       suggestions: json.suggestions,
-      nextCursor: json.meta.next_cursor
+      nextCursor: json.meta?.next_cursor
     };
   }
   searchTermFilteringBlacklist(query: any): any {

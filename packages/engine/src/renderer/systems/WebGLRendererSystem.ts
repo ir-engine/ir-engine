@@ -32,6 +32,9 @@ import { NormalPass } from '../../postprocessing/passes/NormalPass';
 import { BlendFunction } from '../../postprocessing/effects/blending/BlendFunction';
 import { TextureEffect } from '../../postprocessing/effects/TextureEffect';
 import { OutlineEffect } from '../../postprocessing/effects/OutlineEffect';
+
+import { now } from '../../common/functions/now';
+
   /**
    * Handles rendering and post processing to WebGL canvas
    */
@@ -39,20 +42,13 @@ export class WebGLRendererSystem extends System {
   isInitialized: boolean
   
   // resoulion scale
-  scaleFactor: number = 1
-  downGradeTimer: number = 0
-  upGradeTimer: number = 0
-  maxQualityLevel: number = 4
+  scaleFactor = 1
+  downGradeTimer = 0
+  upGradeTimer = 0
+  maxQualityLevel = 4
   qualityLevel: number = this.maxQualityLevel
   prevQualityLevel: number = this.qualityLevel
 
-  // fps counting
-  now
-  startTime
-  prevTime
-  frames: number
-  interval: number
-  fps: number
   constructor(attributes?: SystemAttributes) {
     super(attributes);
 
@@ -92,13 +88,6 @@ export class WebGLRendererSystem extends System {
     this.onResize();
 
     this.isInitialized = true;
-
-    // set initial value for counting fps
-    this.now = (self.performance && self.performance.now) ? self.performance.now.bind(performance) : Date.now;
-    this.startTime = this.now();
-    this.prevTime = this.startTime;
-    this.frames = 0;
-    this.interval = 1000;
   } 
 
   /**
@@ -177,51 +166,46 @@ export class WebGLRendererSystem extends System {
      *
      * @param {Number} delta time since last frame
      */
-  execute (delta: number) {
+  execute(delta: number) {
+    const startTime = now();
+
     this.queryResults.renderers.added?.forEach((entity: Entity) => {
       RendererComponent.instance.needsResize = true;
       this.configurePostProcessing(entity);
     });
-
-    // count fps
-    let time = this.now();
-    this.frames++;
-    if (time > this.prevTime + this.interval) {
-      this.fps = Math.round((this.frames * this.interval) / (time - this.prevTime));
-      this.prevTime = time;
-      this.frames = 0;
-    }
-
-    this.changeQualityLevel(delta);    
-
+    
     if(this.isInitialized)
-      this.queryResults.renderers.all.forEach((entity: Entity) => {
-        resize(entity);
-
-        if (this.qualityLevel >= 2) {
-          getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta);
-          if (Engine.renderer) Engine.renderer.outputEncoding = LinearEncoding; // need this if postprocessing is used
+    this.queryResults.renderers.all.forEach((entity: Entity) => {
+      resize(entity);
+      
+      if (this.qualityLevel >= 2) {
+        getComponent<RendererComponent>(entity, RendererComponent).composer.render(delta);
+        if (Engine.renderer) Engine.renderer.outputEncoding = LinearEncoding; // need this if postprocessing is used
+      }
+      else {
+        if (Engine.renderer) {
+          Engine.renderer?.render(Engine.scene, Engine.camera);
+          Engine.renderer.outputEncoding = sRGBEncoding; // need this if postprocessing is not used
         }
-        else {
-          if (Engine.renderer) {
-            Engine.renderer?.render(Engine.scene, Engine.camera);
-            Engine.renderer.outputEncoding = sRGBEncoding; // need this if postprocessing is not used
-          }
-        }
-      });
-
+      }
+    });
+    
     this.queryResults.renderers.removed.forEach((entity: Entity) => {
       // cleanup
     });
+    
+    const lastTime = now();
+    const deltaRender = (lastTime - startTime);
+
+    this.changeQualityLevel(deltaRender);
   }
 
   changeQualityLevel(delta: number) {
-    // start timer when fps changes
-    if (this.fps <= 45) {
+    if (delta >= 55) {
       this.downGradeTimer += delta;
       this.upGradeTimer = 0;
     }
-    else if (this.fps >= 55) {
+    else if (delta <= 10) {
       this.upGradeTimer += delta;
       this.downGradeTimer = 0;
     }
@@ -231,11 +215,11 @@ export class WebGLRendererSystem extends System {
     }
 
     // change quality level
-    if (this.downGradeTimer > 3) {
+    if (this.downGradeTimer > 3000) {
       this.qualityLevel--;
       this.downGradeTimer = 0;
     }
-    else if (this.upGradeTimer > 3) {
+    else if (this.upGradeTimer > 500) {
       this.qualityLevel++;
       this.upGradeTimer = 0;
     }
@@ -245,15 +229,18 @@ export class WebGLRendererSystem extends System {
     if (this.prevQualityLevel !== this.qualityLevel) {
       switch (this.qualityLevel) {
         case 0:
-          this.scaleFactor = 0.25;
+          this.scaleFactor = 0.4;
           break;
         case 1:
-          this.scaleFactor = 0.5;
+          this.scaleFactor = 0.55;
           break;
         case 2:
-          this.scaleFactor = 0.75;
+          this.scaleFactor = 0.7;
           break;
         case 3:
+          this.scaleFactor = 0.85;
+          break;
+        case 4:
           this.scaleFactor = 1;
           break;
         default:

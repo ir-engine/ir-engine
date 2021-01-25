@@ -97,7 +97,7 @@ You should follow the above instructions to make a second certificate for ```res
 Note that this certificate MUST be made in us-east-1, regardless of which region everything else is
 set up in; as of this writing, CloudFront can only use certificates in us-east-1.
 
-## Install Agones and ingress-nginx
+## Install Agones, ingress-nginx, and a copy of redis for each deployment
 
 Now that the cluster is up and running, we can install everything onto it.
 When you created the cluster with eksctl, it should have created a context pointing to
@@ -105,9 +105,9 @@ it in kubectl. Run ```kubectl config get-contexts``` to get all of the contexts 
 the one with a star next to it should be named ```<your_AWS_username>@<cluster_name>```.
 If that isn't present, you'll have to edit the configuration to make the appropriate context.
 
-You next need to add the Agones and ingress-nginx Helm charts to helm by running 
-```helm repo add agones https://agones.dev/chart/stable``` and ```helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx```.
-You should also at this time add XR3ngine's repo via ```helm repo add xr3ngine https://school.xrengine.io```.
+You next need to add the Agones, ingress-nginx, and redis Helm charts to helm by running 
+```helm repo add agones https://agones.dev/chart/stable```, ```helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx```, and ```helm repo add redis https://charts.bitnami.com/bitnami```.
+You should also at this time add XR3ngine's repo via ```helm repo add xr3ngine https://helm.xrengine.io```.
 
 If you ever suspect that a chart is out-of-date, run ```helm repo update``` to update all of them to the latest.
 
@@ -130,7 +130,27 @@ From the top level of this repo, run ```helm install -f ./packages/ops/configs/n
 This says to install a service called 'nginx' from the 'ingress-nginx' package in the 'ingress-nginx' chart, and to configure it with
 a file found at /packages/ops/configs/nginx-ingress-aws-values.yml.
 
-## Upgrade Classic LoadBanacer to Application LoadBalancer
+### Install redis for each deployment
+
+Each deployment of XR3ngine uses a redis cluster for coordinating the 'feathers-sync' library.
+Each redis deployment needs to be named the same as the deployment that will use it; for an
+XR3ngine deployment named 'dev', the corresponding redis deployment would need to be named
+'dev-redis'.
+
+Run ```helm install <deployment_name>-redis redis/redis``` to install, e.g. ```helm install dev-redis redis/redis```.
+
+#### Installing redis as part of XR3ngine chart (not recommended for production) 
+redis can be installed as part of the XR3ngine chart so long as the config file for the XR3ngine installation has 'redis.enabled' set to true.
+In that case, you should skip the above step of installing redis separately. This is not recommended for production
+environments, though, since upgrades to an XR3ngine installation will usually reboot the redis servers,
+leading all of the gameservers to crash due to their redis connections being severed. 
+
+This breaks Agones' normal behavior of keeping Allocated gameservers running until every user has left and slowly replacing
+old Ready gameservers with new ones, maintaining an active pool of gameservers at all times. You will encounter a period
+of time where there are no active gameservers at all, which is not recommended, and all gameservers in use
+will immediately go down.
+
+## Upgrade Classic LoadBalancer to Application LoadBalancer
 
 By default, Kubernetes LoadBalancer Services will create Classic LoadBalancers in AWS.
 There are features of Application LoadBalancers we'd like to have though.

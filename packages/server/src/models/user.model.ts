@@ -4,6 +4,9 @@ import GenerateRandomAnimalName from 'random-animal-name-generator';
 import { capitalize } from '../util/capitalize';
 import { getPseudoRandomAvatarIdByUserId } from '@xr3ngine/engine/src/templates/character/functions/pseudoRandomAvatar';
 
+/**
+ * This model contain users information 
+ */
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient');
   const User = sequelizeClient.define(

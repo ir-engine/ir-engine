@@ -75,18 +75,18 @@ export const DefaultPostProcessingSchema: PostProcessingSchema = {
       }
     },
     // // Tonemapping
-    {
-      effect: ToneMappingEffect,
-      options: {
-        blendFunction: BlendFunction.NORMAL,
-        adaptive: true,
-        resolution: 512,
-        middleGrey: 0.6,
-        maxLuminance: 32.0,
-        averageLuminance: 1.0,
-        adaptationRate: 2.0
-      }
-    },
+    // {
+    //   effect: ToneMappingEffect,
+    //   options: {
+    //     blendFunction: BlendFunction.NORMAL,
+    //     adaptive: true,
+    //     resolution: 512,
+    //     middleGrey: 0.6,
+    //     maxLuminance: 32.0,
+    //     averageLuminance: 1.0,
+    //     adaptationRate: 2.0
+    //   }
+    // },
     // DOF
         // // Color Grading
         /*
