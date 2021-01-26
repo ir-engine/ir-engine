@@ -108,14 +108,14 @@ export class WorldStateModel {
               axes2d: Object.keys(input.axes2d).map(v => input.axes2d[v]),
               buttons: Object.keys(input.buttons).map(v => input.buttons[v]),
               viewVector: { ...input.viewVector },
-              snapShotTime: BigInt(0)
+              snapShotTime: 0
             };
           }),
-          tick: BigInt( worldState.tick ),
+          tick: worldState.tick ,
           transforms: worldState.transforms.map(v=> {
             return {
               ...v,
-              snapShotTime: BigInt(v.snapShotTime)
+              snapShotTime: v.snapShotTime
             }
           }),
           states: []
