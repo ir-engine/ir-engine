@@ -15,9 +15,9 @@ const plugins = [new WorkerPlugin(), new ForkTsCheckerWebpackPlugin({
         }
     }
 })];
-if (dev) plugins.push(new WebpackHookPlugin({
-    onBuildEnd: ['nodemon --inspect dist/server.js --watch src/**, dist/server.js']
-}));
+// if (dev) plugins.push(new WebpackHookPlugin({
+//     onBuildEnd: ['nodemon --inspect dist/server.js --watch src/**, dist/server.js']
+// }));
 const buildOptions = dev ? {
     // there should be 1 cpu for the fork-ts-checker-webpack-plugin
     workers: require('os').cpus().length - 1
