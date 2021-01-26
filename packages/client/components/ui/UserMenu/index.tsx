@@ -63,11 +63,7 @@ interface Props {
     showDialog?: typeof showDialog;
     removeUser?: typeof removeUser;
     currentScene?: any;
-<<<<<<< HEAD
-    provisionInstanceServer: any;
-=======
     provisionInstanceServer?: any;
->>>>>>> origin/dev
 }
 
 const mapStateToProps = (state: any): any => {
