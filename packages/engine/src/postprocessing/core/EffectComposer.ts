@@ -315,7 +315,7 @@ export class EffectComposer {
     
     const { iOS, safariWebBrowser } = window as any
 
-    if (multisampling > 0 && !iOS && !safariWebBrowser) {
+    if (multisampling > 0 && !safariWebBrowser) {
       renderTarget = new WebGLMultisampleRenderTarget(size.width, size.height, options);
       (renderTarget as any).samples = multisampling;
     } else {
