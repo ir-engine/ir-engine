@@ -6,6 +6,8 @@ import app from './app';
 import logger from './app/logger';
 import config from './config';
 import psList from 'ps-list';
+import sys from 'sys';
+import { exec } from 'child_process';
 
 /**
  * @param status
@@ -30,11 +32,19 @@ process.on('unhandledRejection', (error, promise) => {
     const processMysql = processList.find(
         c => c.cmd.match(/mysql/)
     );
-    const databaseService = (dockerProcess && dockerProxy) || processMysql;
+    let databaseService = (dockerProcess && dockerProxy) || processMysql;
 
     if (!databaseService) {
-      throw new Error('\x1b[33mError: DB procces is not running or Docker is not running!. If you are in local development, please run xr3ngine/scripts/start-db.sh and restart server\x1b[0m');
-    }
+
+      // Check for child process with mac OSX
+        exec("docker ps | grep mariadb", function(err, stdout, stderr) {
+          if(stdout.includes("mariadb")){
+            (databaseService as any) = true;
+          }else {
+            throw new Error('\x1b[33mError: DB proccess is not running or Docker is not running!. If you are in local development, please run xr3ngine/scripts/start-db.sh and restart server\x1b[0m');
+          }
+        });
+      }
   }
 })();
 
