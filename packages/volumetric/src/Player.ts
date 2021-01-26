@@ -6,6 +6,7 @@ import {
   PlaneBufferGeometry,
   Renderer,
   Scene,
+  sRGBEncoding,
   Uint32BufferAttribute, VideoTexture
 } from 'three';
 import {
@@ -73,7 +74,7 @@ export default class DracosisPlayer {
     loop = true,
     autoplay = true,
     scale = 1,
-    keyframesToBufferBeforeStart = 50
+    keyframesToBufferBeforeStart = 200
   }) {
 
     var dataObj = '(' + workerFunction + ')();'; // here is the trick to convert the above fucntion to string
@@ -137,6 +138,7 @@ export default class DracosisPlayer {
     this._video.src = videoFilePath;
     this._videoTexture = new VideoTexture(this._video);
     this._videoTexture.crossorigin = "anonymous";
+    this._videoTexture.encoding = sRGBEncoding;
     this.frameRate = frameRate;
 
     // Add video to dom and bind the upgdate handler to playback
@@ -145,7 +147,7 @@ export default class DracosisPlayer {
     this._video.playbackRate = 1
     ;
     this._video.requestVideoFrameCallback(this.videoUpdateHandler.bind(this));
-
+    console.log("**** requestVideoFrameCallback")
     // Create a default mesh
     this.material = new MeshBasicMaterial({ map: this._videoTexture });
     this.mesh = new Mesh(new PlaneBufferGeometry(1, 1), this.material);
@@ -170,8 +172,11 @@ export default class DracosisPlayer {
       this.iframeVertexBuffer = new RingBuffer(numberOfIframes);
 
       if (autoplay) {
+        console.log("******* INITIALIZE")
         // Create an event listener that removed itself on input
         const eventListener = () => {
+          console.log("******* PLAY")
+
           // If we haven't inited yet, notify that we have, autoplay content and remove the event listener
           this.play();
           document.body.removeEventListener("mousedown", eventListener);
@@ -181,6 +186,7 @@ export default class DracosisPlayer {
       worker.postMessage({ type: "initialize", payload: { meshFilePath, numberOfKeyframes: this.numberOfKeyframes, fileHeader: this.fileHeader } }); // Send data to our worker.
 
       this._isinitialized = true;
+      console.log("Is inited")
     };
 
     xhr.open('GET', this.manifestFilePath, true); // true for asynchronous
@@ -188,8 +194,10 @@ export default class DracosisPlayer {
   }
 
   videoUpdateHandler(now, metadata) {
+    console.log("videoUpdateHandler")
     if (!this._isinitialized) return console.warn("Not inited");
     let frameToPlay = Math.round(metadata.mediaTime*25);
+    console.log("FRame to play is", frameToPlay)
     const keyframeToPlay = this.fileHeader.frameData[frameToPlay].keyframeNumber;
 
     if(Math.round(this._video.currentTime * 25) !== metadata.presentedFrames)
@@ -208,6 +216,8 @@ export default class DracosisPlayer {
 
         if (isNewKeyframe) {
           this.currentKeyframe = keyframeToPlay;
+
+          console.log("***** Keyframe to play")
 
           console.log("Mesh buffer length is, ", this.meshBuffer.getBufferLength());
 
@@ -234,8 +244,9 @@ export default class DracosisPlayer {
 
   // Start loop to check if we're ready to play
   public play = () => {
+    console.log("Playing")
     const buffering = setInterval(() => {
-      if (this.meshBuffer.getBufferLength() >= 100) {
+      if (this.meshBuffer.getBufferLength() >= this.keyframesToBufferBeforeStart) {
         console.log("Keyframe buffer length is ", this.meshBuffer.getBufferLength(), ", playing video");
         clearInterval(buffering);
         this._video.play()
