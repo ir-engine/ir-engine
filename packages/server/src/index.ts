@@ -58,8 +58,6 @@ if (useSSL) logger.info('Starting server with HTTPS');
 else logger.warn('Starting server with NO HTTPS, if you meant to use HTTPS try \'sudo bash generate-certs\'');
 const port = config.server.port;
 
-useSSL = true;
-
 // http redirects for development
 if (useSSL) {
   app.use((req, res, next) => {
