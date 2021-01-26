@@ -2,27 +2,28 @@
     margin: 5px;
     overflow: hidden;
     position: relative;
-    height: 80px;
+    height: 40px;
     display: flex;
     flex-direction: row;
 
     .video-wrapper{
-        height: 80px;
-        width: 80px;
+        height: 40px;
+        width: 40px;
         border-radius: 50%;
         overflow: hidden;
         display: flex;
         justify-content: center;   
         border: 1px solid rgba(255, 255, 255, 0.8);
-        
-        @media (max-width: 768px) {
-            height: 56px;
-            width: 56px;
-        }
+        z-index: 10;
 
         video{
             object-fit: cover;                  
-        } 
+        }
+
+        &:hover {
+            border: 1px solid rgba(127, 127, 127, 0.8);
+            cursor: pointer;
+        }
     }
 
     &.video-paused,
@@ -57,7 +58,6 @@
                 width: fit-content;
                 display: flex;
                 position: relative;
-                z-index: -1;
 
                 @media (max-width: 768px) {
                     width: 80px;
@@ -66,9 +66,9 @@
 
             @media (max-width: 768px) {
                 .video-wrapper{
-                    height: 80px;
-                    width: 80px ;
-                    
+                    height: 40px;
+                    width: 40px ;
+
                     video{
                         object-fit: cover;
                     }
@@ -96,10 +96,13 @@
                 width: fit-content;
                 display: flex;
                 position: relative;
-                z-index: -1;
 
                 @media (max-width: 768px) {
                     width: 80px;
+                }
+
+                .controls {
+                    display: flex;
                 }
             }
 
@@ -113,6 +116,26 @@
                 }
             }
         }
+        .video-wrapper {
+            height: 80px;
+            width: 80px;
+
+            @media (max-width: 768px) {
+                height: 56px;
+                width: 56px;
+            }
+        }
+
+        .user-controls {
+            margin-left: -50px;
+            padding: 10px 10px 10px 55px;
+
+
+            @media (max-width: 768px) {
+                margin-left: 0;
+                padding: 10px;
+            }
+        }
     }
 
 
@@ -120,13 +143,13 @@
         flex-direction: column;
         background: rgba(0, 0, 0, 0.7);
         border-radius: 8px;
-        padding: 10px 10px 10px 55px;
-        margin-left: -50px;
+        padding: 10px 10px 10px 25px;
+        margin-left: -20px;
         justify-content: space-between;
         align-items: flex-end;
         box-sizing: border-box;
         width: 0px;
-        transition: all 0.4s ease-out;
+        //transition: all 0.4s ease-out;
         display: none;
 
 
@@ -140,10 +163,16 @@
         } 
 
         .controls{
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
+            width: 100%;
+            display: none;
+            flex-direction: column;
             align-items: flex-end;
+        }
+
+        .mute-controls {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
         }
 
         .right-controls {
@@ -168,9 +197,10 @@
             } 
         }
 
-        & > .audio-slider {
-            width: 60%;
+        .audio-slider {
+            width: 100%;
             display: flex;
+            flex-direction: row;
             align-items: center;
             z-index: 100;
             border-radius: 15px;

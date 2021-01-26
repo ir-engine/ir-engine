@@ -1,12 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import styles from './PartyParticipantWindow.module.scss';
-import { autorun } from 'mobx';
-import { observer } from 'mobx-react';
+import {autorun} from 'mobx';
+import {observer} from 'mobx-react';
 import IconButton from '@material-ui/core/IconButton';
 import Slider from '@material-ui/core/Slider';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
-import { globalMuteProducer, globalUnmuteProducer, pauseConsumer, pauseProducer, resumeConsumer, resumeProducer } from '../../../classes/transports/WebRTCFunctions';
+import {
+    globalMuteProducer,
+    globalUnmuteProducer,
+    pauseConsumer,
+    pauseProducer,
+    resumeConsumer,
+    resumeProducer
+} from '../../../classes/transports/WebRTCFunctions';
 
 import {
     Mic,
@@ -20,16 +27,17 @@ import {
     VolumeMute,
     VolumeUp,
 } from '@material-ui/icons';
-import { MediaStreamComponent } from '@xr3ngine/engine/src/networking/components/MediaStreamComponent';
-import { Network } from "@xr3ngine/engine/src/networking/components/Network";
+import {MediaStreamComponent} from '@xr3ngine/engine/src/networking/components/MediaStreamComponent';
+import {Network} from "@xr3ngine/engine/src/networking/components/Network";
 import {MessageTypes} from "@xr3ngine/engine/src/networking/enums/MessageTypes";
-import { selectAppState } from '../../../redux/app/selector';
-import { selectAuthState } from '../../../redux/auth/selector';
-import { selectLocationState } from '../../../redux/location/selector';
-import { selectUserState } from '../../../redux/user/selector';
+import {selectAppState} from '../../../redux/app/selector';
+import {selectAuthState} from '../../../redux/auth/selector';
+import {selectLocationState} from '../../../redux/location/selector';
+import {selectUserState} from '../../../redux/user/selector';
 import {connect} from "react-redux";
 import {Dispatch} from "redux";
-import { getPseudoRandomAvatarIdByUserId } from '@xr3ngine/engine/src/templates/character/functions/pseudoRandomAvatar';
+import {getPseudoRandomAvatarIdByUserId} from '@xr3ngine/engine/src/templates/character/functions/pseudoRandomAvatar';
+import {PositionalAudioSystem} from "@xr3ngine/engine/src/audio/systems/PositionalAudioSystem";
 
 
 interface ContainerProportions {
@@ -68,7 +76,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     const [videoProducerGlobalMute, setVideoProducerGlobalMute] = useState(false);
     const [audioProducerGlobalMute, setAudioProducerGlobalMute] = useState(false);
     const [focused, setFocused] = useState(false);
-    const [volume, setVolume] = useState(0);
+    const [volume, setVolume] = useState(100);
     const {
         peerId,
         appState,
@@ -132,7 +140,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
 
     useEffect(() => {
         if ((selfUser?.user_setting?.spatialAudioEnabled === true || selfUser?.user_setting?.spatialAudioEnabled === 1) && audioRef.current != null) audioRef.current.volume = 0;
-        else if ((selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0) && audioRef.current != null) audioRef.current.volume = 1;
+        else if ((selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0) && PositionalAudioSystem.instance != null) audioRef.current.volume = volume / 100;
     }, [selfUser]);
 
     useEffect(() => {
@@ -160,7 +168,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             }
             if (audioStream != null) {
                 audioRef.current.srcObject = new MediaStream([audioStream.track.clone()]);
-                if(peerId !== 'me_cam'){
+                if (peerId !== 'me_cam') {
                     console.log("*** New mediastream created for audio track for peer id ", peerId);
                     // Create positional audio and attach mediastream here
                     console.log("MediaStreamComponent.instance.consumers is ");
@@ -173,10 +181,15 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                 } else if (audioStream.track.muted === true) {
                     // toggleAudio();
                 }
+                setAudioProducerPaused(false);
             }
             // TODO: handle 3d audio switch on/off
             if (selfUser?.user_setting?.spatialAudioEnabled === true || selfUser?.user_setting?.spatialAudioEnabled === 1) audioRef.current.volume = 0;
-            setVolume(100);
+            if (selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0 && PositionalAudioSystem.instance != null) {
+                audioRef.current.volume = volume / 100;
+                PositionalAudioSystem.instance.suspend();
+            }
+            setVolume(volume);
         }
     }, [audioStream]);
 
@@ -195,6 +208,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                 } else if (videoStream.track.muted === true) {
                     // toggleVideo();
                 }
+                setVideoProducerPaused(false);
             }
         }
     }, [videoStream]);
@@ -214,8 +228,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             if (videoPaused === true) await pauseProducer(MediaStreamComponent.instance.camVideoProducer);
             else await resumeProducer(MediaStreamComponent.instance.camVideoProducer);
             setVideoStreamPaused(videoStream.paused);
-        }
-        else if (peerId === 'me_screen') {
+        } else if (peerId === 'me_screen') {
             const videoPaused = MediaStreamComponent.instance.toggleScreenShareVideoPaused();
             if (videoPaused === true) await pauseProducer(MediaStreamComponent.instance.screenVideoProducer);
             else await resumeProducer(MediaStreamComponent.instance.screenVideoProducer);
@@ -224,8 +237,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             if (videoStream.paused === false) {
                 await pauseConsumer(videoStream);
                 setVideoStreamPaused(videoStream.paused);
-            }
-            else {
+            } else {
                 await resumeConsumer(videoStream);
                 setVideoStreamPaused(videoStream.paused);
             }
@@ -239,8 +251,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             if (audioPaused === true) await pauseProducer(MediaStreamComponent.instance.camAudioProducer);
             else await resumeProducer(MediaStreamComponent.instance.camAudioProducer);
             setAudioStreamPaused(audioPaused);
-        }
-        else if (peerId === 'me_screen') {
+        } else if (peerId === 'me_screen') {
             const audioPaused = MediaStreamComponent.instance.toggleScreenShareAudioPaused();
             if (audioPaused === true) await pauseProducer(MediaStreamComponent.instance.screenAudioProducer);
             else await resumeProducer(MediaStreamComponent.instance.screenAudioProducer);
@@ -249,8 +260,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             if (audioStream.paused === false) {
                 await pauseConsumer(audioStream);
                 setAudioStreamPaused(audioStream.paused);
-            }
-            else {
+            } else {
                 await resumeConsumer(audioStream);
                 setAudioStreamPaused(audioStream.paused);
             }
@@ -260,10 +270,10 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     const toggleGlobalMute = async (e) => {
         e.stopPropagation();
         if (audioProducerGlobalMute === false) {
-            await globalMuteProducer({ id: audioStream.producerId });
+            await globalMuteProducer({id: audioStream.producerId});
             setAudioProducerGlobalMute(true);
         } else if (audioProducerGlobalMute === true) {
-            await globalUnmuteProducer({ id: audioStream.producerId });
+            await globalUnmuteProducer({id: audioStream.producerId});
             setAudioProducerGlobalMute(false);
         }
     };
@@ -285,7 +295,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     };
 
     const avatarBgImage = user ?
-    `url(${'/static/'+user.avatarId.toLocaleLowerCase()+'.png'})` : selfUser ? `url(${'/static/'+selfUser.avatarId.toLocaleLowerCase()+'.png'})` : null;
+        `url(${'/static/' + user.avatarId.toLocaleLowerCase() + '.png'})` : selfUser ? `url(${'/static/' + selfUser.avatarId.toLocaleLowerCase() + '.png'})` : null;
     // const avatarBgImage = getPseudoRandomAvatarIdByUserId(user ? user.id : selfUser.id) ? 
     // `url(${'/static/'+getPseudoRandomAvatarIdByUserId(user ? user.id : selfUser.id).toLocaleLowerCase()+'.png'})` : null;
     return (
@@ -299,75 +309,91 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                 [styles['video-paused']]: (videoStream && (videoProducerPaused === true || videoStreamPaused === true))
             })}
             // style={{ backgroundImage: user?.avatarUrl?.length > 0 ? `url(${user.avatarUrl}` : `url(/placeholders/default-silhouette.svg)`} }
-            onClick={() => { if (peerId !== 'me_cam' && peerId !== 'me_screen') setFocused(!focused); } }
         >
-           
+
             <div className={styles['video-wrapper']}
-            style={{ backgroundImage: user?.avatarUrl?.length > 0 ? `url(${user.avatarUrl}` :
-            avatarBgImage ? avatarBgImage : `url(/placeholders/default-silhouette.svg)`} }
-            ><video key={peerId + '_cam'} ref={videoRef}/></div>
+                 style={{backgroundImage: user?.avatarUrl?.length > 0 ? `url(${user.avatarUrl}` : avatarBgImage ? avatarBgImage : `url(/placeholders/default-silhouette.svg)`}}
+                 onClick={() => { if (peerId !== 'me_cam' && peerId !== 'me_screen') setFocused(!focused); } }
+            >
+                <video key={peerId + '_cam'} ref={videoRef}/>
+            </div>
             <audio key={peerId + '_audio'} ref={audioRef}/>
             <div className={styles['user-controls']}>
                 <div className={styles['username']}>{truncateUsername()}</div>
                 <div className={styles['controls']}>
-                <Tooltip title={videoProducerPaused === false && videoStreamPaused === false ? 'Pause Video' : 'Resume Video'}>
-                    <IconButton
-                        color="secondary"
-                        size="small"
-                        className={styles['video-control']}
-                        onClick={(e) => toggleVideo(e)}
-                        style={{visibility : (videoStream == null || videoProducerPaused === true || videoProducerGlobalMute) ? 'hidden' : 'visible' }}
-                    >
-                        { (videoStream && videoProducerPaused === false && videoStreamPaused === false) && <Videocam /> }
-                        { (videoStream && videoProducerPaused === false && videoStreamPaused === true) && <VideocamOff/> }
-                    </IconButton>
-                </Tooltip>
-                {
-                    audioProducerGlobalMute === true && <div className={styles['global-mute']}>Muted by Admin</div>
-                }
-                {/* {
-                    audioStream && audioProducerPaused === false && audioProducerGlobalMute === false &&
-                        <div className={styles['audio-slider']}>
-                            { volume > 0 && <VolumeDown/> }
-                            { volume === 0 && <VolumeMute/>}
-                            <Slider value={volume} onChange={adjustVolume} aria-labelledby="continuous-slider"/>
-                            <VolumeUp/>
-                        </div>
-                } */}
-                <div className={styles['right-controls']}>
-                    {
-                        enableGlobalMute && peerId !== 'me_cam' && peerId !== 'me_screen' && <Tooltip title={audioProducerGlobalMute === false ? 'Mute for everyone' : 'Unmute for everyone'}>
+                    <div className={styles['mute-controls']}>
+                        <Tooltip
+                            title={videoProducerPaused === false && videoStreamPaused === false ? 'Pause Video' : 'Resume Video'}>
                             <IconButton
                                 color="secondary"
                                 size="small"
-                                className={styles['audio-control']}
-                                onClick={(e) => toggleGlobalMute(e)}
+                                className={styles['video-control']}
+                                onClick={(e) => toggleVideo(e)}
+                                style={{visibility: (videoStream == null || videoProducerPaused === true || videoProducerGlobalMute) ? 'hidden' : 'visible'}}
                             >
-                                { audioStream && audioProducerGlobalMute === false && <RecordVoiceOver /> }
-                                { audioStream && audioProducerGlobalMute === true && <VoiceOverOff /> }
+                                {(videoStream && videoProducerPaused === false && videoStreamPaused === false) &&
+                                <Videocam/>
+                                }
+                                {(videoStream && videoProducerPaused === false && videoStreamPaused === true) &&
+                                <VideocamOff/>
+                                }
                             </IconButton>
                         </Tooltip>
+                        <div className={styles['right-controls']}>
+                            {
+                                enableGlobalMute && peerId !== 'me_cam' && peerId !== 'me_screen' && <Tooltip
+                                    title={audioProducerGlobalMute === false ? 'Mute for everyone' : 'Unmute for everyone'}>
+                                    <IconButton
+                                        color="secondary"
+                                        size="small"
+                                        className={styles['audio-control']}
+                                        onClick={(e) => toggleGlobalMute(e)}
+                                    >
+                                        {audioStream && audioProducerGlobalMute === false && <RecordVoiceOver/>}
+                                        {audioStream && audioProducerGlobalMute === true && <VoiceOverOff/>}
+                                    </IconButton>
+                                </Tooltip>
+                            }
+                            {
+                                enableGlobalMute && peerId !== 'me_cam' && peerId !== 'me_screen' &&
+                                <div className={styles['spacer']}/>
+                            }
+                            <Tooltip
+                                title={(peerId === 'me_cam' || peerId === 'me_screen') && audioStream?.paused === false ? 'Mute me' : (peerId === 'me_cam' || peerId === 'me_screen') && audioStream?.paused === true ? 'Unmute me' : (peerId !== 'me_cam' && peerId !== 'me_screen') && audioStream?.paused === false ? 'Mute this person' : 'Unmute this person'}>
+                                <IconButton
+                                    color="secondary"
+                                    size="small"
+                                    className={styles['audio-control']}
+                                    onClick={(e) => toggleAudio(e)}
+                                    style={{visibility: (audioStream == null || audioProducerPaused === true || audioProducerGlobalMute === true) ? 'hidden' : 'visible'}}
+                                >
+                                    {((peerId === 'me_cam' || peerId === 'me_screen') && audioStream && audioProducerPaused === false && audioStreamPaused === false) &&
+                                    <Mic/>}
+                                    {((peerId === 'me_cam' || peerId === 'me_screen') && audioStream && audioProducerPaused === false && audioStreamPaused === true) &&
+                                    <MicOff/>}
+                                    {((peerId !== 'me_cam' && peerId !== 'me_screen') && audioStream && audioProducerPaused === false && audioStream.paused === false) &&
+                                    <VolumeUp/>}
+                                    {((peerId !== 'me_cam' && peerId !== 'me_screen') && audioStream && audioProducerPaused === false && audioStream.paused === true) &&
+                                    <VolumeOff/>}
+                                </IconButton>
+                            </Tooltip>
+                        </div>
+                    </div>
+                    {
+                        audioProducerGlobalMute === true && <div className={styles['global-mute']}>Muted by Admin</div>
                     }
                     {
-                        enableGlobalMute && peerId !== 'me_cam' && peerId !== 'me_screen' && <div className={styles['spacer']}/>
+                        audioStream && audioProducerPaused === false && audioProducerGlobalMute === false &&
+                        (selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0) &&
+                        <div className={styles['audio-slider']}>
+                            {volume > 0 && <VolumeDown/>}
+                            {volume === 0 && <VolumeMute/>}
+                            <Slider value={volume} onChange={adjustVolume} aria-labelledby="continuous-slider"/>
+                            <VolumeUp/>
+                        </div>
                     }
-                    <Tooltip title={(peerId === 'me_cam' || peerId === 'me_screen') && audioStream?.paused === false ? 'Mute me' : (peerId === 'me_cam' || peerId === 'me_screen') && audioStream?.paused === true ? 'Unmute me' : (peerId !== 'me_cam' && peerId !== 'me_screen') && audioStream?.paused === false ? 'Mute this person' : 'Unmute this person' }>
-                        <IconButton
-                            color="secondary"
-                            size="small"
-                            className={styles['audio-control']}
-                            onClick={(e) => toggleAudio(e)}
-                            style={{visibility : (audioStream == null || audioProducerPaused === true || audioProducerGlobalMute === true) ? 'hidden' : 'visible' }}
-                        >
-                            { ((peerId === 'me_cam' || peerId === 'me_screen') && audioStream && audioProducerPaused === false && audioStreamPaused === false) && <Mic /> }
-                            { ((peerId === 'me_cam' || peerId === 'me_screen') && audioStream && audioProducerPaused === false && audioStreamPaused === true) && <MicOff /> }
-                            { ((peerId !== 'me_cam' && peerId !== 'me_screen') && audioStream && audioProducerPaused === false && audioStream.paused === false) && <VolumeUp /> }
-                            { ((peerId !== 'me_cam' && peerId !== 'me_screen') && audioStream && audioProducerPaused === false && audioStream.paused === true) && <VolumeOff /> }
-                        </IconButton>
-                    </Tooltip>
-                    </div>
                 </div>
-            </div>            
+            </div>
         </div>
     );
 });
