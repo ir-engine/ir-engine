@@ -1,4 +1,4 @@
-import { float32, Model, Schema, uint32, uint64, uint8 } from "superbuffer"
+import { float32, Model, Schema, uint32, uint8 } from "superbuffer"
 import { NetworkClientInputInterface, PacketNetworkClientInputInterface } from "../interfaces/WorldState";
 //import { uint8, float32, uint16, uint32 } from "../../common/types/DataTypes";
 //import { createSchema } from "../functions/createSchema";
@@ -35,7 +35,7 @@ export const inputKeyArraySchema = new Schema({
   axes2d: [inputAxis2DSchema],
   buttons: [inputKeySchema],
   viewVector: viewVectorSchema,
-  snapShotTime: uint64
+  snapShotTime: uint32
 });
 
 export class ClientInputModel {
