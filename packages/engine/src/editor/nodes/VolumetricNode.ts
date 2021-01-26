@@ -80,32 +80,10 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
     this.issues = [];
     this._mesh.visible = false;
     this.hideErrorIcon();
-    // this.showLoadingCube();
     if (this.editor.playing) {
       (this.el as any).pause();
     }
     try {
-      const { accessibleUrl, contentType } = await this.editor.api.resolveMedia(
-        src
-      );
-      const isHls = isHLS(src, contentType);
-      if (isHls) {
-        this.hls = new Hls({
-          xhrSetup: (xhr, url) => {
-            xhr.open("GET", this.editor.api.unproxyUrl(src, url));
-          }
-        });
-      }
-      await super.load(accessibleUrl, contentType);
-      if (isHls && this.hls) {
-        this.hls.stopLoad();
-      } else if ((this.el as any).duration) {
-        (this.el as any).currentTime = 1;
-      }
-      if (this.editor.playing && this.autoPlay) {
-        (this.el as any).play();
-      }
-      this.issues = getObjectPerfIssues(this._mesh, false);
     } catch (error) {
       this.showErrorIcon();
       const videoError = new RethrownError(
