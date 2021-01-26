@@ -73,9 +73,9 @@ export class WebGLRendererSystem extends System {
       preserveDrawingBuffer: true
     };
     
-    const { iOS, safariWebBrowser } = window as any;
+    const { safariWebBrowser } = window as any;
     
-    const renderer = iOS || safariWebBrowser ? new WebGL1Renderer(options) : new WebGLRenderer(options);
+    const renderer = safariWebBrowser ? new WebGL1Renderer(options) : new WebGLRenderer(options);
     renderer.physicallyCorrectLights = true;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = PCFSoftShadowMap;

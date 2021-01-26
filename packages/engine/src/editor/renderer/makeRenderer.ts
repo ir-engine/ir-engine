@@ -17,8 +17,8 @@ export default function makeRenderer(width, height, props = {}) {
     antialias: true,
     preserveDrawingBuffer: true
   };
-  const { iOS, safariWebBrowser } = window as any
-  const renderer = iOS && safariWebBrowser ? new WebGL1Renderer(options) : new WebGLRenderer(options);
+  const { safariWebBrowser } = window as any
+  const renderer = safariWebBrowser ? new WebGL1Renderer(options) : new WebGLRenderer(options);
   renderer.gammaFactor = 2.2;
   renderer.physicallyCorrectLights = true;
   renderer.shadowMap.enabled = true;
