@@ -1,6 +1,6 @@
 import { expect } from "@jest/globals";
 import {Schema, Model, ExtractSchemaObject} from "superbuffer";
-import {int16, int32, uint8, uint32, uint64, int64, float32, boolean, string} from "superbuffer";
+import {int16, int32, uint8, uint32, int64, float32, boolean, string} from "superbuffer";
 //import { inputKeyArraySchema } from "@xr3ngine/engine/src/networking/schema/clientInputSchema";
 
 const inputKeySchema = new Schema({
@@ -61,7 +61,7 @@ const transformSchema = new Schema({
 
 const snapshotSchema = new Schema({
   id: string,
-  time: uint64
+  time: uint32
 })
 
 const createNetworkObjectSchema = new Schema({
@@ -89,7 +89,7 @@ const worldStateSchema = new Schema({
     destroyObjects: [destroyNetworkObjectSchema],
     inputs: [inputKeyArraySchema],
     snapshot: snapshotSchema,
-    tick: uint64,
+    tick: uint32,
     transforms: [transformSchema]
 });
 */
@@ -115,7 +115,7 @@ const towerSchema = new Schema({
 })
 
 const mainModel = new Schema({
-    time: uint64,
+    time: uint32,
     tick: uint32,
     players: [playerSchema],
     towers: [towerSchema]
