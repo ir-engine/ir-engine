@@ -38,7 +38,7 @@ export interface NetworkClientInputInterface extends NetworkInputInterface {
 /** Interface for network client input packet. */
 export interface PacketNetworkClientInputInterface extends PacketNetworkInputInterface {
   /** Time of the snapshot. */
-  snapShotTime: BigInt
+  snapShotTime: number
 }
 
 /** Interface for Client Data. */
@@ -52,7 +52,7 @@ export interface NetworkTransformsInterface {
   /** Id of the network. */
   networkId: number,
   /** Time of the snapshot. */
-  snapShotTime: BigInt,
+  snapShotTime: number,
   x: number
   y: number
   z: number
@@ -88,7 +88,7 @@ export interface NetworkObjectCreateInterface {
 /** Interface for world state snapshot. */
 export interface WorldStateSnapshot {
   /** Time of the snapshot. */
-  time: BigInt,
+  time: number,
   /** ID of the snapshot. */
   id: string,
   /** State of the world while this snapshot is taken. */
@@ -119,7 +119,7 @@ export interface WorldStateInterface {
 /** Interface for packet world state. */
 export interface PacketWorldState {
   /** Tick of the world. */
-  tick: BigInt
+  tick: number
   /** transform of world. */
   transforms: NetworkTransformsInterface[]
   //snapshot: WorldStateSnapshot

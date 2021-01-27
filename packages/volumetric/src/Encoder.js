@@ -191,7 +191,11 @@ class CortosisFileCreator {
 }
 
 const myArgs = process.argv.slice(2);
+const outputFileName = myArgs[0];
+const frameRate = myArgs[1] ?? 25;
+const frameIn = myArgs[2] ?? 0;
+const frameOut = myArgs[3] ?? -1;
 
-new CortosisFileCreator(myArgs[2] ?? 0, myArgs[3] ?? -1, myArgs[0], myArgs[1] ?? 30, () => {
+new CortosisFileCreator(frameIn, frameOut, outputFileName, frameRate, () => {
   console.log('Converted to Dracosis');
 });

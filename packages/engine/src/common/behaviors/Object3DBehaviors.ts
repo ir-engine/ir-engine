@@ -130,8 +130,19 @@ export const addObject3DComponent: Behavior = (
     applyDeepValue(object3d, key, args.objArgs[key]);
   });
 
+  if(Engine.csm !== null) {
+    object3d.traverse((obj) => {
+      if(obj.type === 'Mesh' || obj.type === 'Group' || obj.type === 'Object3D') {
+        obj.castShadow = true;
+        obj.receiveShadow = true;
+        obj.material && Engine.csm.setupMaterial(obj.material);
+      }
+    });
+  }
+
   addComponent(entity, Object3DComponent, { value: object3d });
   // getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = object3d;
+
 
   getComponentTags(object3d).forEach((component: any) => {
     addComponent(entity, component);
