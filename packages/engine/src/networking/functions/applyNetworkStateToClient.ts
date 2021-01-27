@@ -10,8 +10,13 @@ import {initializeNetworkObject} from './initializeNetworkObject';
 import {CharacterComponent} from "../../templates/character/components/CharacterComponent";
 import {handleInputFromNonLocalClients} from "./handleInputOnServer";
 
-let test = 0
+let test = 0;
 
+/**
+ * Apply State received over the network to the client.
+ * @param worldStateBuffer State of the world received over the network.
+ * @param delta Time since last frame.
+ */
 export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface, delta = 0.033): void {
 
     if (Network.tick < worldStateBuffer.tick - 1) {
