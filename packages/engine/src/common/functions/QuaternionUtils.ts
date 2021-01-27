@@ -1,3 +1,4 @@
+/** Interface for quaternion Axis. */
 export interface quatAxis {
   x: number;
   y: number;

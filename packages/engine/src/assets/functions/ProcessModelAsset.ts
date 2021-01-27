@@ -17,6 +17,12 @@ const LODS_DISTANCES = {
 };
 const LODS_REGEXP = new RegExp(/^(.*)_LOD(\d+)$/);
 
+/**
+ * Process Asset model and map it with given entity.
+ * @param entity Entity to which asset will be added.
+ * @param component An Asset loader Component holds specifications for the asset.
+ * @param asset Loaded asset.
+ */
 export function ProcessModelAsset(entity: Entity, component: AssetLoader, asset: any): void {
   let object = asset.scene ?? asset;
 
@@ -51,6 +57,11 @@ export function ProcessModelAsset(entity: Entity, component: AssetLoader, asset:
   }
 }
 
+/**
+ * Handles Level of Detail for asset.
+ * @param asset Asset on which LOD will apply.
+ * @returns LOD handled asset.
+ */
 function HandleLODs(entity: Entity, asset: Object3D): Object3D {
   const haveAnyLODs = !!asset.children?.find(c => String(c.name).match(LODS_REGEXP));
   if (!haveAnyLODs) {
@@ -88,6 +99,11 @@ function HandleLODs(entity: Entity, asset: Object3D): Object3D {
   return asset;
 }
 
+/**
+ * Replace material on asset based on Asset loader specifications.
+ * @param object Object on which replacement will apply.
+ * @param component Asset loader component holding material specification.
+ */
 function ReplaceMaterials(object, component: AssetLoader) {
   const replacedMaterials = new Map();
   object.traverse((child) => {

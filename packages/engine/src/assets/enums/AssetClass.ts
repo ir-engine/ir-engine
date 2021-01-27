@@ -1,3 +1,4 @@
+/** List of Asset Classes. */
 export enum AssetClass {
   Model,
   Image,
