@@ -46,6 +46,6 @@ export default function createSkybox(entity, args: {
     uniforms.rayleigh.value = args.objArgs.rayleigh;
     uniforms.turbidity.value = args.objArgs.turbidity;
     uniforms.sunPosition.value = sun;
-    Engine.csm.lightDirection.set(-sun.x, -sun.y, -sun.z);
+    Engine.csm && Engine.csm.lightDirection.set(-sun.x, -sun.y, -sun.z);
   }
 }
