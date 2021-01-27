@@ -6,6 +6,7 @@ import app from './app';
 import logger from './app/logger';
 import config from './config';
 import psList from 'ps-list';
+import { exec } from 'child_process';
 
 /**
  * @param status
@@ -31,23 +32,31 @@ process.on('unhandledRejection', (error, promise) => {
     const processMysql = processList.find(
         c => c[key].match(/mysql/)
     );
-    const databaseService = (dockerProcess && dockerProxy) || processMysql;
+    let databaseService = (dockerProcess && dockerProxy) || processMysql;
 
     if (!databaseService) {
-      throw new Error('\x1b[33mError: DB procces is not running or Docker is not running!. If you are in local development, please run xr3ngine/scripts/start-db.sh and restart server\x1b[0m');
-    }
+
+      // Check for child process with mac OSX
+        exec("docker ps | grep mariadb", function(err, stdout, stderr) {
+          if(stdout.includes("mariadb")){
+            (databaseService as any) = true;
+          }else {
+            throw new Error('\x1b[33mError: DB proccess is not running or Docker is not running!. If you are in local development, please run xr3ngine/scripts/start-db.sh and restart server\x1b[0m');
+          }
+        });
+      }
   }
 })();
 
 // SSL setup
-const useSSL = process.env.NODE_ENV !== 'production' && fs.existsSync(path.join(appRootPath.path, 'certs', 'key.pem'));
+let useSSL = process.env.NODE_ENV !== 'production' && fs.existsSync(path.join(appRootPath.path, 'certs', 'key.pem'));
 
 const certOptions = {
   key: useSSL && process.env.NODE_ENV !== 'production' ? fs.readFileSync(path.join(appRootPath.path, 'certs', 'key.pem')) : null,
   cert: useSSL && process.env.NODE_ENV !== 'production' ? fs.readFileSync(path.join(appRootPath.path, 'certs', 'cert.pem')) : null
 };
 if (useSSL) logger.info('Starting server with HTTPS');
-else logger.warn('Starting server with NO HTTPS, if you meant to use HTTPS try \'npm run generate-certs\'');
+else logger.warn('Starting server with NO HTTPS, if you meant to use HTTPS try \'sudo bash generate-certs\'');
 const port = config.server.port;
 
 // http redirects for development
@@ -86,6 +95,6 @@ process.on('unhandledRejection', (reason, p) =>
 //   console.warn("Directory /var/log not found, not writing access log");
 // }
 server.on('listening', () =>
-  logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
+logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
 );
 

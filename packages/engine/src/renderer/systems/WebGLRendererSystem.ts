@@ -32,6 +32,7 @@ import { NormalPass } from '../../postprocessing/passes/NormalPass';
 import { BlendFunction } from '../../postprocessing/effects/blending/BlendFunction';
 import { TextureEffect } from '../../postprocessing/effects/TextureEffect';
 import { OutlineEffect } from '../../postprocessing/effects/OutlineEffect';
+import { CSM } from '../../assets/csm/CSM.js';
 
 import { now } from '../../common/functions/now';
 
@@ -76,20 +77,34 @@ export class WebGLRendererSystem extends System {
       preserveDrawingBuffer: true
     };
     
-    const { iOS, safariWebBrowser } = window as any;
+    const { safariWebBrowser } = window as any;
     
-    const renderer = iOS || safariWebBrowser ? new WebGL1Renderer(options) : new WebGLRenderer(options);
+    const renderer = safariWebBrowser ? new WebGL1Renderer(options) : new WebGLRenderer(options);
     renderer.physicallyCorrectLights = true;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = PCFSoftShadowMap;
-    // renderer.outputEncoding = sRGBEncoding; // need this if postprocessing is not used
+    renderer.outputEncoding = sRGBEncoding; // need this if postprocessing is not used
 
     Engine.renderer = renderer;
+
+    // Cascaded shadow maps
+    const csm = new CSM({
+        cascades: 4,
+        lightIntensity: 1,
+        shadowMapSize: 2048,
+		    maxFar: 100,
+        // maxFar: Engine.camera.far,
+        camera: Engine.camera,
+        parent: Engine.scene
+    });
+    csm.fade = true;
+
+    Engine.csm = csm;
+
     // Add the renderer to the body of the HTML document
     document.body.appendChild(canvas);
     window.addEventListener('resize', this.onResize, false);
     this.onResize();
-
     this.isInitialized = true;
   }
 
@@ -172,6 +187,8 @@ export class WebGLRendererSystem extends System {
       this.configurePostProcessing(entity);
     });
     
+    Engine.csm.update();
+    
     if(this.isInitialized)
     this.queryResults.renderers.all.forEach((entity: Entity) => {
       resize(entity);
@@ -229,28 +246,43 @@ export class WebGLRendererSystem extends System {
 
     // set resolution scale
     if (this.prevQualityLevel !== this.qualityLevel) {
-      switch (this.qualityLevel) {
-        case 0:
-          this.scaleFactor = 0.4;
-          break;
-        case 1:
-          this.scaleFactor = 0.55;
-          break;
-        case 2:
-          this.scaleFactor = 0.7;
-          break;
-        case 3:
-          this.scaleFactor = 0.85;
-          break;
-        case 4:
-          this.scaleFactor = 1;
-          break;
-        default:
-          this.scaleFactor = 1;
-          break;
-      }
+      console.log('Changing quality level to', this.qualityLevel)
 
       if (Engine.renderer) {
+        switch (this.qualityLevel) {
+          case 0:
+            Engine.csm.shadowMapSize = 512;
+            Engine.csm.cascades = 2;
+            Engine.csm.maxFar = 50;
+            this.scaleFactor = 0.4;
+            break;
+          case 1:
+            Engine.csm.shadowMapSize = 1024;
+            Engine.csm.cascades = 3;
+            Engine.csm.maxFar = 100;
+            this.scaleFactor = 0.55;
+            break;
+          case 2:
+            Engine.csm.shadowMapSize = 1024;
+            Engine.csm.cascades = 4;
+            Engine.csm.maxFar = 100;
+            this.scaleFactor = 0.7;
+            break;
+          case 3:
+            Engine.csm.shadowMapSize = 2048;
+            Engine.csm.cascades = 4;
+            Engine.csm.maxFar = 100;
+            this.scaleFactor = 0.85;
+            break;
+          case 4: default:
+            Engine.csm.shadowMapSize = 4096;
+            Engine.csm.cascades = 5;
+            Engine.csm.maxFar = 200;
+            this.scaleFactor = 1;
+            break;
+        }
+        
+        Engine.csm.updateFrustums();
         Engine.renderer.setPixelRatio(window.devicePixelRatio * this.scaleFactor);
         this.prevQualityLevel = this.qualityLevel;
       }
@@ -276,6 +308,8 @@ export const resize: Behavior = entity => {
       cam.aspect = width / height;
       cam.updateProjectionMatrix();
     }
+
+    Engine.csm.updateFrustums();
 
     canvas.width = width;
     canvas.height = height;
