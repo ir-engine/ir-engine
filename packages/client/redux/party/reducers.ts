@@ -45,7 +45,6 @@ const partyReducer = (state = immutableState, action: PartyAction): any => {
       return state
           .set('updateNeeded', true);
     case CREATED_PARTY_USER:
-      console.log('CREATED_PARTY_USER REDUCER');
       newValues = (action as CreatedPartyUserAction);
       partyUser = newValues.partyUser;
       updateMap = _.cloneDeep(state.get('party'));
