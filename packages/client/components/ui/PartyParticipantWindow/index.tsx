@@ -94,7 +94,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     const user = userState.get('layerUsers').find(user => user.id === peerId);
 
     autorun(() => {
-        (Network.instance?.transport as any)?.socket.on(MessageTypes.WebRTCPauseConsumer.toString(), (consumerId: string) => {
+        (Network.instance?.transport as any)?.socket?.on(MessageTypes.WebRTCPauseConsumer.toString(), (consumerId: string) => {
             if (consumerId === videoStream?.id) {
                 setVideoProducerPaused(true);
             } else if (consumerId === audioStream?.id) {
@@ -102,7 +102,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             }
         });
 
-        (Network.instance?.transport as any)?.socket.on(MessageTypes.WebRTCResumeConsumer.toString(), (consumerId: string) => {
+        (Network.instance?.transport as any)?.socket?.on(MessageTypes.WebRTCResumeConsumer.toString(), (consumerId: string) => {
             if (consumerId === videoStream?.id) {
                 setVideoProducerPaused(false);
             } else if (consumerId === audioStream?.id) {
@@ -110,7 +110,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             }
         });
 
-        (Network.instance?.transport as any)?.socket.on(MessageTypes.WebRTCPauseProducer.toString(), (producerId: string, globalMute: boolean) => {
+        (Network.instance?.transport as any)?.socket?.on(MessageTypes.WebRTCPauseProducer.toString(), (producerId: string, globalMute: boolean) => {
             if (producerId === videoStream?.id && globalMute === true) {
                 setVideoProducerPaused(true);
                 setVideoProducerGlobalMute(true);
@@ -120,7 +120,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             }
         });
 
-        (Network.instance?.transport as any)?.socket.on(MessageTypes.WebRTCResumeProducer.toString(), (producerId: string) => {
+        (Network.instance?.transport as any)?.socket?.on(MessageTypes.WebRTCResumeProducer.toString(), (producerId: string) => {
             if (producerId === videoStream?.id) {
                 setVideoProducerPaused(false);
                 setVideoProducerGlobalMute(false);
@@ -146,14 +146,14 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     useEffect(() => {
         autorun(() => {
             if (peerId === 'me_cam') {
-                setVideoStream(MediaStreamComponent.instance.camVideoProducer);
-                setAudioStream(MediaStreamComponent.instance.camAudioProducer);
+                setVideoStream(MediaStreamComponent.instance?.camVideoProducer);
+                setAudioStream(MediaStreamComponent.instance?.camAudioProducer);
             } else if (peerId === 'me_screen') {
-                setVideoStream(MediaStreamComponent.instance.screenVideoProducer);
-                setAudioStream(MediaStreamComponent.instance.screenAudioProducer);
+                setVideoStream(MediaStreamComponent.instance?.screenVideoProducer);
+                setAudioStream(MediaStreamComponent.instance?.screenAudioProducer);
             } else {
-                setVideoStream(MediaStreamComponent.instance.consumers.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-video'));
-                setAudioStream(MediaStreamComponent.instance.consumers.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'));
+                setVideoStream(MediaStreamComponent.instance?.consumers.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-video'));
+                setAudioStream(MediaStreamComponent.instance?.consumers.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'));
             }
         });
     }, []);
@@ -187,7 +187,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             if (selfUser?.user_setting?.spatialAudioEnabled === true || selfUser?.user_setting?.spatialAudioEnabled === 1) audioRef.current.volume = 0;
             if (selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0 && PositionalAudioSystem.instance != null) {
                 audioRef.current.volume = volume / 100;
-                PositionalAudioSystem.instance.suspend();
+                PositionalAudioSystem.instance?.suspend();
             }
             setVolume(volume);
         }
@@ -214,12 +214,12 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     }, [videoStream]);
 
     useEffect(() => {
-        if (peerId === 'me_cam' || peerId === 'me_screen') setAudioStreamPaused(MediaStreamComponent.instance.audioPaused);
-    }, [MediaStreamComponent.instance.audioPaused]);
+        if (peerId === 'me_cam' || peerId === 'me_screen') setAudioStreamPaused(MediaStreamComponent.instance?.audioPaused);
+    }, [MediaStreamComponent.instance?.audioPaused]);
 
     useEffect(() => {
-        if (peerId === 'me_cam' || peerId === 'me_screen') setVideoStreamPaused(MediaStreamComponent.instance.videoPaused);
-    }, [MediaStreamComponent.instance.videoPaused]);
+        if (peerId === 'me_cam' || peerId === 'me_screen') setVideoStreamPaused(MediaStreamComponent.instance?.videoPaused);
+    }, [MediaStreamComponent.instance?.videoPaused]);
 
     const toggleVideo = async (e) => {
         e.stopPropagation();
@@ -294,8 +294,13 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
         if (focused === false) return name?.length > 10 ? name.slice(0, 10) + '...' : name;
     };
 
-    const avatarBgImage = user ?
-        `url(${'/static/' + user.avatarId.toLocaleLowerCase() + '.png'})` : selfUser ? `url(${'/static/' + selfUser.avatarId.toLocaleLowerCase() + '.png'})` : null;
+    const setFocus = (focused) => {
+        unsetFocused();
+        setFocused(!focused);
+    };
+
+    const avatarBgImage = user && user.avatarId ?
+        `url(${'/static/' + user.avatarId.toLocaleLowerCase() + '.png'})` : selfUser && selfUser.avatarId ? `url(${'/static/' + selfUser.avatarId.toLocaleLowerCase() + '.png'})` : null;
     // const avatarBgImage = getPseudoRandomAvatarIdByUserId(user ? user.id : selfUser.id) ? 
     // `url(${'/static/'+getPseudoRandomAvatarIdByUserId(user ? user.id : selfUser.id).toLocaleLowerCase()+'.png'})` : null;
     return (
@@ -313,7 +318,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
 
             <div className={styles['video-wrapper']}
                  style={{backgroundImage: user?.avatarUrl?.length > 0 ? `url(${user.avatarUrl}` : avatarBgImage ? avatarBgImage : `url(/placeholders/default-silhouette.svg)`}}
-                 onClick={() => { if (peerId !== 'me_cam' && peerId !== 'me_screen') setFocused(!focused); } }
+                 onClick={() => setFocus(focused) }
             >
                 <video key={peerId + '_cam'} ref={videoRef}/>
             </div>

@@ -1,15 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import styles from './PartyParticipantWindow.module.scss';
+import React from 'react';
+import styles from './PartyVideoWindows.module.scss';
 import { Grid } from '@material-ui/core';
 import PartyParticipantWindow from '../PartyParticipantWindow';
-import { MediaStreamComponent } from '@xr3ngine/engine/src/networking/components/MediaStreamComponent';
 import { observer } from 'mobx-react';
-import { autorun } from 'mobx';
 import { selectAuthState } from "../../../redux/auth/selector";
 import { selectUserState } from "../../../redux/user/selector";
 import {connect} from "react-redux";
 import {Dispatch} from "redux";
-import {PositionalAudioSystem} from "@xr3ngine/engine/src/audio/systems/PositionalAudioSystem";
 
 interface Props {
   authState?: any;

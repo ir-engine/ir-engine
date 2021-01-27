@@ -2,13 +2,14 @@
     margin: 5px;
     overflow: hidden;
     position: relative;
-    height: 40px;
+    height: 45px;
     display: flex;
     flex-direction: row;
+    flex: 0 0 auto;
 
     .video-wrapper{
-        height: 40px;
-        width: 40px;
+        height: 45px;
+        width: 45px;
         border-radius: 50%;
         overflow: hidden;
         display: flex;
@@ -20,9 +21,11 @@
             object-fit: cover;                  
         }
 
-        &:hover {
-            border: 1px solid rgba(127, 127, 127, 0.8);
-            cursor: pointer;
+        @media (min-width: 769px) {
+            &:hover {
+                border: 1px solid rgba(127, 127, 127, 0.8);
+                cursor: pointer;
+            }
         }
     }
 
@@ -53,33 +56,30 @@
     }
 
     &:not(.self-user) {
-        &:hover{
-            .user-controls {
-                width: fit-content;
-                display: flex;
-                position: relative;
-
-                @media (max-width: 768px) {
-                    width: 80px;
+        @media (min-width: 769px) {
+            &:hover {
+                .user-controls {
+                    width: fit-content;
+                    display: flex;
+                    position: relative;
                 }
             }
+        }
 
-            @media (max-width: 768px) {
-                .video-wrapper{
-                    height: 40px;
-                    width: 40px ;
+        @media (max-width: 768px) {
+            .video-wrapper {
+                height: 45px;
+                width: 45px;
 
-                    video{
-                        object-fit: cover;
-                    }
+                video {
+                    object-fit: cover;
                 }
             }
         }
     }
 
-    &.focused,
-    &.self-user {
-        height: 80px;
+    &.focused {
+        height: 90px;
         width: fit-content;
         .global-mute {
             position: absolute;
@@ -91,49 +91,55 @@
             justify-content: center;
             align-items: center;
         }
-        &:hover{
+
+        @media (min-width: 769px) {
             .user-controls {
                 width: fit-content;
                 display: flex;
                 position: relative;
 
-                @media (max-width: 768px) {
-                    width: 80px;
-                }
-
                 .controls {
                     display: flex;
                 }
             }
+        }
 
-            @media (max-width: 768px) {
-                .video-wrapper{
-                    height: 80px;
-                    width: 80px ;
-                    video{
-                        object-fit: cover;
-                    }
+        @media (max-width: 768px) {
+            height: 90px;
+            .video-wrapper {
+                height: 90px;
+                width: 90px;
+
+                video {
+                    object-fit: cover;
                 }
             }
         }
+
         .video-wrapper {
-            height: 80px;
-            width: 80px;
+            height: 90px;
+            width: 90px;
 
             @media (max-width: 768px) {
-                height: 56px;
-                width: 56px;
+                height: 90px;
+                width: 90px;
             }
         }
 
         .user-controls {
-            margin-left: -50px;
-            padding: 10px 10px 10px 55px;
-
+            margin-left: -55px;
+            padding: 10px 10px 10px 60px;
 
             @media (max-width: 768px) {
-                margin-left: 0;
-                padding: 10px;
+                margin-left: -50px;
+                padding: 10px 10px 10px 50px;
+                width: fit-content;
+                display: flex;
+                position: relative;
+
+                .controls {
+                    display: flex;
+                }
             }
         }
     }
@@ -143,24 +149,14 @@
         flex-direction: column;
         background: rgba(0, 0, 0, 0.7);
         border-radius: 8px;
-        padding: 10px 10px 10px 25px;
-        margin-left: -20px;
+        padding: 10px 10px 10px 30px;
+        margin-left: -25px;
         justify-content: space-between;
         align-items: flex-end;
         box-sizing: border-box;
-        width: 0px;
+        width: 0;
         //transition: all 0.4s ease-out;
         display: none;
-
-
-        @media (max-width: 768px) {
-            position: absolute;
-            bottom: 0;
-            margin-left: 0;
-            bottom: 0px;
-            padding: 5px;
-            border-radius: 0 0 40px 40px;
-        } 
 
         .controls{
             width: 100%;
@@ -192,8 +188,8 @@
             margin: 0 5px;
 
             @media (max-width: 768px) {
-                margin: 0px;
-                padding: 0px;
+                margin: 0;
+                padding: 0;
             } 
         }
 
