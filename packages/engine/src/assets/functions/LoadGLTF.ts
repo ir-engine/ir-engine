@@ -14,10 +14,10 @@ export interface LoadGLTFResultInterface {
 }
 
 /**
- * Loads a Asset which is in GLTF format.
+ * Loads an Asset which is in GLTF format.
  * 
- * @param url - An Asset URL
- * @returns a promise of LoadGLTFResultInterface
+ * @param url URL of the asset.
+ * @returns a promise of {@link LoadGLTFResultInterface}.
  */
 export async function LoadGLTF(url: AssetUrl): Promise<LoadGLTFResultInterface> {
     return await new Promise<LoadGLTFResultInterface>((resolve, reject) => {

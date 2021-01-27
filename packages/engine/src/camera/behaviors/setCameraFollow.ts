@@ -31,6 +31,11 @@ const mx = new Matrix4();
 let theta = 0;
 let phi = 0;
 
+/**
+ * Set camera to follow the entity.
+ * @param entity Camera Entity.
+ * @param entityOut Character Entity which will be followed.
+ */
 export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: any, entityOut: Entity): void => {
   follower = getMutableComponent (entityIn, DesiredTransformComponent); // Camera
   if (!follower.position) {
