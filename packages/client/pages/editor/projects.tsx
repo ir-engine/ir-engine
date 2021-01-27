@@ -13,58 +13,100 @@ import {selectAuthState} from "../../redux/auth/selector";
 import {bindActionCreators, Dispatch} from "redux";
 import {doLoginAuto, logoutUser} from "../../redux/auth/service";
 import SignIn from "../../components/ui/Auth/Login";
+
+/**
+ * Creating styled component using section. 
+ * @ProjectsSection
+ *
+ */
+
 export const ProjectsSection = (styled as any).section<{ flex?: number }>`
-  padding-bottom: 100px;
-  display: flex;
-  flex: ${props => (props.flex === undefined ? 1 : props.flex)};
-
-  &:first-child {
-    padding-top: 100px;
-  }
-
-  h1 {
-    font-size: 36px;
-  }
-
-  h2 {
-    font-size: 16px;
-  }
+	  padding-bottom: 100px;
+	  display: flex;
+	  flex: ${props => (props.flex === undefined ? 1 : props.flex)};
+	
+	  &:first-child {
+	    padding-top: 100px;
+	  }
+	
+	  h1 {
+	    font-size: 36px;
+	  }
+	
+	  h2 {
+	    font-size: 16px;
+	  }
 `;
+
+/**
+ * Creating styled component using div. 
+ * @ProjectsContainer
+ *
+ */
+
 export const ProjectsContainer = (styled as any).div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  margin: 0 auto;
-  max-width: 1200px;
-  padding: 0 20px;
+	  display: flex;
+	  flex: 1;
+	  flex-direction: column;
+	  margin: 0 auto;
+	  max-width: 1200px;
+	  padding: 0 20px;
 `;
+
+/**
+ * Creating styled component using section inheriting {ProjectsContainer}. 
+ * @ProjectsContainer
+ * @WelcomeContainer
+ */
 const WelcomeContainer = styled(ProjectsContainer)`
-  align-items: center;
-  & > * {
-    text-align: center;
-  }
-  & > *:not(:first-child) {
-    margin-top: 20px;
-  }
-  h2 {
-    max-width: 480px;
-  }
+	  align-items: center;
+	  & > * {
+	    text-align: center;
+	  }
+	  & > *:not(:first-child) {
+	    margin-top: 20px;
+	  }
+	  h2 {
+	    max-width: 480px;
+	  }
 `;
+
+/**
+ * Creating styled component using div. 
+ * @ProjectsContainer
+ *
+ */
 export const ProjectsHeader = (styled as any).div`
-  margin-bottom: 36px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+	  margin-bottom: 36px;
+	  display: flex;
+	  justify-content: space-between;
+	  align-items: center;
 `;
+
+/**
+ *Defining contextMenuId for rendering menus.
+ *@contextMenuId
+ * 
+ */
 const contextMenuId = "project-menu";
+
+/** 
+ *Declairing Props component.
+ * @api is of type {Api} EventEmitter.
+ * @history is of type object.
+ * @router is of type Router
+ */
 type Props = {
-  api: Api;
-  history: object;
-  router: Router;
-  authState?: any;
-  doLoginAuto?: any;
-  logoutUser?: typeof logoutUser;
+	  api: Api;
+	  history: object;
+	  router: Router;
+	  authState?: any;
+	  doLoginAuto?: any;
+	  logoutUser?: typeof logoutUser;
 };
+/**
+ *Creating type ProjectsPageState. 
+ */
 type ProjectsPageState = { projects: any } & {
   error: any;
   loading: boolean;
@@ -76,17 +118,36 @@ type ProjectsPageState = { projects: any } & {
     authUser: any;
     user: any;
   };
+
+/**
+ * function to get authState.
+ * @mapStateToProps
+ */
+
 const mapStateToProps = (state: any): any => {
   return {
     authState: selectAuthState(state),
   };
 };
 
+/**
+ *function to bind auto login and user.
+ *@mapDispatchToProps
+ *
+ */
+
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
   logoutUser: bindActionCreators(logoutUser, dispatch),
 });
+
+/**
+ *function to create page.
+ *@ProjectsPage
+ */
 const ProjectsPage = (props: Props) => {
+	
+ // creating types using props.
   const {
     api,
     history,
@@ -96,13 +157,12 @@ const ProjectsPage = (props: Props) => {
     logoutUser
   } = props;
 
-
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const isAuthenticated = api.isAuthenticated();
-  const [error, setError] = useState(null);
-  const authUser = authState.get('authUser');
-  const user = authState.get('user');
+  const [projects, setProjects] = useState([]); // constant projects intialized with an empty array.  
+  const [loading, setLoading] = useState(false);// constant loading intialized with false. 
+  const isAuthenticated = api.isAuthenticated();// intialized with value returning from api.isAuthenticated()  
+  const [error, setError] = useState(null);// constant error intialized with null. 
+  const authUser = authState.get('authUser');// authUser intialized by getting property from authState object.
+  const user = authState.get('user');// user intialized by getting value from authState object.
 
   useEffect(() => {
     doLoginAuto(true);
@@ -136,9 +196,16 @@ const ProjectsPage = (props: Props) => {
 
   const contextType = ThemeContext;
 
+/**
+ *function to delete project
+ */
   const onDeleteProject = async (project) => {
     try {
+	
+	  // calling api to delete project on the basis of project_id.
       await api.deleteProject(project.project_id);
+
+	  // setting projects after removing deleted project.
       setProjects(projects.filter(
           (p) => p.project_id !== project.project_id
       ));
@@ -146,9 +213,17 @@ const ProjectsPage = (props: Props) => {
       console.log('Delete project error');
     }
   };
+
+/**
+ *function to adding a route to the router object.
+ */
   const routeTo = (route: string) => () => {
     router.push(route);
   };
+
+/**
+ *function to render the ContextMenu component with MenuItem component delete. 
+ */
   const renderContextMenu = props => {
     return (
       <>
@@ -160,15 +235,25 @@ const ProjectsPage = (props: Props) => {
       </>
     );
   };
+
+/**
+ *Calling a functional component connectMenu for creating ProjectContextMenu.
+ *
+ */
   const ProjectContextMenu = connectMenu(contextMenuId)(renderContextMenu);
 
+ // Declairing an array 
   const topTemplates = [];
+
+ // Adding first four templates of tamplates array to topTemplate array.
   for (let i = 0; i < templates.length && i < 4; i++) {
     topTemplates.push(templates[i]);
   }
-
+ 
+ //function to logout user.
   const handleLogout = () => logoutUser();
 
+  //Creating a view using various components.
   return (
       <>
       { !isAuthenticated || !authUser ?   
