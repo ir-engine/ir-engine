@@ -92,7 +92,7 @@ export class WebGLRendererSystem extends System {
         cascades: 4,
         lightIntensity: 1,
         shadowMapSize: 2048,
-		maxFar: 100,
+		    maxFar: 100,
         // maxFar: Engine.camera.far,
         camera: Engine.camera,
         parent: Engine.scene
@@ -246,28 +246,43 @@ export class WebGLRendererSystem extends System {
 
     // set resolution scale
     if (this.prevQualityLevel !== this.qualityLevel) {
-      switch (this.qualityLevel) {
-        case 0:
-          this.scaleFactor = 0.4;
-          break;
-        case 1:
-          this.scaleFactor = 0.55;
-          break;
-        case 2:
-          this.scaleFactor = 0.7;
-          break;
-        case 3:
-          this.scaleFactor = 0.85;
-          break;
-        case 4:
-          this.scaleFactor = 1;
-          break;
-        default:
-          this.scaleFactor = 1;
-          break;
-      }
+      console.log('Changing quality level to', this.qualityLevel)
 
       if (Engine.renderer) {
+        switch (this.qualityLevel) {
+          case 0:
+            Engine.csm.shadowMapSize = 512;
+            Engine.csm.cascades = 2;
+            Engine.csm.maxFar = 50;
+            this.scaleFactor = 0.4;
+            break;
+          case 1:
+            Engine.csm.shadowMapSize = 1024;
+            Engine.csm.cascades = 3;
+            Engine.csm.maxFar = 100;
+            this.scaleFactor = 0.55;
+            break;
+          case 2:
+            Engine.csm.shadowMapSize = 1024;
+            Engine.csm.cascades = 4;
+            Engine.csm.maxFar = 100;
+            this.scaleFactor = 0.7;
+            break;
+          case 3:
+            Engine.csm.shadowMapSize = 2048;
+            Engine.csm.cascades = 4;
+            Engine.csm.maxFar = 100;
+            this.scaleFactor = 0.85;
+            break;
+          case 4: default:
+            Engine.csm.shadowMapSize = 4096;
+            Engine.csm.cascades = 5;
+            Engine.csm.maxFar = 200;
+            this.scaleFactor = 1;
+            break;
+        }
+        
+        Engine.csm.updateFrustums();
         Engine.renderer.setPixelRatio(window.devicePixelRatio * this.scaleFactor);
         this.prevQualityLevel = this.qualityLevel;
       }
