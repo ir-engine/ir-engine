@@ -28,7 +28,7 @@ const viewVectorSchema = new Schema({
   z: float32
 });
 
-
+/** Schema for input. */
 export const inputKeyArraySchema = new Schema({
   networkId: uint32,
   axes1d: [inputAxis1DSchema],
@@ -38,8 +38,11 @@ export const inputKeyArraySchema = new Schema({
   snapShotTime: uint64
 });
 
+/** Class for client input. */
 export class ClientInputModel {
+  /** Model holding client input. */
   static model: Model = new Model(inputKeyArraySchema)
+  /** Convert to buffer. */
   static toBuffer(inputs: NetworkClientInputInterface): ArrayBuffer {
     const packetInputs: PacketNetworkClientInputInterface = {
       ...inputs,
@@ -48,6 +51,7 @@ export class ClientInputModel {
     // @ts-ignore
     return this.model.toBuffer(packetInputs);
   }
+  /** Read from buffer. */
   static fromBuffer(buffer:unknown): NetworkClientInputInterface {
     // @ts-ignore
     const packetInputs = this.model.fromBuffer(buffer) as PacketNetworkClientInputInterface;
