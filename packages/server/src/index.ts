@@ -16,19 +16,20 @@ process.on('unhandledRejection', (error, promise) => {
 });
 
 (async (): Promise<void> => {
+  const key = process.platform === 'win32' ? 'name' : 'cmd';
   if (process.env.KUBERNETES !== 'true') {
     const processList = await (await psList()).filter(e => {
       const regexp = /docker-compose up|docker-proxy|mysql/gi;
-      return e.cmd.match(regexp);
+      return e[key].match(regexp);
     });
     const dockerProcess = processList.find(
-        c => c.cmd.match(/docker-compose/)
+        c => c[key].match(/docker-compose/)
     );
     const dockerProxy = processList.find(
-        c => c.cmd.match(/docker-proxy/)
+        c => c[key].match(/docker-proxy/)
     );
     const processMysql = processList.find(
-        c => c.cmd.match(/mysql/)
+        c => c[key].match(/mysql/)
     );
     const databaseService = (dockerProcess && dockerProxy) || processMysql;
 
