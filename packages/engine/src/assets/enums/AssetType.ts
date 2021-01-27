@@ -1,3 +1,4 @@
+/** List of Asset Types. */
 export enum AssetType {
   glTF,
   FBX,

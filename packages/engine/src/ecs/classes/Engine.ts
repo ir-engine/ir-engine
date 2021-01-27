@@ -11,6 +11,8 @@ import { WebGLRenderer, PerspectiveCamera, Scene, Clock, AudioListener,  } from 
 import { Entity } from './Entity';
 import { CameraOperator } from '../../camera/classes/CameraOperator';
 import { TransformComponent } from '../../transform/components/TransformComponent';
+import { ServerSpawnSystem } from "../../scene/systems/SpawnSystem";
+import { CSM } from '../../assets/csm/CSM.js';
 
 /** 
  * This is the base class which holds all the data related to the scene, camera,system etc.\
@@ -52,29 +54,30 @@ export class Engine {
 
   /**
    * Reference to the three.js renderer object.
-   * This is set in {@link initialize.initializeEngine | initializeEngine}
+   * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static renderer: WebGLRenderer = null
+  static csm: CSM = null
   static xrSession: any = null
   static xrReferenceSpace = null
   static context = null
 
   /**
    * Reference to the three.js scene object.
-   * This is set in {@link initialize.initializeEngine | initializeEngine}
+   * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static scene: Scene = null
 
   /**
    * Reference to the three.js perspective camera object.
-   * This is set in {@link initialize.initializeEngine | initializeEngine}
+   * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static camera: PerspectiveCamera = null
 
   /**
    * Reference to the Transform component of the three.js camera object.
    * This holds data related to camera position, angle etc.
-   * This is set in {@link initialize.initializeEngine | initializeEngine}
+   * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static cameraTransform: TransformComponent = null
 
@@ -181,4 +184,6 @@ export class Engine {
   static tick = 0;
   /** HTML Element in which Engine renders. */
   static viewportElement: HTMLElement;
+
+  static spawnSystem: ServerSpawnSystem;
 }

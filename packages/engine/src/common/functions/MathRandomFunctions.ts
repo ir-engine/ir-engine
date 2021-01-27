@@ -1,12 +1,18 @@
 const RND_BASIS = 0x100000000;
 
-export function randomId () {
+/** Generate random Id */
+export function randomId (): string {
   return Math.random()
     .toString(36)
     .substr(2, 6);
 }
 
-export function createPseudoRandom (s) {
+/**
+ * Create pseudo random number from seed
+ * @param s Seed
+ * @returns Function to generate pseudo random numbers.
+ */
+export function createPseudoRandom (s): Function {
   let seed = s || Math.random() * RND_BASIS;
 
   return () => {
@@ -15,6 +21,13 @@ export function createPseudoRandom (s) {
   };
 }
 
+/**
+ * Generate random number between 2 numbers
+ * @param min
+ * @param max
+ * @param rndFn Random function to be used to generate random number.
+ * @returns Random number between min and max limit.
+ */
 export function randomNumber (min, max, rndFn = Math.random) {
   if (typeof min === 'undefined') return undefined;
   if (typeof max === 'undefined') return min;
@@ -22,7 +35,15 @@ export function randomNumber (min, max, rndFn = Math.random) {
   return rndFn() * (max - min) + min;
 }
 
-export function randomObject (min, max, rndFn = Math.random) {
+/**
+ * Generate an Object with keys filled with random number, object or array.
+ * All keys of the min object will be added into generated object.
+ * @param min
+ * @param max
+ * @param rndFn Random function to be used to generate random number.
+ * @returns Object with keys filled with random number.
+ */
+export function randomObject (min, max, rndFn = Math.random): any {
   if (!min) return {};
   if (!max) return min;
 
@@ -42,6 +63,13 @@ export function randomObject (min, max, rndFn = Math.random) {
   return v;
 }
 
+/**
+ * Generate an array with random elements.
+ * @param min
+ * @param max
+ * @param rndFn Random function to be used to generate random number.
+ * @returns Array with random elements.
+ */
 export function randomArray (min, max, rndFn = Math.random) {
   if (!min) return [];
   if (!max) return min;
@@ -63,6 +91,13 @@ export function randomArray (min, max, rndFn = Math.random) {
   return v;
 }
 
+/**
+ * Generate random number, object or array. Type of output will be same as type of min.
+ * @param min min value. Type of min will decide what to return.
+ * @param max
+ * @param rndFn Random function to be used to generate random number.
+ * @returns Random number, object or array
+ */
 export function randomize (min, max, rndFn = Math.random) {
   const typeofMin = typeof min;
   if (Array.isArray(min)) {
@@ -76,6 +111,7 @@ export function randomize (min, max, rndFn = Math.random) {
   }
 }
 
+/** @returns Generate random box offset. */
 export const randomBoxOffset = (dx, dy, dz, rndFn = Math.random) => {
   return {
     x: (rndFn() - 0.5) * dx,
@@ -86,6 +122,7 @@ export const randomBoxOffset = (dx, dy, dz, rndFn = Math.random) => {
 
 // https://mathworld.wolfram.com/SpherePointPicking.html
 // https://mathworld.wolfram.com/SphericalCoordinates.html
+/** @returns Generate random ellipsoid offset. */
 export const randomEllipsoidOffset = (rx, ry, rz, rndFn = Math.random) => {
   const theta = rndFn() * 2 * Math.PI;
   const phi = Math.acos(2 * rndFn() - 1);
@@ -96,5 +133,7 @@ export const randomEllipsoidOffset = (rx, ry, rz, rndFn = Math.random) => {
   };
 };
 
+/** @returns Generate random sphere offset. */
 export const randomSphereOffset = (r, rndFn) => randomEllipsoidOffset(r, r, r, rndFn);
+/** @returns Generate random cube offset. */
 export const randomCubeOffset = (d, rndFn) => randomBoxOffset(d, d, d, rndFn);

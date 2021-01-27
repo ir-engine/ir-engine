@@ -5,18 +5,29 @@ import { AssetType } from '../enums/AssetType';
 import { AssetClassAlias, AssetsLoadedHandler, AssetTypeAlias } from '../types/AssetTypes';
 import { Object3D } from 'three';
 
+/** Component Class for Asset Loader. */
 export class AssetLoader extends Component<AssetLoader> {
+  /** Indication of whether the asset is loaded or not. */
   loaded = false
+  /** URL of the asset. */
   url = ''
+  /** Type of the asset. Supported types can be found in {@link assets/enums/AssetType.AssetType | AssetType}.*/
   assetType: AssetTypeAlias = null
+  /** Class of the asset. Supported Asset classes can be found in {@link assets/enums/AssetClass.AssetClass | AssetClass}. */
   assetClass: AssetClassAlias = null
+  /** Indicates whether the object will receive a shadow. */
   receiveShadow = false
+  /** Indicates whether the object will cast a shadow. */
   castShadow = false
+  /** Environment mapping for override. */
   envMapOverride: any = null
   append = true
+  /** List of function to be called after loading is completed. */
   onLoaded: any = []
+  /** Parent object. */
   parent: Object3D = null
 }
+
 AssetLoader._schema = {
   assetType: { default: AssetType.glTF, type: Types.Number },
   assetClass: { default: AssetClass, type: Types.Number },

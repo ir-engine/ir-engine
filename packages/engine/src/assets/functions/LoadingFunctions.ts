@@ -46,7 +46,12 @@ function clone(source: Object3D): Object3D {
   return clone;
 }
 
-// Kicks off an iterator to load the list of assets and add them to the vault
+/**
+ * Kicks off an iterator to load the list of assets and adds them to the vault.
+ * @param assets Map holding asset ids and asset URLs.
+ * @param onAssetLoaded Callback to be called on single asset load.
+ * @param onAllAssetsLoaded Callback to be called after all the asset being loaded.
+ */
 export function loadAssets(
   assets: AssetMap,
   onAssetLoaded: AssetsLoadedHandler,
@@ -55,6 +60,12 @@ export function loadAssets(
   iterateLoadAsset(assets.entries(), onAssetLoaded, onAllAssetsLoaded);
 }
 
+/**
+ * Load an asset from given URL.
+ * @param url URL of the asset.
+ * @param entity Entity object which will be passed in **```onAssetLoaded```** callback.
+ * @param onAssetLoaded Callback to be called after asset will be loaded.
+ */
 export function loadAsset(url: AssetUrl, entity: Entity, onAssetLoaded: AssetsLoadedHandler): void {
   const urlHashed = hashResourceString(url);
   if (AssetVault.instance.assets.has(urlHashed)) {
@@ -76,6 +87,12 @@ export function loadAsset(url: AssetUrl, entity: Entity, onAssetLoaded: AssetsLo
   }
 }
 
+/**
+ * Loads asset from an iterable list.
+ * @param iterable List of Assets.
+ * @param onAssetLoaded Callback to be called on single asset load.
+ * @param onAllAssetsLoaded Callback to be called after all the asset being loaded.
+ */
 function iterateLoadAsset(
   iterable: IterableIterator<[AssetId, AssetUrl]>,
   onAssetLoaded: AssetsLoadedHandler,
@@ -112,6 +129,11 @@ function iterateLoadAsset(
   }
 }
 
+/**
+ * Get asset loader for given asset type.
+ * @param assetType Type of the asset.
+ * @returns Asset loader for given asset type.
+ */
 function getLoaderForAssetType(assetType: AssetTypeAlias): GLTFLoader | any | TextureLoader {
   if (assetType == AssetType.FBX) return new FBXLoader.FBXLoader();
   // else if (assetType == AssetType.glTF) return new GLTFLoader();
@@ -135,6 +157,11 @@ function getLoaderForAssetType(assetType: AssetTypeAlias): GLTFLoader | any | Te
   else if (assetType == AssetType.VRM) return new GLTFLoader();
 }
 
+/**
+ * Get asset type from the asset file extension.
+ * @param assetFileName Name of the Asset file.
+ * @returns Asset type of the file.
+ */
 export function getAssetType(assetFileName: string): AssetType {
   if (/\.(?:gltf|glb)$/.test(assetFileName))
     return AssetType.glTF;
@@ -150,6 +177,11 @@ export function getAssetType(assetFileName: string): AssetType {
     return null;
 }
 
+/**
+ * Get asset class from the asset file extension.
+ * @param assetFileName Name of the Asset file.
+ * @returns Asset class of the file.
+ */
 export function getAssetClass(assetFileName: string): AssetClass {
   if (/\.(?:gltf|glb|vrm|fbx|obj)$/.test(assetFileName)) {
     return AssetClass.Model;
@@ -160,6 +192,11 @@ export function getAssetClass(assetFileName: string): AssetClass {
   }
 }
 
+/**
+ * Get hash string from the asset file name.
+ * @param str Name of the asset file.
+ * @returns The hash plus part of the file name.
+ */
 function hashResourceString(str: string): string {
   let hash = 0;
   let i = 0;
@@ -167,6 +204,5 @@ function hashResourceString(str: string): string {
   while (i < len) {
     hash = ((hash << 5) - hash + str.charCodeAt(i++)) << 0;
   }
-  // Return the hash plus part of the file name
   return `${hash}${str.substr(Math.max(str.length - 7, 0))}`;
 }

@@ -233,15 +233,18 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
     try {
       const scene: any = await this.props.api.getScene(sceneId);
-      const projectFile = await this.props.api.fetchUrl(scene.scene_project_url).then(response => response.json());
-
-      if (projectFile.metadata) {
-        delete projectFile.metadata.sceneUrl;
-        delete projectFile.metadata.sceneId;
-        delete projectFile.metadata.creatorAttribution;
-        delete projectFile.metadata.allowRemixing;
-        delete projectFile.metadata.allowPromotion;
-      }
+      console.warn('loadScene:scene', scene);
+      const projectFile = scene.data;
+      // const projectFile = await this.props.api.fetchUrl(scene.scene_project_url).then(response => response.json());
+      // console.warn('loadScene:projectFile', projectFile);
+      //
+      // if (projectFile.metadata) {
+      //   delete projectFile.metadata.sceneUrl;
+      //   delete projectFile.metadata.sceneId;
+      //   delete projectFile.metadata.creatorAttribution;
+      //   delete projectFile.metadata.allowRemixing;
+      //   delete projectFile.metadata.allowPromotion;
+      // }
 
       await editor.init();
 

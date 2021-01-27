@@ -1,10 +1,6 @@
-import { Component } from "../../ecs/classes/Component"
+import { Component } from "../../ecs/classes/Component";
 
+/** Component Class For Highlight. */
+export class HighlightComponent extends Component<HighlightComponent> {}
 
-export class HighlightComponent extends Component<HighlightComponent> {
-    
-}
-
-HighlightComponent._schema = {
-      
-}
+HighlightComponent._schema = {};

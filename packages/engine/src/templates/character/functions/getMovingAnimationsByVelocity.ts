@@ -32,7 +32,7 @@ function getWeights(absSpeed): { idle: number, walk: number, run: number } {
         run: 0
     };
 
-    if (absSpeed > 0) {
+    if (absSpeed > 0.001) {
         speeds.idle = 0;
         // idle|   idle  +  walk     |    walk      |    walk + run     |   run
         // 0   | > WALK_START_SPEED  | > WALK_SPEED | > RUN_START_SPEED | > RUN_SPEED
@@ -54,15 +54,19 @@ function getWeights(absSpeed): { idle: number, walk: number, run: number } {
 
 export const getMovingAnimationsByVelocity = (localSpaceVelocity: Vector3): Map<number, AnimationWeightScaleInterface> => {
     const animations = new Map<number, AnimationWeightScaleInterface>();
-    const direction = localSpaceVelocity.clone().normalize();
+    const velocity  = localSpaceVelocity.clone();
+    const direction = velocity.clone().normalize();
 
-    const stateWeights = getWeights(localSpaceVelocity.length());
+    const stateWeights = getWeights(velocity.length());
+
+    const invertAnimations = direction.z > -0.001 ? [] : [ WALK_STRAFE_RIGHT, WALK_STRAFE_LEFT, RUN_STRAFE_RIGHT, RUN_STRAFE_LEFT ];
 
     animationAxisSpeed.forEach(animationWeightsConfig => {
         const { animationId, axis, speed, range, run: isRun } = animationWeightsConfig;
 
         let timeScale = 1;
-        let weight = Math.abs(MathUtils.clamp(direction[axis], range[0], range[1]));
+        const inverted = invertAnimations.indexOf(animationId) !== -1;
+        let weight = Math.abs(MathUtils.clamp(direction[axis] * (inverted? -1 : 1), range[0], range[1]));
         if (weight) {
             /*
              if animation is not playing (weight === 0), there is no need to calculate all this
@@ -72,9 +76,12 @@ export const getMovingAnimationsByVelocity = (localSpaceVelocity: Vector3): Map<
 
             weight *= isRun ? stateWeights.run : stateWeights.walk;
             timeScale = absSpeed / speed;
+
             if (timeScale < 0.001) {
                 weight = 0;
                 timeScale = 0;
+            } else if (inverted) {
+                timeScale *= -1;
             }
         }
 
