@@ -131,7 +131,7 @@ export class PositionalAudioSystem extends System {
   suspend(): void {
     for (const entity of this.queryResults.character_audio.all) {
       const positionalAudio = getComponent(entity, PositionalAudioComponent);
-      positionalAudio.value.context.suspend();
+      positionalAudio.value?.context?.suspend();
     }
   }
 
@@ -139,7 +139,7 @@ export class PositionalAudioSystem extends System {
   resume(): void {
     for (const entity of this.queryResults.character_audio.all) {
       const positionalAudio = getComponent(entity, PositionalAudioComponent);
-      positionalAudio.value.context.resume();
+      positionalAudio.value?.context?.resume();
     }
   }
 }
