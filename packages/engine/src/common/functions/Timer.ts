@@ -19,6 +19,10 @@ export function Timer (
   let delta = 0;
   let frameId;
 
+  const freeUpdatesLimit = 120;
+  const freeUpdatesLimitInterval = 1 / freeUpdatesLimit;
+  let freeUpdatesTimer = 0;
+
   const newEngineTicks = {
     fixed: 0,
     net: 0,
@@ -98,10 +102,20 @@ export function Timer (
           tpsSubMeasureEnd('net');
         }
 
-        if (callbacks.update) {
-          tpsSubMeasureStart('update');
-          callbacks.update(delta, accumulated);
-          tpsSubMeasureEnd('update');
+        if (freeUpdatesLimit) {
+          freeUpdatesTimer += delta;
+        }
+        const updateFrame = !freeUpdatesLimit || freeUpdatesTimer > freeUpdatesLimitInterval;
+        if (updateFrame) {
+          if (callbacks.update) {
+            tpsSubMeasureStart('update');
+            callbacks.update(delta, accumulated);
+            tpsSubMeasureEnd('update');
+          }
+
+          if (freeUpdatesLimit) {
+            freeUpdatesTimer %= freeUpdatesLimitInterval;
+          }
         }
       }
       last = time;
@@ -150,6 +164,7 @@ export function Timer (
     console.log('Timer - net  :', newEngineTicks.net, ', tps:', (newEngineTicks.net / seconds).toFixed(1), " ms per tick:", (newEngineTimeSpent.net / newEngineTicks.net));
     console.log('Timer - other:', newEngineTicks.update, ', tps:', (newEngineTicks.update / seconds).toFixed(1), " ms per tick:", (newEngineTimeSpent.update / newEngineTicks.update));
     console.log('Timer runs: +', timerRuns - prevTimerRuns);
+    console.log('==================================================');
 
     tpsPrevTime = time;
     nextTpsReportTime = time + TPS_REPORT_INTERVAL_MS;
@@ -193,7 +208,7 @@ export function Timer (
     stop: stop
   };
 }
-function requestAnimationFrameOnServer (f) {
+function requestAnimationFrameOnServer(f) {
   setImmediate(() => f(Date.now()));
 }
 

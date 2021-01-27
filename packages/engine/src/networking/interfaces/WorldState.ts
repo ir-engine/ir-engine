@@ -28,7 +28,7 @@ export interface NetworkClientInputInterface extends NetworkInputInterface {
 }
 
 export interface PacketNetworkClientInputInterface extends PacketNetworkInputInterface {
-  snapShotTime: BigInt
+  snapShotTime: number
 }
 
 export interface NetworkClientDataInterface {
@@ -37,7 +37,7 @@ export interface NetworkClientDataInterface {
 
 export interface NetworkTransformsInterface {
   networkId: number,
-  snapShotTime: BigInt,
+  snapShotTime: number,
   x: number
   y: number
   z: number
@@ -65,7 +65,7 @@ export interface NetworkObjectCreateInterface {
 }
 
 export interface WorldStateSnapshot {
-  time: BigInt,
+  time: number,
   id: string,
   state: any[]
 }
@@ -83,7 +83,7 @@ export interface WorldStateInterface {
 }
 
 export interface PacketWorldState {
-  tick: BigInt
+  tick: number
   transforms: NetworkTransformsInterface[]
   //snapshot: WorldStateSnapshot
   inputs: PacketNetworkInputInterface[]
