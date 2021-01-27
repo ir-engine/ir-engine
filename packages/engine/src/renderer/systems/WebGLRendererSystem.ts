@@ -32,6 +32,7 @@ import { NormalPass } from '../../postprocessing/passes/NormalPass';
 import { BlendFunction } from '../../postprocessing/effects/blending/BlendFunction';
 import { TextureEffect } from '../../postprocessing/effects/TextureEffect';
 import { OutlineEffect } from '../../postprocessing/effects/OutlineEffect';
+import { CSM } from '../../assets/csm/CSM.js';
 
 import { now } from '../../common/functions/now';
 
@@ -79,14 +80,28 @@ export class WebGLRendererSystem extends System {
     renderer.physicallyCorrectLights = true;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = PCFSoftShadowMap;
-    // renderer.outputEncoding = sRGBEncoding; // need this if postprocessing is not used
+    renderer.outputEncoding = sRGBEncoding; // need this if postprocessing is not used
 
     Engine.renderer = renderer;
+
+    // Cascaded shadow maps
+    const csm = new CSM({
+        cascades: 4,
+        lightIntensity: 1,
+        shadowMapSize: 2048,
+		maxFar: 100,
+        // maxFar: Engine.camera.far,
+        camera: Engine.camera,
+        parent: Engine.scene
+    });
+    csm.fade = true;
+
+    Engine.csm = csm;
+
     // Add the renderer to the body of the HTML document
     document.body.appendChild(canvas);
     window.addEventListener('resize', this.onResize, false);
     this.onResize();
-
     this.isInitialized = true;
   } 
 
@@ -173,6 +188,8 @@ export class WebGLRendererSystem extends System {
       RendererComponent.instance.needsResize = true;
       this.configurePostProcessing(entity);
     });
+    
+    Engine.csm.update();
     
     if(this.isInitialized)
     this.queryResults.renderers.all.forEach((entity: Entity) => {
@@ -277,6 +294,8 @@ export const resize: Behavior = entity => {
       cam.aspect = width / height;
       cam.updateProjectionMatrix();
     }
+
+    Engine.csm.updateFrustums();
 
     canvas.width = width;
     canvas.height = height;
