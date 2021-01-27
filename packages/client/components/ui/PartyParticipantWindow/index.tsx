@@ -36,7 +36,6 @@ import {selectLocationState} from '../../../redux/location/selector';
 import {selectUserState} from '../../../redux/user/selector';
 import {connect} from "react-redux";
 import {Dispatch} from "redux";
-import {getPseudoRandomAvatarIdByUserId} from '@xr3ngine/engine/src/templates/character/functions/pseudoRandomAvatar';
 import {PositionalAudioSystem} from "@xr3ngine/engine/src/audio/systems/PositionalAudioSystem";
 
 
@@ -94,41 +93,43 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     const user = userState.get('layerUsers').find(user => user.id === peerId);
 
     autorun(() => {
-        (Network.instance?.transport as any)?.socket?.on(MessageTypes.WebRTCPauseConsumer.toString(), (consumerId: string) => {
-            if (consumerId === videoStream?.id) {
-                setVideoProducerPaused(true);
-            } else if (consumerId === audioStream?.id) {
-                setAudioProducerPaused(true);
-            }
-        });
+        if (typeof (Network.instance?.transport as any)?.socket?.on === 'function') {
+            (Network.instance?.transport as any)?.socket?.on(MessageTypes.WebRTCPauseConsumer.toString(), (consumerId: string) => {
+                if (consumerId === videoStream?.id) {
+                    setVideoProducerPaused(true);
+                } else if (consumerId === audioStream?.id) {
+                    setAudioProducerPaused(true);
+                }
+            });
 
-        (Network.instance?.transport as any)?.socket?.on(MessageTypes.WebRTCResumeConsumer.toString(), (consumerId: string) => {
-            if (consumerId === videoStream?.id) {
-                setVideoProducerPaused(false);
-            } else if (consumerId === audioStream?.id) {
-                setAudioProducerPaused(false);
-            }
-        });
+            (Network.instance?.transport as any)?.socket?.on(MessageTypes.WebRTCResumeConsumer.toString(), (consumerId: string) => {
+                if (consumerId === videoStream?.id) {
+                    setVideoProducerPaused(false);
+                } else if (consumerId === audioStream?.id) {
+                    setAudioProducerPaused(false);
+                }
+            });
 
-        (Network.instance?.transport as any)?.socket?.on(MessageTypes.WebRTCPauseProducer.toString(), (producerId: string, globalMute: boolean) => {
-            if (producerId === videoStream?.id && globalMute === true) {
-                setVideoProducerPaused(true);
-                setVideoProducerGlobalMute(true);
-            } else if (producerId === audioStream?.id && globalMute === true) {
-                setAudioProducerPaused(true);
-                setAudioProducerGlobalMute(true);
-            }
-        });
+            (Network.instance?.transport as any)?.socket?.on(MessageTypes.WebRTCPauseProducer.toString(), (producerId: string, globalMute: boolean) => {
+                if (producerId === videoStream?.id && globalMute === true) {
+                    setVideoProducerPaused(true);
+                    setVideoProducerGlobalMute(true);
+                } else if (producerId === audioStream?.id && globalMute === true) {
+                    setAudioProducerPaused(true);
+                    setAudioProducerGlobalMute(true);
+                }
+            });
 
-        (Network.instance?.transport as any)?.socket?.on(MessageTypes.WebRTCResumeProducer.toString(), (producerId: string) => {
-            if (producerId === videoStream?.id) {
-                setVideoProducerPaused(false);
-                setVideoProducerGlobalMute(false);
-            } else if (producerId === audioStream?.id) {
-                setAudioProducerPaused(false);
-                setAudioProducerGlobalMute(false);
-            }
-        });
+            (Network.instance?.transport as any)?.socket?.on(MessageTypes.WebRTCResumeProducer.toString(), (producerId: string) => {
+                if (producerId === videoStream?.id) {
+                    setVideoProducerPaused(false);
+                    setVideoProducerGlobalMute(false);
+                } else if (producerId === audioStream?.id) {
+                    setAudioProducerPaused(false);
+                    setAudioProducerGlobalMute(false);
+                }
+            });
+        }
     });
 
     useEffect(() => {
@@ -294,11 +295,6 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
         if (focused === false) return name?.length > 10 ? name.slice(0, 10) + '...' : name;
     };
 
-    const setFocus = (focused) => {
-        unsetFocused();
-        setFocused(!focused);
-    };
-
     const avatarBgImage = user && user.avatarId ?
         `url(${'/static/' + user.avatarId.toLocaleLowerCase() + '.png'})` : selfUser && selfUser.avatarId ? `url(${'/static/' + selfUser.avatarId.toLocaleLowerCase() + '.png'})` : null;
     // const avatarBgImage = getPseudoRandomAvatarIdByUserId(user ? user.id : selfUser.id) ? 
@@ -318,7 +314,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
 
             <div className={styles['video-wrapper']}
                  style={{backgroundImage: user?.avatarUrl?.length > 0 ? `url(${user.avatarUrl}` : avatarBgImage ? avatarBgImage : `url(/placeholders/default-silhouette.svg)`}}
-                 onClick={() => setFocus(focused) }
+                 onClick={() => setFocused(!focused) }
             >
                 <video key={peerId + '_cam'} ref={videoRef}/>
             </div>
