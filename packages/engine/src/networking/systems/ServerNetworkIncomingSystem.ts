@@ -39,7 +39,7 @@ function handleUpdatesFromClients(buffer:NetworkClientInputInterface|Iterable<nu
   if (isClientNetworkInputInterface(buffer)) {
     clientInput = buffer;
   } else {
-    clientInput = ClientInputModel.fromBuffer(new Uint8Array(buffer).buffer);
+    clientInput = ClientInputModel.fromBuffer(buffer);
   }
 
   if (Network.instance.networkObjects[clientInput.networkId] === undefined) {
