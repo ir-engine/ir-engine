@@ -8,6 +8,10 @@ import StringInput from "../inputs/StringInput";
 import { useRouter } from "next/router";
 import { Plus } from "@styled-icons/fa-solid/Plus";
 
+
+/**
+ * Styled component for the project items container. 
+ */
 const ProjectGridItemContainer = (styled as any).div`
   display: flex;
   flex-direction: column;
@@ -33,6 +37,9 @@ const ProjectGridItemContainer = (styled as any).div`
   }
 `;
 
+/**
+ * Function component for rendering add new project button. 
+ */
 export function NewProjectGridItem({ path, label }: { path: string; label: string }) {
   const router = useRouter();
   
