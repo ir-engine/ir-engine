@@ -24,7 +24,42 @@ export default (app: Application): void => {
     multi: true
   };
 
-  app.use('/user', new User(options, app));
+  const event = new User(options, app);
+  event.docs = {
+    getUser: {
+     description: 'A service for users',
+     definitions: {
+       user_list: {
+         type: 'object',
+         properties: {
+           name: {
+             type: 'string',
+             description: ''
+           },
+           avatarId: {
+             type: 'string',
+             description: ''
+           }
+         }
+       },
+       user: {
+         type: 'object',
+         required: ['name', 'avatarId'],
+         properties: {
+             name:{
+                 type: 'string',
+             },
+             avatarId: {
+                 type: 'string'
+             }
+         }
+       }
+     }
+   },
+ 
+ };
+
+  app.use('/user', event);
 
   const service = app.service('user');
 
@@ -34,6 +69,7 @@ export default (app: Application): void => {
    * This method find all users
    * @returns users
    */
+
   
   service.publish('patched', async (data, params): Promise<any> => {
     try {

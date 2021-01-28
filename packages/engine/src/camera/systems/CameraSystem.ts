@@ -19,7 +19,9 @@ import { CameraComponent } from '../components/CameraComponent';
 import { FollowCameraComponent } from '../components/FollowCameraComponent';
 import { getInputData } from '../functions/getInputData';
 
+/** System class which provides methods for Camera system. */
 export class CameraSystem extends System {
+  /** Constructs camera system. */
   constructor() {
     super();
     const cameraEntity = createEntity();
@@ -29,13 +31,14 @@ export class CameraSystem extends System {
     addComponent(cameraEntity, TransformComponent);
     addComponent(cameraEntity, DesiredTransformComponent);
   }
+
   /**
-   * Called each frame by default
+   * Execute the camera system for different events of queries.\
+   * Called each frame by default.
    *
-   * @param {Number} delta time since last frame
+   * @param delta time since last frame.
    */
   execute(delta: number): void {
-
     this.queryResults.followCameraComponent.added?.forEach(entity => {
       attachCamera(entity);
     });
@@ -54,6 +57,7 @@ export class CameraSystem extends System {
 
   }
 }
+
 /**
  * Queries must have components attribute which defines the list of components
  */

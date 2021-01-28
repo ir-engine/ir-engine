@@ -13,6 +13,7 @@ import { Forbidden } from '@feathersjs/errors';
  */
 export class User extends Service {
   app: Application
+  docs: any
 
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options);

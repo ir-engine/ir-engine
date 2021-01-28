@@ -11,15 +11,13 @@ const Me = observer(() => {
 
   return (
     <Grid className={styles['me-party-user-container']} container>
-        {
-            (MediaStreamComponent.instance?.camVideoProducer || MediaStreamComponent.instance?.camAudioProducer) && <PartyParticipantWindow
-            containerProportions={{
-              height: 135,
-              width: 240
-            }}
-            peerId={'me_cam'}
-            />
-        }
+      <PartyParticipantWindow
+          containerProportions={{
+            height: 135,
+            width: 240
+          }}
+          peerId={'me_cam'}
+      />
         {
             (MediaStreamComponent.instance?.screenVideoProducer || MediaStreamComponent.instance?.screenAudioProducer) && <PartyParticipantWindow
                 containerProportions={{
