@@ -26,7 +26,7 @@ const viewVectorSchema = new Schema({
   z: float32
 });
 
-
+/** Schema for input. */
 export const inputKeyArraySchema = new Schema({
   networkId: uint32,
   axes1d: [inputAxis1DSchema],
@@ -90,8 +90,12 @@ const worldStateSchema = new Schema({
 });
 
 // TODO: convert WorldStateInterface to PacketReadyWorldState in toBuffer and back in fromBuffer
+/** Class for holding world state. */
 export class WorldStateModel {
+    /** Model holding client input. */
     static model: Model = new Model(worldStateSchema)
+
+    /** Convert to buffer. */
     static toBuffer(worldState: WorldStateInterface): ArrayBuffer {
         // console.log("Making into buffer");
         // console.log(objectOrArray);
@@ -126,6 +130,8 @@ export class WorldStateModel {
         // @ts-ignore
         return Network.instance.packetCompression ? this.model.toBuffer(state) : state;
     }
+
+    /** Read from buffer. */
     static fromBuffer(buffer:unknown): WorldStateInterface {
         // @ts-ignore
         const state = Network.instance.packetCompression ? this.model.fromBuffer(new Uint8Array(buffer).buffer) as PacketWorldState : buffer;
