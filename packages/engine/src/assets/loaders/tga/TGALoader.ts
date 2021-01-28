@@ -6,16 +6,22 @@ declare const OffscreenCanvas: {
   new (width: number, height: number): any;
 };
 
+/** Loader class for TGA asset. */
 @autobind
 export class TGALoader {
+  /** Path of the asset. */
   path: any
+  /** Loading manager for TGA asset. */
   manager: any
+
+  /** Constructs TGA Loader. */
   constructor() {
     this.manager =
       this.manager !== undefined ? this.manager : DefaultLoadingManager;
   }
 
-  load(url, onLoad, onProgress, onError) {
+  /** Load TGA texture. */
+  load(url, onLoad, onProgress, onError): Texture {
     const texture = new Texture();
 
     const loader = new FileLoader(this.manager);
@@ -39,6 +45,7 @@ export class TGALoader {
     return texture;
   }
 
+  /** Parse the asset. */
   parse(buffer) {
     // reference from vthibault, https://github.com/vthibault/roBrowser/blob/master/src/Loaders/Targa.js
 
@@ -599,7 +606,8 @@ export class TGALoader {
     return useOffscreen ? canvas.transferToImageBitmap() : canvas;
   }
 
-  setPath(value) {
+  /** Setter method for path Property. */
+  setPath(value): TGALoader {
     this.path = value;
     return this;
   }

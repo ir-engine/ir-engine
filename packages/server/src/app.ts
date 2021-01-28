@@ -54,8 +54,22 @@ if (config.server.enabled) {
               title: 'XR3ngine API Surface',
               description: 'APIs for the XR3ngine application',
               version: '1.0.0'
-            }
-          }
+            },
+            schemes:['https'],
+            securityDefinitions: {
+              bearer: {
+                type: "apiKey",
+                name: "authorization",
+                in: "header"
+              }
+            },
+            security: [
+              {
+                Bearer: []
+              }
+            ]
+          },
+          
         })
     );
     

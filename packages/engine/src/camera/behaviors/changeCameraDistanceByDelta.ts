@@ -6,6 +6,10 @@ import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/func
 import { InputAlias } from "../../input/types/InputAlias";
 import { InputType } from "../../input/enums/InputType";
 
+/**
+ * Change camera distance.
+ * @param entity Entity holding camera and input component.
+ */
 export const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:inputAxes, inputType }: { input: InputAlias; inputType: InputType }): void => {
   const inputComponent = getComponent(entity, Input) as Input;
 
