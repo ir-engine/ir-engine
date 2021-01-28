@@ -184,21 +184,8 @@ export class InputSystem extends System {
       inputs.viewVector.y = actor.viewVector.y;
       inputs.viewVector.z = actor.viewVector.z;
 
-      if (Network.instance.packetCompression) {
-        Network.instance.transport.sendReliableData(ClientInputModel.toBuffer(inputs));
-      } else {
-        Network.instance.transport.sendReliableData(inputs);
-      }
-
-      //  const buffer = clientInputModel.toBuffer(inputs)
-      //    const inputDebbug = clientInputModel.fromBuffer(buffer)
-      //     console.warn(inputDebbug);
-      //  console.warn(JSON.stringify(inputs).length) // 241
-      //    console.warn(message.byteLength) // 56
-      // Use default channel
-
+      Network.instance.transport.sendReliableData(ClientInputModel.toBuffer(inputs));
       cleanupInput(entity);
-
     });
 
     // Called when input component is added to entity
