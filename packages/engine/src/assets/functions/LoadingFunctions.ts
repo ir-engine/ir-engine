@@ -6,11 +6,7 @@ import { AssetType } from '../enums/AssetType';
 import { AssetId, AssetMap, AssetsLoadedHandler, AssetTypeAlias, AssetUrl } from '../types/AssetTypes';
 import * as FBXLoader from '../loaders/fbx/FBXLoader';
 import { Entity } from '../../ecs/classes/Entity';
-import { DRACOLoader } from '../loaders/gltf/DRACOLoader';
-// @ts-ignore
-import NodeDRACOLoader from "../loaders/gltf/NodeDRACOLoader";
-import { isClient } from "../../common/functions/isClient";
-import * as THREE from "three";
+import * as LoadGLTF from './LoadGLTF';
 
 function parallelTraverse(a, b, callback) {
   callback(a, b);
@@ -77,6 +73,9 @@ export function loadAsset(url: AssetUrl, entity: Entity, onAssetLoaded: AssetsLo
       return;
     }
     loader.load(url, resource => {
+      if(resource !== undefined) {
+        LoadGLTF.loadExtentions(resource);
+      }
       if (resource.scene) {
         // store just scene, no need in all gltf metadata?
         resource = resource.scene;
@@ -114,6 +113,9 @@ function iterateLoadAsset(
         return;
       }
       loader.load(url, resource => {
+        if(resource !== undefined) {
+          LoadGLTF.loadExtentions(resource);
+        }
         if (resource.scene !== undefined) {
           resource.scene.traverse(child => {
             // Do stuff with metadata here
@@ -136,22 +138,7 @@ function iterateLoadAsset(
  */
 function getLoaderForAssetType(assetType: AssetTypeAlias): GLTFLoader | any | TextureLoader {
   if (assetType == AssetType.FBX) return new FBXLoader.FBXLoader();
-  // else if (assetType == AssetType.glTF) return new GLTFLoader();
-  else if (assetType == AssetType.glTF) {
-    const loader = new GLTFLoader();
-
-    let dracoLoader;
-    if (isClient) {
-      dracoLoader = new DRACOLoader();
-      dracoLoader.setDecoderPath('/loader_decoders/');
-    }
-    else {
-      console.log("IS SERVER!")
-      dracoLoader = new NodeDRACOLoader(THREE.DefaultLoadingManager);
-    }
-    loader.setDRACOLoader(dracoLoader);
-    return loader;
-  }
+  else if (assetType == AssetType.glTF) return LoadGLTF.getLoader();
   else if (assetType == AssetType.PNG) return new TextureLoader();
   else if (assetType == AssetType.JPEG) return new TextureLoader();
   else if (assetType == AssetType.VRM) return new GLTFLoader();
