@@ -30,8 +30,37 @@ export default (app: Application): any => {
     paginate: app.get('paginate')
   };
 
+  const event = new Login(options, app);
+  event.docs = {
+      description: "A login service",
+      definitions: {
+        login_list: {
+          type: 'object',
+          properties: {
+            name: {
+              type: 'string',
+            },
+            avatarId: {
+              type: 'string'
+            }
+          }
+        },
+        login: {
+          type: 'object',
+          properties: {
+            email: {
+              type: 'string'
+            },
+            password: {
+              type: 'string'
+            }
+          }
+        }
+      }
+  }
+
   // Initialize our service with any options it requires
-  app.use('/login', new Login(options, app), redirect);
+  app.use('/login', event, redirect);
 
   // Get our initialized service so that we can register hooks
   const service = app.service('login');

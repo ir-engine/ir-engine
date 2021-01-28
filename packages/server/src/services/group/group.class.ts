@@ -6,6 +6,7 @@ import { Op } from 'sequelize';
 
 export class Group extends Service {
   app: Application
+  docs: any
 
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options);
