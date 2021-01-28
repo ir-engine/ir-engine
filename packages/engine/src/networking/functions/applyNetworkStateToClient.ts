@@ -10,7 +10,7 @@ import {initializeNetworkObject} from './initializeNetworkObject';
 import {CharacterComponent} from "../../templates/character/components/CharacterComponent";
 import {handleInputFromNonLocalClients} from "./handleInputOnServer";
 
-let test = 0
+let NetworkIdMyPlayer = null;
 
 export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface, delta = 0.033): void {
 
@@ -79,45 +79,18 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
                 position,
                 rotation,
             );
-            test++
+            if (objectToCreate.ownerId === Network.instance.userId) {
+              NetworkIdMyPlayer = objectToCreate.networkId;
+            };
         }
     }
-
-
-    let searchTimeMyPlayer = 0; //state.transforms
-    //  console.warn(worldStateBufferBuffer.transforms);
-    //  console.warn(Network.instance.userId);
-
-
-
-    // Ignore input applied to local user input object that the client is currently controlling
-
-
-
-    const serchh = worldStateBuffer.transforms.find(v => {
-        if (Network.instance.networkObjects[v.networkId]) {
-            const networkComponent = Network.instance.networkObjects[v.networkId].component;
-            return networkComponent.ownerId === Network.instance.userId
-        }
-        return false;
-    });
-    //  console.warn(serchh);
-    if (serchh != undefined) {
-        searchTimeMyPlayer = Number(serchh.snapShotTime)
-    }
-    //    console.warn(searchTimeMyPlayer);
-
-
 
     if (worldStateBuffer.transforms.length > 0) {
-        if (test != 0) {
-            const newServerSnapshot = createSnapshot(worldStateBuffer.transforms)
-            newServerSnapshot.time = searchTimeMyPlayer
-            Network.instance.snapshot = newServerSnapshot
-            addSnapshot(newServerSnapshot);
-        }
-    } else {
-        console.warn('server do not send Interpolation Snapshot');
+      const myPlayerTime = worldStateBuffer.transforms.find(v => v.networkId == NetworkIdMyPlayer);
+      const newServerSnapshot = createSnapshot(worldStateBuffer.transforms)
+      newServerSnapshot.time = myPlayerTime ? Number(myPlayerTime.snapShotTime): 0;
+      Network.instance.snapshot = newServerSnapshot;
+      addSnapshot(newServerSnapshot);
     }
 
 
