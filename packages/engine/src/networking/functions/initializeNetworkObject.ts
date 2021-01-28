@@ -10,6 +10,15 @@ import { Client } from '../components/Client';
 import { Server } from '../components/Server';
 import { NetworkPrefab } from '../interfaces/NetworkPrefab';
 
+/**
+ * Create network object from prefab.
+ * @param prefab Prefab to be used to create object.
+ * @param ownerId ID of the owner.
+ * @param networkId ID of network in which object will be created.
+ * @param override Override prefab properties.
+ * 
+ * @returns Newly created entity.
+ */
 function createNetworkPrefab(prefab: NetworkPrefab, ownerId, networkId: number, override: NetworkPrefab = null): Entity {
   const entity = createEntity();
 
@@ -74,6 +83,12 @@ function createNetworkPrefab(prefab: NetworkPrefab, ownerId, networkId: number, 
   return entity;
 }
 
+/**
+ * Initialize components.
+ * @param entity Entity to be initialized.
+ * @param components List of components to be added into entity.
+ * @param override Override of the default component values.
+ */
 function initComponents(entity: Entity, components: Array<{ type: any, data?: any }>, override?: Map<any, any>) {
   components?.forEach(component => {
     // The component to the entity
@@ -97,7 +112,16 @@ function initComponents(entity: Entity, components: Array<{ type: any, data?: an
   });
 }
 
-
+/**
+ * Initialize Network object
+ * @param ownerId ID of owner of newly created object.
+ * @param networkId ID of network in which object will be created.
+ * @param prefabType Type of prefab which will be used to create the object.
+ * @param position Position of the object.
+ * @param rotation Rotation of the object.
+ * 
+ * @returns Newly created object.
+ */
 export function initializeNetworkObject(ownerId: string, networkId: number, prefabType: string | number, position?: Vector3, rotation?: Quaternion): NetworkObject {
   // Instantiate into the world
   const networkEntity = createNetworkPrefab(
