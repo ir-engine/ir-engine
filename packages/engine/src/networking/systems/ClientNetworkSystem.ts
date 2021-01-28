@@ -60,12 +60,9 @@ export class ClientNetworkSystem extends System {
     while (queue.getBufferLength() > 0) {
       const buffer = queue.pop();
       // debugger;
-      if (Network.instance.packetCompression) {
-        const unbufferedState = WorldStateModel.fromBuffer(new Uint8Array(buffer).buffer);
+      const unbufferedState = WorldStateModel.fromBuffer(buffer);
+      if (unbufferedState)
         applyNetworkStateToClient(unbufferedState, delta);
-      } else {
-        applyNetworkStateToClient(buffer, delta);
-      }
     }
   }
 

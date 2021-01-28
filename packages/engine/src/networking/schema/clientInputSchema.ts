@@ -1,5 +1,6 @@
 import { float32, Model, Schema, uint32, uint8 } from "superbuffer"
 import { NetworkClientInputInterface, PacketNetworkClientInputInterface } from "../interfaces/WorldState";
+import { Network } from '../components/Network';
 //import { uint8, float32, uint16, uint32 } from "../../common/types/DataTypes";
 //import { createSchema } from "../functions/createSchema";
 //import { Model } from "../classes/Model";
@@ -46,17 +47,19 @@ export class ClientInputModel {
   static toBuffer(inputs: NetworkClientInputInterface): ArrayBuffer {
     const packetInputs: PacketNetworkClientInputInterface = {
       ...inputs,
-      snapShotTime: inputs.snapShotTime
+      // @ts-ignore
+      snapShotTime: Network.instance.packetCompression ? BigInt( inputs.snapShotTime ) : inputs.snapShotTime,
     }
     // @ts-ignore
-    return this.model.toBuffer(packetInputs);
+    return Network.instance.packetCompression ? this.model.toBuffer(packetInputs) : packetInputs;
   }
   /** Read from buffer. */
   static fromBuffer(buffer:unknown): NetworkClientInputInterface {
     // @ts-ignore
-    const packetInputs = this.model.fromBuffer(buffer) as PacketNetworkClientInputInterface;
+    const packetInputs = Network.instance.packetCompression ? this.model.fromBuffer(new Uint8Array(buffer).buffer) as PacketNetworkClientInputInterface : buffer;
 
     return {
+      // @ts-ignore
       ...packetInputs,
       snapShotTime: Number(packetInputs.snapShotTime)
     };
