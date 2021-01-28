@@ -1,6 +1,6 @@
 import { float32, Model, Schema, string, uint32, uint8 } from "superbuffer";
 import { PacketWorldState, WorldStateInterface } from "../interfaces/WorldState";
-//import { inputKeyArraySchema } from "./clientInputSchema";
+import { Network } from '../components/Network';
 
 const inputKeySchema = new Schema({
   input: uint8,
@@ -112,28 +112,36 @@ export class WorldStateModel {
               axes2d: Object.keys(input.axes2d).map(v => input.axes2d[v]),
               buttons: Object.keys(input.buttons).map(v => input.buttons[v]),
               viewVector: { ...input.viewVector },
-              snapShotTime: 0
+              snapShotTime: Network.instance.packetCompression ? BigInt(0) : 0,
             };
           }),
-          tick: worldState.tick ,
+          // @ts-ignore
+          tick: Network.instance.packetCompression ? BigInt( worldState.tick ) : worldState.tick,
+          // @ts-ignore
           transforms: worldState.transforms.map(v=> {
             return {
               ...v,
-              snapShotTime: v.snapShotTime
+              snapShotTime: Network.instance.packetCompression ? BigInt(v.snapShotTime) : v.snapShotTime,
             }
           }),
           states: []
         };
 
         // @ts-ignore
-        return this.model.toBuffer(state);
+        return Network.instance.packetCompression ? this.model.toBuffer(state) : state;
     }
 
     /** Read from buffer. */
     static fromBuffer(buffer:unknown): WorldStateInterface {
         // @ts-ignore
-        const state = this.model.fromBuffer(buffer) as PacketWorldState;
+        const state = Network.instance.packetCompression ? this.model.fromBuffer(new Uint8Array(buffer).buffer) as PacketWorldState : buffer;
+        // @ts-ignore
+        if (!state.transforms) {
+    //      console.warn('Packet not from this, will ignored', state);
+          return;
+        }
         return {
+          // @ts-ignore
           ...state,
           tick: Number(state.tick),
           transforms: state.transforms.map(v=> {
@@ -149,5 +157,7 @@ export class WorldStateModel {
           //   }
           // })
         };
+
+
     }
 }

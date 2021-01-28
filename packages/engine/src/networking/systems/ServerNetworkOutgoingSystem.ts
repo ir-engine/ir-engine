@@ -69,26 +69,10 @@ export class ServerNetworkOutgoingSystem extends System {
     this.queryResults.serverNetworkTransforms.all?.forEach((entity: Entity) =>
       addNetworkTransformToWorldState(entity));
 
-    // // For each networked object + input receiver, add to the frame to send
-    // this.queryResults.serverNetworkInputs.all?.forEach((entity: Entity) =>
-    //   addInputToWorldStateOnServer(entity));
-
-    // For each networked object + input receiver, add to the frame to send
-    // this.queryResults.serverNetworkStates.changed?.forEach((entity: Entity) =>
-    //   addStateToWorldStateOnServer(entity));
-    if (Network.instance.packetCompression) {
-      // console.log("STATE IS")
-      // console.log(state);
       const buffer = WorldStateModel.toBuffer(Network.instance.worldState);
-
       // Send the message to all connected clients
       if(Network.instance.transport !== undefined)
         Network.instance.transport.sendReliableData(buffer); // Use default channel
-    } else {
-      //addSnapshot(createSnapshot(Network.instance.worldState.transforms));
-    //  Network.instance.worldState.snapshot = NetworkInterpolation.instance.get();
-      Network.instance.transport.sendReliableData(Network.instance.worldState);
-    }
   }
 
   /** Call execution on client */
