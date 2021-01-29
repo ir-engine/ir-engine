@@ -112,16 +112,14 @@ export class WorldStateModel {
               axes2d: Object.keys(input.axes2d).map(v => input.axes2d[v]),
               buttons: Object.keys(input.buttons).map(v => input.buttons[v]),
               viewVector: { ...input.viewVector },
-              snapShotTime: Network.instance.packetCompression ? BigInt(0) : 0,
+              snapShotTime: 0,
             };
           }),
-          // @ts-ignore
-          tick: Network.instance.packetCompression ? BigInt( worldState.tick ) : worldState.tick,
-          // @ts-ignore
+          tick: worldState.tick,
           transforms: worldState.transforms.map(v=> {
             return {
               ...v,
-              snapShotTime: Network.instance.packetCompression ? BigInt(v.snapShotTime) : v.snapShotTime,
+              snapShotTime: v.snapShotTime,
             }
           }),
           states: []

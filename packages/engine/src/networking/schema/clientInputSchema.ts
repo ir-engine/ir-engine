@@ -47,8 +47,7 @@ export class ClientInputModel {
   static toBuffer(inputs: NetworkClientInputInterface): ArrayBuffer {
     const packetInputs: PacketNetworkClientInputInterface = {
       ...inputs,
-      // @ts-ignore
-      snapShotTime: Network.instance.packetCompression ? BigInt( inputs.snapShotTime ) : inputs.snapShotTime,
+      snapShotTime: inputs.snapShotTime,
     }
     // @ts-ignore
     return Network.instance.packetCompression ? this.model.toBuffer(packetInputs) : packetInputs;
