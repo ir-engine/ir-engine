@@ -38,6 +38,8 @@ export async function initReceiveTransport(partyId?: string): Promise<MediaSoupT
         newTransport = networkTransport.instanceRecvTransport = await createTransport('recv', 'instance');
     else
         newTransport = networkTransport.partyRecvTransport = await createTransport('recv', partyId);
+    console.log('Made new receive transport:');
+    console.log(newTransport);
     return Promise.resolve(newTransport);
 }
 
@@ -49,6 +51,8 @@ export async function initSendTransport(partyId?: string): Promise<MediaSoupTran
     else
         newTransport = networkTransport.partySendTransport = await createTransport('send', partyId);
 
+    console.log('Made new send transport:');
+    console.log(newTransport);
     return Promise.resolve(newTransport);
 }
 
@@ -74,6 +78,8 @@ export async function createCamVideoProducer(partyId?: string): Promise<void> {
             appData: { mediaTag: "cam-video", partyId: partyId }
         });
 
+        console.log('New cam video producer:');
+        console.log(MediaStreamComponent.instance.camVideoProducer);
         if (MediaStreamComponent.instance.videoPaused) await MediaStreamComponent.instance.camVideoProducer.pause();
     }
 }
@@ -182,7 +188,7 @@ export function setPartyId(partyId: string): void {
     networkTransport.partyId = partyId;
 }
 
-export async function subscribeToTrack(peerId: string, mediaTag: string, partyId) {
+export async function subscribeToTrack(peerId: string, mediaTag: string, partyId: string) {
     networkTransport = Network.instance.transport as any;
 
     // if we do already have a consumer, we shouldn't have called this method
@@ -201,10 +207,14 @@ export async function subscribeToTrack(peerId: string, mediaTag: string, partyId
         await networkTransport.instanceRecvTransport.consume({ ...consumerParameters, appData: { peerId, mediaTag }, paused: true })
         : await networkTransport.partyRecvTransport.consume({ ...consumerParameters, appData: { peerId, mediaTag, partyId }, paused: true });
 
+    console.log('New consumer:');
+    console.log(consumer);
+
     if (MediaStreamComponent.instance.consumers?.find(c => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag) == null) {
         MediaStreamComponent.instance.consumers.push(consumer);
 
         // okay, we're ready. let's ask the peer to send us media
+        console.log('Resuming consumer');
         await resumeConsumer(consumer);
     }
     else await closeConsumer(consumer);
@@ -329,6 +339,7 @@ export async function createTransport(direction: string, partyId?: string) {
                     console.log(error);
                     return;
                 }
+                console.log('New producer ID: ' + id);
                 callback({ id });
             });
 
@@ -361,6 +372,7 @@ export async function createTransport(direction: string, partyId?: string) {
             await networkTransport.request(MessageTypes.WebRTCTransportClose.toString(), { transportId: transport.id });
         }
         if (networkTransport.leaving !== true && state === 'connected' && transport.direction === 'recv') {
+            console.log('Requesting current Producers');
             await networkTransport.request(MessageTypes.WebRTCRequestCurrentProducers.toString(), { partyId: partyId });
         }
     });
