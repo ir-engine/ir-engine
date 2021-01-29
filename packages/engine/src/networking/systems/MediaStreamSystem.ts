@@ -3,9 +3,11 @@ import { addComponent, createEntity, getMutableComponent } from '../../ecs/funct
 import { MediaStreamComponent } from '../components/MediaStreamComponent';
 import { localMediaConstraints } from '../constants/VideoConstants';
 
+/** System class for media streaming. */
 export class MediaStreamSystem extends System {
   public static instance: MediaStreamSystem = null
 
+  /** Constructs the media stream system. */
   constructor () {
     super();
     MediaStreamSystem.instance = this;
@@ -16,24 +18,31 @@ export class MediaStreamSystem extends System {
     MediaStreamComponent.instance = mediaStreamComponent;
   }
 
+  /** Dispose the system. */
   dispose(): void {
     super.dispose();
     // TODO: stop camera? stop/abort MediaStreamComponent.instance.mediaStream ?
     MediaStreamSystem.instance = null;
   }
 
-  public execute () {
+  /** Execute the media stream system. */
+  public execute (): void {
     // eh
   }
 
+  /**
+   * Start the camera.
+   * @returns Whether the camera is started or not. */
   async startCamera (): Promise<boolean> {
     console.log('start camera');
     if (MediaStreamComponent.instance.mediaStream) return false;
     return await this.getMediaStream();
   }
 
-  // switch to sending video from the "next" camera device in our device
-  // list (if we have multiple cameras)
+  /**
+   * Switch to sending video from the "next" camera device in device list (if there are multiple cameras).
+   * @returns Whether camera cycled or not.
+   */
   async cycleCamera (): Promise<boolean> {
     if (!(MediaStreamComponent.instance.camVideoProducer && MediaStreamComponent.instance.camVideoProducer.track)) {
       console.log('cannot cycle camera - no current camera track');
@@ -73,22 +82,38 @@ export class MediaStreamSystem extends System {
     return true;
   }
 
-  // -- user interface --
-  getScreenPausedState () {
+  /**
+   * Get whether screen video paused or not.
+   * @returns Screen video paused state.
+   */
+  getScreenPausedState (): boolean {
     return MediaStreamComponent.instance.screenShareVideoPaused;
   }
 
-  getScreenAudioPausedState () {
+  /**
+   * Get whether screen audio paused or not.
+   * @returns Screen audio paused state.
+   */
+  getScreenAudioPausedState (): boolean {
     return MediaStreamComponent.instance.screenShareAudioPaused;
   }
 
-  removeVideoAudio (consumer: any) {
+  /**
+   * Remove video and audio node from the consumer.
+   * @param consumer Consumer from which video and audio node will be removed.
+   */
+  removeVideoAudio (consumer: any): void {
     document.querySelectorAll(consumer.id).forEach(v => {
       if (v.consumer === consumer) v.parentNode.removeChild(v);
     });
   }
 
-  addVideoAudio (mediaStream: { track: { clone: () => MediaStreamTrack }; kind: string }, peerId: any) {
+  /**
+   * Add video and audio node to the consumer.
+   * @param mediaStream Video and/or audio media stream to be added in element.
+   * @param peerId ID to be used to find peer element in which media stream will be added.
+   */
+  addVideoAudio (mediaStream: { track: { clone: () => MediaStreamTrack }; kind: string }, peerId: any): void {
     console.log('addVideoAudio');
     console.log(mediaStream);
     console.log(peerId);
@@ -167,7 +192,8 @@ export class MediaStreamSystem extends System {
     }
   }
 
-  async getCurrentDeviceId () {
+  /** Get device ID of device which is currently streaming media. */
+  async getCurrentDeviceId (): Promise<string> | null {
     if (!MediaStreamComponent.instance.camVideoProducer) return null;
 
     const { deviceId } = MediaStreamComponent.instance.camVideoProducer.track.getSettings();
@@ -181,6 +207,10 @@ export class MediaStreamSystem extends System {
     return deviceInfo.deviceId;
   }
 
+  /**
+   * Get user media stream.
+   * @returns Whether stream is active or not.
+   */
   public async getMediaStream (): Promise<boolean> {
     try {
       console.log('Getting media stream');

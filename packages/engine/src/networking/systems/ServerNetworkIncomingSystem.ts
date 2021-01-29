@@ -24,22 +24,27 @@ import { NetworkClientInputInterface, NetworkInputInterface } from "../interface
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { ClientInputModel } from '../schema/clientInputSchema';
 
+/** Checks whether client object of NetworkInputInterface or not. */
 const isClientNetworkInputInterface = (p: unknown): p is NetworkClientInputInterface => {
   return p.hasOwnProperty('networkId')
   && p.hasOwnProperty('snapShotTime')
   && p.hasOwnProperty('buttons')
   && p.hasOwnProperty('axes1d')
   && p.hasOwnProperty('axes2d')
-  && p.hasOwnProperty('viewVector')
-}
+  && p.hasOwnProperty('viewVector');
+};
 
+/** 
+ * Handle client updates.
+ * @param buffer Client input interface buffer.
+ */
 function handleUpdatesFromClients(buffer:NetworkClientInputInterface|Iterable<number>): void {
   let clientInput: NetworkClientInputInterface;
 
   if (isClientNetworkInputInterface(buffer)) {
     clientInput = buffer;
   } else {
-    clientInput = ClientInputModel.fromBuffer(new Uint8Array(buffer).buffer);
+    clientInput = ClientInputModel.fromBuffer(buffer);
   }
 
   if (Network.instance.networkObjects[clientInput.networkId] === undefined) {
@@ -94,6 +99,10 @@ function handleUpdatesFromClients(buffer:NetworkClientInputInterface|Iterable<nu
 
 }
 
+/**
+ * Add input of an entity to world.
+ * @param entity Entity from which inputs will be taken.
+ */
 const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
   const input = getComponent(entity, Input);
   const networkId = getComponent(entity, NetworkObject).networkId;
@@ -146,13 +155,22 @@ const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
   Network.instance.worldState.inputs.push(inputs);
 };
 
+/** System class to handle incoming messages. */
 export class ServerNetworkIncomingSystem extends System {
+  /** Input component of the system. */
   private _inputComponent: Input
 
+  /** Update type of this system. **Default** to 
+     * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
   updateType = SystemUpdateType.Fixed;
 
+  /** Indication of whether the system is on server or on client. */
   isServer;
 
+  /**
+   * Constructs the system.
+   * @param attributes Attributes to be passed to super class constructor.
+   */
   constructor(attributes: { schema: NetworkSchema, app:any }) {
     super(attributes);
     // Create a Network entity (singleton)
@@ -179,7 +197,7 @@ export class ServerNetworkIncomingSystem extends System {
     }
   }
 
-  // Call execution on server
+  /** Call execution on server */
   fixedExecuteOnServer = (delta: number): void => {
     // Create a new worldstate frame for next tick
     Network.tick++;
@@ -245,7 +263,7 @@ export class ServerNetworkIncomingSystem extends System {
     });
   }
 
-  // Call execution on client
+  /** Call execution on client */
   fixedExecuteOnClient = (delta: number): void => {
     if (Network.instance == null) return;
     // Client logic
@@ -255,10 +273,11 @@ export class ServerNetworkIncomingSystem extends System {
       applyNetworkStateToClient(queue.pop(), delta);
   }
 
-  // Call logic based on whether we are the server or the client
+  /** Call logic based on whether system is on the server or on the client. */
   execute = isServer ? this.fixedExecuteOnServer :
     this.fixedExecuteOnClient;
 
+  /** Queries of the system. */
   static queries: any = {
     inputOnServer: {
       components: [NetworkObject, Input, Server],

@@ -19,6 +19,10 @@ import { NetworkSchema } from "../interfaces/NetworkSchema";
 import { PacketWorldState } from "../interfaces/WorldState";
 import { WorldStateModel } from '../schema/worldStateSchema';
 
+/**
+ * Push transformation of network to world state.
+ * @param entity Entity holding network component.
+ */
 const addNetworkTransformToWorldState: Behavior = (entity) => {
   const transformComponent = getComponent(entity, TransformComponent);
   const networkObject = getComponent(entity, NetworkObject);
@@ -41,47 +45,37 @@ const addNetworkTransformToWorldState: Behavior = (entity) => {
   });
 };
 
+/** System class to handle outgoing messages. */
 export class ServerNetworkOutgoingSystem extends System {
-
+  /** Update type of this system. **Default** to 
+   * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
   updateType = SystemUpdateType.Fixed;
-
+  /** Whether the system is server or client. */
   isServer;
 
+  /**
+   * Constructs the system. 
+   * @param attributes Attributes to be passed to super class constructor.
+   */
   constructor(attributes: { schema: NetworkSchema, app:any }) {
     super(attributes);
     this.isServer = Network.instance.transport.isServer;
   }
 
-  // Call execution on server
+  /** Call execution on server */
   fixedExecuteOnServer = (delta: number): void => {
     // Transforms that are updated are automatically collected
     // note: onChanged needs to currently be handled outside of fixedExecute
     this.queryResults.serverNetworkTransforms.all?.forEach((entity: Entity) =>
       addNetworkTransformToWorldState(entity));
 
-    // // For each networked object + input receiver, add to the frame to send
-    // this.queryResults.serverNetworkInputs.all?.forEach((entity: Entity) =>
-    //   addInputToWorldStateOnServer(entity));
-
-    // For each networked object + input receiver, add to the frame to send
-    // this.queryResults.serverNetworkStates.changed?.forEach((entity: Entity) =>
-    //   addStateToWorldStateOnServer(entity));
-    if (Network.instance.packetCompression) {
-      // console.log("STATE IS")
-      // console.log(state);
       const buffer = WorldStateModel.toBuffer(Network.instance.worldState);
-
       // Send the message to all connected clients
       if(Network.instance.transport !== undefined)
         Network.instance.transport.sendReliableData(buffer); // Use default channel
-    } else {
-      //addSnapshot(createSnapshot(Network.instance.worldState.transforms));
-    //  Network.instance.worldState.snapshot = NetworkInterpolation.instance.get();
-      Network.instance.transport.sendReliableData(Network.instance.worldState);
-    }
   }
 
-  // Call execution on client
+  /** Call execution on client */
   fixedExecuteOnClient = (delta: number): void => {
     if (Network.instance == null) return;
     // Client logic
@@ -91,10 +85,11 @@ export class ServerNetworkOutgoingSystem extends System {
       applyNetworkStateToClient(queue.pop(), delta);
   }
 
-  // Call logic based on whether we are the server or the client
+  /** Call logic based on whether system is on the server or on the client. */
   execute = isServer ? this.fixedExecuteOnServer :
     this.fixedExecuteOnClient;
 
+  /** System queries. */
   static queries: any = {
     inputOnServer: {
       components: [NetworkObject, Input, Server],

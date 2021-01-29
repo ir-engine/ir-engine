@@ -1,3 +1,4 @@
+/** Network Message Types. */
 export enum MessageTypes {
   Heartbeat = 0,
   ClientConnected = 1,

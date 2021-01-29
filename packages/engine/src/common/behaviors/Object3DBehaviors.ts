@@ -129,16 +129,19 @@ export const addObject3DComponent: Behavior = (
   typeof args.objArgs === 'object' && Object.keys(args.objArgs).forEach(key => {
     applyDeepValue(object3d, key, args.objArgs[key]);
   });
-
-  if(Engine.csm !== null) {
+  
     object3d.traverse((obj) => {
-      if(obj.type === 'Mesh' || obj.type === 'Group' || obj.type === 'Object3D') {
-        obj.castShadow = true;
-        obj.receiveShadow = true;
-        obj.material && Engine.csm.setupMaterial(obj.material);
-      }
+        // todo: add in shadow checks once we figure editor model settings
+        // if((obj.receiveShadow || obj.castShadow) && (obj.type === 'Mesh' || obj.type === 'SkinnedMesh')) {
+        if(obj.type === 'Mesh' || obj.type === 'SkinnedMesh') {
+            obj.castShadow = true;
+            // when we use lightmaps we don't want it to receive shadows from itself. this however stops other entity's shadows being cast on it
+            if(!obj.material?.userData?.gltfExtensions?.MOZ_lightmap) {
+                obj.receiveShadow = true;
+                obj.material && Engine.csm && Engine.csm.setupMaterial(obj.material);
+            }
+        }
     });
-  }
 
   addComponent(entity, Object3DComponent, { value: object3d });
   // getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = object3d;
