@@ -59,7 +59,7 @@ export const handleCollider: Behavior = (entity: Entity, args: { phase?: string 
 
     case 'trimesh':
     body = createTrimesh(
-        getMutableComponent<Object3DComponent>(entity, Object3DComponent as any).value,
+        colliderComponent.mesh,
         new Vec3(),
         colliderComponent.mass
       );
