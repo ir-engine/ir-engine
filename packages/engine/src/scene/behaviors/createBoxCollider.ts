@@ -44,11 +44,11 @@ function test() {
 export const createBoxCollider: Behavior = (entity, args: any) => {
   // addComponent(entity, ColliderComponent, args.objArgs);
   addColliderWithoutEntity(args.objArgs.type, args.objArgs.position, args.objArgs.quaternion, args.objArgs.scale, args.objArgs.mesh);
-  /*
+/*
      if (isServer) {
-       for (let i = 0; i < 50; i++) {
+       for (let i = 0; i < 1; i++) {
          test()
        }
      }
-     */
+*/
 };
