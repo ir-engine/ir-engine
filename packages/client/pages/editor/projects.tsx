@@ -253,7 +253,12 @@ const ProjectsPage = (props: Props) => {
  //function to logout user.
   const handleLogout = () => logoutUser();
 
-  //Creating a view using various components.
+  /**
+   * Rendering view for projects page, if user is not valid then showing login view.  
+   * if user is valid and has no existing projects then we showing welcome view, providing link for the tutorials.
+   * if user has existing projects then we show the existing projects in grids and a grid to add new project.
+   *
+   */
   return (
       <>
       { !isAuthenticated || !authUser ?   
