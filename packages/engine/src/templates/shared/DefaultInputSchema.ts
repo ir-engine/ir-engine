@@ -10,6 +10,7 @@ import {
   handleOnScreenGamepadButton,
   handleOnScreenGamepadMovement
 } from "../../input/behaviors/handleOnScreenJoystick";
+import { handleContextMenu } from "../../input/behaviors/handleContextMenu"
 import { handleTouch } from "../../input/behaviors/handleTouch";
 import { handleTouchMove } from "../../input/behaviors/handleTouchMove";
 import { InputSchema } from "../../input/interfaces/InputSchema";
@@ -35,7 +36,7 @@ export const DefaultInputSchema: InputSchema = {
     // Mouse
     contextmenu: [
       {
-        behavior: (e: any) => e.preventDefault()
+        behavior: handleContextMenu
       }
     ],
     mousemove: [
