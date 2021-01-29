@@ -126,7 +126,7 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
     theta = targetTheta;
     theta %= 360;
    
-    phi -= inputValue[1] * 80;
+    phi -= inputValue[1] * 50;
     phi = Math.min(85, Math.max(0, phi));
 
     follower.position.set(

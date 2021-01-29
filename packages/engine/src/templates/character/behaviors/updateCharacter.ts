@@ -84,7 +84,6 @@ if (isClient) {
     const newPos = new Vector3();
     getMutableComponent(entity, Object3DComponent).value.getWorldPosition(newPos);
     actor.actorCapsule.body.position.copy(cannonFromThreeVector(newPos));
-    console.log('updateCharacter3');
     actor.actorCapsule.body.interpolatedPosition.copy(cannonFromThreeVector(newPos));
 
   }
