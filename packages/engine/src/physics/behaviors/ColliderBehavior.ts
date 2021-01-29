@@ -69,7 +69,8 @@ export const handleCollider: Behavior = (entity: Entity, args: { phase?: string 
       body = createBox(entity)
       break;
   }
-
+  PhysicsManager.instance.physicsWorld.addBody(body);
+  colliderComponent.collider = body;
 /*
     body.shapes.forEach((shape) => {
 			shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;

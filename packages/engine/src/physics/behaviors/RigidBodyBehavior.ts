@@ -18,7 +18,7 @@ export const RigidBodyBehavior: Behavior = (entity: Entity, args): void => {
   // ON CLIENT
   if (args.phase == 'onAdded' && isClient) {
     const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
-    if (colliderComponent) {
+    if (colliderComponent && PhysicsManager.instance.serverOnlyRigidBodyCollides) {
       PhysicsManager.instance.physicsWorld.removeBody(colliderComponent.collider);
     }
   }
@@ -27,22 +27,41 @@ export const RigidBodyBehavior: Behavior = (entity: Entity, args): void => {
     const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
 
     // ON CLIENT
-    if (isClient && hasComponent(entity, NetworkObject) && args.clientSnapshot.interpolationSnapshot) {
+    if (isClient && hasComponent(entity, NetworkObject) && Network.instance.snapshot) { // && args.clientSnapshot.interpolationSnapshot
         const networkObject = getComponent<NetworkObject>(entity, NetworkObject)
-        const interpolationSnapshot = args.clientSnapshot.interpolationSnapshot.state.find(v => v.networkId == networkObject.networkId);
-        if ( !interpolationSnapshot ) return;
+      //  const interpolationSnapshot = args.clientSnapshot.interpolationSnapshot.state.find(v => v.networkId == networkObject.networkId);
+  //      if ( !interpolationSnapshot ) return;
+        const serverSnapshotPos = Network.instance.snapshot.state.find(v => v.networkId == networkObject.networkId);
 
-          transform.position.set(
-            interpolationSnapshot.x,
-            interpolationSnapshot.y,
-            interpolationSnapshot.z
-          );
-          transform.rotation.set(
-            interpolationSnapshot.qX,
-            interpolationSnapshot.qY,
-            interpolationSnapshot.qZ,
-            interpolationSnapshot.qW
-          );
+        transform.position.set(
+          serverSnapshotPos.x,
+          serverSnapshotPos.y,
+          serverSnapshotPos.z
+        );
+        transform.rotation.set(
+          serverSnapshotPos.qX,
+          serverSnapshotPos.qY,
+          serverSnapshotPos.qZ,
+          serverSnapshotPos.qW
+        );
+
+        if (!PhysicsManager.instance.serverOnlyRigidBodyCollides) {
+          const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
+          if (colliderComponent.collider) {
+            colliderComponent.collider.position.set(
+              serverSnapshotPos.x,
+              serverSnapshotPos.y,
+              serverSnapshotPos.z
+            );
+            colliderComponent.collider.quaternion.set(
+              serverSnapshotPos.qX,
+              serverSnapshotPos.qY,
+              serverSnapshotPos.qZ,
+              serverSnapshotPos.qW
+            );
+          }
+        }
+
     }
     // ON SERVER
     if (!isClient) {
@@ -59,6 +78,8 @@ export const RigidBodyBehavior: Behavior = (entity: Entity, args): void => {
         colliderComponent.collider.quaternion.z,
         colliderComponent.collider.quaternion.w
       );
+
     }
+
   }
 };
