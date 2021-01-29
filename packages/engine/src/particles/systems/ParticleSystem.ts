@@ -13,12 +13,16 @@ import {
   setEmitterTime
 } from "../classes/ParticleEmitter";
 
+/** System class for particle system. */
 export class ParticleSystem extends System {
+  /** Constructs the system. */
   constructor(attributes?: SystemAttributes) {
     super();
     registerComponent(ParticleEmitter);
     registerComponent(ParticleEmitterState);
   }
+
+  /** Executes the system. */
   execute(deltaTime, time): void {
     for (const entity of this.queryResults.emitters.added) {
       const emitter = getComponent(entity, ParticleEmitter) as ParticleEmitter;

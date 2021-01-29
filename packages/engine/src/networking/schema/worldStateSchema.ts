@@ -1,6 +1,6 @@
 import { float32, Model, Schema, string, uint32, uint8 } from "superbuffer";
 import { PacketWorldState, WorldStateInterface } from "../interfaces/WorldState";
-//import { inputKeyArraySchema } from "./clientInputSchema";
+import { Network } from '../components/Network';
 
 const inputKeySchema = new Schema({
   input: uint8,
@@ -26,7 +26,7 @@ const viewVectorSchema = new Schema({
   z: float32
 });
 
-
+/** Schema for input. */
 export const inputKeyArraySchema = new Schema({
   networkId: uint32,
   axes1d: [inputAxis1DSchema],
@@ -90,8 +90,12 @@ const worldStateSchema = new Schema({
 });
 
 // TODO: convert WorldStateInterface to PacketReadyWorldState in toBuffer and back in fromBuffer
+/** Class for holding world state. */
 export class WorldStateModel {
+    /** Model holding client input. */
     static model: Model = new Model(worldStateSchema)
+
+    /** Convert to buffer. */
     static toBuffer(worldState: WorldStateInterface): ArrayBuffer {
         // console.log("Making into buffer");
         // console.log(objectOrArray);
@@ -108,26 +112,34 @@ export class WorldStateModel {
               axes2d: Object.keys(input.axes2d).map(v => input.axes2d[v]),
               buttons: Object.keys(input.buttons).map(v => input.buttons[v]),
               viewVector: { ...input.viewVector },
-              snapShotTime: 0
+              snapShotTime: 0,
             };
           }),
-          tick: worldState.tick ,
+          tick: worldState.tick,
           transforms: worldState.transforms.map(v=> {
             return {
               ...v,
-              snapShotTime: v.snapShotTime
+              snapShotTime: v.snapShotTime,
             }
           }),
           states: []
         };
 
         // @ts-ignore
-        return this.model.toBuffer(state);
+        return Network.instance.packetCompression ? this.model.toBuffer(state) : state;
     }
+
+    /** Read from buffer. */
     static fromBuffer(buffer:unknown): WorldStateInterface {
         // @ts-ignore
-        const state = this.model.fromBuffer(buffer) as PacketWorldState;
+        const state = Network.instance.packetCompression ? this.model.fromBuffer(new Uint8Array(buffer).buffer) as PacketWorldState : buffer;
+        // @ts-ignore
+        if (!state.transforms) {
+    //      console.warn('Packet not from this, will ignored', state);
+          return;
+        }
         return {
+          // @ts-ignore
           ...state,
           tick: Number(state.tick),
           transforms: state.transforms.map(v=> {
@@ -143,5 +155,7 @@ export class WorldStateModel {
           //   }
           // })
         };
+
+
     }
 }

@@ -13,9 +13,16 @@ import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClien
 import { NetworkSchema } from "../interfaces/NetworkSchema";
 import { WorldStateModel } from '../schema/worldStateSchema';
 
+/** System class for network system of client. */
 export class ClientNetworkSystem extends System {
+  /** Update type of this system. **Default** to 
+     * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
   updateType = SystemUpdateType.Fixed;
 
+  /**
+   * Constructs the system. Adds Network Components, initializes transport and initializes server.
+   * @param attributes Attributes to be passed to super class constructor.
+   */
   constructor(attributes:{ schema: NetworkSchema, app:any }) {
     super(attributes);
 
@@ -40,7 +47,12 @@ export class ClientNetworkSystem extends System {
     }
   }
 
-  // Call logic based on whether we are the server or the client
+  /** 
+   * Executes the system.\
+   * Call logic based on whether system is on the server or on the client.
+   * 
+   * @param delta Time since last frame.
+   */
   execute = (delta: number): void => {
     // Client logic
     const queue = Network.instance.incomingMessageQueue;
@@ -48,15 +60,13 @@ export class ClientNetworkSystem extends System {
     while (queue.getBufferLength() > 0) {
       const buffer = queue.pop();
       // debugger;
-      if (Network.instance.packetCompression) {
-        const unbufferedState = WorldStateModel.fromBuffer(new Uint8Array(buffer).buffer);
+      const unbufferedState = WorldStateModel.fromBuffer(buffer);
+      if (unbufferedState)
         applyNetworkStateToClient(unbufferedState, delta);
-      } else {
-        applyNetworkStateToClient(buffer, delta);
-      }
     }
   }
 
+  /** Queries for the system. */
   static queries: any = {
     clientNetworkInputReceivers: {
       components: [NetworkObject, Input, Not(LocalInputReceiver)]

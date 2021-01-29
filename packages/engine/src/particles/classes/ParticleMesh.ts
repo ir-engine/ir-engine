@@ -28,6 +28,12 @@ const shaderIDs = {
   SpriteMaterial: "sprite"
 };
 
+/**
+ * Create particle mesh from options.
+ * @param options Options to be applied on particle mesh.
+ * 
+ * @returns Newly created particle mesh.
+ */
 export function createParticleMesh(options: particleMeshOptions): ParticleMesh {
   const config: particleMeshOptions = {
     particleCount: 1000,
@@ -107,6 +113,11 @@ export function createParticleMesh(options: particleMeshOptions): ParticleMesh {
   return particleMesh;
 }
 
+/**
+ * Update geometry with provided configs.
+ * @param geometry Geometry to be updated.
+ * @param config Config which will be applied on geometry.
+ */
 export function updateGeometry(geometry: ParticleGeometry, config: particleMeshOptions): void {
   const particleCount = config.particleCount;
   const NUM_KEYFRAMES = 3;
@@ -180,6 +191,11 @@ export function updateGeometry(geometry: ParticleGeometry, config: particleMeshO
   }
 }
 
+/**
+ * Update material with provided configs.
+ * @param material Material to be updated.
+ * @param config Config which will be applied on material.
+ */
 export function updateMaterial(material: ParticleMeshMaterial, config: particleMeshOptions): void {
   updateOriginalMaterialUniforms(material);
 
@@ -237,6 +253,10 @@ export function updateMaterial(material: ParticleMeshMaterial, config: particleM
   material.needsUpdate = true;
 }
 
+/**
+ * Update Material uniforms
+ * @param material Material to be updated.
+ */
 export function updateOriginalMaterialUniforms(material: ParticleMeshMaterial): void {
   if (material.originalMaterial) {
     for (const k in material.uniforms) {
@@ -247,11 +267,23 @@ export function updateOriginalMaterialUniforms(material: ParticleMeshMaterial): 
   }
 }
 
+/**
+ * Update material time 
+ * @param material Material to be updated.
+ * @param time Updated time.
+ */
 export function setMaterialTime(material: ParticleMeshMaterial, time: number): void {
   material.uniforms.time.value = time;
 }
 
-export function loadTexturePackerJSON(mesh, config, startIndex, endIndex): any {
+/**
+ * Load texture packer JSON file for provided mesh.
+ * @param mesh Mesh for which texture packer JSON will be loaded.
+ * @param config Configs.
+ * @param startIndex Start index of the mesh geometry.
+ * @param endIndex End index of the mesh geometry.
+ */
+export function loadTexturePackerJSON(mesh, config, startIndex, endIndex): void {
   const jsonFilename = mesh.userData.meshConfig.texture.replace(/\.[^.]+$/, ".json");
 
   if (!jsonFilename) {
@@ -291,7 +323,12 @@ function packUVs(u, v) {
   return ~~(u * 2048) / 4096 + ~~(v * 2048) / 16777216; // 2x12 bits = 24 bits
 }
 
-export function setTextureAtlas(material, atlasJSON) {
+/**
+ * Set texture atlas on material.
+ * @param material Material of which texture atlas will be saved.
+ * @param atlasJSON Atlas JSON to get texture atlas.
+ */
+export function setTextureAtlas(material, atlasJSON): void {
   if (!atlasJSON) {
     return;
   }
@@ -314,7 +351,13 @@ export function setTextureAtlas(material, atlasJSON) {
   material.needsUpdate = true;
 }
 
-export function setMatrixAt(geometry, i, mat4) {
+/**
+ * Set matrix on geometry.
+ * @param geometry Geometry for which matrix will be set.
+ * @param i Index of geometry on which matrix will be set.
+ * @param mat4 Matrix to be set on geometry.
+ */
+export function setMatrixAt(geometry, i, mat4): void {
   const m = mat4.elements;
   const row1 = geometry.getAttribute("row1");
   const row2 = geometry.getAttribute("row2");
@@ -324,6 +367,14 @@ export function setMatrixAt(geometry, i, mat4) {
   row3.setXYZW(i, m[2], m[6], m[10], m[14]);
 }
 
+/**
+ * Set offset of geometry at provided index.
+ * @param geometry Geometry for which offset will be set.
+ * @param i Index of geometry on which offset will be set.
+ * @param x
+ * @param y
+ * @param z
+ */
 export function setOffsetAt(geometry: any, i: number, x: number, y?: number, z?: number): void {
   const offset = geometry.getAttribute("offset");
   if (Array.isArray(x)) {
@@ -343,6 +394,12 @@ function packRGB(r, g, b) {
   return ~~(r * 255) / 256 + ~~(g * 255) / 65536 + ~~(b * 255) / 16777216; // 3x8 bits = 24 bits
 }
 
+/**
+ * Set color of geometry at provided index.
+ * @param geometry Geometry for which color will be set.
+ * @param i Index of geometry on which color will be set.
+ * @param colorArray Color array to be set on geometry.
+ */
 export function setColorsAt(geometry: any, i: any, colorArray: any): void {
   const colors = geometry.getAttribute("colors");
   const color0 = colorArray[0];
@@ -369,17 +426,39 @@ export function setColorsAt(geometry: any, i: any, colorArray: any): void {
   colors.setXYZ(i, packedR, packedG, packedB);
 }
 
+/**
+ * Set opacity of geometry at provided index.
+ * @param geometry Geometry for which opacity will be set.
+ * @param i Index of geometry on which opacity will be set.
+ * @param opacityArray Opacity array to be set on geometry.
+ */
 export function setOpacitiesAt(geometry, i, opacityArray): void {
   const opacities = geometry.getAttribute("opacities");
   setKeyframesAt(opacities, i, opacityArray, 1);
 }
 
+/**
+ * Set timings of geometry at provided index.
+ * @param geometry Geometry for which timings will be set.
+ * @param i Index of geometry on which timings will be set.
+ */
 export function setTimingsAt(geometry, i, spawnTime, lifeTime, repeatTime, seed = Math.random()): void {
   const timings = geometry.getAttribute("timings");
   timings.setXYZW(i, spawnTime, lifeTime, repeatTime, seed);
 }
 
-export function setFrameAt(geometry, i, atlasIndex, frameStyle, startFrame, endFrame, cols, rows) {
+/**
+ * Set frame of geometry at provided index.
+ * @param geometry Geometry for which frame will be set.
+ * @param i Index of geometry on which frame will be set.
+ * @param atlasIndex Atlas index of frame.
+ * @param frameStyle Style of the frame.
+ * @param startFrame Start frame.
+ * @param endFrame End frame.
+ * @param cols Columns of the frame.
+ * @param rows Rows of the frames.
+ */
+export function setFrameAt(geometry, i, atlasIndex, frameStyle, startFrame, endFrame, cols, rows): void {
   const colors = geometry.getAttribute("colors");
   const opacities = geometry.getAttribute("opacities");
   const packA = ~~cols + ~~rows / 64 + ~~startFrame / 262144;
@@ -388,52 +467,96 @@ export function setFrameAt(geometry, i, atlasIndex, frameStyle, startFrame, endF
   opacities.setW(i, packB);
 }
 
-export function setAtlasIndexAt(geometry, i, atlasIndex) {
+/**
+ * Set atlas index of geometry at provided index.
+ * @param geometry Geometry for which atlas index will be set.
+ * @param i Index of geometry on which atlas index will be set.
+ * @param atlasIndex Atlas index to be set.
+ */
+export function setAtlasIndexAt(geometry, i, atlasIndex): void {
   const opacities = geometry.getAttribute("opacities");
   const packB = opacities.getW(i);
   opacities.setW(i, Math.floor(packB) + Math.max(0, atlasIndex) / 64 + ((packB * 262144) % 4096) / 262144);
 }
 
+/**
+ * Set scale of geometry at provided index.
+ * @param geometry Geometry for which scale will be set.
+ * @param i Index of geometry on which scale will be set.
+ * @param scaleArray Scale to be set.
+ */
 export function setScalesAt(geometry, i, scaleArray) {
   const scales = geometry.getAttribute("scales");
   setKeyframesAt(scales, i, scaleArray, 1);
 }
 
-export function setOrientationsAt(geometry, i, orientationArray, worldUp = 0) {
+/**
+ * Set orientation of geometry at provided index.
+ * @param geometry Geometry for which orientation will be set.
+ * @param i Index of geometry on which orientation will be set.
+ * @param orientationArray Orientation to be set.
+ * @param worldUp Should Maintain world Up?
+ */
+export function setOrientationsAt(geometry, i, orientationArray, worldUp = 0): void {
   const orientations = geometry.getAttribute("orientations");
   setKeyframesAt(orientations, i, orientationArray, 0);
   orientations.setW(i, worldUp);
 }
 
-export function setVelocityAt(geometry, i, x, y, z, radial = 0) {
+/**
+ * Set velocity of geometry at provided index.
+ * @param geometry Geometry for which velocity will be set.
+ * @param i Index of geometry on which velocity will be set.
+ */
+export function setVelocityAt(geometry, i, x, y, z, radial = 0): void {
   const velocity = geometry.getAttribute("velocity");
   if (velocity) {
     velocity.setXYZW(i, x, y, z, radial);
   }
 }
 
-export function setAccelerationAt(geometry, i, x, y, z, radial = 0) {
+/**
+ * Set acceleration of geometry at provided index.
+ * @param geometry Geometry for which acceleration will be set.
+ * @param i Index of geometry on which acceleration will be set.
+ */
+export function setAccelerationAt(geometry, i, x, y, z, radial = 0): void {
   const acceleration = geometry.getAttribute("acceleration");
   if (acceleration) {
     acceleration.setXYZW(i, x, y, z, radial);
   }
 }
 
-export function setAngularVelocityAt(geometry, i, x, y, z, orbital = 0) {
+/**
+ * Set angular velocity of geometry at provided index.
+ * @param geometry Geometry for which angular velocity will be set.
+ * @param i Index of geometry on which angular velocity will be set.
+ */
+export function setAngularVelocityAt(geometry, i, x, y, z, orbital = 0): void {
   const angularvelocity = geometry.getAttribute("angularvelocity");
   if (angularvelocity) {
     angularvelocity.setXYZW(i, x, y, z, orbital);
   }
 }
 
-export function setAngularAccelerationAt(geometry, i, x, y, z, orbital = 0) {
+/**
+ * Set angular acceleration of geometry at provided index.
+ * @param geometry Geometry for which angular acceleration will be set.
+ * @param i Index of geometry on which angular acceleration will be set.
+ */
+export function setAngularAccelerationAt(geometry, i, x, y, z, orbital = 0): void {
   const angularacceleration = geometry.getAttribute("angularacceleration");
   if (angularacceleration) {
     angularacceleration.setXYZW(i, x, y, z, orbital);
   }
 }
 
-export function setWorldAccelerationAt(geometry, i, x, y, z) {
+/**
+ * Set world acceleration of geometry at provided index.
+ * @param geometry Geometry for which world acceleration will be set.
+ * @param i Index of geometry on which world acceleration will be set.
+ */
+export function setWorldAccelerationAt(geometry, i, x, y, z): void {
   const worldacceleration = geometry.getAttribute("worldacceleration");
   if (worldacceleration) {
     worldacceleration.setXYZ(i, x, y, z);
@@ -444,7 +567,14 @@ function packBrownain(speed, scale) {
   return ~~(speed * 64) / 4096 + ~~(scale * 64) / 16777216;
 }
 
-export function setBrownianAt(geometry, i, brownianSpeed, brownianScale) {
+/**
+ * Set brownian speed and scale of geometry at provided index.
+ * @param geometry Geometry for which brownian speed and scale will be set.
+ * @param i Index of geometry on which brownian speed and scale will be set.
+ * @param brownianSpeed Brownian speed to be set.
+ * @param brownianScale Brownian scale to be set.
+ */
+export function setBrownianAt(geometry, i, brownianSpeed, brownianScale): void {
   console.assert(brownianSpeed >= 0 && brownianSpeed < 64);
   console.assert(brownianScale >= 0 && brownianScale < 64);
   const worldacceleration = geometry.getAttribute("worldacceleration");
@@ -453,14 +583,29 @@ export function setBrownianAt(geometry, i, brownianSpeed, brownianScale) {
   }
 }
 
-export function setVelocityScaleAt(geometry, i, velocityScale, velocityMin, velocityMax) {
+/**
+ * Set velocity scale of geometry at provided index.
+ * @param geometry Geometry for which velocity scale will be set.
+ * @param i Index of geometry on which velocity scale will be set.
+ * @param velocityScale Velocity scale to be applied.
+ * @param velocityMin Minimum velocity to be applied.
+ * @param velocityMax Maximum velocity to be applied.
+ */
+export function setVelocityScaleAt(geometry, i, velocityScale, velocityMin, velocityMax): void {
   const vs = geometry.getAttribute("velocityscale");
   if (vs) {
     vs.setXYZ(i, velocityScale, velocityMin, velocityMax);
   }
 }
 
-export function setKeyframesAt(attribute, i, valueArray, defaultValue) {
+/**
+ * Set Key frame of geometry at provided index.
+ * @param geometry Geometry for which Key frame will be set.
+ * @param i Index of geometry on which Key frame will be set.
+ * @param valueArray Key frame to be applied.
+ * @param defaultValue Default value of the frame.
+ */
+export function setKeyframesAt(attribute, i, valueArray, defaultValue): void {
   const x = valueArray[0],
     y = valueArray[1],
     z = valueArray[2];
@@ -470,7 +615,12 @@ export function setKeyframesAt(attribute, i, valueArray, defaultValue) {
   else attribute.setXYZ(i, x, y, z);
 }
 
-export function needsUpdate(geometry, attrs?) {
+/**
+ * Set needsUpdate property of the geometry attributes.
+ * @param geometry Geometry.
+ * @param attrs List of attributes to be updated.
+ */
+export function needsUpdate(geometry, attrs?): void {
   attrs = attrs || [
     "row1",
     "row2",
