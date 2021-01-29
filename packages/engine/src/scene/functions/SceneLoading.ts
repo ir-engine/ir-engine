@@ -13,6 +13,7 @@ export function loadScene(scene: SceneData): void {
   const loadPromises = [];
   let loaded = 0;
   if (isClient) {
+    console.warn(Engine.scene);
     const event = new CustomEvent('scene-loaded-entity', { detail: { left: loadPromises.length } });
     document.dispatchEvent(event);
   }
