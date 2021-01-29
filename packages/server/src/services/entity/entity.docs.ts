@@ -1,26 +1,5 @@
 export default {
     definitions: {
-        entity_list: {
-            type: 'object',
-            properties: {
-                entityId: {
-                    type: 'string'
-                },
-                name: {
-                    type: 'string'
-                },
-                parent: {
-                    type: 'string'
-                },
-                index: {
-                    type: 'integer'
-                },
-                collectionId: {
-                    type: 'integer'
-                }
-
-            }
-        },
         entity: {
             type: 'object',
             properties: {
@@ -41,6 +20,10 @@ export default {
                 }
 
             }
+        },
+        entity_list: {
+            type: 'array',
+            items: { $ref: '#/definitions/entity'}
         }
     }
 }

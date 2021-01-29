@@ -1,20 +1,19 @@
 export default {
     definitions: {
-        group: {
+        license: {
             type: 'object',
             properties: {
                 name: {
                     type: 'string'
                 },
-                description: {
+                text: {
                     type: 'string'
                 }
             }
         },
-        group_list: {
+        license_list: {
             type: 'array',
-            items: { $ref: '#/definitions/group'}
+            items: { $ref:  '#/definitions/license'}
         }
-
     }
 }
