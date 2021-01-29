@@ -26,7 +26,6 @@ export default (app: Application): void => {
 
   const event = new User(options, app);
   event.docs = {
-    getUser: {
      description: 'A service for users',
      definitions: {
        user_list: {
@@ -53,10 +52,8 @@ export default (app: Application): void => {
                  type: 'string'
              }
          }
-       }
+       },
      }
-   },
- 
  };
 
   app.use('/user', event);

@@ -1,30 +1,45 @@
 import { InstancedBufferGeometry, BufferGeometry, ShaderMaterial, Texture, Blending } from "three";
 import { Material } from "cannon-es";
 
+/** Particle geometry type. */
 export type ParticleGeometry = InstancedBufferGeometry | BufferGeometry
 
+/** Type of frame styles. */
 export type FrameStyle = "sequence" | "randomsequence" | "random"
 
+/** Interface for particle mesh. */
 export interface ParticleMesh {
+  /** Geometry of particle mesh. */
   geometry: ParticleGeometry;
+  /** Material for particles. */
   material: ParticleMeshMaterial;
+  /** User data. */
   userData: {
     nextIndex: number;
+    /** Configs for mesh. */
     meshConfig: any;
   };
 }
 
+/** Material for particle mesh. */
 export interface ParticleMeshMaterial extends ShaderMaterial {
+  /** Texture of particle */
   map: Texture;
+  /** Original material of particle. */
   originalMaterial: Material;
 }
 
+/** Interface for frame of texture. */
 export interface textureFrame {
+  /** Column count for this frame. */
   cols: number;
+  /** Row count for this frame. */
   rows: number;
 }
 
+/** Interface for particle mesh options. */
 export interface particleMeshOptions {
+  /** Number of particles in this mesh. */
   particleCount?: number;
   texture?: string | Texture;
   textureFrame?: textureFrame;
@@ -48,6 +63,7 @@ export interface particleMeshOptions {
   useFramesOrOrientation?: boolean;
 }
 
+/** Interface for particle emitter. */
 export interface ParticleEmitter {
   startTime: number;
   startIndex: number;
@@ -55,6 +71,7 @@ export interface ParticleEmitter {
   mesh: ParticleMesh;
 }
 
+/** Interface for emitter options. */
 export interface emitterOptions {
   particleMesh: ParticleMesh;
   enabled?: boolean;
@@ -67,6 +84,7 @@ export interface emitterOptions {
   worldUp?: boolean; // particles relative to world UP (they will get rotated if the camera tilts)
 }
 
+/** Interface for particle options. */
 export interface particleOptions {
   // per particle values
   atlas?: string;
@@ -93,14 +111,17 @@ export interface particleOptions {
   velocityScaleMax?: number;
 }
 
+/** Interface for particle Emitter. */
 export interface ParticleEmitterInterface extends emitterOptions, particleOptions {}
 
+/** Interface ofr Vector3. */
 export interface Vector {
   x: number;
   y: number;
   z: number;
 }
 
+/** Interface for Color vector. */
 export interface Color {
   r: number;
   g: number;

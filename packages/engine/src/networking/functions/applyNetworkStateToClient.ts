@@ -9,9 +9,15 @@ import {WorldStateInterface} from "../interfaces/WorldState";
 import {initializeNetworkObject} from './initializeNetworkObject';
 import {CharacterComponent} from "../../templates/character/components/CharacterComponent";
 import {handleInputFromNonLocalClients} from "./handleInputOnServer";
+import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
 
 let NetworkIdMyPlayer = null;
 
+/**
+ * Apply State received over the network to the client.
+ * @param worldStateBuffer State of the world received over the network.
+ * @param delta Time since last frame.
+ */
 export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface, delta = 0.033): void {
 
     if (Network.tick < worldStateBuffer.tick - 1) {
@@ -72,6 +78,8 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
                 rotation = new Quaternion(objectToCreate.qX, objectToCreate.qY, objectToCreate.qZ, objectToCreate.qW);
             }
 
+          //  if (objectToCreate.prefabType === PrefabType.worldObject) {
+
             initializeNetworkObject(
                 String(objectToCreate.ownerId),
                 objectToCreate.networkId,
@@ -79,6 +87,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
                 position,
                 rotation,
             );
+
             if (objectToCreate.ownerId === Network.instance.userId) {
               NetworkIdMyPlayer = objectToCreate.networkId;
             };

@@ -12,14 +12,14 @@ import { InputAlias } from '../../input/types/InputAlias';
 /**
  * Call all behaviors associated with current input in it's current lifecycle phase
  * i.e. if the player has pressed some buttons that have added the value to the input queue,
- * call behaviors (move, jump, drive, etc) associated with that input.
+ * call behaviors (move, jump, drive, etc) associated with that input.\
  * There are two cycles:
- * - call behaviors according to value.lifecycleState
- * - clean processed LifecycleValue.ENDED inputs
+ * - Call behaviors according to value.lifecycleState.
+ * - Clean processed LifecycleValue.ENDED inputs.
  *
- * @param {Entity} entity The entity
+ * @param entity The entity
  * @param args
- * @param {Number} delta Time since last frame
+ * @param delta Time since last frame
  */
 export const handleInputFromNonLocalClients: Behavior = (entity: Entity, args: { isLocal: boolean, isServer: boolean }, delta: number): void => {
 

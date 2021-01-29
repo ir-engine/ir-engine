@@ -9,6 +9,7 @@ interface Data {
 
 export class IdentityProvider extends Service {
   public app: Application
+  public docs: any
 
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options);

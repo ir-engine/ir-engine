@@ -72,6 +72,7 @@ const Layout = (props: Props): any => {
   const initialClickListener = () => {
       setUserHasInteracted();
       window.removeEventListener('click', initialClickListener);
+      window.removeEventListener('touchend', initialClickListener);
   };
 
   useEffect(() => {
@@ -93,6 +94,7 @@ const Layout = (props: Props): any => {
       </Head>
       <header>
         { path === '/login' && <NavMenu login={login} />}
+        { authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
         {onBoardingStep === generalStateList.ALL_DONE && <PartyVideoWindows />}
       </header>
       <Fragment>
@@ -118,7 +120,6 @@ const Layout = (props: Props): any => {
       <footer>
         {/* { authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.id != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
             <DrawerControls setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/> } */}
-        { authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
 
         { locationState.get('currentLocation')?.get('location')?.id && 
           authState.get('authUser') != null && authState.get('isLoggedIn') === true &&  user?.instanceId != null &&
