@@ -1,5 +1,5 @@
 import { Sky } from '@xr3ngine/engine/src/scene/classes/Sky';
-import { CanvasTexture, CubeTextureLoader, RGBFormat, sRGBEncoding } from 'three';
+import { CanvasTexture, CubeTextureLoader, PMREMGenerator, RGBFormat, sRGBEncoding } from 'three';
 import { CubeTexture, TextureLoader } from 'three';
 import { CubeRefractionMapping } from 'three';
 import { EquirectangularReflectionMapping } from 'three';
@@ -17,20 +17,43 @@ export default function createSkybox(entity, args: {
   if (!isClient) {
     return;
   }
+  const renderer = Engine.renderer
+  const pmremGenerator = new PMREMGenerator (renderer);
 
   if (args.objArgs.skytype === "cubemap") {
     Engine.scene.background = new CubeTextureLoader()
       .setPath(args.objArgs.texture)
-      .load(['posx.jpg', 'negx.jpg', 'posy.jpg', 'negy.jpg', 'posz.jpg', 'negz.jpg']);
+      .load(['posx.jpg', 'negx.jpg', 'posy.jpg', 'negy.jpg', 'posz.jpg', 'negz.jpg'], (texture) => {
+
+        const EnvMap = pmremGenerator.fromCubemap(texture).texture;
+
+        Engine.scene.background = EnvMap;
+        Engine.scene.environment = EnvMap;
+
+        texture.dispose();
+        pmremGenerator.dispose();
+      });
+
   }
   else if (args.objArgs.skytype === "equirectangular") {
-    Engine.scene.background = new TextureLoader().load(args.objArgs.texture);
-    Engine.scene.background.encoding = sRGBEncoding;
-    Engine.scene.background.mapping = EquirectangularReflectionMapping;
+    new TextureLoader().load(args.objArgs.texture, (texture) => {
+
+      const EnvMap = pmremGenerator.fromEquirectangular(texture).texture;
+
+      Engine.scene.background = EnvMap;
+      Engine.scene.environment = EnvMap;
+
+      Engine.scene.background.encoding = sRGBEncoding;
+      Engine.scene.background.mapping = EquirectangularReflectionMapping;
+
+      texture.dispose();
+      pmremGenerator.dispose();
+    });
   }
   else {
     addObject3DComponent(entity, { obj3d: Sky, objArgs: args.objArgs });
     addComponent(entity, ScaleComponent);
+
     const scaleComponent = getMutableComponent<ScaleComponent>(entity, ScaleComponent);
     scaleComponent.scale = [args.objArgs.distance, args.objArgs.distance, args.objArgs.distance];
     const uniforms = Sky.material.uniforms;
