@@ -15,7 +15,8 @@ import {doLoginAuto, logoutUser} from "../../redux/auth/service";
 import SignIn from "../../components/ui/Auth/Login";
 
 /**
- * Creating styled component using section. 
+ * Creating styled component using section.
+ * Used as a parent container in view. 
  * @ProjectsSection
  *
  */
@@ -39,7 +40,8 @@ export const ProjectsSection = (styled as any).section<{ flex?: number }>`
 `;
 
 /**
- * Creating styled component using div. 
+ * Creating styled component using div.
+ * Used to contain ProjectsHeader and ProjectGridContainer. 
  * @ProjectsContainer
  *
  */
@@ -55,6 +57,7 @@ export const ProjectsContainer = (styled as any).div`
 
 /**
  * Creating styled component using section inheriting {ProjectsContainer}. 
+ * Used when user is newly onboard and has no existing projects.
  * @ProjectsContainer
  * @WelcomeContainer
  */
@@ -73,7 +76,8 @@ const WelcomeContainer = styled(ProjectsContainer)`
 
 /**
  * Creating styled component using div. 
- * @ProjectsContainer
+ * Used to show the projects page header content.
+ * @ProjectsHeader
  *
  */
 export const ProjectsHeader = (styled as any).div`
@@ -142,7 +146,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 /**
- *function to create page.
+ *Component to render the existing projects in grids with a grid to add new project. 
  *@ProjectsPage
  */
 const ProjectsPage = (props: Props) => {
@@ -254,8 +258,8 @@ const ProjectsPage = (props: Props) => {
   const handleLogout = () => logoutUser();
 
   /**
-   * Rendering view for projects page, if user is not valid then showing login view.  
-   * if user is valid and has no existing projects then we showing welcome view, providing link for the tutorials.
+   * Rendering view for projects page, if user is not login yet then showing login view.  
+   * if user is loged in and has no existing projects then we showing welcome view, providing link for the tutorials.
    * if user has existing projects then we show the existing projects in grids and a grid to add new project.
    *
    */
