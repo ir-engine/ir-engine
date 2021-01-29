@@ -30,32 +30,56 @@ export interface NetworkClientList {
   };
 }
 
+/** Component Class for Network. */
 export class Network extends Component<Network> {
+  /** Static instance to access everywhere. */
   static instance: Network = null
+  /** Indication of whether the network is initialized or not. */
   isInitialized: boolean
+  /** Whether to apply compression on packet or not. */
   packetCompression = true
+  /** Object holding transport details over network. */
   transport: NetworkTransport
+  /** Schema of the component. */
   schema: NetworkSchema
+  /** Clients connected over this network. */
   clients: NetworkClientList = {}
+  /** Newly connected clients over this network in this frame. */
   clientsConnected = []
+  /** Disconnected client in this frame. */
   clientsDisconnected = []
+
+  /** Newly created Network Objects in this frame. */
   createObjects = []
+  /** Destroyed Network Objects in this frame. */
   destroyObjects = []
+  /** Map of Network Objects. */
   networkObjects: NetworkObjectList = {}
   localClientEntity: Entity = null
+  /** Socket id of the network. */
   socketId: string
+  /** User id hosting this network. */
   userId: string
+  /** Access tocken of the User. */
   accessToken: string
+  /** Snapshot of the network. */
   snapshot: Snapshot
 
+  /** ID of last network created. */
   private static availableNetworkId = 0
-  static getNetworkId() {
+
+  /** Get next network id. */
+  static getNetworkId(): number {
     return ++this.availableNetworkId;
   }
+
+  /** Schema of the network. */
   static _schemas: Map<string, Schema> = new Map()
 
+  /** Buffer holding all incoming Messages. */
   incomingMessageQueue: RingBuffer<any>
 
+  /** State of the world. */
   worldState: WorldStateInterface = {
     tick: Network.tick,
     transforms: [],
@@ -67,9 +91,17 @@ export class Network extends Component<Network> {
     destroyObjects: []
   };
 
-  static sceneId = '547Y45f7'//"default"
+  /**
+   * Attached ID of scene attached with this network.
+   * @default 547Y45f7
+   */
+  static sceneId = '547Y45f7'
+  /** Network. */
   static Network: any
+  /** Tick of the network. */
   static tick: any = 0
+
+  /** Constructs the network. */
   constructor() {
     super();
     Network.instance = this;
@@ -77,6 +109,7 @@ export class Network extends Component<Network> {
     this.incomingMessageQueue = new RingBuffer<any>(100);
   }
 
+  /** Disposes the network. */
   dispose(): void {
     super.dispose();
     // TODO: needs tests

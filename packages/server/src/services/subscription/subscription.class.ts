@@ -5,6 +5,8 @@ import config from '../../config';
 
 export class Subscription extends Service {
   app: Application
+  docs: any
+  
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options);
     this.app = app;
