@@ -4,6 +4,7 @@ import { Application } from '../../declarations';
 import { GameserverSubdomainProvision } from './gameserver-subdomain-provision.class';
 import createModel from '../../models/gameserver-subdomain-provision.model';
 import hooks from './gameserver-subdomain-provision.hooks';
+import gameServerSubdomainProvisionDocs from './gameServer-subdomain-provision.docs';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -20,7 +21,9 @@ export default (app: Application): any => {
   };
 
   // Initialize our service with any options it requires
-  app.use('/gameserver-subdomain-provision', new GameserverSubdomainProvision(options, app));
+  const event = new GameserverSubdomainProvision(options, app);
+  event.docs = gameServerSubdomainProvisionDocs;
+  app.use('/gameserver-subdomain-provision', event);
 
   // Get our initialized service so that we can register hooks
   const service = app.service('gameserver-subdomain-provision');
