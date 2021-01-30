@@ -275,7 +275,8 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     Network.instance.networkObjects[networkObject.networkId] = {
         ownerId: userId, // Owner's socket ID
         prefabType: Network.instance.schema.defaultClientPrefab, // All network objects need to be a registered prefab
-        component: networkObject
+        component: networkObject,
+        uniqueId: ''
     };
 
     // Added new object to the worldState with networkId and ownerId
@@ -283,6 +284,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
         networkId: networkObject.networkId,
         ownerId: userId,
         prefabType: Network.instance.schema.defaultClientPrefab,
+        uniqueId: '',
         x: transform.position.x,
         y: transform.position.y,
         z: transform.position.z,
@@ -315,6 +317,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
             prefabType: Network.instance.networkObjects[networkId].prefabType,
             networkId: networkId,
             ownerId: Network.instance.networkObjects[networkId].ownerId,
+            uniqueId: Network.instance.networkObjects[networkId].uniqueId ? Network.instance.networkObjects[networkId].uniqueId : '',
             x: transform.position.x,
             y: transform.position.y,
             z: transform.position.z,

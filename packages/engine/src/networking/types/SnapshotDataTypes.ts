@@ -34,6 +34,7 @@ export interface Snapshot {
   id: ID;
   time: Time;
   state: StateEntityGroup; //| { [key: string]: StateEntityGroup };
+  timeCorrection: number;
 }
 
 export interface InterpolatedSnapshot {
