@@ -6,6 +6,7 @@ import { ColliderComponent } from '@xr3ngine/engine/src/physics/components/Colli
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { getComponent, addComponent } from "../../../ecs/functions/EntityFunctions";
 import { NetworkObject } from '@xr3ngine/engine/src/networking/components/NetworkObject';
+import { AssetLoader } from '@xr3ngine/engine/src/assets/components/AssetLoader';
 import { Client } from '@xr3ngine/engine/src/networking/components/Client';
 import { PhysicsManager } from '@xr3ngine/engine/src/physics/components/PhysicsManager';
 import { Vector3 } from 'three';
@@ -58,22 +59,46 @@ function createStaticCollider( mesh ) {
 function createDynamicColliderClient(entity, mesh) {
   if (!PhysicsManager.instance.serverOnlyRigidBodyCollides)
     addComponentColleder(entity, mesh);
-  addComponent(entity, NetworkObject, { ownerId: 'server', networkId: Network.getNetworkId() });
+
+  let networkId = Network.getNetworkId();
+  addComponent(entity, NetworkObject, { ownerId: 'server', networkId: networkId });
   addComponent(entity, Client);
   addComponent(entity, RigidBody);
+//  console.warn(getComponent(entity, AssetLoader).entityIdFromScenaLoader.entityId);
+//  console.warn(networkId);
 }
 
 
-function createDynamicColliderServer( mesh ) {
+function createDynamicColliderServer(entity, mesh) {
+
    const networkObject = initializeNetworkObject('server', Network.getNetworkId(), PrefabType.worldObject);
+   const uniqueId = getComponent(entity, AssetLoader).entityIdFromScenaLoader.entityId;
+
    addComponentColleder(networkObject.entity, mesh);
    addComponent(networkObject.entity, RigidBody);
    // Add the network object to our list of network objects
    Network.instance.networkObjects[networkObject.networkId] = {
        ownerId: 'server',
        prefabType: PrefabType.worldObject, // All network objects need to be a registered prefab
-       component: networkObject
+       component: networkObject,
+       uniqueId: uniqueId
    };
+   // console.warn(networkObject.networkId);
+
+   // console.warn(uniqueId);
+   Network.instance.createObjects.push({
+       networkId: networkObject.networkId,
+       ownerId: 'server',
+       prefabType: PrefabType.worldObject,
+       uniqueId: uniqueId,
+       x: 0,
+       y: 0,
+       z: 0,
+       qX: 0,
+       qY: 0,
+       qZ: 0,
+       qW: 0
+   });
 }
 
 // parse Function
@@ -96,7 +121,7 @@ export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
           createStaticCollider(mesh);
           break;
         case 'dynamic':
-          isServer ? createDynamicColliderServer(mesh) : createDynamicColliderClient(entity, mesh);
+          isServer ? createDynamicColliderServer(entity, mesh) : createDynamicColliderClient(entity, mesh);
           break;
         case 'vehicle':
           // TO DO

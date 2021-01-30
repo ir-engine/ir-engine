@@ -47,14 +47,14 @@ const addNetworkTransformToWorldState: Behavior = (entity) => {
 
 /** System class to handle outgoing messages. */
 export class ServerNetworkOutgoingSystem extends System {
-  /** Update type of this system. **Default** to 
+  /** Update type of this system. **Default** to
    * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
   updateType = SystemUpdateType.Fixed;
   /** Whether the system is server or client. */
   isServer;
 
   /**
-   * Constructs the system. 
+   * Constructs the system.
    * @param attributes Attributes to be passed to super class constructor.
    */
   constructor(attributes: { schema: NetworkSchema, app:any }) {
@@ -68,7 +68,14 @@ export class ServerNetworkOutgoingSystem extends System {
     // note: onChanged needs to currently be handled outside of fixedExecute
     this.queryResults.serverNetworkTransforms.all?.forEach((entity: Entity) =>
       addNetworkTransformToWorldState(entity));
-
+/*
+      if (Network.instance.worldState.transforms.length === 0 &&
+          Network.instance.worldState.inputs.length === 0 &&
+          Network.instance.worldState.clientsConnected.length === 0 &&
+          Network.instance.worldState.clientsDisconnected.length === 0 &&
+          Network.instance.worldState.createObjects.length === 0 &&
+          Network.instance.worldState.destroyObjects.length === 0) return;
+*/
       const buffer = WorldStateModel.toBuffer(Network.instance.worldState);
       // Send the message to all connected clients
       if(Network.instance.transport !== undefined)
