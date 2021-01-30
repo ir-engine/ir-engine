@@ -66,8 +66,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     }
 
     public sendData = (data: any): void => {
-        const stringified = JSON.stringify(Array.from(new Uint8Array(data)));
-        this.outgoingDataProducer.send(stringified);
+        // const stringified = JSON.stringify(Array.from(new Uint8Array(data)));
+        // this.outgoingDataProducer.send(stringified);
+        this.outgoingDataProducer.send(JSON.stringify(data));
     }
 
     public handleKick(socket: any): void {
