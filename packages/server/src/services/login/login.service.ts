@@ -5,6 +5,7 @@ import { Login } from './login.class';
 import hooks from './login.hooks';
 import config from '../../config';
 import logger from '../../app/logger';
+import loginDocs from './login.docs';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -31,33 +32,7 @@ export default (app: Application): any => {
   };
 
   const event = new Login(options, app);
-  event.docs = {
-      description: "A login service",
-      definitions: {
-        login_list: {
-          type: 'object',
-          properties: {
-            name: {
-              type: 'string',
-            },
-            avatarId: {
-              type: 'string'
-            }
-          }
-        },
-        login: {
-          type: 'object',
-          properties: {
-            email: {
-              type: 'string'
-            },
-            password: {
-              type: 'string'
-            }
-          }
-        }
-      }
-  }
+  event.docs = loginDocs;
 
   // Initialize our service with any options it requires
   app.use('/login', event, redirect);

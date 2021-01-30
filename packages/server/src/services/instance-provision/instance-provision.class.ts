@@ -18,7 +18,7 @@ const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
 export class InstanceProvision implements ServiceMethods<Data> {
   app: Application;
   options: ServiceOptions;
-
+  docs: any
   constructor (options: ServiceOptions = {}, app: Application) {
     this.options = options;
     this.app = app;

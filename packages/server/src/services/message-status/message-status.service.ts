@@ -3,6 +3,7 @@ import { Application } from '../../declarations';
 import { MessageStatus } from './message-status.class';
 import createModel from '../../models/message-status.model';
 import hooks from './message-status.hooks';
+import messageStatusDocs from './message-status.docs';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -17,7 +18,9 @@ export default (app: Application): any => {
     multi: true
   };
 
-  app.use('/message-status', new MessageStatus(options, app));
+  const event = new MessageStatus(options, app);
+  event.docs = messageStatusDocs;
+  app.use('/message-status', event);
 
   const service = app.service('message-status');
 
