@@ -77,10 +77,7 @@ const loadLightmaps = parser => {
 // this isn't the best solution. instead we should expose the plugin/extension register in GLTFLoader.js 
 
 const loadLights = gltf => {
-    if( gltf.parser.json 
-        && gltf.parser.json.extensions
-        && gltf.parser.json.extensions.MOZ_hubs_components 
-        && gltf.parser.json.extensions.MOZ_hubs_components.version === 3) {
+    if(gltf.parser.json?.extensions?.MOZ_hubs_components?.MOZ_hubs_components.version === 3) {
 
         const objsToRemove = [];
         gltf.scene.traverse((obj) => {
