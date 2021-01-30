@@ -46,6 +46,8 @@ import BingVideosSource from "./assets/sources/BingVideosSource";
 import PolySource from "./assets/sources/PolySource";
 import SketchfabSource from "./assets/sources/SketchfabSource";
 import TenorSource from "./assets/sources/TenorSource";
+import ParticleEmitterNodeEditor from "./properties/ParticleEmitterNodeEditor";
+import ParticleEmitterNode from "@xr3ngine/engine/src/editor/nodes/ParticleEmitterNode";
 
 export function createEditor(api, settings) {
   const editor = new Editor(api, settings);
@@ -70,6 +72,7 @@ export function createEditor(api, settings) {
   editor.registerNode(TriggerVolumeNode, TriggerVolumeNodeEditor);
   editor.registerNode(LinkNode, LinkNodeEditor);
   editor.registerNode(ScenePreviewCameraNode, ScenePreviewCameraNodeEditor);
+  editor.registerNode(ParticleEmitterNode, ParticleEmitterNodeEditor);
   editor.registerSource(new ElementsSource(editor));
   editor.registerSource(new MyAssetsSource(editor));
   editor.registerSource(new SketchfabSource(api));
