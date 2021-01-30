@@ -1,15 +1,18 @@
 import {Quaternion, Vector3} from "three";
-import {getComponent, hasComponent, removeEntity} from '../../ecs/functions/EntityFunctions';
+import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
+import {getComponent, hasComponent, removeEntity, getMutableComponent} from '../../ecs/functions/EntityFunctions';
 import {Input} from '../../input/components/Input';
 import {LocalInputReceiver} from '../../input/components/LocalInputReceiver';
 import {InputType} from '../../input/enums/InputType';
 import {Network} from '../components/Network';
+import { NetworkObject } from '@xr3ngine/engine/src/networking/components/NetworkObject';
 import {addSnapshot, createSnapshot} from '../functions/NetworkInterpolationFunctions';
 import {WorldStateInterface} from "../interfaces/WorldState";
 import {initializeNetworkObject} from './initializeNetworkObject';
 import {CharacterComponent} from "../../templates/character/components/CharacterComponent";
 import {handleInputFromNonLocalClients} from "./handleInputOnServer";
 import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
+import { AssetLoader } from '@xr3ngine/engine/src/assets/components/AssetLoader';
 
 let NetworkIdMyPlayer = null;
 
@@ -18,6 +21,30 @@ let NetworkIdMyPlayer = null;
  * @param worldStateBuffer State of the world received over the network.
  * @param delta Time since last frame.
  */
+
+function syncPhysicsObjects( objectToCreate ) {
+  for (let i = 0; i < Engine.entities.length; i++) {
+    const entity = Engine.entities[i];
+    if (hasComponent(entity, AssetLoader) && getComponent(entity, AssetLoader).entityIdFromScenaLoader && hasComponent(entity, NetworkObject)) {
+      const localModelUniqueId = getComponent(entity, AssetLoader).entityIdFromScenaLoader.entityId;
+      if (localModelUniqueId === objectToCreate.uniqueId) {
+        if (getComponent(entity, NetworkObject).networkId !== objectToCreate.networkId) {
+          getMutableComponent(entity, NetworkObject).networkId = objectToCreate.networkId
+        }
+      }
+    }
+  }
+/*
+Network.instance.networkObjects[objectToCreate.networkId] = {
+    ownerId: 'server',
+    prefabType: PrefabType.worldObject, // All network objects need to be a registered prefab
+    component: getComponent(entity, NetworkObject),
+    uniqueId: objectToCreate.uniqueId
+};
+*/
+}
+
+
 export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface, delta = 0.033): void {
 
     if (Network.tick < worldStateBuffer.tick - 1) {
@@ -78,26 +105,30 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
                 rotation = new Quaternion(objectToCreate.qX, objectToCreate.qY, objectToCreate.qZ, objectToCreate.qW);
             }
 
-          //  if (objectToCreate.prefabType === PrefabType.worldObject) {
+            if (objectToCreate.prefabType === PrefabType.worldObject) {
+              // sync Physics Objects with server network id
+              syncPhysicsObjects(objectToCreate)
+            } else {
+              initializeNetworkObject(
+                  String(objectToCreate.ownerId),
+                  objectToCreate.networkId,
+                  objectToCreate.prefabType,
+                  position,
+                  rotation,
+              );
+              if (objectToCreate.ownerId === Network.instance.userId) {
+                NetworkIdMyPlayer = objectToCreate.networkId;
+              };
+            }
+            // for now, its for optimization
 
-            initializeNetworkObject(
-                String(objectToCreate.ownerId),
-                objectToCreate.networkId,
-                objectToCreate.prefabType,
-                position,
-                rotation,
-            );
-
-            if (objectToCreate.ownerId === Network.instance.userId) {
-              NetworkIdMyPlayer = objectToCreate.networkId;
-            };
         }
     }
 
     if (worldStateBuffer.transforms.length > 0) {
       const myPlayerTime = worldStateBuffer.transforms.find(v => v.networkId == NetworkIdMyPlayer);
       const newServerSnapshot = createSnapshot(worldStateBuffer.transforms)
-      newServerSnapshot.time = myPlayerTime ? Number(myPlayerTime.snapShotTime): 0;
+      newServerSnapshot.timeCorrection = myPlayerTime ? (myPlayerTime.snapShotTime + Network.instance.timeSnaphotCorrection) : 0;
       Network.instance.snapshot = newServerSnapshot;
       addSnapshot(newServerSnapshot);
     }

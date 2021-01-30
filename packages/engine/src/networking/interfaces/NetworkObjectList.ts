@@ -10,5 +10,7 @@ export interface NetworkObjectList {
     prefabType: string | number;
     /** Container for {@link networking/components/NetworkObject.NetworkObject | NetworkObject} component. */
     component: NetworkObject;
+    /** its needs to correct network id in clients by loading models get same id like in server */
+    uniqueId: string;
   };
 }

@@ -16,7 +16,7 @@ import { NetworkPrefab } from '../interfaces/NetworkPrefab';
  * @param ownerId ID of the owner.
  * @param networkId ID of network in which object will be created.
  * @param override Override prefab properties.
- * 
+ *
  * @returns Newly created entity.
  */
 function createNetworkPrefab(prefab: NetworkPrefab, ownerId, networkId: number, override: NetworkPrefab = null): Entity {
@@ -119,7 +119,7 @@ function initComponents(entity: Entity, components: Array<{ type: any, data?: an
  * @param prefabType Type of prefab which will be used to create the object.
  * @param position Position of the object.
  * @param rotation Rotation of the object.
- * 
+ *
  * @returns Newly created object.
  */
 export function initializeNetworkObject(ownerId: string, networkId: number, prefabType: string | number, position?: Vector3, rotation?: Quaternion): NetworkObject {
@@ -159,7 +159,8 @@ export function initializeNetworkObject(ownerId: string, networkId: number, pref
   {
     ownerId,
     prefabType,
-    component: networkObject
+    component: networkObject,
+    uniqueId: ''
   };
 
   if (prefabType === PrefabType.Player && ownerId === (Network.instance).userId) {
