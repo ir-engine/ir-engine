@@ -38,6 +38,8 @@ export class Network extends Component<Network> {
   isInitialized: boolean
   /** Whether to apply compression on packet or not. */
   packetCompression = true
+  /** we dont senr unit64 now, then its a value to -minus from time to get a little value for unit32 */
+  timeSnaphotCorrection = Date.now()
   /** Object holding transport details over network. */
   transport: NetworkTransport
   /** Schema of the component. */

@@ -26,6 +26,8 @@ export class AssetLoader extends Component<AssetLoader> {
   onLoaded: any = []
   /** Parent object. */
   parent: Object3D = null
+  /** entity Id from scena loader fro editor, needs for physics sync colliders from server with models on client */
+  entityIdFromScenaLoader = null
 }
 
 AssetLoader._schema = {
@@ -39,4 +41,5 @@ AssetLoader._schema = {
   append: { default: true, type: Types.Boolean },
   onLoaded: { default: [], type: Types.Ref },
   parent: { default: null, type: Types.Ref },
+  entityIdFromScenaLoader: { default: null, type: Types.Ref }
 };
