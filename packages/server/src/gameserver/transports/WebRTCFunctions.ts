@@ -197,8 +197,9 @@ export async function createInternalDataConsumer(dataProducer: DataProducer, use
         ordered: false,
     });
     consumer.on('message', (message) => {
-        const decoded = Uint8Array.from(JSON.parse(message)).buffer;
-        Network.instance.incomingMessageQueue.add(decoded);
+        // const decoded = Uint8Array.from(JSON.parse(message)).buffer;
+        // Network.instance.incomingMessageQueue.add(decoded);
+        Network.instance.incomingMessageQueue.add(JSON.parse(message));
     });
     return consumer;
 }
@@ -207,16 +208,12 @@ export async function handleWebRtcTransportCreate(socket, data: CreateWebRtcTran
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
     const { direction, peerId, sctpCapabilities, partyId } = Object.assign(data, { peerId: userId });
-    console.log(`WebRTCTransportCreateRequest: ${peerId} ${partyId} ${direction}`);
 
     const existingTransports = MediaStreamComponent.instance.transports.filter(t => t.appData.peerId === peerId && t.appData.direction === direction && t.appData.partyId === partyId);
     await Promise.all(existingTransports.map(t => closeTransport(t)));
     const newTransport: WebRtcTransport = await createWebRtcTransport(
         { peerId, direction, sctpCapabilities, partyId }
     );
-
-    console.log('New Transport:');
-    console.log(newTransport);
 
     // transport.transport = transport;
 
@@ -261,8 +258,6 @@ export async function handleWebRtcTransportCreate(socket, data: CreateWebRtcTran
     // Create data consumers for other clients if the current client transport receives data producer on it
     newTransport.observer.on('newdataproducer', handleConsumeDataEvent(socket));
     newTransport.observer.on('newproducer', sendCurrentProducers(socket, partyId));
-    console.log('Sending back transport options:');
-    console.log(clientTransportOptions);
     callback({ transportOptions: clientTransportOptions });
 }
 
@@ -303,9 +298,7 @@ export async function handleWebRtcProduceData(socket, data, callback): Promise<a
 export async function handleWebRtcTransportClose(socket, data, callback): Promise<any> {
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
-    console.log("close-transport for user: " + userId);
     const { transportId } = data;
-    console.log('Closing transport ' + transportId)
     const transport = MediaStreamComponent.instance.transports[transportId];
     if (transport != null) await closeTransport(transport).catch(err => logger.error(err));
     callback({ closed: true });
@@ -315,13 +308,11 @@ export async function handleWebRtcTransportConnect(socket, data, callback): Prom
     const userId = getUserIdFromSocketId(socket.id);
     const { transportId, dtlsParameters } = data,
         transport = MediaStreamComponent.instance.transports[transportId];
-    console.log("WebRTCTransportConnectRequest: " + userId);
     await transport.connect({ dtlsParameters }).catch(err => {
         logger.error(err);
         callback({ connected: false });
         return;
     });
-    console.log(`transport for user ${userId} connected successfully`);
     callback({ connected: true });
 }
 
@@ -334,9 +325,6 @@ export async function handleWebRtcCloseProducer(socket, data, callback): Promise
 
 export async function handleWebRtcSendTrack(socket, data, callback): Promise<any> {
     const userId = getUserIdFromSocketId(socket.id);
-    console.log('Current transports:');
-    console.log(MediaStreamComponent.instance.transports);
-    console.log('transport ID: ' + data.transportId);
     const { transportId, kind, rtpParameters, paused = false, appData } =
         data, transport = MediaStreamComponent.instance.transports[transportId];
 
@@ -348,8 +336,6 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
         paused,
         appData: { ...appData, peerId: userId, transportId }
     });
-    console.log('New producer:');
-    console.log(producer);
 
     producer.on("transportclose", () => closeProducerAndAllPipeProducers(producer, userId));
 
@@ -370,8 +356,6 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
         if (client.userId !== userId)
             client.socket.emit(MessageTypes.WebRTCCreateProducer.toString(), userId, appData.mediaTag, producer.id, appData.partyId);
     });
-    console.log('Current producers:');
-    console.log(MediaStreamComponent.instance.producers);
     callback({ id: producer.id });
 }
 
@@ -394,15 +378,12 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
     );
 
     if (transport != null) {
-        console.log('Making new consumer');
         const consumer = await (transport as any).consume({
             producerId: producer.id,
             rtpCapabilities,
             paused: true, // see note above about always starting paused
             appData: {peerId: userId, mediaPeerId, mediaTag, partyId: partyId}
         });
-        console.log('New consumer:');
-        console.log(consumer);
 
         // we need both 'transportclose' and 'producerclose' event handlers,
         // to make sure we close and clean up consumers in all circumstances
@@ -431,8 +412,6 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
 
         // stick this consumer in our list of consumers to keep track of
         MediaStreamComponent.instance.consumers.push(consumer);
-        console.log('Current consumers');
-        console.log(MediaStreamComponent.instance.consumers);
 
         Network.instance.clients[userId].consumerLayers[consumer.id] = {
             currentLayer: null,
