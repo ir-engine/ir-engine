@@ -80,6 +80,7 @@
     "socket.io": "2.4.1"
   },
   "dependencies": {
+    "@alt3/sequelize-to-json-schemas": "^0.3.54",
     "@apollo/link-ws": "^2.0.0-beta.3",
     "@eclass/sequelize-graphql-tools": "^4.1.0",
     "@feathersjs/adapter-commons": "^4.5.2",

@@ -1,6 +1,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import { MediaSearch } from './media-search.class';
+import mediaSearchDocs from './media-search.docs';
 import hooks from './media-search.hooks';
 
 declare module '../../declarations' {
@@ -13,8 +14,10 @@ export default (app: Application): void => {
   const options = {
     paginate: app.get('paginate')
   };
-
-  app.use('/media-search', new MediaSearch(options, app));
+  
+  const event = new MediaSearch(options, app);
+  event.docs = mediaSearchDocs;
+  app.use('/media-search', event);
 
   const service = app.service('media-search');
 
