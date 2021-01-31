@@ -182,7 +182,7 @@ export function setPartyId(partyId: string): void {
     networkTransport.partyId = partyId;
 }
 
-export async function subscribeToTrack(peerId: string, mediaTag: string, partyId) {
+export async function subscribeToTrack(peerId: string, mediaTag: string, partyId: string) {
     networkTransport = Network.instance.transport as any;
 
     // if we do already have a consumer, we shouldn't have called this method

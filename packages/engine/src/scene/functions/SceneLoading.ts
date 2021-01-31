@@ -14,6 +14,7 @@ export function loadScene(scene: SceneData): void {
   let loaded = 0;
   if (isClient) {
     console.warn(Engine.scene);
+    console.warn(scene);
     const event = new CustomEvent('scene-loaded-entity', { detail: { left: loadPromises.length } });
     document.dispatchEvent(event);
   }
@@ -25,6 +26,7 @@ export function loadScene(scene: SceneData): void {
       loadComponent(entity, component);
       if (isClient && component.name === 'gltf-model') {
         const loaderComponent = getMutableComponent(entity, AssetLoader);
+        loaderComponent.entityIdFromScenaLoader = sceneEntity;
         loadPromises.push(new Promise((resolve, reject) => {
           if (loaderComponent.onLoaded === null || loaderComponent.onLoaded === undefined) {
           }
@@ -34,6 +36,9 @@ export function loadScene(scene: SceneData): void {
             document.dispatchEvent(event);
           });
         }));
+      } else if (!isClient && component.name === 'gltf-model') {
+        const loaderComponent = getMutableComponent(entity, AssetLoader);
+        loaderComponent.entityIdFromScenaLoader = sceneEntity;
       }
     });
   });

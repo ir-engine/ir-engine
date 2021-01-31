@@ -66,6 +66,7 @@ const createNetworkObjectSchema = new Schema({
     networkId: uint32,
     ownerId: string,
     prefabType: uint8,
+    uniqueId: string,
     x: float32,
     y: float32,
     z: float32,
@@ -98,7 +99,6 @@ export class WorldStateModel {
     /** Convert to buffer. */
     static toBuffer(worldState: WorldStateInterface): ArrayBuffer {
         // console.log("Making into buffer");
-        // console.log(objectOrArray);
 
         const state:PacketWorldState = {
           clientsConnected: worldState.clientsConnected,
