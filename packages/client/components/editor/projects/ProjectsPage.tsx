@@ -15,7 +15,6 @@ import {
 } from "./ProjectGrid";
 import templates from "./templates";
 
-
 export const ProjectsSection = (styled as any).section`
   padding-bottom: 100px;
   display: flex;
@@ -192,7 +191,7 @@ class ProjectsPage extends Component {
           </ProjectsSection>
           <ProjectContextMenu />
         </main>
-        
+
       </>
     );
   }
