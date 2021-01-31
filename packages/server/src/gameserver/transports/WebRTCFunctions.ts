@@ -197,8 +197,9 @@ export async function createInternalDataConsumer(dataProducer: DataProducer, use
         ordered: false,
     });
     consumer.on('message', (message) => {
-        const decoded = Uint8Array.from(JSON.parse(message)).buffer;
-        Network.instance.incomingMessageQueue.add(decoded);
+        // const decoded = Uint8Array.from(JSON.parse(message)).buffer;
+        // Network.instance.incomingMessageQueue.add(decoded);
+        Network.instance.incomingMessageQueue.add(JSON.parse(message));
     });
     return consumer;
 }
@@ -207,7 +208,6 @@ export async function handleWebRtcTransportCreate(socket, data: CreateWebRtcTran
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
     const { direction, peerId, sctpCapabilities, partyId } = Object.assign(data, { peerId: userId });
-    logger.info(`WebRTCTransportCreateRequest: ${peerId} ${partyId} ${direction}`);
 
     const existingTransports = MediaStreamComponent.instance.transports.filter(t => t.appData.peerId === peerId && t.appData.direction === direction && t.appData.partyId === partyId);
     await Promise.all(existingTransports.map(t => closeTransport(t)));
@@ -278,7 +278,6 @@ export async function handleWebRtcProduceData(socket, data, callback): Promise<a
     const dataProducer = await transport.produceData(options);
     networkTransport.dataProducers.push(dataProducer);
     logger.info(`user ${userId} producing data`);
-    logger.info(`user ${userId} producing data`);
     Network.instance.clients[userId].dataProducers.set(label, dataProducer);
     // if our associated transport closes, close ourself, too
     dataProducer.on("transportclose", () => {
@@ -299,7 +298,6 @@ export async function handleWebRtcProduceData(socket, data, callback): Promise<a
 export async function handleWebRtcTransportClose(socket, data, callback): Promise<any> {
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
-    logger.info("close-transport for user: " + userId);
     const { transportId } = data;
     const transport = MediaStreamComponent.instance.transports[transportId];
     if (transport != null) await closeTransport(transport).catch(err => logger.error(err));
@@ -310,13 +308,11 @@ export async function handleWebRtcTransportConnect(socket, data, callback): Prom
     const userId = getUserIdFromSocketId(socket.id);
     const { transportId, dtlsParameters } = data,
         transport = MediaStreamComponent.instance.transports[transportId];
-    logger.info("WebRTCTransportConnectRequest: " + userId);
     await transport.connect({ dtlsParameters }).catch(err => {
         logger.error(err);
         callback({ connected: false });
         return;
     });
-    logger.info(`transport for user ${userId} connected successfully`);
     callback({ connected: true });
 }
 
@@ -404,13 +400,13 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
         consumer.on('producerpause', () => {
             logger.info(`consumer's producer paused`);
             logger.info(consumer.id);
-            consumer.pause();
+            if (consumer && typeof consumer.pause === 'function') consumer.pause();
             socket.emit(MessageTypes.WebRTCPauseConsumer.toString(), consumer.id);
         });
         consumer.on('producerresume', () => {
             logger.info(`consumer's producer resumed`);
             logger.info(consumer.id);
-            consumer.resume();
+            if (consumer && typeof consumer.resume === 'function') consumer.resume();
             socket.emit(MessageTypes.WebRTCResumeConsumer.toString(), consumer.id);
         });
 
