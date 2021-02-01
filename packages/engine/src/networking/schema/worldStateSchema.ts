@@ -1,4 +1,4 @@
-import { float32, Model, Schema, string, uint32, uint8 } from "superbuffer";
+import { float32, Model, Schema, SchemaObject, string, uint32, uint8 } from "superbuffer";
 import { PacketWorldState, WorldStateInterface } from "../interfaces/WorldState";
 import { Network } from '../components/Network';
 
@@ -89,6 +89,15 @@ const worldStateSchema = new Schema({
     transforms: [transformSchema]
 });
 
+function toArrayBuffer(buf) {
+  var ab = new ArrayBuffer(buf.length);
+  var view = new Uint8Array(ab);
+  for (var i = 0; i < buf.length; ++i) {
+      view[i] = buf[i];
+  }
+  return ab;
+}
+
 // TODO: convert WorldStateInterface to PacketReadyWorldState in toBuffer and back in fromBuffer
 /** Class for holding world state. */
 export class WorldStateModel {
@@ -100,7 +109,7 @@ export class WorldStateModel {
         // console.log("Making into buffer");
         // console.log(objectOrArray);
 
-        const state:PacketWorldState = {
+        const state:any = {
           clientsConnected: worldState.clientsConnected,
           clientsDisconnected: worldState.clientsDisconnected,
           createObjects: worldState.createObjects,
@@ -125,15 +134,19 @@ export class WorldStateModel {
           states: []
         };
 
-        // @ts-ignore
-        return Network.instance.packetCompression ? this.model.toBuffer(state) : state;
+        return Network.instance.packetCompression ? WorldStateModel.model.toBuffer(state) : state;
     }
 
     /** Read from buffer. */
-    static fromBuffer(buffer:unknown): WorldStateInterface {
-        // @ts-ignore
-        const state = Network.instance.packetCompression ? this.model.fromBuffer(new Uint8Array(buffer).buffer) as PacketWorldState : buffer;
-        // @ts-ignore
+    static fromBuffer(buffer:any): WorldStateInterface {
+      try{
+        const state = Network.instance.packetCompression ?
+        WorldStateModel.model.fromBuffer(buffer) as any : buffer as any;
+
+
+
+
+
         if (!state.transforms) {
     //      console.warn('Packet not from this, will ignored', state);
           return;
@@ -155,7 +168,11 @@ export class WorldStateModel {
           //   }
           // })
         };
-
+      } catch(error){
+        console.warn("Couldn't deserialize buffer, buffer is")
+        console.warn(buffer)
+      }
 
     }
+    
 }

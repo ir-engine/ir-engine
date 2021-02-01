@@ -4,6 +4,8 @@ import { Network } from "@xr3ngine/engine/src/networking/components/Network";
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
 import { applyNetworkStateToClient } from "@xr3ngine/engine/src/networking/functions/applyNetworkStateToClient";
 import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
+import { ClientInputModel } from "@xr3ngine/engine/src/networking/schema/clientInputSchema";
+import { WorldStateModel } from "@xr3ngine/engine/src/networking/schema/worldStateSchema";
 import * as mediasoupClient from "mediasoup-client";
 import { Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
 import getConfig from "next/config";
@@ -47,11 +49,20 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log("Handling kick: ", socket);
   }
 
+  toBuffer(ab) {
+    var buf = Buffer.alloc(ab.byteLength);
+    var view = new Uint8Array(ab);
+    for (var i = 0; i < buf.length; ++i) {
+        buf[i] = view[i];
+    }
+    return buf;
+}
+
   // This sends message on a data channel (data channel creation is now handled explicitly/default)
   sendData(data: any, channel = "default"): void {
     if (!this.dataProducer)
       throw new Error('Data Channel not initialized on client, Data Producer doesn\'t exist!');
-    this.dataProducer.send(JSON.stringify(data));
+      this.dataProducer.send(this.toBuffer(data));
   }
 
   // Adds support for Promise to socket.io-client
@@ -143,13 +154,35 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         console.log("Client has been kicked from the world");
       });
 
+      function toArrayBuffer(buf) {
+        var ab = new ArrayBuffer(buf.length);
+        var view = new Uint8Array(ab);
+        for (var i = 0; i < buf.length; ++i) {
+            view[i] = buf[i];
+        }
+        return ab;
+    }
+
       // Get information for how to consume data from server and init a data consumer
       this.socket.on(MessageTypes.WebRTCConsumeData.toString(), async (options) => {
+        console.log("WebRTC consume data called");
+        console.log(options);
         const dataConsumer = await this.instanceRecvTransport.consumeData(options);
         MediaStreamComponent.instance.dataConsumers.set(options.dataProducerId, dataConsumer);
 
         dataConsumer.on('message', (message: any) => {
-          Network.instance.incomingMessageQueue.add(JSON.parse(message));
+          try{
+            const worldStateModel = WorldStateModel.fromBuffer(message);
+            console.log("worldStateModel is")
+            console.log(worldStateModel)
+            const testClientModel = ClientInputModel.fromBuffer(message);
+            console.log("Test client model is")
+            console.log(testClientModel)
+            Network.instance?.incomingMessageQueue.add(toArrayBuffer(message));
+          } catch (error){
+            console.warn("Error handling data from consumer:")
+            console.warn(error);
+          }
         }); // Handle message received
         dataConsumer.on('close', () => {
           dataConsumer.close();

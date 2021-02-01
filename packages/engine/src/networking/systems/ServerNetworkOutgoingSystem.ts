@@ -71,8 +71,14 @@ export class ServerNetworkOutgoingSystem extends System {
 
       const buffer = WorldStateModel.toBuffer(Network.instance.worldState);
       // Send the message to all connected clients
-      if(Network.instance.transport !== undefined)
-        Network.instance.transport.sendReliableData(buffer); // Use default channel
+      if(Network.instance.transport !== undefined){
+        try{
+          Network.instance.transport.sendReliableData(buffer); // Use default channel
+        } catch (error){
+          console.warn("Couldn't send data, error")
+          console.warn(error)
+        }
+      }
   }
 
   /** Call execution on client */
