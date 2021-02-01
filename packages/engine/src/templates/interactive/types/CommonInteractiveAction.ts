@@ -1,1 +1,1 @@
-export type CommonInteractiveAction = "link" | "infoBox";
+export type CommonInteractiveAction = "link" | "infoBox" | "mediaSource";
