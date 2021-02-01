@@ -39,26 +39,32 @@ export const inputKeyArraySchema = new Schema({
   snapShotTime: uint32
 });
 
+function toArrayBuffer(buf) {
+  var ab = new ArrayBuffer(buf.length);
+  var view = new Uint8Array(ab);
+  for (var i = 0; i < buf.length; ++i) {
+      view[i] = buf[i];
+  }
+  return ab;
+}
+
 /** Class for client input. */
 export class ClientInputModel {
   /** Model holding client input. */
   static model: Model = new Model(inputKeyArraySchema)
   /** Convert to buffer. */
-  static toBuffer(inputs: NetworkClientInputInterface): ArrayBuffer {
-    const packetInputs: PacketNetworkClientInputInterface = {
+  static toBuffer(inputs: NetworkClientInputInterface): Buffer {
+    const packetInputs: any = {
       ...inputs,
       snapShotTime: inputs.snapShotTime,
     }
-    // @ts-ignore
-    return Network.instance.packetCompression ? this.model.toBuffer(packetInputs) : packetInputs;
+    return Network.instance.packetCompression ? ClientInputModel.model.toBuffer(packetInputs) : packetInputs;
   }
   /** Read from buffer. */
-  static fromBuffer(buffer:unknown): NetworkClientInputInterface {
-    // @ts-ignore
-    const packetInputs = Network.instance.packetCompression ? this.model.fromBuffer(new Uint8Array(buffer).buffer) as PacketNetworkClientInputInterface : buffer;
+  static fromBuffer(buffer:Buffer): NetworkClientInputInterface {
+    const packetInputs = Network.instance.packetCompression ? ClientInputModel.model.fromBuffer(buffer) as any : buffer;
 
     return {
-      // @ts-ignore
       ...packetInputs,
       snapShotTime: Number(packetInputs.snapShotTime)
     };
