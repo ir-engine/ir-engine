@@ -87,6 +87,26 @@ export const handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
         dataProducerId: outgoingDataProducer.id,
         appData: { peerId: userId, transportId: newTransport.id },
     });
+    function toArrayBuffer(buf) {
+        var ab = new ArrayBuffer(buf.length);
+        var view = new Uint8Array(ab);
+        for (var i = 0; i < buf.length; ++i) {
+            view[i] = buf[i];
+        }
+        return ab;
+    }
+
+    dataConsumer.on('message', (message, ppid) => {
+        console.log("RECEIVING MESSAGE! PPID IS", ppid);
+        console.log(message);
+        try{
+            Network.instance.incomingMessageQueue.add(toArrayBuffer(message));
+        } catch (error){
+            console.log("Error handling message:");
+            console.log(error);
+        }
+    });
+    logger.info('Data Consumer created!');
     dataConsumer.on('producerclose', () => {
         dataConsumer.close();
         Network.instance.clients[userId].dataConsumers.delete(
@@ -263,6 +283,9 @@ export async function handleWebRtcTransportCreate(socket, data: CreateWebRtcTran
 
 export async function handleWebRtcProduceData(socket, data, callback): Promise<any> {
     networkTransport = Network.instance.transport as any;
+
+    console.log("**************** handleWebRtcProduceData")
+    
     const userId = getUserIdFromSocketId(socket.id);
     if (!data.label) throw ({ error: 'data producer label i.e. channel name is not provided!' });
     const { transportId, sctpStreamParameters, label, protocol, appData } = data;
