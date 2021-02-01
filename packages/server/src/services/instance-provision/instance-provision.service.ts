@@ -3,6 +3,7 @@ import { ServiceAddons } from '@feathersjs/feathers';
 import logger from '../../app/logger';
 import { Application } from '../../declarations';
 import { InstanceProvision } from './instance-provision.class';
+import instanceProvisionDocs from './instance-provision.docs';
 import hooks from './instance-provision.hooks';
 
 // Add this service to the service type index
@@ -18,7 +19,9 @@ export default (app: Application): any => {
   };
 
   // Initialize our service with any options it requires
-  app.use('/instance-provision', new InstanceProvision(options, app));
+  const event = new InstanceProvision(options, app);
+  event.docs = instanceProvisionDocs;
+  app.use('/instance-provision', event);
 
   // Get our initialized service so that we can register hooks
   const service = app.service('instance-provision');

@@ -43,24 +43,26 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
           type: LightTagComponent
         }]
   },
-  'directional-light': {
-    behaviors: [
-      {
-        behavior: addObject3DComponent,
-        args: { obj3d: DirectionalLight, objArgs: { castShadow: true } },
-        values: [
-          { from: 'shadowMapResolution', to: 'shadow.mapSize' },
-          { from: 'shadowBias', to: 'shadow.bias' },
-          { from: 'shadowRadius', to: 'shadow.radius' },
-          { from: 'intensity', to: 'intensity' },
-          { from: 'color', to: 'color' }
-        ]
-      }
-    ],
-      components: [{
-        type: LightTagComponent
-      }]
-  },
+// currently this breaks CSM
+
+//   'directional-light': {
+//     behaviors: [
+//       {
+//         behavior: addObject3DComponent,
+//         args: { obj3d: DirectionalLight, objArgs: { castShadow: true } },
+//         values: [
+//           { from: 'shadowMapResolution', to: 'shadow.mapSize' },
+//           { from: 'shadowBias', to: 'shadow.bias' },
+//           { from: 'shadowRadius', to: 'shadow.radius' },
+//           { from: 'intensity', to: 'intensity' },
+//           { from: 'color', to: 'color' }
+//         ]
+//       }
+//     ],
+//       components: [{
+//         type: LightTagComponent
+//       }]
+//   },
   'collidable': {
     components: [
       {

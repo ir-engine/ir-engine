@@ -3,6 +3,7 @@ import { Application } from '../../declarations';
 import { SeatStatus } from './seat-status.class';
 import createModel from '../../models/seat-status.model';
 import hooks from './seat-status.hooks';
+import seatStatusDocs from './seat-status.docs';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -17,7 +18,9 @@ export default (app: Application): any => {
     multi: true
   };
 
-  app.use('/seat-status', new SeatStatus(options, app));
+  const event = new SeatStatus(options, app);
+  event.docs = seatStatusDocs;
+  app.use('/seat-status', event);
 
   const service = app.service('seat-status');
 

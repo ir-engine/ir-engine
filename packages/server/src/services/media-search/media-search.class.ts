@@ -12,6 +12,7 @@ interface ServiceOptions {
 export class MediaSearch implements ServiceMethods<Data> {
   app: Application
   options: ServiceOptions
+  docs: any
 
   private readonly pageSize = 24
 
