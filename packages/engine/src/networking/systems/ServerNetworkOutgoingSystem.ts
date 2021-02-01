@@ -80,7 +80,7 @@ export class ServerNetworkOutgoingSystem extends System {
       // Send the message to all connected clients
       if(Network.instance.transport !== undefined){
         try{
-          Network.instance.transport.sendReliableData(buffer); // Use default channel
+          Network.instance.transport.sendData(buffer);
         } catch (error){
           console.warn("Couldn't send data, error")
           console.warn(error)
