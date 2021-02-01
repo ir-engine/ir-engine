@@ -23,6 +23,7 @@ export class Project implements ServiceMethods<Data> {
   app: Application
   options: ServiceOptions
   models: any
+  docs: any
 
   constructor (options: ServiceOptions = {}, app: Application) {
     this.options = options;

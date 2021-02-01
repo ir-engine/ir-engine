@@ -27,37 +27,37 @@ export const RigidBodyBehavior: Behavior = (entity: Entity, args): void => {
     const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
 
     // ON CLIENT
-    if (isClient && hasComponent(entity, NetworkObject) && Network.instance.snapshot) { // && args.clientSnapshot.interpolationSnapshot
+    if (isClient && hasComponent(entity, NetworkObject) && args.clientSnapshot.interpolationSnapshot) {
         const networkObject = getComponent<NetworkObject>(entity, NetworkObject)
-      //  const interpolationSnapshot = args.clientSnapshot.interpolationSnapshot.state.find(v => v.networkId == networkObject.networkId);
-  //      if ( !interpolationSnapshot ) return;
-        const serverSnapshotPos = Network.instance.snapshot.state.find(v => v.networkId == networkObject.networkId);
+        const interpolationSnapshot = args.clientSnapshot.interpolationSnapshot.state.find(v => v.networkId == networkObject.networkId);
+        if ( !interpolationSnapshot ) return;
+      //  const serverSnapshotPos = Network.instance.snapshot.state.find(v => v.networkId == networkObject.networkId);
 
         transform.position.set(
-          serverSnapshotPos.x,
-          serverSnapshotPos.y,
-          serverSnapshotPos.z
+          interpolationSnapshot.x,
+          interpolationSnapshot.y,
+          interpolationSnapshot.z
         );
         transform.rotation.set(
-          serverSnapshotPos.qX,
-          serverSnapshotPos.qY,
-          serverSnapshotPos.qZ,
-          serverSnapshotPos.qW
+          interpolationSnapshot.qX,
+          interpolationSnapshot.qY,
+          interpolationSnapshot.qZ,
+          interpolationSnapshot.qW
         );
 
         if (!PhysicsManager.instance.serverOnlyRigidBodyCollides) {
           const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
           if (colliderComponent.collider) {
             colliderComponent.collider.position.set(
-              serverSnapshotPos.x,
-              serverSnapshotPos.y,
-              serverSnapshotPos.z
+              interpolationSnapshot.x,
+              interpolationSnapshot.y,
+              interpolationSnapshot.z
             );
             colliderComponent.collider.quaternion.set(
-              serverSnapshotPos.qX,
-              serverSnapshotPos.qY,
-              serverSnapshotPos.qZ,
-              serverSnapshotPos.qW
+              interpolationSnapshot.qX,
+              interpolationSnapshot.qY,
+              interpolationSnapshot.qZ,
+              interpolationSnapshot.qW
             );
           }
         }

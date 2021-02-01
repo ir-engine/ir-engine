@@ -3,6 +3,7 @@ import { Application } from '../../declarations';
 import { Location } from './location.class';
 import createModel from '../../models/location.model';
 import hooks from './location.hooks';
+import locationDocs from './location.docs';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -17,7 +18,10 @@ export default (app: Application): any => {
     multi: true
   };
 
-  app.use('/location', new Location(options, app));
+  const event = new Location(options, app);
+  event.docs = locationDocs;
+
+  app.use('/location', event);
 
   const service = app.service('location');
 

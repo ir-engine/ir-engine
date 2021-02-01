@@ -65,11 +65,27 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.ReliableMessage.toString(), message);
     }
 
-    public sendData = (data: any): void => {
-        // const stringified = JSON.stringify(Array.from(new Uint8Array(data)));
-        // this.outgoingDataProducer.send(stringified);
-        this.outgoingDataProducer.send(JSON.stringify(data));
+    toBuffer(ab) {
+        var buf = Buffer.alloc(ab.byteLength);
+        var view = new Uint8Array(ab);
+        for (var i = 0; i < buf.length; ++i) {
+            buf[i] = view[i];
+        }
+        return buf;
     }
+
+    public sendData = (data: any): void =>{
+        console.log("Data is")
+        console.log(data)
+      this.dataProducers?.forEach(producer => { 
+          console.log("Sending to producer", producer.id);
+          try{
+              producer.send(this.toBuffer(data)); 
+          } catch (error) {
+            console.warn("ERROR:", error);
+          }
+        })
+        }
 
     public handleKick(socket: any): void {
         logger.info("Kicking ", socket.id);

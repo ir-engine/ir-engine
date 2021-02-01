@@ -4,6 +4,7 @@ import { Channel } from './channel.class';
 import createModel from '../../models/channel.model';
 import hooks from './channel.hooks';
 import logger from '../../app/logger';
+import channelDocs from './channel.docs';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -18,7 +19,9 @@ export default (app: Application): any => {
     paginate: app.get('paginate')
   };
 
-  app.use('/channel', new Channel(options, app));
+  const event =  new Channel(options, app);
+  event.docs = channelDocs;
+  app.use('/channel', event);
 
   const service = app.service('channel');
 
