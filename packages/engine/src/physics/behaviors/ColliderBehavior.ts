@@ -59,7 +59,7 @@ export const handleCollider: Behavior = (entity: Entity, args: { phase?: string 
 
     case 'trimesh':
     body = createTrimesh(
-        getMutableComponent<Object3DComponent>(entity, Object3DComponent as any).value,
+        colliderComponent.mesh,
         new Vec3(),
         colliderComponent.mass
       );
@@ -69,7 +69,8 @@ export const handleCollider: Behavior = (entity: Entity, args: { phase?: string 
       body = createBox(entity)
       break;
   }
-
+  PhysicsManager.instance.physicsWorld.addBody(body);
+  colliderComponent.collider = body;
 /*
     body.shapes.forEach((shape) => {
 			shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;

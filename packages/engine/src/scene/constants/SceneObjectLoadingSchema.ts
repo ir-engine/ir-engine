@@ -117,7 +117,8 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
             new MeshPhongMaterial({
               color: new Color(0.313410553336143494, 0.31341053336143494, 0.30206481294706464)
             })
-          )
+          ),
+          objArgs: { receiveShadow: true }
         },
         values: [ { from: 'color', to: 'material.color' } ]
       }
