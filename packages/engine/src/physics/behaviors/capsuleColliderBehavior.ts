@@ -32,57 +32,51 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
         let offsetX = 0, offsetY = 0, offsetZ = 0;
         const offsetqX = 0, offsetqY = 0, offsetqZ = 0, offsetqW = 0;
 
-        if (args.clientSnapshot.old && Network.instance.snapshot) {
+        if (args.clientSnapshot.old && args.clientSnapshot.interpolationSnapshot) {
          const clientSnapshotPos = args.clientSnapshot.old.state.find(v => v.networkId == networkObject.networkId);
+         const interpolationSnapshot = args.clientSnapshot.interpolationSnapshot.state.find(v => v.networkId == networkObject.networkId);
+      //   const serverSnapshotPos = Network.instance.snapshot.state.find(v => v.networkId == networkObject.networkId);
 
-         const serverSnapshotPos = Network.instance.snapshot.state.find(v => v.networkId == networkObject.networkId);
+         if (clientSnapshotPos && interpolationSnapshot) {
 
-         if (clientSnapshotPos && serverSnapshotPos) {
-
-           offsetX = clientSnapshotPos.x - serverSnapshotPos.x;
-           offsetY = clientSnapshotPos.y - serverSnapshotPos.y;
-           offsetZ = clientSnapshotPos.z - serverSnapshotPos.z;
+           offsetX = clientSnapshotPos.x - interpolationSnapshot.x;
+           offsetY = clientSnapshotPos.y - interpolationSnapshot.y;
+           offsetZ = clientSnapshotPos.z - interpolationSnapshot.z;
 
 
           if (Math.abs(offsetX) + Math.abs(offsetY) + Math.abs(offsetZ) > 3) {
-            actor.actorCapsule.body.position.x = serverSnapshotPos.x;
-            actor.actorCapsule.body.position.y = serverSnapshotPos.y;
-            actor.actorCapsule.body.position.z = serverSnapshotPos.z;
+            actor.actorCapsule.body.position.x = interpolationSnapshot.x;
+            actor.actorCapsule.body.position.y = interpolationSnapshot.y;
+            actor.actorCapsule.body.position.z = interpolationSnapshot.z;
           } else {
             actor.actorCapsule.body.position.x -= (offsetX / correction);
             actor.actorCapsule.body.position.y -= (offsetY / correction);
             actor.actorCapsule.body.position.z -= (offsetZ / correction);
           }
 
-/*
-           actor.actorCapsule.body.quaternion.x = serverSnapshotPos.qX;
-           actor.actorCapsule.body.quaternion.y = serverSnapshotPos.qY;
-           actor.actorCapsule.body.quaternion.z = serverSnapshotPos.qZ;
-           actor.actorCapsule.body.quaternion.w = serverSnapshotPos.qW;
-           */
          }
        }
 
-     } else if (isClient && hasComponent(entity, CharacterComponent) && Network.instance.snapshot) {
+     } else if (isClient && hasComponent(entity, CharacterComponent) && args.clientSnapshot.interpolationSnapshot) {
 
        const actor = getComponent<CharacterComponent>(entity, CharacterComponent)
        const actorTransform = getMutableComponent<TransformComponent>(entity, TransformComponent as any);
        const networkObject = getComponent<NetworkObject>(entity, NetworkObject)
 
-      // const interpolationSnapshot = args.clientSnapshot.interpolationSnapshot.state.find(v => v.networkId == networkObject.networkId);
-      const serverSnapshotPos = Network.instance.snapshot.state.find(v => v.networkId == networkObject.networkId);
+       const interpolationSnapshot = args.clientSnapshot.interpolationSnapshot.state.find(v => v.networkId == networkObject.networkId);
+    //  const serverSnapshotPos = Network.instance.snapshot.state.find(v => v.networkId == networkObject.networkId);
 
-       if (serverSnapshotPos) {
-        actorTransform.position.x = serverSnapshotPos.x;
-        actorTransform.position.y = serverSnapshotPos.y;
-        actorTransform.position.z = serverSnapshotPos.z;
-    //    console.warn(serverSnapshotPos.y);
-/*
-        actor.actorCapsule.body.quaternion.x = interpolationSnapshot.qX;
-        actor.actorCapsule.body.quaternion.y = interpolationSnapshot.qY;
-        actor.actorCapsule.body.quaternion.z = interpolationSnapshot.qZ;
-        actor.actorCapsule.body.quaternion.w = interpolationSnapshot.qW;
-        */
+       if (interpolationSnapshot) {
+
+         actor.actorCapsule.body.position.x = interpolationSnapshot.x;
+         actor.actorCapsule.body.position.y = interpolationSnapshot.y;
+         actor.actorCapsule.body.position.z = interpolationSnapshot.z;
+
+
+        actorTransform.position.x = interpolationSnapshot.x;
+        actorTransform.position.y = interpolationSnapshot.y;
+        actorTransform.position.z = interpolationSnapshot.z;
+
        }
      }
 

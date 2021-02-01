@@ -34,7 +34,7 @@ const isClientNetworkInputInterface = (p: unknown): p is NetworkClientInputInter
   && p.hasOwnProperty('viewVector');
 };
 
-/** 
+/**
  * Handle client updates.
  * @param buffer Client input interface buffer.
  */
@@ -156,7 +156,7 @@ export class ServerNetworkIncomingSystem extends System {
   /** Input component of the system. */
   private _inputComponent: Input
 
-  /** Update type of this system. **Default** to 
+  /** Update type of this system. **Default** to
      * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
   updateType = SystemUpdateType.Fixed;
 

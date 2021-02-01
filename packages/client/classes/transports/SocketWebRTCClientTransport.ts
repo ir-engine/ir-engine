@@ -4,8 +4,6 @@ import { Network } from "@xr3ngine/engine/src/networking/components/Network";
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
 import { applyNetworkStateToClient } from "@xr3ngine/engine/src/networking/functions/applyNetworkStateToClient";
 import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
-import { ClientInputModel } from "@xr3ngine/engine/src/networking/schema/clientInputSchema";
-import { WorldStateModel } from "@xr3ngine/engine/src/networking/schema/worldStateSchema";
 import * as mediasoupClient from "mediasoup-client";
 import { Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
 import getConfig from "next/config";
@@ -172,12 +170,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
         dataConsumer.on('message', (message: any) => {
           try{
-            const worldStateModel = WorldStateModel.fromBuffer(message);
-            console.log("worldStateModel is")
-            console.log(worldStateModel)
-            const testClientModel = ClientInputModel.fromBuffer(message);
-            console.log("Test client model is")
-            console.log(testClientModel)
             Network.instance?.incomingMessageQueue.add(toArrayBuffer(message));
           } catch (error){
             console.warn("Error handling data from consumer:")
