@@ -11,6 +11,7 @@ import { NetworkObject } from '../components/NetworkObject';
 import { Vault } from '../components/Vault';
 import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClient';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
+import { ClientInputModel } from '../schema/clientInputSchema';
 import { WorldStateModel } from '../schema/worldStateSchema';
 
 /** System class for network system of client. */
@@ -61,8 +62,10 @@ export class ClientNetworkSystem extends System {
       const buffer = queue.pop();
       // debugger;
       const unbufferedState = WorldStateModel.fromBuffer(buffer);
-      if (unbufferedState)
-        applyNetworkStateToClient(unbufferedState, delta);
+
+      if(!unbufferedState) console.warn("Couldn't deserialize buffer, probably still reading the wrong one")
+
+      if(unbufferedState) applyNetworkStateToClient(unbufferedState, delta);
     }
   }
 

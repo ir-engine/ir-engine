@@ -182,7 +182,13 @@ export class InputSystem extends System {
       inputs.viewVector.y = actor.viewVector.y;
       inputs.viewVector.z = actor.viewVector.z;
 
-      Network.instance.transport.sendReliableData(ClientInputModel.toBuffer(inputs));
+      try{
+        Network.instance.transport.sendReliableData(ClientInputModel.toBuffer(inputs));
+      } catch (error){
+        console.warn("Couldn't send data, error")
+        console.warn(error)
+      }
+
       cleanupInput(entity);
     });
 
