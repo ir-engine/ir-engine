@@ -39,7 +39,8 @@ export function createSnapshot (state: StateEntityGroup): Snapshot {
   return {
     id: randomId(),
     time: Date.now(),
-    state: state
+    state: state,
+    timeCorrection: 0
   };
 }
 
@@ -65,7 +66,7 @@ export function addSnapshot (snapshot: Snapshot): void {
  * @param timeOrPercentage How far to interpolate from first snapshot.
  * @param parameters On which param interpolation should be applied.
  * @param deep
- * 
+ *
  * @returns Interpolated snapshot.
  */
 export function interpolate (
@@ -175,7 +176,7 @@ export function interpolate (
  * Get the calculated interpolation on the client.
  * @param parameters On which param interpolation should be applied.
  * @param arrayName
- * 
+ *
  * @returns Interpolated snapshot.
  */
 export function calculateInterpolation (parameters: string, arrayName = ''): InterpolatedSnapshot | undefined {

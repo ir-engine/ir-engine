@@ -29,8 +29,6 @@ import { XRControllersComponent } from '../components/XRControllersComponent';
 import { InputType } from "../enums/InputType";
 import { InputValue } from "../interfaces/InputValue";
 import { InputAlias } from "../types/InputAlias";
-
-
 /**
  * Input System
  *
@@ -165,10 +163,10 @@ export class InputSystem extends System {
         viewVector: {
           x: 0, y: 0, z: 0
         },
-        snapShotTime: Vault.instance.get().time ?? 0
+        snapShotTime: Vault.instance.get().time - Network.instance.timeSnaphotCorrection ?? 0
       };
 
-
+      //console.warn(inputs.snapShotTime);
       // Add all values in input component to schema
       input.data.forEach((value, key) => {
         if (value.type === InputType.BUTTON)
@@ -184,7 +182,13 @@ export class InputSystem extends System {
       inputs.viewVector.y = actor.viewVector.y;
       inputs.viewVector.z = actor.viewVector.z;
 
-      Network.instance.transport.sendReliableData(ClientInputModel.toBuffer(inputs));
+      try{
+        Network.instance.transport.sendReliableData(ClientInputModel.toBuffer(inputs));
+      } catch (error){
+        console.warn("Couldn't send data, error")
+        console.warn(error)
+      }
+
       cleanupInput(entity);
     });
 

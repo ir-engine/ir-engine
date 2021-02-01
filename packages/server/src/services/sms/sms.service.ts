@@ -1,6 +1,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import { Sms } from './sms.class';
+import smsDocs from './sms.docs';
 import hooks from './sms.hooks';
 
 declare module '../../declarations' {
@@ -15,7 +16,10 @@ export default (app: Application): void => {
     multi: true
   };
 
-  app.use('/sms', new Sms(options, app));
+  const event = new Sms(options, app);
+  event.docs = smsDocs;
+
+  app.use('/sms', event);
 
   const service = app.service('sms');
 

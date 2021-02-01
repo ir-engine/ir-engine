@@ -3,6 +3,7 @@ import { Application } from '../../declarations';
 import { StaticResource } from './static-resource.class';
 import createModel from '../../models/static-resource.model';
 import hooks from './static-resource.hooks';
+import staticResourceDocs from './static-resource.docs';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -17,7 +18,10 @@ export default (app: Application): any => {
     multi: true
   };
 
-  app.use('/static-resource', new StaticResource(options, app));
+  const event = new StaticResource(options, app);
+  event.docs = staticResourceDocs; 
+
+  app.use('/static-resource', event);
 
   const service = app.service('static-resource');
 

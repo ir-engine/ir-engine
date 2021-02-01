@@ -13,6 +13,7 @@ interface ServiceOptions {}
 export class PublishProject implements ServiceMethods<Data> {
   app: Application
   options: ServiceOptions
+  docs: any
 
   constructor (options: ServiceOptions = {}, app: Application) {
     this.options = options;

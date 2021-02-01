@@ -19,9 +19,9 @@ export async function createDataProducer(channel = "default", type: UnreliableMe
         // maxRetransmits: 3,
         protocol: type // sub-protocol for type of data to be transmitted on the channel e.g. json, raw etc. maybe make type an enum rather than string
     });
-    dataProducer.on("open", () => {
-        networkTransport.dataProducer.send(JSON.stringify({ info: 'init' }));
-    });
+    // dataProducer.on("open", () => {
+    //     networkTransport.dataProducer.send(JSON.stringify({ info: 'init' }));
+    // });
     dataProducer.on("transportclose", () => {
         MediaStreamComponent.instance.dataProducers.delete(channel);
         networkTransport.dataProducer.close();
@@ -334,6 +334,10 @@ export async function createTransport(direction: string, partyId?: string) {
 
         transport.on("producedata",
             async (parameters: any, callback: (arg0: { id: any; }) => void, errback: () => void) => {
+
+                console.log("********* PRODUCE DATA")
+                console.log(parameters);
+                
                 const { sctpStreamParameters, label, protocol, appData } = parameters;
                 const { error, id } = await networkTransport.request(MessageTypes.WebRTCProduceData, {
                     transportId: transport.id,
