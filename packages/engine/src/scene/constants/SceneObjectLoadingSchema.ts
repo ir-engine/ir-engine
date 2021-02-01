@@ -14,7 +14,8 @@ import { createScenePreviewCamera } from "../behaviors/createScenePreviewCamera"
 import { createShadow } from '../behaviors/createShadow';
 import createSkybox from '../behaviors/createSkybox';
 import { createTriggerVolume } from '../behaviors/createTriggerVolume';
-import { createVideo } from "../behaviors/createVideo";
+import { createMedia, createMediaServer } from "../behaviors/createMedia";
+import { createAudio, createAudioServer } from "../behaviors/createAudio";
 import { createVolumetric } from "../behaviors/createVolumetric";
 import { handleAudioSettings } from '../behaviors/handleAudioSettings';
 import { setFog } from '../behaviors/setFog';
@@ -26,6 +27,7 @@ import { LoadingSchema } from '../interfaces/LoadingSchema';
 import { createCommonInteractive } from "../behaviors/createCommonInteractive";
 import { getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { createTransformComponent } from "../behaviors/createTransformComponent";
+import { isClient } from "../../common/functions/isClient";
 
 export const SceneObjectLoadingSchema: LoadingSchema = {
   'ambient-light': {
@@ -189,7 +191,30 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'video': {
     behaviors: [
       {
-        behavior: createVideo,
+        behavior: isClient ? createMedia : createMediaServer,
+        values: [
+          { from: 'src', to: 'src' },
+          { from: 'projection', to: 'projection' },
+          { from: 'controls', to: 'controls' },
+          { from: 'autoPlay', to: 'autoPlay' },
+          { from: 'loop', to: 'loop' },
+          { from: 'audioType', to: 'audioType' },
+          { from: 'volume', to: 'volume' },
+          { from: 'distanceModel', to: 'distanceModel' },
+          { from: 'rolloffFactor', to: 'rolloffFactor' },
+          { from: 'refDistance', to: 'refDistance' },
+          { from: 'maxDistance', to: 'maxDistance' },
+          { from: 'coneInnerAngle', to: 'coneInnerAngle' },
+          { from: 'coneOuterAngle', to: 'coneOuterAngle' },
+          { from: 'coneOuterGain', to: 'coneOuterGain' }
+        ]
+      }
+    ]
+  },
+  'audio': {
+    behaviors: [
+      {
+        behavior: isClient ? createMedia : createMediaServer,
         values: [
           { from: 'src', to: 'src' },
           { from: 'projection', to: 'projection' },
