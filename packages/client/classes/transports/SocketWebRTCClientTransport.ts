@@ -170,7 +170,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
         dataConsumer.on('message', (message: any) => {
           try{
-            Network.instance?.incomingMessageQueue.add(toArrayBuffer(message));
+            Network.instance?.incomingMessageQueue.add(message);
           } catch (error){
             console.warn("Error handling data from consumer:")
             console.warn(error);
