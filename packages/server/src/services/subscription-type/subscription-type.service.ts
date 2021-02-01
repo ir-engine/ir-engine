@@ -3,6 +3,7 @@ import { Application } from '../../declarations';
 import { SubscriptionType } from './subscription-type.class';
 import createModel from '../../models/subscription-type.model';
 import hooks from './subscription-type.hooks';
+import subscriptionTypeDocs from './subscription-type.docs';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -16,8 +17,11 @@ export default (app: Application): any => {
     paginate: app.get('paginate'),
     multi: true
   };
-
-  app.use('/subscription-type', new SubscriptionType(options, app));
+  
+  const event = new SubscriptionType(options, app);
+  event.docs = subscriptionTypeDocs;
+  
+  app.use('/subscription-type', event);
 
   const service = app.service('subscription-type');
 

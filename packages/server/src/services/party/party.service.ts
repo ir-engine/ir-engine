@@ -3,6 +3,7 @@ import { Application } from '../../declarations';
 import { Party } from './party.class';
 import createModel from '../../models/party.model';
 import hooks from './party.hooks';
+import partyDocs from './party.docs';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -16,7 +17,10 @@ export default (app: Application): void => {
     multi: true
   };
 
-  app.use('/party', new Party(options, app));
+  const event = new Party(options, app);
+  event.docs = partyDocs;
+  
+  app.use('/party', event);
 
   const service = app.service('party');
 
