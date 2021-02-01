@@ -10,5 +10,13 @@ export default {
             type: 'array',
             items: { $ref: '#/definitions/location-ban'}
         }
+    },
+    securities: ['create', 'update', 'patch', 'remove'],
+    operations: {
+      find: {
+        security: [
+          { bearer: [] }
+        ]
+      }
     }
 }

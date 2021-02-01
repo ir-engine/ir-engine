@@ -13,5 +13,13 @@ export default {
             type: 'array',
             items: { $ref: '#/definitions/group-user-rank'}
         }
+    },
+    securities: ['create', 'update', 'patch', 'remove'],
+    operations: {
+      find: {
+        security: [
+          { bearer: [] }
+        ]
+      }
     }
 }

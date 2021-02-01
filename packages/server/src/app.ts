@@ -66,21 +66,7 @@ if (config.server.enabled) {
             security: [
               { bearer: [] }
             ],
-            definitions: {
-              authentication: {
-                type: 'object',
-                properties: {
-                  email: {
-                    type: 'string',
-                  },
-                  password: {
-                    type: 'string'
-                  }
-                }
-              }
-            }
-          },
-          
+          }
         })
     );
     
