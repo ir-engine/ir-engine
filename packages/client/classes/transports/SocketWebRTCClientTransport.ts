@@ -60,7 +60,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   sendData(data: any, channel = "default"): void {
     if (!this.dataProducer)
       throw new Error('Data Channel not initialized on client, Data Producer doesn\'t exist!');
-      this.dataProducer.send(this.toBuffer(data));
+      if (this.dataProducer.closed !== true) this.dataProducer.send(this.toBuffer(data));
   }
 
   // Adds support for Promise to socket.io-client
