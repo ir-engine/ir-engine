@@ -4,6 +4,7 @@ import { PartyUser } from './party-user.class';
 import createModel from '../../models/party-user.model';
 import hooks from './party-user.hooks';
 import logger from '../../app/logger';
+import partyUserDocs from './party-user.docs';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -18,7 +19,10 @@ export default (app: Application): void => {
     multi: true
   };
 
-  app.use('/party-user', new PartyUser(options, app));
+  const event = new PartyUser(options, app);
+  event.docs = partyUserDocs;
+
+  app.use('/party-user', event);
 
   const service = app.service('party-user');
 

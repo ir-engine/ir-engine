@@ -3,6 +3,7 @@ import { Application } from '../../declarations';
 import { Message } from './message.class';
 import createModel from '../../models/message.model';
 import hooks from './message.hooks';
+import messageDocs from './message.docs';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -16,8 +17,10 @@ export default (app: Application): any => {
     Model: createModel(app),
     paginate: app.get('paginate')
   };
-
-  app.use('/message', new Message(options, app));
+  
+  const event = new Message(options, app);
+  event.docs = messageDocs;
+  app.use('/message', event);
 
   const service = app.service('message');
 

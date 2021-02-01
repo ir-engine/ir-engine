@@ -4,6 +4,7 @@ import { GroupUser } from './group-user.class';
 import createModel from '../../models/group-user.model';
 import hooks from './group-user.hooks';
 import logger from '../../app/logger';
+import groupUserDocs from './group-user.docs';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -17,8 +18,9 @@ export default (app: Application): any => {
     paginate: app.get('paginate'),
     multi: true
   };
-
-  app.use('/group-user', new GroupUser(options, app));
+  const event = new GroupUser(options, app);
+  event.docs = groupUserDocs;
+  app.use('/group-user', event);
 
   const service = app.service('group-user');
 
