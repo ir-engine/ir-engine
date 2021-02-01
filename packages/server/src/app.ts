@@ -58,16 +58,27 @@ if (config.server.enabled) {
             schemes:['https'],
             securityDefinitions: {
               bearer: {
-                type: "apiKey",
-                name: "authorization",
-                in: "header"
+                type: 'apiKey',
+                in: 'header',
+                name: 'authorization'
               }
             },
             security: [
-              {
-                Bearer: []
+              { bearer: [] }
+            ],
+            definitions: {
+              authentication: {
+                type: 'object',
+                properties: {
+                  email: {
+                    type: 'string',
+                  },
+                  password: {
+                    type: 'string'
+                  }
+                }
               }
-            ]
+            }
           },
           
         })
