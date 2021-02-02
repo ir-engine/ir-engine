@@ -5,6 +5,7 @@ import config from '../config';
 
 export default class StorageProvider implements StorageProviderInterface {
   provider: StorageProviderInterface
+  docs: any
   constructor () {
     this.provider = config.server.storageProvider === 'aws'
       ? new S3Storage()

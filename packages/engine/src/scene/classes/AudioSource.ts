@@ -1,5 +1,6 @@
 import { Object3D, Audio, PositionalAudio } from "three";
 import { RethrownError } from "../../editor/functions/errors";
+
 export const AudioType = {
   Stereo: "stereo",
   PannerNode: "pannernode"
@@ -18,7 +19,7 @@ export const DistanceModelOptions = Object.values(DistanceModelType).map(v => ({
   value: v
 }));
 export default class AudioSource extends Object3D {
-  el: HTMLElement;
+  el: HTMLMediaElement;
   _src: string;
   audioListener: any;
   controls: boolean;

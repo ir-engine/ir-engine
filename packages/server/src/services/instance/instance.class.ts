@@ -5,6 +5,7 @@ import {extractLoggedInUserFromParams} from "../auth-management/auth-management.
 import { Forbidden } from "@feathersjs/errors";
 
 export class Instance extends Service {
+  docs: any
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options);
   }

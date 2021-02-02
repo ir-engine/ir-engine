@@ -26,7 +26,7 @@ export function createTrimesh (mesh, position, mass) {
 
 
 export function createGround (entity: Entity) {
-  const colliderComponent = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
+  const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
   const transformComponent = getComponent<TransformComponent>(entity, TransformComponent);
   const shape = new Plane();
   const body = new Body({ mass: 0 });
@@ -46,18 +46,17 @@ export function createGround (entity: Entity) {
     );
   }
   body.addShape(shape);
-  PhysicsManager.instance.physicsWorld.addBody(body);
-  colliderComponent.collider = body;
+  return body;
 }
 
 export function createBox (entity: Entity) {
-  const colliderComponent = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
+  const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
   const transformComponent = getComponent<TransformComponent>(entity, TransformComponent);
 
   const shape = new Box( new Vec3(
-      colliderComponent.scale.x / 2,
-      colliderComponent.scale.y / 2,
-      colliderComponent.scale.z / 2
+      colliderComponent.scale.x,
+      colliderComponent.scale.y,
+      colliderComponent.scale.z
     )
   );
   const body = new Body({
@@ -89,18 +88,10 @@ export function createBox (entity: Entity) {
       colliderComponent.quaternion.z,
       colliderComponent.quaternion.w
     );
-  } else {
-    body.quaternion.set(
-      transformComponent.rotation.x,
-      transformComponent.rotation.y,
-      transformComponent.rotation.z,
-      transformComponent.rotation.w
-    );
   }
 
   body.addShape(shape);
-  PhysicsManager.instance.physicsWorld.addBody(body);
-  colliderComponent.collider = body;
+  return body;
   /*
     if (hasComponent(entity, Object3DComponent)) {
       offset.copy(cannonFromThreeVector(object3DComponent.value.position));
@@ -135,19 +126,31 @@ export function createCylinder (entity: Entity) {
 
 export function createSphere (entity: Entity) {
   const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
-  const rigidBody = getComponent<RigidBody>(entity, RigidBody);
+  const transformComponent = getComponent<TransformComponent>(entity, TransformComponent);
 
-  const mass = rigidBody ? collider.mass : 0;
-
-  const shape = new Sphere(collider.scale[0] / 2);
+  const shape = new Sphere(collider.scale.x);
 
   const body = new Body({
-    mass: mass,
-    material: PhysicsManager.instance.groundMaterial
+    mass: collider.mass,
+  //  material: PhysicsManager.instance.groundMaterial
 //    material: PhysicsManager.instance.wheelMaterial
   });
 
   body.addShape(shape);
+  // Set position
+  if (collider.position) {
+    body.position.set(
+      collider.position.x,
+      collider.position.y,
+      collider.position.z
+    );
+  } else {
+    body.position.set(
+      transformComponent.position.x,
+      transformComponent.position.y,
+      transformComponent.position.z
+    );
+  }
   body.angularDamping = 0.5;
   return body;
 }

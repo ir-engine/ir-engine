@@ -5,7 +5,7 @@ import { createTrimesh } from './physicalPrimitives';
 
 function createBox (scale) {
   if(scale == undefined) return console.error("Scale is  null");
-  const shape = new Box(new Vec3(scale.x, scale.y, scale.z));
+  const shape = new Box(new Vec3(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z)));
   const body = new Body({ mass: 0 });
   body.addShape(shape);
   return body;

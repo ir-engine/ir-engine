@@ -3,6 +3,7 @@ import { Application } from '../../declarations';
 import { Seat } from './seat.class';
 import createModel from '../../models/seat.model';
 import hooks from './seat.hooks';
+import seatDocs from './seat.docs';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -18,7 +19,9 @@ export default (app: Application): any => {
     multi: true
   };
 
-  app.use('/seat', new Seat(options, app));
+  const event = new Seat(options, app);
+  event.docs = seatDocs;
+  app.use('/seat', event);
 
   const service = app.service('seat');
 

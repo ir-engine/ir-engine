@@ -4,6 +4,7 @@ import { Params } from '@feathersjs/feathers';
 
 export class Collection extends Service {
   app: Application;
+  docs: any
 
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options);

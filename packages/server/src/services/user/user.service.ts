@@ -5,6 +5,7 @@ import createModel from '../../models/user.model';
 import hooks from './user.hooks';
 import _ from 'lodash';
 import logger from '../../app/logger';
+import userDocs from './user.docs';
 
 declare module '../../declarations' {
 
@@ -24,7 +25,10 @@ export default (app: Application): void => {
     multi: true
   };
 
-  app.use('/user', new User(options, app));
+  const event = new User(options, app);
+  event.docs = userDocs;
+
+  app.use('/user', event);
 
   const service = app.service('user');
 
@@ -34,6 +38,7 @@ export default (app: Application): void => {
    * This method find all users
    * @returns users
    */
+
   
   service.publish('patched', async (data, params): Promise<any> => {
     try {

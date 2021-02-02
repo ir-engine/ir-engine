@@ -19,16 +19,23 @@ import { ProcessModelAsset } from "../functions/ProcessModelAsset";
 import { Object3D } from 'three';
 import { CharacterAvatarComponent } from '../../templates/character/components/CharacterAvatarComponent';
 
+/** System class for Asset loading. */
 export default class AssetLoadingSystem extends System {
+  /** Update type of the system. **Default** value is 
+   *    {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type.  */
   updateType = SystemUpdateType.Fixed;
+  /** Map holding loaded Assets. */
   loaded = new Map<Entity, Object3D>()
+  /** Loading asset count. */
   loadingCount = 0;
 
+  /** Constructs Asset loading system. */
   constructor() {
     super();
     addComponent(createEntity(), AssetVault);
   }
 
+  /** Execute the system. */
   execute(): void {
     this.queryResults.assetVault.all.forEach(entity => {
       // Do things here

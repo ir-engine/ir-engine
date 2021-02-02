@@ -8,18 +8,18 @@ import { Not } from "../../ecs/functions/ComponentFunctions";
 import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { Client } from "../../networking/components/Client";
+import { MediaStreamComponent } from '../../networking/components/MediaStreamComponent';
 import { Network } from "../../networking/components/Network";
-import { Vault } from '../../networking/components/Vault';
 import { NetworkObject } from "../../networking/components/NetworkObject";
-import { NetworkInputInterface, NetworkClientInputInterface, PacketNetworkClientInputInterface } from "../../networking/interfaces/WorldState";
+import { Vault } from '../../networking/components/Vault';
+import { NetworkClientInputInterface } from "../../networking/interfaces/WorldState";
 import { ClientInputModel } from '../../networking/schema/clientInputSchema';
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { cleanupInput } from '../behaviors/cleanupInput';
+import { handleGamepads } from "../behaviors/GamepadInputBehaviors";
 import { handleInputOnLocalClient } from '../behaviors/handleInputOnLocalClient';
 import { handleInputPurge } from "../behaviors/handleInputPurge";
-import { handleGamepadConnected, handleGamepads } from "../behaviors/GamepadInputBehaviors";
-import { startFaceTracking, stopFaceTracking, startLipsyncTracking } from "../behaviors/WebcamInputBehaviors";
-import { MediaStreamComponent } from '../../networking/components/MediaStreamComponent';
+import { startFaceTracking, stopFaceTracking } from "../behaviors/WebcamInputBehaviors";
 //import { initializeSession, processSession } from '../behaviors/WebXRInputBehaviors';
 import { addPhysics, removeWebXRPhysics, updateWebXRPhysics } from '../behaviors/WebXRControllersBehaviors';
 import { Input } from '../components/Input';
@@ -29,8 +29,6 @@ import { XRControllersComponent } from '../components/XRControllersComponent';
 import { InputType } from "../enums/InputType";
 import { InputValue } from "../interfaces/InputValue";
 import { InputAlias } from "../types/InputAlias";
-
-
 /**
  * Input System
  *
@@ -44,13 +42,13 @@ function supportsPassive(): boolean {
   let supportsPassiveValue = false;
   try {
     const opts = Object.defineProperty({}, 'passive', {
-      get: function() {
+      get: function () {
         supportsPassiveValue = true;
       }
     });
     window.addEventListener("testPassive", null, opts);
     window.removeEventListener("testPassive", null, opts);
-  } catch (error) {}
+  } catch (error) { }
   return supportsPassiveValue;
 }
 
@@ -65,15 +63,16 @@ export class InputSystem extends System {
   // Temp/ref variables
   private _inputComponent: Input;
   private localUserMediaStream: MediaStream = null;
-
+  private useWebXR = false;
   // Client only variables
   public mainControllerId; //= 0
   public secondControllerId; //= 1
   private readonly boundListeners; //= new Set()
   private entityListeners: Map<Entity, Array<ListenerBindingData>>;
 
-  constructor() {
+  constructor({ useWebXR }) {
     super();
+    this.useWebXR = useWebXR;
     // Client only
     if (isClient) {
       this.mainControllerId = 0;
@@ -93,21 +92,22 @@ export class InputSystem extends System {
    */
 
   public execute(delta: number): void {
-    // Handle XR input
-    this.queryResults.controllersComponent.added?.forEach(entity => addPhysics(entity));
-    this.queryResults.controllersComponent.all?.forEach(entity => {
-      const xRControllers = getComponent(entity, XRControllersComponent);
-      if (xRControllers.physicsBody1 !== null && xRControllers.physicsBody2 !== null && this.mainControllerId) {
-        this.mainControllerId = xRControllers.physicsBody1;
-        this.secondControllerId = xRControllers.physicsBody2;
-      }
-      updateWebXRPhysics(entity);
-    });
-    this.queryResults.controllersComponent.removed?.forEach(entity => removeWebXRPhysics(entity, {
-      controllerPhysicalBody1: this.mainControllerId,
-      controllerPhysicalBody2: this.secondControllerId
-    }));
-
+    if (this.useWebXR) {
+      // Handle XR input
+      this.queryResults.controllersComponent.added?.forEach(entity => addPhysics(entity));
+      this.queryResults.controllersComponent.all?.forEach(entity => {
+        const xRControllers = getComponent(entity, XRControllersComponent);
+        if (xRControllers.physicsBody1 !== null && xRControllers.physicsBody2 !== null && this.mainControllerId) {
+          this.mainControllerId = xRControllers.physicsBody1;
+          this.secondControllerId = xRControllers.physicsBody2;
+        }
+        updateWebXRPhysics(entity);
+      });
+      this.queryResults.controllersComponent.removed?.forEach(entity => removeWebXRPhysics(entity, {
+        controllerPhysicalBody1: this.mainControllerId,
+        controllerPhysicalBody2: this.secondControllerId
+      }));
+    }
     // Apply input for local user input onto client
     this.queryResults.localClientInput.all?.forEach(entity => {
       // Apply input to local client
@@ -116,7 +116,7 @@ export class InputSystem extends System {
       // apply face tracking
       if (this.localUserMediaStream === null) {
         // check to start video tracking
-          if (MediaStreamComponent.instance.mediaStream && MediaStreamComponent.instance.faceTracking) {
+        if (MediaStreamComponent.instance.mediaStream && MediaStreamComponent.instance.faceTracking) {
           console.log('start facetracking');
           startFaceTracking(entity);
           this.localUserMediaStream = MediaStreamComponent.instance.mediaStream;
@@ -140,7 +140,7 @@ export class InputSystem extends System {
       // startFaceTracking(entity);
       // startLipsyncTracking(entity);
 
-      handleInputOnLocalClient(entity, {isLocal:true, isServer: false}, delta);
+      handleInputOnLocalClient(entity, { isLocal: true, isServer: false }, delta);
       const networkId = getComponent(entity, NetworkObject)?.networkId;
       // Client sends input and *only* input to the server (for now)
       // console.log("Handling input for entity ", entity.id);
@@ -163,10 +163,10 @@ export class InputSystem extends System {
         viewVector: {
           x: 0, y: 0, z: 0
         },
-        snapShotTime: Vault.instance.get().time ?? 0
+        snapShotTime: Vault.instance.get().time - Network.instance.timeSnaphotCorrection ?? 0
       };
 
-
+      //console.warn(inputs.snapShotTime);
       // Add all values in input component to schema
       input.data.forEach((value, key) => {
         if (value.type === InputType.BUTTON)
@@ -182,21 +182,14 @@ export class InputSystem extends System {
       inputs.viewVector.y = actor.viewVector.y;
       inputs.viewVector.z = actor.viewVector.z;
 
-      if (Network.instance.packetCompression) {
+      try{
         Network.instance.transport.sendReliableData(ClientInputModel.toBuffer(inputs));
-      } else {
-        Network.instance.transport.sendReliableData(inputs);
+      } catch (error){
+        console.warn("Couldn't send data, error")
+        console.warn(error)
       }
 
-      //  const buffer = clientInputModel.toBuffer(inputs)
-      //    const inputDebbug = clientInputModel.fromBuffer(buffer)
-//     console.warn(inputDebbug);
-      //  console.warn(JSON.stringify(inputs).length) // 241
-      //    console.warn(message.byteLength) // 56
-      // Use default channel
-
       cleanupInput(entity);
-
     });
 
     // Called when input component is added to entity

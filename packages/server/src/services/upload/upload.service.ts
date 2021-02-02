@@ -7,6 +7,7 @@ import blobService from 'feathers-blob';
 import { Application } from '../../declarations';
 import { Upload } from './upload.class';
 import hooks from './upload.hooks';
+import uploadDocs from './upload.docs';
 
 const multipartMiddleware = multer();
 
@@ -18,6 +19,7 @@ declare module '../../declarations' {
 
 export default (app: Application): void => {
   const provider = new StorageProvider();
+  const doc = uploadDocs;
 
   app.use('/upload',
     multipartMiddleware.fields([{ name: 'file' }, { name: 'thumbnail' }]),
@@ -31,7 +33,7 @@ export default (app: Application): void => {
         next();
       }
     },
-    blobService({ Model: provider.getStorage() })
+    blobService({ Model: provider.getStorage() }),
   );
 
   const service = app.service('upload');

@@ -8,11 +8,9 @@ import { DesiredTransformComponent } from '../../transform/components/DesiredTra
 import { setCameraFollow } from './setCameraFollow';
 
 /**
- * 
- * @param args
- * @param {Number} delta Time since last frame
+ * Fix camera behind the character to follow the character.
+ * @param entity Entity on which camera will be fixed.
  */
-
 export const fixedCameraBehindCharacter: Behavior = (entity: Entity, args: any, delta: number): void => {
   const follower = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent); // Camera
   
