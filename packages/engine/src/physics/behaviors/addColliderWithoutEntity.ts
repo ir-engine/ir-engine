@@ -59,28 +59,29 @@ export function addColliderWithoutEntity( type, position, quaternion, scale, mes
       break;
 
     case 'trimesh':
-    body = createTrimesh(mesh, new Vec3(), 0);
+      body = createTrimesh(mesh, new Vec3(), 0);
       break;
 
     default:
       console.warn('create Collider undefined type !!!');
-      body = createBox(scale);
+      body = createBox(scale || 1);
       break;
     }
 
-    body.position.set(
-      position.x,
-      position.y,
-      position.z
-    );
+    if (position)
+      body.position.set(
+        position.x,
+        position.y,
+        position.z
+      );
 
     if (quaternion)
-    body.quaternion.set(
-      quaternion.x,
-      quaternion.y,
-      quaternion.z,
-      quaternion.w
-    );
+      body.quaternion.set(
+        quaternion.x,
+        quaternion.y,
+        quaternion.z,
+        quaternion.w
+      );
 
   PhysicsManager.instance.physicsWorld.addBody(body);
   return body;
