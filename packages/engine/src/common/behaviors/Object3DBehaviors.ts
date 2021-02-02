@@ -45,11 +45,14 @@ import {
   hasComponent,
   getComponent,
   removeComponent,
-  removeEntity
+  removeEntity,
+  getMutableComponent
   , addComponent
 } from '../../ecs/functions/EntityFunctions';
 import { SkyboxComponent } from '../../scene/components/SkyboxComponent';
 import { Engine } from '../../ecs/classes/Engine';
+import ShadowComponent from "../../scene/components/ShadowComponent";
+import { createShadow } from "../../scene/behaviors/createShadow";
 
 /**
  * Add Component into Entity from the Behavior.
@@ -129,18 +132,17 @@ export const addObject3DComponent: Behavior = (
   typeof args.objArgs === 'object' && Object.keys(args.objArgs).forEach(key => {
     applyDeepValue(object3d, key, args.objArgs[key]);
   });
-  
+
+  if (args.parentEntity && hasComponent(args.parentEntity, ShadowComponent)) {
+    createShadow(entity, { objArgs: getMutableComponent(args.parentEntity, ShadowComponent) })
+  }
+    
+  const hasShadow = getMutableComponent(entity, ShadowComponent)
+
   object3d.traverse((obj) => {
-    // todo: add in shadow checks once we figure editor model settings
-    // if((obj.receiveShadow || obj.castShadow) && (obj.type === 'Mesh' || obj.type === 'SkinnedMesh')) {
-    if(obj.type === 'Mesh' || obj.type === 'SkinnedMesh') {
-      obj.castShadow = true;
-      // when we use lightmaps we don't want it to receive shadows from itself. this however stops other entity's shadows being cast on it
-      if(!obj.material?.userData?.gltfExtensions?.MOZ_lightmap) {
-        obj.receiveShadow = true;
-        obj.material && Engine.csm?.setupMaterial(obj.material);
-      }
-    }
+    obj.castShadow = Boolean(hasShadow?.castShadow || args.objArgs?.castShadow);
+    obj.receiveShadow = Boolean(hasShadow?.receiveShadow || args.objArgs?.receiveShadow);
+    obj.material && Engine.csm?.setupMaterial(obj.material);
   });
 
   addComponent(entity, Object3DComponent, { value: object3d });
