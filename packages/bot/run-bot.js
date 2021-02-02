@@ -25,11 +25,11 @@ async function run() {
     botManager.addAction("bot1", BotAction.sendAudio(10000));
     botManager.addAction("bot1", BotAction.receiveAudio(6000));
     botManager.addAction("bot1", BotAction.delay(6000));
-    // botManager.addAction("bot1", BotAction.keyPress("KeyW", moveDuratioon));
-    // botManager.addAction("bot1", BotAction.keyPress("KeyD", moveDuratioon));
-    // botManager.addAction("bot1", BotAction.keyPress("KeyS", moveDuratioon));
-    // botManager.addAction("bot1", BotAction.keyPress("KeyA", moveDuratioon));
-    // botManager.addAction("bot1", BotAction.sendMessage("Hello World! This is bot1."));
+    botManager.addAction("bot1", BotAction.keyPress("KeyW", moveDuratioon));
+    botManager.addAction("bot1", BotAction.keyPress("KeyD", moveDuratioon));
+    botManager.addAction("bot1", BotAction.keyPress("KeyS", moveDuratioon));
+    botManager.addAction("bot1", BotAction.keyPress("KeyA", moveDuratioon));
+    botManager.addAction("bot1", BotAction.sendMessage("Hello World! This is bot1."));
 
     // botManager.addAction("bot2", BotAction.connect());
     // botManager.addAction("bot2", BotAction.enterRoom(domaiin, locationName));
