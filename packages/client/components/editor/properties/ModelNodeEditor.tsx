@@ -125,6 +125,16 @@ export default class ModelNodeEditor extends Component<
           />
         </InputGroup>
       </>;
+      case 'link': return <>
+        { /* @ts-ignore */ }
+        <InputGroup name="Url">
+          <StringInput
+            /* @ts-ignore */
+            value={node.payloadUrl}
+            onChange={this.onChangePayloadUrl}
+          />
+        </InputGroup>
+      </>;
       default: break;
     }
   }
