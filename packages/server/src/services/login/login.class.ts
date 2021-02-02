@@ -10,6 +10,7 @@ interface ServiceOptions {}
 export class Login implements ServiceMethods<Data> {
   app: Application
   options: ServiceOptions
+  docs: any
 
   constructor (options: ServiceOptions = {}, app: Application) {
     this.options = options;

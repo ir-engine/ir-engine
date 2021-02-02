@@ -15,6 +15,7 @@ export class ResolveMedia implements ServiceMethods<Data> {
   options: ServiceOptions
   models: any
   storage: any
+  docs: any
 
   constructor (options: ServiceOptions = {}, app: Application) {
     this.options = options;

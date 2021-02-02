@@ -43,24 +43,26 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
           type: LightTagComponent
         }]
   },
-  'directional-light': {
-    behaviors: [
-      {
-        behavior: addObject3DComponent,
-        args: { obj3d: DirectionalLight, objArgs: { castShadow: true } },
-        values: [
-          { from: 'shadowMapResolution', to: 'shadow.mapSize' },
-          { from: 'shadowBias', to: 'shadow.bias' },
-          { from: 'shadowRadius', to: 'shadow.radius' },
-          { from: 'intensity', to: 'intensity' },
-          { from: 'color', to: 'color' }
-        ]
-      }
-    ],
-      components: [{
-        type: LightTagComponent
-      }]
-  },
+// currently this breaks CSM
+
+//   'directional-light': {
+//     behaviors: [
+//       {
+//         behavior: addObject3DComponent,
+//         args: { obj3d: DirectionalLight, objArgs: { castShadow: true } },
+//         values: [
+//           { from: 'shadowMapResolution', to: 'shadow.mapSize' },
+//           { from: 'shadowBias', to: 'shadow.bias' },
+//           { from: 'shadowRadius', to: 'shadow.radius' },
+//           { from: 'intensity', to: 'intensity' },
+//           { from: 'color', to: 'color' }
+//         ]
+//       }
+//     ],
+//       components: [{
+//         type: LightTagComponent
+//       }]
+//   },
   'collidable': {
     components: [
       {
@@ -117,7 +119,8 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
             new MeshPhongMaterial({
               color: new Color(0.313410553336143494, 0.31341053336143494, 0.30206481294706464)
             })
-          )
+          ),
+          objArgs: { receiveShadow: true }
         },
         values: [ { from: 'color', to: 'material.color' } ]
       }

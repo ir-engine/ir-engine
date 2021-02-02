@@ -59,7 +59,7 @@ export const getMovingAnimationsByVelocity = (localSpaceVelocity: Vector3): Map<
 
     const stateWeights = getWeights(velocity.length());
 
-    const invertAnimations = direction.z > 0 ? [] : [ WALK_STRAFE_RIGHT, WALK_STRAFE_LEFT, RUN_STRAFE_RIGHT, RUN_STRAFE_LEFT ];
+    const invertAnimations = direction.z > -0.001 ? [] : [ WALK_STRAFE_RIGHT, WALK_STRAFE_LEFT, RUN_STRAFE_RIGHT, RUN_STRAFE_LEFT ];
 
     animationAxisSpeed.forEach(animationWeightsConfig => {
         const { animationId, axis, speed, range, run: isRun } = animationWeightsConfig;

@@ -3,6 +3,7 @@ import { Application } from '../../declarations';
 import { Group } from './group.class';
 import createModel from '../../models/group.model';
 import hooks from './group.hooks';
+import groupDocs from "./group.docs";
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -18,7 +19,10 @@ export default (app: Application): any => {
     multi: true
   };
 
-  app.use('/group', new Group(options, app));
+  const event = new Group(options, app);
+  event.docs = groupDocs;
+
+  app.use('/group', event);
 
   const service = app.service('group');
 

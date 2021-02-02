@@ -8,6 +8,11 @@ $mobileControllButtonsSize:3em;
     margin: 0 auto;
     text-align: center;
     width: fit-content;
+
+    @media (max-width: 768px) {
+        margin: 0 25% 0 auto;
+    }
+
     .drawerBox{        
         margin: 0 auto;
         display: flex;
@@ -16,11 +21,11 @@ $mobileControllButtonsSize:3em;
         height: $mobileControllButtonsSize;
         width: auto;
         flex-direction: row;
-        padding: 0px;
+        padding: 0;
        
 
         &:last-child{
-            padding-bottom: 0px;
+            padding-bottom: 0;
         }
         .iconContainer{
             background: rgba(0, 0, 0, 0.8);

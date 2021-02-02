@@ -32,23 +32,27 @@ import { NormalPass } from '../../postprocessing/passes/NormalPass';
 import { BlendFunction } from '../../postprocessing/effects/blending/BlendFunction';
 import { TextureEffect } from '../../postprocessing/effects/TextureEffect';
 import { OutlineEffect } from '../../postprocessing/effects/OutlineEffect';
+import { CSM } from '../../assets/csm/CSM.js';
 
 import { now } from '../../common/functions/now';
 
-  /**
-   * Handles rendering and post processing to WebGL canvas
-   */
+/** Handles rendering and post processing to WebGL canvas. */
 export class WebGLRendererSystem extends System {
+  /** Is system Initialized. */
   isInitialized: boolean
-  
-  // resoulion scale
+
+  /** Resoulion scale. **Default** value is 1. */
   scaleFactor = 1
   downGradeTimer = 0
   upGradeTimer = 0
+  /** Maximum Quality level of the rendered. **Default** value is 4. */
   maxQualityLevel = 4
+  /** Current quality level. */
   qualityLevel: number = this.maxQualityLevel
+  /** Previous Quality leve. */
   prevQualityLevel: number = this.qualityLevel
 
+  /** Constructs WebGL Renderer System. */
   constructor(attributes?: SystemAttributes) {
     super(attributes);
 
@@ -73,34 +77,44 @@ export class WebGLRendererSystem extends System {
       preserveDrawingBuffer: true
     };
     
-    const { iOS, safariWebBrowser } = window as any;
+    const { safariWebBrowser } = window as any;
     
-    const renderer = iOS || safariWebBrowser ? new WebGL1Renderer(options) : new WebGLRenderer(options);
+    const renderer = safariWebBrowser ? new WebGL1Renderer(options) : new WebGLRenderer(options);
     renderer.physicallyCorrectLights = true;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = PCFSoftShadowMap;
-    // renderer.outputEncoding = sRGBEncoding; // need this if postprocessing is not used
+    renderer.outputEncoding = sRGBEncoding; // need this if postprocessing is not used
 
     Engine.renderer = renderer;
+
+    // Cascaded shadow maps
+    const csm = new CSM({
+        cascades: 4,
+        lightIntensity: 1,
+        shadowMapSize: 2048,
+        maxFar: 100,
+        // maxFar: Engine.camera.far,
+        camera: Engine.camera,
+        parent: Engine.scene
+    });
+    csm.fade = true;
+
+    Engine.csm = csm;
+
     // Add the renderer to the body of the HTML document
     document.body.appendChild(canvas);
     window.addEventListener('resize', this.onResize, false);
     this.onResize();
-
     this.isInitialized = true;
-  } 
+  }
 
-  /**
-     * Called on resize, sets resize flag
-     */
-  onResize() {
+  /** Called on resize, sets resize flag. */
+  onResize(): void {
     RendererComponent.instance.needsResize = true;
   }
 
-  /**
-    * Removes resize listener
-    */
-  dispose() {
+  /** Removes resize listener. */
+  dispose(): void {
     super.dispose();
 
     const rendererComponent = RendererComponent.instance;
@@ -112,11 +126,11 @@ export class WebGLRendererSystem extends System {
   }
 
   /**
-    * Configure post processing
-    * Note: Post processing effects are set in the PostProcessingSchema provided to the system
-    * @param {Entity} entity - The Entity
+    * Configure post processing.
+    * Note: Post processing effects are set in the PostProcessingSchema provided to the system.
+    * @param entity The Entity holding renderer component.
     */
-  private configurePostProcessing(entity: Entity) {
+  private configurePostProcessing(entity: Entity): void {
     const rendererComponent = getMutableComponent<RendererComponent>(entity, RendererComponent);
     const composer = new EffectComposer(Engine.renderer);
     rendererComponent.composer = composer;
@@ -162,17 +176,18 @@ export class WebGLRendererSystem extends System {
   }
 
   /**
-     * Called each frame by default from the Engine
-     *
-     * @param {Number} delta time since last frame
-     */
-  execute(delta: number) {
+   * Executes the system. Called each frame by default from the Engine.
+   * @param delta Time since last frame.
+   */
+  execute(delta: number): void {
     const startTime = now();
 
     this.queryResults.renderers.added?.forEach((entity: Entity) => {
       RendererComponent.instance.needsResize = true;
       this.configurePostProcessing(entity);
     });
+    
+    Engine.csm.update();
     
     if(this.isInitialized)
     this.queryResults.renderers.all.forEach((entity: Entity) => {
@@ -200,7 +215,11 @@ export class WebGLRendererSystem extends System {
     this.changeQualityLevel(deltaRender);
   }
 
-  changeQualityLevel(delta: number) {
+  /**
+   * Change the quality of the renderer.
+   * @param delta Time since last frame.
+   */
+  changeQualityLevel(delta: number): void {
     if (delta >= 55) {
       this.downGradeTimer += delta;
       this.upGradeTimer = 0;
@@ -227,39 +246,35 @@ export class WebGLRendererSystem extends System {
 
     // set resolution scale
     if (this.prevQualityLevel !== this.qualityLevel) {
-      switch (this.qualityLevel) {
-        case 0:
-          this.scaleFactor = 0.4;
-          break;
-        case 1:
-          this.scaleFactor = 0.55;
-          break;
-        case 2:
-          this.scaleFactor = 0.7;
-          break;
-        case 3:
-          this.scaleFactor = 0.85;
-          break;
-        case 4:
-          this.scaleFactor = 1;
-          break;
-        default:
-          this.scaleFactor = 1;
-          break;
-      }
+      console.log('Changing quality level to', this.qualityLevel)
 
       if (Engine.renderer) {
+        switch (this.qualityLevel) {
+          case 0:
+            this.scaleFactor = 0.4;
+            break;
+          case 1:
+            this.scaleFactor = 0.55;
+            break;
+          case 2:
+            this.scaleFactor = 0.7;
+            break;
+          case 3:
+            this.scaleFactor = 0.85;
+            break;
+          case 4: default:
+            this.scaleFactor = 1;
+            break;
+        }
+        
         Engine.renderer.setPixelRatio(window.devicePixelRatio * this.scaleFactor);
         this.prevQualityLevel = this.qualityLevel;
       }
     }
   }
-
 }
 
-/**
- * Resize the canvas
- */
+/** Resize the canvas. */
 export const resize: Behavior = entity => {
   const rendererComponent = getComponent<RendererComponent>(entity, RendererComponent);
 
@@ -277,6 +292,8 @@ export const resize: Behavior = entity => {
       cam.aspect = width / height;
       cam.updateProjectionMatrix();
     }
+
+    Engine.csm.updateFrustums();
 
     canvas.width = width;
     canvas.height = height;

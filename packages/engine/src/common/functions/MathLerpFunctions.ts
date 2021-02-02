@@ -1,11 +1,25 @@
 import { Quat } from '../../networking/types/SnapshotDataTypes';
 import { PI, TAU } from '../constants/MathConstants';
 
-export const lerp = (start: number, end: number, t: number) => {
+/**
+ * Find Interpolation between 2 number.
+ * @param start Number from which to interpolate.
+ * @param end Number to which to interpolate.
+ * @param t How far to interpolate from start.
+ * @returns Interpolation between start and end.
+ */
+export const lerp = (start: number, end: number, t: number): number => {
   return start + (end - start) * t;
 };
 
-export const degreeLerp = (start: number, end: number, t: number) => {
+/**
+ * Find Interpolation between 2 degree angles.
+ * @param start Degree from which to interpolate.
+ * @param end Degree to which to interpolate.
+ * @param t How far to interpolate from start.
+ * @returns Interpolation between start and end.
+ */
+export const degreeLerp = (start: number, end: number, t: number): number => {
   let result;
   const diff = end - start;
   if (diff < -180) {
@@ -30,7 +44,14 @@ export const degreeLerp = (start: number, end: number, t: number) => {
   return result;
 };
 
-export const radianLerp = (start: number, end: number, t: number) => {
+/**
+ * Find Interpolation between 2 radian angles.
+ * @param start Radian from which to interpolate.
+ * @param end Radian to which to interpolate.
+ * @param t How far to interpolate from start.
+ * @returns Interpolation between start and end.
+ */
+export const radianLerp = (start: number, end: number, t: number): number => {
   let result;
   const diff = end - start;
   if (diff < -PI) {
@@ -55,7 +76,14 @@ export const radianLerp = (start: number, end: number, t: number) => {
   return result;
 };
 
-export const quatSlerp = (qa: Quat, qb: Quat, t: number) => {
+/**
+ * Find Interpolation between 2 quaternion.
+ * @param start Quaternion from which to interpolate.
+ * @param end Quaternion to which to interpolate.
+ * @param t How far to interpolate from start.
+ * @returns Interpolation between start and end.
+ */
+export const quatSlerp = (qa: Quat, qb: Quat, t: number): any => {
   // quaternion to return
   const qm: Quat = { x: 0, y: 0, z: 0, w: 1 };
   // Calculate angle between them.

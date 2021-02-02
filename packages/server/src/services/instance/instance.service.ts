@@ -4,6 +4,7 @@ import { Instance } from './instance.class';
 import createModel from '../../models/instance.model';
 import hooks from './instance.hooks';
 import logger from "../../app/logger";
+import instanceDocs from "./instance.docs";
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -17,8 +18,10 @@ export default (app: Application): any => {
     paginate: app.get('paginate'),
     multi: true
   };
-
-  app.use('/instance', new Instance(options, app));
+  
+  const event =  new Instance(options, app);
+  event.docs = instanceDocs;
+  app.use('/instance', event);
 
   const service = app.service('instance');
 
