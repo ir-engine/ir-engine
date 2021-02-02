@@ -26,6 +26,8 @@ import { LoadingSchema } from '../interfaces/LoadingSchema';
 import { createCommonInteractive } from "../behaviors/createCommonInteractive";
 import { getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { createTransformComponent } from "../behaviors/createTransformComponent";
+import { ParticleEmitter } from '../../particles/components/ParticleEmitter';
+import { createParticleEmitter } from '../../particles/functions/particleHelpers';
 
 export const SceneObjectLoadingSchema: LoadingSchema = {
   'ambient-light': {
@@ -342,5 +344,13 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
         behavior: createLink
       }
     ]
+  },
+  'particle-emitter': {
+    behaviors: [
+      {
+        behavior: createParticleEmitter,
+        values: ['ageRandomness', 'angularVelocity', 'colorCurve', 'endColor', 'endOpacity', 'endSize', 'endVelocity', 'lifetime', 'lifetimeRandomness', 'middleColor', 'middleOpacity', 'particleCount', 'sizeCurve', 'sizeRandomness', 'src', 'startColor', 'startOpacity', 'startSize', 'startVelocity', 'velocityCurve']
+      }
+    ],
   }
 };
