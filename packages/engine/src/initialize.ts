@@ -26,6 +26,7 @@ import { CharacterInputSchema } from './templates/character/CharacterInputSchema
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
+import { ParticleSystem } from './particles/systems/ParticleSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -109,7 +110,7 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
     registerSystem(HighlightSystem);
     registerSystem(PositionalAudioSystem);
     registerSystem(InteractiveSystem);
-    // registerSystem(ParticleSystem);
+    registerSystem(ParticleSystem);
     if (process.env.NODE_ENV === 'development') {
       // registerSystem(DebugHelpersSystem);
     }
