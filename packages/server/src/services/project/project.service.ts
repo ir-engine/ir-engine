@@ -1,6 +1,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import { Project } from './project.class';
+import projectDocs from './project.docs';
 import hooks from './project.hooks';
 
 declare module '../../declarations' {
@@ -16,7 +17,10 @@ export default (app: Application): any => {
     multi: true
   };
 
-  app.use('/project', new Project(options, app));
+  const event = new Project(options, app);
+  event.docs = projectDocs;
+
+  app.use('/project', event);
 
   const service = app.service('project');
 

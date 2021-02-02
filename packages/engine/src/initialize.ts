@@ -30,10 +30,12 @@ import { TransformSystem } from './transform/systems/TransformSystem';
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 
+const isSafari = typeof navigator !== 'undefined' && /Version\/[\d\.]+.*Safari/.test(window.navigator.userAgent);
+
 export const DefaultInitializationOptions = {
   input: {
     schema: CharacterInputSchema,
-    useWebXR: true,
+    useWebXR: !isSafari,
   },
   networking: {
     schema: DefaultNetworkSchema
@@ -79,7 +81,7 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
 
   registerSystem(PhysicsSystem);
 
-  if(isClient) registerSystem(InputSystem, { useWebXR: true });
+  if(isClient) registerSystem(InputSystem, { useWebXR: DefaultInitializationOptions.input.useWebXR });
 
   registerSystem(StateSystem);
 

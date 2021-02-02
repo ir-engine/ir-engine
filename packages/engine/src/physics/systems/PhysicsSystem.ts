@@ -50,12 +50,7 @@ export class PhysicsSystem extends System {
     }
 
     if (isClient && Network.instance.snapshot) {
-      clientSnapshot.old = Vault.instance.get((Network.instance.snapshot as any).time - 15, true)
-/*
-      if (clientSnapshot.old != undefined) {
-          console.warn(clientSnapshot.old.time - Network.instance.worldState.snapshot.time);
-      }
-*/
+      clientSnapshot.old = Vault.instance.get((Network.instance.snapshot as any).timeCorrection - 15, true)
     }
 
     // Collider

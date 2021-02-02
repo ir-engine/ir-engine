@@ -3,7 +3,7 @@ import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/Net
 import { CreateWebRtcTransportParams } from "@xr3ngine/engine/src/networking/types/NetworkingTypes";
 import AWS from 'aws-sdk';
 import * as https from "https";
-import { DataProducer, Router, Transport, Worker } from "mediasoup/lib/types";
+import {DataProducer, DataConsumer, Router, Transport, Worker, DataProducerOptions} from "mediasoup/lib/types";
 import SocketIO, { Socket } from "socket.io";
 import logger from '../../app/logger';
 import config from '../../config';
@@ -53,6 +53,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     transport: Transport
     app: any
     dataProducers: DataProducer[] = []
+    outgoingDataTransport: Transport
+    outgoingDataProducer: DataProducer
     gameServer;
 
     constructor(app) {
@@ -63,8 +65,27 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.ReliableMessage.toString(), message);
     }
 
-    public sendData = (data: any): void =>
-      this.dataProducers?.forEach(producer => { producer.send(JSON.stringify(data)); })
+    toBuffer(ab) {
+        var buf = Buffer.alloc(ab.byteLength);
+        var view = new Uint8Array(ab);
+        for (var i = 0; i < buf.length; ++i) {
+            buf[i] = view[i];
+        }
+        return buf;
+    }
+
+    public sendData = (data: any): void =>{
+        console.log("Data is")
+        console.log(data)
+      this.dataProducers?.forEach(producer => { 
+          console.log("Sending to producer", producer.id);
+          try{
+              producer.send(this.toBuffer(data)); 
+          } catch (error) {
+            console.warn("ERROR:", error);
+          }
+        })
+        }
 
     public handleKick(socket: any): void {
         logger.info("Kicking ", socket.id);
@@ -116,6 +137,15 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
         logger.info("Initializing WebRTC Connection");
         await startWebRTC();
+
+        this.outgoingDataTransport = await this.routers.instance.createDirectTransport();
+        const options = {
+            ordered: false,
+            label: 'outgoingProducer',
+            protocol: 'raw',
+            appData: { peerID: 'outgoingProducer' }
+        };
+        this.outgoingDataProducer = await this.outgoingDataTransport.produceData(options);
 
         setInterval(() => validateNetworkObjects(), 5000);
 

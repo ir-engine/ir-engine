@@ -1,29 +1,39 @@
 import { Component } from '../../ecs/classes/Component';
 import { ID, Snapshot } from '../types/SnapshotDataTypes';
 
-/** Snapshot interpolation, based on this library by yandeu
- * https://github.com/geckosio/snapshot-interpolation */
+/** 
+ * Component class for Snapshot interpolation.\
+ * Snap shot is based on this {@link https://github.com/geckosio/snapshot-interpolation | library by yandeu}.
+ */
 export class NetworkInterpolation extends Component<any> {
+  /** Static instance for Component. */
   static instance: NetworkInterpolation
+  /** Vault to store snapshots. */
   public vault: Snapshot[] = []
+  /** Size of the vault. */
   vaultSize = 200
+  /** Time offset between client and server. */
   timeOffset = -1
 
+  /** Interpolation buffer for snapshots. */
   _interpolationBuffer = 5
   /** The current server time based on the current snapshot interpolation. */
   public serverTime = 0
 
+  /** Constructs Component. */
   constructor () {
     super();
     NetworkInterpolation.instance = this;
   }
 
+  /** Dispose Network interpolation component. */
   dispose(): void {
     super.dispose();
     NetworkInterpolation.instance = null;
   }
 
-  public get interpolationBuffer () {
+  /** Get and set Interpolation buffer. */
+  public get interpolationBuffer (): any {
     return {
       /** Get the Interpolation Buffer time in milliseconds. */
       get: () => this._interpolationBuffer,
@@ -34,7 +44,11 @@ export class NetworkInterpolation extends Component<any> {
     };
   }
 
-  /** Get a Snapshot by its ID. */
+  /**
+   * Get a Snapshot by its ID.
+   * @param id ID of the snapshot.
+   * @returns Snapshot of given ID.
+   */
   getById (id: ID): Snapshot {
     return this.vault.filter(snapshot => snapshot.id === id)?.[0];
   }
@@ -67,8 +81,11 @@ export class NetworkInterpolation extends Component<any> {
     }
   }
 
-  /** Add a snapshot to the vault. */
-  add (snapshot: Snapshot) {
+  /**
+   * Add a snapshot to the vault.
+   * @param snapshot Snapshot to be added in vault. 
+   */
+  add (snapshot: Snapshot): void {
     if (this.vault.length > this.vaultSize - 1) {
       // remove the oldest snapshot
       this.vault.sort((a, b) => a.time - b.time).shift();
@@ -76,18 +93,27 @@ export class NetworkInterpolation extends Component<any> {
     this.vault.push(snapshot);
   }
 
-  /** Get the current capacity (size) of the vault. */
-  public get size () {
+  /**
+   * Get the current capacity (size) of the vault.
+   * @returns Current capacity (size) of the vault.
+   */
+  public get size (): number {
     return this.vault.length;
   }
 
-  /** Set the max capacity (size) of the vault. */
-  setMaxSize (size: number) {
+  /**
+   * Set the max capacity (size) of the vault.
+   * @param size New Max capacity of vault.
+   */
+  setMaxSize (size: number): void {
     this.vaultSize = size;
   }
 
-  /** Get the max capacity (size) of the vault. */
-  getMaxSize () {
+  /**
+   * Get the max capacity (size) of the vault.
+   * @returns Max capacity o the vault.
+   */
+  getMaxSize (): number {
     return this.vaultSize;
   }
 }

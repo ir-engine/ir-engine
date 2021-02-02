@@ -1,3 +1,8 @@
+/** This Module contains function to perform different operations on 
+ *    {@link https://threejs.org/docs/#api/en/core/Object3D | Object3D } from three.js library. 
+ * @packageDocumentation
+ * */
+
 import { Color, Object3D } from "three";
 import { Object3DComponent } from '../components/Object3DComponent';
 import {
@@ -46,6 +51,11 @@ import {
 import { SkyboxComponent } from '../../scene/components/SkyboxComponent';
 import { Engine } from '../../ecs/classes/Engine';
 
+/**
+ * Add Component into Entity from the Behavior.
+ * @param entity Entity in which component will be added.
+ * @param args Args contains Component and args of Component which will be added into the Entity.
+ */
 export function addComponentFromBehavior<C>(
   entity: Entity,
   args: {
@@ -56,6 +66,11 @@ export function addComponentFromBehavior<C>(
   addComponent(entity, args.component, args.objArgs);
 }
 
+/**
+ * Add Tag Component with into Entity from the Behavior.
+ * @param entity Entity in which component will be added.
+ * @param args Args contains Component which will be added into the Entity.
+ */
 export function addTagComponentFromBehavior<C>(
   entity: Entity,
   args: { component: ComponentConstructor<Component<C>> }
@@ -64,6 +79,9 @@ export function addTagComponentFromBehavior<C>(
   addComponent(entity, args.component);
 }
 
+/**
+ * Add Object3D Component with args into Entity from the Behavior.
+ */
 export const addObject3DComponent: Behavior = (
   entity: Entity,
   args: { obj3d: any; objArgs?: any; parentEntity?: Entity }
@@ -111,9 +129,23 @@ export const addObject3DComponent: Behavior = (
   typeof args.objArgs === 'object' && Object.keys(args.objArgs).forEach(key => {
     applyDeepValue(object3d, key, args.objArgs[key]);
   });
+  
+  object3d.traverse((obj) => {
+    // todo: add in shadow checks once we figure editor model settings
+    // if((obj.receiveShadow || obj.castShadow) && (obj.type === 'Mesh' || obj.type === 'SkinnedMesh')) {
+    if(obj.type === 'Mesh' || obj.type === 'SkinnedMesh') {
+      obj.castShadow = true;
+      // when we use lightmaps we don't want it to receive shadows from itself. this however stops other entity's shadows being cast on it
+      if(!obj.material?.userData?.gltfExtensions?.MOZ_lightmap) {
+        obj.receiveShadow = true;
+        obj.material && Engine.csm?.setupMaterial(obj.material);
+      }
+    }
+  });
 
   addComponent(entity, Object3DComponent, { value: object3d });
   // getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = object3d;
+
 
   getComponentTags(object3d).forEach((component: any) => {
     addComponent(entity, component);
@@ -125,6 +157,11 @@ export const addObject3DComponent: Behavior = (
   return entity;
 };
 
+/**
+ * Remove Object3D Component from the Entity.
+ * @param entity Entity from which component will be removed.
+ * @param unparent Whether to remove parent entity as well. Default is **```true```**.
+ */
 export function removeObject3DComponent(entity: Entity, unparent = true): void {
   const object3d = getComponent<Object3DComponent>(entity, Object3DComponent, true).value;
   if (object3d == undefined) return;
@@ -147,6 +184,11 @@ export function removeObject3DComponent(entity: Entity, unparent = true): void {
   (object3d as any).entity = null;
 }
 
+/**
+ * Remove Entity and associated all Object3D Components.
+ * @param entity Entity which will be removed.
+ * @param forceImmediate Whether to remove Entity immediately or wait for frame to complete.
+ */
 export function remove(entity: Entity, forceImmediate: boolean): void {
   if (hasComponent<Object3DComponent>(entity, Object3DComponent)) {
     const obj = getObject3D(entity);
@@ -159,11 +201,23 @@ export function remove(entity: Entity, forceImmediate: boolean): void {
   removeEntity(entity, forceImmediate);
 }
 
+/**
+ * Get Object3D from the given Entity.
+ * @param entity Entity from which Object3D will be retrieved.
+ * 
+ * @returns Object3D retrieved from the Entity.
+ */
 export function getObject3D(entity: Entity): Object3D {
   const component = getComponent<Object3DComponent>(entity, Object3DComponent);
   return component && component.value;
 }
 
+/**
+ * Get List of Component tags associated with given Object3D.
+ * @param entity Object3D from which Component tags will be retrieved.
+ * 
+ * @returns List of Components tags of given Object3D.
+ */
 export function getComponentTags(object3d: Object3D): Array<Component<any>> {
   const components: Array<Component<any>> = [];
   if (object3d.type === 'Audio' && (object3d as any).panner !== undefined) {

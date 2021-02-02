@@ -12,6 +12,7 @@ import { Entity } from './Entity';
 import { CameraOperator } from '../../camera/classes/CameraOperator';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { ServerSpawnSystem } from "../../scene/systems/SpawnSystem";
+import { CSM } from '../../assets/csm/CSM.js';
 
 /** 
  * This is the base class which holds all the data related to the scene, camera,system etc.\
@@ -56,6 +57,7 @@ export class Engine {
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static renderer: WebGLRenderer = null
+  static csm: CSM = null
   static xrSession: any = null
   static xrReferenceSpace = null
   static context = null

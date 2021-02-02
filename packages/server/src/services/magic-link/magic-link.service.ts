@@ -1,6 +1,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import { Magiclink } from './magic-link.class';
+import magicLinkDocs from './magic-link.docs';
 import hooks from './magic-link.hooks';
 
 declare module '../../declarations' {
@@ -14,8 +15,9 @@ export default (app: Application): void => {
     paginate: app.get('paginate'),
     multi: true
   };
-
-  app.use('/magic-link', new Magiclink(options, app));
+  const event = new Magiclink(options, app);
+  event.docs = magicLinkDocs;
+  app.use('/magic-link', event);
 
   const service = app.service('magic-link');
 

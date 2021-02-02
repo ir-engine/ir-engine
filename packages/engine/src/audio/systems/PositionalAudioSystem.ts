@@ -28,16 +28,20 @@ function createSilentAudioEl(streamsLive) {
   return audioEl;
 }
 
+/** System class which provides methods for Positional Audio system. */
 export class PositionalAudioSystem extends System {
+  /** Static instance for positional audio. */
   public static instance: PositionalAudioSystem = null
 
   characterAudioStream = new Map();
 
+  /** Constructs Positional Audio System. */
   constructor(attributes?: SystemAttributes) {
     super(attributes);
     PositionalAudioSystem.instance = this;
   }
 
+  /** Execute the positional audio system for different events of queries. */
   execute(): void {
     for (const entity of this.queryResults.audio.added) {
       const positionalAudio = getMutableComponent(entity, PositionalAudioComponent);
@@ -123,19 +127,23 @@ export class PositionalAudioSystem extends System {
     }
   }
 
+  /** Suspend positional audio components. */
   suspend(): void {
     for (const entity of this.queryResults.character_audio.all) {
       const positionalAudio = getComponent(entity, PositionalAudioComponent);
-      positionalAudio.value.context.suspend();
+      positionalAudio.value?.context?.suspend();
     }
   }
+
+  /** Resume positional audio components. */
   resume(): void {
     for (const entity of this.queryResults.character_audio.all) {
       const positionalAudio = getComponent(entity, PositionalAudioComponent);
-      positionalAudio.value.context.resume();
+      positionalAudio.value?.context?.resume();
     }
   }
 }
+
 PositionalAudioSystem.queries = {
   positional_audio: {
     components: [PositionalAudioComponent, TransformComponent],
