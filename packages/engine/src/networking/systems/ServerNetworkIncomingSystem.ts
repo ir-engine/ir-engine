@@ -39,9 +39,8 @@ const isClientNetworkInputInterface = (p: unknown): p is NetworkClientInputInter
  * @param buffer Client input interface buffer.
  */
 function handleUpdatesFromClients(buffer:any): void {
-  let clientInput: NetworkClientInputInterface;
+  const clientInput: NetworkClientInputInterface = ClientInputModel.fromBuffer(buffer);
 
-  clientInput = ClientInputModel.fromBuffer(buffer);
 
   if (Network.instance.networkObjects[clientInput.networkId] === undefined) {
     console.error('Network object not found for networkId', clientInput.networkId);
