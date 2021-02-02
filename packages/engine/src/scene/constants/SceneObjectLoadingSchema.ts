@@ -15,7 +15,6 @@ import { createShadow } from '../behaviors/createShadow';
 import createSkybox from '../behaviors/createSkybox';
 import { createTriggerVolume } from '../behaviors/createTriggerVolume';
 import { createMedia, createMediaServer } from "../behaviors/createMedia";
-import { createAudio, createAudioServer } from "../behaviors/createAudio";
 import { createVolumetric } from "../behaviors/createVolumetric";
 import { handleAudioSettings } from '../behaviors/handleAudioSettings';
 import { setFog } from '../behaviors/setFog';
