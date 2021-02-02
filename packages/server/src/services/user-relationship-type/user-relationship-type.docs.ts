@@ -13,4 +13,4 @@ export default {
             items: { $ref: '#/definitions/user-relationship-type'}
         }
     }
-}
+};
