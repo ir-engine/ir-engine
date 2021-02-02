@@ -33,6 +33,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 interface Props {
+  disableBottom: boolean;
   setLeftDrawerOpen: any;
   setTopDrawerOpen: any;
   setRightDrawerOpen: any;
@@ -47,6 +48,7 @@ interface Props {
 export const DrawerControls = (props: Props): JSX.Element => {
   const {
     authState,
+    disableBottom,
     locationState,
     partyState,
     setLeftDrawerOpen,
@@ -64,20 +66,20 @@ export const DrawerControls = (props: Props): JSX.Element => {
     setLeftDrawerOpen(false);
     setTopDrawerOpen(false);
     setRightDrawerOpen(false);
-    setBottomDrawerOpen(true);
+    if (disableBottom !== true) setBottomDrawerOpen(true);
     setTimeout(() => updateMessageScrollInit(true), 100);
   };
   const openPeople = (): void => {
     setLeftDrawerOpen(true);
     setTopDrawerOpen(false);
     setRightDrawerOpen(false);
-    setBottomDrawerOpen(false);
+    if (disableBottom !== true) setBottomDrawerOpen(false);
   };
   const openInvite = (): void => {
     setLeftDrawerOpen(false);
     setTopDrawerOpen(false);
     setRightDrawerOpen(true);
-    setBottomDrawerOpen(false);
+    if (disableBottom !== true) setBottomDrawerOpen(false);
   };
   return (
     <AppBar className={styles['bottom-appbar']}>
@@ -86,7 +88,7 @@ export const DrawerControls = (props: Props): JSX.Element => {
           <PersonAdd/>
         </Fab>
       }
-      { selfUser.userRole !== 'guest' &&
+      { selfUser.userRole !== 'guest' && disableBottom !== true &&
         <Fab color="primary" aria-label="Forum" onClick={openChat}>
           <Forum/>
         </Fab>

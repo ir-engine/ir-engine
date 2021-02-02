@@ -59,6 +59,11 @@
     display: flex;
     flex-direction: column;
     min-height: 200px;
+    background-color: rgb(20, 20, 20, 0.8);
+
+    & > div {
+        background-color: rgb(150, 150, 150, 0.8);
+    }
 
     ul {
         flex-grow: 1;
