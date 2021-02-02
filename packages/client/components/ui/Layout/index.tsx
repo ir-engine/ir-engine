@@ -27,6 +27,7 @@ const { publicRuntimeConfig } = getConfig();
 const siteTitle: string = publicRuntimeConfig.siteTitle;
 
 interface Props {
+  harmony?: boolean;
   appState?: any;
   authState?: any;
   locationState?: any;
@@ -52,6 +53,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const Layout = (props: Props): any => {
   const path = useRouter().pathname;
   const {
+      harmony,
       pageTitle,
       children,
       appState,
@@ -94,8 +96,8 @@ const Layout = (props: Props): any => {
       </Head>
       <header>
         { path === '/login' && <NavMenu login={login} />}
-        { authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
-        {onBoardingStep === generalStateList.ALL_DONE && <PartyVideoWindows />}
+        { harmony !== true && authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
+        { harmony !== true && onBoardingStep === generalStateList.ALL_DONE && <PartyVideoWindows />}
       </header>
       <Fragment>
         <UIDialog />
@@ -104,7 +106,7 @@ const Layout = (props: Props): any => {
       </Fragment>
       { authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&
         <Fragment>
-          <LeftDrawer leftDrawerOpen={leftDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen}/>
+          <LeftDrawer harmony={harmony}  leftDrawerOpen={leftDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen}/>
         </Fragment>
       }
       { authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&
@@ -118,8 +120,8 @@ const Layout = (props: Props): any => {
         </Fragment>
       }
       <footer>
-        {/* { authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.id != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
-            <DrawerControls setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/> } */}
+        { harmony === true && authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.id != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
+            <DrawerControls disableBottom={true} setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/> }
 
         { locationState.get('currentLocation')?.get('location')?.id && 
           authState.get('authUser') != null && authState.get('isLoggedIn') === true &&  user?.instanceId != null &&
