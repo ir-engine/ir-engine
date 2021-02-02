@@ -12,7 +12,7 @@ async function run() {
     const domain = process.env.DOMAIN || 'dev.theoverlay.io';
     const locationName = process.env.LOCATION_NAME || 'test';
     const fakeMediaPath = __dirname + "/resources";
-    const moveDuratioon = 2000;
+    const moveDuration = 2000;
     const botManager = new BotManager({headless: true, fakeMediaPath});
 
     console.log(fakeMediaPath);
@@ -25,18 +25,18 @@ async function run() {
     botManager.addAction("bot1", BotAction.sendAudio(10000));
     botManager.addAction("bot1", BotAction.receiveAudio(6000));
     botManager.addAction("bot1", BotAction.delay(6000));
-    botManager.addAction("bot1", BotAction.keyPress("KeyW", moveDuratioon));
-    botManager.addAction("bot1", BotAction.keyPress("KeyD", moveDuratioon));
-    botManager.addAction("bot1", BotAction.keyPress("KeyS", moveDuratioon));
-    botManager.addAction("bot1", BotAction.keyPress("KeyA", moveDuratioon));
+    botManager.addAction("bot1", BotAction.keyPress("KeyW", moveDuration));
+    botManager.addAction("bot1", BotAction.keyPress("KeyD", moveDuration));
+    botManager.addAction("bot1", BotAction.keyPress("KeyS", moveDuration));
+    botManager.addAction("bot1", BotAction.keyPress("KeyA", moveDuration));
     botManager.addAction("bot1", BotAction.sendMessage("Hello World! This is bot1."));
 
     // botManager.addAction("bot2", BotAction.connect());
     // botManager.addAction("bot2", BotAction.enterRoom(domaiin, locationName));
-    // botManager.addAction("bot2", BotAction.keyPress("KeyW", moveDuratioon));
-    // botManager.addAction("bot2", BotAction.keyPress("KeyD", moveDuratioon));
-    // botManager.addAction("bot2", BotAction.keyPress("KeyS", moveDuratioon));
-    // botManager.addAction("bot2", BotAction.keyPress("KeyA", moveDuratioon));
+    // botManager.addAction("bot2", BotAction.keyPress("KeyW", moveDuration));
+    // botManager.addAction("bot2", BotAction.keyPress("KeyD", moveDuration));
+    // botManager.addAction("bot2", BotAction.keyPress("KeyS", moveDuration));
+    // botManager.addAction("bot2", BotAction.keyPress("KeyA", moveDuration));
     // botManager.addAction("bot2", BotAction.sendMessage("Hello World! This is bot2."));
 
     // botManager.addAction("monitor", BotAction.opIf((stats) => console.log(stats)));
