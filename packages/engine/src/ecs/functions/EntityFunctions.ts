@@ -84,7 +84,7 @@ export function getComponentTypes(entity: Entity): Array<Component<any>> {
  * Add a component to an entity.
  * 
  * @param entity Entity.
- * @param Component Type of component which will be removed.
+ * @param Component Type of component which will be added.
  * @param values values to be passed to the component constructor.
  * @returns The component added to the entity.
  */
