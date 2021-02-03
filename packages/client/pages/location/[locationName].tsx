@@ -7,7 +7,6 @@ import NoSSR from 'react-no-ssr';
 
 const LocationPage = () => {
   const { locationName } = useRouter().query as any;
-
   return (
     <Layout pageTitle="Home">
       <NoSSR onSSR={<Loading />}>

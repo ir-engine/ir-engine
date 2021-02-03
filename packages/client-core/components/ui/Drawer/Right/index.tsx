@@ -134,7 +134,9 @@ const Invites = (props: Props): any => {
         getInvitableGroups,
         locationState,
         getLocations,
-        provisionInstanceServer
+        provisionInstanceServer,
+        rightDrawerOpen,
+        setRightDrawerOpen
     } = props;
     const user = authState.get('user') as User;
     const friendSubState = friendState.get('friends');
@@ -324,14 +326,14 @@ const Invites = (props: Props): any => {
                 })}
                 BackdropProps={{invisible: true}}
                 anchor="right"
-                open={props.rightDrawerOpen === true}
+                open={rightDrawerOpen === true}
                 onClose={() => {
-                    props.setRightDrawerOpen(false);
+                    setRightDrawerOpen(false);
                 }}
                 onOpen={() => {
                 }}
             >
-                <Accordion expanded={selectedAccordion === 'invite'} onChange={handleAccordionSelect('invite')}>
+                <Accordion className={styles.rightDrawerAccordion} expanded={selectedAccordion === 'invite'} onChange={handleAccordionSelect('invite')}>
                     <AccordionSummary
                         id="invites-header"
                         expandIcon={<ExpandMore/>}
@@ -593,7 +595,7 @@ const Invites = (props: Props): any => {
                         }
                     </AccordionDetails>
                 </Accordion>
-                <Accordion expanded={selectedAccordion === 'scenes'} onChange={handleAccordionSelect('scenes')}>
+                <Accordion className={styles.rightDrawerAccordion} expanded={selectedAccordion === 'scenes'} onChange={handleAccordionSelect('scenes')}>
                     <AccordionSummary
                         id="scenes-header"
                         expandIcon={<ExpandMore/>}

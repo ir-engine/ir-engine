@@ -30,28 +30,28 @@ export async function createDataProducer(channel = "default", type: UnreliableMe
     return Promise.resolve(networkTransport.dataProducer);
 }
 
-export async function initReceiveTransport(partyId?: string): Promise<MediaSoupTransport | Error> {
+export async function initReceiveTransport(relationshipType: string, relationshipId?: string): Promise<MediaSoupTransport | Error> {
     networkTransport = Network.instance.transport as any;
     let newTransport;
-    if (partyId === 'instance')
-        newTransport = networkTransport.instanceRecvTransport = await createTransport('recv', 'instance');
+    if (relationshipType === 'instance')
+        newTransport = networkTransport.instanceRecvTransport = await createTransport('recv', relationshipType);
     else
-        newTransport = networkTransport.partyRecvTransport = await createTransport('recv', partyId);
+        newTransport = networkTransport.relRecvTransport = await createTransport('recv', relationshipType, relationshipId);
     return Promise.resolve(newTransport);
 }
 
-export async function initSendTransport(partyId?: string): Promise<MediaSoupTransport | Error> {
+export async function initSendTransport(relationshipType: string, relationshipId?: string): Promise<MediaSoupTransport | Error> {
     networkTransport = Network.instance.transport as any;
     let newTransport;
-    if (partyId === 'instance')
-        newTransport = networkTransport.instanceSendTransport = await createTransport('send', 'instance');
+    if (relationshipType === 'instance')
+        newTransport = networkTransport.instanceSendTransport = await createTransport('send', relationshipType);
     else
-        newTransport = networkTransport.partySendTransport = await createTransport('send', partyId);
+        newTransport = networkTransport.relSendTransport = await createTransport('send', relationshipType, relationshipId);
 
     return Promise.resolve(newTransport);
 }
 
-export async function configureMediaTransports(partyId?: string): Promise<void> {
+export async function configureMediaTransports(relationshipType, relationshipId?: string): Promise<void> {
     networkTransport = Network.instance.transport as any;
 
     if (MediaStreamSystem.mediaStream == null)
@@ -60,24 +60,24 @@ export async function configureMediaTransports(partyId?: string): Promise<void> 
     if (MediaStreamSystem.mediaStream == null)
         console.warn("Media stream is null, camera must have failed");
 
-    if (partyId !== 'instance' && (networkTransport.partySendTransport == null || networkTransport.partySendTransport.closed === true || networkTransport.partySendTransport.connectionState === 'disconnected'))
-        await Promise.all([initSendTransport(partyId), initReceiveTransport(partyId)]);
+    if (relationshipType !== 'instance' && (networkTransport.relSendTransport == null || networkTransport.relSendTransport.closed === true || networkTransport.relSendTransport.connectionState === 'disconnected'))
+        await Promise.all([initSendTransport(relationshipType, relationshipId), initReceiveTransport(relationshipType, relationshipId)]);
 }
 
-export async function createCamVideoProducer(partyId?: string): Promise<void> {
+export async function createCamVideoProducer(relationshipType: string, relationshipId?: string): Promise<void> {
     if (MediaStreamSystem.mediaStream !== null && networkTransport.videoEnabled === true) {
-        const transport = partyId === 'instance' ? networkTransport.instanceSendTransport : networkTransport.partySendTransport;
+        const transport = relationshipType === 'instance' ? networkTransport.instanceSendTransport : networkTransport.relSendTransport;
         MediaStreamSystem.camVideoProducer = await transport.produce({
             track: MediaStreamSystem.mediaStream.getVideoTracks()[0],
             encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
-            appData: { mediaTag: "cam-video", partyId: partyId }
+            appData: { mediaTag: "cam-video", relationshipType: relationshipType, relationshipId: relationshipId }
         });
 
         if (MediaStreamSystem.videoPaused) await MediaStreamSystem.camVideoProducer.pause();
     }
 }
 
-export async function createCamAudioProducer(partyId?: string): Promise<void> {
+export async function createCamAudioProducer(relationshipType: string, relationshipId?: string): Promise<void> {
     if (MediaStreamSystem.mediaStream !== null) {
         //To control the producer audio volume, we need to clone the audio track and connect a Gain to it.
         //This Gain is saved on MediaStreamComponent so it can be accessed from the user's component and controlled.
@@ -92,12 +92,12 @@ export async function createCamAudioProducer(partyId?: string): Promise<void> {
         MediaStreamSystem.mediaStream.removeTrack(audioTrack);
         MediaStreamSystem.mediaStream.addTrack(dst.stream.getAudioTracks()[0]);
         // same thing for audio, but we can use our already-created
-        const transport = partyId === 'instance' ? networkTransport.instanceSendTransport : networkTransport.partySendTransport;
+        const transport = relationshipType === 'instance' ? networkTransport.instanceSendTransport : networkTransport.relSendTransport;
 
         // Create a new transport for audio and start producing
         MediaStreamSystem.camAudioProducer = await transport.produce({
             track: MediaStreamSystem.mediaStream.getAudioTracks()[0],
-            appData: { mediaTag: "cam-audio", partyId: partyId }
+            appData: { mediaTag: "cam-audio", relationshipType: relationshipType, relationshipId: relationshipId }
         });
 
         if (MediaStreamSystem.audioPaused) MediaStreamSystem.camAudioProducer.pause();
@@ -150,10 +150,10 @@ export async function endVideoChat(options: { leftParty?: boolean, endConsumers?
         }
 
         if (options?.leftParty === true) {
-            if (networkTransport.partyRecvTransport != null && networkTransport.partyRecvTransport.closed !== true)
-                await networkTransport.partyRecvTransport.close();
-            if (networkTransport.partySendTransport != null && networkTransport.partySendTransport.closed !== true)
-                await networkTransport.partySendTransport.close();
+            if (networkTransport.relRecvTransport != null && networkTransport.relRecvTransport.closed !== true)
+                await networkTransport.relRecvTransport.close();
+            if (networkTransport.relSendTransport != null && networkTransport.relSendTransport.closed !== true)
+                await networkTransport.relSendTransport.close();
         }
 
         resetProducer();
@@ -176,12 +176,18 @@ export function resetProducer(): void {
     }
 }
 
-export function setPartyId(partyId: string): void {
+export function setRelationship(relationshipType: string, relationshipId: string): void {
     networkTransport = Network.instance.transport as any;
-    networkTransport.partyId = partyId;
+    networkTransport.relationshipType = relationshipType;
+    networkTransport.relationshipId = relationshipId;
 }
 
-export async function subscribeToTrack(peerId: string, mediaTag: string, partyId: string) {
+export async function subscribeToTrack(peerId: string, mediaTag: string, relationshipType: string, relationshipId: string) {
+    console.log('subscribeToTrack');
+    console.log(peerId);
+    console.log(mediaTag);
+    console.log(relationshipType);
+    console.log(relationshipId);
     networkTransport = Network.instance.transport as any;
 
     // if we do already have a consumer, we shouldn't have called this method
@@ -190,15 +196,15 @@ export async function subscribeToTrack(peerId: string, mediaTag: string, partyId
 
     // ask the server to create a server-side consumer object and send us back the info we need to create a client-side consumer
     const consumerParameters = await networkTransport.request(MessageTypes.WebRTCReceiveTrack.toString(),
-        { mediaTag, mediaPeerId: peerId, rtpCapabilities: networkTransport.mediasoupDevice.rtpCapabilities, partyId: partyId }
+        { mediaTag, mediaPeerId: peerId, rtpCapabilities: networkTransport.mediasoupDevice.rtpCapabilities, relationshipType: relationshipType, relationshipId: relationshipId }
     );
 
     // Only continue if we have a valid id
     if (consumerParameters?.id == null) return;
 
-    consumer = partyId === 'instance' ?
-        await networkTransport.instanceRecvTransport.consume({ ...consumerParameters, appData: { peerId, mediaTag }, paused: true })
-        : await networkTransport.partyRecvTransport.consume({ ...consumerParameters, appData: { peerId, mediaTag, partyId }, paused: true });
+    consumer = relationshipType === 'instance' ?
+        await networkTransport.instanceRecvTransport.consume({ ...consumerParameters, appData: { peerId, mediaTag, relationshipType }, paused: true })
+        : await networkTransport.relRecvTransport.consume({ ...consumerParameters, appData: { peerId, mediaTag, relationshipType, relationshipId }, paused: true });
 
     if (MediaStreamSystem.consumers?.find(c => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag) == null) {
         MediaStreamSystem.consumers.push(consumer);
@@ -265,13 +271,13 @@ export async function closeConsumer(consumer: any) {
 // utility function to create a transport and hook up signaling logic
 // appropriate to the transport's direction
 
-export async function createTransport(direction: string, partyId?: string) {
+export async function createTransport(direction: string, relationshipType?: string, relationshipId?: string) {
     networkTransport = Network.instance.transport as any;
 
     // ask the server to create a server-side transport object and send
     // us back the info we need to create a client-side transport
     let transport;
-    const { transportOptions } = await networkTransport.request(MessageTypes.WebRTCTransportCreate.toString(), { direction, sctpCapabilities: networkTransport.mediasoupDevice.sctpCapabilities, partyId: partyId });
+    const { transportOptions } = await networkTransport.request(MessageTypes.WebRTCTransportCreate.toString(), { direction, sctpCapabilities: networkTransport.mediasoupDevice.sctpCapabilities, relationshipType: relationshipType, relationshipId: relationshipId });
 
     if (direction === "recv")
         transport = await networkTransport.mediasoupDevice.createRecvTransport(transportOptions);
@@ -333,10 +339,6 @@ export async function createTransport(direction: string, partyId?: string) {
 
         transport.on("producedata",
             async (parameters: any, callback: (arg0: { id: any; }) => void, errback: () => void) => {
-
-                console.log("********* PRODUCE DATA");
-                console.log(parameters);
-                
                 const { sctpStreamParameters, label, protocol, appData } = parameters;
                 const { error, id } = await networkTransport.request(MessageTypes.WebRTCProduceData, {
                     transportId: transport.id,
@@ -364,11 +366,12 @@ export async function createTransport(direction: string, partyId?: string) {
             await networkTransport.request(MessageTypes.WebRTCTransportClose.toString(), { transportId: transport.id });
         }
         if (networkTransport.leaving !== true && state === 'connected' && transport.direction === 'recv') {
-            await networkTransport.request(MessageTypes.WebRTCRequestCurrentProducers.toString(), { partyId: partyId });
+            await networkTransport.request(MessageTypes.WebRTCRequestCurrentProducers.toString(), { relationshipType: relationshipType, relationshipId: relationshipId });
         }
     });
 
-    transport.partyId = partyId;
+    transport.relationshipType = relationshipType;
+    transport.relationshipId = relationshipId;
     return Promise.resolve(transport);
 }
 
@@ -390,8 +393,8 @@ export async function leave(): Promise<boolean> {
         //All we need to do on the client is null all references.
         networkTransport.instanceRecvTransport = null;
         networkTransport.instanceSendTransport = null;
-        networkTransport.partyRecvTransport = null;
-        networkTransport.partySendTransport = null;
+        networkTransport.relRecvTransport = null;
+        networkTransport.relSendTransport = null;
         networkTransport.lastPollSyncData = {};
         if (MediaStreamSystem) {
             MediaStreamSystem.camVideoProducer = null;
