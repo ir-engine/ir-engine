@@ -1,7 +1,7 @@
+import { Object3D } from 'three';
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
-import { AssetId, AssetMap, AssetStorage, AssetUrl } from '../types/AssetTypes';
-import { Object3D } from 'three';
+import { AssetStorage, AssetUrl } from '../types/AssetTypes';
 
 /**
  * Component class for Asset vault.\
