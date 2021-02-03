@@ -7,12 +7,8 @@ import dynamic from "next/dynamic";
 import React, { lazy, Suspense, useEffect, useState } from "react";
 import NoSSR from "react-no-ssr";
 
-<<<<<<< HEAD
-const EditorContainer = dynamic(() => import("@xr3ngine/client-core/components/editor/EditorContainer"), { ssr: false });
-=======
 // importing component EditorContainer.
-const EditorContainer = dynamic(() => import("./../../../components/editor/EditorContainer"), { ssr: false });
->>>>>>> origin/jsdoc
+const EditorContainer = dynamic(() => import("@xr3ngine/client-core/components/editor/EditorContainer"), { ssr: false });
 
 import { connect } from 'react-redux';
 import {selectAuthState} from "@xr3ngine/client-core/redux/auth/selector";
