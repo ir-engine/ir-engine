@@ -87,7 +87,7 @@ export const handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
         dataProducerId: outgoingDataProducer.id,
         appData: { peerId: userId, transportId: newTransport.id },
     });
-    function toArrayBuffer(buf) {
+    function toArrayBuffer(buf): any {
         var ab = new ArrayBuffer(buf.length);
         var view = new Uint8Array(ab);
         for (var i = 0; i < buf.length; ++i) {

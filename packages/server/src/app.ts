@@ -55,18 +55,15 @@ if (config.server.enabled) {
             schemes:['https'],
             securityDefinitions: {
               bearer: {
-                type: "apiKey",
-                name: "authorization",
-                in: "header"
+                type: 'apiKey',
+                in: 'header',
+                name: 'authorization'
               }
             },
             security: [
-              {
-                Bearer: []
-              }
-            ]
-          },
-          
+              { bearer: [] }
+            ],
+          }
         })
     );
     

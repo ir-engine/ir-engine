@@ -118,7 +118,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
               );
               if (objectToCreate.ownerId === Network.instance.userId) {
                 NetworkIdMyPlayer = objectToCreate.networkId;
-              };
+              }
             }
             // for now, its for optimization
 
