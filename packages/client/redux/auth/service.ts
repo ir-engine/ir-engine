@@ -38,7 +38,7 @@ import axios from 'axios';
 import { resolveAuthUser } from '@xr3ngine/common/interfaces/AuthUser';
 import { resolveUser } from '@xr3ngine/common/interfaces/User';
 import store from "../store";
-import { endVideoChat, leave, setPartyId } from '../../classes/transports/WebRTCFunctions';
+import { endVideoChat, leave, setRelationship } from '../../classes/transports/WebRTCFunctions';
 import querystring from 'querystring';
 
 const { publicRuntimeConfig } = getConfig();
@@ -555,7 +555,7 @@ client.service('user').on('patched', async (params) => {
     }
     store.dispatch(userUpdated(user));
     if (user.partyId) {
-      setPartyId(user.partyId);
+      setRelationship('party', user.partyId);
     }
     if (user.instanceId !== selfUser.instanceId) {
       const parsed = new URL(window.location.href);

@@ -147,7 +147,7 @@ const LocationPage = (props: Props) => {
         sceneId = currentLocation.sceneId;
       }
       init(sceneId).then(() => {
-        connectToInstanceServer();
+        connectToInstanceServer(selfUser.partyId == null ? 'instance' : 'party', selfUser.partyId);
       });
     }
   }, [instanceConnectionState]);

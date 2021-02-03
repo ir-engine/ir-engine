@@ -35,7 +35,7 @@
   "scripts": {
     "start": "yarn run build && node dist/server.js",
     "dev": "cross-env NODE_ENV=development concurrently \"webpack --watch --mode=development\" \"nodemon --inspect dist/server.js\"",
-    "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true webpack --watch --mode=development",
+    "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true concurrently \"webpack --watch --mode=development\" \"nodemon --inspect dist/server.js\"",
     "build": "cross-env NODE_ENV=production webpack --mode=production",
     "copyfiles-server": "copyfiles -u 2 src/email-templates/**/* lib/email-templates",
     "test": "echo \"TODO: no test specified\" && exit 0",

@@ -39,7 +39,7 @@ export function provisionInstanceServer(locationId: string, instanceId?: string,
   };
 }
 
-export function connectToInstanceServer() {
+export function connectToInstanceServer(relationshipType: string, relationshipId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
       dispatch(instanceServerConnecting());
@@ -64,7 +64,8 @@ export function connectToInstanceServer() {
         token: token,
         sceneId: sceneId,
         startVideo: videoActive,
-        partyId: user.partyId,
+        relationshipType: relationshipType,
+        relationshipId: relationshipId,
         videoEnabled: currentLocation?.locationSettings?.videoEnabled === true || !(currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null)
       });
       Network.instance.isInitialized = true;
