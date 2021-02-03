@@ -24,6 +24,7 @@ StringInput.defaultProps = {
 
 StringInput.propTypes = {
   id: PropTypes.string,
+  value: PropTypes.string,
   className: PropTypes.string,
   type: PropTypes.string,
   required: PropTypes.bool,
