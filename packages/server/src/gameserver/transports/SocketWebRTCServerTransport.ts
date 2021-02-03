@@ -75,8 +75,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     }
 
     public sendData = (data: any): void =>{
-        console.log("Data is");
-        console.log(data);
       this.dataProducers?.forEach(producer => { 
           console.log("Sending to producer", producer.id);
           try{

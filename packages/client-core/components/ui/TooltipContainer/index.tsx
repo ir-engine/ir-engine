@@ -1,6 +1,5 @@
 import React from "react";
-
-import styles from './TooltipContainer.module.scss';
+import styles from './style.module.scss';
 import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
 import Snackbar from '@material-ui/core/Snackbar';
 import { connect } from "react-redux";

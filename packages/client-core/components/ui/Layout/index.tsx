@@ -123,7 +123,7 @@ const Layout = (props: Props): any => {
 
         { locationState.get('currentLocation')?.get('location')?.id && 
           authState.get('authUser') != null && authState.get('isLoggedIn') === true &&  user?.instanceId != null &&
-           !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen && onBoardingStep === generalStateList.ALL_DONE&&
+           !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen && 
             <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen}/> }
       </footer>
     </section>

@@ -21,15 +21,14 @@ const mapStateToProps = (state: any): any => {
 
 const LinearProgressComponent = (props: Props) => {
   const{ onBoardingStep, label, currentScene} = props;
-  // const openLinear = true;
-  let openLinear = null;
+  let showProgressBar = null;
   if(onBoardingStep === generalStateList.START_STATE){
-    openLinear = true;
+    showProgressBar = true;
   }else{
-    const hideLinearProgress = setTimeout(() => {openLinear = false; clearTimeout(hideLinearProgress);}, 1000);
+    const hideLinearProgress = setTimeout(() => {showProgressBar = false; clearTimeout(hideLinearProgress);}, 1000);
   }
   const count = parseInt(label) || null;
-  return openLinear === true ? <>
+  return showProgressBar === true ? <>
   <SpaceLoader />
     <section className={styles.overlay} style={{backgroundImage: `url(${currentScene?.thumbnailUrl})`}}>
       <section className={styles.linearProgressContainer}>

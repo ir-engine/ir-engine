@@ -9,8 +9,8 @@ import StringInput from "../inputs/StringInput";
 
 const InteractableOption = [
   {
-    label: "InfoBox",
-    value: "infoBox"
+    label: "Modal",
+    value: "modal"
   },
   {
     label: "Open link",
