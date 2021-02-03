@@ -282,10 +282,7 @@ export async function handleWebRtcTransportCreate(socket, data: CreateWebRtcTran
 }
 
 export async function handleWebRtcProduceData(socket, data, callback): Promise<any> {
-    networkTransport = Network.instance.transport as any;
-
-    console.log("**************** handleWebRtcProduceData")
-    
+    networkTransport = Network.instance.transport as any;    
     const userId = getUserIdFromSocketId(socket.id);
     if (!data.label) throw ({ error: 'data producer label i.e. channel name is not provided!' });
     const { transportId, sctpStreamParameters, label, protocol, appData } = data;

@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { withApi } from "../../components/editor/contexts/ApiContext";
-import { Button, MediumButton } from "../../components/editor/inputs/Button";
-import { connectMenu, ContextMenu, MenuItem } from "../../components/editor/layout/ContextMenu";
-import { ErrorMessage, ProjectGrid, ProjectGridContainer, ProjectGridContent, ProjectGridHeader, ProjectGridHeaderRow } from "../../components/editor/projects/ProjectGrid";
-import templates from "../../components/editor/projects/templates";
-import Api from "../../components/editor/Api";
+import { withApi } from "@xr3ngine/client-core/components/editor/contexts/ApiContext";
+import { Button, MediumButton } from "@xr3ngine/client-core/components/editor/inputs/Button";
+import { connectMenu, ContextMenu, MenuItem } from "@xr3ngine/client-core/components/editor/layout/ContextMenu";
+import { ErrorMessage, ProjectGrid, ProjectGridContainer, ProjectGridContent, ProjectGridHeader, ProjectGridHeaderRow } from "@xr3ngine/client-core/components/editor/projects/ProjectGrid";
+import templates from "@xr3ngine/client-core/components/editor/projects/templates";
+import Api from "@xr3ngine/client-core/components/editor/Api";
 import { Router, withRouter } from "next/router";
-import { ThemeContext } from "../../components/editor/theme";
+import { ThemeContext } from "@xr3ngine/client-core/components/editor/theme";
 import { connect } from 'react-redux';
-import {selectAuthState} from "../../redux/auth/selector";
+import {selectAuthState} from "@xr3ngine/client-core/redux/auth/selector";
 import {bindActionCreators, Dispatch} from "redux";
-import {doLoginAuto, logoutUser} from "../../redux/auth/service";
-import SignIn from "../../components/ui/Auth/Login";
+import {doLoginAuto, logoutUser} from "@xr3ngine/client-core/redux/auth/service";
+import SignIn from "@xr3ngine/client-core/components/ui/Auth/Login";
 export const ProjectsSection = (styled as any).section<{ flex?: number }>`
   padding-bottom: 100px;
   display: flex;

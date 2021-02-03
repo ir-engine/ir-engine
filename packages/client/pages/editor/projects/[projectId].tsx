@@ -2,12 +2,12 @@ import dynamic from "next/dynamic";
 import React, { lazy, Suspense, useEffect, useState } from "react";
 import NoSSR from "react-no-ssr";
 
-const EditorContainer = dynamic(() => import("./../../../components/editor/EditorContainer"), { ssr: false });
+const EditorContainer = dynamic(() => import("@xr3ngine/client-core/components/editor/EditorContainer"), { ssr: false });
 
 import { connect } from 'react-redux';
-import {selectAuthState} from "../../../redux/auth/selector";
+import {selectAuthState} from "@xr3ngine/client-core/redux/auth/selector";
 import {bindActionCreators, Dispatch} from "redux";
-import {doLoginAuto} from "../../../redux/auth/service";
+import {doLoginAuto} from "@xr3ngine/client-core/redux/auth/service";
 
 interface Props {
     authState?: any;
