@@ -331,7 +331,11 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'shadow': {
     behaviors: [
       {
-        behavior: createShadow
+        behavior: createShadow,
+        values: [
+          { from: 'cast', to: 'castShadow' },
+          { from: 'receive', to: 'receiveShadow' },
+        ]
       }
     ]
   },
