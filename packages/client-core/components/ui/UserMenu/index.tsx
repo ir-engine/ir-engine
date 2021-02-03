@@ -115,12 +115,6 @@ const UserMenu = (props: Props): any => {
   type Anchor = 'top' | 'left' | 'bottom' | 'right';
 
   const [waitingForLogout, setWaitingForLogout] = useState(false);
-  const [waitingToRejoinWorld, setWaitingForRejoinWorld] = useState(false);
-
-  const handleTutorialClick = (event: React.KeyboardEvent | React.MouseEvent) =>{
-    toggleDrawer(anchor, false)(event);
-    store.dispatch(setAppSpecificOnBoardingStep(generalStateList.TUTOR_LOOKAROUND, true));
-  };
 
   const handleAccountDeleteClick = () => setDrawerType('accountDelete');
   const handleAvatarChangeClick = () => setDrawerType('avatar');
@@ -224,7 +218,7 @@ const UserMenu = (props: Props): any => {
     }, []);
 
     useEffect(() => {
-      if (actorEntity) {
+      if (actorEntity && actorAvatarId) {
         setActorAvatar(actorEntity, {avatarId: actorAvatarId});
         loadActorAvatar(actorEntity);
         updateUserAvatarId(selfUser.id, actorAvatarId);
@@ -349,7 +343,6 @@ const renderWorldInfoHorizontalItems = () =>
     <section className={styles.horizontalContainer}>  
             {(!isMobileOrTablet() || !navigator.share) && <textarea readOnly className={styles.linkField} ref={refLink} value={invitationLink} />}
             <Typography variant="h2" align="center" onClick={() => isMobileOrTablet() && navigator.share ? handleMobileShareOnClick() : copyCodeToClipboard()}><LinkIcon color="primary" />Share</Typography>
-            <Typography variant="h2" align="center" onClick={(event)=>handleTutorialClick(event)}><VideoLibraryIcon color="primary" />Tutorial</Typography>    
     </section>
   </>;
 

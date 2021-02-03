@@ -1,12 +1,10 @@
 import React from 'react';
-// import LinearProgress from '@material-ui/core/LinearProgress';
-
-import styles from './LinearProgress.module.scss';
+import styles from './style.module.scss';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { connect } from 'react-redux';
 import { generalStateList } from '../../../redux/app/actions';
 import { selectScenesCurrentScene } from '../../../redux/scenes/selector';
-// import TesseractProjection from '../TesseractProjection';
+import SpaceLoader from './SpaceLoader';
 import LinearProgress from '@material-ui/core/LinearProgress';
 interface Props {
   label?: string;
@@ -32,6 +30,7 @@ const LinearProgressComponent = (props: Props) => {
   }
   const count = parseInt(label) || null;
   return openLinear === true ? <>
+  <SpaceLoader />
     <section className={styles.overlay} style={{backgroundImage: `url(${currentScene?.thumbnailUrl})`}}>
       <section className={styles.linearProgressContainer}>
           <p className={styles.loadingProgressTile}>

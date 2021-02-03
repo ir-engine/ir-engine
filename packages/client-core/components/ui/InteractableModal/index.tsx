@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from "react";
 import { CommonInteractiveDataPayload } from "@xr3ngine/engine/src/templates/interactive/interfaces/CommonInteractiveData";
 import dynamic from "next/dynamic";
-import styles from './InfoBox.module.scss';
+import styles from './style.module.scss';
 import { Button, Dialog, DialogContent, DialogTitle, IconButton, Typography } from "@material-ui/core";
 import CloseIcon from '@material-ui/icons/Close';
 

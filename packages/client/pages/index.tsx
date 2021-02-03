@@ -3,9 +3,9 @@ import NoSSR from 'react-no-ssr';
 import Loading from '@xr3ngine/client-core/components/scenes/loading';
 import Layout from '@xr3ngine/client-core/components/ui/Layout';
 
-export const IndexPage = (props: any): any => {
+export const IndexPage = (): any => {
     useEffect(() => {
-        window.location.href="https://lagunalabs.io";
+        window.location.href="/location/home";
     }, []);
 
     return (

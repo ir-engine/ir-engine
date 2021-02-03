@@ -60,11 +60,11 @@ const appReducer = (state = immutableState, action: AppLoadedAction | SetViewpor
         .set('userHasInteracted', true);
     case SET_APP_ONBOARDING_STEP:
       return (action.onBoardingStep === generalStateList.ALL_DONE) ?
-        state
-          .set('onBoardingStep', action.onBoardingStep >= state.get('onBoardingStep') ? action.onBoardingStep : state.get('onBoardingStep')) :
+        state.set('onBoardingStep', action.onBoardingStep >= state.get('onBoardingStep') ?
+        action.onBoardingStep : state.get('onBoardingStep')) :
         (action.onBoardingStep === generalStateList.SCENE_LOADED) ?
-          state
-            .set('onBoardingStep', action.onBoardingStep >= state.get('onBoardingStep') ? action.onBoardingStep : state.get('onBoardingStep'))
+          state.set('onBoardingStep', action.onBoardingStep >= state.get('onBoardingStep') ?
+          action.onBoardingStep : state.get('onBoardingStep'))
             .set('isTutorial', true)
           :
           state

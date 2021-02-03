@@ -42,7 +42,7 @@ const mapStateToProps = (state: any): any => {
 };
 
 const MediaIconsBox = observer((props) =>{
-    const { onBoardingStep, authState, locationState } = props;
+    const { authState, locationState } = props;
 
     const [faceTracking, setFaceTracking] = useState(MediaStreamSystem.faceTracking);
 
@@ -81,10 +81,6 @@ const MediaIconsBox = observer((props) =>{
         }
     };
     const handleMicClick = async () => {
-        if(onBoardingStep === generalStateList.TUTOR_UNMUTE){
-            store.dispatch(setAppOnBoardingStep(generalStateList.TUTOR_END));
-            return;
-        }
         const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId;
         await checkMediaStream(partyId);
 
@@ -111,7 +107,7 @@ const MediaIconsBox = observer((props) =>{
 
     const audioPaused = MediaStreamSystem.mediaStream === null || MediaStreamSystem.camAudioProducer == null || MediaStreamSystem.audioPaused === true;
     const videoPaused = MediaStreamSystem.mediaStream === null || MediaStreamSystem.camVideoProducer == null || MediaStreamSystem.videoPaused === true;
-    return props.onBoardingStep >= generalStateList.TUTOR_INTERACT ?
+    return (
         <section className={styles.drawerBoxContainer}>
             <section className={styles.drawerBox}>
                 { instanceMediaChatEnabled && (<div className={styles.iconContainer + ' ' + (audioPaused ? styles.off : styles.on)}>
@@ -128,7 +124,7 @@ const MediaIconsBox = observer((props) =>{
                 </div>)} */}
             </section>
         </section>
-        :null;
-});
+    );
+})
 
 export default connect(mapStateToProps)(MediaIconsBox);

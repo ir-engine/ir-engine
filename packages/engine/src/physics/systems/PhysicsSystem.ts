@@ -130,7 +130,8 @@ export class PhysicsSystem extends System {
     });
 
     this.queryResults.capsuleCollider.removed?.forEach(entity => {
-      PhysicsSystem.physicsWorld.removeBody(getComponent(entity, CapsuleCollider).body);
+      const col = getComponent(entity, CapsuleCollider)
+      if(col) PhysicsSystem.physicsWorld.removeBody(col.body);
     });
 
     // RigidBody

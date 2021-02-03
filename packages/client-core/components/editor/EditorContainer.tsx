@@ -844,7 +844,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
         <SettingsContextProvider value={settingsContext}>
           <EditorContextProvider value={editor}>
             <DialogContextProvider value={this.dialogContext}>
-              <OnboardingContextProvider value={onboardingContext}>
                 <DndProvider backend={HTML5Backend}>
                   <DragLayer />
                   {toolbarMenu && <ToolBar
@@ -880,7 +879,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
                     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
                   </Helmet>
                 </DndProvider>
-              </OnboardingContextProvider>
             </DialogContextProvider>
           </EditorContextProvider>
         </SettingsContextProvider>
