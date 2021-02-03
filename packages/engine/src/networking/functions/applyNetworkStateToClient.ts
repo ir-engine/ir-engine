@@ -124,7 +124,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
 
         }
     }
-
+    
     if (worldStateBuffer.transforms.length > 0) {
       const myPlayerTime = worldStateBuffer.transforms.find(v => v.networkId == NetworkIdMyPlayer);
       const newServerSnapshot = createSnapshot(worldStateBuffer.transforms)

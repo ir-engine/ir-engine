@@ -5,28 +5,34 @@ import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
 import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 
-export const addCarPhysics: Behavior = (entity: Entity, args: any ) => {
+export const addCarPhysics: Behavior = (entity: Entity, groupMeshes: any ) => {
 
   const offsetPositionY = 0.8;
 
   addComponent(entity, VehicleBody);
 
   const vehicleComponent = getMutableComponent(entity, VehicleBody) as VehicleBody;
-  const asset = args.asset;
+
   const deleteArr = [];
   const arrayWheels = [];
 
-   asset.scene.traverse( mesh => {
+   groupMeshes.traverse( mesh => {
      if (mesh.type == 'Mesh') {
        mesh.applyMatrix4( new Matrix4().makeTranslation( 0, 0, offsetPositionY) );
      }
 
      if (mesh.name == 'body') {
+       mesh.applyMatrix4( new Matrix4().makeTranslation( 2.5, 0, 0.55) );
        vehicleComponent.vehicleMesh = mesh;
      }
 
      if ( mesh.name == 'door_front_left' ||  mesh.name == 'door_front_right') { //mesh.name == 'steering_wheel'
+       mesh.applyMatrix4( new Matrix4().makeTranslation( 2.5, 0, 0.55) );
        vehicleComponent.vehicleDoorsArray.push(mesh);
+     }
+
+     if ( mesh.name == 'steering_wheel' ) { //mesh.name == 'steering_wheel'
+       mesh.applyMatrix4( new Matrix4().makeTranslation( 2.5, 0, 0.55) );
      }
 
 
