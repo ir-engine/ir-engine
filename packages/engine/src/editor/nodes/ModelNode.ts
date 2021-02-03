@@ -107,16 +107,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     const{ scene, json} = await loadPromise;
     this.gltfJson = json;
     const clonedScene = cloneObject3D(scene);
-    const sketchfabExtras = json.asset && json.asset.extras;
-    if (sketchfabExtras) {
-      const name = sketchfabExtras.title;
-      const author = sketchfabExtras.author
-        ? sketchfabExtras.author.replace(/ \(http.+\)/, "")
-        : "";
-      const url = sketchfabExtras.source || this._canonicalUrl;
-      clonedScene.name = name;
-      this.attribution = { name, author, url };
-    }
     return clonedScene;
   }
   // Overrides Model's load method and resolves the src url before loading.
@@ -214,14 +204,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         this.issues = getObjectPerfIssues(this.model);
       }
       this.updateStaticModes();
-      // if (files) {
-      //   // Revoke any object urls from the SketchfabZipLoader.
-      //   for (const key in files) {
-      //     if (Object.prototype.hasOwnProperty.call(files, key)) {
-      //       URL.revokeObjectURL(files[key].url);
-      //     }
-      //   }
-      // }
     } catch (error) {
       this.showErrorIcon();
       const modelError = new RethrownError(

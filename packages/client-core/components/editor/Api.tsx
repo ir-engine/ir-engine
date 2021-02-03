@@ -164,35 +164,6 @@ export default class Api extends EventEmitter {
 
   async resolveUrl(url, index?): Promise<any> {
       return { origin: url };
-
-    const cacheKey = `${url}|${index}`;
-    if (resolveUrlCache.has(cacheKey)) return resolveUrlCache.get(cacheKey);
-    const request = this.fetchUrl(`${SERVER_URL}/resolve-media`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ media: { url, index } })
-    })
-    // client.service("resolve-media").create({ media: { url, index } })
-    .then(async response => {
-    if (!response.ok) {
-        const message = `Error resolving url "${url}":\n  `;
-        try {
-          const body = await response.text();
-          throw new Error(message + body.replace(/\n/g, "\n  "));
-        } catch (e) {
-          throw new Error(message + response.statusText.replace(/\n/g, "\n  "));
-        }
-      }
-      console.log("Response: " + Object.values(response));
-
-      return response.json();
-    }).catch(e => {
-      console.warn(e);
-    });
-
-    resolveUrlCache.set(cacheKey, request);
-
-    return request;
   }
 
   async fetchContentType(accessibleUrl): Promise<any> {
@@ -242,19 +213,6 @@ export default class Api extends EventEmitter {
         throw new RethrownError(`Error resolving media "${absoluteUrl}"`, error);
       }
 
-      try {
-        if (contentType === "model/gltf+zip") {
-          // TODO: Sketchfab object urls should be revoked after they are loaded by the glTF loader.
-          const { getFilesFromSketchfabZip } = await import(
-            /* webpackChunkName: "SketchfabZipLoader", webpackPrefetch: true */ "@xr3ngine/engine/src/editor/classes/SketchfabZipLoader"
-          );
-          const files = await getFilesFromSketchfabZip(accessibleUrl);
-          return { canonicalUrl, accessibleUrl: files["scene.gtlf"].url, contentType, files };
-        }
-      } catch (error) {
-        throw new RethrownError(`Error loading Sketchfab model "${accessibleUrl}"`, error);
-      }
-
       return { canonicalUrl, accessibleUrl, contentType };
     })();
 
@@ -285,82 +243,6 @@ export default class Api extends EventEmitter {
     }
 
     return proxiedUrlFor(url);
-  }
-
-  async searchMedia(source, params, cursor, signal): Promise<any> {
-    const url = new URL(`${SERVER_URL}/media-search`);
-
-    const headers: any = {
-      "content-type": "application/json"
-    };
-
-    const searchParams = url.searchParams;
-
-    searchParams.set("source", source);
-
-    if (source === "assets") {
-      searchParams.set("user", this.getAccountId());
-      const token = this.getToken();
-      headers.authorization = `Bearer ${token}`;
-    }
-
-    if (params.type) {
-      searchParams.set("type", params.type);
-    }
-
-    if (params.query) {
-      //checking BLOCK_SEARCH_TERMSsearchParams.set("q", params.query);
-    }
-
-    if (params.filter) {
-      searchParams.set("filter", params.filter);
-    }
-
-    if (params.collection) {
-      searchParams.set("collection", params.collection);
-    }
-
-    if (cursor) {
-      searchParams.set("cursor", cursor);
-    }
-
-    console.log("Fetching...");
-    const resp = await this.fetchUrl(url, { headers, signal });
-    console.log("Response: " + Object.values(resp));
-
-    if (signal.aborted) {
-      const error = new Error("Media search aborted") as any;
-      error["aborted"] = true;
-      throw error;
-    }
-
-    const json = await resp.json();
-
-    if (signal.aborted) {
-      const error = new Error("Media search aborted") as any;
-      error["aborted"] = true;
-      throw error;
-    }
-
-    const thumbnailedEntries = json && json.entries && json.entries.length > 0 && json.entries.map(entry => {
-      if (entry.images && entry.images.preview && entry.images.preview.url) {
-        if (entry.images.preview.type === "mp4") {
-          entry.images.preview.url = proxiedUrlFor(entry.images.preview.url);
-        } else {
-          entry.images.preview.url = scaledThumbnailUrlFor(entry.images.preview.url, 200, 200);
-        }
-      }
-      return entry;
-    });
-
-    return {
-      results: thumbnailedEntries ? thumbnailedEntries : [],
-      suggestions: json.suggestions,
-      nextCursor: json.meta?.next_cursor
-    };
-  }
-  searchTermFilteringBlacklist(query: any): any {
-    throw new Error("Method not implemented.");
   }
 
   async createProject(scene, parentSceneId, thumbnailBlob, signal, showDialog, hideDialog): Promise<any> {

@@ -121,7 +121,6 @@ const MemoAssetGridItem = memo(AssetGridItem);
 
 export default function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMore, hasMore, tooltip, source }) {
   const editor = useContext(EditorContext);
-  const onboarding = useContext(OnboardingContext);
   const uniqueId = useRef(`AssetGrid${lastId}`);
 
   useEffect(() => {
@@ -186,7 +185,7 @@ export default function AssetGrid({ isLoading, selectedItems, items, onSelect, o
               <MemoAssetGridItem
                 key={item.id}
                 tooltipComponent={tooltip}
-                disableTooltip={onboarding.enabled}
+                disableTooltip={false}
                 contextMenuId={uniqueId.current}
                 item={item}
                 selected={selectedItems.indexOf(item) !== -1}
