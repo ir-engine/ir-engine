@@ -37,6 +37,7 @@ export const PanelContent = (styled as any).div`
 
 export default class Panel extends Component {
   static propTypes = {
+    id: PropTypes.string,
     icon: PropTypes.object,
     title: PropTypes.string,
     children: PropTypes.node,
@@ -45,8 +46,6 @@ export default class Panel extends Component {
 
   render() {
     const { icon, title, children, toolbarContent, ...rest } = this.props as any;
-
-    // .toolbar used for onboarding
 
     return (
       <PanelContainer {...rest}>

@@ -59,7 +59,6 @@ import AudioNode from "@xr3ngine/engine/src/editor/nodes/AudioNode";
 import FloorPlanNode from "@xr3ngine/engine/src/editor/nodes/FloorPlanNode";
 import GroupNode from "@xr3ngine/engine/src/editor/nodes/GroupNode";
 import ImageNode from "@xr3ngine/engine/src/editor/nodes/ImageNode";
-import LinkNode from "@xr3ngine/engine/src/editor/nodes/LinkNode";
 import ModelNode from "@xr3ngine/engine/src/editor/nodes/ModelNode";
 import SceneNode from "@xr3ngine/engine/src/editor/nodes/SceneNode";
 import VideoNode from "@xr3ngine/engine/src/editor/nodes/VideoNode";
@@ -82,16 +81,15 @@ import {
   Vector3
 } from "three";
 import Api from "./Api";
-import AssetManifestSource from "./assets/AssetManifestSource";
 import { loadEnvironmentMap } from "@xr3ngine/engine/src/editor/renderer/EnvironmentMap";
 
 // TODO: Remove these
-import negx from "./cubemap/cubemap/negx.jpg";
-import negy from "./cubemap/cubemap/negy.jpg";
-import negz from "./cubemap/cubemap/negz.jpg";
-import posx from "./cubemap/cubemap/posx.jpg";
-import posy from "./cubemap/cubemap/posy.jpg";
-import posz from "./cubemap/cubemap/posz.jpg";
+import negx from "./cubemap/negx.jpg";
+import negy from "./cubemap/negy.jpg";
+import negz from "./cubemap/negz.jpg";
+import posx from "./cubemap/posx.jpg";
+import posy from "./cubemap/posy.jpg";
+import posz from "./cubemap/posz.jpg";
 const cubeMapURLs = [posx, negx, posy, negy, posz, negz];
 
 const cubemap = []
@@ -218,14 +216,6 @@ export default class Editor extends EventEmitter {
     if (source.uploadSource && !this.defaultUploadSource) {
       this.defaultUploadSource = source;
     }
-  }
-
-  async installAssetSource(manifestUrl) {
-    const proxiedUrl = this.api.proxyUrl(new URL(manifestUrl, (window as any).location).href);
-    const res = await this.api.fetchUrl(proxiedUrl);
-    const json = await res.json();
-    this.sources.push(new AssetManifestSource(this, json.name, manifestUrl));
-    this.emit("settingsChanged");
   }
 
   getSource(sourceId) {
@@ -1927,12 +1917,6 @@ export default class Editor extends EventEmitter {
 
     const { hostname } = new URL(url);
 
-    try {
-      contentType = (await this.api.getContentType(url)) || "";
-    } catch (error) {
-      console.warn(`Couldn't fetch content type for url ${url}. Using LinkNode instead.`);
-    }
-
     let node;
 
     if (contentType.startsWith("model/gltf")) {
@@ -1962,12 +1946,6 @@ export default class Editor extends EventEmitter {
       this.getSpawnPosition(node.position);
       this.addObject(node, parent, before);
      }
-     else {
-      node = new LinkNode(this);
-      this.getSpawnPosition(node.position);
-      node.href = url;
-      this.addObject(node, parent, before);
-    }
 
     return node;
   }

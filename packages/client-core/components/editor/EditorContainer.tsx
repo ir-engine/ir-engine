@@ -27,7 +27,6 @@ import HierarchyPanelContainer from "./hierarchy/HierarchyPanelContainer";
 // import BrowserPrompt from "./router/BrowserPrompt";
 import Resizeable from "./layout/Resizeable";
 import { createEditor } from "./Nodes";
-import Onboarding from "./onboarding/Onboarding";
 import PropertiesPanelContainer from "./properties/PropertiesPanelContainer";
 import ToolBar from "./toolbar/ToolBar";
 import ViewportPanelContainer from "./viewport/ViewportPanelContainer";
@@ -881,14 +880,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
                     <title>{`${modified ? "*" : ""}${editor.scene.name} | ${(configs as any).longName()}`}</title>
                     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
                   </Helmet>
-                  {/* {modified && (
-                    <BrowserPrompt
-                      message={`${editor.scene.name} has unsaved changes, are you sure you wish to navigate away from the page?`}
-                    />
-                  )} */}
-                  {onboardingContext.enabled && (
-                    <Onboarding onFinish={this.onFinishTutorial} onSkip={this.onSkipTutorial} />
-                  )}
                 </DndProvider>
               </OnboardingContextProvider>
             </DialogContextProvider>

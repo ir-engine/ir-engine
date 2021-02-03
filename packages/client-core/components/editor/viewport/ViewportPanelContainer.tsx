@@ -269,10 +269,8 @@ export default function ViewportPanelContainer() {
     controlsText += "| [G] Grab | [ESC] Deselect All";
   }
 
-  // id used in onboarding
   return (
     <Panel
-    /* @ts-ignore */
       id="viewport-panel"
       title="Viewport"
       icon={WindowMaximize}
