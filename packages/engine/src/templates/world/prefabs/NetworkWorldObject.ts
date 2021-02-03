@@ -1,6 +1,6 @@
 import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
 import { BoxBufferGeometry, Color, Mesh, MeshPhongMaterial } from "three";
-import { isClient } from "../../../common/functions/isClient";
+import { isClient } from "@xr3ngine/engine/src/common/functions/isClient";
 import { NetworkPrefab } from '../../../networking/interfaces/NetworkPrefab';
 import { ColliderComponent } from '../../../physics/components/ColliderComponent';
 import { RigidBody } from '../../../physics/components/RigidBody';

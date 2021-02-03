@@ -1,6 +1,6 @@
 import { float32, Model, Schema, SchemaObject, string, uint32, uint8 } from "superbuffer";
 import { PacketWorldState, WorldStateInterface } from "../interfaces/WorldState";
-import { Network } from '../components/Network';
+import { Network } from '../classes/Network';
 
 const inputKeySchema = new Schema({
   input: uint8,

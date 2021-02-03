@@ -1,8 +1,8 @@
 import {VideoCall, CallEnd, PersonAdd} from '@material-ui/icons';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { MediaStreamComponent } from '@xr3ngine/engine/src/networking/components/MediaStreamComponent';
-import { Network } from '@xr3ngine/engine/src/networking/components/Network';
+import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
+import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { observer } from 'mobx-react';
 import { selectAuthState } from '../../../redux/auth/selector';
 import { selectLocationState } from '../../../redux/location/selector';
@@ -34,7 +34,7 @@ const VideoChat = observer((props: Props) => {
   const user = authState.get('user');
   const currentLocation = locationState.get('currentLocation').get('location');
   const gsProvision = async () => {
-    if (MediaStreamComponent.instance.mediaStream == null) {
+    if (MediaStreamSystem.mediaStream == null) {
       await configureMediaTransports(currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId);
       console.log("Send camera streams called from gsProvision");
     } else {
@@ -43,8 +43,8 @@ const VideoChat = observer((props: Props) => {
   };
   return (
     <Fab color="primary" aria-label="VideoChat" onClick={gsProvision}>
-      {MediaStreamComponent?.instance?.mediaStream == null && <VideoCall /> }
-      {MediaStreamComponent?.instance?.mediaStream != null && <CallEnd /> }
+      {MediaStreamSystem.mediaStream == null && <VideoCall /> }
+      {MediaStreamSystem.mediaStream != null && <CallEnd /> }
     </Fab>
   );
 });

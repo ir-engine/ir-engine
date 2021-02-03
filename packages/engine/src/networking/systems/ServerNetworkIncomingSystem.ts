@@ -1,38 +1,20 @@
-import { isServer } from '../../common/functions/isServer';
+import _ from 'lodash';
+import { LifecycleValue } from '../../common/enums/LifecycleValue';
+import { Behavior } from '../../common/interfaces/Behavior';
+import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
-import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { cleanupInput } from '../../input/behaviors/cleanupInput';
 import { Input } from '../../input/components/Input';
-import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
-import { State } from '../../state/components/State';
-import { TransformComponent } from '../../transform/components/TransformComponent';
-import { Client } from '../components/Client';
-import { Network } from '../components/Network';
-import { NetworkInterpolation } from '../components/NetworkInterpolation';
+import { InputType } from '../../input/enums/InputType';
+import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
+import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
-import { Server } from '../components/Server';
-import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClient';
 import { handleInputFromNonLocalClients } from '../functions/handleInputOnServer';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
-import { Entity } from '../../ecs/classes/Entity';
-import { Behavior } from '../../common/interfaces/Behavior';
-import { InputType } from '../../input/enums/InputType';
-import { LifecycleValue } from '../../common/enums/LifecycleValue';
-import _ from 'lodash';
 import { NetworkClientInputInterface, NetworkInputInterface } from "../interfaces/WorldState";
-import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { ClientInputModel } from '../schema/clientInputSchema';
-
-/** Checks whether client object of NetworkInputInterface or not. */
-const isClientNetworkInputInterface = (p: unknown): p is NetworkClientInputInterface => {
-  return p.hasOwnProperty('networkId')
-  && p.hasOwnProperty('snapShotTime')
-  && p.hasOwnProperty('buttons')
-  && p.hasOwnProperty('axes1d')
-  && p.hasOwnProperty('axes2d')
-  && p.hasOwnProperty('viewVector');
-};
 
 /**
  * Handle client updates.
@@ -167,10 +149,6 @@ export class ServerNetworkIncomingSystem extends System {
    */
   constructor(attributes: { schema: NetworkSchema, app:any }) {
     super(attributes);
-    // Create a Network entity (singleton)
-    const networkEntity = createEntity();
-    addComponent(networkEntity, Network);
-    addComponent(networkEntity, NetworkInterpolation);
 
     const { schema, app } = attributes;
     Network.instance.schema = schema;
@@ -181,9 +159,6 @@ export class ServerNetworkIncomingSystem extends System {
 
     this.isServer = Network.instance.transport.isServer;
 
-    // Add a component so we can filter server and client queries
-    addComponent(networkEntity, this.isServer ? Server : Client);
-
     // Initialize the server automatically - client is initialized in connectToServer
     if (process.env.SERVER_MODE !== undefined && (process.env.SERVER_MODE === 'realtime' || process.env.SERVER_MODE === 'local')) {
       Network.instance.transport.initialize();
@@ -192,7 +167,7 @@ export class ServerNetworkIncomingSystem extends System {
   }
 
   /** Call execution on server */
-  fixedExecuteOnServer = (delta: number): void => {
+  execute = (delta: number): void => {
     // Create a new worldstate frame for next tick
     Network.tick++;
     Network.instance.worldState = {
@@ -206,14 +181,6 @@ export class ServerNetworkIncomingSystem extends System {
       destroyObjects: Network.instance.destroyObjects
     };
 
-    if(Network.instance.createObjects.length >0){
-      // console.log("Network.instance.createObjects is ", Network.instance.createObjects);
-    }
-
-    if(Network.instance.destroyObjects.length >0){
-      // console.log("Network.instance.destroyObjects is ", Network.instance.destroyObjects);
-    }
-
     Network.instance.clientsConnected = [];
     Network.instance.clientsDisconnected = [];
     Network.instance.createObjects = [];
@@ -224,7 +191,7 @@ export class ServerNetworkIncomingSystem extends System {
       const buffer = Network.instance.incomingMessageQueue.pop() as any;
       handleUpdatesFromClients(buffer);
       // Apply input for local user input onto client
-      this.queryResults.inputOnServer.all?.forEach(entity => {
+      this.queryResults.networkObjectsWithInput.all?.forEach(entity => {
         // Call behaviors associated with input
         handleInputFromNonLocalClients(entity, {isLocal: false, isServer: true}, delta);
         addInputToWorldStateOnServer(entity);
@@ -233,7 +200,7 @@ export class ServerNetworkIncomingSystem extends System {
     }
 
     // Called when input component is added to entity
-    this.queryResults.inputOnServer.added?.forEach(entity => {
+    this.queryResults.networkObjectsWithInput.added?.forEach(entity => {
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
 
@@ -246,7 +213,7 @@ export class ServerNetworkIncomingSystem extends System {
     });
 
     // Called when input component is removed from entity
-    this.queryResults.inputOnServer.removed?.forEach(entity => {
+    this.queryResults.networkObjectsWithInput.removed?.forEach(entity => {
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
 
@@ -257,49 +224,14 @@ export class ServerNetworkIncomingSystem extends System {
     });
   }
 
-  /** Call execution on client */
-  fixedExecuteOnClient = (delta: number): void => {
-    if (Network.instance == null) return;
-    // Client logic
-    const queue = Network.instance.incomingMessageQueue;
-    // For each message, handle and process
-    while (queue.getBufferLength() > 0)
-      applyNetworkStateToClient(queue.pop(), delta);
-  }
-
-  /** Call logic based on whether system is on the server or on the client. */
-  execute = isServer ? this.fixedExecuteOnServer :
-    this.fixedExecuteOnClient;
-
   /** Queries of the system. */
   static queries: any = {
-    inputOnServer: {
-      components: [NetworkObject, Input, Server],
+    networkObjectsWithInput: {
+      components: [NetworkObject, Input],
       listen: {
         added: true,
         removed: true
       }
-    },
-    networkServer: {
-      components: [Network, Server]
-    },
-    networkClient: {
-      components: [Network, Client]
-    },
-    localClientNetworkInputReceivers: {
-      components: [NetworkObject, Input, LocalInputReceiver]
-    },
-    serverNetworkStates: {
-      components: [NetworkObject, State, Server]
-    },
-    serverNetworkTransforms: {
-      components: [NetworkObject, TransformComponent, Server]
-    },
-    serverNetworkObjects: {
-      components: [NetworkObject, Server]
-    },
-    serverNetworkInputs: {
-      components: [NetworkObject, Input, Server]
     }
   }
 }

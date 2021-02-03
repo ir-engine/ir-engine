@@ -3,7 +3,7 @@ import { ClientNetworkSystem } from "../../src/networking/systems/ClientNetworkS
 import { NetworkSchema } from "../../src/networking/interfaces/NetworkSchema";
 import { DefaultNetworkSchema, PrefabType } from "../../src/templates/networking/DefaultNetworkSchema";
 import { NetworkTransport } from "../../src/networking/interfaces/NetworkTransport";
-import { Network } from "../../src/networking/components/Network";
+import { Network } from "../../src/networking//classes/Network";
 import { WorldStateInterface } from "../../src/networking/interfaces/WorldState";
 import { execute } from "../../src/ecs/functions/EngineFunctions";
 import { SystemUpdateType } from "../../src/ecs/functions/SystemUpdateType";

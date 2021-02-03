@@ -16,7 +16,7 @@ import ToysIcon from '@material-ui/icons/Toys';
 import VideoLibraryIcon from '@material-ui/icons/VideoLibrary';
 import VpnKeyIcon from '@material-ui/icons/VpnKey';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
-import { Network } from '@xr3ngine/engine/src/networking/components/Network';
+import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { endVideoChat, leave } from "@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions";
 import { loadActorAvatar } from '@xr3ngine/engine/src/templates/character/behaviors/loadActorAvatar';
 import { setActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/setActorAvatar";

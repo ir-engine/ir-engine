@@ -7,7 +7,7 @@ import { hasComponent, getComponent, getMutableComponent } from '../../ecs/funct
 import { Object3DComponent } from '../../common/components/Object3DComponent';
 import { Entity } from '../../ecs/classes/Entity';
 import { isClient } from "../../common/functions/isClient";
-import { Network } from '../../networking/components/Network';
+import { Network } from '../../networking/classes/Network';
 import { NetworkObject } from '../../networking/components/NetworkObject';
 import { PhysicsSystem } from '../systems/PhysicsSystem';
 

@@ -5,7 +5,7 @@ import { VehicleInputSchema } from "@xr3ngine/engine/src/templates/car/VehicleIn
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { Color } from "three";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
-import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
+import { addComponentFromSchema } from "@xr3ngine/engine/src/common/behaviors/addComponentFromSchema";
 import { Entity } from "../../../ecs/classes/Entity";
 import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { Interactable } from "../../../interaction/components/Interactable";

@@ -1,6 +1,6 @@
 import { CharacterComponent } from '../components/CharacterComponent';
 import { getComponent } from '../../../ecs/functions/EntityFunctions';
-import { Behavior } from '../../../common/interfaces/Behavior';
+import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { Input } from '../../../input/components/Input';
 import { DefaultInput } from '../../shared/DefaultInput';
 

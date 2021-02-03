@@ -18,7 +18,7 @@ import {
 import { Invite } from '@xr3ngine/common/interfaces/Invite';
 import {dispatchAlertError} from '../alert/service';
 import store from "../store";
-import {User} from "../../../common/interfaces/User";
+import {User} from "@xr3ngine/engine/src/common/interfaces/User";
 
 const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
 const phoneRegex = /^[0-9]{10}$/;

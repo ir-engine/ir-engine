@@ -5,9 +5,10 @@ import { Mesh } from 'three';
 import { isClient } from '../../common/functions/isClient';
 import { Engine } from '../../ecs/classes/Engine';
 import { System } from '../../ecs/classes/System';
+import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
-import { Network } from '../../networking/components/Network';
-import { Vault } from '../../networking/components/Vault';
+import { Network } from '../../networking/classes/Network';
+import { Vault } from '../../networking/classes/Vault';
 import { calculateInterpolation, createSnapshot } from '../../networking/functions/NetworkInterpolationFunctions';
 import { physicsPostStep } from '../../templates/character/behaviors/physicsPostStep';
 import { physicsPreStep } from '../../templates/character/behaviors/physicsPreStep';
@@ -109,7 +110,7 @@ export class PhysicsSystem extends System {
     }
 
     if (isClient && Network.instance.snapshot) {
-      clientSnapshot.old = Vault.instance.get((Network.instance.snapshot as any).timeCorrection - 15, true)
+      clientSnapshot.old = Vault.instance?.get((Network.instance.snapshot as any).timeCorrection - 15, true)
     }
 
     // Collider
@@ -126,6 +127,10 @@ export class PhysicsSystem extends System {
 
     this.queryResults.capsuleCollider.all?.forEach(entity => {
       capsuleColliderBehavior(entity, { phase: 'onUpdate', clientSnapshot });
+    });
+
+    this.queryResults.capsuleCollider.removed?.forEach(entity => {
+      PhysicsSystem.physicsWorld.removeBody(getComponent(entity, CapsuleCollider).body);
     });
 
     // RigidBody

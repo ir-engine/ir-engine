@@ -27,8 +27,8 @@ import {
     VolumeMute,
     VolumeUp,
 } from '@material-ui/icons';
-import {MediaStreamComponent} from '@xr3ngine/engine/src/networking/components/MediaStreamComponent';
-import {Network} from "@xr3ngine/engine/src/networking/components/Network";
+import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
+import {Network} from "@xr3ngine/engine/src/networking/classes/Network";
 import {MessageTypes} from "@xr3ngine/engine/src/networking/enums/MessageTypes";
 import {selectAppState} from '../../../redux/app/selector';
 import {selectAuthState} from '../../../redux/auth/selector';
@@ -147,14 +147,14 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     useEffect(() => {
         autorun(() => {
             if (peerId === 'me_cam') {
-                setVideoStream(MediaStreamComponent.instance?.camVideoProducer);
-                setAudioStream(MediaStreamComponent.instance?.camAudioProducer);
+                setVideoStream(MediaStreamSystem?.camVideoProducer);
+                setAudioStream(MediaStreamSystem?.camAudioProducer);
             } else if (peerId === 'me_screen') {
-                setVideoStream(MediaStreamComponent.instance?.screenVideoProducer);
-                setAudioStream(MediaStreamComponent.instance?.screenAudioProducer);
+                setVideoStream(MediaStreamSystem?.screenVideoProducer);
+                setAudioStream(MediaStreamSystem?.screenAudioProducer);
             } else {
-                setVideoStream(MediaStreamComponent.instance?.consumers.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-video'));
-                setAudioStream(MediaStreamComponent.instance?.consumers.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'));
+                setVideoStream(MediaStreamSystem?.consumers.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-video'));
+                setAudioStream(MediaStreamSystem?.consumers.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'));
             }
         });
     }, []);
@@ -172,13 +172,13 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                 if (peerId !== 'me_cam') {
                     console.log("*** New mediastream created for audio track for peer id ", peerId);
                     // Create positional audio and attach mediastream here
-                    console.log("MediaStreamComponent.instance.consumers is ");
-                    console.log(MediaStreamComponent.instance.consumers);
+                    console.log("MediaStreamSystem.consumers is ");
+                    console.log(MediaStreamSystem.consumers);
                 }
                 if (peerId === 'me_cam') {
-                    MediaStreamComponent.instance.setAudioPaused(false);
+                    MediaStreamSystem.setAudioPaused(false);
                 } else if (peerId === 'me_screen') {
-                    MediaStreamComponent.instance.setScreenShareAudioPaused(false);
+                    MediaStreamSystem.setScreenShareAudioPaused(false);
                 } else if (audioStream.track.muted === true) {
                     // toggleAudio();
                 }
@@ -203,9 +203,9 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             if (videoStream) {
                 videoRef.current.srcObject = new MediaStream([videoStream.track.clone()]);
                 if (peerId === 'me_cam') {
-                    MediaStreamComponent.instance.setVideoPaused(false);
+                    MediaStreamSystem.setVideoPaused(false);
                 } else if (peerId === 'me_screen') {
-                    MediaStreamComponent.instance.setScreenShareVideoPaused(false);
+                    MediaStreamSystem.setScreenShareVideoPaused(false);
                 } else if (videoStream.track.muted === true) {
                     // toggleVideo();
                 }
@@ -215,24 +215,24 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     }, [videoStream]);
 
     useEffect(() => {
-        if (peerId === 'me_cam' || peerId === 'me_screen') setAudioStreamPaused(MediaStreamComponent.instance?.audioPaused);
-    }, [MediaStreamComponent.instance?.audioPaused]);
+        if (peerId === 'me_cam' || peerId === 'me_screen') setAudioStreamPaused(MediaStreamSystem?.audioPaused);
+    }, [MediaStreamSystem?.audioPaused]);
 
     useEffect(() => {
-        if (peerId === 'me_cam' || peerId === 'me_screen') setVideoStreamPaused(MediaStreamComponent.instance?.videoPaused);
-    }, [MediaStreamComponent.instance?.videoPaused]);
+        if (peerId === 'me_cam' || peerId === 'me_screen') setVideoStreamPaused(MediaStreamSystem?.videoPaused);
+    }, [MediaStreamSystem?.videoPaused]);
 
     const toggleVideo = async (e) => {
         e.stopPropagation();
         if (peerId === 'me_cam') {
-            const videoPaused = MediaStreamComponent.instance.toggleVideoPaused();
-            if (videoPaused === true) await pauseProducer(MediaStreamComponent.instance.camVideoProducer);
-            else await resumeProducer(MediaStreamComponent.instance.camVideoProducer);
+            const videoPaused = MediaStreamSystem.toggleVideoPaused();
+            if (videoPaused === true) await pauseProducer(MediaStreamSystem.camVideoProducer);
+            else await resumeProducer(MediaStreamSystem.camVideoProducer);
             setVideoStreamPaused(videoStream.paused);
         } else if (peerId === 'me_screen') {
-            const videoPaused = MediaStreamComponent.instance.toggleScreenShareVideoPaused();
-            if (videoPaused === true) await pauseProducer(MediaStreamComponent.instance.screenVideoProducer);
-            else await resumeProducer(MediaStreamComponent.instance.screenVideoProducer);
+            const videoPaused = MediaStreamSystem.toggleScreenShareVideoPaused();
+            if (videoPaused === true) await pauseProducer(MediaStreamSystem.screenVideoProducer);
+            else await resumeProducer(MediaStreamSystem.screenVideoProducer);
             setVideoStreamPaused(videoPaused);
         } else {
             if (videoStream.paused === false) {
@@ -248,14 +248,14 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     const toggleAudio = async (e) => {
         e.stopPropagation();
         if (peerId === 'me_cam') {
-            const audioPaused = MediaStreamComponent.instance.toggleAudioPaused();
-            if (audioPaused === true) await pauseProducer(MediaStreamComponent.instance.camAudioProducer);
-            else await resumeProducer(MediaStreamComponent.instance.camAudioProducer);
+            const audioPaused = MediaStreamSystem.toggleAudioPaused();
+            if (audioPaused === true) await pauseProducer(MediaStreamSystem.camAudioProducer);
+            else await resumeProducer(MediaStreamSystem.camAudioProducer);
             setAudioStreamPaused(audioPaused);
         } else if (peerId === 'me_screen') {
-            const audioPaused = MediaStreamComponent.instance.toggleScreenShareAudioPaused();
-            if (audioPaused === true) await pauseProducer(MediaStreamComponent.instance.screenAudioProducer);
-            else await resumeProducer(MediaStreamComponent.instance.screenAudioProducer);
+            const audioPaused = MediaStreamSystem.toggleScreenShareAudioPaused();
+            if (audioPaused === true) await pauseProducer(MediaStreamSystem.screenAudioProducer);
+            else await resumeProducer(MediaStreamSystem.screenAudioProducer);
             setAudioStreamPaused(audioPaused);
         } else {
             if (audioStream.paused === false) {
@@ -281,7 +281,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
 
     const adjustVolume = (e, newValue) => {
         if (peerId === 'me_cam' || peerId === 'me_screen') {
-            MediaStreamComponent.instance.audioGainNode.gain.setValueAtTime(newValue / 100, MediaStreamComponent.instance.audioGainNode.context.currentTime + 1);
+            MediaStreamSystem.audioGainNode.gain.setValueAtTime(newValue / 100, MediaStreamSystem.audioGainNode.context.currentTime + 1);
         } else {
             audioRef.current.volume = newValue / 100;
         }

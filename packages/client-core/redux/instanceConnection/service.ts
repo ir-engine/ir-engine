@@ -1,5 +1,5 @@
-import { MediaStreamComponent } from "@xr3ngine/engine/src/networking/components/MediaStreamComponent";
-import { Network } from "@xr3ngine/engine/src/networking/components/Network";
+import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
+import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import { Dispatch } from 'redux';
 import { endVideoChat, leave } from "@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions";
 import { client } from '../feathers';
@@ -52,7 +52,7 @@ export function connectToInstanceServer() {
       const locationState = getState().get('locations');
       const currentLocation = locationState.get('currentLocation').get('location');
       const sceneId = currentLocation.sceneId;
-      const videoActive = MediaStreamComponent.instance !== null && MediaStreamComponent.instance !== undefined && (MediaStreamComponent.instance.camVideoProducer != null || MediaStreamComponent.instance.camAudioProducer != null);
+      const videoActive = MediaStreamSystem !== null && MediaStreamSystem !== undefined && (MediaStreamSystem.camVideoProducer != null || MediaStreamSystem.camAudioProducer != null);
       // TODO: Disconnected 
       if (Network.instance !== undefined && Network.instance !== null) {
         await endVideoChat({ endConsumers: true });

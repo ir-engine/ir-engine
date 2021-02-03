@@ -14,8 +14,6 @@ import {
 } from './physicalPrimitives';
 
 export const handleCollider: Behavior = (entity: Entity, args: { phase?: string }): void => {
-
-
   if (args.phase === 'onRemoved') {
     const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent, true);
     if (colliderComponent) {
@@ -35,7 +33,6 @@ export const handleCollider: Behavior = (entity: Entity, args: { phase?: string 
       mesh.geometry.computeBoundingBox();
     }
   }
-
 
   let body;
   console.log("Adding collider of type", colliderComponent.type);
@@ -71,11 +68,4 @@ export const handleCollider: Behavior = (entity: Entity, args: { phase?: string 
   }
   PhysicsSystem.physicsWorld.addBody(body);
   colliderComponent.collider = body;
-/*
-    body.shapes.forEach((shape) => {
-			shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
-		});
-*/
-		//body.collisionFilterGroup = 1;
-
 };

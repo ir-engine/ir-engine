@@ -1,7 +1,7 @@
 import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
-import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
+import { addComponentFromSchema } from "@xr3ngine/engine/src/common/behaviors/addComponentFromSchema";
 import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { addWorldColliders } from "../behaviors/addWorldColliders";
 

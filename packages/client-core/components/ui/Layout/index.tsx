@@ -21,7 +21,7 @@ import { useRouter } from 'next/router';
 import { generalStateList, setUserHasInteracted } from '../../../redux/app/actions';
 import { bindActionCreators, Dispatch } from 'redux';
 import theme from '../../../theme';
-// import { Network } from '@xr3ngine/engine/src/networking/components/Network';
+// import { Network } from '@xr3ngine/engine/src/networking//classes/Network';
 
 const { publicRuntimeConfig } = getConfig();
 const siteTitle: string = publicRuntimeConfig.siteTitle;

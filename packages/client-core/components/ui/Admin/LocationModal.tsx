@@ -1,40 +1,30 @@
-import React, {useEffect, useState} from 'react';
-import { connect } from 'react-redux';
-import { selectAdminState } from "../../../redux/admin/selector";
-import styles from './Admin.module.scss';
-import { Location } from '@xr3ngine/common/interfaces/Location';
-import {
-    Settings,
-    AccountCircle,
-    Cake,
-    Mail,
-    SupervisedUserCircle,
-    Group,
-    QuestionAnswer
-} from '@material-ui/icons';
 import {
     Backdrop,
+    Button,
     Fade,
-    Modal,
-    TextField,
     FormControl,
-    Select,
-    MenuItem,
-    InputLabel,
-    FormGroup,
     FormControlLabel,
+    FormGroup,
+    InputLabel,
+    MenuItem,
+    Modal,
+    Select,
     Switch,
-    Button
+    TextField
 } from '@material-ui/core';
 import classNames from 'classnames';
-import {selectAppState} from "../../../redux/app/selector";
-import {selectAuthState} from "../../../redux/auth/selector";
-import {bindActionCreators, Dispatch} from "redux";
+import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from "redux";
+import { selectAdminState } from "../../../redux/admin/selector";
 import {
     createLocation,
     patchLocation,
     removeLocation
 } from "../../../redux/admin/service";
+import { selectAppState } from "../../../redux/app/selector";
+import { selectAuthState } from "../../../redux/auth/selector";
+import styles from './Admin.module.scss';
 
 
 interface Props {

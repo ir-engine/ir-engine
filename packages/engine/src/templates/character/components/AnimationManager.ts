@@ -4,7 +4,7 @@ import { Component } from '../../../ecs/classes/Component';
 import { AnimationClip } from 'three';
 
 import { GLTFLoader } from "../../../assets/loaders/gltf/GLTFLoader";
-import { isClient } from "../../../common/functions/isClient";
+import { isClient } from "@xr3ngine/engine/src/common/functions/isClient";
 import { Types } from '../../../ecs/types/Types';
 
 export class AnimationManager extends Component<AnimationManager> {

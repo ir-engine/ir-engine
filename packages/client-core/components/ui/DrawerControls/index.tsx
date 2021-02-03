@@ -1,23 +1,21 @@
-import styles from './DrawerControls.module.scss';
+import { AppBar } from '@material-ui/core';
+import Fab from '@material-ui/core/Fab';
 import {
   Forum,
   People,
   PersonAdd
 } from '@material-ui/icons';
-import { AppBar} from '@material-ui/core';
-import Fab from '@material-ui/core/Fab';
+import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
 import { selectAuthState } from '../../../redux/auth/selector';
 import { selectChatState } from '../../../redux/chat/selector';
-import { selectLocationState } from '../../../redux/location/selector';
-import { selectPartyState } from '../../../redux/party/selector';
-import { bindActionCreators, Dispatch } from 'redux';
 import {
   updateMessageScrollInit
 } from '../../../redux/chat/service';
-import { connect } from 'react-redux';
-import VideoChat from "../VideoChat";
-import NoSSR from "react-no-ssr";
-import { Network } from "@xr3ngine/engine/src/networking/components/Network";
+import { selectLocationState } from '../../../redux/location/selector';
+import { selectPartyState } from '../../../redux/party/selector';
+import styles from './DrawerControls.module.scss';
 
 const mapStateToProps = (state: any): any => {
   return {

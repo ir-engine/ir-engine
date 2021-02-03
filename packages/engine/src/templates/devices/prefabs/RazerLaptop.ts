@@ -2,7 +2,7 @@ import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { addMeshCollider } from "@xr3ngine/engine/src/physics/behaviors/addMeshCollider";
 import { Interactable } from "../../../interaction/components/Interactable";
-import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
+import { addComponentFromSchema } from "@xr3ngine/engine/src/common/behaviors/addComponentFromSchema";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { RigidBody } from "@xr3ngine/engine/src/physics/components/RigidBody";
 import { Entity } from "../../../ecs/classes/Entity";

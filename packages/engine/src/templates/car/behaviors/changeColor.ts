@@ -1,8 +1,8 @@
-import { Behavior } from "../../../common/interfaces/Behavior";
+import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { Entity } from "../../../ecs/classes/Entity";
 import { Color, Mesh } from "three";
 import { getComponent } from "../../../ecs/functions/EntityFunctions";
-import { Object3DComponent } from "../../../common/components/Object3DComponent";
+import { Object3DComponent } from "@xr3ngine/engine/src/common/components/Object3DComponent";
 
 export const changeColor: Behavior = (entity: Entity, args: { materialName: string; color?: Color }): void => {
   const vehicle = getComponent(entity, Object3DComponent).value;

@@ -1,7 +1,7 @@
 import { AnimationMixer, Group } from "three";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { AssetLoaderState } from "../../../assets/components/AssetLoaderState";
-import { Behavior } from "../../../common/interfaces/Behavior";
+import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import {
   addComponent,
   getComponent,
@@ -13,7 +13,7 @@ import { CharacterAvatars } from "../CharacterAvatars";
 import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
 import { CharacterComponent } from "../components/CharacterComponent";
 import { State } from "../../../state/components/State";
-import { LifecycleValue } from "../../../common/enums/LifecycleValue";
+import { LifecycleValue } from "@xr3ngine/engine/src/common/enums/LifecycleValue";
 import { NetworkObject } from "../../../networking/components/NetworkObject";
 import { getPseudoRandomAvatarIdByUserId } from "../functions/pseudoRandomAvatar";
 
