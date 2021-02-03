@@ -8,10 +8,10 @@ import {
 } from 'three';
 
 import { BlendFunction } from './blending/BlendFunction';
-import { Resizer } from '../core/Resizer';
-import { NoiseTexture } from '../../renderer/postprocessing/images/textures/NoiseTexture';
-import { SSAOMaterial } from '../materials/SSAOMaterial';
-import { ShaderPass } from '../passes/ShaderPass';
+import { Resizer } from './core/Resizer';
+import { NoiseTexture } from './images/textures/NoiseTexture';
+import { SSAOMaterial } from './materials/SSAOMaterial';
+import { ShaderPass } from './passes/ShaderPass';
 import { Effect, EffectAttribute } from './Effect';
 import fragmentShader from './glsl/ssao/shader.frag';
 
