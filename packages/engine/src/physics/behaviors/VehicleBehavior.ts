@@ -48,7 +48,6 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
 
       }
 
-      console.log("Setting vehicle transform position");
       transform.position.set(
         chassisBody.position.x,
         chassisBody.position.y,
@@ -138,9 +137,9 @@ export function createVehicleBody (entity: Entity ) {
   }
 
 
-  chassisBody.position.x = transform.position.x;
-  chassisBody.position.y = transform.position.y;
-  chassisBody.position.z = transform.position.z;
+//  chassisBody.position.x = transform.position.x;
+//  chassisBody.position.y = transform.position.y;
+//  chassisBody.position.z = transform.position.z;
   chassisBody.angularVelocity.set(0, 0, 0.5);
 
   const options = {
