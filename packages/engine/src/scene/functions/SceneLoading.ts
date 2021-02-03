@@ -75,7 +75,7 @@ export function loadComponent(entity: Entity, component: SceneDataComponent): vo
     // run behavior after load model
     if ((b as any).onLoaded) values['onLoaded'] = (b as any).onLoaded;
     // Invoke behavior with args and spread args
-    b.behavior(entity, { ...b.args, objArgs: { ...values } });
+    b.behavior(entity, { ...b.args, objArgs: { ...b.args?.objArgs, ...values } });
   });
 
   // for each component in component name, add component
