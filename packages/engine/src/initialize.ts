@@ -6,9 +6,9 @@ import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 import { CameraSystem } from './camera/systems/CameraSystem';
 import { isClient } from './common/functions/isClient';
 import { Timer } from './common/functions/Timer';
+import { DebugHelpersSystem } from './debug/systems/DebugHelpersSystem';
 import { Engine } from './ecs/classes/Engine';
 import { execute, initialize } from "./ecs/functions/EngineFunctions";
-//import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js'
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
 import { HighlightSystem } from './effects/systems/EffectSystem';
@@ -18,8 +18,9 @@ import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
 import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkIncomingSystem';
 import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem';
+import { ParticleSystem } from './particles/systems/ParticleSystem';
 import { PhysicsSystem } from './physics/systems/PhysicsSystem';
-import { WebGLRendererSystem } from './renderer/systems/WebGLRendererSystem';
+import { WebGLRendererSystem } from './renderer/WebGLRendererSystem';
 import { ServerSpawnSystem } from './scene/systems/SpawnSystem';
 import { StateSystem } from './state/systems/StateSystem';
 import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
@@ -47,7 +48,6 @@ export const DefaultInitializationOptions = {
 
 export function initializeEngine(initOptions: any = DefaultInitializationOptions): void {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
-  
   
   // Create a new world -- this holds all of our simulation state, entities, etc
   initialize();
@@ -85,8 +85,6 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
 
   registerSystem(StateSystem);
 
-  // registerSystem(SubscriptionSystem);
-
   registerSystem(ServerSpawnSystem, { priority: 899 });
 
   registerSystem(TransformSystem, { priority: 900 });
@@ -100,7 +98,6 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
     // Add the camera to the three.js scene
     scene.add(camera);
 
-    
     const listener = new AudioListener();
     camera.add( listener);
 
@@ -109,9 +106,9 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
     registerSystem(HighlightSystem);
     registerSystem(PositionalAudioSystem);
     registerSystem(InteractiveSystem);
-    // registerSystem(ParticleSystem);
+    registerSystem(ParticleSystem);
     if (process.env.NODE_ENV === 'development') {
-      // registerSystem(DebugHelpersSystem);
+      registerSystem(DebugHelpersSystem);
     }
     registerSystem(CameraSystem);
     registerSystem(WebGLRendererSystem, { priority: 1001 });

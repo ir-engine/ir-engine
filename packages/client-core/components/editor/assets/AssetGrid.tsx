@@ -1,18 +1,18 @@
-import React, { useCallback, useRef, useEffect, useContext, memo } from "react";
-import PropTypes from "prop-types";
-import InfiniteScroll from "react-infinite-scroller";
-import styled from "styled-components";
-import { VerticalScrollContainer } from "../layout/Flex";
-import { MediaGrid, ImageMediaGridItem, VideoMediaGridItem, IconMediaGridItem } from "../layout/MediaGrid";
 import { unique } from "@xr3ngine/engine/src/editor/functions/utils";
-import { ContextMenuTrigger, ContextMenu, MenuItem } from "../layout/ContextMenu";
+import PropTypes from "prop-types";
+import React, { memo, useCallback, useContext, useEffect, useRef } from "react";
 import { useDrag } from "react-dnd";
 import { getEmptyImage } from "react-dnd-html5-backend";
-import AssetTooltip from "./AssetTooltip";
+import InfiniteScroll from "react-infinite-scroller";
+import styled from "styled-components";
 import { EditorContext } from "../contexts/EditorContext";
 import { ItemTypes } from "../dnd";
-import AudioPreview from "./AudioPreview";
+import { ContextMenu, ContextMenuTrigger, MenuItem } from "../layout/ContextMenu";
+import { VerticalScrollContainer } from "../layout/Flex";
+import { IconMediaGridItem, ImageMediaGridItem, MediaGrid, VideoMediaGridItem } from "../layout/MediaGrid";
 import Tooltip, { TooltipContainer } from "../layout/Tooltip";
+import AssetTooltip from "./AssetTooltip";
+import AudioPreview from "./AudioPreview";
 
 const AssetGridTooltipContainer = (styled as any)(TooltipContainer)`
   max-width: initial;
