@@ -26,9 +26,9 @@ export class MediaStreamSystem extends System {
   /** Producer using screen to get Audio. */
   @observable public static screenAudioProducer = null
   /** List of all producers nodes.. */
-  @observable public static producers = new Array()
+  @observable public static producers = []
   /** List of all consumer nodes. */
-  @observable public static consumers = new Array()
+  @observable public static consumers = []
   /** Indication of whether the video while screen sharing is paused or not. */
   @observable public static screenShareVideoPaused = false
   /** Indication of whether the audio while screen sharing is paused or not. */

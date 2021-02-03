@@ -11,21 +11,8 @@ import { ThemeContext } from "@xr3ngine/client-core/components/editor/theme";
 import { connect } from 'react-redux';
 import {selectAuthState} from "@xr3ngine/client-core/redux/auth/selector";
 import {bindActionCreators, Dispatch} from "redux";
-<<<<<<< HEAD
 import {doLoginAuto, logoutUser} from "@xr3ngine/client-core/redux/auth/service";
 import SignIn from "@xr3ngine/client-core/components/ui/Auth/Login";
-export const ProjectsSection = (styled as any).section<{ flex?: number }>`
-  padding-bottom: 100px;
-  display: flex;
-  flex: ${props => (props.flex === undefined ? 1 : props.flex)};
-
-  &:first-child {
-    padding-top: 100px;
-  }
-=======
-import {doLoginAuto, logoutUser} from "../../redux/auth/service";
-import SignIn from "../../components/ui/Auth/Login";
->>>>>>> origin/jsdoc
 
 /**
  * Creating styled component using section.
