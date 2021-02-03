@@ -1,3 +1,7 @@
+/**
+ * templates array contains project items data.
+ * @type {Array}
+ */
 const templates = [
   {
     project_id: "surroundedlake",
