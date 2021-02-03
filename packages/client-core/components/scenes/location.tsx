@@ -38,7 +38,7 @@ import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '../../redu
 import { selectAuthState } from '../../redux/auth/selector';
 import store from '../../redux/store';
 import { selectUserState } from '../../redux/user/selector';
-import { InfoBox } from '../ui/InteractableModal';
+import { InteractableModal } from '../ui/InteractableModal';
 import LinearProgressComponent from '../ui/Loader';
 import MediaIconsBox from "../ui/MediaIconsBox";
 import NamePlate from '../ui/NamePlate';
@@ -47,7 +47,7 @@ import TooltipContainer from '../ui/TooltipContainer';
 
 const goHome = () => window.location.href = window.location.origin;
   
-const MobileGamepad = dynamic(() => import("../ui/MobileGampad").then((mod) => mod.MobileGamepad), { ssr: false });
+const MobileGamepad = dynamic(() => import("../ui/MobileGamepad").then((mod) => mod.MobileGamepad), { ssr: false });
 
 interface Props {
   setAppLoaded?: any,
@@ -105,7 +105,7 @@ export const EnginePage = (props: Props) => {
   const currentUser = authState.get('user');
   const [hoveredLabel, setHoveredLabel] = useState('');
   const [actorEntity, setActorEntity] = useState(null);
-  const [infoBoxData, setInfoBoxData] = useState(null);
+  const [infoBoxData, setModalData] = useState(null);
   const [userBanned, setUserBannedState] = useState(false);
 
   const [progressEntity, setProgressEntity] = useState('');
@@ -259,7 +259,7 @@ export const EnginePage = (props: Props) => {
   };
 
   const onObjectActivation = (event: CustomEvent): void => {
-    setInfoBoxData(event.detail.payload);
+    setModalData(event.detail.payload);
     setObjectActivated(true);
   };
 
@@ -328,7 +328,7 @@ export const EnginePage = (props: Props) => {
       <MediaIconsBox />
       { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
       {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}
-      <InfoBox onClose={() => { setInfoBoxData(null); setObjectActivated(false); }} data={infoBoxData} />
+      <InteractableModal onClose={() => { setModalData(null); setObjectActivated(false); }} data={infoBoxData} />
       {mobileGamepad}
     </>
   ) : (<div className="banned">You have been banned from this location</div>)

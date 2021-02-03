@@ -7,12 +7,12 @@ import CloseIcon from '@material-ui/icons/Close';
 
 const ModelView = dynamic(() => import("./modelView").then((mod) => mod.ModelView),  { ssr: false });
 
-export type InfoBoxProps = {
+export type InteractableModalProps = {
   onClose: unknown;
   data: CommonInteractiveDataPayload;
 };
 
-export const InfoBox: FunctionComponent<InfoBoxProps> = ({ onClose, data }: InfoBoxProps) => {
+export const InteractableModal: FunctionComponent<InteractableModalProps> = ({ onClose, data }: InteractableModalProps) => {
 
   if(!data){return null;}
 
