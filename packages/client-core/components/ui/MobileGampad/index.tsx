@@ -1,10 +1,9 @@
-import React, { FunctionComponent, useEffect, useRef } from 'react';
-import nipplejs from 'nipplejs';
+import { TouchApp } from '@styled-icons/material/TouchApp';
 import { Thumbsticks } from '@xr3ngine/engine/src/common/enums/Thumbsticks';
 import { GamepadButtons } from "@xr3ngine/engine/src/input/enums/GamepadButtons";
+import nipplejs from 'nipplejs';
+import React, { FunctionComponent, useEffect, useRef } from 'react';
 import styles from './MobileGamepad.module.scss';
-import { TouchApp } from '@styled-icons/material/TouchApp';
-import { generalStateList } from '../../../redux/app/actions';
 
 type MobileGamepadProps = {
   hovered?: boolean | false;
@@ -12,7 +11,7 @@ type MobileGamepadProps = {
   onBoardingStep?: number | null;
 };
 
-export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered,layout, onBoardingStep}: MobileGamepadProps) => {
+export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered }: MobileGamepadProps) => {
   const leftContainer = useRef<HTMLDivElement>();
 
   const triggerButton = (button: GamepadButtons, pressed: boolean): void => {
@@ -31,7 +30,7 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered,l
   const buttons = buttonsConfig.map(((value, index) => {
     return (<div
       key={index}
-      className={styles.controllButton + ' ' + styles[`gamepadButton_${value.label}`] + ' ' + (hovered || onBoardingStep === generalStateList.TUTOR_INTERACT ? styles.availableButton : styles.notAvailableButton)}
+      className={styles.controllButton + ' ' + styles[`gamepadButton_${value.label}`] + ' ' + (hovered ? styles.availableButton : styles.notAvailableButton)}
       onPointerDown={ (): void => triggerButton(value.button, true) }
       onPointerUp={ (): void => triggerButton(value.button, false) }
       onTouchStart={ (): void => triggerButton(value.button, true) }

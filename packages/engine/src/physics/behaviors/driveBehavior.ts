@@ -5,14 +5,12 @@ import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFun
 import { Input } from "../../input/components/Input";
 import { InputType } from "../../input/enums/InputType";
 import { InputAlias } from "../../input/types/InputAlias";
-//import { VehicleComponent } from '../components/VehicleComponent';
 import { VehicleBody } from '../components/VehicleBody';
 
 export const drive: Behavior = (entity: Entity, args: { direction: number }): void => {
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
   const object = getComponent<Object3DComponent>(entity, Object3DComponent).value;
   const vehicle = vehicleComponent.vehiclePhysics;
-  //const vehicle = vehicleComponent.vehicle;
 
   vehicle.setBrake(0, 0);
   vehicle.setBrake(0, 1);

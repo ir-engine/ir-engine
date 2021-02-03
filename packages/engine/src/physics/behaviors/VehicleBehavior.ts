@@ -1,18 +1,13 @@
-import { Quaternion, Box, Cylinder, Sphere, Vec3, RaycastVehicle, Body } from 'cannon-es';
-import { Entity } from '../../ecs/classes/Entity';
-import { Behavior } from '../../common/interfaces/Behavior';
-import { getMutableComponent, getComponent } from '../../ecs/functions/EntityFunctions';
-import { Object3DComponent } from '../../common/components/Object3DComponent';
-import { TransformComponent } from '../../transform/components/TransformComponent';
-import { AssetLoader } from "@xr3ngine/engine/src/assets/components/AssetLoader";
-import { PhysicsSystem } from '../systems/PhysicsSystem';
-import { VehicleBody } from '../../physics/components/VehicleBody';
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { createTrimesh } from './physicalPrimitives';
-import { CollisionGroups } from "../enums/CollisionGroups";
 import { cannonFromThreeVector } from "@xr3ngine/engine/src/common/functions/cannonFromThreeVector";
-
-const quaternion = new Quaternion();
+import { Body, Cylinder, Quaternion, RaycastVehicle, Sphere, Vec3 } from 'cannon-es';
+import { Behavior } from '../../common/interfaces/Behavior';
+import { Entity } from '../../ecs/classes/Entity';
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { VehicleBody } from '../../physics/components/VehicleBody';
+import { TransformComponent } from '../../transform/components/TransformComponent';
+import { CollisionGroups } from "../enums/CollisionGroups";
+import { PhysicsSystem } from '../systems/PhysicsSystem';
+import { createTrimesh } from './physicalPrimitives';
 
 export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
   if (args.phase == 'onAdded') {

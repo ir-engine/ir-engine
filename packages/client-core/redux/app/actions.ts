@@ -8,8 +8,7 @@ import {
   SET_USER_HAS_INTERACTED
 } from '../actions';
 
-export enum generalStateList {START_STATE, SCENE_LOADING, SCENE_LOADED, FAILED, DEVICE_SETUP, AVATAR_SELECTION, AVATAR_SELECTED, 
-  SELECT_TUTOR, TUTOR_LOOKAROUND, TUTOR_MOVE, TUTOR_INTERACT, TUTOR_UNMUTE, TUTOR_VIDEO, TUTOR_END, ALL_DONE}
+export enum generalStateList { START_STATE, SCENE_LOADING, SCENE_LOADED, FAILED, DEVICE_SETUP, AVATAR_SELECTION, AVATAR_SELECTED, ALL_DONE }
 
 type Action = {
   type: string;
@@ -32,7 +31,7 @@ export interface AppLoadPercentAction extends Action {
 
 export interface AppOnBoardingStepAction extends Action {
   onBoardingStep: number;
-  isTutorial ?: boolean;
+  isTutorial?: boolean;
 }
 
 // used for displaying loading screen
@@ -43,7 +42,7 @@ export const setAppLoadPercent = (loadPercent: number): AppLoadPercentAction => 
 //onboarding progress
 export const setAppOnBoardingStep = (onBoardingStep: number): AppOnBoardingStepAction => ({ type: SET_APP_ONBOARDING_STEP, onBoardingStep });
 //restart tutorial walkthrought
-export const setAppSpecificOnBoardingStep =(onBoardingStep: number, isTutorial:boolean): AppOnBoardingStepAction => ({ type: SET_APP_SPECIFIC_ONBOARDING_STEP, onBoardingStep, isTutorial});
+export const setAppSpecificOnBoardingStep = (onBoardingStep: number, isTutorial: boolean): AppOnBoardingStepAction => ({ type: SET_APP_SPECIFIC_ONBOARDING_STEP, onBoardingStep, isTutorial });
 // used for getting window.innerWidth and height.
 export const setViewportSize = (width: number, height: number) => ({
   type: SET_VIEWPORT_SIZE,
