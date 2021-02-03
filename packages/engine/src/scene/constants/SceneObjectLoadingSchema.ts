@@ -9,7 +9,6 @@ import { createBackground } from '../behaviors/createBackground';
 import { createBoxCollider } from '../behaviors/createBoxCollider';
 import { createGroup } from '../behaviors/createGroup';
 import { createImage } from '../behaviors/createImage';
-import { createLink } from '../behaviors/createLink';
 import { createScenePreviewCamera } from "../behaviors/createScenePreviewCamera";
 import { createShadow } from '../behaviors/createShadow';
 import createSkybox from '../behaviors/createSkybox';
@@ -357,13 +356,6 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
     behaviors: [
       {
         behavior: createTriggerVolume
-      }
-    ]
-  },
-  'link': {
-    behaviors: [
-      {
-        behavior: createLink
       }
     ]
   }
