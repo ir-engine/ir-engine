@@ -53,7 +53,6 @@ const VideoModal = (props: Props): any => {
     thumbnailUrl: props.video?.metadata?.thumbnailUrl ? props.video.metadata.thumbnailUrl : '',
     runtime: props.video?.metadata?.runtime ? props.video.metadata.runtime : '',
     stereoscopic: props.video?.metadata?.stereoscopic ? props.video.metadata.stereoscopic : false,
-    subscriptionLevel: props.video?.subscriptionLevel ? props.video.subscriptionLevel : 'all'
   };
 
   const [state, setState] = useState(initialState);
@@ -71,7 +70,6 @@ const VideoModal = (props: Props): any => {
       thumbnailUrl: props.video?.metadata?.thumbnailUrl ? props.video.metadata.thumbnailUrl : '',
       runtime: props.video?.metadata?.runtime ? props.video.metadata.runtime : '',
       stereoscopic: props.video?.metadata?.stereoscopic ? props.video.metadata.stereoscopic : false,
-      subscriptionLevel: props.video?.subscriptionLevel ? props.video.subscriptionLevel : 'all'
     };
     if (newState !== state) {
       setState(newState);
@@ -101,8 +99,7 @@ const VideoModal = (props: Props): any => {
         categories: [],
         runtime: state.runtime,
         stereoscopic: state.stereoscopic
-      },
-      subscriptionLevel: state.subscriptionLevel
+      }
     };
 
     if (state.category1.length > 0) {
@@ -287,21 +284,6 @@ const VideoModal = (props: Props): any => {
                     color="primary"/>}
                   label="Stereoscopic"
                 />
-              </Grid>
-              <Grid item xs={12}>
-                <InputLabel id="subscriptionLevel">
-                  Subscription Level
-                </InputLabel>
-                <Select
-                  labelId="subscriptionLevel"
-                  id="subscriptionLevel"
-                  name="subscriptionLevel"
-                  defaultValue={state.subscriptionLevel}
-                  onChange={(e) => handleInput(e)}
-                >
-                  <MenuItem value={'all'}>All</MenuItem>
-                  <MenuItem value={'paid'}>Paid</MenuItem>
-                </Select>
               </Grid>
               <Grid item xs={12}>
                 <Button

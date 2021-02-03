@@ -14,7 +14,6 @@ export interface VideoCreationForm {
   url: string;
   creator: string;
   metadata: object;
-  subscriptionLevel: string;
 }
 
 export interface VideoUpdateForm {
@@ -24,7 +23,6 @@ export interface VideoUpdateForm {
   url: string;
   creator: string;
   metadata: object;
-  subscriptionLevel: string;
 }
 
 export interface VideoCreatedResponse {
@@ -33,7 +31,6 @@ export interface VideoCreatedResponse {
   url: string;
   description: string;
   metadata: object;
-  subscriptionLevel: string;
   userId: string;
   mimeType: string;
   attributionId: string;
@@ -46,7 +43,6 @@ export interface VideoUpdatedResponse {
   url: string;
   description: string;
   metadata: object;
-  subscriptionLevel: string;
   userId: string;
   mimeType: string;
   attributionId: string;
@@ -59,7 +55,6 @@ export interface VideoDeletedResponse {
   url: string;
   description: string;
   metadata: object;
-  subscriptionLevel: string;
   userId: string;
   mimeType: string;
   attributionId: string;

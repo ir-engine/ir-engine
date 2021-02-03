@@ -25,7 +25,6 @@ export interface PublicVideo {
   name: string;
   description: string;
   url: string;
-  subscriptionLevel: string;
   metadata: Partial<VideoMetaData>;
   attribution?: Partial<Attribution>;
 }

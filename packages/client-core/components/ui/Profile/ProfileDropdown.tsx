@@ -53,11 +53,6 @@ const MenuListComposition = (props: Props): any => {
     }
   };
 
-  const handleSubscription = (): any => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    Router.push('/subscribe/signup');
-  };
-
   // const handleContacts = () => {
   //   Router.push('/friends/friends')
   // }
@@ -115,7 +110,6 @@ const MenuListComposition = (props: Props): any => {
                     onKeyDown={handleListKeyDown}
                   >
                     <MenuItem onClick={handleModal}>Profile</MenuItem>
-                    { auth.get('user').subscription == null && <MenuItem onClick={handleSubscription}>Subscribe</MenuItem>}
                     {/* <MenuItem onClick={handleContacts}>Contacts</MenuItem> */}
                     {auth.get('user').userRole === 'admin' && <MenuItem onClick={handleAdminConsole}>Admin Console</MenuItem> }
                     <MenuItem onClick={handleLogout}>Logout</MenuItem>

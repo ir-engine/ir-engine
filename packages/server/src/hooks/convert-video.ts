@@ -147,7 +147,6 @@
 //     let thumbnailUploadResult: any;
 //     const localContext = _.cloneDeep(context);
 //
-//     localContext.data.subscriptionLevel = localContext.data.subscriptionLevel ? localContext.data.subscriptionLevel : 'all';
 //     localContext.params.storageProvider = new StorageProvider();
 //     localContext.params.uploadPath = path.join('public', localContext.params.videoSource, fileId, 'video');
 //
