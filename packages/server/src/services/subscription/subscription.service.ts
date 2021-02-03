@@ -18,7 +18,7 @@ export default (app: Application): any => {
   };
 
   const event = new Subscription(options, app);
-  event.docs = subscription
+  event.docs = subscription;
 
   app.use('/subscription', event);
 

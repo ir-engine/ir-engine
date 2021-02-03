@@ -40,6 +40,10 @@ const isClientNetworkInputInterface = (p: unknown): p is NetworkClientInputInter
  */
 function handleUpdatesFromClients(buffer:any): void {
   const clientInput: NetworkClientInputInterface = ClientInputModel.fromBuffer(buffer);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2455f9693... fix eslint
 
   if (Network.instance.networkObjects[clientInput.networkId] === undefined) {
     console.error('Network object not found for networkId', clientInput.networkId);
