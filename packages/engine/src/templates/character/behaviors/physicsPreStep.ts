@@ -3,7 +3,7 @@ import { Object3DComponent } from "../../../common/components/Object3DComponent"
 import { cannonFromThreeVector } from "../../../common/functions/cannonFromThreeVector";
 import { Behavior } from "../../../common/interfaces/Behavior";
 import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
-import { PhysicsManager } from "../../../physics/components/PhysicsManager";
+import { PhysicsSystem } from "../../../physics/systems/PhysicsSystem";
 import { CollisionGroups } from "../../../physics/enums/CollisionGroups";
 import { TransformComponent } from "../../../transform/components/TransformComponent";
 import { CharacterComponent } from "../components/CharacterComponent";
@@ -30,7 +30,7 @@ export const physicsPreStep: Behavior = (entity): void => {
 		skipBackfaces: true /* ignore back faces */
 	};
 	// Cast the ray
-	actor.rayHasHit = PhysicsManager.instance.physicsWorld.raycastClosest(start, end, rayCastOptions, actor.rayResult);
+	actor.rayHasHit = PhysicsSystem.physicsWorld.raycastClosest(start, end, rayCastOptions, actor.rayResult);
 	
 	// Raycast debug
 	// if (actor.rayHasHit) {

@@ -2,8 +2,7 @@ import { Vec3, Material, Body, Sphere } from "cannon-es";
 import { Component } from "../../ecs/classes/Component";
 import { setDefaults } from "../../templates/character/functions/setDefaults";
 import { Types } from "../../ecs/types/Types";
-import { Vector3 } from "three";
-import { PhysicsManager } from './PhysicsManager';
+import { PhysicsSystem } from '../systems/PhysicsSystem';
 
 export class CapsuleCollider extends Component<CapsuleCollider>
 {
@@ -67,7 +66,7 @@ export class CapsuleCollider extends Component<CapsuleCollider>
 
 	dispose(): void {
     super.dispose();
-    PhysicsManager.instance.physicsWorld.removeBody(this.body);
+    PhysicsSystem.physicsWorld.removeBody(this.body);
   }
 }
 

@@ -2,7 +2,7 @@ import { Engine } from '../../ecs/classes/Engine';
 import { SceneTagComponent } from '../../common/components/Object3DTagComponents';
 import { addComponent, createEntity, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { SceneObjectLoadingSchema } from '../constants/SceneObjectLoadingSchema';
-import { PhysicsManager } from '../../physics/components/PhysicsManager';
+import { PhysicsSystem } from '../../physics/systems/PhysicsSystem';
 import { AssetLoader } from '../../assets/components/AssetLoader';
 import { isClient } from "../../common/functions/isClient";
 import { Entity } from "../../ecs/classes/Entity";
@@ -42,7 +42,7 @@ export function loadScene(scene: SceneData): void {
       }
     });
   });
-  //PhysicsManager.instance.simulate = true;
+  //PhysicsSystem.simulate = true;
 
   isClient && Promise.all(loadPromises).then(() => {
     const event = new CustomEvent('scene-loaded', { detail: { loaded: true } });

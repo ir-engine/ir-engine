@@ -16,7 +16,7 @@ import {getComponent, getMutableComponent} from "../../../src/ecs/functions/Enti
 import { State } from "../../../src/state/components/State";
 import { CharacterStateTypes } from "../../../src/templates/character/CharacterStateTypes";
 import { StateSystem } from "../../../src/state/systems/StateSystem";
-import { PhysicsManager } from "../../../src/physics/components/PhysicsManager";
+import { PhysicsSystem } from "../../../src/physics/systems/PhysicsSystem";
 import { RaycastResult } from "collision/RaycastResult";
 import { Body } from "cannon-es";
 import { CharacterComponent } from "../../../src/templates/character/components/CharacterComponent";
@@ -105,7 +105,7 @@ beforeAll(() => {
   registerSystem(PhysicsSystem); // 2 - handle hit
   registerSystem(StateSystem); // 3 - process floor hit
 
-  PhysicsManager.instance.physicsWorld.raycastClosest = jest.fn((start, end, rayCastOptions, rayResult:RaycastResult) => {
+  PhysicsSystem.physicsWorld.raycastClosest = jest.fn((start, end, rayCastOptions, rayResult:RaycastResult) => {
     if (!actorHasFloor) {
       return false;
     }
@@ -117,8 +117,8 @@ beforeAll(() => {
     return true;
   });
 
-//PhysicsManager.instance.simulate = false;
-//PhysicsManager.instance.physicsWorld.gravity.set(0,0,0);
+//PhysicsSystem.simulate = false;
+//PhysicsSystem.physicsWorld.gravity.set(0,0,0);
 });
 
 let player: Entity, actor:CharacterComponent, state:State;

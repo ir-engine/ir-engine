@@ -5,7 +5,7 @@ import { getMutableComponent, getComponent } from '../../ecs/functions/EntityFun
 import { Object3DComponent } from '../../common/components/Object3DComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { AssetLoader } from "@xr3ngine/engine/src/assets/components/AssetLoader";
-import { PhysicsManager } from '../components/PhysicsManager';
+import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { VehicleBody } from '../../physics/components/VehicleBody';
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { createTrimesh } from './physicalPrimitives';
@@ -101,7 +101,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
     }
     const body = object.userData.vehicle;
     delete object.userData.vehicle;
-    PhysicsManager.instance.physicsWorld.removeBody(body);
+    PhysicsSystem.physicsWorld.removeBody(body);
     */
   }
 };
@@ -199,11 +199,11 @@ export function createVehicleBody (entity: Entity ) {
 
   }
 
-  vehicle.addToWorld(PhysicsManager.instance.physicsWorld);
+  vehicle.addToWorld(PhysicsSystem.physicsWorld);
 
 /*
   for (let i = 0; i < wheelBodies.length; i++) {
-    PhysicsManager.instance.physicsWorld.addBody(wheelBodies[i]);
+    PhysicsSystem.physicsWorld.addBody(wheelBodies[i]);
   }
   */
   return vehicle;

@@ -10,11 +10,9 @@ import {
 } from 'three';
 import { CSM } from '../assets/csm/CSM.js';
 import { now } from '../common/functions/now';
-import { Behavior } from '../common/interfaces/Behavior';
 import { Engine } from '../ecs/classes/Engine';
-import { Entity } from '../ecs/classes/Entity';
 import { System, SystemAttributes } from '../ecs/classes/System';
-import { DefaultPostProcessingSchema } from './DefaultPostProcessingSchema';
+import { DefaultPostProcessingSchema } from './postprocessing/DefaultPostProcessingSchema';
 import { BlendFunction } from './postprocessing/blending/BlendFunction';
 import { EffectComposer } from './postprocessing/core/EffectComposer';
 import { DepthOfFieldEffect } from './postprocessing/DepthOfFieldEffect';
@@ -25,7 +23,7 @@ import { NormalPass } from './postprocessing/passes/NormalPass';
 import { RenderPass } from './postprocessing/passes/RenderPass';
 import { SSAOEffect } from './postprocessing/SSAOEffect';
 import { TextureEffect } from './postprocessing/TextureEffect';
-import { PostProcessingSchema } from './PostProcessingSchema';
+import { PostProcessingSchema } from './postprocessing/PostProcessingSchema';
 
 /** Handles rendering and post processing to WebGL canvas. */
 export class WebGLRendererSystem extends System {

@@ -8,7 +8,7 @@ import { getComponent, addComponent } from "../../../ecs/functions/EntityFunctio
 import { NetworkObject } from '@xr3ngine/engine/src/networking/components/NetworkObject';
 import { AssetLoader } from '@xr3ngine/engine/src/assets/components/AssetLoader';
 import { Client } from '@xr3ngine/engine/src/networking/components/Client';
-import { PhysicsManager } from '@xr3ngine/engine/src/physics/components/PhysicsManager';
+import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
 import { Vector3 } from 'three';
 import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
 import { Network } from "@xr3ngine/engine/src/networking/components/Network";
@@ -57,7 +57,7 @@ function createStaticCollider( mesh ) {
 // createDynamicColliders
 
 function createDynamicColliderClient(entity, mesh) {
-  if (!PhysicsManager.instance.serverOnlyRigidBodyCollides)
+  if (!PhysicsSystem.serverOnlyRigidBodyCollides)
     addComponentColleder(entity, mesh);
 
   const networkId = Network.getNetworkId();

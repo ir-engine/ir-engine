@@ -8,7 +8,7 @@ import { addComponent, getComponent, getMutableComponent, hasComponent } from ".
 import { RelativeSpringSimulator } from "../../../physics/classes/RelativeSpringSimulator";
 import { VectorSpringSimulator } from "../../../physics/classes/VectorSpringSimulator";
 import { CapsuleCollider } from "../../../physics/components/CapsuleCollider";
-import { PhysicsManager } from "../../../physics/components/PhysicsManager";
+import { PhysicsSystem } from "../../../physics/systems/PhysicsSystem";
 import { CollisionGroups } from "../../../physics/enums/CollisionGroups";
 import { addState } from "../../../state/behaviors/addState";
 import { State } from "../../../state/components/State";
@@ -117,7 +117,7 @@ export const initializeCharacter: Behavior = (entity): void => {
 	actor.raycastBox = new Mesh(boxGeo, boxMat);
 	//actor.raycastBox.visible = true;
 	//Engine.scene.add(actor.raycastBox);
-	PhysicsManager.instance.physicsWorld.addBody(actor.actorCapsule.body);
+	PhysicsSystem.physicsWorld.addBody(actor.actorCapsule.body);
 
 	// Physics pre/post step callback bindings
 	// States

@@ -1,5 +1,5 @@
 import { Body, Box, Sphere, Cylinder, Plane, Vec3 } from 'cannon-es';
-import { PhysicsManager } from '../components/PhysicsManager';
+import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { CollisionGroups } from "../enums/CollisionGroups";
 import { createTrimesh } from './physicalPrimitives';
 
@@ -83,6 +83,6 @@ export function addColliderWithoutEntity( type, position, quaternion, scale, mes
         quaternion.w
       );
 
-  PhysicsManager.instance.physicsWorld.addBody(body);
+  PhysicsSystem.physicsWorld.addBody(body);
   return body;
 }
