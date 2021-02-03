@@ -163,7 +163,7 @@ export class InputSystem extends System {
         viewVector: {
           x: 0, y: 0, z: 0
         },
-        snapShotTime: Vault.instance.get().time - Network.instance.timeSnaphotCorrection ?? 0
+        snapShotTime: Vault.instance?.get().time - Network.instance.timeSnaphotCorrection ?? 0
       };
 
       //console.warn(inputs.snapShotTime);

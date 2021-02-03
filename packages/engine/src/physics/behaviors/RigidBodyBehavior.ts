@@ -9,7 +9,7 @@ import { Entity } from '../../ecs/classes/Entity';
 import { isClient } from "../../common/functions/isClient";
 import { Network } from '../../networking/components/Network';
 import { NetworkObject } from '../../networking/components/NetworkObject';
-import { PhysicsManager } from '../components/PhysicsManager';
+import { PhysicsSystem } from '../systems/PhysicsSystem';
 
 const quaternion = new Quaternion();
 
@@ -18,8 +18,8 @@ export const RigidBodyBehavior: Behavior = (entity: Entity, args): void => {
   // ON CLIENT
   if (args.phase == 'onAdded' && isClient) {
     const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
-    if (colliderComponent && PhysicsManager.instance.serverOnlyRigidBodyCollides) {
-      PhysicsManager.instance.physicsWorld.removeBody(colliderComponent.collider);
+    if (colliderComponent && PhysicsSystem.serverOnlyRigidBodyCollides) {
+      PhysicsSystem.physicsWorld.removeBody(colliderComponent.collider);
     }
   }
 
@@ -45,7 +45,7 @@ export const RigidBodyBehavior: Behavior = (entity: Entity, args): void => {
           interpolationSnapshot.qW
         );
 
-        if (!PhysicsManager.instance.serverOnlyRigidBodyCollides) {
+        if (!PhysicsSystem.serverOnlyRigidBodyCollides) {
           const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
           if (colliderComponent.collider) {
             colliderComponent.collider.position.set(

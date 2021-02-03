@@ -9,7 +9,7 @@ import { RigidBody } from '../components/RigidBody';
 import { MeshTagComponent } from '../../common/components/Object3DTagComponents';
 import { threeToCannon } from '@xr3ngine/engine/src/templates/world/three-to-cannon';
 import { CollisionGroups } from "../enums/CollisionGroups";
-import { PhysicsManager } from '../components/PhysicsManager';
+import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { cannonFromThreeVector } from "@xr3ngine/engine/src/common/functions/cannonFromThreeVector";
 
 export function createTrimesh (mesh, position, mass) {
@@ -20,7 +20,7 @@ export function createTrimesh (mesh, position, mass) {
     shape.collisionFilterGroup = CollisionGroups.TrimeshColliders;
 		const body = new Body({ mass });
     body.addShape(shape, position);
-	//	body.material = PhysicsManager.instance.trimMeshMaterial;
+	//	body.material = PhysicsSystem.trimMeshMaterial;
 		return body;
 }
 
@@ -61,7 +61,7 @@ export function createBox (entity: Entity) {
   );
   const body = new Body({
     mass: colliderComponent.mass,
-  //  material: PhysicsManager.instance.groundMaterial
+  //  material: PhysicsSystem.groundMaterial
   });
 
   // Set position
@@ -132,8 +132,8 @@ export function createSphere (entity: Entity) {
 
   const body = new Body({
     mass: collider.mass,
-  //  material: PhysicsManager.instance.groundMaterial
-//    material: PhysicsManager.instance.wheelMaterial
+  //  material: PhysicsSystem.groundMaterial
+//    material: PhysicsSystem.wheelMaterial
   });
 
   body.addShape(shape);

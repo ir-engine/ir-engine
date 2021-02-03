@@ -1,16 +1,16 @@
 import { PostProcessingSchema } from './PostProcessingSchema';
-import { SSAOEffect } from './postprocessing/SSAOEffect';
-import { BloomEffect } from './postprocessing/BloomEffect';
-import { BlendFunction } from './postprocessing/blending/BlendFunction';
-import { KernelSize } from './postprocessing/materials/ConvolutionMaterial';
-import { ToneMappingEffect } from './postprocessing/ToneMappingEffect';
-import { HueSaturationEffect } from './postprocessing/HueSaturationEffect';
-import { DepthOfFieldEffect } from './postprocessing/DepthOfFieldEffect';
-import { BrightnessContrastEffect } from './postprocessing/BrightnessContrastEffect';
-import { Resizer } from './postprocessing/core/Resizer';
-import { OutlineEffect } from './postprocessing/OutlineEffect';
-import { LinearTosRGBEffect } from "./postprocessing/LinearTosRGBEffect";
-import { FXAAEffect } from "./postprocessing/FXAAEffect";
+import { SSAOEffect } from './SSAOEffect';
+import { BloomEffect } from './BloomEffect';
+import { BlendFunction } from './blending/BlendFunction';
+import { KernelSize } from './materials/ConvolutionMaterial';
+import { ToneMappingEffect } from './ToneMappingEffect';
+import { HueSaturationEffect } from './HueSaturationEffect';
+import { DepthOfFieldEffect } from './DepthOfFieldEffect';
+import { BrightnessContrastEffect } from './BrightnessContrastEffect';
+import { Resizer } from './core/Resizer';
+import { OutlineEffect } from './OutlineEffect';
+import { LinearTosRGBEffect } from "./LinearTosRGBEffect";
+import { FXAAEffect } from "./FXAAEffect";
 
 export const DefaultPostProcessingSchema: PostProcessingSchema = {
   effects: [

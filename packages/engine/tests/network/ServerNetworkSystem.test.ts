@@ -27,7 +27,7 @@ import * as handleInputOnServerModule from "../../src/networking/functions/handl
 import * as setLocalMovementDirectionModule from "../../src/templates/character/behaviors/setLocalMovementDirection";
 import { System } from "../../src/ecs/classes/System";
 import { now } from "../../src/common/functions/now";
-import { PhysicsManager } from "../../src/physics/components/PhysicsManager";
+import { PhysicsSystem } from "../../src/physics/systems/PhysicsSystem";
 import { RaycastResult } from "collision/RaycastResult";
 import { Body } from 'cannon-es';
 import { StateSystem } from "../../src/state/systems/StateSystem";
@@ -93,14 +93,14 @@ beforeAll(() => {
 
   registerSystem(PhysicsSystem);
   // pretend player has floor
-  PhysicsManager.instance.physicsWorld.raycastClosest = jest.fn((start, end, rayCastOptions, rayResult:RaycastResult) => {
+  PhysicsSystem.physicsWorld.raycastClosest = jest.fn((start, end, rayCastOptions, rayResult:RaycastResult) => {
     rayResult.body = new Body({mass:0});
     rayResult.hasHit = true;
     rayResult.hitPointWorld.set(0,0,0);
     rayResult.hitNormalWorld.set(0,1,0);
     return true;
   });
-  // physicsWorldRaycastClosest = jest.spyOn(PhysicsManager.instance.physicsWorld, 'raycastClosest');
+  // physicsWorldRaycastClosest = jest.spyOn(PhysicsSystem.physicsWorld, 'raycastClosest');
 
   registerSystem(StateSystem);
 });
@@ -126,7 +126,7 @@ afterEach(() => {
     fixedExecuteOnServer.mockClear();
   }
 
-  PhysicsManager.instance.frame = 0;
+  PhysicsSystem.frame = 0;
 });
 
 const oneFixedRunTimeSpan = 1 / Engine.physicsFrameRate;
@@ -165,7 +165,7 @@ test("continuous move forward changes transforms z", () => {
   }
 
   // check that physics updated same
-  expect(PhysicsManager.instance.frame).toBe(runsCount);
+  expect(PhysicsSystem.frame).toBe(runsCount);
   expect(fixedExecuteOnServer.mock.calls.length).toBe(runsCount);
   expect(handleInputFromNonLocalClients.mock.calls.length).toBe(runsCount);
 
@@ -232,7 +232,7 @@ test("continuous move forward and then stop", () => {
   }
 
   // check that physics updated same
-  expect(PhysicsManager.instance.frame).toBe(runsCount + 1 + emptyRunsCount);
+  expect(PhysicsSystem.frame).toBe(runsCount + 1 + emptyRunsCount);
   expect(fixedExecuteOnServer.mock.calls.length).toBe(runsCount + 1 + emptyRunsCount);
   expect(handleInputFromNonLocalClients.mock.calls.length).toBe(runsCount + 1 + emptyRunsCount);
 
