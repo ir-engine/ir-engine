@@ -10,7 +10,7 @@ import {
 } from "../../ecs/functions/EntityFunctions";
 import { AssetLoader } from "../components/AssetLoader";
 
-const LODS_DISTANCES = {
+const LOD_DISTANCES = {
   "0": 5,
   "1": 15,
   "2": 30
@@ -92,7 +92,7 @@ function HandleLODs(entity: Entity, asset: Object3D): Object3D {
     value[0].object.parent.add(lod);
 
     value.forEach(({ level, object}) => {
-      lod.addLevel(object, LODS_DISTANCES[level]);
+      lod.addLevel(object, LOD_DISTANCES[level]);
     });
   });
 
