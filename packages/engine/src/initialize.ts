@@ -94,7 +94,7 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
   //Object HighlightSystem
   if (isClient) {
     // Create a new camera
-    const camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.3, 10000);
+    const camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.3, 750);
     // Add the camera to the camera manager so it's available anywhere
     Engine.camera = camera;
     // Add the camera to the three.js scene
