@@ -10,6 +10,16 @@ import logger from "../../app/logger";
 import { localConfig, sctpParameters } from './config';
 import { getUserIdFromSocketId } from "./NetworkFunctions";
 
+
+const toArrayBuffer = (buf) => {
+    var ab = new ArrayBuffer(buf.length);
+    var view = new Uint8Array(ab);
+    for (var i = 0; i < buf.length; ++i) {
+        view[i] = buf[i];
+    }
+    return ab;
+};
+
 let networkTransport: any;
 export async function startWebRTC(): Promise<void> {
     networkTransport = Network.instance.transport as any;
@@ -87,26 +97,6 @@ export const handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
         dataProducerId: outgoingDataProducer.id,
         appData: { peerId: userId, transportId: newTransport.id },
     });
-    function toArrayBuffer(buf): any {
-        var ab = new ArrayBuffer(buf.length);
-        var view = new Uint8Array(ab);
-        for (var i = 0; i < buf.length; ++i) {
-            view[i] = buf[i];
-        }
-        return ab;
-    }
-
-    dataConsumer.on('message', (message, ppid) => {
-        console.log("RECEIVING MESSAGE! PPID IS", ppid);
-        console.log(message);
-        try{
-            Network.instance.incomingMessageQueue.add(toArrayBuffer(message));
-        } catch (error){
-            console.log("Error handling message:");
-            console.log(error);
-        }
-    });
-    logger.info('Data Consumer created!');
     dataConsumer.on('producerclose', () => {
         dataConsumer.close();
         Network.instance.clients[userId].dataConsumers.delete(
@@ -217,9 +207,7 @@ export async function createInternalDataConsumer(dataProducer: DataProducer, use
         ordered: false,
     });
     consumer.on('message', (message) => {
-        // const decoded = Uint8Array.from(JSON.parse(message)).buffer;
-        // Network.instance.incomingMessageQueue.add(decoded);
-        Network.instance.incomingMessageQueue.add(JSON.parse(message));
+        Network.instance.incomingMessageQueue.add(toArrayBuffer(message));
     });
     return consumer;
 }
