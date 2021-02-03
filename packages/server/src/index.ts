@@ -32,12 +32,12 @@ process.on('unhandledRejection', (error, promise) => {
     const processMysql = processList.find(
         c => c[key].match(/mysql/)
     );
-    let databaseService = (dockerProcess && dockerProxy) || processMysql;
+    const databaseService = (dockerProcess && dockerProxy) || processMysql;
 
     if (!databaseService) {
 
       // Check for child process with mac OSX
-        exec("docker ps | grep mariadb", function(err, stdout, stderr) {
+        exec("docker ps | grep mariadb", (err, stdout, stderr) => {
           if(stdout.includes("mariadb")){
             (databaseService as any) = true;
           }else {
@@ -49,7 +49,7 @@ process.on('unhandledRejection', (error, promise) => {
 })();
 
 // SSL setup
-let useSSL = process.env.NODE_ENV !== 'production' && fs.existsSync(path.join(appRootPath.path, 'certs', 'key.pem'));
+const useSSL = process.env.NODE_ENV !== 'production' && fs.existsSync(path.join(appRootPath.path, 'certs', 'key.pem'));
 
 const certOptions = {
   key: useSSL && process.env.NODE_ENV !== 'production' ? fs.readFileSync(path.join(appRootPath.path, 'certs', 'key.pem')) : null,

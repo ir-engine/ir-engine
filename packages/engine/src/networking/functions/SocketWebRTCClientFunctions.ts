@@ -335,7 +335,7 @@ export async function createTransport(direction: string, partyId?: string) {
         transport.on("producedata",
             async (parameters: any, callback: (arg0: { id: any; }) => void, errback: () => void) => {
 
-                console.log("********* PRODUCE DATA")
+                console.log("********* PRODUCE DATA");
                 console.log(parameters);
                 
                 const { sctpStreamParameters, label, protocol, appData } = parameters;
