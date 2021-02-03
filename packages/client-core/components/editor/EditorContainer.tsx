@@ -14,7 +14,6 @@ import configs from "./configs";
 import { withApi } from "./contexts/ApiContext";
 import { DialogContextProvider } from "./contexts/DialogContext";
 import { EditorContextProvider } from "./contexts/EditorContext";
-import { OnboardingContextProvider } from "./contexts/OnboardingContext";
 import { defaultSettings, SettingsContextProvider } from "./contexts/SettingsContext";
 import ConfirmDialog from "./dialogs/ConfirmDialog";
 import ErrorDialog from "./dialogs/ErrorDialog";

@@ -10,7 +10,6 @@ import { useDrag } from "react-dnd";
 import { getEmptyImage } from "react-dnd-html5-backend";
 import AssetTooltip from "./AssetTooltip";
 import { EditorContext } from "../contexts/EditorContext";
-import { OnboardingContext } from "../contexts/OnboardingContext";
 import { ItemTypes } from "../dnd";
 import AudioPreview from "./AudioPreview";
 import Tooltip, { TooltipContainer } from "../layout/Tooltip";
