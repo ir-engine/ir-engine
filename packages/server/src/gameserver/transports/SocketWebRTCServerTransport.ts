@@ -65,7 +65,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.ReliableMessage.toString(), message);
     }
 
-    toBuffer(ab) {
+    toBuffer(ab): any {
         var buf = Buffer.alloc(ab.byteLength);
         var view = new Uint8Array(ab);
         for (var i = 0; i < buf.length; ++i) {
@@ -75,8 +75,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     }
 
     public sendData = (data: any): void =>{
-        console.log("Data is")
-        console.log(data)
+        console.log("Data is");
+        console.log(data);
       this.dataProducers?.forEach(producer => { 
           console.log("Sending to producer", producer.id);
           try{
@@ -84,7 +84,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
           } catch (error) {
             console.warn("ERROR:", error);
           }
-        })
+        });
         }
 
     public handleKick(socket: any): void {

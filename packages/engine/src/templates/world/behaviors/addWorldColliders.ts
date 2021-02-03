@@ -60,7 +60,7 @@ function createDynamicColliderClient(entity, mesh) {
   if (!PhysicsManager.instance.serverOnlyRigidBodyCollides)
     addComponentColleder(entity, mesh);
 
-  let networkId = Network.getNetworkId();
+  const networkId = Network.getNetworkId();
   addComponent(entity, NetworkObject, { ownerId: 'server', networkId: networkId });
   addComponent(entity, Client);
   addComponent(entity, RigidBody);
