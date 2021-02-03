@@ -21,8 +21,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   leaving = false
   instanceRecvTransport: MediaSoupTransport
   instanceSendTransport: MediaSoupTransport
-  partyRecvTransport: MediaSoupTransport
-  partySendTransport: MediaSoupTransport
+  relRecvTransport: MediaSoupTransport
+  relSendTransport: MediaSoupTransport
   lastPollSyncData = {}
   pollingTickRate = 1000
   pollingTimeout = 4000
@@ -32,7 +32,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   lastPoll: Date;
   pollPending = false;
   videoEnabled = false;
-  partyId: string;
+  relationshipType: string;
+  relationshipId: string;
   dataProducer;
 
   /**
@@ -80,8 +81,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.mediasoupDevice = new Device();
     if (this.socket && this.socket.close) this.socket.close();
 
-    const { startVideo, videoEnabled, partyId, ...query } = opts;
-    this.partyId = partyId;
+    const { startVideo, videoEnabled, relationshipType, relationshipId, ...query } = opts;
+    this.relationshipType = relationshipType;
+    this.relationshipId = relationshipId;
 
     this.videoEnabled = videoEnabled ?? false;
 
@@ -182,7 +184,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         });
       });
 
-      this.socket.on(MessageTypes.WebRTCCreateProducer.toString(), async (socketId, mediaTag, producerId, localPartyId) => {
+      this.socket.on(MessageTypes.WebRTCCreateProducer.toString(), async (socketId, mediaTag, producerId, relationshipType, relationshipId) => {
         const selfProducerIds = [
           MediaStreamComponent.instance.camVideoProducer?.id,
           MediaStreamComponent.instance.camAudioProducer?.id
@@ -194,10 +196,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           (MediaStreamComponent.instance.consumers?.find(
             c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
           ) == null &&
-            (this.partyId === localPartyId) || localPartyId === 'instance')
+            (relationshipType === 'instance' ? this.relationshipType === 'instance' : this.relationshipType === relationshipType && this.relationshipId === relationshipId))
         ) {
           // that we don't already have consumers for...
-          await subscribeToTrack(socketId, mediaTag, localPartyId);
+          await subscribeToTrack(socketId, mediaTag, relationshipType, relationshipId);
         }
       });
 
