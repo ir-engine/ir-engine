@@ -60,6 +60,14 @@
     }
 }
 
+.rightDrawerAccordion {
+    background-color: rgb(20, 20, 20, 0.8);
+
+    & > div {
+        background-color: rgb(150, 150, 150, 0.8);
+    }
+}
+
 .group-select,
 .friend-select {
     min-width: 100px;

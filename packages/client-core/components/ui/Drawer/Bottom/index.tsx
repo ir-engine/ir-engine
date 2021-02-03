@@ -166,7 +166,6 @@ const BottomDrawer = (props: Props): any => {
     };
 
     const setActiveChat = (channel): void => {
-        console.log('setActiveChat:');
         updateMessageScrollInit(true);
         const channelType = channel.channelType;
         const target = channelType === 'user' ? (channel.user1?.id === user.id ? channel.user2 : channel.user2?.id === user.id ? channel.user1 : {}) : channelType === 'group' ? channel.group : channelType === 'instance' ? channel.instance : channel.party;

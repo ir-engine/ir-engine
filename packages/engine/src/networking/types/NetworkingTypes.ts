@@ -12,5 +12,6 @@ export type CreateWebRtcTransportParams = {
     peerId?: string;
     direction: 'recv' | 'send';
     sctpCapabilities: SctpCapabilities;
-    partyId?: string;
+    relationshipType: string;
+    relationshipId?: string;
 }
