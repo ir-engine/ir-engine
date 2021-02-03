@@ -22,35 +22,14 @@ const SearchInputContainer = (styled as any).div`
   }
 `;
 
-const LegalContainer = (styled as any).div`
-  display: flex;
-  white-space: nowrap;
-  text-indent: 0.5em;
-`;
-
-export default function AssetSearchInput({ legal, privacyPolicyUrl, onChange, ...rest }) {
+export default function AssetSearchInput({ onChange, ...rest }) {
   return (
     <SearchInputContainer>
       <input placeholder="Search..." onChange={onChange} {...rest} />
-      {legal && (
-        <LegalContainer>
-          {legal}
-          {privacyPolicyUrl && (
-            <>
-              <span>|</span>
-              <a rel="noopener noreferrer" target="_blank" href={privacyPolicyUrl}>
-                Privacy Policy
-              </a>
-            </>
-          )}
-        </LegalContainer>
-      )}
     </SearchInputContainer>
   );
 }
 
 AssetSearchInput.propTypes = {
-  onChange: PropTypes.func,
-  legal: PropTypes.string,
-  privacyPolicyUrl: PropTypes.string
+  onChange: PropTypes.func
 };

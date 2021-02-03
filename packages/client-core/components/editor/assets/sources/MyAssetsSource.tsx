@@ -23,8 +23,6 @@ export default class MyAssetsSource extends BaseSource {
   component: typeof UploadSourcePanel;
   editor: Editor;
   tags: { label: string; value: string }[];
-  searchLegalCopy: string;
-  privacyPolicyUrl: string;
   uploadMultiple: boolean;
   acceptFileTypes: string;
   constructor(editor) {
@@ -39,9 +37,6 @@ export default class MyAssetsSource extends BaseSource {
       { label: "Videos", value: "video" },
       { label: "Audio", value: "audio" }
     ];
-    this.searchLegalCopy = "Search by Mozilla Hubs";
-    this.privacyPolicyUrl =
-      "https://github.com/xr3ngine/xr3ngine/blob/master/PRIVACY.md";
     this.uploadSource = true;
     this.uploadMultiple = true;
     this.acceptFileTypes = AcceptsAllFileTypes;

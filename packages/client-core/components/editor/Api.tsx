@@ -245,6 +245,82 @@ export default class Api extends EventEmitter {
     return proxiedUrlFor(url);
   }
 
+  async searchMedia(source, params, cursor, signal): Promise<any> {
+    const url = new URL(`${SERVER_URL}/media-search`);
+
+    const headers: any = {
+      "content-type": "application/json"
+    };
+
+    const searchParams = url.searchParams;
+
+    searchParams.set("source", source);
+
+    if (source === "assets") {
+      searchParams.set("user", this.getAccountId());
+      const token = this.getToken();
+      headers.authorization = `Bearer ${token}`;
+    }
+
+    if (params.type) {
+      searchParams.set("type", params.type);
+    }
+
+    if (params.query) {
+      //checking BLOCK_SEARCH_TERMSsearchParams.set("q", params.query);
+    }
+
+    if (params.filter) {
+      searchParams.set("filter", params.filter);
+    }
+
+    if (params.collection) {
+      searchParams.set("collection", params.collection);
+    }
+
+    if (cursor) {
+      searchParams.set("cursor", cursor);
+    }
+
+    console.log("Fetching...");
+    const resp = await this.fetchUrl(url, { headers, signal });
+    console.log("Response: " + Object.values(resp));
+
+    if (signal.aborted) {
+      const error = new Error("Media search aborted") as any;
+      error["aborted"] = true;
+      throw error;
+    }
+
+    const json = await resp.json();
+
+    if (signal.aborted) {
+      const error = new Error("Media search aborted") as any;
+      error["aborted"] = true;
+      throw error;
+    }
+
+    const thumbnailedEntries = json && json.entries && json.entries.length > 0 && json.entries.map(entry => {
+      if (entry.images && entry.images.preview && entry.images.preview.url) {
+        if (entry.images.preview.type === "mp4") {
+          entry.images.preview.url = proxiedUrlFor(entry.images.preview.url);
+        } else {
+          entry.images.preview.url = scaledThumbnailUrlFor(entry.images.preview.url, 200, 200);
+        }
+      }
+      return entry;
+    });
+
+    return {
+      results: thumbnailedEntries ? thumbnailedEntries : [],
+      suggestions: json.suggestions,
+      nextCursor: json.meta?.next_cursor
+    };
+  }
+  searchTermFilteringBlacklist(query: any): any {
+    throw new Error("Method not implemented.");
+  }
+
   async createProject(scene, parentSceneId, thumbnailBlob, signal, showDialog, hideDialog): Promise<any> {
     this.emit("project-saving");
 
@@ -987,7 +1063,7 @@ export default class Api extends EventEmitter {
   }
 
   handleAuthorization(): void {
-    if (process.browser) {
+    if ((process as any).browser || process.env?.browser) {
       const accessToken = localStorage.getItem(FEATHERS_STORE_KEY);
       const email = 'test@test.com';
       if((accessToken && email) || this.isAuthenticated()){

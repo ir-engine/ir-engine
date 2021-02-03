@@ -83,13 +83,20 @@ import {
 import Api from "./Api";
 import { loadEnvironmentMap } from "@xr3ngine/engine/src/editor/renderer/EnvironmentMap";
 
-// TODO: Remove these
+// @ts-ignore
 import negx from "./cubemap/negx.jpg";
+// @ts-ignore
 import negy from "./cubemap/negy.jpg";
+// @ts-ignore
 import negz from "./cubemap/negz.jpg";
+// @ts-ignore
 import posx from "./cubemap/posx.jpg";
+// @ts-ignore
 import posy from "./cubemap/posy.jpg";
+// @ts-ignore
 import posz from "./cubemap/posz.jpg";
+// @ts-ignore
+
 const cubeMapURLs = [posx, negx, posy, negy, posz, negz];
 
 const cubemap = []

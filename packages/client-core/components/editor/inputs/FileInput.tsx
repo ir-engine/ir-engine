@@ -3,6 +3,7 @@ import { Button } from "./Button";
 import Hidden from "../layout/Hidden";
 let nextId = 0;
 type FileInputProps = {
+  accept: any;
   label: string;
   onChange: (...args: any[]) => any;
 };
