@@ -1,24 +1,18 @@
+import {
+  Backdrop,
+  Fade,
+  Modal,
+  Tab,
+  Tabs
+} from '@material-ui/core';
+import {
+  AccountCircle, Settings
+} from '@material-ui/icons';
+import classNames from 'classnames';
 import React, { Fragment, useState } from 'react';
+import styles from './Profile.module.scss';
 import UserProfile from './UserIcon';
 import UserSettings from './UserSettings';
-import Subscription from './Subscription';
-import styles from './Profile.module.scss';
-import {
-    Settings,
-    AccountCircle,
-    Cake,
-    Mail,
-    SupervisedUserCircle,
-    Group,
-    QuestionAnswer
-} from '@material-ui/icons';
-import {
-    Backdrop,
-    Fade,
-    Modal,
-    Tab,
-    Tabs
-} from '@material-ui/core';
 
 interface Props {
   open: boolean;
@@ -26,7 +20,6 @@ interface Props {
   avatarUrl: string;
   auth: any;
 }
-import classNames from 'classnames';
 
 const TabPanel = (props: any): any => <Fragment>{props.value === props.index && props.children}</Fragment>;
 
@@ -45,16 +38,6 @@ const ProfileModal = (props: Props): any => {
   const settings = (
     <TabPanel value={tabIndex} index={1}>
       <UserSettings />
-    </TabPanel>
-  );
-  // const account = (
-  //   <TabPanel value={tabIndex} index={2}>
-  //     Accounts
-  //   </TabPanel>
-  // )
-  const subscription = (
-    <TabPanel value={tabIndex} className={styles['subscription-profile']} index={2}>
-      <Subscription auth={props.auth}/>
     </TabPanel>
   );
   return (
@@ -92,19 +75,10 @@ const ProfileModal = (props: Props): any => {
                 icon={<Settings style={{ fontSize: 30 }} />}
                 label="Settings"
               />
-              {/* <Tab */}
-              {/* icon={<AccountBoxIcon style={{ fontSize: 30 }} />} */}
-              {/* label="Accounts" */}
-              {/* /> */}
-              <Tab
-                icon={<SupervisedUserCircle style={{ fontSize: 30 }} />}
-                label="Subscription"
-              />
             </Tabs>
             {avatar}
             {settings}
             {/* {account} */}
-            {subscription}
           </div>
         </Fade>
       </Modal>

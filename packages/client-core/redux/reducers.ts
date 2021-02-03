@@ -15,7 +15,6 @@ import groupReducer from './group/reducers';
 import partyReducer from './party/reducers';
 import inviteReducer from './invite/reducers';
 import userReducer from './user/reducers';
-import seatReducer from './seats/reducers';
 import locationReducer from './location/reducers';
 
 export default combineReducers({

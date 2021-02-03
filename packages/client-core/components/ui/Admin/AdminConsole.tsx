@@ -48,7 +48,6 @@ const AdminConsole = (props: Props): any => {
     thumbnailUrl: '',
     runtime: '',
     stereoscopic: false,
-    subscriptionLevel: 'all',
     modalOpen: false,
     modalMode: '',
     video: {}

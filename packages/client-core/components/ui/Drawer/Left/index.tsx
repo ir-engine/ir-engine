@@ -147,8 +147,6 @@ const initialSelectedUserState = {
     identityProviders: [],
     relationType: {},
     inverseRelationType: {},
-    subscription: {},
-    subscriptions: [],
     avatarUrl: ''
 };
 
