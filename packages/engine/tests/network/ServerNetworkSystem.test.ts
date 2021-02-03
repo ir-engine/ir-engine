@@ -3,7 +3,7 @@ import { initializeNetworkObject } from '@xr3ngine/engine/src/networking/functio
 import { NetworkTransport } from "../../src/networking/interfaces/NetworkTransport";
 import { NetworkSchema } from "../../src/networking/interfaces/NetworkSchema";
 import { DefaultNetworkSchema } from "../../src/templates/networking/DefaultNetworkSchema";
-import { Network } from "../../src/networking/components/Network";
+import { Network } from "../../src/networking//classes/Network";
 import { Engine } from "../../src/ecs/classes/Engine";
 import { Quaternion, Scene, Vector3 } from "three";
 import { registerSystem } from "../../src/ecs/functions/SystemFunctions";

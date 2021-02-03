@@ -1,22 +1,12 @@
-import { isServer } from '../../common/functions/isServer';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
-import { Input } from '../../input/components/Input';
-import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
-import { State } from '../../state/components/State';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { Client } from '../components/Client';
-import { Network } from '../components/Network';
-import { NetworkInterpolation } from '../components/NetworkInterpolation';
+import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
-import { Server } from '../components/Server';
-import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClient';
-import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
-import { PacketWorldState } from "../interfaces/WorldState";
 import { WorldStateModel } from '../schema/worldStateSchema';
 
 /**
@@ -50,8 +40,6 @@ export class ServerNetworkOutgoingSystem extends System {
   /** Update type of this system. **Default** to
    * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
   updateType = SystemUpdateType.Fixed;
-  /** Whether the system is server or client. */
-  isServer;
 
   /**
    * Constructs the system.
@@ -59,23 +47,14 @@ export class ServerNetworkOutgoingSystem extends System {
    */
   constructor(attributes: { schema: NetworkSchema, app:any }) {
     super(attributes);
-    this.isServer = Network.instance.transport.isServer;
   }
 
   /** Call execution on server */
-  fixedExecuteOnServer = (delta: number): void => {
+  execute = (delta: number): void => {
     // Transforms that are updated are automatically collected
     // note: onChanged needs to currently be handled outside of fixedExecute
-    this.queryResults.serverNetworkTransforms.all?.forEach((entity: Entity) =>
+    this.queryResults.networkTransforms.all?.forEach((entity: Entity) =>
       addNetworkTransformToWorldState(entity));
-/*
-      if (Network.instance.worldState.transforms.length === 0 &&
-          Network.instance.worldState.inputs.length === 0 &&
-          Network.instance.worldState.clientsConnected.length === 0 &&
-          Network.instance.worldState.clientsDisconnected.length === 0 &&
-          Network.instance.worldState.createObjects.length === 0 &&
-          Network.instance.worldState.destroyObjects.length === 0) return;
-*/
       const buffer = WorldStateModel.toBuffer(Network.instance.worldState);
       // Send the message to all connected clients
       if(Network.instance.transport !== undefined){
@@ -88,49 +67,10 @@ export class ServerNetworkOutgoingSystem extends System {
       }
   }
 
-  /** Call execution on client */
-  fixedExecuteOnClient = (delta: number): void => {
-    if (Network.instance == null) return;
-    // Client logic
-    const queue = Network.instance.incomingMessageQueue;
-    // For each message, handle and process
-    while (queue.getBufferLength() > 0)
-      applyNetworkStateToClient(queue.pop(), delta);
-  }
-
-  /** Call logic based on whether system is on the server or on the client. */
-  execute = isServer ? this.fixedExecuteOnServer :
-    this.fixedExecuteOnClient;
-
   /** System queries. */
   static queries: any = {
-    inputOnServer: {
-      components: [NetworkObject, Input, Server],
-      listen: {
-        added: true,
-        removed: true
-      }
+    networkTransforms: {
+      components: [NetworkObject, TransformComponent]
     },
-    networkServer: {
-      components: [Network, Server]
-    },
-    networkClient: {
-      components: [Network, Client]
-    },
-    localClientNetworkInputReceivers: {
-      components: [NetworkObject, Input, LocalInputReceiver]
-    },
-    serverNetworkStates: {
-      components: [NetworkObject, State, Server]
-    },
-    serverNetworkTransforms: {
-      components: [NetworkObject, TransformComponent, Server]
-    },
-    serverNetworkObjects: {
-      components: [NetworkObject, Server]
-    },
-    serverNetworkInputs: {
-      components: [NetworkObject, Input, Server]
-    }
   }
 }

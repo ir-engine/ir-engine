@@ -1,24 +1,21 @@
 import { AnimationManager } from "@xr3ngine/engine/src/templates/character/components/AnimationManager";
 import { Vec3 } from "cannon-es";
 import { BoxGeometry, Group, Mesh, MeshLambertMaterial, Vector3 } from "three";
-import { addObject3DComponent } from "../../../common/behaviors/Object3DBehaviors";
-import { LifecycleValue } from "../../../common/enums/LifecycleValue";
-import { Behavior } from "../../../common/interfaces/Behavior";
+import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
+import { LifecycleValue } from "@xr3ngine/engine/src/common/enums/LifecycleValue";
+import { isClient } from "@xr3ngine/engine/src/common/functions/isClient";
+import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { addComponent, getComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
 import { RelativeSpringSimulator } from "../../../physics/classes/RelativeSpringSimulator";
 import { VectorSpringSimulator } from "../../../physics/classes/VectorSpringSimulator";
 import { CapsuleCollider } from "../../../physics/components/CapsuleCollider";
-import { PhysicsSystem } from "../../../physics/systems/PhysicsSystem";
 import { CollisionGroups } from "../../../physics/enums/CollisionGroups";
+import { PhysicsSystem } from "../../../physics/systems/PhysicsSystem";
 import { addState } from "../../../state/behaviors/addState";
 import { State } from "../../../state/components/State";
+import { TransformComponent } from "../../../transform/components/TransformComponent";
 import { CharacterStateTypes } from "../CharacterStateTypes";
 import { CharacterComponent } from "../components/CharacterComponent";
-import {TransformComponent} from "../../../transform/components/TransformComponent";
-import { isClient } from "../../../common/functions/isClient";
-import { NetworkObject } from "../../../networking/components/NetworkObject";
-import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
-import { getPseudoRandomAvatarIdByUserId } from "../functions/pseudoRandomAvatar";
 
 export const initializeCharacter: Behavior = (entity): void => {	
 	// console.warn("Initializing character for ", entity.id);

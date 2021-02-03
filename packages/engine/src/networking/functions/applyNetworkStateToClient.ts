@@ -4,7 +4,7 @@ import {getComponent, hasComponent, removeEntity, getMutableComponent} from '../
 import {Input} from '../../input/components/Input';
 import {LocalInputReceiver} from '../../input/components/LocalInputReceiver';
 import {InputType} from '../../input/enums/InputType';
-import {Network} from '../components/Network';
+import {Network} from '../classes/Network';
 import { NetworkObject } from '@xr3ngine/engine/src/networking/components/NetworkObject';
 import {addSnapshot, createSnapshot} from '../functions/NetworkInterpolationFunctions';
 import {WorldStateInterface} from "../interfaces/WorldState";

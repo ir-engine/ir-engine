@@ -1,8 +1,8 @@
 import { Input } from "../../../input/components/Input";
 import { CharacterComponent } from "../components/CharacterComponent";
 import { TransformComponent } from "../../../transform/components/TransformComponent";
-import { NumericalType } from "../../../common/types/NumericalTypes";
-import { Behavior } from "../../../common/interfaces/Behavior";
+import { NumericalType } from "@xr3ngine/engine/src/common/types/NumericalTypes";
+import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { Entity } from "../../../ecs/classes/Entity";
 import { InputAlias } from "../../../input/types/InputAlias";
 import { InputType } from "../../../input/enums/InputType";

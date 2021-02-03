@@ -1,6 +1,6 @@
 import { User } from "@xr3ngine/common/interfaces/User";
-import { MediaStreamComponent } from "@xr3ngine/engine/src/networking/components/MediaStreamComponent";
-import { Network } from "@xr3ngine/engine/src/networking/components/Network";
+import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
+import { Network } from "../classes/Network";
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
 import { applyNetworkStateToClient } from "@xr3ngine/engine/src/networking/functions/applyNetworkStateToClient";
 import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
@@ -166,7 +166,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         console.log("WebRTC consume data called");
         console.log(options);
         const dataConsumer = await this.instanceRecvTransport.consumeData(options);
-        MediaStreamComponent.instance.dataConsumers.set(options.dataProducerId, dataConsumer);
+        Network.instance?.dataConsumers.set(options.dataProducerId, dataConsumer);
 
         dataConsumer.on('message', (message: any) => {
           try{
@@ -178,20 +178,20 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         }); // Handle message received
         dataConsumer.on('close', () => {
           dataConsumer.close();
-          MediaStreamComponent.instance.dataConsumers.delete(options.dataProducerId);
+          Network.instance?.dataConsumers.delete(options.dataProducerId);
         });
       });
 
       this.socket.on(MessageTypes.WebRTCCreateProducer.toString(), async (socketId, mediaTag, producerId, localPartyId) => {
         const selfProducerIds = [
-          MediaStreamComponent.instance.camVideoProducer?.id,
-          MediaStreamComponent.instance.camAudioProducer?.id
+          MediaStreamSystem.camVideoProducer?.id,
+          MediaStreamSystem.camAudioProducer?.id
         ];
         if (
-          // (MediaStreamComponent.instance.mediaStream !== null) &&
+          // (MediaStreamSystem.mediaStream !== null) &&
           (producerId != null) &&
           (selfProducerIds.indexOf(producerId) < 0) &&
-          (MediaStreamComponent.instance.consumers?.find(
+          (MediaStreamSystem.consumers?.find(
             c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
           ) == null &&
             (this.partyId === localPartyId) || localPartyId === 'instance')
@@ -202,7 +202,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       });
 
       this.socket.on(MessageTypes.WebRTCCloseConsumer.toString(), async (consumerId) => {
-        if (MediaStreamComponent.instance) MediaStreamComponent.instance.consumers = MediaStreamComponent.instance.consumers.filter((c) => c.id !== consumerId);
+        if (MediaStreamSystem) MediaStreamSystem.consumers = MediaStreamSystem.consumers.filter((c) => c.id !== consumerId);
       });
 
 

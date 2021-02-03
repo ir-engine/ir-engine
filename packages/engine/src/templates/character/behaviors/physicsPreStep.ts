@@ -1,7 +1,7 @@
 import { Vec3 } from "cannon-es";
-import { Object3DComponent } from "../../../common/components/Object3DComponent";
-import { cannonFromThreeVector } from "../../../common/functions/cannonFromThreeVector";
-import { Behavior } from "../../../common/interfaces/Behavior";
+import { Object3DComponent } from "@xr3ngine/engine/src/common/components/Object3DComponent";
+import { cannonFromThreeVector } from "@xr3ngine/engine/src/common/functions/cannonFromThreeVector";
+import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { PhysicsSystem } from "../../../physics/systems/PhysicsSystem";
 import { CollisionGroups } from "../../../physics/enums/CollisionGroups";

@@ -1,6 +1,6 @@
 import { Entity } from "../../../ecs/classes/Entity";
 import { DefaultInput } from "../../shared/DefaultInput";
-import { BinaryValue } from "../../../common/enums/BinaryValue";
+import { BinaryValue } from "@xr3ngine/engine/src/common/enums/BinaryValue";
 import { addState } from "../../../state/behaviors/addState";
 import { CharacterStateTypes } from "../CharacterStateTypes";
 import { getComponent } from "../../../ecs/functions/EntityFunctions";

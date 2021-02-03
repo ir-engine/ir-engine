@@ -1,11 +1,9 @@
+import { Schema } from "superbuffer";
 import { RingBuffer } from '../../common/classes/RingBuffer';
-import { Component } from '../../ecs/classes/Component';
-import { Types } from '../../ecs/types/Types';
-import { Schema } from "superbuffer"
+import { Entity } from '../../ecs/classes/Entity';
+import { NetworkObjectList } from '../interfaces/NetworkObjectList';
 import { NetworkSchema } from '../interfaces/NetworkSchema';
 import { NetworkTransport } from '../interfaces/NetworkTransport';
-import { NetworkObjectList } from '../interfaces/NetworkObjectList';
-import { Entity } from '../../ecs/classes/Entity';
 import { WorldStateInterface } from "../interfaces/WorldState";
 import { Snapshot } from "../types/SnapshotDataTypes";
 
@@ -31,9 +29,9 @@ export interface NetworkClientList {
 }
 
 /** Component Class for Network. */
-export class Network extends Component<Network> {
+export class Network {
   /** Static instance to access everywhere. */
-  static instance: Network = null
+  static instance: Network = new Network();
   /** Indication of whether the network is initialized or not. */
   isInitialized: boolean
   /** Whether to apply compression on packet or not. */
@@ -42,6 +40,8 @@ export class Network extends Component<Network> {
   timeSnaphotCorrection = Date.now()
   /** Object holding transport details over network. */
   transport: NetworkTransport
+  /** Network transports. */
+  transports = []
   /** Schema of the component. */
   schema: NetworkSchema
   /** Clients connected over this network. */
@@ -50,6 +50,10 @@ export class Network extends Component<Network> {
   clientsConnected = []
   /** Disconnected client in this frame. */
   clientsDisconnected = []
+  /** List of data producer nodes. */
+  dataProducers = new Map<string, any>()
+  /** List of data consumer nodes. */
+  dataConsumers = new Map<string, any>()
 
   /** Newly created Network Objects in this frame. */
   createObjects = []
@@ -105,7 +109,6 @@ export class Network extends Component<Network> {
 
   /** Constructs the network. */
   constructor() {
-    super();
     Network.instance = this;
     Network.tick = 0;
     this.incomingMessageQueue = new RingBuffer<any>(100);
@@ -113,7 +116,6 @@ export class Network extends Component<Network> {
 
   /** Disposes the network. */
   dispose(): void {
-    super.dispose();
     // TODO: needs tests
     this.clients = {};
     this.transport = null;
@@ -123,10 +125,3 @@ export class Network extends Component<Network> {
     Network.sceneId = "default"; // TODO: Clear scene ID, no need for default
   }
 }
-
-Network._schema = {
-  isInitialized: { type: Types.Boolean },
-  transport: { type: Types.Ref },
-  schema: { type: Types.Ref },
-  clients: { type: Types.Array },
-};

@@ -1,8 +1,8 @@
-import { Behavior } from "../../../common/interfaces/Behavior";
+import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { CharacterComponent } from "../components/CharacterComponent";
 import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { Vector3 } from "three";
-import { getSignedAngleBetweenVectors } from "../../../common/functions/getSignedAngleBetweenVectors";
+import { getSignedAngleBetweenVectors } from "@xr3ngine/engine/src/common/functions/getSignedAngleBetweenVectors";
 
 export const springRotation: Behavior = (entity, args = null, deltaTime): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);

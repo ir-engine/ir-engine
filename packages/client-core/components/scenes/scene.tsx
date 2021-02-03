@@ -1,14 +1,13 @@
 import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraComponent';
 import { addObject3DComponent } from '@xr3ngine/engine/src/common/behaviors/Object3DBehaviors';
 import { createPrefab } from '@xr3ngine/engine/src/common/functions/createPrefab';
-import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
 import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
-import { createEntity, /*getComponent,*/ getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { createEntity, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
+import { initVR } from '@xr3ngine/engine/src/input/functions/WebXRFunctions';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { staticWorldColliders } from "@xr3ngine/engine/src/templates/car/prefabs/staticWorldColliders";
-import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
 import { PlayerCharacter } from '@xr3ngine/engine/src/templates/character/prefabs/PlayerCharacterWithEmptyInputSchema';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
@@ -16,12 +15,11 @@ import React, { FunctionComponent, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { AmbientLight, DirectionalLight, HemisphereLight } from 'three';
-import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
-import { generalStateList, setAppOnBoardingStep, setAppLoaded } from '../../redux/app/actions';
+import { SocketWebRTCClientTransport } from '@xr3ngine/engine/src/networking/classes/SocketWebRTCClientTransport';
+import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '../../redux/app/actions';
 import store from '../../redux/store';
 import LinearProgressComponent from '../ui/LinearProgress';
 import NetworkDebug from '../ui/NetworkDebug/NetworkDebug';
-import { initVR } from '@xr3ngine/engine/src/input/functions/WebXRFunctions';
 
 const mapStateToProps = (state: any): any => {
   return { };

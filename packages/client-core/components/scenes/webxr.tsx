@@ -22,7 +22,7 @@ import React, { FunctionComponent, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { AmbientLight, EquirectangularReflectionMapping, sRGBEncoding, TextureLoader } from 'three';
-import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
+import { SocketWebRTCClientTransport } from '@xr3ngine/engine/src/networking/classes/SocketWebRTCClientTransport';
 import { generalStateList, setAppOnBoardingStep } from '../../redux/app/actions';
 import { selectAppOnBoardingStep } from '../../redux/app/selector';
 import { selectAuthState } from '../../redux/auth/selector';

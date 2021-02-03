@@ -1,30 +1,17 @@
 import { Component } from '../../ecs/classes/Component';
 import { ID, Snapshot } from '../types/SnapshotDataTypes';
 
-// TODO Merge with Network Interpolation
 /** 
  * Component class for Snapshot interpolation.\
- * Snap shot is based on this {@link https://github.com/geckosio/snapshot-interpolation | library by yandeu}.
+ * Snapshot is based on this {@link https://github.com/geckosio/snapshot-interpolation | library by yandeu}.
  */
-export class Vault extends Component<any> {
+export class Vault {
   /** Static instance for Component. */
-  static instance: Vault
+  static instance: Vault = new Vault();
   /** Span shot vault to store snapshots. */
   public vault: Snapshot[] = []
   /** Size of the vault. */
   vaultSize = 2000
-
-  /** Constructs Component. */
-  constructor () {
-    super();
-    Vault.instance = this;
-  }
-
-  /** Dispose Vault component. */
-  dispose(): void {
-    super.dispose();
-    Vault.instance = null;
-  }
 
   /**
    * Get a Snapshot by its ID.

@@ -1,4 +1,4 @@
-import { Network } from "../components/Network";
+import { Network } from "../classes/Network";
 import { SocketWebRTCClientTransport } from "@xr3ngine/engine/src/networking/classes/SocketWebRTCClientTransport";
 import { MessageTypes } from "../enums/MessageTypes";
 import { applyNetworkStateToClient } from "./applyNetworkStateToClient";

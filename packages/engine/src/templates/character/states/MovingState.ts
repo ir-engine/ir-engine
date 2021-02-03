@@ -11,14 +11,14 @@ import { addState } from "../../../state/behaviors/addState";
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { DefaultInput } from '../../shared/DefaultInput';
 import { Entity } from "../../../ecs/classes/Entity";
-import { LifecycleValue } from "../../../common/enums/LifecycleValue";
+import { LifecycleValue } from "@xr3ngine/engine/src/common/enums/LifecycleValue";
 import { getMovingAnimationsByVelocity } from "../functions/getMovingAnimationsByVelocity";
 import { defaultAvatarAnimations } from "../CharacterAvatars";
 import { setActorAnimationWeightScale } from "../behaviors/setActorAnimationWeightScale";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { Vector3 } from "three";
 import { getPlayerMovementVelocity } from "../functions/getPlayerMovementVelocity";
-import { BinaryValue } from "../../../common/enums/BinaryValue";
+import { BinaryValue } from "@xr3ngine/engine/src/common/enums/BinaryValue";
 import { trySwitchToJump } from "../behaviors/trySwitchToJump";
 import { trySwitchToMovingState } from "../behaviors/trySwitchToMovingState";
 

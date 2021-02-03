@@ -1,8 +1,8 @@
 import { degreeLerp, lerp, quatSlerp, radianLerp } from '../../common/functions/MathLerpFunctions';
 import { randomId } from '../../common/functions/MathRandomFunctions';
 import { Quat } from '../../networking/types/SnapshotDataTypes';
-import { NetworkInterpolation } from '../components/NetworkInterpolation';
 import { InterpolatedSnapshot, Snapshot, StateEntityGroup, StateEntity, Time, Value } from '../types/SnapshotDataTypes';
+import { NetworkInterpolation } from '../classes/NetworkInterpolation';
 
 /** Get snapshot factory. */
 export function snapshot(): any {

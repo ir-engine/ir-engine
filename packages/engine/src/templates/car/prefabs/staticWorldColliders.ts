@@ -2,7 +2,7 @@ import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
 import { ColliderComponent } from "@xr3ngine/engine/src/physics/components/ColliderComponent";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { BoxBufferGeometry, Mesh, MeshPhongMaterial } from "three";
-import { addObject3DComponent } from "../../../common/behaviors/Object3DBehaviors";
+import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
 
 const scale = [100, 0.1, 100];
 const floor = new BoxBufferGeometry(scale[0], scale[1], scale[2]);

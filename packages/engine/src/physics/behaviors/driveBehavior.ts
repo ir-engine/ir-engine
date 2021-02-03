@@ -1,13 +1,12 @@
+import { Object3DComponent } from '../../common/components/Object3DComponent';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { getMutableComponent, getComponent } from '../../ecs/functions/EntityFunctions';
-import { Object3DComponent } from '../../common/components/Object3DComponent';
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { Input } from "../../input/components/Input";
+import { InputType } from "../../input/enums/InputType";
+import { InputAlias } from "../../input/types/InputAlias";
 //import { VehicleComponent } from '../components/VehicleComponent';
 import { VehicleBody } from '../components/VehicleBody';
-import { Vector2Type } from '../../common/types/NumericalTypes';
-import { InputAlias } from "../../input/types/InputAlias";
-import { InputType } from "../../input/enums/InputType";
-import { Input } from "../../input/components/Input";
 
 export const drive: Behavior = (entity: Entity, args: { direction: number }): void => {
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);

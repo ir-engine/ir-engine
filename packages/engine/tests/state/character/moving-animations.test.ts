@@ -9,7 +9,7 @@ import { execute } from "../../../src/ecs/functions/EngineFunctions";
 import { SystemUpdateType } from "../../../src/ecs/functions/SystemUpdateType";
 import { NetworkSchema } from "../../../src/networking/interfaces/NetworkSchema";
 import { DefaultNetworkSchema } from "../../../src/templates/networking/DefaultNetworkSchema";
-import { Network } from "../../../src/networking/components/Network";
+import { Network } from "../../../src/networking//classes/Network";
 import { registerSystem } from "../../../src/ecs/functions/SystemFunctions";
 import { ClientNetworkSystem } from "../../../src/networking/systems/ClientNetworkSystem";
 import { PhysicsSystem } from "../../../src/physics/systems/PhysicsSystem";

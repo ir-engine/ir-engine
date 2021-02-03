@@ -1,5 +1,5 @@
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { Network } from "@xr3ngine/engine/src/networking/components/Network";
+import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import React, { useEffect, useRef, useState } from "react";
 import JSONTree from 'react-json-tree';
 
