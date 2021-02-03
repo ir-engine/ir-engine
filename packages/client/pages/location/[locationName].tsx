@@ -10,29 +10,29 @@ import React, { useEffect, useState } from 'react';
 import NoSSR from 'react-no-ssr';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
-import Loading from '../../components/scenes/loading';
-import Scene from '../../components/scenes/location';
-import Layout from '../../components/ui/Layout';
-import UserMenu from '../../components/ui/UserMenu';
-import { selectAppOnBoardingStep, selectAppState } from '../../redux/app/selector';
-import { selectAuthState } from '../../redux/auth/selector';
-import { doLoginAuto } from '../../redux/auth/service';
-import { client } from '../../redux/feathers';
-import { selectInstanceConnectionState } from '../../redux/instanceConnection/selector';
+import { SocketWebRTCClientTransport } from '@xr3ngine/engine/src/networking/classes/SocketWebRTCClientTransport';
+import Loading from '@xr3ngine/client-core/components/scenes/loading';
+import Scene from '@xr3ngine/client-core/components/scenes/location';
+import Layout from '@xr3ngine/client-core/components/ui/Layout';
+import UserMenu from '@xr3ngine/client-core/components/ui/UserMenu';
+import { selectAppOnBoardingStep, selectAppState } from '@xr3ngine/client-core/redux/app/selector';
+import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
+import { doLoginAuto } from '@xr3ngine/client-core/redux/auth/service';
+import { client } from '@xr3ngine/client-core/redux/feathers';
+import { selectInstanceConnectionState } from '@xr3ngine/client-core/redux/instanceConnection/selector';
 import {
   connectToInstanceServer,
   provisionInstanceServer
-} from '../../redux/instanceConnection/service';
-import { selectLocationState } from '../../redux/location/selector';
+} from '@xr3ngine/client-core/redux/instanceConnection/service';
+import { selectLocationState } from '@xr3ngine/client-core/redux/location/selector';
 import {
   getLocationByName
-} from '../../redux/location/service';
-import { selectPartyState } from '../../redux/party/selector';
+} from '@xr3ngine/client-core/redux/location/service';
+import { selectPartyState } from '@xr3ngine/client-core/redux/party/selector';
 
-import { setAppSpecificOnBoardingStep, generalStateList } from '../../redux/app/actions';
-import store from '../../redux/store';
-import { setCurrentScene } from '../../redux/scenes/actions';
+import { setAppSpecificOnBoardingStep, generalStateList } from '@xr3ngine/client-core/redux/app/actions';
+import store from '@xr3ngine/client-core/redux/store';
+import { setCurrentScene } from '@xr3ngine/client-core/redux/scenes/actions';
 
 interface Props {
   appState?: any;

@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import NoSSR from 'react-no-ssr';
-import Loading from '../components/scenes/loading';
-import Layout from '../components/ui/Layout';
+import Loading from '@xr3ngine/client-core/components/scenes/loading';
+import Layout from '@xr3ngine/client-core/components/ui/Layout';
 
 export const IndexPage = (props: any): any => {
     useEffect(() => {
