@@ -14,6 +14,14 @@ export class Channel extends Service {
     this.app = app;
   }
 
+  /**
+   * A method which find channel and display it 
+   * 
+   * @param params of query which contains items limit and numberr skip 
+   * @returns {@Array} which contains list of channel 
+   * @author Vyacheslav Solovjov
+   */
+
   async find (params: Params): Promise<any> {
     const { query } = params;
     const skip = query?.skip || 0;
