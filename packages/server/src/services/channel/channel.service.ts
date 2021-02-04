@@ -33,7 +33,7 @@ export default (app: Application): any => {
   service.hooks(hooks);
 
   /**
-   * A method which is used to crate channel 
+   * A method which is used to create channel 
    * 
    * @param data which is parsed to create channel 
    * @returns created channel data 
