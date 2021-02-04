@@ -10,8 +10,8 @@ export const seed = {
     [
       {
           id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61',
-          name: 'Home',
-          slugifiedName: 'home',
+          name: 'Test',
+          slugifiedName: 'test',
           maxUsersPerInstance: 30,
           sceneId: 'j9o2NLiD',
           locationSettingsId: LocationSettingsSeed.templates.find(template => template.locationId === '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61').id,

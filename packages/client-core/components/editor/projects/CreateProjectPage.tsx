@@ -23,24 +23,17 @@ import usePaginatedSearch from "./usePaginatedSearch";
 import configs from "../configs";
 import Api from "../Api";
 
-/**
- *Component used for show the existing scenes in different grids. 
- * and shows a grid to add new empty project. 
- */
 function CreateProjectPage({ api }: { api: Api }) {
   const router = useRouter();
- 
- // getting request queryParams using router.
+
   const queryParams = new Map(Object.entries(router.query));
 
- // setting params using queryParams. 
   const [params, setParams] = useState({
     source: "scene_listings",
     filter: queryParams.get("filter") || "featured-remixable",
     q: queryParams.get("q") || ""
   });
 
-  // function to update params on search.
   const updateParams = useCallback(
     nextParams => {
       const search = new URLSearchParams();
@@ -61,13 +54,10 @@ function CreateProjectPage({ api }: { api: Api }) {
     [router]
   );
 
-  // function to create route, used when click on add new project. 
   const routeTo = (route: string) => () => {
     router.push(route);
   };
   
-
- // handling on change of search input and updating params. 
   const onChangeQuery = useCallback(
     value => {
       updateParams({
@@ -79,7 +69,6 @@ function CreateProjectPage({ api }: { api: Api }) {
     [updateParams]
   );
 
- // function to update params for featured scenes used when click on Featured filter.
   const onSetFeaturedRemixable = useCallback(() => {
     updateParams({
       ...params,
@@ -88,7 +77,6 @@ function CreateProjectPage({ api }: { api: Api }) {
     });
   }, [updateParams, params]);
 
-// function used to show all scenes used when click on All filter.
   const onSetAll = useCallback(() => {
     updateParams({
       ...params,
@@ -97,8 +85,6 @@ function CreateProjectPage({ api }: { api: Api }) {
     });
   }, [updateParams, params]);
 
-// function used when click on an existing scene 
-// appends sceneId to the url.  
   const onSelectScene = useCallback(
     scene => {
       const search = new URLSearchParams();
@@ -112,15 +98,12 @@ function CreateProjectPage({ api }: { api: Api }) {
   const { loading, error, entries } = usePaginatedSearch(`${api.apiURL}/media-search`, params);
   // const { loading, error, entries } = { loading: false, error: false, entries: [] };
   const hasMore = false;
-
-  //creating data for filtered scene.
   const filteredEntries = Array.isArray(entries) ? entries.map(result => ({
     ...result as any,
     url: `/editor/projects/new?sceneId=${(result as any).id}`,
     thumbnailUrl: result && (result as any).images && (result as any).images.preview && (result as any).images.preview.url
   })) : [];
 
-  //rendering the create project page view.
   return (
     <>
       <main>

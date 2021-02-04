@@ -59,6 +59,7 @@ import AudioNode from "@xr3ngine/engine/src/editor/nodes/AudioNode";
 import FloorPlanNode from "@xr3ngine/engine/src/editor/nodes/FloorPlanNode";
 import GroupNode from "@xr3ngine/engine/src/editor/nodes/GroupNode";
 import ImageNode from "@xr3ngine/engine/src/editor/nodes/ImageNode";
+import LinkNode from "@xr3ngine/engine/src/editor/nodes/LinkNode";
 import ModelNode from "@xr3ngine/engine/src/editor/nodes/ModelNode";
 import SceneNode from "@xr3ngine/engine/src/editor/nodes/SceneNode";
 import VideoNode from "@xr3ngine/engine/src/editor/nodes/VideoNode";
@@ -70,36 +71,31 @@ import LoadingCube from "@xr3ngine/engine/src/scene/classes/LoadingCube";
 import EventEmitter from "eventemitter3";
 import {
   AudioListener,
-  Clock,
-  Matrix4,
-  PerspectiveCamera,
-  PropertyBinding,
-  Quaternion,
+
+  Clock, Matrix4,
+
+
+
+
+  PerspectiveCamera, PropertyBinding, Quaternion,
+
+
+
   Raycaster,
-  Scene,
-  Vector2,
+
+  Scene, Vector2,
   Vector3
 } from "three";
 import Api from "./Api";
-import { loadEnvironmentMap } from "@xr3ngine/engine/src/editor/renderer/EnvironmentMap";
+import AssetManifestSource from "./assets/AssetManifestSource";
+import { loadEnvironmentMap } from "./EnvironmentMap";
 
-// @ts-ignore
-import negx from "./cubemap/negx.jpg";
-// @ts-ignore
-import negy from "./cubemap/negy.jpg";
-// @ts-ignore
-import negz from "./cubemap/negz.jpg";
-// @ts-ignore
-import posx from "./cubemap/posx.jpg";
-// @ts-ignore
-import posy from "./cubemap/posy.jpg";
-// @ts-ignore
-import posz from "./cubemap/posz.jpg";
-// @ts-ignore
 
-const cubeMapURLs = [posx, negx, posy, negy, posz, negz];
 
-const cubemap = []
+
+
+
+
 
 const tempMatrix1 = new Matrix4();
 const tempMatrix2 = new Matrix4();
@@ -155,7 +151,6 @@ export default class Editor extends EventEmitter {
   rafId: number;
   thumbnailRenderer: ThumbnailRenderer;
   playing: boolean;
-  
   constructor(api, settings = {}) {
     super();
     this.api = api;
@@ -225,6 +220,14 @@ export default class Editor extends EventEmitter {
     }
   }
 
+  async installAssetSource(manifestUrl) {
+    const proxiedUrl = this.api.proxyUrl(new URL(manifestUrl, (window as any).location).href);
+    const res = await this.api.fetchUrl(proxiedUrl);
+    const json = await res.json();
+    this.sources.push(new AssetManifestSource(this, json.name, manifestUrl));
+    this.emit("settingsChanged");
+  }
+
   getSource(sourceId) {
     return this.sources.find(source => source.id === sourceId);
   }
@@ -271,7 +274,7 @@ export default class Editor extends EventEmitter {
 
     this.initializing = true;
 
-    const tasks = [rendererPromise, loadEnvironmentMap(cubeMapURLs), LoadingCube.load(), ErrorIcon.load(), TransformGizmo.load()];
+    const tasks = [rendererPromise, loadEnvironmentMap(), LoadingCube.load(), ErrorIcon.load(), TransformGizmo.load()];
 
     for (const NodeConstructor of this.nodeTypes) {
       tasks.push(NodeConstructor.load());
@@ -1924,6 +1927,12 @@ export default class Editor extends EventEmitter {
 
     const { hostname } = new URL(url);
 
+    try {
+      contentType = (await this.api.getContentType(url)) || "";
+    } catch (error) {
+      console.warn(`Couldn't fetch content type for url ${url}. Using LinkNode instead.`);
+    }
+
     let node;
 
     if (contentType.startsWith("model/gltf")) {
@@ -1953,6 +1962,12 @@ export default class Editor extends EventEmitter {
       this.getSpawnPosition(node.position);
       this.addObject(node, parent, before);
      }
+     else {
+      node = new LinkNode(this);
+      this.getSpawnPosition(node.position);
+      node.href = url;
+      this.addObject(node, parent, before);
+    }
 
     return node;
   }

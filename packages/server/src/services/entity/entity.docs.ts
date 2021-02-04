@@ -26,4 +26,4 @@ export default {
             items: { $ref: '#/definitions/entity'}
         }
     }
-};
+}

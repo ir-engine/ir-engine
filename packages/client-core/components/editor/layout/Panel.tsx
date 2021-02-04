@@ -37,7 +37,6 @@ export const PanelContent = (styled as any).div`
 
 export default class Panel extends Component {
   static propTypes = {
-    id: PropTypes.string,
     icon: PropTypes.object,
     title: PropTypes.string,
     children: PropTypes.node,

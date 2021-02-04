@@ -10,10 +10,7 @@ import { EllipsisV } from "@styled-icons/fa-solid/EllipsisV";
 function collectMenuProps({ project }) {
   return { project };
 }
-/**
- * StyledProjectGridItem component used to create project item grid.
- * @type {Styled component}
- */
+
 const StyledProjectGridItem = styled.div`
   display: flex;
   flex-direction: column;
@@ -28,10 +25,7 @@ const StyledProjectGridItem = styled.div`
     border-color: ${props => props.theme.selected};
   }
 `;
-/**
- * StyledContextMenuTrigger component used to show the context of project item.
- * @type {Styled component}
- */
+
 const StyledContextMenuTrigger = styled(StylableContextMenuTrigger)`
   display: flex;
   flex-direction: column;
@@ -40,10 +34,6 @@ const StyledContextMenuTrigger = styled(StylableContextMenuTrigger)`
   border-top-right-radius: inherit;
 `;
 
-/**
- * TitleContainer component used to provide styles to title.
- * @type {Styled component}
- */
 const TitleContainer = styled.div`
   display: flex;
   height: 50px;
@@ -63,10 +53,7 @@ const TitleContainer = styled.div`
     }
   }
 `;
-/**
- * ThumbnailContainer component is used to provide the styles for project item thumbnail.
- * @type {Styled component}
- */
+
 const ThumbnailContainer = styled.div`
   display: flex;
   flex: 1 0 auto;
@@ -77,10 +64,7 @@ const ThumbnailContainer = styled.div`
   border-top-left-radius: inherit;
   border-top-right-radius: inherit;
 `;
-/**
- * Thumbnail component is used to provide the styles for project item thumbnail.
- * @type {Styled component}
- */
+
 const Thumbnail = styled.div<{ src: string }>`
   display: flex;
   flex: 1;
@@ -89,10 +73,7 @@ const Thumbnail = styled.div<{ src: string }>`
   background-repeat: no-repeat;
   background-image: url(${props => props.src});
 `;
-/**
- * @type {Styled component}
- * Col component is used as a wrapper for project name.
- */
+
 const Col = styled.div`
   display: flex;
   flex-direction: column;
@@ -101,10 +82,7 @@ const Col = styled.div`
     color: ${props => props.theme.text2};
   }
 `;
-/**
- * ProjectGridItem is used to show project grid.
- * @type {class}
- */
+
 export default class ProjectGridItem extends Component<{ contextMenuId: string, project: any }> {
   static propTypes = {
     contextMenuId: PropTypes.string,
