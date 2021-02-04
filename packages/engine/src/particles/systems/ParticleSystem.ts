@@ -12,7 +12,6 @@ import {
   setEmitterMatrixWorld,
   setEmitterTime
 } from "../classes/ParticleEmitter";
-import { update, createParticles } from "../functions/particleHelpers";
 
 /** System class for particle system. */
 export class ParticleSystem extends System {
@@ -27,10 +26,9 @@ export class ParticleSystem extends System {
     
     for (const entity of this.queryResults.emitters.added) {
       const emitter = getMutableComponent(entity, ParticleEmitter) as ParticleEmitter;
-      console.log('Hi, I\'m Particle Emitter.');
 
-      // console.info(emitter, entity);
-      createParticles(emitter);
+      // createParticles(emitter);
+      console.debug("Transform => ", getComponent(entity, TransformComponent))
       this.clearEventQueues();
       // const emitter = createParticleEmitter(emitter);
       // const matrixWorld = calcMatrixWorld(entity);
@@ -48,7 +46,8 @@ export class ParticleSystem extends System {
 
     this.queryResults.emitters.all?.forEach(entity => {
       const emitter = getComponent(entity, ParticleEmitter) as ParticleEmitter;
-      update(emitter,  deltaTime);
+      emitter.particleEmitterMesh?.update(deltaTime);
+      // update(emitter,  deltaTime);
     });
 
     // for (const entity of this.queryResults.emitterStates.all) {
