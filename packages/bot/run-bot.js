@@ -1,34 +1,49 @@
 const xr3ngineBot = require('./src/xr3ngine-bot');
 const AgonesSDK = require('@google-cloud/agones-sdk');
+const { BotAction } = require('./src/bot-action');
+const BotManager = require('./src/bot-manager');
 
 const agonesSDK = new AgonesSDK();
 
-async function runDirection(bot, key, numSeconds) {
-    console.log('Running with key ' + key);
-    const interval = setInterval(() => {bot.pressKey(key) }, 100);
-    return new Promise((resolve, reject) => setTimeout(() => {
-        console.log('Clearing button press for ' + key);
-        bot.releaseKey(key); clearInterval(interval);
-        resolve()
-    }, numSeconds));
-}
+async function run() {
+    console.log("=============Start=================");
+    console.log(process.env.DOMAIN);
 
-async function runInCircle(bot, numSeconds) {
-    console.log('Running in circle');
-    await runDirection(bot, 'KeyW', numSeconds);
-    await runDirection(bot, 'KeyD', numSeconds);
-    await runDirection(bot,'KeyS', numSeconds);
-    await runDirection(bot,'KeyA', numSeconds);
-}
+    const domain = process.env.DOMAIN || 'dev.theoverlay.io';
+    const locationName = process.env.LOCATION_NAME || 'test';
+    const fakeMediaPath = __dirname + "/resources";
+    const moveDuration = 2000;
+    const botManager = new BotManager({headless: true, fakeMediaPath});
 
-async function sendChatMessages(bot) {
-    await bot.clickElementByClass('button', 'openChat');
-    await bot.clickElementById('textarea', 'newMessage');
-    await bot.typeMessage('Hello World! It\'s a-me, LeBot!');
-    await bot.clickElementByClass('button', 'sendMessage');
-}
+    console.log(fakeMediaPath);
 
-async function runBot() {
+    botManager.addBot("bot1");
+    botManager.addBot("bot2");
+
+    botManager.addAction("bot1", BotAction.connect());
+    botManager.addAction("bot1", BotAction.enterRoom(domain, locationName));
+    botManager.addAction("bot1", BotAction.sendAudio(10000));
+    botManager.addAction("bot1", BotAction.receiveAudio(6000));
+    botManager.addAction("bot1", BotAction.delay(6000));
+    botManager.addAction("bot1", BotAction.keyPress("KeyW", moveDuration));
+    botManager.addAction("bot1", BotAction.keyPress("KeyD", moveDuration));
+    botManager.addAction("bot1", BotAction.keyPress("KeyS", moveDuration));
+    botManager.addAction("bot1", BotAction.keyPress("KeyA", moveDuration));
+    botManager.addAction("bot1", BotAction.sendMessage("Hello World! This is bot1."));
+
+    // botManager.addAction("bot2", BotAction.connect());
+    // botManager.addAction("bot2", BotAction.enterRoom(domaiin, locationName));
+    // botManager.addAction("bot2", BotAction.keyPress("KeyW", moveDuration));
+    // botManager.addAction("bot2", BotAction.keyPress("KeyD", moveDuration));
+    // botManager.addAction("bot2", BotAction.keyPress("KeyS", moveDuration));
+    // botManager.addAction("bot2", BotAction.keyPress("KeyA", moveDuration));
+    // botManager.addAction("bot2", BotAction.sendMessage("Hello World! This is bot2."));
+
+    // botManager.addAction("monitor", BotAction.opIf((stats) => console.log(stats)));
+
+    botManager.addAction("bot1", BotAction.disconnect());
+    // botManager.addAction("bot2", BotAction.disconnect());
+
     try {
         if (process.env.KUBERNETES === 'true') {
             agonesSDK.connect();
@@ -37,24 +52,24 @@ async function runBot() {
                 agonesSDK.health();
             }, 1000)
         }
-        const bot = new xr3ngineBot();
-        const domain = process.env.DOMAIN || 'localhost:3000';
-        const locationName = process.env.LOCATION_NAME || 'test';
-        await bot.enterRoom(`https://${domain}/location/${locationName}`, {name: 'bot1'});
-        await runInCircle(bot, 2000);
-        await sendChatMessages(bot);
-        setTimeout(async () => {
-            await bot.browser.close()
-            if (process.env.KUBERNETES === 'true') await agonesSDK.shutdown();
-            process.exit(0);
-        }, 3000)
-    } catch(err) {
-        console.log('Bot error');
-        console.log(err);
-        if (bot && bot.browser) bot.browser.close();
-        if (process.env.KUBERNETES === 'true') await agonesSDK.shutdown();
+
+        await botManager.run();
+
+        if (process.env.KUBERNETES === 'true') {
+            await agonesSDK.shutdown();
+        }
+    }
+    catch (e) {
+        console.error(e);
+        
+        await botManager.clear();
+        if (process.env.KUBERNETES === 'true') {
+            await agonesSDK.shutdown();
+        }
         process.exit(1);
     }
+    
+    console.log("=============End=================");
 }
 
-runBot();
+run();

@@ -1,15 +1,9 @@
-import { Vector3, Vector4, PerspectiveCamera, ArrayCamera } from "three";
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
+import { addColliderWithoutEntity } from '@xr3ngine/engine/src/physics/behaviors/addColliderWithoutEntity';
+import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-
-import { getComponent, hasComponent, getMutableComponent, addComponent } from '../../ecs/functions/EntityFunctions';
-import { WebXRSession } from "../components/WebXRSession";
-import { XRWebGLLayerOptions, XRSession } from '../types/WebXR';
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { XRControllersComponent } from '../components/XRControllersComponent';
-import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
-import { addColliderWithoutEntity } from '@xr3ngine/engine/src/physics/behaviors/addColliderWithoutEntity';
-import { PhysicsManager } from '@xr3ngine/engine/src/physics/components/PhysicsManager';
 
 /*
 const cameraLPos = new Vector3();
@@ -160,8 +154,8 @@ export const updateWebXRPhysics: Behavior = (entity: Entity) => {
 };
 export const removeWebXRPhysics: Behavior = (entity: Entity, args: any) => {
 if (args.controllerPhysicalBody1) {
-	PhysicsManager.instance.physicsWorld.removeBody(args.controllerPhysicalBody1)
-	PhysicsManager.instance.physicsWorld.removeBody(args.controllerPhysicalBody2)
+	PhysicsSystem.physicsWorld.removeBody(args.controllerPhysicalBody1)
+	PhysicsSystem.physicsWorld.removeBody(args.controllerPhysicalBody2)
 }
 	console.warn(args);
 //  Engine.context

@@ -1,7 +1,7 @@
 import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
 import { getComponent, removeEntity } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
-import { MediaStreamComponent } from '@xr3ngine/engine/src/networking/components/MediaStreamComponent';
-import { Network } from "@xr3ngine/engine/src/networking/components/Network";
+import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
+import { Network } from "@xr3ngine/engine/src/networking//classes/Network";
 import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
 import { initializeNetworkObject } from '@xr3ngine/engine/src/networking/functions/initializeNetworkObject';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
@@ -122,10 +122,10 @@ export function validateNetworkObjects(): void {
                 disconnectedClient.instanceRecvTransport.close();
             if (disconnectedClient?.instanceSendTransport)
                 disconnectedClient.instanceSendTransport.close();
-            if (disconnectedClient?.partyRecvTransport)
-                disconnectedClient.partyRecvTransport.close();
-            if (disconnectedClient?.partySendTransport)
-                disconnectedClient.partySendTransport.close();
+            if (disconnectedClient?.relRecvTransport)
+                disconnectedClient.relRecvTransport.close();
+            if (disconnectedClient?.relSendTransport)
+                disconnectedClient.relSendTransport.close();
 
             // Find all network objects that the disconnecting client owns and remove them
             const networkObjectsClientOwns = [];
@@ -381,8 +381,8 @@ export async function handleDisconnect(socket): Promise<any> {
         logger.info('Disconnecting clients for user ' + userId);
         if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close();
         if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close();
-        if (disconnectedClient?.partyRecvTransport) disconnectedClient.partyRecvTransport.close();
-        if (disconnectedClient?.partySendTransport) disconnectedClient.partySendTransport.close();
+        if (disconnectedClient?.relRecvTransport) disconnectedClient.relRecvTransport.close();
+        if (disconnectedClient?.relSendTransport) disconnectedClient.relSendTransport.close();
         if (Network.instance.clients[userId] !== undefined)
             delete Network.instance.clients[userId];
     } else {
@@ -392,8 +392,8 @@ export async function handleDisconnect(socket): Promise<any> {
 
 export async function handleLeaveWorld(socket, data, callback): Promise<any> {
     const userId = getUserIdFromSocketId(socket.id);
-    if (MediaStreamComponent.instance.transports)
-        for (const [, transport] of Object.entries(MediaStreamComponent.instance.transports))
+    if (Network.instance.transports)
+        for (const [, transport] of Object.entries(Network.instance.transports))
             if ((transport as any).appData.peerId === userId)
                 closeTransport(transport);
     if (Network.instance.clients[userId] !== undefined)

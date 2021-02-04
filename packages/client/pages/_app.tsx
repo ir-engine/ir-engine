@@ -1,29 +1,26 @@
-// eslint-disable-next-line
-import { AppProps } from 'next/app'
-import Head from 'next/head';
-import withRedux from 'next-redux-wrapper';
-import { Provider } from 'react-redux';
-import { fromJS } from 'immutable';
-import { configureStore } from '../redux/store';
-import {bindActionCreators, Dispatch, Store} from 'redux';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import theme from "./../components/editor/theme";
-import { ThemeProvider } from "styled-components";
-import { restoreState } from '../redux/persisted.store';
+import { initGA, logPageView } from '@xr3ngine/client-core/components/analytics';
+import Api from "@xr3ngine/client-core/components/editor/Api";
+import { ApiContext } from '@xr3ngine/client-core/components/editor/contexts/ApiContext';
+import GlobalStyle from '@xr3ngine/client-core/components/editor/GlobalStyle';
+import theme from "@xr3ngine/client-core/components/editor/theme";
+import { dispatchAlertError } from '@xr3ngine/client-core/redux/alert/service';
+import { getDeviceType } from '@xr3ngine/client-core/redux/devicedetect/actions';
+import { restoreState } from '@xr3ngine/client-core/redux/persisted.store';
+import { configureStore } from '@xr3ngine/client-core/redux/store';
 import DeviceDetector from 'device-detector-js';
-import { getDeviceType } from '../redux/devicedetect/actions';
-import React, { Fragment, useCallback, useEffect, useState } from 'react';
-import { initGA, logPageView } from '../components/analytics';
-import url from 'url';
-import querystring from 'querystring';
-import { dispatchAlertError } from '../redux/alert/service';
-import { connect } from 'react-redux';
-
+import { fromJS } from 'immutable';
+import withRedux from 'next-redux-wrapper';
+import { AppProps } from 'next/app';
 import getConfig from 'next/config';
-import { ApiContext } from '../components/editor/contexts/ApiContext';
-import Api from "../components/editor/Api";
-import GlobalStyle from '../components/editor/GlobalStyle';
+import Head from 'next/head';
+import querystring from 'querystring';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
+import { connect, Provider } from 'react-redux';
+import { Dispatch, Store } from 'redux';
+import { ThemeProvider } from "styled-components";
+import url from 'url';
 import './styles.scss';
+
 
 const config = getConfig().publicRuntimeConfig;
 

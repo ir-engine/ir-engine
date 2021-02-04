@@ -11,4 +11,4 @@ export default {
             items: { $ref: '#/definitions/magic-link'}
         }
     }
-}
+};

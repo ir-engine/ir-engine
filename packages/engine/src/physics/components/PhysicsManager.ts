@@ -12,14 +12,13 @@ const cannonDebugger = isClient ? import('cannon-es-debugger').then((module) => 
 }) : null;
 */
 
-const DEBUG_PHYSICS = false;
+const DEBUG_PHYSICS = true;
 
 export class PhysicsManager extends Component<any> {
   static instance: PhysicsManager
   frame: number
   physicsWorld: World
   simulate: boolean
-  serverOnlyRigidBodyCollides: boolean
   groundMaterial = new Material('groundMaterial')
   wheelMaterial = new Material('wheelMaterial')
   trimMeshMaterial = new Material('trimMeshMaterial')
@@ -54,7 +53,6 @@ export class PhysicsManager extends Component<any> {
     this.physicsMaxPrediction = this.physicsFrameRate;
     this.physicsWorld.allowSleep = false;
     this.simulate = true;
-    this.serverOnlyRigidBodyCollides = false;
   //  this.groundMaterial.friction = 5
     // this.physicsWorld.solver.iterations = 10;
 
@@ -69,8 +67,7 @@ export class PhysicsManager extends Component<any> {
 
     this.parallelPairs = [];
 
-    if (isClient) {
-
+    if (isClient && DEBUG_PHYSICS) {
       const DebugOptions = {
         onInit: (body: Body, mesh: Mesh, shape: Shape) => {
           // console.log("PH INIT: body: ", body, " | mesh: ", mesh, " | shape: ", shape)
@@ -80,13 +77,9 @@ export class PhysicsManager extends Component<any> {
           //console.log("PH  UPD: body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape) }
         }
       };
-
       window["physicsDebugView"] = () => {
         debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions);
       };
-      if (DEBUG_PHYSICS) {
-        debug(Engine.scene, PhysicsManager.instance.physicsWorld.bodies, DebugOptions);
-      }
      }
   }
 

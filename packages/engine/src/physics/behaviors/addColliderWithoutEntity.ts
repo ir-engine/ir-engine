@@ -1,5 +1,5 @@
 import { Body, Box, Sphere, Cylinder, Plane, Vec3 } from 'cannon-es';
-import { PhysicsManager } from '../components/PhysicsManager';
+import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { CollisionGroups } from "../enums/CollisionGroups";
 import { createTrimesh } from './physicalPrimitives';
 
@@ -35,7 +35,6 @@ export function createCylinder (scale) {
 }
 
 export function addColliderWithoutEntity( type, position, quaternion, scale, mesh ) {
-  //  mesh.visible = false;
   let body;
 
   switch (type) {
@@ -59,29 +58,30 @@ export function addColliderWithoutEntity( type, position, quaternion, scale, mes
       break;
 
     case 'trimesh':
-    body = createTrimesh(mesh, new Vec3(), 0);
+      body = createTrimesh(mesh, new Vec3(), 0);
       break;
 
     default:
       console.warn('create Collider undefined type !!!');
-      body = createBox(scale);
+      body = createBox(scale || 1);
       break;
     }
 
-    body.position.set(
-      position.x,
-      position.y,
-      position.z
-    );
+    if (position)
+      body.position.set(
+        position.x,
+        position.y,
+        position.z
+      );
 
     if (quaternion)
-    body.quaternion.set(
-      quaternion.x,
-      quaternion.y,
-      quaternion.z,
-      quaternion.w
-    );
+      body.quaternion.set(
+        quaternion.x,
+        quaternion.y,
+        quaternion.z,
+        quaternion.w
+      );
 
-  PhysicsManager.instance.physicsWorld.addBody(body);
+  PhysicsSystem.physicsWorld.addBody(body);
   return body;
 }

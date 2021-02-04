@@ -1,6 +1,6 @@
-import { Behavior } from "../../../common/interfaces/Behavior";
+import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
-import { Object3DComponent } from "../../../common/components/Object3DComponent";
+import { Object3DComponent } from "@xr3ngine/engine/src/common/components/Object3DComponent";
 import { Mesh, MeshPhongMaterial } from "three";
 
 export const onInteraction: Behavior = (entity, args, delta, entityOut, time) => {

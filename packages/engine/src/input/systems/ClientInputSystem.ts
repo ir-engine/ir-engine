@@ -7,13 +7,12 @@ import { System } from '../../ecs/classes/System';
 import { Not } from "../../ecs/functions/ComponentFunctions";
 import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
-import { Client } from "../../networking/components/Client";
-import { MediaStreamComponent } from '../../networking/components/MediaStreamComponent';
-import { Network } from "../../networking/components/Network";
+import { Network } from "../../networking/classes/Network";
+import { Vault } from '../../networking/classes/Vault';
 import { NetworkObject } from "../../networking/components/NetworkObject";
-import { Vault } from '../../networking/components/Vault';
 import { NetworkClientInputInterface } from "../../networking/interfaces/WorldState";
 import { ClientInputModel } from '../../networking/schema/clientInputSchema';
+import { MediaStreamSystem } from '../../networking/systems/MediaStreamSystem';
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { cleanupInput } from '../behaviors/cleanupInput';
 import { handleGamepads } from "../behaviors/GamepadInputBehaviors";
@@ -24,7 +23,6 @@ import { startFaceTracking, stopFaceTracking } from "../behaviors/WebcamInputBeh
 import { addPhysics, removeWebXRPhysics, updateWebXRPhysics } from '../behaviors/WebXRControllersBehaviors';
 import { Input } from '../components/Input';
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
-import { WebXRSession } from '../components/WebXRSession';
 import { XRControllersComponent } from '../components/XRControllersComponent';
 import { InputType } from "../enums/InputType";
 import { InputValue } from "../interfaces/InputValue";
@@ -116,15 +114,15 @@ export class InputSystem extends System {
       // apply face tracking
       if (this.localUserMediaStream === null) {
         // check to start video tracking
-        if (MediaStreamComponent.instance.mediaStream && MediaStreamComponent.instance.faceTracking) {
+        if (MediaStreamSystem.mediaStream && MediaStreamSystem.faceTracking) {
           console.log('start facetracking');
           startFaceTracking(entity);
-          this.localUserMediaStream = MediaStreamComponent.instance.mediaStream;
+          this.localUserMediaStream = MediaStreamSystem.mediaStream;
         }
       } else {
         // check if we need to change face tracking video src
-        if (MediaStreamComponent.instance.mediaStream) {
-          if (this.localUserMediaStream !== MediaStreamComponent.instance.mediaStream) {
+        if (MediaStreamSystem.mediaStream) {
+          if (this.localUserMediaStream !== MediaStreamSystem.mediaStream) {
             // stream is changed
             // TODO: do update video src ...
             console.log('change facetracking src');
@@ -134,7 +132,7 @@ export class InputSystem extends System {
           console.log('stop facetracking');
           stopFaceTracking();
         }
-        this.localUserMediaStream = MediaStreamComponent.instance.mediaStream;
+        this.localUserMediaStream = MediaStreamSystem.mediaStream;
       }
 
       // startFaceTracking(entity);
@@ -163,7 +161,7 @@ export class InputSystem extends System {
         viewVector: {
           x: 0, y: 0, z: 0
         },
-        snapShotTime: Vault.instance.get().time - Network.instance.timeSnaphotCorrection ?? 0
+        snapShotTime: Vault.instance?.get().time - Network.instance.timeSnaphotCorrection ?? 0
       };
 
       //console.warn(inputs.snapShotTime);
@@ -183,7 +181,7 @@ export class InputSystem extends System {
       inputs.viewVector.z = actor.viewVector.z;
 
       try{
-        Network.instance.transport.sendReliableData(ClientInputModel.toBuffer(inputs));
+        Network.instance.transport.sendData(ClientInputModel.toBuffer(inputs));
       } catch (error){
         console.warn("Couldn't send data, error")
         console.warn(error)
@@ -314,19 +312,18 @@ export class InputSystem extends System {
  */
 InputSystem.queries = {
   networkClientInput: {
-    components: [NetworkObject, Input, Client, Not(LocalInputReceiver)],
+    components: [NetworkObject, Input, Not(LocalInputReceiver)],
     listen: {
       added: true,
       removed: true
     }
   },
   localClientInput: {
-    components: [Input, Client, LocalInputReceiver],
+    components: [Input, LocalInputReceiver],
     listen: {
       added: true,
       removed: true
     }
   },
-  xrSession: { components: [WebXRSession], listen: { added: true } },
   controllersComponent: { components: [XRControllersComponent], listen: { added: true, removed: true } }
 };

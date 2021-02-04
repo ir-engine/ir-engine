@@ -1,13 +1,11 @@
-import { Vector3, Quaternion } from 'three';
-import { getMutableComponent, getComponent, addComponent, createEntity } from '../../ecs/functions/EntityFunctions';
-import { TransformComponent } from '../../transform/components/TransformComponent';
-import { Network } from '../components/Network';
-import { NetworkObject } from '../components/NetworkObject';
-import { PrefabType } from "../../templates/networking/DefaultNetworkSchema";
+import { Quaternion, Vector3 } from 'three';
 import { Component } from '../../ecs/classes/Component';
 import { Entity } from '../../ecs/classes/Entity';
-import { Client } from '../components/Client';
-import { Server } from '../components/Server';
+import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { PrefabType } from "../../templates/networking/DefaultNetworkSchema";
+import { TransformComponent } from '../../transform/components/TransformComponent';
+import { Network } from '../classes/Network';
+import { NetworkObject } from '../components/NetworkObject';
 import { NetworkPrefab } from '../interfaces/NetworkPrefab';
 
 /**
@@ -24,7 +22,6 @@ function createNetworkPrefab(prefab: NetworkPrefab, ownerId, networkId: number, 
 
   // Add a NetworkObject component to the entity, this will store information about changing state
   addComponent(entity, NetworkObject, { ownerId, networkId });
-  addComponent(entity, Network.instance.transport.isServer ? Server : Client);
 
   // Call each create action
   prefab.onBeforeCreate?.forEach(action => {

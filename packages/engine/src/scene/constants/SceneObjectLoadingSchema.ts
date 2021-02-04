@@ -1,20 +1,21 @@
 import { addWorldColliders } from "@xr3ngine/engine/src/templates/world/behaviors/addWorldColliders";
-import { AmbientLight, CircleBufferGeometry, Color, DirectionalLight, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight } from 'three';
+import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight } from 'three';
 import { AssetLoader } from '../../assets/components/AssetLoader';
-import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { addComponentFromBehavior, addObject3DComponent, addTagComponentFromBehavior } from '../../common/behaviors/Object3DBehaviors';
 import { LightTagComponent, VisibleTagComponent } from '../../common/components/Object3DTagComponents';
-import { TransformComponent } from '../../transform/components/TransformComponent';
+import { isClient } from "../../common/functions/isClient";
+import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { createBackground } from '../behaviors/createBackground';
 import { createBoxCollider } from '../behaviors/createBoxCollider';
+import { createCommonInteractive } from "../behaviors/createCommonInteractive";
 import { createGroup } from '../behaviors/createGroup';
 import { createImage } from '../behaviors/createImage';
-import { createLink } from '../behaviors/createLink';
+import { createMedia, createMediaServer } from "../behaviors/createMedia";
 import { createScenePreviewCamera } from "../behaviors/createScenePreviewCamera";
 import { createShadow } from '../behaviors/createShadow';
 import createSkybox from '../behaviors/createSkybox';
+import { createTransformComponent } from "../behaviors/createTransformComponent";
 import { createTriggerVolume } from '../behaviors/createTriggerVolume';
-import { createMedia, createMediaServer } from "../behaviors/createMedia";
 import { createVolumetric } from "../behaviors/createVolumetric";
 import { handleAudioSettings } from '../behaviors/handleAudioSettings';
 import { setFog } from '../behaviors/setFog';
@@ -23,11 +24,7 @@ import ScenePreviewCameraTagComponent from "../components/ScenePreviewCamera";
 import SpawnPointComponent from "../components/SpawnPointComponent";
 import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
-import { createCommonInteractive } from "../behaviors/createCommonInteractive";
-import { getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
-import { createTransformComponent } from "../behaviors/createTransformComponent";
 import { createParticleEmitter } from '../../particles/functions/particleHelpers';
-import { isClient } from "../../common/functions/isClient";
 
 export const SceneObjectLoadingSchema: LoadingSchema = {
   'ambient-light': {
@@ -335,7 +332,11 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'shadow': {
     behaviors: [
       {
-        behavior: createShadow
+        behavior: createShadow,
+        values: [
+          { from: 'cast', to: 'castShadow' },
+          { from: 'receive', to: 'receiveShadow' },
+        ]
       }
     ]
   },
@@ -361,13 +362,13 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       }
     ]
   },
-  'link': {
-    behaviors: [
-      {
-        behavior: createLink
-      }
-    ]
-  },
+  // 'link': {
+  //   behaviors: [
+  //     {
+  //       behavior: createLink
+  //     }
+  //   ]
+  // },
   'particle-emitter': {
     behaviors: [
       {

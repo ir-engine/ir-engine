@@ -2,7 +2,7 @@ import { Engine } from '../../ecs/classes/Engine';
 import { SceneTagComponent } from '../../common/components/Object3DTagComponents';
 import { addComponent, createEntity, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { SceneObjectLoadingSchema } from '../constants/SceneObjectLoadingSchema';
-import { PhysicsManager } from '../../physics/components/PhysicsManager';
+import { PhysicsSystem } from '../../physics/systems/PhysicsSystem';
 import { AssetLoader } from '../../assets/components/AssetLoader';
 import { isClient } from "../../common/functions/isClient";
 import { Entity } from "../../ecs/classes/Entity";
@@ -42,7 +42,7 @@ export function loadScene(scene: SceneData): void {
       }
     });
   });
-  //PhysicsManager.instance.simulate = true;
+  //PhysicsSystem.simulate = true;
 
   isClient && Promise.all(loadPromises).then(() => {
     const event = new CustomEvent('scene-loaded', { detail: { loaded: true } });
@@ -75,7 +75,7 @@ export function loadComponent(entity: Entity, component: SceneDataComponent): vo
     // run behavior after load model
     if ((b as any).onLoaded) values['onLoaded'] = (b as any).onLoaded;
     // Invoke behavior with args and spread args
-    b.behavior(entity, { ...b.args, objArgs: { ...values } });
+    b.behavior(entity, { ...b.args, objArgs: { ...b.args?.objArgs, ...values } });
   });
 
   // for each component in component name, add component

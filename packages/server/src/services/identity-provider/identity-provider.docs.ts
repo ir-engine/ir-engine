@@ -6,30 +6,6 @@ export default {
                 token: {
                     type: 'string'
                 },
-                password: {
-                    type: 'string'
-                },
-                isVerified: {
-                    type: 'boolean'
-                },
-                verifyToken: {
-                    type: 'string'
-                },
-                verifyShortToken: {
-                    type: 'string'
-                },
-                verifyExpires: {
-                    type: 'string'
-                },
-                verifyChanges: {
-                    type: 'object'
-                },
-                resetToken: {
-                    type: 'string'
-                },
-                resetExpires: {
-                    type: 'string'
-                },
                 type: {
                     type: 'string'
                 }
@@ -41,4 +17,4 @@ export default {
         items: { $ref: '#/definitions/identity-provider' }
       }
     }
-}
+};

@@ -1,7 +1,7 @@
 import { AnimationMixer, Group } from "three";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { AssetLoaderState } from "../../../assets/components/AssetLoaderState";
-import { Behavior } from "../../../common/interfaces/Behavior";
+import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import {
   addComponent,
   getComponent,
@@ -13,9 +13,11 @@ import { CharacterAvatars } from "../CharacterAvatars";
 import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
 import { CharacterComponent } from "../components/CharacterComponent";
 import { State } from "../../../state/components/State";
-import { LifecycleValue } from "../../../common/enums/LifecycleValue";
+import { LifecycleValue } from "@xr3ngine/engine/src/common/enums/LifecycleValue";
 import { NetworkObject } from "../../../networking/components/NetworkObject";
 import { getPseudoRandomAvatarIdByUserId } from "../functions/pseudoRandomAvatar";
+import ShadowComponent from "../../../scene/components/ShadowComponent";
+import { createShadow } from "../../../scene/behaviors/createShadow";
 
 export const loadActorAvatar: Behavior = (entity) => {
 
@@ -35,6 +37,7 @@ export const loadActorAvatar: Behavior = (entity) => {
     castShadow: true,
     parent: tmpGroup,
   });
+  createShadow(entity, { objArgs: { castShadow: true, receiveShadow: true }})
   const loader = getComponent(entity, AssetLoader);
   loader.onLoaded.push((entity, args) => {
     console.log("Actor Avatar loaded")

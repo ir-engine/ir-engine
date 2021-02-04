@@ -19,7 +19,6 @@ export const seed = {
       createdAt : "2020-11-12 12:44:37",
       updatedAt : "2020-11-12 13:08:04",
       staticResourceType : null,
-      subscriptionLevel : null,
       componentId : null,
       parentResourceId : null
     }

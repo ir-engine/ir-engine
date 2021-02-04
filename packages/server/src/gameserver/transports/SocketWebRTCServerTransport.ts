@@ -44,6 +44,7 @@ const Route53 = new AWS.Route53({ ...config.aws.route53.keys });
 function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | undefined {
     return typeof obj === "undefined" || obj === null;
 }
+
 export class SocketWebRTCServerTransport implements NetworkTransport {
     isServer = true
     server: https.Server
@@ -65,7 +66,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.ReliableMessage.toString(), message);
     }
 
-    toBuffer(ab) {
+    toBuffer(ab): any {
         var buf = Buffer.alloc(ab.byteLength);
         var view = new Uint8Array(ab);
         for (var i = 0; i < buf.length; ++i) {
@@ -74,18 +75,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         return buf;
     }
 
-    public sendData = (data: any): void =>{
-        console.log("Data is")
-        console.log(data)
-      this.dataProducers?.forEach(producer => { 
-          console.log("Sending to producer", producer.id);
-          try{
-              producer.send(this.toBuffer(data)); 
-          } catch (error) {
-            console.warn("ERROR:", error);
-          }
-        })
-        }
+    public sendData = (data: any): void => {
+        if (this.outgoingDataProducer != null) this.outgoingDataProducer.send(this.toBuffer(data));
+    }
 
     public handleKick(socket: any): void {
         logger.info("Kicking ", socket.id);
@@ -97,7 +89,11 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         // Set up our gameserver according to our current environment
         const localIp = await getLocalServerIp();
         let stringSubdomainNumber, gsResult;
-        if (process.env.KUBERNETES !== 'true') try {await this.app.service('instance').Model.destroy({where: {}});} catch(error){ logger.warn(error);}
+        if (process.env.KUBERNETES !== 'true') try {
+            await this.app.service('instance').Model.destroy({where: {}});
+        } catch (error) {
+            logger.warn(error);
+        }
         else if (process.env.KUBERNETES === 'true') {
             await cleanupOldGameservers();
             this.gameServer = await (this.app as any).agonesSDK.getGameServer();
@@ -131,8 +127,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         localConfig.mediasoup.webRtcTransport.listenIps = [{
             ip: '0.0.0.0',
             announcedIp: process.env.KUBERNETES === 'true' ?
-              (config.gameserver.local === true ? gsResult.status.address :
-                `${stringSubdomainNumber}.${config.gameserver.domain}`) : localIp.ipAddress
+                (config.gameserver.local === true ? gsResult.status.address :
+                    `${stringSubdomainNumber}.${config.gameserver.domain}`) : localIp.ipAddress
         }];
 
         logger.info("Initializing WebRTC Connection");
@@ -241,7 +237,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 socket.on(MessageTypes.WebRTCPauseProducer.toString(), async (data, callback) =>
                     handleWebRtcPauseProducer(socket, data, callback));
 
-                socket.on(MessageTypes.WebRTCRequestCurrentProducers.toString(), async(data, callback) =>
+                socket.on(MessageTypes.WebRTCRequestCurrentProducers.toString(), async (data, callback) =>
                     handleWebRtcRequestCurrentProducers(socket, data, callback));
             });
         });

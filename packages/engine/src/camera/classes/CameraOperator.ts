@@ -1,6 +1,4 @@
-import _ from 'lodash';
-import { Vector3, Vector2, Camera, MathUtils } from 'three';
-import { Utils } from 'utils/Utils';
+import { Camera, MathUtils, Vector2, Vector3 } from 'three';
 import { Engine } from '../../ecs/classes/Engine';
 
 export class CameraOperator

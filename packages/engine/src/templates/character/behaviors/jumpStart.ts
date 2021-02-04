@@ -1,5 +1,5 @@
 import { CharacterComponent } from "../components/CharacterComponent";
-import { Behavior } from "../../../common/interfaces/Behavior";
+import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 
 export const jumpStart: Behavior = (entity, args: { initJumpSpeed: number }): void => {

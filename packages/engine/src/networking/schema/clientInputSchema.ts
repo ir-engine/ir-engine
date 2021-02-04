@@ -1,6 +1,6 @@
 import { float32, Model, Schema, uint32, uint8 } from "superbuffer"
 import { NetworkClientInputInterface, PacketNetworkClientInputInterface } from "../interfaces/WorldState";
-import { Network } from '../components/Network';
+import { Network } from '../classes/Network';
 //import { uint8, float32, uint16, uint32 } from "../../common/types/DataTypes";
 //import { createSchema } from "../functions/createSchema";
 //import { Model } from "../classes/Model";
@@ -40,9 +40,9 @@ export const inputKeyArraySchema = new Schema({
 });
 
 function toArrayBuffer(buf) {
-  var ab = new ArrayBuffer(buf.length);
-  var view = new Uint8Array(ab);
-  for (var i = 0; i < buf.length; ++i) {
+  const ab = new ArrayBuffer(buf.length);
+  const view = new Uint8Array(ab);
+  for (let i = 0; i < buf.length; ++i) {
       view[i] = buf[i];
   }
   return ab;

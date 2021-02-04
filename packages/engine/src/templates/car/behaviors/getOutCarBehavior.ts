@@ -1,5 +1,5 @@
 import { Vector3, Matrix4 } from 'three';
-import { Behavior } from '../../../common/interfaces/Behavior';
+import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { Entity } from '../../../ecs/classes/Entity';
 import { removeComponent, addComponent, getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { FollowCameraComponent } from "@xr3ngine/engine/src/camera/components/FollowCameraComponent";

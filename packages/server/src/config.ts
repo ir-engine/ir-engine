@@ -47,9 +47,6 @@ const server = {
   performDryRun: process.env.PERFORM_DRY_RUN === 'true',
   storageProvider: process.env.STORAGE_PROVIDER ?? 'local',
   gaTrackingId: process.env.GOOGLE_ANALYTICS_TRACKING_ID ?? '',
-  sketchFab: {
-    authToken: process.env.SKETCH_FAB_AUTH_TOKEN ?? ''
-  },
   hub: {
     endpoint: process.env.HUB_ENDPOINT ?? 'https://xr3ngine.io'
   },

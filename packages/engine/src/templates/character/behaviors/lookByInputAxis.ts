@@ -1,10 +1,10 @@
-import { Behavior } from "../../../common/interfaces/Behavior";
+import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { Entity } from "../../../ecs/classes/Entity";
 import { InputAlias } from "../../../input/types/InputAlias";
 import { InputType } from "../../../input/enums/InputType";
 import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { Input } from "../../../input/components/Input";
-import { LifecycleValue } from "../../../common/enums/LifecycleValue";
+import { LifecycleValue } from "@xr3ngine/engine/src/common/enums/LifecycleValue";
 
 /**
  *

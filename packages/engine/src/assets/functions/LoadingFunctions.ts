@@ -1,11 +1,11 @@
 import { Object3D, SkinnedMesh, TextureLoader } from 'three';
-import { GLTFLoader } from "../loaders/gltf/GLTFLoader";
+import { Entity } from '../../ecs/classes/Entity';
 import AssetVault from '../components/AssetVault';
 import { AssetClass } from '../enums/AssetClass';
 import { AssetType } from '../enums/AssetType';
-import { AssetId, AssetMap, AssetsLoadedHandler, AssetTypeAlias, AssetUrl } from '../types/AssetTypes';
 import * as FBXLoader from '../loaders/fbx/FBXLoader';
-import { Entity } from '../../ecs/classes/Entity';
+import { GLTFLoader } from "../loaders/gltf/GLTFLoader";
+import { AssetId, AssetMap, AssetsLoadedHandler, AssetTypeAlias, AssetUrl } from '../types/AssetTypes';
 import * as LoadGLTF from './LoadGLTF';
 
 function parallelTraverse(a, b, callback) {

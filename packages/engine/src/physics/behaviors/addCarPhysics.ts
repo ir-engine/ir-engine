@@ -5,13 +5,6 @@ import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
 import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 
-
-/*
-const sphereGeo = new CylinderGeometry( 0.3, 0.3, 0.1, 12 )
-sphereGeo.applyMatrix4( new Matrix4().makeRotationZ( - Math.PI / 2 ) );
-const sphereMesh = new THREE.Mesh( sphereGeo, new THREE.MeshStandardMaterial({ color: "pink" }))
-*/
-
 export const addCarPhysics: Behavior = (entity: Entity, args: any ) => {
 
   const offsetPositionY = 0.8;
@@ -24,10 +17,6 @@ export const addCarPhysics: Behavior = (entity: Entity, args: any ) => {
   const arrayWheels = [];
 
    asset.scene.traverse( mesh => {
-     // console.log(mesh.name);
-     // console.log(mesh);
-
-
      if (mesh.type == 'Mesh') {
        mesh.applyMatrix4( new Matrix4().makeTranslation( 0, 0, offsetPositionY) );
      }
@@ -74,12 +63,5 @@ export const addCarPhysics: Behavior = (entity: Entity, args: any ) => {
      Engine.scene.add(vehicleComponent.arrayWheelsMesh[i]);
    }
 
-
   return entity;
 };
-/*
-export const removeCarPhysics: Behavior = (entity: Entity) => {
-  removeComponent(entity, VehicleBody);
-  return entity;
-};
-*/

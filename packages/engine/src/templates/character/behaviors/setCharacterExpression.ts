@@ -2,7 +2,7 @@ import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { Input } from '@xr3ngine/engine/src/input/components/Input';
 import { getComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { Object3DComponent } from '../../../common/components/Object3DComponent';
+import { Object3DComponent } from '@xr3ngine/engine/src/common/components/Object3DComponent';
 import { DefaultInput } from "../../shared/DefaultInput";
 import { Mesh } from "three";
 

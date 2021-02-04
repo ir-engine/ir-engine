@@ -1,8 +1,8 @@
 import { MessageTypes } from '../../networking/enums/MessageTypes';
 import { NetworkSchema } from '../../networking/interfaces/NetworkSchema';
 import { NetworkPlayerCharacter } from '../character/prefabs/NetworkPlayerCharacter';
-import { NetworkWorldObject } from '../character/prefabs/NetworkWorldObject';
-import { NetworkVehicle } from '../character/prefabs/NetworkVehicle';
+import { NetworkWorldObject } from '../world/prefabs/NetworkWorldObject';
+import { NetworkVehicle } from '../car/prefabs/NetworkVehicle';
 import { DefaultMessageTypes } from './DefaultMessageTypes';
 
 export const PrefabType = {

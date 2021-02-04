@@ -6,7 +6,6 @@ export interface StaticResource {
   mimeType: string
   metadata: object
   staticResourceType: string
-  subscriptionLevel: string
   attributionId: string
   userId: string
 }
@@ -19,7 +18,6 @@ export const StaticResourceSeed: StaticResource = {
   mimeType: '',
   metadata: {},
   staticResourceType: '',
-  subscriptionLevel: '',
   attributionId: '',
   userId: ''
 }

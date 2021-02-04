@@ -1,12 +1,11 @@
 import { isClient } from "../../common/functions/isClient";
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { TransformComponent } from '../../transform/components/TransformComponent';
-import { getComponent, hasComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
-import { Network } from '../../networking/components/Network';
 import { NetworkObject } from '../../networking/components/NetworkObject';
 import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
+import { TransformComponent } from '../../transform/components/TransformComponent';
 
 export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void => {
 

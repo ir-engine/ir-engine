@@ -2,13 +2,11 @@ import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { BinaryType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
+import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { State } from '../components/State';
 import { StateType } from '../enums/StateType';
 import { StateValue } from '../interfaces/StateValue';
 import { StateAlias } from '../types/StateAlias';
-import { getComponent } from '../../ecs/functions/EntityFunctions';
-import { CharacterStateTypes } from "../../templates/character/CharacterStateTypes";
-
 
 export const addState: Behavior = (entity: Entity, args: { state: StateAlias }): void => {
   // console.warn('addState', CharacterStateTypes[args.state], '(', args.state, ')' );

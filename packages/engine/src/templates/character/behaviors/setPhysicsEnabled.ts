@@ -1,7 +1,7 @@
-import { Behavior } from "../../../common/interfaces/Behavior";
+import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { CharacterComponent } from "../components/CharacterComponent";
 import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
-import { PhysicsManager } from "../../../physics/components/PhysicsManager";
+import { PhysicsSystem } from "../../../physics/systems/PhysicsSystem";
 // Set for deletion
 
 export const setPhysicsEnabled: Behavior = (entity, args: { value: boolean }): void => {
@@ -10,9 +10,9 @@ export const setPhysicsEnabled: Behavior = (entity, args: { value: boolean }): v
 	actor.physicsEnabled = args.value;
 
 	if (args.value === true) {
-		PhysicsManager.instance.physicsWorld.addBody(actor.actorCapsule.body);
+		PhysicsSystem.physicsWorld.addBody(actor.actorCapsule.body);
 	}
 	else {
-		PhysicsManager.instance.physicsWorld.removeBody(actor.actorCapsule.body);
+		PhysicsSystem.physicsWorld.removeBody(actor.actorCapsule.body);
 	}
 };

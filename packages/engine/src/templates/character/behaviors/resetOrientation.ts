@@ -1,7 +1,7 @@
-import { Behavior } from "../../../common/interfaces/Behavior";
+import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { getComponent } from "../../../ecs/functions/EntityFunctions";
-import { getForward } from "../../../common/functions/getForward";
-import { Object3DComponent } from "../../../common/components/Object3DComponent";
+import { getForward } from "@xr3ngine/engine/src/common/functions/getForward";
+import { Object3DComponent } from "@xr3ngine/engine/src/common/components/Object3DComponent";
 import { Entity } from "../../../ecs/classes/Entity";
 import { setOrientation } from "./setOrientation";
 

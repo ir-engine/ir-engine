@@ -9,12 +9,12 @@ import { execute } from "../../../src/ecs/functions/EngineFunctions";
 import { SystemUpdateType } from "../../../src/ecs/functions/SystemUpdateType";
 import { NetworkSchema } from "../../../src/networking/interfaces/NetworkSchema";
 import { DefaultNetworkSchema } from "../../../src/templates/networking/DefaultNetworkSchema";
-import { Network } from "../../../src/networking/components/Network";
+import { Network } from "../../../src/networking//classes/Network";
 import { registerSystem } from "../../../src/ecs/functions/SystemFunctions";
 import { ClientNetworkSystem } from "../../../src/networking/systems/ClientNetworkSystem";
 import { PhysicsSystem } from "../../../src/physics/systems/PhysicsSystem";
 import { StateSystem } from "../../../src/state/systems/StateSystem";
-import { PhysicsManager } from "../../../src/physics/components/PhysicsManager";
+import { PhysicsSystem } from "../../../src/physics/systems/PhysicsSystem";
 import { RaycastResult } from "collision/RaycastResult";
 import { Entity } from "../../../src/ecs/classes/Entity";
 import { State } from "../../../src/state/components/State";
@@ -105,7 +105,7 @@ beforeAll(() => {
     registerSystem(PhysicsSystem); // 2 - handle hit
     registerSystem(StateSystem); // 3 - process floor hit
 
-    PhysicsManager.instance.physicsWorld.raycastClosest = jest.fn((start, end, rayCastOptions, rayResult: RaycastResult) => {
+    PhysicsSystem.physicsWorld.raycastClosest = jest.fn((start, end, rayCastOptions, rayResult: RaycastResult) => {
         if (!actorHasFloor) {
             return false;
         }
@@ -117,8 +117,8 @@ beforeAll(() => {
         return true;
     });
 
-//PhysicsManager.instance.simulate = false;
-//PhysicsManager.instance.physicsWorld.gravity.set(0,0,0);
+//PhysicsSystem.simulate = false;
+//PhysicsSystem.physicsWorld.gravity.set(0,0,0);
 });
 
 let player: Entity, actor: CharacterComponent, state: State;

@@ -32,7 +32,6 @@
   "engines": {
     "yarn": ">= 0.18.0"
   },
-  
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
@@ -91,6 +90,7 @@
     "ps-list": "^7.2.0",
     "ps-node": "^0.1.6",
     "text-encoding": "^0.7.0",
-    "ts-jest": "^26.4.1"
+    "ts-jest": "^26.4.1",
+    "tsdoc": "0.0.4"
   }
 }

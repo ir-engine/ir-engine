@@ -1,14 +1,14 @@
-import { Behavior } from "../../../common/interfaces/Behavior";
+import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { CharacterComponent } from "../components/CharacterComponent";
 import {getComponent, getMutableComponent} from "../../../ecs/functions/EntityFunctions";
-import { Object3DComponent } from "../../../common/components/Object3DComponent";
+import { Object3DComponent } from "@xr3ngine/engine/src/common/components/Object3DComponent";
 import { Entity } from "../../../ecs/classes/Entity";
 import { TransformComponent } from "../../../transform/components/TransformComponent";
 import { Vector3 } from "three";
 import { FollowCameraComponent } from "../../../camera/components/FollowCameraComponent";
 import { Input } from "../../../input/components/Input";
 import { DefaultInput } from "../../shared/DefaultInput";
-import { NumericalType } from "../../../common/types/NumericalTypes";
+import { NumericalType } from "@xr3ngine/engine/src/common/types/NumericalTypes";
 import { getInputData } from "../../../camera/functions/getInputData";
 
 const defaultForwardVector = new Vector3(0, 0, 1);
