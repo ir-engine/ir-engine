@@ -60,7 +60,7 @@ export class PhysicsSystem extends System {
     this.physicsFrameTime = 1 / this.physicsFrameRate;
     this.physicsMaxPrediction = this.physicsFrameRate;
     PhysicsSystem.serverOnlyRigidBodyCollides = false;
-    
+
     // Physics
     PhysicsSystem.simulate = true;
     PhysicsSystem.frame = 0;
