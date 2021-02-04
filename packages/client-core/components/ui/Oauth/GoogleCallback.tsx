@@ -40,7 +40,7 @@ const GoogleCallback = (props: Props): any => {
         const user = auth.get('user');
         refreshConnections(user.id);
       } else {
-        loginUserByJwt(token, `${path}?instanceId=${instanceId}` || '/', '/', '');
+        loginUserByJwt(token, `${path}?instanceId=${instanceId}` || '/', '/');
       }
     }
 
