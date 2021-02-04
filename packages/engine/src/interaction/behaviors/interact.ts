@@ -7,6 +7,9 @@ import { Input } from "../../input/components/Input";
 import { DefaultInput } from "../../templates/shared/DefaultInput";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { NumericalType } from "../../common/types/NumericalTypes";
+import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
+import { CameraModes } from "../../camera/types/CameraModes";
+import { cameraPointerLock } from "../../camera/behaviors/cameraPointerLock";
 
 const startedPosition = new Map<Entity,NumericalType>();
 
@@ -25,7 +28,16 @@ export const  interact: Behavior = (entity: Entity, args: any, delta): void => {
   }
   
   const { focusedInteractive: focusedEntity } = getComponent(entity, Interactor);
-  const mouseScreenPosition = getComponent(entity, Input).data.get(DefaultInput.SCREENXY);
+  const input = getComponent(entity, Input)
+  const mouseScreenPosition = input.data.get(DefaultInput.SCREENXY);
+  const mouseleftClick = input.data.get(DefaultInput.INTERACT);
+
+  if(mouseleftClick.lifecycleState === LifecycleValue.STARTED && mouseleftClick.value === 1) {
+    const cameraFollow = getComponent<FollowCameraComponent>(entity, FollowCameraComponent);
+    if(cameraFollow.mode === CameraModes.FirstPerson || cameraFollow.mode === CameraModes.ShoulderCam) {
+      cameraPointerLock(true)
+    }
+  }
 
   if (args.phaze === LifecycleValue.STARTED ){
     startedPosition.set(entity,mouseScreenPosition.value);
