@@ -4,7 +4,6 @@ import { Application } from '../../declarations';
 import { AcceptInvite } from './accept-invite.class';
 import hooks from './accept-invite.hooks';
 import config from '../../config';
-import acceptInviteDocs from './accept-invite.docs';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -24,9 +23,7 @@ export default (app: Application): any => {
   };
 
   // Initialize our service with any options it requires
-  const event = new AcceptInvite(options, app);
-  event.docs = acceptInviteDocs;
-  app.use('/a-i', event, redirect);
+  app.use('/a-i', new AcceptInvite(options, app), redirect);
 
   // Get our initialized service so that we can register hooks
   const service = app.service('a-i');

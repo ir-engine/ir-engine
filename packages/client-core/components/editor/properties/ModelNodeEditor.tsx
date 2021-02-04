@@ -9,8 +9,8 @@ import StringInput from "../inputs/StringInput";
 
 const InteractableOption = [
   {
-    label: "Modal",
-    value: "modal"
+    label: "InfoBox",
+    value: "infoBox"
   },
   {
     label: "Open link",
@@ -122,16 +122,6 @@ export default class ModelNodeEditor extends Component<
             /* @ts-ignore */
             value={node.payloadHtmlContent}
             onChange={this.onChangePayloadHtmlContent}
-          />
-        </InputGroup>
-      </>;
-      case 'link': return <>
-        { /* @ts-ignore */ }
-        <InputGroup name="Url">
-          <StringInput
-            /* @ts-ignore */
-            value={node.payloadUrl}
-            onChange={this.onChangePayloadUrl}
           />
         </InputGroup>
       </>;

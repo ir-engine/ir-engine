@@ -1,5 +1,3 @@
-// @ts-ignore
-
 import { LoadGLTF } from "@xr3ngine/engine/src/assets/functions/LoadGLTF";
 import { GLTFExporter } from "@xr3ngine/engine/src/assets/loaders/gltf/GLTFExporter";
 import GLTFCache from "@xr3ngine/engine/src/editor/caches/GLTFCache";
@@ -73,36 +71,31 @@ import LoadingCube from "@xr3ngine/engine/src/scene/classes/LoadingCube";
 import EventEmitter from "eventemitter3";
 import {
   AudioListener,
-  Clock,
-  Matrix4,
-  PerspectiveCamera,
-  PropertyBinding,
-  Quaternion,
+
+  Clock, Matrix4,
+
+
+
+
+  PerspectiveCamera, PropertyBinding, Quaternion,
+
+
+
   Raycaster,
-  Scene,
-  Vector2,
+
+  Scene, Vector2,
   Vector3
 } from "three";
 import Api from "./Api";
 import AssetManifestSource from "./assets/AssetManifestSource";
-import { loadEnvironmentMap } from "@xr3ngine/engine/src/editor/renderer/EnvironmentMap";
+import { loadEnvironmentMap } from "./EnvironmentMap";
 
-// @ts-ignore
-import negx from "./cubemap/negx.jpg";
-// @ts-ignore
-import negy from "./cubemap/negy.jpg";
-// @ts-ignore
-import negz from "./cubemap/negz.jpg";
-// @ts-ignore
-import posx from "./cubemap/posx.jpg";
-// @ts-ignore
-import posy from "./cubemap/posy.jpg";
-// @ts-ignore
-import posz from "./cubemap/posz.jpg";
 
-const cubeMapURLs = [posx, negx, posy, negy, posz, negz];
 
-const cubemap = []
+
+
+
+
 
 const tempMatrix1 = new Matrix4();
 const tempMatrix2 = new Matrix4();
@@ -158,7 +151,6 @@ export default class Editor extends EventEmitter {
   rafId: number;
   thumbnailRenderer: ThumbnailRenderer;
   playing: boolean;
-  
   constructor(api, settings = {}) {
     super();
     this.api = api;
@@ -282,7 +274,7 @@ export default class Editor extends EventEmitter {
 
     this.initializing = true;
 
-    const tasks = [rendererPromise, loadEnvironmentMap(cubeMapURLs), LoadingCube.load(), ErrorIcon.load(), TransformGizmo.load()];
+    const tasks = [rendererPromise, loadEnvironmentMap(), LoadingCube.load(), ErrorIcon.load(), TransformGizmo.load()];
 
     for (const NodeConstructor of this.nodeTypes) {
       tasks.push(NodeConstructor.load());

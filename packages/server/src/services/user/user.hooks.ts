@@ -22,6 +22,9 @@ export default {
             model: 'identity-provider'
           },
           {
+            model: 'subscription'
+          },
+          {
             model: 'location-admin'
           },
           {
@@ -38,6 +41,9 @@ export default {
         models: [
           {
             model: 'identity-provider'
+          },
+          {
+            model: 'subscription'
           },
           {
             model: 'location-admin'
@@ -58,6 +64,9 @@ export default {
         models: [
           {
             model: 'identity-provider'
+          },
+          {
+            model: 'subscription'
           },
           {
             model: 'location-admin'
@@ -81,6 +90,11 @@ export default {
         try {
           const { app, result } = context;
           result.data.forEach(async (item) => {
+            if (item.subscriptions && item.subscriptions.length > 0) {
+              await Promise.all(item.subscriptions.map(async (subscription: any) => {
+                subscription.dataValues.subscriptionType = await context.app.service('subscription-type').get(subscription.plan);
+              }));
+            }
 
             const userAvatarResult = await app.service('static-resource').find({
               query: {
@@ -103,6 +117,12 @@ export default {
     get: [
       async (context: HookContext): Promise<HookContext> => {
         try {
+          if (context.result.subscriptions && context.result.subscriptions.length > 0) {
+            await Promise.all(context.result.subscriptions.map(async (subscription: any) => {
+              subscription.dataValues.subscriptionType = await context.app.service('subscription-type').get(subscription.plan);
+            }));
+          }
+
           const { id, app, result } = context;
 
           const userAvatarResult = await app.service('static-resource').find({

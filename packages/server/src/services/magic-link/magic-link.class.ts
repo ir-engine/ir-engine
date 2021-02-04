@@ -60,9 +60,10 @@ export class Magiclink implements ServiceMethods<Data> {
     toEmail: string,
     token: string,
     type: 'connection' | 'login',
-    name: string
+    identityProvider: IdentityProvider,
+    subscriptionId?: string
   ): Promise<void> {
-    const hashLink = getLink(type, token);
+    const hashLink = getLink(type, token, subscriptionId ?? '');
     const appPath = path.dirname(requireMainFilename());
     const emailAccountTemplatesPath = path.join(
       appPath,
@@ -72,16 +73,34 @@ export class Magiclink implements ServiceMethods<Data> {
       'account'
     );
 
-      const templatePath = path.join(
+    let subscription;
+    let username;
+    if (subscriptionId != null) {
+      subscription = await this.app.service('subscription').find({
+        id: subscriptionId
+      });
+
+      if ((subscription).total === 0) {
+        throw new BadRequest('Invalid subscription');
+      }
+
+      const subscriptionUser = await this.app.service('user').get((subscription).data[0].userId);
+
+      username = subscriptionUser.name;
+    }
+    const templatePath = subscriptionId == null ? path.join(
       emailAccountTemplatesPath,
       'magiclink-email.pug'
+    ) : path.join(
+      emailAccountTemplatesPath,
+      'magiclink-email-subscription.pug'
     );
 
     const compiledHTML = pug.compileFile(templatePath)({
       logo: config.client.logo,
       title: config.client.title,
       hashLink,
-      username: name
+      username: username
     });
     const mailSender = config.email.from;
     const email = {
@@ -99,7 +118,7 @@ export class Magiclink implements ServiceMethods<Data> {
     token: string,
     type: 'connection' | 'login'
   ): Promise<void> {
-    const hashLink = getLink(type, token);
+    const hashLink = getLink(type, token, '');
     const appPath = path.dirname(requireMainFilename() );
     const emailAccountTemplatesPath = path.join(
       appPath,
@@ -163,7 +182,8 @@ export class Magiclink implements ServiceMethods<Data> {
           data.email,
           loginToken.token,
           data.userId ? 'connection' : 'login',
-          data.name
+          identityProvider,
+          data.subscriptionId
         );
       } else if (data.type === 'sms') {
         await this.sendSms(

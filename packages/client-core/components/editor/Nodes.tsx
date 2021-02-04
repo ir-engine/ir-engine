@@ -9,6 +9,7 @@ import GroundPlaneNodeEditor from "./properties/GroundPlaneNodeEditor";
 import GroupNodeEditor from "./properties/GroupNodeEditor";
 import HemisphereLightNodeEditor from "./properties/HemisphereLightNodeEditor";
 import ImageNodeEditor from "./properties/ImageNodeEditor";
+import LinkNodeEditor from "./properties/LinkNodeEditor";
 import ModelNodeEditor from "./properties/ModelNodeEditor";
 import PointLightNodeEditor from "./properties/PointLightNodeEditor";
 import SceneNodeEditor from "./properties/SceneNodeEditor";
@@ -29,6 +30,7 @@ import HemisphereLightNode from "@xr3ngine/engine/src/editor/nodes/HemisphereLig
 import FloorPlanNode from "@xr3ngine/engine/src/editor/nodes/FloorPlanNode";
 import FloorPlanNodeEditor from "./properties/FloorPlanNodeEditor";
 import ImageNode from "@xr3ngine/engine/src/editor/nodes/ImageNode";
+import LinkNode from "@xr3ngine/engine/src/editor/nodes/LinkNode";
 import ModelNode from "@xr3ngine/engine/src/editor/nodes/ModelNode";
 import PointLightNode from "@xr3ngine/engine/src/editor/nodes/PointLightNode";
 import SceneNode from "@xr3ngine/engine/src/editor/nodes/SceneNode";
@@ -39,6 +41,11 @@ import SpotLightNode from "@xr3ngine/engine/src/editor/nodes/SpotLightNode";
 import TriggerVolumeNode from "@xr3ngine/engine/src/editor/nodes/TriggerVolumeNode";
 import VideoNode from "@xr3ngine/engine/src/editor/nodes/VideoNode";
 import VolumetricNode from "@xr3ngine/engine/src/editor/nodes/VolumetricNode";
+import BingImagesSource from "./assets/sources/BingImagesSource";
+import BingVideosSource from "./assets/sources/BingVideosSource";
+import PolySource from "./assets/sources/PolySource";
+import SketchfabSource from "./assets/sources/SketchfabSource";
+import TenorSource from "./assets/sources/TenorSource";
 
 export function createEditor(api, settings) {
   const editor = new Editor(api, settings);
@@ -61,9 +68,15 @@ export function createEditor(api, settings) {
   editor.registerNode(VolumetricNode, VolumetricNodeEditor);
   editor.registerNode(AudioNode, AudioNodeEditor);
   editor.registerNode(TriggerVolumeNode, TriggerVolumeNodeEditor);
+  editor.registerNode(LinkNode, LinkNodeEditor);
   editor.registerNode(ScenePreviewCameraNode, ScenePreviewCameraNodeEditor);
   editor.registerSource(new ElementsSource(editor));
   editor.registerSource(new MyAssetsSource(editor));
+  editor.registerSource(new SketchfabSource(api));
+  editor.registerSource(new PolySource(api));
+  editor.registerSource(new BingImagesSource(api));
+  editor.registerSource(new BingVideosSource(api));
+  editor.registerSource(new TenorSource(api));
 
   return editor;
 }

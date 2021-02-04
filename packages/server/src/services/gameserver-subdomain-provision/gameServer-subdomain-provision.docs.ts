@@ -20,4 +20,4 @@ export default {
             items: { $ref: '#/definitions/gameserver-subdomain-provision'}
         }
     }
-};
+}

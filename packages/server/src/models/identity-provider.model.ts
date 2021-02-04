@@ -46,7 +46,7 @@ export default (app: Application): any => {
   });
 
   (identityProvider as any).associate = (models: any): void => {
-    (identityProvider as any).belongsTo(models.user, { foreignKey: 'userId', required: true });
+    (identityProvider as any).belongsTo(models.user, { required: true });
     (identityProvider as any).hasMany(models.login_token);
   };
 
