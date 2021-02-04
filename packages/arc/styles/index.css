@@ -1,0 +1,262 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+body {
+  padding: 0;
+  margin: 0;
+  background-color: #fafafa;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 16px;
+}
+
+.text-14-bold {
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 18px;
+}
+.text-14-light {
+  font-size: 14px;
+  line-height: 22px;
+}
+.text-12-bold {
+  font-size: 12px;
+  line-height: 14px;
+  font-weight: bold;
+}
+.text-12-light {
+  font-size: 12px;
+  line-height: 14px;
+  color: #8e8e8e;
+}
+.text-blue {
+  color: #0095f6;
+}
+.text-red {
+  color: #ed4956;
+}
+
+.container {
+  display: contents;
+}
+
+.box {
+  border: solid 1px #dbdbdb;
+  border-radius: 3px;
+  background-color: #fff;
+}
+
+.navigation {
+  background: #fff;
+  height: 54px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  border-bottom: solid 1px #dbdbdb;
+}
+
+.header-container {
+  height: 54px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.header-logo {
+  margin-top: 7px;
+  width: 103px;
+  height: 29px;
+}
+
+.search-input {
+  text-align: center;
+  height: 28px;
+  min-width: 125px;
+  width: 215px;
+  outline: 0;
+  padding: 0px 10px 0px 10px;
+  background-color: #fafafa;
+  border: solid 1px #dbdbdb;
+  border-radius: 2px;
+  font-size: 14px;
+}
+
+.header-icon {
+  margin-right: 22px;
+}
+.header-profile-pic-border {
+  border: 1px solid;
+  border-radius: 24px;
+  padding: 2px;
+}
+
+.homepage-container {
+  padding-top: 84px;
+}
+
+.stories-container {
+  width: 614px;
+  height: 116px;
+  margin-bottom: 26px;
+}
+.stories-feed {
+  scrollbar-width: none;
+  overflow: hidden;
+}
+
+.story-photo-container {
+  padding: 2px;
+  background: linear-gradient(45deg, #f37b12, #c62d90);
+  border-radius: 100%;
+}
+.story-username {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  width: 80px;
+  text-align: center;
+}
+
+.stories-button {
+  -webkit-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5);
+  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5);
+}
+
+.feed-item-container {
+  max-width: 614px;
+  margin-bottom: 60px;
+  line-height: 24px;
+  overflow: hidden;
+  position: relative;
+}
+.feed-item-header {
+  height: 60px;
+  width: 100%;
+}
+.feed-item-text-description {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  margin-right: 1.5px;
+  overflow-wrap: break-word;
+}
+.feed-item-date-text {
+  font-size: 10px;
+  color: #9a9a9a;
+  margin-left: 16px;
+}
+.add-comment-container {
+  padding: 18px;
+  width: 100%;
+  border-top: 1px solid #efefef;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  max-height: 70px;
+}
+.add-comment-input {
+  width: 100%;
+  border: 0;
+  resize: none;
+  margin-right: auto;
+  background-color: transparent;
+  display: flex;
+  height: 18px;
+  max-height: 60px;
+  white-space: normal;
+  margin-right: 15px;
+  font-size: 14px;
+}
+
+.suggestions {
+  width: 300px;
+  height: 100%;
+}
+
+.right-bar-user-info {
+  height: auto;
+  margin-bottom: 10px;
+  margin-top: 18px;
+}
+
+.slide-dots {
+  left: 49%;
+  bottom: -22px;
+}
+.slide-dot {
+  height: 6px;
+  width: 6px;
+  background-color: #a8a8a8;
+  border-radius: 6px;
+  margin-right: 4px;
+}
+
+.modal-container {
+  position: fixed;
+  z-index: 60;
+  width: 100%;
+  top: 0px;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+.modal-box {
+  max-width: 400px;
+  max-height: 336px;
+  width: 100%;
+  height: 100%;
+}
+.modal-box-item {
+  border-top: 1px solid #dbdbdb;
+}
+.modal-box-item:first-child {
+  border-top: none;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+.modal-box-item:last-child {
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+@media only screen and (min-width: 1024px) {
+  .header-container {
+    width: 975px;
+  }
+}
+
+@media only screen and (max-width: 614px) {
+  .homepage-feed {
+    width: 100%;
+  }
+  .stories-container {
+    width: 100%;
+  }
+  .feed-item-container {
+    margin-bottom: 12px;
+  }
+  .box {
+    border: 0px;
+    background-color: transparent;
+  }
+  .feed-item-header {
+    background-color: #fafafa;
+  }
+  .homepage-container {
+    padding-top: 64px;
+    padding-left: 1px;
+    padding-right: 1px;
+  }
+  .homepage-feed {
+    margin-right: 0px;
+  }
+  .add-comment-container {
+    display: none;
+  }
+}

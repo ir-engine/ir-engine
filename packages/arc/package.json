@@ -1,0 +1,22 @@
+{
+  "name": "next-instagram-clone",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "9.4.4",
+    "react": "16.13.1",
+    "react-dom": "16.13.1",
+    "recoil": "0.0.10",
+    "tailwindcss": "^1.5.2"
+  },
+  "devDependencies": {
+    "@fullhuman/postcss-purgecss": "^2.3.0",
+    "postcss-preset-env": "^6.7.0",
+    "prettier": "2.0.5"
+  }
+}
