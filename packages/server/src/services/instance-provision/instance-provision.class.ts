@@ -7,6 +7,7 @@ import getLocalServerIp from '../../util/get-local-server-ip';
 import logger from '../../app/logger';
 import config from '../../config';
 
+
 const releaseRegex = /^([a-zA-Z0-9]+)-/;
 
 interface Data {}
@@ -15,6 +16,12 @@ interface ServiceOptions {}
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
 
+
+/**
+ * @class for InstanceProvision service 
+ * 
+ * @author Vyacheslav Solovjov
+ */
 export class InstanceProvision implements ServiceMethods<Data> {
   app: Application;
   options: ServiceOptions;
@@ -24,6 +31,10 @@ export class InstanceProvision implements ServiceMethods<Data> {
     this.app = app;
   }
 
+  /**
+   * An method which start server for instance 
+   * @author Vyacheslav Solovjov
+   */
   async getFreeGameserver(): Promise<any> {
     if (process.env.KUBERNETES !== 'true') {
       console.log('Local server spinning up new instance');
@@ -49,6 +60,13 @@ export class InstanceProvision implements ServiceMethods<Data> {
     };
   }
 
+  /**
+   * A method which get instance of GameServerr 
+   * @param availableLocationInstances for Gameserver 
+   * @returns ipAddress and port 
+   * @author Vyacheslav Solovjov
+   */
+
   async getGSInService(availableLocationInstances): Promise<any> {
     const instanceModel = this.app.service('instance').Model;
     const instanceUserSort = _.sortBy(availableLocationInstances, (instance: typeof instanceModel) => instance.currentUsers);
@@ -70,6 +88,13 @@ export class InstanceProvision implements ServiceMethods<Data> {
       port: ipAddressSplit[1]
     };
   }
+  /**
+   * A method which get clean up server 
+   * 
+   * @param instance of ipaddress and port 
+   * @returns {@Boolean}
+   * @author Vyacheslav Solovjov
+   */
 
   async gsCleanup(instance): Promise<boolean> {
     const gameservers = await (this.app as any).k8AgonesClient.get('gameservers');
@@ -96,6 +121,14 @@ export class InstanceProvision implements ServiceMethods<Data> {
 
     return false;
   }
+  
+  /**
+   * A method which find running Gameserver 
+   * 
+   * @param params of query of locationId and instanceId 
+   * @returns {@function} getFreeGameserver and getGSInService
+   * @author Vyacheslav Solovjov
+   */
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async find (params?: Params): Promise<any> {
@@ -269,6 +302,13 @@ export class InstanceProvision implements ServiceMethods<Data> {
     }
   }
 
+  /**
+   * A method which get specific instance 
+   * 
+   * @param id of instance 
+   * @param params 
+   * @returns id and text 
+   */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async get (id: Id, params?: Params): Promise<Data> {
     return {
@@ -276,6 +316,13 @@ export class InstanceProvision implements ServiceMethods<Data> {
     };
   }
 
+  /**
+   * A method which is used to create instance 
+   * 
+   * @param data which is used to create instance 
+   * @param params 
+   * @returns data of instance 
+   */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async create (data: Data, params?: Params): Promise<Data> {
     if (Array.isArray(data)) {
@@ -284,17 +331,37 @@ export class InstanceProvision implements ServiceMethods<Data> {
 
     return data;
   }
-
+/**
+ * A method used to update instance 
+ * 
+ * @param id 
+ * @param data which is used to update instance 
+ * @param params 
+ * @returns data of updated instance
+ */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async update (id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data;
   }
 
+  /**
+   * 
+   * @param id 
+   * @param data  
+   * @param params 
+   */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async patch (id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data;
   }
 
+  /**
+   * A method used to remove specific instance 
+   * 
+   * @param id of instance 
+   * @param params 
+   * @returns id 
+   */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async remove (id: NullableId, params?: Params): Promise<Data> {
     return { id };
