@@ -140,7 +140,7 @@ export async function endVideoChat(options: { leftParty?: boolean, endConsumers?
         }
 
         if (options?.endConsumers === true) {
-            MediaStreamSystem?.consumers.map(async (c) => {
+            MediaStreamSystem?.consumers?.map(async (c) => {
                 if (networkTransport.socket?.connected === true)
                     await networkTransport.request(MessageTypes.WebRTCCloseConsumer.toString(), {
                         consumerId: c.id

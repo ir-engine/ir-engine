@@ -346,7 +346,8 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
 
     producer.on("transportclose", () => closeProducerAndAllPipeProducers(producer, userId));
 
-    MediaStreamSystem.producers.push(producer);
+    if(!MediaStreamSystem.producers) console.warn("Media stream producers is undefined")
+    MediaStreamSystem.producers?.push(producer);
 
     if (userId != null && Network.instance.clients[userId] != null) {
         Network.instance.clients[userId].media[appData.mediaTag] = {
