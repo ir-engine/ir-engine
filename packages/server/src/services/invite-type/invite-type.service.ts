@@ -19,13 +19,22 @@ export default (app: Application): any => {
     paginate: app.get('paginate'),
     multi: true
   };
+
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   
   const event = new InviteType(options, app);
   event.docs = inviteTypeDocs;
-  // Initialize our service with any options it requires
   app.use('/invite-type', event);
 
-  // Get our initialized service so that we can register hooks
+  /**
+   * Get our initialized service so that we can register hooks
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const service = app.service('invite-type');
 
   service.hooks(hooks);
