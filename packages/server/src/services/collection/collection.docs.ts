@@ -34,13 +34,5 @@ export default {
             items: { $ref: '#/definitions/collection'}
             
         }
-    },
-    securities: ['create', 'update', 'patch', 'remove'],
-    operations: {
-      find: {
-        security: [
-          { bearer: [] }
-        ]
-      }
     }
-};
+}

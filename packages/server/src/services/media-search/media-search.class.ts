@@ -1,4 +1,3 @@
-import SketchFabMedia from './sketch-fab.class';
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import { indexes } from '../../scenes-templates';
@@ -34,11 +33,6 @@ export class MediaSearch implements ServiceMethods<Data> {
     }
     // TODO: Add more sources
     switch (source) {
-      case 'sketchfab': {
-        const sketchFabMediaInstance = new SketchFabMedia();
-        result = await sketchFabMediaInstance.searchSketchFabMedia(params?.query);
-        break;
-      }
       case 'asset': {
          //TODO Do some stuff here to get user's assets
          result = {

@@ -16,10 +16,6 @@ import {
 import templates from "./templates";
 
 
-/**
- * ProjectsSection component is used as wrapper for project grids on createProjectPage.
- * @type {Styled component}
- */
 export const ProjectsSection = (styled as any).section`
   padding-bottom: 100px;
   display: flex;
@@ -37,10 +33,7 @@ export const ProjectsSection = (styled as any).section`
     font-size: 16px;
   }
 `;
-/**
- * ProjectsContainer component is used as wrapper for ProjectGridItem.
- * @type {Styled component}
- */
+
 export const ProjectsContainer = (styled as any).div`
   display: flex;
   flex: 1;
@@ -49,10 +42,7 @@ export const ProjectsContainer = (styled as any).div`
   max-width: 1200px;
   padding: 0 20px;
 `;
-/**
- * WelcomeContainer component used to show welcome content.
- * @type {Styled component}
- */
+
 const WelcomeContainer = (styled as any)(ProjectsContainer)`
   align-items: center;
 
@@ -68,10 +58,7 @@ const WelcomeContainer = (styled as any)(ProjectsContainer)`
     max-width: 480px;
   }
 `;
-/**
- * ProjectsHeader component is used to provide styles project header content.
- * @type {Styled component}
- */
+
 export const ProjectsHeader = (styled as any).div`
   margin-bottom: 36px;
   display: flex;
@@ -79,25 +66,14 @@ export const ProjectsHeader = (styled as any).div`
   align-items: center;
 `;
 
-/**
- * contextMenuId
- * @type {String}
- */
 const contextMenuId = "project-menu";
 
-/**
- * ProjectsPage component is used to render projects page grid items.
- * @extends Component
- */
 class ProjectsPage extends Component {
   static propTypes = {
     api: PropTypes.object.isRequired,
     history: PropTypes.object.isRequired
-  }
-/**
- * Calling api to check user is authenticated or not.
- * Updating component state props.
- */
+  };
+
   constructor(props) {
     super(props);
 
@@ -111,9 +87,6 @@ class ProjectsPage extends Component {
     };
   }
 
-/**
- *componentDidMount used to render project items when component get mounted.
- */
   componentDidMount() {
     // We dont need to load projects if the user isn't logged in
     if ((this.state as any).isAuthenticated) {
@@ -141,10 +114,6 @@ class ProjectsPage extends Component {
     }
   }
 
-/**
- * onDeleteProject is used to update component state and remove deleted item from projects object.
- *
- */
   onDeleteProject = project => {
     (this.props as any).api
       .deleteProject(project.project_id)
@@ -152,9 +121,6 @@ class ProjectsPage extends Component {
       .catch(error => this.setState({ error }));
   };
 
-/**
- * renderContextMenu showing menu items on project.
- */
   renderContextMenu = props => {
     return (
       /* @ts-ignore */
@@ -165,14 +131,8 @@ class ProjectsPage extends Component {
     );
   };
 
-/**
- *ProjectContextMenu
- */
   ProjectContextMenu = connectMenu(contextMenuId)(this.renderContextMenu);
 
-/**
- * Rendering view of projects page.
- */
   render() {
     const { error, loading, projects, isAuthenticated } = this.state as any;
 
@@ -232,7 +192,7 @@ class ProjectsPage extends Component {
           </ProjectsSection>
           <ProjectContextMenu />
         </main>
-
+        
       </>
     );
   }

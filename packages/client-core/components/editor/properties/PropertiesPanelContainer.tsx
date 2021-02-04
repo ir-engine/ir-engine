@@ -153,6 +153,7 @@ class PropertiesPanelContainer extends Component {
     }
 
     return (
+      /* @ts-ignore */
       <Panel id="properties-panel" title="Properties" icon={SlidersH}>
         <PropertiesPanelContent>{content}</PropertiesPanelContent>
       </Panel>

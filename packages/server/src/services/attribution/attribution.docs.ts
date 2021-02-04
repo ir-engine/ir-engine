@@ -16,4 +16,4 @@ export default {
         items: { $ref: '#/definitions/attribution'}
     }
    } 
-};
+}

@@ -164,6 +164,35 @@ export default class Api extends EventEmitter {
 
   async resolveUrl(url, index?): Promise<any> {
       return { origin: url };
+
+    const cacheKey = `${url}|${index}`;
+    if (resolveUrlCache.has(cacheKey)) return resolveUrlCache.get(cacheKey);
+    const request = this.fetchUrl(`${SERVER_URL}/resolve-media`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ media: { url, index } })
+    })
+    // client.service("resolve-media").create({ media: { url, index } })
+    .then(async response => {
+    if (!response.ok) {
+        const message = `Error resolving url "${url}":\n  `;
+        try {
+          const body = await response.text();
+          throw new Error(message + body.replace(/\n/g, "\n  "));
+        } catch (e) {
+          throw new Error(message + response.statusText.replace(/\n/g, "\n  "));
+        }
+      }
+      console.log("Response: " + Object.values(response));
+
+      return response.json();
+    }).catch(e => {
+      console.warn(e);
+    });
+
+    resolveUrlCache.set(cacheKey, request);
+
+    return request;
   }
 
   async fetchContentType(accessibleUrl): Promise<any> {
@@ -211,6 +240,19 @@ export default class Api extends EventEmitter {
           (await this.fetchContentType(accessibleUrl));
       } catch (error) {
         throw new RethrownError(`Error resolving media "${absoluteUrl}"`, error);
+      }
+
+      try {
+        if (contentType === "model/gltf+zip") {
+          // TODO: Sketchfab object urls should be revoked after they are loaded by the glTF loader.
+          const { getFilesFromSketchfabZip } = await import(
+            /* webpackChunkName: "SketchfabZipLoader", webpackPrefetch: true */ "@xr3ngine/engine/src/editor/classes/SketchfabZipLoader"
+          );
+          const files = await getFilesFromSketchfabZip(accessibleUrl);
+          return { canonicalUrl, accessibleUrl: files["scene.gtlf"].url, contentType, files };
+        }
+      } catch (error) {
+        throw new RethrownError(`Error loading Sketchfab model "${accessibleUrl}"`, error);
       }
 
       return { canonicalUrl, accessibleUrl, contentType };
@@ -1063,7 +1105,7 @@ export default class Api extends EventEmitter {
   }
 
   handleAuthorization(): void {
-    if ((process as any).browser || process.env?.browser) {
+    if (process.browser) {
       const accessToken = localStorage.getItem(FEATHERS_STORE_KEY);
       const email = 'test@test.com';
       if((accessToken && email) || this.isAuthenticated()){
