@@ -6,7 +6,7 @@ import { client } from '../feathers';
 import store from "../store";
 import {
   instanceServerConnected,
-  instanceServerConnecting,
+  instanceServerConnecting, instanceServerDisconnected,
   instanceServerProvisioned,
   instanceServerProvisioning
 } from './actions';
@@ -87,6 +87,12 @@ export function connectToInstanceServer(channelType: string, channelId?: string)
     } catch (err) {
       console.log(err);
     }
+  };
+}
+
+export function resetInstanceServer() {
+  return async (dispatch: Dispatch): Promise<any> => {
+    dispatch(instanceServerDisconnected());
   };
 }
 
