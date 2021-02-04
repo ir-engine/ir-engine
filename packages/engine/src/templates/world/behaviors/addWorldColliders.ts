@@ -1,19 +1,17 @@
+import { AssetLoader } from '@xr3ngine/engine/src/assets/components/AssetLoader';
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
-import { addColliderWithoutEntity } from '@xr3ngine/engine/src/physics/behaviors/addColliderWithoutEntity';
-import { RigidBody } from '@xr3ngine/engine/src/physics/components/RigidBody';
-import { ColliderComponent } from '@xr3ngine/engine/src/physics/components/ColliderComponent';
-import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
-import { getComponent, addComponent } from "../../../ecs/functions/EntityFunctions";
+import { Network } from "../../../networking/classes/Network";
 import { NetworkObject } from '@xr3ngine/engine/src/networking/components/NetworkObject';
-import { AssetLoader } from '@xr3ngine/engine/src/assets/components/AssetLoader';
-import { Client } from '@xr3ngine/engine/src/networking/components/Client';
-import { PhysicsManager } from '@xr3ngine/engine/src/physics/components/PhysicsManager';
-import { Vector3 } from 'three';
-import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
-import { Network } from "@xr3ngine/engine/src/networking/components/Network";
 import { initializeNetworkObject } from '@xr3ngine/engine/src/networking/functions/initializeNetworkObject';
-import { isServer } from '../../../common/functions/isServer';
+import { addColliderWithoutEntity } from '@xr3ngine/engine/src/physics/behaviors/addColliderWithoutEntity';
+import { ColliderComponent } from '@xr3ngine/engine/src/physics/components/ColliderComponent';
+import { RigidBody } from '@xr3ngine/engine/src/physics/components/RigidBody';
+import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
+import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
+import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
+import { isServer } from '@xr3ngine/engine/src/common/functions/isServer';
+import { addComponent, getComponent } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
 
 
 function plusParametersFromEditorToMesh( entity, mesh ) {
@@ -31,7 +29,7 @@ function plusParametersFromEditorToMesh( entity, mesh ) {
 }
 
 
-function addComponentColleder( entity, mesh ) {
+function addColliderComponent( entity, mesh ) {
   addComponent(entity, ColliderComponent, {
     type: mesh.userData.type,
     scale: mesh.scale,
@@ -57,24 +55,20 @@ function createStaticCollider( mesh ) {
 // createDynamicColliders
 
 function createDynamicColliderClient(entity, mesh) {
-  if (!PhysicsManager.instance.serverOnlyRigidBodyCollides)
-    addComponentColleder(entity, mesh);
+  if (!PhysicsSystem.serverOnlyRigidBodyCollides)
+    addColliderComponent(entity, mesh);
 
-  let networkId = Network.getNetworkId();
+  const networkId = Network.getNetworkId();
   addComponent(entity, NetworkObject, { ownerId: 'server', networkId: networkId });
-  addComponent(entity, Client);
   addComponent(entity, RigidBody);
-//  console.warn(getComponent(entity, AssetLoader).entityIdFromScenaLoader.entityId);
-//  console.warn(networkId);
 }
-
 
 function createDynamicColliderServer(entity, mesh) {
 
    const networkObject = initializeNetworkObject('server', Network.getNetworkId(), PrefabType.worldObject);
    const uniqueId = getComponent(entity, AssetLoader).entityIdFromScenaLoader.entityId;
 
-   addComponentColleder(networkObject.entity, mesh);
+   addColliderComponent(networkObject.entity, mesh);
    addComponent(networkObject.entity, RigidBody);
    // Add the network object to our list of network objects
    Network.instance.networkObjects[networkObject.networkId] = {
@@ -83,9 +77,7 @@ function createDynamicColliderServer(entity, mesh) {
        component: networkObject,
        uniqueId: uniqueId
    };
-   // console.warn(networkObject.networkId);
 
-   // console.warn(uniqueId);
    Network.instance.createObjects.push({
        networkId: networkObject.networkId,
        ownerId: 'server',

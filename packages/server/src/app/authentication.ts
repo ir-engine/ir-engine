@@ -7,6 +7,7 @@ import GoogleStrategy from '../strategies/google';
 import FacebookStrategy from '../strategies/facebook';
 import { MyLocalStrategy } from '../strategies/local';
 import { MyJwtStrategy } from '../strategies/jwt';
+import authenticationDoc from './authentication.doc';
 
 declare module '../declarations' {
   interface ServiceTypes {
@@ -16,6 +17,7 @@ declare module '../declarations' {
 
 export default (app: Application): void => {
   const authentication = new AuthenticationService(app as any);
+  authentication['docs'] = authenticationDoc;
 
   authentication.register('jwt', new MyJwtStrategy());
   authentication.register('local', new MyLocalStrategy());

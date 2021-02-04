@@ -1,6 +1,6 @@
 import { CharacterComponent } from "../components/CharacterComponent";
 import { TransformComponent } from "../../../transform/components/TransformComponent";
-import { Behavior } from "../../../common/interfaces/Behavior";
+import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { Entity } from "../../../ecs/classes/Entity";
 import { getMutableComponent, getComponent } from "../../../ecs/functions/EntityFunctions";
 import { setCameraRelativeOrientationTarget } from "./setCameraRelativeOrientationTarget";

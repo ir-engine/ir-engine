@@ -13,7 +13,6 @@ export default (options = {}): Hook => {
       mimeType: data.mimeType || params.mimeType,
       metadata: data.metadata || body.metadata,
       staticResourceType: 'data',
-      subscriptionLevel: data.subscriptionLevel || body.subscriptionLevel || params.subscriptionLevel || 'all',
       userId: data.userId || body.userId || params.userId || null
     };
     resourceData.staticResourceType = data.type === 'user-thumbnail' || body.type === 'user-thumbnail'
@@ -24,7 +23,6 @@ export default (options = {}): Hook => {
         url: resourceData.url,
         metadata: resourceData.metadata,
         staticResourceType: resourceData.staticResourceType,
-        subscriptionLevel: resourceData.subscriptionLevel
       });
     } else {
       if (context.params.parentResourceId) {

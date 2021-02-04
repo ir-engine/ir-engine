@@ -104,9 +104,9 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
    In /packages/server, run ```sudo yarn dev```.
    In the other tab, go to /packages/client and run ```sudo yarn dev```.
    
-7. In a browser, navigate to https://localhost:3000/location/test
+7. In a browser, navigate to https://localhost:3000/location/home
    The database seeding process creates a test empty location called 'test'.
-   It can be navigated to by going to 'https://localhost:3000/location/test'.
+   It can be navigated to by going to 'https://localhost:3000/location/home'.
    See the sections below about invalid certificates if you are encountering errors
    connecting to the client, API, or gameserver.
 
@@ -190,7 +190,7 @@ check which process is using port 3030 and kill
 	kill -3 <proccessIDfromPreviousCommand>
 ```
 
-#### 'TypeError: Cannot read property 'position' of undefined' when accessing /location/test
+#### 'TypeError: Cannot read property 'position' of undefined' when accessing /location/home
     As of this writing, there's a bug with the default seeded test location.
     Go to /editor/projects and open the 'Test' project. Save the project, and
     the error should go away.

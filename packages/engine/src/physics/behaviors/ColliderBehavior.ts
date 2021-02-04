@@ -5,7 +5,7 @@ import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { ColliderComponent } from '../components/ColliderComponent';
-import { PhysicsManager } from '../components/PhysicsManager';
+import { PhysicsSystem } from '../systems/PhysicsSystem';
 import {
   createBox,
   createCylinder,
@@ -14,12 +14,10 @@ import {
 } from './physicalPrimitives';
 
 export const handleCollider: Behavior = (entity: Entity, args: { phase?: string }): void => {
-
-
   if (args.phase === 'onRemoved') {
     const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent, true);
     if (colliderComponent) {
-      PhysicsManager.instance.physicsWorld.removeBody(colliderComponent.collider);
+      PhysicsSystem.physicsWorld.removeBody(colliderComponent.collider);
     }
     return;
   }
@@ -35,7 +33,6 @@ export const handleCollider: Behavior = (entity: Entity, args: { phase?: string 
       mesh.geometry.computeBoundingBox();
     }
   }
-
 
   let body;
   console.log("Adding collider of type", colliderComponent.type);
@@ -69,13 +66,6 @@ export const handleCollider: Behavior = (entity: Entity, args: { phase?: string 
       body = createBox(entity)
       break;
   }
-  PhysicsManager.instance.physicsWorld.addBody(body);
+  PhysicsSystem.physicsWorld.addBody(body);
   colliderComponent.collider = body;
-/*
-    body.shapes.forEach((shape) => {
-			shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
-		});
-*/
-		//body.collisionFilterGroup = 1;
-
 };

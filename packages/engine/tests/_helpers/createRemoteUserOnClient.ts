@@ -1,4 +1,4 @@
-import { Network } from "../../src/networking/components/Network";
+import { Network } from "../../src/networking//classes/Network";
 import {
   NetworkObjectCreateInterface,
   PacketWorldState,

@@ -14,4 +14,4 @@ export default {
             items: { $ref: '#/definitions/channel-type' }
         }
     }
-}
+};

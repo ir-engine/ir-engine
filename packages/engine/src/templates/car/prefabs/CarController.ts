@@ -5,7 +5,7 @@ import { VehicleInputSchema } from "@xr3ngine/engine/src/templates/car/VehicleIn
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { Color } from "three";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
-import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
+import { addComponentFromSchema } from "@xr3ngine/engine/src/common/behaviors/addComponentFromSchema";
 import { Entity } from "../../../ecs/classes/Entity";
 import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { Interactable } from "../../../interaction/components/Interactable";
@@ -21,11 +21,6 @@ export const CarController: Prefab = {
       { type: TransformComponent, data: { position: [-3,6,3]} },
       // Local player input mapped to behaviors in the input map
        { type: Input, data: { schema: VehicleInputSchema } },
-      // { type: SoundEffect, data: { src: 'audio/honk.mp3', volume: 0.6 } },
-      // Current state (isJumping, isidle, etc)
-    //   { type: State, data: { schema: VehicleStateSchema } },
-      // Similar to Unity's Update(), LateUpdate(), and Start()
-  //    { type: Subscription, data: { schema: DefaultSubscriptionSchema } }
         { type: Interactable, data: {
             interactionParts: ['door_front_left', 'door_front_right'],
             onInteraction: getInCar,

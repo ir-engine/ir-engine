@@ -117,8 +117,8 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { 
   loginUserByPassword,
-} from '../../../redux/auth/service'
-import { selectAuthState } from '../../../redux/auth/selector'
+} from '@xr3ngine/client-core/redux/auth/service'
+import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector'
 
 ...
 
@@ -287,9 +287,9 @@ Let's explain step by step about the login process.
 
 ```
 import { connect } from 'react-redux'
-import { detectDeviceType } from '../../../redux/devicedetect/service'
+import { detectDeviceType } from '@xr3ngine/client-core/redux/devicedetect/service'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectDeviceDetectState } from '../../../redux/devicedetect/selector'
+import { selectDeviceDetectState } from '@xr3ngine/client-core/redux/devicedetect/selector'
 
 ...
 

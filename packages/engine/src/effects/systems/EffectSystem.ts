@@ -2,7 +2,7 @@ import { Object3DComponent } from '../../common/components/Object3DComponent'
 import { System, SystemAttributes } from '../../ecs/classes/System'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
-import { RendererComponent } from '../../renderer/components/RendererComponent'
+import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
 import { HighlightComponent } from '../components/HighlightComponent'
 
 /** System Class for Highlight system.\
@@ -25,7 +25,7 @@ export class HighlightSystem extends System {
       const highlightedObject = getComponent(entity, Object3DComponent).value;
       highlightedObject.traverse(obj => {
         if (obj !== undefined) {
-          RendererComponent.instance.composer.outlineEffect?.selection.add(obj);
+          WebGLRendererSystem.composer?.outlineEffect?.selection.add(obj);
         }
       });
     }
@@ -33,7 +33,7 @@ export class HighlightSystem extends System {
       const highlightedObject = getComponent(entity, Object3DComponent).value;
       highlightedObject.traverse(obj => {
         if (obj !== undefined) {
-          RendererComponent.instance.composer.outlineEffect?.selection.delete(obj);
+          WebGLRendererSystem.composer?.outlineEffect?.selection.delete(obj);
         }
       });
     }

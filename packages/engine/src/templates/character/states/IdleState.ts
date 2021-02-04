@@ -13,7 +13,7 @@ import { Input } from '../../../input/components/Input';
 import { trySwitchToMovingState } from '../behaviors/trySwitchToMovingState';
 import { Entity } from '../../../ecs/classes/Entity';
 import { DefaultInput } from "../../shared/DefaultInput";
-import { BinaryValue } from "../../../common/enums/BinaryValue";
+import { BinaryValue } from "@xr3ngine/engine/src/common/enums/BinaryValue";
 import { getPlayerMovementVelocity } from "../functions/getPlayerMovementVelocity";
 import { getMovingAnimationsByVelocity } from "../functions/getMovingAnimationsByVelocity";
 import { setActorAnimationWeightScale } from "../behaviors/setActorAnimationWeightScale";

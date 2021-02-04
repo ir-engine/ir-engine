@@ -2,8 +2,8 @@ import { CharacterComponent } from '../components/CharacterComponent';
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { getComponent } from '../../../ecs/functions/EntityFunctions';
 import { addState } from "../../../state/behaviors/addState";
-import { getSignedAngleBetweenVectors } from '../../../common/functions/getSignedAngleBetweenVectors';
-import { Behavior } from '../../../common/interfaces/Behavior';
+import { getSignedAngleBetweenVectors } from '@xr3ngine/engine/src/common/functions/getSignedAngleBetweenVectors';
+import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 
 export const setIdleState: Behavior = (entity) => {
   const character = getComponent(entity, CharacterComponent);

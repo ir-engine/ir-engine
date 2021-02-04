@@ -16,7 +16,7 @@ import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { AssetLoaderState } from "../../../assets/components/AssetLoaderState";
 import { State } from "../../../state/components/State";
-import { LifecycleValue } from "../../../common/enums/LifecycleValue";
+import { LifecycleValue } from "@xr3ngine/engine/src/common/enums/LifecycleValue";
 
 const boxGeometry = new BoxBufferGeometry(1, 1, 1);
 const boxMaterial = new MeshPhongMaterial({ color: 'blue' });

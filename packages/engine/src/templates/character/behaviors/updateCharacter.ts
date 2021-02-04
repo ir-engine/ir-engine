@@ -1,22 +1,19 @@
-import { Behavior } from '../../../common/interfaces/Behavior';
+import { Vector3 } from 'three';
+import { Object3DComponent } from '@xr3ngine/engine/src/common/components/Object3DComponent';
+import { cannonFromThreeVector } from "@xr3ngine/engine/src/common/functions/cannonFromThreeVector";
+import { isClient } from '@xr3ngine/engine/src/common/functions/isClient';
+import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
+import { Engine } from '../../../ecs/classes/Engine';
 import { Entity } from '../../../ecs/classes/Entity';
 import { getComponent, getMutableComponent, hasComponent } from '../../../ecs/functions/EntityFunctions';
-import { CharacterComponent } from '../components/CharacterComponent';
-import { TransformComponent } from '../../../transform/components/TransformComponent';
-import { rotateModel } from "./rotateModel";
-import { springRotation } from "./springRotation";
-import { springMovement } from "./springMovement";
-import { Object3DComponent } from '../../../common/components/Object3DComponent';
-import { cannonFromThreeVector } from "../../../common/functions/cannonFromThreeVector";
-import { Vector3 } from 'three';
-import { Network } from '../../../networking/components/Network';
-import { NetworkObject } from '../../../networking/components/NetworkObject';
-import { NetworkInterpolation } from '../../../networking/components/NetworkInterpolation';
 import { LocalInputReceiver } from '../../../input/components/LocalInputReceiver';
-import { Vault } from '../../../networking/components/Vault';
-import { calculateInterpolation, addSnapshot, createSnapshot } from '../../../networking/functions/NetworkInterpolationFunctions';
-import { Engine } from '../../../ecs/classes/Engine';
-import { isClient } from '../../../common/functions/isClient';
+import { Network } from '../../../networking/classes/Network';
+import { NetworkObject } from '../../../networking/components/NetworkObject';
+import { TransformComponent } from '../../../transform/components/TransformComponent';
+import { CharacterComponent } from '../components/CharacterComponent';
+import { rotateModel } from "./rotateModel";
+import { springMovement } from "./springMovement";
+import { springRotation } from "./springRotation";
 
 export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime) => {
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);

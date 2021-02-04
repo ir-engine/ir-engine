@@ -1,3 +1,4 @@
+import { Object3D } from 'three';
 import { removeObject3DComponent } from '../../common/behaviors/Object3DBehaviors';
 import { Object3DComponent } from '../../common/components/Object3DComponent';
 import { isClient } from '../../common/functions/isClient';
@@ -8,6 +9,7 @@ import {
   addComponent, createEntity, getComponent, getMutableComponent, hasComponent, removeComponent
 } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
+import { CharacterAvatarComponent } from '../../templates/character/components/CharacterAvatarComponent';
 import { AssetLoader } from '../components/AssetLoader';
 import { AssetLoaderState } from '../components/AssetLoaderState';
 import AssetVault from '../components/AssetVault';
@@ -16,8 +18,6 @@ import { Unload } from '../components/Unload';
 import { AssetClass } from '../enums/AssetClass';
 import { getAssetClass, getAssetType, loadAsset } from '../functions/LoadingFunctions';
 import { ProcessModelAsset } from "../functions/ProcessModelAsset";
-import { Object3D } from 'three';
-import { CharacterAvatarComponent } from '../../templates/character/components/CharacterAvatarComponent';
 
 /** System class for Asset loading. */
 export default class AssetLoadingSystem extends System {
@@ -41,8 +41,7 @@ export default class AssetLoadingSystem extends System {
       // Do things here
     });
     this.queryResults.toLoad.all.forEach((entity: Entity) => {
-      // console.log("**************** TO LOAD");
-      // console.log(entity)
+    
       const isCharacter = hasComponent(entity, CharacterAvatarComponent);
 
       if (hasComponent(entity, AssetLoaderState)) {

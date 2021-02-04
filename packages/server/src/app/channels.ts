@@ -1,5 +1,5 @@
 import '@feathersjs/transport-commons';
-import { Network } from '@xr3ngine/engine/src/networking/components/Network';
+import { Network } from '@xr3ngine/engine/src/networking//classes/Network';
 import { loadScene } from "@xr3ngine/engine/src/scene/functions/SceneLoading";
 import config from '../config';
 import { Application } from '../declarations';

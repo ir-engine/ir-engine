@@ -1,9 +1,9 @@
-import { DRACOLoader } from "../loaders/gltf/DRACOLoader";
-import NodeDRACOLoader from "../loaders/gltf/NodeDRACOLoader";
-import { GLTFLoader } from "../loaders/gltf/GLTFLoader";
-import { AssetUrl } from "../types/AssetTypes";
-import { isClient } from "../../common/functions/isClient";
 import { AmbientLight, DirectionalLight, PointLight } from 'three';
+import { isClient } from "../../common/functions/isClient";
+import { DRACOLoader } from "../loaders/gltf/DRACOLoader";
+import { GLTFLoader } from "../loaders/gltf/GLTFLoader";
+import NodeDRACOLoader from "../loaders/gltf/NodeDRACOLoader";
+import { AssetUrl } from "../types/AssetTypes";
 
 /**
  * Interface for result of the GLTF Asset load.

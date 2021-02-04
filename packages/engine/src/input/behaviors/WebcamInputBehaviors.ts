@@ -1,4 +1,4 @@
-import { MediaStreamComponent } from "@xr3ngine/engine/src/networking/components/MediaStreamComponent";
+import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
 import * as faceapi from "face-api.js";
 import { Behavior } from "../../common/interfaces/Behavior";
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
@@ -27,7 +27,7 @@ export const stopLipsyncTracking = () => {
 export const startFaceTracking: Behavior = (entity) => {
     console.log("**************** STARTING FACE TRACKING")
     const video = document.createElement('video');
-    video.srcObject = MediaStreamComponent.instance.mediaStream;
+    video.srcObject = MediaStreamSystem.mediaStream;
     Promise.all([
         console.log("Start load detectors"),
         faceapi.nets.tinyFaceDetector.loadFromUri('/facetracking'),
@@ -75,7 +75,7 @@ export const startLipsyncTracking: Behavior = (entity) => {
     userSpeechAnalyzer.smoothingTimeConstant = 0.5;
     userSpeechAnalyzer.fftSize = FFT_SIZE;
 
-    const inputStream = audioContext.createMediaStreamSource(MediaStreamComponent.instance.mediaStream);
+    const inputStream = audioContext.createMediaStreamSource(MediaStreamSystem.mediaStream);
     inputStream.connect(userSpeechAnalyzer);
 
     const audioProcessor = audioContext.createScriptProcessor(FFT_SIZE * 2, 1, 1);

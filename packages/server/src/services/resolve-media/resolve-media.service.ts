@@ -2,7 +2,6 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import { ResolveMedia } from './resolve-media.class';
-import resolveMediaDocs from './resolve-media.docs';
 import hooks from './resolve-media.hooks';
 
 // Add this service to the service type index
@@ -18,9 +17,7 @@ export default (app: Application): void => {
   };
 
   // Initialize our service with any options it requires
-  const event = new ResolveMedia(options, app);
-  event.docs = resolveMediaDocs;
-  app.use('/resolve-media', event);
+  app.use('/resolve-media', new ResolveMedia(options, app));
 
   // Get our initialized service so that we can register hooks
   const service = app.service('resolve-media');
