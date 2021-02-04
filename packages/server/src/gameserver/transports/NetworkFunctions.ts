@@ -122,10 +122,10 @@ export function validateNetworkObjects(): void {
                 disconnectedClient.instanceRecvTransport.close();
             if (disconnectedClient?.instanceSendTransport)
                 disconnectedClient.instanceSendTransport.close();
-            if (disconnectedClient?.relRecvTransport)
-                disconnectedClient.relRecvTransport.close();
-            if (disconnectedClient?.relSendTransport)
-                disconnectedClient.relSendTransport.close();
+            if (disconnectedClient?.channelRecvTransport)
+                disconnectedClient.channelRecvTransport.close();
+            if (disconnectedClient?.channelSendTransport)
+                disconnectedClient.channelSendTransport.close();
 
             // Find all network objects that the disconnecting client owns and remove them
             const networkObjectsClientOwns = [];
@@ -381,8 +381,8 @@ export async function handleDisconnect(socket): Promise<any> {
         logger.info('Disconnecting clients for user ' + userId);
         if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close();
         if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close();
-        if (disconnectedClient?.relRecvTransport) disconnectedClient.relRecvTransport.close();
-        if (disconnectedClient?.relSendTransport) disconnectedClient.relSendTransport.close();
+        if (disconnectedClient?.channelRecvTransport) disconnectedClient.channelRecvTransport.close();
+        if (disconnectedClient?.channelSendTransport) disconnectedClient.channelSendTransport.close();
         if (Network.instance.clients[userId] !== undefined)
             delete Network.instance.clients[userId];
     } else {

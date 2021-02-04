@@ -35,7 +35,8 @@ export default (app: Application): any => {
         ipAddress: data.ipAddress,
         port: data.port,
         locationId: data.locationId,
-        sceneId: data.sceneId
+        sceneId: data.sceneId,
+        channelId: data.channelId
       });
     } catch (err) {
       logger.error(err);

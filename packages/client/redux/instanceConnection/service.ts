@@ -11,7 +11,7 @@ import {
   instanceServerProvisioning
 } from './actions';
 
-export function provisionInstanceServer(locationId: string, instanceId?: string, sceneId?: string) {
+export function provisionInstanceServer(locationId?: string, instanceId?: string, sceneId?: string, channelId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     dispatch(instanceServerProvisioning());
     const token = getState().get('auth').get('authUser').accessToken;
@@ -25,24 +25,35 @@ export function provisionInstanceServer(locationId: string, instanceId?: string,
         instanceId = null;
       }
     }
-    const provisionResult = await client.service('instance-provision').find({
+    const queryParams = channelId != null ? {
+      query: {
+        channelId: channelId,
+        token: token
+      }
+    } : {
       query: {
         locationId: locationId,
         instanceId: instanceId,
         sceneId: sceneId,
         token: token
       }
-    });
+    };
+    console.log('instance provision queryParams:');
+    console.log(queryParams);
+    const provisionResult = await client.service('instance-provision').find(queryParams);
+    console.log('Provision result:');
+    console.log(provisionResult);
     if (provisionResult.ipAddress != null && provisionResult.port != null) {
-      dispatch(instanceServerProvisioned(provisionResult, locationId, sceneId));
+      dispatch(instanceServerProvisioned(provisionResult, locationId, sceneId, channelId));
     }
   };
 }
 
-export function connectToInstanceServer(relationshipType: string, relationshipId?: string) {
+export function connectToInstanceServer(channelType: string, channelId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
       dispatch(instanceServerConnecting());
+      console.log('connectToInstanceServer: ', channelType, channelId);
       const authState = getState().get('auth');
       const user = authState.get('user');
       const token = authState.get('authUser').accessToken;
@@ -64,8 +75,8 @@ export function connectToInstanceServer(relationshipType: string, relationshipId
         token: token,
         sceneId: sceneId,
         startVideo: videoActive,
-        relationshipType: relationshipType,
-        relationshipId: relationshipId,
+        channelType: channelType,
+        channelId: channelId,
         videoEnabled: currentLocation?.locationSettings?.videoEnabled === true || !(currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null)
       });
       Network.instance.isInitialized = true;
@@ -80,5 +91,5 @@ export function connectToInstanceServer(relationshipType: string, relationshipId
 }
 
 client.service('instance-provision').on('created', (params) => {
-  store.dispatch(instanceServerProvisioned(params, params.locationId, params.sceneId));
+  store.dispatch(instanceServerProvisioned(params, params.locationId, params.sceneId, params.channelId));
 });

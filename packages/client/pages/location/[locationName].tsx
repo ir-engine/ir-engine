@@ -169,7 +169,7 @@ const LocationPage = (props: Props) => {
   }, [appState]);
   const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
 
-  async function init(sceneId: string): Promise<any> { // auth: any,
+  async function init(sceneId: string): Promise<any> {
     let service, serviceId;
     const projectResult = await client.service('project').get(sceneId);
     setCurrentScene(projectResult);
