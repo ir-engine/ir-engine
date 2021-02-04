@@ -17,6 +17,11 @@ export default (app: Application): void => {
     multi: true
   };
 
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const event = new IdentityProvider(options, app);
   event.docs = identyDocs;
 
