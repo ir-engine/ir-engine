@@ -4,6 +4,8 @@ import { localMediaConstraints } from '../constants/VideoConstants';
 
 /** System class for media streaming. */
 export class MediaStreamSystem extends System {
+  public static instance = null;
+
   /** Whether the video is paused or not. */
   @observable public static videoPaused = false
   /** Whether the audio is paused or not. */
@@ -26,9 +28,9 @@ export class MediaStreamSystem extends System {
   /** Producer using screen to get Audio. */
   @observable public static screenAudioProducer = null
   /** List of all producers nodes.. */
-  @observable public static producers = []
+  @observable public producers = []
   /** List of all consumer nodes. */
-  @observable public static consumers = []
+  @observable public consumers = []
   /** Indication of whether the video while screen sharing is paused or not. */
   @observable public static screenShareVideoPaused = false
   /** Indication of whether the audio while screen sharing is paused or not. */
@@ -36,6 +38,11 @@ export class MediaStreamSystem extends System {
 
   /** Whether the component is initialized or not. */
   @observable public static initialized = false
+
+  constructor() {
+    super()
+    MediaStreamSystem.instance = this;
+  }
 
   /**
    * Set face tracking state.

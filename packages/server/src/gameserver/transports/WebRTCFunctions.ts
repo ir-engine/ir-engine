@@ -133,7 +133,7 @@ export async function closeProducer(producer): Promise<void> {
     logger.info("closing producer " + producer.id, producer.appData);
     await producer.close();
 
-    MediaStreamSystem.producers = MediaStreamSystem.producers.filter(p => p.id !== producer.id);
+    if(MediaStreamSystem.instance) MediaStreamSystem.instance.producers = MediaStreamSystem.instance?.producers.filter(p => p.id !== producer.id);
 
     if (Network.instance.clients[producer.appData.peerId]) delete Network.instance.clients[producer.appData.peerId].media[producer.appData.mediaTag];
 }
@@ -143,14 +143,14 @@ export async function closeProducerAndAllPipeProducers(producer, peerId): Promis
         logger.info("closing producer and all pipe producer " + producer.id, producer.appData);
 
         // remove this producer from our roomState.producers list
-        MediaStreamSystem.producers = MediaStreamSystem.producers.filter(p => p.id !== producer.id);
+        if(MediaStreamSystem.instance) MediaStreamSystem.instance.producers = MediaStreamSystem.instance?.producers.filter(p => p.id !== producer.id);
 
         // finally, close the original producer
         await producer.close();
 
         // remove this producer from our roomState.producers list
-        MediaStreamSystem.producers = MediaStreamSystem.producers.filter(p => p.id !== producer.id);
-        MediaStreamSystem.consumers = MediaStreamSystem.consumers.filter(c => !(c.appData.mediaTag === producer.appData.mediaTag && c._internal.producerId === producer.id));
+        if(MediaStreamSystem.instance) MediaStreamSystem.instance.producers = MediaStreamSystem.instance?.producers.filter(p => p.id !== producer.id);
+        if(MediaStreamSystem.instance) MediaStreamSystem.instance.consumers = MediaStreamSystem.instance?.consumers.filter(c => !(c.appData.mediaTag === producer.appData.mediaTag && c._internal.producerId === producer.id));
 
         // remove this track's info from our roomState...mediaTag bookkeeping
         delete Network.instance.clients[producer.appData.peerId]?.media[producer.appData.mediaTag];
@@ -161,7 +161,7 @@ export async function closeConsumer(consumer): Promise<void> {
     logger.info("closing consumer", consumer.id);
     await consumer.close();
 
-    MediaStreamSystem.consumers = MediaStreamSystem.consumers.filter(c => c.id !== consumer.id);
+    if(MediaStreamSystem.instance) MediaStreamSystem.instance.consumers = MediaStreamSystem.instance?.consumers.filter(c => c.id !== consumer.id);
     Object.entries(Network.instance.clients).forEach(([, value]) => {
         value.socket.emit(MessageTypes.WebRTCCloseConsumer.toString(), consumer.id);
     });
@@ -325,7 +325,7 @@ export async function handleWebRtcTransportConnect(socket, data, callback): Prom
 
 export async function handleWebRtcCloseProducer(socket, data, callback): Promise<any> {
     const userId = getUserIdFromSocketId(socket.id);
-    const { producerId } = data, producer = MediaStreamSystem.producers.find(p => p.id === producerId);
+    const { producerId } = data, producer = MediaStreamSystem.instance?.producers.find(p => p.id === producerId);
     await closeProducerAndAllPipeProducers(producer, userId).catch(err => logger.error(err));
     callback({ closed: true });
 }
@@ -346,8 +346,8 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
 
     producer.on("transportclose", () => closeProducerAndAllPipeProducers(producer, userId));
 
-    if(!MediaStreamSystem.producers) console.warn("Media stream producers is undefined")
-    MediaStreamSystem.producers?.push(producer);
+    if(!MediaStreamSystem.instance?.producers) console.warn("Media stream producers is undefined")
+    MediaStreamSystem.instance?.producers?.push(producer);
 
     if (userId != null && Network.instance.clients[userId] != null) {
         Network.instance.clients[userId].media[appData.mediaTag] = {
@@ -373,8 +373,8 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
     const userId = getUserIdFromSocketId(socket.id);
     const { mediaPeerId, mediaTag, rtpCapabilities, relationshipType, relationshipId } = data;
     console.log('Receive track for ', relationshipType, relationshipId);
-    console.log(MediaStreamSystem.producers);
-    const producer = MediaStreamSystem.producers.find(
+    console.log(MediaStreamSystem.instance?.producers);
+    const producer = MediaStreamSystem.instance?.producers.find(
         p => p._appData.mediaTag === mediaTag && p._appData.peerId === mediaPeerId && (relationshipType === 'instance' ? p._appData.relationshipType === relationshipType : p._appData.relationshipType === relationshipType && p._appData.relationshipId === relationshipId)
     );
     const router = relationshipType === 'instance' ? networkTransport.routers.instance : networkTransport.routers[`${relationshipType}:${relationshipId}`];
@@ -422,7 +422,7 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
         });
 
         // stick this consumer in our list of consumers to keep track of
-        MediaStreamSystem.consumers.push(consumer);
+        MediaStreamSystem.instance?.consumers.push(consumer);
 
         Network.instance.clients[userId].consumerLayers[consumer.id] = {
             currentLayer: null,
@@ -452,7 +452,7 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
 
 export async function handleWebRtcPauseConsumer(socket, data, callback): Promise<any> {
     const { consumerId } = data,
-        consumer = MediaStreamSystem.consumers.find(c => c.id === consumerId);
+        consumer = MediaStreamSystem.instance?.consumers.find(c => c.id === consumerId);
     if (consumer != null) {
         logger.info("pause-consumer", consumer.appData);
         await consumer.pause();
@@ -462,7 +462,7 @@ export async function handleWebRtcPauseConsumer(socket, data, callback): Promise
 
 export async function handleWebRtcResumeConsumer(socket, data, callback): Promise<any> {
     const { consumerId } = data,
-        consumer = MediaStreamSystem.consumers.find(c => c.id === consumerId);
+        consumer = MediaStreamSystem.instance?.consumers.find(c => c.id === consumerId);
     if (consumer != null) {
         logger.info("resume-consumer", consumer.appData);
         await consumer.resume();
@@ -472,7 +472,7 @@ export async function handleWebRtcResumeConsumer(socket, data, callback): Promis
 
 export async function handleWebRtcCloseConsumer(socket, data, callback): Promise<any> {
     const { consumerId } = data,
-        consumer = MediaStreamSystem.consumers.find(c => c.id === consumerId);
+        consumer = MediaStreamSystem.instance?.consumers.find(c => c.id === consumerId);
     logger.info(`Close Consumer handler: ${consumerId}`);
     if (consumer != null) await closeConsumer(consumer);
     callback({ closed: true });
@@ -480,7 +480,7 @@ export async function handleWebRtcCloseConsumer(socket, data, callback): Promise
 
 export async function handleWebRtcConsumerSetLayers(socket, data, callback): Promise<any> {
     const { consumerId, spatialLayer } = data,
-        consumer = MediaStreamSystem.consumers.find(c => c.id === consumerId);
+        consumer = MediaStreamSystem.instance?.consumers.find(c => c.id === consumerId);
     logger.info("consumer-set-layers: ", spatialLayer, consumer.appData);
     await consumer.setPreferredLayers({ spatialLayer });
     callback({ layersSet: true });
@@ -489,7 +489,7 @@ export async function handleWebRtcConsumerSetLayers(socket, data, callback): Pro
 export async function handleWebRtcResumeProducer(socket, data, callback): Promise<any> {
     const userId = getUserIdFromSocketId(socket.id);
     const { producerId } = data,
-        producer = MediaStreamSystem.producers.find(p => p.id === producerId);
+        producer = MediaStreamSystem.instance?.producers.find(p => p.id === producerId);
     logger.info("resume-producer", producer.appData);
     console.log('Resume-producer for user ' + userId);
     await producer.resume();
@@ -507,7 +507,7 @@ export async function handleWebRtcResumeProducer(socket, data, callback): Promis
 export async function handleWebRtcPauseProducer(socket, data, callback): Promise<any> {
     const userId = getUserIdFromSocketId(socket.id);
     const { producerId, globalMute } = data,
-        producer = MediaStreamSystem.producers.find(p => p.id === producerId);
+        producer = MediaStreamSystem.instance?.producers.find(p => p.id === producerId);
     await producer.pause();
     console.log('Pause-producer for user ' + userId);
     if (userId != null && Network.instance.clients[userId] != null) {

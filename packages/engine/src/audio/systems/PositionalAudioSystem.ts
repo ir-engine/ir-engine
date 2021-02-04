@@ -52,7 +52,7 @@ export class PositionalAudioSystem extends System {
       const entityNetworkObject = getComponent(entity, NetworkObject);
       if (entityNetworkObject) {
         const peerId = entityNetworkObject.ownerId;
-        const consumer = MediaStreamSystem.consumers
+        const consumer = MediaStreamSystem.instance?.consumers
             .find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio');
         if (consumer == null && this.characterAudioStream.get(entity) != null) {
           this.characterAudioStream.delete(entity);
@@ -69,7 +69,7 @@ export class PositionalAudioSystem extends System {
       let consumer;
       if (entityNetworkObject != null) {
         const peerId = entityNetworkObject.ownerId;
-        consumer = MediaStreamSystem.consumers
+        consumer = MediaStreamSystem.instance?.consumers
             .find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio');
       }
 
