@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { useAssetSearch } from "./useAssetSearch";
 import { AssetsPanelToolbar, AssetPanelContentContainer } from "./AssetsPanel";
 import AssetSearchInput from "./AssetSearchInput";
+import TagList from "./TagList";
 import AssetGrid from "./AssetGrid";
 import FileInput from "../inputs/FileInput";
 import useUpload from "./useUpload";
@@ -12,6 +13,7 @@ export default function MediaSourcePanel({
   source,
   searchPlaceholder,
   initialSearchParams,
+  multiselectTags,
   savedState,
   setSavedState
 }) {
@@ -55,6 +57,20 @@ export default function MediaSourcePanel({
     [params, setParams, savedState, setSavedState]
   );
 
+  const onChangeTags = useCallback(
+    tags => {
+      const nextParams = { ...params, tags };
+      setParams(nextParams);
+      setSavedState({ ...savedState, searchParams: nextParams });
+    },
+    [params, setParams, setSavedState, savedState]
+  );
+
+  const onChangeExpandedTags = useCallback(expandedTags => setSavedState({ ...savedState, expandedTags }), [
+    savedState,
+    setSavedState
+  ]);
+
   return (
     <>
       <AssetsPanelToolbar title={source.name}>
@@ -62,16 +78,30 @@ export default function MediaSourcePanel({
           placeholder={searchPlaceholder}
           value={(params as any).query}
           onChange={onChangeQuery}
+          legal={source.searchLegalCopy}
+          privacyPolicyUrl={source.privacyPolicyUrl}
         />
         {source.upload && (
           <FileInput
-            label="File"
+          /* @ts-ignore */
             accept={source.acceptFileTypes || "all"}
+            multiple={source.uploadMultiple || false}
             onChange={onUpload}
           />
         )}
       </AssetsPanelToolbar>
       <AssetPanelContentContainer>
+        {/*source.tags && (
+          <TagList
+            multiselect={multiselectTags}
+            tags={source.tags}
+            /* @ts-ignore */
+            /*selectedTags={params.tags}
+            onChange={onChangeTags}
+            initialExpandedTags={savedState.expandedTags}
+            onChangeExpandedTags={onChangeExpandedTags}
+          />
+        )*/}
         <AssetGrid
           source={source}
           items={results}

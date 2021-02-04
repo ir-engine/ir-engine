@@ -8,12 +8,12 @@ import {
   WebGLRenderTarget
 } from 'three';
 
-import { LuminanceMaterial } from '../materials/LuminanceMaterial';
-import { AdaptiveLuminanceMaterial } from '../materials/AdaptiveLuminanceMaterial';
+import { LuminanceMaterial } from './materials/LuminanceMaterial';
+import { AdaptiveLuminanceMaterial } from './materials/AdaptiveLuminanceMaterial';
 
-import { ClearPass } from '../passes/ClearPass';
-import { SavePass } from '../passes/SavePass';
-import { ShaderPass } from '../passes/ShaderPass';
+import { ClearPass } from './passes/ClearPass';
+import { SavePass } from './passes/SavePass';
+import { ShaderPass } from './passes/ShaderPass';
 
 import { BlendFunction } from './blending/BlendFunction';
 import { Effect } from './Effect';

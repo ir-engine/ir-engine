@@ -271,6 +271,7 @@ export default function ViewportPanelContainer() {
 
   return (
     <Panel
+    /* @ts-ignore */
       id="viewport-panel"
       title="Viewport"
       icon={WindowMaximize}

@@ -7,6 +7,7 @@ import { initializeNetworkObject } from '@xr3ngine/engine/src/networking/functio
 import { addColliderWithoutEntity } from '@xr3ngine/engine/src/physics/behaviors/addColliderWithoutEntity';
 import { ColliderComponent } from '@xr3ngine/engine/src/physics/components/ColliderComponent';
 import { RigidBody } from '@xr3ngine/engine/src/physics/components/RigidBody';
+import { addCarPhysics } from '@xr3ngine/engine/src/physics/behaviors/addCarPhysics';
 import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
 import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
@@ -71,6 +72,7 @@ function createDynamicColliderServer(entity, mesh) {
    addColliderComponent(networkObject.entity, mesh);
    addComponent(networkObject.entity, RigidBody);
    // Add the network object to our list of network objects
+   console.warn(networkObject.entity);
    Network.instance.networkObjects[networkObject.networkId] = {
        ownerId: 'server',
        prefabType: PrefabType.worldObject, // All network objects need to be a registered prefab
@@ -93,6 +95,10 @@ function createDynamicColliderServer(entity, mesh) {
    });
 }
 
+function createVehicleOnClient(entity, mesh) {
+  addCarPhysics(entity, mesh)
+}
+
 // parse Function
 
 export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
@@ -102,11 +108,11 @@ export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
 
   function parseColliders( mesh ) {
     // have user data physics its our case
-    if (mesh.userData.data === 'physics' || mesh.userData.data === 'dynamic') {
+    if (mesh.userData.data === 'physics' || mesh.userData.data === 'dynamic' || mesh.userData.data === 'vehicle') {
       // add position from editor to mesh
       plusParametersFromEditorToMesh(entity, mesh);
       // its for delete mesh from view scene
-      deleteArr.push(mesh);
+      mesh.userData.data === 'vehicle' ? '' : deleteArr.push(mesh);
       // parse types of colliders
       switch (mesh.userData.data) {
         case 'physics':
@@ -116,7 +122,7 @@ export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
           isServer ? createDynamicColliderServer(entity, mesh) : createDynamicColliderClient(entity, mesh);
           break;
         case 'vehicle':
-          // TO DO
+          isServer ? '' : createVehicleOnClient(entity, mesh);
           break;
         default:
           createStaticCollider(mesh);

@@ -2,8 +2,10 @@ import { Params } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import config from '../../config';
 
-export function getLink (type: string, hash: string): string {
-  return `${config.server.url}/login/${hash}`;
+export function getLink (type: string, hash: string, subscriptionId?: string): string {
+  return subscriptionId != null && subscriptionId.length > 0
+    ? `${config.server.url}/login/${hash}?subId=${subscriptionId}`
+    : `${config.server.url}/login/${hash}`;
 }
 
 export function getInviteLink (type: string, id: string, passcode: string): string {

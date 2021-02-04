@@ -153,8 +153,8 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                 setVideoStream(MediaStreamSystem?.screenVideoProducer);
                 setAudioStream(MediaStreamSystem?.screenAudioProducer);
             } else {
-                setVideoStream(MediaStreamSystem?.consumers.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-video'));
-                setAudioStream(MediaStreamSystem?.consumers.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'));
+                setVideoStream(MediaStreamSystem?.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-video'));
+                setAudioStream(MediaStreamSystem?.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'));
             }
         });
     }, []);

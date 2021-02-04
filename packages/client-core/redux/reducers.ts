@@ -33,6 +33,5 @@ export default combineReducers({
   alert: alertReducer,
   dialog: dialogReducer,
   devicedetect: deviceDetectReducer,
-  seat: seatReducer,
   user: userReducer
 });

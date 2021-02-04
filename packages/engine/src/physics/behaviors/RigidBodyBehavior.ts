@@ -52,6 +52,7 @@ export const RigidBodyBehavior: Behavior = (entity: Entity, args): void => {
         }
       }
     }
+  }
     // ON SERVER
     if (isClient) return;
     transform.position.set(
@@ -65,5 +66,5 @@ export const RigidBodyBehavior: Behavior = (entity: Entity, args): void => {
       colliderComponent.collider.quaternion.z,
       colliderComponent.collider.quaternion.w
     );
-  }
+
 };

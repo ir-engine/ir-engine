@@ -27,8 +27,7 @@ export default (app: Application): any => {
   });
 
   (instance as any).associate = (models: any): void => {
-    (instance as any).belongsTo(models.location, { allowNull: true });
-    (instance as any).belongsTo(models.group, { allowNull: true });
+    (instance as any).belongsTo(models.location);
     (instance as any).hasMany(models.user, { foreignKey: {allowNull: true }});
     (instance as any).hasOne(models.gameserver_subdomain_provision, { foreignKey: {allowNull: true}});
   };

@@ -51,7 +51,6 @@ type EditorContainerProps = {
   router: Router;
 };
 type EditorContainerState = {
-  onboardingContext: { enabled: boolean };
   project: any;
   parentSceneId: null;
   // templateUrl: any;
@@ -98,9 +97,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
         settings,
         updateSetting: this.updateSetting
       },
-      onboardingContext: {
-        enabled: false
-      },
       creatingProject: null,
       // templateUrl: defaultTemplateUrl,
       DialogComponent: null,
@@ -126,10 +122,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     } else {
       this.loadProject(projectId);
     }
-
-    if (projectId === "tutorial") {
-      this.setState({ onboardingContext: { enabled: true } });
-    }
   }
 
   componentDidUpdate(prevProps: EditorContainerProps) {
@@ -153,10 +145,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
         this.loadProjectTemplate(templateUrl);
       } else if (prevProjectId !== "tutorial" && prevProjectId !== "new") {
         this.loadProject(projectId);
-      }
-
-      if (projectId === "tutorial") {
-        this.setState({ onboardingContext: { enabled: true } });
       }
     }
   }
@@ -219,7 +207,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       project: null,
       parentSceneId: sceneId,
       // templateUrl: null,
-      onboardingContext: { enabled: false }
     });
 
     this.showDialog(ProgressDialog, {
@@ -267,7 +254,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       project: null,
       parentSceneId: null,
       // templateUrl: null,
-      onboardingContext: { enabled: false }
     });
 
     this.showDialog(ProgressDialog, {
@@ -307,8 +293,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     this.setState({
       project: null,
       parentSceneId: null,
-      // templateUrl: null,
-      onboardingContext: { enabled: false }
     });
 
     this.showDialog(ProgressDialog, {
@@ -392,25 +376,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
         name: "Quit",
         action: this.onOpenProject
       },
-
-      // {
-      //   name: "Help",
-      //   items: [
-      //     {
-      //       name: "Tutorial",
-      //       action: () => {
-      //         // const { projectId } = this.props.match.params;
-      //         const projectId = null;
-
-      //         if (projectId === "tutorial") {
-      //           this.setState({ onboardingContext: { enabled: true } });
-      //         } else {
-      //           this.props.router.push("/editor/projects/tutorial");
-      //         }
-      //       }
-      //     }
-      //   ]
-      // }
     ];
   };
 
@@ -826,16 +791,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     }
   };
 
-  onFinishTutorial = nextAction => {
-    this.setState({ onboardingContext: { enabled: false } });
-  };
-
-  onSkipTutorial = lastCompletedStep => {
-    this.setState({ onboardingContext: { enabled: false } });
-  };
-
   render() {
-    const { DialogComponent, dialogProps, modified, settingsContext, onboardingContext, editor } = this.state;
+    const { DialogComponent, dialogProps, modified, settingsContext, editor } = this.state;
     const toolbarMenu = this.generateToolbarMenu();
     const isPublishedScene = !!this.getSceneId();
 
