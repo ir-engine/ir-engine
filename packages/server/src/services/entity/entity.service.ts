@@ -18,7 +18,11 @@ export default (app: Application): any => {
     multi: true
   };
 
-  // Register model to
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
    const event = new Entity(options, app);
    event.docs = entityDocs;
   app.use('/entity', event);
