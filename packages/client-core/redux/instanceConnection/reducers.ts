@@ -49,8 +49,6 @@ const instanceConnectionReducer = (state = immutableState, action: InstanceServe
     case INSTANCE_SERVER_PROVISIONED:
       newInstance = new Map(state.get('instance'));
       newValues = (action as InstanceServerProvisionedAction);
-      console.log('instance server provisioned newValues:');
-      console.log(newValues);
       newInstance.set('ipAddress', newValues.ipAddress);
       newInstance.set('port', newValues.port);
       return state
@@ -73,19 +71,21 @@ const instanceConnectionReducer = (state = immutableState, action: InstanceServe
         .set('updateNeeded', false)
         .set('readyToConnect', false);
     case INSTANCE_SERVER_DISCONNECTED:
+      console.log('INSTANCE_SERVER_DISCONNECTED');
+      if (connectionSocket != null) (connectionSocket as any).close();
       return state
+        .set('connected', initialState.connected)
+        .set('instanceServerConnecting', initialState.instanceServerConnecting)
+        .set('instanceProvisioning', initialState.instanceProvisioning)
+        .set('instanceProvisioned', initialState.instanceProvisioned)
+        .set('readyToConnect', initialState.readyToConnect)
+        .set('updateNeeded', initialState.updateNeeded)
         .set('instance', new Map(Object.entries(initialState.instance)))
         .set('locationId', initialState.locationId)
         .set('sceneId', initialState.sceneId)
-        .set('connected', false)
-        .set('instanceProvisioned', false);
+        .set('channelId', initialState.channelId);
     case SOCKET_CREATED:
-      console.log("SOCKET CREATED");
-      console.log(connectionSocket);
-      console.log(action);
-      if (connectionSocket != null) {
-        (connectionSocket as any).close();
-      }
+      if (connectionSocket != null) (connectionSocket as any).close();
       connectionSocket = (action as SocketCreatedAction).socket;
       return state;
   }

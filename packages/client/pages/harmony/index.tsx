@@ -30,7 +30,8 @@ import {
 import { selectInstanceConnectionState } from '@xr3ngine/client-core/redux/instanceConnection/selector';
 import {
     connectToInstanceServer,
-    provisionInstanceServer
+    provisionInstanceServer,
+    resetInstanceServer
 } from '@xr3ngine/client-core/redux/instanceConnection/service';
 import { selectUserState } from '@xr3ngine/client-core/redux/user/selector';
 import { Message } from '@xr3ngine/common/interfaces/Message';
@@ -43,16 +44,18 @@ import {
     createCamVideoProducer,
     endVideoChat,
     pauseProducer,
-    resumeProducer
+    resumeProducer,
+    leave
 } from "@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions";
-import { NetworkSchema } from "@xr3ngine/engine/src/networking/interfaces/NetworkSchema";
+import {NetworkSchema} from "@xr3ngine/engine/src/networking/interfaces/NetworkSchema";
 import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
-import { DefaultNetworkSchema } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
+import {DefaultNetworkSchema} from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
 import classNames from 'classnames';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
+import { observer } from 'mobx-react';
 import styles from './harmony.module.scss';
 
 
@@ -74,6 +77,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     updateChatTarget: bindActionCreators(updateChatTarget, dispatch),
     provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
     connectToInstanceServer: bindActionCreators(connectToInstanceServer, dispatch),
+    resetInstanceServer: bindActionCreators(resetInstanceServer, dispatch),
     patchMessage: bindActionCreators(patchMessage, dispatch),
     updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch)
 });
@@ -95,9 +99,10 @@ interface Props {
     userState?: any;
     provisionInstanceServer: typeof provisionInstanceServer;
     connectToInstanceServer: typeof connectToInstanceServer;
+    resetInstanceServer: typeof resetInstanceServer;
 }
 
-const HarmonyPage = (props: Props): any => {
+const HarmonyPage = observer((props: Props): any => {
     const {
         authState,
         doLoginAuto,
@@ -114,12 +119,13 @@ const HarmonyPage = (props: Props): any => {
         updateMessageScrollInit,
         userState,
         provisionInstanceServer,
-        connectToInstanceServer
+        connectToInstanceServer,
+        resetInstanceServer
     } = props;
 
     const messageRef = React.useRef();
     const messageEl = messageRef.current;
-    const user = authState.get('user') as User;
+    const selfUser = authState.get('user') as User;
     const channelState = chatState.get('channels');
     const channels = channelState.get('channels');
     const targetObject = chatState.get('targetObject');
@@ -156,12 +162,14 @@ const HarmonyPage = (props: Props): any => {
         doLoginAuto(true);
 
         window.addEventListener('connectToWorld', () => {
-            console.log('Got connectToWorld event');
-            console.log(producerStartingRef.current);
-            console.log(activeAVChannelIdRef.current);
             if (producerStartingRef.current === 'audio') toggleAudio(activeAVChannelIdRef.current);
             else if (producerStartingRef.current === 'video') toggleVideo(activeAVChannelIdRef.current);
             setProducerStarting('');
+        });
+
+        window.addEventListener('leaveWorld', () => {
+            console.log('Resetting instance server');
+            resetInstanceServer();
         });
     }, []);
 
@@ -231,7 +239,7 @@ const HarmonyPage = (props: Props): any => {
     const setActiveChat = (channel): void => {
         updateMessageScrollInit(true);
         const channelType = channel.channelType;
-        const target = channelType === 'user' ? (channel.user1?.id === user.id ? channel.user2 : channel.user2?.id === user.id ? channel.user1 : {}) : channelType === 'group' ? channel.group : channelType === 'instance' ? channel.instance : channel.party;
+        const target = channelType === 'user' ? (channel.user1?.id === selfUser.id ? channel.user2 : channel.user2?.id === selfUser.id ? channel.user1 : {}) : channelType === 'group' ? channel.group : channelType === 'instance' ? channel.instance : channel.party;
         updateChatTarget(channelType, target, channel.id);
         setMessageDeletePending('');
         setMessageUpdatePending('');
@@ -270,7 +278,7 @@ const HarmonyPage = (props: Props): any => {
 
     const generateMessageSecondary = (message: Message): string => {
         const date = moment(message.createdAt).format('MMM D YYYY, h:mm a');
-        if (message.senderId !== user.id) {
+        if (message.senderId !== selfUser.id) {
             return `${message?.sender?.name ? message.sender.name : 'A former user'} on ${date}`;
         }
         else {
@@ -317,7 +325,7 @@ const HarmonyPage = (props: Props): any => {
 
     const toggleMessageCrudSelect = (e: any, message: Message) => {
         e.preventDefault();
-        if (message.senderId === user.id) {
+        if (message.senderId === selfUser.id) {
             if (messageCrudSelected === message.id && messageUpdatePending !== message.id) {
                 setMessageCrudSelected('');
             } else {
@@ -334,10 +342,16 @@ const HarmonyPage = (props: Props): any => {
     const checkEndVideoChat = async () =>{
         if((MediaStreamSystem.instance?.audioPaused || MediaStreamSystem.instance?.camAudioProducer == null) && (MediaStreamSystem.instance?.videoPaused || MediaStreamSystem.instance?.camVideoProducer == null)) {
             await endVideoChat({});
+            await leave();
         }
     };
     const handleMicClick = async (e: any, channelId: string) => {
         e.stopPropagation();
+        if (channelId !== activeAVChannelId) {
+            await endVideoChat({});
+            await leave();
+            await new Promise(resolve => setTimeout(() => resolve(), 1000));
+        }
         setActiveAVChannelId(channelId);
         if (instanceConnectionState.get('instanceProvisioned') !== true &&
             instanceConnectionState.get('instanceProvisioning') === false) {
@@ -349,10 +363,25 @@ const HarmonyPage = (props: Props): any => {
     };
 
     const handleCamClick = async (e: any, channelId: string) => {
+        console.log('handleCamClick');
         e.stopPropagation();
+        let forceStart = false;
+        console.log('channelId: ' + channelId);
+        console.log('activeAVChannelId: ' + activeAVChannelId);
+        if (channelId !== activeAVChannelId) {
+            await endVideoChat({});
+            console.log('called endVideoChat');
+            await leave();
+            console.log('Closed old connection');
+            await new Promise(resolve => setTimeout(() => resolve(), 1000));
+            console.log('Waited for state to update');
+            forceStart = true;
+        }
         setActiveAVChannelId(channelId);
-        if (instanceConnectionState.get('instanceProvisioned') !== true &&
-            instanceConnectionState.get('instanceProvisioning') === false) {
+        console.log('Current instanceConnectionState');
+        console.log(instanceConnectionState);
+        if (forceStart === true || (instanceConnectionState.get('instanceProvisioned') !== true &&
+            instanceConnectionState.get('instanceProvisioning') === false)) {
             provisionInstanceServer(null, null, null, channelId);
             setProducerStarting('video');
         } else {
@@ -441,16 +470,16 @@ const HarmonyPage = (props: Props): any => {
                         >
                             { channel.channelType === 'user' &&
                             <ListItemAvatar>
-                                <Avatar src={channel.userId1 === user.id ? channel.user2.avatarUrl: channel.user1.avatarUrl}/>
+                                <Avatar src={channel.userId1 === selfUser.id ? channel.user2.avatarUrl: channel.user1.avatarUrl}/>
                             </ListItemAvatar>
                             }
-                            <ListItemText primary={channel.channelType === 'user' ? (channel.user1?.id === user.id ? channel.user2.name : channel.user2?.id === user.id ? channel.user1.name : '') : channel.channelType === 'group' ? channel.group.name : channel.channelType === 'instance' ? 'Current layer' : 'Current party'}/>
+                            <ListItemText primary={channel.channelType === 'user' ? (channel.user1?.id === selfUser.id ? channel.user2.name : channel.user2?.id === selfUser.id ? channel.user1.name : '') : channel.channelType === 'group' ? channel.group.name : channel.channelType === 'instance' ? 'Current layer' : 'Current party'}/>
                             <section className={styles.drawerBox}>
-                                <div className={styles.iconContainer + ' ' + (audioPaused ? styles.off : styles.on)}>
+                                <div className={styles.iconContainer + ' ' + ((audioPaused || activeAVChannelId !== channel.id) ? styles.off : styles.on)}>
                                     <MicOff id='micOff' className={styles.offIcon} onClick={(e) => handleMicClick(e, channel.id)} />
                                     <Mic id='micOn' className={styles.onIcon} onClick={(e) => handleMicClick(e, channel.id)} />
                                 </div>
-                                <div className={styles.iconContainer + ' ' + (videoPaused ? styles.off : styles.on)}>
+                                <div className={styles.iconContainer + ' ' + ((videoPaused || activeAVChannelId !== channel.id) ? styles.off : styles.on)}>
                                     <VideocamOff id='videoOff' className={styles.offIcon} onClick={(e) => handleCamClick(e, channel.id)} />
                                     <Videocam id='videoOn' className={styles.onIcon} onClick={(e) => handleCamClick(e, channel.id)} />
                                 </div>
@@ -465,7 +494,7 @@ const HarmonyPage = (props: Props): any => {
                     }
                 </List>
                 <div className={styles['chat-window']}>
-                    { instanceConnectionState.get('channelId') != null && <div className={styles['video-container']}>
+                    { instanceConnectionState.get('channelId') != null && instanceConnectionState.get('channelId').length > 0 && <div className={styles['video-container']}>
                         <PartyParticipantWindow
                             containerProportions={{
                                 height: 135,
@@ -474,7 +503,7 @@ const HarmonyPage = (props: Props): any => {
                             peerId={'me_cam'}
                         />
                         <Grid className={ styles['party-user-container']} container direction="row">
-                            { layerUsers.map((user) => (
+                            { layerUsers.filter(user => user.id !== selfUser.id).map((user) => (
                                 <PartyParticipantWindow
                                     peerId={user.id}
                                     key={user.id}
@@ -488,8 +517,8 @@ const HarmonyPage = (props: Props): any => {
                                 return <ListItem
                                     className={classNames({
                                         [styles.message]: true,
-                                        [styles.self]: message.senderId === user.id,
-                                        [styles.other]: message.senderId !== user.id
+                                        [styles.self]: message.senderId === selfUser.id,
+                                        [styles.other]: message.senderId !== selfUser.id
                                     })}
                                     key={message.id}
                                     onMouseEnter={(e) => toggleMessageCrudSelect(e, message)}
@@ -497,7 +526,7 @@ const HarmonyPage = (props: Props): any => {
                                     onTouchEnd={(e) => toggleMessageCrudSelect(e, message)}
                                 >
                                     <div>
-                                        { message.senderId !== user.id &&
+                                        { message.senderId !== selfUser.id &&
                                         <ListItemAvatar>
                                             <Avatar src={message.sender?.avatarUrl}/>
                                         </ListItemAvatar>
@@ -508,7 +537,7 @@ const HarmonyPage = (props: Props): any => {
                                             secondary={generateMessageSecondary(message)}
                                         />
                                         }
-                                        {message.senderId === user.id && messageUpdatePending !== message.id &&
+                                        {message.senderId === selfUser.id && messageUpdatePending !== message.id &&
                                         <div className='message-crud'>
                                             { messageDeletePending !== message.id && messageCrudSelected === message.id &&
                                             <div className={styles['crud-controls']}>
@@ -625,6 +654,6 @@ const HarmonyPage = (props: Props): any => {
             </div>
         </Layout>
     );
-};
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(HarmonyPage);

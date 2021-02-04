@@ -513,7 +513,7 @@ export async function handleWebRtcPauseProducer(socket, data, callback): Promise
         producer = MediaStreamSystem.instance?.producers.find(p => p.id === producerId);
     await producer.pause();
     console.log('Pause-producer for user ' + userId);
-    if (userId != null && Network.instance.clients[userId] != null) {
+    if (userId != null && Network.instance.clients[userId] != null && Network.instance.clients[userId].media[producer.appData.mediaTag] != null) {
         Network.instance.clients[userId].media[producer.appData.mediaTag].paused = true;
         Network.instance.clients[userId].media[producer.appData.mediaTag].globalMute = globalMute || false;
         if (globalMute === true) {

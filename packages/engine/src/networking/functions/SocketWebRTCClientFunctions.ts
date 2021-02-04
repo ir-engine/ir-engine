@@ -104,9 +104,10 @@ export async function createCamAudioProducer(channelType: string, channelId?: st
 }
 
 export async function endVideoChat(options: { leftParty?: boolean, endConsumers?: boolean }): Promise<boolean> {
-    networkTransport = Network.instance.transport as any;
+    if (Network.instance != null) {
 
     try {
+        networkTransport = Network.instance.transport as any;
         if (MediaStreamSystem.instance?.camVideoProducer) {
             if (networkTransport.socket?.connected === true)
                 await networkTransport.request(MessageTypes.WebRTCCloseProducer.toString(), {
@@ -148,18 +149,19 @@ export async function endVideoChat(options: { leftParty?: boolean, endConsumers?
             });
         }
 
-        if (options?.leftParty === true) {
-            if (networkTransport.channelRecvTransport != null && networkTransport.channelRecvTransport.closed !== true)
-                await networkTransport.channelRecvTransport.close();
-            if (networkTransport.channelSendTransport != null && networkTransport.channelSendTransport.closed !== true)
-                await networkTransport.channelSendTransport.close();
-        }
+            if (options?.leftParty === true) {
+                if (networkTransport.channelRecvTransport != null && networkTransport.channelRecvTransport.closed !== true)
+                    await networkTransport.channelRecvTransport.close();
+                if (networkTransport.channelSendTransport != null && networkTransport.channelSendTransport.closed !== true)
+                    await networkTransport.channelSendTransport.close();
+            }
 
-        resetProducer();
-        return true;
-    } catch (err) {
-        console.log('EndvideoChat error');
-        console.log(err);
+            resetProducer();
+            return true;
+        } catch (err) {
+            console.log('EndvideoChat error');
+            console.log(err);
+        }
     }
 }
 
@@ -276,7 +278,11 @@ export async function createTransport(direction: string, channelType?: string, c
     // ask the server to create a server-side transport object and send
     // us back the info we need to create a client-side transport
     let transport;
+
+    console.log('Requesting transport creation');
     const { transportOptions } = await networkTransport.request(MessageTypes.WebRTCTransportCreate.toString(), { direction, sctpCapabilities: networkTransport.mediasoupDevice.sctpCapabilities, channelType: channelType, channelId: channelId });
+    console.log('Got Transport options:');
+    console.log(transportOptions);
 
     if (direction === "recv")
         transport = await networkTransport.mediasoupDevice.createRecvTransport(transportOptions);
@@ -376,44 +382,53 @@ export async function createTransport(direction: string, channelType?: string, c
 }
 
 export async function leave(): Promise<boolean> {
-    networkTransport = Network.instance.transport as any;
-    try {
-        networkTransport.leaving = true;
+    console.log('leave()');
+    if (Network.instance != null) {
+        console.log('Trying to leave ');
+        try {
+            console.log(Network.instance.transport);
+            networkTransport = Network.instance.transport as any;
+            networkTransport.leaving = true;
 
-        if (networkTransport.request) {
-            // close everything on the server-side (transports, producers, consumers)
-            const result = await networkTransport.request(MessageTypes.LeaveWorld.toString());
-            if (result.error) console.error(result.error);
+            if (networkTransport.request) {
+                // close everything on the server-side (transports, producers, consumers)
+                console.log('Sending leaveWorld');
+                if (networkTransport.dataProducer.closed !== true) {
+                    const result = await networkTransport.request(MessageTypes.LeaveWorld.toString());
+                    if (result.error) console.error(result.error);
+                }
+                window.dispatchEvent(new CustomEvent('leaveWorld'));
+            }
+
+            networkTransport.leaving = false;
+
+            //Leaving the world should close all transports from the server side.
+            //This will also destroy all the associated producers and consumers.
+            //All we need to do on the client is null all references.
+            networkTransport.instanceRecvTransport = null;
+            networkTransport.instanceSendTransport = null;
+            networkTransport.channelRecvTransport = null;
+            networkTransport.channelSendTransport = null;
+            networkTransport.lastPollSyncData = {};
+            if (MediaStreamSystem) {
+                MediaStreamSystem.instance.camVideoProducer = null;
+                MediaStreamSystem.instance.camAudioProducer = null;
+                MediaStreamSystem.instance.screenVideoProducer = null;
+                MediaStreamSystem.instance.screenAudioProducer = null;
+                MediaStreamSystem.instance.mediaStream = null;
+                MediaStreamSystem.instance.localScreen = null;
+                MediaStreamSystem.instance.consumers = [];
+            }
+
+            if (networkTransport.socket && networkTransport.socket.close)
+                networkTransport.socket.close();
+
+            return true;
+        } catch (err) {
+            console.log('Error with leave()');
+            console.log(err);
+            networkTransport.leaving = false;
         }
-
-        networkTransport.leaving = false;
-
-        //Leaving the world should close all transports from the server side.
-        //This will also destroy all the associated producers and consumers.
-        //All we need to do on the client is null all references.
-        networkTransport.instanceRecvTransport = null;
-        networkTransport.instanceSendTransport = null;
-        networkTransport.channelRecvTransport = null;
-        networkTransport.channelSendTransport = null;
-        networkTransport.lastPollSyncData = {};
-        if (MediaStreamSystem) {
-            MediaStreamSystem.instance.camVideoProducer = null;
-            MediaStreamSystem.instance.camAudioProducer = null;
-            MediaStreamSystem.instance.screenVideoProducer = null;
-            MediaStreamSystem.instance.screenAudioProducer = null;
-            MediaStreamSystem.instance.mediaStream = null;
-            MediaStreamSystem.instance.localScreen = null;
-            MediaStreamSystem.instance.consumers = [];
-        }
-
-        if (networkTransport.socket && networkTransport.socket.close)
-            networkTransport.socket.close();
-
-        return true;
-    } catch (err) {
-        console.log('Error with leave()');
-        console.log(err);
-        networkTransport.leaving = false;
     }
 }
 

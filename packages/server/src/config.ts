@@ -117,6 +117,9 @@ const email = {
   smsNameCharacterLimit: 20
 };
 
+console.log('email config:');
+console.log(email);
+
 /**
  * Authentication
  */
