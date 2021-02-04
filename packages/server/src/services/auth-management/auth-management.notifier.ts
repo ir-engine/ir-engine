@@ -5,6 +5,13 @@ import * as pug from 'pug';
 import requireMainFilename from 'require-main-filename';
 import config from '../../config';
 
+ /**
+  * A function which sent an email for authentication
+  * 
+  * @param app 
+  * @returns {@function} sentEmail with app and email
+  * @author Vyacheslav Solovjov
+  */
 export default (app: Application): any => {
   return {
     service: config.authentication.service,
