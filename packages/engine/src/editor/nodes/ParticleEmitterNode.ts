@@ -1,4 +1,5 @@
-import { ParticleEmitter } from "@mozillareality/three-particle-emitter";
+// import { ParticleEmitter } from "@mozillareality/three-particle-emitter";
+import { ParticleEmitterMesh as ParticleEmitter } from "../../particles/functions/ParticleEmitterMesh";
 import EditorNodeMixin from "./EditorNodeMixin";
 import DirectionalPlaneHelper from "../../scene/classes/DirectionalPlaneHelper";
 import loadTexture from "../functions/loadTexture";
