@@ -1,0 +1,24 @@
+{
+  "publicRuntimeConfig": {
+    "title": "The Overlay",
+    "dev": false,
+    "loginDisabled": false,
+    "logo": "./logo.svg",
+    "apiServer": "https://localhost:3030",
+    "siteTitle": "The Overlay",
+    "siteDescription": "Connected Worlds for Everyone",
+    "featherStoreKey": "TheOverlay-Auth-Store",
+    "localStorageKey": "theoverlay-client-store-key-v1",
+    "auth": {
+      "enableSmsMagicLink": true,
+      "enableEmailMagicLink": true,
+      "enableUserPassword": true,
+      "enableGithubSocial": true,
+      "enableFacebookSocial": true,
+      "enableGoogleSocial": true
+    },
+    "alert": {
+      "timeout": 10000
+    }
+  }
+}
