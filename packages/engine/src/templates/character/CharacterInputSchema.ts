@@ -20,6 +20,7 @@ import { CameraInput } from '../../input/enums/CameraInput';
 import { setCharacterExpression } from './behaviors/setCharacterExpression';
 import { fixedCameraBehindCharacter } from "../../camera/behaviors/fixedCameraBehindCharacter";
 import { BinaryValue } from "../../common/enums/BinaryValue";
+import { cycleCameraMode } from "../../camera/behaviors/cycleCameraMode";
 
 
 export const CharacterInputSchema: InputSchema = {
@@ -28,7 +29,7 @@ export const CharacterInputSchema: InputSchema = {
   mouseInputMap: {
     buttons: {
       [MouseInput.LeftButton]: DefaultInput.PRIMARY,
-    //  [MouseInput.LeftButton]: DefaultInput.INTERACT,
+     [MouseInput.LeftButton]: DefaultInput.INTERACT,
       [MouseInput.RightButton]: DefaultInput.SECONDARY,
       [MouseInput.MiddleButton]: DefaultInput.INTERACT
     },
@@ -108,7 +109,7 @@ export const CharacterInputSchema: InputSchema = {
     [DefaultInput.POINTER_LOCK]: {
         started: [
           {
-            behavior: cameraPointerLock,
+            behavior: () => cameraPointerLock(true),
             args: {}
           }
         ]
@@ -116,7 +117,7 @@ export const CharacterInputSchema: InputSchema = {
     [DefaultInput.SWITCH_CAMERA]: {
         started: [
           {
-            behavior: switchCameraMode,
+            behavior: cycleCameraMode,
             args: {}
           }
         ]
@@ -352,6 +353,15 @@ export const CharacterInputSchema: InputSchema = {
             inputType: InputType.ONEDIM
           }
         }
+      ],
+      unchanged: [
+        {
+          behavior: changeCameraDistanceByDelta,
+          args: {
+            input: DefaultInput.CAMERA_SCROLL,
+            inputType: InputType.ONEDIM
+          }
+        }
       ]
     },
     [DefaultInput.MOVEMENT_PLAYERONE]: {
@@ -378,7 +388,7 @@ export const CharacterInputSchema: InputSchema = {
             setCameraRelativeOrientationTarget: true
           }
         }
-      ]
+      ],
     },
     [DefaultInput.GAMEPAD_STICK_RIGHT]: {
       started: [

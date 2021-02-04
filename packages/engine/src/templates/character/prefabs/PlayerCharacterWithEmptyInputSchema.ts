@@ -6,6 +6,7 @@ import { State } from "@xr3ngine/engine/src/state/components/State";
 import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/CharacterStateSchema";
 import { EmptyCharacterInputSchema } from "@xr3ngine/engine/src/templates/character/EmptyCharacterInputSchema";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
+import { CameraModes } from "../../../camera/types/CameraModes";
 import { Interactor } from "../../../interaction/components/Interactor";
 //import { setCameraFollow } from "../../../camera/behaviors/setCameraFollow";
 import { initializeCharacter } from "../behaviors/initializeCharacter";
@@ -28,7 +29,7 @@ export const PlayerCharacter: Prefab = {
         { type: CharacterAvatarComponent, data: { avatarId: 'VRMAvatar' }},
         { type: LocalInputReceiver },
         // Follow Camera for the entity
-        { type: FollowCameraComponent, data: { distance: 3, mode: "thirdPersonLocked" }},
+        { type: FollowCameraComponent, data: { distance: 3, mode: CameraModes.ThirdPerson }},
         // Current state (isJumping, isidle, etc)
         { type: State, data: { schema: CharacterStateSchema } },
         { type: Interactor }
