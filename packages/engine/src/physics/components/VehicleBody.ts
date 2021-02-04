@@ -13,6 +13,8 @@ export class VehicleBody extends Component<VehicleBody> {
   vehicleSphereColliders: any
   vehicleDoorsArray: any
 
+  startPosition: any
+  suspensionRestLength: any
   colliderTrimOffset: Vec3
   collidersSphereOffset: Vec3
 
@@ -26,7 +28,7 @@ export class VehicleBody extends Component<VehicleBody> {
   maxSteerVal = 0.5
   maxForce = 500
   brakeForce = 1000000
-  mass = 300
+  mass: number
   vehicle: RaycastVehicle
 
 }
@@ -43,8 +45,10 @@ VehicleBody._schema = {
   vehicleSphereColliders: { type: Types.Ref, default: [] },
   vehicleDoorsArray: { type: Types.Ref, default: [] },
 
-  colliderTrimOffset: { type: Types.Ref, default: [0, -1, 0] },
-  collidersSphereOffset: { type: Types.Ref, default: [0, -0.2, 0] },
+  startPosition: { type: Types.Ref, default: [0, 0, 0] },
+  suspensionRestLength: { type: Types.Number, default: 0.3 },
+  colliderTrimOffset: { type: Types.Ref, default: [0, 0, 0] },
+  collidersSphereOffset: { type: Types.Ref, default: [0, 0, 0] },
 
   arrayWheelsMesh: { type: Types.Ref, default: [] },
   arrayWheelsPosition: { type: Types.Ref, default: [] },
