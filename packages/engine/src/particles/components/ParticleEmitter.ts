@@ -2,7 +2,7 @@ import { Types } from "../../ecs//types/Types";
 import { Component } from "../../ecs/classes/Component";
 import { SystemStateComponent } from "../../ecs/classes/SystemStateComponent";
 import { FrameStyle, ParticleEmitterInterface } from "../interfaces";
-import { ParticleEmitterMesh } from "../functions/particleEmitterMesh";
+import { ParticleEmitterMesh } from "../functions/ParticleEmitterMesh";
 import { Vector3, Color, Mesh } from 'three';
 
 /** Class component for particle emitter. */

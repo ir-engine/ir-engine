@@ -18,7 +18,6 @@ import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
 import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkIncomingSystem';
 import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem';
-import { ParticleSystem } from './particles/systems/ParticleSystem';
 import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { WebGLRendererSystem } from './renderer/WebGLRendererSystem';
 import { ServerSpawnSystem } from './scene/systems/SpawnSystem';
