@@ -193,7 +193,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           // (MediaStreamSystem.mediaStream !== null) &&
           (producerId != null) &&
           (selfProducerIds.indexOf(producerId) < 0) &&
-          (MediaStreamSystem.consumers?.find(
+          (MediaStreamSystem.instance?.consumers?.find(
             c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
           ) == null &&
             (relationshipType === 'instance' ? this.relationshipType === 'instance' : this.relationshipType === relationshipType && this.relationshipId === relationshipId))
@@ -204,7 +204,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       });
 
       this.socket.on(MessageTypes.WebRTCCloseConsumer.toString(), async (consumerId) => {
-        if (MediaStreamSystem) MediaStreamSystem.consumers = MediaStreamSystem.consumers.filter((c) => c.id !== consumerId);
+        if (MediaStreamSystem) MediaStreamSystem.instance?.consumers = MediaStreamSystem.instance?.consumers.filter((c) => c.id !== consumerId);
       });
 
 

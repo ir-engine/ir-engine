@@ -172,8 +172,8 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                 if (peerId !== 'me_cam') {
                     console.log("*** New mediastream created for audio track for peer id ", peerId);
                     // Create positional audio and attach mediastream here
-                    console.log("MediaStreamSystem.consumers is ");
-                    console.log(MediaStreamSystem.consumers);
+                    console.log("MediaStreamSystem.instance?.consumers is ");
+                    console.log(MediaStreamSystem.instance?.consumers);
                 }
                 if (peerId === 'me_cam') {
                     MediaStreamSystem.setAudioPaused(false);

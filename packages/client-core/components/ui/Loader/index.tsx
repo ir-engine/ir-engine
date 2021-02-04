@@ -4,7 +4,7 @@ import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { connect } from 'react-redux';
 import { generalStateList } from '../../../redux/app/actions';
 import { selectScenesCurrentScene } from '../../../redux/scenes/selector';
-import SpaceLoader from './SpaceLoader';
+import Loader from './OrbitLoader';
 import LinearProgress from '@material-ui/core/LinearProgress';
 interface Props {
   label?: string;
@@ -29,7 +29,7 @@ const LinearProgressComponent = (props: Props) => {
   }
   const count = parseInt(label) || null;
   return showProgressBar === true ? <>
-  <SpaceLoader />
+  <Loader />
     <section className={styles.overlay} style={{backgroundImage: `url(${currentScene?.thumbnailUrl})`}}>
       <section className={styles.linearProgressContainer}>
           <p className={styles.loadingProgressTile}>

@@ -172,7 +172,7 @@ export function resetProducer(): void {
         MediaStreamSystem.screenAudioProducer = null;
         MediaStreamSystem.mediaStream = null;
         MediaStreamSystem.localScreen = null;
-        // MediaStreamSystem.consumers = [];
+        // MediaStreamSystem.instance?.consumers = [];
     }
 }
 
@@ -191,7 +191,7 @@ export async function subscribeToTrack(peerId: string, mediaTag: string, relatio
     networkTransport = Network.instance.transport as any;
 
     // if we do already have a consumer, we shouldn't have called this method
-    let consumer = MediaStreamSystem.consumers.find
+    let consumer = MediaStreamSystem.instance?.consumers.find
         ((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === mediaTag);
 
     // ask the server to create a server-side consumer object and send us back the info we need to create a client-side consumer
@@ -206,8 +206,8 @@ export async function subscribeToTrack(peerId: string, mediaTag: string, relatio
         await networkTransport.instanceRecvTransport.consume({ ...consumerParameters, appData: { peerId, mediaTag, relationshipType }, paused: true })
         : await networkTransport.relRecvTransport.consume({ ...consumerParameters, appData: { peerId, mediaTag, relationshipType, relationshipId }, paused: true });
 
-    if (MediaStreamSystem.consumers?.find(c => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag) == null) {
-        MediaStreamSystem.consumers.push(consumer);
+    if (MediaStreamSystem.instance?.consumers?.find(c => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag) == null) {
+        MediaStreamSystem.instance?.consumers.push(consumer);
 
         // okay, we're ready. let's ask the peer to send us media
         await resumeConsumer(consumer);
@@ -216,7 +216,7 @@ export async function subscribeToTrack(peerId: string, mediaTag: string, relatio
 }
 
 export async function unsubscribeFromTrack(peerId: any, mediaTag: any) {
-    const consumer = MediaStreamSystem.consumers.find(
+    const consumer = MediaStreamSystem.instance?.consumers.find(
         c => c.appData.peerId === peerId && c.appData.mediaTag === mediaTag
     );
     await closeConsumer(consumer);
@@ -263,10 +263,10 @@ export async function closeConsumer(consumer: any) {
     await networkTransport.request(MessageTypes.WebRTCCloseConsumer.toString(), { consumerId: consumer.id });
     await consumer.close();
 
-    const filteredConsumers = MediaStreamSystem.consumers.filter(
+    const filteredConsumers = MediaStreamSystem.instance?.consumers.filter(
         (c: any) => !(c.id === consumer.id)
     ) as any[];
-    MediaStreamSystem.consumers = filteredConsumers;
+    MediaStreamSystem.instance?.consumers = filteredConsumers;
 }
 // utility function to create a transport and hook up signaling logic
 // appropriate to the transport's direction
@@ -403,7 +403,7 @@ export async function leave(): Promise<boolean> {
             MediaStreamSystem.screenAudioProducer = null;
             MediaStreamSystem.mediaStream = null;
             MediaStreamSystem.localScreen = null;
-            MediaStreamSystem.consumers = [];
+            MediaStreamSystem.instance?.consumers = [];
         }
 
         if (networkTransport.socket && networkTransport.socket.close)
