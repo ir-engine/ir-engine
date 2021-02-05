@@ -24,6 +24,7 @@ import ScenePreviewCameraTagComponent from "../components/ScenePreviewCamera";
 import SpawnPointComponent from "../components/SpawnPointComponent";
 import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
+import { createParticleEmitter } from '../../particles/functions/particleHelpers';
 
 export const SceneObjectLoadingSchema: LoadingSchema = {
   'ambient-light': {
@@ -360,5 +361,20 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
         behavior: createTriggerVolume
       }
     ]
+  },
+  // 'link': {
+  //   behaviors: [
+  //     {
+  //       behavior: createLink
+  //     }
+  //   ]
+  // },
+  'particle-emitter': {
+    behaviors: [
+      {
+        behavior: createParticleEmitter,
+        values: ['ageRandomness', 'angularVelocity', 'colorCurve', 'endColor', 'endOpacity', 'endSize', 'endVelocity', 'lifetime', 'lifetimeRandomness', 'middleColor', 'middleOpacity', 'particleCount', 'sizeCurve', 'sizeRandomness', 'src', 'startColor', 'startOpacity', 'startSize', 'startVelocity', 'velocityCurve']
+      }
+    ],
   }
 };

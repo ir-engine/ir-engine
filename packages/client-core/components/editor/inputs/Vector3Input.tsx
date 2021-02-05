@@ -47,7 +47,10 @@ export default class Vector3Input extends Component {
   static propTypes = {
     uniformScaling: PropTypes.bool,
     value: PropTypes.object,
-    onChange: PropTypes.func
+    onChange: PropTypes.func,
+    smallStep: PropTypes.number,
+    mediumStep: PropTypes.number,
+    largeStep: PropTypes.number,
   };
 
   static defaultProps = {

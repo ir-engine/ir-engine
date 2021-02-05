@@ -33,6 +33,8 @@
     "three": "^0.123.0"
   },
   "dependencies": {
+    "@mozillareality/easing-functions": "^0.1.1",
+    "@mozillareality/three-particle-emitter": "^0.2.2",
     "@pixiv/three-vrm": "^0.5.2",
     "@typescript-eslint/eslint-plugin": "^4.4.1",
     "@typescript-eslint/parser": "^4.4.1",

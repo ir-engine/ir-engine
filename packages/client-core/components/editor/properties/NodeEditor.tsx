@@ -7,7 +7,7 @@ type NodeEditorProps = {
   editor?: object;
   disableTransform?: boolean;
 };
-export default class NodeEditor extends Component<{}, {}> {
+export default class NodeEditor extends Component<NodeEditorProps, {}> {
   render() {
     const { node, description, children } = this.props as any;
     return (
