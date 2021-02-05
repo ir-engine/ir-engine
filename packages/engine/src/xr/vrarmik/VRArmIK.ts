@@ -61,7 +61,7 @@ class VRArmIK {
     const handPosition = localVector2.copy(this.target.position)
 
     const shoulderRotation = Helpers.getWorldQuaternion(this.shoulder.transform, localQuaternion)
-    const shoulderRotationInverse = localQuaternion2.copy(shoulderRotation).inverse()
+    const shoulderRotationInverse = localQuaternion2.copy(shoulderRotation).invert()
 
     const hypotenuseDistance = this.upperArmLength
     const directDistance = upperArmPosition.distanceTo(handPosition) / 2
@@ -104,21 +104,21 @@ class VRArmIK {
         localMatrix.lookAt(zeroVector, localVector6.copy(elbowPosition).sub(upperArmPosition), upVector)
       )
       .multiply(this.left ? rightRotation : leftRotation)
-      .premultiply(Helpers.getWorldQuaternion(this.arm.upperArm.parent, localQuaternion3).inverse())
+      .premultiply(Helpers.getWorldQuaternion(this.arm.upperArm.parent, localQuaternion3).invert())
     Helpers.updateMatrixMatrixWorld(this.arm.upperArm)
     this.arm.lowerArm.quaternion
       .setFromRotationMatrix(
         localMatrix.lookAt(zeroVector, localVector6.copy(handPosition).sub(elbowPosition), upVector)
       )
       .multiply(this.left ? rightRotation : leftRotation)
-      .premultiply(Helpers.getWorldQuaternion(this.arm.lowerArm.parent, localQuaternion3).inverse())
+      .premultiply(Helpers.getWorldQuaternion(this.arm.lowerArm.parent, localQuaternion3).invert())
     Helpers.updateMatrixMatrixWorld(this.arm.lowerArm)
 
     // this.arm.hand.position = handPosition;
     this.arm.hand.quaternion
       .copy(this.target.quaternion)
       .multiply(this.left ? bankRightRotation : bankLeftRotation)
-      .premultiply(Helpers.getWorldQuaternion(this.arm.hand.parent, localQuaternion3).inverse())
+      .premultiply(Helpers.getWorldQuaternion(this.arm.hand.parent, localQuaternion3).invert())
     Helpers.updateMatrixMatrixWorld(this.arm.hand)
   }
 }

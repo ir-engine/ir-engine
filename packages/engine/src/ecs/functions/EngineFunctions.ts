@@ -1,5 +1,6 @@
 /** Functions to provide engine level functionalities. */
 
+import { XRFrame } from "three";
 import { now } from "../../common/functions/now";
 import { Engine } from '../classes/Engine';
 import { System } from '../classes/System';
