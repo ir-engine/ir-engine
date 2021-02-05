@@ -217,7 +217,7 @@ export async function handleWebRtcTransportCreate(socket, data: CreateWebRtcTran
     const userId = getUserIdFromSocketId(socket.id);
     const { direction, peerId, sctpCapabilities, channelType, channelId } = Object.assign(data, { peerId: userId });
 
-    const existingTransports = MediaStreamSystem.instance.transports.filter(t => t.appData.peerId === peerId && t.appData.direction === direction && (channelType === 'instance' ? t.appData.channelType === 'instance' : t.appData.channelType === channelType && t.appData.channelId === channelId));
+    const existingTransports = Network.instance.transports.filter(t => t.appData.peerId === peerId && t.appData.direction === direction && (channelType === 'instance' ? t.appData.channelType === 'instance' : t.appData.channelType === channelType && t.appData.channelId === channelId));
     await Promise.all(existingTransports.map(t => closeTransport(t)));
     const newTransport: WebRtcTransport = await createWebRtcTransport(
         { peerId, direction, sctpCapabilities, channelType, channelId }
@@ -346,6 +346,9 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
 
     producer.on("transportclose", () => closeProducerAndAllPipeProducers(producer, userId));
 
+    console.log('MediaStreamSystem.instance:');
+    console.log(MediaStreamSystem.instance);
+    console.log(MediaStreamSystem.instance.producers);
     if(!MediaStreamSystem.instance?.producers) console.warn("Media stream producers is undefined")
     MediaStreamSystem.instance?.producers?.push(producer);
 
@@ -384,7 +387,7 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
         return callback({ error: msg });
     }
 
-    const transport = Object.values(MediaStreamSystem.instance.transports).find(
+    const transport = Object.values(Network.instance.transports).find(
         t => (t as any)._appData.peerId === userId && (t as any)._appData.clientDirection === "recv" && (channelType === 'instance' ? (t as any)._appData.channelType === channelType : (t as any)._appData.channelType === channelType && (t as any)._appData.channelId === channelId) && (t as any).closed === false
     );
 

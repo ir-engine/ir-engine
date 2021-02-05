@@ -9,7 +9,7 @@ let networkTransport: any;
 
 export async function createDataProducer(channel = "default", type: UnreliableMessageType = 'raw', customInitInfo: any = {}): Promise<DataProducer | Error> {
     networkTransport = Network.instance.transport as any;
-    // else if (MediaStreamSystem.dataProducers.get(channel)) return Promise.reject(new Error('Data channel already exists!'))
+    // else if (MediaStreamSystem.instance.dataProducers.get(channel)) return Promise.reject(new Error('Data channel already exists!'))
     const dataProducer = await networkTransport.instanceSendTransport.produceData({
         appData: { data: customInitInfo },
         ordered: false,
@@ -54,10 +54,10 @@ export async function initSendTransport(channelType: string, channelId?: string)
 export async function configureMediaTransports(channelType, channelId?: string): Promise<void> {
     networkTransport = Network.instance.transport as any;
 
-    if (MediaStreamSystem.mediaStream == null)
-        await MediaStreamSystem.startCamera();
+    if (MediaStreamSystem.instance.mediaStream == null)
+        await MediaStreamSystem.instance.startCamera();
 
-    if (MediaStreamSystem.mediaStream == null)
+    if (MediaStreamSystem.instance.mediaStream == null)
         console.warn("Media stream is null, camera must have failed");
 
     if (channelType !== 'instance' && (networkTransport.channelSendTransport == null || networkTransport.channelSendTransport.closed === true || networkTransport.channelSendTransport.connectionState === 'disconnected'))
@@ -73,7 +73,7 @@ export async function createCamVideoProducer(channelType: string, channelId?: st
             appData: { mediaTag: "cam-video", channelType: channelType, channelId: channelId }
         });
 
-        if (MediaStreamSystem.videoPaused) await MediaStreamSystem.camVideoProducer.pause();
+        if (MediaStreamSystem.instance.videoPaused) await MediaStreamSystem.instance.camVideoProducer.pause();
     }
 }
 
@@ -81,16 +81,16 @@ export async function createCamAudioProducer(channelType: string, channelId?: st
     if (MediaStreamSystem.instance.mediaStream !== null) {
         //To control the producer audio volume, we need to clone the audio track and connect a Gain to it.
         //This Gain is saved on MediaStreamComponent so it can be accessed from the user's component and controlled.
-        const audioTrack = MediaStreamSystem.mediaStream.getAudioTracks()[0];
+        const audioTrack = MediaStreamSystem.instance.mediaStream.getAudioTracks()[0];
         const ctx = new AudioContext();
         const src = ctx.createMediaStreamSource(new MediaStream([audioTrack]));
         const dst = ctx.createMediaStreamDestination();
         const gainNode = ctx.createGain();
         gainNode.gain.value = 1;
         [src, gainNode, dst].reduce((a, b) => a && (a.connect(b) as any));
-        MediaStreamSystem.audioGainNode = gainNode;
-        MediaStreamSystem.mediaStream.removeTrack(audioTrack);
-        MediaStreamSystem.mediaStream.addTrack(dst.stream.getAudioTracks()[0]);
+        MediaStreamSystem.instance.audioGainNode = gainNode;
+        MediaStreamSystem.instance.mediaStream.removeTrack(audioTrack);
+        MediaStreamSystem.instance.mediaStream.addTrack(dst.stream.getAudioTracks()[0]);
         // same thing for audio, but we can use our already-created
         const transport = channelType === 'instance' ? networkTransport.instanceSendTransport : networkTransport.channelSendTransport;
 
@@ -100,7 +100,7 @@ export async function createCamAudioProducer(channelType: string, channelId?: st
             appData: { mediaTag: "cam-audio", channelType: channelType, channelId: channelId }
         });
 
-        if (MediaStreamSystem.audioPaused) MediaStreamSystem.camAudioProducer.pause();
+        if (MediaStreamSystem.instance.audioPaused) MediaStreamSystem.instance.camAudioProducer.pause();
     }
 }
 
@@ -108,39 +108,39 @@ export async function endVideoChat(options: { leftParty?: boolean, endConsumers?
     networkTransport = Network.instance.transport as any;
 
     try {
-        if (MediaStreamSystem?.camVideoProducer) {
+        if (MediaStreamSystem?.instance?.camVideoProducer) {
             if (networkTransport.socket?.connected === true)
                 await networkTransport.request(MessageTypes.WebRTCCloseProducer.toString(), {
-                    producerId: MediaStreamSystem.camVideoProducer.id
+                    producerId: MediaStreamSystem.instance.camVideoProducer.id
                 });
-            await MediaStreamSystem.camVideoProducer?.close();
+            await MediaStreamSystem.instance.camVideoProducer?.close();
         }
 
-        if (MediaStreamSystem?.camAudioProducer) {
+        if (MediaStreamSystem?.instance?.camAudioProducer) {
             if (networkTransport.socket?.connected === true)
                 await networkTransport.request(MessageTypes.WebRTCCloseProducer.toString(), {
-                    producerId: MediaStreamSystem.camAudioProducer.id
+                    producerId: MediaStreamSystem.instance.camAudioProducer.id
                 });
-            await MediaStreamSystem.camAudioProducer?.close();
+            await MediaStreamSystem.instance.camAudioProducer?.close();
         }
 
-        if (MediaStreamSystem?.screenVideoProducer) {
+        if (MediaStreamSystem?.instance?.screenVideoProducer) {
             if (networkTransport.socket?.connected === true)
                 await networkTransport.request(MessageTypes.WebRTCCloseProducer.toString(), {
-                    producerId: MediaStreamSystem.screenVideoProducer.id
+                    producerId: MediaStreamSystem.instance.screenVideoProducer.id
                 });
-            await MediaStreamSystem.screenVideoProducer?.close();
+            await MediaStreamSystem.instance.screenVideoProducer?.close();
         }
-        if (MediaStreamSystem?.screenAudioProducer) {
+        if (MediaStreamSystem?.instance?.screenAudioProducer) {
             if (networkTransport.socket?.connected === true)
                 await networkTransport.request(MessageTypes.WebRTCCloseProducer.toString(), {
-                    producerId: MediaStreamSystem.screenAudioProducer.id
+                    producerId: MediaStreamSystem.instance.screenAudioProducer.id
                 });
-            await MediaStreamSystem.screenAudioProducer?.close();
+            await MediaStreamSystem.instance.screenAudioProducer?.close();
         }
 
         if (options?.endConsumers === true) {
-            MediaStreamSystem.instance.consumers?.map(async (c) => {
+            MediaStreamSystem?.instance?.consumers?.map(async (c) => {
                 if (networkTransport.socket?.connected === true)
                     await networkTransport.request(MessageTypes.WebRTCCloseConsumer.toString(), {
                         consumerId: c.id
@@ -166,13 +166,13 @@ export async function endVideoChat(options: { leftParty?: boolean, endConsumers?
 
 export function resetProducer(): void {
     if (MediaStreamSystem) {
-        MediaStreamSystem.camVideoProducer = null;
-        MediaStreamSystem.camAudioProducer = null;
-        MediaStreamSystem.screenVideoProducer = null;
-        MediaStreamSystem.screenAudioProducer = null;
-        MediaStreamSystem.mediaStream = null;
-        MediaStreamSystem.localScreen = null;
-        // MediaStreamSystem.instance?.consumers = [];
+        MediaStreamSystem.instance.camVideoProducer = null;
+        MediaStreamSystem.instance.camAudioProducer = null;
+        MediaStreamSystem.instance.screenVideoProducer = null;
+        MediaStreamSystem.instance.screenAudioProducer = null;
+        MediaStreamSystem.instance.mediaStream = null;
+        MediaStreamSystem.instance.localScreen = null;
+        // MediaStreamSystem.instance.instance?.consumers = [];
     }
 }
 
@@ -314,9 +314,9 @@ export async function createTransport(direction: string, channelType?: string, c
                 // but, you know, this isn't a real application.)
                 let paused = false;
                 if (appData.mediaTag === "cam-video")
-                    paused = MediaStreamSystem.videoPaused;
+                    paused = MediaStreamSystem.instance.videoPaused;
                 else if (appData.mediaTag === "cam-audio")
-                    paused = MediaStreamSystem.audioPaused;
+                    paused = MediaStreamSystem.instance.audioPaused;
 
                 // tell the server what it needs to know from us in order to set
                 // up a server-side producer object, and get back a
@@ -329,6 +329,7 @@ export async function createTransport(direction: string, channelType?: string, c
                     paused,
                     appData
                 });
+                console.log('Got new producer: ' + id);
                 if (error) {
                     errback();
                     console.log(error);
@@ -397,12 +398,12 @@ export async function leave(): Promise<boolean> {
         networkTransport.channelSendTransport = null;
         networkTransport.lastPollSyncData = {};
         if (MediaStreamSystem) {
-            MediaStreamSystem.camVideoProducer = null;
-            MediaStreamSystem.camAudioProducer = null;
-            MediaStreamSystem.screenVideoProducer = null;
-            MediaStreamSystem.screenAudioProducer = null;
-            MediaStreamSystem.mediaStream = null;
-            MediaStreamSystem.localScreen = null;
+            MediaStreamSystem.instance.camVideoProducer = null;
+            MediaStreamSystem.instance.camAudioProducer = null;
+            MediaStreamSystem.instance.screenVideoProducer = null;
+            MediaStreamSystem.instance.screenAudioProducer = null;
+            MediaStreamSystem.instance.mediaStream = null;
+            MediaStreamSystem.instance.localScreen = null;
             MediaStreamSystem.instance.consumers = [];
         }
 

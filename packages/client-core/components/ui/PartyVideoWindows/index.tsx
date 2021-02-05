@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './PartyVideoWindows.module.scss';
 import { Grid } from '@material-ui/core';
 import PartyParticipantWindow from '../PartyParticipantWindow';
@@ -29,9 +29,14 @@ const PartyVideoWindows = observer((props: Props): JSX.Element => {
     userState
   } = props;
 
+  const [displayedUsers, setDisplayedUsers] = useState([]);
   const selfUser = authState.get('user');
   const layerUsers = userState.get('layerUsers') ?? [];
-  const displayedUsers = layerUsers.filter((user) => selfUser.partyId != null ? user.id !== selfUser.id && user.partyId === selfUser.partyId : user.id !== selfUser.id);
+
+  useEffect(() => {
+    console.log('layerUsers updated');
+    setDisplayedUsers(layerUsers.filter((user) => selfUser.partyId != null ? user.id !== selfUser.id && user.partyId === selfUser.partyId : user.id !== selfUser.id))
+  }, [userState]);
 
   return (
     <Grid className={ styles['party-user-container']} container direction="row" wrap="nowrap">
