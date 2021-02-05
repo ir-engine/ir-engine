@@ -64,19 +64,11 @@ export async function configureMediaTransports(channelType, channelId?: string):
         await Promise.all([initSendTransport(channelType, channelId), initReceiveTransport(channelType, channelId)]);
 }
 
-<<<<<<< HEAD:packages/engine/src/networking/functions/SocketWebRTCClientFunctions.ts
-export async function createCamVideoProducer(relationshipType: string, relationshipId?: string): Promise<void> {
-    if (MediaStreamSystem.mediaStream !== null && networkTransport.videoEnabled === true) {
-        const transport = relationshipType === 'instance' ? networkTransport.instanceSendTransport : networkTransport.relSendTransport;
-        MediaStreamSystem.camVideoProducer = await transport.produce({
-            track: MediaStreamSystem.mediaStream.getVideoTracks()[0],
-=======
 export async function createCamVideoProducer(channelType: string, channelId?: string): Promise<void> {
-    if (MediaStreamComponent.instance.mediaStream !== null && networkTransport.videoEnabled === true) {
+    if (MediaStreamSystem.instance.mediaStream !== null && networkTransport.videoEnabled === true) {
         const transport = channelType === 'instance' ? networkTransport.instanceSendTransport : networkTransport.channelSendTransport;
-        MediaStreamComponent.instance.camVideoProducer = await transport.produce({
-            track: MediaStreamComponent.instance.mediaStream.getVideoTracks()[0],
->>>>>>> origin/chat-page:packages/client/classes/transports/WebRTCFunctions.ts
+        MediaStreamSystem.instance.camVideoProducer = await transport.produce({
+            track: MediaStreamSystem.instance.mediaStream.getVideoTracks()[0],
             encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
             appData: { mediaTag: "cam-video", channelType: channelType, channelId: channelId }
         });
@@ -85,13 +77,8 @@ export async function createCamVideoProducer(channelType: string, channelId?: st
     }
 }
 
-<<<<<<< HEAD:packages/engine/src/networking/functions/SocketWebRTCClientFunctions.ts
-export async function createCamAudioProducer(relationshipType: string, relationshipId?: string): Promise<void> {
-    if (MediaStreamSystem.mediaStream !== null) {
-=======
 export async function createCamAudioProducer(channelType: string, channelId?: string): Promise<void> {
-    if (MediaStreamComponent.instance.mediaStream !== null) {
->>>>>>> origin/chat-page:packages/client/classes/transports/WebRTCFunctions.ts
+    if (MediaStreamSystem.instance.mediaStream !== null) {
         //To control the producer audio volume, we need to clone the audio track and connect a Gain to it.
         //This Gain is saved on MediaStreamComponent so it can be accessed from the user's component and controlled.
         const audioTrack = MediaStreamSystem.mediaStream.getAudioTracks()[0];
@@ -108,15 +95,9 @@ export async function createCamAudioProducer(channelType: string, channelId?: st
         const transport = channelType === 'instance' ? networkTransport.instanceSendTransport : networkTransport.channelSendTransport;
 
         // Create a new transport for audio and start producing
-<<<<<<< HEAD:packages/engine/src/networking/functions/SocketWebRTCClientFunctions.ts
-        MediaStreamSystem.camAudioProducer = await transport.produce({
-            track: MediaStreamSystem.mediaStream.getAudioTracks()[0],
-            appData: { mediaTag: "cam-audio", relationshipType: relationshipType, relationshipId: relationshipId }
-=======
-        MediaStreamComponent.instance.camAudioProducer = await transport.produce({
-            track: MediaStreamComponent.instance.mediaStream.getAudioTracks()[0],
+        MediaStreamSystem.instance.camAudioProducer = await transport.produce({
+            track: MediaStreamSystem.instance.mediaStream.getAudioTracks()[0],
             appData: { mediaTag: "cam-audio", channelType: channelType, channelId: channelId }
->>>>>>> origin/chat-page:packages/client/classes/transports/WebRTCFunctions.ts
         });
 
         if (MediaStreamSystem.audioPaused) MediaStreamSystem.camAudioProducer.pause();
@@ -159,7 +140,7 @@ export async function endVideoChat(options: { leftParty?: boolean, endConsumers?
         }
 
         if (options?.endConsumers === true) {
-            MediaStreamSystem?.consumers?.map(async (c) => {
+            MediaStreamSystem.instance.consumers?.map(async (c) => {
                 if (networkTransport.socket?.connected === true)
                     await networkTransport.request(MessageTypes.WebRTCCloseConsumer.toString(), {
                         consumerId: c.id
@@ -285,7 +266,7 @@ export async function closeConsumer(consumer: any) {
     const filteredConsumers = MediaStreamSystem.instance?.consumers.filter(
         (c: any) => !(c.id === consumer.id)
     ) as any[];
-    MediaStreamSystem.instance?.consumers = filteredConsumers;
+    MediaStreamSystem.instance.consumers = filteredConsumers;
 }
 // utility function to create a transport and hook up signaling logic
 // appropriate to the transport's direction
@@ -422,7 +403,7 @@ export async function leave(): Promise<boolean> {
             MediaStreamSystem.screenAudioProducer = null;
             MediaStreamSystem.mediaStream = null;
             MediaStreamSystem.localScreen = null;
-            MediaStreamSystem.instance?.consumers = [];
+            MediaStreamSystem.instance.consumers = [];
         }
 
         if (networkTransport.socket && networkTransport.socket.close)

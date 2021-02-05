@@ -217,11 +217,7 @@ export async function handleWebRtcTransportCreate(socket, data: CreateWebRtcTran
     const userId = getUserIdFromSocketId(socket.id);
     const { direction, peerId, sctpCapabilities, channelType, channelId } = Object.assign(data, { peerId: userId });
 
-<<<<<<< HEAD
-    const existingTransports = Network.instance.transports.filter(t => t.appData.peerId === peerId && t.appData.direction === direction && (relationshipType === 'instance' ? t.appData.relationshipType === 'instance' : t.appData.relationshipType === relationshipType && t.appData.relationshipId === relationshipId));
-=======
-    const existingTransports = MediaStreamComponent.instance.transports.filter(t => t.appData.peerId === peerId && t.appData.direction === direction && (channelType === 'instance' ? t.appData.channelType === 'instance' : t.appData.channelType === channelType && t.appData.channelId === channelId));
->>>>>>> origin/chat-page
+    const existingTransports = MediaStreamSystem.instance.transports.filter(t => t.appData.peerId === peerId && t.appData.direction === direction && (channelType === 'instance' ? t.appData.channelType === 'instance' : t.appData.channelType === channelType && t.appData.channelId === channelId));
     await Promise.all(existingTransports.map(t => closeTransport(t)));
     const newTransport: WebRtcTransport = await createWebRtcTransport(
         { peerId, direction, sctpCapabilities, channelType, channelId }
@@ -375,19 +371,11 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
 export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<any> {
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
-<<<<<<< HEAD
-    const { mediaPeerId, mediaTag, rtpCapabilities, relationshipType, relationshipId } = data;
-    console.log('Receive track for ', relationshipType, relationshipId);
-    console.log(MediaStreamSystem.instance?.producers);
-    const producer = MediaStreamSystem.instance?.producers.find(
-        p => p._appData.mediaTag === mediaTag && p._appData.peerId === mediaPeerId && (relationshipType === 'instance' ? p._appData.relationshipType === relationshipType : p._appData.relationshipType === relationshipType && p._appData.relationshipId === relationshipId)
-=======
     const { mediaPeerId, mediaTag, rtpCapabilities, channelType, channelId } = data;
     console.log('Receive track for ', channelType, channelId);
-    console.log(MediaStreamComponent.instance.producers);
-    const producer = MediaStreamComponent.instance.producers.find(
+    console.log(MediaStreamSystem.instance.producers);
+    const producer = MediaStreamSystem.instance.producers.find(
         p => p._appData.mediaTag === mediaTag && p._appData.peerId === mediaPeerId && (channelType === 'instance' ? p._appData.channelType === channelType : p._appData.channelType === channelType && p._appData.channelId === channelId)
->>>>>>> origin/chat-page
     );
     const router = channelType === 'instance' ? networkTransport.routers.instance : networkTransport.routers[`${channelType}:${channelId}`];
     if (producer == null || !router.canConsume({ producerId: producer.id, rtpCapabilities })) {
@@ -396,13 +384,8 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
         return callback({ error: msg });
     }
 
-<<<<<<< HEAD
-    const transport = Object.values(Network.instance.transports).find(
-        t => (t as any)._appData.peerId === userId && (t as any)._appData.clientDirection === "recv" && (relationshipType === 'instance' ? (t as any)._appData.relationshipType === relationshipType : (t as any)._appData.relationshipType === relationshipType && (t as any)._appData.relationshipId === relationshipId) && t.closed === false
-=======
-    const transport = Object.values(MediaStreamComponent.instance.transports).find(
+    const transport = Object.values(MediaStreamSystem.instance.transports).find(
         t => (t as any)._appData.peerId === userId && (t as any)._appData.clientDirection === "recv" && (channelType === 'instance' ? (t as any)._appData.channelType === channelType : (t as any)._appData.channelType === channelType && (t as any)._appData.channelId === channelId) && t.closed === false
->>>>>>> origin/chat-page
     );
 
     if (transport != null) {
