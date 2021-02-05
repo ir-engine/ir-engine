@@ -97,7 +97,7 @@ const Layout = (props: Props): any => {
       <header>
         { path === '/login' && <NavMenu login={login} />}
         { harmony !== true && authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
-        { harmony !== true && onBoardingStep === generalStateList.ALL_DONE && <PartyVideoWindows />}
+        { harmony !== true && <PartyVideoWindows />}
       </header>
       <Fragment>
         <UIDialog />

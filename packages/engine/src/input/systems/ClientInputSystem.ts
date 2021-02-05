@@ -114,15 +114,15 @@ export class InputSystem extends System {
       // apply face tracking
       if (this.localUserMediaStream === null) {
         // check to start video tracking
-        if (MediaStreamSystem.mediaStream && MediaStreamSystem.faceTracking) {
+        if (MediaStreamSystem.instance.mediaStream && MediaStreamSystem.instance.faceTracking) {
           console.log('start facetracking');
           startFaceTracking(entity);
-          this.localUserMediaStream = MediaStreamSystem.mediaStream;
+          this.localUserMediaStream = MediaStreamSystem.instance.mediaStream;
         }
       } else {
         // check if we need to change face tracking video src
-        if (MediaStreamSystem.mediaStream) {
-          if (this.localUserMediaStream !== MediaStreamSystem.mediaStream) {
+        if (MediaStreamSystem.instance.mediaStream) {
+          if (this.localUserMediaStream !== MediaStreamSystem.instance.mediaStream) {
             // stream is changed
             // TODO: do update video src ...
             console.log('change facetracking src');
@@ -132,7 +132,7 @@ export class InputSystem extends System {
           console.log('stop facetracking');
           stopFaceTracking();
         }
-        this.localUserMediaStream = MediaStreamSystem.mediaStream;
+        this.localUserMediaStream = MediaStreamSystem.instance.mediaStream;
       }
 
       // startFaceTracking(entity);
