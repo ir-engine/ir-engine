@@ -23,6 +23,7 @@ export class Engine {
   public static engineTimer: { start: Function; stop: Function } = null
   public static engineTimerTimeout;
 
+  public static engineIKTimer: { start: Function; stop: Function } = null
   //public static stats: Stats
   // Move for sure
   // public static sky: Sky;

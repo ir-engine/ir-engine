@@ -17,7 +17,7 @@
     "esModuleInterop": true,
     "moduleResolution": "node",
     "sourceMap": true,
-    "jsx": "preserve",
+    "jsx": "react",
     "isolatedModules": true,
     "experimentalDecorators": true,
     "outDir": "./lib"
@@ -29,5 +29,5 @@
   "include": [
     "next-env.d.ts",
     "./**/*.ts",
-    "./**/*.tsx"  ]
+    "./**/*.tsx", "../social/components/VolumetricPlayer.tsx"  ]
 }

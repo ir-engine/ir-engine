@@ -53,7 +53,7 @@ export function getLocationByName(locationName: string) {
       }).catch(error => {
         console.log("Couldn't get location by name", error);
       });
-      if (locationResult.total > 0) {
+      if (locationResult && locationResult.total > 0) {
         dispatch(locationRetrieved(locationResult.data[0]));
       }else{
         dispatch(locationNotFound());

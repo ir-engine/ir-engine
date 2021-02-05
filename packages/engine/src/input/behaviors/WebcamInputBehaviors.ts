@@ -27,7 +27,7 @@ export const stopLipsyncTracking = () => {
 export const startFaceTracking: Behavior = (entity) => {
     console.log("**************** STARTING FACE TRACKING")
     const video = document.createElement('video');
-    video.srcObject = MediaStreamSystem.mediaStream;
+    video.srcObject = MediaStreamSystem.instance.mediaStream;
     Promise.all([
         console.log("Start load detectors"),
         faceapi.nets.tinyFaceDetector.loadFromUri('/facetracking'),
@@ -75,7 +75,7 @@ export const startLipsyncTracking: Behavior = (entity) => {
     userSpeechAnalyzer.smoothingTimeConstant = 0.5;
     userSpeechAnalyzer.fftSize = FFT_SIZE;
 
-    const inputStream = audioContext.createMediaStreamSource(MediaStreamSystem.mediaStream);
+    const inputStream = audioContext.createMediaStreamSource(MediaStreamSystem.instance.mediaStream);
     inputStream.connect(userSpeechAnalyzer);
 
     const audioProcessor = audioContext.createScriptProcessor(FFT_SIZE * 2, 1, 1);

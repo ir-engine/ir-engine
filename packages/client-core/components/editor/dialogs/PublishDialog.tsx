@@ -1,10 +1,9 @@
-import React, { Component } from "react";
 import PropTypes from "prop-types";
-import configs from "../configs";
-import PreviewDialog from "./PreviewDialog";
-import StringInput from "../inputs/StringInput";
+import React, { Component } from "react";
 import BooleanInput from "../inputs/BooleanInput";
 import FormField from "../inputs/FormField";
+import StringInput from "../inputs/StringInput";
+import PreviewDialog from "./PreviewDialog";
 
 export default class PublishDialog extends Component {
   static propTypes = {

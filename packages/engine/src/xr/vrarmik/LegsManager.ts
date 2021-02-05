@@ -147,7 +147,7 @@ class Leg {
         )
       )
       .multiply(downHalfRotation)
-      .premultiply(Helpers.getWorldQuaternion(this.transform, localQuaternion2).inverse())
+      .premultiply(Helpers.getWorldQuaternion(this.transform, localQuaternion2).invert())
     Helpers.updateMatrixMatrixWorld(this.upperLeg)
 
     this.lowerLeg.quaternion
@@ -159,7 +159,7 @@ class Leg {
         )
       )
       .multiply(downHalfRotation)
-      .premultiply(Helpers.getWorldQuaternion(this.upperLeg, localQuaternion2).inverse())
+      .premultiply(Helpers.getWorldQuaternion(this.upperLeg, localQuaternion2).invert())
     Helpers.updateMatrixMatrixWorld(this.lowerLeg)
 
     // this.lowerLeg.position = lowerLegPosition;
@@ -169,7 +169,7 @@ class Leg {
     this.foot.quaternion
       .copy(footRotation)
       .multiply(downHalfRotation)
-      .premultiply(Helpers.getWorldQuaternion(this.lowerLeg, localQuaternion2).inverse())
+      .premultiply(Helpers.getWorldQuaternion(this.lowerLeg, localQuaternion2).invert())
     Helpers.updateMatrixMatrixWorld(this.foot)
     /* } else {
       this.foot.quaternion.slerp(downQuarterRotation, 0.1);

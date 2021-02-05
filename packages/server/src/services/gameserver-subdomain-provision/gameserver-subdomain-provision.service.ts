@@ -19,13 +19,21 @@ export default (app: Application): any => {
     paginate: app.get('paginate'),
     multi: true
   };
-
-  // Initialize our service with any options it requires
+  
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const event = new GameserverSubdomainProvision(options, app);
   event.docs = gameServerSubdomainProvisionDocs;
   app.use('/gameserver-subdomain-provision', event);
 
-  // Get our initialized service so that we can register hooks
+   /**
+   * Get our initialized service so that we can register hooks
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const service = app.service('gameserver-subdomain-provision');
 
   service.hooks(hooks);
