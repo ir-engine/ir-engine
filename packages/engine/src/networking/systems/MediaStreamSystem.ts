@@ -7,37 +7,37 @@ export class MediaStreamSystem extends System {
   public static instance = null;
 
   /** Whether the video is paused or not. */
-  @observable public static videoPaused = false
+  @observable public videoPaused = false
   /** Whether the audio is paused or not. */
-  @observable public static audioPaused = false
+  @observable public audioPaused = false
   /** Whether the face tracking is enabled or not. */
-  @observable public static faceTracking = false
+  @observable public faceTracking = false
   /** Media stream for streaming data. */
-  @observable public static mediaStream: MediaStream = null
+  @observable public mediaStream: MediaStream = null
   /** Audio Gain to be applied on media stream. */
-  @observable public static audioGainNode: GainNode = null
+  @observable public audioGainNode: GainNode = null
 
   /** Local screen container. */
-  @observable public static localScreen = null
+  @observable public localScreen = null
   /** Producer using camera to get Video. */
-  @observable public static camVideoProducer = null
+  @observable public camVideoProducer = null
   /** Producer using camera to get Audio. */
-  @observable public static camAudioProducer = null
+  @observable public camAudioProducer = null
   /** Producer using screen to get Video. */
-  @observable public static screenVideoProducer = null
+  @observable public screenVideoProducer = null
   /** Producer using screen to get Audio. */
-  @observable public static screenAudioProducer = null
+  @observable public screenAudioProducer = null
   /** List of all producers nodes.. */
   @observable public producers = []
   /** List of all consumer nodes. */
   @observable public consumers = []
   /** Indication of whether the video while screen sharing is paused or not. */
-  @observable public static screenShareVideoPaused = false
+  @observable public screenShareVideoPaused = false
   /** Indication of whether the audio while screen sharing is paused or not. */
-  @observable public static screenShareAudioPaused = false
+  @observable public screenShareAudioPaused = false
 
   /** Whether the component is initialized or not. */
-  @observable public static initialized = false
+  @observable public initialized = false
 
   constructor() {
     super()
@@ -49,9 +49,9 @@ export class MediaStreamSystem extends System {
    * @param state New face tracking state.
    * @returns Updated face tracking state.
    */
-  public static setFaceTracking (state: boolean): boolean {
-    MediaStreamSystem.faceTracking = state;
-    return MediaStreamSystem.faceTracking;
+  public setFaceTracking (state: boolean): boolean {
+    this.faceTracking = state;
+    return this.faceTracking;
   }
 
   /**
@@ -59,9 +59,9 @@ export class MediaStreamSystem extends System {
    * @param state New Pause state.
    * @returns Updated Pause state.
    */
-  public static setVideoPaused (state: boolean): boolean {
-    MediaStreamSystem.videoPaused = state;
-    return MediaStreamSystem.videoPaused;
+  public setVideoPaused (state: boolean): boolean {
+    this.videoPaused = state;
+    return this.videoPaused;
   }
 
   /**
@@ -69,9 +69,9 @@ export class MediaStreamSystem extends System {
    * @param state New Pause state.
    * @returns Updated Pause state.
    */
-  public static setAudioPaused (state: boolean): boolean {
-    MediaStreamSystem.audioPaused = state;
-    return MediaStreamSystem.audioPaused;
+  public setAudioPaused (state: boolean): boolean {
+    this.audioPaused = state;
+    return this.audioPaused;
   }
 
   /**
@@ -79,9 +79,9 @@ export class MediaStreamSystem extends System {
    * @param state New Pause state.
    * @returns Updated Pause state.
    */
-  public static setScreenShareVideoPaused (state: boolean): boolean {
-    MediaStreamSystem.screenShareVideoPaused = state;
-    return MediaStreamSystem.screenShareVideoPaused;
+  public setScreenShareVideoPaused (state: boolean): boolean {
+    this.screenShareVideoPaused = state;
+    return this.screenShareVideoPaused;
   }
 
   /**
@@ -89,45 +89,45 @@ export class MediaStreamSystem extends System {
    * @param state New Pause state.
    * @returns Updated Pause state.
    */
-  public static setScreenShareAudioPaused (state: boolean): boolean {
-    MediaStreamSystem.screenShareAudioPaused = state;
-    return MediaStreamSystem.screenShareAudioPaused;
+  public setScreenShareAudioPaused (state: boolean): boolean {
+    this.screenShareAudioPaused = state;
+    return this.screenShareAudioPaused;
   }
 
   /**
    * Toggle Pause state of video.
    * @returns Updated Pause state.
    */
-  public static toggleVideoPaused (): boolean {
-    MediaStreamSystem.videoPaused = !MediaStreamSystem.videoPaused;
-    return MediaStreamSystem.videoPaused;
+  public toggleVideoPaused (): boolean {
+    this.videoPaused = !this.videoPaused;
+    return this.videoPaused;
   }
 
   /**
    * Toggle Pause state of audio.
    * @returns Updated Pause state.
    */
-  public static toggleAudioPaused (): boolean {
-    MediaStreamSystem.audioPaused = !MediaStreamSystem.audioPaused;
-    return MediaStreamSystem.audioPaused;
+  public toggleAudioPaused (): boolean {
+    this.audioPaused = !this.audioPaused;
+    return this.audioPaused;
   }
 
   /**
    * Toggle Pause state of video while screen sharing.
    * @returns Updated Pause state.
    */
-  public static toggleScreenShareVideoPaused (): boolean {
-    MediaStreamSystem.screenShareVideoPaused = !MediaStreamSystem.screenShareVideoPaused;
-    return MediaStreamSystem.screenShareVideoPaused;
+  public toggleScreenShareVideoPaused (): boolean {
+    this.screenShareVideoPaused = !this.screenShareVideoPaused;
+    return this.screenShareVideoPaused;
   }
 
   /**
    * Toggle Pause state of audio while screen sharing.
    * @returns Updated Pause state.
    */
-  public static toggleScreenShareAudioPaused (): boolean {
-    MediaStreamSystem.screenShareAudioPaused = !MediaStreamSystem.screenShareAudioPaused;
-    return MediaStreamSystem.screenShareAudioPaused;
+  public toggleScreenShareAudioPaused (): boolean {
+    this.screenShareAudioPaused = !this.screenShareAudioPaused;
+    return this.screenShareAudioPaused;
   }
 
   /** Execute the media stream system. */
@@ -136,25 +136,25 @@ export class MediaStreamSystem extends System {
   /**
    * Start the camera.
    * @returns Whether the camera is started or not. */
-  static async startCamera (): Promise<boolean> {
+  async startCamera (): Promise<boolean> {
     console.log('start camera');
-    if (MediaStreamSystem.mediaStream) return false;
-    return await MediaStreamSystem.getMediaStream();
+    if (this.mediaStream) return false;
+    return await this.getMediaStream();
   }
 
   /**
    * Switch to sending video from the "next" camera device in device list (if there are multiple cameras).
    * @returns Whether camera cycled or not.
    */
-  static async cycleCamera (): Promise<boolean> {
-    if (!(MediaStreamSystem.camVideoProducer && MediaStreamSystem.camVideoProducer.track)) {
+  async cycleCamera (): Promise<boolean> {
+    if (!(this.camVideoProducer && this.camVideoProducer.track)) {
       console.log('cannot cycle camera - no current camera track');
       return false;
     }
     console.log('cycle camera');
 
     // find "next" device in device list
-    const deviceId = await MediaStreamSystem.getCurrentDeviceId();
+    const deviceId = await this.getCurrentDeviceId();
     const allDevices = await navigator.mediaDevices.enumerateDevices();
     const vidDevices = allDevices.filter(d => d.kind === 'videoinput');
     if (!(vidDevices.length > 1)) {
@@ -170,17 +170,17 @@ export class MediaStreamSystem extends System {
     // from the same device when possible (though they don't seem to,
     // currently)
     console.log('getting a video stream from new device', vidDevices[idx].label);
-    MediaStreamSystem.mediaStream = await navigator.mediaDevices.getUserMedia({
+    this.mediaStream = await navigator.mediaDevices.getUserMedia({
       video: { deviceId: { exact: vidDevices[idx].deviceId } },
       audio: true
     });
 
     // replace the tracks we are sending
-    await MediaStreamSystem.camVideoProducer.replaceTrack({
-      track: MediaStreamSystem.mediaStream.getVideoTracks()[0]
+    await this.camVideoProducer.replaceTrack({
+      track: this.mediaStream.getVideoTracks()[0]
     });
-    await MediaStreamSystem.camAudioProducer.replaceTrack({
-      track: MediaStreamSystem.mediaStream.getAudioTracks()[0]
+    await this.camAudioProducer.replaceTrack({
+      track: this.mediaStream.getAudioTracks()[0]
     });
     return true;
   }
@@ -189,16 +189,16 @@ export class MediaStreamSystem extends System {
    * Get whether screen video paused or not.
    * @returns Screen video paused state.
    */
-  static getScreenPausedState (): boolean {
-    return MediaStreamSystem.screenShareVideoPaused;
+  getScreenPausedState (): boolean {
+    return this.screenShareVideoPaused;
   }
 
   /**
    * Get whether screen audio paused or not.
    * @returns Screen audio paused state.
    */
-  static getScreenAudioPausedState (): boolean {
-    return MediaStreamSystem.screenShareAudioPaused;
+  getScreenAudioPausedState (): boolean {
+    return this.screenShareAudioPaused;
   }
 
   /**
@@ -283,7 +283,7 @@ export class MediaStreamSystem extends System {
       el.srcObject = new MediaStream([mediaStream.track.clone()]);
       el.mediaStream = mediaStream;
       el.volume = 0; // start at 0 and let the three.js scene take over from here...
-      // MediaStreamSystem.worldScene.createOrUpdatePositionalAudio(peerId)
+      // this.worldScene.createOrUpdatePositionalAudio(peerId)
 
       // let's "yield" and return before playing, rather than awaiting on
       // play() succeeding. play() will not succeed on a producer-paused
@@ -296,14 +296,14 @@ export class MediaStreamSystem extends System {
   }
 
   /** Get device ID of device which is currently streaming media. */
-  static async getCurrentDeviceId (): Promise<string> | null {
-    if (!MediaStreamSystem.camVideoProducer) return null;
+  async getCurrentDeviceId (): Promise<string> | null {
+    if (!this.camVideoProducer) return null;
 
-    const { deviceId } = MediaStreamSystem.camVideoProducer.track.getSettings();
+    const { deviceId } = this.camVideoProducer.track.getSettings();
     if (deviceId) return deviceId;
     // Firefox doesn't have deviceId in MediaTrackSettings object
     const track =
-      MediaStreamSystem.mediaStream && MediaStreamSystem.mediaStream.getVideoTracks()[0];
+      this.mediaStream && this.mediaStream.getVideoTracks()[0];
     if (!track) return null;
     const devices = await navigator.mediaDevices.enumerateDevices();
     const deviceInfo = devices.find(d => d.label.startsWith(track.label));
@@ -314,19 +314,19 @@ export class MediaStreamSystem extends System {
    * Get user media stream.
    * @returns Whether stream is active or not.
    */
-  public static async getMediaStream (): Promise<boolean> {
+  public async getMediaStream (): Promise<boolean> {
     try {
       console.log('Getting media stream');
       console.log(localMediaConstraints);
-      MediaStreamSystem.mediaStream = await navigator.mediaDevices.getUserMedia(localMediaConstraints);
-      console.log(MediaStreamSystem.mediaStream);
-      if (MediaStreamSystem.mediaStream.active) {
-        MediaStreamSystem.audioPaused = false;
-        MediaStreamSystem.videoPaused = false;
+      this.mediaStream = await navigator.mediaDevices.getUserMedia(localMediaConstraints);
+      console.log(this.mediaStream);
+      if (this.mediaStream.active) {
+        this.audioPaused = false;
+        this.videoPaused = false;
         return true;
       }
-      MediaStreamSystem.audioPaused = true;
-      MediaStreamSystem.videoPaused = true;
+      this.audioPaused = true;
+      this.videoPaused = true;
       return false;
     } catch(err) {
       console.log('failed to get media stream');

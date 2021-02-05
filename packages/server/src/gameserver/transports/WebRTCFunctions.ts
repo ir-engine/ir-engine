@@ -346,6 +346,9 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
 
     producer.on("transportclose", () => closeProducerAndAllPipeProducers(producer, userId));
 
+    console.log('MediaStreamSystem.instance:');
+    console.log(MediaStreamSystem.instance);
+    console.log(MediaStreamSystem.instance.producers);
     if(!MediaStreamSystem.instance?.producers) console.warn("Media stream producers is undefined")
     MediaStreamSystem.instance?.producers?.push(producer);
 
@@ -373,6 +376,7 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
     const userId = getUserIdFromSocketId(socket.id);
     const { mediaPeerId, mediaTag, rtpCapabilities, relationshipType, relationshipId } = data;
     console.log('Receive track for ', relationshipType, relationshipId);
+    console.log(MediaStreamSystem.instance);
     console.log(MediaStreamSystem.instance?.producers);
     const producer = MediaStreamSystem.instance?.producers.find(
         p => p._appData.mediaTag === mediaTag && p._appData.peerId === mediaPeerId && (relationshipType === 'instance' ? p._appData.relationshipType === relationshipType : p._appData.relationshipType === relationshipType && p._appData.relationshipId === relationshipId)
