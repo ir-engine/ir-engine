@@ -14,6 +14,7 @@ import { setPosition } from "@xr3ngine/engine/src/templates/character/behaviors/
 import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";
 import { CharacterComponent } from "@xr3ngine/engine/src/templates/character/components/CharacterComponent";
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
+import { CameraModes } from '../../../camera/types/CameraModes';
 
 
 function openCarDoorAnimation(mesh, timer, timeAnimation) {
@@ -81,7 +82,7 @@ export const playerModelInCar: Behavior = (entity: Entity, args: { type: string;
     if (!hasComponent(entityCar, LocalInputReceiver)) {
       removeComponent(entityCar, InteractiveFocused);
       addComponent(entityCar, LocalInputReceiver);
-      addComponent(entityCar, FollowCameraComponent, { distance: 4, mode: "thirdPerson", raycastBoxOn: false });
+      addComponent(entityCar, FollowCameraComponent, { distance: 4, mode: CameraModes.ThirdPerson, raycastBoxOn: false });
       vehicleComponent.currentDriver = entity;
     }
 

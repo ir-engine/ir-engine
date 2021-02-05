@@ -18,7 +18,7 @@ export function getInputData(inputComponent: Input, inputAxes: number, forceRefr
     if (inputComponent?.data.has(inputAxes)) {
       const inputData = inputComponent.data.get(inputAxes);
       const inputValue = inputData.value;
-      
+
       if (inputData.lifecycleState === LifecycleValue.ENDED || (inputData.lifecycleState === LifecycleValue.UNCHANGED && !forceRefresh)) {
         // skip
         return ;

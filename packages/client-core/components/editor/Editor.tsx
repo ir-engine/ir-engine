@@ -66,7 +66,7 @@ import VideoNode from "@xr3ngine/engine/src/editor/nodes/VideoNode";
 import VolumetricNode from "@xr3ngine/engine/src/editor/nodes/VolumetricNode";
 import Renderer from "@xr3ngine/engine/src/editor/renderer/Renderer";
 import ThumbnailRenderer from "@xr3ngine/engine/src/editor/renderer/ThumbnailRenderer";
-import TransformGizmo from "@xr3ngine/engine/src/scene/classes//TransformGizmo";
+import TransformGizmo from "@xr3ngine/engine/src/scene/classes/TransformGizmo";
 import LoadingCube from "@xr3ngine/engine/src/scene/classes/LoadingCube";
 import EventEmitter from "eventemitter3";
 import {

@@ -5,6 +5,9 @@ import createModel from '../../models/attribution.model';
 import hooks from './attribution.hooks';
 import attributionDocs from './attribution.docs';
 
+/**
+ * Attribution service 
+ */
 declare module '../../declarations' {
   interface ServiceTypes {
     'attribution': Attribution & ServiceAddons<any>;
@@ -18,10 +21,19 @@ export default (app: Application): any => {
     multi: true
   };
 
+  /**
+   * Initialize our service with any option it requires and documentation config 
+   * @author Vyacheslav Solovjov
+   */
   const event = new Attribution(options, app);
   event.docs = attributionDocs
 
   app.use('/attribution', event);
+
+  /**
+   * Get our initialized service so that we can register hooks
+   * @author Vyacheslav Solovjov
+   */
 
   const service = app.service('attribution');
 

@@ -22,6 +22,7 @@ export const initialState = {
   socket: {},
   locationId: '',
   sceneId: '',
+  channelId: '',
   instanceProvisioned: false,
   connected: false,
   readyToConnect: false,
@@ -48,12 +49,15 @@ const instanceConnectionReducer = (state = immutableState, action: InstanceServe
     case INSTANCE_SERVER_PROVISIONED:
       newInstance = new Map(state.get('instance'));
       newValues = (action as InstanceServerProvisionedAction);
+      console.log('instance server provisioned newValues:');
+      console.log(newValues);
       newInstance.set('ipAddress', newValues.ipAddress);
       newInstance.set('port', newValues.port);
       return state
         .set('instance', newInstance)
         .set('locationId', newValues.locationId)
         .set('sceneId', newValues.sceneId)
+        .set('channelId', newValues.channelId)
         .set('instanceProvisioning', false)
         .set('instanceProvisioned', true)
         .set('readyToConnect', true)

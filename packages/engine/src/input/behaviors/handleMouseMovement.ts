@@ -6,6 +6,7 @@ import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { MouseInput } from "../enums/MouseInput";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { normalizeMouseCoordinates } from "../../common/functions/normalizeMouseCoordinates";
+import { normalizeMouseMovement } from "../../common/functions/normalizeMouseMovement";
 import { DefaultInput } from "../../templates/shared/DefaultInput";
 
 /**
@@ -24,8 +25,6 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
   const mappedMovementInput = input.schema.mouseInputMap.axes[MouseInput.MouseMovement];
   const mappedDragMovementInput = input.schema.mouseInputMap.axes[MouseInput.MouseClickDownMovement];
 
-  const previousPosition = (input.prevData.has(mappedPositionInput)? input.prevData.get(mappedPositionInput) : input.data.get(mappedPositionInput))?.value;
-
   // If mouse position not set, set it with lifecycle started
   if (mappedPositionInput) {
     input.data.set(mappedPositionInput, {
@@ -35,11 +34,8 @@ export const handleMouseMovement: Behavior = (entity: Entity, args: { event: Mou
     });
   }
 
-  const mouseMovement: [number, number] = [0, 0];
-  if (previousPosition) {
-    mouseMovement[0] = mousePosition[0] - previousPosition[0];
-    mouseMovement[1] = mousePosition[1] - previousPosition[1];
-  }
+  const normalizedMovement = normalizeMouseMovement(args.event.movementX, args.event.movementY, window.innerWidth, window.innerHeight)
+  const mouseMovement: [number, number] = [normalizedMovement.x, normalizedMovement.y]
 
   if (mappedMovementInput) {
     input.data.set(mappedMovementInput, {

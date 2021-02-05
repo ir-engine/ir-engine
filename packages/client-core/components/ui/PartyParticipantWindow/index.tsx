@@ -147,14 +147,14 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     useEffect(() => {
         autorun(() => {
             if (peerId === 'me_cam') {
-                setVideoStream(MediaStreamSystem?.camVideoProducer);
-                setAudioStream(MediaStreamSystem?.camAudioProducer);
+                setVideoStream(MediaStreamSystem.instance?.camVideoProducer);
+                setAudioStream(MediaStreamSystem.instance?.camAudioProducer);
             } else if (peerId === 'me_screen') {
-                setVideoStream(MediaStreamSystem?.screenVideoProducer);
-                setAudioStream(MediaStreamSystem?.screenAudioProducer);
+                setVideoStream(MediaStreamSystem.instance.screenVideoProducer);
+                setAudioStream(MediaStreamSystem.instance.screenAudioProducer);
             } else {
-                setVideoStream(MediaStreamSystem?.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-video'));
-                setAudioStream(MediaStreamSystem?.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'));
+                setVideoStream(MediaStreamSystem.instance.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-video'));
+                setAudioStream(MediaStreamSystem.instance.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'));
             }
         });
     }, []);
@@ -172,13 +172,13 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                 if (peerId !== 'me_cam') {
                     console.log("*** New mediastream created for audio track for peer id ", peerId);
                     // Create positional audio and attach mediastream here
-                    console.log("MediaStreamSystem.consumers is ");
-                    console.log(MediaStreamSystem.consumers);
+                    console.log("MediaStreamSystem.instance?.consumers is ");
+                    console.log(MediaStreamSystem.instance?.consumers);
                 }
                 if (peerId === 'me_cam') {
-                    MediaStreamSystem.setAudioPaused(false);
+                    MediaStreamSystem.instance.setAudioPaused(false);
                 } else if (peerId === 'me_screen') {
-                    MediaStreamSystem.setScreenShareAudioPaused(false);
+                    MediaStreamSystem.instance.setScreenShareAudioPaused(false);
                 } else if (audioStream.track.muted === true) {
                     // toggleAudio();
                 }
@@ -203,9 +203,9 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             if (videoStream) {
                 videoRef.current.srcObject = new MediaStream([videoStream.track.clone()]);
                 if (peerId === 'me_cam') {
-                    MediaStreamSystem.setVideoPaused(false);
+                    MediaStreamSystem.instance.setVideoPaused(false);
                 } else if (peerId === 'me_screen') {
-                    MediaStreamSystem.setScreenShareVideoPaused(false);
+                    MediaStreamSystem.instance.setScreenShareVideoPaused(false);
                 } else if (videoStream.track.muted === true) {
                     // toggleVideo();
                 }
@@ -215,24 +215,24 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     }, [videoStream]);
 
     useEffect(() => {
-        if (peerId === 'me_cam' || peerId === 'me_screen') setAudioStreamPaused(MediaStreamSystem?.audioPaused);
-    }, [MediaStreamSystem?.audioPaused]);
+        if (peerId === 'me_cam' || peerId === 'me_screen') setAudioStreamPaused(MediaStreamSystem.instance?.audioPaused);
+    }, [MediaStreamSystem.instance?.audioPaused]);
 
     useEffect(() => {
-        if (peerId === 'me_cam' || peerId === 'me_screen') setVideoStreamPaused(MediaStreamSystem?.videoPaused);
-    }, [MediaStreamSystem?.videoPaused]);
+        if (peerId === 'me_cam' || peerId === 'me_screen') setVideoStreamPaused(MediaStreamSystem.instance?.videoPaused);
+    }, [MediaStreamSystem.instance?.videoPaused]);
 
     const toggleVideo = async (e) => {
         e.stopPropagation();
         if (peerId === 'me_cam') {
-            const videoPaused = MediaStreamSystem.toggleVideoPaused();
-            if (videoPaused === true) await pauseProducer(MediaStreamSystem.camVideoProducer);
-            else await resumeProducer(MediaStreamSystem.camVideoProducer);
+            const videoPaused = MediaStreamSystem.instance.toggleVideoPaused();
+            if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer);
+            else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer);
             setVideoStreamPaused(videoStream.paused);
         } else if (peerId === 'me_screen') {
-            const videoPaused = MediaStreamSystem.toggleScreenShareVideoPaused();
-            if (videoPaused === true) await pauseProducer(MediaStreamSystem.screenVideoProducer);
-            else await resumeProducer(MediaStreamSystem.screenVideoProducer);
+            const videoPaused = MediaStreamSystem.instance.toggleScreenShareVideoPaused();
+            if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance.screenVideoProducer);
+            else await resumeProducer(MediaStreamSystem.instance.screenVideoProducer);
             setVideoStreamPaused(videoPaused);
         } else {
             if (videoStream.paused === false) {
@@ -248,14 +248,14 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     const toggleAudio = async (e) => {
         e.stopPropagation();
         if (peerId === 'me_cam') {
-            const audioPaused = MediaStreamSystem.toggleAudioPaused();
-            if (audioPaused === true) await pauseProducer(MediaStreamSystem.camAudioProducer);
-            else await resumeProducer(MediaStreamSystem.camAudioProducer);
+            const audioPaused = MediaStreamSystem.instance.toggleAudioPaused();
+            if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer);
+            else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer);
             setAudioStreamPaused(audioPaused);
         } else if (peerId === 'me_screen') {
-            const audioPaused = MediaStreamSystem.toggleScreenShareAudioPaused();
-            if (audioPaused === true) await pauseProducer(MediaStreamSystem.screenAudioProducer);
-            else await resumeProducer(MediaStreamSystem.screenAudioProducer);
+            const audioPaused = MediaStreamSystem.instance.toggleScreenShareAudioPaused();
+            if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance.screenAudioProducer);
+            else await resumeProducer(MediaStreamSystem.instance.screenAudioProducer);
             setAudioStreamPaused(audioPaused);
         } else {
             if (audioStream.paused === false) {
@@ -281,7 +281,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
 
     const adjustVolume = (e, newValue) => {
         if (peerId === 'me_cam' || peerId === 'me_screen') {
-            MediaStreamSystem.audioGainNode.gain.setValueAtTime(newValue / 100, MediaStreamSystem.audioGainNode.context.currentTime + 1);
+            MediaStreamSystem.instance.audioGainNode.gain.setValueAtTime(newValue / 100, MediaStreamSystem.instance.audioGainNode.context.currentTime + 1);
         } else {
             audioRef.current.volume = newValue / 100;
         }

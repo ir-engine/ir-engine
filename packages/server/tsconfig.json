@@ -14,7 +14,7 @@
     "moduleResolution":"node",
     "typeRoots": ["../packages/common/types", "packages/common/types", "./node_modules/@types"],
     "sourceMap": true,
-    "jsx": "preserve",
+    "jsx": "react",
     "outDir": "./lib",
     "experimentalDecorators": true
   },
