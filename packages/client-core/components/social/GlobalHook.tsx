@@ -1,9 +1,11 @@
-import { loginUser } from "./GlobalState";
-
-import { useRecoilState } from "recoil";
+import { useState } from "react";
 
 export const LoginUserHook = () => {
-  const [loginUserData, setLoginUserData] = useRecoilState(loginUser);
+  const [loginUserData, setLoginUserData] = useState({
+    username: "",
+    name: "",
+    image: "",
+  });
 
   const data = loginUserData as any;
   const setLoginUser = (newData: any) => setLoginUserData(newData);

@@ -1,13 +1,15 @@
-import { useRecoilState } from "recoil";
-import { modalState } from "./ModalState";
+import { useState } from "react";
 
 export const ModalStateHook = () => {
-  const [modal_state, setModalState] = useRecoilState(modalState);
+  const [modalState, setModalState] = useState({
+    hideModal: false,
+    data: {},
+});
 
-  const { showModal, data } = modal_state;
+  const { hideModal, data } = modalState;
   const modalData = data;
   const setModal = (status, newData) =>
-    setModalState({ showModal: status, data: newData });
+    setModalState({ hideModal: status, data: newData });
 
-  return { showModal, modalData, setModal };
+  return { hideModal, modalData, setModal };
 };

@@ -4,11 +4,11 @@ import { ModalStateHook } from "./ModalHook";
 export function Modal({
   children
 }: any) {
-  const { showModal, setModal } = ModalStateHook();
+  const { hideModal, setModal } = ModalStateHook();
   return (
     <div
       className={`modal-container flex items-center justify-center ${
-        !showModal && "hidden"
+        !hideModal && "hidden"
       }`}
       onClick={() => setModal(false, null)}
     >
