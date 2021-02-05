@@ -84,6 +84,11 @@ const lightTheme = createMuiTheme({
         alignItems: 'center',
       }
     },
+    MuiContainer:{
+      root:{
+        flex: 'none'
+      }
+    },
     MuiDialog:{
       paperWidthSm:{
         maxWidth: '40%',
@@ -116,14 +121,8 @@ const lightTheme = createMuiTheme({
         color: '#000000' ,
         fontSize: 16,       
         textAlign: 'center',
+        margin: '0 10px'
       },
-      // colorPrimary:{
-      //   backgroundColor: 'transparent',
-      //   color: '#FFFFFF',
-      //   '&:hover':{
-      //     backgroundColor: '#5151FF',
-      //   },
-      // },
     },
     MuiIconButton:{
       root:{
@@ -341,6 +340,9 @@ const lightTheme = createMuiTheme({
           boxShadow: '0 0 10px #FFFFFF'
         }        
       },
+      containedPrimary:{
+        backgroundColor: '#000000',
+      }
     },  
     MuiSvgIcon:{
       colorPrimary : {
