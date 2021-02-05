@@ -24,7 +24,7 @@ export const InteractiveSchema = {
         return {
             action: 'link',
             payload: {
-                name: objArgs.payloadName,
+                name: objArgs.interactionText,
                 url: objArgs.payloadUrl,
             },
             interactionText: objArgs.interactionText
