@@ -539,8 +539,10 @@ export function removeUser (userId: string) {
 }
 
 client.service('user').on('patched', async (params) => {
+  console.log('User patched');
   const selfUser = (store.getState() as any).get('auth').get('user');
   const user = resolveUser(params.userRelationship);
+  console.log(user);
   if (selfUser.id === user.id) {
     if (selfUser.instanceId !== user.instanceId) {
       store.dispatch(clearLayerUsers());
@@ -560,6 +562,7 @@ client.service('user').on('patched', async (params) => {
     }
   } else {
     if (user.instanceId === selfUser.instanceId) {
+      console.log('Adding layer user');
       store.dispatch(addedLayerUser(user));
     } else {
       store.dispatch(removedLayerUser(user));
