@@ -1,8 +1,6 @@
 
 .overlay{
-  background-color: rgba(255,255,255,0.3);
-  z-index:1500;
-  background-blend-mode: soft-light;
+  background-color: rgba(100,100,100,1);
   top: 0;
   left: 0;
   height: 100vh;
@@ -10,12 +8,11 @@
   position: absolute;
   background-position: center;
   background-size:cover;
-  z-index: 10000;
+  z-index: 1000;
 
   .imageOverlay{
     filter: blur(15px);
     position: absolute;
-    background-color: rgba(255,255,255,0.3);
     top: 0;
     left: 0;
     height: 100vh;
@@ -36,7 +33,7 @@
     }  
     .loadingProgressTile{
       text-align: left;
-      font-size: 3em;
+      font-size: 2em;
       margin-bottom: 20px;
       display: flex;
       justify-content: space-between;

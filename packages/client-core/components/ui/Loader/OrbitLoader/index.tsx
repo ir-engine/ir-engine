@@ -1,26 +1,17 @@
 import React from 'react';
 import styles from './style.module.scss';
 
-const OrbitLoader = (): any => {
+const Loader = (): any => {
   return (
-    <div className="spinner-box-wrapper">
-      <div className="spinner-box">
-        <div className="blue-orbit leo">
-        </div>
-
-        <div className="green-orbit leo">
-        </div>
-
-        <div className="red-orbit leo">
-        </div>
-
-        <div className="white-orbit w1 leo">
-        </div><div className="white-orbit w2 leo">
-        </div><div className="white-orbit w3 leo">
-        </div>
-      </div>
+  <div className={styles["wrapper"]}>
+    <div className={styles["box"]}>
+      <div className={styles["cube"]}></div>
+      <div className={styles["cube"]}></div>
+      <div className={styles["cube"]}></div>
+      <div className={styles["cube"]}></div>
     </div>
+  </div>
   );
 };
 
-export default OrbitLoader;
+export default Loader;
