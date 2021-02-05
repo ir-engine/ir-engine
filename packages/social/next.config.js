@@ -1,6 +1,4 @@
 const path = require('path')
-const appRootPath = require('app-root-path')
-process.env.NODE_CONFIG_DIR = path.join(appRootPath.path, 'packages/client/config')
 const conf = require('config');
 const withImages = require('next-images')
 
@@ -87,7 +85,7 @@ module.exports = withImages(
           }]
         },
         {
-          test: /\.(ts|tsx)$/,
+          test: /\.ts$/,
           use: ['cache-loader', 'thread-loader', {
             loader: 'ts-loader',
             options: {
