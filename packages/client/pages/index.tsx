@@ -20,6 +20,9 @@ export const IndexPage = (): any => {
         <Layout pageTitle="Home" login={false}>
             <NoSSR onSSR={<Loading/>}>
                 <div className="redirect">Redirecting...</div>
+                {Example &&
+                    <div className="redirect">Native plugin detected</div>
+                }
             </NoSSR>
         </Layout>
     );
