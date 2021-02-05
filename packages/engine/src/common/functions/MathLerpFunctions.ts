@@ -117,3 +117,16 @@ export const quatSlerp = (qa: Quat, qb: Quat, t: number): any => {
   qm.z = qa.z * ratioA + qb.z * ratioB;
   return qm;
 };
+
+/**
+ * Returns values which will be clamped if goes out of minimum and maximum range. 
+ * @param value Value to be clamped.
+ * @param min Minimum boundary value.
+ * @param max Maximum boundary value.
+ * @returns Clamped value.
+ */
+export const clamp = (value: number, min: number, max: number): number => {
+  if (value < min) return min;
+  if (value > max) return max;
+  return value;
+}

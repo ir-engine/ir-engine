@@ -41,6 +41,8 @@ import SpotLightNode from "@xr3ngine/engine/src/editor/nodes/SpotLightNode";
 import TriggerVolumeNode from "@xr3ngine/engine/src/editor/nodes/TriggerVolumeNode";
 import VideoNode from "@xr3ngine/engine/src/editor/nodes/VideoNode";
 import VolumetricNode from "@xr3ngine/engine/src/editor/nodes/VolumetricNode";
+import ParticleEmitterNodeEditor from "./properties/ParticleEmitterNodeEditor";
+import ParticleEmitterNode from "@xr3ngine/engine/src/editor/nodes/ParticleEmitterNode";
 import BingImagesSource from "./assets/sources/BingImagesSource";
 import BingVideosSource from "./assets/sources/BingVideosSource";
 import PolySource from "./assets/sources/PolySource";
@@ -70,6 +72,7 @@ export function createEditor(api, settings) {
   editor.registerNode(TriggerVolumeNode, TriggerVolumeNodeEditor);
   editor.registerNode(LinkNode, LinkNodeEditor);
   editor.registerNode(ScenePreviewCameraNode, ScenePreviewCameraNodeEditor);
+  editor.registerNode(ParticleEmitterNode, ParticleEmitterNodeEditor);
   editor.registerSource(new ElementsSource(editor));
   editor.registerSource(new MyAssetsSource(editor));
   editor.registerSource(new SketchfabSource(api));
