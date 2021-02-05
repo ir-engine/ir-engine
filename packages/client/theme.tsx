@@ -13,7 +13,7 @@ const lightTheme = createMuiTheme({
       main: red.A400
     },
     background: {
-      default: '#000000'
+      default: '#ff0000'
     },
     text:{
       primary: '#FFFFFF',

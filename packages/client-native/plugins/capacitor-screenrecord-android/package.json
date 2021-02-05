@@ -1,0 +1,20 @@
+{
+  "name": "capacitor-screenrecord-android",
+  "version": "0.0.1",
+  "description": "Android screen recorder using MediaRecorder or MediaMuxer to record device's screen",
+  "cordova": {
+    "id": "com.xr3ngine.screenrecord",
+    "platforms": [
+      "android"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xr3ngine/xr3ngine"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "git+https://github.com/xr3ngine/xr3ngine/issues"
+  },
+  "homepage": "git+https://github.com/xr3ngine/xr3ngine#readme"
+}

@@ -236,7 +236,7 @@ export class EffectComposer {
     if (oldRenderer !== null && oldRenderer !== renderer) {
       const oldSize = oldRenderer.getSize(new Vector2());
       const newSize = renderer.getSize(new Vector2());
-      const parent = oldRenderer.domElement.parentNode;
+      const parent = oldRenderer.domElement?.parentNode;
 
       this.renderer = renderer;
       this.renderer.autoClear = false;
