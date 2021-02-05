@@ -385,7 +385,7 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
     }
 
     const transport = Object.values(MediaStreamSystem.instance.transports).find(
-        t => (t as any)._appData.peerId === userId && (t as any)._appData.clientDirection === "recv" && (channelType === 'instance' ? (t as any)._appData.channelType === channelType : (t as any)._appData.channelType === channelType && (t as any)._appData.channelId === channelId) && t.closed === false
+        t => (t as any)._appData.peerId === userId && (t as any)._appData.clientDirection === "recv" && (channelType === 'instance' ? (t as any)._appData.channelType === channelType : (t as any)._appData.channelType === channelType && (t as any)._appData.channelId === channelId) && (t as any).closed === false
     );
 
     if (transport != null) {
