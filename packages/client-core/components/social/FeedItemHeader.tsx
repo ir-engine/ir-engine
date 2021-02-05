@@ -1,9 +1,9 @@
 import React from "react";
-import ProfilePic from "./ProfilePic";
-import MoreSettings from "./icons/MoreIcon";
-import UsernameText from "./UsernameText";
+import { ProfilePic} from "./ProfilePic";
+import { MoreSettings} from "./icons/MoreIcon";
+import { UsernameText } from "./UsernameText";
 
-export default function FeedItemHeader({
+export function FeedItemHeader({
   moreClickEvent,
   username,
   image

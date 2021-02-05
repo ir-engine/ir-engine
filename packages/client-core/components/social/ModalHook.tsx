@@ -1,7 +1,7 @@
 import { useRecoilState } from "recoil";
 import { modalState } from "./ModalState";
 
-const ModalStateHook = () => {
+export const ModalStateHook = () => {
   const [modal_state, setModalState] = useRecoilState(modalState);
 
   const { showModal, data } = modal_state;
@@ -11,5 +11,3 @@ const ModalStateHook = () => {
 
   return { showModal, modalData, setModal };
 };
-
-export default ModalStateHook;

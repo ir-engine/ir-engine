@@ -1,10 +1,10 @@
 import React, { useState, useRef } from "react";
-import ModalStateHook from "./ModalHook";
+import { ModalStateHook } from "./ModalHook";
 
-export default function Modal({
+export function Modal({
   children
 }: any) {
-  const { showModal, modalData, setModal } = ModalStateHook();
+  const { showModal, setModal } = ModalStateHook();
   return (
     <div
       className={`modal-container flex items-center justify-center ${

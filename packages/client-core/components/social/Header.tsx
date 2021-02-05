@@ -1,19 +1,19 @@
 import React, { useLayoutEffect } from "react";
 import { useRouter } from "next/router";
-import SearchBar from "./SearchBar";
-import HomeIcon from "./icons/HomeIcon";
-import DmIcon from "./icons/DMIcon";
-import ExploreIcon from "./icons/ExploreIcon";
-import ActivityIcon from "./icons/ActivityIcon";
-import HomeIconActive from "./icons/HomeIcon_active";
-import DmIconActive from "./icons/DMIcon_active";
-import ExploreIconActive from "./icons/ExploreIcon_active";
-import ActivityIconActive from "./icons/ActivityIcon_active";
-import ProfilePic from "./ProfilePic";
-import Clickable from "./Clickable";
-import LoginUserHook from "./GlobalHook";
+import { SearchBar} from "./SearchBar";
+import { HomeIcon} from "./icons/HomeIcon";
+import { DMIcon } from "./icons/DMIcon";
+import { ExploreIcon } from "./icons/ExploreIcon";
+import { ActivityIcon } from "./icons/ActivityIcon";
+import { HomeIconActive} from "./icons/HomeIcon_active";
+import { DMIconActive } from "./icons/DMIcon_active";
+import { ExploreIconActive } from "./icons/ExploreIcon_active";
+import { ActivityIconActive } from "./icons/ActivityIcon_active";
+import { ProfilePic} from "./ProfilePic";
+import { Clickable }from "./Clickable";
+import { LoginUserHook} from "./GlobalHook";
 
-export default function Header({
+export function Header({
   user
 }: any) {
   const router = useRouter();
@@ -27,9 +27,9 @@ export default function Header({
     );
   const messages =
     router.pathname === "/messages" ? (
-      <DmIconActive className="header-icon" />
+      <DMIconActive className="header-icon" />
     ) : (
-      <DmIcon className="header-icon" />
+      <DMIcon className="header-icon" />
     );
   const explore =
     router.pathname === "/explore" ? (
@@ -44,7 +44,7 @@ export default function Header({
       <ActivityIcon className="header-icon" />
     );
 
-  const { loginUserData, setLoginUser } = LoginUserHook();
+  const { data, setLoginUser } = LoginUserHook();
 
   return (
     <nav className="navigation fixed z-20 top-0">
@@ -61,14 +61,14 @@ export default function Header({
           {user && (
             <ProfilePic
               className={
-                loginUserData.username === user
+                data?.username === user
                   ? "header-profile-pic-border"
                   : ""
               }
-              src={loginUserData?.image ?? null}
-              username={loginUserData?.username  ?? null}
+              src={data?.image ?? null}
+              username={data?.username  ?? null}
               style={{
-                padding: loginUserData.username === user ? "2px" : "3px",
+                padding: data?.username === user ? "2px" : "3px",
                 marginLeft: "-2px",
               }}
               size={22}

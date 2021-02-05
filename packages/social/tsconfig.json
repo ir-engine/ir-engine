@@ -29,5 +29,6 @@
   "include": [
     "next-env.d.ts",
     "./**/*.ts",
-    "./**/*.tsx", "static/example_data.js"  ]
+    "./**/*.tsx"
+  ]
 }

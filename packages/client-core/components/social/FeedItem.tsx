@@ -1,16 +1,14 @@
 import React from "react";
-import Box from "./Box";
-import FeedItemHeader from "./FeedItemHeader";
-import FeedItemButtons from "./FeedItemButtons";
-import FeedItemComment from "./FeedItemComment";
-import AddComment from "./AddComment";
-import FeedItemPhotos from "./FeedItemPhotos";
+import { Box } from "./Box";
+import { FeedItemHeader} from "./FeedItemHeader";
+import { FeedItemButtons} from "./FeedItemButtons";
+import { FeedItemComment} from "./FeedItemComment";
+import { AddComment} from "./AddComment";
+import { FeedItemPhotos} from "./FeedItemPhotos";
 import Router from "next/router";
-import ModalStateHook from "./ModalHook";
+import { ModalStateHook } from "./ModalHook";
 
-export default function FeedItem({
-  data
-}: any) {
+export function FeedItem({ data }) {
   const { showModal, setModal } = ModalStateHook();
 
   const moreClickEvent = () => {

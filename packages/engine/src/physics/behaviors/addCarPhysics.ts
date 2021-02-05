@@ -22,14 +22,18 @@ export const addCarPhysics: Behavior = (entity: Entity, groupMeshes: any ) => {
     entrancesArray: [],
     arrayWheelsPosition: [],
     arrayWheelsMesh: [],
-    vehicleSphereColliders: []
+    vehicleSphereColliders: [],
+    suspensionRestLength: 0,
+    vehicleMesh: null,
+    mass: 0,
+    vehicleCollider: null,
+    startPosition: [
+      groupMeshes.position.x,
+      groupMeshes.position.y,
+      groupMeshes.position.z
+    ]
   };
   // copy position from editor position model
-  argsToVehicle.startPosition = [
-    groupMeshes.position.x,
-    groupMeshes.position.y,
-    groupMeshes.position.z
-  ];
   groupMeshes.position.set(0,0,0);
   // Parse Meshes to functionality parts
   groupMeshes.traverse( mesh => {

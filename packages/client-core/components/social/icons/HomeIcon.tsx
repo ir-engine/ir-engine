@@ -1,6 +1,6 @@
 import * as React from "react";
 
-function HomeIcon(props: any) {
+export function HomeIcon(props: any) {
   return (
     <svg
       aria-label="Home"
@@ -14,5 +14,3 @@ function HomeIcon(props: any) {
     </svg>
   );
 }
-
-export default HomeIcon;

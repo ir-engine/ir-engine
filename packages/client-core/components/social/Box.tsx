@@ -1,10 +1,10 @@
 import React from "react";
 
-export default function Box({
+export function Box({
   children,
   border = false,
   ...props
-}: any) {
+}) {
   const customClass = props.className + " box";
   return (
     <div

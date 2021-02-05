@@ -1,6 +1,6 @@
 import * as React from "react";
 
-function DmIcon(props: any) {
+export function DMIcon(props: any) {
   return (
     <svg
       aria-label="Direct"
@@ -14,5 +14,3 @@ function DmIcon(props: any) {
     </svg>
   );
 }
-
-export default DmIcon;

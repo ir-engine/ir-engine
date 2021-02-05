@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function ArrowButton({
+export function ArrowButton({
   place,
   text,
   ...props

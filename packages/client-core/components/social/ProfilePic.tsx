@@ -1,7 +1,7 @@
 import React from "react";
 import Router from "next/router";
 
-export default function ProfilePic({
+export function ProfilePic({
   src,
   username,
   size,

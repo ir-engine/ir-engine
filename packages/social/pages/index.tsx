@@ -1,13 +1,13 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
-import Layout from "@xr3ngine/client-core/components/social/layout";
-import Stories from "@xr3ngine/client-core/components/social/stories";
-import FeedItem from "@xr3ngine/client-core/components/social/feed-item";
-import HomeRightBar from "@xr3ngine/client-core/components/social/home-right-bar";
-import MoreModalItems from "@xr3ngine/client-core/components/social/more-modal";
+import { Layout } from "@xr3ngine/client-core/components/social/Layout";
+import { Stories } from "@xr3ngine/client-core/components/social/Stories";
+import { FeedItem } from "@xr3ngine/client-core/components/social/FeedItem";
+import { HomeRightBar } from "@xr3ngine/client-core/components/social/HomeRightBar";
+import { MoreModalItems } from "@xr3ngine/client-core/components/social/more-modal";
 
 // TODO: HANDLE
-import LoginUserHook from "../hooks/global_hook";
+import { LoginUserHook} from "@xr3ngine/client-core/components/social/GlobalHook";
 
 export default function Home() {
   const { data, setLoginUser } = LoginUserHook();

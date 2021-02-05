@@ -1,8 +1,8 @@
 import React from "react";
-import Modal from "./Modal";
-import ModalStateHook from "./ModalHook";
+import { Modal } from "./Modal";
+import { ModalStateHook} from "./ModalHook";
 import Router from "next/router";
-export default function MoreModalItems() {
+export function MoreModalItems() {
     const { modalData } = ModalStateHook();
     const data = modalData;
     return (<Modal>

@@ -1,9 +1,8 @@
 import React from "react";
-import ProfilePic from "./ProfilePic";
-import Clickable from "./Clickable";
-import UsernameText from "./UsernameText";
+import { ProfilePic } from "./ProfilePic";
+import { UsernameText } from "./UsernameText";
 
-export default function SuggestionItem({
+export function SuggestionItem({
   data
 }: any) {
   return (

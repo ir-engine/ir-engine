@@ -1,7 +1,7 @@
 import React from "react";
-import SuggestionItem from "./SuggestionItem";
+import { SuggestionItem } from "./SuggestionItem";
 
-export default function RightBarSuggestions({
+export function RightBarSuggestions({
   data
 }: any) {
   return (

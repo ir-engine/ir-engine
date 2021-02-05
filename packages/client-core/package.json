@@ -11,8 +11,7 @@
   },
   "npmClient": "yarn",
   "jest": "ts-jest",
-  "scripts": {
-  },
+  "scripts": {},
   "resolutions": {
     "webpack": "^5.1.0",
     "socket.io": "2.4.1"
@@ -101,6 +100,7 @@
     "react-window": "^1.8.5",
     "recast-wasm": "^0.1.1",
     "recharts": "^1.8.5",
+    "recoil": "^0.1.2",
     "redux": "^4.0.5",
     "redux-devtools-extension": "^2.13.8",
     "redux-immutable": "^4.0.0",

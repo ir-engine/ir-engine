@@ -1,7 +1,7 @@
 import React from "react";
 import Router from "next/router";
 
-export default function UsernameText({
+export function UsernameText({
   username,
   ...props
 }: any) {

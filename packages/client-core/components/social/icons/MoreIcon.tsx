@@ -1,6 +1,6 @@
 import * as React from "react";
 
-function MoreSettings(props: any) {
+export function MoreSettings(props: any) {
   return (
     <svg
       aria-label="More Settings"
@@ -16,5 +16,3 @@ function MoreSettings(props: any) {
     </svg>
   );
 }
-
-export default MoreSettings;
