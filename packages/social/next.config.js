@@ -1,8 +1,9 @@
 const path = require('path')
 const conf = require('config');
 const withImages = require('next-images')
+const withTM = require('next-transpile-modules')(['@xr3ngine/client-core']); // pass the modules you would like to see transpiled
 
-module.exports = withImages(
+module.exports = withTM(withImages(
   {
     /* config options here */
     publicRuntimeConfig: conf.get('publicRuntimeConfig'),
@@ -167,4 +168,4 @@ module.exports = withImages(
       })
       return config
     }
-  })
+  }));
