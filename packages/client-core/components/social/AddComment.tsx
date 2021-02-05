@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 
-export default function AddComment() {
+export function AddComment() {
   const changeRef = useRef(null);
   const [textAreaSize, setAreaSize] = useState(18);
   const [isTyped, setTyped] = useState(false);

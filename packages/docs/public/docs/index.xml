@@ -1,8 +1,8 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>The Overlay – Documentation</title>
+    <title>XR3ngine – Documentation</title>
     <link>/docs/</link>
-    <description>Recent content in Documentation on The Overlay</description>
+    <description>Recent content in Documentation on XR3ngine</description>
     <generator>Hugo -- gohugo.io</generator>
     
 	  <atom:link href="/docs/index.xml" rel="self" type="application/rss+xml" />
@@ -25,41 +25,9 @@
         
 
 &lt;div class=&#34;pageinfo pageinfo-primary&#34;&gt;
-&lt;p&gt;User first enters an XR3ngine site in Guest Mode. Interaction with Accounts / XR Pass only happens when user needs to save or customize something (like avatar), or buy something.&lt;/p&gt;
 
 &lt;/div&gt;
 
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-lander.png&#34; alt=&#34;lander&#34; title=&#34;lander&#34;&gt;&lt;/p&gt;
-&lt;h2 id=&#34;sign-up&#34;&gt;Sign Up&lt;/h2&gt;
-&lt;p&gt;Signing up for an account will create a profile for Handle, Saved Settings, and Identity method.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-signup.png&#34; alt=&#34;signup&#34; title=&#34;signup&#34;&gt;&lt;/p&gt;
-&lt;h3 id=&#34;email-identity-method&#34;&gt;Email Identity method&lt;/h3&gt;
-&lt;p&gt;Email Magic Link&lt;/p&gt;
-&lt;h3 id=&#34;sms-identity-method&#34;&gt;SMS Identity method&lt;/h3&gt;
-&lt;p&gt;SMS Magic Link&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-email-sms.png&#34; alt=&#34;email-sms&#34; title=&#34;email-sms&#34;&gt;&lt;/p&gt;
-&lt;h3 id=&#34;social-auth-identity-method&#34;&gt;Social Auth Identity method&lt;/h3&gt;
-&lt;p&gt;Facebook, Google, GitHub Support&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-login.png&#34; alt=&#34;login&#34; title=&#34;login&#34;&gt;&lt;/p&gt;
-&lt;h3 id=&#34;xr-pass-identity-method&#34;&gt;XR Pass Identity method&lt;/h3&gt;
-&lt;p&gt;Interaction with XR Pass only starts when needed&lt;/p&gt;
-&lt;p&gt;User not “logged in” (no active session), but user HAS an XR Pass / wallet&lt;/p&gt;
-&lt;p&gt;User not “logged in”, but user HAS an XR Pass / wallet (continued)&lt;/p&gt;
-&lt;p&gt;Wallet Benefits&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Users now have a single place to store avatars (in their Solid storage pods), which is safely available to all participating servers&lt;/li&gt;
-&lt;li&gt;
-&lt;ul&gt;
-&lt;li&gt;Single sign-on (we can still do emailing login links, etc) everywhere
-User has a choice in wallet providers and storage providers&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Risks / Downsides&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;This tech, although on W3C standards track, is still raw / early&lt;/li&gt;
-&lt;li&gt;Possibly too many clicks?&lt;/li&gt;
-&lt;/ul&gt;
 
       </description>
     </item>
@@ -74,44 +42,6 @@ User has a choice in wallet providers and storage providers&lt;/li&gt;
         
         
         
-
-&lt;div class=&#34;pageinfo pageinfo-primary&#34;&gt;
-&lt;p&gt;User first enters an XR3ngine site in Guest Mode. Interaction with Accounts / XR Pass only happens when user needs to save or customize something (like avatar), or buy something.&lt;/p&gt;
-
-&lt;/div&gt;
-
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-lander.png&#34; alt=&#34;lander&#34; title=&#34;lander&#34;&gt;&lt;/p&gt;
-&lt;h2 id=&#34;sign-up&#34;&gt;Sign Up&lt;/h2&gt;
-&lt;p&gt;Signing up for an account will create a profile for Handle, Saved Settings, and Identity method.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-signup.png&#34; alt=&#34;signup&#34; title=&#34;signup&#34;&gt;&lt;/p&gt;
-&lt;h3 id=&#34;email-identity-method&#34;&gt;Email Identity method&lt;/h3&gt;
-&lt;p&gt;Email Magic Link&lt;/p&gt;
-&lt;h3 id=&#34;sms-identity-method&#34;&gt;SMS Identity method&lt;/h3&gt;
-&lt;p&gt;SMS Magic Link&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-email-sms.png&#34; alt=&#34;email-sms&#34; title=&#34;email-sms&#34;&gt;&lt;/p&gt;
-&lt;h3 id=&#34;social-auth-identity-method&#34;&gt;Social Auth Identity method&lt;/h3&gt;
-&lt;p&gt;Facebook, Google, GitHub Support&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-login.png&#34; alt=&#34;login&#34; title=&#34;login&#34;&gt;&lt;/p&gt;
-&lt;h3 id=&#34;xr-pass-identity-method&#34;&gt;XR Pass Identity method&lt;/h3&gt;
-&lt;p&gt;Interaction with XR Pass only starts when needed&lt;/p&gt;
-&lt;p&gt;User not “logged in” (no active session), but user HAS an XR Pass / wallet&lt;/p&gt;
-&lt;p&gt;User not “logged in”, but user HAS an XR Pass / wallet (continued)&lt;/p&gt;
-&lt;p&gt;Wallet Benefits&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Users now have a single place to store avatars (in their Solid storage pods), which is safely available to all participating servers&lt;/li&gt;
-&lt;li&gt;
-&lt;ul&gt;
-&lt;li&gt;Single sign-on (we can still do emailing login links, etc) everywhere
-User has a choice in wallet providers and storage providers&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Risks / Downsides&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;This tech, although on W3C standards track, is still raw / early&lt;/li&gt;
-&lt;li&gt;Possibly too many clicks?&lt;/li&gt;
-&lt;/ul&gt;
-
       </description>
     </item>
     
@@ -127,41 +57,9 @@ User has a choice in wallet providers and storage providers&lt;/li&gt;
         
 
 &lt;div class=&#34;pageinfo pageinfo-primary&#34;&gt;
-&lt;p&gt;User first enters an XR3ngine site in Guest Mode. Interaction with Accounts / XR Pass only happens when user needs to save or customize something (like avatar), or buy something.&lt;/p&gt;
 
 &lt;/div&gt;
 
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-lander.png&#34; alt=&#34;lander&#34; title=&#34;lander&#34;&gt;&lt;/p&gt;
-&lt;h2 id=&#34;sign-up&#34;&gt;Sign Up&lt;/h2&gt;
-&lt;p&gt;Signing up for an account will create a profile for Handle, Saved Settings, and Identity method.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-signup.png&#34; alt=&#34;signup&#34; title=&#34;signup&#34;&gt;&lt;/p&gt;
-&lt;h3 id=&#34;email-identity-method&#34;&gt;Email Identity method&lt;/h3&gt;
-&lt;p&gt;Email Magic Link&lt;/p&gt;
-&lt;h3 id=&#34;sms-identity-method&#34;&gt;SMS Identity method&lt;/h3&gt;
-&lt;p&gt;SMS Magic Link&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-email-sms.png&#34; alt=&#34;email-sms&#34; title=&#34;email-sms&#34;&gt;&lt;/p&gt;
-&lt;h3 id=&#34;social-auth-identity-method&#34;&gt;Social Auth Identity method&lt;/h3&gt;
-&lt;p&gt;Facebook, Google, GitHub Support&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-login.png&#34; alt=&#34;login&#34; title=&#34;login&#34;&gt;&lt;/p&gt;
-&lt;h3 id=&#34;xr-pass-identity-method&#34;&gt;XR Pass Identity method&lt;/h3&gt;
-&lt;p&gt;Interaction with XR Pass only starts when needed&lt;/p&gt;
-&lt;p&gt;User not “logged in” (no active session), but user HAS an XR Pass / wallet&lt;/p&gt;
-&lt;p&gt;User not “logged in”, but user HAS an XR Pass / wallet (continued)&lt;/p&gt;
-&lt;p&gt;Wallet Benefits&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Users now have a single place to store avatars (in their Solid storage pods), which is safely available to all participating servers&lt;/li&gt;
-&lt;li&gt;
-&lt;ul&gt;
-&lt;li&gt;Single sign-on (we can still do emailing login links, etc) everywhere
-User has a choice in wallet providers and storage providers&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Risks / Downsides&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;This tech, although on W3C standards track, is still raw / early&lt;/li&gt;
-&lt;li&gt;Possibly too many clicks?&lt;/li&gt;
-&lt;/ul&gt;
 
       </description>
     </item>
@@ -200,41 +98,9 @@ User has a choice in wallet providers and storage providers&lt;/li&gt;
         
 
 &lt;div class=&#34;pageinfo pageinfo-primary&#34;&gt;
-&lt;p&gt;User first enters an XR3ngine site in Guest Mode. Interaction with Accounts / XR Pass only happens when user needs to save or customize something (like avatar), or buy something.&lt;/p&gt;
 
 &lt;/div&gt;
 
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-lander.png&#34; alt=&#34;lander&#34; title=&#34;lander&#34;&gt;&lt;/p&gt;
-&lt;h2 id=&#34;sign-up&#34;&gt;Sign Up&lt;/h2&gt;
-&lt;p&gt;Signing up for an account will create a profile for Handle, Saved Settings, and Identity method.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-signup.png&#34; alt=&#34;signup&#34; title=&#34;signup&#34;&gt;&lt;/p&gt;
-&lt;h3 id=&#34;email-identity-method&#34;&gt;Email Identity method&lt;/h3&gt;
-&lt;p&gt;Email Magic Link&lt;/p&gt;
-&lt;h3 id=&#34;sms-identity-method&#34;&gt;SMS Identity method&lt;/h3&gt;
-&lt;p&gt;SMS Magic Link&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-email-sms.png&#34; alt=&#34;email-sms&#34; title=&#34;email-sms&#34;&gt;&lt;/p&gt;
-&lt;h3 id=&#34;social-auth-identity-method&#34;&gt;Social Auth Identity method&lt;/h3&gt;
-&lt;p&gt;Facebook, Google, GitHub Support&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-login.png&#34; alt=&#34;login&#34; title=&#34;login&#34;&gt;&lt;/p&gt;
-&lt;h3 id=&#34;xr-pass-identity-method&#34;&gt;XR Pass Identity method&lt;/h3&gt;
-&lt;p&gt;Interaction with XR Pass only starts when needed&lt;/p&gt;
-&lt;p&gt;User not “logged in” (no active session), but user HAS an XR Pass / wallet&lt;/p&gt;
-&lt;p&gt;User not “logged in”, but user HAS an XR Pass / wallet (continued)&lt;/p&gt;
-&lt;p&gt;Wallet Benefits&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Users now have a single place to store avatars (in their Solid storage pods), which is safely available to all participating servers&lt;/li&gt;
-&lt;li&gt;
-&lt;ul&gt;
-&lt;li&gt;Single sign-on (we can still do emailing login links, etc) everywhere
-User has a choice in wallet providers and storage providers&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Risks / Downsides&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;This tech, although on W3C standards track, is still raw / early&lt;/li&gt;
-&lt;li&gt;Possibly too many clicks?&lt;/li&gt;
-&lt;/ul&gt;
 
       </description>
     </item>
@@ -251,41 +117,9 @@ User has a choice in wallet providers and storage providers&lt;/li&gt;
         
 
 &lt;div class=&#34;pageinfo pageinfo-primary&#34;&gt;
-&lt;p&gt;User first enters an XR3ngine site in Guest Mode. Interaction with Accounts / XR Pass only happens when user needs to save or customize something (like avatar), or buy something.&lt;/p&gt;
 
 &lt;/div&gt;
 
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-lander.png&#34; alt=&#34;lander&#34; title=&#34;lander&#34;&gt;&lt;/p&gt;
-&lt;h2 id=&#34;sign-up&#34;&gt;Sign Up&lt;/h2&gt;
-&lt;p&gt;Signing up for an account will create a profile for Handle, Saved Settings, and Identity method.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-signup.png&#34; alt=&#34;signup&#34; title=&#34;signup&#34;&gt;&lt;/p&gt;
-&lt;h3 id=&#34;email-identity-method&#34;&gt;Email Identity method&lt;/h3&gt;
-&lt;p&gt;Email Magic Link&lt;/p&gt;
-&lt;h3 id=&#34;sms-identity-method&#34;&gt;SMS Identity method&lt;/h3&gt;
-&lt;p&gt;SMS Magic Link&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-email-sms.png&#34; alt=&#34;email-sms&#34; title=&#34;email-sms&#34;&gt;&lt;/p&gt;
-&lt;h3 id=&#34;social-auth-identity-method&#34;&gt;Social Auth Identity method&lt;/h3&gt;
-&lt;p&gt;Facebook, Google, GitHub Support&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-login.png&#34; alt=&#34;login&#34; title=&#34;login&#34;&gt;&lt;/p&gt;
-&lt;h3 id=&#34;xr-pass-identity-method&#34;&gt;XR Pass Identity method&lt;/h3&gt;
-&lt;p&gt;Interaction with XR Pass only starts when needed&lt;/p&gt;
-&lt;p&gt;User not “logged in” (no active session), but user HAS an XR Pass / wallet&lt;/p&gt;
-&lt;p&gt;User not “logged in”, but user HAS an XR Pass / wallet (continued)&lt;/p&gt;
-&lt;p&gt;Wallet Benefits&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Users now have a single place to store avatars (in their Solid storage pods), which is safely available to all participating servers&lt;/li&gt;
-&lt;li&gt;
-&lt;ul&gt;
-&lt;li&gt;Single sign-on (we can still do emailing login links, etc) everywhere
-User has a choice in wallet providers and storage providers&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Risks / Downsides&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;This tech, although on W3C standards track, is still raw / early&lt;/li&gt;
-&lt;li&gt;Possibly too many clicks?&lt;/li&gt;
-&lt;/ul&gt;
 
       </description>
     </item>

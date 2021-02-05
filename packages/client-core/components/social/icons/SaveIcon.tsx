@@ -1,6 +1,6 @@
 import * as React from "react";
 
-function SaveIcon(props: any) {
+export function SaveIcon(props: any) {
   return (
     <svg
       aria-label="Save"
@@ -14,5 +14,3 @@ function SaveIcon(props: any) {
     </svg>
   );
 }
-
-export default SaveIcon;

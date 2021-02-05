@@ -1,6 +1,6 @@
 import * as React from "react";
 
-function CommentIcon(props: any) {
+export function CommentIcon(props: any) {
   return (
     <svg
       aria-label="Comment"
@@ -18,5 +18,3 @@ function CommentIcon(props: any) {
     </svg>
   );
 }
-
-export default CommentIcon;

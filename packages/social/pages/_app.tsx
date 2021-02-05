@@ -2,7 +2,7 @@ import React from "react";
 import {
   RecoilRoot
 } from "recoil";
-import "../styles/index.css";
+import "../styles/index.module.css";
 
 export default function MyApp(props: any) {
 const {

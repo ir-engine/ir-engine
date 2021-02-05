@@ -29,7 +29,7 @@ import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import Layout from "@xr3ngine/client-core/components/ui/Layout";
+import { Layout} from "@xr3ngine/client-core/components/ui/Layout";
 import UserMenu from '@xr3ngine/client-core/components/ui/UserMenu';
 import { doLoginAuto } from "@xr3ngine/client-core/redux/auth/service";
 import styles from './harmony.module.scss';

@@ -1,9 +1,9 @@
 import React from "react";
-import ProfilePic from "./ProfilePic";
-import UsernameText from "./UsernameText";
+import { ProfilePic} from "./ProfilePic";
+import { UsernameText } from "./UsernameText";
 import Router from "next/router";
 
-export default function StoryItem({
+export function StoryItem({
   data
 }: any) {
   return (
@@ -11,7 +11,7 @@ export default function StoryItem({
       className="story-item w-20 flex-shrink-0 flex flex-col justify-center items-center cursor-pointer"
       onClick={() => Router.push("/[pid]", `/${data?.username || "username"}`)}
     >
-      <div className={"story-photo-container"}>
+      <div className="story-photo-container">
         <ProfilePic
           src={data?.image || "https://picsum.photos/seed/picsum/200/200"}
           username={data?.username}

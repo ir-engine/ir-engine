@@ -1,10 +1,10 @@
 import React from "react";
-import ProfilePic from "./ProfilePic";
-import RightBarSuggestions from "./RightBarSuggestions";
-import UsernameText from "./UsernameText";
-import LoginUserHook from "./GlobalHook";
+import { ProfilePic} from "./ProfilePic";
+import { RightBarSuggestions} from "./RightBarSuggestions";
+import { UsernameText } from "./UsernameText";
+import { LoginUserHook} from "./GlobalHook";
 
-export default function HomeRightBar({
+export function HomeRightBar({
   data
 }: any) {
   const loginUserData = LoginUserHook().data;

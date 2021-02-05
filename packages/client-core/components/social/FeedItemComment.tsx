@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import UsernameText from "./UsernameText";
+import { UsernameText } from "./UsernameText";
 
-export default function FeedItemComment({
+export function FeedItemComment({
   data
 }: any) {
   const [showMore, setShowMore] = useState(data?.description.length < 80);

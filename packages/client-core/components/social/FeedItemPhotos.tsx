@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import ArrowButton from "./ArrowButton";
+import { ArrowButton} from "./ArrowButton";
 
-export default function FeedItemPhotos({
+export function FeedItemPhotos({
   photos
 }: any) {
   const photoRef = useRef(0);

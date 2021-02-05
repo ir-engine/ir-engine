@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
-import StoryItem from "./StoryItem";
-import Box from "./Box";
-import ArrowButton from "./ArrowButton";
+import { StoryItem } from "./StoryItem";
+import { Box } from "./Box";
+import { ArrowButton} from "./ArrowButton";
 
-export default function Stories({
+export function Stories({
   stories
 }: any) {
   const [x, setX] = useState(0);
@@ -13,10 +13,10 @@ export default function Stories({
   const windowRef = useRef(null);
 
   useEffect(() => {
-    if (windowRef.current.clientWidth > 0) {
-      ((windowRef.current.clientWidth / 80) | 0) !== maxItems &&
-        ((windowRef.current.clientWidth / 80) | 0) <= 7 &&
-        setMaxItems((windowRef.current.clientWidth / 80) | 0);
+    if (windowRef.current && windowRef.current.clientWidth > 0) {
+      ((windowRef.current && windowRef.current.clientWidth / 80) | 0) !== maxItems &&
+        ((windowRef.current && windowRef.current.clientWidth / 80) | 0) <= 7 &&
+        setMaxItems((windowRef.current && windowRef.current.clientWidth / 80) | 0);
 
       setMinX(-((stories?.length - maxItems) * 80 + (5 - maxItems) * 15));
     }

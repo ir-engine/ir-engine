@@ -1,6 +1,6 @@
 import * as React from "react";
 
-function ExploreIcon(props: any) {
+export function ExploreIcon(props: any) {
   return (
     <svg
       aria-label="Explore"
@@ -18,5 +18,3 @@ function ExploreIcon(props: any) {
     </svg>
   );
 }
-
-export default ExploreIcon;

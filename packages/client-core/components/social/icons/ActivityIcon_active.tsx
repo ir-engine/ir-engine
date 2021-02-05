@@ -1,6 +1,6 @@
 import * as React from "react";
 
-function ActivityIconActive(props: any) {
+export function ActivityIconActive(props: any) {
   return (
     <svg
       aria-label="Activity"
@@ -14,5 +14,3 @@ function ActivityIconActive(props: any) {
     </svg>
   );
 }
-
-export default ActivityIconActive;
