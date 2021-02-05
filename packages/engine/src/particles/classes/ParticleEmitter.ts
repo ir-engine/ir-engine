@@ -155,7 +155,7 @@ export function deleteParticleEmitter(emitter: ParticleEmitter): void {
   for(let i = emitter.startIndex; i <= emitter.mesh.userData.nextIndex; i++){
     copyEmitterAttrs(geometry, i, shiftAmount);
   }
-  console.log(geometry.attributes);
+  // console.log(geometry.attributes);
   emitter.mesh.userData.nextIndex -= shiftAmount;
   const arrayEmitter = Array.from(emitterRegistry);
   for(let i = 0; i < emitterRegistry.size; i++) {
