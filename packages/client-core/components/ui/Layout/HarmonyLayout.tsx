@@ -1,33 +1,31 @@
-import React, {Fragment, useEffect, useState} from 'react';
-import { connect } from 'react-redux';
-import getConfig from 'next/config';
 import { ThemeProvider } from '@material-ui/core';
-import NavMenu from '../NavMenu';
+import getConfig from 'next/config';
 import Head from 'next/head';
-import Alerts from '../Common/Alerts';
-import UIDialog from '../Dialog/Dialog';
-import DrawerControls from '../DrawerControls';
-import LeftDrawer from '../Drawer/Left';
-import RightDrawer from '../Drawer/Right';
-import BottomDrawer from '../Drawer/Bottom';
+import { useRouter } from 'next/router';
+import React, { Fragment, useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
+import { setUserHasInteracted } from '../../../redux/app/actions';
 import { selectAppOnBoardingStep, selectAppState } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
 import { selectLocationState } from '../../../redux/location/selector';
-import PartyVideoWindows from '../PartyVideoWindows';
+import theme from '../../../theme';
+import Alerts from '../Common/Alerts';
+import UIDialog from '../Dialog/Dialog';
+import BottomDrawer from '../Drawer/Bottom';
+import LeftDrawer from '../Drawer/Left/LeftDrawer';
+import RightDrawer from '../Drawer/Right';
+import DrawerControls from '../DrawerControls';
 import InstanceChat from '../InstanceChat';
 import Me from '../Me';
-// import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
-import { useRouter } from 'next/router';
-import { generalStateList, setUserHasInteracted } from '../../../redux/app/actions';
-import { bindActionCreators, Dispatch } from 'redux';
-import theme from '../../../theme';
-// import { Network } from '@xr3ngine/engine/src/networking//classes/Network';
+import NavMenu from '../NavMenu';
+import PartyVideoWindows from '../PartyVideoWindows';
 
 const { publicRuntimeConfig } = getConfig();
 const siteTitle: string = publicRuntimeConfig.siteTitle;
 
 interface Props {
-  harmony?: boolean;
+  harmony: boolean;
   appState?: any;
   authState?: any;
   locationState?: any;
@@ -96,8 +94,6 @@ const Layout = (props: Props): any => {
       </Head>
       <header>
         { path === '/login' && <NavMenu login={login} />}
-        { harmony !== true && authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
-        { harmony !== true && <PartyVideoWindows />}
       </header>
       <Fragment>
         <UIDialog />
@@ -106,7 +102,7 @@ const Layout = (props: Props): any => {
       </Fragment>
       { authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&
         <Fragment>
-          <LeftDrawer harmony={harmony}  leftDrawerOpen={leftDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen}/>
+          <LeftDrawer harmony={harmony} leftDrawerOpen={leftDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen}/>
         </Fragment>
       }
       { authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&
@@ -120,7 +116,7 @@ const Layout = (props: Props): any => {
         </Fragment>
       }
       <footer>
-        { harmony === true && authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.id != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
+        { authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.id != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
             <DrawerControls disableBottom={true} setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/> }
 
         { locationState.get('currentLocation')?.get('location')?.id && 

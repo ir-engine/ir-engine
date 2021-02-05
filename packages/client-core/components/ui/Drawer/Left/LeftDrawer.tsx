@@ -110,7 +110,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 interface Props {
-    harmony: boolean;
+    openBottomDrawer: boolean;
     leftDrawerOpen: boolean;
     setLeftDrawerOpen: any;
     setRightDrawerOpen: any;
@@ -168,7 +168,7 @@ const LeftDrawer = (props: Props): any => {
             groupState,
             getGroups,
             createGroup,
-            harmony,
+            openBottomDrawer,
             patchGroup,
             removeGroup,
             removeGroupUser,
@@ -474,7 +474,7 @@ const LeftDrawer = (props: Props): any => {
 
         const openChat = (targetObjectType: string, targetObject: any): void => {
             setLeftDrawerOpen(false);
-            if (harmony !== true) setBottomDrawerOpen(true);
+            if (!openBottomDrawer) setBottomDrawerOpen(true);
             setTimeout(() => {
                 updateChatTarget(targetObjectType, targetObject);
                 updateMessageScrollInit(true);

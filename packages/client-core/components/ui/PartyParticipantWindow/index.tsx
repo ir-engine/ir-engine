@@ -147,14 +147,14 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     useEffect(() => {
         autorun(() => {
             if (peerId === 'me_cam') {
-                setVideoStream(MediaStreamSystem?.instance?.camVideoProducer);
-                setAudioStream(MediaStreamSystem?.instance?.camAudioProducer);
+                setVideoStream(MediaStreamSystem.instance.camVideoProducer);
+                setAudioStream(MediaStreamSystem.instance.camAudioProducer);
             } else if (peerId === 'me_screen') {
-                setVideoStream(MediaStreamSystem?.instance?.screenVideoProducer);
-                setAudioStream(MediaStreamSystem?.instance?.screenAudioProducer);
+                setVideoStream(MediaStreamSystem.instance.screenVideoProducer);
+                setAudioStream(MediaStreamSystem.instance.screenAudioProducer);
             } else {
-                setVideoStream(MediaStreamSystem?.instance?.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-video'));
-                setAudioStream(MediaStreamSystem?.instance?.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'));
+                setVideoStream(MediaStreamSystem.instance.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-video'));
+                setAudioStream(MediaStreamSystem.instance.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'));
             }
         });
     }, []);
@@ -215,12 +215,12 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     }, [videoStream]);
 
     useEffect(() => {
-        if (peerId === 'me_cam' || peerId === 'me_screen') setAudioStreamPaused(MediaStreamSystem?.instance?.audioPaused);
-    }, [MediaStreamSystem?.instance?.audioPaused]);
+        if (peerId === 'me_cam' || peerId === 'me_screen') setAudioStreamPaused(MediaStreamSystem.instance?.audioPaused);
+    }, [MediaStreamSystem.instance?.audioPaused]);
 
     useEffect(() => {
-        if (peerId === 'me_cam' || peerId === 'me_screen') setVideoStreamPaused(MediaStreamSystem?.instance?.videoPaused);
-    }, [MediaStreamSystem?.instance?.videoPaused]);
+        if (peerId === 'me_cam' || peerId === 'me_screen') setVideoStreamPaused(MediaStreamSystem.instance?.videoPaused);
+    }, [MediaStreamSystem.instance?.videoPaused]);
 
     const toggleVideo = async (e) => {
         e.stopPropagation();

@@ -108,7 +108,7 @@ export async function endVideoChat(options: { leftParty?: boolean, endConsumers?
     networkTransport = Network.instance.transport as any;
 
     try {
-        if (MediaStreamSystem?.instance?.camVideoProducer) {
+        if (MediaStreamSystem.instance.camVideoProducer) {
             if (networkTransport.socket?.connected === true)
                 await networkTransport.request(MessageTypes.WebRTCCloseProducer.toString(), {
                     producerId: MediaStreamSystem.instance.camVideoProducer.id
@@ -116,7 +116,7 @@ export async function endVideoChat(options: { leftParty?: boolean, endConsumers?
             await MediaStreamSystem.instance.camVideoProducer?.close();
         }
 
-        if (MediaStreamSystem?.instance?.camAudioProducer) {
+        if (MediaStreamSystem.instance.camAudioProducer) {
             if (networkTransport.socket?.connected === true)
                 await networkTransport.request(MessageTypes.WebRTCCloseProducer.toString(), {
                     producerId: MediaStreamSystem.instance.camAudioProducer.id
@@ -124,14 +124,14 @@ export async function endVideoChat(options: { leftParty?: boolean, endConsumers?
             await MediaStreamSystem.instance.camAudioProducer?.close();
         }
 
-        if (MediaStreamSystem?.instance?.screenVideoProducer) {
+        if (MediaStreamSystem.instance?.screenVideoProducer) {
             if (networkTransport.socket?.connected === true)
                 await networkTransport.request(MessageTypes.WebRTCCloseProducer.toString(), {
                     producerId: MediaStreamSystem.instance.screenVideoProducer.id
                 });
             await MediaStreamSystem.instance.screenVideoProducer?.close();
         }
-        if (MediaStreamSystem?.instance?.screenAudioProducer) {
+        if (MediaStreamSystem.instance?.screenAudioProducer) {
             if (networkTransport.socket?.connected === true)
                 await networkTransport.request(MessageTypes.WebRTCCloseProducer.toString(), {
                     producerId: MediaStreamSystem.instance.screenAudioProducer.id
@@ -140,7 +140,7 @@ export async function endVideoChat(options: { leftParty?: boolean, endConsumers?
         }
 
         if (options?.endConsumers === true) {
-            MediaStreamSystem?.instance?.consumers?.map(async (c) => {
+            MediaStreamSystem.instance?.consumers.map(async (c) => {
                 if (networkTransport.socket?.connected === true)
                     await networkTransport.request(MessageTypes.WebRTCCloseConsumer.toString(), {
                         consumerId: c.id
