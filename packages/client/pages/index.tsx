@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import NoSSR from 'react-no-ssr';
 import Loading from '@xr3ngine/client-core/components/scenes/loading';
-import { Layout} from '@xr3ngine/client-core/components/ui/Layout';
+import Layout from '@xr3ngine/client-core/components/ui/Layout';
 const isDev = typeof window !== "undefined" && window?.location?.href?.includes("localhost");
 export const IndexPage = (): any => {
     useEffect(() => {

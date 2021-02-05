@@ -1,6 +1,6 @@
 import Loading from '@xr3ngine/client-core/components/scenes/loading';
 import Scene from '@xr3ngine/client-core/components/scenes/location';
-import { Layout} from '@xr3ngine/client-core/components/ui/Layout';
+import Layout from '@xr3ngine/client-core/components/ui/Layout';
 import { useRouter } from 'next/router';
 import React from 'react';
 import NoSSR from 'react-no-ssr';

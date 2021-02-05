@@ -5,6 +5,11 @@ import notifier from './auth-management.notifier';
 import hooks from './auth-management.hooks';
 import authManagement from 'feathers-authentication-management';
 
+/**
+ * A function which register service for auth management 
+ * 
+ * @author Vyacheslav Solovjov
+ */
 declare module '../../declarations' {
   interface ServiceTypes {
     'authManagement': Authmanagement & ServiceAddons<any>;

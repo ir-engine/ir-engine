@@ -19,6 +19,11 @@ export default (app: Application): any => {
     paginate: app.get('paginate')
   };
 
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const event =  new Channel(options, app);
   event.docs = channelDocs;
   app.use('/channel', event);
@@ -27,6 +32,13 @@ export default (app: Application): any => {
 
   service.hooks(hooks);
 
+  /**
+   * A method which is used to create channel 
+   * 
+   * @param data which is parsed to create channel 
+   * @returns created channel data 
+   * @author Vyacheslav Solovjov
+   */
   service.publish('created', async (data): Promise<any> => {
     try {
       let targetIds;
@@ -178,6 +190,13 @@ export default (app: Application): any => {
     }
   });
 
+  /**
+   * A method used to update channel 
+   * 
+   * @param data which is used to update channel
+   * @returns updated channel data
+   * @author Vyacheslav Solovjov
+   */
   service.publish('patched', async (data): Promise<any> => {
     try {
       let targetIds;
@@ -329,6 +348,13 @@ export default (app: Application): any => {
     }
   });
 
+  /**
+   * A method used to remove specific channel 
+   * 
+   * @param data which contains userId! and userId2
+   * @returns deleted channel data 
+   * @author Vyacheslav Solovjov
+   */
   service.publish('removed', async (data): Promise<any> => {
     let targetIds;
     if (data.channelType === 'user') {

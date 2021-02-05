@@ -19,6 +19,11 @@ export default (app: Application): any => {
     multi: true
   };
   
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const event =  new Instance(options, app);
   event.docs = instanceDocs;
   app.use('/instance', event);
@@ -27,6 +32,13 @@ export default (app: Application): any => {
 
   service.hooks(hooks);
 
+  /**
+   * A method used to remove specific instance 
+   * 
+   * @param data 
+   * @returns deleted channel  
+   * @author Vyacheslav Solovjov
+   */
   service.publish('removed', async (data): Promise<any> => {
     try {
       const admins = await app.service('user').Model.findAll({

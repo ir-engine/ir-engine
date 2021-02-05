@@ -3,6 +3,10 @@ export default {
         authentication: {
             type: "object",
             properties: {
+               strategy: {
+                 type: "string",
+                 default: "local"
+               },
                email: {
                    type: "string"
                },
