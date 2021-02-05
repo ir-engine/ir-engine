@@ -6,6 +6,7 @@ import { CharacterInputSchema } from "@xr3ngine/engine/src/templates/character/C
 import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/CharacterStateSchema";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
+import { CameraModes } from "../../../camera/types/CameraModes";
 import { addComponentFromSchema } from "../../../common/behaviors/addComponentFromSchema";
 import { Interactor } from "../../../interaction/components/Interactor";
 import { initializeCreatorCharacter } from "../behaviors/initializeCreatorCharacter";
@@ -23,7 +24,7 @@ export const CreatorCharacter: Prefab = {
         // Local player input mapped to behaviors in the input map
         { type: Input, data: { schema: CharacterInputSchema } },
         // Follow Camera for thet entity
-        { type: FollowCameraComponent, data: { distance: 3, mode: "thirdPersonLocked" } },
+        { type: FollowCameraComponent, data: { distance: 3, mode: CameraModes.ThirdPerson } },
         // Current state (isJumping, isidle, etc)
         { type: State, data: { schema: CharacterStateSchema } },
         { type: Interactor }
