@@ -1,7 +1,4 @@
 import { ParticleEmitter } from "../components/ParticleEmitter";
-import {
-  Matrix4,
-} from "three";
 import { addComponent, getComponent } from "../../ecs/functions/EntityFunctions";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { isClient } from "../../common/functions/isClient";
@@ -47,6 +44,7 @@ export const fragmentShader = `
 `;
 
 export const createParticleEmitter = (entity, configs): void => {
+  if (!isClient) return;
   ParticleEmitterMesh.fromArgs(configs.objArgs).then(mesh => {
     addComponent(entity, ParticleEmitter, { particleEmitterMesh: mesh });
     Engine.scene.add(mesh);
@@ -55,38 +53,12 @@ export const createParticleEmitter = (entity, configs): void => {
 
 export const applyTransform = (entity, emitter): void => {
   if (!isClient) return;
-  const transform = getComponent(entity, TransformComponent);
-  const transformMatrix = new Matrix4();
-  transformMatrix.compose(
-    transform.position,
-    transform.rotation,
-    transform.scale,
-  );
-  emitter.applyMatrix4(transformMatrix)  
+  const mesh = emitter.particleEmitterMesh;
+  if (mesh) {
+    const transform = getComponent(entity, TransformComponent);
+    mesh.position.set(transform.position.x, transform.position.y, transform.position.z);
+    mesh.quaternion.set(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w);
+    mesh.scale.set(transform.scale.x, transform.scale.y, transform.scale.z);
+    mesh.updateMatrix();
+  }
 }
-
-// export const applyTransform = (entity, childMatrix = undefined) => {
-//     const object3D = getComponent(entity, Object3DComponent);
-//     const transform = getComponent<TransformComponent>(entity, TransformComponent);
-
-//     if (object3D) {
-//       return childMatrix ? childMatrix.multiply(object3D["value"].matrixWorld) : object3D["value"].matrixWorld;
-//     } else if (transform) {
-//       const transformMatrix = new Matrix4();
-//       const scale = new Vector3();
-//       transformMatrix.compose(
-//         transform.position,
-//         transform.rotation,
-//         scale.set(1, 1, 1)
-//       );
-
-//       if (childMatrix) {
-//         transformMatrix.premultiply(childMatrix);
-//       }
-
-//       const parent = getComponent(entity, TransformParentComponent);
-//       return parent ? applyTransform(parent['value'], transformMatrix) : transformMatrix;
-//     } else {
-//       return new Matrix4();
-//     }
-//   };
