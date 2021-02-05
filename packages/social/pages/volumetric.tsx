@@ -8,12 +8,12 @@ export const IndexPage = (props: any): any => {
     return (
         <div className={styles.viewport}>
             <h1>Arc volumetric test</h1>
-          {/* <Canvas>
+          {/* <Canvas> */}
             <VolumetricPlayer
               meshFilePath={meshFilePath}
               videoFilePath={videoFilePath}
             />
-          </Canvas> */}
+          {/* </Canvas> */}
         </div>
     );
 };
