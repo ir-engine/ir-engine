@@ -18,7 +18,7 @@ import { defaultSettings, SettingsContextProvider } from "./contexts/SettingsCon
 import ConfirmDialog from "./dialogs/ConfirmDialog";
 import ErrorDialog from "./dialogs/ErrorDialog";
 import ExportProjectDialog from "./dialogs/ExportProjectDialog";
-import ProgressDialog from "./dialogs/ProgressDialog";
+import { ProgressDialog } from "./dialogs/ProgressDialog";
 import SaveNewProjectDialog from "./dialogs/SaveNewProjectDialog";
 import DragLayer from "./dnd/DragLayer";
 import Editor from "./Editor";

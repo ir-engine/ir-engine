@@ -5,7 +5,7 @@ import { RethrownError } from "@xr3ngine/engine/src/editor/functions/errors";
 import { AudioFileTypes, matchesFileTypes } from "./assets/fileTypes";
 import configs from "./configs";
 import PerformanceCheckDialog from "./dialogs/PerformanceCheckDialog";
-import ProgressDialog from "./dialogs/ProgressDialog";
+import { ProgressDialog } from "./dialogs/ProgressDialog";
 import PublishDialog from "./dialogs/PublishDialog";
 import PublishedSceneDialog from "./dialogs/PublishedSceneDialog";
 const resolveUrlCache = new Map();

@@ -1,6 +1,6 @@
 import { useCallback, useContext } from "react";
 import ErrorDialog from "../dialogs/ErrorDialog";
-import ProgressDialog from "../dialogs/ProgressDialog";
+import { ProgressDialog } from "../dialogs/ProgressDialog";
 import { DialogContext } from "../contexts/DialogContext";
 import { EditorContext } from "../contexts/EditorContext";
 import { AllFileTypes } from "./fileTypes";
