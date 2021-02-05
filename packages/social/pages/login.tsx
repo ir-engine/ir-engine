@@ -6,6 +6,8 @@ import React from 'react';
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
 
+import FlatSignIn from '@xr3ngine/client-core/components/social/Login';
+
 interface Props {
     authState?: any;
     instanceConnectionState?: any;
@@ -31,7 +33,7 @@ export const IndexPage = (props: any): any => {
   // <Button className="right-bottom" variant="contained" color="secondary" aria-label="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }}>scene</Button>
 
   return(
-    <Layout pageTitle="Home" login={true} />
+    <FlatSignIn />
   );
 };
 
