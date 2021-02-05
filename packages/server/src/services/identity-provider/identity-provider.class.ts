@@ -7,6 +7,12 @@ interface Data {
   userId: string;
 }
 
+/**
+ * A class for identity-provider service 
+ * 
+ * @author Vyacheslav Solovjov
+ */
+
 export class IdentityProvider extends Service {
   public app: Application
   public docs: any
@@ -16,6 +22,13 @@ export class IdentityProvider extends Service {
     this.app = app;
   }
 
+  /**
+   * A method used to create accessToken 
+   * 
+   * @param data which contains token and type
+   * @param params
+   * @returns accessToken  
+   */
   async create (data: any, params: any): Promise<any> {
     const {
       token,

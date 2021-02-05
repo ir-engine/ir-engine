@@ -17,6 +17,12 @@ export default (app: Application): any => {
     paginate: app.get('paginate'),
     multi: true
   };
+  
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
 
   const event = new ComponentType(options, app);
   event.docs = componentTypeDocs;

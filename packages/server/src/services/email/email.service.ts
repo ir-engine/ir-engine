@@ -14,6 +14,12 @@ declare module '../../declarations' {
 }
 
 export default (app: Application): void => {
+
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const event = Mailer(smtpTransport({ ...config.email.smtp }));
   event.docs =  emailDocs;
   app.use('/email',  event );
