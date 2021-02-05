@@ -61,7 +61,8 @@ const userReducer = (state = immutableState, action: UserAction): any => {
         layerUsers = layerUsers.map((layerUser) => layerUser.id === newUser.id ? newUser : layerUser);
       }
       return state
-          .set('layerUsers', layerUsers);
+          .set('layerUsers', layerUsers)
+          .set('layerUsersUpdateNeeded', true);
 
     case REMOVED_LAYER_USER:
       newUser = (action as RemovedLayerUserAction).user;
