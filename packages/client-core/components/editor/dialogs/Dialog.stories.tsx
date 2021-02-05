@@ -1,5 +1,5 @@
 import React from "react";
-import Dialog from "./Dialog";
+import { UIDialog } from "./Dialog";
 export default {
   title: "Dialog",
   component: Dialog

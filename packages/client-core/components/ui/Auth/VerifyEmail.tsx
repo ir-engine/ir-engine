@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
-import EmptyLayout from '../Layout/EmptyLayout';
+import { EmptyLayout }from '../Layout/EmptyLayout';
 import { verifyEmail } from '../../../redux/auth/service';
 import styles from './Auth.module.scss';
 

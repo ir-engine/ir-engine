@@ -196,8 +196,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       this.socket.on(MessageTypes.WebRTCCreateProducer.toString(), async (socketId, mediaTag, producerId, channelType, channelId) => {
         const selfProducerIds = [
-          MediaStreamSystem.camVideoProducer?.id,
-          MediaStreamSystem.camAudioProducer?.id
+          MediaStreamSystem.instance?.camVideoProducer?.id,
+          MediaStreamSystem.instance?.camAudioProducer?.id
         ];
         if (
           // (MediaStreamSystem.mediaStream !== null) &&

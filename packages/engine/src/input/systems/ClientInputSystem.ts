@@ -25,6 +25,7 @@ import { Input } from '../components/Input';
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
 import { XRControllersComponent } from '../components/XRControllersComponent';
 import { InputType } from "../enums/InputType";
+import { initVR } from "../functions/WebXRFunctions";
 import { InputValue } from "../interfaces/InputValue";
 import { InputAlias } from "../types/InputAlias";
 /**
@@ -192,6 +193,7 @@ export class InputSystem extends System {
 
     // Called when input component is added to entity
     this.queryResults.localClientInput.added?.forEach(entity => {
+      initVR(entity);
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
       if (this._inputComponent === undefined)

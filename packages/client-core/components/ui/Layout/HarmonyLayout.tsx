@@ -10,8 +10,8 @@ import { selectAppOnBoardingStep, selectAppState } from '../../../redux/app/sele
 import { selectAuthState } from '../../../redux/auth/selector';
 import { selectLocationState } from '../../../redux/location/selector';
 import theme from '../../../theme';
-import Alerts from '../Common/Alerts';
-import UIDialog from '../Dialog/Dialog';
+import { Alerts } from '../Common/Alerts';
+import { UIDialog } from '../Dialog/Dialog';
 import BottomDrawer from '../Drawer/Bottom';
 import LeftDrawer from '../Drawer/Left/LeftDrawer';
 import RightDrawer from '../Drawer/Right';
@@ -25,7 +25,6 @@ const { publicRuntimeConfig } = getConfig();
 const siteTitle: string = publicRuntimeConfig.siteTitle;
 
 interface Props {
-  harmony: boolean;
   appState?: any;
   authState?: any;
   locationState?: any;
@@ -51,7 +50,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const Layout = (props: Props): any => {
   const path = useRouter().pathname;
   const {
-      harmony,
       pageTitle,
       children,
       appState,
@@ -102,7 +100,7 @@ const Layout = (props: Props): any => {
       </Fragment>
       { authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&
         <Fragment>
-          <LeftDrawer harmony={harmony} leftDrawerOpen={leftDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen}/>
+          <LeftDrawer openBottomDrawer={true} leftDrawerOpen={leftDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen}/>
         </Fragment>
       }
       { authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&

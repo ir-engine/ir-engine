@@ -15,7 +15,7 @@ import { selectAuthState } from '../../../redux/auth/selector';
 import { loginUserByPassword, addConnectionByPassword } from '../../../redux/auth/service';
 import { showDialog, closeDialog } from '../../../redux/dialog/service';
 import SignUp from './Register';
-import ForgotPassword from './ForgotPassword';
+import { ForgotPassword }from './ForgotPassword';
 import styles from './Auth.module.scss';
 import { User } from '@xr3ngine/common/interfaces/User';
 
