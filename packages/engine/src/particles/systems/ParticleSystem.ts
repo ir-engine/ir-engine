@@ -21,7 +21,7 @@ export class ParticleSystem extends System {
 
     this.queryResults.emitters.all?.forEach(entity => {
       const emitter = getMutableComponent(entity, ParticleEmitter) as ParticleEmitter;
-      // applyTransform(entity, emitter);
+      applyTransform(entity, emitter);
       emitter.particleEmitterMesh?.update(deltaTime);
     });
 
