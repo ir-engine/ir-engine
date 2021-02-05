@@ -269,7 +269,7 @@ export const EnginePage = (props: Props) => {
         break;
       case 'infoBox':
       case 'mediaSource':
-        setInfoBoxData(event.detail.payload);
+        setModalData(event.detail.payload);
         setObjectActivated(true);
         break;
       default:

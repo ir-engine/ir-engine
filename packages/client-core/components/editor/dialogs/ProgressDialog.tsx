@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import Dialog from "./Dialog";
+import { UIDialog } from "./Dialog";
 import ProgressBar from "../inputs/ProgressBar";
 import styled from "styled-components";
 

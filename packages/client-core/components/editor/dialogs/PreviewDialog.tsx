@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import Dialog from "./Dialog";
+import { UIDialog } from "./Dialog";
 import styled from "styled-components";
 
 const LeftContent = (styled as any).div`

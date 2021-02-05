@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import styled, { ThemeContext } from "styled-components";
-import Dialog from "./Dialog";
+import { UIDialog } from "./Dialog";
 import { bytesToSize } from "@xr3ngine/engine/src/editor/functions/utils";
 
 const ColoredText = (styled as any).span`

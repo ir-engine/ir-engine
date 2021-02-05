@@ -27,7 +27,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   closeDialog: bindActionCreators(closeDialog, dispatch)
 });
 
-const UIDialog = (props: Props): any => {
+const DialogComponent = (props: Props): any => {
   const { dialog, closeDialog } = props;
   const isOpened = dialog.get('isOpened');
   const content = dialog.get('content');
@@ -63,6 +63,6 @@ const UIDialog = (props: Props): any => {
   );
 };
 
-const DialogWrapper = (props: any): any => <UIDialog {...props } />;
+const DialogWrapper = (props: any): any => <DialogComponent {...props } />;
 
-export default connect(mapStateToProps, mapDispatchToProps)(DialogWrapper);
+export const UIDialog = connect(mapStateToProps, mapDispatchToProps)(DialogWrapper);

@@ -2,7 +2,7 @@ import React, { useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import BooleanInput from "../inputs/BooleanInput";
 import FormField from "../inputs/FormField";
-import Dialog from "./Dialog";
+import { UIDialog } from "./Dialog";
 import styled from "styled-components";
 
 const FormContainer = (styled as any).div`

@@ -67,7 +67,7 @@ export async function configureMediaTransports(channelType, channelId?: string):
 export async function createCamVideoProducer(channelType: string, channelId?: string): Promise<void> {
     if (MediaStreamSystem.instance.mediaStream !== null && networkTransport.videoEnabled === true) {
         const transport = channelType === 'instance' ? networkTransport.instanceSendTransport : networkTransport.channelSendTransport;
-        MediaStreamSystem.instance?.camVideoProducer = await transport.produce({
+        MediaStreamSystem.instance.camVideoProducer = await transport.produce({
             track: MediaStreamSystem.instance.mediaStream.getVideoTracks()[0],
             encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
             appData: { mediaTag: "cam-video", channelType: channelType, channelId: channelId }
@@ -95,7 +95,7 @@ export async function createCamAudioProducer(channelType: string, channelId?: st
         const transport = channelType === 'instance' ? networkTransport.instanceSendTransport : networkTransport.channelSendTransport;
 
         // Create a new transport for audio and start producing
-        MediaStreamSystem.instance?.camAudioProducer = await transport.produce({
+        MediaStreamSystem.instance.camAudioProducer = await transport.produce({
             track: MediaStreamSystem.instance.mediaStream.getAudioTracks()[0],
             appData: { mediaTag: "cam-audio", channelType: channelType, channelId: channelId }
         });
@@ -166,8 +166,8 @@ export async function endVideoChat(options: { leftParty?: boolean, endConsumers?
 
 export function resetProducer(): void {
     if (MediaStreamSystem) {
-        MediaStreamSystem.instance?.camVideoProducer = null;
-        MediaStreamSystem.instance?.camAudioProducer = null;
+        MediaStreamSystem.instance.camVideoProducer = null;
+        MediaStreamSystem.instance.camAudioProducer = null;
         MediaStreamSystem.instance.screenVideoProducer = null;
         MediaStreamSystem.instance.screenAudioProducer = null;
         MediaStreamSystem.instance.mediaStream = null;
@@ -398,8 +398,8 @@ export async function leave(): Promise<boolean> {
         networkTransport.channelSendTransport = null;
         networkTransport.lastPollSyncData = {};
         if (MediaStreamSystem) {
-            MediaStreamSystem.instance?.camVideoProducer = null;
-            MediaStreamSystem.instance?.camAudioProducer = null;
+            MediaStreamSystem.instance.camVideoProducer = null;
+            MediaStreamSystem.instance.camAudioProducer = null;
             MediaStreamSystem.instance.screenVideoProducer = null;
             MediaStreamSystem.instance.screenAudioProducer = null;
             MediaStreamSystem.instance.mediaStream = null;

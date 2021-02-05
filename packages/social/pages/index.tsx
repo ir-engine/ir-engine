@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Header } from "@xr3ngine/client-core/components/social//Header";
 
 import { Layout } from "@xr3ngine/client-core/components/social/Layout";
 import { Stories } from "@xr3ngine/client-core/components/social/Stories";
@@ -7,9 +8,9 @@ import { HomeRightBar } from "@xr3ngine/client-core/components/social/HomeRightB
 import { MoreModalItems } from "@xr3ngine/client-core/components/social/more-modal";
 
 // TODO: HANDLE
-import { LoginUserHook} from "@xr3ngine/client-core/components/social/GlobalHook";
+import { LoginUserHook } from "@xr3ngine/client-core/components/social/GlobalHook";
 
-export default function Home() {
+export default function Home({ children }) {
   const { data, setLoginUser } = LoginUserHook();
 
   const [loginData, setLoginData] = useState(null);
@@ -40,19 +41,19 @@ export default function Home() {
       .then((data) => setStories(data));
   }, []);
 
-  return <>
-    {loginData && (
-      <Layout user={loginData}>
-        {/* <MoreModalItems /> */}
-        <div className="homepage-feed lg:mr-8 flex flex-col ">
-          {/* <Stories stories={stories} /> */}
+  return (<>
+    <div className="container homepage-container flex justify-center">
+      <Header user={loginData} />
+      {/* <MoreModalItems /> */}
+      {/* <Stories stories={stories} /> */}
+      {/* <div className="homepage-feed lg:mr-8 flex flex-col ">
           {feed &&
             feed.map((item: any) => {
               return <FeedItem data={item} key={item.pid} />;
             })}
-        </div>
-        {/* <HomeRightBar data={suggestions} /> */}
-      </Layout>
-    )}
-  </>;
+        </div> */}
+      {/* <HomeRightBar data={suggestions} /> */}
+    </div>
+  </>
+  )
 }

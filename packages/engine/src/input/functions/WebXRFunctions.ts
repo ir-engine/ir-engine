@@ -147,7 +147,8 @@ export function initVR (actorEntity) {
 
 	button = document.createElement( 'button' );
 	button.id = 'VRButton';
-	button.style.display = 'none';
+	// if (!(navigator as any).xr.isSessionSupported( 'immersive-vr' ))
+	// 	button.style.display = 'none';
 
 	stylizeElement( button );
 
