@@ -363,22 +363,22 @@ const HarmonyPage = (props: Props): any => {
     const toggleAudio = async(channelId) => {
         await checkMediaStream('channel', channelId);
 
-        if (MediaStreamComponent.instance.camAudioProducer == null) await createCamAudioProducer('channel', channelId);
+        if (MediaStreamSystem.instance?.camAudioProducer == null) await createCamAudioProducer('channel', channelId);
         else {
-            const audioPaused = MediaStreamComponent.instance.toggleAudioPaused();
-            if (audioPaused === true) await pauseProducer(MediaStreamComponent.instance.camAudioProducer);
-            else await resumeProducer(MediaStreamComponent.instance.camAudioProducer);
+            const audioPaused = MediaStreamSystem.instance?.toggleAudioPaused();
+            if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer);
+            else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer);
             checkEndVideoChat();
         }
     };
 
     const toggleVideo = async(channelId) => {
         await checkMediaStream('channel', channelId);
-        if (MediaStreamComponent.instance.camVideoProducer == null) await createCamVideoProducer('channel', channelId);
+        if (MediaStreamSystem.instance?.camVideoProducer == null) await createCamVideoProducer('channel', channelId);
         else {
-            const videoPaused = MediaStreamComponent.instance.toggleVideoPaused();
-            if (videoPaused === true) await pauseProducer(MediaStreamComponent.instance.camVideoProducer);
-            else await resumeProducer(MediaStreamComponent.instance.camVideoProducer);
+            const videoPaused = MediaStreamSystem.instance?.toggleVideoPaused();
+            if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer);
+            else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer);
             checkEndVideoChat();
         }
     };

@@ -76,7 +76,7 @@ const MediaIconsBox = observer((props) =>{
     };
 
     const checkEndVideoChat = async () =>{
-        if((MediaStreamSystem.instance.audioPaused || MediaStreamSystem.instance.camAudioProducer == null) && (MediaStreamSystem.instance.videoPaused || MediaStreamSystem.instance.camVideoProducer == null)) {
+        if((MediaStreamSystem.instance.audioPaused || MediaStreamSystem.instance?.camAudioProducer == null) && (MediaStreamSystem.instance.videoPaused || MediaStreamSystem.instance?.camVideoProducer == null)) {
             await endVideoChat({});
         }
     };
@@ -84,11 +84,11 @@ const MediaIconsBox = observer((props) =>{
         const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId;
         await checkMediaStream(partyId);
 
-        if (MediaStreamSystem.instance.camAudioProducer == null) await createCamAudioProducer(partyId);
+        if (MediaStreamSystem.instance?.camAudioProducer == null) await createCamAudioProducer(partyId);
         else {
             const audioPaused = MediaStreamSystem.instance.toggleAudioPaused();
-            if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance.camAudioProducer);
-            else await resumeProducer(MediaStreamSystem.instance.camAudioProducer);
+            if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer);
+            else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer);
             checkEndVideoChat();
         }
     };
@@ -96,11 +96,11 @@ const MediaIconsBox = observer((props) =>{
     const handleCamClick = async () => {
         const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId;
         await checkMediaStream(partyId);
-        if (MediaStreamSystem.instance.camVideoProducer == null) await createCamVideoProducer(partyId);
+        if (MediaStreamSystem.instance?.camVideoProducer == null) await createCamVideoProducer(partyId);
         else {
             const videoPaused = MediaStreamSystem.instance.toggleVideoPaused();
-            if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance.camVideoProducer);
-            else await resumeProducer(MediaStreamSystem.instance.camVideoProducer);
+            if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer);
+            else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer);
             checkEndVideoChat();
         }
     };

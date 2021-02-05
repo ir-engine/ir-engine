@@ -147,8 +147,8 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     useEffect(() => {
         autorun(() => {
             if (peerId === 'me_cam') {
-                setVideoStream(MediaStreamSystem.instance.camVideoProducer);
-                setAudioStream(MediaStreamSystem.instance.camAudioProducer);
+                setVideoStream(MediaStreamSystem.instance?.camVideoProducer);
+                setAudioStream(MediaStreamSystem.instance?.camAudioProducer);
             } else if (peerId === 'me_screen') {
                 setVideoStream(MediaStreamSystem.instance.screenVideoProducer);
                 setAudioStream(MediaStreamSystem.instance.screenAudioProducer);
@@ -226,8 +226,8 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
         e.stopPropagation();
         if (peerId === 'me_cam') {
             const videoPaused = MediaStreamSystem.instance.toggleVideoPaused();
-            if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance.camVideoProducer);
-            else await resumeProducer(MediaStreamSystem.instance.camVideoProducer);
+            if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer);
+            else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer);
             setVideoStreamPaused(videoStream.paused);
         } else if (peerId === 'me_screen') {
             const videoPaused = MediaStreamSystem.instance.toggleScreenShareVideoPaused();
@@ -249,8 +249,8 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
         e.stopPropagation();
         if (peerId === 'me_cam') {
             const audioPaused = MediaStreamSystem.instance.toggleAudioPaused();
-            if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance.camAudioProducer);
-            else await resumeProducer(MediaStreamSystem.instance.camAudioProducer);
+            if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer);
+            else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer);
             setAudioStreamPaused(audioPaused);
         } else if (peerId === 'me_screen') {
             const audioPaused = MediaStreamSystem.instance.toggleScreenShareAudioPaused();
