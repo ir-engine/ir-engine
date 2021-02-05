@@ -22,7 +22,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   refreshConnections: bindActionCreators(refreshConnections, dispatch)
 });
 
-const GoogleCallback = (props: Props): any => {
+const GoogleCallbackComponent = (props: Props): any => {
   const { auth, loginUserByJwt, refreshConnections, router } = props;
 
   const initialState = { error: '', token: '' };
@@ -60,10 +60,10 @@ const GoogleCallback = (props: Props): any => {
 
 const GoogleCallbackWrapper = (props: any): any => {
   const router = useRouter();
-  return <GoogleCallback {...props} router={router} />;
+  return <GoogleCallbackComponent {...props} router={router} />;
 };
 
-export default connect(
+export const GoogleCallback = connect(
   mapStateToProps,
   mapDispatchToProps
 )(GoogleCallbackWrapper);

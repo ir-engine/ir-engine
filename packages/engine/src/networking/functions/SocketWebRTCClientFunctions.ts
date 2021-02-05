@@ -80,7 +80,7 @@ export async function createCamVideoProducer(channelType: string, channelId?: st
 export async function createCamAudioProducer(channelType: string, channelId?: string): Promise<void> {
     if (MediaStreamSystem.instance.mediaStream !== null) {
         //To control the producer audio volume, we need to clone the audio track and connect a Gain to it.
-        //This Gain is saved on MediaStreamComponent so it can be accessed from the user's component and controlled.
+        //This Gain is saved on MediaStreamSystem so it can be accessed from the user's component and controlled.
         const audioTrack = MediaStreamSystem.instance.mediaStream.getAudioTracks()[0];
         const ctx = new AudioContext();
         const src = ctx.createMediaStreamSource(new MediaStream([audioTrack]));

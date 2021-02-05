@@ -13,7 +13,7 @@ interface Props {
   verifyEmail: typeof verifyEmail;
 }
 
-const VerifyEmail = (props: Props): any => {
+export const VerifyEmail = (props: Props): any => {
   const { verifyEmail, token } = props;
 
   useEffect(() => {
@@ -38,5 +38,3 @@ const VerifyEmail = (props: Props): any => {
     </EmptyLayout>
   );
 };
-
-export default VerifyEmail;

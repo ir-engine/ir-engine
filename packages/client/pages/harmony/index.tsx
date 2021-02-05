@@ -37,7 +37,6 @@ import { Message } from '@xr3ngine/common/interfaces/Message';
 import { User } from '@xr3ngine/common/interfaces/User';
 import { DefaultInitializationOptions, initializeEngine } from "@xr3ngine/engine/src/initialize";
 import { SocketWebRTCClientTransport } from "@xr3ngine/engine/src/networking/classes/SocketWebRTCClientTransport";
-import { MediaStreamComponent } from "@xr3ngine/engine/src/networking/components/MediaStreamComponent";
 import {
     configureMediaTransports,
     createCamAudioProducer,
@@ -47,6 +46,7 @@ import {
     resumeProducer
 } from "@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions";
 import { NetworkSchema } from "@xr3ngine/engine/src/networking/interfaces/NetworkSchema";
+import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
 import { DefaultNetworkSchema } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
 import classNames from 'classnames';
 import moment from 'moment';
@@ -327,12 +327,12 @@ const HarmonyPage = (props: Props): any => {
     };
 
     const checkMediaStream = async (channelType: string, channelId: string) => {
-        if (!MediaStreamComponent?.instance?.mediaStream)
+        if (!MediaStreamSystem.instance?.mediaStream)
             await configureMediaTransports(channelType, channelId);
     };
 
     const checkEndVideoChat = async () =>{
-        if((MediaStreamComponent?.instance?.audioPaused || MediaStreamComponent?.instance?.camAudioProducer == null) && (MediaStreamComponent?.instance?.videoPaused || MediaStreamComponent?.instance?.camVideoProducer == null)) {
+        if((MediaStreamSystem.instance?.audioPaused || MediaStreamSystem.instance?.camAudioProducer == null) && (MediaStreamSystem.instance?.videoPaused || MediaStreamSystem.instance?.camVideoProducer == null)) {
             await endVideoChat({});
         }
     };
@@ -383,8 +383,8 @@ const HarmonyPage = (props: Props): any => {
         }
     };
 
-    const audioPaused = MediaStreamComponent?.instance?.mediaStream === null || MediaStreamComponent?.instance?.camAudioProducer == null || MediaStreamComponent?.instance?.audioPaused === true;
-    const videoPaused = MediaStreamComponent?.instance?.mediaStream === null || MediaStreamComponent?.instance?.camVideoProducer == null || MediaStreamComponent?.instance?.videoPaused === true;
+    const audioPaused = MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camAudioProducer == null || MediaStreamSystem.instance?.audioPaused === true;
+    const videoPaused = MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camVideoProducer == null || MediaStreamSystem.instance?.videoPaused === true;
     async function init(): Promise<any> {
         const networkSchema: NetworkSchema = {
             ...DefaultNetworkSchema,
@@ -417,7 +417,7 @@ const HarmonyPage = (props: Props): any => {
     }, [instanceConnectionState]);
 
     return (
-        <Layout harmony={true} pageTitle="Home">
+        <Layout pageTitle="Home">
             <style global jsx>{`
               html,
               body,
