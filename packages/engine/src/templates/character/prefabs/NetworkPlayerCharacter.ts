@@ -1,5 +1,6 @@
 import { PositionalAudioComponent } from '../../../audio/components/PositionalAudioComponent';
 import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
+import { CameraModes } from '../../../camera/types/CameraModes';
 import { Input } from '../../../input/components/Input';
 import { LocalInputReceiver } from '../../../input/components/LocalInputReceiver';
 import { Interactor } from '../../../interaction/components/Interactor';
@@ -36,7 +37,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
   // These are only created for the local player who owns this prefab
   localClientComponents: [
     { type: LocalInputReceiver },
-    { type: FollowCameraComponent, data: { distance: 3, mode: "thirdPersonLocked" } },
+    { type: FollowCameraComponent, data: { distance: 3, mode: CameraModes.ThirdPerson } },
     { type: Interactor }
   
   ],
