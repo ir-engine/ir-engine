@@ -2,12 +2,7 @@ import { CameraComponent } from '@xr3ngine/engine/src/camera/components/CameraCo
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
 import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
-import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
-import { loadScene } from "@xr3ngine/engine/src/scene/functions/SceneLoading";
-import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
 import { DefaultNetworkSchema, PrefabType } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
-import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import dynamic from 'next/dynamic';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -15,13 +10,12 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { Network } from "@xr3ngine/engine/src/networking/components/Network";
 import { loadActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/loadActorAvatar";
 import { setActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/setActorAvatar";
-import { SocketWebRTCClientTransport } from '../../classes/transports/SocketWebRTCClientTransport';
 import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '../../redux/app/actions';
 import { selectAppOnBoardingStep } from '../../redux/app/selector';
 import { selectAuthState } from '../../redux/auth/selector';
-import { client } from '../../redux/feathers';
 import store from '../../redux/store';
 import { InfoBox } from '../ui/InfoBox';
+import { OpenLink } from '../ui/OpenLink';
 import LinearProgressComponent from '../ui/LinearProgress';
 import MediaIconsBox from "../ui/MediaIconsBox";
 import NetworkDebug from '../ui/NetworkDebug/NetworkDebug';
@@ -31,8 +25,6 @@ import TooltipContainer from '../ui/TooltipContainer';
 import LoadedSceneButtons from '../ui/LoadedSceneButtons';
 import SceneTitle from '../ui/SceneTitle';
 import NamePlate from '../ui/NamePlate';
-import { number } from 'prop-types';
-import { Vector3 } from 'three';
 import { selectUserState } from '../../redux/user/selector';
 import { CharacterAvatarComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterAvatarComponent';
 
@@ -74,6 +66,7 @@ export const EnginePage = (props: Props) => {
   const [actorEntity, setActorEntity] = useState(null);
   const [actorAvatarId, setActorAvatarId] = useState(currentUser?.avatarId);
   const [infoBoxData, setInfoBoxData] = useState(null);
+  const [openLinkData, setOpenLinkData] = useState(null);
   const [progressEntity, setProgressEntity] = useState('');
   const [userHovered, setonUserHover] = useState(false);
   const [userId, setonUserId] = useState(null);
@@ -107,8 +100,20 @@ export const EnginePage = (props: Props) => {
   };
 
   const onObjectActivation = (event: CustomEvent): void => {
-    setInfoBoxData(event.detail.payload);
-    setObjectActivated(true);
+    switch (event.detail.action) {
+      case 'link':
+        console.log('=======onObjectActivation====',event.detail.payload);
+        setOpenLinkData(event.detail.payload);
+        setObjectActivated(true);
+        break;
+      case 'infoBox':
+      case 'mediaSource':
+        setInfoBoxData(event.detail.payload);
+        setObjectActivated(true);
+        break;
+      default:
+        break;
+    }
   };
 
   const addEventListeners = () => {
@@ -168,6 +173,7 @@ export const EnginePage = (props: Props) => {
       { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
       {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}
       <InfoBox onClose={() => { setInfoBoxData(null); setObjectActivated(false); }} data={infoBoxData} />
+      <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); }} data={openLinkData} />
       {mobileGamepad}
     </>
   );
