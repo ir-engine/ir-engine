@@ -1,4 +1,4 @@
-import { Vector3 } from 'three';
+import { Quaternion, Vector3 } from 'three';
 import { Object3DComponent } from '@xr3ngine/engine/src/common/components/Object3DComponent';
 import { cannonFromThreeVector } from "@xr3ngine/engine/src/common/functions/cannonFromThreeVector";
 import { isClient } from '@xr3ngine/engine/src/common/functions/isClient';
@@ -44,6 +44,8 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
   springMovement(entity, null, deltaTime);
   rotateModel(entity);
 
+  updateIK(entity);
+
     if (!isClient) {
       actorTransform.position.set(
         actor.actorCapsule.body.position.x,
@@ -85,3 +87,51 @@ if (isClient) {
 
   }
 };
+
+var lastRightGamePad = null;
+
+function updateIK(entity: Entity) {
+  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+  const dateOffset = Math.floor(Math.random() * 60 * 1000);
+  const realDateNow = (now => () => dateOffset + now())(Date.now);
+
+  const positionOffset = Math.sin((realDateNow() % 10000) / 10000 * Math.PI * 2) * 2;
+  const positionOffset2 = -Math.sin((realDateNow() % 5000) / 5000 * Math.PI * 2) * 1;
+  const standFactor = actor.height - 0.1 * actor.height + Math.sin((realDateNow() % 2000) / 2000 * Math.PI * 2) * 0.2 * actor.height;
+  const rotationAngle = (realDateNow() % 5000) / 5000 * Math.PI * 2;
+
+  if(actor.inputs) {
+    // actor.inputs.hmd.position.set(positionOffset, 0.6 + standFactor, 0);
+    actor.inputs.hmd.position.set(positionOffset, standFactor, positionOffset2);
+    actor.inputs.hmd.quaternion.setFromAxisAngle(new Vector3(0, 1, 0), rotationAngle)
+      .multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.sin((realDateNow() % 2000) / 2000 * Math.PI * 2) * Math.PI * 0.2))
+      .multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), Math.sin((realDateNow() % 2000) / 2000 * Math.PI * 2) * Math.PI * 0.25));
+
+    actor.inputs.rightGamepad.quaternion.setFromAxisAngle(new Vector3(0, 1, 0), rotationAngle)
+    // .multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.sin((realDateNow()%5000)/5000*Math.PI*2)*Math.PI*0.6));
+    actor.inputs.rightGamepad.position.set(positionOffset, actor.height * 0.7 + Math.sin((realDateNow() % 2000) / 2000 * Math.PI * 2) * 0.1, positionOffset2).add(
+      new Vector3(-actor.shoulderWidth / 2, 0, -0.2).applyQuaternion(actor.inputs.rightGamepad.quaternion)
+    )/*.add(
+      new Vector3(-0.1, 0, -1).normalize().multiplyScalar(actor.rightArmLength*0.4).applyQuaternion(actor.inputs.rightGamepad.quaternion)
+    ); */
+    if(lastRightGamePad !== actor.inputs.rightGamepad.position) {
+      console.log(actor);
+      console.log(actor.inputs.rightGamepad.position);
+    }
+    lastRightGamePad = actor.inputs.rightGamepad.position;
+    actor.inputs.leftGamepad.quaternion.setFromAxisAngle(new Vector3(0, 1, 0), rotationAngle);
+    actor.inputs.leftGamepad.position.set(positionOffset, actor.height * 0.7, positionOffset2).add(
+      new Vector3(actor.shoulderWidth / 2, 0, -0.2).applyQuaternion(actor.inputs.leftGamepad.quaternion)
+    )/*.add(
+      new Vector3(0.1, 0, -1).normalize().multiplyScalar(actor.leftArmLength*0.4).applyQuaternion(actor.inputs.leftGamepad.quaternion)
+    );*/
+
+    actor.inputs.leftGamepad.pointer = (Math.sin((Date.now() % 10000) / 10000 * Math.PI * 2) + 1) / 2;
+    actor.inputs.leftGamepad.grip = (Math.sin((Date.now() % 10000) / 10000 * Math.PI * 2) + 1) / 2;
+
+    actor.inputs.rightGamepad.pointer = (Math.sin((Date.now() % 10000) / 10000 * Math.PI * 2) + 1) / 2;
+    actor.inputs.rightGamepad.grip = (Math.sin((Date.now() % 10000) / 10000 * Math.PI * 2) + 1) / 2;
+
+    actor.update();
+  }
+}

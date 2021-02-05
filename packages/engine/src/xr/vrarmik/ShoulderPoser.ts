@@ -49,14 +49,6 @@ class ShoulderPoser {
     hmdEuler.z = 0
     const hmdXYRotation = localQuaternion2.setFromEuler(hmdEuler)
     hmdXYRotation.multiply(localQuaternion3.setFromAxisAngle(rightVector, (this.shoulder.proneFactor * Math.PI) / 2))
-    if (!this.rig.legsManager.leftLeg.standing && !this.rig.legsManager.rightLeg.standing) {
-      const jumpFactor =
-        1 - Math.min(this.rig.legsManager.leftLeg.standFactor, this.rig.legsManager.rightLeg.standFactor)
-      hmdXYRotation.multiply(localQuaternion3.setFromAxisAngle(rightVector, (jumpFactor * Math.PI) / 4))
-    } else {
-      const standFactor = Math.min(this.rig.legsManager.leftLeg.standFactor, this.rig.legsManager.rightLeg.standFactor)
-      hmdXYRotation.multiply(localQuaternion3.setFromAxisAngle(rightVector, ((1 - standFactor) * Math.PI) / 4))
-    }
 
     const headPosition = localVector
       .copy(this.vrTransforms.head.position)
@@ -89,12 +81,12 @@ class ShoulderPoser {
 
     this.shoulder.neck.quaternion
       .copy(hmdXYRotation)
-      .premultiply(Helpers.getWorldQuaternion(this.shoulder.neck.parent, localQuaternion3).inverse())
+      .premultiply(Helpers.getWorldQuaternion(this.shoulder.neck.parent, localQuaternion3).invert())
     Helpers.updateMatrixMatrixWorld(this.shoulder.neck)
 
     this.shoulder.head.quaternion
       .copy(hmdRotation)
-      .premultiply(Helpers.getWorldQuaternion(this.shoulder.head.parent, localQuaternion3).inverse())
+      .premultiply(Helpers.getWorldQuaternion(this.shoulder.head.parent, localQuaternion3).invert())
     Helpers.updateMatrixMatrixWorld(this.shoulder.head)
 
     Helpers.updateMatrixWorld(this.shoulder.eyes)
@@ -108,7 +100,7 @@ class ShoulderPoser {
       .premultiply(localQuaternion.copy(this.shoulder.hips.quaternion).multiply(z180Quaternion))
 
     this.shoulder.transform.quaternion.premultiply(
-      Helpers.getWorldQuaternion(this.shoulder.transform.parent, localQuaternion).inverse()
+      Helpers.getWorldQuaternion(this.shoulder.transform.parent, localQuaternion).invert()
     )
     Helpers.updateMatrixMatrixWorld(this.shoulder.transform)
     Helpers.updateMatrixWorld(this.shoulder.leftShoulderAnchor)
@@ -117,7 +109,7 @@ class ShoulderPoser {
 
   getCombinedDirectionAngleUp() {
     const hipsRotation = localQuaternion.copy(this.shoulder.hips.quaternion).multiply(z180Quaternion)
-    const hipsRotationInverse = localQuaternion2.copy(hipsRotation).inverse()
+    const hipsRotationInverse = localQuaternion2.copy(hipsRotation).invert()
 
     const distanceLeftHand = localVector
       .copy(this.vrTransforms.leftHand.position)
