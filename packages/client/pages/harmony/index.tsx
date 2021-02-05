@@ -15,7 +15,7 @@ import {
     Save,
     Send, Videocam, VideocamOff
 } from '@material-ui/icons';
-import Layout from "@xr3ngine/client-core/components/ui/Layout";
+import Layout from "@xr3ngine/client-core/components/ui/Layout/HarmonyLayout";
 import PartyParticipantWindow from "@xr3ngine/client-core/components/ui/PartyParticipantWindow";
 import UserMenu from '@xr3ngine/client-core/components/ui/UserMenu';
 import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';

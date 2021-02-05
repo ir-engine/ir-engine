@@ -19,7 +19,7 @@ const Me = observer(() => {
           peerId={'me_cam'}
       />
         {
-            (MediaStreamSystem?.instance?.screenVideoProducer || MediaStreamSystem?.instance?.screenAudioProducer) && <PartyParticipantWindow
+            (MediaStreamSystem.instance?.screenVideoProducer || MediaStreamSystem.instance?.screenAudioProducer) && <PartyParticipantWindow
                 containerProportions={{
                     height: 135,
                     width: 240

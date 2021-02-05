@@ -85,7 +85,7 @@ module.exports = withImages(
           }]
         },
         {
-          test: /\.ts$/,
+          test: /\.(ts|tsx)$/,
           use: ['cache-loader', 'thread-loader', {
             loader: 'ts-loader',
             options: {
