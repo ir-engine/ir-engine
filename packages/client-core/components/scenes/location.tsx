@@ -9,6 +9,7 @@ import {
   connectToInstanceServer,
   provisionInstanceServer
 } from '@xr3ngine/client-core/redux/instanceConnection/service';
+import { OpenLink } from '../ui/OpenLink';
 import { selectLocationState } from '@xr3ngine/client-core/redux/location/selector';
 import {
   getLocationByName
@@ -107,6 +108,7 @@ export const EnginePage = (props: Props) => {
   const [actorEntity, setActorEntity] = useState(null);
   const [infoBoxData, setModalData] = useState(null);
   const [userBanned, setUserBannedState] = useState(false);
+  const [openLinkData, setOpenLinkData] = useState(null);
 
   const [progressEntity, setProgressEntity] = useState('');
   const [userHovered, setonUserHover] = useState(false);
@@ -259,8 +261,20 @@ export const EnginePage = (props: Props) => {
   };
 
   const onObjectActivation = (event: CustomEvent): void => {
-    setModalData(event.detail.payload);
-    setObjectActivated(true);
+    switch (event.detail.action) {
+      case 'link':
+        console.log('=======onObjectActivation====',event.detail.payload);
+        setOpenLinkData(event.detail.payload);
+        setObjectActivated(true);
+        break;
+      case 'infoBox':
+      case 'mediaSource':
+        setInfoBoxData(event.detail.payload);
+        setObjectActivated(true);
+        break;
+      default:
+        break;
+    }
   };
 
   const addEventListeners = () => {
@@ -329,6 +343,7 @@ export const EnginePage = (props: Props) => {
       { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
       {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}
       <InteractableModal onClose={() => { setModalData(null); setObjectActivated(false); }} data={infoBoxData} />
+      <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); }} data={openLinkData} />
       {mobileGamepad}
     </>
   ) : (<div className="banned">You have been banned from this location</div>)
