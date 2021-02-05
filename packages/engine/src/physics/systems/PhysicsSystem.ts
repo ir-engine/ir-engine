@@ -153,6 +153,7 @@ export class PhysicsSystem extends System {
     this.queryResults.vehicleBody.all?.forEach(entity => {
       VehicleBehavior(entity, { phase: 'onUpdate' });
     });
+
     this.queryResults.vehicleBody.removed?.forEach(entity => {
       VehicleBehavior(entity, { phase: 'onRemoved' });
     });
