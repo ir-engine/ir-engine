@@ -1,8 +1,5 @@
 import { Entity } from "../../ecs/classes/Entity";
-import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { CommonInteractiveData } from "../../templates/interactive/interfaces/CommonInteractiveData";
-import { Object3DComponent } from '../../common/components/Object3DComponent';
-import AudioSource from "../classes/AudioSource";
 
 
 export const InteractiveSchema = {
@@ -10,7 +7,7 @@ export const InteractiveSchema = {
         return {
             action: 'infoBox',
             payload: {
-                name: objArgs.payloadName,
+                name: objArgs.interactionText,
                 url: objArgs.payloadUrl,
                 buyUrl: objArgs.payloadBuyUrl,
                 learnMoreUrl: objArgs.payloadLearnMoreUrl,
@@ -24,7 +21,7 @@ export const InteractiveSchema = {
         return {
             action: 'link',
             payload: {
-                name: objArgs.payloadName,
+                name: objArgs.interactionText,
                 url: objArgs.payloadUrl,
             },
             interactionText: objArgs.interactionText
