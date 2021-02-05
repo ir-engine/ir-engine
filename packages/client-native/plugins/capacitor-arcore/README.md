@@ -1,0 +1,1 @@
+# cordova-outsystems-google-ar-core
