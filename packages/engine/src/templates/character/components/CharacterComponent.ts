@@ -99,8 +99,52 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	canEnterVehicles: boolean;
 	canLeaveVehicles: boolean;
   	alreadyJumped: boolean;
-  rotationSpeed: any;
+	rotationSpeed: any;
 
+  model: any
+  options: {}
+  skinnedMeshes: any[]
+  flipZ: boolean
+  flipY: boolean
+  flipLeg: boolean
+  allHairBones: any[]
+  hairBones: any[]
+  fingerBones: any
+  tailBones: any
+  armature: any
+  skeleton: any
+  Eye_L: any
+  Eye_R: any
+  Head: any
+  Neck: any
+  Chest: any
+  Hips: any
+  Spine: any
+  Left_shoulder: any
+  Left_wrist: any
+  Left_elbow: any
+  Left_arm: any
+  Right_shoulder: any
+  Right_wrist: any
+  Right_elbow: any
+  Right_arm: any
+
+  modelBones: any
+  poseManager: any
+  shoulderTransforms: any
+  legsManager: any
+  inputs: any
+  shoulderWidth: any
+  leftArmLength: any
+  rightArmLength: any
+  lastModelScaleFactor: number
+  lastTimestamp: number
+  decapitated: boolean
+  modelBoneOutputs: any
+  volume: number
+	outputs: any
+	
+	update: any
 }
 
 CharacterComponent._schema = {
