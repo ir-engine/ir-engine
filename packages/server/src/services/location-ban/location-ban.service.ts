@@ -20,12 +20,20 @@ export default function (app: Application): void {
     paginate: app.get('paginate')
   };
 
-  // Initialize our service with any options it requires
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const event = new LocationBan(options, app);
   event.docs = locationBanDocs;
   app.use('/location-ban', event);
 
-  // Get our initialized service so that we can register hooks
+  /**
+   * Get our initialized service so that we can register hooks
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const service = app.service('location-ban');
 
   service.hooks(hooks);
