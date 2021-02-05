@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { UIDialog } from "./Dialog";
+import Dialog from "./Dialog";
 
 interface Props {
   title?;

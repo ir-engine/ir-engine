@@ -12,10 +12,10 @@ export default class ParticleEmitterNode extends EditorNodeMixin(ParticleEmitter
   static nodeName = "Particle Emitter";
 
   static initialElementProps = {
-    src: new URL(defaultParticleUrl, location).href
+    src: new URL(defaultParticleUrl, (window as any)?.location).href
   };
 
-  static async deserialize(editor, json, loadAsync, onError) {
+  static async deserialize(editor, json, loadAsync?, onError?) {
     const node = await super.deserialize(editor, json);
 
     const {
@@ -93,7 +93,7 @@ export default class ParticleEmitterNode extends EditorNodeMixin(ParticleEmitter
     this.load(value).catch(console.error);
   }
 
-  async load(src, onError) {
+  async load(src, onError?) {
     const nextSrc = src || "";
     if (nextSrc === this._canonicalUrl) {
       return;

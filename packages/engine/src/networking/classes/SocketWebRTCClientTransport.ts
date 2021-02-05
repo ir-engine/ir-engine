@@ -214,7 +214,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       });
 
       this.socket.on(MessageTypes.WebRTCCloseConsumer.toString(), async (consumerId) => {
-        if (MediaStreamSystem) MediaStreamSystem.instance?.consumers = MediaStreamSystem.instance?.consumers.filter((c) => c.id !== consumerId);
+        if (MediaStreamSystem.instance) MediaStreamSystem.instance.consumers = MediaStreamSystem.instance?.consumers.filter((c) => c.id !== consumerId);
       });
 
 

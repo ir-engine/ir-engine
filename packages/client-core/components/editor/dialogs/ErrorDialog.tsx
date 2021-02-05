@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import { UIDialog }, { DialogContent } from "./Dialog";
+import Dialog, { DialogContent } from "./Dialog";
 import styled from "styled-components";
 
 const ErrorDialogContainer = (styled as any)(Dialog)`

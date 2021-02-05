@@ -12,7 +12,7 @@ interface Props {
   token: string;
 }
 
-const ResetPassword = (props: Props): any => {
+export const ResetPassword = (props: Props): any => {
   const { resetPassword, token } = props;
   const initialState = { password: '' };
   const [state, setState] = useState(initialState);
@@ -64,5 +64,3 @@ const ResetPassword = (props: Props): any => {
     </EmptyLayout>
   );
 };
-
-export default ResetPassword;
