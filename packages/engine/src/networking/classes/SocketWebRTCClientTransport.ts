@@ -21,8 +21,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   leaving = false
   instanceRecvTransport: MediaSoupTransport
   instanceSendTransport: MediaSoupTransport
-  relRecvTransport: MediaSoupTransport
-  relSendTransport: MediaSoupTransport
+  channelRecvTransport: MediaSoupTransport
+  channelSendTransport: MediaSoupTransport
   lastPollSyncData = {}
   pollingTickRate = 1000
   pollingTimeout = 4000
@@ -32,8 +32,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   lastPoll: Date;
   pollPending = false;
   videoEnabled = false;
-  relationshipType: string;
-  relationshipId: string;
+  channelType: string;
+  channelId: string;
   dataProducer;
 
   /**
@@ -81,12 +81,19 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.mediasoupDevice = new Device();
     if (this.socket && this.socket.close) this.socket.close();
 
-    const { startVideo, videoEnabled, relationshipType, relationshipId, ...query } = opts;
-    this.relationshipType = relationshipType;
-    this.relationshipId = relationshipId;
+    console.log('Client transport initialize opts:');
+    console.log(opts);
+    const { startVideo, videoEnabled, channelType, ...query } = opts;
+    this.channelType = channelType;
+    this.channelId = opts.channelId;
 
     this.videoEnabled = videoEnabled ?? false;
 
+    if (query.locationId == null) delete query.locationId;
+    if (query.sceneId == null) delete query.sceneId;
+    if (query.channelId == null) delete query.channelId;
+    console.log('Query for socket init');
+    console.log(query);
     if (process.env.NODE_ENV === 'development') {
       this.socket = ioclient(`${address as string}:${port.toString()}/realtime`, {
         query: query
@@ -113,6 +120,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any;
 
       console.log("Connected to world");
+      console.log(ConnectToWorldResponse);
+
+      window.dispatchEvent(new CustomEvent('connectToWorld'));
 
       // Send heartbeat every second
       const heartbeat = setInterval(() => {
@@ -184,7 +194,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         });
       });
 
-      this.socket.on(MessageTypes.WebRTCCreateProducer.toString(), async (socketId, mediaTag, producerId, relationshipType, relationshipId) => {
+      this.socket.on(MessageTypes.WebRTCCreateProducer.toString(), async (socketId, mediaTag, producerId, channelType, channelId) => {
         const selfProducerIds = [
           MediaStreamSystem.camVideoProducer?.id,
           MediaStreamSystem.camAudioProducer?.id
@@ -196,10 +206,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           (MediaStreamSystem.instance?.consumers?.find(
             c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
           ) == null &&
-            (relationshipType === 'instance' ? this.relationshipType === 'instance' : this.relationshipType === relationshipType && this.relationshipId === relationshipId))
+            (channelType === 'instance' ? this.channelType === 'instance' : this.channelType === channelType && this.channelId === channelId))
         ) {
           // that we don't already have consumers for...
-          await subscribeToTrack(socketId, mediaTag, relationshipType, relationshipId);
+          await subscribeToTrack(socketId, mediaTag, channelType, channelId);
         }
       });
 
