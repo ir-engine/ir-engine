@@ -90,7 +90,7 @@ module.exports = withImages(
             loader: 'ts-loader',
             options: {
               allowTsInNodeModules: true,
-              transpileOnly: true,
+              transpileOnly: false,
               happyPackMode: true
             },
           }]

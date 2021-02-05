@@ -1,34 +1,57 @@
-import React, { useEffect, useRef, useState, Suspense } from 'react';
-
-import {
-  Canvas,
-  useFrame,
-  useThree,
-  extend,
-  ReactThreeFiber,
-  useLoader
-} from 'react-three-fiber';
 import DracosisPlayer from "@xr3ngine/volumetric/src/Player";
-import { DoubleSide } from "three";
+import React, { useEffect } from 'react';
+import { PerspectiveCamera, Scene, Vector3, WebGLRenderer } from "three";
+import { TrackballControls } from "@xr3ngine/engine/src/input/classes/TrackballControls";
 
-interface VolumetricPlayerProps extends React.HTMLAttributes<any>{
+interface VolumetricPlayerProps extends React.HTMLAttributes<any> {
   meshFilePath: string,
   videoFilePath: string
 }
 
-export const VolumetricPlayer = (props:VolumetricPlayerProps) => {
-  const { scene, gl } = useThree();
+export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
+
 
   // const mesh: any = useRef();
 
   useEffect(() => {
+    var container = document.querySelector('body'),
+      w = container.clientWidth,
+      h = container.clientHeight,
+      scene = new Scene(),
+      camera = new PerspectiveCamera(75, w / h, 0.001, 100),
+      controls = new TrackballControls(camera, container),
+      renderConfig = { antialias: true, alpha: true },
+      renderer = new WebGLRenderer(renderConfig);
+    controls.target = new Vector3(0, 0, 0.75);
+    controls.panSpeed = 0.4;
+    camera.position.set(0, 0, -10);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(w, h);
+    container.appendChild(renderer.domElement);
+    window.addEventListener('resize', function () {
+      w = container.clientWidth;
+      h = container.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    })
+
+    function render() {
+      requestAnimationFrame(render);
+      renderer.render(scene, camera);
+      controls.update();
+    }
+
     console.log('create new player');
     const DracosisSequence = new DracosisPlayer({
       scene,
-      renderer: gl,
+      renderer,
       meshFilePath: props.meshFilePath,
       videoFilePath: props.videoFilePath
     });
+
+    render();
+    DracosisSequence.play();
 
     return () => {
       // clear volumetric player

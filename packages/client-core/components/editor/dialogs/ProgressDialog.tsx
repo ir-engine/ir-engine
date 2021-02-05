@@ -19,7 +19,7 @@ const ProgressMessage = (styled as any).div`
   white-space: pre;
 `;
 
-export default function ProgressDialog({ message, onConfirm, cancelable, onCancel, ...props }) {
+export function ProgressDialog({ message, onConfirm, cancelable, onCancel, ...props }) {
   return (
     <Dialog onCancel={cancelable ? onCancel : null} {...props}>
       <ProgressContainer>

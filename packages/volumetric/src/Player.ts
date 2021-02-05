@@ -246,7 +246,7 @@ export default class DracosisPlayer {
   public play = () => {
     console.log("Playing")
     const buffering = setInterval(() => {
-      if (this.meshBuffer.getBufferLength() >= this.keyframesToBufferBeforeStart) {
+      if (this.meshBuffer && this.meshBuffer.getBufferLength() >= this.keyframesToBufferBeforeStart) {
         console.log("Keyframe buffer length is ", this.meshBuffer.getBufferLength(), ", playing video");
         clearInterval(buffering);
         this._video.play()
