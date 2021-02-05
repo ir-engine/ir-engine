@@ -5,6 +5,7 @@
     "loginDisabled": false,
     "logo": "./logo.svg",
     "apiServer": "https://localhost:3030",
+    "apiServerBuild": "https://api-dev.theoverlay.io",
     "siteTitle": "The Overlay",
     "siteDescription": "Connected Worlds for Everyone",
     "featherStoreKey": "TheOverlay-Auth-Store",
