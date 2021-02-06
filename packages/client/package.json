@@ -13,7 +13,6 @@
   "jest": "ts-jest",
   "scripts": {
     "find:unused": "next-unused",
-    "copyfiles-client": "copyfiles design/** design/**/* public/** public/**/* **/*.scss lib/client",
     "dev": "cross-env NODE_ENV=development node --max-old-space-size=2048 ./index.js --port 3000",
     "build": "cross-env NODE_OPTIONS=--max_old_space_size=6144 next build ./ && yarn run export",
     "export": "next export -o www/ && mv www/404.html www/index.html && npx cap sync",

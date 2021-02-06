@@ -3,17 +3,17 @@ A data driven game engine, built on three.js
 
 ## Quickstart
 ```
-git clone https://github.com/xr3ngine/armada
+git clone https://github.com/xr3ngine/xr3ngine
 cd armada
-npm install
+yarn install
 cp .env.https .env
 
 // This will build the library and examples, and launch a server on https://localhost:8080
 // NOTE: ONLY works with HTTPS right now, http://localhost:8080 will not work
-npm run dev
+yarn run dev
 
 // To run the server, open another terminal window and run
-npm run dev-server
+yarn run dev-server
 ```
 
 ### What is a behavior?
@@ -277,15 +277,10 @@ Switching from player to car
 !!!! Sending a message
 !!!! Linking message type to behavior map
 
-# Installation
-```
-npm install @xr3ngine/armada
-```
-
 # How to use
 ```javascript
 import { World } from '../ecs/classes/World'
-import { initializeInput } from '@xr3ngine/armada'
+import { initializeInput } from '@xr3ngine/engine'
 
 const world = new World()
 

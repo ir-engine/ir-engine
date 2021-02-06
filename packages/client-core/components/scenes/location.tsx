@@ -29,7 +29,6 @@ import { loadActorAvatar } from "@xr3ngine/engine/src/templates/character/behavi
 import { setActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/setActorAvatar";
 import { CharacterAvatarComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterAvatarComponent';
 import { DefaultNetworkSchema, PrefabType } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
-import dynamic from 'next/dynamic';
 import querystring from 'querystring';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -45,10 +44,13 @@ import MediaIconsBox from "../ui/MediaIconsBox";
 import NamePlate from '../ui/NamePlate';
 import NetworkDebug from '../ui/NetworkDebug/NetworkDebug';
 import TooltipContainer from '../ui/TooltipContainer';
+import dynamic from 'next/dynamic';
 
 const goHome = () => window.location.href = window.location.origin;
-  
-import MobileGamepad from "../ui/MobileGamepad";
+import { MobileGamepadProps } from "../ui/MobileGamepad/MobileGamepadProps";
+
+const MobileGamepad = dynamic<MobileGamepadProps>(() => import("../ui/MobileGamepad").then((mod) => mod.MobileGamepad), { ssr: false });
+
 interface Props {
   setAppLoaded?: any,
   sceneId?: string,
