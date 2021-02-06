@@ -1,9 +1,9 @@
 const path = require('path')
 const conf = require('config');
 const withImages = require('next-images')
-const withTM = require('next-transpile-modules')(['@xr3ngine/client-core'], { unstable_webpack5: true }); // pass the modules you would like to see transpiled
+const withTM = require('next-transpile-modules')(['@xr3ngine/client-core']); // pass the modules you would like to see transpiled
 
-module.exports = withTM(withImages(
+module.exports =
   {
     /* config options here */
     publicRuntimeConfig: conf.get('publicRuntimeConfig'),
@@ -11,6 +11,9 @@ module.exports = withTM(withImages(
       APP_URL: process.env.APP_URL,
       SERVER_URL: process.env.SERVER_URL
     },
+    future: {
+		  webpack5: true
+	  },
     dir: './',
     distDir: './.next',
     async redirects() {
@@ -86,7 +89,7 @@ module.exports = withTM(withImages(
           }]
         },
         {
-          test: /\.(ts|tsx)$/,
+          test: /\.(ts|tsx)/,
           use: ['cache-loader', 'thread-loader', {
             loader: 'ts-loader',
             options: {
@@ -168,4 +171,4 @@ module.exports = withTM(withImages(
       })
       return config
     }
-  }));
+  };
