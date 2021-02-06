@@ -1,0 +1,68 @@
+{
+  "name": "@xr3ngine/capacitor-plugin-ar",
+  "version": "0.0.1",
+  "description": "AR provider class for AR integration into a capacitor app",
+  "main": "dist/plugin.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "private": "true",
+  "scripts": {
+    "xlint": "npm run prettier -- --check && npm run swiftlint -- lint",
+    "xprettier": "prettier \"**/*.{css,html,ts,js,java}\"",
+    "xswiftlint": "node-swiftlint",
+    "xbuild": "npm run clean && tsc && rollup -c rollup.config.js",
+    "xclean": "rimraf ./dist",
+    "xwatch": "tsc --watch",
+    "xprepublishOnly": "npm run build"
+  },
+  "author": "XR3 Group",
+  "license": "MIT",
+  "devDependencies": {
+    "@capacitor/android": "^2.4.6",
+    "@capacitor/core": "^2.4.6",
+    "@capacitor/ios": "^2.4.6",
+    "@ionic/prettier-config": "^1.0.0",
+    "@ionic/swiftlint-config": "^1.0.0",
+    "@rollup/plugin-node-resolve": "^8.1.0",
+    "prettier": "^2.0.5",
+    "prettier-plugin-java": "^0.8.0",
+    "rimraf": "^3.0.0",
+    "rollup": "^2.21.0",
+    "swiftlint": "^1.0.1",
+    "typescript": "^4.0.3"
+  },
+  "peerDependencies": {
+    "@capacitor/core": "^2.4.6"
+  },
+  "files": [
+    "dist/",
+    "ios/",
+    "android/",
+    "CapacitorPluginAr.podspec"
+  ],
+  "keywords": [
+    "capacitor",
+    "plugin",
+    "native"
+  ],
+  "capacitor": {
+    "ios": {
+      "src": "ios"
+    },
+    "android": {
+      "src": "android"
+    }
+  },
+  "prettier": "@ionic/prettier-config",
+  "swiftlint": "@ionic/swiftlint-config",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xr3ngine/xr3ngine"
+  },
+  "bugs": {
+    "url": "https://github.com/xr3ngine/xr3ngine/issues"
+  },
+  "dependencies": {
+    "@types/webgl2": "^0.0.5"
+  }
+}

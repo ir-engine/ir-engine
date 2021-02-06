@@ -90,7 +90,7 @@ export class Group extends Service {
         }));
 
         group.dataValues.groupUsers = groupUsers;
-        resolve();
+        resolve(true);
       });
     }));
     return {

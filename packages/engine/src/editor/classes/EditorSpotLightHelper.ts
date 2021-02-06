@@ -9,8 +9,8 @@ import { addIsHelperFlag } from "../functions/addIsHelperFlag";
 export default class EditorSpotLightHelper extends Object3D {
   light: any;
   color: any;
-  outerCone: LineSegments<BufferGeometry, LineBasicMaterial>;
-  innerCone: LineSegments<BufferGeometry, LineBasicMaterial>;
+  outerCone: LineSegments;
+  innerCone: LineSegments;
   constructor(light, color?) {
     super();
     this.name = "EditorSpotLightHelper";
@@ -74,7 +74,6 @@ export default class EditorSpotLightHelper extends Object3D {
   }
   dispose() {
     this.outerCone.geometry.dispose();
-    this.outerCone.material.dispose();
   }
   update = () => {
     this.light.updateMatrixWorld();
@@ -84,12 +83,12 @@ export default class EditorSpotLightHelper extends Object3D {
     const innerConeWidth = coneLength * Math.tan(innerConeAngle);
     this.outerCone.scale.set(outerConeWidth, outerConeWidth, coneLength);
     this.innerCone.scale.set(innerConeWidth, innerConeWidth, coneLength);
-    if (this.color !== undefined) {
-      (this.outerCone.material.color as any).set(this.color);
-      (this.outerCone.material.color as any).set(this.color);
-    } else {
-      (this.outerCone.material.color as any).copy(this.light.color);
-      (this.outerCone.material.color as any).copy(this.light.color);
-    }
+    // if (this.color !== undefined) {
+    //   (this.outerCone.material.color as any).set(this.color);
+    //   (this.outerCone.material.color as any).set(this.color);
+    // } else {
+    //   (this.outerCone.material.color as any).copy(this.light.color);
+    //   (this.outerCone.material.color as any).copy(this.light.color);
+    // }
   };
 }

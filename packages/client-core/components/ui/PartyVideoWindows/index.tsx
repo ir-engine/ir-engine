@@ -26,7 +26,7 @@ const mapStateToProps = (state: any): any => {
 
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getLayerUsers: bindActionCreators(getLayerUsers, dispatch);
+  getLayerUsers: bindActionCreators(getLayerUsers, dispatch)
 });
 
 const PartyVideoWindows = observer((props: Props): JSX.Element => {

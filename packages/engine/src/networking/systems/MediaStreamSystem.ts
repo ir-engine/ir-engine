@@ -207,7 +207,7 @@ export class MediaStreamSystem extends System {
    */
   static removeVideoAudio (consumer: any): void {
     document.querySelectorAll(consumer.id).forEach(v => {
-      if (v.consumer === consumer) v.parentNode.removeChild(v);
+      if (v.consumer === consumer) v?.parentNode.removeChild(v);
     });
   }
 
