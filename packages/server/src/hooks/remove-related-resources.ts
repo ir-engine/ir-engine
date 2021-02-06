@@ -83,13 +83,13 @@ export default (options = {}): Hook => {
             reject(err);
           }
 
-          resolve();
+          resolve(true);
         });
       });
 
       const attributionRemovePromise = staticResource.attributionId
         ? app.service('attribution').remove(staticResource.attributionId)
-        : Promise.resolve();
+        : Promise.resolve(true);
 
       const staticResourceChildrenRemovePromise = Promise.all(childRemovalPromises);
 

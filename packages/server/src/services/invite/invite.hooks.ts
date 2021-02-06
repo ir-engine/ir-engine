@@ -61,7 +61,7 @@ export default {
               }
               item.user = await app.service('user').get(item.userId);
 
-              resolve();
+              resolve(true);
             });
           }));
           return context;

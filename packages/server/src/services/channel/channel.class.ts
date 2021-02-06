@@ -134,7 +134,7 @@ export class Channel extends Service {
                 channel.user2.dataValues.avatarUrl = user2AvatarResult.data[0].url;
               }
 
-              resolve();
+              resolve(true);
             } else if (channel.channelType === 'group') {
               const groupUsers = await this.app.service('group-user').Model.findAll({
                 where: {
@@ -162,7 +162,7 @@ export class Channel extends Service {
               }));
 
               channel.group.dataValues.groupUsers = groupUsers;
-              resolve();
+              resolve(true);
             } else if (channel.channelType === 'party') {
               const partyUsers = await this.app.service('party-user').Model.findAll({
                 where: {
@@ -189,7 +189,7 @@ export class Channel extends Service {
                 return await Promise.resolve();
               }));
               channel.party.dataValues.partyUsers = partyUsers;
-              resolve();
+              resolve(true);
             } else if (channel.channelType === 'instance') {
               const instanceUsers = await this.app.service('user').Model.findAll({
                 where: {
@@ -211,7 +211,7 @@ export class Channel extends Service {
                 return await Promise.resolve();
               }));
               channel.instance.dataValues.instanceUsers = instanceUsers;
-              resolve();
+              resolve(true);
             }
           });
         }));
