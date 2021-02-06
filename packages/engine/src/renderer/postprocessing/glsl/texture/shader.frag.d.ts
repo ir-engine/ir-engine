@@ -1,0 +1,2 @@
+declare const _default: "uniform sampler2D texture;\n\n#if defined(ASPECT_CORRECTION) || defined(UV_TRANSFORM)\n\n\tvarying vec2 vUv2;\n\n#endif\n\nvoid mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {\n\n\t#if defined(ASPECT_CORRECTION) || defined(UV_TRANSFORM)\n\n\t\tvec4 texel = texelToLinear(texture2D(texture, vUv2));\n\n\t#else\n\n\t\tvec4 texel = texelToLinear(texture2D(texture, uv));\n\n\t#endif\n\n\toutputColor = TEXEL;\n\n}\n";
+export default _default;

@@ -1,10 +1,10 @@
-import { AnimationManager } from "@xr3ngine/engine/src/templates/character/components/AnimationManager";
-import { Material, Vec3 } from "cannon-es";
-import { BoxGeometry, Group, Mesh, MeshLambertMaterial, Vector3 } from "three";
 import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
 import { LifecycleValue } from "@xr3ngine/engine/src/common/enums/LifecycleValue";
 import { isClient } from "@xr3ngine/engine/src/common/functions/isClient";
 import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
+import { AnimationManager } from "@xr3ngine/engine/src/templates/character/components/AnimationManager";
+import { Vec3 } from "cannon-es";
+import { BoxGeometry, Group, Mesh, MeshLambertMaterial, Vector3 } from "three";
 import { addComponent, getComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
 import { RelativeSpringSimulator } from "../../../physics/classes/RelativeSpringSimulator";
 import { VectorSpringSimulator } from "../../../physics/classes/VectorSpringSimulator";
@@ -16,8 +16,6 @@ import { State } from "../../../state/components/State";
 import { TransformComponent } from "../../../transform/components/TransformComponent";
 import { CharacterStateTypes } from "../CharacterStateTypes";
 import { CharacterComponent } from "../components/CharacterComponent";
-import { setupMaterials } from "../functions/setupMaterials";
-
 export const initializeCharacter: Behavior = (entity): void => {	
 	// console.warn("Initializing character for ", entity.id);
 	if (!hasComponent(entity, CharacterComponent as any)){
