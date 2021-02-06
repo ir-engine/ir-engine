@@ -430,6 +430,10 @@ const HarmonyPage = observer((props: Props): any => {
         initializeEngine(InitializationOptions);
     }
 
+    function calcWidth(): 12 | 6 | 4 | 3 {
+        return layerUsers.length === 1 ? 12 : layerUsers.length <= 4 ? 6 : layerUsers.length <= 9 ? 4 : 3;
+    }
+
     useEffect(() => {
         if (
             instanceConnectionState.get('instanceProvisioned') === true &&
@@ -495,19 +499,37 @@ const HarmonyPage = observer((props: Props): any => {
                 </List>
                 <div className={styles['chat-window']}>
                     { instanceConnectionState.get('channelId') != null && instanceConnectionState.get('channelId').length > 0 && <div className={styles['video-container']}>
-                        <PartyParticipantWindow
-                            containerProportions={{
-                                height: 135,
-                                width: 240
-                            }}
-                            peerId={'me_cam'}
-                        />
                         <Grid className={ styles['party-user-container']} container direction="row">
-                            { layerUsers.filter(user => user.id !== selfUser.id).map((user) => (
+                            <Grid item className={
+                                classNames({
+                                    [styles['grid-item']]: true,
+                                    [styles.single]: layerUsers.length === 1,
+                                    [styles['two-by-two']]: layerUsers.length > 1 && layerUsers.length < 5,
+                                    [styles['three-by-three']]: layerUsers.length > 4 && layerUsers.length < 10,
+                                    [styles['four-by-four']]: layerUsers.length > 9
+                                })
+                            }>
                                 <PartyParticipantWindow
-                                    peerId={user.id}
-                                    key={user.id}
+                                    harmony={true}
+                                    peerId={'me_cam'}
                                 />
+                            </Grid>
+                            { layerUsers.filter(user => user.id !== selfUser.id).map((user) => (
+                                <Grid item className={
+                                    classNames({
+                                        [styles['grid-item']]: true,
+                                        [styles.single]: layerUsers.length === 1,
+                                        [styles['two-by-two']]: layerUsers.length > 1 && layerUsers.length < 5,
+                                        [styles['three-by-three']]: layerUsers.length > 4 && layerUsers.length < 10,
+                                        [styles['four-by-four']]: layerUsers.length > 9
+                                    })
+                                }>
+                                    <PartyParticipantWindow
+                                        harmony={true}
+                                        peerId={user.id}
+                                        key={user.id}
+                                    />
+                                </Grid>
                             ))}
                         </Grid>
                     </div> }

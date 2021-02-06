@@ -8,6 +8,7 @@ import { selectGroupState } from '../../../../redux/group/selector';
 import { selectPartyState } from '../../../../redux/party/selector';
 import { selectUserState } from '../../../../redux/user/selector';
 import { selectLocationState } from '../../../../redux/location/selector';
+// @ts-ignore
 import styles from './Left.module.scss';
 
 import {

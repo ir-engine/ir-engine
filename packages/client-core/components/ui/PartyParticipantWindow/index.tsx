@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+// @ts-ignore
 import styles from './PartyParticipantWindow.module.scss';
 import {autorun} from 'mobx';
 import {observer} from 'mobx-react';
@@ -45,6 +46,7 @@ interface ContainerProportions {
 }
 
 interface Props {
+    harmony?: boolean;
     containerProportions?: ContainerProportions;
     peerId?: string;
     appState?: any;
@@ -77,6 +79,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     const [focused, setFocused] = useState(false);
     const [volume, setVolume] = useState(100);
     const {
+        harmony,
         peerId,
         appState,
         authState,
@@ -302,6 +305,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             id={peerId + '_container'}
             className={classNames({
                 [styles['party-chat-user']]: true,
+                [styles['harmony']]: harmony === true,
                 [styles['focused']]: focused,
                 [styles['self-user']]: peerId === 'me_cam' || peerId === 'me_screen',
                 [styles['no-video']]: videoStream == null,

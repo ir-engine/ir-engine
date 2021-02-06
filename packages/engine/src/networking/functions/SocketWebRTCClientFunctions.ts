@@ -383,7 +383,7 @@ export async function createTransport(direction: string, channelType?: string, c
 
 export async function leave(): Promise<boolean> {
     console.log('leave()');
-    if (Network.instance != null) {
+    if (Network.instance?.transport != null) {
         console.log('Trying to leave ');
         try {
             console.log(Network.instance.transport);

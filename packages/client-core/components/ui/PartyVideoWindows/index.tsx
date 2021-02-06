@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// @ts-ignore
 import styles from './PartyVideoWindows.module.scss';
 import { Grid } from '@material-ui/core';
 import PartyParticipantWindow from '../PartyParticipantWindow';
