@@ -51,7 +51,7 @@ module.exports = withTM(
         },
         {
           test: /\.ts(x?)$/,
-          use: ['cache-loader',
+          use: ['cache-loader', 'thread-loader',
           {
           loader: 'babel-loader',
           options:  {"presets": ["next/babel"]}
