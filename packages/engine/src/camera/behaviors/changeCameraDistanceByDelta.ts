@@ -44,17 +44,18 @@ export const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:in
   switch(cameraFollow.mode) {
     case CameraModes.FirstPerson: 
       if(delta >= threshold) { 
-        switchCameraMode(cameraFollow, { mode: CameraModes.ShoulderCam })
+        switchCameraMode(entity, { mode: CameraModes.ShoulderCam })
         didSwitch = true
       }
     break;
     case CameraModes.ShoulderCam: 
       if(delta >= threshold) {
-        switchCameraMode(cameraFollow, { mode: CameraModes.ThirdPerson })
+        switchCameraMode(entity, { mode: CameraModes.ThirdPerson })
+        cameraFollow.distance = cameraFollow.minDistance + 1
         didSwitch = true
       }
       if(delta <= -threshold) {
-        switchCameraMode(cameraFollow, { mode: CameraModes.FirstPerson })
+        switchCameraMode(entity, { mode: CameraModes.FirstPerson })
         didSwitch = true
       }
     break;
@@ -64,12 +65,12 @@ export const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:in
 
       if(cameraFollow.distance >= cameraFollow.maxDistance) {
         if(delta > 0) {
-          switchCameraMode(cameraFollow, { mode: CameraModes.TopDown })
+          switchCameraMode(entity, { mode: CameraModes.TopDown })
           didSwitch = true
         }
       } else if(cameraFollow.distance <= cameraFollow.minDistance) {
         if(delta < 0) {
-          switchCameraMode(cameraFollow, { mode: CameraModes.ShoulderCam })
+          switchCameraMode(entity, { mode: CameraModes.ShoulderCam })
           didSwitch = true
         }
       }
@@ -77,7 +78,7 @@ export const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:in
     break;
     case CameraModes.TopDown: 
       if(delta < 0) {
-        switchCameraMode(cameraFollow, { mode: CameraModes.ThirdPerson })
+        switchCameraMode(entity, { mode: CameraModes.ThirdPerson })
         didSwitch = true
       } 
     break;

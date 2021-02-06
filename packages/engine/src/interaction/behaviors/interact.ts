@@ -19,7 +19,7 @@ const startedPosition = new Map<Entity,NumericalType>();
  * @param args
  * @param delta
  */
-export const  interact: Behavior = (entity: Entity, args: any, delta): void => {
+export const  interact: Behavior = (entity: Entity, args: any = { pointerLock: false }, delta): void => {
   if (!hasComponent(entity, Interactor)) {
     console.error(
       'Attempted to call interact behavior, but actor does not have Interactor component'
@@ -35,7 +35,7 @@ export const  interact: Behavior = (entity: Entity, args: any, delta): void => {
   if(mouseleftClick.lifecycleState === LifecycleValue.STARTED && mouseleftClick.value === 1) {
     const cameraFollow = getComponent<FollowCameraComponent>(entity, FollowCameraComponent);
     if(cameraFollow.mode === CameraModes.FirstPerson || cameraFollow.mode === CameraModes.ShoulderCam) {
-      cameraPointerLock(true)
+      args.pointerLock && cameraPointerLock(true)
     }
   }
 
