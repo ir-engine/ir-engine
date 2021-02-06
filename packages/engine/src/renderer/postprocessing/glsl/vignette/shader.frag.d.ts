@@ -1,2 +1,0 @@
-declare const _default: "uniform float offset;\nuniform float darkness;\n\nvoid mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {\n\n\tconst vec2 center = vec2(0.5);\n\tvec3 color = inputColor.rgb;\n\n\t#ifdef ESKIL\n\n\t\tvec2 coord = (uv - center) * vec2(offset);\n\t\tcolor = mix(color, vec3(1.0 - darkness), dot(coord, coord));\n\n\t#else\n\n\t\tfloat d = distance(uv, center);\n\t\tcolor *= smoothstep(0.8, offset * 0.799, d * (darkness + offset));\n\n\t#endif\n\n\toutputColor = vec4(color, inputColor.a);\n\n}\n";
-export default _default;

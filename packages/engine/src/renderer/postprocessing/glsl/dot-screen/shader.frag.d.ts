@@ -1,2 +1,0 @@
-declare const _default: "uniform vec2 angle;\nuniform float scale;\n\nfloat pattern(const in vec2 uv) {\n\n\tvec2 point = scale * vec2(\n\t\tdot(angle.yx, vec2(uv.x, -uv.y)),\n\t\tdot(angle, uv)\n\t);\n\n\treturn (sin(point.x) * sin(point.y)) * 4.0;\n\n}\n\nvoid mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {\n\n\tvec3 color = vec3(inputColor.rgb * 10.0 - 5.0 + pattern(uv * resolution));\n\toutputColor = vec4(color, inputColor.a);\n\n}\n";
-export default _default;
