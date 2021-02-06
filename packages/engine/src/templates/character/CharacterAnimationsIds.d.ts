@@ -1,0 +1,22 @@
+export declare enum CharacterAnimationsIds {
+    IDLE = 0,
+    IDLE_ROTATE_RIGHT = 1,
+    IDLE_ROTATE_LEFT = 2,
+    JUMP = 3,
+    JUMP_RUNNING = 4,
+    FALLING = 5,
+    FALLING_LONG = 6,
+    DROP = 7,
+    DROP_ROLLING = 8,
+    WALK_FORWARD = 9,
+    WALK_BACKWARD = 10,
+    WALK_STRAFE_RIGHT = 11,
+    WALK_STRAFE_LEFT = 12,
+    RUN_FORWARD = 13,
+    RUN_BACKWARD = 14,
+    RUN_STRAFE_RIGHT = 15,
+    RUN_STRAFE_LEFT = 16,
+    DRIVING = 17,
+    ENTERING_CAR = 18,
+    EXITING_CAR = 19
+}

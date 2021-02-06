@@ -1,0 +1,2 @@
+declare const _default: "varying vec2 vUvR;\nvarying vec2 vUvB;\n\nvoid mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {\n\n\tvec4 color = inputColor;\n\n\t#ifdef ALPHA\n\n\t\tvec2 ra = texture2D(inputBuffer, vUvR).ra;\n\t\tvec2 ba = texture2D(inputBuffer, vUvB).ba;\n\n\t\tcolor.r = ra.x;\n\t\tcolor.b = ba.x;\n\t\tcolor.a = max(max(ra.y, ba.y), inputColor.a);\n\n\t#else\n\n\t\tcolor.r = texture2D(inputBuffer, vUvR).r;\n\t\tcolor.b = texture2D(inputBuffer, vUvB).b;\n\n\t#endif\n\n\toutputColor = color;\n\n}\n";
+export default _default;

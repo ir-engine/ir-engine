@@ -1,0 +1,34 @@
+export default class InputManager {
+    canvas: any;
+    mappings: Map<any, any>;
+    mapping: any;
+    initialState: any;
+    state: any;
+    resetKeys: any[];
+    boundingClientRect: any;
+    mouseDownTarget: any;
+    constructor(canvas: any);
+    enableInputMapping(key: any, mapping: any): void;
+    disableInputMapping(key: any): void;
+    setInputMapping(mapping: any): void;
+    handleEventMappings(eventMappings: any, event: any): void;
+    handleKeyMappings(keyMappings: any, event: any, value: any): boolean;
+    handlePosition(positionAction: any, event: any): void;
+    onKeyDown: (event: any) => void;
+    onKeyUp: (event: any) => void;
+    onWindowMouseDown: (event: any) => void;
+    onMouseDown: (event: any) => void;
+    onWindowMouseUp: (event: any) => void;
+    onMouseUp: (event: any) => void;
+    onMouseMove: (event: any) => void;
+    onWheel: (event: any) => boolean;
+    onClick: (event: any) => void;
+    onDoubleClick: (event: any) => void;
+    onContextMenu: (event: any) => void;
+    onResize: () => void;
+    onWindowBlur: () => void;
+    update(dt: any, time: any): void;
+    reset(): void;
+    get(key: any): any;
+    dispose(): void;
+}
