@@ -6,7 +6,8 @@ import {
   Mesh,
   sRGBEncoding,
   LinearFilter,
-  PlaneBufferGeometry
+  PlaneBufferGeometry,
+  MeshStandardMaterial
 } from "three";
 import loadTexture from "../../editor/functions/loadTexture";
 export const ImageProjection = {
@@ -23,7 +24,7 @@ export default class Image extends Object3D {
   _projection: string;
   _alphaMode: string;
   _alphaCutoff: number;
-  _mesh: Mesh<PlaneBufferGeometry, MeshBasicMaterial>;
+  _mesh: Mesh;
   _texture: any;
   constructor() {
     super();
@@ -56,18 +57,18 @@ export default class Image extends Object3D {
   }
   set alphaMode(v) {
     this._alphaMode = v;
-    this._mesh.material.transparent = v === ImageAlphaMode.Blend;
-    this._mesh.material.alphaTest =
+    (this._mesh.material as MeshStandardMaterial).transparent = v === ImageAlphaMode.Blend;
+    (this._mesh.material as MeshStandardMaterial).alphaTest =
       v === ImageAlphaMode.Mask ? this.alphaCutoff : 0;
-    this._mesh.material.needsUpdate = true;
+      (this._mesh.material as MeshStandardMaterial).needsUpdate = true;
   }
   get alphaCutoff() {
     return this._alphaCutoff;
   }
   set alphaCutoff(v) {
     this._alphaCutoff = v;
-    this._mesh.material.alphaTest = v;
-    this._mesh.material.needsUpdate = true;
+    (this._mesh.material as MeshStandardMaterial).alphaTest = v;
+    (this._mesh.material as MeshStandardMaterial).needsUpdate = true;
   }
   get projection() {
     return this._projection;
@@ -104,7 +105,7 @@ export default class Image extends Object3D {
   async load(src) {
     this._src = src;
     this._mesh.visible = false;
-    const material = this._mesh.material;
+    const material = this._mesh.material as MeshStandardMaterial;
     if (material.map) {
       material.map.dispose();
     }
@@ -117,8 +118,8 @@ export default class Image extends Object3D {
     material.transparent = this.alphaMode === ImageAlphaMode.Blend;
     material.alphaTest =
       this.alphaMode === ImageAlphaMode.Mask ? this._alphaCutoff : 0;
-    this._mesh.material.map = this._texture;
-    this._mesh.material.needsUpdate = true;
+      (this._mesh.material as MeshStandardMaterial).map = this._texture;
+      (this._mesh.material as MeshStandardMaterial).needsUpdate = true;
     this._mesh.visible = true;
     return this;
   }

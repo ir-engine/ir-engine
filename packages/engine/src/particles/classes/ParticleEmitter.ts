@@ -1,4 +1,6 @@
+import { MathUtils, Matrix4 } from "three";
 import { createPseudoRandom } from "../../common/functions/MathRandomFunctions";
+import { ParticleEmitter, ParticleEmitterInterface } from "../interfaces";
 import {
   loadTexturePackerJSON,
   needsUpdate,
@@ -19,8 +21,6 @@ import {
   setVelocityScaleAt,
   setWorldAccelerationAt
 } from "./ParticleMesh";
-import { ParticleEmitterInterface, ParticleEmitter } from "../interfaces";
-import { Mesh, Geometry, MathUtils, Matrix4 } from "three";
 
 const error = console.error;
 const FRAME_STYLES = ["sequence", "randomsequence", "random"];

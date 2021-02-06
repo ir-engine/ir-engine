@@ -173,7 +173,7 @@ export default class OutlinePass extends Pass {
   oldClearAlpha: number
   outlineCamera: OrthographicCamera
   outlineScene: Scene
-  quad: Mesh<PlaneBufferGeometry, any>
+  quad: Mesh
   textureMatrix: Matrix4
   renderableLayers: Layers
   renderToScreen: any

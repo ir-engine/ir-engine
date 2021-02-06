@@ -21,7 +21,7 @@ export default class Video extends AudioSource {
   _videoTexture: VideoTexture;
   el: HTMLVideoElement;
   _texture: any;
-  _mesh: Mesh<PlaneBufferGeometry, MeshBasicMaterial>;
+  _mesh: Mesh;
   _projection: string;
   hls: any;
   audioSource: any;
@@ -120,10 +120,10 @@ export default class Video extends AudioSource {
     );
     this.audio.setNodeSource(this.audioSource);
     if (this._texture.format === RGBAFormat) {
-      this._mesh.material.transparent = true;
+      (this._mesh.material as MeshBasicMaterial).transparent = true;
     }
-    this._mesh.material.map = this._texture;
-    this._mesh.material.needsUpdate = true;
+    (this._mesh.material as MeshBasicMaterial).map = this._texture;
+    (this._mesh.material as MeshBasicMaterial).needsUpdate = true;
     this._mesh.visible = true;
     return this;
   }
