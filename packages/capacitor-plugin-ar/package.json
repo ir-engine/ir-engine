@@ -14,7 +14,7 @@
     "lint": "yarn run prettier -- --check && yarn run swiftlint -- lint",
     "prettier": "prettier \"**/*.{css,html,ts,js,java}\"",
     "swiftlint": "node-swiftlint",
-    "build": "yarn run clean && tsc && rollup -c rollup.config.js",
+    "build-native": "yarn run clean && tsc && rollup -c rollup.config.js",
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
     "prepublishOnly": "yarn run build"
