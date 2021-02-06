@@ -1,2 +1,0 @@
-declare const _default: "uniform float brightness;\nuniform float contrast;\n\nvoid mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {\n\n\tvec3 color = inputColor.rgb + vec3(brightness - 0.5);\n\n\tif(contrast > 0.0) {\n\n\t\tcolor /= vec3(1.0 - contrast);\n\n\t} else {\n\n\t\tcolor *= vec3(1.0 + contrast);\n\n\t}\n\n\toutputColor = vec4(min(color + vec3(0.5), 1.0), inputColor.a);\n\n}\n";
-export default _default;

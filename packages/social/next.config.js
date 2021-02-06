@@ -59,7 +59,7 @@ module.exports = withTM(
             loader: 'ts-loader',
             options: {
               allowTsInNodeModules: true,
-              // transpileOnly: true,
+              transpileOnly: true,
               // happyPackMode: true
             },
           }]
