@@ -93,15 +93,15 @@ class PMREMCubeUVPacker {
 
 					// 6 Cube Faces
 					const material = this.shader.clone();
-					material.uniforms['envMap'].value = this.cubeLods[i].texture;
-					(material as any).envMap = this.cubeLods[i].texture;
-					material.uniforms['faceIndex'].value = k;
-					material.uniforms['mapSize'].value = mipSize;
+					(material as ShaderMaterial).uniforms['envMap'].value = this.cubeLods[i].texture;
+					// (material as ShaderMaterial).envMap = this.cubeLods[i].texture;
+					(material as ShaderMaterial).uniforms['faceIndex'].value = k;
+					(material as ShaderMaterial).uniforms['mapSize'].value = mipSize;
 
 					const planeMesh = new Mesh(geometry, material);
 					planeMesh.position.x = faceOffsets[k].x * mipSize - offset1 + mipOffsetX;
 					planeMesh.position.y = faceOffsets[k].y * mipSize - offset1 + offset2 + mipOffsetY;
-					planeMesh.material.side = BackSide;
+					(planeMesh.material as any).side = BackSide;
 					planeMesh.scale.setScalar(mipSize);
 					this.objects.push(planeMesh);
 

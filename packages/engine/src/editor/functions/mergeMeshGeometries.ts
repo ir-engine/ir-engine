@@ -11,10 +11,6 @@ export default function mergeMeshGeometries(meshes) {
   for (const mesh of meshes) {
     let geometry = mesh.geometry;
     let attributes = geometry.attributes;
-    if (!geometry.isBufferGeometry) {
-      geometry = new BufferGeometry().fromGeometry(geometry);
-      attributes = geometry.attributes;
-    }
     if (!attributes.position) {
       continue;
     }

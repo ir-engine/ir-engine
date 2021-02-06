@@ -3,7 +3,7 @@ import { Entity } from "../../ecs/classes/Entity";
 import { InteractBehaviorArguments } from "../types/InteractionTypes";
 import { getComponent, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import { TransformComponent } from "../../transform/components/TransformComponent";
-import { Object3D, Ray, Raycaster, Vector3,Vector2 } from "three";
+import { Object3D, Ray, Raycaster, Vector3,Vector2, Camera } from "three";
 import { Object3DComponent } from "../../common/components/Object3DComponent";
 import { Interactable } from "../components/Interactable";
 import { Interactor } from "../components/Interactor";
@@ -67,12 +67,10 @@ export const interactRaycast: Behavior = (entity: Entity, { interactive }: Inter
   const raycaster = new Raycaster();
   let object;
   // - added mouse raycaster
-  const rayCamera = Engine.camera.clone();
+  const rayCamera = Engine.camera.clone() as Camera;
   const rayMouse = mouseScreen;
   raycaster.setFromCamera(rayMouse,rayCamera);
   let intersections = raycaster.intersectObjects(raycastList, true );
-
-
 
   if (!intersections.length){
     const rayOrigin = clientPosition;
