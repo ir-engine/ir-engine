@@ -48,8 +48,7 @@ import TooltipContainer from '../ui/TooltipContainer';
 
 const goHome = () => window.location.href = window.location.origin;
   
-const MobileGamepad = dynamic(() => import("../ui/MobileGamepad").then((mod) => mod.MobileGamepad), { ssr: false });
-
+import MobileGamepad from "../ui/MobileGamepad";
 interface Props {
   setAppLoaded?: any,
   sceneId?: string,
