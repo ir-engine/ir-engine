@@ -5,7 +5,7 @@
   "main": "dist/plugin.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
-  "private":"true",
+  "private": "true",
   "scripts": {
     "lint": "npm run prettier -- --check && npm run swiftlint -- lint",
     "prettier": "prettier \"**/*.{css,html,ts,js,java}\"",
@@ -29,7 +29,7 @@
     "rimraf": "^3.0.0",
     "rollup": "^2.21.0",
     "swiftlint": "^1.0.1",
-    "typescript": "~3.8.3"
+    "typescript": "^4.0.3"
   },
   "peerDependencies": {
     "@capacitor/core": "^2.4.6"
