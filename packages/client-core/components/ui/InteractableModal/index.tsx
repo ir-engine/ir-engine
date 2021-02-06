@@ -5,7 +5,11 @@ import styles from './style.module.scss';
 import { Button, Dialog, DialogContent, DialogTitle, IconButton, Typography } from "@material-ui/core";
 import CloseIcon from '@material-ui/icons/Close';
 
-const ModelView = dynamic(() => import("./modelView").then((mod) => mod.ModelView),  { ssr: false });
+type ModelViewProps = {
+  modelUrl: string
+}
+
+const ModelView = dynamic<ModelViewProps>(() => import("./modelView").then((mod) => mod.ModelView),  { ssr: false });
 
 export type InteractableModalProps = {
   onClose: unknown;
