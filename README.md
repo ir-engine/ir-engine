@@ -46,11 +46,11 @@ Free, open source, MIT-licensed
 
 ## Getting Started
 
-Getting up and running requires only a few steps.
+Getting up and running requires only a few steps. Supported on OSX / Linux / WSL2 for Windows
 
 First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.npmjs.com/) installed (and if you are using it, [docker](https://docs.docker.com/)).
 
-1. Install your dependencies - Use OSX / Linux / WSL2 for Windows
+1. Install your dependencies 
     ```
     cd path/to/xr3ngine
     yarn install
