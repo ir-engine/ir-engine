@@ -1,19 +1,23 @@
 {
   "name": "@xr3ngine/capacitor-plugin-ar",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "AR provider class for AR integration into a capacitor app",
   "main": "dist/plugin.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
   "private": true,
+  "engines": {
+    "yarn": ">= 0.18.0"
+  },
+  "npmClient": "yarn",
   "scripts": {
-    "lint": "npm run prettier -- --check && npm run swiftlint -- lint",
+    "lint": "yarn run prettier -- --check && yarn run swiftlint -- lint",
     "prettier": "prettier \"**/*.{css,html,ts,js,java}\"",
     "swiftlint": "node-swiftlint",
-    "build": "npm run clean && tsc && rollup -c rollup.config.js",
+    "build": "yarn run clean && tsc && rollup -c rollup.config.js",
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "yarn run build"
   },
   "author": "XR3 Group",
   "license": "MIT",
