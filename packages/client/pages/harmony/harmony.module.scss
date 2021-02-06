@@ -232,6 +232,16 @@ $mobileControllButtonsSize: 3em;
 .chat-window {
     display: flex;
     width: 70%;
+    flex-direction: column;
+
+    & > div {
+        height: 50%;
+    }
+
+    .video-container {
+        display: flex;
+        flex-grow: 1;
+    }
 }
 
 .drawerBox{
@@ -294,5 +304,40 @@ $mobileControllButtonsSize: 3em;
             }
         }
     }
+}
 
+.grid-item {
+    flex: 1 1 auto;
+}
+
+.party-user-container {
+    overflow-y: auto;
+
+    .single {
+        flex-grow: 0;
+        max-height: 100%;
+        max-width: 100%;
+        flex-basis: 100%;
+    }
+
+    .two-by-two {
+        flex-grow: 0;
+        max-height: 50%;
+        max-width: 50%;
+        flex-basis: 50%;
+    }
+
+    .three-by-three {
+        flex-grow: 0;
+        max-height: 33.3333%;
+        max-width: 33.3333%;
+        flex-basis: 33.3333%;
+    }
+
+    .four-by-four {
+        flex-grow: 0;
+        max-height: 25%;
+        max-width: 25%;
+        flex-basis: 25%;
+    }
 }
