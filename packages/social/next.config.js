@@ -23,7 +23,7 @@ module.exports = withTM(
       config.module.rules.push(
         {
           test: /\.(eot|woff|woff2|ttf)$/,
-          use: ['cache-loader', 'thread-loader', {
+          use: ['cache-loader',  {
             loader: 'url-loader',
             options: {
               limit: 100000,
@@ -41,7 +41,7 @@ module.exports = withTM(
         },
         {
           test: /\.(world)(\?.*$|$)/,
-          use: ['cache-loader', 'thread-loader', {
+          use: ['cache-loader',  {
             loader: "file-loader",
             options: {
               name: "[name]-[hash].[ext]",
@@ -51,7 +51,7 @@ module.exports = withTM(
         },
         {
           test: /\.ts(x?)$/,
-          use: ['cache-loader', 'thread-loader',
+          use: ['cache-loader', 
           {
           loader: 'babel-loader',
           options:  {"presets": ["next/babel"]}
@@ -66,7 +66,7 @@ module.exports = withTM(
         },
         {
           test: /\.m?js$/,
-          use: ['cache-loader', 'thread-loader', {
+          use: ['cache-loader',  {
             loader: 'babel-loader',
             options: {
               presets: [
@@ -78,7 +78,7 @@ module.exports = withTM(
 
       config.module.rules.push({
         test: /\.(glb)(\?.*$|$)/,
-        use: ['cache-loader', 'thread-loader', {
+        use: ['cache-loader',  {
           loader: "file-loader",
           options: {
             name: "[name]-[hash].[ext]",
@@ -88,7 +88,7 @@ module.exports = withTM(
       })
       config.module.rules.push({
         test: /\.(gltf)(\?.*$|$)/,
-        use: ['cache-loader', 'thread-loader', {
+        use: ['cache-loader',  {
           loader: "gltf-webpack-loader",
           options: {
             name: "[name]-[hash].[ext]",
@@ -99,7 +99,7 @@ module.exports = withTM(
       config.module.rules.push({
         test: /\.(bin)$/,
         use: [
-          'cache-loader', 'thread-loader',
+          'cache-loader', 
           {
             loader: "file-loader",
             options: {
@@ -111,11 +111,11 @@ module.exports = withTM(
       })
       config.module.rules.push({
         test: /\.(glsl|vert|fs|frag)$/,
-        use: ['cache-loader', 'thread-loader', 'ts-shader-loader']
+        use: ['cache-loader',  'ts-shader-loader']
       })
       config.module.rules.push({
         test: /\.(mp4|webm)(\?.*$|$)/,
-        use: ['cache-loader', 'thread-loader', {
+        use: ['cache-loader',  {
           loader: "file-loader",
           options: {
             name: "[name]-[hash].[ext]",
@@ -126,7 +126,7 @@ module.exports = withTM(
       config.module.rules.push({
         test: /\.tmp$/,
         type: "javascript/auto",
-        use: ['cache-loader', 'thread-loader', {
+        use: ['cache-loader',  {
           loader: "file-loader",
           options: {
             name: "[name]-[hash].[ext]"
@@ -136,7 +136,7 @@ module.exports = withTM(
       config.module.rules.push({
         test: /\.wasm$/,
         type: 'javascript/auto',
-        use: ['cache-loader', 'thread-loader', {
+        use: ['cache-loader',  {
             loader: 'file-loader',
             options: {
               outputPath: 'editor/assets/js/wasm',
