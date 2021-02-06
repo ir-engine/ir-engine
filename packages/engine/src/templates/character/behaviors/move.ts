@@ -21,14 +21,14 @@ export const move: Behavior = (
   time: any
 ): void => {
 
-  console.log(args);
+  // console.log(args);
   actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
 
   // Whatever the current movement group state is needs to have it's onChanged evaluator called
   const input: Input =  getMutableComponent<Input>(entity, Input as any);
 
-  console.log(input.data.values());
+  // console.log(input.data.values());
   // Check current inputs
 
   const inputType = args.inputType;

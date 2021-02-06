@@ -115,8 +115,8 @@ function updateIK(entity: Entity) {
       new Vector3(-0.1, 0, -1).normalize().multiplyScalar(actor.rightArmLength*0.4).applyQuaternion(actor.inputs.rightGamepad.quaternion)
     ); */
     if(lastRightGamePad !== actor.inputs.rightGamepad.position) {
-      console.log(actor);
-      console.log(actor.inputs.rightGamepad.position);
+      // console.log(actor);
+      // console.log(actor.inputs.rightGamepad.position);
     }
     lastRightGamePad = actor.inputs.rightGamepad.position;
     actor.inputs.leftGamepad.quaternion.setFromAxisAngle(new Vector3(0, 1, 0), rotationAngle);
