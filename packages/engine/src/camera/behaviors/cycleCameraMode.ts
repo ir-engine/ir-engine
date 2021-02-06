@@ -12,12 +12,13 @@ import { switchCameraMode } from './switchCameraMode';
  * @param entity Entity holding {@link camera/components/FollowCameraComponent.FollowCameraComponent | Follow camera} component.
  */
 export const cycleCameraMode: Behavior = (entity: Entity, args: any): void => {
-    const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent);
+  const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent);
+
     switch(cameraFollow?.mode) {
-        case CameraModes.FirstPerson: switchCameraMode(cameraFollow, { mode: CameraModes.ShoulderCam }); break;
-        case CameraModes.ShoulderCam: switchCameraMode(cameraFollow, { mode: CameraModes.ThirdPerson }); break;
-        case CameraModes.ThirdPerson: switchCameraMode(cameraFollow, { mode: CameraModes.TopDown }); break;
-        case CameraModes.TopDown: switchCameraMode(cameraFollow, { mode: CameraModes.FirstPerson }); break;
+        case CameraModes.FirstPerson: switchCameraMode(entity, { mode: CameraModes.ShoulderCam }); break;
+        case CameraModes.ShoulderCam: switchCameraMode(entity, { mode: CameraModes.ThirdPerson }); cameraFollow.distance = cameraFollow.minDistance + 1; break;
+        case CameraModes.ThirdPerson: switchCameraMode(entity, { mode: CameraModes.TopDown }); break;
+        case CameraModes.TopDown: switchCameraMode(entity, { mode: CameraModes.FirstPerson }); break;
         default: break;
     }
 };

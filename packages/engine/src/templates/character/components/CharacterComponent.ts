@@ -20,7 +20,8 @@ export class CharacterComponent extends Component<CharacterComponent> {
     super.dispose();
 		this.modelContainer.parent.remove(this.modelContainer);
 		//this.modelContainer = null;
-		this.tiltContainer = null;
+        this.tiltContainer = null;
+        // this.cameraMount = null;
   }
 
 	public initialized = false;
@@ -32,9 +33,11 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public animationsTimeScale = 0.7;
 
 	public height = 0;
+	// public cameraMount: Group;
 	public tiltContainer: Group;
 	public modelContainer: Group;
 	public materials: Material[] = [];
+  public visible = true;
 	public mixer: AnimationMixer;
 	public animations: any[]  = [];
 
@@ -149,5 +152,6 @@ export class CharacterComponent extends Component<CharacterComponent> {
 
 CharacterComponent._schema = {
 	tiltContainer: { type: Types.Ref, default: null },
+	// cameraMount: { type: Types.Ref, default: null },
 	//modelContainer: { type: Types.Ref, default: null }
 };
