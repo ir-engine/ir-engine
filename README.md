@@ -55,9 +55,9 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
     cd path/to/xr3ngine
     yarn install
     ```
-    Error? Optional: https://mediasoup.org/documentation/v3/mediasoup/installation/
-	WSL2? sudo apt-get update ; sudo apt-get install build-essential
-    
+    Error with mediasoup? Optional: https://mediasoup.org/documentation/v3/mediasoup/installation/
+	If on WSL2:	`sudo apt-get update ; sudo apt-get install build-essential`
+
 2. Make sure you have a mysql database installed and running -- our recommendation is Mariadb. We've provided a docker container for easy setup:
     ```
     cd scripts && sudo bash start-db.sh
