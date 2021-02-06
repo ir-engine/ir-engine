@@ -1,5 +1,4 @@
 import { cameraPointerLock } from "@xr3ngine/engine/src/camera/behaviors/cameraPointerLock";
-import { switchCameraMode } from "@xr3ngine/engine/src/camera/behaviors/switchCameraMode";
 import { Thumbsticks } from '../../common/enums/Thumbsticks';
 import { GamepadButtons } from '../../input/enums/GamepadButtons';
 import { MouseInput } from '../../input/enums/MouseInput';
@@ -19,8 +18,8 @@ import { lookByInputAxis } from "./behaviors/lookByInputAxis";
 import { CameraInput } from '../../input/enums/CameraInput';
 import { setCharacterExpression } from './behaviors/setCharacterExpression';
 import { fixedCameraBehindCharacter } from "../../camera/behaviors/fixedCameraBehindCharacter";
-import { BinaryValue } from "../../common/enums/BinaryValue";
 import { cycleCameraMode } from "../../camera/behaviors/cycleCameraMode";
+import { switchShoulderSide } from "../../camera/behaviors/switchShoulderSide";
 
 
 export const CharacterInputSchema: InputSchema = {
@@ -90,6 +89,7 @@ export const CharacterInputSchema: InputSchema = {
     shift: DefaultInput.SPRINT,
     p: DefaultInput.POINTER_LOCK,
     v: DefaultInput.SWITCH_CAMERA,
+    c: DefaultInput.SWITCH_SHOULDER_SIDE,
     f: DefaultInput.LOCKING_CAMERA
   },
   cameraInputMap: {
@@ -126,6 +126,14 @@ export const CharacterInputSchema: InputSchema = {
       started: [
         {
           behavior: fixedCameraBehindCharacter,
+          args: {}
+        }
+      ]
+    },
+    [DefaultInput.SWITCH_SHOULDER_SIDE]: {
+      started: [
+        {
+          behavior: switchShoulderSide,
           args: {}
         }
       ]

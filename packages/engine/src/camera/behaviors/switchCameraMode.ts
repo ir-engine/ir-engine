@@ -1,34 +1,42 @@
 import { FollowCameraComponent } from '@xr3ngine/engine/src/camera/components/FollowCameraComponent';
 import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
+import { Entity } from '../../ecs/classes/Entity';
+import { getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
+import { setVisible } from '../../templates/character/functions/setVisible';
 import { CameraModes } from "../types/CameraModes";
 import { cameraPointerLock } from './cameraPointerLock';
 
-export const switchCameraMode = (cameraFollow: FollowCameraComponent, args: any): void => {
-    
+export const switchCameraMode = (entity: Entity, args: any = { pointerLock: false, mode: CameraModes.ThirdPerson }): void => {
+  const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+
+  const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent);
   cameraFollow.mode = args.mode
 
   switch(args.mode) {
     case CameraModes.FirstPerson: {
-        cameraPointerLock(true);
-        Engine.camera.near = 0.1; 
-        cameraFollow.offset.set(0, 1, 0);
-        cameraFollow.phi = 45;
+      args.pointerLock && cameraPointerLock(true);
+      cameraFollow.offset.set(0, 1, 0);
+      cameraFollow.phi = 45;
+      setVisible(actor, false);
     } break;
 
     case CameraModes.ShoulderCam: {
-        cameraPointerLock(true);
-        Engine.camera.near = 2; 
-        cameraFollow.offset.set(1, 1, 0);
+      args.pointerLock && cameraPointerLock(true);
+      cameraFollow.offset.set(cameraFollow.shoulderSide ? -0.25 : 0.25, 1, 0);
+      setVisible(actor, true);
     } break;
 
     default: case CameraModes.ThirdPerson: {
-        cameraPointerLock(false);
-        cameraFollow.offset.set(0, 1, 0);
+      args.pointerLock && cameraPointerLock(false);
+      cameraFollow.offset.set(cameraFollow.shoulderSide ? -0.25 : 0.25, 1, 0);
+      setVisible(actor, true);
     } break;
 
     case CameraModes.TopDown: {
-        cameraPointerLock(false);
-        cameraFollow.offset.set(0, 1, 0);
+      args.pointerLock && cameraPointerLock(false);
+      cameraFollow.offset.set(0, 1, 0);
+      setVisible(actor, true);
     } break;
   }
 };

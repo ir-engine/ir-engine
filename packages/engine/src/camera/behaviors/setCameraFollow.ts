@@ -23,6 +23,7 @@ const up = new Vector3(0, 1, 0);
 const empty = new Vector3();
 const PI_2 = Math.PI / 2;
 const mx = new Matrix4();
+const vec3 = new Vector3();
 
 /**
  * Set camera to follow the entity.
@@ -38,71 +39,63 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
   if (!cameraDesiredTransform.rotation) {
     cameraDesiredTransform.rotation = new Quaternion();
   }
-  const targetTransform: TransformComponent = getMutableComponent(entityOut, TransformComponent); // Player 
-
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entityOut, CharacterComponent as any);
 
   const inputComponent = getComponent(entityOut, Input) as Input;
   const cameraFollow = getMutableComponent<FollowCameraComponent>(entityOut, FollowCameraComponent) as FollowCameraComponent;
 
-  const isLockedToAvatar = cameraFollow.mode === CameraModes.FirstPerson || cameraFollow.mode === CameraModes.ShoulderCam
-
-  let inputAxes;
-  if (isLockedToAvatar) {
-    inputAxes = DefaultInput.MOUSE_MOVEMENT;
-  } else {
-    inputAxes = DefaultInput.LOOKTURN_PLAYERONE;
-  }
+  // this is for future integration of MMO style pointer lock controls
+  // let inputAxes;
+  // if (cameraFollow.mode === CameraModes.FirstPerson || cameraFollow.mode === CameraModes.ShoulderCam) {
+  //   inputAxes = DefaultInput.MOUSE_MOVEMENT;
+  // } else {
+    const inputAxes = DefaultInput.LOOKTURN_PLAYERONE;
+  // }
 
   const inputValue = getInputData(inputComponent, inputAxes, args?.forceRefresh) || [0, 0]
 
   if (!args?.forceRefresh || cameraFollow.mode === CameraModes.FirstPerson) {
     cameraDesiredTransform.positionRate = 5;
   }
+  const targetTheta = Math.atan2(actor.orientation.x, actor.orientation.z) * 180 / Math.PI + 180;// target theta
+
+  cameraFollow.theta = targetTheta;
+  cameraFollow.theta %= 360;
+
+  cameraFollow.phi -= inputValue[1] * 50;
+  cameraFollow.phi = Math.min(85, Math.max(-85, cameraFollow.phi));
+
+  let camDist = cameraFollow.distance;
+  if (cameraFollow.mode === CameraModes.FirstPerson) camDist = 0.01;
+  else if (cameraFollow.mode === CameraModes.ShoulderCam) camDist = cameraFollow.minDistance;
+  else if (cameraFollow.mode === CameraModes.TopDown) camDist = cameraFollow.maxDistance;
+
+  // TODO: add a raycast to limit camDist
+  
+  const phi = cameraFollow.mode === CameraModes.TopDown ? 85 : cameraFollow.phi;
+
+  const shoulderOffsetWorld = cameraFollow.offset.clone().applyQuaternion(actor.tiltContainer.quaternion);
+  const targetPosition = actor.tiltContainer.getWorldPosition(vec3).add(shoulderOffsetWorld);
+  
+  cameraDesiredTransform.position.set(
+      targetPosition.x + camDist * Math.sin(cameraFollow.theta * Math.PI / 180) * Math.cos(phi * Math.PI / 180),
+      targetPosition.y + camDist * Math.sin(phi * Math.PI / 180),
+      targetPosition.z + camDist * Math.cos(cameraFollow.theta * Math.PI / 180) * Math.cos(phi * Math.PI / 180)
+  );
+
+  direction.copy(cameraDesiredTransform.position);
+  direction = direction.sub(targetPosition).normalize();
+  
+  mx.lookAt(direction, empty, up);
+  cameraDesiredTransform.rotation.setFromRotationMatrix(mx);
+
+  if(cameraFollow.mode === CameraModes.FirstPerson || cameraFollow.mode === CameraModes.ShoulderCam) {
+      cameraTransform.rotation.copy(cameraDesiredTransform.rotation);
+  }
 
   if (cameraFollow.mode === CameraModes.FirstPerson) {
-
-    euler.setFromQuaternion(cameraDesiredTransform.rotation);
-    
-    euler.y -= inputValue[0];
-    euler.x += inputValue[1];
-    
-    euler.x = Math.max(-PI_2, Math.min(PI_2, euler.x));
-    
-    cameraTransform.rotation.setFromEuler(euler);
-    cameraDesiredTransform.rotation.setFromEuler(euler);
-    actor.tiltContainer.rotation.y = euler.y - Math.PI
-    
-    cameraTransform.position.copy(actor.tiltContainer.position)
-    cameraDesiredTransform.position.copy(targetTransform.position);
-
-  } else {
-
-    const targetTheta = Math.atan2(actor.orientation.x, actor.orientation.z) * 180 / Math.PI + 180;// target theta
-
-    cameraFollow.theta = targetTheta;
-    cameraFollow.theta %= 360;
-  
-    cameraFollow.phi -= inputValue[1] * 50;
-    cameraFollow.phi = Math.min(85, Math.max(0, cameraFollow.phi));
-
-    let camDist = cameraFollow.distance;
-    if (cameraFollow.mode === CameraModes.ShoulderCam) camDist = cameraFollow.minDistance;
-    else if (cameraFollow.mode === CameraModes.TopDown) camDist = cameraFollow.maxDistance;
-    
-    const phi = cameraFollow.mode === CameraModes.TopDown ? 85 : cameraFollow.phi;
-    
-    cameraDesiredTransform.position.set(
-      targetTransform.position.x + camDist * Math.sin(cameraFollow.theta * Math.PI / 180) * Math.cos(phi * Math.PI / 180),
-      targetTransform.position.y + camDist * Math.sin(phi * Math.PI / 180),
-      targetTransform.position.z + camDist * Math.cos(cameraFollow.theta * Math.PI / 180) * Math.cos(phi * Math.PI / 180)
-    );
-    
-    direction.copy(cameraDesiredTransform.position)
-    direction = direction.sub(targetTransform?.position).normalize();
-
-    mx.lookAt(direction, empty, up);
-    cameraDesiredTransform.rotation.setFromRotationMatrix(mx);
+      cameraTransform.position.copy(targetPosition);
+      cameraDesiredTransform.position.copy(cameraTransform.position);
   }
 };
 
