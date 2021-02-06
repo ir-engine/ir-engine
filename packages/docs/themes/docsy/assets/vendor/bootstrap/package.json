@@ -97,9 +97,9 @@
     "popper.js": "^1.14.3"
   },
   "devDependencies": {
-    "@babel/cli": "7.0.0-beta.52",
-    "@babel/core": "7.0.0-beta.52",
-    "@babel/preset-env": "7.0.0-beta.52",
+    "@babel/cli": "7.12.10",
+    "@babel/core": "7.12.10",
+    "@babel/preset-env": "7.12.10",
     "autoprefixer": "^8.6.5",
     "babel-eslint": "^8.2.5",
     "babel-plugin-istanbul": "^4.1.6",

@@ -1,4 +1,4 @@
-import {Mesh, Vector3, Object3D, Geometry} from 'three';
+import {Mesh, Vector3, Object3D} from 'three';
 import { Material, Vec3, ConvexPolyhedron, Body } from 'cannon-es';
 import { Component } from '../../ecs/classes/Component';
 import { setDefaults } from "../../templates/character/functions/setDefaults";
@@ -26,11 +26,6 @@ export class ConvexCollider extends Component<ConvexCollider>
 		const mat = new Material('convMat');
 		mat.friction = options.friction;
 		// mat.restitution = 0.7;
-
-		if (this.mesh.geometry.isBufferGeometry)
-		{
-			this.mesh.geometry = new Geometry().fromBufferGeometry(this.mesh.geometry);
-		}
 
 		const cannonPoints = this.mesh.geometry.vertices.map((v: Vector3) => {
 			return new Vec3( v.x, v.y, v.z );

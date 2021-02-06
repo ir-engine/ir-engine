@@ -418,7 +418,7 @@ const HarmonyPage = (props: Props): any => {
 
     return (
         <Layout pageTitle="Home">
-            <style global jsx>{`
+            <style>{`
               html,
               body,
               body > div:first-child,

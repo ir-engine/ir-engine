@@ -1,5 +1,5 @@
 import autobind from 'autobind-decorator';
-import { Quaternion, AmbientLight, AnimationClip, Bone, BufferAttribute, BufferGeometry, ClampToEdgeWrapping, Color, DefaultLoadingManager, MathUtils, DirectionalLight, EquirectangularReflectionMapping, Euler, FileLoader, Float32BufferAttribute, Group, Line, LineBasicMaterial, Loader, LoaderUtils, Matrix3, Matrix4, Mesh, MeshLambertMaterial, MeshPhongMaterial, NumberKeyframeTrack, Object3D, OrthographicCamera, PerspectiveCamera, PointLight, PropertyBinding, QuaternionKeyframeTrack, RepeatWrapping, Skeleton, SkinnedMesh, SpotLight, Texture, TextureLoader, Uint16BufferAttribute, Vector3, Vector4, VectorKeyframeTrack, VertexColors, LoadingManager } from 'three';
+import { Quaternion, AmbientLight, AnimationClip, Bone, BufferAttribute, BufferGeometry, ClampToEdgeWrapping, Color, DefaultLoadingManager, MathUtils, DirectionalLight, EquirectangularReflectionMapping, Euler, FileLoader, Float32BufferAttribute, Group, Line, LineBasicMaterial, Loader, LoaderUtils, Matrix3, Matrix4, Mesh, MeshLambertMaterial, MeshPhongMaterial, NumberKeyframeTrack, Object3D, OrthographicCamera, PerspectiveCamera, PointLight, PropertyBinding, QuaternionKeyframeTrack, RepeatWrapping, Skeleton, SkinnedMesh, SpotLight, Texture, TextureLoader, Uint16BufferAttribute, Vector3, Vector4, VectorKeyframeTrack, LoadingManager } from 'three';
 import { TGALoader } from '../tga/TGALoader';
 import { NURBSCurve } from './NURBSCurve';
 
@@ -1092,7 +1092,7 @@ class FBXTreeParser<FBXTreeParserInterface> {
 
       materials.forEach(  ( material ) => {
 
-        material.vertexColors = VertexColors;
+        // material.vertexColors = VertexColors;
 
       } );
 

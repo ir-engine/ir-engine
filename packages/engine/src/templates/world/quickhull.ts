@@ -39,6 +39,7 @@
  */
 
  import * as THREE from 'three';
+import { BufferAttribute, BufferGeometry } from 'three';
 /* tslint:disable */
 export const quickhull = (function(){
   let faces = [];
@@ -291,36 +292,64 @@ export const quickhull = (function(){
 
   }();
 
-  return function( geometry ){
+  return function( geometry: BufferGeometry ){
     reset();
 
-    const points    = geometry.vertices;
+    let v0Index;
+    let v1Index;
+    let v2Index;
+    let v3Index;
+
+    const points    = geometry.getAttribute('position');
     faces = [];
     faceStack = [];
-    let i = NUM_POINTS = points.length;
-    const extremes = points.slice( 0, 6 );
+    let i = NUM_POINTS = points.count;
+    const extremes = new Array(6);
+    const extremesIndex = new Array(6);
+
+    for(i = 0; i < extremes.length; i++){
+      extremes[i] = points.array[i];
+    }
     let max = 0;
-
-
 
     /*
      *  FIND EXTREMETIES
      */
     while( i-- > 0 ){
-      if( points[i].x < extremes[0].x ) extremes[0] = points[i];
-      if( points[i].x > extremes[1].x ) extremes[1] = points[i];
+      if( points[i].x < extremes[0].x ) {
+        extremes[0] = points[i];
+        extremesIndex[0] = i;
+      }
+      if( points[i].x > extremes[1].x ){
+        extremes[1] = points[i];
+        extremesIndex[1] = i;
+      } 
 
-      if( points[i].y < extremes[2].y ) extremes[2] = points[i];
-      if( points[i].y < extremes[3].y ) extremes[3] = points[i];
+      if( points[i].y < extremes[2].y ){
+        extremes[2] = points[i];
+        extremesIndex[2] = i;
+      } 
+      if( points[i].y < extremes[3].y ){
+        extremes[3] = points[i];
+        extremesIndex[3] = i;
+      } 
 
-      if( points[i].z < extremes[4].z ) extremes[4] = points[i];
-      if( points[i].z < extremes[5].z ) extremes[5] = points[i];
+      if( points[i].z < extremes[4].z ) {
+        extremes[4] = points[i];
+        extremesIndex[4] = i;
+      }
+      
+      if( points[i].z < extremes[5].z ) {
+        extremes[5] = points[i];
+        extremesIndex[6] = i;
+      }
     }
 
 
     /*
      *  Find the longest line between the extremeties
      */
+
 
     j = i = 6;
     while( i-- > 0 ){
@@ -330,7 +359,8 @@ export const quickhull = (function(){
         max = dcur;
         v0 = extremes[ i ];
         v1 = extremes[ j ];
-
+        v0Index = extremesIndex[i];
+        v1Index = extremesIndex[j];
           }
         }
       }
@@ -344,6 +374,7 @@ export const quickhull = (function(){
       if( max < dcur ){
         max = dcur;
             v2 = extremes[ i ];
+            v2Index = extremesIndex[i];
           }
     }
 
@@ -361,15 +392,9 @@ export const quickhull = (function(){
           if( max < dcur ){
             max = dcur;
             v3 = points[i];
+            v3Index = extremesIndex[i];
       }
       }
-
-
-
-      const v0Index = points.indexOf( v0 ),
-      v1Index = points.indexOf( v1 ),
-      v2Index = points.indexOf( v2 ),
-      v3Index = points.indexOf( v3 );
 
 
     //  We now have a tetrahedron as the base geometry.
@@ -399,12 +424,15 @@ export const quickhull = (function(){
 
 
     //One for each face of the pyramid
-    const pointsCloned = points.slice();
-    pointsCloned.splice( pointsCloned.indexOf( v0 ), 1 );
-    pointsCloned.splice( pointsCloned.indexOf( v1 ), 1 );
-    pointsCloned.splice( pointsCloned.indexOf( v2 ), 1 );
-    pointsCloned.splice( pointsCloned.indexOf( v3 ), 1 );
-
+    const pointsCloned = new BufferAttribute(new Uint16Array(points.count - 4), 1);
+    let offset = 0;
+    for(let i = 0; i < points.count; i++){
+      if(i === v0Index || i === v1Index || i == v2Index || i === v3Index){
+        offset++;
+        continue;
+      }
+      pointsCloned[i] = points[i-offset];
+    }
 
     let k = tetrahedron.length;
     while( k-- > 0 ){
@@ -421,14 +449,16 @@ export const quickhull = (function(){
     //  Assign to our geometry object
 
     let ll = faces.length;
+const buf = new BufferAttribute(new Uint16Array(faces.length * 3), 1);
+
+// TODO: Make sure this is unwinding properly
     while( ll-- > 0 ){
-      geometry.faces[ll] = new THREE.Face3( faces[ll][2], faces[ll][1], faces[ll][0], faces[ll].normal );
+      buf[ll-1] = faces[ll][0];
+      buf[ll-2] = faces[ll][1];
+      buf[ll-3] = faces[ll][2];
     }
-
-    geometry.normalsNeedUpdate = true;
-
+    geometry.setIndex(buf)
     return geometry;
-
   };
 
 }());

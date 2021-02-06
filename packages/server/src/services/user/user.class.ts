@@ -150,7 +150,6 @@ export class User extends Service {
       });
 
       await Promise.all(userResult.rows.map((user) => {
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
         return new Promise(async (resolve) => {
           const userAvatarResult = await this.app.service('static-resource').find({
             query: {
@@ -163,7 +162,7 @@ export class User extends Service {
             user.dataValues.avatarUrl = userAvatarResult.data[0].url;
           }
 
-          resolve();
+          resolve(true);
         });
       }));
 

@@ -30,7 +30,7 @@ const AdminConsolePage = (props: Props) => {
   return (
       // <ThemeProvider theme={theme}>
         <EmptyLayout>
-            <style jsx global> {`
+            <style> {`
                 .adminPage {
                     height: 100%;
                 }

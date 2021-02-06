@@ -12,6 +12,10 @@ module.exports = withImages(
       APP_URL: process.env.APP_URL,
       SERVER_URL: process.env.SERVER_URL
     },
+    future: {
+		  excludeDefaultMomentLocales: true,
+		  webpack5: true
+	  },
     dir: './',
     distDir: './.next',
     async redirects() {
