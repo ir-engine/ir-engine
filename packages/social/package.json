@@ -64,7 +64,7 @@
     "app-root-path": "^3.0.0",
     "autobind-decorator": "^2.4.0",
     "autoprefixer": "^9.7.5",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "babel-preset-react": "^6.24.1",
     "browserfs": "^1.4.3",
     "child_process": "^1.0.2",
