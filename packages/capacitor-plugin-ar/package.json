@@ -7,13 +7,13 @@
   "types": "dist/esm/index.d.ts",
   "private": "true",
   "scripts": {
-    "xlint": "npm run prettier -- --check && npm run swiftlint -- lint",
-    "xprettier": "prettier \"**/*.{css,html,ts,js,java}\"",
-    "xswiftlint": "node-swiftlint",
-    "xbuild": "npm run clean && tsc && rollup -c rollup.config.js",
-    "xclean": "rimraf ./dist",
-    "xwatch": "tsc --watch",
-    "xprepublishOnly": "npm run build"
+    "lint": "npm run prettier -- --check && npm run swiftlint -- lint",
+    "prettier": "prettier \"**/*.{css,html,ts,js,java}\"",
+    "swiftlint": "node-swiftlint",
+    "build": "npm run clean && tsc && rollup -c rollup.config.js",
+    "clean": "rimraf ./dist",
+    "watch": "tsc --watch",
+    "prepublishOnly": "npm run build"
   },
   "author": "XR3 Group",
   "license": "MIT",
@@ -24,6 +24,7 @@
     "@ionic/prettier-config": "^1.0.0",
     "@ionic/swiftlint-config": "^1.0.0",
     "@rollup/plugin-node-resolve": "^8.1.0",
+    "@types/webgl2": "^0.0.5",
     "prettier": "^2.0.5",
     "prettier-plugin-java": "^0.8.0",
     "rimraf": "^3.0.0",
@@ -63,6 +64,7 @@
     "url": "https://github.com/xr3ngine/xr3ngine/issues"
   },
   "dependencies": {
+    "@types/react": "^17.0.1",
     "@types/webgl2": "^0.0.5"
   }
 }
