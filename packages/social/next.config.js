@@ -2,8 +2,9 @@ const path = require('path')
 const appRootPath = require('app-root-path')
 process.env.NODE_CONFIG_DIR = path.join(appRootPath.path, 'packages/client/config')
 const conf = require('config');
+const withTM = require('next-transpile-modules')(['@xr3ngine/client-core'], { unstable_webpack5: true });
 
-module.exports =
+module.exports = withTM(
   {
     /* config options here */
     publicRuntimeConfig: conf.get('publicRuntimeConfig'),
@@ -146,4 +147,4 @@ module.exports =
       })
       return config
     }
-  }
+  })
