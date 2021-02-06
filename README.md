@@ -288,7 +288,7 @@ SMTP_PASS=<mailtrap-password>
 Feathers.js has a powerful command line interface. Here are a few things it can do:
 
 ```
-$ npm install -g @feathersjs/cli          # Install Feathers CLI
+$ yarn install -g @feathersjs/cli          # Install Feathers CLI
 
 $ feathers generate service               # Generate a new Service
 $ feathers generate hook                  # Generate a new Hook

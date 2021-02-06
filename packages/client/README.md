@@ -15,9 +15,9 @@ This is the client portion of XR3ngine. To deploy everything at once with Kubern
 To run
 
 ```
-npm install
-npm run build
-npm run dev
+yarn install
+yarn run build
+yarn run dev
 ```
 
 ## config file
