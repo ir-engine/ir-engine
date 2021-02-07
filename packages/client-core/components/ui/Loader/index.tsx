@@ -26,7 +26,7 @@ const LoadingScreen = (props: Props) => {
   const [count, setCount] = useState(null);
 
   useEffect(() => {
-    setCount(parseInt(label) || null);
+    setCount(objectsToLoad);
 
     if (onBoardingStep === generalStateList.START_STATE) {
       setShowProgressBar(true);
