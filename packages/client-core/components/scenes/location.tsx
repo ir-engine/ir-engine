@@ -236,7 +236,7 @@ export const EnginePage = (props: Props) => {
   //all scene entities are loaded
   const onSceneLoaded = (event: CustomEvent): void => {
     if (event.detail.loaded) {
-      setProgressEntity(event.detail.left);
+      setProgressEntity(0);
       store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
       document.removeEventListener('scene-loaded', onSceneLoaded);
       setAppLoaded(true);
@@ -248,7 +248,7 @@ export const EnginePage = (props: Props) => {
 
   //started loading scene entities
   const onSceneLoadedEntity = (event: CustomEvent): void => {
-    setProgressEntity(event.detail.left);
+    setProgressEntity(event.detail.left || 0);
   };
 
   const onObjectHover = (event: CustomEvent): void => {
