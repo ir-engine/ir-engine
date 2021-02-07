@@ -14,11 +14,11 @@ import { CameraModes } from '../types/CameraModes'
  */
 export const fixedCameraBehindCharacter: Behavior = (entity: Entity, args: any, delta: number): void => {
   const follower = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent);
-  
-  if (follower?.mode === CameraModes.ThirdPerson) {
-    const cameraTargetTransform = getMutableComponent (CameraComponent.instance.entity, DesiredTransformComponent);
-    cameraTargetTransform.positionRate = 5;
-    setCameraFollow(CameraComponent.instance.entity, {forceRefresh: true}, delta, CameraComponent.instance.followTarget);
+
+  if (follower?.mode !== CameraModes.FirstPerson && CameraComponent.instance) {
+    follower.locked = !follower.locked
+    // follower.needsReset = follower.locked
+    // setCameraFollow(CameraComponent.instance.entity, { forceRefresh: true }, delta, CameraComponent.instance.followTarget);
   }
   
 };

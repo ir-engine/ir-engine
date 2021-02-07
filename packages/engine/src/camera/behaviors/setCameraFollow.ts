@@ -3,27 +3,23 @@ import { Entity } from "@xr3ngine/engine/src/ecs/classes/Entity";
 import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { Input } from "@xr3ngine/engine/src/input/components/Input";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
-import { CameraComponent } from "@xr3ngine/engine/src/camera/components/CameraComponent";
 import { FollowCameraComponent } from "@xr3ngine/engine/src/camera/components/FollowCameraComponent";
 import { getComponent, getMutableComponent } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
 import { DefaultInput } from "../../templates/shared/DefaultInput";
-import { LifecycleValue } from "../../common/enums/LifecycleValue";
-import { NumericalType } from "../../common/types/NumericalTypes";
-import { Engine } from "../../ecs/classes/Engine";
-import { countActors } from "../../xr/SkeletonFunctions";
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { getInputData } from "../functions/getInputData";
-import { anglesDifference } from "../functions/anglesDifference";
 import { DesiredTransformComponent } from "../../transform/components/DesiredTransformComponent";
 import { CameraModes } from "../types/CameraModes";
+import { isMobileOrTablet } from "../../common/functions/isMobile";
 
-const euler = new Euler(0, 0, 0, "YXZ");
+const forwardVector = new Vector3(0, 0, 1);
 let direction = new Vector3();
-const up = new Vector3(0, 1, 0);
+const upVector = new Vector3(0, 1, 0);
 const empty = new Vector3();
-const PI_2 = Math.PI / 2;
+const PI_2Deg = Math.PI / 180;
 const mx = new Matrix4();
 const vec3 = new Vector3();
+const sensitivity = isMobileOrTablet() ? 35 : 80 // eventually this will come from some settings somewhere
 
 /**
  * Set camera to follow the entity.
@@ -32,7 +28,6 @@ const vec3 = new Vector3();
  */
 export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: any, entityOut: Entity): void => {
   const cameraDesiredTransform: DesiredTransformComponent = getMutableComponent(entityIn, DesiredTransformComponent) as DesiredTransformComponent; // Camera
-  const cameraTransform = getMutableComponent(entityIn, TransformComponent); // Camera
   if (!cameraDesiredTransform.position) {
     cameraDesiredTransform.position = new Vector3();
   }
@@ -40,6 +35,7 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
     cameraDesiredTransform.rotation = new Quaternion();
   }
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entityOut, CharacterComponent as any);
+  const actorTransform = getMutableComponent(entityOut, TransformComponent);
 
   const inputComponent = getComponent(entityOut, Input) as Input;
   const cameraFollow = getMutableComponent<FollowCameraComponent>(entityOut, FollowCameraComponent) as FollowCameraComponent;
@@ -51,19 +47,22 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
   // } else {
     const inputAxes = DefaultInput.LOOKTURN_PLAYERONE;
   // }
-
   const inputValue = getInputData(inputComponent, inputAxes, args?.forceRefresh) || [0, 0]
-
-  if (!args?.forceRefresh || cameraFollow.mode === CameraModes.FirstPerson) {
-    cameraDesiredTransform.positionRate = 5;
+  
+  if(cameraFollow.locked) {
+    cameraFollow.theta = Math.atan2(actor.orientation.x, actor.orientation.z) * 180 / Math.PI + 180
   }
-  const targetTheta = Math.atan2(actor.orientation.x, actor.orientation.z) * 180 / Math.PI + 180;// target theta
-
-  cameraFollow.theta = targetTheta;
+  cameraFollow.theta -= inputValue[0] * sensitivity;
   cameraFollow.theta %= 360;
-
-  cameraFollow.phi -= inputValue[1] * 50;
+  
+  cameraFollow.phi -= inputValue[1] * sensitivity;
   cameraFollow.phi = Math.min(85, Math.max(-85, cameraFollow.phi));
+
+  if(cameraFollow.locked || cameraFollow.mode === CameraModes.FirstPerson) {
+    actorTransform.rotation.setFromAxisAngle(upVector, (cameraFollow.theta - 180) * (Math.PI / 180));
+    actor.orientation.copy(forwardVector).applyQuaternion(actorTransform.rotation);
+    actorTransform.rotation.setFromUnitVectors(forwardVector, actor.orientation.clone().setY(0));
+  }
 
   let camDist = cameraFollow.distance;
   if (cameraFollow.mode === CameraModes.FirstPerson) camDist = 0.01;
@@ -78,24 +77,24 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
   const targetPosition = actor.tiltContainer.getWorldPosition(vec3).add(shoulderOffsetWorld);
   
   cameraDesiredTransform.position.set(
-      targetPosition.x + camDist * Math.sin(cameraFollow.theta * Math.PI / 180) * Math.cos(phi * Math.PI / 180),
-      targetPosition.y + camDist * Math.sin(phi * Math.PI / 180),
-      targetPosition.z + camDist * Math.cos(cameraFollow.theta * Math.PI / 180) * Math.cos(phi * Math.PI / 180)
+      targetPosition.x + camDist * Math.sin(cameraFollow.theta * PI_2Deg) * Math.cos(phi * PI_2Deg),
+      targetPosition.y + camDist * Math.sin(phi * PI_2Deg),
+      targetPosition.z + camDist * Math.cos(cameraFollow.theta * PI_2Deg) * Math.cos(phi * PI_2Deg)
   );
 
   direction.copy(cameraDesiredTransform.position);
   direction = direction.sub(targetPosition).normalize();
   
-  mx.lookAt(direction, empty, up);
+  mx.lookAt(direction, empty, upVector);
   cameraDesiredTransform.rotation.setFromRotationMatrix(mx);
 
-  if(cameraFollow.mode === CameraModes.FirstPerson || cameraFollow.mode === CameraModes.ShoulderCam) {
-      cameraTransform.rotation.copy(cameraDesiredTransform.rotation);
-  }
+  // for pointer lock controls
+  // if(cameraFollow.mode === CameraModes.FirstPerson || cameraFollow.mode === CameraModes.ShoulderCam) {
+  //     cameraTransform.rotation.copy(cameraDesiredTransform.rotation);
+  // }
 
   if (cameraFollow.mode === CameraModes.FirstPerson) {
-      cameraTransform.position.copy(targetPosition);
-      cameraDesiredTransform.position.copy(cameraTransform.position);
+    cameraDesiredTransform.position.copy(targetPosition);
   }
 };
 

@@ -17,7 +17,7 @@ export const switchCameraMode = (entity: Entity, args: any = { pointerLock: fals
     case CameraModes.FirstPerson: {
       args.pointerLock && cameraPointerLock(true);
       cameraFollow.offset.set(0, 1, 0);
-      cameraFollow.phi = 45;
+      cameraFollow.phi = 0;
       setVisible(actor, false);
     } break;
 
