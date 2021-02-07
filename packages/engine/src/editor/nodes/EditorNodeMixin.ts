@@ -8,7 +8,6 @@ import {
 } from "../functions/StaticMode";
 import { Color, Object3D } from "three";
 import serializeColor from "../functions/serializeColor";
-import LoadingCube from "../../scene/classes/LoadingCube";
 import ErrorIcon from "../classes/ErrorIcon";
 export default function EditorNodeMixin(Object3DClass) {
   return class extends Object3DClass {
@@ -65,7 +64,6 @@ export default function EditorNodeMixin(Object3DClass) {
       this.staticMode = StaticModes.Inherits;
       this.originalStaticMode = null;
       this.saveParent = false;
-      this.loadingCube = null;
       this.errorIcon = null;
       this.issues = [];
     }
@@ -74,17 +72,10 @@ export default function EditorNodeMixin(Object3DClass) {
     }
     copy(source, recursive = true) {
       if (recursive) {
-        this.remove(this.loadingCube);
         this.remove(this.errorIcon);
       }
       super.copy(source, recursive);
       if (recursive) {
-        const loadingCubeIndex = source.children.findIndex(
-          child => child === source.loadingCube
-        );
-        if (loadingCubeIndex !== -1) {
-          this.loadingCube = this.children[loadingCubeIndex];
-        }
         const errorIconIndex = source.children.findIndex(
           child => child === source.errorIcon
         );
@@ -97,9 +88,6 @@ export default function EditorNodeMixin(Object3DClass) {
     }
     onPlay() {}
     onUpdate(dt) {
-      if (this.loadingCube) {
-        this.loadingCube.update(dt);
-      }
     }
     onPause() {}
     onAdd() {}
@@ -230,28 +218,6 @@ export default function EditorNodeMixin(Object3DClass) {
           object.visible = false;
         }
       });
-    }
-    showLoadingCube() {
-      if (!this.loadingCube) {
-        this.loadingCube = new LoadingCube();
-        this.add(this.loadingCube);
-      }
-      const worldScale = this.getWorldScale(this.loadingCube.scale);
-      if (worldScale.x === 0 || worldScale.y === 0 || worldScale.z === 0) {
-        this.loadingCube.scale.set(1, 1, 1);
-      } else {
-        this.loadingCube.scale.set(
-          1 / worldScale.x,
-          1 / worldScale.y,
-          1 / worldScale.z
-        );
-      }
-    }
-    hideLoadingCube() {
-      if (this.loadingCube) {
-        this.remove(this.loadingCube);
-        this.loadingCube = null;
-      }
     }
     showErrorIcon() {
       if (!this.errorIcon) {

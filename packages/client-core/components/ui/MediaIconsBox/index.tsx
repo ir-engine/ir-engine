@@ -2,9 +2,7 @@ import React, { useState } from "react";
 import { generalStateList, setAppOnBoardingStep } from '../../../redux/app/actions';
 import {
     Mic,
-    MicOff,
     Videocam,
-    VideocamOff    
 } from '@material-ui/icons';
 import FaceIcon from '@material-ui/icons/Face';
 import { connect } from "react-redux";
@@ -111,11 +109,11 @@ const MediaIconsBox = observer((props) =>{
         <section className={styles.drawerBoxContainer}>
             <section className={styles.drawerBox}>
                 { instanceMediaChatEnabled && (<div className={styles.iconContainer + ' ' + (audioPaused ? styles.off : styles.on)}>
-                    <MicOff id='micOff' className={styles.offIcon} onClick={handleMicClick} />
+                    <Mic id='micOff' className={styles.offIcon} onClick={handleMicClick} />
                     <Mic id='micOn' className={styles.onIcon} onClick={handleMicClick} />
                 </div>) }
                 { videoEnabled && (<div className={styles.iconContainer + ' ' + (videoPaused ? styles.off : styles.on)}>
-                    <VideocamOff id='videoOff' className={styles.offIcon} onClick={handleCamClick} />
+                    <Videocam id='videoOff' className={styles.offIcon} onClick={handleCamClick} />
                     <Videocam id='videoOn' className={styles.onIcon} onClick={handleCamClick} />
                 </div>) }
                 { videoEnabled && (<div className={styles.iconContainer + ' ' + (!faceTracking ? styles.off : styles.on)}>
