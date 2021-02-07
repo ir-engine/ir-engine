@@ -39,7 +39,7 @@ import { selectAuthState } from '../../redux/auth/selector';
 import store from '../../redux/store';
 import { selectUserState } from '../../redux/user/selector';
 import { InteractableModal } from '../ui/InteractableModal';
-import LinearProgressComponent from '../ui/Loader';
+import LoadingScreen from '../ui/Loader';
 import MediaIconsBox from "../ui/MediaIconsBox";
 import NamePlate from '../ui/NamePlate';
 import NetworkDebug from '../ui/NetworkDebug/NetworkDebug';
@@ -111,7 +111,7 @@ export const EnginePage = (props: Props) => {
   const [userBanned, setUserBannedState] = useState(false);
   const [openLinkData, setOpenLinkData] = useState(null);
 
-  const [progressEntity, setProgressEntity] = useState('');
+  const [progressEntity, setProgressEntity] = useState(99);
   const [userHovered, setonUserHover] = useState(false);
   const [userId, setonUserId] = useState(null);
   const [position, setonUserPosition] = useState(null);
@@ -340,7 +340,7 @@ export const EnginePage = (props: Props) => {
         </Snackbar>
 
       <NetworkDebug />
-      <LinearProgressComponent label={progressEntity} />
+      <LoadingScreen label={progressEntity} />
       <MediaIconsBox />
       { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
       {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}
