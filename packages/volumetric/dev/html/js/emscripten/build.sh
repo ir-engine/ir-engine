@@ -17,7 +17,7 @@ emcc -std=c++11 emcorto.cpp \
 #-g \
 #--debug \
 #-fsanitize=undefined \
-#--source-map-base "http://localhost/devel/nexus/html/js/decoder_base.wasm.map" \
+#--source-map-base "http://127.0.0.1/devel/nexus/html/js/decoder_base.wasm.map" \
 #-s SAFE_HEAP=1 \
 #-O3 -DNDEBUG \
 

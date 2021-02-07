@@ -8,8 +8,8 @@ cd armada
 yarn install
 cp .env.https .env
 
-// This will build the library and examples, and launch a server on https://localhost:8080
-// NOTE: ONLY works with HTTPS right now, http://localhost:8080 will not work
+// This will build the library and examples, and launch a server on https://127.0.0.1:8080
+// NOTE: ONLY works with HTTPS right now, http://127.0.0.1:8080 will not work
 yarn run dev
 
 // To run the server, open another terminal window and run

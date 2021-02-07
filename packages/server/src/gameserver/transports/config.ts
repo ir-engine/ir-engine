@@ -58,7 +58,7 @@ export const config = {
 
     // rtp listenIps are the most important thing, below. you'll need
     // to set these appropriately for your network for the demo to
-    // run anywhere but on localhost
+    // run anywhere but on 127.0.0.1
     webRtcTransport: {
       listenIps: [{ ip: "192.168.0.81", announcedIp: null }],
       initialAvailableOutgoingBitrate: 800000,
@@ -117,7 +117,7 @@ export const localConfig = {
 
       // rtp listenIps are the most important thing, below. you'll need
       // to set these appropriately for your network for the demo to
-      // run anywhere but on localhost
+      // run anywhere but on 127.0.0.1
       webRtcTransport: {
           listenIps: [{ ip: "192.168.0.81", announcedIp: null }],
           initialAvailableOutgoingBitrate: 800000,

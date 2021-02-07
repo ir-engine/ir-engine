@@ -144,6 +144,8 @@ function getIntersections( controller ) {
 let button
 
 export function initVR (actorEntity) {
+	if(!navigator || !(navigator as any).xr)
+		return console.warn("Not initializing WebXR on this platform because it is not supported");	
 
 	button = document.createElement( 'button' );
 	button.id = 'VRButton';

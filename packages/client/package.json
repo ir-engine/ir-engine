@@ -17,7 +17,7 @@
     "build": "cross-env NODE_OPTIONS=--max_old_space_size=6144 next build ./ && yarn run export",
     "export": "next export -o www/ && mv www/404.html www/index.html && npx cap sync",
     "start": "next start",
-    "watch": "cross-env NODE_ENV=development next --port 3001 --hostname localhost",
+    "watch": "cross-env NODE_ENV=development next --port 3001 --hostname 127.0.0.1",
     "validate": "yarn run lint && yarn run test",
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",
     "lint": "node node_modules/.bin/eslint --fix --quiet '*.ts' '**/*.ts' '**/*.tsx'"

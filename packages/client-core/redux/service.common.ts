@@ -2,7 +2,7 @@ import axios from 'axios';
 import getConfig from 'next/dist/next-server/lib/runtime-config';
 const { publicRuntimeConfig } = getConfig();
 
-export const apiUrl = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.apiServer : 'https://localhost:3030';
+export const apiUrl = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.apiServer : 'https://127.0.0.1:3030';
 
 export function getAuthHeader () {
   return {};
