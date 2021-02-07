@@ -33,11 +33,11 @@ const LinearProgressComponent = (props: Props) => {
     <section className={styles.overlay} style={{backgroundImage: `url(${currentScene?.thumbnailUrl})`}}>
       <section className={styles.linearProgressContainer}>
           <p className={styles.loadingProgressTile}>
-            <span>Loading...</span>
+            {/* <span>Loading...</span> */}
             {/* {count && count > 0 && (<span className={styles.loadingProgressInfo}>{count} object{count > 1 && 's'} remaining</span>)} */}
           </p>
-          <LinearProgress className={styles.linearProgress} />                  
-          {count && count > 0 && (<p className={styles.loadingProgressInfo}>{count} object{count > 1 && 's'} remaining</p>)}  
+          {/* <LinearProgress className={styles.linearProgress} />                   */}
+          {/* {count && count > 0 && (<p className={styles.loadingProgressInfo}>{count} object{count > 1 && 's'} remaining</p>)}   */}
           {/* <TesseractProjection />        */}
       </section>
     </section></> : null;
