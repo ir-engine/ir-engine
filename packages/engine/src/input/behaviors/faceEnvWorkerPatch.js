@@ -49,7 +49,7 @@ document.createElement = createElement;
 document.location = self.location;
 
 // These are the same checks face-api.js/isBrowser does
-if(!typeof window == 'object') {
+if(typeof window !== 'object') {
 	console.warn("Check failed: window");
 }
 if(typeof document === 'undefined') {
