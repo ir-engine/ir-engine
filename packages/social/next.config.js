@@ -17,6 +17,11 @@ module.exports = withTM(
 	  },
     dir: './',
     distDir: './.next',
+    optimization: {
+     splitChunks: {
+       chunks: 'all',
+     },
+   },
     webpack(config) {
       config.externals.push({xmlhttprequest: 'xmlhttprequest', fs: 'fs'})
       config.resolve.alias.utils = path.join(__dirname, 'utils')

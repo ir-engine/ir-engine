@@ -16,6 +16,11 @@ module.exports = withTM(
       excludeDefaultMomentLocales: true,
       webpack5: true
     },
+    optimization: {
+     splitChunks: {
+       chunks: 'all',
+     },
+   },
     dir: './',
     distDir: './.next',
     async redirects() {
