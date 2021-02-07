@@ -71,30 +71,15 @@ import LoadingCube from "@xr3ngine/engine/src/scene/classes/LoadingCube";
 import EventEmitter from "eventemitter3";
 import {
   AudioListener,
-
   Clock, Matrix4,
-
-
-
-
   PerspectiveCamera, PropertyBinding, Quaternion,
-
-
-
   Raycaster,
-
   Scene, Vector2,
   Vector3
 } from "three";
 import Api from "./Api";
 import AssetManifestSource from "./assets/AssetManifestSource";
 import { loadEnvironmentMap } from "./EnvironmentMap";
-
-
-
-
-
-
 
 
 const tempMatrix1 = new Matrix4();
