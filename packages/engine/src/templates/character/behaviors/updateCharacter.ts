@@ -11,7 +11,6 @@ import { Network } from '../../../networking/classes/Network';
 import { NetworkObject } from '../../../networking/components/NetworkObject';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
 import { CharacterComponent } from '../components/CharacterComponent';
-import { rotateModel } from "./rotateModel";
 import { springMovement } from "./springMovement";
 import { springRotation } from "./springRotation";
 
@@ -42,7 +41,6 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
 
   springRotation(entity, null, deltaTime);
   springMovement(entity, null, deltaTime);
-  rotateModel(entity);
 
   updateIK(entity);
 
