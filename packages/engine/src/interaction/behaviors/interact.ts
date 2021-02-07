@@ -39,7 +39,7 @@ export const  interact: Behavior = (entity: Entity, args: any = { pointerLock: f
     }
   }
 
-  if (args.phaze === LifecycleValue.STARTED ){
+  if (mouseScreenPosition && args.phase === LifecycleValue.STARTED ){
     startedPosition.set(entity,mouseScreenPosition.value);
     return;
   }
