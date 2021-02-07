@@ -25,8 +25,8 @@ const LinearProgressComponent = (props: Props) => {
   useEffect(() => {
     if (onBoardingStep === generalStateList.START_STATE) {
       setShowProgressBar(true);
-    } else if(showProgressBar) {
-      setTimeout(() => { setShowProgressBar(false) }, 2000);
+    } else if(showProgressBar && count === 0) {
+      setTimeout(() => { setShowProgressBar(false) }, 1500);
     }
   }, [onBoardingStep])
 
