@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './style.module.scss';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { connect } from 'react-redux';
@@ -13,32 +13,34 @@ interface Props {
 }
 
 const mapStateToProps = (state: any): any => {
-  return {   
-    onBoardingStep : selectAppOnBoardingStep(state),
-    currentScene : selectScenesCurrentScene(state),
+  return {
+    onBoardingStep: selectAppOnBoardingStep(state),
+    currentScene: selectScenesCurrentScene(state),
   };
 };
 
 const LinearProgressComponent = (props: Props) => {
-  const{ onBoardingStep, label, currentScene} = props;
-  let showProgressBar = null;
-  if(onBoardingStep === generalStateList.START_STATE){
-    showProgressBar = true;
-  }else{
-    const hideLinearProgress = setTimeout(() => {showProgressBar = false; clearTimeout(hideLinearProgress);}, 1000);
-  }
+  const { onBoardingStep, label, currentScene } = props;
+  const [showProgressBar, setShowProgressBar] = useState(true);
+  useEffect(() => {
+    if (onBoardingStep === generalStateList.START_STATE) {
+      setShowProgressBar(true);
+    } else if(showProgressBar) {
+      setTimeout(() => { setShowProgressBar(false) }, 2000);
+    }
+  }, [onBoardingStep])
+
   const count = parseInt(label) || null;
   return showProgressBar === true ? <>
-  <Loader />
-    <section className={styles.overlay} style={{backgroundImage: `url(${currentScene?.thumbnailUrl})`}}>
+    <Loader />
+    <section className={styles.overlay} style={{ backgroundImage: `url(${currentScene?.thumbnailUrl})` }}>
       <section className={styles.linearProgressContainer}>
-          <p className={styles.loadingProgressTile}>
-            {/* <span>Loading...</span> */}
-            {/* {count && count > 0 && (<span className={styles.loadingProgressInfo}>{count} object{count > 1 && 's'} remaining</span>)} */}
-          </p>
-          {/* <LinearProgress className={styles.linearProgress} />                   */}
-          {/* {count && count > 0 && (<p className={styles.loadingProgressInfo}>{count} object{count > 1 && 's'} remaining</p>)}   */}
-          {/* <TesseractProjection />        */}
+        {!count && (<span className={styles.loadingProgressInfo}>Loading...</span>)}
+        {count && count > 0 && (<span className={styles.loadingProgressInfo}>{count} object{count > 1 && 's'} remaining</span>)}
+        {count && count === 0 && (<span className={styles.loadingProgressInfo}>Entering world...</span>)}
+        {/* <LinearProgress className={styles.linearProgress} />                   */}
+        {/* {count && count > 0 && (<p className={styles.loadingProgressInfo}>{count} object{count > 1 && 's'} remaining</p>)}   */}
+        {/* <TesseractProjection />        */}
       </section>
     </section></> : null;
 };
