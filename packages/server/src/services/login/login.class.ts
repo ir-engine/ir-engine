@@ -6,7 +6,11 @@ import logger from '../../app/logger';
 interface Data {}
 
 interface ServiceOptions {}
-
+/**
+ * A class for Login service 
+ * 
+ * @author Vyacheslav Solovjov
+ */
 export class Login implements ServiceMethods<Data> {
   app: Application
   options: ServiceOptions
@@ -17,10 +21,25 @@ export class Login implements ServiceMethods<Data> {
     this.app = app;
   }
 
+  /**
+   * A function which find login dtails and display it 
+   * 
+   * @param params 
+   * @returns {@Array} all login details 
+   * @author Vyacheslav Solovjov
+   */
   async find (params?: Params): Promise<Data[] | Paginated<Data>> {
     return [];
   }
 
+  /**
+   * A function which find specific login details 
+   * 
+   * @param id of specific login detail
+   * @param params 
+   * @returns {@token}
+   * @author Vyacheslav Solovjov
+   */
   async get (id: Id, params?: Params): Promise<any> {
     try {
       const result = await this.app.service('login-token').Model.findOne({
@@ -52,6 +71,14 @@ export class Login implements ServiceMethods<Data> {
     }
   }
 
+  /**
+   * A function which is used for login 
+   * 
+   * @param data of new login details 
+   * @param params contain user info
+   * @returns created data 
+   * @author Vyacheslav Solovjov 
+   */
   async create (data: Data, params?: Params): Promise<Data> {
     if (Array.isArray(data)) {
       return await Promise.all(data.map(current => this.create(current, params)));
@@ -60,13 +87,38 @@ export class Login implements ServiceMethods<Data> {
     return data;
   }
 
+  /**
+   * A function which is used to update login details 
+   * 
+   * @param id of login detail
+   * @param data which will be used for updating login 
+   * @param params 
+   * @returns updated data
+   * @author Vyacheslav Solovjov
+   */
   async update (id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data;
   }
 
+  /**
+   * A function which is used to update data 
+   * 
+   * @param id 
+   * @param data to be updated 
+   * @param params 
+   * @returns data 
+   */
   async patch (id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data;
   }
+
+  /**
+   * A function which is used to remove login details
+   * 
+   * @param id of login to be removed 
+   * @param params 
+   * @returns id 
+   */
 
   async remove (id: NullableId, params?: Params): Promise<Data> {
     return { id };
