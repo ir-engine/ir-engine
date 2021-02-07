@@ -19,6 +19,11 @@ export default (app: Application): void => {
     multi: true
   };
 
+/**
+ * An object for swagger documentation configiration 
+ * 
+ * @author Kevin KIMENYI
+ */
   const event = new PartyUser(options, app);
   event.docs = partyUserDocs;
 
@@ -27,6 +32,14 @@ export default (app: Application): void => {
   const service = app.service('party-user');
 
   service.hooks(hooks);
+
+  /**
+   * A function which is used to create new party user 
+   * 
+   * @param data of new party 
+   * @returns {@Object} of created new party user 
+   * @author Vyacheslav Solovjov
+   */
 
   service.publish('created', async (data): Promise<any> => {
     try {
@@ -76,6 +89,13 @@ export default (app: Application): void => {
     }
   });
 
+  /**
+   * A function which is used to update party user 
+   * 
+   * @param data of new party user 
+   * @returns {@Object} updated party user
+   * @author Vyacheslav Solovjov
+   */
   service.publish('patched', async (data): Promise<any> => {
     try {
       const channel = await app.service('channel').Model.findOne({
@@ -125,6 +145,14 @@ export default (app: Application): void => {
       throw err;
     }
   });
+
+  /**
+   * A function which is used to remove party user 
+   * 
+   * @param data for single party user 
+   * @returns {@Object} removed party user 
+   * @author Vyacheslav Solovjov
+   */
 
   service.publish('removed', async (data): Promise<any> => {
     try {
