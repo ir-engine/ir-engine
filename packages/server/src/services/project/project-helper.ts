@@ -134,7 +134,7 @@ sid: "rjexuC2v"
 thumbnailOwnedFileId: "25001450-5caa-11eb-816b-4782c6a01287"
 type: "project"
 updatedAt: "2021-01-22T12:05:40.000Z"
-url: "https://localhost:3030/collection/251dd580-5caa-11eb-88f7-41085bb160dd"
+url: "https://127.0.0.1:3030/collection/251dd580-5caa-11eb-88f7-41085bb160dd"
 userId: "084ffae0-5c15-11eb-9c41-59a7d7252cfc"
 version: 4
    */

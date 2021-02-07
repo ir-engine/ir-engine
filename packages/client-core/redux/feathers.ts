@@ -4,7 +4,7 @@ import getConfig from 'next/config';
 import feathers from '@feathersjs/client';
 
 const { publicRuntimeConfig } = getConfig();
-const apiServer = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.apiServer : 'https://localhost:3030';
+const apiServer = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.apiServer : 'https://127.0.0.1:3030';
 
 const featherStoreKey: string = publicRuntimeConfig.featherStoreKey;
 

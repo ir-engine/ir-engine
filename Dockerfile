@@ -29,7 +29,7 @@ COPY . .
 # copy then compile the code
 
 #RUN /bin/bash -c 'source ./scripts/write_env_stub.sh'
-#ENV NEXT_PUBLIC_API_SERVER=http://localhost:3333
+#ENV NEXT_PUBLIC_API_SERVER=http://127.0.0.1:3333
 
 RUN yarn run build-docker
 

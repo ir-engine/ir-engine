@@ -49,10 +49,10 @@ This will pull images from [xr3ngine's docker hub repo](https://hub.docker.com/u
 
 ## XR3ngine services
 
-- [server](https://github.com/xr3ngine/xrsocial): backend server on <http://localhost:3030/docs>
-- [client](https://github.com/xr3ngine/xrsocial-client): frontend Next.js+react on <http://localhost:3000>
-- adminer: a lightweight web app to manage database, <http://localhost:8080/?server=db&username=server&db=xr3ngine>  (Note: password is "password")
-- db: MariaDB on default port [mysql://localhost:3306]()
+- [server](https://github.com/xr3ngine/xrsocial): backend server on <http://127.0.0.1:3030/docs>
+- [client](https://github.com/xr3ngine/xrsocial-client): frontend Next.js+react on <http://127.0.0.1:3000>
+- adminer: a lightweight web app to manage database, <http://127.0.0.1:8080/?server=db&username=server&db=xr3ngine>  (Note: password is "password")
+- db: MariaDB on default port [mysql://127.0.0.1:3306]()
 
 ## Build docker/compose stack yourself
 
