@@ -32,6 +32,8 @@ export class FollowCameraComponent extends Component<FollowCameraComponent> {
   theta: number
   phi: number
   shoulderSide: boolean
+  /** Whether the camera auto-rotates toward the target **Default** value is true. */
+  locked: boolean
 }
 
 FollowCameraComponent._schema = {
@@ -49,4 +51,5 @@ FollowCameraComponent._schema = {
   theta: { type: Types.Number, default: 0 },
   phi: { type: Types.Number, default: 0 },
   shoulderSide: { type: Types.Boolean, default: true },
+  locked: { type: Types.Boolean, default: true },
 };
