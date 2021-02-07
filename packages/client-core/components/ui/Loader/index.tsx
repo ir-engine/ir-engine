@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import styles from './style.module.scss';
-import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { connect } from 'react-redux';
 import { generalStateList } from '../../../redux/app/actions';
+import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { selectScenesCurrentScene } from '../../../redux/scenes/selector';
-import Loader from './OrbitLoader';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import Loader from './SquareLoader';
+import styles from './style.module.scss';
 interface Props {
   label?: string;
   onBoardingStep?: number;
@@ -19,7 +18,7 @@ const mapStateToProps = (state: any): any => {
   };
 };
 
-const LinearProgressComponent = (props: Props) => {
+const LoadingScreen = (props: Props) => {
   const { onBoardingStep, label, currentScene } = props;
   const [showProgressBar, setShowProgressBar] = useState(true);
   const [showEntering, setShowEntering] = useState(false);
@@ -44,8 +43,7 @@ const LinearProgressComponent = (props: Props) => {
         {!showEntering && !count && (<span className={styles.loadingProgressInfo}>Loading...</span>)}
         {!showEntering && count && count > 0 && (<span className={styles.loadingProgressInfo}>{count} object{count > 1 && 's'} remaining</span>)}
         {showEntering && (<span className={styles.loadingProgressInfo}>Entering world...</span>)}
-
       </section>
     </section></> : null;
 };
-export default connect(mapStateToProps)(LinearProgressComponent);
+export default connect(mapStateToProps)(LoadingScreen);
