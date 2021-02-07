@@ -11,7 +11,7 @@
   },
   "npmClient": "yarn",
   "scripts": {
-    "lint": "yarn run prettier -- --check && yarn run swiftlint -- lint",
+    "xlint": "yarn run prettier -- --check && yarn run swiftlint -- lint",
     "prettier": "prettier \"**/*.{css,html,ts,js,java}\"",
     "swiftlint": "node-swiftlint",
     "build-native": "yarn run clean && tsc && rollup -c rollup.config.js",
