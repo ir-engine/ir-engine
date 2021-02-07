@@ -58,24 +58,13 @@ export function workerFunction() {
         const keyframeStartPosition = 0;
         const keyframeEndPosition = keyframe.meshLength;
 
-        console.log("Mesh length: ", keyframe.meshLength);
-
-
-
-        console.log("Response is", response);
-
-
         //@ts-ignore
         let decoder = new CortoDecoder(response.buffer.buffer, keyframeStartPosition, keyframeEndPosition);
         let keyframeMeshData = decoder.decode();
 
         ////////////////////
         // Slice data from returned response and decode
-
-
         ////////////////////
-
-        
 
         // decode corto data and create a temp buffer geometry
         const bufferObject = {
