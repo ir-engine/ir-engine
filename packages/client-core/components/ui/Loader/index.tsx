@@ -22,6 +22,8 @@ const mapStateToProps = (state: any): any => {
 const LinearProgressComponent = (props: Props) => {
   const { onBoardingStep, label, currentScene } = props;
   const [showProgressBar, setShowProgressBar] = useState(true);
+  const [showEntering, setShowEntering] = useState(false);
+
   const [count, setCount] = useState(null);
 
   useEffect(() => {
@@ -29,7 +31,8 @@ const LinearProgressComponent = (props: Props) => {
 
     if (onBoardingStep === generalStateList.START_STATE) {
       setShowProgressBar(true);
-    } else if (!count && showProgressBar) {
+    } else if (showProgressBar && !showEntering) {
+      setShowEntering(true);
           setTimeout(() => { setShowProgressBar(false) }, 1500);
     }
   }, [onBoardingStep, label])
@@ -38,9 +41,9 @@ const LinearProgressComponent = (props: Props) => {
     <Loader />
     <section className={styles.overlay} style={{ backgroundImage: `url(${currentScene?.thumbnailUrl})` }}>
       <section className={styles.linearProgressContainer}>
-        {!count && (<span className={styles.loadingProgressInfo}>Loading...</span>)}
-        {count && count > 0 && (<span className={styles.loadingProgressInfo}>{count} object{count > 1 && 's'} remaining</span>)}
-        {count && count === 0 && (<span className={styles.loadingProgressInfo}>Entering world...</span>)}
+        {!showEntering && !count && (<span className={styles.loadingProgressInfo}>Loading...</span>)}
+        {!showEntering && count && count > 0 && (<span className={styles.loadingProgressInfo}>{count} object{count > 1 && 's'} remaining</span>)}
+        {showEntering && (<span className={styles.loadingProgressInfo}>Entering world...</span>)}
 
       </section>
     </section></> : null;
