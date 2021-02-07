@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './style.module.scss';
 
-const SpaceLoader = (): any => {
+const SquareLoader = (): any => {
   return (
     <div className={styles['space-loader']}>
       <div className={styles.loader}>
@@ -159,4 +159,4 @@ const SpaceLoader = (): any => {
   );
 };
 
-export default SpaceLoader;
+export default SquareLoader;
