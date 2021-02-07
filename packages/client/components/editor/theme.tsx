@@ -1,5 +1,9 @@
 import React from "react";
 
+/**
+ * [theme is common component used for providing common UI properties]
+ * @type {Object}
+ */
 const theme = {
   a: "",
   lato: "'Lato', sans-serif",
@@ -46,6 +50,11 @@ const theme = {
   shadow30: "0px 4px 4px  rgba(0, 0, 0, 0.3)",
   borderStyle: "1px solid #5D646C"
 };
+
+/**
+ * [theme creating color chart for application]
+ * @type {[type]}
+ */
 theme["chartColors"] = [
   theme.red,
   theme.pink,

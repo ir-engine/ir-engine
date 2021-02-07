@@ -56,11 +56,22 @@ export const proxiedUrlFor = url => {
   // return `${SERVER_URL}/${url}`;
   return url;
 };
-
+/**
+ * [scaledThumbnailUrlFor function component for providing url for scaled thumbnail]
+ * @param  {[type]} url    [contains thumbnail url]
+ * @param  {[type]} width
+ * @param  {[type]} height
+ * @return {[type]}        [returns url to get scaled image]
+ */
 export const scaledThumbnailUrlFor = (url, width, height) => {
   return `${SERVER_URL}/thumbnail/${serverEncodeURL(url)}?w=${width}&h=${height}`;
 };
 
+/**
+ * CommonKnownContentTypes
+ * Object containing common content types.
+ * @type {Object}
+ */
 const CommonKnownContentTypes = {
   gltf: "model/gltf",
   glb: "model/gltf-binary",
@@ -71,18 +82,31 @@ const CommonKnownContentTypes = {
   mp4: "video/mp4",
   mp3: "audio/mpeg"
 };
-
+/**
+ * [guessContentType function to get contentType from url]
+ * @param  {[type]} url
+ * @return {[type]}     [contentType]
+ */
 function guessContentType(url): string {
   const extension = new URL(url).pathname.split(".").pop();
   return CommonKnownContentTypes[extension];
 }
 
+
+/**
+ * [Api class contains functions to perform common functions. ]
+ * @type {class}
+ */
 export default class Api extends EventEmitter {
   serverURL: string;
   apiURL: string;
   projectDirectoryPath: string;
   maxUploadSize: number;
   props: any;
+
+  /**
+   * [constructor ]
+   */
   constructor() {
     super();
     if (process.browser) {
@@ -101,12 +125,21 @@ export default class Api extends EventEmitter {
     this.handleAuthorization();
   }
 
+  /**
+   * function component to check user is valid or not.
+   * @param  {[type]}
+   * @return {Boolean}   [return true if user is valid else return false]
+   */
   isAuthenticated(): boolean {
     const token = localStorage.getItem(FEATHERS_STORE_KEY);
 
     return token != null && token.length > 0;
   }
 
+/**
+ * [getToken used to get the token of logined user]
+ * @return {[string]}        [returns token string]
+ */
   getToken(): string {
     const token = localStorage.getItem(FEATHERS_STORE_KEY);
 
@@ -116,12 +149,21 @@ export default class Api extends EventEmitter {
 
     return token;
   }
-
+/**
+ * [getAccountId used to get accountId using token]
+ * @return {[string]}    [returns accountId]
+ */
   getAccountId(): string {
     const token = this.getToken();
     return jwtDecode(token).sub;
   }
 
+/**
+ * [getProjects used to get list projects created by user]
+ * @param  {[type]}  Promise       [description]
+ * @param  {[type]}  authorization [description]
+ * @return {Promise}               [description]
+ */
   async getProjects(): Promise<any> {
     const token = this.getToken();
 
@@ -144,6 +186,10 @@ export default class Api extends EventEmitter {
     return json.projects;
   }
 
+/**
+ * [Function to get project data]
+ * @type {[type]}
+ */
   async getProject(projectId): Promise<JSON> {
     const token = this.getToken();
 
@@ -161,7 +207,14 @@ export default class Api extends EventEmitter {
 
     return json;
   }
-
+/**
+ * [resolveUrl used to request data from specific url
+ * if there exist cacheKey cooresponding to request url then return cache key to access data.
+ * ]
+ * @param  {[string]}  url
+ * @param  {[type]}  index
+ * @return {Promise}       [returns response data ]
+ */
   async resolveUrl(url, index?): Promise<any> {
       return { origin: url };
 
@@ -194,7 +247,11 @@ export default class Api extends EventEmitter {
 
     return request;
   }
-
+ /**
+  * [fetchContentType is used to get the header content type of response using accessibleUrl]
+  * @param  {[type]}  accessibleUrl [ url to make the request]
+  * @return {Promise}               [wait for the response and return response]
+  */
   async fetchContentType(accessibleUrl): Promise<any> {
     const f = await this.fetchUrl(accessibleUrl, { method: "HEAD" }).then(r => r.headers.get("content-type"));
     console.log("Response: " + Object.values(f));
@@ -202,6 +259,17 @@ export default class Api extends EventEmitter {
     return f;
   }
 
+/**
+ * [
+ *  getContentType is used to get content type url.
+ *  we firstly call resolve url and get response.
+ *  if result Contains meta property and if meta contains expected_content_type  then returns true.
+ *  we get canonicalUrl url from response call guessContentType to check contentType.
+ *  and if in both ways we unable to find contentType type then call a request for headers using fetchContentType.
+ * ]
+ * @param  {[string]}  url
+ * @return {Promise}     [returns the contentType]
+ */
   async getContentType(url): Promise<any> {
     const result = await this.resolveUrl(url);
     console.log("CONTEXT TYPE IS", result);
@@ -215,6 +283,12 @@ export default class Api extends EventEmitter {
     );
   }
 
+/**
+ * [resolveMedia provides canonicalUrl absoluteUrl and contentType]
+ * @param  {[string]}  url
+ * @param  {[type]}  index
+ * @return {Promise}
+ */
   async resolveMedia(url, index): Promise<any> {
     const absoluteUrl = new URL(url, (window as any).location).href;
 
@@ -222,13 +296,16 @@ export default class Api extends EventEmitter {
       return { accessibleUrl: absoluteUrl };
     }
 
+    // createing cacheKey for absoluteUrl
     const cacheKey = `${absoluteUrl}|${index}`;
-
+    // if cacheKey already exist in media cache then return the response from cache.
     if (resolveMediaCache.has(cacheKey)) return resolveMediaCache.get(cacheKey);
+
 
     const request = (async () => {
       let contentType, canonicalUrl, accessibleUrl;
 
+      // getting contentType, canonicalUrl, accessibleUrl using absoluteUrl.
       try {
         const result = await this.resolveUrl(absoluteUrl);
         canonicalUrl = result.origin;
@@ -257,16 +334,26 @@ export default class Api extends EventEmitter {
 
       return { canonicalUrl, accessibleUrl, contentType };
     })();
-
+     // setting cache key for data containing canonicalUrl, accessibleUrl, contentType
     resolveMediaCache.set(cacheKey, request);
 
     return request;
   }
-
+  /**
+   * [proxyUrl used to create an accessibleUrl]
+   * @param  {[string]} url [description]
+   * @return {[string]}     url
+   */
   proxyUrl(url): any {
     return proxiedUrlFor(url);
   }
 
+/**
+ * [unproxyUrl provides us absoluteUrl by removing corsProxyPrefix]
+ * @param  {[string]} baseUrl
+ * @param  {[string]} url
+ * @return {[string]}         [absoluteUrl]
+ */
   unproxyUrl(baseUrl, url): any {
       const corsProxyPrefix = `${SERVER_URL}/`;
 
@@ -287,6 +374,14 @@ export default class Api extends EventEmitter {
     return proxiedUrlFor(url);
   }
 
+/**
+ * [searchMedia function to search media on the basis of provided params.]
+ * @param  {[type]}  source
+ * @param  {[type]}  params
+ * @param  {[type]}  cursor
+ * @param  {[type]}  signal
+ * @return {Promise}        [result , nextCursor, suggestions]
+ */
   async searchMedia(source, params, cursor, signal): Promise<any> {
     const url = new URL(`${SERVER_URL}/media-search`);
 
@@ -359,10 +454,21 @@ export default class Api extends EventEmitter {
       nextCursor: json.meta?.next_cursor
     };
   }
+
   searchTermFilteringBlacklist(query: any): any {
     throw new Error("Method not implemented.");
   }
 
+/**
+ * [createProject used to create project]
+ * @param  {[type]}  scene         [contains the data related to scene]
+ * @param  {[type]}  parentSceneId
+ * @param  {[type]}  thumbnailBlob [thumbnail data]
+ * @param  {[type]}  signal        [used to check if signal is not aborted]
+ * @param  {[type]}  showDialog    [shows the message dialog]
+ * @param  {[type]}  hideDialog
+ * @return {Promise}               [response as json]
+ */
   async createProject(scene, parentSceneId, thumbnailBlob, signal, showDialog, hideDialog): Promise<any> {
     this.emit("project-saving");
 
@@ -370,6 +476,7 @@ export default class Api extends EventEmitter {
       throw new Error("Save project aborted");
     }
 
+   // uploading thumbnail providing file_id and meta
     const {
       file_id: thumbnailFileId,
       meta: { access_token: thumbnailFileToken }
@@ -431,6 +538,11 @@ export default class Api extends EventEmitter {
     return json;
   }
 
+/**
+ * [deleteProject used to delete project using projectId]
+ * @param  {[type]}  projectId
+ * @return {Promise}
+ */
   async deleteProject(projectId): Promise<any> {
     const token = this.getToken();
 
@@ -455,6 +567,15 @@ export default class Api extends EventEmitter {
     return true;
   }
 
+/**
+ * [saveProject used to save changes in existing project]
+ * @param  {[type]}  projectId
+ * @param  {[type]}  editor
+ * @param  {[type]}  signal
+ * @param  {[type]}  showDialog [used to show the message dialog]
+ * @param  {[type]}  hideDialog
+ * @return {Promise}
+ */
   async saveProject(projectId, editor, signal, showDialog, hideDialog): Promise<any> {
     this.emit("project-saving");
 
@@ -516,7 +637,7 @@ export default class Api extends EventEmitter {
     // console.log(project);
 
     const projectEndpoint = `${SERVER_URL}/project/${projectId}`;
-
+    // Calling api to save project
     const resp = await this.fetchUrl(projectEndpoint, { method: "PATCH", headers, body, signal });
     console.log("Response: " + Object.values(resp));
 
@@ -532,11 +653,12 @@ export default class Api extends EventEmitter {
 
     this.emit("project-saved");
 
-
-
     return json;
   }
 
+/**
+ * [getProjectFile is used to open the scene using Id]
+ */
   async getProjectFile(sceneId): Promise<any> {
     return await this.props.api.getScene(sceneId);
     // TODO: Make this a main branch thing
@@ -544,6 +666,9 @@ export default class Api extends EventEmitter {
     // return await this.props.api.fetch(scene.scene_project_url).then(response => response.json());
   }
 
+/**
+ * [getScene used to Calling api to get scene data using id]
+ */
   async getScene(sceneId): Promise<JSON> {
     const headers = {
       "content-type": "application/json"
@@ -560,10 +685,23 @@ export default class Api extends EventEmitter {
     return json.scenes[0];
   }
 
+/**
+ * [getSceneUrl used to create url for the scene]
+ * @param  {[String]} sceneId
+ * @return {[String]}         [url]
+ */
   getSceneUrl(sceneId): string {
       return `${APP_URL}/scenes/${sceneId}`;
   }
 
+/**
+ * [publishProject is used to publish project, firstly we save the project the publish]
+ * @param  {[type]}  project
+ * @param  {[type]}  editor
+ * @param  {[type]}  showDialog
+ * @param  {[type]}  hideDialog
+ * @return {Promise}            [returns published project data]
+ */
   async publishProject(project, editor, showDialog, hideDialog?): Promise<any> {
     let screenshotUrl;
     try {
@@ -582,7 +720,7 @@ export default class Api extends EventEmitter {
             abortController.abort();
           }
         });
-
+      // saving project.
         project = await this.saveProject(project.project_id, editor, signal, showDialog, hideDialog);
 
         if (signal.aborted) {
@@ -843,6 +981,15 @@ export default class Api extends EventEmitter {
     return project;
   }
 
+/**
+ * [upload used to upload image as blob data]
+ * @param  {[type]}  blob
+ * @param  {[type]}  onUploadProgress
+ * @param  {[type]}  signal
+ * @param  {[type]}  projectId
+ * @param  {[type]}  port
+ * @return {Promise}
+ */
   async upload(blob, onUploadProgress, signal?, projectId?): Promise<void> {
     let host, port;
     const token = this.getToken();
@@ -862,7 +1009,7 @@ export default class Api extends EventEmitter {
       }
       console.log("Posting to: ", `${SERVER_URL}/media`);
 
-        request.open("post", `${SERVER_URL}/media`, true);
+      request.open("post", `${SERVER_URL}/media`, true);
 
       request.upload.addEventListener("progress", e => {
         if (onUploadProgress) {
@@ -901,11 +1048,27 @@ export default class Api extends EventEmitter {
       request.send(formData);
     });
   }
-
+ /**
+  * [uploadAssets used to upload asset files ]
+  * @param  {[type]} editor     [contains editor data]
+  * @param  {[type]} files      [files for upload]
+  * @param  {[type]} onProgress
+  * @param  {[type]} signal
+  * @return {[type]}            [uploaded file assets]
+  */
   uploadAssets(editor, files, onProgress, signal): any {
     return this._uploadAssets(`${SERVER_URL}/static-resource`, editor, files, onProgress, signal);
   }
 
+/**
+ * [_uploadAssets used as api handler for uploadAsset]
+ * @param  {[type]}  endpoint
+ * @param  {[type]}  editor
+ * @param  {[type]}  files
+ * @param  {[type]}  onProgress
+ * @param  {[type]}  signal
+ * @return {Promise}            [assets file data]
+ */
   async _uploadAssets(endpoint, editor, files, onProgress, signal): Promise<any> {
     const assets = [];
 
@@ -937,10 +1100,25 @@ export default class Api extends EventEmitter {
     return assets;
   }
 
+/**
+ * [uploadAsset used to upload single file as asset]
+ * @param {[type]} editor
+ * @param {[type]} file
+ * @param {[type]} onProgress
+ * @param {[type]} signal
+ */
   uploadAsset(editor, file, onProgress, signal): any {
     return this._uploadAsset(`${SERVER_URL}/static-resource`, editor, file, onProgress, signal);
   }
 
+/**
+ * [uploadProjectAsset used to call _uploadAsset directly]
+ * @param {[type]} editor
+ * @param {[type]} projectId
+ * @param {[type]} file
+ * @param {[type]} onProgress
+ * @param {[type]} signal
+ */
   uploadProjectAsset(editor, projectId, file, onProgress, signal): any {
     return this._uploadAsset(
       `${SERVER_URL}/project/${projectId}/assets`,
@@ -952,7 +1130,15 @@ export default class Api extends EventEmitter {
   }
 
   lastUploadAssetRequest = 0;
-
+/**
+ * [_uploadAsset used as api handler for the uploadAsset]
+ * @param  {[type]}  endpoint
+ * @param  {[type]}  editor
+ * @param  {[type]}  file
+ * @param  {[type]}  onProgress
+ * @param  {[type]}  signal
+ * @return {Promise}            [uploaded asset file data]
+ */
   async _uploadAsset(endpoint, editor, file, onProgress, signal): Promise<any> {
     let thumbnailFileId = null;
     let thumbnailAccessToken = null;
@@ -1016,6 +1202,12 @@ export default class Api extends EventEmitter {
     };
   }
 
+/**
+ * [deleteAsset used to delete existing asset using assetId]
+ * @param  {[type]}  assetId
+ * @param  {[type]}  authorization
+ * @return {Promise}               [true if deleted successfully else throw error]
+ */
   async deleteAsset(assetId): Promise<any> {
     const token = this.getToken();
 
@@ -1040,6 +1232,13 @@ export default class Api extends EventEmitter {
     return true;
   }
 
+/**
+ * [deleteProjectAsset used to delete asset for specific project]
+ * @param  {[type]}  projectId
+ * @param  {[type]}  assetId
+ * @param  {[type]}  authorization
+ * @return {Promise}               [true if deleted successfully else throw error]
+ */
   async deleteProjectAsset(projectId, assetId): Promise<any> {
     const token = this.getToken();
 
@@ -1064,10 +1263,18 @@ export default class Api extends EventEmitter {
     return true;
   }
 
+/**
+ * [setUserInfo used to save userInfo as localStorage]
+ * @param userInfo [Object contains user data]
+ */
   setUserInfo(userInfo): void {
     localStorage.setItem("editor-user-info", JSON.stringify(userInfo));
   }
 
+/**
+ * [getUserInfo used to provide logined user info from localStorage]
+ * @return {[Object]}      [User data]
+ */
   getUserInfo(): JSON {
     return JSON.parse(localStorage.getItem("editor-user-info"));
   }
@@ -1076,6 +1283,12 @@ export default class Api extends EventEmitter {
     // localStorage.setItem(LOCAL_STORE_KEY, JSON.stringify({ credentials: { email, token } }));
   }
 
+/**
+ * [fetchUrl used as common api handler]
+ * @param  {[String]}  url
+ * @param  {[type]}  options [contains request options]
+ * @return {Promise}         [response from api]
+ */
   async fetchUrl(url, options: any = {}): Promise<any> {
       const token = this.getToken();
       if (options.headers == null) {
@@ -1104,6 +1317,9 @@ export default class Api extends EventEmitter {
       throw err;
   }
 
+/**
+ * [handleAuthorization used to save credentials in local storage]
+ */
   handleAuthorization(): void {
     if (process.browser) {
       const accessToken = localStorage.getItem(FEATHERS_STORE_KEY);
