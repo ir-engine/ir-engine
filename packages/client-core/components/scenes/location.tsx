@@ -340,7 +340,7 @@ export const EnginePage = (props: Props) => {
         </Snackbar>
 
       <NetworkDebug />
-      <LoadingScreen label={progressEntity} />
+      <LoadingScreen objectsToLoad={progressEntity} />
       <MediaIconsBox />
       { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
       {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}

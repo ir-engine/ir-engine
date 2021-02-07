@@ -6,7 +6,7 @@ import { selectScenesCurrentScene } from '../../../redux/scenes/selector';
 import Loader from './SquareLoader';
 import styles from './style.module.scss';
 interface Props {
-  label?: string;
+  objectsToLoad?: number;
   onBoardingStep?: number;
   currentScene?: any;
 }
@@ -19,7 +19,7 @@ const mapStateToProps = (state: any): any => {
 };
 
 const LoadingScreen = (props: Props) => {
-  const { onBoardingStep, label, currentScene } = props;
+  const { onBoardingStep, objectsToLoad, currentScene } = props;
   const [showProgressBar, setShowProgressBar] = useState(true);
   const [showEntering, setShowEntering] = useState(false);
 
@@ -34,7 +34,7 @@ const LoadingScreen = (props: Props) => {
       setShowEntering(true);
           setTimeout(() => { setShowProgressBar(false) }, 1500);
     }
-  }, [onBoardingStep, label])
+  }, [onBoardingStep, objectsToLoad])
 
   return showProgressBar === true ? <>
     <Loader />
