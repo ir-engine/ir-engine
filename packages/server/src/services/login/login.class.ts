@@ -22,7 +22,7 @@ export class Login implements ServiceMethods<Data> {
   }
 
   /**
-   * A function which find login dtails and display it 
+   * A function which find login details and display it 
    * 
    * @param params 
    * @returns {@Array} all login details 
