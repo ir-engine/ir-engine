@@ -22,15 +22,18 @@ const mapStateToProps = (state: any): any => {
 const LinearProgressComponent = (props: Props) => {
   const { onBoardingStep, label, currentScene } = props;
   const [showProgressBar, setShowProgressBar] = useState(true);
+  const [count, setCount] = useState(null);
+
   useEffect(() => {
+    setCount(parseInt(label) || null);
+
     if (onBoardingStep === generalStateList.START_STATE) {
       setShowProgressBar(true);
-    } else if(showProgressBar && count === 0) {
-      setTimeout(() => { setShowProgressBar(false) }, 1500);
+    } else if (!count && showProgressBar) {
+          setTimeout(() => { setShowProgressBar(false) }, 1500);
     }
-  }, [onBoardingStep])
+  }, [onBoardingStep, label])
 
-  const count = parseInt(label) || null;
   return showProgressBar === true ? <>
     <Loader />
     <section className={styles.overlay} style={{ backgroundImage: `url(${currentScene?.thumbnailUrl})` }}>
@@ -38,9 +41,7 @@ const LinearProgressComponent = (props: Props) => {
         {!count && (<span className={styles.loadingProgressInfo}>Loading...</span>)}
         {count && count > 0 && (<span className={styles.loadingProgressInfo}>{count} object{count > 1 && 's'} remaining</span>)}
         {count && count === 0 && (<span className={styles.loadingProgressInfo}>Entering world...</span>)}
-        {/* <LinearProgress className={styles.linearProgress} />                   */}
-        {/* {count && count > 0 && (<p className={styles.loadingProgressInfo}>{count} object{count > 1 && 's'} remaining</p>)}   */}
-        {/* <TesseractProjection />        */}
+
       </section>
     </section></> : null;
 };

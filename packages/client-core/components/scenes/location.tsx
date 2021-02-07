@@ -236,6 +236,7 @@ export const EnginePage = (props: Props) => {
   //all scene entities are loaded
   const onSceneLoaded = (event: CustomEvent): void => {
     if (event.detail.loaded) {
+      setProgressEntity(event.detail.left);
       store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
       document.removeEventListener('scene-loaded', onSceneLoaded);
       setAppLoaded(true);
