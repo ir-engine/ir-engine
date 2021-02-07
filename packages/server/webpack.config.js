@@ -1,7 +1,6 @@
 const path = require('path');
 const packageRoot = require('app-root-path').path;
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-const dev = process.env.NODE_ENV !== 'production';
 
 const root = [path.resolve(__dirname)];
 const plugins = [new ForkTsCheckerWebpackPlugin({
@@ -12,13 +11,6 @@ const plugins = [new ForkTsCheckerWebpackPlugin({
         }
     }
 })];
-// if (dev) plugins.push(new WebpackHookPlugin({
-//     onBuildEnd: ['nodemon --inspect dist/server.js --watch src/**, dist/server.js']
-// }));
-const buildOptions = dev ? {
-    // there should be 1 cpu for the fork-ts-checker-webpack-plugin
-    workers: require('os').cpus().length - 1
-} : {};
 
 module.exports = {
     entry: `${root}/src/index.ts`,

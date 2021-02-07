@@ -143,7 +143,7 @@ export const CharacterInputSchema: InputSchema = {
         {
           behavior: interact,
           args: {
-            phaze:LifecycleValue.STARTED
+            phase:LifecycleValue.STARTED
           }
         }
       ],
@@ -151,7 +151,7 @@ export const CharacterInputSchema: InputSchema = {
         {
           behavior: interact,
           args: {
-            phaze:LifecycleValue.ENDED
+            phase:LifecycleValue.ENDED
           }
         }
       ]
