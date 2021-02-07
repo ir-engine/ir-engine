@@ -124,15 +124,15 @@ api:
 
     GITHUB_CLIENT_ID: ""
     GITHUB_CLIENT_SECRET: ""
-    GITHUB_CALLBACK_URL: http://localhost:3000/oauth/github
+    GITHUB_CALLBACK_URL: http://127.0.0.1:3000/oauth/github
 
     FACEBOOK_CLIENT_ID: ""
     FACEBOOK_CLIENT_SECRET: ""
-    FACEBOOK_CALLBACK_URL: http://localhost:3000/oauth/facebook
+    FACEBOOK_CALLBACK_URL: http://127.0.0.1:3000/oauth/facebook
 
     GOOGLE_CLIENT_ID: ""
     GOOGLE_CLIENT_SECRET: ""
-    GOOGLE_CALLBACK_URL: http://localhost:3000/oauth/google
+    GOOGLE_CALLBACK_URL: http://127.0.0.1:3000/oauth/google
 
 
     STORAGE_PROVIDER: local
@@ -219,15 +219,15 @@ media:
 
     GITHUB_CLIENT_ID: ""
     GITHUB_CLIENT_SECRET: ""
-    GITHUB_CALLBACK_URL: http://localhost:3000/oauth/github
+    GITHUB_CALLBACK_URL: http://127.0.0.1:3000/oauth/github
 
     FACEBOOK_CLIENT_ID: ""
     FACEBOOK_CLIENT_SECRET: ""
-    FACEBOOK_CALLBACK_URL: http://localhost:3000/oauth/facebook
+    FACEBOOK_CALLBACK_URL: http://127.0.0.1:3000/oauth/facebook
 
     GOOGLE_CLIENT_ID: ""
     GOOGLE_CLIENT_SECRET: ""
-    GOOGLE_CALLBACK_URL: http://localhost:3000/oauth/google
+    GOOGLE_CALLBACK_URL: http://127.0.0.1:3000/oauth/google
 
 
     STORAGE_PROVIDER: local

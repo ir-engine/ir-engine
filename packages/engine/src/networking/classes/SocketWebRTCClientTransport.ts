@@ -12,7 +12,7 @@ import store from "@xr3ngine/client-core/redux/store";
 import { createDataProducer, endVideoChat, initReceiveTransport, initSendTransport, leave, subscribeToTrack } from "../functions/SocketWebRTCClientFunctions";
 
 const { publicRuntimeConfig } = getConfig();
-const gameserver = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.gameserver : 'https://localhost:3030';
+const gameserver = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.gameserver : 'https://127.0.0.1:3030';
 const Device = mediasoupClient.Device;
 
 export class SocketWebRTCClientTransport implements NetworkTransport {

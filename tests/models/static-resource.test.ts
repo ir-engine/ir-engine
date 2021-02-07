@@ -7,7 +7,7 @@ describe('CRUD operation on \'Static Resource\' model', () => {
     model.create({
       name: 'test',
       description: 'description',
-      url: 'https://localhost:3030',
+      url: 'https://127.0.0.1:3030',
       mimeType: 'image/png',
       metadata: JSON.stringify({ data: 'test' })
     })

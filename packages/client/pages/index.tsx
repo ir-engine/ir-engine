@@ -2,7 +2,7 @@ import React, {useEffect} from 'react';
 import NoSSR from 'react-no-ssr';
 import Loading from '@xr3ngine/client-core/components/scenes/loading';
 import Layout from '@xr3ngine/client-core/components/ui/Layout/OverlayLayout';
-const isDev = typeof window !== "undefined" && window?.location?.href?.includes("localhost");
+const isDev = typeof window !== "undefined" && window?.location?.href?.includes("127.0.0.1");
 import { Plugins } from '@capacitor/core';
 const { Example } = Plugins;
 
@@ -19,10 +19,10 @@ export const IndexPage = (): any => {
     return (
         <Layout pageTitle="Home" login={false}>
             <NoSSR onSSR={<Loading/>}>
-                {Example ?
-                    <div>Native plugin detected</div> :
-                    <div className="redirect">Redirecting...</div>
+                {Example &&
+                    <div>Native plugin detected</div>
                 }
+                <div className="redirect">Redirecting...</div>
             </NoSSR>
         </Layout>
     );
