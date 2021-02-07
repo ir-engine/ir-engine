@@ -17,7 +17,7 @@ services:
     restart: always
     environment:
       PORT: 3030
-      # take care, db not localhost, because compose uses an intenal DNS
+      # take care, db not 127.0.0.1, because compose uses an intenal DNS
       MYSQL_URL: mysql://server:password@db:3306/xr3ngine 
     ports:
       - '3030:3030'
@@ -29,8 +29,8 @@ services:
       context: ../xrsocial-client
     image: xr3ngine/client
     environment:
-        NEXT_PUBLIC_API_SERVER: https://localhost:3030
-        API_SERVER: https://localhost:3030
+        NEXT_PUBLIC_API_SERVER: https://127.0.0.1:3030
+        API_SERVER: https://127.0.0.1:3030
         SITE_TITLE: XR3ngine
         SITE_DESC: Connected Worlds for Everyone
         NODE_ENV: dev

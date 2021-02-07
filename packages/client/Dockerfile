@@ -14,14 +14,14 @@ COPY package*.json /app/
 RUN yarn install --no-progress --verbose
 
 # Build Args, NOTE: supplied at build time, not runtime
-# ARG NEXT_PUBLIC_API_SERVER=https://localhost:3030
+# ARG NEXT_PUBLIC_API_SERVER=https://127.0.0.1:3030
 
 # copy then compile the code
 COPY . .
 
 RUN /bin/bash -c 'source ./scripts/write_env_stub.sh; yarn run build'
 
-ENV NEXT_PUBLIC_API_SERVER=https://localhost:3030
+ENV NEXT_PUBLIC_API_SERVER=https://127.0.0.1:3030
 
 EXPOSE 80
 CMD ["/bin/bash", "-c", "./scripts/replace_env_stub.sh ; yarn start" ]

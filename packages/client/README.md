@@ -64,7 +64,7 @@ You can run it using docker, if you don't have node installed or need to test.
 docker build --tag xr3ngine .
 
 # Run the image (deletes itself when you close it)
-docker run -d --rm --name client -e "NEXT_PUBLIC_API_SERVER=https://localhost:3030" -p "3030:3030"  xr3ngine
+docker run -d --rm --name client -e "NEXT_PUBLIC_API_SERVER=https://127.0.0.1:3030" -p "3030:3030"  xr3ngine
 
 # Stop the server
 docker stop client
@@ -75,7 +75,7 @@ docker stop client
 This image uses build-time arguments, they are not used during runtime yet
 
 - `NODE_ENV` controls the config/*.js file to load and build against [default: production]
-- `NEXT_PUBLIC_API_SERVER` points to an instance of the xr3ngine [default: https://localhost:3030]
+- `NEXT_PUBLIC_API_SERVER` points to an instance of the xr3ngine [default: https://127.0.0.1:3030]
 
 
 ## Redux store management
