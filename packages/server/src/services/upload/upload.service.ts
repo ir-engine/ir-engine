@@ -21,6 +21,11 @@ export default (app: Application): void => {
   const provider = new StorageProvider();
   const doc = uploadDocs;
 
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   app.use('/upload',
     multipartMiddleware.fields([{ name: 'file' }, { name: 'thumbnail' }]),
     (req: express.Request, res: express.Response, next: express.NextFunction) => {

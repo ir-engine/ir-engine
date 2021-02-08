@@ -19,6 +19,12 @@ export default (app: Application): any => {
     paginate: app.get('paginate'),
     multi: true
   };
+  
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const event = new UserRelationship(options, app);
   event.docs = userRalationshipDocs;
   app.use('/user-relationship', event);
