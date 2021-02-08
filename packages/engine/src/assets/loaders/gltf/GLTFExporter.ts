@@ -790,7 +790,7 @@ class GLTFExporter {
     if (this.cachedData.meshes.has(cacheKey)) {
       return this.cachedData.meshes.get(cacheKey);
     }
-    let geometry = mesh.geometry;
+    const geometry = mesh.geometry;
     let mode;
     // Use the correct mode
     if (mesh.isLineSegments) {

@@ -70,7 +70,7 @@ export default (app: Application): any => {
         group: data
       });
     }));
-  })
+  });
 
   /**
    * A method used to update group

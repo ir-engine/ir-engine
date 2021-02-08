@@ -31,6 +31,13 @@ export class Project implements ServiceMethods<Data> {
     this.models = this.app.get('sequelizeClient').models;
   }
 
+  /**
+   * A function which is used to display all projects 
+   * 
+   * @param params contains current user 
+   * @returns {@Object} contains all project
+   * @author Vyacheslav Solovjov
+   */
   async find (params: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params);
     const projects = await this.models.collection.findAll({
@@ -47,6 +54,14 @@ export class Project implements ServiceMethods<Data> {
     return { projects: processedProjects };
   }
 
+  /**
+   * A function which is used to find specific project 
+   * 
+   * @param id of single project
+   * @param params contains current user 
+   * @returns {@Object} contains specific project
+   * @author Vyacheslav Solovjov
+   */
   async get (id: Id, params: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params);
 
@@ -74,7 +89,15 @@ export class Project implements ServiceMethods<Data> {
 
     return mapProjectDetailData(project.toJSON());
   }
-
+  
+  /**
+   * A function which is used to create new project 
+   * 
+   * @param data used to create new project
+   * @param params contains user info 
+   * @returns {@Object} of created new project 
+   * @author Vyacheslav Solovjov
+   */
   async create (data: any, params: Params): Promise<any> {
     const provider = new StorageProvider();
     const storage = provider.getStorage();
@@ -93,6 +116,15 @@ export class Project implements ServiceMethods<Data> {
     return mapProjectDetailData(params.collection);
   }
 
+  /**
+   * A function which is used to update new project 
+   * 
+   * @param id 
+   * @param data of new project  
+   * @param params 
+   * @returns {@Object} of updated project
+   * @author Vyacheslav Solovjov
+   */
   async update (id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data;
   }
@@ -228,7 +260,13 @@ export class Project implements ServiceMethods<Data> {
     const savedProject = await this.reloadProject(project.id, project);
     return mapProjectDetailData(savedProject.toJSON());
   }
-
+/**
+ * A function which is used to remove specific project 
+ * 
+ * @param id of specific project 
+ * @param params 
+ * @returns {@Object} of updated project
+ */
   async remove (id: NullableId, params?: Params): Promise<Data> {
     if (!id) return { id };
 
@@ -243,6 +281,14 @@ export class Project implements ServiceMethods<Data> {
     };
   }
 
+  /**
+   * A function which is used to reload project 
+   * 
+   * @param projectId of specific project 
+   * @param loadedProject data of loaded project
+   * @returns {@Object} of loaded Project
+   * @author Vyacheslav Solovjov
+   */
   private async reloadProject (projectId: string, loadedProject?: any): Promise<any> {
     const seqeulizeClient = this.app.get('sequelizeClient');
     const models = seqeulizeClient.models;

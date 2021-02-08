@@ -1,3 +1,9 @@
+/**
+ * An object for swagger documentation configiration 
+ * 
+ * @author Kevin KIMENYI
+ */
+
 export default {
     definitions: {
         license: {
@@ -16,4 +22,4 @@ export default {
             items: { $ref:  '#/definitions/license'}
         }
     }
-}
+};

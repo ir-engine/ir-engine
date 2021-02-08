@@ -12,6 +12,13 @@ export class Subscription extends Service {
     this.app = app;
   }
 
+  /**
+   * 
+   * @param data for creating new subscription 
+   * @param params which contains user info 
+   * @returns {@Object} of created new subscription 
+   * @author 
+   */
   async create (data: any, params: Params): Promise<any> {
     const userId = (params as any).connection['identity-provider'].userId || params.body.userId;
     if (userId == null) {

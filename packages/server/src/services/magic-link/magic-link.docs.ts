@@ -1,3 +1,8 @@
+/**
+ * An object for swagger documentation configiration 
+ * 
+ * @author Kevin KIMENYI
+ */
 export default {
     definitions: {
         'magic-link':{
@@ -11,4 +16,4 @@ export default {
             items: { $ref: '#/definitions/magic-link'}
         }
     }
-}
+};

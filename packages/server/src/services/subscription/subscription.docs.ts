@@ -1,3 +1,8 @@
+/**
+ * An object for swagger documentation configiration 
+ * 
+ * @author Kevin KIMENYI
+ */
 export default {
     definitions: {
       subscription: {
@@ -35,5 +40,13 @@ export default {
         type: 'array',
         items: { $ref: '#/definitions/subscription'}
       }
-    }
- }
+    },
+    securities: ['create', 'update', 'patch', 'remove'],
+    operations: {
+      find: {
+        security: [
+          { bearer: [] }
+        ]
+      }
+    } 
+ };

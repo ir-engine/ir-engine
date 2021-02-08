@@ -1,3 +1,8 @@
+/**
+ * An object for swagger documentation configiration 
+ * 
+ * @author Kevin KIMENYI
+ */
 export default {
     definitions: {
         'static-resource': {
@@ -28,4 +33,4 @@ export default {
             items: { $ref: '#/definitions/static-resource'}
         }
     }
-}
+};

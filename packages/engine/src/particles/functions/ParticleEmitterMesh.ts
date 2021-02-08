@@ -97,7 +97,7 @@ export class ParticleEmitterMesh extends Mesh {
     this.worldScale = new Vector3();
 
     if (configs) {
-      for (let key of Object.keys(configs)) {
+      for (const key of Object.keys(configs)) {
         this[key] = configs[key];
       }
     } else {

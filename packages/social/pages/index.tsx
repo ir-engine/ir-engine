@@ -55,5 +55,5 @@ export default function Home({ children }) {
       {/* <HomeRightBar data={suggestions} /> */}
     </div>
   </>
-  )
+  );
 }
