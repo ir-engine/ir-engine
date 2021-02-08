@@ -19,10 +19,20 @@ export default (app: Application): any => {
     multi: true
   };
 
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const event = new Seat(options, app);
   event.docs = seatDocs;
   app.use('/seat', event);
 
+  /**
+   * Get our initialized service so that we can register hooks
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const service = app.service('seat');
 
   service.hooks(hooks);
