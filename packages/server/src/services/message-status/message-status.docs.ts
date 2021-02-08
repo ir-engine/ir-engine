@@ -18,5 +18,13 @@ export default {
             type: 'array',
             items: { $ref: '#/definitions/message-status'}
         }
-    }
+    },
+    securities: ['create', 'update', 'patch', 'remove'],
+    operations: {
+      find: {
+        security: [
+          { bearer: [] }
+        ]
+      }
+    } 
 }
