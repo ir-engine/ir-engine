@@ -146,7 +146,7 @@ function createConvexPolyhedron (object) {
 
   // Convert from Vector3 to CANNON.Vec3.
   const verticesIn = hull.getAttribute('position')
-  let vertices = new Array(verticesIn.count);
+  const vertices = new Array(verticesIn.count);
   const index = hull.getIndex();
 
   for (i = 0; i < verticesIn.count / 3; i++) {

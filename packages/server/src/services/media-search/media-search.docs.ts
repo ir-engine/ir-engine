@@ -17,4 +17,4 @@ export default {
             items: { $ref: '#/definitions/media-search'}
         }
     }
-}
+};
