@@ -28,4 +28,4 @@ export default {
             items: { $ref: '#/definitions/subscription-type'} 
         }
     }
-}
+};

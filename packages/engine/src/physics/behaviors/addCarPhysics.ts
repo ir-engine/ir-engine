@@ -70,7 +70,7 @@ export const addCarPhysics: Behavior = (entity: Entity, groupMeshes: any ) => {
        case 'wheel_front_right':
        case 'wheel_rear_left':
        case 'wheel_rear_right':
-        let clonedMesh = mesh.clone();
+        const clonedMesh = mesh.clone();
          deleteArr.push(mesh);
          argsToVehicle.arrayWheelsPosition.push(new Vector3().copy(mesh.position));
          argsToVehicle.arrayWheelsMesh.push(clonedMesh);

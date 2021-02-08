@@ -21,4 +21,4 @@ export default {
             items: { $ref: '#/definitions/location-settings'}
         }
     }
-}
+};

@@ -22,4 +22,4 @@ export default {
             items: { $ref:  '#/definitions/license'}
         }
     }
-}
+};
