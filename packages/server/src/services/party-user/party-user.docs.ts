@@ -22,5 +22,13 @@ export default {
            type: 'array',
            items: { $ref: '#/definitions/party-user'} 
        } 
-    }
+    },
+    securities: ['create', 'update', 'patch', 'remove'],
+    operations: {
+      find: {
+        security: [
+          { bearer: [] }
+        ]
+      }
+    } 
 }

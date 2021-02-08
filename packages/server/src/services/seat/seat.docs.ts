@@ -10,5 +10,13 @@ export default {
            type: 'array',
            items: { $ref: '#/definitions/seat'}
        }
-    }
+    },
+    securities: ['create', 'update', 'patch', 'remove'],
+    operations: {
+      find: {
+        security: [
+          { bearer: [] }
+        ]
+      }
+    } 
 }
