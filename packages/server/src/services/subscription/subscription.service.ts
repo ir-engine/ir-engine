@@ -17,11 +17,21 @@ export default (app: Application): any => {
     paginate: app.get('paginate')
   };
 
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const event = new Subscription(options, app);
-  event.docs = subscription
+  event.docs = subscription;
 
   app.use('/subscription', event);
 
+  /**
+   * Get our initialized service so that we can register hooks
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const service = app.service('subscription');
 
   service.hooks(hooks);

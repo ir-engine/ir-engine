@@ -32,7 +32,7 @@ process.on('unhandledRejection', (error, promise) => {
     const processMysql = processList.find(
         c => c[key].match(/mysql/)
     );
-    let databaseService = (dockerProcess && dockerProxy) || processMysql;
+    const databaseService = (dockerProcess && dockerProxy) || processMysql;
 
     if (!databaseService) {
 

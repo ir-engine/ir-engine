@@ -18,6 +18,11 @@ export default (app: Application): any => {
     multi: true
   };
 
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const event = new UserRole(options, app);
   event.docs = userRoleDocs;
   app.use('/user-role', event);

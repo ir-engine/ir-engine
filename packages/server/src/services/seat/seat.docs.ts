@@ -1,3 +1,8 @@
+/**
+ * An object for swagger documentation configiration 
+ * 
+ * @author Kevin KIMENYI
+ */
 export default {
     definitions: {
        seat: {
@@ -10,5 +15,13 @@ export default {
            type: 'array',
            items: { $ref: '#/definitions/seat'}
        }
-    }
-}
+    },
+    securities: ['create', 'update', 'patch', 'remove'],
+    operations: {
+      find: {
+        security: [
+          { bearer: [] }
+        ]
+      }
+    } 
+};

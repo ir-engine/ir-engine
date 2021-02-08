@@ -15,6 +15,12 @@ export default (app: Application): void => {
     paginate: app.get('paginate')
   };
   
+
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const event = new MediaSearch(options, app);
   event.docs = mediaSearchDocs;
   app.use('/media-search', event);

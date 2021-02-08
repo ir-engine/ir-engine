@@ -1,3 +1,8 @@
+/**
+ * An object for swagger documentation configiration 
+ * 
+ * @author Kevin KIMENYI
+ */
 export default {
     definitions: {
         location: {
@@ -26,5 +31,13 @@ export default {
             type: 'array',
             items: { $ref: '#/definitions/location'}
         }
-    }
-}
+    },
+    securities: ['create', 'update', 'patch', 'remove'],
+    operations: {
+      find: {
+        security: [
+          { bearer: [] }
+        ]
+      }
+    } 
+};

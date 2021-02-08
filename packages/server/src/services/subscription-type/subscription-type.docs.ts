@@ -1,3 +1,8 @@
+/**
+ * An object for swagger documentation configiration 
+ * 
+ * @author Kevin KIMENYI
+ */
 export default {
     definitions: {
         'subscription-type': {
@@ -28,4 +33,4 @@ export default {
             items: { $ref: '#/definitions/subscription-type'} 
         }
     }
-}
+};

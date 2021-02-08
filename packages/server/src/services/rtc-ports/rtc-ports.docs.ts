@@ -1,3 +1,8 @@
+/**
+ * An object for swagger documentation configiration 
+ * 
+ * @author Kevin KIMENYI
+ */
 export default {
     definitions: {
         'rtc-ports': {
@@ -20,4 +25,4 @@ export default {
             items: { $ref: '#/definitions/rtc-ports'}
         }
     }
-}
+};
