@@ -96,7 +96,7 @@ export default class AssetLoadingSystem extends System {
     // Do the actual entity creation inside the system tick not in the loader callback
     this.loaded.forEach((asset, entity) => {
       const component = getComponent<AssetLoader>(entity, AssetLoader);
-      if (component.assetClass === AssetClass.Model) {
+      if (component && component.assetClass === AssetClass.Model) {
         addComponent(entity, Model, { value: asset });
         ProcessModelAsset(entity, component, asset);
       }
