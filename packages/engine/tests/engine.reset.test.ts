@@ -1,6 +1,5 @@
 import { AmbientLight } from "three";
 import { addObject3DComponent } from "../src/scene/behaviors/addObject3DComponent";
-import { createPrefab } from "../src/common/functions/createPrefab";
 import { Prefab } from "../src/common/interfaces/Prefab";
 import { Component } from "../src/ecs/classes/Component";
 import { Engine } from "../src/ecs/classes/Engine";
@@ -10,8 +9,6 @@ import { addComponent, createEntity } from "../src/ecs/functions/EntityFunctions
 import { initializeEngine } from "../src/initialize";
 import { Input } from "../src/input/components/Input";
 import { State } from "../src/state/components/State";
-import { rigidBodyBox } from "../src/templates/car/prefabs/rigidBodyBox";
-import { staticWorldColliders } from "../src/templates/car/prefabs/staticWorldColliders";
 import { CharacterInputSchema } from "../src/templates/character/CharacterInputSchema";
 import { CharacterStateSchema } from "../src/templates/character/CharacterStateSchema";
 import { CharacterComponent } from "../src/templates/character/components/CharacterComponent";
@@ -93,10 +90,6 @@ test.skip("Engine reset should work", () => {
   initializeEngine(options)
 
   jest.advanceTimersByTime(1000)
-
-  createPrefab(rigidBodyBox);
-  createPrefab(staticWorldColliders);
-  createPrefab(PlayerCharacter);
 
   addObject3DComponent(createEntity(), { obj3d: AmbientLight, ob3dArgs: {
       intensity: 2.0
