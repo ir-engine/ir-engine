@@ -100,6 +100,10 @@ const rendererPromise = new Promise((resolve, reject) => {
 
 const removeObjectsRoots = [];
 
+/**
+ * [Editor used to provide the various tools and properties to create or edit scene]
+ * @type {[class]}
+ */
 export default class Editor extends EventEmitter {
   api: Api;
   settings: any;
@@ -136,6 +140,8 @@ export default class Editor extends EventEmitter {
   rafId: number;
   thumbnailRenderer: ThumbnailRenderer;
   playing: boolean;
+
+  // initializing component properties with default value.
   constructor(api, settings = {}) {
     super();
     this.api = api;
@@ -188,15 +194,28 @@ export default class Editor extends EventEmitter {
     this.sceneLoading = false;
   }
 
+/**
+ * [registerNode used to add new object to the scene]
+ * @param  {[type]} nodeConstructor [contains constructor properties]
+ * @param  {[type]} nodeEditor      [contains editor properties]
+ */
   registerNode(nodeConstructor, nodeEditor) {
     this.nodeTypes.add(nodeConstructor);
     this.nodeEditors.set(nodeConstructor, nodeEditor);
   }
 
+/**
+ * [getNodeEditor used to get properties of currently selected node]
+ * @param  {[type]} node [contains properties of node]
+ */
   getNodeEditor(node) {
     return this.nodeEditors.get(node.constructor);
   }
 
+/**
+ * [registerSource used to add image, audio, video, asset files to the scene]
+ * @param  {[type]} source [contains source file data]
+ */
   registerSource(source) {
     this.sources.push(source);
 
@@ -205,6 +224,10 @@ export default class Editor extends EventEmitter {
     }
   }
 
+/**
+ * [installAssetSource adding asset using url]
+ * @param  {[type]}  manifestUrl [contains url of source]
+ */
   async installAssetSource(manifestUrl) {
     const proxiedUrl = this.api.proxyUrl(new URL(manifestUrl, (window as any).location).href);
     const res = await this.api.fetchUrl(proxiedUrl);
@@ -213,14 +236,28 @@ export default class Editor extends EventEmitter {
     this.emit("settingsChanged");
   }
 
+/**
+ * [getSource used to get source from sources array using sourceId]
+ * @param  {[type]} sourceId
+ * @return {[type]}    source data
+ */
   getSource(sourceId) {
     return this.sources.find(source => source.id === sourceId);
   }
 
+/**
+ * [setSource emitting event setSource using sourceId]
+ */
   setSource(sourceId) {
     this.emit("setSource", sourceId);
   }
 
+/**
+ * [emit overriding function to emit events to exicute functions]
+ * @param  {[type]} eventName
+ * @param  {[type]} args      [contains data used by  event]
+ * @return {[type]}           [true if scene is not loading]
+ */
   emit(eventName: string | symbol, ...args: any[]): boolean {
     if (!this.sceneLoading) {
       super.emit(eventName, ...args);
@@ -229,12 +266,20 @@ export default class Editor extends EventEmitter {
     return false;
   }
 
+/**
+ * [init called when component get initialized]
+ * @return {Promise}         [void]
+ */
   async init(): Promise<void> {
+
+    // check if component is already initialized then return
     if (this.initialized) {
       return;
     }
 
+    // check if component is initializing
     if (this.initializing) {
+
       return new Promise((resolve, reject) => {
         let cleanup = null;
 
@@ -242,16 +287,17 @@ export default class Editor extends EventEmitter {
           resolve();
           cleanup();
         };
+
         const onError = err => {
           reject(err);
           cleanup();
         };
-
+    // removing listeners
         cleanup = () => {
           this.removeListener("initialized", onInitialize);
           this.removeListener("error", onError);
         };
-
+    // adding listeners
         this.addListener("initialized", onInitialize);
         this.addListener("error", onError);
       });
@@ -259,20 +305,30 @@ export default class Editor extends EventEmitter {
 
     this.initializing = true;
 
-    const tasks = [rendererPromise, loadEnvironmentMap(), LoadingCube.load(), ErrorIcon.load(), TransformGizmo.load()];
+    const tasks = [
+            rendererPromise,
+            loadEnvironmentMap(),
+            LoadingCube.load(),
+            ErrorIcon.load(),
+            TransformGizmo.load()
+          ];
 
     for (const NodeConstructor of this.nodeTypes) {
       tasks.push(NodeConstructor.load());
     }
-
+    // wait till all Promise get completed
     await Promise.all(tasks);
 
+    // initializing canvas for current scene
     this.inputManager = new InputManager(this.renderer.canvas);
+
+    // initializing controls
     this.flyControls = new FlyControls(this.camera as any, this.inputManager);
     this.editorControls = new EditorControls(this.camera, this, this.inputManager, this.flyControls);
     this.playModeControls = new PlayModeControls(this.inputManager, this.editorControls, this.flyControls);
     this.editorControls.enable();
 
+    // adding listeners
     window.addEventListener("copy", this.onCopy);
     window.addEventListener("paste", this.onPaste);
 
@@ -280,14 +336,22 @@ export default class Editor extends EventEmitter {
 
     this.initialized = true;
 
+    // marking that component get initialized
     this.emit("initialized");
   }
 
+/**
+ * [onEmitSceneModified called when scene get modified]
+ */
   onEmitSceneModified() {
     this.sceneModified = true;
     this.emit("sceneModified");
   }
 
+/**
+ * [initializeRenderer used to render canvas]
+ * @param  {[type]} canvas [ contains canvas data ]
+ */
   initializeRenderer(canvas) {
     try {
       this.renderer = new Renderer(this, canvas);
@@ -298,32 +362,55 @@ export default class Editor extends EventEmitter {
     }
   }
 
+/**
+ * [clearCaches used to clear cashe]
+ */
   clearCaches() {
     this.textureCache.disposeAndClear();
     this.gltfCache.disposeAndClear();
   }
 
+/**
+ * [loadProject used to load the scene]
+ * @param  {[type]}  projectFile [contains scene data]
+ * @return {Promise}             [scene to render]
+ */
   async loadProject(projectFile) {
+
+    // removing listener
     this.removeListener("objectsChanged", this.onEmitSceneModified);
     this.removeListener("sceneGraphChanged", this.onEmitSceneModified);
 
+    // clear caches
     this.clearCaches();
 
+    // remove existing scene
     this.removeObject(this.scene);
 
+    // enabling loading
     this.sceneLoading = true;
+
+    //disabling loading
     this.disableUpdate = true;
 
+    // getting scene data
     const [scene, errors] = await SceneNode.loadProject(this, projectFile);
 
+    // removing loading
     this.sceneLoading = false;
+
+    // enabling updates
     this.disableUpdate = false;
+
+    // initializing loaded scene
     this.scene = scene;
 
+    // setting camera postions
     this.camera.position.set(0, 5, 10);
     this.camera.lookAt(new Vector3());
     this.scene.add(this.camera);
 
+    // setting editor controls
     this.editorControls.center.set(0, 0, 0);
     this.editorControls.onSceneSet(scene);
 
@@ -352,6 +439,7 @@ export default class Editor extends EventEmitter {
     this.addListener("objectsChanged", this.onEmitSceneModified);
     this.addListener("sceneGraphChanged", this.onEmitSceneModified);
 
+    // check if there is any error then throw error;
     if (errors.length > 0) {
       const error = new MultiError("Errors loading project", errors);
       this.emit("error", error);
@@ -361,11 +449,20 @@ export default class Editor extends EventEmitter {
     return scene;
   }
 
+ /**
+  * [DefaultExportOptions provides properties to export scene]
+  */
   static DefaultExportOptions = {
     combineMeshes: true,
     removeUnusedObjects: true
   };
 
+/**
+ * [exportScene used to export scene]
+ * @param  {[type]}  signal       [ show the Network status]
+ * @param  {Object}  [options={}]
+ * @return {Promise}              [scene data as object]
+ */
   async exportScene(signal, options = {}) {
     const { combineMeshes, removeUnusedObjects } = Object.assign({}, Editor.DefaultExportOptions, options);
 
@@ -466,6 +563,10 @@ export default class Editor extends EventEmitter {
     }
   }
 
+/**
+ * [getSpawnPosition provides the postion of object inside scene]
+ * @return {[type]}        [Spwan position]
+ */
   getSpawnPosition(target) {
     return this.getScreenSpaceSpawnPosition(this.centerScreenSpace, target);
   }
