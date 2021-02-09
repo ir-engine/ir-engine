@@ -1,31 +1,30 @@
-import { createRemoteUserOnClient } from "../../_helpers/createRemoteUserOnClient";
-import * as initializeNetworkObjectModule from "../../../src/networking/functions/initializeNetworkObject";
-import { NetworkTransport } from "../../../src/networking/interfaces/NetworkTransport";
-import { NetworkSchema } from "../../../src/networking/interfaces/NetworkSchema";
-import { DefaultNetworkSchema } from "../../../src/templates/networking/DefaultNetworkSchema";
-import { Network } from "../../../src/networking//classes/Network";
+import { Body } from "cannon-es";
+import { RaycastResult } from "collision/RaycastResult";
+import { AnimationAction, AnimationClip, AnimationMixer, Object3D, Scene } from "three";
+import { BinaryValue } from "../../../src/common/enums/BinaryValue";
+import { LifecycleValue } from "../../../src/common/enums/LifecycleValue";
+import { now } from "../../../src/common/functions/now";
 import { Engine } from "../../../src/ecs/classes/Engine";
-import {AnimationAction, AnimationClip, AnimationMixer, Object3D, Scene} from "three";
-import { registerSystem } from "../../../src/ecs/functions/SystemFunctions";
-import { ClientNetworkSystem } from "../../../src/networking/systems/ClientNetworkSystem";
-import { PhysicsSystem } from "../../../src/physics/systems/PhysicsSystem";
 import { Entity } from "../../../src/ecs/classes/Entity";
 import { execute } from "../../../src/ecs/functions/EngineFunctions";
+import { getComponent, getMutableComponent } from "../../../src/ecs/functions/EntityFunctions";
+import { registerSystem } from "../../../src/ecs/functions/SystemFunctions";
 import { SystemUpdateType } from "../../../src/ecs/functions/SystemUpdateType";
-import {getComponent, getMutableComponent} from "../../../src/ecs/functions/EntityFunctions";
-import { State } from "../../../src/state/components/State";
-import { CharacterStateTypes } from "../../../src/templates/character/CharacterStateTypes";
-import { StateSystem } from "../../../src/state/systems/StateSystem";
-import { PhysicsSystem } from "../../../src/physics/systems/PhysicsSystem";
-import { RaycastResult } from "collision/RaycastResult";
-import { Body } from "cannon-es";
-import { CharacterComponent } from "../../../src/templates/character/components/CharacterComponent";
 import { Input } from "../../../src/input/components/Input";
-import { BaseInput } from "../../../src/templates/shared/BaseInput";
+import { BaseInput } from "../../../src/input/enums/BaseInput";
 import { InputType } from "../../../src/input/enums/InputType";
-import { LifecycleValue } from "../../../src/common/enums/LifecycleValue";
-import { BinaryValue } from "../../../src/common/enums/BinaryValue";
-import { now } from "../../../src/common/functions/now";
+import { Network } from "../../../src/networking//classes/Network";
+import * as initializeNetworkObjectModule from "../../../src/networking/functions/initializeNetworkObject";
+import { NetworkSchema } from "../../../src/networking/interfaces/NetworkSchema";
+import { NetworkTransport } from "../../../src/networking/interfaces/NetworkTransport";
+import { ClientNetworkSystem } from "../../../src/networking/systems/ClientNetworkSystem";
+import { PhysicsSystem } from "../../../src/physics/systems/PhysicsSystem";
+import { State } from "../../../src/state/components/State";
+import { StateSystem } from "../../../src/state/systems/StateSystem";
+import { CharacterStateTypes } from "../../../src/templates/character/CharacterStateTypes";
+import { CharacterComponent } from "../../../src/templates/character/components/CharacterComponent";
+import { DefaultNetworkSchema } from "../../../src/templates/networking/DefaultNetworkSchema";
+import { createRemoteUserOnClient } from "../../_helpers/createRemoteUserOnClient";
 // import * as setActorAnimationModule from "../../../src/templates/character/behaviors/setActorAnimation";
 
 const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
@@ -167,12 +166,10 @@ describe("idle", () => {
       value: BinaryValue.ON
     });
     executeFrame();
-    expect(state.data.has(CharacterStateTypes.JUMP_IDLE)).toBe(true);
+    expect(state.data.has(CharacterStateTypes.JUMP)).toBe(true);
   });
 
   test("switch to moving", () => {
-    expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
-
     actor.localMovementDirection.set(1,0,1);
     executeFrame();
     expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
@@ -226,7 +223,7 @@ describe("moving", () => {
       value: BinaryValue.ON
     });
     executeFrame();
-    expect(state.data.has(CharacterStateTypes.JUMP_RUNNING)).toBe(true);
+    expect(state.data.has(CharacterStateTypes.JUMP)).toBe(true);
   });
 });
 

@@ -37,12 +37,8 @@ export const DropRunningState: StateSchemaValue = {onEntry: [
           // Check if we stopped moving
           if (getComponent(entity, CharacterComponent).localMovementDirection.length() === 0)
             return setState(entity, { state: CharacterStateTypes.DEFAULT });
-          // Check if we're trying to sprint
-          if (input.data.has(BaseInput.SPRINT))
-            return setState(entity, { state: CharacterStateTypes.SPRINT });
-          // Check if we're trying to jump
           if (input.data.has(BaseInput.JUMP))
-            return setState(entity, { state: CharacterStateTypes.JUMP_RUNNING });
+            return setState(entity, { state: CharacterStateTypes.JUMP });
         }
       }
     },

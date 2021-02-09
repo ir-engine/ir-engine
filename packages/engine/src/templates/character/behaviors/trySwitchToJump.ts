@@ -11,11 +11,8 @@ export const trySwitchToJump = (entity: Entity): boolean => {
   const input = getComponent(entity, Input);
   if (input.data.has(BaseInput.JUMP) && input.data.get(BaseInput.JUMP).value === BinaryValue.ON) {
 
-    if (getComponent(entity, CharacterComponent).localMovementDirection.length() > 0) {
-      setState(entity, { state: CharacterStateTypes.JUMP_RUNNING });
-    } else {
-      setState(entity, { state: CharacterStateTypes.JUMP_IDLE });
-    }
+    setState(entity, { state: CharacterStateTypes.JUMP });
+
 
     return true;
   }

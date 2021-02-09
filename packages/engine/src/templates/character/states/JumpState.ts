@@ -39,7 +39,7 @@ export const JumpState: StateSchemaValue = {componentProperties: [{
       {
         behavior: initializeCharacterState,
         args: {
-          animationId: CharacterStateTypes.JUMP_RUNNING,
+          animationId: CharacterStateTypes.JUMP,
           transitionDuration: 0.3
         }
       }
