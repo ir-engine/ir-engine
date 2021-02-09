@@ -19,7 +19,8 @@ const empty = new Vector3();
 const PI_2Deg = Math.PI / 180;
 const mx = new Matrix4();
 const vec3 = new Vector3();
-const sensitivity = isMobileOrTablet() ? 35 : 80 // eventually this will come from some settings somewhere
+const isMobile = isMobileOrTablet()
+const sensitivity = isMobile ? 60 : 100 // eventually this will come from some settings somewhere
 
 /**
  * Set camera to follow the entity.
@@ -63,6 +64,9 @@ export const setCameraFollow: Behavior = (entityIn: Entity, args: any, delta: an
     actor.orientation.copy(forwardVector).applyQuaternion(actorTransform.rotation);
     actorTransform.rotation.setFromUnitVectors(forwardVector, actor.orientation.clone().setY(0));
   }
+
+  cameraDesiredTransform.rotationRate = isMobile || cameraFollow.mode === CameraModes.FirstPerson ? 5 : 3.5
+  cameraDesiredTransform.positionRate = isMobile || cameraFollow.mode === CameraModes.FirstPerson ? 3.5 : 2
 
   let camDist = cameraFollow.distance;
   if (cameraFollow.mode === CameraModes.FirstPerson) camDist = 0.01;
