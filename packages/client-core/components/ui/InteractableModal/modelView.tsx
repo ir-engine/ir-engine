@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from "react";
-import "@google/model-viewer/dist/model-viewer-legacy";
+import "@google/model-viewer";
 
 type ModelViewProps = {
   modelUrl: string;
