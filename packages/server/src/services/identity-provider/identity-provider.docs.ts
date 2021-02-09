@@ -46,4 +46,4 @@ export default {
         items: { $ref: '#/definitions/identity-provider' }
       }
     }
-}
+};

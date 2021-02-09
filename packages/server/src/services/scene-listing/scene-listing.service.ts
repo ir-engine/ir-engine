@@ -17,8 +17,18 @@ export default (app: Application): any => {
     multi: true
   };
 
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   app.use('/scene-listing', new SceneListing(options, app));
 
+  /**
+   * Get our initialized service so that we can register hooks
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const service = app.service('scene-listing');
 
   service.hooks(hooks);

@@ -17,6 +17,11 @@ export default (app: Application): any => {
     multi: true
   };
 
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   app.use('/project-asset', new ProjectAsset(options, app));
 
   const service = app.service('project-asset');

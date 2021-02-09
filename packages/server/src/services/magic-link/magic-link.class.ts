@@ -33,29 +33,76 @@ export class Magiclink implements ServiceMethods<Data> {
     this.app = app;
   }
 
+  /**
+   * A function which find magic link  and display it 
+   * 
+   * @param params 
+   * @returns {@Array} all magic link  
+   * @author Vyacheslav Solovjov
+   */
   async find (params?: Params): Promise<Data[] | Paginated<Data>> {
     return [];
   }
 
+  /**
+   * A function which find specific magic link by id
+   * 
+   * @param id of specific magic link 
+   * @param params 
+   * @returns {@Object} contains id of magic link and message
+   * @author Vyacheslav Solovjov
+   */
   async get (id: Id, params?: Params): Promise<Data> {
     return {
       id,
       text: `A new message with ID: ${id}!`
     };
   }
-
+/**
+ * A function which is used to update magic link 
+ * 
+ * @param id 
+ * @param data which will be used for updating magic link 
+ * @param params 
+ * @returns updated data
+ * @author Vyacheslav Solovjov
+ */
   async update (id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data;
   }
 
+  /**
+   * A function which is used to update magic link 
+   * 
+   * @param id 
+   * @param data used to update 
+   * @param params 
+   * @returns data
+   */
   async patch (id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data;
   }
-
+   /**
+   * A function which is used to remove magic link 
+   * 
+   * @param id of magic link used to remove data 
+   * @param params 
+   * @returns id 
+   */
   async remove (id: NullableId, params?: Params): Promise<Data> {
     return { id };
   }
 
+  /**
+   * A function used to sent an email 
+   * 
+   * @param toEmail email of reciever 
+   * @param token generated token 
+   * @param type of login 
+   * @param name of user 
+   * @returns {@function} sent email 
+   * @author Vyacheslav Solovjov
+   */
   async sendEmail (
     toEmail: string,
     token: string,
@@ -113,6 +160,16 @@ export class Magiclink implements ServiceMethods<Data> {
     return await sendEmail(this.app, email);
   }
 
+/**
+ * A function which used to send sms 
+ * 
+ * @param mobile of receiver user 
+ * @param token generated token 
+ * @param type of login 
+ * @returns {@function}  send sms
+ * @author Vyacheslav Solovjov
+ */
+
   async sendSms (
     mobile: string,
     token: string,
@@ -142,6 +199,14 @@ export class Magiclink implements ServiceMethods<Data> {
     };
     return await sendSms(this.app, sms);
   }
+  /**
+   * A function which is used to create magic link 
+   * 
+   * @param data used create magic link 
+   * @param params contain user info
+   * @returns creted data 
+   * @author Vyacheslav Solovjov
+   */
 
   async create (data: any, params?: Params): Promise<Data> {
     const identityProviderService: Service = this.app.service('identity-provider');

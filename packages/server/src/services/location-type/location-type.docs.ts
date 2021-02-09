@@ -1,3 +1,8 @@
+/**
+ * An object for swagger documentation configiration 
+ * 
+ * @author Kevin KIMENYI
+ */
 export default {
     definitions: {
         'location-type': {
@@ -13,4 +18,4 @@ export default {
             items: { $ref: '#/definitions/location-type'}
         }
     }
-}
+};

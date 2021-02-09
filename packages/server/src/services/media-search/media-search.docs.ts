@@ -1,3 +1,9 @@
+/**
+ * An object for swagger documentation configiration 
+ * 
+ * @author Kevin KIMENYI
+ */
+
 export default {
     definitions: {
         'media-search':{
@@ -11,4 +17,4 @@ export default {
             items: { $ref: '#/definitions/media-search'}
         }
     }
-}
+};

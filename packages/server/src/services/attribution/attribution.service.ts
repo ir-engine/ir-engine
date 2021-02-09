@@ -26,7 +26,7 @@ export default (app: Application): any => {
    * @author Vyacheslav Solovjov
    */
   const event = new Attribution(options, app);
-  event.docs = attributionDocs
+  event.docs = attributionDocs;
 
   app.use('/attribution', event);
 

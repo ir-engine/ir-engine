@@ -86,7 +86,7 @@ if (isClient) {
   }
 };
 
-var lastRightGamePad = null;
+let lastRightGamePad = null;
 
 function updateIK(entity: Entity) {
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);

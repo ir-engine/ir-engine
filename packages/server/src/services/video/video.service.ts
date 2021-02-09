@@ -13,6 +13,11 @@ export default (app: Application): void => {
   const options = {
   };
 
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   app.use('/video', new Video(options, app));
 
   const service = app.service('video');

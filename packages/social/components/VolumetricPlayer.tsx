@@ -28,13 +28,13 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(w, h);
     container.appendChild(renderer.domElement);
-    window.addEventListener('resize', function () {
+    window.addEventListener('resize', () => {
       w = container.clientWidth;
       h = container.clientHeight;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
-    })
+    });
 
     function render() {
       requestAnimationFrame(render);
@@ -56,10 +56,10 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
     return () => {
       // clear volumetric player
       // DracosisSequence.dispose();
-    }
+    };
   }, []);
 
   // this is play button
   // onClick={(e) => DracosisSequence.play()}
   return null;
-}
+};

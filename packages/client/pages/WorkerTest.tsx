@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import NoSSR from 'react-no-ssr';
 
 export const IndexPage = (): any => {
-    const [messageState, setMessageState] = useState("")
+    const [messageState, setMessageState] = useState("");
     useEffect(() => {
         const worker = new Worker(new URL('../components/deep-thought.js', import.meta.url));
         worker.postMessage({

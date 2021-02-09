@@ -1,3 +1,8 @@
+/**
+ * An object for swagger documentation configiration 
+ * 
+ * @author Kevin KIMENYI
+ */
 export default {
     definitions: {
         'user-relationship': {
@@ -10,5 +15,13 @@ export default {
             type: 'array',
             items: { $ref: '#/definitions/user-relationship'}
         }
-    }
-}
+    },
+    securities: ['create', 'update', 'patch', 'remove'],
+    operations: {
+      find: {
+        security: [
+          { bearer: [] }
+        ]
+      }
+    } 
+};
