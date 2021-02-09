@@ -190,7 +190,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
         for (let i = 0; i < inputData.axes1d.length; i++)
             input.data.set(inputData.axes1d[i].input,
                 {
-                    type: InputType.BUTTON,
+                    type: InputType.ONEDIM,
                     value: inputData.axes1d[i].value,
                     lifecycleState: inputData.axes1d[i].lifecycleState
                 });
@@ -199,7 +199,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
         for (let i = 0; i < inputData.axes2d.length; i++)
             input.data.set(inputData.axes2d[i].input,
                 {
-                    type: InputType.BUTTON,
+                    type: InputType.TWODIM,
                     value: inputData.axes2d[i].value,
                     lifecycleState: inputData.axes2d[i].lifecycleState
                 });
