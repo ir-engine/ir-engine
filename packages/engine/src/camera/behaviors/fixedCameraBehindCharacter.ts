@@ -15,7 +15,7 @@ import { CameraModes } from '../types/CameraModes'
 export const fixedCameraBehindCharacter: Behavior = (entity: Entity, args: any, delta: number): void => {
   const follower = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent);
 
-  if (follower?.mode !== CameraModes.FirstPerson && CameraComponent.instance) {
+  if (CameraComponent.instance && follower && follower.mode !== CameraModes.FirstPerson) {
     follower.locked = !follower.locked
     // follower.needsReset = follower.locked
     // setCameraFollow(CameraComponent.instance.entity, { forceRefresh: true }, delta, CameraComponent.instance.followTarget);
