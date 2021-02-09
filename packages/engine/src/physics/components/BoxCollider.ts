@@ -1,5 +1,5 @@
 import { Mesh, Vector3 } from "three";
-import { setDefaults } from "../../templates/character/functions/setDefaults";
+import { setDefaults } from "../../common/functions/setDefaults";
 import { Vec3, Material, Box, Body } from "cannon-es";
 import { Component } from "../../ecs/classes/Component";
 

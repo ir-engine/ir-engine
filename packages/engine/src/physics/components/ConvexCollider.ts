@@ -1,7 +1,7 @@
 import {Mesh, Vector3, Object3D} from 'three';
 import { Material, Vec3, ConvexPolyhedron, Body } from 'cannon-es';
 import { Component } from '../../ecs/classes/Component';
-import { setDefaults } from "../../templates/character/functions/setDefaults";
+import { setDefaults } from "../../common/functions/setDefaults";
 
 export class ConvexCollider extends Component<ConvexCollider>
 {

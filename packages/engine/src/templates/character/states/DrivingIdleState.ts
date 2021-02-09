@@ -1,16 +1,11 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
-import { setActorAnimationById } from "../behaviors/setActorAnimation";
-import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
 import { updateCharacterState } from "../behaviors/updateCharacterState";
-import { CharacterStateGroups } from '../CharacterStateGroups';
+import { CharacterStateTypes } from "../CharacterStateTypes";
 import { CharacterComponent } from '../components/CharacterComponent';
-import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
 
 // Idle Behavior
-export const DrivingIdleState: StateSchemaValue = {
-  group: CharacterStateGroups.MOVEMENT,
-  componentProperties: [{
+export const DrivingIdleState: StateSchemaValue = {componentProperties: [{
     component: CharacterComponent,
     properties: {
       ['velocitySimulator.damping']: 0.6,
@@ -19,19 +14,12 @@ export const DrivingIdleState: StateSchemaValue = {
   }],
   onEntry: [
     {
-      behavior: initializeCharacterState
-    },
-    {
-      behavior: setArcadeVelocityTarget,
-      args: { x: 0, y: 0, z: 0 }
-    },
-    {
-      behavior: setActorAnimationById,
+      behavior: initializeCharacterState,
       args: {
-        animationId: CharacterAnimationsIds.DRIVING,
+        animationId: CharacterStateTypes.DRIVING,
         transitionDuration: 0.1
       }
-    }
+    },
   ],
   onUpdate: [
     {

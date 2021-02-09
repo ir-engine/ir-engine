@@ -1,13 +1,9 @@
-import { BoxBufferGeometry, Mesh, MeshPhongMaterial, Color } from "three";
-import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
 import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
-
-import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
+import { Prefab } from "@xr3ngine/engine/src/common/interfaces/Prefab";
 import { ColliderComponent } from "@xr3ngine/engine/src/physics/components/ColliderComponent";
 import { RigidBody } from "@xr3ngine/engine/src/physics/components/RigidBody";
-import { addMeshCollider } from "@xr3ngine/engine/src/physics/behaviors/addMeshCollider";
-import { addMeshRigidBody } from "@xr3ngine/engine/src/physics/behaviors/addMeshRigidBody";
-import { attachCamera } from "@xr3ngine/engine/src/camera/behaviors/attachCamera";
+import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
+import { BoxBufferGeometry, Color, Mesh, MeshPhongMaterial } from "three";
 
 const boxGeometry = new BoxBufferGeometry(0.3, 0.3, 0.3);
 const boxMaterial = new MeshPhongMaterial({ color: new Color(0.813410553336143494, 0.81341053336143494, 0.80206481294706464) });

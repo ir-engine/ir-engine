@@ -1,18 +1,12 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { CharacterComponent } from '../components/CharacterComponent';
-import { setActorAnimationById } from "../behaviors/setActorAnimation";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
-import { updateCharacterState } from "../behaviors/updateCharacterState";
-import { CharacterStateGroups } from '../CharacterStateGroups';
 import { jumpIdle } from "../behaviors/jumpIdle";
-import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
-import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
 import { onAnimationEnded } from "../behaviors/onAnimationEnded";
+import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateTypes } from "../CharacterStateTypes";
+import { CharacterComponent } from '../components/CharacterComponent';
 
-export const JumpIdleState: StateSchemaValue = {
-  group: CharacterStateGroups.MOVEMENT,
-  componentProperties: [{
+export const JumpIdleState: StateSchemaValue = {componentProperties: [{
     component: CharacterComponent,
     properties: {
       ['velocitySimulator.mass']: 50,
@@ -21,16 +15,9 @@ export const JumpIdleState: StateSchemaValue = {
   }],
   onEntry: [
     {
-      behavior: setArcadeVelocityTarget,
-      args: { x: 0, y: 0, z: 0 }
-    },
-    {
-      behavior: initializeCharacterState
-    },
-    {
-      behavior: setActorAnimationById,
+      behavior: initializeCharacterState,
       args: {
-        animationId: CharacterAnimationsIds.JUMP,
+        animationId: CharacterStateTypes.JUMP,
         transitionDuration: 1
       }
     }

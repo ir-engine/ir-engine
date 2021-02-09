@@ -26,7 +26,7 @@ export const CharacterStates = {
   [CharacterStateTypes.JUMP_IDLE]: JumpIdleState,
   [CharacterStateTypes.JUMP_RUNNING]: JumpRunningState,
   [CharacterStateTypes.SPRINT]: SprintState,
-  [CharacterStateTypes.DRIVING_IDLE]: DrivingIdleState,
-  [CharacterStateTypes.ENTER_VEHICLE]: EnterVehicleState,
-  [CharacterStateTypes.EXIT_VEHICLE]: ExitVehicleState
+  [CharacterStateTypes.DRIVING]: DrivingIdleState,
+  [CharacterStateTypes.ENTERING_CAR]: EnterVehicleState,
+  [CharacterStateTypes.EXITING_CAR]: ExitVehicleState
 };

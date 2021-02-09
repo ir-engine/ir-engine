@@ -1,59 +1,32 @@
-import * as initializeNetworkObjectModule from "../../../src/networking/functions/initializeNetworkObject";
-import { AnimationAction, AnimationClip, AnimationMixer, Object3D, Scene } from "three";
-import { getComponent, getMutableComponent } from "../../../src/ecs/functions/EntityFunctions";
-import { CharacterComponent } from "../../../src/templates/character/components/CharacterComponent";
-import { NetworkTransport } from "../../../src/networking/interfaces/NetworkTransport";
-import { Engine } from "../../../src/ecs/classes/Engine";
+import { Body } from "cannon-es";
+import { RaycastResult } from "collision/RaycastResult";
+import { Scene } from "three";
+import { BinaryValue } from "../../../src/common/enums/BinaryValue";
+import { LifecycleValue } from "../../../src/common/enums/LifecycleValue";
 import { now } from "../../../src/common/functions/now";
+import { Engine } from "../../../src/ecs/classes/Engine";
+import { Entity } from "../../../src/ecs/classes/Entity";
 import { execute } from "../../../src/ecs/functions/EngineFunctions";
-import { SystemUpdateType } from "../../../src/ecs/functions/SystemUpdateType";
-import { NetworkSchema } from "../../../src/networking/interfaces/NetworkSchema";
-import { DefaultNetworkSchema } from "../../../src/templates/networking/DefaultNetworkSchema";
-import { Network } from "../../../src/networking//classes/Network";
+import { getComponent } from "../../../src/ecs/functions/EntityFunctions";
 import { registerSystem } from "../../../src/ecs/functions/SystemFunctions";
+import { SystemUpdateType } from "../../../src/ecs/functions/SystemUpdateType";
+import { Input } from "../../../src/input/components/Input";
+import { InputType } from "../../../src/input/enums/InputType";
+import { Network } from "../../../src/networking//classes/Network";
+import * as initializeNetworkObjectModule from "../../../src/networking/functions/initializeNetworkObject";
+import { NetworkSchema } from "../../../src/networking/interfaces/NetworkSchema";
+import { NetworkTransport } from "../../../src/networking/interfaces/NetworkTransport";
 import { ClientNetworkSystem } from "../../../src/networking/systems/ClientNetworkSystem";
 import { PhysicsSystem } from "../../../src/physics/systems/PhysicsSystem";
-import { StateSystem } from "../../../src/state/systems/StateSystem";
-import { PhysicsSystem } from "../../../src/physics/systems/PhysicsSystem";
-import { RaycastResult } from "collision/RaycastResult";
-import { Entity } from "../../../src/ecs/classes/Entity";
 import { State } from "../../../src/state/components/State";
-import { createRemoteUserOnClient } from "../../_helpers/createRemoteUserOnClient";
-import { Body } from "cannon-es";
+import { StateSystem } from "../../../src/state/systems/StateSystem";
 import { CharacterStateTypes } from "../../../src/templates/character/CharacterStateTypes";
-import { Input } from "../../../src/input/components/Input";
+import { CharacterComponent } from "../../../src/templates/character/components/CharacterComponent";
+import { DefaultNetworkSchema } from "../../../src/templates/networking/DefaultNetworkSchema";
 import { DefaultInput } from "../../../src/templates/shared/DefaultInput";
-import { InputType } from "../../../src/input/enums/InputType";
-import { LifecycleValue } from "../../../src/common/enums/LifecycleValue";
-import { BinaryValue } from "../../../src/common/enums/BinaryValue";
-import { CharacterAnimationsIds } from "../../../src/templates/character/CharacterAnimationsIds";
+import { createRemoteUserOnClient } from "../../_helpers/createRemoteUserOnClient";
 
 const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
-// setActorAnimationModule.setActorAnimation = jest.fn((entity, args: { name: string; transitionDuration: number }) => {
-//
-// });
-const dummyObject = new Object3D();
-const dummyMixer = new AnimationMixer(dummyObject);
-const mockedAnimActions = new Map<CharacterAnimationsIds, AnimationAction>();
-jest.mock("../../../src/templates/character/behaviors/setActorAnimation", () => {
-    return {
-        __esModule: true,
-        // default: jest.fn(() => 42),
-        setActorAnimationById: jest.fn((entity, args: { animationId: number; transitionDuration: number }) => {
-            const actor = getMutableComponent(entity, CharacterComponent);
-            let action: AnimationAction;
-            if (mockedAnimActions.has(args.animationId)) {
-                action = mockedAnimActions.get(args.animationId);
-            } else {
-                const dummyClip = new AnimationClip(String(args.animationId), oneFixedRunTimeSpan * 2, []);
-                action = dummyMixer.clipAction(dummyClip);
-                mockedAnimActions.set(args.animationId, action);
-            }
-            actor.currentAnimationAction = action;
-            actor.currentAnimationLength = action.getClip().duration;
-        }),
-    };
-});
 
 class TestTransport implements NetworkTransport {
     isServer = false;

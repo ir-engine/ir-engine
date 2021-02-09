@@ -10,8 +10,8 @@ export const changeColor: Behavior = (entity: Entity, args: { materialName: stri
   let material;
   vehicle.traverse(child => {
     if (child instanceof Mesh) {
-      if (child?.material?.name.includes(args.materialName)) {
-        console.log("Setting" + child.material.name);
+      if ((child?.material as any)?.name.includes(args.materialName)) {
+        console.log("Setting" + (child.material as any).name);
         material = child.material;
       }
     }

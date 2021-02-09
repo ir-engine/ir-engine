@@ -1,24 +1,23 @@
-import { AnimationClip } from 'three';
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
+import { AnimationClip } from 'three';
 import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
-import { CharacterComponent } from '../components/CharacterComponent';
-import { defaultAvatarAnimations, CharacterAvatars, AnimationConfigInterface } from "../CharacterAvatars";
+import { AnimationConfigInterface, CharacterAvatars, defaultAvatarAnimations } from "../CharacterAvatars";
 import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
-import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
-import { getActorAnimationConfig } from "./getActorAnimationConfig";
-
-
+import { CharacterComponent } from '../components/CharacterComponent';
 
 export const setActorAnimationWeightScale: Behavior = (entity, args: { animationId: number; weight?: number; scale?: number, replaceCurrent?: boolean, transitionDuration?: number }) => {
   const actor = getComponent(entity, CharacterComponent);
-  // console.log('setActorAnimationWS [', CharacterAnimationsIds[args.animationId], '](',args.animationId,') W:', args.weight, ' S:', args.scale);
+  // console.log('setActorAnimationWS [', CharacterStateTypes[args.animationId], '](',args.animationId,') W:', args.weight, ' S:', args.scale);
 
   // Actor isn't initialized yet, so skip the animation
   if(!actor?.initialized) return;
   // if actor model is not yet loaded mixer could be empty
   if (!actor.mixer) return;
 
-  const avatarAnimation: AnimationConfigInterface = getActorAnimationConfig(entity, args.animationId);
+  const avatarId = getComponent(entity, CharacterAvatarComponent)?.avatarId;
+  const avatarAnimations = CharacterAvatars.find(a => a.id === avatarId)?.animations ?? defaultAvatarAnimations;
+  const avatarAnimation: AnimationConfigInterface = avatarAnimations[args.animationId];
+
   if (!avatarAnimation) {
     return;
   }

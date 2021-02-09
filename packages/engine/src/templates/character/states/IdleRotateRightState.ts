@@ -1,23 +1,17 @@
+import { Entity } from "../../../ecs/classes/Entity";
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { CharacterComponent } from '../components/CharacterComponent';
-import { setActorAnimationById } from "../behaviors/setActorAnimation";
-import { setFallingState } from "../behaviors/setFallingState";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
-import { updateCharacterState } from "../behaviors/updateCharacterState";
-import { CharacterStateGroups } from '../CharacterStateGroups';
 import { onAnimationEnded } from '../behaviors/onAnimationEnded';
-import { CharacterStateTypes } from '../CharacterStateTypes';
-import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
+import { setFallingState } from "../behaviors/setFallingState";
 import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
-import { findVehicle } from '../functions/findVehicle';
 import { trySwitchToJump } from "../behaviors/trySwitchToJump";
 import { trySwitchToMovingState } from "../behaviors/trySwitchToMovingState";
-import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
-import { Entity } from "../../../ecs/classes/Entity";
+import { updateCharacterState } from "../behaviors/updateCharacterState";
+import { CharacterStateTypes } from "../CharacterStateTypes";
+import { CharacterComponent } from '../components/CharacterComponent';
+import { findVehicle } from '../functions/findVehicle';
 
-export const IdleRotateRightState: StateSchemaValue = {
-  group: CharacterStateGroups.MOVEMENT,
-  componentProperties: [{
+export const IdleRotateRightState: StateSchemaValue = {componentProperties: [{
     component: CharacterComponent,
     properties: {
       ['velocitySimulator.mass']: 10,
@@ -27,17 +21,10 @@ export const IdleRotateRightState: StateSchemaValue = {
     }
   }],
   onEntry:  [
-    {
-      behavior: setArcadeVelocityTarget,
-      args: { x: 0, y: 0, z: 0 }
-    },
       {
-        behavior: initializeCharacterState
-      },
-      {
-        behavior: setActorAnimationById,
+        behavior: initializeCharacterState,
         args: {
-          animationId: CharacterAnimationsIds.IDLE_ROTATE_RIGHT,
+          animationId: CharacterStateTypes.IDLE_ROTATE_RIGHT,
           transitionDuration: 0.1
         }
       }

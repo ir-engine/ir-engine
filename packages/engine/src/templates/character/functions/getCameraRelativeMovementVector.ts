@@ -1,7 +1,7 @@
 import { CharacterComponent } from "../components/CharacterComponent";
 import { getComponent } from "../../../ecs/functions/EntityFunctions";
 import { Vector3 } from "three";
-import { appplyVectorMatrixXZ } from "./appplyVectorMatrixXZ";
+import { appplyVectorMatrixXZ } from "../../../common/functions/appplyVectorMatrixXZ";
 import { Entity } from "../../../ecs/classes/Entity";
 import { getLocalMovementDirection } from "./getLocalMovementDirection";
 // Function

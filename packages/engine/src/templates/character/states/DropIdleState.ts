@@ -1,22 +1,16 @@
+import { Entity } from "../../../ecs/classes/Entity";
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { onAnimationEnded } from '../behaviors/onAnimationEnded';
-import { setActorAnimationById } from "../behaviors/setActorAnimation";
-import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
 import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
-import { updateCharacterState } from "../behaviors/updateCharacterState";
-import { CharacterStateGroups } from '../CharacterStateGroups';
-import { CharacterStateTypes } from '../CharacterStateTypes';
-import { CharacterComponent } from '../components/CharacterComponent';
-import { findVehicle } from '../functions/findVehicle';
 import { trySwitchToJump } from "../behaviors/trySwitchToJump";
 import { trySwitchToMovingState } from "../behaviors/trySwitchToMovingState";
-import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
-import { Entity } from "../../../ecs/classes/Entity";
+import { updateCharacterState } from "../behaviors/updateCharacterState";
+import { CharacterStateTypes } from "../CharacterStateTypes";
+import { CharacterComponent } from '../components/CharacterComponent';
+import { findVehicle } from '../functions/findVehicle';
 
-export const DropIdleState: StateSchemaValue = {
-  group: CharacterStateGroups.MOVEMENT,
-  componentProperties: [{
+export const DropIdleState: StateSchemaValue = {componentProperties: [{
     component: CharacterComponent,
     properties: {
       ['velocitySimulator.damping']: 0.5,
@@ -24,17 +18,10 @@ export const DropIdleState: StateSchemaValue = {
     }
   }],
   onEntry: [
-    {
-      behavior: setArcadeVelocityTarget,
-      args: { x: 0, y: 0, z: 0 }
-    },
       {
-        behavior: initializeCharacterState
-      },
-      {
-        behavior: setActorAnimationById,
+        behavior: initializeCharacterState,
         args: {
-          animationId: CharacterAnimationsIds.DROP,
+          animationId: CharacterStateTypes.DROP,
           transitionDuration: 0.5
         }
       }

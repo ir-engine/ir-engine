@@ -1,11 +1,11 @@
 import { Vector3, MathUtils } from "three";
-import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
+import { CharacterStateTypes } from "../CharacterStateTypes";
 import { RUN_SPEED, RUN_START_SPEED, WALK_SPEED, WALK_START_SPEED } from "../components/CharacterComponent";
 
 const {
     WALK_FORWARD, WALK_BACKWARD, WALK_STRAFE_LEFT, WALK_STRAFE_RIGHT,
     RUN_FORWARD, RUN_BACKWARD, RUN_STRAFE_LEFT, RUN_STRAFE_RIGHT
-} = CharacterAnimationsIds;
+} = CharacterStateTypes;
 
 interface AnimationWeightScaleInterface {
     weight: number
@@ -88,12 +88,12 @@ export const getMovingAnimationsByVelocity = (localSpaceVelocity: Vector3): Map<
         animations.set(animationId, { weight, timeScale });
     });
 
-    animations.set(CharacterAnimationsIds.IDLE, { weight: stateWeights.idle, timeScale: 1 });
+    animations.set(CharacterStateTypes.IDLE, { weight: stateWeights.idle, timeScale: 1 });
 
     // console.log('active anims', Array.from(animations).filter(value => {
     //     const [ animationId, weights ] = value;
     //     return weights.weight > 0.001;
-    // }).map(value => CharacterAnimationsIds[value[0]] + '(' + (value[1].weight.toFixed(3)) + ')').join(','));
+    // }).map(value => CharacterStateTypes[value[0]] + '(' + (value[1].weight.toFixed(3)) + ')').join(','));
 
     return animations;
 };

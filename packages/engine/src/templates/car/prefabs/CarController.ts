@@ -14,8 +14,6 @@ import { changeColor } from "../behaviors/changeColor";
 import { getInCar } from "../behaviors/getInCarBehavior";
 import { getInCarPossible } from "../behaviors/getInCarPossible";
 
-
-
 export const CarController: Prefab = {
     localClientComponents: [
       { type: TransformComponent, data: { position: [-3,6,3]} },

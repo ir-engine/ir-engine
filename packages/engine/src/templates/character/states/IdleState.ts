@@ -1,32 +1,26 @@
-import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { CharacterComponent, RUN_SPEED, WALK_SPEED } from '../components/CharacterComponent';
-import { setActorAnimationById } from "../behaviors/setActorAnimation";
-import { initializeCharacterState } from "../behaviors/initializeCharacterState";
-import { updateCharacterState } from "../behaviors/updateCharacterState";
-import { CharacterStateGroups } from '../CharacterStateGroups';
-import { setFallingState } from "../behaviors/setFallingState";
-import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
-import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
-import { findVehicle } from '../functions/findVehicle';
+import { BinaryValue } from "@xr3ngine/engine/src/common/enums/BinaryValue";
+import { Vector3 } from "three";
+import { Entity } from '../../../ecs/classes/Entity';
 import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { Input } from '../../../input/components/Input';
-import { trySwitchToMovingState } from '../behaviors/trySwitchToMovingState';
-import { Entity } from '../../../ecs/classes/Entity';
+import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { DefaultInput } from "../../shared/DefaultInput";
-import { BinaryValue } from "@xr3ngine/engine/src/common/enums/BinaryValue";
-import { getPlayerMovementVelocity } from "../functions/getPlayerMovementVelocity";
-import { getMovingAnimationsByVelocity } from "../functions/getMovingAnimationsByVelocity";
+import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { setActorAnimationWeightScale } from "../behaviors/setActorAnimationWeightScale";
-import { Vector3 } from "three";
+import { setFallingState } from "../behaviors/setFallingState";
+import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
 import { trySwitchToJump } from "../behaviors/trySwitchToJump";
-import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
+import { trySwitchToMovingState } from '../behaviors/trySwitchToMovingState';
+import { updateCharacterState } from "../behaviors/updateCharacterState";
+import { CharacterStateTypes } from "../CharacterStateTypes";
+import { CharacterComponent, RUN_SPEED, WALK_SPEED } from '../components/CharacterComponent';
+import { findVehicle } from '../functions/findVehicle';
+import { getMovingAnimationsByVelocity } from "../functions/getMovingAnimationsByVelocity";
 
 const localSpaceMovementVelocity = new Vector3();
 
 // Idle Behavior
-export const IdleState: StateSchemaValue = {
-  group: CharacterStateGroups.MOVEMENT,
-  componentProperties: [{
+export const IdleState: StateSchemaValue = {componentProperties: [{
     component: CharacterComponent,
     properties: {
       ['velocitySimulator.damping']: 0.6,
@@ -35,16 +29,9 @@ export const IdleState: StateSchemaValue = {
   }],
   onEntry: [
     {
-      behavior: setArcadeVelocityTarget,
-      args: { x: 0, y: 0, z: 0 }
-    },
-    {
-      behavior: initializeCharacterState
-    },
-    {
-      behavior: setActorAnimationById,
+      behavior: initializeCharacterState,
       args: {
-        animationId: CharacterAnimationsIds.IDLE,
+        animationId: CharacterStateTypes.IDLE,
         transitionDuration: 0.2
       }
     }
@@ -83,8 +70,6 @@ export const IdleState: StateSchemaValue = {
     },
     {
       behavior: (entity: Entity): void => {
-        getPlayerMovementVelocity(entity, localSpaceMovementVelocity);
-
         const animations = getMovingAnimationsByVelocity(localSpaceMovementVelocity);
         animations.forEach((value, animationId) => {
           setActorAnimationWeightScale(entity, {

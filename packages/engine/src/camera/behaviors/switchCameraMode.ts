@@ -1,16 +1,28 @@
 import { FollowCameraComponent } from '@xr3ngine/engine/src/camera/components/FollowCameraComponent';
-import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
+import { Material } from 'three';
+import { SkinnedMesh } from 'three/src/objects/SkinnedMesh';
 import { Entity } from '../../ecs/classes/Entity';
 import { getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
-import { setVisible } from '../../templates/character/functions/setVisible';
 import { CameraModes } from "../types/CameraModes";
 import { cameraPointerLock } from './cameraPointerLock';
+
+const setVisible = (character: CharacterComponent, visible: boolean): void => {
+  if(character.visible !== visible) {
+    character.visible = visible;
+    character.tiltContainer.traverse((obj) => {
+      const mat = (obj as SkinnedMesh).material;
+      if(mat) {
+        (mat as Material).visible = visible;
+      }
+    });
+  }
+};
 
 export const switchCameraMode = (entity: Entity, args: any = { pointerLock: false, mode: CameraModes.ThirdPerson }): void => {
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 
-  const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent);
+  const cameraFollow = getMutableComponent(entity, FollowCameraComponent);
   cameraFollow.mode = args.mode
 
   switch(args.mode) {

@@ -3,7 +3,6 @@ import { getComponent } from '../../../ecs/functions/EntityFunctions';
 import { addState } from "../../../state/behaviors/addState";
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { CharacterComponent } from '../components/CharacterComponent';
-import { State } from '../../../state/components/State';
 
 const FALLING_SPEED = -1;
 
