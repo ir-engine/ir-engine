@@ -48,7 +48,7 @@ export default function Home() {
       <Layout user={loginData}>
         {/* <MoreModalItems /> */}
         <div className="homepage-feed lg:mr-8 flex flex-col ">
-          {/* <Stories stories={stories} /> */}
+          <Stories stories={stories} />
           {feed &&
             feed.map((item: any) => {
               return <FeedItem data={item} key={item.pid} />;
