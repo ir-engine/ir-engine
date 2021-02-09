@@ -31,13 +31,20 @@ export default (app: Application): any => {
     paginate: app.get('paginate')
   };
 
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const event = new Login(options, app);
   event.docs = loginDocs;
-
-  // Initialize our service with any options it requires
   app.use('/login', event, redirect);
 
-  // Get our initialized service so that we can register hooks
+  /**
+   * Get our initialized service so that we can register hooks
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const service = app.service('login');
 
   service.hooks(hooks);

@@ -8,6 +8,12 @@ interface ServiceOptions {
   paginate: boolean;
 }
 
+/**
+ * A class for media search service 
+ * 
+ * @author Vyacheslav Solovjov
+ */
+
 export class MediaSearch implements ServiceMethods<Data> {
   app: Application
   options: ServiceOptions
@@ -20,6 +26,13 @@ export class MediaSearch implements ServiceMethods<Data> {
     this.app = app;
   }
 
+  /**
+   * A function which find all media and display it 
+   * 
+   * @param params with source of media 
+   * @returns {@Array} of media 
+   * @author Vyacheslav Solovjov
+   */
   async find (params?: Params): Promise<Data[] | Paginated<Data>> {
     console.log('Find');
     const source = params?.query?.source;
@@ -53,6 +66,14 @@ export class MediaSearch implements ServiceMethods<Data> {
     return result || [];
   }
 
+  /**
+   * A function which is used to find specific media 
+   * 
+   * @param id of media 
+   * @param params 
+   * @returns {@Object} with id and message 
+   * @author Vyacheslav Solovjov
+   */
   async get (id: Id, params?: Params): Promise<Data> {
     console.log('Get');
 
@@ -61,19 +82,46 @@ export class MediaSearch implements ServiceMethods<Data> {
     };
   }
 
+  /**
+   * NB: This function doesn't do anything
+   * @param data 
+   * @param params 
+   */
   async create (data: Data, params?: Params): Promise<Data> {
     console.log('Create');
     return await Promise.resolve({});
   }
 
+  /**
+   * A function used to update media 
+   * 
+   * @param id 
+   * @param data 
+   * @param params 
+   * @returns data 
+   */
   async update (id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data;
   }
-
+   /**
+   * A function used to update media 
+   * 
+   * @param id 
+   * @param data 
+   * @param params 
+   * @returns data 
+   */
   async patch (id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data;
   }
 
+  /**
+   * A function used to remove specific media 
+   * 
+   * @param id for specific media 
+   * @param params 
+   * @returns id 
+   */
   async remove (id: NullableId, params?: Params): Promise<Data> {
     return { id };
   }

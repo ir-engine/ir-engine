@@ -10,6 +10,11 @@ import config from '../../config';
 
 const loggedInUserEntity: string = config.authentication.entity;
 
+/**
+ * A class for User Relationship service 
+ * 
+ * @author Vyacheslav Solovjov
+ */
 export class UserRelationship extends Service {
   app: Application
   docs: any

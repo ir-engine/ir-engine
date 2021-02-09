@@ -10,7 +10,7 @@ export const IndexPage = (): any => {
     useEffect(() => {
         if(Example){
             Example.echo({value: 'hello'}).then(data => {
-                console.log(data)
+                console.log(data);
             });
         }
         else if(!isDev) window.location.href="/location/home";

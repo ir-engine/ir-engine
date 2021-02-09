@@ -20,6 +20,13 @@ export default {
             type: 'array',
             items: { $ref: '#/definitions/group'}
         }
-
-    }
-}
+    },
+    securities: ['create', 'update', 'patch', 'remove'],
+    operations: {
+      find: {
+        security: [
+          { bearer: [] }
+        ]
+      }
+    } 
+};

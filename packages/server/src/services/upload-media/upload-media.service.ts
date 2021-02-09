@@ -20,7 +20,12 @@ declare module '../../declarations' {
 export default (app: Application): void => {
   const provider = new StorageProvider();
 
-  // Initialize our service with any options it requires
+  
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   app.use('/media',
     multipartMiddleware.fields([{ name: 'media' }, { name: 'thumbnail' }]),
     (req: express.Request, res: express.Response, next: express.NextFunction) => {

@@ -172,30 +172,30 @@ function _localToWorldDirection(direction, parent) {
 
 function clone(source) {
 
-		var sourceLookup = new Map();
-		var cloneLookup = new Map();
+		const sourceLookup = new Map();
+		const cloneLookup = new Map();
 
-		var clone = source.clone();
+		const clone = source.clone();
 
-		parallelTraverse( source, clone, function ( sourceNode, clonedNode ) {
+		parallelTraverse( source, clone, ( sourceNode, clonedNode ) => {
 
 			sourceLookup.set( clonedNode, sourceNode );
 			cloneLookup.set( sourceNode, clonedNode );
 
 		} );
 
-		clone.traverse( function ( node ) {
+		clone.traverse( ( node ) => {
 
 			if ( ! node.isSkinnedMesh ) return;
 
-			var clonedMesh = node;
-			var sourceMesh = sourceLookup.get( node );
-			var sourceBones = sourceMesh.skeleton.bones;
+			const clonedMesh = node;
+			const sourceMesh = sourceLookup.get( node );
+			const sourceBones = sourceMesh.skeleton.bones;
 
 			clonedMesh.skeleton = sourceMesh.skeleton.clone();
 			clonedMesh.bindMatrix.copy( sourceMesh.bindMatrix );
 
-			clonedMesh.skeleton.bones = sourceBones.map( function ( bone ) {
+			clonedMesh.skeleton.bones = sourceBones.map( ( bone ) => {
 
 				return cloneLookup.get( bone );
 
@@ -215,7 +215,7 @@ function parallelTraverse( a, b, callback ) {
 
 	callback( a, b );
 
-	for ( var i = 0; i < a.children.length; i ++ ) {
+	for ( let i = 0; i < a.children.length; i ++ ) {
 
 		parallelTraverse( a.children[ i ], b.children[ i ], callback );
 

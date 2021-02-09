@@ -3,6 +3,11 @@ import { Params } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import { BadRequest, NotFound } from '@feathersjs/errors';
 
+/**
+ * A class for Seat service 
+ * 
+ * @author Vyacheslav Solovjov
+ */
 export class Seat extends Service {
   app: Application
   docs: any

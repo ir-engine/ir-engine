@@ -349,7 +349,7 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
     console.log('MediaStreamSystem.instance:');
     console.log(MediaStreamSystem.instance);
     console.log(MediaStreamSystem.instance.producers);
-    if(!MediaStreamSystem.instance?.producers) console.warn("Media stream producers is undefined")
+    if(!MediaStreamSystem.instance?.producers) console.warn("Media stream producers is undefined");
     MediaStreamSystem.instance?.producers?.push(producer);
 
     if (userId != null && Network.instance.clients[userId] != null) {
