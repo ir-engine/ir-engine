@@ -1,7 +1,7 @@
 import { appplyVectorMatrixXZ } from "@xr3ngine/engine/src/common/functions/appplyVectorMatrixXZ";
 import { lerp } from "@xr3ngine/engine/src/common/functions/MathLerpFunctions";
 import { CollisionGroups } from "@xr3ngine/engine/src/physics/enums/CollisionGroups";
-import { playerModelInCar } from '@xr3ngine/engine/src/templates/car/behaviors/playerModelInCar';
+import { playerModelInCar } from '@xr3ngine/engine/src/templates/vehicle/behaviors/playerModelInCar';
 import * as CANNON from "cannon-es";
 import { Body, ContactMaterial, Material, SAPBroadphase, Shape, Vec3, World } from 'cannon-es';
 import debug from "cannon-es-debugger";
