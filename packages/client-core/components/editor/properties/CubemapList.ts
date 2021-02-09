@@ -1,23 +1,27 @@
 
 export const CubemapOption = [
   {
-    label: "texture1",
+    label: "Bridge",
     value: "/hdr/cubemap/Bridge2/"
   },
   {
-    label: "texture2",
+    label: "MilkyWay",
     value: "/hdr/cubemap/MilkyWay/"
   },
   {
-    label: "texture3",
+    label: "Park",
     value: "/hdr/cubemap/Park2/"
   },
   {
-    label: "texture4",
+    label: "Skybox",
     value: "/hdr/cubemap/skyboxsun25deg/"
   },
   {
     label: "textureAxes",
     value: "/hdr/cubemap/axes/"
+  },
+  {
+    label: "City",
+    value: "/hdr/cubemap/city/"
   }
 ];
