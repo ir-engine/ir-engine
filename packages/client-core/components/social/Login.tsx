@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import getConfig from 'next/config';
 import MagicLinkEmail from '../ui/Auth/MagicLinkEmail';
 import { PasswordLogin } from '../ui/Auth/PasswordLogin';
