@@ -1,5 +1,5 @@
 import { ParticleEmitter } from "../components/ParticleEmitter";
-import { System, SystemAttributes } from "../../ecs/classes/System";
+import { System, SystemAttributes }../../scene/components/Object3DComponent
 import { registerComponent } from "../../ecs/functions/ComponentFunctions";
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { applyTransform } from "../functions/particleHelpers";

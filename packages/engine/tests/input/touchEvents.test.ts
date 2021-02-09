@@ -10,7 +10,7 @@ import { TouchInputs } from "../../src/input/enums/TouchInputs";
 import { handleTouch } from "../../src/input/behaviors/handleTouch";
 import { handleTouchMove } from "../../src/input/behaviors/handleTouchMove";
 import { BinaryValue } from "../../src/common/enums/BinaryValue";
-import { DefaultInput } from "../../src/templates/shared/DefaultInput";
+import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
 import { LifecycleValue } from "../../src/common/enums/LifecycleValue";
 import { normalizeMouseCoordinates } from "../../src/common/functions/normalizeMouseCoordinates";
 import { Vector2 } from "three";
@@ -52,7 +52,7 @@ const testInputSchema: InputSchema = {
       // {
       //   behavior: handleTouchScale,
       //   args: {
-      //     value: DefaultInput.CAMERA_SCROLL
+      //     value: BaseInput.CAMERA_SCROLL
       //   }
       // }
     ],
@@ -79,23 +79,23 @@ const testInputSchema: InputSchema = {
       // {
       //   behavior: handleTouchScale,
       //   args: {
-      //     value: DefaultInput.CAMERA_SCROLL
+      //     value: BaseInput.CAMERA_SCROLL
       //   }
       // }
     ],
   },
   touchInputMap: {
     buttons: {
-      [TouchInputs.Touch]: DefaultInput.INTERACT,
+      [TouchInputs.Touch]: BaseInput.INTERACT,
     },
     axes: {
-      [TouchInputs.Touch1Position]: DefaultInput.SCREENXY,
-      [TouchInputs.Touch1Movement]: DefaultInput.LOOKTURN_PLAYERONE,
-      [TouchInputs.Scale]: DefaultInput.CAMERA_SCROLL
+      [TouchInputs.Touch1Position]: BaseInput.SCREENXY,
+      [TouchInputs.Touch1Movement]: BaseInput.LOOKTURN_PLAYERONE,
+      [TouchInputs.Scale]: BaseInput.CAMERA_SCROLL
     }
   },
   inputButtonBehaviors: {
-    [DefaultInput.INTERACT]: {
+    [BaseInput.INTERACT]: {
       started: [
         {
           behavior: mockedButtonBehaviorOnStarted
@@ -112,7 +112,7 @@ const testInputSchema: InputSchema = {
         }
       ]
     },
-    [DefaultInput.SECONDARY]: {
+    [BaseInput.SECONDARY]: {
       started: [
         {
           behavior: mockedButtonBehaviorOnStarted
@@ -131,7 +131,7 @@ const testInputSchema: InputSchema = {
     }
   },
   inputAxisBehaviors: {
-    [DefaultInput.SCREENXY]: {
+    [BaseInput.SCREENXY]: {
       started: [
         {
           behavior: mockedBehaviorOnStarted
@@ -198,8 +198,8 @@ describe("move", () => {
       triggerTouch({ touches: [ windowPoint1 ], type: 'touchmove' });
       execute();
 
-      expect(input.data.has(DefaultInput.SCREENXY)).toBeTruthy();
-      const data1 = input.data.get(DefaultInput.SCREENXY);
+      expect(input.data.has(BaseInput.SCREENXY)).toBeTruthy();
+      const data1 = input.data.get(BaseInput.SCREENXY);
       expect(data1.value).toMatchObject([ normalPoint1.x, normalPoint1.y ]);
       expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
       expect(mockedBehaviorOnStarted.mock.calls.length).toBe(1);
@@ -213,8 +213,8 @@ describe("move", () => {
       // triggerTouch({...windowPoint3, type: 'touchmove', id: 1 })
       // execute();
 
-      expect(input.data.has(DefaultInput.SCREENXY)).toBeTruthy();
-      const data2 = input.data.get(DefaultInput.SCREENXY);
+      expect(input.data.has(BaseInput.SCREENXY)).toBeTruthy();
+      const data2 = input.data.get(BaseInput.SCREENXY);
       expect(data2.value).toMatchObject([ normalPoint2.x, normalPoint2.y ]);
       expect(data2.lifecycleState).toBe(LifecycleValue.CHANGED);
       expect(mockedBehaviorOnChanged.mock.calls.length).toBe(1);
@@ -227,8 +227,8 @@ describe("move", () => {
       execute(); // changed
       execute(); // unchanged from previous execution
 
-      expect(input.data.has(DefaultInput.SCREENXY)).toBeTruthy();
-      const data2 = input.data.get(DefaultInput.SCREENXY);
+      expect(input.data.has(BaseInput.SCREENXY)).toBeTruthy();
+      const data2 = input.data.get(BaseInput.SCREENXY);
       expect(data2.value).toMatchObject([ normalPoint2.x, normalPoint2.y ]);
       expect(data2.lifecycleState).toBe(LifecycleValue.UNCHANGED);
       expect(mockedBehaviorOnUnChanged.mock.calls.length).toBe(1);
@@ -240,11 +240,11 @@ describe("move", () => {
     //     triggerTouch({ ...windowPoint2, type: 'touchstart', id: 2 });
     //     execute();
     //
-    //     const data1 = input.data.get(DefaultInput.SCREENXY);
+    //     const data1 = input.data.get(BaseInput.SCREENXY);
     //     expect(data1.value).toMatchObject([ normalPoint1.x, normalPoint1.y ]);
     //     expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
     //
-    //     const data2 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+    //     const data2 = input.data.get(BaseInput.LOOKTURN_PLAYERONE);
     //     expect(data2.value).toMatchObject([ normalPoint2.x, normalPoint2.y ]);
     //     expect(data2.lifecycleState).toBe(LifecycleValue.STARTED);
     //
@@ -258,8 +258,8 @@ describe("move", () => {
       triggerTouch({ touches: [ windowPoint1 ], type: 'touchmove' });
       execute();
 
-      expect(input.data.has(DefaultInput.LOOKTURN_PLAYERONE)).toBeTruthy();
-      const data1 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+      expect(input.data.has(BaseInput.LOOKTURN_PLAYERONE)).toBeTruthy();
+      const data1 = input.data.get(BaseInput.LOOKTURN_PLAYERONE);
       expect(data1.value).toMatchObject([ 0, 0 ]);
       expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
       //expect(mockedBehaviorOnStarted.mock.calls.length).toBe(1);
@@ -271,8 +271,8 @@ describe("move", () => {
       triggerTouch({ touches: [ windowPoint2 ], type: 'touchmove' });
       execute();
 
-      expect(input.data.has(DefaultInput.LOOKTURN_PLAYERONE)).toBeTruthy();
-      const data2 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+      expect(input.data.has(BaseInput.LOOKTURN_PLAYERONE)).toBeTruthy();
+      const data2 = input.data.get(BaseInput.LOOKTURN_PLAYERONE);
       expect(data2.value).toMatchObject([ normalDiff.x, normalDiff.y ]);
       expect(data2.lifecycleState).toBe(LifecycleValue.CHANGED);
       // expect(mockedBehaviorOnChanged.mock.calls.length).toBe(1);
@@ -285,8 +285,8 @@ describe("move", () => {
       execute(); // changed
       execute(); // unchanged from previous execution
 
-      expect(input.data.has(DefaultInput.LOOKTURN_PLAYERONE)).toBeTruthy();
-      const data2 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+      expect(input.data.has(BaseInput.LOOKTURN_PLAYERONE)).toBeTruthy();
+      const data2 = input.data.get(BaseInput.LOOKTURN_PLAYERONE);
       expect(data2.value).toMatchObject([ normalDiff.x, normalDiff.y ]);
       expect(data2.lifecycleState).toBe(LifecycleValue.UNCHANGED);
       //expect(mockedBehaviorOnUnChanged.mock.calls.length).toBe(1);
@@ -308,8 +308,8 @@ describe("gestures", () => {
       triggerTouch({ touches: [ windowPoint1 ], type: 'touchstart' });
       execute();
 
-      expect(input.data.has(DefaultInput.INTERACT)).toBeTruthy();
-      const data1 = input.data.get(DefaultInput.INTERACT);
+      expect(input.data.has(BaseInput.INTERACT)).toBeTruthy();
+      const data1 = input.data.get(BaseInput.INTERACT);
       expect(data1.value).toBe(BinaryValue.ON);
       expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
       expect(mockedButtonBehaviorOnStarted.mock.calls.length).toBe(1);
@@ -320,8 +320,8 @@ describe("gestures", () => {
       execute();
       execute();
 
-      expect(input.data.has(DefaultInput.INTERACT)).toBeTruthy();
-      const data1 = input.data.get(DefaultInput.INTERACT);
+      expect(input.data.has(BaseInput.INTERACT)).toBeTruthy();
+      const data1 = input.data.get(BaseInput.INTERACT);
       expect(data1.value).toBe(BinaryValue.ON);
       expect(data1.lifecycleState).toBe(LifecycleValue.CONTINUED);
       expect(mockedButtonBehaviorOnContinued.mock.calls.length).toBe(1);
@@ -333,7 +333,7 @@ describe("gestures", () => {
       triggerTouch({ touches: [ windowPoint1 ], type: 'touchend' });
       execute();
 
-      expect(input.data.has(DefaultInput.INTERACT)).toBeFalsy();
+      expect(input.data.has(BaseInput.INTERACT)).toBeFalsy();
       expect(mockedButtonBehaviorOnEnded.mock.calls.length).toBe(1);
     });
 
@@ -345,8 +345,8 @@ describe("gestures", () => {
     //     triggerTouch({ ...windowPoint1, type: 'touchend', id: 2 });
     //     execute();
     //
-    //     expect(input.data.has(DefaultInput.INTERACT)).toBeTruthy();
-    //     const data1 = input.data.get(DefaultInput.SECONDARY);
+    //     expect(input.data.has(BaseInput.INTERACT)).toBeTruthy();
+    //     const data1 = input.data.get(BaseInput.SECONDARY);
     //     expect(data1.value).toBe(BinaryValue.ON);
     //     expect(data1.lifecycleState).toBe(LifecycleValue.CONTINUED);
     //
@@ -363,8 +363,8 @@ describe("gestures", () => {
       triggerTouch({ touches: [ windowPoint2 ], type: 'touchmove' });
       execute();
 
-      expect(input.data.has(DefaultInput.LOOKTURN_PLAYERONE)).toBeTruthy();
-      const data2 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+      expect(input.data.has(BaseInput.LOOKTURN_PLAYERONE)).toBeTruthy();
+      const data2 = input.data.get(BaseInput.LOOKTURN_PLAYERONE);
       expect(data2.value).toMatchObject([ normalDiff.x, normalDiff.y ]);
       expect(data2.lifecycleState).toBe(LifecycleValue.CHANGED);
       //expect(mockedButtonBehaviorOnStarted.mock.calls.length).toBe(1);
@@ -375,8 +375,8 @@ describe("gestures", () => {
     //   execute();
     //   execute();
     //
-    //   expect(input.data.has(DefaultInput.INTERACT)).toBeTruthy();
-    //   const data1 = input.data.get(DefaultInput.INTERACT);
+    //   expect(input.data.has(BaseInput.INTERACT)).toBeTruthy();
+    //   const data1 = input.data.get(BaseInput.INTERACT);
     //   expect(data1.value).toBe(BinaryValue.ON);
     //   expect(data1.lifecycleState).toBe(LifecycleValue.CONTINUED);
     //   expect(mockedButtonBehaviorOnContinued.mock.calls.length).toBe(1);
@@ -388,7 +388,7 @@ describe("gestures", () => {
     //   triggerTouch({ ...windowPoint1, type: 'touchend', id: 1 });
     //   execute();
     //
-    //   expect(input.data.has(DefaultInput.INTERACT)).toBeFalsy();
+    //   expect(input.data.has(BaseInput.INTERACT)).toBeFalsy();
     //   expect(mockedButtonBehaviorOnEnded.mock.calls.length).toBe(1);
     // });
   });
@@ -416,8 +416,8 @@ describe("gestures", () => {
       triggerTouch({ touches: [ windowPoint2_1, windowPoint2_2 ], type: 'touchmove' });
       execute();
 
-      expect(input.data.has(DefaultInput.CAMERA_SCROLL)).toBeTruthy();
-      const data2 = input.data.get(DefaultInput.CAMERA_SCROLL);
+      expect(input.data.has(BaseInput.CAMERA_SCROLL)).toBeTruthy();
+      const data2 = input.data.get(BaseInput.CAMERA_SCROLL);
       expect(data2.value).toBe((distance2 - distance1)*100);  // TODO: remove 100 multiplication after mouse scroll will be normalized (or divided by 100)
 
       // expect(data2.lifecycleState).toBe(LifecycleValue.CHANGED);
@@ -442,7 +442,7 @@ describe.skip("special cases", () => {
     triggerTouch({ touches: [ windowPoint1 ], type: 'touchstart' });
     triggerTouch({ touches: [ windowPoint2 ], type: 'touchmove' });
     execute();
-    const data = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+    const data = input.data.get(BaseInput.LOOKTURN_PLAYERONE);
     expect(data.value).toMatchObject([ normalDiff1.x, normalDiff1.y ]);
 
     triggerTouch({ touches: [ windowPoint1 ], type: 'touchmove' });
@@ -450,8 +450,8 @@ describe.skip("special cases", () => {
     triggerTouch({ touches: [ windowPoint3 ], type: 'touchmove' });
     execute();
 
-    expect(input.data.has(DefaultInput.LOOKTURN_PLAYERONE)).toBeTruthy();
-    const data2 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+    expect(input.data.has(BaseInput.LOOKTURN_PLAYERONE)).toBeTruthy();
+    const data2 = input.data.get(BaseInput.LOOKTURN_PLAYERONE);
     expect(data2.value).toMatchObject([ normalDiff2.x, normalDiff2.y ]);
   })
 
@@ -492,7 +492,7 @@ describe.skip("special cases", () => {
       triggerTouch({ touches: [ data.point ], type: 'touchmove' });
     })
     execute();
-    const data = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+    const data = input.data.get(BaseInput.LOOKTURN_PLAYERONE);
     expect(data.value).toMatchObject(nMoveTotal.toArray());
   })
 })

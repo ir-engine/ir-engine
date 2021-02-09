@@ -1,10 +1,9 @@
-import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
+import { addObject3DComponent } from "@xr3ngine/engine/src/scene/behaviors/addObject3DComponent";
 import { BoxBufferGeometry, Color, Mesh, MeshPhongMaterial } from "three";
 import { NetworkPrefab } from '../../../networking/interfaces/NetworkPrefab';
 import { ColliderComponent } from '../../../physics/components/ColliderComponent';
 import { RigidBody } from '../../../physics/components/RigidBody';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
-
 
 const boxGeometry = new BoxBufferGeometry(1, 1, 1);
 const boxMaterial = new MeshPhongMaterial({ color: new Color(0.813410553336143494, 0.81341053336143494, 0.80206481294706464) });

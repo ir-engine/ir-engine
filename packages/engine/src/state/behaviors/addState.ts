@@ -8,17 +8,14 @@ import { StateType } from '../enums/StateType';
 import { StateValue } from '../interfaces/StateValue';
 import { StateAlias } from '../types/StateAlias';
 
-export const addState: Behavior = (entity: Entity, args: { state: StateAlias }): void => {
-  // console.warn('addState', CharacterStateTypes[args.state], '(', args.state, ')' );
+export const setState: Behavior = (entity: Entity, args: { state: StateAlias }): void => {
   const stateComponent = getComponent(entity, State);
   
-  if(stateComponent === undefined){
-    console.warn("WARNING: State component is undefined");
-    return;
-  } 
+  if(stateComponent === undefined)
+    return console.warn("WARNING: State component is undefined");
 
   if (stateComponent.data.has(args.state))
-  return;
+    return;
 
   stateComponent.data.set(args.state, {
     state: args.state,

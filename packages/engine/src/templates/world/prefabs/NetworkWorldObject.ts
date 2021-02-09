@@ -1,4 +1,4 @@
-import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
+import { addObject3DComponent } from "@xr3ngine/engine/src/scene/behaviors/addObject3DComponent";
 import { BoxBufferGeometry, Color, Mesh, MeshPhongMaterial } from "three";
 import { isClient } from "@xr3ngine/engine/src/common/functions/isClient";
 import { NetworkPrefab } from '../../../networking/interfaces/NetworkPrefab';

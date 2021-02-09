@@ -23,7 +23,7 @@ import { StateSystem } from "../../../src/state/systems/StateSystem";
 import { CharacterStateTypes } from "../../../src/templates/character/CharacterStateTypes";
 import { CharacterComponent } from "../../../src/templates/character/components/CharacterComponent";
 import { DefaultNetworkSchema } from "../../../src/templates/networking/DefaultNetworkSchema";
-import { DefaultInput } from "../../../src/templates/shared/DefaultInput";
+import { BaseInput } from "../../../src/templates/shared/BaseInput";
 import { createRemoteUserOnClient } from "../../_helpers/createRemoteUserOnClient";
 
 const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
@@ -115,26 +115,26 @@ describe("moving animations", () => {
 
     test("stays moving", () => {
         // if actor stays on ground it should keep idle state all the time
-        expect(state.data.has(CharacterStateTypes.MOVING)).toBe(true);
+        expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
 
         for (let i=0;i<40;i++) {
             actor.localMovementDirection.set(1,0,0); // to keep speed constant
             executeFrame();
-            expect(state.data.has(CharacterStateTypes.MOVING)).toBe(true);
+            expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
         }
     });
 
     test("switch to idle", () => {
-        expect(state.data.has(CharacterStateTypes.MOVING)).toBe(true);
+        expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
 
         actor.localMovementDirection.set(0,0,0);
         executeFrame();
-        expect(state.data.has(CharacterStateTypes.IDLE)).toBe(true);
+        expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
     });
 
     test("switch to fall", () => {
         // check switch from idle to fall if there is no ground
-        expect(state.data.has(CharacterStateTypes.MOVING)).toBe(true);
+        expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
 
         actorHasFloor = false;
         executeFrame();
@@ -143,7 +143,7 @@ describe("moving animations", () => {
 
     test("switch to jump", () => {
         const input = getComponent(player, Input);
-        input.data.set(DefaultInput.JUMP, {
+        input.data.set(BaseInput.JUMP, {
             type: InputType.BUTTON,
             lifecycleState: LifecycleValue.STARTED,
             value: BinaryValue.ON

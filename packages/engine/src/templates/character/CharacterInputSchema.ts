@@ -1,34 +1,215 @@
-import { cameraPointerLock } from "@xr3ngine/engine/src/camera/behaviors/cameraPointerLock";
+import { FollowCameraComponent } from '@xr3ngine/engine/src/camera/components/FollowCameraComponent';
+import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
+import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
+import { getComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { Input } from '@xr3ngine/engine/src/input/components/Input';
+import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
+import { Material, Mesh } from "three";
+import { SkinnedMesh } from 'three/src/objects/SkinnedMesh';
+import { CameraComponent } from "../../camera/components/CameraComponent";
+import { CameraModes } from "../../camera/types/CameraModes";
+import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { Thumbsticks } from '../../common/enums/Thumbsticks';
+import { NumericalType } from "../../common/types/NumericalTypes";
+import { getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
+import { CameraInput } from '../../input/enums/CameraInput';
 import { GamepadButtons } from '../../input/enums/GamepadButtons';
+import { InputType } from "../../input/enums/InputType";
 import { MouseInput } from '../../input/enums/MouseInput';
+import { TouchInputs } from "../../input/enums/TouchInputs";
 import { InputRelationship } from '../../input/interfaces/InputRelationship';
 import { InputSchema } from '../../input/interfaces/InputSchema';
-import { DefaultInput } from '../shared/DefaultInput';
-import { updateCharacterState } from "./behaviors/updateCharacterState";
-import { interact } from "../../interaction/behaviors/interact";
-import { InputType } from "../../input/enums/InputType";
-import { changeCameraDistanceByDelta } from "../../camera/behaviors/changeCameraDistanceByDelta";
-import { LifecycleValue } from "../../common/enums/LifecycleValue";
-import { TouchInputs } from "../../input/enums/TouchInputs";
-import { DefaultInputSchema } from "../shared/DefaultInputSchema";
-import { CameraInput } from '../../input/enums/CameraInput';
-import { fixedCameraBehindCharacter } from "../../camera/behaviors/fixedCameraBehindCharacter";
-import { cycleCameraMode } from "../../camera/behaviors/cycleCameraMode";
-import { switchShoulderSide } from "../../camera/behaviors/switchShoulderSide";
-import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
+import { BaseInputSchema } from "../../input/schema/BaseInputSchema";
 import { InputAlias } from "../../input/types/InputAlias";
+import { Interactable } from '../../interaction/components/Interactable';
+import { Interactor } from '../../interaction/components/Interactor';
+import { Object3DComponent } from '../../scene/components/Object3DComponent';
+import { updateCharacterState } from "./behaviors/updateCharacterState";
 import { CharacterComponent } from "./components/CharacterComponent";
-import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
-import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
-import { Input } from '@xr3ngine/engine/src/input/components/Input';
-import { getComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { Object3DComponent } from '@xr3ngine/engine/src/common/components/Object3DComponent';
-import { Mesh } from "three";
+
+const startedPosition = new Map<Entity,NumericalType>();
+
+/**
+ *
+ * @param entity the one who interacts
+ * @param args
+ * @param delta
+ */
+const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
+  if (!hasComponent(entity, Interactor)) {
+    console.error(
+      'Attempted to call interact behavior, but actor does not have Interactor component'
+    );
+    return;
+  }
+  
+  const { focusedInteractive: focusedEntity } = getComponent(entity, Interactor);
+  const input = getComponent(entity, Input)
+  const mouseScreenPosition = input.data.get(BaseInput.SCREENXY);
+
+  if (mouseScreenPosition && args.phase === LifecycleValue.STARTED ){
+    startedPosition.set(entity,mouseScreenPosition.value);
+    return;
+  }
+  if (!focusedEntity) {
+    // no available interactive object is focused right now
+    return;
+  }
+
+  if (!hasComponent(focusedEntity, Interactable)) {
+    console.error(
+      'Attempted to call interact behavior, but target does not have Interactive component'
+    );
+    return;
+  }
+
+  const interactive = getComponent(focusedEntity, Interactable);
+  if (interactive && typeof interactive.onInteraction === 'function') {
+    interactive.onInteraction(entity, args, delta, focusedEntity);
+  } else {
+    console.warn('onInteraction is not a function');
+  }
+
+};
+
+/**
+ * Switch Camera mode from first person to third person and wise versa.
+ * @param entity Entity holding {@link camera/components/FollowCameraComponent.FollowCameraComponent | Follow camera} component.
+ */
+const cycleCameraMode: Behavior = (entity: Entity, args: any): void => {
+  const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent);
+
+    switch(cameraFollow?.mode) {
+        case CameraModes.FirstPerson: switchCameraMode(entity, { mode: CameraModes.ShoulderCam }); break;
+        case CameraModes.ShoulderCam: switchCameraMode(entity, { mode: CameraModes.ThirdPerson }); cameraFollow.distance = cameraFollow.minDistance + 1; break;
+        case CameraModes.ThirdPerson: switchCameraMode(entity, { mode: CameraModes.TopDown }); break;
+        case CameraModes.TopDown: switchCameraMode(entity, { mode: CameraModes.FirstPerson }); break;
+        default: break;
+    }
+};
+/**
+ * Fix camera behind the character to follow the character.
+ * @param entity Entity on which camera will be fixed.
+ */
+const fixedCameraBehindCharacter: Behavior = (entity: Entity, args: any, delta: number): void => {
+  const follower = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent);
+
+  if (CameraComponent.instance && follower && follower.mode !== CameraModes.FirstPerson) {
+    follower.locked = !follower.locked
+  }
+  
+};
+
+const switchShoulderSide: Behavior = (entity: Entity, args: any, detla: number ): void => {
+  const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent);
+  if(cameraFollow) {
+    cameraFollow.shoulderSide = !cameraFollow.shoulderSide;
+    cameraFollow.offset.x = -cameraFollow.offset.x;
+  }
+};
+
+const setVisible = (character: CharacterComponent, visible: boolean): void => {
+  if(character.visible !== visible) {
+    character.visible = visible;
+    character.tiltContainer.traverse((obj) => {
+      const mat = (obj as SkinnedMesh).material;
+      if(mat) {
+        (mat as Material).visible = visible;
+      }
+    });
+  }
+};
+
+const switchCameraMode = (entity: Entity, args: any = { pointerLock: false, mode: CameraModes.ThirdPerson }): void => {
+  const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+
+  const cameraFollow = getMutableComponent(entity, FollowCameraComponent);
+  cameraFollow.mode = args.mode
+
+  switch(args.mode) {
+    case CameraModes.FirstPerson: {
+      cameraFollow.offset.set(0, 1, 0);
+      cameraFollow.phi = 0;
+      setVisible(actor, false);
+    } break;
+
+    case CameraModes.ShoulderCam: {
+      cameraFollow.offset.set(cameraFollow.shoulderSide ? -0.25 : 0.25, 1, 0);
+      setVisible(actor, true);
+    } break;
+
+    default: case CameraModes.ThirdPerson: {
+      cameraFollow.offset.set(cameraFollow.shoulderSide ? -0.25 : 0.25, 1, 0);
+      setVisible(actor, true);
+    } break;
+
+    case CameraModes.TopDown: {
+      cameraFollow.offset.set(0, 1, 0);
+      setVisible(actor, true);
+    } break;
+  }
+};
+
+/**
+ * Change camera distance.
+ * @param entity Entity holding camera and input component.
+ */
+const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:inputAxes, inputType }: { input: InputAlias; inputType: InputType }): void => {
+  const inputComponent = getComponent(entity, Input) as Input;
+
+  if (!inputComponent.data.has(inputAxes)) {
+    return;
+  }
+
+  const inputPrevValue = inputComponent.prevData.get(inputAxes)?.value as number ?? 0;
+  const inputValue = inputComponent.data.get(inputAxes).value as number;
+
+  const delta = inputValue - inputPrevValue;
+
+  const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent);
+  if(cameraFollow === undefined) return //console.warn("cameraFollow is undefined");
+
+  switch(cameraFollow.mode) {
+    case CameraModes.FirstPerson: 
+      if(delta > 0) { 
+        switchCameraMode(entity, { mode: CameraModes.ShoulderCam })
+      }
+    break;
+    case CameraModes.ShoulderCam: 
+      if(delta > 0) {
+        switchCameraMode(entity, { mode: CameraModes.ThirdPerson })
+        cameraFollow.distance = cameraFollow.minDistance + 1
+      }
+      if(delta < 0) {
+        switchCameraMode(entity, { mode: CameraModes.FirstPerson })
+      }
+    break;
+    default: case CameraModes.ThirdPerson:  
+      const newDistance = cameraFollow.distance + delta;
+      cameraFollow.distance = Math.max(cameraFollow.minDistance, Math.min( cameraFollow.maxDistance, newDistance));
+
+      if(cameraFollow.distance >= cameraFollow.maxDistance) {
+        if(delta > 0) {
+          switchCameraMode(entity, { mode: CameraModes.TopDown })
+        }
+      } else if(cameraFollow.distance <= cameraFollow.minDistance) {
+        if(delta < 0) {
+          switchCameraMode(entity, { mode: CameraModes.ShoulderCam })
+        }
+      }
+  
+    break;
+    case CameraModes.TopDown: 
+      if(delta < 0) {
+        switchCameraMode(entity, { mode: CameraModes.ThirdPerson })
+      } 
+    break;
+  }
+};
 
 const morphNameByInput = {
-  [DefaultInput.FACE_EXPRESSION_HAPPY]: "Smile",
-  [DefaultInput.FACE_EXPRESSION_SAD]: "Frown",
+  [BaseInput.FACE_EXPRESSION_HAPPY]: "Smile",
+  [BaseInput.FACE_EXPRESSION_SAD]: "Frown",
   // [CameraInput.Disgusted]: "Frown",
   // [CameraInput.Fearful]: "Frown",
   // [CameraInput.Happy]: "Smile",
@@ -74,7 +255,7 @@ const moveByInputAxis: Behavior = (
   time: any
 ): void => {
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-  const input =  getComponent<Input>(entity, Input as any);
+  const input = getComponent<Input>(entity, Input as any);
 
   const data = input.data.get(args.input);
 
@@ -88,12 +269,12 @@ const moveByInputAxis: Behavior = (
   }
 };
 
-export const setLocalMovementDirection: Behavior = (entity, args: { z?: number; x?: number; y?: number }): void => {
-	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-	actor.localMovementDirection.z = args.z ?? actor.localMovementDirection.z;
-	actor.localMovementDirection.x = args.x ?? actor.localMovementDirection.x;
-	actor.localMovementDirection.y = args.y ?? actor.localMovementDirection.y;
-	actor.localMovementDirection.normalize();
+const setLocalMovementDirection: Behavior = (entity, args: { z?: number; x?: number; y?: number }): void => {
+  const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+  actor.localMovementDirection.z = args.z ?? actor.localMovementDirection.z;
+  actor.localMovementDirection.x = args.x ?? actor.localMovementDirection.x;
+  actor.localMovementDirection.y = args.y ?? actor.localMovementDirection.y;
+  actor.localMovementDirection.normalize();
 };
 
 
@@ -112,8 +293,8 @@ const lookByInputAxis = (
   const multiplier = args.multiplier ?? 1;
   // adding very small noise to trigger same value to be "changed"
   // till axis values is not zero, look input should be treated as changed
-  const noiseX = (Math.random() > 0.5 ? 1 : -1 ) * 0.0000001;
-  const noiseY = (Math.random() > 0.5 ? 1 : -1 ) * 0.0000001;
+  const noiseX = (Math.random() > 0.5 ? 1 : -1) * 0.0000001;
+  const noiseY = (Math.random() > 0.5 ? 1 : -1) * 0.0000001;
 
   if (data.type === InputType.TWODIM) {
     const isEmpty = (Math.abs(data.value[0]) === 0 && Math.abs(data.value[1]) === 0);
@@ -145,106 +326,98 @@ const lookByInputAxis = (
 }
 
 export const CharacterInputSchema: InputSchema = {
-  ...DefaultInputSchema,
+  ...BaseInputSchema,
   // Map mouse buttons to abstract input
   mouseInputMap: {
     buttons: {
-      [MouseInput.LeftButton]: DefaultInput.PRIMARY,
-     [MouseInput.LeftButton]: DefaultInput.INTERACT,
-      [MouseInput.RightButton]: DefaultInput.SECONDARY,
-      [MouseInput.MiddleButton]: DefaultInput.INTERACT
+      [MouseInput.LeftButton]: BaseInput.PRIMARY,
+      [MouseInput.LeftButton]: BaseInput.INTERACT,
+      [MouseInput.RightButton]: BaseInput.SECONDARY,
+      [MouseInput.MiddleButton]: BaseInput.INTERACT
     },
     axes: {
-      [MouseInput.MouseMovement]: DefaultInput.MOUSE_MOVEMENT,
-      [MouseInput.MousePosition]: DefaultInput.SCREENXY,
-      [MouseInput.MouseClickDownPosition]: DefaultInput.SCREENXY_START,
-      [MouseInput.MouseClickDownTransformRotation]: DefaultInput.ROTATION_START,
-      [MouseInput.MouseClickDownMovement]: DefaultInput.LOOKTURN_PLAYERONE,
-      [MouseInput.MouseScroll]: DefaultInput.CAMERA_SCROLL
+      [MouseInput.MouseMovement]: BaseInput.MOUSE_MOVEMENT,
+      [MouseInput.MousePosition]: BaseInput.SCREENXY,
+      [MouseInput.MouseClickDownPosition]: BaseInput.SCREENXY_START,
+      [MouseInput.MouseClickDownTransformRotation]: BaseInput.ROTATION_START,
+      [MouseInput.MouseClickDownMovement]: BaseInput.LOOKTURN_PLAYERONE,
+      [MouseInput.MouseScroll]: BaseInput.CAMERA_SCROLL
     }
   },
   // Map touch buttons to abstract input
   touchInputMap: {
     buttons: {
-      [TouchInputs.Touch]: DefaultInput.INTERACT,
+      [TouchInputs.Touch]: BaseInput.INTERACT,
     },
     axes: {
-      [TouchInputs.Touch1Position]: DefaultInput.SCREENXY,
-      [TouchInputs.Touch1Movement]: DefaultInput.LOOKTURN_PLAYERONE,
-      [TouchInputs.Scale]: DefaultInput.CAMERA_SCROLL,
+      [TouchInputs.Touch1Position]: BaseInput.SCREENXY,
+      [TouchInputs.Touch1Movement]: BaseInput.LOOKTURN_PLAYERONE,
+      [TouchInputs.Scale]: BaseInput.CAMERA_SCROLL,
     }
   },
   // Map gamepad buttons to abstract input
   gamepadInputMap: {
     buttons: {
-      [GamepadButtons.A]: DefaultInput.INTERACT,
-      [GamepadButtons.B]: DefaultInput.JUMP,
-      // [GamepadButtons.B]: DefaultInput.CROUCH, // B - back
-      // [GamepadButtons.X]: DefaultInput.SPRINT, // X - secondary input
-      // [GamepadButtons.Y]: DefaultInput.INTERACT, // Y - tertiary input
-      // 4: DefaultInput.DEFAULT, // LB
-      // 5: DefaultInput.DEFAULT, // RB
-      // 6: DefaultInput.DEFAULT, // LT
-      // 7: DefaultInput.DEFAULT, // RT
-      // 8: DefaultInput.DEFAULT, // Back
-      // 9: DefaultInput.DEFAULT, // Start
-      // 10: DefaultInput.DEFAULT, // LStick
-      // 11: DefaultInput.DEFAULT, // RStick
-      [GamepadButtons.DPad1]: DefaultInput.FORWARD, // DPAD 1
-      [GamepadButtons.DPad2]: DefaultInput.BACKWARD, // DPAD 2
-      [GamepadButtons.DPad3]: DefaultInput.LEFT, // DPAD 3
-      [GamepadButtons.DPad4]: DefaultInput.RIGHT // DPAD 4
+      [GamepadButtons.A]: BaseInput.INTERACT,
+      [GamepadButtons.B]: BaseInput.JUMP,
+      // [GamepadButtons.B]: BaseInput.CROUCH, // B - back
+      // [GamepadButtons.X]: BaseInput.SPRINT, // X - secondary input
+      // [GamepadButtons.Y]: BaseInput.INTERACT, // Y - tertiary input
+      // 4: BaseInput.DEFAULT, // LB
+      // 5: BaseInput.DEFAULT, // RB
+      // 6: BaseInput.DEFAULT, // LT
+      // 7: BaseInput.DEFAULT, // RT
+      // 8: BaseInput.DEFAULT, // Back
+      // 9: BaseInput.DEFAULT, // Start
+      // 10: BaseInput.DEFAULT, // LStick
+      // 11: BaseInput.DEFAULT, // RStick
+      [GamepadButtons.DPad1]: BaseInput.FORWARD, // DPAD 1
+      [GamepadButtons.DPad2]: BaseInput.BACKWARD, // DPAD 2
+      [GamepadButtons.DPad3]: BaseInput.LEFT, // DPAD 3
+      [GamepadButtons.DPad4]: BaseInput.RIGHT // DPAD 4
     },
     axes: {
-      [Thumbsticks.Left]: DefaultInput.MOVEMENT_PLAYERONE,
-      [Thumbsticks.Right]: DefaultInput.GAMEPAD_STICK_RIGHT
+      [Thumbsticks.Left]: BaseInput.MOVEMENT_PLAYERONE,
+      [Thumbsticks.Right]: BaseInput.GAMEPAD_STICK_RIGHT
     }
   },
   // Map keyboard buttons to abstract input
   keyboardInputMap: {
-    w: DefaultInput.FORWARD,
-    a: DefaultInput.LEFT,
-    s: DefaultInput.BACKWARD,
-    d: DefaultInput.RIGHT,
-    e: DefaultInput.INTERACT,
-    ' ': DefaultInput.JUMP,
-    shift: DefaultInput.SPRINT,
-    p: DefaultInput.POINTER_LOCK,
-    v: DefaultInput.SWITCH_CAMERA,
-    c: DefaultInput.SWITCH_SHOULDER_SIDE,
-    f: DefaultInput.LOCKING_CAMERA
+    w: BaseInput.FORWARD,
+    a: BaseInput.LEFT,
+    s: BaseInput.BACKWARD,
+    d: BaseInput.RIGHT,
+    e: BaseInput.INTERACT,
+    ' ': BaseInput.JUMP,
+    shift: BaseInput.SPRINT,
+    p: BaseInput.POINTER_LOCK,
+    v: BaseInput.SWITCH_CAMERA,
+    c: BaseInput.SWITCH_SHOULDER_SIDE,
+    f: BaseInput.LOCKING_CAMERA
   },
   cameraInputMap: {
-    [CameraInput.Happy]: DefaultInput.FACE_EXPRESSION_HAPPY,
-    [CameraInput.Sad]: DefaultInput.FACE_EXPRESSION_SAD
+    [CameraInput.Happy]: BaseInput.FACE_EXPRESSION_HAPPY,
+    [CameraInput.Sad]: BaseInput.FACE_EXPRESSION_SAD
   },
   // Map how inputs relate to each other
   inputRelationships: {
-    [DefaultInput.FORWARD]: { opposes: [DefaultInput.BACKWARD] } as InputRelationship,
-    [DefaultInput.BACKWARD]: { opposes: [DefaultInput.FORWARD] } as InputRelationship,
-    [DefaultInput.LEFT]: { opposes: [DefaultInput.RIGHT] } as InputRelationship,
-    [DefaultInput.RIGHT]: { opposes: [DefaultInput.LEFT] } as InputRelationship,
-    [DefaultInput.JUMP]: {} as InputRelationship
+    [BaseInput.FORWARD]: { opposes: [BaseInput.BACKWARD] } as InputRelationship,
+    [BaseInput.BACKWARD]: { opposes: [BaseInput.FORWARD] } as InputRelationship,
+    [BaseInput.LEFT]: { opposes: [BaseInput.RIGHT] } as InputRelationship,
+    [BaseInput.RIGHT]: { opposes: [BaseInput.LEFT] } as InputRelationship,
+    [BaseInput.JUMP]: {} as InputRelationship
   },
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
-    [DefaultInput.POINTER_LOCK]: {
-        started: [
-          {
-            behavior: () => cameraPointerLock(true),
-            args: {}
-          }
-        ]
+    [BaseInput.SWITCH_CAMERA]: {
+      started: [
+        {
+          behavior: cycleCameraMode,
+          args: {}
+        }
+      ]
     },
-    [DefaultInput.SWITCH_CAMERA]: {
-        started: [
-          {
-            behavior: cycleCameraMode,
-            args: {}
-          }
-        ]
-    },
-    [DefaultInput.LOCKING_CAMERA]: {
+    [BaseInput.LOCKING_CAMERA]: {
       started: [
         {
           behavior: fixedCameraBehindCharacter,
@@ -252,7 +425,7 @@ export const CharacterInputSchema: InputSchema = {
         }
       ]
     },
-    [DefaultInput.SWITCH_SHOULDER_SIDE]: {
+    [BaseInput.SWITCH_SHOULDER_SIDE]: {
       started: [
         {
           behavior: switchShoulderSide,
@@ -260,12 +433,12 @@ export const CharacterInputSchema: InputSchema = {
         }
       ]
     },
-    [DefaultInput.INTERACT]: {
+    [BaseInput.INTERACT]: {
       started: [
         {
           behavior: interact,
           args: {
-            phase:LifecycleValue.STARTED
+            phase: LifecycleValue.STARTED
           }
         }
       ],
@@ -273,18 +446,18 @@ export const CharacterInputSchema: InputSchema = {
         {
           behavior: interact,
           args: {
-            phase:LifecycleValue.ENDED
+            phase: LifecycleValue.ENDED
           }
         }
       ]
     },
-    [DefaultInput.JUMP]: {
-        started: [
-          {
-            behavior: updateCharacterState,
-            args: {}
-          }
-        ],
+    [BaseInput.JUMP]: {
+      started: [
+        {
+          behavior: updateCharacterState,
+          args: {}
+        }
+      ],
       ended: [
         {
           behavior: updateCharacterState,
@@ -292,13 +465,13 @@ export const CharacterInputSchema: InputSchema = {
         }
       ]
     },
-    [DefaultInput.SPRINT]: {
-        started: [
-          {
-            behavior: updateCharacterState,
-            args: {}
-          }
-        ],
+    [BaseInput.SPRINT]: {
+      started: [
+        {
+          behavior: updateCharacterState,
+          args: {}
+        }
+      ],
       ended: [
         {
           behavior: updateCharacterState,
@@ -306,23 +479,23 @@ export const CharacterInputSchema: InputSchema = {
         }
       ]
     },
-    [DefaultInput.FORWARD]: {
-        started: [
-          {
-            behavior: setLocalMovementDirection,
-            args: {
-              z: 1
-            }
+    [BaseInput.FORWARD]: {
+      started: [
+        {
+          behavior: setLocalMovementDirection,
+          args: {
+            z: 1
           }
-        ],
-        continued: [
-          {
-            behavior: setLocalMovementDirection,
-            args: {
-              z: 1
-            }
+        }
+      ],
+      continued: [
+        {
+          behavior: setLocalMovementDirection,
+          args: {
+            z: 1
           }
-        ],
+        }
+      ],
       ended: [
         {
           behavior: setLocalMovementDirection,
@@ -336,23 +509,23 @@ export const CharacterInputSchema: InputSchema = {
         }
       ]
     },
-    [DefaultInput.BACKWARD]: {
-        started: [
-          {
-            behavior: setLocalMovementDirection,
-            args: {
-              z: -1
-            }
+    [BaseInput.BACKWARD]: {
+      started: [
+        {
+          behavior: setLocalMovementDirection,
+          args: {
+            z: -1
           }
-        ],
-        continued: [
-          {
-            behavior: setLocalMovementDirection,
-            args: {
-              z: -1
-            }
+        }
+      ],
+      continued: [
+        {
+          behavior: setLocalMovementDirection,
+          args: {
+            z: -1
           }
-        ],
+        }
+      ],
       ended: [
         {
           behavior: setLocalMovementDirection,
@@ -366,23 +539,23 @@ export const CharacterInputSchema: InputSchema = {
         }
       ]
     },
-    [DefaultInput.LEFT]: {
-        started: [
-          {
-            behavior: setLocalMovementDirection,
-            args: {
-              x: 1
-            }
+    [BaseInput.LEFT]: {
+      started: [
+        {
+          behavior: setLocalMovementDirection,
+          args: {
+            x: 1
           }
-        ],
-        continued: [
-          {
-            behavior: setLocalMovementDirection,
-            args: {
-              x: 1
-            }
+        }
+      ],
+      continued: [
+        {
+          behavior: setLocalMovementDirection,
+          args: {
+            x: 1
           }
-        ],
+        }
+      ],
       ended: [
         {
           behavior: setLocalMovementDirection,
@@ -396,23 +569,23 @@ export const CharacterInputSchema: InputSchema = {
         }
       ]
     },
-    [DefaultInput.RIGHT]: {
-        started: [
-          {
-            behavior: setLocalMovementDirection,
-            args: {
-              x: -1
-            }
+    [BaseInput.RIGHT]: {
+      started: [
+        {
+          behavior: setLocalMovementDirection,
+          args: {
+            x: -1
           }
-        ],
-        continued: [
-          {
-            behavior: setLocalMovementDirection,
-            args: {
-              x: -1
-            }
+        }
+      ],
+      continued: [
+        {
+          behavior: setLocalMovementDirection,
+          args: {
+            x: -1
           }
-        ],
+        }
+      ],
       ended: [
         {
           behavior: setLocalMovementDirection,
@@ -429,12 +602,12 @@ export const CharacterInputSchema: InputSchema = {
   },
   // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
   inputAxisBehaviors: {
-    [DefaultInput.FACE_EXPRESSION_HAPPY]: {
+    [BaseInput.FACE_EXPRESSION_HAPPY]: {
       started: [
         {
           behavior: setCharacterExpression,
           args: {
-            input: DefaultInput.FACE_EXPRESSION_HAPPY
+            input: BaseInput.FACE_EXPRESSION_HAPPY
           }
         }
       ],
@@ -442,17 +615,17 @@ export const CharacterInputSchema: InputSchema = {
         {
           behavior: setCharacterExpression,
           args: {
-            input: DefaultInput.FACE_EXPRESSION_HAPPY
+            input: BaseInput.FACE_EXPRESSION_HAPPY
           }
         }
       ]
     },
-    [DefaultInput.FACE_EXPRESSION_SAD]: {
+    [BaseInput.FACE_EXPRESSION_SAD]: {
       started: [
         {
           behavior: setCharacterExpression,
           args: {
-            input: DefaultInput.FACE_EXPRESSION_SAD
+            input: BaseInput.FACE_EXPRESSION_SAD
           }
         }
       ],
@@ -460,17 +633,17 @@ export const CharacterInputSchema: InputSchema = {
         {
           behavior: setCharacterExpression,
           args: {
-            input: DefaultInput.FACE_EXPRESSION_SAD
+            input: BaseInput.FACE_EXPRESSION_SAD
           }
         }
       ]
     },
-    [DefaultInput.CAMERA_SCROLL]: {
+    [BaseInput.CAMERA_SCROLL]: {
       started: [
         {
           behavior: changeCameraDistanceByDelta,
           args: {
-            input: DefaultInput.CAMERA_SCROLL,
+            input: BaseInput.CAMERA_SCROLL,
             inputType: InputType.ONEDIM
           }
         }
@@ -479,7 +652,7 @@ export const CharacterInputSchema: InputSchema = {
         {
           behavior: changeCameraDistanceByDelta,
           args: {
-            input: DefaultInput.CAMERA_SCROLL,
+            input: BaseInput.CAMERA_SCROLL,
             inputType: InputType.ONEDIM
           }
         }
@@ -488,18 +661,18 @@ export const CharacterInputSchema: InputSchema = {
         {
           behavior: changeCameraDistanceByDelta,
           args: {
-            input: DefaultInput.CAMERA_SCROLL,
+            input: BaseInput.CAMERA_SCROLL,
             inputType: InputType.ONEDIM
           }
         }
       ]
     },
-    [DefaultInput.MOVEMENT_PLAYERONE]: {
+    [BaseInput.MOVEMENT_PLAYERONE]: {
       started: [
         {
           behavior: moveByInputAxis,
           args: {
-            input: DefaultInput.MOVEMENT_PLAYERONE,
+            input: BaseInput.MOVEMENT_PLAYERONE,
             inputType: InputType.TWODIM
           }
         }
@@ -508,7 +681,7 @@ export const CharacterInputSchema: InputSchema = {
         {
           behavior: moveByInputAxis,
           args: {
-            input: DefaultInput.MOVEMENT_PLAYERONE,
+            input: BaseInput.MOVEMENT_PLAYERONE,
             inputType: InputType.TWODIM
           }
         },
@@ -520,13 +693,13 @@ export const CharacterInputSchema: InputSchema = {
         }
       ],
     },
-    [DefaultInput.GAMEPAD_STICK_RIGHT]: {
+    [BaseInput.GAMEPAD_STICK_RIGHT]: {
       started: [
         {
           behavior: lookByInputAxis,
           args: {
-            input: DefaultInput.GAMEPAD_STICK_RIGHT,
-            output: DefaultInput.LOOKTURN_PLAYERONE,
+            input: BaseInput.GAMEPAD_STICK_RIGHT,
+            output: BaseInput.LOOKTURN_PLAYERONE,
             multiplier: 0.1,
             inputType: InputType.TWODIM
           }
@@ -536,8 +709,8 @@ export const CharacterInputSchema: InputSchema = {
         {
           behavior: lookByInputAxis,
           args: {
-            input: DefaultInput.GAMEPAD_STICK_RIGHT,
-            output: DefaultInput.LOOKTURN_PLAYERONE,
+            input: BaseInput.GAMEPAD_STICK_RIGHT,
+            output: BaseInput.LOOKTURN_PLAYERONE,
             multiplier: 0.1,
             inputType: InputType.TWODIM
           }
@@ -547,8 +720,8 @@ export const CharacterInputSchema: InputSchema = {
         {
           behavior: lookByInputAxis,
           args: {
-            input: DefaultInput.GAMEPAD_STICK_RIGHT,
-            output: DefaultInput.LOOKTURN_PLAYERONE,
+            input: BaseInput.GAMEPAD_STICK_RIGHT,
+            output: BaseInput.LOOKTURN_PLAYERONE,
             multiplier: 0.1,
             inputType: InputType.TWODIM
           }

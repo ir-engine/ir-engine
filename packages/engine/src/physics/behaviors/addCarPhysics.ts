@@ -1,9 +1,9 @@
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { VehicleBody } from "@xr3ngine/engine/src/physics/components/VehicleBody";
-import { Matrix4, Vector3 } from "three";
+import { Vector3 } from "three";
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { addComponent } from '../../ecs/functions/EntityFunctions';
 
 function castShadowOn( group ) {
   group.children.forEach( children => {

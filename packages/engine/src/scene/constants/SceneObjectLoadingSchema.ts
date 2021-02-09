@@ -1,10 +1,14 @@
 import { addWorldColliders } from "@xr3ngine/engine/src/templates/world/behaviors/addWorldColliders";
 import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight } from 'three';
 import { AssetLoader } from '../../assets/components/AssetLoader';
-import { addComponentFromBehavior, addObject3DComponent, addTagComponentFromBehavior } from '../../common/behaviors/Object3DBehaviors';
-import { LightTagComponent, VisibleTagComponent } from '../../common/components/Object3DTagComponents';
+import { addObject3DComponent } from '../behaviors/addObject3DComponent';
+import { LightTagComponent, VisibleTagComponent } from '../components/Object3DTagComponents';
 import { isClient } from "../../common/functions/isClient";
-import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
+import { Component } from "../../ecs/classes/Component";
+import { Entity } from "../../ecs/classes/Entity";
+import { addComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
+import { ComponentConstructor } from "../../ecs/interfaces/ComponentInterfaces";
+import { createParticleEmitter } from '../../particles/functions/particleHelpers';
 import { createBackground } from '../behaviors/createBackground';
 import { createBoxCollider } from '../behaviors/createBoxCollider';
 import { createCommonInteractive } from "../behaviors/createCommonInteractive";
@@ -24,7 +28,36 @@ import ScenePreviewCameraTagComponent from "../components/ScenePreviewCamera";
 import SpawnPointComponent from "../components/SpawnPointComponent";
 import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
-import { createParticleEmitter } from '../../particles/functions/particleHelpers';
+
+
+/**
+ * Add Component into Entity from the Behavior.
+ * @param entity Entity in which component will be added.
+ * @param args Args contains Component and args of Component which will be added into the Entity.
+ */
+export function addComponentFromBehavior<C>(
+  entity: Entity,
+  args: {
+    component: ComponentConstructor<Component<C>>
+    objArgs: any
+  }
+): void {
+  addComponent(entity, args.component, args.objArgs);
+}
+
+/**
+ * Add Tag Component with into Entity from the Behavior.
+ * @param entity Entity in which component will be added.
+ * @param args Args contains Component which will be added into the Entity.
+ */
+export function addTagComponentFromBehavior<C>(
+  entity: Entity,
+  args: { component: ComponentConstructor<Component<C>> }
+): void {
+  // console.log("Adding ", args.component, " to ", entity);
+  addComponent(entity, args.component);
+}
+
 
 export const SceneObjectLoadingSchema: LoadingSchema = {
   'ambient-light': {

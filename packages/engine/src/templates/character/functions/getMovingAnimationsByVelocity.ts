@@ -88,7 +88,7 @@ export const getMovingAnimationsByVelocity = (localSpaceVelocity: Vector3): Map<
         animations.set(animationId, { weight, timeScale });
     });
 
-    animations.set(CharacterStateTypes.IDLE, { weight: stateWeights.idle, timeScale: 1 });
+    animations.set(CharacterStateTypes.DEFAULT, { weight: stateWeights.idle, timeScale: 1 });
 
     // console.log('active anims', Array.from(animations).filter(value => {
     //     const [ animationId, weights ] = value;

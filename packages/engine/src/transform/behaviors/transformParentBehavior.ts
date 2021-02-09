@@ -1,4 +1,4 @@
-import { Object3DComponent } from '../../common/components/Object3DComponent';
+import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
 import { TransformComponent } from '../components/TransformComponent';

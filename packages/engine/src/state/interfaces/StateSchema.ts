@@ -1,8 +1,6 @@
 import { StateAlias } from '../types/StateAlias';
-import { StateGroupAlias } from '../types/StateGroupAlias';
 
 export interface StateSchemaValue {
-    group?: StateGroupAlias;
     component?: any;
     blockedBy?: StateAlias;
     overrides?: StateAlias;
@@ -28,6 +26,7 @@ export interface BehaviorAlias {
 }
 
 export interface StateSchema {
+  default: number | string,
   states: {
     [key: number]: StateSchemaValue;
   };

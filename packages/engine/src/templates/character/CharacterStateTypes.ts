@@ -1,10 +1,8 @@
 export enum CharacterStateTypes {
   // Main States
-  IDLE,
-  MOVING,
+  DEFAULT,
   JUMP_IDLE,
   JUMP_RUNNING,
-
   FALLING,
 
   // Modifier States
@@ -25,6 +23,7 @@ export enum CharacterStateTypes {
   ENTERING_CAR,
   EXITING_CAR,
 
+  IDLE,
   JUMP,
   FALLING_LONG,
   DROP,
