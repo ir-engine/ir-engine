@@ -10,11 +10,11 @@ import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody
 import { addState } from "@xr3ngine/engine/src/state/behaviors/addState";
 import { State } from "@xr3ngine/engine/src/state/components/State";
 import { setDropState } from "@xr3ngine/engine/src/templates/character/behaviors/setDropState";
-import { setPosition } from "@xr3ngine/engine/src/templates/character/behaviors/setPosition";
 import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";
 import { CharacterComponent } from "@xr3ngine/engine/src/templates/character/components/CharacterComponent";
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { CameraModes } from '../../../camera/types/CameraModes';
+import { Vec3 } from "cannon-es";
 
 
 function openCarDoorAnimation(mesh, timer, timeAnimation) {
@@ -36,8 +36,23 @@ function setPlayerToPositionEnter(entity, transformCar, entrances) {
     entrances[2]
   ).applyQuaternion(transformCar.rotation);
   entrance = entrance.add(transformCar.position);
-  setPosition(entity, entrance);
-}
+
+	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+	const actorTransform: TransformComponent = getMutableComponent<TransformComponent>(entity, TransformComponent);
+
+	if (isNaN(actor.actorCapsule.body.position.y)) actor.actorCapsule.body.position.y = 0;
+	if (actor.physicsEnabled) {
+		actor.actorCapsule.body.previousPosition = new Vec3(entrance.x, entrance.y, entrance.z);
+		actor.actorCapsule.body.position = new Vec3(entrance.x, entrance.y, entrance.z);
+		actor.actorCapsule.body.interpolatedPosition = new Vec3(entrance.x, entrance.y, entrance.z);
+	}
+	else {
+		actorTransform.position.x = entrance.x;
+		actorTransform.position.y = entrance.y;
+		actorTransform.position.z = entrance.z;
+	}
+};
+
 
 function setPlayerToSeats(transform, transformCar, seat) {
   const entrance = new Vector3(
@@ -46,12 +61,7 @@ function setPlayerToSeats(transform, transformCar, seat) {
     seat[2]+0.51
   ).applyQuaternion(transformCar.rotation);
 
-//  transform.position.copy( entrance.add(transformCar.position) );
-//console.warn(transformCar.position);
-
   transform.position.copy( transformCar.position );
-
-  //console.warn(transform.position);
   transform.rotation.copy( transformCar.rotation );
 }
 
@@ -61,7 +71,7 @@ export const playerModelInCar: Behavior = (entity: Entity, args: { type: string;
   const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
 
   if (args.phase === 'onAdded') {
-    addState(entity, {state: CharacterStateTypes.ENTER_VEHICLE});
+    addState(entity, {state: CharacterStateTypes.ENTERING_CAR});
     return;
   }
 
@@ -78,7 +88,7 @@ export const playerModelInCar: Behavior = (entity: Entity, args: { type: string;
 
 
 
-  if (stateComponent.data.has(CharacterStateTypes.ENTER_VEHICLE)) {
+  if (stateComponent.data.has(CharacterStateTypes.ENTERING_CAR)) {
     if (!hasComponent(entityCar, LocalInputReceiver)) {
       removeComponent(entityCar, InteractiveFocused);
       addComponent(entityCar, LocalInputReceiver);
@@ -88,7 +98,7 @@ export const playerModelInCar: Behavior = (entity: Entity, args: { type: string;
 
     openCarDoorAnimation(vehicleComponent.vehicleDoorsArray[0], actor.timer, 2.1);
     if (actor.timer > 2.1) {
-      addState(entity, {state: CharacterStateTypes.DRIVING_IDLE});
+      addState(entity, {state: CharacterStateTypes.DRIVING});
       return;
     }
 
@@ -106,14 +116,14 @@ export const playerModelInCar: Behavior = (entity: Entity, args: { type: string;
 
 
 
-  if (stateComponent.data.has(CharacterStateTypes.DRIVING_IDLE)) {
+  if (stateComponent.data.has(CharacterStateTypes.DRIVING)) {
     //<-----setPlayerToSeats(
 
     setPlayerToSeats(transform, transformCar, vehicleComponent.seatsArray[0]);
   }
 
 
-  if (stateComponent.data.has(CharacterStateTypes.EXIT_VEHICLE)){
+  if (stateComponent.data.has(CharacterStateTypes.EXITING_CAR)){
     if (actor.timer > 2.1) {
 
       if (hasComponent(entity, PlayerInCar)) {

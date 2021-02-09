@@ -3,12 +3,10 @@ import { Behavior } from '../../common/interfaces/Behavior';
 import { NumericalType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
-import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
-import { addState } from "../behaviors/addState";
 import { State } from '../components/State';
 import { StateValue } from '../interfaces/StateValue';
-import { StateGroupAlias } from '../types/StateGroupAlias';
 
 export class StateSystem extends System {
   updateType = SystemUpdateType.Fixed;
@@ -20,14 +18,6 @@ export class StateSystem extends System {
       this._state = getComponent(entity, State);
       if(this._state === undefined)
         return  console.warn("Tried to execute on a newly added input component, but it was undefined")
-      Object.keys((this._state.schema).groups).forEach((stateGroup: StateGroupAlias) => {
-        if (
-          this._state.schema.groups[stateGroup] !== undefined &&
-          this._state.schema.groups[stateGroup].default !== undefined
-        ) {
-          addState(entity, { state: this._state.schema.groups[stateGroup].default });
-        }
-      });
     });
     this.queryResults.state.all?.forEach(entity => {
       callBehaviors(entity, { phase: 'onUpdate' }, delta);

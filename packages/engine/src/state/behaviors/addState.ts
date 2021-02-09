@@ -20,20 +20,10 @@ export const addState: Behavior = (entity: Entity, args: { state: StateAlias }):
   if (stateComponent.data.has(args.state))
   return;
 
-  const stateGroup = stateComponent.schema.states[args.state].group;
   stateComponent.data.set(args.state, {
     state: args.state,
     type: StateType.DISCRETE,
     lifecycleState: LifecycleValue.STARTED,
     group: stateComponent.schema.states[args.state].group
   } as StateValue<BinaryType>);
-
-  // If state group is set to exclusive (XOR) then check if other states from state group are on
-  if (stateComponent.schema.groups[stateGroup].exclusive) {
-    stateComponent.data.forEach((value, key) => {
-      if (key !== args.state && value.group === stateComponent.schema.states[args.state].group) {
-        stateComponent.data.delete(key);
-      }
-    });
-  }
 };

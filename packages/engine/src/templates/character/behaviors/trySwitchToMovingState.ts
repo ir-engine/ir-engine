@@ -1,11 +1,9 @@
-import { CharacterComponent } from '../components/CharacterComponent';
+import { Vector3 } from "three";
+import { Entity } from '../../../ecs/classes/Entity';
 import { getComponent } from '../../../ecs/functions/EntityFunctions';
 import { addState } from "../../../state/behaviors/addState";
 import { CharacterStateTypes } from '../CharacterStateTypes';
-import { Entity } from '../../../ecs/classes/Entity';
-import { Vector3 } from "three";
-import { getPlayerMovementVelocity } from "../functions/getPlayerMovementVelocity";
-import { isMovingByInputs } from "../functions/isMovingByInputs";
+import { CharacterComponent } from '../components/CharacterComponent';
 
 const localSpaceMovementVelocity = new Vector3();
 
@@ -14,8 +12,7 @@ export const trySwitchToMovingState = (entity: Entity): boolean => {
   if (!actor.initialized) return false;
   if (!actor.rayHasHit) return false; // no switch to movement state while falling
 
-  getPlayerMovementVelocity(entity, localSpaceMovementVelocity);
-  if (!isMovingByInputs(entity) && localSpaceMovementVelocity.length() < 0.01) return false;
+  if (getComponent(entity, CharacterComponent).localMovementDirection.length() === 0 && localSpaceMovementVelocity.length() < 0.01) return false;
 
   addState(entity, { state: CharacterStateTypes.IDLE });
   return true;

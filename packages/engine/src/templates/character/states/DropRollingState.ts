@@ -1,17 +1,11 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
-import { setActorAnimationById } from "../behaviors/setActorAnimation";
-import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
-import { updateCharacterState } from "../behaviors/updateCharacterState";
-import { CharacterStateGroups } from '../CharacterStateGroups';
-import { CharacterStateTypes } from '../CharacterStateTypes';
-import { CharacterComponent } from '../components/CharacterComponent';
-import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
 import { onAnimationEnded } from "../behaviors/onAnimationEnded";
+import { updateCharacterState } from "../behaviors/updateCharacterState";
+import { CharacterStateTypes } from "../CharacterStateTypes";
+import { CharacterComponent } from '../components/CharacterComponent';
 
-export const DropRollingState: StateSchemaValue = {
-  group: CharacterStateGroups.MOVEMENT,
-  componentProperties: [{
+export const DropRollingState: StateSchemaValue = {componentProperties: [{
     component: CharacterComponent,
     properties: {
       ['velocitySimulator.damping']: 0.6,
@@ -20,16 +14,9 @@ export const DropRollingState: StateSchemaValue = {
   }],
   onEntry: [
     {
-      behavior: initializeCharacterState
-    },
-    {
-      behavior: setArcadeVelocityTarget,
-      args: { x: 0, y: 0, z: 0.8 }
-    },
-    {
-      behavior: setActorAnimationById,
+      behavior: initializeCharacterState,
       args: {
-        animationId: CharacterAnimationsIds.DROP_ROLLING,
+        animationId: CharacterStateTypes.DROP_ROLLING,
         transitionDuration: 0.5
       }
     }

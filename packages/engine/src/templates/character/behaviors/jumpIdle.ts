@@ -1,30 +1,28 @@
-import { CharacterComponent } from "../components/CharacterComponent";
-import { TransformComponent } from "../../../transform/components/TransformComponent";
 import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { Entity } from "../../../ecs/classes/Entity";
-import { getMutableComponent, getComponent } from "../../../ecs/functions/EntityFunctions";
-import { setCameraRelativeOrientationTarget } from "./setCameraRelativeOrientationTarget";
-import { setTargetVelocityIfMoving } from "./setTargetVelocityIfMoving";
-import { setDropState } from "./setDropState";
-import { onAnimationEnded } from "./onAnimationEnded";
-import { FallingState } from "../states/FallingState";
-import { jumpStart } from "./jumpStart";
-import { CharacterStateTypes } from "../CharacterStateTypes";
-import { addState } from "../../../state/behaviors/addState";
+import { getComponent, getMutableComponent } from "../../../ecs/functions/EntityFunctions";
+import { CharacterComponent } from "../components/CharacterComponent";
 
 export const jumpIdle: Behavior = (entity: Entity, args: null, delta: any): void => {
-	const transform = getComponent<TransformComponent>(entity, TransformComponent);
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 
 	// Move in air
 	if (actor.alreadyJumped) {
-		setCameraRelativeOrientationTarget(entity);
-		setTargetVelocityIfMoving(entity, { ifTrue: { x: 0.8, y: 0.8, z: 0.8 }, ifFalse: { x: 0, y: 0, z: 0 } });
+		// Disabled because we're called this on the behavior update
+		// setCameraRelativeOrientationTarget(entity);
+		if(getComponent(entity, CharacterComponent).localMovementDirection.length() > 0) {
+			actor.velocityTarget.set(0.8, 0.8, 0.8);
+		  }
+		  else {
+			actor.velocityTarget.set(0, 0, 0);
+		  }
 	}
 
 	// Physically jump
 	if (!actor.alreadyJumped) {
-		jumpStart(entity, { initJumpSpeed: -1 });
+		actor.wantsToJump = true;
+		actor.initJumpSpeed = -1;
+
 		actor.alreadyJumped = true;
 
 		actor.velocitySimulator.mass = 100;
@@ -35,15 +33,5 @@ export const jumpIdle: Behavior = (entity: Entity, args: null, delta: any): void
 		} else {
 			actor.arcadeVelocityInfluence.set(0.3, 0, 0.3);
 		}
-
 	}
-
-	// else if (actor.timer > 0.3) {
-	// 		//setDropState(entity, null, delta);
-	// }
-	// if (actor.timer > 0.7) {
-	// 	addState(entity, { state: CharacterStateTypes.FALLING });
-	// }
-//		onAnimationEnded(entity, { transitionToState: CharacterStateTypes.FALLING }, delta);
-
 };

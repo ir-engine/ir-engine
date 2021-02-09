@@ -3,7 +3,6 @@ import { getComponent } from '../../../ecs/functions/EntityFunctions';
 import { addState } from "../../../state/behaviors/addState";
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { CharacterComponent } from '../components/CharacterComponent';
-import { isMovingByInputs } from '../functions/isMovingByInputs';
 import { trySwitchToMovingState } from "./trySwitchToMovingState";
 
 export const setDropState: Behavior = (entity, args = null, deltaTime) => {
@@ -16,7 +15,7 @@ export const setDropState: Behavior = (entity, args = null, deltaTime) => {
   if (actor.groundImpactVelocity.y < -6)
   {
     addState(entity, { state: CharacterStateTypes.DROP_ROLLING });
-  } else if(isMovingByInputs(entity)) {
+  } else if(getComponent(entity, CharacterComponent).localMovementDirection.length() > 0) {
     if (actor.groundImpactVelocity.y < -2) {
       trySwitchToMovingState(entity);
     }

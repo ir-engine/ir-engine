@@ -1,14 +1,10 @@
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { CharacterComponent } from '../components/CharacterComponent';
-import { setActorAnimationById } from "../behaviors/setActorAnimation";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { updateCharacterState } from "../behaviors/updateCharacterState";
-import { CharacterStateGroups } from '../CharacterStateGroups';
-import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
-import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
+import { CharacterStateTypes } from "../CharacterStateTypes";
+import { CharacterComponent } from '../components/CharacterComponent';
 
 export const EnterVehicleState: StateSchemaValue = {
-  group: CharacterStateGroups.MOVEMENT,
   componentProperties: [{
     component: CharacterComponent,
     properties: {
@@ -17,16 +13,9 @@ export const EnterVehicleState: StateSchemaValue = {
   }],
   onEntry: [
     {
-      behavior: initializeCharacterState
-    },
-    {
-      behavior: setArcadeVelocityTarget,
-      args: { x: 0, y: 0, z: 0 }
-    },
-    {
-      behavior: setActorAnimationById,
+      behavior: initializeCharacterState,
       args: {
-        animationId: CharacterAnimationsIds.ENTERING_CAR,
+        animationId: CharacterStateTypes.ENTERING_CAR,
         transitionDuration: 0.1
       }
     }

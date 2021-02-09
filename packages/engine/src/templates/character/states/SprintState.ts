@@ -1,26 +1,20 @@
-import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { CharacterComponent } from '../components/CharacterComponent';
-import { setActorAnimationById } from "../behaviors/setActorAnimation";
-import { setFallingState } from "../behaviors/setFallingState";
-import { initializeCharacterState } from "../behaviors/initializeCharacterState";
-import { updateCharacterState } from "../behaviors/updateCharacterState";
-import { CharacterStateGroups } from '../CharacterStateGroups';
-import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
-import { findVehicle } from '../functions/findVehicle';
 import { getComponent } from '../../../ecs/functions/EntityFunctions';
 import { Input } from '../../../input/components/Input';
-import { DefaultInput } from '../../shared/DefaultInput';
 import { addState } from "../../../state/behaviors/addState";
-import { CharacterStateTypes } from '../CharacterStateTypes';
-import { isMovingByInputs } from '../functions/isMovingByInputs';
+import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
+import { DefaultInput } from '../../shared/DefaultInput';
+import { initializeCharacterState } from "../behaviors/initializeCharacterState";
+import { setFallingState } from "../behaviors/setFallingState";
 import { setIdleState } from '../behaviors/setIdleState';
-import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
+import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
+import { updateCharacterState } from "../behaviors/updateCharacterState";
+import { CharacterStateTypes } from "../CharacterStateTypes";
+import { CharacterComponent } from '../components/CharacterComponent';
+import { findVehicle } from '../functions/findVehicle';
 
 /** @deprecated */
 
-export const SprintState: StateSchemaValue = {
-  group: CharacterStateGroups.MOVEMENT,
-  componentProperties: [{
+export const SprintState: StateSchemaValue = {componentProperties: [{
     component: CharacterComponent,
     properties: {
       ['velocitySimulator.mass']: 10,
@@ -31,12 +25,9 @@ export const SprintState: StateSchemaValue = {
   }],
   onEntry:  [
     {
-      behavior: initializeCharacterState
-    },
-    {
-      behavior: setActorAnimationById,
+      behavior: initializeCharacterState,
       args: {
-        name: CharacterAnimationsIds.RUN_FORWARD,
+        name: CharacterStateTypes.RUN_FORWARD,
         transitionDuration: 1
       }
     }
@@ -61,11 +52,11 @@ export const SprintState: StateSchemaValue = {
           if (input.data.has(DefaultInput.FORWARD)) {
             addState(entity, { state: CharacterStateTypes.SPRINT });
           } else if (input.data.has(DefaultInput.LEFT)) {
-            addState(entity, { state: CharacterStateTypes.SPRINT_LEFT });
+            addState(entity, { state: CharacterStateTypes.RUN_STRAFE_LEFT });
           } else if (input.data.has(DefaultInput.RIGHT)) {
-            addState(entity, { state: CharacterStateTypes.SPRINT_RIGHT });
+            addState(entity, { state: CharacterStateTypes.RUN_STRAFE_RIGHT });
           } else if (input.data.has(DefaultInput.BACKWARD)) {
-            addState(entity, { state: CharacterStateTypes.SPRINT_BACKWARD });
+            addState(entity, { state: CharacterStateTypes.RUN_BACKWARD });
           } else {
             setIdleState(entity);
           }
@@ -73,13 +64,13 @@ export const SprintState: StateSchemaValue = {
         } else {
 
           if (input.data.has(DefaultInput.FORWARD)) {
-            addState(entity, { state: CharacterStateTypes.WALK_START_FORWARD});
+            addState(entity, { state: CharacterStateTypes.WALK_FORWARD});
           } else if (input.data.has(DefaultInput.LEFT)) {
-            addState(entity, { state: CharacterStateTypes.WALK_START_LEFT });
+            addState(entity, { state: CharacterStateTypes.WALK_STRAFE_LEFT });
           } else if (input.data.has(DefaultInput.RIGHT)) {
-            addState(entity, { state: CharacterStateTypes.WALK_START_RIGHT});
+            addState(entity, { state: CharacterStateTypes.WALK_STRAFE_RIGHT});
           } else if (input.data.has(DefaultInput.BACKWARD)) {
-            addState(entity, { state: CharacterStateTypes.WALK_START_BACKWARD });
+            addState(entity, { state: CharacterStateTypes.WALK_BACKWARD });
           }
 
         }
@@ -89,8 +80,8 @@ export const SprintState: StateSchemaValue = {
           return addState(entity, { state: CharacterStateTypes.JUMP_RUNNING });
 
         // If we're not moving, don't worry about the rest of this action
-        if (!isMovingByInputs(entity))
-          return addState(entity, { state: CharacterStateTypes.WALK_END });
+        if (getComponent(entity, CharacterComponent).localMovementDirection.length() === 0)
+          return addState(entity, { state: CharacterStateTypes.IDLE });
       }
     }
   },

@@ -1,23 +1,16 @@
-import { Matrix4, Vector3 } from 'three';
 import { addObject3DComponent } from '../../common/behaviors/Object3DBehaviors';
 import { CameraTagComponent } from '../../common/components/Object3DTagComponents';
 import { isClient } from '../../common/functions/isClient';
-import { NumericalType } from '../../common/types/NumericalTypes';
 import { Engine } from '../../ecs/classes/Engine';
 import { System } from '../../ecs/classes/System';
 import {
-  addComponent, createEntity, getComponent, getMutableComponent, hasComponent
+  addComponent, createEntity, getComponent, hasComponent
 } from '../../ecs/functions/EntityFunctions';
-import { Input } from '../../input/components/Input';
-import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
-import { DefaultInput } from '../../templates/shared/DefaultInput';
 import { DesiredTransformComponent } from '../../transform/components/DesiredTransformComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { attachCamera } from '../behaviors/attachCamera';
 import { setCameraFollow } from '../behaviors/setCameraFollow';
 import { CameraComponent } from '../components/CameraComponent';
 import { FollowCameraComponent } from '../components/FollowCameraComponent';
-import { getInputData } from '../functions/getInputData';
 
 /** System class which provides methods for Camera system. */
 export class CameraSystem extends System {
@@ -40,7 +33,7 @@ export class CameraSystem extends System {
    */
   execute(delta: number): void {
     this.queryResults.followCameraComponent.added?.forEach(entity => {
-      attachCamera(entity);
+      CameraComponent.instance.followTarget = entity;
     });
 
     this.queryResults.cameraComponent.all?.forEach(entity => {

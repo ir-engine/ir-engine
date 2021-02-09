@@ -1,34 +1,26 @@
-import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { CharacterComponent, RUN_SPEED, WALK_SPEED } from '../components/CharacterComponent';
-import { setFallingState } from "../behaviors/setFallingState";
-import { updateCharacterState } from "../behaviors/updateCharacterState";
-import { CharacterStateGroups } from '../CharacterStateGroups';
-import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
+import { BinaryValue } from "@xr3ngine/engine/src/common/enums/BinaryValue";
+import { Vector3 } from "three";
+import { Entity } from "../../../ecs/classes/Entity";
 import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { Input } from '../../../input/components/Input';
-import { isMovingByInputs } from '../functions/isMovingByInputs';
 import { addState } from "../../../state/behaviors/addState";
-import { CharacterStateTypes } from '../CharacterStateTypes';
+import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { DefaultInput } from '../../shared/DefaultInput';
-import { Entity } from "../../../ecs/classes/Entity";
-import { LifecycleValue } from "@xr3ngine/engine/src/common/enums/LifecycleValue";
-import { getMovingAnimationsByVelocity } from "../functions/getMovingAnimationsByVelocity";
-import { defaultAvatarAnimations } from "../CharacterAvatars";
-import { setActorAnimationWeightScale } from "../behaviors/setActorAnimationWeightScale";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
-import { Vector3 } from "three";
-import { getPlayerMovementVelocity } from "../functions/getPlayerMovementVelocity";
-import { BinaryValue } from "@xr3ngine/engine/src/common/enums/BinaryValue";
+import { setActorAnimationWeightScale } from "../behaviors/setActorAnimationWeightScale";
+import { setFallingState } from "../behaviors/setFallingState";
+import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
 import { trySwitchToJump } from "../behaviors/trySwitchToJump";
-import { trySwitchToMovingState } from "../behaviors/trySwitchToMovingState";
+import { updateCharacterState } from "../behaviors/updateCharacterState";
+import { CharacterStateTypes } from '../CharacterStateTypes';
+import { CharacterComponent, RUN_SPEED, WALK_SPEED } from '../components/CharacterComponent';
+import { getMovingAnimationsByVelocity } from "../functions/getMovingAnimationsByVelocity";
 
 const localSpaceMovementVelocity = new Vector3();
 
 // TODO: delete?
 
-export const MovingState: StateSchemaValue = {
-  group: CharacterStateGroups.MOVEMENT,
-  componentProperties: [{
+export const MovingState: StateSchemaValue = {componentProperties: [{
     component: CharacterComponent,
     properties: {
       ['canEnterVehicles']: true,
@@ -70,10 +62,7 @@ export const MovingState: StateSchemaValue = {
     },
     {
       behavior: (entity:Entity): void => {
-        // TODO: change it to speed relative to the ground?
-        // real speed made by inputs.
-        getPlayerMovementVelocity(entity, localSpaceMovementVelocity);
-        console.log('update moving', isMovingByInputs(entity), localSpaceMovementVelocity.length().toFixed(5));
+        console.log('update moving', getComponent(entity, CharacterComponent).localMovementDirection.length() > 0, localSpaceMovementVelocity.length().toFixed(5));
 
         const animations = getMovingAnimationsByVelocity(localSpaceMovementVelocity);
         animations.forEach((value, animationId) => {
@@ -83,10 +72,7 @@ export const MovingState: StateSchemaValue = {
             scale: value.timeScale
           });
         });
-        // TODO: sync run/walk animation pairs? (run_forward with walk_forward, run_left with walk_left)
-
-        // Check if we stopped moving
-        if (!isMovingByInputs(entity) && localSpaceMovementVelocity.length() < 0.01) {
+        if (getComponent(entity, CharacterComponent).localMovementDirection.length() === 0 && localSpaceMovementVelocity.length() < 0.01) {
           addState(entity, { state: CharacterStateTypes.IDLE });
         }
       }

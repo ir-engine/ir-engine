@@ -16,11 +16,11 @@ import SmsIcon from '@material-ui/icons/Sms';
 import ToysIcon from '@material-ui/icons/Toys';
 import VpnKeyIcon from '@material-ui/icons/VpnKey';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
+import { getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { endVideoChat, leave } from "@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions";
-import { loadActorAvatar } from '@xr3ngine/engine/src/templates/character/behaviors/loadActorAvatar';
-import { setActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/setActorAvatar";
 import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
+import { CharacterAvatarComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterAvatarComponent';
 import getConfig from 'next/config';
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
@@ -250,8 +250,10 @@ const UserMenu = (props: Props): any => {
 
   useEffect(() => {
     if (actorEntity && actorAvatarId) {
-      setActorAvatar(actorEntity, { avatarId: actorAvatarId });
-      loadActorAvatar(actorEntity);
+      const characterAvatar = getMutableComponent(actorEntity, CharacterAvatarComponent);
+      if (characterAvatar != null) characterAvatar.avatarId = actorAvatarId;
+      // We can pull this from NetworkPlayerCharacter, but we probably don't want our state update here
+      // loadActorAvatar(actorEntity);
       updateUserAvatarId(selfUser.id, actorAvatarId);
     }
   }, [actorEntity, actorAvatarId]);

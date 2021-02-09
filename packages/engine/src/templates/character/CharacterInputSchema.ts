@@ -7,20 +7,142 @@ import { InputSchema } from '../../input/interfaces/InputSchema';
 import { DefaultInput } from '../shared/DefaultInput';
 import { updateCharacterState } from "./behaviors/updateCharacterState";
 import { interact } from "../../interaction/behaviors/interact";
-import { moveByInputAxis } from "./behaviors/move";
 import { InputType } from "../../input/enums/InputType";
-import { setLocalMovementDirection } from "./behaviors/setLocalMovementDirection";
 import { changeCameraDistanceByDelta } from "../../camera/behaviors/changeCameraDistanceByDelta";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { TouchInputs } from "../../input/enums/TouchInputs";
 import { DefaultInputSchema } from "../shared/DefaultInputSchema";
-import { lookByInputAxis } from "./behaviors/lookByInputAxis";
 import { CameraInput } from '../../input/enums/CameraInput';
-import { setCharacterExpression } from './behaviors/setCharacterExpression';
 import { fixedCameraBehindCharacter } from "../../camera/behaviors/fixedCameraBehindCharacter";
 import { cycleCameraMode } from "../../camera/behaviors/cycleCameraMode";
 import { switchShoulderSide } from "../../camera/behaviors/switchShoulderSide";
+import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
+import { InputAlias } from "../../input/types/InputAlias";
+import { CharacterComponent } from "./components/CharacterComponent";
+import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
+import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
+import { Input } from '@xr3ngine/engine/src/input/components/Input';
+import { getComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { Object3DComponent } from '@xr3ngine/engine/src/common/components/Object3DComponent';
+import { Mesh } from "three";
 
+const morphNameByInput = {
+  [DefaultInput.FACE_EXPRESSION_HAPPY]: "Smile",
+  [DefaultInput.FACE_EXPRESSION_SAD]: "Frown",
+  // [CameraInput.Disgusted]: "Frown",
+  // [CameraInput.Fearful]: "Frown",
+  // [CameraInput.Happy]: "Smile",
+  // [CameraInput.Surprised]: "Frown",
+  // [CameraInput.Sad]: "Frown",
+  // [CameraInput.Pucker]: "None",
+  // [CameraInput.Widen]: "Frown",
+  // [CameraInput.Open]: "Happy"
+};
+
+const setCharacterExpression: Behavior = (entity: Entity, args: any): void => {
+  // console.log('setCharacterExpression', args.input, morphNameByInput[args.input]);
+  const object: Object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent);
+  const body = object.value?.getObjectByName("Body") as Mesh;
+
+  if (!body?.isMesh) {
+    return;
+  }
+
+  const input: Input = getComponent(entity, Input);
+  const inputData = input?.data.get(args.input);
+  if (!inputData) {
+    return;
+  }
+  const morphValue = inputData.value;
+  const morphName = morphNameByInput[args.input];
+  const morphIndex = body.morphTargetDictionary[morphName];
+  if (typeof morphIndex !== 'number') {
+    return;
+  }
+
+  // console.warn(args.input + ": " + morphName + ":" + morphIndex + " = " + morphValue);
+  if (morphName && morphValue !== null) {
+    if (typeof morphValue === 'number') {
+      body.morphTargetInfluences[morphIndex] = morphValue; // 0.0 - 1.0
+    }
+  }
+};
+
+const moveByInputAxis: Behavior = (
+  entity: Entity,
+  args: { input: InputAlias; inputType: InputType },
+  time: any
+): void => {
+  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+  const input =  getComponent<Input>(entity, Input as any);
+
+  const data = input.data.get(args.input);
+
+  if (data.type === InputType.TWODIM) {
+    actor.localMovementDirection.z = data.value[0];
+    actor.localMovementDirection.x = data.value[1];
+  } else if (data.type === InputType.THREEDIM) {
+    // TODO: check if this mapping correct
+    actor.localMovementDirection.z = data.value[2];
+    actor.localMovementDirection.x = data.value[0];
+  }
+};
+
+export const setLocalMovementDirection: Behavior = (entity, args: { z?: number; x?: number; y?: number }): void => {
+	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+	actor.localMovementDirection.z = args.z ?? actor.localMovementDirection.z;
+	actor.localMovementDirection.x = args.x ?? actor.localMovementDirection.x;
+	actor.localMovementDirection.y = args.y ?? actor.localMovementDirection.y;
+	actor.localMovementDirection.normalize();
+};
+
+
+const lookByInputAxis = (
+  entity: Entity,
+  args: {
+    input: InputAlias; // axis input to take values from
+    output: InputAlias; // look input to set values to
+    inputType: InputType; // type of value
+    multiplier: number; //
+  },
+  time: any
+): void => {
+  const input = getMutableComponent<Input>(entity, Input);
+  const data = input.data.get(args.input);
+  const multiplier = args.multiplier ?? 1;
+  // adding very small noise to trigger same value to be "changed"
+  // till axis values is not zero, look input should be treated as changed
+  const noiseX = (Math.random() > 0.5 ? 1 : -1 ) * 0.0000001;
+  const noiseY = (Math.random() > 0.5 ? 1 : -1 ) * 0.0000001;
+
+  if (data.type === InputType.TWODIM) {
+    const isEmpty = (Math.abs(data.value[0]) === 0 && Math.abs(data.value[1]) === 0);
+    // axis is set, transfer it into output and trigger changed
+    if (!isEmpty) {
+      input.data.set(args.output, {
+        type: data.type,
+        value: [
+          data.value[0] * multiplier + noiseX,
+          data.value[1] * multiplier + noiseY
+        ],
+        lifecycleState: LifecycleValue.CHANGED
+      });
+    }
+  } else if (data.type === InputType.THREEDIM) {
+    // TODO: check if this mapping correct
+    const isEmpty = (Math.abs(data.value[0]) === 0 && Math.abs(data.value[2]) === 0);
+    if (!isEmpty) {
+      input.data.set(args.output, {
+        type: data.type,
+        value: [
+          data.value[0] * multiplier + noiseX,
+          data.value[2] * multiplier + noiseY
+        ],
+        lifecycleState: LifecycleValue.CHANGED
+      });
+    }
+  }
+}
 
 export const CharacterInputSchema: InputSchema = {
   ...DefaultInputSchema,
@@ -434,4 +556,4 @@ export const CharacterInputSchema: InputSchema = {
       ]
     }
   }
-};
+}
