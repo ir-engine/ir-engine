@@ -20,6 +20,7 @@ import { Dispatch, Store } from 'redux';
 import { ThemeProvider } from "styled-components";
 import url from 'url';
 import './styles.scss';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 const config = getConfig().publicRuntimeConfig;
