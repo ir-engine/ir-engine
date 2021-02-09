@@ -11,6 +11,7 @@ import { getComponent } from "../../../src/ecs/functions/EntityFunctions";
 import { registerSystem } from "../../../src/ecs/functions/SystemFunctions";
 import { SystemUpdateType } from "../../../src/ecs/functions/SystemUpdateType";
 import { Input } from "../../../src/input/components/Input";
+import { BaseInput } from "../../../src/input/enums/BaseInput";
 import { InputType } from "../../../src/input/enums/InputType";
 import { Network } from "../../../src/networking//classes/Network";
 import * as initializeNetworkObjectModule from "../../../src/networking/functions/initializeNetworkObject";
@@ -23,7 +24,6 @@ import { StateSystem } from "../../../src/state/systems/StateSystem";
 import { CharacterStateTypes } from "../../../src/templates/character/CharacterStateTypes";
 import { CharacterComponent } from "../../../src/templates/character/components/CharacterComponent";
 import { DefaultNetworkSchema } from "../../../src/templates/networking/DefaultNetworkSchema";
-import { BaseInput } from "../../../src/templates/shared/BaseInput";
 import { createRemoteUserOnClient } from "../../_helpers/createRemoteUserOnClient";
 
 const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
@@ -149,6 +149,6 @@ describe("moving animations", () => {
             value: BinaryValue.ON
         });
         executeFrame();
-        expect(state.data.has(CharacterStateTypes.JUMP_RUNNING)).toBe(true);
+        expect(state.data.has(CharacterStateTypes.JUMP)).toBe(true);
     });
 });
