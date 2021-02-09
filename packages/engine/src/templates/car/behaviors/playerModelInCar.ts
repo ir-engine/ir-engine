@@ -1,3 +1,7 @@
+// TODO: Consolidate me!
+// Some of this should be in physics
+// Some should be in schema
+
 import { Matrix4, Vector3 } from 'three';
 import { FollowCameraComponent } from "@xr3ngine/engine/src/camera/components/FollowCameraComponent";
 import { InteractiveFocused } from "@xr3ngine/engine/src/interaction/components/InteractiveFocused";
@@ -7,7 +11,7 @@ import { addComponent, getComponent, getMutableComponent, hasComponent, removeCo
 import { LocalInputReceiver } from "@xr3ngine/engine/src/input/components/LocalInputReceiver";
 import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
 import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
-import { addState } from "@xr3ngine/engine/src/state/behaviors/addState";
+import { setState } from "@xr3ngine/engine/src/state/behaviors/addState";
 import { State } from "@xr3ngine/engine/src/state/components/State";
 import { setDropState } from "@xr3ngine/engine/src/templates/character/behaviors/setDropState";
 import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";
@@ -55,12 +59,6 @@ function setPlayerToPositionEnter(entity, transformCar, entrances) {
 
 
 function setPlayerToSeats(transform, transformCar, seat) {
-  const entrance = new Vector3(
-    seat[0],
-    seat[1]+0.2,
-    seat[2]+0.51
-  ).applyQuaternion(transformCar.rotation);
-
   transform.position.copy( transformCar.position );
   transform.rotation.copy( transformCar.rotation );
 }
@@ -71,7 +69,7 @@ export const playerModelInCar: Behavior = (entity: Entity, args: { type: string;
   const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
 
   if (args.phase === 'onAdded') {
-    addState(entity, {state: CharacterStateTypes.ENTERING_CAR});
+    setState(entity, {state: CharacterStateTypes.ENTERING_CAR});
     return;
   }
 
@@ -98,7 +96,7 @@ export const playerModelInCar: Behavior = (entity: Entity, args: { type: string;
 
     openCarDoorAnimation(vehicleComponent.vehicleDoorsArray[0], actor.timer, 2.1);
     if (actor.timer > 2.1) {
-      addState(entity, {state: CharacterStateTypes.DRIVING});
+      setState(entity, {state: CharacterStateTypes.DRIVING});
       return;
     }
 

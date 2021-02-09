@@ -1,7 +1,7 @@
 import { CharacterComponent } from '../components/CharacterComponent';
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { getComponent } from '../../../ecs/functions/EntityFunctions';
-import { addState } from "../../../state/behaviors/addState";
+import { setState } from "../../../state/behaviors/addState";
 import { getSignedAngleBetweenVectors } from '@xr3ngine/engine/src/common/functions/getSignedAngleBetweenVectors';
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 
@@ -12,16 +12,16 @@ export const setIdleState: Behavior = (entity) => {
     const angle = getSignedAngleBetweenVectors(character.orientation, character.orientationTarget);
 
     if (angle > Math.PI * 0.4) {
-      return addState(entity, { state: CharacterStateTypes.IDLE_ROTATE_LEFT });
+      return setState(entity, { state: CharacterStateTypes.IDLE_ROTATE_LEFT });
     }
     else if (angle < -Math.PI * 0.4) {
-      return addState(entity, { state: CharacterStateTypes.IDLE_ROTATE_RIGHT });
+      return setState(entity, { state: CharacterStateTypes.IDLE_ROTATE_RIGHT });
     }
     else {
-      return addState(entity, { state: CharacterStateTypes.IDLE });
+      return setState(entity, { state: CharacterStateTypes.DEFAULT });
     }
   }
   else {
-    return addState(entity, { state: CharacterStateTypes.IDLE });
+    return setState(entity, { state: CharacterStateTypes.DEFAULT });
   }
 };

@@ -1,22 +1,10 @@
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { Matrix4, MeshPhongMaterial, Vector3 } from 'three';
+import { MeshPhongMaterial, Vector3 } from 'three';
 import { GLTFLoader } from "../../assets/loaders/gltf/GLTFLoader";
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
-import { WebXRSession } from '../components/WebXRSession';
 import { XRControllersComponent } from '../components/XRControllersComponent';
 
-let container;
-
-let controller1, controller2;
-let controllerGrip1, controllerGrip2;
-
-let particularArray
-
-// eslint-disable-next-line prefer-const
-let raycaster, intersected = [];
-const tempMatrix = new Matrix4();
-
-let controls, group;
+let controllerGrip1, controllerGrip2, button;
 
 export function initControllersVR(actorEntity) {
   // controllers
@@ -88,61 +76,6 @@ export function initControllersVR(actorEntity) {
     })
 }
 
-
-function selectStart( event, n ) {
-
-
-	const currentIndex = []
-	const controllerPosition = new Vector3(
-		event.target.position.x,
-		event.target.position.y,
-		event.target.position.z
-	)
-/*
-	for (let i = 0; i < particularArray.length; i++) {
-
-    let diff = new Vector3().subVectors( particularArray[i].position, controllerPosition).length()
-		//console.log(diff);
-		if( diff < 30) {
-			currentIndex.push(i)
-		}
-	}
-	currentIndex.sort((a, b) => a - b)
-*/
-	//console.log(particularArray[currentIndex[0]]);
-/*
-	if (currentIndex.length > 0) {
-		if (!n) {
-			window.clothSimulatorApp.booleanNeed = true
-			window.clothSimulatorApp.currentIndexNeed = particularArray[currentIndex[0]]
-		} else {
-			window.clothSimulatorApp.booleanNeed2 = true
-			window.clothSimulatorApp.currentIndexNeed2 = particularArray[currentIndex[0]]
-		}
-	}
-  */
-//	window.clothSimulatorApp.memoryNeed
-}
-
-
-
-function onSelectEnd( event, n ) {
-
-}
-/*
-function getIntersections( controller ) {
-
-	tempMatrix.identity().extractRotation( controller.matrixWorld );
-
-	raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
-	raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
-
-	return raycaster.intersectObjectsVR( group.children );
-
-}
-*/
-let button
-
 export function initVR (actorEntity) {
 	if(!navigator || !(navigator as any).xr)
 		return console.warn("Not initializing WebXR on this platform because it is not supported");	
@@ -180,15 +113,13 @@ function showEnterVR(actorEntity, button ) {
 			const sessionInit = { optionalFeatures: [ 'local-floor', 'bounded-floor' ] };
 		//	var sessionInit = { optionalFeatures: [ "unbounded" ] };
 		//	var sessionInit = { optionalFeatures:  [ "local" ] };
-			(navigator as any).xr.requestSession( "immersive-vr", sessionInit ).then((session) => {
-        addComponent(actorEntity, WebXRSession, { session });
-				Engine.xrSession = session;
+		(navigator as any).xr.requestSession( "immersive-vr", sessionInit ).then((session) => {
+		Engine.xrSession = session;
         onSessionStarted(session)
         initControllersVR(actorEntity)
       });
 
 		} else {
-      removeComponent(actorEntity, WebXRSession);
       removeComponent(actorEntity, XRControllersComponent);
       Engine.xrSession.end();
 			Engine.xrSession = null;
@@ -196,24 +127,7 @@ function showEnterVR(actorEntity, button ) {
 		}
 	};
 }
-/*
-export function createWebGLContext() {
-  let webglCanvas = document.querySelector("canvas");
-  let contextTypes =  ['webgl2','webgl', 'experimental-webgl'];
-  let context = null;
-  for (let contextType of contextTypes) {
-    context = webglCanvas.getContext(contextType, { xrCompatible: true });
-    if (context) {
-      break;
-    }
-  }
-  if (!context) {
-    console.error('This browser does not support WebGL');
-    return null;
-  }
-  return context;
-}
-*/
+
 function disableButton() {
 	button.style.display = '';
 	button.style.cursor = 'auto';

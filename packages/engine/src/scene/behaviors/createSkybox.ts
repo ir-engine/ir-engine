@@ -4,7 +4,8 @@ import { CubeTexture, TextureLoader } from 'three';
 import { CubeRefractionMapping } from 'three';
 import { EquirectangularReflectionMapping } from 'three';
 import { Vector3 } from 'three';
-import { addObject3DComponent, getObject3D } from '../../common/behaviors/Object3DBehaviors';
+import { addObject3DComponent, getObject3D } from './addObject3DComponent';
+import { Object3DComponent } from '../components/Object3DComponent';
 import { isClient } from '../../common/functions/isClient';
 import { Engine } from '../../ecs/classes/Engine';
 import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
@@ -53,7 +54,8 @@ export default function createSkybox(entity, args: {
     addObject3DComponent(entity, { obj3d: Sky, objArgs: args.objArgs });
     addComponent(entity, ScaleComponent);
 
-    const skyboxObject3D = getObject3D(entity) as Sky; //Sky.generateEnvironmentMap()
+    const component = getComponent(entity, Object3DComponent);
+    const skyboxObject3D = component.value;
     const scaleComponent = getMutableComponent<ScaleComponent>(entity, ScaleComponent);
     scaleComponent.scale = [args.objArgs.distance, args.objArgs.distance, args.objArgs.distance];
     const uniforms = Sky.material.uniforms;
@@ -71,7 +73,7 @@ export default function createSkybox(entity, args: {
     uniforms.sunPosition.value = sun;
     Engine.csm && Engine.csm.lightDirection.set(-sun.x, -sun.y, -sun.z);
 
-    const skyboxTexture = skyboxObject3D.generateEnvironmentMap(renderer);
+    const skyboxTexture = (skyboxObject3D as any).generateEnvironmentMap(renderer);
 
     Engine.scene.background = skyboxTexture;
     Engine.scene.environment = skyboxTexture;

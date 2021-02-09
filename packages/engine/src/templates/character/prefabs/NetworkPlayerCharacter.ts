@@ -1,4 +1,4 @@
-import { addObject3DComponent } from "@xr3ngine/engine/src/common/behaviors/Object3DBehaviors";
+import { addObject3DComponent } from "@xr3ngine/engine/src/scene/behaviors/addObject3DComponent";
 import { LifecycleValue } from "@xr3ngine/engine/src/common/enums/LifecycleValue";
 import { isClient } from "@xr3ngine/engine/src/common/functions/isClient";
 import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
@@ -23,7 +23,7 @@ import { CollisionGroups } from "../../../physics/enums/CollisionGroups";
 import { PhysicsSystem } from "../../../physics/systems/PhysicsSystem";
 import { createShadow } from "../../../scene/behaviors/createShadow";
 import TeleportToSpawnPoint from '../../../scene/components/TeleportToSpawnPoint';
-import { addState } from "../../../state/behaviors/addState";
+import { setState } from "../../../state/behaviors/addState";
 import { State } from '../../../state/components/State';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
 import skeletonString from "../../../xr/Skeleton";
@@ -767,7 +767,7 @@ const initializeCharacter: Behavior = (entity): void => {
 
 	// Physics pre/post step callback bindings
 	// States
-	addState(entity, { state: CharacterStateTypes.IDLE });
+	setState(entity, { state: CharacterStateTypes.DEFAULT });
 	actor.initialized = true;
 
 	// };

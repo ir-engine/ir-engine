@@ -12,7 +12,7 @@ import { Engine } from './ecs/classes/Engine';
 import { execute, initialize } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
-import { HighlightSystem } from './effects/systems/EffectSystem';
+import { HighlightSystem } from './renderer/HighlightSystem';
 import { InputSystem } from './input/systems/ClientInputSystem';
 import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
 import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';

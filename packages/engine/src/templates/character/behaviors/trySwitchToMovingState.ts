@@ -1,7 +1,7 @@
 import { Vector3 } from "three";
 import { Entity } from '../../../ecs/classes/Entity';
 import { getComponent } from '../../../ecs/functions/EntityFunctions';
-import { addState } from "../../../state/behaviors/addState";
+import { setState } from "../../../state/behaviors/addState";
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { CharacterComponent } from '../components/CharacterComponent';
 
@@ -14,6 +14,6 @@ export const trySwitchToMovingState = (entity: Entity): boolean => {
 
   if (getComponent(entity, CharacterComponent).localMovementDirection.length() === 0 && localSpaceMovementVelocity.length() < 0.01) return false;
 
-  addState(entity, { state: CharacterStateTypes.IDLE });
+  setState(entity, { state: CharacterStateTypes.DEFAULT });
   return true;
 };

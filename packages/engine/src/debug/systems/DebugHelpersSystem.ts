@@ -6,7 +6,7 @@ import { Engine } from "../../ecs/classes/Engine";
 import { Entity } from "../../ecs/classes/Entity";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { BoundingBox } from "../../interaction/components/BoundingBox";
-import { Object3DComponent } from "../../common/components/Object3DComponent";
+import { Object3DComponent } from "../../scene/components/Object3DComponent";
 
 export class DebugHelpersSystem extends System {
   private helpersByEntity: Record<string, Map<Entity,Object3D>>;

@@ -1,6 +1,6 @@
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { getComponent } from '../../../ecs/functions/EntityFunctions';
-import { addState } from "../../../state/behaviors/addState";
+import { setState } from "../../../state/behaviors/addState";
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { CharacterComponent } from '../components/CharacterComponent';
 import { trySwitchToMovingState } from "./trySwitchToMovingState";
@@ -14,7 +14,7 @@ export const setDropState: Behavior = (entity, args = null, deltaTime) => {
 
   if (actor.groundImpactVelocity.y < -6)
   {
-    addState(entity, { state: CharacterStateTypes.DROP_ROLLING });
+    setState(entity, { state: CharacterStateTypes.DROP });
   } else if(getComponent(entity, CharacterComponent).localMovementDirection.length() > 0) {
     if (actor.groundImpactVelocity.y < -2) {
       trySwitchToMovingState(entity);
@@ -23,9 +23,9 @@ export const setDropState: Behavior = (entity, args = null, deltaTime) => {
   else
   {
     if (actor.groundImpactVelocity.y < -1) {
-      addState(entity, { state: CharacterStateTypes.DROP_IDLE });
+      setState(entity, { state: CharacterStateTypes.DROP });
     } else {
-      addState(entity, { state: CharacterStateTypes.IDLE });
+      setState(entity, { state: CharacterStateTypes.DEFAULT });
     }
   }
 };

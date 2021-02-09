@@ -21,7 +21,7 @@ import { RaycastResult } from "collision/RaycastResult";
 import { Body } from "cannon-es";
 import { CharacterComponent } from "../../../src/templates/character/components/CharacterComponent";
 import { Input } from "../../../src/input/components/Input";
-import { DefaultInput } from "../../../src/templates/shared/DefaultInput";
+import { BaseInput } from "../../../src/templates/shared/BaseInput";
 import { InputType } from "../../../src/input/enums/InputType";
 import { LifecycleValue } from "../../../src/common/enums/LifecycleValue";
 import { BinaryValue } from "../../../src/common/enums/BinaryValue";
@@ -135,24 +135,24 @@ describe("idle", () => {
   test("default idle", () => {
     execute(1, 1, SystemUpdateType.Fixed);
     const state = getComponent(player, State);
-    expect(state.data.has(CharacterStateTypes.IDLE)).toBe(true);
+    expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
   });
 
   test("stays idle", () => {
     // if actor stays on ground it should keep idle state all the time
     const state = getComponent(player, State);
-    expect(state.data.has(CharacterStateTypes.IDLE)).toBe(true);
+    expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
 
     for (let i=0;i<40;i++) {
       executeFrame();
-      expect(state.data.has(CharacterStateTypes.IDLE)).toBe(true);
+      expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
     }
   });
 
   test("switch to fall", () => {
     // check switch from idle to fall if there is no ground
     const state = getComponent(player, State);
-    expect(state.data.has(CharacterStateTypes.IDLE)).toBe(true);
+    expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
 
     actorHasFloor = false;
     executeFrame();
@@ -161,7 +161,7 @@ describe("idle", () => {
 
   test("switch to jump", () => {
     const input = getComponent(player, Input);
-    input.data.set(DefaultInput.JUMP, {
+    input.data.set(BaseInput.JUMP, {
       type: InputType.BUTTON,
       lifecycleState: LifecycleValue.STARTED,
       value: BinaryValue.ON
@@ -171,11 +171,11 @@ describe("idle", () => {
   });
 
   test("switch to moving", () => {
-    expect(state.data.has(CharacterStateTypes.IDLE)).toBe(true);
+    expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
 
     actor.localMovementDirection.set(1,0,1);
     executeFrame();
-    expect(state.data.has(CharacterStateTypes.MOVING)).toBe(true);
+    expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
   });
 });
 
@@ -187,17 +187,17 @@ describe("moving", () => {
 
   test("stays moving", () => {
     // if actor stays on ground it should keep idle state all the time
-    expect(state.data.has(CharacterStateTypes.MOVING)).toBe(true);
+    expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
 
     for (let i=0;i<40;i++) {
       actor.localMovementDirection.set(1,0,0); // to keep speed constant
       executeFrame();
-      expect(state.data.has(CharacterStateTypes.MOVING)).toBe(true);
+      expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
     }
   });
 
   test("switch to idle", () => {
-    expect(state.data.has(CharacterStateTypes.MOVING)).toBe(true);
+    expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
 
     actor.localMovementDirection.set(0,0,0);
     actor.actorCapsule.body.velocity.set(0,0,0);
@@ -206,12 +206,12 @@ describe("moving", () => {
     for (let i=0;i<40;i++) {
       executeFrame();
     }
-    expect(state.data.has(CharacterStateTypes.IDLE)).toBe(true);
+    expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
   });
 
   test("switch to fall", () => {
     // check switch from idle to fall if there is no ground
-    expect(state.data.has(CharacterStateTypes.MOVING)).toBe(true);
+    expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
 
     actorHasFloor = false;
     executeFrame();
@@ -220,7 +220,7 @@ describe("moving", () => {
 
   test("switch to jump", () => {
     const input = getComponent(player, Input);
-    input.data.set(DefaultInput.JUMP, {
+    input.data.set(BaseInput.JUMP, {
       type: InputType.BUTTON,
       lifecycleState: LifecycleValue.STARTED,
       value: BinaryValue.ON
@@ -256,7 +256,7 @@ describe("fall", () => {
 
   test("no switch to jump", () => {
     const input = getComponent(player, Input);
-    input.data.set(DefaultInput.JUMP, {
+    input.data.set(BaseInput.JUMP, {
       type: InputType.BUTTON,
       lifecycleState: LifecycleValue.STARTED,
       value: BinaryValue.ON
@@ -288,7 +288,7 @@ describe('fall hit the ground', () => {
     body.velocity.set(0,-3,0);
     actorHasFloor = true;
     executeFrame();
-    expect(state.data.has(CharacterStateTypes.DROP_IDLE)).toBe(true);
+    expect(state.data.has(CharacterStateTypes.DROP)).toBe(true);
   });
   test("landing: low velocity + moving = moving", () => {
     // check switch from idle to fall if there is no ground
@@ -298,10 +298,8 @@ describe('fall hit the ground', () => {
     actorHasFloor = true;
     executeFrame();
     // TODO: add check of MOVING state, for now just absence of drop or idle
-    expect(state.data.has(CharacterStateTypes.IDLE)).toBe(false);
-    expect(state.data.has(CharacterStateTypes.DROP_IDLE)).toBe(false);
-    expect(state.data.has(CharacterStateTypes.DROP_ROLLING)).toBe(false);
-    expect(state.data.has(CharacterStateTypes.DROP_RUNNING)).toBe(false);
+    expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(false);
+    expect(state.data.has(CharacterStateTypes.DROP)).toBe(false);
   });
   test("landing: high velocity - moving = drop rolling", () => {
     // check switch from idle to fall if there is no ground
@@ -310,7 +308,7 @@ describe('fall hit the ground', () => {
     executeFrame(); // apply velocity
     actorHasFloor = true;
     executeFrame(); // hit
-    expect(state.data.has(CharacterStateTypes.DROP_ROLLING)).toBe(true);
+    expect(state.data.has(CharacterStateTypes.DROP)).toBe(true);
   });
 
   test("landing: high velocity + moving = drop rolling", () => {
@@ -322,6 +320,6 @@ describe('fall hit the ground', () => {
     actorHasFloor = true;
     executeFrame(); // hit
     // TODO: add check of MOVING state, for now just absence of drop or idle
-    expect(state.data.has(CharacterStateTypes.DROP_ROLLING)).toBe(true);
+    expect(state.data.has(CharacterStateTypes.DROP)).toBe(true);
   });
 });

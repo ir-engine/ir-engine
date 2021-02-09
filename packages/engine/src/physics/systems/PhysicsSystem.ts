@@ -7,7 +7,7 @@ import { Body, ContactMaterial, Material, SAPBroadphase, Shape, Vec3, World } fr
 import debug from "cannon-es-debugger";
 import * as THREE from "three";
 import { Matrix4, Mesh, Quaternion, Vector3 } from 'three';
-import { Object3DComponent } from '../../common/components/Object3DComponent';
+import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { cannonFromThreeVector } from '../../common/functions/cannonFromThreeVector';
 import { getSignedAngleBetweenVectors } from '../../common/functions/getSignedAngleBetweenVectors';
 import { isClient } from '../../common/functions/isClient';

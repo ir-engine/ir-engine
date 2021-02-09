@@ -1,5 +1,5 @@
 import { AmbientLight } from "three";
-import { addObject3DComponent } from "../src/common/behaviors/Object3DBehaviors";
+import { addObject3DComponent } from "../src/scene/behaviors/addObject3DComponent";
 import { createPrefab } from "../src/common/functions/createPrefab";
 import { Prefab } from "../src/common/interfaces/Prefab";
 import { Component } from "../src/ecs/classes/Component";
