@@ -13,16 +13,13 @@ export const setCameraRelativeOrientationTarget: Behavior = (entity: Entity): vo
 
 	if (!hasComponent(entity, EnteringVehicle)) {
 		const moveVector = getCameraRelativeMovementVector(entity);
-        const camera = getComponent<FollowCameraComponent>(entity, FollowCameraComponent);
-        if(camera && (camera.mode === CameraModes.FirstPerson || camera.mode === CameraModes.ShoulderCam)) {
-            setOrientation(entity, { vector: actor.orientation });
-        } else {
-            if (moveVector.x === 0 && moveVector.y === 0 && moveVector.z === 0) {
-                setOrientation(entity, { vector: actor.orientation });
-            }
-            else {
-                setOrientation(entity, { vector: moveVector });
-            }
-        }
-	}
+    const camera = getComponent<FollowCameraComponent>(entity, FollowCameraComponent);
+    if(camera && (camera.mode === CameraModes.FirstPerson || camera.mode === CameraModes.ShoulderCam)) {
+      setOrientation(entity, { vector: actor.orientation });
+    } else if (moveVector.x === 0 && moveVector.y === 0 && moveVector.z === 0) {
+      setOrientation(entity, { vector: actor.orientation });
+    } else {
+      setOrientation(entity, { vector: moveVector });
+    }
+  }
 };

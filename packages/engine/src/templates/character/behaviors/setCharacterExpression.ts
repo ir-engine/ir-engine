@@ -24,6 +24,8 @@ export const setCharacterExpression: Behavior = (entity: Entity, args: any): voi
   const object: Object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent);
   const body = object.value?.getObjectByName("Body") as Mesh;
 
+  console.log(entity, args)
+
   if (!body?.isMesh) {
     return;
   }
