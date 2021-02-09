@@ -1,7 +1,7 @@
 import { MessageTypes } from '../../networking/enums/MessageTypes';
 import { NetworkSchema } from '../../networking/interfaces/NetworkSchema';
 import { NetworkPlayerCharacter } from '../character/prefabs/NetworkPlayerCharacter';
-import { NetworkVehicle } from '../car/prefabs/NetworkVehicle';
+import { NetworkVehicle } from '../vehicle/prefabs/NetworkVehicle';
 import { NetworkPrefab } from '../../networking/interfaces/NetworkPrefab';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 
