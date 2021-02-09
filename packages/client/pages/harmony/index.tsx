@@ -350,7 +350,7 @@ const HarmonyPage = observer((props: Props): any => {
         if (channelId !== activeAVChannelId) {
             await endVideoChat({});
             await leave();
-            await new Promise(resolve => setTimeout(() => resolve(), 1000));
+            await new Promise(resolve => setTimeout(() => resolve(null), 1000));
         }
         setActiveAVChannelId(channelId);
         if (instanceConnectionState.get('instanceProvisioned') !== true &&
@@ -373,7 +373,7 @@ const HarmonyPage = observer((props: Props): any => {
             console.log('called endVideoChat');
             await leave();
             console.log('Closed old connection');
-            await new Promise(resolve => setTimeout(() => resolve(), 1000));
+            await new Promise(resolve => setTimeout(() => resolve(null), 1000));
             console.log('Waited for state to update');
             forceStart = true;
         }
@@ -504,9 +504,11 @@ const HarmonyPage = observer((props: Props): any => {
                                 classNames({
                                     [styles['grid-item']]: true,
                                     [styles.single]: layerUsers.length === 1,
-                                    [styles['two-by-two']]: layerUsers.length > 1 && layerUsers.length < 5,
-                                    [styles['three-by-three']]: layerUsers.length > 4 && layerUsers.length < 10,
-                                    [styles['four-by-four']]: layerUsers.length > 9
+                                    [styles.two]: layerUsers.length === 2,
+                                    [styles.four]: layerUsers.length === 3 && layerUsers.length === 4,
+                                    [styles.six]: layerUsers.length === 5 && layerUsers.length === 6,
+                                    [styles.nine]: layerUsers.length >= 7 && layerUsers.length <= 9,
+                                    [styles.many]: layerUsers.length > 9
                                 })
                             }>
                                 <PartyParticipantWindow
@@ -519,9 +521,11 @@ const HarmonyPage = observer((props: Props): any => {
                                     classNames({
                                         [styles['grid-item']]: true,
                                         [styles.single]: layerUsers.length === 1,
-                                        [styles['two-by-two']]: layerUsers.length > 1 && layerUsers.length < 5,
-                                        [styles['three-by-three']]: layerUsers.length > 4 && layerUsers.length < 10,
-                                        [styles['four-by-four']]: layerUsers.length > 9
+                                        [styles.two]: layerUsers.length === 2,
+                                        [styles.four]: layerUsers.length === 3 && layerUsers.length === 4,
+                                        [styles.six]: layerUsers.length === 5 && layerUsers.length === 6,
+                                        [styles.nine]: layerUsers.length >= 7 && layerUsers.length <= 9,
+                                        [styles.many]: layerUsers.length > 9
                                     })
                                 }>
                                     <PartyParticipantWindow

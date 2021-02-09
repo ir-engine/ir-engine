@@ -242,6 +242,11 @@ $mobileControllButtonsSize: 3em;
         display: flex;
         flex-grow: 1;
     }
+
+    @media (max-width: 768px) {
+        width: 100%;
+        height: 66.6666%;
+    }
 }
 
 .drawerBox{
@@ -312,31 +317,46 @@ $mobileControllButtonsSize: 3em;
 
 .party-user-container {
     overflow-y: auto;
+    justify-content: space-around;
 
     .single {
         flex-grow: 0;
-        max-height: 100%;
+        height: 100%;
         max-width: 100%;
         flex-basis: 100%;
     }
 
-    .two-by-two {
+    .two {
         flex-grow: 0;
-        max-height: 50%;
+        height: 100%;
         max-width: 50%;
         flex-basis: 50%;
     }
 
-    .three-by-three {
+    .four {
         flex-grow: 0;
-        max-height: 33.3333%;
+        height: 50%;
         max-width: 33.3333%;
         flex-basis: 33.3333%;
     }
 
-    .four-by-four {
+    .six {
         flex-grow: 0;
-        max-height: 25%;
+        height: 50%;
+        max-width: 33.3333%;
+        flex-basis: 33.3333%;
+    }
+
+    .nine {
+        flex-grow: 0;
+        height: 33.3333%;
+        max-width: 33.3333%;
+        flex-basis: 33.3333%;
+    }
+
+    .many {
+        flex-grow: 0;
+        height: 25%;
         max-width: 25%;
         flex-basis: 25%;
     }

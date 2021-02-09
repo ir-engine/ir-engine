@@ -143,7 +143,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     }, [userHasInteracted]);
 
     useEffect(() => {
-        if ((selfUser?.user_setting?.spatialAudioEnabled === true || selfUser?.user_setting?.spatialAudioEnabled === 1) && audioRef.current != null) audioRef.current.volume = 0;
+        if (harmony !== true && (selfUser?.user_setting?.spatialAudioEnabled === true || selfUser?.user_setting?.spatialAudioEnabled === 1) && audioRef.current != null) audioRef.current.volume = 0;
         else if ((selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0) && PositionalAudioSystem.instance != null) audioRef.current.volume = volume / 100;
     }, [selfUser]);
 
@@ -188,7 +188,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                 setAudioProducerPaused(false);
             }
             // TODO: handle 3d audio switch on/off
-            if (selfUser?.user_setting?.spatialAudioEnabled === true || selfUser?.user_setting?.spatialAudioEnabled === 1) audioRef.current.volume = 0;
+            if (harmony !== true && (selfUser?.user_setting?.spatialAudioEnabled === true || selfUser?.user_setting?.spatialAudioEnabled === 1)) audioRef.current.volume = 0;
             if (selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0 && PositionalAudioSystem.instance != null) {
                 audioRef.current.volume = volume / 100;
                 PositionalAudioSystem.instance?.suspend();
@@ -387,7 +387,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                     }
                     {
                         audioStream && audioProducerPaused === false && audioProducerGlobalMute === false &&
-                        (selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0) &&
+                        (harmony === true || selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0) &&
                         <div className={styles['audio-slider']}>
                             {volume > 0 && <VolumeDown/>}
                             {volume === 0 && <VolumeMute/>}

@@ -36,28 +36,114 @@
         width: 100%;
 
         &:hover {
-            .user-controls {
-                display: none;
+            @media (min-width: 769px) {
+                .user-controls {
+                    display: flex !important;
+                }
             }
         }
 
         .video-wrapper {
             height: 100%;
             width: 100%;
+            border: 0;
             border-radius: 0;
+
+            video{
+                object-fit: contain;
+            }
 
             @media (min-width: 769px) {
                 &:hover {
-                    border: 1px solid rgba(255, 255, 255, 0.8);
+                    border: 0;
                     cursor: initial;
                 }
             }
         }
 
-        &:not(.no-video),
-        &:not(.video-paused) {
+        &:not(.no-video):not(.video-paused) {
             .video-wrapper {
                 background-image: none !important;
+            }
+        }
+
+        &.focused {
+            margin: 0;
+            flex: 1 1 auto;
+            height: 100%;
+            width: 100%;
+
+            .video-wrapper {
+                height: 100%;
+                width: 100%;
+                border: 0;
+                border-radius: 0;
+
+                video{
+                    object-fit: contain;
+                }
+            }
+
+            .user-controls {
+                position: absolute;
+                bottom: 0;
+                left: 50%;
+                padding: 10px;
+                background-color: black;
+                z-index: 100;
+                width: 150px;
+                margin-left: -75px;
+
+                @media (min-width: 769px) {
+                    display: none;
+                }
+
+                .controls {
+                    display: flex !important;
+                }
+
+                .username {
+                    text-align: center;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .user-controls {
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 100%;
+                    margin: 0 auto;
+                    padding: 10px;
+                    background-color: black;
+                    z-index: 100;
+                }
+            }
+        }
+
+        .user-controls {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            padding: 10px;
+            background-color: black;
+            z-index: 100;
+            width: 150px;
+            margin-left: -75px;
+
+            .controls {
+                display: flex !important;
+            }
+
+            .username {
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .user-controls {
+                display: none;
+                width: 50%;
             }
         }
     }
@@ -76,10 +162,6 @@
     }    
 
     .global-mute {
-        display: none;
-    }
-
-    .user-controls {
         display: none;
     }
 
@@ -177,6 +259,13 @@
         }
     }
 
+    &.self-user {
+        video {
+            transform: rotateY(180deg);
+            -webkit-transform:rotateY(180deg); /* Safari and Chrome */
+            -moz-transform:rotateY(180deg); /* Firefox */
+        }
+    }
 
     .user-controls {
         flex-direction: column;
