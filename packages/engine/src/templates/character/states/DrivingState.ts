@@ -24,9 +24,6 @@ export const DrivingState: StateSchemaValue = {componentProperties: [{
   onUpdate: [
     {
       behavior: updateCharacterState,
-      args: {
-        setCameraRelativeOrientationTarget: true
-      }
     }
   ]
 };

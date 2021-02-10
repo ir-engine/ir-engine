@@ -22,10 +22,7 @@ export const EnterVehicleState: StateSchemaValue = {
   ],
   onUpdate: [
     {
-      behavior: updateCharacterState,
-      args: {
-        setCameraRelativeOrientationTarget: true
-      }
+      behavior: updateCharacterState
     }
   ]
 };

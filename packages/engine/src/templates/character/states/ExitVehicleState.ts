@@ -21,10 +21,7 @@ export const ExitVehicleState: StateSchemaValue = {componentProperties: [{
   ],
   onUpdate: [
     {
-      behavior: updateCharacterState,
-      args: {
-        setCameraRelativeOrientationTarget: true
-      }
+      behavior: updateCharacterState
     }
   ]
 };

@@ -46,10 +46,7 @@ export const JumpState: StateSchemaValue = {componentProperties: [{
   ],
   onUpdate: [
     {
-      behavior: updateCharacterState,
-      args: {
-        setCameraRelativeOrientationTarget: true
-      }
+      behavior: updateCharacterState
     },
     { behavior: jumpRunning },
     // {

@@ -686,10 +686,7 @@ export const CharacterInputSchema: InputSchema = {
           }
         },
         {
-          behavior: updateCharacterState,
-          args: {
-            setCameraRelativeOrientationTarget: true
-          }
+          behavior: updateCharacterState
         }
       ],
     },
