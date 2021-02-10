@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import EmptyLayout from '@xr3ngine/client-core/components/ui/Layout/EmptyLayout';
+import { EmptyLayout }from '@xr3ngine/client-core/components/ui/Layout/EmptyLayout';
 import AdminConsole from '@xr3ngine/client-core/components/ui/Admin';
 import {doLoginAuto} from "@xr3ngine/client-core/redux/auth/service";
 
@@ -30,7 +30,7 @@ const AdminConsolePage = (props: Props) => {
   return (
       // <ThemeProvider theme={theme}>
         <EmptyLayout>
-            <style jsx global> {`
+            <style> {`
                 .adminPage {
                     height: 100%;
                 }

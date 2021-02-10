@@ -9,7 +9,6 @@ import {
   connectToInstanceServer,
   provisionInstanceServer
 } from '@xr3ngine/client-core/redux/instanceConnection/service';
-import { OpenLink } from '../ui/OpenLink';
 import { selectLocationState } from '@xr3ngine/client-core/redux/location/selector';
 import {
   getLocationByName
@@ -18,16 +17,14 @@ import { selectPartyState } from '@xr3ngine/client-core/redux/party/selector';
 import { setCurrentScene } from '@xr3ngine/client-core/redux/scenes/actions';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
-import { getComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { SocketWebRTCClientTransport } from '@xr3ngine/engine/src/networking/classes/SocketWebRTCClientTransport';
 import { joinWorld } from '@xr3ngine/engine/src/networking/functions/joinWorld';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { loadScene } from '@xr3ngine/engine/src/scene/functions/SceneLoading';
-import { loadActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/loadActorAvatar";
-import { setActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/setActorAvatar";
-import { CharacterAvatarComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterAvatarComponent';
+import { CharacterComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterComponent';
 import { DefaultNetworkSchema, PrefabType } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import dynamic from 'next/dynamic';
 import querystring from 'querystring';
@@ -40,15 +37,17 @@ import { selectAuthState } from '../../redux/auth/selector';
 import store from '../../redux/store';
 import { selectUserState } from '../../redux/user/selector';
 import { InteractableModal } from '../ui/InteractableModal';
-import LinearProgressComponent from '../ui/Loader';
+import LoadingScreen from '../ui/Loader';
 import MediaIconsBox from "../ui/MediaIconsBox";
+import { MobileGamepadProps } from "../ui/MobileGamepad/MobileGamepadProps";
 import NamePlate from '../ui/NamePlate';
 import NetworkDebug from '../ui/NetworkDebug/NetworkDebug';
+import { OpenLink } from '../ui/OpenLink';
 import TooltipContainer from '../ui/TooltipContainer';
 
 const goHome = () => window.location.href = window.location.origin;
-  
-const MobileGamepad = dynamic(() => import("../ui/MobileGamepad").then((mod) => mod.MobileGamepad), { ssr: false });
+
+const MobileGamepad = dynamic<MobileGamepadProps>(() => import("../ui/MobileGamepad").then((mod) => mod.MobileGamepad), { ssr: false });
 
 interface Props {
   setAppLoaded?: any,
@@ -110,7 +109,7 @@ export const EnginePage = (props: Props) => {
   const [userBanned, setUserBannedState] = useState(false);
   const [openLinkData, setOpenLinkData] = useState(null);
 
-  const [progressEntity, setProgressEntity] = useState('');
+  const [progressEntity, setProgressEntity] = useState(99);
   const [userHovered, setonUserHover] = useState(false);
   const [userId, setonUserId] = useState(null);
   const [position, setonUserPosition] = useState(null);
@@ -235,6 +234,7 @@ export const EnginePage = (props: Props) => {
   //all scene entities are loaded
   const onSceneLoaded = (event: CustomEvent): void => {
     if (event.detail.loaded) {
+      setProgressEntity(0);
       store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
       document.removeEventListener('scene-loaded', onSceneLoaded);
       setAppLoaded(true);
@@ -246,7 +246,7 @@ export const EnginePage = (props: Props) => {
 
   //started loading scene entities
   const onSceneLoadedEntity = (event: CustomEvent): void => {
-    setProgressEntity(event.detail.left);
+    setProgressEntity(event.detail.left || 0);
   };
 
   const onObjectHover = (event: CustomEvent): void => {
@@ -269,7 +269,7 @@ export const EnginePage = (props: Props) => {
         break;
       case 'infoBox':
       case 'mediaSource':
-        setInfoBoxData(event.detail.payload);
+        setModalData(event.detail.payload);
         setObjectActivated(true);
         break;
       default:
@@ -308,11 +308,13 @@ export const EnginePage = (props: Props) => {
         const networkUser = Object.values(Network.instance.networkObjects).find(networkUser => networkUser.ownerId === user.id
           && networkUser.prefabType === PrefabType.Player);
         if (networkUser) {
-          const changedAvatar = getComponent(networkUser.component.entity, CharacterAvatarComponent);
+          const changedAvatar = getComponent(networkUser.component.entity, CharacterComponent);
 
           if (user.avatarId !== changedAvatar.avatarId) {
-            setActorAvatar(networkUser.component.entity, { avatarId: user.avatarId });
-            loadActorAvatar(networkUser.component.entity);
+            const characterAvatar = getMutableComponent(networkUser.component.entity, CharacterComponent);
+            if (characterAvatar != null) characterAvatar.avatarId = user.avatarId;
+            // We can pull this from NetworkPlayerCharacter, but we probably don't want our state update here
+            // loadActorAvatar(networkUser.component.entity);
           }
         }
       }
@@ -338,7 +340,7 @@ export const EnginePage = (props: Props) => {
         </Snackbar>
 
       <NetworkDebug />
-      <LinearProgressComponent label={progressEntity} />
+      <LoadingScreen objectsToLoad={progressEntity} />
       <MediaIconsBox />
       { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
       {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}

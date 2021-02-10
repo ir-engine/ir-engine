@@ -11,8 +11,8 @@ import { connect } from 'react-redux';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
-import ResetPassword from '../Auth/ResetPassword';
-import VerifyEmail from '../Auth/VerifyEmail';
+import { ResetPassword } from '../Auth/ResetPassword';
+import { VerifyEmail } from '../Auth/VerifyEmail';
 import { User } from '@xr3ngine/common/interfaces/User';
 
 interface Props {

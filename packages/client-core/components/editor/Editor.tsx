@@ -67,34 +67,18 @@ import VolumetricNode from "@xr3ngine/engine/src/editor/nodes/VolumetricNode";
 import Renderer from "@xr3ngine/engine/src/editor/renderer/Renderer";
 import ThumbnailRenderer from "@xr3ngine/engine/src/editor/renderer/ThumbnailRenderer";
 import TransformGizmo from "@xr3ngine/engine/src/scene/classes/TransformGizmo";
-import LoadingCube from "@xr3ngine/engine/src/scene/classes/LoadingCube";
 import EventEmitter from "eventemitter3";
 import {
   AudioListener,
-
   Clock, Matrix4,
-
-
-
-
   PerspectiveCamera, PropertyBinding, Quaternion,
-
-
-
   Raycaster,
-
   Scene, Vector2,
   Vector3
 } from "three";
 import Api from "./Api";
 import AssetManifestSource from "./assets/AssetManifestSource";
 import { loadEnvironmentMap } from "./EnvironmentMap";
-
-
-
-
-
-
 
 
 const tempMatrix1 = new Matrix4();
@@ -274,7 +258,7 @@ export default class Editor extends EventEmitter {
 
     this.initializing = true;
 
-    const tasks = [rendererPromise, loadEnvironmentMap(), LoadingCube.load(), ErrorIcon.load(), TransformGizmo.load()];
+    const tasks = [rendererPromise, loadEnvironmentMap(), ErrorIcon.load(), TransformGizmo.load()];
 
     for (const NodeConstructor of this.nodeTypes) {
       tasks.push(NodeConstructor.load());

@@ -17,12 +17,21 @@ export default (app: Application): void => {
     paginate: app.get('paginate')
   };
 
-  // Initialize our service with any options it requires
+  
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const event = new ResolveMedia(options, app);
   event.docs = resolveMediaDocs;
   app.use('/resolve-media', event);
 
-  // Get our initialized service so that we can register hooks
+  /**
+   * Get our initialized service so that we can register hooks
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const service = app.service('resolve-media');
 
   service.hooks(hooks);

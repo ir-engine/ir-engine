@@ -1,12 +1,11 @@
-// @ts-nocheck
 import { CubeTextureLoader, RGBFormat } from "three";
 import { RethrownError } from "@xr3ngine/engine/src/editor/functions/errors";
-import negx from "./cubemap/negx.jpg";
-import negy from "./cubemap/negy.jpg";
-import negz from "./cubemap/negz.jpg";
-import posx from "./cubemap/posx.jpg";
-import posy from "./cubemap/posy.jpg";
-import posz from "./cubemap/posz.jpg";
+const negx = "/cubemap/negx.jpg";
+const negy = "/cubemap/negy.jpg";
+const negz = "/cubemap/negz.jpg";
+const posx = "/cubemap/posx.jpg";
+const posy = "/cubemap/posy.jpg";
+const posz = "/cubemap/posz.jpg";
 let cubeMapTexturePromise = null;
 export let environmentMap = null;
 export function loadEnvironmentMap() {

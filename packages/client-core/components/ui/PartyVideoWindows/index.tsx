@@ -6,11 +6,15 @@ import { observer } from 'mobx-react';
 import { selectAuthState } from "../../../redux/auth/selector";
 import { selectUserState } from "../../../redux/user/selector";
 import {connect} from "react-redux";
-import {Dispatch} from "redux";
+import {bindActionCreators, Dispatch} from "redux";
+import {
+  getLayerUsers
+} from "../../../redux/user/service";
 
 interface Props {
   authState?: any;
   userState?: any;
+  getLayerUsers?: any;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -21,12 +25,15 @@ const mapStateToProps = (state: any): any => {
 };
 
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({});
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
+  getLayerUsers: bindActionCreators(getLayerUsers, dispatch)
+});
 
 const PartyVideoWindows = observer((props: Props): JSX.Element => {
   const {
     authState,
-    userState
+    userState,
+    getLayerUsers
   } = props;
 
   const [displayedUsers, setDisplayedUsers] = useState([]);
@@ -34,9 +41,14 @@ const PartyVideoWindows = observer((props: Props): JSX.Element => {
   const layerUsers = userState.get('layerUsers') ?? [];
 
   useEffect(() => {
-    console.log('layerUsers updated');
     setDisplayedUsers(layerUsers.filter((user) => selfUser.partyId != null ? user.id !== selfUser.id && user.partyId === selfUser.partyId : user.id !== selfUser.id))
-  }, [userState]);
+  }, [layerUsers]);
+
+  useEffect(() => {
+    if (selfUser.instanceId != null && userState.get('layerUsersUpdateNeeded') === true) {
+      getLayerUsers();
+    }
+  }, [ userState]);
 
   return (
     <Grid className={ styles['party-user-container']} container direction="row" wrap="nowrap">

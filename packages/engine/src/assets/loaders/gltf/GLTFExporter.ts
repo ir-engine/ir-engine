@@ -790,7 +790,7 @@ class GLTFExporter {
     if (this.cachedData.meshes.has(cacheKey)) {
       return this.cachedData.meshes.get(cacheKey);
     }
-    let geometry = mesh.geometry;
+    const geometry = mesh.geometry;
     let mode;
     // Use the correct mode
     if (mesh.isLineSegments) {
@@ -802,14 +802,6 @@ class GLTFExporter {
     } else if (mesh.isPoints) {
       mode = WEBGL_CONSTANTS.POINTS;
     } else {
-      if (!geometry.isBufferGeometry) {
-        console.warn(
-          "GLTFExporter: Exporting THREE.Geometry will increase file size. Use BufferGeometry instead."
-        );
-        const geometryTemp = new BufferGeometry();
-        geometryTemp.fromGeometry(geometry);
-        geometry = geometryTemp;
-      }
       mode = mesh.material.wireframe
         ? WEBGL_CONSTANTS.LINES
         : WEBGL_CONSTANTS.TRIANGLES;

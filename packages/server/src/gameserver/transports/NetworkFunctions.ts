@@ -28,7 +28,7 @@ export async function getFreeSubdomain(gsIdentifier: string, subdomainNumber: nu
             gs_id: gsIdentifier
         });
 
-        await new Promise(resolve => setTimeout(async () => { resolve();}, 500));
+        await new Promise(resolve => setTimeout(async () => { resolve(true);}, 500));
 
         const newSubdomainResult = await transport.app.service('gameserver-subdomain-provision').find({
             query: {
@@ -47,7 +47,7 @@ export async function getFreeSubdomain(gsIdentifier: string, subdomainNumber: nu
             gs_id: gsIdentifier
         });
 
-        await new Promise(resolve => setTimeout(async () => { resolve();}, 500));
+        await new Promise(resolve => setTimeout(async () => { resolve(true);}, 500));
 
         const newSubdomainResult = await transport.app.service('gameserver-subdomain-provision').find({
             query: {

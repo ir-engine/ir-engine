@@ -63,7 +63,7 @@ export function connectToInstanceServer(channelType: string, channelId?: string)
       const locationState = getState().get('locations');
       const currentLocation = locationState.get('currentLocation').get('location');
       const sceneId = currentLocation.sceneId;
-      const videoActive = MediaStreamSystem !== null && MediaStreamSystem !== undefined && (MediaStreamSystem.camVideoProducer != null || MediaStreamSystem.camAudioProducer != null);
+      const videoActive = MediaStreamSystem !== null && MediaStreamSystem !== undefined && (MediaStreamSystem.instance?.camVideoProducer != null || MediaStreamSystem.instance?.camAudioProducer != null);
       // TODO: Disconnected 
       if (Network.instance !== undefined && Network.instance !== null) {
         await endVideoChat({ endConsumers: true });

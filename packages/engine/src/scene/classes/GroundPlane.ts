@@ -7,7 +7,7 @@ import {
 export default class GroundPlane extends Object3D {
   static _geometry = new CircleBufferGeometry(4000, 32);
   _receiveShadow: boolean;
-  mesh: Mesh<CircleBufferGeometry, MeshStandardMaterial>;
+  mesh: Mesh;
   constructor() {
     super();
     this._receiveShadow = true;
@@ -25,7 +25,7 @@ export default class GroundPlane extends Object3D {
     this.add(this.mesh);
   }
   get color() {
-    return this.mesh.material.color;
+    return (this.mesh.material as MeshStandardMaterial).color;
   }
   // @ts-ignore
   get receiveShadow() {

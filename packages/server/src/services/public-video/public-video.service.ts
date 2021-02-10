@@ -18,6 +18,11 @@ export default (app: Application): void => {
     multi: true
   };
 
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   app.use('/public-video', new PublicVideo(options, app));
 
   const service = app.service('public-video');

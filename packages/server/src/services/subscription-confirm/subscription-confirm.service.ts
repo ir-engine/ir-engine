@@ -17,6 +17,11 @@ export default (app: Application): any => {
     paginate: app.get('paginate')
   };
 
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const event = new SubscriptionConfirm(options, app);
   event.docs = subscriptionConfirmDocs;
   
@@ -24,6 +29,11 @@ export default (app: Application): any => {
     res.redirect(config.client.url);
   });
 
+  /**
+   * Get our initialized service so that we can register hooks
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const service = app.service('subscription-confirm');
 
   service.hooks(hooks);

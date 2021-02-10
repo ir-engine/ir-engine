@@ -16,6 +16,11 @@ export default (app: Application): any => {
     Model: createModel(app),
     paginate: app.get('paginate')
   };
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const event= new UserSettings(options, app);
   event.docs = userSettingsDocs;
   app.use('/user-settings', event);

@@ -162,20 +162,6 @@ const lightTheme = createMuiTheme({
         border: '2px solid #A8A8FF',
       }
     },
-    MuiLinearProgress:{
-      root:{
-        height: '34px',
-        backgroundColor:'#FFFFFF',
-        borderRadius: '8px',
-        '@media (max-width: 768px)': {
-          height: '16px',
-          borderRadius: '4px',
-        },
-      },
-      bar:{
-        borderRadius: 'inherit',
-      }
-    },
     MuiMenuItem:{
       root:{
         padding: '5px',

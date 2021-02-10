@@ -5,7 +5,6 @@ import createModel from '../../models/message.model';
 import hooks from './message.hooks';
 import messageDocs from './message.docs';
 
-// Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
     'message': Message & ServiceAddons<any>;
@@ -18,14 +17,32 @@ export default (app: Application): any => {
     paginate: app.get('paginate')
   };
   
+
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const event = new Message(options, app);
   event.docs = messageDocs;
   app.use('/message', event);
 
+  /**
+   * Get our initialized service so that we can register hooks
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const service = app.service('message');
 
   service.hooks(hooks);
 
+  /**
+   * A function which is used to create message 
+   * 
+   * @param data of new message 
+   * @returns {@Object} created message 
+   * @author Vyacheslav Solovjov
+   */
   service.publish('created', async (data): Promise<any> => {
     data.sender = await app.service('user').get(data.senderId);
     const channel = await app.service('channel').get(data.channelId);
@@ -75,6 +92,13 @@ export default (app: Application): any => {
     }));
   });
 
+  /**
+   * A function which used to remove single message 
+   * 
+   * @param data contains sender 
+   * @returns removed data 
+   * @author Vyacheslav Solovjov
+   */
   service.publish('removed', async (data): Promise<any> => {
     data.sender = await app.service('user').get(data.senderId);
     const channel = await app.service('channel').get(data.channelId);
@@ -124,6 +148,13 @@ export default (app: Application): any => {
     }));
   });
 
+  /**
+   * A function which is used to update mesasge 
+   * 
+   * @param data of updated message 
+   * @returns {@Object} updated message 
+   * @author Vyacheslav Solovjov
+   */
   service.publish('patched', async (data): Promise<any> => {
     data.sender = await app.service('user').get(data.senderId);
     const channel = await app.service('channel').get(data.channelId);

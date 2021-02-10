@@ -20,13 +20,20 @@ export default function (app: Application): void {
     multi: true
   };
 
-
-  // Initialize our service with any options it requires
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const event = new LocationType(options, app);
   event.docs = locationTypeDocs;
   app.use('/location-type', event );
 
-  // Get our initialized service so that we can register hooks
+   /**
+   * Get our initialized service so that we can register hooks
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const service = app.service('location-type');
 
   service.hooks(hooks);

@@ -16,11 +16,22 @@ export default (app: Application): any => {
     Model: createModel(app),
     paginate: app.get('paginate')
   };
+
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const event = new Tag(options, app);
   event.docs = tagDocs;
   
   app.use('/tag', event);
 
+  /**
+   * Get our initialized service so that we can register hooks
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const service = app.service('tag');
 
   service.hooks(hooks);

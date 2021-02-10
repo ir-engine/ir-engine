@@ -3,17 +3,17 @@ A data driven game engine, built on three.js
 
 ## Quickstart
 ```
-git clone https://github.com/xr3ngine/armada
+git clone https://github.com/xr3ngine/xr3ngine
 cd armada
-npm install
+yarn install
 cp .env.https .env
 
-// This will build the library and examples, and launch a server on https://localhost:8080
-// NOTE: ONLY works with HTTPS right now, http://localhost:8080 will not work
-npm run dev
+// This will build the library and examples, and launch a server on https://127.0.0.1:8080
+// NOTE: ONLY works with HTTPS right now, http://127.0.0.1:8080 will not work
+yarn run dev
 
 // To run the server, open another terminal window and run
-npm run dev-server
+yarn run dev-server
 ```
 
 ### What is a behavior?
@@ -156,8 +156,8 @@ A lot of things in games and spatial applications can be represented by **state*
 States define what something currently is. For example, the character could be jumping -- in which case you are likely to find the "jumping" state attached to the actor. Concretely, there is a jump() behavior mapped to the DefaultStateSchema.
 ```typescript
 const jump: Behavior = (entity: Entity): void => {
-  // Add the state to the entity (addState is also a behavior)
-  addState(entity, { state: DefaultStateTypes.JUMPING })
+  // Add the state to the entity (setState is also a behavior)
+  setState(entity, { state: DefaultStateTypes.JUMPING })
   actor = getMutableComponent(entity, CharacterComponent)
   // Set actor's jump time to 0 -- jump will end when t increments to jump length
   actor.jump.t = 0
@@ -277,15 +277,10 @@ Switching from player to car
 !!!! Sending a message
 !!!! Linking message type to behavior map
 
-# Installation
-```
-npm install @xr3ngine/armada
-```
-
 # How to use
 ```javascript
 import { World } from '../ecs/classes/World'
-import { initializeInput } from '@xr3ngine/armada'
+import { initializeInput } from '@xr3ngine/engine'
 
 const world = new World()
 

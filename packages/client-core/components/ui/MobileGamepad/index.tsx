@@ -4,12 +4,7 @@ import { GamepadButtons } from "@xr3ngine/engine/src/input/enums/GamepadButtons"
 import nipplejs from 'nipplejs';
 import React, { FunctionComponent, useEffect, useRef } from 'react';
 import styles from './MobileGamepad.module.scss';
-
-type MobileGamepadProps = {
-  hovered?: boolean | false;
-  layout?: string ;
-  onBoardingStep?: number | null;
-};
+import { MobileGamepadProps } from './MobileGamepadProps';
 
 export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered }: MobileGamepadProps) => {
   const leftContainer = useRef<HTMLDivElement>();

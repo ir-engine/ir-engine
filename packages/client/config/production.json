@@ -3,6 +3,7 @@
   "#Development": "for development config, fill config/default.json, and dont commit secrets to git",
   "host": "HOST",
   "port": "PORT",
+  "apiServerBuild": "https://dev.theoverlay.io",
   "authentication": {
     "secret": "AUTH_SECRET"
   }

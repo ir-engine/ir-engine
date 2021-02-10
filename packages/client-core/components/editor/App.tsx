@@ -1,18 +1,6 @@
 /* eslint-disable react/no-unused-state */
-import React, { Component } from "react";
-// import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import configs from "./configs";
-import GlobalStyle from "./GlobalStyle";
-import Loading from "./Loading";
-import Error from "./Error";
-// import { ApiContextProvider } from "./contexts/ApiContext";
 import dynamic from "next/dynamic";
-// import RedirectRoute from "./router/RedirectRoute";
-import ProjectsPage from "./projects/ProjectsPage";
-import CreateProjectPage from "./projects/CreateProjectPage";
-import { ThemeProvider } from "styled-components";
-import { Column } from "./layout/Flex";
-import theme from "./theme";
+import { Component } from "react";
 import Api from "./Api";
 const EditorContainer = dynamic(() =>
   import(/* webpackChunkName: "project-page", webpackPrefetch: true */ "./EditorContainer")

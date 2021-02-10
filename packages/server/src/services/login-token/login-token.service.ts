@@ -4,6 +4,7 @@ import { Application } from '../../declarations';
 import { LoginToken } from './login-token.class';
 import createModel from '../../models/login-token.model';
 import hooks from './login-token.hooks';
+import loginTokenDocs from "./login-token.docs";
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -18,10 +19,20 @@ export default (app: Application): any => {
     paginate: app.get('paginate')
   };
 
-  // Initialize our service with any options it requires
-  app.use('/login-token', new LoginToken(options, app));
+   /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
+  const event = new LoginToken(options, app);
+  event.docs = loginTokenDocs;
+  app.use('/login-token', event );
 
-  // Get our initialized service so that we can register hooks
+  /**
+   * Get our initialized service so that we can register hooks
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const service = app.service('login-token');
 
   service.hooks(hooks);

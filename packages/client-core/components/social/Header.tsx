@@ -1,17 +1,16 @@
-import React, { useLayoutEffect } from "react";
 import { useRouter } from "next/router";
-import { SearchBar} from "./SearchBar";
-import { HomeIcon} from "./icons/HomeIcon";
-import { DMIcon } from "./icons/DMIcon";
-import { ExploreIcon } from "./icons/ExploreIcon";
+import React from "react";
+import { Clickable } from "./Clickable";
+import { LoginUserHook } from "./GlobalHook";
 import { ActivityIcon } from "./icons/ActivityIcon";
-import { HomeIconActive} from "./icons/HomeIcon_active";
-import { DMIconActive } from "./icons/DMIcon_active";
-import { ExploreIconActive } from "./icons/ExploreIcon_active";
 import { ActivityIconActive } from "./icons/ActivityIcon_active";
-import { ProfilePic} from "./ProfilePic";
-import { Clickable }from "./Clickable";
-import { LoginUserHook} from "./GlobalHook";
+import { DMIcon } from "./icons/DMIcon";
+import { DMIconActive } from "./icons/DMIcon_active";
+import { ExploreIcon } from "./icons/ExploreIcon";
+import { ExploreIconActive } from "./icons/ExploreIcon_active";
+import { HomeIcon } from "./icons/HomeIcon";
+import { HomeIconActive } from "./icons/HomeIcon_active";
+import { ProfilePic } from "./ProfilePic";
 
 export function Header({
   user
@@ -53,7 +52,7 @@ export function Header({
           <h1 style={{textAlign: 'center'}}>ARC</h1>
           {/* <img src="../static/images/logo.png" className="header-logo" /> */}
         </Clickable>
-        <SearchBar />
+        {/* <SearchBar /> */}
         <div className="header-icons flex ml-auto items-center">
           <Clickable href="/">{home}</Clickable>
           <Clickable href="/messages">{messages}</Clickable>

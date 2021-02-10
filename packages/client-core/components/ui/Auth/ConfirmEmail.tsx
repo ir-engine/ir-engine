@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { resendVerificationEmail } from '../../../redux/auth/service';
 import { selectAuthState } from '../../../redux/auth/selector';
-import EmptyLayout from '../Layout/EmptyLayout';
+import { EmptyLayout }from '../Layout/EmptyLayout';
 import { IdentityProvider } from '@xr3ngine/common/interfaces/IdentityProvider';
 import styles from './Auth.module.scss';
 

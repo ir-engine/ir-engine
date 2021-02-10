@@ -1,8 +1,8 @@
-import { threeToCannon } from '@xr3ngine/engine/src/templates/world/three-to-cannon';
 import { Body, Box, ConvexPolyhedron, Cylinder, Plane, Quaternion, Sphere, Vec3 } from 'cannon-es';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { TransformComponent } from '../../transform/components/TransformComponent';
+import { threeToCannon } from '../classes/three-to-cannon';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { CollisionGroups } from "../enums/CollisionGroups";
 
@@ -152,7 +152,7 @@ export function createConvexGeometry (entity: Entity, mesh: any) {
   for (let j = 0; j < attributePosition.array.length; j += 3) {
     verts.push(new Vec3(attributePosition.array[j], attributePosition.array[j + 1], attributePosition.array[j + 2]));
   }
-  console.log(verts);
+  // console.log(verts);
   // Get faces
   for (let j = 0; j < object.geometry.index.array.length; j += 3) {
     faces.push([object.geometry.index.array[j], object.geometry.index.array[j + 1], object.geometry.index.array[j + 2]]);

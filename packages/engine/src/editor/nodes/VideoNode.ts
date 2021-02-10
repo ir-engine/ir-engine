@@ -80,7 +80,6 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     this.issues = [];
     this._mesh.visible = false;
     this.hideErrorIcon();
-    // this.showLoadingCube();
     if (this.editor.playing) {
       (this.el as any).pause();
     }

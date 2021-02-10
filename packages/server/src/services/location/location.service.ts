@@ -17,12 +17,21 @@ export default (app: Application): any => {
     paginate: app.get('paginate'),
     multi: true
   };
-
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const event = new Location(options, app);
   event.docs = locationDocs;
 
   app.use('/location', event);
 
+  /**
+   * Get our initialized service so that we can register hooks
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const service = app.service('location');
 
   service.hooks(hooks);

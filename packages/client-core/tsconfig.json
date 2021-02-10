@@ -29,5 +29,5 @@
   "include": [
     "next-env.d.ts",
     "./**/*.ts",
-    "./**/*.tsx", "../social/components/VolumetricPlayer.tsx"  ]
+    "./**/*.tsx"]
 }

@@ -1,3 +1,8 @@
+/**
+ * An object for swagger documentation configiration 
+ * 
+ * @author Kevin KIMENYI
+ */
 export default {
     definitions: {
         meta: {
@@ -11,4 +16,4 @@ export default {
             items: { $ref: '#/definitions/meta'}
         }
     }
-}
+};

@@ -1,7 +1,7 @@
 import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
 import { Network } from "@xr3ngine/engine/src/networking//classes/Network";
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
-import { CreateWebRtcTransportParams } from "@xr3ngine/engine/src/networking/types/NetworkingTypes";
+import { WebRtcTransportParams } from "@xr3ngine/engine/src/networking/types/WebRtcTransportParams";
 import { createWorker } from 'mediasoup';
 import { types as MediaSoupClientTypes } from "mediasoup-client";
 import { DataProducer, DataConsumer, DataProducerOptions, Producer, RtpCodecCapability, Transport, WebRtcTransport } from "mediasoup/lib/types";
@@ -169,7 +169,7 @@ export async function closeConsumer(consumer): Promise<void> {
     delete Network.instance.clients[consumer.appData.peerId]?.consumerLayers[consumer.id];
 }
 
-export async function createWebRtcTransport({ peerId, direction, sctpCapabilities, channelType, channelId }: CreateWebRtcTransportParams): Promise<WebRtcTransport> {
+export async function createWebRtcTransport({ peerId, direction, sctpCapabilities, channelType, channelId }: WebRtcTransportParams): Promise<WebRtcTransport> {
     networkTransport = Network.instance.transport as any;
     console.log("Creating Mediasoup transport for ", channelType, channelId);
     const { listenIps, initialAvailableOutgoingBitrate } = localConfig.mediasoup.webRtcTransport;
@@ -212,7 +212,7 @@ export async function createInternalDataConsumer(dataProducer: DataProducer, use
     return consumer;
 }
 
-export async function handleWebRtcTransportCreate(socket, data: CreateWebRtcTransportParams, callback): Promise<any> {
+export async function handleWebRtcTransportCreate(socket, data: WebRtcTransportParams, callback): Promise<any> {
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
     const { direction, peerId, sctpCapabilities, channelType, channelId } = Object.assign(data, { peerId: userId });
@@ -349,7 +349,7 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
     console.log('MediaStreamSystem.instance:');
     console.log(MediaStreamSystem.instance);
     console.log(MediaStreamSystem.instance.producers);
-    if(!MediaStreamSystem.instance?.producers) console.warn("Media stream producers is undefined")
+    if(!MediaStreamSystem.instance?.producers) console.warn("Media stream producers is undefined");
     MediaStreamSystem.instance?.producers?.push(producer);
 
     if (userId != null && Network.instance.clients[userId] != null) {

@@ -31,20 +31,25 @@ export class FollowCameraComponent extends Component<FollowCameraComponent> {
   offset: Vector3
   theta: number
   phi: number
+  shoulderSide: boolean
+  /** Whether the camera auto-rotates toward the target **Default** value is true. */
+  locked: boolean
 }
 
 FollowCameraComponent._schema = {
   mode: { type: Types.String, default: CameraModes.ThirdPerson },
   distance: { type: Types.Number, default: 3 },
-  minDistance: { type: Types.Number, default: 2 },
-  maxDistance: { type: Types.Number, default: 7 },
+  minDistance: { type: Types.Number, default: 1 },
+  maxDistance: { type: Types.Number, default: 10 },
   raycastBoxOn: { type: Types.Boolean, default: true },
   rx1: { type: Types.Number, default: -0.1 },
   ry1: { type: Types.Number, default: -0.1 },
   rx2: { type: Types.Number, default: 0.1 },
   ry2: { type: Types.Number, default: 0.1 },
   farDistance: { type: Types.Number, default: 5 },
-  offset: { type: Types.Vector3Type, default: new Vector3() },
+  offset: { type: Types.Vector3Type, default: new Vector3(0, 1, 0) },
   theta: { type: Types.Number, default: 0 },
   phi: { type: Types.Number, default: 0 },
+  shoulderSide: { type: Types.Boolean, default: true },
+  locked: { type: Types.Boolean, default: true },
 };

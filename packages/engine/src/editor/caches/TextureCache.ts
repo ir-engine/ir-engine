@@ -1,6 +1,17 @@
 import { TextureLoader } from "three";
-import Cache from "./Cache";
 import loadTexture from "../functions/loadTexture";
+
+class Cache {
+  _cache = new Map();
+  evict(url) {
+    const absoluteURL = new URL(url, (window as any).location).href;
+    this._cache.delete(absoluteURL);
+  }
+  _clear() {
+    this._cache.clear();
+  }
+}
+
 export default class TextureCache extends Cache {
   textureLoader: TextureLoader;
   constructor() {

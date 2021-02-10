@@ -27,5 +27,13 @@ export default {
             type: 'array',
             items: { $ref: '#/definitions/invite'}
         }
-    }
-}
+    },
+    securities: ['create', 'update', 'patch', 'remove'],
+    operations: {
+      find: {
+        security: [
+          { bearer: [] }
+        ]
+      }
+    } 
+};

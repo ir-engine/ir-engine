@@ -1,6 +1,6 @@
 import React from 'react';
 
-import GoogleCallback from '@xr3ngine/client-core/components/ui/Oauth/GoogleCallback';
+import { GoogleCallback } from '@xr3ngine/client-core/components/ui/Oauth/GoogleCallback';
 
 export const GoogleHomePage = () => <GoogleCallback />;
 

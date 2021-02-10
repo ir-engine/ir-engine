@@ -1,10 +1,10 @@
 import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
-import * as faceapi from "face-api.js";
 import { Behavior } from "../../common/interfaces/Behavior";
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { Input } from "../components/Input";
 import { CameraInput } from "../enums/CameraInput";
 import { InputType } from "../enums/InputType";
+import * as Comlink from 'comlink'
 
 const EXPRESSION_THRESHOLD = 0.1;
 
@@ -26,27 +26,75 @@ export const stopLipsyncTracking = () => {
 
 export const startFaceTracking: Behavior = (entity) => {
     console.log("**************** STARTING FACE TRACKING")
+
     const video = document.createElement('video');
     video.srcObject = MediaStreamSystem.instance.mediaStream;
-    Promise.all([
-        console.log("Start load detectors"),
-        faceapi.nets.tinyFaceDetector.loadFromUri('/facetracking'),
-        faceapi.nets.faceExpressionNet.loadFromUri('/facetracking')
-    ]).then(() => {
-        console.log("Face detectors loaded!");
+    
+    
+    initialiseWorker().then((worker) => {
         video.addEventListener('play', () => {
-            console.log("Video start playing");
-            // console.dir(video);
-            // Record input at 30 FPS for now
-            const interval = setInterval(async () => faceToInput(entity, video), 33);
+            const canvas = document.createElement('canvas')
+            canvas.width = video.videoWidth
+            canvas.height = video.videoHeight
+            const context = canvas.getContext('2d')
+            const interval = setInterval(async () => {
+                context.drawImage(video, 0, 0, canvas.width, canvas.height)
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height)
+                const pixels = imageData.data.buffer
+                //@ts-ignore
+                const detection = await worker.detect({ pixels, width: canvas.width, height: canvas.height })
+                faceToInput(detection, entity)
+            }, 33);
             faceTrackingTimers.push(interval);
-            console.log("*************** RUNNING FACE TRACKING")
         });
 
         video.muted = true;
         video.play();
     });
 };
+
+async function initialiseWorker () {
+    console.log("Start load detectors")
+    //@ts-ignore
+    const worker = Comlink.wrap(new Worker(new URL('./webcamInput.worker.ts', import.meta.url)));//, { type: 'module' }))
+    //@ts-ignore
+    await worker.initialise()
+    console.log("Finish load detectors")
+    return worker;
+}
+
+const nameToInputValue = {
+    angry: CameraInput.Angry,
+    disgusted: CameraInput.Disgusted,
+    fearful: CameraInput.Fearful,
+    happy: CameraInput.Happy,
+    neutral: CameraInput.Neutral,
+    sad: CameraInput.Sad,
+    surprised: CameraInput.Surprised
+};
+
+async function faceToInput(detection, entity) {
+
+    if (detection !== undefined && detection.expressions !== undefined) {
+        // console.log(detection.expressions);
+        const input = getMutableComponent(entity, Input);
+        for (const expression in detection.expressions) {
+            // If the detected value of the expression is more than 1/3rd-ish of total, record it
+            // This should allow up to 3 expressions but usually 1-2
+            const cameraInputKey = nameToInputValue[expression];
+            const inputKey = input.schema.cameraInputMap[cameraInputKey];
+            if (!inputKey) {
+                // skip if expression is not in schema
+                continue;
+            }
+            // set it on the map
+            input.data.set(inputKey, {
+                type: InputType.ONEDIM,
+                value: detection.expressions[expression] < EXPRESSION_THRESHOLD? 0 : detection.expressions[expression]
+            });
+        }
+    }
+}
 
 export const startLipsyncTracking: Behavior = (entity) => {
     lipsyncTracking = true;
@@ -149,43 +197,6 @@ export const startLipsyncTracking: Behavior = (entity) => {
             input.data.delete(nameToInputValue["open"]);
     };
 };
-
-const nameToInputValue = {
-    angry: CameraInput.Angry,
-    disgusted: CameraInput.Disgusted,
-    fearful: CameraInput.Fearful,
-    happy: CameraInput.Happy,
-    neutral: CameraInput.Neutral,
-    sad: CameraInput.Sad,
-    surprised: CameraInput.Surprised
-};
-const faceApiOptions = new faceapi.TinyFaceDetectorOptions();
-async function faceToInput(entity, video) {
-    const detection = await faceapi.detectSingleFace(video, faceApiOptions).withFaceExpressions();
-    // console.log("*************** detection", detection)
-
-    if (detection !== undefined && detection.expressions !== undefined) {
-        // console.log("EXPRESSIONS");
-        // console.log(detection.expressions);
-        const expressions = {};
-        const input = getMutableComponent(entity, Input);
-        for (const expression in detection.expressions) {
-            // If the detected value of the expression is more than 1/3rd-ish of total, record it
-            // This should allow up to 3 expressions but usually 1-2
-            const cameraInputKey = nameToInputValue[expression];
-            const inputKey = input.schema.cameraInputMap[cameraInputKey];
-            if (!inputKey) {
-                // skip if expression is not in schema
-                continue;
-            }
-            // set it on the map
-            input.data.set(inputKey, {
-                type: InputType.ONEDIM,
-                value: detection.expressions[expression] < EXPRESSION_THRESHOLD? 0 : detection.expressions[expression]
-            });
-        }
-    }
-}
 
 function getRMS(spectrum) {
     let rms = 0;

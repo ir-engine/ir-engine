@@ -1,4 +1,6 @@
+import { MathUtils, Matrix4 } from "three";
 import { createPseudoRandom } from "../../common/functions/MathRandomFunctions";
+import { ParticleEmitter, ParticleEmitterInterface } from "../interfaces";
 import {
   loadTexturePackerJSON,
   needsUpdate,
@@ -19,8 +21,6 @@ import {
   setVelocityScaleAt,
   setWorldAccelerationAt
 } from "./ParticleMesh";
-import { ParticleEmitterInterface, ParticleEmitter } from "../interfaces";
-import { Mesh, Geometry, MathUtils, Matrix4 } from "three";
 
 const error = console.error;
 const FRAME_STYLES = ["sequence", "randomsequence", "random"];
@@ -155,7 +155,7 @@ export function deleteParticleEmitter(emitter: ParticleEmitter): void {
   for(let i = emitter.startIndex; i <= emitter.mesh.userData.nextIndex; i++){
     copyEmitterAttrs(geometry, i, shiftAmount);
   }
-  console.log(geometry.attributes);
+  // console.log(geometry.attributes);
   emitter.mesh.userData.nextIndex -= shiftAmount;
   const arrayEmitter = Array.from(emitterRegistry);
   for(let i = 0; i < emitterRegistry.size; i++) {
