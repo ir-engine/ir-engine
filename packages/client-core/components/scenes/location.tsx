@@ -64,6 +64,7 @@ interface Props {
   connectToInstanceServer?: typeof connectToInstanceServer;
   provisionInstanceServer?: typeof provisionInstanceServer;
   setCurrentScene?: typeof setCurrentScene;
+  harmonyOpen?: boolean;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -100,7 +101,8 @@ export const EnginePage = (props: Props) => {
     provisionInstanceServer,
     setCurrentScene,
     setAppLoaded,
-    locationName
+    locationName,
+    harmonyOpen
   } = props;
   const currentUser = authState.get('user');
   const [hoveredLabel, setHoveredLabel] = useState('');
@@ -325,7 +327,7 @@ export const EnginePage = (props: Props) => {
   const mobileGamepadProps = { hovered: objectHovered, layout: 'default' };
   const mobileGamepad = isMobileOrTablet() ? <MobileGamepad {...mobileGamepadProps} /> : null;
 
-  return userBanned != true ? (
+  return userBanned !== true ? (
       <>
         {isValidLocation && <UserMenu />}
         <Snackbar open={!isValidLocation}
@@ -341,14 +343,14 @@ export const EnginePage = (props: Props) => {
 
       <NetworkDebug />
       <LoadingScreen objectsToLoad={progressEntity} />
-      <MediaIconsBox />
+      { harmonyOpen !== true && <MediaIconsBox /> }
       { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
       {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}
       <InteractableModal onClose={() => { setModalData(null); setObjectActivated(false); }} data={infoBoxData} />
       <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); }} data={openLinkData} />
       {mobileGamepad}
     </>
-  ) : (<div className="banned">You have been banned from this location</div>)
+  ) : (<div className="banned">You have been banned from this location</div>);
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(EnginePage);

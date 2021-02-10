@@ -72,11 +72,14 @@ $mobileControllButtonsSize: 3em;
     font-size: 2em;
 }
 
-.harmony-page {
+.harmony-component {
     display: flex;
     flex-grow: 1;
     min-height:0;
     height: 100%;
+    position: absolute;
+    width: 100%;
+    background-color: black;
 
     @media (max-width: 768px) {
         flex-direction: column;

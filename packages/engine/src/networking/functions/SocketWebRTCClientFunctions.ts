@@ -22,9 +22,11 @@ export async function createDataProducer(channel = "default", type = 'raw', cust
     // });
     dataProducer.on("transportclose", () => {
         Network.instance.dataProducers.delete(channel);
-        networkTransport.dataProducer.close();
+        if (channel === 'instance') networkTransport.instanceDataProducer?.close();
+        else networkTransport.channelDataProducer?.close();
     });
-    networkTransport.dataProducer = dataProducer;
+    if (channel === 'instance') networkTransport.instanceDataProducer = dataProducer;
+    else networkTransport.channelDataProducer = dataProducer;
     Network.instance.dataProducers.set(channel, networkTransport.dataProducer);
     return Promise.resolve(networkTransport.dataProducer);
 }
@@ -381,7 +383,7 @@ export async function createTransport(direction: string, channelType?: string, c
     return Promise.resolve(transport);
 }
 
-export async function leave(): Promise<boolean> {
+export async function leave(instance: boolean): Promise<boolean> {
     console.log('leave()');
     if (Network.instance?.transport != null) {
         console.log('Trying to leave ');
@@ -389,12 +391,14 @@ export async function leave(): Promise<boolean> {
             console.log(Network.instance.transport);
             networkTransport = Network.instance.transport as any;
             networkTransport.leaving = true;
+            const socket = instance === true ? networkTransport.instanceSocket : networkTransport.channelSocket;
+            const dataProducer = instance === true ? networkTransport.instanceDataTransport : networkTransport.channelDataTransport;
 
             if (networkTransport.request) {
                 // close everything on the server-side (transports, producers, consumers)
                 console.log('Sending leaveWorld');
-                if (networkTransport.dataProducer.closed !== true) {
-                    const result = await networkTransport.request(MessageTypes.LeaveWorld.toString());
+                if (dataProducer.closed !== true) {
+                    const result = await networkTransport.request(MessageTypes.LeaveWorld.toString(), 'instance');
                     if (result.error) console.error(result.error);
                 }
                 window.dispatchEvent(new CustomEvent('leaveWorld'));
@@ -420,8 +424,8 @@ export async function leave(): Promise<boolean> {
                 MediaStreamSystem.instance.consumers = [];
             }
 
-            if (networkTransport.socket && networkTransport.socket.close)
-                networkTransport.socket.close();
+            if (socket && socket.close)
+                socket.close();
 
             return true;
         } catch (err) {
