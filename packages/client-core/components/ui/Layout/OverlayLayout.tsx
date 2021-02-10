@@ -20,6 +20,7 @@ import Me from '../Me';
 import NavMenu from '../NavMenu';
 import PartyVideoWindows from '../PartyVideoWindows';
 import { ToastProvider } from 'react-toast-notifications';
+import { Success  } from "../Toast/successToast";
 
 const { publicRuntimeConfig } = getConfig();
 const siteTitle: string = publicRuntimeConfig.siteTitle;
@@ -83,7 +84,11 @@ const Layout = (props: Props): any => {
   //info about current mode to conditional render menus
 // TODO: Uncomment alerts when we can fix issues
   return (
-    <ToastProvider>
+  <ToastProvider
+   autoDismiss
+   autoDismissTimeout={6000}
+   components={{ Toast: Success }}
+  >
     <ThemeProvider theme={theme}>
     <section>
       <Head>
@@ -124,7 +129,7 @@ const Layout = (props: Props): any => {
       </footer>
     </section>
     </ThemeProvider>
-    </ToastProvider>
+  </ToastProvider>
 
   );
 };

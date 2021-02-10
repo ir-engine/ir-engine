@@ -141,8 +141,10 @@ export const EnginePage = (props: Props) => {
     setUserBannedState(selfUser?.locationBans?.find(ban => ban.locationId === locationId) != null);
     if (authState.get('isLoggedIn') === true && authState.get('user')?.id != null && authState.get('user')?.id.length > 0 && currentLocation.id == null && userBanned === false && locationState.get('fetchingCurrentLocation') !== true) {
       getLocationByName(locationName);
-      console.log(authState);
-  //    addToast('Saved Successfully', { appearance: 'success' });
+      
+      addToast(`User logged in as ${authState.get("user").userRole.toString()}`, { appearance: 'success' });
+      addToast("Something goes wrong", { appearance: 'error' });
+      addToast("Please wait for response", { appearance: 'warning' });
       if (sceneId === null) {
         sceneId = currentLocation.sceneId;
       }
