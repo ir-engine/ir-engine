@@ -8,8 +8,6 @@ import { MoreModalItems } from "@xr3ngine/client-core/components/social/more-mod
 
 // TODO: HANDLE
 import { LoginUserHook} from "@xr3ngine/client-core/components/social/GlobalHook";
-import { ThemeProvider } from "styled-components";
-import theme from "../theme";
 
 export default function Home() {
   const { data, setLoginUser } = LoginUserHook();
@@ -43,7 +41,6 @@ export default function Home() {
   }, []);
 
   return <>
-  <ThemeProvider theme={theme}>
     {loginData && (
       <Layout user={loginData}>
         {/* <MoreModalItems /> */}
@@ -57,7 +54,6 @@ export default function Home() {
         {/* <HomeRightBar data={suggestions} /> */}
       </Layout>
     )}
-    </ThemeProvider>
   </>
   ;
 }
