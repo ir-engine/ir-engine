@@ -19,65 +19,6 @@ import { NetworkClientInputInterface, NetworkInputInterface } from "../interface
 import { ClientInputModel } from '../schema/clientInputSchema';
 
 /**
- * Handle client updates.
- * @param buffer Client input interface buffer.
- */
-function handleUpdatesFromClients(buffer:any): void {
-  const clientInput: NetworkClientInputInterface = ClientInputModel.fromBuffer(buffer);
-
-  if (Network.instance.networkObjects[clientInput.networkId] === undefined) {
-    console.error('Network object not found for networkId', clientInput.networkId);
-    return;
-  }
-
-  const actor = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, CharacterComponent);
-  actor.viewVector.set(
-    clientInput.viewVector.x,
-    clientInput.viewVector.y,
-    clientInput.viewVector.z
-  );
-  //console.warn(clientInput.snapShotTime);
-  const networkObject = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, NetworkObject);
-  networkObject.snapShotTime = clientInput.snapShotTime;
-  // Get input component
-  const input = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, Input);
-  if (!input) {
-    return;
-  }
-
-  // Clear current data
-  input.data.clear();
-
-  // Apply button input
-  for (let i = 0; i < clientInput.buttons.length; i++)
-    input.data.set(clientInput.buttons[i].input,
-      {
-        type: InputType.BUTTON,
-        value: clientInput.buttons[i].value,
-        lifecycleState: clientInput.buttons[i].lifecycleState
-      });
-
-  // Axis 1D input
-  for (let i = 0; i < clientInput.axes1d.length; i++)
-    input.data.set(clientInput.axes1d[i].input,
-      {
-        type: InputType.ONEDIM,
-        value: clientInput.axes1d[i].value,
-        lifecycleState: clientInput.axes1d[i].lifecycleState
-      });
-
-  // Axis 2D input
-  for (let i = 0; i < clientInput.axes2d.length; i++)
-    input.data.set(clientInput.axes2d[i].input,
-      {
-        type: InputType.TWODIM,
-        value: clientInput.axes2d[i].value,
-        lifecycleState: clientInput.axes2d[i].lifecycleState
-      });
-
-}
-
-/**
  * Add input of an entity to world.
  * @param entity Entity from which inputs will be taken.
  */
@@ -91,7 +32,7 @@ const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
   const actor = getComponent(entity, CharacterComponent);
 
   // Create a schema for input to send
-  const inputs:NetworkInputInterface = {
+  const inputs: NetworkInputInterface = {
     networkId: networkId,
     buttons: [],
     axes1d: [],
@@ -149,7 +90,7 @@ export class ServerNetworkIncomingSystem extends System {
    * Constructs the system.
    * @param attributes Attributes to be passed to super class constructor.
    */
-  constructor(attributes: { schema: NetworkSchema, app:any }) {
+  constructor(attributes: { schema: NetworkSchema, app: any }) {
     super(attributes);
 
     const { schema, app } = attributes;
@@ -157,7 +98,7 @@ export class ServerNetworkIncomingSystem extends System {
     // Instantiate the provided transport (SocketWebRTCClientTransport / SocketWebRTCServerTransport by default)
     Network.instance.transport = new schema.transport(app);
     // Buffer model for worldState
-  //  Network.instance.snapshotModel = new Model(snapshotSchema)
+    //  Network.instance.snapshotModel = new Model(snapshotSchema)
 
     this.isServer = Network.instance.transport.isServer;
 
@@ -191,11 +132,64 @@ export class ServerNetworkIncomingSystem extends System {
     // Parse incoming message queue
     while (Network.instance.incomingMessageQueue.getBufferLength() > 0) {
       const buffer = Network.instance.incomingMessageQueue.pop() as any;
-      handleUpdatesFromClients(buffer);
+      const clientInput: NetworkClientInputInterface = ClientInputModel.fromBuffer(buffer);
+
+      if (Network.instance.networkObjects[clientInput.networkId] === undefined) {
+        console.error('Network object not found for networkId', clientInput.networkId);
+        return;
+      }
+
+      const actor = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, CharacterComponent);
+      actor.viewVector.set(
+        clientInput.viewVector.x,
+        clientInput.viewVector.y,
+        clientInput.viewVector.z
+      );
+      //console.warn(clientInput.snapShotTime);
+      const networkObject = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, NetworkObject);
+      networkObject.snapShotTime = clientInput.snapShotTime;
+      // Get input component
+      const input = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, Input);
+      if (!input) {
+        return;
+      }
+
+      // Clear current data
+      input.data.clear();
+
+      // Apply button input
+      for (let i = 0; i < clientInput.buttons.length; i++)
+        input.data.set(clientInput.buttons[i].input,
+          {
+            type: InputType.BUTTON,
+            value: clientInput.buttons[i].value,
+            lifecycleState: clientInput.buttons[i].lifecycleState
+          });
+
+      // Axis 1D input
+      for (let i = 0; i < clientInput.axes1d.length; i++)
+        input.data.set(clientInput.axes1d[i].input,
+          {
+            type: InputType.ONEDIM,
+            value: clientInput.axes1d[i].value,
+            lifecycleState: clientInput.axes1d[i].lifecycleState
+          });
+
+      // Axis 2D input
+      for (let i = 0; i < clientInput.axes2d.length; i++)
+        input.data.set(clientInput.axes2d[i].input,
+          {
+            type: InputType.TWODIM,
+            value: clientInput.axes2d[i].value,
+            lifecycleState: clientInput.axes2d[i].lifecycleState
+          });
+
+
+
       // Apply input for local user input onto client
       this.queryResults.networkObjectsWithInput.all?.forEach(entity => {
         // Call behaviors associated with input
-        handleInputFromNonLocalClients(entity, {isLocal: false, isServer: true}, delta);
+        handleInputFromNonLocalClients(entity, { isLocal: false, isServer: true }, delta);
         addInputToWorldStateOnServer(entity);
         const input = getMutableComponent(entity, Input);
 

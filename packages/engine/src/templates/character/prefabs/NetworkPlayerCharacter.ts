@@ -758,7 +758,7 @@ const initializeCharacter: Behavior = (entity): void => {
 	actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.rotationSimulator = new RelativeSpringSimulator(60, actor.defaultRotationSimulatorMass, actor.defaultRotationSimulatorDamping);
 
-	actor.viewVector = new Vector3();
+	if(actor.viewVector == null) actor.viewVector = new Vector3();
 
 	const transform = getComponent(entity, TransformComponent);
 
