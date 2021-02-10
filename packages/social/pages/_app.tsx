@@ -15,9 +15,9 @@ import querystring from 'querystring';
 import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { connect, Provider } from 'react-redux';
 import { Dispatch, Store } from 'redux';
-import { ThemeProvider } from "styled-components";
 import url from 'url';
 import './styles.scss';
+import { ThemeProvider } from '@material-ui/core';
 
 
 const config = getConfig().publicRuntimeConfig;

@@ -5,8 +5,10 @@ import { selectInstanceConnectionState } from '@xr3ngine/client-core/redux/insta
 import React from 'react';
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
+import { ThemeProvider } from "styled-components";
 
 import FlatSignIn from '@xr3ngine/client-core/components/social/Login';
+import theme from '../theme';
 
 interface Props {
     authState?: any;
@@ -33,7 +35,9 @@ export const IndexPage = (props: any): any => {
   // <Button className="right-bottom" variant="contained" color="secondary" aria-label="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }}>scene</Button>
 
   return(
+  <ThemeProvider theme={theme}>
     <FlatSignIn />
+    </ThemeProvider>
   );
 };
 

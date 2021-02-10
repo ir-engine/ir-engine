@@ -21,30 +21,35 @@ const lightTheme = createMuiTheme({
     },
   },
   typography: {
-    fontFamily: ["Roboto", "Helvetica", "Arial", "sans-serif"].join(','),
-    
+    fontFamily: ["Roboto", "Helvetica", "Arial", "sans-serif"].join(','),    
     fontSize: 14,
-      button: {
-        color: '#FFFFFF'        
-      },
+    button: {
+      color: '#FFFFFF'        
+    },
   },
   overrides: { 
     MuiTypography:{
+      
       h1:{
-        fontSize: 24,
+        fontSize: 28,
+        fontWeight: 'bold',
         margin: '15px 0px',
         display: 'flex',
-        alignItems: 'center',        
+        alignItems: 'center', 
+        color: '#000000',
+        '&.MuiTypography-colorSecondary':{
+          color: '#FFFFFF',
+        }
       },
       h2:{
         fontSize: 16,
-        fontWeight: 'bold',
         margin: '5px 0px',
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',  
+        color: '#000000',
         '&.MuiTypography-colorSecondary':{
-          color: '#FFD600',
+          color: '#FFFFFF',
         }
       },
       h3:{
@@ -53,9 +58,10 @@ const lightTheme = createMuiTheme({
         fontWeight: 'bold',
         cursor: 'pointer',
         display: 'flex',
-        alignItems: 'center',  
+        alignItems: 'center',
+        color: '#000000',  
         '&.MuiTypography-colorSecondary':{
-          color: '#FFD600',
+          color: '#FFFFFF',
         }
       },
       h4:{
@@ -168,7 +174,7 @@ const lightTheme = createMuiTheme({
         borderRadius: '8px',
         '@media (max-width: 768px)': {
           height: '16px',
-          borderRadius: '4px',
+          borderRadius: '10px',
         },
       },
       bar:{
@@ -322,7 +328,8 @@ const lightTheme = createMuiTheme({
         width: '220px',    
         margin: '10px auto',
         cursor: 'pointer',    
-        fontSize: 16,       
+        fontSize: 16,    
+        borderRadius: '10px',   
       },
       label: {
         textTransform: 'capitalize',
