@@ -8,18 +8,14 @@ import { Input } from '../../../input/components/Input';
 import { setState } from "../../../state/behaviors/setState";
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
-import { setFallingState } from "../behaviors/setFallingState";
 import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
-import { trySwitchToJump } from "../behaviors/trySwitchToJump";
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { AnimationConfigInterface, CharacterAvatars, defaultAvatarAnimations } from "../CharacterAvatars";
 import { CharacterStateTypes } from '../CharacterStateTypes';
-import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
 import { CharacterComponent, RUN_SPEED, RUN_START_SPEED, WALK_SPEED, WALK_START_SPEED } from '../components/CharacterComponent';
 
-const localSpaceMovementVelocity = new Vector3();
-
 const {
+    IDLE,
     WALK_FORWARD, WALK_BACKWARD, WALK_STRAFE_LEFT, WALK_STRAFE_RIGHT,
     RUN_FORWARD, RUN_BACKWARD, RUN_STRAFE_LEFT, RUN_STRAFE_RIGHT
 } = CharacterStateTypes;
@@ -101,7 +97,6 @@ const getMovingAnimationsByVelocity = (localSpaceVelocity: Vector3): Map<number,
                 timeScale *= -1;
             }
         }
-
         animations.set(animationId, { weight, timeScale });
     });
 
@@ -125,7 +120,7 @@ const setActorAnimationWeightScale: Behavior = (entity, args: { animationId: num
   // if actor model is not yet loaded mixer could be empty
   if (!actor.mixer) return;
 
-  const avatarId = getComponent(entity, CharacterAvatarComponent)?.avatarId;
+  const avatarId = getComponent(entity, CharacterComponent)?.avatarId;
   const avatarAnimations = CharacterAvatars.find(a => a.id === avatarId)?.animations ?? defaultAvatarAnimations;
   const avatarAnimation: AnimationConfigInterface = avatarAnimations[args.animationId];
 
@@ -216,6 +211,7 @@ export const MovingState: StateSchemaValue = {componentProperties: [{
       behavior: triggerActionIfMovementHasChanged,
       args: {
         action: (entity: Entity): void => {
+          console.log("MOVING STATE!");
           // Default behavior for all states
           // findVehicle(entity);
           const input = getComponent(entity, Input);
@@ -228,17 +224,19 @@ export const MovingState: StateSchemaValue = {componentProperties: [{
           }
 
           // Check if we're trying to jump
-          if (trySwitchToJump(entity)) {
-            return;
-          }
+          // TODO: This is commented out to prevent jumping
+          // if (trySwitchToJump(entity)) {
+          //   return;
+          // }
         }
       }
     },
     {
       behavior: (entity:Entity): void => {
-        console.log('update moving', getComponent(entity, CharacterComponent).localMovementDirection.length() > 0, localSpaceMovementVelocity.length().toFixed(5));
+        const actorVelocity = getComponent(entity, CharacterComponent).velocity;
+        // console.log('update moving', getComponent(entity, CharacterComponent).localMovementDirection.length() > 0, actorVelocity.length().toFixed(5));
 
-        const animations = getMovingAnimationsByVelocity(localSpaceMovementVelocity);
+        const animations = getMovingAnimationsByVelocity(actorVelocity);
         animations.forEach((value, animationId) => {
           setActorAnimationWeightScale(entity, {
             animationId,
@@ -246,13 +244,13 @@ export const MovingState: StateSchemaValue = {componentProperties: [{
             scale: value.timeScale
           });
         });
-        if (getComponent(entity, CharacterComponent).localMovementDirection.length() === 0 && localSpaceMovementVelocity.length() < 0.01) {
+        if (getComponent(entity, CharacterComponent).localMovementDirection.length() === 0 && actorVelocity.length() < 0.01) {
           setState(entity, { state: CharacterStateTypes.DEFAULT });
         }
       }
     },
-    {
-      behavior: setFallingState
-    }
+    // {
+    //   behavior: setFallingState
+    // }
   ]
 };

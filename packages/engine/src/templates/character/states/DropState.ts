@@ -15,7 +15,8 @@ export const DropRunningState: StateSchemaValue = {onEntry: [
     {
       behavior: initializeCharacterState,
       args: {
-        name: CharacterStateTypes.DROP,
+        // SHOULD BE DROP
+        animationId: CharacterStateTypes.DROP,
         transitionDuration: 0.1
       }
     }
@@ -45,7 +46,7 @@ export const DropRunningState: StateSchemaValue = {onEntry: [
     {
       behavior: onAnimationEnded,
       args: {
-        transitionToState: CharacterStateTypes.WALK
+        transitionToState: CharacterStateTypes.DEFAULT
       }
     }
   ]

@@ -13,7 +13,7 @@ const emptyVector = new Vector3();
 
 export const updateCharacterState: Behavior = (entity, args: { setCameraRelativeOrientationTarget?: boolean }, deltaTime: number): void => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-	if (!actor.initialized) return;
+	if (!actor.initialized) return console.warn("Actor no initialized");
 	actor.timer += deltaTime;
 	if (args.setCameraRelativeOrientationTarget || hasComponent(entity, EnteringVehicle)) return;
 

@@ -6,7 +6,7 @@ import { CharacterComponent } from '../components/CharacterComponent';
 
 export const onAnimationEnded: Behavior = (entity: Entity, args: { transitionToState: any }, deltaTime) => {
   const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
-  if(!actor.initialized) return;
+  if(!actor.initialized) return console.warn("Actor not initialized");
   if (actor.timer > actor.currentAnimationLength - deltaTime) {
   //  console.log('animation ended! (', actor.currentAnimationLength, ')', now(),', switch to ', args.transitionToState)
     setState(entity, { state: args.transitionToState });

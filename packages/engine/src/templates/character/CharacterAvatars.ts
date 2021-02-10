@@ -22,8 +22,6 @@ export interface AnimationConfigInterface {
 
 export const defaultAvatarAnimations: {[key:number]: AnimationConfigInterface} = {
   [CharacterStateTypes.IDLE]: { name: 'idle' },
-  [CharacterStateTypes.IDLE_ROTATE_RIGHT]: { name: 'turn_right' },
-  [CharacterStateTypes.IDLE_ROTATE_LEFT]: { name: 'left_turn' },
   [CharacterStateTypes.JUMP]: { name: 'jump_up', loop: LoopOnce },
   [CharacterStateTypes.FALLING]: { name: 'falling' },
   [CharacterStateTypes.FALLING_LONG]: { name: 'falling' },
