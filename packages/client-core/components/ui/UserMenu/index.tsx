@@ -1,26 +1,20 @@
-import { Button, Card, CardContent, Drawer, Snackbar, TextField, Typography } from '@material-ui/core';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import { Button, Snackbar, Typography } from '@material-ui/core';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
-import CachedIcon from '@material-ui/icons/Cached';
 import ClearIcon from '@material-ui/icons/Clear';
-import CreateIcon from '@material-ui/icons/Create';
 import DeleteIcon from '@material-ui/icons/Delete';
 import GitHubIcon from '@material-ui/icons/GitHub';
 import LinkIcon from '@material-ui/icons/Link';
 import MailIcon from '@material-ui/icons/Mail';
 import MeetingRoomIcon from '@material-ui/icons/MeetingRoom';
 import PersonIcon from '@material-ui/icons/Person';
-import PolicyIcon from '@material-ui/icons/Policy';
 import SettingsIcon from '@material-ui/icons/Settings';
 import SmsIcon from '@material-ui/icons/Sms';
-import ToysIcon from '@material-ui/icons/Toys';
 import VpnKeyIcon from '@material-ui/icons/VpnKey';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { endVideoChat, leave } from "@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions";
 import { loadActorAvatar } from '@xr3ngine/engine/src/templates/character/behaviors/loadActorAvatar';
 import { setActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/setActorAvatar";
-import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
 import getConfig from 'next/config';
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
@@ -38,33 +32,11 @@ import { FacebookIcon } from '../Icons/FacebookIcon';
 import { GoogleIcon } from '../Icons/GoogleIcon';
 import { LinkedInIcon } from '../Icons/LinkedInIcon';
 import { TwitterIcon } from '../Icons/TwitterIcon';
-import { LazyImage } from '../LazyImage';
 import UserSettings from '../Profile/UserSettings';
+import { Views, UserMenuProps } from './util';
 import styles from './style.module.scss';
-
-const Views = {
-  Closed: '',
-  Profile: 'profile',
-  Settings: 'settings',
-  Share: 'share',
-  DeleteAccount: 'accountDelete',
-  Login: 'login',
-  Account: 'account',
-  Avatar: 'avatar',
-}
-interface Props {
-  login?: boolean;
-  authState?: any;
-  instanceConnectionState?: any;
-  locationState?: any;
-  updateUsername?: typeof updateUsername;
-  updateUserAvatarId?: typeof updateUserAvatarId;
-  logoutUser?: typeof logoutUser;
-  showDialog?: typeof showDialog;
-  removeUser?: typeof removeUser;
-  currentScene?: any;
-  provisionInstanceServer?: any;
-}
+import ProfileMenu from './SettingMenu/ProfileMenu';
+import AvatarMenu from './SettingMenu/AvatarMenu';
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -85,7 +57,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
 });
 
-const UserMenu = (props: Props): any => {
+const UserMenu = (props: UserMenuProps): any => {
   const {
     authState,
     instanceConnectionState,
@@ -130,33 +102,9 @@ const UserMenu = (props: Props): any => {
 
   const [waitingForLogout, setWaitingForLogout] = useState(false);
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
-  const [currentActiveMenu, setCurrentActiveMenu] = useState('');
+  const [currentActiveMenu, setCurrentActiveMenu] = useState({} as any);
   const [actorEntity, setActorEntity] = useState(null);
   const [actorAvatarId, setActorAvatarId] = useState(selfUser?.avatarId);
-
-  const toggleMyProfile = (e) => {
-    e.preventDefault();
-    if (currentActiveMenu === Views.Profile)
-      return setCurrentActiveMenu(Views.Closed);
-
-    setCurrentActiveMenu(Views.Profile);
-  }
-
-  const toggleSettings = (e) => {
-    e.preventDefault();
-    if (currentActiveMenu === Views.Settings)
-      return setCurrentActiveMenu(Views.Closed);
-
-    setCurrentActiveMenu(Views.Settings);
-  }
-
-  const toggleSharing = (e) => {
-    e.preventDefault();
-    if (currentActiveMenu === Views.Share)
-      return setCurrentActiveMenu(Views.Closed);
-
-    setCurrentActiveMenu(Views.Share);
-  }
 
   const copyCodeToClipboard = () => {
     refLink.current.select();
@@ -249,14 +197,6 @@ const UserMenu = (props: Props): any => {
   }, []);
 
   useEffect(() => {
-    if (actorEntity && actorAvatarId) {
-      setActorAvatar(actorEntity, { avatarId: actorAvatarId });
-      loadActorAvatar(actorEntity);
-      updateUserAvatarId(selfUser.id, actorAvatarId);
-    }
-  }, [actorEntity, actorAvatarId]);
-
-  useEffect(() => {
     selfUser && setUsername(selfUser.name);
   }, [selfUser]);
 
@@ -266,23 +206,6 @@ const UserMenu = (props: Props): any => {
       location.reload();
     }
   }, [authState]);
-
-  const renderAvatarSelectionPage = () => <>
-    <Typography variant="h1"><ArrowBackIosIcon onClick={() => setDrawerType(Views.Closed)} focusable={true} />Select Avatar</Typography>
-    <section className={styles.avatarCountainer}>
-      {CharacterAvatars.map(characterAvatar =>
-        <Card key={characterAvatar.id} className={styles.avatarPreviewWrapper}>
-          <CardContent onClick={() => setActorAvatarId(characterAvatar.id)} >
-            <LazyImage
-              key={characterAvatar.id}
-              src={'/static/' + characterAvatar.id.toLocaleLowerCase() + '.png'}
-              alt={characterAvatar.title}
-            />
-          </CardContent>
-        </Card>
-      )}
-    </section>
-  </>;
 
   const renderDeviceSetupPage = () => <>
     <Typography variant="h1"><ArrowBackIosIcon onClick={() => setDrawerType(Views.Closed)} />Device Setup</Typography>
@@ -384,96 +307,89 @@ const UserMenu = (props: Props): any => {
     }
   };
 
-  const renderUserProfilePage = () => <>
-    <section className={styles.userTitle}>
-      <AccountCircleIcon color="primary" className={styles.userPreview} />
-      <section className={styles.userTitleLine}>
-        <span className={styles.userTitle}>
-          {isEditUsername ?
-            <TextField
-              variant="standard"
-              color="secondary"
-              margin="normal"
-              required
-              fullWidth
-              id="username"
-              label='Username'
-              name="username"
-              autoFocus
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-            : selfUser?.name}
-          {isEditUsername ?
-            <CachedIcon color="secondary" onClick={handleUpdateUsername} /> :
-            <CreateIcon color="primary" onClick={handleShowEditUsername} />}
-        </span>
-        <span className={styles.userTitleRole}>{selfUser?.userRole}</span>
-      </section>
-    </section>
-    {renderWorldInfoHorizontalItems()}
-    <Button variant="outlined" color="secondary" onClick={handleAvatarChangeClick}>Change Avatar</Button>
-    <section className={styles.socialSection}>
-      {selfUser?.userRole === 'guest' ?
-        <>
-          <Typography variant="h2" align="center">Connect An Social For Social Features</Typography>
-          <Button variant="outlined" color="primary" onClick={handleLogin}>Login</Button>
-          <Button variant="contained" color="primary">Create Account</Button>
-        </> :
-        <>
-          {selfUser && selfUser.identityProviders &&
-            <>
-              <Typography variant="h2" align="center">Public Social Accounts</Typography>
-              {selfUser.identityProviders.map(provider =>
-                <Typography variant="h3">
-                  {renderProviderIcon(provider.type)}
-                  {provider.token}
-                </Typography>)
-              }
-            </>}
-          <Button variant="outlined" color="primary" onClick={handleAccountSettings}>Account Settings</Button>
-        </>}
-    </section>
-    <section className={styles.placeholder} />
-    <Typography variant="h2" align="left" onClick={handleDeviceSetupClick}><SettingsIcon color="primary" /> Settings</Typography>
-    <Typography variant="h2" align="left"><ToysIcon color="primary" /> About</Typography>
-    <Typography variant="h2" align="left"><PolicyIcon color="primary" /> Privacy & Terms</Typography>
-    {renderSuccessMessage()}
-  </>;
+  const menus = [
+    { id: Views.Profile, iconNode: PersonIcon },
+    { id: Views.Settings, iconNode: SettingsIcon },
+    { id: Views.Share, iconNode: LinkIcon },
+  ];
 
-  const renderDrawerContent = () => {
-    switch (drawerType) {
-      case Views.Profile: return renderUserProfilePage();
-      case Views.Avatar: return renderAvatarSelectionPage();
+  const menuPanel = {
+    [Views.Profile]: ProfileMenu,
+    [Views.Settings]: null,
+    [Views.Share]: null,
+    [Views.Avatar]: AvatarMenu,
+  };
+
+  const setAvatar = (avatarId: string) => {
+    setActorAvatar(actorEntity, { avatarId });
+    loadActorAvatar(actorEntity);
+    updateUserAvatarId(selfUser.id, avatarId);
+  }
+
+  const setActiveMenu = (e): void => {
+    const identity = e.currentTarget.id.split('_');
+    setCurrentActiveMenu(
+      currentActiveMenu && currentActiveMenu.id === identity[0]
+        ? null
+        : menus[identity[1]]
+    );
+  }
+
+  const openAvatarMenu = () => {
+    setCurrentActiveMenu({ id: Views.Avatar });
+  }
+
+  const renderMenuPanel = () => {
+    if (!currentActiveMenu) return null;
+
+    let args = {};
+    switch (currentActiveMenu.id) {
+      case Views.Profile: 
+        args = {
+          user: selfUser,
+          setUsername: (e) => {
+            setUsername(e.target.value);
+          },
+          openAvatarMenu,
+        };
+        break;
+      case Views.Avatar:
+        args = { setAvatar };
+        break;
       case Views.Settings: return renderDeviceSetupPage();
       case Views.Login: return renderLoginPage();
       case Views.Account: return renderAccountPage();
       case Views.DeleteAccount: return renderAccountDeletePage();
       case Views.Share: return renderSharePage();
-      default: return (() => { });
+      default: return null;
     }
+
+    const Panel = menuPanel[currentActiveMenu.id];
+
+    return <Panel {...args} />
   };
 
   return (
     <>
-      <section key={anchor} className={styles.anchorContainer}>
-        <span className={styles.anchorDrawer} onClick={toggleDrawer(anchor, isOpenDrawer === true ? false : true)} />
-        <Drawer
-          anchor={anchor}
-          open={state[anchor]}
-          onClose={toggleDrawer(anchor, false)}
-          className={styles.drawer}
-          BackdropProps={{ invisible: true, open: false }}
-          {...(state[anchor] && { variant: "permanent" })}
-        >
-          {renderDrawerContent()}
-        </Drawer>
+      <section className={styles.settingContainer}>
+        <div className={styles.iconContainer}>
+          {menus.map((menu, index) => {
+            return (
+              <span
+                key={index}
+                id={menu.id + '_' + index}
+                onClick={setActiveMenu}
+                className={`${styles.materialIconBlock} ${currentActiveMenu && currentActiveMenu.id === menu.id ? styles.activeMenu : null}`}
+              >
+                <menu.iconNode className={styles.icon} />
+              </span>
+            )
+          })}
+        </div>
+        {currentActiveMenu
+          ? renderMenuPanel()
+          : null}
       </section>
-      <div className={styles.iconContainer}>
-        <span className={styles.navButton}><PersonIcon onClick={toggleMyProfile} /></span>
-        <span className={styles.navButton}><SettingsIcon onClick={toggleSettings} /></span>
-        <span className={styles.navButton}><LinkIcon onClick={toggleSharing} /></span>
-      </div>
     </>
   );
 };

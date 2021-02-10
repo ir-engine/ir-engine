@@ -30,22 +30,6 @@
         margin: 30px 0 0 0;
     }
 }    
-.avatarCountainer{
-    display: flex;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    height: auto;
-    .avatarPreviewWrapper{
-        width: 46%;
-        cursor: pointer;
-        margin: 2%;    
-        flex-grow: 0; 
-        .avatarPreview{
-            width: 100%;
-            height: 100%;
-        }
-    }
-}
 
 .deleteAccountButtons {
     display: flex;
@@ -146,5 +130,243 @@
         flex-grow: 1;
         display: flex;
         align-items: center;
+    }
+}
+
+.primary {
+    background: #5F5FF1;
+}
+.primaryForeground {
+    color: #5F5FF1;
+}
+
+.settingContainer {
+    position: fixed;
+    bottom: 25px;
+    width: 100vw;
+
+    .materialIconBlock {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        svg{
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    .iconContainer {
+        display: flex;
+        border-radius: 5px;
+        background: #00000050;
+        width: 150px;
+        margin: auto;
+
+        .materialIconBlock {
+            padding: 15px;
+
+            svg{
+                opacity: 0.4;
+            }
+
+            &:hover {
+                cursor: pointer;
+
+                svg {
+                    opacity: 1;
+                    color: #A8A8FF;
+                }
+            }
+        }
+        .materialIconBlock.activeMenu {
+            color: #A8A8FF;
+        }
+    }
+
+    .menuPanel {
+        position: absolute;
+        bottom: 75px;
+        padding: 30px;
+        border-radius: 5px;
+        background: #ffffffe8;
+        width: calc(100% - 50px);
+        left: 50%;
+        transform: translateX(-50%);
+        box-shadow: 16px 16px 32px 0px #11111159;
+        color: black;
+
+        .profilePanel {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+
+            .avatarBlock {
+                margin-top: 25px;
+
+                .avatarImg {
+                    width: 130px;
+                    height: 130px;
+                    box-shadow: 0px 2px 18px 0px #11111159;
+                    border-radius: 5px; 
+                    margin: auto;
+                    background: white;
+
+                    img {
+                        width: 100%;
+                        height: 100%;
+                        display: block;
+                    }
+                }
+
+                .avatarBtn {
+                    margin: 15px auto 30px auto;
+                    display: block;
+                    width: 130px;
+                    background: #5F5FF1;
+
+                    &:hover {
+                        opacity: 0.8;
+                        background: #5F5FF1;
+                    }
+                }
+            }
+
+            .headerBlock {
+                display: flex;
+                justify-content: center;
+                margin-top: 15px;
+                
+                h1 {
+                    font-family: 'Roboto';
+                    font-weight: 700;
+                    font-size: 24px;
+                }
+
+                .materialIconBlock {
+                    margin-left: 20px;
+                    width: 24px;
+                    flex-shrink: 0;
+                    flex-grow: 0;
+
+                    &:hover {
+                        opacity: 0.8
+                    }
+                }
+
+                :global(.MuiFormLabel-root), :global(.MuiInputBase-input) {
+                    color: black;
+                }
+            }
+
+            .accountBlock {
+                h2 {
+                    font-family: 'Roboto';
+                    font-size: 16px;
+                    text-align: center;
+
+                    span {
+                        text-transform: capitalize;
+                        font-weight: 700;
+                    }
+                }
+                .createAccountBtn {
+                    margin: 15px auto 0px auto;
+                    display: block;
+                    width: 130px;
+                    background: #5F5FF1;
+
+                    &:hover {
+                        opacity: 0.8;
+                        background: #5F5FF1;
+                    }
+                }
+            }
+        }
+
+        @media screen and (min-width: 768px) {
+            width: 600px;
+            padding: 30px 50px;
+            min-height: 208px;
+
+            .profilePanel {
+                padding-left: 150px;
+
+                .avatarBlock {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    margin-top: 0;
+
+                    .avatarImg {
+                        width: 100px;
+                        height: 100px;
+                    }
+
+                    .avatarBtn {
+                        width: 100px;
+                        font-size: 12px;
+                        margin-bottom: 0;
+                    }
+                }
+
+                .headerBlock {
+                    justify-content: space-between;
+                }
+
+                .accountBlock {
+                    margin-top: 30px;
+                    text-align: center;
+
+                    h2 {
+                        display: inline-block;
+                        vertical-align: middle;
+                    }
+
+                    .createAccountBtn {
+                        display: inline-block;
+                        margin: 0;
+                        margin-left: 20px;
+                    }
+                }
+            }            
+        }
+    }
+
+    .avatarPanel {
+        position: absolute;
+        bottom: 75px;
+        padding: 20px;
+        border-radius: 5px;
+        background: #ffffffe8;
+        width: 170px;
+        right: 100px;
+        box-shadow: 16px 16px 32px 0px #11111159;
+        color: black;
+
+        .avatarCountainer{
+            display: flex;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            height: auto;
+
+            .avatarPreviewWrapper{
+                width: 130px;
+                cursor: pointer;
+                margin: 5px;    
+                flex-grow: 0;
+                background: white;
+                box-shadow: 0px 2px 18px 0px #11111159;
+
+                .avatarPreview{
+                    width: 100%;
+                    height: 100%;
+                }
+            }
+        }
+
+        @media screen and (min-width: 768px) {
+            width: 320px;
+        }
     }
 }
