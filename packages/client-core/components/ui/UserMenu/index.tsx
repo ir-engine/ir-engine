@@ -20,7 +20,7 @@ import { getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFu
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { endVideoChat, leave } from "@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions";
 import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
-import { CharacterAvatarComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterAvatarComponent';
+import { CharacterComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterComponent';
 import getConfig from 'next/config';
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
@@ -205,7 +205,7 @@ const UserMenu = (props: Props): any => {
 
   useEffect(() => {
     if (actorEntity && actorAvatarId) {
-      const characterAvatar = getMutableComponent(actorEntity, CharacterAvatarComponent);
+      const characterAvatar = getMutableComponent(actorEntity, CharacterComponent);
       if (characterAvatar != null) characterAvatar.avatarId = actorAvatarId;
       // We can pull this from NetworkPlayerCharacter, but we probably don't want our state update here
       // loadActorAvatar(actorEntity);
