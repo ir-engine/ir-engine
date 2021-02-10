@@ -8,6 +8,11 @@ interface Data {}
 interface MediaType { [key: string]: { Handler: any; mediaType: string; modelId: string} }
 
 interface ServiceOptions {}
+/**
+ * A class for Resolve Media service 
+ * 
+ * @author Vyacheslav Solovjov
+ */
 
 export class ResolveMedia implements ServiceMethods<Data> {
   app: Application

@@ -22,7 +22,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   alertCancel: bindActionCreators(alertCancel, dispatch)
 });
 
-const Alerts = (props: Props): any => {
+const AlertsComponent = (props: Props): any => {
   const { alert, alertCancel } = props;
 
   const handleClose = (e: any): void => {
@@ -52,6 +52,6 @@ const Alerts = (props: Props): any => {
   );
 };
 
-const AlertsWrapper = (props: any): any => <Alerts {...props} />;
+const AlertsWrapper = (props: any): any => <AlertsComponent {...props} />;
 
-export default connect(mapStateToProps, mapDispatchToProps)(AlertsWrapper);
+export const Alerts = connect(mapStateToProps, mapDispatchToProps)(AlertsWrapper);

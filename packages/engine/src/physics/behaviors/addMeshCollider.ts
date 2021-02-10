@@ -7,8 +7,3 @@ export const addMeshCollider: Behavior = (entity: Entity, args: any) => {
   addComponent(entity, ColliderComponent, args);
   return entity;
 };
-
-export const removeMeshCollider: Behavior = (entity: Entity) => {
-  removeComponent(entity, ColliderComponent);
-  return entity;
-};

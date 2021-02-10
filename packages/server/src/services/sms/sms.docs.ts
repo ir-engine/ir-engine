@@ -1,3 +1,8 @@
+/**
+ * An object for swagger documentation configiration 
+ * 
+ * @author Kevin KIMENYI
+ */
 export default {
     definitions: {
         sms: {
@@ -16,4 +21,4 @@ export default {
             items: { $ref: '#/definitions/sms' }
         }
     }
-}
+};

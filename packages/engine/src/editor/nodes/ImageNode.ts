@@ -59,7 +59,6 @@ export default class ImageNode extends EditorNodeMixin(Image) {
     this.issues = [];
     this._mesh.visible = false;
     this.hideErrorIcon();
-    this.showLoadingCube();
     try {
       const { accessibleUrl } = await this.editor.api.resolveMedia(src);
       await super.load(accessibleUrl);

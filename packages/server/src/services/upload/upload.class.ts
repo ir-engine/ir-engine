@@ -5,6 +5,11 @@ interface Data {}
 
 interface ServiceOptions {}
 
+/**
+ * A class for Upload service 
+ * 
+ * @author Vyacheslav Solovjov
+ */
 export class Upload implements ServiceMethods<Data> {
   app: Application
   options: ServiceOptions

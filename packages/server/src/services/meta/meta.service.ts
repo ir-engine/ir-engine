@@ -14,11 +14,21 @@ declare module '../../declarations' {
 export default (app: Application): void => {
   const options = {};
 
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const event = new Meta(options, app);
   event.docs = metaDocs;
 
   app.use('/meta', event);
 
+  /**
+   * Get our initialized service so that we can register hooks
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const service = app.service('meta');
 
   service.hooks(hooks);

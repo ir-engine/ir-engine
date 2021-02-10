@@ -19,12 +19,20 @@ export default function (app: Application): void {
     paginate: app.get('paginate')
   };
 
-  // Initialize our service with any options it requires
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const event = new LocationAdmin(options, app);
   event.docs = locationAdminDocs;
   app.use('/location-admin', event);
 
-  // Get our initialized service so that we can register hooks
+  /**
+   * Get our initialized service so that we can register hooks
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const service = app.service('location-admin');
 
   service.hooks(hooks);

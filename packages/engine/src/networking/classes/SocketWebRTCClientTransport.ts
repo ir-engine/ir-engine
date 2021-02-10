@@ -12,7 +12,7 @@ import store from "@xr3ngine/client-core/redux/store";
 import { createDataProducer, endVideoChat, initReceiveTransport, initSendTransport, leave, subscribeToTrack } from "../functions/SocketWebRTCClientFunctions";
 
 const { publicRuntimeConfig } = getConfig();
-const gameserver = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.gameserver : 'https://localhost:3030';
+const gameserver = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.gameserver : 'https://127.0.0.1:3030';
 const Device = mediasoupClient.Device;
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
@@ -164,15 +164,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         console.log("Client has been kicked from the world");
       });
 
-      function toArrayBuffer(buf) {
-        const ab = new ArrayBuffer(buf.length);
-        const view = new Uint8Array(ab);
-        for (let i = 0; i < buf.length; ++i) {
-            view[i] = buf[i];
-        }
-        return ab;
-    }
-
       // Get information for how to consume data from server and init a data consumer
       this.socket.on(MessageTypes.WebRTCConsumeData.toString(), async (options) => {
         console.log("WebRTC consume data called");
@@ -196,8 +187,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       this.socket.on(MessageTypes.WebRTCCreateProducer.toString(), async (socketId, mediaTag, producerId, channelType, channelId) => {
         const selfProducerIds = [
-          MediaStreamSystem.camVideoProducer?.id,
-          MediaStreamSystem.camAudioProducer?.id
+          MediaStreamSystem.instance?.camVideoProducer?.id,
+          MediaStreamSystem.instance?.camAudioProducer?.id
         ];
         if (
           // (MediaStreamSystem.mediaStream !== null) &&
@@ -214,7 +205,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       });
 
       this.socket.on(MessageTypes.WebRTCCloseConsumer.toString(), async (consumerId) => {
-        if (MediaStreamSystem) MediaStreamSystem.instance?.consumers = MediaStreamSystem.instance?.consumers.filter((c) => c.id !== consumerId);
+        if (MediaStreamSystem.instance) MediaStreamSystem.instance.consumers = MediaStreamSystem.instance?.consumers.filter((c) => c.id !== consumerId);
       });
 
 

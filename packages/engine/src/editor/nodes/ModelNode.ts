@@ -125,7 +125,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       this.model = null;
     }
     this.hideErrorIcon();
-    // this.showLoadingCube();
     try {
       console.log("Try");
 

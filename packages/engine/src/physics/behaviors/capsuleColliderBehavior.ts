@@ -13,8 +13,8 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
 
       if (isClient && hasComponent(entity, LocalInputReceiver) && hasComponent(entity, NetworkObject)) {
 
-        const actor = getComponent<CharacterComponent>(entity, CharacterComponent)
-        const networkObject = getComponent<NetworkObject>(entity, NetworkObject)
+        const actor = getComponent(entity, CharacterComponent)
+        const networkObject = getComponent(entity, NetworkObject)
         const correction = args.clientSnapshot.correction;
 
         args.clientSnapshot.new.push({
@@ -29,7 +29,6 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
            })
 
         let offsetX = 0, offsetY = 0, offsetZ = 0;
-        const offsetqX = 0, offsetqY = 0, offsetqZ = 0, offsetqW = 0;
 
         if (args.clientSnapshot.old && args.clientSnapshot.interpolationSnapshot) {
          const clientSnapshotPos = args.clientSnapshot.old.state.find(v => v.networkId == networkObject.networkId);

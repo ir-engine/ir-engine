@@ -4,7 +4,7 @@ import { localMediaConstraints } from '../constants/VideoConstants';
 
 /** System class for media streaming. */
 export class MediaStreamSystem extends System {
-  public static instance = null;
+  @observable public static instance = null;
 
   /** Whether the video is paused or not. */
   @observable public videoPaused = false
@@ -207,7 +207,7 @@ export class MediaStreamSystem extends System {
    */
   static removeVideoAudio (consumer: any): void {
     document.querySelectorAll(consumer.id).forEach(v => {
-      if (v.consumer === consumer) v.parentNode.removeChild(v);
+      if (v.consumer === consumer) v?.parentNode.removeChild(v);
     });
   }
 

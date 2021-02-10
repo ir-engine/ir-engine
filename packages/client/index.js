@@ -24,7 +24,7 @@ app.prepare().then(() => {
       }
     }).listen(3000, err => {
       if (err) throw err;
-      console.log('Client ready on https://localhost:3000');
+      console.log('Client ready on https://127.0.0.1:3000');
     });
   } else {
     http.createServer((req, res) => {
@@ -36,7 +36,7 @@ app.prepare().then(() => {
       }
     }).listen(3000, err => {
       if (err) throw err;
-      console.log('Client ready on http://localhost:3000')
+      console.log('Client ready on http://127.0.0.1:3000')
     })
   }
 });

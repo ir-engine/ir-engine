@@ -1,10 +1,11 @@
 import React from "react";
-import { Layout} from "@xr3ngine/client-core/components/social/Layout";
+import { Header } from "@xr3ngine/client-core/components/social//Header";
 
 export default function Activity() {
   return (
-    <Layout>
+    <div className="container">
+      <Header user={null} />
       <div>Activity</div>
-    </Layout>
+    </div>
   );
 }

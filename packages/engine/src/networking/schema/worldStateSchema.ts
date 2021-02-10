@@ -1,6 +1,6 @@
-import { float32, Model, Schema, SchemaObject, string, uint32, uint8 } from "superbuffer";
-import { PacketWorldState, WorldStateInterface } from "../interfaces/WorldState";
+import { float32, Model, Schema, string, uint32, uint8 } from "superbuffer";
 import { Network } from '../classes/Network';
+import { WorldStateInterface } from "../interfaces/WorldState";
 
 const inputKeySchema = new Schema({
   input: uint8,
@@ -89,15 +89,6 @@ const worldStateSchema = new Schema({
     tick: uint32,
     transforms: [transformSchema]
 });
-
-function toArrayBuffer(buf) {
-  const ab = new ArrayBuffer(buf.length);
-  const view = new Uint8Array(ab);
-  for (let i = 0; i < buf.length; ++i) {
-      view[i] = buf[i];
-  }
-  return ab;
-}
 
 // TODO: convert WorldStateInterface to PacketReadyWorldState in toBuffer and back in fromBuffer
 /** Class for holding world state. */

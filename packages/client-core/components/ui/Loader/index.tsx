@@ -1,45 +1,46 @@
-import React from 'react';
-import styles from './style.module.scss';
-import { selectAppOnBoardingStep } from '../../../redux/app/selector';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { generalStateList } from '../../../redux/app/actions';
-import { selectScenesCurrentScene } from '../../../redux/scenes/selector';
-import Loader from './OrbitLoader';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import { selectAppOnBoardingStep } from '../../../redux/app/selector';
+import { selectCurrentScene } from '../../../redux/scenes/selector';
+import Loader from './SquareLoader';
+import styles from './style.module.scss';
 interface Props {
-  label?: string;
+  objectsToLoad?: number;
   onBoardingStep?: number;
   currentScene?: any;
 }
 
 const mapStateToProps = (state: any): any => {
-  return {   
-    onBoardingStep : selectAppOnBoardingStep(state),
-    currentScene : selectScenesCurrentScene(state),
+  return {
+    onBoardingStep: selectAppOnBoardingStep(state),
+    currentScene: selectCurrentScene(state),
   };
 };
 
-const LinearProgressComponent = (props: Props) => {
-  const{ onBoardingStep, label, currentScene} = props;
-  let showProgressBar = null;
-  if(onBoardingStep === generalStateList.START_STATE){
-    showProgressBar = true;
-  }else{
-    const hideLinearProgress = setTimeout(() => {showProgressBar = false; clearTimeout(hideLinearProgress);}, 1000);
-  }
-  const count = parseInt(label) || null;
+const LoadingScreen = (props: Props) => {
+  const { onBoardingStep, objectsToLoad, currentScene } = props;
+  const [showProgressBar, setShowProgressBar] = useState(true);
+  const [showEntering, setShowEntering] = useState(false);
+
+  useEffect(() => {
+
+    if (onBoardingStep === generalStateList.START_STATE) {
+      setShowProgressBar(true);
+    } else if (showProgressBar && !showEntering) {
+      setShowEntering(true);
+          setTimeout(() => { setShowProgressBar(false) }, 1500);
+    }
+  }, [onBoardingStep, objectsToLoad])
+
   return showProgressBar === true ? <>
-  <Loader />
-    <section className={styles.overlay} style={{backgroundImage: `url(${currentScene?.thumbnailUrl})`}}>
+    <Loader />
+    <section className={styles.overlay} style={{ backgroundImage: `url(${currentScene?.thumbnailUrl})` }}>
       <section className={styles.linearProgressContainer}>
-          <p className={styles.loadingProgressTile}>
-            <span>Loading...</span>
-            {/* {count && count > 0 && (<span className={styles.loadingProgressInfo}>{count} object{count > 1 && 's'} remaining</span>)} */}
-          </p>
-          <LinearProgress className={styles.linearProgress} />                  
-          {count && count > 0 && (<p className={styles.loadingProgressInfo}>{count} object{count > 1 && 's'} remaining</p>)}  
-          {/* <TesseractProjection />        */}
+        {!showEntering && (objectsToLoad >= 99 || !objectsToLoad) && (<span className={styles.loadingProgressInfo}>Loading...</span>)}
+        {!showEntering && objectsToLoad > 0 && (<span className={styles.loadingProgressInfo}>{objectsToLoad} object{objectsToLoad > 1 && 's'} remaining</span>)}
+        {showEntering && (<span className={styles.loadingProgressInfo}>Entering world...</span>)}
       </section>
     </section></> : null;
 };
-export default connect(mapStateToProps)(LinearProgressComponent);
+export default connect(mapStateToProps)(LoadingScreen);

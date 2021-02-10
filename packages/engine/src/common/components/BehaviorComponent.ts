@@ -1,6 +1,7 @@
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
-import { BehaviorMapType } from '../types/BehaviorMapType';
+
+type BehaviorMapType<T extends string | number | symbol, U> = Map<T, U>
 
 /**
  * Interface for property types of the Behavior Component.

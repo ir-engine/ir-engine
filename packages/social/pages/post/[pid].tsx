@@ -1,14 +1,15 @@
 import React from "react";
 import { useRouter } from "next/router";
-import { Layout} from "@xr3ngine/client-core/components/social/Layout";
+import { Header } from "@xr3ngine/client-core/components/social/Header";
 
 export default function PostPage() {
   const router = useRouter();
   const { pid } = router.query;
 
   return (
-    <Layout>
-      <div>{pid}</div>
-    </Layout>
+    <div className="container">
+    <Header user={pid} />
+          <div>{pid}</div>
+    </div>
   );
 }

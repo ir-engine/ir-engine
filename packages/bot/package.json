@@ -25,14 +25,14 @@
   "dependencies": {
     "@google-cloud/agones-sdk": "^1.11.0",
     "puppeteer": "^5.5.0",
-    "three": "^0.124.0"
+    "three": "^0.125.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.9.0",
+    "@babel/core": "^7.12.10",
     "@types/node": "^13.13.0",
-    "@types/react": "^16.9.16",
-    "@types/react-dom": "^16.9.4",
-    "babel-loader": "^8.1.0",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "babel-loader": "^8.2.2",
     "cache-loader": "^4.1.0",
     "config": "^3.3.1",
     "copyfiles": "^2.3.0",

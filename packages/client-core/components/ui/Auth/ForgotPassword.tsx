@@ -18,7 +18,7 @@ interface Props {
   forgotPassword: typeof forgotPassword;
 }
 
-const ForgotPassword = (props: Props): any => {
+const ForgotPasswordComponent = (props: Props): any => {
   const { forgotPassword, classes } = props;
   const [state, setState] = useState({ email: '', isSubmitted: false });
 
@@ -92,6 +92,6 @@ const ForgotPassword = (props: Props): any => {
   );
 };
 
-const ForgotPasswordWrapper = (props: any): any => <ForgotPassword {...props} />;
+const ForgotPasswordWrapper = (props: any): any => <ForgotPasswordComponent {...props} />;
 
-export default connect(mapDispatchToProps)(ForgotPasswordWrapper);
+export const ForgotPassword = connect(mapDispatchToProps)(ForgotPasswordWrapper);

@@ -24,7 +24,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   refreshConnections: bindActionCreators(refreshConnections, dispatch)
 });
 
-const GithubCallback = (props: Props): any => {
+const GithubCallbackComponent = (props: Props): any => {
   const { auth, loginUserByJwt, refreshConnections, router } = props;
 
   const initialState = { error: '', token: '' };
@@ -60,6 +60,6 @@ const GithubCallback = (props: Props): any => {
   );
 };
 
-const GithubHomeWrapper = (props: any): any => <GithubCallback {...props} router={ useRouter() } />;
+const GithubHomeWrapper = (props: any): any => <GithubCallbackComponent {...props} router={ useRouter() } />;
 
-export default connect(mapStateToProps, mapDispatchToProps)(GithubHomeWrapper);
+export const GithubCallback = connect(mapStateToProps, mapDispatchToProps)(GithubHomeWrapper);

@@ -30,6 +30,12 @@ import PropertiesPanelContainer from "./properties/PropertiesPanelContainer";
 import ToolBar from "./toolbar/ToolBar";
 import ViewportPanelContainer from "./viewport/ViewportPanelContainer";
 
+
+/**
+ * StyledEditorContainer component is used as root element of new project page.
+ * On this page we have an editor to create a new or modifing an existing project.
+ * @type {Styled component}
+ */
 const StyledEditorContainer = (styled as any).div`
   display: flex;
   flex: 1;
@@ -39,6 +45,10 @@ const StyledEditorContainer = (styled as any).div`
   position: fixed;
 `;
 
+/**
+ * WorkspaceContainer description
+ * @type {[type]}
+ */
 const WorkspaceContainer = (styled as any).div`
   display: flex;
   flex: 1;
@@ -761,7 +771,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
       this.setState({ project });
     } catch (error) {
-      if (error["aborted"]) {
+      if (error["abortedsettingsContext"]) {
         this.hideDialog();
         return;
       }

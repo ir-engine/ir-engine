@@ -110,7 +110,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 interface Props {
-    openBottomDrawer: boolean;
+    openBottomDrawer?: boolean;
     leftDrawerOpen: boolean;
     setLeftDrawerOpen: any;
     setRightDrawerOpen: any;

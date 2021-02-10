@@ -6,6 +6,11 @@ interface Data {}
 
 interface ServiceOptions {}
 
+/**
+ * A class for Video service 
+ * 
+ * @author Vyacheslav Solovjov
+ */
 export class Video implements ServiceMethods<Data> {
   app: Application
   options: ServiceOptions

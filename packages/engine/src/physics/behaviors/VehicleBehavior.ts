@@ -1,8 +1,8 @@
 import { cannonFromThreeVector } from "@xr3ngine/engine/src/common/functions/cannonFromThreeVector";
-import { Body, Cylinder, Quaternion, RaycastVehicle, Sphere, Vec3 } from 'cannon-es';
+import { Body, RaycastVehicle, Sphere, Vec3 } from 'cannon-es';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { VehicleBody } from '../../physics/components/VehicleBody';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { CollisionGroups } from "../enums/CollisionGroups";
@@ -137,14 +137,14 @@ export function createVehicleBody (entity: Entity ) {
   }
 
 
-  chassisBody.position.set( ...vehicleComponent.startPosition );
+  chassisBody.position.set( ...(vehicleComponent as any).startPosition );
   //chassisBody.angularVelocity.set(0, 0, 0.5);
 
   const options = {
     radius: wheelRadius,
     directionLocal: new Vec3(0, -1, 0),
     suspensionStiffness: 30,
-    suspensionRestLength: vehicleComponent.suspensionRestLength,
+    suspensionRestLength: (vehicleComponent as any).suspensionRestLength,
     frictionSlip: 5,
     dampingRelaxation: 2.3,
     dampingCompression: 1.4,

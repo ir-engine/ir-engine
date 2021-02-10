@@ -18,4 +18,4 @@ export default {
             items: { $ref: '#/definitions/component-type'}
         }
     }
-}
+};

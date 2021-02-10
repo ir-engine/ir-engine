@@ -24,7 +24,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   refreshConnections: bindActionCreators(refreshConnections, dispatch)
 });
 
-const FacebookCallback = (props: Props): any => {
+const FacebookCallbackComponent = (props: Props): any => {
   const { auth, loginUserByJwt, refreshConnections, router } = props;
 
   const initialState = { error: '', token: '' };
@@ -60,6 +60,6 @@ const FacebookCallback = (props: Props): any => {
   );
 };
 
-const FacebookHomeWrapper = (props: any): any => <FacebookCallback {...props} router={ useRouter() } />;
+const FacebookHomeWrapper = (props: any): any => <FacebookCallbackComponent {...props} router={ useRouter() } />;
 
-export default connect(mapStateToProps, mapDispatchToProps)(FacebookHomeWrapper);
+export const FacebookCallback = connect(mapStateToProps, mapDispatchToProps)(FacebookHomeWrapper);
