@@ -15,10 +15,17 @@ import { UIDialog } from '../Dialog/Dialog';
 import BottomDrawer from '../Drawer/Bottom';
 import LeftDrawer from '../Drawer/Left/LeftDrawer';
 import RightDrawer from '../Drawer/Right';
+import DrawerControls from '../DrawerControls';
 import InstanceChat from '../InstanceChat';
 import Me from '../Me';
 import NavMenu from '../NavMenu';
 import PartyVideoWindows from '../PartyVideoWindows';
+import {
+    Button
+} from '@material-ui/core'
+import Harmony from "../Harmony";
+//@ts-ignore
+import styles from './Layout.module.scss';
 
 const { publicRuntimeConfig } = getConfig();
 const siteTitle: string = publicRuntimeConfig.siteTitle;
@@ -64,6 +71,7 @@ const Layout = (props: Props): any => {
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
   const [topDrawerOpen, setTopDrawerOpen] = useState(false);
   const [bottomDrawerOpen, setBottomDrawerOpen] = useState(false);
+  const [harmonyOpen, setHarmonyOpen] = useState(false);
   const user = authState.get('user');
 
   const initialClickListener = () => {
@@ -79,6 +87,21 @@ const Layout = (props: Props): any => {
       }
   }, []);
 
+    const childrenWithProps = React.Children.map(children, child => {
+        // checking isValidElement is the safe way and avoids a typescript error too
+        if (React.isValidElement(child)) {
+            console.log('Layout child:')
+            console.log(child);
+            const mapped = React.Children.map((child as any).props.children, child => {
+                if (React.isValidElement(child)) return React.cloneElement(child, { harmonyOpen: harmonyOpen });
+            });
+            console.log('mapped:');
+            console.log(mapped);
+            return mapped;
+        }
+        return child;
+    });
+
   //info about current mode to conditional render menus
 // TODO: Uncomment alerts when we can fix issues
   return (
@@ -91,13 +114,15 @@ const Layout = (props: Props): any => {
       </Head>
       <header>
         { path === '/login' && <NavMenu login={login} />}
-        { authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
-        <PartyVideoWindows />
+        { harmonyOpen !== true &&authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
+        { harmonyOpen !== true && <PartyVideoWindows /> }
       </header>
+
+      { harmonyOpen === true && <Harmony setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen}/>}
       <Fragment>
         <UIDialog />
          <Alerts />
-        {children}
+        {childrenWithProps}
       </Fragment>
       { authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&
         <Fragment>
@@ -115,10 +140,15 @@ const Layout = (props: Props): any => {
         </Fragment>
       }
       <footer>
+        { authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.id != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
+            <DrawerControls disableBottom={true} setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen}/> }
+
         { locationState.get('currentLocation')?.get('location')?.id && 
           authState.get('authUser') != null && authState.get('isLoggedIn') === true &&  user?.instanceId != null &&
            !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen && 
             <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen}/> }
+          {harmonyOpen === false && <Button className={styles.openHarmony} onClick={() => setHarmonyOpen(true)}>Open Harmony</Button> }
+          {harmonyOpen === true && <Button className={styles.closeHarmony} onClick={() => setHarmonyOpen(false)}>Close Harmony</Button>}
       </footer>
     </section>
     </ThemeProvider>

@@ -70,7 +70,7 @@ export function connectToInstanceServer(channelType: string, channelId?: string)
         await leave();
       }
 
-      await Network.instance.transport.initialize(instance.get('ipAddress'), instance.get('port'), {
+      await Network.instance.transport.initialize(instance.get('ipAddress'), instance.get('port'), channelType === 'instance', {
         locationId: locationId,
         token: token,
         sceneId: sceneId,

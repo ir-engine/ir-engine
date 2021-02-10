@@ -17,3 +17,12 @@
         cursor: pointer;
     }
 }
+
+.openHarmony,
+.closeHarmony {
+    position: absolute !important;
+    right: 0;
+    bottom: 0;
+    margin-bottom: 100px !important;
+    width: 100px;
+}
