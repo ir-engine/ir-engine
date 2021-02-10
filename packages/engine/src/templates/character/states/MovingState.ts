@@ -9,6 +9,7 @@ import { setState } from "../../../state/behaviors/setState";
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
+import { trySwitchToJump } from "../behaviors/trySwitchToJump";
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { AnimationConfigInterface, CharacterAvatars, defaultAvatarAnimations } from "../CharacterAvatars";
 import { CharacterStateTypes } from '../CharacterStateTypes';
@@ -100,7 +101,7 @@ const getMovingAnimationsByVelocity = (localSpaceVelocity: Vector3): Map<number,
         animations.set(animationId, { weight, timeScale });
     });
 
-    animations.set(CharacterStateTypes.DEFAULT, { weight: stateWeights.idle, timeScale: 1 });
+    // animations.set(CharacterStateTypes.DEFAULT, { weight: stateWeights.idle, timeScale: 1 });
 
     // console.log('active anims', Array.from(animations).filter(value => {
     //     const [ animationId, weights ] = value;
@@ -199,6 +200,11 @@ export const MovingState: StateSchemaValue = {componentProperties: [{
         transitionDuration: 0.1
       }
     },
+    {
+      behavior: (entity:Entity): void => {
+        console.log("Updating with Moving state");
+      }
+    }
   ],
   onUpdate: [
     {
@@ -220,10 +226,9 @@ export const MovingState: StateSchemaValue = {componentProperties: [{
           }
 
           // Check if we're trying to jump
-          // TODO: This is commented out to prevent jumping
-          // if (trySwitchToJump(entity)) {
-          //   return;
-          // }
+          if (trySwitchToJump(entity)) {
+            return;
+          }
         }
       }
     },
@@ -240,9 +245,9 @@ export const MovingState: StateSchemaValue = {componentProperties: [{
             scale: value.timeScale
           });
         });
-        if (getComponent(entity, CharacterComponent).localMovementDirection.length() === 0 && actorVelocity.length() < 0.01) {
-          setState(entity, { state: CharacterStateTypes.DEFAULT });
-        }
+        // if (getComponent(entity, CharacterComponent).localMovementDirection.length() === 0 && actorVelocity.length() < 0.01) {
+        //   setState(entity, { state: CharacterStateTypes.DEFAULT });
+        // }
       }
     },
     // {

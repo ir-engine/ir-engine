@@ -301,13 +301,8 @@ export class InputSystem extends System {
       inputs.viewVector.x = actor.viewVector.x;
       inputs.viewVector.y = actor.viewVector.y;
       inputs.viewVector.z = actor.viewVector.z;
-
-      try{
-        Network.instance.transport.sendData(ClientInputModel.toBuffer(inputs));
-      } catch (error){
-        console.warn("Couldn't send data, error")
-        console.warn(error)
-      }
+      
+      Network.instance.transport.sendData(ClientInputModel.toBuffer(inputs));
 
         // clean processed LifecycleValue.ENDED inputs
       input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
