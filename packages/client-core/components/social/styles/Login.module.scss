@@ -1,0 +1,32 @@
+.loginPage{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100vh;
+
+    main{
+        flex: none;
+    }
+
+    .hr{
+        background: linear-gradient(180deg, 
+            rgba(0,0,0,0) calc(50% - 1px), 
+            rgba(192,192,192,1) calc(50%), 
+            rgba(0,0,0,0) calc(50% + 1px)
+        );
+        text-align: center;
+        margin: 20px 0;
+        span{
+            background: #fff; 
+            padding:10px 30px; 
+        }
+    }
+
+    .socialIcons{
+        text-align: center;
+        button{
+            margin: 0 10px;
+        }
+    }
+    
+}
