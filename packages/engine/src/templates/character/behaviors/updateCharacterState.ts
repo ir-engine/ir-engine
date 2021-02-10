@@ -11,11 +11,11 @@ import { EnteringVehicle } from "../components/EnteringVehicle";
 const localDirection = new Vector3(0, 0, 1);
 const emptyVector = new Vector3();
 
-export const updateCharacterState: Behavior = (entity, args: { setCameraRelativeOrientationTarget?: boolean }, deltaTime: number): void => {
+export const updateCharacterState: Behavior = (entity, args: { }, deltaTime: number): void => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	if (!actor.initialized) return console.warn("Actor no initialized");
 	actor.timer += deltaTime;
-	if (args.setCameraRelativeOrientationTarget || hasComponent(entity, EnteringVehicle)) return;
+	if (hasComponent(entity, EnteringVehicle)) return;
 
 	const localMovementDirection = actor.localMovementDirection; //getLocalMovementDirection(entity);
 	const flatViewVector = new Vector3(actor.viewVector.x, 0, actor.viewVector.z).normalize();

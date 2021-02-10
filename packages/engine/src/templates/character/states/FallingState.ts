@@ -25,11 +25,7 @@ export const FallingState: StateSchemaValue = {componentProperties: [{
   ],
   onUpdate: [
     {
-      behavior: updateCharacterState,
-      args:
-      {
-        setCameraRelativeOrientationTarget: true
-      }
+      behavior: updateCharacterState
     },
     // Set Velocity Target If Moving
     {
