@@ -1,15 +1,11 @@
 import { Sky } from '@xr3ngine/engine/src/scene/classes/Sky';
-import { CanvasTexture, CubeTextureLoader, PMREMGenerator, RGBFormat, sRGBEncoding } from 'three';
-import { CubeTexture, TextureLoader } from 'three';
-import { CubeRefractionMapping } from 'three';
-import { EquirectangularReflectionMapping } from 'three';
-import { Vector3 } from 'three';
-import { addObject3DComponent, getObject3D } from './addObject3DComponent';
-import { Object3DComponent } from '../components/Object3DComponent';
+import { CubeTextureLoader, EquirectangularReflectionMapping, PMREMGenerator, sRGBEncoding, TextureLoader, Vector3 } from 'three';
 import { isClient } from '../../common/functions/isClient';
 import { Engine } from '../../ecs/classes/Engine';
 import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { ScaleComponent } from '../../transform/components/ScaleComponent';
+import { Object3DComponent } from '../components/Object3DComponent';
+import { addObject3DComponent } from './addObject3DComponent';
 
 export default function createSkybox(entity, args: {
   obj3d;

@@ -5,7 +5,7 @@ import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
-import { setState } from '../behaviors/addState';
+import { setState } from '../behaviors/setState';
 import { State } from '../components/State';
 import { StateValue } from '../interfaces/StateValue';
 

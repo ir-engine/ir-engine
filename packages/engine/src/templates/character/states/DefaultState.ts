@@ -5,7 +5,7 @@ import { AnimationClip, MathUtils, Vector3 } from "three";
 import { Entity } from "../../../ecs/classes/Entity";
 import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { Input } from '../../../input/components/Input';
-import { setState } from "../../../state/behaviors/addState";
+import { setState } from "../../../state/behaviors/setState";
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
 import { setFallingState } from "../behaviors/setFallingState";
@@ -198,7 +198,11 @@ export const MovingState: StateSchemaValue = {componentProperties: [{
   }],
   onEntry: [
     {
-      behavior: initializeCharacterState
+      behavior: initializeCharacterState,
+      args: {
+        animationId: CharacterStateTypes.IDLE,
+        transitionDuration: 0.1
+      }
     },
   ],
   onUpdate: [

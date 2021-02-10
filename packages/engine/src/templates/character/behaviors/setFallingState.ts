@@ -1,6 +1,6 @@
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { getComponent } from '../../../ecs/functions/EntityFunctions';
-import { setState } from "../../../state/behaviors/addState";
+import { setState } from "../../../state/behaviors/setState";
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { CharacterComponent } from '../components/CharacterComponent';
 

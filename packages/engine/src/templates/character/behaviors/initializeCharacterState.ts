@@ -27,9 +27,9 @@ export const initializeCharacterState: Behavior = (entity, args: { x?: number, y
 	getMutableComponent<CharacterComponent>(entity, CharacterComponent as any).arcadeVelocityInfluence.set(1, 0, 1);
 
 	actor.timer = 0;
-	actor.velocityTarget.z = args.z ?? 0;
-	actor.velocityTarget.x = args.x ?? 0;
-	actor.velocityTarget.y = args.y ?? 0;
+	actor.velocityTarget.z = args?.z ?? 0;
+	actor.velocityTarget.x = args?.x ?? 0;
+	actor.velocityTarget.y = args?.y ?? 0;
 
 	  // Actor isn't initialized yet, so skip the animation
 	  if(!actor?.initialized) return;

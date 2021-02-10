@@ -29,6 +29,7 @@ export class DebugHelpersSystem extends System {
       const origin = new Vector3( 0, 2, 0 );
       const length = 0.5;
       const hex = 0xffff00;
+      if(!actor || !actor.viewVector) return console.warn ("actor.viewVector is null")
       const arrowHelper = new ArrowHelper( actor.viewVector.clone().normalize(), origin, length, hex );
       Engine.scene.add( arrowHelper );
       this.helpersByEntity.viewVector.set(entity, arrowHelper);
