@@ -202,16 +202,12 @@ export const MovingState: StateSchemaValue = {componentProperties: [{
   ],
   onUpdate: [
     {
-      behavior: updateCharacterState,
-      args: {
-        setCameraRelativeOrientationTarget: true
-      }
+      behavior: updateCharacterState
     },
     {
       behavior: triggerActionIfMovementHasChanged,
       args: {
         action: (entity: Entity): void => {
-          console.log("MOVING STATE!");
           // Default behavior for all states
           // findVehicle(entity);
           const input = getComponent(entity, Input);

@@ -23,10 +23,7 @@ export const DropRunningState: StateSchemaValue = {onEntry: [
   ],
   onUpdate: [
     {
-      behavior: updateCharacterState,
-      args: {
-        setCameraRelativeOrientationTarget: true
-      }
+      behavior: updateCharacterState
     },
     {
       behavior: triggerActionIfMovementHasChanged,
