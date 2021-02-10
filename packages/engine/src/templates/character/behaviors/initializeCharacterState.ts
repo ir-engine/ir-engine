@@ -3,7 +3,6 @@ import { AnimationClip } from 'three';
 import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { CharacterStateTypes } from "../CharacterStateTypes";
 import { AnimationConfigInterface, CharacterAvatars, defaultAvatarAnimations } from "../CharacterAvatars";
-import { CharacterAvatarComponent } from "../components/CharacterAvatarComponent";
 import { CharacterComponent } from '../components/CharacterComponent';
 
 export const initializeCharacterState: Behavior = (entity, args: { x?: number, y?: number, z?: number, animationId: number; transitionDuration: number }) => {
@@ -36,7 +35,7 @@ export const initializeCharacterState: Behavior = (entity, args: { x?: number, y
 	  // if actor model is not yet loaded mixer could be empty
 	  if (!actor.mixer) return;
 	
-	  const avatarId = getComponent(entity, CharacterAvatarComponent)?.avatarId;
+	  const avatarId = getComponent(entity, CharacterComponent)?.avatarId;
 	  const avatarAnimations = CharacterAvatars.find(a => a.id === avatarId)?.animations ?? defaultAvatarAnimations;
 	
 	  const avatarAnimation: AnimationConfigInterface = avatarAnimations[args.animationId];

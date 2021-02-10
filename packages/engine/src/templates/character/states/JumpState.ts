@@ -52,9 +52,9 @@ export const JumpState: StateSchemaValue = {componentProperties: [{
       }
     },
     { behavior: jumpRunning },
-    {
-      behavior: onAnimationEnded,
-      args: { transitionToState: CharacterStateTypes.FALLING }
-    }
+    // {
+    //   behavior: onAnimationEnded,
+    //   args: { transitionToState: CharacterStateTypes.DEFAULT }
+    // }
   ]
 };

@@ -6,14 +6,10 @@ export enum CharacterStateTypes {
   DROP,
 
   // Modifier States
-  CROUCHING,
   WALK,
   SPRINT,
   INTERACTING,
-
-  IDLE_ROTATE_LEFT,
-  IDLE_ROTATE_RIGHT,
-
+  
   DROP_IDLE,
   DROP_ROLLING,
   DROP_RUNNING,

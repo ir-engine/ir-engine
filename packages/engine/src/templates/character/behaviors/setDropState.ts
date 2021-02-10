@@ -14,6 +14,7 @@ export const setDropState: Behavior = (entity, args = null, deltaTime) => {
 
   if (actor.groundImpactVelocity.y < -6)
   {
+    console.log("TRYING TO SET DROP STATE")
     setState(entity, { state: CharacterStateTypes.DROP });
   } else if(getComponent(entity, CharacterComponent).localMovementDirection.length() > 0) {
     if (actor.groundImpactVelocity.y < -2) {
@@ -23,8 +24,10 @@ export const setDropState: Behavior = (entity, args = null, deltaTime) => {
   else
   {
     if (actor.groundImpactVelocity.y < -1) {
+      console.log("TRYING TO SET DROP STATE: DROP")
       setState(entity, { state: CharacterStateTypes.DROP });
     } else {
+      console.log("TRYING TO SET DROP STATE: DEFAULT")
       setState(entity, { state: CharacterStateTypes.DEFAULT });
     }
   }

@@ -1,12 +1,12 @@
-import { addObject3DComponent } from "@xr3ngine/engine/src/scene/behaviors/addObject3DComponent";
 import { LifecycleValue } from "@xr3ngine/engine/src/common/enums/LifecycleValue";
 import { isClient } from "@xr3ngine/engine/src/common/functions/isClient";
 import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
-import { AnimationManager } from "@xr3ngine/engine/src/templates/character/components/AnimationManager";
+import { addObject3DComponent } from "@xr3ngine/engine/src/scene/behaviors/addObject3DComponent";
 import { Vec3 } from "cannon-es";
-import { AnimationMixer, BoxGeometry, Group, Matrix4, Mesh, MeshLambertMaterial, Quaternion, Scene, SkinnedMesh, Vector3 } from "three";
+import { AnimationClip, AnimationMixer, BoxGeometry, Group, Matrix4, Mesh, MeshLambertMaterial, Quaternion, Scene, SkinnedMesh, Vector3 } from "three";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { AssetLoaderState } from "../../../assets/components/AssetLoaderState";
+import { GLTFLoader } from "../../../assets/loaders/gltf/GLTFLoader";
 import { PositionalAudioComponent } from '../../../audio/components/PositionalAudioComponent';
 import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
 import { CameraModes } from '../../../camera/types/CameraModes';
@@ -49,12 +49,42 @@ import { CharacterAvatars } from "../CharacterAvatars";
 import { CharacterInputSchema } from '../CharacterInputSchema';
 import { CharacterStateSchema } from '../CharacterStateSchema';
 import { CharacterStateTypes } from "../CharacterStateTypes";
-import { CharacterAvatarComponent } from '../components/CharacterAvatarComponent';
 import { CharacterComponent } from '../components/CharacterComponent';
 import { NamePlateComponent } from '../components/NamePlateComponent';
 
+
+export class AnimationManager {
+	static instance: AnimationManager = new AnimationManager();
+	public initialized = false
+
+	_animations: AnimationClip[] = []
+	getAnimations(): Promise<AnimationClip[]> {
+		return new Promise(resolve => {
+			if (!isClient) {
+				resolve([]);
+				return;
+			}
+
+			new GLTFLoader().load('/models/avatars/Animation.glb', gltf => {
+					this._animations = gltf.animations;
+					this._animations?.forEach(clip => {
+						// TODO: make list of morph targets names
+						clip.tracks = clip.tracks.filter(track => !track.name.match(/^CC_Base_/));
+					});
+					resolve(this._animations);
+				}
+			);
+		});
+	}
+
+	constructor () {
+		this.getAnimations();
+	}
+}
+
+
 const loadActorAvatar: Behavior = (entity) => {
-  const avatarId: string = getComponent(entity, CharacterAvatarComponent)?.avatarId;
+  const avatarId: string = getComponent(entity, CharacterComponent)?.avatarId;
   const avatarSource = CharacterAvatars.find(avatarData => avatarData.id === avatarId)?.src;
 
   if (hasComponent(entity, AssetLoader)) removeComponent(entity, AssetLoader, true);
@@ -781,7 +811,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     // ActorComponent has values like movement speed, deceleration, jump height, etc
     { type: CharacterComponent },
     // Handle character's body
-    { type: CharacterAvatarComponent, data: { avatarId: 'Rose' }},
+    { type: CharacterComponent, data: { avatarId: 'Rose' }},
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
     // Local player input mapped to behaviors in the input map

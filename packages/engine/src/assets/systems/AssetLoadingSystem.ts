@@ -1,5 +1,4 @@
 import { LOD, MeshPhysicalMaterial, Object3D, SkinnedMesh, TextureLoader } from 'three';
-import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { hashFromResourceName } from '../../common/functions/hashFromResourceName';
 import { isClient } from '../../common/functions/isClient';
 import { Engine } from '../../ecs/classes/Engine';
@@ -11,7 +10,8 @@ import {
 } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { addObject3DComponent } from "../../scene/behaviors/addObject3DComponent";
-import { CharacterAvatarComponent } from '../../templates/character/components/CharacterAvatarComponent';
+import { Object3DComponent } from '../../scene/components/Object3DComponent';
+import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
 import AssetVault from '../classes/AssetVault';
 import { AssetLoader } from '../components/AssetLoader';
 import { AssetLoaderState } from '../components/AssetLoaderState';
@@ -274,7 +274,7 @@ export default class AssetLoadingSystem extends System {
   execute(): void {
     this.queryResults.toLoad.all.forEach((entity: Entity) => {
 
-      const isCharacter = hasComponent(entity, CharacterAvatarComponent);
+      const isCharacter = hasComponent(entity, CharacterComponent);
 
       if (hasComponent(entity, AssetLoaderState)) {
         //return console.log("Returning because already has AssetLoaderState");
