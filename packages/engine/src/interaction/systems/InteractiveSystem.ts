@@ -1,34 +1,150 @@
-import { System, SystemAttributes } from "../../ecs/classes/System";
-import { Interactable } from "../components/Interactable";
-import { Interactor } from "../components/Interactor";
-import { interactRaycast } from "../behaviors/interactRaycast";
-import { interactBoxRaycast } from "../behaviors/interactBoxRaycast";
-import { calcBoundingBox } from "../behaviors/calcBoundingBox";
-import { interact } from "../behaviors/interact";
-import { addComponent, getMutableComponent, getComponent, hasComponent, removeComponent } from "../../ecs/functions/EntityFunctions";
-import { Object3DComponent } from "../../common/components/Object3DComponent";
-import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
-import { Input } from "../../input/components/Input";
-import { DefaultInput } from "../../templates/shared/DefaultInput";
-import { BinaryValue } from "../../common/enums/BinaryValue";
-import { InteractiveFocused } from "../components/InteractiveFocused";
-import { BoundingBox } from "../components/BoundingBox";
-import { SubFocused } from "../components/SubFocused";
-import { Entity } from "../../ecs/classes/Entity";
-import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
 import { RigidBody } from "@xr3ngine/engine/src/physics/components/RigidBody";
-import { interactFocused } from "../behaviors/interactFocused";
-import { subFocused } from "../behaviors/subFocused";
-import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
-import { NamePlateComponent } from "../../templates/character/components/NamePlateComponent";
-import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
+import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
+import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
+import { Box3, Frustum, Matrix4, Mesh, Object3D, Scene, Vector3 } from "three";
+import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { isClient } from "../../common/functions/isClient";
-import { Engine } from "../../ecs/classes/Engine";
-import { NetworkObject } from "../../networking/components/NetworkObject";
 import { vectorToScreenXYZ } from "../../common/functions/vectorToScreenXYZ";
-import { Vector3 } from "three";
-import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
+import { Behavior } from "../../common/interfaces/Behavior";
+import { Engine } from "../../ecs/classes/Engine";
+import { Entity } from "../../ecs/classes/Entity";
+import { System, SystemAttributes } from "../../ecs/classes/System";
 import { Not } from "../../ecs/functions/ComponentFunctions";
+import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from "../../ecs/functions/EntityFunctions";
+import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
+import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
+import { NetworkObject } from "../../networking/components/NetworkObject";
+import { HighlightComponent } from "../../renderer/components/HighlightComponent";
+import { Object3DComponent } from "../../scene/components/Object3DComponent";
+import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
+import { NamePlateComponent } from "../../templates/character/components/NamePlateComponent";
+import { BoundingBox } from "../components/BoundingBox";
+import { Interactable } from "../components/Interactable";
+import { InteractiveFocused } from "../components/InteractiveFocused";
+import { Interactor } from "../components/Interactor";
+import { SubFocused } from "../components/SubFocused";
+import { InteractBehaviorArguments } from "../types/InteractionTypes";
+
+export const subFocused:Behavior = (entity: Entity, args, delta: number): void => {
+  if (!hasComponent(entity, Interactable)) {
+    console.error('Attempted to call interact behavior, but target does not have Interactive component');
+    return;
+  }
+  const subFocused = hasComponent(entity, SubFocused);
+
+    if (subFocused){
+      addComponent(entity, HighlightComponent);
+    }
+    else {
+      removeComponent(entity, HighlightComponent);
+    }
+
+};
+
+const interactFocused: Behavior = (entity: Entity, args, delta: number): void => {
+  if (!hasComponent(entity, Interactable)) {
+    console.error('Attempted to call interact behavior, but target does not have Interactive component');
+    return;
+  }
+
+  const focused = hasComponent(entity, InteractiveFocused);
+  //const subFocused = hasComponent(entity, SubFocused);
+
+  const interactive = getComponent(entity, Interactable);
+  if (interactive && typeof interactive.onInteractionFocused === 'function') {
+    const entityFocuser = focused? getComponent(entity, InteractiveFocused).interacts : null;
+    interactive.onInteractionFocused(entityFocuser, { focused }, delta, entity);
+  }
+};
+
+/**
+ * Checks if entity can interact with any of entities listed in 'interactive' array, checking distance, guards and raycast
+ * @param entity
+ * @param interactive
+ * @param delta
+ */
+
+const interactBoxRaycast: Behavior = (entity: Entity, { interactive }: InteractBehaviorArguments, delta: number): void => {
+
+  if (!hasComponent(entity, FollowCameraComponent)) return;
+  const followCamera = getComponent(entity, FollowCameraComponent);
+  if (!followCamera.raycastBoxOn) return;
+
+  const transform = getComponent<TransformComponent>(entity, TransformComponent);
+
+  const raycastList: Array<Entity> = interactive
+    .filter(interactiveEntity => {
+      // - have object 3d to raycast
+      if (!hasComponent(interactiveEntity, Object3DComponent)) {
+        return false;
+      }
+      const interactive = getComponent(interactiveEntity, Interactable);
+      // - onInteractionCheck is not set or passed
+      return (typeof interactive.onInteractionCheck !== 'function' || interactive.onInteractionCheck(entity, interactiveEntity));
+    });
+
+  if (!raycastList.length) {
+    return;
+  }
+
+  const projectionMatrix = new Matrix4().makePerspective(
+    followCamera.rx1,
+    followCamera.rx2,
+    followCamera.ry1,
+    followCamera.ry2,
+    Engine.camera.near,
+    followCamera.farDistance
+  );
+
+  Engine.camera.updateMatrixWorld();
+  Engine.camera.matrixWorldInverse.copy(Engine.camera.matrixWorld).invert();
+
+  const viewProjectionMatrix = new Matrix4().multiplyMatrices(projectionMatrix, Engine.camera.matrixWorldInverse);
+  const frustum = new Frustum().setFromProjectionMatrix(viewProjectionMatrix);
+
+
+  const subFocusedArray = raycastList.map(entityIn => {
+
+    const boundingBox = getComponent(entityIn, BoundingBox);
+    if (boundingBox.boxArray.length) {
+      // TO DO: static group object
+      if (boundingBox.dynamic) {
+
+        const arr = boundingBox.boxArray.map((object3D, index) => {
+          const aabb = new Box3();
+          aabb.setFromObject(object3D);
+          return [entityIn, frustum.intersectsBox(aabb), aabb.distanceToPoint(transform.position), index];
+        }).filter(value => value[1]).sort((a: any, b: any) => a[2] - b[2]);
+
+        if (arr.length) {
+          return arr[0];
+        } else {
+          return [ null, false ];
+        }
+
+      }
+    } else {
+      if (boundingBox.dynamic) {
+        const object3D = getComponent(entityIn, Object3DComponent);
+        const aabb = new Box3();
+        aabb.copy(boundingBox.box);
+        aabb.applyMatrix4(object3D.value.matrixWorld);
+        return [entityIn, frustum.intersectsBox(aabb), aabb.distanceToPoint(transform.position)];
+      } else {
+        return [entityIn, frustum.intersectsBox(boundingBox.box), boundingBox.box.distanceToPoint(transform.position)];
+      }
+    }
+  }).filter(value => value[1]);
+
+  const selectNearest = subFocusedArray.sort((a: any, b: any) => a[2] - b[2]);
+
+  const interacts = getMutableComponent(entity, Interactor);
+  interacts.subFocusedArray = subFocusedArray.map((v: any) => getComponent(v[0], Object3DComponent).value);
+
+  const newBoxHit = selectNearest.length ? selectNearest[0] : null;
+  (interacts.BoxHitResult as any) = newBoxHit;
+  (interacts.focusedInteractive as any) = newBoxHit ? newBoxHit[0] : null;
+};
 
 
 export class InteractiveSystem extends System {
@@ -146,7 +262,12 @@ export class InteractiveSystem extends System {
     this.queryResults.interactors?.all.forEach(entity => {
       if (this.queryResults.interactive?.all.length) {
         //interactRaycast(entity, { interactive: this.queryResults.interactive.all });
+        
+        
         interactBoxRaycast(entity, { interactive: this.queryResults.boundingBox.all });
+        
+        
+        
         const interacts = getComponent(entity, Interactor);
         if (interacts.focusedInteractive) {
           this.newFocused.add(interacts.focusedInteractive);
@@ -181,7 +302,46 @@ export class InteractiveSystem extends System {
     });
 
     this.queryResults.boundingBox.added?.forEach(entity => {
-      calcBoundingBox(entity, null, delta);
+   const interactive = getMutableComponent(entity, Interactable);
+   const calcBoundingBox = getMutableComponent(entity, BoundingBox);
+
+   const object3D = getMutableComponent(entity, Object3DComponent);
+   const transform = getComponent(entity, TransformComponent);
+
+   object3D.value.position.copy(transform.position);
+   object3D.value.rotation.setFromQuaternion(transform.rotation);
+
+   if (!calcBoundingBox.dynamic) {
+     object3D.value.updateMatrixWorld();
+   }
+
+     if (interactive.interactionParts.length) {
+
+       const arr = interactive.interactionParts.map(name => getComponent(entity, Object3DComponent).value.children[0].getObjectByName(name));
+       getMutableComponent(entity, BoundingBox).boxArray = arr;
+
+     } else {
+
+       const aabb = new Box3();
+       let object3D = getComponent(entity, Object3DComponent).value;
+
+       if (object3D instanceof Scene) object3D = object3D.children[0];
+       if (object3D instanceof Mesh) {
+
+         if( object3D.geometry.boundingBox == null) object3D.geometry.computeBoundingBox();
+           aabb.copy(object3D.geometry.boundingBox);
+
+           if(!calcBoundingBox.dynamic) {
+             aabb.applyMatrix4( object3D.matrixWorld );
+           }
+
+        } else
+        if (object3D instanceof Object3D) {
+          aabb.setFromObject( object3D );
+        }
+
+       calcBoundingBox.box = aabb;
+     }
     });
 
     // removal is the first because the hint must first be deleted, and then a new one appears

@@ -1,5 +1,4 @@
-import { CommonInteractiveAction } from "../types/CommonInteractiveAction";
-
+type CommonInteractiveAction = "link" | "infoBox" | "mediaSource";
 export interface CommonInteractiveData {
   action: CommonInteractiveAction;
   payload: CommonInteractiveDataPayload;

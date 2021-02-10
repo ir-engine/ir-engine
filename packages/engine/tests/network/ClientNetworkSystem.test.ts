@@ -16,7 +16,7 @@ import { TransformComponent } from "../../src/transform/components/TransformComp
 import { getComponent, hasComponent } from "../../src/ecs/functions/EntityFunctions";
 import { CharacterComponent } from "../../src/templates/character/components/CharacterComponent";
 import { WorldStateModel } from "../../src/networking/schema/worldStateSchema";
-import { DefaultInput } from "../../src/templates/shared/DefaultInput";
+import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
 import { LifecycleValue } from "../../src/common/enums/LifecycleValue";
 import { BinaryValue } from "../../src/common/enums/BinaryValue";
 import { createRemoteUserOnClient } from "../_helpers/createRemoteUserOnClient";
@@ -145,16 +145,16 @@ test("two inputs messages", () => {
   const axis2dCalls: Array<[Entity, LifecycleValue, NumericalType]> = [];
 
   const input = getComponent(networkObject.entity, Input);
-  if (typeof input.schema.inputButtonBehaviors[DefaultInput.FORWARD] === "undefined") {
-    input.schema.inputButtonBehaviors[DefaultInput.FORWARD] = {
+  if (typeof input.schema.inputButtonBehaviors[BaseInput.FORWARD] === "undefined") {
+    input.schema.inputButtonBehaviors[BaseInput.FORWARD] = {
       started: [],
       ended: []
     };
   }
-  input.schema.inputButtonBehaviors[DefaultInput.FORWARD].started.push({
+  input.schema.inputButtonBehaviors[BaseInput.FORWARD].started.push({
     behavior: e => buttonCalls.push([e, LifecycleValue.STARTED, null])
   });
-  input.schema.inputButtonBehaviors[DefaultInput.FORWARD].ended.push({
+  input.schema.inputButtonBehaviors[BaseInput.FORWARD].ended.push({
     behavior: e => buttonCalls.push([e, LifecycleValue.ENDED, null])
   });
 
@@ -168,21 +168,21 @@ test("two inputs messages", () => {
         "networkId": networkObject.networkId,
         "axes1d": [
           {
-            input: DefaultInput.CROUCH,
+            input: BaseInput.CROUCH,
             lifecycleState: LifecycleValue.CHANGED,
             value: 0.2
           }
         ],
         "axes2d": [
           {
-            input: DefaultInput.SCREENXY,
+            input: BaseInput.SCREENXY,
             lifecycleState: LifecycleValue.CHANGED,
             value: [0.1, 240]
           }
         ],
         "buttons": [
           {
-            "input": DefaultInput.FORWARD,
+            "input": BaseInput.FORWARD,
             "lifecycleState": LifecycleValue.STARTED,
             "value": BinaryValue.ON,
           }
@@ -197,21 +197,21 @@ test("two inputs messages", () => {
         "networkId": networkObject.networkId,
         "axes1d": [
           {
-            input: DefaultInput.CROUCH,
+            input: BaseInput.CROUCH,
             lifecycleState: LifecycleValue.CHANGED,
             value: 0.9
           }
         ],
         "axes2d": [
           {
-            input: DefaultInput.SCREENXY,
+            input: BaseInput.SCREENXY,
             lifecycleState: LifecycleValue.CHANGED,
             value: [50, 21]
           }
         ],
         "buttons": [
           {
-            "input": DefaultInput.FORWARD,
+            "input": BaseInput.FORWARD,
             "lifecycleState": LifecycleValue.ENDED,
             "value": BinaryValue.OFF,
           }

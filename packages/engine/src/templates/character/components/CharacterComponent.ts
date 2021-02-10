@@ -4,7 +4,7 @@ import { Component } from '../../../ecs/classes/Component';
 import { Vector3, Group, Material, AnimationMixer, Mesh, BoxBufferGeometry, AnimationAction } from 'three';
 import { CapsuleCollider } from '../../../physics/components/CapsuleCollider';
 import { VectorSpringSimulator } from '../../../physics/classes/VectorSpringSimulator';
-import { RelativeSpringSimulator } from '../../../physics/classes/RelativeSpringSimulator';
+import { RelativeSpringSimulator } from '../../../physics/classes/SpringSimulator';
 import { RaycastResult, Vec3 } from 'cannon-es';
 
 // idle|   idle  +  walk     |    walk      |    walk + run     |   run
@@ -31,7 +31,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public currentAnimationLength = 0;
 	public timer = 0;
 	public animationsTimeScale = 0.7;
-
+  public avatarId:string
 	public height = 0;
 	// public cameraMount: Group;
 	public tiltContainer: Group;

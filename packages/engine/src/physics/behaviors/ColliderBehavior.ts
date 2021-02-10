@@ -1,6 +1,6 @@
 import { Vec3 } from 'cannon-es';
 import { Mesh } from 'three';
-import { Object3DComponent } from '../../common/components/Object3DComponent';
+import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';

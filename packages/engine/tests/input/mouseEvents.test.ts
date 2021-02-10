@@ -6,7 +6,7 @@ import { Input } from "../../src/input/components/Input";
 import { LocalInputReceiver } from "../../src/input/components/LocalInputReceiver";
 import { InputSchema } from "../../src/input/interfaces/InputSchema";
 import { BinaryValue } from "../../src/common/enums/BinaryValue";
-import { DefaultInput } from "../../src/templates/shared/DefaultInput";
+import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
 import { LifecycleValue } from "../../src/common/enums/LifecycleValue";
 import { MouseInput } from "../../src/input/enums/MouseInput";
 import { handleMouseMovement } from "../../src/input/behaviors/handleMouseMovement";
@@ -58,7 +58,7 @@ const testInputSchema: InputSchema = {
       {
         behavior: handleMouseWheel,
         args: {
-          value: DefaultInput.CAMERA_SCROLL
+          value: BaseInput.CAMERA_SCROLL
         }
       }
     ],
@@ -66,21 +66,21 @@ const testInputSchema: InputSchema = {
   // Map mouse buttons to abstract input
   mouseInputMap: {
     buttons: {
-      [MouseInput.LeftButton]: DefaultInput.PRIMARY,
-      [MouseInput.RightButton]: DefaultInput.SECONDARY,
-      [MouseInput.MiddleButton]: DefaultInput.INTERACT
+      [MouseInput.LeftButton]: BaseInput.PRIMARY,
+      [MouseInput.RightButton]: BaseInput.SECONDARY,
+      [MouseInput.MiddleButton]: BaseInput.INTERACT
     },
     axes: {
-      [MouseInput.MouseMovement]: DefaultInput.MOUSE_MOVEMENT,
-      [MouseInput.MousePosition]: DefaultInput.SCREENXY,
-      [MouseInput.MouseClickDownPosition]: DefaultInput.SCREENXY_START,
-      // [MouseInput.MouseClickDownTransformRotation]: DefaultInput.LOOKTURN_PLAYERONE,
-      [MouseInput.MouseClickDownMovement]: DefaultInput.LOOKTURN_PLAYERONE,
-      [MouseInput.MouseScroll]: DefaultInput.CAMERA_SCROLL
+      [MouseInput.MouseMovement]: BaseInput.MOUSE_MOVEMENT,
+      [MouseInput.MousePosition]: BaseInput.SCREENXY,
+      [MouseInput.MouseClickDownPosition]: BaseInput.SCREENXY_START,
+      // [MouseInput.MouseClickDownTransformRotation]: BaseInput.LOOKTURN_PLAYERONE,
+      [MouseInput.MouseClickDownMovement]: BaseInput.LOOKTURN_PLAYERONE,
+      [MouseInput.MouseScroll]: BaseInput.CAMERA_SCROLL
     }
   },
   inputButtonBehaviors: {
-    [DefaultInput.PRIMARY]: {
+    [BaseInput.PRIMARY]: {
       started: [
         {
           behavior: mockedBehaviorOnStarted
@@ -96,7 +96,7 @@ const testInputSchema: InputSchema = {
     },
   },
   inputAxisBehaviors: {
-    [DefaultInput.SCREENXY]: {
+    [BaseInput.SCREENXY]: {
       started: [
         {
           behavior: mockedBehaviorOnStarted
@@ -151,8 +151,8 @@ xdescribe("buttons", () => {
     triggerMouse({ ...clickPoint1, button: MouseInput.LeftButton,  type: 'mousedown' });
     execute();
 
-    expect(input.data.has(DefaultInput.PRIMARY)).toBeTruthy();
-    const data1 = input.data.get(DefaultInput.PRIMARY);
+    expect(input.data.has(BaseInput.PRIMARY)).toBeTruthy();
+    const data1 = input.data.get(BaseInput.PRIMARY);
     expect(data1.value).toBe(BinaryValue.ON);
     expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
   });
@@ -169,8 +169,8 @@ xdescribe("buttons", () => {
     triggerMouse({ ...clickPoint1, button: MouseInput.LeftButton,  type: 'mouseup' });
     execute();
 
-    expect(input.data.has(DefaultInput.PRIMARY)).toBeFalsy();
-    // const data = input.data.get(DefaultInput.PRIMARY);
+    expect(input.data.has(BaseInput.PRIMARY)).toBeFalsy();
+    // const data = input.data.get(BaseInput.PRIMARY);
     // expect(data.value).toBe(BinaryValue.OFF);
     // expect(data.lifecycleState).toBe(LifecycleValue.ENDED);
   });
@@ -186,8 +186,8 @@ xdescribe("buttons", () => {
   it ("MouseClickDownPosition: sets SCREENXY_START STARTED", () => {
     triggerMouse({ ...clickPoint1, button: MouseInput.LeftButton,  type: 'mousedown' });
     execute();
-    expect(input.data.has(DefaultInput.SCREENXY_START)).toBeTruthy();
-    const data1 = input.data.get(DefaultInput.SCREENXY_START);
+    expect(input.data.has(BaseInput.SCREENXY_START)).toBeTruthy();
+    const data1 = input.data.get(BaseInput.SCREENXY_START);
     expect(data1.value).toMatchObject([ normalPoint1.x, normalPoint1.y ]);
     expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
   });
@@ -197,8 +197,8 @@ xdescribe("buttons", () => {
     execute(); // started
     execute(); // should UNCHANGED
     execute(); // should not switch to CHANGED/ENDED/CONTINUED
-    expect(input.data.has(DefaultInput.SCREENXY_START)).toBeTruthy();
-    const data1 = input.data.get(DefaultInput.SCREENXY_START);
+    expect(input.data.has(BaseInput.SCREENXY_START)).toBeTruthy();
+    const data1 = input.data.get(BaseInput.SCREENXY_START);
     expect(data1.lifecycleState).toBe(LifecycleValue.UNCHANGED);
   });
 
@@ -208,8 +208,8 @@ xdescribe("buttons", () => {
     triggerMouse({ ...clickPoint1, button: MouseInput.LeftButton,  type: 'mouseup' });
     execute();
 
-    expect(input.data.has(DefaultInput.SCREENXY_START)).toBeTruthy();
-    const data1 = input.data.get(DefaultInput.SCREENXY_START);
+    expect(input.data.has(BaseInput.SCREENXY_START)).toBeTruthy();
+    const data1 = input.data.get(BaseInput.SCREENXY_START);
     expect(data1.lifecycleState).toBe(LifecycleValue.ENDED);
   });
 });
@@ -225,8 +225,8 @@ xdescribe("movement", () => {
     triggerMouse({ ...windowPoint1, type: 'mousemove' });
     execute();
 
-    expect(input.data.has(DefaultInput.SCREENXY)).toBeTruthy();
-    const data1 = input.data.get(DefaultInput.SCREENXY);
+    expect(input.data.has(BaseInput.SCREENXY)).toBeTruthy();
+    const data1 = input.data.get(BaseInput.SCREENXY);
     expect(data1.value).toMatchObject([ normalPoint1.x, normalPoint1.y ]);
     expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
   });
@@ -243,8 +243,8 @@ xdescribe("movement", () => {
     triggerMouse({...windowPoint2, type: 'mousemove'});
     execute();
 
-    expect(input.data.has(DefaultInput.SCREENXY)).toBeTruthy();
-    const data2 = input.data.get(DefaultInput.SCREENXY);
+    expect(input.data.has(BaseInput.SCREENXY)).toBeTruthy();
+    const data2 = input.data.get(BaseInput.SCREENXY);
     expect(data2.value).toMatchObject([ normalPoint2.x, normalPoint2.y ]);
     expect(data2.lifecycleState).toBe(LifecycleValue.CHANGED);
   });
@@ -262,8 +262,8 @@ xdescribe("movement", () => {
     execute(); // started
     execute(); // unchanged
 
-    expect(input.data.has(DefaultInput.SCREENXY)).toBeTruthy();
-    const data2 = input.data.get(DefaultInput.SCREENXY);
+    expect(input.data.has(BaseInput.SCREENXY)).toBeTruthy();
+    const data2 = input.data.get(BaseInput.SCREENXY);
     expect(data2.value).toMatchObject([ normalPoint1.x, normalPoint1.y ]);
     expect(data2.lifecycleState).toBe(LifecycleValue.UNCHANGED);
   });
@@ -275,8 +275,8 @@ xdescribe("movement", () => {
     execute(); // changed
     execute(); // unchanged
 
-    expect(input.data.has(DefaultInput.SCREENXY)).toBeTruthy();
-    const data2 = input.data.get(DefaultInput.SCREENXY);
+    expect(input.data.has(BaseInput.SCREENXY)).toBeTruthy();
+    const data2 = input.data.get(BaseInput.SCREENXY);
     expect(data2.value).toMatchObject([ normalPoint2.x, normalPoint2.y ]);
     expect(data2.lifecycleState).toBe(LifecycleValue.UNCHANGED);
   });
@@ -292,9 +292,9 @@ xdescribe("movement", () => {
 });
 
 // buttons + move
-// TODO: check who's sets MouseInput.MouseClickDownTransformRotation - DefaultInput.ROTATION_START
-// TODO: check that mousemove without button does not set MouseInput.MouseClickDownTransformRotation - DefaultInput.ROTATION_START
-// test("move does not set DefaultInput.ROTATION_START", () => {
+// TODO: check who's sets MouseInput.MouseClickDownTransformRotation - BaseInput.ROTATION_START
+// TODO: check that mousemove without button does not set MouseInput.MouseClickDownTransformRotation - BaseInput.ROTATION_START
+// test("move does not set BaseInput.ROTATION_START", () => {
 //
 // })
 xdescribe("button + movement", () => {
@@ -309,8 +309,8 @@ xdescribe("button + movement", () => {
     triggerMouse({ ...windowPoint2, type: 'mousemove' });
     execute();
 
-    expect(input.data.has(DefaultInput.LOOKTURN_PLAYERONE)).toBeTruthy();
-    const data2 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+    expect(input.data.has(BaseInput.LOOKTURN_PLAYERONE)).toBeTruthy();
+    const data2 = input.data.get(BaseInput.LOOKTURN_PLAYERONE);
     expect(data2.value).toMatchObject([ 20, 5 ]);
     expect(data2.lifecycleState).toBe(LifecycleValue.STARTED);
   });
@@ -323,8 +323,8 @@ xdescribe("button + movement", () => {
     triggerMouse({ ...windowPoint1, type: 'mousemove' });
     execute(); // changed
 
-    expect(input.data.has(DefaultInput.LOOKTURN_PLAYERONE)).toBeTruthy();
-    const data2 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+    expect(input.data.has(BaseInput.LOOKTURN_PLAYERONE)).toBeTruthy();
+    const data2 = input.data.get(BaseInput.LOOKTURN_PLAYERONE);
     expect(data2.value).toMatchObject([ -20, -5 ]);
     expect(data2.lifecycleState).toBe(LifecycleValue.CHANGED);
   });
@@ -338,8 +338,8 @@ xdescribe("button + movement", () => {
     execute(); // changed
     execute(); // unchanged
 
-    expect(input.data.has(DefaultInput.LOOKTURN_PLAYERONE)).toBeTruthy();
-    const data2 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+    expect(input.data.has(BaseInput.LOOKTURN_PLAYERONE)).toBeTruthy();
+    const data2 = input.data.get(BaseInput.LOOKTURN_PLAYERONE);
     expect(data2.value).toMatchObject([ -20, -5 ]);
     expect(data2.lifecycleState).toBe(LifecycleValue.UNCHANGED);
   });
@@ -354,8 +354,8 @@ xdescribe("button + movement", () => {
     triggerMouse({ ...windowPoint1, type: 'mousemove' });
     execute(); // should not be changed
 
-    expect(input.data.has(DefaultInput.LOOKTURN_PLAYERONE)).toBeTruthy();
-    const data2 = input.data.get(DefaultInput.LOOKTURN_PLAYERONE);
+    expect(input.data.has(BaseInput.LOOKTURN_PLAYERONE)).toBeTruthy();
+    const data2 = input.data.get(BaseInput.LOOKTURN_PLAYERONE);
     expect(data2.value).toMatchObject([ 20, 5 ]);
     expect(data2.lifecycleState).toBe(LifecycleValue.UNCHANGED);
   });
