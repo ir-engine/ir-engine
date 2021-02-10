@@ -1,5 +1,5 @@
 import { CharacterStateTypes } from './CharacterStateTypes';
-import { MovingState } from "./states/DefaultState";
+import { MovingState } from "./states/MovingState";
 import { DrivingState } from './states/DrivingState';
 import { DropRunningState } from './states/DropState';
 import { EnterVehicleState } from './states/EnterVehicleState';
