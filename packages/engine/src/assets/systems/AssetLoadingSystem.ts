@@ -272,9 +272,6 @@ export default class AssetLoadingSystem extends System {
 
   /** Execute the system. */
   execute(): void {
-    this.queryResults.assetVault.all.forEach(entity => {
-      // Do things here
-    });
     this.queryResults.toLoad.all.forEach((entity: Entity) => {
 
       const isCharacter = hasComponent(entity, CharacterAvatarComponent);

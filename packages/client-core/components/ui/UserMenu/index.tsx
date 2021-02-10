@@ -1,4 +1,4 @@
-import { Button, Card, CardContent, Drawer, Snackbar, TextField, Typography } from '@material-ui/core';
+import { Button, Card, CardContent, Snackbar, TextField, Typography } from '@material-ui/core';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import CachedIcon from '@material-ui/icons/Cached';
@@ -29,7 +29,6 @@ import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
 import { logoutUser, removeUser, updateUserAvatarId, updateUsername } from '../../../redux/auth/service';
 import { showDialog } from '../../../redux/dialog/service';
-import { selectInstanceConnectionState } from "../../../redux/instanceConnection/selector";
 import { provisionInstanceServer } from "../../../redux/instanceConnection/service";
 import { selectLocationState } from '../../../redux/location/selector';
 import { selectCurrentScene } from '../../../redux/scenes/selector';
@@ -55,7 +54,6 @@ const Views = {
 interface Props {
   login?: boolean;
   authState?: any;
-  instanceConnectionState?: any;
   locationState?: any;
   updateUsername?: typeof updateUsername;
   updateUserAvatarId?: typeof updateUserAvatarId;
@@ -63,14 +61,12 @@ interface Props {
   showDialog?: typeof showDialog;
   removeUser?: typeof removeUser;
   currentScene?: any;
-  provisionInstanceServer?: any;
 }
 
 const mapStateToProps = (state: any): any => {
   return {
     onBoardingStep: selectAppOnBoardingStep(state),
     authState: selectAuthState(state),
-    instanceConnectionState: selectInstanceConnectionState(state),
     locationState: selectLocationState(state),
     currentScene: selectCurrentScene(state),
   };
@@ -88,14 +84,12 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const UserMenu = (props: Props): any => {
   const {
     authState,
-    instanceConnectionState,
     locationState,
     logoutUser,
-    provisionInstanceServer,
     removeUser,
-    currentScene,
     updateUsername,
-    updateUserAvatarId
+    updateUserAvatarId,
+    currentScene
   } = props;
   const selfUser = authState.get('user');
   const currentLocation = locationState.get('currentLocation').get('location');
@@ -103,29 +97,19 @@ const UserMenu = (props: Props): any => {
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
   const [isEditUsername, setIsEditUsername] = useState(false);
   const [username, setUsername] = useState(selfUser?.name);
-  const [drawerType, setDrawerType] = useState(Views.Closed);
+  const [currentView, setCurrentView] = useState(Views.Closed);
 
   const invitationLink = window.location.href;
   const refLink = useRef(null);
   const postTitle = 'AR/VR world';
   const siteTitle = 'XR3ngine';
-  const anchor = 'right';
   const worldName = 'Loading...';
 
-  const [state, setState] = React.useState({
-    top: false,
-    left: false,
-    bottom: false,
-    right: false,
-  });
-
-  type Anchor = 'top' | 'left' | 'bottom' | 'right';
-
-  const handleAccountDeleteClick = () => setDrawerType(Views.DeleteAccount);
-  const handleAvatarChangeClick = () => setDrawerType(Views.Avatar);
-  const handleDeviceSetupClick = () => setDrawerType(Views.Settings);
-  const handleAccountSettings = () => setDrawerType(Views.Account);
-  const handleLogin = () => setDrawerType(Views.Login);
+  const handleAccountDeleteClick = () => setCurrentView(Views.DeleteAccount);
+  const handleAvatarChangeClick = () => setCurrentView(Views.Avatar);
+  const handleDeviceSetupClick = () => setCurrentView(Views.Settings);
+  const handleAccountSettings = () => setCurrentView(Views.Account);
+  const handleLogin = () => setCurrentView(Views.Login);
   const handleShowEditUsername = () => setIsEditUsername(!isEditUsername);
 
   const [waitingForLogout, setWaitingForLogout] = useState(false);
@@ -166,7 +150,7 @@ const UserMenu = (props: Props): any => {
 
   const confirmAccountDelete = () => {
     removeUser(selfUser.id);
-    setDrawerType(Views.Closed);
+    setCurrentView(Views.Closed);
   };
 
   const handleMobileShareOnClick = () => {
@@ -186,24 +170,6 @@ const UserMenu = (props: Props): any => {
     }
   };
 
-  const toggleDrawer = (anchor: Anchor, open: boolean) => (
-    event: React.KeyboardEvent | React.MouseEvent,
-  ) => {
-    setIsOpenDrawer(open);
-    if (
-      event &&
-      event.type === 'keydown' &&
-      ((event as React.KeyboardEvent).key === 'Tab' ||
-        (event as React.KeyboardEvent).key === 'Shift')
-    ) {
-      return;
-    }
-    setState({ ...state, [anchor]: open });
-
-    open === true ? window.document.querySelector('body').classList.add('menuDrawerOpened')
-      : window.document.querySelector('body').classList.remove('menuDrawerOpened');
-  };
-
   const handleLogout = async () => {
     if (currentLocation != null && currentLocation.slugifiedName != null) {
       await endVideoChat({ endConsumers: true });
@@ -211,7 +177,7 @@ const UserMenu = (props: Props): any => {
       setWaitingForLogout(true);
     }
     logoutUser();
-    setDrawerType(Views.Closed);
+    setCurrentView(Views.Closed);
   };
 
   const handleCloseSnackBar = (event?: React.SyntheticEvent, reason?: string) => {
@@ -227,17 +193,6 @@ const UserMenu = (props: Props): any => {
     }
     setIsEditUsername(false);
   };
-
-  const renderSuccessMessage = () =>
-    <Snackbar open={openSnackBar}
-      autoHideDuration={3000}
-      onClose={handleCloseSnackBar}
-      anchorOrigin={{
-        vertical: 'top',
-        horizontal: 'center',
-      }}>
-      <section>Link successfully added to clipboard</section>
-    </Snackbar>;
 
   useEffect(() => {
     const actorEntityWaitInterval = setInterval(() => {
@@ -269,8 +224,8 @@ const UserMenu = (props: Props): any => {
     }
   }, [authState]);
 
-  const renderAvatarSelectionPage = () => <>
-    <Typography variant="h1"><ArrowBackIosIcon onClick={() => setDrawerType(Views.Closed)} focusable={true} />Select Avatar</Typography>
+  const AvatarSelectionPage = () => <>
+    <Typography variant="h1"><ArrowBackIosIcon onClick={() => setCurrentView(Views.Closed)} focusable={true} />Select Avatar</Typography>
     <section className={styles.avatarCountainer}>
       {CharacterAvatars.map(characterAvatar =>
         <Card key={characterAvatar.id} className={styles.avatarPreviewWrapper}>
@@ -286,25 +241,25 @@ const UserMenu = (props: Props): any => {
     </section>
   </>;
 
-  const renderDeviceSetupPage = () => <>
-    <Typography variant="h1"><ArrowBackIosIcon onClick={() => setDrawerType(Views.Closed)} />Device Setup</Typography>
+  const SettingsPage = () => <>
+    <Typography variant="h1"><ArrowBackIosIcon onClick={() => setCurrentView(Views.Closed)} />Device Setup</Typography>
     <UserSettings />
   </>;
 
-  const renderLoginPage = () => <>
-    <Typography variant="h1"><ArrowBackIosIcon onClick={() => setDrawerType(Views.Closed)} />Login</Typography>
+  const LoginPage = () => <>
+    <Typography variant="h1"><ArrowBackIosIcon onClick={() => setCurrentView(Views.Closed)} />Login</Typography>
     <SignIn />
   </>;
 
   const config = getConfig().publicRuntimeConfig;
-  const renderAccountPage = () => <>
-    <Typography variant="h1"><ArrowBackIosIcon onClick={() => setDrawerType(Views.Closed)} />Account Settings</Typography>
+  const AccountPage = () => <>
+    <Typography variant="h1"><ArrowBackIosIcon onClick={() => setCurrentView(Views.Closed)} />Account Settings</Typography>
     <section className={styles.subContainer}>
       <Typography variant="h2">Connected Accounts</Typography>
       {selfUser && selfUser.identityProviders &&
         selfUser.identityProviders.map(provider =>
           <Typography variant="h3">
-            {renderProviderIcon(provider.type)}
+            {SSOProviderIcons(provider.type)}
             {provider.token}
           </Typography>)
 
@@ -313,7 +268,7 @@ const UserMenu = (props: Props): any => {
     <section className={styles.subContainer}>
       <Typography variant="h2">Available Connections</Typography>
       <section className={styles.horizontalContainer}>
-        {Object.entries(config.auth).map(([key, value]) => value && (<Typography variant="h2" align="center">{renderProviderIcon(key)}</Typography>))}
+        {Object.entries(config.auth).map(([key, value]) => value && (<Typography variant="h2" align="center">{SSOProviderIcons(key)}</Typography>))}
       </section>
     </section>
     <section className={styles.subContainer}>
@@ -323,18 +278,17 @@ const UserMenu = (props: Props): any => {
     </section>
   </>;
 
-
-  const renderSharePage = () => <>
+  const SharePage = () => <>
 
   </>;
 
-  const renderAccountDeletePage = () => <>
-    <Typography variant="h1"><ArrowBackIosIcon onClick={() => setDrawerType(Views.Closed)} />Delete Account</Typography>
+  const AccountDeletePage = () => <>
+    <Typography variant="h1"><ArrowBackIosIcon onClick={() => setCurrentView(Views.Closed)} />Delete Account</Typography>
     <div>
       <Typography variant="h5" color="primary" className={styles.header}>Delete account?</Typography>
       <div className={styles.deleteAccountButtons}>
         <Button
-          onClick={() => setDrawerType(Views.Account)}
+          onClick={() => setCurrentView(Views.Account)}
           startIcon={<ClearIcon />}
           variant="contained"
         >
@@ -352,20 +306,7 @@ const UserMenu = (props: Props): any => {
     </div>
   </>;
 
-  const renderWorldInfoHorizontalItems = () =>
-    <>
-      <section className={styles.locationInfo} style={{ backgroundImage: `url(${currentScene?.thumbnailUrl})` }}>
-        <span className={styles.sceneName}>{worldName}</span>
-        <span className={styles.sceneLink}>{invitationLink}</span>
-      </section>
-      <section className={styles.horizontalContainer}>
-        {(!isMobileOrTablet() || !navigator.share) && <textarea readOnly className={styles.linkField} ref={refLink} value={invitationLink} />}
-        <Typography variant="h2" align="center" onClick={() => isMobileOrTablet() && navigator.share ? handleMobileShareOnClick() : copyCodeToClipboard()}><LinkIcon color="primary" />Share</Typography>
-      </section>
-    </>;
-
-
-  const renderProviderIcon = type => {
+  const SSOProviderIcons = type => {
     switch (type) {
       case 'email':
       case 'enableEmailMagicLink':
@@ -386,7 +327,7 @@ const UserMenu = (props: Props): any => {
     }
   };
 
-  const renderUserProfilePage = () => <>
+  const UserProfilePage = () => <>
     <section className={styles.userTitle}>
       <AccountCircleIcon color="primary" className={styles.userPreview} />
       <section className={styles.userTitleLine}>
@@ -413,7 +354,14 @@ const UserMenu = (props: Props): any => {
         <span className={styles.userTitleRole}>{selfUser?.userRole}</span>
       </section>
     </section>
-    {renderWorldInfoHorizontalItems()}
+    <section className={styles.locationInfo} style={{ backgroundImage: `url(${currentScene?.thumbnailUrl})` }}>
+        <span className={styles.sceneName}>{worldName}</span>
+        <span className={styles.sceneLink}>{invitationLink}</span>
+      </section>
+      <section className={styles.horizontalContainer}>
+        {(!isMobileOrTablet() || !navigator.share) && <textarea readOnly className={styles.linkField} ref={refLink} value={invitationLink} />}
+        <Typography variant="h2" align="center" onClick={() => isMobileOrTablet() && navigator.share ? handleMobileShareOnClick() : copyCodeToClipboard()}><LinkIcon color="primary" />Share</Typography>
+      </section>
     <Button variant="outlined" color="secondary" onClick={handleAvatarChangeClick}>Change Avatar</Button>
     <section className={styles.socialSection}>
       {selfUser?.userRole === 'guest' ?
@@ -428,7 +376,7 @@ const UserMenu = (props: Props): any => {
               <Typography variant="h2" align="center">Public Social Accounts</Typography>
               {selfUser.identityProviders.map(provider =>
                 <Typography variant="h3">
-                  {renderProviderIcon(provider.type)}
+                  {SSOProviderIcons(provider.type)}
                   {provider.token}
                 </Typography>)
               }
@@ -440,36 +388,26 @@ const UserMenu = (props: Props): any => {
     <Typography variant="h2" align="left" onClick={handleDeviceSetupClick}><SettingsIcon color="primary" /> Settings</Typography>
     <Typography variant="h2" align="left"><ToysIcon color="primary" /> About</Typography>
     <Typography variant="h2" align="left"><PolicyIcon color="primary" /> Privacy & Terms</Typography>
-    {renderSuccessMessage()}
-  </>;
-
-  const renderDrawerContent = () => {
-    switch (drawerType) {
-      case Views.Profile: return renderUserProfilePage();
-      case Views.Avatar: return renderAvatarSelectionPage();
-      case Views.Settings: return renderDeviceSetupPage();
-      case Views.Login: return renderLoginPage();
-      case Views.Account: return renderAccountPage();
-      case Views.DeleteAccount: return renderAccountDeletePage();
-      case Views.Share: return renderSharePage();
-      default: return (() => { });
-    }
-  };
-
+    <Snackbar open={openSnackBar}
+      autoHideDuration={3000}
+      onClose={handleCloseSnackBar}
+      anchorOrigin={{
+        vertical: 'top',
+        horizontal: 'center',
+      }}>
+      <section>Link successfully added to clipboard</section>
+    </Snackbar>;
+    </>;
   return (
     <>
-      <section key={anchor} className={styles.anchorContainer}>
-        <span className={styles.anchorDrawer} onClick={toggleDrawer(anchor, isOpenDrawer === true ? false : true)} />
-        <Drawer
-          anchor={anchor}
-          open={state[anchor]}
-          onClose={toggleDrawer(anchor, false)}
-          className={styles.drawer}
-          BackdropProps={{ invisible: true, open: false }}
-          {...(state[anchor] && { variant: "permanent" })}
-        >
-          {renderDrawerContent()}
-        </Drawer>
+      <section className={styles.anchorContainer}>
+        { currentView === Views.Profile && <UserProfilePage /> }
+        { currentView === Views.DeleteAccount && <AccountDeletePage /> }
+        { currentView === Views.Share && <SharePage /> }
+        { currentView === Views.Login && <AccountPage /> }
+        { currentView === Views.Account && <LoginPage /> }
+        { currentView === Views.Settings && <SettingsPage /> }
+        { currentView === Views.Avatar && <AvatarSelectionPage /> }
       </section>
       <div className={styles.iconContainer}>
         <span className={styles.navButton}><PersonIcon onClick={toggleMyProfile} /></span>

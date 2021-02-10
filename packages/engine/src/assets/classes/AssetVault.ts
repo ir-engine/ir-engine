@@ -11,7 +11,7 @@ export default class AssetVault {
    * Map of assets in this vault.\
    * Map contains URL of the asset as key and asset as value.
    */
-  assets: AssetStorage
+  assets: AssetStorage = new Map();
   /** Indicates whether assets are loaded or not. */
-  assetsLoaded!: boolean
+  assetsLoaded: boolean = false;
 }

@@ -23,7 +23,7 @@ import { CollisionGroups } from "../../../physics/enums/CollisionGroups";
 import { PhysicsSystem } from "../../../physics/systems/PhysicsSystem";
 import { createShadow } from "../../../scene/behaviors/createShadow";
 import TeleportToSpawnPoint from '../../../scene/components/TeleportToSpawnPoint';
-import { setState } from "../../../state/behaviors/addState";
+import { setState } from "../../../state/behaviors/setState";
 import { State } from '../../../state/components/State';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
 import skeletonString from "../../../xr/Skeleton";

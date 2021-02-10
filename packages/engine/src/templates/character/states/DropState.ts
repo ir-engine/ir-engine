@@ -1,6 +1,6 @@
 import { getComponent } from '../../../ecs/functions/EntityFunctions';
 import { Input } from '../../../input/components/Input';
-import { setState } from "../../../state/behaviors/addState";
+import { setState } from "../../../state/behaviors/setState";
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";

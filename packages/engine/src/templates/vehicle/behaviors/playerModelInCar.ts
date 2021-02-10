@@ -11,7 +11,7 @@ import { addComponent, getComponent, getMutableComponent, hasComponent, removeCo
 import { LocalInputReceiver } from "@xr3ngine/engine/src/input/components/LocalInputReceiver";
 import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
 import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
-import { setState } from "@xr3ngine/engine/src/state/behaviors/addState";
+import { setState } from "@xr3ngine/engine/src/state/behaviors/setState";
 import { State } from "@xr3ngine/engine/src/state/components/State";
 import { setDropState } from "@xr3ngine/engine/src/templates/character/behaviors/setDropState";
 import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";

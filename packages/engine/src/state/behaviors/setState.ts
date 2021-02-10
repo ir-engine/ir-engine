@@ -21,6 +21,5 @@ export const setState: Behavior = (entity: Entity, args: { state: StateAlias }):
     state: args.state,
     type: StateType.DISCRETE,
     lifecycleState: LifecycleValue.STARTED,
-    group: stateComponent.schema.states[args.state].group
   } as StateValue<BinaryType>);
 };

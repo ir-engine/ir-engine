@@ -1,7 +1,7 @@
 import { CharacterComponent } from '../components/CharacterComponent';
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { getComponent } from '../../../ecs/functions/EntityFunctions';
-import { setState } from "../../../state/behaviors/addState";
+import { setState } from "../../../state/behaviors/setState";
 import { getSignedAngleBetweenVectors } from '@xr3ngine/engine/src/common/functions/getSignedAngleBetweenVectors';
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 

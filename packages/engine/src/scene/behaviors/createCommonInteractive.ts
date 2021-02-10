@@ -1,7 +1,8 @@
 import { Behavior } from "../../common/interfaces/Behavior";
-import { addComponent, getComponent } from "../../ecs/functions/EntityFunctions";
+import { addComponent, getComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import { Interactable } from "../../interaction/components/Interactable";
 import { CommonInteractiveData } from "../../templates/interactive/interfaces/CommonInteractiveData";
+import { Object3DComponent } from "../components/Object3DComponent";
 import { InteractiveSchema } from '../constants/InteractiveSchema';
 
 const onInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
