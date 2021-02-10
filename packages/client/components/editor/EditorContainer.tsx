@@ -48,8 +48,8 @@ const StyledEditorContainer = (styled as any).div`
 `;
 
 /**
- * WorkspaceContainer description
- * @type {[type]}
+ * WorkspaceContainer styled component is used as wrapper for HierarchyPanelContainer and PropertiesPanelContainer.
+ * @type {[Styled component]}
  */
 const WorkspaceContainer = (styled as any).div`
   display: flex;
@@ -58,10 +58,19 @@ const WorkspaceContainer = (styled as any).div`
   margin: 6px;
 `;
 
+/**
+ * [EditorContainerProps initializing api, router to access Api abd router component ]
+ * @type {Object}
+ */
 type EditorContainerProps = {
   api: Api;
   router: Router;
 };
+
+/**
+ * [EditorContainerState containing various properties used in editorContainer component]
+ * @type {Object}
+ */
 type EditorContainerState = {
   onboardingContext: { enabled: boolean };
   project: any;
@@ -77,6 +86,10 @@ type EditorContainerState = {
   modified: boolean;
 };
 
+/**
+ * [EditorContainer used to manage randering editor]
+ * @extends Component
+ */
 class EditorContainer extends Component<EditorContainerProps, EditorContainerState> {
   static propTypes = {
     api: PropTypes.object.isRequired,

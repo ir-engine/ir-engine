@@ -607,10 +607,23 @@ export default class Editor extends EventEmitter {
     this.history.execute(new ReparentMultipleWithPositionCommand(this, objects, this.scene, undefined, newPosition));
   }
 
+/**
+ * [takeScreenshot ]
+ * @param  {[type]}  width
+ * @param  {[type]}  height
+ * @return {Promise}        [generated screenshot according to height and width]
+ */
   async takeScreenshot(width, height) {
     return await this.renderer.takeScreenshot(width, height);
   }
 
+/**
+ * [generateFileThumbnail used to create thumbnail from audio as well video file]
+ * @param  {[type]}  file
+ * @param  {[type]}  width
+ * @param  {[type]}  height
+ * @return {Promise}        [generated thumbnail data as blob]
+ */
   async generateFileThumbnail(file, width, height) {
     const url = URL.createObjectURL(file);
     console.log("URL IS");
@@ -636,6 +649,10 @@ export default class Editor extends EventEmitter {
     return blob;
   }
 
+/**
+ * [enterPlayMode used to enable play mode]
+ *
+ */
   enterPlayMode() {
     this.playing = true;
     this.deselectAll();
@@ -649,6 +666,9 @@ export default class Editor extends EventEmitter {
     this.emit("playModeChanged");
   }
 
+/**
+ * [leavePlayMode used to disable play mode]
+ */
   leavePlayMode() {
     this.playing = false;
     this.camera.layers.enable(1);
@@ -661,6 +681,9 @@ export default class Editor extends EventEmitter {
     this.emit("playModeChanged");
   }
 
+/**
+ * [update used to update components used in editor]
+ */
   update = () => {
     if (!this.disableUpdate) {
       const delta = this.clock.getDelta();
@@ -689,24 +712,45 @@ export default class Editor extends EventEmitter {
     this.rafId = requestAnimationFrame(this.update);
   };
 
+/**
+ * [onResize event handler for resize containers]
+ */
   onResize = () => {
     this.inputManager.onResize();
     this.renderer.onResize();
     this.emit("resize");
   };
 
+/**
+ * [revert used to revert back the recent changes on the basis of checkpoint]
+ * @param  {[type]} checkpointId
+ */
   revert(checkpointId) {
     this.history.revert(checkpointId);
   }
 
+/**
+ * [undo used to undo changes using history of this component]
+ */
   undo() {
     this.history.undo();
   }
 
+/**
+ * [redo used to redo changes on the basis of history of component]
+ */
   redo() {
     this.history.redo();
   }
 
+/**
+ * [select called if we select object on the scene]
+ * @param  {[type]}  object
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @param  {Boolean} [updateTransformRoots=true]
+ * @return {[type]}                              [data of selected object]
+ */
   select(object, useHistory = true, emitEvent = true, updateTransformRoots = true) {
     if (this.selected.indexOf(object) !== -1) {
       return this.selected;
@@ -737,6 +781,14 @@ export default class Editor extends EventEmitter {
     return this.selected;
   }
 
+/**
+ * [selectMultiple used to select multiple objects on the scene]
+ * @param  {[type]}  objects
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @param  {Boolean} [updateTransformRoots=true]
+ * @return {[type]}                              [data of selected objects]
+ */
   selectMultiple(objects, useHistory = true, emitEvent = true, updateTransformRoots = true) {
     let selectionChanged = false;
 
@@ -774,10 +826,26 @@ export default class Editor extends EventEmitter {
     return this.selected;
   }
 
+/**
+ * [selectAll used to select all objects available in the scene ]
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @param  {Boolean} [updateTransformRoots=true]
+ * @return {[type]}                              [selected objects]
+ */
   selectAll(useHistory = true, emitEvent = true, updateTransformRoots = true) {
     return this.setSelection(this.nodes, useHistory, emitEvent, updateTransformRoots);
   }
 
+
+/**
+ * [deselect used to unselect the selected object]
+ * @param  {[type]}  object
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @param  {Boolean} [updateTransformRoots=true]
+ * @return {[type]}                              [return selected object]
+ */
   deselect(object, useHistory = true, emitEvent = true, updateTransformRoots = true) {
     const index = this.selected.indexOf(object);
 
@@ -810,6 +878,15 @@ export default class Editor extends EventEmitter {
     return this.selected;
   }
 
+
+/**
+ * [deselectMultiple  deselect multiple selected objects]
+ * @param  {[type]}  objects
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @param  {Boolean} [updateTransformRoots=true]
+ * @return {[type]}                              [selected object]
+ */
   deselectMultiple(objects, useHistory = true, emitEvent = true, updateTransformRoots = true) {
     let selectionChanged = false;
 
@@ -847,10 +924,23 @@ export default class Editor extends EventEmitter {
     return this.selected;
   }
 
+/**
+ * [deselectAll used to deselect all selected]
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @param  {Boolean} [updateTransformRoots=true]
+ */
   deselectAll(useHistory = true, emitEvent = true, updateTransformRoots = true) {
     return this.setSelection([], useHistory, emitEvent, updateTransformRoots);
   }
 
+/**
+ * [toggleSelection used to toggle select and unselect object ]
+ * @param  {[type]}  object
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @param  {Boolean} [updateTransformRoots=true]
+ */
   toggleSelection(object, useHistory = true, emitEvent = true, updateTransformRoots = true) {
     if (this.selected.indexOf(object) !== -1) {
       return this.deselect(object, useHistory, emitEvent, updateTransformRoots);
@@ -859,6 +949,13 @@ export default class Editor extends EventEmitter {
     }
   }
 
+/**
+ * [setSelection used to set selection various objects]
+ * @param {[type]}  objects
+ * @param {Boolean} [useHistory=true]
+ * @param {Boolean} [emitEvent=true]
+ * @param {Boolean} [updateTransformRoots=true]
+ */
   setSelection(objects, useHistory = true, emitEvent = true, updateTransformRoots = true) {
     if (objects.length === this.selected.length) {
       let equalSelection = true;
@@ -915,7 +1012,26 @@ export default class Editor extends EventEmitter {
     return this.selected;
   }
 
-  addObject(object, parent, before, useHistory = true, emitEvent = true, selectObject = true, useUniqueName = false) {
+
+/**
+ * [addObject used to add an object to the scene]
+ * @param {[type]}  object
+ * @param {[type]}  parent
+ * @param {[type]}  before
+ * @param {Boolean} [useHistory=true]
+ * @param {Boolean} [emitEvent=true]
+ * @param {Boolean} [selectObject=true]
+ * @param {Boolean} [useUniqueName=false]
+ */
+  addObject(
+    object,
+    parent,
+    before,
+    useHistory = true,
+    emitEvent = true,
+    selectObject = true,
+    useUniqueName = false
+  ) {
     if (emitEvent && selectObject) {
       this.emit("beforeSelectionChanged");
     }
@@ -971,6 +1087,17 @@ export default class Editor extends EventEmitter {
 
     return object;
   }
+
+/**
+ * [addMultipleObjects used to add multiple objects to the scene]
+ * @param {[type]}  objects
+ * @param {[type]}  parent
+ * @param {[type]}  before
+ * @param {Boolean} [useHistory=true]
+ * @param {Boolean} [emitEvent=true]
+ * @param {Boolean} [selectObjects=true]
+ * @param {Boolean} [useUniqueName=false]
+ */
 
   addMultipleObjects(
     objects,
@@ -1033,6 +1160,15 @@ export default class Editor extends EventEmitter {
     }
   }
 
+/**
+ * [removeObject used to remove object from scene]
+ * @param  {[type]}  object
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @param  {Boolean} [deselectObject=true]
+ * @return {[type]}                        [description]
+ */
+
   removeObject(object, useHistory = true, emitEvent = true, deselectObject = true) {
     if (object.parent === null) return null; // avoid deleting the camera or scene
 
@@ -1068,6 +1204,14 @@ export default class Editor extends EventEmitter {
     return object;
   }
 
+/**
+ * [removeMultipleObjects used to remove multiple objects from scene]
+ * @param  {[type]}  objects
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @param  {Boolean} [deselectObjects=true]
+ * @return {[type]}
+ */
   removeMultipleObjects(objects, useHistory = true, emitEvent = true, deselectObjects = true) {
     this.getRootObjects(objects, removeObjectsRoots);
 
@@ -1090,10 +1234,26 @@ export default class Editor extends EventEmitter {
     return removeObjectsRoots;
   }
 
+/**
+ * [removeSelectedObjects used to remove selected objects from scene]
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @param  {Boolean} [deselectObjects=true]
+ * @return {[type]}
+ */
   removeSelectedObjects(useHistory = true, emitEvent = true, deselectObjects = true) {
     return this.removeMultipleObjects(this.selected, useHistory, emitEvent, deselectObjects);
   }
 
+/**
+ * [duplicate used to create duplicate of selected object]
+ * @param  {[type]}  object
+ * @param  {[type]}  parent
+ * @param  {[type]}  before
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @param  {Boolean} [selectObject=true]
+ */
   duplicate(object, parent, before, useHistory = true, emitEvent = true, selectObject = true) {
     if (emitEvent && selectObject) {
       this.emit("beforeSelectionChanged");
@@ -1134,6 +1294,16 @@ export default class Editor extends EventEmitter {
     return clonedObject;
   }
 
+/**
+ * [duplicateMultiple used to create duplicate of selected objects]
+ * @param  {[type]}  objects              [description]
+ * @param  {[type]}  parent               [description]
+ * @param  {[type]}  before               [description]
+ * @param  {Boolean} [useHistory=true]    [description]
+ * @param  {Boolean} [emitEvent=true]     [description]
+ * @param  {Boolean} [selectObjects=true] [description]
+ * @return {[type]}                       [description]
+ */
   duplicateMultiple(objects, parent, before, useHistory = true, emitEvent = true, selectObjects = true) {
     if (emitEvent && selectObjects) {
       this.emit("beforeSelectionChanged");
@@ -1172,10 +1342,35 @@ export default class Editor extends EventEmitter {
     return duplicatedRoots;
   }
 
-  duplicateSelected(parent = undefined, before = undefined, useHistory = true, emitEvent = true, selectObject = true) {
+/**
+ * [duplicateSelected used to create duplicate of selected object]
+ * @param  {[type]}  [parent=undefined]
+ * @param  {[type]}  [before=undefined]
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @param  {Boolean} [selectObject=true]
+ * @return {[type]}
+ */
+  duplicateSelected(
+    parent = undefined,
+    before = undefined,
+    useHistory = true,
+    emitEvent = true,
+    selectObject = true
+  ) {
     this.duplicateMultiple(this.selected, parent, before, useHistory, emitEvent, selectObject);
   }
 
+/**
+ * [reparent used to change the parent object of selected object]
+ * @param  {[type]}  object
+ * @param  {[type]}  newParent
+ * @param  {[type]}  newBefore
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @param  {Boolean} [selectObject=true]
+ * @return {[type]}
+ */
   reparent(object, newParent, newBefore, useHistory = true, emitEvent = true, selectObject = true) {
     if (!object.parent) {
       throw new Error(
@@ -1242,6 +1437,16 @@ export default class Editor extends EventEmitter {
     return object;
   }
 
+  /**
+   * [reparentMultiple used to change the parent objects of multiple selected  objects]
+   * @param  {[type]}  objects
+   * @param  {[type]}  newParent
+   * @param  {[type]}  newBefore
+   * @param  {Boolean} [useHistory=true]
+   * @param  {Boolean} [emitEvent=true]
+   * @param  {Boolean} [selectObjects=true]
+   * @return {[object]}  [selected objects]
+   */
   reparentMultiple(objects, newParent, newBefore, useHistory = true, emitEvent = true, selectObjects = true) {
     if (emitEvent && selectObjects) {
       this.emit("beforeSelectionChanged");
@@ -1272,10 +1477,28 @@ export default class Editor extends EventEmitter {
     return objects;
   }
 
+/**
+ * [reparentSelected used to change the parent object of selected object]
+ * @param  {[type]}  newParent
+ * @param  {[type]}  newBefore
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @param  {Boolean} [selectObjects=true]
+ */
   reparentSelected(newParent, newBefore, useHistory = true, emitEvent = true, selectObjects = true) {
     return this.reparentMultiple(this.selected, newParent, newBefore, useHistory, emitEvent, selectObjects);
   }
 
+/**
+ * [groupMultiple used to group multiple objects]
+ * @param  {[type]}  objects
+ * @param  {[type]}  groupParent
+ * @param  {[type]}  groupBefore
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @param  {Boolean} [selectObject=true]
+ * @return {[type]}        [group node]
+ */
   groupMultiple(objects, groupParent, groupBefore, useHistory = true, emitEvent = true, selectObject = true) {
     if (emitEvent && selectObject) {
       this.emit("beforeSelectionChanged");
@@ -1308,7 +1531,22 @@ export default class Editor extends EventEmitter {
     return groupNode;
   }
 
-  groupSelected(groupParent = undefined, groupBefore = undefined, useHistory = true, emitEvent = true, selectObject = true) {
+/**
+ * [groupSelected used to group selected objects]
+ * @param  {[type]}  [groupParent=undefined]
+ * @param  {[type]}  [groupBefore=undefined]
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @param  {Boolean} [selectObject=true]
+ * @return {[type]}
+ */
+  groupSelected(
+     groupParent = undefined,
+     groupBefore = undefined,
+     useHistory = true,
+     emitEvent = true,
+     selectObject = true
+   ) {
     return this.groupMultiple(
       this.selectedTransformRoots,
       groupParent,
@@ -1319,6 +1557,14 @@ export default class Editor extends EventEmitter {
     );
   }
 
+/**
+ * [setPosition used to position object on scene]
+ * @param {[type]}  object
+ * @param {[type]}  position
+ * @param {[type]}  [space=TransformSpace.Local]
+ * @param {Boolean} [useHistory=true]
+ * @param {Boolean} [emitEvent=true]
+ */
   setPosition(object, position, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     if (useHistory) {
       return this.history.execute(new SetPositionCommand(this, object, position, space));
@@ -1363,6 +1609,14 @@ export default class Editor extends EventEmitter {
     return object;
   }
 
+/**
+ * [setPositionMultiple used to position multiple objects on the scene]
+ * @param {[type]}  objects
+ * @param {[type]}  position
+ * @param {[type]}  [space=TransformSpace.Local]
+ * @param {Boolean} [useHistory=true]
+ * @param {Boolean} [emitEvent=true]
+ */
   setPositionMultiple(objects, position, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     if (useHistory) {
       return this.history.execute(new SetPositionMultipleCommand(this, objects, position, space));
@@ -1389,10 +1643,26 @@ export default class Editor extends EventEmitter {
     return objects;
   }
 
+/**
+ * [setPositionSelected used to position select object]
+ * @param {[type]}  position
+ * @param {[type]}  [space=TransformSpace.Local]
+ * @param {Boolean} [useHistory=true]
+ * @param {Boolean} [emitEvent=true]
+ */
   setPositionSelected(position, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     return this.setPositionMultiple(this.selectedTransformRoots, position, space, useHistory, emitEvent);
   }
 
+/**
+ * [translate used to move an object to specific postion]
+ * @param  {[type]}  object
+ * @param  {[type]}  translation
+ * @param  {[type]}  [space=TransformSpace.Local]
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @return {[type]}  [object]
+ */
   translate(object, translation, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     if (useHistory) {
       return this.history.execute(new TranslateCommand(this, object, translation, space));
@@ -1437,6 +1707,15 @@ export default class Editor extends EventEmitter {
     return object;
   }
 
+/**
+ * [translateMultiple is used when multiple objects are selected]
+ * @param  {[type]}  objects
+ * @param  {[type]}  translation
+ * @param  {[type]}  [space=TransformSpace.Local]
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @return {[type]}  [selected objects]
+ */
   translateMultiple(objects, translation, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     if (useHistory) {
       return this.history.execute(new TranslateMultipleCommand(this, objects, translation, space));
@@ -1463,10 +1742,26 @@ export default class Editor extends EventEmitter {
     return objects;
   }
 
+/**
+ * [translateSelected handler to transform multiple selected objects]
+ * @param  {[type]}  translation
+ * @param  {[type]}  [space=TransformSpace.Local]
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @return {[type]}  [multiple selected objects]
+ */
   translateSelected(translation, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     return this.translateMultiple(this.selectedTransformRoots, translation, space, useHistory, emitEvent);
   }
 
+/**
+ * [setRotation used to rotate a single object]
+ * @param {[type]}  object
+ * @param {[type]}  rotation
+ * @param {[type]}  [space=TransformSpace.Local]
+ * @param {Boolean} [useHistory=true]
+ * @param {Boolean} [emitEvent=true]
+ */
   setRotation(object, rotation, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     if (useHistory) {
       return this.history.execute(new SetRotationCommand(this, object, rotation, space));
@@ -1510,6 +1805,14 @@ export default class Editor extends EventEmitter {
     return object;
   }
 
+/**
+ * [setRotationMultiple used to rotate multiple objects]
+ * @param {[type]}  objects
+ * @param {[type]}  rotation
+ * @param {[type]}  [space=TransformSpace.Local]
+ * @param {Boolean} [useHistory=true]
+ * @param {Boolean} [emitEvent=true]
+ */
   setRotationMultiple(objects, rotation, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     if (useHistory) {
       return this.history.execute(new SetRotationMultipleCommand(this, objects, rotation, space));
@@ -1536,10 +1839,27 @@ export default class Editor extends EventEmitter {
     return objects;
   }
 
+/**
+ * [setRotationSelected used when multiple objects are selected to rotate]
+ * @param {[type]}  rotation
+ * @param {[type]}  [space=TransformSpace.Local]
+ * @param {Boolean} [useHistory=true]
+ * @param {Boolean} [emitEvent=true]
+ */
   setRotationSelected(rotation, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     return this.setRotationMultiple(this.selectedTransformRoots, rotation, space, useHistory, emitEvent);
   }
 
+/**
+ * [rotateOnAxis used to rotate selected object on given axis]
+ * @param  {[type]}  object
+ * @param  {[type]}  axis
+ * @param  {[type]}  angle
+ * @param  {[type]}  [space=TransformSpace.Local]
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @return {Boolean}
+ */
   rotateOnAxis(object, axis, angle, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     if (useHistory) {
       return this.history.execute(new RotateOnAxisCommand(this, object, axis, angle, space));
@@ -1583,6 +1903,16 @@ export default class Editor extends EventEmitter {
     return object;
   }
 
+/**
+ * [rotateOnAxisMultiple multiple selected objects on the given axis]
+ * @param  {[type]}  objects
+ * @param  {[type]}  axis
+ * @param  {[type]}  angle
+ * @param  {[type]}  [space=TransformSpace.Local]
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @return {[type]}
+ */
   rotateOnAxisMultiple(objects, axis, angle, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     if (useHistory) {
       return this.history.execute(new RotateOnAxisMultipleCommand(this, objects, axis, angle, space));
@@ -1609,10 +1939,29 @@ export default class Editor extends EventEmitter {
     return objects;
   }
 
+/**
+ * [rotateOnAxisSelected is used when multiple objects are selected to rotate]
+ * @param  {[type]}  axis
+ * @param  {[type]}  angle
+ * @param  {[type]}  [space=TransformSpace.Local]
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @return {[type]}
+ */
   rotateOnAxisSelected(axis, angle, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     return this.rotateOnAxisMultiple(this.selectedTransformRoots, axis, angle, space, useHistory, emitEvent);
   }
 
+/**
+ * [rotateAround modifies both the position and the rotation of the object]
+ * @param  {[type]}  object
+ * @param  {[type]}  pivot
+ * @param  {[type]}  axis
+ * @param  {[type]}  angle
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @return {[type]}
+ */
   rotateAround(object, pivot, axis, angle, useHistory = true, emitEvent = true) {
     if (useHistory) {
       return this.history.execute(new RotateAroundCommand(this, object, pivot, axis, angle));
@@ -1644,6 +1993,16 @@ export default class Editor extends EventEmitter {
     return object;
   }
 
+/**
+ * [rotateAroundMultiple modifies both the position and the rotation of the multiple objects ]
+ * @param  {[type]}  objects
+ * @param  {[type]}  pivot
+ * @param  {[type]}  axis
+ * @param  {[type]}  angle
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @return {[type]}
+ */
   rotateAroundMultiple(objects, pivot, axis, angle, useHistory = true, emitEvent = true) {
     if (useHistory) {
       return this.history.execute(new RotateAroundMultipleCommand(this, objects, pivot, axis, angle));
@@ -1660,10 +2019,28 @@ export default class Editor extends EventEmitter {
     return objects;
   }
 
+/**
+ * [rotateAroundSelected used when multiple objects are selected]
+ * @param  {[type]}  pivot
+ * @param  {[type]}  axis
+ * @param  {[type]}  angle
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @return {[type]}
+ */
   rotateAroundSelected(pivot, axis, angle, useHistory = true, emitEvent = true) {
     return this.rotateAroundMultiple(this.selectedTransformRoots, pivot, axis, angle, useHistory, emitEvent);
   }
 
+/**
+ * [scale used to increase size of object according to the scaling coordinates]
+ * @param  {[type]}  object                       [selected object to scale]
+ * @param  {[type]}  scale                        [contains coordinates to scale]
+ * @param  {[type]}  [space=TransformSpace.Local]
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @return {[type]}                               [selected object]
+ */
   scale(object, scale, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     if (useHistory) {
       return this.history.execute(new ScaleCommand(this, object, scale, space));
@@ -1686,6 +2063,15 @@ export default class Editor extends EventEmitter {
     return object;
   }
 
+/**
+ * [scaleMultiple used to increase size of multiple selected objects]
+ * @param  {[type]}  objects                      [contains array of select objects]
+ * @param  {[type]}  scale                        [contains scaling coordinates]
+ * @param  {[type]}  [space=TransformSpace.Local]
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @return {[type]}                               [selected objects]
+ */
   scaleMultiple(objects, scale, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     if (useHistory) {
       return this.history.execute(new ScaleMultipleCommand(this, objects, scale, space));
@@ -1702,10 +2088,26 @@ export default class Editor extends EventEmitter {
     return objects;
   }
 
+/**
+ * [scaleSelected used when multiple objects are selected]
+ * @param  {[type]}  scale
+ * @param  {[type]}  [space=TransformSpace.Local]
+ * @param  {Boolean} [useHistory=true]
+ * @param  {Boolean} [emitEvent=true]
+ * @return {[type]}
+ */
   scaleSelected(scale, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     return this.scaleMultiple(this.selectedTransformRoots, scale, space, useHistory, emitEvent);
   }
 
+/**
+ * [setScale used to scale object according to scaling coordinates]
+ * @param {[type]}  object
+ * @param {[type]}  scale
+ * @param {[type]}  [space=TransformSpace.Local]
+ * @param {Boolean} [useHistory=true]
+ * @param {Boolean} [emitEvent=true]
+ */
   setScale(object, scale, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     if (useHistory) {
       return this.history.execute(new SetScaleCommand(this, object, scale, space));
@@ -1763,6 +2165,14 @@ export default class Editor extends EventEmitter {
     return object;
   }
 
+/**
+ * [setScaleMultiple used to scale multiple objects]
+ * @param {[type]}  objects
+ * @param {[type]}  scale
+ * @param {[type]}  [space=TransformSpace.Local]
+ * @param {Boolean} [useHistory=true]
+ * @param {Boolean} [emitEvent=true]
+ */
   setScaleMultiple(objects, scale, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     if (useHistory) {
       return this.history.execute(new SetScaleMultipleCommand(this, objects, scale, space));
@@ -1789,10 +2199,26 @@ export default class Editor extends EventEmitter {
     return objects;
   }
 
+/**
+ * [setScaleSelected used when multiple objects are selected]
+ * @param {[type]}  scale
+ * @param {[type]}  [space=TransformSpace.Local]
+ * @param {Boolean} [useHistory=true]
+ * @param {Boolean} [emitEvent=true]
+ */
   setScaleSelected(scale, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     return this.setScaleMultiple(this.selectedTransformRoots, scale, space, useHistory, emitEvent);
   }
 
+/**
+ * [setProperty used to set specific property to the selected object]
+ * @param {[type]}  object
+ * @param {[type]}  propertyName
+ * @param {[type]}  value
+ * @param {Boolean} [useHistory=true]
+ * @param {Boolean} [emitEvent=true]
+ * @param {Boolean} [disableCopy=false]
+ */
   setProperty(object, propertyName, value, useHistory = true, emitEvent = true, disableCopy = false) {
     if (useHistory) {
       return this.history.execute(new SetPropertyCommand(this, object, propertyName, value, disableCopy));
@@ -1815,6 +2241,14 @@ export default class Editor extends EventEmitter {
     return object;
   }
 
+/**
+ * [setPropertyMultiple used to set propery to multiple selected objects]
+ * @param {[type]}  objects
+ * @param {[type]}  propertyName
+ * @param {[type]}  value
+ * @param {Boolean} [useHistory=true]
+ * @param {Boolean} [emitEvent=true]
+ */
   setPropertyMultiple(objects, propertyName, value, useHistory = true, emitEvent = true) {
     if (useHistory) {
       return this.history.execute(new SetPropertyMultipleCommand(this, objects, propertyName, value));
@@ -1830,11 +2264,24 @@ export default class Editor extends EventEmitter {
 
     return objects;
   }
-
+/**
+ * [setPropertySelected used when multiple objects are selected]
+ * @param {[type]}  propertyName
+ * @param {[type]}  value
+ * @param {Boolean} [useHistory=true]
+ * @param {Boolean} [emitEvent=true]
+ */
   setPropertySelected(propertyName, value, useHistory = true, emitEvent = true) {
     return this.setPropertyMultiple(this.selected, propertyName, value, useHistory, emitEvent);
   }
 
+/**
+ * [setProperties used to set multiple properties to selected object]
+ * @param {[type]}  object
+ * @param {[type]}  properties
+ * @param {Boolean} [useHistory=true]
+ * @param {Boolean} [emitEvent=true]
+ */
   setProperties(object, properties, useHistory = true, emitEvent = true) {
     if (useHistory) {
       return this.history.execute(new SetPropertiesCommand(this, object, properties));
@@ -1861,6 +2308,13 @@ export default class Editor extends EventEmitter {
     return object;
   }
 
+/**
+ * [setPropertiesMultiple used to set multiple properties of multiple selected objects]
+ * @param {[type]}  objects
+ * @param {[type]}  properties
+ * @param {Boolean} [useHistory=true]
+ * @param {Boolean} [emitEvent=true]
+ */
   setPropertiesMultiple(objects, properties, useHistory = true, emitEvent = true) {
     if (useHistory) {
       return this.history.execute(new SetPropertiesMultipleCommand(this, objects, properties));
@@ -1877,6 +2331,12 @@ export default class Editor extends EventEmitter {
     return objects;
   }
 
+/**
+ * [setPropertiesSelected used when multiple objects are selected]
+ * @param {[type]}  properties
+ * @param {Boolean} [useHistory=true]
+ * @param {Boolean} [emitEvent=true]
+ */
   setPropertiesSelected(properties, useHistory = true, emitEvent = true) {
     return this.setPropertiesMultiple(this.selected, properties, useHistory, emitEvent);
   }
@@ -1925,6 +2385,14 @@ export default class Editor extends EventEmitter {
     return this.loadMaterialSlotMultiple(this.selected, subPieceId, materialSlotId, materialId, useHistory, emitEvent);
   }
 
+/**
+ * [getRootObjects used to find root objects ]
+ * @param  {[type]}  objects
+ * @param  {Array}   [target=[]]
+ * @param  {Boolean} [filterUnremovable=true]
+ * @param  {Boolean} [filterUntransformable=false]
+ * @return {[type]}                                
+ */
   getRootObjects(objects, target = [], filterUnremovable = true, filterUntransformable = false) {
     target.length = 0;
 
