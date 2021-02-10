@@ -3,16 +3,15 @@
  * @packageDocumentation
  */
 
+import { AudioListener, Clock, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
+import { CSM } from '../../assets/csm/CSM.js';
+import { ServerSpawnSystem } from "../../scene/systems/SpawnSystem";
+import { TransformComponent } from '../../transform/components/TransformComponent';
 import { EngineOptions } from '../interfaces/EngineOptions';
+import { Entity } from './Entity';
 import { EntityPool } from './EntityPool';
 import { EventDispatcher } from './EventDispatcher';
 import { Query } from './Query';
-import { WebGLRenderer, PerspectiveCamera, Scene, Clock, AudioListener,  } from 'three';
-import { Entity } from './Entity';
-import { CameraOperator } from '../../camera/classes/CameraOperator';
-import { TransformComponent } from '../../transform/components/TransformComponent';
-import { ServerSpawnSystem } from "../../scene/systems/SpawnSystem";
-import { CSM } from '../../assets/csm/CSM.js';
 
 /** 
  * This is the base class which holds all the data related to the scene, camera,system etc.\
@@ -46,7 +45,6 @@ export class Engine {
   public static accumulator: number;
   public static justExecuted: boolean;
   public static params: any;
-  public static cameraOperator: CameraOperator;
   /**
    * @default 1
    */

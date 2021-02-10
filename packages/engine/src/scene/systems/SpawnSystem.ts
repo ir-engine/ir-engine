@@ -46,40 +46,6 @@ export class ServerSpawnSystem extends System {
         this.queryResults.spawnPoint.removed?.forEach(entity => {
             this.spawnPoints.splice(this.spawnPoints.indexOf(entity))
         });
-
-//         this.queryResults.toBeSpawned.all?.forEach(entity => {
-//             // console.log("Spawning ", entity.id);
-//             if (this.spawnPoints.length < 1)
-//                 return console.warn("Couldn't spawn entity at spawn point, no spawn points available");
-//
-//             // Get new spawn point (round robin)
-//             this.lastSpawnIndex = (this.lastSpawnIndex + 1) % this.spawnPoints.length;
-//
-//             // Copy spawn transform to entity transform
-//             const actor = getMutableComponent(entity, CharacterComponent);
-//             const spawnTransform = getMutableComponent(this.spawnPoints[this.lastSpawnIndex], TransformComponent);
-//             const body = actor.actorCapsule.body
-//
-//             const position = new Vec3(
-//               spawnTransform.position.x,
-//               spawnTransform.position.y,
-//               spawnTransform.position.z
-//             );
-//             body.position.copy(position);
-//             body.previousPosition.copy(position);
-//             body.interpolatedPosition.copy(position);
-//             body.initPosition.copy(position);
-//
-//             actor.actorCapsule.body.quaternion.set(
-//               spawnTransform.rotation.x,
-//               spawnTransform.rotation.y,
-//               spawnTransform.rotation.z,
-//               spawnTransform.rotation.w
-//             );
-//
-//             // Remove the component
-//             removeComponent(entity, TeleportToSpawnPoint);
-//         });
     }
 }
 

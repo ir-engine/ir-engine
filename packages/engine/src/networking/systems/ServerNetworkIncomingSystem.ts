@@ -1,13 +1,15 @@
 import _ from 'lodash';
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { Behavior } from '../../common/interfaces/Behavior';
+import { NumericalType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
-import { cleanupInput } from '../../input/behaviors/cleanupInput';
 import { Input } from '../../input/components/Input';
 import { InputType } from '../../input/enums/InputType';
+import { InputValue } from '../../input/interfaces/InputValue';
+import { InputAlias } from '../../input/types/InputAlias';
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
@@ -195,7 +197,16 @@ export class ServerNetworkIncomingSystem extends System {
         // Call behaviors associated with input
         handleInputFromNonLocalClients(entity, {isLocal: false, isServer: true}, delta);
         addInputToWorldStateOnServer(entity);
-        cleanupInput(entity);
+        const input = getMutableComponent(entity, Input);
+
+        // clean processed LifecycleValue.ENDED inputs
+        input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+          if (value.type === InputType.BUTTON) {
+            if (value.lifecycleState === LifecycleValue.ENDED) {
+              input.data.delete(key);
+            }
+          }
+        });
       });
     }
 

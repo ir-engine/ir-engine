@@ -1,11 +1,10 @@
-import { Engine } from '../../ecs/classes/Engine';
-import { SceneTagComponent } from '../../common/components/Object3DTagComponents';
-import { addComponent, createEntity, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { SceneObjectLoadingSchema } from '../constants/SceneObjectLoadingSchema';
-import { PhysicsSystem } from '../../physics/systems/PhysicsSystem';
 import { AssetLoader } from '../../assets/components/AssetLoader';
 import { isClient } from "../../common/functions/isClient";
+import { Engine } from '../../ecs/classes/Engine';
 import { Entity } from "../../ecs/classes/Entity";
+import { addComponent, createEntity, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { SceneTagComponent } from '../components/Object3DTagComponents';
+import { SceneObjectLoadingSchema } from '../constants/SceneObjectLoadingSchema';
 import { SceneData } from "../interfaces/SceneData";
 import { SceneDataComponent } from "../interfaces/SceneDataComponent";
 
