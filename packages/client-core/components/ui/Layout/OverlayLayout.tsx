@@ -19,6 +19,7 @@ import InstanceChat from '../InstanceChat';
 import Me from '../Me';
 import NavMenu from '../NavMenu';
 import PartyVideoWindows from '../PartyVideoWindows';
+import { ToastProvider } from 'react-toast-notifications';
 
 const { publicRuntimeConfig } = getConfig();
 const siteTitle: string = publicRuntimeConfig.siteTitle;
@@ -82,6 +83,7 @@ const Layout = (props: Props): any => {
   //info about current mode to conditional render menus
 // TODO: Uncomment alerts when we can fix issues
   return (
+    <ToastProvider>
     <ThemeProvider theme={theme}>
     <section>
       <Head>
@@ -122,6 +124,8 @@ const Layout = (props: Props): any => {
       </footer>
     </section>
     </ThemeProvider>
+    </ToastProvider>
+
   );
 };
 

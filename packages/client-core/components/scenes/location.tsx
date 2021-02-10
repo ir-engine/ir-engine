@@ -44,6 +44,11 @@ import NamePlate from '../ui/NamePlate';
 import NetworkDebug from '../ui/NetworkDebug/NetworkDebug';
 import { OpenLink } from '../ui/OpenLink';
 import TooltipContainer from '../ui/TooltipContainer';
+<<<<<<< HEAD
+=======
+import dynamic from 'next/dynamic';
+import { useToasts } from 'react-toast-notifications';
+>>>>>>> 394fc02bb... design toast message
 
 const goHome = () => window.location.href = window.location.origin;
 
@@ -117,6 +122,7 @@ export const EnginePage = (props: Props) => {
   const [objectHovered, setObjectHovered] = useState(false);
 
   const [isValidLocation, setIsValidLocation] = useState(true);
+  const { addToast } = useToasts();
 
   const appLoaded = appState.get('loaded');
   const selfUser = authState.get('user');
@@ -132,10 +138,11 @@ export const EnginePage = (props: Props) => {
   useEffect(() => {
     const currentLocation = locationState.get('currentLocation').get('location');
     locationId = currentLocation.id;
-
     setUserBannedState(selfUser?.locationBans?.find(ban => ban.locationId === locationId) != null);
     if (authState.get('isLoggedIn') === true && authState.get('user')?.id != null && authState.get('user')?.id.length > 0 && currentLocation.id == null && userBanned === false && locationState.get('fetchingCurrentLocation') !== true) {
       getLocationByName(locationName);
+      console.log(authState);
+  //    addToast('Saved Successfully', { appearance: 'success' });
       if (sceneId === null) {
         sceneId = currentLocation.sceneId;
       }
@@ -161,7 +168,7 @@ export const EnginePage = (props: Props) => {
     if (sceneId === null) {
       sceneId = currentLocation.sceneId;
     }
-
+      
     if (!currentLocation.id && !locationState.get('currentLocationUpdateNeeded') && !locationState.get('fetchingCurrentLocation')) {
       setIsValidLocation(false);
       store.dispatch(setAppSpecificOnBoardingStep(generalStateList.FAILED, false));
@@ -348,7 +355,7 @@ export const EnginePage = (props: Props) => {
       <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); }} data={openLinkData} />
       {mobileGamepad}
     </>
-  ) : (<div className="banned">You have been banned from this location</div>)
+  ) : (<div className="banned">You have been banned from this location</div>)  
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(EnginePage);
