@@ -13,6 +13,7 @@ export const IndexPage = (props: any): any => {
             <VolumetricPlayer
               meshFilePath={meshFilePath}
               videoFilePath={videoFilePath}
+              cameraVerticalOffset={0.5}
             />
           {/* </Canvas> */}
         </div>
