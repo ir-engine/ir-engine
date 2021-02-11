@@ -274,7 +274,6 @@ const UserMenu = (props: UserMenuProps): any => {
     if (selfUser.name.trim() !== username.trim()) {
       updateUsername(selfUser.id, username.trim());
     }
-    setIsEditUsername(false);
   };
 
   const setAvatar = (avatarId: string) => {
@@ -311,10 +310,10 @@ const UserMenu = (props: UserMenuProps): any => {
     switch (currentActiveMenu.id) {
       case Views.Profile: 
         args = {
-          user: selfUser,
-          setUsername: (e) => {
-            setUsername(e.target.value);
-          },
+          username,
+          userRole: selfUser.userRole,
+          avatarId: selfUser.avatarId,
+          setUsername,
           updateUsername: handleUpdateUsername,
           openAvatarMenu,
         };
