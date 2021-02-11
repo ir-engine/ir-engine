@@ -86,7 +86,7 @@ const Layout = (props: Props): any => {
   return (
   <ToastProvider
    autoDismiss
-   autoDismissTimeout={6000}
+   autoDismissTimeout={8000}
    components={{ Toast: Success }}
   >
     <ThemeProvider theme={theme}>
