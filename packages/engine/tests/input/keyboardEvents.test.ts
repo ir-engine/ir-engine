@@ -8,7 +8,7 @@ import { Input } from "../../src/input/components/Input";
 import { LocalInputReceiver } from "../../src/input/components/LocalInputReceiver";
 import { InputSchema } from "../../src/input/interfaces/InputSchema";
 import { InputSystem } from "../../src/input/systems/ClientInputSystem";
-import { DefaultInput } from "../../src/templates/shared/DefaultInput";
+import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
 
 let addListenerMock:jest.SpyInstance;
 
@@ -38,8 +38,8 @@ const testInputSchema: InputSchema = {
     ],
   },
   keyboardInputMap: {
-    w: DefaultInput.FORWARD,
-    a: DefaultInput.LEFT,
+    w: BaseInput.FORWARD,
+    a: BaseInput.LEFT,
   },
   inputAxisBehaviors: {},
 };
@@ -70,8 +70,8 @@ describe.skip('full lifecycle', () => {
     triggerKey({ key:'w', type: 'keydown' });
     execute(); // stared
 
-    expect(input.data.has(DefaultInput.FORWARD)).toBeTruthy();
-    const data1 = input.data.get(DefaultInput.FORWARD);
+    expect(input.data.has(BaseInput.FORWARD)).toBeTruthy();
+    const data1 = input.data.get(BaseInput.FORWARD);
     expect(data1.value).toBe(BinaryValue.ON);
     expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
   });
@@ -81,7 +81,7 @@ describe.skip('full lifecycle', () => {
     execute(); // started
     execute(); // continued
 
-    const data1 = input.data.get(DefaultInput.FORWARD);
+    const data1 = input.data.get(BaseInput.FORWARD);
     expect(data1.lifecycleState).toBe(LifecycleValue.CONTINUED);
   });
 
@@ -91,7 +91,7 @@ describe.skip('full lifecycle', () => {
     triggerKey({ key:'w', type: 'keydown' });
     execute();
 
-    const data1 = input.data.get(DefaultInput.FORWARD);
+    const data1 = input.data.get(BaseInput.FORWARD);
     expect(data1.lifecycleState).toBe(LifecycleValue.CONTINUED);
   });
 
@@ -101,15 +101,15 @@ describe.skip('full lifecycle', () => {
     triggerKey({ key:'w', type: 'keyup' });
     execute();
 
-    expect(input.data.has(DefaultInput.FORWARD)).toBeFalsy();
-    // const data2 = input.data.get(DefaultInput.FORWARD);
+    expect(input.data.has(BaseInput.FORWARD)).toBeFalsy();
+    // const data2 = input.data.get(BaseInput.FORWARD);
     // expect(data2.value).toBe(BinaryValue.OFF);
     // expect(data2.lifecycleState).toBe(LifecycleValue.ENDED);
   });
 
   // it("on next execution it's deleted", () => {
   //   execute();
-  //   expect(input.data.has(DefaultInput.FORWARD)).toBeFalsy();
+  //   expect(input.data.has(BaseInput.FORWARD)).toBeFalsy();
   // })
 });
 
