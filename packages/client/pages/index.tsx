@@ -37,9 +37,11 @@ export const IndexPage = (): any => {
                         <div className="main-txt width-400">
                             Realtime social apps for everyone, at metaverse scale.
                         </div>
-                        <button type="button" className="button main-button">
-                            Try The Demo
-                        </button>
+                        <a href="/location/demo">
+                            <button type="button" className="button main-button">
+                                Try The Demo
+                            </button>
+                        </a>
                     </div>
                     <object className="main-background" data="static/main-background.png"></object>
                     <div className="contact-right-div">
@@ -48,8 +50,12 @@ export const IndexPage = (): any => {
                 </div>
                 <div className="right-top-menu-row row">
                     <div className="right-top-menu">
-                        <object className="mr-4 discord-icon" data="static/discord.svg"></object>
-                        <object className="github-icon" data="static/github.svg"></object>
+                        <a target="_blank" href="https://discord.gg/mQ3D4FE">
+                            <img className="mr-5 discord-icon" src="static/discord.svg"></img>
+                        </a>
+                        <a target="_blank" href="https://github.com/xr3ngine/xr3ngine">
+                            <img className="ml-2 github-icon" src="static/github.svg"></img>
+                        </a>
                     </div>
                 </div>
             </div>
