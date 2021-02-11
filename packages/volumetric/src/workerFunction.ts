@@ -12,7 +12,7 @@ export function workerFunction() {
   let _numberOfKeyframes;
   let _fileHeader;
 
-  async function startFetching({
+  function startFetching({
     meshFilePath,
     numberOfKeyframes,
     fileHeader
