@@ -79,17 +79,17 @@ export default class DracosisPlayer {
     keyframesToBufferBeforeStart = 200
   }) {
 
-    var dataObj = '(' + workerFunction + ')();'; // here is the trick to convert the above fucntion to string
-    var blob = new Blob([dataObj.replace('"use strict";', '')], { type: 'application/javascript' }); // firefox adds "use strict"; to any function which might block worker execution so knock it off
+    const dataObj = '(' + workerFunction + ')();'; // here is the trick to convert the above fucntion to string
+    const blob = new Blob([dataObj.replace('"use strict";', '')], { type: 'application/javascript' }); // firefox adds "use strict"; to any function which might block worker execution so knock it off
 
-    var blobURL = (window.URL ? URL : webkitURL).createObjectURL(blob);
+    const blobURL = (window.URL ? URL : webkitURL).createObjectURL(blob);
 
     const worker = new Worker(blobURL); // spawn new worker
     this._worker = worker;
 
     const handleFrameData = (frameData) => {
       console.log("Adding frame data: ", frameData);
-      
+
               let geometry = new BufferGeometry();
               geometry.setIndex(
                 new Uint32BufferAttribute(frameData.keyframeBufferObject.bufferGeometry.index, 1)
@@ -137,6 +137,11 @@ export default class DracosisPlayer {
     this._video = document.createElement('video');
     this._video.crossorigin = "anonymous";
     this._video.loop = true;
+    this._video.style.position = 'fixed';
+    this._video.style.zIndex = '-1';
+    this._video.style.top = '0';
+    this._video.style.left = '0';
+    this._video.style.width = '1px';
 
     this._video.src = videoFilePath;
     this._videoTexture = new VideoTexture(this._video);
@@ -153,7 +158,7 @@ export default class DracosisPlayer {
     console.log("**** requestVideoFrameCallback")
     // Create a default mesh
     this.material = new MeshBasicMaterial({ map: this._videoTexture });
-    this.mesh = new Mesh(new PlaneBufferGeometry(1, 1), this.material);
+    this.mesh = new Mesh(new PlaneBufferGeometry(0.00001, 0.00001), this.material);
     this.mesh.scale.set(this._scale, this._scale, this._scale);
     this.scene.add(this.mesh);
 
@@ -205,7 +210,7 @@ export default class DracosisPlayer {
 
     if(Math.round(this._video.currentTime * 25) !== metadata.presentedFrames)
       console.log('==========DIFF',Math.round(this._video.currentTime*25), Math.round(metadata.mediaTime*25), metadata.presentedFrames,metadata);
-      
+
       let hasKeyframe = true;
 
     if (hasKeyframe && frameToPlay !== this._prevFrame) {
