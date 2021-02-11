@@ -182,13 +182,7 @@ body{
     margin: 0;
   }
 
-  .discord-icon{
-    width: 46px;
-    @media(max-width: 560px){
-      width: 40px;
-    }
-  }
-
+  .discord-icon,
   .github-icon{
     width: 60px;
     @media(max-width: 560px){
