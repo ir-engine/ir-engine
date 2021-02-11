@@ -169,13 +169,6 @@ const UserMenu = (props: UserMenuProps): any => {
     setOpenSnackBar(false);
   };
 
-  const handleUpdateUsername = () => {
-    if (selfUser.name.trim() !== username.trim()) {
-      updateUsername(selfUser.id, username);
-    }
-    setIsEditUsername(false);
-  };
-
   const renderSuccessMessage = () =>
     <Snackbar open={openSnackBar}
       autoHideDuration={3000}
@@ -320,6 +313,13 @@ const UserMenu = (props: UserMenuProps): any => {
     [Views.Avatar]: AvatarMenu,
   };
 
+  const handleUpdateUsername = () => {
+    if (selfUser.name.trim() !== username.trim()) {
+      updateUsername(selfUser.id, username.trim());
+    }
+    setIsEditUsername(false);
+  };
+
   const setAvatar = (avatarId: string) => {
     setActorAvatar(actorEntity, { avatarId });
     loadActorAvatar(actorEntity);
@@ -350,6 +350,7 @@ const UserMenu = (props: UserMenuProps): any => {
           setUsername: (e) => {
             setUsername(e.target.value);
           },
+          updateUsername: handleUpdateUsername,
           openAvatarMenu,
         };
         break;
