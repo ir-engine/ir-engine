@@ -47,6 +47,12 @@ import PolySource from "./assets/sources/PolySource";
 import SketchfabSource from "./assets/sources/SketchfabSource";
 import TenorSource from "./assets/sources/TenorSource";
 
+/**
+ * [createEditor used to create editor object and register nodes available to create scene]
+ * @param  {[type]} api      [provides the api object]
+ * @param  {[type]} settings [provides settings to be Applied]
+ * @return {[type]}          [editor]
+ */
 export function createEditor(api, settings) {
   const editor = new Editor(api, settings);
 
