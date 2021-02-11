@@ -51,11 +51,16 @@ export const IndexPage = (): any => {
                 <div className="right-top-menu-row row">
                     <div className="right-top-menu">
                         <a target="_blank" href="https://discord.gg/mQ3D4FE">
-                            <img className="mr-5 discord-icon" src="static/discord.svg"></img>
+                            <img className="discord-icon" src="static/discord.svg"></img>
                         </a>
                         <a target="_blank" href="https://github.com/xr3ngine/xr3ngine">
-                            <img className="ml-2 github-icon" src="static/github.svg"></img>
+                            <img className="github-icon" src="static/github.svg"></img>
                         </a>
+                    </div>
+                    <div className="mobile-only">
+                        <span className="main-txt gray-txt mr-2">BY</span>
+                        <span className="main-txt gradiant-txt mr-2">LAGUNA</span>
+                        <span className="main-txt white-txt">LABS</span>
                     </div>
                 </div>
             </div>
