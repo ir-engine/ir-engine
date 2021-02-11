@@ -171,6 +171,13 @@ body{
 .lander{
   background: #00022E;
 
+  .mobile-only{
+    display: none;
+    width: 100%;
+    margin: 0 auto 50px;
+    text-align: center;
+  }
+
   *{
     font-family: Inter;
     font-style: normal;
@@ -182,17 +189,15 @@ body{
     margin: 0;
   }
 
-  .discord-icon{
-    width: 46px;
-    @media(max-width: 560px){
-      width: 40px;
-    }
-  }
-
+  .discord-icon,
   .github-icon{
     width: 60px;
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
     @media(max-width: 560px){
-      width: 50px;
+      width: 45px;
+      margin-left: 0.5rem;
+      margin-right: 0.5rem;
     }
   }
 
@@ -315,6 +320,12 @@ body{
       height: 2.8rem;
       margin-top: 2rem;
     }
+    .email-button{
+      margin: 0 auto;
+    }
+    .mobile-only{
+      display: block;
+    }
     .main-background{
       position: initial;
       height: 60vw !important;
@@ -343,7 +354,7 @@ body{
         position: unset;
       }
       .right-top-menu{
-        margin: 20px auto 60px;
+        margin: 20px auto 20px;
       }
       .contact-right-div{
         padding: 0;
