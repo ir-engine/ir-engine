@@ -102,17 +102,28 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   constructor(props) {
     super(props);
 
+    // initializing setting with settingsContext
     let settings = defaultSettings;
+
+    // initializing storedSettings from local storage editor-settings.
     const storedSettings = localStorage.getItem("editor-settings");
+
+    //check if there is storedSettings then parse JSON
     if (storedSettings) {
       settings = JSON.parse(storedSettings);
     }
 
+    //creating editor object passing api object and settings
     const editor = createEditor(props.api, settings);
     (window as any).editor = editor;
+
+    // initializing editor
     editor.init();
+
+    //adding listener initialized
     editor.addListener("initialized", this.onEditorInitialized);
 
+    //updating state properties
     this.state = {
       // error: null,
       project: null,
@@ -134,6 +145,15 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     };
   }
 
+
+/**
+ * [
+ * componentDidMount exicutes when component get mounted,
+ * checking if projectId is "new" or "tutorial"
+ * else load the existing project using projectId
+ * ]
+ *
+ */
   componentDidMount() {
     const queryParams = this.state.queryParams;
     const projectId = queryParams.get("projectId");
@@ -157,6 +177,9 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     }
   }
 
+/**
+ * [ componentDidUpdate exicutes when component get update ]
+ */
   componentDidUpdate(prevProps: EditorContainerProps) {
     if (this.props.router.route !== prevProps.router.route && !this.state.creatingProject) {
       // const { projectId } = this.props.match.params;
@@ -186,6 +209,13 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     }
   }
 
+/**
+ * [
+ * componentWillUnmount exicutes when component get unmounted
+ * removing all the added listeners
+ * and disposing editor object
+ * ]
+ */
   componentWillUnmount() {
     window.removeEventListener("resize", this.onResize);
 
@@ -198,6 +228,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     editor.dispose();
   }
 
+/**
+ * [loadProjectTemplate used to load project template]
+ * @param  {[type]}  templateFile [contains template data]
+ * @return {Promise}
+ */
   async loadProjectTemplate(templateFile) {
     this.setState({
       project: null,
@@ -205,6 +240,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       // templateUrl
     });
 
+    //setting dialog properties
     this.showDialog(ProgressDialog, {
       title: "Loading Project",
       message: "Loading project..."
@@ -214,7 +250,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
     try {
       // const templateFile = await this.props.api.fetchUrl(templateUrl).then(response => response.json());
-
+      // initializing editor
       await editor.init();
 
       if (templateFile.metadata) {
@@ -226,11 +262,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       }
 
       await editor.loadProject(templateFile);
-
+      // hiding dialog when project get loaded
       this.hideDialog();
     } catch (error) {
       console.error(error);
-
+      // showing error message if there is any error
       this.showDialog(ErrorDialog, {
         title: "Error loading project.",
         message: error.message || "There was an error when loading the project.",
@@ -239,6 +275,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     }
   }
 
+/**
+ * [loadScene used to load scene using sceneId]
+ * @param  {[type]}  sceneId
+ * @return {Promise}
+ */
   async loadScene(sceneId) {
     this.setState({
       project: null,
@@ -285,6 +326,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     }
   }
 
+/**
+ * [importProject used to import an existing project using projectFile]
+ * @param  {[type]}  projectFile
+ * @return {Promise}
+ */
   async importProject(projectFile) {
     const project = this.state.project;
 
@@ -328,6 +374,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     }
   }
 
+/**
+ * [loadProject used to load project using projectId]
+ * @param  {[type]}  projectId
+ * @return {Promise}
+ */
   async loadProject(projectId) {
     this.setState({
       project: null,
@@ -372,6 +423,10 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     }
   }
 
+/**
+ * [updateModifiedState used to modifie component state]
+ * @param  {[type]} then
+ */
   updateModifiedState(then?) {
     const nextModified = this.state.editor.sceneModified && !this.state.creatingProject;
 
@@ -382,6 +437,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     }
   }
 
+
+/**
+ * [generateToolbarMenu used to create toolbar provides the the options]
+ * @return {[type]} [array containing menu options]
+ */
   generateToolbarMenu = () => {
     return [
       {
@@ -439,6 +499,9 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     ];
   };
 
+  /**
+   * [onEditorInitialized called when editor get initialized]
+   */
   onEditorInitialized = () => {
     const editor = this.state.editor;
 
@@ -462,14 +525,19 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     editor.addListener("saveProject", this.onSaveProject);
   };
 
+/**
+  * [onResize called on resize of editorContainer]
+  */
   onResize = () => {
     this.state.editor.onResize();
   };
 
   /**
-   *  Dialog Context
+   * [showDialog used to show message in dialog]
+   * @param  {[type]} DialogComponent
+   * @param  {Object} [dialogProps={}]
+   * @return {[type]}
    */
-
   showDialog = (DialogComponent, dialogProps = {}) => {
     this.setState({
       DialogComponent,
@@ -477,6 +545,9 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     });
   };
 
+  /**
+   * [hideDialog used to hide message dialog]
+   */
   hideDialog = () => {
     this.setState({
       DialogComponent: null,
@@ -484,15 +555,19 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     });
   };
 
+  /**
+   * [dialogContext contains objects to access hide and show the dialog message]
+   * @type {Object}
+   */
   dialogContext = {
     showDialog: this.showDialog,
     hideDialog: this.hideDialog
   };
 
-  /**
-   * Scene Event Handlers
-   */
-
+/**
+ * [onEditorError used to show error when there is an error in editor]
+ * @param  {[type]} error
+ */
   onEditorError = error => {
     if (error["aborted"]) {
       this.hideDialog();
@@ -508,14 +583,25 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     });
   };
 
+/**
+ * [onSceneModified called when scene get modified]
+ */
   onSceneModified = () => {
     this.updateModifiedState();
   };
 
+/**
+ * [onProjectLoaded called when project get loaded]
+ */
   onProjectLoaded = () => {
     this.updateModifiedState();
   };
 
+/**
+ * [updateSetting used to update setting editor settings in local storage]
+ * @param  {[type]} key
+ * @param  {[type]} value
+ */
   updateSetting(key, value) {
     const settings = Object.assign(this.state.settingsContext.settings, { [key]: value });
     localStorage.setItem("editor-settings", JSON.stringify(settings));
@@ -531,12 +617,13 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   /**
-   *  Project Actions
+   * [createProject used to create new project]
+   * @return {Promise}
    */
-
   async createProject() {
     const { editor, parentSceneId } = this.state as any;
 
+    // showing message dialog
     this.showDialog(ProgressDialog, {
       title: "Generating Project Screenshot",
       message: "Generating project screenshot..."
@@ -563,6 +650,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
     const abortController = new AbortController();
 
+    //showing message dialog
     this.showDialog(ProgressDialog, {
       title: "Saving Project",
       message: "Saving project...",
@@ -576,6 +664,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     editor.setProperty(editor.scene, "name", result.name, false);
     editor.scene.setMetadata({ name: result.name });
 
+    //calling api to create project
     const project = await this.props.api.createProject(
       editor.scene,
       parentSceneId,
@@ -586,30 +675,35 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     );
 
     editor.sceneModified = false;
-
+    //
     this.updateModifiedState(() => {
       this.setState({ creatingProject: true, project }, () => {
         this.props.router.replace(`/editor/projects/${project.project_id}`);
         this.setState({ creatingProject: false });
       });
     });
-
     return project;
   }
-
+/**
+ * [onNewProject used to create route for new project]
+ */
   onNewProject = async () => {
     this.props.router.push("/editor/projects/new");
   };
 
+/**
+ * [onOpenProject used to create route for projects page]
+ */
   onOpenProject = () => {
     this.props.router.push("/editor/projects");
   };
 
-
-
+/**
+ * [onDuplicateProject used to show dialog message when project get duplicate]
+ */
   onDuplicateProject = async () => {
-    const abortController = new AbortController();
-    this.showDialog(ProgressDialog, {
+      const abortController = new AbortController();
+      this.showDialog(ProgressDialog, {
       title: "Duplicating Project",
       message: "Duplicating project...",
       cancelable: true,
@@ -620,24 +714,26 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     });
     await new Promise(resolve => setTimeout(resolve, 5));
     try {
-      const editor = this.state.editor;
-      await this.createProject();
-      editor.sceneModified = false;
-      this.updateModifiedState();
-
-      this.hideDialog();
+          const editor = this.state.editor;
+          await this.createProject();
+          editor.sceneModified = false;
+          this.updateModifiedState();
+          this.hideDialog();
     } catch (error) {
-      console.error(error);
-
-      this.showDialog(ErrorDialog, {
-        title: "Error Saving Project",
-        message: error.message || "There was an error when saving the project."
-      });
+          console.error(error);
+          this.showDialog(ErrorDialog, {
+            title: "Error Saving Project",
+            message: error.message || "There was an error when saving the project."
+          });
     }
   };
 
+/**
+ * [onExportProject used to export project as project file]
+ * @return {Promise}
+ */
   onExportProject = async () => {
-    const options = await new Promise(resolve => {
+      const options = await new Promise(resolve => {
       this.showDialog(ExportProjectDialog, {
         defaultOptions: Object.assign({}, Editor.DefaultExportOptions),
         onConfirm: resolve,
@@ -689,6 +785,10 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     }
   };
 
+/**
+ * [onImportLegacyProject used to import project]
+ * @return {Promise}
+ */
   onImportLegacyProject = async () => {
     const confirm = await new Promise(resolve => {
       this.showDialog(ConfirmDialog, {
@@ -727,6 +827,10 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
   };
 
+/**
+ * [onExportLegacyProject description]
+ * @return {Promise} [description]
+ */
   onExportLegacyProject = async () => {
     const editor = this.state.editor;
     const projectFile = editor.scene.serialize();
@@ -747,10 +851,16 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     document.body.removeChild(el);
   };
 
+
+/**
+ * [onSaveProject used to save project]
+ * @return {Promise}
+ */
   onSaveProject = async () => {
 
     const abortController = new AbortController();
 
+     //showing message dialog
     this.showDialog(ProgressDialog, {
       title: "Saving Project",
       message: "Saving project...",
@@ -792,7 +902,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
         title: "Error Saving Project",
         message: error.message || "There was an error when saving the project."
       });
-
     }
   };
 
@@ -835,6 +944,10 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     }
   };
 
+/**
+ * [getSceneId used to get sceneId of project scene]
+ * @return {[type]} [sceneId]
+ */
   getSceneId() {
     const { editor, project } = this.state as any;
     return (
@@ -842,6 +955,9 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     );
   }
 
+/**
+ * [onOpenScene used to open scene using sceneId and sceneUrl]
+ */
   onOpenScene = () => {
     const sceneId = this.getSceneId();
 
@@ -851,14 +967,25 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     }
   };
 
+/**
+ * [onFinishTutorial called when function get called]
+ * @param  {[type]} nextAction
+ */
   onFinishTutorial = nextAction => {
     this.setState({ onboardingContext: { enabled: false } });
   };
 
+/**
+ * [onSkipTutorial called when user skip tutorials]
+ * @param  {[type]} lastCompletedStep
+ */
   onSkipTutorial = lastCompletedStep => {
     this.setState({ onboardingContext: { enabled: false } });
   };
 
+/**
+ * [render editor view]
+ */
   render() {
     const { DialogComponent, dialogProps, modified, settingsContext, onboardingContext, editor } = this.state;
     const toolbarMenu = this.generateToolbarMenu();
