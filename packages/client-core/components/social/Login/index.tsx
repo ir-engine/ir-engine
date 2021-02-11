@@ -38,9 +38,9 @@ interface Props {
 
 const FlatSignIn = (props: Props) => {
   const [view, setView] =  useState('login');
-  let enableUserPassword = config?.auth ? config.auth.enableUserPassword : false;
-  let enableGoogleSocial = config?.auth ? config.auth.enableGoogleSocial : false;
-  let enableFacebookSocial = config?.auth ? config.auth.enableFacebookSocial : false;
+  const enableUserPassword = config?.auth ? config.auth.enableUserPassword : false;
+  const enableGoogleSocial = config?.auth ? config.auth.enableGoogleSocial : false;
+  const enableFacebookSocial = config?.auth ? config.auth.enableFacebookSocial : false;
 
   const socials = [
     enableGoogleSocial,
