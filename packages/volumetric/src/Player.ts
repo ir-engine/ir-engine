@@ -39,6 +39,8 @@ export default class DracosisPlayer {
   private _isinitialized = false;
   private meshBuffer: RingBuffer<KeyframeBuffer>;
   private iframeVertexBuffer: RingBuffer<IFrameBuffer>;
+  private _worker: Worker;
+  private _bufferingTimer: any;
 
   fileHeader: any;
   tempBufferObject: KeyframeBuffer = {
@@ -82,7 +84,8 @@ export default class DracosisPlayer {
 
     var blobURL = (window.URL ? URL : webkitURL).createObjectURL(blob);
 
-    var worker = new Worker(blobURL); // spawn new worker
+    const worker = new Worker(blobURL); // spawn new worker
+    this._worker = worker;
 
     const handleFrameData = (frameData) => {
       console.log("Adding frame data: ", frameData);
@@ -253,8 +256,8 @@ export default class DracosisPlayer {
         this.mesh.visible = true
       }
 
-    }, 1000 / 60)
-
+    }, 1000 / 60);
+    this._bufferingTimer = buffering;
   }
 
   getPositionInKeyframeBuffer(keyframeNumber: number): number {
@@ -280,5 +283,30 @@ export default class DracosisPlayer {
         return i;
     }
     return -1;
+  }
+
+  dispose():void {
+    // TODO: finish dispose method
+    this._isinitialized = false;
+    this._worker?.terminate();
+    if (this._video) {
+      // this._video.stop();
+      this._video.parentElement.removeChild(this._video);
+      this._video = null;
+      this._videoTexture.dispose();
+      this._videoTexture = null;
+    }
+    if (this.meshBuffer) {
+      for (let i=0; i < this.meshBuffer.getBufferLength(); i++) {
+        const buffer = this.meshBuffer.get(i);
+        if (buffer && buffer.bufferGeometry instanceof BufferGeometry) {
+          buffer.bufferGeometry?.dispose();
+        }
+      }
+      this.meshBuffer.clear();
+    }
+    if (this._bufferingTimer) {
+      clearInterval(this._bufferingTimer);
+    }
   }
 }
