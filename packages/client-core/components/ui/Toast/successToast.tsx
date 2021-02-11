@@ -1,6 +1,6 @@
 import React from "react";
 import style from "./toast.module.scss";
-import { CheckCircleOutline, ErrorOutline, GroupWork } from '@material-ui/icons';
+import { CheckCircleOutline, ErrorOutline, WarningOutlined } from '@material-ui/icons';
 export const Success = ({ appearance, children }) => {
 return (
     <div className={style["toastContainer"]}>
@@ -20,7 +20,7 @@ return (
               {
                   appearance === "warning" &&
                   <div className="col-lg-3" style={{ background: "#FFD600", marginLeft: "15px" }}>
-                  <GroupWork style={{fontSize: "4rem"}} />
+                  <WarningOutlined style={{fontSize: "4rem"}} />
               </div>
               }
                 <div className="col-lg-7 ">

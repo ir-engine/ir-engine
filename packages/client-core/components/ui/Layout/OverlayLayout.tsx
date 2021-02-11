@@ -85,8 +85,8 @@ const Layout = (props: Props): any => {
 // TODO: Uncomment alerts when we can fix issues
   return (
   <ToastProvider
-   autoDismiss
-   autoDismissTimeout={8000}
+  //  autoDismiss
+  //  autoDismissTimeout={8000}
    components={{ Toast: Success }}
   >
     <ThemeProvider theme={theme}>

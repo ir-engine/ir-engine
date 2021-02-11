@@ -44,7 +44,6 @@ import NamePlate from '../ui/NamePlate';
 import NetworkDebug from '../ui/NetworkDebug/NetworkDebug';
 import { OpenLink } from '../ui/OpenLink';
 import TooltipContainer from '../ui/TooltipContainer';
-import dynamic from 'next/dynamic';
 import { useToasts } from 'react-toast-notifications';
 
 const goHome = () => window.location.href = window.location.origin;
