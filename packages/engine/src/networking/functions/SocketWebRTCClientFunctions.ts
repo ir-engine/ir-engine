@@ -1,13 +1,12 @@
-import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
-import { Network } from "../classes/Network";
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "@xr3ngine/engine/src/networking/constants/VideoConstants";
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
-import { UnreliableMessageType } from "@xr3ngine/engine/src/networking/types/NetworkingTypes";
+import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
 import { DataProducer, Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
+import { Network } from "../classes/Network";
 
 let networkTransport: any;
 
-export async function createDataProducer(channel = "default", type: UnreliableMessageType = 'raw', customInitInfo: any = {}): Promise<DataProducer | Error> {
+export async function createDataProducer(channel = "default", type = 'raw', customInitInfo: any = {}): Promise<DataProducer | Error> {
     networkTransport = Network.instance.transport as any;
     // else if (MediaStreamSystem.instance.dataProducers.get(channel)) return Promise.reject(new Error('Data channel already exists!'))
     const dataProducer = await networkTransport.instanceSendTransport.produceData({

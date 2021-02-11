@@ -1,17 +1,13 @@
+import { Entity } from '../../../ecs/classes/Entity';
+import { getComponent } from '../../../ecs/functions/EntityFunctions';
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { CharacterComponent } from '../components/CharacterComponent';
-import { setActorAnimationById } from "../behaviors/setActorAnimation";
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
-import { updateCharacterState } from "../behaviors/updateCharacterState";
-import { CharacterStateGroups } from '../CharacterStateGroups';
-import { setTargetVelocityIfMoving } from '../behaviors/setTargetVelocityIfMoving';
 import { setDropState } from '../behaviors/setDropState';
-import { setArcadeVelocityTarget } from '../behaviors/setArcadeVelocityTarget';
-import { CharacterAnimationsIds } from "../CharacterAnimationsIds";
+import { updateCharacterState } from "../behaviors/updateCharacterState";
+import { CharacterStateTypes } from "../CharacterStateTypes";
+import { CharacterComponent } from '../components/CharacterComponent';
 
-export const FallingState: StateSchemaValue = {
-  group: CharacterStateGroups.MOVEMENT,
-  componentProperties: [{
+export const FallingState: StateSchemaValue = {componentProperties: [{
     component: CharacterComponent,
     properties: {
       ['velocitySimulator.mass']: 100,
@@ -20,35 +16,28 @@ export const FallingState: StateSchemaValue = {
   }],
   onEntry: [
     {
-      behavior: initializeCharacterState
-    },
-    {
-      behavior: setArcadeVelocityTarget,
-      args: { x: 0, y: 0, z: 0.05 }
-    },
-      {
-        behavior: setActorAnimationById,
-        args: {
-          animationId: CharacterAnimationsIds.FALLING,
-          transitionDuration: 0.5
-        }
+      behavior: initializeCharacterState,
+      args: {
+        animationId: CharacterStateTypes.FALLING,
+        transitionDuration: 0.5
       }
-    ],
+    }
+  ],
   onUpdate: [
     {
-      behavior: updateCharacterState,
-      args:
-      {
-        setCameraRelativeOrientationTarget: true
-      }
+      behavior: updateCharacterState
     },
     // Set Velocity Target If Moving
     {
-      behavior: setTargetVelocityIfMoving,
-      args: {
-        ifTrue: { x: 0.8, y: 0.8, z: 0.8},
-        ifFalse: { x: 0, y: 0, z: 0 }
-      }
+      behavior: ((entity: Entity) => {
+        const actor = getComponent(entity, CharacterComponent);
+        if (actor.localMovementDirection.length() > 0) {
+          actor.velocityTarget.set(0.8, 0.8, 0.8);
+        }
+        else {
+          actor.velocityTarget.set(0, 0, 0);
+        }
+      })
     },
     // Set drop state
     {

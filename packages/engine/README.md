@@ -156,8 +156,8 @@ A lot of things in games and spatial applications can be represented by **state*
 States define what something currently is. For example, the character could be jumping -- in which case you are likely to find the "jumping" state attached to the actor. Concretely, there is a jump() behavior mapped to the DefaultStateSchema.
 ```typescript
 const jump: Behavior = (entity: Entity): void => {
-  // Add the state to the entity (addState is also a behavior)
-  addState(entity, { state: DefaultStateTypes.JUMPING })
+  // Add the state to the entity (setState is also a behavior)
+  setState(entity, { state: DefaultStateTypes.JUMPING })
   actor = getMutableComponent(entity, CharacterComponent)
   // Set actor's jump time to 0 -- jump will end when t increments to jump length
   actor.jump.t = 0

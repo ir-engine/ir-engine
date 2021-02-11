@@ -1,7 +1,7 @@
-import { Object3D } from 'three';
-import { removeObject3DComponent } from '../../common/behaviors/Object3DBehaviors';
-import { Object3DComponent } from '../../common/components/Object3DComponent';
+import { LOD, MeshPhysicalMaterial, Object3D, SkinnedMesh, TextureLoader } from 'three';
+import { hashFromResourceName } from '../../common/functions/hashFromResourceName';
 import { isClient } from '../../common/functions/isClient';
+import { Engine } from '../../ecs/classes/Engine';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { Not } from '../../ecs/functions/ComponentFunctions';
@@ -9,15 +9,251 @@ import {
   addComponent, createEntity, getComponent, getMutableComponent, hasComponent, removeComponent
 } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
-import { CharacterAvatarComponent } from '../../templates/character/components/CharacterAvatarComponent';
+import { addObject3DComponent } from "../../scene/behaviors/addObject3DComponent";
+import { Object3DComponent } from '../../scene/components/Object3DComponent';
+import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
+import AssetVault from '../classes/AssetVault';
 import { AssetLoader } from '../components/AssetLoader';
 import { AssetLoaderState } from '../components/AssetLoaderState';
-import AssetVault from '../components/AssetVault';
 import { Model } from '../components/Model';
 import { Unload } from '../components/Unload';
-import { AssetClass } from '../enums/AssetClass';
-import { getAssetClass, getAssetType, loadAsset } from '../functions/LoadingFunctions';
-import { ProcessModelAsset } from "../functions/ProcessModelAsset";
+import * as LoadGLTF from '../functions/LoadGLTF';
+import * as FBXLoader from '../loaders/fbx/FBXLoader';
+import { GLTFLoader } from '../loaders/gltf/GLTFLoader';
+import { AssetClass } from '../types/AssetClass';
+import { AssetType } from '../types/AssetType';
+import { AssetsLoadedHandler, AssetTypeAlias, AssetUrl } from '../types/AssetTypes';
+
+const LOD_DISTANCES = {
+  "0": 5,
+  "1": 15,
+  "2": 30
+};
+const LODS_REGEXP = new RegExp(/^(.*)_LOD(\d+)$/);
+
+/**
+ * Process Asset model and map it with given entity.
+ * @param entity Entity to which asset will be added.
+ * @param component An Asset loader Component holds specifications for the asset.
+ * @param asset Loaded asset.
+ */
+function ProcessModelAsset(entity: Entity, component: AssetLoader, asset: any): void {
+  let object = asset.scene ?? asset;
+
+  const replacedMaterials = new Map();
+  object.traverse((child) => {
+    if (child.isMesh) {
+      child.receiveShadow = component.receiveShadow;
+      child.castShadow = component.castShadow;
+
+      if (component.envMapOverride) {
+        child.material.envMap = component.envMapOverride;
+      }
+
+      if (replacedMaterials.has(child.material)) {
+        child.material = replacedMaterials.get(child.material);
+      } else {
+        if (child?.material?.userData?.gltfExtensions?.KHR_materials_clearcoat) {
+          const newMaterial = new MeshPhysicalMaterial({});
+          newMaterial.setValues(child.material); // to copy properties of original material
+          newMaterial.clearcoat = child.material.userData.gltfExtensions.KHR_materials_clearcoat.clearcoatFactor;
+          newMaterial.clearcoatRoughness = child.material.userData.gltfExtensions.KHR_materials_clearcoat.clearcoatRoughnessFactor;
+          newMaterial.defines = { STANDARD: '', PHYSICAL: '' }; // override if it's replaced by non PHYSICAL defines of child.material
+
+          replacedMaterials.set(child.material, newMaterial);
+          child.material = newMaterial;
+        }
+      }
+    }
+  });
+  replacedMaterials.clear();
+
+  object = HandleLODs(object);
+
+  if (asset.children.length) {
+    asset.children.forEach(child => HandleLODs(child));
+  }
+
+  if (component.parent) {
+    component.parent.add(object);
+  } else {
+    if (hasComponent(entity, Object3DComponent)) {
+      if (getComponent<Object3DComponent>(entity, Object3DComponent).value !== undefined)
+        getMutableComponent<Object3DComponent>(entity, Object3DComponent).value.add(object);
+      else getMutableComponent<Object3DComponent>(entity, Object3DComponent).value = object;
+    } else {
+      addObject3DComponent(entity, { obj3d: object });
+    }
+
+    object.children.forEach(obj => {
+      const e = createEntity();
+      addObject3DComponent(e, { obj3d: obj, parentEntity: entity });
+    });
+  }
+}
+
+/**
+ * Handles Level of Detail for asset.
+ * @param asset Asset on which LOD will apply.
+ * @returns LOD handled asset.
+ */
+function HandleLODs(asset: Object3D): Object3D {
+  const haveAnyLODs = !!asset.children?.find(c => String(c.name).match(LODS_REGEXP));
+  if (!haveAnyLODs) {
+    return asset;
+  }
+
+  const LODs = new Map<string, { object: Object3D; level: string }[]>();
+  asset.children.forEach(child => {
+    const childMatch = child.name.match(LODS_REGEXP);
+    if (!childMatch) {
+      return;
+    }
+    const [_, name, level]: string[] = childMatch;
+    if (!name || !level) {
+      return;
+    }
+
+    if (!LODs.has(name)) {
+      LODs.set(name, []);
+    }
+
+    LODs.get(name).push({ object: child, level });
+  });
+
+  LODs.forEach((value, key) => {
+    const lod = new LOD();
+    lod.name = key;
+    value[0].object.parent.add(lod);
+
+    value.forEach(({ level, object }) => {
+      lod.addLevel(object, LOD_DISTANCES[level]);
+    });
+  });
+
+  return asset;
+}
+
+/**
+ * Replace material on asset based on Asset loader specifications.
+ * @param object Object on which replacement will apply.
+ * @param component Asset loader component holding material specification.
+ */
+function ReplaceMaterials(object, component: AssetLoader) {
+
+}
+
+function parallelTraverse(a, b, callback) {
+  callback(a, b);
+  for (let i = 0; i < a.children.length; i++)
+    parallelTraverse(a.children[i], b.children[i], callback);
+}
+
+function clone(source: Object3D): Object3D {
+  const sourceLookup = new Map();
+  const cloneLookup = new Map();
+  const clone = source.clone();
+
+  parallelTraverse(source, clone, (sourceNode, clonedNode) => {
+    sourceLookup.set(clonedNode, sourceNode);
+    cloneLookup.set(sourceNode, clonedNode);
+  });
+
+  clone.traverse((node: unknown) => {
+    if (!(node instanceof SkinnedMesh)) return;
+
+    const clonedMesh = node;
+    const sourceMesh = sourceLookup.get(node);
+    const sourceBones = sourceMesh.skeleton.bones;
+
+    clonedMesh.skeleton = sourceMesh.skeleton.clone();
+    clonedMesh.bindMatrix.copy(sourceMesh.bindMatrix);
+
+    clonedMesh.skeleton.bones = sourceBones.map((bone) => {
+      return cloneLookup.get(bone);
+    });
+    clonedMesh.bind(clonedMesh.skeleton, clonedMesh.bindMatrix);
+  });
+  return clone;
+}
+
+/**
+ * Load an asset from given URL.
+ * @param url URL of the asset.
+ * @param entity Entity object which will be passed in **```onAssetLoaded```** callback.
+ * @param onAssetLoaded Callback to be called after asset will be loaded.
+ */
+function loadAsset(url: AssetUrl, entity: Entity, onAssetLoaded: AssetsLoadedHandler): void {
+  const urlHashed = hashFromResourceName(url);
+  if (AssetVault.instance.assets.has(urlHashed)) {
+    onAssetLoaded(entity, { asset: clone(AssetVault.instance.assets.get(urlHashed)) });
+  } else {
+    const loader = getLoaderForAssetType(getAssetType(url));
+    if (loader == null) {
+      console.error('Loader failed on ', url);
+      return;
+    }
+    loader.load(url, resource => {
+      if (resource !== undefined) {
+        LoadGLTF.loadExtentions(resource);
+      }
+      if (resource.scene) {
+        // store just scene, no need in all gltf metadata?
+        resource = resource.scene;
+      }
+      AssetVault.instance.assets.set(urlHashed, resource);
+      onAssetLoaded(entity, { asset: resource });
+    });
+  }
+}
+
+/**
+ * Get asset loader for given asset type.
+ * @param assetType Type of the asset.
+ * @returns Asset loader for given asset type.
+ */
+function getLoaderForAssetType(assetType: AssetTypeAlias): GLTFLoader | any | TextureLoader {
+  if (assetType == AssetType.FBX) return new FBXLoader.FBXLoader();
+  else if (assetType == AssetType.glTF) return LoadGLTF.getLoader();
+  else if (assetType == AssetType.PNG) return new TextureLoader();
+  else if (assetType == AssetType.JPEG) return new TextureLoader();
+  else if (assetType == AssetType.VRM) return new GLTFLoader();
+}
+
+/**
+ * Get asset type from the asset file extension.
+ * @param assetFileName Name of the Asset file.
+ * @returns Asset type of the file.
+ */
+function getAssetType(assetFileName: string): AssetType {
+  if (/\.(?:gltf|glb)$/.test(assetFileName))
+    return AssetType.glTF;
+  else if (/\.(?:fbx)$/.test(assetFileName))
+    return AssetType.FBX;
+  else if (/\.(?:vrm)$/.test(assetFileName))
+    return AssetType.VRM;
+  else if (/\.(?:png)$/.test(assetFileName))
+    return AssetType.PNG;
+  else if (/\.(?:jpg|jpeg|)$/.test(assetFileName))
+    return AssetType.JPEG;
+  else
+    return null;
+}
+
+/**
+ * Get asset class from the asset file extension.
+ * @param assetFileName Name of the Asset file.
+ * @returns Asset class of the file.
+ */
+function getAssetClass(assetFileName: string): AssetClass {
+  if (/\.(?:gltf|glb|vrm|fbx|obj)$/.test(assetFileName)) {
+    return AssetClass.Model;
+  } else if (/\.png|jpg|jpeg$/.test(assetFileName)) {
+    return AssetClass.Image;
+  } else {
+    return null;
+  }
+}
 
 /** System class for Asset loading. */
 export default class AssetLoadingSystem extends System {
@@ -32,17 +268,13 @@ export default class AssetLoadingSystem extends System {
   /** Constructs Asset loading system. */
   constructor() {
     super();
-    addComponent(createEntity(), AssetVault);
   }
 
   /** Execute the system. */
   execute(): void {
-    this.queryResults.assetVault.all.forEach(entity => {
-      // Do things here
-    });
     this.queryResults.toLoad.all.forEach((entity: Entity) => {
-    
-      const isCharacter = hasComponent(entity, CharacterAvatarComponent);
+
+      const isCharacter = hasComponent(entity, CharacterComponent);
 
       if (hasComponent(entity, AssetLoaderState)) {
         //return console.log("Returning because already has AssetLoaderState");
@@ -122,7 +354,24 @@ export default class AssetLoadingSystem extends System {
       removeComponent(entity, Unload);
 
       if (hasComponent(entity, Object3DComponent)) {
-        removeObject3DComponent(entity);
+
+        const object3d = getComponent<Object3DComponent>(entity, Object3DComponent, true).value;
+        if (object3d == undefined) return;
+        Engine.scene.remove(object3d);
+
+        // Using "true" as the entity could be removed somewhere else
+        object3d.parent && object3d.parent.remove(object3d);
+        removeComponent(entity, Object3DComponent);
+
+        for (let i = entity.componentTypes.length - 1; i >= 0; i--) {
+          const Component = entity.componentTypes[i];
+
+          if (Component.isObject3DTagComponent) {
+            removeComponent(entity, Component);
+          }
+        }
+
+        (object3d as any).entity = null;
       }
     });
   }
@@ -131,9 +380,6 @@ export default class AssetLoadingSystem extends System {
 AssetLoadingSystem.queries = {
   models: {
     components: [Model]
-  },
-  assetVault: {
-    components: [AssetVault]
   },
   toLoad: {
     components: [AssetLoader, Not(AssetLoaderState)],

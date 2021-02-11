@@ -1,8 +1,8 @@
 import { Object3D } from 'three';
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
-import { AssetClass } from '../enums/AssetClass';
-import { AssetType } from '../enums/AssetType';
+import { AssetClass } from '../types/AssetClass';
+import { AssetType } from '../types/AssetType';
 import { AssetClassAlias, AssetTypeAlias } from '../types/AssetTypes';
 
 /** Component Class for Asset Loader. */

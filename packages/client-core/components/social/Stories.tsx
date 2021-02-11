@@ -3,6 +3,8 @@ import { StoryItem } from "./StoryItem";
 import { Box } from "./Box";
 import { ArrowButton} from "./ArrowButton";
 
+import styles from './styles/Stories.module.scss';
+
 export function Stories({
   stories
 }: any) {
@@ -29,9 +31,9 @@ export function Stories({
   };
 
   return (
-    <Box className="stories-container sm:full-width" border>
+    <Box className={styles.storiesContainer}>
       <div
-        className="stories-feed overflow-y-hidden py-4 px-2 flex relative items-center"
+        className={styles.storiesFeed}
         ref={windowRef}
       >
         {x !== 0 && (
@@ -42,7 +44,7 @@ export function Stories({
           />
         )}
         <div
-          className="stories-feed-floating flex relative transition ease-linear duration-300"
+          className={styles.storiesFeedFloating}
           style={{ transform: `translate(${x}px, 0px)` }}
         >
           {stories &&
@@ -55,7 +57,7 @@ export function Stories({
             place="right"
             text=">"
             onClick={() => calculateTransform(x - 320)}
-          />
+          />          
         )}
       </div>
     </Box>
