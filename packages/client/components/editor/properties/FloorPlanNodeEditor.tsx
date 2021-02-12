@@ -10,6 +10,11 @@ import { withDialog } from "../contexts/DialogContext";
 import { withSettings } from "../contexts/SettingsContext";
 import { ShoePrints } from "@styled-icons/fa-solid/ShoePrints";
 import FloorPlanNode from "@xr3ngine/engine/src/editor/nodes/FloorPlanNode";
+
+/**
+ * [defining properties for FloorPlanNodeEditor]
+ * @type {Object}
+ */
 type FloorPlanNodeEditorProps = {
   hideDialog: (...args: any[]) => any;
   showDialog: (...args: any[]) => any;
@@ -17,6 +22,11 @@ type FloorPlanNodeEditorProps = {
   settings: object;
   node?: FloorPlanNode;
 };
+
+/**
+ * [FloorPlanNodeEditor class component used to render view to customize properties of floor plan element]
+ * @extends Component
+ */
 class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
     constructor(props) {
         super(props);
