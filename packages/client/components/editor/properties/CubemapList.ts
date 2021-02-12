@@ -1,7 +1,7 @@
 
 
 /**
- * [CubemapOption array containing textures]
+ * [CubemapOption array containing textures used for SkyboxNode]
  */
 export const CubemapOption = [
   {
