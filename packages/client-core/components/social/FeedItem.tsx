@@ -9,7 +9,7 @@ import Router from "next/router";
 import { ModalStateHook } from "./ModalHook";
 
 export function FeedItem({ data }) {
-  const { hideModal, setModal } = ModalStateHook();
+  const {hideModal, setModal } = ModalStateHook();
 
   const moreClickEvent = () => {
     setModal(true, data);

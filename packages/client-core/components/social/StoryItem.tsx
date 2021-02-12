@@ -3,12 +3,14 @@ import { ProfilePic} from "./ProfilePic";
 import { UsernameText } from "./UsernameText";
 import Router from "next/router";
 
+import styles from './styles/Stories.module.scss';
+
 export function StoryItem({
   data
 }: any) {
   return (
     <div
-      className="story-item w-20 flex-shrink-0 flex flex-col justify-center items-center cursor-pointer"
+      className={styles.storyItem}
       onClick={() => Router.push("/[pid]", `/${data?.username || "username"}`)}
     >
       <div className="story-photo-container">
