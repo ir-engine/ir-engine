@@ -1,4 +1,4 @@
-import { CharacterAnimationsIds } from "./CharacterAnimationsIds";
+import { CharacterStateTypes } from "./CharacterStateTypes";
 import { AnimationActionLoopStyles, LoopOnce } from 'three';
 
 export interface CharacterAvatarData {
@@ -21,26 +21,23 @@ export interface AnimationConfigInterface {
 }
 
 export const defaultAvatarAnimations: {[key:number]: AnimationConfigInterface} = {
-  [CharacterAnimationsIds.IDLE]: { name: 'idle' },
-  [CharacterAnimationsIds.IDLE_ROTATE_RIGHT]: { name: 'turn_right' },
-  [CharacterAnimationsIds.IDLE_ROTATE_LEFT]: { name: 'left_turn' },
-  [CharacterAnimationsIds.JUMP]: { name: 'jump_up', loop: LoopOnce },
-  [CharacterAnimationsIds.JUMP_RUNNING]: { name: 'jump', loop: LoopOnce },
-  [CharacterAnimationsIds.FALLING]: { name: 'falling' },
-  [CharacterAnimationsIds.FALLING_LONG]: { name: 'falling' },
-  [CharacterAnimationsIds.DROP]: { name: 'falling_to_land' },
-  [CharacterAnimationsIds.DROP_ROLLING]: { name: 'falling_to_roll' },
-  [CharacterAnimationsIds.WALK_FORWARD]: { name: 'walking' },
-  [CharacterAnimationsIds.WALK_BACKWARD]: { name: 'walking_backward' },
-  [CharacterAnimationsIds.WALK_STRAFE_RIGHT]: { name: 'walk_right' },
-  [CharacterAnimationsIds.WALK_STRAFE_LEFT]: { name: 'walk_left' },
-  [CharacterAnimationsIds.RUN_FORWARD]: { name: 'run_forward' },
-  [CharacterAnimationsIds.RUN_BACKWARD]: { name: 'run_backward' },
-  [CharacterAnimationsIds.RUN_STRAFE_RIGHT]: { name: 'run_right' },
-  [CharacterAnimationsIds.RUN_STRAFE_LEFT]: { name: 'run_left' },
-  [CharacterAnimationsIds.DRIVING]: { name: 'driving' },
-  [CharacterAnimationsIds.ENTERING_CAR]: { name: 'entering_car', loop: LoopOnce },
-  [CharacterAnimationsIds.EXITING_CAR]: { name: 'exiting_car', loop: LoopOnce },
+  [CharacterStateTypes.IDLE]: { name: 'idle' },
+  [CharacterStateTypes.JUMP]: { name: 'jump_up', loop: LoopOnce },
+  [CharacterStateTypes.FALLING]: { name: 'falling' },
+  [CharacterStateTypes.FALLING_LONG]: { name: 'falling' },
+  [CharacterStateTypes.DROP]: { name: 'falling_to_land' },
+  [CharacterStateTypes.DROP_ROLLING]: { name: 'falling_to_roll' },
+  [CharacterStateTypes.WALK_FORWARD]: { name: 'walking' },
+  [CharacterStateTypes.WALK_BACKWARD]: { name: 'walking_backward' },
+  [CharacterStateTypes.WALK_STRAFE_RIGHT]: { name: 'walk_right' },
+  [CharacterStateTypes.WALK_STRAFE_LEFT]: { name: 'walk_left' },
+  [CharacterStateTypes.RUN_FORWARD]: { name: 'run_forward' },
+  [CharacterStateTypes.RUN_BACKWARD]: { name: 'run_backward' },
+  [CharacterStateTypes.RUN_STRAFE_RIGHT]: { name: 'run_right' },
+  [CharacterStateTypes.RUN_STRAFE_LEFT]: { name: 'run_left' },
+  [CharacterStateTypes.DRIVING]: { name: 'driving' },
+  [CharacterStateTypes.ENTERING_CAR]: { name: 'entering_car', loop: LoopOnce },
+  [CharacterStateTypes.EXITING_CAR]: { name: 'exiting_car', loop: LoopOnce },
 };
 
 export const CharacterAvatars: CharacterAvatarData[] = [

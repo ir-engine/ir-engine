@@ -164,15 +164,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         console.log("Client has been kicked from the world");
       });
 
-      function toArrayBuffer(buf) {
-        const ab = new ArrayBuffer(buf.length);
-        const view = new Uint8Array(ab);
-        for (let i = 0; i < buf.length; ++i) {
-            view[i] = buf[i];
-        }
-        return ab;
-    }
-
       // Get information for how to consume data from server and init a data consumer
       this.socket.on(MessageTypes.WebRTCConsumeData.toString(), async (options) => {
         console.log("WebRTC consume data called");

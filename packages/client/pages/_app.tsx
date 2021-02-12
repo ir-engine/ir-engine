@@ -22,13 +22,11 @@ import url from 'url';
 import './styles.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-
 const config = getConfig().publicRuntimeConfig;
 
 interface Props extends AppProps {
   store: Store;
 }
-
 
 const mapStateToProps = (state: any): any => {
   return {};

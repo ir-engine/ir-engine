@@ -1,6 +1,6 @@
 import { initGA, logPageView } from '@xr3ngine/client-core/components/analytics';
 import GlobalStyle from '@xr3ngine/client-core/components/editor/GlobalStyle';
-import theme from "@xr3ngine/client-core/components/editor/theme";
+import theme from "../theme";
 import { dispatchAlertError } from '@xr3ngine/client-core/redux/alert/service';
 import { getDeviceType } from '@xr3ngine/client-core/redux/devicedetect/actions';
 import { restoreState } from '@xr3ngine/client-core/redux/persisted.store';
@@ -15,9 +15,9 @@ import querystring from 'querystring';
 import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { connect, Provider } from 'react-redux';
 import { Dispatch, Store } from 'redux';
-import { ThemeProvider } from "styled-components";
 import url from 'url';
 import './styles.scss';
+import { ThemeProvider } from '@material-ui/core';
 
 
 const config = getConfig().publicRuntimeConfig;
@@ -93,7 +93,7 @@ const MyApp = (props: Props): any => {
       </Head>
       <ThemeProvider theme={theme}>
           {/* <CssBaseline /> */}
-          <GlobalStyle />
+          {/* <GlobalStyle /> */}
           <Provider store={store}>
             {isMounted && <Component {...pageProps} />}
           </Provider>

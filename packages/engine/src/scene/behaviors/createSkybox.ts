@@ -1,14 +1,11 @@
 import { Sky } from '@xr3ngine/engine/src/scene/classes/Sky';
-import { CanvasTexture, CubeTextureLoader, PMREMGenerator, RGBFormat, sRGBEncoding } from 'three';
-import { CubeTexture, TextureLoader } from 'three';
-import { CubeRefractionMapping } from 'three';
-import { EquirectangularReflectionMapping } from 'three';
-import { Vector3 } from 'three';
-import { addObject3DComponent, getObject3D } from '../../common/behaviors/Object3DBehaviors';
+import { CubeTextureLoader, EquirectangularReflectionMapping, PMREMGenerator, sRGBEncoding, TextureLoader, Vector3 } from 'three';
 import { isClient } from '../../common/functions/isClient';
 import { Engine } from '../../ecs/classes/Engine';
 import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { ScaleComponent } from '../../transform/components/ScaleComponent';
+import { Object3DComponent } from '../components/Object3DComponent';
+import { addObject3DComponent } from './addObject3DComponent';
 
 export default function createSkybox(entity, args: {
   obj3d;
@@ -53,7 +50,8 @@ export default function createSkybox(entity, args: {
     addObject3DComponent(entity, { obj3d: Sky, objArgs: args.objArgs });
     addComponent(entity, ScaleComponent);
 
-    const skyboxObject3D = getObject3D(entity) as Sky; //Sky.generateEnvironmentMap()
+    const component = getComponent(entity, Object3DComponent);
+    const skyboxObject3D = component.value;
     const scaleComponent = getMutableComponent<ScaleComponent>(entity, ScaleComponent);
     scaleComponent.scale = [args.objArgs.distance, args.objArgs.distance, args.objArgs.distance];
     const uniforms = Sky.material.uniforms;
@@ -71,7 +69,7 @@ export default function createSkybox(entity, args: {
     uniforms.sunPosition.value = sun;
     Engine.csm && Engine.csm.lightDirection.set(-sun.x, -sun.y, -sun.z);
 
-    const skyboxTexture = skyboxObject3D.generateEnvironmentMap(renderer);
+    const skyboxTexture = (skyboxObject3D as any).generateEnvironmentMap(renderer);
 
     Engine.scene.background = skyboxTexture;
     Engine.scene.environment = skyboxTexture;

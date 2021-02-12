@@ -1,8 +1,5 @@
-import { Sequelize, DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 import { Application } from '../declarations';
-import GenerateRandomAnimalName from 'random-animal-name-generator';
-import { capitalize } from '../util/capitalize';
-import { getPseudoRandomAvatarIdByUserId } from '@xr3ngine/engine/src/templates/character/functions/pseudoRandomAvatar';
 
 /**
  * This model contain users information 
@@ -20,12 +17,12 @@ export default (app: Application): any => {
       },
       name: {
         type: DataTypes.STRING,
-        defaultValue: (): string => capitalize(GenerateRandomAnimalName()),
+        defaultValue: (): string => "Guest #"+Math.floor(Math.random()*(999-100+1)+100),
         allowNull: false
       },
       avatarId: {
         type: DataTypes.STRING,
-        defaultValue: (): string => getPseudoRandomAvatarIdByUserId(DataTypes.UUIDV1 as unknown as string),
+        defaultValue: (): string => "",
         allowNull: false
       }
     },
