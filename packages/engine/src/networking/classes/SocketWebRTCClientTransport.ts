@@ -82,6 +82,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   public async initialize(address = "https://127.0.0.1", port = 3030, instance: boolean, opts?: any): Promise<void> {
+    const self = this;
     const token = (store.getState() as any).get('auth').get('authUser').accessToken;
     const selfUser = (store.getState() as any).get('auth').get('user') as User;
     let socket = instance === true ? this.instanceSocket : this.channelSocket;
@@ -116,6 +117,17 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       });
     }
 
+    console.log('New socket:');
+    console.log(socket);
+    console.log('instance?', instance);
+
+    (socket as any).instance = instance === true;
+
+    if (instance === true) this.instanceSocket = socket;
+    else this.channelSocket = socket;
+    console.log(this.instanceSocket);
+    console.log(this.channelSocket);
+
     if (instance === true) Network.instance.instanceSocketId = socket.id;
     else Network.instance.channelSocketId = socket.id;
 
@@ -123,13 +135,13 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     else this.channelRequest = this.promisedRequest(socket);
 
     socket.on("connect", async () => {
+      const request = (socket as any).instance === true ? this.instanceRequest : this.channelRequest;
       const payload = { userId: Network.instance.userId, accessToken: Network.instance.accessToken };
-      const { success } = await this.request(MessageTypes.Authorization.toString(), payload);
+      const { success } = await request(MessageTypes.Authorization.toString(), payload);
 
       if (!success) return console.error("Unable to connect with credentials");
 
-
-      const ConnectToWorldResponse = await this.request(MessageTypes.ConnectToWorld.toString());
+      const ConnectToWorldResponse = await request(MessageTypes.ConnectToWorld.toString());
       const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any;
 
       console.log("Connected to world");
@@ -162,8 +174,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       });
 
       socket.on('disconnect', async () => {
+        console.log('socket disconnecting', (socket as any).instance);
+        if ((socket as any).instance !== true) self.channelId = null;
         await endVideoChat({ endConsumers: true });
-        await leave();
+        await leave((socket as any).instance === true);
         clearInterval(heartbeat);
         // this.socket.close();
       });
@@ -172,7 +186,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         // console.log("TODO: SNACKBAR HERE");
         clearInterval(heartbeat);
         await endVideoChat({ endConsumers: true });
-        await leave();
+        await leave((socket as any).instance === true);
         socket.close();
         console.log("Client has been kicked from the world");
       });
@@ -209,8 +223,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           (selfProducerIds.indexOf(producerId) < 0) &&
           (MediaStreamSystem.instance?.consumers?.find(
             c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
-          ) == null &&
-            (channelType === 'instance' ? this.channelType === 'instance' : this.channelType === channelType && this.channelId === channelId))
+          ) == null /*&&
+            (channelType === 'instance' ? this.channelType === 'instance' : this.channelType === channelType && this.channelId === channelId)*/)
         ) {
           // that we don't already have consumers for...
           await subscribeToTrack(socketId, mediaTag, channelType, channelId);

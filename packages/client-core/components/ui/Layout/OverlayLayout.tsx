@@ -90,13 +90,11 @@ const Layout = (props: Props): any => {
     const childrenWithProps = React.Children.map(children, child => {
         // checking isValidElement is the safe way and avoids a typescript error too
         if (React.isValidElement(child)) {
-            console.log('Layout child:')
-            console.log(child);
             const mapped = React.Children.map((child as any).props.children, child => {
-                if (React.isValidElement(child)) return React.cloneElement(child, { harmonyOpen: harmonyOpen });
+                if (React.isValidElement(child)) { // @ts-ignore
+                    return React.cloneElement(child, { harmonyOpen: harmonyOpen });
+                }
             });
-            console.log('mapped:');
-            console.log(mapped);
             return mapped;
         }
         return child;

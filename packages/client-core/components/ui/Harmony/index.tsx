@@ -27,12 +27,12 @@ import {
     updateChatTarget,
     updateMessageScrollInit
 } from '@xr3ngine/client-core/redux/chat/service';
-import { selectInstanceConnectionState } from '@xr3ngine/client-core/redux/instanceConnection/selector';
+import { selectChannelConnectionState } from '@xr3ngine/client-core/redux/channelConnection/selector';
 import {
-    connectToInstanceServer,
-    provisionInstanceServer,
-    resetInstanceServer
-} from '@xr3ngine/client-core/redux/instanceConnection/service';
+    connectToChannelServer,
+    provisionChannelServer,
+    resetChannelServer
+} from '@xr3ngine/client-core/redux/channelConnection/service';
 import { selectUserState } from '@xr3ngine/client-core/redux/user/selector';
 import { Message } from '@xr3ngine/common/interfaces/Message';
 import { User } from '@xr3ngine/common/interfaces/User';
@@ -58,13 +58,14 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { observer } from 'mobx-react';
 //@ts-ignore
 import styles from './Harmony.module.scss';
+import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 
 
 const mapStateToProps = (state: any): any => {
     return {
         authState: selectAuthState(state),
         chatState: selectChatState(state),
-        instanceConnectionState: selectInstanceConnectionState(state),
+        channelConnectionState: selectChannelConnectionState(state),
         userState: selectUserState(state)
     };
 };
@@ -76,9 +77,9 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     createMessage: bindActionCreators(createMessage, dispatch),
     removeMessage: bindActionCreators(removeMessage, dispatch),
     updateChatTarget: bindActionCreators(updateChatTarget, dispatch),
-    provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
-    connectToInstanceServer: bindActionCreators(connectToInstanceServer, dispatch),
-    resetInstanceServer: bindActionCreators(resetInstanceServer, dispatch),
+    provisionChannelServer: bindActionCreators(provisionChannelServer, dispatch),
+    connectToChannelServer: bindActionCreators(connectToChannelServer, dispatch),
+    resetChannelServer: bindActionCreators(resetChannelServer, dispatch),
     patchMessage: bindActionCreators(patchMessage, dispatch),
     updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch)
 });
@@ -89,7 +90,7 @@ interface Props {
     setBottomDrawerOpen: any;
     setLeftDrawerOpen: any;
     chatState?: any;
-    instanceConnectionState?: any;
+    channelConnectionState?: any;
     getChannels?: any;
     getChannelMessages?: any;
     createMessage?: any;
@@ -98,9 +99,9 @@ interface Props {
     patchMessage?: any;
     updateMessageScrollInit?: any;
     userState?: any;
-    provisionInstanceServer?: typeof provisionInstanceServer;
-    connectToInstanceServer?: typeof connectToInstanceServer;
-    resetInstanceServer?: typeof resetInstanceServer;
+    provisionChannelServer?: typeof provisionChannelServer;
+    connectToChannelServer?: typeof connectToChannelServer;
+    resetChannelServer?: typeof resetChannelServer;
 }
 
 const Harmony = observer((props: Props): any => {
@@ -108,7 +109,7 @@ const Harmony = observer((props: Props): any => {
         authState,
         doLoginAuto,
         chatState,
-        instanceConnectionState,
+        channelConnectionState,
         getChannels,
         getChannelMessages,
         createMessage,
@@ -119,9 +120,9 @@ const Harmony = observer((props: Props): any => {
         patchMessage,
         updateMessageScrollInit,
         userState,
-        provisionInstanceServer,
-        connectToInstanceServer,
-        resetInstanceServer
+        provisionChannelServer,
+        connectToChannelServer,
+        resetChannelServer
     } = props;
 
     const messageRef = React.useRef();
@@ -170,7 +171,7 @@ const Harmony = observer((props: Props): any => {
 
         window.addEventListener('leaveWorld', () => {
             console.log('Resetting instance server');
-            resetInstanceServer();
+            resetChannelServer();
         });
     }, []);
 
@@ -336,27 +337,29 @@ const Harmony = observer((props: Props): any => {
     };
 
     const checkMediaStream = async (channelType: string, channelId: string) => {
-        if (!MediaStreamSystem.instance?.mediaStream)
+        if (!MediaStreamSystem.instance?.mediaStream) {
+            console.log('Configuring media transports', channelType, channelId);
             await configureMediaTransports(channelType, channelId);
+        }
     };
 
     const checkEndVideoChat = async () =>{
         if((MediaStreamSystem.instance?.audioPaused || MediaStreamSystem.instance?.camAudioProducer == null) && (MediaStreamSystem.instance?.videoPaused || MediaStreamSystem.instance?.camVideoProducer == null)) {
             await endVideoChat({});
-            await leave();
+            await leave(false);
         }
     };
     const handleMicClick = async (e: any, channelId: string) => {
         e.stopPropagation();
         if (channelId !== activeAVChannelId) {
             await endVideoChat({});
-            await leave();
+            await leave(false);
             await new Promise(resolve => setTimeout(() => resolve(null), 1000));
         }
         setActiveAVChannelId(channelId);
-        if (instanceConnectionState.get('instanceProvisioned') !== true &&
-            instanceConnectionState.get('instanceProvisioning') === false) {
-            provisionInstanceServer(null, null, null, channelId);
+        if (channelConnectionState.get('instanceProvisioned') !== true &&
+            channelConnectionState.get('instanceProvisioning') === false) {
+            provisionChannelServer(null, channelId);
             setProducerStarting('audio');
         } else {
             toggleAudio(channelId);
@@ -371,19 +374,16 @@ const Harmony = observer((props: Props): any => {
         console.log('activeAVChannelId: ' + activeAVChannelId);
         if (channelId !== activeAVChannelId) {
             await endVideoChat({});
-            console.log('called endVideoChat');
-            await leave();
-            console.log('Closed old connection');
+            await leave(false);
             await new Promise(resolve => setTimeout(() => resolve(null), 1000));
-            console.log('Waited for state to update');
             forceStart = true;
         }
         setActiveAVChannelId(channelId);
-        console.log('Current instanceConnectionState');
-        console.log(instanceConnectionState);
-        if (forceStart === true || (instanceConnectionState.get('instanceProvisioned') !== true &&
-            instanceConnectionState.get('instanceProvisioning') === false)) {
-            provisionInstanceServer(null, null, null, channelId);
+        console.log('Current channelConnectionState');
+        console.log(channelConnectionState);
+        if (forceStart === true || (channelConnectionState.get('instanceProvisioned') !== true &&
+            channelConnectionState.get('instanceProvisioning') === false)) {
+            provisionChannelServer(null, channelId);
             setProducerStarting('video');
         } else {
             toggleVideo(channelId);
@@ -416,19 +416,21 @@ const Harmony = observer((props: Props): any => {
     const audioPaused = MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camAudioProducer == null || MediaStreamSystem.instance?.audioPaused === true;
     const videoPaused = MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camVideoProducer == null || MediaStreamSystem.instance?.videoPaused === true;
     async function init(): Promise<any> {
-        const networkSchema: NetworkSchema = {
-            ...DefaultNetworkSchema,
-            transport: SocketWebRTCClientTransport,
-        };
+        if (Network.instance.isInitialized !== true) {
+            const networkSchema: NetworkSchema = {
+                ...DefaultNetworkSchema,
+                transport: SocketWebRTCClientTransport,
+            };
 
-        const InitializationOptions = {
-            ...DefaultInitializationOptions,
-            networking: {
-                schema: networkSchema,
-            }
-        };
+            const InitializationOptions = {
+                ...DefaultInitializationOptions,
+                networking: {
+                    schema: networkSchema,
+                }
+            };
 
-        initializeEngine(InitializationOptions);
+            initializeEngine(InitializationOptions);
+        }
     }
 
     function calcWidth(): 12 | 6 | 4 | 3 {
@@ -436,19 +438,21 @@ const Harmony = observer((props: Props): any => {
     }
 
     useEffect(() => {
+        console.log('channelConnectionState useEffect');
         if (
-            instanceConnectionState.get('instanceProvisioned') === true &&
-            instanceConnectionState.get('updateNeeded') === true &&
-            instanceConnectionState.get('instanceServerConnecting') === false &&
-            instanceConnectionState.get('connected') === false
+            channelConnectionState.get('instanceProvisioned') === true &&
+            channelConnectionState.get('updateNeeded') === true &&
+            channelConnectionState.get('instanceServerConnecting') === false &&
+            channelConnectionState.get('connected') === false
         ) {
+            console.log('channelConnection changed');
             init().then(() => {
-                console.log('Connecting to instance server');
-                console.log(instanceConnectionState.get('channelId'));
-                connectToInstanceServer('channel', instanceConnectionState.get('channelId'));
+                console.log('Connecting to channel server');
+                console.log(channelConnectionState.get('channelId'));
+                connectToChannelServer(channelConnectionState.get('channelId'));
             });
         }
-    }, [instanceConnectionState]);
+    }, [channelConnectionState]);
 
     return (
         <div className={styles['harmony-component']}>
@@ -487,7 +491,7 @@ const Harmony = observer((props: Props): any => {
                 }
             </List>
             <div className={styles['chat-window']}>
-                { instanceConnectionState.get('channelId') != null && instanceConnectionState.get('channelId').length > 0 && <div className={styles['video-container']}>
+                { (MediaStreamSystem.instance.camVideoProducer != null || MediaStreamSystem.instance.camAudioProducer != null) && <div className={styles['video-container']}>
                     <Grid className={ styles['party-user-container']} container direction="row">
                         <Grid item className={
                             classNames({

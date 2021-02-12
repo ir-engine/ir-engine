@@ -177,12 +177,13 @@ export const EnginePage = (props: Props) => {
       instanceConnectionState.get('instanceServerConnecting') === false &&
       instanceConnectionState.get('connected') === false
     ) {
+      console.log('instanceConnection changed')
       const currentLocation = locationState.get('currentLocation').get('location');
       if (sceneId === null && currentLocation.sceneId !== null) {
         sceneId = currentLocation.sceneId;
       }
       init(sceneId).then(() => {
-        connectToInstanceServer(selfUser.partyId == null ? 'instance' : 'party', selfUser.partyId);
+        connectToInstanceServer('instance');
       });
     }
   }, [instanceConnectionState]);
