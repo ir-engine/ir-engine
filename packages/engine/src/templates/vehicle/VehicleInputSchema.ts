@@ -109,7 +109,7 @@ export const VehicleInputSchema: InputSchema = {
     buttons: {
       [GamepadButtons.A]: BaseInput.JUMP,
       [GamepadButtons.B]: BaseInput.CROUCH, // B - back
-      [GamepadButtons.X]: BaseInput.SPRINT, // X - secondary input
+      [GamepadButtons.X]: BaseInput.WALK, // X - secondary input
       [GamepadButtons.Y]: BaseInput.INTERACT, // Y - tertiary input
       // 4: BaseInput.DEFAULT, // LB
       // 5: BaseInput.DEFAULT, // RB
@@ -147,7 +147,7 @@ export const VehicleInputSchema: InputSchema = {
     [BaseInput.BACKWARD]: {opposes: [BaseInput.FORWARD]} as InputRelationship,
     [BaseInput.LEFT]: {opposes: [BaseInput.RIGHT]} as InputRelationship,
     [BaseInput.RIGHT]: {opposes: [BaseInput.LEFT]} as InputRelationship,
-    [BaseInput.CROUCH]: {blockedBy: [BaseInput.JUMP, BaseInput.SPRINT]} as InputRelationship,
+    [BaseInput.CROUCH]: {blockedBy: [BaseInput.JUMP, BaseInput.WALK]} as InputRelationship,
     [BaseInput.JUMP]: {overrides: [BaseInput.CROUCH]} as InputRelationship
   },
   // "Button behaviors" are called when button input is called (i.e. not axis input)
