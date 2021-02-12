@@ -47,6 +47,7 @@ const instanceConnectionReducer = (state = immutableState, action: InstanceServe
           .set('readyToConnect', false)
           .set('instanceProvisioning', true);
     case INSTANCE_SERVER_PROVISIONED:
+      console.log('INSTANCE_SERVER_PROVISIONED REDUCER');
       newInstance = new Map(state.get('instance'));
       newValues = (action as InstanceServerProvisionedAction);
       newInstance.set('ipAddress', newValues.ipAddress);
@@ -55,7 +56,6 @@ const instanceConnectionReducer = (state = immutableState, action: InstanceServe
         .set('instance', newInstance)
         .set('locationId', newValues.locationId)
         .set('sceneId', newValues.sceneId)
-        .set('channelId', newValues.channelId)
         .set('instanceProvisioning', false)
         .set('instanceProvisioned', true)
         .set('readyToConnect', true)

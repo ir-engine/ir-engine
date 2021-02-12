@@ -237,7 +237,7 @@ function disconnectClientIfConnected(socket, userId: string): void {
     console.log(Network.instance.networkObjects);
     Object.keys(Network.instance.networkObjects).forEach((key: string) => {
         const networkObject = Network.instance.networkObjects[key];
-        // Validate that the object belonged to disconnecting user
+        // Validate that the object belongeread to disconnecting user
         if (networkObject.ownerId !== userId) return;
 
         // If it does, tell clients to destroy it

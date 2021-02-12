@@ -90,6 +90,7 @@ export const sendInitialProducers = async (socket: SocketIO.Socket, channelType:
 export const handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
     dataProducer: DataProducer
 ): Promise<void> => {
+    console.log('handleConsumeData');
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
     logger.info('Data Consumer being created on server by client: ' + userId);
@@ -111,7 +112,7 @@ export const handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
         dataConsumer
     );
 
-    const dataProducerOut = Network.instance.clients[userId].dataProducers.get('default');
+    const dataProducerOut = Network.instance.clients[userId].dataProducers.get('instance');
     // Data consumers are all consuming the single producer that outputs from the server's message queue
     socket.emit(MessageTypes.WebRTCConsumeData.toString(), {
         dataProducerId: dataProducerOut.id,
@@ -124,6 +125,7 @@ export const handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
 };
 
 export async function closeTransport(transport): Promise<void> {
+    console.log('CLOSING TRANSPORT');
     logger.info("closing transport " + transport.id, transport.appData);
     // our producer and consumer event handlers will take care of
     // calling closeProducer() and closeConsumer() on all the producers
@@ -157,8 +159,6 @@ export async function closeProducerAndAllPipeProducers(producer, peerId): Promis
 
         // remove this track's info from our roomState...mediaTag bookkeeping
         delete Network.instance.clients[producer.appData.peerId]?.media[producer.appData.mediaTag];
-        console.log('Remaining clients:');
-        console.log(Network.instance.clients);
     }
 }
 
@@ -218,6 +218,8 @@ export async function createInternalDataConsumer(dataProducer: DataProducer, use
 }
 
 export async function handleWebRtcTransportCreate(socket, data: WebRtcTransportParams, callback): Promise<any> {
+    console.log('handleWebRTCTransportCreate');
+    console.log(data);
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
     const { direction, peerId, sctpCapabilities, channelType, channelId } = Object.assign(data, { peerId: userId });
@@ -372,8 +374,6 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
         if (client.userId !== userId)
             client.socket.emit(MessageTypes.WebRTCCreateProducer.toString(), userId, appData.mediaTag, producer.id, appData.channelType, appData.channelId);
     });
-    console.log('Finished sendTrack, here are clients:');
-    console.log(Network.instance.clients);
     callback({ id: producer.id });
 }
 
@@ -418,8 +418,8 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
             closeConsumer(consumer);
         });
         consumer.on('producerpause', () => {
-            logger.info(`consumer's producer paused`);
-            logger.info(consumer.id);
+            console.log(`consumer's producer paused`);
+            console.log(consumer.id);
             if (consumer && typeof consumer.pause === 'function') consumer.pause();
             socket.emit(MessageTypes.WebRTCPauseConsumer.toString(), consumer.id);
         });
@@ -444,6 +444,7 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
                 Network.instance.clients[userId].consumerLayers[consumer.id].currentLayer = layers && layers.spatialLayer;
         });
 
+        console.log('finishing receiveTrack');
         console.log('Clients:');
         console.log(Network.instance.clients);
         callback({
@@ -472,6 +473,7 @@ export async function handleWebRtcPauseConsumer(socket, data, callback): Promise
 }
 
 export async function handleWebRtcResumeConsumer(socket, data, callback): Promise<any> {
+    console.log('resume consumer', data.consumerId);
     const { consumerId } = data,
         consumer = MediaStreamSystem.instance?.consumers.find(c => c.id === consumerId);
     if (consumer != null) {
@@ -503,14 +505,16 @@ export async function handleWebRtcResumeProducer(socket, data, callback): Promis
         producer = MediaStreamSystem.instance?.producers.find(p => p.id === producerId);
     logger.info("resume-producer", producer.appData);
     console.log('Resume-producer for user ' + userId);
-    await producer.resume();
-    if (userId != null && Network.instance.clients[userId] != null) {
-        Network.instance.clients[userId].media[producer.appData.mediaTag].paused = false;
-        Network.instance.clients[userId].media[producer.appData.mediaTag].globalMute = false;
-        const hostClient = Object.entries(Network.instance.clients).find(([name, client]) => {
-            return client.media[producer.appData.mediaTag]?.producerId === producerId;
-        });
-        hostClient[1].socket.emit(MessageTypes.WebRTCResumeProducer.toString(), producer.id);
+    if (producer != null) {
+        await producer.resume();
+        if (userId != null && Network.instance.clients[userId] != null) {
+            Network.instance.clients[userId].media[producer.appData.mediaTag].paused = false;
+            Network.instance.clients[userId].media[producer.appData.mediaTag].globalMute = false;
+            const hostClient = Object.entries(Network.instance.clients).find(([name, client]) => {
+                return client.media[producer.appData.mediaTag]?.producerId === producerId;
+            });
+            hostClient[1].socket.emit(MessageTypes.WebRTCResumeProducer.toString(), producer.id);
+        }
     }
     callback({ resumed: true });
 }
@@ -519,16 +523,18 @@ export async function handleWebRtcPauseProducer(socket, data, callback): Promise
     const userId = getUserIdFromSocketId(socket.id);
     const { producerId, globalMute } = data,
         producer = MediaStreamSystem.instance?.producers.find(p => p.id === producerId);
-    await producer.pause();
-    console.log('Pause-producer for user ' + userId);
-    if (userId != null && Network.instance.clients[userId] != null && Network.instance.clients[userId].media[producer.appData.mediaTag] != null) {
-        Network.instance.clients[userId].media[producer.appData.mediaTag].paused = true;
-        Network.instance.clients[userId].media[producer.appData.mediaTag].globalMute = globalMute || false;
-        if (globalMute === true) {
-            const hostClient = Object.entries(Network.instance.clients).find(([name, client]) => {
-                return client.media[producer.appData.mediaTag]?.producerId === producerId;
-            });
-            hostClient[1].socket.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true);
+    if (producer != null) {
+        await producer.pause();
+        console.log('Pause-producer for user ' + userId);
+        if (userId != null && Network.instance.clients[userId] != null && Network.instance.clients[userId].media[producer.appData.mediaTag] != null) {
+            Network.instance.clients[userId].media[producer.appData.mediaTag].paused = true;
+            Network.instance.clients[userId].media[producer.appData.mediaTag].globalMute = globalMute || false;
+            if (globalMute === true) {
+                const hostClient = Object.entries(Network.instance.clients).find(([name, client]) => {
+                    return client.media[producer.appData.mediaTag]?.producerId === producerId;
+                });
+                hostClient[1].socket.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true);
+            }
         }
     }
     callback({ paused: true });

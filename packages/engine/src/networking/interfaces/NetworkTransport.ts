@@ -14,9 +14,10 @@ export interface NetworkTransport {
    * Initialize the transport.
    * @param address Address of this transport.
    * @param port Port of this transport.
+   * @param instance Whether this is a connection to an instance server or not (i.e. channel server)
    * @param opts Options.
    */
-  initialize(address?: string, port?: number, opts?: Object): void | Promise<void>;
+  initialize(address?: string, port?: number, instance?: boolean, opts?: Object): void | Promise<void>;
 
   /**
    * Send data over transport.
