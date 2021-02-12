@@ -10,7 +10,7 @@ import { Interactor } from "../components/Interactor";
 import { BoundingBox } from "../components/BoundingBox";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { Engine } from "../../ecs/classes/Engine";
-
+import { isServer } from "../../common/functions/isServer";
 /**
  * Checks if entity can interact with any of entities listed in 'interactive' array, checking distance, guards and raycast
  * @param entity
@@ -18,14 +18,21 @@ import { Engine } from "../../ecs/classes/Engine";
  * @param delta
  */
 
-export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }: InteractBehaviorArguments, delta: number): void => {
+export const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractBehaviorArguments, delta: number): void => {
 
-  if (!hasComponent(entity, FollowCameraComponent)) return;
+  if (!hasComponent(entity, FollowCameraComponent)) {
+    const interacts = getMutableComponent(entity, Interactor);
+    interacts.subFocusedArray = [];
+    (interacts.BoxHitResult as any) = null;
+    (interacts.focusedInteractive as any) = null;
+    return;
+  };
+
   const followCamera = getComponent(entity, FollowCameraComponent);
   if (!followCamera.raycastBoxOn) return;
 
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
-
+/*
   const raycastList: Array<Entity> = interactive
     .filter(interactiveEntity => {
       // - have object 3d to raycast
@@ -36,6 +43,7 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }: In
       // - onInteractionCheck is not set or passed
       return (typeof interactive.onInteractionCheck !== 'function' || interactive.onInteractionCheck(entity, interactiveEntity));
     });
+*/
 
   if (!raycastList.length) {
     return;
@@ -60,14 +68,18 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }: In
   const subFocusedArray = raycastList.map(entityIn => {
 
     const boundingBox = getComponent(entityIn, BoundingBox);
+    const interactive = getComponent(entityIn, Interactable);
     if (boundingBox.boxArray.length) {
       // TO DO: static group object
-      if (boundingBox.dynamic) {
 
+      if (boundingBox.dynamic) {
         const arr = boundingBox.boxArray.map((object3D, index) => {
-          const aabb = new Box3();
-          aabb.setFromObject(object3D);
-          return [entityIn, frustum.intersectsBox(aabb), aabb.distanceToPoint(transform.position), index];
+          if (interactive.onInteractionCheck(entity, entityIn, index)) {
+            const aabb = new Box3();
+            aabb.setFromObject(object3D);
+            return [entityIn, frustum.intersectsBox(aabb), aabb.distanceToPoint(transform.position), index];
+          }
+          return [entityIn, false, null, index];
         }).filter(value => value[1]).sort((a: any, b: any) => a[2] - b[2]);
 
         if (arr.length) {
@@ -75,9 +87,10 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }: In
         } else {
           return [ null, false ];
         }
-
       }
+
     } else {
+
       if (boundingBox.dynamic) {
         const object3D = getComponent(entityIn, Object3DComponent);
         const aabb = new Box3();
@@ -87,13 +100,14 @@ export const interactBoxRaycast: Behavior = (entity: Entity, { interactive }: In
       } else {
         return [entityIn, frustum.intersectsBox(boundingBox.box), boundingBox.box.distanceToPoint(transform.position)];
       }
+
     }
   }).filter(value => value[1]);
 
   const selectNearest = subFocusedArray.sort((a: any, b: any) => a[2] - b[2]);
 
   const interacts = getMutableComponent(entity, Interactor);
-  interacts.subFocusedArray = subFocusedArray.map((v: any) => getComponent(v[0], Object3DComponent).value);
+  interacts.subFocusedArray = subFocusedArray.map((v: any) => [ getComponent(v[0], Object3DComponent).value, v[3] ]);
 
   const newBoxHit = selectNearest.length ? selectNearest[0] : null;
   (interacts.BoxHitResult as any) = newBoxHit;

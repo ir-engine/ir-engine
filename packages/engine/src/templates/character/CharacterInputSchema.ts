@@ -137,14 +137,6 @@ export const CharacterInputSchema: InputSchema = {
             phaze:LifecycleValue.STARTED
           }
         }
-      ],
-      ended: [
-        {
-          behavior: interact,
-          args: {
-            phaze:LifecycleValue.ENDED
-          }
-        }
       ]
     },
     [DefaultInput.JUMP]: {

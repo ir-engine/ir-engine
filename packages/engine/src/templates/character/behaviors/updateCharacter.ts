@@ -31,7 +31,6 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
   }
 
   if (actor.physicsEnabled) {
-
     // transfer localMovementDirection into velocityTarget
     actor.velocityTarget.copy(actor.localMovementDirection);
 
@@ -44,7 +43,7 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
   springMovement(entity, null, deltaTime);
   rotateModel(entity);
 
-    if (!isClient) {
+    if (!isClient && actor.actorCapsule.body.world != null) {
       actorTransform.position.set(
         actor.actorCapsule.body.position.x,
         actor.actorCapsule.body.position.y,
@@ -55,7 +54,8 @@ export const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime
 if (isClient) {
   const networkComponent = getComponent<NetworkObject>(entity, NetworkObject)
   if (networkComponent) {
-    if (networkComponent.ownerId === Network.instance.userId) {
+    if (networkComponent.ownerId === Network.instance.userId && actor.actorCapsule.body.world != null) {
+
       actorTransform.position.set(
         actor.actorCapsule.body.position.x,
         actor.actorCapsule.body.position.y,

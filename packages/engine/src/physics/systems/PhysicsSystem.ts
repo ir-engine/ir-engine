@@ -1,11 +1,10 @@
-import { playerModelInCar } from '@xr3ngine/engine/src/templates/car/behaviors/playerModelInCar';
 import { Body, ContactMaterial, Material, SAPBroadphase, Shape, World } from 'cannon-es';
 import debug from "cannon-es-debugger";
 import { Mesh } from 'three';
 import { isClient } from '../../common/functions/isClient';
 import { Engine } from '../../ecs/classes/Engine';
 import { System } from '../../ecs/classes/System';
-import { getComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { Network } from '../../networking/classes/Network';
 import { Vault } from '../../networking/classes/Vault';
@@ -24,6 +23,14 @@ import { ColliderComponent } from '../components/ColliderComponent';
 import { PlayerInCar } from '../components/PlayerInCar';
 import { RigidBody } from "../components/RigidBody";
 import { VehicleBody } from "../components/VehicleBody";
+import { NetworkObject } from '@xr3ngine/engine/src/networking/components/NetworkObject';
+
+import { onAddedInCar } from '@xr3ngine/engine/src/templates/car/behaviors/onAddedInCar';
+import { onAddEndingInCar } from '@xr3ngine/engine/src/templates/car/behaviors/onAddEndingInCar';
+import { onUpdatePlayerInCar } from '@xr3ngine/engine/src/templates/car/behaviors/onUpdatePlayerInCar';
+import { onStartRemoveFromCar } from '@xr3ngine/engine/src/templates/car/behaviors/onStartRemoveFromCar';
+import { onRemovedFromCar } from '@xr3ngine/engine/src/templates/car/behaviors/onRemovedFromCar';
+
 const DEBUG_PHYSICS = false;
 
 /*
@@ -35,6 +42,8 @@ const cannonDebugger = isClient ? import('cannon-es-debugger').then((module) => 
 export class PhysicsSystem extends System {
   updateType = SystemUpdateType.Fixed;
   static frame: number
+  diffSpeed: number = Engine.physicsFrameRate / Engine.networkFramerate;
+
   static physicsWorld: World
   static simulate: boolean
   static serverOnlyRigidBodyCollides: boolean
@@ -60,7 +69,6 @@ export class PhysicsSystem extends System {
     this.physicsFrameTime = 1 / this.physicsFrameRate;
     this.physicsMaxPrediction = this.physicsFrameRate;
     PhysicsSystem.serverOnlyRigidBodyCollides = false;
-
     // Physics
     PhysicsSystem.simulate = true;
     PhysicsSystem.frame = 0;
@@ -130,8 +138,7 @@ export class PhysicsSystem extends System {
     });
 
     this.queryResults.capsuleCollider.removed?.forEach(entity => {
-      const col = getComponent(entity, CapsuleCollider)
-      if(col) PhysicsSystem.physicsWorld.removeBody(col.body);
+      capsuleColliderBehavior(entity, { phase: 'onRemoved' });
     });
 
     // RigidBody
@@ -150,27 +157,53 @@ export class PhysicsSystem extends System {
       VehicleBehavior(entity, { phase: 'onAdded' });
     });
 
-    this.queryResults.vehicleBody.all?.forEach(entity => {
-      VehicleBehavior(entity, { phase: 'onUpdate' });
+
+    this.queryResults.vehicleBody.all?.forEach(entityCar => {
+      const networkCarId = getComponent(entityCar, NetworkObject).networkId;
+
+        this.queryResults.playerInCar.added?.forEach(entity => {
+          const component = getComponent(entity, PlayerInCar);
+          if (component.networkCarId == networkCarId)
+            onAddedInCar(entity, entityCar, component.currentFocusedPart, this.diffSpeed);
+        });
+
+        this.queryResults.playerInCar.all?.forEach(entity => {
+          const component = getComponent(entity, PlayerInCar);
+          if (component.networkCarId == networkCarId) {
+            switch (component.state) {
+              case 'onAddEnding':
+                onAddEndingInCar(entity,  entityCar, component.currentFocusedPart, this.diffSpeed);
+                break;
+              case 'onUpdate':
+                onUpdatePlayerInCar(entity,  entityCar, component.currentFocusedPart, this.diffSpeed);
+                break;
+              case 'onStartRemove':
+                onStartRemoveFromCar(entity, entityCar, component.currentFocusedPart, this.diffSpeed);
+                break;
+          }}
+        });
+
+        this.queryResults.playerInCar.removed?.forEach(entity => {
+          if(!hasComponent(entity, NetworkObject)) return;
+          const networkPlayerId = getComponent(entity, NetworkObject).networkId;
+          const vehicle = getComponent(entityCar, VehicleBody);
+          for (let i = 0; i < vehicle.seatPlane.length; i++) {
+            if (networkPlayerId == vehicle[vehicle.seatPlane[i]]) {
+              onRemovedFromCar(entity, entityCar, i, this.diffSpeed);
+            }
+          }
+        });
+      VehicleBehavior(entityCar, { phase: 'onUpdate', clientSnapshot });
     });
 
     this.queryResults.vehicleBody.removed?.forEach(entity => {
       VehicleBehavior(entity, { phase: 'onRemoved' });
     });
 
-    // Player 3d model in car
 
-    this.queryResults.playerInCar.added?.forEach(entity => {
-      playerModelInCar(entity, { phase: 'onAdded' }, delta);
-    });
 
-    this.queryResults.playerInCar.all?.forEach(entity => {
-      playerModelInCar(entity, { phase: 'onUpdate' }, delta);
-    });
 
-    this.queryResults.playerInCar.removed?.forEach(entity => {
-      playerModelInCar(entity, { phase: 'onRemoved' }, delta);
-    });
+
     if (PhysicsSystem.simulate) { // pause physics until loading all component scene
       this.queryResults.character.all?.forEach(entity => physicsPreStep(entity, null, delta));
       PhysicsSystem.frame++;

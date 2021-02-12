@@ -1,4 +1,4 @@
-/** 
+/**
  * This file constains declaration of Engine Class.
  * @packageDocumentation
  */
@@ -14,7 +14,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { ServerSpawnSystem } from "../../scene/systems/SpawnSystem";
 import { CSM } from '../../assets/csm/CSM.js';
 
-/** 
+/**
  * This is the base class which holds all the data related to the scene, camera,system etc.\
  * Data is holded statically hence will be available everywhere.
  */
@@ -36,7 +36,7 @@ export class Engine {
    */
   public static physicsFrameRate = 60;
 
-  /** 
+  /**
    * Frame rate for network system.
    * @default 20
    */

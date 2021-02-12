@@ -1,3 +1,4 @@
+import { Vector3 } from 'three';
 import { isClient } from "../../common/functions/isClient";
 import { DomEventBehaviorValue } from "../../common/interfaces/DomEventBehaviorValue";
 import { NumericalType } from "../../common/types/NumericalTypes";
@@ -5,7 +6,7 @@ import { Engine } from "../../ecs/classes/Engine";
 import { Entity } from "../../ecs/classes/Entity";
 import { System } from '../../ecs/classes/System';
 import { Not } from "../../ecs/functions/ComponentFunctions";
-import { getComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { Network } from "../../networking/classes/Network";
 import { Vault } from '../../networking/classes/Vault';
@@ -58,6 +59,8 @@ interface ListenerBindingData {
 
 export class InputSystem extends System {
   updateType = SystemUpdateType.Fixed;
+  needSend = false;
+  switchId = 1;
   // Temp/ref variables
   private _inputComponent: Input;
   private localUserMediaStream: MediaStream = null;
@@ -139,11 +142,26 @@ export class InputSystem extends System {
       // startLipsyncTracking(entity);
 
       handleInputOnLocalClient(entity, { isLocal: true, isServer: false }, delta);
-      const networkId = getComponent(entity, NetworkObject)?.networkId;
       // Client sends input and *only* input to the server (for now)
       // console.log("Handling input for entity ", entity.id);
       const input = getComponent(entity, Input);
 
+      let sendSwitchInputs = false;
+
+      if (!hasComponent(Network.instance.networkObjects[Network.instance.userNetworkId].component.entity, LocalInputReceiver) && !this.needSend) {
+        this.needSend = true;
+        sendSwitchInputs = true;
+        this.switchId = getComponent(entity, NetworkObject).networkId;
+        //console.warn('Car id: '+ getComponent(entity, NetworkObject).networkId);
+      } else if(hasComponent(Network.instance.networkObjects[Network.instance.userNetworkId].component.entity, LocalInputReceiver) && this.needSend) {
+        this.needSend = false;
+        sendSwitchInputs = true;
+      //  console.warn('Network.instance.userNetworkId: '+ Network.instance.userNetworkId);
+      }
+
+
+    //  sendSwitchInputs ? console.warn('switchInputs'):'';
+      //cleanupInput(entity);
       // If input is the same as last frame, return
       // if (_.isEqual(input.data, input.lastData))
       //   return;
@@ -154,31 +172,35 @@ export class InputSystem extends System {
 
       // Create a schema for input to send
       const inputs: NetworkClientInputInterface = {
-        networkId: networkId,
+        networkId: Network.instance.userNetworkId,
         buttons: [],
         axes1d: [],
         axes2d: [],
         viewVector: {
           x: 0, y: 0, z: 0
         },
-        snapShotTime: Vault.instance?.get().time - Network.instance.timeSnaphotCorrection ?? 0
+        snapShotTime: Vault.instance?.get().time - Network.instance.timeSnaphotCorrection ?? 0,
+        switchInputs: sendSwitchInputs ? this.switchId : 0
       };
 
       //console.warn(inputs.snapShotTime);
       // Add all values in input component to schema
       input.data.forEach((value, key) => {
         if (value.type === InputType.BUTTON)
-          inputs.buttons.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
+          inputs.buttons.push({ input: key, value: value.value, lifecycleState: value.lifecycleState  });
         else if (value.type === InputType.ONEDIM) // && value.lifecycleState !== LifecycleValue.UNCHANGED
-          inputs.axes1d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
+          inputs.axes1d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState  });
         else if (value.type === InputType.TWODIM) //  && value.lifecycleState !== LifecycleValue.UNCHANGED
-          inputs.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
+          inputs.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState  }); // : LifecycleValue.ENDED
       });
 
+
       const actor = getComponent<CharacterComponent>(entity, CharacterComponent);
-      inputs.viewVector.x = actor.viewVector.x;
-      inputs.viewVector.y = actor.viewVector.y;
-      inputs.viewVector.z = actor.viewVector.z;
+      if (actor) {
+        inputs.viewVector.x = actor.viewVector.x;
+        inputs.viewVector.y = actor.viewVector.y;
+        inputs.viewVector.z = actor.viewVector.z;
+      }
 
       try{
         Network.instance.transport.sendData(ClientInputModel.toBuffer(inputs));

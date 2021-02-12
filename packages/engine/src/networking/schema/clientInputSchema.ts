@@ -36,7 +36,8 @@ export const inputKeyArraySchema = new Schema({
   axes2d: [inputAxis2DSchema],
   buttons: [inputKeySchema],
   viewVector: viewVectorSchema,
-  snapShotTime: uint32
+  snapShotTime: uint32,
+  switchInputs: uint32
 });
 
 function toArrayBuffer(buf) {

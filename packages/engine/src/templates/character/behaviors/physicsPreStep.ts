@@ -12,12 +12,13 @@ export const physicsPreStep: Behavior = (entity): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	if(!actor.initialized) return;
 	const body = actor.actorCapsule.body;
+	if(body.world == null) return;
 	const transform: TransformComponent = getMutableComponent<TransformComponent>(entity, TransformComponent);
 	const object3d: Object3DComponent = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
 
 	// BUG: Setting position but this should be handled properly
 	if(isNaN( actor.actorCapsule.body.position.x) || isNaN( actor.actorCapsule.body.position.y)) {
-		console.log("body pose is nan");		
+		console.log("body pose is nan");
 		actor.actorCapsule.body.position = cannonFromThreeVector(transform.position);
 	}
 	// Player ray casting
@@ -31,7 +32,7 @@ export const physicsPreStep: Behavior = (entity): void => {
 	};
 	// Cast the ray
 	actor.rayHasHit = PhysicsSystem.physicsWorld.raycastClosest(start, end, rayCastOptions, actor.rayResult);
-	
+
 	// Raycast debug
 	// if (actor.rayHasHit) {
 	// 	if (actor.raycastBox.visible) {
