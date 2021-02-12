@@ -36,7 +36,7 @@ export const IndexPage = (props: any): any => {
 
   return(
   <ThemeProvider theme={theme}>
-    <FlatSignIn />
+      <FlatSignIn logo="/assets/LogoColored.png" />
     </ThemeProvider>
   );
 };
