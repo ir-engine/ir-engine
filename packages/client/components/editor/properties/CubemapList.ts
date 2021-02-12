@@ -1,4 +1,8 @@
 
+
+/**
+ * [CubemapOption array containing textures]
+ */
 export const CubemapOption = [
   {
     label: "texture1",
