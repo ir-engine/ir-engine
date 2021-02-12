@@ -17,34 +17,35 @@ const defaultUpVector = new Vector3(0, 1, 0);//when we use a standard vector3 wh
 export const rotateModel: Behavior = (entity: Entity): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	if (!actor.initialized) return;
+	if (actor.actorCapsule.body.world == null) return;
 	const followerMode = getComponent(entity, FollowCameraComponent)?.mode ?? 'thirdPersonLocked'; // Camera
 	const actorTransform: TransformComponent = getMutableComponent<TransformComponent>(entity, TransformComponent as any);
 	const actorObject3D: Object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent);
-	
+
 	if (actorObject3D === undefined) console.warn("Object3D is undefined");
 	else {
 		if (followerMode === 'thirdPersonLocked') {
-			
-			const actorInputs = getComponent(entity, Input);	
+
+			const actorInputs = getComponent(entity, Input);
 			const inputAxes = DefaultInput.LOOKTURN_PLAYERONE;
 			const inputValue = getInputData(actorInputs, inputAxes);
-			
+
 			if(inputValue){
 			let theta = Math.atan2( actor.orientation.x, actor.orientation.z) * 180 / Math.PI ;
-	
+
 			theta -= inputValue[0] * 80 ;
-			
+
 			actorTransform.rotation.setFromAxisAngle(defaultUpVector, theta * (Math.PI / 180));
 			actor.orientation.copy(defaultForwardVector).applyQuaternion(actorTransform.rotation);
 			}
 			actorTransform.rotation.setFromUnitVectors(defaultForwardVector, actor.orientation.clone().setY(0));
-			
+
 		} else {
 			actorTransform.rotation.setFromUnitVectors(defaultForwardVector, actor.orientation.clone().setY(0));
-		
+
 		}
 		actor.tiltContainer.rotation.z = (-actor.angularVelocity * 2.3 * actor.velocity.length());
 		actor.tiltContainer.position.setY((Math.cos(Math.abs(actor.angularVelocity * 2.3 * actor.velocity.length())) / 2) - 0.5);
-		
+
 	}
 };

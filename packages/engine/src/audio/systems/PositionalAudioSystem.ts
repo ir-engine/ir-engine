@@ -89,7 +89,7 @@ export class PositionalAudioSystem extends System {
       if (SHOULD_CREATE_SILENT_AUDIO_ELS) {
         createSilentAudioEl(streamsLive); // TODO: Do the audio els need to get cleaned up?
       }
-      
+
       const audioStreamSource = positionalAudio.value.context.createMediaStreamSource(streamsLive);
       if (positionalAudio.value.context.state === 'suspended') positionalAudio.value.context.resume();
 

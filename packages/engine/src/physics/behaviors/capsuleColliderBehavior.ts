@@ -5,6 +5,8 @@ import { getComponent, getMutableComponent, hasComponent } from '../../ecs/funct
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { NetworkObject } from '../../networking/components/NetworkObject';
 import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
+import { CapsuleCollider } from '../components/CapsuleCollider';
+import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 
 export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void => {
@@ -80,6 +82,9 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
      }
 
   } else if (args.phase == 'onRemoved') {
-
+    const capsule = getComponent<CapsuleCollider>(entity, CapsuleCollider, true);
+    if (capsule) {
+      PhysicsSystem.physicsWorld.removeBody(capsule.body);
+    }
   }
 };

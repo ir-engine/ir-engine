@@ -33,7 +33,7 @@ export const physicsPostStep: Behavior = (entity): void => {
 	if(!actor.initialized) return;
 
 	const body = actor.actorCapsule.body;
-
+	if(body.world == null) return;
 	// Get velocities
 	simulatedVelocity.set(body.velocity.x, body.velocity.y, body.velocity.z);
 
@@ -140,7 +140,7 @@ export const physicsPostStep: Behavior = (entity): void => {
 		// Reset flag
 		actor.wantsToJump = false;
 	}
-	if(isClient) return;
+
 
 	// const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
 	// transform.position.set(body.position.x, body.position.y, body.position.z);

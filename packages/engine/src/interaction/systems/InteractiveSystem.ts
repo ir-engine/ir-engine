@@ -47,7 +47,7 @@ export class InteractiveSystem extends System {
 
   constructor(attributes?: SystemAttributes) {
     super(attributes);
-    
+
     this.previousEntity = null;
     this.previousEntity2DPosition = null;
     this.focused = new Set();
@@ -64,7 +64,6 @@ export class InteractiveSystem extends System {
 
   execute(delta: number, time: number): void {
     this.newFocused.clear();
-
     if (isClient) {
       const canvas = Engine.renderer.domElement;
       const width = canvas.width;
@@ -141,12 +140,12 @@ export class InteractiveSystem extends System {
           }
         }
       });
-    }
+
 
     this.queryResults.interactors?.all.forEach(entity => {
       if (this.queryResults.interactive?.all.length) {
         //interactRaycast(entity, { interactive: this.queryResults.interactive.all });
-        interactBoxRaycast(entity, { interactive: this.queryResults.boundingBox.all });
+        interactBoxRaycast(entity, { raycastList: this.queryResults.boundingBox.all });
         const interacts = getComponent(entity, Interactor);
         if (interacts.focusedInteractive) {
           this.newFocused.add(interacts.focusedInteractive);
@@ -169,7 +168,7 @@ export class InteractiveSystem extends System {
           if (entityInter !== interacts.focusedInteractive && hasComponent(entityInter, InteractiveFocused)) {
             removeComponent(entityInter, InteractiveFocused);
           }
-          if (interacts.subFocusedArray.some(subFocusEntity => subFocusEntity.entity === entityInter)) {
+          if (interacts.subFocusedArray.some(v => v[0].entity === entityInter)) {
             if (!hasComponent(entityInter, SubFocused)) {
               addComponent(entityInter, SubFocused);
             }
@@ -202,6 +201,7 @@ export class InteractiveSystem extends System {
 
     this.focused.clear();
     this.newFocused.forEach(e => this.focused.add(e));
+    }
   }
 
   static queries: any = {

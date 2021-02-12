@@ -4,7 +4,7 @@ import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 
 export const springMovement: Behavior = (entity, args= null, deltaTime): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-
+	if (actor.actorCapsule.body.world == null) return;
 	// Simulator
 	actor.velocitySimulator.target.copy(actor.velocityTarget);
 	actor.velocitySimulator.simulate(deltaTime);

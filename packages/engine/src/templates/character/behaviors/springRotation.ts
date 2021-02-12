@@ -6,7 +6,7 @@ import { getSignedAngleBetweenVectors } from "@xr3ngine/engine/src/common/functi
 
 export const springRotation: Behavior = (entity, args = null, deltaTime): void => {
 	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-
+	if (actor.actorCapsule.body.world == null) return;
 	// Spring rotation
 	// Figure out angle between current and target orientation
 	const angle = getSignedAngleBetweenVectors(actor.orientation, actor.orientationTarget);

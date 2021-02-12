@@ -27,7 +27,7 @@ export const EnterVehicleState: StateSchemaValue = {
       behavior: setActorAnimationById,
       args: {
         animationId: CharacterAnimationsIds.ENTERING_CAR,
-        transitionDuration: 0.1
+        transitionDuration: 0.3
       }
     }
   ],

@@ -4,7 +4,7 @@ import { InputType } from '../../input/enums/InputType';
 import { MouseInput } from '../../input/enums/MouseInput';
 import { InputRelationship } from '../../input/interfaces/InputRelationship';
 import { InputSchema } from '../../input/interfaces/InputSchema';
-import { drive, driveByInputAxis } from '@xr3ngine/engine/src/physics/behaviors/driveBehavior';
+import { drive, driveByInputAxis, stop } from '@xr3ngine/engine/src/physics/behaviors/driveBehavior';
 import { cameraPointerLock } from "@xr3ngine/engine/src/camera/behaviors/cameraPointerLock";
 import { getOutCar } from '@xr3ngine/engine/src/templates/car/behaviors/getOutCarBehavior';
 import { DefaultInput } from '../shared/DefaultInput';
@@ -90,11 +90,13 @@ export const VehicleInputSchema: InputSchema = {
         }
       ]
     },
-    [DefaultInput.INTERACT]: {
+    [DefaultInput.INTERACT]:  {
       started: [
         {
           behavior: getOutCar,
-          args: {}
+          args: {
+            phaze:LifecycleValue.STARTED
+          }
         }
       ]
     },
@@ -125,7 +127,7 @@ export const VehicleInputSchema: InputSchema = {
       ],
       ended: [
         {
-          behavior: drive,
+          behavior: stop,
           args: {
             direction: 0
           }
@@ -151,7 +153,7 @@ export const VehicleInputSchema: InputSchema = {
       ],
       ended: [
         {
-          behavior: drive,
+          behavior: stop,
           args: {
             direction: 0
           }

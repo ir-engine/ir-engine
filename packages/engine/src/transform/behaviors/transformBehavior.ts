@@ -11,7 +11,7 @@ export const transformBehavior: Behavior = (entity: Entity, args: { event: Mouse
 
   const object3DComponent = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
   if (!object3DComponent){
-    // this breake a 
+    // this breake a
     //removeComponent(entity, TransformComponent);
     return; //console.warn("Object is not an object3d", entity.id);
   }

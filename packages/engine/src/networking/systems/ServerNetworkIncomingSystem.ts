@@ -12,10 +12,13 @@ import { CharacterComponent } from "../../templates/character/components/Charact
 import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
 import { handleInputFromNonLocalClients } from '../functions/handleInputOnServer';
+import { switchInputs, clearFreezeInputs } from '../functions/switchInputs';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
 import { NetworkClientInputInterface, NetworkInputInterface } from "../interfaces/WorldState";
 import { ClientInputModel } from '../schema/clientInputSchema';
-
+import { VehicleBody } from '../../physics/components/VehicleBody';
+import { PlayerInCar } from '../../physics/components/PlayerInCar';
+import { vehicleInputCheck } from '../../templates/car/behaviors/vehicleInputCheck';
 /**
  * Handle client updates.
  * @param buffer Client input interface buffer.
@@ -29,12 +32,21 @@ function handleUpdatesFromClients(buffer:any): void {
   }
 
   const actor = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, CharacterComponent);
-  actor.viewVector.set(
-    clientInput.viewVector.x,
-    clientInput.viewVector.y,
-    clientInput.viewVector.z
-  );
-  //console.warn(clientInput.snapShotTime);
+  if (actor) {
+    actor.viewVector.set(
+      clientInput.viewVector.x,
+      clientInput.viewVector.y,
+      clientInput.viewVector.z
+    );
+  }
+  // its warns the car that a passenger or driver wants to get out
+  // and does not allow the passenger to drive the car
+  vehicleInputCheck(clientInput);
+  // this function change network id to which the inputs will be applied
+  clientInput.switchInputs ? console.warn('switchInputs: '+ clientInput.switchInputs):'';
+  clientInput.switchInputs ? clearFreezeInputs( clientInput ):'';
+  clientInput.networkId = switchInputs( clientInput );
+  // this snapShotTime which will be sent back to the client, so that he knows exactly what inputs led to the change and when it was.
   const networkObject = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, NetworkObject);
   networkObject.snapShotTime = clientInput.snapShotTime;
   // Get input component
@@ -42,7 +54,6 @@ function handleUpdatesFromClients(buffer:any): void {
   if (!input) {
     return;
   }
-
   // Clear current data
   input.data.clear();
 
@@ -86,8 +97,13 @@ const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
   if (input.data.size < 1 && _.isEqual(input.data, input.lastData))
     return;
 
+  const viewVector = { x: 0, y: 0, z: 0};
   const actor = getComponent(entity, CharacterComponent);
-
+  if (actor) {
+    viewVector.x = actor.viewVector.x
+    viewVector.y = actor.viewVector.y
+    viewVector.z = actor.viewVector.z
+  }
   // Create a schema for input to send
   const inputs:NetworkInputInterface = {
     networkId: networkId,
@@ -95,9 +111,9 @@ const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
     axes1d: [],
     axes2d: [],
     viewVector: {
-      x: actor.viewVector.x,
-      y: actor.viewVector.y,
-      z: actor.viewVector.z
+      x: viewVector.x,
+      y: viewVector.y,
+      z: viewVector.z
     }
   };
 
@@ -178,12 +194,14 @@ export class ServerNetworkIncomingSystem extends System {
       clientsConnected: Network.instance.clientsConnected,
       clientsDisconnected: Network.instance.clientsDisconnected,
       createObjects: Network.instance.createObjects,
+      editObjects: Network.instance.editObjects,
       destroyObjects: Network.instance.destroyObjects
     };
 
     Network.instance.clientsConnected = [];
     Network.instance.clientsDisconnected = [];
     Network.instance.createObjects = [];
+    Network.instance.editObjects = [];
     Network.instance.destroyObjects = [];
     // Set input values on server to values sent from clients
     // Parse incoming message queue
