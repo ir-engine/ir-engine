@@ -92,7 +92,7 @@ export const interactiveBox: Prefab = {
                         // }
                         actor.mixer.stopAllAction();
                         // forget that we have any animation playing
-                        actor.currentAnimationAction = null;
+                        actor.currentAnimationAction = [];
 
                         // clear current avatar mesh
                         ([ ...actor.modelContainer.children ])
