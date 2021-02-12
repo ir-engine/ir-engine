@@ -9,7 +9,6 @@ import {
   connectToInstanceServer,
   provisionInstanceServer
 } from '@xr3ngine/client-core/redux/instanceConnection/service';
-import { OpenLink } from '../ui/OpenLink';
 import { selectLocationState } from '@xr3ngine/client-core/redux/location/selector';
 import {
   getLocationByName
@@ -18,17 +17,16 @@ import { selectPartyState } from '@xr3ngine/client-core/redux/party/selector';
 import { setCurrentScene } from '@xr3ngine/client-core/redux/scenes/actions';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
-import { getComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { SocketWebRTCClientTransport } from '@xr3ngine/engine/src/networking/classes/SocketWebRTCClientTransport';
 import { joinWorld } from '@xr3ngine/engine/src/networking/functions/joinWorld';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { loadScene } from '@xr3ngine/engine/src/scene/functions/SceneLoading';
-import { loadActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/loadActorAvatar";
-import { setActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/setActorAvatar";
-import { CharacterAvatarComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterAvatarComponent';
+import { CharacterComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterComponent';
 import { DefaultNetworkSchema, PrefabType } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
+import dynamic from 'next/dynamic';
 import querystring from 'querystring';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -41,13 +39,13 @@ import { selectUserState } from '../../redux/user/selector';
 import { InteractableModal } from '../ui/InteractableModal';
 import LoadingScreen from '../ui/Loader';
 import MediaIconsBox from "../ui/MediaIconsBox";
+import { MobileGamepadProps } from "../ui/MobileGamepad/MobileGamepadProps";
 import NamePlate from '../ui/NamePlate';
 import NetworkDebug from '../ui/NetworkDebug/NetworkDebug';
+import { OpenLink } from '../ui/OpenLink';
 import TooltipContainer from '../ui/TooltipContainer';
-import dynamic from 'next/dynamic';
 
 const goHome = () => window.location.href = window.location.origin;
-import { MobileGamepadProps } from "../ui/MobileGamepad/MobileGamepadProps";
 
 const MobileGamepad = dynamic<MobileGamepadProps>(() => import("../ui/MobileGamepad").then((mod) => mod.MobileGamepad), { ssr: false });
 
@@ -310,11 +308,13 @@ export const EnginePage = (props: Props) => {
         const networkUser = Object.values(Network.instance.networkObjects).find(networkUser => networkUser.ownerId === user.id
           && networkUser.prefabType === PrefabType.Player);
         if (networkUser) {
-          const changedAvatar = getComponent(networkUser.component.entity, CharacterAvatarComponent);
+          const changedAvatar = getComponent(networkUser.component.entity, CharacterComponent);
 
           if (user.avatarId !== changedAvatar.avatarId) {
-            setActorAvatar(networkUser.component.entity, { avatarId: user.avatarId });
-            loadActorAvatar(networkUser.component.entity);
+            const characterAvatar = getMutableComponent(networkUser.component.entity, CharacterComponent);
+            if (characterAvatar != null) characterAvatar.avatarId = user.avatarId;
+            // We can pull this from NetworkPlayerCharacter, but we probably don't want our state update here
+            // loadActorAvatar(networkUser.component.entity);
           }
         }
       }

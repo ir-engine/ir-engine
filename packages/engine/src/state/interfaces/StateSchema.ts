@@ -1,10 +1,6 @@
-import { Behavior } from '../../common/interfaces/Behavior';
 import { StateAlias } from '../types/StateAlias';
-import { StateGroupAlias } from '../types/StateGroupAlias';
-import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 
 export interface StateSchemaValue {
-    group?: StateGroupAlias;
     component?: any;
     blockedBy?: StateAlias;
     overrides?: StateAlias;
@@ -30,13 +26,7 @@ export interface BehaviorAlias {
 }
 
 export interface StateSchema {
-  groups: {
-    [key: number]: {
-      exclusive: boolean;
-      states: StateAlias[];
-      default?: StateAlias;
-    };
-  };
+  default: number | string,
   states: {
     [key: number]: StateSchemaValue;
   };

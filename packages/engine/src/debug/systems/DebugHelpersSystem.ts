@@ -6,7 +6,7 @@ import { Engine } from "../../ecs/classes/Engine";
 import { Entity } from "../../ecs/classes/Entity";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { BoundingBox } from "../../interaction/components/BoundingBox";
-import { Object3DComponent } from "../../common/components/Object3DComponent";
+import { Object3DComponent } from "../../scene/components/Object3DComponent";
 
 export class DebugHelpersSystem extends System {
   private helpersByEntity: Record<string, Map<Entity,Object3D>>;
@@ -29,6 +29,7 @@ export class DebugHelpersSystem extends System {
       const origin = new Vector3( 0, 2, 0 );
       const length = 0.5;
       const hex = 0xffff00;
+      if(!actor || !actor.viewVector) return console.warn ("actor.viewVector is null")
       const arrowHelper = new ArrowHelper( actor.viewVector.clone().normalize(), origin, length, hex );
       Engine.scene.add( arrowHelper );
       this.helpersByEntity.viewVector.set(entity, arrowHelper);

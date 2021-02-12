@@ -38,10 +38,10 @@ export class WebGLRendererSystem extends System {
 
   /** Resoulion scale. **Default** value is 1. */
   scaleFactor = 1
-  downGradeTimer = 0
-  upGradeTimer = 0
+  downgradeTimer = 0
+  upgradeTimer = 0
   /** Maximum Quality level of the rendered. **Default** value is 4. */
-  maxQualityLevel = 4
+  maxQualityLevel = 5
   /** Current quality level. */
   qualityLevel: number = this.maxQualityLevel
   /** Previous Quality leve. */
@@ -225,29 +225,28 @@ export class WebGLRendererSystem extends System {
    * @param delta Time since last frame.
    */
   changeQualityLevel(delta: number): void {
-    if (delta >= 55) {
-      this.downGradeTimer += delta;
-      this.upGradeTimer = 0;
+    if (delta >= 60) {
+      this.downgradeTimer += delta;
+      this.upgradeTimer = 0;
     }
-    else if (delta <= 10) {
-      this.upGradeTimer += delta;
-      this.downGradeTimer = 0;
+    else if (delta <= 30) {
+      this.upgradeTimer += delta;
+      this.downgradeTimer = 0;
     }
     else {
-      this.upGradeTimer = 0;
-      this.downGradeTimer = 0;
+      this.upgradeTimer = 0;
+      this.downgradeTimer = 0;
     }
 
     // change quality level
-    if (this.downGradeTimer > 3000) {
-      this.qualityLevel--;
-      this.downGradeTimer = 0;
+    if (this.downgradeTimer > 2000 && this.qualityLevel < this.maxQualityLevel) {
+      this.qualityLevel = Math.max(0, Math.min(this.maxQualityLevel, this.qualityLevel-1))
+      this.downgradeTimer = 0;
     }
-    else if (this.upGradeTimer > 500) {
-      this.qualityLevel++;
-      this.upGradeTimer = 0;
+    else if (this.upgradeTimer > 1000 && this.qualityLevel > 0) {
+      this.qualityLevel = Math.max(0, Math.min(this.maxQualityLevel, this.qualityLevel+1))
+      this.upgradeTimer = 0;
     }
-    this.qualityLevel = Math.max(0, Math.min(this.maxQualityLevel, this.qualityLevel));
 
     // set resolution scale
     if (this.prevQualityLevel !== this.qualityLevel) {
@@ -256,18 +255,21 @@ export class WebGLRendererSystem extends System {
       if (Engine.renderer) {
         switch (this.qualityLevel) {
           case 0:
-            this.scaleFactor = 0.4;
+            this.scaleFactor = 0.2;
             break;
           case 1:
-            this.scaleFactor = 0.55;
+            this.scaleFactor = 0.35;
             break;
           case 2:
-            this.scaleFactor = 0.7;
+            this.scaleFactor = 0.5;
             break;
           case 3:
-            this.scaleFactor = 0.85;
+            this.scaleFactor = 0.65;
             break;
-          case 4: default:
+          case 4:
+            this.scaleFactor = .8;
+            break;
+          case 5: default:
             this.scaleFactor = 1;
             break;
         }

@@ -1,33 +1,38 @@
-import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { CharacterComponent, RUN_SPEED, WALK_SPEED } from '../components/CharacterComponent';
-import { setFallingState } from "../behaviors/setFallingState";
-import { updateCharacterState } from "../behaviors/updateCharacterState";
-import { CharacterStateGroups } from '../CharacterStateGroups';
-import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
+import { BinaryValue } from "@xr3ngine/engine/src/common/enums/BinaryValue";
+import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
+import { AnimationClip, MathUtils } from "three";
+import { Entity } from "../../../ecs/classes/Entity";
 import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { Input } from '../../../input/components/Input';
-import { isMovingByInputs } from '../functions/isMovingByInputs';
-import { addState } from "../../../state/behaviors/addState";
-import { CharacterStateTypes } from '../CharacterStateTypes';
-import { DefaultInput } from '../../shared/DefaultInput';
-import { Entity } from "../../../ecs/classes/Entity";
-import { LifecycleValue } from "@xr3ngine/engine/src/common/enums/LifecycleValue";
-import { getMovingAnimationsByVelocity } from "../functions/getMovingAnimationsByVelocity";
-import { defaultAvatarAnimations } from "../CharacterAvatars";
-import { setActorAnimationWeightScale } from "../behaviors/setActorAnimationWeightScale";
+import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { initializeCharacterState } from "../behaviors/initializeCharacterState";
-import { Vector3 } from "three";
-import { getPlayerMovementVelocity } from "../functions/getPlayerMovementVelocity";
-import { BinaryValue } from "@xr3ngine/engine/src/common/enums/BinaryValue";
+import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
 import { trySwitchToJump } from "../behaviors/trySwitchToJump";
-import { trySwitchToMovingState } from "../behaviors/trySwitchToMovingState";
+import { updateCharacterState } from "../behaviors/updateCharacterState";
+import { AnimationConfigInterface, CharacterAvatars, defaultAvatarAnimations } from "../CharacterAvatars";
+import { CharacterStateTypes } from '../CharacterStateTypes';
+import { CharacterComponent, RUN_SPEED, WALK_SPEED, START_SPEED } from '../components/CharacterComponent';
 
-const localSpaceMovementVelocity = new Vector3();
+const {
+  IDLE,
+  WALK_FORWARD, WALK_BACKWARD, WALK_STRAFE_LEFT, WALK_STRAFE_RIGHT,
+  RUN_FORWARD, RUN_BACKWARD, RUN_STRAFE_LEFT, RUN_STRAFE_RIGHT
+} = CharacterStateTypes;
 
-// TODO: delete?
+interface AnimationWeightScaleInterface {
+  weight: number
+}
+
+// speed - what speed is represented by walk animation
+// TODO: move speed into animation config
+const animationAxisSpeed = [
+  { positiveAnimationId: WALK_FORWARD, negativeAnimationId: WALK_BACKWARD, axis: 'z', speed: 1, range: [0, 1], run: false },
+  { positiveAnimationId: WALK_STRAFE_LEFT, negativeAnimationId: WALK_STRAFE_RIGHT, axis: 'x', speed: 1, range: [0, 1], run: false },
+  { positiveAnimationId: RUN_FORWARD, negativeAnimationId: RUN_BACKWARD, axis: 'z', speed: 2, range: [0, 1], run: true },
+  { positiveAnimationId: RUN_STRAFE_LEFT, negativeAnimationId: RUN_STRAFE_RIGHT, axis: 'x', speed: 2, range: [0, 1], run: true },
+];
 
 export const MovingState: StateSchemaValue = {
-  group: CharacterStateGroups.MOVEMENT,
   componentProperties: [{
     component: CharacterComponent,
     properties: {
@@ -36,31 +41,21 @@ export const MovingState: StateSchemaValue = {
   }],
   onEntry: [
     {
-      behavior: initializeCharacterState
-    },
+      behavior: initializeCharacterState,
+      args: {
+        animationId: CharacterStateTypes.IDLE,
+        transitionDuration: 0.3
+      }
+    }
   ],
   onUpdate: [
     {
-      behavior: updateCharacterState,
-      args: {
-        setCameraRelativeOrientationTarget: true
-      }
+      behavior: updateCharacterState
     },
     {
       behavior: triggerActionIfMovementHasChanged,
       args: {
         action: (entity: Entity): void => {
-          // Default behavior for all states
-          // findVehicle(entity);
-          const input = getComponent(entity, Input);
-          const actor = getComponent(entity, CharacterComponent);
-          const isSprinting = (input.data.get(DefaultInput.SPRINT)?.value) === BinaryValue.ON;
-          const neededMovementSpeed = isSprinting? RUN_SPEED : WALK_SPEED;
-          if (actor.moveSpeed !== neededMovementSpeed) {
-            const writableActor = getMutableComponent(entity, CharacterComponent);
-            writableActor.moveSpeed = neededMovementSpeed;
-          }
-
           // Check if we're trying to jump
           if (trySwitchToJump(entity)) {
             return;
@@ -69,30 +64,112 @@ export const MovingState: StateSchemaValue = {
       }
     },
     {
-      behavior: (entity:Entity): void => {
-        // TODO: change it to speed relative to the ground?
-        // real speed made by inputs.
-        getPlayerMovementVelocity(entity, localSpaceMovementVelocity);
-        console.log('update moving', isMovingByInputs(entity), localSpaceMovementVelocity.length().toFixed(5));
+      behavior: (entity: Entity): void => {
+        const actor = getMutableComponent(entity, CharacterComponent);
+        // Actor isn't initialized yet, so skip the animation
+        if (!actor || !actor.initialized || !actor.mixer) return;
+        const input = getComponent(entity, Input);
+        const isWalking = (input.data.get(BaseInput.WALK)?.value) === BinaryValue.ON;
+        actor.moveSpeed = isWalking ? WALK_SPEED : RUN_SPEED;
 
-        const animations = getMovingAnimationsByVelocity(localSpaceMovementVelocity);
-        animations.forEach((value, animationId) => {
-          setActorAnimationWeightScale(entity, {
-            animationId,
-            weight: value.weight,
-            scale: value.timeScale
-          });
-        });
-        // TODO: sync run/walk animation pairs? (run_forward with walk_forward, run_left with walk_left)
+        const actorVelocity = actor.velocity.clone();
+        const animations = new Map<number, AnimationWeightScaleInterface>();
+        // Normalize direction for XZ movement
+        const direction = actorVelocity.clone().setY(0).normalize();
+        const avatarId = getComponent(entity, CharacterComponent)?.avatarId;
+        const avatarAnimations = CharacterAvatars.find(a => a.id === avatarId)?.animations ?? defaultAvatarAnimations;
+        const animationRoot = actor.modelContainer.children[0];
 
-        // Check if we stopped moving
-        if (!isMovingByInputs(entity) && localSpaceMovementVelocity.length() < 0.01) {
-          addState(entity, { state: CharacterStateTypes.IDLE });
+        // Initialize state weights with idle
+        const stateWeights = {
+          idle: 1,
+          walk: 0,
+          run: 0
+        };
+
+        // Get the magnitude of current velocity
+        const absSpeed = actorVelocity.setY(0).length();
+
+        // If we're not standing still...
+        if (absSpeed > 0.01) {
+          if (isWalking) {
+            if (absSpeed <= START_SPEED) {
+              stateWeights.walk = MathUtils.smoothstep(absSpeed, 0, START_SPEED);
+              stateWeights.idle = 1 - stateWeights.walk;
+            } else {
+              stateWeights.idle = 0;
+              stateWeights.walk = 1;
+            }
+          }
+          else if (absSpeed <= START_SPEED) {
+            stateWeights.run = MathUtils.smoothstep(absSpeed, 0, START_SPEED);
+            stateWeights.idle = 1 - stateWeights.run;
+          } else {
+            stateWeights.idle = 0;
+            stateWeights.run = 1;
+          }
+        } else {
+          stateWeights.idle = 1;
         }
+
+        // For each axis
+        animationAxisSpeed.forEach(animationWeightsConfig => {
+          const { positiveAnimationId, negativeAnimationId, axis, speed, run: isRun } = animationWeightsConfig;
+
+          // If the value is more than 0, play position animation, otherwise play negative animation
+          const animationId = direction[axis] > 0 ? positiveAnimationId : negativeAnimationId;
+          const offAnimationId = direction[axis] > 0 ? negativeAnimationId : positiveAnimationId;
+
+          // Solve for X
+          
+          // Solve for z
+          let weight = MathUtils.clamp(Math.abs(direction[axis]), 0, 1);
+          if (weight) {
+            weight *= isRun ? stateWeights.run : stateWeights.walk;
+          }
+          animations.set(animationId, { weight });
+          animations.set(offAnimationId, { weight: 0 });
+        });
+
+        animations.set(CharacterStateTypes.IDLE, { weight: stateWeights.idle });
+
+        animations.forEach((value, positiveAnimationId) => {
+          // console.log('setActorAnimationWS [', CharacterStateTypes[positiveAnimationId], '](', positiveAnimationId, ') W:', value.weight);
+          const avatarAnimation: AnimationConfigInterface = avatarAnimations[positiveAnimationId];
+
+          const clip = AnimationClip.findByName(actor.animations, avatarAnimation.name);
+          let action = actor.mixer.existingAction(clip, animationRoot);
+          if (!action) {
+            // get new action
+            action = actor.mixer.clipAction(clip, animationRoot);
+            if (action === null) {
+              console.warn('setActorAnimation [', avatarAnimation.name, '], not found');
+              return;
+            }
+          }
+          if (typeof avatarAnimation.loop !== "undefined") {
+            action.setLoop(avatarAnimation.loop, Infinity);
+          }
+
+          // console.log(`
+          // avatarAnimation.name: ${avatarAnimation.name} |
+          // args.weight: ${value.weight}
+          // `)
+
+          const weight = value.weight ?? 1;
+
+          // just set weight and scale
+          action.setEffectiveWeight(weight);
+          if (weight > 0 && !action.isRunning()) {
+            action.play();
+          } else if (weight === 0 && action.isRunning()) {
+            action.stop();
+          }
+        });
       }
     },
-    {
-      behavior: setFallingState
-    }
+    // {
+    //   behavior: setFallingState
+    // }
   ]
 };

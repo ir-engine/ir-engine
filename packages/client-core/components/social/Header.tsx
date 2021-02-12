@@ -49,7 +49,8 @@ export function Header({
     <nav className="navigation fixed z-20 top-0">
       <div className="header-container">
         <Clickable href="/">
-          <img src="../static/images/logo.png" className="header-logo" />
+          <h1 style={{textAlign: 'center'}}>ARC</h1>
+          {/* <img src="../static/images/logo.png" className="header-logo" /> */}
         </Clickable>
         {/* <SearchBar /> */}
         <div className="header-icons flex ml-auto items-center">
