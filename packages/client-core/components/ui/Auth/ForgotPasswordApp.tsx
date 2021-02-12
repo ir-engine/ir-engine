@@ -72,7 +72,7 @@ const ForgotPasswordComponent = (props: Props): any => {
                 color="primary"
                 className={styles.submit}
               >
-                Submit
+                Send Link
               </Button>
             </Grid>
           </Grid>
