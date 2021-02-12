@@ -59,9 +59,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
   // This sends message on a data channel (data channel creation is now handled explicitly/default)
   sendData(data: any, channel = "default"): void {
-    if (!this.dataProducer)
-      throw new Error('Data Channel not initialized on client, Data Producer doesn\'t exist!');
-      if (this.dataProducer.closed !== true) this.dataProducer.send(this.toBuffer(data));
+      if (this.dataProducer && this.dataProducer.closed !== true) {
+        this.dataProducer.send(this.toBuffer(data));
+      }
   }
 
   // Adds support for Promise to socket.io-client
@@ -212,7 +212,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // Init Receive and Send Transports initially since we need them for unreliable message consumption and production
       await Promise.all([initSendTransport('instance'), initReceiveTransport('instance')]);
 
-      await createDataProducer();
+      this.dataProducer = await createDataProducer();
     });
   }
 }

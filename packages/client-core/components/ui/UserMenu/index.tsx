@@ -14,9 +14,7 @@ import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile
 import { getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { endVideoChat, leave } from "@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions";
-// import { setActorAvatar } from "@xr3ngine/engine/src/templates/character/behaviors/setActorAvatar";
-// import { loadActorAvatar } from '@xr3ngine/engine/src/templates/character/behaviors/loadActorAvatar';
-// import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
+import { loadActorAvatar } from '@xr3ngine/engine/src/templates/character/prefabs/NetworkPlayerCharacter';
 import { CharacterComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterComponent';
 import getConfig from 'next/config';
 import React, { useEffect, useRef, useState } from 'react';
@@ -24,7 +22,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
-import { logoutUser, removeUser, updateUserAvatarId, updateUsername } from '../../../redux/auth/service';
+import { logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings } from '../../../redux/auth/service';
 import { showDialog } from '../../../redux/dialog/service';
 import { provisionInstanceServer } from "../../../redux/instanceConnection/service";
 import { selectLocationState } from '../../../redux/location/selector';
@@ -34,11 +32,11 @@ import { FacebookIcon } from '../Icons/FacebookIcon';
 import { GoogleIcon } from '../Icons/GoogleIcon';
 import { LinkedInIcon } from '../Icons/LinkedInIcon';
 import { TwitterIcon } from '../Icons/TwitterIcon';
-import UserSettings from '../Profile/UserSettings';
 import { Views, UserMenuProps } from './util';
 import styles from './style.module.scss';
-import ProfileMenu from './SettingMenu/ProfileMenu';
-import AvatarMenu from './SettingMenu/AvatarMenu';
+import ProfileMenu from './menus/ProfileMenu';
+import AvatarMenu from './menus/AvatarMenu';
+import SettingMenu from './menus/SettingMenu';
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -52,6 +50,7 @@ const mapStateToProps = (state: any): any => {
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   updateUsername: bindActionCreators(updateUsername, dispatch),
   updateUserAvatarId: bindActionCreators(updateUserAvatarId, dispatch),
+  updateUserSettings: bindActionCreators(updateUserSettings, dispatch),
   logoutUser: bindActionCreators(logoutUser, dispatch),
   showDialog: bindActionCreators(showDialog, dispatch),
   removeUser: bindActionCreators(removeUser, dispatch),
@@ -74,6 +73,7 @@ const UserMenu = (props: UserMenuProps): any => {
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
   const [isEditUsername, setIsEditUsername] = useState(false);
   const [username, setUsername] = useState(selfUser?.name);
+  const [setting, setUserSetting] = useState(selfUser?.user_setting);
   const [currentView, setCurrentView] = useState(Views.Closed);
 
   const invitationLink = window.location.href;
@@ -162,7 +162,11 @@ const UserMenu = (props: UserMenuProps): any => {
 
   useEffect(() => {
     selfUser && setUsername(selfUser.name);
-  }, [selfUser]);
+  }, [selfUser.name]);
+
+  useEffect(() => {
+    selfUser && setUserSetting({ ...selfUser.user_setting });
+  }, [selfUser.user_setting]);
 
   useEffect(() => {
     if (waitingForLogout === true && authState.get('authUser') != null && authState.get('user') != null && authState.get('user').userRole === 'guest') {
@@ -170,11 +174,6 @@ const UserMenu = (props: UserMenuProps): any => {
       location.reload();
     }
   }, [authState]);
-
-  const renderDeviceSetupPage = () => <>
-    <Typography variant="h1"><ArrowBackIosIcon onClick={() => setCurrentView(Views.Closed)} />Device Setup</Typography>
-    <UserSettings />
-  </>;
 
   const LoginPage = () => <>
     <Typography variant="h1"><ArrowBackIosIcon onClick={() => setCurrentView(Views.Closed)} />Login</Typography>
@@ -265,7 +264,7 @@ const UserMenu = (props: UserMenuProps): any => {
 
   const menuPanel = {
     [Views.Profile]: ProfileMenu,
-    [Views.Settings]: null,
+    [Views.Settings]: SettingMenu,
     [Views.Share]: null,
     [Views.Avatar]: AvatarMenu,
   };
@@ -277,17 +276,19 @@ const UserMenu = (props: UserMenuProps): any => {
   };
 
   const setAvatar = (avatarId: string) => {
-    if (actorEntity && actorAvatarId) {
+    if (actorEntity && avatarId) {
       const characterAvatar = getMutableComponent(actorEntity, CharacterComponent);
-      if (characterAvatar != null) characterAvatar.avatarId = actorAvatarId;
-      // We can pull this from NetworkPlayerCharacter, but we probably don't want our state update here
-      // loadActorAvatar(actorEntity);
-      updateUserAvatarId(selfUser.id, actorAvatarId);
-    }
+      if (characterAvatar != null) characterAvatar.avatarId = avatarId;
 
-    // setActorAvatar(actorEntity, { avatarId });
-    // loadActorAvatar(actorEntity);
-    // updateUserAvatarId(selfUser.id, avatarId);
+      // We can pull this from NetworkPlayerCharacter, but we probably don't want our state update here
+      loadActorAvatar(actorEntity);
+      updateUserAvatarId(selfUser.id, avatarId);
+    }
+  }
+
+  const setUserSettings = (newSetting: any): void => {
+    setUserSetting({ ...setting, ...newSetting });
+    updateUserSettings(selfUser.user_setting.id, setting);
   }
 
   const setActiveMenu = (e): void => {
@@ -301,6 +302,10 @@ const UserMenu = (props: UserMenuProps): any => {
 
   const openAvatarMenu = () => {
     setCurrentActiveMenu({ id: Views.Avatar });
+  }
+
+  const closeMenu = () => {
+    setCurrentActiveMenu(null);
   }
 
   const renderMenuPanel = () => {
@@ -319,9 +324,19 @@ const UserMenu = (props: UserMenuProps): any => {
         };
         break;
       case Views.Avatar:
-        args = { setAvatar };
+        args = {
+          setAvatar,
+          closeMenu,
+          avatarId: selfUser.avatarId,
+        };
         break;
-      case Views.Settings: return renderDeviceSetupPage();
+      case Views.Settings:
+        args = {
+          user: selfUser,
+          setting,
+          setUserSettings,
+        };
+        break;
       // case Views.Login: return renderLoginPage();
       // case Views.Account: return renderAccountPage();
       // case Views.DeleteAccount: return renderAccountDeletePage();
