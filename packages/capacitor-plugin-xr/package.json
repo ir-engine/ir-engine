@@ -1,7 +1,7 @@
 {
-  "name": "@xr3ngine/capacitor-plugin-ar",
+  "name": "@xr3ngine/capacitor-plugin-xr",
   "version": "0.1.0",
-  "description": "AR provider class for AR integration into a capacitor app",
+  "description": "Native XR and camera services inside any capacitor app",
   "main": "dist/plugin.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
