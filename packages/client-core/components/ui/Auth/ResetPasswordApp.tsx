@@ -1,47 +1,34 @@
 import React, { useRef, useState } from 'react';
 import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
-import { connect } from 'react-redux';
-import { bindActionCreators, Dispatch } from 'redux';
-import { registerUserByEmail } from '../../../redux/auth/service';
+import { EmptyLayout }from '../Layout/EmptyLayout';
+import { resetPassword } from '../../../redux/auth/service';
 import styles from './Auth.module.scss';
-import { showDialog } from '../../../redux/dialog/service';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import { Visibility, VisibilityOff } from '@material-ui/icons';
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  registerUserByEmail: bindActionCreators(registerUserByEmail, dispatch),
-  showDialog: bindActionCreators(showDialog, dispatch)
-});
-
 interface Props {
-  registerUserByEmail: typeof registerUserByEmail;
-  showDialog: typeof showDialog;
+  resetPassword: typeof resetPassword;
+  token: string;
+  completeAction: ()=>void;
 }
 
-const SignUp = (props: Props): any => {
-  const { registerUserByEmail, showDialog } = props;
-  const initialState = {
-    email: '',
-    password: '',
-  };
+export const ResetPassword = (props: Props): any => {
+  const { resetPassword, token, completeAction } = props;
+  const initialState = { password: '', isSubmitted:false };
   const [state, setState] = useState(initialState);
 
   const handleInput = (e: any): void => {
     e.preventDefault();
     setState({ ...state, [e.target.name]: e.target.value });
   };
-
-  const handleRegister = (e: any): void => {
+  const handleReset = (e: any): void => {
     e.preventDefault();
-    registerUserByEmail({
-      email: state.email,
-      password: state.password
-    });
+    resetPassword(token, state.password);
+    setState({ ...state, isSubmitted: true });
   };
 
   const [values, setValues] = useState({showPassword:false, showPasswordConfirm: false});
@@ -55,6 +42,7 @@ const SignUp = (props: Props): any => {
   const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
   };
+  
   const password = useRef<HTMLInputElement>();
   const confirm_password = useRef<HTMLInputElement>();
   function validatePassword(){
@@ -66,24 +54,32 @@ const SignUp = (props: Props): any => {
   }
 
   return (
-    <Container component="main" maxWidth="xs">
-      <div className={styles.paper}>
-        <form className={styles.form} onSubmit={(e) => handleRegister(e)}>
-          <Grid container>
-            <Grid item xs={12}>
+    <EmptyLayout>
+      <Container component="main" maxWidth="xs">
+        <div className={styles.paper}>
+        {state.isSubmitted ? <>
+          <Typography component="h1" variant="h5"  align="center">Your password was successfully reset!</Typography>
+          <Typography variant="body2" align="center">You can now log into the your account.</Typography>  
+          <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              className={styles.submit}
+              onClick={completeAction}
+            >
+              Log in
+            </Button>
+          </>
+        : (<>
+          <Typography component="h1" variant="h5">
+            Reset Password
+          </Typography>
+          <Typography variant="body2" align="center">
+            Please enter your password for your email address
+          </Typography>
+          <form className={styles.form} onSubmit={(e) => handleReset(e)}>
               <OutlinedInput
-                margin="dense"
-                required
-                fullWidth
-                id="email"
-                placeholder="Email"
-                name="email"
-                autoComplete="email"
-                onChange={(e) => handleInput(e)}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <OutlinedInput
+                inputRef={password}
                 margin="dense"
                 required
                 fullWidth
@@ -91,7 +87,6 @@ const SignUp = (props: Props): any => {
                 placeholder="Password"
                 type={values.showPassword ? 'text' : 'password'}
                 id="password"
-                inputRef={password}
                 autoComplete="current-password"
                 onChange={(e) => handleInput(e)}
                 endAdornment={
@@ -107,17 +102,15 @@ const SignUp = (props: Props): any => {
                   </InputAdornment>
                 }
               />
-            </Grid>
-            <Grid item xs={12}>
               <OutlinedInput
                 margin="dense"
                 required
                 fullWidth
+                inputRef={confirm_password}
                 name="confirm_password"
                 placeholder="Password Confirm"
                 type={values.showPasswordConfirm ? 'text' : 'password'}
                 id="confirm_password"
-                inputRef={confirm_password}
                 autoComplete="current-password"
                 onChange={(e) => handleInput(e)}
                 onKeyUp={validatePassword}
@@ -134,25 +127,19 @@ const SignUp = (props: Props): any => {
                   </InputAdornment>
                 }
               />
-            </Grid>
-            <Grid item xs={12}>
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                color="primary"
-                className={styles.submit}
-              >
-                Sign up
-              </Button>
-            </Grid>
-          </Grid>
-        </form>
-      </div>
-    </Container>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+              className={styles.submit}
+            >
+              Reset Password
+            </Button>
+          </form>
+        </>)}
+        </div>
+      </Container>
+    </EmptyLayout>
   );
 };
-
-const SignUpWrapper = (props: any): any => <SignUp {...props} />;
-
-export default connect(mapDispatchToProps)(SignUpWrapper);
