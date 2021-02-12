@@ -46,8 +46,7 @@ const ForgotPasswordComponent = (props: Props): any => {
         </Typography>
 
         <form
-          className={styles.form}
-          noValidate
+          className={styles.form}          
           onSubmit={(e) => handleForgot(e)}
         >
           <Grid container>
