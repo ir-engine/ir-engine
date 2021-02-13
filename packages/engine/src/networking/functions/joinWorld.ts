@@ -5,7 +5,7 @@ import { applyNetworkStateToClient } from "./applyNetworkStateToClient";
 
 /** Join the world to start interacting with it. */
 export const joinWorld = async (): Promise<void> => {
-  const joinWorldResponse = await (Network.instance.transport as SocketWebRTCClientTransport).request(MessageTypes.JoinWorld.toString());
+  const joinWorldResponse = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
   const { worldState } = joinWorldResponse as any;
   console.log("Joined world");
   // Apply all state to initial frame

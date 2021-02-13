@@ -2,6 +2,11 @@ import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import styles from "./styles.module.scss";
 
+/**
+ * [Stats used to show stats of  memory and  render]
+ * @param       {[type]} editor
+ * @constructor
+ */
 export default function Stats({ editor }) {
   const [info, setInfo] = useState(0);
 
@@ -27,18 +32,21 @@ export default function Stats({ editor }) {
     };
   }, [editor]);
 
+ /**
+  * rendering stats view in ViewportToolbar and shows when click on toggleStats
+  */
   return (
     <div className={styles.statsContainer}>
       <h3>Stats:</h3>
       {info && (
-        <ul>
-          <li>
-            Memory:
-            <ul>
-              <li>Geometries: {(info as any).geometries}</li>
-              <li>Textures: {(info as any).textures}</li>
-            </ul>
-          </li>
+         <ul>
+            <li>
+              Memory:
+              <ul>
+                <li>Geometries: {(info as any).geometries}</li>
+                <li>Textures: {(info as any).textures}</li>
+              </ul>
+            </li>
           <li>
             Render:
             <ul>
