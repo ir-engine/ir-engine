@@ -5,7 +5,7 @@ export const Views = {
   Share: 'Share',
   DeleteAccount: 'accountDelete',
   Login: 'login',
-  Account: 'account',
+  Account: 'Account',
   Avatar: 'Avatar',
 }
 
@@ -19,6 +19,7 @@ export interface UserMenuProps {
   logoutUser?: Function;
   showDialog?: Function;
   removeUser?: Function;
+  alertSuccess?: Function;
   currentScene?: any;
   provisionInstanceServer?: any;
 }
@@ -28,4 +29,4 @@ export interface SettingMenuProps {
   setActiveMenu?: Function;
 }
 
-export const getAvatarURL = (avatarId: string): string => `/static/${avatarId.toLocaleLowerCase()}.png`
+export const getAvatarURL = (avatarId: string): string => avatarId ? `/static/${avatarId.toLocaleLowerCase()}.png` : '/placeholders/default-silhouette.svg';

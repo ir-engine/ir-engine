@@ -59,7 +59,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
   // This sends message on a data channel (data channel creation is now handled explicitly/default)
   sendData(data: any, channel = "default"): void {
-      if (this.dataProducer && this.dataProducer.closed !== true) {
+      if (!this.dataProducer) return; // throw new Error('Hello worlds');
+      
+      if (this.dataProducer.closed !== true) {
         this.dataProducer.send(this.toBuffer(data));
       }
   }
@@ -81,8 +83,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.mediasoupDevice = new Device();
     if (this.socket && this.socket.close) this.socket.close();
 
-    console.log('Client transport initialize opts:');
-    console.log(opts);
     const { startVideo, videoEnabled, channelType, ...query } = opts;
     this.channelType = channelType;
     this.channelId = opts.channelId;
@@ -92,8 +92,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     if (query.locationId == null) delete query.locationId;
     if (query.sceneId == null) delete query.sceneId;
     if (query.channelId == null) delete query.channelId;
-    console.log('Query for socket init');
-    console.log(query);
     if (process.env.NODE_ENV === 'development') {
       this.socket = ioclient(`${address as string}:${port.toString()}/realtime`, {
         query: query
@@ -118,9 +116,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       const ConnectToWorldResponse = await this.request(MessageTypes.ConnectToWorld.toString());
       const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any;
-
-      console.log("Connected to world");
-      console.log(ConnectToWorldResponse);
 
       window.dispatchEvent(new CustomEvent('connectToWorld'));
 
@@ -166,8 +161,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       // Get information for how to consume data from server and init a data consumer
       this.socket.on(MessageTypes.WebRTCConsumeData.toString(), async (options) => {
-        console.log("WebRTC consume data called");
-        console.log(options);
         const dataConsumer = await this.instanceRecvTransport.consumeData(options);
         Network.instance?.dataConsumers.set(options.dataProducerId, dataConsumer);
 
