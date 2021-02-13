@@ -4,7 +4,7 @@ import { CollisionGroups } from "@xr3ngine/engine/src/physics/enums/CollisionGro
 import { playerModelInCar } from '@xr3ngine/engine/src/templates/vehicle/behaviors/playerModelInCar';
 import * as CANNON from "cannon-es";
 import { Body, ContactMaterial, Material, SAPBroadphase, Shape, Vec3, World } from 'cannon-es';
-import debug from "cannon-es-debugger";
+// import debug from "cannon-es-debugger";
 import * as THREE from "three";
 import { Matrix4, Mesh, Quaternion, Vector3 } from 'three';
 import { cannonFromThreeVector } from '../../common/functions/cannonFromThreeVector';
@@ -94,12 +94,12 @@ export class PhysicsSystem extends System {
       }
     };
 
-    window["physicsDebugView"] = () => {
-      debug(Engine.scene, PhysicsSystem.physicsWorld.bodies, DebugOptions);
-    };
-    if (DEBUG_PHYSICS) {
-      debug(Engine.scene, PhysicsSystem.physicsWorld.bodies, DebugOptions);
-    }
+    // window["physicsDebugView"] = () => {
+    //   debug(Engine.scene, PhysicsSystem.physicsWorld.bodies, DebugOptions);
+    // };
+    // if (DEBUG_PHYSICS) {
+    //   debug(Engine.scene, PhysicsSystem.physicsWorld.bodies, DebugOptions);
+    // }
   }
 
   dispose(): void {

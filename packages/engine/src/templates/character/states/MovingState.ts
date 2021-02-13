@@ -11,7 +11,7 @@ import { trySwitchToJump } from "../behaviors/trySwitchToJump";
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { AnimationConfigInterface, CharacterAvatars, defaultAvatarAnimations } from "../CharacterAvatars";
 import { CharacterStateTypes } from '../CharacterStateTypes';
-import { CharacterComponent, RUN_SPEED, WALK_SPEED, START_SPEED } from '../components/CharacterComponent';
+import { CharacterComponent, RUN_SPEED, START_SPEED, WALK_SPEED } from '../components/CharacterComponent';
 
 const {
   IDLE,
@@ -32,6 +32,18 @@ const animationAxisSpeed = [
   { positiveAnimationId: RUN_STRAFE_LEFT, negativeAnimationId: RUN_STRAFE_RIGHT, axis: 'x', speed: 2, range: [0, 1], run: true },
 ];
 
+const movementAnimations: {[key:number]: AnimationConfigInterface} = {
+  [IDLE]: { name: 'idle' },
+  [WALK_FORWARD]: { name: 'walking' },
+  [WALK_BACKWARD]: { name: 'walking_backward' },
+  [WALK_STRAFE_RIGHT]: { name: 'walk_right' },
+  [WALK_STRAFE_LEFT]: { name: 'walk_left' },
+  [RUN_FORWARD]: { name: 'run_forward' },
+  [RUN_BACKWARD]: { name: 'run_backward' },
+  [RUN_STRAFE_RIGHT]: { name: 'run_right' },
+  [RUN_STRAFE_LEFT]: { name: 'run_left' }
+};
+
 export const MovingState: StateSchemaValue = {
   componentProperties: [{
     component: CharacterComponent,
@@ -43,9 +55,32 @@ export const MovingState: StateSchemaValue = {
     {
       behavior: initializeCharacterState,
       args: {
-        animationId: CharacterStateTypes.IDLE,
+        animationId: IDLE,
         transitionDuration: 0.3
       }
+    },
+    {
+    behavior: (entity: Entity): void => {
+      const actor = getMutableComponent(entity, CharacterComponent);
+
+// Walking animation names
+// If animation is not in this array, remove
+
+      // Actor isn't initialized yet, so skip the animation
+      if (!actor || !actor.initialized || !actor.mixer) return;
+
+      const avatarAnimations = CharacterAvatars.find(a => a.id === actor.avatarId)?.animations ?? defaultAvatarAnimations;
+
+      const movementAnimationNames = Object.values(movementAnimations).map(val => val.name);
+
+        // Clear existing animations
+        actor.currentAnimationAction.forEach(currentAnimationAction => {
+          if(movementAnimationNames.filter(movAnim => movAnim === currentAnimationAction.getClip().name).length > 0)
+            return;
+          currentAnimationAction.fadeOut(.1);
+          currentAnimationAction.setEffectiveWeight(0);
+        } )
+    }
     }
   ],
   onUpdate: [
@@ -67,7 +102,8 @@ export const MovingState: StateSchemaValue = {
       behavior: (entity: Entity): void => {
         const actor = getMutableComponent(entity, CharacterComponent);
         // Actor isn't initialized yet, so skip the animation
-        if (!actor || !actor.initialized || !actor.mixer) return;
+        if (!actor || !actor.initialized || !actor.mixer)
+          return;
         const input = getComponent(entity, Input);
         const isWalking = (input.data.get(BaseInput.WALK)?.value) === BinaryValue.ON;
         actor.moveSpeed = isWalking ? WALK_SPEED : RUN_SPEED;
@@ -76,7 +112,7 @@ export const MovingState: StateSchemaValue = {
         const animations = new Map<number, AnimationWeightScaleInterface>();
         // Normalize direction for XZ movement
         const direction = actorVelocity.clone().setY(0).normalize();
-        const avatarId = getComponent(entity, CharacterComponent)?.avatarId;
+        const avatarId = actor.avatarId;
         const avatarAnimations = CharacterAvatars.find(a => a.id === avatarId)?.animations ?? defaultAvatarAnimations;
         const animationRoot = actor.modelContainer.children[0];
 
@@ -131,7 +167,7 @@ export const MovingState: StateSchemaValue = {
           animations.set(offAnimationId, { weight: 0 });
         });
 
-        animations.set(CharacterStateTypes.IDLE, { weight: stateWeights.idle });
+        animations.set(IDLE, { weight: stateWeights.idle });
 
         animations.forEach((value, positiveAnimationId) => {
           // console.log('setActorAnimationWS [', CharacterStateTypes[positiveAnimationId], '](', positiveAnimationId, ') W:', value.weight);
@@ -139,6 +175,7 @@ export const MovingState: StateSchemaValue = {
 
           const clip = AnimationClip.findByName(actor.animations, avatarAnimation.name);
           let action = actor.mixer.existingAction(clip, animationRoot);
+          
           if (!action) {
             // get new action
             action = actor.mixer.clipAction(clip, animationRoot);
@@ -150,6 +187,9 @@ export const MovingState: StateSchemaValue = {
           if (typeof avatarAnimation.loop !== "undefined") {
             action.setLoop(avatarAnimation.loop, Infinity);
           }
+          // Push the action to our queue so we can handle it later if necessary
+          if(!actor.currentAnimationAction.includes(action))
+            actor.currentAnimationAction.push(action);
 
           // console.log(`
           // avatarAnimation.name: ${avatarAnimation.name} |

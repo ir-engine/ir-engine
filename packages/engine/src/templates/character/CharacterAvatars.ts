@@ -22,7 +22,7 @@ export interface AnimationConfigInterface {
 
 export const defaultAvatarAnimations: {[key:number]: AnimationConfigInterface} = {
   [CharacterStateTypes.IDLE]: { name: 'idle' },
-  [CharacterStateTypes.JUMP]: { name: 'jump_up', loop: LoopOnce },
+  [CharacterStateTypes.JUMP]: { name: 'jump' },
   [CharacterStateTypes.FALLING]: { name: 'falling' },
   [CharacterStateTypes.FALLING_LONG]: { name: 'falling' },
   [CharacterStateTypes.DROP]: { name: 'falling_to_land' },
