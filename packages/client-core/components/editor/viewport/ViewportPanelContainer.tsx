@@ -15,6 +15,12 @@ import { ChartArea } from "@styled-icons/fa-solid/ChartArea";
 import { InfoTooltip } from "../layout/Tooltip";
 import Stats from "./Stats";
 
+/**
+ * [borderColor used to get border color ]
+ * @param  {[type]} props
+ * @param  {[type]} defaultColor
+ * @return {[type]} color
+ */
 function borderColor(props, defaultColor) {
   if (props.canDrop) {
     return props.theme.blue;
@@ -25,12 +31,19 @@ function borderColor(props, defaultColor) {
   }
 }
 
+/**
+ * styled component created using canvas to show the viewport.
+ */
 const Viewport = (styled as any).canvas`
   width: 100%;
   height: 100%;
   position: relative;
 `;
 
+/**
+ * [ViewportContainer used as wrapper element for Viewport, ControlsText]
+ * @type {[Styled component]}
+ */
 const ViewportContainer = (styled as any).div`
   display: flex;
   flex: 1;
@@ -48,6 +61,10 @@ const ViewportContainer = (styled as any).div`
   }
 `;
 
+/**
+ * [ControlsText used to show the control keys ]
+ * @type {[Styled component]}
+ */
 const ControlsText = (styled as any).div`
   position: absolute;
   bottom: 0;
@@ -58,12 +75,21 @@ const ControlsText = (styled as any).div`
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
 `;
 
+/**
+ * [ViewportToolbarContainer used to show title and options for view port]
+ * @type {[styled component]}
+ */
 const ViewportToolbarContainer = (styled as any).div`
   display: flex;
   justify-content: flex-end;
   flex: 1;
 `;
 
+
+/**
+ * [ToolbarIconContainer provides the styles for icon placed in toolbar]
+ * @param {[type]} styled
+ */
 const ToolbarIconContainer = (styled as any).div`
   display: flex;
   justify-content: center;
@@ -82,8 +108,18 @@ const ToolbarIconContainer = (styled as any).div`
   }
 `;
 
+// Defining initail panel sizes for Resizeable component
 const initialPanelSizes = [0.8, 0.2];
 
+/**
+ * [IconToggle used to show stats when we click on it, and shows the tooltip info if we hover over the icon]
+ * @param       {[elementType]} icon
+ * @param       {[bool]} value
+ * @param       {[function]} onClick
+ * @param       {[string]} tooltip
+ * @param       {[any]} rest
+ * @constructor
+ */
 function IconToggle({ icon: Icon, value, onClick, tooltip, ...rest }) {
   const onToggle = useCallback(() => {
     onClick(!value);
@@ -98,6 +134,7 @@ function IconToggle({ icon: Icon, value, onClick, tooltip, ...rest }) {
   );
 }
 
+// Declairing properties for IconToggle
 IconToggle.propTypes = {
   icon: PropTypes.elementType,
   value: PropTypes.bool,
@@ -105,6 +142,10 @@ IconToggle.propTypes = {
   tooltip: PropTypes.string
 };
 
+/**
+ * [ selectInputStyles used to show select input inside ToolBar ]
+ * @type {Object}
+ */
 const selectInputStyles = {
   container: base => ({
     ...base,
@@ -124,6 +165,12 @@ const selectInputStyles = {
   })
 };
 
+/**
+ * [ViewportToolbar used as warpper for IconToggle, SelectInput ]
+ * @param       {[type]} onToggleStats
+ * @param       {[type]} showStats
+ * @constructor
+ */
 function ViewportToolbar({ onToggleStats, showStats }) {
   const editor = useContext(EditorContext);
 
@@ -151,6 +198,7 @@ function ViewportToolbar({ onToggleStats, showStats }) {
     [editor, setRenderMode]
   );
 
+  // creating ToolBar view
   return (
     <ViewportToolbarContainer>
       <IconToggle onClick={onToggleStats} value={showStats} tooltip="Toggle Stats" icon={ChartArea} />
@@ -160,11 +208,16 @@ function ViewportToolbar({ onToggleStats, showStats }) {
   );
 }
 
+// creating properties for  ViewportToolbar
 ViewportToolbar.propTypes = {
   showStats: PropTypes.bool,
   onToggleStats: PropTypes.func
 };
 
+/**
+ * [ViewportPanelContainer used to render viewport ]
+ * @constructor
+ */
 export default function ViewportPanelContainer() {
   const editor = useContext(EditorContext);
   const canvasRef = React.createRef();
@@ -227,7 +280,6 @@ export default function ViewportPanelContainer() {
 
         return;
       }
-
       addAssetAtCursorPositionOnDrop(editor, item, mousePos);
     },
     collect: monitor => ({

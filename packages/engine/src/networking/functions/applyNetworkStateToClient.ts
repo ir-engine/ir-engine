@@ -1,6 +1,6 @@
 import {Quaternion, Vector3} from "three";
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import {getComponent, hasComponent, removeEntity, getMutableComponent} from '../../ecs/functions/EntityFunctions';
+import {getComponent, removeComponent, addComponent, hasComponent, removeEntity, getMutableComponent} from '../../ecs/functions/EntityFunctions';
 import {Input} from '../../input/components/Input';
 import {LocalInputReceiver} from '../../input/components/LocalInputReceiver';
 import {InputType} from '../../input/enums/InputType';
@@ -13,9 +13,12 @@ import {CharacterComponent} from "../../templates/character/components/Character
 import {handleInputFromNonLocalClients} from "./handleInputOnServer";
 import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
 import { AssetLoader } from '@xr3ngine/engine/src/assets/components/AssetLoader';
-
-let NetworkIdMyPlayer = null;
-
+import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
+import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
+import { setState } from "@xr3ngine/engine/src/state/behaviors/setState";
+import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";
+import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
+import { FollowCameraComponent } from "@xr3ngine/engine/src/camera/components/FollowCameraComponent";
 /**
  * Apply State received over the network to the client.
  * @param worldStateBuffer State of the world received over the network.
@@ -34,14 +37,25 @@ function syncPhysicsObjects( objectToCreate ) {
       }
     }
   }
-/*
-Network.instance.networkObjects[objectToCreate.networkId] = {
-    ownerId: 'server',
-    prefabType: PrefabType.worldObject, // All network objects need to be a registered prefab
-    component: getComponent(entity, NetworkObject),
-    uniqueId: objectToCreate.uniqueId
-};
-*/
+
+  for (let i = 0; i < Engine.entities.length; i++) {
+    const entity = Engine.entities[i];
+    if (hasComponent(entity, AssetLoader) && hasComponent(entity, NetworkObject)) {
+      let id = getComponent(entity, NetworkObject).networkId;
+      if (!Network.instance.networkObjects[id]) {
+        if (objectToCreate.ownerId == 'server') {
+
+          Network.instance.networkObjects[objectToCreate.networkId] = {
+              ownerId: 'server',
+              prefabType: PrefabType.worldObject, // All network objects need to be a registered prefab
+              component: getComponent(entity, NetworkObject),
+              uniqueId: objectToCreate.uniqueId
+          };
+
+        }
+      }
+    }
+  }
 }
 
 
@@ -117,16 +131,16 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
                   rotation,
               );
               if (objectToCreate.ownerId === Network.instance.userId) {
-                NetworkIdMyPlayer = objectToCreate.networkId;
+                Network.instance.userNetworkId = objectToCreate.networkId;
               }
             }
             // for now, its for optimization
 
         }
     }
-    
+
     if (worldStateBuffer.transforms.length > 0) {
-      const myPlayerTime = worldStateBuffer.transforms.find(v => v.networkId == NetworkIdMyPlayer);
+      const myPlayerTime = worldStateBuffer.transforms.find(v => v.networkId == Network.instance.userNetworkId);
       const newServerSnapshot = createSnapshot(worldStateBuffer.transforms)
       newServerSnapshot.timeCorrection = myPlayerTime ? (myPlayerTime.snapShotTime + Network.instance.timeSnaphotCorrection) : 0;
       Network.instance.snapshot = newServerSnapshot;
@@ -135,6 +149,50 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
 
 
     // Handle all network objects destroyed this frame
+
+    for (const editObjects in worldStateBuffer.editObjects) {
+      const networkId = worldStateBuffer.editObjects[editObjects].networkId;
+      const whoIsItFor = worldStateBuffer.editObjects[editObjects].whoIsItFor;
+      if (Network.instance.userNetworkId != networkId || whoIsItFor == 'all') {
+        if (Network.instance.networkObjects[networkId] === undefined)
+            return console.warn("Can't Edit object, as it doesn't appear to exist");
+        //console.log("Destroying network object ", Network.instance.networkObjects[networkId].component.networkId);
+        // get network object
+
+        const component = worldStateBuffer.editObjects[editObjects].component
+        const state = worldStateBuffer.editObjects[editObjects].state
+        const currentId = worldStateBuffer.editObjects[editObjects].currentId;
+        const value = worldStateBuffer.editObjects[editObjects].value
+
+        const entity = Network.instance.networkObjects[networkId].component.entity;
+
+        if (state == 'onAddedEnding') {
+          if (whoIsItFor == 'all' && Network.instance.userNetworkId == networkId) {
+            removeComponent(entity, LocalInputReceiver);
+            removeComponent(entity, FollowCameraComponent);
+          }
+          if (!hasComponent(entity, PlayerInCar)) {
+            addComponent(entity, PlayerInCar, {
+                state: state,
+                networkCarId: currentId,
+                currentFocusedPart: value
+            });
+          }
+        }
+        if (state == 'onStartRemove') {
+          if (hasComponent(entity, PlayerInCar)) {
+            getMutableComponent(entity, PlayerInCar).state = state;
+          } else {
+            console.warn(Network.instance.userNetworkId+' '+networkId+' hasNot PlayerInCar component');
+          }
+        }
+      }
+    }
+
+
+
+
+
     for (const objectToDestroy in worldStateBuffer.destroyObjects) {
         const networkId = worldStateBuffer.destroyObjects[objectToDestroy].networkId;
         console.log("Destroying ", networkId);
@@ -150,17 +208,32 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
         delete Network.instance.networkObjects[networkId];
     }
 
+
+
+
+
+
     worldStateBuffer.inputs?.forEach(inputData => {
+  //    console.warn(inputData);
+/*
         if (Network.instance === undefined)
             return console.warn("Network.instance undefined");
 
         if (Network.instance.networkObjects[inputData.networkId] === undefined)
             return console.warn("network object undefined, but inputs not");
+*/
+        // Ignore input applied to local user input object that the client is currently controlling
+        if (
+          Network.instance.userNetworkId == null ||
+          Network.instance.userNetworkId == inputData.networkId ||
+          Network.instance.networkObjects[inputData.networkId] === undefined ||
+          Network.instance.networkObjects[inputData.networkId].ownerId === 'server'
+        ) return;
         // Get network object with networkId
         const networkComponent = Network.instance.networkObjects[inputData.networkId].component;
-
+        //console.warn(inputData.networkId, Network.instance.networkObjects[inputData.networkId].ownerId);
         // Ignore input applied to local user input object that the client is currently controlling
-        if (networkComponent.ownerId === Network.instance.userId && hasComponent(networkComponent.entity, LocalInputReceiver)) return; //
+        //if (networkComponent.ownerId === Network.instance.userId && hasComponent(networkComponent.entity, LocalInputReceiver)) return; //
 
         // set view vector
         const actor = getComponent(networkComponent.entity, CharacterComponent);
@@ -208,7 +281,8 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
         handleInputFromNonLocalClients(networkComponent.entity, {isLocal:false, isServer: false}, delta);
     });
 
-
+/*
     if (worldStateBuffer.transforms === undefined || worldStateBuffer.transforms.length < 1)
         return;// console.warn("Worldstate transforms is null");
+        */
 }

@@ -361,7 +361,7 @@ export const CharacterInputSchema: InputSchema = {
       [GamepadButtons.A]: BaseInput.INTERACT,
       [GamepadButtons.B]: BaseInput.JUMP,
       // [GamepadButtons.B]: BaseInput.CROUCH, // B - back
-      // [GamepadButtons.X]: BaseInput.SPRINT, // X - secondary input
+      // [GamepadButtons.X]: BaseInput.WALK, // X - secondary input
       // [GamepadButtons.Y]: BaseInput.INTERACT, // Y - tertiary input
       // 4: BaseInput.DEFAULT, // LB
       // 5: BaseInput.DEFAULT, // RB
@@ -389,7 +389,7 @@ export const CharacterInputSchema: InputSchema = {
     d: BaseInput.RIGHT,
     e: BaseInput.INTERACT,
     ' ': BaseInput.JUMP,
-    shift: BaseInput.SPRINT,
+    shift: BaseInput.WALK,
     p: BaseInput.POINTER_LOCK,
     v: BaseInput.SWITCH_CAMERA,
     c: BaseInput.SWITCH_SHOULDER_SIDE,
@@ -441,14 +441,6 @@ export const CharacterInputSchema: InputSchema = {
             phase: LifecycleValue.STARTED
           }
         }
-      ],
-      ended: [
-        {
-          behavior: interact,
-          args: {
-            phase: LifecycleValue.ENDED
-          }
-        }
       ]
     },
     [BaseInput.JUMP]: {
@@ -465,7 +457,7 @@ export const CharacterInputSchema: InputSchema = {
         }
       ]
     },
-    [BaseInput.SPRINT]: {
+    [BaseInput.WALK]: {
       started: [
         {
           behavior: updateCharacterState,

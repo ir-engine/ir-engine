@@ -22,7 +22,7 @@ export interface AnimationConfigInterface {
 
 export const defaultAvatarAnimations: {[key:number]: AnimationConfigInterface} = {
   [CharacterStateTypes.IDLE]: { name: 'idle' },
-  [CharacterStateTypes.JUMP]: { name: 'jump_up', loop: LoopOnce },
+  [CharacterStateTypes.JUMP]: { name: 'jump' },
   [CharacterStateTypes.FALLING]: { name: 'falling' },
   [CharacterStateTypes.FALLING_LONG]: { name: 'falling' },
   [CharacterStateTypes.DROP]: { name: 'falling_to_land' },
@@ -36,8 +36,8 @@ export const defaultAvatarAnimations: {[key:number]: AnimationConfigInterface} =
   [CharacterStateTypes.RUN_STRAFE_RIGHT]: { name: 'run_right' },
   [CharacterStateTypes.RUN_STRAFE_LEFT]: { name: 'run_left' },
   [CharacterStateTypes.DRIVING]: { name: 'driving' },
-  [CharacterStateTypes.ENTERING_CAR]: { name: 'entering_car', loop: LoopOnce },
-  [CharacterStateTypes.EXITING_CAR]: { name: 'exiting_car', loop: LoopOnce },
+  [CharacterStateTypes.ENTERING_VEHICLE]: { name: 'entering_car', loop: LoopOnce },
+  [CharacterStateTypes.EXITING_VEHICLE]: { name: 'exiting_car', loop: LoopOnce },
 };
 
 export const CharacterAvatars: CharacterAvatarData[] = [

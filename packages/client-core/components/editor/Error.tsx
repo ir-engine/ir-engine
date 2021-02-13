@@ -4,6 +4,10 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 import { ThemeContext } from "./theme";
 
+/**
+ * [StyledError styled component used to provide styles for error container]
+ * @type {[styled component]}
+ */
 const StyledError = (styled as any).div`
   display: flex;
   flex: 1;
@@ -18,14 +22,18 @@ const StyledError = (styled as any).div`
     margin-bottom: 20px;
   }
 `;
-
+/**
+ * [Error component used to error message]
+ * @type {component class}
+ */
 export default class Error extends Component {
   static propTypes = {
     message: PropTypes.node
   };
-  
+
   static contextType = ThemeContext
 
+// rendering error message
   render() {
     const theme = this.context;
     return (

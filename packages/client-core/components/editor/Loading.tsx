@@ -2,6 +2,10 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
+/**
+ * [StyledLoading provides the styles for loading component]
+ * @type {[styled component]}
+ */
 const StyledLoading = (styled as any).div`
   display: flex;
   flex-direction: column;
@@ -16,12 +20,17 @@ const StyledLoading = (styled as any).div`
   }
 `;
 
+/**
+ * [loading class used to render loading message]
+ * @type {component class}
+ */
 export default class Loading extends Component {
   static propTypes = {
     message: PropTypes.string,
     isFullscreen: PropTypes.bool
   };
 
+//creating and rendering loading view
   render() {
     return (
       <StyledLoading fullScreen={(this.props as any).fullScreen}>

@@ -16,8 +16,8 @@ export enum CharacterStateTypes {
 
   // Driving substates
   DRIVING,
-  ENTERING_CAR,
-  EXITING_CAR,
+  ENTERING_VEHICLE,
+  EXITING_VEHICLE,
 
   IDLE,
   FALLING_LONG,

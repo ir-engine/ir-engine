@@ -27,12 +27,15 @@ export interface NetworkInputInterface {
     }>
   /** Viewport vector of the client. */
   viewVector: {  x: number, y: number, z: number  },
+  //snapShotTime:
+
 }
 
 /** Interface for handling client network input. */
 export interface NetworkClientInputInterface extends NetworkInputInterface {
   /** Time of the snapshot. */
-  snapShotTime: number
+  snapShotTime: number,
+  switchInputs: number
 }
 
 /** Interface for network client input packet. */
@@ -66,6 +69,21 @@ export interface NetworkTransformsInterface {
 export interface NetworkObjectRemoveInterface {
   /** Id of the network. */
   networkId: number
+}
+
+/** Interface for creation of network object. */
+export interface NetworkObjectEditInterface {
+  /** Id of the network. */
+  networkId: number,
+  /** Id of the owner. */
+  ownerId: string,
+  /** Type of prefab used to create this object. */
+  component: string,
+  state: string,
+  /** Type of prefab used to create this object. */
+  currentId: number,
+  value: number,
+  whoIsItFor: string
 }
 
 /** Interface for creation of network object. */
@@ -112,6 +130,8 @@ export interface WorldStateInterface {
   clientsDisconnected: NetworkClientDataInterface[]
   /** List of created objects. */
   createObjects: NetworkObjectCreateInterface[]
+  /** List of created objects. */
+  editObjects: NetworkObjectEditInterface[]
   /** List of destroyed objects. */
   destroyObjects: NetworkObjectRemoveInterface[]
 }
@@ -134,6 +154,8 @@ export interface PacketWorldState {
   /** List of created objects. */
   createObjects: NetworkObjectCreateInterface[]
   /** List of destroyed objects. */
+  editObjects: NetworkObjectEditInterface[]
+    /** List of created objects. */
   destroyObjects: NetworkObjectRemoveInterface[]
 }
 

@@ -1,7 +1,7 @@
 {
-  "name": "@xr3ngine/capacitor-plugin-ar",
+  "name": "@xr3ngine/capacitor-plugin-xr",
   "version": "0.1.0",
-  "description": "AR provider class for AR integration into a capacitor app",
+  "description": "Native XR and camera services inside any capacitor app",
   "main": "dist/plugin.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -14,7 +14,7 @@
     "xlint": "yarn run prettier -- --check && yarn run swiftlint -- lint",
     "prettier": "prettier \"**/*.{css,html,ts,js,java}\"",
     "swiftlint": "node-swiftlint",
-    "build-native": "yarn run clean && tsc && rollup -c rollup.config.js",
+    "build": "yarn run clean && tsc && rollup -c rollup.config.js",
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
     "prepublishOnly": "yarn run build"
@@ -62,7 +62,7 @@
   "swiftlint": "@ionic/swiftlint-config",
   "repository": {
     "type": "git",
-    "url": "https://github.com/xr3ngine/xr3ngine"
+    "url": "git+https://github.com/xr3ngine/xr3ngine.git"
   },
   "bugs": {
     "url": "https://github.com/xr3ngine/xr3ngine/issues"
@@ -70,5 +70,6 @@
   "dependencies": {
     "@types/react": "^17.0.1",
     "@types/webgl2": "^0.0.5"
-  }
+  },
+  "homepage": "https://github.com/xr3ngine/xr3ngine#readme"
 }
