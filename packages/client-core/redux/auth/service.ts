@@ -22,8 +22,9 @@ import {
   userAvatarIdUpdated
 } from './actions';
 import {
-  addedLayerUser,
-  clearLayerUsers,
+  addedChannelLayerUser,
+  addedLayerUser, clearChannelLayerUsers,
+  clearLayerUsers, removedChannelLayerUser,
   removedLayerUser
 } from '../user/actions';
 import { client } from '../feathers';
@@ -544,9 +545,8 @@ client.service('user').on('patched', async (params) => {
   const user = resolveUser(params.userRelationship);
   console.log(user);
   if (selfUser.id === user.id) {
-    if (selfUser.instanceId !== user.instanceId) {
-      store.dispatch(clearLayerUsers());
-    }
+    if (selfUser.instanceId !== user.instanceId) store.dispatch(clearLayerUsers());
+    if (selfUser.channelInstanceId !== user.channelInstanceId) store.dispatch(clearChannelLayerUsers());
     store.dispatch(userUpdated(user));
     if (user.partyId) {
       setRelationship('party', user.partyId);
@@ -561,12 +561,10 @@ client.service('user').on('patched', async (params) => {
       }
     }
   } else {
-    if (user.instanceId === selfUser.instanceId) {
-      console.log('Adding layer user');
-      store.dispatch(addedLayerUser(user));
-    } else {
-      store.dispatch(removedLayerUser(user));
-    }
+    if (user.channelInstanceId === selfUser.channelInstanceId) store.dispatch(addedChannelLayerUser(user));
+    if (user.instanceId === selfUser.instanceId) store.dispatch(addedLayerUser(user));
+    if (user.instanceId !== selfUser.channelInstanceId) store.dispatch(removedLayerUser(user));
+    if (user.channelInstanceId !== selfUser.channelInstanceId) store.dispatch(removedChannelLayerUser(user));
   }
 });
 
@@ -579,7 +577,7 @@ client.service('location-ban').on('created', async(params) => {
   const locationBan = params.locationBan;
   if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
     endVideoChat({ leftParty: true });
-    leave();
+    leave(true);
     if (selfPartyUser.id != null) {
       await client.service('party-user').remove(selfPartyUser.id);
     }
