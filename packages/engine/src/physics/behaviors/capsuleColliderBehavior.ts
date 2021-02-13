@@ -5,6 +5,8 @@ import { getComponent, getMutableComponent, hasComponent } from '../../ecs/funct
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { NetworkObject } from '../../networking/components/NetworkObject';
 import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
+import { CapsuleCollider } from '../components/CapsuleCollider';
+import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 
 export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void => {
@@ -13,8 +15,8 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
 
       if (isClient && hasComponent(entity, LocalInputReceiver) && hasComponent(entity, NetworkObject)) {
 
-        const actor = getComponent<CharacterComponent>(entity, CharacterComponent)
-        const networkObject = getComponent<NetworkObject>(entity, NetworkObject)
+        const actor = getComponent(entity, CharacterComponent)
+        const networkObject = getComponent(entity, NetworkObject)
         const correction = args.clientSnapshot.correction;
 
         args.clientSnapshot.new.push({
@@ -29,7 +31,6 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
            })
 
         let offsetX = 0, offsetY = 0, offsetZ = 0;
-        const offsetqX = 0, offsetqY = 0, offsetqZ = 0, offsetqW = 0;
 
         if (args.clientSnapshot.old && args.clientSnapshot.interpolationSnapshot) {
          const clientSnapshotPos = args.clientSnapshot.old.state.find(v => v.networkId == networkObject.networkId);
@@ -80,6 +81,9 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
      }
 
   } else if (args.phase == 'onRemoved') {
-
+    const capsule = getComponent<CapsuleCollider>(entity, CapsuleCollider, true);
+    if (capsule) {
+      PhysicsSystem.physicsWorld.removeBody(capsule.body);
+    }
   }
 };

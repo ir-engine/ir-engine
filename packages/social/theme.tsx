@@ -21,30 +21,35 @@ const lightTheme = createMuiTheme({
     },
   },
   typography: {
-    fontFamily: ["Roboto", "Helvetica", "Arial", "sans-serif"].join(','),
-    
+    fontFamily: ["Roboto", "Helvetica", "Arial", "sans-serif"].join(','),    
     fontSize: 14,
-      button: {
-        color: '#FFFFFF'        
-      },
+    button: {
+      color: '#FFFFFF'        
+    },
   },
   overrides: { 
     MuiTypography:{
+      
       h1:{
-        fontSize: 24,
+        fontSize: 28,
+        fontWeight: 'bold',
         margin: '15px 0px',
         display: 'flex',
-        alignItems: 'center',        
+        alignItems: 'center', 
+        color: '#000000',
+        '&.MuiTypography-colorSecondary':{
+          color: '#FFFFFF',
+        }
       },
       h2:{
         fontSize: 16,
-        fontWeight: 'bold',
         margin: '5px 0px',
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',  
+        color: '#000000',
         '&.MuiTypography-colorSecondary':{
-          color: '#FFD600',
+          color: '#FFFFFF',
         }
       },
       h3:{
@@ -53,9 +58,10 @@ const lightTheme = createMuiTheme({
         fontWeight: 'bold',
         cursor: 'pointer',
         display: 'flex',
-        alignItems: 'center',  
+        alignItems: 'center',
+        color: '#000000',  
         '&.MuiTypography-colorSecondary':{
-          color: '#FFD600',
+          color: '#FFFFFF',
         }
       },
       h4:{
@@ -82,6 +88,11 @@ const lightTheme = createMuiTheme({
         textAlign: 'center',
         justifyContent: 'center',
         alignItems: 'center',
+      }
+    },
+    MuiContainer:{
+      root:{
+        flex: 'none'
       }
     },
     MuiDialog:{
@@ -116,14 +127,8 @@ const lightTheme = createMuiTheme({
         color: '#000000' ,
         fontSize: 16,       
         textAlign: 'center',
+        margin: '0 10px'
       },
-      // colorPrimary:{
-      //   backgroundColor: 'transparent',
-      //   color: '#FFFFFF',
-      //   '&:hover':{
-      //     backgroundColor: '#5151FF',
-      //   },
-      // },
     },
     MuiIconButton:{
       root:{
@@ -140,12 +145,9 @@ const lightTheme = createMuiTheme({
         }
       },
       colorSecondary:{
-        backgroundColor: 'transparent',
-        color: '#FFFFFF',
-        '&:hover':{
-          backgroundColor: '#5151FF',
-        }
-      }
+        backgroundColor: 'transparent',    
+        color: '#8E8E93',
+      }      
     },
     MuiSlider:{
       root:{
@@ -160,6 +162,20 @@ const lightTheme = createMuiTheme({
       thumbColorPrimary:{
         background: 'rgba(0, 0, 0, 0.8)',
         border: '2px solid #A8A8FF',
+      }
+    },
+    MuiLinearProgress:{
+      root:{
+        height: '34px',
+        backgroundColor:'#FFFFFF',
+        borderRadius: '8px',
+        '@media (max-width: 768px)': {
+          height: '16px',
+          borderRadius: '10px',
+        },
+      },
+      bar:{
+        borderRadius: 'inherit',
       }
     },
     MuiMenuItem:{
@@ -198,9 +214,6 @@ const lightTheme = createMuiTheme({
       },
       anchorOriginTopCenter:{
         top: '10%',
-        // '@media (max-width: 768px)': {
-        //   top: '10%',
-        // },
       },
       anchorOriginBottomCenter:{
         bottom: '60px',
@@ -296,12 +309,12 @@ const lightTheme = createMuiTheme({
     },
     MuiInputBase:{
       input:{
-        color: '#FFFFFF',
+        color: '#000000',
       }
     },
     MuiFormLabel:{
       root:{
-        color: '#FFFFFF',
+        color: '#000000',
       }
     },
     MuiButton: {
@@ -309,7 +322,8 @@ const lightTheme = createMuiTheme({
         width: '220px',    
         margin: '10px auto',
         cursor: 'pointer',    
-        fontSize: 16,       
+        fontSize: 16,    
+        borderRadius: '10px',   
       },
       label: {
         textTransform: 'capitalize',
@@ -327,6 +341,13 @@ const lightTheme = createMuiTheme({
           boxShadow: '0 0 10px #FFFFFF'
         }        
       },
+      containedPrimary:{
+        backgroundColor: '#000000',
+      },
+      text:{
+        background: 'transparent',
+        color: '#000000',
+      }
     },  
     MuiSvgIcon:{
       colorPrimary : {
@@ -342,14 +363,13 @@ const lightTheme = createMuiTheme({
         display: 'flex',
         alignItems: 'center', 
         textTransform: 'capitalize',
-        text:{
-          color: '#FFFFFF' 
-        }           
+        backgroundColor: '#F4F4F5',    
+        color: '#8E8E93',
       },
       primary:{
         backgroundColor: 'rgba(0,0,0,0.8)',
         borderRadius: '8px',
-      }
+      },      
     },
     MuiFormGroup:{
       root:{
@@ -358,6 +378,15 @@ const lightTheme = createMuiTheme({
         flexDirection: 'row',
       }
     } ,
+    MuiOutlinedInput:{
+      root:{
+        color: '#000000',
+        margin: '10px 0',
+      },
+      adornedEnd: {
+        paddingRight: '0px'
+      }
+    },
     MuiBadge:{
       anchorOriginTopLeftRectangle:{
         left: '6px',

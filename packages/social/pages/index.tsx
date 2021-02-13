@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from "react";
-import { Header } from "@xr3ngine/client-core/components/social//Header";
+import { Header } from "@xr3ngine/client-core/components/social/Header";
 
 import { Layout } from "@xr3ngine/client-core/components/social/Layout";
 import { Stories } from "@xr3ngine/client-core/components/social/Stories";
@@ -9,6 +10,9 @@ import { MoreModalItems } from "@xr3ngine/client-core/components/social/more-mod
 
 // TODO: HANDLE
 import { LoginUserHook } from "@xr3ngine/client-core/components/social/GlobalHook";
+
+import { Plugins } from '@capacitor/core';
+const { Example } = Plugins;
 
 export default function Home({ children }) {
   const { data, setLoginUser } = LoginUserHook();
@@ -22,6 +26,14 @@ export default function Home({ children }) {
     setLoginUser(data);
     setLoginData(data);
   };
+  useEffect(() => {
+    if (Example) {
+      Example.echo({ value: 'Example plugin detected' }).then(data => {
+        console.log(data);
+      });
+    }
+  }, []);
+
 
   useEffect(() => {
     fetch("/api/loginUser")

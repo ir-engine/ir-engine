@@ -225,11 +225,11 @@ export class WebGLRendererSystem extends System {
    * @param delta Time since last frame.
    */
   changeQualityLevel(delta: number): void {
-    if (delta >= 55) {
+    if (delta >= 60) {
       this.downgradeTimer += delta;
       this.upgradeTimer = 0;
     }
-    else if (delta <= 25) {
+    else if (delta <= 30) {
       this.upgradeTimer += delta;
       this.downgradeTimer = 0;
     }
@@ -239,7 +239,7 @@ export class WebGLRendererSystem extends System {
     }
 
     // change quality level
-    if (this.downgradeTimer > 3000 && this.qualityLevel < this.maxQualityLevel) {
+    if (this.downgradeTimer > 2000 && this.qualityLevel < this.maxQualityLevel) {
       this.qualityLevel = Math.max(0, Math.min(this.maxQualityLevel, this.qualityLevel-1))
       this.downgradeTimer = 0;
     }

@@ -9,10 +9,8 @@ import { RaycastResult, Vec3 } from 'cannon-es';
 
 // idle|   idle  +  walk     |    walk      |    walk + run     |   run
 // 0   | > WALK_START_SPEED  | > WALK_SPEED | > RUN_START_SPEED | > RUN_SPEED
-export const WALK_START_SPEED = 0.1;
-export const WALK_SPEED = 2;
-export const RUN_START_SPEED = 3;
-export const RUN_SPEED = 5;
+export const WALK_SPEED = 1.2;
+export const RUN_SPEED = 2.4;
 
 export class CharacterComponent extends Component<CharacterComponent> {
 
@@ -27,10 +25,10 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public initialized = false;
 
 // TODO: Move these... but for now...
-	public currentAnimationAction: AnimationAction = null;
+	public currentAnimationAction: AnimationAction[] = [];
 	public currentAnimationLength = 0;
 	public timer = 0;
-	public animationsTimeScale = 0.7;
+	public animationsTimeScale = .5;
   public avatarId:string
 	public height = 0;
 	// public cameraMount: Group;
@@ -43,7 +41,6 @@ export class CharacterComponent extends Component<CharacterComponent> {
 
   // TODO: Remove integrate this
   public physicsEnabled = true
-
 	// Movement
 	/**
 	 * desired moving direction from user inputs

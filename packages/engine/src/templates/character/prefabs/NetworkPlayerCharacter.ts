@@ -104,7 +104,7 @@ const loadActorAvatar: Behavior = (entity) => {
     const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
     actor.mixer && actor.mixer.stopAllAction();
     // forget that we have any animation playing
-    actor.currentAnimationAction = null;
+    actor.currentAnimationAction = [];
 
     // clear current avatar mesh
     ([...actor.modelContainer.children])
@@ -113,7 +113,8 @@ const loadActorAvatar: Behavior = (entity) => {
     tmpGroup.children.forEach(child => actor.modelContainer.add(child));
 
     actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-    actor.mixer.timeScale = actor.animationsTimeScale;
+	// TODO: Remove this. Currently we are double-sampling the samplerate
+	actor.mixer.timeScale = 0.5;
     
     initiateIKSystem(entity, args.asset.children[0]);
     const stateComponent = getComponent(entity, State);
@@ -725,7 +726,7 @@ const initializeCharacter: Behavior = (entity): void => {
 	actor.mixer?.stopAllAction();
 
 	// forget that we have any animation playing
-	actor.currentAnimationAction = null;
+	actor.currentAnimationAction = [];
 
 	// clear current avatar mesh
 	if(actor.modelContainer !== undefined)
@@ -758,7 +759,7 @@ const initializeCharacter: Behavior = (entity): void => {
 	actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.rotationSimulator = new RelativeSpringSimulator(60, actor.defaultRotationSimulatorMass, actor.defaultRotationSimulatorDamping);
 
-	actor.viewVector = new Vector3();
+	if(actor.viewVector == null) actor.viewVector = new Vector3();
 
 	const transform = getComponent(entity, TransformComponent);
 

@@ -1,10 +1,14 @@
 import Layout from '@xr3ngine/client-core/components/ui/Layout/OverlayLayout';
 import { selectAuthState } from "@xr3ngine/client-core/redux/auth/selector";
-import { doLoginAuto } from '@xr3ngine/client-core/redux/auth/service';
+import { doLoginAuto, resetPassword } from '@xr3ngine/client-core/redux/auth/service';
 import { selectInstanceConnectionState } from '@xr3ngine/client-core/redux/instanceConnection/selector';
 import React from 'react';
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
+import { ThemeProvider } from "styled-components";
+
+import FlatSignIn from '@xr3ngine/client-core/components/social/Login';
+import theme from '../theme';
 
 interface Props {
     authState?: any;
@@ -31,7 +35,9 @@ export const IndexPage = (props: any): any => {
   // <Button className="right-bottom" variant="contained" color="secondary" aria-label="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }}>scene</Button>
 
   return(
-    <Layout pageTitle="Home" login={true} />
+  <ThemeProvider theme={theme}>
+      <FlatSignIn resetPassword={resetPassword} logo="/assets/LogoColored.png" />
+    </ThemeProvider>
   );
 };
 

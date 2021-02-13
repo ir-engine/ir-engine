@@ -58,14 +58,20 @@ export class Network {
   /** Newly created Network Objects in this frame. */
   createObjects = []
   /** Destroyed Network Objects in this frame. */
+  editObjects = []
+  /** Destroyed Network Objects in this frame. */
   destroyObjects = []
   /** Map of Network Objects. */
   networkObjects: NetworkObjectList = {}
   localClientEntity: Entity = null
-  /** Socket id of the network. */
-  socketId: string
+  /** Socket id of the network instance connection. */
+  instanceSocketId: string
+  /** Socket id of the network channel connection. */
+  channelSocketId: string
   /** User id hosting this network. */
   userId: string
+  /** Network id of the local User. */
+  userNetworkId: number
   /** Access tocken of the User. */
   accessToken: string
   /** Snapshot of the network. */
@@ -94,6 +100,7 @@ export class Network {
     clientsConnected: [],
     clientsDisconnected: [],
     createObjects: [],
+    editObjects: [],
     destroyObjects: []
   };
 

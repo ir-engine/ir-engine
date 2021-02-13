@@ -14,8 +14,7 @@ export const setState: Behavior = (entity: Entity, args: { state: StateAlias }):
   if(stateComponent === undefined)
     return console.warn("WARNING: State component is undefined");
 
-  if (stateComponent.data.has(args.state))
-    return;
+    stateComponent.data.clear();
 
   stateComponent.data.set(args.state, {
     state: args.state,

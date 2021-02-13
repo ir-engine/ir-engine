@@ -8,7 +8,9 @@ import { CharacterStateTypes } from "../CharacterStateTypes";
 import { CharacterComponent } from "../components/CharacterComponent";
 
 export const trySwitchToJump = (entity: Entity): boolean => {
+  if (getComponent(entity, CharacterComponent).alreadyJumped) return;
   const input = getComponent(entity, Input);
+
   if (input.data.has(BaseInput.JUMP) && input.data.get(BaseInput.JUMP).value === BinaryValue.ON) {
 
     setState(entity, { state: CharacterStateTypes.JUMP });
