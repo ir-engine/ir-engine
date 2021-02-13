@@ -73,7 +73,6 @@
     "emailjs-com": "^2.6.4",
     "eslint-plugin-react-hooks": "^4.1.2",
     "eventemitter3": "^4.0.7",
-    "evergreen-ui": "^5.0.4",
     "file-loader": "^6.2.0",
     "fs": "^0.0.1-security",
     "fuse.js": "^6.4.1",
