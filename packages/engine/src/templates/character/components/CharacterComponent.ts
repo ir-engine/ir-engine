@@ -29,7 +29,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public currentAnimationAction: AnimationAction[] = [];
 	public currentAnimationLength = 0;
 	public timer = 0;
-	public animationsTimeScale = 1;
+	public animationsTimeScale = .5;
   public avatarId:string
 	public height = 0;
 	// public cameraMount: Group;
