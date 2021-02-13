@@ -1,4 +1,8 @@
 
+
+/**
+ * [CubemapOption array containing textures used for SkyboxNode]
+ */
 export const CubemapOption = [
   {
     label: "Bridge",

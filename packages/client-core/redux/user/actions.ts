@@ -5,7 +5,11 @@ import {
   LOADED_LAYER_USERS,
   LOADED_RELATIONSHIP,
   LOADED_USERS,
-  REMOVED_LAYER_USER
+  REMOVED_LAYER_USER,
+  ADDED_CHANNEL_LAYER_USER,
+  CLEAR_CHANNEL_LAYER_USERS,
+  LOADED_CHANNEL_LAYER_USERS,
+  REMOVED_CHANNEL_LAYER_USER
 } from '../actions';
 import { Relationship } from '@xr3ngine/common/interfaces/Relationship';
 import { User } from '@xr3ngine/common/interfaces/User';
@@ -92,6 +96,33 @@ export function addedLayerUser(user: User): AddedLayerUserAction {
 export function removedLayerUser(user: User): RemovedLayerUserAction {
   return {
     type: REMOVED_LAYER_USER,
+    user: user
+  };
+}
+
+export function loadedChannelLayerUsers(users: User[]): LoadedLayerUsersAction {
+  return {
+    type: LOADED_CHANNEL_LAYER_USERS,
+    users: users
+  };
+}
+
+export function clearChannelLayerUsers(): ClearLayersUsersAction {
+  return {
+    type: CLEAR_CHANNEL_LAYER_USERS
+  };
+}
+
+export function addedChannelLayerUser(user: User): AddedLayerUserAction {
+  return {
+    type: ADDED_CHANNEL_LAYER_USER,
+    user: user
+  };
+}
+
+export function removedChannelLayerUser(user: User): RemovedLayerUserAction {
+  return {
+    type: REMOVED_CHANNEL_LAYER_USER,
     user: user
   };
 }

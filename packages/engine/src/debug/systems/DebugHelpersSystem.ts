@@ -57,14 +57,18 @@ export class DebugHelpersSystem extends System {
       const transform = getComponent(entity, TransformComponent);
       const arrowHelper = this.helpersByEntity.viewVector.get(entity) as ArrowHelper;
 
-      arrowHelper.setDirection(actor.viewVector.clone().setY(0).normalize());
-      arrowHelper.position.copy(transform.position);
+      if (arrowHelper != null) {
+        arrowHelper.setDirection(actor.viewVector.clone().setY(0).normalize());
+        arrowHelper.position.copy(transform.position);
+      }
 
       // velocity
       const velocityArrowHelper = this.helpersByEntity.velocityArrow.get(entity) as ArrowHelper;
-      velocityArrowHelper.setDirection(actor.velocity.clone().normalize());
-      velocityArrowHelper.setLength(actor.velocity.length());
-      velocityArrowHelper.position.copy(transform.position);
+      if (velocityArrowHelper != null) {
+        velocityArrowHelper.setDirection(actor.velocity.clone().normalize());
+        velocityArrowHelper.setLength(actor.velocity.length());
+        velocityArrowHelper.position.copy(transform.position);
+      }
     });
 
     // bounding box

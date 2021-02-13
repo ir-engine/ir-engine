@@ -26,22 +26,26 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   lastPollSyncData = {}
   pollingTickRate = 1000
   pollingTimeout = 4000
-  socket: SocketIOClient.Socket = {} as SocketIOClient.Socket
-  request: any
+  instanceSocket: SocketIOClient.Socket = {} as SocketIOClient.Socket
+  channelSocket: SocketIOClient.Socket = {} as SocketIOClient.Socket
+  instanceRequest: any
+  channelRequest: any
   localScreen: any;
   lastPoll: Date;
   pollPending = false;
   videoEnabled = false;
   channelType: string;
   channelId: string;
-  dataProducer;
+  instanceDataProducer: any;
+  channelDataProducer: any;
 
   /**
  * Send a message over TCP with websockets
  * @param message message to send
  */
-  sendReliableData(message): void {
-    this.socket.emit(MessageTypes.ReliableMessage.toString(), message);
+  sendReliableData(message, instance = true): void {
+    if (instance === true) this.instanceSocket.emit(MessageTypes.ReliableMessage.toString(), message);
+    else this.channelSocket.emit(MessageTypes.ReliableMessage.toString(), message);
   }
 
   handleKick(socket) {
@@ -58,12 +62,16 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 }
 
   // This sends message on a data channel (data channel creation is now handled explicitly/default)
-  sendData(data: any, channel = "default"): void {
-      if (!this.dataProducer) return; // throw new Error('Hello worlds');
-      
-      if (this.dataProducer.closed !== true) {
-        this.dataProducer.send(this.toBuffer(data));
-      }
+  sendData(data: any, instance = true): void {
+    if (instance === true) {
+      if (!this.instanceDataProducer)
+        throw new Error('Data Producer not initialized on client, Instance Data Producer doesn\'t exist!');
+      if (this.instanceDataProducer.closed !== true) this.instanceDataProducer.send(this.toBuffer(data));
+    } else {
+      if (!this.channelDataProducer)
+        throw new Error('Data Producer not initialized on client, Channel Data Producer doesn\'t exist!');
+      if (this.channelDataProducer.closed !== true) this.channelDataProducer.send(this.toBuffer(data));
+    }
   }
 
   // Adds support for Promise to socket.io-client
@@ -73,15 +81,17 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     };
   }
 
-  public async initialize(address = "https://127.0.0.1", port = 3030, opts?: any): Promise<void> {
+  public async initialize(address = "https://127.0.0.1", port = 3030, instance: boolean, opts?: any): Promise<void> {
+    const self = this;
     const token = (store.getState() as any).get('auth').get('authUser').accessToken;
     const selfUser = (store.getState() as any).get('auth').get('user') as User;
+    let socket = instance === true ? this.instanceSocket : this.channelSocket;
 
     Network.instance.userId = selfUser.id;
     Network.instance.accessToken = token;
 
     this.mediasoupDevice = new Device();
-    if (this.socket && this.socket.close) this.socket.close();
+    if (socket && socket.close) socket.close();
 
     const { startVideo, videoEnabled, channelType, ...query } = opts;
     this.channelType = channelType;
@@ -93,35 +103,48 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     if (query.sceneId == null) delete query.sceneId;
     if (query.channelId == null) delete query.channelId;
     if (process.env.NODE_ENV === 'development') {
-      this.socket = ioclient(`${address as string}:${port.toString()}/realtime`, {
+      socket = ioclient(`${address as string}:${port.toString()}/realtime`, {
         query: query
       });
     } else {
-      this.socket = ioclient(`${gameserver}/realtime`, {
+      socket = ioclient(`${gameserver}/realtime`, {
         path: `/socket.io/${address as string}/${port.toString()}`,
         query: query
       });
     }
 
-    Network.instance.socketId = this.socket.id;
+    console.log('New socket:');
+    console.log(socket);
+    console.log('instance?', instance);
 
-    this.request = this.promisedRequest(this.socket);
+    (socket as any).instance = instance === true;
 
-    this.socket.on("connect", async () => {
+    if (instance === true) this.instanceSocket = socket;
+    else this.channelSocket = socket;
+    console.log(this.instanceSocket);
+    console.log(this.channelSocket);
+
+    if (instance === true) Network.instance.instanceSocketId = socket.id;
+    else Network.instance.channelSocketId = socket.id;
+
+    if (instance === true) this.instanceRequest = this.promisedRequest(socket);
+    else this.channelRequest = this.promisedRequest(socket);
+
+    socket.on("connect", async () => {
+      const request = (socket as any).instance === true ? this.instanceRequest : this.channelRequest;
       const payload = { userId: Network.instance.userId, accessToken: Network.instance.accessToken };
-      const { success } = await this.request(MessageTypes.Authorization.toString(), payload);
+      const { success } = await request(MessageTypes.Authorization.toString(), payload);
 
       if (!success) return console.error("Unable to connect with credentials");
 
-
-      const ConnectToWorldResponse = await this.request(MessageTypes.ConnectToWorld.toString());
+      const ConnectToWorldResponse = await request(MessageTypes.ConnectToWorld.toString());
       const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any;
 
       window.dispatchEvent(new CustomEvent('connectToWorld'));
 
       // Send heartbeat every second
       const heartbeat = setInterval(() => {
-        this.socket.emit(MessageTypes.Heartbeat.toString());
+        socket.emit(MessageTypes.Heartbeat.toString());
       }, 1000);
 
       // Apply all state to initial frame
@@ -132,7 +155,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
 
       // If a reliable message is received, add it to the queue
-      this.socket.on(MessageTypes.ReliableMessage.toString(), (message) => {
+      socket.on(MessageTypes.ReliableMessage.toString(), (message) => {
         Network.instance?.incomingMessageQueue.add(message);
       });
 
@@ -140,27 +163,31 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // the page unloads
       window.addEventListener("unload", async () => {
         // TODO: Handle this as a full disconnect
-        this.socket.emit(MessageTypes.LeaveWorld.toString());
+        socket.emit(MessageTypes.LeaveWorld.toString());
       });
 
-      this.socket.on('disconnect', async () => {
+      socket.on('disconnect', async () => {
+        console.log('socket disconnecting', (socket as any).instance);
+        if ((socket as any).instance !== true) self.channelId = null;
         await endVideoChat({ endConsumers: true });
-        await leave();
+        await leave((socket as any).instance === true);
         clearInterval(heartbeat);
         // this.socket.close();
       });
 
-      this.socket.on(MessageTypes.Kick.toString(), async () => {
+      socket.on(MessageTypes.Kick.toString(), async () => {
         // console.log("TODO: SNACKBAR HERE");
         clearInterval(heartbeat);
         await endVideoChat({ endConsumers: true });
-        await leave();
-        this.socket.close();
+        await leave((socket as any).instance === true);
+        socket.close();
         console.log("Client has been kicked from the world");
       });
 
       // Get information for how to consume data from server and init a data consumer
-      this.socket.on(MessageTypes.WebRTCConsumeData.toString(), async (options) => {
+      socket.on(MessageTypes.WebRTCConsumeData.toString(), async (options) => {
+        console.log("WebRTC consume data called");
+        console.log(options);
         const dataConsumer = await this.instanceRecvTransport.consumeData(options);
         Network.instance?.dataConsumers.set(options.dataProducerId, dataConsumer);
 
@@ -178,7 +205,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         });
       });
 
-      this.socket.on(MessageTypes.WebRTCCreateProducer.toString(), async (socketId, mediaTag, producerId, channelType, channelId) => {
+      socket.on(MessageTypes.WebRTCCreateProducer.toString(), async (socketId, mediaTag, producerId, channelType, channelId) => {
         const selfProducerIds = [
           MediaStreamSystem.instance?.camVideoProducer?.id,
           MediaStreamSystem.instance?.camAudioProducer?.id
@@ -189,23 +216,24 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           (selfProducerIds.indexOf(producerId) < 0) &&
           (MediaStreamSystem.instance?.consumers?.find(
             c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
-          ) == null &&
-            (channelType === 'instance' ? this.channelType === 'instance' : this.channelType === channelType && this.channelId === channelId))
+          ) == null /*&&
+            (channelType === 'instance' ? this.channelType === 'instance' : this.channelType === channelType && this.channelId === channelId)*/)
         ) {
           // that we don't already have consumers for...
           await subscribeToTrack(socketId, mediaTag, channelType, channelId);
         }
       });
 
-      this.socket.on(MessageTypes.WebRTCCloseConsumer.toString(), async (consumerId) => {
+      socket.on(MessageTypes.WebRTCCloseConsumer.toString(), async (consumerId) => {
         if (MediaStreamSystem.instance) MediaStreamSystem.instance.consumers = MediaStreamSystem.instance?.consumers.filter((c) => c.id !== consumerId);
       });
 
 
       // Init Receive and Send Transports initially since we need them for unreliable message consumption and production
-      await Promise.all([initSendTransport('instance'), initReceiveTransport('instance')]);
+      console.log('Init instance transports?', this.channelType, this.channelId);
+      if ((socket as any).instance === true) await Promise.all([initSendTransport('instance'), initReceiveTransport('instance')]);
 
-      this.dataProducer = await createDataProducer();
+      await createDataProducer((socket as any).instance === true ? 'instance' : this.channelId );
     });
   }
 }

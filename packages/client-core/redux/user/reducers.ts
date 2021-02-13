@@ -15,7 +15,11 @@ import {
   LOADED_LAYER_USERS,
   LOADED_RELATIONSHIP,
   LOADED_USERS,
-  REMOVED_LAYER_USER
+  REMOVED_LAYER_USER,
+  ADDED_CHANNEL_LAYER_USER,
+  CLEAR_CHANNEL_LAYER_USERS,
+  LOADED_CHANNEL_LAYER_USERS,
+  REMOVED_CHANNEL_LAYER_USER
 } from '../actions';
 import { RelationshipSeed } from '@xr3ngine/common/interfaces/Relationship';
 
@@ -24,7 +28,9 @@ export const initialState = {
   users: [],
   updateNeeded: true,
   layerUsers: [],
-  layerUsersUpdateNeeded: true
+  layerUsersUpdateNeeded: true,
+  channelLayerUsers: [],
+  channelLayerUsersUpdateNeeded: true
 };
 
 const immutableState = Immutable.fromJS(initialState);
@@ -63,13 +69,38 @@ const userReducer = (state = immutableState, action: UserAction): any => {
       return state
           .set('layerUsers', layerUsers)
           .set('layerUsersUpdateNeeded', true);
-
     case REMOVED_LAYER_USER:
       newUser = (action as RemovedLayerUserAction).user;
       layerUsers = state.get('layerUsers');
       layerUsers = layerUsers.filter((layerUser) => layerUser.id !== newUser.id);
       return state
           .set('layerUsers', layerUsers);
+    case CLEAR_CHANNEL_LAYER_USERS:
+      return state
+          .set('channelLayersUsers', [])
+          .set('channelLayerUsersUpdateNeeded', true);
+    case LOADED_CHANNEL_LAYER_USERS:
+      return state
+          .set('channelLayerUsers', (action as LoadedLayerUsersAction).users)
+          .set('channelLayerUsersUpdateNeeded', false);
+    case ADDED_CHANNEL_LAYER_USER:
+      newUser = (action as AddedLayerUserAction).user;
+      layerUsers = state.get('channelLayerUsers');
+      match = layerUsers.find((layerUser) => layerUser.id === newUser.id);
+      if (match == null) {
+        layerUsers.push(newUser);
+      } else {
+        layerUsers = layerUsers.map((layerUser) => layerUser.id === newUser.id ? newUser : layerUser);
+      }
+      return state
+          .set('channelLayerUsers', layerUsers)
+          .set('channelLayerUsersUpdateNeeded', true);
+    case REMOVED_CHANNEL_LAYER_USER:
+      newUser = (action as RemovedLayerUserAction).user;
+      layerUsers = state.get('channelLayerUsers');
+      layerUsers = layerUsers.filter((layerUser) => layerUser.id !== newUser.id);
+      return state
+          .set('channelLayerUsers', layerUsers);
   }
 
   return state;

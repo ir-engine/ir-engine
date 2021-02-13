@@ -28,6 +28,7 @@ export class CapsuleCollider extends Component<CapsuleCollider>
 		return newThis;
 	}
 
+
 	reapplyOptions(options: any) {
 		const defaults = {
 			mass: 0,
@@ -59,6 +60,7 @@ export class CapsuleCollider extends Component<CapsuleCollider>
 		capsuleBody.addShape(sphereShape, new Vec3(0, -options.height / 2, 0));
 
 		this.body = capsuleBody;
+
 	}
 }
 

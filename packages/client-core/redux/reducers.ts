@@ -8,6 +8,7 @@ import sceneReducer from './scenes/reducers';
 import alertReducer from './alert/reducers';
 import dialogReducer from './dialog/reducers';
 import deviceDetectReducer from './devicedetect/reducers';
+import channelConnectionReducer from './channelConnection/reducers';
 import instanceConnectionReducer from './instanceConnection/reducers';
 
 import friendReducer from './friend/reducers';
@@ -25,6 +26,7 @@ export default combineReducers({
   friends: friendReducer,
   groups: groupReducer,
   party: partyReducer,
+  channelConnection: channelConnectionReducer,
   instanceConnection: instanceConnectionReducer,
   invite: inviteReducer,
   locations: locationReducer,
