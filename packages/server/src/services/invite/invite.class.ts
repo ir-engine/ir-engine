@@ -4,14 +4,27 @@ import {
   Params
 } from '@feathersjs/feathers';
 
+/**
+ * A class for Invite service 
+ * 
+ * @author Vyacheslav Solovjov
+ */
 export class Invite extends Service {
   app: Application
+  docs: any
 
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options);
     this.app = app;
   }
 
+  /**
+   * A method which get all invite 
+   * 
+   * @param params of query with type and userId
+   * @returns invite data 
+   * @author Vyacheslav Solovjov
+   */
   async find (params: Params): Promise<any> {
     const query = params.query;
     if (query.type === 'received') {

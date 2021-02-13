@@ -1,64 +1,70 @@
-import { Quaternion } from 'three';
+import { isClient } from "../../common/functions/isClient";
 import { Behavior } from '../../common/interfaces/Behavior';
+import { Entity } from '../../ecs/classes/Entity';
+import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
+import { NetworkObject } from '../../networking/components/NetworkObject';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { ColliderComponent } from '../components/ColliderComponent';
-import { RigidBody } from '../components/RigidBody';
-import { hasComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { Object3DComponent } from '../../common/components/Object3DComponent';
-import { Entity } from '../../ecs/classes/Entity';
-import { isClient } from "../../common/functions/isClient";
-import { Network } from '../../networking/components/Network';
-import { NetworkObject } from '../../networking/components/NetworkObject';
-import { PhysicsManager } from '../components/PhysicsManager';
-
-const quaternion = new Quaternion();
+import { PhysicsSystem } from '../systems/PhysicsSystem';
 
 export const RigidBodyBehavior: Behavior = (entity: Entity, args): void => {
+  const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
+  const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
 
   // ON CLIENT
-  if (args.phase == 'onAdded' && isClient) {
-    const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
-    if (colliderComponent) {
-      PhysicsManager.instance.physicsWorld.removeBody(colliderComponent.collider);
+  if (isClient) {
+    if (args.phase == 'onAdded') {
+      if (colliderComponent && PhysicsSystem.serverOnlyRigidBodyCollides) {
+        PhysicsSystem.physicsWorld.removeBody(colliderComponent.collider);
+      }
     }
-  }
 
-  if (args.phase == 'onUpdate') {
-    const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
-
-    // ON CLIENT
-    if (isClient && hasComponent(entity, NetworkObject) && args.clientSnapshot.interpolationSnapshot) {
+    if (args.phase == 'onUpdate') {
+      if (hasComponent(entity, NetworkObject) && args.clientSnapshot.interpolationSnapshot) {
         const networkObject = getComponent<NetworkObject>(entity, NetworkObject)
         const interpolationSnapshot = args.clientSnapshot.interpolationSnapshot.state.find(v => v.networkId == networkObject.networkId);
-        if ( !interpolationSnapshot ) return;
+        if (!interpolationSnapshot) return;
 
-          transform.position.set(
+        transform.position.set(
+          interpolationSnapshot.x,
+          interpolationSnapshot.y,
+          interpolationSnapshot.z
+        );
+        transform.rotation.set(
+          interpolationSnapshot.qX,
+          interpolationSnapshot.qY,
+          interpolationSnapshot.qZ,
+          interpolationSnapshot.qW
+        );
+
+        if (!PhysicsSystem.serverOnlyRigidBodyCollides && colliderComponent.collider) {
+          colliderComponent.collider.position.set(
             interpolationSnapshot.x,
             interpolationSnapshot.y,
             interpolationSnapshot.z
           );
-          transform.rotation.set(
+          colliderComponent.collider.quaternion.set(
             interpolationSnapshot.qX,
             interpolationSnapshot.qY,
             interpolationSnapshot.qZ,
             interpolationSnapshot.qW
           );
-    }
-    // ON SERVER
-    if (!isClient) {
-      const colliderComponent = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
-
-      transform.position.set(
-        colliderComponent.collider.position.x,
-        colliderComponent.collider.position.y,
-        colliderComponent.collider.position.z
-      );
-      transform.rotation.set(
-        colliderComponent.collider.quaternion.x,
-        colliderComponent.collider.quaternion.y,
-        colliderComponent.collider.quaternion.z,
-        colliderComponent.collider.quaternion.w
-      );
+        }
+      }
     }
   }
+    // ON SERVER
+    if (isClient) return;
+    transform.position.set(
+      colliderComponent.collider.position.x,
+      colliderComponent.collider.position.y,
+      colliderComponent.collider.position.z
+    );
+    transform.rotation.set(
+      colliderComponent.collider.quaternion.x,
+      colliderComponent.collider.quaternion.y,
+      colliderComponent.collider.quaternion.z,
+      colliderComponent.collider.quaternion.w
+    );
+
 };

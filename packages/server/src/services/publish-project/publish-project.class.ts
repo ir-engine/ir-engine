@@ -10,25 +10,53 @@ interface Data {}
 
 interface ServiceOptions {}
 
+
+/**
+ * A class for Publish Project  service 
+ * 
+ * @author Vyacheslav Solovjov
+ */ 
 export class PublishProject implements ServiceMethods<Data> {
   app: Application
   options: ServiceOptions
+  docs: any
 
   constructor (options: ServiceOptions = {}, app: Application) {
     this.options = options;
     this.app = app;
   }
 
+  /**
+   * A function which is used to display all published project 
+   * @param params 
+   * @returns all published project
+   */
   async find (params?: Params): Promise<Data[] | Paginated<Data>> {
     return [];
   }
 
+  /**
+   * A function which is used to get specific publish project 
+   * 
+   * @param id of publish project
+   * @param params 
+   * @returns {@Object} contains id of publish project and message 
+   * @author Vyacheslav Solovjov
+   */
   async get (id: Id, params?: Params): Promise<Data> {
     return {
       id, text: `A new message with ID: ${id}!`
     };
   }
 
+  /**
+   * A function which is used to create publish project 
+   * 
+   * @param data of new publish project 
+   * @param params contains user info
+   * @returns created new publish project 
+   * @author Vyacheslav Solovjov
+   */
   async create (data: any, params: Params): Promise<Data> {
     const CollectionModel = this.app.service('collection').Model;
     const projectId = params?.query?.projectId;
@@ -77,6 +105,15 @@ export class PublishProject implements ServiceMethods<Data> {
     return mapProjectDetailData(projectData.toJSON());
   }
 
+  /**
+   * A function which is used to update publish project 
+   * 
+   * @param id 
+   * @param data of new publish project  
+   * @param params 
+   * @returns {@Object} updated project 
+   * @author Vyacheslav Solovjov
+   */
   async update (id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data;
   }
@@ -85,6 +122,13 @@ export class PublishProject implements ServiceMethods<Data> {
     return data;
   }
 
+  /**
+   * 
+   * @param id of specific project 
+   * @param params 
+   * @returns {@Object} removed publish project 
+   * @author Vyacheslav Solovjov
+   */
   async remove (id: NullableId, params?: Params): Promise<Data> {
     return { id };
   }

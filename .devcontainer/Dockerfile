@@ -22,4 +22,4 @@ RUN if [ "$USER_GID" != "1000" ] || [ "$USER_UID" != "1000" ]; then \
 # RUN su node -c "source /usr/local/share/nvm/nvm.sh && nvm install ${EXTRA_NODE_VERSION}"
 
 # [Optional] Uncomment if you want to install more global node packages
-# RUN sudo -u node npm install -g <your-package-list-here>
+# RUN sudo -u node yarn install -g <your-package-list-here>

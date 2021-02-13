@@ -4,13 +4,26 @@ import { Params } from '@feathersjs/feathers';
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils';
 import { Op } from 'sequelize';
 
+/**
+ * A class for Croup service 
+ * 
+ * @author Vyacheslav Solovjov
+ */
 export class Group extends Service {
   app: Application
+  docs: any
 
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options);
     this.app = app;
   }
+  /**
+   * A method which find group 
+   * 
+   * @param params of query which contains group limit and number skip 
+   * @returns {@Object} of group 
+   * @author Vyacheslav Solovjov
+   */
 
   async find (params: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params);
@@ -77,7 +90,7 @@ export class Group extends Service {
         }));
 
         group.dataValues.groupUsers = groupUsers;
-        resolve();
+        resolve(true);
       });
     }));
     return {

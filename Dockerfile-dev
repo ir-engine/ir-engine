@@ -6,12 +6,12 @@ WORKDIR /app
 
 # to make use of caching, copy only package files and install dependencies
 COPY package*.json /app/
-#RUN  npm ci --verbose  # we should make lockfile or shrinkwrap then use npm ci for predicatble builds
-RUN  npm install --no-progress --verbose
+#RUN  yarn ci --verbose  # we should make lockfile or shrinkwrap then use npm ci for predicatble builds
+RUN  yarn install --no-progress --verbose
 
 # copy then compile the code
 COPY . .
-RUN npm run compile
+RUN yarn run compile
 
 ENV PORT=3030
 

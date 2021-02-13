@@ -1,21 +1,27 @@
-import { Vector3, Quaternion } from 'three';
-import { getMutableComponent, getComponent, addComponent, createEntity } from '../../ecs/functions/EntityFunctions';
-import { TransformComponent } from '../../transform/components/TransformComponent';
-import { Network } from '../components/Network';
-import { NetworkObject } from '../components/NetworkObject';
-import { PrefabType } from "../../templates/networking/DefaultNetworkSchema";
+import { Quaternion, Vector3 } from 'three';
 import { Component } from '../../ecs/classes/Component';
 import { Entity } from '../../ecs/classes/Entity';
-import { Client } from '../components/Client';
-import { Server } from '../components/Server';
+import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { PrefabType } from "../../templates/networking/DefaultNetworkSchema";
+import { TransformComponent } from '../../transform/components/TransformComponent';
+import { Network } from '../classes/Network';
+import { NetworkObject } from '../components/NetworkObject';
 import { NetworkPrefab } from '../interfaces/NetworkPrefab';
 
+/**
+ * Create network object from prefab.
+ * @param prefab Prefab to be used to create object.
+ * @param ownerId ID of the owner.
+ * @param networkId ID of network in which object will be created.
+ * @param override Override prefab properties.
+ *
+ * @returns Newly created entity.
+ */
 function createNetworkPrefab(prefab: NetworkPrefab, ownerId, networkId: number, override: NetworkPrefab = null): Entity {
   const entity = createEntity();
 
   // Add a NetworkObject component to the entity, this will store information about changing state
   addComponent(entity, NetworkObject, { ownerId, networkId });
-  addComponent(entity, Network.instance.transport.isServer ? Server : Client);
 
   // Call each create action
   prefab.onBeforeCreate?.forEach(action => {
@@ -74,6 +80,12 @@ function createNetworkPrefab(prefab: NetworkPrefab, ownerId, networkId: number, 
   return entity;
 }
 
+/**
+ * Initialize components.
+ * @param entity Entity to be initialized.
+ * @param components List of components to be added into entity.
+ * @param override Override of the default component values.
+ */
 function initComponents(entity: Entity, components: Array<{ type: any, data?: any }>, override?: Map<any, any>) {
   components?.forEach(component => {
     // The component to the entity
@@ -97,7 +109,16 @@ function initComponents(entity: Entity, components: Array<{ type: any, data?: an
   });
 }
 
-
+/**
+ * Initialize Network object
+ * @param ownerId ID of owner of newly created object.
+ * @param networkId ID of network in which object will be created.
+ * @param prefabType Type of prefab which will be used to create the object.
+ * @param position Position of the object.
+ * @param rotation Rotation of the object.
+ *
+ * @returns Newly created object.
+ */
 export function initializeNetworkObject(ownerId: string, networkId: number, prefabType: string | number, position?: Vector3, rotation?: Quaternion): NetworkObject {
   // Instantiate into the world
   const networkEntity = createNetworkPrefab(
@@ -135,7 +156,8 @@ export function initializeNetworkObject(ownerId: string, networkId: number, pref
   {
     ownerId,
     prefabType,
-    component: networkObject
+    component: networkObject,
+    uniqueId: ''
   };
 
   if (prefabType === PrefabType.Player && ownerId === (Network.instance).userId) {

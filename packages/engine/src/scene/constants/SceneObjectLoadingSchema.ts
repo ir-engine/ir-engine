@@ -1,31 +1,207 @@
-import { addWorldColliders } from "@xr3ngine/engine/src/templates/world/behaviors/addWorldColliders";
-import { AmbientLight, CircleBufferGeometry, Color, DirectionalLight, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight } from 'three';
+import { isServer } from '@xr3ngine/engine/src/common/functions/isServer';
+import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
+import { getComponent } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
+import { NetworkObject } from '@xr3ngine/engine/src/networking/components/NetworkObject';
+import { initializeNetworkObject } from '@xr3ngine/engine/src/networking/functions/initializeNetworkObject';
+import { addCarPhysics } from '@xr3ngine/engine/src/physics/behaviors/addCarPhysics';
+import { addColliderWithoutEntity } from '@xr3ngine/engine/src/physics/behaviors/addColliderWithoutEntity';
+import { ColliderComponent } from '@xr3ngine/engine/src/physics/components/ColliderComponent';
+import { RigidBody } from '@xr3ngine/engine/src/physics/components/RigidBody';
+import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
+import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
+import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
+import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight } from 'three';
 import { AssetLoader } from '../../assets/components/AssetLoader';
-import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
-import { addComponentFromBehavior, addObject3DComponent, addTagComponentFromBehavior } from '../../common/behaviors/Object3DBehaviors';
-import { LightTagComponent, VisibleTagComponent } from '../../common/components/Object3DTagComponents';
-import { TransformComponent } from '../../transform/components/TransformComponent';
+import { isClient } from "../../common/functions/isClient";
+import { Component } from "../../ecs/classes/Component";
+import { Entity } from "../../ecs/classes/Entity";
+import { addComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
+import { ComponentConstructor } from "../../ecs/interfaces/ComponentInterfaces";
+import { Network } from '../../networking/classes/Network';
+import { createParticleEmitter } from '../../particles/functions/particleHelpers';
+import { addObject3DComponent } from '../behaviors/addObject3DComponent';
 import { createBackground } from '../behaviors/createBackground';
 import { createBoxCollider } from '../behaviors/createBoxCollider';
+import { createCommonInteractive } from "../behaviors/createCommonInteractive";
 import { createGroup } from '../behaviors/createGroup';
 import { createImage } from '../behaviors/createImage';
-import { createLink } from '../behaviors/createLink';
+import { createMedia, createMediaServer } from "../behaviors/createMedia";
 import { createScenePreviewCamera } from "../behaviors/createScenePreviewCamera";
 import { createShadow } from '../behaviors/createShadow';
 import createSkybox from '../behaviors/createSkybox';
+import { createTransformComponent } from "../behaviors/createTransformComponent";
 import { createTriggerVolume } from '../behaviors/createTriggerVolume';
-import { createVideo } from "../behaviors/createVideo";
 import { createVolumetric } from "../behaviors/createVolumetric";
 import { handleAudioSettings } from '../behaviors/handleAudioSettings';
 import { setFog } from '../behaviors/setFog';
 import CollidableTagComponent from '../components/Collidable';
+import { LightTagComponent, VisibleTagComponent } from '../components/Object3DTagComponents';
 import ScenePreviewCameraTagComponent from "../components/ScenePreviewCamera";
 import SpawnPointComponent from "../components/SpawnPointComponent";
 import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
-import { createCommonInteractive } from "../behaviors/createCommonInteractive";
-import { getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
-import { createTransformComponent } from "../behaviors/createTransformComponent";
+
+
+function plusParametersFromEditorToMesh( entity, mesh ) {
+  const transform = getComponent(entity, TransformComponent);
+  mesh.position.set(
+    transform.position.x + mesh.position.x,
+    transform.position.y + mesh.position.y,
+    transform.position.z + mesh.position.z
+  );
+  mesh.scale.set(
+    transform.scale.x * mesh.scale.x,
+    transform.scale.y * mesh.scale.y,
+    transform.scale.z * mesh.scale.z
+  );
+}
+
+
+function addColliderComponent( entity, mesh ) {
+  addComponent(entity, ColliderComponent, {
+    type: mesh.userData.type,
+    scale: mesh.scale,
+    position: mesh.position,
+    quaternion: mesh.quaternion,
+    mesh: mesh.userData.type == "trimesh" ? mesh : null,
+    mass: mesh.userData.mass ? mesh.userData.mass : 1
+  });
+}
+
+// createStaticColliders
+
+function createStaticCollider( mesh ) {
+  if(mesh.type == 'Group') {
+    for (let i = 0; i < mesh.children.length; i++) {
+      addColliderWithoutEntity(mesh.userData.type, mesh.position, mesh.children[i].quaternion, mesh.children[i].scale, mesh.children[i]);
+    }
+  } else if (mesh.type == 'Mesh') {
+    addColliderWithoutEntity(mesh.userData.type, mesh.position, mesh.quaternion, mesh.scale, mesh);
+  }
+}
+
+// createDynamicColliders
+
+function createDynamicColliderClient(entity, mesh) {
+  if (!PhysicsSystem.serverOnlyRigidBodyCollides)
+    addColliderComponent(entity, mesh);
+
+  const networkId = Network.getNetworkId();
+  addComponent(entity, NetworkObject, { ownerId: 'server', networkId: networkId });
+  addComponent(entity, RigidBody);
+}
+
+function createDynamicColliderServer(entity, mesh) {
+
+   const networkObject = initializeNetworkObject('server', Network.getNetworkId(), PrefabType.worldObject);
+   const uniqueId = getComponent(entity, AssetLoader).entityIdFromScenaLoader.entityId;
+
+   addColliderComponent(networkObject.entity, mesh);
+   addComponent(networkObject.entity, RigidBody);
+   // Add the network object to our list of network objects
+   console.warn(networkObject.entity);
+   Network.instance.networkObjects[networkObject.networkId] = {
+       ownerId: 'server',
+       prefabType: PrefabType.worldObject, // All network objects need to be a registered prefab
+       component: networkObject,
+       uniqueId: uniqueId
+   };
+
+   Network.instance.createObjects.push({
+       networkId: networkObject.networkId,
+       ownerId: 'server',
+       prefabType: PrefabType.worldObject,
+       uniqueId: uniqueId,
+       x: 0,
+       y: 0,
+       z: 0,
+       qX: 0,
+       qY: 0,
+       qZ: 0,
+       qW: 0
+   });
+}
+
+function createVehicleOnClient(entity, mesh) {
+  addCarPhysics(entity, mesh)
+}
+
+// parse Function
+
+export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
+
+  const asset = args.asset;
+  const deleteArr = [];
+
+  function parseColliders( mesh ) {
+    // have user data physics its our case
+    if (mesh.userData.data === 'physics' || mesh.userData.data === 'dynamic' || mesh.userData.data === 'vehicle') {
+      // add position from editor to mesh
+      plusParametersFromEditorToMesh(entity, mesh);
+      // its for delete mesh from view scene
+      mesh.userData.data === 'vehicle' ? '' : deleteArr.push(mesh);
+      // parse types of colliders
+      switch (mesh.userData.data) {
+        case 'physics':
+          createStaticCollider(mesh);
+          break;
+        case 'dynamic':
+          isServer ? createDynamicColliderServer(entity, mesh) : createDynamicColliderClient(entity, mesh);
+          break;
+        case 'vehicle':
+          isServer ? '' : createVehicleOnClient(entity, mesh);
+          break;
+        default:
+          createStaticCollider(mesh);
+          break;
+      }
+    }
+  }
+
+  // its for diferent files with models
+  if (asset.scene) {
+   asset.scene.traverse( parseColliders );
+  } else {
+   asset.traverse( parseColliders );
+  }
+
+  // its for delete mesh from view scene
+  for (let i = 0; i < deleteArr.length; i++) {
+   deleteArr[i].parent.remove(deleteArr[i]);
+  }
+
+  return entity;
+};
+
+
+/**
+ * Add Component into Entity from the Behavior.
+ * @param entity Entity in which component will be added.
+ * @param args Args contains Component and args of Component which will be added into the Entity.
+ */
+export function addComponentFromBehavior<C>(
+  entity: Entity,
+  args: {
+    component: ComponentConstructor<Component<C>>
+    objArgs: any
+  }
+): void {
+  addComponent(entity, args.component, args.objArgs);
+}
+
+/**
+ * Add Tag Component with into Entity from the Behavior.
+ * @param entity Entity in which component will be added.
+ * @param args Args contains Component which will be added into the Entity.
+ */
+export function addTagComponentFromBehavior<C>(
+  entity: Entity,
+  args: { component: ComponentConstructor<Component<C>> }
+): void {
+  // console.log("Adding ", args.component, " to ", entity);
+  addComponent(entity, args.component);
+}
+
 
 export const SceneObjectLoadingSchema: LoadingSchema = {
   'ambient-light': {
@@ -43,24 +219,26 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
           type: LightTagComponent
         }]
   },
-  'directional-light': {
-    behaviors: [
-      {
-        behavior: addObject3DComponent,
-        args: { obj3d: DirectionalLight, objArgs: { castShadow: true } },
-        values: [
-          { from: 'shadowMapResolution', to: 'shadow.mapSize' },
-          { from: 'shadowBias', to: 'shadow.bias' },
-          { from: 'shadowRadius', to: 'shadow.radius' },
-          { from: 'intensity', to: 'intensity' },
-          { from: 'color', to: 'color' }
-        ]
-      }
-    ],
-      components: [{
-        type: LightTagComponent
-      }]
-  },
+// currently this breaks CSM
+
+//   'directional-light': {
+//     behaviors: [
+//       {
+//         behavior: addObject3DComponent,
+//         args: { obj3d: DirectionalLight, objArgs: { castShadow: true } },
+//         values: [
+//           { from: 'shadowMapResolution', to: 'shadow.mapSize' },
+//           { from: 'shadowBias', to: 'shadow.bias' },
+//           { from: 'shadowRadius', to: 'shadow.radius' },
+//           { from: 'intensity', to: 'intensity' },
+//           { from: 'color', to: 'color' }
+//         ]
+//       }
+//     ],
+//       components: [{
+//         type: LightTagComponent
+//       }]
+//   },
   'collidable': {
     components: [
       {
@@ -117,7 +295,8 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
             new MeshPhongMaterial({
               color: new Color(0.313410553336143494, 0.31341053336143494, 0.30206481294706464)
             })
-          )
+          ),
+          objArgs: { receiveShadow: true }
         },
         values: [ { from: 'color', to: 'material.color' } ]
       }
@@ -186,7 +365,30 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'video': {
     behaviors: [
       {
-        behavior: createVideo,
+        behavior: isClient ? createMedia : createMediaServer,
+        values: [
+          { from: 'src', to: 'src' },
+          { from: 'projection', to: 'projection' },
+          { from: 'controls', to: 'controls' },
+          { from: 'autoPlay', to: 'autoPlay' },
+          { from: 'loop', to: 'loop' },
+          { from: 'audioType', to: 'audioType' },
+          { from: 'volume', to: 'volume' },
+          { from: 'distanceModel', to: 'distanceModel' },
+          { from: 'rolloffFactor', to: 'rolloffFactor' },
+          { from: 'refDistance', to: 'refDistance' },
+          { from: 'maxDistance', to: 'maxDistance' },
+          { from: 'coneInnerAngle', to: 'coneInnerAngle' },
+          { from: 'coneOuterAngle', to: 'coneOuterAngle' },
+          { from: 'coneOuterGain', to: 'coneOuterGain' }
+        ]
+      }
+    ]
+  },
+  'audio': {
+    behaviors: [
+      {
+        behavior: isClient ? createMedia : createMediaServer,
         values: [
           { from: 'src', to: 'src' },
           { from: 'projection', to: 'projection' },
@@ -307,7 +509,11 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'shadow': {
     behaviors: [
       {
-        behavior: createShadow
+        behavior: createShadow,
+        values: [
+          { from: 'cast', to: 'castShadow' },
+          { from: 'receive', to: 'receiveShadow' },
+        ]
       }
     ]
   },
@@ -333,11 +539,19 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       }
     ]
   },
-  'link': {
+  // 'link': {
+  //   behaviors: [
+  //     {
+  //       behavior: createLink
+  //     }
+  //   ]
+  // },
+  'particle-emitter': {
     behaviors: [
       {
-        behavior: createLink
+        behavior: createParticleEmitter,
+        values: ['ageRandomness', 'angularVelocity', 'colorCurve', 'endColor', 'endOpacity', 'endSize', 'endVelocity', 'lifetime', 'lifetimeRandomness', 'middleColor', 'middleOpacity', 'particleCount', 'sizeCurve', 'sizeRandomness', 'src', 'startColor', 'startOpacity', 'startSize', 'startVelocity', 'velocityCurve']
       }
-    ]
+    ],
   }
 };

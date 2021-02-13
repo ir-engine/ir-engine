@@ -17,26 +17,27 @@ process.on('unhandledRejection', (error, promise) => {
 });
 
 (async (): Promise<void> => {
+  const key = process.platform === 'win32' ? 'name' : 'cmd';
   if (process.env.KUBERNETES !== 'true') {
     const processList = await (await psList()).filter(e => {
       const regexp = /docker-compose up|docker-proxy|mysql/gi;
-      return e.cmd.match(regexp);
+      return e[key].match(regexp);
     });
     const dockerProcess = processList.find(
-        c => c.cmd.match(/docker-compose/)
+        c => c[key].match(/docker-compose/)
     );
     const dockerProxy = processList.find(
-        c => c.cmd.match(/docker-proxy/)
+        c => c[key].match(/docker-proxy/)
     );
     const processMysql = processList.find(
-        c => c.cmd.match(/mysql/)
+        c => c[key].match(/mysql/)
     );
-    let databaseService = (dockerProcess && dockerProxy) || processMysql;
+    const databaseService = (dockerProcess && dockerProxy) || processMysql;
 
     if (!databaseService) {
 
       // Check for child process with mac OSX
-        exec("docker ps | grep mariadb", function(err, stdout, stderr) {
+        exec("docker ps | grep mariadb", (err, stdout, stderr) => {
           if(stdout.includes("mariadb")){
             (databaseService as any) = true;
           }else {
@@ -48,7 +49,7 @@ process.on('unhandledRejection', (error, promise) => {
 })();
 
 // SSL setup
-let useSSL = process.env.NODE_ENV !== 'production' && fs.existsSync(path.join(appRootPath.path, 'certs', 'key.pem'));
+const useSSL = process.env.NODE_ENV !== 'production' && fs.existsSync(path.join(appRootPath.path, 'certs', 'key.pem'));
 
 const certOptions = {
   key: useSSL && process.env.NODE_ENV !== 'production' ? fs.readFileSync(path.join(appRootPath.path, 'certs', 'key.pem')) : null,

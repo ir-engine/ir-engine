@@ -3,6 +3,7 @@ import { Application } from '../../declarations';
 import { Group } from './group.class';
 import createModel from '../../models/group.model';
 import hooks from './group.hooks';
+import groupDocs from "./group.docs";
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -17,13 +18,27 @@ export default (app: Application): any => {
     paginate: app.get('paginate'),
     multi: true
   };
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
+  const event = new Group(options, app);
+  event.docs = groupDocs;
 
-  app.use('/group', new Group(options, app));
+  app.use('/group', event);
 
   const service = app.service('group');
 
   service.hooks(hooks);
 
+  /**
+   * A method which is used to crate group
+   * 
+   * @param data which is parsed to create group 
+   * @returns created group data 
+   * @author Vyacheslav Solovjov
+   */
   service.publish('created', async (data): Promise<any> => {
     const groupUsers = await app.service('group-user').find({
       query: {
@@ -56,6 +71,14 @@ export default (app: Application): any => {
       });
     }));
   });
+
+  /**
+   * A method used to update group
+   * 
+   * @param data which is used to update group
+   * @returns updated group data
+   * @author Vyacheslav Solovjov
+   */
 
   service.publish('patched', async (data): Promise<any> => {
     const groupUsers = await app.service('group-user').find({
@@ -90,6 +113,14 @@ export default (app: Application): any => {
     }));
   });
 
+  /**
+   * A method used to remove specific group
+   * 
+   * @param data which contains userId
+   * @returns deleted group data 
+   * @author Vyacheslav Solovjov
+   */
+
   service.publish('removed', async (data): Promise<any> => {
     const groupUsers = await app.service('group-user').find({
       query: {
@@ -108,6 +139,12 @@ export default (app: Application): any => {
     }));
   });
 
+  /**
+   * A method used to refresh group 
+   * 
+   * @param data which contains userId
+   * @returns channel 
+   */
   service.publish('refresh', async (data): Promise<any> => {
     return app.channel(`userIds/${data.userId}`).send({});
   });

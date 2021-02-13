@@ -1,16 +1,10 @@
-import { Vec3, Box, Plane, Cylinder, ConvexPolyhedron, Quaternion, Sphere, Body } from 'cannon-es';
-import { Vector3 } from 'three';
-import { Object3DComponent } from '@xr3ngine/engine/src/common/components/Object3DComponent';
+import { Body, Box, ConvexPolyhedron, Cylinder, Plane, Quaternion, Sphere, Vec3 } from 'cannon-es';
 import { Entity } from '../../ecs/classes/Entity';
-import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { TransformComponent } from '../../transform/components/TransformComponent';
+import { threeToCannon } from '../classes/three-to-cannon';
 import { ColliderComponent } from '../components/ColliderComponent';
-import { RigidBody } from '../components/RigidBody';
-import { MeshTagComponent } from '../../common/components/Object3DTagComponents';
-import { threeToCannon } from '@xr3ngine/engine/src/templates/world/three-to-cannon';
 import { CollisionGroups } from "../enums/CollisionGroups";
-import { PhysicsManager } from '../components/PhysicsManager';
-import { cannonFromThreeVector } from "@xr3ngine/engine/src/common/functions/cannonFromThreeVector";
 
 export function createTrimesh (mesh, position, mass) {
     mesh = mesh.clone();
@@ -20,13 +14,11 @@ export function createTrimesh (mesh, position, mass) {
     shape.collisionFilterGroup = CollisionGroups.TrimeshColliders;
 		const body = new Body({ mass });
     body.addShape(shape, position);
-	//	body.material = PhysicsManager.instance.trimMeshMaterial;
 		return body;
 }
 
-
 export function createGround (entity: Entity) {
-  const colliderComponent = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
+  const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
   const transformComponent = getComponent<TransformComponent>(entity, TransformComponent);
   const shape = new Plane();
   const body = new Body({ mass: 0 });
@@ -46,23 +38,21 @@ export function createGround (entity: Entity) {
     );
   }
   body.addShape(shape);
-  PhysicsManager.instance.physicsWorld.addBody(body);
-  colliderComponent.collider = body;
+  return body;
 }
 
 export function createBox (entity: Entity) {
-  const colliderComponent = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
+  const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
   const transformComponent = getComponent<TransformComponent>(entity, TransformComponent);
 
   const shape = new Box( new Vec3(
-      colliderComponent.scale.x / 2,
-      colliderComponent.scale.y / 2,
-      colliderComponent.scale.z / 2
+      colliderComponent.scale.x,
+      colliderComponent.scale.y,
+      colliderComponent.scale.z
     )
   );
   const body = new Body({
     mass: colliderComponent.mass,
-  //  material: PhysicsManager.instance.groundMaterial
   });
 
   // Set position
@@ -89,31 +79,11 @@ export function createBox (entity: Entity) {
       colliderComponent.quaternion.z,
       colliderComponent.quaternion.w
     );
-  } else {
-    body.quaternion.set(
-      transformComponent.rotation.x,
-      transformComponent.rotation.y,
-      transformComponent.rotation.z,
-      transformComponent.rotation.w
-    );
   }
 
   body.addShape(shape);
-  PhysicsManager.instance.physicsWorld.addBody(body);
-  colliderComponent.collider = body;
-  /*
-    if (hasComponent(entity, Object3DComponent)) {
-      offset.copy(cannonFromThreeVector(object3DComponent.value.position));
-    }
-    //  const q = new Quaternion();
-    //  q.setFromAxisAngle(new Vec3(1, 0, 0), -Math.PI / 2);
-
-    //  body.quaternion.setFromAxisAngle(new Vec3(1,0,0),-Math.PI/2);
-    //  body.angularVelocity.set(0,1,1);
-    //  body.angularDamping = 0.5;
-  */
+  return body;
 }
-
 
 export function createCylinder (entity: Entity) {
   const rigidBody = getComponent<ColliderComponent>(entity, ColliderComponent);
@@ -124,30 +94,37 @@ export function createCylinder (entity: Entity) {
     mass: rigidBody.mass,
     position: new Vec3(transform.position[0], transform.position[1], transform.position[2])
   });
-  // body.type = Body.KINEMATIC;
-  // body.collisionFilterGroup = 1; // turn off collisions
   const q = new Quaternion();
   q.setFromAxisAngle(new Vec3(1, 0, 0), -Math.PI / 2);
   body.addShape(cylinderShape, new Vec3(), q);
-  // body.angularVelocity.set(0,0,1);
   return body;
 }
 
 export function createSphere (entity: Entity) {
   const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
-  const rigidBody = getComponent<RigidBody>(entity, RigidBody);
+  const transformComponent = getComponent<TransformComponent>(entity, TransformComponent);
 
-  const mass = rigidBody ? collider.mass : 0;
-
-  const shape = new Sphere(collider.scale[0] / 2);
+  const shape = new Sphere(collider.scale.x);
 
   const body = new Body({
-    mass: mass,
-    material: PhysicsManager.instance.groundMaterial
-//    material: PhysicsManager.instance.wheelMaterial
+    mass: collider.mass,
   });
 
   body.addShape(shape);
+  // Set position
+  if (collider.position) {
+    body.position.set(
+      collider.position.x,
+      collider.position.y,
+      collider.position.z
+    );
+  } else {
+    body.position.set(
+      transformComponent.position.x,
+      transformComponent.position.y,
+      transformComponent.position.z
+    );
+  }
   body.angularDamping = 0.5;
   return body;
 }
@@ -169,37 +146,22 @@ export function createConvexGeometry (entity: Entity, mesh: any) {
   });
   const verts = [];
   const faces = [];
-  const normals = [];
+  // const normals = [];
 
   // Get vertice
   for (let j = 0; j < attributePosition.array.length; j += 3) {
     verts.push(new Vec3(attributePosition.array[j], attributePosition.array[j + 1], attributePosition.array[j + 2]));
   }
-  console.log(verts);
+  // console.log(verts);
   // Get faces
   for (let j = 0; j < object.geometry.index.array.length; j += 3) {
     faces.push([object.geometry.index.array[j], object.geometry.index.array[j + 1], object.geometry.index.array[j + 2]]);
   }
-  /*
-    for(var j=0; j<attributeNormal.array.length; j+=3){
-        normals.push([
-          attributeNormal.array[j],
-          attributeNormal.array[j+1],
-          attributeNormal.array[j+2]
-        ]);
-    }
-*/
-  console.log(faces);
-  console.log(normals);
-  // Get offset
-  //  let offset = new Vec3(200,200,200);
   // Construct polyhedron
   const bunnyPart = new ConvexPolyhedron({ vertices: verts, faces });
-  console.log(bunnyPart);
 
   const q = new Quaternion();
   q.setFromAxisAngle(new Vec3(1, 1, 0), -Math.PI / 2);
-  //  body.addShape(cylinderShape, new Vec3(), q);
   // Add to compound
   convexBody.addShape(bunnyPart, new Vec3(), q); //, offset);
   return convexBody;

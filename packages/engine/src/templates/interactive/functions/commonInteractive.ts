@@ -1,6 +1,6 @@
-import { Behavior } from "../../../common/interfaces/Behavior";
+import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { getComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
-import { Object3DComponent } from "../../../common/components/Object3DComponent";
+import { Object3DComponent } from "@xr3ngine/engine/src/scene/components/Object3DComponent";
 import { Interactable } from "../../../interaction/components/Interactable";
 
 export const onInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {

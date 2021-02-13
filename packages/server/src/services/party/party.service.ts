@@ -3,6 +3,7 @@ import { Application } from '../../declarations';
 import { Party } from './party.class';
 import createModel from '../../models/party.model';
 import hooks from './party.hooks';
+import partyDocs from './party.docs';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -16,12 +17,27 @@ export default (app: Application): void => {
     multi: true
   };
 
-  app.use('/party', new Party(options, app));
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
+  const event = new Party(options, app);
+  event.docs = partyDocs;
+  
+  app.use('/party', event);
 
   const service = app.service('party');
 
   service.hooks(hooks);
-
+  
+  /**
+   * A function which is used to create new party 
+   * 
+   * @param data of new party 
+   * @returns {@Object} created party 
+   * @author Vyacheslav Solovjov
+   */
   service.publish('created', async (data): Promise<any> => {
     const partyUsers = await app.service('party-user').find({
       query: {
@@ -55,6 +71,13 @@ export default (app: Application): void => {
     }));
   });
 
+  /**
+   * A function which is used to update new party 
+   * 
+   * @param data of new party 
+   * @returns {@Object} of new updated party 
+   * @author Vyacheslav Solovjov
+   */
   service.publish('patched', async (data): Promise<any> => {
     const partyUsers = await app.service('party-user').find({
       query: {
@@ -72,6 +95,14 @@ export default (app: Application): void => {
       });
     }));
   });
+
+  /**
+   * A function which is used to remove single party 
+   * 
+   * @param data of single party 
+   * @returns {@Object} of removed data 
+   * @author Vyacheslav Solovjov
+   */
 
   service.publish('removed', async (data): Promise<any> => {
     const partyUsers = await app.service('party-user').find({

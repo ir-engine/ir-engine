@@ -6,15 +6,13 @@ import { getComponent, getMutableComponent } from "../../ecs/functions/EntityFun
 import { InputType } from "../enums/InputType";
 import { InputAlias } from "../types/InputAlias";
 import { Input } from "../components/Input";
-import { DefaultInput } from "../../templates/shared/DefaultInput";
+import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
 import { Thumbsticks } from "../../common/enums/Thumbsticks";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 
 const inputPerGamepad = 2;
 let input: Input;
 let gamepads: Gamepad[];
-let input0: number;
-let input1: number;
 let gamepad: Gamepad;
 let inputBase: number;
 let x: number;
@@ -123,7 +121,7 @@ export const handleGamepadAxis: Behavior = (
 
   x = applyThreshold(gamepad.axes[xIndex], input.gamepadThreshold);
   y = applyThreshold(gamepad.axes[yIndex], input.gamepadThreshold);
-  if (args.mappedInputValue === DefaultInput.MOVEMENT_PLAYERONE) {
+  if (args.mappedInputValue === BaseInput.MOVEMENT_PLAYERONE) {
     const tmpX = x;
     x = -y;
     y = -tmpX;

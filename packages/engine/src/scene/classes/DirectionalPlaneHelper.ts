@@ -6,7 +6,7 @@ import {
   LineBasicMaterial,
   Float32BufferAttribute
 } from "three";
-import { addIsHelperFlag } from "../functions/addIsHelperFlag";
+import { addIsHelperFlag } from "../../editor/functions/addIsHelperFlag";
 export default class DirectionalPlaneHelper extends Object3D {
   plane: Line<BufferGeometry, LineBasicMaterial>;
   directionLine: Line<BufferGeometry, LineBasicMaterial>;

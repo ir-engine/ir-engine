@@ -7,7 +7,8 @@ import {
   DoubleSide,
   Mesh,
   SphereBufferGeometry,
-  RGBAFormat
+  RGBAFormat,
+  MeshStandardMaterial
 } from "three";
 import { RethrownError } from "../../editor/functions/errors";
 import Hls from "hls.js/dist/hls.light";
@@ -21,7 +22,7 @@ export default class Volumetric extends AudioSource {
   _videoTexture: VideoTexture;
   el: HTMLVideoElement;
   _texture: any;
-  _mesh: Mesh<PlaneBufferGeometry, MeshBasicMaterial>;
+  _mesh: Mesh;
   _projection: string;
   hls: any;
   audioSource: any;
@@ -120,10 +121,10 @@ export default class Volumetric extends AudioSource {
     );
     this.audio.setNodeSource(this.audioSource);
     if (this._texture.format === RGBAFormat) {
-      this._mesh.material.transparent = true;
+      (this._mesh.material as MeshStandardMaterial).transparent = true;
     }
-    this._mesh.material.map = this._texture;
-    this._mesh.material.needsUpdate = true;
+    (this._mesh.material as MeshStandardMaterial).map = this._texture;
+    (this._mesh.material as MeshStandardMaterial).needsUpdate = true;
     this._mesh.visible = true;
     return this;
   }

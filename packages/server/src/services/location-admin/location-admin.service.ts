@@ -4,6 +4,7 @@ import { Application } from '../../declarations';
 import { LocationAdmin } from './location-admin.class';
 import createModel from '../../models/location-admin.model';
 import hooks from './location-admin.hooks';
+import locationAdminDocs from './location-admin.docs';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -18,10 +19,20 @@ export default function (app: Application): void {
     paginate: app.get('paginate')
   };
 
-  // Initialize our service with any options it requires
-  app.use('/location-admin', new LocationAdmin(options, app));
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
+  const event = new LocationAdmin(options, app);
+  event.docs = locationAdminDocs;
+  app.use('/location-admin', event);
 
-  // Get our initialized service so that we can register hooks
+  /**
+   * Get our initialized service so that we can register hooks
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const service = app.service('location-admin');
 
   service.hooks(hooks);

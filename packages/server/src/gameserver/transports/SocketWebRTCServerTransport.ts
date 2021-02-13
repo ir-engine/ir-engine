@@ -1,9 +1,9 @@
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
 import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
-import { CreateWebRtcTransportParams } from "@xr3ngine/engine/src/networking/types/NetworkingTypes";
+import { WebRtcTransportParams } from "@xr3ngine/engine/src/networking/types/WebRtcTransportParams";
 import AWS from 'aws-sdk';
 import * as https from "https";
-import { DataProducer, Router, Transport, Worker } from "mediasoup/lib/types";
+import {DataProducer, DataConsumer, Router, Transport, Worker, DataProducerOptions} from "mediasoup/lib/types";
 import SocketIO, { Socket } from "socket.io";
 import logger from '../../app/logger';
 import config from '../../config';
@@ -44,6 +44,7 @@ const Route53 = new AWS.Route53({ ...config.aws.route53.keys });
 function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | undefined {
     return typeof obj === "undefined" || obj === null;
 }
+
 export class SocketWebRTCServerTransport implements NetworkTransport {
     isServer = true
     server: https.Server
@@ -53,6 +54,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     transport: Transport
     app: any
     dataProducers: DataProducer[] = []
+    outgoingDataTransport: Transport
+    outgoingDataProducer: DataProducer
     gameServer;
 
     constructor(app) {
@@ -63,8 +66,18 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.ReliableMessage.toString(), message);
     }
 
-    public sendData = (data: any): void =>
-      this.dataProducers?.forEach(producer => { producer.send(JSON.stringify(data)); })
+    toBuffer(ab): any {
+        var buf = Buffer.alloc(ab.byteLength);
+        var view = new Uint8Array(ab);
+        for (var i = 0; i < buf.length; ++i) {
+            buf[i] = view[i];
+        }
+        return buf;
+    }
+
+    public sendData = (data: any): void => {
+        if (this.outgoingDataProducer != null) this.outgoingDataProducer.send(this.toBuffer(data));
+    }
 
     public handleKick(socket: any): void {
         logger.info("Kicking ", socket.id);
@@ -76,7 +89,11 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         // Set up our gameserver according to our current environment
         const localIp = await getLocalServerIp();
         let stringSubdomainNumber, gsResult;
-        if (process.env.KUBERNETES !== 'true') try {await this.app.service('instance').Model.destroy({where: {}});} catch(error){ logger.warn(error);}
+        if (process.env.KUBERNETES !== 'true') try {
+            await this.app.service('instance').Model.destroy({where: {}});
+        } catch (error) {
+            logger.warn(error);
+        }
         else if (process.env.KUBERNETES === 'true') {
             await cleanupOldGameservers();
             this.gameServer = await (this.app as any).agonesSDK.getGameServer();
@@ -110,12 +127,21 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         localConfig.mediasoup.webRtcTransport.listenIps = [{
             ip: '0.0.0.0',
             announcedIp: process.env.KUBERNETES === 'true' ?
-              (config.gameserver.local === true ? gsResult.status.address :
-                `${stringSubdomainNumber}.${config.gameserver.domain}`) : localIp.ipAddress
+                (config.gameserver.local === true ? gsResult.status.address :
+                    `${stringSubdomainNumber}.${config.gameserver.domain}`) : localIp.ipAddress
         }];
 
         logger.info("Initializing WebRTC Connection");
         await startWebRTC();
+
+        this.outgoingDataTransport = await this.routers.instance.createDirectTransport();
+        const options = {
+            ordered: false,
+            label: 'outgoingProducer',
+            protocol: 'raw',
+            appData: { peerID: 'outgoingProducer' }
+        };
+        this.outgoingDataProducer = await this.outgoingDataTransport.produceData(options);
 
         setInterval(() => validateNetworkObjects(), 5000);
 
@@ -172,7 +198,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 socket.on(MessageTypes.LeaveWorld.toString(), (data, callback) =>
                     handleLeaveWorld(socket, data, callback));
 
-                socket.on(MessageTypes.WebRTCTransportCreate.toString(), async (data: CreateWebRtcTransportParams, callback) =>
+                socket.on(MessageTypes.WebRTCTransportCreate.toString(), async (data: WebRtcTransportParams, callback) =>
                     handleWebRtcTransportCreate(socket, data, callback));
 
                 socket.on(MessageTypes.WebRTCProduceData.toString(), async (data, callback) =>
@@ -211,7 +237,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 socket.on(MessageTypes.WebRTCPauseProducer.toString(), async (data, callback) =>
                     handleWebRtcPauseProducer(socket, data, callback));
 
-                socket.on(MessageTypes.WebRTCRequestCurrentProducers.toString(), async(data, callback) =>
+                socket.on(MessageTypes.WebRTCRequestCurrentProducers.toString(), async (data, callback) =>
                     handleWebRtcRequestCurrentProducers(socket, data, callback));
             });
         });

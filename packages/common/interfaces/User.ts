@@ -11,8 +11,6 @@ export interface User {
   locationAdmins: LocationAdmin[];
   relationType?: RelationshipType;
   inverseRelationType?: RelationshipType;
-  subscription: any;
-  subscriptions: any[];
   avatarUrl?: string;
   instanceId?: string;
   partyId?: string;
@@ -32,14 +30,6 @@ export function resolveUser (user: any): User {
       ...returned,
       identityProviders: user.identity_providers
     }
-  }
-  if (user?.subscriptions && user.subscriptions.length > 0) {
-    const verifiedSubscription = user.subscriptions.find(item => item.status === true)
-    returned = {
-      ...returned,
-      subscription: verifiedSubscription
-    }
-    delete returned.subscriptions
   }
   if (user?.location_admins && user.location_admins.length > 0) {
     returned = {

@@ -1,7 +1,7 @@
 import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
 import { getComponent, removeEntity } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
-import { MediaStreamComponent } from '@xr3ngine/engine/src/networking/components/MediaStreamComponent';
-import { Network } from "@xr3ngine/engine/src/networking/components/Network";
+import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
+import { Network } from "@xr3ngine/engine/src/networking//classes/Network";
 import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
 import { initializeNetworkObject } from '@xr3ngine/engine/src/networking/functions/initializeNetworkObject';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
@@ -28,7 +28,7 @@ export async function getFreeSubdomain(gsIdentifier: string, subdomainNumber: nu
             gs_id: gsIdentifier
         });
 
-        await new Promise(resolve => setTimeout(async () => { resolve();}, 500));
+        await new Promise(resolve => setTimeout(async () => { resolve(true);}, 500));
 
         const newSubdomainResult = await transport.app.service('gameserver-subdomain-provision').find({
             query: {
@@ -47,7 +47,7 @@ export async function getFreeSubdomain(gsIdentifier: string, subdomainNumber: nu
             gs_id: gsIdentifier
         });
 
-        await new Promise(resolve => setTimeout(async () => { resolve();}, 500));
+        await new Promise(resolve => setTimeout(async () => { resolve(true);}, 500));
 
         const newSubdomainResult = await transport.app.service('gameserver-subdomain-provision').find({
             query: {
@@ -122,10 +122,10 @@ export function validateNetworkObjects(): void {
                 disconnectedClient.instanceRecvTransport.close();
             if (disconnectedClient?.instanceSendTransport)
                 disconnectedClient.instanceSendTransport.close();
-            if (disconnectedClient?.partyRecvTransport)
-                disconnectedClient.partyRecvTransport.close();
-            if (disconnectedClient?.partySendTransport)
-                disconnectedClient.partySendTransport.close();
+            if (disconnectedClient?.channelRecvTransport)
+                disconnectedClient.channelRecvTransport.close();
+            if (disconnectedClient?.channelSendTransport)
+                disconnectedClient.channelSendTransport.close();
 
             // Find all network objects that the disconnecting client owns and remove them
             const networkObjectsClientOwns = [];
@@ -230,8 +230,8 @@ function disconnectClientIfConnected(socket, userId: string): void {
     if (Network.instance.clients[userId] !== undefined &&
       Network.instance.clients[userId].socketId !== socket.id) {
         logger.info("Client already exists, kicking the old client and disconnecting");
-        Network.instance.clients[userId].socket.emit(MessageTypes.Kick.toString());
-        Network.instance.clients[userId].socket.disconnect();
+        Network.instance.clients[userId].socket?.emit(MessageTypes.Kick.toString());
+        Network.instance.clients[userId].socket?.disconnect();
     }
 
     console.log(Network.instance.networkObjects);
@@ -275,7 +275,8 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     Network.instance.networkObjects[networkObject.networkId] = {
         ownerId: userId, // Owner's socket ID
         prefabType: Network.instance.schema.defaultClientPrefab, // All network objects need to be a registered prefab
-        component: networkObject
+        component: networkObject,
+        uniqueId: ''
     };
 
     // Added new object to the worldState with networkId and ownerId
@@ -283,6 +284,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
         networkId: networkObject.networkId,
         ownerId: userId,
         prefabType: Network.instance.schema.defaultClientPrefab,
+        uniqueId: '',
         x: transform.position.x,
         y: transform.position.y,
         z: transform.position.z,
@@ -315,6 +317,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
             prefabType: Network.instance.networkObjects[networkId].prefabType,
             networkId: networkId,
             ownerId: Network.instance.networkObjects[networkId].ownerId,
+            uniqueId: Network.instance.networkObjects[networkId].uniqueId ? Network.instance.networkObjects[networkId].uniqueId : '',
             x: transform.position.x,
             y: transform.position.y,
             z: transform.position.z,
@@ -378,8 +381,8 @@ export async function handleDisconnect(socket): Promise<any> {
         logger.info('Disconnecting clients for user ' + userId);
         if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close();
         if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close();
-        if (disconnectedClient?.partyRecvTransport) disconnectedClient.partyRecvTransport.close();
-        if (disconnectedClient?.partySendTransport) disconnectedClient.partySendTransport.close();
+        if (disconnectedClient?.channelRecvTransport) disconnectedClient.channelRecvTransport.close();
+        if (disconnectedClient?.channelSendTransport) disconnectedClient.channelSendTransport.close();
         if (Network.instance.clients[userId] !== undefined)
             delete Network.instance.clients[userId];
     } else {
@@ -389,8 +392,8 @@ export async function handleDisconnect(socket): Promise<any> {
 
 export async function handleLeaveWorld(socket, data, callback): Promise<any> {
     const userId = getUserIdFromSocketId(socket.id);
-    if (MediaStreamComponent.instance.transports)
-        for (const [, transport] of Object.entries(MediaStreamComponent.instance.transports))
+    if (Network.instance.transports)
+        for (const [, transport] of Object.entries(Network.instance.transports))
             if ((transport as any).appData.peerId === userId)
                 closeTransport(transport);
     if (Network.instance.clients[userId] !== undefined)

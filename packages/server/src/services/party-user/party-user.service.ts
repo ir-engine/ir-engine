@@ -4,6 +4,7 @@ import { PartyUser } from './party-user.class';
 import createModel from '../../models/party-user.model';
 import hooks from './party-user.hooks';
 import logger from '../../app/logger';
+import partyUserDocs from './party-user.docs';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -18,11 +19,27 @@ export default (app: Application): void => {
     multi: true
   };
 
-  app.use('/party-user', new PartyUser(options, app));
+/**
+ * An object for swagger documentation configiration 
+ * 
+ * @author Kevin KIMENYI
+ */
+  const event = new PartyUser(options, app);
+  event.docs = partyUserDocs;
+
+  app.use('/party-user', event);
 
   const service = app.service('party-user');
 
   service.hooks(hooks);
+
+  /**
+   * A function which is used to create new party user 
+   * 
+   * @param data of new party 
+   * @returns {@Object} of created new party user 
+   * @author Vyacheslav Solovjov
+   */
 
   service.publish('created', async (data): Promise<any> => {
     try {
@@ -72,6 +89,13 @@ export default (app: Application): void => {
     }
   });
 
+  /**
+   * A function which is used to update party user 
+   * 
+   * @param data of new party user 
+   * @returns {@Object} updated party user
+   * @author Vyacheslav Solovjov
+   */
   service.publish('patched', async (data): Promise<any> => {
     try {
       const channel = await app.service('channel').Model.findOne({
@@ -121,6 +145,14 @@ export default (app: Application): void => {
       throw err;
     }
   });
+
+  /**
+   * A function which is used to remove party user 
+   * 
+   * @param data for single party user 
+   * @returns {@Object} removed party user 
+   * @author Vyacheslav Solovjov
+   */
 
   service.publish('removed', async (data): Promise<any> => {
     try {

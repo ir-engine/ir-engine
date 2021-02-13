@@ -6,14 +6,28 @@ import { Params } from '@feathersjs/feathers';
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils';
 // import { Forbidden } from '@feathersjs/errors'
 
+/**
+ * A class for Party service 
+ * 
+ * @author Vyacheslav Solovjov
+ */
 export class Party extends Service {
   app: Application
+  docs: any
 
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options);
     this.app = app;
   }
 
+  /**
+   * A function which used to get specific party 
+   * 
+   * @param id of specific party 
+   * @param params contains user info 
+   * @returns {@Object} of single party 
+   * @author Vyacheslav Solovjov
+   */
   async get (id: string | null, params?: Params): Promise<any> {
     if (id == null) {
       const loggedInUser = extractLoggedInUserFromParams(params);

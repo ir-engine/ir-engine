@@ -1,3 +1,5 @@
+import { BinaryValue } from "../../common/enums/BinaryValue";
+import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { isClient } from "../../common/functions/isClient";
 import { DomEventBehaviorValue } from "../../common/interfaces/DomEventBehaviorValue";
 import { NumericalType } from "../../common/types/NumericalTypes";
@@ -5,32 +7,25 @@ import { Engine } from "../../ecs/classes/Engine";
 import { Entity } from "../../ecs/classes/Entity";
 import { System } from '../../ecs/classes/System';
 import { Not } from "../../ecs/functions/ComponentFunctions";
-import { getComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
-import { Client } from "../../networking/components/Client";
-import { MediaStreamComponent } from '../../networking/components/MediaStreamComponent';
-import { Network } from "../../networking/components/Network";
+import { Network } from "../../networking/classes/Network";
+import { Vault } from '../../networking/classes/Vault';
 import { NetworkObject } from "../../networking/components/NetworkObject";
-import { Vault } from '../../networking/components/Vault';
 import { NetworkClientInputInterface } from "../../networking/interfaces/WorldState";
 import { ClientInputModel } from '../../networking/schema/clientInputSchema';
+import { MediaStreamSystem } from '../../networking/systems/MediaStreamSystem';
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
-import { cleanupInput } from '../behaviors/cleanupInput';
 import { handleGamepads } from "../behaviors/GamepadInputBehaviors";
-import { handleInputOnLocalClient } from '../behaviors/handleInputOnLocalClient';
-import { handleInputPurge } from "../behaviors/handleInputPurge";
 import { startFaceTracking, stopFaceTracking } from "../behaviors/WebcamInputBehaviors";
-//import { initializeSession, processSession } from '../behaviors/WebXRInputBehaviors';
-import { addPhysics, removeWebXRPhysics, updateWebXRPhysics } from '../behaviors/WebXRControllersBehaviors';
+import { addPhysics, removeWebXRPhysics, updateWebXRPhysics } from '../behaviors/WebXRInputBehaviors';
 import { Input } from '../components/Input';
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
-import { WebXRSession } from '../components/WebXRSession';
 import { XRControllersComponent } from '../components/XRControllersComponent';
 import { InputType } from "../enums/InputType";
+import { initVR } from "../functions/WebXRFunctions";
 import { InputValue } from "../interfaces/InputValue";
 import { InputAlias } from "../types/InputAlias";
-
-
 /**
  * Input System
  *
@@ -115,18 +110,20 @@ export class InputSystem extends System {
       // Apply input to local client
       handleGamepads(entity);
 
+      // TODO: This is all messed up, why only when local user media stream is null?
+
       // apply face tracking
       if (this.localUserMediaStream === null) {
         // check to start video tracking
-        if (MediaStreamComponent.instance.mediaStream && MediaStreamComponent.instance.faceTracking) {
+        if (MediaStreamSystem.instance.mediaStream && MediaStreamSystem.instance.faceTracking) {
           console.log('start facetracking');
           startFaceTracking(entity);
-          this.localUserMediaStream = MediaStreamComponent.instance.mediaStream;
+          this.localUserMediaStream = MediaStreamSystem.instance.mediaStream;
         }
       } else {
         // check if we need to change face tracking video src
-        if (MediaStreamComponent.instance.mediaStream) {
-          if (this.localUserMediaStream !== MediaStreamComponent.instance.mediaStream) {
+        if (MediaStreamSystem.instance.mediaStream) {
+          if (this.localUserMediaStream !== MediaStreamSystem.instance.mediaStream) {
             // stream is changed
             // TODO: do update video src ...
             console.log('change facetracking src');
@@ -136,17 +133,138 @@ export class InputSystem extends System {
           console.log('stop facetracking');
           stopFaceTracking();
         }
-        this.localUserMediaStream = MediaStreamComponent.instance.mediaStream;
+        this.localUserMediaStream = MediaStreamSystem.instance.mediaStream;
       }
 
-      // startFaceTracking(entity);
-      // startLipsyncTracking(entity);
+  // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
+  const input = getMutableComponent(entity, Input);
 
-      handleInputOnLocalClient(entity, { isLocal: true, isServer: false }, delta);
+    // console.log("Handling input data for ", entity.id)
+    // console.log(input.data);
+
+  // check CHANGED/UNCHANGED axis inputs
+  input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+    if (!input.prevData.has(key)) {
+      return;
+    }
+
+    if (value.type === InputType.BUTTON) {
+      const prevValue = input.prevData.get(key);
+      if (
+          prevValue.lifecycleState === LifecycleValue.STARTED &&
+          value.lifecycleState === LifecycleValue.STARTED
+      ) {
+        // auto-switch to CONTINUED
+        value.lifecycleState = LifecycleValue.CONTINUED;
+        input.data.set(key, value);
+      }
+      return;
+    }
+
+    if (
+      value.type !== InputType.ONEDIM &&
+      value.type !== InputType.TWODIM &&
+      value.type !== InputType.THREEDIM
+    ) {
+      // skip all other inputs
+      return;
+    }
+    
+    if (value.lifecycleState === LifecycleValue.ENDED) {
+      // ENDED here is a special case, like mouse position on mouse down
+      return;
+    }
+
+    if (input.prevData.has(key)) {
+      if (JSON.stringify(value.value) === JSON.stringify(input.prevData.get(key).value)) {
+        value.lifecycleState = LifecycleValue.UNCHANGED;
+      } else {
+        value.lifecycleState = LifecycleValue.CHANGED;
+      }
+      input.data.set(key, value);
+    }
+  });
+
+  // For each input currently on the input object:
+  input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+    // If the input is a button
+    if (value.type === InputType.BUTTON) {
+      // If the input exists on the input map (otherwise ignore it)
+      if (input.schema.inputButtonBehaviors[key]) {
+        // If the button is pressed
+        if(value.value === BinaryValue.ON) {
+        // If the lifecycle hasn't been set or just started (so we don't keep spamming repeatedly)
+        if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED;
+
+        if(value.lifecycleState === LifecycleValue.STARTED) {
+          // Set the value of the input to continued to debounce
+          input.schema.inputButtonBehaviors[key].started?.forEach(element =>{
+            element.behavior(entity, element.args, delta)
+          }
+          );
+        } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
+          // If the lifecycle equal continued
+          input.schema.inputButtonBehaviors[key].continued?.forEach(element =>
+            element.behavior(entity, element.args, delta)
+          );
+        } else {
+          console.error('Unexpected lifecycleState', value.lifecycleState, LifecycleValue[value.lifecycleState]);
+        }
+      } else {
+        input.schema.inputButtonBehaviors[key].ended?.forEach(element =>
+          element.behavior(entity, element.args, delta)
+        );
+      }
+      }
+    }
+    else if (
+      value.type === InputType.ONEDIM ||
+      value.type === InputType.TWODIM ||
+      value.type === InputType.THREEDIM
+    ) {
+      if (input.schema.inputAxisBehaviors[key]) {
+        // If lifecycle hasn't been set, init it
+        if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED;
+        switch (value.lifecycleState) {
+          case LifecycleValue.STARTED:
+            // Set the value to continued to debounce
+            input.schema.inputAxisBehaviors[key].started?.forEach(element =>
+              element.behavior(entity, element.args, delta)
+            );
+            break;
+          case LifecycleValue.CHANGED:
+            // If the value is different from last frame, update it
+            input.schema.inputAxisBehaviors[key].changed?.forEach(element => {
+              element.behavior(entity, element.args, delta);
+            });
+            break;
+          case LifecycleValue.UNCHANGED:
+            input.schema.inputAxisBehaviors[key].unchanged?.forEach(element =>
+              element.behavior(entity, element.args, delta)
+            );
+            break;
+            case LifecycleValue.ENDED:
+              console.warn("Patch fix, need to handle properly: ", LifecycleValue.ENDED);
+            break;
+          default:
+            console.error('Unexpected lifecycleState', value.lifecycleState, LifecycleValue[value.lifecycleState]);
+        }
+      }
+    } else {
+      console.error('handleInput called with an invalid input type');
+    }
+  });
+
+  // store prevData
+  input.prevData.clear();
+  input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+    input.prevData.set(key, value);
+  });
+
+
       const networkId = getComponent(entity, NetworkObject)?.networkId;
       // Client sends input and *only* input to the server (for now)
       // console.log("Handling input for entity ", entity.id);
-      const input = getComponent(entity, Input);
 
       // If input is the same as last frame, return
       // if (_.isEqual(input.data, input.lastData))
@@ -165,10 +283,10 @@ export class InputSystem extends System {
         viewVector: {
           x: 0, y: 0, z: 0
         },
-        snapShotTime: Vault.instance.get().time ?? 0
+        snapShotTime: Vault.instance?.get().time - Network.instance.timeSnaphotCorrection ?? 0
       };
 
-
+      //console.warn(inputs.snapShotTime);
       // Add all values in input component to schema
       input.data.forEach((value, key) => {
         if (value.type === InputType.BUTTON)
@@ -183,26 +301,22 @@ export class InputSystem extends System {
       inputs.viewVector.x = actor.viewVector.x;
       inputs.viewVector.y = actor.viewVector.y;
       inputs.viewVector.z = actor.viewVector.z;
+      
+      Network.instance.transport.sendData(ClientInputModel.toBuffer(inputs));
 
-      if (Network.instance.packetCompression) {
-        Network.instance.transport.sendReliableData(ClientInputModel.toBuffer(inputs));
-      } else {
-        Network.instance.transport.sendReliableData(inputs);
-      }
-
-      //  const buffer = clientInputModel.toBuffer(inputs)
-      //    const inputDebbug = clientInputModel.fromBuffer(buffer)
-      //     console.warn(inputDebbug);
-      //  console.warn(JSON.stringify(inputs).length) // 241
-      //    console.warn(message.byteLength) // 56
-      // Use default channel
-
-      cleanupInput(entity);
-
+        // clean processed LifecycleValue.ENDED inputs
+      input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+        if (value.type === InputType.BUTTON) {
+          if (value.lifecycleState === LifecycleValue.ENDED) {
+            input.data.delete(key);
+          }
+        }
+      });
     });
 
     // Called when input component is added to entity
     this.queryResults.localClientInput.added?.forEach(entity => {
+      initVR(entity);
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
       if (this._inputComponent === undefined)
@@ -265,7 +379,19 @@ export class InputSystem extends System {
         return console.warn("Tried to execute on a newly added input component, but it was undefined");
       if (this._inputComponent.data.size) {
         this._inputComponent.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-          handleInputPurge(entity);
+          // For each input currently on the input object:
+            // If the input is a button
+            if (value.type === InputType.BUTTON) {
+              // If the input exists on the input map (otherwise ignore it)
+              if (this._inputComponent.schema.inputButtonBehaviors[key]) {
+                if (value.lifecycleState !== LifecycleValue.ENDED) {
+                  this._inputComponent.schema.inputButtonBehaviors[key].ended?.forEach(element =>
+                    element.behavior(entity, element.args, delta)
+                  );
+                }
+                this._inputComponent.data.delete(key);
+              }
+            }
         });
       }
 
@@ -323,19 +449,18 @@ export class InputSystem extends System {
  */
 InputSystem.queries = {
   networkClientInput: {
-    components: [NetworkObject, Input, Client, Not(LocalInputReceiver)],
+    components: [NetworkObject, Input, Not(LocalInputReceiver)],
     listen: {
       added: true,
       removed: true
     }
   },
   localClientInput: {
-    components: [Input, Client, LocalInputReceiver],
+    components: [Input, LocalInputReceiver],
     listen: {
       added: true,
       removed: true
     }
   },
-  xrSession: { components: [WebXRSession], listen: { added: true } },
   controllersComponent: { components: [XRControllersComponent], listen: { added: true, removed: true } }
 };

@@ -1,14 +1,11 @@
-import { Behavior } from "../../../common/interfaces/Behavior";
-import { Entity } from "../../../ecs/classes/Entity";
-import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
-import { CharacterComponent } from "../components/CharacterComponent";
-import { setArcadeVelocityInfluence } from "./setArcadeVelocityInfluence";
+import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
+import { getMutableComponent } from '../../../ecs/functions/EntityFunctions';
+import { CharacterComponent } from '../components/CharacterComponent';
 
-export const initializeCharacterState: Behavior = (entity: Entity) => {
+export const initializeCharacterState: Behavior = (entity, args: { x?: number, y?: number, z?: number }) => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-	// TODO: Replace with characterinitialized component
-	if(!actor.initialized) return;
-	if(actor.velocitySimulator === undefined){
+	if (!actor.initialized) return;
+	if (actor.velocitySimulator === undefined) {
 		actor.velocitySimulator.init();
 	}
 	actor.velocitySimulator.damping = actor.defaultVelocitySimulatorDamping;
@@ -22,6 +19,10 @@ export const initializeCharacterState: Behavior = (entity: Entity) => {
 	actor.canLeaveVehicles = true;
 
 	actor.arcadeVelocityIsAdditive = false;
-	setArcadeVelocityInfluence(entity, { x: 1, y: 0, z: 1 });
+	actor.arcadeVelocityInfluence.set(1, 0, 1);
+
 	actor.timer = 0;
+	actor.velocityTarget.z = args?.z ?? 0;
+	actor.velocityTarget.x = args?.x ?? 0;
+	actor.velocityTarget.y = args?.y ?? 0;
 };

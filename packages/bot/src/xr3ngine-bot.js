@@ -2,6 +2,8 @@ const  {URL} = require('url')
 const  {BrowserLauncher} = require('./browser-launcher')
 const  InBrowserBot = require('./in-browser-bot')
 const  InBrowserBotBuilder = require('./in-browser-bot-builder')
+const  fs = require('fs');
+const  getOS = require('./platform');
 
 class PageUtils {
     constructor({page, autoLog = true}) {
@@ -25,7 +27,19 @@ class PageUtils {
             let matches = Array.from(document.querySelectorAll(selector))
             let singleMatch = matches.find(button => button.id === id);
             let result;
-            if (singleMatch) result = singleMatch.click()
+            if (singleMatch && singleMatch.click) {
+                console.log('normal click');
+                result = singleMatch.click();
+            }
+            if (singleMatch && !singleMatch.click) {
+                console.log('on click');
+                result = singleMatch.dispatchEvent(new MouseEvent('click', {'bubbles': true}));
+            }
+            if (!singleMatch) {
+                console.log('event click', matches.length);
+                const m = matches[0];
+                result = m.dispatchEvent(new MouseEvent('click', {'bubbles': true}));
+            }
         }, selector, id)
     }
     async clickSelectorFirstMatch(selector) {
@@ -36,12 +50,6 @@ class PageUtils {
             let singleMatch = matches[0];
             if (singleMatch) singleMatch.click()
         }, selector)
-    }
-}
-
-class El {
-    constructor(id) {
-
     }
 }
 
@@ -58,18 +66,19 @@ class El {
  */
 class XR3ngineBot {
     constructor({
-        headless = true,
         name = "XR3ngineBot",
+        fakeMediaPath,
+        headless = true,
         autoLog = true} = {}
     ) {
-        this.headless = headless
-        this.browserLaunched = this.launchBrowser()
-        this.name = name
-        this.autoLog = autoLog
+        this.headless = headless;
+        this.name = name;
+        this.autoLog = autoLog;
+        this.fakeMediaPath = fakeMediaPath;
 
         for (let method of Object.getOwnPropertyNames(InBrowserBot.prototype))
         {
-            if (method in this) continue
+            if (method in this) continue;
 
             this[method] = (...args) => this.evaluate(InBrowserBot.prototype[method], ...args)
         }
@@ -98,7 +107,9 @@ class XR3ngineBot {
      * @param args The arguments to be passed to fn. These will be serailized when passed through puppeteer
      */
     async evaluate(fn, ...args) {
-        await this.browserLaunched
+        if (!this.browser) {
+            await this.launchBrowser();
+        }
         return await this.page.evaluate(fn, ...args)
     }
 
@@ -114,15 +125,62 @@ class XR3ngineBot {
         })
     }
 
+    /**
+     * Detect OS platform and set google chrome path.
+     */
+    detectOsOption() {
+        const os = getOS();
+        const options = {};
+        let chromePath = '';
+        switch (os) {
+            case 'Mac OS':
+                chromePath = '/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome';
+                break;
+            case 'Windows':
+                chromePath = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe';
+                break;
+            case 'Linux':
+                chromePath = '/usr/bin/google-chrome';
+                break;
+            default:
+                break;
+        }
+
+        if (chromePath) {
+            if (fs.existsSync(chromePath)) {
+                options.executablePath = chromePath;
+            }
+            else {
+                console.warn("Warning! Please install Google Chrome to make bot workiing correctly in headless mode.\n");
+            }
+        }
+        return options;
+    }
+
     /** Launches the puppeteer browser instance. It is not necessary to call this
      *  directly in most cases. It will be done automatically when needed.
      */
     async launchBrowser () {
-        console.log('Launching browser')
-        this.browser = await BrowserLauncher.browser({headless: this.headless, args: [
-            '--ignore-certificate-errors'
-        ]});
-        console.log(this.browser)
+        console.log('Launching browser');
+        const options = {
+            headless: this.headless,
+            args: [
+                "--disable-gpu",
+                "--use-fake-ui-for-media-stream=1",
+                "--use-fake-device-for-media-stream=1",
+                `--use-file-for-fake-video-capture=${this.fakeMediaPath}/video.y4m`,
+                `--use-file-for-fake-audio-capture=${this.fakeMediaPath}/audio.wav`,
+                // '--disable-web-security',
+            //     '--use-fake-device-for-media-stream',
+            //     '--use-file-for-fake-video-capture=/Users/apple/Downloads/football_qcif_15fps.y4m',
+            //     // '--use-file-for-fake-audio-capture=/Users/apple/Downloads/BabyElephantWalk60.wav',
+                '--allow-file-access=1',
+            ],
+            ignoreDefaultArgs: ['--mute-audio'],
+            ...this.detectOsOption()
+        };
+        
+        this.browser = await BrowserLauncher.browser(options);
         this.page = await this.browser.newPage();
 
         if (this.autoLog)
@@ -133,8 +191,6 @@ class XR3ngineBot {
         this.page.setViewport({ width: 1600, height: 900});
         await this.page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36')
 
-        const context = this.browser.defaultBrowserContext();
-        context.overridePermissions("https://theoverlay.io", ['microphone', 'camera'])
         this.pu = new PageUtils(this);
     }
 
@@ -146,30 +202,40 @@ class XR3ngineBot {
         await this.page.keyboard.up(keycode);
     }
 
+    async navigate(url) {
+        if (!this.browser) {
+            await this.launchBrowser();
+        }
+
+        let parsedUrl = new URL(url)
+        const context = this.browser.defaultBrowserContext();
+        console.log("permission allow for ", parsedUrl.origin);
+        context.overridePermissions(parsedUrl.origin, ['microphone', 'camera']);
+
+        console.log('Going to ' + url);
+        await this.page.goto(url, {waitUntil: 'domcontentloaded'});
+
+        const granted = await this.page.evaluate(async () => {
+            return (await navigator.permissions.query({name: 'camera'})).state;
+          });
+        console.log('Granted:', granted);
+    }
+
     /** Enters the room specified, enabling the first microphone and speaker found
      * @param {string} roomUrl The url of the room to join
      * @param {Object} opts
      * @param {string} opts.name Name to set as the bot name when joining the room
      */
     async enterRoom(roomUrl, {name = 'bot'} = {}) {
-        await this.browserLaunched
+        await this.navigate(roomUrl);
+        await this.page.waitForSelector("button.join_world", { timeout: 100000})
 
-        let parsedUrl = new URL(roomUrl)
-        const context = this.browser.defaultBrowserContext();
-        context.overridePermissions(parsedUrl.origin, ['microphone', 'camera'])
-
-        if (name)
-        {
+        if (name) {
             this.name = name
         }
-        else
-        {
+        else {
             name = this.name
         }
-
-        console.log('Going to ' + roomUrl);
-        this.page.goto(roomUrl, {waitUntil: 'domcontentloaded'})
-        await this.page.waitForSelector("button.join_world", { timeout: 60000})
 
         if (this.headless) {
             // Disable rendering for headless, otherwise chromium uses a LOT of CPU
@@ -193,6 +259,14 @@ class XR3ngineBot {
         // window.APP.hubChannel.channel.on('message', callback)
     }
 
+    async waitForTimeout(timeout) {
+        return this.page.waitForTimeout(timeout);
+    }
+
+    async waitForSelector(selector, timeout) {
+        return this.page.waitForSelector(selector, { timeout });
+    }
+
     async clickElementByClass(elemType, classSelector) {
         await this.pu.clickSelectorClassRegex(elemType || 'button', classSelector);
     }
@@ -205,6 +279,9 @@ class XR3ngineBot {
         await this.page.keyboard.type(message);
     }
 
+    async setFocus(selector) {
+        await this.page.focus(selector);
+    }
     /**
      * Creates an {@link InBrowserBotBuilder} to allow building a bot for use in the
      * developer console.
@@ -225,8 +302,12 @@ class XR3ngineBot {
      * Leaves the room and closes the browser instance without exiting node
      */
     quit() {
-        this.page.close()
-        this.browser.close()
+        if (this.page) {
+            this.page.close();
+        }
+        if (this.browser) {
+            this.browser.close();
+        }
     }
 }
 

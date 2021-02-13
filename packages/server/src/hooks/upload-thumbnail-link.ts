@@ -24,7 +24,6 @@ export default (options = {}): Hook => {
       };
 
       params.mimeType = params.file.mimetype = 'image/' + extension;
-      params.subscriptionLevel = context.data.subscriptionLevel;
       context.data.name = params.file.originalname;
       context.data.metadata = context.data.metadata ? context.data.metadata : {};
       context.data.parentResourceId = params.parentResourceId;

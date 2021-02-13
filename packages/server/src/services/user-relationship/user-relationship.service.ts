@@ -5,6 +5,7 @@ import createModel from '../../models/user-relationship.model';
 import hooks from './user-relationship.hooks';
 import { Op } from 'sequelize';
 import logger from '../../app/logger';
+import userRalationshipDocs from './user-ralationship.docs';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -18,8 +19,15 @@ export default (app: Application): any => {
     paginate: app.get('paginate'),
     multi: true
   };
-
-  app.use('/user-relationship', new UserRelationship(options, app));
+  
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
+  const event = new UserRelationship(options, app);
+  event.docs = userRalationshipDocs;
+  app.use('/user-relationship', event);
 
   const service = app.service('user-relationship');
 

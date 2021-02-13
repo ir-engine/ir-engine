@@ -4,6 +4,7 @@ import { GroupUser } from './group-user.class';
 import createModel from '../../models/group-user.model';
 import hooks from './group-user.hooks';
 import logger from '../../app/logger';
+import groupUserDocs from './group-user.docs';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -18,12 +19,26 @@ export default (app: Application): any => {
     multi: true
   };
 
-  app.use('/group-user', new GroupUser(options, app));
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
+  const event = new GroupUser(options, app);
+  event.docs = groupUserDocs;
+  app.use('/group-user', event);
 
   const service = app.service('group-user');
 
   service.hooks(hooks);
 
+  /**
+   * A method which is used to create group user
+   * 
+   * @param data which is parsed to create group user  
+   * @returns created group user
+   * @author Vyacheslav Solovjov
+   */
   service.publish('created', async (data): Promise<any> => {
     try {
       await app.service('group').emit('refresh', {
@@ -74,6 +89,13 @@ export default (app: Application): any => {
     }
   });
 
+  /**
+   * A method used to update group user 
+   * 
+   * @param data which is used to update group user 
+   * @returns updated GroupUser data 
+   * @author Vyacheslav Solovjov
+   */
   service.publish('patched', async (data): Promise<any> => {
     try {
       const channel = await app.service('channel').Model.findOne({
@@ -123,6 +145,13 @@ export default (app: Application): any => {
     }
   });
 
+  /**
+   * A method used to remove specific groupUser 
+   * 
+   * @param data which contains groupId
+   * @returns deleted channel data 
+   * @author Vyacheslav Solovjov
+   */
   service.publish('removed', async (data): Promise<any> => {
     try {
       const channel = await app.service('channel').Model.findOne({

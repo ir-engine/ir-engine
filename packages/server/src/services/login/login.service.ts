@@ -5,6 +5,7 @@ import { Login } from './login.class';
 import hooks from './login.hooks';
 import config from '../../config';
 import logger from '../../app/logger';
+import loginDocs from './login.docs';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -30,10 +31,20 @@ export default (app: Application): any => {
     paginate: app.get('paginate')
   };
 
-  // Initialize our service with any options it requires
-  app.use('/login', new Login(options, app), redirect);
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
+  const event = new Login(options, app);
+  event.docs = loginDocs;
+  app.use('/login', event, redirect);
 
-  // Get our initialized service so that we can register hooks
+  /**
+   * Get our initialized service so that we can register hooks
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const service = app.service('login');
 
   service.hooks(hooks);

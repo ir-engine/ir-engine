@@ -1,0 +1,150 @@
+.anchorDrawer{
+    z-index: 1301;
+    right: 0px;
+    cursor: pointer;
+    padding: 0px;
+    position: absolute;
+    width: 81px;
+    height: 53px;
+    top: 18px;
+    background-image: url('../Icons/ll_hamburger.png');
+    background-position: 30% center;
+    background-repeat: no-repeat; 
+    -webkit-tap-highlight-color: transparent;
+    :active{
+        -webkit-tap-highlight-color: transparent;
+    }
+}
+.drawer{
+    display: flex; 
+    h1{
+        padding-right: 55px;
+    }  
+    h3, h2, h1{
+        >svg{
+            margin: 0 5px 0 0;
+            cursor: pointer;
+        }
+    }
+    .subContainer{
+        margin: 30px 0 0 0;
+    }
+}    
+.avatarCountainer{
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    height: auto;
+    .avatarPreviewWrapper{
+        width: 46%;
+        cursor: pointer;
+        margin: 2%;    
+        flex-grow: 0; 
+        .avatarPreview{
+            width: 100%;
+            height: 100%;
+        }
+    }
+}
+
+.deleteAccountButtons {
+    display: flex;
+}
+
+.header {
+    text-align: center;
+}
+
+.placeholder{
+    flex-grow: 1;
+}
+.linkField{
+    display: none;
+}
+
+.userTitle{
+    width: 100%;
+    display: flex;  
+    cursor: pointer;
+    align-items: center;
+
+    :global(.MuiSvgIcon-root).userPreview{
+        margin: 5px;
+        flex-grow: 0;
+        width: 1.5em;
+        height: 1.5em;
+        cursor: pointer;
+    }
+    .userTitleLine{
+       flex-grow: 1;
+       display: flex;
+       flex-direction: column;
+       font-size: 18px;
+        padding-right: 60px;
+        svg{
+            margin: 0px 5px;
+            cursor: pointer;
+        }
+       .userTitleRole{
+           font-style: italic;
+       }
+    }    
+}
+.locationInfo{
+    display: flex;
+    align-content: center;
+    flex-direction: column;
+    margin-top: 20px;
+    width: 100%;
+    height: auto;
+    min-height: 15em;
+    background-color: #DDDDDD;
+    border-radius: 4px;
+    word-break: break-all;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    .sceneName{
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 4px;
+        box-sizing: border-box;
+        padding: 10px 20px;
+        width: 80%;
+        font-size: 20px;
+        margin: 10px auto;
+    }
+
+    .sceneLink{
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 4px;
+        box-sizing: border-box;
+        padding: 10px 20px;
+        width: fit-content;
+        max-width: 90%;
+        margin: 10px auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;        
+    }
+}
+.socialSection{
+    margin: 40px 0px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+}
+.autoWidth{
+    width: auto !important;
+    margin: 0px 5px !important;
+}
+
+.horizontalContainer{
+    display: flex;
+    margin: 10px 0 0 0;
+    h2{
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+    }
+}

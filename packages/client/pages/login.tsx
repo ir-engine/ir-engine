@@ -1,13 +1,10 @@
-import React, { useEffect } from 'react';
-//import './Admin.module.scss';
-import {Button} from '@material-ui/core';
-import NoSSR from 'react-no-ssr';
+import Layout from '@xr3ngine/client-core/components/ui/Layout/OverlayLayout';
+import { selectAuthState } from "@xr3ngine/client-core/redux/auth/selector";
+import { doLoginAuto } from '@xr3ngine/client-core/redux/auth/service';
+import { selectInstanceConnectionState } from '@xr3ngine/client-core/redux/instanceConnection/selector';
+import React from 'react';
 import { connect } from "react-redux";
-import {bindActionCreators, Dispatch} from "redux";
-import Layout from '../components/ui/Layout';
-import { selectAuthState } from "../redux/auth/selector";
-import { selectInstanceConnectionState } from '../redux/instanceConnection/selector';
-import { doLoginAuto } from '../redux/auth/service';
+import { bindActionCreators, Dispatch } from "redux";
 
 interface Props {
     authState?: any;

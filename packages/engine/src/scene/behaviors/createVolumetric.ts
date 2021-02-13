@@ -3,7 +3,7 @@ import DracosisPlayer from '@xr3ngine/volumetric/src/Player';
 import { Engine } from '../../ecs/classes/Engine';
 import VolumetricComponent from "../components/VolumetricComponent"
 import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { Network } from '../../networking/components/Network';
+import { Network } from '../../networking/classes/Network';
 export const createVolumetric: Behavior = (entity, args: { objArgs }) => {
     console.warn("Handle volumetric, args are", args);
     if(Network.instance.transport.isServer) return console.warn("Skipping volumetric setup on server");

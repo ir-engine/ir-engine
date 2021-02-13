@@ -1,11 +1,10 @@
-import { Engine } from '../../ecs/classes/Engine';
-import { SceneTagComponent } from '../../common/components/Object3DTagComponents';
-import { addComponent, createEntity, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { SceneObjectLoadingSchema } from '../constants/SceneObjectLoadingSchema';
-import { PhysicsManager } from '../../physics/components/PhysicsManager';
 import { AssetLoader } from '../../assets/components/AssetLoader';
 import { isClient } from "../../common/functions/isClient";
+import { Engine } from '../../ecs/classes/Engine';
 import { Entity } from "../../ecs/classes/Entity";
+import { addComponent, createEntity, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { SceneTagComponent } from '../components/Object3DTagComponents';
+import { SceneObjectLoadingSchema } from '../constants/SceneObjectLoadingSchema';
 import { SceneData } from "../interfaces/SceneData";
 import { SceneDataComponent } from "../interfaces/SceneDataComponent";
 
@@ -13,6 +12,8 @@ export function loadScene(scene: SceneData): void {
   const loadPromises = [];
   let loaded = 0;
   if (isClient) {
+    console.warn(Engine.scene);
+    console.warn(scene);
     const event = new CustomEvent('scene-loaded-entity', { detail: { left: loadPromises.length } });
     document.dispatchEvent(event);
   }
@@ -24,6 +25,7 @@ export function loadScene(scene: SceneData): void {
       loadComponent(entity, component);
       if (isClient && component.name === 'gltf-model') {
         const loaderComponent = getMutableComponent(entity, AssetLoader);
+        loaderComponent.entityIdFromScenaLoader = sceneEntity;
         loadPromises.push(new Promise((resolve, reject) => {
           if (loaderComponent.onLoaded === null || loaderComponent.onLoaded === undefined) {
           }
@@ -33,10 +35,13 @@ export function loadScene(scene: SceneData): void {
             document.dispatchEvent(event);
           });
         }));
+      } else if (!isClient && component.name === 'gltf-model') {
+        const loaderComponent = getMutableComponent(entity, AssetLoader);
+        loaderComponent.entityIdFromScenaLoader = sceneEntity;
       }
     });
   });
-  //PhysicsManager.instance.simulate = true;
+  //PhysicsSystem.simulate = true;
 
   isClient && Promise.all(loadPromises).then(() => {
     const event = new CustomEvent('scene-loaded', { detail: { loaded: true } });
@@ -69,7 +74,7 @@ export function loadComponent(entity: Entity, component: SceneDataComponent): vo
     // run behavior after load model
     if ((b as any).onLoaded) values['onLoaded'] = (b as any).onLoaded;
     // Invoke behavior with args and spread args
-    b.behavior(entity, { ...b.args, objArgs: { ...values } });
+    b.behavior(entity, { ...b.args, objArgs: { ...b.args?.objArgs, ...values } });
   });
 
   // for each component in component name, add component

@@ -13,7 +13,7 @@ services:
     restart: always
     environment:
       PORT: 3030
-      # take care, db not localhost, because compose uses an intenal DNS
+      # take care, db not 127.0.0.1, because compose uses an intenal DNS
       MYSQL_URL: mysql://server:password@db:3306/xr3ngine 
     ports:
       - '3030:3030'

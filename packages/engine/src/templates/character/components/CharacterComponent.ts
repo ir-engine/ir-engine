@@ -4,15 +4,14 @@ import { Component } from '../../../ecs/classes/Component';
 import { Vector3, Group, Material, AnimationMixer, Mesh, BoxBufferGeometry, AnimationAction } from 'three';
 import { CapsuleCollider } from '../../../physics/components/CapsuleCollider';
 import { VectorSpringSimulator } from '../../../physics/classes/VectorSpringSimulator';
-import { RelativeSpringSimulator } from '../../../physics/classes/RelativeSpringSimulator';
+import { RelativeSpringSimulator } from '../../../physics/classes/SpringSimulator';
 import { RaycastResult, Vec3 } from 'cannon-es';
 
 // idle|   idle  +  walk     |    walk      |    walk + run     |   run
 // 0   | > WALK_START_SPEED  | > WALK_SPEED | > RUN_START_SPEED | > RUN_SPEED
-export const WALK_START_SPEED = 0.1;
-export const WALK_SPEED = 2;
-export const RUN_START_SPEED = 3;
-export const RUN_SPEED = 5;
+export const START_SPEED = 1;
+export const WALK_SPEED = 1;
+export const RUN_SPEED = 2;
 
 export class CharacterComponent extends Component<CharacterComponent> {
 
@@ -20,21 +19,24 @@ export class CharacterComponent extends Component<CharacterComponent> {
     super.dispose();
 		this.modelContainer.parent.remove(this.modelContainer);
 		//this.modelContainer = null;
-		this.tiltContainer = null;
+        this.tiltContainer = null;
+        // this.cameraMount = null;
   }
 
 	public initialized = false;
 
 // TODO: Move these... but for now...
-	public currentAnimationAction: AnimationAction = null;
+	public currentAnimationAction: AnimationAction[] = [];
 	public currentAnimationLength = 0;
 	public timer = 0;
-	public animationsTimeScale = 0.7;
-
+	public animationsTimeScale = 1;
+  public avatarId:string
 	public height = 0;
+	// public cameraMount: Group;
 	public tiltContainer: Group;
 	public modelContainer: Group;
 	public materials: Material[] = [];
+  public visible = true;
 	public mixer: AnimationMixer;
 	public animations: any[]  = [];
 
@@ -99,11 +101,56 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	canEnterVehicles: boolean;
 	canLeaveVehicles: boolean;
   	alreadyJumped: boolean;
-  rotationSpeed: any;
+	rotationSpeed: any;
 
+  model: any
+  options: {}
+  skinnedMeshes: any[]
+  flipZ: boolean
+  flipY: boolean
+  flipLeg: boolean
+  allHairBones: any[]
+  hairBones: any[]
+  fingerBones: any
+  tailBones: any
+  armature: any
+  skeleton: any
+  Eye_L: any
+  Eye_R: any
+  Head: any
+  Neck: any
+  Chest: any
+  Hips: any
+  Spine: any
+  Left_shoulder: any
+  Left_wrist: any
+  Left_elbow: any
+  Left_arm: any
+  Right_shoulder: any
+  Right_wrist: any
+  Right_elbow: any
+  Right_arm: any
+
+  modelBones: any
+  poseManager: any
+  shoulderTransforms: any
+  legsManager: any
+  inputs: any
+  shoulderWidth: any
+  leftArmLength: any
+  rightArmLength: any
+  lastModelScaleFactor: number
+  lastTimestamp: number
+  decapitated: boolean
+  modelBoneOutputs: any
+  volume: number
+	outputs: any
+	
+	update: any
 }
 
 CharacterComponent._schema = {
 	tiltContainer: { type: Types.Ref, default: null },
+	// cameraMount: { type: Types.Ref, default: null },
 	//modelContainer: { type: Types.Ref, default: null }
 };

@@ -87,7 +87,6 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
     this._canonicalUrl = src || "";
     this.helper.visible = false;
     this.hideErrorIcon();
-    // this.showLoadingCube();
     if (this.editor.playing) {
       (this.el as any).pause();
     }

@@ -4,6 +4,7 @@ import { Channel } from './channel.class';
 import createModel from '../../models/channel.model';
 import hooks from './channel.hooks';
 import logger from '../../app/logger';
+import channelDocs from './channel.docs';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -18,12 +19,26 @@ export default (app: Application): any => {
     paginate: app.get('paginate')
   };
 
-  app.use('/channel', new Channel(options, app));
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
+  const event =  new Channel(options, app);
+  event.docs = channelDocs;
+  app.use('/channel', event);
 
   const service = app.service('channel');
 
   service.hooks(hooks);
 
+  /**
+   * A method which is used to create channel 
+   * 
+   * @param data which is parsed to create channel 
+   * @returns created channel data 
+   * @author Vyacheslav Solovjov
+   */
   service.publish('created', async (data): Promise<any> => {
     try {
       let targetIds;
@@ -175,6 +190,13 @@ export default (app: Application): any => {
     }
   });
 
+  /**
+   * A method used to update channel 
+   * 
+   * @param data which is used to update channel
+   * @returns updated channel data
+   * @author Vyacheslav Solovjov
+   */
   service.publish('patched', async (data): Promise<any> => {
     try {
       let targetIds;
@@ -326,6 +348,13 @@ export default (app: Application): any => {
     }
   });
 
+  /**
+   * A method used to remove specific channel 
+   * 
+   * @param data which contains userId! and userId2
+   * @returns deleted channel data 
+   * @author Vyacheslav Solovjov
+   */
   service.publish('removed', async (data): Promise<any> => {
     let targetIds;
     if (data.channelType === 'user') {

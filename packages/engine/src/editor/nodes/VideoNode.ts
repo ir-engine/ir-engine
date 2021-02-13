@@ -2,7 +2,7 @@ import EditorNodeMixin from "./EditorNodeMixin";
 import Video from "../../scene/classes/Video";
 import Hls from "hls.js/dist/hls.light";
 import isHLS from "../functions/isHLS";
-// import editorLandingVideo from "../../assets/video/EditorPromo.mp4";
+// import editorLandingVideo from ;
 import { RethrownError } from "../functions/errors";
 import { getObjectPerfIssues } from "../functions/performance";
 
@@ -80,7 +80,6 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     this.issues = [];
     this._mesh.visible = false;
     this.hideErrorIcon();
-    // this.showLoadingCube();
     if (this.editor.playing) {
       (this.el as any).pause();
     }

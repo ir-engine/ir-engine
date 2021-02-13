@@ -3,6 +3,7 @@ import { Application } from '../../declarations';
 import { GroupUserRank } from './group-user-rank.class';
 import createModel from '../../models/group-user-rank.model';
 import hooks from './group-user-rank.hooks';
+import groupUserRankDocs from './group-user-rank.docs';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -17,7 +18,14 @@ export default (app: Application): any => {
     multi: true
   };
 
-  app.use('/group-user-rank', new GroupUserRank(options, app));
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
+  const event = new GroupUserRank(options, app);
+  event.docs = groupUserRankDocs;
+  app.use('/group-user-rank', event);
 
   const service = app.service('group-user-rank');
 

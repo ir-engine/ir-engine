@@ -187,7 +187,7 @@ export class Sky extends Object3D {
   static geometry = new BoxBufferGeometry(1, 1, 1);
   skyScene: Scene;
   cubeCamera: CubeCamera;
-  sky: Mesh<BoxBufferGeometry, ShaderMaterial>;
+  sky: Mesh;
   _inclination: number;
   _azimuth: number;
   _distance: number;
@@ -213,34 +213,34 @@ export class Sky extends Object3D {
     this.updateSunPosition();
   }
   get turbidity() {
-    return this.sky.material.uniforms.turbidity.value;
+    return (this.sky.material as ShaderMaterial).uniforms.turbidity.value;
   }
   set turbidity(value) {
-    this.sky.material.uniforms.turbidity.value = value;
+    (this.sky.material as ShaderMaterial).uniforms.turbidity.value = value;
   }
   get rayleigh() {
-    return this.sky.material.uniforms.rayleigh.value;
+    return (this.sky.material as ShaderMaterial).uniforms.rayleigh.value;
   }
   set rayleigh(value) {
-    this.sky.material.uniforms.rayleigh.value = value;
+    (this.sky.material as ShaderMaterial).uniforms.rayleigh.value = value;
   }
   get luminance() {
-    return this.sky.material.uniforms.luminance.value;
+    return (this.sky.material as ShaderMaterial).uniforms.luminance.value;
   }
   set luminance(value) {
-    this.sky.material.uniforms.luminance.value = value;
+    (this.sky.material as ShaderMaterial).uniforms.luminance.value = value;
   }
   get mieCoefficient() {
-    return this.sky.material.uniforms.mieCoefficient.value;
+    return (this.sky.material as ShaderMaterial).uniforms.mieCoefficient.value;
   }
   set mieCoefficient(value) {
-    this.sky.material.uniforms.mieCoefficient.value = value;
+    (this.sky.material as ShaderMaterial).uniforms.mieCoefficient.value = value;
   }
   get mieDirectionalG() {
-    return this.sky.material.uniforms.mieDirectionalG.value;
+    return (this.sky.material as ShaderMaterial).uniforms.mieDirectionalG.value;
   }
   set mieDirectionalG(value) {
-    this.sky.material.uniforms.mieDirectionalG.value = value;
+    (this.sky.material as ShaderMaterial).uniforms.mieDirectionalG.value = value;
   }
   get inclination() {
     return this._inclination;
@@ -270,7 +270,7 @@ export class Sky extends Object3D {
     const x = distance * Math.cos(phi);
     const y = distance * Math.sin(phi) * Math.sin(theta);
     const z = distance * Math.sin(phi) * Math.cos(theta);
-    this.sky.material.uniforms.sunPosition.value.set(x, y, z).normalize();
+    (this.sky.material as ShaderMaterial).uniforms.sunPosition.value.set(x, y, z).normalize();
     this.sky.scale.set(distance, distance, distance);
   }
   generateEnvironmentMap(renderer: WebGLRenderer) {

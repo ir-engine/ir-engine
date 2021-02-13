@@ -3,15 +3,15 @@
  * @packageDocumentation
  */
 
+import { AudioListener, Clock, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
+import { CSM } from '../../assets/csm/CSM.js';
+import { ServerSpawnSystem } from "../../scene/systems/SpawnSystem";
+import { TransformComponent } from '../../transform/components/TransformComponent';
 import { EngineOptions } from '../interfaces/EngineOptions';
+import { Entity } from './Entity';
 import { EntityPool } from './EntityPool';
 import { EventDispatcher } from './EventDispatcher';
 import { Query } from './Query';
-import { WebGLRenderer, PerspectiveCamera, Scene, Clock, AudioListener,  } from 'three';
-import { Entity } from './Entity';
-import { CameraOperator } from '../../camera/classes/CameraOperator';
-import { TransformComponent } from '../../transform/components/TransformComponent';
-import { ServerSpawnSystem } from "../../scene/systems/SpawnSystem";
 
 /** 
  * This is the base class which holds all the data related to the scene, camera,system etc.\
@@ -22,6 +22,7 @@ export class Engine {
   public static engineTimer: { start: Function; stop: Function } = null
   public static engineTimerTimeout;
 
+  public static engineIKTimer: { start: Function; stop: Function } = null
   //public static stats: Stats
   // Move for sure
   // public static sky: Sky;
@@ -44,7 +45,6 @@ export class Engine {
   public static accumulator: number;
   public static justExecuted: boolean;
   public static params: any;
-  public static cameraOperator: CameraOperator;
   /**
    * @default 1
    */
@@ -56,6 +56,7 @@ export class Engine {
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static renderer: WebGLRenderer = null
+  static csm: CSM = null
   static xrSession: any = null
   static xrReferenceSpace = null
   static context = null
