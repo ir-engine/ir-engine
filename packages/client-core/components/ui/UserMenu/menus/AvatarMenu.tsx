@@ -8,7 +8,7 @@ import { getAvatarURL, SettingMenuProps } from '../util';
 
 const AvatarMenu = (props: any): any => {
 	const MAX_AVATARS_PER_PAGE = 6;
-	const MIN_AVATARS_PER_PAGE = 5;
+	const MIN_AVATARS_PER_PAGE = 4;
 
 	const getAvatarPerPage = () => window.innerWidth > 768 ? MAX_AVATARS_PER_PAGE : MIN_AVATARS_PER_PAGE;
 

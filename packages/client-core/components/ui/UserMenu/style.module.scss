@@ -159,7 +159,7 @@
     .menuPanel {
         position: absolute;
         bottom: 75px;
-        padding: 30px;
+        padding: 0 30px;
         border-radius: 5px;
         background: #ffffffe8;
         width: calc(100% - 50px);
@@ -167,6 +167,10 @@
         transform: translateX(-50%);
         box-shadow: 16px 16px 32px 0px #11111159;
         color: black;
+        max-height: calc(100vh - 175px);
+        overflow: auto;
+
+        &>.profilePanel, &>.accountPanel, &>.settingPanel, &>.sharePanel { margin: 30px 0; }
 
         .profilePanel {
             display: flex;
@@ -332,9 +336,151 @@
             }
         }
 
+        .sharePanel {
+            position: relative;;
+            .panelHeader {
+                font-size: 18px;
+                font-weight: bold;
+            }
+            .shareLink {
+                font-size: 16px;
+                color: #454D9A;
+                font-weight: 700;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: auto;
+                margin-bottom: 20px;
+                width: 100%;
+                height: 24px !important;
+                border: none;
+                background: transparent;
+                scrollbar-width: none; /* IE */
+                resize: none;
+                outline: none !important;
+                -ms-overflow-style: none; /* Firefox */
+                &::-webkit-scrollbar { 
+                    display: none;  /* Safari and Chrome */
+                }
+            }
+            .copyBtn {
+                width: 100px;
+                height: 35px;
+                background: #5F5FF1;
+                position: absolute;
+                top: -9px;
+                right: 0;
+                margin: 0;
+
+                .materialIconBlock {
+                    width: 16px;
+                    height: 16px;
+                    margin-left: 5px;
+                }
+
+                &:hover { opacity: 0.8; }
+            }
+            .emailField {
+                margin-top: 10px;
+                width: 100%;
+                input {
+                    color: black;
+                }
+                :global(.MuiInputAdornment-root) { color: #5F5FF1; cursor: pointer; &:hover { opacity: 0.8; } }
+            }
+            .shareBtnContainer {
+                margin-top: 15px;
+                text-align: center;
+                .shareBtn {
+                    width: 100px;
+                    height: 35px;
+                    background: #5F5FF1;
+                    &:hover { opacity: 0.8; }
+                }
+            }
+        }
+
+        .accountPanel {
+            position: relative;;
+            .panelHeader {
+                font-size: 18px;
+                font-weight: bold;
+            }
+            .materialIconBlock {
+                width: 24px;
+                height: 24px;
+                margin-right: 15px;
+                color: #5F5FF1;
+                cursor: pointer;
+                position: relative;
+
+                svg {
+                    position: relative;
+                    z-index: 1;
+                }
+
+                &::before {
+                    content: ' '; 
+                    position: absolute;;
+                    width: 0px;
+                    height: 0px;
+                    border-radius: 20px;
+                    background: #5F5FF1;
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
+                    transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
+                }
+                &:hover {
+                    color: #fff;
+
+                    &::before {
+                        width: 35px;
+                        height: 35px;
+                    }
+                }
+            }
+            .emailField {
+                margin-top: 10px;
+                margin-bottom: 20px;
+                width: 100%;
+                input {
+                    color: black;
+                }
+                :global(.MuiInputAdornment-root) { color: #5F5FF1; cursor: pointer; &:hover { opacity: 0.8; } }
+            }
+
+            .socialContainer {
+                display: flex;
+                justify-content: space-evenly;
+                margin: 20px 0;
+
+                svg {
+                    height: 40px;
+                    width: 40px;
+                    flex-shrink: 0.9;
+                    margin: 0 5px;
+                    cursor: pointer;
+                    &:hover { opacity: 0.8; }
+                }
+            }
+
+            .textBlock {
+                font-size: 14px;
+                font-weight: normal;
+                text-align: center;
+                display: block;
+            }
+            .smallTextBlock {
+                font-size: 12px;
+                font-weight: normal;
+                text-align: center;
+                display: block;
+            }
+        }
+
         @media screen and (min-width: 768px) {
             width: 600px;
-            padding: 30px 50px;
+            padding: 0 50px;
             min-height: 208px;
 
             .profilePanel {
@@ -384,8 +530,7 @@
     .avatarPanel {
         position: absolute;
         bottom: 75px;
-        padding: 20px;
-        padding-top: 40px;
+        padding: 0 20px;
 
         border-radius: 5px;
         background: #ffffffe8;
@@ -393,6 +538,12 @@
         right: 100px;
         box-shadow: 16px 16px 32px 0px #11111159;
         color: black;
+
+        max-height: calc(100vh - 175px);
+        overflow: auto;
+
+        &>.avatarContainer{ margin-top: 40px; }
+        &>.controlContainer{ margin-bottom: 10px; }
 
         .avatarContainer{
             display: flex;
@@ -451,7 +602,6 @@
 
         .controlContainer {
             margin-top: 10px;
-            margin-bottom: -10px;
             display: flex;
             justify-content: space-between;
 
@@ -498,7 +648,7 @@
 
         @media screen and (min-width: 768px) {
             width: 320px;
-            padding-top: 20px;
+            &>.avatarContainer{ margin-top: 25px; }
 
             .avatarContainer {
                 .avatarPreviewWrapper {

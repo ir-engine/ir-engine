@@ -55,7 +55,7 @@ const ProfileMenu = (props: any): any => {
 				</div>
 				<div className={styles.accountBlock}>
 					<h2>You are a <span>{props.userRole}</span>.</h2>
-					<Button className={styles.createAccountBtn}>Create Account</Button>
+					<Button className={styles.createAccountBtn} onClick={props.openAccountMenu}>Create Account</Button>
 				</div>
 			</section>
 		</div>
