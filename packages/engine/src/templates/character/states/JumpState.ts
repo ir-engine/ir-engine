@@ -57,14 +57,14 @@ export const JumpState: StateSchemaValue = {
         actor.currentAnimationAction.forEach(currentAnimationAction => {
           if(currentAnimationAction.getClip().name === newAction.getClip().name) return;
           console.log("Fading out current animation action");
-          currentAnimationAction.fadeOut(.1);
+          currentAnimationAction.fadeOut(transitionDuration);
           currentAnimationAction.setEffectiveWeight(0);
         } )
 
         newAction
           .reset()
           .setEffectiveWeight(1)
-          .fadeIn(.1)
+          .fadeIn(transitionDuration)
           .play();
           console.log("New action is ", newAction);
 
