@@ -1,6 +1,6 @@
 import Layout from '@xr3ngine/client-core/components/ui/Layout/OverlayLayout';
 import { selectAuthState } from "@xr3ngine/client-core/redux/auth/selector";
-import { doLoginAuto } from '@xr3ngine/client-core/redux/auth/service';
+import { doLoginAuto, resetPassword } from '@xr3ngine/client-core/redux/auth/service';
 import { selectInstanceConnectionState } from '@xr3ngine/client-core/redux/instanceConnection/selector';
 import React from 'react';
 import { connect } from "react-redux";
@@ -36,7 +36,7 @@ export const IndexPage = (props: any): any => {
 
   return(
   <ThemeProvider theme={theme}>
-      <FlatSignIn logo="/assets/LogoColored.png" />
+      <FlatSignIn resetPassword={resetPassword} logo="/assets/LogoColored.png" />
     </ThemeProvider>
   );
 };
