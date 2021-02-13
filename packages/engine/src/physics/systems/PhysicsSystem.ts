@@ -1,5 +1,5 @@
 import CANNON, { Body, ContactMaterial, Material, SAPBroadphase, Shape, Vec3, World } from 'cannon-es';
-import THREE, { Matrix4, Mesh, Quaternion, Vector3 } from 'three';
+import { Matrix4, Mesh, Quaternion, Vector3 } from 'three';
 import { appplyVectorMatrixXZ } from '../../common/functions/appplyVectorMatrixXZ';
 import { cannonFromThreeVector } from '../../common/functions/cannonFromThreeVector';
 import { getSignedAngleBetweenVectors } from '../../common/functions/getSignedAngleBetweenVectors';
@@ -270,12 +270,12 @@ function haveDifferentSigns(n1: number, n2: number): boolean {
   return (n1 < 0) !== (n2 < 0);
 }
 
-function threeFromCannonVector(vec: CANNON.Vec3): THREE.Vector3 {
-  return new THREE.Vector3(vec.x, vec.y, vec.z);
+function threeFromCannonVector(vec: CANNON.Vec3): Vector3 {
+  return new Vector3(vec.x, vec.y, vec.z);
 }
 
-function threeFromCannonQuat(quat: CANNON.Quaternion): THREE.Quaternion {
-  return new THREE.Quaternion(quat.x, quat.y, quat.z, quat.w);
+function threeFromCannonQuat(quat: CANNON.Quaternion): Quaternion {
+  return new Quaternion(quat.x, quat.y, quat.z, quat.w);
 }
 
  const physicsPostStep: Behavior = (entity): void => {	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);

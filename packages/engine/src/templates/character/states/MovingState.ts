@@ -11,7 +11,7 @@ import { trySwitchToJump } from "../behaviors/trySwitchToJump";
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { AnimationConfigInterface, CharacterAvatars, defaultAvatarAnimations } from "../CharacterAvatars";
 import { CharacterStateTypes } from '../CharacterStateTypes';
-import { CharacterComponent, RUN_SPEED, START_SPEED, WALK_SPEED } from '../components/CharacterComponent';
+import { CharacterComponent, RUN_SPEED, WALK_SPEED } from '../components/CharacterComponent';
 
 const {
   IDLE,
@@ -129,20 +129,12 @@ export const MovingState: StateSchemaValue = {
         // If we're not standing still...
         if (absSpeed > 0.01) {
           if (isWalking) {
-            if (absSpeed <= START_SPEED) {
-              stateWeights.walk = MathUtils.smoothstep(absSpeed, 0, START_SPEED);
+              stateWeights.walk = MathUtils.smoothstep(absSpeed * WALK_SPEED, 0, 1);
               stateWeights.idle = 1 - stateWeights.walk;
-            } else {
-              stateWeights.idle = 0;
-              stateWeights.walk = 1;
-            }
           }
-          else if (absSpeed <= START_SPEED) {
-            stateWeights.run = MathUtils.smoothstep(absSpeed, 0, START_SPEED);
+          else {
+            stateWeights.run = MathUtils.smoothstep(absSpeed * RUN_SPEED, 0, 1);
             stateWeights.idle = 1 - stateWeights.run;
-          } else {
-            stateWeights.idle = 0;
-            stateWeights.run = 1;
           }
         } else {
           stateWeights.idle = 1;
