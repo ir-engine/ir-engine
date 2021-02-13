@@ -9,12 +9,13 @@ import { Facebook } from '@styled-icons/bootstrap/Facebook';
 import Fab from '@material-ui/core/Fab';
 
 import styles from './Login.module.scss';
-import { loginUserByOAuth } from '../../../redux/auth/service';
+import { loginUserByOAuth, resetPassword } from '../../../redux/auth/service';
 import RegisterApp from '../../ui/Auth/RegisterApp';
 import { ForgotPassword } from '../../ui/Auth/ForgotPasswordApp';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
+import { ResetPassword } from "../../ui/Auth/ResetPasswordApp";
 
 const config = getConfig().publicRuntimeConfig;
 
@@ -23,7 +24,8 @@ const mapStateToProps = (state: any): any => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  loginUserByOAuth: bindActionCreators(loginUserByOAuth, dispatch)
+  loginUserByOAuth: bindActionCreators(loginUserByOAuth, dispatch),
+  resetPassword: bindActionCreators(resetPassword, dispatch),
 });
 
 interface Props {
@@ -34,6 +36,7 @@ interface Props {
   loginUserByOAuth?: typeof loginUserByOAuth;
   logo: string;
   isAddConnection?: boolean;
+  resetPassword: typeof resetPassword;
 }
 
 const FlatSignIn = (props: Props) => {
@@ -63,7 +66,28 @@ const FlatSignIn = (props: Props) => {
 let component = null;
 let footer = null;
 switch (view) {
-  case 'login' : component = <>{userTabPanel}
+    case 'sign-up': component = <RegisterApp />;                      
+                    footer = <>{!props.isAddConnection &&  (
+                      <p>
+                        Have an account? 
+                        <span onClick={()=>setView('login')}> Log in</span>
+                      </p>
+                    )} </>; break;
+    case 'forget-password': component = <><ForgotPassword /><span onClick={()=>setView('reset-password')}> Reset Password Fake button (here would be a link from email)</span></>;
+                  footer = <>{!props.isAddConnection &&  (
+                    <p>
+                      Don&apos;t have an account? 
+                      <span onClick={()=>setView('sign-up')}> Sign Up</span>
+                    </p>
+                  )}</>;
+                  break;          
+    case 'reset-password': component = <><ResetPassword resetPassword={resetPassword} token={''} completeAction={()=>setView('login')} /><span className={styles.placeholder} /></>;                  
+                  footer = <>{!props.isAddConnection &&  (
+                    <p></p>
+                  )} </>;break;
+
+    //login by default
+    default: component = <>{userTabPanel}
       <Typography variant="h3" align="right" onClick={()=>setView('forget-password')}>Forgot password?</Typography>  
       </>; 
       footer = <>{!props.isAddConnection &&  (
@@ -73,22 +97,6 @@ switch (view) {
         </p>
       )}</>;
       break;
-
-    case 'sign-up': component = <RegisterApp />;                      
-          footer = <>{!props.isAddConnection &&  (
-                    <p>
-                      Have an account? 
-                      <span onClick={()=>setView('login')}> Log in</span>
-                    </p>
-                  )} </>; break;
-      case 'forget-password': component = <ForgotPassword />;
-          footer = <>{!props.isAddConnection &&  (
-                <p>
-                  Don&apos;t have an account? 
-                  <span onClick={()=>setView('sign-up')}> Sign Up</span>
-                </p>
-              )}</>;
-              break;
   }
 
   return <section className={styles.loginPage}>
