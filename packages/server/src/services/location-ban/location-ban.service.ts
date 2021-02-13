@@ -5,6 +5,7 @@ import { LocationBan } from './location-ban.class';
 import createModel from '../../models/location-ban.model';
 import hooks from './location-ban.hooks';
 import logger from '../../app/logger';
+import locationBanDocs from './location-ban.docs';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -19,10 +20,20 @@ export default function (app: Application): void {
     paginate: app.get('paginate')
   };
 
-  // Initialize our service with any options it requires
-  app.use('/location-ban', new LocationBan(options, app));
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
+  const event = new LocationBan(options, app);
+  event.docs = locationBanDocs;
+  app.use('/location-ban', event);
 
-  // Get our initialized service so that we can register hooks
+  /**
+   * Get our initialized service so that we can register hooks
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const service = app.service('location-ban');
 
   service.hooks(hooks);

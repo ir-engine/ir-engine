@@ -1,21 +1,20 @@
+import { BinaryValue } from "@xr3ngine/engine/src/common/enums/BinaryValue";
 import { Entity } from "../../../ecs/classes/Entity";
-import { DefaultInput } from "../../shared/DefaultInput";
-import { BinaryValue } from "../../../common/enums/BinaryValue";
-import { addState } from "../../../state/behaviors/addState";
-import { CharacterStateTypes } from "../CharacterStateTypes";
 import { getComponent } from "../../../ecs/functions/EntityFunctions";
 import { Input } from "../../../input/components/Input";
-import { isMovingByInputs } from "../functions/isMovingByInputs";
+import { setState } from "../../../state/behaviors/setState";
+import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
+import { CharacterStateTypes } from "../CharacterStateTypes";
+import { CharacterComponent } from "../components/CharacterComponent";
 
 export const trySwitchToJump = (entity: Entity): boolean => {
+  if (getComponent(entity, CharacterComponent).alreadyJumped) return;
   const input = getComponent(entity, Input);
-  if (input.data.has(DefaultInput.JUMP) && input.data.get(DefaultInput.JUMP).value === BinaryValue.ON) {
 
-    if (isMovingByInputs(entity)) {
-      addState(entity, { state: CharacterStateTypes.JUMP_RUNNING });
-    } else {
-      addState(entity, { state: CharacterStateTypes.JUMP_IDLE });
-    }
+  if (input.data.has(BaseInput.JUMP) && input.data.get(BaseInput.JUMP).value === BinaryValue.ON) {
+
+    setState(entity, { state: CharacterStateTypes.JUMP });
+
 
     return true;
   }

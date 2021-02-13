@@ -5,6 +5,7 @@ import createModel from '../../models/user.model';
 import hooks from './user.hooks';
 import _ from 'lodash';
 import logger from '../../app/logger';
+import userDocs from './user.docs';
 
 declare module '../../declarations' {
 
@@ -25,39 +26,7 @@ export default (app: Application): void => {
   };
 
   const event = new User(options, app);
-  event.docs = {
-    getUser: {
-     description: 'A service for users',
-     definitions: {
-       user_list: {
-         type: 'object',
-         properties: {
-           name: {
-             type: 'string',
-             description: ''
-           },
-           avatarId: {
-             type: 'string',
-             description: ''
-           }
-         }
-       },
-       user: {
-         type: 'object',
-         required: ['name', 'avatarId'],
-         properties: {
-             name:{
-                 type: 'string',
-             },
-             avatarId: {
-                 type: 'string'
-             }
-         }
-       }
-     }
-   },
- 
- };
+  event.docs = userDocs;
 
   app.use('/user', event);
 

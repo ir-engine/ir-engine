@@ -23,7 +23,7 @@ const jsUnitSaucelabs = new JSUnitSaucelabs({
   build: process.env.TRAVIS_JOB_ID
 })
 
-const testURL = 'http://localhost:3000/js/tests/index.html?hidepassed'
+const testURL = 'http://127.0.0.1:3000/js/tests/index.html?hidepassed'
 const browsersFile = require(path.resolve(__dirname, './sauce_browsers.json'))
 const errorMessages = [
   'Test exceeded maximum duration',

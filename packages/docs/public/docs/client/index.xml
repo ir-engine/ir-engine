@@ -1,8 +1,8 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>The Overlay – Client</title>
+    <title>XR3ngine – Client</title>
     <link>/docs/client/</link>
-    <description>Recent content in Client on The Overlay</description>
+    <description>Recent content in Client on XR3ngine</description>
     <generator>Hugo -- gohugo.io</generator>
     
 	  <atom:link href="/docs/client/index.xml" rel="self" type="application/rss+xml" />
@@ -25,33 +25,9 @@
         
 
 &lt;div class=&#34;pageinfo pageinfo-primary&#34;&gt;
-&lt;p&gt;This is a placeholder page that shows you how to use this template site.&lt;/p&gt;
 
 &lt;/div&gt;
 
-&lt;h1 id=&#34;contacts-and-groups&#34;&gt;Contacts and Groups&lt;/h1&gt;
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-3d-ui.png&#34; alt=&#34;3d-ui&#34; title=&#34;3d-ui&#34;&gt;
-&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-3d-ui-2.png&#34; alt=&#34;3d-ui-2&#34; title=&#34;3d-ui-2&#34;&gt;
-&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-3d-ui-detail.png&#34; alt=&#34;3d-ui-detail&#34; title=&#34;3d-ui-detail&#34;&gt;
-&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-3d-ui-logged-out.png&#34; alt=&#34;3d-ui-logged-out&#34; title=&#34;3d-ui-logged-out&#34;&gt;&lt;/p&gt;
-&lt;h2 id=&#34;contacts&#34;&gt;Contacts&lt;/h2&gt;
-&lt;p&gt;Find By Handle&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-friends-list.png&#34; alt=&#34;friends-list&#34; title=&#34;friends-list&#34;&gt;&lt;/p&gt;
-&lt;h2 id=&#34;organizations&#34;&gt;Organizations&lt;/h2&gt;
-&lt;p&gt;Find By Name&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-group-external.png&#34; alt=&#34;group-external&#34; title=&#34;group-external&#34;&gt;
-&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-group-members.png&#34; alt=&#34;group-members&#34; title=&#34;group-members&#34;&gt;
-&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-group-overview.png&#34; alt=&#34;group-overview&#34; title=&#34;group-overview&#34;&gt;&lt;/p&gt;
-&lt;h2 id=&#34;parties&#34;&gt;Parties&lt;/h2&gt;
-&lt;p&gt;Find By Contacts&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-party.png&#34; alt=&#34;party&#34; title=&#34;party&#34;&gt;&lt;/p&gt;
-&lt;h2 id=&#34;invites&#34;&gt;Invites&lt;/h2&gt;
-&lt;p&gt;From Contacts, Organizations, Parties
-&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-share-modal.png&#34; alt=&#34;share-modal&#34; title=&#34;share-modal&#34;&gt;&lt;/p&gt;
-&lt;h2 id=&#34;messages&#34;&gt;Messages&lt;/h2&gt;
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-messages-friends-alt.png&#34; alt=&#34;messages-friends-alt&#34; title=&#34;messages-friends-alt&#34;&gt;
-&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-messages-friends.png&#34; alt=&#34;messages-friends&#34; title=&#34;messages-friends&#34;&gt;
-&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-messages.png&#34; alt=&#34;messages&#34; title=&#34;messages&#34;&gt;&lt;/p&gt;
 
       </description>
     </item>
@@ -68,12 +44,9 @@
         
 
 &lt;div class=&#34;pageinfo pageinfo-primary&#34;&gt;
-&lt;p&gt;This is a placeholder page that shows you how to use this template site.&lt;/p&gt;
 
 &lt;/div&gt;
 
-&lt;p&gt;If your project has an API, configuration, or other reference - anything that users need to look up that’s at an even lower level than a single task - put (or link to it) here. You can serve and link to generated reference docs created using Doxygen,
-Javadoc, or other doc generation tools by putting them in your &lt;code&gt;static/&lt;/code&gt; directory. Find out more in &lt;a href=&#34;https://docsy.dev/docs/adding-content/content/#adding-static-content&#34;&gt;Adding static content&lt;/a&gt;. For OpenAPI reference, Docsy also provides a &lt;a href=&#34;https://www.docsy.dev/docs/adding-content/shortcodes/#swaggerui&#34;&gt;Swagger UI layout and shortcode&lt;/a&gt; that renders &lt;a href=&#34;https://swagger.io/tools/swagger-ui/&#34;&gt;Swagger UI&lt;/a&gt; using any OpenAPI YAML or JSON file as source.&lt;/p&gt;
 
       </description>
     </item>
@@ -90,177 +63,9 @@ Javadoc, or other doc generation tools by putting them in your &lt;code&gt;stati
         
 
 &lt;div class=&#34;pageinfo pageinfo-primary&#34;&gt;
-&lt;p&gt;This is asss placeholder page that shows you how to use this template site.&lt;/p&gt;
 
 &lt;/div&gt;
 
-&lt;h1 id=&#34;processing&#34;&gt;Processing&lt;/h1&gt;
-&lt;p&gt;Web Media Best Practices
-&lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/Media/Formats&#34;&gt;https://developer.mozilla.org/en-US/docs/Web/Media/Formats&lt;/a&gt;
-&lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs&#34;&gt;https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs&lt;/a&gt;
-&lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Audio_codecs&#34;&gt;https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Audio_codecs&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;DASH Encoding
-&lt;a href=&#34;https://en.wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP&#34;&gt;https://en.wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP&lt;/a&gt;
-&lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/HTML/DASH_Adaptive_Streaming_for_HTML_5_Video&#34;&gt;https://developer.mozilla.org/en-US/docs/Web/HTML/DASH_Adaptive_Streaming_for_HTML_5_Video&lt;/a&gt;&lt;/p&gt;
-&lt;h1 id=&#34;types&#34;&gt;Types&lt;/h1&gt;
-&lt;h2 id=&#34;scenes&#34;&gt;Scenes&lt;/h2&gt;
-&lt;h2 id=&#34;avatars&#34;&gt;Avatars&lt;/h2&gt;
-&lt;p&gt;Curated Avatars
-Avatar Format Support / Upload
-Advanced Skeleton with IK&lt;/p&gt;
-&lt;h2 id=&#34;3d-models&#34;&gt;3D Models&lt;/h2&gt;
-&lt;p&gt;Input:		OBJ, FBX, GLTF, GLB&lt;/p&gt;
-&lt;p&gt;Output:	GLB 				&amp;gt; 10MB&lt;/p&gt;
-&lt;h2 id=&#34;video&#34;&gt;Video&lt;/h2&gt;
-&lt;p&gt;Input:&lt;/p&gt;
-&lt;p&gt;Output:	720p&lt;/p&gt;
-&lt;h2 id=&#34;360-video&#34;&gt;360 Video&lt;/h2&gt;
-&lt;p&gt;Input:		Equiangular, EAC&lt;/p&gt;
-&lt;p&gt;Output:	Equiangular 1080p, EAC 1080p&lt;/p&gt;
-&lt;h2 id=&#34;volumetric&#34;&gt;Volumetric&lt;/h2&gt;
-&lt;p&gt;ThreeVolumetric
-Microsoft
-4DViews
-Generic OBJ/GLTF Sequence
-Video Stream HLS/Dash
-Demo - Stage&lt;/p&gt;
-&lt;h2 id=&#34;image&#34;&gt;Image&lt;/h2&gt;
-&lt;p&gt;Input:		PNG, JPG&lt;/p&gt;
-&lt;p&gt;Output:	PNG&lt;/p&gt;
-&lt;h2 id=&#34;audio&#34;&gt;Audio&lt;/h2&gt;
-&lt;p&gt;Input: 	AAC, MP3, WAV&lt;/p&gt;
-&lt;p&gt;Output:	AAC&lt;/p&gt;
-
-      </description>
-    </item>
-    
-    <item>
-      <title>Docs: Testing</title>
-      <link>/docs/client/04-testing/</link>
-      <pubDate>Wed, 04 Jan 2017 00:00:00 +0000</pubDate>
-      
-      <guid>/docs/client/04-testing/</guid>
-      <description>
-        
-        
-        
-
-&lt;div class=&#34;pageinfo pageinfo-primary&#34;&gt;
-&lt;p&gt;This is asss placeholder page that shows you how to use this template site.&lt;/p&gt;
-
-&lt;/div&gt;
-
-&lt;h2 id=&#34;phone&#34;&gt;Phone&lt;/h2&gt;
-&lt;h2 id=&#34;desktop&#34;&gt;Desktop&lt;/h2&gt;
-&lt;h2 id=&#34;vr&#34;&gt;VR&lt;/h2&gt;
-&lt;h2 id=&#34;ar&#34;&gt;AR&lt;/h2&gt;
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-map.png&#34; alt=&#34;map&#34; title=&#34;map&#34;&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-map-logged-out.png&#34; alt=&#34;map-logged-out&#34; title=&#34;map-logged-out&#34;&gt;&lt;/p&gt;
-&lt;p&gt;Menu Button: Reveals links to user preferences, room controls and other useful information.
-Mute: Turns on/off your microphone.
-Share Room: Opens a dialog box with information on sharing the room with friends. More info provided in the Share Room Dialog section at the bottom of this page.
-Object Browser: Displays a list of the media items that exist in the room. Click on the objects in the list for further options.
-Member list: Displays information on the people in the room and lobby. Shows the number of room members, their names, and their device type. You can also access advanced user controls from this list.
-Help: Opens resources to learn about Hubs.&lt;/p&gt;
-&lt;p&gt;Chat: Allows you to communicate via text chat, create objects or enter commands, including:
-/leave - Disconnect from the room
-/debug Toggle physics debug rendering
-/vrstats Toggle stats in VR
-/scene &lt;scene url&gt; Change the scene (moderators only)
-/rename &lt;new name&gt; Rename the room (moderators only)
-Favorite Room: Saves the room to your list of favorites, making it easy to find when you return to Hubs.
-Share Room Dialog
-Enter room on Wired in device&lt;/p&gt;
-&lt;p&gt;The share room dialog gives you the information you need to share with others for them to join you in the room. You can use the numeric code to share a link verbally, share the current room URL or the shortened hub.link URL. Note that codes expire after 72 hours.&lt;/p&gt;
-&lt;p&gt;A checkbox on the invite dialog allows you to sign up for notifications that alert you when another user has entered the room. You can sign up for notifications on your phone or desktop. You do not need to remain in the room to receive notifications.&lt;/p&gt;
-&lt;h2 id=&#34;settings&#34;&gt;Settings&lt;/h2&gt;
-&lt;p&gt;On the dash
-Microphone
-Volume - Speech
-Volume - World
-Visual Quality&lt;/p&gt;
-&lt;p&gt;In the full menu&lt;/p&gt;
-&lt;p&gt;Audio
-Microphone Input
-Speech Output
-World Output&lt;/p&gt;
-&lt;p&gt;Visual
-Material Quality: High / Medium / Low
-Textures: Ultra Low (¼), Medium(½), High(Full size)
-Post Processing: On/Off
-Render Distance: Low, Medium, High&lt;/p&gt;
-&lt;p&gt;Gameplay
-Enable stats.js&lt;/p&gt;
-&lt;p&gt;FPS
-Invert Axis
-X: On/Off
-Y: On/Off
-Device Override: WebXR, Desktop, Mobile&lt;/p&gt;
-
-      </description>
-    </item>
-    
-    <item>
-      <title>Docs: Deployment</title>
-      <link>/docs/client/07-deployment/</link>
-      <pubDate>Wed, 04 Jan 2017 00:00:00 +0000</pubDate>
-      
-      <guid>/docs/client/07-deployment/</guid>
-      <description>
-        
-        
-        
-
-&lt;div class=&#34;pageinfo pageinfo-primary&#34;&gt;
-&lt;p&gt;This is asss placeholder page that shows you how to use this template site.&lt;/p&gt;
-
-&lt;/div&gt;
-
-&lt;p&gt;Tutorials are &lt;strong&gt;complete worked examples&lt;/strong&gt; made up of &lt;strong&gt;multiple tasks&lt;/strong&gt; that guide the user through a relatively simple but realistic scenario: building an application that uses some of your project’s features, for example. If you have already created some Examples for your project you can base Tutorials on them. This section is &lt;strong&gt;optional&lt;/strong&gt;. However, remember that although you may not need this section at first, having tutorials can be useful to help your users engage with your example code, especially if there are aspects that need more explanation than you can easily provide in code comments.&lt;/p&gt;
-
-      </description>
-    </item>
-    
-    <item>
-      <title>Docs: Integrations</title>
-      <link>/docs/client/08-integrations/</link>
-      <pubDate>Wed, 04 Jan 2017 00:00:00 +0000</pubDate>
-      
-      <guid>/docs/client/08-integrations/</guid>
-      <description>
-        
-        
-        
-
-&lt;div class=&#34;pageinfo pageinfo-primary&#34;&gt;
-&lt;p&gt;This is asss placeholder page that shows you how to use this template site.&lt;/p&gt;
-
-&lt;/div&gt;
-
-&lt;p&gt;Editor Stuff&lt;/p&gt;
-
-      </description>
-    </item>
-    
-    <item>
-      <title>Docs: Contributing</title>
-      <link>/docs/client/09-contributing/</link>
-      <pubDate>Wed, 04 Jan 2017 00:00:00 +0000</pubDate>
-      
-      <guid>/docs/client/09-contributing/</guid>
-      <description>
-        
-        
-        
-
-&lt;div class=&#34;pageinfo pageinfo-primary&#34;&gt;
-&lt;p&gt;This is asss placeholder page that shows you how to use this template site.&lt;/p&gt;
-
-&lt;/div&gt;
-
-&lt;p&gt;&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-help.png&#34; alt=&#34;help&#34; title=&#34;help&#34;&gt;
-&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-settings.png&#34; alt=&#34;settings&#34; title=&#34;settings&#34;&gt;
-&lt;img src=&#34;https://xr3ngine.github.io/img/xrc-advanced-settings.png&#34; alt=&#34;advanced-settings&#34; title=&#34;advanced-settings&#34;&gt;&lt;/p&gt;
 
       </description>
     </item>

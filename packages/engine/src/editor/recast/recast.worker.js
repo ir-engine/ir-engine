@@ -3,8 +3,7 @@ import Recast from "./recast";
 // TODO: The worker script is exported as string as a workaround to create worker with webpack and nextjs. Implement better solution.
 export default `
 // Adding modules and dependencies to worker global scope 
-
-self._scriptDir = '${document.currentScript.src}'
+self._scriptDir = '${document.currentScript ? document.currentScript.src : ''}'
 self.Recast = ${Recast}
 
 // Script

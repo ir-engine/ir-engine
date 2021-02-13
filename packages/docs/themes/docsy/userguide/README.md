@@ -55,4 +55,4 @@ Once you've cloned the site repo, from the repo root folder, run:
 hugo server
 ```
 
-Navigate to http://localhost:1313/td/docs/getting-started/ to read the theme documentation.
+Navigate to http://127.0.0.1:1313/td/docs/getting-started/ to read the theme documentation.

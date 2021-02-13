@@ -7,18 +7,40 @@ interface Data {}
 
 interface ServiceOptions {}
 
+/**
+ * accept invite class for get, create, update and remove user invite
+ * 
+ */
 export class AcceptInvite implements ServiceMethods<Data> {
   app: Application
   options: ServiceOptions
+  docs: any
 
   constructor (options: ServiceOptions = {}, app: Application) {
     this.options = options;
     this.app = app;
   }
 
+  /**
+   * A function which help to find all accept invite and display it
+   * 
+   * @param params number of limit and skip for pagination
+   * Number should be passed as query parmas
+   * @returns {@Array} all listed invite 
+   * @author Vyacheslav Solovjov
+   */
   async find (params?: Params): Promise<Data[] | Paginated<Data>> {
     return [];
   }
+
+  /**
+   * A funtion which display specific accept invite 
+   * 
+   * @param id of specific accept invite
+   * @param params query which contain passcode 
+   * @returns {@Object} contains single invite 
+   * @author Vyacheslav Solovjov
+   */
 
   async get (id: Id, params?: Params): Promise<Data> {
     if (params.query.t) {
@@ -175,6 +197,13 @@ export class AcceptInvite implements ServiceMethods<Data> {
     }
   }
 
+  /**
+   * A function for creating invite 
+   * 
+   * @param data which will be used for creating new accept invite 
+   * @param params 
+   * @author Vyacheslav Solovjov
+   */
   async create (data: Data, params?: Params): Promise<Data> {
     if (Array.isArray(data)) {
       return await Promise.all(data.map(current => this.create(current, params)));
@@ -183,14 +212,39 @@ export class AcceptInvite implements ServiceMethods<Data> {
     return data;
   }
 
+  /**
+   * A function to update accept invite
+   * 
+   * @param id of specific accept invite 
+   * @param data for updating accept invite 
+   * @param params 
+   * @returns Data
+   * @author Vyacheslav Solovjov
+   */
   async update (id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data;
   }
 
+  /**
+   * A function for updating accept invite 
+   * 
+   * @param id of specific accept invite 
+   * @param data for updaing accept invite 
+   * @param params 
+   * @returns Data
+   * @author Vyacheslav Solovjov
+   */
   async patch (id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data;
   }
 
+  /**
+   * A function for removing accept invite 
+   * @param id of specific accept invite 
+   * @param params 
+   * @returns id 
+   * @author Vyacheslav Solovjov
+   */
   async remove (id: NullableId, params?: Params): Promise<Data> {
     return { id };
   }

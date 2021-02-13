@@ -1,13 +1,11 @@
 import { degreeLerp, lerp, quatSlerp, radianLerp } from '../../common/functions/MathLerpFunctions';
 import { randomId } from '../../common/functions/MathRandomFunctions';
 import { Quat } from '../../networking/types/SnapshotDataTypes';
-import { NetworkInterpolation } from '../components/NetworkInterpolation';
 import { InterpolatedSnapshot, Snapshot, StateEntityGroup, StateEntity, Time, Value } from '../types/SnapshotDataTypes';
+import { NetworkInterpolation } from '../classes/NetworkInterpolation';
 
-/** Snapshot interpolation functions, based on this library by yandeu
- * https://github.com/geckosio/snapshot-interpolation */
-
-export function snapshot () {
+/** Get snapshot factory. */
+export function snapshot(): any {
   return {
     /** Create the snapshot on the server. */
     create: (state: StateEntityGroup ): Snapshot => createSnapshot(state),
@@ -17,7 +15,11 @@ export function snapshot () {
 }
 
 
-/** Create a new Snapshot */
+/**
+ * Create a new Snapshot.
+ * @param state State of the world or client to be stored in this snapshot.
+ * @returns Newly created snapshot.
+ */
 export function createSnapshot (state: StateEntityGroup): Snapshot {
 //  console.log("state is");
 //  console.log(state);
@@ -37,10 +39,15 @@ export function createSnapshot (state: StateEntityGroup): Snapshot {
   return {
     id: randomId(),
     time: Date.now(),
-    state: state
+    state: state,
+    timeCorrection: 0
   };
 }
 
+/**
+ * Add snapshot into vault.
+ * @param snapshot Snapshot to be added into the vault.
+ */
 export function addSnapshot (snapshot: Snapshot): void {
   if (NetworkInterpolation.instance.timeOffset === -1) {
     // the time offset between server and client is calculated,
@@ -52,6 +59,16 @@ export function addSnapshot (snapshot: Snapshot): void {
   NetworkInterpolation.instance.add(snapshot);
 }
 
+/**
+ * Interpolate between two snapshots.
+ * @param snapshotA First snapshot to interpolate from.
+ * @param snapshotB Second snapshot to interpolate to.
+ * @param timeOrPercentage How far to interpolate from first snapshot.
+ * @param parameters On which param interpolation should be applied.
+ * @param deep
+ *
+ * @returns Interpolated snapshot.
+ */
 export function interpolate (
   snapshotA: Snapshot,
   snapshotB: Snapshot,
@@ -155,7 +172,13 @@ export function interpolate (
   return interpolatedSnapshot;
 }
 
-/** Get the calculated interpolation on the client. */
+/**
+ * Get the calculated interpolation on the client.
+ * @param parameters On which param interpolation should be applied.
+ * @param arrayName
+ *
+ * @returns Interpolated snapshot.
+ */
 export function calculateInterpolation (parameters: string, arrayName = ''): InterpolatedSnapshot | undefined {
   // get the snapshots [_interpolationBuffer] ago
   const serverTime = Date.now() - NetworkInterpolation.instance.timeOffset - NetworkInterpolation.instance._interpolationBuffer;

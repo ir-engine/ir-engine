@@ -140,13 +140,13 @@ This section lists configuration specific for server, client components.
 | client.extraEnv.SITE_TITLE | string | `"MyXR"` |  |
 | rts.extraEnv.NAF_LISTEN_PORT | string | `"8081"` |  |
 | server.extraEnv.APP_HOST | string | `"http://api.xr3ngine.local/"` |  |
-| server.extraEnv.FACEBOOK_CALLBACK_URL | string | `"http://localhost:3000/oauth/facebook"` |  |
+| server.extraEnv.FACEBOOK_CALLBACK_URL | string | `"http://127.0.0.1:3000/oauth/facebook"` |  |
 | server.extraEnv.FACEBOOK_CLIENT_ID | string | `nil` |  |
 | server.extraEnv.FACEBOOK_CLIENT_SECRET | string | `nil` |  |
-| server.extraEnv.GITHUB_CALLBACK_URL | string | `"http://localhost:3000/oauth/github"` |  |
+| server.extraEnv.GITHUB_CALLBACK_URL | string | `"http://127.0.0.1:3000/oauth/github"` |  |
 | server.extraEnv.GITHUB_CLIENT_ID | string | `nil` |  |
 | server.extraEnv.GITHUB_CLIENT_SECRET | string | `nil` |  |
-| server.extraEnv.GOOGLE_CALLBACK_URL | string | `"http://localhost:3000/oauth/google"` |  |
+| server.extraEnv.GOOGLE_CALLBACK_URL | string | `"http://127.0.0.1:3000/oauth/google"` |  |
 | server.extraEnv.GOOGLE_CLIENT_ID | string | `nil` |  |
 | server.extraEnv.GOOGLE_CLIENT_SECRET | string | `nil` |  |
 | server.extraEnv.MAIL_FROM | string | `"noreply@xr3ngine.local"` |  |

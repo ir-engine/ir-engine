@@ -10,11 +10,7 @@ export default function mergeMeshGeometries(meshes) {
   const geometries = [];
   for (const mesh of meshes) {
     let geometry = mesh.geometry;
-    let attributes = geometry.attributes;
-    if (!geometry.isBufferGeometry) {
-      geometry = new BufferGeometry().fromGeometry(geometry);
-      attributes = geometry.attributes;
-    }
+    const attributes = geometry.attributes;
     if (!attributes.position) {
       continue;
     }

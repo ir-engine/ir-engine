@@ -34,8 +34,8 @@
   "jest": "ts-jest",
   "scripts": {
     "start": "yarn run build && node dist/server.js",
-    "dev": "cross-env NODE_ENV=development webpack --watch --mode=development",
-    "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true webpack --watch --mode=development",
+    "dev": "cross-env NODE_ENV=development concurrently \"webpack --watch --mode=development\" \"nodemon --inspect dist/server.js -w dist\"",
+    "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true concurrently \"webpack --watch --mode=development\" \"nodemon --inspect dist/server.js -w dist\"",
     "build": "cross-env NODE_ENV=production webpack --mode=production",
     "copyfiles-server": "copyfiles -u 2 src/email-templates/**/* lib/email-templates",
     "test": "echo \"TODO: no test specified\" && exit 0",
@@ -80,6 +80,7 @@
     "socket.io": "2.4.1"
   },
   "dependencies": {
+    "@alt3/sequelize-to-json-schemas": "^0.3.54",
     "@apollo/link-ws": "^2.0.0-beta.3",
     "@eclass/sequelize-graphql-tools": "^4.1.0",
     "@feathersjs/adapter-commons": "^4.5.2",
@@ -107,6 +108,7 @@
     "cannon-es-debugger": "^0.0.4",
     "chargebee": "^2.5.7",
     "clean-webpack-plugin": "^3.0.0",
+    "comlink": "^4.3.0",
     "copyfiles": "^2.3.0",
     "cors": "^2.8.5",
     "cross-blob": "^2.0.0",
@@ -189,7 +191,7 @@
     "nodemon": "^2.0.5",
     "ts-loader": "^8.0.5",
     "typedoc": "^0.20.16",
-    "typescript": "^3.9.7",
+    "typescript": "^4.0.3",
     "webpack": "^5.1.0",
     "webpack-cli": "^4.0.0",
     "webpack-dev-server": "^3.11.0",

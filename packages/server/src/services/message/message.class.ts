@@ -7,11 +7,19 @@ import { Op } from 'sequelize';
 
 export class Message extends Service {
   app: Application
+  docs: any
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options);
     this.app = app;
   }
 
+  /**
+   * A function which is used to create a message 
+   * 
+   * @param data for new message 
+   * @param params contain user info 
+   * @returns {@Object} created message 
+   */
   async create (data: any, params: Params): Promise<any> {
     let channel, channelId;
     let userIdList = [];

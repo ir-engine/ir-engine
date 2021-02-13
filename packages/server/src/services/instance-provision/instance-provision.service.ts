@@ -3,6 +3,7 @@ import { ServiceAddons } from '@feathersjs/feathers';
 import logger from '../../app/logger';
 import { Application } from '../../declarations';
 import { InstanceProvision } from './instance-provision.class';
+import instanceProvisionDocs from './instance-provision.docs';
 import hooks from './instance-provision.hooks';
 
 // Add this service to the service type index
@@ -17,14 +18,30 @@ export default (app: Application): any => {
     paginate: app.get('paginate')
   };
 
-  // Initialize our service with any options it requires
-  app.use('/instance-provision', new InstanceProvision(options, app));
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
+  const event = new InstanceProvision(options, app);
+  event.docs = instanceProvisionDocs;
+  app.use('/instance-provision', event);
 
-  // Get our initialized service so that we can register hooks
+  /**
+   * Get our initialized service so that we can register hooks
+   */
   const service = app.service('instance-provision');
 
   service.hooks(hooks);
 
+
+  /**
+   * A method which is used to create instance provinsion 
+   * 
+   * @param data which is parsed to create instance provinsion 
+   * @returns created instance provinsion 
+   * @author Vyacheslav Solovjov
+   */
   service.publish('created', async (data): Promise<any> => {
     try {
       console.log('Publishing instance-provision created to ' + data.userId);
@@ -32,7 +49,8 @@ export default (app: Application): any => {
         ipAddress: data.ipAddress,
         port: data.port,
         locationId: data.locationId,
-        sceneId: data.sceneId
+        sceneId: data.sceneId,
+        channelId: data.channelId
       });
     } catch (err) {
       logger.error(err);

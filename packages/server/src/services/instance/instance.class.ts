@@ -4,11 +4,22 @@ import {Params} from "@feathersjs/feathers";
 import {extractLoggedInUserFromParams} from "../auth-management/auth-management.utils";
 import { Forbidden } from "@feathersjs/errors";
 
+/**
+ * A class for Intance service 
+ * 
+ * @author Vyacheslav Solovjov
+ */
 export class Instance extends Service {
+  docs: any
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options);
   }
-
+ /**
+  * A method which find instance of user 
+  * 
+  * @param params of query with an acton or user role 
+  * @returns user object
+  */
   async find (params: Params): Promise<any> {
     const action = params.query?.action;
     if (action === 'admin') {

@@ -1,25 +1,20 @@
-import { Quaternion, Box, Cylinder, Sphere, Vec3, RaycastVehicle, Body } from 'cannon-es';
-import { Entity } from '../../ecs/classes/Entity';
-import { Behavior } from '../../common/interfaces/Behavior';
-import { getMutableComponent, getComponent } from '../../ecs/functions/EntityFunctions';
-import { Object3DComponent } from '../../common/components/Object3DComponent';
-import { TransformComponent } from '../../transform/components/TransformComponent';
-import { AssetLoader } from "@xr3ngine/engine/src/assets/components/AssetLoader";
-import { PhysicsManager } from '../components/PhysicsManager';
-import { VehicleBody } from '../../physics/components/VehicleBody';
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { createTrimesh } from './physicalPrimitives';
-import { CollisionGroups } from "../enums/CollisionGroups";
 import { cannonFromThreeVector } from "@xr3ngine/engine/src/common/functions/cannonFromThreeVector";
-
-const quaternion = new Quaternion();
+import { Body, RaycastVehicle, Sphere, Vec3 } from 'cannon-es';
+import { Behavior } from '../../common/interfaces/Behavior';
+import { Entity } from '../../ecs/classes/Entity';
+import { getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { VehicleBody } from '../../physics/components/VehicleBody';
+import { TransformComponent } from '../../transform/components/TransformComponent';
+import { CollisionGroups } from "../enums/CollisionGroups";
+import { PhysicsSystem } from '../systems/PhysicsSystem';
+import { createTrimesh } from './physicalPrimitives';
 
 export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
   if (args.phase == 'onAdded') {
+    
     const vehicleComponent = getMutableComponent(entity, VehicleBody);
     const vehicle = createVehicleBody(entity);
     vehicleComponent.vehiclePhysics = vehicle;
-
 
   } else if (args.phase == 'onUpdate') {
 
@@ -31,29 +26,31 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
       const vehicle = vehicleComponent.vehiclePhysics;
       const chassisBody = vehicle.chassisBody;
       const wheels = vehicleComponent.arrayWheelsMesh;
+      const carSpeed = vehicle.currentVehicleSpeedKmHour;
+      const forceStop = vehicleComponent.mass / 4;
 
-
-      if (vehicle.currentVehicleSpeedKmHour > 1) {
-        vehicle.applyEngineForce(10, 0);
-        vehicle.applyEngineForce(10, 1);
-        vehicle.applyEngineForce(10, 2);
-        vehicle.applyEngineForce(10, 3);
-      } else if (vehicle.currentVehicleSpeedKmHour < -1) {
-        vehicle.applyEngineForce(-10, 0);
-        vehicle.applyEngineForce(-10, 1);
-        vehicle.applyEngineForce(-10, 2);
-        vehicle.applyEngineForce(-10, 3);
-      } else if (vehicle.currentVehicleSpeedKmHour != 0) {
-      //  vehicle.chassisBody.velocity.set(0,0,0)
-
-        vehicle.setBrake(0.5, 0);
-        vehicle.setBrake(0.5, 1);
-        vehicle.setBrake(0.5, 2);
-        vehicle.setBrake(0.5, 3);
-
+      if (carSpeed > 1) {
+        vehicle.applyEngineForce(forceStop, 0);
+        vehicle.applyEngineForce(forceStop, 1);
+        vehicle.applyEngineForce(forceStop, 2);
+        vehicle.applyEngineForce(forceStop, 3);
+      } else if (carSpeed < -1) {
+        vehicle.applyEngineForce(-forceStop, 0);
+        vehicle.applyEngineForce(-forceStop, 1);
+        vehicle.applyEngineForce(-forceStop, 2);
+        vehicle.applyEngineForce(-forceStop, 3);
+      } else if (carSpeed < 0.1 && carSpeed != 0) {
+        vehicle.applyEngineForce(-carSpeed, 0);
+        vehicle.applyEngineForce(-carSpeed, 1);
+        vehicle.applyEngineForce(-carSpeed, 2);
+        vehicle.applyEngineForce(-carSpeed, 3);
+      } else if (carSpeed != 0) {
+        vehicle.setBrake(carSpeed/2, 0);
+        vehicle.setBrake(carSpeed/2, 1);
+        vehicle.setBrake(carSpeed/2, 2);
+        vehicle.setBrake(carSpeed/2, 3);
       }
 
-      console.log("Setting vehicle transform position");
       transform.position.set(
         chassisBody.position.x,
         chassisBody.position.y,
@@ -66,6 +63,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
         chassisBody.quaternion.z,
         chassisBody.quaternion.w
       );
+
       for (let i = 0; i < wheels.length; i++) {
 
         vehicle.updateWheelTransform(i);
@@ -82,10 +80,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
           vehicle.wheelInfos[i].worldTransform.quaternion.z,
           vehicle.wheelInfos[i].worldTransform.quaternion.w
         );
-
       }
-
-
 
   } else {
     console.warn("User data for vehicle not found");
@@ -101,7 +96,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
     }
     const body = object.userData.vehicle;
     delete object.userData.vehicle;
-    PhysicsManager.instance.physicsWorld.removeBody(body);
+    PhysicsSystem.physicsWorld.removeBody(body);
     */
   }
 };
@@ -110,7 +105,6 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
 
 
 export function createVehicleBody (entity: Entity ) {
-  const transform = getComponent<TransformComponent>(entity, TransformComponent);
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
   // @ts-ignore
   const colliderTrimOffset = new Vec3().set(...vehicleComponent.colliderTrimOffset);
@@ -125,7 +119,7 @@ export function createVehicleBody (entity: Entity ) {
   let chassisBody, chassisShape;
 
   if (vehicleCollider) {
-    chassisBody = createTrimesh(vehicleCollider, colliderTrimOffset, mass);
+    chassisBody = createTrimesh(vehicleCollider, new Vec3(), mass);
     chassisBody.shapes.forEach((shape) => {
       shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
     });
@@ -143,16 +137,14 @@ export function createVehicleBody (entity: Entity ) {
   }
 
 
-  chassisBody.position.x = transform.position.x;
-  chassisBody.position.y = transform.position.y;
-  chassisBody.position.z = transform.position.z;
-  chassisBody.angularVelocity.set(0, 0, 0.5);
+  chassisBody.position.set( ...(vehicleComponent as any).startPosition );
+  //chassisBody.angularVelocity.set(0, 0, 0.5);
 
   const options = {
     radius: wheelRadius,
     directionLocal: new Vec3(0, -1, 0),
     suspensionStiffness: 30,
-    suspensionRestLength: 0.3,
+    suspensionRestLength: (vehicleComponent as any).suspensionRestLength,
     frictionSlip: 5,
     dampingRelaxation: 2.3,
     dampingCompression: 1.4,
@@ -174,18 +166,18 @@ export function createVehicleBody (entity: Entity ) {
   });
 
 //
-  options.chassisConnectionPointLocal.set(wheelsPositions[0].x, wheelsPositions[0].z, wheelsPositions[0].y);
+  options.chassisConnectionPointLocal.set(wheelsPositions[0].x, wheelsPositions[0].y, wheelsPositions[0].z);
   vehicle.addWheel(options);
 
-  options.chassisConnectionPointLocal.set(wheelsPositions[1].x, wheelsPositions[1].z, wheelsPositions[1].y);
+  options.chassisConnectionPointLocal.set(wheelsPositions[1].x, wheelsPositions[1].y, wheelsPositions[1].z);
   vehicle.addWheel(options);
 
-  options.chassisConnectionPointLocal.set(wheelsPositions[2].x, wheelsPositions[2].z, wheelsPositions[2].y);
+  options.chassisConnectionPointLocal.set(wheelsPositions[2].x, wheelsPositions[2].y, wheelsPositions[2].z);
   vehicle.addWheel(options);
 
-  options.chassisConnectionPointLocal.set(wheelsPositions[3].x, wheelsPositions[3].z, wheelsPositions[3].y);
+  options.chassisConnectionPointLocal.set(wheelsPositions[3].x, wheelsPositions[3].y, wheelsPositions[3].z);
   vehicle.addWheel(options);
-
+/*
   const wheelBodies = [];
   for (let i = 0; i < vehicle.wheelInfos.length; i++) {
     const cylinderShape = new Cylinder(wheelRadius, wheelRadius, 0.1, 20);
@@ -198,12 +190,12 @@ export function createVehicleBody (entity: Entity ) {
     wheelBodies.push(wheelBody);
 
   }
-
-  vehicle.addToWorld(PhysicsManager.instance.physicsWorld);
+*/
+  vehicle.addToWorld(PhysicsSystem.physicsWorld);
 
 /*
   for (let i = 0; i < wheelBodies.length; i++) {
-    PhysicsManager.instance.physicsWorld.addBody(wheelBodies[i]);
+    PhysicsSystem.physicsWorld.addBody(wheelBodies[i]);
   }
   */
   return vehicle;

@@ -1,0 +1,78 @@
+$mobileControllButtonsSize:3em;
+.drawerBoxContainer{
+    position: absolute;
+    z-index: 1301;
+    top: 5px;
+    right: 0;
+    left: 0;
+    margin: 0 auto;
+    text-align: center;
+    width: fit-content;
+
+    @media (max-width: 768px) {
+        margin: 0 25% 0 auto;
+    }
+
+    .drawerBox{        
+        margin: 0 auto;
+        display: flex;
+        font-size: 20px;
+        text-align: center;
+        height: $mobileControllButtonsSize;
+        width: auto;
+        flex-direction: row;
+        padding: 0;
+       
+
+        &:last-child{
+            padding-bottom: 0;
+        }
+        .iconContainer{
+            background: rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
+            border-radius: 50%;
+            margin: 12px;
+            height: 56px;
+            width: 56px;
+            cursor: pointer;  
+            @media (max-width: 768px) {
+                height: 56px;
+                width: 56px;
+                margin: 8px;
+            }  
+            &.on {
+                .offIcon{
+                    display: none;  
+                }
+                .onIcon{
+                    display: block;
+                }                
+            } 
+            &.off{
+                .offIcon{
+                    display: block;  
+                }
+                .onIcon{
+                    display: none;
+                }
+            }        
+            
+
+            .onIcon{
+                color: rgba(122, 255, 100, 1)          
+            }
+            
+            > svg{
+                height: 1.5em;
+                width: 1.5em;                
+                box-sizing: border-box;
+                cursor: pointer;   
+                margin: 10px;   
+                @media (max-width: 768px) {
+                    margin: 10px;
+                }
+            }
+        }
+        
+    }
+}

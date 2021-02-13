@@ -3,17 +3,17 @@ A data driven game engine, built on three.js
 
 ## Quickstart
 ```
-git clone https://github.com/xr3ngine/armada
+git clone https://github.com/xr3ngine/xr3ngine
 cd armada
-npm install
+yarn install
 cp .env.https .env
 
-// This will build the library and examples, and launch a server on https://localhost:8080
-// NOTE: ONLY works with HTTPS right now, http://localhost:8080 will not work
-npm run dev
+// This will build the library and examples, and launch a server on https://127.0.0.1:8080
+// NOTE: ONLY works with HTTPS right now, http://127.0.0.1:8080 will not work
+yarn run dev
 
 // To run the server, open another terminal window and run
-npm run dev-server
+yarn run dev-server
 ```
 
 ### What is a behavior?
@@ -41,7 +41,7 @@ const handleMouseMovement: Behavior = (entity: Entity, args: { event: MouseEvent
 ## Systems, with regard to behaviors
 Systems in Armada hold very little game logic. Instead, systems are fundamentally concerned with ordering and execution of behaviors, most of which can be expressed as a static function. Behaviors are impure by nature-- they are always concerned with reading data from components and applying transformations on it. Systems process maps, which can be expressed as JSON, JS objects and eventually as node graphs with as node editor.
 
-Behaviors contain all of the game logic. In this way a user can completely modify and build their own application from Armada by building and mapping behaviors. While Armada is compatible with other ECS systems and components built in the "classic" fashion, we hope to encapsulate nearly every common system and offer generalized systems like Subscriptions to allow for most use cases.
+Behaviors contain all of the game logic. In this way a user can completely modify and build their own application from Armada by building and mapping behaviors.
 
 **The takeaway here is this:**
 1. One system should be in charge the entire concern -- input system, physics system, networking system, etc.
@@ -142,7 +142,7 @@ Again, we will focus on the input system, and bind an event:
   }
 ```
 So every time someone tries to open the context menu on your site (i.e. right-click) your behavior is triggered.
-This same pattern can be extended to states, network messages, subscriptions (which we'll get to in a minute) and potentially even fireworks and cars.
+This same pattern can be extended to states, network messages, and potentially even fireworks and cars.
 
 ### Singleton Behaviors
 A SingletonBehavior can be constructed that maps data from one entity to others, but this is rare -- in this case the behavior interface accepts an entityIn and entityOut. See the argument overloads to the Behavior interface. More often, though, you'll set your singleton components to be accessible globally so you only need to worry about the entityIn argument as the entity which the data transformation is being applied to.
@@ -150,84 +150,20 @@ A SingletonBehavior can be constructed that maps data from one entity to others,
 ### Note: Schema are Mutable
 One of the benefits of using a schema system is that the values are not hardcoded, so you can easily remap the values. This enables flexibility such as allowing a user to redefine their input map and bind a key to another action. You can add behaviors to your schema or modify the mappings after initialization.
 
-## Subscriptions
-Subscriptions are a way to add behaviors to the execution lifecycle that don't fit into any specific domain other than general game logic. In Unity, this would be almost anything that goes into the Start(), Update(), LateUpdate(), Destroy(), etc lifecycle function calls. In Unreal, this is similar to ticks and tick groups. In Aframe, this is .init(), .update().
-Subscriptions allow behaviors to "subscribe" to the world simulation to execute either forever or for a short period. The SubscriptionSystem publishes events to all subscribers. A good example of a subscription that executes forever is the decelerate() behavior on the default player, which reduces the character's velocity if there is no input and nonzero velocity.
-
-### How to add a subscription
-Subscriptions follow the same pattern as Input above, in that they are initialized with a schema, and execute according to the schema. Subscription schema can be altered at runtime, but it is more likely that you want to use the **state** system.
-
-First, let's get an overview of the subscription system:
-```typescript
-public execute(delta: number, time: number): void {
-    this.queryResults.subscriptions.added?.forEach(entity => {
-      this.callBehaviorsForHook(entity, { phase: "onAdded", delta })
-    })
-
-    this.queryResults.subscriptions.changed?.forEach(entity => {
-      this.callBehaviorsForHook(entity, { phase: "onChanged", delta })
-    })
-
-    this.queryResults.subscriptions.results?.forEach(entity => {
-      this.callBehaviorsForHook(entity, { phase: "onUpdate", delta })
-    })
-
-    this.queryResults.subscriptions.results?.forEach(entity => {
-          this.callBehaviorsForHook(entity, { phase: "onLateUpdate", delta })
-    })
-
-    this.queryResults.subscriptions.removed?.forEach(entity => {
-      this.callBehaviorsForHook(entity, { phase: "onRemoved", delta })
-    })
-  }
-  ```
-The system looks for any behaviors mapped to these "phases" and executes them when appropriate. Note that onLateUpdate is called immediately after onUpdate-- use the LateUpdate wisely and sparingly to avoid race conditions.
-
-callBehaviorsForHook is also a behavior:
-```typescript
-  callBehaviorsForHook: Behavior = (entity: Entity, args: { phase: string; }, delta: number) => {
-    this.subscription = getComponent(entity, Subscription)
-    // If the schema for this subscription component has any values in this phase
-    if (this.subscription.schema[args.phase] !== undefined) {
-      // Foreach value in this phase
-      this.subscription.schema[args.phase].forEach((value: BehaviorArgValue) => {
-        // Call the behavior with the args supplied in the schema, as well as delta provided here
-        value.behavior(entity, value.args ? value.args : null, delta)
-      })
-    }
-  }
-```
-
-The SubscriptionSchema interface is slightly different than the InputSchema interface but follows the same pattern. Here's a snippet from **src/subscriptions/defaults/DefaultSubscriptionSchema**
-```typescript
-export const DefaultSubscriptionSchema: SubscriptionSchema = {
-  onUpdate: [
-    {
-      behavior: updatePosition
-    }
-  ]
-}
-```
-
-### So where's the movement system?
-Well, that's it right there, above. updatePosition() is a behavior that looks at the current velocity and changes the position in the entity's TransformComponent. Input is changing acceleration and velocity, so the subscription system just makes sure that the Transform component is updated at the end.
-
-Each entity can have their own schema. A static building could have a subscription to checkIfPlayerIsInDoorway(), perhaps, but probably wouldn't have an updatePosition() behavior.
-
 ### State and State Groups
 A lot of things in games and spatial applications can be represented by **state**. The concept for BECS came from trying to tackle some of the issues that many ECS systems have with managing state, especially grouped and overlapping states. The idea of using a schema to map transformation data is borrowed from the idea of State Tables and State Diagrams.
 
 States define what something currently is. For example, the character could be jumping -- in which case you are likely to find the "jumping" state attached to the actor. Concretely, there is a jump() behavior mapped to the DefaultStateSchema.
 ```typescript
 const jump: Behavior = (entity: Entity): void => {
-  // Add the state to the entity (addState is also a behavior)
-  addState(entity, { state: DefaultStateTypes.JUMPING })
+  // Add the state to the entity (setState is also a behavior)
+  setState(entity, { state: DefaultStateTypes.JUMPING })
   actor = getMutableComponent(entity, CharacterComponent)
   // Set actor's jump time to 0 -- jump will end when t increments to jump length
   actor.jump.t = 0
 }
 ```
-This function adds a state to the State component's .data field. States can trigger a behavior on entry or exit -- these are knows as "transitions" in finite state machine design. States can also execute logic every frame while active. We control this just like input and subscriptions, by defining our mapping on the StateSchema and initialization our State component with it.
+This function adds a state to the State component's .data field. States can trigger a behavior on entry or exit -- these are knows as "transitions" in finite state machine design. States can also execute logic every frame while active. We control this just like input, by defining our mapping on the StateSchema and initialization our State component with it.
 Concretely, this is what the jumping state mapping in the DefaultStateSchema looks like:
 ```typescript
     [DefaultStateTypes.JUMPING]: { group: DefaultStateGroups.MOVEMENT_MODIFIERS, onUpdate: { behavior: jumpingBehavior } },
@@ -276,9 +212,6 @@ The DefaultStateSchema defines two groups, MOVEMENT and MOVEMENT_MODIFIERS. Both
   ```
 In the DefaultStateSchema example, CROUCHING is **blockedBy** JUMPING, so the character can't crouch mid-air.
 The job of the state system is to ensure that these rules are respected and that changes in state have the appropriate side effects on other states.
-
-#### So what's the difference between State and Subscriptions?
-Subscriptions are typically not added to and removed from, and operate more like standard lifecycle events in other game engines. Subscriptions don't have a queue (.data), so to manipulate them you need to change the schema, which is acceptable but not often necessary. States are always changing, and can be added and removed from the State component often through the queue available at State.data, while the StateSchema is unlikely to be altered much after initialization (dynamic state machines are possible if you want to go full automata!)
 
 ### How to add a state and state group
 Let's say we wanted to make a hunger system for our a monster in our game that the player must feed. So we will define a state group
@@ -344,15 +277,10 @@ Switching from player to car
 !!!! Sending a message
 !!!! Linking message type to behavior map
 
-# Installation
-```
-npm install @xr3ngine/armada
-```
-
 # How to use
 ```javascript
 import { World } from '../ecs/classes/World'
-import { initializeInput } from '@xr3ngine/armada'
+import { initializeInput } from '@xr3ngine/engine'
 
 const world = new World()
 

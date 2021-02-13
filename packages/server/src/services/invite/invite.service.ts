@@ -5,6 +5,7 @@ import { Invite } from './invite.class';
 import createModel from '../../models/invite.model';
 import hooks from './invite.hooks';
 import logger from '../../app/logger';
+import inviteDocs from './invite.docs';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -19,14 +20,31 @@ export default (app: Application): any => {
     paginate: app.get('paginate')
   };
 
-  // Initialize our service with any options it requires
-  app.use('/invite', new Invite(options, app));
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
+  const event = new Invite(options, app);
+  event.docs = inviteDocs;
+  app.use('/invite', event);
 
-  // Get our initialized service so that we can register hooks
+  /**
+   * Get our initialized service so that we can register hooks
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const service = app.service('invite');
 
   service.hooks(hooks);
 
+  /**
+   * A method which is used to create invite 
+   * 
+   * @param data which is parsed to create invite  
+   * @returns created invite data 
+   * @author Vyacheslav Solovjov
+   */
   service.publish('created', async (data): Promise<any> => {
     try {
       const targetIds = [data.userId];
@@ -55,6 +73,14 @@ export default (app: Application): any => {
       throw err;
     }
   });
+
+  /**
+   * A method used to remove specific invite 
+   * 
+   * @param data which contains userId and inviteeId
+   * @returns deleted channel with invite data 
+   * @author Vyacheslav Solovjov
+   */
 
   service.publish('removed', async (data): Promise<any> => {
     try {

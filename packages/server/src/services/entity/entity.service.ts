@@ -3,6 +3,7 @@ import { Application } from '../../declarations';
 import { Entity } from './entity.class';
 import createModel from '../../models/entity.model';
 import hooks from './entity.hooks';
+import entityDocs from './entity.docs';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -17,9 +18,14 @@ export default (app: Application): any => {
     multi: true
   };
 
-  // Register model to
-
-  app.use('/entity', new Entity(options, app));
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
+   const event = new Entity(options, app);
+   event.docs = entityDocs;
+  app.use('/entity', event);
 
   const service = app.service('entity');
 

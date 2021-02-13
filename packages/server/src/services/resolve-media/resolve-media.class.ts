@@ -1,7 +1,6 @@
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import { BadRequest } from '@feathersjs/errors';
-import SketchFabMediaClass from '../media-search/sketch-fab.class';
 import StorageProvider from '../../storage/storageprovider';
 import logger from '../../app/logger';
 
@@ -9,12 +8,18 @@ interface Data {}
 interface MediaType { [key: string]: { Handler: any; mediaType: string; modelId: string} }
 
 interface ServiceOptions {}
+/**
+ * A class for Resolve Media service 
+ * 
+ * @author Vyacheslav Solovjov
+ */
 
 export class ResolveMedia implements ServiceMethods<Data> {
   app: Application
   options: ServiceOptions
   models: any
   storage: any
+  docs: any
 
   constructor (options: ServiceOptions = {}, app: Application) {
     this.options = options;
@@ -73,7 +78,6 @@ export class ResolveMedia implements ServiceMethods<Data> {
         origin: data.media.url
       };
     }
-    // TODO: Save sketch fab in static resource
     // Now stream that model to s3 and send the url to front end
 
     return model;
@@ -95,11 +99,6 @@ export class ResolveMedia implements ServiceMethods<Data> {
     const url = new URL(mediaUrl);
 
     const mediaTypeMap: MediaType = {
-      '/models/': {
-        Handler: SketchFabMediaClass,
-        mediaType: 'SketchFab',
-        modelId: url.pathname.replace('/models/', '')
-      }
       // TODO: Add more media types
     };
 

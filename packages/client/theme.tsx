@@ -13,7 +13,7 @@ const lightTheme = createMuiTheme({
       main: red.A400
     },
     background: {
-      default: '#000000'
+      default: '#ff0000'
     },
     text:{
       primary: '#FFFFFF',
@@ -160,20 +160,6 @@ const lightTheme = createMuiTheme({
       thumbColorPrimary:{
         background: 'rgba(0, 0, 0, 0.8)',
         border: '2px solid #A8A8FF',
-      }
-    },
-    MuiLinearProgress:{
-      root:{
-        height: '34px',
-        backgroundColor:'#FFFFFF',
-        borderRadius: '8px',
-        '@media (max-width: 768px)': {
-          height: '16px',
-          borderRadius: '4px',
-        },
-      },
-      bar:{
-        borderRadius: 'inherit',
       }
     },
     MuiMenuItem:{

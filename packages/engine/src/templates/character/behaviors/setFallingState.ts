@@ -1,9 +1,8 @@
-import { Behavior } from '../../../common/interfaces/Behavior';
+import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { getComponent } from '../../../ecs/functions/EntityFunctions';
-import { addState } from "../../../state/behaviors/addState";
+import { setState } from "../../../state/behaviors/setState";
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { CharacterComponent } from '../components/CharacterComponent';
-import { State } from '../../../state/components/State';
 
 const FALLING_SPEED = -1;
 
@@ -15,5 +14,5 @@ export const setFallingState: Behavior = (entity) => {
     return;
   }
   // console.log("Setting falling state from: ", getComponent<State>(entity, State).data.keys())
-  addState(entity, {state: CharacterStateTypes.FALLING});
+  setState(entity, {state: CharacterStateTypes.FALLING});
 };

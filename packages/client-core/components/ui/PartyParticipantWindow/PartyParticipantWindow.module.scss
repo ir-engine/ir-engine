@@ -1,0 +1,209 @@
+.party-chat-user {
+    margin: 5px;
+    overflow: hidden;
+    position: relative;
+    height: 45px;
+    display: flex;
+    flex-direction: row;
+    flex: 0 0 auto;
+
+    .video-wrapper{
+        height: 45px;
+        width: 45px;
+        border-radius: 50%;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;   
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        z-index: 10;
+
+        video{
+            object-fit: cover;                  
+        }
+
+        @media (min-width: 769px) {
+            &:hover {
+                border: 1px solid rgba(127, 127, 127, 0.8);
+                cursor: pointer;
+            }
+        }
+    }
+
+    &.video-paused,
+    &.no-video {
+        .video-wrapper{
+            background-color: #A8A8FF;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            video{
+                display: none;
+            }
+        }
+    }    
+
+    .global-mute {
+        display: none;
+    }
+
+    .user-controls {
+        display: none;
+    }
+
+    .username {
+        text-align: right;
+        width: 100%;
+    }
+
+    &:not(.self-user) {
+        @media (min-width: 769px) {
+            &:hover {
+                .user-controls {
+                    width: fit-content;
+                    display: flex;
+                    position: relative;
+                }
+            }
+        }
+
+        @media (max-width: 768px) {
+            .video-wrapper {
+                height: 45px;
+                width: 45px;
+
+                video {
+                    object-fit: cover;
+                }
+            }
+        }
+    }
+
+    &.focused {
+        height: 90px;
+        width: fit-content;
+        .global-mute {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            font-size: 24px;
+            color: #5ee0ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @media (min-width: 769px) {
+            .user-controls {
+                width: fit-content;
+                display: flex;
+                position: relative;
+
+                .controls {
+                    display: flex;
+                }
+            }
+        }
+
+        @media (max-width: 768px) {
+            height: 90px;
+            .video-wrapper {
+                height: 90px;
+                width: 90px;
+
+                video {
+                    object-fit: cover;
+                }
+            }
+        }
+
+        .video-wrapper {
+            height: 90px;
+            width: 90px;
+
+            @media (max-width: 768px) {
+                height: 90px;
+                width: 90px;
+            }
+        }
+
+        .user-controls {
+            margin-left: -55px;
+            padding: 10px 10px 10px 60px;
+
+            @media (max-width: 768px) {
+                margin-left: -50px;
+                padding: 10px 10px 10px 50px;
+                width: fit-content;
+                display: flex;
+                position: relative;
+
+                .controls {
+                    display: flex;
+                }
+            }
+        }
+    }
+
+
+    .user-controls {
+        flex-direction: column;
+        background: rgba(0, 0, 0, 0.7);
+        border-radius: 8px;
+        padding: 10px 10px 10px 30px;
+        margin-left: -25px;
+        justify-content: space-between;
+        align-items: flex-end;
+        box-sizing: border-box;
+        width: 0;
+        //transition: all 0.4s ease-out;
+        display: none;
+
+        .controls{
+            width: 100%;
+            display: none;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .mute-controls {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .right-controls {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            margin: 0 5px;
+
+            & > .spacer {
+                height: 5px;
+            }
+        }
+
+        button {
+            z-index: 200;
+            width: 30px;
+            margin: 0 5px;
+
+            @media (max-width: 768px) {
+                margin: 0;
+                padding: 0;
+            } 
+        }
+
+        .audio-slider {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            z-index: 100;
+            border-radius: 15px;
+
+            & > span {
+                margin: 0 10px;
+            }
+        }
+    }
+}

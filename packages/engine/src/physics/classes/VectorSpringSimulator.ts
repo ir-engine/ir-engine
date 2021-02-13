@@ -1,7 +1,17 @@
 import * as THREE from 'three';
+import { Vector3 } from 'three';
 import { SimulatorBase } from './SimulatorBase';
-import { SimulationFrameVector } from './SimulationFrameVector';
-import { springV } from "../../templates/character/functions/springV";
+
+class SimulationFrameVector {
+	public position: THREE.Vector3;
+	public velocity: THREE.Vector3;
+
+	constructor(position: THREE.Vector3, velocity: THREE.Vector3)
+	{
+		this.position = position;
+		this.velocity = velocity;
+	}
+}
 
 export class VectorSpringSimulator extends SimulatorBase
 {
@@ -57,7 +67,11 @@ export class VectorSpringSimulator extends SimulatorBase
 		const newSpring = new SimulationFrameVector(this.lastFrame().position.clone(), this.lastFrame().velocity.clone());
 		
 		// Calculate new Spring
-		springV(newSpring.position, this.target, newSpring.velocity, this.mass, this.damping);
+		const acceleration = new Vector3().subVectors(this.target, newSpring.position);
+		acceleration.divideScalar(this.mass);
+		newSpring.velocity.add(acceleration);
+		newSpring.velocity.multiplyScalar(this.damping);
+		newSpring.position.add(newSpring.velocity);
 
 		// Return new Spring
 		return newSpring;

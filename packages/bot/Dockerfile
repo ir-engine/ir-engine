@@ -11,7 +11,7 @@ WORKDIR /app
 # to make use of caching, copy only package files and install dependencies
 COPY package.json .
 
-#RUN  npm ci --verbose  # we should make lockfile or shrinkwrap then use npm ci for predicatble builds
+#RUN  yarn ci --verbose  # we should make lockfile or shrinkwrap then use yarn ci for predictable builds
 RUN yarn install --production=false
 
 COPY . .

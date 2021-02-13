@@ -30,10 +30,13 @@
   },
   "version": "0.2.0",
   "peerDependencies": {
-    "three": "^0.123.0"
+    "three": "^0.125.0"
   },
   "dependencies": {
+    "@mozillareality/easing-functions": "^0.1.1",
+    "@mozillareality/three-particle-emitter": "^0.2.2",
     "@pixiv/three-vrm": "^0.5.2",
+    "@types/webgl2": "^0.0.5",
     "@typescript-eslint/eslint-plugin": "^4.4.1",
     "@typescript-eslint/parser": "^4.4.1",
     "cannon-es": "^0.15.1",
@@ -44,12 +47,12 @@
     "face-api.js": "^0.22.2",
     "mousetrap": "^1.6.5",
     "superbuffer": "^1.0.1",
-    "three": "^0.123.0",
+    "three": "^0.125.0",
     "three-gltf-exporter": "^0.0.1",
     "three-mesh-bvh": "^0.2.0",
     "three-to-cannon": "^3.0.2",
     "tween": "^0.9.0",
-    "typescript": "^3.9.7",
+    "typescript": "^4.0.3",
     "url": "^0.11.0",
     "xmlhttprequest-ssl": "^1.6.0"
   },

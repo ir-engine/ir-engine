@@ -3,6 +3,7 @@ import { Application } from '../../declarations';
 import { CollectionType } from './collection-type.class';
 import createModel from '../../models/collection-type.model';
 import hooks from './collection-type.hooks';
+import collectionTypeDocs from './collection-type.docs';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -16,8 +17,15 @@ export default (app: Application): any => {
     paginate: app.get('paginate'),
     multi: true
   };
-
-  app.use('/collection-type', new CollectionType(options, app));
+  
+    /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
+  const event = new CollectionType(options, app);
+  event.docs = collectionTypeDocs;
+  app.use('/collection-type', event);
 
   const service = app.service('collection-type');
 

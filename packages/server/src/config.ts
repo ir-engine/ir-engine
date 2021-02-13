@@ -19,7 +19,7 @@ export const db: any = {
   username: process.env.MYSQL_USER ?? 'server',
   password: process.env.MYSQL_PASSWORD ?? 'password',
   database: process.env.MYSQL_DATABASE ?? 'xr3ngine',
-  host: process.env.MYSQL_HOST ?? 'localhost',
+  host: process.env.MYSQL_HOST ?? '127.0.0.1',
   port: process.env.MYSQL_PORT ?? 3306,
   dialect: 'mysql',
   forceRefresh: process.env.FORCE_DB_REFRESH === 'true',
@@ -36,7 +36,7 @@ db.url = process.env.MYSQL_URL ??
 const server = {
   enabled: process.env.SERVER_ENABLED === 'true' ?? true,
   mode: process.env.SERVER_MODE ?? 'local',
-  hostname: process.env.SERVER_HOSTNAME ?? 'localhost',
+  hostname: process.env.SERVER_HOSTNAME ?? '127.0.0.1',
   port: process.env.SERVER_PORT ?? 3030,
   // Public directory (used for favicon.ico, logo, etc)
   rootDir: path.resolve(appRootPath.path, 'packages', 'server'),
@@ -47,9 +47,6 @@ const server = {
   performDryRun: process.env.PERFORM_DRY_RUN === 'true',
   storageProvider: process.env.STORAGE_PROVIDER ?? 'local',
   gaTrackingId: process.env.GOOGLE_ANALYTICS_TRACKING_ID ?? '',
-  sketchFab: {
-    authToken: process.env.SKETCH_FAB_AUTH_TOKEN ?? ''
-  },
   hub: {
     endpoint: process.env.HUB_ENDPOINT ?? 'https://xr3ngine.io'
   },
@@ -80,7 +77,7 @@ const client = {
   title: process.env.APP_LOGO ?? 'XR3ngine',
   url: process.env.APP_URL ??
     process.env.APP_HOST ?? // Legacy env var, to deprecate
-    'https://localhost:3000',
+    'https://127.0.0.1:3000',
   releaseName: process.env.RELEASE_NAME ?? ''
 };
 
@@ -151,7 +148,7 @@ const authentication = {
   },
   oauth: {
     defaults: {
-      host: server.hostname && server.hostname !== 'localhost' ? (server.hostname) : 'localhost:3030',
+      host: server.hostname && server.hostname !== '127.0.0.1' ? (server.hostname) : '127.0.0.1:3030',
       protocol: 'https'
     },
     facebook: {
@@ -209,7 +206,7 @@ const chargebee = {
 
 const redis = {
   enabled: process.env.REDIS_ENABLED === 'true' ?? false,
-  address: process.env.REDIS_ADDRESS ?? 'localhost',
+  address: process.env.REDIS_ADDRESS ?? '127.0.0.1',
   port: process.env.REDIS_PORT ?? '6379',
   password: process.env.REDIS_PASSWORD ?? null
 };

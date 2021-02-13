@@ -4,11 +4,19 @@ import { Params } from '@feathersjs/feathers';
 
 export class Collection extends Service {
   app: Application;
+  docs: any
 
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options);
     this.app = app;
   }
+  /**
+   * A method which find collection
+   * 
+   * @param params of query which contains userId 
+   * @returns {@Object} of collection
+   * @author Vyacheslav Solovjov
+   */
 
   async find(params: Params): Promise<any> {
     params.query.$or = [

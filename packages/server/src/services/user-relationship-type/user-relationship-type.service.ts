@@ -3,6 +3,7 @@ import { Application } from '../../declarations';
 import { UserRelationshipType } from './user-relationship-type.class';
 import createModel from '../../models/user-relationship-type.model';
 import hooks from './user-relationship-type.hooks';
+import userRelationshipTypeDocs from './user-relationship-type.docs';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -16,8 +17,15 @@ export default (app: Application): any => {
     paginate: app.get('paginate'),
     multi: true
   };
-
-  app.use('/user-relationship-type', new UserRelationshipType(options, app));
+  
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
+  const event = new UserRelationshipType(options, app);
+  event.docs = userRelationshipTypeDocs;
+  app.use('/user-relationship-type', event);
 
   const service = app.service('user-relationship-type');
 

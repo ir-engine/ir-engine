@@ -7,6 +7,7 @@ import slugify from 'slugify';
 
 export class Location extends Service {
   app: Application
+  docs: any
 
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options);
@@ -36,6 +37,13 @@ export class Location extends Service {
   //   return 'success';
   // }
 
+  /**
+   * A method which is used to create new location 
+   * 
+   * @param param0 data of new location 
+   * @author Vyacheslav Solovjov
+   */
+
   async createNewLocation ({ data, params }: { data: any; params: Params }): Promise<any> {
     await new Promise((resolve) =>
       setTimeout(() => resolve(super.create(data, params)), 1000)
@@ -46,6 +54,12 @@ export class Location extends Service {
     });
   }
 
+  /**
+   * A function which is used to create new instance 
+   * 
+   * @param param0 data of instance 
+   * @author Vyacheslav Solovjov
+   */
   async createInstances ({ id, instance }: { id: any; instance: any }): Promise<any> {
     if (instance) {
       await instance.forEach((element: any) => {
@@ -83,6 +97,13 @@ export class Location extends Service {
     }
   }
 
+  /**
+   * A function which help to find and display all locations
+   * 
+   * @param params of query with limit number and skip number 
+   * @returns {@Array} of all locations 
+   * @author Vyacheslav Solovjov
+   */
   async find (params: Params): Promise<any> {
     // eslint-disable-next-line prefer-const
     let {$skip, $limit, $sort, ...strippedQuery} = params.query;
@@ -168,6 +189,14 @@ export class Location extends Service {
     }
   }
 
+  /**
+   * A function which is used to create new location 
+   * 
+   * @param data of location 
+   * @param params 
+   * @returns new location object 
+   * @author Vyacheslav Solovjov
+   */
   async create (data: any, params: Params): Promise<any> {
     let location;
     // eslint-disable-next-line prefer-const
@@ -203,6 +232,15 @@ export class Location extends Service {
     });
   }
 
+  /**
+   * A function which is used to update location 
+   * 
+   * @param id of location to update 
+   * @param data of location going to be updated 
+   * @param params 
+   * @returns updated location
+   * @author Vyacheslav Solovjov
+   */
   async patch (id: string, data: any, params: Params): Promise<any> {
     let location;
     // eslint-disable-next-line prefer-const
@@ -230,6 +268,14 @@ export class Location extends Service {
     await this.app.service('location-settings').patch(location.locationSettingsId, location_setting);
     return location;
   }
+  /**
+   * A function which is used to remove location
+   * 
+   * @param id of location which is going to be removed 
+   * @param params which contain user information 
+   * @returns {@function} of remove data 
+   * @author Vyacheslav Solovjov
+   */
 
   async remove (id: string, params: Params): Promise<any> {
     if (id != null) {

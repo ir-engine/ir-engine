@@ -3,7 +3,7 @@ import { initializeNetworkObject } from '@xr3ngine/engine/src/networking/functio
 import { NetworkTransport } from "../../src/networking/interfaces/NetworkTransport";
 import { NetworkSchema } from "../../src/networking/interfaces/NetworkSchema";
 import { DefaultNetworkSchema } from "../../src/templates/networking/DefaultNetworkSchema";
-import { Network } from "../../src/networking/components/Network";
+import { Network } from "../../src/networking//classes/Network";
 import { Engine } from "../../src/ecs/classes/Engine";
 import { Quaternion, Scene, Vector3 } from "three";
 import { registerSystem } from "../../src/ecs/functions/SystemFunctions";
@@ -18,7 +18,7 @@ import { SystemUpdateType } from "../../src/ecs/functions/SystemUpdateType";
 import { getMutableComponent, hasComponent, removeEntity } from "../../src/ecs/functions/EntityFunctions";
 import { CharacterComponent } from "../../src/templates/character/components/CharacterComponent";
 import { ServerNetworkIncomingSystem } from "../../src/networking/systems/ServerNetworkIncomingSystem";
-import { DefaultInput } from "../../src/templates/shared/DefaultInput";
+import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
 import { LifecycleValue } from "../../src/common/enums/LifecycleValue";
 import { BinaryValue } from "../../src/common/enums/BinaryValue";
 import { Entity } from "../../src/ecs/classes/Entity";
@@ -27,7 +27,7 @@ import * as handleInputOnServerModule from "../../src/networking/functions/handl
 import * as setLocalMovementDirectionModule from "../../src/templates/character/behaviors/setLocalMovementDirection";
 import { System } from "../../src/ecs/classes/System";
 import { now } from "../../src/common/functions/now";
-import { PhysicsManager } from "../../src/physics/components/PhysicsManager";
+import { PhysicsSystem } from "../../src/physics/systems/PhysicsSystem";
 import { RaycastResult } from "collision/RaycastResult";
 import { Body } from 'cannon-es';
 import { StateSystem } from "../../src/state/systems/StateSystem";
@@ -93,14 +93,14 @@ beforeAll(() => {
 
   registerSystem(PhysicsSystem);
   // pretend player has floor
-  PhysicsManager.instance.physicsWorld.raycastClosest = jest.fn((start, end, rayCastOptions, rayResult:RaycastResult) => {
+  PhysicsSystem.physicsWorld.raycastClosest = jest.fn((start, end, rayCastOptions, rayResult:RaycastResult) => {
     rayResult.body = new Body({mass:0});
     rayResult.hasHit = true;
     rayResult.hitPointWorld.set(0,0,0);
     rayResult.hitNormalWorld.set(0,1,0);
     return true;
   });
-  // physicsWorldRaycastClosest = jest.spyOn(PhysicsManager.instance.physicsWorld, 'raycastClosest');
+  // physicsWorldRaycastClosest = jest.spyOn(PhysicsSystem.physicsWorld, 'raycastClosest');
 
   registerSystem(StateSystem);
 });
@@ -126,7 +126,7 @@ afterEach(() => {
     fixedExecuteOnServer.mockClear();
   }
 
-  PhysicsManager.instance.frame = 0;
+  PhysicsSystem.frame = 0;
 });
 
 const oneFixedRunTimeSpan = 1 / Engine.physicsFrameRate;
@@ -151,7 +151,7 @@ test("continuous move forward changes transforms z", () => {
   const networkEntity = networkObject.entity as Entity;
   expect(hasComponent(networkEntity, Server)).toBe(true);
 
-  const message = createButtonServerMessage(networkObject.networkId, DefaultInput.FORWARD, BinaryValue.ON);
+  const message = createButtonServerMessage(networkObject.networkId, BaseInput.FORWARD, BinaryValue.ON);
 
   const runsCount = 4; // in my case it needs at least 4 frames to accumulate z transform
   for (let i = 0; i < runsCount; i++) {
@@ -165,7 +165,7 @@ test("continuous move forward changes transforms z", () => {
   }
 
   // check that physics updated same
-  expect(PhysicsManager.instance.frame).toBe(runsCount);
+  expect(PhysicsSystem.frame).toBe(runsCount);
   expect(fixedExecuteOnServer.mock.calls.length).toBe(runsCount);
   expect(handleInputFromNonLocalClients.mock.calls.length).toBe(runsCount);
 
@@ -199,8 +199,8 @@ test("continuous move forward and then stop", () => {
   expect(hasComponent(networkEntity, Server)).toBe(true);
   const actor: CharacterComponent = getMutableComponent(networkEntity, CharacterComponent);
 
-  const messagePressing = createButtonServerMessage(networkObject.networkId, DefaultInput.FORWARD, BinaryValue.ON);
-  const messageStopped = createButtonServerMessage(networkObject.networkId, DefaultInput.FORWARD, BinaryValue.OFF, LifecycleValue.ENDED);
+  const messagePressing = createButtonServerMessage(networkObject.networkId, BaseInput.FORWARD, BinaryValue.ON);
+  const messageStopped = createButtonServerMessage(networkObject.networkId, BaseInput.FORWARD, BinaryValue.OFF, LifecycleValue.ENDED);
   const messageEmpty:NetworkClientInputInterface = {
     axes1d: [], axes2d: [], buttons: [],
     networkId: networkObject.networkId,
@@ -232,7 +232,7 @@ test("continuous move forward and then stop", () => {
   }
 
   // check that physics updated same
-  expect(PhysicsManager.instance.frame).toBe(runsCount + 1 + emptyRunsCount);
+  expect(PhysicsSystem.frame).toBe(runsCount + 1 + emptyRunsCount);
   expect(fixedExecuteOnServer.mock.calls.length).toBe(runsCount + 1 + emptyRunsCount);
   expect(handleInputFromNonLocalClients.mock.calls.length).toBe(runsCount + 1 + emptyRunsCount);
 
@@ -262,8 +262,8 @@ test("move forward, then 2 messages stop + empty in one execution", () => {
   expect(hasComponent(networkEntity, Server)).toBe(true);
   const actor: CharacterComponent = getMutableComponent(networkEntity, CharacterComponent);
 
-  const messagePressing = createButtonServerMessage(networkObject.networkId, DefaultInput.FORWARD, BinaryValue.ON);
-  const messageStopped = createButtonServerMessage(networkObject.networkId, DefaultInput.FORWARD, BinaryValue.OFF, LifecycleValue.ENDED);
+  const messagePressing = createButtonServerMessage(networkObject.networkId, BaseInput.FORWARD, BinaryValue.ON);
+  const messageStopped = createButtonServerMessage(networkObject.networkId, BaseInput.FORWARD, BinaryValue.OFF, LifecycleValue.ENDED);
   const messageEmpty:NetworkClientInputInterface = {
     axes1d: [], axes2d: [], buttons: [],
     networkId: networkObject.networkId,
@@ -328,21 +328,21 @@ test("2 buttons states in one execution propagate back to client", () => {
   const message1: NetworkClientInputInterface = {
     "axes1d": [
       {
-        input: DefaultInput.CROUCH,
+        input: BaseInput.CROUCH,
         lifecycleState: LifecycleValue.CHANGED,
         value: 0.2
       }
     ],
     "axes2d": [
       {
-        input: DefaultInput.SCREENXY,
+        input: BaseInput.SCREENXY,
         lifecycleState: LifecycleValue.CHANGED,
         value: [ 0.1, 240 ]
       }
     ],
     "buttons": [
       {
-        "input": DefaultInput.FORWARD,
+        "input": BaseInput.FORWARD,
         "lifecycleState": LifecycleValue.CONTINUED,
         "value": BinaryValue.ON,
       }
@@ -358,21 +358,21 @@ test("2 buttons states in one execution propagate back to client", () => {
   const message2: NetworkClientInputInterface = {
     "axes1d": [
       {
-        input: DefaultInput.CROUCH,
+        input: BaseInput.CROUCH,
         lifecycleState: LifecycleValue.CHANGED,
         value: 0.9
       }
     ],
     "axes2d": [
       {
-        input: DefaultInput.SCREENXY,
+        input: BaseInput.SCREENXY,
         lifecycleState: LifecycleValue.CHANGED,
         value: [ 50, 21 ]
       }
     ],
     "buttons": [
       {
-        "input": DefaultInput.FORWARD,
+        "input": BaseInput.FORWARD,
         "lifecycleState": LifecycleValue.ENDED,
         "value": BinaryValue.OFF,
       }
@@ -444,26 +444,26 @@ test("incoming input propagates to network", () => {
   runFixed();
 
   // get input messages from both players
-  //const p1message = createButtonServerMessage(p1NetworkObject.networkId, DefaultInput.FORWARD, BinaryValue.ON, null, p1viewVector);
+  //const p1message = createButtonServerMessage(p1NetworkObject.networkId, BaseInput.FORWARD, BinaryValue.ON, null, p1viewVector);
   const p1message: NetworkClientInputInterface = {
     networkId: p1NetworkObject.networkId,
     buttons: [
     {
-      input: DefaultInput.FORWARD,
+      input: BaseInput.FORWARD,
       lifecycleState: LifecycleValue.STARTED,
       value: BinaryValue.ON
     }
   ],
     axes1d: [
       {
-        input: DefaultInput.JUMP,
+        input: BaseInput.JUMP,
         value: 0.3,
         lifecycleState: LifecycleValue.CHANGED
       }
     ],
     axes2d: [
       {
-        input: DefaultInput.SCREENXY,
+        input: BaseInput.SCREENXY,
         value: [ 0.1, 0.7 ],
         lifecycleState: LifecycleValue.CHANGED
       }
@@ -476,26 +476,26 @@ test("incoming input propagates to network", () => {
     snapShotTime: 1
   };
 
-  // const p2message = createButtonServerMessage(p2NetworkObject.networkId, DefaultInput.FORWARD, BinaryValue.ON, null, p2viewVector);
+  // const p2message = createButtonServerMessage(p2NetworkObject.networkId, BaseInput.FORWARD, BinaryValue.ON, null, p2viewVector);
   const p2message: NetworkClientInputInterface = {
     networkId: p2NetworkObject.networkId,
     buttons: [
       {
-        input: DefaultInput.FORWARD,
+        input: BaseInput.FORWARD,
         lifecycleState: LifecycleValue.STARTED,
         value: BinaryValue.ON
       }
     ],
     axes1d: [
       {
-        input: DefaultInput.CROUCH,
+        input: BaseInput.CROUCH,
         value: 0.6,
         lifecycleState: LifecycleValue.CHANGED
       }
     ],
     axes2d: [
       {
-        input: DefaultInput.SCREENXY,
+        input: BaseInput.SCREENXY,
         value: [ 0.4, 0.9 ],
         lifecycleState: LifecycleValue.CHANGED
       }

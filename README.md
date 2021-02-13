@@ -46,15 +46,18 @@ Free, open source, MIT-licensed
 
 ## Getting Started
 
-Getting up and running requires only a few steps.
+Getting up and running requires only a few steps. Supported on OSX / Linux / WSL2 for Windows
 
 First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.npmjs.com/) installed (and if you are using it, [docker](https://docs.docker.com/)).
 
-1. Install your dependencies
+1. Install your dependencies 
     ```
     cd path/to/xr3ngine
     yarn install
     ```
+    Error with mediasoup? Optional: https://mediasoup.org/documentation/v3/mediasoup/installation/
+	If on WSL2:	`sudo apt-get update ; sudo apt-get install build-essential`
+
 2. Make sure you have a mysql database installed and running -- our recommendation is Mariadb. We've provided a docker container for easy setup:
     ```
     cd scripts && sudo bash start-db.sh
@@ -62,7 +65,7 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
     This creates a Docker container of mariadb named xr3ngine_db. You must have docker installed on your machine for this script to work.
     If you do not have Docker installed and do not wish to install it, you'll have to manually create a MariaDB server.
    
-   The default username is 'server', the default password is 'password', the default database name is 'xr3ngine', the default hostname is 'localhost', and the default port is '3306'.
+   The default username is 'server', the default password is 'password', the default database name is 'xr3ngine', the default hostname is '127.0.0.1', and the default port is '3306'.
     
 3. Open a new tab and start the Agones sidecar in local mode
 
@@ -104,9 +107,9 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
    In /packages/server, run ```sudo yarn dev```.
    In the other tab, go to /packages/client and run ```sudo yarn dev```.
    
-7. In a browser, navigate to https://localhost:3000/location/test
+7. In a browser, navigate to https://127.0.0.1:3000/location/home
    The database seeding process creates a test empty location called 'test'.
-   It can be navigated to by going to 'https://localhost:3000/location/test'.
+   It can be navigated to by going to 'https://127.0.0.1:3000/location/home'.
    See the sections below about invalid certificates if you are encountering errors
    connecting to the client, API, or gameserver.
 
@@ -132,8 +135,8 @@ mysql -uroot -ppassword
 mysql -userver -ppassword
 
 create database xr3ngine;
-create user 'server'@'localhost' identified by 'password';
-grant all on xr3ngine.* to 'server'@'localhost';
+create user 'server'@'127.0.0.1' identified by 'password';
+grant all on xr3ngine.* to 'server'@'127.0.0.1';
 
 show databases;
 
@@ -156,8 +159,8 @@ address bar or into a text box, Chrome is just passively listening for those com
 
 ##### Allow gameserver address connection with invalid certificate
 
-The gameserver functionality is hosted on an address other than localhost in the local
-environment. Accepting an invalid certificate for localhost will not apply to this address.
+The gameserver functionality is hosted on an address other than 127.0.0.1 in the local
+environment. Accepting an invalid certificate for 127.0.0.1 will not apply to this address.
 Open the dev console for Chrome/Firefox by pressing ```Ctrl+Shift+i``` simultaneously, and
 go to the Console or Network tabs. 
 
@@ -190,7 +193,7 @@ check which process is using port 3030 and kill
 	kill -3 <proccessIDfromPreviousCommand>
 ```
 
-#### 'TypeError: Cannot read property 'position' of undefined' when accessing /location/test
+#### 'TypeError: Cannot read property 'position' of undefined' when accessing /location/home
     As of this writing, there's a bug with the default seeded test location.
     Go to /editor/projects and open the 'Test' project. Save the project, and
     the error should go away.
@@ -285,7 +288,7 @@ SMTP_PASS=<mailtrap-password>
 Feathers.js has a powerful command line interface. Here are a few things it can do:
 
 ```
-$ npm install -g @feathersjs/cli          # Install Feathers CLI
+$ yarn install -g @feathersjs/cli          # Install Feathers CLI
 
 $ feathers generate service               # Generate a new Service
 $ feathers generate hook                  # Generate a new Hook

@@ -120,7 +120,7 @@
   text-align: center;
 }
 body{
-  overflow: hidden;
+  overflow: auto;
 }
 
 .menuDrawerOpened{  
@@ -165,5 +165,205 @@ body{
       left: 5px;
       right: auto;
     }
+  }
+}
+
+.lander{
+  background: #00022E;
+
+  .mobile-only{
+    display: none;
+    width: 100%;
+    margin: 0 auto 50px;
+    text-align: center;
+  }
+
+  *{
+    font-family: Inter;
+    font-style: normal;
+    font-weight: 400;
+    color: white;
+  }
+
+  .row{
+    margin: 0;
+  }
+
+  .discord-icon,
+  .github-icon{
+    width: 60px;
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
+    @media(max-width: 560px){
+      width: 45px;
+      margin-left: 0.5rem;
+      margin-right: 0.5rem;
+    }
+  }
+
+  .button{
+    background: #5F5FF1;
+    border-radius: 5px;
+    border: none;
+    font-size: 1.6rem;
+    line-height: 1.9rem;
+    font-family: Inter;
+  }
+
+  .main-button{
+    font-size: 1.8rem;
+    line-height: 2.2rem;
+    font-weight: 600;
+    margin-top: 4rem;
+    width: 370px;
+    height: 80px;
+    @media(max-width: 560px) {
+      font-size: 1.2rem!important;
+    }
+  }
+
+  .email-button{
+    width: 60%;
+    height: 50px;
+    margin-left: 40%;
+  }
+
+  .main-background {
+    display: block;
+    width: 100%;
+    position: absolute;
+    top: 300px;
+    left: 0;
+  }
+
+  .lander-container{
+    max-width: 2000px;
+    width: 92%;
+    margin: 0 auto;
+    padding-left: 5%;
+
+    .right-top-menu-row{
+      position: absolute;
+      top: 0;
+      right: 5%;
+    }
+    .right-top-menu{
+      margin: 60px 0 0 auto;
+    }
+    .bottom-left, 
+    .contact-right-div{
+      width: 50%;
+    }
+    .lander-logo{
+      width: 800px;
+      height: 100px;
+      margin-top: 140px;
+      @media (max-width: 560px){
+        height: auto!important;
+      }
+    }
+
+    .logo-bottom{
+      width: 800px;
+      text-align: right;
+      margin-top: 10px;
+    }
+
+    .contact-right-div{
+      z-index: 2;
+    }
+  }
+
+  .main-txt{
+    font-size: 1.8rem;
+    @media (max-width: 560px){
+      font-size: 1rem!important;
+    }
+  }
+
+  .width-400{
+    width: 420px!important;
+  }
+
+  .gradiant-txt{
+    color: transparent;
+    background-image: -moz-linear-gradient(357.78deg,#5236ff 0,#c20560 100%);
+    background-image: linear-gradient(92.22deg,#5236ff,#c20560);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  .gray-txt{
+    color: gray;
+  }
+  
+}
+@media (max-width: 1480px){
+  .main-background{
+    top: 450px!important;
+  }
+}
+@media (max-width: 1024px) {
+  .lander{
+    .mb-padding{
+      padding: 0 5%!important;
+    }
+    .main-txt{
+      font-size: 1.6rem;
+    }
+    .width-400{
+      width: 70%!important;
+    }
+    .main-button{
+      width: 50%;
+      font-size: 1.7rem;
+      height: 2.8rem;
+      margin-top: 2rem;
+    }
+    .email-button{
+      margin: 0 auto;
+    }
+    .mobile-only{
+      display: block;
+    }
+    .main-background{
+      position: initial;
+      height: 60vw !important;
+      width: 100%;
+    }
+    .lander-container{
+      width: 100%;
+      padding: 0;
+
+      .lander-logo{
+        width: 90%;
+        height: 80px;
+        margin-top: 80px;
+      }
+      .logo-bottom{
+        width: 90%;
+        text-align: right;
+        margin-top: 0;
+        padding-right: 20px;
+      }
+      .bottom-left, 
+      .contact-right-div{
+        width: 100%;
+      }
+      .right-top-menu-row{
+        position: unset;
+      }
+      .right-top-menu{
+        margin: 20px auto 20px;
+      }
+      .contact-right-div{
+        padding: 0;
+      }
+    }
+  }
+}
+@media (min-width: 2000px){
+  .right-top-menu-row{
+    right: calc((100% - 2000px)/2 + 20px);
   }
 }

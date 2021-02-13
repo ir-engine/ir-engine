@@ -3,6 +3,7 @@ import { Application } from '../../declarations';
 import { UserRole } from './user-role.class';
 import createModel from '../../models/user-role.model';
 import hooks from './user-role.hooks';
+import userRoleDocs from './user-role.docs';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -17,7 +18,14 @@ export default (app: Application): any => {
     multi: true
   };
 
-  app.use('/user-role', new UserRole(options, app));
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
+  const event = new UserRole(options, app);
+  event.docs = userRoleDocs;
+  app.use('/user-role', event);
 
   const service = app.service('user-role');
 

@@ -1,11 +1,11 @@
 import { Vec3 } from 'cannon-es';
 import { Mesh } from 'three';
-import { Object3DComponent } from '../../common/components/Object3DComponent';
+import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { ColliderComponent } from '../components/ColliderComponent';
-import { PhysicsManager } from '../components/PhysicsManager';
+import { PhysicsSystem } from '../systems/PhysicsSystem';
 import {
   createBox,
   createCylinder,
@@ -14,12 +14,10 @@ import {
 } from './physicalPrimitives';
 
 export const handleCollider: Behavior = (entity: Entity, args: { phase?: string }): void => {
-
-
   if (args.phase === 'onRemoved') {
     const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent, true);
     if (colliderComponent) {
-      PhysicsManager.instance.physicsWorld.removeBody(colliderComponent.collider);
+      PhysicsSystem.physicsWorld.removeBody(colliderComponent.collider);
     }
     return;
   }
@@ -35,7 +33,6 @@ export const handleCollider: Behavior = (entity: Entity, args: { phase?: string 
       mesh.geometry.computeBoundingBox();
     }
   }
-
 
   let body;
   console.log("Adding collider of type", colliderComponent.type);
@@ -59,7 +56,7 @@ export const handleCollider: Behavior = (entity: Entity, args: { phase?: string 
 
     case 'trimesh':
     body = createTrimesh(
-        getMutableComponent<Object3DComponent>(entity, Object3DComponent as any).value,
+        colliderComponent.mesh,
         new Vec3(),
         colliderComponent.mass
       );
@@ -69,12 +66,6 @@ export const handleCollider: Behavior = (entity: Entity, args: { phase?: string 
       body = createBox(entity)
       break;
   }
-
-/*
-    body.shapes.forEach((shape) => {
-			shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
-		});
-*/
-		//body.collisionFilterGroup = 1;
-
+  PhysicsSystem.physicsWorld.addBody(body);
+  colliderComponent.collider = body;
 };

@@ -4,6 +4,7 @@ import { Application } from '../../declarations';
 import { LocationType } from './location-type.class';
 import createModel from '../../models/location-type.model';
 import hooks from './location-type.hooks';
+import locationTypeDocs from './location-type.docs';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -19,10 +20,20 @@ export default function (app: Application): void {
     multi: true
   };
 
-  // Initialize our service with any options it requires
-  app.use('/location-type', new LocationType(options, app));
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
+  const event = new LocationType(options, app);
+  event.docs = locationTypeDocs;
+  app.use('/location-type', event );
 
-  // Get our initialized service so that we can register hooks
+   /**
+   * Get our initialized service so that we can register hooks
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const service = app.service('location-type');
 
   service.hooks(hooks);

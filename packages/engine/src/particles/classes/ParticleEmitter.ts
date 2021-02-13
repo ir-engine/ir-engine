@@ -1,4 +1,6 @@
+import { MathUtils, Matrix4 } from "three";
 import { createPseudoRandom } from "../../common/functions/MathRandomFunctions";
+import { ParticleEmitter, ParticleEmitterInterface } from "../interfaces";
 import {
   loadTexturePackerJSON,
   needsUpdate,
@@ -19,8 +21,6 @@ import {
   setVelocityScaleAt,
   setWorldAccelerationAt
 } from "./ParticleMesh";
-import { ParticleEmitterInterface, ParticleEmitter } from "../interfaces";
-import { Mesh, Geometry, MathUtils, Matrix4 } from "three";
 
 const error = console.error;
 const FRAME_STYLES = ["sequence", "randomsequence", "random"];
@@ -29,6 +29,14 @@ const DEG2RAD = MathUtils.DEG2RAD;
 const emitterRegistry = new Set();
 // let emitterRegistry = []
 
+/**
+ * Create particle emitter.
+ * @param options Options for particle emitter.
+ * @param matrixWorld Matrix world of particle emitter.
+ * @param time Emitter time.
+ * 
+ * @returns Newly created particle emitter.
+ */
 export function createParticleEmitter(
   options: ParticleEmitterInterface,
   matrixWorld: Matrix4,
@@ -127,7 +135,10 @@ export function createParticleEmitter(
 }
 
 //needsUpdate
-
+/**
+ * Delete particle emitter.
+ * @param emitter Emitter to be deleted.
+ */
 export function deleteParticleEmitter(emitter: ParticleEmitter): void {
   const shiftAmount = emitter.endIndex - emitter.startIndex;
   emitterRegistry.delete(emitter);
@@ -144,7 +155,7 @@ export function deleteParticleEmitter(emitter: ParticleEmitter): void {
   for(let i = emitter.startIndex; i <= emitter.mesh.userData.nextIndex; i++){
     copyEmitterAttrs(geometry, i, shiftAmount);
   }
-  console.log(geometry.attributes);
+  // console.log(geometry.attributes);
   emitter.mesh.userData.nextIndex -= shiftAmount;
   const arrayEmitter = Array.from(emitterRegistry);
   for(let i = 0; i < emitterRegistry.size; i++) {
@@ -172,6 +183,12 @@ export function deleteParticleEmitter(emitter: ParticleEmitter): void {
 //   } 
 // }
 
+/**
+ * Copy emitter attributes from emitter geometry.
+ * @param geometry Geometry to be copied.
+ * @param index Index at which geometry will be copied.
+ * @param shiftAmount Amount of shift to be applied on index to get the geometry to be copied.
+ */
 function copyEmitterAttrs(geometry, index, shiftAmount){
 
   const shiftIndex =  index + shiftAmount; 
@@ -281,7 +298,12 @@ function copyEmitterAttrs(geometry, index, shiftAmount){
     velocityscale.getZ(shiftIndex));
 }
 
-function despawn(geometry, index) {
+/**
+ * Despawn all the particles.
+ * @param geometry Geometry to be despawned.
+ * @param index Index of the geometry.
+ */
+function despawn(geometry, index): void {
   // TODO: cleanup mesh!
 
   // matrixWorld = null
@@ -307,10 +329,22 @@ function despawn(geometry, index) {
   setVelocityScaleAt(geometry, index, 0, 0, 0);
 }
 
+/**
+ * Set particle emitter time.
+ * @param emitter Particle emitter.
+ * @param time Time of the particle emitter.
+ */
 export function setEmitterTime(emitter: ParticleEmitter, time: number): void {
   setMaterialTime(emitter.mesh.material, time);
 }
 
+/**
+ * Apply matrix world to particle emitter.
+ * @param emitter Particle emitter.
+ * @param matrixWorld Matrix world to be applied on particle emitter.
+ * @param time Time to be applied on particle emitter.
+ * @param deltaTime Time since last frame.
+ */
 export function setEmitterMatrixWorld(emitter: ParticleEmitter, matrixWorld: Matrix4, time: number, deltaTime: number): void {
   const geometry = emitter.mesh.geometry;
   const endIndex = emitter.endIndex;
@@ -334,7 +368,20 @@ export function setEmitterMatrixWorld(emitter: ParticleEmitter, matrixWorld: Mat
   }
 }
 
-function spawn(geometry, matrixWorld, config, index, spawnTime, lifeTime, repeatTime, textureFrame, seed, rndFn) {
+/**
+ * Spawn particles.
+ * @param geometry Geometry to be spawned.
+ * @param matrixWorld Matrix world to be applied on geometry.
+ * @param config Configs for particles.
+ * @param index Index of particles.
+ * @param spawnTime Spawn time to be set on particles.
+ * @param lifeTime Life time of particles.
+ * @param repeatTime Repeat time for particles to be respawned.
+ * @param textureFrame Texture frame for particles.
+ * @param seed Random seed.
+ * @param rndFn Random function for randomness.
+ */
+function spawn(geometry, matrixWorld, config, index, spawnTime, lifeTime, repeatTime, textureFrame, seed, rndFn): void {
   const velocity = config.velocity;
   const acceleration = config.acceleration;
   const angularVelocity = config.angularVelocity;

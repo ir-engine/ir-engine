@@ -4,6 +4,7 @@ import { Application } from '../../declarations';
 import { LocationSettings } from './location-settings.class';
 import createModel from '../../models/location-settings.model';
 import hooks from './location-settings.hooks';
+import locationSettingsDocs from './location-settings-docs';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -19,10 +20,21 @@ export default function (app: Application): void {
     multi: true
   };
 
-  // Initialize our service with any options it requires
-  app.use('/location-settings', new LocationSettings(options, app));
+  
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
+  const event = new LocationSettings(options, app);
+  event.docs = locationSettingsDocs;
+  app.use('/location-settings', event);
 
-  // Get our initialized service so that we can register hooks
+  /**
+   * Get our initialized service so that we can register hooks
+   * 
+   * @author Vyacheslav Solovjov
+   */
   const service = app.service('location-settings');
 
   service.hooks(hooks);

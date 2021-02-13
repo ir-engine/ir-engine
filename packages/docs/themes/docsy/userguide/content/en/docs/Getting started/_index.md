@@ -92,7 +92,7 @@ pre-configured to use the Docsy theme as a Git submodule. You can clone the Exam
     git clone --recurse-submodules --depth 1 <em>https://github.com/my/example.git</em>
     </pre>
 
-You can now edit your local versions of the site's source files. To preview your site, go to your site root directory and run `hugo server`. By default, your site will be available at http://localhost:1313/. To push changes to your new repo, go to your site root directory and use `git push`.-->
+You can now edit your local versions of the site's source files. To preview your site, go to your site root directory and run `hugo server`. By default, your site will be available at http://127.0.0.1:1313/. To push changes to your new repo, go to your site root directory and use `git push`.-->
 
 Note that the following approach [forks](https://help.github.com/en/articles/fork-a-repo) our repo and so creates a connection in GitHub between your project repo and the Docsy example site project repo - our project will be the "upstream" version of your site project:
 
@@ -107,7 +107,7 @@ Note that the following approach [forks](https://help.github.com/en/articles/for
     git clone --recurse-submodules --depth 1 <em>https://github.com/my/example.git</em>
     </pre>
 
-You can now edit your local versions of the site's source files. To preview your site, go to your site root directory and run `hugo server`. By default, your site will be available at http://localhost:1313/. To push changes to your new repo, go to your site root directory and use `git push`.
+You can now edit your local versions of the site's source files. To preview your site, go to your site root directory and run `hugo server`. By default, your site will be available at http://127.0.0.1:1313/. To push changes to your new repo, go to your site root directory and use `git push`.
 
 
 #### Using the command line
@@ -130,7 +130,7 @@ To copy the example site:
     
         hugo server
     
-1. Preview your site in your browser at: http://localhost:1313/. You can use `Ctrl + c` to stop the Hugo server whenever you like.
+1. Preview your site in your browser at: http://127.0.0.1:1313/. You can use `Ctrl + c` to stop the Hugo server whenever you like.
 
 1. Now that you have a site running, you can push it to a new repository:
 
@@ -220,7 +220,7 @@ cd myproject
 hugo server
 ```
     
-By default, your site will be available at http://localhost:1313/.
+By default, your site will be available at http://127.0.0.1:1313/.
 
 ## Basic site configuration
 

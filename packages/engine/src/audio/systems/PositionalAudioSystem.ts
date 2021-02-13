@@ -1,22 +1,17 @@
-import { System, SystemAttributes } from '../../ecs/classes/System'
-import { registerComponent } from '../../ecs/functions/ComponentFunctions';
+import { PositionalAudio } from 'three';
+import { Engine } from '../../ecs/classes/Engine';
+import { System, SystemAttributes } from '../../ecs/classes/System';
 import {
   getComponent,
   getMutableComponent,
-  hasComponent,
-  removeComponent
+  hasComponent
 } from '../../ecs/functions/EntityFunctions';
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
-import { PositionalAudioComponent } from '../components/PositionalAudioComponent';
-import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
-import { AudioLoader, PositionalAudio } from 'three';
-import { Engine } from '../../ecs/classes/Engine';
-import { TransformComponent } from '../../transform/components/TransformComponent';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
-import { MediaStreamComponent } from '../../networking/components/MediaStreamComponent';
-import { Network } from '../../networking/components/Network';
-import { MediaStreamSystem } from '../../networking/systems/MediaStreamSystem';
 import { NetworkObject } from '../../networking/components/NetworkObject';
+import { MediaStreamSystem } from '../../networking/systems/MediaStreamSystem';
+import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
+import { TransformComponent } from '../../transform/components/TransformComponent';
+import { PositionalAudioComponent } from '../components/PositionalAudioComponent';
 
 const SHOULD_CREATE_SILENT_AUDIO_ELS = typeof navigator !== "undefined" && /chrome/i.test(navigator.userAgent);
 function createSilentAudioEl(streamsLive) {
@@ -57,7 +52,7 @@ export class PositionalAudioSystem extends System {
       const entityNetworkObject = getComponent(entity, NetworkObject);
       if (entityNetworkObject) {
         const peerId = entityNetworkObject.ownerId;
-        const consumer = MediaStreamComponent.instance.consumers
+        const consumer = MediaStreamSystem.instance?.consumers
             .find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio');
         if (consumer == null && this.characterAudioStream.get(entity) != null) {
           this.characterAudioStream.delete(entity);
@@ -74,7 +69,7 @@ export class PositionalAudioSystem extends System {
       let consumer;
       if (entityNetworkObject != null) {
         const peerId = entityNetworkObject.ownerId;
-        consumer = MediaStreamComponent.instance.consumers
+        consumer = MediaStreamSystem.instance?.consumers
             .find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio');
       }
 
@@ -94,7 +89,7 @@ export class PositionalAudioSystem extends System {
       if (SHOULD_CREATE_SILENT_AUDIO_ELS) {
         createSilentAudioEl(streamsLive); // TODO: Do the audio els need to get cleaned up?
       }
-      
+
       const audioStreamSource = positionalAudio.value.context.createMediaStreamSource(streamsLive);
       if (positionalAudio.value.context.state === 'suspended') positionalAudio.value.context.resume();
 
@@ -131,7 +126,7 @@ export class PositionalAudioSystem extends System {
   suspend(): void {
     for (const entity of this.queryResults.character_audio.all) {
       const positionalAudio = getComponent(entity, PositionalAudioComponent);
-      positionalAudio.value.context.suspend();
+      positionalAudio.value?.context?.suspend();
     }
   }
 
@@ -139,7 +134,7 @@ export class PositionalAudioSystem extends System {
   resume(): void {
     for (const entity of this.queryResults.character_audio.all) {
       const positionalAudio = getComponent(entity, PositionalAudioComponent);
-      positionalAudio.value.context.resume();
+      positionalAudio.value?.context?.resume();
     }
   }
 }

@@ -5,11 +5,20 @@ import config from '../../config';
 
 export class Subscription extends Service {
   app: Application
+  docs: any
+  
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options);
     this.app = app;
   }
 
+  /**
+   * 
+   * @param data for creating new subscription 
+   * @param params which contains user info 
+   * @returns {@Object} of created new subscription 
+   * @author 
+   */
   async create (data: any, params: Params): Promise<any> {
     const userId = (params as any).connection['identity-provider'].userId || params.body.userId;
     if (userId == null) {

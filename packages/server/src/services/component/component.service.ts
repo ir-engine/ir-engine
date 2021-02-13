@@ -3,6 +3,7 @@ import { Application } from '../../declarations';
 import { Component } from './component.class';
 import createModel from '../../models/component.model';
 import hooks from './component.hooks';
+import componentDocs from './component.docs';
 
 declare module '../../declarations' {
   interface ServiceTypes {
@@ -17,7 +18,14 @@ export default (app: Application): any => {
     multi: true
   };
 
-  app.use('/component', new Component(options, app));
+    /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
+  const event = new Component(options, app);
+  event.docs = componentDocs;
+  app.use('/component', event);
 
   const service = app.service('component');
 

@@ -13,7 +13,7 @@
   
       /* Typedoc Changes */
       "noImplicitThis": false,
-      "jsx": "preserve",
+      "jsx": "react",
       "skipLibCheck": true,
     },
     "include": ["src/**/*"],
