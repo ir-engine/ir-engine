@@ -13,6 +13,7 @@ export interface User {
   inverseRelationType?: RelationshipType;
   avatarUrl?: string;
   instanceId?: string;
+  channelInstanceId?: string;
   partyId?: string;
   locationBans?: LocationBan[];
 }
