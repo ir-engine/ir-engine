@@ -1,4 +1,6 @@
-
+/**
+ * [EquirectangularOption array containing textures and used in SkyboxNode]
+ */
 export const EquirectangularOption = [
   {
     label: "texture1",
