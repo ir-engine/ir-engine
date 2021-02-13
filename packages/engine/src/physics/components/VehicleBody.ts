@@ -5,7 +5,10 @@ import { Types } from '../../ecs/types/Types';
 
 export class VehicleBody extends Component<VehicleBody> {
 
-  currentDriver: any
+  wantsExit: any
+  passenger: number
+  driver: number
+  seatPlane: any
 
   vehicleMesh: any
   vehiclePhysics: RaycastVehicle
@@ -26,7 +29,7 @@ export class VehicleBody extends Component<VehicleBody> {
   seatsArray: any
 
   maxSteerVal = 0.5
-  maxForce = 500
+  maxForce = 300
   brakeForce = 1000000
   mass: number
   vehicle: RaycastVehicle
@@ -37,7 +40,12 @@ export class VehicleBody extends Component<VehicleBody> {
 
 
 VehicleBody._schema = {
-  currentDriver: { type: Types.Ref, default: null },
+
+  wantsExit: { type: Types.Ref, default: [null, null] },
+  passenger: { type: Types.Number, default: null },
+  driver: { type: Types.Number, default: null },
+  seatPlane: { type: Types.Ref, default: ['driver','passenger']},
+
 
   vehicleMesh: { type: Types.Ref, default: null },
   vehiclePhysics: { type: Types.Ref, default: null },

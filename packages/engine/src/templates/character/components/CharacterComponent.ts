@@ -42,7 +42,6 @@ export class CharacterComponent extends Component<CharacterComponent> {
 
   // TODO: Remove integrate this
   public physicsEnabled = true
-
 	// Movement
 	/**
 	 * desired moving direction from user inputs

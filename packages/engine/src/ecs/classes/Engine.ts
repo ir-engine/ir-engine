@@ -1,4 +1,4 @@
-/** 
+/**
  * This file constains declaration of Engine Class.
  * @packageDocumentation
  */
@@ -13,7 +13,7 @@ import { EntityPool } from './EntityPool';
 import { EventDispatcher } from './EventDispatcher';
 import { Query } from './Query';
 
-/** 
+/**
  * This is the base class which holds all the data related to the scene, camera,system etc.\
  * Data is holded statically hence will be available everywhere.
  */
@@ -36,7 +36,7 @@ export class Engine {
    */
   public static physicsFrameRate = 60;
 
-  /** 
+  /**
    * Frame rate for network system.
    * @default 20
    */

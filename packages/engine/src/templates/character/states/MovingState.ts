@@ -77,7 +77,7 @@ export const MovingState: StateSchemaValue = {
         actor.currentAnimationAction.forEach(currentAnimationAction => {
           if(movementAnimationNames.filter(movAnim => movAnim === currentAnimationAction.getClip().name).length > 0)
             return;
-          currentAnimationAction.fadeOut(.1);
+          currentAnimationAction.fadeOut(.3);
           currentAnimationAction.setEffectiveWeight(0);
         } )
     }

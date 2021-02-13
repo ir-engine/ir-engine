@@ -10,6 +10,7 @@ export class Interactable extends Component<Interactable> {
     onInteractionFocused: { type: Types.Ref },
     onInteraction: { type: Types.Ref },
     interactionParts: { type: Types.Array },
+    interactionPartsPosition: { type: Types.Array },
     data: { type: Types.Ref }
   }
 
@@ -18,5 +19,6 @@ export class Interactable extends Component<Interactable> {
   public onInteractionFocused: Behavior
   public interactiveDistance: number
   public interactionParts: Array<any> = []
+  public interactionPartsPosition: Array<any> = []
   public data: any
 }
