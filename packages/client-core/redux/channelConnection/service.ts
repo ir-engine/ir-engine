@@ -89,6 +89,8 @@ export function connectToChannelServer(channelId: string) {
 
 export function resetChannelServer() {
   return async (dispatch: Dispatch): Promise<any> => {
+    const channelRequest = (Network.instance.transport as any).channelRequest;
+    if (channelRequest != null) (Network.instance.transport as any).channelRequest = null;
     dispatch(channelServerDisconnected());
   };
 }
