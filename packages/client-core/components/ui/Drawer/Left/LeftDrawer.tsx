@@ -247,9 +247,8 @@ const LeftDrawer = (props: Props): any => {
         }, [partyState]);
 
         useEffect(() => {
-            if (user.instanceId != null && userState.get('layerUsersUpdateNeeded') === true) {
-                getLayerUsers();
-            }
+            if (user.instanceId != null && userState.get('layerUsersUpdateNeeded') === true) getLayerUsers(true);
+            if (user.channelInstanceId != null && userState.get('channelLayerUsersUpdateNeeded') === true) getLayerUsers(false);
         }, [user, userState]);
 
         const showFriendDeleteConfirm = (e, friendId) => {

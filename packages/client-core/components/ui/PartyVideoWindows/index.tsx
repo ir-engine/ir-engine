@@ -40,15 +40,16 @@ const PartyVideoWindows = observer((props: Props): JSX.Element => {
   const [displayedUsers, setDisplayedUsers] = useState([]);
   const selfUser = authState.get('user');
   const layerUsers = userState.get('layerUsers') ?? [];
+  const channelLayerUsers = userState.get('channelLayerUsers') ?? [];
 
   useEffect(() => {
-    setDisplayedUsers(layerUsers.filter((user) => selfUser.partyId != null ? user.id !== selfUser.id && user.partyId === selfUser.partyId : user.id !== selfUser.id))
-  }, [layerUsers]);
+    if (channelLayerUsers?.length > 0) setDisplayedUsers(channelLayerUsers.filter((user) => user.id !== selfUser.id));
+    else setDisplayedUsers(layerUsers.filter((user) => selfUser.partyId != null ? user.id !== selfUser.id && user.partyId === selfUser.partyId : user.id !== selfUser.id))
+  }, [layerUsers, channelLayerUsers]);
 
   useEffect(() => {
-    if (selfUser.instanceId != null && userState.get('layerUsersUpdateNeeded') === true) {
-      getLayerUsers();
-    }
+    if (selfUser.instanceId != null && userState.get('layerUsersUpdateNeeded') === true) getLayerUsers(true);
+    if (selfUser.channelInstanceId != null && userState.get('channelLayerUsersUpdateNeeded') === true) getLayerUsers(false);
   }, [ userState]);
 
   return (

@@ -225,7 +225,7 @@ export async function endVideoChat(options: { leftParty?: boolean, endConsumers?
         try {
             networkTransport = Network.instance.transport as any;
             console.log(MediaStreamSystem.instance?.camVideoProducer);
-            const isInstanceMedia = networkTransport.instanceSocket?.connected === true && (networkTransport.channelId == null || networkTransport.channelId != '');
+            const isInstanceMedia = networkTransport.instanceSocket?.connected === true && (networkTransport.channelId == null || networkTransport.channelId.length === 0);
             const isChannelMedia = networkTransport.channelSocket?.connected === true && networkTransport.channelId != null && networkTransport.channelId.length > 0;
             if (MediaStreamSystem.instance?.camVideoProducer) {
                 console.log('Closing cam video producer');

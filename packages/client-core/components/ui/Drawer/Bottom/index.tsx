@@ -105,7 +105,6 @@ const BottomDrawer = (props: Props): any => {
 
     useEffect(() => {
         if (messageScrollInit === true && messageEl != null && (messageEl as any).scrollTop != null) {
-            console.log('Triggering messageScrollInit');
             (messageEl as any).scrollTop = (messageEl as any).scrollHeight;
             updateMessageScrollInit(false);
             setMessageScrollUpdate(false);

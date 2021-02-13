@@ -177,7 +177,6 @@ export const EnginePage = (props: Props) => {
       instanceConnectionState.get('instanceServerConnecting') === false &&
       instanceConnectionState.get('connected') === false
     ) {
-      console.log('instanceConnection changed')
       const currentLocation = locationState.get('currentLocation').get('location');
       if (sceneId === null && currentLocation.sceneId !== null) {
         sceneId = currentLocation.sceneId;
@@ -196,7 +195,7 @@ export const EnginePage = (props: Props) => {
             const currentLocation = locationState.get('currentLocation').get('location');
             provisionInstanceServer(instance.locationId, instanceId, currentLocation.sceneId);
             if (sceneId === null) {
-              console.log("Set scene ID to, sceneId");
+              console.log('Set scene ID to', sceneId);
               sceneId = currentLocation.sceneId;
             }
           });

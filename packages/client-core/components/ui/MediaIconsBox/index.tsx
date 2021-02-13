@@ -16,7 +16,7 @@ import {
     configureMediaTransports,
     createCamAudioProducer,
     createCamVideoProducer,
-    endVideoChat,
+    endVideoChat, leave,
     pauseProducer,
     resumeProducer
 } from "@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions";
@@ -76,6 +76,7 @@ const MediaIconsBox = observer((props) =>{
     const checkEndVideoChat = async () =>{
         if((MediaStreamSystem.instance.audioPaused || MediaStreamSystem.instance?.camAudioProducer == null) && (MediaStreamSystem.instance.videoPaused || MediaStreamSystem.instance?.camVideoProducer == null)) {
             await endVideoChat({});
+            if ((Network.instance.transport as any).channelSocket?.connected === true) await leave(false);
         }
     };
     const handleMicClick = async () => {

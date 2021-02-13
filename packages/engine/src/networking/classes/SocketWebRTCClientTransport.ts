@@ -237,9 +237,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
 
       // Init Receive and Send Transports initially since we need them for unreliable message consumption and production
-      await Promise.all([initSendTransport('instance'), initReceiveTransport('instance')]);
+      console.log('Init instance transports?', this.channelType, this.channelId);
+      if ((socket as any).instance === true) await Promise.all([initSendTransport('instance'), initReceiveTransport('instance')]);
 
-      await createDataProducer(this.channelType === 'instance' ? 'instance' : this.channelId );
+      await createDataProducer((socket as any).instance === true ? 'instance' : this.channelId );
     });
   }
 }

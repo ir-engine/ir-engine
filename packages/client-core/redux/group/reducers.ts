@@ -112,12 +112,10 @@ const groupReducer = (state = immutableState, action: GroupAction): any => {
       return state
           .set('getInvitableGroupsInProgress', true);
     case CREATED_GROUP_USER:
-      console.log('CREATED GROUP USER');
       newValues = (action as CreatedGroupUserAction);
       groupUser = newValues.groupUser;
       updateMap = new Map(state.get('groups'));
       updateMapGroups = updateMap.get('groups');
-      console.log(updateMapGroups);
       updateMapGroupsChild = _.find(updateMapGroups, (group) => group.id === groupUser.groupId);
       if (updateMapGroupsChild != null) {
         updateMapGroupUsers = updateMapGroupsChild.groupUsers;
@@ -128,12 +126,10 @@ const groupReducer = (state = immutableState, action: GroupAction): any => {
       return state
           .set('groups', updateMap);
     case PATCHED_GROUP_USER:
-      console.log('CREATED GROUP USER');
       newValues = (action as PatchedGroupUserAction);
       groupUser = newValues.groupUser;
       updateMap = new Map(state.get('groups'));
       updateMapGroups = updateMap.get('groups');
-      console.log(updateMapGroups);
       updateMapGroupsChild = _.find(updateMapGroups, (group) => group.id === groupUser.groupId);
       if (updateMapGroupsChild != null) {
         // updateMapGroupUsers = updateMapGroupsChild.groupUsers
@@ -143,13 +139,11 @@ const groupReducer = (state = immutableState, action: GroupAction): any => {
       return state
           .set('groups', updateMap);
     case REMOVED_GROUP_USER:
-      console.log('REMOVED_GROUP_USER');
       newValues = (action as RemovedGroupUserAction);
       groupUser = newValues.groupUser;
       const self = newValues.self;
       updateMap = new Map(state.get('groups'));
       updateMapGroups = updateMap.get('groups');
-      console.log(updateMapGroups);
       updateMapGroupsChild = _.find(updateMapGroups, (group) => group.id === groupUser.groupId);
       if (updateMapGroupsChild != null) {
         updateMapGroupUsers = updateMapGroupsChild.groupUsers;

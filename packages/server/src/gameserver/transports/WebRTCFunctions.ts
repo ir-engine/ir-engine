@@ -73,12 +73,8 @@ export const sendInitialProducers = async (socket: SocketIO.Socket, channelType:
     console.log('sendInitialProducers being called for ', userId);
     if (selfClient?.socketId != null) {
         Object.entries(Network.instance.clients).forEach(([name, value]) => {
-            // console.log(name);
-            // console.log(value);
             if (name === userId || value.media == null || value.socketId == null)
                 return;
-            console.log(`Sending media for ${name}`);
-            console.log(value.media);
             Object.entries(value.media).map(([subName, subValue]) => {
                 if (channelType === 'instance' ? 'instance' === (subValue as any).channelType : (subValue as any).channelType === channelType && (subValue as any).channelId === channelId)
                     selfClient.socket.emit(MessageTypes.WebRTCCreateProducer.toString(), value.userId, subName, (subValue as any).producerId, channelType, channelId);
@@ -125,7 +121,6 @@ export const handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
 };
 
 export async function closeTransport(transport): Promise<void> {
-    console.log('CLOSING TRANSPORT');
     logger.info("closing transport " + transport.id, transport.appData);
     // our producer and consumer event handlers will take care of
     // calling closeProducer() and closeConsumer() on all the producers
@@ -145,7 +140,6 @@ export async function closeProducer(producer): Promise<void> {
 export async function closeProducerAndAllPipeProducers(producer, peerId): Promise<void> {
     if (producer != null) {
         console.log("closing producer and all pipe producer " + producer.id, producer.appData);
-        console.log(Network.instance.clients);
 
         // remove this producer from our roomState.producers list
         if(MediaStreamSystem.instance) MediaStreamSystem.instance.producers = MediaStreamSystem.instance?.producers.filter(p => p.id !== producer.id);
@@ -218,8 +212,6 @@ export async function createInternalDataConsumer(dataProducer: DataProducer, use
 }
 
 export async function handleWebRtcTransportCreate(socket, data: WebRtcTransportParams, callback): Promise<any> {
-    console.log('handleWebRTCTransportCreate');
-    console.log(data);
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
     const { direction, peerId, sctpCapabilities, channelType, channelId } = Object.assign(data, { peerId: userId });
@@ -331,8 +323,6 @@ export async function handleWebRtcTransportConnect(socket, data, callback): Prom
 }
 
 export async function handleWebRtcCloseProducer(socket, data, callback): Promise<any> {
-    console.log('handle closeProducer');
-    console.log(Network.instance.clients);
     const userId = getUserIdFromSocketId(socket.id);
     const { producerId } = data, producer = MediaStreamSystem.instance?.producers.find(p => p.id === producerId);
     await closeProducerAndAllPipeProducers(producer, userId).catch(err => logger.error(err));
@@ -381,8 +371,6 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
     const { mediaPeerId, mediaTag, rtpCapabilities, channelType, channelId } = data;
-    console.log('Receive track for ', channelType, channelId);
-    console.log(MediaStreamSystem.instance.producers);
     const producer = MediaStreamSystem.instance.producers.find(
         p => p._appData.mediaTag === mediaTag && p._appData.peerId === mediaPeerId && (channelType === 'instance' ? p._appData.channelType === channelType : p._appData.channelType === channelType && p._appData.channelId === channelId)
     );
@@ -418,8 +406,6 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
             closeConsumer(consumer);
         });
         consumer.on('producerpause', () => {
-            console.log(`consumer's producer paused`);
-            console.log(consumer.id);
             if (consumer && typeof consumer.pause === 'function') consumer.pause();
             socket.emit(MessageTypes.WebRTCPauseConsumer.toString(), consumer.id);
         });
@@ -444,9 +430,6 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
                 Network.instance.clients[userId].consumerLayers[consumer.id].currentLayer = layers && layers.spatialLayer;
         });
 
-        console.log('finishing receiveTrack');
-        console.log('Clients:');
-        console.log(Network.instance.clients);
         callback({
             producerId: producer.id,
             id: consumer.id,

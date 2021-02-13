@@ -15,15 +15,16 @@ import {
     Save,
     Send, Videocam, VideocamOff
 } from '@material-ui/icons';
-import Layout from "@xr3ngine/client-core/components/ui/Layout/HarmonyLayout";
 import PartyParticipantWindow from "@xr3ngine/client-core/components/ui/PartyParticipantWindow";
-import UserMenu from '@xr3ngine/client-core/components/ui/UserMenu';
 import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
 import { doLoginAuto } from "@xr3ngine/client-core/redux/auth/service";
 import { selectChatState } from '@xr3ngine/client-core/redux/chat/selector';
 import {
-    createMessage, getChannelMessages, getChannels,
-    patchMessage, removeMessage,
+    createMessage,
+    getChannelMessages,
+    getChannels,
+    patchMessage,
+    removeMessage,
     updateChatTarget,
     updateMessageScrollInit
 } from '@xr3ngine/client-core/redux/chat/service';
@@ -145,7 +146,9 @@ const Harmony = observer((props: Props): any => {
     const [producerStarting, _setProducerStarting] = useState('');
     const [activeAVChannelId, _setActiveAVChannelId] = useState('');
 
-    const layerUsers = userState.get('layerUsers') ?? [];
+    const instanceLayerUsers = userState.get('layerUsers') ?? [];
+    const channelLayerUsers = userState.get('channelLayerUsers') ?? [];
+    const layerUsers = channelLayerUsers.length > 0 ? channelLayerUsers : instanceLayerUsers;
 
     const setProducerStarting = value => {
         producerStartingRef.current = value;
@@ -161,7 +164,7 @@ const Harmony = observer((props: Props): any => {
     const activeAVChannelIdRef = useRef(activeAVChannelId);
 
     useEffect(() => {
-        doLoginAuto(true);
+        // doLoginAuto(true);
 
         window.addEventListener('connectToWorld', () => {
             if (producerStartingRef.current === 'audio') toggleAudio(activeAVChannelIdRef.current);
@@ -170,15 +173,15 @@ const Harmony = observer((props: Props): any => {
         });
 
         window.addEventListener('leaveWorld', () => {
-            console.log('Resetting instance server');
             resetChannelServer();
         });
+
+        setActiveAVChannelId((Network.instance.transport as any).channelId);
     }, []);
 
 
     useEffect(() => {
         if (messageScrollInit === true && messageEl != null && (messageEl as any).scrollTop != null) {
-            console.log('Triggering messageScrollInit');
             (messageEl as any).scrollTop = (messageEl as any).scrollHeight;
             updateMessageScrollInit(false);
             setMessageScrollUpdate(false);
@@ -362,7 +365,7 @@ const Harmony = observer((props: Props): any => {
             provisionChannelServer(null, channelId);
             setProducerStarting('audio');
         } else {
-            toggleAudio(channelId);
+            if (channelConnectionState.get('instanceProvisioned') === true && channelConnectionState.get('connnected') === true) toggleAudio(channelId);
         }
     };
 
@@ -386,7 +389,7 @@ const Harmony = observer((props: Props): any => {
             provisionChannelServer(null, channelId);
             setProducerStarting('video');
         } else {
-            toggleVideo(channelId);
+            if (channelConnectionState.get('instanceProvisioned') === true && channelConnectionState.get('connected') === true) toggleVideo(channelId);
         }
     };
 
@@ -438,17 +441,13 @@ const Harmony = observer((props: Props): any => {
     }
 
     useEffect(() => {
-        console.log('channelConnectionState useEffect');
         if (
             channelConnectionState.get('instanceProvisioned') === true &&
             channelConnectionState.get('updateNeeded') === true &&
             channelConnectionState.get('instanceServerConnecting') === false &&
             channelConnectionState.get('connected') === false
         ) {
-            console.log('channelConnection changed');
             init().then(() => {
-                console.log('Connecting to channel server');
-                console.log(channelConnectionState.get('channelId'));
                 connectToChannelServer(channelConnectionState.get('channelId'));
             });
         }
