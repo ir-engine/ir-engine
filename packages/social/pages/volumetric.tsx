@@ -1,5 +1,4 @@
 import React from 'react';
-import { ToggleTest } from '../components/ToggleTest';
 import { VolumetricPlayer } from "../components/VolumetricPlayer";
 import styles from './index.module.scss';
 
@@ -10,7 +9,6 @@ export const IndexPage = (props: any): any => {
     return (
         <div className={styles.viewport}>
             <h1>Arc volumetric test</h1>
-          <ToggleTest></ToggleTest>
           {/* <Canvas> */}
             <VolumetricPlayer
               meshFilePath={meshFilePath}
