@@ -1,3 +1,4 @@
+import React from 'react';
 import { AppBar } from '@material-ui/core';
 import Fab from '@material-ui/core/Fab';
 import {
@@ -15,6 +16,7 @@ import {
 } from '../../../redux/chat/service';
 import { selectLocationState } from '../../../redux/location/selector';
 import { selectPartyState } from '../../../redux/party/selector';
+// @ts-ignore
 import styles from './DrawerControls.module.scss';
 
 const mapStateToProps = (state: any): any => {

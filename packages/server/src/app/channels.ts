@@ -57,7 +57,10 @@ export default (app: Application): void => {
                             } as any;
                             console.log('channelId: ' + channelId);
                             console.log('locationId: ' + locationId);
-                            if (channelId != null) newInstance.channelId = channelId;
+                            if (channelId != null) {
+                                newInstance.channelId = channelId;
+                                (app as any).isChannelInstance = true;
+                            }
                             else if (locationId != null) newInstance.locationId = locationId;
                             console.log('Creating new instance:');
                             console.log(newInstance);
@@ -105,8 +108,9 @@ export default (app: Application): void => {
                             });
                         }
                         // console.log(`Patching user ${user.id} instanceId to ${(app as any).instance.id}`);
+                        const instanceIdKey = (app as any).isChannelInstance === true ? 'channelInstanceId' : 'instanceId';
                         await app.service('user').patch(userId, {
-                            instanceId: (app as any).instance.id
+                            [instanceIdKey]: (app as any).instance.id
                         });
                         (connection as any).instanceId = (app as any).instance.id;
                         // console.log('Patched user instanceId');
@@ -174,14 +178,15 @@ export default (app: Application): void => {
                             });
 
                             const user = await app.service('user').get(userId);
+                            const instanceIdKey = (app as any).isChannelInstance === true ? 'channelInstanceId' : 'instanceId';
                             if ((Network.instance.clients[userId] == null && process.env.KUBERNETES === 'true') || (process.env.NODE_ENV === 'development')) await app.service('user').patch(null, {
-                                instanceId: null
+                                [instanceIdKey]: null
                             }, {
                                 query: {
                                     id: user.id,
-                                    instanceId: instanceId
+                                    [instanceIdKey]: instanceId
                                 },
-                                instanceId: instanceId
+                                [instanceIdKey]: instanceId
                             }).catch((err) => {
                                 console.warn("Failed to patch user, probably because they don't have an ID yet");
                                 console.log(err);

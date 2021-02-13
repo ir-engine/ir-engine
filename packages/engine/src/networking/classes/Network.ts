@@ -64,8 +64,10 @@ export class Network {
   /** Map of Network Objects. */
   networkObjects: NetworkObjectList = {}
   localClientEntity: Entity = null
-  /** Socket id of the network. */
-  socketId: string
+  /** Socket id of the network instance connection. */
+  instanceSocketId: string
+  /** Socket id of the network channel connection. */
+  channelSocketId: string
   /** User id hosting this network. */
   userId: string
   /** Network id of the local User. */

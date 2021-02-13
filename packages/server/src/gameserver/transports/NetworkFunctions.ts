@@ -185,7 +185,7 @@ export async function handleConnectToWorld(socket, data, callback, userId, user)
 
     // Create a new client object
     // and add to the dictionary
-    Network.instance.clients[userId] = {
+    if (Network.instance.clients[userId] == null) Network.instance.clients[userId] = {
         userId: userId,
         name: user.dataValues.name,
         socket: socket,
@@ -229,7 +229,7 @@ function disconnectClientIfConnected(socket, userId: string): void {
     // If we are already logged in, kick the other socket
     if (Network.instance.clients[userId] !== undefined &&
       Network.instance.clients[userId].socketId !== socket.id) {
-        logger.info("Client already exists, kicking the old client and disconnecting");
+        console.log("Client already exists, kicking the old client and disconnecting");
         Network.instance.clients[userId].socket?.emit(MessageTypes.Kick.toString());
         Network.instance.clients[userId].socket?.disconnect();
     }
@@ -237,7 +237,7 @@ function disconnectClientIfConnected(socket, userId: string): void {
     console.log(Network.instance.networkObjects);
     Object.keys(Network.instance.networkObjects).forEach((key: string) => {
         const networkObject = Network.instance.networkObjects[key];
-        // Validate that the object belonged to disconnecting user
+        // Validate that the object belongeread to disconnecting user
         if (networkObject.ownerId !== userId) return;
 
         // If it does, tell clients to destroy it
