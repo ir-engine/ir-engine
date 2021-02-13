@@ -307,7 +307,6 @@ export default class Editor extends EventEmitter {
     const tasks = [
             rendererPromise,
             loadEnvironmentMap(),
-            LoadingCube.load(),
             ErrorIcon.load(),
             TransformGizmo.load()
           ];
