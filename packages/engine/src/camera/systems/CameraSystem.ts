@@ -19,6 +19,10 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { CameraComponent } from '../components/CameraComponent';
 import { FollowCameraComponent } from '../components/FollowCameraComponent';
 import { CameraModes } from "../types/CameraModes";
+import { Entity } from "../../ecs/classes/Entity";
+import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
+import { CollisionGroups } from "../../physics/enums/CollisionGroups";
+import { Vec3 } from "cannon-es";
 
 const forwardVector = new Vector3(0, 0, 1);
 let direction = new Vector3();
@@ -56,6 +60,8 @@ const getInputData = (inputComponent: Input, inputAxes: number ): NumericalType 
 
 /** System class which provides methods for Camera system. */
 export class CameraSystem extends System {
+  static activeCamera: Entity
+
   /** Constructs camera system. */
   constructor() {
     super();
@@ -65,6 +71,7 @@ export class CameraSystem extends System {
     addObject3DComponent(cameraEntity, { obj3d: Engine.camera });
     addComponent(cameraEntity, TransformComponent);
     addComponent(cameraEntity, DesiredTransformComponent);
+    CameraSystem.activeCamera = cameraEntity;
   }
 
   /**
@@ -127,14 +134,27 @@ export class CameraSystem extends System {
         if (cameraFollow.mode === CameraModes.FirstPerson) camDist = 0.01;
         else if (cameraFollow.mode === CameraModes.ShoulderCam) camDist = cameraFollow.minDistance;
         else if (cameraFollow.mode === CameraModes.TopDown) camDist = cameraFollow.maxDistance;
-      
-        // TODO: add a raycast to limit camDist
-        
+
         const phi = cameraFollow.mode === CameraModes.TopDown ? 85 : cameraFollow.phi;
       
         const shoulderOffsetWorld = cameraFollow.offset.clone().applyQuaternion(actor.tiltContainer.quaternion);
         const targetPosition = actor.tiltContainer.getWorldPosition(vec3).add(shoulderOffsetWorld);
         
+        // Raycast for camera
+        const cameraRaycastStart = new Vec3(targetPosition.x, targetPosition.y, targetPosition.z);
+        const cameraTransform: TransformComponent = getMutableComponent(CameraSystem.activeCamera, TransformComponent)
+        const cameraRaycastEnd = new Vec3(cameraTransform.position.x, cameraTransform.position.y, cameraTransform.position.z);
+        
+        const cameraRaycastOptions = {
+          collisionFilterMask: CollisionGroups.Default,
+          skipBackfaces: true /* ignore back faces */
+        };
+        cameraFollow.rayHasHit = PhysicsSystem.physicsWorld.raycastClosest(cameraRaycastStart, cameraRaycastEnd, cameraRaycastOptions, cameraFollow.rayResult);
+
+        if(cameraFollow.mode !== CameraModes.FirstPerson && cameraFollow.rayHasHit && cameraFollow.rayResult.distance < camDist && cameraFollow.rayResult.distance > 0.1) {
+          camDist = cameraFollow.rayResult.distance;
+        }
+
         cameraDesiredTransform.position.set(
             targetPosition.x + camDist * Math.sin(cameraFollow.theta * PI_2Deg) * Math.cos(phi * PI_2Deg),
             targetPosition.y + camDist * Math.sin(phi * PI_2Deg),
