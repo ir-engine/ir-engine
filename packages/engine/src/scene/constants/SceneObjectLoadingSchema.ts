@@ -1,24 +1,31 @@
 import { isServer } from '@xr3ngine/engine/src/common/functions/isServer';
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
-import { getComponent } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
+import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
+import { getComponent, removeEntity } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
 import { NetworkObject } from '@xr3ngine/engine/src/networking/components/NetworkObject';
 import { initializeNetworkObject } from '@xr3ngine/engine/src/networking/functions/initializeNetworkObject';
-import { addCarPhysics } from '@xr3ngine/engine/src/physics/behaviors/addCarPhysics';
 import { addColliderWithoutEntity } from '@xr3ngine/engine/src/physics/behaviors/addColliderWithoutEntity';
 import { ColliderComponent } from '@xr3ngine/engine/src/physics/components/ColliderComponent';
 import { RigidBody } from '@xr3ngine/engine/src/physics/components/RigidBody';
+import { VehicleBody } from "@xr3ngine/engine/src/physics/components/VehicleBody";
 import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
 import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
-import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight } from 'three';
+import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight, Vector3 } from 'three';
 import { AssetLoader } from '../../assets/components/AssetLoader';
 import { isClient } from "../../common/functions/isClient";
 import { Component } from "../../ecs/classes/Component";
 import { Entity } from "../../ecs/classes/Entity";
 import { addComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { ComponentConstructor } from "../../ecs/interfaces/ComponentInterfaces";
+import { Input } from '../../input/components/Input';
+import { Interactable } from '../../interaction/components/Interactable';
 import { Network } from '../../networking/classes/Network';
 import { createParticleEmitter } from '../../particles/functions/particleHelpers';
+import { onInteractionHover } from '../../templates/interactive/functions/commonInteractive';
+import { getInCar } from '../../templates/vehicle/behaviors/getInCarBehavior';
+import { getInCarPossible } from '../../templates/vehicle/behaviors/getInCarPossible';
+import { VehicleInputSchema } from '../../templates/vehicle/VehicleInputSchema';
 import { addObject3DComponent } from '../behaviors/addObject3DComponent';
 import { createBackground } from '../behaviors/createBackground';
 import { createBoxCollider } from '../behaviors/createBoxCollider';
@@ -41,8 +48,102 @@ import SpawnPointComponent from "../components/SpawnPointComponent";
 import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
 
+function castShadowOn(group) {
+  group.children.forEach(children => {
+    if (children.type == 'Mesh') {
+      children.castShadow = true;
+    }
+  })
+}
 
-function plusParametersFromEditorToMesh( entity, mesh ) {
+const parseCarModel: Behavior = (entity: Entity, groupMeshes: any) => {
+  const deleteArr = [];
+  const argsToVehicle = {
+    vehicleMesh: null,
+    vehicleCollider: null,
+    vehicleDoorsArray: [],
+    seatsArray: [],
+    entrancesArray: [],
+    arrayWheelsPosition: [],
+    arrayWheelsMesh: [],
+    vehicleSphereColliders: [],
+    suspensionRestLength: 0,
+    mass: 0,
+    startPosition: [
+      groupMeshes.position.x,
+      groupMeshes.position.y,
+      groupMeshes.position.z
+    ]
+  };
+  // copy position from editor position model
+  groupMeshes.position.set(0, 0, 0);
+  // Parse Meshes to functionality parts
+  groupMeshes.traverse(mesh => {
+    // add optimized shadow
+    isClient && mesh.userData.data === 'castShadow' ? castShadowOn(mesh) : '';
+    // parse meshes to functionality parts of car
+    switch (mesh.name) {
+      case 'body':
+        argsToVehicle.vehicleMesh = mesh;
+        // @ts-ignore
+        mesh.userData.mass != undefined ? argsToVehicle.mass = parseFloat(mesh.userData.mass) : '';
+        break;
+
+      case 'door_front_left':
+      case 'door_front_right':
+        argsToVehicle.vehicleDoorsArray.push(mesh);
+        getMutableComponent(entity, Interactable).interactionPartsPosition.push([mesh.position.x, mesh.position.y, mesh.position.z]);
+        break;
+
+      case 'collider':
+        argsToVehicle.vehicleCollider = mesh;
+        deleteArr.push(mesh);
+        break;
+
+      case 'seat_front_left':
+      case 'seat_front_right':
+        argsToVehicle.seatsArray.push([mesh.position.x, mesh.position.y, mesh.position.z]);
+        break;
+
+      case 'entrance_front_left':
+      case 'entrance_front_right':
+        argsToVehicle.entrancesArray.push([mesh.position.x, mesh.position.y, mesh.position.z]);
+        break;
+
+      case 'wheel_front_left':
+      case 'wheel_front_right':
+      case 'wheel_rear_left':
+      case 'wheel_rear_right':
+        const clonedMesh = mesh.clone();
+        deleteArr.push(mesh);
+        argsToVehicle.arrayWheelsPosition.push(new Vector3().copy(mesh.position));
+        isClient ? argsToVehicle.arrayWheelsMesh.push(clonedMesh) : '';
+        isClient ? Engine.scene.add(clonedMesh) : '';
+        // @ts-ignore
+        mesh.userData.restLength != undefined ? argsToVehicle.suspensionRestLength = parseFloat(mesh.userData.restLength) : '';
+        break;
+
+      case 'steering_wheel':
+        // to do
+        break;
+    }
+    // parse colliders of car
+    switch (mesh.userData.type) {
+      case 'sphere':
+        argsToVehicle.vehicleSphereColliders.push(mesh);
+        deleteArr.push(mesh);
+        break;
+    }
+  });
+
+  // dalete colliders and else mesh from threejs scene
+  for (let i = 0; i < deleteArr.length; i++) {
+    deleteArr[i].parent.remove(deleteArr[i]);
+  }
+  addComponent(entity, VehicleBody, argsToVehicle);
+};
+
+function plusParametersFromEditorToMesh(entity, mesh) {
   const transform = getComponent(entity, TransformComponent);
   mesh.position.set(
     transform.position.x + mesh.position.x,
@@ -57,7 +158,7 @@ function plusParametersFromEditorToMesh( entity, mesh ) {
 }
 
 
-function addColliderComponent( entity, mesh ) {
+function addColliderComponent(entity, mesh) {
   addComponent(entity, ColliderComponent, {
     type: mesh.userData.type,
     scale: mesh.scale,
@@ -70,8 +171,8 @@ function addColliderComponent( entity, mesh ) {
 
 // createStaticColliders
 
-function createStaticCollider( mesh ) {
-  if(mesh.type == 'Group') {
+function createStaticCollider(mesh) {
+  if (mesh.type == 'Group') {
     for (let i = 0; i < mesh.children.length; i++) {
       addColliderWithoutEntity(mesh.userData.type, mesh.position, mesh.children[i].quaternion, mesh.children[i].scale, mesh.children[i]);
     }
@@ -93,47 +194,95 @@ function createDynamicColliderClient(entity, mesh) {
 
 function createDynamicColliderServer(entity, mesh) {
 
-   const networkObject = initializeNetworkObject('server', Network.getNetworkId(), PrefabType.worldObject);
-   const uniqueId = getComponent(entity, AssetLoader).entityIdFromScenaLoader.entityId;
+  const networkObject = initializeNetworkObject('server', Network.getNetworkId(), PrefabType.worldObject);
+  const uniqueId = getComponent(entity, AssetLoader).entityIdFromScenaLoader.entityId;
 
-   addColliderComponent(networkObject.entity, mesh);
-   addComponent(networkObject.entity, RigidBody);
-   // Add the network object to our list of network objects
-   console.warn(networkObject.entity);
-   Network.instance.networkObjects[networkObject.networkId] = {
-       ownerId: 'server',
-       prefabType: PrefabType.worldObject, // All network objects need to be a registered prefab
-       component: networkObject,
-       uniqueId: uniqueId
-   };
+  addColliderComponent(networkObject.entity, mesh);
+  addComponent(networkObject.entity, RigidBody);
+  // Add the network object to our list of network objects
+  console.warn(networkObject.entity);
+  Network.instance.networkObjects[networkObject.networkId] = {
+    ownerId: 'server',
+    prefabType: PrefabType.worldObject, // All network objects need to be a registered prefab
+    component: networkObject,
+    uniqueId: uniqueId
+  };
 
-   Network.instance.createObjects.push({
-       networkId: networkObject.networkId,
-       ownerId: 'server',
-       prefabType: PrefabType.worldObject,
-       uniqueId: uniqueId,
-       x: 0,
-       y: 0,
-       z: 0,
-       qX: 0,
-       qY: 0,
-       qZ: 0,
-       qW: 0
-   });
+  Network.instance.createObjects.push({
+    networkId: networkObject.networkId,
+    ownerId: 'server',
+    prefabType: PrefabType.worldObject,
+    uniqueId: uniqueId,
+    x: 0,
+    y: 0,
+    z: 0,
+    qX: 0,
+    qY: 0,
+    qZ: 0,
+    qW: 0
+  });
 }
 
+// Car functions
+
 function createVehicleOnClient(entity, mesh) {
-  addCarPhysics(entity, mesh)
+  addComponent(entity, NetworkObject, { ownerId: 'server', networkId: Network.getNetworkId() });
+  addComponent(entity, Input, { schema: VehicleInputSchema }),
+    addComponent(entity, Interactable, {
+      interactionParts: ['door_front_left', 'door_front_right'],
+      onInteraction: getInCar,
+      onInteractionCheck: getInCarPossible,
+      onInteractionFocused: onInteractionHover,
+      data: {
+        interactionText: 'get in car'
+      },
+    });
+  parseCarModel(entity, mesh);
+}
+
+function createVehicleOnServer(entity, mesh) {
+  const networkObject = initializeNetworkObject('server', Network.getNetworkId(), PrefabType.worldObject);
+  const uniqueId = getComponent(entity, AssetLoader).entityIdFromScenaLoader.entityId;
+  removeEntity(entity)
+  // add components
+  addComponent(networkObject.entity, Input, { schema: VehicleInputSchema }),
+    addComponent(networkObject.entity, Interactable, {
+      interactionParts: ['door_front_left', 'door_front_right'],
+      onInteraction: getInCar,
+      onInteractionCheck: getInCarPossible
+    });
+  // creating components like in client
+  parseCarModel(networkObject.entity, mesh)
+  // Add the network object to our list of network objects
+  Network.instance.networkObjects[networkObject.networkId] = {
+    ownerId: 'server',
+    prefabType: PrefabType.worldObject, // All network objects need to be a registered prefab
+    component: networkObject,
+    uniqueId: uniqueId
+  };
+  Network.instance.createObjects.push({
+    networkId: networkObject.networkId,
+    ownerId: 'server',
+    prefabType: PrefabType.worldObject,
+    uniqueId: uniqueId,
+    x: 0,
+    y: 0,
+    z: 0,
+    qX: 0,
+    qY: 0,
+    qZ: 0,
+    qW: 0
+  });
 }
 
 // parse Function
 
-export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
+export const addWorldColliders: Behavior = (entity: Entity, args: any) => {
 
   const asset = args.asset;
   const deleteArr = [];
 
-  function parseColliders( mesh ) {
+  function parseColliders(mesh) {
     // have user data physics its our case
     if (mesh.userData.data === 'physics' || mesh.userData.data === 'dynamic' || mesh.userData.data === 'vehicle') {
       // add position from editor to mesh
@@ -149,7 +298,7 @@ export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
           isServer ? createDynamicColliderServer(entity, mesh) : createDynamicColliderClient(entity, mesh);
           break;
         case 'vehicle':
-          isServer ? '' : createVehicleOnClient(entity, mesh);
+          isServer ? createVehicleOnServer(entity, mesh) : createVehicleOnClient(entity, mesh);
           break;
         default:
           createStaticCollider(mesh);
@@ -160,14 +309,14 @@ export const addWorldColliders: Behavior = (entity: Entity, args: any ) => {
 
   // its for diferent files with models
   if (asset.scene) {
-   asset.scene.traverse( parseColliders );
+    asset.scene.traverse(parseColliders);
   } else {
-   asset.traverse( parseColliders );
+    asset.traverse(parseColliders);
   }
 
   // its for delete mesh from view scene
   for (let i = 0; i < deleteArr.length; i++) {
-   deleteArr[i].parent.remove(deleteArr[i]);
+    deleteArr[i].parent.remove(deleteArr[i]);
   }
 
   return entity;
@@ -215,30 +364,30 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
         ]
       }
     ],
-        components: [{
-          type: LightTagComponent
-        }]
+    components: [{
+      type: LightTagComponent
+    }]
   },
-// currently this breaks CSM
+  // currently this breaks CSM
 
-//   'directional-light': {
-//     behaviors: [
-//       {
-//         behavior: addObject3DComponent,
-//         args: { obj3d: DirectionalLight, objArgs: { castShadow: true } },
-//         values: [
-//           { from: 'shadowMapResolution', to: 'shadow.mapSize' },
-//           { from: 'shadowBias', to: 'shadow.bias' },
-//           { from: 'shadowRadius', to: 'shadow.radius' },
-//           { from: 'intensity', to: 'intensity' },
-//           { from: 'color', to: 'color' }
-//         ]
-//       }
-//     ],
-//       components: [{
-//         type: LightTagComponent
-//       }]
-//   },
+  //   'directional-light': {
+  //     behaviors: [
+  //       {
+  //         behavior: addObject3DComponent,
+  //         args: { obj3d: DirectionalLight, objArgs: { castShadow: true } },
+  //         values: [
+  //           { from: 'shadowMapResolution', to: 'shadow.mapSize' },
+  //           { from: 'shadowBias', to: 'shadow.bias' },
+  //           { from: 'shadowRadius', to: 'shadow.radius' },
+  //           { from: 'intensity', to: 'intensity' },
+  //           { from: 'color', to: 'color' }
+  //         ]
+  //       }
+  //     ],
+  //       components: [{
+  //         type: LightTagComponent
+  //       }]
+  //   },
   'collidable': {
     components: [
       {
@@ -279,7 +428,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
           { from: 'payloadBuyUrl', to: 'payloadBuyUrl' },
           { from: 'payloadLearnMoreUrl', to: 'payloadLearnMoreUrl' },
           { from: 'payloadHtmlContent', to: 'payloadHtmlContent' },
-          { from: 'payloadModelUrl', to: 'payloadModelUrl' },          
+          { from: 'payloadModelUrl', to: 'payloadModelUrl' },
         ],
       }
     ]
@@ -291,14 +440,14 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
         args: {
           // obj3d: new GridHelper( 1000, 5000 )
           obj3d: new Mesh(
-            new CircleBufferGeometry(1000, 32).rotateX(-Math.PI/2),
+            new CircleBufferGeometry(1000, 32).rotateX(-Math.PI / 2),
             new MeshPhongMaterial({
               color: new Color(0.313410553336143494, 0.31341053336143494, 0.30206481294706464)
             })
           ),
           objArgs: { receiveShadow: true }
         },
-        values: [ { from: 'color', to: 'material.color' } ]
+        values: [{ from: 'color', to: 'material.color' }]
       }
     ]
   },
@@ -483,7 +632,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
     behaviors: [
       {
         behavior: handleAudioSettings,
-        values:['avatarDistanceModel', 'avatarMaxDistance', 'avatarRefDistance', 'avatarRolloffFactor', 'mediaConeInnerAngle', 'mediaConeOuterAngle', 'mediaConeOuterGain', 'mediaDistanceModel', 'mediaMaxDistance', 'mediaRefDistance', 'mediaRolloffFactor', 'mediaVolume', 'overrideAudioSettings' ]
+        values: ['avatarDistanceModel', 'avatarMaxDistance', 'avatarRefDistance', 'avatarRolloffFactor', 'mediaConeInnerAngle', 'mediaConeOuterAngle', 'mediaConeOuterGain', 'mediaDistanceModel', 'mediaMaxDistance', 'mediaRefDistance', 'mediaRolloffFactor', 'mediaVolume', 'overrideAudioSettings']
       }
     ]
   },

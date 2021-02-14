@@ -22,7 +22,7 @@ import {User} from "@xr3ngine/common/interfaces/User";
 
 const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
 const phoneRegex = /^[0-9]{10}$/;
-const userIdRegex = /^[0-9a-f]{32}$/;
+const userIdRegex = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/;
 
 export function sendInvite (data: any) {
   return async (dispatch: Dispatch, getState: any) => {

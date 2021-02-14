@@ -1,5 +1,7 @@
 import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
+import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { Thumbsticks } from '../../common/enums/Thumbsticks';
+import { isServer } from '../../common/functions/isServer';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
@@ -11,26 +13,41 @@ import { InputRelationship } from '../../input/interfaces/InputRelationship';
 import { InputSchema } from '../../input/interfaces/InputSchema';
 import { BaseInputSchema } from "../../input/schema/BaseInputSchema";
 import { InputAlias } from "../../input/types/InputAlias";
+import { Network } from '../../networking/classes/Network';
+import { synchronizationComponents } from '../../networking/functions/synchronizationComponents';
+import { PlayerInCar } from '../../physics/components/PlayerInCar';
 import { VehicleBody } from '../../physics/components/VehicleBody';
-import { Object3DComponent } from '../../scene/components/Object3DComponent';
-import { setState } from '../../state/behaviors/setState';
-import { CharacterStateTypes } from '../character/CharacterStateTypes';
 
-const getOutCar: Behavior = (entity: Entity): void => {
-  console.warn("Getting out of car");
-  const vehicleComponent = getMutableComponent(entity, VehicleBody);
-  const entityDriver = vehicleComponent.currentDriver;
+const getOutCar: Behavior = (entityCar: Entity): void => {
+  let entity = null;
+  const vehicle = getComponent(entityCar, VehicleBody);
 
-  setState(entityDriver, {state: CharacterStateTypes.EXITING_CAR});
+  let networkPlayerId = null
 
+  if(isServer) {
+    networkPlayerId = vehicle.wantsExit.filter(f => f != null)[0]
+    console.warn('wantsExit: '+ vehicle.wantsExit);
+  } else {
+    networkPlayerId = Network.instance.userNetworkId
+  }
+
+  for (let i = 0; i < vehicle.seatPlane.length; i++) {
+    if (networkPlayerId == vehicle[vehicle.seatPlane[i]]) {
+      entity = Network.instance.networkObjects[networkPlayerId].component.entity;
+    }
+  }
+
+  getMutableComponent(entity, PlayerInCar).state = 'onStartRemove';
+  synchronizationComponents(entity, 'PlayerInCar', { state: 'onStartRemove', whoIsItFor: 'otherPlayers' });
+
+/*
   const event = new CustomEvent('player-in-car', { detail:{inCar:false} });
   document.dispatchEvent(event);
-
+*/
 };
 
 const drive: Behavior = (entity: Entity, args: { direction: number }): void => {
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
-  const object = getComponent<Object3DComponent>(entity, Object3DComponent).value;
   const vehicle = vehicleComponent.vehiclePhysics;
 
   vehicle.setBrake(0, 0);
@@ -43,18 +60,32 @@ const drive: Behavior = (entity: Entity, args: { direction: number }): void => {
   vehicle.applyEngineForce(vehicleComponent.maxForce * args.direction * -1, 3);
 };
 
+const stop: Behavior = (entity: Entity, args: { direction: number }): void => {
+  const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
+  const vehicle = vehicleComponent.vehiclePhysics;
+
+  vehicle.setBrake(3, 0);
+  vehicle.setBrake(3, 1);
+  vehicle.setBrake(3, 2);
+  vehicle.setBrake(3, 3);
+
+  // direction is reversed to match 1 to be forward
+//  vehicle.applyEngineForce(vehicleComponent.maxForce * args.direction * -1, 2);
+//  vehicle.applyEngineForce(vehicleComponent.maxForce * args.direction * -1, 3);
+};
+
 const driveByInputAxis: Behavior = (entity: Entity, args: { input: InputAlias; inputType: InputType }): void => {
   const input =  getComponent<Input>(entity, Input as any);
   const data = input.data.get(args.input);
 
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
   const vehicle = vehicleComponent.vehiclePhysics;
-
+/*
   vehicle.setBrake(0, 0);
   vehicle.setBrake(0, 1);
   vehicle.setBrake(0, 2);
   vehicle.setBrake(0, 3);
-
+*/
   if (data.type === InputType.TWODIM) {
     // direction is reversed to match 1 to be forward
     vehicle.applyEngineForce(vehicleComponent.maxForce * data.value[0] * -1, 2);
@@ -64,7 +95,6 @@ const driveByInputAxis: Behavior = (entity: Entity, args: { input: InputAlias; i
     vehicle.setSteeringValue( vehicleComponent.maxSteerVal * data.value[1], 1);
   }
 };
-
 
 export const driveHandBrake: Behavior = (entity: Entity, args: { on: boolean }): void => {
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
@@ -76,12 +106,14 @@ export const driveHandBrake: Behavior = (entity: Entity, args: { on: boolean }):
   vehicle.setBrake(args.on? 10 : 0, 3);
 };
 
-export const driveSteering: Behavior = (entity: Entity, args: { direction: number }): void => {
-  const vehicleComponent = getMutableComponent(entity, VehicleBody);
+const driveSteering: Behavior = (entity: Entity, args: { direction: number }): void => {
+
+  const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
   const vehicle = vehicleComponent.vehiclePhysics;
 
   vehicle.setSteeringValue( vehicleComponent.maxSteerVal * args.direction, 0);
   vehicle.setSteeringValue( vehicleComponent.maxSteerVal * args.direction, 1);
+
 };
 
 
@@ -156,11 +188,13 @@ export const VehicleInputSchema: InputSchema = {
       ended: [
       ]
     },
-    [BaseInput.INTERACT]: {
+    [BaseInput.INTERACT]:  {
       started: [
         {
           behavior: getOutCar,
-          args: {}
+          args: {
+            phase:LifecycleValue.STARTED
+          }
         }
       ]
     },
@@ -183,7 +217,7 @@ export const VehicleInputSchema: InputSchema = {
       ],
       ended: [
         {
-          behavior: drive,
+          behavior: stop,
           args: {
             direction: 0
           }
@@ -209,7 +243,7 @@ export const VehicleInputSchema: InputSchema = {
       ],
       ended: [
         {
-          behavior: drive,
+          behavior: stop,
           args: {
             direction: 0
           }
