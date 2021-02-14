@@ -1,22 +1,36 @@
+// DRACOSIS ENCODER
+// Written by Shaw for XR3ngine
+// MIT licensed
+
+// This encoder uses Corto for quantized mesh compression
+// https://github.com/cnr-isti-vclab/corto
+
+// Example:
+// node ./src/Encoder.js example.drcs
+// Extended Example: 25 FPS, 500 frames
+// node ./src/Encoder.js example.drcs 25 0 499
+
+// Input is a series of .crt files in a folder called "assets"
+// You can encode these with the corto executable
+// "assets" folder must be in the same working directory we are calling this script from
+
 import glob from 'glob';
 import fs from 'fs';
 import THREE from 'three';
-import OBJLoader from 'three-obj-loader-cjs-module';
+import "./libs/THREECORTOLoader.js"
 import CortoDecoder from './libs/cortodecoder.js';
-
 import HttpRequest from 'xmlhttprequest';
+
+const { CORTOLoader } = THREE;
+
 global.XMLHttpRequest = HttpRequest.XMLHttpRequest;
 
-function longToByteArray(/*long*/long) {
-  // we want to represent the input as a 8-bytes array
-  let byteArray = [0, 0, 0, 0, 0, 0, 0, 0];
-  for (let index = 0; index < byteArray.length; index++) {
-    const byte = long & 0xff;
-    byteArray[index] = byte;
-    long = (long - byte) / 256;
-  }
-  return byteArray;
-};
+// Command line args
+const myArgs = process.argv.slice(2);
+const outputFileName = myArgs[0];
+const frameRate = myArgs[1] ?? 25;
+const frameIn = myArgs[2] ?? 0;
+const frameOut = myArgs[3] ?? -1;
 
 class CortosisFileCreator {
   _meshFile;
@@ -45,21 +59,20 @@ class CortosisFileCreator {
     this._maxVertices = 0;
     this._maxFaces = 0;
     this._manager = new THREE.LoadingManager();
-    this._loader = new OBJLoader(this._manager);
-    this.keyframeGeometry = new THREE.Geometry();
+    this._loader = new CORTOLoader({}, this._manager);
+    this.keyframeGeometry = new THREE.BufferGeometry();
     this._frameIn = frameIn;
     this._frameOut = frameOut;
     this._frameIn = frameIn;
     this.frameRate = frameRate;
     this._outputFileName = outputFileName;
     this._manager.onProgress = (item, loaded, total) => {
-      console.log(item, loaded, total);
       if (progressCallback) progressCallback(item, loaded, total);
     };
 
     const dir = process.cwd() + '/' + 'assets/';
     glob(dir + '*.crt', {}, (err, files) => {
-      if (err) console.log(err);
+      if (err) console.error(err);
       this._meshFiles = files;
       this.createEncodedFile(this._outputFileName, () => { "file created! " });
     });
@@ -76,80 +89,65 @@ class CortosisFileCreator {
     const frameOut = this._frameOut > 0 ? this._frameOut : this._meshFiles.length;
     // Iterate over all files and write an output file
     for (let i = this._frameIn; i < frameOut; i++) {
-      // load obj
-      let objPath = this._meshFiles[i].replace('.crt', '.obj');
 
-      let rawObjData = fs.readFileSync(objPath, 'utf8');
+      // Load CRT file
       let rawObjDataCRT = fs.readFileSync(this._meshFiles[i]);
       let rawCRTFrame = Buffer.from(rawObjDataCRT)
-      let objData = this._loader.parse(rawObjData);
-      let noNormals = rawObjData.indexOf('vn ') === -1;
-      let returnedMesh = null;
-      //   const children = objData.children;
-      objData.traverse((child) => {
-          if (child.type == 'Mesh') {
-            returnedMesh = child;
-            return;
-      }
-      });
+      let decoder = new CortoDecoder(rawObjDataCRT.buffer);
+      let objData = decoder.decode();
 
-      if(returnedMesh !== null){
-        console.log(returnedMesh.type, "found in child", i);
-
+      if (objData !== null) {
         this.lastKeyframe = i;
+        this.keyframeGeometry = new THREE.BufferGeometry();
+        this.keyframeGeometry.setAttribute("position", objData.position);
+        this.keyframeGeometry.setAttribute("uv", objData.uv);
+        this.keyframeGeometry.index = objData.index;
 
-        this.keyframeGeometry = new THREE.Geometry().fromBufferGeometry(returnedMesh.geometry);
+        const numberOfVerts = objData.nvert;
+        const numberOfFaces = objData.nface;
 
-        if (this.keyframeGeometry.vertices.length > this._maxVertices)
-        this._maxVertices = this.keyframeGeometry.vertices.length;
-      if (this.keyframeGeometry.faces && this.keyframeGeometry.faces.length > this._maxFaces)
-        this._maxFaces = this.keyframeGeometry.faces.length;
+        console.log("Processing frame ", i, " | ", "Number of vertices: ", numberOfVerts);
 
+        if (numberOfVerts > this._maxVertices)
+          this._maxVertices = numberOfVerts;
+        if (this.keyframeGeometry.index && numberOfFaces > this._maxFaces)
+          this._maxFaces = numberOfFaces
 
+        const frame = {
+          frameNumber: i,
+          keyframeNumber: i,
+          startBytePosition: currentPositionInWriteStream,
+          vertices: numberOfVerts,
+          faces: numberOfFaces,
+          meshLength: rawCRTFrame.byteLength,
+          type: 'mesh'
+        };
 
-      if (noNormals && this.keyframeGeometry.faces && this.keyframeGeometry.faces.length > 0) {
-        console.log("No normals");
-        this.keyframeGeometry.computeVertexNormals();
-      }
-
-      const frame = {
-        frameNumber: i,
-        keyframeNumber: i,
-        startBytePosition: currentPositionInWriteStream,
-        vertices: this.keyframeGeometry.vertices.length,
-        faces: this.keyframeGeometry.faces.length,
-        meshLength: rawCRTFrame.byteLength,
-        type: 'mesh'
-      };
-
-      // Add to the data array
-      this._frameData.push(frame);
+        // Add to the data array
+        this._frameData.push(frame);
       } else {
         console.log("Mesh not returned, must be iframe");
 
-      const frame = {
-        frameNumber: i,
-        keyframeNumber: this.lastKeyframe,
-        startBytePosition: currentPositionInWriteStream,
-        vertices: this.keyframeGeometry.vertices.length,
-        faces: this.keyframeGeometry.faces.length,
-        meshLength: rawCRTFrame.byteLength,
-        type: 'group'
-      };
+        const frame = {
+          frameNumber: i,
+          keyframeNumber: this.lastKeyframe,
+          startBytePosition: currentPositionInWriteStream,
+          vertices: numberOfVerts,
+          faces: numberOfFaces,
+          meshLength: rawCRTFrame.byteLength,
+          type: 'group'
+        };
 
-    this._frameData.push(frame);
+        this._frameData.push(frame);
       }
 
-          // Write to file stream, mesh first
-          writeBuffer = Buffer.concat([writeBuffer, Buffer.from(rawCRTFrame)]);
-          currentPositionInWriteStream += rawCRTFrame.byteLength
+      // Write to file stream, mesh first
+      writeBuffer = Buffer.concat([writeBuffer, Buffer.from(rawCRTFrame)]);
+      currentPositionInWriteStream += rawCRTFrame.byteLength
 
-          // update progress callback
-          rawCRTFrame = null;
-          rawObjData = null;
-          objData = null;
-          noNormals = null;
-
+      // update progress callback
+      rawCRTFrame = null;
+      objData = null;
 
       // progress callback
       if (callback) callback(i - this._frameIn / frameOut - this._frameIn);
@@ -164,8 +162,6 @@ class CortosisFileCreator {
       frameData: this._frameData,
     };
 
-
-    console.log(this._frameData);
     // // Convert our file info into buffer and save to file stream
     const fileDataBuffer = Buffer.from(JSON.stringify(fileData), 'utf-8');
 
@@ -175,7 +171,6 @@ class CortosisFileCreator {
     });
 
     manifestStream.close;
-
 
     const dracosisStream = fs.createWriteStream(fileName);
     dracosisStream.write(writeBuffer, err => {
@@ -189,12 +184,6 @@ class CortosisFileCreator {
     if (callback) callback(1);
   };
 }
-
-const myArgs = process.argv.slice(2);
-const outputFileName = myArgs[0];
-const frameRate = myArgs[1] ?? 25;
-const frameIn = myArgs[2] ?? 0;
-const frameOut = myArgs[3] ?? -1;
 
 new CortosisFileCreator(frameIn, frameOut, outputFileName, frameRate, () => {
   console.log('Converted to Dracosis');

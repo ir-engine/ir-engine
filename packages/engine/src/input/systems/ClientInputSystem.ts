@@ -16,7 +16,7 @@ import { NetworkObject } from "../../networking/components/NetworkObject";
 import { NetworkClientInputInterface } from "../../networking/interfaces/WorldState";
 import { ClientInputModel } from '../../networking/schema/clientInputSchema';
 import { MediaStreamSystem } from '../../networking/systems/MediaStreamSystem';
-import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
+import { CharacterComponent, RUN_SPEED, WALK_SPEED } from "../../templates/character/components/CharacterComponent";
 import { handleGamepads } from "../behaviors/GamepadInputBehaviors";
 import { startFaceTracking, stopFaceTracking } from "../behaviors/WebcamInputBehaviors";
 import { addPhysics, removeWebXRPhysics, updateWebXRPhysics } from '../behaviors/WebXRInputBehaviors';
@@ -27,6 +27,7 @@ import { InputType } from "../enums/InputType";
 import { initVR } from "../functions/WebXRFunctions";
 import { InputValue } from "../interfaces/InputValue";
 import { InputAlias } from "../types/InputAlias";
+import { BaseInput } from "../enums/BaseInput";
 /**
  * Input System
  *
@@ -141,9 +142,6 @@ export class InputSystem extends System {
 
   // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
   const input = getMutableComponent(entity, Input);
-
-    // console.log("Handling input data for ", entity.id)
-    // console.log(input.data);
 
   // check CHANGED/UNCHANGED axis inputs
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
@@ -265,10 +263,6 @@ export class InputSystem extends System {
   });
 
 
-      const networkId = getComponent(entity, NetworkObject)?.networkId;
-      // Client sends input and *only* input to the server (for now)
-      // console.log("Handling input for entity ", entity.id);
-
       let sendSwitchInputs = false;
 
       if (!hasComponent(Network.instance.networkObjects[Network.instance.userNetworkId].component.entity, LocalInputReceiver) && !this.needSend) {
@@ -318,7 +312,11 @@ export class InputSystem extends System {
       });
 
 
-      const actor = getComponent<CharacterComponent>(entity, CharacterComponent);
+      const actor = getMutableComponent(entity, CharacterComponent);
+
+      const isWalking = (input.data.get(BaseInput.WALK)?.value) === BinaryValue.ON;
+      actor.moveSpeed = isWalking ? WALK_SPEED : RUN_SPEED;
+
       inputs.viewVector.x = actor.viewVector.x;
       inputs.viewVector.y = actor.viewVector.y;
       inputs.viewVector.z = actor.viewVector.z;
