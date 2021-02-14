@@ -1,10 +1,12 @@
 import glob from 'glob';
 import fs from 'fs';
 import THREE from 'three';
-import OBJLoader from 'three-obj-loader-cjs-module';
+import "./libs/THREECORTOLoader.js"
 import CortoDecoder from './libs/cortodecoder.js';
-
 import HttpRequest from 'xmlhttprequest';
+
+const { CORTOLoader } = THREE;
+
 global.XMLHttpRequest = HttpRequest.XMLHttpRequest;
 
 function longToByteArray(/*long*/long) {
@@ -45,7 +47,7 @@ class CortosisFileCreator {
     this._maxVertices = 0;
     this._maxFaces = 0;
     this._manager = new THREE.LoadingManager();
-    this._loader = new OBJLoader(this._manager);
+    this._loader = new CORTOLoader({}, this._manager);
     this.keyframeGeometry = new THREE.BufferGeometry();
     this._frameIn = frameIn;
     this._frameOut = frameOut;
@@ -76,38 +78,39 @@ class CortosisFileCreator {
     const frameOut = this._frameOut > 0 ? this._frameOut : this._meshFiles.length;
     // Iterate over all files and write an output file
     for (let i = this._frameIn; i < frameOut; i++) {
+      console.log("Processing frame ", i);
       // load obj
       let objPath = this._meshFiles[i].replace('.crt', '.obj');
 
       let rawObjData = fs.readFileSync(objPath, 'utf8');
       let rawObjDataCRT = fs.readFileSync(this._meshFiles[i]);
       let rawCRTFrame = Buffer.from(rawObjDataCRT)
-      let objData = this._loader.parse(rawObjData);
+      
+      let decoder = new CortoDecoder(rawObjDataCRT.buffer);
+      let objData = decoder.decode();
+
+
       let noNormals = rawObjData.indexOf('vn ') === -1;
-      let returnedMesh = null;
-      //   const children = objData.children;
-      objData.traverse((child) => {
-          if (child.type == 'Mesh') {
-            returnedMesh = child;
-            return;
-      }
-      });
 
-      if(returnedMesh !== null){
-        console.log(returnedMesh.type, "found in child", i);
-
+      if(objData !== null){
         this.lastKeyframe = i;
-
-        this.keyframeGeometry = returnedMesh.geometry;
-
-        if (this.keyframeGeometry.vertices.length > this._maxVertices)
-        this._maxVertices = this.keyframeGeometry.vertices.length;
-      if (this.keyframeGeometry.faces && this.keyframeGeometry.faces.length > this._maxFaces)
-        this._maxFaces = this.keyframeGeometry.faces.length;
+        this.keyframeGeometry = new THREE.BufferGeometry();
+        this.keyframeGeometry.setAttribute("position", objData.position);
+        this.keyframeGeometry.setAttribute("uv", objData.uv);
+        this.keyframeGeometry.index = objData.index;
 
 
+        
+        const numberOfVerts = objData.nvert;
+        const numberOfFaces = objData.nface;
+        
+        console.log("Number of vertices: ", numberOfVerts);
+        if (numberOfVerts > this._maxVertices)
+        this._maxVertices = numberOfVerts;
+      if (this.keyframeGeometry.index && numberOfFaces > this._maxFaces)
+        this._maxFaces = numberOfFaces
 
-      if (noNormals && this.keyframeGeometry.faces && this.keyframeGeometry.faces.length > 0) {
+      if (noNormals && this.keyframeGeometry.index && numberOfFaces > 0) {
         console.log("No normals");
         this.keyframeGeometry.computeVertexNormals();
       }
@@ -116,8 +119,8 @@ class CortosisFileCreator {
         frameNumber: i,
         keyframeNumber: i,
         startBytePosition: currentPositionInWriteStream,
-        vertices: this.keyframeGeometry.vertices.length,
-        faces: this.keyframeGeometry.faces.length,
+        vertices: numberOfVerts,
+        faces: numberOfFaces,
         meshLength: rawCRTFrame.byteLength,
         type: 'mesh'
       };
@@ -131,8 +134,8 @@ class CortosisFileCreator {
         frameNumber: i,
         keyframeNumber: this.lastKeyframe,
         startBytePosition: currentPositionInWriteStream,
-        vertices: this.keyframeGeometry.vertices.length,
-        faces: this.keyframeGeometry.faces.length,
+        vertices: numberOfVerts,
+        faces: numberOfFaces,
         meshLength: rawCRTFrame.byteLength,
         type: 'group'
       };
