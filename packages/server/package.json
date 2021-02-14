@@ -79,6 +79,7 @@
     "socket.io": "2.4.1"
   },
   "dependencies": {
+    "comlink": "^4.3.0",
     "@feathersjs/authentication": "^4.5.9",
     "@feathersjs/authentication-jwt": "^2.0.10",
     "@feathersjs/authentication-local": "^4.5.9",
