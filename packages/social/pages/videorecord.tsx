@@ -1,6 +1,6 @@
 import React from 'react';
-import { render } from 'react-dom'
-import VideoRecorder from 'react-video-recorder'
+import { render } from 'react-dom';
+import VideoRecorder from 'react-video-recorder';
 
 interface VideoProps{
   timeLimit: string;
@@ -11,7 +11,7 @@ export const VideoRecording = ({timeLimit = '5000'}: VideoProps) => {
     timeLimit={timeLimit}
     onRecordingComplete={videoBlob => {
       // Do something with the video...
-      console.log('videoBlob', videoBlob)
+      console.log('videoBlob', videoBlob);
     }}
   />;
 };
