@@ -43,7 +43,7 @@ function syncPhysicsObjects( objectToCreate ) {
   for (let i = 0; i < Engine.entities.length; i++) {
     const entity = Engine.entities[i];
     if (hasComponent(entity, AssetLoader) && hasComponent(entity, NetworkObject)) {
-      let id = getComponent(entity, NetworkObject).networkId;
+      const id = getComponent(entity, NetworkObject).networkId;
       if (!Network.instance.networkObjects[id]) {
         if (objectToCreate.ownerId == 'server') {
 

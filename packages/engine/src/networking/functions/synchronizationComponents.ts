@@ -18,4 +18,4 @@ export function synchronizationComponents(entity, component, args) {
     value: args.currentFocusedPart,
     whoIsItFor: args.whoIsItFor
   })
-};
+}
