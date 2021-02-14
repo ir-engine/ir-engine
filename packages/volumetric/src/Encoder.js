@@ -1,3 +1,19 @@
+// DRACOSIS ENCODER
+// Written by Shaw for XR3ngine
+// MIT licensed
+
+// This encoder uses Corto for quantized mesh compression
+// https://github.com/cnr-isti-vclab/corto
+
+// Example:
+// node ./src/Encoder.js example.drcs
+// Extended Example: 25 FPS, 500 frames
+// node ./src/Encoder.js example.drcs 25 0 499
+
+// Input is a series of .crt files in a folder called "assets"
+// You can encode these with the corto executable
+// "assets" folder must be in the same working directory we are calling this script from
+
 import glob from 'glob';
 import fs from 'fs';
 import THREE from 'three';
@@ -8,6 +24,14 @@ import HttpRequest from 'xmlhttprequest';
 const { CORTOLoader } = THREE;
 
 global.XMLHttpRequest = HttpRequest.XMLHttpRequest;
+
+// Command line args
+const myArgs = process.argv.slice(2);
+const outputFileName = myArgs[0];
+const frameRate = myArgs[1] ?? 25;
+const frameIn = myArgs[2] ?? 0;
+const frameOut = myArgs[3] ?? -1;
+
 class CortosisFileCreator {
   _meshFile;
   _frameData;
@@ -160,12 +184,6 @@ class CortosisFileCreator {
     if (callback) callback(1);
   };
 }
-
-const myArgs = process.argv.slice(2);
-const outputFileName = myArgs[0];
-const frameRate = myArgs[1] ?? 25;
-const frameIn = myArgs[2] ?? 0;
-const frameOut = myArgs[3] ?? -1;
 
 new CortosisFileCreator(frameIn, frameOut, outputFileName, frameRate, () => {
   console.log('Converted to Dracosis');
