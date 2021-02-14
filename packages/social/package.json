@@ -70,6 +70,7 @@
     "classnames": "^2.2.6",
     "device-detector-js": "^2.2.5",
     "draco3dgltf": "^1.4.1",
+    "eslint-plugin-react-hooks": "^4.2.0",
     "eventemitter3": "^4.0.7",
     "file-loader": "^6.2.0",
     "immutable": "^4.0.0-rc.12",
