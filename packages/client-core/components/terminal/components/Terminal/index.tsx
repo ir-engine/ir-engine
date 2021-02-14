@@ -1,5 +1,5 @@
 /* eslint-disable no-console, react/sort-comp */
-import isEqual from 'lodash.isequal';
+import _ from 'lodash';
 import React, { Component } from 'react';
 import stringSimilarity from 'string-similarity';
 import { ThemeProvider } from 'styled-components';
@@ -13,7 +13,7 @@ import {
 } from '../types';
 import { getShortcuts, modCommands, os, pluginMap, uuidv4 } from './terminal-utils';
 
-
+const { isEqual } = _;
 
 let isTerminalExpanded = false;
 // isTerminalExpanded = true;
