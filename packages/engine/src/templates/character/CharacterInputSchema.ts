@@ -441,14 +441,6 @@ export const CharacterInputSchema: InputSchema = {
             phase: LifecycleValue.STARTED
           }
         }
-      ],
-      ended: [
-        {
-          behavior: interact,
-          args: {
-            phase: LifecycleValue.ENDED
-          }
-        }
       ]
     },
     [BaseInput.JUMP]: {

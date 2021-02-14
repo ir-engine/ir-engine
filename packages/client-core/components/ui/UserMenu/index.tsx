@@ -1,4 +1,4 @@
-import { Button, Card, CardContent, Snackbar, TextField, Typography } from '@material-ui/core';
+import { Button, Card, CardContent, Drawer, Snackbar, TextField, Typography } from '@material-ui/core';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import CachedIcon from '@material-ui/icons/Cached';
@@ -39,6 +39,7 @@ import { LinkedInIcon } from '../Icons/LinkedInIcon';
 import { TwitterIcon } from '../Icons/TwitterIcon';
 import { LazyImage } from '../LazyImage';
 import UserSettings from '../Profile/UserSettings';
+// @ts-ignore
 import styles from './style.module.scss';
 
 const Views = {
@@ -173,7 +174,8 @@ const UserMenu = (props: Props): any => {
   const handleLogout = async () => {
     if (currentLocation != null && currentLocation.slugifiedName != null) {
       await endVideoChat({ endConsumers: true });
-      await leave();
+      await leave(true);
+      await leave(false);
       setWaitingForLogout(true);
     }
     logoutUser();
@@ -400,15 +402,25 @@ const UserMenu = (props: Props): any => {
     </>;
   return (
     <>
-      <section className={styles.anchorContainer}>
-        { currentView === Views.Profile && <UserProfilePage /> }
-        { currentView === Views.DeleteAccount && <AccountDeletePage /> }
-        { currentView === Views.Share && <SharePage /> }
-        { currentView === Views.Login && <AccountPage /> }
-        { currentView === Views.Account && <LoginPage /> }
-        { currentView === Views.Settings && <SettingsPage /> }
-        { currentView === Views.Avatar && <AvatarSelectionPage /> }
-      </section>
+        <section key='right' className={styles.anchorContainer}>
+          <span className={styles.anchorDrawer} onClick={() => setIsOpenDrawer(isOpenDrawer !== true)} />
+          <Drawer
+              anchor='right'
+              open={isOpenDrawer}
+              onClose={() => setIsOpenDrawer(false)}
+              className={styles.drawer}
+              BackdropProps={{ invisible: true, open: false }}
+          >
+          { currentView === Views.Profile && <UserProfilePage /> }
+          { currentView === Views.DeleteAccount && <AccountDeletePage /> }
+          { currentView === Views.Share && <SharePage /> }
+          { currentView === Views.Login && <LoginPage /> }
+          { currentView === Views.Account && <AccountPage /> }
+          { currentView === Views.Settings && <SettingsPage /> }
+          { currentView === Views.Avatar && <AvatarSelectionPage /> }
+          { currentView === Views.Closed && <UserProfilePage /> }
+          </Drawer>
+        </section>
       <div className={styles.iconContainer}>
         <span className={styles.navButton}><PersonIcon onClick={toggleMyProfile} /></span>
         <span className={styles.navButton}><SettingsIcon onClick={toggleSettings} /></span>

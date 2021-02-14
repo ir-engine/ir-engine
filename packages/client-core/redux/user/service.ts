@@ -5,6 +5,7 @@ import {
   changedRelation,
   loadedUsers,
   loadedLayerUsers,
+  loadedChannelLayerUsers,
   loadedUserRelationship
 } from './actions';
 import { User } from '@xr3ngine/common/interfaces/User';
@@ -49,15 +50,15 @@ export function getUsers(userId: string, search: string) {
   };
 }
 
-export function getLayerUsers() {
+export function getLayerUsers(instance = true) {
   return async (dispatch: Dispatch): Promise<any> => {
     const layerUsers = await client.service('user').find({
       query: {
         $limit: 1000,
-        action: 'layer-users'
+        action: instance === true ? 'layer-users' : 'channel-users'
       }
     });
-    dispatch(loadedLayerUsers(layerUsers.data));
+    dispatch(instance === true ? loadedLayerUsers(layerUsers.data) : loadedChannelLayerUsers(layerUsers.data));
   };
 }
 
