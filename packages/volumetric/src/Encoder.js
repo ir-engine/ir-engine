@@ -46,7 +46,7 @@ class CortosisFileCreator {
     this._maxFaces = 0;
     this._manager = new THREE.LoadingManager();
     this._loader = new OBJLoader(this._manager);
-    this.keyframeGeometry = new THREE.Geometry();
+    this.keyframeGeometry = new THREE.BufferGeometry();
     this._frameIn = frameIn;
     this._frameOut = frameOut;
     this._frameIn = frameIn;
@@ -98,7 +98,7 @@ class CortosisFileCreator {
 
         this.lastKeyframe = i;
 
-        this.keyframeGeometry = new THREE.Geometry().fromBufferGeometry(returnedMesh.geometry);
+        this.keyframeGeometry = returnedMesh.geometry;
 
         if (this.keyframeGeometry.vertices.length > this._maxVertices)
         this._maxVertices = this.keyframeGeometry.vertices.length;
