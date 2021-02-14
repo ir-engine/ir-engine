@@ -4,6 +4,8 @@ import SelectInput from "../inputs/SelectInput";
 import BooleanInput from "../inputs/BooleanInput";
 import NumericInputGroup from "../inputs/NumericInputGroup";
 import { Vector2 } from "three";
+
+// array containing options for shadow resolution
 const ShadowMapResolutionOptions = [
   {
     label: "256px",
@@ -26,29 +28,48 @@ const ShadowMapResolutionOptions = [
     value: new Vector2(4096, 4096)
   }
 ];
+
+//creating properties for LightShadowProperties component
 type LightShadowPropertiesProps = {
   editor?: object;
   node?: object;
 };
+
+/**
+ * [onChangeShadowMapResolution used to customize properties of LightShadowProperties
+ * Used with LightNodeEditors
+ * ]
+ * @type {[class component]}
+ */
 export default class LightShadowProperties extends Component<
   LightShadowPropertiesProps,
   {}
 > {
+
+  // function to handle the change in shadowMapResolution propery
   onChangeShadowMapResolution = shadowMapResolution => {
     (this.props.editor as any).setPropertySelected(
       "shadowMapResolution",
       shadowMapResolution
     );
   };
+
+  // function to handle changes in castShadow propery
   onChangeCastShadow = castShadow => {
     (this.props.editor as any).setPropertySelected("castShadow", castShadow);
   };
+
+  // fucntion to handle changes in shadowBias property
   onChangeShadowBias = shadowBias => {
     (this.props.editor as any).setPropertySelected("shadowBias", shadowBias);
   };
+
+  // function to handle changes shadowRadius property
   onChangeShadowRadius = shadowRadius => {
     (this.props.editor as any).setPropertySelected("shadowRadius", shadowRadius);
   };
+
+  //rendering editor view for LightShadowProperties
   render() {
     const node = this.props.node;
     return (
