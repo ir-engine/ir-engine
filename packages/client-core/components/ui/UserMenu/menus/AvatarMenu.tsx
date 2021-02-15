@@ -4,7 +4,7 @@ import { NavigateNext, NavigateBefore, Check, ArrowBack } from '@material-ui/ico
 import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
 import styles from '../style.module.scss';
 import { LazyImage } from '../../LazyImage';
-import { getAvatarURL, SettingMenuProps } from '../util';
+import { getAvatarURL, SettingMenuProps, Views } from '../util';
 
 const AvatarMenu = (props: any): any => {
 	const MAX_AVATARS_PER_PAGE = 6;
@@ -28,23 +28,33 @@ const AvatarMenu = (props: any): any => {
 		};
 	}) as any);
 
-	const loadNextAvatars = () => {
+	const loadNextAvatars = (e) => {
+		e.preventDefault();
 		if ((page + 1) * imgPerPage >= CharacterAvatars.length) return;
 		setPage(page + 1);
 	}
-	const loadPreviousAvatars = () => {
+	const loadPreviousAvatars = (e) => {
+		e.preventDefault();
 		if (page === 0) return;
 		setPage(page - 1);
 	}
 
-	const handleAvatarChange = () => {
-		if (props.avatarId !== selectedAvatarId) {
-			props.setAvatar(selectedAvatarId);
+	const selectAvatar = (e) => {
+		const selectedAvatar = e.currentTarget.id
+		setSelectedAvatarId(selectedAvatar);
+		if (props.avatarId !== selectedAvatar) {
+			props.setAvatar(selectedAvatar);
 		}
 	}
 
-	const selectAvatar = (e) => {
-		setSelectedAvatarId(e.currentTarget.id);
+	const closeMenu = (e) => {
+		e.preventDefault();
+		props.changeActiveMenu(null);
+	}
+
+	const openProfileMenu = (e) => {
+		e.preventDefault();
+		props.changeActiveMenu(Views.Profile);
 	}
 
 
@@ -82,20 +92,20 @@ const AvatarMenu = (props: any): any => {
 				{renderAvatarList()}
 			</section>
 			<section className={styles.controlContainer}>
-				<span className={styles.iconBlock} onClick={loadPreviousAvatars}>
+				<a href="#" className={`${styles.iconBlock} ${page === 0 ? styles.disabled : ''}`} onClick={loadPreviousAvatars}>
 					<NavigateBefore />
-				</span>
+				</a>
 				<div className={styles.actionBlock}>
-					<span className={styles.iconBlock} onClick={props.closeMenu}>
+					<a href="#" className={styles.iconBlock} onClick={openProfileMenu}>
 						<ArrowBack />
-					</span>
-					<span className={styles.iconBlock} onClick={handleAvatarChange}>
+					</a>
+					<a href="#" className={styles.iconBlock} onClick={closeMenu}>
 						<Check />
-					</span>
+					</a>
 				</div>
-				<span className={styles.iconBlock} onClick={loadNextAvatars}>
+				<a href="#" className={`${styles.iconBlock} ${(page + 1) * imgPerPage >= CharacterAvatars.length ? styles.disabled : ''}`} onClick={loadNextAvatars}>
 					<NavigateNext />
-				</span>
+				</a>
 			</section>
 		</div>
 	);
