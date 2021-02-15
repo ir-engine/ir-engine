@@ -86,7 +86,7 @@ const AvatarMenu = (props: any): any => {
 					<NavigateBefore />
 				</span>
 				<div className={styles.actionBlock}>
-					<span className={styles.iconBlock} onClick={props.closeMenu}>
+					<span className={styles.iconBlock} onClick={() => props.changeActiveMenu(null)}>
 						<ArrowBack />
 					</span>
 					<span className={styles.iconBlock} onClick={handleAvatarChange}>

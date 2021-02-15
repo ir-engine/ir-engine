@@ -224,9 +224,27 @@
                     width: 24px;
                     flex-shrink: 0;
                     flex-grow: 0;
+                    position: relative;
 
-                    &:hover {
-                        opacity: 0.8
+                    &::before {
+                        content: ' '; 
+                        position: absolute;;
+                        width: 0px;
+                        height: 0px;
+                        border-radius: 20px;
+                        background: #5F5FF1;
+                        left: 50%;
+                        top: 50%;
+                        transform: translate(-50%, -50%);
+                        transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
+                    }
+                    &:hover, &:focus {
+                        svg { color: #fff; z-index: 1; }
+
+                        &::before {
+                            width: 35px;
+                            height: 35px;
+                        }
                     }
                 }
 
@@ -251,6 +269,7 @@
                     display: block;
                     width: 130px;
                     background: #5F5FF1;
+                    font-size: 14px;
 
                     &:hover {
                         opacity: 0.8;
@@ -385,6 +404,7 @@
                 input {
                     color: black;
                 }
+                :global(.MuiOutlinedInput-root:hover) { fieldset { border-color: black;  } }
                 :global(.MuiInputAdornment-root) { color: #5F5FF1; cursor: pointer; &:hover { opacity: 0.8; } }
             }
             .shareBtnContainer {
@@ -430,7 +450,7 @@
                     transform: translate(-50%, -50%);
                     transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
                 }
-                &:hover {
+                &:hover, &:focus {
                     color: #fff;
 
                     &::before {
@@ -447,6 +467,7 @@
                     color: black;
                 }
                 :global(.MuiInputAdornment-root) { color: #5F5FF1; cursor: pointer; &:hover { opacity: 0.8; } }
+                :global(.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline) { border-color: black; }
             }
 
             .socialContainer {
@@ -454,13 +475,17 @@
                 justify-content: space-evenly;
                 margin: 20px 0;
 
+                a { color: #000; }
+                &>a:hover svg, &>a:focus svg{
+                    opacity: 1;
+                }
                 svg {
                     height: 40px;
                     width: 40px;
                     flex-shrink: 0.9;
                     margin: 0 5px;
                     cursor: pointer;
-                    &:hover { opacity: 0.8; }
+                    opacity: 0.7;
                 }
             }
 
