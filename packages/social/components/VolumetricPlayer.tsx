@@ -48,7 +48,7 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
       setCameraOffset();
-    }
+    };
     window.addEventListener('resize',onResize);
 
     /**
@@ -93,8 +93,8 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
     render();
 
     return () => {
-      window.removeEventListener("resize", onResize)
-      cancelAnimationFrame(animationFrameId)
+      window.removeEventListener("resize", onResize);
+      cancelAnimationFrame(animationFrameId);
       controls.dispose();
       // clear volumetric player
       DracosisSequence.dispose();

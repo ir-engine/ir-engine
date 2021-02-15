@@ -23,7 +23,7 @@ function positionEnter(entity, entityCar, seat) {
   const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);
   const transformCar = getComponent<TransformComponent>(entityCar, TransformComponent);
 
-  let position = new Vector3( ...vehicle.entrancesArray[seat] )
+  const position = new Vector3( ...vehicle.entrancesArray[seat] )
   .applyQuaternion(transformCar.rotation)
   .add(transformCar.position)
   .setY(transform.position.y)
