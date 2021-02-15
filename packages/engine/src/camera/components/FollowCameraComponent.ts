@@ -1,3 +1,4 @@
+import { RaycastResult } from 'cannon-es';
 import { Vector3 } from 'three';
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
@@ -28,12 +29,20 @@ export class FollowCameraComponent extends Component<FollowCameraComponent> {
   ry2: number
   /** Distance to which interactive objects from the camera will be highlighted. **Default** value is 5. */
   farDistance: number
+  /** Stores the shoulder offset amount */
   offset: Vector3
+  /** Rotation around Y axis */
   theta: number
+  /** Rotation around Z axis */
   phi: number
+  /** Whether looking over left or right shoulder */
   shoulderSide: boolean
   /** Whether the camera auto-rotates toward the target **Default** value is true. */
   locked: boolean
+  /** Camera physics raycast data */
+	rayResult: RaycastResult = new RaycastResult();
+  /** Camera physics raycast has hit */
+	rayHasHit = false;
 }
 
 FollowCameraComponent._schema = {
@@ -52,4 +61,6 @@ FollowCameraComponent._schema = {
   phi: { type: Types.Number, default: 0 },
   shoulderSide: { type: Types.Boolean, default: true },
   locked: { type: Types.Boolean, default: true },
+  rayResult: { type: Types.Ref, default: new RaycastResult() },
+  rayHasHit: { type: Types.Boolean, default: false },
 };

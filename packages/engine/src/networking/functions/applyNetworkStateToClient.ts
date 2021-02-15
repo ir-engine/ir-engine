@@ -9,7 +9,7 @@ import { NetworkObject } from '@xr3ngine/engine/src/networking/components/Networ
 import {addSnapshot, createSnapshot} from '../functions/NetworkInterpolationFunctions';
 import {WorldStateInterface} from "../interfaces/WorldState";
 import {initializeNetworkObject} from './initializeNetworkObject';
-import {CharacterComponent} from "../../templates/character/components/CharacterComponent";
+import {CharacterComponent, RUN_SPEED, WALK_SPEED} from "../../templates/character/components/CharacterComponent";
 import {handleInputFromNonLocalClients} from "./handleInputOnServer";
 import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
 import { AssetLoader } from '@xr3ngine/engine/src/assets/components/AssetLoader';
@@ -19,6 +19,8 @@ import { setState } from "@xr3ngine/engine/src/state/behaviors/setState";
 import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";
 import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
 import { FollowCameraComponent } from "@xr3ngine/engine/src/camera/components/FollowCameraComponent";
+import { BinaryValue } from "../../common/enums/BinaryValue";
+import { BaseInput } from "../../input/enums/BaseInput";
 /**
  * Apply State received over the network to the client.
  * @param worldStateBuffer State of the world received over the network.
@@ -41,7 +43,7 @@ function syncPhysicsObjects( objectToCreate ) {
   for (let i = 0; i < Engine.entities.length; i++) {
     const entity = Engine.entities[i];
     if (hasComponent(entity, AssetLoader) && hasComponent(entity, NetworkObject)) {
-      let id = getComponent(entity, NetworkObject).networkId;
+      const id = getComponent(entity, NetworkObject).networkId;
       if (!Network.instance.networkObjects[id]) {
         if (objectToCreate.ownerId == 'server') {
 
@@ -236,7 +238,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
         //if (networkComponent.ownerId === Network.instance.userId && hasComponent(networkComponent.entity, LocalInputReceiver)) return; //
 
         // set view vector
-        const actor = getComponent(networkComponent.entity, CharacterComponent);
+        const actor = getMutableComponent(networkComponent.entity, CharacterComponent);
         actor.viewVector.set(
             inputData.viewVector.x,
             inputData.viewVector.y,
@@ -245,7 +247,9 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
 
         // Get input object attached
         const input = getComponent(networkComponent.entity, Input);
-
+        const isWalking = (input.data.get(BaseInput.WALK)?.value) === BinaryValue.ON;
+        actor.moveSpeed = isWalking ? WALK_SPEED : RUN_SPEED;
+        
         // Clear current data
         input.data.clear();
 
