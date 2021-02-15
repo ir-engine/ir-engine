@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { BinaryValue } from '../../common/enums/BinaryValue';
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { NumericalType } from '../../common/types/NumericalTypes';
@@ -7,12 +8,13 @@ import { System } from '../../ecs/classes/System';
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { Input } from '../../input/components/Input';
+import { BaseInput } from '../../input/enums/BaseInput';
 import { InputType } from '../../input/enums/InputType';
 import { InputValue } from '../../input/interfaces/InputValue';
 import { InputAlias } from '../../input/types/InputAlias';
 import { PlayerInCar } from '../../physics/components/PlayerInCar';
 import { VehicleBody } from '../../physics/components/VehicleBody';
-import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
+import { CharacterComponent, RUN_SPEED, WALK_SPEED } from "../../templates/character/components/CharacterComponent";
 import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
 import { handleInputFromNonLocalClients } from '../functions/handleInputOnServer';
@@ -26,7 +28,7 @@ function switchInputs( clientInput ) {
   } else {
     return clientInput.networkId;
   }
-};
+}
 
 /**
  * Apply State received over the network to the client.
@@ -72,7 +74,7 @@ export function clearFreezeInputs( clientInput ) {
         value: clientInput.axes2d[i].value,
         lifecycleState: LifecycleValue.ENDED
       });
-};
+}
 
 const vehicleInputCheck = (clientInput): void => {
   const entity = Network.instance.networkObjects[clientInput.networkId].component.entity;
@@ -90,7 +92,7 @@ const vehicleInputCheck = (clientInput): void => {
           vehicle.wantsExit = [null, null];
           vehicle.wantsExit[li] = clientInput.networkId;
         }
-      };
+      }
     }
   }
   const vehicle = getComponent(entityCar, VehicleBody);
@@ -288,6 +290,9 @@ export class ServerNetworkIncomingSystem extends System {
         handleInputFromNonLocalClients(entity, { isLocal: false, isServer: true }, delta);
         addInputToWorldStateOnServer(entity);
         const input = getMutableComponent(entity, Input);
+        // Get input object attached
+        const isWalking = (input.data.get(BaseInput.WALK)?.value) === BinaryValue.ON;
+        actor.moveSpeed = isWalking ? WALK_SPEED : RUN_SPEED;
 
         // clean processed LifecycleValue.ENDED inputs
         input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {

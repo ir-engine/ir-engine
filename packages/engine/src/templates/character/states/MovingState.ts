@@ -104,9 +104,6 @@ export const MovingState: StateSchemaValue = {
         // Actor isn't initialized yet, so skip the animation
         if (!actor || !actor.initialized || !actor.mixer)
           return;
-        const input = getComponent(entity, Input);
-        const isWalking = (input.data.get(BaseInput.WALK)?.value) === BinaryValue.ON;
-        actor.moveSpeed = isWalking ? WALK_SPEED : RUN_SPEED;
 
         const actorVelocity = actor.velocity.clone();
         const animations = new Map<number, AnimationWeightScaleInterface>();
@@ -125,7 +122,7 @@ export const MovingState: StateSchemaValue = {
 
         // Get the magnitude of current velocity
         const absSpeed = actorVelocity.setY(0).length();
-
+        const isWalking = getComponent(entity, Input).data.get(BaseInput.WALK)?.value === BinaryValue.ON;
         // If we're not standing still...
         if (absSpeed > 0.01) {
           if (isWalking) {

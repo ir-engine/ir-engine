@@ -26,7 +26,7 @@ export const OnBoarding = (props: Props) => {
     const splashMedia = {
         screen: '/assets/splash_background.png',
         logo: '/assets/arcLogoVanishinglinesWhite.png'
-    }
+    };
 
     const onBoardingMedia = [
         {screenBg: '/assets/onboarding_background_0.png',
@@ -35,7 +35,7 @@ export const OnBoarding = (props: Props) => {
             images: ['/assets/onboarding_1_0.png']},
         {screenBg: null,
             images: ['/assets/onboarding_2_0.png']}
-    ]
+    ];
 
     return isSplash === true ? <Splash media={splashMedia} /> : 
             <OnBoardingComponent media={onBoardingMedia} />;

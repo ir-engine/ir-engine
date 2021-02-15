@@ -64,7 +64,7 @@ export const JumpState: StateSchemaValue = {
         newAction
           .reset()
           .setEffectiveWeight(1)
-          .fadeIn(transitionDuration)
+          .fadeIn(0.01)
           .play();
           console.log("New action is ", newAction);
 

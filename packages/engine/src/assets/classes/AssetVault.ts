@@ -13,5 +13,5 @@ export default class AssetVault {
    */
   assets: AssetStorage = new Map();
   /** Indicates whether assets are loaded or not. */
-  assetsLoaded: boolean = false;
+  assetsLoaded = false;
 }

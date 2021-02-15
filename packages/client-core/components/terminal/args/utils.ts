@@ -1,5 +1,7 @@
-import camelcase from 'lodash.camelcase';
+import _ from 'lodash';
 import stringSimilarity from 'string-similarity';
+
+const { camelCase } = _;
 
 export default {
   handleType(value) {
@@ -78,7 +80,7 @@ export default {
 
       // Camelcase option name (skip short flag)
       if (name.length > 1) {
-        name = camelcase(name);
+        name = camelCase(name);
       }
 
       // Add option to list
