@@ -28,7 +28,7 @@ function switchInputs( clientInput ) {
   } else {
     return clientInput.networkId;
   }
-};
+}
 
 /**
  * Apply State received over the network to the client.
@@ -74,7 +74,7 @@ export function clearFreezeInputs( clientInput ) {
         value: clientInput.axes2d[i].value,
         lifecycleState: LifecycleValue.ENDED
       });
-};
+}
 
 const vehicleInputCheck = (clientInput): void => {
   const entity = Network.instance.networkObjects[clientInput.networkId].component.entity;
@@ -92,7 +92,7 @@ const vehicleInputCheck = (clientInput): void => {
           vehicle.wantsExit = [null, null];
           vehicle.wantsExit[li] = clientInput.networkId;
         }
-      };
+      }
     }
   }
   const vehicle = getComponent(entityCar, VehicleBody);

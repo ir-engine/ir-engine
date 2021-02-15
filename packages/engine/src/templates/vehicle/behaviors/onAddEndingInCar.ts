@@ -12,7 +12,7 @@ function doorAnimation(entityCar, seat, timer, timeAnimation, angel) {
   const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);
   const mesh = vehicle.vehicleDoorsArray[seat];
 
-  let andelPetTick = angel / (timeAnimation / 2);
+  const andelPetTick = angel / (timeAnimation / 2);
   if (timer > (timeAnimation/2)) {
 
     mesh.quaternion.setFromRotationMatrix(new Matrix4().makeRotationY(
@@ -30,7 +30,7 @@ function positionEnter(entity, entityCar, seat) {
   const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);
   const transformCar = getComponent<TransformComponent>(entityCar, TransformComponent);
 
-  let position = new Vector3( ...vehicle.entrancesArray[seat] )
+  const position = new Vector3( ...vehicle.entrancesArray[seat] )
   .applyQuaternion(transformCar.rotation)
   .add(transformCar.position)
   .setY(transform.position.y)
@@ -53,7 +53,7 @@ export const onAddEndingInCar = (entity: Entity, entityCar: Entity, seat: number
 
   const playerInCar = getMutableComponent(entity, PlayerInCar);
 
-  let carTimeOut = playerInCar.timeOut;//isServer ? playerInCar.timeOut / delta : playerInCar.timeOut;
+  const carTimeOut = playerInCar.timeOut;//isServer ? playerInCar.timeOut / delta : playerInCar.timeOut;
 
   playerInCar.currentFrame += playerInCar.animationSpeed;
 

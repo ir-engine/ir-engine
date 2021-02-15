@@ -72,7 +72,7 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
     (interacts.BoxHitResult as any) = null;
     (interacts.focusedInteractive as any) = null;
     return;
-  };
+  }
 
   const followCamera = getComponent(entity, FollowCameraComponent);
   if (!followCamera.raycastBoxOn) return;
