@@ -20,6 +20,9 @@ export interface UserMenuProps {
   showDialog?: Function;
   removeUser?: Function;
   alertSuccess?: Function;
+  addConnectionByEmail?: Function;
+  addConnectionBySms?: Function;
+  loginUserByOAuth?: Function;
   currentScene?: any;
   provisionInstanceServer?: any;
 }
