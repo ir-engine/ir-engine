@@ -643,6 +643,7 @@
 
         .iconBlock {
             position: relative;
+            color: black;
 
             svg {
                 position: relative;
@@ -661,13 +662,20 @@
                 transform: translate(-50%, -50%);
                 transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
             }
-            &:hover {
+            &:hover, &:focus {
                 color: #fff;
 
                 &::before {
                     width: 35px;
                     height: 35px;
                 }
+            }
+
+            &.disabled {
+                color: grey;
+                cursor: initial;
+
+                &::before { content: none !important; }
             }
         }
 
