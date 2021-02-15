@@ -9,6 +9,7 @@ import { MoreModalItems } from "@xr3ngine/client-core/components/social/more-mod
 
 // TODO: HANDLE
 import { LoginUserHook } from "@xr3ngine/client-core/components/social/GlobalHook";
+import { OnBoarding } from "./onboarding";
 
 export default function Home({ children }) {
   const { data, setLoginUser } = LoginUserHook();
@@ -42,8 +43,9 @@ export default function Home({ children }) {
   }, []);
 
   return (<>
-    <div className="container homepage-container flex justify-center">
-      <Header user={loginData} />
+      <OnBoarding />
+    {/*<div className="container homepage-container flex justify-center">*/}
+      {/*<Header user={loginData} />*/}
       {/* <MoreModalItems /> */}
       {/* <Stories stories={stories} /> */}
       {/* <div className="homepage-feed lg:mr-8 flex flex-col ">
@@ -53,7 +55,7 @@ export default function Home({ children }) {
             })}
         </div> */}
       {/* <HomeRightBar data={suggestions} /> */}
-    </div>
+    {/*</div>*/}
   </>
   );
 }
