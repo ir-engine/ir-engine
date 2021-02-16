@@ -13,6 +13,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
 import { logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings } from '../../../redux/auth/service';
+import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth } from '../../../redux/auth/service';
 import { alertSuccess } from '../../../redux/alert/service';
 import { provisionInstanceServer } from "../../../redux/instanceConnection/service";
 import { selectLocationState } from '../../../redux/location/selector';
@@ -38,6 +39,9 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   updateUserSettings: bindActionCreators(updateUserSettings, dispatch),
   alertSuccess: bindActionCreators(alertSuccess, dispatch),
   provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
+  loginUserByOAuth: bindActionCreators(loginUserByOAuth, dispatch),
+  addConnectionBySms: bindActionCreators(addConnectionBySms, dispatch),
+  addConnectionByEmail: bindActionCreators(addConnectionByEmail, dispatch)
 });
 
 const UserMenu = (props: UserMenuProps): any => {
@@ -46,6 +50,9 @@ const UserMenu = (props: UserMenuProps): any => {
     updateUsername,
     updateUserAvatarId,
     alertSuccess,
+    addConnectionByEmail,
+    addConnectionBySms,
+    loginUserByOAuth,
   } = props;
   const selfUser = authState.get('user') || {};
 
@@ -126,16 +133,8 @@ const UserMenu = (props: UserMenuProps): any => {
     );
   }
 
-  const openAvatarMenu = () => {
-    setCurrentActiveMenu({ id: Views.Avatar });
-  }
-
-  const openAccountMenu = () => {
-    setCurrentActiveMenu({ id: Views.Account });
-  }
-
-  const closeMenu = () => {
-    setCurrentActiveMenu(null);
+  const changeActiveMenu = (menu) => {
+    setCurrentActiveMenu(menu ? { id: menu } : null);
   }
 
   const renderMenuPanel = () => {
@@ -150,14 +149,13 @@ const UserMenu = (props: UserMenuProps): any => {
           avatarId: selfUser?.avatarId,
           setUsername,
           updateUsername: handleUpdateUsername,
-          openAvatarMenu,
-          openAccountMenu,
+          changeActiveMenu,
         };
         break;
       case Views.Avatar:
         args = {
           setAvatar,
-          closeMenu,
+          changeActiveMenu,
           avatarId: selfUser?.avatarId,
         };
         break;
@@ -171,7 +169,13 @@ const UserMenu = (props: UserMenuProps): any => {
         args = { alertSuccess };
         break;
       case Views.Account: 
-        args = { closeMenu };
+        args = {
+          userId: selfUser?.id,
+          changeActiveMenu,
+          loginUserByOAuth,
+          addConnectionByEmail,
+          addConnectionBySms,
+        };
         break;
       // case Views.Login: return renderLoginPage();
       // case Views.DeleteAccount: return renderAccountDeletePage();
