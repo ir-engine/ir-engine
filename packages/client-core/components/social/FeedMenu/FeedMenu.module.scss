@@ -1,0 +1,51 @@
+.feedMenuContainer{
+    width: 100vw;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 13px 20px;
+    box-sizing: border-box;
+    // overflow-x: hidden;
+    // height: fit-content;
+    height: 95px;
+
+    .feedMenu{
+        width: max-content;
+        display: flex;
+        flex-direction: row;
+        position: relative;
+        left: 0;
+        height: fit-content;
+
+        button{
+            padding-left: 20px;
+            padding-right: 20px;
+            min-width: none;
+            width: max-content;
+            margin: 0px 5px;
+        }
+        .active{
+            &.featuredButton{
+                background-color: #CB3332;
+            }
+            &.creatorsButton{
+                background-color: #CA3E7B;
+            }
+            &.thefeedButton{
+                background-color: #F2AD31;
+            }
+            &.tipsandtricksButton{
+                background-color: #007AFF;
+            }
+        }
+    }
+}
+
+.content{
+    // height: max-content;
+    width: 100vw;
+    padding: 5px 0px;
+    box-sizing: border-box;
+    // flex-grow: 1;
+    overflow-y: scroll;
+}

@@ -1,0 +1,25 @@
+.creatorContainer{
+    display: flex;
+    flex-wrap: wrap;
+    width: 100vw;
+    box-sizing: border-box;
+    padding: 0 20px;
+
+    >div {
+        flex: 0 50%;
+        /*demo*/
+        box-sizing: border-box;
+        padding: 5px;
+      }
+
+    .creatorItem{
+        width: 100%;
+        .previewImage{
+            height: 210px;
+            border-radius: 10px;
+        }
+        :global(.MuiCardContent-root){
+            padding: 5px;
+        }
+    }
+}

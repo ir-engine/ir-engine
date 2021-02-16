@@ -1,0 +1,11 @@
+.tipsandtricksContainer{
+    display: flex;
+    flex-direction: column;
+    
+    .tipItem{
+        width: 100%;
+        .previewImage{
+            height: 250px;
+        }
+    }
+}
