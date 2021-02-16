@@ -8,21 +8,39 @@ type HemisphereLightNodeEditorProps = {
   editor?: object;
   node?: object;
 };
+
+
+/**
+ * [HemisphereLightNodeEditor used to provide property customization view for HemisphereLightNode]
+ * @type {class Compoment}
+ */
 export default class HemisphereLightNodeEditor extends Component<
   HemisphereLightNodeEditorProps,
   {}
 > {
+
+  //setting icon component name
   static iconComponent = Certificate;
+
+  //setting description for HemisphereLightNode and will appears on property container
   static description = "A light which illuminates the scene from directly overhead.";
+
+  //function handle change in skyColor property
   onChangeSkyColor = skyColor => {
     (this.props.editor as any).setPropertySelected("skyColor", skyColor);
   };
+
+  //function to handle changes in ground property
   onChangeGroundColor = groundColor => {
     (this.props.editor as any).setPropertySelected("groundColor", groundColor);
   };
+
+  //function to handle changes in intensity property
   onChangeIntensity = intensity => {
     (this.props.editor as any).setPropertySelected("intensity", intensity);
   };
+
+  //renders view to customize HemisphereLightNode
   render() {
     const node = this.props.node;
     return (
