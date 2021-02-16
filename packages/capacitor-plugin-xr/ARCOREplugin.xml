@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    id="com.xr3ngine.arcore"
+    version="0.0.1">
+
+    <name>ARCore</name>
+    <description>OutSystems Template for Cordova Plugin</description>
+    <keywords>cordova,outsystems,google,ar,core</keywords>
+
+    <!-- js -->
+    <js-module name="ARCore" src="www/ARCore.js">
+        <clobbers target="ARCore" />
+    </js-module>
+
+    <!-- android -->
+    <platform name="android">
+
+        <config-file target="config.xml" parent="/*">
+            <feature name="ARCore">
+                <param name="android-package" value="com.xr3ngine.arcore"/>
+                <param name="onload" value="true" />
+            </feature>
+        </config-file>
+
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.CAMERA" />
+        </config-file>
+
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <activity android:configChanges="keyboardHidden|orientation" android:label="@string/app_name" android:name="com.xr3ngine.arcore.ARActivity" android:parentActivityName="org.apache.cordova.CordovaActivity" android:theme="@style/Theme.AppCompat" />
+        </config-file>
+
+        <!-- Sources files -->
+        <source-file src="src/android/ARCorePlugin.java" target-dir="src/com/outsystems/ar/core/" />
+        <source-file src="src/android/ARActivity.java" target-dir="src/com/outsystems/ar/core/" />
+		
+		<source-file src="src/android/CameraPermissionHelper.java" target-dir="src/com/outsystems/ar/core/" />
+		<source-file src="src/android/DisplayRotationHelper.java" target-dir="src/com/outsystems/ar/core/" />
+
+        <source-file src="src/android/rendering/BackgroundRenderer.java" target-dir="src/com/outsystems/ar/core/rendering" />
+        <source-file src="src/android/rendering/ObjectRenderer.java" target-dir="src/com/outsystems/ar/core/rendering" />
+        <source-file src="src/android/rendering/PlaneRenderer.java" target-dir="src/com/outsystems/ar/core/rendering" />
+        <source-file src="src/android/rendering/PointCloudRenderer.java" target-dir="src/com/outsystems/ar/core/rendering" />
+        <source-file src="src/android/rendering/ShaderUtil.java" target-dir="src/com/outsystems/ar/core/rendering" />
+
+        <!-- Copy libraries -->
+        <resource-file src="src/android/libs/core-0.91.0.aar" target="libs/core-0.91.0.aar" />
+	<resource-file src="src/android/libs/core-0.91.0.pom" target="libs/core-0.91.0.pom" />
+
+        <!-- Gradle script -->
+        <framework src="src/android/ARCoreplugin.gradle" custom="true" type="gradleReference"/>
+        <framework src="com.android.support:appcompat-v7:26+"/>
+
+        <!-- Copy Resources -->
+        <resource-file src="res/layout/activity_main.xml" target="res/layout/activity_main.xml" />
+        <resource-file src="res/raw/object_fragment.shader" target="res/raw/object_fragment.shader" />
+        <resource-file src="res/raw/object_vertex.shader" target="res/raw/object_vertex.shader" />
+        <resource-file src="res/raw/passthrough_fragment.shader" target="res/raw/passthrough_fragment.shader" />
+        <resource-file src="res/raw/plane_fragment.shader" target="res/raw/plane_fragment.shader" />
+        <resource-file src="res/raw/plane_vertex.shader" target="res/raw/plane_vertex.shader" />
+        <resource-file src="res/raw/point_cloud_vertex.shader" target="res/raw/point_cloud_vertex.shader" />
+        <resource-file src="res/raw/screenquad_fragment_oes.shader" target="res/raw/screenquad_fragment_oes.shader" />
+        <resource-file src="res/raw/screenquad_vertex.shader" target="res/raw/screenquad_vertex.shader" />
+
+        <!-- Hooks -->
+        <hook type="before_build" src="src/android/hooks/copyAssets.js" />
+    </platform>
+
+</plugin>
