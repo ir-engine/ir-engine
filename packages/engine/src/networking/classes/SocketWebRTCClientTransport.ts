@@ -93,8 +93,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.mediasoupDevice = new Device();
     if (socket && socket.close) socket.close();
 
-    console.log('Client transport initialize opts:');
-    console.log(opts);
     const { startVideo, videoEnabled, channelType, ...query } = opts;
     this.channelType = channelType;
     this.channelId = opts.channelId;
@@ -104,8 +102,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     if (query.locationId == null) delete query.locationId;
     if (query.sceneId == null) delete query.sceneId;
     if (query.channelId == null) delete query.channelId;
-    console.log('Query for socket init');
-    console.log(query);
     if (process.env.NODE_ENV === 'development') {
       socket = ioclient(`${address as string}:${port.toString()}/realtime`, {
         query: query
@@ -143,9 +139,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       const ConnectToWorldResponse = await request(MessageTypes.ConnectToWorld.toString());
       const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any;
-
-      console.log("Connected to world");
-      console.log(ConnectToWorldResponse);
 
       window.dispatchEvent(new CustomEvent('connectToWorld'));
 

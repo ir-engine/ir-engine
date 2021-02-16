@@ -1,5 +1,8 @@
 import CANNON, { Body, ContactMaterial, Material, SAPBroadphase, Shape, Vec3, World } from 'cannon-es';
 import { Matrix4, Mesh, Quaternion, Vector3 } from 'three';
+import { CameraComponent } from '../../camera/components/CameraComponent';
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent';
+import { CameraSystem } from '../../camera/systems/CameraSystem';
 import { appplyVectorMatrixXZ } from '../../common/functions/appplyVectorMatrixXZ';
 import { cannonFromThreeVector } from '../../common/functions/cannonFromThreeVector';
 import { getSignedAngleBetweenVectors } from '../../common/functions/getSignedAngleBetweenVectors';
@@ -36,6 +39,7 @@ import { VehicleBody } from "../components/VehicleBody";
 import { CollisionGroups } from '../enums/CollisionGroups';
 
 
+const vec3 = new Vector3();
 const arcadeVelocity = new Vector3();
 const simulatedVelocity = new Vector3();
 const newVelocity = new Vector3();
@@ -401,7 +405,6 @@ const physicsPreStep: Behavior = (entity): void => {
 	const body = actor.actorCapsule.body;
 	if(body.world == null) return;
 	const transform: TransformComponent = getMutableComponent<TransformComponent>(entity, TransformComponent);
-	const object3d: Object3DComponent = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
 
 	// BUG: Setting position but this should be handled properly
 	if(isNaN( actor.actorCapsule.body.position.x) || isNaN( actor.actorCapsule.body.position.y)) {
@@ -410,15 +413,16 @@ const physicsPreStep: Behavior = (entity): void => {
 	}
 	// Player ray casting
 	// Create ray
-	const start = new Vec3(body.position.x, body.position.y, body.position.z);
-	const end = new Vec3(body.position.x, body.position.y - actor.rayCastLength - actor.raySafeOffset, body.position.z);
+	const actorRaycastStart = new Vec3(body.position.x, body.position.y, body.position.z);
+	const actorRaycastEnd = new Vec3(body.position.x, body.position.y - actor.rayCastLength - actor.raySafeOffset, body.position.z);
 	// Raycast options
-	const rayCastOptions = {
+	const actorRaycastOptions = {
 		collisionFilterMask: CollisionGroups.Default,
 		skipBackfaces: true /* ignore back faces */
 	};
 	// Cast the ray
-	actor.rayHasHit = PhysicsSystem.physicsWorld.raycastClosest(start, end, rayCastOptions, actor.rayResult);
+	actor.rayHasHit = PhysicsSystem.physicsWorld.raycastClosest(actorRaycastStart, actorRaycastEnd, actorRaycastOptions, actor.rayResult);
+
 
 	// Raycast debug
 	// if (actor.rayHasHit) {
