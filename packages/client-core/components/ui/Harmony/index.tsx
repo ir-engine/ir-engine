@@ -148,7 +148,7 @@ const Harmony = observer((props: Props): any => {
 
     const instanceLayerUsers = userState.get('layerUsers') ?? [];
     const channelLayerUsers = userState.get('channelLayerUsers') ?? [];
-    const layerUsers = channelLayerUsers.length > 0 ? channelLayerUsers : instanceLayerUsers;
+    const layerUsers = activeAVChannelId?.length > 0 ? channelLayerUsers : instanceLayerUsers;
 
     const setProducerStarting = value => {
         producerStartingRef.current = value;
@@ -172,8 +172,13 @@ const Harmony = observer((props: Props): any => {
             setProducerStarting('');
         });
 
+        window.addEventListener('connectToWorldTimeout', (e: any) => {
+            if (e.instance === true) resetChannelServer();
+        })
+
         window.addEventListener('leaveWorld', () => {
             resetChannelServer();
+            _setActiveAVChannelId('');
         });
 
         setActiveAVChannelId((Network.instance.transport as any).channelId);
@@ -436,6 +441,13 @@ const Harmony = observer((props: Props): any => {
         }
     }
 
+    function getChannelName(): string {
+        if (activeAVChannelId?.length > 0) {
+            const channel = channels.find((channel) => channel.id === activeAVChannelId);
+            return channel[channel.channelType].name;
+        } else return 'Current layer';
+    }
+
     function calcWidth(): 12 | 6 | 4 | 3 {
         return layerUsers.length === 1 ? 12 : layerUsers.length <= 4 ? 6 : layerUsers.length <= 9 ? 4 : 3;
     }
@@ -491,6 +503,7 @@ const Harmony = observer((props: Props): any => {
             </List>
             <div className={styles['chat-window']}>
                 { (MediaStreamSystem.instance.camVideoProducer != null || MediaStreamSystem.instance.camAudioProducer != null) && <div className={styles['video-container']}>
+                    <div className={ styles['active-chat-plate']} >{ getChannelName() }</div>
                     <Grid className={ styles['party-user-container']} container direction="row">
                         <Grid item className={
                             classNames({
