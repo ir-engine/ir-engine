@@ -66,7 +66,7 @@ const UserMenu = (props: UserMenuProps): any => {
 
   useEffect(() => {
     let actorEntityWaitInterval;
-    if (selfUser.id) {
+    if (selfUser.id && !actorEntity) {
       actorEntityWaitInterval = setInterval(() => {
         const entity = Network.instance?.localClientEntity;
         if (Network.instance?.localClientEntity) {
@@ -78,7 +78,7 @@ const UserMenu = (props: UserMenuProps): any => {
     } else {
       clearInterval(actorEntityWaitInterval);
     }
-  }, [selfUser]);
+  }, [selfUser.id]);
 
   useEffect(() => {
     selfUser && setUsername(selfUser.name);
@@ -117,7 +117,6 @@ const UserMenu = (props: UserMenuProps): any => {
 
 
   const updateCharacterComponent = (entity, avatarId?: string) => {
-    console.log(avatarId, selfUser?.avatarId);
     const characterAvatar = getMutableComponent(entity, CharacterComponent);
     if (characterAvatar != null) characterAvatar.avatarId = avatarId || selfUser?.avatarId;
 
