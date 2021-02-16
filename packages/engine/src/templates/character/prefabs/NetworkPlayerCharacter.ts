@@ -83,7 +83,7 @@ export class AnimationManager {
 }
 
 
-const loadActorAvatar: Behavior = (entity) => {
+export const loadActorAvatar: Behavior = (entity) => {
   const avatarId: string = getComponent(entity, CharacterComponent)?.avatarId;
   const avatarSource = CharacterAvatars.find(avatarData => avatarData.id === avatarId)?.src;
 
