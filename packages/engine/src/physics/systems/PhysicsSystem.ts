@@ -410,10 +410,6 @@ const physicsPreStep: Behavior = (entity): void => {
 const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime) => {
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const actorTransform = getMutableComponent<TransformComponent>(entity, TransformComponent as any);
-  // actor.behaviour?.update(timeStep);
-  // actor.vehicleEntryInstance?.update(timeStep);
-  // console.log(this.occupyingSeat);
-  // this.charState?.update(timeStep);
   if (actor.mixer) {
     actor.mixer.update(deltaTime);
   }
