@@ -336,31 +336,46 @@ export async function subscribeToTrack(peerId: string, mediaTag: string, channel
     networkTransport = Network.instance.transport as any;
     const request = channelType === 'instance' ? networkTransport.instanceRequest : networkTransport.channelRequest;
 
-    // if we do already have a consumer, we shouldn't have called this method
-    let consumer = MediaStreamSystem.instance?.consumers.find
+    if (request != null) {
+        // if we do already have a consumer, we shouldn't have called this method
+        let consumer = MediaStreamSystem.instance?.consumers.find
         ((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === mediaTag);
 
-    // ask the server to create a server-side consumer object and send us back the info we need to create a client-side consumer
-    const consumerParameters = await request(MessageTypes.WebRTCReceiveTrack.toString(),
-        { mediaTag, mediaPeerId: peerId, rtpCapabilities: networkTransport.mediasoupDevice.rtpCapabilities, channelType: channelType, channelId: channelId }
-    );
+        // ask the server to create a server-side consumer object and send us back the info we need to create a client-side consumer
+        const consumerParameters = await request(MessageTypes.WebRTCReceiveTrack.toString(),
+            {
+                mediaTag,
+                mediaPeerId: peerId,
+                rtpCapabilities: networkTransport.mediasoupDevice.rtpCapabilities,
+                channelType: channelType,
+                channelId: channelId
+            }
+        );
 
-    console.log(consumerParameters);
-    // Only continue if we have a valid id
-    if (consumerParameters?.id == null) return;
+        console.log(consumerParameters);
+        // Only continue if we have a valid id
+        if (consumerParameters?.id == null) return;
 
-    consumer = channelType === 'instance' ?
-        await networkTransport.instanceRecvTransport.consume({ ...consumerParameters, appData: { peerId, mediaTag, channelType }, paused: true })
-        : await networkTransport.channelRecvTransport.consume({ ...consumerParameters, appData: { peerId, mediaTag, channelType, channelId }, paused: true });
+        consumer = channelType === 'instance' ?
+            await networkTransport.instanceRecvTransport.consume({
+                ...consumerParameters,
+                appData: {peerId, mediaTag, channelType},
+                paused: true
+            })
+            : await networkTransport.channelRecvTransport.consume({
+                ...consumerParameters,
+                appData: {peerId, mediaTag, channelType, channelId},
+                paused: true
+            });
 
-    console.log(consumer);
-    if (MediaStreamSystem.instance?.consumers?.find(c => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag) == null) {
-        MediaStreamSystem.instance?.consumers.push(consumer);
+        console.log(consumer);
+        if (MediaStreamSystem.instance?.consumers?.find(c => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag) == null) {
+            MediaStreamSystem.instance?.consumers.push(consumer);
 
-        // okay, we're ready. let's ask the peer to send us media
-        await resumeConsumer(consumer);
+            // okay, we're ready. let's ask the peer to send us media
+            await resumeConsumer(consumer);
+        } else await closeConsumer(consumer);
     }
-    else await closeConsumer(consumer);
 }
 
 export async function unsubscribeFromTrack(peerId: any, mediaTag: any) {
@@ -471,6 +486,7 @@ export async function leave(instance: boolean): Promise<boolean> {
             if (socket && socket.close)
                 socket.close();
 
+            if (instance !== true && request != null) await request(MessageTypes.WebRTCRequestCurrentProducers.toString(), { channelType: 'instance' });
             return true;
         } catch (err) {
             console.log('Error with leave()');

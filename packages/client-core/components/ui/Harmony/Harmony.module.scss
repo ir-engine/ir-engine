@@ -364,3 +364,10 @@ $mobileControllButtonsSize: 3em;
         flex-basis: 25%;
     }
 }
+
+.active-chat-plate {
+    position: absolute;
+    border: 1px solid white;
+    margin: 5px 0 0 5px;
+    padding: 5px;
+}

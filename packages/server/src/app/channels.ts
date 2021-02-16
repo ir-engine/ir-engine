@@ -61,7 +61,10 @@ export default (app: Application): void => {
                                 newInstance.channelId = channelId;
                                 (app as any).isChannelInstance = true;
                             }
-                            else if (locationId != null) newInstance.locationId = locationId;
+                            else if (locationId != null) {
+                                newInstance.locationId = locationId;
+                                (app as any).isChannelInstance = false;
+                            }
                             console.log('Creating new instance:');
                             console.log(newInstance);
                             const instanceResult = await app.service('instance').create(newInstance);

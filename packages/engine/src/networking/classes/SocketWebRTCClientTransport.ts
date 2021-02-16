@@ -137,7 +137,22 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       if (!success) return console.error("Unable to connect with credentials");
 
-      const ConnectToWorldResponse = await request(MessageTypes.ConnectToWorld.toString());
+      let ConnectToWorldResponse;
+
+      try {
+        ConnectToWorldResponse = await Promise.race([
+          await request(MessageTypes.ConnectToWorld.toString()),
+          new Promise((resolve, reject) => {
+            setTimeout(() => reject(new Error('Connect timed out')), 10000)
+          })
+      ]);
+      } catch(err) {
+        console.log(err);
+        window.dispatchEvent(new CustomEvent('connectToWorldTimeout', {'instance': instance === true} as any));
+        return
+      }
+      console.log('ConnectToWorldResponse:');
+      console.log(ConnectToWorldResponse);
       const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any;
 
       window.dispatchEvent(new CustomEvent('connectToWorld'));
