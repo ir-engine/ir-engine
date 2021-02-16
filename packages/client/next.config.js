@@ -6,6 +6,10 @@ const withTM = require('next-transpile-modules')(['@xr3ngine/client-core'], { un
 
 module.exports = withTM(
   {
+    mode: 'development',
+    cache: {
+      type: 'filesystem'
+      },
     /* config options here */
     publicRuntimeConfig: conf.get('publicRuntimeConfig'),
     env: {
@@ -17,10 +21,13 @@ module.exports = withTM(
       webpack5: true
     },
     optimization: {
+      usedExports: true,
      splitChunks: {
        chunks: 'all',
-     },
-   },
+      },
+      removeAvailableModules: true,
+     runtimeChunk: 'multiple'
+    },
     dir: './',
     distDir: './.next',
     async redirects() {
