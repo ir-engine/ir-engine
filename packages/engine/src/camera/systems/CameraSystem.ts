@@ -119,7 +119,7 @@ export class CameraSystem extends System {
         cameraFollow.theta %= 360;
         
         cameraFollow.phi -= inputValue[1] * sensitivity;
-        cameraFollow.phi = Math.min(85, Math.max(-85, cameraFollow.phi));
+        cameraFollow.phi = Math.min(85, Math.max(-70, cameraFollow.phi));
       
         if(cameraFollow.locked || cameraFollow.mode === CameraModes.FirstPerson) {
           actorTransform.rotation.setFromAxisAngle(upVector, (cameraFollow.theta - 180) * (Math.PI / 180));
@@ -151,8 +151,8 @@ export class CameraSystem extends System {
         };
         cameraFollow.rayHasHit = PhysicsSystem.physicsWorld.raycastClosest(cameraRaycastStart, cameraRaycastEnd, cameraRaycastOptions, cameraFollow.rayResult);
 
-        if(cameraFollow.mode !== CameraModes.FirstPerson && cameraFollow.rayHasHit && cameraFollow.rayResult.distance < camDist && cameraFollow.rayResult.distance > 0.1) {
-          camDist = cameraFollow.rayResult.distance;
+        if(cameraFollow.mode !== CameraModes.FirstPerson && cameraFollow.rayHasHit && cameraFollow.rayResult.distance < camDist && cameraFollow.rayResult.distance > 0.5) {
+          camDist = cameraFollow.rayResult.distance - 0.5;
         }
 
         cameraDesiredTransform.position.set(

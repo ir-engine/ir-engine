@@ -57,6 +57,15 @@ export class WebGLRendererSystem extends System {
 
     let context;
     const canvas = document.createElement("canvas");
+    canvas.style.width = '100%'
+    canvas.style.height = '100%'
+    canvas.style.position = 'absolute'
+    canvas.style.webkitUserSelect = 'none'
+    canvas.style.userSelect = 'none'
+    canvas.ondragstart = (e) => {
+      e.preventDefault();
+      return false;
+    }
 
     try {
       context = canvas.getContext("webgl2", { antialias: true });
