@@ -1,4 +1,4 @@
-package com.xr3ngine.xr;
+package com.xr3ngine.screenrecord;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
