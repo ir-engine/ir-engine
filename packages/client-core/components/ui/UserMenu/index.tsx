@@ -110,8 +110,10 @@ const UserMenu = (props: UserMenuProps): any => {
   };
 
   const handleUpdateUsername = () => {
-    if (selfUser.name.trim() !== username.trim()) {
-      updateUsername(selfUser.id, username.trim());
+    const name = username.trim();
+    if (!name) return;
+    if (selfUser.name.trim() !== name) {
+      updateUsername(selfUser.id, name);
     }
   };
 
