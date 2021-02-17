@@ -65,13 +65,20 @@ const UserMenu = (props: UserMenuProps): any => {
   const [actorEntity, setActorEntity] = useState(null);
 
   useEffect(() => {
-    const actorEntityWaitInterval = setInterval(() => {
-      if (Network.instance?.localClientEntity) {
-        setActorEntity(Network.instance.localClientEntity);
-        clearInterval(actorEntityWaitInterval);
-      }
-    }, 300);
-  }, []);
+    let actorEntityWaitInterval;
+    if (selfUser.id && !actorEntity) {
+      actorEntityWaitInterval = setInterval(() => {
+        const entity = Network.instance?.localClientEntity;
+        if (Network.instance?.localClientEntity) {
+          clearInterval(actorEntityWaitInterval);
+          setActorEntity(entity);
+          updateCharacterComponent(entity, selfUser?.avatarId);
+        }
+      }, 300);
+    } else {
+      clearInterval(actorEntityWaitInterval);
+    }
+  }, [selfUser.id]);
 
   useEffect(() => {
     selfUser && setUsername(selfUser.name);
@@ -108,13 +115,18 @@ const UserMenu = (props: UserMenuProps): any => {
     }
   };
 
+
+  const updateCharacterComponent = (entity, avatarId?: string) => {
+    const characterAvatar = getMutableComponent(entity, CharacterComponent);
+    if (characterAvatar != null) characterAvatar.avatarId = avatarId || selfUser?.avatarId;
+
+    // We can pull this from NetworkPlayerCharacter, but we probably don't want our state update here
+    loadActorAvatar(entity);
+  }
+
   const setAvatar = (avatarId: string) => {
     if (actorEntity && avatarId) {
-      const characterAvatar = getMutableComponent(actorEntity, CharacterComponent);
-      if (characterAvatar != null) characterAvatar.avatarId = avatarId;
-
-      // We can pull this from NetworkPlayerCharacter, but we probably don't want our state update here
-      loadActorAvatar(actorEntity);
+      updateCharacterComponent(actorEntity, avatarId);
       updateUserAvatarId(selfUser.id, avatarId);
     }
   }
