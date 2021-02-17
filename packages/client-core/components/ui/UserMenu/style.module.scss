@@ -126,6 +126,8 @@
             width: 100%;
             height: 100%;
         }
+
+        outline: none !important;
     }
 
     .iconContainer {
@@ -177,104 +179,171 @@
             flex-direction: column;
             position: relative;
 
-            .avatarBlock {
-                margin-top: 25px;
-
-                .avatarImg {
+            .profileBlock {
+                display: flex;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                .avatarBlock {
                     width: 130px;
                     height: 130px;
                     box-shadow: 0px 2px 18px 0px #11111159;
-                    border-radius: 5px; 
-                    margin: auto;
+                    border-radius: 10px; 
                     background: white;
-
-                    img {
-                        width: 100%;
-                        height: 100%;
-                        display: block;
-                    }
-                }
-
-                .avatarBtn {
-                    margin: 15px auto 30px auto;
-                    display: block;
-                    width: 130px;
-                    background: #5F5FF1;
-
-                    &:hover {
-                        opacity: 0.8;
-                        background: #5F5FF1;
-                    }
-                }
-            }
-
-            .headerBlock {
-                display: flex;
-                justify-content: center;
-                margin-top: 15px;
-                
-                h1 {
-                    font-family: 'Roboto';
-                    font-weight: 700;
-                    font-size: 24px;
-                }
-
-                .materialIconBlock {
-                    margin-left: 20px;
-                    width: 24px;
+                    position: relative;
                     flex-shrink: 0;
                     flex-grow: 0;
-                    position: relative;
-
-                    &::before {
-                        content: ' '; 
-                        position: absolute;;
-                        width: 0px;
-                        height: 0px;
-                        border-radius: 20px;
+                    img { width: 100%; height: 100%; display: block; }
+                    .avatarBtn {
+                        position: absolute;
+                        width: 50px;
+                        height: 50px;
+                        bottom: -15px;
+                        right: -15px;
+                        margin: 0;
+                        min-width: 50px;
+                        border-radius: 50%;
                         background: #5F5FF1;
-                        left: 50%;
-                        top: 50%;
-                        transform: translate(-50%, -50%);
+                        box-shadow: 2px 2px 10px gray;
                         transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
-                    }
-                    &:hover, &:focus {
-                        svg { color: #fff; z-index: 1; }
-
-                        &::before {
-                            width: 35px;
-                            height: 35px;
+                        &:hover, &:focus {
+                            width: 60px;
+                            height: 60px;
+                            bottom: -20px;
+                            right: -20px;
                         }
                     }
                 }
 
-                :global(.MuiFormLabel-root), :global(.MuiInputBase-input) {
-                    color: black;
+                .headerBlock {
+                    display: flex;
+                    flex-wrap: wrap;
+                    width: calc(100% - 170px);
+                    align-content: center;
+                    .inputBlock {
+                        display: flex;
+                        width: 100%;
+                        align-items: flex-end;
+                        .usernameInput {
+                            width: 100%;
+                            background: white;
+                            input { font-size: 18px; color: black; }
+                            :global(.MuiFormLabel-root) { color: grey; }
+                            :global(.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline) { border-color: black !important; }
+                        }
+
+                        .materialIconBlock {
+                            margin-left: 20px;
+                            width: 24px;
+                            height: 24px;
+                            flex-shrink: 0;
+                            flex-grow: 0;
+                            position: relative;
+
+                            &::before {
+                                content: ' '; 
+                                position: absolute;;
+                                width: 0px;
+                                height: 0px;
+                                border-radius: 20px;
+                                background: #5F5FF1;
+                                left: 50%;
+                                top: 50%;
+                                transform: translate(-50%, -50%);
+                                transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
+                            }
+                            &:hover, &:focus {
+                                svg { color: #fff; z-index: 1; }
+                                &::before { width: 35px; height: 35px; }
+                            }
+                        }
+                    }
+                    h2 {
+                        font-family: 'Roboto';
+                        font-size: 16px;
+                        text-align: center;
+                        margin-top: 20px;
+                        opacity: 0.8;
+                        margin: 15px auto 0 auto !important;
+                        span { text-transform: capitalize; font-weight: 700; }
+                    }
                 }
             }
 
-            .accountBlock {
-                h2 {
-                    font-family: 'Roboto';
+            .emailPhoneSection {
+                margin-top: 40px; 
+                .panelHeader {
                     font-size: 16px;
-                    text-align: center;
+                    font-weight: bold;
+                    margin: 0;
+                    justify-content: center;
+                }
+                .emailField {
+                    margin-top: 10px;
+                    margin-bottom: 20px;
+                    width: 100%;
+                    background: white;
+                    input { color: black; }
+                    :global(.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline) { border-color: black; }
+                    .materialIconBlock {
+                        margin-left: 20px;
+                        width: 20px;
+                        height: 20px;
+                        flex-shrink: 0;
+                        flex-grow: 0;
+                        position: relative;
 
-                    span {
-                        text-transform: capitalize;
-                        font-weight: 700;
+                        &::before {
+                            content: ' '; 
+                            position: absolute;;
+                            width: 0px;
+                            height: 0px;
+                            border-radius: 20px;
+                            background: #5F5FF1;
+                            left: 50%;
+                            top: 50%;
+                            transform: translate(-50%, -50%);
+                            transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
+                        }
+                        &:hover, &:focus {
+                            svg { color: #fff; z-index: 1; }
+                            &::before { width: 35px; height: 35px; }
+                        }
                     }
                 }
-                .createAccountBtn {
-                    margin: 15px auto 0px auto;
-                    display: block;
-                    width: 130px;
-                    background: #5F5FF1;
-                    font-size: 14px;
+            }
 
-                    &:hover {
-                        opacity: 0.8;
-                        background: #5F5FF1;
+            .socialBlock {
+                .socialContainer {
+                    display: flex;
+                    justify-content: space-evenly;
+                    margin: 20px 0;
+
+                    a { color: #000; outline: none !important; }
+                    &>a:hover svg, &>a:focus svg{ opacity: 1; }
+                    svg {
+                        height: 40px;
+                        width: 40px;
+                        flex-shrink: 0.9;
+                        margin: 0 5px;
+                        cursor: pointer;
+                        opacity: 0.7;
                     }
+                }
+
+                .textBlock {
+                    font-size: 14px;
+                    font-weight: normal;
+                    text-align: center;
+                    display: block;
+                    cursor: initial;
+                }
+                
+                .smallTextBlock {
+                    font-size: 12px;
+                    font-weight: normal;
+                    text-align: center;
+                    display: block;
+                    cursor: initials;
                 }
             }
         }
@@ -419,137 +488,12 @@
             }
         }
 
-        .accountPanel {
-            position: relative;;
-            .panelHeader {
-                font-size: 18px;
-                font-weight: bold;
-            }
-            .materialIconBlock {
-                width: 24px;
-                height: 24px;
-                margin-right: 15px;
-                color: #5F5FF1;
-                cursor: pointer;
-                position: relative;
-
-                svg {
-                    position: relative;
-                    z-index: 1;
-                }
-
-                &::before {
-                    content: ' '; 
-                    position: absolute;;
-                    width: 0px;
-                    height: 0px;
-                    border-radius: 20px;
-                    background: #5F5FF1;
-                    left: 50%;
-                    top: 50%;
-                    transform: translate(-50%, -50%);
-                    transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
-                }
-                &:hover, &:focus {
-                    color: #fff;
-
-                    &::before {
-                        width: 35px;
-                        height: 35px;
-                    }
-                }
-            }
-            .emailField {
-                margin-top: 10px;
-                margin-bottom: 20px;
-                width: 100%;
-                input {
-                    color: black;
-                }
-                :global(.MuiInputAdornment-root) { color: #5F5FF1; cursor: pointer; &:hover { opacity: 0.8; } }
-                :global(.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline) { border-color: black; }
-            }
-
-            .socialContainer {
-                display: flex;
-                justify-content: space-evenly;
-                margin: 20px 0;
-
-                a { color: #000; }
-                &>a:hover svg, &>a:focus svg{
-                    opacity: 1;
-                }
-                svg {
-                    height: 40px;
-                    width: 40px;
-                    flex-shrink: 0.9;
-                    margin: 0 5px;
-                    cursor: pointer;
-                    opacity: 0.7;
-                }
-            }
-
-            .textBlock {
-                font-size: 14px;
-                font-weight: normal;
-                text-align: center;
-                display: block;
-            }
-            .smallTextBlock {
-                font-size: 12px;
-                font-weight: normal;
-                text-align: center;
-                display: block;
-            }
+        @media screen and (max-width: 500px) {
+            .profileBlock { justify-content: center !important; }
+            .headerBlock { width: 100% !important; margin-top: 30px; }
         }
 
-        @media screen and (min-width: 768px) {
-            width: 600px;
-            padding: 0 50px;
-            min-height: 208px;
-
-            .profilePanel {
-                padding-left: 150px;
-
-                .avatarBlock {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    margin-top: 0;
-
-                    .avatarImg {
-                        width: 100px;
-                        height: 100px;
-                    }
-
-                    .avatarBtn {
-                        width: 100px;
-                        font-size: 12px;
-                        margin-bottom: 0;
-                    }
-                }
-
-                .headerBlock {
-                    justify-content: space-between;
-                }
-
-                .accountBlock {
-                    margin-top: 30px;
-                    text-align: center;
-
-                    h2 {
-                        display: inline-block;
-                        vertical-align: middle;
-                    }
-
-                    .createAccountBtn {
-                        display: inline-block;
-                        margin: 0;
-                        margin-left: 20px;
-                    }
-                }
-            }            
-        }
+        @media screen and (min-width: 768px) { width: 600px; min-height: 208px; }
     }
 
     .avatarPanel {
@@ -589,6 +533,7 @@
                 .avatarPreview{
                     width: 100%;
                     height: 100%;
+                    border-radius: 10px;
                 }
 
                 &.activeAvatar {
