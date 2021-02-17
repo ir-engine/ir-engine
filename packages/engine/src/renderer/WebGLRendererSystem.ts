@@ -232,12 +232,10 @@ export class WebGLRendererSystem extends System {
     if (delta >= this.maxRenderDelta) {
       this.downgradeTimer += delta;
       this.upgradeTimer = 0;
-    }
-    else if (delta <= this.minRenderDelta) {
+    } else if (delta <= this.minRenderDelta) {
       this.upgradeTimer += delta;
       this.downgradeTimer = 0;
-    }
-    else {
+    } else {
       this.upgradeTimer = 0;
       this.downgradeTimer = 0;
       return
@@ -247,8 +245,7 @@ export class WebGLRendererSystem extends System {
     if (this.downgradeTimer > 2000 && this.qualityLevel > 0) {
       this.qualityLevel = Math.max(0, Math.min(this.maxQualityLevel, this.qualityLevel-1))
       this.downgradeTimer = 0;
-    }
-    else if (this.upgradeTimer > 1000 && this.qualityLevel < this.maxQualityLevel) {
+    } else if (this.upgradeTimer > 1000 && this.qualityLevel < this.maxQualityLevel) {
       this.qualityLevel = Math.max(0, Math.min(this.maxQualityLevel, this.qualityLevel+1))
       this.upgradeTimer = 0;
     }
