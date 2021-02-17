@@ -170,7 +170,7 @@ export class InputSystem extends System {
       // skip all other inputs
       return;
     }
-    
+
     if (value.lifecycleState === LifecycleValue.ENDED) {
       // ENDED here is a special case, like mouse position on mouse down
       return;
@@ -313,14 +313,14 @@ export class InputSystem extends System {
 
 
       const actor = getMutableComponent(entity, CharacterComponent);
+      if (actor) {
+        const isWalking = (input.data.get(BaseInput.WALK)?.value) === BinaryValue.ON;
+        actor.moveSpeed = isWalking ? WALK_SPEED : RUN_SPEED;
 
-      const isWalking = (input.data.get(BaseInput.WALK)?.value) === BinaryValue.ON;
-      actor.moveSpeed = isWalking ? WALK_SPEED : RUN_SPEED;
-
-      inputs.viewVector.x = actor.viewVector.x;
-      inputs.viewVector.y = actor.viewVector.y;
-      inputs.viewVector.z = actor.viewVector.z;
-      
+        inputs.viewVector.x = actor.viewVector.x;
+        inputs.viewVector.y = actor.viewVector.y;
+        inputs.viewVector.z = actor.viewVector.z;
+      }
       Network.instance.transport.sendData(ClientInputModel.toBuffer(inputs));
 
         // clean processed LifecycleValue.ENDED inputs
