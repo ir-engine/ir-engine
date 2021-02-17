@@ -24,7 +24,6 @@ import ProfileMenu from './menus/ProfileMenu';
 import AvatarMenu from './menus/AvatarMenu';
 import SettingMenu from './menus/SettingMenu';
 import ShareMenu from './menus/ShareMenu';
-import AccountMenu from './menus/AccountMenu';
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -41,7 +40,9 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
   loginUserByOAuth: bindActionCreators(loginUserByOAuth, dispatch),
   addConnectionBySms: bindActionCreators(addConnectionBySms, dispatch),
-  addConnectionByEmail: bindActionCreators(addConnectionByEmail, dispatch)
+  addConnectionByEmail: bindActionCreators(addConnectionByEmail, dispatch),
+  logoutUser: bindActionCreators(addConnectionByEmail, dispatch),
+  removeUser: bindActionCreators(addConnectionByEmail, dispatch),
 });
 
 const UserMenu = (props: UserMenuProps): any => {
@@ -53,6 +54,8 @@ const UserMenu = (props: UserMenuProps): any => {
     addConnectionByEmail,
     addConnectionBySms,
     loginUserByOAuth,
+    logoutUser,
+    removeUser,
   } = props;
   const selfUser = authState.get('user') || {};
 
@@ -106,12 +109,13 @@ const UserMenu = (props: UserMenuProps): any => {
     [Views.Settings]: SettingMenu,
     [Views.Share]: ShareMenu,
     [Views.Avatar]: AvatarMenu,
-    [Views.Account]: AccountMenu,
   };
 
   const handleUpdateUsername = () => {
-    if (selfUser.name.trim() !== username.trim()) {
-      updateUsername(selfUser.id, username.trim());
+    const name = username.trim();
+    if (!name) return;
+    if (selfUser.name.trim() !== name) {
+      updateUsername(selfUser.id, name);
     }
   };
 
@@ -162,6 +166,8 @@ const UserMenu = (props: UserMenuProps): any => {
           setUsername,
           updateUsername: handleUpdateUsername,
           changeActiveMenu,
+          logoutUser,
+          removeUser,
         };
         break;
       case Views.Avatar:
