@@ -16,6 +16,9 @@ module.exports = withTM(
       APP_URL: process.env.APP_URL,
       SERVER_URL: process.env.SERVER_URL
     },
+    watchOptions: {
+      ignored: /node_modules/
+    },
     future: {
       excludeDefaultMomentLocales: true,
       webpack5: true
