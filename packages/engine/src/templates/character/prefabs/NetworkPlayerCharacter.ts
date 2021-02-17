@@ -45,7 +45,7 @@ import {
 import PoseManager from "../../../xr/vrarmik/PoseManager";
 import ShoulderTransforms from "../../../xr/vrarmik/ShoulderTransforms";
 import { fixSkeletonZForward } from "../../../xr/vrarmik/SkeletonUtils";
-import { CharacterAvatars } from "../CharacterAvatars";
+import { CharacterAvatars, DEFAULT_AVATAR_ID } from "../CharacterAvatars";
 import { CharacterInputSchema } from '../CharacterInputSchema';
 import { CharacterStateSchema } from '../CharacterStateSchema';
 import { CharacterStateTypes } from "../CharacterStateTypes";
@@ -812,7 +812,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     // ActorComponent has values like movement speed, deceleration, jump height, etc
     { type: CharacterComponent },
     // Handle character's body
-    { type: CharacterComponent, data: { avatarId: 'Rose' }},
+    { type: CharacterComponent, data: { avatarId: DEFAULT_AVATAR_ID }},
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
     // Local player input mapped to behaviors in the input map
