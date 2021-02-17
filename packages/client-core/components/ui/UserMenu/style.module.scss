@@ -116,6 +116,7 @@
     position: fixed;
     bottom: 25px;
     width: 100vw;
+    z-index: 1;
 
     .materialIconBlock {
         display: flex;
