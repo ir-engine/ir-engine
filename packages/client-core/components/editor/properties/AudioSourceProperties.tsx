@@ -8,6 +8,17 @@ import CompoundNumericInput from "../inputs/CompoundNumericInput";
 import { AudioType, AudioTypeOptions, DistanceModelOptions, DistanceModelType } from "@xr3ngine/engine/src/scene/classes/AudioSource";
 import useSetPropertySelected from "./useSetPropertySelected";
 
+/**
+ * [
+ * AudioSourceProperties provides properties to custom audio element on the scene
+ * used inside AudioNodeEditor component
+ * ]
+ * @param       {[type]} node
+ * @param       {[type]} editor
+ * @param       {[type]} multiEdit
+ * @constructor
+ */
+
 export default function AudioSourceProperties({ node, editor, multiEdit }) {
   const onChangeControls = useSetPropertySelected(editor, "controls");
   const onChangeAutoPlay = useSetPropertySelected(editor, "autoPlay");
@@ -23,7 +34,7 @@ export default function AudioSourceProperties({ node, editor, multiEdit }) {
   const onChangeConeOuterGain = useSetPropertySelected(editor, "coneOuterGain");
 
   // TODO: Make node audio settings work with multi-edit
-
+  // returning view containing inputs to customize audio element
   return (
     <>
       { /* @ts-ignore */ }

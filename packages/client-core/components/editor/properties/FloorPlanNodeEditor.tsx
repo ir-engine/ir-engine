@@ -10,6 +10,11 @@ import { withDialog } from "../contexts/DialogContext";
 import { withSettings } from "../contexts/SettingsContext";
 import { ShoePrints } from "@styled-icons/fa-solid/ShoePrints";
 import FloorPlanNode from "@xr3ngine/engine/src/editor/nodes/FloorPlanNode";
+
+/**
+ * [defining properties for FloorPlanNodeEditor]
+ * @type {Object}
+ */
 type FloorPlanNodeEditorProps = {
   hideDialog: (...args: any[]) => any;
   showDialog: (...args: any[]) => any;
@@ -17,7 +22,14 @@ type FloorPlanNodeEditorProps = {
   settings: object;
   node?: FloorPlanNode;
 };
+
+/**
+ * [FloorPlanNodeEditor class component used to render view to customize properties of floor plan element]
+ * @extends Component
+ */
 class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
+
+  //initializing floorPlanNode properties
     constructor(props) {
         super(props);
         const createPropSetter = propName => value =>
@@ -33,8 +45,14 @@ class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
         this.onChangeMaxTriangles = createPropSetter("maxTriangles");
         this.onChangeForceTrimesh = createPropSetter("forceTrimesh");
     }
+
+    // setting icon component
     static iconComponent = ShoePrints;
+
+    // setting description and will appears in the property Container
     static description = "Sets the walkable surface area in your scene.";
+
+    // Declairing floorPlanNode Properties
   onChangeAutoCellSize: (value: any) => any;
   onChangeCellSize: (value: any) => any;
   onChangeCellHeight: (value: any) => any;
@@ -45,14 +63,20 @@ class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
   onChangeRegionMinSize: (value: any) => any;
   onChangeMaxTriangles: (value: any) => any;
   onChangeForceTrimesh: (value: any) => any;
+
+  // function to Regenerate floorPlanNode
   onRegenerate = async () => {
     const abortController = new AbortController();
+
+    // showing message dialog
     this.props.showDialog(ProgressDialog, {
       title: "Generating Floor Plan",
       message: "Generating floor plan...",
       cancelable: true,
       onCancel: () => abortController.abort()
     });
+
+    // generating floorPlanNode
     try {
       await this.props.node?.generate(abortController.signal);
       this.props.hideDialog();
@@ -62,6 +86,8 @@ class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
         return;
       }
       console.error(error);
+
+      //showing error dialog if there is an error
       this.props.showDialog(ErrorDialog, {
         title: "Error Generating Floor Plan",
         message: error.message || "There was an unknown error.",
@@ -69,6 +95,8 @@ class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
       });
     }
   };
+
+  //rendering floorPlanNode view
   render() {
     const { node, settings } = this.props as any;
     return (

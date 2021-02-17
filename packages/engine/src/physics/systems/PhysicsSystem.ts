@@ -1,15 +1,13 @@
-import { appplyVectorMatrixXZ } from "@xr3ngine/engine/src/common/functions/appplyVectorMatrixXZ";
-import { lerp } from "@xr3ngine/engine/src/common/functions/MathLerpFunctions";
-import { CollisionGroups } from "@xr3ngine/engine/src/physics/enums/CollisionGroups";
-import { playerModelInCar } from '@xr3ngine/engine/src/templates/vehicle/behaviors/playerModelInCar';
-import * as CANNON from "cannon-es";
-import { Body, ContactMaterial, Material, SAPBroadphase, Shape, Vec3, World } from 'cannon-es';
-import debug from "cannon-es-debugger";
-import * as THREE from "three";
+import CANNON, { Body, ContactMaterial, Material, SAPBroadphase, Shape, Vec3, World } from 'cannon-es';
 import { Matrix4, Mesh, Quaternion, Vector3 } from 'three';
+import { CameraComponent } from '../../camera/components/CameraComponent';
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent';
+import { CameraSystem } from '../../camera/systems/CameraSystem';
+import { appplyVectorMatrixXZ } from '../../common/functions/appplyVectorMatrixXZ';
 import { cannonFromThreeVector } from '../../common/functions/cannonFromThreeVector';
 import { getSignedAngleBetweenVectors } from '../../common/functions/getSignedAngleBetweenVectors';
 import { isClient } from '../../common/functions/isClient';
+import { lerp } from '../../common/functions/MathLerpFunctions';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Engine } from '../../ecs/classes/Engine';
 import { Entity } from '../../ecs/classes/Entity';
@@ -23,6 +21,11 @@ import { NetworkObject } from '../../networking/components/NetworkObject';
 import { calculateInterpolation, createSnapshot } from '../../networking/functions/NetworkInterpolationFunctions';
 import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
+import { onAddedInCar } from '../../templates/vehicle/behaviors/onAddedInCar';
+import { onAddEndingInCar } from '../../templates/vehicle/behaviors/onAddEndingInCar';
+import { onRemovedFromCar } from '../../templates/vehicle/behaviors/onRemovedFromCar';
+import { onStartRemoveFromCar } from '../../templates/vehicle/behaviors/onStartRemoveFromCar';
+import { onUpdatePlayerInCar } from '../../templates/vehicle/behaviors/onUpdatePlayerInCar';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { capsuleColliderBehavior } from '../behaviors/capsuleColliderBehavior';
 import { handleCollider } from '../behaviors/ColliderBehavior';
@@ -33,7 +36,10 @@ import { ColliderComponent } from '../components/ColliderComponent';
 import { PlayerInCar } from '../components/PlayerInCar';
 import { RigidBody } from "../components/RigidBody";
 import { VehicleBody } from "../components/VehicleBody";
+import { CollisionGroups } from '../enums/CollisionGroups';
 
+
+const vec3 = new Vector3();
 const arcadeVelocity = new Vector3();
 const simulatedVelocity = new Vector3();
 const newVelocity = new Vector3();
@@ -48,6 +54,8 @@ const cannonDebugger = isClient ? import('cannon-es-debugger').then((module) => 
 export class PhysicsSystem extends System {
   updateType = SystemUpdateType.Fixed;
   static frame: number
+  diffSpeed: number = Engine.physicsFrameRate / Engine.networkFramerate;
+
   static physicsWorld: World
   static simulate: boolean
   static serverOnlyRigidBodyCollides: boolean
@@ -73,7 +81,6 @@ export class PhysicsSystem extends System {
     this.physicsFrameTime = 1 / this.physicsFrameRate;
     this.physicsMaxPrediction = this.physicsFrameRate;
     PhysicsSystem.serverOnlyRigidBodyCollides = false;
-
     // Physics
     PhysicsSystem.simulate = true;
     PhysicsSystem.frame = 0;
@@ -94,12 +101,12 @@ export class PhysicsSystem extends System {
       }
     };
 
-    window["physicsDebugView"] = () => {
-      debug(Engine.scene, PhysicsSystem.physicsWorld.bodies, DebugOptions);
-    };
-    if (DEBUG_PHYSICS) {
-      debug(Engine.scene, PhysicsSystem.physicsWorld.bodies, DebugOptions);
-    }
+    // window["physicsDebugView"] = () => {
+    //   debug(Engine.scene, PhysicsSystem.physicsWorld.bodies, DebugOptions);
+    // };
+    // if (DEBUG_PHYSICS) {
+    //   debug(Engine.scene, PhysicsSystem.physicsWorld.bodies, DebugOptions);
+    // }
   }
 
   dispose(): void {
@@ -143,8 +150,7 @@ export class PhysicsSystem extends System {
     });
 
     this.queryResults.capsuleCollider.removed?.forEach(entity => {
-      const col = getComponent(entity, CapsuleCollider)
-      if (col) PhysicsSystem.physicsWorld.removeBody(col.body);
+      capsuleColliderBehavior(entity, { phase: 'onRemoved' });
     });
 
     // RigidBody
@@ -163,27 +169,53 @@ export class PhysicsSystem extends System {
       VehicleBehavior(entity, { phase: 'onAdded' });
     });
 
-    this.queryResults.vehicleBody.all?.forEach(entity => {
-      VehicleBehavior(entity, { phase: 'onUpdate' });
+
+    this.queryResults.vehicleBody.all?.forEach(entityCar => {
+      const networkCarId = getComponent(entityCar, NetworkObject).networkId;
+
+        this.queryResults.playerInCar.added?.forEach(entity => {
+          const component = getComponent(entity, PlayerInCar);
+          if (component.networkCarId == networkCarId)
+            onAddedInCar(entity, entityCar, component.currentFocusedPart, this.diffSpeed);
+        });
+
+        this.queryResults.playerInCar.all?.forEach(entity => {
+          const component = getComponent(entity, PlayerInCar);
+          if (component.networkCarId == networkCarId) {
+            switch (component.state) {
+              case 'onAddEnding':
+                onAddEndingInCar(entity,  entityCar, component.currentFocusedPart, this.diffSpeed);
+                break;
+              case 'onUpdate':
+                onUpdatePlayerInCar(entity,  entityCar, component.currentFocusedPart, this.diffSpeed);
+                break;
+              case 'onStartRemove':
+                onStartRemoveFromCar(entity, entityCar, component.currentFocusedPart, this.diffSpeed);
+                break;
+          }}
+        });
+
+        this.queryResults.playerInCar.removed?.forEach(entity => {
+          if(!hasComponent(entity, NetworkObject)) return;
+          const networkPlayerId = getComponent(entity, NetworkObject).networkId;
+          const vehicle = getComponent(entityCar, VehicleBody);
+          for (let i = 0; i < vehicle.seatPlane.length; i++) {
+            if (networkPlayerId == vehicle[vehicle.seatPlane[i]]) {
+              onRemovedFromCar(entity, entityCar, i, this.diffSpeed);
+            }
+          }
+        });
+      VehicleBehavior(entityCar, { phase: 'onUpdate', clientSnapshot });
     });
 
     this.queryResults.vehicleBody.removed?.forEach(entity => {
       VehicleBehavior(entity, { phase: 'onRemoved' });
     });
 
-    // Player 3d model in car
 
-    this.queryResults.playerInCar.added?.forEach(entity => {
-      playerModelInCar(entity, { phase: 'onAdded' }, delta);
-    });
 
-    this.queryResults.playerInCar.all?.forEach(entity => {
-      playerModelInCar(entity, { phase: 'onUpdate' }, delta);
-    });
 
-    this.queryResults.playerInCar.removed?.forEach(entity => {
-      playerModelInCar(entity, { phase: 'onRemoved' }, delta);
-    });
+
     if (PhysicsSystem.simulate) { // pause physics until loading all component scene
       this.queryResults.character.all?.forEach(entity => physicsPreStep(entity, null, delta));
       PhysicsSystem.frame++;
@@ -242,169 +274,169 @@ function haveDifferentSigns(n1: number, n2: number): boolean {
   return (n1 < 0) !== (n2 < 0);
 }
 
-function threeFromCannonVector(vec: CANNON.Vec3): THREE.Vector3 {
-  return new THREE.Vector3(vec.x, vec.y, vec.z);
+function threeFromCannonVector(vec: CANNON.Vec3): Vector3 {
+  return new Vector3(vec.x, vec.y, vec.z);
 }
 
-function threeFromCannonQuat(quat: CANNON.Quaternion): THREE.Quaternion {
-  return new THREE.Quaternion(quat.x, quat.y, quat.z, quat.w);
+function threeFromCannonQuat(quat: CANNON.Quaternion): Quaternion {
+  return new Quaternion(quat.x, quat.y, quat.z, quat.w);
 }
 
-const physicsPostStep: Behavior = (entity): void => {
-  const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-  if (!actor.initialized) return;
+ const physicsPostStep: Behavior = (entity): void => {	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+	if(!actor.initialized) return;
 
-  const body = actor.actorCapsule.body;
+	const body = actor.actorCapsule.body;
+	if(body.world == null) return;
+	// Get velocities
+	simulatedVelocity.set(body.velocity.x, body.velocity.y, body.velocity.z);
 
-  // Get velocities
-  simulatedVelocity.set(body.velocity.x, body.velocity.y, body.velocity.z);
+	// Take local velocity
+	arcadeVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed);
+	// Turn local into global
+	arcadeVelocity.copy(appplyVectorMatrixXZ(actor.orientation, arcadeVelocity));
 
-  // Take local velocity
-  arcadeVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed);
-  // Turn local into global
-  arcadeVelocity.copy(appplyVectorMatrixXZ(actor.orientation, arcadeVelocity));
+	// Additive velocity mode
+	if (actor.arcadeVelocityIsAdditive) {
+		newVelocity.copy(simulatedVelocity);
 
-  // Additive velocity mode
-  if (actor.arcadeVelocityIsAdditive) {
-    newVelocity.copy(simulatedVelocity);
+		const globalVelocityTarget = appplyVectorMatrixXZ(actor.orientation, actor.velocityTarget);
+		const add = new Vector3().copy(arcadeVelocity).multiply(actor.arcadeVelocityInfluence);
+/*
+		if (Math.abs(simulatedVelocity.x) < Math.abs(globalVelocityTarget.x * actor.moveSpeed) || haveDifferentSigns(simulatedVelocity.x, arcadeVelocity.x)) { newVelocity.x += add.x; }
+		if (Math.abs(simulatedVelocity.y) < Math.abs(globalVelocityTarget.y * actor.moveSpeed) || haveDifferentSigns(simulatedVelocity.y, arcadeVelocity.y)) { newVelocity.y += add.y; }
+		if (Math.abs(simulatedVelocity.z) < Math.abs(globalVelocityTarget.z * actor.moveSpeed) || haveDifferentSigns(simulatedVelocity.z, arcadeVelocity.z)) { newVelocity.z += add.z; }
+*/
+		//console.warn(actor.moveSpeed);
+		if ( haveDifferentSigns(simulatedVelocity.x, arcadeVelocity.x)) { newVelocity.x += add.x; }
+		if ( haveDifferentSigns(simulatedVelocity.y, arcadeVelocity.y)) { newVelocity.y += add.y; }
+		if ( haveDifferentSigns(simulatedVelocity.z, arcadeVelocity.z)) { newVelocity.z += add.z; }
+	}
+	else {
 
-    const globalVelocityTarget = appplyVectorMatrixXZ(actor.orientation, actor.velocityTarget);
-    const add = new Vector3().copy(arcadeVelocity).multiply(actor.arcadeVelocityInfluence);
-    /*
-        if (Math.abs(simulatedVelocity.x) < Math.abs(globalVelocityTarget.x * actor.moveSpeed) || haveDifferentSigns(simulatedVelocity.x, arcadeVelocity.x)) { newVelocity.x += add.x; }
-        if (Math.abs(simulatedVelocity.y) < Math.abs(globalVelocityTarget.y * actor.moveSpeed) || haveDifferentSigns(simulatedVelocity.y, arcadeVelocity.y)) { newVelocity.y += add.y; }
-        if (Math.abs(simulatedVelocity.z) < Math.abs(globalVelocityTarget.z * actor.moveSpeed) || haveDifferentSigns(simulatedVelocity.z, arcadeVelocity.z)) { newVelocity.z += add.z; }
-    */
-    //console.warn(actor.moveSpeed);
-    if (haveDifferentSigns(simulatedVelocity.x, arcadeVelocity.x)) { newVelocity.x += add.x; }
-    if (haveDifferentSigns(simulatedVelocity.y, arcadeVelocity.y)) { newVelocity.y += add.y; }
-    if (haveDifferentSigns(simulatedVelocity.z, arcadeVelocity.z)) { newVelocity.z += add.z; }
-  }
-  else {
+		newVelocity.set(
+			lerp(simulatedVelocity.x, arcadeVelocity.x, actor.arcadeVelocityInfluence.x),
+			lerp(simulatedVelocity.y, arcadeVelocity.y, actor.arcadeVelocityInfluence.y),
+			lerp(simulatedVelocity.z, arcadeVelocity.z, actor.arcadeVelocityInfluence.z)
+		);
+	}
 
-    newVelocity.set(
-      lerp(simulatedVelocity.x, arcadeVelocity.x, actor.arcadeVelocityInfluence.x),
-      lerp(simulatedVelocity.y, arcadeVelocity.y, actor.arcadeVelocityInfluence.y),
-      lerp(simulatedVelocity.z, arcadeVelocity.z, actor.arcadeVelocityInfluence.z)
-    );
-  }
+	// If we're hitting the ground, stick to ground
+	if (actor.rayHasHit) {
+		// console.log("We are hitting the ground")
+		// Flatten velocity
+		newVelocity.y = 0;
 
-  // If we're hitting the ground, stick to ground
-  if (actor.rayHasHit) {
-    // console.log("We are hitting the ground")
-    // Flatten velocity
-    newVelocity.y = 0;
+		// Move on top of moving objects
+		if (actor.rayResult.body.mass > 0) {
+			const pointVelocity = new Vec3();
+			actor.rayResult.body.getVelocityAtWorldPoint(actor.rayResult.hitPointWorld, pointVelocity);
+			newVelocity.add(threeFromCannonVector(pointVelocity));
+		}
 
-    // Move on top of moving objects
-    if (actor.rayResult.body.mass > 0) {
-      const pointVelocity = new Vec3();
-      actor.rayResult.body.getVelocityAtWorldPoint(actor.rayResult.hitPointWorld, pointVelocity);
-      newVelocity.add(threeFromCannonVector(pointVelocity));
-    }
+		// Measure the normal vector offset from direct "up" vector
+		// and transform it into a matrix
+		const normal = new Vector3(actor.rayResult.hitNormalWorld.x, actor.rayResult.hitNormalWorld.y, actor.rayResult.hitNormalWorld.z);
+		const q = new Quaternion().setFromUnitVectors(up, normal);
+		const m = new Matrix4().makeRotationFromQuaternion(q);
 
-    // Measure the normal vector offset from direct "up" vector
-    // and transform it into a matrix
-    const normal = new Vector3(actor.rayResult.hitNormalWorld.x, actor.rayResult.hitNormalWorld.y, actor.rayResult.hitNormalWorld.z);
-    const q = new Quaternion().setFromUnitVectors(up, normal);
-    const m = new Matrix4().makeRotationFromQuaternion(q);
+		// Rotate the velocity vector
+		newVelocity.applyMatrix4(m);
 
-    // Rotate the velocity vector
-    newVelocity.applyMatrix4(m);
+		// Compensate for gravity
+		// newVelocity.y -= body.world.physicsWorld.gravity.y / body.actor.world.physicsFrameRate;
+		// Apply velocity
+	//	if (!isClient) {
+			//console.error(body.velocity.x);
 
-    // Compensate for gravity
-    // newVelocity.y -= body.world.physicsWorld.gravity.y / body.actor.world.physicsFrameRate;
-    // Apply velocity
-    //	if (!isClient) {
-    //console.error(body.velocity.x);
+			body.velocity.x = newVelocity.x;
+			body.velocity.y = newVelocity.y;
+			body.velocity.z = newVelocity.z;
+	//	}
+		// Ground actor
+		body.position.y = actor.rayResult.hitPointWorld.y + actor.rayCastLength + (newVelocity.y / Engine.physicsFrameRate);
+	}
+	else {
+		// If we're in air
+		body.velocity.x = newVelocity.x;
+		body.velocity.y = newVelocity.y;
+		body.velocity.z = newVelocity.z;
 
-    body.velocity.x = newVelocity.x;
-    body.velocity.y = newVelocity.y;
-    body.velocity.z = newVelocity.z;
-    //	}
-    // Ground actor
-    body.position.y = actor.rayResult.hitPointWorld.y + actor.rayCastLength + (newVelocity.y / Engine.physicsFrameRate);
-  }
-  else {
-    // If we're in air
-    body.velocity.x = newVelocity.x;
-    body.velocity.y = newVelocity.y;
-    body.velocity.z = newVelocity.z;
+		// Save last in-air information
+		actor.groundImpactVelocity.x = body.velocity.x;
+		actor.groundImpactVelocity.y = body.velocity.y;
+		actor.groundImpactVelocity.z = body.velocity.z;
+	}
 
-    // Save last in-air information
-    actor.groundImpactVelocity.x = body.velocity.x;
-    actor.groundImpactVelocity.y = body.velocity.y;
-    actor.groundImpactVelocity.z = body.velocity.z;
-  }
-
-  // Jumping
-  if (actor.wantsToJump) {
-    // If initJumpSpeed is set
-    if (actor.initJumpSpeed > -1) {
+	// Jumping
+	if (actor.wantsToJump) {
+		// If initJumpSpeed is set
+		if (actor.initJumpSpeed > -1) {
 
 
-      // Flatten velocity
-      //	body.velocity.y = 0;
-      //	const speed = 0.1
-      //		body.velocity = cannonFromThreeVector(actor.orientation.clone().multiplyScalar(speed));
-      //		console.warn(body.velocity);
-    }
-    else if (actor.rayHasHit) {
-      // Moving objects compensation
-      const add = new Vec3();
-      actor.rayResult.body.getVelocityAtWorldPoint(actor.rayResult.hitPointWorld, add);
-      body.velocity.vsub(add, body.velocity);
-    }
+			// Flatten velocity
+		//	body.velocity.y = 0;
+		//	const speed = 0.1
+	//		body.velocity = cannonFromThreeVector(actor.orientation.clone().multiplyScalar(speed));
+	//		console.warn(body.velocity);
+		}
+		else if (actor.rayHasHit) {
+			// Moving objects compensation
+			const add = new Vec3();
+			actor.rayResult.body.getVelocityAtWorldPoint(actor.rayResult.hitPointWorld, add);
+			body.velocity.vsub(add, body.velocity);
+		}
 
-    // Add positive vertical velocity
-    body.velocity.y += 4;
-    // Move above ground by 2x safe offset value
-    body.position.y += actor.raySafeOffset * 2;
-    // Reset flag
-    actor.wantsToJump = false;
-  }
-  if (isClient) return;
+		// Add positive vertical velocity
+		body.velocity.y += 4;
+		// Move above ground by 2x safe offset value
+		body.position.y += actor.raySafeOffset * 2;
+		// Reset flag
+		actor.wantsToJump = false;
+	}
 
-  // const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
-  // transform.position.set(body.position.x, body.position.y, body.position.z);
-};
+
+	// const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
+	// transform.position.set(body.position.x, body.position.y, body.position.z);
+}
 
 const physicsPreStep: Behavior = (entity): void => {
-  const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-  if (!actor.initialized) return;
-  const body = actor.actorCapsule.body;
-  const transform: TransformComponent = getMutableComponent<TransformComponent>(entity, TransformComponent);
-  const object3d: Object3DComponent = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
+	const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+	if(!actor.initialized) return;
+	const body = actor.actorCapsule.body;
+	if(body.world == null) return;
+	const transform: TransformComponent = getMutableComponent<TransformComponent>(entity, TransformComponent);
 
-  // BUG: Setting position but this should be handled properly
-  if (isNaN(actor.actorCapsule.body.position.x) || isNaN(actor.actorCapsule.body.position.y)) {
-    console.log("body pose is nan");
-    actor.actorCapsule.body.position = cannonFromThreeVector(transform.position);
-  }
-  // Player ray casting
-  // Create ray
-  const start = new Vec3(body.position.x, body.position.y, body.position.z);
-  const end = new Vec3(body.position.x, body.position.y - actor.rayCastLength - actor.raySafeOffset, body.position.z);
-  // Raycast options
-  const rayCastOptions = {
-    collisionFilterMask: CollisionGroups.Default,
-    skipBackfaces: true /* ignore back faces */
-  };
-  // Cast the ray
-  actor.rayHasHit = PhysicsSystem.physicsWorld.raycastClosest(start, end, rayCastOptions, actor.rayResult);
+	// BUG: Setting position but this should be handled properly
+	if(isNaN( actor.actorCapsule.body.position.x) || isNaN( actor.actorCapsule.body.position.y)) {
+		console.log("body pose is nan");
+		actor.actorCapsule.body.position = cannonFromThreeVector(transform.position);
+	}
+	// Player ray casting
+	// Create ray
+	const actorRaycastStart = new Vec3(body.position.x, body.position.y, body.position.z);
+	const actorRaycastEnd = new Vec3(body.position.x, body.position.y - actor.rayCastLength - actor.raySafeOffset, body.position.z);
+	// Raycast options
+	const actorRaycastOptions = {
+		collisionFilterMask: CollisionGroups.Default,
+		skipBackfaces: true /* ignore back faces */
+	};
+	// Cast the ray
+	actor.rayHasHit = PhysicsSystem.physicsWorld.raycastClosest(actorRaycastStart, actorRaycastEnd, actorRaycastOptions, actor.rayResult);
 
-  // Raycast debug
-  // if (actor.rayHasHit) {
-  // 	if (actor.raycastBox.visible) {
-  // 		actor.raycastBox.position.x = actor.rayResult.hitPointWorld.x;
-  // 		actor.raycastBox.position.y = actor.rayResult.hitPointWorld.y;
-  // 		actor.raycastBox.position.z = actor.rayResult.hitPointWorld.z;
-  // 	}
-  // }
-  // else {
-  // 	if (actor.raycastBox.visible) {
-  // 		actor.raycastBox.position.set(body.position.x, body.position.y - actor.rayCastLength - actor.raySafeOffset, body.position.z);
-  // 	}
-  // }
+
+	// Raycast debug
+	// if (actor.rayHasHit) {
+	// 	if (actor.raycastBox.visible) {
+	// 		actor.raycastBox.position.x = actor.rayResult.hitPointWorld.x;
+	// 		actor.raycastBox.position.y = actor.rayResult.hitPointWorld.y;
+	// 		actor.raycastBox.position.z = actor.rayResult.hitPointWorld.z;
+	// 	}
+	// }
+	// else {
+	// 	if (actor.raycastBox.visible) {
+	// 		actor.raycastBox.position.set(body.position.x, body.position.y - actor.rayCastLength - actor.raySafeOffset, body.position.z);
+	// 	}
+	// }
 };
 
 const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime) => {

@@ -1,5 +1,4 @@
 import app from '../../packages/server/src/app'
-import GenerateRandomAnimalName from 'random-animal-name-generator'
 
 describe('CRUD operation on \'User\' model', () => {
   const model = app.service('user').Model
@@ -43,7 +42,7 @@ describe('CRUD operation on \'User\' model', () => {
   })
 
   it('Update', async () => {
-    const name = GenerateRandomAnimalName().toUpperCase()
+    const name = "name";
     await model.update(
       { name: name },
       {

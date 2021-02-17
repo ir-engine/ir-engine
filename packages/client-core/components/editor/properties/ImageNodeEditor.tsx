@@ -9,19 +9,34 @@ import { ImageProjection, ImageAlphaMode } from "@xr3ngine/engine/src/scene/clas
 import ImageInput from "../inputs/ImageInput";
 import { Image } from "@styled-icons/fa-solid/Image";
 import useSetPropertySelected from "./useSetPropertySelected";
-
+//
 const mapValue = v => ({ label: v, value: v });
 const imageProjectionOptions = Object.values(ImageProjection).map(mapValue);
 const imageTransparencyOptions = Object.values(ImageAlphaMode).map(mapValue);
-
+/**
+ * [ImageNodeEditor used to dynamicaly adding an image to scene]
+ * @param       {[type]} props
+ * @constructor
+ */
 export default function ImageNodeEditor(props) {
   const { editor, node } = props;
+
+  //function used to handle the change in src property  of ImageNodeEditor
   const onChangeSrc = useSetPropertySelected(editor, "src");
+
+  //function used to handle the change in controls property used as a checkbox in customization view
   const onChangeControls = useSetPropertySelected(editor, "controls");
+
+  //function used to handle the change in Projection property
   const onChangeProjection = useSetPropertySelected(editor, "projection");
+
+  //function used to handle the change in alphaMode property
   const onChangeTransparencyMode = useSetPropertySelected(editor, "alphaMode");
+
+  //function used to handle the change in alphaCutoff property
   const onChangeAlphaCutoff = useSetPropertySelected(editor, "alphaCutoff");
 
+//creating image customization view
   return (
     <NodeEditor description={ImageNodeEditor.description} {...props}>
       { /* @ts-ignore */ }
@@ -67,12 +82,16 @@ export default function ImageNodeEditor(props) {
   );
 }
 
+
+//declairig propTypes for ImageNodeEditor
 ImageNodeEditor.propTypes = {
   editor: PropTypes.object,
   node: PropTypes.object,
   multiEdit: PropTypes.bool
 };
 
+//intailising iconComponent with icon name
 ImageNodeEditor.iconComponent = Image;
 
+//intailising description and will appears on ImageNodeEditor view.
 ImageNodeEditor.description = "Dynamically loads an image.";

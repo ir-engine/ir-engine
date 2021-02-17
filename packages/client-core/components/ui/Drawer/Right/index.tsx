@@ -205,8 +205,6 @@ const Invites = (props: Props): any => {
 
     const packageInvite = (event: any): void => {
         const mappedIDProvider = identityProviderTabMap.get(tabIndex);
-        console.log('inviteState:');
-        console.log(inviteState);
         const sendData = {
             type: inviteState.get('targetObjectType') === 'user' ? 'friend' : inviteState.get('targetObjectType'),
             token: mappedIDProvider ? userToken : null,

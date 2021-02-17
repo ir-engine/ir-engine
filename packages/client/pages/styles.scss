@@ -253,6 +253,7 @@ body{
     .bottom-left, 
     .contact-right-div{
       width: 50%;
+      z-index: 2;
     }
     .lander-logo{
       width: 800px;
@@ -267,10 +268,6 @@ body{
       width: 800px;
       text-align: right;
       margin-top: 10px;
-    }
-
-    .contact-right-div{
-      z-index: 2;
     }
   }
 

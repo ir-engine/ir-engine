@@ -76,6 +76,16 @@ const createNetworkObjectSchema = new Schema({
     qW: float32
 });
 
+const editNetworkObjectSchema = new Schema({
+    networkId: uint32,
+    ownerId: string,
+    component: string,
+    state: string,
+    currentId: uint32,
+    value: uint32,
+    whoIsItFor: string
+});
+
 const destroyNetworkObjectSchema = new Schema({
     networkId: uint32
 });
@@ -84,6 +94,7 @@ const worldStateSchema = new Schema({
     clientsConnected: [clientConnectedSchema],
     clientsDisconnected: [clientDisconnectedSchema],
     createObjects: [createNetworkObjectSchema],
+    editObjects: [editNetworkObjectSchema],
     destroyObjects: [destroyNetworkObjectSchema],
     inputs: [inputKeyArraySchema],
     tick: uint32,
@@ -104,6 +115,7 @@ export class WorldStateModel {
           clientsConnected: worldState.clientsConnected,
           clientsDisconnected: worldState.clientsDisconnected,
           createObjects: worldState.createObjects,
+          editObjects: worldState.editObjects,
           destroyObjects: worldState.destroyObjects,
           inputs: worldState.inputs?.map(input => {
             return {
@@ -165,5 +177,5 @@ export class WorldStateModel {
       }
 
     }
-    
+
 }

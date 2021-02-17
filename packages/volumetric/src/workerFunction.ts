@@ -1,7 +1,7 @@
 
 export function workerFunction() {
 
-   //@ts-ignore 
+   //@ts-ignore
     importScripts(location.origin+'/corto/corto.js', location.origin+'/corto/rangeFetcher.js');
 
   var self = this;
@@ -12,7 +12,7 @@ export function workerFunction() {
   let _numberOfKeyframes;
   let _fileHeader;
 
-  async function startFetching({
+  function startFetching({
     meshFilePath,
     numberOfKeyframes,
     fileHeader

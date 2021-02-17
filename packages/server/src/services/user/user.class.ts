@@ -183,7 +183,19 @@ export class User extends Service {
           instanceId: params.query.instanceId || user.instanceId || 'intentionalBadId'
         }
       });
-    } else if (action === 'admin') {
+    } else if (action === 'channel-users') {
+      const loggedInUser = extractLoggedInUserFromParams(params);
+      let user;
+      if (loggedInUser) user = await super.get(loggedInUser.userId);
+      return super.find({
+        query: {
+          $limit: params.query.$limit || 10,
+          $skip: params.query.$skip || 0,
+          channelInstanceId: params.query.channelId || user.channelInstanceId || 'intentionalBadId'
+        }
+      });
+    }
+    else if (action === 'admin') {
       const loggedInUser = extractLoggedInUserFromParams(params);
       const user = await super.get(loggedInUser.userId);
       if (user.userRole !== 'admin') throw new Forbidden ('Must be system admin to execute this action');
