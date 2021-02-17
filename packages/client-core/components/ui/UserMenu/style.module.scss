@@ -30,22 +30,6 @@
         margin: 30px 0 0 0;
     }
 }    
-.avatarCountainer{
-    display: flex;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    height: auto;
-    .avatarPreviewWrapper{
-        width: 46%;
-        cursor: pointer;
-        margin: 2%;    
-        flex-grow: 0; 
-        .avatarPreview{
-            width: 100%;
-            height: 100%;
-        }
-    }
-}
 
 .deleteAccountButtons {
     display: flex;
@@ -62,34 +46,6 @@
     display: none;
 }
 
-.userTitle{
-    width: 100%;
-    display: flex;  
-    cursor: pointer;
-    align-items: center;
-
-    :global(.MuiSvgIcon-root).userPreview{
-        margin: 5px;
-        flex-grow: 0;
-        width: 1.5em;
-        height: 1.5em;
-        cursor: pointer;
-    }
-    .userTitleLine{
-       flex-grow: 1;
-       display: flex;
-       flex-direction: column;
-       font-size: 18px;
-        padding-right: 60px;
-        svg{
-            margin: 0px 5px;
-            cursor: pointer;
-        }
-       .userTitleRole{
-           font-style: italic;
-       }
-    }    
-}
 .locationInfo{
     display: flex;
     align-content: center;
@@ -146,5 +102,600 @@
         flex-grow: 1;
         display: flex;
         align-items: center;
+    }
+}
+
+.primary {
+    background: #5F5FF1;
+}
+.primaryForeground {
+    color: #5F5FF1;
+}
+
+.settingContainer {
+    position: fixed;
+    bottom: 25px;
+    width: 100vw;
+
+    .materialIconBlock {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        svg{
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    .iconContainer {
+        display: flex;
+        border-radius: 5px;
+        background: #00000050;
+        width: 150px;
+        margin: auto;
+
+        .materialIconBlock {
+            padding: 15px;
+
+            svg{
+                opacity: 0.4;
+            }
+
+            &:hover {
+                cursor: pointer;
+
+                svg {
+                    opacity: 1;
+                    color: #A8A8FF;
+                }
+            }
+        }
+        .materialIconBlock.activeMenu {
+            color: #A8A8FF;
+        }
+    }
+
+    .menuPanel {
+        position: absolute;
+        bottom: 75px;
+        padding: 0 30px;
+        border-radius: 5px;
+        background: #ffffffe8;
+        width: calc(100% - 50px);
+        left: 50%;
+        transform: translateX(-50%);
+        box-shadow: 16px 16px 32px 0px #11111159;
+        color: black;
+        max-height: calc(100vh - 175px);
+        overflow: auto;
+
+        &>.profilePanel, &>.accountPanel, &>.settingPanel, &>.sharePanel { margin: 30px 0; }
+
+        .profilePanel {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+
+            .avatarBlock {
+                margin-top: 25px;
+
+                .avatarImg {
+                    width: 130px;
+                    height: 130px;
+                    box-shadow: 0px 2px 18px 0px #11111159;
+                    border-radius: 5px; 
+                    margin: auto;
+                    background: white;
+
+                    img {
+                        width: 100%;
+                        height: 100%;
+                        display: block;
+                    }
+                }
+
+                .avatarBtn {
+                    margin: 15px auto 30px auto;
+                    display: block;
+                    width: 130px;
+                    background: #5F5FF1;
+
+                    &:hover {
+                        opacity: 0.8;
+                        background: #5F5FF1;
+                    }
+                }
+            }
+
+            .headerBlock {
+                display: flex;
+                justify-content: center;
+                margin-top: 15px;
+                
+                h1 {
+                    font-family: 'Roboto';
+                    font-weight: 700;
+                    font-size: 24px;
+                }
+
+                .materialIconBlock {
+                    margin-left: 20px;
+                    width: 24px;
+                    flex-shrink: 0;
+                    flex-grow: 0;
+                    position: relative;
+
+                    &::before {
+                        content: ' '; 
+                        position: absolute;;
+                        width: 0px;
+                        height: 0px;
+                        border-radius: 20px;
+                        background: #5F5FF1;
+                        left: 50%;
+                        top: 50%;
+                        transform: translate(-50%, -50%);
+                        transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
+                    }
+                    &:hover, &:focus {
+                        svg { color: #fff; z-index: 1; }
+
+                        &::before {
+                            width: 35px;
+                            height: 35px;
+                        }
+                    }
+                }
+
+                :global(.MuiFormLabel-root), :global(.MuiInputBase-input) {
+                    color: black;
+                }
+            }
+
+            .accountBlock {
+                h2 {
+                    font-family: 'Roboto';
+                    font-size: 16px;
+                    text-align: center;
+
+                    span {
+                        text-transform: capitalize;
+                        font-weight: 700;
+                    }
+                }
+                .createAccountBtn {
+                    margin: 15px auto 0px auto;
+                    display: block;
+                    width: 130px;
+                    background: #5F5FF1;
+                    font-size: 14px;
+
+                    &:hover {
+                        opacity: 0.8;
+                        background: #5F5FF1;
+                    }
+                }
+            }
+        }
+
+        .settingPanel {
+            .settingSection {
+                position: relative;
+                &+.settingSection {
+                    margin-top: 25px;
+                }
+            }
+            .row {
+                display: flex;
+                align-items: center;
+
+                &+.flexWrap { flex-wrap: wrap; }
+                &+.row { margin-top: 5px; }
+
+                .checkboxBlock {
+                    margin: 4px 20px 0 0;
+
+                    :global(.MuiCheckbox-root) {
+                        padding: 0;
+                        color: #5f5ff1;
+                        margin-right: 10px;
+
+                        svg { font-size: 24px; }
+                        span { font-size: 14px; }
+                    }
+                    :global(.MuiIconButton-colorSecondary) {
+                        &:hover { background: none; } 
+                    }
+                }
+
+                .materialIconBlock {
+                    width: 24px;
+                    height: 24px;
+                    flex-shrink: 0;
+                    svg { color: #5f5ff1; }
+                }
+
+                .settingLabel {
+                    margin-left: 10px;
+                    font-size: 14px;
+                    width: 100px;
+                    display: inline-block;
+                    flex-shrink: 0;
+                    font-family: Roboto;
+                }
+
+                :global(.MuiSlider-root) {
+                    &.slider {
+                        color: #5F5FF1;
+                        margin-left: 10px;
+                    }
+                    :global(.MuiSlider-thumb) {
+                        background: #5F5FF1;
+                        border: #5F5FF1;
+                        width: 16px;
+                        height: 16px;
+                        margin-top: -7px;
+                        margin-left: -8px;
+                    }
+                }
+            }
+            .automatic {
+                position: absolute;
+                top: -8px;
+                right: 0;
+
+                .checkboxBlock {
+                    margin: 0;
+                    :global(.MuiCheckbox-root) {
+                        margin-left: 10px;
+                        margin-right: 0;
+                    }
+                }
+            }
+        }
+
+        .sharePanel {
+            position: relative;;
+            .panelHeader {
+                font-size: 18px;
+                font-weight: bold;
+            }
+            .shareLink {
+                font-size: 16px;
+                color: #454D9A;
+                font-weight: 700;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: auto;
+                margin-bottom: 20px;
+                width: 100%;
+                height: 24px !important;
+                border: none;
+                background: transparent;
+                scrollbar-width: none; /* IE */
+                resize: none;
+                outline: none !important;
+                -ms-overflow-style: none; /* Firefox */
+                &::-webkit-scrollbar { 
+                    display: none;  /* Safari and Chrome */
+                }
+            }
+            .copyBtn {
+                width: 100px;
+                height: 35px;
+                background: #5F5FF1;
+                position: absolute;
+                top: -9px;
+                right: 0;
+                margin: 0;
+
+                .materialIconBlock {
+                    width: 16px;
+                    height: 16px;
+                    margin-left: 5px;
+                }
+
+                &:hover { opacity: 0.8; }
+            }
+            .emailField {
+                margin-top: 10px;
+                width: 100%;
+                input {
+                    color: black;
+                }
+                :global(.MuiOutlinedInput-root:hover) { fieldset { border-color: black;  } }
+                :global(.MuiInputAdornment-root) { color: #5F5FF1; cursor: pointer; &:hover { opacity: 0.8; } }
+            }
+            .shareBtnContainer {
+                margin-top: 15px;
+                text-align: center;
+                .shareBtn {
+                    width: 100px;
+                    height: 35px;
+                    background: #5F5FF1;
+                    &:hover { opacity: 0.8; }
+                }
+            }
+        }
+
+        .accountPanel {
+            position: relative;;
+            .panelHeader {
+                font-size: 18px;
+                font-weight: bold;
+            }
+            .materialIconBlock {
+                width: 24px;
+                height: 24px;
+                margin-right: 15px;
+                color: #5F5FF1;
+                cursor: pointer;
+                position: relative;
+
+                svg {
+                    position: relative;
+                    z-index: 1;
+                }
+
+                &::before {
+                    content: ' '; 
+                    position: absolute;;
+                    width: 0px;
+                    height: 0px;
+                    border-radius: 20px;
+                    background: #5F5FF1;
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
+                    transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
+                }
+                &:hover, &:focus {
+                    color: #fff;
+
+                    &::before {
+                        width: 35px;
+                        height: 35px;
+                    }
+                }
+            }
+            .emailField {
+                margin-top: 10px;
+                margin-bottom: 20px;
+                width: 100%;
+                input {
+                    color: black;
+                }
+                :global(.MuiInputAdornment-root) { color: #5F5FF1; cursor: pointer; &:hover { opacity: 0.8; } }
+                :global(.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline) { border-color: black; }
+            }
+
+            .socialContainer {
+                display: flex;
+                justify-content: space-evenly;
+                margin: 20px 0;
+
+                a { color: #000; }
+                &>a:hover svg, &>a:focus svg{
+                    opacity: 1;
+                }
+                svg {
+                    height: 40px;
+                    width: 40px;
+                    flex-shrink: 0.9;
+                    margin: 0 5px;
+                    cursor: pointer;
+                    opacity: 0.7;
+                }
+            }
+
+            .textBlock {
+                font-size: 14px;
+                font-weight: normal;
+                text-align: center;
+                display: block;
+            }
+            .smallTextBlock {
+                font-size: 12px;
+                font-weight: normal;
+                text-align: center;
+                display: block;
+            }
+        }
+
+        @media screen and (min-width: 768px) {
+            width: 600px;
+            padding: 0 50px;
+            min-height: 208px;
+
+            .profilePanel {
+                padding-left: 150px;
+
+                .avatarBlock {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    margin-top: 0;
+
+                    .avatarImg {
+                        width: 100px;
+                        height: 100px;
+                    }
+
+                    .avatarBtn {
+                        width: 100px;
+                        font-size: 12px;
+                        margin-bottom: 0;
+                    }
+                }
+
+                .headerBlock {
+                    justify-content: space-between;
+                }
+
+                .accountBlock {
+                    margin-top: 30px;
+                    text-align: center;
+
+                    h2 {
+                        display: inline-block;
+                        vertical-align: middle;
+                    }
+
+                    .createAccountBtn {
+                        display: inline-block;
+                        margin: 0;
+                        margin-left: 20px;
+                    }
+                }
+            }            
+        }
+    }
+
+    .avatarPanel {
+        position: absolute;
+        bottom: 75px;
+        padding: 0 20px;
+
+        border-radius: 5px;
+        background: #ffffffe8;
+        width: 140px;
+        right: 100px;
+        box-shadow: 16px 16px 32px 0px #11111159;
+        color: black;
+
+        max-height: calc(100vh - 175px);
+        overflow: auto;
+
+        &>.avatarContainer{ margin-top: 40px; }
+        &>.controlContainer{ margin-bottom: 10px; }
+
+        .avatarContainer{
+            display: flex;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            height: auto;
+
+            .avatarPreviewWrapper{
+                width: 90px;
+                height: 90px;
+                cursor: pointer;
+                margin: 5px;    
+                flex-grow: 0;
+                background: white;
+                box-shadow: 0px 2px 18px 0px #11111159;
+                position: relative;
+
+                .avatarPreview{
+                    width: 100%;
+                    height: 100%;
+                }
+
+                &.activeAvatar {
+                    &::after {
+                        content: "✓";
+                        position: absolute;
+                        background: #5F5FF1;
+                        height: 20px;
+                        width: 20px;
+                        top: 5px;
+                        right: 5px;
+                        text-align: center;
+                        border-radius: 10px;
+                        color: white;
+                        font-weight: bold;
+                    }
+                }
+
+                &.selectedAvatar {
+                    &::before {
+                        content: "✓";
+                        position: absolute;
+                        background: #21B84E;
+                        height: 20px;
+                        width: 20px;
+                        top: 5px;
+                        right: 5px;
+                        text-align: center;
+                        border-radius: 10px;
+                        color: white;
+                        font-weight: bold;
+                    }
+                }
+            }
+        }
+
+        .controlContainer {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+
+            .actionBlock {
+                position: absolute;
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                left: 0;
+                padding: 0 20px;
+                top: 10px;
+            }
+        }
+
+        .iconBlock {
+            position: relative;
+            color: black;
+
+            svg {
+                position: relative;
+                z-index: 1;
+            }
+
+            &::before {
+                content: ' '; 
+                position: absolute;;
+                width: 0px;
+                height: 0px;
+                border-radius: 20px;
+                background: #5F5FF1;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
+            }
+            &:hover, &:focus {
+                color: #fff;
+
+                &::before {
+                    width: 35px;
+                    height: 35px;
+                }
+            }
+
+            &.disabled {
+                color: grey;
+                cursor: initial;
+
+                &::before { content: none !important; }
+            }
+        }
+
+        @media screen and (min-width: 768px) {
+            width: 320px;
+            &>.avatarContainer{ margin-top: 25px; }
+
+            .avatarContainer {
+                .avatarPreviewWrapper {
+                    width: 130px;
+                    height: 130px;
+                }
+            }
+
+            .controlContainer {
+                .actionBlock {
+                    position: initial;
+                    width: 140px;
+                }
+            }
+        }
     }
 }

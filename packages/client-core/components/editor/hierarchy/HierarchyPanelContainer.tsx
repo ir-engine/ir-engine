@@ -19,6 +19,7 @@ import useUpload from "../assets/useUpload";
 import { AllFileTypes } from "../assets/fileTypes";
 import NodeIssuesIcon from "./NodeIssuesIcon";
 
+
 const uploadOptions = {
   multiple: true,
   accepts: AllFileTypes

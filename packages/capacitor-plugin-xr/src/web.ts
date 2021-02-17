@@ -4,7 +4,7 @@ import { ExamplePlugin } from './definitions';
 export class ExampleWeb extends WebPlugin implements ExamplePlugin {
   constructor() {
     super({
-      name: 'Example',
+      name: 'XRPlugin',
       platforms: ['web'],
     });
   }
@@ -15,9 +15,9 @@ export class ExampleWeb extends WebPlugin implements ExamplePlugin {
   }
 }
 
-const Example = new ExampleWeb();
+const XRPlugin = new ExampleWeb();
 
-export { Example };
+export { XRPlugin };
 
 import { registerWebPlugin } from '@capacitor/core';
-registerWebPlugin(Example);
+registerWebPlugin(XRPlugin);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
@@ -55,11 +55,20 @@ const SignUp = (props: Props): any => {
   const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
   };
+  const password = useRef<HTMLInputElement>();
+  const confirm_password = useRef<HTMLInputElement>();
+  function validatePassword(){
+    if(password.current.value != confirm_password.current.value) {
+      confirm_password.current.setCustomValidity("Passwords Don't Match");
+    } else {
+      confirm_password.current.setCustomValidity('');
+    }
+  }
 
   return (
     <Container component="main" maxWidth="xs">
       <div className={styles.paper}>
-        <form className={styles.form} noValidate onSubmit={(e) => handleRegister(e)}>
+        <form className={styles.form} onSubmit={(e) => handleRegister(e)}>
           <Grid container>
             <Grid item xs={12}>
               <OutlinedInput
@@ -82,6 +91,7 @@ const SignUp = (props: Props): any => {
                 placeholder="Password"
                 type={values.showPassword ? 'text' : 'password'}
                 id="password"
+                inputRef={password}
                 autoComplete="current-password"
                 onChange={(e) => handleInput(e)}
                 endAdornment={
@@ -106,9 +116,11 @@ const SignUp = (props: Props): any => {
                 name="confirm_password"
                 placeholder="Password Confirm"
                 type={values.showPasswordConfirm ? 'text' : 'password'}
-                id="password"
+                id="confirm_password"
+                inputRef={confirm_password}
                 autoComplete="current-password"
                 onChange={(e) => handleInput(e)}
+                onKeyUp={validatePassword}
                 endAdornment={
                   <InputAdornment position="end">
                     <IconButton

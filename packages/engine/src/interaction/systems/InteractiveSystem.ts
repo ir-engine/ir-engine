@@ -64,14 +64,21 @@ const interactFocused: Behavior = (entity: Entity, args, delta: number): void =>
  * @param delta
  */
 
-const interactBoxRaycast: Behavior = (entity: Entity, { interactive }: InteractBehaviorArguments, delta: number): void => {
+const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractBehaviorArguments, delta: number): void => {
 
-  if (!hasComponent(entity, FollowCameraComponent)) return;
+  if (!hasComponent(entity, FollowCameraComponent)) {
+    const interacts = getMutableComponent(entity, Interactor);
+    interacts.subFocusedArray = [];
+    (interacts.BoxHitResult as any) = null;
+    (interacts.focusedInteractive as any) = null;
+    return;
+  }
+
   const followCamera = getComponent(entity, FollowCameraComponent);
   if (!followCamera.raycastBoxOn) return;
 
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
-
+/*
   const raycastList: Array<Entity> = interactive
     .filter(interactiveEntity => {
       // - have object 3d to raycast
@@ -82,6 +89,7 @@ const interactBoxRaycast: Behavior = (entity: Entity, { interactive }: InteractB
       // - onInteractionCheck is not set or passed
       return (typeof interactive.onInteractionCheck !== 'function' || interactive.onInteractionCheck(entity, interactiveEntity));
     });
+*/
 
   if (!raycastList.length) {
     return;
@@ -106,14 +114,18 @@ const interactBoxRaycast: Behavior = (entity: Entity, { interactive }: InteractB
   const subFocusedArray = raycastList.map(entityIn => {
 
     const boundingBox = getComponent(entityIn, BoundingBox);
+    const interactive = getComponent(entityIn, Interactable);
     if (boundingBox.boxArray.length) {
       // TO DO: static group object
-      if (boundingBox.dynamic) {
 
+      if (boundingBox.dynamic) {
         const arr = boundingBox.boxArray.map((object3D, index) => {
-          const aabb = new Box3();
-          aabb.setFromObject(object3D);
-          return [entityIn, frustum.intersectsBox(aabb), aabb.distanceToPoint(transform.position), index];
+          if (interactive.onInteractionCheck(entity, entityIn, index)) {
+            const aabb = new Box3();
+            aabb.setFromObject(object3D);
+            return [entityIn, frustum.intersectsBox(aabb), aabb.distanceToPoint(transform.position), index];
+          }
+          return [entityIn, false, null, index];
         }).filter(value => value[1]).sort((a: any, b: any) => a[2] - b[2]);
 
         if (arr.length) {
@@ -121,9 +133,10 @@ const interactBoxRaycast: Behavior = (entity: Entity, { interactive }: InteractB
         } else {
           return [ null, false ];
         }
-
       }
+
     } else {
+
       if (boundingBox.dynamic) {
         const object3D = getComponent(entityIn, Object3DComponent);
         const aabb = new Box3();
@@ -133,13 +146,14 @@ const interactBoxRaycast: Behavior = (entity: Entity, { interactive }: InteractB
       } else {
         return [entityIn, frustum.intersectsBox(boundingBox.box), boundingBox.box.distanceToPoint(transform.position)];
       }
+
     }
   }).filter(value => value[1]);
 
   const selectNearest = subFocusedArray.sort((a: any, b: any) => a[2] - b[2]);
 
   const interacts = getMutableComponent(entity, Interactor);
-  interacts.subFocusedArray = subFocusedArray.map((v: any) => getComponent(v[0], Object3DComponent).value);
+  interacts.subFocusedArray = subFocusedArray.map((v: any) => [ getComponent(v[0], Object3DComponent).value, v[3] ]);
 
   const newBoxHit = selectNearest.length ? selectNearest[0] : null;
   (interacts.BoxHitResult as any) = newBoxHit;
@@ -163,7 +177,7 @@ export class InteractiveSystem extends System {
 
   constructor(attributes?: SystemAttributes) {
     super(attributes);
-    
+
     this.previousEntity = null;
     this.previousEntity2DPosition = null;
     this.focused = new Set();
@@ -180,7 +194,6 @@ export class InteractiveSystem extends System {
 
   execute(delta: number, time: number): void {
     this.newFocused.clear();
-
     if (isClient) {
       const canvas = Engine.renderer.domElement;
       const width = canvas.width;
@@ -257,17 +270,12 @@ export class InteractiveSystem extends System {
           }
         }
       });
-    }
+
 
     this.queryResults.interactors?.all.forEach(entity => {
       if (this.queryResults.interactive?.all.length) {
         //interactRaycast(entity, { interactive: this.queryResults.interactive.all });
-        
-        
-        interactBoxRaycast(entity, { interactive: this.queryResults.boundingBox.all });
-        
-        
-        
+        interactBoxRaycast(entity, { raycastList: this.queryResults.boundingBox.all });
         const interacts = getComponent(entity, Interactor);
         if (interacts.focusedInteractive) {
           this.newFocused.add(interacts.focusedInteractive);
@@ -290,7 +298,7 @@ export class InteractiveSystem extends System {
           if (entityInter !== interacts.focusedInteractive && hasComponent(entityInter, InteractiveFocused)) {
             removeComponent(entityInter, InteractiveFocused);
           }
-          if (interacts.subFocusedArray.some(subFocusEntity => subFocusEntity.entity === entityInter)) {
+          if (interacts.subFocusedArray.some(v => v[0].entity === entityInter)) {
             if (!hasComponent(entityInter, SubFocused)) {
               addComponent(entityInter, SubFocused);
             }
@@ -362,6 +370,7 @@ export class InteractiveSystem extends System {
 
     this.focused.clear();
     this.newFocused.forEach(e => this.focused.add(e));
+    }
   }
 
   static queries: any = {

@@ -13,6 +13,6 @@ export const CharacterStates = {
   [CharacterStateTypes.DEFAULT]: MovingState,
   [CharacterStateTypes.JUMP]: JumpState,
   [CharacterStateTypes.DRIVING]: DrivingState,
-  [CharacterStateTypes.ENTERING_CAR]: EnterVehicleState,
-  [CharacterStateTypes.EXITING_CAR]: ExitVehicleState
+  [CharacterStateTypes.ENTERING_VEHICLE]: EnterVehicleState,
+  [CharacterStateTypes.EXITING_VEHICLE]: ExitVehicleState
 };

@@ -24,7 +24,7 @@ export class CameraComponent extends Component<any> {
   /** Should the camera resize if the window does? */
   handleResize: boolean
   /** Entity object for this component. */
-  entity: Entity;
+  entity: Entity = null
 
   /** Constructs Camera Component. */
   constructor () {
@@ -44,6 +44,7 @@ export class CameraComponent extends Component<any> {
   * The type field must be set for each property.
  */
 CameraComponent._schema = {
-  camera: { type: Types.Ref, default: null },
+  entity: { type: Types.Ref, default: null },
+  // camera: { type: Types.Ref, default: null },
   followTarget: { type: Types.Ref, default: null }
 };

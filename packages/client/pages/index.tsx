@@ -1,23 +1,8 @@
-import React, {useEffect} from 'react';
 import Head from 'next/head';
-import NoSSR from 'react-no-ssr';
-import Loading from '@xr3ngine/client-core/components/scenes/loading';
-import Layout from '@xr3ngine/client-core/components/ui/Layout/OverlayLayout';
-const isDev = typeof window !== "undefined" && window?.location?.href?.includes("127.0.0.1");
-import { Plugins } from '@capacitor/core';
-const { Example } = Plugins;
+import React from 'react';
 import Xr3engineContact from '../components/xr3engineContact';
 
 export const IndexPage = (): any => {
-    useEffect(() => {
-        if(Example){
-            Example.echo({value: 'hello'}).then(data => {
-                console.log(data);
-            });
-        }
-        else if(!isDev) window.location.href="/location/home";
-    }, []);
-
     return (
         <div className="lander">
             <Head>
@@ -25,7 +10,7 @@ export const IndexPage = (): any => {
             </Head>
             <div className="lander-container">
                 <div className="row mb-padding">
-                    <object className="lander-logo" data="static/overlay_mark.svg"></object>
+                    <object className="lander-logo" data="static/overlay_mark.svg" />
                 </div>
                 <div className="logo-bottom mb-padding">
                     <span className="main-txt gray-txt mr-2">BY</span>
@@ -43,7 +28,7 @@ export const IndexPage = (): any => {
                             </button>
                         </a>
                     </div>
-                    <object className="main-background" data="static/main-background.png"></object>
+                    <object className="main-background" data="static/main-background.png" />
                     <div className="contact-right-div">
                         <Xr3engineContact />
                     </div>
@@ -51,10 +36,10 @@ export const IndexPage = (): any => {
                 <div className="right-top-menu-row row">
                     <div className="right-top-menu">
                         <a target="_blank" href="https://discord.gg/mQ3D4FE">
-                            <img className="discord-icon" src="static/discord.svg"></img>
+                            <img className="discord-icon" src="static/discord.svg" />
                         </a>
                         <a target="_blank" href="https://github.com/xr3ngine/xr3ngine">
-                            <img className="github-icon" src="static/github.svg"></img>
+                            <img className="github-icon" src="static/github.svg" />
                         </a>
                     </div>
                     <div className="mobile-only">
@@ -65,15 +50,6 @@ export const IndexPage = (): any => {
                 </div>
             </div>
         </div>
-        // <Layout pageTitle="Home" login={false} >
-        //     <NoSSR onSSR={<Loading/>}>
-        //         {Example &&
-        //             <div>Native plugin detected</div>
-        //         }
-        //         <div className="redirect">Redirecting...</div>
-        //     </NoSSR> 
-            
-        // </Layout>
     );
 };
 

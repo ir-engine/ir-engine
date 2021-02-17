@@ -8,6 +8,7 @@ import { selectGroupState } from '../../../../redux/group/selector';
 import { selectPartyState } from '../../../../redux/party/selector';
 import { selectUserState } from '../../../../redux/user/selector';
 import { selectLocationState } from '../../../../redux/location/selector';
+// @ts-ignore
 import styles from './Left.module.scss';
 
 import {
@@ -246,9 +247,8 @@ const LeftDrawer = (props: Props): any => {
         }, [partyState]);
 
         useEffect(() => {
-            if (user.instanceId != null && userState.get('layerUsersUpdateNeeded') === true) {
-                getLayerUsers();
-            }
+            if (user.instanceId != null && userState.get('layerUsersUpdateNeeded') === true) getLayerUsers(true);
+            if (user.channelInstanceId != null && userState.get('channelLayerUsersUpdateNeeded') === true) getLayerUsers(false);
         }, [user, userState]);
 
         const showFriendDeleteConfirm = (e, friendId) => {

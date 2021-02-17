@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Router from "next/router";
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 
@@ -17,7 +16,6 @@ import { showDialog, closeDialog } from '../../../redux/dialog/service';
 import { User } from '@xr3ngine/common/interfaces/User';
 
 import styles from './Auth.module.scss';
-import Typography from '@material-ui/core/Typography';
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -97,7 +95,6 @@ export const PasswordLogin = (props: Props): any => {
       <div className={styles.paper}>        
         <form
           className={styles.form}
-          noValidate
           onSubmit={(e) => handleEmailLogin(e)}
         >
           <Grid container>

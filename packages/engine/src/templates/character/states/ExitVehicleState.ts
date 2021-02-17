@@ -14,8 +14,8 @@ export const ExitVehicleState: StateSchemaValue = {componentProperties: [{
     {
       behavior: initializeCharacterState,
       args: {
-        animationId: CharacterStateTypes.EXITING_CAR,
-        transitionDuration: 0.1
+        animationId: CharacterStateTypes.EXITING_VEHICLE,
+        transitionDuration: 0.3
       }
     }
   ],
