@@ -12,19 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.xr3ngine.arcore.rendering;
-
+package com.xr3ngine.xr.rendering;
+import de.javagl.obj.Obj;
+import de.javagl.obj.ObjData;
+import de.javagl.obj.ObjReader;
+import de.javagl.obj.ObjUtils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
-import com.xr3ngine.arcore.R;
-import de.javagl.obj.Obj;
-import de.javagl.obj.ObjData;
-import de.javagl.obj.ObjReader;
-import de.javagl.obj.ObjUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -190,10 +188,12 @@ public class ObjectRenderer {
 
         ShaderUtil.checkGLError(TAG, "OBJ buffer load");
 
-        final int vertexShader = ShaderUtil.loadGLShader(TAG, context,
-                GLES20.GL_VERTEX_SHADER, R.raw.object_vertex);
-        final int fragmentShader = ShaderUtil.loadGLShader(TAG, context,
-                GLES20.GL_FRAGMENT_SHADER, R.raw.object_fragment);
+        final int vertexShader = 0;
+//        ShaderUtil.loadGLShader(TAG, context,
+//                GLES20.GL_VERTEX_SHADER, R.raw.object_vertex);
+        final int fragmentShader = 0;
+//        ShaderUtil.loadGLShader(TAG, context,
+//                GLES20.GL_FRAGMENT_SHADER, R.raw.object_fragment);
 
         mProgram = GLES20.glCreateProgram();
         GLES20.glAttachShader(mProgram, vertexShader);

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.xr3ngine.arcore.rendering;
+package com.xr3ngine.xr.rendering;
 
 import android.content.Context;
 import android.opengl.GLES11Ext;
@@ -20,7 +20,6 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import com.google.ar.core.Frame;
 import com.google.ar.core.Session;
-import com.xr3ngine.arcore.R;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -97,10 +96,12 @@ public class BackgroundRenderer {
         bbTexCoordsTransformed.order(ByteOrder.nativeOrder());
         mQuadTexCoordTransformed = bbTexCoordsTransformed.asFloatBuffer();
 
-        int vertexShader = ShaderUtil.loadGLShader(TAG, context,
-                GLES20.GL_VERTEX_SHADER, R.raw.screenquad_vertex);
-        int fragmentShader = ShaderUtil.loadGLShader(TAG, context,
-                GLES20.GL_FRAGMENT_SHADER, R.raw.screenquad_fragment_oes);
+        int vertexShader = 0;
+//        ShaderUtil.loadGLShader(TAG, context,
+//                GLES20.GL_VERTEX_SHADER, R.raw.screenquad_vertex);
+        int fragmentShader = 0;
+//        ShaderUtil.loadGLShader(TAG, context,
+//                GLES20.GL_FRAGMENT_SHADER, R.raw.screenquad_fragment_oes);
 
         mQuadProgram = GLES20.glCreateProgram();
         GLES20.glAttachShader(mQuadProgram, vertexShader);

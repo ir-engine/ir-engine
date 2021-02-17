@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.xr3ngine.arcore.rendering;
+package com.xr3ngine.xr.rendering;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -25,8 +25,7 @@ import android.opengl.Matrix;
 import com.google.ar.core.Camera;
 import com.google.ar.core.Plane;
 import com.google.ar.core.Pose;
-import com.google.ar.core.Trackable.TrackingState;
-import com.xr3ngine.arcore.R;
+import com.google.ar.core.Trackable.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -115,10 +114,13 @@ public class PlaneRenderer {
      */
     public void createOnGlThread(Context context, String gridDistanceTextureName)
             throws IOException {
-        int vertexShader = ShaderUtil.loadGLShader(TAG, context,
-                GLES20.GL_VERTEX_SHADER, R.raw.plane_vertex);
-        int passthroughShader = ShaderUtil.loadGLShader(TAG, context,
-                GLES20.GL_FRAGMENT_SHADER, R.raw.plane_fragment);
+        // TODO: UNCOMMENT instead of = 0
+        int vertexShader = 0;
+//        ShaderUtil.loadGLShader(TAG, context,
+//                GLES20.GL_VERTEX_SHADER, R.raw.plane_vertex);
+        int passthroughShader = 0;
+//        ShaderUtil.loadGLShader(TAG, context,
+//                GLES20.GL_FRAGMENT_SHADER, R.raw.plane_fragment);
 
         mPlaneProgram = GLES20.glCreateProgram();
         GLES20.glAttachShader(mPlaneProgram, vertexShader);
@@ -296,10 +298,10 @@ public class PlaneRenderer {
         float cameraY = cameraPose.ty();
         float cameraZ = cameraPose.tz();
         for (Plane plane : allPlanes) {
-            if (plane.getTrackingState() != TrackingState.TRACKING
-                    || plane.getSubsumedBy() != null) {
-                continue;
-            }
+//            if (plane.getTrackingState() != TrackingState.TRACKING
+//                    || plane.getSubsumedBy() != null) {
+//                continue;
+//            }
 
             Pose center = plane.getCenterPose();
             // Get transformed Y axis of plane's coordinate system.

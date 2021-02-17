@@ -12,14 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.xr3ngine.arcore;
+package com.xr3ngine.xr;
 
 import android.app.Activity;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.DisplayManager.DisplayListener;
+import android.os.Build;
 import android.view.Display;
 import android.view.WindowManager;
+
+import androidx.annotation.RequiresApi;
+
 import com.google.ar.core.Session;
 
 /**
@@ -39,17 +43,20 @@ public class DisplayRotationHelper implements DisplayListener {
      *
      * @param context the Android {@link Context}.
      */
+    @RequiresApi(api = Build.VERSION_CODES.M)
     public DisplayRotationHelper(Context context) {
         mContext = context;
         mDisplay = context.getSystemService(WindowManager.class).getDefaultDisplay();
     }
 
-    /** Registers the display listener. Should be called from {@link Activity#onResume()}. */
+    /** Registers the display listener. Should be called from {Activity#onResume()}. */
+    @RequiresApi(api = Build.VERSION_CODES.M)
     public void onResume() {
         mContext.getSystemService(DisplayManager.class).registerDisplayListener(this, null);
     }
 
-    /** Unregisters the display listener. Should be called from {@link Activity#onPause()}. */
+    /** Unregisters the display listener. Should be called from {Activity#onPause()}. */
+    @RequiresApi(api = Build.VERSION_CODES.M)
     public void onPause() {
         mContext.getSystemService(DisplayManager.class).unregisterDisplayListener(this);
     }
