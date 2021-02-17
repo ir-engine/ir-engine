@@ -24,8 +24,10 @@ import { InputAlias } from "../../input/types/InputAlias";
 import { Interactable } from '../../interaction/components/Interactable';
 import { Interactor } from '../../interaction/components/Interactor';
 import { Object3DComponent } from '../../scene/components/Object3DComponent';
+import { interactOnServer } from '../../interaction/systems/InteractiveSystem';
 import { updateCharacterState } from "./behaviors/updateCharacterState";
 import { CharacterComponent } from "./components/CharacterComponent";
+import { isServer } from "../../common/functions/isServer";
 
 const startedPosition = new Map<Entity,NumericalType>();
 
@@ -35,14 +37,21 @@ const startedPosition = new Map<Entity,NumericalType>();
  * @param args
  * @param delta
  */
+
 const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
+
+  if (isServer) {
+    interactOnServer(entity);
+    return;
+  }
+
   if (!hasComponent(entity, Interactor)) {
     console.error(
       'Attempted to call interact behavior, but actor does not have Interactor component'
     );
     return;
   }
-  
+
   const { focusedInteractive: focusedEntity } = getComponent(entity, Interactor);
   const input = getComponent(entity, Input)
   const mouseScreenPosition = input.data.get(BaseInput.SCREENXY);
@@ -97,7 +106,7 @@ const fixedCameraBehindCharacter: Behavior = (entity: Entity, args: any, delta: 
   if (CameraComponent.instance && follower && follower.mode !== CameraModes.FirstPerson) {
     follower.locked = !follower.locked
   }
-  
+
 };
 
 const switchShoulderSide: Behavior = (entity: Entity, args: any, detla: number ): void => {
@@ -170,12 +179,12 @@ const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:inputAxes
   if(cameraFollow === undefined) return //console.warn("cameraFollow is undefined");
 
   switch(cameraFollow.mode) {
-    case CameraModes.FirstPerson: 
-      if(delta > 0) { 
+    case CameraModes.FirstPerson:
+      if(delta > 0) {
         switchCameraMode(entity, { mode: CameraModes.ShoulderCam })
       }
     break;
-    case CameraModes.ShoulderCam: 
+    case CameraModes.ShoulderCam:
       if(delta > 0) {
         switchCameraMode(entity, { mode: CameraModes.ThirdPerson })
         cameraFollow.distance = cameraFollow.minDistance + 1
@@ -184,7 +193,7 @@ const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:inputAxes
         switchCameraMode(entity, { mode: CameraModes.FirstPerson })
       }
     break;
-    default: case CameraModes.ThirdPerson:  
+    default: case CameraModes.ThirdPerson:
       const newDistance = cameraFollow.distance + delta;
       cameraFollow.distance = Math.max(cameraFollow.minDistance, Math.min( cameraFollow.maxDistance, newDistance));
 
@@ -197,12 +206,12 @@ const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:inputAxes
           switchCameraMode(entity, { mode: CameraModes.ShoulderCam })
         }
       }
-  
+
     break;
-    case CameraModes.TopDown: 
+    case CameraModes.TopDown:
       if(delta < 0) {
         switchCameraMode(entity, { mode: CameraModes.ThirdPerson })
-      } 
+      }
     break;
   }
 };
@@ -331,7 +340,7 @@ export const CharacterInputSchema: InputSchema = {
   mouseInputMap: {
     buttons: {
       [MouseInput.LeftButton]: BaseInput.PRIMARY,
-      [MouseInput.LeftButton]: BaseInput.INTERACT,
+    //  [MouseInput.LeftButton]: BaseInput.INTERACT,
       [MouseInput.RightButton]: BaseInput.SECONDARY,
       [MouseInput.MiddleButton]: BaseInput.INTERACT
     },

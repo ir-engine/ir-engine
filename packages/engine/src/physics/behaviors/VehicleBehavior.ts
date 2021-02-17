@@ -28,9 +28,11 @@ function createVehicleBody (entity: Entity ) {
 
   if (vehicleCollider) {
     chassisBody = createTrimesh(vehicleCollider, new Vec3(), mass);
+    /*
     chassisBody.shapes.forEach((shape) => {
-      shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
+      shape.collisionFilterMask = ~CollisionGroups.Car;
     });
+    */
   } else {
     //chassisShape = new Box(new Vec3(1, 0.2, 2.0));
     chassisBody = new Body({ mass });
@@ -40,12 +42,12 @@ function createVehicleBody (entity: Entity ) {
 
   for (let i = 0; i < vehicleSphereColliders.length; i++) {
     const shape = new Sphere(vehicleSphereColliders[i].scale.x);
-    shape.collisionFilterGroup = ~CollisionGroups.Car;
-    shape.collisionFilterMask = ~CollisionGroups.Default;
+  //  shape.collisionFilterGroup = ~CollisionGroups.Car;
+  //  shape.collisionFilterMask = ~CollisionGroups.Default;
     chassisBody.addShape(shape, cannonFromThreeVector(vehicleSphereColliders[i].position).vadd(collidersSphereOffset));
   }
 
-
+  chassisBody.collisionFilterGroup = CollisionGroups.Car;
   chassisBody.position.set( ...vehicleComponent.startPosition );
   //chassisBody.angularVelocity.set(0, 0, 0.5);
 

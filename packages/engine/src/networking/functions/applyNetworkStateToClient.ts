@@ -26,6 +26,10 @@ import { BaseInput } from "../../input/enums/BaseInput";
  * @param worldStateBuffer State of the world received over the network.
  * @param delta Time since last frame.
  */
+function checkForAnyErrors(networkId) {
+//  console.warn('Player: '+Network.instance.userNetworkId);
+  //console.warn('Car: '+networkId);
+}
 
 function syncPhysicsObjects( objectToCreate ) {
   for (let i = 0; i < Engine.entities.length; i++) {
@@ -35,6 +39,7 @@ function syncPhysicsObjects( objectToCreate ) {
       if (localModelUniqueId === objectToCreate.uniqueId) {
         if (getComponent(entity, NetworkObject).networkId !== objectToCreate.networkId) {
           getMutableComponent(entity, NetworkObject).networkId = objectToCreate.networkId
+          checkForAnyErrors(objectToCreate.networkId);
         }
       }
     }
@@ -249,7 +254,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
         const input = getComponent(networkComponent.entity, Input);
         const isWalking = (input.data.get(BaseInput.WALK)?.value) === BinaryValue.ON;
         actor.moveSpeed = isWalking ? WALK_SPEED : RUN_SPEED;
-        
+
         // Clear current data
         input.data.clear();
 

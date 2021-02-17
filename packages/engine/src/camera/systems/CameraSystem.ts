@@ -36,11 +36,11 @@ const sensitivity = isMobile ? 60 : 100 // eventually this will come from some s
 
 /**
  * Get Input data from the device.
- * 
+ *
  * @param inputComponent Input component which is holding input data.
  * @param inputAxes Axes of the input.
  * @param forceRefresh
- * 
+ *
  * @returns Input value from input component.
  */
 const emptyInputValue = [0, 0] as NumericalType;
@@ -99,10 +99,10 @@ export class CameraSystem extends System {
         }
         const actor: CharacterComponent = getMutableComponent<CharacterComponent>(cam.followTarget, CharacterComponent as any);
         const actorTransform = getMutableComponent(cam.followTarget, TransformComponent);
-      
+
         const inputComponent = getComponent(cam.followTarget, Input) as Input;
         const cameraFollow = getMutableComponent<FollowCameraComponent>(cam.followTarget, FollowCameraComponent) as FollowCameraComponent;
-      
+
         // this is for future integration of MMO style pointer lock controls
         // let inputAxes;
         // if (cameraFollow.mode === CameraModes.FirstPerson || cameraFollow.mode === CameraModes.ShoulderCam) {
@@ -111,47 +111,61 @@ export class CameraSystem extends System {
           const inputAxes = BaseInput.LOOKTURN_PLAYERONE;
         // }
         const inputValue = getInputData(inputComponent, inputAxes)
-        
-        if(cameraFollow.locked) {
+
+        if(cameraFollow.locked && actor) {
           cameraFollow.theta = Math.atan2(actor.orientation.x, actor.orientation.z) * 180 / Math.PI + 180
+        } else if (cameraFollow.locked) { // this is for cars
+          cameraFollow.theta = Math.atan2(actorTransform.rotation.z, actorTransform.rotation.x) * 180 / Math.PI
         }
+
         cameraFollow.theta -= inputValue[0] * sensitivity;
         cameraFollow.theta %= 360;
-        
+
         cameraFollow.phi -= inputValue[1] * sensitivity;
         cameraFollow.phi = Math.min(85, Math.max(-70, cameraFollow.phi));
-      
+
         if(cameraFollow.locked || cameraFollow.mode === CameraModes.FirstPerson) {
           actorTransform.rotation.setFromAxisAngle(upVector, (cameraFollow.theta - 180) * (Math.PI / 180));
           actor.orientation.copy(forwardVector).applyQuaternion(actorTransform.rotation);
           actorTransform.rotation.setFromUnitVectors(forwardVector, actor.orientation.clone().setY(0));
         }
-      
+
         cameraDesiredTransform.rotationRate = isMobile || cameraFollow.mode === CameraModes.FirstPerson ? 5 : 3.5
         cameraDesiredTransform.positionRate = isMobile || cameraFollow.mode === CameraModes.FirstPerson ? 3.5 : 2
-      
+
         let camDist = cameraFollow.distance;
         if (cameraFollow.mode === CameraModes.FirstPerson) camDist = 0.01;
         else if (cameraFollow.mode === CameraModes.ShoulderCam) camDist = cameraFollow.minDistance;
         else if (cameraFollow.mode === CameraModes.TopDown) camDist = cameraFollow.maxDistance;
 
         const phi = cameraFollow.mode === CameraModes.TopDown ? 85 : cameraFollow.phi;
-      
-        const shoulderOffsetWorld = cameraFollow.offset.clone().applyQuaternion(actor.tiltContainer.quaternion);
-        const targetPosition = actor.tiltContainer.getWorldPosition(vec3).add(shoulderOffsetWorld);
-        
+
+
+        let targetPosition;
+        if (actor) { // this is for cars
+          const shoulderOffsetWorld = cameraFollow.offset.clone().applyQuaternion(actor.tiltContainer.quaternion);
+          targetPosition = actor.tiltContainer.getWorldPosition(vec3).add(shoulderOffsetWorld);
+        } else {
+          targetPosition = actorTransform.position;
+        }
+
         // Raycast for camera
         const cameraRaycastStart = new Vec3(targetPosition.x, targetPosition.y, targetPosition.z);
         const cameraTransform: TransformComponent = getMutableComponent(CameraSystem.activeCamera, TransformComponent)
         const cameraRaycastEnd = new Vec3(cameraTransform.position.x, cameraTransform.position.y, cameraTransform.position.z);
-        
+
         const cameraRaycastOptions = {
-          collisionFilterMask: CollisionGroups.Default,
+          collisionFilterMask: CollisionGroups.Default | CollisionGroups.Car,
           skipBackfaces: true /* ignore back faces */
         };
+
+        if (!actor) { // this is for cars
+          cameraRaycastOptions.collisionFilterMask = CollisionGroups.Default;
+        }
+
         cameraFollow.rayHasHit = PhysicsSystem.physicsWorld.raycastClosest(cameraRaycastStart, cameraRaycastEnd, cameraRaycastOptions, cameraFollow.rayResult);
 
-        if(cameraFollow.mode !== CameraModes.FirstPerson && cameraFollow.rayHasHit && cameraFollow.rayResult.distance < camDist && cameraFollow.rayResult.distance > 0.5) {
+        if(cameraFollow.mode !== CameraModes.FirstPerson && cameraFollow.rayHasHit && cameraFollow.rayResult.distance < camDist && cameraFollow.rayResult.distance > 0.1) {
           camDist = cameraFollow.rayResult.distance - 0.5;
         }
 
@@ -160,18 +174,18 @@ export class CameraSystem extends System {
             targetPosition.y + camDist * Math.sin(phi * PI_2Deg),
             targetPosition.z + camDist * Math.cos(cameraFollow.theta * PI_2Deg) * Math.cos(phi * PI_2Deg)
         );
-      
+
         direction.copy(cameraDesiredTransform.position);
         direction = direction.sub(targetPosition).normalize();
-        
+
         mx.lookAt(direction, empty, upVector);
         cameraDesiredTransform.rotation.setFromRotationMatrix(mx);
-      
+
         // for pointer lock controls
         // if(cameraFollow.mode === CameraModes.FirstPerson || cameraFollow.mode === CameraModes.ShoulderCam) {
         //     cameraTransform.rotation.copy(cameraDesiredTransform.rotation);
         // }
-      
+
         if (cameraFollow.mode === CameraModes.FirstPerson) {
           cameraDesiredTransform.position.copy(targetPosition);
         }
