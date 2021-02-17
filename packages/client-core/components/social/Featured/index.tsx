@@ -2,9 +2,7 @@ import React from 'react';
 import { random } from 'lodash';
 
 import CardMedia from '@material-ui/core/CardMedia';
-import Typography from '@material-ui/core/Typography';
 import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 
 import styles from './Featured.module.scss';
@@ -18,13 +16,13 @@ const Featured = () => {
         })
     }
     return <section className={styles.feedContainer}>
-        {data.map(tip=>
-            <Card className={styles.creatorItem} elevation={0}>                 
+        {data.map((item, itemIndex)=>
+            <Card className={styles.creatorItem} elevation={0} key={itemIndex}>                 
                 <CardMedia   
                     className={styles.previewImage}                  
-                    image={tip.image}
+                    image={item.image}
                 />
-                <span className={styles.eyeLine}>{tip.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
+                <span className={styles.eyeLine}>{item.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
             </Card>
         )}
         </section>

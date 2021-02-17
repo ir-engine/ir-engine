@@ -8,7 +8,6 @@ import CardContent from '@material-ui/core/CardContent';
 
 import styles from './Creators.module.scss';
 
-
 const Creators = () => { 
     const data=[];
     for(let i=0; i<random(50, 5); i++){
@@ -19,16 +18,16 @@ const Creators = () => {
         })
     }
     return <section className={styles.creatorContainer}>
-        {data.map(tip=>
-            <Card className={styles.creatorItem} elevation={0}>                 
+        {data.map((item, itemIndex)=>
+            <Card className={styles.creatorItem} elevation={0} key={itemIndex}>                 
                 <CardMedia   
                     className={styles.previewImage}                  
-                    image={tip.avatar}
-                    title={tip.name}
+                    image={item.avatar}
+                    title={item.name}
                 />
                 <CardContent>
-                    <Typography className={styles.titleContainer} gutterBottom variant="h3" component="h2" align="center">{tip.name}</Typography>
-                    <Typography variant="h4" component="p" align="center">{tip.username}</Typography>
+                    <Typography className={styles.titleContainer} gutterBottom variant="h3" component="h2" align="center">{item.name}</Typography>
+                    <Typography variant="h4" component="p" align="center">{item.username}</Typography>
                 </CardContent>
             </Card>
         )}

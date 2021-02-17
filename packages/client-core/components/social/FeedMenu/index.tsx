@@ -1,6 +1,6 @@
 import Button from "@material-ui/core/Button";
-// import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
+
 import Creators from "../Creators";
 import Featured from "../Featured";
 import TheFeed from "../TheFeed";
@@ -8,18 +8,27 @@ import TipsAndTricks from "../TipsAndTricks";
 
 import styles from './FeedMenu.module.scss';
 
-export function FeedMenu() {
+const FeedMenu = () => {
+  const containerWrapRef = useRef<HTMLInputElement>();
+  const containerRef = useRef<HTMLInputElement>();
+  const featuredRef = useRef<HTMLInputElement>();
+  const creatorsRef = useRef<HTMLInputElement>();
+  const thefeedRef = useRef<HTMLInputElement>();
+  const tipsandtricksRef = useRef<HTMLInputElement>();
   const [view, setView] = useState('featured');
-  const [left, setLeft] = useState(0);
 
+  const padding = 40;
   const handleMenuClick = (view) =>{
     setView(view);
+    
+    let leftScrollPos = 0;
     switch (view) {
-      case 'creators':setLeft(-50);break;
-      case 'thefeed': setLeft(-100);break;
-      case 'tipsandtricks': setLeft(-150);break;
-      default:setLeft(0);break;
+      case 'creators': leftScrollPos = creatorsRef.current.offsetLeft-padding; break;
+      case 'thefeed': leftScrollPos = thefeedRef.current.offsetLeft-padding; break;
+      case 'tipsandtricks': leftScrollPos = tipsandtricksRef.current.offsetLeft-padding; break;
+      default: leftScrollPos = 0; break;
     }
+    containerRef.current.scrollTo({left: leftScrollPos, behavior: 'smooth'});
   }
   let content = null;
   switch (view) {
@@ -35,15 +44,20 @@ export function FeedMenu() {
     tipsandtricks: [styles.tipsandtricksButton, view === 'tipsandtricks' && styles.active],
   }
   return (
-    <><nav className={styles.feedMenuContainer}>  
-      <section className={styles.feedMenu} style={{left:left+'px'}}>
-        <Button variant="contained" className={classes['featured'].join(' ')} onClick={()=>handleMenuClick('featured')}>Featured</Button>        
-        <Button variant="contained" className={classes['creators'].join(' ')} onClick={()=>handleMenuClick('creators')}>Creators</Button>
-        <Button variant="contained" className={classes['thefeed'].join(' ')} onClick={()=>handleMenuClick('thefeed')}>The Feed</Button>
-        <Button variant="contained" className={classes['tipsandtricks'].join(' ')} onClick={()=>handleMenuClick('tipsandtricks')}>Tips & Tricks</Button>
-      </section>   
-    </nav>
+    <>
+      <nav className={styles.feedMenuContainer}>  
+        <section className={styles.subWrapper} ref={containerRef}>
+          <section className={styles.feedMenu}>
+            <Button ref={featuredRef} variant="contained" className={classes['featured'].join(' ')} onClick={()=>handleMenuClick('featured')}>Featured</Button>        
+            <Button ref={creatorsRef} variant="contained" className={classes['creators'].join(' ')} onClick={()=>handleMenuClick('creators')}>Creators</Button>
+            <Button ref={thefeedRef} variant="contained" className={classes['thefeed'].join(' ')} onClick={()=>handleMenuClick('thefeed')}>The Feed</Button>
+            <Button ref={tipsandtricksRef} variant="contained" className={classes['tipsandtricks'].join(' ')} onClick={()=>handleMenuClick('tipsandtricks')}>Tips & Tricks</Button>
+          </section>
+        </section>   
+      </nav>
     <section className={styles.content}>{content}</section>
-    </>
+  </>
   );
 }
+
+export default FeedMenu;

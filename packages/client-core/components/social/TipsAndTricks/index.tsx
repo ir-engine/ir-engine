@@ -8,7 +8,7 @@ import CardContent from '@material-ui/core/CardContent';
 
 import styles from './TipsAndTricks.module.scss';
 
-const TipsAndTricks = () => { 
+export const TipsAndTricks = () => { 
     const data=[];
     for(let i=0; i<random(10); i++){
         data.push({ 
@@ -19,16 +19,16 @@ const TipsAndTricks = () => {
         })
     }
     return <section className={styles.tipsandtricksContainer}>
-        {data.map(tip=>
-            <Card className={styles.tipItem} square={false} elevation={0}>
+        {data.map((item, itemindex)=>
+            <Card className={styles.tipItem} square={false} elevation={0} key={itemindex}>
                 <CardMedia   
                     className={styles.previewImage}                  
-                    image={tip.previewImg}
-                    title={tip.title}
+                    image={item.previewImg}
+                    title={item.title}
                 />
                 <CardContent>
-                    <Typography gutterBottom variant="h5" component="h2">{tip.title}</Typography>
-                    <Typography variant="h2" component="p">{tip.description}</Typography>
+                    <Typography gutterBottom variant="h5" component="h2">{item.title}</Typography>
+                    <Typography variant="h2" component="p">{item.description}</Typography>
                 </CardContent>
             </Card>
         )}

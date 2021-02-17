@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from "react";
-import {Header} from "@xr3ngine/client-core/components/social/Header";
-import {FeedMenu} from "@xr3ngine/client-core/components/social/FeedMenu";
-import {Footer} from "@xr3ngine/client-core/components/social/Footer";
+import AppHeader from "@xr3ngine/client-core/components/social/Header";
+import FeedMenu from "@xr3ngine/client-core/components/social/FeedMenu";
+import AppFooter from "@xr3ngine/client-core/components/social/Footer";
 
 // import { Layout } from "@xr3ngine/client-core/components/social/Layout";
 // import { Stories } from "@xr3ngine/client-core/components/social/Stories";
@@ -61,7 +61,7 @@ export default function Home({ children }) {
 
   return (<>
     <div className={styles.viewport}>
-      <Header user={loginData} logo="/assets/logoBlack.png" />
+      <AppHeader user={loginData} logo="/assets/logoBlack.png" />
       <FeedMenu />
       {/* <MoreModalItems /> */}
       {/* <Stories stories={stories} /> */}
@@ -72,7 +72,7 @@ export default function Home({ children }) {
             })}
         </div> */}
       {/* <HomeRightBar data={suggestions} /> */}
-      <Footer user={loginData} />
+      <AppFooter user={loginData} />
     </div>
   </>
   );

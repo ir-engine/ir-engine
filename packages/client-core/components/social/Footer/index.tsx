@@ -1,6 +1,6 @@
 import React from "react";
 import Router from "next/router";
-import { Clickable } from "../Clickable";
+
 import { LoginUserHook } from "../GlobalHook";
 import { ProfilePic } from "../ProfilePic";
 import AddCircleIcon from '@material-ui/icons/AddCircle';
@@ -8,7 +8,7 @@ import HomeIcon from '@material-ui/icons/Home';
 
 import styles from './Footer.module.scss';
 
-export function Footer({user}: any) {
+const AppFooter = ({user}: any) => {
   const { data, setLoginUser } = LoginUserHook();
 
   return (
@@ -26,3 +26,6 @@ export function Footer({user}: any) {
     </nav>
   );
 }
+
+export default AppFooter;
+
