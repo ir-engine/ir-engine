@@ -25,7 +25,8 @@
   },
   "resolutions": {
     "webpack": "^5.1.0",
-    "socket.io": "2.4.1"
+    "socket.io": "2.4.1",
+    "react": "^17.0.0"
   },
   "peerDependencies": {
     "socket.io": "2.4.1"
