@@ -46,6 +46,10 @@ export class WebGLRendererSystem extends System {
   qualityLevel: number = this.maxQualityLevel
   /** Previous Quality leve. */
   prevQualityLevel: number = this.qualityLevel
+  /** point at which we upgrade quality level (small delta) */
+  maxRenderDelta = 1000 / 25 // 25 fps
+  /** point at which we downgrade quality level (large delta) */
+  minRenderDelta = 1000 / 50 // 50 fps
 
   /** Constructs WebGL Renderer System. */
   constructor(attributes?: SystemAttributes) {
@@ -213,7 +217,7 @@ export class WebGLRendererSystem extends System {
         }
       }
     }
-    
+
     const lastTime = now();
     const deltaRender = (lastTime - startTime);
 
@@ -225,32 +229,33 @@ export class WebGLRendererSystem extends System {
    * @param delta Time since last frame.
    */
   changeQualityLevel(delta: number): void {
-    if (delta >= 60) {
+    if (delta >= this.maxRenderDelta) {
       this.downgradeTimer += delta;
       this.upgradeTimer = 0;
     }
-    else if (delta <= 30) {
+    else if (delta <= this.minRenderDelta) {
       this.upgradeTimer += delta;
       this.downgradeTimer = 0;
     }
     else {
       this.upgradeTimer = 0;
       this.downgradeTimer = 0;
+      return
     }
 
     // change quality level
-    if (this.downgradeTimer > 2000 && this.qualityLevel < this.maxQualityLevel) {
+    if (this.downgradeTimer > 2000 && this.qualityLevel > 0) {
       this.qualityLevel = Math.max(0, Math.min(this.maxQualityLevel, this.qualityLevel-1))
       this.downgradeTimer = 0;
     }
-    else if (this.upgradeTimer > 1000 && this.qualityLevel > 0) {
+    else if (this.upgradeTimer > 1000 && this.qualityLevel < this.maxQualityLevel) {
       this.qualityLevel = Math.max(0, Math.min(this.maxQualityLevel, this.qualityLevel+1))
       this.upgradeTimer = 0;
     }
 
     // set resolution scale
     if (this.prevQualityLevel !== this.qualityLevel) {
-      console.log('Changing quality level to', this.qualityLevel)
+      console.log('Changing quality level to', this.qualityLevel, 'because of delta:', delta)
 
       if (Engine.renderer) {
         switch (this.qualityLevel) {
