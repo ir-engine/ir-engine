@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.xr3ngine.arcore;
+package com.xr3ngine.xr;
 
 import android.Manifest;
 import android.app.Activity;
@@ -20,8 +20,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.provider.Settings;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+
+import androidx.core.app.ActivityCompat;
 
 /** Helper to ask camera permission. */
 public final class CameraPermissionHelper {
@@ -32,7 +32,7 @@ public final class CameraPermissionHelper {
    * Check to see we have the necessary permissions for this app.
    */
   public static boolean hasCameraPermission(Activity activity) {
-    return ContextCompat.checkSelfPermission(activity, CAMERA_PERMISSION)
+    return ActivityCompat.checkSelfPermission(activity, CAMERA_PERMISSION)
             == PackageManager.PERMISSION_GRANTED;
   }
 

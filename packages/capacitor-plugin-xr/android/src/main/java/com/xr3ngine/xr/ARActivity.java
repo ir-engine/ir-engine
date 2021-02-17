@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package com.xr3ngine.arcore;
+package com.xr3ngine.xr;
 
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
-import android.support.design.widget.BaseTransientBottomBar;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.ar.core.Anchor;
 import com.google.ar.core.Camera;
 import com.google.ar.core.Config;
@@ -37,12 +37,13 @@ import com.google.ar.core.Plane;
 import com.google.ar.core.PointCloud;
 import com.google.ar.core.Session;
 import com.google.ar.core.Trackable;
-import com.google.ar.core.Trackable.TrackingState;
-import com.xr3ngine.arcore.rendering.BackgroundRenderer;
-import com.xr3ngine.arcore.rendering.ObjectRenderer;
-import com.xr3ngine.arcore.rendering.ObjectRenderer.BlendMode;
-import com.xr3ngine.arcore.rendering.PlaneRenderer;
-import com.xr3ngine.arcore.rendering.PointCloudRenderer;
+//import com.google.ar.core.Trackable.TrackingState;
+import com.google.android.material.snackbar.Snackbar;
+import com.xr3ngine.xr.rendering.BackgroundRenderer;
+import com.xr3ngine.xr.rendering.ObjectRenderer;
+import com.xr3ngine.xr.rendering.ObjectRenderer.BlendMode;
+import com.xr3ngine.xr.rendering.PlaneRenderer;
+import com.xr3ngine.xr.rendering.PointCloudRenderer;
 import com.google.ar.core.exceptions.UnavailableApkTooOldException;
 import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
@@ -84,8 +85,8 @@ public class ARActivity extends AppCompatActivity implements GLSurfaceView.Rende
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        mSurfaceView = findViewById(R.id.surfaceview);
+//        setContentView(R.layout.activity_main);
+//        mSurfaceView = findViewById(R.id.surfaceview);
         mDisplayRotationHelper = new DisplayRotationHelper(/*context=*/ this);
 
         // Set up tap listener.
@@ -155,11 +156,11 @@ public class ARActivity extends AppCompatActivity implements GLSurfaceView.Rende
         // ARCore requires camera permissions to operate. If we did not yet obtain runtime
         // permission on Android M and above, now is a good time to ask the user for it.
         if (CameraPermissionHelper.hasCameraPermission(this)) {
-            if (mSession != null) {
-                showLoadingMessage();
-                // Note that order matters - see the note in onPause(), the reverse applies here.
-                mSession.resume();
-            }
+//            if (mSession != null) {
+//                showLoadingMessage();
+//                // Note that order matters - see the note in onPause(), the reverse applies here.
+//                mSession.resume();
+//            }
             mSurfaceView.onResume();
             mDisplayRotationHelper.onResume();
         } else {
@@ -272,36 +273,36 @@ public class ARActivity extends AppCompatActivity implements GLSurfaceView.Rende
             // Handle taps. Handling only one tap per frame, as taps are usually low frequency
             // compared to frame rate.
             MotionEvent tap = mQueuedSingleTaps.poll();
-            if (tap != null && camera.getTrackingState() == TrackingState.TRACKING) {
-                for (HitResult hit : frame.hitTest(tap)) {
-                    // Check if any plane was hit, and if it was hit inside the plane polygon
-                    Trackable trackable = hit.getTrackable();
-                    if (trackable instanceof Plane
-                            && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())) {
-                        // Cap the number of objects created. This avoids overloading both the
-                        // rendering system and ARCore.
-                        if (mAnchors.size() >= 20) {
-                            mAnchors.get(0).detach();
-                            mAnchors.remove(0);
-                        }
-                        // Adding an Anchor tells ARCore that it should track this position in
-                        // space. This anchor is created on the Plane to place the 3d model
-                        // in the correct position relative both to the world and to the plane.
-                        mAnchors.add(hit.createAnchor());
-
-                        // Hits are sorted by depth. Consider only closest hit on a plane.
-                        break;
-                    }
-                }
-            }
+//            if (tap != null && camera.getTrackingState() == TrackingState.TRACKING) {
+//                for (HitResult hit : frame.hitTest(tap)) {
+//                    // Check if any plane was hit, and if it was hit inside the plane polygon
+//                    Trackable trackable = hit.getTrackable();
+//                    if (trackable instanceof Plane
+//                            && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())) {
+//                        // Cap the number of objects created. This avoids overloading both the
+//                        // rendering system and ARCore.
+//                        if (mAnchors.size() >= 20) {
+//                            mAnchors.get(0).detach();
+//                            mAnchors.remove(0);
+//                        }
+//                        // Adding an Anchor tells ARCore that it should track this position in
+//                        // space. This anchor is created on the Plane to place the 3d model
+//                        // in the correct position relative both to the world and to the plane.
+//                        mAnchors.add(hit.createAnchor());
+//
+//                        // Hits are sorted by depth. Consider only closest hit on a plane.
+//                        break;
+//                    }
+//                }
+//            }
 
             // Draw background.
             mBackgroundRenderer.draw(frame);
 
             // If not tracking, don't draw 3d objects.
-            if (camera.getTrackingState() == TrackingState.PAUSED) {
-                return;
-            }
+//            if (camera.getTrackingState() == TrackingState.PAUSED) {
+//                return;
+//            }
 
             // Get projection matrix.
             float[] projmtx = new float[16];
@@ -324,15 +325,15 @@ public class ARActivity extends AppCompatActivity implements GLSurfaceView.Rende
             pointCloud.release();
 
             // Check if we detected at least one plane. If so, hide the loading message.
-            if (mMessageSnackbar != null) {
-                for (Plane plane : mSession.getAllTrackables(Plane.class)) {
-                    if (plane.getType() == com.google.ar.core.Plane.Type.HORIZONTAL_UPWARD_FACING
-                            && plane.getTrackingState() == TrackingState.TRACKING) {
-                        hideLoadingMessage();
-                        break;
-                    }
-                }
-            }
+//            if (mMessageSnackbar != null) {
+//                for (Plane plane : mSession.getAllTrackables(Plane.class)) {
+//                    if (plane.getType() == com.google.ar.core.Plane.Type.HORIZONTAL_UPWARD_FACING
+//                            && plane.getTrackingState() == TrackingState.TRACKING) {
+//                        hideLoadingMessage();
+//                        break;
+//                    }
+//                }
+//            }
 
             // Visualize planes.
             mPlaneRenderer.drawPlanes(
@@ -340,20 +341,20 @@ public class ARActivity extends AppCompatActivity implements GLSurfaceView.Rende
 
             // Visualize anchors created by touch.
             float scaleFactor = 1.0f;
-            for (Anchor anchor : mAnchors) {
-                if (anchor.getTrackingState() != TrackingState.TRACKING) {
-                    continue;
-                }
-                // Get the current pose of an Anchor in world space. The Anchor pose is updated
-                // during calls to session.update() as ARCore refines its estimate of the world.
-                anchor.getPose().toMatrix(mAnchorMatrix, 0);
-
-                // Update and draw the model and its shadow.
-                mVirtualObject.updateModelMatrix(mAnchorMatrix, scaleFactor);
-                mVirtualObjectShadow.updateModelMatrix(mAnchorMatrix, scaleFactor);
-                mVirtualObject.draw(viewmtx, projmtx, lightIntensity);
-                mVirtualObjectShadow.draw(viewmtx, projmtx, lightIntensity);
-            }
+//            for (Anchor anchor : mAnchors) {
+//                if (anchor.getTrackingState() != TrackingState.TRACKING) {
+//                    continue;
+//                }
+//                // Get the current pose of an Anchor in world space. The Anchor pose is updated
+//                // during calls to session.update() as ARCore refines its estimate of the world.
+//                anchor.getPose().toMatrix(mAnchorMatrix, 0);
+//
+//                // Update and draw the model and its shadow.
+//                mVirtualObject.updateModelMatrix(mAnchorMatrix, scaleFactor);
+//                mVirtualObjectShadow.updateModelMatrix(mAnchorMatrix, scaleFactor);
+//                mVirtualObject.draw(viewmtx, projmtx, lightIntensity);
+//                mVirtualObjectShadow.draw(viewmtx, projmtx, lightIntensity);
+//            }
 
         } catch (Throwable t) {
             // Avoid crashing the application due to unhandled exceptions.
@@ -367,22 +368,22 @@ public class ARActivity extends AppCompatActivity implements GLSurfaceView.Rende
                 message, Snackbar.LENGTH_INDEFINITE);
         mMessageSnackbar.getView().setBackgroundColor(0xbf323232);
         if (finishOnDismiss) {
-            mMessageSnackbar.setAction(
-                    "Dismiss",
-                    new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            mMessageSnackbar.dismiss();
-                        }
-                    });
-            mMessageSnackbar.addCallback(
-                    new BaseTransientBottomBar.BaseCallback<Snackbar>() {
-                        @Override
-                        public void onDismissed(Snackbar transientBottomBar, int event) {
-                            super.onDismissed(transientBottomBar, event);
-                            finish();
-                        }
-                    });
+//            mMessageSnackbar.setAction(
+//                    "Dismiss",
+//                    new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View v) {
+//                            mMessageSnackbar.dismiss();
+//                        }
+//                    });
+//            mMessageSnackbar.addCallback(
+//                    new BaseTransientBottomBar.BaseCallback<Snackbar>() {
+//                        @Override
+//                        public void onDismissed(Snackbar transientBottomBar, int event) {
+//                            super.onDismissed(transientBottomBar, event);
+//                            finish();
+//                        }
+//                    });
         }
         mMessageSnackbar.show();
     }

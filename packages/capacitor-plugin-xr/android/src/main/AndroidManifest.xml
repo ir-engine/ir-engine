@@ -1,4 +1,8 @@
 
   <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.xr3ngine.xr.plugin">
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera.ar" />
+    <application>
+    <meta-data android:name="com.google.ar.core" android:value="required" />
+  </application>
   </manifest>
-  
