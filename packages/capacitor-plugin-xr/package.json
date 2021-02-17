@@ -69,7 +69,8 @@
   },
   "dependencies": {
     "@types/react": "^17.0.1",
-    "@types/webgl2": "^0.0.5"
+    "@types/webgl2": "^0.0.5",
+    "capacitor": "^0.5.5"
   },
   "homepage": "https://github.com/xr3ngine/xr3ngine#readme"
 }
