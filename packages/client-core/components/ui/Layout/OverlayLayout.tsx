@@ -26,6 +26,7 @@ import {
 import Harmony from "../Harmony";
 //@ts-ignore
 import styles from './Layout.module.scss';
+import { Toast } from "../Toast/Toast";
 
 const { publicRuntimeConfig } = getConfig();
 const siteTitle: string = publicRuntimeConfig.siteTitle;
@@ -87,6 +88,7 @@ const Layout = (props: Props): any => {
       }
   }, []);
 
+
     const childrenWithProps = React.Children.map(children, child => {
         // checking isValidElement is the safe way and avoids a typescript error too
         if (React.isValidElement(child)) {
@@ -147,6 +149,13 @@ const Layout = (props: Props): any => {
             <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen}/> }
           {harmonyOpen === false && <Button className={styles.openHarmony} onClick={() => setHarmonyOpen(true)}>Open Harmony</Button> }
           {harmonyOpen === true && <Button className={styles.closeHarmony} onClick={() => setHarmonyOpen(false)}>Close Harmony</Button>}
+
+
+          {// use this Module when you want toast message and pass type of alter you want 
+          }
+          <Toast message="this is a success message!" status="success"/>
+          {/* <Toast message="this is an error message!" status="error"/> */}
+          {/* <Toast message="this is a warning message!" status="warning"/> */}
       </footer>
     </section>
     </ThemeProvider>
