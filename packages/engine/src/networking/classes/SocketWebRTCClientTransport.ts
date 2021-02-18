@@ -140,6 +140,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       let ConnectToWorldResponse;
 
       try {
+        console.log('Calling connectToWorld');
         ConnectToWorldResponse = await Promise.race([
           await request(MessageTypes.ConnectToWorld.toString()),
           new Promise((resolve, reject) => {
@@ -183,7 +184,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       socket.on('disconnect', async () => {
         console.log('socket disconnecting', (socket as any).instance);
-        if ((socket as any).instance !== true) self.channelId = null;
+        if ((socket as any).instance !== true) {
+          self.channelType = 'instance';
+          self.channelId = '';
+        }
         await endVideoChat({ endConsumers: true });
         await leave((socket as any).instance === true);
         clearInterval(heartbeat);
