@@ -15,9 +15,9 @@ import {
     Save,
     Send, Videocam, VideocamOff
 } from '@material-ui/icons';
-import PartyParticipantWindow from "@xr3ngine/client-core/components/ui/PartyParticipantWindow";
+import PartyParticipantWindow from '@xr3ngine/client-core/components/ui/PartyParticipantWindow';
 import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
-import { doLoginAuto } from "@xr3ngine/client-core/redux/auth/service";
+import { doLoginAuto } from '@xr3ngine/client-core/redux/auth/service';
 import { selectChatState } from '@xr3ngine/client-core/redux/chat/selector';
 import {
     createMessage,
@@ -29,6 +29,7 @@ import {
     updateMessageScrollInit
 } from '@xr3ngine/client-core/redux/chat/service';
 import { selectChannelConnectionState } from '@xr3ngine/client-core/redux/channelConnection/selector';
+import { selectInstanceConnectionState } from '../../../redux/instanceConnection/selector';
 import {
     connectToChannelServer,
     provisionChannelServer,
@@ -37,8 +38,8 @@ import {
 import { selectUserState } from '@xr3ngine/client-core/redux/user/selector';
 import { Message } from '@xr3ngine/common/interfaces/Message';
 import { User } from '@xr3ngine/common/interfaces/User';
-import { DefaultInitializationOptions, initializeEngine } from "@xr3ngine/engine/src/initialize";
-import { SocketWebRTCClientTransport } from "@xr3ngine/engine/src/networking/classes/SocketWebRTCClientTransport";
+import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
+import { SocketWebRTCClientTransport } from '@xr3ngine/engine/src/networking/classes/SocketWebRTCClientTransport';
 import {
     configureMediaTransports,
     createCamAudioProducer,
@@ -47,10 +48,10 @@ import {
     pauseProducer,
     resumeProducer,
     leave
-} from "@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions";
-import {NetworkSchema} from "@xr3ngine/engine/src/networking/interfaces/NetworkSchema";
+} from '@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions';
+import {NetworkSchema} from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
-import {DefaultNetworkSchema} from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
+import {DefaultNetworkSchema} from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import classNames from 'classnames';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
@@ -59,7 +60,9 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { observer } from 'mobx-react';
 //@ts-ignore
 import styles from './Harmony.module.scss';
-import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
+import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
+import {EmptyLayout} from "../Layout/EmptyLayout";
+import {autorun} from "mobx";
 
 
 const mapStateToProps = (state: any): any => {
@@ -67,6 +70,7 @@ const mapStateToProps = (state: any): any => {
         authState: selectAuthState(state),
         chatState: selectChatState(state),
         channelConnectionState: selectChannelConnectionState(state),
+        instanceConnectionState: selectInstanceConnectionState(state),
         userState: selectUserState(state)
     };
 };
@@ -92,6 +96,7 @@ interface Props {
     setLeftDrawerOpen: any;
     chatState?: any;
     channelConnectionState?: any;
+    instanceConnectionState?: any;
     getChannels?: any;
     getChannelMessages?: any;
     createMessage?: any;
@@ -108,9 +113,9 @@ interface Props {
 const Harmony = observer((props: Props): any => {
     const {
         authState,
-        doLoginAuto,
         chatState,
         channelConnectionState,
+        instanceConnectionState,
         getChannels,
         getChannelMessages,
         createMessage,
@@ -145,6 +150,11 @@ const Harmony = observer((props: Props): any => {
     const activeChannel = channels.get(targetChannelId);
     const [producerStarting, _setProducerStarting] = useState('');
     const [activeAVChannelId, _setActiveAVChannelId] = useState('');
+    const [channelAwaitingProvision, setChannelAwaitingProvision] = useState({
+        id: '',
+        audio: false,
+        video: false
+    });
 
     const instanceLayerUsers = userState.get('layerUsers') ?? [];
     const channelLayerUsers = userState.get('channelLayerUsers') ?? [];
@@ -164,8 +174,6 @@ const Harmony = observer((props: Props): any => {
     const activeAVChannelIdRef = useRef(activeAVChannelId);
 
     useEffect(() => {
-        // doLoginAuto(true);
-
         window.addEventListener('connectToWorld', () => {
             if (producerStartingRef.current === 'audio') toggleAudio(activeAVChannelIdRef.current);
             else if (producerStartingRef.current === 'video') toggleVideo(activeAVChannelIdRef.current);
@@ -181,8 +189,39 @@ const Harmony = observer((props: Props): any => {
             _setActiveAVChannelId('');
         });
 
-        setActiveAVChannelId((Network.instance.transport as any).channelId);
+        console.log('Harmony root useEffect');
+        autorun(() => {
+            if ((Network.instance.transport as any).channelType === 'instance') {
+                console.log('Selecting instance channel');
+                console.log(channels);
+                const channelEntries = [...channels.entries()];
+                console.log(channelEntries);
+                const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null);
+                console.log(instanceChannel);
+                if (instanceChannel != null) setActiveAVChannelId(instanceChannel[0]);
+            } else {
+                setActiveAVChannelId((Network.instance.transport as any).channelId);
+            }
+        });
     }, []);
+
+    useEffect(() => {
+        console.log('channelConnectionState useEffect');
+        console.log(channelConnectionState);
+        console.log(channelAwaitingProvision);
+        if (channelConnectionState.get('connected') === false && channelAwaitingProvision?.id?.length > 0) {
+            console.log('channelConnectionState useEffect when channel awaiting provision');
+            console.log(channelAwaitingProvision);
+            provisionChannelServer(null, channelAwaitingProvision.id);
+            if (channelAwaitingProvision?.audio === true) setProducerStarting('audio');
+            if (channelAwaitingProvision?.video === true) setProducerStarting('video');
+            setChannelAwaitingProvision({
+                id: '',
+                audio: false,
+                video: false
+            });
+        }
+    }, [channelConnectionState]);
 
 
     useEffect(() => {
@@ -344,7 +383,7 @@ const Harmony = observer((props: Props): any => {
         }
     };
 
-    const checkMediaStream = async (channelType: string, channelId: string) => {
+    const checkMediaStream = async (channelType: string, channelId?: string) => {
         if (!MediaStreamSystem.instance?.mediaStream) {
             console.log('Configuring media transports', channelType, channelId);
             await configureMediaTransports(channelType, channelId);
@@ -354,47 +393,115 @@ const Harmony = observer((props: Props): any => {
     const checkEndVideoChat = async () =>{
         if((MediaStreamSystem.instance?.audioPaused || MediaStreamSystem.instance?.camAudioProducer == null) && (MediaStreamSystem.instance?.videoPaused || MediaStreamSystem.instance?.camVideoProducer == null)) {
             await endVideoChat({});
+            console.log('Leaving channel after video chat ended');
             await leave(false);
         }
     };
-    const handleMicClick = async (e: any, channelId: string) => {
+    const handleMicClick = async (e: any, instance: boolean, channelId: string) => {
         e.stopPropagation();
-        if (channelId !== activeAVChannelId) {
-            await endVideoChat({});
-            await leave(false);
-            await new Promise(resolve => setTimeout(() => resolve(null), 1000));
-        }
         setActiveAVChannelId(channelId);
-        if (channelConnectionState.get('instanceProvisioned') !== true &&
-            channelConnectionState.get('instanceProvisioning') === false) {
-            provisionChannelServer(null, channelId);
-            setProducerStarting('audio');
-        } else {
-            if (channelConnectionState.get('instanceProvisioned') === true && channelConnectionState.get('connnected') === true) toggleAudio(channelId);
+        if (instance === true && instanceConnectionState.get('instanceProvisioning') === false && channelConnectionState.get('instanceProvisioning') === false) {
+            if (channelId !== activeAVChannelId) {
+                await endVideoChat({});
+                await leave(false);
+                await new Promise(resolve => setTimeout(() => resolve(null), 1000));
+            }
+
+            await checkMediaStream('instance');
+
+            if (MediaStreamSystem.instance?.camAudioProducer == null) await createCamAudioProducer('instance');
+            else {
+                const audioPaused = MediaStreamSystem.instance.toggleAudioPaused();
+                if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer);
+                else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer);
+                checkEndVideoChat();
+            }
+        }
+        else {
+            if (channelId !== activeAVChannelId) {
+                await endVideoChat({});
+                await leave(false);
+            }
+            if (channelConnectionState.get('connected') === false &&
+                channelConnectionState.get('instanceProvisioned') === false &&
+                channelConnectionState.get('instanceProvisioning') === false) {
+                provisionChannelServer(null, channelId);
+                setProducerStarting('audio');
+            } else if (channelConnectionState.get('connected') === true) {
+                setChannelAwaitingProvision({
+                    id: channelAwaitingProvision?.id ? channelAwaitingProvision.id : channelId,
+                    video: channelAwaitingProvision?.video || false,
+                    audio: true
+                });
+            } else if (channelConnectionState.get('instanceProvisioning') === true) {
+              setTimeout(() => {
+                  if (channelConnectionState.get('instanceProvisioning') === true) {
+                      provisionChannelServer(null, channelId);
+                      setProducerStarting('audio');
+                  }
+              }, 3000);
+            } else {
+                if (channelConnectionState.get('instanceProvisioned') === true && channelConnectionState.get('connnected') === true) toggleAudio(channelId);
+            }
         }
     };
 
-    const handleCamClick = async (e: any, channelId: string) => {
+    const handleCamClick = async (e: any, instance: boolean, channelId: string) => {
         console.log('handleCamClick');
         e.stopPropagation();
-        let forceStart = false;
         console.log('channelId: ' + channelId);
         console.log('activeAVChannelId: ' + activeAVChannelId);
-        if (channelId !== activeAVChannelId) {
-            await endVideoChat({});
-            await leave(false);
-            await new Promise(resolve => setTimeout(() => resolve(null), 1000));
-            forceStart = true;
+        if (instance === true && instanceConnectionState.get('instanceProvisioning') === false && channelConnectionState.get('instanceProvisioning') === false) {
+            setActiveAVChannelId(channelId);
+            await checkMediaStream('instance');
+            if (MediaStreamSystem.instance?.camVideoProducer == null) await createCamVideoProducer('instance');
+            else {
+                const videoPaused = MediaStreamSystem.instance.toggleVideoPaused();
+                if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer);
+                else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer);
+                checkEndVideoChat();
+            }
         }
-        setActiveAVChannelId(channelId);
-        console.log('Current channelConnectionState');
-        console.log(channelConnectionState);
-        if (forceStart === true || (channelConnectionState.get('instanceProvisioned') !== true &&
-            channelConnectionState.get('instanceProvisioning') === false)) {
-            provisionChannelServer(null, channelId);
-            setProducerStarting('video');
-        } else {
-            if (channelConnectionState.get('instanceProvisioned') === true && channelConnectionState.get('connected') === true) toggleVideo(channelId);
+        else {
+            console.log('Current channelConnectionState');
+            console.log(channelConnectionState);
+            if (channelId !== activeAVChannelId) {
+                console.log('Switching channels');
+                setActiveAVChannelId(channelId);
+                console.log('ActiveAVChannelId set to', channelId, 'Ending video chat now');
+                await endVideoChat({});
+                console.log('Ended video chat');
+                await leave(false);
+                console.log('Finished leaving on cam click');
+                if (channelConnectionState.get('connected') === false &&
+                    channelConnectionState.get('instanceProvisioned') === false &&
+                    channelConnectionState.get('instanceProvisioning') === false) {
+                    console.log('No channel server connected or provisioning, free to provision one now');
+                    provisionChannelServer(null, channelId);
+                    setProducerStarting('video');
+                } else if (channelConnectionState.get('connected') === true) {
+                    console.log('Still see a connected channel server, setting useState to wait for it to be cleared');
+                    setChannelAwaitingProvision({
+                        id: channelAwaitingProvision?.id ? channelAwaitingProvision.id : channelId,
+                        audio: channelAwaitingProvision?.audio || false,
+                        video: true
+                    });
+                } else if (channelConnectionState.get('instanceProvisioning') === true) {
+                    console.log('Channel server in provisioning state, going to timeout and then force provision if still in that state');
+                    setTimeout(() => {
+                        if (channelConnectionState.get('instanceProvisioning') === true) {
+                            provisionChannelServer(null, channelId);
+                            setProducerStarting('video');
+                        }
+                    }, 3000);
+                }
+            }
+            else {
+                if (channelConnectionState.get('instanceProvisioned') === true && channelConnectionState.get('connected') === true) {
+                    console.log('Toggling video');
+                    toggleVideo(channelId);
+                }
+            }
         }
     };
 
@@ -442,10 +549,8 @@ const Harmony = observer((props: Props): any => {
     }
 
     function getChannelName(): string {
-        if (activeAVChannelId?.length > 0) {
-            const channel = channels.find((channel) => channel.id === activeAVChannelId);
-            return channel[channel.channelType].name;
-        } else return 'Current layer';
+        const channel = channels.get(activeAVChannelId);
+        return channel ? channel[channel.channelType].name : 'Current Layer';
     }
 
     function calcWidth(): 12 | 6 | 4 | 3 {
@@ -460,6 +565,7 @@ const Harmony = observer((props: Props): any => {
             channelConnectionState.get('connected') === false
         ) {
             init().then(() => {
+                console.log('Connecting to channel server after provisioning completed');
                 connectToChannelServer(channelConnectionState.get('channelId'));
             });
         }
@@ -467,6 +573,14 @@ const Harmony = observer((props: Props): any => {
 
     return (
         <div className={styles['harmony-component']}>
+            <style> {`
+                .Mui-selected {
+                    background-color: rgba(0, 0, 0, 0.4) !important;
+                }
+                .MuiOutlinedInput-notchedOutline {
+                    border-color: rgba(127, 127, 127, 0.7);
+                }
+            `}</style>
             <List onScroll={(e) => onChannelScroll(e)} className={styles['chat-container']}>
                 { channels && channels.size > 0 && Array.from(channels).sort(([channelId1, channel1], [channelId2, channel2]) => new Date(channel2.updatedAt).getTime() - new Date(channel1.updatedAt).getTime()).map(([channelId, channel], index) => {
                     return <ListItem
@@ -483,13 +597,13 @@ const Harmony = observer((props: Props): any => {
                         }
                         <ListItemText primary={channel.channelType === 'user' ? (channel.user1?.id === selfUser.id ? channel.user2.name : channel.user2?.id === selfUser.id ? channel.user1.name : '') : channel.channelType === 'group' ? channel.group.name : channel.channelType === 'instance' ? 'Current layer' : 'Current party'}/>
                         <section className={styles.drawerBox}>
-                            <div className={styles.iconContainer + ' ' + ((audioPaused || activeAVChannelId !== channel.id) ? styles.off : styles.on)}>
-                                <MicOff id='micOff' className={styles.offIcon} onClick={(e) => handleMicClick(e, channel.id)} />
-                                <Mic id='micOn' className={styles.onIcon} onClick={(e) => handleMicClick(e, channel.id)} />
+                            <div className={styles.iconContainer + ' ' + ((audioPaused === false && activeAVChannelId === channel.id) ? styles.on : styles.off)}>
+                                <MicOff id='micOff' className={styles.offIcon} onClick={(e) => handleMicClick(e, channel.instanceId != null, channel.id)} />
+                                <Mic id='micOn' className={styles.onIcon} onClick={(e) => handleMicClick(e, channel.instanceId != null, channel.id)} />
                             </div>
-                            <div className={styles.iconContainer + ' ' + ((videoPaused || activeAVChannelId !== channel.id) ? styles.off : styles.on)}>
-                                <VideocamOff id='videoOff' className={styles.offIcon} onClick={(e) => handleCamClick(e, channel.id)} />
-                                <Videocam id='videoOn' className={styles.onIcon} onClick={(e) => handleCamClick(e, channel.id)} />
+                            <div className={styles.iconContainer + ' ' + ((videoPaused === false && activeAVChannelId === channel.id) ? styles.on : styles.off)}>
+                                <VideocamOff id='videoOff' className={styles.offIcon} onClick={(e) => handleCamClick(e, channel.instanceId != null, channel.id)} />
+                                <Videocam id='videoOn' className={styles.onIcon} onClick={(e) => handleCamClick(e, channel.instanceId != null, channel.id)} />
                             </div>
                         </section>
                     </ListItem>;
@@ -502,7 +616,7 @@ const Harmony = observer((props: Props): any => {
                 }
             </List>
             <div className={styles['chat-window']}>
-                { (MediaStreamSystem.instance.camVideoProducer != null || MediaStreamSystem.instance.camAudioProducer != null) && <div className={styles['video-container']}>
+                { (MediaStreamSystem?.instance?.camVideoProducer != null || MediaStreamSystem?.instance?.camAudioProducer != null) && <div className={styles['video-container']}>
                     <div className={ styles['active-chat-plate']} >{ getChannelName() }</div>
                     <Grid className={ styles['party-user-container']} container direction="row">
                         <Grid item className={
@@ -658,6 +772,7 @@ const Harmony = observer((props: Props): any => {
                             />
                             <Button variant="contained"
                                     color="primary"
+                                    className={styles['send-button']}
                                     startIcon={<Send/>}
                                     onClick={packageMessage}
                             >

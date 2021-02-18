@@ -486,7 +486,13 @@ export async function leave(instance: boolean): Promise<boolean> {
             if (socket && socket.close)
                 socket.close();
 
-            if (instance !== true && request != null) await request(MessageTypes.WebRTCRequestCurrentProducers.toString(), { channelType: 'instance' });
+            console.log('Checking if we need to re-fetch instance producers');
+            console.log(instance);
+            console.log(request)
+            if (instance !== true && request != null) {
+                console.log('Requesting current producers');
+                await networkTransport.instanceRequest(MessageTypes.WebRTCRequestCurrentProducers.toString(), { channelType: 'instance' });
+            }
             return true;
         } catch (err) {
             console.log('Error with leave()');
