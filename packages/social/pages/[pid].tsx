@@ -1,4 +1,4 @@
-import { Header } from "@xr3ngine/client-core/components/social//Header";
+import  AppHeader  from "@xr3ngine/client-core/components/social/Header";
 import { useRouter } from "next/router";
 import React from "react";
 
@@ -8,7 +8,7 @@ export default function ProfilePage() {
 
   return (
     <div className="container">
-    <Header user={pid} />
+    <AppHeader user={pid} />
       <div>{pid}</div>
     </div>
   );
