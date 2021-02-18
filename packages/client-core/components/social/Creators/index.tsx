@@ -1,5 +1,6 @@
 import React from 'react';
 import { random } from 'lodash';
+import Router from "next/router";
 
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
@@ -17,9 +18,13 @@ const Creators = () => {
             username: '@username',
         })
     }
+    const handleCreatorView = (username) =>{
+        Router.push('/creator')
+    }
+
     return <section className={styles.creatorContainer}>
         {data.map((item, itemIndex)=>
-            <Card className={styles.creatorItem} elevation={0} key={itemIndex}>                 
+            <Card className={styles.creatorItem} elevation={0} key={itemIndex} onClick={()=>handleCreatorView(item.username)}>                 
                 <CardMedia   
                     className={styles.previewImage}                  
                     image={item.avatar}

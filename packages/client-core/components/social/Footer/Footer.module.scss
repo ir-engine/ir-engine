@@ -7,6 +7,9 @@
     box-sizing: border-box;
     border-top: 1px solid #DDDDDD;
     align-items: center;
+    position: sticky;
+    bottom: 0;
+    background: #FFF;
     .footerItem{
         margin: 0 20px;
     }
