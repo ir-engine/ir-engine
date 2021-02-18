@@ -32,11 +32,9 @@ import com.google.ar.core.Anchor;
 import com.google.ar.core.Camera;
 import com.google.ar.core.Config;
 import com.google.ar.core.Frame;
-import com.google.ar.core.HitResult;
 import com.google.ar.core.Plane;
 import com.google.ar.core.PointCloud;
 import com.google.ar.core.Session;
-import com.google.ar.core.Trackable;
 //import com.google.ar.core.Trackable.TrackingState;
 import com.google.android.material.snackbar.Snackbar;
 import com.xr3ngine.xr.rendering.BackgroundRenderer;
@@ -58,8 +56,8 @@ import javax.microedition.khronos.opengles.GL10;
  * ARCore API. The application will display any detected planes and will allow the user to tap on a
  * plane to place a 3d model of the Android robot.
  */
-public class ARActivity extends AppCompatActivity implements GLSurfaceView.Renderer {
-    private static final String TAG = ARActivity.class.getSimpleName();
+public class XRActivity extends AppCompatActivity implements GLSurfaceView.Renderer {
+    private static final String TAG = XRActivity.class.getSimpleName();
 
     // Rendering. The Renderers are created here, and initialized when the GL surface is created.
     private GLSurfaceView mSurfaceView;
@@ -364,7 +362,7 @@ public class ARActivity extends AppCompatActivity implements GLSurfaceView.Rende
 
     private void showSnackbarMessage(String message, boolean finishOnDismiss) {
         mMessageSnackbar = Snackbar.make(
-                ARActivity.this.findViewById(android.R.id.content),
+                XRActivity.this.findViewById(android.R.id.content),
                 message, Snackbar.LENGTH_INDEFINITE);
         mMessageSnackbar.getView().setBackgroundColor(0xbf323232);
         if (finishOnDismiss) {

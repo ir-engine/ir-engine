@@ -6,41 +6,149 @@ import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 
-import com.xr3ngine.xr.ARActivity;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-
-import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
-import android.media.projection.MediaProjection;
-import android.media.projection.MediaProjectionManager;
-import android.util.Log;
-import android.content.pm.PackageManager;
-
-import com.xr3ngine.screenrecord.ScreenRecordService;
-import com.xr3ngine.screenrecord.MediaRecordService;
 
 @NativePlugin
 public class XRPlugin extends Plugin {
+    static final int REQUEST_CAMERA_PERMISSION = 1234;
+
+    private boolean xrIsEnabled = false;
+    private boolean recordingIsEnabled = false;
+    private XRFrameData currentXrFrameData = new XRFrameData();
 
     @PluginMethod
-    public void echo(PluginCall call) {
-        String value = call.getString("value");
+    public void initialize(PluginCall call) {
+        JSObject ret = new JSObject();
+        ret.put("status", "success");
+        call.success(ret);
+    }
+
+    @PluginMethod()
+    public void start(PluginCall call) {
+        saveCall(call);
+
+        if (hasRequiredPermissions()) {
+            startCamera(call);
+        } else {
+            pluginRequestPermissions(new String[]{
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.RECORD_AUDIO,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+            }, REQUEST_CAMERA_PERMISSION);
+        }
+    }
+
+    @PluginMethod()
+    public void stop(final PluginCall call) {
+        bridge.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                FrameLayout containerView = getBridge().getActivity().findViewById(containerViewId);
+
+                if (containerView != null) {
+                    ((ViewGroup)getBridge().getWebView().getParent()).removeView(containerView);
+                    getBridge().getWebView().setBackgroundColor(Color.WHITE);
+                    FragmentManager fragmentManager = getActivity().getFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.remove(fragment);
+                    fragmentTransaction.commit();
+                    fragment = null;
+
+                    call.success();
+                } else {
+                    call.reject("camera already stopped");
+                }
+            }
+        });
+    }
+
+    @PluginMethod
+    public void startXR(PluginCall call) {
+
+//        Intent intent = new Intent(getContext(), XRActivity.class);
+//        getActivity().startActivity(intent);
 
         JSObject ret = new JSObject();
-        ret.put("value", value);
+        ret.put("status", "success");
         call.success(ret);
+    }
+
+    @PluginMethod
+    public void stopXR(PluginCall call) {
+        JSObject ret = new JSObject();
+        ret.put("status", "success");
+        call.success(ret);
+    }
+
+    @PluginMethod
+    public void getXRDataForFrame(PluginCall call) {
+        JSObject ret = new JSObject();
+        ret.put("data", "test");
+        call.success(ret);
+    }
+
+    @PluginMethod
+    public void startRecording(PluginCall call) {
+        JSObject ret = new JSObject();
+        ret.put("status", "success");
+        call.success(ret);
+    }
+
+    @PluginMethod
+    public void stopRecording(PluginCall call) {
+        JSObject ret = new JSObject();
+        ret.put("status", "success");
+        call.success(ret);
+    }
+
+    @PluginMethod
+    public void getRecordingStatus(PluginCall call) {
+        JSObject ret = new JSObject();
+        ret.put("status", "success");
+        call.success(ret);
+    }
+
+    @PluginMethod
+    public void takePhoto(PluginCall call) {
+
+    }
+
+    @PluginMethod
+    public void saveRecordingToVideo(PluginCall call) {
+
+    }
+
+    @PluginMethod
+    public void shareMedia(PluginCall call) {
+
+    }
+
+    @PluginMethod
+    public void showVideo(PluginCall call) {
+
+    }
+
+    @PluginMethod
+    public void scrubTo(PluginCall call) {
+
+    }w
+
+    @PluginMethod
+    public void deleteVideo(PluginCall call) {
+
+    }
+
+    @PluginMethod
+    public void saveVideoTo(PluginCall call) {
+
     }
 
     // ARCORE =================================================
 
 
 	public boolean startXR(final String action) {
-            Intent intent = new Intent(getContext(), ARActivity.class);
+            Intent intent = new Intent(getContext(), XRActivity.class);
             getActivity().startActivity(intent);
 		return true;
 	}
