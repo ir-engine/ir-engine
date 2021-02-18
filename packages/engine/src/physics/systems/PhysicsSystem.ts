@@ -15,6 +15,7 @@ import { System } from '../../ecs/classes/System';
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
+import { XRControllersComponent } from '../../input/components/XRControllersComponent';
 import { Network } from '../../networking/classes/Network';
 import { Vault } from '../../networking/classes/Vault';
 import { NetworkObject } from '../../networking/components/NetworkObject';
@@ -509,6 +510,17 @@ const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime) => {
 
 const updateIK = (entity: Entity) => {
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+	const xRControllers = getMutableComponent(entity, XRControllersComponent);
+
+  if(Engine.renderer && Engine.renderer.xr) {
+    const session = Engine.renderer.xr.getSession();
+
+    if(session) {
+      console.log('ession is enabled ',  session);
+    }
+    
+  }
+
   const dateOffset = Math.floor(Math.random() * 60 * 1000);
   const realDateNow = (now => () => dateOffset + now())(Date.now);
 

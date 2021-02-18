@@ -124,6 +124,7 @@ export const loadActorAvatar: Behavior = (entity) => {
 };
 
 function initiateIKSystem(entity: Entity, object) {
+	console.log('initialize ik system');
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
   const options = {
     fingers: true,

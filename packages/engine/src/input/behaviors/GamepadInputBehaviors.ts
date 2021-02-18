@@ -44,6 +44,7 @@ export const handleGamepads: Behavior = (entity: Entity) => {
     // If the gamepad has analog inputs (dpads that aren't up UP/DOWN/L/R but have -1 to 1 values for X and Y)
     if (gamepad.axes) {
       // GamePad 0 Left Stick XY
+      console.log('real handle is on gamepad side');
       if (input.schema.gamepadInputMap?.axes[Thumbsticks.Left] && gamepad.axes.length >= inputPerGamepad) {
         handleGamepadAxis(entity, {
           gamepad: gamepad,

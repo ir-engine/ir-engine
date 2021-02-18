@@ -26,6 +26,7 @@ export const addPhysics: Behavior = (entity: Entity) => {
 export const updateWebXRPhysics: Behavior = (entity: Entity) => {
 	const xRControllers = getComponent(entity, XRControllersComponent)
 
+	console.log('update webxr controllers position', xRControllers);
 	xRControllers.physicsBody1.position.set(
 		xRControllers.position1.x,
 		xRControllers.position1.y,

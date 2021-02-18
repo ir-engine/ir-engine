@@ -57,6 +57,8 @@ interface ListenerBindingData {
   listener: Function;
 }
 
+let flag = true;
+
 export class InputSystem extends System {
   updateType = SystemUpdateType.Fixed;
   needSend = false;
@@ -95,8 +97,16 @@ export class InputSystem extends System {
   public execute(delta: number): void {
     if (this.useWebXR) {
       // Handle XR input
+      if(flag) {
+        console.log(this.queryResults);
+        flag = false;
+      }
+      if(this.queryResults.controllersComponent.all.length > 0) {
+        console.log('all controller components', this.queryResults.controllersComponent.all);
+      }
       this.queryResults.controllersComponent.added?.forEach(entity => addPhysics(entity));
       this.queryResults.controllersComponent.all?.forEach(entity => {
+        console.log('getting input for web controller');
         const xRControllers = getComponent(entity, XRControllersComponent);
         if (xRControllers.physicsBody1 !== null && xRControllers.physicsBody2 !== null && this.mainControllerId) {
           this.mainControllerId = xRControllers.physicsBody1;
