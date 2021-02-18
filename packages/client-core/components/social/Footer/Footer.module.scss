@@ -1,0 +1,13 @@
+.footerContainer{
+    width: 100vw;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding: 5px 20px;
+    box-sizing: border-box;
+    border-top: 1px solid #DDDDDD;
+    align-items: center;
+    .footerItem{
+        margin: 0 20px;
+    }
+}

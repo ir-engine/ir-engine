@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
+import Router from "next/router";
 
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
@@ -78,6 +79,7 @@ export const PasswordLogin = (props: Props): any => {
         email: state.email,
         password: state.password
       });
+      Router.push("/");
     }
   };
 
