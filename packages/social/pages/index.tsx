@@ -15,7 +15,7 @@ import { LoginUserHook } from "@xr3ngine/client-core/components/social/GlobalHoo
 
 import { Plugins } from '@capacitor/core';
 
-import styles from './index.module.scss'
+import styles from './index.module.scss';
 const { Example } = Plugins;
 
 export default function Home({ children }) {
@@ -36,7 +36,7 @@ export default function Home({ children }) {
         console.log(data);
       });
     }
-  setLoginData({username:'username'})
+  setLoginData({username:'username'});
   }, []);
 
 
