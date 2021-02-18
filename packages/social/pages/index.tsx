@@ -1,17 +1,21 @@
 
 import React, { useState, useEffect } from "react";
-import { Header } from "@xr3ngine/client-core/components/social/Header";
+import AppHeader from "@xr3ngine/client-core/components/social/Header";
+import FeedMenu from "@xr3ngine/client-core/components/social/FeedMenu";
+import AppFooter from "@xr3ngine/client-core/components/social/Footer";
 
-import { Layout } from "@xr3ngine/client-core/components/social/Layout";
-import { Stories } from "@xr3ngine/client-core/components/social/Stories";
-import { FeedItem } from "@xr3ngine/client-core/components/social/FeedItem";
-import { HomeRightBar } from "@xr3ngine/client-core/components/social/HomeRightBar";
-import { MoreModalItems } from "@xr3ngine/client-core/components/social/more-modal";
+// import { Layout } from "@xr3ngine/client-core/components/social/Layout";
+// import { Stories } from "@xr3ngine/client-core/components/social/Stories";
+// import { FeedItem } from "@xr3ngine/client-core/components/social/FeedItem";
+// import { HomeRightBar } from "@xr3ngine/client-core/components/social/HomeRightBar";
+// import { MoreModalItems } from "@xr3ngine/client-core/components/social/more-modal";
 
 // TODO: HANDLE
 import { LoginUserHook } from "@xr3ngine/client-core/components/social/GlobalHook";
 
 import { Plugins } from '@capacitor/core';
+
+import styles from './index.module.scss';
 const { Example } = Plugins;
 
 export default function Home({ children }) {
@@ -32,6 +36,7 @@ export default function Home({ children }) {
         console.log(data);
       });
     }
+  setLoginData({username:'username'});
   }, []);
 
 
@@ -53,9 +58,11 @@ export default function Home({ children }) {
       .then((data) => setStories(data));
   }, []);
 
+
   return (<>
-    <div className="container homepage-container flex justify-center">
-      <Header user={loginData} />
+    <div className={styles.viewport}>
+      <AppHeader user={loginData} logo="/assets/logoBlack.png" />
+      <FeedMenu />
       {/* <MoreModalItems /> */}
       {/* <Stories stories={stories} /> */}
       {/* <div className="homepage-feed lg:mr-8 flex flex-col ">
@@ -65,6 +72,7 @@ export default function Home({ children }) {
             })}
         </div> */}
       {/* <HomeRightBar data={suggestions} /> */}
+      <AppFooter user={loginData} />
     </div>
   </>
   );
