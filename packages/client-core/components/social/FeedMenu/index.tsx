@@ -9,7 +9,6 @@ import TipsAndTricks from "../TipsAndTricks";
 import styles from './FeedMenu.module.scss';
 
 const FeedMenu = () => {
-  const containerWrapRef = useRef<HTMLInputElement>();
   const containerRef = useRef<HTMLInputElement>();
   const featuredRef = useRef<HTMLInputElement>();
   const creatorsRef = useRef<HTMLInputElement>();
