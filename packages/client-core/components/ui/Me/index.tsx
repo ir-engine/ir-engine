@@ -10,7 +10,7 @@ const Me = observer(() => {
     // to an observable property of it does.
 
   return (
-    <Grid className={styles['me-party-user-container']} container>
+    <>
       <PartyParticipantWindow
           containerProportions={{
             height: 135,
@@ -27,7 +27,7 @@ const Me = observer(() => {
                 peerId={'me_screen'}
             />
         }
-    </Grid>
+    </>
   );
 });
 

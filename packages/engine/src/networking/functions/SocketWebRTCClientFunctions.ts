@@ -43,8 +43,6 @@ export async function createTransport(direction: string, channelType?: string, c
 
     console.log('Requesting transport creation', direction, channelType, channelId);
     const { transportOptions } = await request(MessageTypes.WebRTCTransportCreate.toString(), { direction, sctpCapabilities: networkTransport.mediasoupDevice.sctpCapabilities, channelType: channelType, channelId: channelId });
-    console.log('Got Transport options:');
-    console.log(transportOptions);
 
     if (direction === "recv")
         transport = await networkTransport.mediasoupDevice.createRecvTransport(transportOptions);
@@ -180,14 +178,18 @@ export async function configureMediaTransports(channelType, channelId?: string):
 }
 
 export async function createCamVideoProducer(channelType: string, channelId?: string): Promise<void> {
+    console.log('createCamVideoProducer', channelType, channelId);
+    console.log(MediaStreamSystem.instance.mediaStream);
     if (MediaStreamSystem.instance.mediaStream !== null && networkTransport.videoEnabled === true) {
         const transport = channelType === 'instance' ? networkTransport.instanceSendTransport : networkTransport.channelSendTransport;
+        console.log('Producing camVideo on', channelType, channelId);
         MediaStreamSystem.instance.camVideoProducer = await transport.produce({
             track: MediaStreamSystem.instance.mediaStream.getVideoTracks()[0],
             encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
             appData: { mediaTag: "cam-video", channelType: channelType, channelId: channelId }
         });
 
+        console.log('Video is producing on', channelType, channelId);
         if (MediaStreamSystem.instance.videoPaused) await MediaStreamSystem.instance?.camVideoProducer.pause();
     }
 }
@@ -224,19 +226,13 @@ export async function endVideoChat(options: { leftParty?: boolean, endConsumers?
     if (Network.instance != null) {
         try {
             networkTransport = Network.instance.transport as any;
-            console.log(MediaStreamSystem.instance?.camVideoProducer);
             const isInstanceMedia = networkTransport.instanceSocket?.connected === true && (networkTransport.channelId == null || networkTransport.channelId.length === 0);
             const isChannelMedia = networkTransport.channelSocket?.connected === true && networkTransport.channelId != null && networkTransport.channelId.length > 0;
             if (MediaStreamSystem.instance?.camVideoProducer) {
-                console.log('Closing cam video producer');
-                console.log('instanceSocket:');
-                console.log(networkTransport.instanceSocket);
                 if (isInstanceMedia)
                     await networkTransport.instanceRequest(MessageTypes.WebRTCCloseProducer.toString(), {
                         producerId: MediaStreamSystem.instance?.camVideoProducer.id
                     });
-                console.log('channelSocket:');
-                console.log(networkTransport.channelSocket);
                 if (isChannelMedia)
                     await networkTransport.channelRequest(MessageTypes.WebRTCCloseProducer.toString(), {
                         producerId: MediaStreamSystem.instance?.camVideoProducer.id
@@ -328,39 +324,47 @@ export function setRelationship(channelType: string, channelId: string): void {
 }
 
 export async function subscribeToTrack(peerId: string, mediaTag: string, channelType: string, channelId: string) {
-    console.log('subscribeToTrack');
-    console.log(peerId);
-    console.log(mediaTag);
-    console.log(channelType);
-    console.log(channelId);
     networkTransport = Network.instance.transport as any;
     const request = channelType === 'instance' ? networkTransport.instanceRequest : networkTransport.channelRequest;
 
-    // if we do already have a consumer, we shouldn't have called this method
-    let consumer = MediaStreamSystem.instance?.consumers.find
+    if (request != null) {
+        // if we do already have a consumer, we shouldn't have called this method
+        let consumer = MediaStreamSystem.instance?.consumers.find
         ((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === mediaTag);
 
-    // ask the server to create a server-side consumer object and send us back the info we need to create a client-side consumer
-    const consumerParameters = await request(MessageTypes.WebRTCReceiveTrack.toString(),
-        { mediaTag, mediaPeerId: peerId, rtpCapabilities: networkTransport.mediasoupDevice.rtpCapabilities, channelType: channelType, channelId: channelId }
-    );
+        // ask the server to create a server-side consumer object and send us back the info we need to create a client-side consumer
+        const consumerParameters = await request(MessageTypes.WebRTCReceiveTrack.toString(),
+            {
+                mediaTag,
+                mediaPeerId: peerId,
+                rtpCapabilities: networkTransport.mediasoupDevice.rtpCapabilities,
+                channelType: channelType,
+                channelId: channelId
+            }
+        );
 
-    console.log(consumerParameters);
-    // Only continue if we have a valid id
-    if (consumerParameters?.id == null) return;
+        // Only continue if we have a valid id
+        if (consumerParameters?.id == null) return;
 
-    consumer = channelType === 'instance' ?
-        await networkTransport.instanceRecvTransport.consume({ ...consumerParameters, appData: { peerId, mediaTag, channelType }, paused: true })
-        : await networkTransport.channelRecvTransport.consume({ ...consumerParameters, appData: { peerId, mediaTag, channelType, channelId }, paused: true });
+        consumer = channelType === 'instance' ?
+            await networkTransport.instanceRecvTransport.consume({
+                ...consumerParameters,
+                appData: {peerId, mediaTag, channelType},
+                paused: true
+            })
+            : await networkTransport.channelRecvTransport.consume({
+                ...consumerParameters,
+                appData: {peerId, mediaTag, channelType, channelId},
+                paused: true
+            });
 
-    console.log(consumer);
-    if (MediaStreamSystem.instance?.consumers?.find(c => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag) == null) {
-        MediaStreamSystem.instance?.consumers.push(consumer);
+        if (MediaStreamSystem.instance?.consumers?.find(c => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag) == null) {
+            MediaStreamSystem.instance?.consumers.push(consumer);
 
-        // okay, we're ready. let's ask the peer to send us media
-        await resumeConsumer(consumer);
+            // okay, we're ready. let's ask the peer to send us media
+            await resumeConsumer(consumer);
+        } else await closeConsumer(consumer);
     }
-    else await closeConsumer(consumer);
 }
 
 export async function unsubscribeFromTrack(peerId: any, mediaTag: any) {
@@ -425,12 +429,8 @@ export async function closeConsumer(consumer: any) {
 }
 
 export async function leave(instance: boolean): Promise<boolean> {
-    console.log('leave()');
     if (Network.instance?.transport != null) {
-        console.log('Trying to leave ');
-        console.log('instance leave?', instance);
         try {
-            console.log(Network.instance.transport);
             networkTransport = Network.instance.transport as any;
             networkTransport.leaving = true;
             const socket = instance === true ? networkTransport.instanceSocket : networkTransport.channelSocket;
@@ -438,7 +438,6 @@ export async function leave(instance: boolean): Promise<boolean> {
             const request = instance === true ? networkTransport.instanceRequest : networkTransport.channelRequest;
             if (request) {
                 // close everything on the server-side (transports, producers, consumers)
-                console.log('Sending leaveWorld');
                 const result = await request(MessageTypes.LeaveWorld.toString());
                 if (result.error) console.error(result.error);
                 window.dispatchEvent(new CustomEvent('leaveWorld'));
@@ -471,6 +470,9 @@ export async function leave(instance: boolean): Promise<boolean> {
             if (socket && socket.close)
                 socket.close();
 
+            if (instance !== true && request != null) {
+                if (process.env.NODE_ENV !== 'development') await networkTransport.instanceRequest(MessageTypes.WebRTCRequestCurrentProducers.toString(), { channelType: 'instance' });
+            }
             return true;
         } catch (err) {
             console.log('Error with leave()');

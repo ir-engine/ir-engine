@@ -31,9 +31,9 @@ export const interactOnServer: Behavior = (entity: Entity, args: any, delta): vo
     for (let i = 0; i < Engine.entities.length; i++) {
       const isEntityInteractable = Engine.entities[i];
       if (hasComponent(isEntityInteractable, Interactable)) {
-        let interactive = getComponent(isEntityInteractable, Interactable);
-        let intPosition = getComponent(isEntityInteractable, TransformComponent).position;
-        let position = getComponent(entity, TransformComponent).position;
+        const interactive = getComponent(isEntityInteractable, Interactable);
+        const intPosition = getComponent(isEntityInteractable, TransformComponent).position;
+        const position = getComponent(entity, TransformComponent).position;
 
         if (interactive.interactionPartsPosition.length > 0) {
           interactive.interactionPartsPosition.forEach((v,i) => {
@@ -52,7 +52,7 @@ export const interactOnServer: Behavior = (entity: Entity, args: any, delta): vo
     focusedArrays = focusedArrays.sort((a: any, b: any) => a[1] - b[1]);
     if (focusedArrays.length < 1) return;
 
-    let interactable = getComponent(focusedArrays[0][0], Interactable);
+    const interactable = getComponent(focusedArrays[0][0], Interactable);
 
   //  console.warn('found networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
 

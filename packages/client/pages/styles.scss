@@ -364,3 +364,17 @@ body{
     right: calc((100% - 2000px)/2 + 20px);
   }
 }
+
+[class*=Harmony_selectable] {
+  & > .MuiListItemText-root {
+    width: 50%;
+
+    & > .MuiTypography-displayBlock {
+      @media (max-width: 768px) {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+}

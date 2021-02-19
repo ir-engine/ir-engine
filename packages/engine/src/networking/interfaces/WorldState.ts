@@ -158,7 +158,6 @@ export interface PacketWorldState {
     /** List of created objects. */
   destroyObjects: NetworkObjectRemoveInterface[]
 }
-
 /** Interface for handling packet network input. */
 export interface PacketNetworkInputInterface {
   /** ID of the network. */

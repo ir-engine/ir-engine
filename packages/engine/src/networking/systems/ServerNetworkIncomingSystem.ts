@@ -230,7 +230,7 @@ export class ServerNetworkIncomingSystem extends System {
         console.error('Network object not found for networkId', clientInput.networkId);
         return;
       }
-    
+
       const actor = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, CharacterComponent);
       if (actor) {
         actor.viewVector.set(
@@ -256,7 +256,7 @@ export class ServerNetworkIncomingSystem extends System {
       }
       // Clear current data
       input.data.clear();
-    
+
       // Apply button input
       for (let i = 0; i < clientInput.buttons.length; i++)
         input.data.set(clientInput.buttons[i].input,
@@ -265,7 +265,7 @@ export class ServerNetworkIncomingSystem extends System {
             value: clientInput.buttons[i].value,
             lifecycleState: clientInput.buttons[i].lifecycleState
           });
-    
+
       // Axis 1D input
       for (let i = 0; i < clientInput.axes1d.length; i++)
         input.data.set(clientInput.axes1d[i].input,
@@ -274,7 +274,7 @@ export class ServerNetworkIncomingSystem extends System {
             value: clientInput.axes1d[i].value,
             lifecycleState: clientInput.axes1d[i].lifecycleState
           });
-    
+
       // Axis 2D input
       for (let i = 0; i < clientInput.axes2d.length; i++)
         input.data.set(clientInput.axes2d[i].input,

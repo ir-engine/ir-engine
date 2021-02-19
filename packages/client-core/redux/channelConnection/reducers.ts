@@ -73,7 +73,7 @@ const channelConnectionReducer = (state = immutableState, action: ChannelServerA
     case CHANNEL_SERVER_DISCONNECTED:
       console.log('CHANNEL_SERVER_DISCONNECTED');
       if (connectionSocket != null) (connectionSocket as any).close();
-      return state
+      const newState = state
           .set('connected', initialState.connected)
           .set('instanceServerConnecting', initialState.instanceServerConnecting)
           .set('instanceProvisioning', initialState.instanceProvisioning)
@@ -84,6 +84,9 @@ const channelConnectionReducer = (state = immutableState, action: ChannelServerA
           .set('locationId', initialState.locationId)
           .set('sceneId', initialState.sceneId)
           .set('channelId', initialState.channelId);
+      console.log('Reset state:');
+      console.log(newState);
+      return newState;
     case SOCKET_CREATED:
       if (connectionSocket != null) (connectionSocket as any).close();
       connectionSocket = (action as SocketCreatedAction).socket;
