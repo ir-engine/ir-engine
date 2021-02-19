@@ -224,18 +224,5 @@ export interface XRPluginInterface {
 
    createThumbnail(options: VideoEditorThumbnailProperties): Promise<{ status: string, path: string; }>;
 
-
-/**
-* The VideoEditor.getVideoInfo method executes asynchronously, taking a video location and returning the details of the video.
-* The resulting info object is passed to the onSuccess callback function specified by the onSuccess parameter.
-* @param onSuccess Success callback function invoked with the details of the video.
-* @param onError Error callback function, invoked when an error occurs.
-* @param infoOptions Info options that are required to locate the video.
-*/
-getVideoInfo(onSuccess: (info: VideoEditorVideoInfoDetails) => void,
-   onError: (error: any) => void,
-   options: VideoEditorVideoInfoOptions): void;
-
-
-
+   getVideoInfo(options: VideoEditorVideoInfoDetails): Promise<{ info: VideoEditorVideoInfoOptions; }>;
 }

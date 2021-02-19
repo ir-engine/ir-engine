@@ -5,7 +5,7 @@ import com.getcapacitor.NativePlugin;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
-import com.vincent.videocompressor.VideoCompress;
+import com.xr3ngine.xr.videocompressor.VideoCompress;
 
 import android.Manifest;
 import android.app.FragmentManager;
@@ -46,8 +46,6 @@ import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-
-
 
 @NativePlugin(
         permissions = {
@@ -300,10 +298,12 @@ public class XRPlugin extends Plugin implements CameraActivity.CameraPreviewList
     public void onStartRecordVideo() {
 
     }
+
     @Override
     public void onStartRecordVideoError(String message) {
         getSavedCall().reject(message);
     }
+
     @Override
     public void onStopRecordVideo(String file) {
         PluginCall pluginCall = getSavedCall();
@@ -311,6 +311,7 @@ public class XRPlugin extends Plugin implements CameraActivity.CameraPreviewList
         jsObject.put("videoFilePath", file);
         pluginCall.success(jsObject);
     }
+
     @Override
     public void onStopRecordVideoError(String error) {
         getSavedCall().reject(error);

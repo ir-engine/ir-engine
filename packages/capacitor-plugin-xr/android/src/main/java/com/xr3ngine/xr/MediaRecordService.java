@@ -1,4 +1,4 @@
-package com.xr3ngine.screenrecord;
+package com.xr3ngine.xr;
 
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
