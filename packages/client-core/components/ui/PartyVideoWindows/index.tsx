@@ -53,14 +53,14 @@ const PartyVideoWindows = observer((props: Props): JSX.Element => {
   }, [ userState]);
 
   return (
-    <Grid className={ styles['party-user-container']} container direction="row" wrap="nowrap">
+    <>
       { displayedUsers.map((user) => (
         <PartyParticipantWindow
             peerId={user.id}
             key={user.id}
         />
       ))}
-    </Grid>
+      </>
   );
 });
 

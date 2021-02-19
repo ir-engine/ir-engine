@@ -230,7 +230,7 @@ export async function handleWebRtcTransportCreate(socket, data: WebRtcTransportP
 
     // Distinguish between send and create transport of each client w.r.t producer and consumer (data or mediastream)
     if (direction === 'recv') {
-        if (channelType === 'instance') Network.instance.clients[userId].instanceRecvTransport = newTransport;
+        if (channelType === 'instance' && Network.instance.clients[userId] != null) Network.instance.clients[userId].instanceRecvTransport = newTransport;
         else if (channelType !== 'instance' && channelId != null) Network.instance.clients[userId].channelRecvTransport = newTransport;
     } else if (direction === 'send') {
         if (channelType === 'instance' && Network.instance.clients[userId] != null) Network.instance.clients[userId].instanceSendTransport = newTransport;
