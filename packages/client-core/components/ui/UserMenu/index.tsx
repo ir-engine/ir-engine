@@ -168,6 +168,9 @@ const UserMenu = (props: UserMenuProps): any => {
           changeActiveMenu,
           logoutUser,
           removeUser,
+          loginUserByOAuth,
+          addConnectionByEmail,
+          addConnectionBySms,
         };
         break;
       case Views.Avatar:
