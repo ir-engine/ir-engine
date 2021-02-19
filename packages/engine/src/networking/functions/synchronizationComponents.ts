@@ -9,7 +9,7 @@ export function synchronizationComponents(entity, component, args) {
 
   const networkObject = getComponent<NetworkObject>(entity, NetworkObject);
 
-  Network.instance.editObjects.push({
+  Network.instance.worldState.editObjects.push({
     networkId: networkObject.networkId,
     ownerId: networkObject.ownerId,
     component: component,
@@ -18,4 +18,5 @@ export function synchronizationComponents(entity, component, args) {
     value: args.currentFocusedPart,
     whoIsItFor: args.whoIsItFor
   })
+
 }
