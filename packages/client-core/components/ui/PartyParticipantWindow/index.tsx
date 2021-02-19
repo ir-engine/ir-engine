@@ -320,7 +320,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                  // style={{backgroundImage: user?.avatarUrl?.length > 0 ? `url(${user.avatarUrl}` : avatarBgImage ? avatarBgImage : `url(/placeholders/default-silhouette.svg)`}}
                  // onClick={() => setFocused(!focused) }
             >
-                <img src={getAvatarURL(user?.avatarId)} />
+                { (videoStream == null || videoProducerPaused == true || videoProducerGlobalMute == true) && <img src={getAvatarURL(user?.avatarId)} /> }
                 <video key={peerId + '_cam'} ref={videoRef}/>
             </div>
             <audio key={peerId + '_audio'} ref={audioRef}/>
