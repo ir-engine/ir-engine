@@ -47,7 +47,8 @@ import {
     endVideoChat,
     pauseProducer,
     resumeProducer,
-    leave
+    leave,
+    setRelationship
 } from '@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions';
 import {NetworkSchema} from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
@@ -61,7 +62,6 @@ import { observer } from 'mobx-react';
 //@ts-ignore
 import styles from './Harmony.module.scss';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import {EmptyLayout} from "../Layout/EmptyLayout";
 import {autorun} from "mobx";
 
 
@@ -150,7 +150,7 @@ const Harmony = observer((props: Props): any => {
     const activeChannel = channels.get(targetChannelId);
     const [producerStarting, _setProducerStarting] = useState('');
     const [activeAVChannelId, _setActiveAVChannelId] = useState('');
-    const [channelAwaitingProvision, setChannelAwaitingProvision] = useState({
+    const [channelAwaitingProvision, _setChannelAwaitingProvision] = useState({
         id: '',
         audio: false,
         video: false
@@ -170,8 +170,14 @@ const Harmony = observer((props: Props): any => {
         _setActiveAVChannelId(value);
     };
 
+    const setChannelAwaitingProvision = value => {
+        channelAwaitingProvisionRef.current = value;
+        _setChannelAwaitingProvision(value);
+    }
+
     const producerStartingRef = useRef(producerStarting);
     const activeAVChannelIdRef = useRef(activeAVChannelId);
+    const channelAwaitingProvisionRef = useRef(channelAwaitingProvision);
 
     useEffect(() => {
         window.addEventListener('connectToWorld', () => {
@@ -186,19 +192,16 @@ const Harmony = observer((props: Props): any => {
 
         window.addEventListener('leaveWorld', () => {
             resetChannelServer();
-            _setActiveAVChannelId('');
+            if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('');
         });
 
-        console.log('Harmony root useEffect');
         autorun(() => {
             if ((Network.instance.transport as any).channelType === 'instance') {
-                console.log('Selecting instance channel');
-                console.log(channels);
                 const channelEntries = [...channels.entries()];
-                console.log(channelEntries);
                 const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null);
-                console.log(instanceChannel);
-                if (instanceChannel != null) setActiveAVChannelId(instanceChannel[0]);
+                if (instanceChannel != null && channelAwaitingProvision?.id?.length === 0) {
+                    setActiveAVChannelId(instanceChannel[0]);
+                }
             } else {
                 setActiveAVChannelId((Network.instance.transport as any).channelId);
             }
@@ -206,12 +209,7 @@ const Harmony = observer((props: Props): any => {
     }, []);
 
     useEffect(() => {
-        console.log('channelConnectionState useEffect');
-        console.log(channelConnectionState);
-        console.log(channelAwaitingProvision);
         if (channelConnectionState.get('connected') === false && channelAwaitingProvision?.id?.length > 0) {
-            console.log('channelConnectionState useEffect when channel awaiting provision');
-            console.log(channelAwaitingProvision);
             provisionChannelServer(null, channelAwaitingProvision.id);
             if (channelAwaitingProvision?.audio === true) setProducerStarting('audio');
             if (channelAwaitingProvision?.video === true) setProducerStarting('video');
@@ -399,95 +397,110 @@ const Harmony = observer((props: Props): any => {
     };
     const handleMicClick = async (e: any, instance: boolean, channelId: string) => {
         e.stopPropagation();
-        setActiveAVChannelId(channelId);
         if (instance === true && instanceConnectionState.get('instanceProvisioning') === false && channelConnectionState.get('instanceProvisioning') === false) {
-            if (channelId !== activeAVChannelId) {
+            setActiveAVChannelId(channelId);
+            setChannelAwaitingProvision({
+                id: '',
+                audio: false,
+                video: false
+            });
+            if (MediaStreamSystem.instance?.camAudioProducer == null || channelId !== activeAVChannelId) {
                 await endVideoChat({});
                 await leave(false);
-                await new Promise(resolve => setTimeout(() => resolve(null), 1000));
+                await checkMediaStream('instance');
+                await createCamAudioProducer('instance');
             }
-
-            await checkMediaStream('instance');
-
-            if (MediaStreamSystem.instance?.camAudioProducer == null) await createCamAudioProducer('instance');
             else {
+                await checkMediaStream('instance');
                 const audioPaused = MediaStreamSystem.instance.toggleAudioPaused();
                 if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer);
                 else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer);
                 checkEndVideoChat();
+                setRelationship('instance', null);
             }
         }
         else {
             if (channelId !== activeAVChannelId) {
-                await endVideoChat({});
-                await leave(false);
-            }
-            if (channelConnectionState.get('connected') === false &&
-                channelConnectionState.get('instanceProvisioned') === false &&
-                channelConnectionState.get('instanceProvisioning') === false) {
-                provisionChannelServer(null, channelId);
-                setProducerStarting('audio');
-            } else if (channelConnectionState.get('connected') === true) {
                 setChannelAwaitingProvision({
                     id: channelAwaitingProvision?.id ? channelAwaitingProvision.id : channelId,
                     video: channelAwaitingProvision?.video || false,
                     audio: true
                 });
-            } else if (channelConnectionState.get('instanceProvisioning') === true) {
-              setTimeout(() => {
-                  if (channelConnectionState.get('instanceProvisioning') === true) {
-                      provisionChannelServer(null, channelId);
-                      setProducerStarting('audio');
-                  }
-              }, 3000);
-            } else {
-                if (channelConnectionState.get('instanceProvisioned') === true && channelConnectionState.get('connnected') === true) toggleAudio(channelId);
+                setActiveAVChannelId(channelId);
+                await endVideoChat({});
+                await leave(false);
+                if (channelConnectionState.get('connected') === false &&
+                    channelConnectionState.get('instanceProvisioned') === false &&
+                    channelConnectionState.get('instanceProvisioning') === false) {
+                    setChannelAwaitingProvision({
+                        id: '',
+                        audio: false,
+                        video: false
+                    });
+                    provisionChannelServer(null, channelId);
+                    setProducerStarting('audio');
+                }  else if (channelConnectionState.get('instanceProvisioning') === true) {
+                    setTimeout(() => {
+                        if (channelConnectionState.get('instanceProvisioning') === true) {
+                            provisionChannelServer(null, channelId);
+                            setProducerStarting('audio');
+                        }
+                    }, 3000);
+                }
+            }
+            else {
+                if (channelConnectionState.get('instanceProvisioned') === true && channelConnectionState.get('connected') === true) {
+                    toggleAudio(channelId);
+                }
             }
         }
     };
 
     const handleCamClick = async (e: any, instance: boolean, channelId: string) => {
-        console.log('handleCamClick');
         e.stopPropagation();
-        console.log('channelId: ' + channelId);
-        console.log('activeAVChannelId: ' + activeAVChannelId);
         if (instance === true && instanceConnectionState.get('instanceProvisioning') === false && channelConnectionState.get('instanceProvisioning') === false) {
             setActiveAVChannelId(channelId);
-            await checkMediaStream('instance');
-            if (MediaStreamSystem.instance?.camVideoProducer == null) await createCamVideoProducer('instance');
+            setChannelAwaitingProvision({
+                id: '',
+                audio: false,
+                video: false
+            });
+            if (MediaStreamSystem.instance?.camVideoProducer == null || channelId !== activeAVChannelId) {
+                await endVideoChat({});
+                await leave(false);
+                await checkMediaStream('instance');
+                await createCamVideoProducer('instance');
+            }
             else {
+                await checkMediaStream('instance');
                 const videoPaused = MediaStreamSystem.instance.toggleVideoPaused();
                 if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer);
                 else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer);
                 checkEndVideoChat();
+                setRelationship('instance', null);
             }
         }
         else {
-            console.log('Current channelConnectionState');
-            console.log(channelConnectionState);
             if (channelId !== activeAVChannelId) {
-                console.log('Switching channels');
+                setChannelAwaitingProvision({
+                    id: channelAwaitingProvision?.id ? channelAwaitingProvision.id : channelId,
+                    audio: channelAwaitingProvision?.audio || false,
+                    video: true
+                });
                 setActiveAVChannelId(channelId);
-                console.log('ActiveAVChannelId set to', channelId, 'Ending video chat now');
                 await endVideoChat({});
-                console.log('Ended video chat');
                 await leave(false);
-                console.log('Finished leaving on cam click');
                 if (channelConnectionState.get('connected') === false &&
                     channelConnectionState.get('instanceProvisioned') === false &&
                     channelConnectionState.get('instanceProvisioning') === false) {
-                    console.log('No channel server connected or provisioning, free to provision one now');
+                    setChannelAwaitingProvision({
+                        id: '',
+                        audio: false,
+                        video: false
+                    });
                     provisionChannelServer(null, channelId);
                     setProducerStarting('video');
-                } else if (channelConnectionState.get('connected') === true) {
-                    console.log('Still see a connected channel server, setting useState to wait for it to be cleared');
-                    setChannelAwaitingProvision({
-                        id: channelAwaitingProvision?.id ? channelAwaitingProvision.id : channelId,
-                        audio: channelAwaitingProvision?.audio || false,
-                        video: true
-                    });
-                } else if (channelConnectionState.get('instanceProvisioning') === true) {
-                    console.log('Channel server in provisioning state, going to timeout and then force provision if still in that state');
+                }  else if (channelConnectionState.get('instanceProvisioning') === true) {
                     setTimeout(() => {
                         if (channelConnectionState.get('instanceProvisioning') === true) {
                             provisionChannelServer(null, channelId);
@@ -498,7 +511,6 @@ const Harmony = observer((props: Props): any => {
             }
             else {
                 if (channelConnectionState.get('instanceProvisioned') === true && channelConnectionState.get('connected') === true) {
-                    console.log('Toggling video');
                     toggleVideo(channelId);
                 }
             }
@@ -550,7 +562,7 @@ const Harmony = observer((props: Props): any => {
 
     function getChannelName(): string {
         const channel = channels.get(activeAVChannelId);
-        return channel ? channel[channel.channelType].name : 'Current Layer';
+        return channel && channel.channelType !== 'instance' ? channel[channel.channelType].name : 'Current Layer';
     }
 
     function calcWidth(): 12 | 6 | 4 | 3 {
@@ -565,7 +577,6 @@ const Harmony = observer((props: Props): any => {
             channelConnectionState.get('connected') === false
         ) {
             init().then(() => {
-                console.log('Connecting to channel server after provisioning completed');
                 connectToChannelServer(channelConnectionState.get('channelId'));
             });
         }
@@ -597,11 +608,11 @@ const Harmony = observer((props: Props): any => {
                         }
                         <ListItemText primary={channel.channelType === 'user' ? (channel.user1?.id === selfUser.id ? channel.user2.name : channel.user2?.id === selfUser.id ? channel.user1.name : '') : channel.channelType === 'group' ? channel.group.name : channel.channelType === 'instance' ? 'Current layer' : 'Current party'}/>
                         <section className={styles.drawerBox}>
-                            <div className={styles.iconContainer + ' ' + ((audioPaused === false && activeAVChannelId === channel.id) ? styles.on : styles.off)}>
+                            <div className={styles.iconContainer + ' ' + ((audioPaused === false && activeAVChannelId === channel.id && channelAwaitingProvision?.id?.length === 0 && ((Network.instance.transport as any).channelType === 'instance' || ((Network.instance.transport as any).channelType !== 'instance' && channelConnectionState.get('connected') === true))) ? styles.on : styles.off)}>
                                 <MicOff id='micOff' className={styles.offIcon} onClick={(e) => handleMicClick(e, channel.instanceId != null, channel.id)} />
                                 <Mic id='micOn' className={styles.onIcon} onClick={(e) => handleMicClick(e, channel.instanceId != null, channel.id)} />
                             </div>
-                            <div className={styles.iconContainer + ' ' + ((videoPaused === false && activeAVChannelId === channel.id) ? styles.on : styles.off)}>
+                            <div className={styles.iconContainer + ' ' + ((videoPaused === false && activeAVChannelId === channel.id && channelAwaitingProvision?.id?.length === 0 && ((Network.instance.transport as any).channelType === 'instance' || ((Network.instance.transport as any).channelType !== 'instance' && channelConnectionState.get('connected') === true))) ? styles.on : styles.off)}>
                                 <VideocamOff id='videoOff' className={styles.offIcon} onClick={(e) => handleCamClick(e, channel.instanceId != null, channel.id)} />
                                 <Videocam id='videoOn' className={styles.onIcon} onClick={(e) => handleCamClick(e, channel.instanceId != null, channel.id)} />
                             </div>
