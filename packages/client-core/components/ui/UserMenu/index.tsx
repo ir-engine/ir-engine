@@ -24,7 +24,6 @@ import ProfileMenu from './menus/ProfileMenu';
 import AvatarMenu from './menus/AvatarMenu';
 import SettingMenu from './menus/SettingMenu';
 import ShareMenu from './menus/ShareMenu';
-import AccountMenu from './menus/AccountMenu';
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -41,7 +40,9 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
   loginUserByOAuth: bindActionCreators(loginUserByOAuth, dispatch),
   addConnectionBySms: bindActionCreators(addConnectionBySms, dispatch),
-  addConnectionByEmail: bindActionCreators(addConnectionByEmail, dispatch)
+  addConnectionByEmail: bindActionCreators(addConnectionByEmail, dispatch),
+  logoutUser: bindActionCreators(addConnectionByEmail, dispatch),
+  removeUser: bindActionCreators(addConnectionByEmail, dispatch),
 });
 
 const UserMenu = (props: UserMenuProps): any => {
@@ -53,6 +54,8 @@ const UserMenu = (props: UserMenuProps): any => {
     addConnectionByEmail,
     addConnectionBySms,
     loginUserByOAuth,
+    logoutUser,
+    removeUser,
   } = props;
   const selfUser = authState.get('user') || {};
 
@@ -65,13 +68,20 @@ const UserMenu = (props: UserMenuProps): any => {
   const [actorEntity, setActorEntity] = useState(null);
 
   useEffect(() => {
-    const actorEntityWaitInterval = setInterval(() => {
-      if (Network.instance?.localClientEntity) {
-        setActorEntity(Network.instance.localClientEntity);
-        clearInterval(actorEntityWaitInterval);
-      }
-    }, 300);
-  }, []);
+    let actorEntityWaitInterval;
+    if (selfUser.id && !actorEntity) {
+      actorEntityWaitInterval = setInterval(() => {
+        const entity = Network.instance?.localClientEntity;
+        if (Network.instance?.localClientEntity) {
+          clearInterval(actorEntityWaitInterval);
+          setActorEntity(entity);
+          updateCharacterComponent(entity, selfUser?.avatarId);
+        }
+      }, 300);
+    } else {
+      clearInterval(actorEntityWaitInterval);
+    }
+  }, [selfUser.id]);
 
   useEffect(() => {
     selfUser && setUsername(selfUser.name);
@@ -99,22 +109,28 @@ const UserMenu = (props: UserMenuProps): any => {
     [Views.Settings]: SettingMenu,
     [Views.Share]: ShareMenu,
     [Views.Avatar]: AvatarMenu,
-    [Views.Account]: AccountMenu,
   };
 
   const handleUpdateUsername = () => {
-    if (selfUser.name.trim() !== username.trim()) {
-      updateUsername(selfUser.id, username.trim());
+    const name = username.trim();
+    if (!name) return;
+    if (selfUser.name.trim() !== name) {
+      updateUsername(selfUser.id, name);
     }
   };
 
+
+  const updateCharacterComponent = (entity, avatarId?: string) => {
+    const characterAvatar = getMutableComponent(entity, CharacterComponent);
+    if (characterAvatar != null) characterAvatar.avatarId = avatarId || selfUser?.avatarId;
+
+    // We can pull this from NetworkPlayerCharacter, but we probably don't want our state update here
+    loadActorAvatar(entity);
+  }
+
   const setAvatar = (avatarId: string) => {
     if (actorEntity && avatarId) {
-      const characterAvatar = getMutableComponent(actorEntity, CharacterComponent);
-      if (characterAvatar != null) characterAvatar.avatarId = avatarId;
-
-      // We can pull this from NetworkPlayerCharacter, but we probably don't want our state update here
-      loadActorAvatar(actorEntity);
+      updateCharacterComponent(actorEntity, avatarId);
       updateUserAvatarId(selfUser.id, avatarId);
     }
   }
@@ -150,6 +166,8 @@ const UserMenu = (props: UserMenuProps): any => {
           setUsername,
           updateUsername: handleUpdateUsername,
           changeActiveMenu,
+          logoutUser,
+          removeUser,
         };
         break;
       case Views.Avatar:

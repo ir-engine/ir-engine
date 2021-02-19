@@ -32,7 +32,6 @@ export const IndexPage = (props: any): any => {
     authState
   } = props;
 
-  // <Button className="right-bottom" variant="contained" color="secondary" aria-label="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }}>scene</Button>
 
   return(
   <ThemeProvider theme={theme}>

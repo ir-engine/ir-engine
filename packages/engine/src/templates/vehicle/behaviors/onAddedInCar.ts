@@ -14,8 +14,8 @@ import { CharacterComponent } from "@xr3ngine/engine/src/templates/character/com
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { Matrix4, Vector3 } from 'three';
 import { isServer } from "../../../common/functions/isServer";
-
-
+import { CameraModes } from '../../../camera/types/CameraModes';
+import { EnteringVehicle } from "@xr3ngine/engine/src/templates/character/components/EnteringVehicle";
 
 
 function positionEnter(entity, entityCar, seat) {
@@ -57,9 +57,10 @@ export const onAddedInCar = (entity: Entity, entityCar: Entity, seat: number, de
 
   if (isServer) return;
   // CLIENT
-  setState(entity, {state: CharacterStateTypes.ENTERING_VEHICLE});
+  addComponent(entity, EnteringVehicle);
+  setState(entity, { state: CharacterStateTypes.ENTERING_VEHICLE });
   // LocalPlayerOnly
   if (Network.instance.userNetworkId != networkDriverId) return;
   addComponent(entityCar, LocalInputReceiver);
-  addComponent(entityCar, FollowCameraComponent, { distance: 5, mode: "thirdPerson", raycastBoxOn: false });
+  addComponent(entityCar, FollowCameraComponent, { distance: 8, locked: false, mode: CameraModes.ThirdPerson });
 };

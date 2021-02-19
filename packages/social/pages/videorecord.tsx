@@ -1,19 +1,22 @@
 import React from 'react';
-import { render } from 'react-dom';
 import VideoRecorder from 'react-video-recorder';
+import AppHeader from '@xr3ngine/client-core/components/social/Header';
 
 interface VideoProps{
-  timeLimit: string;
+  timeLimit: number;
 }
 
-export const VideoRecording = ({timeLimit = '5000'}: VideoProps) => {
-  return <VideoRecorder 
-    timeLimit={timeLimit}
-    onRecordingComplete={videoBlob => {
-      // Do something with the video...
-      console.log('videoBlob', videoBlob);
-    }}
-  />;
+export const VideoRecording = ({timeLimit = 5000}: VideoProps) => {
+  return <section style={{height: '100vh', width: '100vw'}}>
+      <AppHeader  logo="/assets/logoBlack.png" />    
+      <VideoRecorder
+        timeLimit={timeLimit}
+        isOnInitially
+        onRecordingComplete={videoBlob => {
+          console.log('videoBlob', videoBlob);
+        }}
+      />
+  </section>;
 };
 
 export default VideoRecording;

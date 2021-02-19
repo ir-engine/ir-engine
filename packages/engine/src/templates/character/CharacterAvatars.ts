@@ -79,3 +79,5 @@ export const CharacterAvatars: CharacterAvatarData[] = [
     animationsSource: "vrm"
   }
 ];
+
+export const DEFAULT_AVATAR_ID = CharacterAvatars[0].id;
