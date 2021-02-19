@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import getConfig from 'next/config';
-import PasswordLoginApp from '../../ui/Auth/PasswordLoginApp';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import CardMedia from '@material-ui/core/CardMedia';
@@ -10,6 +8,9 @@ import Fab from '@material-ui/core/Fab';
 
 import styles from './Login.module.scss';
 import { loginUserByOAuth, resetPassword } from '../../../redux/auth/service';
+import getConfig from 'next/config';
+
+import PasswordLoginApp from '../../ui/Auth/PasswordLoginApp';
 import RegisterApp from '../../ui/Auth/RegisterApp';
 import { ForgotPassword } from '../../ui/Auth/ForgotPasswordApp';
 import Typography from '@material-ui/core/Typography';
