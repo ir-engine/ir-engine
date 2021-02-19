@@ -9,6 +9,8 @@ import CardHeader from '@material-ui/core/CardHeader';
 import WhatshotIcon from '@material-ui/icons/Whatshot';
 import TelegramIcon from '@material-ui/icons/Telegram';
 import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
+import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
+
 
 import styles from './TheFeed.module.scss';
 
@@ -32,7 +34,10 @@ const TheFeed = () => {
             <Card className={styles.tipItem} square={false} elevation={0} key={itemIndex}>
                 <CardHeader
                     avatar={<img src={item.author.avatar} />} 
-                    title={item.author.username}
+                    title={<Typography variant="h2">
+                                {item.author.username}
+                                <VerifiedUserIcon htmlColor="#007AFF" style={{fontSize:'13px', margin: '0 0 0 5px'}}/>
+                            </Typography>}
                 />
                 <CardMedia   
                     className={styles.previewImage}                  
@@ -40,7 +45,7 @@ const TheFeed = () => {
                     title={item.title}
                 />
                 <CardContent>
-                    <Typography className={styles.titleContainer} gutterBottom variant="h5" component="h2">
+                    <Typography className={styles.titleContainer} gutterBottom variant="h2">
                         <span>{item.title}</span>
                         <section>
                             <WhatshotIcon htmlColor="#FF6201" />
@@ -48,8 +53,8 @@ const TheFeed = () => {
                             <BookmarkBorderIcon />
                         </section>
                     </Typography>
-                    <Typography variant="h2" component="p">{item.flamesCount} Flames</Typography>
-                    <Typography variant="h2" component="p">{item.description}</Typography>
+                    <Typography variant="h2"><span className={styles.flamesCount}>{item.flamesCount}</span>Flames</Typography>
+                    <Typography variant="h2">{item.description}</Typography>
                 </CardContent>
             </Card>
         )}
