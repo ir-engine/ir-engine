@@ -1,5 +1,5 @@
 import { WebPlugin } from '@capacitor/core';
-import { XRFrameData, XRPluginInterface } from './definitions';
+import { XRFrameData, XRPluginInterface, CameraOptions, VideoEditorOptions, VideoEditorThumbnailProperties, VideoEditorTranscodeProperties, VideoEditorTrimProperties } from './definitions';
 
 export class XRPluginWeb extends WebPlugin implements XRPluginInterface {
   constructor() {
@@ -16,7 +16,7 @@ export class XRPluginWeb extends WebPlugin implements XRPluginInterface {
     });
   }
 
-  async start(options: CameraPreviewOptions): Promise<{}> {
+  async start(options: CameraOptions): Promise<{}> {
     return new Promise((resolve, reject) => {
 
       navigator.mediaDevices.getUserMedia({
@@ -25,8 +25,7 @@ export class XRPluginWeb extends WebPlugin implements XRPluginInterface {
       );
 
       const video = document.getElementById("video");
-      const parent = document.getElementById(options.parent);
-
+      const parent = options.parent ? document.getElementById(options.parent) : null;
       if (!video) {
         const videoElement = document.createElement("video");
         videoElement.id = "video";
@@ -74,8 +73,46 @@ export class XRPluginWeb extends WebPlugin implements XRPluginInterface {
     }
   }
 
+  async transcodeVideo(options: VideoEditorTranscodeProperties): Promise<any> {
+    return new Promise((resolve, reject) => {
+      resolve({ status: "success", path: "" })
+    });
+  };
+
+  async createThumbnail(options: VideoEditorThumbnailProperties): Promise<any> {
+    return new Promise((resolve, reject) => {
+      resolve({ status: "success", path: "" })
+    });
+  };
+
+  async trim(options: VideoEditorTrimProperties): Promise<any> {
+    return new Promise((resolve, reject) => {
+      resolve({ status: "success", path: "" })
+    });
+  };
+
+  async getVideoInfo(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      resolve({ status: "success" })
+    });
+  };
+
   async startXR(options: {}): Promise<{ status: string }> {
     console.log("startXR called to plugin on web");
+    return new Promise((resolve, reject) => {
+      resolve({ status: "success" })
+    });
+  }
+
+  async execFFMPEG(options: {}): Promise<{ status: string }> {
+    console.log("execFFMPEG called to plugin on web");
+    return new Promise((resolve, reject) => {
+      resolve({ status: "success" })
+    });
+  }
+
+  async execFFPROBE(options: {}): Promise<{ status: string }> {
+    console.log("execFFPROBE called to plugin on web");
     return new Promise((resolve, reject) => {
       resolve({ status: "success" })
     });

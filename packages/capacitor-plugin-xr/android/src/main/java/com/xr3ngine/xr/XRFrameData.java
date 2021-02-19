@@ -1,3 +1,5 @@
+package com.xr3ngine.xr;
+
 public class XRFrameData {
     public int currentFrame = 0;
     public Vector3 cameraPosition = new Vector3(0,0,0);
