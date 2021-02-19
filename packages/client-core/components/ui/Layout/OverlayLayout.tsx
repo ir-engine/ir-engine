@@ -132,8 +132,13 @@ const Layout = (props: Props): any => {
             </Head>
             <header>
               {path === '/login' && <NavMenu login={login} />}
-              {harmonyOpen !== true && authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me />}
-              {harmonyOpen !== true && <PartyVideoWindows />}
+              { harmonyOpen !== true 
+                ? (
+                  <section className={styles.locationUserMenu}>
+                    {authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
+                    <PartyVideoWindows />
+                  </section>
+                ) : null}
             </header>
 
             {harmonyOpen === true && <Harmony setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} />}
