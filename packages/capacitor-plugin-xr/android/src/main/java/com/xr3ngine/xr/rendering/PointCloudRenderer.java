@@ -12,14 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.xr3ngine.arcore.rendering;
+package com.xr3ngine.xr.rendering;
 
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import com.google.ar.core.PointCloud;
-import com.xr3ngine.arcore.R;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -73,10 +72,13 @@ public class PointCloudRenderer {
 
         ShaderUtil.checkGLError(TAG, "buffer alloc");
 
-        int vertexShader = ShaderUtil.loadGLShader(TAG, context,
-            GLES20.GL_VERTEX_SHADER, R.raw.point_cloud_vertex);
-        int passthroughShader = ShaderUtil.loadGLShader(TAG, context,
-            GLES20.GL_FRAGMENT_SHADER, R.raw.passthrough_fragment);
+        int vertexShader = 0;
+// TODO: Uncomment
+//        ShaderUtil.loadGLShader(TAG, context,
+//            GLES20.GL_VERTEX_SHADER, R.raw.point_cloud_vertex);
+        int passthroughShader = 0;
+//        ShaderUtil.loadGLShader(TAG, context,
+//            GLES20.GL_FRAGMENT_SHADER, R.raw.passthrough_fragment);
 
         mProgramName = GLES20.glCreateProgram();
         GLES20.glAttachShader(mProgramName, vertexShader);
