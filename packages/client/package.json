@@ -27,7 +27,8 @@
     "socket.io": "2.4.1"
   },
   "peerDependencies": {
-    "socket.io": "2.4.1"
+    "socket.io": "2.4.1",
+    "react": "^17.0.0"
   },
   "dependencies": {
     "@capacitor-community/electron": "^1.3.2",
