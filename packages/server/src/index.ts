@@ -32,7 +32,7 @@ process.on('unhandledRejection', (error, promise) => {
     const processMysql = processList.find(
         c => c[key].match(/mysql/)
     );
-    const databaseService = (dockerProcess && dockerProxy) || processMysql;
+    let databaseService = (dockerProcess && dockerProxy) || processMysql;
 
     if (!databaseService) {
 
@@ -97,4 +97,3 @@ process.on('unhandledRejection', (reason, p) =>
 server.on('listening', () =>
 logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
 );
-
