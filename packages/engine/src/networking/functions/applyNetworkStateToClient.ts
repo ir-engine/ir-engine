@@ -27,8 +27,8 @@ import { BaseInput } from "../../input/enums/BaseInput";
  * @param delta Time since last frame.
  */
 function checkForAnyErrors(networkId) {
-//  console.warn('Player: '+Network.instance.userNetworkId);
-  //console.warn('Car: '+networkId);
+  console.warn('Player: '+Network.instance.userNetworkId);
+  console.warn('Car: '+networkId);
 }
 
 function syncPhysicsObjects( objectToCreate ) {
@@ -51,7 +51,7 @@ function syncPhysicsObjects( objectToCreate ) {
       const id = getComponent(entity, NetworkObject).networkId;
       if (!Network.instance.networkObjects[id]) {
         if (objectToCreate.ownerId == 'server') {
-
+          console.warn('Network.instance.networkObjects '+objectToCreate.networkId);
           Network.instance.networkObjects[objectToCreate.networkId] = {
               ownerId: 'server',
               prefabType: PrefabType.worldObject, // All network objects need to be a registered prefab
@@ -77,9 +77,10 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
         // Send a request for the ones that didn't
     }
 
-    Network.tick = worldStateBuffer.tick;
-
-    Network.instance.worldState = worldStateBuffer;
+    if (worldStateBuffer.transforms.length) {
+      Network.tick = worldStateBuffer.tick
+      Network.instance.worldState = worldStateBuffer
+    }
 
     // Handle all clients that connected this frame
     for (const connectingClient in worldStateBuffer.clientsConnected) {
@@ -138,6 +139,8 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
                   rotation,
               );
               if (objectToCreate.ownerId === Network.instance.userId) {
+                console.warn('Give Player Id by Server '+objectToCreate.networkId);
+                console.warn(Network.instance.networkObjects);
                 Network.instance.userNetworkId = objectToCreate.networkId;
               }
             }
@@ -146,7 +149,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
         }
     }
 
-    if (worldStateBuffer.transforms.length > 0) {
+    if (worldStateBuffer.transforms.length) {
       const myPlayerTime = worldStateBuffer.transforms.find(v => v.networkId == Network.instance.userNetworkId);
       const newServerSnapshot = createSnapshot(worldStateBuffer.transforms)
       newServerSnapshot.timeCorrection = myPlayerTime ? (myPlayerTime.snapShotTime + Network.instance.timeSnaphotCorrection) : 0;
@@ -158,6 +161,8 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
     // Handle all network objects destroyed this frame
 
     for (const editObjects in worldStateBuffer.editObjects) {
+      console.warn('editObjects');
+      console.warn(editObjects);
       const networkId = worldStateBuffer.editObjects[editObjects].networkId;
       const whoIsItFor = worldStateBuffer.editObjects[editObjects].whoIsItFor;
       if (Network.instance.userNetworkId != networkId || whoIsItFor == 'all') {
@@ -172,7 +177,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
         const value = worldStateBuffer.editObjects[editObjects].value
 
         const entity = Network.instance.networkObjects[networkId].component.entity;
-
+        console.warn('onAddedEnding');
         if (state == 'onAddedEnding') {
           if (whoIsItFor == 'all' && Network.instance.userNetworkId == networkId) {
             removeComponent(entity, LocalInputReceiver);
