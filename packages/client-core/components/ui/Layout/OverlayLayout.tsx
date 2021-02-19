@@ -1,4 +1,4 @@
-import { Fab, ThemeProvider} from '@material-ui/core';
+import { ThemeProvider } from '@material-ui/core';
 import getConfig from 'next/config';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -21,9 +21,9 @@ import Me from '../Me';
 import NavMenu from '../NavMenu';
 import PartyVideoWindows from '../PartyVideoWindows';
 import {
-    Forum
-} from '@material-ui/icons';
-import { Fullscreen, FullscreenExit} from "@material-ui/icons";
+  Button
+} from '@material-ui/core'
+import { Fullscreen, FullscreenExit } from "@material-ui/icons";
 import Harmony from "../Harmony";
 //@ts-ignore
 import styles from './Layout.module.scss';
@@ -106,8 +106,8 @@ const Layout = (props: Props): any => {
     return child;
   });
   const reportChange = useCallback((state) => {
-    if(state){
-       setFullScreenActive(state);
+    if (state) {
+      setFullScreenActive(state);
     } else {
       setFullScreenActive(state);
     }
@@ -118,9 +118,9 @@ const Layout = (props: Props): any => {
   return (
     <>
       {
-        !fullScreenActive &&  <span className={styles.fullScreen} onClick={handle.enter}>
-        <Fullscreen style={{ fontSize: "4rem" }} />
-      </span>
+        !fullScreenActive && <span className={styles.fullScreen} onClick={handle.enter}>
+          <Fullscreen style={{ fontSize: "4rem" }} />
+        </span>
       }
       <FullScreen handle={handle} onChange={reportChange}>
         <ThemeProvider theme={theme}>
@@ -161,19 +161,27 @@ const Layout = (props: Props): any => {
               {authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.id != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
                 <DrawerControls disableBottom={true} setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />}
 
-            { locationState.get('currentLocation')?.get('location')?.id &&
-              authState.get('authUser') != null && authState.get('isLoggedIn') === true &&  user?.instanceId != null &&
-               !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
-                <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen}/> }
-              {harmonyOpen === false && <div className={styles['harmony-toggle']}><Fab color="primary" onClick={() => setHarmonyOpen(true)}><Forum /></Fab></div> }
-              {harmonyOpen === true && <div className={styles['harmony-toggle']}><Fab color="primary" onClick={() => setHarmonyOpen(false)}><Forum /></Fab></div>}
-                {// use this Module when you want toast message and pass type of alter you want
-                }
-                <Toast message="this is a success message!" status="success" />
-                {/* <Toast message="this is an error message!" status="error"/> */}
-                {/* <Toast message="this is a warning message!" status="warning"/> */}
-          </footer>
-        </section>
+              {locationState.get('currentLocation')?.get('location')?.id &&
+                authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.instanceId != null &&
+                !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
+                <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen} />}
+              {harmonyOpen === false && <Button className={styles.openHarmony} onClick={() => setHarmonyOpen(true)}>Open Harmony</Button>}
+              {harmonyOpen === true && <Button className={styles.closeHarmony} onClick={() => setHarmonyOpen(false)}>Close Harmony</Button>}
+
+
+              {
+                fullScreenActive && <span className={styles.fullScreen} onClick={handle.exit}>
+                  <FullscreenExit style={{ fontSize: "4rem" }} />
+                </span>
+              }
+
+              {// use this Module when you want toast message and pass type of alter you want 
+              }
+              <Toast message="this is a success message!" status="success" />
+              {/* <Toast message="this is an error message!" status="error"/> */}
+              {/* <Toast message="this is a warning message!" status="warning"/> */}
+            </footer>
+          </section>
         </ThemeProvider>
       </FullScreen>
     </>
