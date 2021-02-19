@@ -40,6 +40,7 @@ repositories {
     google()
     jcenter()
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 
@@ -50,7 +51,8 @@ dependencies {
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'com.google.ar:core:1.22.0'
     implementation 'de.javagl:obj:0.2.1'
-
+    implementation 'com.github.ergovia-mobile:android-transcoder:v0.1.12R_ergovia'
+    implementation 'com.github.tangpeng:VideoCompressor:-SNAPSHOT'
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
