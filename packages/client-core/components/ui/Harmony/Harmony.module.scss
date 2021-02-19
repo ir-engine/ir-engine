@@ -7,12 +7,15 @@ $mobileControllButtonsSize: 3em;
 }
 
 .selectable {
+    height: 50px;
+    padding: 0 16px !important;
+
     &.highlighted {
         background-color: lightgray;
     }
     &:hover {
         cursor: pointer;
-        background-color: gray;
+        background-color: gray !important;
     }
 }
 
@@ -80,6 +83,7 @@ $mobileControllButtonsSize: 3em;
     position: absolute;
     width: 100%;
     background-color: black;
+    z-index: 20;
 
     @media (max-width: 768px) {
         flex-direction: column;
@@ -96,14 +100,13 @@ $mobileControllButtonsSize: 3em;
         @media (max-width: 768px) {
             width: 100%;
             border-bottom: 1px solid gray;
-            height: 33%;
+            height: 20%;
         }
 
         li {
             word-break: break-word;
 
             @media (max-width: 768px) {
-                flex-direction: column;
                 text-align: center;
             }
         }
@@ -179,15 +182,24 @@ $mobileControllButtonsSize: 3em;
                 }
             }
         }
-    }
-}
 
-.chat-box {
-    display: flex;
-    flex-grow: 1;
-    justify-content: center;
-    padding: 0.3em;
-    align-items: center;
+        .chat-box {
+            display: flex;
+            flex-grow: 1;
+            justify-content: center;
+            padding: 0.3em;
+            align-items: center;
+
+            .chat-textfield {
+                border-color: rgba(255, 255, 255, 0.8);
+            }
+        }
+
+        .send-button {
+            width: 100px;
+            margin-left: 5px;
+        }
+    }
 }
 
 .message {
@@ -248,7 +260,7 @@ $mobileControllButtonsSize: 3em;
 
     @media (max-width: 768px) {
         width: 100%;
-        height: 66.6666%;
+        height: 65%;
     }
 }
 
@@ -270,15 +282,10 @@ $mobileControllButtonsSize: 3em;
         background: rgba(0, 0, 0, 0.8);
         box-sizing: border-box;
         border-radius: 50%;
-        margin: 12px;
-        height: 56px;
-        width: 56px;
+        margin: auto 10px;
         cursor: pointer;
-        @media (max-width: 768px) {
-            height: 56px;
-            width: 56px;
-            margin: 8px;
-        }
+        height: 40px;
+        width: 40px;
         &.on {
             .offIcon{
                 display: none;
@@ -302,14 +309,11 @@ $mobileControllButtonsSize: 3em;
         }
 
         > svg{
-            height: 1.5em;
-            width: 1.5em;
+            height: 1.2em;
+            width: 1.2em;
             box-sizing: border-box;
             cursor: pointer;
-            margin: 10px;
-            @media (max-width: 768px) {
-                margin: 10px;
-            }
+            margin: 6px;
         }
     }
 }
@@ -363,4 +367,13 @@ $mobileControllButtonsSize: 3em;
         max-width: 25%;
         flex-basis: 25%;
     }
+}
+
+.active-chat-plate {
+    position: absolute;
+    border: 1px solid white;
+    margin: 5px 0 0 5px;
+    padding: 5px;
+    z-index: 20;
+    background-color: black;
 }
