@@ -83,7 +83,7 @@ $mobileControllButtonsSize: 3em;
     position: absolute;
     width: 100%;
     background-color: black;
-    z-index: 10;
+    z-index: 20;
 
     @media (max-width: 768px) {
         flex-direction: column;

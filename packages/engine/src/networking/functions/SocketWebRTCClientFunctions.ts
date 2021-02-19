@@ -43,8 +43,6 @@ export async function createTransport(direction: string, channelType?: string, c
 
     console.log('Requesting transport creation', direction, channelType, channelId);
     const { transportOptions } = await request(MessageTypes.WebRTCTransportCreate.toString(), { direction, sctpCapabilities: networkTransport.mediasoupDevice.sctpCapabilities, channelType: channelType, channelId: channelId });
-    console.log('Got Transport options:');
-    console.log(transportOptions);
 
     if (direction === "recv")
         transport = await networkTransport.mediasoupDevice.createRecvTransport(transportOptions);
@@ -180,14 +178,18 @@ export async function configureMediaTransports(channelType, channelId?: string):
 }
 
 export async function createCamVideoProducer(channelType: string, channelId?: string): Promise<void> {
+    console.log('createCamVideoProducer', channelType, channelId);
+    console.log(MediaStreamSystem.instance.mediaStream);
     if (MediaStreamSystem.instance.mediaStream !== null && networkTransport.videoEnabled === true) {
         const transport = channelType === 'instance' ? networkTransport.instanceSendTransport : networkTransport.channelSendTransport;
+        console.log('Producing camVideo on', channelType, channelId);
         MediaStreamSystem.instance.camVideoProducer = await transport.produce({
             track: MediaStreamSystem.instance.mediaStream.getVideoTracks()[0],
             encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
             appData: { mediaTag: "cam-video", channelType: channelType, channelId: channelId }
         });
 
+        console.log('Video is producing on', channelType, channelId);
         if (MediaStreamSystem.instance.videoPaused) await MediaStreamSystem.instance?.camVideoProducer.pause();
     }
 }
@@ -224,19 +226,13 @@ export async function endVideoChat(options: { leftParty?: boolean, endConsumers?
     if (Network.instance != null) {
         try {
             networkTransport = Network.instance.transport as any;
-            console.log(MediaStreamSystem.instance?.camVideoProducer);
             const isInstanceMedia = networkTransport.instanceSocket?.connected === true && (networkTransport.channelId == null || networkTransport.channelId.length === 0);
             const isChannelMedia = networkTransport.channelSocket?.connected === true && networkTransport.channelId != null && networkTransport.channelId.length > 0;
             if (MediaStreamSystem.instance?.camVideoProducer) {
-                console.log('Closing cam video producer');
-                console.log('instanceSocket:');
-                console.log(networkTransport.instanceSocket);
                 if (isInstanceMedia)
                     await networkTransport.instanceRequest(MessageTypes.WebRTCCloseProducer.toString(), {
                         producerId: MediaStreamSystem.instance?.camVideoProducer.id
                     });
-                console.log('channelSocket:');
-                console.log(networkTransport.channelSocket);
                 if (isChannelMedia)
                     await networkTransport.channelRequest(MessageTypes.WebRTCCloseProducer.toString(), {
                         producerId: MediaStreamSystem.instance?.camVideoProducer.id
@@ -328,11 +324,6 @@ export function setRelationship(channelType: string, channelId: string): void {
 }
 
 export async function subscribeToTrack(peerId: string, mediaTag: string, channelType: string, channelId: string) {
-    console.log('subscribeToTrack');
-    console.log(peerId);
-    console.log(mediaTag);
-    console.log(channelType);
-    console.log(channelId);
     networkTransport = Network.instance.transport as any;
     const request = channelType === 'instance' ? networkTransport.instanceRequest : networkTransport.channelRequest;
 
@@ -352,7 +343,6 @@ export async function subscribeToTrack(peerId: string, mediaTag: string, channel
             }
         );
 
-        console.log(consumerParameters);
         // Only continue if we have a valid id
         if (consumerParameters?.id == null) return;
 
@@ -368,7 +358,6 @@ export async function subscribeToTrack(peerId: string, mediaTag: string, channel
                 paused: true
             });
 
-        console.log(consumer);
         if (MediaStreamSystem.instance?.consumers?.find(c => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag) == null) {
             MediaStreamSystem.instance?.consumers.push(consumer);
 
@@ -440,12 +429,8 @@ export async function closeConsumer(consumer: any) {
 }
 
 export async function leave(instance: boolean): Promise<boolean> {
-    console.log('leave()');
     if (Network.instance?.transport != null) {
-        console.log('Trying to leave ');
-        console.log('instance leave?', instance);
         try {
-            console.log(Network.instance.transport);
             networkTransport = Network.instance.transport as any;
             networkTransport.leaving = true;
             const socket = instance === true ? networkTransport.instanceSocket : networkTransport.channelSocket;
@@ -453,7 +438,6 @@ export async function leave(instance: boolean): Promise<boolean> {
             const request = instance === true ? networkTransport.instanceRequest : networkTransport.channelRequest;
             if (request) {
                 // close everything on the server-side (transports, producers, consumers)
-                console.log('Sending leaveWorld');
                 const result = await request(MessageTypes.LeaveWorld.toString());
                 if (result.error) console.error(result.error);
                 window.dispatchEvent(new CustomEvent('leaveWorld'));
@@ -486,12 +470,8 @@ export async function leave(instance: boolean): Promise<boolean> {
             if (socket && socket.close)
                 socket.close();
 
-            console.log('Checking if we need to re-fetch instance producers');
-            console.log(instance);
-            console.log(request)
             if (instance !== true && request != null) {
-                console.log('Requesting current producers');
-                await networkTransport.instanceRequest(MessageTypes.WebRTCRequestCurrentProducers.toString(), { channelType: 'instance' });
+                if (process.env.NODE_ENV !== 'development') await networkTransport.instanceRequest(MessageTypes.WebRTCRequestCurrentProducers.toString(), { channelType: 'instance' });
             }
             return true;
         } catch (err) {

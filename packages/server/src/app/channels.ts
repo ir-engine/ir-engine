@@ -105,10 +105,14 @@ export default (app: Application): void => {
                               }
                             }
                         } else {
-                            const instance = await app.service('instance').get((app as any).instance.id);
-                            await app.service('instance').patch((app as any).instance.id, {
-                                currentUsers: (instance.currentUsers as number) + 1
-                            });
+                            try {
+                                const instance = await app.service('instance').get((app as any).instance.id);
+                                await app.service('instance').patch((app as any).instance.id, {
+                                    currentUsers: (instance.currentUsers as number) + 1
+                                });
+                            } catch(err) {
+                                console.log('Could not update instance, likely because it is a local one that does not exist');
+                            }
                         }
                         // console.log(`Patching user ${user.id} instanceId to ${(app as any).instance.id}`);
                         const instanceIdKey = (app as any).isChannelInstance === true ? 'channelInstanceId' : 'instanceId';
@@ -169,16 +173,23 @@ export default (app: Application): void => {
                         const user = await app.service('user').get(userId);
                         logger.info('Socket disconnect from ' + userId);
                         const instanceId = process.env.KUBERNETES !== 'true' ? (connection as any).instanceId : (app as any).instance?.id;
-                        const instance = ((app as any).instance && instanceId != null) ? await app.service('instance').get(instanceId) : {};
+                        let instance;
+                        try {
+                            instance = ((app as any).instance && instanceId != null) ? await app.service('instance').get(instanceId) : {};
+                        } catch(err) {
+                            console.log('Could not get instance, likely because it is a local one that no longer exists');
+                        }
                         console.log('instanceId: ' + instanceId);
                         console.log('user instanceId: ' + user.instanceId);
 
-                        if (instanceId != null) {
-                            await app.service('instance').patch(instanceId, {
-                                currentUsers: --instance.currentUsers
-                            }).catch((err) => {
-                                console.warn("Failed to remove user, probably because instance was destroyed");
-                            });
+                        if (instanceId != null && instance != null) {
+                            try {
+                                await app.service('instance').patch(instanceId, {
+                                    currentUsers: --instance.currentUsers
+                                });
+                            } catch(err) {
+                                console.log('Failed to patch instance user count, likely because it was destroyed');
+                            }
 
                             const user = await app.service('user').get(userId);
                             const instanceIdKey = (app as any).isChannelInstance === true ? 'channelInstanceId' : 'instanceId';
@@ -199,7 +210,11 @@ export default (app: Application): void => {
 
                             if (instance.currentUsers < 1) {
                                 console.log('Deleting instance ' + instanceId);
-                                await app.service('instance').remove(instanceId);
+                                try {
+                                    await app.service('instance').remove(instanceId);
+                                } catch(err) {
+                                    console.log(err);
+                                }
                                 if ((app as any).gsSubdomainNumber != null) {
                                     const gsSubdomainProvision = await app.service('gameserver-subdomain-provision').find({
                                         query: {
