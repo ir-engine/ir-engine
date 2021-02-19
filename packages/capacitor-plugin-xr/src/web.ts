@@ -1,5 +1,5 @@
 import { WebPlugin } from '@capacitor/core';
-import { XRFrameData, XRPluginInterface, CameraOptions, VideoEditorOptions, VideoEditorThumbnailProperties, VideoEditorTranscodeProperties, VideoEditorTrimProperties } from './definitions';
+import { XRFrameData, XRPluginInterface, CameraOptions, VideoEditorThumbnailProperties, VideoEditorTranscodeProperties, VideoEditorTrimProperties } from './definitions';
 
 export class XRPluginWeb extends WebPlugin implements XRPluginInterface {
   constructor() {
@@ -9,7 +9,7 @@ export class XRPluginWeb extends WebPlugin implements XRPluginInterface {
     });
   }
 
-  async initialize(options: {}): Promise<{ status: string }> {
+  async initialize(_options: {}): Promise<{ status: string }> {
     console.log("Initialize called to plugin on web");
     return new Promise((resolve, _) => {
       resolve({ status: "success" })
@@ -73,141 +73,141 @@ export class XRPluginWeb extends WebPlugin implements XRPluginInterface {
     }
   }
 
-  async transcodeVideo(options: VideoEditorTranscodeProperties): Promise<any> {
-    return new Promise((resolve, reject) => {
+  async transcodeVideo(_options: VideoEditorTranscodeProperties): Promise<any> {
+    return new Promise((resolve) => {
       resolve({ status: "success", path: "" })
     });
   };
 
-  async createThumbnail(options: VideoEditorThumbnailProperties): Promise<any> {
-    return new Promise((resolve, reject) => {
+  async createThumbnail(_options: VideoEditorThumbnailProperties): Promise<any> {
+    return new Promise((resolve) => {
       resolve({ status: "success", path: "" })
     });
   };
 
-  async trim(options: VideoEditorTrimProperties): Promise<any> {
-    return new Promise((resolve, reject) => {
+  async trim(_options: VideoEditorTrimProperties): Promise<any> {
+    return new Promise((resolve) => {
       resolve({ status: "success", path: "" })
     });
   };
 
   async getVideoInfo(): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       resolve({ status: "success" })
     });
   };
 
-  async startXR(options: {}): Promise<{ status: string }> {
+  async startXR(_options: {}): Promise<{ status: string }> {
     console.log("startXR called to plugin on web");
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       resolve({ status: "success" })
     });
   }
 
-  async execFFMPEG(options: {}): Promise<{ status: string }> {
+  async execFFMPEG(): Promise<{ status: string }> {
     console.log("execFFMPEG called to plugin on web");
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       resolve({ status: "success" })
     });
   }
 
-  async execFFPROBE(options: {}): Promise<{ status: string }> {
+  async execFFPROBE(): Promise<{ status: string }> {
     console.log("execFFPROBE called to plugin on web");
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       resolve({ status: "success" })
     });
   }
 
-  async stopXR(options: {}): Promise<{ status: string }> {
+  async stopXR(_options: {}): Promise<{ status: string }> {
     console.log("stopXR called to plugin on web");
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       resolve({ status: "success" })
     });
   }
 
-  async getXRDataForFrame(options: {}): Promise<{ data: XRFrameData }> {
+  async getXRDataForFrame(_options: {}): Promise<{ data: XRFrameData }> {
     console.log("getXRDataForFrame called to plugin on web");
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       resolve({ data: { hasData: false } })
     });
   }
 
-  async startRecording(options: {}): Promise<{ status: string }> {
+  async startRecording(_options: {}): Promise<{ status: string }> {
     console.log("startRecording called to plugin on web");
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       resolve({ status: "success" })
     });
   }
 
-  async stopRecording(options: {}): Promise<{ status: string }> {
+  async stopRecording(_options: {}): Promise<{ status: string }> {
     console.log("stopRecording called to plugin on web");
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       resolve({ status: "success" })
     });
   }
 
-  async getRecordingStatus(options: {}): Promise<{ status: string }> {
+  async getRecordingStatus(_options: {}): Promise<{ status: string }> {
     console.log("getRecordingStatus called to plugin on web");
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       resolve({ status: "success" })
     });
   }
 
-  async takePhoto(options: {}): Promise<{ status: string }> {
+  async takePhoto(_options: {}): Promise<{ status: string }> {
     console.log("takePhoto called to plugin on web");
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       resolve({ status: "success" })
     });
   }
 
 
-  async saveRecordingToVideo(options: {}): Promise<{ status: string }> {
+  async saveRecordingToVideo(_options: {}): Promise<{ status: string }> {
     console.log("saveRecordingToVideo called to plugin on web");
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       resolve({ status: "success" })
     });
   }
 
-  async shareMedia(options: {}): Promise<{ status: string }> {
+  async shareMedia(_options: {}): Promise<{ status: string }> {
     console.log("shareMedia called to plugin on web");
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       resolve({ status: "success" })
     });
   }
 
 
-  async showVideo(options: {}): Promise<{ status: string }> {
+  async showVideo(_options: {}): Promise<{ status: string }> {
     console.log("showVideo called to plugin on web");
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       resolve({ status: "success" })
     });
   }
 
-  async hideVideo(options: {}): Promise<{ status: string }> {
+  async hideVideo(_options: {}): Promise<{ status: string }> {
     console.log("showVideo called to plugin on web");
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       resolve({ status: "success" })
     });
   }
 
-  async scrubTo(options: {}): Promise<{ status: string }> {
+  async scrubTo(_options: {}): Promise<{ status: string }> {
     console.log("scrubTo called to plugin on web");
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       resolve({ status: "success" })
     });
   }
 
-  async deleteVideo(options: {}): Promise<{ status: string }> {
+  async deleteVideo(_options: {}): Promise<{ status: string }> {
     console.log("deleteVideo called to plugin on web");
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       resolve({ status: "success" })
     });
   }
 
 
-  async saveVideoTo(options: {}): Promise<{ status: string }> {
+  async saveVideoTo(_options: {}): Promise<{ status: string }> {
     console.log("saveVideoTo called to plugin on web");
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       resolve({ status: "success" })
     });
   }
