@@ -1,6 +1,9 @@
 import Head from 'next/head';
 import React from 'react';
 import Xr3engineContact from '../components/xr3engineContact';
+import { Plugins } from '@capacitor/core';
+const { XRPlugin } = Plugins;
+
 
 export const IndexPage = (): any => {
     return (
