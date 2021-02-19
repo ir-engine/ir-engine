@@ -18,13 +18,22 @@
     }
 }
 
-.openHarmony,
-.closeHarmony {
+.harmony-toggle {
     position: absolute !important;
     right: 0;
-    bottom: 0;
-    margin-bottom: 100px !important;
-    width: 100px;
+    top: 0;
+    display: flex;
+    margin: 15px 0 5px 5px !important;
+    align-items: center;
+    color: #000 !important;
+    z-index: 20;
+
+    &:hover {
+        cursor: pointer;
+    }
+    svg{
+        margin: 0 5px 0 0 ;
+    }
 }
 .fullScreen {
     display: inline-block;
@@ -36,7 +45,7 @@
     position: fixed;
     bottom: 30px;
     left: 30px;
-    transition: background-color .3s, 
+    transition: background-color .3s,
     opacity .5s, visibility .5s;
     // opacity: 0;
     // visibility: hidden;

@@ -181,8 +181,12 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 // Return an authorization success messaage to client
                 callback({ success: true });
 
-                socket.on(MessageTypes.ConnectToWorld.toString(), async (data, callback) =>
-                    handleConnectToWorld(socket, data, callback, userId, user));
+                socket.on(MessageTypes.ConnectToWorld.toString(), async (data, callback) => {
+                    console.log('Got ConnectToWorld:');
+                    console.log(data);
+                    console.log(userId);
+                    handleConnectToWorld(socket, data, callback, userId, user);
+                });
 
                 socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) =>
                     handleJoinWorld(socket, data, callback, userId, user));
