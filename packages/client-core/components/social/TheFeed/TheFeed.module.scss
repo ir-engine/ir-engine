@@ -4,13 +4,21 @@
     
     .tipItem{
         width: 100%;
+        border-top: 1px solid #DDDDDD;
+        padding: 5px 0 0 0;
+
         .previewImage{
             height: 210px;
         }
         .titleContainer{
+            font-weight: bold;
             display: flex;
             flex-direction: row;
-            justify-content: space-between;
+            justify-content: space-between;            
+        }
+        .flamesCount{
+            font-weight: bold;
+            margin: 0 5px 0 0;
         }
     }
 }
