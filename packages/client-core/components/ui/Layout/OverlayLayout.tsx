@@ -23,7 +23,7 @@ import PartyVideoWindows from '../PartyVideoWindows';
 import {
   Button
 } from '@material-ui/core'
-import { Fullscreen, FullscreenExit} from "@material-ui/icons";
+import { Fullscreen, FullscreenExit } from "@material-ui/icons";
 import Harmony from "../Harmony";
 //@ts-ignore
 import styles from './Layout.module.scss';
@@ -106,11 +106,11 @@ const Layout = (props: Props): any => {
     return child;
   });
   const reportChange = useCallback((state) => {
-    if(state){
-       setFullScreenActive(state); 
+    if (state) {
+      setFullScreenActive(state);
     } else {
-      setFullScreenActive(state); 
-    }       
+      setFullScreenActive(state);
+    }
   }, []);
 
   //info about current mode to conditional render menus
@@ -118,9 +118,9 @@ const Layout = (props: Props): any => {
   return (
     <>
       {
-        !fullScreenActive &&  <span className={styles.fullScreen} onClick={handle.enter}>
-        <Fullscreen style={{ fontSize: "4rem" }} />
-      </span>
+        !fullScreenActive && <span className={styles.fullScreen} onClick={handle.enter}>
+          <Fullscreen style={{ fontSize: "4rem" }} />
+        </span>
       }
       <FullScreen handle={handle} onChange={reportChange}>
         <ThemeProvider theme={theme}>
@@ -174,8 +174,11 @@ const Layout = (props: Props): any => {
               {harmonyOpen === true && <Button className={styles.closeHarmony} onClick={() => setHarmonyOpen(false)}>Close Harmony</Button>}
 
 
-
-
+              {
+                fullScreenActive && <span className={styles.fullScreen} onClick={handle.exit}>
+                  <FullscreenExit style={{ fontSize: "4rem" }} />
+                </span>
+              }
 
               {// use this Module when you want toast message and pass type of alter you want 
               }
