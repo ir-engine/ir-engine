@@ -6,6 +6,7 @@ import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
+import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 
 import styles from './Creators.module.scss';
 
@@ -31,8 +32,10 @@ const Creators = () => {
                     title={item.name}
                 />
                 <CardContent>
-                    <Typography className={styles.titleContainer} gutterBottom variant="h3" component="h2" align="center">{item.name}</Typography>
-                    <Typography variant="h4" component="p" align="center">{item.username}</Typography>
+                    <Typography className={styles.titleContainer} gutterBottom variant="h3" component="h2" align="center">{item.name} 
+                            <VerifiedUserIcon htmlColor="#007AFF" style={{fontSize:'13px', margin: '0 0 0 5px'}}/>
+                    </Typography>
+                    <Typography variant="h4" align="center" color="secondary">{item.username}</Typography>
                 </CardContent>
             </Card>
         )}
