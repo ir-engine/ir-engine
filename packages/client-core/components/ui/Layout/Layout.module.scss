@@ -26,6 +26,24 @@
     margin-bottom: 100px !important;
     width: 100px;
 }
+.fullScreen {
+    display: inline-block;
+    color: white;
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    cursor: pointer;
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    transition: background-color .3s, 
+    opacity .5s, visibility .5s;
+    // opacity: 0;
+    // visibility: hidden;
+    z-index: 1000;
+    opacity: 1;
+    visibility: visible;
+}
 
 .locationUserMenu {
     display: flex;

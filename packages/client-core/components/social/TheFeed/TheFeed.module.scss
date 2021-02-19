@@ -1,0 +1,16 @@
+.thefeedContainer{
+    display: flex;
+    flex-direction: column;
+    
+    .tipItem{
+        width: 100%;
+        .previewImage{
+            height: 210px;
+        }
+        .titleContainer{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+    }
+}

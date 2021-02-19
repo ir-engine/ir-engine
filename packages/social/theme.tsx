@@ -74,6 +74,18 @@ const lightTheme = createMuiTheme({
           color: '#FFD600',
         }
       },
+      h5:{
+        fontSize: 18,
+        fontWeight: 'bold',
+        margin: '5px 0px',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',  
+        color: '#000000',
+        '&.MuiTypography-colorSecondary':{
+          color: '#FFFFFF',
+        }
+      },
       alignRight : {
         textAlign: 'right',
         justifyContent: 'flex-end',
@@ -294,17 +306,23 @@ const lightTheme = createMuiTheme({
     },
     MuiCardContent:{
       root:{
-        '&:last-child': {
-          paddingBottom: '0px',
-          paddingLeft: '0px',
-          paddingRight: '0px',
-          paddingTop: '0px',
-        }
+        margin: '5px 0',
+        padding: '5px 20px',
+      }
+    },
+    MuiCardHeader:{
+      root:{
+        padding: '0px 15px',
+      },
+      avatar:{
+        borderRadius: '50%',
+        overflow: 'hidden',
       }
     },
     MuiPaper:{
       root: {
-        backgroundColor: 'rgba(0,0,0,0.8)',
+        backgroundColor: 'transparent',
+        color: '#000000',
       }
     },
     MuiInputBase:{

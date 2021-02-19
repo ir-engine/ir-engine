@@ -1,5 +1,6 @@
 import React from "react";
 import Router from "next/router";
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
 export function ProfilePic({
   src,
@@ -11,7 +12,7 @@ export function ProfilePic({
 }: any) {
   return (
     <span {...props} onClick={() => Router.push("/[pid]", `/${username}`)}>
-      <img
+      {src ? <img
         alt={`${username}'s profile pic`}
         data-testid="user-avatar"
         draggable="false"
@@ -23,7 +24,8 @@ export function ProfilePic({
           border: border && "2px solid white",
           cursor: "pointer",
         }}
-      ></img>
+      ></img> :
+      <AccountCircleIcon fontSize="large"/>}      
     </span>
   );
 }
