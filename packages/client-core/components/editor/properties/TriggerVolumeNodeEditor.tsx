@@ -6,6 +6,8 @@ import SelectInput from "../inputs/SelectInput";
 import BooleanInput from "../inputs/BooleanInput";
 import StringInput from "../inputs/StringInput";
 import { Running } from "@styled-icons/fa-solid/Running";
+
+//Array containing component options
 const componentOptions = [
   {
     label: "video",
@@ -36,24 +38,37 @@ const componentOptions = [
     ]
   }
 ];
+
+//Declairing TriggerVolumeNodeEditor properties
 type TriggerVolumeNodeEditorProps = {
   editor?: object;
   node?: object;
   multiEdit?: boolean;
 };
+
+//Declairing TriggerVolumeNodeEditor state
 type TriggerVolumeNodeEditorState = {
   options: any[];
 };
+
+/**
+ * [TriggerVolumeNodeEditor provides the editor view to customize properties]
+ * @type {class component}
+ */
 export default class TriggerVolumeNodeEditor extends Component<
   TriggerVolumeNodeEditorProps,
   TriggerVolumeNodeEditorState
 > {
+
+  //initializing props and state
   constructor(props) {
     super(props);
     this.state = {
       options: []
     };
   }
+
+  //updating state when component get mounted
   componentDidMount() {
     const options = [];
     const sceneNode = (this.props.editor as any).scene;
@@ -64,8 +79,14 @@ export default class TriggerVolumeNodeEditor extends Component<
     });
     this.setState({ options });
   }
+
+  //initializing iconComponent with icon name
   static iconComponent = Running;
+
+  //initializing description and will appears on editor view
   static description = "Sets a property on the target object on enter and leave.";
+
+  //function to handle the changes in target
   onChangeTarget = target => {
     (this.props.editor as any).setPropertiesSelected({
       target,
@@ -77,6 +98,8 @@ export default class TriggerVolumeNodeEditor extends Component<
       leaveValue: null
     });
   };
+
+  // function to handle changes in enterComponent
   onChangeEnterComponent = value => {
     (this.props.editor as any).setPropertiesSelected({
       enterComponent: value,
@@ -84,15 +107,21 @@ export default class TriggerVolumeNodeEditor extends Component<
       enterValue: null
     });
   };
+
+ // function to handle changes in enter property
   onChangeEnterProperty = (value, option) => {
     (this.props.editor as any).setPropertiesSelected({
       enterProperty: value,
       enterValue: option.default !== undefined ? option.default : null
     });
   };
+
+ //function to handle the changes in enterValue property
   onChangeEnterValue = value => {
     (this.props.editor as any).setPropertySelected("enterValue", value);
   };
+
+ // function to handle the changes leaveComponent
   onChangeLeaveComponent = value => {
     (this.props.editor as any).setPropertiesSelected({
       leaveComponent: value,
@@ -100,15 +129,23 @@ export default class TriggerVolumeNodeEditor extends Component<
       leaveValue: null
     });
   };
+
+
+ // function to handle the changes in leave property
   onChangeLeaveProperty = (value, option) => {
     (this.props.editor as any).setPropertiesSelected({
       leaveProperty: value,
       leaveValue: option.default !== undefined ? option.default : null
     });
   };
+
+ // function to handle the changes in leaveValue
   onChangeLeaveValue = value => {
     (this.props.editor as any).setPropertySelected("leaveValue", value);
   };
+
+
+ //rendering editor view for property customization
   render() {
     const { node, multiEdit } = this.props as any;
     const targetOption = this.state.options.find(o => o.value === node.target);
