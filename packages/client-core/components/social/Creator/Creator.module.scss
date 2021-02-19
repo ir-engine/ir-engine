@@ -6,10 +6,22 @@
         width: 100vw;
         height: 290px;
     }
-    .backButton{
-        width: fit-content;
-        transform: translate(40px);
+    .controls{
+        .backButton{
+            width: fit-content;
+            transform: translate(40px);
+        }
     }
+    .meControls{
+        display: flex;
+        flex-wrap: wrap;
+
+        .moreButton,
+        .backButton{
+            width: fit-content;
+        }
+    }
+    
     .avatarImage{
         height: 110px;
         width: 110px;
@@ -20,12 +32,27 @@
     .content{
         transform: translate(0, -115px);
     }
+
+    .videosSwitcher{
+        transform: translate(0, -115px);
+        background-color: #EEEEEF;
+        padding: 3px;
+        border-radius: 10px;
+        display: flex;
+        margin: 10px 20px;
+
+        .switchButton{
+            margin: 0;
+            color: #000000;
+            padding: 0;
+        }
+    }
     .feedContainer{
         display: flex;
         flex-wrap: wrap;
         width: 100vw;
         box-sizing: border-box;
-        padding: 0 20px;
+        padding: 10px 20px;
         transform: translate(0, -115px);
         border-top: 1px solid #DDDDDD;
 

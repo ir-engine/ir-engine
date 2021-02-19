@@ -5,6 +5,7 @@ import { LoginUserHook } from "../GlobalHook";
 import { ProfilePic } from "../ProfilePic";
 
 import styles from './Header.module.scss';
+import Avatar from "@material-ui/core/Avatar";
 
 const AppHeader = ({user, logo}: any) => {
   const { data, setLoginUser } = LoginUserHook();
@@ -18,11 +19,7 @@ const AppHeader = ({user, logo}: any) => {
           <Clickable href="/explore">{explore}</Clickable>
           <Clickable href="/activity">{activity}</Clickable> */}
           {user && (
-            <ProfilePic              
-              src={data?.image ?? null}
-              username={data?.username  ?? null}              
-              size={22}
-            />
+            <Avatar src={'https://picsum.photos/40/40'} />
           )}
     </nav>
   );
