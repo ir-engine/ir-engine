@@ -14,9 +14,7 @@ export const IndexPage = (): any => {
         });
     }, []);
     return (
-        <div className="lander">
-            
-        </div>
+        <div className="lander" />
     );
 };
 
