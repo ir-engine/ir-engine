@@ -12,6 +12,10 @@ import useSetPropertySelected from "./useSetPropertySelected";
 import BooleanInput from "../inputs/BooleanInput";
 import { DistanceModelOptions, DistanceModelType } from "@xr3ngine/engine/src/scene/classes/AudioSource";
 
+/**
+ * [FogTypeOptions array containing fogType options]
+ * @type {Array}
+ */
 const FogTypeOptions = [
   {
     label: "Disabled",
@@ -27,9 +31,15 @@ const FogTypeOptions = [
   }
 ];
 
+/**
+ * [SceneNodeEditor provides the editor view for property customization]
+ * @param       props
+ * @constructor
+ */
 export default function SceneNodeEditor(props) {
   const { editor, node } = props;
 
+  //creating functions to handle the changes in property of node
   // const onChangeBackground = useSetPropertySelected(editor, "background");
   const onChangeFogType = useSetPropertySelected(editor, "fogType");
   const onChangeFogColor = useSetPropertySelected(editor, "fogColor");
@@ -51,6 +61,7 @@ export default function SceneNodeEditor(props) {
   const onChangeAvatarRefDistance = useSetPropertySelected(editor, "avatarRefDistance");
   const onChangeAvatarMaxDistance = useSetPropertySelected(editor, "avatarMaxDistance");
 
+  // returning editor view for property editor for sceneNode
   return (
     <NodeEditor {...props} description={SceneNodeEditor.description}>
       { /* @ts-ignore */ }
@@ -287,11 +298,14 @@ export default function SceneNodeEditor(props) {
   );
 }
 
+// declairing property types for sceneNode
 SceneNodeEditor.propTypes = {
   editor: PropTypes.object,
   node: PropTypes.object
 };
 
+// setting icon component with icon name
 SceneNodeEditor.iconComponent = Globe;
 
+// setting description and will appear on editor view
 SceneNodeEditor.description = "The root object of the scene.";

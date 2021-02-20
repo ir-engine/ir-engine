@@ -8,10 +8,18 @@ import AudioSourceProperties from "./AudioSourceProperties";
 import NodeEditor from "./NodeEditor";
 import useSetPropertySelected from "./useSetPropertySelected";
 
+/**
+ * [VolumetricNodeEditor provides the editor view to customize properties]
+ * @param       {[type]} props
+ * @constructor
+ */
 export default function VolumetricNodeEditor(props) {
   const { editor, node } = props;
+
+  //function to handle the change in src property
   const onChangeSrc = useSetPropertySelected(editor, "src");
 
+   //returning editor view
   return (
     <NodeEditor description={VolumetricNodeEditor.description} {...props}>
       <InputGroup name="Volumetric">
@@ -28,6 +36,8 @@ VolumetricNodeEditor.propTypes = {
   multiEdit: PropTypes.bool
 };
 
+//setting iconComponent with icon name
 VolumetricNodeEditor.iconComponent = Video;
 
+//setting description and will appear on editor view
 VolumetricNodeEditor.description = "Dynamically loads a volumetric video.";
