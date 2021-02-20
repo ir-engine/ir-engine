@@ -149,7 +149,7 @@ const Layout = (props: Props): any => {
             </Fragment>
             {authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&
               <Fragment>
-                <LeftDrawer openBottomDrawer={bottomDrawerOpen} leftDrawerOpen={leftDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} />
+                <LeftDrawer harmony={true} setHarmonyOpen={setHarmonyOpen} openBottomDrawer={bottomDrawerOpen} leftDrawerOpen={leftDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} />
               </Fragment>
             }
             {authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&
@@ -163,15 +163,14 @@ const Layout = (props: Props): any => {
               </Fragment>
             }
             <footer>
-              {authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.id != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
+              {authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.id != null && user?.userRole !== 'guest' && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
                 <DrawerControls disableBottom={true} setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />}
 
               {locationState.get('currentLocation')?.get('location')?.id &&
                 authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.instanceId != null &&
                 !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
                 <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen} />}
-              {harmonyOpen === false && <div className={styles['harmony-toggle']}><Fab color="primary" onClick={() => setHarmonyOpen(true)}><Forum /></Fab></div> }
-              {harmonyOpen === true && <div className={styles['harmony-toggle']}><Fab color="primary" onClick={() => setHarmonyOpen(false)}><Forum /></Fab></div>}
+              { user?.userRole !== 'guest' && <div className={styles['harmony-toggle']}><Fab color="primary" onClick={() => setHarmonyOpen(!harmonyOpen )}><Forum /></Fab></div> }
 
 
               {
