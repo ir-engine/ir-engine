@@ -10,13 +10,28 @@ import { Video } from "@styled-icons/fa-solid/Video";
 import AudioSourceProperties from "./AudioSourceProperties";
 import useSetPropertySelected from "./useSetPropertySelected";
 
+/**
+ * [videoProjectionOptions contains VideoProjection options]
+ * @type {object}
+ */
 const videoProjectionOptions = Object.values(VideoProjection).map(v => ({ label: v, value: v }));
 
+
+/**
+ * [VideoNodeEditor used to render editor view for property customization]
+ * @param       {[type]} props
+ * @constructor
+ */
 export default function VideoNodeEditor(props) {
   const { editor, node } = props;
+
+  //function to handle changes in src property
   const onChangeSrc = useSetPropertySelected(editor, "src");
+
+  //function to handle change in projection property
   const onChangeProjection = useSetPropertySelected(editor, "projection");
 
+   //editor view for VideoNode
   return (
     <NodeEditor description={VideoNodeEditor.description} {...props}>
       { /* @ts-ignore */ }
@@ -33,12 +48,15 @@ export default function VideoNodeEditor(props) {
   );
 }
 
+// declairing propTypes for VideoNodeEditor
 VideoNodeEditor.propTypes = {
   editor: PropTypes.object,
   node: PropTypes.object,
   multiEdit: PropTypes.bool
 };
 
+// setting iconComponent with icon name
 VideoNodeEditor.iconComponent = Video;
 
+// setting description will appears on editor view
 VideoNodeEditor.description = "Dynamically loads a video.";

@@ -3,6 +3,8 @@ import React, { Fragment } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
+
+// styled component used as root element for property group
 const StyledPropertyGroup = (styled as any).div`
   display: flex;
   flex-direction: column;
@@ -12,6 +14,7 @@ const StyledPropertyGroup = (styled as any).div`
   border-bottom: 1px solid ${props => props.theme.border};
 `;
 
+// PropertyGroupHeader used to provide styles for property group header
 const PropertyGroupHeader = (styled as any).div`
   display: flex;
   flex-direction: row;
@@ -24,6 +27,7 @@ const PropertyGroupHeader = (styled as any).div`
   }
 `;
 
+// PropertyGroupDescription used to show the property group description
 const PropertyGroupDescription = (styled as any).div`
   background-color: ${props => props.theme.panel};
   color: ${props => props.theme.text2};
@@ -31,12 +35,15 @@ const PropertyGroupDescription = (styled as any).div`
   padding: 0 8px 8px;
 `;
 
+// component to contain content of property group
 const PropertyGroupContent = (styled as any).div`
   display: flex;
   flex-direction: column;
 `;
 
+// function to create property group view
 function PropertyGroup(props) {
+
   const { name, description, children, ...rest } = props;
 
   return (
@@ -57,6 +64,7 @@ function PropertyGroup(props) {
   );
 }
 
+// propTypes for property groups
 PropertyGroup.propTypes = {
   name: PropTypes.string,
   description: PropTypes.string,
