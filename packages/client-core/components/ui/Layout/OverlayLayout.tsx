@@ -23,12 +23,13 @@ import PartyVideoWindows from '../PartyVideoWindows';
 import {
     Forum
 } from '@material-ui/icons';
-import { Fullscreen, FullscreenExit} from "@material-ui/icons";
+import {  FullscreenExit} from "@material-ui/icons";
 import Harmony from "../Harmony";
 //@ts-ignore
 import styles from './Layout.module.scss';
 import { Toast } from "../Toast/Toast";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
+import { Expand } from '../Icons/Expand';
 
 const { publicRuntimeConfig } = getConfig();
 const siteTitle: string = publicRuntimeConfig.siteTitle;
@@ -119,7 +120,7 @@ const Layout = (props: Props): any => {
     <>
       {
         !fullScreenActive && <span className={styles.fullScreen} onClick={handle.enter}>
-          <Fullscreen style={{ fontSize: "4rem" }} />
+          <Expand/>
         </span>
       }
       <FullScreen handle={handle} onChange={reportChange}>
