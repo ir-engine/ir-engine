@@ -12,119 +12,151 @@ import * as EasingFunctions from "@mozillareality/easing-functions";
 import { SprayCan } from "@styled-icons/fa-solid/SprayCan";
 import { camelPad } from "@xr3ngine/engine/src/editor/functions/utils";
 
+//creating object containing Curve options for SelectInput
 const CurveOptions = Object.keys(EasingFunctions).map(name => ({
   label: camelPad(name),
   value: name
 }));
 
+//declairing properties for ParticleEmitterNodeEditor
 type ParticleEmitterNodeEditorProps = {
   editor: any,
   node: any,
 }
 
+/**
+ * [ParticleEmitterNodeEditor provides the editor to customize properties]
+ * @type {class component}
+ */
 export default class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEditorProps> {
+
+  // declairing propTypes for ParticleEmitterNodeEditor
   static propTypes = {
     editor: PropTypes.object,
     node: PropTypes.object
   };
 
+  //setting iconComponent name
   static iconComponent = SprayCan;
 
+  //setting description and will appears on editor view
   static description = "Particle emitter to create particles.";
 
+  //function used to reflect the change in any property of ParticleEmitterNodeEditor
   updateParticles() {
     for (const node of this.props.editor.selected) {
       node.updateParticles();
     }
   }
 
+  //function to handle the changes on colorCurve property
   onChangeColorCurve = colorCurve => {
     this.props.editor.setPropertySelected("colorCurve", colorCurve);
   };
 
+  //function used to handle the changes velocityCurve property
   onChangeVelocityCurve = velocityCurve => {
     this.props.editor.setPropertySelected("velocityCurve", velocityCurve);
   };
 
+  //function used to handle the changes in startColor property
   onChangeStartColor = startColor => {
     this.props.editor.setPropertySelected("startColor", startColor);
     this.updateParticles();
   };
 
+  //function used to handle the chnages in middleColor property
   onChangeMiddleColor = middleColor => {
     this.props.editor.setPropertySelected("middleColor", middleColor);
   };
 
+  //function used to handle the changes in endColor property
   onChangeEndColor = endColor => {
     this.props.editor.setPropertySelected("endColor", endColor);
   };
 
+  //function used to handle the changes in startOpacity
   onChangeStartOpacity = startOpacity => {
     this.props.editor.setPropertySelected("startOpacity", startOpacity);
   };
 
+  //function used to handle the change in middleOpacity
   onChangeMiddleOpacity = middleOpacity => {
     this.props.editor.setPropertySelected("middleOpacity", middleOpacity);
   };
 
+ //function used to  handle the changes in endOpacity
   onChangeEndOpacity = endOpacity => {
     this.props.editor.setPropertySelected("endOpacity", endOpacity);
   };
 
+ //function to handle the change in src property
   onChangeSrc = src => {
     this.props.editor.setPropertySelected("src", src);
   };
 
+  //function used to handle the changes in sizeCurve
   onChangeSizeCurve = sizeCurve => {
     this.props.editor.setPropertySelected("sizeCurve", sizeCurve);
   };
 
+  //function used to handle changes in startSize property
   onChangeStartSize = startSize => {
     this.props.editor.setPropertySelected("startSize", startSize);
     this.updateParticles();
   };
 
+  //function used to handle the changes in endSize property
   onChangeEndSize = endSize => {
     this.props.editor.setPropertySelected("endSize", endSize);
   };
 
+  //function used to handle the changes in sizeRandomness
   onChangeSizeRandomness = sizeRandomness => {
     this.props.editor.setPropertySelected("sizeRandomness", sizeRandomness);
     this.updateParticles();
   };
 
+ //function used to handle the changes in startVelocity
   onChangeStartVelocity = startVelocity => {
     this.props.editor.setPropertySelected("startVelocity", startVelocity);
   };
 
+  //function used to handle the changes in endVelocity
   onChangeEndVelocity = endVelocity => {
     this.props.editor.setPropertySelected("endVelocity", endVelocity);
   };
 
+  //function used to handle the changes in angularVelocity
   onChangeAngularVelocity = angularVelocity => {
     this.props.editor.setPropertySelected("angularVelocity", angularVelocity);
   };
 
+  // function used to handle the changes in particleCount
   onChangeParticleCount = particleCount => {
     this.props.editor.setPropertySelected("particleCount", particleCount);
     this.updateParticles();
   };
 
+  // function used to handle the changes in lifetime property
   onChangeLifetime = lifetime => {
     this.props.editor.setPropertySelected("lifetime", lifetime);
     this.updateParticles();
   };
 
+  //function to handle the changes in ageRandomness property
   onChangeAgeRandomness = ageRandomness => {
     this.props.editor.setPropertySelected("ageRandomness", ageRandomness);
     this.updateParticles();
   };
 
+  //function to handle the changes on lifetimeRandomness property
   onChangeLifetimeRandomness = lifetimeRandomness => {
     this.props.editor.setPropertySelected("lifetimeRandomness", lifetimeRandomness);
     this.updateParticles();
   };
 
+  //rendering view for ParticleEmitterNodeEditor
   render() {
     return (
       <NodeEditor {...this.props} description={ParticleEmitterNodeEditor.description}>

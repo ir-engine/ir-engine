@@ -5,105 +5,111 @@
   flex-grow: 1;
 }
 
-.MuiDrawer-paperAnchorLeft {
-  width: 30%;
+[class*=Left_list-container] {
+  .MuiDrawer-paperAnchorLeft {
+    width: 30%;
 
-  @media (max-width: 768px) {
-    width: 90%;
-  }
+    @media (max-width: 768px) {
+      width: 90%;
+    }
 
-  .MuiAccordion-root {
-    min-height: 50px;
-    overflow-y: auto;
+    .MuiAccordion-root {
+      min-height: 50px;
+      overflow-y: auto;
 
-    &.Mui-expanded {
-      @include flex-collapse;
-
-      .MuiCollapse-container.MuiCollapse-entered {
+      &.Mui-expanded {
         @include flex-collapse;
 
-        .MuiCollapse-wrapper {
+        .MuiCollapse-container.MuiCollapse-entered {
           @include flex-collapse;
 
-          .MuiCollapse-wrapperInner {
+          .MuiCollapse-wrapper {
             @include flex-collapse;
 
-            & > div {
+            .MuiCollapse-wrapperInner {
               @include flex-collapse;
 
-              & > .MuiAccordionDetails-root {
+              & > div {
                 @include flex-collapse;
+
+                & > .MuiAccordionDetails-root {
+                  @include flex-collapse;
+                }
               }
             }
           }
         }
       }
     }
-  }
 
-  .MuiAccordionSummary-content {
-    & > svg {
+    .MuiAccordionSummary-content {
+      & > svg {
+        margin-right: 5px;
+      }
+    }
+  }
+}
+
+[class*=Right_list-container] {
+  .MuiDrawer-paperAnchorRight {
+    width: 30%;
+
+    @media (max-width: 768px) {
+      width: 90%;
+    }
+
+    .MuiAccordion-root {
+      min-height: 50px;
+      overflow-y: auto;
+
+      &.Mui-expanded {
+        @include flex-collapse;
+
+        .MuiCollapse-container.MuiCollapse-entered {
+          @include flex-collapse;
+
+          .MuiCollapse-wrapper {
+            @include flex-collapse;
+
+            .MuiCollapse-wrapperInner {
+              @include flex-collapse;
+
+              & > div {
+                @include flex-collapse;
+
+                & > .MuiAccordionDetails-root {
+                  @include flex-collapse;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .MuiTab-root {
+      @media (min-width: 600px) {
+        min-width: initial;
+      }
+    }
+  }
+}
+
+[class*=Bottom_list-container] {
+  .MuiDrawer-paperAnchorBottom {
+    opacity: 85%;
+    height: 60% !important;
+    max-width: 1000px;
+
+    @media (max-width: 768px) {
+      max-width: 100%;
+      height: 80% !important;
+    }
+
+    .MuiFormControl-marginNormal {
+      margin-top: 8px;
       margin-right: 5px;
     }
-  }
-}
-
-.MuiDrawer-paperAnchorRight {
-  width: 30%;
-
-  @media (max-width: 768px) {
-    width: 90%;
-  }
-
-  .MuiAccordion-root {
-    min-height: 50px;
-    overflow-y: auto;
-
-    &.Mui-expanded {
-      @include flex-collapse;
-
-      .MuiCollapse-container.MuiCollapse-entered {
-        @include flex-collapse;
-
-        .MuiCollapse-wrapper {
-          @include flex-collapse;
-
-          .MuiCollapse-wrapperInner {
-            @include flex-collapse;
-
-            & > div {
-              @include flex-collapse;
-
-              & > .MuiAccordionDetails-root {
-                @include flex-collapse;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  .MuiTab-root {
-    @media (min-width: 600px) {
-      min-width: initial;
-    }
-  }
-}
-
-.MuiDrawer-paperAnchorBottom {
-  opacity: 85%;
-  height: 60% !important;
-  max-width: 1000px;
-
-  @media (max-width: 768px) {
-    max-width: 100%;
-    height: 80% !important;
-  }
-
-  .MuiFormControl-marginNormal {
-    margin-top: 8px;
-    margin-right: 5px;
   }
 }
 
