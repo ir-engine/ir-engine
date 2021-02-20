@@ -3,6 +3,15 @@ import { BaseSource } from "./index";
 import { ItemTypes } from "../../dnd";
 import MediaSourcePanel from "../MediaSourcePanel";
 import Editor from "../../Editor";
+
+
+/**
+ * [
+ * ElementsSource component used to provide a container for EditorNodes
+ * Here we can use search elements using search bar
+ *   ]
+ * @type {class component}
+ */
 export default class ElementsSource extends BaseSource {
   component: typeof MediaSourcePanel;
   editor: Editor;
@@ -10,6 +19,8 @@ export default class ElementsSource extends BaseSource {
   name: string;
   disableUrl: boolean;
   searchDebounceTimeout: number;
+
+  //initializing variables for this component
   constructor(editor: Editor) {
     super();
     this.component = MediaSourcePanel;
@@ -21,13 +32,17 @@ export default class ElementsSource extends BaseSource {
     this.disableUrl = true;
     this.searchDebounceTimeout = 0;
   }
+
+  //function to emit if there is any change in settings.
   onSettingsChanged = () => {
     this.emit("resultsChanged");
   };
+
+  //function to emit if there is any change in sceneGraph
   onSceneGraphChanged = () => {
     this.emit("resultsChanged");
   };
-  // @ts-ignore
+  // function to hanlde the search and to call API if there is any change in search input.
   async search(params) {
     const editor = this.editor;
     let results = Array.from(editor.nodeTypes).reduce((acc: any, nodeType: any) => {

@@ -1,4 +1,8 @@
 import EventEmitter from "eventemitter3";
+
+/**
+ * [BaseSource]
+ */
 export class BaseSource extends EventEmitter {
   id: string;
   name: string;
@@ -19,10 +23,10 @@ export class BaseSource extends EventEmitter {
   }
   async search(_params, _cursor?, _abortSignal?) {
     return {
-      results: [],
-      suggestions: [],
-      nextCursor: 0,
-      hasMore: false
+        results: [],
+        suggestions: [],
+        nextCursor: 0,
+        hasMore: false
     };
   }
 }
