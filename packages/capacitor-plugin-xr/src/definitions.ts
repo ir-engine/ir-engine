@@ -1,6 +1,6 @@
 declare module '@capacitor/core' {
     interface PluginRegistry {
-        XRPlugin: XRPluginInterface;
+        XRPlugin: XRPluginPlugin;
     }
 }
 
@@ -184,7 +184,7 @@ export interface VideoEditorVideoInfoDetails {
         bitrate: number
 }
 
-export interface XRPluginInterface {
+export interface XRPluginPlugin {
     initialize(options: {}): Promise<{ status: string; }>;
 
     start(options: CameraOptions): Promise<{}>;
