@@ -1,20 +1,34 @@
-import Head from 'next/head';
-import React, { useEffect } from 'react';
-import Xr3engineContact from '../components/xr3engineContact';
-import { Plugins, registerWebPlugin, WebPlugin } from '@capacitor/core';
-import { XRPluginPlugin } from "@xr3ngine/capacitor-plugin-xr/src/definitions";
-import '@xr3ngine/capacitor-plugin-xr/src/index';
+import { Plugins, registerWebPlugin } from '@capacitor/core';
+import { XRPluginPlugin } from "../../native-plugin-xr/src/definitions";
+import '../../native-plugin-xr/src/index';
+import React, { useEffect, useState } from 'react';
 
 export const IndexPage = (): any => {
+    const [ initializationResponse, setInitializationResponse ] = useState("");
+    const [ secondState, setSecondState ] = useState("");
+
     useEffect(() => {
+        async function doTest(){
         const { XRPlugin } = Plugins;
         registerWebPlugin(XRPlugin as any);
         (XRPlugin as XRPluginPlugin).initialize({}).then(response => {
-            console.log(response);
+            setInitializationResponse(response.status);
         });
+    };
+    doTest();
     }, []);
+
+    useEffect(() => {
+        setSecondState("Initialized and effected");
+    }, [initializationResponse]);
+
     return (
-        <div className="lander" />
+        <div className="plugintest">
+            <div className="plugintestReadout">
+                <p>{initializationResponse}</p>
+                <p>{secondState}</p>
+            </div>
+        </div>
     );
 };
 

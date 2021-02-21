@@ -1,11 +1,17 @@
 import Head from 'next/head';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Xr3engineContact from '../components/xr3engineContact';
-import { Plugins } from '@capacitor/core';
-const { XRPlugin } = Plugins;
-
+import { useRouter } from 'next/router'
+import { Capacitor } from '@capacitor/core';
 
 export const IndexPage = (): any => {
+    const router = useRouter()
+    useEffect(() => {
+        if(Capacitor.isNative){
+            router.push("/plugintest");
+        }
+    }, []);
+
     return (
         <div className="lander">
             <Head>

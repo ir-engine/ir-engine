@@ -1,0 +1,68 @@
+{
+  "name": "@xr3ngine/native-plugin-example",
+  "version": "0.2.0",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/xr3ngine/xr3ngine.git"
+  },
+  "engines": {
+    "yarn": ">= 0.18.0"
+  },
+  "npmClient": "yarn",
+  "jest": "ts-jest",
+  "scripts": {
+    "find:unused": "next-unused",
+    "dev": "cross-env NODE_ENV=development node --max-old-space-size=4096 ./index.js --port 3000",
+    "build": "cross-env NODE_OPTIONS=--max_old_space_size=6144 next build ./ && yarn run export",
+    "export": "next export -o www/ && mv www/404.html www/index.html && npx cap sync",
+    "start": "next start",
+    "watch": "cross-env NODE_ENV=development next --port 3001 --hostname 127.0.0.1",
+    "validate": "yarn run lint && yarn run test",
+    "test": "echo \"TODO: Add Testing to Client\" && exit 0",
+    "lint": "node node_modules/.bin/eslint --fix --quiet '*.ts' '**/*.ts' '**/*.tsx'"
+  },
+  "resolutions": {
+    "webpack": "^5.1.0"
+  },
+  "peerDependencies": {
+    "react": "^17.0.0"
+  },
+  "dependencies": {
+    "@capacitor-community/electron": "^1.3.2",
+    "@capacitor/android": "2.4.6",
+    "@capacitor/cli": "^2.4.6",
+    "@capacitor/core": "^2.4.6",
+    "@capacitor/ios": "2.4.6",
+    "@typescript-eslint/eslint-plugin": "^4.5.0",
+    "@xr3ngine/native-plugin-xr": "^0.1.0",
+    "next": "^10.0.6",
+    "next-transpile-modules": "^6.2.0",
+    "react": "^17.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.10",
+    "@types/node": "^13.13.0",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "babel-loader": "^8.2.2",
+    "cache-loader": "^4.1.0",
+    "config": "^3.3.1",
+    "cross-env": "^7.0.2",
+    "dotenv-webpack": "^3.0.0",
+    "eslint": "^6.8.0",
+    "eslint-plugin-react": "^7.21.4",
+    "gltf-webpack-loader": "https://github.com/MozillaReality/gltf-webpack-loader.git#fix/relative-and-output-paths",
+    "next-images": "^1.4.0",
+    "next-optimized-images": "^2.6.2",
+    "next-plugin-node-config": "^1.0.2",
+    "next-redux-wrapper": "^5.0.0",
+    "thread-loader": "^3.0.0",
+    "ts-loader": "^8.0.5",
+    "ts-shader-loader": "^1.0.6",
+    "typescript": "^4.0.3",
+    "webpack": "^5.1.0",
+    "webpack-cli": "^4.0.0"
+  },
+  "license": "ISC"
+}
