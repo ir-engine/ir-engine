@@ -1,14 +1,23 @@
 import ModelMediaSource from "../ModelMediaSource";
 import { TransformPivot } from "@xr3ngine/engine/src/editor/controls/EditorControls";
+
+/**
+ * [PolySource component used to provide visual objects using google poly]
+ * @type {class}
+ */
 export default class PolySource extends ModelMediaSource {
   tags: { label: string; value: string }[];
   searchLegalCopy: string;
   privacyPolicyUrl: string;
   transformPivot: any;
+
+  // initializing variables for this component
   constructor(api) {
     super(api);
     this.id = "poly";
     this.name = "Google Poly";
+
+    //array containing tag options 
     this.tags = [
       { label: "Featured", value: "" },
       { label: "Animals", value: "animals" },
