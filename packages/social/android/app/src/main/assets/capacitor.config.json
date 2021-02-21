@@ -1,6 +1,6 @@
 {
   "appId": "com.xr3ngine.client",
-  "appName": "@xr3ngine/client",
+  "appName": "XR3ngine",
   "bundledWebRuntime": false,
   "npmClient": "yarn",
   "webDir": "www",
