@@ -190,13 +190,16 @@ export interface XRPluginPlugin {
     start(options: CameraOptions): Promise<{}>;
     stop(): Promise<{}>;
 
-    startXR(options: {}): Promise<{ status: string;}>;
-
-    stopXR(options: {}): Promise<{ status: string;}>;
-
     getXRDataForFrame(options: {}): Promise<{ data: XRFrameData;}>;
 
-    startRecording(options: {}): Promise<{ status: string; }>;
+    startRecording(
+        isAudio: any,
+        width: number,
+        height: number,
+        bitRate: number,
+        dpi: number,
+        filePath: string
+    ): Promise<{ status: string; }>;
 
     stopRecording(options: {}): Promise<{ status: string; }>;
 
