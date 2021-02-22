@@ -1,5 +1,5 @@
 import { Plugins, Capacitor } from '@capacitor/core';
-import "@xr3ngine/native-plugin-xr/dist/esm";
+import "@xr3ngine/native-plugin-xr/src/index.ts";
 
 import React, { useEffect, useState } from 'react';
 
@@ -16,7 +16,7 @@ export const IndexPage = (): any => {
         (XRPlugin).initialize({}).then(response => {
             setInitializationResponse(response.status);
         });
-        
+
         (XRPlugin).start({}).then(() => {
             setSecondState(isNative ? "Camera started on native" : "Camera started on web");
         })
