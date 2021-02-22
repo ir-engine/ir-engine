@@ -1,4 +1,4 @@
-import { WebPlugin } from '@capacitor/core';
+import { WebPlugin, registerWebPlugin } from '@capacitor/core';
 import { XRFrameData, XRPluginPlugin, CameraOptions, VideoEditorOptions, VideoEditorThumbnailProperties, VideoEditorTranscodeProperties, VideoEditorTrimProperties } from './definitions';
 
 export class XRPluginWeb extends WebPlugin implements XRPluginPlugin {
@@ -12,7 +12,7 @@ export class XRPluginWeb extends WebPlugin implements XRPluginPlugin {
   async initialize(options: {}): Promise<{ status: string }> {
     console.log("Initialize called to plugin on web");
     return new Promise((resolve, _) => {
-      resolve({ status: "success" })
+      resolve({ status: "web" })
     });
   }
 
@@ -25,7 +25,7 @@ export class XRPluginWeb extends WebPlugin implements XRPluginPlugin {
       );
 
       const video = document.getElementById("video");
-      const parent = options.parent ? document.getElementById(options.parent) : null;
+      const parent = options.parent ? document.getElementById(options.parent) : document.body;
       if (!video) {
         const videoElement = document.createElement("video");
         videoElement.id = "video";
@@ -214,8 +214,7 @@ export class XRPluginWeb extends WebPlugin implements XRPluginPlugin {
 }
 
 const XRPlugin = new XRPluginWeb();
+registerWebPlugin(XRPlugin);
 
 export { XRPlugin };
 
-import { registerWebPlugin } from '@capacitor/core';
-registerWebPlugin(XRPlugin);

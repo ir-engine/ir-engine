@@ -1,25 +1,31 @@
-import { Plugins, registerWebPlugin } from '@capacitor/core';
-import { XRPluginPlugin } from "@xr3ngine/native-plugin-xr/src/definitions";
+import { Plugins, Capacitor } from '@capacitor/core';
+import "@xr3ngine/native-plugin-xr/dist/esm";
+
 import React, { useEffect, useState } from 'react';
+
+const { isNative } = Capacitor;
 
 export const IndexPage = (): any => {
     const [ initializationResponse, setInitializationResponse ] = useState("");
     const [ secondState, setSecondState ] = useState("");
 
     useEffect(() => {
-        async function doTest(){
-        const { XRPlugin } = Plugins;
-        registerWebPlugin(XRPlugin as any);
-        (XRPlugin as XRPluginPlugin).initialize({}).then(response => {
+        (async function() {
+            const { XRPlugin } = Plugins;
+
+        (XRPlugin).initialize({}).then(response => {
             setInitializationResponse(response.status);
         });
-    };
-    doTest();
+        
+        (XRPlugin).start({}).then(() => {
+            setSecondState(isNative ? "Camera started on native" : "Camera started on web");
+        })
+    })();
     }, []);
 
-    useEffect(() => {
-        setSecondState("Initialized and effected");
-    }, [initializationResponse]);
+    // useEffect(() => {
+    //     setSecondState("Initialized and effected");
+    // }, [initializationResponse]);
 
     return (
         <div className="plugintest">
