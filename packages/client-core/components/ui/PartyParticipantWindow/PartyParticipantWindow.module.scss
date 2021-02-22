@@ -7,7 +7,7 @@
         height: 90px;
         width: 90px;
         border-radius: 10px;
-        z-index: 10;
+        z-index: 11;
         box-shadow: 0px 2px 18px 0px #11111159;
 
         img {
@@ -18,16 +18,8 @@
             display: block;
         }
 
-        video{
-            object-fit: cover;                  
-        }
-
-        @media (min-width: 769px) {
-            &:hover {
-                cursor: pointer;
-                opacity: 0.8;
-            }
-        }
+        video{ object-fit: cover; }
+        &:hover { cursor: pointer; }
     }
 
     &.harmony {
