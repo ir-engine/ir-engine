@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application>
-        <activity android:name="com.xr3ngine.xr.MainActivity"></activity>
+        <activity android:name="com.xr3ngine.xr.XRActivity"></activity>
 
         <meta-data
             android:name="com.google.ar.core"
