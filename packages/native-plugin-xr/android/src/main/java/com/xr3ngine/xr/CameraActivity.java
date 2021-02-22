@@ -87,7 +87,7 @@ public class CameraActivity extends Fragment {
   public boolean tapToFocus;
   public boolean disableExifHeaderStripping;
   public boolean storeToFile;
-  public boolean toBack;
+  public boolean toBack = true;
 
   public int width;
   public int height;

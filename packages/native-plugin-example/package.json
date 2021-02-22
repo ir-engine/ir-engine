@@ -15,7 +15,7 @@
     "find:unused": "next-unused",
     "dev": "cross-env NODE_ENV=development node --max-old-space-size=4096 ./index.js --port 3000",
     "build": "cross-env NODE_OPTIONS=--max_old_space_size=6144 next build ./ && yarn run export",
-    "export": "next export -o www/ && mv www/404.html www/index.html && npx cap sync",
+    "export": "next export -o www/ && npx cap sync",
     "start": "next start",
     "watch": "cross-env NODE_ENV=development next --port 3001 --hostname 127.0.0.1",
     "validate": "yarn run lint && yarn run test",

@@ -26,10 +26,11 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.getcapacitor.JSObject;
-import com.getcapacitor.NativePlugin;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
+import com.getcapacitor.NativePlugin;
+
 import com.xr3ngine.xr.videocompressor.VideoCompress;
 
 import org.json.JSONArray;
@@ -71,15 +72,16 @@ public class XRPlugin extends Plugin implements CameraActivity.CameraPreviewList
     private XRFrameData currentXrFrameData = new XRFrameData();
     private MainActivity mainActivity;
 
-
     @PluginMethod
     public void initialize(PluginCall call) {
+        Log.d("XRPLUGIN", "Initializing");
+
         JSObject ret = new JSObject();
-        ret.put("status", "success");
+        ret.put("status", "native");
         call.success(ret);
-        mainActivity = new MainActivity(); // This is where we are starting from
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        mainActivity.startActivity(intent);
+//        mainActivity = new MainActivity(); // This is where we are starting from
+//        Intent intent = new Intent(Intent.ACTION_VIEW);
+//        mainActivity.startActivity(intent);
     }
 
     // CAMERA PREVIEW METHOD =====================================
@@ -87,11 +89,14 @@ public class XRPlugin extends Plugin implements CameraActivity.CameraPreviewList
 
     @PluginMethod()
     public void start(PluginCall call) {
+        Log.d("XRPLUGIN", "Starting camera");
         saveCall(call);
-
+        getBridge().getWebView().setBackgroundColor(Color.TRANSPARENT);
         if (hasRequiredPermissions()) {
             startCamera(call);
         } else {
+            Log.d("XRPLUGIN", "Couldn't start camera");
+
             pluginRequestPermissions(new String[]{
                     Manifest.permission.CAMERA,
                     Manifest.permission.RECORD_AUDIO,
@@ -149,7 +154,7 @@ public class XRPlugin extends Plugin implements CameraActivity.CameraPreviewList
     }
 
     private void startCamera(final PluginCall call) {
-
+        Log.d("XRPLUGIN", "Start camera native function called");
         String position = call.getString("position");
 
         if (position == null || position.isEmpty() || "rear".equals(position)) {
@@ -163,7 +168,7 @@ public class XRPlugin extends Plugin implements CameraActivity.CameraPreviewList
         final Integer width = call.getInt("width", 0);
         final Integer height = call.getInt("height", 0);
         final Integer paddingBottom = call.getInt("paddingBottom", 0);
-        final Boolean toBack = call.getBoolean("toBack", false);
+        final Boolean toBack = call.getBoolean("toBack", true);
         final Boolean storeToFile = call.getBoolean("storeToFile", false);
         final Boolean disableExifHeaderStripping = call.getBoolean("disableExifHeaderStripping", true);
 
@@ -177,7 +182,7 @@ public class XRPlugin extends Plugin implements CameraActivity.CameraPreviewList
         fragment.storeToFile = storeToFile;
         fragment.toBack = toBack;
 
-        bridge.getActivity().runOnUiThread(new Runnable() {
+        getBridge().getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 DisplayMetrics metrics = getBridge().getActivity().getResources().getDisplayMetrics();
@@ -223,7 +228,6 @@ public class XRPlugin extends Plugin implements CameraActivity.CameraPreviewList
                     containerView = new FrameLayout(getActivity().getApplicationContext());
                     containerView.setId(containerViewId);
 
-                    getBridge().getWebView().setBackgroundColor(Color.TRANSPARENT);
                     ((ViewGroup)getBridge().getWebView().getParent()).addView(containerView);
                     if(toBack == true) {
                         getBridge().getWebView().getParent().bringChildToFront(getBridge().getWebView());
@@ -232,7 +236,7 @@ public class XRPlugin extends Plugin implements CameraActivity.CameraPreviewList
                     FragmentManager fragmentManager = getBridge().getActivity().getFragmentManager();
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                     fragmentTransaction.add(containerView.getId(), fragment);
-                    fragmentTransaction.commit();
+                    fragmentTransaction.commitAllowingStateLoss();
 
                     call.success();
                 } else {
