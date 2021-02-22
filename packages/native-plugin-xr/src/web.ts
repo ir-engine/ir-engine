@@ -97,13 +97,6 @@ export class XRPluginWeb extends WebPlugin implements XRPluginPlugin {
     });
   };
 
-  async startXR(options: {}): Promise<{ status: string }> {
-    console.log("startXR called to plugin on web");
-    return new Promise((resolve, reject) => {
-      resolve({ status: "success" })
-    });
-  }
-
   async execFFMPEG(options: {}): Promise<{ status: string }> {
     console.log("execFFMPEG called to plugin on web");
     return new Promise((resolve, reject) => {
@@ -118,13 +111,6 @@ export class XRPluginWeb extends WebPlugin implements XRPluginPlugin {
     });
   }
 
-  async stopXR(options: {}): Promise<{ status: string }> {
-    console.log("stopXR called to plugin on web");
-    return new Promise((resolve, reject) => {
-      resolve({ status: "success" })
-    });
-  }
-
   async getXRDataForFrame(options: {}): Promise<{ data: XRFrameData }> {
     console.log("getXRDataForFrame called to plugin on web");
     return new Promise((resolve, reject) => {
@@ -132,7 +118,14 @@ export class XRPluginWeb extends WebPlugin implements XRPluginPlugin {
     });
   }
 
-  async startRecording(options: {}): Promise<{ status: string }> {
+  async startRecording(
+    isAudio?: any,
+    width?: number,
+    height?: number,
+    bitRate?: number,
+    dpi?: number,
+    filePath?: string
+): Promise<{ status: string }> {
     console.log("startRecording called to plugin on web");
     return new Promise((resolve, reject) => {
       resolve({ status: "success" })
