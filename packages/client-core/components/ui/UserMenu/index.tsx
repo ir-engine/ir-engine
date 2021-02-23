@@ -12,7 +12,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
-import { logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings } from '../../../redux/auth/service';
+import { logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings, updateGraphicsSettings } from '../../../redux/auth/service';
 import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth } from '../../../redux/auth/service';
 import { alertSuccess } from '../../../redux/alert/service';
 import { provisionInstanceServer } from "../../../redux/instanceConnection/service";
@@ -24,6 +24,7 @@ import ProfileMenu from './menus/ProfileMenu';
 import AvatarMenu from './menus/AvatarMenu';
 import SettingMenu from './menus/SettingMenu';
 import ShareMenu from './menus/ShareMenu';
+import { WebGLRendererSystem } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -36,6 +37,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   updateUsername: bindActionCreators(updateUsername, dispatch),
   updateUserAvatarId: bindActionCreators(updateUserAvatarId, dispatch),
   updateUserSettings: bindActionCreators(updateUserSettings, dispatch),
+  updateGraphicsSettings: bindActionCreators(updateGraphicsSettings, dispatch),
   alertSuccess: bindActionCreators(alertSuccess, dispatch),
   provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
   loginUserByOAuth: bindActionCreators(loginUserByOAuth, dispatch),
@@ -61,6 +63,13 @@ const UserMenu = (props: UserMenuProps): any => {
 
   const [username, setUsername] = useState(selfUser?.name);
   const [setting, setUserSetting] = useState(selfUser?.user_setting);
+  const [graphics, setGraphicsSetting] = useState({
+    resolution: WebGLRendererSystem.scaleFactor,
+    shadows: WebGLRendererSystem.shadowQuality,
+    automatic: WebGLRendererSystem.automatic,
+    pbr: WebGLRendererSystem.usePBR,
+    postProcessing: WebGLRendererSystem.usePostProcessing,
+  });
 
 
   const [waitingForLogout, setWaitingForLogout] = useState(false);
@@ -90,6 +99,21 @@ const UserMenu = (props: UserMenuProps): any => {
   useEffect(() => {
     selfUser && setUserSetting({ ...selfUser.user_setting });
   }, [selfUser.user_setting]);
+
+  // useEffect(() => {
+  //   setGraphicsSetting({ ...graphics });
+  // }, [graphics]);
+
+  const updateGraphics = (newGraphicsSettings) => {
+    console.log(newGraphicsSettings);
+  }
+
+  useEffect(() => {
+    WebGLRendererSystem.qualityLevelChangeListeners.push(updateGraphics);
+    return function cleanup() {
+      WebGLRendererSystem.qualityLevelChangeListeners.splice(WebGLRendererSystem.qualityLevelChangeListeners.indexOf(updateGraphics), 1);
+    };
+  }, [])
 
   useEffect(() => {
     if (waitingForLogout === true && authState.get('authUser') != null && authState.get('user') != null && authState.get('user').userRole === 'guest') {
@@ -140,6 +164,11 @@ const UserMenu = (props: UserMenuProps): any => {
     updateUserSettings(selfUser.user_setting.id, setting);
   }
 
+  const setGraphicsSettings = (newSetting: any): void => {
+    setGraphicsSetting({ ...graphics, ...newSetting });
+    updateGraphicsSettings(graphics);
+  }
+
   const setActiveMenu = (e): void => {
     const identity = e.currentTarget.id.split('_');
     setCurrentActiveMenu(
@@ -184,6 +213,8 @@ const UserMenu = (props: UserMenuProps): any => {
         args = {
           setting,
           setUserSettings,
+          graphics,
+          setGraphicsSettings,
         };
         break;
       case Views.Share:
