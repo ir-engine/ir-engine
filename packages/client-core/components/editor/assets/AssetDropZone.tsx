@@ -7,6 +7,11 @@ import { ItemTypes } from "../dnd";
 import useUpload from "./useUpload";
 import { CloudUploadAlt } from "@styled-icons/fa-solid/CloudUploadAlt";
 
+
+/**
+ * [DropZoneBackground provides styles for the view port area where we drag and drop objects]
+ * @param {styled component}
+ */
 const DropZoneBackground = (styled as any).div`
   position: absolute;
   display: flex;
@@ -27,6 +32,12 @@ const DropZoneBackground = (styled as any).div`
   }
 `;
 
+/**
+ * [AssetDropZone function used to create view port where we can drag and drop objects]
+ * @param       {[type]} afterUpload
+ * @param       {[type]} uploadOptions
+ * @constructor
+ */
 export default function AssetDropZone({ afterUpload, uploadOptions }) {
   const editor = useContext(EditorContext);
 
@@ -52,6 +63,7 @@ export default function AssetDropZone({ afterUpload, uploadOptions }) {
     })
   });
 
+  //returning dropzone view
   return (
     <DropZoneBackground ref={onDropTarget} isDragging={isDragging} canDrop={canDrop} isOver={isOver}>
       <CloudUploadAlt size={48} />
@@ -60,6 +72,7 @@ export default function AssetDropZone({ afterUpload, uploadOptions }) {
   );
 }
 
+//creating propTypes for AssetDropZone
 AssetDropZone.propTypes = {
   afterUpload: PropTypes.func,
   uploadOptions: PropTypes.object

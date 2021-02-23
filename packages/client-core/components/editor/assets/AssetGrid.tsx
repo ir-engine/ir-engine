@@ -14,16 +14,35 @@ import { ItemTypes } from "../dnd";
 import AudioPreview from "./AudioPreview";
 import Tooltip, { TooltipContainer } from "../layout/Tooltip";
 
+/**
+ * [AssetGridTooltipContainer used to provide styles for tooltip shown if we hover the object]
+ * @type {styled component}
+ */
 const AssetGridTooltipContainer = (styled as any)(TooltipContainer)`
   max-width: initial;
   text-align: left;
 `;
 
+/**
+ * [collectMenuProps returns menu items]
+ */
 function collectMenuProps({ item }) {
   return { item };
 }
 
+/**
+ * [AssetGridItem used to create grid item view]
+ * @param       {[type]} contextMenuId
+ * @param       {[type]} tooltipComponent
+ * @param       {[type]} disableTooltip
+ * @param       {[type]} item
+ * @param       {[type]} onClick
+ * @param       {[type]} rest
+ * @constructor
+ */
 function AssetGridItem({ contextMenuId, tooltipComponent, disableTooltip, item, onClick, ...rest }) {
+
+  // function to handle callback on click of item
   const onClickItem = useCallback(
     e => {
       if (onClick) {
@@ -33,22 +52,27 @@ function AssetGridItem({ contextMenuId, tooltipComponent, disableTooltip, item, 
     [item, onClick]
   );
 
+  // declairing variable for grid item content
   let content;
 
   if (item.thumbnailUrl) {
+    //setting content as ImageMediaGridItem component if item contains thumbnailUrl
     content = <ImageMediaGridItem src={item.thumbnailUrl} onClick={onClickItem} label={item.label} {...rest} />;
   } else if (item.videoUrl) {
+    //setting content as VideoMediaGridItem component if item contains videoUrl
     content = <VideoMediaGridItem src={item.videoUrl} onClick={onClickItem} label={item.label} {...rest} />;
   } else if (item.iconComponent) {
+    //setting content as IconMediaGridItem component if item contains iconComponent
     content = (
       <IconMediaGridItem iconComponent={item.iconComponent} onClick={onClickItem} label={item.label} {...rest} />
     );
   } else {
-    // @ts-ignore
+    //setting content as ImageMediaGridItem if all above cases are false
     content = <ImageMediaGridItem onClick={onClickItem} label={item.label} {...rest} />;
   }
 
   if (item.type === ItemTypes.Audio) {
+    //setting content as AudioPreview component if item type is audio
     content = <AudioPreview src={item.url}>{content}</AudioPreview>;
   }
 
@@ -59,6 +83,10 @@ function AssetGridItem({ contextMenuId, tooltipComponent, disableTooltip, item, 
     }
   });
 
+ /**
+  * [renderTooltip  used to render tooltip for AssetGrid]
+  * @type {function component}
+  */
   const renderTooltip = useCallback(() => {
     const TooltipComponent = tooltipComponent;
     return (
@@ -68,10 +96,12 @@ function AssetGridItem({ contextMenuId, tooltipComponent, disableTooltip, item, 
     );
   }, [item, tooltipComponent]);
 
+  //showing the object in viewport once it drag and droped
   useEffect(() => {
     preview(getEmptyImage(), { captureDraggingState: true });
   }, [preview]);
 
+  //creating view for AssetGrid using ContextMenuTrigger and tooltip component
   return (
     <div ref={drag}>
       { /* @ts-ignore */ }
@@ -85,6 +115,7 @@ function AssetGridItem({ contextMenuId, tooltipComponent, disableTooltip, item, 
   );
 }
 
+// styled component fpr showing loading in AssetGrid container
 const LoadingItem = (styled as any).div`
   display: flex;
   flex-direction: column;
@@ -98,6 +129,7 @@ const LoadingItem = (styled as any).div`
   user-select: none;
 `;
 
+//declairing propTypes for AssetGridItem
 AssetGridItem.propTypes = {
   tooltipComponent: PropTypes.func,
   disableTooltip: PropTypes.bool,
@@ -114,18 +146,41 @@ AssetGridItem.propTypes = {
   }).isRequired
 };
 
+//variable used to create uniqueId
 let lastId = 0;
 
+/**
+ * [
+ * Memo
+ * React renders the component and memoizes the result.
+ * Before the next render, if the new props are the same,
+ * React reuses the memoized result skipping the next rendering
+ * ]
+ */
 const MemoAssetGridItem = memo(AssetGridItem);
 
+/**
+ * [AssetGrid component used to render AssetGridItems]
+ * @param       {Boolean} isLoading     [used to render loading if true]
+ * @param       {[type]}  selectedItems [ array of items]
+ * @param       {[type]}  items         [array of items to render AssetGrid]
+ * @param       {[type]}  onSelect
+ * @param       {[type]}  onLoadMore
+ * @param       {Boolean} hasMore
+ * @param       {[type]}  tooltip
+ * @param       {[type]}  source
+ * @constructor
+ */
 export default function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMore, hasMore, tooltip, source }) {
   const editor = useContext(EditorContext);
   const uniqueId = useRef(`AssetGrid${lastId}`);
 
+  // incrementig lastId
   useEffect(() => {
     lastId++;
   }, []);
 
+  // creating callback function used if object get placed on viewport
   const placeObject = useCallback(
     (_, trigger) => {
       const item = trigger.item;
@@ -142,7 +197,7 @@ export default function AssetGrid({ isLoading, selectedItems, items, onSelect, o
     },
     [editor]
   );
-
+ //creating callback function used when we choose placeObjectAtOrigin option from context menu of AssetGridItem
   const placeObjectAtOrigin = useCallback(
     (_, trigger) => {
       const item = trigger.item;
@@ -175,6 +230,7 @@ export default function AssetGrid({ isLoading, selectedItems, items, onSelect, o
     [source]
   );
 
+//returning view of AssetGridItems
   return (
     <>
       <VerticalScrollContainer flex>
