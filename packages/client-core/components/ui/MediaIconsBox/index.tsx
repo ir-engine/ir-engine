@@ -46,7 +46,7 @@ const MediaIconsBox = observer((props) => {
     const { authState, locationState } = props;
 
     const [faceTracking, setFaceTracking] = useState(MediaStreamSystem.instance?.faceTracking);
-    const [xrSupported, setXRSupported] = useState(Engine.renderer?.xr.supported);
+    const [xrSupported, setXRSupported] = useState(false);
 
     const user = authState.get('user');
     const currentLocation = locationState.get('currentLocation').get('location');
@@ -54,7 +54,7 @@ const MediaIconsBox = observer((props) => {
     const videoEnabled = currentLocation.locationSettings ? currentLocation.locationSettings.videoEnabled : false;
     const instanceMediaChatEnabled = currentLocation.locationSettings ? currentLocation.locationSettings.instanceMediaChatEnabled : false;
 
-    (navigator as any).xr.isSessionSupported('immersive-vr').then(supported => {
+    (navigator as any).xr?.isSessionSupported('immersive-vr').then(supported => {
       setXRSupported(supported);
     })
 
