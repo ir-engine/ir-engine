@@ -1,6 +1,7 @@
 // Adapted from the camera preview plugin
 package com.xr3ngine.xr;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
@@ -33,6 +34,15 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import androidx.exifinterface.media.ExifInterface;
+
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.ar.core.Config;
+import com.google.ar.core.Session;
+import com.google.ar.core.exceptions.CameraNotAvailableException;
+import com.google.ar.core.exceptions.UnavailableApkTooOldException;
+import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
+import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -106,8 +116,74 @@ public class CameraActivity extends Fragment {
 
     // Inflate the layout for this fragment
     view = inflater.inflate(getResources().getIdentifier("camera_activity", "layout", appResourcesPackage), container, false);
+    initializeARCore();
     createCameraPreview();
     return view;
+  }
+
+  private Session mSession;
+  private GestureDetector mGestureDetector;
+  private Snackbar mMessageSnackbar;
+  private DisplayRotationHelper mDisplayRotationHelper;
+  Exception exception = null;
+  String message = null;
+  private void initializeARCore(){
+
+    try {
+      mSession = new Session(/* context= */ this.getContext());
+    } catch (UnavailableApkTooOldException e) {
+      e.printStackTrace();
+    } catch (UnavailableArcoreNotInstalledException e) {
+      Log.e("XRPLUGIN", "ARCore error UnavailableArcoreNotInstalledException");
+      message = "Please install ARCore";
+      exception = e;
+    } catch (UnavailableSdkTooOldException e) {
+      Log.e("XRPLUGIN", "Please update this app UnavailableSdkTooOldException");
+      message = "Please update this app";
+      exception = e;
+    } catch (Exception e) {
+      Log.e("XRPLUGIN", "This device does not support AR");
+      message = "This device does not support AR";
+      exception = e;
+    }
+
+    if (message != null) {
+      showSnackbarMessage(message, true);
+      Log.e(TAG, "Exception creating session", exception);
+      return;
+    }
+
+    Config config = new Config(mSession);
+    if (!mSession.isSupported(config)) {
+      showSnackbarMessage("This device does not support AR", true);
+    }
+    mSession.configure(config);
+  }
+
+  private void showSnackbarMessage(String message, boolean finishOnDismiss) {
+    mMessageSnackbar = Snackbar.make(
+            this.getActivity().findViewById(android.R.id.content),
+            message, Snackbar.LENGTH_INDEFINITE);
+    mMessageSnackbar.getView().setBackgroundColor(0xbf323232);
+    if (finishOnDismiss) {
+            mMessageSnackbar.setAction(
+                    "Dismiss",
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mMessageSnackbar.dismiss();
+                        }
+                    });
+            mMessageSnackbar.addCallback(
+                    new BaseTransientBottomBar.BaseCallback<Snackbar>() {
+                        @Override
+                        public void onDismissed(Snackbar transientBottomBar, int event) {
+                            super.onDismissed(transientBottomBar, event);
+//                            finish();
+                        }
+                    });
+    }
+    mMessageSnackbar.show();
   }
 
   public void setRect(int x, int y, int width, int height){
@@ -267,9 +343,26 @@ public class CameraActivity extends Fragment {
     }
   }
 
+
   @Override
   public void onResume() {
     super.onResume();
+
+    // ARCore requires camera permissions to operate. If we did not yet obtain runtime
+    // permission on Android M and above, now is a good time to ask the user for it.
+    if (CameraPermissionHelper.hasCameraPermission(this.getActivity())) {
+            if (mSession != null) {
+                showLoadingMessage();
+                // Note that order matters - see the note in onPause(), the reverse applies here.
+              try {
+                mSession.resume();
+              } catch (CameraNotAvailableException e) {
+                e.printStackTrace();
+              }
+            }
+    } else {
+      CameraPermissionHelper.requestCameraPermission(this.getActivity());
+    }
 
     mCamera = Camera.open(defaultCameraId);
 
@@ -312,6 +405,27 @@ public class CameraActivity extends Fragment {
     }
   }
 
+  private void showLoadingMessage() {
+    this.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        showSnackbarMessage("Searching for surfaces...", false);
+      }
+    });
+  }
+
+  private void hideLoadingMessage() {
+    this.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        if (mMessageSnackbar != null) {
+          mMessageSnackbar.dismiss();
+        }
+        mMessageSnackbar = null;
+      }
+    });
+  }
+
   @Override
   public void onPause() {
     super.onPause();
@@ -323,6 +437,10 @@ public class CameraActivity extends Fragment {
       mCamera.setPreviewCallback(null);
       mCamera.release();
       mCamera = null;
+    }
+
+    if (mSession != null) {
+      mSession.pause();
     }
   }
 

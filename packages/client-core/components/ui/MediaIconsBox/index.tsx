@@ -32,6 +32,8 @@ import {
 } from "@xr3ngine/engine/src/input/behaviors/WebcamInputBehaviors";
 import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import { VrIcon } from "../Icons/Vricon";
+import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
+import { startVR } from "@xr3ngine/engine/src/input/functions/WebXRFunctions";
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -45,12 +47,17 @@ const MediaIconsBox = (props) => {
     const { authState, locationState } = props;
 
     const [faceTracking, setFaceTracking] = useState(MediaStreamSystem.instance?.faceTracking);
+    const [xrSupported, setXRSupported] = useState(Engine.renderer?.xr.supported);
 
     const user = authState.get('user');
     const currentLocation = locationState.get('currentLocation').get('location');
 
     const videoEnabled = currentLocation.locationSettings ? currentLocation.locationSettings.videoEnabled : false;
     const instanceMediaChatEnabled = currentLocation.locationSettings ? currentLocation.locationSettings.instanceMediaChatEnabled : false;
+
+    (navigator as any).xr.isSessionSupported('immersive-vr').then(supported => {
+      setXRSupported(supported);
+    })
 
     const checkMediaStream = async (partyId: string) => {
         if (!MediaStreamSystem.instance.mediaStream)
@@ -106,8 +113,13 @@ const MediaIconsBox = (props) => {
         }
     };
 
+    const handleVRClick = () => {
+      startVR();
+  };
+
     const audioPaused = MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camAudioProducer == null || MediaStreamSystem.instance?.audioPaused === true;
     const videoPaused = MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camVideoProducer == null || MediaStreamSystem.instance?.videoPaused === true;
+    const xrEnabled = Engine.renderer?.xr.enabled === true;
     const VideocamIcon = videoPaused ? VideocamOff : Videocam;
     const MicIcon = audioPaused ? MicOff : Mic;
     return (
@@ -125,9 +137,10 @@ const MediaIconsBox = (props) => {
                         <FaceIcon onClick={handleFaceClick} />
                     </button>
                 </> : null}
-            <button type="button" className={styles.iconContainer}>
-                <VrIcon/> 
-            </button>
+            {xrSupported
+                ? <button type="button" className={styles.iconContainer + ' ' + (!xrEnabled ? styles.off : styles.on)}>
+                    <VrIcon onClick={handleVRClick} /> 
+                </button> : null}
         </section>
     );
 };
