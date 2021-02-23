@@ -15,6 +15,7 @@ import {
   didResetPassword,
   didCreateMagicLink,
   updatedUserSettingsAction,
+  updatedGraphicsSettingsAction,
   loadedUserData,
   avatarUpdated,
   usernameUpdated,
