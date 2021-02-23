@@ -48,6 +48,9 @@ const MediaIconsBox = (props) => {
 
     const [faceTracking, setFaceTracking] = useState(MediaStreamSystem.instance?.faceTracking);
     const [xrSupported, setXRSupported] = useState(Engine.renderer?.xr.supported);
+    const [videoPaused, setVideoPaused] = useState(MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camVideoProducer == null || MediaStreamSystem.instance?.videoPaused === true);
+    const [audioPaused, setAudioPaused] = useState(MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camAudioProducer == null || MediaStreamSystem.instance?.audioPaused === true);
+
 
     const user = authState.get('user');
     const currentLocation = locationState.get('currentLocation').get('location');
@@ -55,7 +58,7 @@ const MediaIconsBox = (props) => {
     const videoEnabled = currentLocation.locationSettings ? currentLocation.locationSettings.videoEnabled : false;
     const instanceMediaChatEnabled = currentLocation.locationSettings ? currentLocation.locationSettings.instanceMediaChatEnabled : false;
 
-    (navigator as any).xr.isSessionSupported('immersive-vr').then(supported => {
+    (navigator as any).xr?.isSessionSupported('immersive-vr').then(supported => {
       setXRSupported(supported);
     })
 
@@ -99,6 +102,8 @@ const MediaIconsBox = (props) => {
             else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer);
             checkEndVideoChat();
         }
+
+        setAudioPaused(MediaStreamSystem.instance?.audioPaused);
     };
 
     const handleCamClick = async () => {
@@ -111,35 +116,35 @@ const MediaIconsBox = (props) => {
             else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer);
             checkEndVideoChat();
         }
+
+        setVideoPaused(MediaStreamSystem.instance?.videoPaused);
     };
 
     const handleVRClick = () => {
-      startVR();
-  };
+        startVR();
+    };
 
-    const audioPaused = MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camAudioProducer == null || MediaStreamSystem.instance?.audioPaused === true;
-    const videoPaused = MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camVideoProducer == null || MediaStreamSystem.instance?.videoPaused === true;
     const xrEnabled = Engine.renderer?.xr.enabled === true;
     const VideocamIcon = videoPaused ? VideocamOff : Videocam;
     const MicIcon = audioPaused ? MicOff : Mic;
     return (
         <section className={styles.drawerBox}>
             {instanceMediaChatEnabled
-                ? <button type="button" className={styles.iconContainer + ' ' + (audioPaused ? styles.off : styles.on)}>
-                    <MicIcon onClick={handleMicClick} />
+                ? <button type="button" className={styles.iconContainer + ' ' + (audioPaused ? '' : styles.on)} onClick={handleMicClick}>
+                    <MicIcon />
                 </button> : null}
             {videoEnabled
                 ? <>
-                    <button type="button" className={styles.iconContainer + ' ' + (videoPaused ? styles.off : styles.on)}>
-                        <VideocamIcon onClick={handleCamClick} />
+                    <button type="button" className={styles.iconContainer + ' ' + (videoPaused ? '' : styles.on)} onClick={handleCamClick}>
+                        <VideocamIcon />
                     </button>
-                    <button type="button" className={styles.iconContainer + ' ' + (!faceTracking ? styles.off : styles.on)}>
-                        <FaceIcon onClick={handleFaceClick} />
+                    <button type="button" className={styles.iconContainer + ' ' + (!faceTracking ? '' : styles.on)} onClick={handleFaceClick}>
+                        <FaceIcon />
                     </button>
                 </> : null}
             {xrSupported
-                ? <button type="button" className={styles.iconContainer + ' ' + (!xrEnabled ? styles.off : styles.on)}>
-                    <VrIcon onClick={handleVRClick} /> 
+                ? <button type="button" className={styles.iconContainer + ' ' + (!xrEnabled ? '' : styles.on)} onClick={handleVRClick}>
+                    <VrIcon /> 
                 </button> : null}
         </section>
     );
