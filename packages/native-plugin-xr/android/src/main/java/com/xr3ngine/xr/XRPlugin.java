@@ -1,6 +1,7 @@
 package com.xr3ngine.xr;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.ContentUris;
@@ -64,14 +65,13 @@ public class XRPlugin extends Plugin implements CameraActivity.CameraPreviewList
     private static String VIDEO_FILE_PATH = "";
     private static String VIDEO_FILE_EXTENSION = ".mp4";
 
-    private CameraActivity fragment;
+    private ARActivity fragment;
     private int containerViewId = 20;
 
     private boolean xrIsEnabled = false;
     private boolean recordingIsEnabled = false;
     private XRFrameData currentXrFrameData = new XRFrameData();
     private MainActivity mainActivity;
-
     @PluginMethod
     public void initialize(PluginCall call) {
         Log.d("XRPLUGIN", "Initializing");
@@ -79,9 +79,6 @@ public class XRPlugin extends Plugin implements CameraActivity.CameraPreviewList
         JSObject ret = new JSObject();
         ret.put("status", "native");
         call.success(ret);
-//        mainActivity = new MainActivity(); // This is where we are starting from
-//        Intent intent = new Intent(Intent.ACTION_VIEW);
-//        mainActivity.startActivity(intent);
     }
 
     // CAMERA PREVIEW METHOD =====================================
@@ -92,6 +89,7 @@ public class XRPlugin extends Plugin implements CameraActivity.CameraPreviewList
         Log.d("XRPLUGIN", "Starting camera");
         saveCall(call);
         getBridge().getWebView().setBackgroundColor(Color.TRANSPARENT);
+
         if (hasRequiredPermissions()) {
             startCamera(call);
         } else {
@@ -172,15 +170,15 @@ public class XRPlugin extends Plugin implements CameraActivity.CameraPreviewList
         final Boolean storeToFile = call.getBoolean("storeToFile", false);
         final Boolean disableExifHeaderStripping = call.getBoolean("disableExifHeaderStripping", true);
 
-        fragment = new CameraActivity();
-        fragment.setEventListener(this);
-        fragment.defaultCamera = position;
-        fragment.tapToTakePicture = false;
-        fragment.dragEnabled = false;
-        fragment.tapToFocus = true;
-        fragment.disableExifHeaderStripping = disableExifHeaderStripping;
-        fragment.storeToFile = storeToFile;
-        fragment.toBack = toBack;
+        fragment = new ARActivity();
+//        fragment.setEventListener(this);
+//        fragment.defaultCamera = position;
+//        fragment.tapToTakePicture = false;
+//        fragment.dragEnabled = false;
+//        fragment.tapToFocus = true;
+//        fragment.disableExifHeaderStripping = disableExifHeaderStripping;
+//        fragment.storeToFile = storeToFile;
+//        fragment.toBack = toBack;
 
         getBridge().getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -339,9 +337,9 @@ public class XRPlugin extends Plugin implements CameraActivity.CameraPreviewList
             return false;
         }
 
-        if(fragment.getCamera() == null) {
-            return false;
-        }
+//        if(fragment.getCamera() == null) {
+//            return false;
+//        }
 
         return true;
     }
@@ -365,8 +363,7 @@ public class XRPlugin extends Plugin implements CameraActivity.CameraPreviewList
         bridge.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                // fragment.startRecord(getFilePath(filename), position, width, height, quality, withFlash);
-                fragment.startRecord(getFilePath(filename), position, width, height, 70, withFlash, maxDuration);
+//                fragment.startRecord(getFilePath(filename), position, width, height, 70, withFlash, maxDuration);
             }
         });
 
@@ -382,15 +379,14 @@ public class XRPlugin extends Plugin implements CameraActivity.CameraPreviewList
 
         saveCall(call);
 
-        // bridge.getActivity().runOnUiThread(new Runnable() {
-        //     @Override
-        //     public void run() {
-        //         fragment.stopRecord();
-        //     }
-        // });
+         bridge.getActivity().runOnUiThread(new Runnable() {
+             @Override
+             public void run() {
+//                 fragment.stopRecord();
+             }
+         });
 
-        fragment.stopRecord();
-        // call.success();
+         call.success();
     }
 
     private String getFilePath(String filename) {
