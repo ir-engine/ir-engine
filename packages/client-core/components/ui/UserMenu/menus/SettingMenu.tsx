@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
     Mic,
     VolumeUp,
@@ -15,19 +15,6 @@ import styles from '../style.module.scss';
 import { WebGLRendererSystem } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
 
 const SettingMenu = (props: any): JSX.Element => {
-  // const [ pbr, setPBR ] = useState(props.graphics.pbr || true);
-  // const [ postProcessing, setPostProcessing ] = useState(props.graphics.postProcessing || true);
-  // const [ automatic, setAutomatic ] = useState(props.graphics.automatic || true);
-  // const [ shadows, setShadows ] = useState(props.graphics.shadows || 5);
-  // const [ resolution, setResolution ] = useState(props.graphics.resolution || 1);
-
-  // useEffect(() => {
-  //   Engine.qualityLevelChangeListeners.push(thing);
-  //   return function cleanup() {
-  //       Engine.qualityLevelChangeListeners.remove(thing);
-  //   };
-  // }, [])
-
   return (
     <div className={styles.menuPanel}>
       <div className={styles.settingPanel}>
@@ -60,12 +47,12 @@ const SettingMenu = (props: any): JSX.Element => {
             <Slider
               value={props.graphics.resolution}
               onChange={(_, value) => { 
-                // if(props.graphics.automatic) { setAutomatic(false); }
                 props.setGraphicsSettings({
-                  resolution: value
+                  resolution: value,
+                  automatic: false
                 })
-                // setResolution(value);
-                // WebGLRendererSystem.instance.setResolution(resolution);
+                WebGLRendererSystem.instance.setResolution(value);
+                WebGLRendererSystem.instance.setUseAutomatic(false);
               }}
               className={styles.slider}
               min={0.25}
@@ -80,11 +67,11 @@ const SettingMenu = (props: any): JSX.Element => {
               value={props.graphics.shadows}
               onChange={(_, value) => { 
                 props.setGraphicsSettings({
-                  shadows: value
+                  shadows: value,
+                  automatic: false
                 })
-                // if(props.graphics.automatic) { setAutomatic(false); }
-                // setShadows(value);
-                // WebGLRendererSystem.instance.setShadowQuality(props.graphics.shadows);
+                WebGLRendererSystem.instance.setShadowQuality(value);
+                WebGLRendererSystem.instance.setUseAutomatic(false);
               }}
               className={styles.slider}
               min={2}
@@ -97,21 +84,23 @@ const SettingMenu = (props: any): JSX.Element => {
               className={styles.checkboxBlock}
               control={<Checkbox checked={props.graphics.postProcessing} size="small" />}
               label="Post Processing"
-              onChange={() => { 
+              onChange={(_, value) => { 
                 props.setGraphicsSettings({
-                  postProcessing: !props.graphics.postProcessing
+                  postProcessing: value,
+                  automatic: false
                 })
-                // if(props.graphics.automatic) { setAutomatic(false); }
-                // setPostProcessing(!props.graphics.postProcessing);
-                // WebGLRendererSystem.instance.setUsePostProcessing(props.graphics.postProcessing);
+                WebGLRendererSystem.instance.setUsePostProcessing(value);
+                WebGLRendererSystem.instance.setUseAutomatic(false);
               }}
             />
             <FormControlLabel
               className={styles.checkboxBlock}
               control={<Checkbox checked={props.graphics.pbr} size="small" />}
               label="Full PBR"
-              onChange={() => { 
-                // setPBR(!pbr); 
+              onChange={(_, value) => { 
+                props.setGraphicsSettings({
+                  pbr: value
+                })
               }}
             />
           </div>
@@ -121,24 +110,11 @@ const SettingMenu = (props: any): JSX.Element => {
               control={<Checkbox checked={props.graphics.automatic} size="small" />}
               label="Automatic"
               labelPlacement="start"
-              onChange={() => { 
+              onChange={(_, value) => { 
                 props.setGraphicsSettings({
-                  automatic: !props.graphics.automatic
+                  automatic: value
                 })
-                // setAutomatic(!automatic);
-                // console.log(!automatic)
-                // if(!automatic) {
-
-                //   WebGLRendererSystem.instance.setUseAutomatic(!automatic);
-                //   WebGLRendererSystem.instance.setResolution(resolution);
-                //   WebGLRendererSystem.instance.setShadowQuality(shadows);
-                //   WebGLRendererSystem.instance.setUsePostProcessing(postProcessing);
-                // } else {
-                // }
-
-                // setResolution(WebGLRendererSystem.instance.scaleFactor)
-                // setShadows(WebGLRendererSystem.instance.shadowQuality)
-                // setPostProcessing(WebGLRendererSystem.instance.usePostProcessing)
+                WebGLRendererSystem.instance.setUseAutomatic(value);
               }}
             />
           </div>

@@ -125,9 +125,11 @@ export class WebGLRendererSystem extends System {
 
     WebGLRendererSystem.needsResize = true;
     this.configurePostProcessing();
+    loadGraphicsSettingsFromStorage();
     this.setUsePostProcessing(true);
     this.setShadowQuality(this.qualityLevel);
     this.setResolution(WebGLRendererSystem.scaleFactor);
+    this.setUseAutomatic(WebGLRendererSystem.automatic);
   }
 
   /** Called on resize, sets resize flag. */
@@ -273,18 +275,19 @@ export class WebGLRendererSystem extends System {
 
     // set resolution scale
     if (this.prevQualityLevel !== this.qualityLevel) {
-      console.log('Changing quality level to', this.qualityLevel, 'because of delta:', delta)
       this.setShadowQuality(this.qualityLevel);
-      this.setResolution((this.qualityLevel + 1) / 5);
+      this.setResolution((this.qualityLevel) / 5);
       this.setUsePostProcessing(this.qualityLevel > 1);
       WebGLRendererSystem.qualityLevelChangeListeners.forEach((callback) => {
         callback({
           shadows: WebGLRendererSystem.shadowQuality,
           resolution: WebGLRendererSystem.scaleFactor,
           postProcessing: WebGLRendererSystem.usePostProcessing,
+          pbr: WebGLRendererSystem.usePBR,
           automatic: true
         })
       })
+      saveGraphicsSettingsToStorage();
       this.prevQualityLevel = this.qualityLevel;
     }
   }
@@ -292,15 +295,19 @@ export class WebGLRendererSystem extends System {
   setUseAutomatic(automatic) {
     WebGLRendererSystem.automatic = automatic;
     if(WebGLRendererSystem.automatic) {
+      this.prevQualityLevel = -1;
       this.setShadowQuality(this.qualityLevel);
-      this.setResolution((this.qualityLevel + 1) / 5);
+      this.setResolution((this.qualityLevel) / 5);
       this.setUsePostProcessing(this.qualityLevel > 1);
     }
+    saveGraphicsSettingsToStorage();
   }
 
   setResolution(resolution) {
     WebGLRendererSystem.scaleFactor = resolution;
-    Engine.renderer.setPixelRatio(window.devicePixelRatio * WebGLRendererSystem.scaleFactor)
+    Engine.renderer.setPixelRatio(window.devicePixelRatio * WebGLRendererSystem.scaleFactor);
+    WebGLRendererSystem.needsResize = true;
+    saveGraphicsSettingsToStorage();
   }
 
   setShadowQuality(shadowSize) {
@@ -313,12 +320,51 @@ export class WebGLRendererSystem extends System {
       case this.maxQualityLevel: mapSize = 4096; break;
     }
     Engine.csm.setShadowMapSize(mapSize);
+    saveGraphicsSettingsToStorage();
   }
 
   setUsePostProcessing(usePostProcessing) {
     WebGLRendererSystem.usePostProcessing = usePostProcessing;
     Engine.renderer.outputEncoding = WebGLRendererSystem.usePostProcessing ? LinearEncoding : sRGBEncoding;
+    saveGraphicsSettingsToStorage();
   }
+}
+
+export const saveGraphicsSettingsToStorage = () =>{
+  localStorage.setItem('graphics-settings', JSON.stringify({
+    resolution: WebGLRendererSystem.scaleFactor,
+    shadows: WebGLRendererSystem.shadowQuality,
+    automatic: WebGLRendererSystem.automatic,
+    pbr: WebGLRendererSystem.usePBR,
+    postProcessing: WebGLRendererSystem.usePostProcessing,
+  }))
+}
+
+export const getGraphicsSettingsFromStorage = () => {
+  // we don't want people potentially having code injected from local storage, so let's default and verify
+  const loadedGraphicsSettings = JSON.parse(localStorage.getItem('graphics-settings') || '{}');
+  const verifiedGraphicsSettings = {
+    resolution: WebGLRendererSystem.scaleFactor,
+    shadows: WebGLRendererSystem.shadowQuality,
+    automatic: WebGLRendererSystem.automatic,
+    pbr: WebGLRendererSystem.usePBR,
+    postProcessing: WebGLRendererSystem.usePostProcessing,
+  };
+  Object.keys(verifiedGraphicsSettings).forEach((key) => {
+    if(typeof loadedGraphicsSettings[key] === typeof verifiedGraphicsSettings[key]) {
+      verifiedGraphicsSettings[key] = loadedGraphicsSettings[key];
+    }
+  })
+  return verifiedGraphicsSettings;
+}
+
+export const loadGraphicsSettingsFromStorage = () => {
+  const verifiedGraphicsSettings = getGraphicsSettingsFromStorage();
+  WebGLRendererSystem.scaleFactor = verifiedGraphicsSettings.resolution;
+  WebGLRendererSystem.shadowQuality = verifiedGraphicsSettings.shadows;
+  WebGLRendererSystem.automatic = verifiedGraphicsSettings.automatic;
+  WebGLRendererSystem.usePBR = verifiedGraphicsSettings.pbr;
+  WebGLRendererSystem.usePostProcessing = verifiedGraphicsSettings.postProcessing;
 }
 
 WebGLRendererSystem.queries = {

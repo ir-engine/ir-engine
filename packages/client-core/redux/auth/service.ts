@@ -485,11 +485,6 @@ export const updateUserSettings = (id: any, data: any) => async (dispatch: any) 
   dispatch(updatedUserSettingsAction(res));
 };
 
-export const updateGraphicsSettings = (data: any) => async (dispatch: any) => {
-  const res = await localStorage.setItem('graphics-settings', JSON.stringify(data))
-  dispatch(updatedGraphicsSettingsAction(res));
-};
-
 export function uploadAvatar (data: any) {
   return async (dispatch: Dispatch, getState: any) => {
     const token = getState().get('auth').get('authUser').accessToken;
