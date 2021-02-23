@@ -28,6 +28,7 @@ const SignIn = (): any => {
   let enableGithubSocial = false;
   let enableGoogleSocial = false;
   let enableFacebookSocial = false;
+  let enableLinkedInSocial = false;
   const [tabIndex, setTabIndex] = useState(0);
 
   const handleChange = (event: any, newValue: number): void => {
@@ -42,12 +43,14 @@ const SignIn = (): any => {
     enableGithubSocial = config.auth.enableGithubSocial;
     enableGoogleSocial = config.auth.enableGoogleSocial;
     enableFacebookSocial = config.auth.enableFacebookSocial;
+    enableLinkedInSocial = config.auth.enableLinkedInSocial;
   }
 
   const socials = [
     enableGithubSocial,
     enableGoogleSocial,
-    enableFacebookSocial
+    enableFacebookSocial,
+    enableLinkedInSocial
   ];
   const enabled = [
     enableSmsMagicLink,
@@ -55,7 +58,8 @@ const SignIn = (): any => {
     enableUserPassword,
     enableGithubSocial,
     enableGoogleSocial,
-    enableFacebookSocial
+    enableFacebookSocial,
+    enableLinkedInSocial
   ];
 
   const enabledCount = enabled.filter(v => v).length;
@@ -83,7 +87,7 @@ const SignIn = (): any => {
     enableUserPassword && ++index;
 
     const socialTab = socialCount > 0 && <Tab icon={<SocialIcon/>} label="Social"/>;
-    const socialTabPanel = socialCount > 0 && <TabPanel value={tabIndex} index={index}><SocialLogin enableFacebookSocial={enableFacebookSocial} enableGoogleSocial={enableGoogleSocial} enableGithubSocial={enableGithubSocial} /></TabPanel>;
+    const socialTabPanel = socialCount > 0 && <TabPanel value={tabIndex} index={index}><SocialLogin enableFacebookSocial={enableFacebookSocial} enableGoogleSocial={enableGoogleSocial} enableGithubSocial={enableGithubSocial} enableLinkedInSocial={enableLinkedInSocial}  /></TabPanel>;
     socialCount > 0 && ++index;
 
     component = (
