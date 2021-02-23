@@ -12,7 +12,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
-import { logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings, updateGraphicsSettings, getGraphicsSettings } from '../../../redux/auth/service';
+import { logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings } from '../../../redux/auth/service';
 import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth } from '../../../redux/auth/service';
 import { alertSuccess } from '../../../redux/alert/service';
 import { provisionInstanceServer } from "../../../redux/instanceConnection/service";
@@ -24,7 +24,7 @@ import ProfileMenu from './menus/ProfileMenu';
 import AvatarMenu from './menus/AvatarMenu';
 import SettingMenu from './menus/SettingMenu';
 import ShareMenu from './menus/ShareMenu';
-import { WebGLRendererSystem, getGraphicsSettingsFromStorage, saveGraphicsSettingsToStorage } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
+import { WebGLRendererSystem, getGraphicsSettingsFromStorage } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
 
 const mapStateToProps = (state: any): any => {
   return {
