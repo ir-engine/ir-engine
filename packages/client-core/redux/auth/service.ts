@@ -15,6 +15,7 @@ import {
   didResetPassword,
   didCreateMagicLink,
   updatedUserSettingsAction,
+  updatedGraphicsSettingsAction,
   loadedUserData,
   avatarUpdated,
   usernameUpdated,
@@ -482,6 +483,11 @@ export function refreshConnections (userId: string) { (dispatch: Dispatch): any 
 export const updateUserSettings = (id: any, data: any) => async (dispatch: any) => {
   const res = await client.service('user-settings').patch(id, data);
   dispatch(updatedUserSettingsAction(res));
+};
+
+export const updateGraphicsSettings = (data: any) => async (dispatch: any) => {
+  const res = await localStorage.setItem('graphics-settings', JSON.stringify(data))
+  dispatch(updatedGraphicsSettingsAction(res));
 };
 
 export function uploadAvatar (data: any) {

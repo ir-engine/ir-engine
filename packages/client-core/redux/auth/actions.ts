@@ -15,6 +15,7 @@ import {
   ACTION_PROCESSING,
   DID_CREATE_MAGICLINK,
   UPDATE_USER_SETTINGS,
+  UPDATE_GRAPHICS_SETTINGS,
   LOADED_USER_DATA,
   AVATAR_UPDATED,
   USERNAME_UPDATED,
@@ -214,6 +215,13 @@ export function loadedUserData (user: User): LoadDataResultAction {
 export function updatedUserSettingsAction (data: any): UserSettingsUpdatedAction {
   return {
     type: UPDATE_USER_SETTINGS,
+    data: data
+  };
+}
+
+export function updatedGraphicsSettingsAction (data: any): UserSettingsUpdatedAction {
+  return {
+    type: UPDATE_GRAPHICS_SETTINGS,
     data: data
   };
 }
