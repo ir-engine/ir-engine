@@ -129,7 +129,8 @@ const authentication = {
     'local',
     'facebook',
     'github',
-    'google'
+    'google',
+    'linkedin'
   ],
   local: {
     usernameField: 'email',
@@ -144,7 +145,8 @@ const authentication = {
   callback: {
     facebook: process.env.FACEBOOK_CALLBACK_URL ?? `${client.url}/auth/oauth/facebook`,
     github: process.env.GITHUB_CALLBACK_URL ?? `${client.url}/auth/oauth/github`,
-    google: process.env.GOOGLE_CALLBACK_URL ?? `${client.url}/auth/oauth/google`
+    google: process.env.GOOGLE_CALLBACK_URL ?? `${client.url}/auth/oauth/google`,
+    linkedin: process.env.LINKEDIN_CALLbACK_URL ?? `${client.url}/auth/oauth/linkedlin`,
   },
   oauth: {
     defaults: {
@@ -163,6 +165,10 @@ const authentication = {
       key: process.env.GOOGLE_CLIENT_ID ?? '',
       secret: process.env.GOOGLE_CLIENT_SECRET ?? '',
       scope: ['profile', 'email']
+    },
+    linkedin: {
+      key: process.env.LINKEDIN_CLIENT_ID ?? '',
+      secret: process.env.LINKEDIN_CLIENT_SECRET ?? '',
     }
   }
 };
