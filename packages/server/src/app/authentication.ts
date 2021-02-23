@@ -5,6 +5,7 @@ import { Application } from '../declarations';
 import GithubStrategy from '../strategies/github';
 import GoogleStrategy from '../strategies/google';
 import FacebookStrategy from '../strategies/facebook';
+import LinkedlnStrategy from "../strategies/linkedln";
 import { MyLocalStrategy } from '../strategies/local';
 import { MyJwtStrategy } from '../strategies/jwt';
 import authenticationDoc from './authentication.doc';
@@ -24,6 +25,7 @@ export default (app: Application): void => {
   authentication.register('google', new GoogleStrategy());
   authentication.register('facebook', new FacebookStrategy());
   authentication.register('github', new GithubStrategy());
+  authentication.register('linkedin', new LinkedlnStrategy());
 
   app.use('/authentication', authentication);
 
