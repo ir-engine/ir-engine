@@ -42,7 +42,9 @@ export default class ElementsSource extends BaseSource {
   onSceneGraphChanged = () => {
     this.emit("resultsChanged");
   };
+
   // function to hanlde the search and to call API if there is any change in search input.
+  // @ts-ignore
   async search(params) {
     const editor = this.editor;
     let results = Array.from(editor.nodeTypes).reduce((acc: any, nodeType: any) => {

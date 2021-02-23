@@ -1,4 +1,4 @@
-import { ThemeProvider } from '@material-ui/core';
+import { Fab, ThemeProvider} from '@material-ui/core';
 import getConfig from 'next/config';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -21,14 +21,15 @@ import Me from '../Me';
 import NavMenu from '../NavMenu';
 import PartyVideoWindows from '../PartyVideoWindows';
 import {
-  Button
-} from '@material-ui/core'
-import { Fullscreen, FullscreenExit} from "@material-ui/icons";
+    Forum
+} from '@material-ui/icons';
+import {  FullscreenExit} from "@material-ui/icons";
 import Harmony from "../Harmony";
 //@ts-ignore
 import styles from './Layout.module.scss';
 import { Toast } from "../Toast/Toast";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
+import { Expand } from '../Icons/Expand';
 
 const { publicRuntimeConfig } = getConfig();
 const siteTitle: string = publicRuntimeConfig.siteTitle;
@@ -106,11 +107,11 @@ const Layout = (props: Props): any => {
     return child;
   });
   const reportChange = useCallback((state) => {
-    if(state){
-       setFullScreenActive(state); 
+    if (state) {
+      setFullScreenActive(state);
     } else {
-      setFullScreenActive(state); 
-    }       
+      setFullScreenActive(state);
+    }
   }, []);
 
   //info about current mode to conditional render menus
@@ -118,9 +119,9 @@ const Layout = (props: Props): any => {
   return (
     <>
       {
-        !fullScreenActive &&  <span className={styles.fullScreen} onClick={handle.enter}>
-        <Fullscreen style={{ fontSize: "4rem" }} />
-      </span>
+        !fullScreenActive && <span className={styles.fullScreen} onClick={handle.enter}>
+          <Expand/>
+        </span>
       }
       <FullScreen handle={handle} onChange={reportChange}>
         <ThemeProvider theme={theme}>
@@ -132,8 +133,13 @@ const Layout = (props: Props): any => {
             </Head>
             <header>
               {path === '/login' && <NavMenu login={login} />}
-              {harmonyOpen !== true && authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me />}
-              {harmonyOpen !== true && <PartyVideoWindows />}
+              { harmonyOpen !== true 
+                ? (
+                  <section className={styles.locationUserMenu}>
+                    {authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
+                    <PartyVideoWindows />
+                  </section>
+                ) : null}
             </header>
 
             {harmonyOpen === true && <Harmony setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} />}
@@ -144,7 +150,7 @@ const Layout = (props: Props): any => {
             </Fragment>
             {authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&
               <Fragment>
-                <LeftDrawer openBottomDrawer={bottomDrawerOpen} leftDrawerOpen={leftDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} />
+                <LeftDrawer harmony={true} setHarmonyOpen={setHarmonyOpen} openBottomDrawer={bottomDrawerOpen} leftDrawerOpen={leftDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} />
               </Fragment>
             }
             {authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&
@@ -158,23 +164,25 @@ const Layout = (props: Props): any => {
               </Fragment>
             }
             <footer>
-              {authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.id != null && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
+              {authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.id != null && user?.userRole !== 'guest' && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
                 <DrawerControls disableBottom={true} setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />}
 
               {locationState.get('currentLocation')?.get('location')?.id &&
                 authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.instanceId != null &&
                 !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
                 <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen} />}
-              {harmonyOpen === false && <Button className={styles.openHarmony} onClick={() => setHarmonyOpen(true)}>Open Harmony</Button>}
-              {harmonyOpen === true && <Button className={styles.closeHarmony} onClick={() => setHarmonyOpen(false)}>Close Harmony</Button>}
+              { user?.userRole !== 'guest' && <div className={styles['harmony-toggle']}><Fab color="primary" onClick={() => setHarmonyOpen(!harmonyOpen )}><Forum /></Fab></div> }
 
 
-
-
+              {
+                fullScreenActive && <span className={styles.fullScreen} onClick={handle.exit}>
+                  <FullscreenExit style={{ fontSize: "4rem" }} />
+                </span>
+              }
 
               {// use this Module when you want toast message and pass type of alter you want 
               }
-              <Toast message="this is a success message!" status="success" />
+              {/*<Toast message="this is a success message!" status="success" />*/}
               {/* <Toast message="this is an error message!" status="error"/> */}
               {/* <Toast message="this is a warning message!" status="warning"/> */}
             </footer>

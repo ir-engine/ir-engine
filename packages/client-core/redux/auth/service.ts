@@ -561,9 +561,9 @@ client.service('user').on('patched', async (params) => {
       }
     }
   } else {
-    if (user.channelInstanceId === selfUser.channelInstanceId) store.dispatch(addedChannelLayerUser(user));
-    if (user.instanceId === selfUser.instanceId) store.dispatch(addedLayerUser(user));
-    if (user.instanceId !== selfUser.channelInstanceId) store.dispatch(removedLayerUser(user));
+    if (user.channelInstanceId != null && user.channelInstanceId === selfUser.channelInstanceId) store.dispatch(addedChannelLayerUser(user));
+    if (user.instanceId != null && user.instanceId === selfUser.instanceId) store.dispatch(addedLayerUser(user));
+    if (user.instanceId !== selfUser.instanceId) store.dispatch(removedLayerUser(user));
     if (user.channelInstanceId !== selfUser.channelInstanceId) store.dispatch(removedChannelLayerUser(user));
   }
 });

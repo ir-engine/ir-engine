@@ -11,7 +11,7 @@ import { WorldStateModel } from '../schema/worldStateSchema';
 
 /** System class for network system of client. */
 export class ClientNetworkSystem extends System {
-  /** Update type of this system. **Default** to 
+  /** Update type of this system. **Default** to
      * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
   updateType = SystemUpdateType.Fixed;
 
@@ -34,10 +34,10 @@ export class ClientNetworkSystem extends System {
     }
   }
 
-  /** 
+  /**
    * Executes the system.\
    * Call logic based on whether system is on the server or on the client.
-   * 
+   *
    * @param delta Time since last frame.
    */
   execute = (delta: number): void => {
@@ -48,9 +48,7 @@ export class ClientNetworkSystem extends System {
       const buffer = queue.pop();
       // debugger;
       const unbufferedState = WorldStateModel.fromBuffer(buffer);
-
       if(!unbufferedState) console.warn("Couldn't deserialize buffer, probably still reading the wrong one")
-
       if(unbufferedState) applyNetworkStateToClient(unbufferedState, delta);
     }
   }
