@@ -455,7 +455,7 @@ export function addConnectionBySms (phone: string, userId: string) {
   };
 }
 
-export function addConnectionByOauth (oauth: 'facebook' | 'google' | 'github', userId: string) {
+export function addConnectionByOauth (oauth: 'facebook' | 'google' | 'github' | 'linkedin', userId: string) {
   return (/* dispatch: Dispatch */) => {
     window.open(`${apiServer}/auth/oauth/${oauth}?userId=${userId}`, '_blank');
   };
