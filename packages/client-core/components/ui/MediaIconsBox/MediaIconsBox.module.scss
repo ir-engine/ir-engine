@@ -36,10 +36,7 @@
             transform: scale(0);
         }
 
-        &:hover, &:focus {
-            &::before { transform: scale(100%); }
-            outline: none;
-        }
+        &:hover::before { transform: scale(100%); }
         &.on svg { color: rgba(122, 255, 100, 1) }
         > svg { height: 50%; width: 50%; }
     }

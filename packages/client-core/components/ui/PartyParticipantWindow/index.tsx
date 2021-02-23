@@ -27,6 +27,7 @@ import {
     VolumeOff,
     VolumeMute,
     VolumeUp,
+    Launch,
 } from '@material-ui/icons';
 import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
 import {Network} from "@xr3ngine/engine/src/networking/classes/Network";
@@ -299,6 +300,11 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
         if (focused === false) return name?.length > 10 ? name.slice(0, 10) + '...' : name;
     };
 
+    const togglePiP = async () => {
+        if (document.pictureInPictureElement) await document.exitPictureInPicture();
+        else await videoRef.current?.requestPictureInPicture();
+    }
+
     const avatarBgImage = user && user.avatarId ?
         `url(${'/static/' + user.avatarId.toLocaleLowerCase() + '.png'})` : selfUser && selfUser.avatarId ? `url(${'/static/' + selfUser.avatarId.toLocaleLowerCase() + '.png'})` : null;
     return (
@@ -328,59 +334,52 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                 <div className={styles['username']}>{truncateUsername()}</div>
                 <div className={styles['controls']}>
                     <div className={styles['mute-controls']}>
-                        <Tooltip
-                            title={videoProducerPaused === false && videoStreamPaused === false ? 'Pause Video' : 'Resume Video'}>
-                            <IconButton
-                                color="secondary"
-                                size="small"
-                                className={styles['video-control']}
-                                onClick={toggleVideo}
-                            >
-                                {(videoStream && videoProducerPaused === false && videoStreamPaused === false) &&
-                                <Videocam/>
-                                }
-                                {(videoStream && videoProducerPaused === false && videoStreamPaused === true) &&
-                                <VideocamOff/>
-                                }
-                            </IconButton>
-                        </Tooltip>
-                            {
-                                enableGlobalMute && peerId !== 'me_cam' && peerId !== 'me_screen' && <Tooltip
-                                    title={audioProducerGlobalMute === false ? 'Mute for everyone' : 'Unmute for everyone'}>
-                                    <IconButton
-                                        color="secondary"
-                                        size="small"
-                                        className={styles['audio-control']}
-                                        onClick={toggleGlobalMute}
-                                    >
-                                        {audioStream && audioProducerGlobalMute === false && <RecordVoiceOver/>}
-                                        {audioStream && audioProducerGlobalMute === true && <VoiceOverOff/>}
-                                    </IconButton>
-                                </Tooltip>
-                            }
-                            {/*{
-                                enableGlobalMute && peerId !== 'me_cam' && peerId !== 'me_screen' &&
-                                <div className={styles['spacer']}/>
-                            }*/}
-                            <Tooltip
-                                title={(peerId === 'me_cam' || peerId === 'me_screen') && audioStream?.paused === false ? 'Mute me' : (peerId === 'me_cam' || peerId === 'me_screen') && audioStream?.paused === true ? 'Unmute me' : (peerId !== 'me_cam' && peerId !== 'me_screen') && audioStream?.paused === false ? 'Mute this person' : 'Unmute this person'}>
+                        {videoStream && videoProducerPaused === false
+                            ? <Tooltip title={videoProducerPaused === false && videoStreamPaused === false ? 'Pause Video' : 'Resume Video'}>
+                                <IconButton
+                                    color="secondary"
+                                    size="small"
+                                    className={styles['video-control']}
+                                    onClick={toggleVideo}
+                                >
+                                    {videoStreamPaused ? <VideocamOff/> : <Videocam/>}
+                                </IconButton>
+                            </Tooltip> : null}
+                            {enableGlobalMute && peerId !== 'me_cam' && peerId !== 'me_screen'&& audioStream &&
+                                <Tooltip title={audioProducerGlobalMute === false ? 'Mute for everyone' : 'Unmute for everyone'}>
                                 <IconButton
                                     color="secondary"
                                     size="small"
                                     className={styles['audio-control']}
-                                    onClick={toggleAudio}
-                                    // style={{visibility: (audioStream == null || audioProducerPaused === true || audioProducerGlobalMute === true) ? 'hidden' : 'visible'}}
+                                    onClick={toggleGlobalMute}
                                 >
-                                    {((peerId === 'me_cam' || peerId === 'me_screen') && audioStream && audioProducerPaused === false && audioStreamPaused === false) &&
-                                    <Mic/>}
-                                    {((peerId === 'me_cam' || peerId === 'me_screen') && audioStream && audioProducerPaused === false && audioStreamPaused === true) &&
-                                    <MicOff/>}
-                                    {((peerId !== 'me_cam' && peerId !== 'me_screen') && audioStream && audioProducerPaused === false && audioStream.paused === false) &&
-                                    <VolumeUp/>}
-                                    {((peerId !== 'me_cam' && peerId !== 'me_screen') && audioStream && audioProducerPaused === false && audioStream.paused === true) &&
-                                    <VolumeOff/>}
+                                    {audioProducerGlobalMute ? <VoiceOverOff/> : <RecordVoiceOver/>}
                                 </IconButton>
-                            </Tooltip>
+                            </Tooltip>}
+                            {audioStream && audioProducerPaused === false
+                                ? <Tooltip title={(peerId === 'me_cam' || peerId === 'me_screen') && audioStream?.paused === false ? 'Mute me' : (peerId === 'me_cam' || peerId === 'me_screen') && audioStream?.paused === true ? 'Unmute me' : (peerId !== 'me_cam' && peerId !== 'me_screen') && audioStream?.paused === false ? 'Mute this person' : 'Unmute this person'}>
+                                    <IconButton
+                                        color="secondary"
+                                        size="small"
+                                        className={styles['audio-control']}
+                                        onClick={toggleAudio}
+                                    >
+                                        {peerId === 'me_cam' || peerId === 'me_screen'
+                                            ? audioStreamPaused ? <MicOff /> : <Mic />
+                                            : audioStreamPaused ? <VolumeOff /> : <VolumeUp />}
+                                    </IconButton>
+                                </Tooltip> : null}
+                            {document.pictureInPictureEnabled
+                                ? <Tooltip title="Open Picture in Picture">
+                                    <IconButton
+                                        color="secondary"
+                                        size="small"
+                                        className={styles['audio-control']}
+                                        onClick={togglePiP}
+                                    >
+                                        <Launch />
+                                    </IconButton>
+                                </Tooltip> : null}
                     </div>
                     {
                         audioProducerGlobalMute === true && <div className={styles['global-mute']}>Muted by Admin</div>
