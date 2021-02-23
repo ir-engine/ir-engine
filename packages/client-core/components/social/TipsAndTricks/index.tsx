@@ -27,8 +27,8 @@ export const TipsAndTricks = () => {
                     title={item.title}
                 />
                 <CardContent>
-                    <Typography gutterBottom variant="h5" component="h2">{item.title}</Typography>
-                    <Typography variant="h2" component="p">{item.description}</Typography>
+                    <Typography className={styles.tipsTitle} variant="h2">{item.title}</Typography>
+                    <Typography variant="h2">{item.description}</Typography>
                 </CardContent>
             </Card>
         )}

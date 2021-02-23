@@ -30,6 +30,9 @@ import {
     stopLipsyncTracking
 } from "@xr3ngine/engine/src/input/behaviors/WebcamInputBehaviors";
 import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
+import { VrIcon } from "../Icons/Vricon";
+import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
+import { startVR } from "@xr3ngine/engine/src/input/functions/WebXRFunctions";
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -39,10 +42,11 @@ const mapStateToProps = (state: any): any => {
     };
 };
 
-const MediaIconsBox = observer((props) =>{
+const MediaIconsBox = observer((props) => {
     const { authState, locationState } = props;
 
     const [faceTracking, setFaceTracking] = useState(MediaStreamSystem.instance?.faceTracking);
+    const [xrSupported, setXRSupported] = useState(Engine.renderer?.xr.supported);
 
     const user = authState.get('user');
     const currentLocation = locationState.get('currentLocation').get('location');
@@ -50,19 +54,23 @@ const MediaIconsBox = observer((props) =>{
     const videoEnabled = currentLocation.locationSettings ? currentLocation.locationSettings.videoEnabled : false;
     const instanceMediaChatEnabled = currentLocation.locationSettings ? currentLocation.locationSettings.instanceMediaChatEnabled : false;
 
+    (navigator as any).xr.isSessionSupported('immersive-vr').then(supported => {
+      setXRSupported(supported);
+    })
+
     const checkMediaStream = async (partyId: string) => {
         if (!MediaStreamSystem.instance.mediaStream)
             await configureMediaTransports(partyId);
     };
 
-    const handleFaceClick = async () =>{
+    const handleFaceClick = async () => {
         const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId;
         await checkMediaStream(partyId);
         setFaceTracking(MediaStreamSystem.instance.setFaceTracking(!MediaStreamSystem.instance?.faceTracking));
 
         const entity = Network.instance.localClientEntity;
         // if face tracking is false, start face and lip sync tracking
-        if(!faceTracking){
+        if (!faceTracking) {
             // get local input receiver entity
             startFaceTracking(entity);
             startLipsyncTracking(entity);
@@ -73,8 +81,8 @@ const MediaIconsBox = observer((props) =>{
         // If face tracking is true, stop face and lip sync tracking
     };
 
-    const checkEndVideoChat = async () =>{
-        if((MediaStreamSystem.instance.audioPaused || MediaStreamSystem.instance?.camAudioProducer == null) && (MediaStreamSystem.instance.videoPaused || MediaStreamSystem.instance?.camVideoProducer == null)) {
+    const checkEndVideoChat = async () => {
+        if ((MediaStreamSystem.instance.audioPaused || MediaStreamSystem.instance?.camAudioProducer == null) && (MediaStreamSystem.instance.videoPaused || MediaStreamSystem.instance?.camVideoProducer == null)) {
             await endVideoChat({});
             if ((Network.instance.transport as any).channelSocket?.connected === true) await leave(false);
         }
@@ -104,22 +112,31 @@ const MediaIconsBox = observer((props) =>{
         }
     };
 
+    const handleVRClick = () => {
+      startVR();
+  };
+
     const audioPaused = MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camAudioProducer == null || MediaStreamSystem.instance?.audioPaused === true;
     const videoPaused = MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camVideoProducer == null || MediaStreamSystem.instance?.videoPaused === true;
+    const xrEnabled = Engine.renderer?.xr.enabled === true;
     return (
         <section className={styles.drawerBoxContainer}>
             <section className={styles.drawerBox}>
-                { instanceMediaChatEnabled && (<div className={styles.iconContainer + ' ' + (audioPaused ? styles.off : styles.on)}>
+                {instanceMediaChatEnabled && (<div className={styles.iconContainer + ' ' + (audioPaused ? styles.off : styles.on)}>
                     <Mic id='micOff' className={styles.offIcon} onClick={handleMicClick} />
                     <Mic id='micOn' className={styles.onIcon} onClick={handleMicClick} />
-                </div>) }
-                { videoEnabled && (<div className={styles.iconContainer + ' ' + (videoPaused ? styles.off : styles.on)}>
+                </div>)}
+                {videoEnabled && (<div className={styles.iconContainer + ' ' + (videoPaused ? styles.off : styles.on)}>
                     <Videocam id='videoOff' className={styles.offIcon} onClick={handleCamClick} />
                     <Videocam id='videoOn' className={styles.onIcon} onClick={handleCamClick} />
-                </div>) }
-                { videoEnabled && (<div className={styles.iconContainer + ' ' + (!faceTracking ? styles.off : styles.on)}>
+                </div>)}
+                {videoEnabled && (<div className={styles.iconContainer + ' ' + (!faceTracking ? styles.off : styles.on)}>
                     <FaceIcon className={styles.offIcon} onClick={handleFaceClick} />
                     <FaceIcon className={styles.onIcon} onClick={handleFaceClick} />
+                </div>)}
+                {xrSupported && (<div className={styles.iconContainer + ' ' + (!xrEnabled ? styles.off : styles.on)}>
+                    <VrIcon className={styles.offIcon} onClick={handleVRClick} />
+                    <VrIcon className={styles.onIcon} onClick={handleVRClick} />
                 </div>)}
             </section>
         </section>

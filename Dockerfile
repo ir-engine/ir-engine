@@ -19,7 +19,7 @@ COPY packages/common/package.json ./packages/common/
 COPY packages/engine/package.json ./packages/engine/
 COPY packages/server/package.json ./packages/server/
 COPY packages/social/package.json ./packages/social/
-COPY packages/capacitor-plugin-xr/package.json ./packages/capacitor-plugin-xr/
+COPY packages/native-plugin-xr/package.json ./packages/native-plugin-xr/
 COPY packages/volumetric/package.json ./packages/volumetric/
 COPY packages/bot/package.json ./packages/bot/
 

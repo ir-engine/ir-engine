@@ -1,0 +1,402 @@
+@mixin flex-collapse {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex-grow: 1;
+}
+
+[class*=Left_list-container] {
+  .MuiDrawer-paperAnchorLeft {
+    width: 30%;
+
+    @media (max-width: 768px) {
+      width: 90%;
+    }
+
+    .MuiAccordion-root {
+      min-height: 50px;
+      overflow-y: auto;
+
+      &.Mui-expanded {
+        @include flex-collapse;
+
+        .MuiCollapse-container.MuiCollapse-entered {
+          @include flex-collapse;
+
+          .MuiCollapse-wrapper {
+            @include flex-collapse;
+
+            .MuiCollapse-wrapperInner {
+              @include flex-collapse;
+
+              & > div {
+                @include flex-collapse;
+
+                & > .MuiAccordionDetails-root {
+                  @include flex-collapse;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .MuiAccordionSummary-content {
+      & > svg {
+        margin-right: 5px;
+      }
+    }
+  }
+}
+
+[class*=Right_list-container] {
+  .MuiDrawer-paperAnchorRight {
+    width: 30%;
+
+    @media (max-width: 768px) {
+      width: 90%;
+    }
+
+    .MuiAccordion-root {
+      min-height: 50px;
+      overflow-y: auto;
+
+      &.Mui-expanded {
+        @include flex-collapse;
+
+        .MuiCollapse-container.MuiCollapse-entered {
+          @include flex-collapse;
+
+          .MuiCollapse-wrapper {
+            @include flex-collapse;
+
+            .MuiCollapse-wrapperInner {
+              @include flex-collapse;
+
+              & > div {
+                @include flex-collapse;
+
+                & > .MuiAccordionDetails-root {
+                  @include flex-collapse;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .MuiTab-root {
+      @media (min-width: 600px) {
+        min-width: initial;
+      }
+    }
+  }
+}
+
+[class*=Bottom_list-container] {
+  .MuiDrawer-paperAnchorBottom {
+    opacity: 85%;
+    height: 60% !important;
+    max-width: 1000px;
+
+    @media (max-width: 768px) {
+      max-width: 100%;
+      height: 80% !important;
+    }
+
+    .MuiFormControl-marginNormal {
+      margin-top: 8px;
+      margin-right: 5px;
+    }
+  }
+}
+
+.MuiTabs-root {
+  min-height: 75px;
+}
+
+.banned {
+  width: 100%;
+  height: 100%;
+  font-size: 30px;
+  background-color: #00ceff;
+  color: black;
+  text-align: center;
+}
+body{
+  overflow: auto;
+}
+
+.menuDrawerOpened{  
+  [class*=InstanceChat_instance-chat-container]{
+    right: 25vw;
+    left: auto;
+    transition: right 225ms cubic-bezier(0, 0, 0.2, 1) 0ms;
+    @media (orientation: portrait) {
+      height: 0;
+    }
+    // @media (max-width: 768px){
+    //   right: 50%;      
+    // } 
+    @media (max-width: 1280px){
+      right: 33%;
+    }
+    @media (max-width: 1024px){
+      right: 40%;
+    }
+    @media (max-width: 768px){
+      display: none;
+    }
+  }
+  [class*=InstanceChat_iconCallChat]{
+    right: 25vw;
+    @media (max-width: 1280px){
+      right: 33%;
+    }
+    @media (max-width: 1024px){
+      right: 40%;
+    }
+    @media (max-width: 768px){
+      display: none;
+    }
+  }
+
+  [class*=MediaIconsBox_drawerBoxContainer]{
+    @media (orientation: portrait) {
+      visibility: hidden;
+    }
+    @media (max-width: 768px){
+      left: 5px;
+      right: auto;
+    }
+  }
+}
+
+.plugintest{
+  background:rgba(0,0,0,0);
+}
+
+.plugintestReadout{
+  background:rgb(255, 255, 255, .5);
+  width:100%;
+  height:50;
+  display:fixed;
+  bottom:0;
+  left:auto;
+  right:auto;
+  margin:auto;
+  padding:1em;
+}
+
+.lander{
+  background: #00022E;
+
+  .mobile-only{
+    display: none;
+    width: 100%;
+    margin: 0 auto 50px;
+    text-align: center;
+  }
+
+  *{
+    font-family: Inter;
+    font-style: normal;
+    font-weight: 400;
+    color: white;
+  }
+
+  .row{
+    margin: 0;
+  }
+
+  .discord-icon,
+  .github-icon{
+    width: 60px;
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
+    @media(max-width: 560px){
+      width: 45px;
+      margin-left: 0.5rem;
+      margin-right: 0.5rem;
+    }
+  }
+
+  .button{
+    background: #5F5FF1;
+    border-radius: 5px;
+    border: none;
+    font-size: 1.6rem;
+    line-height: 1.9rem;
+    font-family: Inter;
+  }
+
+  .main-button{
+    font-size: 1.8rem;
+    line-height: 2.2rem;
+    font-weight: 600;
+    margin-top: 4rem;
+    width: 370px;
+    height: 80px;
+    @media(max-width: 560px) {
+      font-size: 1.2rem!important;
+    }
+  }
+
+  .email-button{
+    width: 60%;
+    height: 50px;
+    margin-left: 40%;
+  }
+
+  .main-background {
+    display: block;
+    width: 100%;
+    position: absolute;
+    top: 300px;
+    left: 0;
+  }
+
+  .lander-container{
+    max-width: 2000px;
+    width: 92%;
+    margin: 0 auto;
+    padding-left: 5%;
+
+    .right-top-menu-row{
+      position: absolute;
+      top: 0;
+      right: 5%;
+    }
+    .right-top-menu{
+      margin: 60px 0 0 auto;
+    }
+    .bottom-left, 
+    .contact-right-div{
+      width: 50%;
+      z-index: 2;
+    }
+    .lander-logo{
+      width: 800px;
+      height: 100px;
+      margin-top: 140px;
+      @media (max-width: 560px){
+        height: auto!important;
+      }
+    }
+
+    .logo-bottom{
+      width: 800px;
+      text-align: right;
+      margin-top: 10px;
+    }
+  }
+
+  .main-txt{
+    font-size: 1.8rem;
+    @media (max-width: 560px){
+      font-size: 1rem!important;
+    }
+  }
+
+  .width-400{
+    width: 420px!important;
+  }
+
+  .gradiant-txt{
+    color: transparent;
+    background-image: -moz-linear-gradient(357.78deg,#5236ff 0,#c20560 100%);
+    background-image: linear-gradient(92.22deg,#5236ff,#c20560);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  .gray-txt{
+    color: gray;
+  }
+  
+}
+@media (max-width: 1480px){
+  .main-background{
+    top: 450px!important;
+  }
+}
+@media (max-width: 1024px) {
+  .lander{
+    .mb-padding{
+      padding: 0 5%!important;
+    }
+    .main-txt{
+      font-size: 1.6rem;
+    }
+    .width-400{
+      width: 70%!important;
+    }
+    .main-button{
+      width: 50%;
+      font-size: 1.7rem;
+      height: 2.8rem;
+      margin-top: 2rem;
+    }
+    .email-button{
+      margin: 0 auto;
+    }
+    .mobile-only{
+      display: block;
+    }
+    .main-background{
+      position: initial;
+      height: 60vw !important;
+      width: 100%;
+    }
+    .lander-container{
+      width: 100%;
+      padding: 0;
+
+      .lander-logo{
+        width: 90%;
+        height: 80px;
+        margin-top: 80px;
+      }
+      .logo-bottom{
+        width: 90%;
+        text-align: right;
+        margin-top: 0;
+        padding-right: 20px;
+      }
+      .bottom-left, 
+      .contact-right-div{
+        width: 100%;
+      }
+      .right-top-menu-row{
+        position: unset;
+      }
+      .right-top-menu{
+        margin: 20px auto 20px;
+      }
+      .contact-right-div{
+        padding: 0;
+      }
+    }
+  }
+}
+@media (min-width: 2000px){
+  .right-top-menu-row{
+    right: calc((100% - 2000px)/2 + 20px);
+  }
+}
+
+[class*=Harmony_selectable] {
+  & > .MuiListItemText-root {
+    width: 50%;
+
+    & > .MuiTypography-displayBlock {
+      @media (max-width: 768px) {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+}

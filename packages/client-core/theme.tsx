@@ -65,7 +65,7 @@ const lightTheme = createMuiTheme({
         display: 'flex',
         alignItems: 'center',  
         '&.MuiTypography-colorSecondary':{
-          color: '#FFD600',
+          color: '#8A8A8E',
         }
       },
       alignRight : {

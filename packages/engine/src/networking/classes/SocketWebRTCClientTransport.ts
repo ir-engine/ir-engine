@@ -137,7 +137,23 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       if (!success) return console.error("Unable to connect with credentials");
 
-      const ConnectToWorldResponse = await request(MessageTypes.ConnectToWorld.toString());
+      let ConnectToWorldResponse;
+
+      try {
+        console.log('Calling connectToWorld');
+        ConnectToWorldResponse = await Promise.race([
+          await request(MessageTypes.ConnectToWorld.toString()),
+          new Promise((resolve, reject) => {
+            setTimeout(() => reject(new Error('Connect timed out')), 10000)
+          })
+      ]);
+      } catch(err) {
+        console.log(err);
+        window.dispatchEvent(new CustomEvent('connectToWorldTimeout', {'instance': instance === true} as any));
+        return
+      }
+      console.log('ConnectToWorldResponse:');
+      console.log(ConnectToWorldResponse);
       const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any;
 
       window.dispatchEvent(new CustomEvent('connectToWorld'));
@@ -168,7 +184,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       socket.on('disconnect', async () => {
         console.log('socket disconnecting', (socket as any).instance);
-        if ((socket as any).instance !== true) self.channelId = null;
+        if ((socket as any).instance !== true) {
+          self.channelType = 'instance';
+          self.channelId = '';
+        }
         await endVideoChat({ endConsumers: true });
         await leave((socket as any).instance === true);
         clearInterval(heartbeat);

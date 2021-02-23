@@ -9,7 +9,7 @@
         box-sizing: border-box;
         height: 66px;
         overflow-x: scroll;
-        padding: 0px 5px;
+        padding: 0px 20px;
     }
     .feedMenu{
         width: max-content;
@@ -24,10 +24,11 @@
             width: max-content;
             margin: 0px 5px;
             color: #8a8a8e;
+            font-size: 13px;
+            font-weight: bold;
         }
         .active{
             color: #FFFFFF;
-            font-weight: bold;
             
             &.featuredButton{
                 background-color: #CB3332;
