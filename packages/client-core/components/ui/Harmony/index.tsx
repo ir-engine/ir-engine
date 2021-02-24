@@ -1,19 +1,40 @@
 import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
     Avatar,
     Button,
+    Divider,
     Grid,
     List,
     ListItem,
     ListItemAvatar,
+    ListItemIcon,
     ListItemText,
-    TextField
+    TextField,
+    Tooltip,
+    Typography
 } from '@material-ui/core';
 import {
+    Add, Block,
     Clear,
     Delete,
-    Edit, Mic, MicOff,
+    Edit,
+    ExpandMore,
+    Forum,
+    Grain,
+    Group,
+    GroupWork,
+    Mic,
+    MicOff,
+    PersonAdd,
+    Public,
     Save,
-    Send, Videocam, VideocamOff
+    Send,
+    Settings,
+    SupervisedUserCircle,
+    Videocam,
+    VideocamOff
 } from '@material-ui/icons';
 import PartyParticipantWindow from '@xr3ngine/client-core/components/ui/PartyParticipantWindow';
 import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
@@ -64,6 +85,34 @@ import styles from './Harmony.module.scss';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import {autorun} from "mobx";
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
+import {getFriends, unfriend} from "../../../redux/friend/service";
+import {createGroup, getGroups, patchGroup, removeGroup, removeGroupUser} from "../../../redux/group/service";
+import {createParty, getParty, removeParty, removePartyUser, transferPartyOwner} from "../../../redux/party/service";
+import {updateInviteTarget} from "../../../redux/invite/service";
+import {getLayerUsers} from "../../../redux/user/service";
+import {banUserFromLocation} from "../../../redux/location/service";
+import {selectFriendState} from "../../../redux/friend/selector";
+import {selectGroupState} from "../../../redux/group/selector";
+import {selectLocationState} from "../../../redux/location/selector";
+import {selectPartyState} from "../../../redux/party/selector";
+import {Group as GroupType} from "../../../../common/interfaces/Group";
+
+const initialSelectedUserState = {
+    id: '',
+    name: '',
+    userRole: '',
+    identityProviders: [],
+    relationType: {},
+    inverseRelationType: {},
+    avatarUrl: ''
+};
+
+const initialGroupForm = {
+    id: '',
+    name: '',
+    groupUsers: [],
+    description: ''
+};
 
 
 const mapStateToProps = (state: any): any => {
@@ -72,7 +121,11 @@ const mapStateToProps = (state: any): any => {
         chatState: selectChatState(state),
         channelConnectionState: selectChannelConnectionState(state),
         instanceConnectionState: selectInstanceConnectionState(state),
-        userState: selectUserState(state)
+        userState: selectUserState(state),
+        friendState: selectFriendState(state),
+        groupState: selectGroupState(state),
+        locationState: selectLocationState(state),
+        partyState: selectPartyState(state),
     };
 };
 
@@ -87,7 +140,22 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     connectToChannelServer: bindActionCreators(connectToChannelServer, dispatch),
     resetChannelServer: bindActionCreators(resetChannelServer, dispatch),
     patchMessage: bindActionCreators(patchMessage, dispatch),
-    updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch)
+    updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch),
+    getFriends: bindActionCreators(getFriends, dispatch),
+    unfriend: bindActionCreators(unfriend, dispatch),
+    getGroups: bindActionCreators(getGroups, dispatch),
+    createGroup: bindActionCreators(createGroup, dispatch),
+    patchGroup: bindActionCreators(patchGroup, dispatch),
+    removeGroup: bindActionCreators(removeGroup, dispatch),
+    removeGroupUser: bindActionCreators(removeGroupUser, dispatch),
+    getParty: bindActionCreators(getParty, dispatch),
+    createParty: bindActionCreators(createParty, dispatch),
+    removeParty: bindActionCreators(removeParty, dispatch),
+    removePartyUser: bindActionCreators(removePartyUser, dispatch),
+    transferPartyOwner: bindActionCreators(transferPartyOwner, dispatch),
+    updateInviteTarget: bindActionCreators(updateInviteTarget, dispatch),
+    getLayerUsers: bindActionCreators(getLayerUsers, dispatch),
+    banUserFromLocation: bindActionCreators(banUserFromLocation, dispatch)
 });
 
 interface Props {
@@ -95,6 +163,7 @@ interface Props {
     doLoginAuto?: typeof doLoginAuto;
     setBottomDrawerOpen: any;
     setLeftDrawerOpen: any;
+    setRightDrawerOpen: any;
     chatState?: any;
     channelConnectionState?: any;
     instanceConnectionState?: any;
@@ -109,6 +178,33 @@ interface Props {
     provisionChannelServer?: typeof provisionChannelServer;
     connectToChannelServer?: typeof connectToChannelServer;
     resetChannelServer?: typeof resetChannelServer;
+    friendState?: any;
+    getFriends?: any;
+    unfriend?: any;
+    groupState?: any;
+    getGroups?: any;
+    createGroup?: any;
+    patchGroup?: any;
+    removeGroup?: any;
+    removeGroupUser?: any;
+    partyState?: any;
+    getParty?: any;
+    createParty?: any;
+    removeParty?: any;
+    removePartyUser?: any;
+    transferPartyOwner?: any;
+    detailsType?: any;
+    setDetailsType?: any;
+    groupFormMode?: string;
+    setGroupFormMode?: any;
+    groupFormOpen?: boolean;
+    setGroupFormOpen?: any;
+    groupForm?: any;
+    setGroupForm?: any;
+    selectedUser?: any;
+    setSelectedUser?: any;
+    selectedGroup?: any;
+    setSelectedGroup?: any;
 }
 
 const Harmony = observer((props: Props): any => {
@@ -123,13 +219,38 @@ const Harmony = observer((props: Props): any => {
         removeMessage,
         setBottomDrawerOpen,
         setLeftDrawerOpen,
+        setRightDrawerOpen,
         updateChatTarget,
         patchMessage,
         updateMessageScrollInit,
         userState,
         provisionChannelServer,
         connectToChannelServer,
-        resetChannelServer
+        resetChannelServer,
+        friendState,
+        getFriends,
+        unfriend,
+        groupState,
+        getGroups,
+        createGroup,
+        patchGroup,
+        removeGroup,
+        removeGroupUser,
+        partyState,
+        getParty,
+        createParty,
+        detailsType,
+        setDetailsType,
+        groupFormOpen,
+        setGroupFormOpen,
+        groupFormMode,
+        setGroupFormMode,
+        groupForm,
+        setGroupForm,
+        selectedUser,
+        setSelectedUser,
+        selectedGroup,
+        setSelectedGroup
     } = props;
 
     const messageRef = React.useRef();
@@ -156,10 +277,20 @@ const Harmony = observer((props: Props): any => {
         audio: false,
         video: false
     });
+    const [selectedAccordion, setSelectedAccordion] = useState('');
+    const [tabIndex, setTabIndex] = useState(0);
 
     const instanceLayerUsers = userState.get('layerUsers') ?? [];
     const channelLayerUsers = userState.get('channelLayerUsers') ?? [];
     const layerUsers = activeAVChannelId?.length > 0 ? channelLayerUsers : instanceLayerUsers;
+    const friendSubState = friendState.get('friends');
+    const friends = friendSubState.get('friends');
+    const groupSubState = groupState.get('groups');
+    const groups = groupSubState.get('groups');
+    const party = partyState.get('party');
+    const selfGroupUser = selectedGroup.id && selectedGroup.id.length > 0 ? selectedGroup.groupUsers.find((groupUser) => groupUser.userId === selfUser.id) : {};
+    const partyUsers = party && party.partyUsers ? party.partyUsers : [];
+    const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === selfUser.id) : {};
 
     const setProducerStarting = value => {
         producerStartingRef.current = value;
@@ -284,11 +415,9 @@ const Harmony = observer((props: Props): any => {
         }
     };
 
-    const setActiveChat = (channel): void => {
+    const setActiveChat = (channelType, target): void => {
         updateMessageScrollInit(true);
-        const channelType = channel.channelType;
-        const target = channelType === 'user' ? (channel.user1?.id === selfUser.id ? channel.user2 : channel.user2?.id === selfUser.id ? channel.user1 : {}) : channelType === 'group' ? channel.group : channelType === 'instance' ? channel.instance : channel.party;
-        updateChatTarget(channelType, target, channel.id);
+        updateChatTarget(channelType, target);
         setMessageDeletePending('');
         setMessageUpdatePending('');
         setEditingMessage('');
@@ -543,6 +672,53 @@ const Harmony = observer((props: Props): any => {
 
     const audioPaused = MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camAudioProducer == null || MediaStreamSystem.instance?.audioPaused === true;
     const videoPaused = MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camVideoProducer == null || MediaStreamSystem.instance?.videoPaused === true;
+
+    const openChat = (targetObjectType: string, targetObject: any): void => {
+        setTimeout(() => {
+            updateChatTarget(targetObjectType, targetObject);
+            updateMessageScrollInit(true);
+        }, 100);
+    };
+
+    const handleAccordionSelect = (accordionType: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
+        if (accordionType === selectedAccordion) {
+            setSelectedAccordion('');
+        } else {
+            setSelectedAccordion(accordionType);
+        }
+    };
+
+    const openInvite = (targetObjectType?: string, targetObjectId?: string): void => {
+        updateInviteTarget(targetObjectType, targetObjectId);
+        setLeftDrawerOpen(false);
+        setRightDrawerOpen(true);
+    };
+
+    const openDetails = (e, type, object) => {
+        e.stopPropagation();
+        setLeftDrawerOpen(true);
+        setDetailsType(type);
+        if (type === 'user') {
+            setSelectedUser(object);
+        } else if (type === 'group') {
+            setSelectedGroup(object);
+        }
+    };
+
+    const openGroupForm = (mode: string, group?: GroupType) => {
+        setLeftDrawerOpen(true);
+        setGroupFormOpen(true);
+        setGroupFormMode(mode);
+        if (group != null) {
+            setGroupForm({
+                id: group.id,
+                name: group.name,
+                groupUsers: group.groupUsers,
+                description: group.description
+            });
+        }
+    };
+
     async function init(): Promise<any> {
         if (Network.instance.isInitialized !== true) {
             const networkSchema: NetworkSchema = {
@@ -570,6 +746,29 @@ const Harmony = observer((props: Props): any => {
         return layerUsers.length === 1 ? 12 : layerUsers.length <= 4 ? 6 : layerUsers.length <= 9 ? 4 : 3;
     }
 
+
+    const nextFriendsPage = (): void => {
+        if ((friendSubState.get('skip') + friendSubState.get('limit')) < friendSubState.get('total')) {
+            getFriends(friendSubState.get('skip') + friendSubState.get('limit'));
+        }
+    };
+
+    const nextGroupsPage = (): void => {
+        if ((groupSubState.get('skip') + groupSubState.get('limit')) < groupSubState.get('total')) {
+            getGroups(groupSubState.get('skip') + groupSubState.get('limit'));
+        }
+    };
+
+    const onListScroll = (e): void => {
+        if ((e.target.scrollHeight - e.target.scrollTop) === e.target.clientHeight) {
+            if (tabIndex === 0) {
+                nextFriendsPage();
+            } else if (tabIndex === 1) {
+                nextGroupsPage();
+            }
+        }
+    };
+
     useEffect(() => {
         if (
             channelConnectionState.get('instanceProvisioned') === true &&
@@ -593,40 +792,180 @@ const Harmony = observer((props: Props): any => {
                     border-color: rgba(127, 127, 127, 0.7);
                 }
             `}</style>
-            <List onScroll={(e) => onChannelScroll(e)} className={styles['chat-container']}>
-                { channels && channels.size > 0 && Array.from(channels).sort(([channelId1, channel1], [channelId2, channel2]) => new Date(channel2.updatedAt).getTime() - new Date(channel1.updatedAt).getTime()).map(([channelId, channel], index) => {
-                    return <ListItem
-                        key={channelId}
-                        className={styles.selectable}
-                        onClick={() => setActiveChat(channel)}
-                        selected={ channelId === targetChannelId }
-                        divider={ index < channels.size - 1 }
+            <div className={styles['list-container']}>
+                <div className={styles.partyInstanceButtons}>
+                    <div className={styles.partyButton}
+                         onClick={(e) => party != null ? setActiveChat('party', party) : openDetails(e, 'party', party)}
                     >
-                        { channel.channelType === 'user' &&
-                        <ListItemAvatar>
-                            <Avatar src={channel.userId1 === selfUser.id ? channel.user2.avatarUrl: channel.user1.avatarUrl}/>
-                        </ListItemAvatar>
-                        }
-                        <ListItemText primary={channel.channelType === 'user' ? (channel.user1?.id === selfUser.id ? channel.user2.name : channel.user2?.id === selfUser.id ? channel.user1.name : '') : channel.channelType === 'group' ? channel.group.name : channel.channelType === 'instance' ? 'Current layer' : 'Current party'}/>
-                        <section className={styles.drawerBox}>
-                            <div className={styles.iconContainer + ' ' + ((audioPaused === false && activeAVChannelId === channel.id && channelAwaitingProvision?.id?.length === 0 && ((Network.instance.transport as any).channelType === 'instance' || ((Network.instance.transport as any).channelType !== 'instance' && channelConnectionState.get('connected') === true))) ? styles.on : styles.off)}>
-                                <MicOff id='micOff' className={styles.offIcon} onClick={(e) => handleMicClick(e, channel.instanceId != null, channel.id)} />
-                                <Mic id='micOn' className={styles.onIcon} onClick={(e) => handleMicClick(e, channel.instanceId != null, channel.id)} />
-                            </div>
-                            <div className={styles.iconContainer + ' ' + ((videoPaused === false && activeAVChannelId === channel.id && channelAwaitingProvision?.id?.length === 0 && ((Network.instance.transport as any).channelType === 'instance' || ((Network.instance.transport as any).channelType !== 'instance' && channelConnectionState.get('connected') === true))) ? styles.on : styles.off)}>
-                                <VideocamOff id='videoOff' className={styles.offIcon} onClick={(e) => handleCamClick(e, channel.instanceId != null, channel.id)} />
-                                <Videocam id='videoOn' className={styles.onIcon} onClick={(e) => handleCamClick(e, channel.instanceId != null, channel.id)} />
-                            </div>
-                        </section>
-                    </ListItem>;
-                })
+                        <GroupWork/>
+                        <span>Party</span>
+                        { party != null && <ListItemIcon className={styles.groupEdit} onClick={(e) => openDetails(e,'party', party)}><Settings/></ListItemIcon>}
+                    </div>
+                    { selfUser.instanceId != null && <div className={styles.instanceButton}
+                         onClick={() => setActiveChat('instance', selfUser.instanceId)}
+                    >
+                        <Grain/>
+                        <span>Here</span>
+                    </div> }
+                </div>
+                {selfUser.userRole !== 'guest' &&
+                <Accordion expanded={selectedAccordion === 'user'} onChange={handleAccordionSelect('user') } className={styles['MuiAccordion-root']}>
+                    <AccordionSummary
+                        id="friends-header"
+                        expandIcon={<ExpandMore/>}
+                        aria-controls="friends-content"
+                    >
+                        <SupervisedUserCircle/>
+                        <Typography>Friends</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails className={styles['list-container']}>
+                        <div className={styles['flex-center']}>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                startIcon={<Add/>}
+                                onClick={() => openInvite('user')}>
+                                Invite Friend
+                            </Button>
+                        </div>
+                        <List
+                            onScroll={(e) => onListScroll(e)}
+                        >
+                            {friends && friends.length > 0 && friends.sort((a, b) => a.name - b.name).map((friend, index) => {
+                                return <div key={friend.id}>
+                                    <ListItem
+                                        className={styles.selectable}
+                                        onClick={() => {
+                                            setActiveChat('user', friend)
+                                        }}
+                                    >
+                                        <ListItemAvatar>
+                                            <Avatar src={friend.avatarUrl}/>
+                                        </ListItemAvatar>
+                                        <ListItemText primary={friend.name}/>
+                                    </ListItem>
+                                    {index < friends.length - 1 && <Divider/>}
+                                </div>;
+                            })
+                            }
+                        </List>
+                    </AccordionDetails>
+                </Accordion>
                 }
-                { channels.size === 0 &&
-                <ListItem key="no-chats" disabled>
-                    <ListItemText primary="No active chats"/>
-                </ListItem>
+                {selfUser.userRole !== 'guest' &&
+                <Accordion expanded={selectedAccordion === 'group'} onChange={handleAccordionSelect('group')} className={styles['MuiAccordion-root']}>
+                    <AccordionSummary
+                        id="groups-header"
+                        expandIcon={<ExpandMore/>}
+                        aria-controls="groups-content"
+                    >
+                        <Group/>
+                        <Typography>Groups</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails className={styles['list-container']}>
+                        <div className={styles['flex-center']}>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                startIcon={<Add/>}
+                                onClick={() => openGroupForm('create')}>
+                                Create Group
+                            </Button>
+                        </div>
+                        <List
+                            onScroll={(e) => onListScroll(e)}
+                        >
+                            {groups && groups.length > 0 && groups.sort((a, b) => a.name - b.name).map((group, index) => {
+                                return <div key={group.id}>
+                                    <ListItem
+                                        className={styles.selectable}
+                                        onClick={() => {
+                                            setActiveChat('group', group)
+                                        }}
+                                    >
+                                        <ListItemText primary={group.name}/>
+                                        <ListItemIcon className={styles.groupEdit} onClick={(e) => openDetails(e,'group', group)}><Settings/></ListItemIcon>
+                                    </ListItem>
+                                    {index < groups.length - 1 && <Divider/>}
+                                </div>;
+                            })
+                            }
+                        </List>
+                    </AccordionDetails>
+                </Accordion>
                 }
-            </List>
+                {
+                    selfUser && selfUser.instanceId &&
+                    <Accordion expanded={selectedAccordion === 'layerUsers'}
+                               onChange={handleAccordionSelect('layerUsers')}>
+                        <AccordionSummary
+                            id="layer-user-header"
+                            expandIcon={<ExpandMore/>}
+                            aria-controls="layer-user-content"
+                        >
+                            <Public/>
+                            <Typography>Layer Users</Typography>
+                        </AccordionSummary>
+                        <AccordionDetails className={classNames({
+                            [styles.flexbox]: true,
+                            [styles['flex-column']]: true,
+                            [styles['flex-center']]: true
+                        })}>
+                            <div className={styles['list-container']}>
+                                <div className={styles.title}>Users on this Layer</div>
+                                <List
+                                    className={classNames({
+                                        [styles['flex-center']]: true,
+                                        [styles['flex-column']]: true
+                                    })}
+                                    onScroll={(e) => onListScroll(e)}
+                                >
+                                    {layerUsers && layerUsers.length > 0 && layerUsers.sort((a, b) => a.name - b.name).map((layerUser) => {
+                                            return <ListItem key={layerUser.id}>
+                                                <ListItemAvatar>
+                                                    <Avatar src={layerUser.avatarUrl}/>
+                                                </ListItemAvatar>
+                                                {selfUser.id === layerUser.id &&
+                                                <ListItemText primary={layerUser.name + ' (you)'}/>}
+                                                {selfUser.id !== layerUser.id &&
+                                                <ListItemText primary={layerUser.name}/>}
+                                                {/*{*/}
+                                                {/*    locationBanPending !== layerUser.id &&*/}
+                                                {/*    isLocationAdmin === true &&*/}
+                                                {/*    selfUser.id !== layerUser.id &&*/}
+                                                {/*    layerUser.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null &&*/}
+                                                {/*    <Tooltip title="Ban user">*/}
+                                                {/*        <Button onClick={(e) => showLocationBanConfirm(e, layerUser.id)}>*/}
+                                                {/*            <Block/>*/}
+                                                {/*        </Button>*/}
+                                                {/*    </Tooltip>*/}
+                                                {/*}*/}
+                                                {/*{locationBanPending === layerUser.id &&*/}
+                                                {/*<div>*/}
+                                                {/*    <Button variant="contained"*/}
+                                                {/*            color="primary"*/}
+                                                {/*            onClick={(e) => confirmLocationBan(e, layerUser.id)}*/}
+                                                {/*    >*/}
+                                                {/*        Ban User*/}
+                                                {/*    </Button>*/}
+                                                {/*    <Button variant="contained"*/}
+                                                {/*            color="secondary"*/}
+                                                {/*            onClick={(e) => cancelLocationBan(e)}*/}
+                                                {/*    >*/}
+                                                {/*        Cancel*/}
+                                                {/*    </Button>*/}
+                                                {/*</div>*/}
+                                                {/*}*/}
+                                            </ListItem>;
+                                        }
+                                    )
+                                    }
+                                </List>
+                            </div>
+                        </AccordionDetails>
+                    </Accordion>
+                }
+            </div>
             <div className={styles['chat-window']}>
                 { (MediaStreamSystem?.instance?.camVideoProducer != null || MediaStreamSystem?.instance?.camAudioProducer != null) && <div className={styles['video-container']}>
                     <div className={ styles['active-chat-plate']} >{ getChannelName() }</div>
