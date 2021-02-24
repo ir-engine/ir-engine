@@ -112,6 +112,40 @@ $mobileControllButtonsSize: 3em;
         }
     }
 
+    & > .list-container {
+        background-color: rgba(206, 206, 206, 0.1);
+
+        & > div {
+            background-color: rgba(155, 155, 155, 0.6);
+
+            & > div {
+                color: white;
+
+                ul {
+                    background-color: initial;
+                }
+            }
+        }
+    }
+
+    .groupEdit {
+        margin: 0 5px 0 auto;
+        width: 30px;
+        height: 30px;
+        min-width: 0;
+
+        &:hover {
+            cursor: pointer;
+            background-color: rgba(155, 155, 155, 0.6);
+            border-radius: 20px;
+        }
+
+        & > svg {
+            width: 30px;
+            height: 30px;
+        }
+    }
+
     .list-container {
         display: flex;
         flex-direction: column;
@@ -219,6 +253,10 @@ $mobileControllButtonsSize: 3em;
             margin-bottom: 5px;
             display: flex;
             margin-right: 60px;
+
+            @media (max-width: 768px) {
+                margin-right: 0;
+            }
 
             & > div:first-child {
                 width: 95%;
@@ -376,4 +414,27 @@ $mobileControllButtonsSize: 3em;
     padding: 5px;
     z-index: 20;
     background-color: black;
+}
+
+.partyInstanceButtons {
+    display: flex;
+
+     & > div {
+         padding: 12px 16px;
+         flex-grow: 1;
+         font-size: 16px;
+
+         &:hover {
+             cursor: pointer;
+             background-color: rgba(155, 155, 155, 0.6);
+         }
+
+         &:first-child {
+             border-right: 3px solid rgba(20, 20, 20, 0.1);
+         }
+
+         &.partyButton {
+             display: flex;
+         }
+     }
 }

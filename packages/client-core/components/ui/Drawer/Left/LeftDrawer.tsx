@@ -55,6 +55,7 @@ import {
     Add,
     ArrowLeft,
     Block,
+    Clear,
     Delete,
     Edit,
     ExpandMore,
@@ -111,7 +112,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 interface Props {
-    harmony: boolean;
+    harmony?: boolean;
     setHarmonyOpen?: any;
     openBottomDrawer?: boolean;
     leftDrawerOpen: boolean;
@@ -141,6 +142,18 @@ interface Props {
     updateMessageScrollInit?: any;
     getLayerUsers?: any;
     banUserFromLocation?: any;
+    detailsType?: string;
+    setDetailsType?: any;
+    groupFormMode?: string;
+    setGroupFormMode?: any;
+    groupFormOpen?: boolean;
+    setGroupFormOpen?: any;
+    groupForm?: any;
+    setGroupForm?: any;
+    selectedUser?: any;
+    setSelectedUser?: any;
+    selectedGroup?: any;
+    setSelectedGroup?: any;
 }
 
 const initialSelectedUserState = {
@@ -191,7 +204,19 @@ const LeftDrawer = (props: Props): any => {
             updateMessageScrollInit,
             userState,
             getLayerUsers,
-            banUserFromLocation
+            banUserFromLocation,
+            detailsType,
+            setDetailsType,
+            groupFormMode,
+            setGroupFormMode,
+            groupFormOpen,
+            setGroupFormOpen,
+            groupForm,
+            setGroupForm,
+            selectedUser,
+            setSelectedUser,
+            selectedGroup,
+            setSelectedGroup
         } = props;
 
         const user = authState.get('user') as User;
@@ -206,13 +231,6 @@ const LeftDrawer = (props: Props): any => {
         const [groupUserDeletePending, setGroupUserDeletePending] = useState('');
         const [partyDeletePending, setPartyDeletePending] = useState(false);
         const [partyTransferOwnerPending, setPartyTransferOwnerPending] = useState('');
-        const [detailsOpen, setDetailsOpen] = useState(false);
-        const [detailsType, setDetailsType] = useState('');
-        const [selectedUser, setSelectedUser] = useState(initialSelectedUserState);
-        const [selectedGroup, setSelectedGroup] = useState(initialGroupForm);
-        const [groupForm, setGroupForm] = useState(initialGroupForm);
-        const [groupFormMode, setGroupFormMode] = useState('');
-        const [groupFormOpen, setGroupFormOpen] = useState(false);
         const [partyUserDeletePending, setPartyUserDeletePending] = useState('');
         const [selectedAccordion, setSelectedAccordion] = useState('');
         const [locationBanPending, setLocationBanPending] = useState('');
@@ -292,7 +310,6 @@ const LeftDrawer = (props: Props): any => {
             setGroupDeletePending('');
             removeGroup(groupId);
             setSelectedGroup(initialGroupForm);
-            setDetailsOpen(false);
             setDetailsType('');
         };
 
@@ -336,7 +353,6 @@ const LeftDrawer = (props: Props): any => {
             removeGroupUser(groupUserId);
             if (groupUser.userId === user.id) {
                 setSelectedGroup(initialGroupForm);
-                setDetailsOpen(false);
                 setDetailsType('');
             }
         };
@@ -395,7 +411,6 @@ const LeftDrawer = (props: Props): any => {
         };
 
         const openDetails = (type, object) => {
-            setDetailsOpen(true);
             setDetailsType(type);
             if (type === 'user') {
                 setSelectedUser(object);
@@ -405,7 +420,7 @@ const LeftDrawer = (props: Props): any => {
         };
 
         const closeDetails = () => {
-            setDetailsOpen(false);
+            setLeftDrawerOpen(false);
             setDetailsType('');
             setSelectedUser(initialSelectedUserState);
             setSelectedGroup(initialGroupForm);
@@ -425,6 +440,7 @@ const LeftDrawer = (props: Props): any => {
         };
 
         const closeGroupForm = (): void => {
+            setLeftDrawerOpen(false);
             setGroupFormOpen(false);
             setGroupForm(initialGroupForm);
         };
@@ -451,6 +467,7 @@ const LeftDrawer = (props: Props): any => {
             } else {
                 patchGroup(form);
             }
+            setLeftDrawerOpen(false);
             setGroupFormOpen(false);
             setGroupForm(initialGroupForm);
         };
@@ -461,9 +478,9 @@ const LeftDrawer = (props: Props): any => {
 
         const onListScroll = (e): void => {
             if ((e.target.scrollHeight - e.target.scrollTop) === e.target.clientHeight) {
-                if (detailsOpen === false && tabIndex === 0) {
+                if (tabIndex === 0) {
                     nextFriendsPage();
-                } else if (detailsOpen === false && tabIndex === 1) {
+                } else if (tabIndex === 1) {
                     nextGroupsPage();
                 }
             }
@@ -508,380 +525,13 @@ const LeftDrawer = (props: Props): any => {
                     onOpen={() => {
                     }}
                 >
-                    {detailsOpen === false && groupFormOpen === false &&
-                    <div className={styles['list-container']}>
-                        {user.userRole !== 'guest' &&
-                        <Accordion expanded={selectedAccordion === 'user'} onChange={handleAccordionSelect('user') } className={styles['MuiAccordion-root']}>
-                            <AccordionSummary
-                                id="friends-header"
-                                expandIcon={<ExpandMore/>}
-                                aria-controls="friends-content"
-                            >
-                                <SupervisedUserCircle/>
-                                <Typography>Friends</Typography>
-                            </AccordionSummary>
-                            <AccordionDetails className={styles['list-container']}>
-                                <div className={styles['flex-center']}>
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        startIcon={<Add/>}
-                                        onClick={() => openInvite('user')}>
-                                        Invite Friend
-                                    </Button>
-                                </div>
-                                <List
-                                    onScroll={(e) => onListScroll(e)}
-                                >
-                                    {friends && friends.length > 0 && friends.sort((a, b) => a.name - b.name).map((friend, index) => {
-                                        return <div key={friend.id}>
-                                            <ListItem
-                                                className={styles.selectable}
-                                                onClick={() => {
-                                                    openDetails('user', friend);
-                                                }}
-                                            >
-                                                <ListItemAvatar>
-                                                    <Avatar src={friend.avatarUrl}/>
-                                                </ListItemAvatar>
-                                                <ListItemText primary={friend.name}/>
-                                            </ListItem>
-                                            {index < friends.length - 1 && <Divider/>}
-                                        </div>;
-                                    })
-                                    }
-                                </List>
-                            </AccordionDetails>
-                        </Accordion>
-                        }
-                        {user.userRole !== 'guest' &&
-                        <Accordion expanded={selectedAccordion === 'group'} onChange={handleAccordionSelect('group')} className={styles['MuiAccordion-root']}>
-                            <AccordionSummary
-                                id="groups-header"
-                                expandIcon={<ExpandMore/>}
-                                aria-controls="groups-content"
-                            >
-                                <Group/>
-                                <Typography>Groups</Typography>
-                            </AccordionSummary>
-                            <AccordionDetails className={styles['list-container']}>
-                                <div className={styles['flex-center']}>
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        startIcon={<Add/>}
-                                        onClick={() => openGroupForm('create')}>
-                                        Create Group
-                                    </Button>
-                                </div>
-                                <List
-                                    onScroll={(e) => onListScroll(e)}
-                                >
-                                    {groups && groups.length > 0 && groups.sort((a, b) => a.name - b.name).map((group, index) => {
-                                        return <div key={group.id}>
-                                            <ListItem
-                                                className={styles.selectable}
-                                                onClick={() => {
-                                                    openDetails('group', group);
-                                                }}
-                                            >
-                                                <ListItemText primary={group.name}/>
-                                            </ListItem>
-                                            {index < groups.length - 1 && <Divider/>}
-                                        </div>;
-                                    })
-                                    }
-                                </List>
-                            </AccordionDetails>
-                        </Accordion>
-                        }
-                        {user.userRole !== 'guest' &&
-                        <Accordion expanded={selectedAccordion === 'party'} onChange={handleAccordionSelect('party')} className={styles['MuiAccordion-root']}>
-                            <AccordionSummary
-                                id="party-header"
-                                expandIcon={<ExpandMore/>}
-                                aria-controls="party-content"
-                            >
-                                <GroupWork/>
-                                <Typography>Party</Typography>
-                            </AccordionSummary>
-                            <AccordionDetails className={classNames({
-                                [styles.flexbox]: true,
-                                [styles['flex-column']]: true,
-                                [styles['flex-center']]: true
-                            })}>
-                                {party == null &&
-                                <div>
-                                    <div className={styles.title}>You are not currently in a party</div>
-                                    <div className={styles['flex-center']}>
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            startIcon={<Add/>}
-                                            onClick={() => createNewParty()}>
-                                            Create Party
-                                        </Button>
-                                    </div>
-                                </div>
-                                }
-                                {party != null &&
-                                <div className={styles['list-container']}>
-                                    <div className={styles.title}>Current Party</div>
-                                    <div className={classNames({
-                                        [styles['party-id']]: true,
-                                        [styles['flex-center']]: true
-                                    })}>
-                                        <div>ID: {party.id}</div>
-                                    </div>
-                                    <div className={classNames({
-                                        'action-buttons': true,
-                                        [styles['flex-center']]: true,
-                                        [styles['flex-column']]: true
-                                    })}>
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            startIcon={<Forum/>}
-                                            onClick={() => openChat('party', party)}
-                                        >
-                                            Chat
-                                        </Button>
-                                        {
-                                            (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
-                                            <Button
-                                                variant="contained"
-                                                color="secondary"
-                                                startIcon={<PersonAdd/>}
-                                                onClick={() => openInvite('party', party.id)}
-                                            >
-                                                Invite
-                                            </Button>
-                                        }
-                                        {
-                                            partyDeletePending !== true &&
-                                            (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
-                                            <Button
-                                                variant="contained"
-                                                className={styles['background-red']}
-                                                startIcon={<Delete/>}
-                                                onClick={(e) => showPartyDeleteConfirm(e)}
-                                            >
-                                                Delete
-                                            </Button>
-                                        }
-                                        {partyDeletePending === true &&
-                                        <div>
-                                            <Button variant="contained"
-                                                    startIcon={<Delete/>}
-                                                    className={styles['background-red']}
-                                                    onClick={(e) => confirmPartyDelete(e, party.id)}
-                                            >
-                                                Confirm Delete
-                                            </Button>
-                                            <Button variant="contained"
-                                                    color="secondary"
-                                                    onClick={(e) => cancelPartyDelete(e)}
-                                            >
-                                                Cancel
-                                            </Button>
-                                        </div>
-                                        }
-                                    </div>
-                                    <Divider/>
-                                    <div className={classNames({
-                                        [styles.title]: true,
-                                        [styles['margin-top']]: true
-                                    })}>Members</div>
-                                    <List
-                                        className={classNames({
-                                            [styles['flex-center']]: true,
-                                            [styles['flex-column']]: true
-                                        })}
-                                        onScroll={(e) => onListScroll(e)}
-                                    >
-                                        {partyUsers && partyUsers.length > 0 && partyUsers.sort((a, b) => a.name - b.name).map((partyUser) => {
-                                                return <ListItem key={partyUser.id}>
-                                                    <ListItemAvatar>
-                                                        <Avatar src={partyUser.user.avatarUrl}/>
-                                                    </ListItemAvatar>
-                                                    {user.id === partyUser.userId && (partyUser.isOwner === true || partyUser.isOwner === 1) &&
-                                                    <ListItemText primary={partyUser.user.name + ' (you, owner)'}/>}
-                                                    {user.id === partyUser.userId && (partyUser.isOwner !== true && partyUser.isOwner !== 1) &&
-                                                    <ListItemText primary={partyUser.user.name + ' (you)'}/>}
-                                                    {user.id !== partyUser.userId && (partyUser.isOwner === true || partyUser.isOwner === 1) &&
-                                                    <ListItemText primary={partyUser.user.name + ' (owner)'}/>}
-                                                    {user.id !== partyUser.userId && (partyUser.isOwner !== true && partyUser.isOwner !== 1) &&
-                                                    <ListItemText primary={partyUser.user.name}/>}
-                                                    {
-                                                        partyUserDeletePending !== partyUser.id &&
-                                                        partyTransferOwnerPending !== partyUser.id &&
-                                                        (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
-                                                        user.id !== partyUser.userId &&
-                                                        <Button variant="contained"
-                                                                color="primary"
-                                                                onClick={(e) => showTransferPartyOwnerConfirm(e, partyUser.id)}
-                                                        >
-                                                            Make Owner
-                                                        </Button>
-                                                    }
-                                                    {
-                                                        partyUserDeletePending !== partyUser.id &&
-                                                        partyTransferOwnerPending === partyUser.id &&
-                                                        <div>
-                                                            <Button variant="contained"
-                                                                    color="primary"
-                                                                    onClick={(e) => confirmTransferPartyOwner(e, partyUser.id)}
-                                                            >
-                                                                Confirm Transfer
-                                                            </Button>
-                                                            <Button variant="contained"
-                                                                    color="secondary"
-                                                                    onClick={(e) => cancelTransferPartyOwner(e)}
-                                                            >
-                                                                Cancel
-                                                            </Button>
-                                                        </div>
-                                                    }
-                                                    {
-                                                        partyTransferOwnerPending !== partyUser.id &&
-                                                        partyUserDeletePending !== partyUser.id &&
-                                                        (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
-                                                        user.id !== partyUser.userId &&
-                                                        <div>
-                                                            <Button
-                                                                onClick={(e) => showPartyUserDeleteConfirm(e, partyUser.id)}>
-                                                                <Delete/>
-                                                            </Button>
-                                                        </div>
-                                                    }
-                                                    {partyUserDeletePending !== partyUser.id && user.id === partyUser.userId &&
-                                                    <div>
-                                                        <Button
-                                                            onClick={(e) => showPartyUserDeleteConfirm(e, partyUser.id)}>
-                                                            <Delete/>
-                                                        </Button>
-                                                    </div>
-                                                    }
-                                                    {
-                                                        partyTransferOwnerPending !== partyUser.id &&
-                                                        partyUserDeletePending === partyUser.id &&
-                                                        <div>
-                                                            {
-                                                                user.id !== partyUser.userId &&
-                                                                <Button variant="contained"
-                                                                        color="primary"
-                                                                        onClick={(e) => confirmPartyUserDelete(e, partyUser.id)}
-                                                                >
-                                                                    Remove User
-                                                                </Button>
-                                                            }
-                                                            {
-                                                                user.id === partyUser.userId &&
-                                                                <Button variant="contained"
-                                                                        color="primary"
-                                                                        onClick={(e) => confirmPartyUserDelete(e, partyUser.id)}
-                                                                >
-                                                                    Leave party
-                                                                </Button>
-                                                            }
-                                                            <Button variant="contained"
-                                                                    color="secondary"
-                                                                    onClick={(e) => cancelPartyUserDelete(e)}
-                                                            >
-                                                                Cancel
-                                                            </Button>
-                                                        </div>
-                                                    }
-                                                </ListItem>;
-                                            }
-                                        )
-                                        }
-                                    </List>
-                                </div>
-                                }
-                            </AccordionDetails>
-                        </Accordion>
-                        }
-                        {
-                            user && user.instanceId &&
-                            <Accordion expanded={selectedAccordion === 'layerUsers'}
-                                       onChange={handleAccordionSelect('layerUsers')}>
-                                <AccordionSummary
-                                    id="layer-user-header"
-                                    expandIcon={<ExpandMore/>}
-                                    aria-controls="layer-user-content"
-                                >
-                                    <Public/>
-                                    <Typography>Layer Users</Typography>
-                                </AccordionSummary>
-                                <AccordionDetails className={classNames({
-                                    [styles.flexbox]: true,
-                                    [styles['flex-column']]: true,
-                                    [styles['flex-center']]: true
-                                })}>
-                                    <div className={styles['list-container']}>
-                                        <div className={styles.title}>Users on this Layer</div>
-                                        <List
-                                            className={classNames({
-                                                [styles['flex-center']]: true,
-                                                [styles['flex-column']]: true
-                                            })}
-                                            onScroll={(e) => onListScroll(e)}
-                                        >
-                                            {layerUsers && layerUsers.length > 0 && layerUsers.sort((a, b) => a.name - b.name).map((layerUser) => {
-                                                    return <ListItem key={layerUser.id}>
-                                                        <ListItemAvatar>
-                                                            <Avatar src={layerUser.avatarUrl}/>
-                                                        </ListItemAvatar>
-                                                        {user.id === layerUser.id &&
-                                                        <ListItemText primary={layerUser.name + ' (you)'}/>}
-                                                        {user.id !== layerUser.id &&
-                                                        <ListItemText primary={layerUser.name}/>}
-                                                        {
-                                                            locationBanPending !== layerUser.id &&
-                                                            isLocationAdmin === true &&
-                                                            user.id !== layerUser.id &&
-                                                            layerUser.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null &&
-                                                            <Tooltip title="Ban user">
-                                                                <Button onClick={(e) => showLocationBanConfirm(e, layerUser.id)}>
-                                                                    <Block/>
-                                                                </Button>
-                                                            </Tooltip>
-                                                        }
-                                                        {locationBanPending === layerUser.id &&
-                                                        <div>
-                                                            <Button variant="contained"
-                                                                    color="primary"
-                                                                    onClick={(e) => confirmLocationBan(e, layerUser.id)}
-                                                            >
-                                                                Ban User
-                                                            </Button>
-                                                            <Button variant="contained"
-                                                                    color="secondary"
-                                                                    onClick={(e) => cancelLocationBan(e)}
-                                                            >
-                                                                Cancel
-                                                            </Button>
-                                                        </div>
-                                                        }
-                                                    </ListItem>;
-                                                }
-                                            )
-                                            }
-                                        </List>
-                                    </div>
-                                </AccordionDetails>
-                            </Accordion>
-                        }
-                    </div>
-                    }
-                    {detailsOpen === true && groupFormOpen === false && detailsType === 'user' &&
+                    {groupFormOpen === false && detailsType === 'user' &&
                     <div className={classNames({
                         [styles['flex-center']]: true,
                         [styles['flex-column']]: true
                     })}>
                         <div className={styles.header}>
-                            <Button onClick={closeDetails}>
+                            <Button className={styles.backButton} onClick={closeDetails}>
                                 <ArrowLeft/>
                             </Button>
                             <Divider/>
@@ -938,7 +588,7 @@ const LeftDrawer = (props: Props): any => {
                                     Unfriend
                                 </Button>}
                                 {friendDeletePending === selectedUser.id &&
-                                <div>
+                                <div className={styles.deleteConfirm}>
                                     <Button variant="contained"
                                             startIcon={<Delete/>}
                                             className={styles['background-red']}
@@ -958,10 +608,203 @@ const LeftDrawer = (props: Props): any => {
                         </div>
                     </div>
                     }
-                    {detailsOpen === true && groupFormOpen === false && detailsType === 'group' &&
+                    {groupFormOpen === false && detailsType === 'party' && <div>
+                        {party == null &&
+                        <div>
+                            <div className={styles.title}>You are not currently in a party</div>
+                            <div className={styles['flex-center']}>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    startIcon={<Add/>}
+                                    onClick={() => createNewParty()}>
+                                    Create Party
+                                </Button>
+                            </div>
+                        </div>
+                        }
+                        {party != null &&
+                        <div className={styles['list-container']}>
+                            <div className={styles.title}>Current Party</div>
+                            <div className={classNames({
+                                [styles['party-id']]: true,
+                                [styles['flex-center']]: true
+                            })}>
+                                <div>ID: {party.id}</div>
+                            </div>
+                            <div className={classNames({
+                                'action-buttons': true,
+                                [styles['flex-center']]: true,
+                                [styles['flex-column']]: true
+                            })}>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    startIcon={<Forum/>}
+                                    onClick={() => openChat('party', party)}
+                                >
+                                    Chat
+                                </Button>
+                                {
+                                    (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
+                                    <Button
+                                        variant="contained"
+                                        color="secondary"
+                                        startIcon={<PersonAdd/>}
+                                        onClick={() => openInvite('party', party.id)}
+                                    >
+                                        Invite
+                                    </Button>
+                                }
+                                {
+                                    partyDeletePending !== true &&
+                                    (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
+                                    <Button
+                                        variant="contained"
+                                        className={styles['background-red']}
+                                        startIcon={<Delete/>}
+                                        onClick={(e) => showPartyDeleteConfirm(e)}
+                                    >
+                                        Delete
+                                    </Button>
+                                }
+                                {partyDeletePending === true &&
+                                <div>
+                                    <Button variant="contained"
+                                            startIcon={<Delete/>}
+                                            className={styles['background-red']}
+                                            onClick={(e) => confirmPartyDelete(e, party.id)}
+                                    >
+                                        Confirm Delete
+                                    </Button>
+                                    <Button variant="contained"
+                                            color="secondary"
+                                            onClick={(e) => cancelPartyDelete(e)}
+                                    >
+                                        Cancel
+                                    </Button>
+                                </div>
+                                }
+                            </div>
+                            <Divider/>
+                            <div className={classNames({
+                                [styles.title]: true,
+                                [styles['margin-top']]: true
+                            })}>Members</div>
+                            <List
+                                className={classNames({
+                                    [styles['flex-center']]: true,
+                                    [styles['flex-column']]: true
+                                })}
+                                onScroll={(e) => onListScroll(e)}
+                            >
+                                {partyUsers && partyUsers.length > 0 && partyUsers.sort((a, b) => a.name - b.name).map((partyUser) => {
+                                        return <ListItem key={partyUser.id}>
+                                            <ListItemAvatar>
+                                                <Avatar src={partyUser.user.avatarUrl}/>
+                                            </ListItemAvatar>
+                                            {user.id === partyUser.userId && (partyUser.isOwner === true || partyUser.isOwner === 1) &&
+                                            <ListItemText primary={partyUser.user.name + ' (you, owner)'}/>}
+                                            {user.id === partyUser.userId && (partyUser.isOwner !== true && partyUser.isOwner !== 1) &&
+                                            <ListItemText primary={partyUser.user.name + ' (you)'}/>}
+                                            {user.id !== partyUser.userId && (partyUser.isOwner === true || partyUser.isOwner === 1) &&
+                                            <ListItemText primary={partyUser.user.name + ' (owner)'}/>}
+                                            {user.id !== partyUser.userId && (partyUser.isOwner !== true && partyUser.isOwner !== 1) &&
+                                            <ListItemText primary={partyUser.user.name}/>}
+                                            {
+                                                partyUserDeletePending !== partyUser.id &&
+                                                partyTransferOwnerPending !== partyUser.id &&
+                                                (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
+                                                user.id !== partyUser.userId &&
+                                                <Button variant="contained"
+                                                        color="primary"
+                                                        onClick={(e) => showTransferPartyOwnerConfirm(e, partyUser.id)}
+                                                >
+                                                    Make Owner
+                                                </Button>
+                                            }
+                                            {
+                                                partyUserDeletePending !== partyUser.id &&
+                                                partyTransferOwnerPending === partyUser.id &&
+                                                <div>
+                                                    <Button variant="contained"
+                                                            color="primary"
+                                                            onClick={(e) => confirmTransferPartyOwner(e, partyUser.id)}
+                                                    >
+                                                        Confirm Transfer
+                                                    </Button>
+                                                    <Button variant="contained"
+                                                            color="secondary"
+                                                            onClick={(e) => cancelTransferPartyOwner(e)}
+                                                    >
+                                                        Cancel
+                                                    </Button>
+                                                </div>
+                                            }
+                                            {
+                                                partyTransferOwnerPending !== partyUser.id &&
+                                                partyUserDeletePending !== partyUser.id &&
+                                                (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
+                                                user.id !== partyUser.userId &&
+                                                <div>
+                                                    <Button
+                                                        onClick={(e) => showPartyUserDeleteConfirm(e, partyUser.id)}>
+                                                        <Delete/>
+                                                    </Button>
+                                                </div>
+                                            }
+                                            {partyUserDeletePending !== partyUser.id && user.id === partyUser.userId &&
+                                            <div>
+                                                <Button
+                                                    onClick={(e) => showPartyUserDeleteConfirm(e, partyUser.id)}>
+                                                    <Delete/>
+                                                </Button>
+                                            </div>
+                                            }
+                                            {
+                                                partyTransferOwnerPending !== partyUser.id &&
+                                                partyUserDeletePending === partyUser.id &&
+                                                <div>
+                                                    {
+                                                        user.id !== partyUser.userId &&
+                                                        <Button variant="contained"
+                                                                color="primary"
+                                                                onClick={(e) => confirmPartyUserDelete(e, partyUser.id)}
+                                                        >
+                                                            Remove User
+                                                        </Button>
+                                                    }
+                                                    {
+                                                        user.id === partyUser.userId &&
+                                                        <Button variant="contained"
+                                                                color="primary"
+                                                                onClick={(e) => confirmPartyUserDelete(e, partyUser.id)}
+                                                        >
+                                                            Leave party
+                                                        </Button>
+                                                    }
+                                                    <Button variant="contained"
+                                                            color="secondary"
+                                                            onClick={(e) => cancelPartyUserDelete(e)}
+                                                    >
+                                                        Cancel
+                                                    </Button>
+                                                </div>
+                                            }
+                                        </ListItem>;
+                                    }
+                                )
+                                }
+                            </List>
+                        </div>
+                        }
+                    </div>
+                    }
+
+                    {groupFormOpen === false && detailsType === 'group' &&
                     <div className={styles['details-container']}>
                         <div className={styles.header}>
-                            <Button onClick={closeDetails}>
+                            <Button className={styles.backButton} onClick={closeDetails}>
                                 <ArrowLeft/>
                             </Button>
                             <Divider/>
@@ -1033,13 +876,13 @@ const LeftDrawer = (props: Props): any => {
                                     Delete
                                 </Button>}
                                 {groupDeletePending === selectedGroup.id &&
-                                <div>
+                                <div className={styles.deleteConfirm}>
                                     <Button variant="contained"
                                             startIcon={<Delete/>}
                                             className={styles['background-red']}
                                             onClick={(e) => confirmGroupDelete(e, selectedGroup.id)}
                                     >
-                                        Confirm Delete
+                                        Confirm
                                     </Button>
                                     <Button variant="contained"
                                             color="secondary"
@@ -1064,34 +907,33 @@ const LeftDrawer = (props: Props): any => {
                                             <ListItemAvatar>
                                                 <Avatar src={groupUser.user.avatarUrl}/>
                                             </ListItemAvatar>
-                                            {user.id === groupUser.userId &&
-                                            <ListItemText primary={groupUser.user.name + ' (you)'}/>}
-                                            {user.id !== groupUser.userId && <ListItemText primary={groupUser.user.name}/>}
+                                            {user.id === groupUser.userId && <ListItemText className={styles.marginRight5px} primary={groupUser.user.name + ' (you)'}/>}
+                                            {user.id !== groupUser.userId && <ListItemText className={styles.marginRight5px} primary={groupUser.user.name}/>}
                                             {
                                                 groupUserDeletePending !== groupUser.id &&
                                                 selfGroupUser != null &&
                                                 (selfGroupUser.groupUserRank === 'owner' || selfGroupUser.groupUserRank === 'admin') &&
                                                 user.id !== groupUser.userId &&
-                                                <Button onClick={(e) => showGroupUserDeleteConfirm(e, groupUser.id)}>
+                                                <Button className={styles.groupUserDeleteInit}
+                                                        onClick={(e) => showGroupUserDeleteConfirm(e, groupUser.id)}>
                                                     <Delete/>
                                                 </Button>
                                             }
                                             {groupUserDeletePending !== groupUser.id && user.id === groupUser.userId &&
-                                            <div>
-                                                <Button onClick={(e) => showGroupUserDeleteConfirm(e, groupUser.id)}>
+                                                <Button className={styles.groupUserDeleteInit}
+                                                        onClick={(e) => showGroupUserDeleteConfirm(e, groupUser.id)}>
                                                     <Delete/>
                                                 </Button>
-                                            </div>
                                             }
                                             {groupUserDeletePending === groupUser.id &&
-                                            <div>
+                                            <div className={styles.groupUserDeleteConfirm}>
                                                 {
                                                     user.id !== groupUser.userId &&
                                                     <Button variant="contained"
                                                             color="primary"
                                                             onClick={(e) => confirmGroupUserDelete(e, groupUser.id)}
                                                     >
-                                                        Remove User
+                                                        <Delete/>
                                                     </Button>
                                                 }
                                                 {
@@ -1100,14 +942,14 @@ const LeftDrawer = (props: Props): any => {
                                                             color="primary"
                                                             onClick={(e) => confirmGroupUserDelete(e, groupUser.id)}
                                                     >
-                                                        Leave group
+                                                        <Delete/>
                                                     </Button>
                                                 }
                                                 <Button variant="contained"
                                                         color="secondary"
                                                         onClick={(e) => cancelGroupUserDelete(e)}
                                                 >
-                                                    Cancel
+                                                    <Block/>
                                                 </Button>
                                             </div>
                                             }

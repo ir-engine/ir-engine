@@ -30,6 +30,11 @@
 
 .flex-column {
     flex-direction: column;
+
+    & > div[class*='MuiPaper-root'] {
+        padding: 5px;
+        background-color: rgba(20, 20, 20, 1);
+    }
 }
 
 .details > * {
@@ -59,24 +64,61 @@
     display: flex;
     flex-direction: column;
     min-height: 200px;
-    background-color: rgb(20, 20, 20, 0.8);
 
-    & > div {
-        background-color: rgb(150, 150, 150, 0.8);
-    }
+    //background-color: rgba(206, 206, 206, 0.1);
 
     ul {
         flex-grow: 1;
         overflow-y: auto;
         min-height: 100px;
         justify-content: end;
+        background-color: initial;
+
+        button {
+            background-color: rgba(206, 206, 206, 0.1);
+        }
     }
 }
 
 .details-container {
     @include flex-collapse;
 
+    .backButton {
+        width: 40px;
+        background-color: rgba(206, 206, 206, 0.1);
+    }
+
+    .deleteConfirm {
+        display: flex;
+
+        & > button {
+            width: 140px;
+
+            &:first-child {
+                margin-right: 10px;
+            }
+        }
+    }
+
     & > .list-container {
         overflow-y: auto;
+    }
+
+    .groupUserDeleteInit {
+        margin: 0 5px 0 auto;
+        width: 40px;
+    }
+
+    .groupUserDeleteConfirm {
+        display: flex;
+        margin: 0 5px 0 auto;
+        & > button {
+            width: 40px;
+            margin: 0 5px;
+        }
+    }
+
+    .marginRight5px {
+        margin-right: 5px;
     }
 }
