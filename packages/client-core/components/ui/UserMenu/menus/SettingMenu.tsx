@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
     Mic,
     VolumeUp,
@@ -12,12 +12,9 @@ import {
     Typography
 } from '@material-ui/core';
 import styles from '../style.module.scss';
+import { WebGLRendererSystem } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
 
 const SettingMenu = (props: any): JSX.Element => {
-  const [ pbr, setPBR ] = useState(true);
-  const [ postProcessing, setPostProcessing ] = useState(true);
-  const [ automatic, setAutomatic ] = useState(true);
-
   return (
     <div className={styles.menuPanel}>
       <div className={styles.settingPanel}>
@@ -48,41 +45,77 @@ const SettingMenu = (props: any): JSX.Element => {
             <span className={styles.materialIconBlock}><BlurLinear color="primary"/></span>
             <span className={styles.settingLabel}>Resolution</span>
             <Slider
-              value={props.setting.resolustion}
-              onChange={(_, value) => { console.log("changing resolustion =>", value) }}
+              value={props.graphics.resolution}
+              onChange={(_, value) => { 
+                props.setGraphicsSettings({
+                  resolution: value,
+                  automatic: false
+                })
+                WebGLRendererSystem.instance.setResolution(value);
+                WebGLRendererSystem.instance.setUseAutomatic(false);
+              }}
               className={styles.slider}
+              min={0.25}
+              max={1}
+              step={0.125}
             />
           </div>
           <div className={styles.row}>
             <span className={styles.materialIconBlock}><CropOriginal color="primary"/></span>
             <span className={styles.settingLabel}>Shadows</span>
             <Slider
-              value={props.setting.shadows}
-              onChange={(_, value) => { console.log("changing shadows =>", value) }}
+              value={props.graphics.shadows}
+              onChange={(_, value) => { 
+                props.setGraphicsSettings({
+                  shadows: value,
+                  automatic: false
+                })
+                WebGLRendererSystem.instance.setShadowQuality(value);
+                WebGLRendererSystem.instance.setUseAutomatic(false);
+              }}
               className={styles.slider}
+              min={2}
+              max={5}
+              step={1}
             />
           </div>
           <div className={`${styles.row} ${styles.flexWrap}`}>
             <FormControlLabel
               className={styles.checkboxBlock}
-              control={<Checkbox checked={postProcessing} size="small" />}
+              control={<Checkbox checked={props.graphics.postProcessing} size="small" />}
               label="Post Processing"
-              onChange={() => { console.log("Changing Post Processing"); setPostProcessing(!postProcessing); }}
+              onChange={(_, value) => { 
+                props.setGraphicsSettings({
+                  postProcessing: value,
+                  automatic: false
+                })
+                WebGLRendererSystem.instance.setUsePostProcessing(value);
+                WebGLRendererSystem.instance.setUseAutomatic(false);
+              }}
             />
             <FormControlLabel
               className={styles.checkboxBlock}
-              control={<Checkbox checked={pbr} size="small" />}
+              control={<Checkbox checked={props.graphics.pbr} size="small" />}
               label="Full PBR"
-              onChange={() => { console.log("Changing PBR"); setPBR(!pbr); }}
+              onChange={(_, value) => { 
+                props.setGraphicsSettings({
+                  pbr: value
+                })
+              }}
             />
           </div>
           <div className={`${styles.row} ${styles.automatic}`}>
             <FormControlLabel
               className={styles.checkboxBlock}
-              control={<Checkbox checked={automatic} size="small" />}
+              control={<Checkbox checked={props.graphics.automatic} size="small" />}
               label="Automatic"
               labelPlacement="start"
-              onChange={() => { console.log("Changing Automatic"); setAutomatic(!automatic); }}
+              onChange={(_, value) => { 
+                props.setGraphicsSettings({
+                  automatic: value
+                })
+                WebGLRendererSystem.instance.setUseAutomatic(value);
+              }}
             />
           </div>
         </section>
