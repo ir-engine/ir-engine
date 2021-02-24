@@ -263,6 +263,7 @@ export default function AssetGrid({ isLoading, selectedItems, items, onSelect, o
   );
 }
 
+//creating propTypes for asset grid
 AssetGrid.propTypes = {
   source: PropTypes.object,
   tooltip: PropTypes.func,
@@ -286,6 +287,7 @@ AssetGrid.propTypes = {
   ).isRequired
 };
 
+// creating default properties for AssetGrid
 AssetGrid.defaultProps = {
   onSelect: () => {},
   items: [],
