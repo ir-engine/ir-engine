@@ -51,7 +51,6 @@ const MediaIconsBox = (props) => {
     const [videoPaused, setVideoPaused] = useState(MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camVideoProducer == null || MediaStreamSystem.instance?.videoPaused === true);
     const [audioPaused, setAudioPaused] = useState(MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camAudioProducer == null || MediaStreamSystem.instance?.audioPaused === true);
 
-
     const user = authState.get('user');
     const currentLocation = locationState.get('currentLocation').get('location');
 
