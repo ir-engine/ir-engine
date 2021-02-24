@@ -30,18 +30,18 @@ export class AudioSystem extends System {
         this.startAudio = this.startAudio.bind(this);
         this.audioReady = false;
         this.callbacks = [];
-        window.addEventListener('touchstart',this.startAudio);
-        window.addEventListener('touchend',this.startAudio);
-        window.addEventListener('click', this.startAudio);
+        window.addEventListener('touchstart',this.startAudio, true);
+        window.addEventListener('touchend',this.startAudio, true);
+        window.addEventListener('click', this.startAudio, true);
     }
 
     /** Dispose audio system and remove event listeners. */
     dispose(): void {
         this.audioReady = false;
         this.callbacks = [];
-        window.removeEventListener('touchstart',this.startAudio);
-        window.removeEventListener('touchend',this.startAudio);
-        window.removeEventListener('click', this.startAudio);
+        window.removeEventListener('touchstart',this.startAudio, true);
+        window.removeEventListener('touchend',this.startAudio, true);
+        window.removeEventListener('click', this.startAudio, true);
     }
 
     /**

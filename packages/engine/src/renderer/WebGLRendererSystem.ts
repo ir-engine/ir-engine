@@ -70,16 +70,7 @@ export class WebGLRendererSystem extends System {
     this.postProcessingSchema = attributes.postProcessingSchema ?? DefaultPostProcessingSchema;
 
     let context;
-    const canvas = document.createElement("canvas");
-    canvas.style.width = '100%'
-    canvas.style.height = '100%'
-    canvas.style.position = 'absolute'
-    canvas.style.webkitUserSelect = 'none'
-    canvas.style.userSelect = 'none'
-    canvas.ondragstart = (e) => {
-      e.preventDefault();
-      return false;
-    }
+    const canvas = attributes.canvas;
 
     try {
       context = canvas.getContext("webgl2", { antialias: true });
@@ -117,8 +108,6 @@ export class WebGLRendererSystem extends System {
 
     Engine.csm = csm;
 
-    // Add the renderer to the body of the HTML document
-    document.body.appendChild(canvas);
     window.addEventListener('resize', this.onResize, false);
     this.onResize();
     this.isInitialized = true;
