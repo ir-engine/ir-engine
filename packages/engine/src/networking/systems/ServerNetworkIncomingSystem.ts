@@ -205,6 +205,7 @@ export class ServerNetworkIncomingSystem extends System {
     Network.tick++;
     Network.instance.worldState = {
       tick: Network.tick,
+      time: 0,
       transforms: [],
       inputs: [],
       states: [],
@@ -245,10 +246,13 @@ export class ServerNetworkIncomingSystem extends System {
       // this function change network id to which the inputs will be applied
       clientInput.switchInputs ? console.warn('switchInputs: '+ clientInput.switchInputs):'';
       clientInput.switchInputs ? clearFreezeInputs( clientInput ):'';
-      clientInput.networkId = switchInputs( clientInput );
-      // this snapShotTime which will be sent back to the client, so that he knows exactly what inputs led to the change and when it was.
+
       const networkObject = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, NetworkObject);
       networkObject.snapShotTime = clientInput.snapShotTime;
+
+      clientInput.networkId = switchInputs( clientInput );
+      // this snapShotTime which will be sent bac k to the client, so that he knows exactly what inputs led to the change and when it was.
+
       // Get input component
       const input = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, Input);
       if (!input) {
