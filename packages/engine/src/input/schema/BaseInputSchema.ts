@@ -17,6 +17,9 @@ import { InputSchema } from "../interfaces/InputSchema";
 
 const touchSensitive = 2;
 let prevTouchPosition: [number, number] = [0, 0];
+let lastTap = Date.now();
+const tapLength = 200; // 100ms between doubletaps
+
 
 /**
  * Touch move
@@ -29,24 +32,19 @@ const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEvent }):
   const input = getComponent(entity, Input);
   const normalizedPosition = normalizeMouseCoordinates(args.event.touches[0].clientX, args.event.touches[0].clientY, window.innerWidth, window.innerHeight);
   const touchPosition: [number, number] = [normalizedPosition.x, normalizedPosition.y];
-  
-  if (args.event.touches.length >= 2) {
-    const normalizedPosition2 = normalizeMouseCoordinates(args.event.touches[1].clientX, args.event.touches[1].clientY, window.innerWidth, window.innerHeight);
-    const touchPosition2: [number, number] = [normalizedPosition2.x, normalizedPosition2.y];
-
-    input.data.set(BaseInput.POINTER2_POSITION, {
-      type: InputType.TWODIM,
-      value: touchPosition2,
-      lifecycleState: LifecycleValue.CHANGED
-    });
-  }
 
   if (args.event.touches.length == 1) {
+
+    input.data.set(BaseInput.POINTER1_POSITION, {
+      type: InputType.TWODIM,
+      value: touchPosition,
+      lifecycleState: LifecycleValue.CHANGED
+    });
+    
     const mappedPositionInput = input.schema.touchInputMap?.axes[TouchInputs.Touch1Position];
     if (!mappedPositionInput) {
       return;
     }
-
     const hasData = input.data.has(mappedPositionInput);
 
     input.data.set(mappedPositionInput, {
@@ -76,6 +74,22 @@ const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEvent }):
     });
 
   } else if (args.event.touches.length >= 2) {
+
+    const normalizedPosition2 = normalizeMouseCoordinates(args.event.touches[1].clientX, args.event.touches[1].clientY, window.innerWidth, window.innerHeight);
+    const touchPosition2: [number, number] = [normalizedPosition2.x, normalizedPosition2.y];
+
+    input.data.set(BaseInput.POINTER1_POSITION, {
+      type: InputType.TWODIM,
+      value: touchPosition,
+      lifecycleState: LifecycleValue.CHANGED
+    });
+    
+    input.data.set(BaseInput.POINTER2_POSITION, {
+      type: InputType.TWODIM,
+      value: touchPosition2,
+      lifecycleState: LifecycleValue.CHANGED
+    });
+
     const lastTouchPosition1Array = input.prevData.get(BaseInput.POINTER1_POSITION)?.value;
     const lastTouchPosition2Array = input.prevData.get(BaseInput.POINTER2_POSITION)?.value;
     if (args.event.type === 'touchstart' || !lastTouchPosition1Array || !lastTouchPosition2Array) {
@@ -99,23 +113,18 @@ const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEvent }):
     const currentDistance = currentTouchPosition1.distanceTo(currentTouchPosition2);
     const lastDistance = lastTouchPosition1.distanceTo(lastTouchPosition2);
 
-    const touchScaleValue = (lastDistance - currentDistance);
+    const touchScaleValue = (lastDistance - currentDistance) * 0.01;
     const signVal = Math.sign(touchScaleValue);
-
-    // If mouse position not set, set it with lifecycle started
     if (!input.data.has(scaleMappedInputKey)) {
       input.data.set(scaleMappedInputKey, {
-        type: InputType.TWODIM,
+        type: InputType.ONEDIM,
         value: signVal,
         lifecycleState: LifecycleValue.STARTED
       });
     } else {
-      // If mouse position set, check it's value
       const oldValue = input.data.get(scaleMappedInputKey).value as number;
-
-      // If it's not the same, set it and update the lifecycle value to changed
       input.data.set(scaleMappedInputKey, {
-        type: InputType.TWODIM,
+        type: InputType.ONEDIM,
         value: oldValue + signVal,
         lifecycleState: LifecycleValue.CHANGED
       });
@@ -131,63 +140,81 @@ const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEvent }):
  */
 const handleTouch: Behavior = (entity: Entity, { event, value }: { event: TouchEvent; value: BinaryType }): void => {
   const input = getComponent(entity, Input);
-  // If the touch is ON
-  if (value === BinaryValue.ON) {
-    // A list of contact points on a touch surface.
-    if (event.targetTouches.length) {
-      // s +=
-      //   ' x: ' +
-      //   Math.trunc(args.event.targetTouches[0].clientX) +
-      //   ', y: ' +
-      //   Math.trunc(args.event.targetTouches[0].clientY);
-      const inputKeys = [ TouchInputs.Touch ];
-     
-      inputKeys.forEach((inputKey, touchIndex) => {
-        if (!event.targetTouches[touchIndex]) {
-          return;
-        }
-        const mappedInputKey = input.schema.touchInputMap?.buttons[inputKey];
-        
-        if (!mappedInputKey) {
-          return;
-        }
-
-        const inputValue = BinaryValue.ON;
-        if (!input.data.has(mappedInputKey)) {
-          input.data.set(mappedInputKey, {
-            type: InputType.BUTTON,
-            value: inputValue,
-            lifecycleState: LifecycleValue.STARTED
-          });
-          
-        } else {
-          // If mouse position set, check it's value
-          const oldValue = input.data.get(mappedInputKey).value as number;
-
-          // If it's not the same, set it and update the lifecycle value to changed
-          input.data.set(mappedInputKey, {
-            type: InputType.BUTTON,
-            value: inputValue,
-            lifecycleState: LifecycleValue.CHANGED
-          });
-        }
-      });
-    }
-    
-  } else {
+  if (event.targetTouches.length) {
     const mappedInputKey = input.schema.touchInputMap?.buttons[TouchInputs.Touch];
-
     if (!mappedInputKey) {
       return;
     }
-    input.data.set(mappedInputKey, {
-      type: InputType.BUTTON,
-      value: BinaryValue.OFF,
-      lifecycleState: LifecycleValue.ENDED
-    });
+    if (value === BinaryValue.ON) {
+
+      if(event.targetTouches.length == 1) {
+
+        const timeNow = Date.now();
+        const doubleTapInput = input.schema.touchInputMap?.buttons[TouchInputs.DoubleTouch];
+        
+        if(timeNow - lastTap < tapLength) {
+          if(input.data.has(doubleTapInput)) {
+            input.data.set(doubleTapInput, {
+              type: InputType.BUTTON,
+              value: BinaryValue.ON,
+              lifecycleState: LifecycleValue.CONTINUED
+            });
+          } else {
+            input.data.set(doubleTapInput, {
+              type: InputType.BUTTON,
+              value: BinaryValue.ON,
+              lifecycleState: LifecycleValue.STARTED
+            });
+          }
+        } else {
+          if(input.data.has(doubleTapInput)) {
+            input.data.set(doubleTapInput, {
+              type: InputType.BUTTON,
+              value: BinaryValue.OFF,
+              lifecycleState: LifecycleValue.ENDED
+            });
+          }
+        }
+        lastTap = timeNow;
+      }
+        
+      // If the key is in the map but it's in the same state as now, let's skip it (debounce)
+      if (input.data.has(mappedInputKey) &&
+        input.data.get(mappedInputKey).value === value) {
+        if (input.data.get(mappedInputKey).lifecycleState !== LifecycleValue.CONTINUED) {
+          input.data.set(mappedInputKey, {
+            type: InputType.BUTTON,
+            value: value,
+            lifecycleState: LifecycleValue.CONTINUED
+          });
+        }
+        return;
+      }
+  
+      // Set type to BUTTON (up/down discrete state) and value to up or down, depending on what the value is set to
+      input.data.set(mappedInputKey, {
+        type: InputType.BUTTON,
+        value: value,
+        lifecycleState: LifecycleValue.STARTED
+      });
+    }
+    else {
+      input.data.set(mappedInputKey, {
+        type: InputType.BUTTON,
+        value: value,
+        lifecycleState: LifecycleValue.ENDED
+      });
+    }
+  } else {
+    const doubleTapInput = input.schema.touchInputMap?.buttons[TouchInputs.DoubleTouch];
+    if(input.data.has(doubleTapInput)) {
+      input.data.set(doubleTapInput, {
+        type: InputType.BUTTON,
+        value: BinaryValue.OFF,
+        lifecycleState: LifecycleValue.ENDED
+      });
+    }
   }
-
-
 };
 
 
@@ -206,7 +233,7 @@ const handleMobileDirectionalPad: Behavior = (entity: Entity, args: { event: Cus
   const mappedAxes = input.schema.gamepadInputMap?.axes;
   const mappedKey = mappedAxes? mappedAxes[stick] : null;
 
-  console.log('stick', stick, mappedKey, mappedAxes);
+  // console.log('stick', stick, mappedKey, mappedAxes);
 
   if (!mappedKey) {
     return;
@@ -229,7 +256,7 @@ const handleMobileDirectionalPad: Behavior = (entity: Entity, args: { event: Cus
     const oldStickPosition = input.data.get(mappedKey);
     // If it's not the same, set it and update the lifecycle value to changed
     if (JSON.stringify(oldStickPosition) !== JSON.stringify(stickPosition)) {
-      console.log('---changed');
+      // console.log('---changed');
       // Set type to TWODIM (two-dimensional axis) and value to a normalized -1, 1 on X and Y
       input.data.set(mappedKey, {
         type: InputType.TWODIM,
@@ -237,7 +264,7 @@ const handleMobileDirectionalPad: Behavior = (entity: Entity, args: { event: Cus
         lifecycleState: LifecycleValue.CHANGED
       });
     } else {
-      console.log('---not changed');
+      // console.log('---not changed');
       // Otherwise, remove it
       //input.data.delete(mappedKey)
     }
@@ -302,7 +329,6 @@ const handleMouseWheel: Behavior = (entity: Entity, args: { event: WheelEvent })
   const input = getComponent(entity, Input);
   const value = args.event?.deltaY;
 
-  // If mouse position not set, set it with lifecycle started
   if (!input.data.has(input.schema.mouseInputMap.axes[MouseInput.MouseScroll])) {
     input.data.set(input.schema.mouseInputMap.axes[MouseInput.MouseScroll], {
       type: InputType.ONEDIM,
@@ -310,10 +336,15 @@ const handleMouseWheel: Behavior = (entity: Entity, args: { event: WheelEvent })
       lifecycleState: LifecycleValue.STARTED
     });
   } else {
-    // If mouse position set, check it's value
     const oldValue = input.data.get(input.schema.mouseInputMap.axes[MouseInput.MouseScroll]).value as number;
-
-    // If it's not the same, set it and update the lifecycle value to changed
+    if(oldValue === value) {
+      input.data.set(input.schema.mouseInputMap.axes[MouseInput.MouseScroll], {
+        type: InputType.ONEDIM,
+        value: value,
+        lifecycleState: LifecycleValue.UNCHANGED
+      });
+      return;
+    }
     input.data.set(input.schema.mouseInputMap.axes[MouseInput.MouseScroll], {
       type: InputType.ONEDIM,
       value: oldValue + Math.sign(value),
@@ -685,16 +716,16 @@ export const BaseInputSchema: InputSchema = {
     // Touch
     touchstart: [
       {
-        behavior: handleTouchMove,
-        passive: true
-      },
-      {
         behavior: handleTouch,
         passive: true,
         args: {
           value: BinaryValue.ON
         }
-      }
+      },
+      {
+        behavior: handleTouchMove,
+        passive: true
+      },
     ],
     touchend: [
       {
@@ -776,6 +807,6 @@ export const BaseInputSchema: InputSchema = {
           value: BinaryValue.OFF
         }
       }
-    ]
+    ],
   }
 };

@@ -24,15 +24,6 @@ import com.google.ar.core.TrackingState;
 
 /** Gets human readibly tracking failure reasons and suggested actions. */
 public final class TrackingStateHelper {
-  private static final String INSUFFICIENT_FEATURES_MESSAGE =
-      "Can't find anything. Aim device at a surface with more texture or color.";
-  private static final String EXCESSIVE_MOTION_MESSAGE = "Moving too fast. Slow down.";
-  private static final String INSUFFICIENT_LIGHT_MESSAGE =
-      "Too dark. Try moving to a well-lit area.";
-  private static final String BAD_STATE_MESSAGE =
-      "Tracking lost due to bad internal state. Please try restarting the AR experience.";
-  private static final String CAMERA_UNAVAILABLE_MESSAGE =
-      "Another app is using the camera. Tap on this app or try closing the other one.";
 
   private final Activity activity;
 

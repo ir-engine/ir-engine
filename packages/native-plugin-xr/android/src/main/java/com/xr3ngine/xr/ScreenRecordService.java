@@ -1,4 +1,4 @@
-package com.xr3ngine.screenrecord;
+package com.xr3ngine.xr;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -89,11 +89,11 @@ public class ScreenRecordService extends Thread {
             int index = mEncoder.dequeueOutputBuffer(mBufferInfo, TIMEOUT_US);
             // Log.i(TAG, "dequeue output buffer index=" + index);
             if (index == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-                // 后续输出格式变化
+                // Subsequent output format changes
                 resetOutputFormat();
 
             } else if (index == MediaCodec.INFO_TRY_AGAIN_LATER) {
-                // 请求超时
+                // Request timed out
                 // Log.d(TAG, "retrieving buffers time out!");
                 try {
                     // wait 10ms
@@ -118,7 +118,7 @@ public class ScreenRecordService extends Thread {
      * @param index
      */
     private void encodeToVideoTrack(int index) {
-        // 获取到的实时帧视频数据
+        // Real-time frame video data obtained
         ByteBuffer encodedData = mEncoder.getOutputBuffer(index);
 
         if ((mBufferInfo.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
@@ -133,10 +133,9 @@ public class ScreenRecordService extends Thread {
             Log.d(TAG, "info.size == 0, drop it.");
             encodedData = null;
         } else {
-            // Log.d(TAG, "got buffer, info: size=" + mBufferInfo.size + ",
-            // presentationTimeUs="
-            // + mBufferInfo.presentationTimeUs + ", offset=" +
-            // mBufferInfo.offset);
+             Log.d(TAG, "got buffer, info: size=" + mBufferInfo.size + ", presentationTimeUs="
+             + mBufferInfo.presentationTimeUs + ", offset=" +
+             mBufferInfo.offset);
         }
         if (encodedData != null) {
             mMuxer.writeSampleData(mVideoTrackIndex, encodedData, mBufferInfo);

@@ -1,7 +1,6 @@
 package com.xr3ngine.xr;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.ContentUris;
@@ -14,6 +13,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.media.MediaMetadataRetriever;
+import android.media.projection.MediaProjection;
+import android.media.projection.MediaProjectionManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -32,6 +33,7 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.NativePlugin;
 
+import com.getcapacitor.PluginResult;
 import com.xr3ngine.xr.videocompressor.VideoCompress;
 
 import org.json.JSONArray;
@@ -49,6 +51,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import static android.content.Context.MEDIA_PROJECTION_SERVICE;
+import static com.xr3ngine.xr.XRPlugin.SCREEN_RECORD_CODE;
+
 @NativePlugin(
         permissions = {
                 Manifest.permission.CAMERA,
@@ -57,10 +62,11 @@ import java.util.Locale;
                 Manifest.permission.READ_EXTERNAL_STORAGE
         },
         requestCodes = {
-                CameraPreview.REQUEST_CAMERA_PERMISSION
+                CameraPreview.REQUEST_CAMERA_PERMISSION,
+                SCREEN_RECORD_CODE
         }
 )
-public class XRPlugin extends Plugin implements CameraActivity.CameraPreviewListener {
+public class XRPlugin extends Plugin {
     static final int REQUEST_CAMERA_PERMISSION = 1234;
     private static String VIDEO_FILE_PATH = "";
     private static String VIDEO_FILE_EXTENSION = ".mp4";
@@ -71,7 +77,7 @@ public class XRPlugin extends Plugin implements CameraActivity.CameraPreviewList
     private boolean xrIsEnabled = false;
     private boolean recordingIsEnabled = false;
     private XRFrameData currentXrFrameData = new XRFrameData();
-    private MainActivity mainActivity;
+
     @PluginMethod
     public void initialize(PluginCall call) {
         Log.d("XRPLUGIN", "Initializing");
@@ -153,32 +159,14 @@ public class XRPlugin extends Plugin implements CameraActivity.CameraPreviewList
 
     private void startCamera(final PluginCall call) {
         Log.d("XRPLUGIN", "Start camera native function called");
-        String position = call.getString("position");
-
-        if (position == null || position.isEmpty() || "rear".equals(position)) {
-            position = "back";
-        } else {
-            position = "front";
-        }
-
         final Integer x = call.getInt("x", 0);
         final Integer y = call.getInt("y", 0);
         final Integer width = call.getInt("width", 0);
         final Integer height = call.getInt("height", 0);
         final Integer paddingBottom = call.getInt("paddingBottom", 0);
         final Boolean toBack = call.getBoolean("toBack", true);
-        final Boolean storeToFile = call.getBoolean("storeToFile", false);
-        final Boolean disableExifHeaderStripping = call.getBoolean("disableExifHeaderStripping", true);
 
         fragment = new ARActivity();
-//        fragment.setEventListener(this);
-//        fragment.defaultCamera = position;
-//        fragment.tapToTakePicture = false;
-//        fragment.dragEnabled = false;
-//        fragment.tapToFocus = true;
-//        fragment.disableExifHeaderStripping = disableExifHeaderStripping;
-//        fragment.storeToFile = storeToFile;
-//        fragment.toBack = toBack;
 
         getBridge().getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -242,165 +230,6 @@ public class XRPlugin extends Plugin implements CameraActivity.CameraPreviewList
                 }
             }
         });
-    }
-
-
-    @Override
-    protected void handleOnResume() {
-        super.handleOnResume();
-    }
-
-    @Override
-    public void onPictureTaken(String originalPicture) {
-        JSObject jsObject = new JSObject();
-        jsObject.put("value", originalPicture);
-        getSavedCall().success(jsObject);
-    }
-
-    @Override
-    public void onPictureTakenError(String message) {
-        getSavedCall().reject(message);
-    }
-
-    @Override
-    public void onSnapshotTaken(String originalPicture) {
-        JSONArray data = new JSONArray();
-        data.put(originalPicture);
-
-        PluginCall call = getSavedCall();
-
-        JSObject jsObject = new JSObject();
-        jsObject.put("result", data);
-        call.success(jsObject);
-    }
-
-    @Override
-    public void onSnapshotTakenError(String message) {
-        getSavedCall().reject(message);
-    }
-
-    @Override
-    public void onFocusSet(int pointX, int pointY) {
-
-    }
-
-    @Override
-    public void onFocusSetError(String message) {
-
-    }
-
-    @Override
-    public void onBackButton() {
-
-    }
-
-    @Override
-    public void onCameraStarted() {
-        PluginCall pluginCall = getSavedCall();
-        System.out.println("camera started");
-        pluginCall.success();
-    }
-
-    @Override
-    public void onStartRecordVideo() {
-
-    }
-
-    @Override
-    public void onStartRecordVideoError(String message) {
-        getSavedCall().reject(message);
-    }
-
-    @Override
-    public void onStopRecordVideo(String file) {
-        PluginCall pluginCall = getSavedCall();
-        JSObject jsObject = new JSObject();
-        jsObject.put("videoFilePath", file);
-        pluginCall.success(jsObject);
-    }
-
-    @Override
-    public void onStopRecordVideoError(String error) {
-        getSavedCall().reject(error);
-    }
-
-    private boolean hasView(PluginCall call) {
-        if(fragment == null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private boolean hasCamera(PluginCall call) {
-        if(this.hasView(call) == false){
-            return false;
-        }
-
-//        if(fragment.getCamera() == null) {
-//            return false;
-//        }
-
-        return true;
-    }
-
-    @PluginMethod()
-    public void startRecordVideo(final PluginCall call) {
-        if(this.hasCamera(call) == false){
-            call.error("Camera is not running");
-            return;
-        }
-        final String filename = "videoTmp";
-        VIDEO_FILE_PATH = getActivity().getCacheDir().toString() + "/";
-
-        final String position = call.getString("position", "front");
-        final Integer width = call.getInt("width", 0);
-        final Integer height = call.getInt("height", 0);
-        final Boolean withFlash = call.getBoolean("withFlash", false);
-        final Integer maxDuration = call.getInt("maxDuration", 0);
-        // final Integer quality = call.getInt("quality", 0);
-
-        bridge.getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-//                fragment.startRecord(getFilePath(filename), position, width, height, 70, withFlash, maxDuration);
-            }
-        });
-
-        call.success();
-    }
-
-    @PluginMethod()
-    public void stopRecordVideo(PluginCall call) {
-        if(this.hasCamera(call) == false){
-            call.error("Camera is not running");
-            return;
-        }
-
-        saveCall(call);
-
-         bridge.getActivity().runOnUiThread(new Runnable() {
-             @Override
-             public void run() {
-//                 fragment.stopRecord();
-             }
-         });
-
-         call.success();
-    }
-
-    private String getFilePath(String filename) {
-        String fileName = filename;
-
-        int i = 1;
-
-        while (new File(VIDEO_FILE_PATH + fileName + VIDEO_FILE_EXTENSION).exists()) {
-            // Add number suffix if file exists
-            fileName = filename + '_' + i;
-            i++;
-        }
-
-        return VIDEO_FILE_PATH + fileName + VIDEO_FILE_EXTENSION;
     }
 
     // VIDEO EDITOR METHODS =====================================================
@@ -950,50 +779,7 @@ public class XRPlugin extends Plugin implements CameraActivity.CameraPreviewList
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 
-
-    // XR METHODS ===========================================
-
-
-    @PluginMethod
-    public void startXR(PluginCall call) {
-
-//        Intent intent = new Intent(getContext(), XRActivity.class);
-//        getActivity().startActivity(intent);
-
-        JSObject ret = new JSObject();
-        ret.put("status", "success");
-        call.success(ret);
-    }
-
-    @PluginMethod
-    public void stopXR(PluginCall call) {
-        JSObject ret = new JSObject();
-        ret.put("status", "success");
-        call.success(ret);
-    }
-
-    @PluginMethod
-    public void getXRDataForFrame(PluginCall call) {
-        JSObject ret = new JSObject();
-        ret.put("data", "test");
-        call.success(ret);
-    }
-
     // Camera recording methods ===================================
-
-    @PluginMethod
-    public void startRecording(PluginCall call) {
-        JSObject ret = new JSObject();
-        ret.put("status", "success");
-        call.success(ret);
-    }
-
-    @PluginMethod
-    public void stopRecording(PluginCall call) {
-        JSObject ret = new JSObject();
-        ret.put("status", "success");
-        call.success(ret);
-    }
 
     @PluginMethod
     public void getRecordingStatus(PluginCall call) {
@@ -1037,137 +823,138 @@ public class XRPlugin extends Plugin implements CameraActivity.CameraPreviewList
 
     }
 
-    // ARCORE =================================================
-
-
-	public boolean startXR(final String action) {
-            Intent intent = new Intent(getContext(), XRActivity.class);
-            getActivity().startActivity(intent);
-		return true;
-	}
-//
 //    // SCREEN RECORD =============================================
-//
-//     public final static String TAG = "ScreenRecord";
-//
-//    public MediaProjectionManager mProjectionManager;
-//
-//    public ScreenRecordService screenRecord;
-//
-//    public MediaRecordService mediaRecord;
-//
-//    public CallbackContext callbackContext;
-//
-//    public JSONObject options;
-//
-//    public String filePath;
-//
-//    public boolean isAudio;     // true: MediaRecord, false: ScreenRecord
-//
-//    public int width, height, bitRate, dpi;
-//
-//    public static final int PERMISSION_DENIED_ERROR = 20;
-//    public static final int RECORD_AUDIO= 0;
-//
-//    protected final static String permission = Manifest.permission.RECORD_AUDIO;
-//
-//    public final static int SCREEN_RECORD_CODE = 0;
-//
-//    @Override
-//    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-//        this.callbackContext = callbackContext;
-//        if (action.equals("startRecord")) {
-//            options = args.getJSONObject(0);
-//            Log.d(TAG, options.toString());
-//            isAudio = options.getBoolean("isAudio");
-//            width = options.getInt("width");
-//            height = options.getInt("height");
-//            bitRate = options.getInt("bitRate");
-//            dpi = options.getInt("dpi");
-//            filePath = args.getString(1);
-//            this.startRecord(callbackContext);
-//            return true;
-//        }else if (action.equals("stopRecord")) {
-//            this.stopRecord(callbackContext);
-//            return true;
-//        }
-//        return false;
-//    }
-//
-//    private void startRecord(CallbackContext callbackContext) {
-//        if (screenRecord != null) {
-//            callbackContext.error("screenRecord service is running");
-//        } else {
-//            if(cordova != null) {
-//                try {
-//                    callScreenRecord();
-//                }catch(IllegalArgumentException e) {
-//                    callbackContext.error("Illegal Argument Exception");
-//                    PluginResult r = new PluginResult(PluginResult.Status.ERROR);
-//                    callbackContext.sendPluginResult(r);
-//                }
-//            }
-//        }
-//    }
-//
-//    private void stopRecord(CallbackContext callbackContext) {
-//        if(isAudio){
-//            if(mediaRecord != null){
-//                mediaRecord.release();
-//                mediaRecord = null;
-//                callbackContext.success("ScreenRecord finish.");
-//            }else {
-//                callbackContext.error("no ScreenRecord in process");
-//            }
-//        }else {
-//            if(screenRecord != null){
-//                screenRecord.quit();
-//                screenRecord = null;
-//                callbackContext.success("ScreenRecord finish.");
-//            }else {
-//                callbackContext.error("no ScreenRecord in process");
-//            }
-//        }
-//    }
-//
-//    private void callScreenRecord() {
-//        mProjectionManager = (MediaProjectionManager)this.cordova.getActivity().getSystemService("media_projection");
-//        Intent captureIntent = mProjectionManager.createScreenCaptureIntent();
-//        cordova.startActivityForResult(this, captureIntent, SCREEN_RECORD_CODE);
-//    }
-//
-//    /**
-//     * mediaprojection回调
-//     */
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//
-//        MediaProjection mediaProjection = mProjectionManager.getMediaProjection(resultCode, data);
-//        if (mediaProjection == null) {
-//            Log.e(TAG, "media projection is null");
-//            callbackContext.error("no ScreenRecord in process");
-//            return;
-//        }
-//        if(requestCode == 0){
-//           try {
-//               File file = new File(filePath);
-//
-//               if(isAudio){
-//                mediaRecord = new MediaRecordService(width, height, bitRate, dpi, mediaProjection, file.getAbsolutePath());
-//                mediaRecord.start();
-//               }else {
-//                screenRecord = new ScreenRecordService(width, height, bitRate, dpi,
-//                mediaProjection, file.getAbsolutePath());
-//                screenRecord.start();
-//               }
-//
-//               Log.d(TAG, "screenrecord service is running");
-//               this.callbackContext.success("screenrecord service is running");
-//               cordova.getActivity().moveTaskToBack(true);
-//           }catch (Exception e){
-//              e.printStackTrace();
-//          }
-//      }
-//  }
+
+    public MediaProjectionManager mProjectionManager;
+
+    public ScreenRecordService screenRecord;
+
+    public MediaRecordService mediaRecord;
+
+    public JSONObject options;
+
+    public String filePath;
+
+    public boolean isAudio;     // true: MediaRecord, false: ScreenRecord
+
+    public int width, height, bitRate, dpi;
+
+    public static final int PERMISSION_DENIED_ERROR = 20;
+    public static final int RECORD_AUDIO= 0;
+
+    protected final static String permission = Manifest.permission.RECORD_AUDIO;
+
+    public final static int SCREEN_RECORD_CODE = 1337;
+
+    PluginCall callbackContext;
+
+    @PluginMethod
+    public void startRecording(PluginCall callbackContext) {
+        this.callbackContext = callbackContext;
+
+        Log.d(TAG, callbackContext.toString());
+        isAudio = callbackContext.getBoolean("isAudio");
+        width = callbackContext.getInt("width");
+        height = callbackContext.getInt("height");
+        bitRate = callbackContext.getInt("bitRate");
+        dpi = callbackContext.getInt("dpi");
+        filePath = callbackContext.getString("filePath");
+        if (screenRecord != null) {
+            callbackContext.error("screenRecord service is running");
+        } else {
+            saveCall(callbackContext);
+
+            mProjectionManager = (MediaProjectionManager) getActivity().getSystemService(MEDIA_PROJECTION_SERVICE);
+            Intent captureIntent = mProjectionManager.createScreenCaptureIntent();
+            startActivityForResult(this.callbackContext, captureIntent, SCREEN_RECORD_CODE);
+        }
+        Log.d(TAG, "CALLBACK CONTEXT:" + this.callbackContext);
+        Log.d(TAG, "IS AUDIO:" + isAudio);
+
+    }
+
+    @PluginMethod
+    public void stopRecording(PluginCall callbackContext) {
+        if(isAudio){
+            if(mediaRecord != null){
+                mediaRecord.release();
+                mediaRecord = null;
+                callbackContext.success(new JSObject().put("result", "ScreenRecord finish."));
+            }else {
+                callbackContext.error("no ScreenRecord in process isAudio");
+            }
+        }else {
+            if(screenRecord != null){
+                screenRecord.quit();
+                screenRecord = null;
+                callbackContext.success(new JSObject().put("result", "ScreenRecord finish."));
+            }else {
+                callbackContext.error("no ScreenRecord in process XX");
+            }
+        }
+        Log.d(TAG, "CALLBACK CONTEXT:" + String.valueOf(this.callbackContext));
+
+    }
+
+    /**
+     * mediaprojection
+     */
+    @Override
+    public void handleOnActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "*************** handleOnActivityResult" + filePath);
+        PluginCall savedCall = getSavedCall();
+
+        MediaProjection mediaProjection = mProjectionManager.getMediaProjection(resultCode, data);
+        if (mediaProjection == null) {
+            Log.e(TAG, "media projection is null");
+            callbackContext.error("no ScreenRecord in process");
+            return;
+        }
+           try {
+
+               ApplicationInfo ai;
+               final Context appContext = getActivity().getApplicationContext();
+               final PackageManager pm = appContext.getPackageManager();
+
+               try {
+                   ai = pm.getApplicationInfo(getActivity().getPackageName(), 0);
+               } catch (final PackageManager.NameNotFoundException e) {
+                   ai = null;
+               }
+               final String appName = (String) (ai != null ? pm.getApplicationLabel(ai) : "Unknown");
+
+               File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), appName);
+
+               if (!mediaStorageDir.exists()) {
+                   if (!mediaStorageDir.mkdirs()) {
+                       videoEditorCallbackContext.error("Can't access or make Movies directory");
+                       return;
+                   }
+               }
+               File file = new File(
+                       mediaStorageDir.getPath(),
+                       filePath
+               );
+                Log.d(TAG, "*************** filePath: " + mediaStorageDir.getPath() + filePath);
+               if(isAudio){
+                mediaRecord = new MediaRecordService(width, height, bitRate, dpi, mediaProjection, file.getAbsolutePath());
+                mediaRecord.start();
+               }else {
+                screenRecord = new ScreenRecordService(width, height, bitRate, dpi,
+                mediaProjection, file.getAbsolutePath());
+                screenRecord.start();
+               }
+
+               Log.d(TAG, "screenrecord service is running");
+               PluginResult result = new PluginResult();
+               result.put("status", data.getStringExtra("ScreenRecord file at" + file.getAbsolutePath()));
+               savedCall.successCallback(result);
+
+//               getActivity().moveTaskToBack(true);
+           }catch (Exception e){
+              e.printStackTrace();
+              savedCall.errorCallback("Error in screenrecord");
+          }
+  }
 
 }
