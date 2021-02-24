@@ -127,6 +127,7 @@
 }
 body{
   overflow: auto;
+  overscroll-behavior-y: contain;
 }
 
 .menuDrawerOpened{  

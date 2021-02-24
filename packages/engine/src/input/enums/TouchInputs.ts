@@ -1,5 +1,6 @@
 export enum TouchInputs {
   Touch,
+  DoubleTouch,
   LongTouch,
   Touch1Position,
   Touch1Movement,
