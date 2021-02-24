@@ -117,4 +117,4 @@ const SignUp = (props: Props): any => {
 
 const SignUpWrapper = (props: any): any => <SignUp {...props} />;
 
-export default connect(mapDispatchToProps)(SignUpWrapper);
+export default connect(null, mapDispatchToProps)(SignUpWrapper);

@@ -13,7 +13,6 @@ import OutlinedInput from '@material-ui/core/OutlinedInput';
 
 import { selectAuthState } from '../../../redux/auth/selector';
 import { loginUserByPassword, addConnectionByPassword } from '../../../redux/auth/service';
-import { showDialog, closeDialog } from '../../../redux/dialog/service';
 import { User } from '@xr3ngine/common/interfaces/User';
 
 import styles from './Auth.module.scss';
@@ -26,33 +25,19 @@ const mapStateToProps = (state: any): any => {
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   loginUserByPassword: bindActionCreators(loginUserByPassword, dispatch),
-  addConnectionByPassword: bindActionCreators(
-    addConnectionByPassword,
-    dispatch
-  ),
-  showDialog: bindActionCreators(showDialog, dispatch),
-  closeDialog: bindActionCreators(closeDialog, dispatch)
 });
 
 const initialState = { email: '', password: '' };
 
 interface Props {
   auth?: any;
-  isAddConnection?: boolean;
-  addConnectionByPassword?: typeof addConnectionByPassword;
   loginUserByPassword?: typeof loginUserByPassword;
-  closeDialog?: typeof closeDialog;
-  showDialog?: typeof showDialog;
 }
 
 export const PasswordLogin = (props: Props): any => {
   const {
     auth,
-    isAddConnection,
-    addConnectionByPassword,
     loginUserByPassword,
-    closeDialog,
-    showDialog,
   } = props;
   const [state, setState] = useState(initialState);
 
@@ -62,25 +47,20 @@ export const PasswordLogin = (props: Props): any => {
   const handleEmailLogin = (e: any): void => {
     e.preventDefault();
 
-    if (isAddConnection) {
-      const user = auth.get('user') as User;
-      const userId = user ? user.id : '';
-
-      addConnectionByPassword(
-        {
-          email: state.email,
-          password: state.password
-        },
-        userId
-      );
-      closeDialog();
-    } else {
       loginUserByPassword({
         email: state.email,
         password: state.password
       });
-      Router.push("/");
-    }
+
+      if(auth){
+        const user = auth.get('user') as User;
+        const userId = user ? user.id : null;
+        console.log('userId', userId)
+        if(userId){
+          Router.push("/");
+        }
+      }
+
   };
 
   const [showPassword, showHidePassword] = useState(false);
