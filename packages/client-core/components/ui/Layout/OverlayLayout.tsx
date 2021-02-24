@@ -20,10 +20,7 @@ import InstanceChat from '../InstanceChat';
 import Me from '../Me';
 import NavMenu from '../NavMenu';
 import PartyVideoWindows from '../PartyVideoWindows';
-import {
-    Forum
-} from '@material-ui/icons';
-import {  FullscreenExit} from "@material-ui/icons";
+import { Forum, FullscreenExit, People } from '@material-ui/icons';
 import Harmony from "../Harmony";
 //@ts-ignore
 import styles from './Layout.module.scss';
@@ -77,6 +74,7 @@ const Layout = (props: Props): any => {
   const [bottomDrawerOpen, setBottomDrawerOpen] = useState(false);
   const [harmonyOpen, setHarmonyOpen] = useState(false);
   const [fullScreenActive, setFullScreenActive] = useState(false);
+  const [ expanded, setExpanded ] = useState(true);
   const user = authState.get('user');
   const handle = useFullScreenHandle();
 
@@ -114,6 +112,20 @@ const Layout = (props: Props): any => {
     }
   }, []);
 
+  useEffect((() => {
+    function handleResize() {
+      if (window.innerWidth > 768) setExpanded(true);
+    }
+
+    window.addEventListener('resize', handleResize);
+
+    return _ => {
+      window.removeEventListener('resize', handleResize)
+    };
+  }) as any);
+
+  const toggleExpanded = () => setExpanded(!expanded);
+
   //info about current mode to conditional render menus
   // TODO: Uncomment alerts when we can fix issues
   return (
@@ -133,12 +145,16 @@ const Layout = (props: Props): any => {
             </Head>
             <header>
               {path === '/login' && <NavMenu login={login} />}
-              { harmonyOpen !== true 
+              { harmonyOpen !== true
                 ? (
-                  <section className={styles.locationUserMenu}>
-                    {authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
-                    <PartyVideoWindows />
-                  </section>
+                  <>
+                    {expanded 
+                      ? <section className={styles.locationUserMenu}>
+                        {authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
+                        <PartyVideoWindows />
+                      </section> : null}
+                    <button type="button" className={styles.expandMenu + ' ' + (expanded ? styles.expanded : '')} onClick={toggleExpanded}><People /></button>
+                  </>
                 ) : null}
             </header>
 
