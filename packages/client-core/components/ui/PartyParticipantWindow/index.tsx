@@ -40,6 +40,7 @@ import {connect} from "react-redux";
 import {Dispatch} from "redux";
 import {PositionalAudioSystem} from "@xr3ngine/engine/src/audio/systems/PositionalAudioSystem";
 import { getAvatarURL } from "../UserMenu/util";
+import Draggable from './Draggable';
 
 
 interface ContainerProportions {
@@ -300,14 +301,14 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
         if (focused === false) return name?.length > 10 ? name.slice(0, 10) + '...' : name;
     };
 
-    const togglePiP = async () => {
-        if (document.pictureInPictureElement) await document.exitPictureInPicture();
-        else await videoRef.current?.requestPictureInPicture();
-    }
+    const [isPiP, setPiP] = useState(false);
+
+    const togglePiP = () => setPiP(!isPiP);
 
     const avatarBgImage = user && user.avatarId ?
         `url(${'/static/' + user.avatarId.toLocaleLowerCase() + '.png'})` : selfUser && selfUser.avatarId ? `url(${'/static/' + selfUser.avatarId.toLocaleLowerCase() + '.png'})` : null;
     return (
+        <Draggable isPiP={isPiP}>
         <div
             tabIndex={0}
             id={peerId + '_container'}
@@ -317,7 +318,8 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                 // [styles['focused']]: focused,
                 [styles['self-user']]: peerId === 'me_cam' || peerId === 'me_screen',
                 [styles['no-video']]: videoStream == null,
-                [styles['video-paused']]: (videoStream && (videoProducerPaused === true || videoStreamPaused === true))
+                [styles['video-paused']]: (videoStream && (videoProducerPaused === true || videoStreamPaused === true)),
+                [styles.pip]: isPiP,
             })}
             // style={{ backgroundImage: user?.avatarUrl?.length > 0 ? `url(${user.avatarUrl}` : `url(/placeholders/default-silhouette.svg)`} }
         >
@@ -326,8 +328,9 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                  // style={{backgroundImage: user?.avatarUrl?.length > 0 ? `url(${user.avatarUrl}` : avatarBgImage ? avatarBgImage : `url(/placeholders/default-silhouette.svg)`}}
                  // onClick={() => setFocused(!focused) }
             >
-                { (videoStream == null || videoProducerPaused == true || videoProducerGlobalMute == true) && <img src={getAvatarURL(user?.avatarId)} /> }
-                <video key={peerId + '_cam'} ref={videoRef}/>
+                {videoStream == null || videoProducerPaused == true || videoProducerGlobalMute == true
+                    ? <img src={getAvatarURL(user?.avatarId)} draggable={false} />
+                    : <video key={peerId + '_cam'} ref={videoRef}/>}
             </div>
             <audio key={peerId + '_audio'} ref={audioRef}/>
             <div className={styles['user-controls']}>
@@ -369,34 +372,30 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                                             : audioStreamPaused ? <VolumeOff /> : <VolumeUp />}
                                     </IconButton>
                                 </Tooltip> : null}
-                            {document.pictureInPictureEnabled
-                                ? <Tooltip title="Open Picture in Picture">
-                                    <IconButton
-                                        color="secondary"
-                                        size="small"
-                                        className={styles['audio-control']}
-                                        onClick={togglePiP}
-                                    >
-                                        <Launch />
-                                    </IconButton>
-                                </Tooltip> : null}
+                            <Tooltip title="Open Picture in Picture">
+                                <IconButton
+                                    color="secondary"
+                                    size="small"
+                                    className={styles['audio-control']}
+                                    onClick={togglePiP}
+                                >
+                                    <Launch />
+                                </IconButton>
+                            </Tooltip>
                     </div>
-                    {
-                        audioProducerGlobalMute === true && <div className={styles['global-mute']}>Muted by Admin</div>
-                    }
-                    {
-                        audioStream && audioProducerPaused === false && audioProducerGlobalMute === false &&
+                    {audioProducerGlobalMute === true && <div className={styles['global-mute']}>Muted by Admin</div>}
+                    {audioStream && audioProducerPaused === false && audioProducerGlobalMute === false &&
                         (harmony === true || selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0) &&
                         <div className={styles['audio-slider']}>
                             {volume > 0 && <VolumeDown/>}
                             {volume === 0 && <VolumeMute/>}
                             <Slider value={volume} onChange={adjustVolume} aria-labelledby="continuous-slider"/>
                             <VolumeUp/>
-                        </div>
-                    }
+                        </div>}
                 </div>
             </div>
         </div>
+        </Draggable>
     );
 });
 
