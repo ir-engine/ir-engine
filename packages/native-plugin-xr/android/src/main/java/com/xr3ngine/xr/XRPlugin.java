@@ -911,8 +911,31 @@ public class XRPlugin extends Plugin {
             return;
         }
            try {
-               File file = new File(filePath);
-                Log.d(TAG, "*************** filePath" + filePath);
+
+               ApplicationInfo ai;
+               final Context appContext = getActivity().getApplicationContext();
+               final PackageManager pm = appContext.getPackageManager();
+
+               try {
+                   ai = pm.getApplicationInfo(getActivity().getPackageName(), 0);
+               } catch (final PackageManager.NameNotFoundException e) {
+                   ai = null;
+               }
+               final String appName = (String) (ai != null ? pm.getApplicationLabel(ai) : "Unknown");
+
+               File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), appName);
+
+               if (!mediaStorageDir.exists()) {
+                   if (!mediaStorageDir.mkdirs()) {
+                       videoEditorCallbackContext.error("Can't access or make Movies directory");
+                       return;
+                   }
+               }
+               File file = new File(
+                       mediaStorageDir.getPath(),
+                       filePath
+               );
+                Log.d(TAG, "*************** filePath: " + mediaStorageDir.getPath() + filePath);
                if(isAudio){
                 mediaRecord = new MediaRecordService(width, height, bitRate, dpi, mediaProjection, file.getAbsolutePath());
                 mediaRecord.start();
@@ -924,7 +947,7 @@ public class XRPlugin extends Plugin {
 
                Log.d(TAG, "screenrecord service is running");
                PluginResult result = new PluginResult();
-               result.put("result", data.getStringExtra("ScreenRecord callback"));
+               result.put("status", data.getStringExtra("ScreenRecord file at" + file.getAbsolutePath()));
                savedCall.successCallback(result);
 
 //               getActivity().moveTaskToBack(true);
