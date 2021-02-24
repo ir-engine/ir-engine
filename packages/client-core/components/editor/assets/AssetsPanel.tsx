@@ -6,12 +6,20 @@ import { List, ListItem } from "../layout/List";
 import { EditorContext } from "../contexts/EditorContext";
 import AssetDropZone from "./AssetDropZone";
 
+/**
+ * [AssetsPanelContainer used as container element for asset penal]
+ * @type {Styled component}
+ */
 const AssetsPanelContainer = (styled as any)(Row)`
   position: relative;
   flex: 1;
   background-color: ${props => props.theme.panel};
 `;
 
+/**
+ * [AssetsPanelToolbarContainer used as container element for tools like search input]
+ * @type {Styled component}
+ */
 const AssetsPanelToolbarContainer = (styled as any).div`
   display: flex;
   min-height: 32px;
@@ -22,6 +30,10 @@ const AssetsPanelToolbarContainer = (styled as any).div`
   border-bottom: 1px solid ${props => props.theme.panel};
 `;
 
+/**
+ * [AssetPanelToolbarContent ]
+ * @type {[type]}
+ */
 export const AssetPanelToolbarContent = (styled as any)(Row)`
   flex: 1;
   align-items: flex-end;
@@ -31,6 +43,13 @@ export const AssetPanelToolbarContent = (styled as any)(Row)`
   }
 `;
 
+/**
+ * [AssetsPanelToolbar used to create view elements for toolbar on asset penal]
+ * @param       {string} title    [contains the title for toolbar]
+ * @param       {node} children
+ * @param       {any} rest
+ * @constructor
+ */
 export function AssetsPanelToolbar({ title, children, ...rest }) {
   return (
     <AssetsPanelToolbarContainer {...rest}>
@@ -40,11 +59,19 @@ export function AssetsPanelToolbar({ title, children, ...rest }) {
   );
 }
 
+/**
+ * [declairing propTypes for AssetsPanelToolbar]
+ * @type {Object}
+ */
 AssetsPanelToolbar.propTypes = {
   title: PropTypes.string,
   children: PropTypes.node
 };
 
+/**
+ * [AssetsPanelColumn description]
+ * @param {[type]} styled [description]
+ */
 const AssetsPanelColumn = (styled as any)(Column)`
   max-width: 175px;
   border-right: 1px solid ${props => props.theme.border};
