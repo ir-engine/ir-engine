@@ -98,6 +98,8 @@ const worldStateSchema = new Schema({
     destroyObjects: [destroyNetworkObjectSchema],
     inputs: [inputKeyArraySchema],
     tick: uint32,
+    timeFP: uint32,
+    timeSP: uint32,
     transforms: [transformSchema]
 });
 
@@ -120,12 +122,15 @@ export class WorldStateModel {
           destroyObjects: worldState.destroyObjects,
           inputs: [],
           tick: 0,
+          timeFP: 0,
+          timeSP: 0,
           transforms: [],
           states: []
         };
         return Network.instance.packetCompression ? WorldStateModel.model.toBuffer(state) : state;
       } else
       if (type === 'UnReliable') {
+        const timeToTwoUinit32 = Date.now().toString();
         const state:any = {
           clientsConnected: [],
           clientsDisconnected: [],
@@ -143,6 +148,8 @@ export class WorldStateModel {
             };
           }),
           tick: worldState.tick,
+          timeFP: Number(timeToTwoUinit32.slice(0,6)), // first part
+          timeSP: Number(timeToTwoUinit32.slice(6)), // second part
           transforms: worldState.transforms.map(v=> {
             return {
               ...v,
@@ -170,6 +177,7 @@ export class WorldStateModel {
           // @ts-ignore
           ...state,
           tick: Number(state.tick),
+          time: state.timeFP*10000000+state.timeSP, // get uint64 from two uint32
           transforms: state.transforms.map(v=> {
             const { snapShotTime, ...otherValues } = v;
             return {
