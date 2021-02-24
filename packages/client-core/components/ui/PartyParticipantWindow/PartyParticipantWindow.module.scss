@@ -7,7 +7,7 @@
         height: 90px;
         width: 90px;
         border-radius: 10px;
-        z-index: 10;
+        z-index: 11;
         box-shadow: 0px 2px 18px 0px #11111159;
 
         img {
@@ -18,16 +18,8 @@
             display: block;
         }
 
-        video{
-            object-fit: cover;                  
-        }
-
-        @media (min-width: 769px) {
-            &:hover {
-                cursor: pointer;
-                opacity: 0.8;
-            }
-        }
+        video{ object-fit: cover; width: 100%; height: 100%; }
+        &:hover { cursor: pointer; }
     }
 
     &.harmony {
@@ -360,9 +352,10 @@
         }
         &:hover, &:focus {
             .user-controls {
-                width: 150px;
                 padding: 10px 10px 10px 25px;
                 z-index: 10;
+                min-width: 150px;
+                width: auto;
             }
         }
     }
@@ -379,6 +372,26 @@
         &:focus, &:focus-within {
             .video-wrapper { width: 150px; height: 150px; }
             .user-controls { padding: 20px 10px 10px 10px; height: auto; }
+        }
+    }
+
+    &.pip {
+        width: 250px;
+        height: 400px;
+
+        .video-wrapper { width: 100%; height: 100%; border-radius: 0; }
+        .user-controls {
+            position: absolute; width: 100%; padding: 10px; bottom: 0; left: 0; margin: 0; 
+            z-index: 12; border-radius: 0; display: none;
+            .controls {
+                display: flex; flex-direction: row; justify-content: space-between; margin-left: 5px; 
+                .audio-slider { margin-top: 0; }
+            }
+            button { margin: 0; }
+        }
+
+        &:hover {
+            .user-controls { display: flex; }
         }
     }
 }

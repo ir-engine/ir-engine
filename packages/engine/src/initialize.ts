@@ -20,6 +20,7 @@ import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkI
 import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem';
 import { ParticleSystem } from './particles/systems/ParticleSystem';
 import { PhysicsSystem } from './physics/systems/PhysicsSystem';
+import { createCanvas } from './renderer/functions/createCanvas';
 import { HighlightSystem } from './renderer/HighlightSystem';
 import { WebGLRendererSystem } from './renderer/WebGLRendererSystem';
 import { ServerSpawnSystem } from './scene/systems/SpawnSystem';
@@ -44,7 +45,7 @@ export const DefaultInitializationOptions = {
   },
   state: {
     schema: CharacterStateSchema
-  }
+  },
 };
 
 export function initializeEngine(initOptions: any = DefaultInitializationOptions): void {
@@ -112,7 +113,7 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
       registerSystem(DebugHelpersSystem);
     }
     registerSystem(CameraSystem);
-    registerSystem(WebGLRendererSystem, { priority: 1001 });
+    registerSystem(WebGLRendererSystem, { priority: 1001, canvas: options.renderer.canvas || createCanvas() });
     Engine.viewportElement = Engine.renderer.domElement;
   }
 

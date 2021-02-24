@@ -1,78 +1,52 @@
-$mobileControllButtonsSize:3em;
-.drawerBoxContainer{
-    position: absolute;
-    z-index: 1301;
+.drawerBox{
+    display: flex;
+    position: fixed;
     top: 5px;
-    right: 0;
-    left: 0;
-    margin: 0 auto;
-    text-align: center;
-    width: fit-content;
+    z-index: 1300;
+    width: 100%;
+    justify-content: center;
 
-    @media (max-width: 768px) {
-        margin: 0 25% 0 auto;
-    }
-
-    .drawerBox{        
-        margin: 0 auto;
-        display: flex;
-        font-size: 20px;
-        text-align: center;
-        height: $mobileControllButtonsSize;
-        width: auto;
-        flex-direction: row;
+    .iconContainer{
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 50%;
+        margin: 5px;
+        height: 50px;
+        width: 50px;
+        cursor: pointer;
+        position: relative;
+        border: none;
+        color: white;
         padding: 0;
-       
+        display: flex;
+        justify-content: center;
+        align-items: center;
 
-        &:last-child{
-            padding-bottom: 0;
-        }
-        .iconContainer{
-            background: rgba(0, 0, 0, 0.2);
-            box-sizing: border-box;
+        &::before {
+            content: " ";
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            display: block;
+            transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
+            background: #5f5ff1;
+            top: 0;
+            left: 0;
+            z-index: -1;
             border-radius: 50%;
-            margin: 12px;
-            height: 56px;
-            width: 56px;
-            cursor: pointer;  
-            @media (max-width: 768px) {
-                height: 56px;
-                width: 56px;
-                margin: 8px;
-            }  
-            &.on {
-                .offIcon{
-                    display: none;  
-                }
-                .onIcon{
-                    display: block;
-                }                
-            } 
-            &.off{
-                .offIcon{
-                    display: block;  
-                }
-                .onIcon{
-                    display: none;
-                }
-            }        
-            
-
-            .onIcon{
-                color: rgba(122, 255, 100, 1)          
-            }
-            
-            > svg{
-                height: 1.5em;
-                width: 1.5em;                
-                box-sizing: border-box;
-                cursor: pointer;   
-                margin: 10px;   
-                @media (max-width: 768px) {
-                    margin: 10px;
-                }
-            }
+            transform: scale(0);
         }
-        
+
+        &:hover::before { transform: scale(100%); }
+        &.on svg { color: rgba(122, 255, 100, 1) }
+        > svg { height: 50%; width: 50%; }
+    }
+    @media (max-width: 450px) {
+        justify-content: flex-end;
+        padding-right: 5px;
+        .iconContainer {
+            width: 40px;
+            height: 40px;
+            &:before { width: 40px; height: 40px; }
+        }
     }
 }

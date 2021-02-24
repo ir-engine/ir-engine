@@ -91,7 +91,7 @@ const MyApp = (props: Props): any => {
         <title>{config.title}</title>
         <meta
           name="viewport"
-          content="minimum-scale=1, initial-scale=1, width=device-width"
+          content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0', shrink-to-fit=no"
         />
       </Head>
       <ThemeProvider theme={theme}>
