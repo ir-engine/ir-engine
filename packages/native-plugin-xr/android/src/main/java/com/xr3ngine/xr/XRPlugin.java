@@ -33,6 +33,7 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.NativePlugin;
 
+import com.getcapacitor.PluginResult;
 import com.xr3ngine.xr.videocompressor.VideoCompress;
 
 import org.json.JSONArray;
@@ -51,6 +52,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import static android.content.Context.MEDIA_PROJECTION_SERVICE;
+import static com.xr3ngine.xr.XRPlugin.SCREEN_RECORD_CODE;
 
 @NativePlugin(
         permissions = {
@@ -60,7 +62,8 @@ import static android.content.Context.MEDIA_PROJECTION_SERVICE;
                 Manifest.permission.READ_EXTERNAL_STORAGE
         },
         requestCodes = {
-                CameraPreview.REQUEST_CAMERA_PERMISSION
+                CameraPreview.REQUEST_CAMERA_PERMISSION,
+                SCREEN_RECORD_CODE
         }
 )
 public class XRPlugin extends Plugin {
@@ -776,35 +779,6 @@ public class XRPlugin extends Plugin {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 
-
-    // XR METHODS ===========================================
-
-
-    @PluginMethod
-    public void startXR(PluginCall call) {
-
-//        Intent intent = new Intent(getContext(), XRActivity.class);
-//        getActivity().startActivity(intent);
-
-        JSObject ret = new JSObject();
-        ret.put("status", "success");
-        call.success(ret);
-    }
-
-    @PluginMethod
-    public void stopXR(PluginCall call) {
-        JSObject ret = new JSObject();
-        ret.put("status", "success");
-        call.success(ret);
-    }
-
-    @PluginMethod
-    public void getXRDataForFrame(PluginCall call) {
-        JSObject ret = new JSObject();
-        ret.put("data", "test");
-        call.success(ret);
-    }
-
     // Camera recording methods ===================================
 
     @PluginMethod
@@ -870,16 +844,9 @@ public class XRPlugin extends Plugin {
 
     protected final static String permission = Manifest.permission.RECORD_AUDIO;
 
-    public final static int SCREEN_RECORD_CODE = 0;
+    public final static int SCREEN_RECORD_CODE = 1337;
 
     PluginCall callbackContext;
-
-    @PluginMethod
-    public void stopRecording(PluginCall call) {
-        JSObject ret = new JSObject();
-        ret.put("status", "success");
-        call.success(ret);
-    }
 
     @PluginMethod
     public void startRecording(PluginCall callbackContext) {
@@ -895,22 +862,26 @@ public class XRPlugin extends Plugin {
         if (screenRecord != null) {
             callbackContext.error("screenRecord service is running");
         } else {
+            saveCall(callbackContext);
+
             mProjectionManager = (MediaProjectionManager) getActivity().getSystemService(MEDIA_PROJECTION_SERVICE);
             Intent captureIntent = mProjectionManager.createScreenCaptureIntent();
             startActivityForResult(this.callbackContext, captureIntent, SCREEN_RECORD_CODE);
-
-
         }
+        Log.d(TAG, "CALLBACK CONTEXT:" + this.callbackContext);
+        Log.d(TAG, "IS AUDIO:" + isAudio);
+
     }
 
-    private void stopRecord(PluginCall callbackContext) {
+    @PluginMethod
+    public void stopRecording(PluginCall callbackContext) {
         if(isAudio){
             if(mediaRecord != null){
                 mediaRecord.release();
                 mediaRecord = null;
                 callbackContext.success(new JSObject().put("result", "ScreenRecord finish."));
             }else {
-                callbackContext.error("no ScreenRecord in process");
+                callbackContext.error("no ScreenRecord in process isAudio");
             }
         }else {
             if(screenRecord != null){
@@ -918,15 +889,20 @@ public class XRPlugin extends Plugin {
                 screenRecord = null;
                 callbackContext.success(new JSObject().put("result", "ScreenRecord finish."));
             }else {
-                callbackContext.error("no ScreenRecord in process");
+                callbackContext.error("no ScreenRecord in process XX");
             }
         }
+        Log.d(TAG, "CALLBACK CONTEXT:" + String.valueOf(this.callbackContext));
+
     }
 
     /**
-     * mediaprojection回调
+     * mediaprojection
      */
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    @Override
+    public void handleOnActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "*************** handleOnActivityResult" + filePath);
+        PluginCall savedCall = getSavedCall();
 
         MediaProjection mediaProjection = mProjectionManager.getMediaProjection(resultCode, data);
         if (mediaProjection == null) {
@@ -934,10 +910,9 @@ public class XRPlugin extends Plugin {
             callbackContext.error("no ScreenRecord in process");
             return;
         }
-        if(requestCode == 0){
            try {
                File file = new File(filePath);
-
+                Log.d(TAG, "*************** filePath" + filePath);
                if(isAudio){
                 mediaRecord = new MediaRecordService(width, height, bitRate, dpi, mediaProjection, file.getAbsolutePath());
                 mediaRecord.start();
@@ -948,12 +923,15 @@ public class XRPlugin extends Plugin {
                }
 
                Log.d(TAG, "screenrecord service is running");
-               callbackContext.success(new JSObject().put("result", "ScreenRecord finish."));
-               getActivity().moveTaskToBack(true);
+               PluginResult result = new PluginResult();
+               result.put("result", data.getStringExtra("ScreenRecord callback"));
+               savedCall.successCallback(result);
+
+//               getActivity().moveTaskToBack(true);
            }catch (Exception e){
               e.printStackTrace();
+              savedCall.errorCallback("Error in screenrecord");
           }
-      }
   }
 
 }

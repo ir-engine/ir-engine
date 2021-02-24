@@ -1,7 +1,7 @@
-import { Plugins, Capacitor } from '@capacitor/core';
+import { Capacitor, Plugins } from '@capacitor/core';
 import "@xr3ngine/native-plugin-xr/src/index.ts";
-
 import React, { useEffect, useState } from 'react';
+
 
 const { isNative } = Capacitor;
 
@@ -11,6 +11,9 @@ enum RecordingStates {
     STARTING = "starting",
     ENDING = "ending"
 }
+
+const meshFilePath = typeof location !== 'undefined' ? location.origin + "/volumetric/liam.drcs" : "";
+const videoFilePath = typeof location !== 'undefined' ? location.origin + "/volumetric/liam.mp4" : "";
 
 export const IndexPage = (): any => {
     const [initializationResponse, setInitializationResponse] = useState("");
@@ -33,26 +36,23 @@ export const IndexPage = (): any => {
 
     const toggleRecording = () => {
         if (recordingState === RecordingStates.OFF) {
-            setRecordingState(RecordingStates.STARTING);
+            setRecordingState(RecordingStates.ON);
             Plugins.XRPlugin.startRecording({
                 isAudio: true,
                 width: 500,
                 height: 500,
                 bitRate: 1000,
                 dpi: 100,
-                filePath: "/"
-            }).
-                then(({status}) => {
+                filePath: "/test.mp4"
+            }).then(({ status }) => {
                     console.log("RECORDING, STATUS IS", status);
-                    setRecordingState(RecordingStates.ON);
                 });
         }
         else if (recordingState === RecordingStates.ON) {
-            setRecordingState(RecordingStates.ENDING);
+            setRecordingState(RecordingStates.OFF);
             Plugins.XRPlugin.stopRecording().
-                then(({status}) => {
+                then(({ status }) => {
                     console.log("END RECORDING, STATUS IS", status);
-                    setRecordingState(RecordingStates.OFF);
                 });
         }
     }
@@ -62,14 +62,21 @@ export const IndexPage = (): any => {
     //     setSecondState("Initialized and effected");
     // }, [initializationResponse]);
 
-    return (
+    return (<>
         <div className="plugintest">
             <div className="plugintestReadout">
                 <p>{initializationResponse}</p>
                 <p>{cameraStartedState}</p>
                 <button type="button" onClick={() => toggleRecording()}>{recordingState}</button>
             </div>
+
         </div>
+                        {/* <VolumetricPlayer
+                        meshFilePath={meshFilePath}
+                        videoFilePath={videoFilePath}
+                        cameraVerticalOffset={0.5}
+                    /> */}
+                    </>
     );
 };
 
