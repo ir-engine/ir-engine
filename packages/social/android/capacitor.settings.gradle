@@ -2,5 +2,5 @@
 include ':capacitor-android'
 project(':capacitor-android').projectDir = new File('../../../node_modules/@capacitor/android/capacitor')
 
-include ':xr3ngine-capacitor-plugin-xr'
-project(':xr3ngine-capacitor-plugin-xr').projectDir = new File('../../../node_modules/@xr3ngine/capacitor-plugin-xr/android')
+include ':xr3ngine-native-plugin-xr'
+project(':xr3ngine-native-plugin-xr').projectDir = new File('../../../node_modules/@xr3ngine/native-plugin-xr/android')

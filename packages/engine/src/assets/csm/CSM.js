@@ -50,6 +50,24 @@ export class CSM {
 
 	}
 
+  setShadowMapSize(newSize) {
+
+    if(this.shadowMapSize === newSize) {
+      return;
+    }
+
+    this.shadowMapSize = newSize;
+
+		for ( let i = 0; i < this.cascades; i ++ ) {
+      this.lights[i].shadow.mapSize.width = newSize;
+      this.lights[i].shadow.mapSize.height = newSize;
+      if(this.lights[i].shadow.map) {
+        this.lights[i].shadow.map.dispose();
+        this.lights[i].shadow.map = null;
+      }
+    }
+  }
+
 	createLights() {
 
 		for ( let i = 0; i < this.cascades; i ++ ) {
