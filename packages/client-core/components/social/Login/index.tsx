@@ -7,7 +7,7 @@ import { Facebook } from '@styled-icons/bootstrap/Facebook';
 import Fab from '@material-ui/core/Fab';
 
 import styles from './Login.module.scss';
-import { loginUserByOAuth, resetPassword } from '../../../redux/auth/service';
+import { loginUserByOAuth, registerUserByEmail, resetPassword } from '../../../redux/auth/service';
 import getConfig from 'next/config';
 
 import PasswordLoginApp from '../../ui/Auth/PasswordLoginApp';
@@ -27,6 +27,7 @@ const mapStateToProps = (state: any): any => {
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   loginUserByOAuth: bindActionCreators(loginUserByOAuth, dispatch),
   resetPassword: bindActionCreators(resetPassword, dispatch),
+  registerUserByEmail: bindActionCreators(registerUserByEmail, dispatch),
 });
 
 interface Props {
@@ -38,6 +39,7 @@ interface Props {
   logo: string;
   isAddConnection?: boolean;
   resetPassword: typeof resetPassword;
+  registerUserByEmail: typeof registerUserByEmail;
 }
 
 const FlatSignIn = (props: Props) => {
