@@ -13,6 +13,10 @@ import { node } from "prop-types";
 const hoursToRadians = hours => hours / 24;
 const radiansToHours = rads => rads * 24;
 
+/**
+ * [SkyOption array containing skyType options]
+ * @type {Array}
+ */
 const SkyOption = [
   {
     label: "skybox",
@@ -28,42 +32,68 @@ const SkyOption = [
   }
 ];
 
+/**
+ * [SkyboxNodeEditorProps declairing props for SkyboxNodeEditor]
+ * @type {Object}
+ */
 type SkyboxNodeEditorProps = {
   editor?: object;
   node?: object;
 };
 
-
+/**
+ * [SkyboxNodeEditor component class used to render editor view to customize component property]
+ * @type {class component}
+ */
 export default class SkyboxNodeEditor extends Component<
   SkyboxNodeEditorProps,
   {}
   > {
+
+  //defining iconComponent with icon name
   static iconComponent = Cloud;
+
+  //function to handle changes in turbidity Property
   onChangeTurbidity = turbidity => {
     (this.props.editor as any).setPropertySelected("turbidity", turbidity);
   };
+
+  //function to handle changes in rayleigh property
   onChangeRayleigh = rayleigh => {
     (this.props.editor as any).setPropertySelected("rayleigh", rayleigh);
   };
+
+  //function to handle the changes in luminance property
   onChangeLuminance = luminance => {
     (this.props.editor as any).setPropertySelected("luminance", luminance);
   };
+
+  //function to handle the changes in mieCoefficient property
   onChangeMieCoefficient = mieCoefficient => {
     (this.props.editor as any).setPropertySelected("mieCoefficient", mieCoefficient);
   };
+
+  //function to handle the changes in mieDirectionalG property
   onChangeMieDirectionalG = mieDirectionalG => {
     (this.props.editor as any).setPropertySelected("mieDirectionalG", mieDirectionalG);
   };
+
+  //function to handle the changes in inclination
   onChangeInclination = inclination => {
     (this.props.editor as any).setPropertySelected("inclination", inclination);
   };
+
+  //function to handle changes azimuth
   onChangeAzimuth = azimuth => {
     (this.props.editor as any).setPropertySelected("azimuth", azimuth);
   };
+
+  //function to handle changes in distance property
   onChangeDistance = distance => {
     (this.props.editor as any).setPropertySelected("distance", distance);
   };
-  
+
+  //function to handle the changes skyOptionValue
   onChangeSkyOption = skyOptionValue => {
     this.onChangeTextureOption(null);
     (this.props.editor as any).setPropertySelected(
@@ -73,6 +103,7 @@ export default class SkyboxNodeEditor extends Component<
     this.setDefaultTextureOptionValue(skyOptionValue);
   };
 
+  // function to handle changes textureOptionValue
   onChangeTextureOption = textureOptionValue => {
     (this.props.editor as any).setPropertySelected(
       "textureOptionValue",
@@ -80,6 +111,7 @@ export default class SkyboxNodeEditor extends Component<
     );
   };
 
+ // function to set default texture option on the basis of skyOptionValue
   setDefaultTextureOptionValue = (skyOptionValue) => {
 
     switch (skyOptionValue) {
@@ -94,7 +126,7 @@ export default class SkyboxNodeEditor extends Component<
         break;
     }
   }
-
+  //creating editor view for skybox setting
   renderSkyboxSettings = node =>
     <>
       { /* @ts-ignore */}
@@ -172,6 +204,7 @@ export default class SkyboxNodeEditor extends Component<
       </InputGroup>
     </>;
 
+  //creating editor view for equirectangular Settings
   renderEquirectangularSettings = (node) =>
     <>
       { /* @ts-ignore */}
@@ -185,6 +218,7 @@ export default class SkyboxNodeEditor extends Component<
       </InputGroup>
     </>
 
+  // creating editor view for cubemap Settings
   renderCubemapSettings = (node) =>
     <>
       { /* @ts-ignore */}
@@ -198,6 +232,7 @@ export default class SkyboxNodeEditor extends Component<
       </InputGroup>
     </>
 
+  // creating editor view for skybox Properties
   renderSkyBoxProps = (node) => {
     switch (node.skyOptionValue) {
       case "cubemap" as any:
@@ -209,6 +244,7 @@ export default class SkyboxNodeEditor extends Component<
     }
   }
 
+  // rendering editor view for SkyboxNode
   render() {
     const node = this.props.node as any;
     return (
@@ -228,12 +264,3 @@ export default class SkyboxNodeEditor extends Component<
     );
   }
 }
-
-
-
-
-
-
-
-
-
