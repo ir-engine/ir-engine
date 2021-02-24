@@ -174,7 +174,7 @@ const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:inputAxes
   const inputValue = inputComponent.data.get(inputAxes).value as number;
 
   const delta = inputValue - inputPrevValue;
-
+  
   const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent);
   if(cameraFollow === undefined) return //console.warn("cameraFollow is undefined");
 
@@ -357,6 +357,7 @@ export const CharacterInputSchema: InputSchema = {
   touchInputMap: {
     buttons: {
       [TouchInputs.Touch]: BaseInput.INTERACT,
+      [TouchInputs.DoubleTouch]: BaseInput.JUMP,
     },
     axes: {
       [TouchInputs.Touch1Position]: BaseInput.SCREENXY,
@@ -658,15 +659,6 @@ export const CharacterInputSchema: InputSchema = {
           }
         }
       ],
-      unchanged: [
-        {
-          behavior: changeCameraDistanceByDelta,
-          args: {
-            input: BaseInput.CAMERA_SCROLL,
-            inputType: InputType.ONEDIM
-          }
-        }
-      ]
     },
     [BaseInput.MOVEMENT_PLAYERONE]: {
       started: [
