@@ -1,3 +1,4 @@
+import { Euler } from 'three';
 import { FollowCameraComponent } from "@xr3ngine/engine/src/camera/components/FollowCameraComponent";
 import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
 import { addComponent, getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
@@ -14,8 +15,8 @@ import { CharacterComponent } from "@xr3ngine/engine/src/templates/character/com
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { Matrix4, Vector3 } from 'three';
 import { isServer } from "../../../common/functions/isServer";
-
-
+import { CameraModes } from '../../../camera/types/CameraModes';
+import { EnteringVehicle } from "@xr3ngine/engine/src/templates/character/components/EnteringVehicle";
 
 
 function positionEnter(entity, entityCar, seat) {
@@ -40,6 +41,8 @@ function positionEnter(entity, entityCar, seat) {
       new Matrix4().makeRotationY(- Math.PI / 2)
     )
   )
+//  console.warn(new Euler().setFromQuaternion(transformCar.rotation).y);
+  return (new Euler().setFromQuaternion(transformCar.rotation)).y;
 }
 
 
@@ -52,14 +55,21 @@ export const onAddedInCar = (entity: Entity, entityCar: Entity, seat: number, de
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   PhysicsSystem.physicsWorld.removeBody(actor.actorCapsule.body);
 
-  positionEnter(entity, entityCar, seat);
+  const orientation = positionEnter(entity, entityCar, seat);
   getMutableComponent(entity, PlayerInCar).state = 'onAddEnding';
 
   if (isServer) return;
   // CLIENT
-  setState(entity, {state: CharacterStateTypes.ENTERING_VEHICLE});
+  addComponent(entity, EnteringVehicle);
+  setState(entity, { state: CharacterStateTypes.ENTERING_VEHICLE });
   // LocalPlayerOnly
   if (Network.instance.userNetworkId != networkDriverId) return;
   addComponent(entityCar, LocalInputReceiver);
-  addComponent(entityCar, FollowCameraComponent, { distance: 5, mode: "thirdPerson", raycastBoxOn: false });
+  addComponent(entityCar, FollowCameraComponent, {
+    distance: 7,
+    locked: false,
+    mode: CameraModes.ThirdPerson,
+    theta: Math.round( ( (270/Math.PI) * (orientation/3*2) ) + 180),
+    phi: 20
+   });
 };

@@ -23,6 +23,7 @@ import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { SocketWebRTCClientTransport } from '@xr3ngine/engine/src/networking/classes/SocketWebRTCClientTransport';
 import { joinWorld } from '@xr3ngine/engine/src/networking/functions/joinWorld';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
+import { styleCanvas } from '@xr3ngine/engine/src/renderer/functions/styleCanvas';
 import { loadScene } from '@xr3ngine/engine/src/scene/functions/SceneLoading';
 import { CharacterComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterComponent';
 import { DefaultNetworkSchema, PrefabType } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
@@ -48,6 +49,8 @@ import TooltipContainer from '../ui/TooltipContainer';
 const goHome = () => window.location.href = window.location.origin;
 
 const MobileGamepad = dynamic<MobileGamepadProps>(() => import("../ui/MobileGamepad").then((mod) => mod.MobileGamepad), { ssr: false });
+
+const engineRendererCanvasId = 'engine-renderer-canvas';
 
 interface Props {
   setAppLoaded?: any,
@@ -221,10 +224,22 @@ export const EnginePage = (props: Props) => {
       transport: SocketWebRTCClientTransport,
     };
 
+    const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
+    styleCanvas(canvas);
+    let rendereringCanvas: HTMLCanvasElement | OffscreenCanvas = canvas;
+
+    const useWebWorker = false; // typeof canvas.transferControlToOffscreen !== 'undefined';
+    if(useWebWorker) {
+      rendereringCanvas = canvas.transferControlToOffscreen();
+    }
+
     const InitializationOptions = {
       ...DefaultInitializationOptions,
       networking: {
         schema: networkSchema,
+      },
+      renderer: {
+        canvas: rendereringCanvas,
       }
     };
 
@@ -328,18 +343,18 @@ export const EnginePage = (props: Props) => {
   const mobileGamepad = isMobileOrTablet() ? <MobileGamepad {...mobileGamepadProps} /> : null;
 
   return userBanned !== true ? (
-      <>
-        {isValidLocation && <UserMenu />}
-        <Snackbar open={!isValidLocation}
-          anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'center',
-          }}>
-          <>
-            <section>Location is invalid</section>
-            <Button onClick={goHome}>Return Home</Button>
-          </>
-        </Snackbar>
+    <>
+      {isValidLocation && <UserMenu />}
+      <Snackbar open={!isValidLocation}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'center',
+        }}>
+        <>
+          <section>Location is invalid</section>
+          <Button onClick={goHome}>Return Home</Button>
+        </>
+      </Snackbar>
 
       <NetworkDebug />
       <LoadingScreen objectsToLoad={progressEntity} />
@@ -348,6 +363,7 @@ export const EnginePage = (props: Props) => {
       {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}
       <InteractableModal onClose={() => { setModalData(null); setObjectActivated(false); }} data={infoBoxData} />
       <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); }} data={openLinkData} />
+      <canvas id={engineRendererCanvasId} width='100%' height='100%' />
       {mobileGamepad}
     </>
   ) : (<div className="banned">You have been banned from this location</div>);

@@ -7,7 +7,7 @@ const lightTheme = createMuiTheme({
       main: '#5151FF',
     },
     secondary: {
-      main: '#FFD600'
+      main: '#FFFFFF'
     },
     error: {
       main: red.A400
@@ -17,7 +17,7 @@ const lightTheme = createMuiTheme({
     },
     text:{
       primary: '#FFFFFF',
-      secondary: '#FFD600',      
+      // secondary: '#FFD600',      
     },
   },
   typography: {
@@ -71,7 +71,19 @@ const lightTheme = createMuiTheme({
         display: 'flex',
         alignItems: 'center',  
         '&.MuiTypography-colorSecondary':{
-          color: '#FFD600',
+          color: '#8A8A8E',
+        }
+      },
+      h5:{
+        fontSize: 18,
+        fontWeight: 'bold',
+        margin: '5px 0px',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',  
+        color: '#000000',
+        '&.MuiTypography-colorSecondary':{
+          color: '#FFFFFF',
         }
       },
       alignRight : {
@@ -294,17 +306,28 @@ const lightTheme = createMuiTheme({
     },
     MuiCardContent:{
       root:{
-        '&:last-child': {
+        margin: '5px 0',
+        padding: '5px 20px',
+        '&:last-child':{
           paddingBottom: '0px',
-          paddingLeft: '0px',
-          paddingRight: '0px',
-          paddingTop: '0px',
         }
+      }
+    },
+    MuiCardHeader:{
+      root:{
+        padding: '0 15px 5px 15px',
+      },
+      avatar:{
+        borderRadius: '50%',
+        overflow: 'hidden',
+        height: '40px',
+        width: '40px'
       }
     },
     MuiPaper:{
       root: {
-        backgroundColor: 'rgba(0,0,0,0.8)',
+        backgroundColor: 'transparent',
+        color: '#000000',
       }
     },
     MuiInputBase:{
@@ -340,6 +363,12 @@ const lightTheme = createMuiTheme({
         '&:hover':{
           boxShadow: '0 0 10px #FFFFFF'
         }        
+      },
+      containedSecondary:{
+        backgroundColor: '#FFFFFF',
+        '&:hover':{
+          backgroundColor: '#FFFFFF',
+        }
       },
       containedPrimary:{
         backgroundColor: '#000000',

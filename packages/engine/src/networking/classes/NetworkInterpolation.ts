@@ -15,10 +15,14 @@ export class NetworkInterpolation {
   /** Size of the vault. */
   vaultSize = 200;
   /** Time offset between client and server. */
-  timeOffset = -1;
-
+  timeOffset = 25;
+  /** The number of checks that will pass before the interpolation delay decreases. */
+  checkCount = 0;
+  checkDelay = 0;
+  /** Last time interpolation was performed. */
+  serverTimePrev = 0;
   /** Interpolation buffer for snapshots. */
-  _interpolationBuffer = 5;
+  _interpolationBuffer = 128;
   /** The current server time based on the current snapshot interpolation. */
   public serverTime = 0;
 
@@ -33,7 +37,6 @@ export class NetworkInterpolation {
       }
     };
   }
-
   /**
    * Get a Snapshot by its ID.
    * @param id ID of the snapshot.
@@ -53,6 +56,7 @@ export class NetworkInterpolation {
   get(time?: number, closest?: boolean) {
     // zero index is the newest snapshot
     const sorted = this.vault.sort((a, b) => b.time - a.time);
+
     if (typeof time === 'undefined')
       return sorted[0];
 

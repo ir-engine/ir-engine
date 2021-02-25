@@ -17,7 +17,6 @@ interface Props {
 const OnBoardingComponent = ({media}: Props) => { 
     const [step, setStep] = useState(0);
     let content = null;
-    console.log('media[step].screenBg',media[step].screenBg)
     switch (step) {
         case 0:
             content = <section className={styles.step_0}>

@@ -88,8 +88,6 @@ export default class DracosisPlayer {
     this._worker = worker;
 
     const handleFrameData = (frameData) => {
-      console.log("Adding frame data: ", frameData);
-
               let geometry = new BufferGeometry();
               geometry.setIndex(
                 new Uint32BufferAttribute(frameData.keyframeBufferObject.bufferGeometry.index, 1)
@@ -186,7 +184,7 @@ export default class DracosisPlayer {
           console.log("******* PLAY")
 
           // If we haven't inited yet, notify that we have, autoplay content and remove the event listener
-          this.play();
+          // this.play();
           document.body.removeEventListener("mousedown", eventListener);
         }
         document.body.addEventListener("mousedown", eventListener)

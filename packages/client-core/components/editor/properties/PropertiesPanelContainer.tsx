@@ -10,25 +10,39 @@ import NameInputGroup from "./NameInputGroup";
 import InputGroup from "../inputs/InputGroup";
 import BooleanInput from "../inputs/BooleanInput";
 
+/**
+ * [StyledNodeEditor used as wrapper container element properties container]
+ * @type {styled component}
+ */
 const StyledNodeEditor = (styled as any).div`
   display: flex;
   flex: 1;
   flex-direction: column;
 `;
 
+/**
+ * [PropertiesHeader used as a wrapper for NameInputGroupContainer component
+ */
 const PropertiesHeader = (styled as any).div`
   background-color: ${props => props.theme.panel2};
   border: none !important;
   padding-bottom: 0 !important;
 `;
 
+
+/**
+ * [NameInputGroupContainer used to provides styles and contains NameInputGroup and VisibleInputGroup]
+ * @type {Styled Component}
+ */
 const NameInputGroupContainer = (styled as any).div`
   display: flex;
   flex-flow: row wrap;
   align-items: flex-start;
   padding: 8px 0;
 `;
-
+/**
+ * [Styled component used to provide styles for visiblity checkbox ]
+ */
 const VisibleInputGroup = (styled as any)(InputGroup)`
   display: flex;
   flex: 0;
@@ -39,6 +53,10 @@ const VisibleInputGroup = (styled as any)(InputGroup)`
   }
 `;
 
+/**
+ * [PropertiesPanelContent used as container element contains content of editor view]
+ * @type {Styled Component}
+ */
 const PropertiesPanelContent = (styled as any).div`
   display: flex;
   flex-direction: column;
@@ -46,6 +64,10 @@ const PropertiesPanelContent = (styled as any).div`
   overflow-y: auto;
 `;
 
+/**
+ * [NoNodeSelectedMessage used to show the message when no selected no is there]
+ * @type {Styled component}
+ */
 const NoNodeSelectedMessage = (styled as any).div`
   display: flex;
   justify-content: center;
@@ -53,11 +75,16 @@ const NoNodeSelectedMessage = (styled as any).div`
   height: 100%;
 `;
 
+/**
+ * [PropertiesPanelContainer used to render editor view to customize property of selected element]
+ * @extends Component
+ */
 class PropertiesPanelContainer extends Component {
   static propTypes = {
     editor: PropTypes.object
   };
 
+  //setting the props and state
   constructor(props) {
     super(props);
 
@@ -66,22 +93,26 @@ class PropertiesPanelContainer extends Component {
     };
   }
 
+  // adding listeners when component get mounted
   componentDidMount() {
     const editor = (this.props as any).editor;
     editor.addListener("selectionChanged", this.onSelectionChanged);
     editor.addListener("objectsChanged", this.onObjectsChanged);
   }
 
+  // removing listeners when components get unmounted
   componentWillUnmount() {
     const editor = (this.props as any).editor;
     editor.removeListener("selectionChanged", this.onSelectionChanged);
     editor.removeListener("objectsChanged", this.onObjectsChanged);
   }
 
+  // updating state when selection of element get changed
   onSelectionChanged = () => {
     this.setState({ selected: (this.props as any).editor.selected });
   };
 
+   //function to handle the changes object properties
   onObjectsChanged = (objects, property) => {
     const selected = (this.props as any).editor.selected;
 
@@ -97,10 +128,12 @@ class PropertiesPanelContainer extends Component {
     }
   };
 
+   // function to handle the changes property visible
   onChangeVisible = value => {
     ((this.props as any).editor as any).setPropertySelected("visible", value);
   };
 
+  //rendering editor views for customization of element properties
   render() {
     const editor = (this.props as any).editor;
     const selected = (this.state as any).selected;

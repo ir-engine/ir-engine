@@ -1,0 +1,13 @@
+.footerContainer{
+    width: 100vw;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 5px 20px;
+    box-sizing: border-box;
+    border-top: 1px solid #DDDDDD;
+    align-items: center;
+    position: fixed;
+    bottom: 0;
+    background: #FFF;
+}

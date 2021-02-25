@@ -117,6 +117,8 @@ export interface WorldStateSnapshot {
 export interface WorldStateInterface {
   /** Current world tick. */
   tick: number
+  /** For interpolation. */
+  time: number
   /** transform of world. */
   transforms: StateEntityGroup
   //snapshot: Snapshot
@@ -158,7 +160,6 @@ export interface PacketWorldState {
     /** List of created objects. */
   destroyObjects: NetworkObjectRemoveInterface[]
 }
-
 /** Interface for handling packet network input. */
 export interface PacketNetworkInputInterface {
   /** ID of the network. */
