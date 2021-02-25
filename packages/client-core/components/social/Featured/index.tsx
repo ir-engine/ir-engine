@@ -23,9 +23,9 @@ const mapStateToProps = (state: any): any => {
 const Featured = ({feedsState, getFeeds}) => { 
     let feedsList = null;
     useEffect(()=> getFeeds('featured'), []);
-    feedsList = feedsState.get('fetching') === false && feedsState?.get('feeds');
+    feedsList = feedsState.get('fetching') === false && feedsState?.get('feedsFeatured');
     return <section className={styles.feedContainer}>
-        {feedsList && feedsList.map((item, itemIndex)=>
+        {feedsList && feedsList.length > 0  && feedsList.map((item, itemIndex)=>
             <Card className={styles.creatorItem} elevation={0} key={itemIndex}>                 
                 <CardMedia   
                     className={styles.previewImage}                  

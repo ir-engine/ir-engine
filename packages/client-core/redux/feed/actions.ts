@@ -1,7 +1,8 @@
 import {
   FEEDS_RETRIEVED,
   FEED_RETRIEVED,
-  FEEDS_FETCH
+  FEEDS_FETCH,
+  FEEDS_FEATURED_RETRIEVED
 } from '../actions';
 import { FeedShord, Feed } from '@xr3ngine/common/interfaces/Feed';
 
@@ -23,9 +24,16 @@ FeedsRetrievedAction
   | FeedRetrievedAction
   | FetchingFeedsAction
 
-export function feedsRetrieved (feeds: FeedShord[]): FeedsRetrievedAction {
+export function feedsRetrieved (feeds: Feed[]): FeedsRetrievedAction {
   return {
     type: FEEDS_RETRIEVED,
+    feeds: feeds
+  };
+}
+
+export function feedsFeaturedRetrieved (feeds: FeedShord[]): FeedsRetrievedAction {
+  return {
+    type: FEEDS_FEATURED_RETRIEVED,
     feeds: feeds
   };
 }
