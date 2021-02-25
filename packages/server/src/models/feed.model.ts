@@ -39,7 +39,8 @@ export default function (app: Application): typeof Model {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
     (feed as any).belongsTo(models.user, { foreignKey: 'authorId', allowNull: false });
-    (feed as any).hasOne(models.static_resource, { as: 'video' });
+
+    // (feed as any).hasOne(models.owned_file, { foreignKey: 'feedFileId', allowNull: false });
   };
 
   return feed;
