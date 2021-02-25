@@ -68,6 +68,7 @@ const FlatSignIn = (props: Props) => {
   };
 let component = null;
 let footer = null;
+
 switch (view) {
     case 'sign-up': component = <RegisterApp />;                      
                     footer = <>{!props.isAddConnection &&  (
