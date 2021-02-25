@@ -1,6 +1,8 @@
 import React from 'react';
 import Router from "next/router";
 
+import { Feed } from '@xr3ngine/common/interfaces/Feed';
+
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 import Card from '@material-ui/core/Card';
@@ -12,33 +14,21 @@ import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 
 import styles from './FeedCard.module.scss';
-interface CreatorShort{
-    id: string,
-    avatar :string,
-    username: string,
-}
-interface Feed{
-    id: number,
-    author:CreatorShort,
-    previewImg:string,
-    videoLink:string,
-    title: string,
-    flamesCount: number,
-    description: string
-}
 
-const FeedCard = ({id, author, previewImg, title,videoLink,flamesCount, description }: Feed) => { 
+const FeedCard = (props: Feed) => {
+
+    const {id, creator, preview, title, fires, description} = props;
     return  <Card className={styles.tipItem} square={false} elevation={0} key={id} onClick={()=>Router.push('/feed')}>
                 <CardHeader
-                    avatar={<img src={author.avatar} />} 
+                    avatar={<img src={creator.avatar} />} 
                     title={<Typography variant="h2">
-                                {author.username}
+                                {creator.username}
                                 <VerifiedUserIcon htmlColor="#007AFF" style={{fontSize:'13px', margin: '0 0 0 5px'}}/>
                             </Typography>}
                 />
                 <CardMedia   
                     className={styles.previewImage}                  
-                    image={previewImg}
+                    image={preview}
                     title={title}
                 />
                 <CardContent>
@@ -50,7 +40,7 @@ const FeedCard = ({id, author, previewImg, title,videoLink,flamesCount, descript
                             <BookmarkBorderIcon />
                         </section>
                     </Typography>
-                    <Typography variant="h2"><span className={styles.flamesCount}>{flamesCount}</span>Flames</Typography>
+                    <Typography variant="h2"><span className={styles.flamesCount}>{fires}</span>Flames</Typography>
                     <Typography variant="h2">{description}</Typography>
                 </CardContent>
             </Card>
