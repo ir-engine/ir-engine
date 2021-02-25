@@ -79,7 +79,6 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     const [audioProducerPaused, setAudioProducerPaused] = useState(false);
     const [videoProducerGlobalMute, setVideoProducerGlobalMute] = useState(false);
     const [audioProducerGlobalMute, setAudioProducerGlobalMute] = useState(false);
-    const [focused, setFocused] = useState(false);
     const [volume, setVolume] = useState(100);
     const {
         harmony,
@@ -294,19 +293,10 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
         setVolume(newValue);
     };
 
-    const truncateUsername = () => {
-        const name = user?.name;
-        if (peerId === 'me_cam') return 'You';
-        if (focused === true) return name?.length > 20 ? name.slice(0, 20) + '...' : name;
-        if (focused === false) return name?.length > 10 ? name.slice(0, 10) + '...' : name;
-    };
-
     const [isPiP, setPiP] = useState(false);
 
     const togglePiP = () => setPiP(!isPiP);
 
-    const avatarBgImage = user && user.avatarId ?
-        `url(${'/static/' + user.avatarId.toLocaleLowerCase() + '.png'})` : selfUser && selfUser.avatarId ? `url(${'/static/' + selfUser.avatarId.toLocaleLowerCase() + '.png'})` : null;
     return (
         <Draggable isPiP={isPiP}>
         <div
@@ -315,26 +305,21 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             className={classNames({
                 [styles['party-chat-user']]: true,
                 [styles['harmony']]: harmony === true,
-                // [styles['focused']]: focused,
                 [styles['self-user']]: peerId === 'me_cam' || peerId === 'me_screen',
                 [styles['no-video']]: videoStream == null,
                 [styles['video-paused']]: (videoStream && (videoProducerPaused === true || videoStreamPaused === true)),
                 [styles.pip]: isPiP,
             })}
-            // style={{ backgroundImage: user?.avatarUrl?.length > 0 ? `url(${user.avatarUrl}` : `url(/placeholders/default-silhouette.svg)`} }
         >
 
-            <div className={styles['video-wrapper']}
-                 // style={{backgroundImage: user?.avatarUrl?.length > 0 ? `url(${user.avatarUrl}` : avatarBgImage ? avatarBgImage : `url(/placeholders/default-silhouette.svg)`}}
-                 // onClick={() => setFocused(!focused) }
-            >
+            <div className={styles['video-wrapper']}>
                 {videoStream == null || videoProducerPaused == true || videoProducerGlobalMute == true
                     ? <img src={getAvatarURL(user?.avatarId)} draggable={false} />
                     : <video key={peerId + '_cam'} ref={videoRef}/>}
             </div>
             <audio key={peerId + '_audio'} ref={audioRef}/>
             <div className={styles['user-controls']}>
-                <div className={styles['username']}>{truncateUsername()}</div>
+                <div className={styles['username']}>{peerId === 'me_cam' ? 'You' : user?.name}</div>
                 <div className={styles['controls']}>
                     <div className={styles['mute-controls']}>
                         {videoStream && videoProducerPaused === false
@@ -379,7 +364,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                                     className={styles['audio-control']}
                                     onClick={togglePiP}
                                 >
-                                    <Launch />
+                                    <Launch className={styles.pipBtn}/>
                                 </IconButton>
                             </Tooltip>
                     </div>
