@@ -18,8 +18,12 @@ const mapStateToProps = (state: any): any => {
   const mapDispatchToProps = (dispatch: Dispatch): any => ({
     getFeeds: bindActionCreators(getFeeds, dispatch),
 });
+interface Props{
+    feedsState?: any,
+    getFeeds?: any
+}
 
-const TheFeed = ({feedsState, getFeeds}) => { 
+const TheFeed = ({feedsState, getFeeds}: Props) => { 
     let feedsList = null;
     useEffect(()=> getFeeds(), []);
     feedsList = feedsState.get('fetching') === false && feedsState?.get('feeds');
