@@ -80,6 +80,18 @@ export class IdentityProvider extends Service {
           type
         };
         break;
+      case 'twitter':
+        identityProvider = {
+          token: token,
+          type
+        };
+        break;
+      case 'linkedin2':
+        identityProvider = {
+          token: token,
+          type
+        };
+        break;
       case 'guest':
         identityProvider = {
           token: token,

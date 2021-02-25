@@ -35,8 +35,6 @@ export default class TwitterStrategy extends CustomOAuthStrategy {
     }
   
     async getRedirect (data: any, params?: Params): Promise<string> {
-      console.log(data);
-      
       const redirectHost = config.authentication.callback.twitter;
       const type = (params?.query?.userId) ? 'connection' : 'login';
       if (Object.getPrototypeOf(data) === Error.prototype) {
