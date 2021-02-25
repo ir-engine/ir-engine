@@ -38,8 +38,8 @@ interface Props {
   loginUserByOAuth?: typeof loginUserByOAuth;
   logo: string;
   isAddConnection?: boolean;
-  resetPassword: typeof resetPassword;
-  registerUserByEmail: typeof registerUserByEmail;
+  resetPassword?: typeof resetPassword;
+  registerUserByEmail?: typeof registerUserByEmail;
 }
 const FlatSignIn = (props: Props) => {
   const [view, setView] =  useState('login');
