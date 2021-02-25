@@ -5,6 +5,7 @@ import Container from '@material-ui/core/Container';
 import GitHubIcon from '@material-ui/icons/GitHub';
 import FacebookIcon from '@material-ui/icons/Facebook';
 import LinkedinIcon from '@material-ui/icons/LinkedIn';
+import TwitterIcon from '@material-ui/icons/Twitter';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import {
@@ -25,7 +26,8 @@ interface Props {
   enableFacebookSocial?: boolean;
   enableGithubSocial?: boolean;
   enableGoogleSocial?: boolean;
-  enableLinkedInSocial?: boolean
+  enableLinkedInSocial?: boolean;
+  enableTwitterSocial?: boolean
   loginUserByOAuth?: typeof loginUserByOAuth;
 }
 
@@ -35,6 +37,7 @@ const SocialLogin = (props: Props): any => {
     enableGithubSocial,
     enableGoogleSocial,
     enableLinkedInSocial,
+    enableTwitterSocial,
     loginUserByOAuth
   } = props;
 
@@ -56,6 +59,11 @@ const SocialLogin = (props: Props): any => {
   const handleLinkedinLogin = (e: any): void => {
     e.preventDefault();
     loginUserByOAuth('linkedin');
+  }
+
+  const handleTwitterLogin = (e: any): void => {
+    e.preventDefault();
+    loginUserByOAuth('twitter');
   }
 
   const githubButton = enableGithubSocial ? (
@@ -119,6 +127,21 @@ const SocialLogin = (props: Props): any => {
     ''
   );
 
+  const twitterButton =  enableTwitterSocial ? (
+    <Grid item xs={12}>
+      <Button
+        onClick={(e) => handleTwitterLogin(e)}
+        startIcon={<TwitterIcon />}
+        variant="contained"
+        className={styles.facebook}
+        fullWidth={true}
+      >
+        Login with Twitter
+      </Button>
+    </Grid>
+  ) : (
+    ''
+  );
   return (
     <Container component="main" maxWidth="xs">
       <div className={styles.paper}>
@@ -127,6 +150,7 @@ const SocialLogin = (props: Props): any => {
           {facebookButton}
           {googleButton}
           {linkedinButton}
+          {twitterButton}
         </Grid>
       </div>
     </Container>
