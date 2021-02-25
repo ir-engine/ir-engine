@@ -6,26 +6,17 @@ import { HookReturn } from 'sequelize/types/lib/hooks';
 
 export default function (app: Application): typeof Model {
   const sequelizeClient: Sequelize = app.get('sequelizeClient');
-  const feed = sequelizeClient.define('feed', {
+  const comments = sequelizeClient.define('comments', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV1,
       allowNull: false,
       primaryKey: true
     },
-    title: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    description: {
-      type: DataTypes.TEXT,
-      allowNull: false
-    },
-    viewCount: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0
-    }
+    text: {
+        type: DataTypes.TEXT,
+        allowNull: false
+      }
   }, {
     hooks: {
       beforeCount(options: any): HookReturn {
@@ -35,16 +26,12 @@ export default function (app: Application): typeof Model {
   });
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  (feed as any).associate = function (models: any): void {
+  (comments as any).associate = function (models: any): void {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
-    (feed as any).belongsTo(models.user, { foreignKey: 'authorId', allowNull: false });
-    (feed as any).hasOne(models.static_resource);
-    (feed as any).hasMany(models.feed_fires);
-    (feed as any).hasMany(models.feed_bookmark);
-    (feed as any).hasMany(models.comments);
-    (feed as any).hasMany(models.comments_fire);
+    (comments as any).belongsTo(models.feed, { foreignKey: 'authorId', allowNull: false });
+    (comments as any).belongsTo(models.feed, { foreignKey: 'feedId', allowNull: false });
   };
 
-  return feed;
+  return comments;
 }
