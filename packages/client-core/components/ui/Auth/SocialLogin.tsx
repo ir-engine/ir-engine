@@ -58,7 +58,7 @@ const SocialLogin = (props: Props): any => {
 
   const handleLinkedinLogin = (e: any): void => {
     e.preventDefault();
-    loginUserByOAuth('linkedin');
+    loginUserByOAuth('linkedin2');
   }
 
   const handleTwitterLogin = (e: any): void => {

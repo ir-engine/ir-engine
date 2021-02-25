@@ -130,7 +130,7 @@ const authentication = {
     'facebook',
     'github',
     'google',
-    'linkedin',
+    'linkedin2',
     'twitter'
   ],
   local: {
@@ -147,7 +147,7 @@ const authentication = {
     facebook: process.env.FACEBOOK_CALLBACK_URL ?? `${client.url}/auth/oauth/facebook`,
     github: process.env.GITHUB_CALLBACK_URL ?? `${client.url}/auth/oauth/github`,
     google: process.env.GOOGLE_CALLBACK_URL ?? `${client.url}/auth/oauth/google`,
-    linkedin: process.env.LINKEDIN_CALLbACK_URL ?? `${client.url}/auth/oauth/linkedlin`,
+    linkedin2: process.env.LINKEDIN_CALLBACK_URL ?? `${client.url}/auth/oauth/linkedin2`,
     twitter: process.env.TWITTER_CALLBACK_URL?? `${client.url}/auth/oauth/twitter`,
   },
   oauth: {
@@ -168,9 +168,10 @@ const authentication = {
       secret: process.env.GOOGLE_CLIENT_SECRET ?? '',
       scope: ['profile', 'email']
     },
-    linkedin: {
+    linkedin2: {
       key: process.env.LINKEDIN_CLIENT_ID ?? '',
       secret: process.env.LINKEDIN_CLIENT_SECRET ?? '',
+      scope: ['r_liteprofile', 'r_emailaddress']
     },
     twitter: {
       key: process.env.TWITTER_CLIENT_ID ?? '',

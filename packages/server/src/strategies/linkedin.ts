@@ -3,11 +3,9 @@ import { Params } from "@feathersjs/feathers";
 import config from "../config";
 import app from "../app";
 
-export default class LinkedlnStrategy extends CustomOAuthStrategy {
+export default class LinkedInStrategy extends CustomOAuthStrategy {
     async getEntityData(profile: any, params?: Params): Promise<any> {
         const baseData = await super.getEntityData(profile, null, {});
-        console.log(baseData);
-        
         const userId = (params?.query) ? params.query.userId : undefined;
         return {
             ...baseData,
@@ -37,9 +35,7 @@ export default class LinkedlnStrategy extends CustomOAuthStrategy {
     }
 
     async getRedirect (data: any, params?: Params): Promise<string> {
-        const redirectHost = config.authentication.callback.linkedin
-        console.log(params);
-        
+        const redirectHost = config.authentication.callback.linkedin2;
         const type = (params?.query?.userId) ? 'connection' : 'login';
         
         if (Object.getPrototypeOf(data) === Error.prototype) {
