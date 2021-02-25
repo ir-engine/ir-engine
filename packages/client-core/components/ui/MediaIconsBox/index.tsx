@@ -47,7 +47,7 @@ const MediaIconsBox = (props) => {
     const { authState, locationState } = props;
 
     const [faceTracking, setFaceTracking] = useState(MediaStreamSystem.instance?.faceTracking);
-    const [xrSupported, setXRSupported] = useState(Engine.renderer?.xr.supported);
+    const [xrSupported, setXRSupported] = useState(false);
     const [videoPaused, setVideoPaused] = useState(MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camVideoProducer == null || MediaStreamSystem.instance?.videoPaused === true);
     const [audioPaused, setAudioPaused] = useState(MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camAudioProducer == null || MediaStreamSystem.instance?.audioPaused === true);
 
@@ -143,7 +143,8 @@ const MediaIconsBox = (props) => {
                 </> : null}
             {xrSupported
                 ? <button type="button" className={styles.iconContainer + ' ' + (!xrEnabled ? '' : styles.on)} onClick={handleVRClick}>
-                    <VrIcon /> 
+                    <VrIcon />
+                    
                 </button> : null}
         </section>
     );
