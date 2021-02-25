@@ -42,7 +42,6 @@ export function workerFunction() {
 
       const keyframe = _fileHeader.frameData[newKeyframe];
       if(keyframe === undefined) return console.log("Keyframe undefined");
-      console.log("Keyframe is", fileHeader.frameData[newKeyframe]);
       // Get count of frames associated with keyframe
       const iframes = _fileHeader.frameData.filter(frame => frame.keyframeNumber === newKeyframe && frame.keyframeNumber !== frame.frameNumber).sort((a, b) => (a.frameNumber < b.frameNumber));
 

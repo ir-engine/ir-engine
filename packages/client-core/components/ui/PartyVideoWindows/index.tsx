@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 // @ts-ignore
 import styles from './PartyVideoWindows.module.scss';
-import { Grid } from '@material-ui/core';
+import { ChevronRight } from '@material-ui/icons';
 import PartyParticipantWindow from '../PartyParticipantWindow';
 import { observer } from 'mobx-react';
 import { selectAuthState } from "../../../redux/auth/selector";
@@ -47,14 +47,34 @@ const PartyVideoWindows = observer((props: Props): JSX.Element => {
     else setDisplayedUsers(layerUsers.filter((user) => selfUser.partyId != null ? user.id !== selfUser.id && user.partyId === selfUser.partyId : user.id !== selfUser.id))
   }, [layerUsers, channelLayerUsers]);
 
+  const [ expanded, setExpanded ] = useState(true);
+
+  useEffect((() => {
+    function handleResize() {
+      if (window.innerWidth < 768) setExpanded(true);
+    }
+
+    window.addEventListener('resize', handleResize);
+
+    return _ => {
+      window.removeEventListener('resize', handleResize)
+    };
+  }) as any);
+
   useEffect(() => {
     if (selfUser.instanceId != null && userState.get('layerUsersUpdateNeeded') === true) getLayerUsers(true);
     if (selfUser.channelInstanceId != null && userState.get('channelLayerUsersUpdateNeeded') === true) getLayerUsers(false);
   }, [ userState]);
 
+  const toggleExpanded = () => setExpanded(!expanded);
+
   return (
     <>
-      { displayedUsers.map((user) => (
+      <div className={styles.expandMenu}>
+        Nearby
+        <button type="button" className={expanded ? styles.expanded : ''} onClick={toggleExpanded}><ChevronRight /></button>
+      </div>
+      {expanded && displayedUsers.map((user) => (
         <PartyParticipantWindow
             peerId={user.id}
             key={user.id}
