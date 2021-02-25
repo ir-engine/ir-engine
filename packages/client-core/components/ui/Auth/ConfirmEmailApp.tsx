@@ -29,8 +29,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 interface Props {
   logo?: string;
-  auth: any;
-  resendVerificationEmail: typeof resendVerificationEmail;
+  auth?: any;
+  resendVerificationEmail?: typeof resendVerificationEmail;
 }
 
 const ConfirmEmail = (props: Props): any => {
