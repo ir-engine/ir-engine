@@ -130,7 +130,6 @@
     "next-optimized-images": "^2.6.2",
     "next-plugin-node-config": "^1.0.2",
     "next-redux-wrapper": "^5.0.0",
-    "react-meta-tags": "^1.0.1",
     "thread-loader": "^3.0.0",
     "ts-loader": "^8.0.5",
     "ts-shader-loader": "^1.0.6",

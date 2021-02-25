@@ -78,7 +78,7 @@ threeToCannon.Type = Type;
   * @return {CANNON.Shape}
   */
  function createBoxShape (geometry) {
-   const vertices = getVertices(geometry);
+   const { vertices } = getVerticesIndices(geometry);
 
    if (!vertices.length) return null;
 
@@ -272,11 +272,10 @@ function createBoundingSphereShape (object, options) {
  * @return {CANNON.Shape}
  */
 function createTrimeshShape (geometry) {
-  const vertices = getVertices(geometry);
+  const { vertices, indices } = getVerticesIndices(geometry);
 
   if (!vertices.length) return null;
 
-  const indices = Object.keys(vertices).map(Number);
   return new CANNON.Trimesh(vertices, indices);
 }
 
@@ -343,8 +342,11 @@ function getGeometry (object) {
  * @param  {BufferGeometry} geometry
  * @return {Array<number>}
  */
-function getVertices (geometry) {
-  return (geometry.attributes.position || {}).array || [];
+function getVerticesIndices (geometry) {
+  const vertices = (geometry.attributes.position || {}).array || [];
+  const indices = geometry.index?.array || Object.keys(vertices).map(Number);
+  console.log(geometry, vertices, indices);
+  return { vertices, indices };
 }
 
 /**
