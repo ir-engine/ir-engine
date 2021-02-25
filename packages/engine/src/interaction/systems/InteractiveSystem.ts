@@ -25,6 +25,45 @@ import { Interactor } from "../components/Interactor";
 import { SubFocused } from "../components/SubFocused";
 import { InteractBehaviorArguments } from "../types/InteractionTypes";
 
+export const interactOnServer: Behavior = (entity: Entity, args: any, delta): void => {
+  //console.warn('Behavior: interact , networkId ='+getComponent(entity, NetworkObject).networkId);
+    let focusedArrays = [];
+    for (let i = 0; i < Engine.entities.length; i++) {
+      const isEntityInteractable = Engine.entities[i];
+      if (hasComponent(isEntityInteractable, Interactable)) {
+        const interactive = getComponent(isEntityInteractable, Interactable);
+        const intPosition = getComponent(isEntityInteractable, TransformComponent).position;
+        const intRotation = getComponent(isEntityInteractable, TransformComponent).rotation;
+        const position = getComponent(entity, TransformComponent).position;
+
+        if (interactive.interactionPartsPosition.length > 0) {
+          interactive.interactionPartsPosition.forEach((v,i) => {
+            const partPosition = new Vector3(...v).applyQuaternion(intRotation).add(intPosition);
+            if (position.distanceTo(partPosition) < 3) {
+              focusedArrays.push([isEntityInteractable, position.distanceTo(partPosition), i])
+            }
+          })
+        } else {
+          if (position.distanceTo(intPosition) < 3) {
+            focusedArrays.push([isEntityInteractable, position.distanceTo(intPosition), null])
+          }
+        }
+      }
+    }
+
+    focusedArrays = focusedArrays.sort((a: any, b: any) => a[1] - b[1]);
+    if (focusedArrays.length < 1) return;
+
+    const interactable = getComponent(focusedArrays[0][0], Interactable);
+
+  //console.warn('found networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
+
+    if (interactable.onInteractionCheck(entity, focusedArrays[0][0], focusedArrays[0][2])) {
+    //  console.warn('start with networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
+      interactable.onInteraction(entity, { currentFocusedPart: focusedArrays[0][2] }, delta, focusedArrays[0][0]);
+    }
+}
+
 export const subFocused:Behavior = (entity: Entity, args, delta: number): void => {
   if (!hasComponent(entity, Interactable)) {
     console.error('Attempted to call interact behavior, but target does not have Interactive component');

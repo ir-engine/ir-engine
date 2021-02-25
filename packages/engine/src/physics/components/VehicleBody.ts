@@ -28,6 +28,9 @@ export class VehicleBody extends Component<VehicleBody> {
   entrancesArray: any
   seatsArray: any
 
+  isMoved: boolean
+//  hasStoped: boolean
+
   maxSteerVal = 0.5
   maxForce = 300
   brakeForce = 1000000
@@ -64,6 +67,9 @@ VehicleBody._schema = {
 
   entrancesArray: { type: Types.Ref, default: [] },
   seatsArray: { type: Types.Ref, default: [] },
+
+  isMoved: { type: Types.Boolean, default: false },
+//  hasStoped: { type: Types.Boolean, default: false },
 
   mass: { type: Types.Number, default: 150 },
   maxSteerVal: { type: Types.Number, default: 0.5 },

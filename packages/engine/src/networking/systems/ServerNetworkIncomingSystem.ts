@@ -205,6 +205,7 @@ export class ServerNetworkIncomingSystem extends System {
     Network.tick++;
     Network.instance.worldState = {
       tick: Network.tick,
+      time: 0,
       transforms: [],
       inputs: [],
       states: [],
@@ -230,7 +231,7 @@ export class ServerNetworkIncomingSystem extends System {
         console.error('Network object not found for networkId', clientInput.networkId);
         return;
       }
-    
+
       const actor = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, CharacterComponent);
       if (actor) {
         actor.viewVector.set(
@@ -245,10 +246,13 @@ export class ServerNetworkIncomingSystem extends System {
       // this function change network id to which the inputs will be applied
       clientInput.switchInputs ? console.warn('switchInputs: '+ clientInput.switchInputs):'';
       clientInput.switchInputs ? clearFreezeInputs( clientInput ):'';
-      clientInput.networkId = switchInputs( clientInput );
-      // this snapShotTime which will be sent back to the client, so that he knows exactly what inputs led to the change and when it was.
+
       const networkObject = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, NetworkObject);
       networkObject.snapShotTime = clientInput.snapShotTime;
+
+      clientInput.networkId = switchInputs( clientInput );
+      // this snapShotTime which will be sent bac k to the client, so that he knows exactly what inputs led to the change and when it was.
+
       // Get input component
       const input = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, Input);
       if (!input) {
@@ -256,7 +260,7 @@ export class ServerNetworkIncomingSystem extends System {
       }
       // Clear current data
       input.data.clear();
-    
+
       // Apply button input
       for (let i = 0; i < clientInput.buttons.length; i++)
         input.data.set(clientInput.buttons[i].input,
@@ -265,7 +269,7 @@ export class ServerNetworkIncomingSystem extends System {
             value: clientInput.buttons[i].value,
             lifecycleState: clientInput.buttons[i].lifecycleState
           });
-    
+
       // Axis 1D input
       for (let i = 0; i < clientInput.axes1d.length; i++)
         input.data.set(clientInput.axes1d[i].input,
@@ -274,7 +278,7 @@ export class ServerNetworkIncomingSystem extends System {
             value: clientInput.axes1d[i].value,
             lifecycleState: clientInput.axes1d[i].lifecycleState
           });
-    
+
       // Axis 2D input
       for (let i = 0; i < clientInput.axes2d.length; i++)
         input.data.set(clientInput.axes2d[i].input,

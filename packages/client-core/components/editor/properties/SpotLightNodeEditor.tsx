@@ -8,29 +8,55 @@ import { MathUtils as _Math } from "three";
 import LightShadowProperties from "./LightShadowProperties";
 import { Bullseye } from "@styled-icons/fa-solid/Bullseye";
 const radToDeg = _Math.radToDeg;
+
+/**
+ * [SpotLightNodeEditorProps declairing SpotLightNodeEditor properties]
+ * @type {Object}
+ */
 type SpotLightNodeEditorProps = {
   editor?: object;
   node?: object;
   multiEdit?: boolean;
 };
+
+/**
+ * [SpotLightNodeEditor component class used to provide editor view for property customization]
+ * @type {class component}
+ */
 export default class SpotLightNodeEditor extends Component<SpotLightNodeEditorProps, {}> {
+
+  //initializing iconComponent with icon name
   static iconComponent = Bullseye;
+
+  //initializing description and will appear on the editor view
   static description = "A light which emits along a direction, illuminating objects within a cone.";
+
+  //function to handle the changes in color property
   onChangeColor = color => {
     (this.props as any).editor.setPropertySelected("color", color);
   };
+
+  //function to handle the changes in intensity property
   onChangeIntensity = intensity => {
     (this.props as any).editor.setPropertySelected("intensity", intensity);
   };
+
+  //function to handle the changes innerConeAngle property
   onChangeInnerConeAngle = innerConeAngle => {
     (this.props as any).editor.setPropertySelected("innerConeAngle", innerConeAngle);
   };
+
+  //function to handle the changes in outerConeAngle property
   onChangeOuterConeAngle = outerConeAngle => {
     (this.props as any).editor.setPropertySelected("outerConeAngle", outerConeAngle);
   };
+
+  //function to handle the changes in ranges property
   onChangeRange = range => {
     (this.props as any).editor.setPropertySelected("range", range);
   };
+
+  //rendering editor view
   render() {
     const { node, editor } = this.props as any;
     return (

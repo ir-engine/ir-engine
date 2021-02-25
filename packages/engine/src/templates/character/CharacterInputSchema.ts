@@ -24,8 +24,11 @@ import { InputAlias } from "../../input/types/InputAlias";
 import { Interactable } from '../../interaction/components/Interactable';
 import { Interactor } from '../../interaction/components/Interactor';
 import { Object3DComponent } from '../../scene/components/Object3DComponent';
+import { interactOnServer } from '../../interaction/systems/InteractiveSystem';
 import { updateCharacterState } from "./behaviors/updateCharacterState";
 import { CharacterComponent } from "./components/CharacterComponent";
+import { isServer } from "../../common/functions/isServer";
+import { VehicleBody } from '../../physics/components/VehicleBody';
 
 const startedPosition = new Map<Entity,NumericalType>();
 
@@ -35,14 +38,21 @@ const startedPosition = new Map<Entity,NumericalType>();
  * @param args
  * @param delta
  */
+
 const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
+
+  if (isServer) {
+    interactOnServer(entity);
+    return;
+  }
+
   if (!hasComponent(entity, Interactor)) {
     console.error(
       'Attempted to call interact behavior, but actor does not have Interactor component'
     );
     return;
   }
-  
+
   const { focusedInteractive: focusedEntity } = getComponent(entity, Interactor);
   const input = getComponent(entity, Input)
   const mouseScreenPosition = input.data.get(BaseInput.SCREENXY);
@@ -65,7 +75,11 @@ const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
 
   const interactive = getComponent(focusedEntity, Interactable);
   if (interactive && typeof interactive.onInteraction === 'function') {
-    interactive.onInteraction(entity, args, delta, focusedEntity);
+    if (!hasComponent(focusedEntity, VehicleBody)) {
+      interactive.onInteraction(entity, args, delta, focusedEntity);
+    } else {
+      console.log('Interaction with cars must work only from server');
+    }
   } else {
     console.warn('onInteraction is not a function');
   }
@@ -97,7 +111,7 @@ const fixedCameraBehindCharacter: Behavior = (entity: Entity, args: any, delta: 
   if (CameraComponent.instance && follower && follower.mode !== CameraModes.FirstPerson) {
     follower.locked = !follower.locked
   }
-  
+
 };
 
 const switchShoulderSide: Behavior = (entity: Entity, args: any, detla: number ): void => {
@@ -165,17 +179,17 @@ const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:inputAxes
   const inputValue = inputComponent.data.get(inputAxes).value as number;
 
   const delta = inputValue - inputPrevValue;
-
+  
   const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent);
   if(cameraFollow === undefined) return //console.warn("cameraFollow is undefined");
 
   switch(cameraFollow.mode) {
-    case CameraModes.FirstPerson: 
-      if(delta > 0) { 
+    case CameraModes.FirstPerson:
+      if(delta > 0) {
         switchCameraMode(entity, { mode: CameraModes.ShoulderCam })
       }
     break;
-    case CameraModes.ShoulderCam: 
+    case CameraModes.ShoulderCam:
       if(delta > 0) {
         switchCameraMode(entity, { mode: CameraModes.ThirdPerson })
         cameraFollow.distance = cameraFollow.minDistance + 1
@@ -184,7 +198,7 @@ const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:inputAxes
         switchCameraMode(entity, { mode: CameraModes.FirstPerson })
       }
     break;
-    default: case CameraModes.ThirdPerson:  
+    default: case CameraModes.ThirdPerson:
       const newDistance = cameraFollow.distance + delta;
       cameraFollow.distance = Math.max(cameraFollow.minDistance, Math.min( cameraFollow.maxDistance, newDistance));
 
@@ -197,12 +211,12 @@ const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:inputAxes
           switchCameraMode(entity, { mode: CameraModes.ShoulderCam })
         }
       }
-  
+
     break;
-    case CameraModes.TopDown: 
+    case CameraModes.TopDown:
       if(delta < 0) {
         switchCameraMode(entity, { mode: CameraModes.ThirdPerson })
-      } 
+      }
     break;
   }
 };
@@ -331,7 +345,7 @@ export const CharacterInputSchema: InputSchema = {
   mouseInputMap: {
     buttons: {
       [MouseInput.LeftButton]: BaseInput.PRIMARY,
-      [MouseInput.LeftButton]: BaseInput.INTERACT,
+    //  [MouseInput.LeftButton]: BaseInput.INTERACT,
       [MouseInput.RightButton]: BaseInput.SECONDARY,
       [MouseInput.MiddleButton]: BaseInput.INTERACT
     },
@@ -348,6 +362,7 @@ export const CharacterInputSchema: InputSchema = {
   touchInputMap: {
     buttons: {
       [TouchInputs.Touch]: BaseInput.INTERACT,
+      [TouchInputs.DoubleTouch]: BaseInput.JUMP,
     },
     axes: {
       [TouchInputs.Touch1Position]: BaseInput.SCREENXY,
@@ -649,15 +664,6 @@ export const CharacterInputSchema: InputSchema = {
           }
         }
       ],
-      unchanged: [
-        {
-          behavior: changeCameraDistanceByDelta,
-          args: {
-            input: BaseInput.CAMERA_SCROLL,
-            inputType: InputType.ONEDIM
-          }
-        }
-      ]
     },
     [BaseInput.MOVEMENT_PLAYERONE]: {
       started: [

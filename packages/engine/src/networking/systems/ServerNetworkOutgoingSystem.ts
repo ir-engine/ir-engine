@@ -47,12 +47,27 @@ export class ServerNetworkOutgoingSystem extends System {
         qW: transformComponent.rotation.w
       });
     });
-    const buffer = WorldStateModel.toBuffer(Network.instance.worldState);
+
+    if (
+      Network.instance.worldState.clientsConnected.length ||
+      Network.instance.worldState.clientsDisconnected.length ||
+      Network.instance.worldState.createObjects.length ||
+      Network.instance.worldState.editObjects.length ||
+      Network.instance.worldState.destroyObjects.length
+    ) {
+      const bufferReliable = WorldStateModel.toBuffer(Network.instance.worldState, 'Reliable');
+      Network.instance.transport.sendReliableData(bufferReliable);
+      //console.log(bufferReliable.byteLength);
+    }
+
+    const bufferUnReliable = WorldStateModel.toBuffer(Network.instance.worldState, 'UnReliable');
+    //console.log(bufferUnReliable.byteLength);
     try {
-      Network.instance.transport.sendData(buffer);
+      Network.instance.transport.sendData(bufferUnReliable);
     } catch (error) {
       console.warn("Couldn't send data: ", error)
     }
+
   }
 
   /** System queries. */

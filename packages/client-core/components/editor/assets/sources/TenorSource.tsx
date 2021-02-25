@@ -2,11 +2,18 @@ import VideoMediaSource from "../VideoMediaSource";
 import { ItemTypes } from "../../dnd";
 import VideoNode from "@xr3ngine/engine/src/editor/nodes/VideoNode";
 import Api from "../../Api";
+
+/**
+ * [TenorSource component used to provide visual objects]
+ * @type {class component}
+ */
 export default class TenorSource extends VideoMediaSource {
   searchPlaceholder: string;
   searchLegalCopy: string;
   privacyPolicyUrl: string;
   api: Api;
+
+  // initializing variables for this object
   constructor(api) {
     super(api);
     this.id = "tenor";
@@ -15,6 +22,8 @@ export default class TenorSource extends VideoMediaSource {
     this.searchLegalCopy = "Search by Tenor";
     this.privacyPolicyUrl = "https://tenor.com/legal-privacy";
   }
+
+  //function used to handle search and call API if there is any change in search input.
   async search(params, cursor, abortSignal) {
     const { results, suggestions, nextCursor } = await this.api.searchMedia(
       this.id,

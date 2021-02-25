@@ -24,7 +24,7 @@ import ProfileMenu from './menus/ProfileMenu';
 import AvatarMenu from './menus/AvatarMenu';
 import SettingMenu from './menus/SettingMenu';
 import ShareMenu from './menus/ShareMenu';
-import AccountMenu from './menus/AccountMenu';
+import { WebGLRendererSystem, getGraphicsSettingsFromStorage } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -41,7 +41,9 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
   loginUserByOAuth: bindActionCreators(loginUserByOAuth, dispatch),
   addConnectionBySms: bindActionCreators(addConnectionBySms, dispatch),
-  addConnectionByEmail: bindActionCreators(addConnectionByEmail, dispatch)
+  addConnectionByEmail: bindActionCreators(addConnectionByEmail, dispatch),
+  logoutUser: bindActionCreators(addConnectionByEmail, dispatch),
+  removeUser: bindActionCreators(addConnectionByEmail, dispatch),
 });
 
 const UserMenu = (props: UserMenuProps): any => {
@@ -53,11 +55,20 @@ const UserMenu = (props: UserMenuProps): any => {
     addConnectionByEmail,
     addConnectionBySms,
     loginUserByOAuth,
+    logoutUser,
+    removeUser,
   } = props;
   const selfUser = authState.get('user') || {};
 
   const [username, setUsername] = useState(selfUser?.name);
   const [setting, setUserSetting] = useState(selfUser?.user_setting);
+  const [graphics, setGraphicsSetting] = useState({
+    resolution: WebGLRendererSystem.scaleFactor,
+    shadows: WebGLRendererSystem.shadowQuality,
+    automatic: WebGLRendererSystem.automatic,
+    pbr: WebGLRendererSystem.usePBR,
+    postProcessing: WebGLRendererSystem.usePostProcessing,
+  });
 
 
   const [waitingForLogout, setWaitingForLogout] = useState(false);
@@ -88,6 +99,18 @@ const UserMenu = (props: UserMenuProps): any => {
     selfUser && setUserSetting({ ...selfUser.user_setting });
   }, [selfUser.user_setting]);
 
+  const updateGraphics = (newGraphicsSettings) => {
+    setGraphicsSettings(newGraphicsSettings);
+  }
+
+  useEffect(() => {
+    setGraphicsSettings(getGraphicsSettingsFromStorage())
+    WebGLRendererSystem.qualityLevelChangeListeners.push(updateGraphics);
+    return function cleanup() {
+      WebGLRendererSystem.qualityLevelChangeListeners.splice(WebGLRendererSystem.qualityLevelChangeListeners.indexOf(updateGraphics), 1);
+    };
+  }, [])
+
   useEffect(() => {
     if (waitingForLogout === true && authState.get('authUser') != null && authState.get('user') != null && authState.get('user').userRole === 'guest') {
       setWaitingForLogout(false);
@@ -106,15 +129,15 @@ const UserMenu = (props: UserMenuProps): any => {
     [Views.Settings]: SettingMenu,
     [Views.Share]: ShareMenu,
     [Views.Avatar]: AvatarMenu,
-    [Views.Account]: AccountMenu,
   };
 
   const handleUpdateUsername = () => {
-    if (selfUser.name.trim() !== username.trim()) {
-      updateUsername(selfUser.id, username.trim());
+    const name = username.trim();
+    if (!name) return;
+    if (selfUser.name.trim() !== name) {
+      updateUsername(selfUser.id, name);
     }
   };
-
 
   const updateCharacterComponent = (entity, avatarId?: string) => {
     const characterAvatar = getMutableComponent(entity, CharacterComponent);
@@ -134,6 +157,10 @@ const UserMenu = (props: UserMenuProps): any => {
   const setUserSettings = (newSetting: any): void => {
     setUserSetting({ ...setting, ...newSetting });
     updateUserSettings(selfUser.user_setting.id, setting);
+  }
+
+  const setGraphicsSettings = (newSetting: any): void => {
+    setGraphicsSetting({ ...graphics, ...newSetting });
   }
 
   const setActiveMenu = (e): void => {
@@ -162,6 +189,11 @@ const UserMenu = (props: UserMenuProps): any => {
           setUsername,
           updateUsername: handleUpdateUsername,
           changeActiveMenu,
+          logoutUser,
+          removeUser,
+          loginUserByOAuth,
+          addConnectionByEmail,
+          addConnectionBySms,
         };
         break;
       case Views.Avatar:
@@ -175,6 +207,8 @@ const UserMenu = (props: UserMenuProps): any => {
         args = {
           setting,
           setUserSettings,
+          graphics,
+          setGraphicsSettings,
         };
         break;
       case Views.Share:

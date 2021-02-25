@@ -131,7 +131,7 @@ export class MediaStreamSystem extends System {
   }
 
   /** Execute the media stream system. */
-  public execute (): void {}
+  public execute = null;
 
   /**
    * Start the camera.

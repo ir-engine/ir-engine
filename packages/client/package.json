@@ -27,7 +27,8 @@
     "socket.io": "2.4.1"
   },
   "peerDependencies": {
-    "socket.io": "2.4.1"
+    "socket.io": "2.4.1",
+    "react": "^17.0.0"
   },
   "dependencies": {
     "@capacitor-community/electron": "^1.3.2",
@@ -42,6 +43,7 @@
     "@material-ui/core": "^4.11.3",
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.49",
+    "@material-ui/styles": "^4.11.3",
     "@mozillareality/easing-functions": "^0.1.1",
     "@styled-icons/bootstrap": "^10.19.0",
     "@styled-icons/boxicons-regular": "^10.18.0",
@@ -55,7 +57,7 @@
     "@types/styled-components": "^5.1.3",
     "@types/webgl2": "^0.0.5",
     "@typescript-eslint/eslint-plugin": "^4.5.0",
-    "@xr3ngine/capacitor-plugin-xr": "^0.1.0",
+    "@xr3ngine/native-plugin-xr": "^0.1.0",
     "@xr3ngine/common": "^0.2.0",
     "@xr3ngine/engine": "^0.2.0",
     "app-root-path": "^3.0.0",

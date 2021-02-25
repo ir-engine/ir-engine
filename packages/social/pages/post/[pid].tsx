@@ -1,6 +1,6 @@
 import React from "react";
 import { useRouter } from "next/router";
-import { Header } from "@xr3ngine/client-core/components/social/Header";
+import AppHeader from "@xr3ngine/client-core/components/social/Header";
 
 export default function PostPage() {
   const router = useRouter();
@@ -8,7 +8,7 @@ export default function PostPage() {
 
   return (
     <div className="container">
-    <Header user={pid} />
+    <AppHeader user={pid} />
           <div>{pid}</div>
     </div>
   );

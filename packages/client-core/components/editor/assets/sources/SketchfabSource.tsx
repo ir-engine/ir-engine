@@ -1,14 +1,23 @@
 import ModelMediaSource from "../ModelMediaSource";
 import { TransformPivot } from "@xr3ngine/engine/src/editor/controls/EditorControls";
+
+/**
+ * [SketchfabSource component used to provide visual object from sketchfab]
+ * @type {class}
+ */
 export default class SketchfabSource extends ModelMediaSource {
   tags: any;
   searchLegalCopy: string;
   privacyPolicyUrl: string;
   transformPivot: string;
+
+  //initializing variables for this component
   constructor(api) {
     super(api);
     this.id = "sketchfab";
     this.name = "Sketchfab";
+
+    //Array containing tag options and used to show navbar for tags
     this.tags = [
       {
         disabled: true,
