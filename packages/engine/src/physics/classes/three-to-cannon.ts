@@ -345,7 +345,6 @@ function getGeometry (object) {
 function getVerticesIndices (geometry) {
   const vertices = (geometry.attributes.position || {}).array || [];
   const indices = geometry.index?.array || Object.keys(vertices).map(Number);
-  console.log(geometry, vertices, indices);
   return { vertices, indices };
 }
 
