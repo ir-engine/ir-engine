@@ -16,7 +16,10 @@ import {
     Typography
 } from '@material-ui/core';
 import {
-    Add, Block,
+    Add,
+    Block,
+    Call,
+    CallEnd,
     Clear,
     Delete,
     Edit,
@@ -205,6 +208,7 @@ interface Props {
     setSelectedUser?: any;
     selectedGroup?: any;
     setSelectedGroup?: any;
+    locationState?: any;
 }
 
 const Harmony = observer((props: Props): any => {
@@ -250,7 +254,8 @@ const Harmony = observer((props: Props): any => {
         selectedUser,
         setSelectedUser,
         selectedGroup,
-        setSelectedGroup
+        setSelectedGroup,
+        locationState
     } = props;
 
     const messageRef = React.useRef();
@@ -288,6 +293,7 @@ const Harmony = observer((props: Props): any => {
     const groupSubState = groupState.get('groups');
     const groups = groupSubState.get('groups');
     const party = partyState.get('party');
+    const currentLocation = locationState.get('currentLocation').get('location');
     const selfGroupUser = selectedGroup.id && selectedGroup.id.length > 0 ? selectedGroup.groupUsers.find((groupUser) => groupUser.userId === selfUser.id) : {};
     const partyUsers = party && party.partyUsers ? party.partyUsers : [];
     const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === selfUser.id) : {};
@@ -310,12 +316,12 @@ const Harmony = observer((props: Props): any => {
     const producerStartingRef = useRef(producerStarting);
     const activeAVChannelIdRef = useRef(activeAVChannelId);
     const channelAwaitingProvisionRef = useRef(channelAwaitingProvision);
+    const videoEnabled = currentLocation.locationSettings ? currentLocation.locationSettings.videoEnabled : false;
 
     useEffect(() => {
         EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, () => {
-            if (producerStartingRef.current === 'audio') toggleAudio(activeAVChannelIdRef.current);
-            else if (producerStartingRef.current === 'video') toggleVideo(activeAVChannelIdRef.current);
-            setProducerStarting('');
+            toggleAudio(activeAVChannelIdRef.current);
+            toggleVideo(activeAVChannelIdRef.current);
         });
 
         EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
@@ -525,127 +531,41 @@ const Harmony = observer((props: Props): any => {
             await leave(false);
         }
     };
-    const handleMicClick = async (e: any, instance: boolean, channelId: string) => {
+    const handleMicClick = async (e: any) => {
         e.stopPropagation();
-        if (instance === true && instanceConnectionState.get('instanceProvisioning') === false && channelConnectionState.get('instanceProvisioning') === false) {
-            setActiveAVChannelId(channelId);
-            setChannelAwaitingProvision({
-                id: '',
-                audio: false,
-                video: false
-            });
-            if (MediaStreamSystem.instance?.camAudioProducer == null || channelId !== activeAVChannelId) {
-                await endVideoChat({});
-                await leave(false);
-                await checkMediaStream('instance');
-                await createCamAudioProducer('instance');
-            }
-            else {
-                await checkMediaStream('instance');
-                const audioPaused = MediaStreamSystem.instance.toggleAudioPaused();
-                if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer);
-                else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer);
-                checkEndVideoChat();
-                setRelationship('instance', null);
-            }
-        }
-        else {
-            if (channelId !== activeAVChannelId) {
-                setChannelAwaitingProvision({
-                    id: channelAwaitingProvision?.id ? channelAwaitingProvision.id : channelId,
-                    video: channelAwaitingProvision?.video || false,
-                    audio: true
-                });
-                setActiveAVChannelId(channelId);
-                await endVideoChat({});
-                await leave(false);
-                if (channelConnectionState.get('connected') === false &&
-                    channelConnectionState.get('instanceProvisioned') === false &&
-                    channelConnectionState.get('instanceProvisioning') === false) {
-                    setChannelAwaitingProvision({
-                        id: '',
-                        audio: false,
-                        video: false
-                    });
-                    provisionChannelServer(null, channelId);
-                    setProducerStarting('audio');
-                }  else if (channelConnectionState.get('instanceProvisioning') === true) {
-                    setTimeout(() => {
-                        if (channelConnectionState.get('instanceProvisioning') === true) {
-                            provisionChannelServer(null, channelId);
-                            setProducerStarting('audio');
-                        }
-                    }, 3000);
-                }
-            }
-            else {
-                if (channelConnectionState.get('instanceProvisioned') === true && channelConnectionState.get('connected') === true) {
-                    toggleAudio(channelId);
-                }
-            }
-        }
+        const audioPaused = MediaStreamSystem.instance?.toggleAudioPaused();
+        if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer);
+        else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer);
     };
 
-    const handleCamClick = async (e: any, instance: boolean, channelId: string) => {
+    const handleCamClick = async (e: any) => {
         e.stopPropagation();
-        if (instance === true && instanceConnectionState.get('instanceProvisioning') === false && channelConnectionState.get('instanceProvisioning') === false) {
-            setActiveAVChannelId(channelId);
-            setChannelAwaitingProvision({
-                id: '',
-                audio: false,
-                video: false
-            });
-            if (MediaStreamSystem.instance?.camVideoProducer == null || channelId !== activeAVChannelId) {
-                await endVideoChat({});
-                await leave(false);
-                await checkMediaStream('instance');
-                await createCamVideoProducer('instance');
-            }
-            else {
-                await checkMediaStream('instance');
-                const videoPaused = MediaStreamSystem.instance.toggleVideoPaused();
-                if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer);
-                else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer);
-                checkEndVideoChat();
-                setRelationship('instance', null);
-            }
-        }
-        else {
-            if (channelId !== activeAVChannelId) {
-                setChannelAwaitingProvision({
-                    id: channelAwaitingProvision?.id ? channelAwaitingProvision.id : channelId,
-                    audio: channelAwaitingProvision?.audio || false,
-                    video: true
-                });
-                setActiveAVChannelId(channelId);
-                await endVideoChat({});
-                await leave(false);
-                if (channelConnectionState.get('connected') === false &&
-                    channelConnectionState.get('instanceProvisioned') === false &&
-                    channelConnectionState.get('instanceProvisioning') === false) {
-                    setChannelAwaitingProvision({
-                        id: '',
-                        audio: false,
-                        video: false
-                    });
-                    provisionChannelServer(null, channelId);
-                    setProducerStarting('video');
-                }  else if (channelConnectionState.get('instanceProvisioning') === true) {
-                    setTimeout(() => {
-                        if (channelConnectionState.get('instanceProvisioning') === true) {
-                            provisionChannelServer(null, channelId);
-                            setProducerStarting('video');
-                        }
-                    }, 3000);
-                }
-            }
-            else {
-                if (channelConnectionState.get('instanceProvisioned') === true && channelConnectionState.get('connected') === true) {
-                    toggleVideo(channelId);
-                }
-            }
-        }
+        const videoPaused = MediaStreamSystem.instance?.toggleVideoPaused();
+        if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer);
+        else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer);
     };
+
+    const handleStartCall = async(e: any) => {
+        console.log('handleStartCall');
+        const channel = channels.get(targetChannelId);
+        const channelType = channel.instanceId != null ? 'instance' : 'channel';
+        await endVideoChat({});
+        await leave(false);
+        setActiveAVChannelId(targetChannelId);
+        if (channel.instanceId == null) provisionChannelServer(null, targetChannelId);
+        else {
+            await checkMediaStream('instance');
+            await createCamVideoProducer('instance');
+            await createCamAudioProducer('instance');
+        }
+    }
+
+    const handleEndCall = async(e: any) => {
+        e.stopPropagation();
+        await endVideoChat({});
+        await leave(false);
+        setActiveAVChannelId('');
+    }
 
     const toggleAudio = async(channelId) => {
         await checkMediaStream('channel', channelId);
@@ -655,7 +575,6 @@ const Harmony = observer((props: Props): any => {
             const audioPaused = MediaStreamSystem.instance?.toggleAudioPaused();
             if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer);
             else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer);
-            checkEndVideoChat();
         }
     };
 
@@ -666,7 +585,6 @@ const Harmony = observer((props: Props): any => {
             const videoPaused = MediaStreamSystem.instance?.toggleVideoPaused();
             if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer);
             else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer);
-            checkEndVideoChat();
         }
     };
 
@@ -769,6 +687,28 @@ const Harmony = observer((props: Props): any => {
         }
     };
 
+    const isActiveChat = (channelType: string, targetObjectId: string): boolean => {
+        const channelEntries = [...channels.entries()];
+        const channelMatch = channelType === 'instance' ? channelEntries.find((entry) => entry[1].instanceId === targetObjectId) :
+                             channelType === 'group' ? channelEntries.find((entry) => entry[1].groupId === targetObjectId) :
+                             channelType === 'friend' ? channelEntries.find((entry) => (entry[1].userId1 === targetObjectId || entry[1].userId2 === targetObjectId)) :
+                             channelEntries.find((entry) => entry[1].partyId === targetObjectId);
+        return channelMatch != null && channelMatch[0] === targetChannelId;
+    }
+
+    const isActiveAVCall = (channelType: string, targetObjectId: string): boolean => {
+        const channelEntries = [...channels.entries()];
+        const channelMatch = channelType === 'instance' ? channelEntries.find((entry) => entry[1].instanceId === targetObjectId) :
+            channelType === 'group' ? channelEntries.find((entry) => entry[1].groupId === targetObjectId) :
+                channelType === 'friend' ? channelEntries.find((entry) => (entry[1].userId1 === targetObjectId || entry[1].userId2 === targetObjectId)) :
+                    channelEntries.find((entry) => entry[1].partyId === targetObjectId);
+        console.log('ActiveAV match:');
+        console.log(channelMatch);
+        console.log(activeAVChannelId);
+        console.log(channelMatch != null && channelMatch[0] === activeAVChannelId);
+        return channelMatch != null && channelMatch[0] === activeAVChannelId;
+    }
+
     useEffect(() => {
         if (
             channelConnectionState.get('instanceProvisioned') === true &&
@@ -794,18 +734,32 @@ const Harmony = observer((props: Props): any => {
             `}</style>
             <div className={styles['list-container']}>
                 <div className={styles.partyInstanceButtons}>
-                    <div className={styles.partyButton}
+                    <div className={classNames({
+                            [styles.partyButton]: true,
+                            [styles.activeChat]: party != null && isActiveChat('party', party.id)
+                        })}
                          onClick={(e) => party != null ? setActiveChat('party', party) : openDetails(e, 'party', party)}
                     >
                         <GroupWork/>
                         <span>Party</span>
+                        <div className={classNames({
+                            [styles.activeAVCall]: party != null && isActiveAVCall('party', party.id)
+                        })} />
                         { party != null && <ListItemIcon className={styles.groupEdit} onClick={(e) => openDetails(e,'party', party)}><Settings/></ListItemIcon>}
                     </div>
-                    { selfUser.instanceId != null && <div className={styles.instanceButton}
-                         onClick={() => setActiveChat('instance', selfUser.instanceId)}
+                    { selfUser.instanceId != null && <div className={classNames({
+                        [styles.instanceButton]: true,
+                        [styles.activeChat]: isActiveChat('instance', selfUser.instanceId)
+                    })}
+                         onClick={() => setActiveChat('instance', {
+                             id: selfUser.instanceId
+                         })}
                     >
                         <Grain/>
                         <span>Here</span>
+                        <div className={classNames({
+                            [styles.activeAVCall]: isActiveAVCall('instance', selfUser.instanceId)
+                        })} />
                     </div> }
                 </div>
                 {selfUser.userRole !== 'guest' &&
@@ -833,8 +787,10 @@ const Harmony = observer((props: Props): any => {
                         >
                             {friends && friends.length > 0 && friends.sort((a, b) => a.name - b.name).map((friend, index) => {
                                 return <div key={friend.id}>
-                                    <ListItem
-                                        className={styles.selectable}
+                                    <ListItem className={classNames({
+                                        [styles.selectable]: true,
+                                        [styles.activeChat]: isActiveChat('user', friend.id)
+                                    })}
                                         onClick={() => {
                                             setActiveChat('user', friend)
                                         }}
@@ -843,6 +799,9 @@ const Harmony = observer((props: Props): any => {
                                             <Avatar src={friend.avatarUrl}/>
                                         </ListItemAvatar>
                                         <ListItemText primary={friend.name}/>
+                                        <div className={classNames({
+                                            [styles.activeAVCall]: isActiveAVCall('user', friend.id)
+                                        })} />
                                     </ListItem>
                                     {index < friends.length - 1 && <Divider/>}
                                 </div>;
@@ -878,12 +837,18 @@ const Harmony = observer((props: Props): any => {
                             {groups && groups.length > 0 && groups.sort((a, b) => a.name - b.name).map((group, index) => {
                                 return <div key={group.id}>
                                     <ListItem
-                                        className={styles.selectable}
+                                        className={classNames({
+                                            [styles.selectable]: true,
+                                            [styles.activeChat]: isActiveChat('group', group.id)
+                                        })}
                                         onClick={() => {
                                             setActiveChat('group', group)
                                         }}
                                     >
                                         <ListItemText primary={group.name}/>
+                                        <div className={classNames({
+                                            [styles.activeAVCall]: isActiveAVCall('group', group.id)
+                                        })} />
                                         <ListItemIcon className={styles.groupEdit} onClick={(e) => openDetails(e,'group', group)}><Settings/></ListItemIcon>
                                     </ListItem>
                                     {index < groups.length - 1 && <Divider/>}
@@ -967,6 +932,34 @@ const Harmony = observer((props: Props): any => {
                 }
             </div>
             <div className={styles['chat-window']}>
+                { (targetChannelId?.length > 0 || MediaStreamSystem.instance.camVideoProducer != null || MediaStreamSystem.instance.camAudioProducer != null) && <header className={styles.mediaControls}>
+                    { MediaStreamSystem.instance.camVideoProducer == null && MediaStreamSystem.instance.camAudioProducer == null &&
+                        <div className={classNames({
+                            [styles.iconContainer]: true,
+                            [styles.startCall]: true
+                        })}>
+                            <Call onClick={(e) => handleStartCall(e)} />
+                        </div>
+                    }
+                    { (MediaStreamSystem.instance.camVideoProducer != null || MediaStreamSystem.instance.camAudioProducer != null) &&
+                        <div className={styles.activeCallControls}>
+                            <div className={classNames({
+                                [styles.iconContainer]: true,
+                                [styles.endCall]: true
+                            })}>
+                                <CallEnd onClick={(e) => handleEndCall(e)} />
+                            </div>
+                            <div className={styles.iconContainer + ' ' + (audioPaused ? styles.off : styles.on)}>
+                                <Mic id='micOff' className={styles.offIcon} onClick={(e) => handleMicClick(e)} />
+                                <Mic id='micOn' className={styles.onIcon} onClick={(e) => handleMicClick(e)} />
+                            </div>
+                            {videoEnabled && <div className={styles.iconContainer + ' ' + (videoPaused ? styles.off : styles.on)}>
+                                <Videocam id='videoOff' className={styles.offIcon} onClick={(e) => handleCamClick(e)} />
+                                <Videocam id='videoOn' className={styles.onIcon} onClick={(e) => handleCamClick(e)} />
+                            </div>}
+                        </div>
+                    }
+                </header> }
                 { (MediaStreamSystem?.instance?.camVideoProducer != null || MediaStreamSystem?.instance?.camAudioProducer != null) && <div className={styles['video-container']}>
                     <div className={ styles['active-chat-plate']} >{ getChannelName() }</div>
                     <Grid className={ styles['party-user-container']} container direction="row">
@@ -1135,15 +1128,8 @@ const Harmony = observer((props: Props): any => {
                     { (targetObject == null || targetObject.id == null) &&
                     <div className={styles['no-chat']}>
                         <div>
-                            Start a chat with a friend or group from the left drawer
+                            Start a chat with a friend or group from the side panel
                         </div>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={openLeftDrawer}
-                        >
-                            Open Drawer
-                        </Button>
                     </div>
                     }
                 </div>

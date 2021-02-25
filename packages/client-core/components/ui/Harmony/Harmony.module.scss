@@ -19,6 +19,19 @@ $mobileControllButtonsSize: 3em;
     }
 }
 
+
+.activeChat {
+    background-color: rgb(56, 56, 178);
+}
+
+.activeAVCall {
+    border-radius: 20px;
+    background-color: green;
+    margin-left: 10px;
+    width: 20px;
+    height: 20px;
+}
+
 .background-red {
     background-color: #ef5350;
     color: white;
@@ -436,5 +449,78 @@ $mobileControllButtonsSize: 3em;
          &.partyButton {
              display: flex;
          }
+
+         &.instanceButton {
+             display: flex;
+         }
      }
+}
+
+.mediaControls {
+    height: 44px;
+
+    .iconContainer{
+        background: rgba(0, 0, 0, 0.2);
+        box-sizing: border-box;
+        border-radius: 50%;
+        margin: 6px 12px;
+        height: 36px;
+        width: 36px;
+        cursor: pointer;
+
+        @media (max-width: 768px) {
+            height: 36px;
+            width: 36px;
+            margin: 2px 8px;
+        }
+        &.on {
+            background-color: gray;
+            .offIcon{
+                display: none;
+            }
+            .onIcon{
+                display: block;
+            }
+        }
+        &.off{
+            background-color: gray;
+            .offIcon{
+                display: block;
+            }
+            .onIcon{
+                display: none;
+            }
+        }
+
+
+        .onIcon{
+            color: rgba(122, 255, 100, 1)
+        }
+
+        > svg{
+            box-sizing: border-box;
+            cursor: pointer;
+            margin: 6px;
+        }
+    }
+
+    .startCall {
+        background-color: green;
+
+        &:hover {
+            background-color: lighten(green, 10%);
+        }
+    }
+
+    .endCall {
+        background-color: red;
+
+        &:hover {
+            background-color: lighten(red, 10%);
+        }
+    }
+
+    .activeCallControls {
+        display: flex;
+    }
 }
