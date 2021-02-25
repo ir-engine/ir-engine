@@ -16,7 +16,6 @@ export default class Googlestrategy extends CustomOAuthStrategy {
   }
 
   async updateEntity(entity: any, profile: any, params?: Params): Promise<any> {
-    console.log('Google JWT auth');
     const authResult = await app.service('authentication').strategies.jwt.authenticate({ accessToken: params?.authentication?.accessToken }, {});
     const identityProvider = authResult['identity-provider'];
     const user = await app.service('user').get(entity.userId);
@@ -37,9 +36,6 @@ export default class Googlestrategy extends CustomOAuthStrategy {
 
   async getRedirect (data: any, params?: Params): Promise<string> {
     const redirectHost = config.authentication.callback.google;
-
-    console.log(data);
-    
     const type = (params?.query?.userId) ? 'connection' : 'login';
     if (Object.getPrototypeOf(data) === Error.prototype) {
       const err = data.message as string;
