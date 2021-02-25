@@ -41,7 +41,6 @@ interface Props {
   resetPassword: typeof resetPassword;
   registerUserByEmail: typeof registerUserByEmail;
 }
-
 const FlatSignIn = (props: Props) => {
   const [view, setView] =  useState('login');
   const enableUserPassword = config?.auth ? config.auth.enableUserPassword : false;
