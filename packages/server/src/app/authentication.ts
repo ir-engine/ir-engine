@@ -9,6 +9,7 @@ import LinkedlnStrategy from "../strategies/linkedln";
 import { MyLocalStrategy } from '../strategies/local';
 import { MyJwtStrategy } from '../strategies/jwt';
 import authenticationDoc from './authentication.doc';
+import TwitterStrategy from '../strategies/twitter';
 
 declare module '../declarations' {
   interface ServiceTypes {
@@ -26,8 +27,9 @@ export default (app: Application): void => {
   authentication.register('facebook', new FacebookStrategy());
   authentication.register('github', new GithubStrategy());
   authentication.register('linkedin', new LinkedlnStrategy());
+  authentication.register('twitter', new TwitterStrategy());
 
   app.use('/authentication', authentication);
 
-  app.configure(expressOauth());
+  app.configure(expressOauth()); 
 };
