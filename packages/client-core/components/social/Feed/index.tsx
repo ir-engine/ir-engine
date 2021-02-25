@@ -1,31 +1,35 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { random } from 'lodash';
+import { bindActionCreators, Dispatch } from 'redux';
 
 // import styles from './Feed.module.scss';
 import FeedCard from '../FeedCard';
 import CommentList from '../CommentList';
 import NewComment from '../NewComment';
+import { selectFeedsState } from '../../../redux/feed/selector';
+import { getFeed } from '../../../redux/feed/service';
+import { connect } from 'react-redux';
 
-const Feed = () => { 
-    const feed ={ 
-        id: 150,
-        author:{
-            id:'185',
-            avatar :'https://picsum.photos/40/40',
-            username: 'User username'
-        },
-        previewImg:'https://picsum.photos/375/210',
-        videoLink:null,
-        title: 'Featured Artist Post',
-        flamesCount: random(15000),
-        description: 'I recently understood the words of my friend Jacob West about music.'
-    }  
+const mapStateToProps = (state: any): any => {
+    return {
+        feedsState: selectFeedsState(state),
+    };
+  };
 
-    return <>
-            <FeedCard {...feed} />        
+  const mapDispatchToProps = (dispatch: Dispatch): any => ({
+    getFeed: bindActionCreators(getFeed, dispatch),
+});
+
+const Feed = ({feedsState, getFeed}) => { 
+    let feed = null;
+    useEffect(()=> getFeed(random(50)), []);
+    feed = feedsState.get('fetching') === false && feedsState?.get('feed'); 
+
+    return <section style={{overflow: 'scroll'}}>
+            {feed && <FeedCard {...feed} />}      
             <CommentList />  
             <NewComment />      
-        </>
+        </section>
 };
 
-export default Feed;
+export default connect(mapStateToProps, mapDispatchToProps)(Feed);
