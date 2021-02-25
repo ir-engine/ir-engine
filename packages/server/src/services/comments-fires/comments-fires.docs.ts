@@ -5,17 +5,14 @@
  */
 export default {
     definitions: {
-        'comments': {
+        'comments-fires': {
             type: 'object',
             properties: {
-                text: {
-                    type: 'string'
-                }
             }
         },
-        'comments_list': {
+        'comments-fires_list': {
             type: 'array',
-            items: { $ref: '#/definitions/comments' }
+            items: { $ref: '#/definitions/comments-fires' }
         }
     }
 };

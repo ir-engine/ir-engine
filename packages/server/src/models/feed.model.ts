@@ -6,7 +6,7 @@ import { HookReturn } from 'sequelize/types/lib/hooks';
 
 export default function (app: Application): typeof Model {
   const sequelizeClient: Sequelize = app.get('sequelizeClient');
-  const feed = sequelizeClient.define('feed', {
+  const Feed = sequelizeClient.define('feed', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV1,
@@ -35,16 +35,15 @@ export default function (app: Application): typeof Model {
   });
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  (feed as any).associate = function (models: any): void {
+  (Feed as any).associate = (models: any): void => {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
-    (feed as any).belongsTo(models.user, { foreignKey: 'authorId', allowNull: false });
-    (feed as any).hasOne(models.static_resource);
-    (feed as any).hasMany(models.feed_fires);
-    (feed as any).hasMany(models.feed_bookmark);
-    (feed as any).hasMany(models.comments);
-    (feed as any).hasMany(models.comments_fire);
+    (Feed as any).belongsTo(models.user, { foreignKey: 'authorId', allowNull: false });
+    (Feed as any).hasOne(models.static_resource);
+    (Feed as any).hasMany(models.feed_fires);
+    (Feed as any).hasMany(models.feed_bookmark);
+    (Feed as any).hasMany(models.comments);
   };
 
-  return feed;
+  return Feed;
 }
