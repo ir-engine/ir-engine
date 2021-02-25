@@ -1,0 +1,14 @@
+.messageContainer{
+    position: fixed;
+    width: 100vw;
+    bottom: 90px;
+    padding: 5px;
+    background: #FFFFFF;
+
+    .sendButton{
+        padding: 5px 20px;
+        position: fixed;
+        bottom: inherit;
+        right: 0px;
+    }
+}

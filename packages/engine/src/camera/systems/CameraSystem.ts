@@ -4,7 +4,7 @@ import { Matrix4, Quaternion, Vector3 } from "three";
 import { addObject3DComponent } from '../../scene/behaviors/addObject3DComponent';
 import { CameraTagComponent } from '../../scene/components/Object3DTagComponents';
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
-import { isClient } from '../../common/functions/isClient';
+import { isServer } from '../../common/functions/isServer';
 import { isMobileOrTablet } from "../../common/functions/isMobile";
 import { NumericalType } from "../../common/types/NumericalTypes";
 import { Engine } from '../../ecs/classes/Engine';
@@ -86,7 +86,7 @@ export class CameraSystem extends System {
     });
 
     this.queryResults.cameraComponent.all?.forEach(entity => {
-      if (!isClient) return;
+      if (isServer) return;
       const cam = getComponent(entity, CameraComponent) as CameraComponent;
       if (!!cam.followTarget && hasComponent(cam.followTarget, FollowCameraComponent)) {
 
@@ -146,6 +146,8 @@ export class CameraSystem extends System {
           const shoulderOffsetWorld = cameraFollow.offset.clone().applyQuaternion(actor.tiltContainer.quaternion);
           targetPosition = actor.tiltContainer.getWorldPosition(vec3).add(shoulderOffsetWorld);
         } else {
+          cameraDesiredTransform.rotationRate = 7;
+          cameraDesiredTransform.positionRate = 15;
           targetPosition = actorTransform.position;
         }
 

@@ -24,6 +24,7 @@ import ProfileMenu from './menus/ProfileMenu';
 import AvatarMenu from './menus/AvatarMenu';
 import SettingMenu from './menus/SettingMenu';
 import ShareMenu from './menus/ShareMenu';
+import { WebGLRendererSystem, getGraphicsSettingsFromStorage } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -61,6 +62,13 @@ const UserMenu = (props: UserMenuProps): any => {
 
   const [username, setUsername] = useState(selfUser?.name);
   const [setting, setUserSetting] = useState(selfUser?.user_setting);
+  const [graphics, setGraphicsSetting] = useState({
+    resolution: WebGLRendererSystem.scaleFactor,
+    shadows: WebGLRendererSystem.shadowQuality,
+    automatic: WebGLRendererSystem.automatic,
+    pbr: WebGLRendererSystem.usePBR,
+    postProcessing: WebGLRendererSystem.usePostProcessing,
+  });
 
 
   const [waitingForLogout, setWaitingForLogout] = useState(false);
@@ -91,6 +99,18 @@ const UserMenu = (props: UserMenuProps): any => {
     selfUser && setUserSetting({ ...selfUser.user_setting });
   }, [selfUser.user_setting]);
 
+  const updateGraphics = (newGraphicsSettings) => {
+    setGraphicsSettings(newGraphicsSettings);
+  }
+
+  useEffect(() => {
+    setGraphicsSettings(getGraphicsSettingsFromStorage())
+    WebGLRendererSystem.qualityLevelChangeListeners.push(updateGraphics);
+    return function cleanup() {
+      WebGLRendererSystem.qualityLevelChangeListeners.splice(WebGLRendererSystem.qualityLevelChangeListeners.indexOf(updateGraphics), 1);
+    };
+  }, [])
+
   useEffect(() => {
     if (waitingForLogout === true && authState.get('authUser') != null && authState.get('user') != null && authState.get('user').userRole === 'guest') {
       setWaitingForLogout(false);
@@ -119,7 +139,6 @@ const UserMenu = (props: UserMenuProps): any => {
     }
   };
 
-
   const updateCharacterComponent = (entity, avatarId?: string) => {
     const characterAvatar = getMutableComponent(entity, CharacterComponent);
     if (characterAvatar != null) characterAvatar.avatarId = avatarId || selfUser?.avatarId;
@@ -138,6 +157,10 @@ const UserMenu = (props: UserMenuProps): any => {
   const setUserSettings = (newSetting: any): void => {
     setUserSetting({ ...setting, ...newSetting });
     updateUserSettings(selfUser.user_setting.id, setting);
+  }
+
+  const setGraphicsSettings = (newSetting: any): void => {
+    setGraphicsSetting({ ...graphics, ...newSetting });
   }
 
   const setActiveMenu = (e): void => {
@@ -184,6 +207,8 @@ const UserMenu = (props: UserMenuProps): any => {
         args = {
           setting,
           setUserSettings,
+          graphics,
+          setGraphicsSettings,
         };
         break;
       case Views.Share:

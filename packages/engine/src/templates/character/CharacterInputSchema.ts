@@ -28,6 +28,7 @@ import { interactOnServer } from '../../interaction/systems/InteractiveSystem';
 import { updateCharacterState } from "./behaviors/updateCharacterState";
 import { CharacterComponent } from "./components/CharacterComponent";
 import { isServer } from "../../common/functions/isServer";
+import { VehicleBody } from '../../physics/components/VehicleBody';
 
 const startedPosition = new Map<Entity,NumericalType>();
 
@@ -74,7 +75,11 @@ const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
 
   const interactive = getComponent(focusedEntity, Interactable);
   if (interactive && typeof interactive.onInteraction === 'function') {
-    interactive.onInteraction(entity, args, delta, focusedEntity);
+    if (!hasComponent(focusedEntity, VehicleBody)) {
+      interactive.onInteraction(entity, args, delta, focusedEntity);
+    } else {
+      console.log('Interaction with cars must work only from server');
+    }
   } else {
     console.warn('onInteraction is not a function');
   }
@@ -174,7 +179,7 @@ const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:inputAxes
   const inputValue = inputComponent.data.get(inputAxes).value as number;
 
   const delta = inputValue - inputPrevValue;
-
+  
   const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent);
   if(cameraFollow === undefined) return //console.warn("cameraFollow is undefined");
 
@@ -357,6 +362,7 @@ export const CharacterInputSchema: InputSchema = {
   touchInputMap: {
     buttons: {
       [TouchInputs.Touch]: BaseInput.INTERACT,
+      [TouchInputs.DoubleTouch]: BaseInput.JUMP,
     },
     axes: {
       [TouchInputs.Touch1Position]: BaseInput.SCREENXY,
@@ -658,15 +664,6 @@ export const CharacterInputSchema: InputSchema = {
           }
         }
       ],
-      unchanged: [
-        {
-          behavior: changeCameraDistanceByDelta,
-          args: {
-            input: BaseInput.CAMERA_SCROLL,
-            inputType: InputType.ONEDIM
-          }
-        }
-      ]
     },
     [BaseInput.MOVEMENT_PLAYERONE]: {
       started: [

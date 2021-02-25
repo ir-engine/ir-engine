@@ -29,15 +29,16 @@ import { PostProcessingSchema } from './postprocessing/PostProcessingSchema';
 export class WebGLRendererSystem extends System {
   /** Is system Initialized. */
   isInitialized: boolean
+  static instance: WebGLRendererSystem;
 
   static composer: EffectComposer
   /** Is resize needed? */
   static needsResize: boolean
+
+  static qualityLevelChangeListeners: any[] = [];
   /** Postprocessing schema. */
   postProcessingSchema: PostProcessingSchema
 
-  /** Resoulion scale. **Default** value is 1. */
-  scaleFactor = 1
   downgradeTimer = 0
   upgradeTimer = 0
   /** Maximum Quality level of the rendered. **Default** value is 4. */
@@ -51,25 +52,25 @@ export class WebGLRendererSystem extends System {
   /** point at which we downgrade quality level (large delta) */
   minRenderDelta = 1000 / 50 // 50 fps
 
+  static automatic: boolean = true;
+  static usePBR: boolean = true;
+  static usePostProcessing: boolean = true;
+  static shadowQuality: number = 5; 
+  /** Resoulion scale. **Default** value is 1. */
+  static scaleFactor: number = 1;
+  
   /** Constructs WebGL Renderer System. */
   constructor(attributes?: SystemAttributes) {
     super(attributes);
+
+    WebGLRendererSystem.instance = this;
 
     this.onResize = this.onResize.bind(this);
 
     this.postProcessingSchema = attributes.postProcessingSchema ?? DefaultPostProcessingSchema;
 
     let context;
-    const canvas = document.createElement("canvas");
-    canvas.style.width = '100%'
-    canvas.style.height = '100%'
-    canvas.style.position = 'absolute'
-    canvas.style.webkitUserSelect = 'none'
-    canvas.style.userSelect = 'none'
-    canvas.ondragstart = (e) => {
-      e.preventDefault();
-      return false;
-    }
+    const canvas = attributes.canvas;
 
     try {
       context = canvas.getContext("webgl2", { antialias: true });
@@ -97,7 +98,7 @@ export class WebGLRendererSystem extends System {
     const csm = new CSM({
         cascades: 4,
         lightIntensity: 1,
-        shadowMapSize: 2048,
+        shadowMapSize: 4096,
         maxFar: 100,
         // maxFar: Engine.camera.far,
         camera: Engine.camera,
@@ -107,14 +108,17 @@ export class WebGLRendererSystem extends System {
 
     Engine.csm = csm;
 
-    // Add the renderer to the body of the HTML document
-    document.body.appendChild(canvas);
     window.addEventListener('resize', this.onResize, false);
     this.onResize();
     this.isInitialized = true;
 
     WebGLRendererSystem.needsResize = true;
     this.configurePostProcessing();
+    loadGraphicsSettingsFromStorage();
+    this.setUsePostProcessing(true);
+    this.setShadowQuality(this.qualityLevel);
+    this.setResolution(WebGLRendererSystem.scaleFactor);
+    this.setUseAutomatic(WebGLRendererSystem.automatic);
   }
 
   /** Called on resize, sets resize flag. */
@@ -185,7 +189,6 @@ export class WebGLRendererSystem extends System {
    */
   execute(delta: number): void {
     const startTime = now();
-    Engine.csm.update();
     
     if(this.isInitialized)
     {
@@ -193,8 +196,9 @@ export class WebGLRendererSystem extends System {
       if (WebGLRendererSystem.needsResize) {
         const canvas = Engine.renderer.domElement;
         const curPixelRatio = Engine.renderer.getPixelRatio();
+        const scaledPixelRatio = window.devicePixelRatio * WebGLRendererSystem.scaleFactor;
     
-        if (curPixelRatio !== window.devicePixelRatio) Engine.renderer.setPixelRatio(window.devicePixelRatio);
+        if (curPixelRatio !== scaledPixelRatio) Engine.renderer.setPixelRatio(scaledPixelRatio);
     
         const width = window.innerWidth;
         const height = window.innerHeight;
@@ -211,26 +215,25 @@ export class WebGLRendererSystem extends System {
         canvas.height = height;
     
         Engine.renderer.setSize(width, height);
-        WebGLRendererSystem.composer?.setSize(width, height);
+        WebGLRendererSystem.composer.setSize(width, height);
         WebGLRendererSystem.needsResize = false;
       }
+
+      Engine.csm.update();
       
-      if (this.qualityLevel >= 2) {
+      if (WebGLRendererSystem.usePostProcessing) {
         WebGLRendererSystem.composer.render(delta);
-        if (Engine.renderer) Engine.renderer.outputEncoding = LinearEncoding; // need this if postprocessing is used
-      }
-      else {
-        if (Engine.renderer) {
-          Engine.renderer?.render(Engine.scene, Engine.camera);
-          Engine.renderer.outputEncoding = sRGBEncoding; // need this if postprocessing is not used
-        }
+      } else {
+        Engine.renderer.render(Engine.scene, Engine.camera);
       }
     }
 
     const lastTime = now();
     const deltaRender = (lastTime - startTime);
 
-    this.changeQualityLevel(deltaRender);
+    if(WebGLRendererSystem.automatic) {
+      this.changeQualityLevel(deltaRender);
+    }
   }
 
   /**
@@ -252,44 +255,105 @@ export class WebGLRendererSystem extends System {
 
     // change quality level
     if (this.downgradeTimer > 2000 && this.qualityLevel > 0) {
-      this.qualityLevel = Math.max(0, Math.min(this.maxQualityLevel, this.qualityLevel-1))
+      this.qualityLevel--;
       this.downgradeTimer = 0;
     } else if (this.upgradeTimer > 1000 && this.qualityLevel < this.maxQualityLevel) {
-      this.qualityLevel = Math.max(0, Math.min(this.maxQualityLevel, this.qualityLevel+1))
+      this.qualityLevel++;
       this.upgradeTimer = 0;
     }
 
     // set resolution scale
     if (this.prevQualityLevel !== this.qualityLevel) {
-      console.log('Changing quality level to', this.qualityLevel, 'because of delta:', delta)
-
-      if (Engine.renderer) {
-        switch (this.qualityLevel) {
-          case 0:
-            this.scaleFactor = 0.2;
-            break;
-          case 1:
-            this.scaleFactor = 0.35;
-            break;
-          case 2:
-            this.scaleFactor = 0.5;
-            break;
-          case 3:
-            this.scaleFactor = 0.65;
-            break;
-          case 4:
-            this.scaleFactor = .8;
-            break;
-          case 5: default:
-            this.scaleFactor = 1;
-            break;
-        }
-        
-        Engine.renderer.setPixelRatio(window.devicePixelRatio * this.scaleFactor);
-        this.prevQualityLevel = this.qualityLevel;
-      }
+      this.setShadowQuality(this.qualityLevel);
+      this.setResolution((this.qualityLevel) / 5);
+      this.setUsePostProcessing(this.qualityLevel > 1);
+      WebGLRendererSystem.qualityLevelChangeListeners.forEach((callback) => {
+        callback({
+          shadows: WebGLRendererSystem.shadowQuality,
+          resolution: WebGLRendererSystem.scaleFactor,
+          postProcessing: WebGLRendererSystem.usePostProcessing,
+          pbr: WebGLRendererSystem.usePBR,
+          automatic: true
+        })
+      })
+      saveGraphicsSettingsToStorage();
+      this.prevQualityLevel = this.qualityLevel;
     }
   }
+
+  setUseAutomatic(automatic) {
+    WebGLRendererSystem.automatic = automatic;
+    if(WebGLRendererSystem.automatic) {
+      this.prevQualityLevel = -1;
+      this.setShadowQuality(this.qualityLevel);
+      this.setResolution((this.qualityLevel) / 5);
+      this.setUsePostProcessing(this.qualityLevel > 1);
+    }
+    saveGraphicsSettingsToStorage();
+  }
+
+  setResolution(resolution) {
+    WebGLRendererSystem.scaleFactor = resolution;
+    Engine.renderer.setPixelRatio(window.devicePixelRatio * WebGLRendererSystem.scaleFactor);
+    WebGLRendererSystem.needsResize = true;
+    saveGraphicsSettingsToStorage();
+  }
+
+  setShadowQuality(shadowSize) {
+    WebGLRendererSystem.shadowQuality = shadowSize;
+    let mapSize = 512;
+    switch(WebGLRendererSystem.shadowQuality) {
+      default: break;
+      case this.maxQualityLevel - 2: mapSize = 1024; break;
+      case this.maxQualityLevel - 1: mapSize = 2048; break;
+      case this.maxQualityLevel: mapSize = 4096; break;
+    }
+    Engine.csm.setShadowMapSize(mapSize);
+    saveGraphicsSettingsToStorage();
+  }
+
+  setUsePostProcessing(usePostProcessing) {
+    WebGLRendererSystem.usePostProcessing = usePostProcessing;
+    Engine.renderer.outputEncoding = WebGLRendererSystem.usePostProcessing ? LinearEncoding : sRGBEncoding;
+    saveGraphicsSettingsToStorage();
+  }
+}
+
+export const saveGraphicsSettingsToStorage = () =>{
+  localStorage.setItem('graphics-settings', JSON.stringify({
+    resolution: WebGLRendererSystem.scaleFactor,
+    shadows: WebGLRendererSystem.shadowQuality,
+    automatic: WebGLRendererSystem.automatic,
+    pbr: WebGLRendererSystem.usePBR,
+    postProcessing: WebGLRendererSystem.usePostProcessing,
+  }))
+}
+
+export const getGraphicsSettingsFromStorage = () => {
+  // we don't want people potentially having code injected from local storage, so let's default and verify
+  const loadedGraphicsSettings = JSON.parse(localStorage.getItem('graphics-settings') || '{}');
+  const verifiedGraphicsSettings = {
+    resolution: WebGLRendererSystem.scaleFactor,
+    shadows: WebGLRendererSystem.shadowQuality,
+    automatic: WebGLRendererSystem.automatic,
+    pbr: WebGLRendererSystem.usePBR,
+    postProcessing: WebGLRendererSystem.usePostProcessing,
+  };
+  Object.keys(verifiedGraphicsSettings).forEach((key) => {
+    if(typeof loadedGraphicsSettings[key] === typeof verifiedGraphicsSettings[key]) {
+      verifiedGraphicsSettings[key] = loadedGraphicsSettings[key];
+    }
+  })
+  return verifiedGraphicsSettings;
+}
+
+export const loadGraphicsSettingsFromStorage = () => {
+  const verifiedGraphicsSettings = getGraphicsSettingsFromStorage();
+  WebGLRendererSystem.scaleFactor = verifiedGraphicsSettings.resolution;
+  WebGLRendererSystem.shadowQuality = verifiedGraphicsSettings.shadows;
+  WebGLRendererSystem.automatic = verifiedGraphicsSettings.automatic;
+  WebGLRendererSystem.usePBR = verifiedGraphicsSettings.pbr;
+  WebGLRendererSystem.usePostProcessing = verifiedGraphicsSettings.postProcessing;
 }
 
 WebGLRendererSystem.queries = {

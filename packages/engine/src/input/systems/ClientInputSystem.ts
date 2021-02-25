@@ -209,7 +209,7 @@ export class InputSystem extends System {
             element.behavior(entity, element.args, delta)
           );
         } else {
-          console.error('Unexpected lifecycleState', value.lifecycleState, LifecycleValue[value.lifecycleState]);
+          console.error('Unexpected lifecycleState', key, value.lifecycleState, LifecycleValue[value.lifecycleState], 'prev', LifecycleValue[input.prevData.get(key)?.lifecycleState]);
         }
       } else {
         input.schema.inputButtonBehaviors[key].ended?.forEach(element =>

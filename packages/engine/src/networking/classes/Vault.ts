@@ -1,7 +1,7 @@
 import { Component } from '../../ecs/classes/Component';
 import { ID, Snapshot } from '../types/SnapshotDataTypes';
 
-/** 
+/**
  * Component class for Snapshot interpolation.\
  * Snapshot is based on this {@link https://github.com/geckosio/snapshot-interpolation | library by yandeu}.
  */
@@ -52,7 +52,7 @@ export class Vault {
 
   /**
    * Add a snapshot to the vault.
-   * @param snapshot Snapshot to be added in vault. 
+   * @param snapshot Snapshot to be added in vault.
    */
   add (snapshot: Snapshot): void {
     if (this.vault.length > this.vaultSize - 1) {
