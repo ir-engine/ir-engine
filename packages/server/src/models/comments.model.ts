@@ -26,11 +26,12 @@ export default function (app: Application): typeof Model {
   });
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  (comments as any).associate = function (models: any): void {
+  (comments as any).associate = (models: any): void => {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
-    (comments as any).belongsTo(models.feed, { foreignKey: 'authorId', allowNull: false });
+    (comments as any).belongsTo(models.user, { foreignKey: 'authorId', allowNull: false });
     (comments as any).belongsTo(models.feed, { foreignKey: 'feedId', allowNull: false });
+    (comments as any).hasMany(models.comments_fires);
   };
 
   return comments;

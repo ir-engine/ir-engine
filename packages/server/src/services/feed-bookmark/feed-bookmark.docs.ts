@@ -1,6 +1,6 @@
 /**
- * An object for swagger documentation configiration 
- * 
+ * An object for swagger documentation configuration
+ *
  * @author Andrii Blashchuk
  */
 export default {
@@ -8,9 +8,6 @@ export default {
         'feed-bookmark': {
             type: 'object',
             properties: {
-                type: {
-                    type: 'string'
-                }
             }
         },
         'feed-bookmark_list': {

@@ -1,9 +1,9 @@
 // Initializes the `feed` service on path `/feed`
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
-import { CommentsFire } from './comments-fire.class';
-import createModel from '../../models/feed.model';
-import hooks from './comments-fire.hooks';
+import { CommentsFire } from './comments-fires.class';
+import createModel from '../../models/comments-fires.model';
+import hooks from './comments-fires.hooks';
 
 // Add this service to the service type index
 declare module '../../declarations' {
@@ -19,10 +19,10 @@ export default function (app: Application): void {
   };
 
   // Initialize our service with any options it requires
-  app.use('/comments-fire.', new CommentsFire(options, app));
+  app.use('/comments-fires', new CommentsFire(options, app));
 
   // Get our initialized service so that we can register hooks
-  const service = app.service('comments-fire.');
+  const service = app.service('comments-fires');
 
   service.hooks(hooks);
 }

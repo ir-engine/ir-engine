@@ -25,7 +25,7 @@ export default function (app: Application): typeof Model {
   (feedFires as any).associate = function (models: any): void {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
-    (feedFires as any).belongsTo(models.feed, { foreignKey: 'authorId', allowNull: false });
+    (feedFires as any).belongsTo(models.user, { foreignKey: 'authorId', allowNull: false });
     (feedFires as any).belongsTo(models.feed, { foreignKey: 'feedId', allowNull: false });
   };
 

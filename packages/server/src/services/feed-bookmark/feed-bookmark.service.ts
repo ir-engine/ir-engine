@@ -2,7 +2,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import { FeedBookmark } from './feed-bookmark.class';
-import createModel from '../../models/feed.model';
+import createModel from '../../models/feed-bookmark.model';
 import hooks from './feed-bookmark.hooks';
 
 // Add this service to the service type index
