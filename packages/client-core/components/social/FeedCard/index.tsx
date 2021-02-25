@@ -16,7 +16,6 @@ import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 import styles from './FeedCard.module.scss';
 
 const FeedCard = (props: Feed) => {
-
     const {id, creator, preview, title, fires, description} = props;
     return  <Card className={styles.tipItem} square={false} elevation={0} key={id} onClick={()=>Router.push('/feed')}>
                 <CardHeader
