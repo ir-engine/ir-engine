@@ -31,8 +31,8 @@ const AssetsPanelToolbarContainer = (styled as any).div`
 `;
 
 /**
- * [AssetPanelToolbarContent ]
- * @type {[type]}
+ * [AssetPanelToolbarContent used to provide styles toolbar content]
+ * @type {Styled component}
  */
 export const AssetPanelToolbarContent = (styled as any)(Row)`
   flex: 1;
@@ -69,30 +69,48 @@ AssetsPanelToolbar.propTypes = {
 };
 
 /**
- * [AssetsPanelColumn description]
- * @param {[type]} styled [description]
+ * [AssetsPanelColumn ]
+ * @type {Styled component}
  */
 const AssetsPanelColumn = (styled as any)(Column)`
   max-width: 175px;
   border-right: 1px solid ${props => props.theme.border};
 `;
 
+/**
+ * [AssetPanelContentContainer container element for asset panel]
+ * @type {Styled component}
+ * */
 export const AssetPanelContentContainer = (styled as any)(Row)`
   flex: 1;
   overflow: hidden;
 `;
 
+/**
+ * [getSources used to get sources out of editor and filter sources on the basis of requiresAuthentication or isAuthenticated]
+ * @param  {Object} editor
+ * @return {[type]}        [description]
+ */
 function getSources(editor) {
   const isAuthenticated = editor.api.isAuthenticated();
   return editor.sources.filter(source => !source.requiresAuthentication || isAuthenticated);
 }
 
+/**
+ * [AssetsPanel used to render view for AssetsPanel]
+ * @constructor
+ */
 export default function AssetsPanel() {
+
+  //initializing editor with EditorContext
   const editor = useContext(EditorContext);
 
+  //initializing sources using getSources from editor
   const [sources, setSources] = useState(
     getSources(editor)
   );
+
+  //initializing selectedSource as the first element of sources array
   const [selectedSource, setSelectedSource] = useState(sources.length > 0 ? sources[0] : null);
   const SourceComponent = selectedSource && selectedSource.component;
 
