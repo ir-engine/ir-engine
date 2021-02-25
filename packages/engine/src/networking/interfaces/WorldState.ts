@@ -117,6 +117,8 @@ export interface WorldStateSnapshot {
 export interface WorldStateInterface {
   /** Current world tick. */
   tick: number
+  /** For interpolation. */
+  time: number
   /** transform of world. */
   transforms: StateEntityGroup
   //snapshot: Snapshot
