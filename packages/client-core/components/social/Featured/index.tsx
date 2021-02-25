@@ -1,23 +1,37 @@
-import React from 'react';
-import { random } from 'lodash';
+import React, { useEffect } from 'react';
+import { connect } from 'react-redux';
+import Router from "next/router";
 
 import CardMedia from '@material-ui/core/CardMedia';
 import Card from '@material-ui/core/Card';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 
 import styles from './Featured.module.scss';
+import { selectFeedsState } from '../../../redux/feed/selector';
+import { bindActionCreators, Dispatch } from 'redux';
+import { getFeeds } from '../../../redux/feed/service';
 
-const Featured = () => { 
-    const data=[];
-    for(let i=0; i<random(150, 5); i++){
-        data.push({ 
-            image :'https://picsum.photos/97/139',
-            viewsCount: random(150)
-        })
-    }
+const mapStateToProps = (state: any): any => {
+    return {
+        feedsState: selectFeedsState(state),
+    };
+  };
+
+  const mapDispatchToProps = (dispatch: Dispatch): any => ({
+    getFeeds: bindActionCreators(getFeeds, dispatch),
+});
+interface Props{
+    feedsState?: any,
+    getFeeds?: any
+}
+
+const Featured = ({feedsState, getFeeds} : Props) => { 
+    let feedsList = null;
+    useEffect(()=> getFeeds('featured'), []);
+    feedsList = feedsState.get('fetching') === false && feedsState?.get('feedsFeatured');
     return <section className={styles.feedContainer}>
-        {data.map((item, itemIndex)=>
-            <Card className={styles.creatorItem} elevation={0} key={itemIndex}>                 
+        {feedsList && feedsList.length > 0  && feedsList.map((item, itemIndex)=>
+            <Card className={styles.creatorItem} elevation={0} key={itemIndex}  onClick={()=>Router.push('/feed')}>                 
                 <CardMedia   
                     className={styles.previewImage}                  
                     image={item.image}
@@ -28,4 +42,4 @@ const Featured = () => {
         </section>
 };
 
-export default Featured;
+export default  connect(mapStateToProps, mapDispatchToProps)(Featured);
