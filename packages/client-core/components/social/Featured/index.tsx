@@ -1,22 +1,31 @@
-import React from 'react';
-import { random } from 'lodash';
+import React, { useEffect } from 'react';
 
 import CardMedia from '@material-ui/core/CardMedia';
 import Card from '@material-ui/core/Card';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 
 import styles from './Featured.module.scss';
+import { connect } from 'react-redux';
+import { selectFeedsState } from '../../../redux/feed/selector';
+import { bindActionCreators, Dispatch } from 'redux';
+import { getFeeds } from '../../../redux/feed/service';
 
-const Featured = () => { 
-    const data=[];
-    for(let i=0; i<random(150, 5); i++){
-        data.push({ 
-            image :'https://picsum.photos/97/139',
-            viewsCount: random(150)
-        })
-    }
+const mapStateToProps = (state: any): any => {
+    return {
+        feedsState: selectFeedsState(state),
+    };
+  };
+
+  const mapDispatchToProps = (dispatch: Dispatch): any => ({
+    getFeeds: bindActionCreators(getFeeds, dispatch),
+});
+
+const Featured = ({feedsState, getFeeds}) => { 
+    let feedsList = null;
+    useEffect(()=> getFeeds('featured'), []);
+    feedsList = feedsState.get('fetching') === false && feedsState?.get('feeds');
     return <section className={styles.feedContainer}>
-        {data.map((item, itemIndex)=>
+        {feedsList && feedsList.map((item, itemIndex)=>
             <Card className={styles.creatorItem} elevation={0} key={itemIndex}>                 
                 <CardMedia   
                     className={styles.previewImage}                  
@@ -28,4 +37,4 @@ const Featured = () => {
         </section>
 };
 
-export default Featured;
+export default  connect(mapStateToProps, mapDispatchToProps)(Featured);
