@@ -24,15 +24,13 @@ const immutableState = Immutable.fromJS(initialState);
 const feedReducer = (state = immutableState, action: FeedsAction): any => {
   let newValues, updateMap, existingFeeds;
 
-  console.log('action', action)
   switch (action.type) {
     case FEEDS_FETCH : return state.set('fetching', true);
     case FEEDS_RETRIEVED:     
       newValues = (action as FeedsRetrievedAction).feeds; 
-      console.log('newValues',newValues)
       return state.set('feeds', newValues).set('fetching', false);
 
-     case FEED_RETRIEVED:
+    case FEED_RETRIEVED:
       newValues = (action as FeedRetrievedAction).feed;
       updateMap = new Map();
       newValues.locationSettings = newValues.location_setting;

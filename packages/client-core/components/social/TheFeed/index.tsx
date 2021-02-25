@@ -24,7 +24,7 @@ const TheFeed = ({feedsState, getFeeds}) => {
     useEffect(()=> getFeeds(), []);
     feedsList = feedsState.get('fetching') === false && feedsState?.get('feeds');
     return <section className={styles.thefeedContainer}>
-            {feedsList && feedsList.map((item, key)=>{console.log('item', item);return (<FeedCard key={key} {...item} />); })}
+            {feedsList && feedsList.map((item, key)=> <FeedCard key={key} {...item} />)}
         </section>
 };
 
