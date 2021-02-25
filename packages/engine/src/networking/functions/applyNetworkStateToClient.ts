@@ -26,6 +26,7 @@ import { BaseInput } from "../../input/enums/BaseInput";
  * @param worldStateBuffer State of the world received over the network.
  * @param delta Time since last frame.
  */
+
 function checkForAnyErrors(networkId) {
   //console.warn('Player: '+Network.instance.userNetworkId);
 //  console.warn('Car: '+networkId);
@@ -149,10 +150,14 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
         }
     }
 
+    //  it looks like if there is one player, we get 2 times a package with a transform.
     if (worldStateBuffer.transforms.length) {
       const myPlayerTime = worldStateBuffer.transforms.find(v => v.networkId == Network.instance.userNetworkId);
       const newServerSnapshot = createSnapshot(worldStateBuffer.transforms)
+      // server correction, time when client send inputs
       newServerSnapshot.timeCorrection = myPlayerTime ? (myPlayerTime.snapShotTime + Network.instance.timeSnaphotCorrection) : 0;
+      // interpolation, time when server send transforms
+      newServerSnapshot.time = worldStateBuffer.time;
       Network.instance.snapshot = newServerSnapshot;
       addSnapshot(newServerSnapshot);
     }

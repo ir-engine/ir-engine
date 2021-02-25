@@ -4,7 +4,6 @@ import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
 import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
 import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 import { CameraSystem } from './camera/systems/CameraSystem';
-import { IKTimer } from './common/functions/IKTimer';
 import { isClient } from './common/functions/isClient';
 import { Timer } from './common/functions/Timer';
 import { DebugHelpersSystem } from './debug/systems/DebugHelpersSystem';
@@ -50,10 +49,10 @@ export const DefaultInitializationOptions = {
 
 export function initializeEngine(initOptions: any = DefaultInitializationOptions): void {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
-  
+
   // Create a new world -- this holds all of our simulation state, entities, etc
   initialize();
-  
+
   // Create a new three.js scene
   const scene = new Scene();
 
@@ -66,7 +65,7 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
     (window as any).iOS = !window.MSStream && /iPad|iPhone|iPod/.test(navigator.userAgent);
     (window as any).safariWebBrowser = !window.MSStream && /Safari/.test(navigator.userAgent);
   }
-  
+
   // Networking
   const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
   if (isClient) {
@@ -100,13 +99,13 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
     // Add the camera to the three.js scene
     scene.add(camera);
 
-    const listener = new AudioListener();
-    camera.add( listener);
+  //  const listener = new AudioListener();
+  //  camera.add( listener);
 
-    Engine.audioListener = listener;
+  //  Engine.audioListener = listener;
 
     registerSystem(HighlightSystem);
-    registerSystem(PositionalAudioSystem);
+  //  registerSystem(PositionalAudioSystem);
     registerSystem(InteractiveSystem);
     registerSystem(ParticleSystem);
     if (process.env.NODE_ENV === 'development') {
@@ -120,13 +119,6 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
   // Start our timer!
   Engine.engineTimerTimeout = setTimeout(() => {
     Engine.engineTimer = Timer(
-      {
-        networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
-        fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
-        update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
-      }, Engine.physicsFrameRate, Engine.networkFramerate).start();
-    
-    Engine.engineTimer = IKTimer(
       {
         networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
         fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),

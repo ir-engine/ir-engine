@@ -47,9 +47,6 @@ export class ServerNetworkOutgoingSystem extends System {
         qW: transformComponent.rotation.w
       });
     });
-    if(Network.instance.worldState.editObjects.length) {
-      console.warn(Network.instance.worldState.editObjects);
-    }
 
     if (
       Network.instance.worldState.clientsConnected.length ||
@@ -60,21 +57,17 @@ export class ServerNetworkOutgoingSystem extends System {
     ) {
       const bufferReliable = WorldStateModel.toBuffer(Network.instance.worldState, 'Reliable');
       Network.instance.transport.sendReliableData(bufferReliable);
-      const bufferUnReliable = WorldStateModel.toBuffer(Network.instance.worldState, 'UnReliable');
-      //console.warn(bufferUnReliable.byteLength);
-      try {
-        Network.instance.transport.sendData(bufferUnReliable);
-      } catch (error) {
-        console.warn("Couldn't send data: ", error)
-      }
-    } else {
-      const bufferUnReliable = WorldStateModel.toBuffer(Network.instance.worldState, 'UnReliable');
-      try {
-        Network.instance.transport.sendData(bufferUnReliable);
-      } catch (error) {
-        console.warn("Couldn't send data: ", error)
-      }
+      //console.log(bufferReliable.byteLength);
     }
+
+    const bufferUnReliable = WorldStateModel.toBuffer(Network.instance.worldState, 'UnReliable');
+    //console.log(bufferUnReliable.byteLength);
+    try {
+      Network.instance.transport.sendData(bufferUnReliable);
+    } catch (error) {
+      console.warn("Couldn't send data: ", error)
+    }
+
   }
 
   /** System queries. */

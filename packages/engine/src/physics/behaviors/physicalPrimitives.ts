@@ -42,25 +42,25 @@ export function createGround (entity: Entity) {
 }
 
 export function createBox (entity: Entity) {
-  const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
+  const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
   const transformComponent = getComponent<TransformComponent>(entity, TransformComponent);
 
   const shape = new Box( new Vec3(
-      colliderComponent.scale.x,
-      colliderComponent.scale.y,
-      colliderComponent.scale.z
+      collider.scale.x,
+      collider.scale.y,
+      collider.scale.z
     )
   );
   const body = new Body({
-    mass: colliderComponent.mass,
+    mass: collider.mass,
   });
 
   // Set position
-  if (colliderComponent.position) {
+  if (collider.position) {
     body.position.set(
-      colliderComponent.position.x,
-      colliderComponent.position.y,
-      colliderComponent.position.z
+      collider.position.x,
+      collider.position.y,
+      collider.position.z
     );
   } else {
     body.position.set(
@@ -72,12 +72,12 @@ export function createBox (entity: Entity) {
 
   // Set Rotation
 
-  if (colliderComponent.quaternion) {
+  if (collider.quaternion) {
     body.quaternion.set(
-      colliderComponent.quaternion.x,
-      colliderComponent.quaternion.y,
-      colliderComponent.quaternion.z,
-      colliderComponent.quaternion.w
+      collider.quaternion.x,
+      collider.quaternion.y,
+      collider.quaternion.z,
+      collider.quaternion.w
     );
   }
 
@@ -86,17 +86,44 @@ export function createBox (entity: Entity) {
 }
 
 export function createCylinder (entity: Entity) {
-  const rigidBody = getComponent<ColliderComponent>(entity, ColliderComponent);
-  const transform = getComponent<TransformComponent>(entity, TransformComponent);
-
-  const cylinderShape = new Cylinder(rigidBody.scale[0], rigidBody.scale[1], rigidBody.scale[2], 20);
+  const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
+  const transformComponent = getComponent<TransformComponent>(entity, TransformComponent);
+  const shape = new Cylinder(
+    collider.scale.x, //radiusTop
+    collider.scale.y, //radiusBottom
+    collider.scale.z*2, //height
+    20 //numSegments
+  );
   const body = new Body({
-    mass: rigidBody.mass,
-    position: new Vec3(transform.position[0], transform.position[1], transform.position[2])
+    mass: collider.mass,
   });
-  const q = new Quaternion();
-  q.setFromAxisAngle(new Vec3(1, 0, 0), -Math.PI / 2);
-  body.addShape(cylinderShape, new Vec3(), q);
+
+  body.addShape(shape);
+  // Set position
+  if (collider.position) {
+    body.position.set(
+      collider.position.x,
+      collider.position.y,
+      collider.position.z
+    );
+  } else {
+    body.position.set(
+      collider.position.x,
+      collider.position.y,
+      collider.position.z
+    );
+  }
+
+  // Set Rotation
+
+  if (collider.quaternion) {
+    body.quaternion.set(
+      collider.quaternion.x,
+      collider.quaternion.y,
+      collider.quaternion.z,
+      collider.quaternion.w
+    );
+  }
   return body;
 }
 

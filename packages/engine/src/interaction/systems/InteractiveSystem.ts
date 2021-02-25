@@ -33,12 +33,14 @@ export const interactOnServer: Behavior = (entity: Entity, args: any, delta): vo
       if (hasComponent(isEntityInteractable, Interactable)) {
         const interactive = getComponent(isEntityInteractable, Interactable);
         const intPosition = getComponent(isEntityInteractable, TransformComponent).position;
+        const intRotation = getComponent(isEntityInteractable, TransformComponent).rotation;
         const position = getComponent(entity, TransformComponent).position;
 
         if (interactive.interactionPartsPosition.length > 0) {
           interactive.interactionPartsPosition.forEach((v,i) => {
-            if (position.distanceTo(new Vector3(...v).add(intPosition)) < 3) {
-              focusedArrays.push([isEntityInteractable, position.distanceTo(new Vector3(...v).add(intPosition)), i])
+            const partPosition = new Vector3(...v).applyQuaternion(intRotation).add(intPosition);
+            if (position.distanceTo(partPosition) < 3) {
+              focusedArrays.push([isEntityInteractable, position.distanceTo(partPosition), i])
             }
           })
         } else {
@@ -54,7 +56,7 @@ export const interactOnServer: Behavior = (entity: Entity, args: any, delta): vo
 
     const interactable = getComponent(focusedArrays[0][0], Interactable);
 
-  //  console.warn('found networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
+  //console.warn('found networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
 
     if (interactable.onInteractionCheck(entity, focusedArrays[0][0], focusedArrays[0][2])) {
     //  console.warn('start with networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
