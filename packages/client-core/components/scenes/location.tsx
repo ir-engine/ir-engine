@@ -45,7 +45,6 @@ import NamePlate from '../ui/NamePlate';
 import NetworkDebug from '../ui/NetworkDebug/NetworkDebug';
 import { OpenLink } from '../ui/OpenLink';
 import TooltipContainer from '../ui/TooltipContainer';
-import MetaTags from 'react-meta-tags'
 
 const goHome = () => window.location.href = window.location.origin;
 

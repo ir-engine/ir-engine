@@ -7,12 +7,18 @@ import { Entity } from "../../ecs/classes/Entity";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { BoundingBox } from "../../interaction/components/BoundingBox";
 import { Object3DComponent } from "../../scene/components/Object3DComponent";
+import { CannonDebugRenderer} from './CannonDebugRenderer';
+import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 
 export class DebugHelpersSystem extends System {
   private helpersByEntity: Record<string, Map<Entity,Object3D>>;
+  physicsDebugRenderer: CannonDebugRenderer;
+  static instance: DebugHelpersSystem;
 
   constructor() {
     super();
+    DebugHelpersSystem.instance = this;
+    this.physicsDebugRenderer = new CannonDebugRenderer(Engine.scene, PhysicsSystem.physicsWorld)
 
     this.helpersByEntity = {
       "viewVector": new Map(),
@@ -92,6 +98,7 @@ export class DebugHelpersSystem extends System {
         Engine.scene.add(helper);
       }
     });
+    this.physicsDebugRenderer.update()
   }
 }
 
