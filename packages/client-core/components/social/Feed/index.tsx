@@ -20,7 +20,11 @@ const mapStateToProps = (state: any): any => {
     getFeed: bindActionCreators(getFeed, dispatch),
 });
 
-const Feed = ({feedsState, getFeed}) => { 
+interface Props{
+    feedsState?: any,
+    getFeed?: any
+}
+const Feed = ({feedsState, getFeed} : Props) => { 
     let feed = null;
     useEffect(()=> getFeed(random(50)), []);
     feed = feedsState.get('fetching') === false && feedsState?.get('feed'); 
