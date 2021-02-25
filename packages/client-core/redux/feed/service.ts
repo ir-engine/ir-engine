@@ -14,7 +14,6 @@ export function getFeeds(type : string, limit?: number) {
     try {
       dispatch(fetchingFeeds());
       const feedsResults = [];
-      console.log('type',type)
       if(type && type === 'featured'){
         for(let i=0; i<51; i++){
             feedsResults.push({ 
@@ -59,9 +58,25 @@ export function getFeed(feedId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       dispatch(fetchingFeeds());
+          const feed ={ 
+            id: feedId,
+            creator:{
+                id:'185',
+                avatar :'https://picsum.photos/40/40',
+                username: 'User username',
+                name: '@username',
+                userId: 'userId',
+                verified: true,
+            },
+            preview:'https://picsum.photos/375/210',
+            video:null,
+            title: 'Featured Artist Post',
+            fires: random(15000),
+            stores: random(150),
+            viewsCount:  random(15000),
+            description: 'I recently understood the words of my friend Jacob West about music.'
+        } 
       // const feed = await client.service('feed').get(feedId);
-      // console.log('getFeed feed:');
-      // console.log(feed);
       dispatch(feedRetrieved(feed));
     } catch(err) {
       console.log(err);

@@ -12,5 +12,5 @@ export interface Feed extends FeedShord {
   fires: number,  
   stores: number,  
   title: string,
-  description: Text,
+  description: string,
 }

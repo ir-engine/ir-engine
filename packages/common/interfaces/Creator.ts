@@ -3,8 +3,8 @@ export interface CreatorShort {
   id: string,
   userId: string,
   avatar: string,
-  name: number,  
-  username: number,  
+  name: string,  
+  username: string,  
   verified : boolean,
 }
 
@@ -13,5 +13,5 @@ export interface Creator extends CreatorShort{
   link: string
   background: string,
   tags: string,
-  bio: Text,
+  bio: string,
 }
