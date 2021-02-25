@@ -59,6 +59,11 @@ export class PhysicsSystem extends System {
   static physicsWorld: World
   static simulate: boolean
   static serverOnlyRigidBodyCollides: boolean
+
+  freezeTimes: number = 0
+  clientSnapshotFreezeTime: number = 0
+  serverSnapshotFreezeTime: number = 0
+
   groundMaterial = new Material('groundMaterial')
   wheelMaterial = new Material('wheelMaterial')
   trimMeshMaterial = new Material('trimMeshMaterial')
@@ -125,12 +130,23 @@ export class PhysicsSystem extends System {
     const clientSnapshot = {
       old: null,
       new: [],
-      interpolationSnapshot: calculateInterpolation('x y z quat'),
-      correction: 180 //speed correction client form server positions
+      interpolationSnapshot: isClient ? calculateInterpolation('x y z quat'):'',
+      correction: 180//NetworkInterpolation.instance.timeOffset // //speed correction client form server positions
     }
 
     if (isClient && Network.instance.snapshot) {
-      clientSnapshot.old = Vault.instance?.get((Network.instance.snapshot as any).timeCorrection - 15, true)
+      clientSnapshot.old = Vault.instance?.get((Network.instance.snapshot as any).timeCorrection, true);
+      if (clientSnapshot.old) {
+        if (this.clientSnapshotFreezeTime == clientSnapshot.old.time && this.serverSnapshotFreezeTime == Network.instance.snapshot.timeCorrection && this.freezeTimes > 3) {
+          clientSnapshot.old = null;
+        } else if (this.clientSnapshotFreezeTime == clientSnapshot.old.time && this.serverSnapshotFreezeTime == Network.instance.snapshot.timeCorrection) {
+          this.freezeTimes+=1;
+        } else {
+          this.freezeTimes = 0;
+          this.clientSnapshotFreezeTime = clientSnapshot.old.time;
+          this.serverSnapshotFreezeTime = Network.instance.snapshot.timeCorrection;
+        }
+      }
     }
 
     // Collider
@@ -172,6 +188,7 @@ export class PhysicsSystem extends System {
 
     this.queryResults.vehicleBody.all?.forEach(entityCar => {
       const networkCarId = getComponent(entityCar, NetworkObject).networkId;
+      VehicleBehavior(entityCar, { phase: 'onUpdate', clientSnapshot });
 
         this.queryResults.playerInCar.added?.forEach(entity => {
           const component = getComponent(entity, PlayerInCar);
@@ -196,16 +213,23 @@ export class PhysicsSystem extends System {
         });
 
         this.queryResults.playerInCar.removed?.forEach(entity => {
-          if(!hasComponent(entity, NetworkObject)) return;
-          const networkPlayerId = getComponent(entity, NetworkObject).networkId;
+          let networkPlayerId
           const vehicle = getComponent(entityCar, VehicleBody);
+          if(!hasComponent(entity, NetworkObject)) {
+            for (let i = 0; i < vehicle.seatPlane.length; i++) {
+              if (vehicle[vehicle.seatPlane[i]] != null && !Network.instance.networkObjects[vehicle[vehicle.seatPlane[i]]]) {
+                networkPlayerId = vehicle[vehicle.seatPlane[i]];
+              }
+            }
+          } else {
+            networkPlayerId = getComponent(entity, NetworkObject).networkId;
+          }
           for (let i = 0; i < vehicle.seatPlane.length; i++) {
             if (networkPlayerId == vehicle[vehicle.seatPlane[i]]) {
               onRemovedFromCar(entity, entityCar, i, this.diffSpeed);
             }
           }
         });
-      VehicleBehavior(entityCar, { phase: 'onUpdate', clientSnapshot });
     });
 
     this.queryResults.vehicleBody.removed?.forEach(entity => {
@@ -445,6 +469,9 @@ const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime) => {
   if (actor.mixer) {
     actor.mixer.update(deltaTime);
   }
+
+  const body = actor.actorCapsule.body;
+	if(body.world == null) return;
 
   if (isClient && Engine.camera && hasComponent(entity, LocalInputReceiver)) {
     actor.viewVector = new Vector3(0, 0, -1).applyQuaternion(Engine.camera.quaternion);

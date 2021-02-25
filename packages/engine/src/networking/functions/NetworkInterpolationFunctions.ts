@@ -3,6 +3,7 @@ import { randomId } from '../../common/functions/MathRandomFunctions';
 import { Quat } from '../../networking/types/SnapshotDataTypes';
 import { InterpolatedSnapshot, Snapshot, StateEntityGroup, StateEntity, Time, Value } from '../types/SnapshotDataTypes';
 import { NetworkInterpolation } from '../classes/NetworkInterpolation';
+import { Network } from '../classes/Network';
 
 /** Get snapshot factory. */
 export function snapshot(): any {
@@ -13,7 +14,6 @@ export function snapshot(): any {
     add: (snapshot: Snapshot): void => addSnapshot(snapshot)
   };
 }
-
 
 /**
  * Create a new Snapshot.
@@ -34,8 +34,6 @@ export function createSnapshot (state: StateEntityGroup): Snapshot {
 
   check(state);
 
-
-
   return {
     id: randomId(),
     time: Date.now(),
@@ -49,14 +47,26 @@ export function createSnapshot (state: StateEntityGroup): Snapshot {
  * @param snapshot Snapshot to be added into the vault.
  */
 export function addSnapshot (snapshot: Snapshot): void {
-  if (NetworkInterpolation.instance.timeOffset === -1) {
-    // the time offset between server and client is calculated,
-    // by subtracting the current client date from the server time of the
-    // first snapshot
-    NetworkInterpolation.instance.timeOffset = Date.now() - snapshot.time;
+//  let checkT = NetworkInterpolation.instance.checkCount;
+  // the time offset between server and client is calculated,
+  // by subtracting the current client date from the server time of the
+  // first snapshot
+  if( NetworkInterpolation.instance.checkCount != snapshot.time ) {
+    let io = Date.now() - snapshot.time;
+    let tr = io%NetworkInterpolation.instance._interpolationBuffer;
+    if (io - tr > NetworkInterpolation.instance.timeOffset) {
+      NetworkInterpolation.instance.timeOffset = io - tr;
+      NetworkInterpolation.instance.checkDelay = 0;
+    } else if (NetworkInterpolation.instance.checkDelay > 500) {
+      NetworkInterpolation.instance.timeOffset = io - tr;
+      NetworkInterpolation.instance.checkDelay = 0;
+    } else {
+      NetworkInterpolation.instance.checkDelay += 1;
+    }
+    NetworkInterpolation.instance.checkCount = snapshot.time;
+    NetworkInterpolation.instance.add(snapshot);
   }
-
-  NetworkInterpolation.instance.add(snapshot);
+//  console.warn(NetworkInterpolation.instance.timeOffset+' '+(Date.now() - snapshot.time));
 }
 
 /**
@@ -181,12 +191,20 @@ export function interpolate (
  */
 export function calculateInterpolation (parameters: string, arrayName = ''): InterpolatedSnapshot | undefined {
   // get the snapshots [_interpolationBuffer] ago
-  const serverTime = Date.now() - NetworkInterpolation.instance.timeOffset - NetworkInterpolation.instance._interpolationBuffer;
+  let serverTime = (Date.now() - NetworkInterpolation.instance.timeOffset) - NetworkInterpolation.instance._interpolationBuffer;
+  // protection from going back in time during a ping jump
+//  serverTime < NetworkInterpolation.instance.serverTimePrev ? serverTime = NetworkInterpolation.instance.serverTimePrev:'';
+  //console.warn(Date.now() - serverTime);
+  // find snapshots between which our time goes
   const shots = NetworkInterpolation.instance.get(serverTime);
-  if (!shots) return;
-
+  if (!shots) {
+    console.warn('shots return');
+    return;
+  }
   const { older, newer } = shots;
   if (!older || !newer) return;
+  // we record the time of the snapshots that we managed to get
 
+  //NetworkInterpolation.instance.serverTimePrev = serverTime;
   return interpolate(newer, older, serverTime, parameters, arrayName);
 }
