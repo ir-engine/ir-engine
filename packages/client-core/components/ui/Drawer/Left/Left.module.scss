@@ -83,11 +83,6 @@
 .details-container {
     @include flex-collapse;
 
-    .backButton {
-        width: 40px;
-        background-color: rgba(206, 206, 206, 0.1);
-    }
-
     .deleteConfirm {
         display: flex;
 
@@ -121,4 +116,9 @@
     .marginRight5px {
         margin-right: 5px;
     }
+}
+
+.backButton {
+    width: 40px !important;
+    background-color: rgba(206, 206, 206, 0.1);
 }

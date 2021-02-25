@@ -608,7 +608,13 @@ const LeftDrawer = (props: Props): any => {
                         </div>
                     </div>
                     }
-                    {groupFormOpen === false && detailsType === 'party' && <div>
+                    {groupFormOpen === false && detailsType === 'party' && <div className={styles['details-container'] }>
+                        <div className={styles.header}>
+                            <Button className={styles.backButton} onClick={closeDetails}>
+                                <ArrowLeft/>
+                            </Button>
+                            <Divider/>
+                        </div>
                         {party == null &&
                         <div>
                             <div className={styles.title}>You are not currently in a party</div>
@@ -731,7 +737,7 @@ const LeftDrawer = (props: Props): any => {
                                                             color="primary"
                                                             onClick={(e) => confirmTransferPartyOwner(e, partyUser.id)}
                                                     >
-                                                        Confirm Transfer
+                                                        Confirm
                                                     </Button>
                                                     <Button variant="contained"
                                                             color="secondary"
@@ -746,16 +752,16 @@ const LeftDrawer = (props: Props): any => {
                                                 partyUserDeletePending !== partyUser.id &&
                                                 (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
                                                 user.id !== partyUser.userId &&
-                                                <div>
-                                                    <Button
-                                                        onClick={(e) => showPartyUserDeleteConfirm(e, partyUser.id)}>
-                                                        <Delete/>
-                                                    </Button>
-                                                </div>
+                                                <Button
+                                                    className={styles.groupUserDeleteInit}
+                                                    onClick={(e) => showPartyUserDeleteConfirm(e, partyUser.id)}>
+                                                    <Delete/>
+                                                </Button>
                                             }
                                             {partyUserDeletePending !== partyUser.id && user.id === partyUser.userId &&
                                             <div>
                                                 <Button
+                                                    className={styles.groupUserDeleteInit}
                                                     onClick={(e) => showPartyUserDeleteConfirm(e, partyUser.id)}>
                                                     <Delete/>
                                                 </Button>
