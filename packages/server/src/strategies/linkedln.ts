@@ -38,11 +38,12 @@ export default class LinkedlnStrategy extends CustomOAuthStrategy {
 
     async getRedirect (data: any, params?: Params): Promise<string> {
         const redirectHost = config.authentication.callback.linkedin
-    
+        console.log(params);
+        
         const type = (params?.query?.userId) ? 'connection' : 'login';
+        
         if (Object.getPrototypeOf(data) === Error.prototype) {
           const err = data.message as string;
-          console.log(Object.getPrototypeOf(data));
           
           return redirectHost + `?error=${err}`;
         } else {

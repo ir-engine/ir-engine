@@ -38,6 +38,8 @@ export default class Googlestrategy extends CustomOAuthStrategy {
   async getRedirect (data: any, params?: Params): Promise<string> {
     const redirectHost = config.authentication.callback.google;
 
+    console.log(data);
+    
     const type = (params?.query?.userId) ? 'connection' : 'login';
     if (Object.getPrototypeOf(data) === Error.prototype) {
       const err = data.message as string;
