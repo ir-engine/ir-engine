@@ -492,7 +492,7 @@ public class ARActivity extends Fragment implements SampleRender.Renderer {
         if (message == null) {
 
         } else {
-            Log.d(TAG, message);
+//            Log.d(TAG, message);
         }
 
         // -- Draw background
