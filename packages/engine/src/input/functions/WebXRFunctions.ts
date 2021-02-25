@@ -76,6 +76,7 @@ export function initControllersVR(actorEntity) {
   })
 }
 
+
 let entity;
 
 export function initVR(actorEntity) {

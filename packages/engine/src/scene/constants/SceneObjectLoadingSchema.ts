@@ -84,7 +84,7 @@ const parseCarModel: Behavior = (entity: Entity, groupMeshes: any) => {
     // parse meshes to functionality parts of car
     switch (mesh.name) {
       case 'body':
-        argsToVehicle.vehicleMesh = mesh;
+        isClient ? argsToVehicle.vehicleMesh = mesh:'';
         // @ts-ignore
         mesh.userData.mass != undefined ? argsToVehicle.mass = parseFloat(mesh.userData.mass) : '';
         break;
