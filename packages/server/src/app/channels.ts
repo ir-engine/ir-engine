@@ -46,6 +46,9 @@ export default (app: Application): void => {
                         const agonesSDK = (app as any).agonesSDK;
                         const gsResult = await agonesSDK.getGameServer();
                         const {status} = gsResult;
+                        console.log('Creating new GS or updating current one');
+                        console.log(status.state);
+                        console.log((app as any).instance);
                         if (status.state === 'Ready' || ((process.env.NODE_ENV === 'development' && status.state === 'Shutdown') || (app as any).instance == null)) {
                             logger.info('Starting new instance');
                             const localIp = await getLocalServerIp();

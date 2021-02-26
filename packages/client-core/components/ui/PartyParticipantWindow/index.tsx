@@ -123,8 +123,9 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     }, [isCamAudioEnabled]);
 
     useEffect(() => {
-        if (typeof (Network.instance?.transport as any)?.socket?.on === 'function') {
-            (Network.instance?.transport as any)?.socket?.on(MessageTypes.WebRTCPauseConsumer.toString(), (consumerId: string) => {
+        const socket = (Network.instance?.transport as any)?.channelType === 'instance' ? (Network.instance?.transport as any)?.instanceSocket : (Network.instance?.transport as any)?.channelSocket;
+        if (typeof socket?.on === 'function') {
+           socket?.on(MessageTypes.WebRTCPauseConsumer.toString(), (consumerId: string) => {
                 if (consumerId === videoStream?.id) {
                     setVideoProducerPaused(true);
                 } else if (consumerId === audioStream?.id) {
@@ -132,7 +133,8 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
                 }
             });
 
-            (Network.instance?.transport as any)?.socket?.on(MessageTypes.WebRTCResumeConsumer.toString(), (consumerId: string) => {
+            socket?.on(MessageTypes.WebRTCResumeConsumer.toString(), (consumerId: string) => {
+                console.log('ResumeConsumer message for', consumerId);
                 if (consumerId === videoStream?.id) {
                     setVideoProducerPaused(false);
                 } else if (consumerId === audioStream?.id) {
@@ -140,7 +142,8 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
                 }
             });
 
-            (Network.instance?.transport as any)?.socket?.on(MessageTypes.WebRTCPauseProducer.toString(), (producerId: string, globalMute: boolean) => {
+            socket?.on(MessageTypes.WebRTCPauseProducer.toString(), (producerId: string, globalMute: boolean) => {
+                console.log('PauseProducer message for ', producerId);
                 if (producerId === videoStream?.id && globalMute === true) {
                     setVideoProducerPaused(true);
                     setVideoProducerGlobalMute(true);
@@ -150,7 +153,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
                 }
             });
 
-            (Network.instance?.transport as any)?.socket?.on(MessageTypes.WebRTCResumeProducer.toString(), (producerId: string) => {
+            socket?.on(MessageTypes.WebRTCResumeProducer.toString(), (producerId: string) => {
                 if (producerId === videoStream?.id) {
                     setVideoProducerPaused(false);
                     setVideoProducerGlobalMute(false);
@@ -271,7 +274,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
         } else {
             if (audioStream.paused === false) await pauseConsumer(audioStream);
             else await resumeConsumer(audioStream);
-            updateCamAudioState();            
+            updateCamAudioState();
         }
     };
 

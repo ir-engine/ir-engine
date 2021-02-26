@@ -75,6 +75,7 @@ export function connectToChannelServer(channelId: string) {
         token: token,
         sceneId: sceneId,
         startVideo: videoActive,
+        channelType: 'channel',
         channelId: channelId,
         videoEnabled: currentLocation?.locationSettings?.videoEnabled === true || !(currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null)
       });

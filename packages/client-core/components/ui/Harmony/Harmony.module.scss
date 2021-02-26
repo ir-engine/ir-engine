@@ -448,10 +448,12 @@ $mobileControllButtonsSize: 3em;
 
          &.partyButton {
              display: flex;
+             align-items: center;
          }
 
          &.instanceButton {
              display: flex;
+             align-items: center;
          }
      }
 }

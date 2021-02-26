@@ -319,6 +319,7 @@ export function resetProducer(): void {
 }
 
 export function setRelationship(channelType: string, channelId: string): void {
+    console.log('Setting network transport channel type and ID to', channelType, channelId)
     networkTransport = Network.instance.transport as any;
     networkTransport.channelType = channelType;
     networkTransport.channelId = channelId;
