@@ -1,30 +1,31 @@
 import React, { useRef, useState } from 'react';
 import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
+// import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import Container from '@material-ui/core/Container';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { registerUserByEmail } from '../../../redux/auth/service';
 import styles from './Auth.module.scss';
-import { showDialog } from '../../../redux/dialog/service';
+// import { showDialog } from '../../../redux/dialog/service';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import { Visibility, VisibilityOff } from '@material-ui/icons';
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  registerUserByEmail: bindActionCreators(registerUserByEmail, dispatch),
-  showDialog: bindActionCreators(showDialog, dispatch)
-});
+const mapDispatchToProps = (dispatch: Dispatch): any => {
+  return ({
+    registerUserByEmail: bindActionCreators(registerUserByEmail, dispatch),
+  })
+};
 
 interface Props {
   registerUserByEmail: typeof registerUserByEmail;
-  showDialog: typeof showDialog;
 }
 
 const SignUp = (props: Props): any => {
-  const { registerUserByEmail, showDialog } = props;
+  const { registerUserByEmail } = props;
+
   const initialState = {
     email: '',
     password: '',
@@ -38,6 +39,10 @@ const SignUp = (props: Props): any => {
 
   const handleRegister = (e: any): void => {
     e.preventDefault();
+    console.log('handleRegister', {
+      email: state.email,
+      password: state.password
+    })
     registerUserByEmail({
       email: state.email,
       password: state.password
@@ -155,4 +160,4 @@ const SignUp = (props: Props): any => {
 
 const SignUpWrapper = (props: any): any => <SignUp {...props} />;
 
-export default connect(mapDispatchToProps)(SignUpWrapper);
+export default connect(null, mapDispatchToProps)(SignUpWrapper);
