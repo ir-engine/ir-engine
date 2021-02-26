@@ -68,12 +68,12 @@ function AssetGridItem({ contextMenuId, tooltipComponent, disableTooltip, item, 
     );
   } else {
     //setting content as ImageMediaGridItem if all above cases are false
+    // @ts-ignore
     content = <ImageMediaGridItem onClick={onClickItem} label={item.label} {...rest} />;
   }
 
   if (item.type === ItemTypes.Audio) {
     //setting content as AudioPreview component if item type is audio
-    // @ts-ignore
     content = <AudioPreview src={item.url}>{content}</AudioPreview>;
   }
 
