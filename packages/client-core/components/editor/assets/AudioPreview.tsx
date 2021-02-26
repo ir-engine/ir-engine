@@ -4,6 +4,12 @@ import useHover from "../hooks/useHover";
 
 const AudioPreviewContext = createContext(new Audio());
 
+/**
+ * [AudioPreview description]
+ * @param       {[type]} src      [description]
+ * @param       {[type]} children [description]
+ * @constructor
+ */
 export default function AudioPreview({ src, children }) {
   const audio = useContext(AudioPreviewContext);
   const [hoverRef, isHovered] = useHover();
