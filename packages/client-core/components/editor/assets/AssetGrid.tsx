@@ -73,6 +73,7 @@ function AssetGridItem({ contextMenuId, tooltipComponent, disableTooltip, item, 
 
   if (item.type === ItemTypes.Audio) {
     //setting content as AudioPreview component if item type is audio
+    // @ts-ignore
     content = <AudioPreview src={item.url}>{content}</AudioPreview>;
   }
 
