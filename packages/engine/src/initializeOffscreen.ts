@@ -28,7 +28,6 @@ import { CharacterInputSchema } from './templates/character/CharacterInputSchema
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
-import { EngineProxy } from './EngineProxy'
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -48,10 +47,8 @@ export const DefaultInitializationOptions = {
   },
 };
 
-export async function initializeEngine(initOptions: any = DefaultInitializationOptions): Promise<EngineProxy> {
+export function initializeEngineOffscreen(initOptions: any = DefaultInitializationOptions): void {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
-
-  const engineProxy = new EngineProxy();
 
   // Create a new world -- this holds all of our simulation state, entities, etc
   initialize();
@@ -93,15 +90,22 @@ export async function initializeEngine(initOptions: any = DefaultInitializationO
 
   registerSystem(TransformSystem, { priority: 900 });
 
+  //Object HighlightSystem
   if (isClient) {
-    Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.3, 750);
-    Engine.scene.add(Engine.camera);
+    // Create a new camera
+    const camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.3, 750);
+    // Add the camera to the camera manager so it's available anywhere
+    Engine.camera = camera;
+    // Add the camera to the three.js scene
+    scene.add(camera);
+
+  //  const listener = new AudioListener();
+  //  camera.add( listener);
+
+  //  Engine.audioListener = listener;
+
     registerSystem(HighlightSystem);
-
-    // Engine.audioListener = new AudioListener();
-    // Engine.camera.add(Engine.audioListener);
-    // registerSystem(PositionalAudioSystem);
-
+  //  registerSystem(PositionalAudioSystem);
     registerSystem(InteractiveSystem);
     registerSystem(ParticleSystem);
     if (process.env.NODE_ENV === 'development') {
@@ -121,6 +125,4 @@ export async function initializeEngine(initOptions: any = DefaultInitializationO
         update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
       }, Engine.physicsFrameRate, Engine.networkFramerate).start();
   }, 1000);
-
-  return engineProxy;
 }
