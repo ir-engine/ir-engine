@@ -15,6 +15,7 @@ export function getFeeds(type : string, limit?: number) {
       dispatch(fetchingFeeds());
       const feedsResults = [];
       if(type && type === 'featured'){
+        // const feedsResults = await client.service('feed').find({query: {action: 'featured'}});
         for(let i=0; i<51; i++){
             feedsResults.push({ 
                 id: i, 
@@ -24,6 +25,7 @@ export function getFeeds(type : string, limit?: number) {
         }
         dispatch(feedsFeaturedRetrieved(feedsResults));
       }else{
+        // const feedsResults = await client.service('feed').find({query: {action: 'thefeed'}});
         for(let i=0; i<20; i++){
           feedsResults.push({ 
                 id: i,
@@ -34,19 +36,14 @@ export function getFeeds(type : string, limit?: number) {
                 },
                 preview:'https://picsum.photos/375/210',
                 video:null,
+                featurend: false,
                 title: 'Featured Artist Post',
                 fires: random(2000),
                 description: 'I recently understood the words of my friend Jacob West about music.'
             })
         }   
         dispatch(feedsRetrieved(feedsResults));
-      }
-      //  await client.service('feed').find({
-      //   query: {
-      //     $limit: limit != null ? limit : getState().get('feed').get('limit'),
-      //     $skip: skip != null ? skip : getState().get('feed').get('skip')
-      //   }
-      // });
+      }      
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
@@ -58,6 +55,7 @@ export function getFeed(feedId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       dispatch(fetchingFeeds());
+        // const feedsResults = await client.service('feed').find({query: {action: 'feed', id: feedId}});
           const feed ={ 
             id: feedId,
             creator:{
@@ -76,7 +74,6 @@ export function getFeed(feedId: string) {
             viewsCount:  random(15000),
             description: 'I recently understood the words of my friend Jacob West about music.'
         } 
-      // const feed = await client.service('feed').get(feedId);
       dispatch(feedRetrieved(feed));
     } catch(err) {
       console.log(err);
