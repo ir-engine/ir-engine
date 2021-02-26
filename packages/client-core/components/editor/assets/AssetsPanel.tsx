@@ -115,10 +115,13 @@ export default function AssetsPanel() {
   const SourceComponent = selectedSource && selectedSource.component;
 
   useEffect(() => {
+
+    // function to set selected sources
     const onSetSource = sourceId => {
       setSelectedSource(sources.find(s => s.id === sourceId));
     };
 
+   //function to handle changes in authentication
     const onAuthChanged = () => {
       const nextSources = getSources(editor);
       setSources(nextSources);
@@ -128,23 +131,28 @@ export default function AssetsPanel() {
       }
     };
 
+    // function to handle changes in authentication
     const onSettingsChanged = () => {
       const nextSources = getSources(editor);
       setSources(nextSources);
     };
 
+    //adding listeners to editor component
     editor.addListener("settingsChanged", onSettingsChanged);
     editor.addListener("setSource", onSetSource);
     editor.api.addListener("authentication-changed", onAuthChanged);
 
+    //removing listeners from editor component
     return () => {
       editor.removeListener("setSource", onSetSource);
       editor.api.removeListener("authentication-changed", onAuthChanged);
     };
   }, [editor, setSelectedSource, sources, setSources, selectedSource]);
 
+  //initializing savedSourceState with empty object
   const [savedSourceState, setSavedSourceState] = useState({});
 
+  //initializing setSavedState
   const setSavedState = useCallback(
     state => {
       setSavedSourceState({
@@ -154,9 +162,10 @@ export default function AssetsPanel() {
     },
     [selectedSource, setSavedSourceState, savedSourceState]
   );
-
+  //initializing saved state on the bases of  selected source
   const savedState = savedSourceState[selectedSource.id] || {};
 
+  //creating view for asset penal
   return (
     <AssetsPanelContainer id="assets-panel">
       { /* @ts-ignore */ }
