@@ -34,9 +34,9 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.NativePlugin;
 
 import com.getcapacitor.PluginResult;
+import com.google.ar.core.Pose;
 import com.xr3ngine.xr.videocompressor.VideoCompress;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -78,13 +78,19 @@ public class XRPlugin extends Plugin {
     private boolean recordingIsEnabled = false;
     private XRFrameData currentXrFrameData = new XRFrameData();
 
-    @PluginMethod
+    @PluginMethod()
     public void initialize(PluginCall call) {
         Log.d("XRPLUGIN", "Initializing");
 
         JSObject ret = new JSObject();
         ret.put("status", "native");
         call.success(ret);
+    }
+
+    @PluginMethod()
+    public void handleTap(PluginCall call){
+        saveCall(call);
+        fragment.handleTap(this);
     }
 
     // CAMERA PREVIEW METHOD =====================================
@@ -835,8 +841,6 @@ public class XRPlugin extends Plugin {
 
     public String filePath;
 
-    public boolean isAudio;     // true: MediaRecord, false: ScreenRecord
-
     public int width, height, bitRate, dpi;
 
     public static final int PERMISSION_DENIED_ERROR = 20;
@@ -853,7 +857,6 @@ public class XRPlugin extends Plugin {
         this.callbackContext = callbackContext;
 
         Log.d(TAG, callbackContext.toString());
-        isAudio = callbackContext.getBoolean("isAudio");
         width = callbackContext.getInt("width");
         height = callbackContext.getInt("height");
         bitRate = callbackContext.getInt("bitRate");
@@ -869,29 +872,18 @@ public class XRPlugin extends Plugin {
             startActivityForResult(this.callbackContext, captureIntent, SCREEN_RECORD_CODE);
         }
         Log.d(TAG, "CALLBACK CONTEXT:" + this.callbackContext);
-        Log.d(TAG, "IS AUDIO:" + isAudio);
 
     }
 
     @PluginMethod
     public void stopRecording(PluginCall callbackContext) {
-        if(isAudio){
             if(mediaRecord != null){
                 mediaRecord.release();
                 mediaRecord = null;
                 callbackContext.success(new JSObject().put("result", "ScreenRecord finish."));
             }else {
-                callbackContext.error("no ScreenRecord in process isAudio");
+                callbackContext.error("no ScreenRecord in process");
             }
-        }else {
-            if(screenRecord != null){
-                screenRecord.quit();
-                screenRecord = null;
-                callbackContext.success(new JSObject().put("result", "ScreenRecord finish."));
-            }else {
-                callbackContext.error("no ScreenRecord in process XX");
-            }
-        }
         Log.d(TAG, "CALLBACK CONTEXT:" + String.valueOf(this.callbackContext));
 
     }
@@ -936,14 +928,8 @@ public class XRPlugin extends Plugin {
                        filePath
                );
                 Log.d(TAG, "*************** filePath: " + mediaStorageDir.getPath() + filePath);
-               if(isAudio){
                 mediaRecord = new MediaRecordService(width, height, bitRate, dpi, mediaProjection, file.getAbsolutePath());
                 mediaRecord.start();
-               }else {
-                screenRecord = new ScreenRecordService(width, height, bitRate, dpi,
-                mediaProjection, file.getAbsolutePath());
-                screenRecord.start();
-               }
 
                Log.d(TAG, "screenrecord service is running");
                PluginResult result = new PluginResult();
@@ -957,4 +943,13 @@ public class XRPlugin extends Plugin {
           }
   }
 
+    public void sendPoseData(Pose cameraPose, Pose anchorPose) {
+        JSObject ret = new JSObject();
+        ret.put("placed", false);
+        ret.put("placed", false);
+
+        // TODO: Add camera position, rotation, anchor position, rotation
+        // Placed = false? We need to indicate if anchor is placed or not
+        notifyListeners("poseDataReceived", ret);
+    }
 }
