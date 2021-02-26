@@ -1,8 +1,8 @@
 
 import {CreatorShort} from './Creator'
 export interface FeedShord {
-  id: string
-  preview: string
+  id: string,
+  preview: string,
   viewsCount: number,  
 }
 
