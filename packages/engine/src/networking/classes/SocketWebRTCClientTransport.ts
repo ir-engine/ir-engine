@@ -95,6 +95,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     if (socket && socket.close) socket.close();
 
     const { startVideo, videoEnabled, channelType, ...query } = opts;
+    console.log('new channelType: ' + channelType);
     this.channelType = channelType;
     this.channelId = opts.channelId;
 

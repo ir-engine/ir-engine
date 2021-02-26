@@ -552,7 +552,7 @@ client.service('user').on('patched', async (params) => {
     if (selfUser.channelInstanceId !== user.channelInstanceId) store.dispatch(clearChannelLayerUsers());
     store.dispatch(userUpdated(user));
     if (user.partyId) {
-      setRelationship('party', user.partyId);
+      // setRelationship('party', user.partyId);
     }
     if (user.instanceId !== selfUser.instanceId) {
       const parsed = new URL(window.location.href);

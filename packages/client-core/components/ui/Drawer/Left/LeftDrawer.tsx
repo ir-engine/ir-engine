@@ -675,13 +675,13 @@ const LeftDrawer = (props: Props): any => {
                                     </Button>
                                 }
                                 {partyDeletePending === true &&
-                                <div>
+                                <div className={styles.deleteConfirm}>
                                     <Button variant="contained"
                                             startIcon={<Delete/>}
                                             className={styles['background-red']}
                                             onClick={(e) => confirmPartyDelete(e, party.id)}
                                     >
-                                        Confirm Delete
+                                        Delete
                                     </Button>
                                     <Button variant="contained"
                                             color="secondary"
@@ -759,13 +759,11 @@ const LeftDrawer = (props: Props): any => {
                                                 </Button>
                                             }
                                             {partyUserDeletePending !== partyUser.id && user.id === partyUser.userId &&
-                                            <div>
-                                                <Button
-                                                    className={styles.groupUserDeleteInit}
-                                                    onClick={(e) => showPartyUserDeleteConfirm(e, partyUser.id)}>
-                                                    <Delete/>
-                                                </Button>
-                                            </div>
+                                            <Button
+                                                className={styles.groupUserDeleteInit}
+                                                onClick={(e) => showPartyUserDeleteConfirm(e, partyUser.id)}>
+                                                <Delete/>
+                                            </Button>
                                             }
                                             {
                                                 partyTransferOwnerPending !== partyUser.id &&
@@ -888,7 +886,7 @@ const LeftDrawer = (props: Props): any => {
                                             className={styles['background-red']}
                                             onClick={(e) => confirmGroupDelete(e, selectedGroup.id)}
                                     >
-                                        Confirm
+                                        Delete
                                     </Button>
                                     <Button variant="contained"
                                             color="secondary"
