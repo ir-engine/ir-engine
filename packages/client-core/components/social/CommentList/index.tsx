@@ -20,7 +20,7 @@ const CommentList = () => {
         })
     }
     return <section className={styles.commentsContainer}>
-        {data.map((item)=><CommentCard {...item} /> )}
+        {data.map((item, key)=><CommentCard key={key} {...item} /> )}
         </section>
 };
 
