@@ -6,6 +6,11 @@ import { useSelectionHandler } from "./useSelection";
 import { CaretRight } from "@styled-icons/fa-solid/CaretRight";
 import { CaretDown } from "@styled-icons/fa-solid/CaretDown";
 
+
+/**
+ * [StyledTagList used to provide styles for tag list]
+ * @type {styled component}
+ */
 const StyledTagList = (styled as any)(Column)`
   height: auto;
   min-height: 100%;
@@ -13,6 +18,10 @@ const StyledTagList = (styled as any)(Column)`
   border-right: 1px solid ${props => props.theme.panel};
 `;
 
+/**
+ * [TagListHeader used to provide styles for tag list header]
+ * @type {Styled component}
+ */
 const TagListHeader = (styled as any)(Row)`
   color: ${props => props.theme.text2};
   justify-content: space-between;
@@ -23,12 +32,19 @@ const TagListHeader = (styled as any)(Row)`
   border-bottom: 1px solid ${props => props.theme.panel};
 `;
 
+/**
+ * [TagListContainer used as container element for tag list]
+ * @type {Styled component}
+ */
 const TagListContainer = (styled as any).div`
   height: 100%;
   overflow-y: scroll;
   overflow-x: auto;
 `;
-
+/**
+ * [TagListToggle styled componet used to create view for toggle list]
+ * @type {Styled component}
+ */
 const TagListToggle = (styled as any).div`
   padding: 2px 2px;
   margin: 0 2px;
@@ -40,6 +56,10 @@ const TagListToggle = (styled as any).div`
   }
 `;
 
+/**
+ * [TagContent used to provide styles to tag content]
+ * @type {styled component}
+ */
 const TagContent = (styled as any).div`
   display: flex;
   align-items: center;
@@ -63,6 +83,10 @@ const TagContent = (styled as any).div`
   }
 `;
 
+/**
+ * [TreeListItem used to provide styles for list ]
+ * @type {styled component}
+ */
 export const TreeListItem = (styled as any).li`
   display: flex;
   flex-direction: column;
@@ -73,15 +97,34 @@ export const TreeListItem = (styled as any).li`
   white-space: nowrap;
 `;
 
+/**
+ * [TagChildrenList used to provides styles for tag child list]
+ * @type {styled component}
+ */
 const TagChildrenList = (styled as any).ul`
   width: max-content;
   min-width: 100%;
 `;
 
+/**
+ * [TreeLeafSpacer used to provide styles for leaf spacer]
+ * @type {Styled component}
+ */
 const TreeLeafSpacer = (styled as any).div`
   width: 16px;
 `;
 
+/**
+ * [TagListItem used to render tag list item]
+ * @param       {object} tag
+ * @param       {number} depth
+ * @param       {function} onClick
+ * @param       {object} expanded
+ * @param       {function} onToggleExpanded
+ * @param       {array} selectedTags
+ * @param       {any} rest
+ * @constructor
+ */
 function TagListItem({ tag, depth, onClick, expanded, onToggleExpanded, selectedTags, ...rest }) {
   const onClickItem = useCallback(
     e => {
@@ -95,7 +138,7 @@ function TagListItem({ tag, depth, onClick, expanded, onToggleExpanded, selected
     },
     [onClick, tag]
   );
-
+  // callback function to handle toggle on tag items
   const onClickToggle = useCallback(
     e => {
       e.stopPropagation();
@@ -104,6 +147,7 @@ function TagListItem({ tag, depth, onClick, expanded, onToggleExpanded, selected
     [onToggleExpanded, tag]
   );
 
+ 
   const selected = selectedTags.indexOf(tag) !== -1 || (selectedTags.length === 0 && tag.value === "All");
   const isExpanded = expanded[tag.value];
 
