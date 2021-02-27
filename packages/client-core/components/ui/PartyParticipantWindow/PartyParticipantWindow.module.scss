@@ -32,6 +32,7 @@
             @media (min-width: 769px) {
                 .user-controls {
                     display: flex !important;
+                    padding: 10px;
                 }
             }
         }
@@ -47,6 +48,7 @@
                 width: 100%;
                 margin: 0 auto;
                 object-fit: contain;
+                display: block;
             }
 
             @media (min-width: 769px) {
@@ -77,6 +79,7 @@
 
                 video{
                     object-fit: contain;
+                    display: block;
                 }
             }
 

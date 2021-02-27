@@ -233,6 +233,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         if (
           // (MediaStreamSystem.mediaStream !== null) &&
           (producerId != null) &&
+          (channelType === self.channelType) &&
           (selfProducerIds.indexOf(producerId) < 0) &&
           (MediaStreamSystem.instance?.consumers?.find(
             c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag

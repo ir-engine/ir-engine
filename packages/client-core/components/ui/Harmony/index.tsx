@@ -342,6 +342,21 @@ const Harmony = observer((props: Props): any => {
                 setActiveAVChannelId((Network.instance.transport as any).channelId);
             }
         });
+        return () => {
+            window.removeEventListener('connectToWorld', () => {
+                toggleAudio(activeAVChannelIdRef.current);
+                toggleVideo(activeAVChannelIdRef.current);
+            });
+
+            window.removeEventListener('connectToWorldTimeout', (e: any) => {
+                if (e.instance === true) resetChannelServer();
+            })
+
+            window.removeEventListener('leaveWorld', () => {
+                resetChannelServer();
+                if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('');
+            });
+        }
     }, []);
 
     useEffect(() => {
@@ -584,6 +599,7 @@ const Harmony = observer((props: Props): any => {
         await checkMediaStream('channel', channelId);
         if (MediaStreamSystem.instance?.camVideoProducer == null) await createCamVideoProducer('channel', channelId);
         else {
+            console.log('toggleVideo where videoProducer exists');
             const videoPaused = MediaStreamSystem.instance?.toggleVideoPaused();
             if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer);
             else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer);
@@ -658,6 +674,15 @@ const Harmony = observer((props: Props): any => {
     }
 
     function getChannelName(): string {
+        const channel = channels.get(targetChannelId);
+        if (channel && channel.channelType !== 'instance') {
+            if (channel.channelType === 'group') return channel[channel.channelType].name;
+            if (channel.channelType === 'party') return 'Current party';
+            if (channel.channelType === 'user') return channel.user1.id === selfUser.id ? channel.user2.name : channel.user1.name;
+        } else return 'Current Layer';
+    }
+
+    function getAVChannelName(): string {
         const channel = channels.get(activeAVChannelId);
         if (channel && channel.channelType !== 'instance') {
             if (channel.channelType === 'group') return channel[channel.channelType].name;
@@ -939,8 +964,8 @@ const Harmony = observer((props: Props): any => {
                         <div className={classNames({
                             [styles.iconContainer]: true,
                             [styles.startCall]: true
-                        })}>
-                            <Call onClick={(e) => handleStartCall(e)} />
+                        })} onClick={(e) => handleStartCall(e)}>
+                            <Call/>
                         </div>
                     }
                     { (MediaStreamSystem.instance.camVideoProducer != null || MediaStreamSystem.instance.camAudioProducer != null) &&
@@ -948,8 +973,8 @@ const Harmony = observer((props: Props): any => {
                             <div className={classNames({
                                 [styles.iconContainer]: true,
                                 [styles.endCall]: true
-                            })}>
-                                <CallEnd onClick={(e) => handleEndCall(e)} />
+                            })} onClick={(e) => handleEndCall(e)}>
+                                <CallEnd />
                             </div>
                             <div className={styles.iconContainer + ' ' + (audioPaused ? styles.off : styles.on)}>
                                 <Mic id='micOff' className={styles.offIcon} onClick={(e) => handleMicClick(e)} />
@@ -963,7 +988,7 @@ const Harmony = observer((props: Props): any => {
                     }
                 </header> }
                 { (MediaStreamSystem?.instance?.camVideoProducer != null || MediaStreamSystem?.instance?.camAudioProducer != null) && <div className={styles['video-container']}>
-                    <div className={ styles['active-chat-plate']} >{ getChannelName() }</div>
+                    <div className={ styles['active-chat-plate']} >{ getAVChannelName() }</div>
                     <Grid className={ styles['party-user-container']} container direction="row">
                         <Grid item className={
                             classNames({
@@ -1005,6 +1030,7 @@ const Harmony = observer((props: Props): any => {
                     </Grid>
                 </div> }
                 <div className={styles['list-container']}>
+                    { targetChannelId != null && targetChannelId !== '' && <div className={ styles['active-chat-plate']} >{ getChannelName() }</div> }
                     <List ref={(messageRef as any)} onScroll={(e) => onMessageScroll(e)} className={styles['message-container']}>
                         { activeChannel != null && activeChannel.messages && activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).map((message) => {
                             return <ListItem
