@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 // @ts-ignore
 import styles from './PartyParticipantWindow.module.scss';
 import { bindActionCreators } from "redux";
@@ -78,8 +78,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 const PartyParticipantWindow = (props: Props): JSX.Element => {
-    const [videoStream, setVideoStream] = useState(null);
-    const [audioStream, setAudioStream] = useState(null);
+    const [videoStream, _setVideoStream] = useState(null);
+    const [audioStream, _setAudioStream] = useState(null);
     const [videoStreamPaused, setVideoStreamPaused] = useState(false);
     const [audioStreamPaused, setAudioStreamPaused] = useState(false);
     const [videoProducerPaused, setVideoProducerPaused] = useState(false);
@@ -100,6 +100,8 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     } = props;
     const videoRef = React.createRef<HTMLVideoElement>();
     const audioRef = React.createRef<HTMLAudioElement>();
+    const videoStreamRef = useRef(videoStream);
+    const audioStreamRef = useRef(audioStream);
 
     const userHasInteracted = appState.get('userHasInteracted');
     const selfUser = authState.get('user');
@@ -109,6 +111,54 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
 
     const isCamVideoEnabled = mediastream.get('isCamVideoEnabled');
     const isCamAudioEnabled = mediastream.get('isCamAudioEnabled');
+
+
+
+    const setVideoStream = value => {
+        videoStreamRef.current = value;
+        _setVideoStream(value);
+    };
+
+    const setAudioStream = value => {
+        audioStreamRef.current = value;
+        _setAudioStream(value);
+    };
+
+    const pauseConsumerListener = (consumerId: string) => {
+        if (consumerId === videoStreamRef?.current?.id) {
+            setVideoProducerPaused(true);
+        } else if (consumerId === audioStreamRef?.current?.id) {
+            setAudioProducerPaused(true);
+        }
+    };
+
+    const resumeConsumerListener = (consumerId: string) => {
+        if (consumerId === videoStreamRef?.current?.id) {
+            setVideoProducerPaused(false);
+        } else if (consumerId === audioStreamRef?.current?.id) {
+            setAudioProducerPaused(false);
+        }
+    };
+
+    const pauseProducerListener = (producerId: string, globalMute: boolean) => {
+        if (producerId === videoStreamRef?.current?.id && globalMute === true) {
+            setVideoProducerPaused(true);
+            setVideoProducerGlobalMute(true);
+        } else if (producerId === audioStreamRef?.current?.id && globalMute === true) {
+            setAudioProducerPaused(true);
+            setAudioProducerGlobalMute(true);
+        }
+    };
+
+    const resumeProducerListener = (producerId: string) => {
+        if (producerId === videoStreamRef?.current?.id) {
+            setVideoProducerPaused(false);
+            setVideoProducerGlobalMute(false);
+        } else if (producerId === audioStreamRef?.current?.id) {
+            setAudioProducerPaused(false);
+            setAudioProducerGlobalMute(false);
+        }
+    };
 
     useEffect(() => {
             if (peerId === 'me_cam') setVideoStream(MediaStreamSystem.instance?.camVideoProducer);
@@ -176,6 +226,21 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
         if (harmony !== true && (selfUser?.user_setting?.spatialAudioEnabled === true || selfUser?.user_setting?.spatialAudioEnabled === 1) && audioRef.current != null) audioRef.current.volume = 0;
         else if ((selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0) && PositionalAudioSystem.instance != null) audioRef.current.volume = volume / 100;
     }, [selfUser]);
+
+    useEffect(() => {
+        if ((Network.instance?.transport as any)?.channelType === 'instance') {
+            (Network.instance?.transport as any)?.instanceSocket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener);
+            (Network.instance?.transport as any)?.instanceSocket?.on(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener);
+            (Network.instance?.transport as any)?.instanceSocket?.on(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener);
+            (Network.instance?.transport as any)?.instanceSocket?.on(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener);
+        }
+        else {
+            (Network.instance?.transport as any)?.channelSocket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener);
+            (Network.instance?.transport as any)?.channelSocket?.on(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener);
+            (Network.instance?.transport as any)?.channelSocket?.on(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener);
+            (Network.instance?.transport as any)?.channelSocket?.on(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener);
+        }
+    }, []);
 
     useEffect(() => {
         if (audioRef.current != null) {
