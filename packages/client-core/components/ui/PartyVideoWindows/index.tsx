@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import styles from './PartyVideoWindows.module.scss';
 import { ChevronRight } from '@material-ui/icons';
 import PartyParticipantWindow from '../PartyParticipantWindow';
-import { observer } from 'mobx-react';
 import { selectAuthState } from "../../../redux/auth/selector";
 import { selectUserState } from "../../../redux/user/selector";
 import {connect} from "react-redux";
@@ -30,7 +29,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   getLayerUsers: bindActionCreators(getLayerUsers, dispatch)
 });
 
-const PartyVideoWindows = observer((props: Props): JSX.Element => {
+const PartyVideoWindows = (props: Props): JSX.Element => {
   const {
     authState,
     userState,
@@ -82,6 +81,6 @@ const PartyVideoWindows = observer((props: Props): JSX.Element => {
       ))}
       </>
   );
-});
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(PartyVideoWindows);
