@@ -3,15 +3,25 @@
  * this will be the ONLY communication channel between the engine and the outside world
  * */
 
- import { loadScene } from './scene/functions/SceneLoading';
+import { EventDispatcher } from 'three';
+import { applyNetworkStateToClient } from './networking/functions/applyNetworkStateToClient';
+import { WorldStateModel } from './networking/schema/worldStateSchema';
+import { loadScene } from './scene/functions/SceneLoading';
 
-export class EngineProxy {
+export class EngineProxy extends EventDispatcher {
+  static instance: EngineProxy;
   constructor() {
-    
+    super();
+    EngineProxy.instance = this;
   }
 
   loadScene(result) {
     loadScene(result);
+  }
+  transferNetworkBuffer(buffer, delta) {
+    const unbufferedState = WorldStateModel.fromBuffer(buffer);
+    if(!unbufferedState) console.warn("Couldn't deserialize buffer, probably still reading the wrong one")
+    if(unbufferedState) applyNetworkStateToClient(unbufferedState, delta);
   }
 }
 
