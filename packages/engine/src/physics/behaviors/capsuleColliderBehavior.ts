@@ -11,7 +11,7 @@ import { CapsuleCollider } from '../components/CapsuleCollider';
 import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 
-let snapshotX = 0;
+const snapshotX = 0;
 export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void => {
 
   if (args.phase == 'onUpdate') {
