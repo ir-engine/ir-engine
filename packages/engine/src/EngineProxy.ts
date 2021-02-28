@@ -4,6 +4,7 @@
  * */
 
 import { EventDispatcher } from 'three';
+import { Network } from './networking/classes/Network';
 import { applyNetworkStateToClient } from './networking/functions/applyNetworkStateToClient';
 import { WorldStateModel } from './networking/schema/worldStateSchema';
 import { loadScene } from './scene/functions/SceneLoading';
@@ -14,7 +15,6 @@ export class EngineProxy extends EventDispatcher {
     super();
     EngineProxy.instance = this;
   }
-
   loadScene(result) {
     loadScene(result);
   }
@@ -23,9 +23,7 @@ export class EngineProxy extends EventDispatcher {
     if(!unbufferedState) console.warn("Couldn't deserialize buffer, probably still reading the wrong one")
     if(unbufferedState) applyNetworkStateToClient(unbufferedState, delta);
   }
+  sendData(buffer) {
+    Network.instance.transport.sendData(buffer);
+  }
 }
-
-export enum EngineMessageType {
-  ENGINE_CALL = "ENGINE_CALL",
-
-} 
