@@ -40,6 +40,7 @@ import androidx.appcompat.app.AlertDialog;
 import com.google.ar.core.Anchor;
 import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.Camera;
+import com.google.ar.core.CameraIntrinsics;
 import com.google.ar.core.Config;
 import com.google.ar.core.Config.InstantPlacementMode;
 import com.google.ar.core.Frame;
@@ -418,7 +419,7 @@ public class ARActivity extends Fragment implements SampleRender.Renderer {
             Log.e(TAG, "Camera not available during onDrawFrame", e);
             return;
         }
-        Camera camera = frame.getCamera();
+        camera = frame.getCamera();
 
         // Update BackgroundRenderer state to match the depth settings.
         try {
@@ -523,18 +524,19 @@ public class ARActivity extends Fragment implements SampleRender.Renderer {
 
             anchorPose = anchor.getPose();
 
-            // Get the current pose of an Anchor in world space. The Anchor pose is updated
-            // during calls to session.update() as ARCore refines its estimate of the world.
-            anchor.getPose().toMatrix(modelMatrix, 0);
+//            // Get the current pose of an Anchor in world space. The Anchor pose is updated
+//            // during calls to session.update() as ARCore refines its estimate of the world.
+//            anchor.getPose().toMatrix(modelMatrix, 0);
 
-            // Calculate model/view/projection matrices
-            Matrix.multiplyMM(modelViewMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-            Matrix.multiplyMM(modelViewProjectionMatrix, 0, projectionMatrix, 0, modelViewMatrix, 0);
-
-            // Update shader properties and draw
-            virtualObjectShader.setMat4("u_ModelView", modelViewMatrix);
-            virtualObjectShader.setMat4("u_ModelViewProjection", modelViewProjectionMatrix);
-            render.draw(virtualObjectMesh, virtualObjectShader, virtualSceneFramebuffer);
+//            // Calculate model/view/projection matrices
+//            Matrix.multiplyMM(modelViewMatrix, 0, viewMatrix, 0, modelMatrix, 0);
+//            Matrix.multiplyMM(modelViewProjectionMatrix, 0, projectionMatrix, 0, modelViewMatrix, 0);
+//
+//            // Update shader properties and draw
+//            virtualObjectShader.setMat4("u_ModelView", modelViewMatrix);
+//            virtualObjectShader.setMat4("u_ModelViewProjection", modelViewProjectionMatrix);
+//
+//            render.draw(virtualObjectMesh, virtualObjectShader, virtualSceneFramebuffer);
         }
 
         // Compose the virtual scene with the background.
@@ -542,27 +544,72 @@ public class ARActivity extends Fragment implements SampleRender.Renderer {
 
 
         if(activity != null){
+            if(cameraPose == null){
+                Log.e(TAG, "************* Camera pose is null!");
+                return;
+            }
+
             Log.d(TAG, "Sending pose data");
-            activity.sendPoseData(cameraPose, anchorPose);
+            float[] cameraPoseData = new float[7];
+            cameraPoseData[0] = cameraPose.tx();
+            cameraPoseData[1] = cameraPose.ty();
+            cameraPoseData[2] = cameraPose.tz();
+            cameraPoseData[3] = cameraPose.qw();
+            cameraPoseData[4] = cameraPose.qx();
+            cameraPoseData[5] = cameraPose.qy();
+            cameraPoseData[6] = cameraPose.qz();
+
+            float[] anchorPoseData = new float[7];
+
+            if(anchorPose != null) {
+                anchorPoseData[0] = anchorPose.tx();
+                anchorPoseData[1] = anchorPose.ty();
+                anchorPoseData[2] = anchorPose.tz();
+                anchorPoseData[3] = anchorPose.qw();
+                anchorPoseData[4] = anchorPose.qx();
+                anchorPoseData[5] = anchorPose.qy();
+                anchorPoseData[6] = anchorPose.qz();
+            }
+            activity.sendPoseData(cameraPoseData, anchorPoseData);
         }
     }
 
     private XRPlugin activity = null;
 
+    public void clearAnchors(){
+        anchors.get(0).detach();
+        anchors.remove(0);
+    }
+
     // Handle only one tap per frame, as taps are usually low frequency compared to frame rate.
     public void handleTap(XRPlugin activity) {
         this.activity = activity;
+        if(camera == null){
+            Log.e(TAG, "Camera object is null, couldn't handle tap");
+            return;
+        }
+
+        CameraIntrinsics ci = camera.getImageIntrinsics();
+        float[] focalLength = ci.getFocalLength();
+        float[] principalPoint = ci.getPrincipalPoint();
+        int[] imageDimensions = ci.getImageDimensions();
+
+
+        activity.receiveCameraIntrinsics(focalLength, principalPoint, imageDimensions);
+
         if (camera.getTrackingState() == TrackingState.TRACKING) {
             List<HitResult> hitResultList;
 //            if (instantPlacementSettings.isInstantPlacementEnabled()) {
-                hitResultList =
-                        frame.hitTestInstantPlacement(0, 0, APPROXIMATE_DISTANCE_METERS);
+                hitResultList = frame.hitTestInstantPlacement(0, 0, APPROXIMATE_DISTANCE_METERS);
 //            } else {
 //                hitResultList = frame.hitTest(tap);
 //            }
             for (HitResult hit : hitResultList) {
                 // If any plane, Oriented Point, or Instant Placement Point was hit, create an anchor.
                 Trackable trackable = hit.getTrackable();
+                if(trackable.getTrackingState() == TrackingState.TRACKING &&
+                        trackable.getTrackingState() != TrackingState.STOPPED &&
+                        trackable.getTrackingState() != TrackingState.PAUSED) {
                 // If a plane was hit, check that it was hit inside the plane polygon.
                 if ((trackable instanceof Plane
                         && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())
@@ -574,17 +621,20 @@ public class ARActivity extends Fragment implements SampleRender.Renderer {
                     // Cap the number of objects created. This avoids overloading both the
                     // rendering system and ARCore.
                     if (anchors.size() >= 1) {
-                        anchors.get(0).detach();
-                        anchors.remove(0);
+
+                        return;
                     }
 
-                    // Adding an Anchor tells ARCore that it should track this position in
-                    // space. This anchor is created on the Plane to place the 3D model
-                    // in the correct position relative both to the world and to the plane.
-                    anchors.add(hit.createAnchor());
+
+                        // Adding an Anchor tells ARCore that it should track this position in
+                        // space. This anchor is created on the Plane to place the 3D model
+                        // in the correct position relative both to the world and to the plane.
+
+                        anchors.add(hit.createAnchor());
+                    }
                     // For devices that support the Depth API, shows a dialog to suggest enabling
                     // depth-based occlusion. This dialog needs to be spawned on the UI thread.
-                    getActivity().runOnUiThread(this::showOcclusionDialogIfNeeded);
+//                    getActivity().runOnUiThread(this::showOcclusionDialogIfNeeded);
 
                     // Hits are sorted by depth. Consider only closest hit on a plane, Oriented Point, or
                     // Instant Placement Point.
@@ -594,32 +644,32 @@ public class ARActivity extends Fragment implements SampleRender.Renderer {
         }
     }
 
-    /**
-     * Shows a pop-up dialog on the first call, determining whether the user wants to enable
-     * depth-based occlusion. The result of this dialog can be retrieved with useDepthForOcclusion().
-     */
-    private void showOcclusionDialogIfNeeded() {
-        boolean isDepthSupported = session.isDepthModeSupported(Config.DepthMode.AUTOMATIC);
-        if (!depthSettings.shouldShowDepthEnableDialog() || !isDepthSupported) {
-            return; // Don't need to show dialog.
-        }
-
-        // Asks the user whether they want to use depth-based occlusion.
-        new AlertDialog.Builder(getContext())
-                .setTitle(R.string.options_title_with_depth)
-                .setMessage(R.string.depth_use_explanation)
-                .setPositiveButton(
-                        R.string.button_text_enable_depth,
-                        (DialogInterface dialog, int which) -> {
-                            depthSettings.setUseDepthForOcclusion(true);
-                        })
-                .setNegativeButton(
-                        R.string.button_text_disable_depth,
-                        (DialogInterface dialog, int which) -> {
-                            depthSettings.setUseDepthForOcclusion(false);
-                        })
-                .show();
-    }
+//    /**
+//     * Shows a pop-up dialog on the first call, determining whether the user wants to enable
+//     * depth-based occlusion. The result of this dialog can be retrieved with useDepthForOcclusion().
+//     */
+//    private void showOcclusionDialogIfNeeded() {
+//        boolean isDepthSupported = session.isDepthModeSupported(Config.DepthMode.AUTOMATIC);
+//        if (!depthSettings.shouldShowDepthEnableDialog() || !isDepthSupported) {
+//            return; // Don't need to show dialog.
+//        }
+//
+//        // Asks the user whether they want to use depth-based occlusion.
+//        new AlertDialog.Builder(getContext())
+//                .setTitle(R.string.options_title_with_depth)
+//                .setMessage(R.string.depth_use_explanation)
+//                .setPositiveButton(
+//                        R.string.button_text_enable_depth,
+//                        (DialogInterface dialog, int which) -> {
+//                            depthSettings.setUseDepthForOcclusion(true);
+//                        })
+//                .setNegativeButton(
+//                        R.string.button_text_disable_depth,
+//                        (DialogInterface dialog, int which) -> {
+//                            depthSettings.setUseDepthForOcclusion(false);
+//                        })
+//                .show();
+//    }
 
 
     /** Checks if we detected at least one plane. */
