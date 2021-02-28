@@ -11,6 +11,7 @@ import { Engine } from './ecs/classes/Engine';
 import { execute, initialize } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
+import { EngineProxy } from './EngineProxy';
 import { InputSystem } from './input/systems/ClientInputSystem';
 import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
 import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';
@@ -49,6 +50,8 @@ export const DefaultInitializationOptions = {
 
 export async function initializeEngine(initOptions: any = DefaultInitializationOptions): Promise<void> {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
+
+  new EngineProxy();
 
   // Create a new world -- this holds all of our simulation state, entities, etc
   initialize();

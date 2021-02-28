@@ -9,8 +9,9 @@ import { Engine } from './ecs/classes/Engine';
 import { execute, initialize } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
-import { EngineProxy } from './EngineProxy';
+import { EngineMessageType, EngineProxy } from './EngineProxy';
 import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
+import { Network } from './networking/classes/Network';
 import { ParticleSystem } from './particles/systems/ParticleSystem';
 import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { HighlightSystem } from './renderer/HighlightSystem';
@@ -21,7 +22,7 @@ import { CharacterInputSchema } from './templates/character/CharacterInputSchema
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
-import { MainProxy } from './worker/MessageQueue';
+import { MainProxy, MessageType, Message } from './worker/MessageQueue';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -43,17 +44,31 @@ class MainEngineProxy extends EngineProxy {
   constructor(mainProxy: MainProxy) {
     super()
     this.mainProxy = mainProxy;
+    const loadScene = (ev: any) => { 
+      this.loadScene(ev.detail.result)
+      this.mainProxy.removeEventListener('loadScene', loadScene)
+    }
+    this.mainProxy.addEventListener('loadScene', loadScene)
+    this.mainProxy.addEventListener('transferNetworkBuffer', (ev: any) => { 
+      const { buffer, delta } = ev.detail;
+      // this.transferNetworkBuffer(buffer, delta)
+    })
+  }
+
+  sendData(buffer) {
+    this.mainProxy.sendEvent('sendData', { buffer }, [buffer])
   }
 }
 
 
 export function initializeEngineOffscreen({ canvas, initOptions, env, useWebXR }, proxy: MainProxy): void {
-  console.log(canvas, initOptions, env)
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
   EngineProxy.instance = new MainEngineProxy(proxy);
   initialize();
   Engine.scene = new Scene();
+
+  new Network();
 
 
   // Do we want audio and video streams?

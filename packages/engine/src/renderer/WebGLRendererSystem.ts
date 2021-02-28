@@ -108,7 +108,7 @@ export class WebGLRendererSystem extends System {
 
     Engine.csm = csm;
 
-    window.addEventListener('resize', this.onResize, false);
+    // window.addEventListener('resize', this.onResize, false);
     this.onResize();
     this.isInitialized = true;
 
@@ -130,8 +130,7 @@ export class WebGLRendererSystem extends System {
   dispose(): void {
     super.dispose();
     WebGLRendererSystem.composer?.dispose();
-    window.removeEventListener('resize', this.onResize);
-    document.body.removeChild(Engine.renderer.domElement);
+    // window.removeEventListener('resize', this.onResize);
     this.isInitialized = false;
   }
 
@@ -201,7 +200,6 @@ export class WebGLRendererSystem extends System {
     
         const width = window.innerWidth;
         const height = window.innerHeight;
-        console.log(width, height, window)
     
         if ((Engine.camera as PerspectiveCamera).isPerspectiveCamera) {
           const cam = Engine.camera as PerspectiveCamera;
@@ -210,7 +208,7 @@ export class WebGLRendererSystem extends System {
         }
     
         Engine.csm.updateFrustums();
-    
+        console.log(window, width, height)
         Engine.renderer.setSize(width, height, false);
         WebGLRendererSystem.composer.setSize(width, height, false);
         WebGLRendererSystem.needsResize = false;
@@ -291,6 +289,7 @@ export class WebGLRendererSystem extends System {
 
   setResolution(resolution) {
     WebGLRendererSystem.scaleFactor = resolution;
+    console.log(window.devicePixelRatio)
     Engine.renderer.setPixelRatio(window.devicePixelRatio * WebGLRendererSystem.scaleFactor);
     WebGLRendererSystem.needsResize = true;
     saveGraphicsSettingsToStorage();

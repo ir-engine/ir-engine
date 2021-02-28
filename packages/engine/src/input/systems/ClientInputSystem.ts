@@ -28,6 +28,7 @@ import { initVR } from "../functions/WebXRFunctions";
 import { InputValue } from "../interfaces/InputValue";
 import { InputAlias } from "../types/InputAlias";
 import { BaseInput } from "../enums/BaseInput";
+import { EngineProxy } from "../../EngineProxy";
 /**
  * Input System
  *
@@ -321,7 +322,7 @@ export class InputSystem extends System {
         inputs.viewVector.y = actor.viewVector.y;
         inputs.viewVector.z = actor.viewVector.z;
       }
-      Network.instance.transport.sendData(ClientInputModel.toBuffer(inputs));
+      EngineProxy.instance.sendData(ClientInputModel.toBuffer(inputs));
 
         // clean processed LifecycleValue.ENDED inputs
       input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
