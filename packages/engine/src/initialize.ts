@@ -28,7 +28,6 @@ import { CharacterInputSchema } from './templates/character/CharacterInputSchema
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
-import { EngineProxy } from './EngineProxy'
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -48,10 +47,8 @@ export const DefaultInitializationOptions = {
   },
 };
 
-export async function initializeEngine(initOptions: any = DefaultInitializationOptions): Promise<EngineProxy> {
+export async function initializeEngine(initOptions: any = DefaultInitializationOptions): Promise<void> {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
-
-  const engineProxy = new EngineProxy();
 
   // Create a new world -- this holds all of our simulation state, entities, etc
   initialize();
@@ -121,6 +118,4 @@ export async function initializeEngine(initOptions: any = DefaultInitializationO
         update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
       }, Engine.physicsFrameRate, Engine.networkFramerate).start();
   }, 1000);
-
-  return engineProxy;
 }

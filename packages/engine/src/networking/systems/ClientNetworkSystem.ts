@@ -1,6 +1,7 @@
 import { System } from '../../ecs/classes/System';
 import { Not } from '../../ecs/functions/ComponentFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
+import { EngineProxy } from '../../EngineProxy';
 import { Input } from '../../input/components/Input';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { Network } from '../classes/Network';
@@ -47,9 +48,11 @@ export class ClientNetworkSystem extends System {
     while (queue.getBufferLength() > 0) {
       const buffer = queue.pop();
       // debugger;
-      const unbufferedState = WorldStateModel.fromBuffer(buffer);
-      if(!unbufferedState) console.warn("Couldn't deserialize buffer, probably still reading the wrong one")
-      if(unbufferedState) applyNetworkStateToClient(unbufferedState, delta);
+      EngineProxy.instance.transferNetworkBuffer(buffer, delta);
+
+      // const unbufferedState = WorldStateModel.fromBuffer(buffer);
+      // if(!unbufferedState) console.warn("Couldn't deserialize buffer, probably still reading the wrong one")
+      // if(unbufferedState) applyNetworkStateToClient(unbufferedState, delta);
     }
   }
 
