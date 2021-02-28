@@ -17,7 +17,7 @@ interface Message {
   transferables?: Transferable[];
 }
 
-enum MessageType {
+export enum MessageType {
   OFFSCREEN_CANVAS,
   ANIMATE,
   ADD_EVENT,
@@ -41,6 +41,8 @@ enum MessageType {
   AUDIO_BUFFER_SET,
   AUDIO_SOURCE_STREAM_SET,
   AUDIO_SOURCE_ELEMENT_SET,
+  USER_EVENT,
+  USER_CALL
 }
 
 function simplifyObject(object: any): any {
@@ -182,13 +184,14 @@ class MessageQueue extends EventDispatcherProxy {
       this.sendQueue();
     }, 1000 / 60);
   }
-  sendEvent(eventType: string, eventDetail: any) {
+  sendEvent(eventType: string, eventDetail: any, transferables?: Transferable[]) {
     this.queue.push({
       messageType: MessageType.EVENT,
       message: {
         type: eventType,
         detail: eventDetail
       },
+      transferables
     } as Message);
   }
   sendQueue() {
@@ -580,6 +583,7 @@ export class MainProxy extends MessageQueue {
   height: number;
   left: number;
   top: number;
+  devicePixelRatio: number;
 
   constructor({
     messagePort,
@@ -595,6 +599,7 @@ export class MainProxy extends MessageQueue {
     this.height = 0;
     this.left = 0;
     this.top = 0;
+    this.devicePixelRatio = 0;
 
     this.focus = this.focus.bind(this);
     this.getBoundingClientRect = this.getBoundingClientRect.bind(this);
@@ -641,11 +646,10 @@ export class MainProxy extends MessageQueue {
 }
 
 export async function createWorker(
-  workerURL: string | URL,
+  worker: Worker,
   canvas: HTMLCanvasElement,
   options: any
 ) {
-  const worker = new Worker(workerURL, { type: 'module' });
   const messageQueue = new WorkerProxy({
     messagePort: worker,
     eventTarget: canvas,
@@ -881,8 +885,8 @@ export async function createWorker(
       top,
       left,
       canvas: offscreen,
-      pixelRatio: window.devicePixelRatio,
-      options
+      devicePixelRatio: window.devicePixelRatio,
+      ...options
     },
     transferables: [offscreen],
   } as Message);
@@ -908,16 +912,19 @@ export async function receiveWorker(onCanvas: any) {
         canvas,
         height,
         width,
+        devicePixelRatio,
         options
       }: {
         canvas: OffscreenCanvas;
         width: number;
         height: number;
+        devicePixelRatio: number;
         options
       } = args;
       messageQueue.canvas = canvas;
       messageQueue.width = width;
       messageQueue.height = height;
+      messageQueue.devicePixelRatio = devicePixelRatio;
       canvas.addEventListener = (
         type: string,
         listener: (event: DispatchEvent) => void,
@@ -959,7 +966,7 @@ export async function receiveWorker(onCanvas: any) {
         },
       };
 
-      onCanvas(args);
+      onCanvas(args, messageQueue);
     },
   );
   messageQueue.addEventListener('resize', ({ width, height }: any) => {

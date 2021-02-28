@@ -226,9 +226,8 @@ export const EnginePage = (props: Props) => {
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
     styleCanvas(canvas);
 
-    const useOffscreenCanvas = false;
     let initializationOptions, initialize;
-    if(useOffscreenCanvas) {
+    if(canvas.transferControlToOffscreen) {
       const { DefaultInitializationOptions, initializeWorker } = await import('@xr3ngine/engine/src/initializeWorker');
       initializationOptions = DefaultInitializationOptions;
       initialize = initializeWorker;
@@ -248,8 +247,8 @@ export const EnginePage = (props: Props) => {
       }
     };
 
-    const engineProxy = await initialize(InitializationOptions) as EngineProxy;
-    engineProxy.loadScene(result);
+    await initialize(InitializationOptions);
+    EngineProxy.instance.loadScene(result);
   }
 
 
