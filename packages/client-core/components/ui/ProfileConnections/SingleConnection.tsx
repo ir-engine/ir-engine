@@ -32,7 +32,8 @@ interface Props {
   | 'google'
   | 'email'
   | 'sms'
-  | 'password';
+  | 'password'
+  | 'linkedin';
 
   showDialog?: typeof showDialog;
   addConnectionByOauth?: typeof addConnectionByOauth;
@@ -128,6 +129,9 @@ const SingleConnection = (props: Props): any => {
           children: <PasswordLogin isAddConnection={true} />
         });
         break;
+      case 'linkedin':
+        addConnectionByOauth(connectionType, userId);
+          break;
     }
   };
 
