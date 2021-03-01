@@ -57,7 +57,7 @@ const TagListToggle = (styled as any).div`
 `;
 
 /**
- * [TagContent used to provide styles to tag content]
+ * TagContent used to provide styles to tag content
  * @type {styled component}
  */
 const TagContent = (styled as any).div`
@@ -138,7 +138,10 @@ function TagListItem({ tag, depth, onClick, expanded, onToggleExpanded, selected
     },
     [onClick, tag]
   );
-  // callback function to handle toggle on tag items
+
+  /**
+   * callback function to handle toggle on tag items
+   */
   const onClickToggle = useCallback(
     e => {
       e.stopPropagation();
@@ -147,10 +150,13 @@ function TagListItem({ tag, depth, onClick, expanded, onToggleExpanded, selected
     [onToggleExpanded, tag]
   );
 
- 
+
   const selected = selectedTags.indexOf(tag) !== -1 || (selectedTags.length === 0 && tag.value === "All");
   const isExpanded = expanded[tag.value];
 
+/**
+ * retrun TreeListItem view
+ */
   return (
     <TreeListItem selected={selected} {...rest}>
       <TagContent depth={depth} selected={selected} onClick={onClickItem}>
@@ -182,7 +188,9 @@ function TagListItem({ tag, depth, onClick, expanded, onToggleExpanded, selected
     </TreeListItem>
   );
 }
-
+/**
+ * declare TagListItem propTypes
+ */
 TagListItem.propTypes = {
   tag: PropTypes.object.isRequired,
   onClick: PropTypes.func,
@@ -191,11 +199,20 @@ TagListItem.propTypes = {
   onToggleExpanded: PropTypes.func,
   selectedTags: PropTypes.arrayOf(PropTypes.object)
 };
-
+// declare tagList Default props
 TagListItem.defaultProps = {
   depth: 0
 };
-
+/**
+ * define and export TagList component
+ * @param       {array} tags
+ * @param       {array} selectedTags
+ * @param       {function} onChange
+ * @param       {boolean} multiselect
+ * @param       {object} initialExpandedTags
+ * @param       {function} onChangeExpandedTags
+ * @constructor
+ */
 export default function TagList({
   tags,
   selectedTags,
@@ -228,6 +245,9 @@ export default function TagList({
     });
   }, [tagListContainerRef, theme, expanded, tags]);
 
+/**
+ * retrun view for TagList
+ */
   return (
     <StyledTagList>
       <TagListHeader>Tags</TagListHeader>
@@ -259,7 +279,11 @@ export default function TagList({
   );
 }
 
-TagList.propTypes = {
+/**
+ * declaring TagList propTypes
+ * @type {Object} propTypes
+ */
+TagList.  = {
   selectedTags: PropTypes.arrayOf(PropTypes.object).isRequired,
   tags: PropTypes.arrayOf(PropTypes.object).isRequired,
   onChange: PropTypes.func.isRequired,
@@ -267,7 +291,9 @@ TagList.propTypes = {
   initialExpandedTags: PropTypes.object,
   onChangeExpandedTags: PropTypes.func
 };
-
+/**
+ * declaring TagList Default Props
+ */
 TagList.defaultProps = {
   tags: [],
   selectedTags: [],
