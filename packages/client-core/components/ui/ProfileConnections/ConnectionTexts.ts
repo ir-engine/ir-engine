@@ -91,5 +91,21 @@ export const ConnectionTexts = {
         'Please connect Email/Password account'
       ]
     }
-  }
+  },
+  linkedin: {
+    connected: {
+      header: 'You are connected to LinkedIn',
+      descr: [
+        'You can now sign in to XR3ngine using your LinkedIn account.',
+        'We will never post to LinkedIn your connections without your permission.'
+      ]
+    },
+    notConnected: {
+      header: 'You are not connected to LinkedIn',
+      descr: [
+        'If you want to sign in to XR3ngine using your LinkedIn account,',
+        'Please connect LinkedIn account'
+      ]
+    }
+  },
 };
