@@ -52,7 +52,7 @@ export class Feed extends Service {
           // isFired,
           id: feed.id,
           preview: "https://picsum.photos/375/210",
-          viewsCount: feed.viewsCount
+          viewsCount: feed.viewCount
         };
 
         return newFeed;
@@ -104,7 +104,7 @@ export class Feed extends Service {
         stores: 0,
         title: feed.title,
         video: "",
-        viewsCount: feed.viewsCount
+        viewsCount: feed.viewCount
       };
 
       return newFeed;
