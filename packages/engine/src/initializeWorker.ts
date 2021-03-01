@@ -13,6 +13,7 @@ import { Engine } from './ecs/classes/Engine';
 import { Timer } from './common/functions/Timer';
 import { execute } from './ecs/functions/EngineFunctions';
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType';
+import { Network } from './networking/classes/Network';
 
 const isSafari = typeof navigator !== 'undefined' && /Version\/[\d\.]+.*Safari/.test(window.navigator.userAgent);
 
@@ -34,14 +35,16 @@ class WorkerEngineProxy extends EngineProxy {
   constructor(workerProxy: WorkerProxy) {
     super();
     this.workerProxy = workerProxy;
-    this.workerProxy.addEventListener('sendData', (ev: any) => { this.sendData(ev.detail.buffer) }, 'none')
+    this.workerProxy.addEventListener('sendData', (ev: any) => { this.sendData(ev.detail.buffer) })
   }
-
-  loadScene(result) {
+  loadScene(result) { 
+    this.workerProxy.sendEvent('NETWORK_INITIALIZE_EVENT', {
+      userId: Network.instance.userId,
+      userNetworkId: Network.instance.userNetworkId,
+    })
     this.workerProxy.sendEvent('loadScene', { result })
   }
-
-  transferNetworkBuffer(buffer, delta) {
+  transferNetworkBuffer(buffer, delta) { 
     this.workerProxy.sendEvent('transferNetworkBuffer', { buffer, delta }, [buffer])
   }
 }
@@ -55,8 +58,8 @@ export async function initializeWorker(initOptions: any = DefaultInitializationO
     {
       env: {
         ...process?.env,
-        useWebXR: !isSafari
-      }
+      },
+      useWebXR: !isSafari
     }
   );
   EngineProxy.instance = new WorkerEngineProxy(workerProxy);

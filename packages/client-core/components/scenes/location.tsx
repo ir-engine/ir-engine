@@ -227,15 +227,15 @@ export const EnginePage = (props: Props) => {
     styleCanvas(canvas);
 
     let initializationOptions, initialize;
-    if(canvas.transferControlToOffscreen) {
-      const { DefaultInitializationOptions, initializeWorker } = await import('@xr3ngine/engine/src/initializeWorker');
-      initializationOptions = DefaultInitializationOptions;
-      initialize = initializeWorker;
-    } else {
+    // if(canvas.transferControlToOffscreen) {
+      // const { DefaultInitializationOptions, initializeWorker } = await import('@xr3ngine/engine/src/initializeWorker');
+      // initializationOptions = DefaultInitializationOptions;
+      // initialize = initializeWorker;
+    // } else {
       const { DefaultInitializationOptions, initializeEngine } = await import('@xr3ngine/engine/src/initialize');
       initializationOptions = DefaultInitializationOptions;
       initialize = initializeEngine;
-    }
+    // }
 
     const InitializationOptions = {
       ...initializationOptions,

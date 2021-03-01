@@ -51,6 +51,21 @@ function simplifyObject(object: any): any {
   return messageData;
 }
 
+function fixDocumentEvent(event: any) {
+  const obj = simplifyObject(event);
+  switch(obj.srcElement) {
+    case (window as any): obj.targetElement = 'window'; break;
+    case (document as any): obj.targetElement = 'document'; break;
+    case ((globalThis as any).__messageQueue as WorkerProxy).canvas: obj.targetElement = 'canvas'; break;
+    default: break;
+  }
+  delete obj.currentTarget;
+  delete obj.path;
+  delete obj.srcElement;
+  delete obj.target;
+  return obj;
+}
+
 class ExtendableProxy {
   constructor(
     getset = {
@@ -95,17 +110,17 @@ class EventDispatcherProxy extends ExtendableProxy {
       event.preventDefault = () => {};
       event.stopPropagation = () => {};
       delete event.target;
-      this.dispatchEvent(new CustomEvent(event.type, { detail: event.detail }));
+      this.dispatchEvent(event, true);
     });
     this.messageTypeFunctions.set(
       MessageType.ADD_EVENT,
-      ({ type }: { type: string, targetElement?: string }) => {
+      ({ type }: { type: string }) => {
         this.eventTarget.addEventListener(type, eventListener);
       },
     );
     this.messageTypeFunctions.set(
       MessageType.REMOVE_EVENT,
-      ({ type }: { type: string, targetElement?: string }) => {
+      ({ type }: { type: string }) => {
         this.eventTarget.removeEventListener(type, eventListener);
       },
     );
@@ -137,7 +152,7 @@ class EventDispatcherProxy extends ExtendableProxy {
     }
   }
 
-  dispatchEvent(event: any) {
+  dispatchEvent(event: any, fromSelf?: boolean) {
     var listenerArray = this._listeners[event.type];
     if (listenerArray !== undefined) {
       event.target = this;
@@ -160,18 +175,15 @@ class MessageQueue extends EventDispatcherProxy {
   constructor({
     messagePort,
     eventTarget,
+    eventListener
   }: {
     messagePort: any;
     eventTarget: EventTarget;
+    eventListener: any;
   }) {
     super({
       eventTarget,
-      eventListener: (args: any) => {
-        this.queue.push({
-          messageType: MessageType.EVENT,
-          message: simplifyObject(args),
-        } as Message);
-      },
+      eventListener
     });
     this.messagePort = messagePort;
     this.eventTarget = eventTarget;
@@ -237,39 +249,36 @@ class MessageQueue extends EventDispatcherProxy {
   addEventListener(
     type: string,
     listener: (event: DispatchEvent) => void,
-    targetElement?: string
   ): void {
-    if(targetElement) {
-      this.queue.push({
-        messageType: MessageType.ADD_EVENT,
-        message: { type, targetElement },
-      } as Message);
-    } else super.addEventListener(type, listener);
+    this.queue.push({
+      messageType: MessageType.ADD_EVENT,
+      message: { type },
+    } as Message);
+    super.addEventListener(type, listener);
   }
 
   removeEventListener(
     type: string,
     listener: (event: DispatchEvent) => void,
-    targetElement?: string
   ): void {
-    if(targetElement) {
-      this.queue.push({
-        messageType: MessageType.REMOVE_EVENT,
-        message: { type, targetElement },
-      } as Message);
-    } else super.removeEventListener(type, listener);
+    this.queue.push({
+      messageType: MessageType.REMOVE_EVENT,
+      message: { type },
+    } as Message);
+    super.removeEventListener(type, listener);
   }
 
   dispatchEvent(
     { type, detail }: { type: string, detail: any },
-    targetElement?: string
+    fromSelf?: boolean
   ): void {
-    if(targetElement) {
+    if(!fromSelf) {
       this.queue.push({
         messageType: MessageType.EVENT,
-        message: { type, detail, targetElement },
+        message: { type, detail },
       } as Message);
-    } else super.dispatchEvent({ type, detail });
+    }
+    super.dispatchEvent({ type, detail });
   }
 }
 
@@ -371,6 +380,19 @@ class DocumentElementProxy extends EventDispatcherProxy {
       message: { type, uuid: this.uuid },
     } as Message);
     super.removeEventListener(type, listener);
+  }
+
+  dispatchEvent(
+    { type, detail }: { type: string, detail: any },
+    fromMain?: boolean
+  ): void {
+    if(!fromMain) {
+      this.messageQueue.queue.push({
+        messageType: MessageType.DOCUMENT_ELEMENT_EVENT,
+        message: { type, detail, uuid: this.uuid },
+      } as Message);
+    } 
+    super.dispatchEvent({ type, detail });
   }
 }
 
@@ -583,6 +605,7 @@ export class PositionalAudioObjectProxy extends AudioObjectProxy {
   }
 }
 export class WorkerProxy extends MessageQueue {
+  canvas: HTMLCanvasElement;
   constructor({
     messagePort,
     eventTarget,
@@ -590,42 +613,33 @@ export class WorkerProxy extends MessageQueue {
     messagePort: any;
     eventTarget: EventTarget;
   }) {
-    super({ messagePort, eventTarget });
+    super({ messagePort, eventTarget, eventListener: (args: any) => {
+      this.queue.push({
+        messageType: MessageType.EVENT,
+        message: fixDocumentEvent(args),
+      } as Message);
+    }, });
 
-    this.messageTypeFunctions.set(MessageType.EVENT, (event: any) => {
-      event.preventDefault = () => {};
-      event.stopPropagation = () => {};
-      switch(event.targetElement) {
-        default: this.dispatchEvent(new CustomEvent(event.type, { detail: event.detail })); break;
-        case 'canvas': 
-          delete event.target;
-          this.eventTarget.dispatchEvent(new CustomEvent(event.type, { detail: event.detail })); break;
-        case 'window': window.dispatchEvent(new CustomEvent(event.type, { detail: event.detail })); break;
-        case 'document': document.dispatchEvent(new CustomEvent(event.type, { detail: event.detail })); break;
-      }
-    });
-    this.messageTypeFunctions.set(
-      MessageType.ADD_EVENT,
-      ({ type, targetElement }: { type: string, targetElement?: string }) => {
-        switch(targetElement) {
-          default: this.addEventListener(type, this.eventListener); break; 
-          case 'canvas': this.eventTarget.addEventListener(type, this.eventListener); break;
-          case 'window': window.addEventListener(type, this.eventListener); break;
-          case 'document': document.addEventListener(type, this.eventListener); break;
-        }
-      },
-    );
-    this.messageTypeFunctions.set(
-      MessageType.REMOVE_EVENT,
-      ({ type, targetElement }: { type: string, targetElement?: string }) => {
-        switch(targetElement) {
-          default: this.removeEventListener(type, this.eventListener); break;
-          case 'canvas': this.eventTarget.removeEventListener(type, this.eventListener); break;
-          case 'window': window.removeEventListener(type, this.eventListener); break;
-          case 'document': document.removeEventListener(type, this.eventListener); break;
-        }
-      },
-    );
+    this.canvas = eventTarget as HTMLCanvasElement;
+
+    // this.messageTypeFunctions.set(MessageType.EVENT, (event: any) => {
+    //   event.preventDefault = () => {};
+    //   event.stopPropagation = () => {};
+    //   delete event.target;
+    //   this.dispatchEvent(new CustomEvent(event.type, { detail: event.detail }));
+    // });
+    // this.messageTypeFunctions.set(
+    //   MessageType.ADD_EVENT,
+    //   ({ type }: { type: string }) => {
+    //     this.addEventListener(type, this.eventListener); 
+    //   },
+    // );
+    // this.messageTypeFunctions.set(
+    //   MessageType.REMOVE_EVENT,
+    //   ({ type }: { type: string }) => {
+    //     this.removeEventListener(type, this.eventListener);
+    //   },
+    // );
   }
 }
 
@@ -642,7 +656,12 @@ export class MainProxy extends MessageQueue {
     messagePort: any;
     eventTarget?: EventTarget;
   }) {
-    super({ messagePort, eventTarget });
+    super({ messagePort, eventTarget, eventListener: (args: any) => {
+      this.queue.push({
+        messageType: MessageType.EVENT,
+        message: simplifyObject(args),
+      } as Message);
+    }, });
 
     this.canvas = null;
     this.width = 0;
@@ -650,19 +669,26 @@ export class MainProxy extends MessageQueue {
     this.devicePixelRatio = 0;
 
     this.focus = this.focus.bind(this);
+
+    // this.messageTypeFunctions.set(MessageType.EVENT, (event: any) => {
+    //   event.preventDefault = () => {};
+    //   event.stopPropagation = () => {};
+    //   delete event.target;
+    //   this.dispatchEvent(new CustomEvent(event.type, { detail: event.detail }));
+    // });
   }
 
-  addEventListener(type: string, listener: (event: DispatchEvent) => void, targetElement?) {
-    super.addEventListener(type, listener, targetElement);
-  }
+  // addEventListener(type: string, listener: (event: DispatchEvent) => void, targetElement?) {
+  //   super.addEventListener(type, listener, targetElement);
+  // }
 
-  removeEventListener(type: string, listener: (event: DispatchEvent) => void, targetElement?) {
-    super.removeEventListener(type, listener, targetElement);
-  }
+  // removeEventListener(type: string, listener: (event: DispatchEvent) => void, targetElement?) {
+  //   super.removeEventListener(type, listener, targetElement);
+  // }
 
-  dispatchEvent(event: any, targetElement?) {
-    super.dispatchEvent(event, targetElement);
-  }
+  // dispatchEvent(event: any, targetElement?) {
+  //   super.dispatchEvent(event, targetElement);
+  // }
   focus() {}
   get ownerDocument() {
     return this;
@@ -718,11 +744,17 @@ export async function createWorker(
     },
   );
   messageQueue.messageTypeFunctions.set(
+    MessageType.DOCUMENT_ELEMENT_EVENT,
+    ({ type, uuid, detail }: { type: string; uuid: string, detail: any }) => {
+      documentElementMap.get(uuid)?.dispatchEvent(new CustomEvent(type, { detail }))
+    },
+  );
+  messageQueue.messageTypeFunctions.set(
     MessageType.DOCUMENT_ELEMENT_ADD_EVENT,
     ({ type, uuid }: { type: string; uuid: string }) => {
       if (documentElementMap.get(uuid)) {
-        const listener = (...args: any) => {
-          const event = simplifyObject(args) as any;
+        const listener = (ev: any) => {
+          const event = fixDocumentEvent(ev) as any;
           event.type = type;
           event.returnID = uuid;
           messageQueue.queue.push({
@@ -753,6 +785,9 @@ export async function createWorker(
     MessageType.DOCUMENT_ELEMENT_CREATE,
     ({ type, uuid }: { type: string; uuid: string }) => {
       switch (type) {
+        case 'window': documentElementMap.set(uuid, (window as any)); break;
+        case 'document': documentElementMap.set(uuid, (document as any)); break;
+        case 'canvas:': documentElementMap.set(uuid, canvas); break;
         case 'audio':
           const audio = document.createElement('audio') as HTMLVideoElement;
           documentElementMap.set(uuid, audio);
@@ -948,7 +983,84 @@ export async function createWorker(
       },
     } as Message);
   });
+  (globalThis as any).__messageQueue = messageQueue;
   return messageQueue;
+}
+
+class WindowProxy extends DocumentElementProxy {
+  constructor({
+    messageQueue,
+    type = 'window',
+    remoteCalls = [],
+  }: {
+    messageQueue: MessageQueue;
+    type?: string;
+    remoteCalls?: string[];
+  }) {
+    super({
+      messageQueue,
+      type,
+      remoteCalls: [...remoteCalls],
+    });
+    // this.transferedProps.push();
+  }
+  focus: () => {}
+  get ownerDocument() {
+    return (globalThis as any).document;
+  }
+  get width() {
+    return this.messageQueue.width;
+  }
+  get height() {
+    return this.messageQueue.height;
+  }
+  get clientWidth() {
+    return this.messageQueue.width;
+  }
+  get clientHeight() {
+    return this.messageQueue.height;
+  }
+  get innerWidth() {
+    return this.messageQueue.width;
+  }
+  get innerHeight() {
+    return this.messageQueue.height;
+  }
+  get devicePixelRatio() {
+    return this.messageQueue.devicePixelRatio;
+  }
+}
+
+class DocumentProxy extends DocumentElementProxy {
+  constructor({
+    messageQueue,
+    type = 'document',
+    remoteCalls = [],
+  }: {
+    messageQueue: MessageQueue;
+    type?: string;
+    remoteCalls?: string[];
+  }) {
+    super({
+      messageQueue,
+      type,
+      remoteCalls: [...remoteCalls],
+    });
+    // this.transferedProps.push();
+  }
+  get ownerDocument() {
+    return (globalThis as any).document
+  }
+  createElement(type: string): DocumentElementProxy | null {
+    switch (type) {
+      case 'audio':
+        return new AudioDocumentElementProxy({ messageQueue: this.messageQueue });
+      case 'video':
+        return new VideoDocumentElementProxy({ messageQueue: this.messageQueue });
+      default:
+        return null;
+    }
+  }
 }
 
 export async function receiveWorker(onCanvas: any) {
@@ -977,104 +1089,33 @@ export async function receiveWorker(onCanvas: any) {
         type: string,
         listener: (event: any) => void,
       ) => {
-        messageQueue.addEventListener(type, listener, 'canvas');
+        // messageQueue.addEventListener(type, listener, 'canvas');
       };
       canvas.removeEventListener = (
         type: string,
         listener: (event: any) => void,
       ) => {
-        messageQueue.removeEventListener(type, listener, 'canvas');
+        // messageQueue.removeEventListener(type, listener, 'canvas');
       };
       canvas.dispatchEvent = (
         event: any
       ): boolean => {
-        messageQueue.dispatchEvent(simplifyObject(event), 'canvas');
+        // delete event.target;
+        // messageQueue.dispatchEvent(event, 'canvas');
         return true;
       };
       /** @ts-ignore */
       canvas.ownerDocument = (globalThis as any).document;
-      (globalThis as any).window = {
-        addEventListener: (
-          type: string,
-          listener: (event: any) => void,
-        ) => {
-          messageQueue.addEventListener(type, listener, 'window');
-        },
-        removeEventListener: (
-          type: string,
-          listener: (event: any) => void,
-        ) => {
-          messageQueue.removeEventListener(type, listener, 'window');
-        },
-        dispatchEvent: (
-          event: any
-        ) => {
-          messageQueue.dispatchEvent(simplifyObject(event), 'window');
-        },
-        focus: () => {},
-        get ownerDocument() {
-          return (globalThis as any).document;
-        },
-        get width() {
-          return messageQueue.width;
-        },
-        get height() {
-          return messageQueue.height;
-        },
-        get clientWidth() {
-          return messageQueue.width;
-        },
-        get clientHeight() {
-          return messageQueue.height;
-        },
-        get innerWidth() {
-          return messageQueue.width;
-        },
-        get innerHeight() {
-          return messageQueue.height;
-        },
-        get devicePixelRatio() {
-          return messageQueue.devicePixelRatio;
-        }
-      };
-      (globalThis as any).document = {
-        addEventListener: (
-          type: string,
-          listener: (event: any) => void,
-        ) => {
-          messageQueue.addEventListener(type, listener, 'document');
-        },
-        removeEventListener: (
-          type: string,
-          listener: (event: any) => void,
-        ) => {
-          messageQueue.removeEventListener(type, listener, 'document');
-        },
-        dispatchEvent: (
-          event: any
-        ) => {
-          delete event.target;
-          messageQueue.dispatchEvent(simplifyObject(event), 'document');
-        },
-        ownerDocument: (globalThis as any).document,
-        createElement(type: string): DocumentElementProxy | null {
-          switch (type) {
-            case 'audio':
-              return new AudioDocumentElementProxy({ messageQueue });
-            case 'video':
-              return new VideoDocumentElementProxy({ messageQueue });
-            default:
-              return null;
-          }
-        },
-      };
-
+      (globalThis as any).window = new WindowProxy({ messageQueue });
+      (globalThis as any).document = new DocumentProxy({ messageQueue });
       onCanvas(args, messageQueue);
     },
   );
-  messageQueue.addEventListener('resize', ({ width, height }: any) => {
-    messageQueue.width = width;
-    messageQueue.height = height;
+  messageQueue.addEventListener('resize', (ev: any) => {
+    if(ev) {
+      messageQueue.width = ev.detail.width;
+      messageQueue.height = ev.detail.height;
+    }
   });
   (globalThis as any).__messageQueue = messageQueue;
   return messageQueue;

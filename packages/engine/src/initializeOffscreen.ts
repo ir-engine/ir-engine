@@ -9,9 +9,10 @@ import { Engine } from './ecs/classes/Engine';
 import { execute, initialize } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
-import { EngineMessageType, EngineProxy } from './EngineProxy';
+import { EngineProxy } from './EngineProxy';
 import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
 import { Network } from './networking/classes/Network';
+import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';
 import { ParticleSystem } from './particles/systems/ParticleSystem';
 import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { HighlightSystem } from './renderer/HighlightSystem';
@@ -23,6 +24,7 @@ import { CharacterStateSchema } from './templates/character/CharacterStateSchema
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { MainProxy, MessageType, Message } from './worker/MessageQueue';
+import { InputSystem } from './input/systems/ClientInputSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -44,6 +46,13 @@ class MainEngineProxy extends EngineProxy {
   constructor(mainProxy: MainProxy) {
     super()
     this.mainProxy = mainProxy;
+    const initializeNetworkEvent = (ev: any) => {
+      const { userId, userNetworkId } = ev.detail;
+      Network.instance.userId = userId;
+      Network.instance.userNetworkId = userNetworkId;
+      this.mainProxy.removeEventListener('NETWORK_INITIALIZE_EVENT', initializeNetworkEvent)
+    }
+    this.mainProxy.addEventListener('NETWORK_INITIALIZE_EVENT', initializeNetworkEvent)
     const loadScene = (ev: any) => { 
       this.loadScene(ev.detail.result)
       this.mainProxy.removeEventListener('loadScene', loadScene)
@@ -51,13 +60,10 @@ class MainEngineProxy extends EngineProxy {
     this.mainProxy.addEventListener('loadScene', loadScene)
     this.mainProxy.addEventListener('transferNetworkBuffer', (ev: any) => { 
       const { buffer, delta } = ev.detail;
-      // this.transferNetworkBuffer(buffer, delta)
+      this.transferNetworkBuffer(buffer, delta)
     })
   }
-
-  sendData(buffer) {
-    this.mainProxy.sendEvent('sendData', { buffer }, [buffer])
-  }
+  sendData(buffer) { this.mainProxy.sendEvent('sendData', { buffer }, [buffer]) }
 }
 
 
@@ -70,6 +76,9 @@ export function initializeEngineOffscreen({ canvas, initOptions, env, useWebXR }
 
   new Network();
 
+  Network.instance.schema = options.networking.schema;
+  // @ts-ignore
+  Network.instance.transport = { isServer: false }
 
   // Do we want audio and video streams?
   // registerSystem(MediaStreamSystem);
@@ -78,7 +87,7 @@ export function initializeEngineOffscreen({ canvas, initOptions, env, useWebXR }
 
   registerSystem(PhysicsSystem);
 
-  // if(isClient) registerSystem(InputSystem, { useWebXR: DefaultInitializationOptions.input.useWebXR });
+  // registerSystem(InputSystem, { useWebXR });
 
   registerSystem(StateSystem);
 
