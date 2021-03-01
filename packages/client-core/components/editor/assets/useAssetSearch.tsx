@@ -10,6 +10,13 @@ function useIsMounted() {
   }, []);
   return () => ref.current;
 }
+/**
+ * useLoadAsyncfunction used to load AssetPanelContent by calling API.
+ * @param  {Function} callback
+ * @param  {Array}    [initialResults=[]]
+ * @param  {Number}   [initialCursor=0]
+ * @return {promise} Object 
+ */
 export function useLoadAsync(callback, initialResults = [], initialCursor = 0) {
   const currentPromise = useRef();
   const abortControllerRef = useRef();
@@ -102,6 +109,14 @@ export function useLoadAsync(callback, initialResults = [], initialCursor = 0) {
     error
   };
 }
+
+/**
+ * useAssetSearch
+ * @param {[type]} source
+ * @param {Object} [initialParams={}]
+ * @param {Array}  [initialResults=[]]
+ * @param {Number} [initialCursor=0]
+ */
 export function useAssetSearch(
   source,
   initialParams = {},
