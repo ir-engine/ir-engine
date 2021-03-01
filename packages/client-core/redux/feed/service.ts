@@ -55,7 +55,7 @@ export function getFeed(feedId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       dispatch(fetchingFeeds());
-        // const feedsResults = await client.service('feed').find({query: {action: 'feed', id: feedId}});
+        // const feedsResults = await client.service('feed').get(feedId);
           const feed ={ 
             id: feedId,
             creator:{

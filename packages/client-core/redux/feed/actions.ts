@@ -4,11 +4,11 @@ import {
   FEEDS_FETCH,
   FEEDS_FEATURED_RETRIEVED
 } from '../actions';
-import { FeedShord, Feed } from '@xr3ngine/common/interfaces/Feed';
+import { FeedShort, Feed } from '@xr3ngine/common/interfaces/Feed';
 
 export interface FeedsRetrievedAction {
   type: string;
-  feeds: FeedShord[];
+  feeds: FeedShort[];
 }
 
 export interface FeedRetrievedAction {
@@ -31,7 +31,7 @@ export function feedsRetrieved (feeds: Feed[]): FeedsRetrievedAction {
   };
 }
 
-export function feedsFeaturedRetrieved (feeds: FeedShord[]): FeedsRetrievedAction {
+export function feedsFeaturedRetrieved (feeds: FeedShort[]): FeedsRetrievedAction {
   return {
     type: FEEDS_FEATURED_RETRIEVED,
     feeds: feeds
