@@ -192,11 +192,6 @@ export interface XRPluginPlugin {
     
     handleTap(): void;
 
-<<<<<<< HEAD
-=======
-    getXRDataForFrame(options: {}): Promise<{ data: XRFrameData;}>;
-
->>>>>>> 8822c4a24... add mobile changes
     startRecording(
         isAudio: any,
         width: number,
