@@ -141,8 +141,6 @@ export const IndexPage = (): any => {
             XRPlugin.start({}).then(() => {
                 setCameraStartedState(isNative ? "Camera started on native" : "Camera started on web");
             });
-
-
         })();
     }, []);
 
@@ -191,7 +189,7 @@ export const IndexPage = (): any => {
                     setSavedFilePath("file://" + filePath);
                 });
         }
-    }
+    };
 
     const handleTap = () => {
         Plugins.XRPlugin.handleTap();

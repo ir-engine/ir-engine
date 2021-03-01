@@ -11,6 +11,7 @@ import { Engine } from './ecs/classes/Engine';
 import { execute, initialize } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
+import { EngineProxy } from './EngineProxy';
 import { InputSystem } from './input/systems/ClientInputSystem';
 import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
 import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';
@@ -47,8 +48,10 @@ export const DefaultInitializationOptions = {
   },
 };
 
-export function initializeEngine(initOptions: any = DefaultInitializationOptions): void {
+export async function initializeEngine(initOptions: any = DefaultInitializationOptions): Promise<void> {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
+
+  new EngineProxy();
 
   // Create a new world -- this holds all of our simulation state, entities, etc
   initialize();
@@ -90,26 +93,19 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
 
   registerSystem(TransformSystem, { priority: 900 });
 
-  //Object HighlightSystem
   if (isClient) {
-    // Create a new camera
-    const camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.3, 750);
-    // Add the camera to the camera manager so it's available anywhere
-    Engine.camera = camera;
-    // Add the camera to the three.js scene
-    scene.add(camera);
-
-  //  const listener = new AudioListener();
-  //  camera.add( listener);
-
-  //  Engine.audioListener = listener;
-
+    Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.3, 750);
+    Engine.scene.add(Engine.camera);
     registerSystem(HighlightSystem);
-  //  registerSystem(PositionalAudioSystem);
+
+    // Engine.audioListener = new AudioListener();
+    // Engine.camera.add(Engine.audioListener);
+    // registerSystem(PositionalAudioSystem);
+
     registerSystem(InteractiveSystem);
     registerSystem(ParticleSystem);
     if (process.env.NODE_ENV === 'development') {
-      //registerSystem(DebugHelpersSystem);
+      registerSystem(DebugHelpersSystem);
     }
     registerSystem(CameraSystem);
     registerSystem(WebGLRendererSystem, { priority: 1001, canvas: options.renderer.canvas || createCanvas() });

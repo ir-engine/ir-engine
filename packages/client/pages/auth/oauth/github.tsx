@@ -5,3 +5,4 @@ import { GithubCallback } from '@xr3ngine/client-core/components/ui/Oauth/Github
 export const GithubHomePage = () => <GithubCallback />;
 
 export default GithubHomePage;
+

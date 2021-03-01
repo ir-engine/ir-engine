@@ -1,30 +1,35 @@
-import React from 'react';
-import { random } from 'lodash';
+import React, { useEffect } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
+
+import { selectFeedsState } from '../../../redux/feed/selector';
+import { getFeeds } from '../../../redux/feed/service';
 
 import FeedCard from '../FeedCard';
 
 import styles from './TheFeed.module.scss';
 
-const TheFeed = () => { 
-    const data=[];
-    for(let i=0; i<random(20, 5); i++){
-        data.push({ 
-            id: i,
-            author:{
-                id: '169',
-                avatar :'https://picsum.photos/40/40',
-                username: 'User username'
-            },
-            previewImg:'https://picsum.photos/375/210',
-            videoLink:null,
-            title: 'Featured Artist Post',
-            flamesCount: random(15000),
-            description: 'I recently understood the words of my friend Jacob West about music.'
-        })
-    }
+const mapStateToProps = (state: any): any => {
+    return {
+        feedsState: selectFeedsState(state),
+    };
+  };
+
+  const mapDispatchToProps = (dispatch: Dispatch): any => ({
+    getFeeds: bindActionCreators(getFeeds, dispatch),
+});
+interface Props{
+    feedsState?: any,
+    getFeeds?: any
+}
+
+const TheFeed = ({feedsState, getFeeds}: Props) => { 
+    let feedsList = null;
+    useEffect(()=> getFeeds(), []);
+    feedsList = feedsState.get('fetching') === false && feedsState?.get('feeds');
     return <section className={styles.thefeedContainer}>
-        {data.map((item)=><FeedCard {...item} /> )}
+            {feedsList && feedsList.length > 0 && feedsList.map((item, key)=> <FeedCard key={key} {...item} />)}
         </section>
 };
 
-export default TheFeed;
+export default connect(mapStateToProps, mapDispatchToProps)(TheFeed);
