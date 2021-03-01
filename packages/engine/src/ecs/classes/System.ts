@@ -5,6 +5,7 @@ import { ComponentConstructor } from '../interfaces/ComponentInterfaces';
 import { Component } from './Component';
 import { Engine } from './Engine';
 import { Entity } from './Entity';
+import { EventDispatcher } from './EventDispatcher';
 import { Query } from './Query';
 
 /** Interface for System attributes. */
@@ -53,7 +54,7 @@ export interface NotComponent<C extends Component<any>> {
 /**
  * Abstract class to define System properties.
  */
-export abstract class System {
+export abstract class System extends EventDispatcher {
   /**
    * Defines what Components the System will query for.
    * This needs to be user defined.
@@ -100,6 +101,7 @@ export abstract class System {
    * @param attributes User defined system attributes.
    */
   constructor (attributes?: SystemAttributes) {
+    super();
     this.enabled = true;
 
     // @todo Better naming :)

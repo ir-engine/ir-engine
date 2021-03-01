@@ -3,6 +3,7 @@
 import { XRFrame } from "three";
 import { now } from "../../common/functions/now";
 import { Engine } from '../classes/Engine';
+import { Entity } from "../classes/Entity";
 import { System } from '../classes/System';
 import { EngineOptions } from '../interfaces/EngineOptions';
 import { removeAllComponents, removeAllEntities } from "./EntityFunctions";
@@ -119,6 +120,7 @@ function processDeferredEntityRemoval () {
     const entity = entitiesToRemove[i];
     const index = Engine.entities.indexOf(entity);
     Engine.entities.splice(index, 1);
+    Engine.entityMap.delete(String(entity.id))
     entity._pool.release(entity);
   }
   entitiesToRemove.length = 0;

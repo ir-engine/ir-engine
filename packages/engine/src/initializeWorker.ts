@@ -11,7 +11,7 @@ import { InputSystem } from './input/systems/ClientInputSystem';
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { Engine } from './ecs/classes/Engine';
 import { Timer } from './common/functions/Timer';
-import { execute } from './ecs/functions/EngineFunctions';
+import { execute, initialize } from "./ecs/functions/EngineFunctions";
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType';
 import { Network } from './networking/classes/Network';
 
@@ -36,6 +36,13 @@ class WorkerEngineProxy extends EngineProxy {
     super();
     this.workerProxy = workerProxy;
     this.workerProxy.addEventListener('sendData', (ev: any) => { this.sendData(ev.detail.buffer) })
+    const serverConnect = () => {
+      this.workerProxy.sendEvent('NETWORK_CONNECT_EVENT', {
+
+      })
+      document.removeEventListener('server-connected', serverConnect)
+    }
+    document.addEventListener('server-connected', serverConnect)
   }
   loadScene(result) { 
     this.workerProxy.sendEvent('NETWORK_INITIALIZE_EVENT', {
@@ -44,15 +51,15 @@ class WorkerEngineProxy extends EngineProxy {
     })
     this.workerProxy.sendEvent('loadScene', { result })
   }
-  transferNetworkBuffer(buffer, delta) { 
-    this.workerProxy.sendEvent('transferNetworkBuffer', { buffer, delta }, [buffer])
-  }
+  transferNetworkBuffer(buffer, delta) { this.workerProxy.sendEvent('transferNetworkBuffer', { buffer, delta }, [buffer]) }
+  setActorAvatar(entityID, avatarID) { this.workerProxy.sendEvent('setActorAvatar', { entityID, avatarID } ) }
 }
 
 export async function initializeWorker(initOptions: any = DefaultInitializationOptions): Promise<void> {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
   const workerProxy: WorkerProxy = await createWorker(
+    // @ts-ignore
     new Worker(new URL('./entry.worker.ts', import.meta.url)),
     (options.renderer.canvas || createCanvas()),
     {
@@ -63,7 +70,7 @@ export async function initializeWorker(initOptions: any = DefaultInitializationO
     }
   );
   EngineProxy.instance = new WorkerEngineProxy(workerProxy);
-
+  initialize()
   const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
   registerSystem(ClientNetworkSystem, { ...networkSystemOptions, priority: -1 });
   registerSystem(MediaStreamSystem);
@@ -77,4 +84,12 @@ export async function initializeWorker(initOptions: any = DefaultInitializationO
         update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
       }, Engine.physicsFrameRate, Engine.networkFramerate).start();
   }, 1000);
+
+  return await new Promise((resolve) => {
+    const onNetworkConnect = () => {
+      window.removeEventListener('connectToWorld', onNetworkConnect)
+      resolve()
+    }
+    window.addEventListener('connectToWorld', onNetworkConnect)
+  })
 }

@@ -77,6 +77,7 @@ export function connectToChannelServer(channelId: string) {
         videoEnabled: currentLocation?.locationSettings?.videoEnabled === true || !(currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null)
       });
       Network.instance.isInitialized = true;
+      document.dispatchEvent(new CustomEvent('server-connected'))
 
       // setClient(instanceClient);
       dispatch(channelServerConnected());

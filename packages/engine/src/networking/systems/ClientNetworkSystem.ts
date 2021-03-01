@@ -6,9 +6,7 @@ import { Input } from '../../input/components/Input';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
-import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClient';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
-import { WorldStateModel } from '../schema/worldStateSchema';
 
 /** System class for network system of client. */
 export class ClientNetworkSystem extends System {

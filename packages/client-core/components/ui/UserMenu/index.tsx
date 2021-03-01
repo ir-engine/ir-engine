@@ -25,6 +25,7 @@ import AvatarMenu from './menus/AvatarMenu';
 import SettingMenu from './menus/SettingMenu';
 import ShareMenu from './menus/ShareMenu';
 import { WebGLRendererSystem, getGraphicsSettingsFromStorage } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
+import { EngineProxy } from '@xr3ngine/engine/src/EngineProxy';
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -73,21 +74,18 @@ const UserMenu = (props: UserMenuProps): any => {
 
   const [waitingForLogout, setWaitingForLogout] = useState(false);
   const [currentActiveMenu, setCurrentActiveMenu] = useState({} as any);
-  const [actorEntity, setActorEntity] = useState(null);
+  const [actorEntityID, setActorEntityID] = useState(null);
 
   useEffect(() => {
-    let actorEntityWaitInterval;
-    if (selfUser.id && !actorEntity) {
-      actorEntityWaitInterval = setInterval(() => {
-        const entity = Network.instance?.localClientEntity;
-        if (Network.instance?.localClientEntity) {
-          clearInterval(actorEntityWaitInterval);
-          setActorEntity(entity);
-          updateCharacterComponent(entity, selfUser?.avatarId);
-        }
-      }, 300);
-    } else {
-      clearInterval(actorEntityWaitInterval);
+    if (selfUser.id && actorEntityID === null) {
+      const clientEntityLoaded = (ev: any) => {
+        const id = ev.detail.id;
+        Network.instance.localClientEntity = id;
+        setActorEntityID(id);
+        updateCharacterComponent(id, selfUser?.avatarId)
+        document.removeEventListener('client-entity-load', clientEntityLoaded);
+      }
+      document.addEventListener('client-entity-load', clientEntityLoaded);
     }
   }, [selfUser.id]);
 
@@ -139,17 +137,13 @@ const UserMenu = (props: UserMenuProps): any => {
     }
   };
 
-  const updateCharacterComponent = (entity, avatarId?: string) => {
-    const characterAvatar = getMutableComponent(entity, CharacterComponent);
-    if (characterAvatar != null) characterAvatar.avatarId = avatarId || selfUser?.avatarId;
-
-    // We can pull this from NetworkPlayerCharacter, but we probably don't want our state update here
-    loadActorAvatar(entity);
+  const updateCharacterComponent = (entityID, avatarId?: string) => {
+    EngineProxy.instance.setActorAvatar(entityID, avatarId || selfUser?.avatarId);
   }
 
   const setAvatar = (avatarId: string) => {
-    if (actorEntity && avatarId) {
-      updateCharacterComponent(actorEntity, avatarId);
+    if (actorEntityID && avatarId) {
+      updateCharacterComponent(actorEntityID, avatarId);
       updateUserAvatarId(selfUser.id, avatarId);
     }
   }

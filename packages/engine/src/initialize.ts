@@ -63,7 +63,6 @@ export async function initializeEngine(initOptions: any = DefaultInitializationO
   Engine.scene = scene;
 
   if(typeof window !== 'undefined') {
-    (window as any).engine = Engine;
     // Add iOS and safari flag to window object -- To use it for creating an iOS compatible WebGLRenderer for example
     (window as any).iOS = !window.MSStream && /iPad|iPhone|iPod/.test(navigator.userAgent);
     (window as any).safariWebBrowser = !window.MSStream && /Safari/.test(navigator.userAgent);
