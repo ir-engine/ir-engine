@@ -52,12 +52,12 @@ export class WebGLRendererSystem extends System {
   /** point at which we downgrade quality level (large delta) */
   minRenderDelta = 1000 / 50 // 50 fps
 
-  static automatic: boolean = true;
-  static usePBR: boolean = true;
-  static usePostProcessing: boolean = true;
-  static shadowQuality: number = 5; 
+  static automatic = true;
+  static usePBR = true;
+  static usePostProcessing = true;
+  static shadowQuality = 5; 
   /** Resoulion scale. **Default** value is 1. */
-  static scaleFactor: number = 1;
+  static scaleFactor = 1;
   
   /** Constructs WebGL Renderer System. */
   constructor(attributes?: SystemAttributes) {

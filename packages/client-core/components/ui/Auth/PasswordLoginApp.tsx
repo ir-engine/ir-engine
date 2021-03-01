@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import Router from "next/router";
@@ -12,33 +12,47 @@ import { Visibility, VisibilityOff } from '@material-ui/icons';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 
 import { selectAuthState } from '../../../redux/auth/selector';
-import { loginUserByPassword, addConnectionByPassword } from '../../../redux/auth/service';
+import { doLoginAuto } from '../../../redux/auth/service';
+// import { loginUserByPassword, doLoginAuto } from '../../../redux/auth/service';
 import { User } from '@xr3ngine/common/interfaces/User';
 
 import styles from './Auth.module.scss';
 
 const mapStateToProps = (state: any): any => {
   return {
-    auth: selectAuthState(state)
+    auth: selectAuthState(state),
   };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  loginUserByPassword: bindActionCreators(loginUserByPassword, dispatch),
+  // loginUserByPassword: bindActionCreators(loginUserByPassword, dispatch),
+  doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
 });
 
 const initialState = { email: '', password: '' };
 
 interface Props {
   auth?: any;
-  loginUserByPassword?: typeof loginUserByPassword;
+  // loginUserByPassword?: typeof loginUserByPassword;
+  doLoginAuto?: typeof doLoginAuto;
 }
 
 export const PasswordLogin = (props: Props): any => {
   const {
     auth,
-    loginUserByPassword,
+    // loginUserByPassword,
+    doLoginAuto
   } = props;
+
+  useEffect(()=>{
+    if(auth){
+      const user = auth.get('user') as User;
+      const userId = user ? user.id : null;
+      if(userId){
+        Router.push("/");
+      }
+    }
+  },[auth])
   const [state, setState] = useState(initialState);
 
   const handleInput = (e: any): void =>
@@ -47,20 +61,11 @@ export const PasswordLogin = (props: Props): any => {
   const handleEmailLogin = (e: any): void => {
     e.preventDefault();
 
-      loginUserByPassword({
-        email: state.email,
-        password: state.password
-      });
-
-      if(auth){
-        const user = auth.get('user') as User;
-        const userId = user ? user.id : null;
-        console.log('userId', userId)
-        if(userId){
-          Router.push("/");
-        }
-      }
-
+      doLoginAuto(true);
+      // loginUserByPassword({
+      //   email: state.email,
+      //   password: state.password
+      // });
   };
 
   const [showPassword, showHidePassword] = useState(false);

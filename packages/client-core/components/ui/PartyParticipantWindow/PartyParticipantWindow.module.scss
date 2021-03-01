@@ -166,6 +166,10 @@
         text-align: center;
         width: 100%;
         margin: 5px 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 130px;
     }
 
     &:not(.self-user):not(.harmony) {
@@ -176,74 +180,6 @@
                 }
             }
         }
-    }
-
-    &.focused {
-        // height: 90px;
-        // width: fit-content;
-        .global-mute {
-            position: absolute;
-            height: 100%;
-            width: 100%;
-            font-size: 24px;
-            color: #5ee0ff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        // @media (min-width: 769px) {
-            // .user-controls {
-            //     width: fit-content;
-            //     display: flex;
-            //     position: relative;
-
-            //     .controls {
-            //         display: flex;
-            //     }
-            // }
-        // }
-
-        // @media (max-width: 768px) {
-            // height: 90px;
-            // .video-wrapper {
-            //     height: 90px;
-            //     width: 90px;
-
-            //     video {
-            //         object-fit: cover;
-            //     }
-            // }
-        // }
-
-        // .video-wrapper {
-        //     height: 90px;
-        //     width: 90px;
-
-        //     @media (max-width: 768px) {
-        //         height: 90px;
-        //         width: 90px;
-        //     }
-        // }
-
-        // .user-controls {
-        //     position: absolute;
-        //     bottom: 0;
-        //     width: 100%;
-        //     padding: 10px;
-
-        //     @media (max-width: 768px) {
-        //         margin-left: -50px;
-        //         padding: 10px 10px 10px 50px;
-        //         width: fit-content;
-        //         display: flex;
-        //         position: relative;
-
-        //         .controls {
-        //             display: flex;
-        //         }
-        //     }
-        // }
     }
 
     &.self-user {
@@ -344,7 +280,7 @@
     }
 
     @media (min-width: 769px) {
-        .username { margin: 0; }
+        .username { margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
         .audio-slider {
             svg {
                 width: 20px;
@@ -386,12 +322,21 @@
             .controls {
                 display: flex; flex-direction: row; justify-content: space-between; margin-left: 5px; 
                 .audio-slider { margin-top: 0; }
+                .pipBtn { transform: rotate(180deg); }
             }
             button { margin: 0; }
+            .username { max-width: 230px; }
         }
 
         &:hover {
             .user-controls { display: flex; }
+        }
+
+        @media (max-width: 768px) {
+            width: 200px;
+            height: 200px;
+            .username { max-width: 180px; }
+            .controls { flex-direction: column !important; margin-left: 0 !important; }
         }
     }
 }
