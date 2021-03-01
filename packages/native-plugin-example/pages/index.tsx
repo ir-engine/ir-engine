@@ -30,7 +30,7 @@ export const IndexPage = (): any => {
     const raf = () => {
         renderer.render(scene, camera);
         requestAnimationFrame(raf);
-    }
+    };
     useEffect(() => {
         (async function () {
             scene = new Scene();
@@ -162,7 +162,7 @@ export const IndexPage = (): any => {
 
         video.play();
 
-    }
+    };
 
     const toggleRecording = () => {
         if (recordingState === RecordingStates.OFF) {
@@ -192,12 +192,12 @@ export const IndexPage = (): any => {
 
     const handleTap = () => {
         Plugins.XRPlugin.handleTap();
-    }
+    };
 
 
     const clearAnchors = () => {
         Plugins.XRPlugin.clearAnchors();
-    }
+    };
 
     // useEffect(() => {
     //     setSecondState("Initialized and effected");
