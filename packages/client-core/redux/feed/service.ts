@@ -35,6 +35,8 @@ export function getFeeds(type : string, limit?: number) {
                     username: 'User username'
                 },
                 preview:'https://picsum.photos/375/210',
+                isFired: i%2 ? true : false,
+                isBookmarked: i%3 ? false : true,
                 video:null,
                 featurend: false,
                 title: 'Featured Artist Post',

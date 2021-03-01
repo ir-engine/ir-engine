@@ -13,4 +13,6 @@ export interface Feed extends FeedShort {
   stores: number,  
   title: string,
   description: string,
+  isFired?: boolean,
+  isBookmarked?: boolean,
 }

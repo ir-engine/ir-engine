@@ -5,6 +5,9 @@ import {
   fetchingFeedFires,
   feedFiresRetrieved
 } from './actions';
+import {
+  addFeedFire, removeFeedFire
+} from '../feed/actions'
 
 export function getFeedFires(feedId : string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -21,6 +24,31 @@ export function getFeedFires(feedId : string) {
           verified : true,
       })
       dispatch(feedFiresRetrieved(feedFiresResults));    
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
+
+export function addFireToFeed(feedId: string, creatorId: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      // await client.service('feedFires').create({feedId, creatorId});
+      dispatch(addFeedFire(feedId));
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
+export function removeFireToFeed(feedId: string, creatorId: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      // await client.service('feedFires').create({feedId, creatorId});
+      dispatch(removeFeedFire(feedId));
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
