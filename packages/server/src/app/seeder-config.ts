@@ -13,6 +13,10 @@ import StaticResourceTypeSeed from '../services/static-resource-type/static-reso
 import StaticResourceSeed from '../services/static-resource/static-resource.seed';
 import UserRelationshipTypeSeed from '../services/user-relationship-type/user-relationship-type.seed';
 import UserRoleSeed from '../services/user-role/user-role.seed';
+import User  from '../services/user/user.seed';
+import Feed  from '../services/feed/feed.seed';
+import FeedFire  from '../services/feed-fires/feed-fires.seed';
+import FeedBookmark  from '../services/feed-bookmark/feed-bookmark.seed';
 
 export const services = [
     ChannelTypeSeed,
@@ -28,8 +32,12 @@ export const services = [
     MessageStatusSeed,
     StaticResourceTypeSeed,
     StaticResourceSeed,
+    User,
     UserRelationshipTypeSeed,
     UserRoleSeed,
+    Feed
+    // FeedFire
+    // FeedBookmark
   ];
 
 export default services;

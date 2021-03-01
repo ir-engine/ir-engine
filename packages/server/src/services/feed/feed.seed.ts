@@ -3,7 +3,7 @@ import config from '../../config';
 export const seed = {
     disabled: !config.db.forceRefresh,
     delete: config.db.forceRefresh,
-    // randomize: false,
+    randomize: false,
     path: 'feed',
     templates:
         [
@@ -21,7 +21,7 @@ export const seed = {
                 //     id: 'Orange_1',
                 //     name: 'Orange',
                 // },
-                authorId: 'Orange_1',
+                // authorId: 'Orange_1',
                 createdAt: "2021-02-26 15:00:00",
                 updatedAt: "2021-02-26 15:00:00"
             },
@@ -39,7 +39,7 @@ export const seed = {
                 //     id: 'Orange_1',
                 //     name: 'Orange',
                 // },
-                authorId: 'Orange_1',
+                // authorId: 'Orange_1',
                 createdAt: "2021-02-26 15:00:00",
                 updatedAt: "2021-02-26 15:00:00"
             },
@@ -57,7 +57,7 @@ export const seed = {
                 //     id: 'Orange_1',
                 //     name: 'Orange',
                 // },
-                authorId: 'Orange_1',
+                // authorId: 'Orange_1',
                 createdAt: "2021-02-26 15:00:00",
                 updatedAt: "2021-02-26 15:00:00"
             },
@@ -75,7 +75,7 @@ export const seed = {
                 //     id: 'Yellow_1',
                 //     name: 'Yellow',
                 // },
-                authorId: 'Yellow_1',
+                // authorId: 'Yellow_1',
                 createdAt: "2021-02-26 15:00:00",
                 updatedAt: "2021-02-26 15:00:00"
             },
@@ -93,7 +93,7 @@ export const seed = {
                 //     id: 'Yellow_1',
                 //     name: 'Yellow',
                 // },
-                authorId: 'Yellow_1',
+                // authorId: 'Yellow_1',
                 createdAt: "2021-02-26 15:00:00",
                 updatedAt: "2021-02-26 15:00:00"
             },
@@ -111,7 +111,7 @@ export const seed = {
                 //     id: 'Green_1',
                 //     name: 'Green',
                 // },
-                authorId: 'Green_1',
+                // authorId: 'Green_1',
                 createdAt: "2021-02-26 15:00:00",
                 updatedAt: "2021-02-26 15:00:00"
             },
@@ -129,7 +129,7 @@ export const seed = {
                 //     id: 'Green_1',
                 //     name: 'Green',
                 // },
-                authorId: 'Green_1',
+                // authorId: 'Green_1',
                 createdAt: "2021-02-26 15:00:00",
                 updatedAt: "2021-02-26 15:00:00"
             },
@@ -147,7 +147,7 @@ export const seed = {
                 //     id: 'Green_1',
                 //     name: 'Green',
                 // },
-                authorId: 'Green_1',
+                // authorId: 'Green_1',
                 createdAt: "2021-02-26 15:00:00",
                 updatedAt: "2021-02-26 15:00:00"
             },
@@ -165,7 +165,7 @@ export const seed = {
                 //     id: 'Green_1',
                 //     name: 'Green',
                 // },
-                authorId: 'Green_1',
+                // authorId: 'Green_1',
                 createdAt: "2021-02-26 15:00:00",
                 updatedAt: "2021-02-26 15:00:00"
             }
