@@ -122,7 +122,7 @@ const ProfileMenu = (props: any): any => {
 					<div className={styles.socialContainer}>
 						<a href="#" id="facebook" onClick={handleOAuthServiceClick}><FacebookIcon width="40" height="40" viewBox="0 0 40 40" /></a>
 						<a href="#" id="google" onClick={handleOAuthServiceClick}><GoogleIcon width="40" height="40" viewBox="0 0 40 40" /></a>
-						<a href="#" id="linkedin" onClick={handleOAuthServiceClick}><LinkedInIcon width="40" height="40" viewBox="0 0 40 40" /></a>
+						<a href="#" id="linkedin2" onClick={handleOAuthServiceClick}><LinkedInIcon width="40" height="40" viewBox="0 0 40 40" /></a>
 						<a href="#" id="twitter" onClick={handleOAuthServiceClick}><TwitterIcon width="40" height="40" viewBox="0 0 40 40" /></a>
 						<a href="#" id="github" onClick={handleOAuthServiceClick}><GitHub /></a>
 					</div>

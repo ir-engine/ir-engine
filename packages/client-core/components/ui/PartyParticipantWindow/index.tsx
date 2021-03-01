@@ -1,8 +1,7 @@
 import React, {useEffect, useState} from 'react';
 // @ts-ignore
 import styles from './PartyParticipantWindow.module.scss';
-import {autorun} from 'mobx';
-import {observer} from 'mobx-react';
+import { bindActionCreators } from "redux";
 import IconButton from '@material-ui/core/IconButton';
 import Slider from '@material-ui/core/Slider';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -35,6 +34,7 @@ import {MessageTypes} from "@xr3ngine/engine/src/networking/enums/MessageTypes";
 import {selectAppState} from '../../../redux/app/selector';
 import {selectAuthState} from '../../../redux/auth/selector';
 import {selectLocationState} from '../../../redux/location/selector';
+import { updateCamVideoState, updateCamAudioState } from '../../../redux/mediastream/service';
 import {selectUserState} from '../../../redux/user/selector';
 import {connect} from "react-redux";
 import {Dispatch} from "redux";
@@ -56,6 +56,9 @@ interface Props {
     authState?: any;
     locationState?: any;
     userState?: any;
+    mediastream?: any;
+    updateCamAudioState?: any;
+    updateCamVideoState?: any;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -63,14 +66,18 @@ const mapStateToProps = (state: any): any => {
         appState: selectAppState(state),
         authState: selectAuthState(state),
         locationState: selectLocationState(state),
-        userState: selectUserState(state)
+        userState: selectUserState(state),
+        mediastream: state.get('mediastream'),
     };
 };
 
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({});
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
+    updateCamVideoState: bindActionCreators(updateCamVideoState, dispatch),
+    updateCamAudioState: bindActionCreators(updateCamAudioState, dispatch),
+});
 
-const PartyParticipantWindow = observer((props: Props): JSX.Element => {
+const PartyParticipantWindow = (props: Props): JSX.Element => {
     const [videoStream, setVideoStream] = useState(null);
     const [audioStream, setAudioStream] = useState(null);
     const [videoStreamPaused, setVideoStreamPaused] = useState(false);
@@ -79,7 +86,6 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     const [audioProducerPaused, setAudioProducerPaused] = useState(false);
     const [videoProducerGlobalMute, setVideoProducerGlobalMute] = useState(false);
     const [audioProducerGlobalMute, setAudioProducerGlobalMute] = useState(false);
-    const [focused, setFocused] = useState(false);
     const [volume, setVolume] = useState(100);
     const {
         harmony,
@@ -87,7 +93,10 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
         appState,
         authState,
         locationState,
-        userState
+        userState,
+        mediastream,
+        updateCamAudioState,
+        updateCamVideoState
     } = props;
     const videoRef = React.createRef<HTMLVideoElement>();
     const audioRef = React.createRef<HTMLAudioElement>();
@@ -98,7 +107,22 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
     const enableGlobalMute = currentLocation?.locationSettings?.locationType === 'showroom' && selfUser?.locationAdmins?.find(locationAdmin => currentLocation.id === locationAdmin.locationId) != null;
     const user = userState.get('layerUsers').find(user => user.id === peerId);
 
-    autorun(() => {
+    const isCamVideoEnabled = mediastream.get('isCamVideoEnabled');
+    const isCamAudioEnabled = mediastream.get('isCamAudioEnabled');
+
+    useEffect(() => {
+            if (peerId === 'me_cam') setVideoStream(MediaStreamSystem.instance?.camVideoProducer);
+            else if (peerId === 'me_screen') setVideoStream(MediaStreamSystem.instance?.screenVideoProducer);
+            else setVideoStream(MediaStreamSystem.instance?.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-video'));
+    }, [isCamVideoEnabled]);
+
+    useEffect(() => {
+            if (peerId === 'me_cam') setAudioStream(MediaStreamSystem.instance?.camAudioProducer);
+            else if (peerId === 'me_screen') setAudioStream(MediaStreamSystem.instance?.screenAudioProducer);
+            else setAudioStream(MediaStreamSystem.instance?.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'));
+    }, [isCamAudioEnabled]);
+
+    useEffect(() => {
         if (typeof (Network.instance?.transport as any)?.socket?.on === 'function') {
             (Network.instance?.transport as any)?.socket?.on(MessageTypes.WebRTCPauseConsumer.toString(), (consumerId: string) => {
                 if (consumerId === videoStream?.id) {
@@ -136,7 +160,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                 }
             });
         }
-    });
+    }, [videoStream, audioStream]);
 
     useEffect(() => {
         if (userHasInteracted === true && peerId !== 'me_cam' && peerId !== 'me_screen') {
@@ -149,21 +173,6 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
         if (harmony !== true && (selfUser?.user_setting?.spatialAudioEnabled === true || selfUser?.user_setting?.spatialAudioEnabled === 1) && audioRef.current != null) audioRef.current.volume = 0;
         else if ((selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0) && PositionalAudioSystem.instance != null) audioRef.current.volume = volume / 100;
     }, [selfUser]);
-
-    useEffect(() => {
-        autorun(() => {
-            if (peerId === 'me_cam') {
-                setVideoStream(MediaStreamSystem.instance?.camVideoProducer);
-                setAudioStream(MediaStreamSystem.instance?.camAudioProducer);
-            } else if (peerId === 'me_screen') {
-                setVideoStream(MediaStreamSystem.instance?.screenVideoProducer);
-                setAudioStream(MediaStreamSystem.instance?.screenAudioProducer);
-            } else {
-                setVideoStream(MediaStreamSystem.instance?.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-video'));
-                setAudioStream(MediaStreamSystem.instance?.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'));
-            }
-        });
-    }, []);
 
     useEffect(() => {
         if (audioRef.current != null) {
@@ -234,20 +243,16 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             const videoPaused = MediaStreamSystem.instance.toggleVideoPaused();
             if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer);
             else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer);
-            setVideoStreamPaused(videoStream.paused);
+            updateCamVideoState();
         } else if (peerId === 'me_screen') {
             const videoPaused = MediaStreamSystem.instance.toggleScreenShareVideoPaused();
             if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance.screenVideoProducer);
             else await resumeProducer(MediaStreamSystem.instance.screenVideoProducer);
             setVideoStreamPaused(videoPaused);
         } else {
-            if (videoStream.paused === false) {
-                await pauseConsumer(videoStream);
-                setVideoStreamPaused(videoStream.paused);
-            } else {
-                await resumeConsumer(videoStream);
-                setVideoStreamPaused(videoStream.paused);
-            }
+            if (videoStream.paused === false) await pauseConsumer(videoStream);
+            else await resumeConsumer(videoStream);
+            updateCamVideoState();
         }
     };
 
@@ -257,20 +262,16 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             const audioPaused = MediaStreamSystem.instance.toggleAudioPaused();
             if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer);
             else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer);
-            setAudioStreamPaused(audioPaused);
+            updateCamAudioState();
         } else if (peerId === 'me_screen') {
             const audioPaused = MediaStreamSystem.instance.toggleScreenShareAudioPaused();
             if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance.screenAudioProducer);
             else await resumeProducer(MediaStreamSystem.instance.screenAudioProducer);
             setAudioStreamPaused(audioPaused);
         } else {
-            if (audioStream.paused === false) {
-                await pauseConsumer(audioStream);
-                setAudioStreamPaused(audioStream.paused);
-            } else {
-                await resumeConsumer(audioStream);
-                setAudioStreamPaused(audioStream.paused);
-            }
+            if (audioStream.paused === false) await pauseConsumer(audioStream);
+            else await resumeConsumer(audioStream);
+            updateCamAudioState();            
         }
     };
 
@@ -294,19 +295,10 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
         setVolume(newValue);
     };
 
-    const truncateUsername = () => {
-        const name = user?.name;
-        if (peerId === 'me_cam') return 'You';
-        if (focused === true) return name?.length > 20 ? name.slice(0, 20) + '...' : name;
-        if (focused === false) return name?.length > 10 ? name.slice(0, 10) + '...' : name;
-    };
-
     const [isPiP, setPiP] = useState(false);
 
     const togglePiP = () => setPiP(!isPiP);
 
-    const avatarBgImage = user && user.avatarId ?
-        `url(${'/static/' + user.avatarId.toLocaleLowerCase() + '.png'})` : selfUser && selfUser.avatarId ? `url(${'/static/' + selfUser.avatarId.toLocaleLowerCase() + '.png'})` : null;
     return (
         <Draggable isPiP={isPiP}>
         <div
@@ -315,26 +307,21 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
             className={classNames({
                 [styles['party-chat-user']]: true,
                 [styles['harmony']]: harmony === true,
-                // [styles['focused']]: focused,
                 [styles['self-user']]: peerId === 'me_cam' || peerId === 'me_screen',
                 [styles['no-video']]: videoStream == null,
                 [styles['video-paused']]: (videoStream && (videoProducerPaused === true || videoStreamPaused === true)),
                 [styles.pip]: isPiP,
             })}
-            // style={{ backgroundImage: user?.avatarUrl?.length > 0 ? `url(${user.avatarUrl}` : `url(/placeholders/default-silhouette.svg)`} }
         >
 
-            <div className={styles['video-wrapper']}
-                 // style={{backgroundImage: user?.avatarUrl?.length > 0 ? `url(${user.avatarUrl}` : avatarBgImage ? avatarBgImage : `url(/placeholders/default-silhouette.svg)`}}
-                 // onClick={() => setFocused(!focused) }
-            >
+            <div className={styles['video-wrapper']}>
                 {videoStream == null || videoProducerPaused == true || videoProducerGlobalMute == true
                     ? <img src={getAvatarURL(user?.avatarId)} draggable={false} />
                     : <video key={peerId + '_cam'} ref={videoRef}/>}
             </div>
             <audio key={peerId + '_audio'} ref={audioRef}/>
             <div className={styles['user-controls']}>
-                <div className={styles['username']}>{truncateUsername()}</div>
+                <div className={styles['username']}>{peerId === 'me_cam' ? 'You' : user?.name}</div>
                 <div className={styles['controls']}>
                     <div className={styles['mute-controls']}>
                         {videoStream && videoProducerPaused === false
@@ -379,7 +366,7 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
                                     className={styles['audio-control']}
                                     onClick={togglePiP}
                                 >
-                                    <Launch />
+                                    <Launch className={styles.pipBtn}/>
                                 </IconButton>
                             </Tooltip>
                     </div>
@@ -397,6 +384,6 @@ const PartyParticipantWindow = observer((props: Props): JSX.Element => {
         </div>
         </Draggable>
     );
-});
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(PartyParticipantWindow);
