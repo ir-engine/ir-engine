@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Quaternion, Scene, Vector3, WebGLRenderer } from 'three';
 
 
+
 const { isNative } = Capacitor;
 
 enum RecordingStates {
@@ -17,8 +18,6 @@ const meshFilePath = typeof location !== 'undefined' ? location.origin + "/volum
 const videoFilePath = typeof location !== 'undefined' ? location.origin + "/volumetric/liam.mp4" : "";
 
 export const IndexPage = (): any => {
-
-
     const [initializationResponse, setInitializationResponse] = useState("");
     const [cameraStartedState, setCameraStartedState] = useState("");
     const [cameraPoseState, setCameraPoseState] = useState("");

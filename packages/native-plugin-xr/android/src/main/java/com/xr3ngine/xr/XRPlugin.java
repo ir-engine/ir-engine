@@ -35,8 +35,11 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.NativePlugin;
 
 import com.getcapacitor.PluginResult;
+<<<<<<< HEAD
 import com.google.ar.core.Pose;
 import com.google.ar.core.RecordingConfig;
+=======
+>>>>>>> 8822c4a24... add mobile changes
 import com.xr3ngine.xr.videocompressor.VideoCompress;
 
 import org.json.JSONException;
@@ -76,7 +79,15 @@ public class XRPlugin extends Plugin {
     private ARActivity fragment;
     private int containerViewId = 20;
 
+<<<<<<< HEAD
     @PluginMethod()
+=======
+    private boolean xrIsEnabled = false;
+    private boolean recordingIsEnabled = false;
+    private XRFrameData currentXrFrameData = new XRFrameData();
+
+    @PluginMethod
+>>>>>>> 8822c4a24... add mobile changes
     public void initialize(PluginCall call) {
         Log.d("XRPLUGIN", "Initializing");
 
@@ -837,6 +848,11 @@ public class XRPlugin extends Plugin {
 
     public String filePath;
 
+<<<<<<< HEAD
+=======
+    public boolean isAudio;     // true: MediaRecord, false: ScreenRecord
+
+>>>>>>> 8822c4a24... add mobile changes
     public int width, height, bitRate, dpi;
 
     public static final int PERMISSION_DENIED_ERROR = 20;
@@ -853,6 +869,10 @@ public class XRPlugin extends Plugin {
         this.callbackContext = callbackContext;
 
         Log.d(TAG, callbackContext.toString());
+<<<<<<< HEAD
+=======
+        isAudio = callbackContext.getBoolean("isAudio");
+>>>>>>> 8822c4a24... add mobile changes
         width = callbackContext.getInt("width");
         height = callbackContext.getInt("height");
         bitRate = callbackContext.getInt("bitRate");
@@ -868,17 +888,105 @@ public class XRPlugin extends Plugin {
             startActivityForResult(this.callbackContext, captureIntent, SCREEN_RECORD_CODE);
         }
         Log.d(TAG, "CALLBACK CONTEXT:" + this.callbackContext);
+<<<<<<< HEAD
+=======
+        Log.d(TAG, "IS AUDIO:" + isAudio);
+>>>>>>> 8822c4a24... add mobile changes
 
     }
 
     @PluginMethod
     public void stopRecording(PluginCall callbackContext) {
+<<<<<<< HEAD
 
         if(screenRecord != null){
             screenRecord.quit();
             screenRecord = null;
             final Context appContext = getActivity().getApplicationContext();
             final PackageManager pm = appContext.getPackageManager();
+=======
+        if(isAudio){
+            if(mediaRecord != null){
+                mediaRecord.release();
+                mediaRecord = null;
+                callbackContext.success(new JSObject().put("result", "ScreenRecord finish."));
+            }else {
+                callbackContext.error("no ScreenRecord in process isAudio");
+            }
+        }else {
+            if(screenRecord != null){
+                screenRecord.quit();
+                screenRecord = null;
+                callbackContext.success(new JSObject().put("result", "ScreenRecord finish."));
+            }else {
+                callbackContext.error("no ScreenRecord in process XX");
+            }
+        }
+        Log.d(TAG, "CALLBACK CONTEXT:" + String.valueOf(this.callbackContext));
+
+    }
+
+    /**
+     * mediaprojection
+     */
+    @Override
+    public void handleOnActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "*************** handleOnActivityResult" + filePath);
+        PluginCall savedCall = getSavedCall();
+
+        MediaProjection mediaProjection = mProjectionManager.getMediaProjection(resultCode, data);
+        if (mediaProjection == null) {
+            Log.e(TAG, "media projection is null");
+            callbackContext.error("no ScreenRecord in process");
+            return;
+        }
+           try {
+
+               ApplicationInfo ai;
+               final Context appContext = getActivity().getApplicationContext();
+               final PackageManager pm = appContext.getPackageManager();
+
+               try {
+                   ai = pm.getApplicationInfo(getActivity().getPackageName(), 0);
+               } catch (final PackageManager.NameNotFoundException e) {
+                   ai = null;
+               }
+               final String appName = (String) (ai != null ? pm.getApplicationLabel(ai) : "Unknown");
+
+               File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), appName);
+
+               if (!mediaStorageDir.exists()) {
+                   if (!mediaStorageDir.mkdirs()) {
+                       videoEditorCallbackContext.error("Can't access or make Movies directory");
+                       return;
+                   }
+               }
+               File file = new File(
+                       mediaStorageDir.getPath(),
+                       filePath
+               );
+                Log.d(TAG, "*************** filePath: " + mediaStorageDir.getPath() + filePath);
+               if(isAudio){
+                mediaRecord = new MediaRecordService(width, height, bitRate, dpi, mediaProjection, file.getAbsolutePath());
+                mediaRecord.start();
+               }else {
+                screenRecord = new ScreenRecordService(width, height, bitRate, dpi,
+                mediaProjection, file.getAbsolutePath());
+                screenRecord.start();
+               }
+
+               Log.d(TAG, "screenrecord service is running");
+               PluginResult result = new PluginResult();
+               result.put("status", data.getStringExtra("ScreenRecord file at" + file.getAbsolutePath()));
+               savedCall.successCallback(result);
+
+//               getActivity().moveTaskToBack(true);
+           }catch (Exception e){
+              e.printStackTrace();
+              savedCall.errorCallback("Error in screenrecord");
+          }
+  }
+>>>>>>> 8822c4a24... add mobile changes
 
             ApplicationInfo ai;
 
