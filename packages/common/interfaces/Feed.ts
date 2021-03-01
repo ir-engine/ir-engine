@@ -14,3 +14,13 @@ export interface Feed extends FeedShord {
   title: string,
   description: string,
 }
+
+export interface FeedDatabaseRow {
+  id: string,
+  title: string,
+  description: string,
+  viewsCount: number,
+  createdAt: string,
+  updatedAt: string,
+  authorId: string
+}
