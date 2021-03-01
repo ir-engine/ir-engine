@@ -122,6 +122,11 @@ export class Engine {
   static entities: Entity[] = []
 
   /**
+   * Map of registered entities by ID
+   */
+  static entityMap: Map<string, Entity> = new Map<string, Entity>();
+
+  /**
    * List of registered queries.
    */
   static queries: Query[] = []

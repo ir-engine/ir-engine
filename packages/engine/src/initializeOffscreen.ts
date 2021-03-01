@@ -50,9 +50,17 @@ class MainEngineProxy extends EngineProxy {
       const { userId, userNetworkId } = ev.detail;
       Network.instance.userId = userId;
       Network.instance.userNetworkId = userNetworkId;
+      console.log('NETWORK_INITIALIZE_EVENT', Network.instance, ev)
       this.mainProxy.removeEventListener('NETWORK_INITIALIZE_EVENT', initializeNetworkEvent)
     }
     this.mainProxy.addEventListener('NETWORK_INITIALIZE_EVENT', initializeNetworkEvent)
+    const connectNetworkEvent = (ev: any) => {
+      // const { } = ev.detail;
+      Network.instance.isInitialized = true;
+      console.log(Network.instance)
+      this.mainProxy.removeEventListener('NETWORK_CONNECT_EVENT', connectNetworkEvent)
+    }
+    this.mainProxy.addEventListener('NETWORK_CONNECT_EVENT', connectNetworkEvent)
     const loadScene = (ev: any) => { 
       this.loadScene(ev.detail.result)
       this.mainProxy.removeEventListener('loadScene', loadScene)
@@ -61,6 +69,10 @@ class MainEngineProxy extends EngineProxy {
     this.mainProxy.addEventListener('transferNetworkBuffer', (ev: any) => { 
       const { buffer, delta } = ev.detail;
       this.transferNetworkBuffer(buffer, delta)
+    })
+    this.mainProxy.addEventListener('setActorAvatar', (ev: any) => { 
+      const { entityID, avatarID } = ev.detail;
+      this.setActorAvatar(entityID, avatarID)
     })
   }
   sendData(buffer) { this.mainProxy.sendEvent('sendData', { buffer }, [buffer]) }
@@ -81,13 +93,13 @@ export function initializeEngineOffscreen({ canvas, initOptions, env, useWebXR }
   Network.instance.transport = { isServer: false }
 
   // Do we want audio and video streams?
-  // registerSystem(MediaStreamSystem);
+  // registerSystem(MediaStreamSystemProxy);
 
   registerSystem(AssetLoadingSystem);
 
   registerSystem(PhysicsSystem);
 
-  // registerSystem(InputSystem, { useWebXR });
+  registerSystem(InputSystem, { useWebXR });
 
   registerSystem(StateSystem);
 

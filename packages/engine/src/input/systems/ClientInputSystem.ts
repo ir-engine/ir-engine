@@ -116,7 +116,7 @@ export class InputSystem extends System {
       handleGamepads(entity);
 
       // TODO: This is all messed up, why only when local user media stream is null?
-
+      /*
       // apply face tracking
       if (this.localUserMediaStream === null) {
         // check to start video tracking
@@ -140,7 +140,7 @@ export class InputSystem extends System {
         }
         this.localUserMediaStream = MediaStreamSystem.instance.mediaStream;
       }
-
+    */
       // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
       const input = getMutableComponent(entity, Input);
 
@@ -336,6 +336,7 @@ export class InputSystem extends System {
 
     // Called when input component is added to entity
     this.queryResults.localClientInput.added?.forEach(entity => {
+      console.log('adding events to entity', entity)
       initVR(entity);
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
@@ -351,14 +352,14 @@ export class InputSystem extends System {
       Object.keys(this._inputComponent.schema.eventBindings)?.forEach((eventName: string) => {
         this._inputComponent.schema.eventBindings[eventName].forEach((behaviorEntry: DomEventBehaviorValue) => {
           // const domParentElement:EventTarget = document;
-          let domParentElement: EventTarget = Engine.viewportElement ?? document;
+          let domParentElement: EventTarget = Engine.viewportElement ?? (document as any);
           if (behaviorEntry.element) {
             switch (behaviorEntry.element) {
               case "window":
-                domParentElement = window;
+                domParentElement = (window as any);
                 break;
               case "document":
-                domParentElement = document;
+                domParentElement = (document as any);
                 break;
               case "viewport":
               default:
@@ -366,8 +367,9 @@ export class InputSystem extends System {
             }
           }
 
-          const domElement = (behaviorEntry.selector && domParentElement instanceof Element) ? domParentElement.querySelector(behaviorEntry.selector) : domParentElement;
-          //console.log('InputSystem addEventListener:', eventName, domElement, ' (', behaviorEntry.element, behaviorEntry.selector, ')');
+          const domElement = domParentElement;
+          // const domElement = (behaviorEntry.selector) ? domParentElement.querySelector(behaviorEntry.selector) : domParentElement;
+          // console.log('InputSystem addEventListener:', eventName, domElement, ' (', behaviorEntry.element, behaviorEntry.selector, ')');
 
           if (domElement) {
             const listener = (event: Event) => behaviorEntry.behavior(entity, { event, ...behaviorEntry.args });

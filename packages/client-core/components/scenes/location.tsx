@@ -108,7 +108,6 @@ export const EnginePage = (props: Props) => {
   } = props;
   const currentUser = authState.get('user');
   const [hoveredLabel, setHoveredLabel] = useState('');
-  const [actorEntity, setActorEntity] = useState(null);
   const [infoBoxData, setModalData] = useState(null);
   const [userBanned, setUserBannedState] = useState(false);
   const [openLinkData, setOpenLinkData] = useState(null);
@@ -227,15 +226,16 @@ export const EnginePage = (props: Props) => {
     styleCanvas(canvas);
 
     let initializationOptions, initialize;
-    // if(canvas.transferControlToOffscreen) {
-      // const { DefaultInitializationOptions, initializeWorker } = await import('@xr3ngine/engine/src/initializeWorker');
-      // initializationOptions = DefaultInitializationOptions;
-      // initialize = initializeWorker;
-    // } else {
+    // if(false) {
+    if(canvas.transferControlToOffscreen) {
+      const { DefaultInitializationOptions, initializeWorker } = await import('@xr3ngine/engine/src/initializeWorker');
+      initializationOptions = DefaultInitializationOptions;
+      initialize = initializeWorker;
+    } else {
       const { DefaultInitializationOptions, initializeEngine } = await import('@xr3ngine/engine/src/initialize');
       initializationOptions = DefaultInitializationOptions;
       initialize = initializeEngine;
-    // }
+    }
 
     const InitializationOptions = {
       ...initializationOptions,
@@ -247,8 +247,9 @@ export const EnginePage = (props: Props) => {
       }
     };
 
-    await initialize(InitializationOptions);
-    EngineProxy.instance.loadScene(result);
+    initialize(InitializationOptions).then(() => {
+      EngineProxy.instance.loadScene(result);
+    })
   }
 
 
@@ -309,14 +310,6 @@ export const EnginePage = (props: Props) => {
   useEffect(() => {
     addEventListeners();
     console.log("LOAD SCENE WITH ID ", sceneId);
-
-    const actorEntityWaitInterval = setInterval(() => {
-      if (Network.instance?.localClientEntity) {
-        setActorEntity(Network.instance.localClientEntity);
-        clearInterval(actorEntityWaitInterval);
-      }
-    }, 300);
-
     return (): void => {
       resetEngine();
     };
