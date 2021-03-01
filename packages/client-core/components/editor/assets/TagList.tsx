@@ -283,7 +283,7 @@ export default function TagList({
  * declaring TagList propTypes
  * @type {Object} propTypes
  */
-TagList.  = {
+TagList.propTypes  = {
   selectedTags: PropTypes.arrayOf(PropTypes.object).isRequired,
   tags: PropTypes.arrayOf(PropTypes.object).isRequired,
   onChange: PropTypes.func.isRequired,
