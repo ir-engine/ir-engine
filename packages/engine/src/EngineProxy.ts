@@ -15,15 +15,11 @@ export class EngineProxy extends EventDispatcher {
     super();
     EngineProxy.instance = this;
   }
-  loadScene(result) {
-    loadScene(result);
-  }
+  loadScene(result) { loadScene(result); }
   transferNetworkBuffer(buffer, delta) {
     const unbufferedState = WorldStateModel.fromBuffer(buffer);
     if(!unbufferedState) console.warn("Couldn't deserialize buffer, probably still reading the wrong one")
     if(unbufferedState) applyNetworkStateToClient(unbufferedState, delta);
   }
-  sendData(buffer) {
-    Network.instance.transport.sendData(buffer);
-  }
+  sendData(buffer) { Network.instance.transport.sendData(buffer); }
 }
