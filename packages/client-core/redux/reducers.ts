@@ -18,6 +18,7 @@ import inviteReducer from './invite/reducers';
 import userReducer from './user/reducers';
 import locationReducer from './location/reducers';
 import feedReducer from './feed/reducers';
+import mediastreamReducer from './mediastream/reducers';
 
 export default combineReducers({
   admin: adminReducer,
@@ -37,5 +38,6 @@ export default combineReducers({
   dialog: dialogReducer,
   devicedetect: deviceDetectReducer,
   user: userReducer,
-  feeds: feedReducer
+  feeds: feedReducer,
+  mediastream: mediastreamReducer,
 });
