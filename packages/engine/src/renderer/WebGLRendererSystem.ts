@@ -108,7 +108,7 @@ export class WebGLRendererSystem extends System {
 
     Engine.csm = csm;
 
-    // window.addEventListener('resize', this.onResize, false);
+    window.addEventListener('resize', this.onResize, false);
     this.onResize();
     this.isInitialized = true;
 
@@ -130,7 +130,7 @@ export class WebGLRendererSystem extends System {
   dispose(): void {
     super.dispose();
     WebGLRendererSystem.composer?.dispose();
-    // window.removeEventListener('resize', this.onResize);
+    window.removeEventListener('resize', this.onResize);
     this.isInitialized = false;
   }
 
@@ -208,7 +208,6 @@ export class WebGLRendererSystem extends System {
         }
     
         Engine.csm.updateFrustums();
-        console.log(window, width, height)
         Engine.renderer.setSize(width, height, false);
         WebGLRendererSystem.composer.setSize(width, height, false);
         WebGLRendererSystem.needsResize = false;

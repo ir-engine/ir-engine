@@ -141,127 +141,127 @@ export class InputSystem extends System {
         this.localUserMediaStream = MediaStreamSystem.instance.mediaStream;
       }
 
-  // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
-  const input = getMutableComponent(entity, Input);
+      // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
+      const input = getMutableComponent(entity, Input);
 
-  // check CHANGED/UNCHANGED axis inputs
-  input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-    if (!input.prevData.has(key)) {
-      return;
-    }
+      // check CHANGED/UNCHANGED axis inputs
+      input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+        if (!input.prevData.has(key)) {
+          return;
+        }
 
-    if (value.type === InputType.BUTTON) {
-      const prevValue = input.prevData.get(key);
-      if (
-          prevValue.lifecycleState === LifecycleValue.STARTED &&
-          value.lifecycleState === LifecycleValue.STARTED
-      ) {
-        // auto-switch to CONTINUED
-        value.lifecycleState = LifecycleValue.CONTINUED;
-        input.data.set(key, value);
-      }
-      return;
-    }
-
-    if (
-      value.type !== InputType.ONEDIM &&
-      value.type !== InputType.TWODIM &&
-      value.type !== InputType.THREEDIM
-    ) {
-      // skip all other inputs
-      return;
-    }
-
-    if (value.lifecycleState === LifecycleValue.ENDED) {
-      // ENDED here is a special case, like mouse position on mouse down
-      return;
-    }
-
-    if (input.prevData.has(key)) {
-      if (JSON.stringify(value.value) === JSON.stringify(input.prevData.get(key).value)) {
-        value.lifecycleState = LifecycleValue.UNCHANGED;
-      } else {
-        value.lifecycleState = LifecycleValue.CHANGED;
-      }
-      input.data.set(key, value);
-    }
-  });
-
-  // For each input currently on the input object:
-  input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-    // If the input is a button
-    if (value.type === InputType.BUTTON) {
-      // If the input exists on the input map (otherwise ignore it)
-      if (input.schema.inputButtonBehaviors[key]) {
-        // If the button is pressed
-        if(value.value === BinaryValue.ON) {
-        // If the lifecycle hasn't been set or just started (so we don't keep spamming repeatedly)
-        if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED;
-
-        if(value.lifecycleState === LifecycleValue.STARTED) {
-          // Set the value of the input to continued to debounce
-          input.schema.inputButtonBehaviors[key].started?.forEach(element =>{
-            element.behavior(entity, element.args, delta)
+        if (value.type === InputType.BUTTON) {
+          const prevValue = input.prevData.get(key);
+          if (
+            prevValue.lifecycleState === LifecycleValue.STARTED &&
+            value.lifecycleState === LifecycleValue.STARTED
+          ) {
+            // auto-switch to CONTINUED
+            value.lifecycleState = LifecycleValue.CONTINUED;
+            input.data.set(key, value);
           }
-          );
-        } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
-          // If the lifecycle equal continued
-          input.schema.inputButtonBehaviors[key].continued?.forEach(element =>
-            element.behavior(entity, element.args, delta)
-          );
-        } else {
-          console.error('Unexpected lifecycleState', key, value.lifecycleState, LifecycleValue[value.lifecycleState], 'prev', LifecycleValue[input.prevData.get(key)?.lifecycleState]);
+          return;
         }
-      } else {
-        input.schema.inputButtonBehaviors[key].ended?.forEach(element =>
-          element.behavior(entity, element.args, delta)
-        );
-      }
-      }
-    }
-    else if (
-      value.type === InputType.ONEDIM ||
-      value.type === InputType.TWODIM ||
-      value.type === InputType.THREEDIM
-    ) {
-      if (input.schema.inputAxisBehaviors[key]) {
-        // If lifecycle hasn't been set, init it
-        if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED;
-        switch (value.lifecycleState) {
-          case LifecycleValue.STARTED:
-            // Set the value to continued to debounce
-            input.schema.inputAxisBehaviors[key].started?.forEach(element =>
-              element.behavior(entity, element.args, delta)
-            );
-            break;
-          case LifecycleValue.CHANGED:
-            // If the value is different from last frame, update it
-            input.schema.inputAxisBehaviors[key].changed?.forEach(element => {
-              element.behavior(entity, element.args, delta);
-            });
-            break;
-          case LifecycleValue.UNCHANGED:
-            input.schema.inputAxisBehaviors[key].unchanged?.forEach(element =>
-              element.behavior(entity, element.args, delta)
-            );
-            break;
-            case LifecycleValue.ENDED:
-              console.warn("Patch fix, need to handle properly: ", LifecycleValue.ENDED);
-            break;
-          default:
-            console.error('Unexpected lifecycleState', value.lifecycleState, LifecycleValue[value.lifecycleState]);
-        }
-      }
-    } else {
-      console.error('handleInput called with an invalid input type');
-    }
-  });
 
-  // store prevData
-  input.prevData.clear();
-  input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-    input.prevData.set(key, value);
-  });
+        if (
+          value.type !== InputType.ONEDIM &&
+          value.type !== InputType.TWODIM &&
+          value.type !== InputType.THREEDIM
+        ) {
+          // skip all other inputs
+          return;
+        }
+
+        if (value.lifecycleState === LifecycleValue.ENDED) {
+          // ENDED here is a special case, like mouse position on mouse down
+          return;
+        }
+
+        if (input.prevData.has(key)) {
+          if (JSON.stringify(value.value) === JSON.stringify(input.prevData.get(key).value)) {
+            value.lifecycleState = LifecycleValue.UNCHANGED;
+          } else {
+            value.lifecycleState = LifecycleValue.CHANGED;
+          }
+          input.data.set(key, value);
+        }
+      });
+
+      // For each input currently on the input object:
+      input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+        // If the input is a button
+        if (value.type === InputType.BUTTON) {
+          // If the input exists on the input map (otherwise ignore it)
+          if (input.schema.inputButtonBehaviors[key]) {
+            // If the button is pressed
+            if (value.value === BinaryValue.ON) {
+              // If the lifecycle hasn't been set or just started (so we don't keep spamming repeatedly)
+              if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED;
+
+              if (value.lifecycleState === LifecycleValue.STARTED) {
+                // Set the value of the input to continued to debounce
+                input.schema.inputButtonBehaviors[key].started?.forEach(element => {
+                  element.behavior(entity, element.args, delta)
+                }
+                );
+              } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
+                // If the lifecycle equal continued
+                input.schema.inputButtonBehaviors[key].continued?.forEach(element =>
+                  element.behavior(entity, element.args, delta)
+                );
+              } else {
+                console.error('Unexpected lifecycleState', key, value.lifecycleState, LifecycleValue[value.lifecycleState], 'prev', LifecycleValue[input.prevData.get(key)?.lifecycleState]);
+              }
+            } else {
+              input.schema.inputButtonBehaviors[key].ended?.forEach(element =>
+                element.behavior(entity, element.args, delta)
+              );
+            }
+          }
+        }
+        else if (
+          value.type === InputType.ONEDIM ||
+          value.type === InputType.TWODIM ||
+          value.type === InputType.THREEDIM
+        ) {
+          if (input.schema.inputAxisBehaviors[key]) {
+            // If lifecycle hasn't been set, init it
+            if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED;
+            switch (value.lifecycleState) {
+              case LifecycleValue.STARTED:
+                // Set the value to continued to debounce
+                input.schema.inputAxisBehaviors[key].started?.forEach(element =>
+                  element.behavior(entity, element.args, delta)
+                );
+                break;
+              case LifecycleValue.CHANGED:
+                // If the value is different from last frame, update it
+                input.schema.inputAxisBehaviors[key].changed?.forEach(element => {
+                  element.behavior(entity, element.args, delta);
+                });
+                break;
+              case LifecycleValue.UNCHANGED:
+                input.schema.inputAxisBehaviors[key].unchanged?.forEach(element =>
+                  element.behavior(entity, element.args, delta)
+                );
+                break;
+              case LifecycleValue.ENDED:
+                console.warn("Patch fix, need to handle properly: ", LifecycleValue.ENDED);
+                break;
+              default:
+                console.error('Unexpected lifecycleState', value.lifecycleState, LifecycleValue[value.lifecycleState]);
+            }
+          }
+        } else {
+          console.error('handleInput called with an invalid input type');
+        }
+      });
+
+      // store prevData
+      input.prevData.clear();
+      input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+        input.prevData.set(key, value);
+      });
 
 
       let sendSwitchInputs = false;
@@ -271,14 +271,14 @@ export class InputSystem extends System {
         sendSwitchInputs = true;
         this.switchId = getComponent(entity, NetworkObject).networkId;
         //console.warn('Car id: '+ getComponent(entity, NetworkObject).networkId);
-      } else if(hasComponent(Network.instance.networkObjects[Network.instance.userNetworkId].component.entity, LocalInputReceiver) && this.needSend) {
+      } else if (hasComponent(Network.instance.networkObjects[Network.instance.userNetworkId].component.entity, LocalInputReceiver) && this.needSend) {
         this.needSend = false;
         sendSwitchInputs = true;
-      //  console.warn('Network.instance.userNetworkId: '+ Network.instance.userNetworkId);
+        //  console.warn('Network.instance.userNetworkId: '+ Network.instance.userNetworkId);
       }
 
 
-    //  sendSwitchInputs ? console.warn('switchInputs'):'';
+      //  sendSwitchInputs ? console.warn('switchInputs'):'';
       //cleanupInput(entity);
       // If input is the same as last frame, return
       // if (_.isEqual(input.data, input.lastData))
@@ -305,11 +305,11 @@ export class InputSystem extends System {
       // Add all values in input component to schema
       input.data.forEach((value, key) => {
         if (value.type === InputType.BUTTON)
-          inputs.buttons.push({ input: key, value: value.value, lifecycleState: value.lifecycleState  });
+          inputs.buttons.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
         else if (value.type === InputType.ONEDIM) // && value.lifecycleState !== LifecycleValue.UNCHANGED
-          inputs.axes1d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState  });
+          inputs.axes1d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
         else if (value.type === InputType.TWODIM) //  && value.lifecycleState !== LifecycleValue.UNCHANGED
-          inputs.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState  }); // : LifecycleValue.ENDED
+          inputs.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState }); // : LifecycleValue.ENDED
       });
 
 
@@ -324,7 +324,7 @@ export class InputSystem extends System {
       }
       EngineProxy.instance.sendData(ClientInputModel.toBuffer(inputs));
 
-        // clean processed LifecycleValue.ENDED inputs
+      // clean processed LifecycleValue.ENDED inputs
       input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
         if (value.type === InputType.BUTTON) {
           if (value.lifecycleState === LifecycleValue.ENDED) {
@@ -400,18 +400,18 @@ export class InputSystem extends System {
       if (this._inputComponent.data.size) {
         this._inputComponent.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
           // For each input currently on the input object:
-            // If the input is a button
-            if (value.type === InputType.BUTTON) {
-              // If the input exists on the input map (otherwise ignore it)
-              if (this._inputComponent.schema.inputButtonBehaviors[key]) {
-                if (value.lifecycleState !== LifecycleValue.ENDED) {
-                  this._inputComponent.schema.inputButtonBehaviors[key].ended?.forEach(element =>
-                    element.behavior(entity, element.args, delta)
-                  );
-                }
-                this._inputComponent.data.delete(key);
+          // If the input is a button
+          if (value.type === InputType.BUTTON) {
+            // If the input exists on the input map (otherwise ignore it)
+            if (this._inputComponent.schema.inputButtonBehaviors[key]) {
+              if (value.lifecycleState !== LifecycleValue.ENDED) {
+                this._inputComponent.schema.inputButtonBehaviors[key].ended?.forEach(element =>
+                  element.behavior(entity, element.args, delta)
+                );
               }
+              this._inputComponent.data.delete(key);
             }
+          }
         });
       }
 
