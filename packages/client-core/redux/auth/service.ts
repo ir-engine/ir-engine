@@ -235,24 +235,26 @@ export function logoutUser () {
 }
 
 export function registerUserByEmail (form: EmailRegistrationForm) {
+  console.log('1 registerUserByEmail');
   return (dispatch: Dispatch): any => {
+    console.log('2 dispatch', dispatch)
     dispatch(actionProcessing(true));
-
     client.service('identity-provider').create({
       token: form.email,
       password: form.password,
       type: 'password'
     })
       .then((identityProvider: any) => {
+        console.log('3 ', identityProvider)
         dispatch(registerUserByEmailSuccess(identityProvider));
         window.location.href = '/auth/confirm';
       })
       .catch((err: any) => {
-        console.log(err);
+        console.log('error',err);
         dispatch(registerUserByEmailError(err.message));
         dispatchAlertError(dispatch, err.message);
-      })
-      .finally(() => dispatch(actionProcessing(false)));
+      })    
+    .finally(() => {console.log('4 finally', dispatch); dispatch(actionProcessing(false))});
   };
 }
 
@@ -297,7 +299,7 @@ export function resendVerificationEmail (email: string) {
 export function forgotPassword (email: string) {
   return (dispatch: Dispatch): any => {
     dispatch(actionProcessing(true));
-
+    console.log('forgotPassword', email)
     client.service('authManagement').create({
       action: 'sendResetPwd',
       value: {
@@ -455,7 +457,7 @@ export function addConnectionBySms (phone: string, userId: string) {
   };
 }
 
-export function addConnectionByOauth (oauth: 'facebook' | 'google' | 'github', userId: string) {
+export function addConnectionByOauth (oauth: 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter', userId: string) {
   return (/* dispatch: Dispatch */) => {
     window.open(`${apiServer}/auth/oauth/${oauth}?userId=${userId}`, '_blank');
   };

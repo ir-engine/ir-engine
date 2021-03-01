@@ -17,6 +17,8 @@ import partyReducer from './party/reducers';
 import inviteReducer from './invite/reducers';
 import userReducer from './user/reducers';
 import locationReducer from './location/reducers';
+import feedReducer from './feed/reducers';
+import mediastreamReducer from './mediastream/reducers';
 
 export default combineReducers({
   admin: adminReducer,
@@ -35,5 +37,7 @@ export default combineReducers({
   alert: alertReducer,
   dialog: dialogReducer,
   devicedetect: deviceDetectReducer,
-  user: userReducer
+  user: userReducer,
+  feeds: feedReducer,
+  mediastream: mediastreamReducer,
 });

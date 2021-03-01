@@ -8,6 +8,17 @@ import AssetGrid from "./AssetGrid";
 import FileInput from "../inputs/FileInput";
 import useUpload from "./useUpload";
 
+/**
+ * [MediaSourcePanel used to render view for AssetsPanelContainer and AssetsPanelToolbarContainer]
+ * @param       {object} editor
+ * @param       {object} source
+ * @param       {string} searchPlaceholder
+ * @param       {object} initialSearchParams
+ * @param       {boolean} multiselectTags
+ * @param       {object} savedState
+ * @param       {[type]} setSavedState
+ * @constructor
+ */
 export default function MediaSourcePanel({
   editor,
   source,
@@ -17,11 +28,14 @@ export default function MediaSourcePanel({
   savedState,
   setSavedState
 }) {
+
+  // initializing variables
   const { params, setParams, isLoading, loadMore, hasMore, results } = useAssetSearch(
     source,
     savedState.searchParams || initialSearchParams
   );
 
+  //callback function to handle select on media source
   const onSelect = useCallback(
     item => {
       const { nodeClass, initialProps } = item;
@@ -42,12 +56,15 @@ export default function MediaSourcePanel({
     [editor, source.transformPivot]
   );
 
+  // function to handle the upload
   const onUpload = useUpload({ source });
 
+  //callback function to handle load more
   const onLoadMore = useCallback(() => {
     loadMore(params);
   }, [params, loadMore]);
 
+  //callback function to handle change query param
   const onChangeQuery = useCallback(
     e => {
       const nextParams = { ...params, query: e.target.value };
@@ -57,6 +74,7 @@ export default function MediaSourcePanel({
     [params, setParams, savedState, setSavedState]
   );
 
+  // callback function to handle changes in tag list
   const onChangeTags = useCallback(
     tags => {
       const nextParams = { ...params, tags };
@@ -66,11 +84,13 @@ export default function MediaSourcePanel({
     [params, setParams, setSavedState, savedState]
   );
 
+  // callback function to handle changes in extended tags
   const onChangeExpandedTags = useCallback(expandedTags => setSavedState({ ...savedState, expandedTags }), [
     savedState,
     setSavedState
   ]);
 
+  // returning view for MediaSourcePanel
   return (
     <>
       <AssetsPanelToolbar title={source.name}>
@@ -82,12 +102,12 @@ export default function MediaSourcePanel({
           privacyPolicyUrl={source.privacyPolicyUrl}
         />
         {source.upload && (
-          <FileInput
-          /* @ts-ignore */
-            accept={source.acceptFileTypes || "all"}
-            multiple={source.uploadMultiple || false}
-            onChange={onUpload}
-          />
+        <FileInput
+        /* @ts-ignore */
+          accept={source.acceptFileTypes || "all"}
+          multiple={source.uploadMultiple || false}
+          onChange={onUpload}
+        />
         )}
       </AssetsPanelToolbar>
       <AssetPanelContentContainer>
@@ -115,6 +135,7 @@ export default function MediaSourcePanel({
   );
 }
 
+//declairing properties for MediaSourcePanel
 MediaSourcePanel.propTypes = {
   searchPlaceholder: PropTypes.string,
   initialSearchParams: PropTypes.object,
@@ -125,6 +146,7 @@ MediaSourcePanel.propTypes = {
   setSavedState: PropTypes.func.isRequired
 };
 
+//initializing default Properties
 MediaSourcePanel.defaultProps = {
   searchPlaceholder: "Search...",
   initialSearchParams: {
