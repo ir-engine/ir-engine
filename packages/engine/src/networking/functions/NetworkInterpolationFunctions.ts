@@ -52,8 +52,8 @@ export function addSnapshot (snapshot: Snapshot): void {
   // by subtracting the current client date from the server time of the
   // first snapshot
   if( NetworkInterpolation.instance.checkCount != snapshot.time ) {
-    let io = Date.now() - snapshot.time;
-    let tr = io%NetworkInterpolation.instance._interpolationBuffer;
+    const io = Date.now() - snapshot.time;
+    const tr = io%NetworkInterpolation.instance._interpolationBuffer;
     if (io - tr > NetworkInterpolation.instance.timeOffset) {
       NetworkInterpolation.instance.timeOffset = io - tr;
       NetworkInterpolation.instance.checkDelay = 0;
@@ -191,7 +191,7 @@ export function interpolate (
  */
 export function calculateInterpolation (parameters: string, arrayName = ''): InterpolatedSnapshot | undefined {
   // get the snapshots [_interpolationBuffer] ago
-  let serverTime = (Date.now() - NetworkInterpolation.instance.timeOffset) - NetworkInterpolation.instance._interpolationBuffer;
+  const serverTime = (Date.now() - NetworkInterpolation.instance.timeOffset) - NetworkInterpolation.instance._interpolationBuffer;
   // protection from going back in time during a ping jump
 //  serverTime < NetworkInterpolation.instance.serverTimePrev ? serverTime = NetworkInterpolation.instance.serverTimePrev:'';
   //console.warn(Date.now() - serverTime);
