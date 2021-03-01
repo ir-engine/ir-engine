@@ -26,6 +26,7 @@ import android.util.TypedValue;
 import android.view.Display;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
@@ -34,9 +35,10 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.NativePlugin;
 
 import com.getcapacitor.PluginResult;
+import com.google.ar.core.Pose;
+import com.google.ar.core.RecordingConfig;
 import com.xr3ngine.xr.videocompressor.VideoCompress;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -74,11 +76,7 @@ public class XRPlugin extends Plugin {
     private ARActivity fragment;
     private int containerViewId = 20;
 
-    private boolean xrIsEnabled = false;
-    private boolean recordingIsEnabled = false;
-    private XRFrameData currentXrFrameData = new XRFrameData();
-
-    @PluginMethod
+    @PluginMethod()
     public void initialize(PluginCall call) {
         Log.d("XRPLUGIN", "Initializing");
 
@@ -87,8 +85,20 @@ public class XRPlugin extends Plugin {
         call.success(ret);
     }
 
-    // CAMERA PREVIEW METHOD =====================================
+    @PluginMethod()
+    public void handleTap(PluginCall call){
+        saveCall(call);
+        Toast t = Toast.makeText(getContext(), "Tapped", Toast.LENGTH_SHORT);
+        t.show();
+        fragment.handleTap(this);
+    }
 
+    @PluginMethod()
+    public void clearAnchors(PluginCall call){
+        fragment.clearAnchors();
+    }
+
+    // CAMERA PREVIEW METHOD =====================================
 
     @PluginMethod()
     public void start(PluginCall call) {
@@ -152,9 +162,6 @@ public class XRPlugin extends Plugin {
                 savedCall.reject("permission failed");
             }
         }
-
-
-
     }
 
     private void startCamera(final PluginCall call) {
@@ -577,25 +584,21 @@ public class XRPlugin extends Plugin {
         float videoHeight = Float.parseFloat(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
 
         String orientation;
-        if (Build.VERSION.SDK_INT >= 17) {
-            String mmrOrientation = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
-            Log.d(TAG, "mmrOrientation: " + mmrOrientation); // 0, 90, 180, or 270
+        String mmrOrientation = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
+        Log.d(TAG, "mmrOrientation: " + mmrOrientation); // 0, 90, 180, or 270
 
-            if (videoWidth < videoHeight) {
-                if (mmrOrientation.equals("0") || mmrOrientation.equals("180")) {
-                    orientation = "portrait";
-                } else {
-                    orientation = "landscape";
-                }
+        if (videoWidth < videoHeight) {
+            if (mmrOrientation.equals("0") || mmrOrientation.equals("180")) {
+                orientation = "portrait";
             } else {
-                if (mmrOrientation.equals("0") || mmrOrientation.equals("180")) {
-                    orientation = "landscape";
-                } else {
-                    orientation = "portrait";
-                }
+                orientation = "landscape";
             }
         } else {
-            orientation = (videoWidth < videoHeight) ? "portrait" : "landscape";
+            if (mmrOrientation.equals("0") || mmrOrientation.equals("180")) {
+                orientation = "landscape";
+            } else {
+                orientation = "portrait";
+            }
         }
 
         double duration = Double.parseDouble(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)) / 1000.0;
@@ -661,10 +664,9 @@ public class XRPlugin extends Plugin {
      */
     public static String getPath(final Context context, final Uri uri) {
 
-        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 
         // DocumentProvider
-        if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
+        if (DocumentsContract.isDocumentUri(context, uri)) {
             // ExternalStorageProvider
             if (isExternalStorageDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
@@ -835,8 +837,6 @@ public class XRPlugin extends Plugin {
 
     public String filePath;
 
-    public boolean isAudio;     // true: MediaRecord, false: ScreenRecord
-
     public int width, height, bitRate, dpi;
 
     public static final int PERMISSION_DENIED_ERROR = 20;
@@ -853,7 +853,6 @@ public class XRPlugin extends Plugin {
         this.callbackContext = callbackContext;
 
         Log.d(TAG, callbackContext.toString());
-        isAudio = callbackContext.getBoolean("isAudio");
         width = callbackContext.getInt("width");
         height = callbackContext.getInt("height");
         bitRate = callbackContext.getInt("bitRate");
@@ -869,29 +868,34 @@ public class XRPlugin extends Plugin {
             startActivityForResult(this.callbackContext, captureIntent, SCREEN_RECORD_CODE);
         }
         Log.d(TAG, "CALLBACK CONTEXT:" + this.callbackContext);
-        Log.d(TAG, "IS AUDIO:" + isAudio);
 
     }
 
     @PluginMethod
     public void stopRecording(PluginCall callbackContext) {
-        if(isAudio){
-            if(mediaRecord != null){
-                mediaRecord.release();
-                mediaRecord = null;
-                callbackContext.success(new JSObject().put("result", "ScreenRecord finish."));
-            }else {
-                callbackContext.error("no ScreenRecord in process isAudio");
+
+        if(screenRecord != null){
+            screenRecord.quit();
+            screenRecord = null;
+            final Context appContext = getActivity().getApplicationContext();
+            final PackageManager pm = appContext.getPackageManager();
+
+            ApplicationInfo ai;
+
+            try {
+                ai = pm.getApplicationInfo(getActivity().getPackageName(), 0);
+            } catch (final PackageManager.NameNotFoundException e) {
+                ai = null;
             }
+            final String appName = (String) (ai != null ? pm.getApplicationLabel(ai) : "Unknown");
+
+            File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), appName);
+
+            callbackContext.success(new JSObject().put("result", "success").put("filePath", mediaStorageDir.getPath() + filePath));
         }else {
-            if(screenRecord != null){
-                screenRecord.quit();
-                screenRecord = null;
-                callbackContext.success(new JSObject().put("result", "ScreenRecord finish."));
-            }else {
-                callbackContext.error("no ScreenRecord in process XX");
-            }
+            callbackContext.error("no ScreenRecord in process XX");
         }
+
         Log.d(TAG, "CALLBACK CONTEXT:" + String.valueOf(this.callbackContext));
 
     }
@@ -901,7 +905,6 @@ public class XRPlugin extends Plugin {
      */
     @Override
     public void handleOnActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "*************** handleOnActivityResult" + filePath);
         PluginCall savedCall = getSavedCall();
 
         MediaProjection mediaProjection = mProjectionManager.getMediaProjection(resultCode, data);
@@ -936,14 +939,9 @@ public class XRPlugin extends Plugin {
                        filePath
                );
                 Log.d(TAG, "*************** filePath: " + mediaStorageDir.getPath() + filePath);
-               if(isAudio){
-                mediaRecord = new MediaRecordService(width, height, bitRate, dpi, mediaProjection, file.getAbsolutePath());
-                mediaRecord.start();
-               }else {
-                screenRecord = new ScreenRecordService(width, height, bitRate, dpi,
-                mediaProjection, file.getAbsolutePath());
-                screenRecord.start();
-               }
+               screenRecord = new ScreenRecordService(width, height, bitRate, dpi,
+                       mediaProjection, file.getAbsolutePath());
+               screenRecord.start();
 
                Log.d(TAG, "screenrecord service is running");
                PluginResult result = new PluginResult();
@@ -957,4 +955,39 @@ public class XRPlugin extends Plugin {
           }
   }
 
+    public void sendPoseData(float[] cameraPose, float[] anchorPose) {
+        JSObject ret = new JSObject();
+
+        ret.put("placed", anchorPose != null);
+
+        ret.put("cameraPositionX", cameraPose[0]);
+        ret.put("cameraPositionY", cameraPose[1]);
+        ret.put("cameraPositionZ", cameraPose[2]);
+        ret.put("cameraRotationX", cameraPose[3]);
+        ret.put("cameraRotationY", cameraPose[4]);
+        ret.put("cameraRotationZ", cameraPose[5]);
+        ret.put("cameraRotationW", cameraPose[6]);
+
+        if(anchorPose != null) {
+            ret.put("anchorPositionX", anchorPose[0]);
+            ret.put("anchorPositionY", anchorPose[1]);
+            ret.put("anchorPositionZ", anchorPose[2]);
+            ret.put("anchorRotationX", anchorPose[3]);
+            ret.put("anchorRotationY", anchorPose[4]);
+            ret.put("anchorRotationZ", anchorPose[5]);
+            ret.put("anchorRotationW", anchorPose[6]);
+        }
+        notifyListeners("poseDataReceived", ret);
+    }
+
+    public void receiveCameraIntrinsics(float[] focalLength, float[] principalPoint, int[] imageDimensions) {
+        JSObject ret = new JSObject();
+        ret.put("fX", focalLength[0]);
+        ret.put("fY", focalLength[1]);
+        ret.put("cX", principalPoint[0]);
+        ret.put("cY", principalPoint[1]);
+        ret.put("x", imageDimensions[0]);
+        ret.put("y", imageDimensions[1]);
+        notifyListeners("cameraIntrinsicsReceived", ret);
+    }
 }

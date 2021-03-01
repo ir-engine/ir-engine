@@ -189,8 +189,8 @@ export interface XRPluginPlugin {
 
     start(options: CameraOptions): Promise<{}>;
     stop(): Promise<{}>;
-
-    getXRDataForFrame(options: {}): Promise<{ data: XRFrameData;}>;
+    
+    handleTap(): void;
 
     startRecording(
         isAudio: any,
