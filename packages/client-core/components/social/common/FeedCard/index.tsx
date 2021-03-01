@@ -1,25 +1,24 @@
-import React from 'react';
-import Router from "next/router";
+import React, { useEffect } from 'react';
+import { bindActionCreators, Dispatch } from 'redux';
 
-import { Feed } from '@xr3ngine/common/interfaces/Feed';
+import Router from "next/router";
+import { connect } from 'react-redux';
 
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
-// import CardHeader from '@material-ui/core/CardHeader';
 import WhatshotIcon from '@material-ui/icons/Whatshot';
 import TelegramIcon from '@material-ui/icons/Telegram';
 import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
-// import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
+import BookmarkIcon from '@material-ui/icons/Bookmark';
 
-import styles from './FeedCard.module.scss';
-import { bindActionCreators, Dispatch } from 'redux';
-import { selectFeedFiresState } from '../../../../redux/feedFires/selector';
-import { useEffect } from 'react';
-import { getFeedFires } from '../../../../redux/feedFires/service';
-import { connect } from 'react-redux';
+import { Feed } from '@xr3ngine/common/interfaces/Feed';
+import { addFireToFeed, getFeedFires, removeFireToFeed } from '../../../../redux/feedFires/service';
 import CreatorAsTitle from '../CreatorAsTitle';
+import { addBookmarkToFeed, removeBookmarkToFeed } from '../../../../redux/feedBookmark/service';
+import { selectFeedFiresState } from '../../../../redux/feedFires/selector';
+import styles from './FeedCard.module.scss';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -29,33 +28,56 @@ const mapStateToProps = (state: any): any => {
 
   const mapDispatchToProps = (dispatch: Dispatch): any => ({
     getFeedFires: bindActionCreators(getFeedFires, dispatch),
+    addFireToFeed: bindActionCreators(addFireToFeed, dispatch),
+    removeFireToFeed: bindActionCreators(removeFireToFeed, dispatch),
+    addBookmarkToFeed: bindActionCreators(addBookmarkToFeed, dispatch),
+    removeBookmarkToFeed: bindActionCreators(removeBookmarkToFeed, dispatch),
 });
 interface Props{
     feed : Feed,
     feedFiresState?: any,
     getFeedFires?: typeof getFeedFires;
+    addFireToFeed? : typeof addFireToFeed;
+    removeFireToFeed?: typeof removeFireToFeed;
+    addBookmarkToFeed?: typeof addBookmarkToFeed;
+    removeBookmarkToFeed?: typeof removeBookmarkToFeed;
 }
 const FeedCard = (props: Props) : any => {
-    const {feed, getFeedFires, feedFiresState} = props;
+    const {feed, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed, addBookmarkToFeed, removeBookmarkToFeed} = props;
     useEffect(()=>{if(feed){getFeedFires(feed.id);}}, []);
-    console.log('feedFiresState.get(\'feedFires\')',feedFiresState.get('feedFires'))
-    return  feed ? <Card className={styles.tipItem} square={false} elevation={0} key={feed.id} onClick={()=>Router.push('/feed')}>
+    
+    const handleAddFireClick = (feedId) =>addFireToFeed(feedId, '150');
+    const handleRemoveFireClick = (feedId) =>removeFireToFeed(feedId, '150');
+
+    const handleAddBookmarkClick = (feedId) =>addBookmarkToFeed(feedId, '150');
+    const handleRemoveBookmarkClick = (feedId) =>removeBookmarkToFeed(feedId, '150');
+
+    const handlePlayVideo = (feedId) => {
+        //here should be redux hadler to service ho increment views for this feed
+        console.log('handlePlayVideo feedId', feedId);
+    }
+    
+    return  feed ? <Card className={styles.tipItem} square={false} elevation={0} key={feed.id}>
                 <CreatorAsTitle creator={feed.creator} />                   
                 <CardMedia   
                     className={styles.previewImage}                  
                     image={feed.preview}
-                    title={feed.title}
+                    title={feed.title}     
+                    onClick={()=>handlePlayVideo(feed.id)}               
                 />
                 <CardContent>
                     <Typography className={styles.titleContainer} gutterBottom variant="h2">
-                        <span>{feed.title}</span>
+                        <span onClick={()=>Router.push('/feed')}>{feed.title}</span>
                         <section>
-                            <WhatshotIcon htmlColor="#FF6201"  />
+                            {feed.isFired ? 
+                                    <WhatshotIcon htmlColor="#FF6201" onClick={()=>handleRemoveFireClick(feed.id)} /> 
+                                    :
+                                    <WhatshotIcon htmlColor="#DDDDDD" onClick={()=>handleAddFireClick(feed.id)} />}
                             <TelegramIcon />
-                            <BookmarkBorderIcon />
+                            {feed.isBookmarked ? <BookmarkIcon onClick={()=>handleRemoveBookmarkClick(feed.id)} /> : <BookmarkBorderIcon onClick={()=>handleAddBookmarkClick(feed.id)} />}
                         </section>
                     </Typography>
-                    <Typography variant="h2" onClick={()=>alert('Fires '+feedFiresState.get('feedFires'))}><span className={styles.flamesCount}>{feed.fires}</span>Flames</Typography>
+                    <Typography variant="h2" onClick={()=>console.log('Fires ',feedFiresState.get('feedFires'))}><span className={styles.flamesCount}>{feed.fires}</span>Flames</Typography>
                     <Typography variant="h2">{feed.description}</Typography>
                 </CardContent>
             </Card>

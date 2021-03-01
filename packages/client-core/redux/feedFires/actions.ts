@@ -1,6 +1,6 @@
 import {
   FEED_FIRES_RETRIEVED,
-  FEED_FIRES_FETCH
+  FEED_FIRES_FETCH,
 } from '../actions';
 import { CreatorShort } from '@xr3ngine/common/interfaces/Creator';
 
@@ -12,6 +12,7 @@ export interface FeedFiresRetriveAction {
 export interface FetchingFeedFiresAction {
   type: string;
 }
+
 export type FeedFiresAction =
 FeedFiresRetriveAction
 | FetchingFeedFiresAction
@@ -29,4 +30,3 @@ export function fetchingFeedFires (): FetchingFeedFiresAction {
     type: FEED_FIRES_FETCH
   };
 }
-
