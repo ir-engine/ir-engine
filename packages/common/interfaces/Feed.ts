@@ -1,12 +1,12 @@
 
 import {CreatorShort} from './Creator'
-export interface FeedShord {
+export interface FeedShort {
   id: string,
   preview: string,
   viewsCount: number,  
 }
 
-export interface Feed extends FeedShord {
+export interface Feed extends FeedShort {
   creator : CreatorShort,
   video : string,
   fires: number,  
