@@ -1,4 +1,4 @@
-import Blob from 'cross-blob';
+// import Blob from 'cross-blob';
 import {
   BufferGeometry,
   Float32BufferAttribute, Mesh,
@@ -14,7 +14,6 @@ import {
   KeyframeBuffer
 } from './Interfaces';
 import RingBuffer from './RingBuffer';
-import { workerFunction } from './workerFunction';
 
 export default class DracosisPlayer {
   // Public Fields
@@ -79,12 +78,12 @@ export default class DracosisPlayer {
     keyframesToBufferBeforeStart = 200
   }) {
 
-    const dataObj = '(' + workerFunction + ')();'; // here is the trick to convert the above fucntion to string
-    const blob = new Blob([dataObj.replace('"use strict";', '')], { type: 'application/javascript' }); // firefox adds "use strict"; to any function which might block worker execution so knock it off
+    // const dataObj = '(' + workerFunction + ')();'; // here is the trick to convert the above fucntion to string
+    // const blob = new Blob([dataObj.replace('"use strict";', '')], { type: 'application/javascript' }); // firefox adds "use strict"; to any function which might block worker execution so knock it off
 
-    const blobURL = (window.URL ? URL : webkitURL).createObjectURL(blob);
+    // const blobURL = (window.URL ? URL : webkitURL).createObjectURL(blob);
 
-    const worker = new Worker(blobURL); // spawn new worker
+    const worker = new Worker(new URL('./workerFunction.ts', import.meta.url)); // spawn new worker
     this._worker = worker;
 
     const handleFrameData = (frameData) => {

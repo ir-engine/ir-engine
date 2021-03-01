@@ -18,13 +18,12 @@ import { setCurrentScene } from '@xr3ngine/client-core/redux/scenes/actions';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
 import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { SocketWebRTCClientTransport } from '@xr3ngine/engine/src/networking/classes/SocketWebRTCClientTransport';
 import { joinWorld } from '@xr3ngine/engine/src/networking/functions/joinWorld';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { styleCanvas } from '@xr3ngine/engine/src/renderer/functions/styleCanvas';
-import { loadScene } from '@xr3ngine/engine/src/scene/functions/SceneLoading';
+import { EngineProxy } from '@xr3ngine/engine/src/EngineProxy';
 import { CharacterComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterComponent';
 import { DefaultNetworkSchema, PrefabType } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import dynamic from 'next/dynamic';
@@ -226,25 +225,30 @@ export const EnginePage = (props: Props) => {
 
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
     styleCanvas(canvas);
-    let rendereringCanvas: HTMLCanvasElement | OffscreenCanvas = canvas;
 
-    const useWebWorker = false; // typeof canvas.transferControlToOffscreen !== 'undefined';
-    if(useWebWorker) {
-      rendereringCanvas = canvas.transferControlToOffscreen();
-    }
+    let initializationOptions, initialize;
+    // if(canvas.transferControlToOffscreen) {
+      // const { DefaultInitializationOptions, initializeWorker } = await import('@xr3ngine/engine/src/initializeWorker');
+      // initializationOptions = DefaultInitializationOptions;
+      // initialize = initializeWorker;
+    // } else {
+      const { DefaultInitializationOptions, initializeEngine } = await import('@xr3ngine/engine/src/initialize');
+      initializationOptions = DefaultInitializationOptions;
+      initialize = initializeEngine;
+    // }
 
     const InitializationOptions = {
-      ...DefaultInitializationOptions,
+      ...initializationOptions,
       networking: {
         schema: networkSchema,
       },
       renderer: {
-        canvas: rendereringCanvas,
+        canvas,
       }
     };
 
-    initializeEngine(InitializationOptions);
-    loadScene(result);
+    await initialize(InitializationOptions);
+    EngineProxy.instance.loadScene(result);
   }
 
 
