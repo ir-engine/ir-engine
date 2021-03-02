@@ -64,6 +64,8 @@
     "lodash": "^4.17.20",
     "mediasoup-client": "^3.6.12",
     "minimist": "^1.2.5",
+    "mobx": "5.15.6",
+    "mobx-react": "^6.2.5",
     "moment": "^2.29.1",
     "mousetrap": "^1.6.5",
     "next": "^10.0.6",
