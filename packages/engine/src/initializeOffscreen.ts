@@ -23,8 +23,9 @@ import { CharacterInputSchema } from './templates/character/CharacterInputSchema
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
-import { MainProxy, MessageType, Message } from './worker/MessageQueue';
+import { MessageType, Message, MainProxy, MessageQueue } from './worker/MessageQueue';
 import { InputSystem } from './input/systems/ClientInputSystem';
+import { SystemProxy, SYSTEM_PROXY } from './worker/SystemProxy';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -42,7 +43,7 @@ export const DefaultInitializationOptions = {
 };
 
 class MainEngineProxy extends EngineProxy {
-  mainProxy: MainProxy;
+  mainProxy: MainProxy
   constructor(mainProxy: MainProxy) {
     super()
     this.mainProxy = mainProxy;
@@ -74,6 +75,35 @@ class MainEngineProxy extends EngineProxy {
       const { entityID, avatarID } = ev.detail;
       this.setActorAvatar(entityID, avatarID)
     })
+
+    this.mainProxy.addEventListener(SYSTEM_PROXY.EVENT_ADD, (ev: any) => {
+      const { type, system } = ev.detail;
+      const systemType = SystemProxy._getSystem(system)
+      const listener = (event: any) => {
+        this.mainProxy.sendEvent(SYSTEM_PROXY.EVENT, { event, system })
+      };
+      // @ts-ignore
+      if(!systemType.instance.proxyListener) {
+        // @ts-ignore
+        systemType.instance.proxyListener = listener;
+      }
+      systemType.instance.addEventListener(type, listener)
+    });
+    this.mainProxy.addEventListener(SYSTEM_PROXY.EVENT_REMOVE, (ev: any) => {
+      const { type, system } = ev.detail;
+      const systemType = SystemProxy._getSystem(system)
+      // @ts-ignore
+      systemType.instance.removeEventListener(type, systemType.instance.proxyListener)
+    });
+    this.mainProxy.addEventListener(SYSTEM_PROXY.EVENT, (ev: any) => {
+      ev.preventDefault = () => {};
+      ev.stopPropagation = () => {};
+      delete ev.target;
+      const { event, system } = ev.detail;
+      const systemType = SystemProxy._getSystem(system)
+      // @ts-ignore
+      systemType.instance.dispatchEvent(event, true);
+    });
   }
   sendData(buffer) { this.mainProxy.sendEvent('sendData', { buffer }, [buffer]) }
 }

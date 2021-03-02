@@ -10,7 +10,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { EngineOptions } from '../interfaces/EngineOptions';
 import { Entity } from './Entity';
 import { EntityPool } from './EntityPool';
-import { EventDispatcher } from './EventDispatcher';
+import { EntityEventDispatcher } from './EntityEventDispatcher';
 import { Query } from './Query';
 
 /**
@@ -89,7 +89,7 @@ export class Engine {
   /**
    * Event dispatcher manages sending events which can be interpreted by devtools.
    */
-  static eventDispatcher = new EventDispatcher()
+  static eventDispatcher = new EntityEventDispatcher()
 
   /**
   * Initialization options.

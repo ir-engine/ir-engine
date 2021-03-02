@@ -1,6 +1,6 @@
 import { queryKeyFromComponents } from '../functions/ComponentFunctions';
 import { ComponentConstructor } from '../interfaces/ComponentInterfaces';
-import { EventDispatcher } from './EventDispatcher';
+import { EntityEventDispatcher } from './EntityEventDispatcher';
 import { Engine } from './Engine';
 import { NotComponent } from './System';
 import { hasAllComponents, hasAnyComponents } from '../functions/EntityFunctions';
@@ -57,7 +57,7 @@ export class Query {
   /**
    * Event dispatcher associated with this query.
    */
-  eventDispatcher: EventDispatcher
+  eventDispatcher: EntityEventDispatcher
 
   /**
    * Is the query reactive?\
@@ -93,7 +93,7 @@ export class Query {
 
     this.entities = [];
 
-    this.eventDispatcher = new EventDispatcher();
+    this.eventDispatcher = new EntityEventDispatcher();
 
     // This query is being used by a reactive system
     this.reactive = false;

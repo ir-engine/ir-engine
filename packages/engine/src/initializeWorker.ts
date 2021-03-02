@@ -14,6 +14,8 @@ import { Timer } from './common/functions/Timer';
 import { execute, initialize } from "./ecs/functions/EngineFunctions";
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType';
 import { Network } from './networking/classes/Network';
+import { WebGLRendererSystem } from './renderer/WebGLRendererSystem';
+import { SystemProxy, SYSTEM_PROXY } from './worker/SystemProxy';
 
 const isSafari = typeof navigator !== 'undefined' && /Version\/[\d\.]+.*Safari/.test(window.navigator.userAgent);
 
@@ -37,12 +39,39 @@ class WorkerEngineProxy extends EngineProxy {
     this.workerProxy = workerProxy;
     this.workerProxy.addEventListener('sendData', (ev: any) => { this.sendData(ev.detail.buffer) })
     const serverConnect = () => {
-      this.workerProxy.sendEvent('NETWORK_CONNECT_EVENT', {
-
-      })
+      this.workerProxy.sendEvent('NETWORK_CONNECT_EVENT', { })
       document.removeEventListener('server-connected', serverConnect)
     }
     document.addEventListener('server-connected', serverConnect)
+
+    this.workerProxy.addEventListener(SYSTEM_PROXY.EVENT_ADD, (ev: any) => {
+      const { type, system } = ev.detail;
+      const systemType = SystemProxy._getSystem(system)
+      const listener = (event: any) => {
+        this.workerProxy.sendEvent(SYSTEM_PROXY.EVENT, { event, system })
+      };
+      // @ts-ignore
+      if(!systemType.instance.proxyListener) {
+        // @ts-ignore
+        systemType.instance.proxyListener = listener;
+      }
+      systemType.instance.addEventListener(type, listener)
+    });
+    this.workerProxy.addEventListener(SYSTEM_PROXY.EVENT_REMOVE, (ev: any) => {
+      const { type, system } = ev.detail;
+      const systemType = SystemProxy._getSystem(system)
+      // @ts-ignore
+      systemType.instance.removeEventListener(type, systemType.instance.proxyListener)
+    });
+    this.workerProxy.addEventListener(SYSTEM_PROXY.EVENT, (ev: any) => {
+      ev.preventDefault = () => {};
+      ev.stopPropagation = () => {};
+      delete ev.target;
+      const { event, system } = ev.detail;
+      const systemType = SystemProxy._getSystem(system)
+      // @ts-ignore
+      systemType.instance.dispatchEvent(event, true);
+    });
   }
   loadScene(result) { 
     this.workerProxy.sendEvent('NETWORK_INITIALIZE_EVENT', {
@@ -51,8 +80,8 @@ class WorkerEngineProxy extends EngineProxy {
     })
     this.workerProxy.sendEvent('loadScene', { result })
   }
-  transferNetworkBuffer(buffer, delta) { this.workerProxy.sendEvent('transferNetworkBuffer', { buffer, delta }, [buffer]) }
-  setActorAvatar(entityID, avatarID) { this.workerProxy.sendEvent('setActorAvatar', { entityID, avatarID } ) }
+  transferNetworkBuffer(buffer, delta) { this.workerProxy.sendEvent('transferNetworkBuffer', { buffer, delta }, [buffer]); }
+  setActorAvatar(entityID, avatarID) { this.workerProxy.sendEvent('setActorAvatar', { entityID, avatarID }); }
 }
 
 export async function initializeWorker(initOptions: any = DefaultInitializationOptions): Promise<void> {
@@ -75,6 +104,8 @@ export async function initializeWorker(initOptions: any = DefaultInitializationO
   registerSystem(ClientNetworkSystem, { ...networkSystemOptions, priority: -1 });
   registerSystem(MediaStreamSystem);
   // registerSystem(InputSystem, { useWebXR: DefaultInitializationOptions.input.useWebXR });
+  // @ts-ignore
+  WebGLRendererSystem.instance = new SystemProxy('WebGLRendererSystem');
   
   Engine.engineTimerTimeout = setTimeout(() => {
     Engine.engineTimer = Timer(
