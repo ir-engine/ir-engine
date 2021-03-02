@@ -34,7 +34,7 @@ import {MessageTypes} from "@xr3ngine/engine/src/networking/enums/MessageTypes";
 import {selectAppState} from '../../../redux/app/selector';
 import {selectAuthState} from '../../../redux/auth/selector';
 import {selectLocationState} from '../../../redux/location/selector';
-import { updateCamVideoState, updateCamAudioState } from '../../../redux/mediastream/service';
+import {updateCamVideoState, updateCamAudioState, triggerUpdateConsumers} from '../../../redux/mediastream/service';
 import {selectUserState} from '../../../redux/user/selector';
 import {connect} from "react-redux";
 import {Dispatch} from "redux";
@@ -111,8 +111,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
 
     const isCamVideoEnabled = mediastream.get('isCamVideoEnabled');
     const isCamAudioEnabled = mediastream.get('isCamAudioEnabled');
-
-
+    const consumers = mediastream.get('consumers');
 
     const setVideoStream = value => {
         videoStreamRef.current = value;
@@ -163,57 +162,19 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     useEffect(() => {
             if (peerId === 'me_cam') setVideoStream(MediaStreamSystem.instance?.camVideoProducer);
             else if (peerId === 'me_screen') setVideoStream(MediaStreamSystem.instance?.screenVideoProducer);
-            else setVideoStream(MediaStreamSystem.instance?.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-video'));
     }, [isCamVideoEnabled]);
 
     useEffect(() => {
             if (peerId === 'me_cam') setAudioStream(MediaStreamSystem.instance?.camAudioProducer);
             else if (peerId === 'me_screen') setAudioStream(MediaStreamSystem.instance?.screenAudioProducer);
-            else setAudioStream(MediaStreamSystem.instance?.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'));
     }, [isCamAudioEnabled]);
 
     useEffect(() => {
-        const socket = (Network.instance?.transport as any)?.channelType === 'instance' ? (Network.instance?.transport as any)?.instanceSocket : (Network.instance?.transport as any)?.channelSocket;
-        if (typeof socket?.on === 'function') {
-           socket?.on(MessageTypes.WebRTCPauseConsumer.toString(), (consumerId: string) => {
-                if (consumerId === videoStream?.id) {
-                    setVideoProducerPaused(true);
-                } else if (consumerId === audioStream?.id) {
-                    setAudioProducerPaused(true);
-                }
-            });
-
-            socket?.on(MessageTypes.WebRTCResumeConsumer.toString(), (consumerId: string) => {
-                console.log('ResumeConsumer message for', consumerId);
-                if (consumerId === videoStream?.id) {
-                    setVideoProducerPaused(false);
-                } else if (consumerId === audioStream?.id) {
-                    setAudioProducerPaused(false);
-                }
-            });
-
-            socket?.on(MessageTypes.WebRTCPauseProducer.toString(), (producerId: string, globalMute: boolean) => {
-                console.log('PauseProducer message for ', producerId);
-                if (producerId === videoStream?.id && globalMute === true) {
-                    setVideoProducerPaused(true);
-                    setVideoProducerGlobalMute(true);
-                } else if (producerId === audioStream?.id && globalMute === true) {
-                    setAudioProducerPaused(true);
-                    setAudioProducerGlobalMute(true);
-                }
-            });
-
-            socket?.on(MessageTypes.WebRTCResumeProducer.toString(), (producerId: string) => {
-                if (producerId === videoStream?.id) {
-                    setVideoProducerPaused(false);
-                    setVideoProducerGlobalMute(false);
-                } else if (producerId === audioStream?.id) {
-                    setAudioProducerPaused(false);
-                    setAudioProducerGlobalMute(false);
-                }
-            });
+        if (peerId !== 'me_cam' && peerId !== 'me_screen') {
+            setVideoStream(MediaStreamSystem.instance?.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-video'));
+            setAudioStream(MediaStreamSystem.instance?.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'));
         }
-    }, [videoStream, audioStream]);
+    }, [consumers])
 
     useEffect(() => {
         if (userHasInteracted === true && peerId !== 'me_cam' && peerId !== 'me_screen') {
@@ -320,7 +281,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
         } else {
             if (videoStream.paused === false) await pauseConsumer(videoStream);
             else await resumeConsumer(videoStream);
-            updateCamVideoState();
+            setVideoStreamPaused(videoStream.paused);
         }
     };
 
@@ -339,7 +300,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
         } else {
             if (audioStream.paused === false) await pauseConsumer(audioStream);
             else await resumeConsumer(audioStream);
-            updateCamAudioState();
+            setAudioStreamPaused(audioStream.paused);
         }
     };
 
@@ -383,9 +344,8 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
         >
 
             <div className={styles['video-wrapper']}>
-                {videoStream == null || videoProducerPaused == true || videoProducerGlobalMute == true
-                    ? <img src={getAvatarURL(user?.avatarId)} draggable={false} />
-                    : <video key={peerId + '_cam'} ref={videoRef}/>}
+                { (videoStream == null || videoStreamPaused == true || videoProducerPaused == true || videoProducerGlobalMute == true) && <img src={getAvatarURL(user?.avatarId)} /> }
+                <video key={peerId + '_cam'} ref={videoRef}/>
             </div>
             <audio key={peerId + '_audio'} ref={audioRef}/>
             <div className={styles['user-controls']}>

@@ -4,6 +4,7 @@ import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/Media
 import { DataProducer, Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { Network } from "../classes/Network";
+import {triggerUpdateConsumers} from "@xr3ngine/client-core/redux/mediastream/service";
 
 let networkTransport: any;
 
@@ -362,6 +363,7 @@ export async function subscribeToTrack(peerId: string, mediaTag: string, channel
 
         if (MediaStreamSystem.instance?.consumers?.find(c => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag) == null) {
             MediaStreamSystem.instance?.consumers.push(consumer);
+            triggerUpdateConsumers();
 
             // okay, we're ready. let's ask the peer to send us media
             await resumeConsumer(consumer);
