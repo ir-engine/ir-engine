@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
+import { observer } from 'mobx-react';
 import { selectAuthState } from '../../../redux/auth/selector';
 import { selectLocationState } from '../../../redux/location/selector';
 import Fab from "@material-ui/core/Fab";
@@ -24,7 +25,7 @@ const mapStateToProps = (state: any): any => {
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
-const VideoChat = (props: Props) => {
+const VideoChat = observer((props: Props) => {
   const {
     authState,
     locationState
@@ -46,6 +47,6 @@ const VideoChat = (props: Props) => {
       {MediaStreamSystem.mediaStream != null && <CallEnd /> }
     </Fab>
   );
-};
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(VideoChat);

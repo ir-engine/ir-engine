@@ -58,9 +58,11 @@ import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
+import { observer } from 'mobx-react';
 //@ts-ignore
 import styles from './Harmony.module.scss';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
+import {autorun} from "mobx";
 
 
 const mapStateToProps = (state: any): any => {
@@ -108,7 +110,7 @@ interface Props {
     resetChannelServer?: typeof resetChannelServer;
 }
 
-const Harmony = (props: Props): any => {
+const Harmony = observer((props: Props): any => {
     const {
         authState,
         chatState,
@@ -192,6 +194,18 @@ const Harmony = (props: Props): any => {
             resetChannelServer();
             if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('');
         });
+
+        autorun(() => {
+            if ((Network.instance.transport as any).channelType === 'instance') {
+                const channelEntries = [...channels.entries()];
+                const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null);
+                if (instanceChannel != null && channelAwaitingProvision?.id?.length === 0) {
+                    setActiveAVChannelId(instanceChannel[0]);
+                }
+            } else {
+                setActiveAVChannelId((Network.instance.transport as any).channelId);
+            }
+        });
     }, []);
 
     useEffect(() => {
@@ -241,18 +255,6 @@ const Harmony = (props: Props): any => {
             }
         });
     }, [channels]);
-
-    useEffect(() => {
-        if ((Network.instance.transport as any).channelType === 'instance') {
-            const channelEntries = [...channels.entries()];
-            const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null);
-            if (instanceChannel != null && channelAwaitingProvision?.id?.length === 0) {
-                setActiveAVChannelId(instanceChannel[0]);
-            }
-        } else {
-            setActiveAVChannelId((Network.instance.transport as any).channelId);
-        }
-    }, [channels, channelAwaitingProvision]);
 
 
     const openLeftDrawer = (e: any): void => {
@@ -808,6 +810,6 @@ const Harmony = (props: Props): any => {
             </div>
         </div>
     );
-};
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Harmony);
