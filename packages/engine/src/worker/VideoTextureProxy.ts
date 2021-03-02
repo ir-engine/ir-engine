@@ -12,7 +12,7 @@ import {
 import type { VideoDocumentElementProxy } from './MessageQueue';
 
 export class VideoTextureProxy extends DataTexture {
-  isVideoTexture: boolean = true;
+  isVideoTexture = true;
   videoProxy: VideoDocumentElementProxy;
   constructor(
     videoProxy: VideoDocumentElementProxy,
