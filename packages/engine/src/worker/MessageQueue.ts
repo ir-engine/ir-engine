@@ -44,8 +44,8 @@ export enum MessageType {
 }
 
 function simplifyObject(object: any): any {
-  let messageData = {};
-  for (let prop in object)
+  const messageData = {};
+  for (const prop in object)
     if (typeof object[prop] !== 'function')
       messageData[prop] = object[prop];
   return messageData;
@@ -143,9 +143,9 @@ class EventDispatcherProxy extends ExtendableProxy {
   }
 
   removeEventListener(type: string, listener: any) {
-    var listenerArray = this._listeners[type];
+    const listenerArray = this._listeners[type];
     if (listenerArray !== undefined) {
-      var index = listenerArray.indexOf(listener);
+      const index = listenerArray.indexOf(listener);
       if (index !== -1) {
         listenerArray.splice(index, 1);
       }
@@ -153,11 +153,11 @@ class EventDispatcherProxy extends ExtendableProxy {
   }
 
   dispatchEvent(event: any, fromSelf?: boolean) {
-    var listenerArray = this._listeners[event.type];
+    const listenerArray = this._listeners[event.type];
     if (listenerArray !== undefined) {
       event.target = this;
-      var array = listenerArray.slice(0);
-      for (var i = 0, l = array.length; i < l; i++) {
+      const array = listenerArray.slice(0);
+      for (let i = 0, l = array.length; i < l; i++) {
         array[i].call(this, event);
       }
     }
@@ -333,7 +333,7 @@ class DocumentElementProxy extends EventDispatcherProxy {
       },
     });
     this.remoteCalls = remoteCalls || [];
-    for (let call of this.remoteCalls) {
+    for (const call of this.remoteCalls) {
       this[call] = (...args: any) => {
         this.messageQueue.queue.push({
           messageType: MessageType.DOCUMENT_ELEMENT_FUNCTION_CALL,
