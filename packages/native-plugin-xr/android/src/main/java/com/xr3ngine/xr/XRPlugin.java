@@ -837,6 +837,8 @@ public class XRPlugin extends Plugin {
 
     public String filePath;
 
+    public boolean isAudio;     // true: MediaRecord, false: ScreenRecord
+
     public int width, height, bitRate, dpi;
 
     public static final int PERMISSION_DENIED_ERROR = 20;
@@ -853,6 +855,10 @@ public class XRPlugin extends Plugin {
         this.callbackContext = callbackContext;
 
         Log.d(TAG, callbackContext.toString());
+<<<<<<< HEAD
+=======
+        isAudio = callbackContext.getBoolean("isAudio");
+>>>>>>> 8822c4a24... add mobile changes
         width = callbackContext.getInt("width");
         height = callbackContext.getInt("height");
         bitRate = callbackContext.getInt("bitRate");
@@ -868,6 +874,7 @@ public class XRPlugin extends Plugin {
             startActivityForResult(this.callbackContext, captureIntent, SCREEN_RECORD_CODE);
         }
         Log.d(TAG, "CALLBACK CONTEXT:" + this.callbackContext);
+        Log.d(TAG, "IS AUDIO:" + isAudio);
 
     }
 
