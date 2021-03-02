@@ -90,18 +90,18 @@ const UserMenu = (props: UserMenuProps): any => {
     selfUser && setUserSetting({ ...selfUser.user_setting });
   }, [selfUser.user_setting]);
 
-  const updateGraphics = (newGraphicsSettings) => {
-    setGraphicsSettings(newGraphicsSettings);
+  const updateGraphics = (ev: any) => {
+    setGraphicsSettings(ev.detail);
   }
 
   useEffect(() => {
     const graphicsSettingsLoaded = (ev) => {
       WebGLRendererSystem.instance.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphics);
-      WebGLRendererSystem.instance.removeEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphics);
       window.removeEventListener('connectToWorld', graphicsSettingsLoaded);
     }
     window.addEventListener('connectToWorld', graphicsSettingsLoaded);
     return function cleanup() {
+      WebGLRendererSystem.instance.removeEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphics);
     };
   }, [])
 

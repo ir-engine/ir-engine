@@ -162,8 +162,6 @@ export function initializeNetworkObject(ownerId: string, networkId: number, pref
     uniqueId: ''
   };
 
-  console.log(ownerId, Network.instance?.userId, Network.instance)
-
   if (prefabType === PrefabType.Player && ownerId === (Network.instance).userId) {
     Network.instance.localClientEntity = networkEntity;
     document.dispatchEvent(new CustomEvent('client-entity-load', { detail: { id: networkEntity.id } }));
