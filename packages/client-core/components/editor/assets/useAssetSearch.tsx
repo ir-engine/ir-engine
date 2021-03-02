@@ -19,7 +19,7 @@ function useIsMounted() {
  * @param  {Function} callback
  * @param  {Array}    [initialResults=[]]
  * @param  {Number}   [initialCursor=0]
- * @return {promise} Object
+ * @return {promise} Object 
  */
 export function useLoadAsync(callback, initialResults = [], initialCursor = 0){
 
