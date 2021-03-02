@@ -23,8 +23,11 @@ import { CharacterInputSchema } from './templates/character/CharacterInputSchema
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
-import { MainProxy, MessageType, Message } from './worker/MessageQueue';
+import { MainProxy } from './worker/MessageQueue';
 import { InputSystem } from './input/systems/ClientInputSystem';
+import { EngineEventsProxy } from './worker/EngineEventsProxy';
+import { EngineEvents } from './worker/EngineEvents';
+import { loadScene, SCENE_EVENTS } from './scene/functions/SceneLoading';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -42,25 +45,17 @@ export const DefaultInitializationOptions = {
 };
 
 class MainEngineProxy extends EngineProxy {
-  mainProxy: MainProxy;
+  mainProxy: MainProxy
   constructor(mainProxy: MainProxy) {
     super()
     this.mainProxy = mainProxy;
-    const initializeNetworkEvent = (ev: any) => {
-      const { userId, userNetworkId } = ev.detail;
-      Network.instance.userId = userId;
-      Network.instance.userNetworkId = userNetworkId;
-      this.mainProxy.removeEventListener('NETWORK_INITIALIZE_EVENT', initializeNetworkEvent)
-    }
-    this.mainProxy.addEventListener('NETWORK_INITIALIZE_EVENT', initializeNetworkEvent)
-    const loadScene = (ev: any) => { 
-      this.loadScene(ev.detail.result)
-      this.mainProxy.removeEventListener('loadScene', loadScene)
-    }
-    this.mainProxy.addEventListener('loadScene', loadScene)
     this.mainProxy.addEventListener('transferNetworkBuffer', (ev: any) => { 
       const { buffer, delta } = ev.detail;
       this.transferNetworkBuffer(buffer, delta)
+    })
+    this.mainProxy.addEventListener('setActorAvatar', (ev: any) => { 
+      const { entityID, avatarID } = ev.detail;
+      this.setActorAvatar(entityID, avatarID)
     })
   }
   sendData(buffer) { this.mainProxy.sendEvent('sendData', { buffer }, [buffer]) }
@@ -70,24 +65,23 @@ class MainEngineProxy extends EngineProxy {
 export function initializeEngineOffscreen({ canvas, initOptions, env, useWebXR }, proxy: MainProxy): void {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
+  EngineEvents.instance = new EngineEventsProxy(proxy);
   EngineProxy.instance = new MainEngineProxy(proxy);
   initialize();
   Engine.scene = new Scene();
-
-  new Network();
 
   Network.instance.schema = options.networking.schema;
   // @ts-ignore
   Network.instance.transport = { isServer: false }
 
   // Do we want audio and video streams?
-  // registerSystem(MediaStreamSystem);
+  // registerSystem(MediaStreamSystemProxy);
 
   registerSystem(AssetLoadingSystem);
 
   registerSystem(PhysicsSystem);
 
-  // registerSystem(InputSystem, { useWebXR });
+  registerSystem(InputSystem, { useWebXR });
 
   registerSystem(StateSystem);
 
@@ -114,13 +108,24 @@ export function initializeEngineOffscreen({ canvas, initOptions, env, useWebXR }
   registerSystem(WebGLRendererSystem, { priority: 1001, canvas });
   Engine.viewportElement = Engine.renderer.domElement;
 
-  // Start our timer!
-  Engine.engineTimerTimeout = setTimeout(() => {
-    Engine.engineTimer = Timer(
-      {
-        networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
-        fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
-        update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
-      }, Engine.physicsFrameRate, Engine.networkFramerate).start();
-  }, 1000);
+  Engine.engineTimer = Timer({
+    networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
+    fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
+    update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
+  }, Engine.physicsFrameRate, Engine.networkFramerate).start();
+
+  EngineEvents.instance.addEventListener(SCENE_EVENTS.LOAD_SCENE, (ev: any) => loadScene(ev.result))
+
+  const connectNetworkEvent = (ev: any) => {
+    Network.instance.isInitialized = true;
+    EngineEvents.instance.removeEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
+  }
+  EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
+
+  const initializeNetworkEvent = (ev: any) => {
+    Network.instance.userId = ev.userId;
+    EngineEvents.instance.removeEventListener(ClientNetworkSystem.EVENTS.INITIALIZE, initializeNetworkEvent)
+  }
+  EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.INITIALIZE, initializeNetworkEvent)
+
 }
