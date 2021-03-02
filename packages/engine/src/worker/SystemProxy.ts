@@ -33,7 +33,7 @@ export class SystemProxy extends System {
     if(!fromSelf) {
       ((globalThis as any).__messageQueue as MessageQueue).sendEvent(SYSTEM_PROXY.EVENT, { system: this.systemLabel, event });
     }
-    // @ts-ignore
+    delete event.target;
     super.dispatchEvent(event);
   }
 

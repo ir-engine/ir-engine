@@ -80,6 +80,7 @@ class MainEngineProxy extends EngineProxy {
       const { type, system } = ev.detail;
       const systemType = SystemProxy._getSystem(system)
       const listener = (event: any) => {
+        delete event.target;
         this.mainProxy.sendEvent(SYSTEM_PROXY.EVENT, { event, system })
       };
       // @ts-ignore
@@ -96,9 +97,6 @@ class MainEngineProxy extends EngineProxy {
       systemType.instance.removeEventListener(type, systemType.instance.proxyListener)
     });
     this.mainProxy.addEventListener(SYSTEM_PROXY.EVENT, (ev: any) => {
-      ev.preventDefault = () => {};
-      ev.stopPropagation = () => {};
-      delete ev.target;
       const { event, system } = ev.detail;
       const systemType = SystemProxy._getSystem(system)
       // @ts-ignore

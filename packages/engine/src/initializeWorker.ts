@@ -64,11 +64,8 @@ class WorkerEngineProxy extends EngineProxy {
       systemType.instance.removeEventListener(type, systemType.instance.proxyListener)
     });
     this.workerProxy.addEventListener(SYSTEM_PROXY.EVENT, (ev: any) => {
-      ev.preventDefault = () => {};
-      ev.stopPropagation = () => {};
-      delete ev.target;
       const { event, system } = ev.detail;
-      const systemType = SystemProxy._getSystem(system)
+      const systemType = SystemProxy._getSystem(system);
       // @ts-ignore
       systemType.instance.dispatchEvent(event, true);
     });
