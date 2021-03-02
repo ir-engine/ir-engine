@@ -52,7 +52,6 @@ export async function initializeEngine(initOptions: any = DefaultInitializationO
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
   new EngineProxy();
-
   // Create a new world -- this holds all of our simulation state, entities, etc
   initialize();
 

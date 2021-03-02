@@ -1,30 +1,23 @@
 import LinkIcon from '@material-ui/icons/Link';
 import PersonIcon from '@material-ui/icons/Person';
 import SettingsIcon from '@material-ui/icons/Settings';
-
-import { getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import { endVideoChat, leave } from "@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions";
-import { loadActorAvatar } from '@xr3ngine/engine/src/templates/character/prefabs/NetworkPlayerCharacter';
-import { CharacterComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterComponent';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
-import { logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings } from '../../../redux/auth/service';
+import { updateUserAvatarId, updateUsername, updateUserSettings } from '../../../redux/auth/service';
 import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth } from '../../../redux/auth/service';
 import { alertSuccess } from '../../../redux/alert/service';
 import { provisionInstanceServer } from "../../../redux/instanceConnection/service";
-import { selectLocationState } from '../../../redux/location/selector';
-import { selectCurrentScene } from '../../../redux/scenes/selector';
 import { Views, UserMenuProps } from './util';
 import styles from './style.module.scss';
 import ProfileMenu from './menus/ProfileMenu';
 import AvatarMenu from './menus/AvatarMenu';
 import SettingMenu from './menus/SettingMenu';
 import ShareMenu from './menus/ShareMenu';
-import { WebGLRendererSystem, getGraphicsSettingsFromStorage } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
+import { WebGLRendererSystem } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
 import { EngineProxy } from '@xr3ngine/engine/src/EngineProxy';
 
 const mapStateToProps = (state: any): any => {
@@ -102,10 +95,13 @@ const UserMenu = (props: UserMenuProps): any => {
   }
 
   useEffect(() => {
-    setGraphicsSettings(getGraphicsSettingsFromStorage())
-    WebGLRendererSystem.qualityLevelChangeListeners.push(updateGraphics);
+    const graphicsSettingsLoaded = (ev) => {
+      WebGLRendererSystem.instance.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphics);
+      WebGLRendererSystem.instance.removeEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphics);
+      window.removeEventListener('connectToWorld', graphicsSettingsLoaded);
+    }
+    window.addEventListener('connectToWorld', graphicsSettingsLoaded);
     return function cleanup() {
-      WebGLRendererSystem.qualityLevelChangeListeners.splice(WebGLRendererSystem.qualityLevelChangeListeners.indexOf(updateGraphics), 1);
     };
   }, [])
 

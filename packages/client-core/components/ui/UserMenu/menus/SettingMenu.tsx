@@ -51,8 +51,8 @@ const SettingMenu = (props: any): JSX.Element => {
                   resolution: value,
                   automatic: false
                 })
-                WebGLRendererSystem.instance.setResolution(value);
-                WebGLRendererSystem.instance.setUseAutomatic(false);
+                WebGLRendererSystem.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_RESOLUTION, detail: value });
+                WebGLRendererSystem.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC, detail: false });
               }}
               className={styles.slider}
               min={0.25}
@@ -70,8 +70,8 @@ const SettingMenu = (props: any): JSX.Element => {
                   shadows: value,
                   automatic: false
                 })
-                WebGLRendererSystem.instance.setShadowQuality(value);
-                WebGLRendererSystem.instance.setUseAutomatic(false);
+                WebGLRendererSystem.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_SHADOW_QUALITY, detail: value });
+                WebGLRendererSystem.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC, detail: false });
               }}
               className={styles.slider}
               min={2}
@@ -89,8 +89,8 @@ const SettingMenu = (props: any): JSX.Element => {
                   postProcessing: value,
                   automatic: false
                 })
-                WebGLRendererSystem.instance.setUsePostProcessing(value);
-                WebGLRendererSystem.instance.setUseAutomatic(false);
+                WebGLRendererSystem.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_POST_PROCESSING, detail: value });
+                WebGLRendererSystem.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC, detail: false });
               }}
             />
             <FormControlLabel
@@ -114,7 +114,7 @@ const SettingMenu = (props: any): JSX.Element => {
                 props.setGraphicsSettings({
                   automatic: value
                 })
-                WebGLRendererSystem.instance.setUseAutomatic(value);
+                WebGLRendererSystem.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC, detail: value });
               }}
             />
           </div>

@@ -4,7 +4,7 @@ import { Entity } from './Entity';
 /**
  * This class provides methods to manage events dispatches.
  */
-export class EventDispatcher {
+export class EntityEventDispatcher {
   /** Map to store listeners by event names. */
   _listeners: {}
 

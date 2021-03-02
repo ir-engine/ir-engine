@@ -9,7 +9,6 @@ import { Network } from './networking/classes/Network';
 import { applyNetworkStateToClient } from './networking/functions/applyNetworkStateToClient';
 import { WorldStateModel } from './networking/schema/worldStateSchema';
 import { loadScene } from './scene/functions/SceneLoading';
-
 import { getEntityByID, getMutableComponent } from './ecs/functions/EntityFunctions';
 import { loadActorAvatar } from './templates/character/prefabs/NetworkPlayerCharacter';
 import { CharacterComponent } from './templates/character/components/CharacterComponent';

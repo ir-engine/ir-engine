@@ -5,7 +5,7 @@ import { ComponentConstructor } from '../interfaces/ComponentInterfaces';
 import { Component } from './Component';
 import { Engine } from './Engine';
 import { Entity } from './Entity';
-import { EventDispatcher } from './EventDispatcher';
+import { EventDispatcher } from 'three';
 import { Query } from './Query';
 
 /** Interface for System attributes. */
@@ -59,8 +59,9 @@ export abstract class System extends EventDispatcher {
    * Defines what Components the System will query for.
    * This needs to be user defined.
    */
+  static instance: System;
   static queries: SystemQueries = {}
-
+  
   static isSystem: true
   _mandatoryQueries: any
   priority: number

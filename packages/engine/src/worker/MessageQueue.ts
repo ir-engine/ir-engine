@@ -94,7 +94,7 @@ class ExtendableProxy {
   }
 }
 
-class EventDispatcherProxy extends ExtendableProxy {
+export class EventDispatcherProxy extends ExtendableProxy {
   [x: string]: any;
   eventTarget: EventTarget;
   eventListener: any;
@@ -174,7 +174,7 @@ class EventDispatcherProxy extends ExtendableProxy {
   }
 }
 
-class MessageQueue extends EventDispatcherProxy {
+export class MessageQueue extends EventDispatcherProxy {
   messagePort: any;
   queue: Message[];
   interval: NodeJS.Timeout;
@@ -217,11 +217,18 @@ class MessageQueue extends EventDispatcherProxy {
       transferables
     } as Message);
   }
+  transfer(transferables: Transferable[]) {
+    this.queue.push({
+      messageType: undefined,
+      message: undefined,
+      transferables
+    });
+  }
   sendQueue() {
     if (!this.queue?.length) return;
     const messages: object[] = [];
     this.queue.forEach((message: Message) => {
-      messages.push({
+      message.messageType && messages.push({
         type: message.messageType,
         message: message.message,
       });
