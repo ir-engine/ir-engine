@@ -72,14 +72,16 @@
 .thead {
   .trow {
     .tcell {
-      color: lighten(black, 0.80);
+      color: lighten(white, 0.80);
+      background-color: black;
     }
 
     .tcellSelectable {
-      color: lighten(black, 0.80);
+      color: lighten(white, 0.80);
+      background-color: black;
 
       &:hover {
-        background-color: rgba(0, 0, 0, 0.07);
+        background-color: rgba(243, 234, 234, 0.07);
         cursor: pointer;
       }
     }
@@ -89,7 +91,8 @@
     cursor: pointer;
 
     .tcell {
-      color: lighten(black, 0.80);
+      color: lighten(white, 0.80);
+      background-color: black;
     }
   }
 }
@@ -105,6 +108,8 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  background-color: black !important;
+  color: #fff !important;
 }
 
 .instanceUsersHeader {
