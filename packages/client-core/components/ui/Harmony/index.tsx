@@ -98,6 +98,7 @@ import {selectFriendState} from "../../../redux/friend/selector";
 import {selectGroupState} from "../../../redux/group/selector";
 import {selectLocationState} from "../../../redux/location/selector";
 import {selectPartyState} from "../../../redux/party/selector";
+import {selectTransportState} from '../../../redux/transport/selector';
 import {Group as GroupType} from "../../../../common/interfaces/Group";
 
 const initialSelectedUserState = {
@@ -129,6 +130,7 @@ const mapStateToProps = (state: any): any => {
         groupState: selectGroupState(state),
         locationState: selectLocationState(state),
         partyState: selectPartyState(state),
+        transportState: selectTransportState(state)
     };
 };
 
@@ -209,6 +211,7 @@ interface Props {
     selectedGroup?: any;
     setSelectedGroup?: any;
     locationState?: any;
+    transportState?: any;
 }
 
 const Harmony = observer((props: Props): any => {
@@ -255,7 +258,8 @@ const Harmony = observer((props: Props): any => {
         setSelectedUser,
         selectedGroup,
         setSelectedGroup,
-        locationState
+        locationState,
+        transportState
     } = props;
 
     const messageRef = React.useRef();
@@ -333,15 +337,6 @@ const Harmony = observer((props: Props): any => {
             if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('');
         });
 
-        autorun(() => {
-            if ((Network.instance.transport as any).channelType === 'instance') {
-                const channelEntries = [...channels.entries()];
-                const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null);
-                if (instanceChannel != null && (MediaStreamSystem.instance.camAudioProducer != null || MediaStreamSystem.instance.camVideoProducer != null)) setActiveAVChannelId(instanceChannel[0]);
-            } else {
-                setActiveAVChannelId((Network.instance.transport as any).channelId);
-            }
-        });
         return () => {
             window.removeEventListener('connectToWorld', () => {
                 toggleAudio(activeAVChannelIdRef.current);
@@ -358,6 +353,16 @@ const Harmony = observer((props: Props): any => {
             });
         }
     }, []);
+
+    useEffect(() => {
+        if ((Network.instance.transport as any).channelType === 'instance') {
+            const channelEntries = [...channels.entries()];
+            const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null);
+            if (instanceChannel != null && (MediaStreamSystem.instance.camAudioProducer != null || MediaStreamSystem.instance.camVideoProducer != null)) setActiveAVChannelId(instanceChannel[0]);
+        } else {
+            setActiveAVChannelId((Network.instance.transport as any).channelId);
+        }
+    }, [transportState])
 
     useEffect(() => {
         if (channelConnectionState.get('connected') === false && channelAwaitingProvision?.id?.length > 0) {

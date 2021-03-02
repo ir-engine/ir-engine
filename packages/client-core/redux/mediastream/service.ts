@@ -4,7 +4,9 @@ import {
   setCamAudioState,
   setCamVideoState,
   setFaceTrackingState,
+  setConsumers
 } from './actions';
+import store from '../store';
 
 export const updateCamVideoState = () => {
   const ms = MediaStreamSystem.instance;
@@ -15,6 +17,17 @@ export const updateCamVideoState = () => {
 
 export const changeCamVideoState = (isEnable: boolean) => {
   return (dispatch: Dispatch): void => { dispatch(setCamVideoState(isEnable)); }
+}
+
+export const triggerUpdateConsumers = () => {
+  const ms = MediaStreamSystem.instance;
+  if (!ms) updateConsumers([]);
+
+  store.dispatch(setConsumers(ms.consumers));
+}
+
+export const updateConsumers = (consumers: any[]) => {
+  return (dispatch: Dispatch): void => { dispatch(setConsumers(consumers))}
 }
 
 export const updateCamAudioState = () => {

@@ -383,6 +383,10 @@ $mobileControllButtonsSize: 3em;
         height: 100%;
         max-width: 100%;
         flex-basis: 100%;
+
+        & > div {
+            height: 100%;
+        }
     }
 
     .two {
@@ -390,13 +394,21 @@ $mobileControllButtonsSize: 3em;
         height: 100%;
         max-width: 50%;
         flex-basis: 50%;
+
+        & > div {
+            height: 100%;
+        }
     }
 
     .four {
         flex-grow: 0;
         height: 50%;
-        max-width: 33.3333%;
-        flex-basis: 33.3333%;
+        max-width: 50%;
+        flex-basis: 50%;
+
+        & > div {
+            height: 100%;
+        }
     }
 
     .six {
@@ -404,6 +416,10 @@ $mobileControllButtonsSize: 3em;
         height: 50%;
         max-width: 33.3333%;
         flex-basis: 33.3333%;
+
+        & > div {
+            height: 100%;
+        }
     }
 
     .nine {
@@ -411,6 +427,10 @@ $mobileControllButtonsSize: 3em;
         height: 33.3333%;
         max-width: 33.3333%;
         flex-basis: 33.3333%;
+
+        & > div {
+            height: 100%;
+        }
     }
 
     .many {
