@@ -733,6 +733,8 @@ export async function createWorker(
   messageQueue.messageTypeFunctions.set(
     MessageType.DOCUMENT_ELEMENT_ADD_EVENT,
     ({ type, uuid }: { type: string; uuid: string }) => {
+
+      // TODO add in an options parameter to message to enable piping through preventDefault & passive etc - must then be added during adding event listener in InputSchema
       if (documentElementMap.get(uuid)) {
         const listener = (ev: any) => {
           const event = fixDocumentEvent(ev) as any;

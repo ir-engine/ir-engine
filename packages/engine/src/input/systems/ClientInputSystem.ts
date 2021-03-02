@@ -266,12 +266,12 @@ export class InputSystem extends System {
 
       let sendSwitchInputs = false;
 
-      if (!hasComponent(Network.instance.networkObjects[Network.instance.userNetworkId].component.entity, LocalInputReceiver) && !this.needSend) {
+      if (!hasComponent(Network.instance.networkObjects[Network.instance.localAvatarNetworkId].component.entity, LocalInputReceiver) && !this.needSend) {
         this.needSend = true;
         sendSwitchInputs = true;
         this.switchId = getComponent(entity, NetworkObject).networkId;
         //console.warn('Car id: '+ getComponent(entity, NetworkObject).networkId);
-      } else if (hasComponent(Network.instance.networkObjects[Network.instance.userNetworkId].component.entity, LocalInputReceiver) && this.needSend) {
+      } else if (hasComponent(Network.instance.networkObjects[Network.instance.localAvatarNetworkId].component.entity, LocalInputReceiver) && this.needSend) {
         this.needSend = false;
         sendSwitchInputs = true;
         //  console.warn('Network.instance.userNetworkId: '+ Network.instance.userNetworkId);
@@ -290,7 +290,7 @@ export class InputSystem extends System {
 
       // Create a schema for input to send
       const inputs: NetworkClientInputInterface = {
-        networkId: Network.instance.userNetworkId,
+        networkId: Network.instance.localAvatarNetworkId,
         buttons: [],
         axes1d: [],
         axes2d: [],
