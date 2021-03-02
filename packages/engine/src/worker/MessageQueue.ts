@@ -23,6 +23,7 @@ export enum MessageType {
   ADD_EVENT,
   REMOVE_EVENT,
   EVENT,
+  TRANSFER,
   DOCUMENT_ELEMENT_CREATE,
   DOCUMENT_ELEMENT_FUNCTION_CALL,
   DOCUMENT_ELEMENT_PARAM_SET,
@@ -219,8 +220,8 @@ export class MessageQueue extends EventDispatcherProxy {
   }
   transfer(transferables: Transferable[]) {
     this.queue.push({
-      messageType: undefined,
-      message: undefined,
+      messageType: MessageType.TRANSFER,
+      message: {},
       transferables
     });
   }
@@ -228,8 +229,8 @@ export class MessageQueue extends EventDispatcherProxy {
     if (!this.queue?.length) return;
     const messages: object[] = [];
     this.queue.forEach((message: Message) => {
-      message.messageType && messages.push({
-        type: message.messageType,
+      messages.push({
+        messageType: message.messageType,
         message: message.message,
       });
     });
@@ -248,16 +249,16 @@ export class MessageQueue extends EventDispatcherProxy {
   receiveQueue(queue: object[]) {
     queue.forEach((element: object) => {
       /** @ts-ignore */
-      const { type, message } = element;
+      const { messageType, message } = element;
       if (!message.returnID || message.returnID === '') {
-        if (this.messageTypeFunctions.has(type)) {
-          this.messageTypeFunctions.get(type)(message);
+        if (this.messageTypeFunctions.has(messageType)) {
+          this.messageTypeFunctions.get(messageType)(message);
         }
       } else {
         if (this.remoteDocumentObjects.get(message.returnID)) {
           this.remoteDocumentObjects
             .get(message.returnID)
-            ?.messageTypeFunctions.get(type)(message);
+            ?.messageTypeFunctions.get(messageType)(message);
         }
       }
     });
