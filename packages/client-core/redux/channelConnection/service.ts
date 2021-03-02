@@ -11,6 +11,8 @@ import {
   channelServerProvisioned,
   channelServerProvisioning
 } from './actions';
+import { EngineEvents } from "@xr3ngine/engine/src/worker/EngineEvents";
+import { ClientNetworkSystem } from "@xr3ngine/engine/src/networking/systems/ClientNetworkSystem";
 
 export function provisionChannelServer(instanceId?: string, channelId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -77,7 +79,7 @@ export function connectToChannelServer(channelId: string) {
         videoEnabled: currentLocation?.locationSettings?.videoEnabled === true || !(currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null)
       });
       Network.instance.isInitialized = true;
-      document.dispatchEvent(new CustomEvent('server-connected'))
+      EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT })
 
       // setClient(instanceClient);
       dispatch(channelServerConnected());

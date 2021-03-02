@@ -3,7 +3,7 @@
  * this will be the ONLY communication channel between the engine and the outside world
  * */
 
-import { EventDispatcher } from 'three';
+import { EventDispatcher } from './EventDispatcher';
 import { Engine } from './ecs/classes/Engine';
 import { Network } from './networking/classes/Network';
 import { applyNetworkStateToClient } from './networking/functions/applyNetworkStateToClient';

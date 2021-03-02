@@ -63,7 +63,7 @@ export const onAddedInCar = (entity: Entity, entityCar: Entity, seat: number, de
   addComponent(entity, EnteringVehicle);
   setState(entity, { state: CharacterStateTypes.ENTERING_VEHICLE });
   // LocalPlayerOnly
-  if (Network.instance.userNetworkId != networkDriverId) return;
+  if (Network.instance.localAvatarNetworkId != networkDriverId) return;
   addComponent(entityCar, LocalInputReceiver);
   addComponent(entityCar, FollowCameraComponent, {
     distance: 7,

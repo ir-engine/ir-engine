@@ -23,9 +23,11 @@ import { CharacterInputSchema } from './templates/character/CharacterInputSchema
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
-import { MessageType, Message, MainProxy, MessageQueue } from './worker/MessageQueue';
+import { MainProxy } from './worker/MessageQueue';
 import { InputSystem } from './input/systems/ClientInputSystem';
-import { SystemProxy, SYSTEM_PROXY } from './worker/SystemProxy';
+import { EngineEventsProxy } from './worker/EngineEventsProxy';
+import { EngineEvents } from './worker/EngineEvents';
+import { loadScene, SCENE_EVENTS } from './scene/functions/SceneLoading';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -47,26 +49,6 @@ class MainEngineProxy extends EngineProxy {
   constructor(mainProxy: MainProxy) {
     super()
     this.mainProxy = mainProxy;
-    const initializeNetworkEvent = (ev: any) => {
-      const { userId, userNetworkId } = ev.detail;
-      Network.instance.userId = userId;
-      Network.instance.userNetworkId = userNetworkId;
-      console.log('NETWORK_INITIALIZE_EVENT', Network.instance, ev)
-      this.mainProxy.removeEventListener('NETWORK_INITIALIZE_EVENT', initializeNetworkEvent)
-    }
-    this.mainProxy.addEventListener('NETWORK_INITIALIZE_EVENT', initializeNetworkEvent)
-    const connectNetworkEvent = (ev: any) => {
-      // const { } = ev.detail;
-      Network.instance.isInitialized = true;
-      console.log(Network.instance)
-      this.mainProxy.removeEventListener('NETWORK_CONNECT_EVENT', connectNetworkEvent)
-    }
-    this.mainProxy.addEventListener('NETWORK_CONNECT_EVENT', connectNetworkEvent)
-    const loadScene = (ev: any) => { 
-      this.loadScene(ev.detail.result)
-      this.mainProxy.removeEventListener('loadScene', loadScene)
-    }
-    this.mainProxy.addEventListener('loadScene', loadScene)
     this.mainProxy.addEventListener('transferNetworkBuffer', (ev: any) => { 
       const { buffer, delta } = ev.detail;
       this.transferNetworkBuffer(buffer, delta)
@@ -75,33 +57,6 @@ class MainEngineProxy extends EngineProxy {
       const { entityID, avatarID } = ev.detail;
       this.setActorAvatar(entityID, avatarID)
     })
-
-    this.mainProxy.addEventListener(SYSTEM_PROXY.EVENT_ADD, (ev: any) => {
-      const { type, system } = ev.detail;
-      const systemType = SystemProxy._getSystem(system)
-      const listener = (event: any) => {
-        delete event.target;
-        this.mainProxy.sendEvent(SYSTEM_PROXY.EVENT, { event, system })
-      };
-      // @ts-ignore
-      if(!systemType.instance.proxyListener) {
-        // @ts-ignore
-        systemType.instance.proxyListener = listener;
-      }
-      systemType.instance.addEventListener(type, listener)
-    });
-    this.mainProxy.addEventListener(SYSTEM_PROXY.EVENT_REMOVE, (ev: any) => {
-      const { type, system } = ev.detail;
-      const systemType = SystemProxy._getSystem(system)
-      // @ts-ignore
-      systemType.instance.removeEventListener(type, systemType.instance.proxyListener)
-    });
-    this.mainProxy.addEventListener(SYSTEM_PROXY.EVENT, (ev: any) => {
-      const { event, system } = ev.detail;
-      const systemType = SystemProxy._getSystem(system)
-      // @ts-ignore
-      systemType.instance.dispatchEvent(event, true);
-    });
   }
   sendData(buffer) { this.mainProxy.sendEvent('sendData', { buffer }, [buffer]) }
 }
@@ -110,11 +65,10 @@ class MainEngineProxy extends EngineProxy {
 export function initializeEngineOffscreen({ canvas, initOptions, env, useWebXR }, proxy: MainProxy): void {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
+  EngineEvents.instance = new EngineEventsProxy(proxy);
   EngineProxy.instance = new MainEngineProxy(proxy);
   initialize();
   Engine.scene = new Scene();
-
-  new Network();
 
   Network.instance.schema = options.networking.schema;
   // @ts-ignore
@@ -154,13 +108,24 @@ export function initializeEngineOffscreen({ canvas, initOptions, env, useWebXR }
   registerSystem(WebGLRendererSystem, { priority: 1001, canvas });
   Engine.viewportElement = Engine.renderer.domElement;
 
-  // Start our timer!
-  Engine.engineTimerTimeout = setTimeout(() => {
-    Engine.engineTimer = Timer(
-      {
-        networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
-        fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
-        update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
-      }, Engine.physicsFrameRate, Engine.networkFramerate).start();
-  }, 1000);
+  Engine.engineTimer = Timer({
+    networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
+    fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
+    update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
+  }, Engine.physicsFrameRate, Engine.networkFramerate).start();
+
+  EngineEvents.instance.addEventListener(SCENE_EVENTS.LOAD_SCENE, (ev: any) => loadScene(ev.result))
+
+  const connectNetworkEvent = (ev: any) => {
+    Network.instance.isInitialized = true;
+    EngineEvents.instance.removeEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
+  }
+  EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
+
+  const initializeNetworkEvent = (ev: any) => {
+    Network.instance.userId = ev.userId;
+    EngineEvents.instance.removeEventListener(ClientNetworkSystem.EVENTS.INITIALIZE, initializeNetworkEvent)
+  }
+  EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.INITIALIZE, initializeNetworkEvent)
+
 }

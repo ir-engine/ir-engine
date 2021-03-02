@@ -19,6 +19,7 @@ import SettingMenu from './menus/SettingMenu';
 import ShareMenu from './menus/ShareMenu';
 import { WebGLRendererSystem } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
 import { EngineProxy } from '@xr3ngine/engine/src/EngineProxy';
+import { EngineEvents } from '@xr3ngine/engine/src/worker/EngineEvents';
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -96,12 +97,12 @@ const UserMenu = (props: UserMenuProps): any => {
 
   useEffect(() => {
     const graphicsSettingsLoaded = (ev) => {
-      WebGLRendererSystem.instance.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphics);
+      EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphics);
       window.removeEventListener('connectToWorld', graphicsSettingsLoaded);
     }
     window.addEventListener('connectToWorld', graphicsSettingsLoaded);
     return function cleanup() {
-      WebGLRendererSystem.instance.removeEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphics);
+      EngineEvents.instance.removeEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphics);
     };
   }, [])
 

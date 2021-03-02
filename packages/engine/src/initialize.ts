@@ -14,6 +14,7 @@ import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
 import { EngineProxy } from './EngineProxy';
 import { InputSystem } from './input/systems/ClientInputSystem';
 import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
+import { Network } from './networking/classes/Network';
 import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
 import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkIncomingSystem';
@@ -23,12 +24,14 @@ import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { createCanvas } from './renderer/functions/createCanvas';
 import { HighlightSystem } from './renderer/HighlightSystem';
 import { WebGLRendererSystem } from './renderer/WebGLRendererSystem';
+import { loadScene, SCENE_EVENTS } from './scene/functions/SceneLoading';
 import { ServerSpawnSystem } from './scene/systems/SpawnSystem';
 import { StateSystem } from './state/systems/StateSystem';
 import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
+import { EngineEvents } from './worker/EngineEvents';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -52,6 +55,7 @@ export async function initializeEngine(initOptions: any = DefaultInitializationO
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
   new EngineProxy();
+  new EngineEvents();
   // Create a new world -- this holds all of our simulation state, entities, etc
   initialize();
 
@@ -119,4 +123,6 @@ export async function initializeEngine(initOptions: any = DefaultInitializationO
         update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
       }, Engine.physicsFrameRate, Engine.networkFramerate).start();
   }, 1000);
+
+  EngineEvents.instance.addEventListener(SCENE_EVENTS.LOAD_SCENE, (ev: any) => loadScene(ev.result))
 }

@@ -24,6 +24,7 @@ import { RenderPass } from './postprocessing/passes/RenderPass';
 import { SSAOEffect } from './postprocessing/SSAOEffect';
 import { TextureEffect } from './postprocessing/TextureEffect';
 import { PostProcessingSchema } from './postprocessing/PostProcessingSchema';
+import { EngineEvents } from '../worker/EngineEvents';
 
 export class WebGLRendererSystem extends System {
   
@@ -126,17 +127,17 @@ export class WebGLRendererSystem extends System {
     this.setResolution(WebGLRendererSystem.scaleFactor);
     this.setUseAutomatic(WebGLRendererSystem.automatic);
 
-    this.addEventListener(WebGLRendererSystem.EVENTS.SET_POST_PROCESSING, (ev: any) => {
-      this.setUsePostProcessing(ev.detail);
+    EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.SET_POST_PROCESSING, (ev: any) => {
+      this.setUsePostProcessing(ev.payload);
     });
-    this.addEventListener(WebGLRendererSystem.EVENTS.SET_RESOLUTION, (ev: any) => {
-      this.setResolution(ev.detail);
+    EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.SET_RESOLUTION, (ev: any) => {
+      this.setResolution(ev.payload);
     });
-    this.addEventListener(WebGLRendererSystem.EVENTS.SET_SHADOW_QUALITY, (ev: any) => {
-      this.setShadowQuality(ev.detail);
+    EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.SET_SHADOW_QUALITY, (ev: any) => {
+      this.setShadowQuality(ev.payload);
     });
-    this.addEventListener(WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC, (ev: any) => {
-      this.setUseAutomatic(ev.detail);
+    EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC, (ev: any) => {
+      this.setUseAutomatic(ev.payload);
     });
 
     this.isInitialized = true;
@@ -289,7 +290,7 @@ export class WebGLRendererSystem extends System {
   }
 
   dispatchSettingsChangeEvent() {
-    this.dispatchEvent({ 
+    EngineEvents.instance.dispatchEvent({ 
       type: WebGLRendererSystem.EVENTS.QUALITY_CHANGED,
       shadows: WebGLRendererSystem.shadowQuality,
       resolution: WebGLRendererSystem.scaleFactor,

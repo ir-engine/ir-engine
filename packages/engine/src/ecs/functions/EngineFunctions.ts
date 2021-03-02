@@ -17,10 +17,10 @@ import { SystemUpdateType } from "./SystemUpdateType";
  */
 export function initialize (options?: EngineOptions): void {
   Engine.options = { ...Engine.options, ...options };
-  if ( typeof window !== 'undefined' && typeof CustomEvent !== 'undefined') {
-    const event = new CustomEvent('world-created');
-    window.dispatchEvent(event);
-  }
+  // if ( typeof window !== 'undefined' && typeof CustomEvent !== 'undefined') {
+  //   const event = new CustomEvent('world-created');
+  //   window.dispatchEvent(event);
+  // }
 
   Engine.lastTime = now() / 1000;
 }
