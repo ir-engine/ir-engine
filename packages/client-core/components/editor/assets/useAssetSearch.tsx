@@ -1,5 +1,9 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import { useDebouncedCallback } from "use-debounce";
+
+/**
+ * [useIsMounted function used to check that component get mounted or not]
+ */
 function useIsMounted() {
   const ref = useRef(false);
   useEffect(() => {
@@ -15,18 +19,38 @@ function useIsMounted() {
  * @param  {Function} callback
  * @param  {Array}    [initialResults=[]]
  * @param  {Number}   [initialCursor=0]
- * @return {promise} Object 
+ * @return {promise} Object
  */
-export function useLoadAsync(callback, initialResults = [], initialCursor = 0) {
+export function useLoadAsync(callback, initialResults = [], initialCursor = 0){
+
+  //initializing currentPromise as mutable object
   const currentPromise = useRef();
+
+  //initializing abortControllerRef as mutable object
   const abortControllerRef = useRef();
+
+  //initializing getIsMounted used to check that component is mounted or not.
   const getIsMounted = useIsMounted();
+
+  //initializing results using initial source results.
   const [results, setResults] = useState(initialResults);
+
+  //initializing suggestions using empty array.
   const [suggestions, setSuggestions] = useState([]);
+
+  //initializing error by undefined
   const [error, setError] = useState(undefined);
+
+  //initializing isLoading and setting it false.
   const [isLoading, setIsLoading] = useState(false);
+
+  //initializing nextCursor using initialCursor.
   const [nextCursor, setNextCursor] = useState(initialCursor);
+
+  //initializing hasMore setting it true.
   const [hasMore, setHasMore] = useState(true);
+
+  //callback function used to getting results for MediaSourcePanel
   const loadAsyncInternal = useCallback(
     (params, cursor = 0) => {
       setIsLoading(true);
@@ -88,9 +112,13 @@ export function useLoadAsync(callback, initialResults = [], initialCursor = 0) {
       setHasMore
     ]
   );
+
+  //callback function used to load MediaSourcePanel data
   const loadAsync = useCallback(params => loadAsyncInternal(params, 0), [
     loadAsyncInternal
   ]);
+
+  //callback function used to call loadAsyncInternal if isLoading is false and hasMore is true.
   const loadMore = useCallback(
     params => {
       if (!isLoading && hasMore) {
@@ -111,7 +139,7 @@ export function useLoadAsync(callback, initialResults = [], initialCursor = 0) {
 }
 
 /**
- * useAssetSearch
+ * useAssetSearch used for providing search on MediaSourcePanel
  * @param {[type]} source
  * @param {Object} [initialParams={}]
  * @param {Array}  [initialResults=[]]
@@ -122,8 +150,12 @@ export function useAssetSearch(
   initialParams = {},
   initialResults = [],
   initialCursor = 0
-) {
+){
+
+  //initializing params using initialParams
   const [params, setParamsInternal] = useState(initialParams);
+
+  // initializing loadAsync , rest by useLoadAsync response
   const { loadAsync, ...rest } = useLoadAsync(
     (searchParams, cursor, abortSignal) => {
       return source.search(searchParams, cursor, abortSignal);
@@ -131,22 +163,44 @@ export function useAssetSearch(
     initialResults,
     initialCursor
   );
+
+  //block will exicute after rendering of component
   useEffect(
     () => {
+
+      // function to handle the change in source results
       const onResultsChanged = () => {
         loadAsync(params);
       };
+
+      //adding listener
       source.addListener("resultsChanged", onResultsChanged);
+
+      //removing listeners
       return () => {
         source.removeListener("resultsChanged", onResultsChanged);
       };
     },
     [source, loadAsync, params]
   );
+
+
+
+/**
+ * [
+ * debouncedLoadAsync  initializing by debounced function
+ * will only call the passed function when it hasn't been called for the wait period
+ * ]
+ * @param        {function} loadAsync [func The function to be called]
+ * @param        {number} source.searchDebounceTimeout [Wait period after function hasn't been called for]
+ * @returns      [A memoized function that is debounced]
+ */
   const [debouncedLoadAsync] = useDebouncedCallback(
     loadAsync,
     source.searchDebounceTimeout
   );
+
+  //callback function used to setting params by calling debouncedLoadAsync and setParamsInternal
   const setParams = useCallback(
     nextParams => {
       debouncedLoadAsync(nextParams);
@@ -160,6 +214,13 @@ export function useAssetSearch(
     ...rest
   };
 }
+
+/**
+ * [useAddRemoveItems function component provides callback function for adding and removing items]
+ * @param  {Array} items
+ * @param  {Array}  [dependencies=[]]
+ * @return {Array}  [returns array containing finalItems, addItem, removeItem]
+ */
 export function useAddRemoveItems(items, dependencies = []) {
   const [additionalItems, setAdditionalItems] = useState([]);
   const [removedItems, setRemovedItems] = useState([]);
@@ -168,18 +229,24 @@ export function useAddRemoveItems(items, dependencies = []) {
     setRemovedItems([]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies);
+
+  //callback function used to set additional items
   const addItem = useCallback(
     item => {
       setAdditionalItems([...additionalItems, item]);
     },
     [setAdditionalItems, additionalItems]
   );
+
+  //callback function used to set removedItems
   const removeItem = useCallback(
     item => {
       setRemovedItems([...removedItems, item]);
     },
     [setRemovedItems, removedItems]
   );
+
+  //initializing finalItems by filtering removedItems and by concating additionalItems
   const finalItems = items
     .filter(r => removedItems.indexOf(r) === -1)
     .concat(additionalItems);
