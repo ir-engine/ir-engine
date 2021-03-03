@@ -12,9 +12,8 @@ import { Timer } from './common/functions/Timer';
 import { execute, initialize } from "./ecs/functions/EngineFunctions";
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType';
 import { EngineEvents } from './ecs/classes/EngineEvents';
-import { EngineEventsProxy } from './ecs/classes/EngineEventsProxy';
+import { EngineEventsProxy, addOutgoingEvents } from './ecs/classes/EngineEvents';
 import { Network } from './networking/classes/Network';
-import { addOutgoingEvents } from './ecs/functions/addEngineEvents';
 
 const isSafari = typeof navigator !== 'undefined' && /Version\/[\d\.]+.*Safari/.test(window.navigator.userAgent);
 
@@ -62,7 +61,7 @@ export async function initializeWorker(initOptions: any = DefaultInitializationO
 
   const onNetworkConnect = (ev: any) => {
     EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.INITIALIZE, userId: Network.instance.userId });
-    window.removeEventListener('connectToWorld', onNetworkConnect)
-    }
-  window.addEventListener('connectToWorld', onNetworkConnect)
+    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
+  }
+  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
 }

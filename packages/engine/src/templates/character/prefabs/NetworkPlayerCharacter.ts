@@ -52,7 +52,6 @@ import { CharacterStateTypes } from "../CharacterStateTypes";
 import { CharacterComponent } from '../components/CharacterComponent';
 import { NamePlateComponent } from '../components/NamePlateComponent';
 
-
 export class AnimationManager {
 	static instance: AnimationManager = new AnimationManager();
 	public initialized = false
@@ -82,11 +81,6 @@ export class AnimationManager {
 	}
 }
 
-export const CHARACTER_EVENTS = {
-  LOAD_AVATAR: "CHARACTER_EVENT_LOAD_AVATAR",
-}
-
-
 export const loadActorAvatar: Behavior = (entity) => {
   const avatarId: string = getComponent(entity, CharacterComponent)?.avatarId;
   const avatarSource = CharacterAvatars.find(avatarData => avatarData.id === avatarId)?.src;
@@ -107,7 +101,7 @@ export const loadActorAvatar: Behavior = (entity) => {
   createShadow(entity, { objArgs: { castShadow: true, receiveShadow: true }})
   const loader = getComponent(entity, AssetLoader);
   loader.onLoaded.push(async (entity, args) => {
-    console.log("Actor Avatar loaded")
+    // console.log("Actor Avatar loaded")
     const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
     actor.mixer && actor.mixer.stopAllAction();
     // forget that we have any animation playing
@@ -153,7 +147,6 @@ function initiateIKSystem(entity: Entity, object) {
 			skinnedMesh.bind(importSkeleton(skeletonString))
 			scene.add(skinnedMesh)
 
-      console.log(skinnedMesh);
       const hips = findHips(skinnedMesh.skeleton)
 			const armature = findArmature(hips)
 			scene.add(armature)
@@ -548,7 +541,7 @@ function initiateIKSystem(entity: Entity, object) {
 		leftGamepad: actor.poseManager.vrTransforms.leftHand,
 		rightGamepad: actor.poseManager.vrTransforms.rightHand
   }
-  console.log('load actor status', actor.inputs);
+  // console.log('load actor status', actor.inputs);
   
 	actor.inputs.hmd.scaleFactor = 1
 	actor.lastModelScaleFactor = 1

@@ -24,9 +24,8 @@ import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchem
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { MainProxy } from './worker/MessageQueue';
 import { InputSystem } from './input/systems/ClientInputSystem';
-import { addIncomingEvents } from './ecs/functions/addEngineEvents';
 import { EngineEvents } from './ecs/classes/EngineEvents';
-import { EngineEventsProxy } from './ecs/classes/EngineEventsProxy';
+import { EngineEventsProxy, addIncomingEvents } from './ecs/classes/EngineEvents';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
