@@ -192,8 +192,7 @@ export class WorldStateModel {
           // })
         };
       } catch(error){
-        console.warn("Couldn't deserialize buffer, buffer is")
-        console.warn(buffer)
+        console.warn("Couldn't deserialize buffer", buffer, error)
       }
 
     }

@@ -1,43 +1,42 @@
-import { observable } from 'mobx';
 import { System } from '../../ecs/classes/System';
 import { localMediaConstraints } from '../constants/VideoConstants';
 
 /** System class for media streaming. */
 export class MediaStreamSystem extends System {
-  @observable public static instance = null;
+  public static instance = null;
 
   /** Whether the video is paused or not. */
-  @observable public videoPaused = false
+  public videoPaused = false
   /** Whether the audio is paused or not. */
-  @observable public audioPaused = false
+  public audioPaused = false
   /** Whether the face tracking is enabled or not. */
-  @observable public faceTracking = false
+  public faceTracking = false
   /** Media stream for streaming data. */
-  @observable public mediaStream: MediaStream = null
+  public mediaStream: MediaStream = null
   /** Audio Gain to be applied on media stream. */
-  @observable public audioGainNode: GainNode = null
+  public audioGainNode: GainNode = null
 
   /** Local screen container. */
-  @observable public localScreen = null
+  public localScreen = null
   /** Producer using camera to get Video. */
-  @observable public camVideoProducer = null
+  public camVideoProducer = null
   /** Producer using camera to get Audio. */
-  @observable public camAudioProducer = null
+  public camAudioProducer = null
   /** Producer using screen to get Video. */
-  @observable public screenVideoProducer = null
+  public screenVideoProducer = null
   /** Producer using screen to get Audio. */
-  @observable public screenAudioProducer = null
+  public screenAudioProducer = null
   /** List of all producers nodes.. */
-  @observable public producers = []
+  public producers = []
   /** List of all consumer nodes. */
-  @observable public consumers = []
+  public consumers = []
   /** Indication of whether the video while screen sharing is paused or not. */
-  @observable public screenShareVideoPaused = false
+  public screenShareVideoPaused = false
   /** Indication of whether the audio while screen sharing is paused or not. */
-  @observable public screenShareAudioPaused = false
+  public screenShareAudioPaused = false
 
   /** Whether the component is initialized or not. */
-  @observable public initialized = false
+  public initialized = false
 
   constructor() {
     super()

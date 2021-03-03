@@ -19,6 +19,7 @@ import userReducer from './user/reducers';
 import locationReducer from './location/reducers';
 import feedReducer from './feed/reducers';
 import feedFiresReducer from './feedFires/reducers';
+import mediastreamReducer from './mediastream/reducers';
 
 export default combineReducers({
   admin: adminReducer,
@@ -39,5 +40,6 @@ export default combineReducers({
   devicedetect: deviceDetectReducer,
   user: userReducer,
   feeds: feedReducer,
-  feedFires: feedFiresReducer
+  feedFires: feedFiresReducer,
+  mediastream: mediastreamReducer,
 });

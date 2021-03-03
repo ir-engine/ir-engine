@@ -22,7 +22,7 @@ export default (app: Application): any => {
     type: {
       type: DataTypes.STRING,
       allowNull: false,
-      values: ['email', 'sms', 'password', 'github', 'google', 'facebook', 'auth0']
+      values: ['email', 'sms', 'password', 'github', 'google', 'facebook', 'twitter', 'linkedin2', 'auth0']
     }
   }, {
     hooks: {

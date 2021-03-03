@@ -151,7 +151,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
 
     const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
     const vehicleComponent = getComponent(entity, VehicleBody) as VehicleBody;
-    const isDriver = vehicleComponent.driver == Network.instance.userNetworkId;
+    const isDriver = vehicleComponent.driver == Network.instance.localAvatarNetworkId;
     const networkObject = getComponent<NetworkObject>(entity, NetworkObject)
 
     const vehicle = vehicleComponent.vehiclePhysics;

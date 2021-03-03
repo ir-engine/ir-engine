@@ -2,7 +2,10 @@ import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import { Button, SecondaryButton } from "../inputs/Button";
 import styled from "styled-components";
-
+/**
+ * DialogContainer styling defined
+ * @type {any}
+ */
 const DialogContainer = (styled as any).form`
   display: flex;
   flex-direction: column;
@@ -14,7 +17,10 @@ const DialogContainer = (styled as any).form`
   min-height: 150px;
   max-height: 80vh;
 `;
-
+/**
+ * DialogHeader styling defined
+ * @type {any}
+ */
 const DialogHeader = (styled as any).div`
   display: flex;
   flex-direction: row;
@@ -32,7 +38,10 @@ const DialogHeader = (styled as any).div`
     align-items: center;
   }
 `;
-
+/**
+ * DialogContent styling defined
+ * @type {any}
+ */
 export const DialogContent = (styled as any).div`
   color: ${props => props.theme.text2};
   display: flex;
@@ -54,7 +63,10 @@ export const DialogContent = (styled as any).div`
     line-height: 1.5em;
   }
 `;
-
+/**
+ * DialogBottomNav styling defined
+ * @type {any}
+ */
 const DialogBottomNav = (styled as any).div`
   display: flex;
   height: 64px;
@@ -112,7 +124,7 @@ export default function Dialog(props: Props) {
     },
     [onConfirm]
   );
-
+// return component html
   return (
     <DialogContainer as={tag} onSubmit={onSubmitForm} {...rest}>
       <DialogHeader>

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { generalStateList, setAppOnBoardingStep } from '../../../redux/app/actions';
 import {
     Mic,
     MicOff,
@@ -8,10 +7,10 @@ import {
 } from '@material-ui/icons';
 import FaceIcon from '@material-ui/icons/Face';
 import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
 import { selectAppOnBoardingStep } from "../../../redux/app/selector";
 // @ts-ignore
 import styles from './MediaIconsBox.module.scss';
-import store from "../../../redux/store";
 import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
 import {
     configureMediaTransports,
@@ -23,7 +22,7 @@ import {
 } from "@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions";
 import { selectAuthState } from "../../../redux/auth/selector";
 import { selectLocationState } from "../../../redux/location/selector";
-
+import { updateCamAudioState, updateCamVideoState, changeFaceTrackingState } from "../../../redux/mediastream/service";
 import {
     startFaceTracking,
     startLipsyncTracking,
@@ -39,23 +38,30 @@ const mapStateToProps = (state: any): any => {
     return {
         onBoardingStep: selectAppOnBoardingStep(state),
         authState: selectAuthState(state),
-        locationState: selectLocationState(state)
+        locationState: selectLocationState(state),
+        mediastream: state.get('mediastream'),
     };
 };
 
-const MediaIconsBox = (props) => {
-    const { authState, locationState } = props;
+const mapDispatchToProps = (dispatch): any => ({
+    updateCamVideoState: bindActionCreators(updateCamVideoState, dispatch),
+    updateCamAudioState: bindActionCreators(updateCamAudioState, dispatch),
+    changeFaceTrackingState: bindActionCreators(changeFaceTrackingState, dispatch),
+});
 
-    const [faceTracking, setFaceTracking] = useState(MediaStreamSystem.instance?.faceTracking);
+const MediaIconsBox = (props) => {
+    const { authState, locationState, mediastream } = props;
     const [xrSupported, setXRSupported] = useState(false);
-    const [videoPaused, setVideoPaused] = useState(MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camVideoProducer == null || MediaStreamSystem.instance?.videoPaused === true);
-    const [audioPaused, setAudioPaused] = useState(MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camAudioProducer == null || MediaStreamSystem.instance?.audioPaused === true);
 
     const user = authState.get('user');
     const currentLocation = locationState.get('currentLocation').get('location');
 
     const videoEnabled = currentLocation.locationSettings ? currentLocation.locationSettings.videoEnabled : false;
     const instanceMediaChatEnabled = currentLocation.locationSettings ? currentLocation.locationSettings.instanceMediaChatEnabled : false;
+
+    const isFaceTrackingEnabled = mediastream.get('isFaceTrackingEnabled');
+    const isCamVideoEnabled = mediastream.get('isCamVideoEnabled');
+    const isCamAudioEnabled = mediastream.get('isCamAudioEnabled');
 
     (navigator as any).xr?.isSessionSupported('immersive-vr').then(supported => {
       setXRSupported(supported);
@@ -67,21 +73,20 @@ const MediaIconsBox = (props) => {
     };
 
     const handleFaceClick = async () => {
-        const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId;
-        await checkMediaStream(partyId);
-        setFaceTracking(MediaStreamSystem.instance.setFaceTracking(!MediaStreamSystem.instance?.faceTracking));
-
         const entity = Network.instance.localClientEntity;
-        // if face tracking is false, start face and lip sync tracking
-        if (!faceTracking) {
-            // get local input receiver entity
-            startFaceTracking(entity);
-            startLipsyncTracking(entity);
-        } else {
-            stopFaceTracking();
-            stopLipsyncTracking();
+        if (entity) {
+            const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId;
+            await checkMediaStream(partyId);
+            props.changeFaceTrackingState(!isFaceTrackingEnabled);
+            if (!isFaceTrackingEnabled) {
+                // get local input receiver entity
+                startFaceTracking(entity);
+                startLipsyncTracking(entity);
+            } else {
+                stopFaceTracking();
+                stopLipsyncTracking();
+            }
         }
-        // If face tracking is true, stop face and lip sync tracking
     };
 
     const checkEndVideoChat = async () => {
@@ -102,7 +107,7 @@ const MediaIconsBox = (props) => {
             checkEndVideoChat();
         }
 
-        setAudioPaused(MediaStreamSystem.instance?.audioPaused);
+        props.updateCamAudioState();
     };
 
     const handleCamClick = async () => {
@@ -116,28 +121,27 @@ const MediaIconsBox = (props) => {
             checkEndVideoChat();
         }
 
-        setVideoPaused(MediaStreamSystem.instance?.videoPaused);
+        props.updateCamVideoState();
     };
 
-    const handleVRClick = () => {
-        startVR();
-    };
+    const handleVRClick = () => startVR();
 
     const xrEnabled = Engine.renderer?.xr.enabled === true;
-    const VideocamIcon = videoPaused ? VideocamOff : Videocam;
-    const MicIcon = audioPaused ? MicOff : Mic;
+    const VideocamIcon = isCamVideoEnabled ? Videocam : VideocamOff;
+    const MicIcon = isCamAudioEnabled ? Mic : MicOff;
+
     return (
         <section className={styles.drawerBox}>
             {instanceMediaChatEnabled
-                ? <button type="button" className={styles.iconContainer + ' ' + (audioPaused ? '' : styles.on)} onClick={handleMicClick}>
+                ? <button type="button" className={styles.iconContainer + ' ' + (isCamAudioEnabled ? styles.on : '')} onClick={handleMicClick}>
                     <MicIcon />
                 </button> : null}
             {videoEnabled
                 ? <>
-                    <button type="button" className={styles.iconContainer + ' ' + (videoPaused ? '' : styles.on)} onClick={handleCamClick}>
+                    <button type="button" className={styles.iconContainer + ' ' + (isCamVideoEnabled ? styles.on : '')} onClick={handleCamClick}>
                         <VideocamIcon />
                     </button>
-                    <button type="button" className={styles.iconContainer + ' ' + (!faceTracking ? '' : styles.on)} onClick={handleFaceClick}>
+                    <button type="button" className={styles.iconContainer + ' ' + (isFaceTrackingEnabled ? styles.on : '')} onClick={handleFaceClick}>
                         <FaceIcon />
                     </button>
                 </> : null}
@@ -150,4 +154,4 @@ const MediaIconsBox = (props) => {
     );
 };
 
-export default connect(mapStateToProps)(MediaIconsBox);
+export default connect(mapStateToProps, mapDispatchToProps)(MediaIconsBox);
