@@ -4,7 +4,9 @@ import { dispatchAlertError } from "../alert/service";
 import { client } from '../feathers';
 import {
   fetchingFeedComments, 
-  feedsRetrieved 
+  feedsRetrieved,
+  addFeedCommentFire,
+  removeFeedCommentFire 
 } from './actions';
 import { CommentInterface } from '@xr3ngine/common/interfaces/Comment';
 
@@ -30,6 +32,30 @@ export function getFeedComments(feedId : string, limit?: number) {
           })
       }
       dispatch(feedsRetrieved(data));
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
+export function addFireToFeedComment(commentId: string, creatorId: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      // await client.service('feedFires').create({feedId, creatorId});
+      dispatch(addFeedCommentFire(commentId));
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
+export function removeFireToFeedComment(commentId: string, creatorId: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      // await client.service('feedFires').create({feedId, creatorId});
+      dispatch(removeFeedCommentFire(commentId));
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
