@@ -6,7 +6,8 @@ import {
   fetchingFeedComments, 
   feedsRetrieved,
   addFeedCommentFire,
-  removeFeedCommentFire 
+  removeFeedCommentFire ,
+  addFeedComment
 } from './actions';
 import { CommentInterface } from '@xr3ngine/common/interfaces/Comment';
 
@@ -15,9 +16,10 @@ export function getFeedComments(feedId : string, limit?: number) {
     try {
       dispatch(fetchingFeedComments());
       const data = [] as CommentInterface[];
-      for(let i=0; i<6; i++){
+      for(let i=0; i<2; i++){
           data.push({ 
               id: i.toString(),
+              feedId,
               creator:{
                   id:'185',
                   userId:'458',
@@ -56,6 +58,33 @@ export function removeFireToFeedComment(commentId: string, creatorId: string) {
     try {
       // await client.service('feedFires').create({feedId, creatorId});
       dispatch(removeFeedCommentFire(commentId));
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
+export function addCommentToFeed(feedId: string, creatorId: string, text: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      // await client.service('feddComment').create({feedId, creatorId, text});
+      const toRedux = {
+        feedId, 
+        id: '4864', 
+        creator:{
+          id:creatorId,
+          userId:'458',
+          avatar :'https://picsum.photos/40/40',
+          name: 'User username',
+          username: 'username',
+          verified : true,
+      },
+      fires: 0,
+      isFired: false,
+      text
+      }
+      dispatch(addFeedComment(toRedux));
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);

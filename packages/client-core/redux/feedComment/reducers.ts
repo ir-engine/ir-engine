@@ -2,14 +2,16 @@ import Immutable from 'immutable';
 import {
   FeedCommentsAction,
   FeedCommentsRetrievedAction,
-  AddFeedCommentFiresAction
+  AddFeedCommentFiresAction,
+  AddFeedCommentAction
 } from './actions';
 
 import {
   FEED_COMMENTS_RETRIEVED,
   FEED_COMMENTS_FETCH, 
   ADD_FEED_COMMENT_FIRES,
-  REMOVE_FEED_COMMENT_FIRES 
+  REMOVE_FEED_COMMENT_FIRES ,
+  ADD_FEED_COMMENT
 } from '../actions';
 
 export const initialState = {
@@ -40,6 +42,9 @@ const feedCommentsReducer = (state = immutableState, action: FeedCommentsAction)
         }
         return {...item};
       }));
+
+      case ADD_FEED_COMMENT:
+        return state.set('feedComments', [...state.get('feedComments'), (action as AddFeedCommentAction).comment]);
 }
 
 

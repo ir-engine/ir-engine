@@ -2,7 +2,8 @@ import {
   FEED_COMMENTS_RETRIEVED,
   FEED_COMMENTS_FETCH,
   ADD_FEED_COMMENT_FIRES,
-  REMOVE_FEED_COMMENT_FIRES
+  REMOVE_FEED_COMMENT_FIRES,
+  ADD_FEED_COMMENT
 } from '../actions';
 
 import { CommentInterface } from '@xr3ngine/common/interfaces/Comment';
@@ -26,9 +27,15 @@ export interface AddFeedCommentFiresAction{
   commentId: string;
 }
 
+export interface AddFeedCommentAction{
+  type: string;
+  comment: CommentInterface;
+}
+
 export type FeedCommentsAction =
 FeedCommentsRetrievedAction
   | FetchingFeedCommentsAction
+  | AddFeedCommentAction
 
 export function feedsRetrieved (comments: CommentInterface[]): FeedCommentsRetrievedAction {
   return {
@@ -57,3 +64,10 @@ export function removeFeedCommentFire (commentId:string) : AddFeedCommentFiresAc
     commentId: commentId
   };
 } 
+
+export function addFeedComment (comment : CommentInterface) : AddFeedCommentAction{
+  return {
+    type: ADD_FEED_COMMENT,
+    comment
+  };
+}
