@@ -4,6 +4,14 @@ import StringInput from "../inputs/StringInput";
 import FormField from "../inputs/FormField";
 import PreviewDialog from "./PreviewDialog";
 
+/**
+ * [SaveNewProjectDialog used to show dialog when to save new project]
+ * @param       {string} thumbnailUrl
+ * @param       {string} initialName
+ * @param       {function} onConfirm
+ * @param       {function} onCancel
+ * @constructor
+ */
 export default function SaveNewProjectDialog({ thumbnailUrl, initialName, onConfirm, onCancel }) {
   const [name, setName] = useState(initialName);
 
@@ -14,6 +22,10 @@ export default function SaveNewProjectDialog({ thumbnailUrl, initialName, onConf
     [setName]
   );
 
+  /**
+   * [onConfirmCallback callback function is used handle confirm dialog]
+   * @type {function}
+   */
   const onConfirmCallback = useCallback(
     e => {
       e.preventDefault();
@@ -22,6 +34,10 @@ export default function SaveNewProjectDialog({ thumbnailUrl, initialName, onConf
     [name, onConfirm]
   );
 
+ /**
+  * [onCancelCallback callback function used to handle cancel of dialog]
+  * @type {function}
+  */
   const onCancelCallback = useCallback(
     e => {
       e.preventDefault();
@@ -30,6 +46,7 @@ export default function SaveNewProjectDialog({ thumbnailUrl, initialName, onConf
     [onCancel]
   );
 
+  //returning view for dialog view.
   return (
     <PreviewDialog
       imageSrc={thumbnailUrl}
@@ -55,6 +72,10 @@ export default function SaveNewProjectDialog({ thumbnailUrl, initialName, onConf
   );
 }
 
+/**
+ * [declairing propTypes for SaveNewProjectDialog]
+ * @type {Object}
+ */
 SaveNewProjectDialog.propTypes = {
   thumbnailUrl: PropTypes.string.isRequired,
   initialName: PropTypes.string.isRequired,
