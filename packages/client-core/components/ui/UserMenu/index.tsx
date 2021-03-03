@@ -18,7 +18,6 @@ import AvatarMenu from './menus/AvatarMenu';
 import SettingMenu from './menus/SettingMenu';
 import ShareMenu from './menus/ShareMenu';
 import { WebGLRendererSystem } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
-import { CHARACTER_EVENTS } from '@xr3ngine/engine/src/templates/character/prefabs/NetworkPlayerCharacter';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 
 const mapStateToProps = (state: any): any => {
@@ -65,23 +64,30 @@ const UserMenu = (props: UserMenuProps): any => {
     postProcessing: WebGLRendererSystem.usePostProcessing,
   });
 
-
   const [waitingForLogout, setWaitingForLogout] = useState(false);
   const [currentActiveMenu, setCurrentActiveMenu] = useState({} as any);
   const [actorEntityID, setActorEntityID] = useState(null);
 
+  const onEngineLoaded = () => {
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, graphicsSettingsLoaded);
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, clientEntityLoaded);
+    document.removeEventListener('ENGINE_LOADED', onEngineLoaded);
+  }
+
+  document.addEventListener('ENGINE_LOADED', onEngineLoaded);
+
   const clientEntityLoaded = (ev: any) => {
-    const id = ev.detail.id;
+    const id = ev.id;
     Network.instance.localClientEntity = id;
     setActorEntityID(id);
     updateCharacterComponent(id, selfUser?.avatarId)
-    document.removeEventListener('client-entity-load', clientEntityLoaded);
+    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, clientEntityLoaded);
   }
-  document.addEventListener('client-entity-load', clientEntityLoaded);
   
-  useEffect(() => {
-    console.log(selfUser, selfUser.avatarId)
-  }, [selfUser.avatarId]);
+  const graphicsSettingsLoaded = (ev) => {
+    EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphics);
+    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, graphicsSettingsLoaded);
+  }
 
   useEffect(() => {
     selfUser && setUsername(selfUser.name);
@@ -96,11 +102,6 @@ const UserMenu = (props: UserMenuProps): any => {
   }
 
   useEffect(() => {
-    const graphicsSettingsLoaded = (ev) => {
-      EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphics);
-      window.removeEventListener('connectToWorld', graphicsSettingsLoaded);
-    }
-    window.addEventListener('connectToWorld', graphicsSettingsLoaded);
     return function cleanup() {
       EngineEvents.instance.removeEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphics);
     };
@@ -135,7 +136,7 @@ const UserMenu = (props: UserMenuProps): any => {
   };
 
   const updateCharacterComponent = (entityID, avatarId?: string) => {
-    EngineEvents.instance.dispatchEvent({ type: CHARACTER_EVENTS.LOAD_AVATAR, entityID, avatarId: avatarId || selfUser?.avatarId });
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LOAD_AVATAR, entityID, avatarId: avatarId || selfUser?.avatarId });
   }
 
   const setAvatar = (avatarId: string) => {

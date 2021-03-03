@@ -42,9 +42,9 @@ import NamePlate from '../ui/NamePlate';
 import NetworkDebug from '../ui/NetworkDebug/NetworkDebug';
 import { OpenLink } from '../ui/OpenLink';
 import TooltipContainer from '../ui/TooltipContainer';
-import { SCENE_EVENTS } from '@xr3ngine/engine/src/scene/functions/SceneLoading';
 import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
+import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
 
 const goHome = () => window.location.href = window.location.origin;
 
@@ -247,15 +247,17 @@ export const EnginePage = (props: Props) => {
         canvas,
       }
     };
+    
+    await initialize(InitializationOptions)
+    document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
 
     const onNetworkConnect = (ev: any) => {
       joinWorld();
-      window.removeEventListener('connectToWorld', onNetworkConnect);
+      EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
     }
-    window.addEventListener('connectToWorld', onNetworkConnect);
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
     
-    await initialize(InitializationOptions)
-    EngineEvents.instance.dispatchEvent({ type: SCENE_EVENTS.LOAD_SCENE, result })
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LOAD_SCENE, result })
     addEventListeners();
   }
 
@@ -268,7 +270,7 @@ export const EnginePage = (props: Props) => {
     if (event.loaded) {
       setProgressEntity(0);
       store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
-      EngineEvents.instance.removeEventListener(SCENE_EVENTS.SCENE_LOADED, onSceneLoaded);
+      EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
       setAppLoaded(true);
     }
   };
@@ -307,8 +309,8 @@ export const EnginePage = (props: Props) => {
   };
 
   const addEventListeners = () => {
-    EngineEvents.instance.addEventListener(SCENE_EVENTS.SCENE_LOADED, onSceneLoaded);
-    EngineEvents.instance.addEventListener(SCENE_EVENTS.ENTITY_LOADED, onSceneLoadedEntity);
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENTITY_LOADED, onSceneLoadedEntity);
     document.addEventListener('object-activation', onObjectActivation);
     document.addEventListener('object-hover', onObjectHover);
     document.addEventListener('user-hover', onUserHover);
