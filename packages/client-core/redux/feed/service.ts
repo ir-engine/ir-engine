@@ -7,6 +7,7 @@ import {
   feedsRetrieved,
   feedRetrieved,
   feedsFeaturedRetrieved,
+  addFeedView,
 } from './actions';
 
 export function getFeeds(type : string, limit?: number) {
@@ -77,6 +78,19 @@ export function getFeed(feedId: string) {
             description: 'I recently understood the words of my friend Jacob West about music.'
         } 
       dispatch(feedRetrieved(feed));
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
+
+export function addViewToFeed(feedId: string, creatorId: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      // await client.service('feed').put({feedId, creatorId});
+      dispatch(addFeedView(feedId));
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
