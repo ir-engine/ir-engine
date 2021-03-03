@@ -45,7 +45,7 @@ interface Props{
     removeFireToFeed?: typeof removeFireToFeed;
     addBookmarkToFeed?: typeof addBookmarkToFeed;
     removeBookmarkToFeed?: typeof removeBookmarkToFeed;
-    addViewToFee?: typeof addViewToFeed;
+    addViewToFeed?: typeof addViewToFeed;
 }
 const FeedCard = (props: Props) : any => {
     const {feed, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed, addBookmarkToFeed, removeBookmarkToFeed, addViewToFeed} = props;
