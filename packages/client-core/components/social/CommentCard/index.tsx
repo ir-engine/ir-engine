@@ -10,10 +10,26 @@ import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 
 import styles from './CommentCard.module.scss';
 import { CommentInterface } from '@xr3ngine/common/interfaces/Comment';
+import { bindActionCreators, Dispatch } from 'redux';
+import { addFireToFeedComment, removeFireToFeedComment } from '../../../redux/feedComment/service';
+import { connect } from 'react-redux';
 
-const CommentCard = ({id, creator, fires, text, isFired }: CommentInterface) => { 
-    // const handleAddFireClick = (feedId) =>addFireToFeed(feedId, '150');
-    // const handleRemoveFireClick = (feedId) =>removeFireToFeed(feedId, '150');
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
+    addFireToFeedComment: bindActionCreators(addFireToFeedComment, dispatch),
+    removeFireToFeedComment: bindActionCreators(removeFireToFeedComment, dispatch),
+});
+
+interface Props{
+    addFireToFeedComment?: typeof addFireToFeedComment;
+    removeFireToFeedComment?: typeof removeFireToFeedComment;
+    comment: CommentInterface;
+}
+
+const CommentCard = ({comment, addFireToFeedComment, removeFireToFeedComment }: Props) => { 
+    const {id, creator, fires, text, isFired } = comment;
+
+    const handleAddFireClick = (feedId) =>addFireToFeedComment(feedId, '150');
+    const handleRemoveFireClick = (feedId) =>removeFireToFeedComment(feedId, '150');
 
     return  <Card className={styles.commentItem} square={false} elevation={0} key={id}>
                 <Avatar className={styles.authorAvatar} src={creator.avatar} />                                
@@ -27,14 +43,12 @@ const CommentCard = ({id, creator, fires, text, isFired }: CommentInterface) => 
                 </CardContent>
                 <section className={styles.fire}>
                     {isFired ? 
-                        <WhatshotIcon htmlColor="#FF6201" />
-                        // onClick={()=>handleRemoveFireClick(id)} /> 
+                        <WhatshotIcon htmlColor="#FF6201" onClick={()=>handleRemoveFireClick(id)} /> 
                         :
-                        <WhatshotIcon htmlColor="#DDDDDD" />
-                        //  onClick={()=>handleAddFireClick(id)} />
+                        <WhatshotIcon htmlColor="#DDDDDD" onClick={()=>handleAddFireClick(id)} />
                     }
                 </section>
             </Card>
 };
 
-export default CommentCard;
+export default connect(null, mapDispatchToProps)(CommentCard);

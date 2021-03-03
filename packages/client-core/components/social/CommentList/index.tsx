@@ -13,7 +13,7 @@ const mapStateToProps = (state: any): any => {
     return {
         feedCommentsState: selectFeedCommentsState(state),
     };
-  };
+};
 
   const mapDispatchToProps = (dispatch: Dispatch): any => ({
     getFeedComments: bindActionCreators(getFeedComments, dispatch),
@@ -28,7 +28,7 @@ const CommentList = ({feedId, getFeedComments, feedCommentsState}:Props) => {
     useEffect(()=>{getFeedComments(feedId)}, []) 
     return <section className={styles.commentsContainer}>
         {feedCommentsState && feedCommentsState.get('feedComments') && feedCommentsState.get('fetching') === false && 
-            feedCommentsState.get('feedComments').map((item, key)=><CommentCard key={key} {...item} /> )}
+            feedCommentsState.get('feedComments').map((item, key)=><CommentCard key={key} comment={...item} /> )}
         </section>
 };
 
