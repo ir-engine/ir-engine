@@ -67,7 +67,7 @@ const feedReducer = (state = immutableState, action: FeedsAction): any => {
           return {...feed, isBookmarked:true};
         }
         return {...feed};
-      }));
+      })).set('feed', {...currentFeed, isBookmarked:true});
 
     case REMOVE_FEED_BOOKMARK:
       return state.set('feeds', state.get('feeds').map(feed => {
@@ -75,7 +75,7 @@ const feedReducer = (state = immutableState, action: FeedsAction): any => {
           return {...feed, isBookmarked:false};
         }
         return {...feed};
-      }));
+      })).set('feed', {...currentFeed, isBookmarked:false});
 }
 
 
