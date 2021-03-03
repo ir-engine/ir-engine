@@ -34,7 +34,8 @@ import {MessageTypes} from "@xr3ngine/engine/src/networking/enums/MessageTypes";
 import {selectAppState} from '../../../redux/app/selector';
 import {selectAuthState} from '../../../redux/auth/selector';
 import {selectLocationState} from '../../../redux/location/selector';
-import {updateCamVideoState, updateCamAudioState, triggerUpdateConsumers} from '../../../redux/mediastream/service';
+import {selectMediastreamState} from "../../../redux/mediastream/selector";
+import {updateCamVideoState, updateCamAudioState} from '../../../redux/mediastream/service';
 import {selectUserState} from '../../../redux/user/selector';
 import {connect} from "react-redux";
 import {Dispatch} from "redux";
@@ -57,8 +58,6 @@ interface Props {
     locationState?: any;
     userState?: any;
     mediastream?: any;
-    updateCamAudioState?: any;
-    updateCamVideoState?: any;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -67,15 +66,12 @@ const mapStateToProps = (state: any): any => {
         authState: selectAuthState(state),
         locationState: selectLocationState(state),
         userState: selectUserState(state),
-        mediastream: state.get('mediastream'),
+        mediastream: selectMediastreamState(state)
     };
 };
 
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-    updateCamVideoState: bindActionCreators(updateCamVideoState, dispatch),
-    updateCamAudioState: bindActionCreators(updateCamAudioState, dispatch),
-});
+const mapDispatchToProps = (dispatch: Dispatch): any => ({});
 
 const PartyParticipantWindow = (props: Props): JSX.Element => {
     const [videoStream, _setVideoStream] = useState(null);
@@ -95,8 +91,6 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
         locationState,
         userState,
         mediastream,
-        updateCamAudioState,
-        updateCamVideoState
     } = props;
     const videoRef = React.createRef<HTMLVideoElement>();
     const audioRef = React.createRef<HTMLAudioElement>();
@@ -160,17 +154,25 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     };
 
     useEffect(() => {
-            if (peerId === 'me_cam') setVideoStream(MediaStreamSystem.instance?.camVideoProducer);
-            else if (peerId === 'me_screen') setVideoStream(MediaStreamSystem.instance?.screenVideoProducer);
+        console.log('isCamVideoEnabled listener in ' + peerId);
+        if (peerId === 'me_cam') {
+            setVideoStream(MediaStreamSystem.instance?.camVideoProducer);
+            setVideoStreamPaused(MediaStreamSystem.instance?.videoPaused);
+        }
+        else if (peerId === 'me_screen') setVideoStream(MediaStreamSystem.instance?.screenVideoProducer);
     }, [isCamVideoEnabled]);
 
     useEffect(() => {
-            if (peerId === 'me_cam') setAudioStream(MediaStreamSystem.instance?.camAudioProducer);
-            else if (peerId === 'me_screen') setAudioStream(MediaStreamSystem.instance?.screenAudioProducer);
+        if (peerId === 'me_cam') {
+            setAudioStream(MediaStreamSystem.instance?.camAudioProducer);
+            setAudioStreamPaused(MediaStreamSystem.instance?.audioPaused);
+        }
+        else if (peerId === 'me_screen') setAudioStream(MediaStreamSystem.instance?.screenAudioProducer);
     }, [isCamAudioEnabled]);
 
     useEffect(() => {
         if (peerId !== 'me_cam' && peerId !== 'me_screen') {
+            console.log('Setting video and audio streams for', peerId);
             setVideoStream(MediaStreamSystem.instance?.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-video'));
             setAudioStream(MediaStreamSystem.instance?.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'));
         }
