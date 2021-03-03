@@ -18,8 +18,8 @@ export class EngineProxy extends EventDispatcher {
   loadScene(result) { loadScene(result); }
   transferNetworkBuffer(buffer, delta) {
     const unbufferedState = WorldStateModel.fromBuffer(buffer);
-    if(!unbufferedState) console.warn("Couldn't deserialize buffer, probably still reading the wrong one")
     if(unbufferedState) applyNetworkStateToClient(unbufferedState, delta);
+    // else console.warn("Couldn't deserialize buffer, probably still reading the wrong one")
   }
   sendData(buffer) { Network.instance.transport.sendData(buffer); }
 }
