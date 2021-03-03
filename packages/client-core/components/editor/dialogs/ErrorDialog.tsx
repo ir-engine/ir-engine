@@ -3,6 +3,11 @@ import React, { Component } from "react";
 import Dialog, { DialogContent } from "./Dialog";
 import styled from "styled-components";
 
+/**
+ * ErrorDialogContainer used as wrapper element for ErrorMessage.
+ * @param {any} styled
+ * @type {Styled component}
+ */
 const ErrorDialogContainer = (styled as any)(Dialog)`
   max-width: 600px;
 
@@ -11,6 +16,10 @@ const ErrorDialogContainer = (styled as any)(Dialog)`
   }
 `;
 
+/**
+ * [ErrorMessage used to provide styles for error message content]
+ * @type {Styled component}
+ */
 const ErrorMessage = (styled as any).code`
   white-space: pre-wrap;
   overflow-wrap: break-word;
@@ -20,15 +29,22 @@ const ErrorMessage = (styled as any).code`
   color: ${props => props.theme.red};
 `;
 
+
+/**
+ * [ErrorDialog is used to render error message]
+ * @type {Object}
+ */
 export default class ErrorDialog extends Component {
   state = { eventId: null }; //eslint-disable-line react/no-unused-state
 
+  //updating state once the component get mounted.
   componentDidMount() {
     if ((this.props as any).error) {
       this.setState({ ...(this.props as any).eventId ?? null });
     }
   }
 
+  // rendering view for ErrorMessage
   render() {
     const { error, message, onCancel, ...props } = this.props as any;
     return (
@@ -38,4 +54,3 @@ export default class ErrorDialog extends Component {
     );
   }
 }
-
