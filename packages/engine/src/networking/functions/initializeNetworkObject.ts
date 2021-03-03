@@ -163,14 +163,14 @@ export function initializeNetworkObject(ownerId: string, networkId: number, pref
     uniqueId: ''
   };
 
+  loadActorAvatar(networkEntity);
+
   console.log('client-entity-load', prefabType, PrefabType.Player, ownerId, Network.instance.userId)
   if (prefabType === PrefabType.Player && ownerId === (Network.instance).userId) {
     Network.instance.localClientEntity = networkEntity;
     console.log('client entity loaded!')
     document.dispatchEvent(new CustomEvent('client-entity-load', { detail: { id: networkEntity.id } }));
   }
-
-  loadActorAvatar(networkEntity);
 
   // Tell the client
   // console.log("Object ", networkId, " added to the simulation for owner ", ownerId, " with a prefab type: ", prefabType);

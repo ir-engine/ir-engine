@@ -22,7 +22,6 @@ import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { SocketWebRTCClientTransport } from '@xr3ngine/engine/src/networking/classes/SocketWebRTCClientTransport';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { styleCanvas } from '@xr3ngine/engine/src/renderer/functions/styleCanvas';
-import { EngineProxy } from '@xr3ngine/engine/src/EngineProxy';
 import { CharacterComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterComponent';
 import { DefaultNetworkSchema, PrefabType } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import dynamic from 'next/dynamic';
@@ -43,10 +42,9 @@ import NamePlate from '../ui/NamePlate';
 import NetworkDebug from '../ui/NetworkDebug/NetworkDebug';
 import { OpenLink } from '../ui/OpenLink';
 import TooltipContainer from '../ui/TooltipContainer';
-import { EngineEvents } from '@xr3ngine/engine/src/worker/EngineEvents';
 import { SCENE_EVENTS } from '@xr3ngine/engine/src/scene/functions/SceneLoading';
-import { ClientNetworkSystem } from '@xr3ngine/engine/src/networking/systems/ClientNetworkSystem';
 import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
+import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 
 const goHome = () => window.location.href = window.location.origin;
 
@@ -229,8 +227,8 @@ export const EnginePage = (props: Props) => {
     styleCanvas(canvas);
 
     let initializationOptions, initialize;
-    if(false) {
-    // if(canvas.transferControlToOffscreen) {
+    // if(false) {
+    if(canvas.transferControlToOffscreen) {
       const { DefaultInitializationOptions, initializeWorker } = await import('@xr3ngine/engine/src/initializeWorker');
       initializationOptions = DefaultInitializationOptions;
       initialize = initializeWorker;
@@ -249,16 +247,16 @@ export const EnginePage = (props: Props) => {
         canvas,
       }
     };
+
+    const onNetworkConnect = (ev: any) => {
+      joinWorld();
+      window.removeEventListener('connectToWorld', onNetworkConnect);
+    }
+    window.addEventListener('connectToWorld', onNetworkConnect);
     
-    initialize(InitializationOptions).then(() => {
-      addEventListeners();
-      EngineEvents.instance.dispatchEvent({ type: SCENE_EVENTS.LOAD_SCENE, result })
-      const onNetworkConnect = (ev: any) => {
-        window.removeEventListener('connectToWorld', onNetworkConnect);
-        joinWorld();
-      }
-      window.addEventListener('connectToWorld', onNetworkConnect);
-    })
+    await initialize(InitializationOptions)
+    EngineEvents.instance.dispatchEvent({ type: SCENE_EVENTS.LOAD_SCENE, result })
+    addEventListeners();
   }
 
   const joinWorld = () => {
@@ -272,7 +270,6 @@ export const EnginePage = (props: Props) => {
       store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
       EngineEvents.instance.removeEventListener(SCENE_EVENTS.SCENE_LOADED, onSceneLoaded);
       setAppLoaded(true);
-      // EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.CONNECT, joinWorld);
     }
   };
 

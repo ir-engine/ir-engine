@@ -18,8 +18,8 @@ import AvatarMenu from './menus/AvatarMenu';
 import SettingMenu from './menus/SettingMenu';
 import ShareMenu from './menus/ShareMenu';
 import { WebGLRendererSystem } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
-import { EngineProxy } from '@xr3ngine/engine/src/EngineProxy';
-import { EngineEvents } from '@xr3ngine/engine/src/worker/EngineEvents';
+import { CHARACTER_EVENTS } from '@xr3ngine/engine/src/templates/character/prefabs/NetworkPlayerCharacter';
+import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -70,18 +70,18 @@ const UserMenu = (props: UserMenuProps): any => {
   const [currentActiveMenu, setCurrentActiveMenu] = useState({} as any);
   const [actorEntityID, setActorEntityID] = useState(null);
 
+  const clientEntityLoaded = (ev: any) => {
+    const id = ev.detail.id;
+    Network.instance.localClientEntity = id;
+    setActorEntityID(id);
+    updateCharacterComponent(id, selfUser?.avatarId)
+    document.removeEventListener('client-entity-load', clientEntityLoaded);
+  }
+  document.addEventListener('client-entity-load', clientEntityLoaded);
+  
   useEffect(() => {
-    if (selfUser.id && actorEntityID === null) {
-      const clientEntityLoaded = (ev: any) => {
-        const id = ev.detail.id;
-        Network.instance.localClientEntity = id;
-        setActorEntityID(id);
-        updateCharacterComponent(id, selfUser?.avatarId)
-        document.removeEventListener('client-entity-load', clientEntityLoaded);
-      }
-      document.addEventListener('client-entity-load', clientEntityLoaded);
-    }
-  }, [selfUser.id]);
+    console.log(selfUser, selfUser.avatarId)
+  }, [selfUser.avatarId]);
 
   useEffect(() => {
     selfUser && setUsername(selfUser.name);
@@ -135,7 +135,7 @@ const UserMenu = (props: UserMenuProps): any => {
   };
 
   const updateCharacterComponent = (entityID, avatarId?: string) => {
-    EngineProxy.instance.setActorAvatar(entityID, avatarId || selfUser?.avatarId);
+    EngineEvents.instance.dispatchEvent({ type: CHARACTER_EVENTS.LOAD_AVATAR, entityID, avatarId: avatarId || selfUser?.avatarId });
   }
 
   const setAvatar = (avatarId: string) => {

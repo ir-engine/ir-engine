@@ -82,10 +82,17 @@ export class AnimationManager {
 	}
 }
 
+export const CHARACTER_EVENTS = {
+  LOAD_AVATAR: "CHARACTER_EVENT_LOAD_AVATAR",
+}
+
 
 export const loadActorAvatar: Behavior = (entity) => {
   const avatarId: string = getComponent(entity, CharacterComponent)?.avatarId;
   const avatarSource = CharacterAvatars.find(avatarData => avatarData.id === avatarId)?.src;
+  if(!avatarId || !avatarSource) {
+    console.error('loadActorAvatar: Could not load avatar!', entity, avatarId, avatarSource);
+  }
 
   if (hasComponent(entity, AssetLoader)) removeComponent(entity, AssetLoader, true);
   if (hasComponent(entity, AssetLoaderState)) removeComponent(entity, AssetLoaderState, true);

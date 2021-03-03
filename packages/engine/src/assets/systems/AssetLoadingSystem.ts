@@ -190,7 +190,7 @@ function loadAsset(url: AssetUrl, entity: Entity, onAssetLoaded: AssetsLoadedHan
   } else {
     const loader = getLoaderForAssetType(getAssetType(url));
     if (loader == null) {
-      console.error('Loader failed on ', url);
+      console.error('Asset loader failed ', url, entity);
       return;
     }
     loader.load(url, resource => {

@@ -8,7 +8,7 @@ import {
   WebGLRenderer,
   WebGLRenderTarget
 } from 'three';
-import { CSM } from '../assets/csm/CSM.js';
+import { CSM } from '../assets/csm/CSM';
 import { now } from '../common/functions/now';
 import { Engine } from '../ecs/classes/Engine';
 import { System, SystemAttributes } from '../ecs/classes/System';
@@ -24,7 +24,7 @@ import { RenderPass } from './postprocessing/passes/RenderPass';
 import { SSAOEffect } from './postprocessing/SSAOEffect';
 import { TextureEffect } from './postprocessing/TextureEffect';
 import { PostProcessingSchema } from './postprocessing/PostProcessingSchema';
-import { EngineEvents } from '../worker/EngineEvents';
+import { EngineEvents } from '../ecs/classes/EngineEvents';
 
 export class WebGLRendererSystem extends System {
   
