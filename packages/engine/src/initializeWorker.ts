@@ -38,10 +38,8 @@ export async function initializeWorker(initOptions: any = DefaultInitializationO
     new Worker(new URL('./worker/entry.worker.ts', import.meta.url)),
     (options.renderer.canvas || createCanvas()),
     {
-      env: {
-        ...process?.env,
-      },
-      useWebXR: !isSafari
+      useWebXR: !isSafari,
+      // initOptions
     }
   );
   EngineEvents.instance = new EngineEventsProxy(workerProxy);

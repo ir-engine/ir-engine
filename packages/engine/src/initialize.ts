@@ -105,9 +105,7 @@ export async function initializeEngine(initOptions: any = DefaultInitializationO
 
     registerSystem(InteractiveSystem);
     registerSystem(ParticleSystem);
-    if (process.env.NODE_ENV === 'development') {
-      registerSystem(DebugHelpersSystem);
-    }
+    registerSystem(DebugHelpersSystem);
     registerSystem(CameraSystem);
     registerSystem(WebGLRendererSystem, { priority: 1001, canvas: options.renderer.canvas || createCanvas() });
     Engine.viewportElement = Engine.renderer.domElement;
