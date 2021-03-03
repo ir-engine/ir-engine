@@ -58,8 +58,6 @@ const FeedCard = (props: Props) : any => {
     const handleRemoveBookmarkClick = (feedId) =>removeBookmarkToFeed(feedId, '150');
 
     const handlePlayVideo = (feedId) => {
-        //here should be redux hadler to service ho increment views for this feed
-        console.log('handlePlayVideo feedId', feedId);
         addViewToFeed(feedId);
     }
     
