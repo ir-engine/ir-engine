@@ -7,14 +7,14 @@ import {
   Renderer,
   Scene,
   sRGBEncoding,
-  Uint32BufferAttribute, VideoTexture
+  Uint32BufferAttribute
 } from 'three';
 import {
   IFrameBuffer,
   KeyframeBuffer
 } from './Interfaces';
 import RingBuffer from './RingBuffer';
-
+import { VideoTexture } from '@xr3ngine/engine/src/worker/VideoTexture'
 export default class DracosisPlayer {
   // Public Fields
   public frameRate = 30;
