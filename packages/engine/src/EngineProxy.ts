@@ -3,11 +3,15 @@
  * this will be the ONLY communication channel between the engine and the outside world
  * */
 
-import { EventDispatcher } from 'three';
+import { EventDispatcher } from './EventDispatcher';
+import { Engine } from './ecs/classes/Engine';
 import { Network } from './networking/classes/Network';
 import { applyNetworkStateToClient } from './networking/functions/applyNetworkStateToClient';
 import { WorldStateModel } from './networking/schema/worldStateSchema';
 import { loadScene } from './scene/functions/SceneLoading';
+import { getEntityByID, getMutableComponent } from './ecs/functions/EntityFunctions';
+import { loadActorAvatar } from './templates/character/prefabs/NetworkPlayerCharacter';
+import { CharacterComponent } from './templates/character/components/CharacterComponent';
 
 export class EngineProxy extends EventDispatcher {
   static instance: EngineProxy;
@@ -22,4 +26,13 @@ export class EngineProxy extends EventDispatcher {
     // else console.warn("Couldn't deserialize buffer, probably still reading the wrong one")
   }
   sendData(buffer) { Network.instance.transport.sendData(buffer); }
+  getEntityByID(id: number) {
+    return getEntityByID(id)
+  }
+  setActorAvatar(entityID, avatarID) {
+    const entity = getEntityByID(entityID)
+    const characterAvatar = getMutableComponent(entity, CharacterComponent);
+    if (characterAvatar != null) characterAvatar.avatarId = avatarID;
+    loadActorAvatar(entity)
+  }
 }

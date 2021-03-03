@@ -4,14 +4,20 @@ import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { EngineProxy } from '../../EngineProxy';
 import { Input } from '../../input/components/Input';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
+import { EngineEvents } from '../../worker/EngineEvents';
 import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
-import { applyNetworkStateToClient } from '../functions/applyNetworkStateToClient';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
-import { WorldStateModel } from '../schema/worldStateSchema';
+
+
 
 /** System class for network system of client. */
 export class ClientNetworkSystem extends System {
+
+  static EVENTS = {
+    CONNECT: 'CLIENT_NETWORK_SYSTEM_CONNECT',
+    INITIALIZE: 'CLIENT_NETWORK_SYSTEM_INITIALIZE',
+  }
   /** Update type of this system. **Default** to
      * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
   updateType = SystemUpdateType.Fixed;
@@ -22,7 +28,7 @@ export class ClientNetworkSystem extends System {
    */
   constructor(attributes:{ schema: NetworkSchema, app:any }) {
     super(attributes);
-
+    
     const { schema, app } = attributes;
     Network.instance.schema = schema;
     // Instantiate the provided transport (SocketWebRTCClientTransport / SocketWebRTCServerTransport by default)
