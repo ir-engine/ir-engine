@@ -511,9 +511,7 @@ const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime) => {
         actor.actorCapsule.body.position.y,
         actor.actorCapsule.body.position.z
       );
-    }
-
-    if (isClient) {
+    } else {
       const networkComponent = getComponent<NetworkObject>(entity, NetworkObject)
       if (networkComponent) {
         if (networkComponent.ownerId === Network.instance.userId) {
@@ -541,7 +539,7 @@ const updateIK = (entity: Entity) => {
 
   const positionOffset = Math.sin((realDateNow() % 10000) / 10000 * Math.PI * 2) * 2;
   const positionOffset2 = -Math.sin((realDateNow() % 5000) / 5000 * Math.PI * 2) * 1;
-  const standFactor = actor.height - 0.1 * actor.height + Math.sin((realDateNow() % 2000) / 2000 * Math.PI * 2) * 0.2 * actor.height;
+  const standFactor = actor.height * (0.9 + Math.sin((realDateNow() % 2000) / 2000 * Math.PI * 2) * 0.2);
   const rotationAngle = (realDateNow() % 5000) / 5000 * Math.PI * 2;
 
   if (actor.inputs) {
