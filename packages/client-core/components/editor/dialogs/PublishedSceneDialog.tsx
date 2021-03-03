@@ -3,6 +3,15 @@ import React from "react";
 import PreviewDialog from "./PreviewDialog";
 import { Button } from "../inputs/Button";
 
+/**
+ * [PublishedSceneDialog used to show dialog when scene get published]
+ * @param       {function} onCancel
+ * @param       {string} sceneName
+ * @param       {string} sceneUrl
+ * @param       {string} screenshotUrl
+ * @param       {any} props
+ * @constructor
+ */
 export default function PublishedSceneDialog({ onCancel, sceneName, sceneUrl, screenshotUrl, ...props }) {
   return (
     <PreviewDialog imageSrc={screenshotUrl} title="Scene Published" {...props}>
@@ -15,6 +24,10 @@ export default function PublishedSceneDialog({ onCancel, sceneName, sceneUrl, sc
   );
 }
 
+/**
+ * [Declairing propTypes for PublishedSceneDialog]
+ * @type {Object}
+ */
 PublishedSceneDialog.propTypes = {
   onCancel: PropTypes.func.isRequired,
   sceneName: PropTypes.string.isRequired,

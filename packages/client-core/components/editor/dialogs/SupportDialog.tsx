@@ -2,7 +2,15 @@ import React from "react";
 import PropTypes from "prop-types";
 import Dialog from "./Dialog";
 
+/**
+ * [SupportDialog used to render content for support]
+ * @param       {function} onCancel
+ * @param       {any} props
+ * @constructor
+ */
 export default function SupportDialog({ onCancel, ...props }) {
+
+  //returning view for SupportDialog
   return (
     <Dialog {...props} title="Support">
       <div>
@@ -24,6 +32,11 @@ export default function SupportDialog({ onCancel, ...props }) {
     </Dialog>
   );
 }
+
+/**
+ * [declairing propTypes for SupportDialog]
+ * @type {Object}
+ */
 SupportDialog.propTypes = {
   onCancel: PropTypes.func
 };
