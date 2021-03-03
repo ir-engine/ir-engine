@@ -704,7 +704,7 @@ export class MainProxy extends MessageQueue {
 export async function createWorker(
   worker: Worker,
   canvas: HTMLCanvasElement,
-  options: any
+  userArgs: any
 ) {
   const messageQueue = new WorkerProxy({
     messagePort: worker,
@@ -963,7 +963,7 @@ export async function createWorker(
       height,
       canvas: offscreen,
       devicePixelRatio: window.devicePixelRatio,
-      ...options
+      userArgs
     },
     transferables: [offscreen],
   } as Message);
@@ -1083,14 +1083,12 @@ export async function receiveWorker(onCanvas: any) {
         canvas,
         height,
         width,
-        devicePixelRatio,
-        options 
+        devicePixelRatio
       }: {
         canvas: OffscreenCanvas;
         width: number;
         height: number;
         devicePixelRatio: number;
-        options
       } = args;
       messageQueue.canvas = canvas;
       messageQueue.width = width;

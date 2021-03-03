@@ -2,6 +2,7 @@ import { LOD, MeshPhysicalMaterial, Object3D, SkinnedMesh, TextureLoader } from 
 import { hashFromResourceName } from '../../common/functions/hashFromResourceName';
 import { isClient } from '../../common/functions/isClient';
 import { Engine } from '../../ecs/classes/Engine';
+import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { Not } from '../../ecs/functions/ComponentFunctions';
@@ -293,9 +294,7 @@ export default class AssetLoadingSystem extends System {
       // Load the asset with a calback to add it to our processing queue
       if (isClient) { // Only load asset on browser, as it uses browser-specific requests
         this.loadingCount++;
-
-        const eventEntity = new CustomEvent('scene-loaded-entity', { detail: { left: this.loadingCount } });
-        document.dispatchEvent(eventEntity);
+        EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_LOADED, left: this.loadingCount });
       }
 
 
@@ -309,12 +308,10 @@ export default class AssetLoadingSystem extends System {
 
               if (this.loadingCount === 0) {
                 //loading finished
-                const event = new CustomEvent('scene-loaded', { detail: { loaded: true } });
-                document.dispatchEvent(event);
+                EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED, loaded: true });
               } else {
                 //show progress by entitites
-                const event = new CustomEvent('scene-loaded-entity', { detail: { left: this.loadingCount } });
-                document.dispatchEvent(event);
+                EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_LOADED, left: this.loadingCount });
               }
             }
           });

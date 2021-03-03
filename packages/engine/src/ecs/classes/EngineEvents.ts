@@ -2,6 +2,7 @@ import { EventDispatcher } from "../../common/classes/EventDispatcher";
 import { Network } from "../../networking/classes/Network";
 import { applyNetworkStateToClient } from "../../networking/functions/applyNetworkStateToClient";
 import { ClientNetworkSystem } from "../../networking/systems/ClientNetworkSystem";
+import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { loadScene } from "../../scene/functions/SceneLoading";
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { loadActorAvatar } from "../../templates/character/prefabs/NetworkPlayerCharacter";
@@ -13,6 +14,7 @@ const EVENTS = {
   // INITALIZATION
   CONNECT_TO_WORLD: 'CORE_CONNECT_TO_WORLD',
   CONNECT_TO_WORLD_TIMEOUT: 'CORE_CONNECT_TO_WORLD_TIMEOUT',
+  JOINED_WORLD: 'CORE_JOINED_WORLD',
   LEAVE_WORLD: 'CORE_LEAVE_WORLD',
   
   LOAD_SCENE: 'CORE_LOAD_SCENE',
@@ -23,6 +25,7 @@ const EVENTS = {
   LOAD_AVATAR: "CORE_LOAD_AVATAR",
   CLIENT_ENTITY_LOAD: "CORE_CLIENT_ENTITY_LOAD",
 };
+
 export class EngineEvents extends EventDispatcher {
   static instance: EngineEvents;
   static EVENTS = EVENTS;
@@ -34,11 +37,21 @@ export class EngineEvents extends EventDispatcher {
 
 export const addIncomingEvents = () => {
 
-  const loadSceneEvent = (ev: any) => {
+  // call this Event to load the scene
+  const doLoadScene = (ev: any) => {
     loadScene(ev.result);
-    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.LOAD_SCENE, loadSceneEvent)
+    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.LOAD_SCENE, doLoadScene)
   }
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LOAD_SCENE, loadSceneEvent)
+  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LOAD_SCENE, doLoadScene)
+
+  // this event fires once the scene has loaded
+  const onWorldJoined = (ev: any) => {
+    console.log(ev)
+    applyNetworkStateToClient(ev.worldState);
+    PhysicsSystem.simulate = true;
+    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.JOINED_WORLD, onWorldJoined)
+  }
+  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.JOINED_WORLD, onWorldJoined)
 
   EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.RECEIVE_DATA, (ev: any) => {
     applyNetworkStateToClient(ev.unbufferedState, ev.delta);

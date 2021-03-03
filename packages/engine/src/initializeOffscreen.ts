@@ -42,7 +42,8 @@ export const DefaultInitializationOptions = {
   },
 };
 
-export function initializeEngineOffscreen({ canvas, initOptions, env, useWebXR }, proxy: MainProxy): void {
+export function initializeEngineOffscreen({ canvas, userArgs }, proxy: MainProxy): void {
+  const { useWebXR, initOptions } = userArgs;
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
   EngineEvents.instance = new EngineEventsProxy(proxy);
@@ -82,9 +83,7 @@ export function initializeEngineOffscreen({ canvas, initOptions, env, useWebXR }
 //  registerSystem(PositionalAudioSystem);
   registerSystem(InteractiveSystem);
   registerSystem(ParticleSystem);
-  if (env.NODE_ENV === 'development') {
-    registerSystem(DebugHelpersSystem);
-  }
+  registerSystem(DebugHelpersSystem);
   registerSystem(CameraSystem);
   registerSystem(WebGLRendererSystem, { priority: 1001, canvas });
   Engine.viewportElement = Engine.renderer.domElement;
