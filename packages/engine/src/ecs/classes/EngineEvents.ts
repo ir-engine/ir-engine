@@ -1,4 +1,4 @@
-import { EventDispatcher } from "../EventDispatcher";
+import { EventDispatcher } from "../../common/classes/EventDispatcher";
 
 export class EngineEvents extends EventDispatcher {
   static instance: EngineEvents;

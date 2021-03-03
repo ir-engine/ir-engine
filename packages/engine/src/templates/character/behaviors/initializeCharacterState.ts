@@ -9,8 +9,7 @@ export const initializeCharacterState: Behavior = (entity, args: { x?: number, y
 		actor.velocitySimulator.init();
 	}
 		
-		console.log(actor.mixer);
-		console.log("Actor mixer is")
+  console.log("Actor mixer is", actor.mixer);
 	actor.velocitySimulator.damping = actor.defaultVelocitySimulatorDamping;
 	actor.velocitySimulator.mass = actor.defaultVelocitySimulatorMass;
 

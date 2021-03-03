@@ -1,9 +1,9 @@
 import { AssetLoader } from '../../assets/components/AssetLoader';
 import { isClient } from "../../common/functions/isClient";
 import { Engine } from '../../ecs/classes/Engine';
+import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { Entity } from "../../ecs/classes/Entity";
 import { addComponent, createEntity, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { EngineEvents } from '../../worker/EngineEvents';
 import { SceneTagComponent } from '../components/Object3DTagComponents';
 import { SceneObjectLoadingSchema } from '../constants/SceneObjectLoadingSchema';
 import { SceneData } from "../interfaces/SceneData";

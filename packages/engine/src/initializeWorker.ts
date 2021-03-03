@@ -2,9 +2,8 @@ import _ from 'lodash';
 import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
-import { createWorker, MessageType, WorkerProxy, Message } from './worker/MessageQueue';
+import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { createCanvas } from './renderer/functions/createCanvas';
-import { EngineProxy } from './EngineProxy';
 import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
 import { registerSystem } from './ecs/functions/SystemFunctions';
@@ -12,9 +11,10 @@ import { Engine } from './ecs/classes/Engine';
 import { Timer } from './common/functions/Timer';
 import { execute, initialize } from "./ecs/functions/EngineFunctions";
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType';
-import { EngineEvents } from './worker/EngineEvents';
-import { EngineEventsProxy } from './worker/EngineEventsProxy';
+import { EngineEvents } from './ecs/classes/EngineEvents';
+import { EngineEventsProxy } from './ecs/classes/EngineEventsProxy';
 import { Network } from './networking/classes/Network';
+import { addOutgoingEvents } from './ecs/functions/addEngineEvents';
 
 const isSafari = typeof navigator !== 'undefined' && /Version\/[\d\.]+.*Safari/.test(window.navigator.userAgent);
 
@@ -31,25 +31,12 @@ export const DefaultInitializationOptions = {
   },
 };
 
-class WorkerEngineProxy extends EngineProxy {
-  workerProxy: WorkerProxy;
-  constructor(workerProxy: WorkerProxy) {
-    super();
-    this.workerProxy = workerProxy;
-    this.workerProxy.addEventListener('sendData', (ev: any) => { this.sendData(ev.detail.buffer) })
-  }
-  transferNetworkBuffer(buffer, delta) { this.workerProxy.sendEvent('transferNetworkBuffer', { buffer, delta }, [buffer]); }
-  setActorAvatar(entityID, avatarID) { 
-    this.workerProxy.sendEvent('setActorAvatar', { entityID, avatarID });
-  }
-}
-
 export async function initializeWorker(initOptions: any = DefaultInitializationOptions): Promise<void> {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
   const workerProxy: WorkerProxy = await createWorker(
     // @ts-ignore
-    new Worker(new URL('./entry.worker.ts', import.meta.url)),
+    new Worker(new URL('./worker/entry.worker.ts', import.meta.url)),
     (options.renderer.canvas || createCanvas()),
     {
       env: {
@@ -59,7 +46,8 @@ export async function initializeWorker(initOptions: any = DefaultInitializationO
     }
   );
   EngineEvents.instance = new EngineEventsProxy(workerProxy);
-  EngineProxy.instance = new WorkerEngineProxy(workerProxy);
+  addOutgoingEvents();
+  
   initialize()
 
   const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
@@ -72,12 +60,9 @@ export async function initializeWorker(initOptions: any = DefaultInitializationO
     update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
   }, Engine.physicsFrameRate, Engine.networkFramerate).start();
 
-  // return await new Promise((resolve) => {
   const onNetworkConnect = (ev: any) => {
     EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.INITIALIZE, userId: Network.instance.userId });
     window.removeEventListener('connectToWorld', onNetworkConnect)
-  //     resolve()
     }
   window.addEventListener('connectToWorld', onNetworkConnect)
-  // })
 }

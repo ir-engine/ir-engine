@@ -1,5 +1,5 @@
 import { EngineEvents } from "./EngineEvents";
-import { MessageQueue } from "./MessageQueue";
+import { MessageQueue } from "../../worker/MessageQueue";
 
 // This is a bi-directional event dispatcher across MessageQueue events 
 
@@ -23,7 +23,7 @@ export class EngineEventsProxy extends EngineEvents {
     });
     this.messageQueue.addEventListener(ENGINE_EVENTS_PROXY.EVENT_REMOVE, (ev: any) => {
       const { type } = ev.detail;
-      this.removeEventListener(type, listener)
+      this.removeEventListener(type, listener, true)
     });
     this.messageQueue.addEventListener(ENGINE_EVENTS_PROXY.EVENT, (ev: any) => {
       const { event } = ev.detail;

@@ -20,6 +20,7 @@ export interface Message {
 
 export enum MessageType {
   OFFSCREEN_CANVAS,
+  CANVAS_CREATED,
   ADD_EVENT,
   REMOVE_EVENT,
   EVENT,
@@ -943,17 +944,6 @@ export async function createWorker(
       }
     },
   );
-  messageQueue.queue.push({
-    messageType: MessageType.OFFSCREEN_CANVAS,
-    message: {
-      width,
-      height,
-      canvas: offscreen,
-      devicePixelRatio: window.devicePixelRatio,
-      ...options
-    },
-    transferables: [offscreen],
-  } as Message);
   window.addEventListener('resize', () => {
     messageQueue.queue.push({
       messageType: MessageType.EVENT,
@@ -965,6 +955,24 @@ export async function createWorker(
         }
       },
     } as Message);
+  });
+  messageQueue.queue.push({
+    messageType: MessageType.OFFSCREEN_CANVAS,
+    message: {
+      width,
+      height,
+      canvas: offscreen,
+      devicePixelRatio: window.devicePixelRatio,
+      ...options
+    },
+    transferables: [offscreen],
+  } as Message);
+  await new Promise<void>((resolve) => {
+    const createOffscreenCanvasListener = () => {
+      messageQueue.messageTypeFunctions.delete(MessageType.CANVAS_CREATED);
+      resolve();
+    }
+    messageQueue.messageTypeFunctions.set(MessageType.CANVAS_CREATED, createOffscreenCanvasListener);
   });
   (globalThis as any).__messageQueue = messageQueue;
   return messageQueue;
@@ -1112,6 +1120,10 @@ export async function receiveWorker(onCanvas: any) {
       (globalThis as any).window = new WindowProxy({ messageQueue });
       (globalThis as any).document = new DocumentProxy({ messageQueue });
       onCanvas(args, messageQueue);
+      messageQueue.queue.push({
+        messageType: MessageType.CANVAS_CREATED,
+        message: {}
+      });
     },
   );
   messageQueue.addEventListener('resize', (ev: any) => {
