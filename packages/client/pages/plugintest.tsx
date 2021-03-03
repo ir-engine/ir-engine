@@ -14,7 +14,7 @@ export const IndexPage = (): any => {
         (XRPlugin as XRPluginPlugin).initialize({}).then(response => {
             setInitializationResponse(response.status);
         });
-    };
+    }
     doTest();
     }, []);
 

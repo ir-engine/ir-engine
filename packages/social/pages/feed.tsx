@@ -12,5 +12,5 @@ export default function FeedPage() {
       <AppHeader user={{username:'username'}} logo="/assets/logoBlack.png"/>
       <Feed />
       <AppFooter user={{username:'username'}} />
-    </div>
+    </div>;
 }

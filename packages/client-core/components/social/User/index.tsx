@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { random } from 'lodash';
+import { connect } from 'react-redux';
 import Router from "next/router";
 
 import Card from '@material-ui/core/Card';
@@ -12,7 +12,6 @@ import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 
 import styles from './User.module.scss';
-import Grid from '@material-ui/core/Grid';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import AlternateEmailIcon from '@material-ui/icons/AlternateEmail';
 import MailOutlineIcon from '@material-ui/icons/MailOutline';
@@ -21,15 +20,28 @@ import LinkIcon from '@material-ui/icons/Link';
 import SubjectIcon from '@material-ui/icons/Subject';
 
 import TextField from '@material-ui/core/TextField';
+import { selectAuthState } from '../../../redux/auth/selector';
 
-const User = () => {
+
+const mapStateToProps = (state: any): any => {
+    return {
+      auth: selectAuthState(state)
+    };
+  };
+  interface Props{
+    auth?: any;
+  }
+  
+const User = ({auth}:Props) => {
+    const user = auth.get('user') as any;
+
     const [creator, setCreator] = useState({
         background :'https://picsum.photos/375/290',
         avatar :'https://picsum.photos/110/110',
-        name: 'User username',
+        name: user ? user.avatarId : 'User username',
         email: 'mail@mail.com',
         link: 'website.com',
-        username: '@username',  
+        username: user ? '@'+user.name : '@username',  
         tags: 'Art & Design',
         bio: 'I’m glad to share my works and these amazing kit with you!'
 }); 
@@ -90,4 +102,4 @@ const User = () => {
     </section>
 };
 
-export default User;
+export default connect(mapStateToProps)(User);

@@ -60,9 +60,9 @@ export class PhysicsSystem extends System {
   static simulate: boolean
   static serverOnlyRigidBodyCollides: boolean
 
-  freezeTimes: number = 0
-  clientSnapshotFreezeTime: number = 0
-  serverSnapshotFreezeTime: number = 0
+  freezeTimes = 0
+  clientSnapshotFreezeTime = 0
+  serverSnapshotFreezeTime = 0
 
   groundMaterial = new Material('groundMaterial')
   wheelMaterial = new Material('wheelMaterial')

@@ -11,8 +11,10 @@ import { Engine } from './ecs/classes/Engine';
 import { execute, initialize } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
+import { EngineProxy } from './EngineProxy';
 import { InputSystem } from './input/systems/ClientInputSystem';
 import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
+import { Network } from './networking/classes/Network';
 import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
 import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkIncomingSystem';
@@ -22,12 +24,14 @@ import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { createCanvas } from './renderer/functions/createCanvas';
 import { HighlightSystem } from './renderer/HighlightSystem';
 import { WebGLRendererSystem } from './renderer/WebGLRendererSystem';
+import { loadScene, SCENE_EVENTS } from './scene/functions/SceneLoading';
 import { ServerSpawnSystem } from './scene/systems/SpawnSystem';
 import { StateSystem } from './state/systems/StateSystem';
 import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
+import { EngineEvents } from './worker/EngineEvents';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -47,9 +51,11 @@ export const DefaultInitializationOptions = {
   },
 };
 
-export function initializeEngine(initOptions: any = DefaultInitializationOptions): void {
+export async function initializeEngine(initOptions: any = DefaultInitializationOptions): Promise<void> {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
+  new EngineProxy();
+  new EngineEvents();
   // Create a new world -- this holds all of our simulation state, entities, etc
   initialize();
 
@@ -60,7 +66,6 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
   Engine.scene = scene;
 
   if(typeof window !== 'undefined') {
-    (window as any).engine = Engine;
     // Add iOS and safari flag to window object -- To use it for creating an iOS compatible WebGLRenderer for example
     (window as any).iOS = !window.MSStream && /iPad|iPhone|iPod/.test(navigator.userAgent);
     (window as any).safariWebBrowser = !window.MSStream && /Safari/.test(navigator.userAgent);
@@ -90,22 +95,15 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
 
   registerSystem(TransformSystem, { priority: 900 });
 
-  //Object HighlightSystem
   if (isClient) {
-    // Create a new camera
-    const camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.3, 750);
-    // Add the camera to the camera manager so it's available anywhere
-    Engine.camera = camera;
-    // Add the camera to the three.js scene
-    scene.add(camera);
-
-  //  const listener = new AudioListener();
-  //  camera.add( listener);
-
-  //  Engine.audioListener = listener;
-
+    Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.3, 750);
+    Engine.scene.add(Engine.camera);
     registerSystem(HighlightSystem);
-  //  registerSystem(PositionalAudioSystem);
+
+    // Engine.audioListener = new AudioListener();
+    // Engine.camera.add(Engine.audioListener);
+    // registerSystem(PositionalAudioSystem);
+
     registerSystem(InteractiveSystem);
     registerSystem(ParticleSystem);
     if (process.env.NODE_ENV === 'development') {
@@ -125,4 +123,6 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
         update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
       }, Engine.physicsFrameRate, Engine.networkFramerate).start();
   }, 1000);
+
+  EngineEvents.instance.addEventListener(SCENE_EVENTS.LOAD_SCENE, (ev: any) => loadScene(ev.result))
 }

@@ -1,30 +1,25 @@
 import LinkIcon from '@material-ui/icons/Link';
 import PersonIcon from '@material-ui/icons/Person';
 import SettingsIcon from '@material-ui/icons/Settings';
-
-import { getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import { endVideoChat, leave } from "@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions";
-import { loadActorAvatar } from '@xr3ngine/engine/src/templates/character/prefabs/NetworkPlayerCharacter';
-import { CharacterComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterComponent';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
-import { logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings } from '../../../redux/auth/service';
+import { updateUserAvatarId, updateUsername, updateUserSettings } from '../../../redux/auth/service';
 import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth } from '../../../redux/auth/service';
 import { alertSuccess } from '../../../redux/alert/service';
 import { provisionInstanceServer } from "../../../redux/instanceConnection/service";
-import { selectLocationState } from '../../../redux/location/selector';
-import { selectCurrentScene } from '../../../redux/scenes/selector';
 import { Views, UserMenuProps } from './util';
 import styles from './style.module.scss';
 import ProfileMenu from './menus/ProfileMenu';
 import AvatarMenu from './menus/AvatarMenu';
 import SettingMenu from './menus/SettingMenu';
 import ShareMenu from './menus/ShareMenu';
-import { WebGLRendererSystem, getGraphicsSettingsFromStorage } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
+import { WebGLRendererSystem } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
+import { EngineProxy } from '@xr3ngine/engine/src/EngineProxy';
+import { EngineEvents } from '@xr3ngine/engine/src/worker/EngineEvents';
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -73,21 +68,18 @@ const UserMenu = (props: UserMenuProps): any => {
 
   const [waitingForLogout, setWaitingForLogout] = useState(false);
   const [currentActiveMenu, setCurrentActiveMenu] = useState({} as any);
-  const [actorEntity, setActorEntity] = useState(null);
+  const [actorEntityID, setActorEntityID] = useState(null);
 
   useEffect(() => {
-    let actorEntityWaitInterval;
-    if (selfUser.id && !actorEntity) {
-      actorEntityWaitInterval = setInterval(() => {
-        const entity = Network.instance?.localClientEntity;
-        if (Network.instance?.localClientEntity) {
-          clearInterval(actorEntityWaitInterval);
-          setActorEntity(entity);
-          updateCharacterComponent(entity, selfUser?.avatarId);
-        }
-      }, 300);
-    } else {
-      clearInterval(actorEntityWaitInterval);
+    if (selfUser.id && actorEntityID === null) {
+      const clientEntityLoaded = (ev: any) => {
+        const id = ev.detail.id;
+        Network.instance.localClientEntity = id;
+        setActorEntityID(id);
+        updateCharacterComponent(id, selfUser?.avatarId)
+        document.removeEventListener('client-entity-load', clientEntityLoaded);
+      }
+      document.addEventListener('client-entity-load', clientEntityLoaded);
     }
   }, [selfUser.id]);
 
@@ -99,15 +91,18 @@ const UserMenu = (props: UserMenuProps): any => {
     selfUser && setUserSetting({ ...selfUser.user_setting });
   }, [selfUser.user_setting]);
 
-  const updateGraphics = (newGraphicsSettings) => {
-    setGraphicsSettings(newGraphicsSettings);
+  const updateGraphics = (ev: any) => {
+    setGraphicsSettings(ev.detail);
   }
 
   useEffect(() => {
-    setGraphicsSettings(getGraphicsSettingsFromStorage())
-    WebGLRendererSystem.qualityLevelChangeListeners.push(updateGraphics);
+    const graphicsSettingsLoaded = (ev) => {
+      EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphics);
+      window.removeEventListener('connectToWorld', graphicsSettingsLoaded);
+    }
+    window.addEventListener('connectToWorld', graphicsSettingsLoaded);
     return function cleanup() {
-      WebGLRendererSystem.qualityLevelChangeListeners.splice(WebGLRendererSystem.qualityLevelChangeListeners.indexOf(updateGraphics), 1);
+      EngineEvents.instance.removeEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphics);
     };
   }, [])
 
@@ -139,17 +134,13 @@ const UserMenu = (props: UserMenuProps): any => {
     }
   };
 
-  const updateCharacterComponent = (entity, avatarId?: string) => {
-    const characterAvatar = getMutableComponent(entity, CharacterComponent);
-    if (characterAvatar != null) characterAvatar.avatarId = avatarId || selfUser?.avatarId;
-
-    // We can pull this from NetworkPlayerCharacter, but we probably don't want our state update here
-    loadActorAvatar(entity);
+  const updateCharacterComponent = (entityID, avatarId?: string) => {
+    EngineProxy.instance.setActorAvatar(entityID, avatarId || selfUser?.avatarId);
   }
 
   const setAvatar = (avatarId: string) => {
-    if (actorEntity && avatarId) {
-      updateCharacterComponent(actorEntity, avatarId);
+    if (actorEntityID && avatarId) {
+      updateCharacterComponent(actorEntityID, avatarId);
       updateUserAvatarId(selfUser.id, avatarId);
     }
   }

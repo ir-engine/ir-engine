@@ -1,6 +1,3 @@
-import { Component } from './Component';
-import { Entity } from './Entity';
-
 /**
  * This class provides methods to manage events dispatches.
  */
@@ -8,15 +5,8 @@ export class EventDispatcher {
   /** Map to store listeners by event names. */
   _listeners: {}
 
-  /** Keeps count of fired and handled events. */
-  stats: { fired: number; handled: number }
-
   constructor () {
     this._listeners = {};
-    this.stats = {
-      fired: 0,
-      handled: 0
-    };
   }
 
   /** Resets the Dispatcher */
@@ -24,9 +14,8 @@ export class EventDispatcher {
     Object.keys(this._listeners).forEach(key => {
       delete this._listeners[key];
     });
-    this.resetCounters();
   }
-
+  
   /**
    * Adds an event listener.
    * @param eventName Name of the event to listen.
@@ -68,28 +57,34 @@ export class EventDispatcher {
   }
 
   /**
+   * Removes all listeners for an event.
+   * @param eventName Name of the event to remove.
+   */
+  removeAllListenersForEvent(eventName: string, deleteEvent?: boolean) {
+    if(deleteEvent) {
+      delete this._listeners[eventName];
+    }
+    this._listeners[eventName] = [];
+  }
+
+
+  /**
    * Dispatches an event with given Entity and Component and increases fired event's count.
    * @param eventName Name of the event to dispatch.
-   * @param entity Entity to emit.
-   * @param component Component to emit.
    */
-  dispatchEvent (eventName: string | number, entity: Entity, component?: Component<any>): void {
-    this.stats.fired++;
-
-    const listenerArray = this._listeners[eventName];
+	/**
+	 * Fire an event type.
+	 * @param type The type of event that gets fired.
+	 */
+	dispatchEvent( event: { type: string; [attachment: string]: any }, ...args: any ): void {
+    console.log(event)
+    const listenerArray = this._listeners[event.type];
     if (listenerArray !== undefined) {
       const array = listenerArray.slice(0);
 
       for (let i = 0; i < array.length; i++) {
-        array[i].call(this, entity, component);
+        array[i].call(this, event, ...args);
       }
     }
-  }
-
-  /**
-   * Reset stats counters.
-   */
-  resetCounters (): void {
-    this.stats.fired = this.stats.handled = 0;
   }
 }
