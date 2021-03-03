@@ -3,9 +3,11 @@ import {
   FEED_COMMENTS_FETCH,
 } from '../actions';
 
+import { CommentInterface } from '@xr3ngine/common/interfaces/Comment';
+
 export interface FeedCommentsRetrievedAction {
   type: string;
-  comments: [];
+  comments: CommentInterface[];
 }
 
 export interface FetchingFeedCommentsAction {
@@ -17,7 +19,7 @@ export type FeedCommentsAction =
 FeedCommentsRetrievedAction
   | FetchingFeedCommentsAction
 
-export function feedsRetrieved (comments: []): FeedCommentsRetrievedAction {
+export function feedsRetrieved (comments: CommentInterface[]): FeedCommentsRetrievedAction {
   return {
     type: FEED_COMMENTS_RETRIEVED,
     comments: comments

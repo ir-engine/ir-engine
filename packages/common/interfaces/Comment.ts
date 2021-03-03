@@ -1,7 +1,8 @@
 
 import {CreatorShort} from './Creator'
 
-export interface Comment {
+export interface CommentInterface {
+  id: string;
   creator : CreatorShort,
   text : string,
   fires: number,    
