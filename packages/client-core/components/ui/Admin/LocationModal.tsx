@@ -74,10 +74,6 @@ const LocationModal = (props: Props): any => {
     const adminScenes = adminState.get('scenes').get('scenes');
     const locationTypes = adminState.get('locationTypes').get('locationTypes');
 
-    console.log('====================================');
-    console.log(adminScenes);
-    console.log('====================================');
-  
     const submitLocation = () => {
         const submission = {
             name: name,
