@@ -12,6 +12,7 @@ import {
 } from '@xr3ngine/client-core/redux/location/service';
 import { selectPartyState } from '@xr3ngine/client-core/redux/party/selector';
 import { setCurrentScene } from '@xr3ngine/client-core/redux/scenes/actions';
+import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { SocketWebRTCClientTransport } from '@xr3ngine/engine/src/networking/classes/SocketWebRTCClientTransport';
@@ -193,14 +194,14 @@ export const EnginePage = (props: Props) => {
   //all scene entities are loaded
   const onSceneLoaded = (event: CustomEvent): void => {
     if (event.detail.loaded) {
-      document.removeEventListener('scene-loaded', onSceneLoaded);
+      EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
       setAppLoaded(true);
       (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
     }
   };
 
   const addEventListeners = () => {
-    document.addEventListener('scene-loaded', onSceneLoaded);
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
   };
 
   useEffect(() => {

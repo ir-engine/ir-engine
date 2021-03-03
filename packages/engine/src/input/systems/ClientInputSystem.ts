@@ -28,7 +28,8 @@ import { initVR } from "../functions/WebXRFunctions";
 import { InputValue } from "../interfaces/InputValue";
 import { InputAlias } from "../types/InputAlias";
 import { BaseInput } from "../enums/BaseInput";
-import { EngineProxy } from "../../EngineProxy";
+import { ClientNetworkSystem } from "../../networking/systems/ClientNetworkSystem";
+import { EngineEvents } from "../../ecs/classes/EngineEvents";
 /**
  * Input System
  *
@@ -322,7 +323,8 @@ export class InputSystem extends System {
         inputs.viewVector.y = actor.viewVector.y;
         inputs.viewVector.z = actor.viewVector.z;
       }
-      EngineProxy.instance.sendData(ClientInputModel.toBuffer(inputs));
+      const buffer = ClientInputModel.toBuffer(inputs);
+      EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.SEND_DATA, buffer }, false, [buffer]);
 
       // clean processed LifecycleValue.ENDED inputs
       input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
@@ -336,7 +338,6 @@ export class InputSystem extends System {
 
     // Called when input component is added to entity
     this.queryResults.localClientInput.added?.forEach(entity => {
-      console.log('adding events to entity', entity)
       initVR(entity);
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
@@ -446,8 +447,6 @@ export class InputSystem extends System {
         return console.warn("Tried to execute on a newly added input component, but it was undefined");
       // Call all behaviors in "onAdded" of input map
       this._inputComponent.schema.onAdded?.forEach(behavior => {
-        console.log("Added behaviors");
-        console.log(behavior.behavior);
         behavior.behavior(entity, { ...behavior.args });
       });
     });

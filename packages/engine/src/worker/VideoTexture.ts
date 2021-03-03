@@ -7,11 +7,13 @@ import {
   TextureEncoding,
   DataTexture,
   Wrapping,
+  VideoTexture as THREE_VideoTexture
 } from 'three';
+import { isWebWorker } from '../common/functions/getEnvironment';
 
 import type { VideoDocumentElementProxy } from './MessageQueue';
 
-export class VideoTextureProxy extends DataTexture {
+class VideoTextureProxy extends DataTexture {
   isVideoTexture = true;
   videoProxy: VideoDocumentElementProxy;
   constructor(
@@ -72,3 +74,5 @@ export class VideoTextureProxy extends DataTexture {
     }
   }
 }
+
+export const VideoTexture = isWebWorker ? VideoTextureProxy : THREE_VideoTexture;
