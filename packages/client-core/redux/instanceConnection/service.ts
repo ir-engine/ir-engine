@@ -10,7 +10,7 @@ import {
   instanceServerProvisioned,
   instanceServerProvisioning
 } from './actions';
-import { EngineEvents } from "@xr3ngine/engine/src/worker/EngineEvents";
+import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
 import { ClientNetworkSystem } from "@xr3ngine/engine/src/networking/systems/ClientNetworkSystem";
 
 export function provisionInstanceServer(locationId?: string, instanceId?: string, sceneId?: string) {

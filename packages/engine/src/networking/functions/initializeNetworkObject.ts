@@ -1,8 +1,8 @@
 import { Quaternion, Vector3 } from 'three';
 import { Component } from '../../ecs/classes/Component';
+import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { Entity } from '../../ecs/classes/Entity';
 import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
 import { loadActorAvatar } from '../../templates/character/prefabs/NetworkPlayerCharacter';
 import { PrefabType } from "../../templates/networking/DefaultNetworkSchema";
 import { TransformComponent } from '../../transform/components/TransformComponent';
@@ -163,14 +163,12 @@ export function initializeNetworkObject(ownerId: string, networkId: number, pref
     uniqueId: ''
   };
 
-  console.log('client-entity-load', prefabType, PrefabType.Player, ownerId, Network.instance.userId)
+  loadActorAvatar(networkEntity);
+
   if (prefabType === PrefabType.Player && ownerId === (Network.instance).userId) {
     Network.instance.localClientEntity = networkEntity;
-    console.log('client entity loaded!')
-    document.dispatchEvent(new CustomEvent('client-entity-load', { detail: { id: networkEntity.id } }));
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, id: networkEntity.id });
   }
-
-  loadActorAvatar(networkEntity);
 
   // Tell the client
   // console.log("Object ", networkId, " added to the simulation for owner ", ownerId, " with a prefab type: ", prefabType);

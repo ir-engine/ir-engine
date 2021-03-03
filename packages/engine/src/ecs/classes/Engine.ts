@@ -4,7 +4,7 @@
  */
 
 import { AudioListener, Clock, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
-import { CSM } from '../../assets/csm/CSM.js';
+import { CSM } from '../../assets/csm/CSM';
 import { ServerSpawnSystem } from "../../scene/systems/SpawnSystem";
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { EngineOptions } from '../interfaces/EngineOptions';

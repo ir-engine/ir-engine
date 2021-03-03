@@ -301,6 +301,7 @@ export function removeEntity(entity: Entity, immediately?: boolean): void {
     }
     if (immediately) {
       Engine.entities.splice(index, 1);
+      Engine.entityMap.delete(String(entity.id));
       Engine.entityPool.release(entity);
     } else {
       Engine.entitiesToRemove.push(entity);
