@@ -11,7 +11,7 @@ import {
   channelServerProvisioned,
   channelServerProvisioning
 } from './actions';
-import { EngineEvents } from "@xr3ngine/engine/src/worker/EngineEvents";
+import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
 import { ClientNetworkSystem } from "@xr3ngine/engine/src/networking/systems/ClientNetworkSystem";
 
 export function provisionChannelServer(instanceId?: string, channelId?: string) {
