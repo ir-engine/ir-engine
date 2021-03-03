@@ -5,7 +5,11 @@
     box-sizing: border-box;
     display: flex;
     flex-direction: row;
+    flex-grow: 0;
  
+    .commentCard{
+        flex-grow: 1;
+    }
     .flamesCount{
         font-weight: bold;
         margin: 0 5px 0 0;
