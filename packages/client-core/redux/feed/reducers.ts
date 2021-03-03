@@ -29,6 +29,7 @@ export const initialState = {
 const immutableState = Immutable.fromJS(initialState);
 
 const feedReducer = (state = immutableState, action: FeedsAction): any => {
+  const currentFeed = state.get('feed');
   switch (action.type) {
     case FEEDS_FETCH : return state.set('fetching', true);
     case FEEDS_RETRIEVED:     
@@ -46,15 +47,19 @@ const feedReducer = (state = immutableState, action: FeedsAction): any => {
           return {...feed, fires: ++feed.fires, isFired:true};
         }
         return {...feed};
-      }));
+      })).set('feed', {...currentFeed, fires: ++currentFeed.fires, isFired:true});
 
     case REMOVE_FEED_FIRES:
+      if(currentFeed.id === (action as addFeedFiresAction).feedId){
+        currentFeed.isFired = false;
+        currentFeed.fires+1;
+      }
       return state.set('feeds', state.get('feeds').map(feed => {
         if(feed.id === (action as addFeedFiresAction).feedId) {
           return {...feed, fires: feed.fires-1, isFired:false};
         }
         return {...feed};
-      }));
+      })).set('feed', {...currentFeed, fires: currentFeed.fires-1, isFired:false});
 
     case ADD_FEED_BOOKMARK:
       return state.set('feeds', state.get('feeds').map(feed => {
