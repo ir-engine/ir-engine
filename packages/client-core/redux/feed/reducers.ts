@@ -3,7 +3,7 @@ import {
   FeedsAction,
   FeedsRetrievedAction,
   FeedRetrievedAction,
-  addFeedFiresAction
+  oneFeedAction
 } from './actions';
 
 import {
@@ -14,7 +14,8 @@ import {
   ADD_FEED_FIRES,
   REMOVE_FEED_FIRES,
   ADD_FEED_BOOKMARK,
-  REMOVE_FEED_BOOKMARK
+  REMOVE_FEED_BOOKMARK,
+  ADD_FEED_VIEW
 } from '../actions';
 
 export const initialState = {
@@ -43,19 +44,19 @@ const feedReducer = (state = immutableState, action: FeedsAction): any => {
 
     case ADD_FEED_FIRES:
       return state.set('feeds', state.get('feeds').map(feed => {
-        if(feed.id === (action as addFeedFiresAction).feedId) {
+        if(feed.id === (action as oneFeedAction).feedId) {
           return {...feed, fires: ++feed.fires, isFired:true};
         }
         return {...feed};
       })).set('feed', {...currentFeed, fires: ++currentFeed.fires, isFired:true});
 
     case REMOVE_FEED_FIRES:
-      if(currentFeed.id === (action as addFeedFiresAction).feedId){
+      if(currentFeed.id === (action as oneFeedAction).feedId){
         currentFeed.isFired = false;
         currentFeed.fires+1;
       }
       return state.set('feeds', state.get('feeds').map(feed => {
-        if(feed.id === (action as addFeedFiresAction).feedId) {
+        if(feed.id === (action as oneFeedAction).feedId) {
           return {...feed, fires: feed.fires-1, isFired:false};
         }
         return {...feed};
@@ -63,7 +64,7 @@ const feedReducer = (state = immutableState, action: FeedsAction): any => {
 
     case ADD_FEED_BOOKMARK:
       return state.set('feeds', state.get('feeds').map(feed => {
-        if(feed.id === (action as addFeedFiresAction).feedId) {
+        if(feed.id === (action as oneFeedAction).feedId) {
           return {...feed, isBookmarked:true};
         }
         return {...feed};
@@ -71,11 +72,20 @@ const feedReducer = (state = immutableState, action: FeedsAction): any => {
 
     case REMOVE_FEED_BOOKMARK:
       return state.set('feeds', state.get('feeds').map(feed => {
-        if(feed.id === (action as addFeedFiresAction).feedId) {
+        if(feed.id === (action as oneFeedAction).feedId) {
           return {...feed, isBookmarked:false};
         }
         return {...feed};
       })).set('feed', {...currentFeed, isBookmarked:false});
+
+    case ADD_FEED_VIEW:
+      return state.set('feedsFeatured', state.get('feedsFeatured')?.map(feed => {
+        if(feed.id === (action as oneFeedAction).feedId) {
+          return {...feed, viewsCount: ++feed.viewsCount};
+        }
+        return {...feed};
+      })).set('feed', {...currentFeed, viewsCount: ++currentFeed.viewsCount});
+
 }
 
 
