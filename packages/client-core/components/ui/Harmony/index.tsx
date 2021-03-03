@@ -94,11 +94,14 @@ import {createParty, getParty, removeParty, removePartyUser, transferPartyOwner}
 import {updateInviteTarget} from "../../../redux/invite/service";
 import {getLayerUsers} from "../../../redux/user/service";
 import {banUserFromLocation} from "../../../redux/location/service";
+import {updateCamVideoState, updateCamAudioState} from '../../../redux/mediastream/service';
+import {updateChannelTypeState, changeChannelTypeState} from "../../../redux/transport/service";
 import {selectFriendState} from "../../../redux/friend/selector";
 import {selectGroupState} from "../../../redux/group/selector";
 import {selectLocationState} from "../../../redux/location/selector";
 import {selectPartyState} from "../../../redux/party/selector";
 import {selectTransportState} from '../../../redux/transport/selector';
+import {selectMediastreamState} from "../../../redux/mediastream/selector";
 import {Group as GroupType} from "../../../../common/interfaces/Group";
 
 const initialSelectedUserState = {
@@ -130,7 +133,8 @@ const mapStateToProps = (state: any): any => {
         groupState: selectGroupState(state),
         locationState: selectLocationState(state),
         partyState: selectPartyState(state),
-        transportState: selectTransportState(state)
+        transportState: selectTransportState(state),
+        mediastream: selectMediastreamState(state)
     };
 };
 
@@ -160,7 +164,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     transferPartyOwner: bindActionCreators(transferPartyOwner, dispatch),
     updateInviteTarget: bindActionCreators(updateInviteTarget, dispatch),
     getLayerUsers: bindActionCreators(getLayerUsers, dispatch),
-    banUserFromLocation: bindActionCreators(banUserFromLocation, dispatch)
+    banUserFromLocation: bindActionCreators(banUserFromLocation, dispatch),
+    changeChannelTypeState: bindActionCreators(changeChannelTypeState, dispatch)
 });
 
 interface Props {
@@ -212,6 +217,8 @@ interface Props {
     setSelectedGroup?: any;
     locationState?: any;
     transportState?: any;
+    changeChannelTypeState?: any;
+    mediastream?: any;
 }
 
 const Harmony = observer((props: Props): any => {
@@ -259,7 +266,9 @@ const Harmony = observer((props: Props): any => {
         selectedGroup,
         setSelectedGroup,
         locationState,
-        transportState
+        transportState,
+        changeChannelTypeState,
+        mediastream
     } = props;
 
     const messageRef = React.useRef();
@@ -288,6 +297,8 @@ const Harmony = observer((props: Props): any => {
     });
     const [selectedAccordion, setSelectedAccordion] = useState('');
     const [tabIndex, setTabIndex] = useState(0);
+    const [videoPaused, setVideoPaused] = useState(false);
+    const [audioPaused, setAudioPaused] = useState(false);
 
     const instanceLayerUsers = userState.get('layerUsers') ?? [];
     const channelLayerUsers = userState.get('channelLayerUsers') ?? [];
@@ -321,11 +332,19 @@ const Harmony = observer((props: Props): any => {
     const activeAVChannelIdRef = useRef(activeAVChannelId);
     const channelAwaitingProvisionRef = useRef(channelAwaitingProvision);
     const videoEnabled = currentLocation.locationSettings ? currentLocation.locationSettings.videoEnabled : false;
+    const isCamVideoEnabled = mediastream.get('isCamVideoEnabled');
+    const isCamAudioEnabled = mediastream.get('isCamAudioEnabled');
 
     useEffect(() => {
         EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, () => {
-            toggleAudio(activeAVChannelIdRef.current);
-            toggleVideo(activeAVChannelIdRef.current);
+            console.log('ConnectToWorld fired');
+            await toggleAudio(activeAVChannelIdRef.current);
+            await toggleVideo(activeAVChannelIdRef.current);
+            console.log('Toggled audio and video');
+            console.log(MediaStreamSystem.instance);
+            updateChannelTypeState();
+            updateCamVideoState();
+            updateCamAudioState();
         });
 
         EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
@@ -335,12 +354,18 @@ const Harmony = observer((props: Props): any => {
         EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LEAVE_WORLD, () => {
             resetChannelServer();
             if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('');
+            updateChannelTypeState();
+            updateCamVideoState();
+            updateCamAudioState();
         });
 
         return () => {
-            window.removeEventListener('connectToWorld', () => {
-                toggleAudio(activeAVChannelIdRef.current);
-                toggleVideo(activeAVChannelIdRef.current);
+            window.removeEventListener('connectToWorld', async () => {
+                await toggleAudio(activeAVChannelIdRef.current);
+                await toggleVideo(activeAVChannelIdRef.current);
+                updateChannelTypeState();
+                updateCamVideoState();
+                updateCamAudioState();
             });
 
             window.removeEventListener('connectToWorldTimeout', (e: any) => {
@@ -355,6 +380,8 @@ const Harmony = observer((props: Props): any => {
     }, []);
 
     useEffect(() => {
+        console.log('transportState useEffect');
+        console.log(transportState);
         if ((Network.instance.transport as any).channelType === 'instance') {
             const channelEntries = [...channels.entries()];
             const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null);
@@ -412,11 +439,13 @@ const Harmony = observer((props: Props): any => {
         });
     }, [channels]);
 
+    useEffect(() => {
+        setVideoPaused(!isCamVideoEnabled);
+    }, [isCamVideoEnabled]);
 
-    const openLeftDrawer = (e: any): void => {
-        setBottomDrawerOpen(false);
-        setLeftDrawerOpen(true);
-    };
+    useEffect(() => {
+        setAudioPaused(!isCamAudioEnabled);
+    }, [isCamAudioEnabled]);
 
     const handleComposingMessageChange = (event: any): void => {
         const message = event.target.value;
@@ -542,33 +571,31 @@ const Harmony = observer((props: Props): any => {
         }
     };
 
-    const checkEndVideoChat = async () =>{
-        if((MediaStreamSystem.instance?.audioPaused || MediaStreamSystem.instance?.camAudioProducer == null) && (MediaStreamSystem.instance?.videoPaused || MediaStreamSystem.instance?.camVideoProducer == null)) {
-            await endVideoChat({});
-            console.log('Leaving channel after video chat ended');
-            await leave(false);
-        }
-    };
     const handleMicClick = async (e: any) => {
         console.log('handleMicClick');
         e.stopPropagation();
-        const audioPaused = MediaStreamSystem.instance?.toggleAudioPaused();
-        if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer);
+        const msAudioPaused = MediaStreamSystem.instance?.toggleAudioPaused();
+        setAudioPaused(MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camAudioProducer == null || MediaStreamSystem.instance?.audioPaused === true);
+        if (msAudioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer);
         else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer);
+        updateCamAudioState();
     };
 
     const handleCamClick = async (e: any) => {
-        console.log('handleCamClick');
         e.stopPropagation();
-        const videoPaused = MediaStreamSystem.instance?.toggleVideoPaused();
-        if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer);
+        const msVideoPaused = MediaStreamSystem.instance?.toggleVideoPaused();
+        setVideoPaused(MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camVideoProducer == null || MediaStreamSystem.instance?.videoPaused === true);
+        if (msVideoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer);
         else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer);
+        updateCamVideoState();
     };
 
     const handleStartCall = async(e: any) => {
+        e.stopPropagation();
         console.log('handleStartCall');
         const channel = channels.get(targetChannelId);
         const channelType = channel.instanceId != null ? 'instance' : 'channel';
+        changeChannelTypeState(channelType, targetChannelId);
         await endVideoChat({});
         await leave(false);
         setActiveAVChannelId(targetChannelId);
@@ -577,23 +604,28 @@ const Harmony = observer((props: Props): any => {
             await checkMediaStream('instance');
             await createCamVideoProducer('instance');
             await createCamAudioProducer('instance');
+            updateCamVideoState();
+            updateCamAudioState();
         }
     }
 
     const handleEndCall = async(e: any) => {
         e.stopPropagation();
+        changeChannelTypeState('', '');
         await endVideoChat({});
         await leave(false);
         setActiveAVChannelId('');
+        updateCamVideoState();
+        updateCamAudioState();
     }
 
     const toggleAudio = async(channelId) => {
-        console.log('toggleAudio');
         await checkMediaStream('channel', channelId);
 
         if (MediaStreamSystem.instance?.camAudioProducer == null) await createCamAudioProducer('channel', channelId);
         else {
             const audioPaused = MediaStreamSystem.instance?.toggleAudioPaused();
+            setAudioPaused(MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camAudioProducer == null || MediaStreamSystem.instance?.audioPaused === true);
             if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer);
             else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer);
         }
@@ -604,15 +636,12 @@ const Harmony = observer((props: Props): any => {
         await checkMediaStream('channel', channelId);
         if (MediaStreamSystem.instance?.camVideoProducer == null) await createCamVideoProducer('channel', channelId);
         else {
-            console.log('toggleVideo where videoProducer exists');
             const videoPaused = MediaStreamSystem.instance?.toggleVideoPaused();
+            setVideoPaused(MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camVideoProducer == null || MediaStreamSystem.instance?.videoPaused === true);
             if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer);
             else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer);
         }
     };
-
-    const audioPaused = MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camAudioProducer == null || MediaStreamSystem.instance?.audioPaused === true;
-    const videoPaused = MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camVideoProducer == null || MediaStreamSystem.instance?.videoPaused === true;
 
     const openChat = (targetObjectType: string, targetObject: any): void => {
         setTimeout(() => {
@@ -749,7 +778,9 @@ const Harmony = observer((props: Props): any => {
             channelConnectionState.get('connected') === false
         ) {
             init().then(() => {
-                connectToChannelServer(channelConnectionState.get('channelId'));
+                connectToChannelServer(channelConnectionState.get('channelId'))
+                updateCamVideoState();
+                updateCamAudioState();
             });
         }
     }, [channelConnectionState]);
@@ -964,7 +995,7 @@ const Harmony = observer((props: Props): any => {
                 }
             </div>
             <div className={styles['chat-window']}>
-                { (targetChannelId?.length > 0 || MediaStreamSystem.instance.camVideoProducer != null || MediaStreamSystem.instance.camAudioProducer != null) && <header className={styles.mediaControls}>
+                { targetChannelId?.length > 0 && <header className={styles.mediaControls}>
                     { MediaStreamSystem.instance.camVideoProducer == null && MediaStreamSystem.instance.camAudioProducer == null &&
                         <div className={classNames({
                             [styles.iconContainer]: true,
@@ -973,7 +1004,7 @@ const Harmony = observer((props: Props): any => {
                             <Call/>
                         </div>
                     }
-                    { (MediaStreamSystem.instance.camVideoProducer != null || MediaStreamSystem.instance.camAudioProducer != null) &&
+                    { activeAVChannelId !== '' &&
                         <div className={styles.activeCallControls}>
                             <div className={classNames({
                                 [styles.iconContainer]: true,
@@ -992,13 +1023,13 @@ const Harmony = observer((props: Props): any => {
                         </div>
                     }
                 </header> }
-                { (MediaStreamSystem?.instance?.camVideoProducer != null || MediaStreamSystem?.instance?.camAudioProducer != null) && <div className={styles['video-container']}>
+                { activeAVChannelId !== '' && <div className={styles['video-container']}>
                     <div className={ styles['active-chat-plate']} >{ getAVChannelName() }</div>
                     <Grid className={ styles['party-user-container']} container direction="row">
                         <Grid item className={
                             classNames({
                                 [styles['grid-item']]: true,
-                                [styles.single]: layerUsers.length === 1,
+                                [styles.single]: layerUsers.length <= 1,
                                 [styles.two]: layerUsers.length === 2,
                                 [styles.four]: layerUsers.length === 3 && layerUsers.length === 4,
                                 [styles.six]: layerUsers.length === 5 && layerUsers.length === 6,
@@ -1017,7 +1048,7 @@ const Harmony = observer((props: Props): any => {
                                   className={
                                 classNames({
                                     [styles['grid-item']]: true,
-                                    [styles.single]: layerUsers.length === 1,
+                                    [styles.single]: layerUsers.length <= 1,
                                     [styles.two]: layerUsers.length === 2,
                                     [styles.four]: layerUsers.length === 3 && layerUsers.length === 4,
                                     [styles.six]: layerUsers.length === 5 && layerUsers.length === 6,
