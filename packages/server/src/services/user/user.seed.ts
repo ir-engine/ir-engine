@@ -1,8 +1,5 @@
 import config from '../../config';
-// import UserSettingsSeed from '../user-settings/user-settings.seed';
-import { v1 } from 'uuid';
 import { DEFAULT_AVATAR_ID } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
-
 
 export const seed = {
     count: 3,
@@ -20,7 +17,6 @@ export const seed = {
                 // partyId: '5678uhy789uijk',
                 createdAt: "2021-02-26 12:00:00",
                 updatedAt: "2021-02-26 12:00:00",
-                // userSettingsId: UserSettingsSeed.templates.find(template => template.id === '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61').id
             }
         ]
 };

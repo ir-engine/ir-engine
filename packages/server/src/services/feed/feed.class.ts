@@ -2,7 +2,7 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { Application } from '../../declarations';
 import { Paginated, Params } from "@feathersjs/feathers";
 import { QueryTypes } from "sequelize";
-import { Feed as IFeed, FeedShord as IFeedShort, FeedDatabaseRow } from '../../../../common/interfaces/Feed';
+import { Feed as FeedInterface, FeedShord as FeedShortInterface, FeedDatabaseRow } from '../../../../common/interfaces/Feed';
 import { extractLoggedInUserFromParams } from "../auth-management/auth-management.utils";
 
 /**
@@ -35,11 +35,12 @@ export class Feed extends Service {
 
     const feeds = await super.find({
       skip,
-      limit
+      limit,
+      order: [ [ 'createdAt', 'ASC' ] ]
     }) as Paginated<FeedDatabaseRow>;
 
     if (action === 'featured') {
-      const feedsResult: Paginated<IFeedShort> = {
+      const feedsResult: Paginated<FeedShortInterface> = {
         data: [],
         skip: feeds.skip,
         limit: feeds.limit,
@@ -48,7 +49,7 @@ export class Feed extends Service {
 
       // use promise here as we will later get preview from static_resources
       feedsResult.data = await Promise.all(feeds.data.map(async feed => {
-        const newFeed: IFeedShort = {
+        const newFeed: FeedShortInterface = {
           // isFired,
           id: feed.id,
           preview: "https://picsum.photos/375/210",
@@ -63,7 +64,7 @@ export class Feed extends Service {
 
     // regular feeds
 
-    const feedsResult: Paginated<IFeed> = {
+    const feedsResult: Paginated<FeedInterface> = {
       data: [],
       skip: feeds.skip,
       limit: feeds.limit,
@@ -87,7 +88,7 @@ export class Feed extends Service {
       // const loggedInUser = extractLoggedInUserFromParams(params);
       // const isFired = loggedInUser?.userId? !!feedFires.rows.find(ff => ff.authorId === loggedInUser.userId) : false;
 
-      const newFeed: IFeed = {
+      const newFeed: FeedInterface = {
         creator: { // TODO: get creator from corresponding table
           userId: user.id,
           id: user.id,
@@ -111,29 +112,5 @@ export class Feed extends Service {
     }));
 
     return feedsResult;
-  }
-
-  getFiresCount(feedId: number): Promise<number> {
-    return this.app
-      .get('sequelizeClient')
-      .models.feed_fires
-      .count({
-        where: {
-          feedId
-        }
-      });
-
-    // const countQuery = `SELECT COUNT(id) FROM \`user\` WHERE ${where}`;
-    // const dataQuery = `SELECT * FROM \`user\` WHERE ${where} LIMIT :skip, :limit`;
-    //
-    // return this.app.get('sequelizeClient').query(countQuery,
-    //   {
-    //     type: QueryTypes.SELECT,
-    //     raw: true,
-    //     replacements: {
-    //       userId,
-    //       search: `%${search}%`
-    //     }
-    //   });
   }
 }
