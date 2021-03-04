@@ -25,7 +25,8 @@ import {
   addedChannelLayerUser,
   addedLayerUser, clearChannelLayerUsers,
   clearLayerUsers, removedChannelLayerUser,
-  removedLayerUser
+  removedLayerUser,
+  displayUserToast,
 } from '../user/actions';
 import { client } from '../feathers';
 import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service';
@@ -564,8 +565,14 @@ client.service('user').on('patched', async (params) => {
     }
   } else {
     if (user.channelInstanceId != null && user.channelInstanceId === selfUser.channelInstanceId) store.dispatch(addedChannelLayerUser(user));
-    if (user.instanceId != null && user.instanceId === selfUser.instanceId) store.dispatch(addedLayerUser(user));
-    if (user.instanceId !== selfUser.instanceId) store.dispatch(removedLayerUser(user));
+    if (user.instanceId != null && user.instanceId === selfUser.instanceId) {
+      store.dispatch(addedLayerUser(user));
+      store.dispatch(displayUserToast(user, { userAdded: true }));
+    }
+    if (user.instanceId !== selfUser.instanceId) {
+      store.dispatch(removedLayerUser(user));
+      store.dispatch(displayUserToast(user, { userRemoved: true }));
+    }
     if (user.channelInstanceId !== selfUser.channelInstanceId) store.dispatch(removedChannelLayerUser(user));
   }
 });
