@@ -855,10 +855,6 @@ public class XRPlugin extends Plugin {
         this.callbackContext = callbackContext;
 
         Log.d(TAG, callbackContext.toString());
-<<<<<<< HEAD
-=======
-        isAudio = callbackContext.getBoolean("isAudio");
->>>>>>> 8822c4a24... add mobile changes
         width = callbackContext.getInt("width");
         height = callbackContext.getInt("height");
         bitRate = callbackContext.getInt("bitRate");
