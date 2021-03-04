@@ -25,7 +25,7 @@ export default function (app: Application): typeof Model {
       type: DataTypes.TEXT,
       allowNull: false
     },
-    viewCount: {
+    viewsCount: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0
@@ -35,16 +35,6 @@ export default function (app: Application): typeof Model {
       allowNull: false,
       defaultValue: false
     }
-    // feedFire: {
-    //   type: DataTypes.INTEGER,
-    //   allowNull: false,
-    //   defaultValue: 0
-    // },
-    // feedBookmark: {
-    //   type: DataTypes.INTEGER,
-    //   allowNull: false,
-    //   defaultValue: 0
-    // }
   }, {
     hooks: {
       beforeCount(options: any): HookReturn {
