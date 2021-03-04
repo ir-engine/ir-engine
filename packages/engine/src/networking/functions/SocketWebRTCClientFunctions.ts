@@ -2,6 +2,7 @@ import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "@xr3ngine/engine/src/networking/c
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
 import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
 import { DataProducer, Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
+import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { Network } from "../classes/Network";
 
 let networkTransport: any;
@@ -440,7 +441,7 @@ export async function leave(instance: boolean): Promise<boolean> {
                 // close everything on the server-side (transports, producers, consumers)
                 const result = await request(MessageTypes.LeaveWorld.toString());
                 if (result.error) console.error(result.error);
-                window.dispatchEvent(new CustomEvent('leaveWorld'));
+                EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LEAVE_WORLD })
             }
 
             networkTransport.leaving = false;

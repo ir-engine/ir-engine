@@ -271,6 +271,7 @@ export function hasAnyComponents(entity: Entity, Components: Array<ComponentCons
 export function createEntity(): Entity {
   const entity = Engine.entityPool.acquire();
   Engine.entities.push(entity);
+  Engine.entityMap.set(String(entity.id), entity);
   Engine.eventDispatcher.dispatchEvent(ENTITY_CREATED, entity);
   return entity;
 }
@@ -300,6 +301,7 @@ export function removeEntity(entity: Entity, immediately?: boolean): void {
     }
     if (immediately) {
       Engine.entities.splice(index, 1);
+      Engine.entityMap.delete(String(entity.id));
       Engine.entityPool.release(entity);
     } else {
       Engine.entitiesToRemove.push(entity);
@@ -351,4 +353,14 @@ export function getComponent<C extends Component<C>>(
   }
 
   return process.env.NODE_ENV !== 'production' ? wrapImmutableComponent(_component) : <C>_component;
+}
+
+/**
+ * Get an entity by it's locally assigned unique ID
+ * 
+ * @param id
+ * @returns Entity.
+ */
+export function getEntityByID(id: number): Entity {
+  return Engine.entityMap.get(String(id));
 }

@@ -1,6 +1,6 @@
 import { AssetLoader } from '../../assets/components/AssetLoader';
 import { isClient } from "../../common/functions/isClient";
-import { Engine } from '../../ecs/classes/Engine';
+import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { Entity } from "../../ecs/classes/Entity";
 import { addComponent, createEntity, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { SceneTagComponent } from '../components/Object3DTagComponents';
@@ -12,10 +12,9 @@ export function loadScene(scene: SceneData): void {
   const loadPromises = [];
   let loaded = 0;
   if (isClient) {
-    console.warn(Engine.scene);
-    console.warn(scene);
-    const event = new CustomEvent('scene-loaded-entity', { detail: { left: loadPromises.length } });
-    document.dispatchEvent(event);
+    // console.warn(Engine.scene);
+    // console.warn(scene);
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_LOADED, left: loadPromises.length });
   }
   Object.keys(scene.entities).forEach(key => {
     const sceneEntity = scene.entities[key];
@@ -26,13 +25,13 @@ export function loadScene(scene: SceneData): void {
       if (isClient && component.name === 'gltf-model') {
         const loaderComponent = getMutableComponent(entity, AssetLoader);
         loaderComponent.entityIdFromScenaLoader = sceneEntity;
-        loadPromises.push(new Promise((resolve, reject) => {
+        loadPromises.push(new Promise<void>((resolve, reject) => {
           if (loaderComponent.onLoaded === null || loaderComponent.onLoaded === undefined) {
           }
           loaderComponent.onLoaded.push(() => {
             loaded++;
-            const event = new CustomEvent('scene-loaded-entity', { detail: { left: (loadPromises.length - loaded) } });
-            document.dispatchEvent(event);
+            resolve()
+            EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_LOADED, left: (loadPromises.length - loaded) });
           });
         }));
       } else if (!isClient && component.name === 'gltf-model') {
@@ -44,8 +43,7 @@ export function loadScene(scene: SceneData): void {
   //PhysicsSystem.simulate = true;
 
   isClient && Promise.all(loadPromises).then(() => {
-    const event = new CustomEvent('scene-loaded', { detail: { loaded: true } });
-    document.dispatchEvent(event);
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED, loaded: true });
   });
 }
 
