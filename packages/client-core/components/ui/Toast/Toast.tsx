@@ -1,90 +1,48 @@
-import React, { useEffect, useState } from 'react';
-import Snackbar from '@material-ui/core/Snackbar';
-import { CheckCircleOutline, ErrorOutline, WarningOutlined } from '@material-ui/icons';
-import { makeStyles } from '@material-ui/core/styles';
+import React from 'react';
+// @ts-ignore
+import styles from './toast.module.scss';
 
-const useStyles = makeStyles({
-  root: {
-    backgroundColor: "#ffffff",
-    minWidth: "20%",
-    padding: "1px",
-    display: "unset",
-    borderRadius: "5px"
-  },
-  filledWarning: {
-    backgroundColor: "#FFD600",
-  },
-  anchorOriginTopRight: {
-    justifyContent: "flex-start"
-  }
-});
-
-export const Toast = (props) => {
-  const classes = useStyles();
-  const [open, setOpen] = useState(false);
-
-
-  useEffect(() => {
-    setOpen(true);
-  }, []);
-
-  const handleClose = (event?: React.SyntheticEvent, reason?: string) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-
-    setOpen(false);
+const Toast = ({
+  messages = [],
+  showAction = false,
+  autoHideDuration = 3000,
+  insertDirection = "top",
+  maxMessagesToShow = 4,
+  customClass = '',
+}) => {
+  const renderMessage = (m, index) => {
+    const style =
+      autoHideDuration > 0
+        ? { animationDelay: `0s, ${autoHideDuration}ms, ${autoHideDuration}ms` }
+        : autoHideDuration === 0
+        ? { animationDelay: `0s, 9999999999s, 9999999999s` }
+        : {};
+    return (
+      <div className={styles.toastMessageContainer} key={index} style={style}>
+        <div className={styles.toastMessage}>{m}</div>
+        {showAction && <button className={styles.toastAction}>X</button>}
+      </div>
+    );
   };
 
-  return (
-    <>
-      {
-        <Snackbar
-          className={`${classes.root} ${classes.anchorOriginTopRight}`}
-          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-          open={open}
-          autoHideDuration={8000} 
-          onClose={handleClose}
-        >
-
-
-          <div className="row">
-            {props.status === "success" &&
-              <div className="col-lg-3" style={{ background: "#1ED700", marginLeft: "15px" }}>
-                <CheckCircleOutline style={{ fontSize: "4rem" }} />
-              </div>
-            }
-            {
-              props.status === "error" &&
-              <div className="col-lg-3" style={{ background: "#D70000", marginLeft: "15px" }}>
-                <ErrorOutline style={{ fontSize: "4rem" }} />
-              </div>
-
-            }
-            {
-              props.status === "warning" &&
-              <div className="col-lg-3" style={{ background: "#FFD600",  marginLeft: "15px" }}>
-                <WarningOutlined style={{ fontSize: "4rem" }} />
-              </div>
-            }
-            <div className="col-lg-8" style={{ background: "#ffffff", padding: "5px", paddingLeft: "10px"}}>
-              {
-                props.status === "success" &&
-                <h5 className="card-title text-dark font-weight-bold mt-2"> Event was successful</h5>
-              }
-              {
-                props.status === "error" &&
-                <h5 className="card-title text-dark font-weight-bold mt-2"> An error was encountered.</h5>
-              }
-              {
-                props.status === "warning" &&
-                <h5 className="card-title text-dark font-weight-bold mt-2"> Evet in progress</h5>
-              }
-              <p className="card-text text-dark">{props.message}</p>
-            </div>
-          </div>
-        </Snackbar>
+  const renderToasts = () => {
+    const msgs = [];
+    if (insertDirection.toLowerCase() === "top") {
+      const limit = Math.max(messages.length - maxMessagesToShow, 0);
+      for (let i = messages.length - 1; i >= limit; i--) {
+        msgs.push(renderMessage(messages[i], i));
       }
-    </>
-  )
-}
+    } else {
+      const start = Math.max(messages.length - maxMessagesToShow, 0);
+      for (let i = start; i < messages.length; i++) {
+        msgs.push(renderMessage(messages[i], i));
+      }
+    }
+
+    return msgs;
+  };
+  return <div className={styles.toastContainer + ' ' + (customClass || '')}>{renderToasts()}</div>;
+};
+
+export default Toast;
+

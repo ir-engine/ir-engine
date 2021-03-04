@@ -24,7 +24,7 @@ import { Forum, FullscreenExit, People } from '@material-ui/icons';
 import Harmony from "../Harmony";
 //@ts-ignore
 import styles from './Layout.module.scss';
-import { Toast } from "../Toast/Toast";
+import UserToast from "../Toast/UserToast";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import { Expand } from '../Icons/Expand';
 
@@ -154,6 +154,7 @@ const Layout = (props: Props): any => {
                         <PartyVideoWindows />
                       </section> : null}
                     <button type="button" className={styles.expandMenu + ' ' + (expanded ? styles.expanded : '')} onClick={toggleExpanded}><People /></button>
+                    <UserToast />
                   </>
                 ) : null}
             </header>
@@ -195,12 +196,6 @@ const Layout = (props: Props): any => {
                   <FullscreenExit style={{ fontSize: "4rem" }} />
                 </span>
               }
-
-              {// use this Module when you want toast message and pass type of alter you want 
-              }
-              {/*<Toast message="this is a success message!" status="success" />*/}
-              {/* <Toast message="this is an error message!" status="error"/> */}
-              {/* <Toast message="this is a warning message!" status="warning"/> */}
             </footer>
           </section>
         </ThemeProvider>
