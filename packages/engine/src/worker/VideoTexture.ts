@@ -5,15 +5,15 @@ import {
   TextureDataType,
   TextureFilter,
   TextureEncoding,
-  DataTexture,
+  CanvasTexture,
   Wrapping,
-  VideoTexture as THREE_VideoTexture
+  VideoTexture as THREE_VideoTexture,
 } from 'three';
-import { isWebWorker } from '../common/functions/getEnvironment';
 
+import { isWebWorker } from '../common/functions/getEnvironment';
 import type { VideoDocumentElementProxy } from './MessageQueue';
 
-class VideoTextureProxy extends DataTexture {
+class VideoTextureProxy extends CanvasTexture {
   isVideoTexture = true;
   videoProxy: VideoDocumentElementProxy;
   constructor(
@@ -25,24 +25,19 @@ class VideoTextureProxy extends DataTexture {
     minFilter?: TextureFilter,
     type?: TextureDataType,
     anisotropy?: number,
-    encoding?: TextureEncoding,
   ) {
     super(
-      /** @ts-ignore */
+      // @ts-ignore
       videoProxy.video,
-      /** @ts-ignore */
-      videoProxy.video.width,
-      /** @ts-ignore */
-      videoProxy.video.height,
-      RGBAFormat,
       mapping,
       wrapS,
       wrapT,
       magFilter,
       minFilter,
+      RGBAFormat,
       type,
       anisotropy,
-      encoding,
+      // encoding,
     );
     this.videoProxy = videoProxy;
     this.minFilter = minFilter !== undefined ? minFilter : LinearFilter;
@@ -51,13 +46,13 @@ class VideoTextureProxy extends DataTexture {
     this.flipY = true;
 
     const updateVideo = () => {
-      this.image = this.videoProxy.video as ImageData;
+      this.image = this.videoProxy.video;
       this.needsUpdate = true;
-      videoProxy.requestVideoFrameCallback(updateVideo);
+      videoProxy._requestVideoFrameCallback(updateVideo);
     };
 
-    if ('requestVideoFrameCallback' in videoProxy) {
-      videoProxy.requestVideoFrameCallback(updateVideo);
+    if ('_requestVideoFrameCallback' in videoProxy) {
+      videoProxy._requestVideoFrameCallback(updateVideo);
     }
   }
   clone(): VideoTextureProxy {
@@ -66,10 +61,10 @@ class VideoTextureProxy extends DataTexture {
 
   update() {
     if (
-      !this.videoProxy.requestVideoFrameCallback &&
+      !this.videoProxy._requestVideoFrameCallback &&
       this.videoProxy.readyState >= 2
     ) {
-      this.image = this.videoProxy.video as ImageData;
+      this.image = this.videoProxy.video;
       this.needsUpdate = true;
     }
   }
