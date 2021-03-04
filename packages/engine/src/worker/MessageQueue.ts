@@ -60,6 +60,11 @@ function simplifyObject(object: any): any {
  */
 function fixDocumentEvent(event: any) {
   const obj = simplifyObject(event);
+  // touches are broken still
+  // just do what i wrote above ok
+  if(obj.changedTouches?.length) for(let touch of obj.changedTouches) { console.log(touch); touch.target = 'canvas' };
+  if(obj.targetTouches?.length)  for(let touch of obj.targetTouches) { console.log(touch); touch.target = 'canvas' };
+  if(obj.touches?.length) for(let touch of obj.touches) { console.log(touch); touch.target = 'canvas' };
   switch(obj.srcElement) {
     case (window as any): obj.targetElement = 'window'; break;
     case (document as any): obj.targetElement = 'document'; break;
@@ -314,42 +319,44 @@ class DocumentElementProxy extends EventDispatcherProxy {
     type,
     remoteCalls,
     eventTarget,
+    elementArgs,
   }: {
     messageQueue: MessageQueue;
     type: string;
     remoteCalls?: string[];
     eventTarget?: EventTarget;
+    elementArgs?: any,
   }) {
     super({
       eventTarget: eventTarget || messageQueue.eventTarget,
-      eventListener: (args: any) => {
+      eventListener: (listenerArgs: any) => {
         this.messageQueue.queue.push({
           messageType: MessageType.EVENT,
-          message: simplifyObject(args),
+          message: simplifyObject(listenerArgs),
         } as Message);
       },
-      getset: {
-        get(target: any, name: any, receiver: any) {
-          if (!Reflect.has(target, name)) {
-            return undefined;
-          }
-          return Reflect.get(target, name, receiver);
-        },
-        set(target: any, name: any, value: any, receiver: any) {
-          const props = Reflect.get(target, 'transferedProps') as string[];
-          if (props?.includes(name)) {
-            Reflect.get(target, 'messageQueue').queue.push({
-              messageType: MessageType.DOCUMENT_ELEMENT_PARAM_SET,
-              message: {
-                param: name,
-                uuid: Reflect.get(target, 'uuid'),
-                arg: value,
-              },
-            } as Message);
-          }
-          return Reflect.set(target, name, value, receiver);
-        },
-      },
+      // getset: {
+      //   get(target: any, name: any, receiver: any) {
+      //     if (!Reflect.has(target, name)) {
+      //       return undefined;
+      //     }
+      //     return Reflect.get(target, name, receiver);
+      //   },
+      //   set(target: any, name: any, value: any, receiver: any) {
+      //     const props = Reflect.get(target, 'transferedProps') as string[];
+      //     if (props?.includes(name)) {
+      //       Reflect.get(target, 'messageQueue').queue.push({
+      //         messageType: MessageType.DOCUMENT_ELEMENT_PARAM_SET,
+      //         message: {
+      //           param: name,
+      //           uuid: Reflect.get(target, 'uuid'),
+      //           arg: value,
+      //         },
+      //       } as Message);
+      //     }
+      //     return Reflect.set(target, name, value, receiver);
+      //   },
+      // },
     });
     this.remoteCalls = remoteCalls || [];
     for (const call of this.remoteCalls) {
@@ -375,6 +382,7 @@ class DocumentElementProxy extends EventDispatcherProxy {
       message: {
         type,
         uuid: this.uuid,
+        elementArgs,
       },
     } as Message);
   }
@@ -424,15 +432,18 @@ class AudioDocumentElementProxy extends DocumentElementProxy {
     messageQueue,
     type = 'audio',
     remoteCalls = [],
+    elementArgs,
   }: {
     messageQueue: MessageQueue;
     type?: string;
     remoteCalls?: string[];
+    elementArgs?: any,
   }) {
     super({
       messageQueue,
       type,
       remoteCalls: [...remoteCalls, ...audioRemoteFunctionCalls],
+      elementArgs,
     });
     this.transferedProps.push(...audioRemoteProps);
   }
@@ -443,50 +454,57 @@ const videoRemoteProps: string[] = [];
 
 export class VideoDocumentElementProxy extends AudioDocumentElementProxy {
   frameCallback: any;
+  _frameCallback: any;
   width: number;
   height: number;
-  video: ImageData | null;
+  video: OffscreenCanvas;
   readyState: number;
+  currentTime: number;
 
-  constructor({ messageQueue }: { messageQueue: MessageQueue }) {
+  constructor({ messageQueue, elementArgs }: { messageQueue: MessageQueue, elementArgs?: any }) {
     super({
       messageQueue,
       type: 'video',
       remoteCalls: [],
+      elementArgs,
     });
-    this.video = null;
+    this.video = new OffscreenCanvas(0, 0);
     this.width = 0;
     this.height = 0;
     this.readyState = 0;
+    this.currentTime = 0;
     this.messageTypeFunctions.set(
       MessageType.VIDEO_ELEMENT_CREATE,
       ({ width, height }: { width: number; height: number }) => {
         this.width = width;
         this.height = height;
-        this.video = new ImageData(
-          new Uint8ClampedArray(4 * this.width * this.height).fill(0),
-          this.width,
-          this.height,
-        );
+        this.video.width = width;
+        this.video.height = height;
       },
     );
     this.messageTypeFunctions.set(
       MessageType.VIDEO_ELEMENT_FRAME,
       ({
-        imageBuffer,
+        imageBitmap,
         readyState,
+        currentTime,
+        metaData,
+        now,
       }: {
-        imageBuffer: ArrayBuffer;
-        readyState: number;
+        imageBitmap: ImageBitmap,
+        readyState: number,
+        currentTime: number,
+        metaData: any,
+        now: any,
       }) => {
-        this.video = new ImageData(
-          new Uint8ClampedArray(imageBuffer),
-          this.width,
-          this.height,
-        );
+        this.video.getContext('2d').drawImage(imageBitmap, 0, 0);
+        this.currentTime = currentTime;
         this.readyState = readyState;
         if (this.frameCallback) {
-          this.frameCallback();
+          this.frameCallback(now, metaData);
+        }
+        if (this._frameCallback) {
+          this._frameCallback(now, metaData);
         }
       },
     );
@@ -495,6 +513,9 @@ export class VideoDocumentElementProxy extends AudioDocumentElementProxy {
   }
   requestVideoFrameCallback(callback: any) {
     this.frameCallback = callback;
+  }
+  _requestVideoFrameCallback(callback: any) {
+    this._frameCallback = callback;
   }
 }
 class Object3DProxy extends Object3D {
@@ -767,24 +788,25 @@ export async function createWorker(
   );
   messageQueue.messageTypeFunctions.set(
     MessageType.DOCUMENT_ELEMENT_CREATE,
-    ({ type, uuid }: { type: string; uuid: string }) => {
+    ({ type, uuid, elementArgs }: { type: string; uuid: string, elementArgs: any }) => {
       switch (type) {
         case 'window': documentElementMap.set(uuid, (window as any)); break;
         case 'document': documentElementMap.set(uuid, (document as any)); break;
         case 'canvas': documentElementMap.set(uuid, canvas); break;
         case 'audio':
           const audio = document.createElement('audio') as HTMLVideoElement;
+          elementArgs !== undefined && applyElementArguments(audio, elementArgs);
           documentElementMap.set(uuid, audio);
           break;
         case 'video':
           const video = document.createElement('video') as HTMLVideoElement;
+          elementArgs !== undefined && applyElementArguments(video, elementArgs);
           documentElementMap.set(uuid, video);
           video.onplay = (ev: any) => {
-            const drawCanvas = document.createElement(
-              'canvas',
-            ) as HTMLCanvasElement;
-            drawCanvas.width = video.videoWidth;
-            drawCanvas.height = video.videoHeight;
+            const drawCanvas = new OffscreenCanvas(
+              video.videoWidth,
+              video.videoHeight
+            );
             const context = drawCanvas.getContext('2d');
             messageQueue.queue.push({
               messageType: MessageType.VIDEO_ELEMENT_CREATE,
@@ -795,25 +817,21 @@ export async function createWorker(
               },
             } as Message);
 
-            const sendFrame = async () => {
-              context?.drawImage(video, 0, 0);
-              const imageBuffer = context?.getImageData(
-                0,
-                0,
-                video.videoWidth,
-                video.videoHeight,
-              ).data.buffer;
-              if (imageBuffer) {
-                messageQueue.queue.push({
-                  messageType: MessageType.VIDEO_ELEMENT_FRAME,
-                  message: {
-                    imageBuffer,
-                    readyState: video.readyState,
-                    returnID: uuid,
-                  },
-                  transferables: [imageBuffer],
-                } as Message);
-              }
+            const sendFrame = (now, metaData) => {
+              context.drawImage(video, 0, 0);
+              const imageBitmap = drawCanvas.transferToImageBitmap();
+              messageQueue.queue.push({
+                messageType: MessageType.VIDEO_ELEMENT_FRAME,
+                message: {
+                  imageBitmap,
+                  readyState: video.readyState,
+                  returnID: uuid,
+                  currentTime: video.currentTime,
+                  now,
+                  metaData,
+                },
+                transferables: [imageBitmap],
+              } as Message);
               /** @ts-ignore */
               video.requestVideoFrameCallback(sendFrame);
             };
@@ -978,6 +996,15 @@ export async function createWorker(
   return messageQueue;
 }
 
+
+export const applyElementArguments = (el: any, args: any) => {
+  Object.entries(args).forEach((entry: any) => {
+    const [key, value] = entry;
+    el[key] = value;
+  });
+  console.log(el, args)
+  return el;
+}
 class WindowProxy extends DocumentElementProxy {
   constructor({
     messageQueue,
@@ -996,30 +1023,14 @@ class WindowProxy extends DocumentElementProxy {
     // this.transferedProps.push();
   }
   focus: () => {}
-  get ownerDocument() {
-    return (globalThis as any).document;
-  }
-  get width() {
-    return this.messageQueue.width;
-  }
-  get height() {
-    return this.messageQueue.height;
-  }
-  get clientWidth() {
-    return this.messageQueue.width;
-  }
-  get clientHeight() {
-    return this.messageQueue.height;
-  }
-  get innerWidth() {
-    return this.messageQueue.width;
-  }
-  get innerHeight() {
-    return this.messageQueue.height;
-  }
-  get devicePixelRatio() {
-    return this.messageQueue.devicePixelRatio;
-  }
+  get ownerDocument() { return (globalThis as any).document; }
+  get width() { return this.messageQueue.width; }
+  get height() { return this.messageQueue.height; }
+  get clientWidth() { return this.messageQueue.width; }
+  get clientHeight() { return this.messageQueue.height; }
+  get innerWidth() { return this.messageQueue.width; }
+  get innerHeight() { return this.messageQueue.height; }
+  get devicePixelRatio() { return this.messageQueue.devicePixelRatio; }
 }
 
 class DocumentProxy extends DocumentElementProxy {
@@ -1042,12 +1053,12 @@ class DocumentProxy extends DocumentElementProxy {
   get ownerDocument() {
     return (globalThis as any).document
   }
-  createElement(type: string): DocumentElementProxy | null {
+  createElement(type: string, elementArgs: any): DocumentElementProxy | null {
     switch (type) {
       case 'audio':
-        return new AudioDocumentElementProxy({ messageQueue: this.messageQueue });
+        return new AudioDocumentElementProxy({ messageQueue: this.messageQueue, elementArgs });
       case 'video':
-        return new VideoDocumentElementProxy({ messageQueue: this.messageQueue });
+        return new VideoDocumentElementProxy({ messageQueue: this.messageQueue, elementArgs });
       default:
         return null;
     }
