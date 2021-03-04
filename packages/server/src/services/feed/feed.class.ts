@@ -10,6 +10,7 @@ import { extractLoggedInUserFromParams } from "../auth-management/auth-managemen
  */
 export class Feed extends Service {
   app: Application
+  docs: any
 
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options);
@@ -33,10 +34,11 @@ export class Feed extends Service {
       user:userModel
     } = this.app.get('sequelizeClient').models;
 
+    // const feeds = this.app.service('feed').Model.findAndCountAll({
     const feeds = await super.find({
       skip,
       limit,
-      order: [ [ 'createdAt', 'ASC' ] ]
+      // order: [ [ 'createdAt', 'ASC' ] ] // order not used in find?
     }) as Paginated<FeedDatabaseRow>;
 
     if (action === 'featured') {
