@@ -1,4 +1,5 @@
 import { Object3D, Audio, PositionalAudio } from "three";
+import { Engine } from "../../ecs/classes/Engine";
 import { RethrownError } from "../../editor/functions/errors";
 
 export const AudioType = {
@@ -28,11 +29,12 @@ export default class AudioSource extends Object3D {
   audioSource: any;
   constructor(audioListener, elTag = "audio") {
     super();
-    const el = document.createElement(elTag) as any;
-    el.setAttribute("playsinline", "");
-    el.setAttribute("webkit-playsinline", "");
-    el["crossOrigin"] = "anonymous";
-    el["loop"] = true;
+    const el = Engine.createElement(elTag, {
+      crossorigin: 'anonymous',
+      loop: true,
+      playsinline: '',
+      'webkit-playsinline': '',
+    }) as any;
     this.el = el;
     this._src = "";
     this.audioListener = audioListener;

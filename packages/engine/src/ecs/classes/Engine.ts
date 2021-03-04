@@ -12,6 +12,7 @@ import { Entity } from './Entity';
 import { EntityPool } from './EntityPool';
 import { EntityEventDispatcher } from './EntityEventDispatcher';
 import { Query } from './Query';
+import { createElement } from '../functions/createElement';
 
 /**
  * This is the base class which holds all the data related to the scene, camera,system etc.\
@@ -190,4 +191,6 @@ export class Engine {
   static viewportElement: HTMLElement;
 
   static spawnSystem: ServerSpawnSystem;
+
+  static createElement: any = createElement;
 }
