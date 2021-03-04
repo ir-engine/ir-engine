@@ -15,6 +15,8 @@ import {
 } from './Interfaces';
 import RingBuffer from './RingBuffer';
 import { VideoTexture } from '@xr3ngine/engine/src/worker/VideoTexture'
+import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
+import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 export default class DracosisPlayer {
   // Public Fields
   public frameRate = 30;
@@ -78,27 +80,22 @@ export default class DracosisPlayer {
     keyframesToBufferBeforeStart = 200
   }) {
 
-    // const dataObj = '(' + workerFunction + ')();'; // here is the trick to convert the above fucntion to string
-    // const blob = new Blob([dataObj.replace('"use strict";', '')], { type: 'application/javascript' }); // firefox adds "use strict"; to any function which might block worker execution so knock it off
-
-    // const blobURL = (window.URL ? URL : webkitURL).createObjectURL(blob);
-
     const worker = new Worker(new URL('./workerFunction.ts', import.meta.url)); // spawn new worker
     this._worker = worker;
 
     const handleFrameData = (frameData) => {
-              let geometry = new BufferGeometry();
-              geometry.setIndex(
-                new Uint32BufferAttribute(frameData.keyframeBufferObject.bufferGeometry.index, 1)
-              );
-              geometry.setAttribute(
-                'position',
-                new Float32BufferAttribute(frameData.keyframeBufferObject.bufferGeometry.position, 3)
-              );
-              geometry.setAttribute(
-                'uv',
-                new Float32BufferAttribute(frameData.keyframeBufferObject.bufferGeometry.uv, 2)
-              );
+      let geometry = new BufferGeometry();
+      geometry.setIndex(
+        new Uint32BufferAttribute(frameData.keyframeBufferObject.bufferGeometry.index, 1)
+      );
+      geometry.setAttribute(
+        'position',
+        new Float32BufferAttribute(frameData.keyframeBufferObject.bufferGeometry.position, 3)
+      );
+      geometry.setAttribute(
+        'uv',
+        new Float32BufferAttribute(frameData.keyframeBufferObject.bufferGeometry.uv, 2)
+      );
 
       this.meshBuffer.add({ ...frameData.keyframeBufferObject, bufferGeometry: geometry });
       // if(frameData.iframeBufferObjects) frameData.iframeBufferObjects.forEach(obj => {
@@ -106,21 +103,21 @@ export default class DracosisPlayer {
       // })
     }
 
-    worker.onmessage = function (e) {
-      switch(e.data.type){
+    worker.onmessage = (e) => {
+      switch (e.data.type) {
         case 'initialized':
           console.log("Worker initialized");
           break;
         case 'framedata':
-          console.log("Frame data received");
+          // console.log("Frame data received");
           handleFrameData(e.data.payload);
           break;
-          case 'completed':
-            console.log("Worker complete!");
-            break;
+        case 'completed':
+          // console.log("Worker complete!");
+          break;
 
       }
-      console.log('Worker said: ', e.data); // message received from worker
+      // console.log('Worker said: ', e.data); // message received from worker
     };
 
     this.keyframesToBufferBeforeStart = keyframesToBufferBeforeStart;
@@ -131,28 +128,27 @@ export default class DracosisPlayer {
     this.manifestFilePath = meshFilePath.replace('drcs', 'manifest');
     this._loop = loop;
     this._scale = scale;
-    this._video = document.createElement('video');
-    this._video.crossorigin = "anonymous";
-    this._video.loop = true;
-    this._video.style.position = 'fixed';
-    this._video.style.zIndex = '-1';
-    this._video.style.top = '0';
-    this._video.style.left = '0';
-    this._video.style.width = '1px';
+    this._video = Engine.createElement('video', {
+      crossorigin: "anonymous",
+      loop: true,
+      src: videoFilePath,
+      style: {
+        position: 'fixed',
+        zIndex: '-1',
+        top: '0',
+        left: '0',
+        width: '1px'
+      },
+      playbackRate: 1
+    });
 
-    this._video.src = videoFilePath;
     this._videoTexture = new VideoTexture(this._video);
-    this._videoTexture.crossorigin = "anonymous";
     this._videoTexture.encoding = sRGBEncoding;
     this.frameRate = frameRate;
 
-    // Add video to dom and bind the upgdate handler to playback
-    document.body.appendChild(this._video);
+    this.videoUpdateHandler = this.videoUpdateHandler.bind(this)
 
-    this._video.playbackRate = 1
-    ;
-    this._video.requestVideoFrameCallback(this.videoUpdateHandler.bind(this));
-    console.log("**** requestVideoFrameCallback")
+    this._video.requestVideoFrameCallback(this.videoUpdateHandler);
     // Create a default mesh
     this.material = new MeshBasicMaterial({ map: this._videoTexture });
     this.mesh = new Mesh(new PlaneBufferGeometry(0.00001, 0.00001), this.material);
@@ -169,7 +165,6 @@ export default class DracosisPlayer {
       const numberOfIframes = this.fileHeader.frameData.filter(frame => frame.keyframeNumber !== frame.frameNumber).length;
       const numberOfKeyframes = this.fileHeader.frameData.filter(frame => frame.keyframeNumber === frame.frameNumber).length;
 
-
       this.numberOfIframes = numberOfIframes;
       this.numberOfKeyframes = numberOfKeyframes;
 
@@ -177,21 +172,15 @@ export default class DracosisPlayer {
       this.iframeVertexBuffer = new RingBuffer(numberOfIframes);
 
       if (autoplay) {
-        console.log("******* INITIALIZE")
-        // Create an event listener that removed itself on input
-        const eventListener = () => {
-          console.log("******* PLAY")
-
-          // If we haven't inited yet, notify that we have, autoplay content and remove the event listener
-          // this.play();
-          document.body.removeEventListener("mousedown", eventListener);
+        const onUserEngage = () => {
+          this.play();
+          EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
         }
-        document.body.addEventListener("mousedown", eventListener)
+        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
       }
-      worker.postMessage({ type: "initialize", payload: { meshFilePath, numberOfKeyframes: this.numberOfKeyframes, fileHeader: this.fileHeader } }); // Send data to our worker.
 
+      worker.postMessage({ type: "initialize", payload: { meshFilePath, numberOfKeyframes: this.numberOfKeyframes, fileHeader: this.fileHeader } }); // Send data to our worker.
       this._isinitialized = true;
-      console.log("Is inited")
     };
 
     xhr.open('GET', this.manifestFilePath, true); // true for asynchronous
@@ -199,60 +188,56 @@ export default class DracosisPlayer {
   }
 
   videoUpdateHandler(now, metadata) {
-    console.log("videoUpdateHandler")
     if (!this._isinitialized) return console.warn("Not inited");
-    let frameToPlay = Math.round(metadata.mediaTime*25);
-    console.log("FRame to play is", frameToPlay)
+    let frameToPlay = Math.round(metadata.mediaTime * 25);
     const keyframeToPlay = this.fileHeader.frameData[frameToPlay].keyframeNumber;
 
-    if(Math.round(this._video.currentTime * 25) !== metadata.presentedFrames)
-      console.log('==========DIFF',Math.round(this._video.currentTime*25), Math.round(metadata.mediaTime*25), metadata.presentedFrames,metadata);
+    // if (Math.round(this._video.currentTime * 25) !== metadata.presentedFrames)
+    //   console.log('==========DIFF', Math.round(this._video.currentTime * 25), Math.round(metadata.mediaTime * 25), metadata.presentedFrames, metadata);
 
-      let hasKeyframe = true;
+    let hasKeyframe = true;
 
     if (hasKeyframe && frameToPlay !== this._prevFrame) {
       this._prevFrame = frameToPlay;
 
 
       const isNewKeyframe = keyframeToPlay !== this.currentKeyframe;
-      console.log("Looped frame to play is: ", frameToPlay, "| Current keyframe is: ", this.currentKeyframe, "| Requested Keyframe is: ", keyframeToPlay, "|Is new?", isNewKeyframe);
+      // console.log("Looped frame to play is: ", frameToPlay, "| Current keyframe is: ", this.currentKeyframe, "| Requested Keyframe is: ", keyframeToPlay, "|Is new?", isNewKeyframe);
 
       // console.log("Looped frame to play is", loopedFrameToPlay, "| Keyframe to play is", keyframeToPlay, "|Is new keyframe?", newKeyframe);
 
-        if (isNewKeyframe) {
-          this.currentKeyframe = keyframeToPlay;
+      if (isNewKeyframe) {
+        this.currentKeyframe = keyframeToPlay;
+        // console.log("***** Keyframe to play")
+        // console.log("Mesh buffer length is, ", this.meshBuffer.getBufferLength());
 
-          console.log("***** Keyframe to play")
+        // If keyframe changed, set mesh buffer to new keyframe
+        const meshBufferPosition = this.getPositionInKeyframeBuffer(keyframeToPlay);
 
-          console.log("Mesh buffer length is, ", this.meshBuffer.getBufferLength());
+        // console.log("Mesh buffer position is: ", meshBufferPosition);
 
-          // If keyframe changed, set mesh buffer to new keyframe
-          const meshBufferPosition = this.getPositionInKeyframeBuffer(keyframeToPlay);
+        this.mesh.geometry = this.meshBuffer.get(meshBufferPosition).bufferGeometry as BufferGeometry;
 
-          console.log("Mesh buffer position is: ", meshBufferPosition);
-
-            this.mesh.geometry = this.meshBuffer.get(meshBufferPosition).bufferGeometry as BufferGeometry;
-
-        }
-        else {
-            const vertexBufferPosition = this.getPositionInIFrameBuffer(frameToPlay);
-            if (this.iframeVertexBuffer.get(vertexBufferPosition) !== undefined) {
-              this.mesh.geometry = this.iframeVertexBuffer.get(vertexBufferPosition).vertexBuffer as any;
-            } else {
-              console.warn("Skipped iframe playback, not in buffer");
-            }
-        }
-        (this.mesh.material as any).needsUpdate = true;
       }
-   this._video.requestVideoFrameCallback(this.videoUpdateHandler.bind(this));
+      else {
+        const vertexBufferPosition = this.getPositionInIFrameBuffer(frameToPlay);
+        if (this.iframeVertexBuffer.get(vertexBufferPosition) !== undefined) {
+          this.mesh.geometry = this.iframeVertexBuffer.get(vertexBufferPosition).vertexBuffer as any;
+        } else {
+          console.warn("Skipped iframe playback, not in buffer");
+        }
+      }
+      (this.mesh.material as any).needsUpdate = true;
+    }
+    this._video.requestVideoFrameCallback(this.videoUpdateHandler);
   }
 
   // Start loop to check if we're ready to play
-  public play = () => {
-    console.log("Playing")
+  play() {
+    // console.log("Playing")
     const buffering = setInterval(() => {
       if (this.meshBuffer && this.meshBuffer.getBufferLength() >= this.keyframesToBufferBeforeStart) {
-        console.log("Keyframe buffer length is ", this.meshBuffer.getBufferLength(), ", playing video");
+        // console.log("Keyframe buffer length is ", this.meshBuffer.getBufferLength(), ", playing video");
         clearInterval(buffering);
         this._video.play()
         this.mesh.visible = true
@@ -287,19 +272,19 @@ export default class DracosisPlayer {
     return -1;
   }
 
-  dispose():void {
+  dispose(): void {
     // TODO: finish dispose method
     this._isinitialized = false;
     this._worker?.terminate();
     if (this._video) {
       // this._video.stop();
-      this._video.parentElement.removeChild(this._video);
+      // this._video.parentElement.removeChild(this._video);
       this._video = null;
       this._videoTexture.dispose();
       this._videoTexture = null;
     }
     if (this.meshBuffer) {
-      for (let i=0; i < this.meshBuffer.getBufferLength(); i++) {
+      for (let i = 0; i < this.meshBuffer.getBufferLength(); i++) {
         const buffer = this.meshBuffer.get(i);
         if (buffer && buffer.bufferGeometry instanceof BufferGeometry) {
           buffer.bufferGeometry?.dispose();
