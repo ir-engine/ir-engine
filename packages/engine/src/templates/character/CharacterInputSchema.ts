@@ -263,6 +263,16 @@ const setCharacterExpression: Behavior = (entity: Entity, args: any): void => {
   }
 };
 
+/** 90 degree */
+const PI_BY_2 = Math.PI / 2;
+
+/** For Thumbstick angle less than 270 degree substract 90 from it.from
+ * Otherwise substract 450 degree. This is to make angle range from -180 to 180 degree.
+ */
+const changedDirection = (radian: number) => {
+  return radian < 3 * PI_BY_2 ? radian =  radian - PI_BY_2 : radian - 5 * PI_BY_2;
+}
+
 const moveByInputAxis: Behavior = (
   entity: Entity,
   args: { input: InputAlias; inputType: InputType },
@@ -276,6 +286,7 @@ const moveByInputAxis: Behavior = (
   if (data.type === InputType.TWODIM) {
     actor.localMovementDirection.z = data.value[0];
     actor.localMovementDirection.x = data.value[1];
+    actor.changedViewAngle = changedDirection(data.value[2]);  // Calculate the changed direction.
   } else if (data.type === InputType.THREEDIM) {
     // TODO: check if this mapping correct
     actor.localMovementDirection.z = data.value[2];

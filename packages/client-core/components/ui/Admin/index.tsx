@@ -101,6 +101,9 @@ const AdminConsole = (props: Props) => {
         }
     };
 
+
+    
+
     const initialInstance = {
         id: '',
         ipAddress: '',
@@ -115,7 +118,7 @@ const AdminConsole = (props: Props) => {
     const [selectedLocation, setSelectedLocation] = useState(initialLocation);
     const [selectedInstance, setSelectedInstance] = useState(initialInstance);
     const adminScenes = adminState.get('scenes').get('scenes');
-
+     
     const headCells = {
         locations: [
             {id: 'id', numeric: false, disablePadding: true, label: 'ID'},
@@ -262,6 +265,7 @@ const AdminConsole = (props: Props) => {
     const adminInstances = adminState.get('instances').get('instances');
     const adminInstanceCount = adminState.get('instances').get('total');
 
+    
     const selectCount = selectedTab === 'locations' ? adminLocationCount : selectedTab === 'users' ? adminUserCount : selectedTab === 'instances' ? adminInstanceCount : 0;
     const displayLocations = adminLocations.map(location => {
         return {
@@ -274,6 +278,8 @@ const AdminConsole = (props: Props) => {
             videoEnabled: location.location_setting.videoEnabled.toString()
         };
     });
+
+
 
     const displayInstances = adminInstances.map(instance => {
         return {
@@ -404,7 +410,7 @@ const AdminConsole = (props: Props) => {
         }
         setRefetch(false);
     }, [authState, adminState, refetch]);
-
+   
 
     return (
         <Paper className={styles.adminRoot}>
