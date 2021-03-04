@@ -15,7 +15,8 @@ import {
   REMOVE_FEED_FIRES,
   ADD_FEED_BOOKMARK,
   REMOVE_FEED_BOOKMARK,
-  ADD_FEED_VIEW
+  ADD_FEED_VIEW,
+  ADD_FEED
 } from '../actions';
 
 export const initialState = {
@@ -85,7 +86,8 @@ const feedReducer = (state = immutableState, action: FeedsAction): any => {
         }
         return {...feed};
       })).set('feed', {...currentFeed, viewsCount: ++currentFeed.viewsCount});
-
+    case ADD_FEED:
+      return state.set('feeds', [...state.get('feeds'), (action as FeedRetrievedAction).feed]);
 }
 
 
