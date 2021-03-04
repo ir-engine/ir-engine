@@ -60,7 +60,6 @@ export function getFeeds(type : string, limit?: number) {
             // $skip: skip != null ? skip : getState().get('feed').get('skip')
           }
         });
-        console.log('feedsResults', feedsResults);
         dispatch(feedsRetrieved(feedsResults.data));
       }
       //  await client.service('feed').find({
