@@ -6,7 +6,7 @@
   align-items: center;
 }
 
-.bottom-appbar {
+.drawer-controls {
   display: none;
   box-shadow: none !important;
   background-color: rgba(0, 0, 0, 0) !important;
@@ -16,8 +16,9 @@
   align-items: flex-start;
   bottom: 0 !important;
   max-width: 8em;
-  left: 0 !important;
-  top: auto !important;
+  right: 0 !important;
+  top: 50px !important;
+  position: absolute !important;
 
   button {
     background-color: #3886a8;

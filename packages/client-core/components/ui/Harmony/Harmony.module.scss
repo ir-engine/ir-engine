@@ -125,22 +125,6 @@ $mobileControllButtonsSize: 3em;
         }
     }
 
-    & > .list-container {
-        background-color: rgba(206, 206, 206, 0.1);
-
-        & > div {
-            background-color: rgba(155, 155, 155, 0.6);
-
-            & > div {
-                color: white;
-
-                ul {
-                    background-color: initial;
-                }
-            }
-        }
-    }
-
     .groupEdit {
         margin: 0 5px 0 auto;
         width: 30px;
@@ -311,7 +295,6 @@ $mobileControllButtonsSize: 3em;
 
     @media (max-width: 768px) {
         width: 100%;
-        height: 65%;
     }
 }
 
@@ -479,8 +462,80 @@ $mobileControllButtonsSize: 3em;
      }
 }
 
-.mediaControls {
-    height: 44px;
+.harmony-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .mediaControls {
+        height: 50px;
+        display: flex;
+        align-items: center;
+
+        .startCall {
+            background-color: green;
+
+            &:hover {
+                background-color: lighten(green, 10%);
+            }
+        }
+
+        .endCall {
+            background-color: red;
+
+            &:hover {
+                background-color: lighten(red, 10%);
+            }
+        }
+
+        .activeCallControls {
+            display: flex;
+        }
+    }
+
+    .controls {
+        height: 50px;
+        display: flex;
+        align-items: center;
+
+        .harmony-toggle {
+            background-color: rgb(56, 56, 178);
+            color: white;
+
+            svg {
+                box-sizing: border-box;
+                cursor: pointer;
+                margin: 6px;
+            }
+
+            &:hover {
+                cursor: pointer;
+                background-color: lighten(rgb(56, 56, 178), 10%);
+            }
+        }
+
+        .invite-toggle {
+            background-color: rgb(178, 56, 56);
+            color: white;
+            margin-right: 5px;
+
+            &:hover {
+                cursor: pointer;
+                background-color: lighten(rgb(178, 56, 56), 10%);
+            }
+        }
+
+        .chat-toggle {
+            background-color: rgb(56, 178, 56);
+            color: white;
+            margin-right: 5px;
+
+            &:hover {
+                cursor: pointer;
+                background-color: lighten(rgb(56, 178, 56), 10%);
+            }
+        }
+    }
 
     .iconContainer{
         background: rgba(0, 0, 0, 0.2);
@@ -526,24 +581,25 @@ $mobileControllButtonsSize: 3em;
             margin: 6px;
         }
     }
+}
 
-    .startCall {
-        background-color: green;
+.chat-selectors {
+    background-color: rgba(206, 206, 206, 0.1);
+    flex-direction: column;
 
-        &:hover {
-            background-color: lighten(green, 10%);
+    & > div {
+        background-color: rgba(155, 155, 155, 0.6);
+
+        & > div {
+            color: white;
+
+            ul {
+                background-color: initial;
+            }
         }
     }
 
-    .endCall {
-        background-color: red;
-
-        &:hover {
-            background-color: lighten(red, 10%);
-        }
-    }
-
-    .activeCallControls {
-        display: flex;
+    @media (max-width: 768px) {
+        background-color: (0, 0, 0, 0.9);
     }
 }

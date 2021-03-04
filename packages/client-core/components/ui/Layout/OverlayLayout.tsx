@@ -20,7 +20,7 @@ import InstanceChat from '../InstanceChat';
 import Me from '../Me';
 import NavMenu from '../NavMenu';
 import PartyVideoWindows from '../PartyVideoWindows';
-import { Forum, FullscreenExit, People } from '@material-ui/icons';
+import {Forum, FullscreenExit, People, PersonAdd} from '@material-ui/icons';
 import Harmony from "../Harmony";
 //@ts-ignore
 import styles from './Layout.module.scss';
@@ -114,6 +114,11 @@ const Layout = (props: Props): any => {
     }
   }, []);
 
+  const openInvite = (): void => {
+    setLeftDrawerOpen(false);
+    setTopDrawerOpen(false);
+    setRightDrawerOpen(true);
+  };
 
   const childrenWithProps = React.Children.map(children, child => {
     // checking isValidElement is the safe way and avoids a typescript error too
@@ -154,7 +159,7 @@ const Layout = (props: Props): any => {
   return (
     <>
       {
-        !fullScreenActive && <span className={styles.fullScreen} onClick={handle.enter}>
+        !fullScreenActive && harmonyOpen !== true && <span className={styles.fullScreen} onClick={handle.enter}>
           <Expand/>
         </span>
       }
@@ -183,6 +188,7 @@ const Layout = (props: Props): any => {
             </header>
 
             {harmonyOpen === true && <Harmony
+                setHarmonyOpen={setHarmonyOpen}
                 detailsType={detailsType}
                 setDetailsType={setDetailsType}
                 groupFormOpen={groupFormOpen}
@@ -207,6 +213,7 @@ const Layout = (props: Props): any => {
             {authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&
               <Fragment>
                 <LeftDrawer
+                    harmony={true}
                     detailsType={detailsType}
                     setDetailsType={setDetailsType}
                     groupFormOpen={groupFormOpen}
@@ -237,15 +244,11 @@ const Layout = (props: Props): any => {
               </Fragment>
             }
             <footer>
-              {authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.id != null && user?.userRole !== 'guest' && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
-                <DrawerControls disableBottom={true} setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />}
-
               {locationState.get('currentLocation')?.get('location')?.id &&
                 authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.instanceId != null &&
                 !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
                 <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen} />}
-              { user?.userRole !== 'guest' && <div className={styles['harmony-toggle']}><Fab color="primary" onClick={() => setHarmonyOpen(!harmonyOpen )}><Forum /></Fab></div> }
-
+              { user?.userRole !== 'guest' && harmonyOpen === false && <div className={styles['harmony-toggle']} onClick={() => setHarmonyOpen(true)}><Forum /></div> }
 
               {
                 fullScreenActive && <span className={styles.fullScreen} onClick={handle.exit}>

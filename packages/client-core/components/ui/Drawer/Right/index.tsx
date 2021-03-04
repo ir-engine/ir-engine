@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {bindActionCreators, Dispatch} from 'redux';
 import {connect} from 'react-redux';
+//@ts-ignore
 import styles from './Right.module.scss';
 import _ from 'lodash';
 import {
@@ -157,7 +158,7 @@ const Invites = (props: Props): any => {
     const [inviteTypeIndex, setInviteTypeIndex] = useState(0);
     const [userToken, setUserToken] = useState('');
     const [deletePending, setDeletePending] = useState('');
-    const [selectedAccordion, setSelectedAccordion] = useState('');
+    const [selectedAccordion, setSelectedAccordion] = useState('invite');
 
     useEffect(() => {
         if (groupState.get('invitableUpdateNeeded') === true && groupState.get('getInvitableGroupsInProgress') !== true) {
@@ -259,16 +260,13 @@ const Invites = (props: Props): any => {
     };
 
     useEffect(() => {
-        if (inviteState.get('sentUpdateNeeded') === true && inviteState.get('getSentInvitesInProgress') !== true) {
-            retrieveSentInvites();
-        }
-        if (inviteState.get('receivedUpdateNeeded') === true && inviteState.get('getReceivedInvitesInProgress') !== true) {
-            retrieveReceivedInvites();
-        }
+        console.log('inviteState changed');
+        console.log(inviteState);
+        if (inviteState.get('sentUpdateNeeded') === true && inviteState.get('getSentInvitesInProgress') !== true) retrieveSentInvites();
+        if (inviteState.get('receivedUpdateNeeded') === true && inviteState.get('getReceivedInvitesInProgress') !== true) retrieveReceivedInvites();
         setInviteTypeIndex(targetObjectType === 'party' ? 2 : targetObjectType === 'group' ? 1 : 0);
-        if (targetObjectType == null || targetObjectType.length === 0) {
-            updateInviteTarget('user', null);
-        }
+        if (targetObjectType == null || targetObjectType.length === 0) updateInviteTarget('user', null);
+        if (targetObjectType != null && targetObjectId != null) setSelectedAccordion('invite');
     }, [inviteState]);
 
     const capitalize = (word) => word[0].toUpperCase() + word.slice(1);
@@ -327,6 +325,7 @@ const Invites = (props: Props): any => {
                 open={rightDrawerOpen === true}
                 onClose={() => {
                     setRightDrawerOpen(false);
+                    updateInviteTarget('user', null);
                 }}
                 onOpen={() => {
                 }}
@@ -548,6 +547,7 @@ const Invites = (props: Props): any => {
                                     {tabIndex !== 3 && <TextField
                                         variant="outlined"
                                         margin="normal"
+                                        className={styles['invite-text']}
                                         fullWidth
                                         id="token"
                                         label={tabIndex === 0 ? "Recipient's email" : tabIndex === 1 ? "Recipient's phone number" : "Recipient's user ID"}
@@ -582,6 +582,7 @@ const Invites = (props: Props): any => {
                                     }
                                     <Button variant="contained"
                                             color="primary"
+                                            className={styles['send-button']}
                                             onClick={packageInvite}
                                     >
                                         Send

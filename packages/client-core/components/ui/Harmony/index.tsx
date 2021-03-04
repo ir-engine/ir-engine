@@ -10,7 +10,7 @@ import {
     ListItem,
     ListItemAvatar,
     ListItemIcon,
-    ListItemText,
+    ListItemText, SwipeableDrawer,
     TextField,
     Tooltip,
     Typography
@@ -27,15 +27,18 @@ import {
     Forum,
     Grain,
     Group,
+    GroupAdd,
     GroupWork,
     Mic,
     MicOff,
     PersonAdd,
+    PeopleOutline,
     Public,
     Save,
     Send,
     Settings,
     SupervisedUserCircle,
+    ThreeDRotation,
     Videocam,
     VideocamOff
 } from '@material-ui/icons';
@@ -103,6 +106,7 @@ import {selectPartyState} from "../../../redux/party/selector";
 import {selectTransportState} from '../../../redux/transport/selector';
 import {selectMediastreamState} from "../../../redux/mediastream/selector";
 import {Group as GroupType} from "../../../../common/interfaces/Group";
+import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 
 const initialSelectedUserState = {
     id: '',
@@ -219,6 +223,7 @@ interface Props {
     transportState?: any;
     changeChannelTypeState?: any;
     mediastream?: any;
+    setHarmonyOpen?: any;
 }
 
 const Harmony = observer((props: Props): any => {
@@ -268,7 +273,8 @@ const Harmony = observer((props: Props): any => {
         locationState,
         transportState,
         changeChannelTypeState,
-        mediastream
+        mediastream,
+        setHarmonyOpen
     } = props;
 
     const messageRef = React.useRef();
@@ -299,6 +305,7 @@ const Harmony = observer((props: Props): any => {
     const [tabIndex, setTabIndex] = useState(0);
     const [videoPaused, setVideoPaused] = useState(false);
     const [audioPaused, setAudioPaused] = useState(false);
+    const [selectorsOpen, setSelectorsOpen] = useState(false);
 
     const instanceLayerUsers = userState.get('layerUsers') ?? [];
     const channelLayerUsers = userState.get('channelLayerUsers') ?? [];
@@ -785,6 +792,209 @@ const Harmony = observer((props: Props): any => {
         }
     }, [channelConnectionState]);
 
+    const chatSelectors = <div className={classNames({
+        [styles['list-container']]: true,
+        [styles['chat-selectors']]: true
+    })}>
+        <div className={styles.partyInstanceButtons}>
+            <div className={classNames({
+                [styles.partyButton]: true,
+                [styles.activeChat]: party != null && isActiveChat('party', party.id)
+            })}
+                 onClick={(e) => party != null ? setActiveChat('party', party) : openDetails(e, 'party', party)}
+            >
+                <PeopleOutline/>
+                <span>Party</span>
+                <div className={classNames({
+                    [styles.activeAVCall]: party != null && isActiveAVCall('party', party.id)
+                })} />
+                { party != null && <ListItemIcon className={styles.groupEdit} onClick={(e) => openDetails(e,'party', party)}><Settings/></ListItemIcon>}
+            </div>
+            { selfUser.instanceId != null && <div className={classNames({
+                    [styles.instanceButton]: true,
+                    [styles.activeChat]: isActiveChat('instance', selfUser.instanceId)
+                })}
+                onClick={() => setActiveChat('instance', {
+                  id: selfUser.instanceId
+                })}
+            >
+                <Grain/>
+                <span>Here</span>
+                <div className={classNames({
+                    [styles.activeAVCall]: isActiveAVCall('instance', selfUser.instanceId)
+                })} />
+            </div> }
+        </div>
+        {selfUser.userRole !== 'guest' &&
+        <Accordion expanded={selectedAccordion === 'user'} onChange={handleAccordionSelect('user') } className={styles['MuiAccordion-root']}>
+            <AccordionSummary
+                id="friends-header"
+                expandIcon={<ExpandMore/>}
+                aria-controls="friends-content"
+            >
+                <Group/>
+                <Typography>Friends</Typography>
+            </AccordionSummary>
+            <AccordionDetails className={styles['list-container']}>
+                <div className={styles['flex-center']}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<Add/>}
+                        onClick={() => openInvite('user')}>
+                        Invite Friend
+                    </Button>
+                </div>
+                <List
+                    onScroll={(e) => onListScroll(e)}
+                >
+                    {friends && friends.length > 0 && friends.sort((a, b) => a.name - b.name).map((friend, index) => {
+                        return <div key={friend.id}>
+                            <ListItem className={classNames({
+                                [styles.selectable]: true,
+                                [styles.activeChat]: isActiveChat('user', friend.id)
+                            })}
+                                      onClick={() => {
+                                          setActiveChat('user', friend)
+                                      }}
+                            >
+                                <ListItemAvatar>
+                                    <Avatar src={friend.avatarUrl}/>
+                                </ListItemAvatar>
+                                <ListItemText primary={friend.name}/>
+                                <div className={classNames({
+                                    [styles.activeAVCall]: isActiveAVCall('user', friend.id)
+                                })} />
+                            </ListItem>
+                            {index < friends.length - 1 && <Divider/>}
+                        </div>;
+                    })
+                    }
+                </List>
+            </AccordionDetails>
+        </Accordion>
+        }
+        {selfUser.userRole !== 'guest' &&
+        <Accordion expanded={selectedAccordion === 'group'} onChange={handleAccordionSelect('group')} className={styles['MuiAccordion-root']}>
+            <AccordionSummary
+                id="groups-header"
+                expandIcon={<ExpandMore/>}
+                aria-controls="groups-content"
+            >
+                <GroupWork/>
+                <Typography>Groups</Typography>
+            </AccordionSummary>
+            <AccordionDetails className={styles['list-container']}>
+                <div className={styles['flex-center']}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<Add/>}
+                        onClick={() => openGroupForm('create')}>
+                        Create Group
+                    </Button>
+                </div>
+                <List
+                    onScroll={(e) => onListScroll(e)}
+                >
+                    {groups && groups.length > 0 && groups.sort((a, b) => a.name - b.name).map((group, index) => {
+                        return <div key={group.id}>
+                            <ListItem
+                                className={classNames({
+                                    [styles.selectable]: true,
+                                    [styles.activeChat]: isActiveChat('group', group.id)
+                                })}
+                                onClick={() => {
+                                    setActiveChat('group', group)
+                                }}
+                            >
+                                <ListItemText primary={group.name}/>
+                                <div className={classNames({
+                                    [styles.activeAVCall]: isActiveAVCall('group', group.id)
+                                })} />
+                                <ListItemIcon className={styles.groupEdit} onClick={(e) => openDetails(e,'group', group)}><Settings/></ListItemIcon>
+                            </ListItem>
+                            {index < groups.length - 1 && <Divider/>}
+                        </div>;
+                    })
+                    }
+                </List>
+            </AccordionDetails>
+        </Accordion>
+        }
+        {
+            selfUser && selfUser.instanceId &&
+            <Accordion expanded={selectedAccordion === 'layerUsers'}
+                       onChange={handleAccordionSelect('layerUsers')}>
+                <AccordionSummary
+                    id="layer-user-header"
+                    expandIcon={<ExpandMore/>}
+                    aria-controls="layer-user-content"
+                >
+                    <Public/>
+                    <Typography>Layer Users</Typography>
+                </AccordionSummary>
+                <AccordionDetails className={classNames({
+                    [styles.flexbox]: true,
+                    [styles['flex-column']]: true,
+                    [styles['flex-center']]: true
+                })}>
+                    <div className={styles['list-container']}>
+                        <div className={styles.title}>Users on this Layer</div>
+                        <List
+                            className={classNames({
+                                [styles['flex-center']]: true,
+                                [styles['flex-column']]: true
+                            })}
+                            onScroll={(e) => onListScroll(e)}
+                        >
+                            {layerUsers && layerUsers.length > 0 && layerUsers.sort((a, b) => a.name - b.name).map((layerUser) => {
+                                    return <ListItem key={layerUser.id}>
+                                        <ListItemAvatar>
+                                            <Avatar src={layerUser.avatarUrl}/>
+                                        </ListItemAvatar>
+                                        {selfUser.id === layerUser.id &&
+                                        <ListItemText primary={layerUser.name + ' (you)'}/>}
+                                        {selfUser.id !== layerUser.id &&
+                                        <ListItemText primary={layerUser.name}/>}
+                                        {/*{*/}
+                                        {/*    locationBanPending !== layerUser.id &&*/}
+                                        {/*    isLocationAdmin === true &&*/}
+                                        {/*    selfUser.id !== layerUser.id &&*/}
+                                        {/*    layerUser.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null &&*/}
+                                        {/*    <Tooltip title="Ban user">*/}
+                                        {/*        <Button onClick={(e) => showLocationBanConfirm(e, layerUser.id)}>*/}
+                                        {/*            <Block/>*/}
+                                        {/*        </Button>*/}
+                                        {/*    </Tooltip>*/}
+                                        {/*}*/}
+                                        {/*{locationBanPending === layerUser.id &&*/}
+                                        {/*<div>*/}
+                                        {/*    <Button variant="contained"*/}
+                                        {/*            color="primary"*/}
+                                        {/*            onClick={(e) => confirmLocationBan(e, layerUser.id)}*/}
+                                        {/*    >*/}
+                                        {/*        Ban User*/}
+                                        {/*    </Button>*/}
+                                        {/*    <Button variant="contained"*/}
+                                        {/*            color="secondary"*/}
+                                        {/*            onClick={(e) => cancelLocationBan(e)}*/}
+                                        {/*    >*/}
+                                        {/*        Cancel*/}
+                                        {/*    </Button>*/}
+                                        {/*</div>*/}
+                                        {/*}*/}
+                                    </ListItem>;
+                                }
+                            )
+                            }
+                        </List>
+                    </div>
+                </AccordionDetails>
+            </Accordion>
+        }
+    </div>
+
     return (
         <div className={styles['harmony-component']}>
             <style> {`
@@ -795,208 +1005,27 @@ const Harmony = observer((props: Props): any => {
                     border-color: rgba(127, 127, 127, 0.7);
                 }
             `}</style>
-            <div className={styles['list-container']}>
-                <div className={styles.partyInstanceButtons}>
-                    <div className={classNames({
-                            [styles.partyButton]: true,
-                            [styles.activeChat]: party != null && isActiveChat('party', party.id)
-                        })}
-                         onClick={(e) => party != null ? setActiveChat('party', party) : openDetails(e, 'party', party)}
-                    >
-                        <GroupWork/>
-                        <span>Party</span>
-                        <div className={classNames({
-                            [styles.activeAVCall]: party != null && isActiveAVCall('party', party.id)
-                        })} />
-                        { party != null && <ListItemIcon className={styles.groupEdit} onClick={(e) => openDetails(e,'party', party)}><Settings/></ListItemIcon>}
-                    </div>
-                    { selfUser.instanceId != null && <div className={classNames({
-                        [styles.instanceButton]: true,
-                        [styles.activeChat]: isActiveChat('instance', selfUser.instanceId)
-                    })}
-                         onClick={() => setActiveChat('instance', {
-                             id: selfUser.instanceId
-                         })}
-                    >
-                        <Grain/>
-                        <span>Here</span>
-                        <div className={classNames({
-                            [styles.activeAVCall]: isActiveAVCall('instance', selfUser.instanceId)
-                        })} />
-                    </div> }
-                </div>
-                {selfUser.userRole !== 'guest' &&
-                <Accordion expanded={selectedAccordion === 'user'} onChange={handleAccordionSelect('user') } className={styles['MuiAccordion-root']}>
-                    <AccordionSummary
-                        id="friends-header"
-                        expandIcon={<ExpandMore/>}
-                        aria-controls="friends-content"
-                    >
-                        <SupervisedUserCircle/>
-                        <Typography>Friends</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails className={styles['list-container']}>
-                        <div className={styles['flex-center']}>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                startIcon={<Add/>}
-                                onClick={() => openInvite('user')}>
-                                Invite Friend
-                            </Button>
-                        </div>
-                        <List
-                            onScroll={(e) => onListScroll(e)}
-                        >
-                            {friends && friends.length > 0 && friends.sort((a, b) => a.name - b.name).map((friend, index) => {
-                                return <div key={friend.id}>
-                                    <ListItem className={classNames({
-                                        [styles.selectable]: true,
-                                        [styles.activeChat]: isActiveChat('user', friend.id)
-                                    })}
-                                        onClick={() => {
-                                            setActiveChat('user', friend)
-                                        }}
-                                    >
-                                        <ListItemAvatar>
-                                            <Avatar src={friend.avatarUrl}/>
-                                        </ListItemAvatar>
-                                        <ListItemText primary={friend.name}/>
-                                        <div className={classNames({
-                                            [styles.activeAVCall]: isActiveAVCall('user', friend.id)
-                                        })} />
-                                    </ListItem>
-                                    {index < friends.length - 1 && <Divider/>}
-                                </div>;
-                            })
-                            }
-                        </List>
-                    </AccordionDetails>
-                </Accordion>
-                }
-                {selfUser.userRole !== 'guest' &&
-                <Accordion expanded={selectedAccordion === 'group'} onChange={handleAccordionSelect('group')} className={styles['MuiAccordion-root']}>
-                    <AccordionSummary
-                        id="groups-header"
-                        expandIcon={<ExpandMore/>}
-                        aria-controls="groups-content"
-                    >
-                        <Group/>
-                        <Typography>Groups</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails className={styles['list-container']}>
-                        <div className={styles['flex-center']}>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                startIcon={<Add/>}
-                                onClick={() => openGroupForm('create')}>
-                                Create Group
-                            </Button>
-                        </div>
-                        <List
-                            onScroll={(e) => onListScroll(e)}
-                        >
-                            {groups && groups.length > 0 && groups.sort((a, b) => a.name - b.name).map((group, index) => {
-                                return <div key={group.id}>
-                                    <ListItem
-                                        className={classNames({
-                                            [styles.selectable]: true,
-                                            [styles.activeChat]: isActiveChat('group', group.id)
-                                        })}
-                                        onClick={() => {
-                                            setActiveChat('group', group)
-                                        }}
-                                    >
-                                        <ListItemText primary={group.name}/>
-                                        <div className={classNames({
-                                            [styles.activeAVCall]: isActiveAVCall('group', group.id)
-                                        })} />
-                                        <ListItemIcon className={styles.groupEdit} onClick={(e) => openDetails(e,'group', group)}><Settings/></ListItemIcon>
-                                    </ListItem>
-                                    {index < groups.length - 1 && <Divider/>}
-                                </div>;
-                            })
-                            }
-                        </List>
-                    </AccordionDetails>
-                </Accordion>
-                }
-                {
-                    selfUser && selfUser.instanceId &&
-                    <Accordion expanded={selectedAccordion === 'layerUsers'}
-                               onChange={handleAccordionSelect('layerUsers')}>
-                        <AccordionSummary
-                            id="layer-user-header"
-                            expandIcon={<ExpandMore/>}
-                            aria-controls="layer-user-content"
-                        >
-                            <Public/>
-                            <Typography>Layer Users</Typography>
-                        </AccordionSummary>
-                        <AccordionDetails className={classNames({
-                            [styles.flexbox]: true,
-                            [styles['flex-column']]: true,
-                            [styles['flex-center']]: true
-                        })}>
-                            <div className={styles['list-container']}>
-                                <div className={styles.title}>Users on this Layer</div>
-                                <List
-                                    className={classNames({
-                                        [styles['flex-center']]: true,
-                                        [styles['flex-column']]: true
-                                    })}
-                                    onScroll={(e) => onListScroll(e)}
-                                >
-                                    {layerUsers && layerUsers.length > 0 && layerUsers.sort((a, b) => a.name - b.name).map((layerUser) => {
-                                            return <ListItem key={layerUser.id}>
-                                                <ListItemAvatar>
-                                                    <Avatar src={layerUser.avatarUrl}/>
-                                                </ListItemAvatar>
-                                                {selfUser.id === layerUser.id &&
-                                                <ListItemText primary={layerUser.name + ' (you)'}/>}
-                                                {selfUser.id !== layerUser.id &&
-                                                <ListItemText primary={layerUser.name}/>}
-                                                {/*{*/}
-                                                {/*    locationBanPending !== layerUser.id &&*/}
-                                                {/*    isLocationAdmin === true &&*/}
-                                                {/*    selfUser.id !== layerUser.id &&*/}
-                                                {/*    layerUser.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null &&*/}
-                                                {/*    <Tooltip title="Ban user">*/}
-                                                {/*        <Button onClick={(e) => showLocationBanConfirm(e, layerUser.id)}>*/}
-                                                {/*            <Block/>*/}
-                                                {/*        </Button>*/}
-                                                {/*    </Tooltip>*/}
-                                                {/*}*/}
-                                                {/*{locationBanPending === layerUser.id &&*/}
-                                                {/*<div>*/}
-                                                {/*    <Button variant="contained"*/}
-                                                {/*            color="primary"*/}
-                                                {/*            onClick={(e) => confirmLocationBan(e, layerUser.id)}*/}
-                                                {/*    >*/}
-                                                {/*        Ban User*/}
-                                                {/*    </Button>*/}
-                                                {/*    <Button variant="contained"*/}
-                                                {/*            color="secondary"*/}
-                                                {/*            onClick={(e) => cancelLocationBan(e)}*/}
-                                                {/*    >*/}
-                                                {/*        Cancel*/}
-                                                {/*    </Button>*/}
-                                                {/*</div>*/}
-                                                {/*}*/}
-                                            </ListItem>;
-                                        }
-                                    )
-                                    }
-                                </List>
-                            </div>
-                        </AccordionDetails>
-                    </Accordion>
-                }
-            </div>
+            { (isMobileOrTablet() === true || window.innerWidth <= 768) && <SwipeableDrawer
+                className={classNames({
+                    [styles['flex-column']]: true,
+                    [styles['list-container']]: true
+                })}
+                BackdropProps={{invisible: true}}
+                anchor="left"
+                open={selectorsOpen === true}
+                onClose={() => {
+                    setSelectorsOpen(false);
+                }}
+                onOpen={() => {
+                }}
+            >
+                {chatSelectors}
+            </SwipeableDrawer> }
+            { (isMobileOrTablet() !== true && window.innerWidth > 768) && chatSelectors}
             <div className={styles['chat-window']}>
+                <div className={styles['harmony-header']}>
                 { targetChannelId?.length > 0 && <header className={styles.mediaControls}>
-                    { MediaStreamSystem.instance.camVideoProducer == null && MediaStreamSystem.instance.camAudioProducer == null &&
+                    { activeAVChannelId === '' &&
                         <div className={classNames({
                             [styles.iconContainer]: true,
                             [styles.startCall]: true
@@ -1022,7 +1051,24 @@ const Harmony = observer((props: Props): any => {
                             </div>}
                         </div>
                     }
-                </header> }
+                    </header>
+                }
+
+                    <div className={styles.controls}>
+                        <div className={classNames({
+                            [styles['chat-toggle']]: true,
+                            [styles.iconContainer]: true
+                        })} onClick={() => setSelectorsOpen(true)}><Group /></div>
+                        <div className={classNames({
+                            [styles['invite-toggle']]: true,
+                            [styles.iconContainer]: true
+                        })} onClick={() => openInvite()}><GroupAdd /></div>
+                        <div className={classNames({
+                            [styles['harmony-toggle']]: true,
+                            [styles.iconContainer]: true
+                        })} onClick={() => setHarmonyOpen(false)}><ThreeDRotation /></div>
+                    </div>
+                </div>
                 { activeAVChannelId !== '' && <div className={styles['video-container']}>
                     <div className={ styles['active-chat-plate']} >{ getAVChannelName() }</div>
                     <Grid className={ styles['party-user-container']} container direction="row">

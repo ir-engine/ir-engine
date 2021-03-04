@@ -61,6 +61,7 @@ import {
     ExpandMore,
     Forum,
     Group,
+    GroupAdd,
     GroupWork,
     PersonAdd,
     Public,
@@ -495,7 +496,7 @@ const LeftDrawer = (props: Props): any => {
         const openChat = (targetObjectType: string, targetObject: any): void => {
             setLeftDrawerOpen(false);
             if (harmony !== true) setBottomDrawerOpen(true);
-            else if (harmony === true) setHarmonyOpen(true);
+            // else if (harmony === true) setHarmonyOpen(true);
             setTimeout(() => {
                 updateChatTarget(targetObjectType, targetObject);
                 updateMessageScrollInit(true);
@@ -573,7 +574,7 @@ const LeftDrawer = (props: Props): any => {
                                 <Button
                                     variant="contained"
                                     color="secondary"
-                                    startIcon={<PersonAdd/>}
+                                    startIcon={<GroupAdd/>}
                                     onClick={() => openInvite('user', selectedUser.id)}
                                 >
                                     Invite
@@ -656,7 +657,7 @@ const LeftDrawer = (props: Props): any => {
                                     <Button
                                         variant="contained"
                                         color="secondary"
-                                        startIcon={<PersonAdd/>}
+                                        startIcon={<GroupAdd/>}
                                         onClick={() => openInvite('party', party.id)}
                                     >
                                         Invite
@@ -863,7 +864,7 @@ const LeftDrawer = (props: Props): any => {
                                 <Button
                                     variant="contained"
                                     color="secondary"
-                                    startIcon={<PersonAdd/>}
+                                    startIcon={<GroupAdd/>}
                                     onClick={() => openInvite('group', selectedGroup.id)}
                                 >
                                     Invite
