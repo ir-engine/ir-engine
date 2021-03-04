@@ -1,7 +1,9 @@
 import { Quaternion, Vector3 } from 'three';
 import { Component } from '../../ecs/classes/Component';
+import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { Entity } from '../../ecs/classes/Entity';
 import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { loadActorAvatar } from '../../templates/character/prefabs/NetworkPlayerCharacter';
 import { PrefabType } from "../../templates/networking/DefaultNetworkSchema";
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { Network } from '../classes/Network';
@@ -57,6 +59,7 @@ function createNetworkPrefab(prefab: NetworkPrefab, ownerId, networkId: number, 
   // Instantiate local components
   // If this is the local player, spawn the local components (these will not be spawned for other clients)
   // This is good for input, camera, etc
+  console.log(ownerId, Network.instance.userId)
   if (ownerId === Network.instance.userId && prefab.localClientComponents)
   // For each local component on the prefab...
   {
@@ -160,8 +163,11 @@ export function initializeNetworkObject(ownerId: string, networkId: number, pref
     uniqueId: ''
   };
 
+  loadActorAvatar(networkEntity);
+
   if (prefabType === PrefabType.Player && ownerId === (Network.instance).userId) {
     Network.instance.localClientEntity = networkEntity;
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, id: networkEntity.id });
   }
 
   // Tell the client

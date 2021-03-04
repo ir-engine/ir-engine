@@ -10,6 +10,7 @@ import getConfig from "next/config";
 import ioclient from "socket.io-client";
 import store from "@xr3ngine/client-core/redux/store";
 import { createDataProducer, endVideoChat, initReceiveTransport, initSendTransport, leave, subscribeToTrack } from "../functions/SocketWebRTCClientFunctions";
+import { EngineEvents } from "../../ecs/classes/EngineEvents";
 
 const { publicRuntimeConfig } = getConfig();
 const gameserver = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.gameserver : 'https://127.0.0.1:3030';
@@ -140,7 +141,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       let ConnectToWorldResponse;
 
       try {
-        console.log('Calling connectToWorld');
         ConnectToWorldResponse = await Promise.race([
           await request(MessageTypes.ConnectToWorld.toString()),
           new Promise((resolve, reject) => {
@@ -149,14 +149,14 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       ]);
       } catch(err) {
         console.log(err);
-        window.dispatchEvent(new CustomEvent('connectToWorldTimeout', {'instance': instance === true} as any));
+        EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, instance: instance === true });
         return
       }
       console.log('ConnectToWorldResponse:');
       console.log(ConnectToWorldResponse);
       const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any;
 
-      window.dispatchEvent(new CustomEvent('connectToWorld'));
+      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT_TO_WORLD });
 
       // Send heartbeat every second
       const heartbeat = setInterval(() => {
