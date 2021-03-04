@@ -52,7 +52,7 @@
   width: 30%;
 
   @media (max-width: 768px) {
-    width: 90%;
+    width: 90% !important;
   }
 
   .MuiAccordion-root {

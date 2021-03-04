@@ -21,18 +21,24 @@
 .harmony-toggle {
     position: absolute !important;
     right: 0;
-    top: 0;
+    top: 5px !important;
     display: flex;
-    margin: 15px 0 5px 5px !important;
     align-items: center;
-    color: #000 !important;
     z-index: 20;
+    background-color: rgb(56, 56, 178);
+    height: 36px;
+    width: 36px;
+    color: white;
+    margin-right: 12px;
+    border-radius: 50%;
+
+    svg {
+        margin: 6px;
+    }
 
     &:hover {
         cursor: pointer;
-    }
-    svg{
-        margin: 0 5px 0 0 ;
+        background-color: lighten(rgb(56, 56, 178), 10%);
     }
 }
 .fullScreen {
@@ -62,7 +68,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 1301;
+    z-index: 1101;
     max-height: calc(100vh - 120px);
     overflow-y: auto;
     min-width: 90px;
@@ -101,7 +107,7 @@
     top: 10px;
     left: 30px;
     border-radius: 50%;
-    z-index: 1301;
+    z-index: 1101;
     svg { width: 50%; height: 50%; }
     &.expanded { background: #5f5ff1; }
     &::before {
@@ -123,5 +129,17 @@
     @media (max-width: 450px) {
         width: 40px; height: 40px; left: 10px;
         &::before { width: 40px; height: 40px; }
+    }
+}
+
+.invite-toggle {
+    right: 0 !important;
+    top: 30px !important;
+    position: absolute !important;
+    z-index: 20;
+
+    button[aria-label='PersonAdd'] {
+        background: linear-gradient(30deg, #028000, #62ff00);
+        border: 2px solid white;
     }
 }
