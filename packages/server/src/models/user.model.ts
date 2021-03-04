@@ -60,7 +60,7 @@ export default (app: Application): any => {
     (User as any).hasMany(models.location_ban);
     (User as any).hasMany(models.feed, { foreignKey: 'authorId' });
     (User as any).hasMany(models.feed_fires, { foreignKey: 'authorId' });
-    (User as any).hasMany(models.feed_bookmarks, { foreignKey: 'authorId' });
+    (User as any).hasMany(models.feed_bookmark, { foreignKey: 'authorId' });
   };
 
   return User;
