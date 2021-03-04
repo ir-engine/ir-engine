@@ -18,8 +18,8 @@ export default (userSeed): void => {
                 preview: "https://picsum.photos/375/210",
                 description: "{{lorem.sentence}}",
                 featured: "{{random.boolean}}",
-                viewCount: () => Math.round(Math.random() * 100),
-                createdAt: () => moment().subtract(Math.random() * (7*24*60), 'minutes').format()
+                viewCount: (): number => Math.round(Math.random() * 100),
+                createdAt: (): string => moment().subtract(Math.random() * (7*24*60), 'minutes').format()
             },
             callback: (feed, seed) => {
                 return Promise.all([
