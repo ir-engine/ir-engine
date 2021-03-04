@@ -8,6 +8,7 @@ import {
   feedRetrieved,
   feedsFeaturedRetrieved,
   addFeedView,
+  addFeed
 } from './actions';
 
 export function getFeeds(type : string, limit?: number) {
@@ -91,6 +92,36 @@ export function addViewToFeed(feedId: string) {
     try {
       // await client.service('feed').put({feedId, creatorId});
       dispatch(addFeedView(feedId));
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
+export function createFeed({title, description }: any) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      // await client.service('feed').create({title, description});
+      const feed ={ 
+        id: '753954',
+        creator:{
+            id:'185',
+            avatar :'https://picsum.photos/40/40',
+            username: 'User username',
+            name: '@username',
+            userId: 'userId',
+            verified: true,
+        },
+        preview:'https://picsum.photos/375/210',
+        video:null,
+        title,
+        fires: 0,
+        stores:0,
+        viewsCount:  0,
+        description
+    }
+      dispatch(addFeed(feed));
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
