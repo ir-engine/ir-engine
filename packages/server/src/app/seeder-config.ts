@@ -14,11 +14,24 @@ import StaticResourceSeed from '../services/static-resource/static-resource.seed
 import UserRelationshipTypeSeed from '../services/user-relationship-type/user-relationship-type.seed';
 import UserRoleSeed from '../services/user-role/user-role.seed';
 import User  from '../services/user/user.seed';
-import Feed  from '../services/feed/feed.seed';
-import FeedFire  from '../services/feed-fires/feed-fires.seed';
-import FeedBookmark  from '../services/feed-bookmark/feed-bookmark.seed';
+import FeedSeedsInject  from '../services/feed/feed.seed';
 
-export const services = [
+type SeedCallback = (ServicesSeedConfig) => Promise<any>;
+type ServicesSeedCallback = (obj: any, seed: SeedCallback) => Promise<any>;
+
+interface ServicesSeedConfig {
+    count?: number;
+    disabled: boolean;
+    delete: boolean;
+    path: string;
+    randomize?: boolean;
+    templates?: any[];
+    callback?: ServicesSeedCallback;
+}
+
+FeedSeedsInject(User);
+
+export const services: Array<ServicesSeedConfig> = [
     ChannelTypeSeed,
     CollectionTypeSeed,
     CollectionSeed,
@@ -34,10 +47,7 @@ export const services = [
     StaticResourceSeed,
     User,
     UserRelationshipTypeSeed,
-    UserRoleSeed,
-    Feed
-    // FeedFire
-    // FeedBookmark
+    UserRoleSeed
   ];
 
 export default services;

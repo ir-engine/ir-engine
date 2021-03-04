@@ -5,38 +5,15 @@ import { DEFAULT_AVATAR_ID } from '@xr3ngine/engine/src/templates/character/Char
 
 
 export const seed = {
+    count: 3,
     disabled: !config.db.forceRefresh,
     delete: config.db.forceRefresh,
-    randomize: false,
+    // randomize: false,
     path: 'user',
     templates:
         [
             {
-                id: 'Orange_1',
-                name: 'Orange',
-                avatarId: DEFAULT_AVATAR_ID,
-                // instanceId: '67890uihi0u98yuijo',
-                // userRole: type === 'guest' ? 'guest' : type === 'admin' ? 'admin' : 'user',
-                // partyId: '5678uhy789uijk',
-                createdAt: "2021-02-26 12:00:00",
-                updatedAt: "2021-02-26 12:00:00",
-                // userSettingsId: UserSettingsSeed.templates.find(template => template.id === '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61').id
-            },
-            {
-                
-                id: 'Yellow_1',
-                name: 'Yellow',
-                avatarId: DEFAULT_AVATAR_ID,
-                // instanceId: '67890uihi0u98yuijo',
-                // userRole: type === 'guest' ? 'guest' : type === 'admin' ? 'admin' : 'user',
-                // partyId: '5678uhy789uijk',
-                createdAt: "2021-02-26 12:00:00",
-                updatedAt: "2021-02-26 12:00:00",
-                // userSettingsId: UserSettingsSeed.templates.find(template => template.id === '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61').id
-            },{
-                
-                id: 'Green_1',
-                name: 'Green',
+                name: '{{name.firstName}} {{name.lastName}}',
                 avatarId: DEFAULT_AVATAR_ID,
                 // instanceId: '67890uihi0u98yuijo',
                 // userRole: type === 'guest' ? 'guest' : type === 'admin' ? 'admin' : 'user',

@@ -2,7 +2,7 @@ import { DataTypes, Sequelize } from 'sequelize';
 import { Application } from '../declarations';
 
 /**
- * This model contain users information 
+ * This model contain users information
  */
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient');
@@ -58,7 +58,9 @@ export default (app: Application): any => {
     (User as any).belongsToMany(models.location, { through: 'location_admin' });
     (User as any).hasMany(models.location_admin, { unique: false });
     (User as any).hasMany(models.location_ban);
-    (User as any).hasMany(models.feed);
+    (User as any).hasMany(models.feed, { foreignKey: 'authorId' });
+    (User as any).hasMany(models.feed_fires, { foreignKey: 'authorId' });
+    (User as any).hasMany(models.feed_bookmarks, { foreignKey: 'authorId' });
   };
 
   return User;
