@@ -1,5 +1,4 @@
 import {
-  VideoTexture,
   LinearFilter,
   sRGBEncoding,
   PlaneBufferGeometry,
@@ -14,12 +13,14 @@ import { RethrownError } from "../../editor/functions/errors";
 import Hls from "hls.js/dist/hls.light";
 import isHLS from "../../editor/functions/isHLS";
 import AudioSource from "./AudioSource";
+import { VideoTexture } from "../../worker/VideoTexture";
 export const VideoProjection = {
   Flat: "flat",
   Equirectangular360: "360-equirectangular"
 };
+
 export default class Volumetric extends AudioSource {
-  _videoTexture: VideoTexture;
+  _videoTexture: any;
   el: HTMLVideoElement;
   _texture: any;
   _mesh: Mesh;
@@ -30,6 +31,7 @@ export default class Volumetric extends AudioSource {
   audio: any;
   constructor(audioListener) {
     super(audioListener, "volumetric");
+    // @ts-ignore
     this._videoTexture = new VideoTexture(this.el);
     this._videoTexture.minFilter = LinearFilter;
     this._videoTexture.encoding = sRGBEncoding;

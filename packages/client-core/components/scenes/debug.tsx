@@ -12,10 +12,11 @@ import {
 } from '@xr3ngine/client-core/redux/location/service';
 import { selectPartyState } from '@xr3ngine/client-core/redux/party/selector';
 import { setCurrentScene } from '@xr3ngine/client-core/redux/scenes/actions';
+import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { SocketWebRTCClientTransport } from '@xr3ngine/engine/src/networking/classes/SocketWebRTCClientTransport';
-import { joinWorld } from '@xr3ngine/engine/src/networking/functions/joinWorld';
+import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { loadScene } from '@xr3ngine/engine/src/scene/functions/SceneLoading';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
@@ -193,16 +194,14 @@ export const EnginePage = (props: Props) => {
   //all scene entities are loaded
   const onSceneLoaded = (event: CustomEvent): void => {
     if (event.detail.loaded) {
-      document.removeEventListener('scene-loaded', onSceneLoaded);
+      EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
       setAppLoaded(true);
-      setTimeout(() => {
-        joinWorld();
-      }, 1000)
+      (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
     }
   };
 
   const addEventListeners = () => {
-    document.addEventListener('scene-loaded', onSceneLoaded);
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
   };
 
   useEffect(() => {

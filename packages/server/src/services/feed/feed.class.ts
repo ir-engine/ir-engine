@@ -2,7 +2,7 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { Application } from '../../declarations';
 import { Paginated, Params } from "@feathersjs/feathers";
 import { QueryTypes } from "sequelize";
-import { Feed as FeedInterface, FeedShord as FeedShortInterface, FeedDatabaseRow } from '../../../../common/interfaces/Feed';
+import { Feed as FeedInterface, FeedShort as FeedShortInterface, FeedDatabaseRow } from '../../../../common/interfaces/Feed';
 import { extractLoggedInUserFromParams } from "../auth-management/auth-management.utils";
 
 /**
@@ -30,6 +30,7 @@ export class Feed extends Service {
     const limit = params.query?.$limit ? params.query.$limit : 10;
 
     const {
+      feed_bookmark:feedBookmarkModel,
       feed_fires:feedFiresModel,
       user:userModel
     } = this.app.get('sequelizeClient').models;
@@ -73,6 +74,7 @@ export class Feed extends Service {
       total: feeds.total,
     };
 
+    const loggedInUser = extractLoggedInUserFromParams(params);
     feedsResult.data = await Promise.all(feeds.data.map(async feed => {
       const [user, feedFires ] = await Promise.all([
         userModel.findOne({
@@ -85,10 +87,16 @@ export class Feed extends Service {
             feedId: feed.id
           }
         }),
+        // feedBookmarkModel.findAndCountAll({
+        //   where: {
+        //     authorId: loggedInUser?.userId ?? '',
+        //     feedId: feed.id,
+        //   }
+        // }),
       ]);
 
-      // const loggedInUser = extractLoggedInUserFromParams(params);
-      // const isFired = loggedInUser?.userId? !!feedFires.rows.find(ff => ff.authorId === loggedInUser.userId) : false;
+      const isFired = loggedInUser?.userId? !!feedFires.rows.find(feedFire => feedFire.authorId === loggedInUser.userId) : false;
+      const isBookmarked = false;//loggedInUser?.userId? !!feedBookmarks.rows.find(bookmark => bookmark.authorId === loggedInUser.userId) : false;
 
       const newFeed: FeedInterface = {
         creator: { // TODO: get creator from corresponding table
@@ -101,7 +109,8 @@ export class Feed extends Service {
         },
         description: feed.description,
         fires: feedFires.count,
-        // isFired,
+        isFired,
+        isBookmarked,
         id: feed.id,
         preview: "https://picsum.photos/375/210",
         stores: 0,

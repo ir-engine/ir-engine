@@ -6,16 +6,16 @@ export default {
   before: {
     all: [],
     find: [
-      addAssociations({
-        models: [
-          {
-            model: 'user'
-          },
-          {
-            model: 'feed_fires'
-          },
-        ]
-      })
+      // addAssociations({
+      //   models: [
+      //     {
+      //       model: 'user'
+      //     },
+      //     {
+      //       model: 'feed_fires'
+      //     },
+      //   ]
+      // })
     ],
     get: [],
     create: [],

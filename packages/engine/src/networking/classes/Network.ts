@@ -71,7 +71,7 @@ export class Network {
   /** User id hosting this network. */
   userId: string
   /** Network id of the local User. */
-  userNetworkId: number
+  localAvatarNetworkId: number
   /** Access tocken of the User. */
   accessToken: string
   /** Snapshot of the network. */
@@ -89,7 +89,7 @@ export class Network {
   static _schemas: Map<string, Schema> = new Map()
 
   /** Buffer holding all incoming Messages. */
-  incomingMessageQueue: RingBuffer<any>
+  incomingMessageQueue: RingBuffer<any> = new RingBuffer<any>(100)
 
   /** State of the world. */
   worldState: WorldStateInterface = {
@@ -116,11 +116,11 @@ export class Network {
   static tick: any = 0
 
   /** Constructs the network. */
-  constructor() {
-    Network.instance = this;
-    Network.tick = 0;
-    this.incomingMessageQueue = new RingBuffer<any>(100);
-  }
+  // constructor() {
+  //   Network.instance = this;
+  //   Network.tick = 0;
+  //   this.incomingMessageQueue ;
+  // }
 
   /** Disposes the network. */
   dispose(): void {
