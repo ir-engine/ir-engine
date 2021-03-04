@@ -63,6 +63,7 @@ import { observer } from 'mobx-react';
 import styles from './Harmony.module.scss';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import {autorun} from "mobx";
+import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 
 
 const mapStateToProps = (state: any): any => {
@@ -180,17 +181,17 @@ const Harmony = observer((props: Props): any => {
     const channelAwaitingProvisionRef = useRef(channelAwaitingProvision);
 
     useEffect(() => {
-        window.addEventListener('connectToWorld', () => {
+        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, () => {
             if (producerStartingRef.current === 'audio') toggleAudio(activeAVChannelIdRef.current);
             else if (producerStartingRef.current === 'video') toggleVideo(activeAVChannelIdRef.current);
             setProducerStarting('');
         });
 
-        window.addEventListener('connectToWorldTimeout', (e: any) => {
+        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
             if (e.instance === true) resetChannelServer();
         })
 
-        window.addEventListener('leaveWorld', () => {
+        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LEAVE_WORLD, () => {
             resetChannelServer();
             if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('');
         });

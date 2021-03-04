@@ -77,7 +77,6 @@ export class EventDispatcher {
 	 * @param type The type of event that gets fired.
 	 */
 	dispatchEvent( event: { type: string; [attachment: string]: any }, ...args: any ): void {
-    console.log(event)
     const listenerArray = this._listeners[event.type];
     if (listenerArray !== undefined) {
       const array = listenerArray.slice(0);

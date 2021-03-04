@@ -12,12 +12,15 @@ import WhatshotIcon from '@material-ui/icons/Whatshot';
 import TelegramIcon from '@material-ui/icons/Telegram';
 import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
 import BookmarkIcon from '@material-ui/icons/Bookmark';
+import VisibilityIcon from '@material-ui/icons/Visibility';
 
 import { Feed } from '@xr3ngine/common/interfaces/Feed';
 import { addFireToFeed, getFeedFires, removeFireToFeed } from '../../../../redux/feedFires/service';
-import CreatorAsTitle from '../CreatorAsTitle';
+import { addViewToFeed } from '../../../../redux/feed/service';
 import { addBookmarkToFeed, removeBookmarkToFeed } from '../../../../redux/feedBookmark/service';
 import { selectFeedFiresState } from '../../../../redux/feedFires/selector';
+import CreatorAsTitle from '../CreatorAsTitle';
+
 import styles from './FeedCard.module.scss';
 
 const mapStateToProps = (state: any): any => {
@@ -32,6 +35,7 @@ const mapStateToProps = (state: any): any => {
     removeFireToFeed: bindActionCreators(removeFireToFeed, dispatch),
     addBookmarkToFeed: bindActionCreators(addBookmarkToFeed, dispatch),
     removeBookmarkToFeed: bindActionCreators(removeBookmarkToFeed, dispatch),
+    addViewToFeed : bindActionCreators(addViewToFeed, dispatch),
 });
 interface Props{
     feed : Feed,
@@ -41,9 +45,10 @@ interface Props{
     removeFireToFeed?: typeof removeFireToFeed;
     addBookmarkToFeed?: typeof addBookmarkToFeed;
     removeBookmarkToFeed?: typeof removeBookmarkToFeed;
+    addViewToFeed?: typeof addViewToFeed;
 }
 const FeedCard = (props: Props) : any => {
-    const {feed, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed, addBookmarkToFeed, removeBookmarkToFeed} = props;
+    const {feed, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed, addBookmarkToFeed, removeBookmarkToFeed, addViewToFeed} = props;
     useEffect(()=>{if(feed){getFeedFires(feed.id);}}, []);
     
     const handleAddFireClick = (feedId) =>addFireToFeed(feedId, '150');
@@ -53,8 +58,7 @@ const FeedCard = (props: Props) : any => {
     const handleRemoveBookmarkClick = (feedId) =>removeBookmarkToFeed(feedId, '150');
 
     const handlePlayVideo = (feedId) => {
-        //here should be redux hadler to service ho increment views for this feed
-        console.log('handlePlayVideo feedId', feedId);
+        addViewToFeed(feedId);
     }
     
     return  feed ? <Card className={styles.tipItem} square={false} elevation={0} key={feed.id}>
@@ -65,6 +69,7 @@ const FeedCard = (props: Props) : any => {
                     title={feed.title}     
                     onClick={()=>handlePlayVideo(feed.id)}               
                 />
+                <span className={styles.eyeLine}>{feed.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
                 <CardContent>
                     <Typography className={styles.titleContainer} gutterBottom variant="h2">
                         <span onClick={()=>Router.push('/feed')}>{feed.title}</span>

@@ -9,7 +9,6 @@ import { Engine } from './ecs/classes/Engine';
 import { execute, initialize } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
-import { EngineProxy } from './EngineProxy';
 import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
 import { Network } from './networking/classes/Network';
 import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';
@@ -25,9 +24,8 @@ import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchem
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { MainProxy } from './worker/MessageQueue';
 import { InputSystem } from './input/systems/ClientInputSystem';
-import { EngineEventsProxy } from './worker/EngineEventsProxy';
-import { EngineEvents } from './worker/EngineEvents';
-import { loadScene, SCENE_EVENTS } from './scene/functions/SceneLoading';
+import { EngineEvents } from './ecs/classes/EngineEvents';
+import { EngineEventsProxy, addIncomingEvents } from './ecs/classes/EngineEvents';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -44,29 +42,13 @@ export const DefaultInitializationOptions = {
   },
 };
 
-class MainEngineProxy extends EngineProxy {
-  mainProxy: MainProxy
-  constructor(mainProxy: MainProxy) {
-    super()
-    this.mainProxy = mainProxy;
-    this.mainProxy.addEventListener('transferNetworkBuffer', (ev: any) => { 
-      const { buffer, delta } = ev.detail;
-      this.transferNetworkBuffer(buffer, delta)
-    })
-    this.mainProxy.addEventListener('setActorAvatar', (ev: any) => { 
-      const { entityID, avatarID } = ev.detail;
-      this.setActorAvatar(entityID, avatarID)
-    })
-  }
-  sendData(buffer) { this.mainProxy.sendEvent('sendData', { buffer }, [buffer]) }
-}
-
-
-export function initializeEngineOffscreen({ canvas, initOptions, env, useWebXR }, proxy: MainProxy): void {
+export function initializeEngineOffscreen({ canvas, userArgs }, proxy: MainProxy): void {
+  const { useWebXR, initOptions } = userArgs;
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
   EngineEvents.instance = new EngineEventsProxy(proxy);
-  EngineProxy.instance = new MainEngineProxy(proxy);
+  addIncomingEvents();
+  
   initialize();
   Engine.scene = new Scene();
 
@@ -101,9 +83,7 @@ export function initializeEngineOffscreen({ canvas, initOptions, env, useWebXR }
 //  registerSystem(PositionalAudioSystem);
   registerSystem(InteractiveSystem);
   registerSystem(ParticleSystem);
-  if (env.NODE_ENV === 'development') {
-    registerSystem(DebugHelpersSystem);
-  }
+  registerSystem(DebugHelpersSystem);
   registerSystem(CameraSystem);
   registerSystem(WebGLRendererSystem, { priority: 1001, canvas });
   Engine.viewportElement = Engine.renderer.domElement;
@@ -114,7 +94,6 @@ export function initializeEngineOffscreen({ canvas, initOptions, env, useWebXR }
     update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
   }, Engine.physicsFrameRate, Engine.networkFramerate).start();
 
-  EngineEvents.instance.addEventListener(SCENE_EVENTS.LOAD_SCENE, (ev: any) => loadScene(ev.result))
 
   const connectNetworkEvent = (ev: any) => {
     Network.instance.isInitialized = true;

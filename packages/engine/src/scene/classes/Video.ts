@@ -1,5 +1,4 @@
 import {
-  VideoTexture,
   LinearFilter,
   sRGBEncoding,
   PlaneBufferGeometry,
@@ -17,8 +16,11 @@ export const VideoProjection = {
   Flat: "flat",
   Equirectangular360: "360-equirectangular"
 };
+import { VideoTexture } from "../../worker/VideoTexture";
+
 export default class Video extends AudioSource {
-  _videoTexture: VideoTexture;
+  // @ts-ignore
+  _videoTexture: any;
   el: HTMLVideoElement;
   _texture: any;
   _mesh: Mesh;
@@ -29,6 +31,7 @@ export default class Video extends AudioSource {
   audio: any;
   constructor(audioListener) {
     super(audioListener, "video");
+    // @ts-ignore
     this._videoTexture = new VideoTexture(this.el);
     this._videoTexture.minFilter = LinearFilter;
     this._videoTexture.encoding = sRGBEncoding;

@@ -6,7 +6,8 @@ import {
   ADD_FEED_FIRES,
   REMOVE_FEED_FIRES,
   ADD_FEED_BOOKMARK,
-  REMOVE_FEED_BOOKMARK
+  REMOVE_FEED_BOOKMARK,
+  ADD_FEED_VIEW
 } from '../actions';
 import { FeedShort, Feed } from '@xr3ngine/common/interfaces/Feed';
 
@@ -24,7 +25,7 @@ export interface FetchingFeedsAction {
   type: string;
 }
 
-export interface addFeedFiresAction {
+export interface oneFeedAction {
   type: string;
   feedId: string;
 }
@@ -33,7 +34,7 @@ export type FeedsAction =
 FeedsRetrievedAction
   | FeedRetrievedAction
   | FetchingFeedsAction
-  | addFeedFiresAction
+  | oneFeedAction
 
 export function feedsRetrieved (feeds: Feed[]): FeedsRetrievedAction {
   return {
@@ -63,30 +64,37 @@ export function fetchingFeeds (): FetchingFeedsAction {
   };
 }
 
-export function addFeedFire (feedId:string) : addFeedFiresAction{
+export function addFeedFire (feedId:string) : oneFeedAction{
   return {
     type: ADD_FEED_FIRES,
     feedId: feedId
   };
 } 
 
-export function removeFeedFire (feedId:string) : addFeedFiresAction{
+export function removeFeedFire (feedId:string) : oneFeedAction{
   return {
     type: REMOVE_FEED_FIRES,
     feedId
   };
 } 
 
-export function addFeedBookmark (feedId:string) : addFeedFiresAction{
+export function addFeedBookmark (feedId:string) : oneFeedAction{
   return {
     type: ADD_FEED_BOOKMARK,
     feedId: feedId
   };
 } 
 
-export function removeFeedBookmark (feedId:string) : addFeedFiresAction{
+export function removeFeedBookmark (feedId:string) : oneFeedAction{
   return {
     type: REMOVE_FEED_BOOKMARK,
     feedId
+  };
+} 
+
+export function addFeedView (feedId:string) : oneFeedAction{
+  return {
+    type: ADD_FEED_VIEW,
+    feedId: feedId
   };
 } 

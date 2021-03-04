@@ -7,6 +7,7 @@ import { appplyVectorMatrixXZ } from '../../common/functions/appplyVectorMatrixX
 import { cannonFromThreeVector } from '../../common/functions/cannonFromThreeVector';
 import { getSignedAngleBetweenVectors } from '../../common/functions/getSignedAngleBetweenVectors';
 import { isClient } from '../../common/functions/isClient';
+import { isServer } from '../../common/functions/isServer';
 import { lerp } from '../../common/functions/MathLerpFunctions';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Engine } from '../../ecs/classes/Engine';
@@ -87,7 +88,7 @@ export class PhysicsSystem extends System {
     this.physicsMaxPrediction = this.physicsFrameRate;
     PhysicsSystem.serverOnlyRigidBodyCollides = false;
     // Physics
-    PhysicsSystem.simulate = true;
+    PhysicsSystem.simulate = isServer;
     PhysicsSystem.frame = 0;
     PhysicsSystem.physicsWorld = new World();
     PhysicsSystem.physicsWorld.allowSleep = false;
