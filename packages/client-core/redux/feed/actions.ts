@@ -7,7 +7,8 @@ import {
   REMOVE_FEED_FIRES,
   ADD_FEED_BOOKMARK,
   REMOVE_FEED_BOOKMARK,
-  ADD_FEED_VIEW
+  ADD_FEED_VIEW,
+  ADD_FEED
 } from '../actions';
 import { FeedShort, Feed } from '@xr3ngine/common/interfaces/Feed';
 
@@ -98,3 +99,10 @@ export function addFeedView (feedId:string) : oneFeedAction{
     feedId: feedId
   };
 } 
+
+export function addFeed(feed:Feed): FeedRetrievedAction{
+  return {
+    type: ADD_FEED,
+    feed: feed
+  };
+}
