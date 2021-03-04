@@ -48,12 +48,20 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered }
     });
 
     stickLeft.on("move", ( e, data) => {
-      console.log('move left', data.vector);
-      const event = new CustomEvent("stickmove", { "detail": { stick: Thumbsticks.Left, value: { x: data.vector.y, y: -data.vector.x } } });
+      const event = new CustomEvent(
+        "stickmove",
+        {
+          "detail": {
+            stick: Thumbsticks.Left, 
+            value: { x : data.vector.y, y: -data.vector.x, angleRad: data.angle.radian },
+          }, 
+        }
+      );
       document.dispatchEvent(event);
     });
+
     stickLeft.on("end", ( e, data) => {
-      const event = new CustomEvent("stickmove", { "detail": { stick: Thumbsticks.Left, value: { x:0, y:0 } } });
+      const event = new CustomEvent("stickmove", { "detail": { stick: Thumbsticks.Left, value: { x: 0, y: 0, angleRad: 0 } } });
       document.dispatchEvent(event);
     });
 
