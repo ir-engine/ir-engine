@@ -20,7 +20,7 @@ import InstanceChat from '../InstanceChat';
 import Me from '../Me';
 import NavMenu from '../NavMenu';
 import PartyVideoWindows from '../PartyVideoWindows';
-import { Forum, FullscreenExit, People } from '@material-ui/icons';
+import { Forum, FullscreenExit, People, ZoomOutMap } from '@material-ui/icons';
 import Harmony from "../Harmony";
 //@ts-ignore
 import styles from './Layout.module.scss';
@@ -130,11 +130,7 @@ const Layout = (props: Props): any => {
   // TODO: Uncomment alerts when we can fix issues
   return (
     <>
-      {
-        !fullScreenActive && <span className={styles.fullScreen} onClick={handle.enter}>
-          <Expand/>
-        </span>
-      }
+      
       <FullScreen handle={handle} onChange={reportChange}>
         <ThemeProvider theme={theme}>
           <section>
@@ -158,6 +154,14 @@ const Layout = (props: Props): any => {
                   </>
                 ) : null}
             </header>
+
+            {fullScreenActive
+              ? <button type="button" className={styles.fullScreen} onClick={handle.exit}>
+                  <FullscreenExit />
+                </button>
+              : <button type="button" className={styles.fullScreen} onClick={handle.enter}>
+                <ZoomOutMap />
+              </button>}
 
             {harmonyOpen === true && <Harmony setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} />}
             <Fragment>
@@ -191,11 +195,7 @@ const Layout = (props: Props): any => {
               { user?.userRole !== 'guest' && <div className={styles['harmony-toggle']}><Fab color="primary" onClick={() => setHarmonyOpen(!harmonyOpen )}><Forum /></Fab></div> }
 
 
-              {
-                fullScreenActive && <span className={styles.fullScreen} onClick={handle.exit}>
-                  <FullscreenExit style={{ fontSize: "4rem" }} />
-                </span>
-              }
+              
             </footer>
           </section>
         </ThemeProvider>
