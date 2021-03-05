@@ -29,6 +29,14 @@ import { createEditor } from "./Nodes";
 import PropertiesPanelContainer from "./properties/PropertiesPanelContainer";
 import ToolBar from "./toolbar/ToolBar";
 import ViewportPanelContainer from "./viewport/ViewportPanelContainer";
+import { selectAdminState } from '../../redux/admin/selector';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
+import {
+  fetchAdminLocations,
+  fetchAdminScenes,
+  fetchLocationTypes
+} from '../../redux/admin/service';
 
 
 /**
@@ -59,6 +67,10 @@ const WorkspaceContainer = (styled as any).div`
 type EditorContainerProps = {
   api: Api;
   router: Router;
+  adminState: any;
+  fetchAdminLocations?: any;
+  fetchAdminScenes?: any;
+  fetchLocationTypes?: any
 };
 type EditorContainerState = {
   project: any;
@@ -74,9 +86,11 @@ type EditorContainerState = {
   modified: boolean;
 };
 
+
 class EditorContainer extends Component<EditorContainerProps, EditorContainerState> {
   static propTypes = {
     api: PropTypes.object.isRequired,
+    adminState: PropTypes.object,
     // These aren't needed since we are using nextjs route now
     // history: PropTypes.object.isRequired,
     // match: PropTypes.object.isRequired,
@@ -116,9 +130,18 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   componentDidMount() {
+    if(this.props.adminState.get('locations').get('updateNeeded') === true){
+      this.props.fetchAdminLocations();
+    }
+    if (this.props.adminState.get('scenes').get('updateNeeded') === true ) {
+      this.props.fetchAdminScenes();
+    }
+    if (this.props.adminState.get('locationTypes').get('updateNeeded') === true) {
+      this.props.fetchLocationTypes();
+     }
     const queryParams = this.state.queryParams;
     const projectId = queryParams.get("projectId");
-
+    
     if (projectId === "new") {
       if (queryParams.has("template")) {
         this.loadProjectTemplate(queryParams.get("template"));
@@ -805,7 +828,16 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     const { DialogComponent, dialogProps, modified, settingsContext, editor } = this.state;
     const toolbarMenu = this.generateToolbarMenu();
     const isPublishedScene = !!this.getSceneId();
-
+    const locations =  this.props.adminState.get('locations').get('locations');
+    let assigneeScene;
+    if(locations){
+      locations.forEach(element => {     
+        if(element.sceneId === this.state.queryParams.get("projectId") ) {
+          assigneeScene = element;
+        }
+      });
+    }
+    
     return (
       <StyledEditorContainer id="editor-container">
         <SettingsContextProvider value={settingsContext}>
@@ -819,6 +851,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
                     onPublish={this.onPublishProject}
                     isPublishedScene={isPublishedScene}
                     onOpenScene={this.onOpenScene}
+                    queryParams={assigneeScene}
                   />}
                   <WorkspaceContainer>
                     <Resizeable axis="x" initialSizes={[0.7, 0.3]} onChange={this.onResize}>
@@ -854,4 +887,17 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 }
 
-export default withRouter(withApi(EditorContainer));
+
+const mapStateToProps = (state: any): any => {
+  return {
+      adminState: selectAdminState(state)
+  };
+};
+
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
+  fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch),
+  fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch),
+  fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch),
+});
+
+export default withRouter(withApi(connect(mapStateToProps, mapDispatchToProps )(EditorContainer)));

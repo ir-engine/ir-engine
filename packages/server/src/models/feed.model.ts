@@ -17,14 +17,23 @@ export default function (app: Application): typeof Model {
       type: DataTypes.STRING,
       allowNull: false
     },
+    preview: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     description: {
       type: DataTypes.TEXT,
       allowNull: false
     },
-    viewCount: {
+    viewsCount: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0
+    },
+    featured: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   }, {
     hooks: {

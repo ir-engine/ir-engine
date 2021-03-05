@@ -24,16 +24,17 @@ const mapStateToProps = (state: any): any => {
 interface Props{
     feedsState?: any,
     getFeed?: any,
+    feedId?:string;
 }
-const Feed = ({feedsState, getFeed} : Props) => { 
+const Feed = ({feedsState, getFeed, feedId} : Props) => { 
     let feed  = null as any;
-    useEffect(()=> getFeed(random(50)), []);
+    useEffect(()=> getFeed(feedId), []);
     feed = feedsState && feedsState.get('fetching') === false && feedsState.get('feed'); 
 
     return <section style={{overflow: 'scroll'}}>
             {feed && <FeedCard feed={feed} />}      
-            <CommentList />  
-            <NewComment />      
+            {feed && <CommentList feedId={feed.id} />}  
+            {feed && <NewComment feedId={feed.id} />}  
         </section>
 };
 

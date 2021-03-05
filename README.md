@@ -66,6 +66,8 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
     If you do not have Docker installed and do not wish to install it, you'll have to manually create a MariaDB server.
    
    The default username is 'server', the default password is 'password', the default database name is 'xr3ngine', the default hostname is '127.0.0.1', and the default port is '3306'.
+   
+   Seeing errors connecting to the local DB? Shut off your local firewall.
     
 3. Open a new tab and start the Agones sidecar in local mode
 
@@ -122,6 +124,17 @@ If you are on Windows, you can use docker-compose to start the scripts/docker-co
 ```
     docker container start xr3ngine_db
 ```
+
+## Deployment
+
+[AWS EKS Deployment](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/docs/EKS-setup.md)
+
+[Managing Kubernets](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/docs/managing_remote_kubernets.md)
+
+[Managing Helm Charts](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/docs/release-helm-chart.md)
+
+[Cloudformation Scripts](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/xr3-cloudformation)
+
 
 #### OSX DB Init
 
