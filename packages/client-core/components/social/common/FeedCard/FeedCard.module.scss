@@ -1,7 +1,7 @@
 .tipItem{
     width: 100%;
     border-top: 1px solid #DDDDDD;
-    padding: 5px 0 0 0;
+    padding: 5px 0 20px 0;
     position: relative;
 
     .previewImage{
@@ -23,11 +23,11 @@
             margin: 0 0 0 5px;
         }
     }
+    .iconsContainer{
+        text-align: right;
+    }
     .titleContainer{
-        font-weight: bold;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;            
+        font-weight: bold;                
     }
     .flamesCount{
         font-weight: bold;

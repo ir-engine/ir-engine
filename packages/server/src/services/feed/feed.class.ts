@@ -79,28 +79,45 @@ export class Feed extends Service {
       { model: feedFiresModel, as: 'feed_fires' },
       // { model: feedBookmarkModel, as: 'feed_bookmark' },
     ];
-    const feeds = await feedModel.findAndCountAll(options) as FindAndCountResultInterface<FeedDatabaseRow>;
+    // const feeds = await feedModel.findAndCountAll(options) as FindAndCountResultInterface<FeedDatabaseRow>;
 
-    console.log('feeds', feeds)
+    const dataQuery = `SELECT feed.*, user.id as userId, user.name as userName, COUNT(ff.id) as fires
+    FROM \`feed\` as feed
+    JOIN \`user\` as user ON user.id=feed.authorId
+    LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
+    WHERE 1 
+    GROUP BY feed.id
+    LIMIT :skip, :limit`;
+    const feeds = await this.app.get('sequelizeClient').query(dataQuery,
+      {
+        type: QueryTypes.SELECT,
+        raw: true,
+        replacements: {
+          skip,
+          limit
+        }
+      });
+
     const loggedInUser = extractLoggedInUserFromParams(params);
-    const data = feeds.rows.map(feed => {
+    const data = feeds.map(feed => {
       // @ts-ignore
-      const { user, feed_fires } = feed;
-      const isFired = loggedInUser?.userId? !!feed_fires.find(feedFire => feedFire.authorId === loggedInUser.userId) : false;
+      const { user } = feed;
+      const isFired = false;
+      // const isFired = loggedInUser?.userId? !!feed_fires.find(feedFire => feedFire.authorId === loggedInUser.userId) : false;
       const isBookmarked = false;
       //loggedInUser?.userId? !!feedBookmarks.rows.find(bookmark => bookmark.authorId === loggedInUser.userId) : false;
 
       const newFeed: FeedInterface = {
         creator: { // TODO: get creator from corresponding table
-          userId: user.id,
-          id: user.id,
+          userId: feed.userId,
+          id:feed.userId,
           avatar: 'https://picsum.photos/40/40',
-          name: user.name,
-          username: user.name,
+          name: feed.userName,
+          username: feed.userName,
           verified : true,
         },
         description: feed.description,
-        fires: feed_fires.count,
+        fires: feed.fires,
         isFired,
         isBookmarked,
         id: feed.id,
@@ -118,7 +135,7 @@ export class Feed extends Service {
       data,
       skip: skip,
       limit: limit,
-      total: feeds.count,
+      total: feeds.length,
     };
 
     return feedsResult;

@@ -24,18 +24,10 @@ export function getFeeds(type : string, limit?: number) {
         });
         dispatch(feedsFeaturedRetrieved(feedsResults.data));
       }else{
-               const feedsResults = await client.service('feed').find({
-          query: {
-          }
-        });
+          const feedsResults = await client.service('feed').find({query: {}});
+
         dispatch(feedsRetrieved(feedsResults.data));
       }
-      //  await client.service('feed').find({
-      //   query: {
-      //     $limit: limit != null ? limit : getState().get('feed').get('limit'),
-      //     $skip: skip != null ? skip : getState().get('feed').get('skip')
-      //   }
-      // });
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
