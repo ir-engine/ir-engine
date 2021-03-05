@@ -71,16 +71,16 @@ const FeedCard = (props: Props) : any => {
                 />
                 <span className={styles.eyeLine}>{feed.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
                 <CardContent>
-                    <Typography className={styles.titleContainer} gutterBottom variant="h2">
-                        <span onClick={()=>Router.push({ pathname: '/feed', query:{ feedId: feed.id}})}>{feed.title}</span>
-                        <section>
-                            {feed.isFired ? 
-                                    <WhatshotIcon htmlColor="#FF6201" onClick={()=>handleRemoveFireClick(feed.id)} /> 
-                                    :
-                                    <WhatshotIcon htmlColor="#DDDDDD" onClick={()=>handleAddFireClick(feed.id)} />}
-                            <TelegramIcon />
-                            {feed.isBookmarked ? <BookmarkIcon onClick={()=>handleRemoveBookmarkClick(feed.id)} /> : <BookmarkBorderIcon onClick={()=>handleAddBookmarkClick(feed.id)} />}
-                        </section>
+                    <section className={styles.iconsContainer}>
+                        {feed.isFired ? 
+                                <WhatshotIcon htmlColor="#FF6201" onClick={()=>handleRemoveFireClick(feed.id)} /> 
+                                :
+                                <WhatshotIcon htmlColor="#DDDDDD" onClick={()=>handleAddFireClick(feed.id)} />}
+                        <TelegramIcon />
+                        {feed.isBookmarked ? <BookmarkIcon onClick={()=>handleRemoveBookmarkClick(feed.id)} /> : <BookmarkBorderIcon onClick={()=>handleAddBookmarkClick(feed.id)} />}
+                    </section>
+                    <Typography className={styles.titleContainer} gutterBottom variant="h2" onClick={()=>Router.push({ pathname: '/feed', query:{ feedId: feed.id}})}>
+                        {feed.title}                      
                     </Typography>
                     <Typography variant="h2" onClick={()=>console.log('Fires ',feedFiresState.get('feedFires'))}><span className={styles.flamesCount}>{feed.fires}</span>Flames</Typography>
                     <Typography variant="h2">{feed.description}</Typography>
