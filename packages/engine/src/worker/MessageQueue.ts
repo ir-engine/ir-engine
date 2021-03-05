@@ -9,8 +9,7 @@ import {
   Scene,
 } from 'three';
 import { MathUtils } from 'three';
-import { MediaElementProxyID } from './Audio';
-import { isWebWorker } from '../common/functions/getEnvironment';
+
 const { generateUUID } = MathUtils;
 
 export interface Message {
