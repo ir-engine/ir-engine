@@ -59,7 +59,7 @@ export const interactOnServer: Behavior = (entity: Entity, args: any, delta): vo
 
   //console.warn('found networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
 
-    if (interactable.onInteractionCheck(entity, focusedArrays[0][0], focusedArrays[0][2])) {
+    if (typeof interactable.onInteractionCheck === 'function' && interactable.onInteractionCheck(entity, focusedArrays[0][0], focusedArrays[0][2])) {
     //  console.warn('start with networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
       interactable.onInteraction(entity, { currentFocusedPart: focusedArrays[0][2] }, delta, focusedArrays[0][0]);
     }

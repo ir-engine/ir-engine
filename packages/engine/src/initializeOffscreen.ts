@@ -1,11 +1,11 @@
 import _ from 'lodash';
-import { AudioListener, BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
+import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
 import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
 import { CameraSystem } from './camera/systems/CameraSystem';
 import { Timer } from './common/functions/Timer';
 import { DebugHelpersSystem } from './debug/systems/DebugHelpersSystem';
-import { Engine } from './ecs/classes/Engine';
+import { Engine, AudioListener } from './ecs/classes/Engine';
 import { execute, initialize } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
@@ -26,6 +26,7 @@ import { MainProxy } from './worker/MessageQueue';
 import { InputSystem } from './input/systems/ClientInputSystem';
 import { EngineEvents } from './ecs/classes/EngineEvents';
 import { EngineEventsProxy, addIncomingEvents } from './ecs/classes/EngineEvents';
+import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -74,12 +75,12 @@ export function initializeEngineOffscreen({ canvas, userArgs }, proxy: MainProxy
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.3, 750);
   Engine.scene.add(Engine.camera);
 
-//  const listener = new AudioListener();
-//  camera.add( listener);
-
-//  Engine.audioListener = listener;
-
   registerSystem(HighlightSystem);
+
+  Engine.audioListener = new AudioListener();
+  Engine.camera.add(Engine.audioListener);
+  registerSystem(PositionalAudioSystem);
+
 //  registerSystem(PositionalAudioSystem);
   registerSystem(InteractiveSystem);
   registerSystem(ParticleSystem);

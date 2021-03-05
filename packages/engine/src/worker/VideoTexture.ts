@@ -4,16 +4,13 @@ import {
   LinearFilter,
   TextureDataType,
   TextureFilter,
-  TextureEncoding,
   CanvasTexture,
   Wrapping,
-  VideoTexture as THREE_VideoTexture,
 } from 'three';
 
-import { isWebWorker } from '../common/functions/getEnvironment';
 import type { VideoDocumentElementProxy } from './MessageQueue';
 
-class VideoTextureProxy extends CanvasTexture {
+export class VideoTextureProxy extends CanvasTexture {
   isVideoTexture = true;
   videoProxy: VideoDocumentElementProxy;
   constructor(
@@ -69,5 +66,3 @@ class VideoTextureProxy extends CanvasTexture {
     }
   }
 }
-
-export const VideoTexture = isWebWorker ? VideoTextureProxy : THREE_VideoTexture;

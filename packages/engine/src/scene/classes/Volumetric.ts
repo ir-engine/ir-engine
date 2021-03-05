@@ -13,7 +13,9 @@ import { RethrownError } from "../../editor/functions/errors";
 import Hls from "hls.js/dist/hls.light";
 import isHLS from "../../editor/functions/isHLS";
 import AudioSource from "./AudioSource";
-import { VideoTexture } from "../../worker/VideoTexture";
+import { Engine, VideoTexture } from "../../ecs/classes/Engine";
+import { EngineEvents } from "../../ecs/classes/EngineEvents";
+
 export const VideoProjection = {
   Flat: "flat",
   Equirectangular360: "360-equirectangular"
@@ -63,6 +65,18 @@ export default class Volumetric extends AudioSource {
       }
       let cleanup = null;
       const onLoadedMetadata = () => {
+        if (this.el.autoplay) {
+          if(Engine.hasUserEngaged) {
+            this.el.play();
+          } else {
+            const onUserEngage = () => {
+              this.el.play();
+              EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
+            }
+            EngineEvents.instance.addEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
+          }
+        }
+        cleanup();
         cleanup();
         resolve(this._videoTexture);
       };
