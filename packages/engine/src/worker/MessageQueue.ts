@@ -450,11 +450,22 @@ export class AudioDocumentElementProxy extends DocumentElementProxy {
     this._autoplay = value;
     this.__setValue('autoplay', value);
   }
-
+  get isPlaying() {
+    return this._isPlaying;
+  }
+  play() {
+    this._isPlaying = true;
+    super.play()
+  }
+  pause() {
+    this._isPlaying = false;
+    super.pause()
+  }
   dispatchEvent(
     ev: any,
     fromMain?: boolean
   ): void {
+    console.log(ev)
     switch(ev.type) {
       case 'play': this._isPlaying = true; break;
       case 'pause': case 'paused': case 'ended': this._isPlaying = false; break;
