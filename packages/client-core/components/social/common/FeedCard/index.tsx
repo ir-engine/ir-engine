@@ -72,7 +72,7 @@ const FeedCard = (props: Props) : any => {
                 <span className={styles.eyeLine}>{feed.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
                 <CardContent>
                     <Typography className={styles.titleContainer} gutterBottom variant="h2">
-                        <span onClick={()=>Router.push('/feed')}>{feed.title}</span>
+                        <span onClick={()=>Router.push({ pathname: '/feed', query:{ feedId: feed.id}})}>{feed.title}</span>
                         <section>
                             {feed.isFired ? 
                                     <WhatshotIcon htmlColor="#FF6201" onClick={()=>handleRemoveFireClick(feed.id)} /> 

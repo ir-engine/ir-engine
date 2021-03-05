@@ -5,18 +5,7 @@ import logger from "../../app/logger";
 export default {
   before: {
     all: [],
-    find: [
-      // addAssociations({
-      //   models: [
-      //     {
-      //       model: 'user'
-      //     },
-      //     {
-      //       model: 'feed_fires'
-      //     },
-      //   ]
-      // })
-    ],
+    find: [],
     get: [],
     create: [],
     update: [],
