@@ -8,6 +8,7 @@ import { CharacterComponent } from "../../templates/character/components/Charact
 import { loadActorAvatar } from "../../templates/character/prefabs/NetworkPlayerCharacter";
 import { MessageQueue } from "../../worker/MessageQueue";
 import { getEntityByID, getMutableComponent } from "../functions/EntityFunctions";
+import { Engine } from "./Engine";
 
 const EVENTS = {
 
@@ -66,6 +67,11 @@ export const addIncomingEvents = () => {
     loadActorAvatar(entity)
   })
 
+  const onUserEngage = () => {
+    Engine.hasUserEngaged = true;
+    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
+  }
+  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
 }
 
 export const addOutgoingEvents = () => {

@@ -14,9 +14,9 @@ import {
   KeyframeBuffer
 } from './Interfaces';
 import RingBuffer from './RingBuffer';
-import { VideoTexture } from '@xr3ngine/engine/src/worker/VideoTexture'
-import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
+import { Engine, VideoTexture } from '@xr3ngine/engine/src/ecs/classes/Engine';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
+
 export default class DracosisPlayer {
   // Public Fields
   public frameRate = 30;
@@ -172,11 +172,15 @@ export default class DracosisPlayer {
       this.iframeVertexBuffer = new RingBuffer(numberOfIframes);
 
       if (autoplay) {
-        const onUserEngage = () => {
+        if(Engine.hasUserEngaged) {
           this.play();
-          EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
+        } else {
+          const onUserEngage = () => {
+            this.play();
+            EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
+          }
+          EngineEvents.instance.addEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
         }
-        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
       }
 
       worker.postMessage({ type: "initialize", payload: { meshFilePath, numberOfKeyframes: this.numberOfKeyframes, fileHeader: this.fileHeader } }); // Send data to our worker.

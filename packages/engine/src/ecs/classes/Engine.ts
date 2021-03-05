@@ -3,7 +3,17 @@
  * @packageDocumentation
  */
 
-import { AudioListener, Clock, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
+import { 
+  AudioListener as THREE_AudioListener,
+  Clock,
+  PerspectiveCamera,
+  Scene, 
+  WebGLRenderer, 
+  AudioLoader as THREE_AudioLoader,
+  VideoTexture as THREE_VideoTexture, 
+  Audio as THREE_Audio, 
+  PositionalAudio as THREE_PositionalAudio 
+} from 'three';
 import { CSM } from '../../assets/csm/CSM';
 import { ServerSpawnSystem } from "../../scene/systems/SpawnSystem";
 import { TransformComponent } from '../../transform/components/TransformComponent';
@@ -13,6 +23,23 @@ import { EntityPool } from './EntityPool';
 import { EntityEventDispatcher } from './EntityEventDispatcher';
 import { Query } from './Query';
 import { createElement } from '../functions/createElement';
+import { isWebWorker } from '../../common/functions/getEnvironment';
+import { VideoTextureProxy } from '../../worker/VideoTexture';
+import { PositionalAudioObjectProxy, AudioObjectProxy, AudioListenerProxy, AudioLoaderProxy } from '../../worker/Audio';
+
+
+export const Audio = isWebWorker ? AudioObjectProxy : THREE_Audio;
+export const AudioListener = isWebWorker ? AudioListenerProxy : THREE_AudioListener;
+export const AudioLoader = isWebWorker ? AudioLoaderProxy : THREE_AudioLoader;
+export const PositionalAudio = isWebWorker ? PositionalAudioObjectProxy : THREE_PositionalAudio;
+export const VideoTexture = isWebWorker ? VideoTextureProxy : THREE_VideoTexture;
+
+export type Audio = AudioObjectProxy | THREE_Audio;
+export type AudioListener = AudioListenerProxy | THREE_AudioListener;
+export type AudioLoader = AudioLoaderProxy | THREE_AudioLoader;
+export type PositionalAudio = PositionalAudioObjectProxy | THREE_PositionalAudio;
+export type VideoTexture = VideoTextureProxy | THREE_VideoTexture;
+
 
 /**
  * This is the base class which holds all the data related to the scene, camera,system etc.\
@@ -85,7 +112,7 @@ export class Engine {
    * Reference to the audioListener.
    * This is a virtual listner for all positional and non-positional audio.
    */
-  static audioListener: AudioListener = null
+  static audioListener: any = null
 
   /**
    * Event dispatcher manages sending events which can be interpreted by devtools.
@@ -193,4 +220,6 @@ export class Engine {
   static spawnSystem: ServerSpawnSystem;
 
   static createElement: any = createElement;
+
+  static hasUserEngaged: boolean = false;
 }
