@@ -13,6 +13,7 @@ import {
 } from '@material-ui/core';
 import styles from '../style.module.scss';
 import { WebGLRendererSystem } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
+import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 
 const SettingMenu = (props: any): JSX.Element => {
   return (
@@ -51,8 +52,8 @@ const SettingMenu = (props: any): JSX.Element => {
                   resolution: value,
                   automatic: false
                 })
-                WebGLRendererSystem.instance.setResolution(value);
-                WebGLRendererSystem.instance.setUseAutomatic(false);
+                EngineEvents.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_RESOLUTION, payload: value });
+                EngineEvents.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC, payload: false });
               }}
               className={styles.slider}
               min={0.25}
@@ -70,8 +71,8 @@ const SettingMenu = (props: any): JSX.Element => {
                   shadows: value,
                   automatic: false
                 })
-                WebGLRendererSystem.instance.setShadowQuality(value);
-                WebGLRendererSystem.instance.setUseAutomatic(false);
+                EngineEvents.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_SHADOW_QUALITY, payload: value });
+                EngineEvents.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC, payload: false });
               }}
               className={styles.slider}
               min={2}
@@ -89,8 +90,8 @@ const SettingMenu = (props: any): JSX.Element => {
                   postProcessing: value,
                   automatic: false
                 })
-                WebGLRendererSystem.instance.setUsePostProcessing(value);
-                WebGLRendererSystem.instance.setUseAutomatic(false);
+                EngineEvents.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_POST_PROCESSING, payload: value });
+                EngineEvents.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC, payload: false });
               }}
             />
             <FormControlLabel
@@ -114,7 +115,7 @@ const SettingMenu = (props: any): JSX.Element => {
                 props.setGraphicsSettings({
                   automatic: value
                 })
-                WebGLRendererSystem.instance.setUseAutomatic(value);
+                EngineEvents.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC, payload: value });
               }}
             />
           </div>

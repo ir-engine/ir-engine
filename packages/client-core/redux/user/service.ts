@@ -6,7 +6,8 @@ import {
   loadedUsers,
   loadedLayerUsers,
   loadedChannelLayerUsers,
-  loadedUserRelationship
+  loadedUserRelationship,
+  displayUserToast,
 } from './actions';
 import { User } from '@xr3ngine/common/interfaces/User';
 
@@ -122,4 +123,8 @@ export function declineFriend(userId: string, relatedUserId: string) {
 
 export function cancelBlock(userId: string, relatedUserId: string) {
   return removeRelation(userId, relatedUserId);
+}
+
+export function showUserToast(user: User, args: string) {
+  return displayUserToast(user, args);
 }

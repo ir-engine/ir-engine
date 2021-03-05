@@ -19,7 +19,7 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
       if (isClient && hasComponent(entity, LocalInputReceiver) && hasComponent(entity, NetworkObject)) {
 
         const actor = getComponent(entity, CharacterComponent)
-        const networkId = Network.instance.userNetworkId;
+        const networkId = Network.instance.localAvatarNetworkId;
         const correction = args.clientSnapshot.correction;
 
         if (hasComponent(entity, LocalInputReceiver)) {
