@@ -34,7 +34,7 @@ export class Feed extends Service {
   async find (params: Params): Promise<any> {
     const action = params.query?.action;
     const skip = params.query?.$skip ? params.query.$skip : 0;
-    const limit = params.query?.$limit ? params.query.$limit : 10;
+    const limit = params.query?.$limit ? params.query.$limit : 100;
 
     const {
       feed_bookmark:feedBookmarkModel,
@@ -47,7 +47,7 @@ export class Feed extends Service {
     const options: FindAndCountOptions = {
       offset: skip,
       limit,
-      order: [ [ 'createdAt', 'ASC' ] ] // order not used in find?
+      order: [ [ 'createdAt', 'DESC' ] ] // order not used in find?
     };
 
     if (action === 'featured') {
@@ -87,7 +87,9 @@ export class Feed extends Service {
     LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
     WHERE 1 
     GROUP BY feed.id
-    LIMIT :skip, :limit`;
+    ORDER BY feed.createdAt DESC    
+    LIMIT :skip, :limit 
+    `;
     const feeds = await this.app.get('sequelizeClient').query(dataQuery,
       {
         type: QueryTypes.SELECT,
@@ -141,9 +143,6 @@ export class Feed extends Service {
     return feedsResult;
   }
 
-
-
-
     /**
    * A function which is used to find specific project 
    * 
@@ -152,7 +151,7 @@ export class Feed extends Service {
    * @returns {@Object} contains specific feed
    * @author Vykliuk Tetiana
    */
-     async get (id: Id, params?: Params): Promise<any> {
+    async get (id: Id, params?: Params): Promise<any> {
       const {
         feed_bookmark:feedBookmarkModel,
         feed_fires:feedFiresModel,
@@ -179,6 +178,10 @@ export class Feed extends Service {
           ]
         });
 
+        feed.feed_fires
+
+      // console.log('feed.feed_fires[]', feed.feed_fires.length)
+      // feed.feed_fires.map(feed=>console.log('fire', feed))
       const loggedInUser = extractLoggedInUserFromParams(params);
       // @ts-ignore
       const { user, feed_fires } = feed;
@@ -195,7 +198,7 @@ export class Feed extends Service {
           verified : true,
         },
         description: feed.description,
-        fires: feed_fires.legth,
+        fires: feed.feed_fires.length,
         isFired:false,
         isBookmarked,
         id: feed.id,
@@ -212,4 +215,11 @@ export class Feed extends Service {
   
       return newFeed;
     }
+
+    async create (data : any): Promise<any> {
+      const {feed:feedModel} = this.app.get('sequelizeClient').models;
+      const newFeed =  await feedModel.create(data);
+      return  newFeed;
+    }
+  
 }
