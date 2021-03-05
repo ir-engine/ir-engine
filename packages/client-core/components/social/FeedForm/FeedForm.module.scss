@@ -1,0 +1,14 @@
+.feedFormContainer{
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    margin: auto 0;
+
+    .previewImage{
+        height: 210px;
+    }
+
+    .textArea{
+        min-height: 100px;
+    }
+}
