@@ -20,9 +20,11 @@ export interface Message {
 
 export enum MessageType {
   OFFSCREEN_CANVAS,
+  CANVAS_CREATED,
   ADD_EVENT,
   REMOVE_EVENT,
   EVENT,
+  TRANSFER,
   DOCUMENT_ELEMENT_CREATE,
   DOCUMENT_ELEMENT_FUNCTION_CALL,
   DOCUMENT_ELEMENT_PARAM_SET,
@@ -51,6 +53,11 @@ function simplifyObject(object: any): any {
   return messageData;
 }
 
+/**
+ * should do this the other way, create a map of arrays of keys and add objects only if the array that corresponds
+ *    to that event key contains it. this allows us to catch weird edge cases instead of just deleting as many
+ *    things as we can find, and also reduces how much we are sending over the worker
+ */
 function fixDocumentEvent(event: any) {
   const obj = simplifyObject(event);
   switch(obj.srcElement) {
@@ -63,6 +70,11 @@ function fixDocumentEvent(event: any) {
   delete obj.path;
   delete obj.srcElement;
   delete obj.target;
+  delete obj.view;
+  delete obj.sourceCapabilities;
+  delete obj.toElement;
+  delete obj.relatedTarget;
+  delete obj.fromElement;
   return obj;
 }
 
@@ -84,7 +96,7 @@ class ExtendableProxy {
   }
 }
 
-class EventDispatcherProxy extends ExtendableProxy {
+export class EventDispatcherProxy extends ExtendableProxy {
   [x: string]: any;
   eventTarget: EventTarget;
   eventListener: any;
@@ -164,7 +176,7 @@ class EventDispatcherProxy extends ExtendableProxy {
   }
 }
 
-class MessageQueue extends EventDispatcherProxy {
+export class MessageQueue extends EventDispatcherProxy {
   messagePort: any;
   queue: Message[];
   interval: NodeJS.Timeout;
@@ -207,12 +219,19 @@ class MessageQueue extends EventDispatcherProxy {
       transferables
     } as Message);
   }
+  transfer(transferables: Transferable[]) {
+    this.queue.push({
+      messageType: MessageType.TRANSFER,
+      message: {},
+      transferables
+    });
+  }
   sendQueue() {
     if (!this.queue?.length) return;
     const messages: object[] = [];
     this.queue.forEach((message: Message) => {
       messages.push({
-        type: message.messageType,
+        messageType: message.messageType,
         message: message.message,
       });
     });
@@ -231,16 +250,16 @@ class MessageQueue extends EventDispatcherProxy {
   receiveQueue(queue: object[]) {
     queue.forEach((element: object) => {
       /** @ts-ignore */
-      const { type, message } = element;
+      const { messageType, message } = element;
       if (!message.returnID || message.returnID === '') {
-        if (this.messageTypeFunctions.has(type)) {
-          this.messageTypeFunctions.get(type)(message);
+        if (this.messageTypeFunctions.has(messageType)) {
+          this.messageTypeFunctions.get(messageType)(message);
         }
       } else {
         if (this.remoteDocumentObjects.get(message.returnID)) {
           this.remoteDocumentObjects
             .get(message.returnID)
-            ?.messageTypeFunctions.get(type)(message);
+            ?.messageTypeFunctions.get(messageType)(message);
         }
       }
     });
@@ -269,16 +288,16 @@ class MessageQueue extends EventDispatcherProxy {
   }
 
   dispatchEvent(
-    { type, detail }: { type: string, detail: any },
+    ev: any,
     fromSelf?: boolean
   ): void {
     if(!fromSelf) {
       this.queue.push({
         messageType: MessageType.EVENT,
-        message: { type, detail },
+        message: simplifyObject(ev),
       } as Message);
     }
-    super.dispatchEvent({ type, detail });
+    super.dispatchEvent(ev);
   }
 }
 
@@ -383,16 +402,17 @@ class DocumentElementProxy extends EventDispatcherProxy {
   }
 
   dispatchEvent(
-    { type, detail }: { type: string, detail: any },
+    ev: any,
     fromMain?: boolean
   ): void {
     if(!fromMain) {
+      ev.uuid = this.uuid;
       this.messageQueue.queue.push({
         messageType: MessageType.DOCUMENT_ELEMENT_EVENT,
-        message: { type, detail, uuid: this.uuid },
+        message: simplifyObject(ev),
       } as Message);
     } 
-    super.dispatchEvent({ type, detail });
+    super.dispatchEvent(ev);
   }
 }
 
@@ -621,25 +641,6 @@ export class WorkerProxy extends MessageQueue {
     }, });
 
     this.canvas = eventTarget as HTMLCanvasElement;
-
-    // this.messageTypeFunctions.set(MessageType.EVENT, (event: any) => {
-    //   event.preventDefault = () => {};
-    //   event.stopPropagation = () => {};
-    //   delete event.target;
-    //   this.dispatchEvent(new CustomEvent(event.type, { detail: event.detail }));
-    // });
-    // this.messageTypeFunctions.set(
-    //   MessageType.ADD_EVENT,
-    //   ({ type }: { type: string }) => {
-    //     this.addEventListener(type, this.eventListener); 
-    //   },
-    // );
-    // this.messageTypeFunctions.set(
-    //   MessageType.REMOVE_EVENT,
-    //   ({ type }: { type: string }) => {
-    //     this.removeEventListener(type, this.eventListener);
-    //   },
-    // );
   }
 }
 
@@ -669,26 +670,7 @@ export class MainProxy extends MessageQueue {
     this.devicePixelRatio = 0;
 
     this.focus = this.focus.bind(this);
-
-    // this.messageTypeFunctions.set(MessageType.EVENT, (event: any) => {
-    //   event.preventDefault = () => {};
-    //   event.stopPropagation = () => {};
-    //   delete event.target;
-    //   this.dispatchEvent(new CustomEvent(event.type, { detail: event.detail }));
-    // });
   }
-
-  // addEventListener(type: string, listener: (event: DispatchEvent) => void, targetElement?) {
-  //   super.addEventListener(type, listener, targetElement);
-  // }
-
-  // removeEventListener(type: string, listener: (event: DispatchEvent) => void, targetElement?) {
-  //   super.removeEventListener(type, listener, targetElement);
-  // }
-
-  // dispatchEvent(event: any, targetElement?) {
-  //   super.dispatchEvent(event, targetElement);
-  // }
   focus() {}
   get ownerDocument() {
     return this;
@@ -722,7 +704,7 @@ export class MainProxy extends MessageQueue {
 export async function createWorker(
   worker: Worker,
   canvas: HTMLCanvasElement,
-  options: any
+  userArgs: any
 ) {
   const messageQueue = new WorkerProxy({
     messagePort: worker,
@@ -752,6 +734,8 @@ export async function createWorker(
   messageQueue.messageTypeFunctions.set(
     MessageType.DOCUMENT_ELEMENT_ADD_EVENT,
     ({ type, uuid }: { type: string; uuid: string }) => {
+
+      // TODO add in an options parameter to message to enable piping through preventDefault & passive etc - must then be added during adding event listener in InputSchema
       if (documentElementMap.get(uuid)) {
         const listener = (ev: any) => {
           const event = fixDocumentEvent(ev) as any;
@@ -787,7 +771,7 @@ export async function createWorker(
       switch (type) {
         case 'window': documentElementMap.set(uuid, (window as any)); break;
         case 'document': documentElementMap.set(uuid, (document as any)); break;
-        case 'canvas:': documentElementMap.set(uuid, canvas); break;
+        case 'canvas': documentElementMap.set(uuid, canvas); break;
         case 'audio':
           const audio = document.createElement('audio') as HTMLVideoElement;
           documentElementMap.set(uuid, audio);
@@ -960,17 +944,6 @@ export async function createWorker(
       }
     },
   );
-  messageQueue.queue.push({
-    messageType: MessageType.OFFSCREEN_CANVAS,
-    message: {
-      width,
-      height,
-      canvas: offscreen,
-      devicePixelRatio: window.devicePixelRatio,
-      ...options
-    },
-    transferables: [offscreen],
-  } as Message);
   window.addEventListener('resize', () => {
     messageQueue.queue.push({
       messageType: MessageType.EVENT,
@@ -982,6 +955,24 @@ export async function createWorker(
         }
       },
     } as Message);
+  });
+  messageQueue.queue.push({
+    messageType: MessageType.OFFSCREEN_CANVAS,
+    message: {
+      width,
+      height,
+      canvas: offscreen,
+      devicePixelRatio: window.devicePixelRatio,
+      userArgs
+    },
+    transferables: [offscreen],
+  } as Message);
+  await new Promise<void>((resolve) => {
+    const createOffscreenCanvasListener = () => {
+      messageQueue.messageTypeFunctions.delete(MessageType.CANVAS_CREATED);
+      resolve();
+    }
+    messageQueue.messageTypeFunctions.set(MessageType.CANVAS_CREATED, createOffscreenCanvasListener);
   });
   (globalThis as any).__messageQueue = messageQueue;
   return messageQueue;
@@ -1063,8 +1054,28 @@ class DocumentProxy extends DocumentElementProxy {
   }
 }
 
+class CanvasProxy extends DocumentElementProxy {
+  constructor({
+    messageQueue,
+    type = 'canvas',
+    remoteCalls = [],
+  }: {
+    messageQueue: MessageQueue;
+    type?: string;
+    remoteCalls?: string[];
+  }) {
+    super({
+      messageQueue,
+      type,
+      remoteCalls: [...remoteCalls],
+    });
+    // this.transferedProps.push();
+  }
+}
+
 export async function receiveWorker(onCanvas: any) {
   const messageQueue = new MainProxy({ messagePort: globalThis as any });
+  const canvasProxy = new CanvasProxy({ messageQueue });
   messageQueue.messageTypeFunctions.set(
     MessageType.OFFSCREEN_CANVAS,
     (args: any) => {
@@ -1072,14 +1083,12 @@ export async function receiveWorker(onCanvas: any) {
         canvas,
         height,
         width,
-        devicePixelRatio,
-        options
+        devicePixelRatio
       }: {
         canvas: OffscreenCanvas;
         width: number;
         height: number;
         devicePixelRatio: number;
-        options
       } = args;
       messageQueue.canvas = canvas;
       messageQueue.width = width;
@@ -1089,19 +1098,19 @@ export async function receiveWorker(onCanvas: any) {
         type: string,
         listener: (event: any) => void,
       ) => {
-        // messageQueue.addEventListener(type, listener, 'canvas');
+        canvasProxy.addEventListener(type, listener);
       };
       canvas.removeEventListener = (
         type: string,
         listener: (event: any) => void,
       ) => {
-        // messageQueue.removeEventListener(type, listener, 'canvas');
+        canvasProxy.removeEventListener(type, listener);
       };
       canvas.dispatchEvent = (
         event: any
       ): boolean => {
-        // delete event.target;
-        // messageQueue.dispatchEvent(event, 'canvas');
+        delete event.target;
+        canvasProxy.dispatchEvent(event);
         return true;
       };
       /** @ts-ignore */
@@ -1109,6 +1118,10 @@ export async function receiveWorker(onCanvas: any) {
       (globalThis as any).window = new WindowProxy({ messageQueue });
       (globalThis as any).document = new DocumentProxy({ messageQueue });
       onCanvas(args, messageQueue);
+      messageQueue.queue.push({
+        messageType: MessageType.CANVAS_CREATED,
+        message: {}
+      });
     },
   );
   messageQueue.addEventListener('resize', (ev: any) => {

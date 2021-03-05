@@ -5,7 +5,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { selectFeedsState } from '../../../redux/feed/selector';
 import { getFeeds } from '../../../redux/feed/service';
 
-import FeedCard from '../FeedCard';
+import FeedCard from '../common/FeedCard';
 
 import styles from './TheFeed.module.scss';
 
@@ -28,7 +28,7 @@ const TheFeed = ({feedsState, getFeeds}: Props) => {
     useEffect(()=> getFeeds(), []);
     feedsList = feedsState.get('fetching') === false && feedsState?.get('feeds');
     return <section className={styles.thefeedContainer}>
-            {feedsList && feedsList.length > 0 && feedsList.map((item, key)=> <FeedCard key={key} {...item} />)}
+            {feedsList && feedsList.length > 0 && feedsList.map((item, key)=> <FeedCard key={key} feed = {...item} />)}
         </section>
 };
 
