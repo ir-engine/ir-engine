@@ -127,7 +127,7 @@ If you are on Windows, you can use docker-compose to start the scripts/docker-co
 
 ## Deployment
 
-[AWS EKS Deployment](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/docs/EKS-setup.md]
+[AWS EKS Deployment](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/docs/EKS-setup.md)
 
 [Managing Kubernets](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/docs/managing_remote_kubernets.md)
 
