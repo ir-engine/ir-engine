@@ -191,6 +191,8 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     }, [selfUser]);
 
     useEffect(() => {
+        console.log('Booting up partyParticipantWindow');
+        console.log(Network.instance?.transport);
         if ((Network.instance?.transport as any)?.channelType === 'instance') {
             (Network.instance?.transport as any)?.instanceSocket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener);
             (Network.instance?.transport as any)?.instanceSocket?.on(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener);
