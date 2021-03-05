@@ -1,12 +1,12 @@
 import _ from 'lodash';
-import { AudioListener, BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
+import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
 import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
 import { CameraSystem } from './camera/systems/CameraSystem';
 import { isClient } from './common/functions/isClient';
 import { Timer } from './common/functions/Timer';
 import { DebugHelpersSystem } from './debug/systems/DebugHelpersSystem';
-import { Engine } from './ecs/classes/Engine';
+import { Engine, AudioListener } from './ecs/classes/Engine';
 import { execute, initialize } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
@@ -28,6 +28,7 @@ import { CharacterStateSchema } from './templates/character/CharacterStateSchema
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { EngineEvents, addIncomingEvents, addOutgoingEvents } from './ecs/classes/EngineEvents';
+import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -99,9 +100,9 @@ export async function initializeEngine(initOptions: any = DefaultInitializationO
     Engine.scene.add(Engine.camera);
     registerSystem(HighlightSystem);
 
-    // Engine.audioListener = new AudioListener();
-    // Engine.camera.add(Engine.audioListener);
-    // registerSystem(PositionalAudioSystem);
+    Engine.audioListener = new AudioListener();
+    Engine.camera.add(Engine.audioListener);
+    registerSystem(PositionalAudioSystem);
 
     registerSystem(InteractiveSystem);
     registerSystem(ParticleSystem);

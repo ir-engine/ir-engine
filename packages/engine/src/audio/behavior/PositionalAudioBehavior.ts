@@ -1,6 +1,5 @@
-import { PositionalAudio} from "three";
 import { AudioLoader } from "three/src/loaders/AudioLoader";
-import { Engine } from "../../ecs/classes/Engine";
+import { Engine, PositionalAudio } from "../../ecs/classes/Engine";
 
 
 

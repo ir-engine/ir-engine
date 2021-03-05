@@ -1,5 +1,6 @@
-import { Object3D, Audio, PositionalAudio } from "three";
-import { Engine } from "../../ecs/classes/Engine";
+import { Object3D } from "three";
+import { Engine, Audio, PositionalAudio } from "../../ecs/classes/Engine";
+import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { RethrownError } from "../../editor/functions/errors";
 
 export const AudioType = {
@@ -20,7 +21,7 @@ export const DistanceModelOptions = Object.values(DistanceModelType).map(v => ({
   value: v
 }));
 export default class AudioSource extends Object3D {
-  el: HTMLMediaElement;
+  el: any;
   _src: string;
   audioListener: any;
   controls: boolean;
@@ -43,25 +44,25 @@ export default class AudioSource extends Object3D {
     this.volume = 0.5;
   }
   get duration() {
-    return (this.el as any).duration;
+    return this.el.duration;
   }
   get src() {
-    return (this.el as any).src;
+    return this.el.src;
   }
   set src(src) {
     this.load(src).catch(console.error);
   }
   get autoPlay() {
-    return (this.el as any).autoplay;
+    return this.el.autoplay;
   }
   set autoPlay(value) {
-    (this.el as any).autoplay = value;
+    this.el.autoplay = value;
   }
   get loop() {
-    return (this.el as any).loop;
+    return this.el.loop;
   }
   set loop(value) {
-    (this.el as any).loop = value;
+    this.el.loop = value;
   }
   get audioType() {
     return this._audioType;
@@ -175,24 +176,35 @@ export default class AudioSource extends Object3D {
   }
   loadMedia(src): Promise<void> {
     return new Promise((resolve, reject) => {
-      (this.el as any).src = src;
+      this.el.src = src;
       let cleanup = null;
       const onLoadedData = () => {
+        if (this.el.autoplay) {
+          if(Engine.hasUserEngaged) {
+            this.el.play();
+          } else {
+            const onUserEngage = () => {
+              this.el.play();
+              EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
+            }
+            EngineEvents.instance.addEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
+          }
+        }
         cleanup();
         resolve();
       };
       const onError = error => {
         cleanup();
         reject(
-          new RethrownError(`Error loading video "${(this.el as any).src}"`, error)
+          new RethrownError(`Error loading video "${this.el.src}"`, error)
         );
       };
       cleanup = () => {
-        (this.el as any).removeEventListener("loadeddata", onLoadedData);
-        (this.el as any).removeEventListener("error", onError);
+        this.el.removeEventListener("loadeddata", onLoadedData);
+        this.el.removeEventListener("error", onError);
       };
-      (this.el as any).addEventListener("loadeddata", onLoadedData);
-      (this.el as any).addEventListener("error", onError);
+      this.el.addEventListener("loadeddata", onLoadedData);
+      this.el.addEventListener("error", onError);
     });
   }
   async load(src, contentType?) {

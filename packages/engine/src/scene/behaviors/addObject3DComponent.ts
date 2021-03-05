@@ -72,7 +72,6 @@ export const addObject3DComponent: Behavior = (
    * @param value
    */
   const applyDeepValue = (subj: object, path: string, value: unknown): void => {
-    // console.log('applyDeepValue', subj, path, value);
     if (!subj) {
       console.warn('subj is not an object', subj);
       return;
@@ -83,7 +82,7 @@ export const addObject3DComponent: Behavior = (
     }
     const { property, nextPath } = groups;
 
-    if (!property || typeof subj[property] === 'undefined') {
+    if (!property) {
       // console.warn('property not found', property);
       return;
     }
