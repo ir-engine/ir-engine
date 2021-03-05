@@ -60,7 +60,7 @@ export class AudioObjectProxy extends Object3DProxy {
     return;
   }
   setNodeSource(audioNodeProxyID) {
-    this.__callFunc('play', audioNodeProxyID);
+    this.__callFunc('setNodeSource', audioNodeProxyID);
     return this;
   }
   // HTMLMediaElement - <audio> & <video>
