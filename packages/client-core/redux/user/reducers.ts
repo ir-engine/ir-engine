@@ -6,6 +6,7 @@ import {
   LoadedUserRelationshipAction,
   RemovedLayerUserAction,
   UserAction,
+  UserToastAction,
 } from './actions';
 
 import {
@@ -19,7 +20,8 @@ import {
   ADDED_CHANNEL_LAYER_USER,
   CLEAR_CHANNEL_LAYER_USERS,
   LOADED_CHANNEL_LAYER_USERS,
-  REMOVED_CHANNEL_LAYER_USER
+  REMOVED_CHANNEL_LAYER_USER,
+  USER_TOAST,
 } from '../actions';
 import { RelationshipSeed } from '@xr3ngine/common/interfaces/Relationship';
 
@@ -30,7 +32,8 @@ export const initialState = {
   layerUsers: [],
   layerUsersUpdateNeeded: true,
   channelLayerUsers: [],
-  channelLayerUsersUpdateNeeded: true
+  channelLayerUsersUpdateNeeded: true,
+  toastMessages: [],
 };
 
 const immutableState = Immutable.fromJS(initialState);
@@ -101,6 +104,10 @@ const userReducer = (state = immutableState, action: UserAction): any => {
       layerUsers = layerUsers.filter((layerUser) => layerUser.id !== newUser.id);
       return state
           .set('channelLayerUsers', layerUsers);
+    case USER_TOAST:
+      const toastMessages = state.get('toastMessages');
+      toastMessages.push((action as UserToastAction).message)
+      return state.set('toastMessages', toastMessages.push((action as UserToastAction).message))
   }
 
   return state;

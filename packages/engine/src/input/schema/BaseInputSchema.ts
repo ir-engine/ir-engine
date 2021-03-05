@@ -227,7 +227,7 @@ const handleTouch: Behavior = (entity: Entity, { event, value }: { event: TouchE
 
 const handleMobileDirectionalPad: Behavior = (entity: Entity, args: { event: CustomEvent }): void => {
   // TODO: move this types to types and interfaces
-  const { stick, value }: { stick: Thumbsticks; value: {x: number;y: number} } = args.event.detail;
+  const { stick, value }: { stick: Thumbsticks; value: { x: number; y: number; angleRad: number } } = args.event.detail;
 
   const input = getComponent(entity, Input);
   const mappedAxes = input.schema.gamepadInputMap?.axes;
@@ -239,9 +239,10 @@ const handleMobileDirectionalPad: Behavior = (entity: Entity, args: { event: Cus
     return;
   }
 
-  const stickPosition: [number, number] = [
+  const stickPosition: [number, number, number] = [
     value.x,
-    value.y
+    value.y,
+    value.angleRad,
   ];
 
   // If position not set, set it with lifecycle started
