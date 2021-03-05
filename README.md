@@ -125,17 +125,6 @@ If you are on Windows, you can use docker-compose to start the scripts/docker-co
     docker container start xr3ngine_db
 ```
 
-## Deployment
-
-[AWS EKS Deployment](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/docs/EKS-setup.md)
-
-[Managing Kubernets](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/docs/managing_remote_kubernets.md)
-
-[Managing Helm Charts](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/docs/release-helm-chart.md)
-
-[Cloudformation Scripts](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/xr3-cloudformation)
-
-
 #### OSX DB Init
 
 brew install mysql
@@ -216,6 +205,16 @@ Try
 ```
 yarn run dev-reinit-db // in server package
 ```
+
+## Deployment
+
+[AWS EKS Deployment](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/docs/EKS-setup.md)
+
+[Managing Kubernets](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/docs/managing_remote_kubernets.md)
+
+[Managing Helm Charts](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/docs/release-helm-chart.md)
+
+[Cloudformation Scripts](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/xr3-cloudformation)
 
 ## Testing
 
