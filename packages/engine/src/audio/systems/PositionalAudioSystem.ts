@@ -1,5 +1,4 @@
-import { PositionalAudio } from 'three';
-import { Engine } from '../../ecs/classes/Engine';
+import { Engine, PositionalAudio } from '../../ecs/classes/Engine';
 import { System, SystemAttributes } from '../../ecs/classes/System';
 import {
   getComponent,

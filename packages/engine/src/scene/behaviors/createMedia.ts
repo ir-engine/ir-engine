@@ -9,43 +9,49 @@ import { Behavior } from "../../common/interfaces/Behavior";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
 import AudioSource from '../classes/AudioSource';
 import { Object3DComponent } from '../components/Object3DComponent';
+import { isWebWorker } from '../../common/functions/getEnvironment';
 
-const elementPlaying = (element: HTMLMediaElement): boolean => {
-    return element && (!!(element.currentTime > 0 && !element.paused && !element.ended && element.readyState > 2));
+const elementPlaying = (element: any): boolean => {
+  if(isWebWorker) return element._isPlaying;
+  return element && (!!(element.currentTime > 0 && !element.paused && !element.ended && element.readyState > 2));
 };
 
 const onMediaInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
-    const { el: mediaElement } = getComponent(entityInteractive, Object3DComponent).value as AudioSource;
-
-    const onVideoStateChange = (didPlay) => {
-        const detail: any = {
-            focused: true,
-            action: 'mediaSource',
-            interactionText: didPlay ? 'pause media' : 'play media'
-        };
-        const event = new CustomEvent('object-hover', { detail });
-        document.dispatchEvent(event);
-    };
-
-    mediaElement.onplay = () => { onVideoStateChange(true); };
-    mediaElement.onpause = () => { onVideoStateChange(false); };
-
-    if (elementPlaying(mediaElement)) {
-        mediaElement?.pause();
-    } else {
-        mediaElement?.play();
-    }
-};
-
-const onMediaInteractionHover: Behavior = (entityInitiator, { focused }: { focused: boolean }, delta, entityInteractive, time) => {
-    const { el: mediaElement } = getComponent(entityInteractive, Object3DComponent).value as AudioSource;
+  const { el: mediaElement } = getComponent(entityInteractive, Object3DComponent).value as AudioSource;
+  console.log(mediaElement)
+  const onVideoStateChange = (didPlay) => {
     const detail: any = {
-        focused,
-        action: 'mediaSource',
-        interactionText: elementPlaying(mediaElement) ? 'pause video' : 'play video'
+      focused: true,
+      action: 'mediaSource',
+      interactionText: didPlay ? 'pause media' : 'play media'
     };
     const event = new CustomEvent('object-hover', { detail });
     document.dispatchEvent(event);
+  };
+
+  mediaElement.addEventListener('play', () => {
+    onVideoStateChange(true);
+  });
+  mediaElement.addEventListener('pause', () => {
+    onVideoStateChange(false);
+  });
+
+  if (elementPlaying(mediaElement)) {
+    mediaElement?.pause();
+  } else {
+    mediaElement?.play();
+  }
+};
+
+const onMediaInteractionHover: Behavior = (entityInitiator, { focused }: { focused: boolean }, delta, entityInteractive, time) => {
+  const { el: mediaElement } = getComponent(entityInteractive, Object3DComponent).value as AudioSource;
+  const detail: any = {
+    focused,
+    action: 'mediaSource',
+    interactionText: elementPlaying(mediaElement) ? 'pause video' : 'play video'
+  };
+  const event = new CustomEvent('object-hover', { detail });
+  document.dispatchEvent(event);
 };
 
 export function createMedia(entity, args: {

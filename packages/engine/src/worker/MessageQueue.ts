@@ -9,6 +9,7 @@ import {
   Scene,
 } from 'three';
 import { MathUtils } from 'three';
+import { MediaElementProxyID } from './Audio';
 import { isWebWorker } from '../common/functions/getEnvironment';
 const { generateUUID } = MathUtils;
 
@@ -83,25 +84,25 @@ function fixDocumentEvent(event: any) {
   return obj;
 }
 
-class ExtendableProxy {
-  constructor(
-    getset = {
-      get(target: any, name: any, receiver: any) {
-        if (!Reflect.has(target, name)) {
-          return undefined;
-        }
-        return Reflect.get(target, name, receiver);
-      },
-      set(target: any, name: any, value: any, receiver: any) {
-        return Reflect.set(target, name, value, receiver);
-      },
-    },
-  ) {
-    return new Proxy(this, getset);
-  }
-}
+// class ExtendableProxy {
+//   constructor(
+//     getset = {
+//       get(target: any, name: any, receiver: any) {
+//         if (!Reflect.has(target, name)) {
+//           return undefined;
+//         }
+//         return Reflect.get(target, name, receiver);
+//       },
+//       set(target: any, name: any, value: any, receiver: any) {
+//         return Reflect.set(target, name, value, receiver);
+//       },
+//     },
+//   ) {
+//     return new Proxy(this, getset);
+//   }
+// }
 
-export class EventDispatcherProxy extends ExtendableProxy {
+export class EventDispatcherProxy {//extends ExtendableProxy {
   [x: string]: any;
   eventTarget: EventTarget;
   eventListener: any;
@@ -117,7 +118,7 @@ export class EventDispatcherProxy extends ExtendableProxy {
     eventListener: any;
     getset?: any;
   }) {
-    super(getset);
+    // super(getset);
     this._listeners = {};
     this.eventTarget = eventTarget;
     this.eventListener = eventListener;
@@ -306,12 +307,11 @@ export class MessageQueue extends EventDispatcherProxy {
   }
 }
 
-class DocumentElementProxy extends EventDispatcherProxy {
+export class DocumentElementProxy extends EventDispatcherProxy {
   messageQueue: MessageQueue;
   uuid: string;
   type: string;
   eventTarget: EventTarget;
-  transferedProps: string[] = [];
   remoteCalls: string[];
 
   constructor({
@@ -335,28 +335,6 @@ class DocumentElementProxy extends EventDispatcherProxy {
           message: simplifyObject(listenerArgs),
         } as Message);
       },
-      // getset: {
-      //   get(target: any, name: any, receiver: any) {
-      //     if (!Reflect.has(target, name)) {
-      //       return undefined;
-      //     }
-      //     return Reflect.get(target, name, receiver);
-      //   },
-      //   set(target: any, name: any, value: any, receiver: any) {
-      //     const props = Reflect.get(target, 'transferedProps') as string[];
-      //     if (props?.includes(name)) {
-      //       Reflect.get(target, 'messageQueue').queue.push({
-      //         messageType: MessageType.DOCUMENT_ELEMENT_PARAM_SET,
-      //         message: {
-      //           param: name,
-      //           uuid: Reflect.get(target, 'uuid'),
-      //           arg: value,
-      //         },
-      //       } as Message);
-      //     }
-      //     return Reflect.set(target, name, value, receiver);
-      //   },
-      // },
     });
     this.remoteCalls = remoteCalls || [];
     for (const call of this.remoteCalls) {
@@ -383,6 +361,17 @@ class DocumentElementProxy extends EventDispatcherProxy {
         type,
         uuid: this.uuid,
         elementArgs,
+      },
+    } as Message);
+  }
+
+  __setValue(prop, value) {
+    this.messageQueue.queue.push({
+      messageType: MessageType.DOCUMENT_ELEMENT_PARAM_SET,
+      message: {
+        param: prop,
+        uuid: this.uuid,
+        arg: value,
       },
     } as Message);
   }
@@ -424,10 +413,12 @@ class DocumentElementProxy extends EventDispatcherProxy {
   }
 }
 
-const audioRemoteFunctionCalls: string[] = ['play'];
-const audioRemoteProps: string[] = ['src'];
+const audioRemoteFunctionCalls: string[] = ['play', 'pause'];
 
-class AudioDocumentElementProxy extends DocumentElementProxy {
+export class AudioDocumentElementProxy extends DocumentElementProxy {
+  _src: string;
+  _autoplay: string;
+  _isPlaying: boolean = false;
   constructor({
     messageQueue,
     type = 'audio',
@@ -445,12 +436,37 @@ class AudioDocumentElementProxy extends DocumentElementProxy {
       remoteCalls: [...remoteCalls, ...audioRemoteFunctionCalls],
       elementArgs,
     });
-    this.transferedProps.push(...audioRemoteProps);
+  }
+  get src() {
+    return this._src;
+  }
+  set src(value) {
+    this._src = value;
+    this.__setValue('src', value);
+  }
+  get autoplay() {
+    return this._autoplay;
+  }
+  set autoplay(value) {
+    this._autoplay = value;
+    this.__setValue('autoplay', value);
+  }
+
+  dispatchEvent(
+    ev: any,
+    fromMain?: boolean
+  ): void {
+    switch(ev.type) {
+      case 'play': this._isPlaying = true; break;
+      case 'pause': case 'paused': case 'ended': this._isPlaying = false; break;
+      default: break;
+    }
+    super.dispatchEvent(ev, fromMain);
   }
 }
 
 const videoRemoteFunctionCalls: string[] = [];
-const videoRemoteProps: string[] = [];
+// const videoRemoteProps: string[] = [];
 
 export class VideoDocumentElementProxy extends AudioDocumentElementProxy {
   frameCallback: any;
@@ -508,8 +524,6 @@ export class VideoDocumentElementProxy extends AudioDocumentElementProxy {
         }
       },
     );
-
-    this.transferedProps.push(...videoRemoteProps);
   }
   requestVideoFrameCallback(callback: any) {
     this.frameCallback = callback;
@@ -518,7 +532,7 @@ export class VideoDocumentElementProxy extends AudioDocumentElementProxy {
     this._frameCallback = callback;
   }
 }
-class Object3DProxy extends Object3D {
+export class Object3DProxy extends Object3D {
   [x: string]: any;
   proxyID: string;
   setQueue: Map<string, any> = new Map<string, any>();
@@ -563,88 +577,6 @@ class Object3DProxy extends Object3D {
   }
 }
 
-export class AudioListenerProxy extends Object3DProxy {
-  constructor() {
-    super({ type: 'AudioListener' });
-  }
-}
-
-export type AudioBufferProxyID = string;
-
-export class AudioLoaderProxy {
-  constructor() {}
-  load(url: string, callback: any) {
-    const requestCallback = (event: DispatchEvent) => {
-      callback(event.type as AudioBufferProxyID);
-      ((globalThis as any).__messageQueue as MessageQueue).removeEventListener(
-        url,
-        requestCallback,
-      );
-    };
-    ((globalThis as any).__messageQueue as MessageQueue).addEventListener(
-      url,
-      requestCallback,
-    );
-    ((globalThis as any).__messageQueue as MessageQueue).queue.push({
-      messageType: MessageType.AUDIO_BUFFER_LOAD,
-      message: {
-        url,
-      },
-    } as Message);
-  }
-}
-
-export class AudioObjectProxy extends Object3DProxy {
-  constructor(args: any = {}) {
-    super({ type: args.type || 'Audio' });
-  }
-  // HTMLMediaElement - <audio> & <video>
-  setMediaElementSource(source: AudioDocumentElementProxy) {
-    ((globalThis as any).__messageQueue as MessageQueue).queue.push({
-      messageType: MessageType.AUDIO_SOURCE_ELEMENT_SET,
-      message: {
-        sourceID: source.uuid,
-        proxyID: this.proxyID,
-      },
-    } as Message);
-  }
-  // HTMLMediaStream - Webcams
-  // this might need to be implemented at application level
-  // setMediaStreamSource(source: AudioDocumentElementProxy) {
-  //   ((globalThis as any).__messageQueue as MessageQueue).queue.push({
-  //     messageType: MessageType.AUDIO_SOURCE_STREAM_SET,
-  //     message: {
-  //       sourceID: source.uuid,
-  //       proxyID: this.proxyID,
-  //     },
-  //   } as Message);
-  // }
-  // AudioBuffer - AudioLoader.load
-  setBuffer(buffer: AudioBufferProxyID) {
-    ((globalThis as any).__messageQueue as MessageQueue).queue.push({
-      messageType: MessageType.AUDIO_BUFFER_SET,
-      message: {
-        buffer,
-        proxyID: this.proxyID,
-      },
-    } as Message);
-  }
-  setLoop(loop: boolean) {
-    this.__callFunc('setLoop', loop);
-  }
-  setVolume(volume: number) {
-    this.__callFunc('setVolume', volume);
-  }
-  play() {
-    this.__callFunc('play');
-  }
-}
-
-export class PositionalAudioObjectProxy extends AudioObjectProxy {
-  constructor() {
-    super({ type: 'PositionalAudio' });
-  }
-}
 export class WorkerProxy extends MessageQueue {
   canvas: HTMLCanvasElement;
   constructor({
@@ -734,6 +666,12 @@ export async function createWorker(
   const { width, height } = canvas.getBoundingClientRect();
   const offscreen = canvas.transferControlToOffscreen();
   const documentElementMap = new Map<string, any>();
+  const sceneObjects: Map<string, Object3D> = new Map<string, Object3D>();
+  const audioScene = new Scene();
+  const audioLoader = new THREE_AudioLoader();
+  const audioBuffers: Map<string, AudioBuffer> = new Map<string, AudioBuffer>();
+  let audioListener: any = undefined;
+
   messageQueue.messageTypeFunctions.set(
     MessageType.DOCUMENT_ELEMENT_FUNCTION_CALL,
     ({ call, uuid, args }: { call: string; uuid: string; args: any[] }) => {
@@ -793,6 +731,7 @@ export async function createWorker(
         case 'window': documentElementMap.set(uuid, (window as any)); break;
         case 'document': documentElementMap.set(uuid, (document as any)); break;
         case 'canvas': documentElementMap.set(uuid, canvas); break;
+        case 'mediaElementSource': documentElementMap.set(uuid, audioListener.context.createMediaElementSource(documentElementMap.get(elementArgs.elementID) as HTMLMediaElement) as MediaElementAudioSourceNode);
         case 'audio':
           const audio = document.createElement('audio') as HTMLVideoElement;
           elementArgs !== undefined && applyElementArguments(audio, elementArgs);
@@ -844,12 +783,6 @@ export async function createWorker(
       }
     },
   );
-  const sceneObjects: Map<string, Object3D> = new Map<string, Object3D>();
-  const audioScene = new Scene();
-  const audioLoader = new THREE_AudioLoader();
-  const audioBuffers: Map<string, AudioBuffer> = new Map<string, AudioBuffer>();
-  let audioListener: any = undefined;
-
   messageQueue.messageTypeFunctions.set(
     MessageType.AUDIO_BUFFER_LOAD,
     ({ url }: { url: string }) => {
@@ -866,8 +799,8 @@ export async function createWorker(
   );
   messageQueue.messageTypeFunctions.set(
     MessageType.AUDIO_BUFFER_SET,
-    ({ buffer, proxyID }: { buffer: string; proxyID: string }) => {
-      const audioBuffer = audioBuffers.get(buffer) as AudioBuffer;
+    ({ bufferID, proxyID }: { bufferID: string; proxyID: string }) => {
+      const audioBuffer = audioBuffers.get(bufferID) as AudioBuffer;
       const obj = sceneObjects.get(proxyID) as THREE_Audio;
       if (audioBuffer && obj) {
         obj.setBuffer(audioBuffer);
@@ -1002,7 +935,6 @@ export const applyElementArguments = (el: any, args: any) => {
     const [key, value] = entry;
     el[key] = value;
   });
-  console.log(el, args)
   return el;
 }
 class WindowProxy extends DocumentElementProxy {
@@ -1020,7 +952,6 @@ class WindowProxy extends DocumentElementProxy {
       type,
       remoteCalls: [...remoteCalls],
     });
-    // this.transferedProps.push();
   }
   focus: () => {}
   get ownerDocument() { return (globalThis as any).document; }
@@ -1048,7 +979,6 @@ class DocumentProxy extends DocumentElementProxy {
       type,
       remoteCalls: [...remoteCalls],
     });
-    // this.transferedProps.push();
   }
   get ownerDocument() {
     return (globalThis as any).document
@@ -1059,6 +989,8 @@ class DocumentProxy extends DocumentElementProxy {
         return new AudioDocumentElementProxy({ messageQueue: this.messageQueue, elementArgs });
       case 'video':
         return new VideoDocumentElementProxy({ messageQueue: this.messageQueue, elementArgs });
+      case 'media':
+        return new DocumentElementProxy({ messageQueue: this.messageQueue, type: 'mediaElementSource', elementArgs });
       default:
         return null;
     }
@@ -1080,7 +1012,6 @@ class CanvasProxy extends DocumentElementProxy {
       type,
       remoteCalls: [...remoteCalls],
     });
-    // this.transferedProps.push();
   }
 }
 
