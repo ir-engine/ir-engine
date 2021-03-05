@@ -14,7 +14,7 @@
             margin: 0 auto;
             height: 100%;
             width: 100%;
-            object-fit: cover;
+            object-fit: contain;
             display: block;
         }
 
@@ -66,57 +66,49 @@
             }
         }
 
-        &.focused {
+        &:focus,:focus-within {
             margin: 0;
             flex: 1 1 auto;
-            height: 100%;
-            width: 100%;
+            height: 100% !important;
+            width: 100% !important;
 
-            .video-wrapper {
-                height: 100%;
-                width: 100%;
-                border: 0;
-                border-radius: 0;
+            &:not(.video-paused):not(.no-video) {
+                .video-wrapper {
+                    height: 100%;
+                    width: 100%;
+                    border: 0;
+                    border-radius: 0;
 
-                video{
-                    object-fit: contain;
-                    display: block;
-                }
-            }
-
-            .user-controls {
-                position: absolute;
-                bottom: 0;
-                left: 50%;
-                padding: 10px;
-                background-color: black;
-                z-index: 100;
-                width: 150px;
-                margin-left: -75px;
-
-                @media (min-width: 769px) {
-                    display: none;
-                }
-
-                .controls {
-                    display: flex !important;
-                }
-
-                .username {
-                    text-align: center;
+                    video {
+                        object-fit: contain;
+                        display: block;
+                    }
                 }
             }
 
             @media (max-width: 768px) {
                 .user-controls {
+                    display: flex;
                     position: absolute;
                     bottom: 0;
-                    left: 0;
-                    width: 100%;
-                    margin: 0 auto;
+                    left: 50%;
                     padding: 10px;
                     background-color: black;
                     z-index: 100;
+                    width: 150px;
+                    margin-left: -75px;
+
+                    @media (min-width: 769px) {
+                        display: none;
+                    }
+
+                    .controls {
+                        display: flex !important;
+                    }
+
+                    .username {
+                        text-align: center;
+                    }
                 }
             }
         }
@@ -284,7 +276,13 @@
     }
 
     @media (min-width: 769px) {
-        .username { margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+        .username {
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
         .audio-slider {
             svg {
                 width: 20px;
@@ -310,8 +308,15 @@
             height: 0
         }
         &:focus, &:focus-within {
-            .video-wrapper { width: 150px; height: 150px; }
-            .user-controls { padding: 20px 10px 10px 10px; height: auto; }
+            .video-wrapper {
+                width: 150px;
+                height: 150px;
+            }
+
+            .user-controls {
+                padding: 20px 10px 10px 10px;
+                height: auto;
+            }
         }
     }
 

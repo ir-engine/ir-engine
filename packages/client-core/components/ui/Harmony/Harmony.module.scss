@@ -586,6 +586,7 @@ $mobileControllButtonsSize: 3em;
 .chat-selectors {
     background-color: rgba(206, 206, 206, 0.1);
     flex-direction: column;
+    overflow-y: auto;
 
     & > div {
         background-color: rgba(155, 155, 155, 0.6);

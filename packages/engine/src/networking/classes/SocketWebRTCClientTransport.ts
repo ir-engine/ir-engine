@@ -95,8 +95,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.mediasoupDevice = new Device();
     if (socket && socket.close) socket.close();
 
-    const { startVideo, videoEnabled, channelType, ...query } = opts;
-    console.log('new channelType: ' + channelType);
+    const { startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts;
     this.channelType = channelType;
     this.channelId = opts.channelId;
 
@@ -116,16 +115,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       });
     }
 
-    console.log('New socket:');
-    console.log(socket);
-    console.log('instance?', instance);
-
     (socket as any).instance = instance === true;
 
     if (instance === true) this.instanceSocket = socket;
     else this.channelSocket = socket;
-    console.log(this.instanceSocket);
-    console.log(this.channelSocket);
 
     if (instance === true) Network.instance.instanceSocketId = socket.id;
     else Network.instance.channelSocketId = socket.id;
@@ -185,8 +178,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       });
 
       socket.on('disconnect', async () => {
-        console.log('socket disconnecting', (socket as any).instance);
-        if ((socket as any).instance !== true) {
+        if ((socket as any).instance !== true && isHarmonyPage !== true) {
           self.channelType = 'instance';
           self.channelId = '';
         }
@@ -207,8 +199,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       // Get information for how to consume data from server and init a data consumer
       socket.on(MessageTypes.WebRTCConsumeData.toString(), async (options) => {
-        console.log("WebRTC consume data called");
-        console.log(options);
         const dataConsumer = await this.instanceRecvTransport.consumeData(options);
         Network.instance?.dataConsumers.set(options.dataProducerId, dataConsumer);
 
@@ -253,10 +243,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
 
       // Init Receive and Send Transports initially since we need them for unreliable message consumption and production
-      console.log('Init instance transports?', this.channelType, this.channelId);
-      if ((socket as any).instance === true) await Promise.all([initSendTransport('instance'), initReceiveTransport('instance')]);
-
-      await createDataProducer((socket as any).instance === true ? 'instance' : this.channelId );
+      if ((socket as any).instance === true) {
+        await Promise.all([initSendTransport('instance'), initReceiveTransport('instance')]);
+        await createDataProducer((socket as any).instance === true ? 'instance' : this.channelId );
+      }
     });
   }
 }

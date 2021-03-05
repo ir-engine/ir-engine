@@ -31,6 +31,8 @@ import { Expand } from '../Icons/Expand';
 const { publicRuntimeConfig } = getConfig();
 const siteTitle: string = publicRuntimeConfig.siteTitle;
 
+const engineRendererCanvasId = 'engine-renderer-canvas';
+
 const initialSelectedUserState = {
   id: '',
   name: '',
@@ -152,6 +154,12 @@ const Layout = (props: Props): any => {
     };
   }) as any);
 
+  const openHarmony = (): void => {
+    const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
+    if (canvas?.style != null) canvas.style.width = '0px';
+    setHarmonyOpen(true);
+  }
+
   const toggleExpanded = () => setExpanded(!expanded);
 
   //info about current mode to conditional render menus
@@ -248,7 +256,7 @@ const Layout = (props: Props): any => {
                 authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.instanceId != null &&
                 !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
                 <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen} />}
-              { user?.userRole !== 'guest' && harmonyOpen === false && <div className={styles['harmony-toggle']} onClick={() => setHarmonyOpen(true)}><Forum /></div> }
+              { user?.userRole !== 'guest' && harmonyOpen === false && <div className={styles['harmony-toggle']} onClick={() => openHarmony()}><Forum /></div> }
 
               {
                 fullScreenActive && <span className={styles.fullScreen} onClick={handle.exit}>

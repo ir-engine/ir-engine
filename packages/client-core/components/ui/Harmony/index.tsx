@@ -125,6 +125,7 @@ const initialGroupForm = {
     description: ''
 };
 
+const engineRendererCanvasId = 'engine-renderer-canvas';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -224,6 +225,7 @@ interface Props {
     changeChannelTypeState?: any;
     mediastream?: any;
     setHarmonyOpen?: any;
+    isHarmonyPage?: boolean;
 }
 
 const Harmony = observer((props: Props): any => {
@@ -274,7 +276,8 @@ const Harmony = observer((props: Props): any => {
         transportState,
         changeChannelTypeState,
         mediastream,
-        setHarmonyOpen
+        setHarmonyOpen,
+        isHarmonyPage
     } = props;
 
     const messageRef = React.useRef();
@@ -306,6 +309,10 @@ const Harmony = observer((props: Props): any => {
     const [videoPaused, setVideoPaused] = useState(false);
     const [audioPaused, setAudioPaused] = useState(false);
     const [selectorsOpen, setSelectorsOpen] = useState(false);
+    const [dimensions, setDimensions] = useState({
+        height: window.innerHeight,
+        width: window.innerWidth
+    });
 
     const instanceLayerUsers = userState.get('layerUsers') ?? [];
     const channelLayerUsers = userState.get('channelLayerUsers') ?? [];
@@ -338,17 +345,14 @@ const Harmony = observer((props: Props): any => {
     const producerStartingRef = useRef(producerStarting);
     const activeAVChannelIdRef = useRef(activeAVChannelId);
     const channelAwaitingProvisionRef = useRef(channelAwaitingProvision);
-    const videoEnabled = currentLocation.locationSettings ? currentLocation.locationSettings.videoEnabled : false;
+    const videoEnabled = isHarmonyPage === true ? true : currentLocation.locationSettings ? currentLocation.locationSettings.videoEnabled : false;
     const isCamVideoEnabled = mediastream.get('isCamVideoEnabled');
     const isCamAudioEnabled = mediastream.get('isCamAudioEnabled');
 
     useEffect(() => {
         EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, () => {
-            console.log('ConnectToWorld fired');
             await toggleAudio(activeAVChannelIdRef.current);
             await toggleVideo(activeAVChannelIdRef.current);
-            console.log('Toggled audio and video');
-            console.log(MediaStreamSystem.instance);
             updateChannelTypeState();
             updateCamVideoState();
             updateCamAudioState();
@@ -364,6 +368,13 @@ const Harmony = observer((props: Props): any => {
             updateChannelTypeState();
             updateCamVideoState();
             updateCamAudioState();
+        });
+
+        window.addEventListener('resize', () => {
+            setDimensions({
+                height: window.innerHeight,
+                width: window.innerWidth
+            })
         });
 
         return () => {
@@ -383,18 +394,23 @@ const Harmony = observer((props: Props): any => {
                 resetChannelServer();
                 if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('');
             });
+
+            window.removeEventListener('resize', () => {
+                setDimensions({
+                    height: window.innerHeight,
+                    width: window.innerWidth
+                })
+            });
         }
     }, []);
 
     useEffect(() => {
-        console.log('transportState useEffect');
-        console.log(transportState);
-        if ((Network.instance.transport as any).channelType === 'instance') {
+        if ((Network.instance.transport as any)?.channelType === 'instance') {
             const channelEntries = [...channels.entries()];
             const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null);
             if (instanceChannel != null && (MediaStreamSystem.instance.camAudioProducer != null || MediaStreamSystem.instance.camVideoProducer != null)) setActiveAVChannelId(instanceChannel[0]);
         } else {
-            setActiveAVChannelId((Network.instance.transport as any).channelId);
+            setActiveAVChannelId(transportState.get('channelId'));
         }
     }, [transportState])
 
@@ -579,27 +595,41 @@ const Harmony = observer((props: Props): any => {
     };
 
     const handleMicClick = async (e: any) => {
-        console.log('handleMicClick');
         e.stopPropagation();
-        const msAudioPaused = MediaStreamSystem.instance?.toggleAudioPaused();
-        setAudioPaused(MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camAudioProducer == null || MediaStreamSystem.instance?.audioPaused === true);
-        if (msAudioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer);
-        else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer);
+        if (MediaStreamSystem.instance?.camAudioProducer == null) {
+            const channel = channels.get(targetChannelId);
+            if (channel.instanceId == null) await createCamAudioProducer('channel', targetChannelId);
+            else await createCamAudioProducer('instance');
+            setAudioPaused(false);
+            await resumeProducer(MediaStreamSystem.instance?.camAudioProducer);
+        } else {
+            const msAudioPaused = MediaStreamSystem.instance?.toggleAudioPaused();
+            setAudioPaused(MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camAudioProducer == null || MediaStreamSystem.instance?.audioPaused === true);
+            if (msAudioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer);
+            else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer);
+        }
         updateCamAudioState();
     };
 
     const handleCamClick = async (e: any) => {
         e.stopPropagation();
-        const msVideoPaused = MediaStreamSystem.instance?.toggleVideoPaused();
-        setVideoPaused(MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camVideoProducer == null || MediaStreamSystem.instance?.videoPaused === true);
-        if (msVideoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer);
-        else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer);
+        if (MediaStreamSystem.instance?.camVideoProducer == null) {
+            const channel = channels.get(targetChannelId);
+            if (channel.instanceId == null) await createCamVideoProducer('channel', targetChannelId);
+            else await createCamVideoProducer('instance');
+            setVideoPaused(false);
+            await resumeProducer(MediaStreamSystem.instance?.camVideoProducer);
+        } else {
+            const msVideoPaused = MediaStreamSystem.instance?.toggleVideoPaused();
+            setVideoPaused(MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camVideoProducer == null || MediaStreamSystem.instance?.videoPaused === true);
+            if (msVideoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer);
+            else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer);
+        }
         updateCamVideoState();
     };
 
     const handleStartCall = async(e: any) => {
         e.stopPropagation();
-        console.log('handleStartCall');
         const channel = channels.get(targetChannelId);
         const channelType = channel.instanceId != null ? 'instance' : 'channel';
         changeChannelTypeState(channelType, targetChannelId);
@@ -639,7 +669,6 @@ const Harmony = observer((props: Props): any => {
     };
 
     const toggleVideo = async(channelId) => {
-        console.log('toggleVideo');
         await checkMediaStream('channel', channelId);
         if (MediaStreamSystem.instance?.camVideoProducer == null) await createCamVideoProducer('channel', channelId);
         else {
@@ -707,7 +736,8 @@ const Harmony = observer((props: Props): any => {
                 ...DefaultInitializationOptions,
                 networking: {
                     schema: networkSchema,
-                }
+                },
+                renderer: {}
             };
 
             initializeEngine(InitializationOptions);
@@ -777,6 +807,12 @@ const Harmony = observer((props: Props): any => {
         return channelMatch != null && channelMatch[0] === activeAVChannelId;
     }
 
+    const closeHarmony = (): void => {
+        const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
+        if (canvas?.style != null) canvas.style.width = '100%';
+        setHarmonyOpen(false);
+    }
+
     useEffect(() => {
         if (
             channelConnectionState.get('instanceProvisioned') === true &&
@@ -785,7 +821,7 @@ const Harmony = observer((props: Props): any => {
             channelConnectionState.get('connected') === false
         ) {
             init().then(() => {
-                connectToChannelServer(channelConnectionState.get('channelId'))
+                connectToChannelServer(channelConnectionState.get('channelId'), isHarmonyPage)
                 updateCamVideoState();
                 updateCamAudioState();
             });
@@ -801,7 +837,11 @@ const Harmony = observer((props: Props): any => {
                 [styles.partyButton]: true,
                 [styles.activeChat]: party != null && isActiveChat('party', party.id)
             })}
-                 onClick={(e) => party != null ? setActiveChat('party', party) : openDetails(e, 'party', party)}
+                 onClick={(e) => {
+                     if (party != null) {
+                         setActiveChat('party', party);
+                         if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
+                     } else openDetails(e, 'party', party)}}
             >
                 <PeopleOutline/>
                 <span>Party</span>
@@ -814,9 +854,12 @@ const Harmony = observer((props: Props): any => {
                     [styles.instanceButton]: true,
                     [styles.activeChat]: isActiveChat('instance', selfUser.instanceId)
                 })}
-                onClick={() => setActiveChat('instance', {
-                  id: selfUser.instanceId
-                })}
+                onClick={() => {
+                    setActiveChat('instance', {
+                        id: selfUser.instanceId
+                    });
+                    if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
+                }}
             >
                 <Grain/>
                 <span>Here</span>
@@ -855,7 +898,8 @@ const Harmony = observer((props: Props): any => {
                                 [styles.activeChat]: isActiveChat('user', friend.id)
                             })}
                                       onClick={() => {
-                                          setActiveChat('user', friend)
+                                          setActiveChat('user', friend);
+                                          if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
                                       }}
                             >
                                 <ListItemAvatar>
@@ -905,7 +949,8 @@ const Harmony = observer((props: Props): any => {
                                     [styles.activeChat]: isActiveChat('group', group.id)
                                 })}
                                 onClick={() => {
-                                    setActiveChat('group', group)
+                                    setActiveChat('group', group);
+                                    if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
                                 }}
                             >
                                 <ListItemText primary={group.name}/>
@@ -1005,7 +1050,7 @@ const Harmony = observer((props: Props): any => {
                     border-color: rgba(127, 127, 127, 0.7);
                 }
             `}</style>
-            { (isMobileOrTablet() === true || window.innerWidth <= 768) && <SwipeableDrawer
+            { (isMobileOrTablet() === true || dimensions.width <= 768) && <SwipeableDrawer
                 className={classNames({
                     [styles['flex-column']]: true,
                     [styles['list-container']]: true
@@ -1021,52 +1066,53 @@ const Harmony = observer((props: Props): any => {
             >
                 {chatSelectors}
             </SwipeableDrawer> }
-            { (isMobileOrTablet() !== true && window.innerWidth > 768) && chatSelectors}
+            { (isMobileOrTablet() !== true && dimensions.width > 768) && chatSelectors}
             <div className={styles['chat-window']}>
                 <div className={styles['harmony-header']}>
-                { targetChannelId?.length > 0 && <header className={styles.mediaControls}>
-                    { activeAVChannelId === '' &&
-                        <div className={classNames({
-                            [styles.iconContainer]: true,
-                            [styles.startCall]: true
-                        })} onClick={(e) => handleStartCall(e)}>
-                            <Call/>
-                        </div>
-                    }
-                    { activeAVChannelId !== '' &&
-                        <div className={styles.activeCallControls}>
+                    { targetChannelId?.length > 0 && <header className={styles.mediaControls}>
+                        { activeAVChannelId === '' &&
                             <div className={classNames({
                                 [styles.iconContainer]: true,
-                                [styles.endCall]: true
-                            })} onClick={(e) => handleEndCall(e)}>
-                                <CallEnd />
+                                [styles.startCall]: true
+                            })} onClick={(e) => handleStartCall(e)}>
+                                <Call/>
                             </div>
-                            <div className={styles.iconContainer + ' ' + (audioPaused ? styles.off : styles.on)}>
-                                <Mic id='micOff' className={styles.offIcon} onClick={(e) => handleMicClick(e)} />
-                                <Mic id='micOn' className={styles.onIcon} onClick={(e) => handleMicClick(e)} />
+                        }
+                        { activeAVChannelId !== '' &&
+                            <div className={styles.activeCallControls}>
+                                <div className={classNames({
+                                    [styles.iconContainer]: true,
+                                    [styles.endCall]: true
+                                })} onClick={(e) => handleEndCall(e)}>
+                                    <CallEnd />
+                                </div>
+                                <div className={styles.iconContainer + ' ' + (audioPaused ? styles.off : styles.on)}>
+                                    <Mic id='micOff' className={styles.offIcon} onClick={(e) => handleMicClick(e)} />
+                                    <Mic id='micOn' className={styles.onIcon} onClick={(e) => handleMicClick(e)} />
+                                </div>
+                                {videoEnabled && <div className={styles.iconContainer + ' ' + (videoPaused ? styles.off : styles.on)}>
+                                    <Videocam id='videoOff' className={styles.offIcon} onClick={(e) => handleCamClick(e)} />
+                                    <Videocam id='videoOn' className={styles.onIcon} onClick={(e) => handleCamClick(e)} />
+                                </div>}
                             </div>
-                            {videoEnabled && <div className={styles.iconContainer + ' ' + (videoPaused ? styles.off : styles.on)}>
-                                <Videocam id='videoOff' className={styles.offIcon} onClick={(e) => handleCamClick(e)} />
-                                <Videocam id='videoOn' className={styles.onIcon} onClick={(e) => handleCamClick(e)} />
-                            </div>}
-                        </div>
+                        }
+                        </header>
                     }
-                    </header>
-                }
+                    { targetChannelId?.length === 0 && <div />}
 
                     <div className={styles.controls}>
-                        <div className={classNames({
+                        { (isMobileOrTablet() === true || dimensions.width <= 768) && <div className={classNames({
                             [styles['chat-toggle']]: true,
                             [styles.iconContainer]: true
-                        })} onClick={() => setSelectorsOpen(true)}><Group /></div>
+                        })} onClick={() => setSelectorsOpen(true)}><Group /></div> }
                         <div className={classNames({
                             [styles['invite-toggle']]: true,
                             [styles.iconContainer]: true
                         })} onClick={() => openInvite()}><GroupAdd /></div>
-                        <div className={classNames({
+                        { isHarmonyPage !== true && <div className={classNames({
                             [styles['harmony-toggle']]: true,
                             [styles.iconContainer]: true
-                        })} onClick={() => setHarmonyOpen(false)}><ThreeDRotation /></div>
+                        })} onClick={() => closeHarmony()}><ThreeDRotation /></div> }
                     </div>
                 </div>
                 { activeAVChannelId !== '' && <div className={styles['video-container']}>
