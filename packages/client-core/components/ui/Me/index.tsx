@@ -36,6 +36,7 @@ const Me = () => {
               width: 240
             }}
             peerId={'me_cam'}
+            isSelfUser
           />
           {(MediaStreamSystem.instance?.screenVideoProducer || MediaStreamSystem.instance?.screenAudioProducer) && <PartyParticipantWindow
             containerProportions={{
@@ -43,6 +44,7 @@ const Me = () => {
                 width: 240
             }}
             peerId={'me_screen'}
+            isSelfUser
           />}
         </> : null}
     </>

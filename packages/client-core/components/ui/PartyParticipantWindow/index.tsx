@@ -59,6 +59,7 @@ interface Props {
     mediastream?: any;
     updateCamAudioState?: any;
     updateCamVideoState?: any;
+    isSelfUser: boolean;    
 }
 
 const mapStateToProps = (state: any): any => {
@@ -96,7 +97,8 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
         userState,
         mediastream,
         updateCamAudioState,
-        updateCamVideoState
+        updateCamVideoState,
+        isSelfUser,
     } = props;
     const videoRef = React.createRef<HTMLVideoElement>();
     const audioRef = React.createRef<HTMLAudioElement>();
@@ -316,7 +318,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
 
             <div className={styles['video-wrapper']}>
                 {videoStream == null || videoProducerPaused == true || videoProducerGlobalMute == true
-                    ? <img src={getAvatarURL(user?.avatarId)} draggable={false} />
+                    ? <img src={getAvatarURL(isSelfUser ? selfUser?.avatarId : user?.avatarId)} draggable={false} />
                     : <video key={peerId + '_cam'} ref={videoRef}/>}
             </div>
             <audio key={peerId + '_audio'} ref={audioRef}/>
