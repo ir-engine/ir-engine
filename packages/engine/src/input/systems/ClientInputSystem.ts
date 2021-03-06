@@ -1,6 +1,5 @@
 import { BinaryValue } from "../../common/enums/BinaryValue";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
-import { Vector3 } from 'three';
 import { isClient } from "../../common/functions/isClient";
 import { DomEventBehaviorValue } from "../../common/interfaces/DomEventBehaviorValue";
 import { NumericalType } from "../../common/types/NumericalTypes";
@@ -15,10 +14,9 @@ import { Vault } from '../../networking/classes/Vault';
 import { NetworkObject } from "../../networking/components/NetworkObject";
 import { NetworkClientInputInterface } from "../../networking/interfaces/WorldState";
 import { ClientInputModel } from '../../networking/schema/clientInputSchema';
-import { MediaStreamSystem } from '../../networking/systems/MediaStreamSystem';
 import { CharacterComponent, RUN_SPEED, WALK_SPEED } from "../../templates/character/components/CharacterComponent";
 import { handleGamepads } from "../behaviors/GamepadInputBehaviors";
-import { startFaceTracking, stopFaceTracking } from "../behaviors/WebcamInputBehaviors";
+import { faceToInput,  lipToInput,  WEBCAM_INPUT_EVENTS } from "../behaviors/WebcamInputBehaviors";
 import { addPhysics, removeWebXRPhysics, updateWebXRPhysics } from '../behaviors/WebXRInputBehaviors';
 import { Input } from '../components/Input';
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
@@ -83,6 +81,14 @@ export class InputSystem extends System {
       this.boundListeners = new Set();
       this.entityListeners = new Map();
     }
+
+    EngineEvents.instance.addEventListener(WEBCAM_INPUT_EVENTS.FACE_INPUT, ({ detection }) => {
+      faceToInput(Network.instance.localClientEntity, detection);
+    });
+
+    EngineEvents.instance.addEventListener(WEBCAM_INPUT_EVENTS.LIP_INPUT, ({ pucker, widen, open }) => {
+      lipToInput(Network.instance.localClientEntity, pucker, widen, open);
+    });
   }
 
   dispose(): void {
@@ -116,32 +122,6 @@ export class InputSystem extends System {
       // Apply input to local client
       handleGamepads(entity);
 
-      // TODO: This is all messed up, why only when local user media stream is null?
-      /*
-      // apply face tracking
-      if (this.localUserMediaStream === null) {
-        // check to start video tracking
-        if (MediaStreamSystem.instance.mediaStream && MediaStreamSystem.instance.faceTracking) {
-          console.log('start facetracking');
-          startFaceTracking(entity);
-          this.localUserMediaStream = MediaStreamSystem.instance.mediaStream;
-        }
-      } else {
-        // check if we need to change face tracking video src
-        if (MediaStreamSystem.instance.mediaStream) {
-          if (this.localUserMediaStream !== MediaStreamSystem.instance.mediaStream) {
-            // stream is changed
-            // TODO: do update video src ...
-            console.log('change facetracking src');
-          }
-        } else {
-          //... user media stream is null - stop facetracking?
-          console.log('stop facetracking');
-          stopFaceTracking();
-        }
-        this.localUserMediaStream = MediaStreamSystem.instance.mediaStream;
-      }
-    */
       // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
       const input = getMutableComponent(entity, Input);
 

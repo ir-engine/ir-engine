@@ -222,4 +222,6 @@ export class Engine {
   static createElement: any = createElement;
 
   static hasUserEngaged: boolean = false;
+
+  static useAudioSystem: boolean = false;
 }

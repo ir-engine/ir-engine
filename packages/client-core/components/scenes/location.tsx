@@ -226,8 +226,7 @@ export const EnginePage = (props: Props) => {
     styleCanvas(canvas);
 
     let initializationOptions, initialize;
-    if(false) {
-    // if(canvas.transferControlToOffscreen) {
+    if(canvas.transferControlToOffscreen) {
       const { DefaultInitializationOptions, initializeWorker } = await import('@xr3ngine/engine/src/initializeWorker');
       initializationOptions = DefaultInitializationOptions;
       initialize = initializeWorker;
