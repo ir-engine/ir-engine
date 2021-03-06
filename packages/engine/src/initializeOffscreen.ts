@@ -57,9 +57,6 @@ export function initializeEngineOffscreen({ canvas, userArgs }, proxy: MainProxy
   // @ts-ignore
   Network.instance.transport = { isServer: false }
 
-  // Do we want audio and video streams?
-  // registerSystem(MediaStreamSystemProxy);
-
   registerSystem(AssetLoadingSystem);
 
   registerSystem(PhysicsSystem);
