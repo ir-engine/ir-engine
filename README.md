@@ -56,7 +56,15 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
     yarn install
     ```
     Error with mediasoup? Optional: https://mediasoup.org/documentation/v3/mediasoup/installation/
-	If on WSL2:	`sudo apt-get update ; sudo apt-get install build-essential`
+    
+    If on WSL2:	
+	```
+	sudo apt-get update
+	sudo apt-get install build-essential
+	npm install -g node-gypPYTHON=python3 yarn install
+	npm config set python /usr/bin/python
+	PYTHON=python3 yarn install
+	```
 
 2. Make sure you have a mysql database installed and running -- our recommendation is Mariadb. We've provided a docker container for easy setup:
     ```
