@@ -46,6 +46,9 @@ export default (app: Application): void => {
                         const agonesSDK = (app as any).agonesSDK;
                         const gsResult = await agonesSDK.getGameServer();
                         const {status} = gsResult;
+                        console.log('Creating new GS or updating current one');
+                        console.log(status.state);
+                        console.log((app as any).instance);
                         if (status.state === 'Ready' || ((process.env.NODE_ENV === 'development' && status.state === 'Shutdown') || (app as any).instance == null)) {
                             logger.info('Starting new instance');
                             const localIp = await getLocalServerIp();
@@ -122,6 +125,18 @@ export default (app: Application): void => {
                         (connection as any).instanceId = (app as any).instance.id;
                         // console.log('Patched user instanceId');
                         app.channel(`instanceIds/${(app as any).instance.id as string}`).join(connection);
+                        console.log('Sending joined layer message');
+                        console.log((app as any).isChannelInstance);
+                        if ((app as any).isChannelInstance !== true) await app.service('message').create({
+                            targetObjectId: (app as any).instance.id,
+                            targetObjectType: 'instance',
+                            text: `${user.name} joined the layer`,
+                            isNotification: true
+                        }, {
+                            'identity-provider': {
+                                userId: userId
+                            }
+                        });
                         if (user.partyId != null) {
                             const partyUserResult = await app.service('party-user').find({
                                 query: {

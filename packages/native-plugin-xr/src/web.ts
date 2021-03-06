@@ -57,6 +57,10 @@ export class XRPluginWeb extends WebPlugin implements XRPluginPlugin {
     });
   }
 
+  async handleTap(): Promise<void> {
+
+  }
+
   async stop(): Promise<any> {
     const video = <HTMLVideoElement>document.getElementById("video");
     if (video) {
