@@ -23,6 +23,9 @@
     "name": "Laguna Labs",
     "email": "info@lagunalabs.io"
   },
+  "entrypoint":{
+
+  },
   "contributors": [],
   "bugs": {},
   "directories": {
