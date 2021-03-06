@@ -219,7 +219,7 @@ export interface XRPluginPlugin {
     
     pauseVideo(options: {}): Promise<{ status: string; }>;
 
-    scrubTo(options: {}): Promise<{ status: string; }>;
+    scrubTo(positionInTrack: number): Promise<{ status: string; }>;
 
     deleteVideo(options: {}): Promise<{ status: string; }>;
 
