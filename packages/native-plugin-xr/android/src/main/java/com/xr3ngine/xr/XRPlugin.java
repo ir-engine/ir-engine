@@ -53,15 +53,22 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import androidx.core.content.ContextCompat;
+
+import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MEDIA_PROJECTION_SERVICE;
 import static com.xr3ngine.xr.XRPlugin.SCREEN_RECORD_CODE;
+
+import static com.xr3ngine.xr.MediaProjectionHelper.mediaProjection;
+import static com.xr3ngine.xr.MediaProjectionHelper.data;
 
 @NativePlugin(
         permissions = {
                 Manifest.permission.CAMERA,
                 Manifest.permission.RECORD_AUDIO,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.SYSTEM_ALERT_WINDOW
         },
         requestCodes = {
                 CameraPreview.REQUEST_CAMERA_PERMISSION,
@@ -90,7 +97,18 @@ public class XRPlugin extends Plugin {
         saveCall(call);
         Toast t = Toast.makeText(getContext(), "Tapped", Toast.LENGTH_SHORT);
         t.show();
+        //Raki--B
+        Intent serviceIntent = new Intent(getContext(), MediaProjectionHelperService.class);
+        serviceIntent.putExtra("inputExtra", "asdf");
+        ContextCompat.startForegroundService(getContext(), serviceIntent);
+        //Raki--E
         fragment.handleTap(this);
+    }
+
+    @PluginMethod()
+    public void playVideo(PluginCall call)
+    {
+        Log.d(TAG,"playvideo");
     }
 
     @PluginMethod()
@@ -855,23 +873,24 @@ public class XRPlugin extends Plugin {
         this.callbackContext = callbackContext;
 
         Log.d(TAG, callbackContext.toString());
-<<<<<<< HEAD
-=======
         isAudio = callbackContext.getBoolean("isAudio");
->>>>>>> 8822c4a24... add mobile changes
         width = callbackContext.getInt("width");
         height = callbackContext.getInt("height");
         bitRate = callbackContext.getInt("bitRate");
         dpi = callbackContext.getInt("dpi");
         filePath = callbackContext.getString("filePath");
+
+
+
         if (screenRecord != null) {
             callbackContext.error("screenRecord service is running");
         } else {
             saveCall(callbackContext);
 
-            mProjectionManager = (MediaProjectionManager) getActivity().getSystemService(MEDIA_PROJECTION_SERVICE);
-            Intent captureIntent = mProjectionManager.createScreenCaptureIntent();
-            startActivityForResult(this.callbackContext, captureIntent, SCREEN_RECORD_CODE);
+            //mProjectionManager = (MediaProjectionManager) getActivity().getSystemService(MEDIA_PROJECTION_SERVICE);
+            //Intent captureIntent = mProjectionManager.createScreenCaptureIntent();
+            //startActivityForResult(this.callbackContext, captureIntent, SCREEN_RECORD_CODE);
+            doStartRecording((Intent) data.clone());
         }
         Log.d(TAG, "CALLBACK CONTEXT:" + this.callbackContext);
         Log.d(TAG, "IS AUDIO:" + isAudio);
@@ -882,6 +901,10 @@ public class XRPlugin extends Plugin {
     public void stopRecording(PluginCall callbackContext) {
 
         if(screenRecord != null){
+
+            Intent serviceIntent = new Intent(getContext(), MediaProjectionHelperService.class);
+            getContext().stopService(serviceIntent);
+
             screenRecord.quit();
             screenRecord = null;
             final Context appContext = getActivity().getApplicationContext();
@@ -914,7 +937,10 @@ public class XRPlugin extends Plugin {
     public void handleOnActivityResult(int requestCode, int resultCode, Intent data) {
         PluginCall savedCall = getSavedCall();
 
-        MediaProjection mediaProjection = mProjectionManager.getMediaProjection(resultCode, data);
+        //Raki
+        //MediaProjection mediaProjection = mProjectionManager.getMediaProjection(RESULT_OK, data);
+
+
         if (mediaProjection == null) {
             Log.e(TAG, "media projection is null");
             callbackContext.error("no ScreenRecord in process");
@@ -936,10 +962,10 @@ public class XRPlugin extends Plugin {
                File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), appName);
 
                if (!mediaStorageDir.exists()) {
-                   if (!mediaStorageDir.mkdirs()) {
+                   /*if (!mediaStorageDir.mkdirs()) {
                        videoEditorCallbackContext.error("Can't access or make Movies directory");
                        return;
-                   }
+                   }*/
                }
                File file = new File(
                        mediaStorageDir.getPath(),
@@ -960,6 +986,58 @@ public class XRPlugin extends Plugin {
               e.printStackTrace();
               savedCall.errorCallback("Error in screenrecord");
           }
+  }
+
+  void doStartRecording(Intent data)
+  {
+      PluginCall savedCall = getSavedCall();
+
+      if (mediaProjection == null) {
+          Log.e(TAG, "media projection is null");
+          callbackContext.error("no ScreenRecord in process");
+          return;
+      }
+      try {
+
+          ApplicationInfo ai;
+          final Context appContext = getActivity().getApplicationContext();
+          final PackageManager pm = appContext.getPackageManager();
+
+          try {
+              ai = pm.getApplicationInfo(getActivity().getPackageName(), 0);
+          } catch (final PackageManager.NameNotFoundException e) {
+              ai = null;
+          }
+          final String appName = (String) (ai != null ? pm.getApplicationLabel(ai) : "Unknown");
+
+          File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), appName);
+
+          if (!mediaStorageDir.exists()) {
+
+              if (!mediaStorageDir.mkdirs()) {
+                  videoEditorCallbackContext.error("Can't access or make Movies directory");
+                  return;
+              }
+          }
+          File file = new File(
+                  mediaStorageDir.getPath(),
+                  filePath
+          );
+          Log.d(TAG, "*************** filePath: " + mediaStorageDir.getPath() + filePath);
+          screenRecord = new ScreenRecordService(width, height, bitRate, dpi,
+                  mediaProjection, file.getAbsolutePath());
+          screenRecord.start();
+
+          Log.d(TAG, "screenrecord service is running");
+          PluginResult result = new PluginResult();
+          result.put("status", data.getStringExtra("ScreenRecord file at" + file.getAbsolutePath()));
+          savedCall.successCallback(result);
+
+//               getActivity().moveTaskToBack(true);
+      }catch (Exception e){
+          e.printStackTrace();
+          savedCall.errorCallback("Error in screenrecord");
+      }
   }
 
     public void sendPoseData(float[] cameraPose, float[] anchorPose) {
@@ -997,4 +1075,6 @@ public class XRPlugin extends Plugin {
         ret.put("y", imageDimensions[1]);
         notifyListeners("cameraIntrinsicsReceived", ret);
     }
+
+    
 }
