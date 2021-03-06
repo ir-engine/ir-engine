@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import React, { useEffect } from 'react';
 import Xr3engineContact from '../components/xr3engineContact';
-import { useRouter } from 'next/router';
+import { use } from 'next/router';
 import { Capacitor } from '@capacitor/core';
 
 export const IndexPage = (): any => {
