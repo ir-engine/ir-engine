@@ -26,7 +26,7 @@ import { MainProxy } from './worker/MessageQueue';
 import { InputSystem } from './input/systems/ClientInputSystem';
 import { EngineEvents } from './ecs/classes/EngineEvents';
 import { EngineEventsProxy, addIncomingEvents } from './ecs/classes/EngineEvents';
-import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
+// import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -79,9 +79,8 @@ export function initializeEngineOffscreen({ canvas, userArgs }, proxy: MainProxy
 
   Engine.audioListener = new AudioListener();
   Engine.camera.add(Engine.audioListener);
-  registerSystem(PositionalAudioSystem);
+  // registerSystem(PositionalAudioSystem);
 
-//  registerSystem(PositionalAudioSystem);
   registerSystem(InteractiveSystem);
   registerSystem(ParticleSystem);
   registerSystem(DebugHelpersSystem);

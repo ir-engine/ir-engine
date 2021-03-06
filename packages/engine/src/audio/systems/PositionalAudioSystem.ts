@@ -33,6 +33,7 @@ export class PositionalAudioSystem extends System {
   constructor(attributes?: SystemAttributes) {
     super(attributes);
     PositionalAudioSystem.instance = this;
+    Engine.useAudioSystem = true;
   }
 
   /** Execute the positional audio system for different events of queries. */

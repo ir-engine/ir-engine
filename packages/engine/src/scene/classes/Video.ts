@@ -46,7 +46,6 @@ export default class Video extends AudioSource {
     this.add(this._mesh);
     this._projection = "flat";
     this.hls = null;
-    console.log('audiosource create', this)
   }
   loadVideo(src, contentType) {
     return new Promise((resolve, reject) => {
@@ -65,17 +64,6 @@ export default class Video extends AudioSource {
       }
       let cleanup = null;
       const onLoadedMetadata = () => {
-        if (this.el.autoplay) {
-          if(Engine.hasUserEngaged) {
-            this.el.play();
-          } else {
-            const onUserEngage = () => {
-              this.el.play();
-              EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
-            }
-            EngineEvents.instance.addEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
-          }
-        }
         cleanup();
         cleanup();
         resolve(this._videoTexture);
@@ -138,10 +126,10 @@ export default class Video extends AudioSource {
     this._mesh.visible = false;
     this._texture = await this.loadVideo(src, contentType);
     this.onResize();
-    this.audioSource = this.audioListener.context.createMediaElementSource(
-      this.el
-    );
-    this.audio.setNodeSource(this.audioSource);
+    if(Engine.useAudioSystem) {
+      this.audioSource = this.audioListener.context.createMediaElementSource(this.el);
+      this.audio.setNodeSource(this.audioSource);
+    }
     if (this._texture.format === RGBAFormat) {
       (this._mesh.material as MeshBasicMaterial).transparent = true;
     }
