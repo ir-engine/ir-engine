@@ -85,11 +85,9 @@ import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { observer } from 'mobx-react';
 //@ts-ignore
 import styles from './Harmony.module.scss';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import {autorun} from "mobx";
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import {getFriends, unfriend} from "../../../redux/friend/service";
 import {createGroup, getGroups, patchGroup, removeGroup, removeGroupUser} from "../../../redux/group/service";
@@ -228,7 +226,7 @@ interface Props {
     isHarmonyPage?: boolean;
 }
 
-const Harmony = observer((props: Props): any => {
+const Harmony = (props: Props): any => {
     const {
         authState,
         chatState,
@@ -313,6 +311,7 @@ const Harmony = observer((props: Props): any => {
         height: window.innerHeight,
         width: window.innerWidth
     });
+    const [engineInitialized, setEngineInitialized] = useState(false);
 
     const instanceLayerUsers = userState.get('layerUsers') ?? [];
     const channelLayerUsers = userState.get('channelLayerUsers') ?? [];
@@ -350,26 +349,10 @@ const Harmony = observer((props: Props): any => {
     const isCamAudioEnabled = mediastream.get('isCamAudioEnabled');
 
     useEffect(() => {
-        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, () => {
-            await toggleAudio(activeAVChannelIdRef.current);
-            await toggleVideo(activeAVChannelIdRef.current);
-            updateChannelTypeState();
-            updateCamVideoState();
-            updateCamAudioState();
-        });
-
-        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
-            if (e.instance === true) resetChannelServer();
-        })
-
-        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LEAVE_WORLD, () => {
-            resetChannelServer();
-            if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('');
-            updateChannelTypeState();
-            updateCamVideoState();
-            updateCamAudioState();
-        });
-
+        if (EngineEvents.instance != null) {
+            setEngineInitialized(true);
+            createEngineListeners();
+        }
         window.addEventListener('resize', () => {
             setDimensions({
                 height: window.innerHeight,
@@ -378,22 +361,25 @@ const Harmony = observer((props: Props): any => {
         });
 
         return () => {
-            window.removeEventListener('connectToWorld', async () => {
-                await toggleAudio(activeAVChannelIdRef.current);
-                await toggleVideo(activeAVChannelIdRef.current);
-                updateChannelTypeState();
-                updateCamVideoState();
-                updateCamAudioState();
-            });
+            if (EngineEvents.instance != null) {
+                setEngineInitialized(false);
+                EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
+                    await toggleAudio(activeAVChannelIdRef.current);
+                    await toggleVideo(activeAVChannelIdRef.current);
+                    updateChannelTypeState();
+                    updateCamVideoState();
+                    updateCamAudioState();
+                });
 
-            window.removeEventListener('connectToWorldTimeout', (e: any) => {
-                if (e.instance === true) resetChannelServer();
-            })
+                EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
+                    if (e.instance === true) resetChannelServer();
+                })
 
-            window.removeEventListener('leaveWorld', () => {
-                resetChannelServer();
-                if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('');
-            });
+                EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.LEAVE_WORLD, () => {
+                    resetChannelServer();
+                    if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('');
+                });
+            }
 
             window.removeEventListener('resize', () => {
                 setDimensions({
@@ -499,6 +485,28 @@ const Harmony = observer((props: Props): any => {
         setEditingMessage('');
         setComposingMessage('');
     };
+
+    const createEngineListeners = (): void => {
+        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
+            await toggleAudio(activeAVChannelIdRef.current);
+            await toggleVideo(activeAVChannelIdRef.current);
+            updateChannelTypeState();
+            updateCamVideoState();
+            updateCamAudioState();
+        });
+
+        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
+            if (e.instance === true) resetChannelServer();
+        })
+
+        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LEAVE_WORLD, () => {
+            resetChannelServer();
+            if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('');
+            updateChannelTypeState();
+            updateCamVideoState();
+            updateCamAudioState();
+        });
+    }
 
     const onChannelScroll = (e): void => {
         if ((e.target.scrollHeight - e.target.scrollTop) === e.target.clientHeight ) {
@@ -740,7 +748,8 @@ const Harmony = observer((props: Props): any => {
                 renderer: {}
             };
 
-            initializeEngine(InitializationOptions);
+            await initializeEngine(InitializationOptions);
+            if (engineInitialized === false) createEngineListeners();
         }
     }
 
@@ -848,7 +857,8 @@ const Harmony = observer((props: Props): any => {
                 <div className={classNames({
                     [styles.activeAVCall]: party != null && isActiveAVCall('party', party.id)
                 })} />
-                { party != null && <ListItemIcon className={styles.groupEdit} onClick={(e) => openDetails(e,'party', party)}><Settings/></ListItemIcon>}
+                <div>{party?.id}</div>
+                { party != null && party.id != null && party.id !== '' && <ListItemIcon className={styles.groupEdit} onClick={(e) => openDetails(e,'party', party)}><Settings/></ListItemIcon>}
             </div>
             { selfUser.instanceId != null && <div className={classNames({
                     [styles.instanceButton]: true,
@@ -1294,6 +1304,6 @@ const Harmony = observer((props: Props): any => {
             </div>
         </div>
     );
-});
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Harmony);
