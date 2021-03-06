@@ -139,6 +139,9 @@ export class WebGLRendererSystem extends System {
     EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC, (ev: any) => {
       this.setUseAutomatic(ev.payload);
     });
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
+      this.enabled = ev.enable;
+    });
 
     this.isInitialized = true;
   }

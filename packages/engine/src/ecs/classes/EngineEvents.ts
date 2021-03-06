@@ -22,6 +22,8 @@ const EVENTS = {
   SCENE_LOADED: 'CORE_SCENE_LOADED',
   ENTITY_LOADED: 'CORE_ENTITY_LOADED',
 
+  ENABLE_SCENE: 'CORE_ENABLE_SCENE',
+
   // Entity
   LOAD_AVATAR: "CORE_LOAD_AVATAR",
   CLIENT_ENTITY_LOAD: "CORE_CLIENT_ENTITY_LOAD",
@@ -50,10 +52,8 @@ export const addIncomingEvents = () => {
 
   // this event fires once the scene has loaded
   const onWorldJoined = (ev: any) => {
-    console.log(ev)
     applyNetworkStateToClient(ev.worldState);
-    PhysicsSystem.simulate = true;
-    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.JOINED_WORLD, onWorldJoined)
+    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.JOINED_WORLD, onWorldJoined);
   }
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.JOINED_WORLD, onWorldJoined)
 
