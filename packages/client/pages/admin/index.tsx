@@ -4,7 +4,8 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { EmptyLayout }from '@xr3ngine/client-core/components/ui/Layout/EmptyLayout';
 import AdminConsole from '@xr3ngine/client-core/components/ui/Admin';
 import {doLoginAuto} from "@xr3ngine/client-core/redux/auth/service";
-
+import { Admin } from 'react-admin';
+import jsonServerProvider from 'ra-data-json-server';
 
 interface Props {
     doLoginAuto?: any;

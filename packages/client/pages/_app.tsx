@@ -21,6 +21,10 @@ import { ThemeProvider } from "styled-components";
 import url from 'url';
 import './styles.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import restProvider from 'ra-data-simple-rest';
+import { createHashHistory } from 'history';
+import { Admin, Resource } from 'react-admin';
+import createAdminStore from './createAdminStore';
 
 const config = getConfig().publicRuntimeConfig;
 
@@ -54,7 +58,6 @@ const MyApp = (props: Props): any => {
     }
     store.dispatch(getDeviceType(deviceInfo));
   };
-  
   const initApp = useCallback(() => {
     const jssStyles = document.querySelector('#jss-server-side');
     if (jssStyles?.parentNode) {
@@ -62,6 +65,7 @@ const MyApp = (props: Props): any => {
     }
     // NOTE: getDeviceInfo is an async function, but here is running
     // without `await`.
+
     store.dispatch(restoreState());
     initGA();
     logPageView();
