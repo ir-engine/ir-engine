@@ -21,6 +21,7 @@ import feedReducer from './feed/reducers';
 import feedFiresReducer from './feedFires/reducers';
 import feedCommentsReducer from './feedComment/reducers';
 import mediastreamReducer from './mediastream/reducers';
+import transportReducer from './transport/reducers';
 
 export default combineReducers({
   admin: adminReducer,
@@ -44,4 +45,5 @@ export default combineReducers({
   feedFires: feedFiresReducer,
   feedComments: feedCommentsReducer,
   mediastream: mediastreamReducer,
+  transport: transportReducer
 });
