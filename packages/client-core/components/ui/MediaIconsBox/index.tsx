@@ -44,13 +44,16 @@ const mapStateToProps = (state: any): any => {
 };
 
 const mapDispatchToProps = (dispatch): any => ({
-    updateCamVideoState: bindActionCreators(updateCamVideoState, dispatch),
-    updateCamAudioState: bindActionCreators(updateCamAudioState, dispatch),
     changeFaceTrackingState: bindActionCreators(changeFaceTrackingState, dispatch),
 });
 
 const MediaIconsBox = (props) => {
-    const { authState, locationState, mediastream } = props;
+    const {
+        authState,
+        locationState,
+        mediastream,
+        changeFaceTrackingState
+    } = props;
     const [xrSupported, setXRSupported] = useState(false);
 
     const user = authState.get('user');
@@ -77,7 +80,7 @@ const MediaIconsBox = (props) => {
         if (entity) {
             const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId;
             await checkMediaStream(partyId);
-            props.changeFaceTrackingState(!isFaceTrackingEnabled);
+            changeFaceTrackingState(!isFaceTrackingEnabled);
             if (!isFaceTrackingEnabled) {
                 // get local input receiver entity
                 startFaceTracking(entity);
@@ -107,7 +110,7 @@ const MediaIconsBox = (props) => {
             checkEndVideoChat();
         }
 
-        props.updateCamAudioState();
+        updateCamAudioState();
     };
 
     const handleCamClick = async () => {
@@ -121,7 +124,7 @@ const MediaIconsBox = (props) => {
             checkEndVideoChat();
         }
 
-        props.updateCamVideoState();
+        updateCamVideoState();
     };
 
     const handleVRClick = () => startVR();

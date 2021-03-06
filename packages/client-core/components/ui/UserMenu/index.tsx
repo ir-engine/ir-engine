@@ -12,6 +12,7 @@ import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth } from '../.
 import { alertSuccess } from '../../../redux/alert/service';
 import { provisionInstanceServer } from "../../../redux/instanceConnection/service";
 import { Views, UserMenuProps } from './util';
+//@ts-ignore
 import styles from './style.module.scss';
 import ProfileMenu from './menus/ProfileMenu';
 import AvatarMenu from './menus/AvatarMenu';
