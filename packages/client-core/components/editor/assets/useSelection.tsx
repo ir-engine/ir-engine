@@ -1,11 +1,24 @@
 import { useRef, useState, useCallback, useEffect } from "react";
+
+/**
+ * useSelectionHandler function component used to set items selected.
+ * @param  {Array}  items
+ * @param  {Array}  selectedItems
+ * @param  {function}  setSelectedItems
+ * @param  {Boolean} [multiselect=false]
+ * @return {Array} containing callback handlers onSelect and clearSelection.
+ */
 export function useSelectionHandler(
   items,
   selectedItems,
   setSelectedItems,
   multiselect = false
 ) {
+
+  // initializing currentItems using items
   const currentItems = useRef(items);
+
+  // callback function used on select of item.
   const onSelect = useCallback(
     (item, e) => {
       if (multiselect && e.shiftKey) {
@@ -20,6 +33,8 @@ export function useSelectionHandler(
     },
     [selectedItems, multiselect, setSelectedItems]
   );
+
+  // callback function used to clear item selection
   const clearSelection = useCallback(() => setSelectedItems([]), [
     setSelectedItems
   ]);
@@ -33,7 +48,15 @@ export function useSelectionHandler(
     [items, currentItems, clearSelection]
   );
   return [onSelect, clearSelection];
-}
+}[useSelection description]
+
+/**
+ * [useSelection ]
+ * @param  {Array}  items
+ * @param  {Array}   [initialSelection=[]]
+ * @param  {Boolean} [multiselect=false]
+ * @return {object}      [returns object containing selectedItems array, setSelectedItems  onSelect clearSelection  function callbacks]
+ */
 export function useSelection(
   items,
   initialSelection = [],
