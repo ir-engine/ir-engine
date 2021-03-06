@@ -187,6 +187,20 @@ export class XRPluginWeb extends WebPlugin implements XRPluginPlugin {
     });
   }
 
+  async playVideo(options: {}): Promise<{ status: string }> {
+    console.log("playVideo called to plugin on web");
+    return new Promise((resolve, reject) => {
+      resolve({ status: "success" })
+    });
+  }
+
+  async pauseVideo(options: {}): Promise<{ status: string }> {
+    console.log("pauseVideo called to plugin on web");
+    return new Promise((resolve, reject) => {
+      resolve({ status: "success" })
+    });
+  }
+
   async scrubTo(options: {}): Promise<{ status: string }> {
     console.log("scrubTo called to plugin on web");
     return new Promise((resolve, reject) => {
