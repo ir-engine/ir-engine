@@ -12,22 +12,10 @@ import {selectLocationState} from '../../../redux/location/selector';
 import theme from '../../../theme';
 import {Alerts} from '../Common/Alerts';
 import {UIDialog} from '../Dialog/Dialog';
-import BottomDrawer from '../Drawer/Bottom';
 import LeftDrawer from '../Drawer/Left/LeftDrawer';
 import RightDrawer from '../Drawer/Right';
-import DrawerControls from '../DrawerControls';
-import InstanceChat from '../InstanceChat';
-import Me from '../Me';
-import NavMenu from '../NavMenu';
-import PartyVideoWindows from '../PartyVideoWindows';
 import Harmony from "../Harmony";
 import {doLoginAuto} from '@xr3ngine/client-core/redux/auth/service';
-import {client} from "../../../redux/feathers";
-import {NetworkSchema} from "@xr3ngine/engine/src/networking/interfaces/NetworkSchema";
-import {DefaultNetworkSchema} from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
-import {SocketWebRTCClientTransport} from "@xr3ngine/engine/src/networking/classes/SocketWebRTCClientTransport";
-import {styleCanvas} from "@xr3ngine/engine/src/renderer/functions/styleCanvas";
-import {EngineProxy} from "@xr3ngine/engine/src/EngineProxy";
 
 const {publicRuntimeConfig} = getConfig();
 const siteTitle: string = publicRuntimeConfig.siteTitle;
@@ -165,7 +153,7 @@ const Layout = (props: Props): any => {
                     {childrenWithProps}
                 </Fragment>
                 {authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&
-                <Fragment>
+                <Fragment>h
                     <LeftDrawer
                         harmony={true}
                         detailsType={detailsType}

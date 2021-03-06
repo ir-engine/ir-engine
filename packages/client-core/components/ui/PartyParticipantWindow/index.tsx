@@ -154,7 +154,6 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     };
 
     useEffect(() => {
-        console.log('isCamVideoEnabled listener in ' + peerId);
         if (peerId === 'me_cam') {
             setVideoStream(MediaStreamSystem.instance?.camVideoProducer);
             setVideoStreamPaused(MediaStreamSystem.instance?.videoPaused);
@@ -172,7 +171,6 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
 
     useEffect(() => {
         if (peerId !== 'me_cam' && peerId !== 'me_screen') {
-            console.log('Setting video and audio streams for', peerId);
             setVideoStream(MediaStreamSystem.instance?.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-video'));
             setAudioStream(MediaStreamSystem.instance?.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'));
         }
@@ -191,8 +189,6 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     }, [selfUser]);
 
     useEffect(() => {
-        console.log('Booting up partyParticipantWindow');
-        console.log(Network.instance?.transport);
         if ((Network.instance?.transport as any)?.channelType === 'instance') {
             (Network.instance?.transport as any)?.instanceSocket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener);
             (Network.instance?.transport as any)?.instanceSocket?.on(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener);

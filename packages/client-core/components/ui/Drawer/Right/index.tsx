@@ -260,8 +260,6 @@ const Invites = (props: Props): any => {
     };
 
     useEffect(() => {
-        console.log('inviteState changed');
-        console.log(inviteState);
         if (inviteState.get('sentUpdateNeeded') === true && inviteState.get('getSentInvitesInProgress') !== true) retrieveSentInvites();
         if (inviteState.get('receivedUpdateNeeded') === true && inviteState.get('getReceivedInvitesInProgress') !== true) retrieveReceivedInvites();
         setInviteTypeIndex(targetObjectType === 'party' ? 2 : targetObjectType === 'group' ? 1 : 0);

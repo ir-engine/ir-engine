@@ -234,25 +234,29 @@ $mobileControllButtonsSize: 3em;
 }
 
 .message {
-    min-height: 70px;
+    padding-bottom: 0 !important;
     &.self {
         &:before {
             content: '';
             width: 40%;
             display: block;
+
+            @media (max-width: 768px) {
+                width: 20%;
+            }
         }
 
         & > div {
             //background-color: #fff8dc;
-            padding: 5px 10px;
+            padding: 0 10px;
             border-radius: 10px;
             width: 60%;
-            margin-bottom: 5px;
             display: flex;
             margin-right: 60px;
 
             @media (max-width: 768px) {
                 margin-right: 0;
+                width: 80%;
             }
 
             & > div:first-child {
@@ -266,15 +270,22 @@ $mobileControllButtonsSize: 3em;
             content: '';
             width: 40%;
             display: block;
+
+            @media (max-width: 768px) {
+                width: 20%;
+            }
         }
 
         & > div {
             //background-color: #f0fff0;
-            padding: 5px 10px;
+            padding: 0 10px;
             border-radius: 10px;
             width: 60%;
-            margin-bottom: 5px;
             display: flex;
+
+            @media (max-width: 768px) {
+                width: 80%;
+            }
         }
     }
 }
