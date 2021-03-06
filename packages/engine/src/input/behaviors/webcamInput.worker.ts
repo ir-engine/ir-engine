@@ -8,7 +8,7 @@ Comlink.expose({
     await nets.tinyFaceDetector.loadFromUri('/facetracking');
     await nets.faceExpressionNet.loadFromUri('/facetracking');
   },
-  detect: async ({ pixels, width, height }) => {
+  detect: async (pixels, width, height) => {
     const canvas = new OffscreenCanvas(width, height)
     const imageData = canvas.getContext('2d').getImageData(0, 0, width, height);
     imageData.data.set(new Uint8ClampedArray(pixels))
