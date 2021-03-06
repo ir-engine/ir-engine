@@ -130,12 +130,8 @@ const authentication = {
     'facebook',
     'github',
     'google',
-<<<<<<< HEAD
     'linkedin2',
     'twitter'
-=======
-    'linkedin'
->>>>>>> a151f4f75... impement linkedin login
   ],
   local: {
     usernameField: 'email',
@@ -151,12 +147,8 @@ const authentication = {
     facebook: process.env.FACEBOOK_CALLBACK_URL ?? `${client.url}/auth/oauth/facebook`,
     github: process.env.GITHUB_CALLBACK_URL ?? `${client.url}/auth/oauth/github`,
     google: process.env.GOOGLE_CALLBACK_URL ?? `${client.url}/auth/oauth/google`,
-<<<<<<< HEAD
     linkedin2: process.env.LINKEDIN_CALLBACK_URL ?? `${client.url}/auth/oauth/linkedin2`,
     twitter: process.env.TWITTER_CALLBACK_URL?? `${client.url}/auth/oauth/twitter`,
-=======
-    linkedin: process.env.LINKEDIN_CALLbACK_URL ?? `${client.url}/auth/oauth/linkedlin`,
->>>>>>> a151f4f75... impement linkedin login
   },
   oauth: {
     defaults: {
@@ -176,7 +168,6 @@ const authentication = {
       secret: process.env.GOOGLE_CLIENT_SECRET ?? '',
       scope: ['profile', 'email']
     },
-<<<<<<< HEAD
     linkedin2: {
       key: process.env.LINKEDIN_CLIENT_ID ?? '',
       secret: process.env.LINKEDIN_CLIENT_SECRET ?? '',
@@ -185,11 +176,6 @@ const authentication = {
     twitter: {
       key: process.env.TWITTER_CLIENT_ID ?? '',
       secret: process.env.TWITTER_CLIENT_SECRET ?? '',
-=======
-    linkedin: {
-      key: process.env.LINKEDIN_CLIENT_ID ?? '',
-      secret: process.env.LINKEDIN_CLIENT_SECRET ?? '',
->>>>>>> a151f4f75... impement linkedin login
     }
   }
 };
