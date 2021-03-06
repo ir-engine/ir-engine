@@ -127,7 +127,6 @@ const SocialLogin = (props: Props): any => {
     ''
   );
 
-<<<<<<< HEAD
   const twitterButton =  enableTwitterSocial ? (
     <Grid item xs={12}>
       <Button
@@ -143,8 +142,6 @@ const SocialLogin = (props: Props): any => {
   ) : (
     ''
   );
-=======
->>>>>>> origin/ft-add-linkedln-sso
   return (
     <Container component="main" maxWidth="xs">
       <div className={styles.paper}>
@@ -153,10 +150,7 @@ const SocialLogin = (props: Props): any => {
           {facebookButton}
           {googleButton}
           {linkedinButton}
-<<<<<<< HEAD
           {twitterButton}
-=======
->>>>>>> origin/ft-add-linkedln-sso
         </Grid>
       </div>
     </Container>
