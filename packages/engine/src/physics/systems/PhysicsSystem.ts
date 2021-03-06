@@ -11,6 +11,7 @@ import { isServer } from '../../common/functions/isServer';
 import { lerp } from '../../common/functions/MathLerpFunctions';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Engine } from '../../ecs/classes/Engine';
+import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
@@ -106,6 +107,10 @@ export class PhysicsSystem extends System {
         //console.log("PH  UPD: body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape) }
       }
     };
+
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
+      PhysicsSystem.simulate = ev.enable;
+    });
 
     // window["physicsDebugView"] = () => {
     //   debug(Engine.scene, PhysicsSystem.physicsWorld.bodies, DebugOptions);
