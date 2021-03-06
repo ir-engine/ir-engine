@@ -143,27 +143,6 @@ export const IndexPage = (): any => {
         })();
     }, []);
 
-    let video;
-    const playVideo = () => {
-        if(video == null)
-            video = document.createElement("VIDEO");
-
-        console.log("Playing video");
-        console.log("*********** PATH IS", savedFilePath);
-
-        video.setAttribute("width", "320");
-        video.setAttribute("height", "240");
-
-        video.style.position = "absolute";
-        video.style.width = "100%";
-        video.style.height = "100%";
-
-        video.setAttribute("src", Capacitor.convertFileSrc(savedFilePath));
-
-        video.play();
-
-    };
-
     const toggleRecording = () => {
         if (recordingState === RecordingStates.OFF) {
             setRecordingState(RecordingStates.ON);
@@ -194,6 +173,14 @@ export const IndexPage = (): any => {
         Plugins.XRPlugin.handleTap();
     };
 
+    const playVideo = () => {
+        Plugins.XRPlugin.playVideo();
+    };
+
+    const pauseVideo = () => {
+        Plugins.XRPlugin.pauseVideo();
+    };
+
 
     const clearAnchors = () => {
         Plugins.XRPlugin.clearAnchors();
@@ -216,6 +203,8 @@ export const IndexPage = (): any => {
                 <button type="button" style={{ padding: "1em" }} onClick={() => handleTap()}>Place AR</button>
                 <button type="button" style={{ padding: "1em" }} onClick={() => clearAnchors()}>clearAnchors</button>
                 <button type="button" style={{ padding: "1em" }} onClick={() => playVideo()}>playVideo</button>
+                <button type="button" style={{ padding: "1em" }} onClick={() => pauseVideo()}>pauseVideo</button>
+
 
             </div>
 
