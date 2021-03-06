@@ -196,8 +196,6 @@ export function loginUserByOAuth(service: string) {
 export function loginUserByJwt (accessToken: string, redirectSuccess: string, redirectError: string): any {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      console.log('loginUserByJWT');
-      console.log(accessToken);
       dispatch(actionProcessing(true));
       const res = await (client as any).authenticate({
         strategy: 'jwt',
@@ -206,8 +204,6 @@ export function loginUserByJwt (accessToken: string, redirectSuccess: string, re
 
       const authUser = resolveAuthUser(res);
 
-      console.log('JWT login succeeded');
-      console.log(authUser);
       dispatch(loginUserSuccess(authUser));
       loadUserData(dispatch, authUser.identityProvider.userId);
       dispatch(actionProcessing(false));
@@ -552,7 +548,7 @@ client.service('user').on('patched', async (params) => {
     if (selfUser.channelInstanceId !== user.channelInstanceId) store.dispatch(clearChannelLayerUsers());
     store.dispatch(userUpdated(user));
     if (user.partyId) {
-      setRelationship('party', user.partyId);
+      // setRelationship('party', user.partyId);
     }
     if (user.instanceId !== selfUser.instanceId) {
       const parsed = new URL(window.location.href);
