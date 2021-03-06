@@ -83,8 +83,8 @@ const MediaIconsBox = (props) => {
             changeFaceTrackingState(!isFaceTrackingEnabled);
             if (!isFaceTrackingEnabled) {
                 // get local input receiver entity
-                startFaceTracking(entity);
-                startLipsyncTracking(entity);
+                startFaceTracking();
+                startLipsyncTracking();
             } else {
                 stopFaceTracking();
                 stopLipsyncTracking();

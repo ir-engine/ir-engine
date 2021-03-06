@@ -28,7 +28,7 @@ import { CharacterStateSchema } from './templates/character/CharacterStateSchema
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { EngineEvents, addIncomingEvents, addOutgoingEvents } from './ecs/classes/EngineEvents';
-import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
+// import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -102,7 +102,7 @@ export async function initializeEngine(initOptions: any = DefaultInitializationO
 
     Engine.audioListener = new AudioListener();
     Engine.camera.add(Engine.audioListener);
-    registerSystem(PositionalAudioSystem);
+    // registerSystem(PositionalAudioSystem);
 
     registerSystem(InteractiveSystem);
     registerSystem(ParticleSystem);
