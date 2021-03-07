@@ -5,25 +5,36 @@ import { Network } from '../classes/Network';
 //import { createSchema } from "../functions/createSchema";
 //import { Model } from "../classes/Model";
 
-const inputKeySchema = new Schema({
+export const inputKeySchema = new Schema({
   input: uint8,
   value: uint8, // float32
   lifecycleState: uint8
 });
 
-const inputAxis1DSchema = new Schema({
+export const inputAxis1DSchema = new Schema({
   input: uint8,
   value: float32,
   lifecycleState: uint8
 });
 
-const inputAxis2DSchema = new Schema({
+export const inputAxis2DSchema = new Schema({
   input: uint8,
   value: [float32],
   lifecycleState: uint8
 });
 
-const viewVectorSchema = new Schema({
+export const inputAxis6DOFSchema = new Schema({
+  input: uint8,
+  x: float32,
+  y: float32,
+  z: float32,
+  qX: float32,
+  qY: float32,
+  qZ: float32,
+  qW: float32
+});
+
+export const viewVectorSchema = new Schema({
   x: float32,
   y: float32,
   z: float32
@@ -34,6 +45,7 @@ export const inputKeyArraySchema = new Schema({
   networkId: uint32,
   axes1d: [inputAxis1DSchema],
   axes2d: [inputAxis2DSchema],
+  axes6DOF: [inputAxis6DOFSchema],
   buttons: [inputKeySchema],
   viewVector: viewVectorSchema,
   snapShotTime: uint32,

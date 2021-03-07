@@ -60,7 +60,7 @@ export class ServerNetworkOutgoingSystem extends System {
       //console.log(bufferReliable.byteLength);
     }
 
-    const bufferUnReliable = WorldStateModel.toBuffer(Network.instance.worldState, 'UnReliable');
+    const bufferUnReliable = WorldStateModel.toBuffer(Network.instance.worldState, 'Unreliable');
     //console.log(bufferUnReliable.byteLength);
     try {
       Network.instance.transport.sendData(bufferUnReliable);
