@@ -5,7 +5,7 @@ import LegsManager from '../LegsManager';
 import skeletonString from '../skeleton';
 import {VRMSpringBoneImporter} from "@pixiv/three-vrm";
 import { Quaternion, Vector3, Matrix4, Object3D, Bone, Scene } from 'three';
-import { _importSkeleton, _findHips, _findArmature, _copySkeleton, _makeDebugMeshes, _getTailBones, _findEye, _findHead, _findSpine, _findShoulder, _findHand, _findFinger, _findFoot, _findClosestParentBone, _countCharacters, _findFurthestParentBone, localMatrix, localVector, localVector2, AnimationMapping, localEuler, localQuaternion, leftRotation, rightRotation, upRotation } from '../functions/AvatarFunctions';
+import { importSkeleton, findHips, findArmature, copySkeleton, makeDebugMeshes, getTailBones, findEye, findHead, findSpine, findShoulder, findHand, findFinger, findFoot, findClosestParentBone, countCharacters, findFurthestParentBone, localMatrix, localVector, localVector2, AnimationMapping, localEuler, localQuaternion, leftRotation, rightRotation, upRotation } from '../functions/AvatarFunctions';
 
 export class Avatar {
   shoulderTransforms: any;
@@ -69,11 +69,11 @@ export class Avatar {
         skinnedMesh["bind"] = (skeleton) => {
           skinnedMesh["skeleton"] = skeleton;
         };
-        skinnedMesh["bind"](_importSkeleton(skeletonString));
+        skinnedMesh["bind"](importSkeleton(skeletonString));
         scene.add(skinnedMesh);
 
-        const hips = _findHips(skinnedMesh["skeleton"]);
-        const armature = _findArmature(hips);
+        const hips = findHips(skinnedMesh["skeleton"]);
+        const armature = findArmature(hips);
         scene.add(armature);
 
         o = scene;
@@ -99,12 +99,12 @@ export class Avatar {
     const poseSkeletonSkinnedMesh = skeleton ? skinnedMeshes.find(o => o.skeleton !== skeleton && o.skeleton.bones.length >= skeleton.bones.length) : null;
     const poseSkeleton = poseSkeletonSkinnedMesh && poseSkeletonSkinnedMesh.skeleton;
     if (poseSkeleton) {
-      _copySkeleton(poseSkeleton, skeleton);
+      copySkeleton(poseSkeleton, skeleton);
       poseSkeletonSkinnedMesh.bind(skeleton);
     }
 
     if (this.debug) {
-      const debugMeshes = _makeDebugMeshes();
+      const debugMeshes = makeDebugMeshes();
       this.model.add(debugMeshes);
       this.debugMeshes = debugMeshes;
     } else {
@@ -122,58 +122,58 @@ export class Avatar {
       return o.parent;
     };
 
-    const tailBones = _getTailBones(skeleton);
+    const tailBones = getTailBones(skeleton);
     // const tailBones = skeleton.bones.filter(bone => bone.children.length === 0);
 
-    const Eye_L = _findEye(tailBones, true);
-    const Eye_R = _findEye(tailBones, false);
-    const Head = _findHead(tailBones);
+    const Eye_L = findEye(tailBones, true);
+    const Eye_R = findEye(tailBones, false);
+    const Head = findHead(tailBones);
     const Neck = Head.parent;
     const Chest = Neck.parent;
-    const Hips = _findHips(skeleton);
-    const Spine = _findSpine(Chest, Hips);
-    const Left_shoulder = _findShoulder(tailBones, true);
-    const Left_wrist = _findHand(Left_shoulder);
-    const Left_thumb2 = _getOptional(_findFinger(Left_wrist, /thumb3_end|thumb2_|handthumb3|thumb_distal|thumb02l|l_thumb3|thumb002l/i));
+    const Hips = findHips(skeleton);
+    const Spine = findSpine(Chest, Hips);
+    const Left_shoulder = findShoulder(tailBones, true);
+    const Left_wrist = findHand(Left_shoulder);
+    const Left_thumb2 = _getOptional(findFinger(Left_wrist, /thumb3_end|thumb2_|handthumb3|thumb_distal|thumb02l|l_thumb3|thumb002l/i));
     const Left_thumb1 = _ensureParent(Left_thumb2);
     const Left_thumb0 = _ensureParent(Left_thumb1, Left_wrist);
-    const Left_indexFinger3 = _getOptional(_findFinger(Left_wrist, /index(?:finger)?3|index_distal|index02l|indexfinger3_l|index002l/i));
+    const Left_indexFinger3 = _getOptional(findFinger(Left_wrist, /index(?:finger)?3|index_distal|index02l|indexfinger3_l|index002l/i));
     const Left_indexFinger2 = _ensureParent(Left_indexFinger3);
     const Left_indexFinger1 = _ensureParent(Left_indexFinger2, Left_wrist);
-    const Left_middleFinger3 = _getOptional(_findFinger(Left_wrist, /middle(?:finger)?3|middle_distal|middle02l|middlefinger3_l|middle002l/i));
+    const Left_middleFinger3 = _getOptional(findFinger(Left_wrist, /middle(?:finger)?3|middle_distal|middle02l|middlefinger3_l|middle002l/i));
     const Left_middleFinger2 = _ensureParent(Left_middleFinger3);
     const Left_middleFinger1 = _ensureParent(Left_middleFinger2, Left_wrist);
-    const Left_ringFinger3 = _getOptional(_findFinger(Left_wrist, /ring(?:finger)?3|ring_distal|ring02l|ringfinger3_l|ring002l/i));
+    const Left_ringFinger3 = _getOptional(findFinger(Left_wrist, /ring(?:finger)?3|ring_distal|ring02l|ringfinger3_l|ring002l/i));
     const Left_ringFinger2 = _ensureParent(Left_ringFinger3);
     const Left_ringFinger1 = _ensureParent(Left_ringFinger2, Left_wrist);
-    const Left_littleFinger3 = _getOptional(_findFinger(Left_wrist, /little(?:finger)?3|pinky3|little_distal|little02l|lifflefinger3_l|little002l/i));
+    const Left_littleFinger3 = _getOptional(findFinger(Left_wrist, /little(?:finger)?3|pinky3|little_distal|little02l|lifflefinger3_l|little002l/i));
     const Left_littleFinger2 = _ensureParent(Left_littleFinger3);
     const Left_littleFinger1 = _ensureParent(Left_littleFinger2, Left_wrist);
     const Left_elbow = Left_wrist.parent;
     const Left_arm = Left_elbow.parent;
-    const Right_shoulder = _findShoulder(tailBones, false);
-    const Right_wrist = _findHand(Right_shoulder);
-    const Right_thumb2 = _getOptional(_findFinger(Right_wrist, /thumb3_end|thumb2_|handthumb3|thumb_distal|thumb02r|r_thumb3|thumb002r/i));
+    const Right_shoulder = findShoulder(tailBones, false);
+    const Right_wrist = findHand(Right_shoulder);
+    const Right_thumb2 = _getOptional(findFinger(Right_wrist, /thumb3_end|thumb2_|handthumb3|thumb_distal|thumb02r|r_thumb3|thumb002r/i));
     const Right_thumb1 = _ensureParent(Right_thumb2);
     const Right_thumb0 = _ensureParent(Right_thumb1, Right_wrist);
-    const Right_indexFinger3 = _getOptional(_findFinger(Right_wrist, /index(?:finger)?3|index_distal|index02r|indexfinger3_r|index002r/i));
+    const Right_indexFinger3 = _getOptional(findFinger(Right_wrist, /index(?:finger)?3|index_distal|index02r|indexfinger3_r|index002r/i));
     const Right_indexFinger2 = _ensureParent(Right_indexFinger3);
     const Right_indexFinger1 = _ensureParent(Right_indexFinger2, Right_wrist);
-    const Right_middleFinger3 = _getOptional(_findFinger(Right_wrist, /middle(?:finger)?3|middle_distal|middle02r|middlefinger3_r|middle002r/i));
+    const Right_middleFinger3 = _getOptional(findFinger(Right_wrist, /middle(?:finger)?3|middle_distal|middle02r|middlefinger3_r|middle002r/i));
     const Right_middleFinger2 = _ensureParent(Right_middleFinger3);
     const Right_middleFinger1 = _ensureParent(Right_middleFinger2, Right_wrist);
-    const Right_ringFinger3 = _getOptional(_findFinger(Right_wrist, /ring(?:finger)?3|ring_distal|ring02r|ringfinger3_r|ring002r/i));
+    const Right_ringFinger3 = _getOptional(findFinger(Right_wrist, /ring(?:finger)?3|ring_distal|ring02r|ringfinger3_r|ring002r/i));
     const Right_ringFinger2 = _ensureParent(Right_ringFinger3);
     const Right_ringFinger1 = _ensureParent(Right_ringFinger2, Right_wrist);
-    const Right_littleFinger3 = _getOptional(_findFinger(Right_wrist, /little(?:finger)?3|pinky3|little_distal|little02r|lifflefinger3_r|little002r/i));
+    const Right_littleFinger3 = _getOptional(findFinger(Right_wrist, /little(?:finger)?3|pinky3|little_distal|little02r|lifflefinger3_r|little002r/i));
     const Right_littleFinger2 = _ensureParent(Right_littleFinger3);
     const Right_littleFinger1 = _ensureParent(Right_littleFinger2, Right_wrist);
     const Right_elbow = Right_wrist.parent;
     const Right_arm = Right_elbow.parent;
-    const Left_ankle = _findFoot(tailBones, true);
+    const Left_ankle = findFoot(tailBones, true);
     const Left_knee = Left_ankle.parent;
     const Left_leg = Left_knee.parent;
-    const Right_ankle = _findFoot(tailBones, false);
+    const Right_ankle = findFoot(tailBones, false);
     const Right_knee = Right_ankle.parent;
     const Right_leg = Right_knee.parent;
     const modelBones = {
@@ -238,7 +238,7 @@ export class Avatar {
       }
     } */
 
-    const armature = _findArmature(Hips);
+    const armature = findArmature(Hips);
 
     const _getEyePosition = () => {
       if (Eye_L && Eye_R) {
@@ -362,37 +362,37 @@ export class Avatar {
       });
     }
 
-    const _findFingerBone = (r, left) => {
+    const findFingerBone = (r, left) => {
       const fingerTipBone = tailBones
-        .filter(bone => r.test(bone.name) && _findClosestParentBone(bone, bone => bone === modelBones.Left_wrist || bone === modelBones.Right_wrist))
+        .filter(bone => r.test(bone.name) && findClosestParentBone(bone, bone => bone === modelBones.Left_wrist || bone === modelBones.Right_wrist))
         .sort((a, b) => {
           const aName = a.name.replace(r, '');
-          const aLeftBalance = _countCharacters(aName, /l/i) - _countCharacters(aName, /r/i);
+          const aLeftBalance = countCharacters(aName, /l/i) - countCharacters(aName, /r/i);
           const bName = b.name.replace(r, '');
-          const bLeftBalance = _countCharacters(bName, /l/i) - _countCharacters(bName, /r/i);
+          const bLeftBalance = countCharacters(bName, /l/i) - countCharacters(bName, /r/i);
           if (!left) {
             return aLeftBalance - bLeftBalance;
           } else {
             return bLeftBalance - aLeftBalance;
           }
         });
-      const fingerRootBone = fingerTipBone.length > 0 ? _findFurthestParentBone(fingerTipBone[0], bone => r.test(bone.name)) : null;
+      const fingerRootBone = fingerTipBone.length > 0 ? findFurthestParentBone(fingerTipBone[0], bone => r.test(bone.name)) : null;
       return fingerRootBone;
     };
     /* const fingerBones = {
       left: {
-        thumb: _findFingerBone(/thumb/gi, true),
-        index: _findFingerBone(/index/gi, true),
-        middle: _findFingerBone(/middle/gi, true),
-        ring: _findFingerBone(/ring/gi, true),
-        little: _findFingerBone(/little/gi, true) || _findFingerBone(/pinky/gi, true),
+        thumb: findFingerBone(/thumb/gi, true),
+        index: findFingerBone(/index/gi, true),
+        middle: findFingerBone(/middle/gi, true),
+        ring: findFingerBone(/ring/gi, true),
+        little: findFingerBone(/little/gi, true) || findFingerBone(/pinky/gi, true),
       },
       right: {
-        thumb: _findFingerBone(/thumb/gi, false),
-        index: _findFingerBone(/index/gi, false),
-        middle: _findFingerBone(/middle/gi, false),
-        ring: _findFingerBone(/ring/gi, false),
-        little: _findFingerBone(/little/gi, false) || _findFingerBone(/pinky/gi, false),
+        thumb: findFingerBone(/thumb/gi, false),
+        index: findFingerBone(/index/gi, false),
+        middle: findFingerBone(/middle/gi, false),
+        ring: findFingerBone(/ring/gi, false),
+        little: findFingerBone(/little/gi, false) || findFingerBone(/pinky/gi, false),
       },
     };
     this.fingerBones = fingerBones; */
