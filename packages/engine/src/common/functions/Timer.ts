@@ -60,9 +60,8 @@ export function Timer (
         if (callbacks.update) callbacks.update(delta, accumulated);
       }
       last = time;
-      console.log("********* Rendering");
-
-  		Engine.renderer.render( Engine.scene, Engine.camera );
+      const camera = Engine.renderer.xr.getCamera(Engine.camera);
+  		Engine.renderer.render( Engine.scene, camera );
     } else {
       Engine.renderer.setAnimationLoop( null );
       start();
