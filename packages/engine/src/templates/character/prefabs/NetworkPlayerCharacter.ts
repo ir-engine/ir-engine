@@ -29,7 +29,7 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import skeletonString from "../../../xr/Skeleton";
 import {
 	copySkeleton,
-	countActors as countCharacters,
+	countCharacters,
 	findArmature,
 	findClosestParentBone,
 	findEye,
@@ -41,10 +41,10 @@ import {
 	findSpine,
 	getTailBones,
 	importSkeleton
-} from "../../../xr/SkeletonFunctions";
-import PoseManager from "../../../xr/vrarmik/PoseManager";
-import ShoulderTransforms from "../../../xr/vrarmik/ShoulderTransforms";
-import { fixSkeletonZForward } from "../../../xr/vrarmik/SkeletonUtils";
+} from "../../../xr/functions/AvatarFunctions";
+import XRPose from "../../../xr/classes/XRPose";
+import ShoulderTransforms from "../../../xr/ShoulderTransforms";
+import { fixSkeletonZForward } from "../../../xr/SkeletonUtils";
 import { CharacterAvatars, DEFAULT_AVATAR_ID } from "../CharacterAvatars";
 import { CharacterInputSchema } from '../CharacterInputSchema';
 import { CharacterStateSchema } from '../CharacterStateSchema';
@@ -335,7 +335,7 @@ function initiateIKSystem(entity: Entity, object) {
 		})
 	}
 
-	const _findFinger = (r, left) => {
+	const findFinger = (r, left) => {
 		const fingerTipBone = actor.tailBones
 			.filter(
 				bone =>
@@ -362,18 +362,18 @@ function initiateIKSystem(entity: Entity, object) {
 	}
 	const fingerBones = {
 		left: {
-			thumb: _findFinger(/thumb/gi, true),
-			index: _findFinger(/index/gi, true),
-			middle: _findFinger(/middle/gi, true),
-			ring: _findFinger(/ring/gi, true),
-			little: _findFinger(/little/gi, true) || _findFinger(/pinky/gi, true)
+			thumb: findFinger(/thumb/gi, true),
+			index: findFinger(/index/gi, true),
+			middle: findFinger(/middle/gi, true),
+			ring: findFinger(/ring/gi, true),
+			little: findFinger(/little/gi, true) || findFinger(/pinky/gi, true)
 		},
 		right: {
-			thumb: _findFinger(/thumb/gi, false),
-			index: _findFinger(/index/gi, false),
-			middle: _findFinger(/middle/gi, false),
-			ring: _findFinger(/ring/gi, false),
-			little: _findFinger(/little/gi, false) || _findFinger(/pinky/gi, false)
+			thumb: findFinger(/thumb/gi, false),
+			index: findFinger(/index/gi, false),
+			middle: findFinger(/middle/gi, false),
+			ring: findFinger(/ring/gi, false),
+			little: findFinger(/little/gi, false) || findFinger(/pinky/gi, false)
 		}
 	}
 	actor.fingerBones = fingerBones
@@ -507,7 +507,7 @@ function initiateIKSystem(entity: Entity, object) {
 	}
 	const eyePosition = _getEyePosition()
 
-	actor.poseManager = new PoseManager(actor)
+	actor.poseManager = new XRPose()
 	actor.shoulderTransforms = new ShoulderTransforms(actor)
 
 	const _getOffset = (bone, parent = bone.parent) =>

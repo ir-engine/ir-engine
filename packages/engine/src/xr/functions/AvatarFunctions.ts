@@ -15,7 +15,7 @@ export const defaultSitAnimation = 'chair';
 export const defaultUseAnimation = 'combo';
 export const useAnimationRate = 750;
 
-export const _localizeMatrixWorld = bone => {
+export const localizeMatrixWorld = bone => {
   bone.matrix.copy(bone.matrixWorld);
   if (bone.parent) {
     bone.matrix.premultiply(bone.parent.matrixWorld.clone().invert());
@@ -23,16 +23,16 @@ export const _localizeMatrixWorld = bone => {
   bone.matrix.decompose(bone.position, bone.quaternion, bone.scale);
 
   for (let i = 0; i < bone.children.length; i++) {
-    _localizeMatrixWorld(bone.children[i]);
+    localizeMatrixWorld(bone.children[i]);
   }
 };
-export const _findBoneDeep = (bones, boneName) => {
+export const findBoneDeep = (bones, boneName) => {
   for (let i = 0; i < bones.length; i++) {
     const bone = bones[i];
     if (bone.name === boneName) {
       return bone;
     } else {
-      const deepBone = _findBoneDeep(bone.children, boneName);
+      const deepBone = findBoneDeep(bone.children, boneName);
       if (deepBone) {
         return deepBone;
       }
@@ -40,15 +40,15 @@ export const _findBoneDeep = (bones, boneName) => {
   }
   return null;
 };
-export const _copySkeleton = (src, dst) => {
+export const copySkeleton = (src, dst) => {
   for (let i = 0; i < src.bones.length; i++) {
     const srcBone = src.bones[i];
-    const dstBone = _findBoneDeep(dst.bones, srcBone.name);
+    const dstBone = findBoneDeep(dst.bones, srcBone.name);
     dstBone.matrixWorld.copy(srcBone.matrixWorld);
   }
 
   const armature = dst.bones[0].parent;
-  _localizeMatrixWorld(armature);
+  localizeMatrixWorld(armature);
 
   dst.calculateInverses();
 };
@@ -60,9 +60,9 @@ export const cubeGeometry = new ConeBufferGeometry(0.05, 0.2, 3)
 export const cubeGeometryPositions = cubeGeometry.attributes.position.array;
 export const numCubeGeometryPositions = cubeGeometryPositions.length;
 export const srcCubeGeometries = {};
-export const _makeDebugMeshes = () => {
+export const makeDebugMeshes = () => {
   const geometries = [];
-  const _makeCubeMesh = (color, scale = 1) => {
+  const makeCubeMesh = (color, scale = 1) => {
     color = new Color(color);
 
     let srcGeometry = srcCubeGeometries[scale];
@@ -83,57 +83,57 @@ export const _makeDebugMeshes = () => {
   };
   const fingerScale = 0.25;
   const attributes = {
-    eyes: _makeCubeMesh(0xFF0000),
-    head: _makeCubeMesh(0xFF8080),
+    eyes: makeCubeMesh(0xFF0000),
+    head: makeCubeMesh(0xFF8080),
 
-    chest: _makeCubeMesh(0xFFFF00),
-    leftShoulder: _makeCubeMesh(0x00FF00),
-    rightShoulder: _makeCubeMesh(0x008000),
-    leftUpperArm: _makeCubeMesh(0x00FFFF),
-    rightUpperArm: _makeCubeMesh(0x008080),
-    leftLowerArm: _makeCubeMesh(0x0000FF),
-    rightLowerArm: _makeCubeMesh(0x000080),
-    leftHand: _makeCubeMesh(0xFFFFFF),
-    rightHand: _makeCubeMesh(0x808080),
+    chest: makeCubeMesh(0xFFFF00),
+    leftShoulder: makeCubeMesh(0x00FF00),
+    rightShoulder: makeCubeMesh(0x008000),
+    leftUpperArm: makeCubeMesh(0x00FFFF),
+    rightUpperArm: makeCubeMesh(0x008080),
+    leftLowerArm: makeCubeMesh(0x0000FF),
+    rightLowerArm: makeCubeMesh(0x000080),
+    leftHand: makeCubeMesh(0xFFFFFF),
+    rightHand: makeCubeMesh(0x808080),
 
-    leftThumb2: _makeCubeMesh(0xFF0000, fingerScale),
-    leftThumb1: _makeCubeMesh(0x00FF00, fingerScale),
-    leftThumb0: _makeCubeMesh(0x0000FF, fingerScale),
-    leftIndexFinger3: _makeCubeMesh(0xFF0000, fingerScale),
-    leftIndexFinger2: _makeCubeMesh(0x00FF00, fingerScale),
-    leftIndexFinger1: _makeCubeMesh(0x0000FF, fingerScale),
-    leftMiddleFinger3: _makeCubeMesh(0xFF0000, fingerScale),
-    leftMiddleFinger2: _makeCubeMesh(0x00FF00, fingerScale),
-    leftMiddleFinger1: _makeCubeMesh(0x0000FF, fingerScale),
-    leftRingFinger3: _makeCubeMesh(0xFF0000, fingerScale),
-    leftRingFinger2: _makeCubeMesh(0x00FF00, fingerScale),
-    leftRingFinger1: _makeCubeMesh(0x0000FF, fingerScale),
-    leftLittleFinger3: _makeCubeMesh(0xFF0000, fingerScale),
-    leftLittleFinger2: _makeCubeMesh(0x00FF00, fingerScale),
-    leftLittleFinger1: _makeCubeMesh(0x0000FF, fingerScale),
-    rightThumb2: _makeCubeMesh(0xFF0000, fingerScale),
-    rightThumb1: _makeCubeMesh(0x00FF00, fingerScale),
-    rightThumb0: _makeCubeMesh(0x0000FF, fingerScale),
-    rightIndexFinger3: _makeCubeMesh(0xFF0000, fingerScale),
-    rightIndexFinger2: _makeCubeMesh(0x00FF00, fingerScale),
-    rightIndexFinger1: _makeCubeMesh(0x0000FF, fingerScale),
-    rightMiddleFinger3: _makeCubeMesh(0xFF0000, fingerScale),
-    rightMiddleFinger2: _makeCubeMesh(0x00FF00, fingerScale),
-    rightMiddleFinger1: _makeCubeMesh(0x0000FF, fingerScale),
-    rightRingFinger3: _makeCubeMesh(0xFF0000, fingerScale),
-    rightRingFinger2: _makeCubeMesh(0x00FF00, fingerScale),
-    rightRingFinger1: _makeCubeMesh(0x0000FF, fingerScale),
-    rightLittleFinger3: _makeCubeMesh(0xFF0000, fingerScale),
-    rightLittleFinger2: _makeCubeMesh(0x00FF00, fingerScale),
-    rightLittleFinger1: _makeCubeMesh(0x0000FF, fingerScale),
+    leftThumb2: makeCubeMesh(0xFF0000, fingerScale),
+    leftThumb1: makeCubeMesh(0x00FF00, fingerScale),
+    leftThumb0: makeCubeMesh(0x0000FF, fingerScale),
+    leftIndexFinger3: makeCubeMesh(0xFF0000, fingerScale),
+    leftIndexFinger2: makeCubeMesh(0x00FF00, fingerScale),
+    leftIndexFinger1: makeCubeMesh(0x0000FF, fingerScale),
+    leftMiddleFinger3: makeCubeMesh(0xFF0000, fingerScale),
+    leftMiddleFinger2: makeCubeMesh(0x00FF00, fingerScale),
+    leftMiddleFinger1: makeCubeMesh(0x0000FF, fingerScale),
+    leftRingFinger3: makeCubeMesh(0xFF0000, fingerScale),
+    leftRingFinger2: makeCubeMesh(0x00FF00, fingerScale),
+    leftRingFinger1: makeCubeMesh(0x0000FF, fingerScale),
+    leftLittleFinger3: makeCubeMesh(0xFF0000, fingerScale),
+    leftLittleFinger2: makeCubeMesh(0x00FF00, fingerScale),
+    leftLittleFinger1: makeCubeMesh(0x0000FF, fingerScale),
+    rightThumb2: makeCubeMesh(0xFF0000, fingerScale),
+    rightThumb1: makeCubeMesh(0x00FF00, fingerScale),
+    rightThumb0: makeCubeMesh(0x0000FF, fingerScale),
+    rightIndexFinger3: makeCubeMesh(0xFF0000, fingerScale),
+    rightIndexFinger2: makeCubeMesh(0x00FF00, fingerScale),
+    rightIndexFinger1: makeCubeMesh(0x0000FF, fingerScale),
+    rightMiddleFinger3: makeCubeMesh(0xFF0000, fingerScale),
+    rightMiddleFinger2: makeCubeMesh(0x00FF00, fingerScale),
+    rightMiddleFinger1: makeCubeMesh(0x0000FF, fingerScale),
+    rightRingFinger3: makeCubeMesh(0xFF0000, fingerScale),
+    rightRingFinger2: makeCubeMesh(0x00FF00, fingerScale),
+    rightRingFinger1: makeCubeMesh(0x0000FF, fingerScale),
+    rightLittleFinger3: makeCubeMesh(0xFF0000, fingerScale),
+    rightLittleFinger2: makeCubeMesh(0x00FF00, fingerScale),
+    rightLittleFinger1: makeCubeMesh(0x0000FF, fingerScale),
 
-    hips: _makeCubeMesh(0xFF0000),
-    leftUpperLeg: _makeCubeMesh(0xFFFF00),
-    rightUpperLeg: _makeCubeMesh(0x808000),
-    leftLowerLeg: _makeCubeMesh(0x00FF00),
-    rightLowerLeg: _makeCubeMesh(0x008000),
-    leftFoot: _makeCubeMesh(0xFFFFFF),
-    rightFoot: _makeCubeMesh(0x808080),
+    hips: makeCubeMesh(0xFF0000),
+    leftUpperLeg: makeCubeMesh(0xFFFF00),
+    rightUpperLeg: makeCubeMesh(0x808000),
+    leftLowerLeg: makeCubeMesh(0x00FF00),
+    rightLowerLeg: makeCubeMesh(0x008000),
+    leftFoot: makeCubeMesh(0xFFFFFF),
+    rightFoot: makeCubeMesh(0x808080),
   };
   const geometry = BufferGeometryUtils.mergeBufferGeometries(geometries);
   for (const k in attributes) {
@@ -160,9 +160,9 @@ export const _makeDebugMeshes = () => {
   return mesh;
 };
 
-export const _getTailBones = skeleton => {
+export const getTailBones = skeleton => {
   const result = [];
-  const _recurse = bones => {
+  const recurse = bones => {
     for (let i = 0; i < bones.length; i++) {
       const bone = bones[i];
       if (bone.children.length === 0) {
@@ -170,14 +170,14 @@ export const _getTailBones = skeleton => {
           result.push(bone);
         }
       } else {
-        _recurse(bone.children);
+        recurse(bone.children);
       }
     }
   };
-  _recurse(skeleton.bones);
+  recurse(skeleton.bones);
   return result;
 };
-export const _findClosestParentBone = (bone, pred) => {
+export const findClosestParentBone = (bone, pred) => {
   for (; bone; bone = bone.parent) {
     if (pred(bone)) {
       return bone;
@@ -185,7 +185,7 @@ export const _findClosestParentBone = (bone, pred) => {
   }
   return null;
 };
-export const _findFurthestParentBone = (bone, pred) => {
+export const findFurthestParentBone = (bone, pred) => {
   let result = null;
   for (; bone; bone = bone.parent) {
     if (pred(bone)) {
@@ -194,7 +194,7 @@ export const _findFurthestParentBone = (bone, pred) => {
   }
   return result;
 };
-export const _distanceToParentBone = (bone, parentBone) => {
+export const distanceToParentBone = (bone, parentBone) => {
   for (let i = 0; bone; bone = bone.parent, i++) {
     if (bone === parentBone) {
       return i;
@@ -202,13 +202,13 @@ export const _distanceToParentBone = (bone, parentBone) => {
   }
   return Infinity;
 };
-export const _findClosestChildBone = (bone, pred) => {
-  const _recurse = bone => {
+export const findClosestChildBone = (bone, pred) => {
+  const recurse = bone => {
     if (pred(bone)) {
       return bone;
     } else {
       for (let i = 0; i < bone.children.length; i++) {
-        const result = _recurse(bone.children[i]);
+        const result = recurse(bone.children[i]);
         if (result) {
           return result;
         }
@@ -216,15 +216,15 @@ export const _findClosestChildBone = (bone, pred) => {
       return null;
     }
   };
-  return _recurse(bone);
+  return recurse(bone);
 };
-export const _traverseChild = (bone, distance) => {
+export const traverseChild = (bone, distance) => {
   if (distance <= 0) {
     return bone;
   } else {
     for (let i = 0; i < bone.children.length; i++) {
       const child = bone.children[i];
-      const subchild = _traverseChild(child, distance - 1);
+      const subchild = traverseChild(child, distance - 1);
       if (subchild !== null) {
         return subchild;
       }
@@ -232,7 +232,7 @@ export const _traverseChild = (bone, distance) => {
     return null;
   }
 };
-export const _countCharacters = (name, regex) => {
+export const countCharacters = (name, regex) => {
   let result = 0;
   for (let i = 0; i < name.length; i++) {
     if (regex.test(name[i])) {
@@ -241,10 +241,10 @@ export const _countCharacters = (name, regex) => {
   }
   return result;
 };
-export const _findHips = skeleton => skeleton.bones.find(bone => /hip|rootx/i.test(bone.name));
-export const _findHead = tailBones => {
+export const findHips = skeleton => skeleton.bones.find(bone => /hip|rootx/i.test(bone.name));
+export const findHead = tailBones => {
   const headBones = tailBones.map(tailBone => {
-    const headBone = _findFurthestParentBone(tailBone, bone => /head/i.test(bone.name));
+    const headBone = findFurthestParentBone(tailBone, bone => /head/i.test(bone.name));
     if (headBone) {
       return headBone;
     } else {
@@ -258,10 +258,10 @@ export const _findHead = tailBones => {
     return null;
   }
 };
-export const _findEye = (tailBones, left) => {
+export const findEye = (tailBones, left) => {
   const regexp = left ? /l/i : /r/i;
   const eyeBones = tailBones.map(tailBone => {
-    const eyeBone = _findFurthestParentBone(tailBone, bone => /eye/i.test(bone.name) && regexp.test(bone.name.replace(/eye/gi, '')));
+    const eyeBone = findFurthestParentBone(tailBone, bone => /eye/i.test(bone.name) && regexp.test(bone.name.replace(/eye/gi, '')));
     if (eyeBone) {
       return eyeBone;
     } else {
@@ -269,9 +269,9 @@ export const _findEye = (tailBones, left) => {
     }
   }).filter(spec => spec).sort((a, b) => {
     const aName = a.name.replace(/shoulder/gi, '');
-    const aLeftBalance = _countCharacters(aName, /l/i) - _countCharacters(aName, /r/i);
+    const aLeftBalance = countCharacters(aName, /l/i) - countCharacters(aName, /r/i);
     const bName = b.name.replace(/shoulder/gi, '');
-    const bLeftBalance = _countCharacters(bName, /l/i) - _countCharacters(bName, /r/i);
+    const bLeftBalance = countCharacters(bName, /l/i) - countCharacters(bName, /r/i);
     if (!left) {
       return aLeftBalance - bLeftBalance;
     } else {
@@ -285,7 +285,7 @@ export const _findEye = (tailBones, left) => {
     return null;
   }
 };
-export const _findSpine = (chest, hips) => {
+export const findSpine = (chest, hips) => {
   for (let bone = chest; bone; bone = bone.parent) {
     if (bone.parent === hips) {
       return bone;
@@ -293,12 +293,12 @@ export const _findSpine = (chest, hips) => {
   }
   return null;
 };
-export const _findShoulder = (tailBones, left) => {
+export const findShoulder = (tailBones, left) => {
   const regexp = left ? /l/i : /r/i;
   const shoulderBones = tailBones.map(tailBone => {
-    const shoulderBone = _findClosestParentBone(tailBone, bone => /shoulder/i.test(bone.name) && regexp.test(bone.name.replace(/shoulder/gi, '')));
+    const shoulderBone = findClosestParentBone(tailBone, bone => /shoulder/i.test(bone.name) && regexp.test(bone.name.replace(/shoulder/gi, '')));
     if (shoulderBone) {
-      const distance = _distanceToParentBone(tailBone, shoulderBone);
+      const distance = distanceToParentBone(tailBone, shoulderBone);
       if (distance >= 3) {
         return {
           bone: shoulderBone,
@@ -316,9 +316,9 @@ export const _findShoulder = (tailBones, left) => {
       return diff;
     } else {
       const aName = a.bone.name.replace(/shoulder/gi, '');
-      const aLeftBalance = _countCharacters(aName, /l/i) - _countCharacters(aName, /r/i);
+      const aLeftBalance = countCharacters(aName, /l/i) - countCharacters(aName, /r/i);
       const bName = b.bone.name.replace(/shoulder/gi, '');
-      const bLeftBalance = _countCharacters(bName, /l/i) - _countCharacters(bName, /r/i);
+      const bLeftBalance = countCharacters(bName, /l/i) - countCharacters(bName, /r/i);
       if (!left) {
         return aLeftBalance - bLeftBalance;
       } else {
@@ -333,16 +333,16 @@ export const _findShoulder = (tailBones, left) => {
     return null;
   }
 };
-export const _findHand = shoulderBone => _findClosestChildBone(shoulderBone, bone => /hand|wrist/i.test(bone.name));
-export const _findFinger = (handBone, r) => _findClosestChildBone(handBone, bone => r.test(bone.name));
-export const _findFoot = (tailBones, left) => {
+export const findHand = shoulderBone => findClosestChildBone(shoulderBone, bone => /hand|wrist/i.test(bone.name));
+export const findFinger = (handBone, r) => findClosestChildBone(handBone, bone => r.test(bone.name));
+export const findFoot = (tailBones, left) => {
   const regexp = left ? /l/i : /r/i;
   const legBones = tailBones.map(tailBone => {
-    const footBone = _findFurthestParentBone(tailBone, bone => /foot|ankle/i.test(bone.name) && regexp.test(bone.name.replace(/foot|ankle/gi, '')));
+    const footBone = findFurthestParentBone(tailBone, bone => /foot|ankle/i.test(bone.name) && regexp.test(bone.name.replace(/foot|ankle/gi, '')));
     if (footBone) {
-      const legBone = _findFurthestParentBone(footBone, bone => /leg|thigh/i.test(bone.name) && regexp.test(bone.name.replace(/leg|thigh/gi, '')));
+      const legBone = findFurthestParentBone(footBone, bone => /leg|thigh/i.test(bone.name) && regexp.test(bone.name.replace(/leg|thigh/gi, '')));
       if (legBone) {
-        const distance = _distanceToParentBone(footBone, legBone);
+        const distance = distanceToParentBone(footBone, legBone);
         if (distance >= 2) {
           return {
             footBone,
@@ -363,9 +363,9 @@ export const _findFoot = (tailBones, left) => {
       return diff;
     } else {
       const aName = a.footBone.name.replace(/foot|ankle/gi, '');
-      const aLeftBalance = _countCharacters(aName, /l/i) - _countCharacters(aName, /r/i);
+      const aLeftBalance = countCharacters(aName, /l/i) - countCharacters(aName, /r/i);
       const bName = b.footBone.name.replace(/foot|ankle/gi, '');
-      const bLeftBalance = _countCharacters(bName, /l/i) - _countCharacters(bName, /r/i);
+      const bLeftBalance = countCharacters(bName, /l/i) - countCharacters(bName, /r/i);
       if (!left) {
         return aLeftBalance - bLeftBalance;
       } else {
@@ -380,7 +380,7 @@ export const _findFoot = (tailBones, left) => {
     return null;
   }
 };
-export const _findArmature = bone => {
+export const findArmature = bone => {
   for (; ; bone = bone.parent) {
     if (!bone.isBone) {
       return bone;
@@ -389,15 +389,15 @@ export const _findArmature = bone => {
   return null; // can't happen
 };
 
-export const _exportBone = bone => {
-  return [bone.name, bone.position.toArray().concat(bone.quaternion.toArray()).concat(bone.scale.toArray()), bone.children.map(b => _exportBone(b))];
+export const exportBone = bone => {
+  return [bone.name, bone.position.toArray().concat(bone.quaternion.toArray()).concat(bone.scale.toArray()), bone.children.map(b => exportBone(b))];
 };
-export const _exportSkeleton = skeleton => {
-  const hips = _findHips(skeleton);
-  const armature = _findArmature(hips);
-  return JSON.stringify(_exportBone(armature));
+export const exportSkeleton = skeleton => {
+  const hips = findHips(skeleton);
+  const armature = findArmature(hips);
+  return JSON.stringify(exportBone(armature));
 };
-export const _importObject = (b, Cons, ChildCons) => {
+export const importObject = (b, Cons, ChildCons) => {
   const [name, array, children] = b;
   const bone = new Cons();
   bone.name = name;
@@ -405,13 +405,13 @@ export const _importObject = (b, Cons, ChildCons) => {
   bone.quaternion.fromArray(array, 3);
   bone.scale.fromArray(array, 3 + 4);
   for (let i = 0; i < children.length; i++) {
-    bone.add(_importObject(children[i], ChildCons, ChildCons));
+    bone.add(importObject(children[i], ChildCons, ChildCons));
   }
   return bone;
 };
-export const _importArmature = b => _importObject(b, Object3D, Bone);
-export const _importSkeleton = s => {
-  const armature = _importArmature(JSON.parse(s));
+export const importArmature = b => importObject(b, Object3D, Bone);
+export const importSkeleton = s => {
+  const armature = importArmature(JSON.parse(s));
   return new Skeleton(armature.children);
 };
 
