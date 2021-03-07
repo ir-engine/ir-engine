@@ -17,23 +17,25 @@ import { ClientInputModel } from '../../networking/schema/clientInputSchema';
 import { CharacterComponent, RUN_SPEED, WALK_SPEED } from "../../templates/character/components/CharacterComponent";
 import { handleGamepads } from "../behaviors/GamepadInputBehaviors";
 import { faceToInput,  lipToInput,  WEBCAM_INPUT_EVENTS } from "../behaviors/WebcamInputBehaviors";
-import { addPhysics, removeWebXRPhysics, updateWebXRPhysics } from '../behaviors/WebXRInputBehaviors';
+import { addPhysics, removeWebXRPhysics } from '../behaviors/WebXRInputBehaviors';
 import { Input } from '../components/Input';
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
-import { XRControllersComponent } from '../components/XRControllersComponent';
+import { XRInputReceiver } from '../components/XRInputReceiver';
 import { InputType } from "../enums/InputType";
-import { initVR } from "../functions/WebXRFunctions";
+import { initializeXR } from "../functions/WebXRFunctions";
 import { InputValue } from "../interfaces/InputValue";
 import { InputAlias } from "../types/InputAlias";
 import { BaseInput } from "../enums/BaseInput";
 import { ClientNetworkSystem } from "../../networking/systems/ClientNetworkSystem";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
+import { XRInput } from "../enums/XRInput";
+
 /**
  * Input System
  *
  * Property with prefix readonly makes a property as read-only in the class
- * @property {Number} mainControllerId set value 0
- * @property {Number} secondControllerId set value 1
+ * @property {Number} leftControllerId set value 0
+ * @property {Number} rightControllerId set value 1
  * @property {} boundListeners set of values without keys
  */
 
@@ -66,8 +68,8 @@ export class InputSystem extends System {
   private localUserMediaStream: MediaStream = null;
   private useWebXR = false;
   // Client only variables
-  public mainControllerId; //= 0
-  public secondControllerId; //= 1
+  public leftControllerId; //= 0
+  public rightControllerId; //= 1
   private readonly boundListeners; //= new Set()
   private entityListeners: Map<Entity, Array<ListenerBindingData>>;
 
@@ -76,8 +78,8 @@ export class InputSystem extends System {
     this.useWebXR = useWebXR;
     // Client only
     if (isClient) {
-      this.mainControllerId = 0;
-      this.secondControllerId = 1;
+      this.leftControllerId = 0;
+      this.rightControllerId = 1;
       this.boundListeners = new Set();
       this.entityListeners = new Map();
     }
@@ -104,17 +106,9 @@ export class InputSystem extends System {
     if (this.useWebXR) {
       // Handle XR input
       this.queryResults.controllersComponent.added?.forEach(entity => addPhysics(entity));
-      this.queryResults.controllersComponent.all?.forEach(entity => {
-        const xRControllers = getComponent(entity, XRControllersComponent);
-        if (xRControllers.physicsBody1 !== null && xRControllers.physicsBody2 !== null && this.mainControllerId) {
-          this.mainControllerId = xRControllers.physicsBody1;
-          this.secondControllerId = xRControllers.physicsBody2;
-        }
-        updateWebXRPhysics(entity);
-      });
       this.queryResults.controllersComponent.removed?.forEach(entity => removeWebXRPhysics(entity, {
-        controllerPhysicalBody1: this.mainControllerId,
-        controllerPhysicalBody2: this.secondControllerId
+        leftControllerPhysicsBody: this.leftControllerId,
+        rightControllerPhysicsBody: this.rightControllerId
       }));
     }
     // Apply input for local user input onto client
@@ -141,15 +135,6 @@ export class InputSystem extends System {
             value.lifecycleState = LifecycleValue.CONTINUED;
             input.data.set(key, value);
           }
-          return;
-        }
-
-        if (
-          value.type !== InputType.ONEDIM &&
-          value.type !== InputType.TWODIM &&
-          value.type !== InputType.THREEDIM
-        ) {
-          // skip all other inputs
           return;
         }
 
@@ -200,12 +185,7 @@ export class InputSystem extends System {
             }
           }
         }
-        else if (
-          value.type === InputType.ONEDIM ||
-          value.type === InputType.TWODIM ||
-          value.type === InputType.THREEDIM
-        ) {
-          if (input.schema.inputAxisBehaviors[key]) {
+        else if (input.schema.inputAxisBehaviors[key]) {
             // If lifecycle hasn't been set, init it
             if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED;
             switch (value.lifecycleState) {
@@ -233,9 +213,6 @@ export class InputSystem extends System {
                 console.error('Unexpected lifecycleState', value.lifecycleState, LifecycleValue[value.lifecycleState]);
             }
           }
-        } else {
-          console.error('handleInput called with an invalid input type');
-        }
       });
 
       // store prevData
@@ -278,6 +255,7 @@ export class InputSystem extends System {
         viewVector: {
           x: 0, y: 0, z: 0
         },
+        axes6DOF: [],
         snapShotTime: Vault.instance?.get().time - Network.instance.timeSnaphotCorrection ?? 0,
         switchInputs: sendSwitchInputs ? this.switchId : 0
       };
@@ -293,6 +271,73 @@ export class InputSystem extends System {
           inputs.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState }); // : LifecycleValue.ENDED
       });
 
+// XR
+this.queryResults.controllersComponent.all?.forEach(entity => {
+  const xRControllers = getComponent(entity, XRInputReceiver);
+  if (xRControllers.leftHandPhysicsBody !== null && xRControllers.rightHandPhysicsBody !== null) {
+    this.leftControllerId = xRControllers.leftHandPhysicsBody;
+    this.rightControllerId = xRControllers.rightHandPhysicsBody;
+  }
+
+	xRControllers.leftHandPhysicsBody.position.set(
+		xRControllers.controllerPositionLeft.x,
+		xRControllers.controllerPositionLeft.y,
+		xRControllers.controllerPositionLeft.z
+	);
+	xRControllers.rightHandPhysicsBody.position.set(
+		xRControllers.controllerPositionRight.x,
+		xRControllers.controllerPositionRight.y,
+		xRControllers.controllerPositionRight.z
+	);
+	xRControllers.leftHandPhysicsBody.quaternion.set(
+		xRControllers.controllerRotationLeft.x,
+		xRControllers.controllerRotationLeft.y,
+		xRControllers.controllerRotationLeft.z,
+		xRControllers.controllerRotationLeft.w
+	);
+	xRControllers.rightHandPhysicsBody.quaternion.set(
+		xRControllers.controllerRotationRight.x,
+		xRControllers.controllerRotationRight.y,
+		xRControllers.controllerRotationRight.z,
+		xRControllers.controllerRotationRight.w
+	);
+
+  inputs.axes6DOF.push({
+      input: XRInput.HEAD,
+      x: 0,
+      y: 0,
+      z: 0,
+      qX: 0,
+      qY: 0,
+      qZ: 0,
+      qW: 0
+    });
+
+    inputs.axes6DOF.push({
+      input: XRInput.CONTROLLER_LEFT,
+      x: 0,
+      y: 0,
+      z: 0,
+      qX: 0,
+      qY: 0,
+      qZ: 0,
+      qW: 0
+    });
+
+    inputs.axes6DOF.push({
+      input: XRInput.CONTROLLER_RIGHT,
+      x: 0,
+      y: 0,
+      z: 0,
+      qX: 0,
+      qY: 0,
+      qZ: 0,
+      qW: 0
+    });
+});
+
+
+// TODO: Add 
 
       const actor = getMutableComponent(entity, CharacterComponent);
       if (actor) {
@@ -318,7 +363,7 @@ export class InputSystem extends System {
 
     // Called when input component is added to entity
     this.queryResults.localClientInput.added?.forEach(entity => {
-      initVR(entity);
+      initializeXR(entity);
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
       if (this._inputComponent === undefined)
@@ -463,5 +508,5 @@ InputSystem.queries = {
       removed: true
     }
   },
-  controllersComponent: { components: [XRControllersComponent], listen: { added: true, removed: true } }
+  controllersComponent: { components: [Input, LocalInputReceiver, XRInputReceiver], listen: { added: true, removed: true } }
 };
