@@ -6,7 +6,6 @@ import { XRInputReceiver } from '../components/XRInputReceiver';
 
 let head, controllerGripLeft, controllerLeft, controllerRight, controllerGripRight, entity;
 
-
 export function initializeXR(actorEntity) {
   console.log("initializing XR")
 
@@ -18,10 +17,11 @@ export function initializeXR(actorEntity) {
 }
 
 export function startXR() {
-  if (!entity) return;
+
+  if (!entity) return console.error("Entity is null");
 
   if (Engine.xrSession === null) {
-    const sessionInit = { optionalFeatures: ['local-floor', 'bounded-floor'] };
+    const sessionInit = { optionalFeatures: ['local-floor'] };
     try {
       (navigator as any).xr.requestSession("immersive-vr", sessionInit).then((session) => {
         Engine.xrSession = session;
@@ -32,7 +32,7 @@ export function startXR() {
         controllerRight = Engine.renderer.xr.getController(1);
         Engine.scene.add(controllerLeft);
         Engine.scene.add(controllerRight);
-        Engine.scene.add(head);
+        // Engine.scene.add(head);
 
         controllerGripLeft = Engine.renderer.xr.getControllerGrip(0);
         controllerGripRight = Engine.renderer.xr.getControllerGrip(1);
@@ -48,8 +48,8 @@ export function startXR() {
           controllerRotationRight: controllerRight.quaternion,
           controllerGripLeft: controllerGripLeft,
           controllerGripRight: controllerGripRight
-
         })
+
         console.warn(getComponent(entity, XRInputReceiver));
         console.warn(controllerLeft);
 
