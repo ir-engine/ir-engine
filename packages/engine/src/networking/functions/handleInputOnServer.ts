@@ -59,9 +59,7 @@ export const handleInputFromNonLocalClients: Behavior = (entity: Entity, args: {
       }
     }
     // If the input is an axis
-    else {
-      // If the input schema has a handler for the axis
-      if (input.schema.inputAxisBehaviors[key]) {
+    else if (input.schema.inputAxisBehaviors[key]) {
         // Handle based on lifecycle state
         switch (value.lifecycleState) {
           case LifecycleValue.STARTED:
