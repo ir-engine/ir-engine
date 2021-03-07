@@ -62,7 +62,7 @@ class ShoulderPoser {
     const hipsPosition = spinePosition.sub(localVector2.copy(this.shoulder.spine.position).applyQuaternion(hmdXYRotation));
 
     this.shoulder.hips.position.copy(hipsPosition);
-    if (this.rig.legsManager.enabled) {
+    if (this.rig?.legsManager?.enabled) {
 	    this.shoulder.hips.quaternion.copy(hmdXYRotation);
 	  }
     Helpers.updateMatrix(this.shoulder.hips);

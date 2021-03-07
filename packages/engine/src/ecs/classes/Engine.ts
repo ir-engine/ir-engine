@@ -12,7 +12,8 @@ import {
   AudioLoader as THREE_AudioLoader,
   VideoTexture as THREE_VideoTexture, 
   Audio as THREE_Audio, 
-  PositionalAudio as THREE_PositionalAudio 
+  PositionalAudio as THREE_PositionalAudio, 
+  XRSession
 } from 'three';
 import { CSM } from '../../assets/csm/CSM';
 import { ServerSpawnSystem } from "../../scene/systems/SpawnSystem";
@@ -85,7 +86,7 @@ export class Engine {
    */
   static renderer: WebGLRenderer = null
   static csm: CSM = null
-  static xrSession: any = null
+  static xrSession: XRSession = null
   static xrReferenceSpace = null
   static context = null
 

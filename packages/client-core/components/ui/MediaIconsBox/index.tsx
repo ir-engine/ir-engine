@@ -68,6 +68,8 @@ const MediaIconsBox = (props) => {
 
     (navigator as any).xr?.isSessionSupported('immersive-vr').then(supported => {
       setXRSupported(supported);
+      if(supported && Engine.renderer != null && Engine.renderer.xr != null)
+        Engine.renderer.xr.enabled = true;
     })
 
     const checkMediaStream = async (partyId: string) => {

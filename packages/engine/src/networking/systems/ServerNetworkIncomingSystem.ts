@@ -172,6 +172,7 @@ const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
         break;
       case InputType.SIXDOF:
         inputs.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
+        console.log("******* PUSHING 6DOF")
         break;
       default:
         console.error("Input type has no network handler (maybe we should add one?)");
