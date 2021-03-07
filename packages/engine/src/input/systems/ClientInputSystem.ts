@@ -110,6 +110,74 @@ export class InputSystem extends System {
         leftControllerPhysicsBody: this.leftControllerId,
         rightControllerPhysicsBody: this.rightControllerId
       }));
+
+
+// XR
+this.queryResults.controllersComponent.all?.forEach(entity => {
+  const xRControllers = getComponent(entity, XRInputReceiver);
+  if (xRControllers.leftHandPhysicsBody !== null && xRControllers.rightHandPhysicsBody !== null) {
+    this.leftControllerId = xRControllers.leftHandPhysicsBody;
+    this.rightControllerId = xRControllers.rightHandPhysicsBody;
+  }
+
+	xRControllers.leftHandPhysicsBody.position.set(
+		xRControllers.controllerPositionLeft.x,
+		xRControllers.controllerPositionLeft.y,
+		xRControllers.controllerPositionLeft.z
+	);
+	xRControllers.rightHandPhysicsBody.position.set(
+		xRControllers.controllerPositionRight.x,
+		xRControllers.controllerPositionRight.y,
+		xRControllers.controllerPositionRight.z
+	);
+	xRControllers.leftHandPhysicsBody.quaternion.set(
+		xRControllers.controllerRotationLeft.x,
+		xRControllers.controllerRotationLeft.y,
+		xRControllers.controllerRotationLeft.z,
+		xRControllers.controllerRotationLeft.w
+	);
+	xRControllers.rightHandPhysicsBody.quaternion.set(
+		xRControllers.controllerRotationRight.x,
+		xRControllers.controllerRotationRight.y,
+		xRControllers.controllerRotationRight.z,
+		xRControllers.controllerRotationRight.w
+	);
+
+  // inputs.axes6DOF.push({
+  //     input: XRInput.HEAD,
+  //     x: xRControllers.headPosition.x,
+  //     y: xRControllers.headPosition.y,
+  //     z: xRControllers.headPosition.z,
+  //     qX: xRControllers.headRotation.x,
+  //     qY: xRControllers.headRotation.y,
+  //     qZ: xRControllers.headRotation.z,
+  //     qW: xRControllers.headRotation.w
+  //   });
+
+  //   inputs.axes6DOF.push({
+  //     input: XRInput.CONTROLLER_LEFT,
+  //     x: xRControllers.controllerPositionLeft.x,
+  //     y: xRControllers.controllerPositionLeft.y,
+  //     z: xRControllers.controllerPositionLeft.z,
+  //     qX: xRControllers.controllerRotationLeft.x,
+  //     qY: xRControllers.controllerRotationLeft.y,
+  //     qZ: xRControllers.controllerRotationLeft.z,
+  //     qW: xRControllers.controllerRotationLeft.w
+  //   });
+
+  //   inputs.axes6DOF.push({
+  //     input: XRInput.CONTROLLER_RIGHT,
+  //     x: xRControllers.controllerPositionRight.x,
+  //     y: xRControllers.controllerPositionRight.y,
+  //     z: xRControllers.controllerPositionRight.z,
+  //     qX: xRControllers.controllerRotationRight.x,
+  //     qY: xRControllers.controllerRotationRight.y,
+  //     qZ: xRControllers.controllerRotationRight.z,
+  //     qW: xRControllers.controllerRotationRight.w
+  //   });
+  //   console.log("********** PUSHING XR CONTROLLERS TO INPUT")
+});
+
     }
     // Apply input for local user input onto client
     this.queryResults.localClientInput.all?.forEach(entity => {
@@ -262,79 +330,28 @@ export class InputSystem extends System {
 
       //console.warn(inputs.snapShotTime);
       // Add all values in input component to schema
-      input.data.forEach((value, key) => {
+      input.data.forEach((value: any, key) => {
         if (value.type === InputType.BUTTON)
           inputs.buttons.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
         else if (value.type === InputType.ONEDIM) // && value.lifecycleState !== LifecycleValue.UNCHANGED
           inputs.axes1d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
         else if (value.type === InputType.TWODIM) //  && value.lifecycleState !== LifecycleValue.UNCHANGED
           inputs.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState }); // : LifecycleValue.ENDED
-      });
+        else if (value.type === InputType.SIXDOF){ //  && value.lifecycleState !== LifecycleValue.UNCHANGED
+          inputs.axes6DOF.push({
+            input: key,
+            x: value.value.x,
+            y: value.value.y,
+            z: value.value.z,
+            qX: value.value.qX,
+            qY: value.value.qX,
+            qZ: value.value.qZ,
+            qW: value.value.qW
+          }); 
+          console.log("*********** Pushing 6DOF input from client input system")
+        }
+        });
 
-// XR
-this.queryResults.controllersComponent.all?.forEach(entity => {
-  const xRControllers = getComponent(entity, XRInputReceiver);
-  if (xRControllers.leftHandPhysicsBody !== null && xRControllers.rightHandPhysicsBody !== null) {
-    this.leftControllerId = xRControllers.leftHandPhysicsBody;
-    this.rightControllerId = xRControllers.rightHandPhysicsBody;
-  }
-
-	xRControllers.leftHandPhysicsBody.position.set(
-		xRControllers.controllerPositionLeft.x,
-		xRControllers.controllerPositionLeft.y,
-		xRControllers.controllerPositionLeft.z
-	);
-	xRControllers.rightHandPhysicsBody.position.set(
-		xRControllers.controllerPositionRight.x,
-		xRControllers.controllerPositionRight.y,
-		xRControllers.controllerPositionRight.z
-	);
-	xRControllers.leftHandPhysicsBody.quaternion.set(
-		xRControllers.controllerRotationLeft.x,
-		xRControllers.controllerRotationLeft.y,
-		xRControllers.controllerRotationLeft.z,
-		xRControllers.controllerRotationLeft.w
-	);
-	xRControllers.rightHandPhysicsBody.quaternion.set(
-		xRControllers.controllerRotationRight.x,
-		xRControllers.controllerRotationRight.y,
-		xRControllers.controllerRotationRight.z,
-		xRControllers.controllerRotationRight.w
-	);
-
-  inputs.axes6DOF.push({
-      input: XRInput.HEAD,
-      x: 0,
-      y: 0,
-      z: 0,
-      qX: 0,
-      qY: 0,
-      qZ: 0,
-      qW: 0
-    });
-
-    inputs.axes6DOF.push({
-      input: XRInput.CONTROLLER_LEFT,
-      x: 0,
-      y: 0,
-      z: 0,
-      qX: 0,
-      qY: 0,
-      qZ: 0,
-      qW: 0
-    });
-
-    inputs.axes6DOF.push({
-      input: XRInput.CONTROLLER_RIGHT,
-      x: 0,
-      y: 0,
-      z: 0,
-      qX: 0,
-      qY: 0,
-      qZ: 0,
-      qW: 0
-    });
-});
 
 
 // TODO: Add 
@@ -461,7 +478,6 @@ this.queryResults.controllersComponent.all?.forEach(entity => {
 
       this.entityListeners.delete(entity);
     });
-
 
     // Called when input component is added to entity
     this.queryResults.networkClientInput.added?.forEach(entity => {

@@ -363,7 +363,7 @@ const Harmony = (props: Props): any => {
         return () => {
             if (EngineEvents.instance != null) {
                 setEngineInitialized(false);
-                EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
+                EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
                     await toggleAudio(activeAVChannelIdRef.current);
                     await toggleVideo(activeAVChannelIdRef.current);
                     updateChannelTypeState();
@@ -371,11 +371,11 @@ const Harmony = (props: Props): any => {
                     updateCamAudioState();
                 });
 
-                EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
+                EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
                     if (e.instance === true) resetChannelServer();
                 })
 
-                EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.LEAVE_WORLD, () => {
+                EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.LEAVE_WORLD, () => {
                     resetChannelServer();
                     if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('');
                 });

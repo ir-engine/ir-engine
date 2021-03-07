@@ -8,15 +8,13 @@ let head, controllerGripLeft, controllerLeft, controllerRight, controllerGripRig
 
 
 export function initializeXR(actorEntity) {
+  console.log("initializing XR")
+
   if (!navigator || !(navigator as any).xr)
     return console.warn("Not initializing WebXR on this platform because it is not supported");
 
   Engine.renderer.xr.setReferenceSpaceType('local-floor');
   entity = actorEntity;
-}
-
-function onSessionStarted(session) {
-  Engine.renderer.xr.setSession(session);
 }
 
 export function startXR() {
@@ -27,7 +25,7 @@ export function startXR() {
     try {
       (navigator as any).xr.requestSession("immersive-vr", sessionInit).then((session) => {
         Engine.xrSession = session;
-        onSessionStarted(session)
+        Engine.renderer.xr.setSession(session);
 
         head = Engine.renderer.xr.getCamera(Engine.camera);
         controllerLeft = Engine.renderer.xr.getController(0);
