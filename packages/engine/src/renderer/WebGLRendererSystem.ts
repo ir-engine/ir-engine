@@ -139,6 +139,9 @@ export class WebGLRendererSystem extends System {
     EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC, (ev: any) => {
       this.setUseAutomatic(ev.payload);
     });
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
+      this.enabled = ev.enable;
+    });
 
     this.isInitialized = true;
   }
@@ -214,6 +217,7 @@ export class WebGLRendererSystem extends System {
     if(this.isInitialized)
     {
       // Handle resize
+      if(!Engine.xrSession){
       if (WebGLRendererSystem.needsResize) {
         const curPixelRatio = Engine.renderer.getPixelRatio();
         const scaledPixelRatio = window.devicePixelRatio * WebGLRendererSystem.scaleFactor;
@@ -242,6 +246,7 @@ export class WebGLRendererSystem extends System {
       } else {
         Engine.renderer.render(Engine.scene, Engine.camera);
       }
+    }
     }
 
     const lastTime = now();

@@ -20,56 +20,14 @@ export function getFeeds(type : string, limit?: number) {
         const feedsResults = await client.service('feed').find({
           query: {
             action: 'featured'
-            // $limit: limit != null ? limit : getState().get('feed').get('limit'),
-            // $skip: skip != null ? skip : getState().get('feed').get('skip')
           }
         });
-        // for(let i=0; i<51; i++){
-        //     feedsResults.push({
-        //         id: i,
-        //         image :'https://picsum.photos/97/139',
-        //         viewsCount: random(1500)
-        //     })
-        // }
-
-        // TODO: remove map
-        dispatch(feedsFeaturedRetrieved(feedsResults.data.map(feed => {
-          return {
-            ...feed,
-            image: feed.preview
-          }
-        })));
+        dispatch(feedsFeaturedRetrieved(feedsResults.data));
       }else{
-        // for(let i=0; i<20; i++){
-        //   feedsResults.push({
-        //         id: i,
-        //         creator:{
-        //             id: '169',
-        //             avatar :'https://picsum.photos/40/40',
-        //             username: 'User username'
-        //         },
-        //         preview:'https://picsum.photos/375/210',
-        //         video:null,
-        //         title: 'Featured Artist Post',
-        //         fires: random(2000),
-        //         description: 'I recently understood the words of my friend Jacob West about music.'
-        //     })
-        // }
+          const feedsResults = await client.service('feed').find({query: {}});
 
-        const feedsResults = await client.service('feed').find({
-          query: {
-            // $limit: limit != null ? limit : getState().get('feed').get('limit'),
-            // $skip: skip != null ? skip : getState().get('feed').get('skip')
-          }
-        });
         dispatch(feedsRetrieved(feedsResults.data));
       }
-      //  await client.service('feed').find({
-      //   query: {
-      //     $limit: limit != null ? limit : getState().get('feed').get('limit'),
-      //     $skip: skip != null ? skip : getState().get('feed').get('skip')
-      //   }
-      // });
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
@@ -81,25 +39,7 @@ export function getFeed(feedId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       dispatch(fetchingFeeds());
-        // const feedsResults = await client.service('feed').get(feedId);
-          const feed ={
-            id: feedId,
-            creator:{
-                id:'185',
-                avatar :'https://picsum.photos/40/40',
-                username: 'User username',
-                name: '@username',
-                userId: 'userId',
-                verified: true,
-            },
-            preview:'https://picsum.photos/375/210',
-            video:null,
-            title: 'Featured Artist Post',
-            fires: random(15000),
-            stores: random(150),
-            viewsCount:  random(15000),
-            description: 'I recently understood the words of my friend Jacob West about music.'
-        }
+      const feed = await client.service('feed').get(feedId);        
       dispatch(feedRetrieved(feed));
     } catch(err) {
       console.log(err);
@@ -120,28 +60,28 @@ export function addViewToFeed(feedId: string) {
   };
 }
 
-export function createFeed({title, description }: any) {
+export function createFeed({title, description, authorId }: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      // await client.service('feed').create({title, description});
-      const feed ={
-        id: '753954',
-        creator:{
-            id:'185',
-            avatar :'https://picsum.photos/40/40',
-            username: 'User username',
-            name: '@username',
-            userId: 'userId',
-            verified: true,
-        },
-        preview:'https://picsum.photos/375/210',
-        video:null,
-        title,
-        fires: 0,
-        stores:0,
-        viewsCount:  0,
-        description
-    }
+      const feed = await client.service('feed').create({title, description, authorId, preview:'https://picsum.photos/375/210'});
+    //   const feed ={
+    //     id: '753954',
+    //     creator:{
+    //         id:'185',
+    //         avatar :'https://picsum.photos/40/40',
+    //         username: 'User username',
+    //         name: '@username',
+    //         userId: 'userId',
+    //         verified: true,
+    //     },
+    //     preview:'https://picsum.photos/375/210',
+    //     video:null,
+    //     title,
+    //     fires: 0,
+    //     stores:0,
+    //     viewsCount:  0,
+    //     description
+    // }
       dispatch(addFeed(feed));
     } catch(err) {
       console.log(err);

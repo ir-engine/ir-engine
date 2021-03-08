@@ -12,6 +12,7 @@ import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth } from '../.
 import { alertSuccess } from '../../../redux/alert/service';
 import { provisionInstanceServer } from "../../../redux/instanceConnection/service";
 import { Views, UserMenuProps } from './util';
+//@ts-ignore
 import styles from './style.module.scss';
 import ProfileMenu from './menus/ProfileMenu';
 import AvatarMenu from './menus/AvatarMenu';
@@ -69,8 +70,8 @@ const UserMenu = (props: UserMenuProps): any => {
   const [actorEntityID, setActorEntityID] = useState(null);
 
   const onEngineLoaded = () => {
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, graphicsSettingsLoaded);
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, clientEntityLoaded);
+    EngineEvents.instance?.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, graphicsSettingsLoaded);
+    EngineEvents.instance?.addEventListener(EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, clientEntityLoaded);
     document.removeEventListener('ENGINE_LOADED', onEngineLoaded);
   }
 
@@ -81,12 +82,12 @@ const UserMenu = (props: UserMenuProps): any => {
     Network.instance.localClientEntity = id;
     setActorEntityID(id);
     updateCharacterComponent(id, selfUser?.avatarId)
-    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, clientEntityLoaded);
+    EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, clientEntityLoaded);
   }
   
   const graphicsSettingsLoaded = (ev) => {
-    EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphics);
-    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, graphicsSettingsLoaded);
+    EngineEvents.instance?.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphics);
+    EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, graphicsSettingsLoaded);
   }
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { Fab, ThemeProvider} from '@material-ui/core';
+import { ThemeProvider} from '@material-ui/core';
 import getConfig from 'next/config';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -15,21 +15,38 @@ import { UIDialog } from '../Dialog/Dialog';
 import BottomDrawer from '../Drawer/Bottom';
 import LeftDrawer from '../Drawer/Left/LeftDrawer';
 import RightDrawer from '../Drawer/Right';
-import DrawerControls from '../DrawerControls';
 import InstanceChat from '../InstanceChat';
 import Me from '../Me';
 import NavMenu from '../NavMenu';
 import PartyVideoWindows from '../PartyVideoWindows';
-import { Forum, FullscreenExit, People } from '@material-ui/icons';
+import {Forum, FullscreenExit, People, ZoomOutMap} from '@material-ui/icons';
 import Harmony from "../Harmony";
 //@ts-ignore
 import styles from './Layout.module.scss';
 import UserToast from "../Toast/UserToast";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
-import { Expand } from '../Icons/Expand';
 
 const { publicRuntimeConfig } = getConfig();
 const siteTitle: string = publicRuntimeConfig.siteTitle;
+
+const engineRendererCanvasId = 'engine-renderer-canvas';
+
+const initialSelectedUserState = {
+  id: '',
+  name: '',
+  userRole: '',
+  identityProviders: [],
+  relationType: {},
+  inverseRelationType: {},
+  avatarUrl: ''
+};
+
+const initialGroupForm = {
+  id: '',
+  name: '',
+  groupUsers: [],
+  description: ''
+};
 
 interface Props {
   appState?: any;
@@ -75,6 +92,12 @@ const Layout = (props: Props): any => {
   const [harmonyOpen, setHarmonyOpen] = useState(false);
   const [fullScreenActive, setFullScreenActive] = useState(false);
   const [ expanded, setExpanded ] = useState(true);
+  const [detailsType, setDetailsType] = useState('');
+  const [groupFormOpen, setGroupFormOpen] = useState(false);
+  const [groupFormMode, setGroupFormMode] = useState('');
+  const [groupForm, setGroupForm] = useState(initialGroupForm);
+  const [selectedUser, setSelectedUser] = useState(initialSelectedUserState);
+  const [selectedGroup, setSelectedGroup] = useState(initialGroupForm);
   const user = authState.get('user');
   const handle = useFullScreenHandle();
 
@@ -91,6 +114,11 @@ const Layout = (props: Props): any => {
     }
   }, []);
 
+  const openInvite = (): void => {
+    setLeftDrawerOpen(false);
+    setTopDrawerOpen(false);
+    setRightDrawerOpen(true);
+  };
 
   const childrenWithProps = React.Children.map(children, child => {
     // checking isValidElement is the safe way and avoids a typescript error too
@@ -124,17 +152,18 @@ const Layout = (props: Props): any => {
     };
   }) as any);
 
+  const openHarmony = (): void => {
+    const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
+    if (canvas?.style != null) canvas.style.width = '0px';
+    setHarmonyOpen(true);
+  }
+
   const toggleExpanded = () => setExpanded(!expanded);
 
   //info about current mode to conditional render menus
   // TODO: Uncomment alerts when we can fix issues
   return (
     <>
-      {
-        !fullScreenActive && <span className={styles.fullScreen} onClick={handle.enter}>
-          <Expand/>
-        </span>
-      }
       <FullScreen handle={handle} onChange={reportChange}>
         <ThemeProvider theme={theme}>
           <section>
@@ -148,7 +177,7 @@ const Layout = (props: Props): any => {
               { harmonyOpen !== true
                 ? (
                   <>
-                    {expanded 
+                    {expanded
                       ? <section className={styles.locationUserMenu}>
                         {authUser?.accessToken != null && authUser.accessToken.length > 0 && <Me /> }
                         <PartyVideoWindows />
@@ -159,7 +188,32 @@ const Layout = (props: Props): any => {
                 ) : null}
             </header>
 
-            {harmonyOpen === true && <Harmony setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} />}
+            {fullScreenActive && harmonyOpen !== true
+              ? <button type="button" className={styles.fullScreen} onClick={handle.exit}>
+                  <FullscreenExit />
+                </button>
+              : <button type="button" className={styles.fullScreen} onClick={handle.enter}>
+                <ZoomOutMap />
+              </button>}
+
+            {harmonyOpen === true && <Harmony
+                setHarmonyOpen={setHarmonyOpen}
+                detailsType={detailsType}
+                setDetailsType={setDetailsType}
+                groupFormOpen={groupFormOpen}
+                setGroupFormOpen={setGroupFormOpen}
+                groupFormMode={groupFormMode}
+                setGroupFormMode={setGroupFormMode}
+                groupForm={groupForm}
+                setGroupForm={setGroupForm}
+                selectedUser={selectedUser}
+                setSelectedUser={setSelectedUser}
+                selectedGroup={selectedGroup}
+                setSelectedGroup={setSelectedGroup}
+                setLeftDrawerOpen={setLeftDrawerOpen}
+                setBottomDrawerOpen={setBottomDrawerOpen}
+                setRightDrawerOpen={setRightDrawerOpen}
+            />}
             <Fragment>
               <UIDialog />
               <Alerts />
@@ -167,7 +221,25 @@ const Layout = (props: Props): any => {
             </Fragment>
             {authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&
               <Fragment>
-                <LeftDrawer harmony={true} setHarmonyOpen={setHarmonyOpen} openBottomDrawer={bottomDrawerOpen} leftDrawerOpen={leftDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} />
+                <LeftDrawer
+                    harmony={true}
+                    detailsType={detailsType}
+                    setDetailsType={setDetailsType}
+                    groupFormOpen={groupFormOpen}
+                    setGroupFormOpen={setGroupFormOpen}
+                    groupFormMode={groupFormMode}
+                    setGroupFormMode={setGroupFormMode}
+                    groupForm={groupForm}
+                    setGroupForm={setGroupForm}
+                    selectedUser={selectedUser}
+                    setSelectedUser={setSelectedUser}
+                    selectedGroup={selectedGroup}
+                    setSelectedGroup={setSelectedGroup}
+                    openBottomDrawer={bottomDrawerOpen}
+                    leftDrawerOpen={leftDrawerOpen}
+                    setLeftDrawerOpen={setLeftDrawerOpen}
+                    setRightDrawerOpen={setRightDrawerOpen}
+                    setBottomDrawerOpen={setBottomDrawerOpen} />
               </Fragment>
             }
             {authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&
@@ -181,21 +253,11 @@ const Layout = (props: Props): any => {
               </Fragment>
             }
             <footer>
-              {authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.id != null && user?.userRole !== 'guest' && !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
-                <DrawerControls disableBottom={true} setLeftDrawerOpen={setLeftDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setTopDrawerOpen={setTopDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />}
-
               {locationState.get('currentLocation')?.get('location')?.id &&
                 authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.instanceId != null &&
                 !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
                 <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen} />}
-              { user?.userRole !== 'guest' && <div className={styles['harmony-toggle']}><Fab color="primary" onClick={() => setHarmonyOpen(!harmonyOpen )}><Forum /></Fab></div> }
-
-
-              {
-                fullScreenActive && <span className={styles.fullScreen} onClick={handle.exit}>
-                  <FullscreenExit style={{ fontSize: "4rem" }} />
-                </span>
-              }
+              { user?.userRole !== 'guest' && harmonyOpen === false && <div className={styles['harmony-toggle']} onClick={() => openHarmony()}><Forum /></div> }
             </footer>
           </section>
         </ThemeProvider>
