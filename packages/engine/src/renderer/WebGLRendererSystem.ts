@@ -217,6 +217,7 @@ export class WebGLRendererSystem extends System {
     if(this.isInitialized)
     {
       // Handle resize
+      if(!Engine.xrSession){
       if (WebGLRendererSystem.needsResize) {
         const curPixelRatio = Engine.renderer.getPixelRatio();
         const scaledPixelRatio = window.devicePixelRatio * WebGLRendererSystem.scaleFactor;
@@ -245,6 +246,7 @@ export class WebGLRendererSystem extends System {
       } else {
         Engine.renderer.render(Engine.scene, Engine.camera);
       }
+    }
     }
 
     const lastTime = now();

@@ -15,9 +15,7 @@ export class FBXLoader {
   manager: any
 
   constructor(manager?: LoadingManager) {
-    this.manager = manager;
-    this.manager =
-      this.manager !== undefined ? this.manager : DefaultLoadingManager;
+    this.manager = manager || DefaultLoadingManager;
   }
 
   load(url, onLoad, onProgress?, onError?) {
