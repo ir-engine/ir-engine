@@ -70,8 +70,8 @@ const mapStateToProps = (state: any): any => {
     };
 };
 
-
 const mapDispatchToProps = (dispatch: Dispatch): any => ({});
+
 
 const PartyParticipantWindow = (props: Props): JSX.Element => {
     const [videoStream, _setVideoStream] = useState(null);
@@ -328,6 +328,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
 
     const togglePiP = () => setPiP(!isPiP);
 
+    const isSelfUser = peerId === 'me_cam' || peerId === 'me_screen';
     return (
         <Draggable isPiP={isPiP}>
         <div
@@ -336,7 +337,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
             className={classNames({
                 [styles['party-chat-user']]: true,
                 [styles['harmony']]: harmony === true,
-                [styles['self-user']]: peerId === 'me_cam' || peerId === 'me_screen',
+                [styles['self-user']]: isSelfUser,
                 [styles['no-video']]: videoStream == null,
                 [styles['video-paused']]: (videoStream && (videoProducerPaused === true || videoStreamPaused === true)),
                 [styles.pip]: isPiP,
@@ -344,7 +345,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
         >
 
             <div className={styles['video-wrapper']}>
-                { (videoStream == null || videoStreamPaused == true || videoProducerPaused == true || videoProducerGlobalMute == true) && <img src={getAvatarURL(user?.avatarId)} /> }
+                { (videoStream == null || videoStreamPaused == true || videoProducerPaused == true || videoProducerGlobalMute == true) && <img src={getAvatarURL(isSelfUser ? selfUser?.avatarId : user?.avatarId)} /> }
                 <video key={peerId + '_cam'} ref={videoRef}/>
             </div>
             <audio key={peerId + '_audio'} ref={audioRef}/>
@@ -375,14 +376,14 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
                                 </IconButton>
                             </Tooltip>}
                             {audioStream && audioProducerPaused === false
-                                ? <Tooltip title={(peerId === 'me_cam' || peerId === 'me_screen') && audioStream?.paused === false ? 'Mute me' : (peerId === 'me_cam' || peerId === 'me_screen') && audioStream?.paused === true ? 'Unmute me' : (peerId !== 'me_cam' && peerId !== 'me_screen') && audioStream?.paused === false ? 'Mute this person' : 'Unmute this person'}>
+                                ? <Tooltip title={(isSelfUser) && audioStream?.paused === false ? 'Mute me' : (isSelfUser) && audioStream?.paused === true ? 'Unmute me' : (peerId !== 'me_cam' && peerId !== 'me_screen') && audioStream?.paused === false ? 'Mute this person' : 'Unmute this person'}>
                                     <IconButton
                                         color="secondary"
                                         size="small"
                                         className={styles['audio-control']}
                                         onClick={toggleAudio}
                                     >
-                                        {peerId === 'me_cam' || peerId === 'me_screen'
+                                        {isSelfUser
                                             ? audioStreamPaused ? <MicOff /> : <Mic />
                                             : audioStreamPaused ? <VolumeOff /> : <VolumeUp />}
                                     </IconButton>
