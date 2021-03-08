@@ -12,7 +12,6 @@ import { InputType } from '../../input/enums/InputType';
 import { MouseInput } from '../../input/enums/MouseInput';
 import { InputRelationship } from '../../input/interfaces/InputRelationship';
 import { InputSchema } from '../../input/interfaces/InputSchema';
-import { BaseInputSchema } from "../../input/schema/BaseInputSchema";
 import { InputAlias } from "../../input/types/InputAlias";
 import { Network } from '../../networking/classes/Network';
 import { synchronizationComponents } from '../../networking/functions/synchronizationComponents';
@@ -128,7 +127,8 @@ const driveSteering: Behavior = (entity: Entity, args: { direction: number }): v
 
 
 export const VehicleInputSchema: InputSchema = {
-  ...BaseInputSchema,
+  onAdded: [],
+  onRemoved: [],
   // Map mouse buttons to abstract input
   mouseInputMap: {
     buttons: {

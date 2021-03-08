@@ -10,7 +10,7 @@ import { Engine, AudioListener } from './ecs/classes/Engine';
 import { execute, initialize } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
-import { InputSystem } from './input/systems/ClientInputSystem';
+import { EntityActionSystem } from './input/systems/EntityActionSystem';
 import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
 import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
@@ -28,6 +28,7 @@ import { CharacterStateSchema } from './templates/character/CharacterStateSchema
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { EngineEvents, addIncomingEvents, addOutgoingEvents } from './ecs/classes/EngineEvents';
+import { ClientInputSystem } from './input/systems/ClientInputSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -64,6 +65,7 @@ export async function initializeEngine(initOptions: any = DefaultInitializationO
 
   // Add the three.js scene to our manager -- it is now available anywhere
   Engine.scene = scene;
+  Engine.inputState.schema = options.input.schema;
 
   if(typeof window !== 'undefined') {
     // Add iOS and safari flag to window object -- To use it for creating an iOS compatible WebGLRenderer for example
@@ -87,8 +89,6 @@ export async function initializeEngine(initOptions: any = DefaultInitializationO
 
   registerSystem(PhysicsSystem);
 
-  if(isClient) registerSystem(InputSystem, { useWebXR: DefaultInitializationOptions.input.useWebXR });
-
   registerSystem(StateSystem);
 
   registerSystem(ServerSpawnSystem, { priority: 899 });
@@ -100,6 +100,9 @@ export async function initializeEngine(initOptions: any = DefaultInitializationO
     Engine.scene.add(Engine.camera);
     registerSystem(HighlightSystem);
 
+    registerSystem(ClientInputSystem, { useWebXR: DefaultInitializationOptions.input.useWebXR });
+    registerSystem(EntityActionSystem, { useWebXR: DefaultInitializationOptions.input.useWebXR });
+    
     Engine.audioListener = new AudioListener();
     Engine.camera.add(Engine.audioListener);
     // registerSystem(PositionalAudioSystem);
