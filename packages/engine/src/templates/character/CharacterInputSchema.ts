@@ -57,10 +57,13 @@ const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
   const input = getComponent(entity, Input)
   const mouseScreenPosition = input.data.get(BaseInput.SCREENXY);
 
-  if (mouseScreenPosition && args.phase === LifecycleValue.STARTED ){
-    startedPosition.set(entity,mouseScreenPosition.value);
-    return;
-  }
+
+  // TODO this might be for mobile controls, but breaks non mobile interact
+  // if (mouseScreenPosition && args.phase === LifecycleValue.STARTED ){
+  //   startedPosition.set(entity,mouseScreenPosition.value);
+  //   return;
+  // }
+
   if (!focusedEntity) {
     // no available interactive object is focused right now
     return;
@@ -72,6 +75,7 @@ const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
     );
     return;
   }
+
 
   const interactive = getComponent(focusedEntity, Interactable);
   if (interactive && typeof interactive.onInteraction === 'function') {

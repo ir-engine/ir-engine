@@ -23,6 +23,9 @@
     "name": "Laguna Labs",
     "email": "info@lagunalabs.io"
   },
+  "entrypoint":{
+
+  },
   "contributors": [],
   "bugs": {},
   "directories": {
@@ -42,7 +45,7 @@
     "version-increment": "lerna version --conventional-commits --yes",
     "validate": "lerna run validate",
     "build": "lerna run build --parallel",
-    "build-docker": "lerna run --ignore @xr3ngine/docs --ignore @xr3ngine/bot build --parallel",
+    "build-docker": "lerna run --ignore @xr3ngine/docs --ignore @xr3ngine/bot --ignore @xr3ngine/native-plugin-example build --parallel",
     "diff": "lerna diff"
   },
   "types": "lib/",

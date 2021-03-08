@@ -13,6 +13,9 @@ export default (app: Application): any => {
     text: {
       type: DataTypes.STRING(1023),
       allowNull: false
+    },
+    isNotification: {
+      type: DataTypes.BOOLEAN
     }
   }, {
     hooks: {

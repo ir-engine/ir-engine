@@ -22,6 +22,7 @@ export interface FeedDatabaseRow {
   title: string,
   description: string,
   featured: boolean,
+  preview: string,
   viewsCount: number,
   createdAt: string,
   updatedAt: string,
