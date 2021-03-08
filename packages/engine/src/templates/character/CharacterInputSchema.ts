@@ -19,7 +19,6 @@ import { MouseInput } from '../../input/enums/MouseInput';
 import { TouchInputs } from "../../input/enums/TouchInputs";
 import { InputRelationship } from '../../input/interfaces/InputRelationship';
 import { InputSchema } from '../../input/interfaces/InputSchema';
-import { BaseInputSchema } from "../../input/schema/BaseInputSchema";
 import { InputAlias } from "../../input/types/InputAlias";
 import { Interactable } from '../../interaction/components/Interactable';
 import { Interactor } from '../../interaction/components/Interactor';
@@ -355,7 +354,8 @@ const lookByInputAxis = (
 }
 
 export const CharacterInputSchema: InputSchema = {
-  ...BaseInputSchema,
+  onAdded: [],
+  onRemoved: [],
   // Map mouse buttons to abstract input
   mouseInputMap: {
     buttons: {

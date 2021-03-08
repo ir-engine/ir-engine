@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
-import { createWorker, WorkerProxy } from './worker/MessageQueue';
+import { createWorker, MESSAGE_QUEUE_EVENT_BEFORE_SEND_QUEUE, WorkerProxy } from './worker/MessageQueue';
 import { createCanvas } from './renderer/functions/createCanvas';
 import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
@@ -14,6 +14,7 @@ import { SystemUpdateType } from './ecs/functions/SystemUpdateType';
 import { EngineEvents } from './ecs/classes/EngineEvents';
 import { EngineEventsProxy, addOutgoingEvents } from './ecs/classes/EngineEvents';
 import { Network } from './networking/classes/Network';
+import { ClientInputSystem } from './input/systems/ClientInputSystem';
 
 const isSafari = typeof navigator !== 'undefined' && /Version\/[\d\.]+.*Safari/.test(window.navigator.userAgent);
 
@@ -43,14 +44,21 @@ export async function initializeWorker(initOptions: any = DefaultInitializationO
     }
   );
   EngineEvents.instance = new EngineEventsProxy(workerProxy);
+  Engine.viewportElement = options.renderer.canvas;
+  Engine.inputState.schema = options.input.schema;
+
   addOutgoingEvents();
-  
-  initialize()
+
+  workerProxy.addEventListener(MESSAGE_QUEUE_EVENT_BEFORE_SEND_QUEUE, () => {
+    workerProxy.sendEvent('CLIENT_INPUT_DATA_EVENT', { data: Array.from(Engine.inputState.data.entries()) });
+  });
+
+  initialize();
 
   const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
   registerSystem(ClientNetworkSystem, { ...networkSystemOptions, priority: -1 });
   registerSystem(MediaStreamSystem);
-  // registerSystem(InputSystem, { useWebXR: DefaultInitializationOptions.input.useWebXR });
+  registerSystem(ClientInputSystem, { useWebXR: DefaultInitializationOptions.input.useWebXR });
   Engine.engineTimer = Timer({
     networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
     fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),

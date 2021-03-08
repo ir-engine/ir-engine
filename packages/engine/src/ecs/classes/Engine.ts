@@ -26,6 +26,7 @@ import { createElement } from '../functions/createElement';
 import { isWebWorker } from '../../common/functions/getEnvironment';
 import { VideoTextureProxy } from '../../worker/VideoTexture';
 import { PositionalAudioObjectProxy, AudioObjectProxy, AudioListenerProxy, AudioLoaderProxy } from '../../worker/Audio';
+import { Input } from '../../input/components/Input';
 
 
 export const Audio = isWebWorker ? AudioObjectProxy : THREE_Audio;
@@ -224,4 +225,6 @@ export class Engine {
   static hasUserEngaged: boolean = false;
 
   static useAudioSystem: boolean = false;
+
+  static inputState: Input = new Input();
 }

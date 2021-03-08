@@ -8,10 +8,6 @@ export interface InputSchema {
   onAdded: BehaviorValue[]; // Function
   // Called by input system when on Input component is removed
   onRemoved: BehaviorValue[]; // Function
-  // Bound to events on added, unbound on removed
-  eventBindings?: {
-    [key: string]: DomEventBehaviorValue[];
-  };
   cameraInputMap?: {
     [key: number]: InputAlias;
   };
