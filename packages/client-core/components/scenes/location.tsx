@@ -226,7 +226,11 @@ export const EnginePage = (props: Props) => {
     styleCanvas(canvas);
 
     let initializationOptions, initialize;
-    if(canvas.transferControlToOffscreen) {
+
+
+    let forceOffscreenOff = true;
+
+    if(!forceOffscreenOff && canvas.transferControlToOffscreen) {
       const { DefaultInitializationOptions, initializeWorker } = await import('@xr3ngine/engine/src/initializeWorker');
       initializationOptions = DefaultInitializationOptions;
       initialize = initializeWorker;
@@ -268,7 +272,7 @@ export const EnginePage = (props: Props) => {
 
   const onNetworkConnect = async () => {
     await joinWorld();
-    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
+    EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
   }
 
   const joinWorld = async () => {
@@ -282,7 +286,7 @@ export const EnginePage = (props: Props) => {
     if (event.loaded) {
       setProgressEntity(0);
       store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
-      EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
+      EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
       setAppLoaded(true);
     }
   };
