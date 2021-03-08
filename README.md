@@ -56,7 +56,15 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
     yarn install
     ```
     Error with mediasoup? Optional: https://mediasoup.org/documentation/v3/mediasoup/installation/
-	If on WSL2:	`sudo apt-get update ; sudo apt-get install build-essential`
+    
+    If on WSL2:	
+	```
+	sudo apt-get update
+	sudo apt-get install build-essential
+	npm install -g node-gypPYTHON=python3 yarn install
+	npm config set python /usr/bin/python
+	PYTHON=python3 yarn install
+	```
 
 2. Make sure you have a mysql database installed and running -- our recommendation is Mariadb. We've provided a docker container for easy setup:
     ```
@@ -66,6 +74,8 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
     If you do not have Docker installed and do not wish to install it, you'll have to manually create a MariaDB server.
    
    The default username is 'server', the default password is 'password', the default database name is 'xr3ngine', the default hostname is '127.0.0.1', and the default port is '3306'.
+   
+   Seeing errors connecting to the local DB? Shut off your local firewall.
     
 3. Open a new tab and start the Agones sidecar in local mode
 
@@ -203,6 +213,16 @@ Try
 ```
 yarn run dev-reinit-db // in server package
 ```
+
+## Deployment
+
+[AWS EKS Deployment](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/docs/EKS-setup.md)
+
+[Managing Kubernets](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/docs/managing_remote_kubernets.md)
+
+[Managing Helm Charts](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/docs/release-helm-chart.md)
+
+[Cloudformation Scripts](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/xr3-cloudformation)
 
 ## Testing
 

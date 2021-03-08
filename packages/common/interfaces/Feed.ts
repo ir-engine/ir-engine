@@ -21,7 +21,9 @@ export interface FeedDatabaseRow {
   id: string,
   title: string,
   description: string,
-  viewCount: number,
+  featured: boolean,
+  preview: string,
+  viewsCount: number,
   createdAt: string,
   updatedAt: string,
   authorId: string

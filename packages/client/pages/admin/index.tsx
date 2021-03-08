@@ -7,7 +7,7 @@ import {doLoginAuto} from "@xr3ngine/client-core/redux/auth/service";
 
 
 interface Props {
-    doLoginAuto: any;
+    doLoginAuto?: any;
 }
 
 const mapStateToProps = (state: any): any => {

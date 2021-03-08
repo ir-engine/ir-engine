@@ -48,7 +48,7 @@ export function useSelectionHandler(
     [items, currentItems, clearSelection]
   );
   return [onSelect, clearSelection];
-}[useSelection description]
+}
 
 /**
  * [useSelection ]

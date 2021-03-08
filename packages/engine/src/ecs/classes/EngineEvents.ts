@@ -8,6 +8,7 @@ import { CharacterComponent } from "../../templates/character/components/Charact
 import { loadActorAvatar } from "../../templates/character/prefabs/NetworkPlayerCharacter";
 import { MessageQueue } from "../../worker/MessageQueue";
 import { getEntityByID, getMutableComponent } from "../functions/EntityFunctions";
+import { Engine } from "./Engine";
 
 const EVENTS = {
 
@@ -19,11 +20,16 @@ const EVENTS = {
   
   LOAD_SCENE: 'CORE_LOAD_SCENE',
   SCENE_LOADED: 'CORE_SCENE_LOADED',
-  ENTITY_LOADED: 'CORE_ENTITY_LOADED',  
+  ENTITY_LOADED: 'CORE_ENTITY_LOADED',
+
+  ENABLE_SCENE: 'CORE_ENABLE_SCENE',
 
   // Entity
   LOAD_AVATAR: "CORE_LOAD_AVATAR",
   CLIENT_ENTITY_LOAD: "CORE_CLIENT_ENTITY_LOAD",
+
+  // MISC
+  USER_ENGAGE: 'CORE_USER_ENGAGE',
 };
 
 export class EngineEvents extends EventDispatcher {
@@ -46,10 +52,8 @@ export const addIncomingEvents = () => {
 
   // this event fires once the scene has loaded
   const onWorldJoined = (ev: any) => {
-    console.log(ev)
     applyNetworkStateToClient(ev.worldState);
-    PhysicsSystem.simulate = true;
-    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.JOINED_WORLD, onWorldJoined)
+    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.JOINED_WORLD, onWorldJoined);
   }
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.JOINED_WORLD, onWorldJoined)
 
@@ -63,6 +67,11 @@ export const addIncomingEvents = () => {
     loadActorAvatar(entity)
   })
 
+  const onUserEngage = () => {
+    Engine.hasUserEngaged = true;
+    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
+  }
+  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
 }
 
 export const addOutgoingEvents = () => {

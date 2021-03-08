@@ -32,7 +32,7 @@ import {
 import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import { VrIcon } from "../Icons/Vricon";
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { startVR } from "@xr3ngine/engine/src/input/functions/WebXRFunctions";
+import { startXR } from "@xr3ngine/engine/src/input/functions/WebXRFunctions";
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -44,13 +44,16 @@ const mapStateToProps = (state: any): any => {
 };
 
 const mapDispatchToProps = (dispatch): any => ({
-    updateCamVideoState: bindActionCreators(updateCamVideoState, dispatch),
-    updateCamAudioState: bindActionCreators(updateCamAudioState, dispatch),
     changeFaceTrackingState: bindActionCreators(changeFaceTrackingState, dispatch),
 });
 
 const MediaIconsBox = (props) => {
-    const { authState, locationState, mediastream } = props;
+    const {
+        authState,
+        locationState,
+        mediastream,
+        changeFaceTrackingState
+    } = props;
     const [xrSupported, setXRSupported] = useState(false);
 
     const user = authState.get('user');
@@ -65,6 +68,8 @@ const MediaIconsBox = (props) => {
 
     (navigator as any).xr?.isSessionSupported('immersive-vr').then(supported => {
       setXRSupported(supported);
+      if(supported && Engine.renderer != null && Engine.renderer.xr != null)
+        Engine.renderer.xr.enabled = true;
     })
 
     const checkMediaStream = async (partyId: string) => {
@@ -77,11 +82,11 @@ const MediaIconsBox = (props) => {
         if (entity) {
             const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId;
             await checkMediaStream(partyId);
-            props.changeFaceTrackingState(!isFaceTrackingEnabled);
+            changeFaceTrackingState(!isFaceTrackingEnabled);
             if (!isFaceTrackingEnabled) {
                 // get local input receiver entity
-                startFaceTracking(entity);
-                startLipsyncTracking(entity);
+                startFaceTracking();
+                startLipsyncTracking();
             } else {
                 stopFaceTracking();
                 stopLipsyncTracking();
@@ -107,7 +112,7 @@ const MediaIconsBox = (props) => {
             checkEndVideoChat();
         }
 
-        props.updateCamAudioState();
+        updateCamAudioState();
     };
 
     const handleCamClick = async () => {
@@ -121,10 +126,10 @@ const MediaIconsBox = (props) => {
             checkEndVideoChat();
         }
 
-        props.updateCamVideoState();
+        updateCamVideoState();
     };
 
-    const handleVRClick = () => startVR();
+    const handleVRClick = () => startXR();
 
     const xrEnabled = Engine.renderer?.xr.enabled === true;
     const VideocamIcon = isCamVideoEnabled ? Videocam : VideocamOff;
