@@ -3,6 +3,10 @@ import PropTypes from "prop-types";
 import Dialog from "./Dialog";
 import styled from "styled-components";
 
+/**
+ * [LeftContent used to provide styles for left div]
+ * @type {Styled component}
+ */
 const LeftContent = (styled as any).div`
   display: flex;
   width: 360px;
@@ -15,6 +19,10 @@ const LeftContent = (styled as any).div`
   }
 `;
 
+/**
+ * [RightContent used to provide styles to Right div]
+ * @type {Styled component}
+ */
 const RightContent = (styled as any).div`
   display: flex;
   flex-direction: column;
@@ -22,6 +30,13 @@ const RightContent = (styled as any).div`
   padding: 30px 30px;
 `;
 
+/**
+ * [PreviewDialog provides the dialog containing image on left side and content on right side]
+ * @param       {String} imageSrc
+ * @param       {node} children [contains component with message content]
+ * @param       {any} props
+ * @constructor
+ */
 export default function PreviewDialog({ imageSrc, children, ...props }) {
   return (
     <Dialog {...props}>
@@ -33,6 +48,10 @@ export default function PreviewDialog({ imageSrc, children, ...props }) {
   );
 }
 
+/**
+ * [declairing propTypes for PreviewDialog]
+ * @type {Object}
+ */
 PreviewDialog.propTypes = {
   imageSrc: PropTypes.string,
   children: PropTypes.node

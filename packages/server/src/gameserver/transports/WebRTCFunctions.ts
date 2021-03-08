@@ -406,12 +406,13 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
             closeConsumer(consumer);
         });
         consumer.on('producerpause', () => {
+            console.log('producerpause for', consumer.id);
+            console.log(consumer);
             if (consumer && typeof consumer.pause === 'function') consumer.pause();
             socket.emit(MessageTypes.WebRTCPauseConsumer.toString(), consumer.id);
         });
         consumer.on('producerresume', () => {
-            logger.info(`consumer's producer resumed`);
-            logger.info(consumer.id);
+            console.log('producerresume for', consumer.id);
             if (consumer && typeof consumer.resume === 'function') consumer.resume();
             socket.emit(MessageTypes.WebRTCResumeConsumer.toString(), consumer.id);
         });

@@ -16,12 +16,13 @@ export const VideoProjection = {
   Flat: "flat",
   Equirectangular360: "360-equirectangular"
 };
-import { VideoTexture } from "../../worker/VideoTexture";
+import { Engine, VideoTexture } from "../../ecs/classes/Engine";
+import { EngineEvents } from "../../ecs/classes/EngineEvents";
 
 export default class Video extends AudioSource {
   // @ts-ignore
   _videoTexture: any;
-  el: HTMLVideoElement;
+  el: any;
   _texture: any;
   _mesh: Mesh;
   _projection: string;
@@ -59,28 +60,29 @@ export default class Video extends AudioSource {
           this.hls.startLoad(-1);
         });
       } else {
-        (this.el as any).src = src;
+        this.el.src = src;
       }
       let cleanup = null;
       const onLoadedMetadata = () => {
+        cleanup();
         cleanup();
         resolve(this._videoTexture);
       };
       const onError = error => {
         cleanup();
         reject(
-          new RethrownError(`Error loading video "${(this.el as any).src}"`, error)
+          new RethrownError(`Error loading video "${this.el.src}"`, error)
         );
       };
       cleanup = () => {
-        (this.el as any).removeEventListener("loadeddata", onLoadedMetadata);
-        (this.el as any).removeEventListener("error", onError);
+        this.el.removeEventListener("loadeddata", onLoadedMetadata);
+        this.el.removeEventListener("error", onError);
       };
       if (_isHLS) {
         this.hls.on((Hls as any).Events.ERROR, onError);
       }
-      (this.el as any).addEventListener("loadeddata", onLoadedMetadata);
-      (this.el as any).addEventListener("error", onError);
+      this.el.addEventListener("loadeddata", onLoadedMetadata);
+      this.el.addEventListener("error", onError);
     });
   }
   get projection() {
@@ -114,14 +116,20 @@ export default class Video extends AudioSource {
     this._mesh = nextMesh;
     this.onResize();
   }
-  async load(src, contentType) {
+  get src() {
+    return this.el.src;
+  }
+  set src(src) {
+    this.load(src).catch(console.error);
+  }
+  async load(src, contentType?) {
     this._mesh.visible = false;
     this._texture = await this.loadVideo(src, contentType);
     this.onResize();
-    this.audioSource = this.audioListener.context.createMediaElementSource(
-      this.el
-    );
-    this.audio.setNodeSource(this.audioSource);
+    if(Engine.useAudioSystem) {
+      this.audioSource = this.audioListener.context.createMediaElementSource(this.el);
+      this.audio.setNodeSource(this.audioSource);
+    }
     if (this._texture.format === RGBAFormat) {
       (this._mesh.material as MeshBasicMaterial).transparent = true;
     }
@@ -132,7 +140,7 @@ export default class Video extends AudioSource {
   }
   onResize() {
     if (this.projection === VideoProjection.Flat) {
-      const ratio = ((this.el as any).videoHeight || 1.0) / ((this.el as any).videoWidth || 1.0);
+      const ratio = (this.el.videoHeight || 1.0) / (this.el.videoWidth || 1.0);
       const width = Math.min(1.0, 1.0 / ratio);
       const height = Math.min(1.0, ratio);
       this._mesh.scale.set(width, height, 1);

@@ -9,7 +9,7 @@ import {
   Scene,
 } from 'three';
 import { MathUtils } from 'three';
-import { isWebWorker } from '../common/functions/getEnvironment';
+
 const { generateUUID } = MathUtils;
 
 export interface Message {
@@ -60,6 +60,11 @@ function simplifyObject(object: any): any {
  */
 function fixDocumentEvent(event: any) {
   const obj = simplifyObject(event);
+  // touches are broken still
+  // just do what i wrote above ok
+  if(obj.changedTouches?.length) for(let touch of obj.changedTouches) { console.log(touch); touch.target = 'canvas' };
+  if(obj.targetTouches?.length)  for(let touch of obj.targetTouches) { console.log(touch); touch.target = 'canvas' };
+  if(obj.touches?.length) for(let touch of obj.touches) { console.log(touch); touch.target = 'canvas' };
   switch(obj.srcElement) {
     case (window as any): obj.targetElement = 'window'; break;
     case (document as any): obj.targetElement = 'document'; break;
@@ -78,25 +83,25 @@ function fixDocumentEvent(event: any) {
   return obj;
 }
 
-class ExtendableProxy {
-  constructor(
-    getset = {
-      get(target: any, name: any, receiver: any) {
-        if (!Reflect.has(target, name)) {
-          return undefined;
-        }
-        return Reflect.get(target, name, receiver);
-      },
-      set(target: any, name: any, value: any, receiver: any) {
-        return Reflect.set(target, name, value, receiver);
-      },
-    },
-  ) {
-    return new Proxy(this, getset);
-  }
-}
+// class ExtendableProxy {
+//   constructor(
+//     getset = {
+//       get(target: any, name: any, receiver: any) {
+//         if (!Reflect.has(target, name)) {
+//           return undefined;
+//         }
+//         return Reflect.get(target, name, receiver);
+//       },
+//       set(target: any, name: any, value: any, receiver: any) {
+//         return Reflect.set(target, name, value, receiver);
+//       },
+//     },
+//   ) {
+//     return new Proxy(this, getset);
+//   }
+// }
 
-export class EventDispatcherProxy extends ExtendableProxy {
+export class EventDispatcherProxy {//extends ExtendableProxy {
   [x: string]: any;
   eventTarget: EventTarget;
   eventListener: any;
@@ -112,7 +117,7 @@ export class EventDispatcherProxy extends ExtendableProxy {
     eventListener: any;
     getset?: any;
   }) {
-    super(getset);
+    // super(getset);
     this._listeners = {};
     this.eventTarget = eventTarget;
     this.eventListener = eventListener;
@@ -301,12 +306,11 @@ export class MessageQueue extends EventDispatcherProxy {
   }
 }
 
-class DocumentElementProxy extends EventDispatcherProxy {
+export class DocumentElementProxy extends EventDispatcherProxy {
   messageQueue: MessageQueue;
   uuid: string;
   type: string;
   eventTarget: EventTarget;
-  transferedProps: string[] = [];
   remoteCalls: string[];
 
   constructor({
@@ -314,41 +318,21 @@ class DocumentElementProxy extends EventDispatcherProxy {
     type,
     remoteCalls,
     eventTarget,
+    elementArgs,
   }: {
     messageQueue: MessageQueue;
     type: string;
     remoteCalls?: string[];
     eventTarget?: EventTarget;
+    elementArgs?: any,
   }) {
     super({
       eventTarget: eventTarget || messageQueue.eventTarget,
-      eventListener: (args: any) => {
+      eventListener: (listenerArgs: any) => {
         this.messageQueue.queue.push({
           messageType: MessageType.EVENT,
-          message: simplifyObject(args),
+          message: simplifyObject(listenerArgs),
         } as Message);
-      },
-      getset: {
-        get(target: any, name: any, receiver: any) {
-          if (!Reflect.has(target, name)) {
-            return undefined;
-          }
-          return Reflect.get(target, name, receiver);
-        },
-        set(target: any, name: any, value: any, receiver: any) {
-          const props = Reflect.get(target, 'transferedProps') as string[];
-          if (props?.includes(name)) {
-            Reflect.get(target, 'messageQueue').queue.push({
-              messageType: MessageType.DOCUMENT_ELEMENT_PARAM_SET,
-              message: {
-                param: name,
-                uuid: Reflect.get(target, 'uuid'),
-                arg: value,
-              },
-            } as Message);
-          }
-          return Reflect.set(target, name, value, receiver);
-        },
       },
     });
     this.remoteCalls = remoteCalls || [];
@@ -375,6 +359,18 @@ class DocumentElementProxy extends EventDispatcherProxy {
       message: {
         type,
         uuid: this.uuid,
+        elementArgs,
+      },
+    } as Message);
+  }
+
+  __setValue(prop, value) {
+    this.messageQueue.queue.push({
+      messageType: MessageType.DOCUMENT_ELEMENT_PARAM_SET,
+      message: {
+        param: prop,
+        uuid: this.uuid,
+        arg: value,
       },
     } as Message);
   }
@@ -416,88 +412,137 @@ class DocumentElementProxy extends EventDispatcherProxy {
   }
 }
 
-const audioRemoteFunctionCalls: string[] = ['play'];
-const audioRemoteProps: string[] = ['src'];
+const audioRemoteFunctionCalls: string[] = ['play', 'pause'];
 
-class AudioDocumentElementProxy extends DocumentElementProxy {
+export class AudioDocumentElementProxy extends DocumentElementProxy {
+  _src: string;
+  _autoplay: string;
+  _isPlaying: boolean = false;
   constructor({
     messageQueue,
     type = 'audio',
     remoteCalls = [],
+    elementArgs,
   }: {
     messageQueue: MessageQueue;
     type?: string;
     remoteCalls?: string[];
+    elementArgs?: any,
   }) {
     super({
       messageQueue,
       type,
       remoteCalls: [...remoteCalls, ...audioRemoteFunctionCalls],
+      elementArgs,
     });
-    this.transferedProps.push(...audioRemoteProps);
+  }
+  get src() {
+    return this._src;
+  }
+  set src(value) {
+    this._src = value;
+    this.__setValue('src', value);
+  }
+  get autoplay() {
+    return this._autoplay;
+  }
+  set autoplay(value) {
+    this._autoplay = value;
+    this.__setValue('autoplay', value);
+  }
+  get isPlaying() {
+    return this._isPlaying;
+  }
+  play() {
+    this._isPlaying = true;
+    super.play()
+  }
+  pause() {
+    this._isPlaying = false;
+    super.pause()
+  }
+  dispatchEvent(
+    ev: any,
+    fromMain?: boolean
+  ): void {
+    console.log(ev)
+    switch(ev.type) {
+      case 'play': this._isPlaying = true; break;
+      case 'pause': case 'paused': case 'ended': this._isPlaying = false; break;
+      default: break;
+    }
+    super.dispatchEvent(ev, fromMain);
   }
 }
 
 const videoRemoteFunctionCalls: string[] = [];
-const videoRemoteProps: string[] = [];
+// const videoRemoteProps: string[] = [];
 
 export class VideoDocumentElementProxy extends AudioDocumentElementProxy {
   frameCallback: any;
+  _frameCallback: any;
   width: number;
   height: number;
-  video: ImageData | null;
+  video: OffscreenCanvas;
   readyState: number;
+  currentTime: number;
 
-  constructor({ messageQueue }: { messageQueue: MessageQueue }) {
+  constructor({ messageQueue, elementArgs }: { messageQueue: MessageQueue, elementArgs?: any }) {
     super({
       messageQueue,
       type: 'video',
       remoteCalls: [],
+      elementArgs,
     });
-    this.video = null;
+    this.video = new OffscreenCanvas(0, 0);
     this.width = 0;
     this.height = 0;
     this.readyState = 0;
+    this.currentTime = 0;
     this.messageTypeFunctions.set(
       MessageType.VIDEO_ELEMENT_CREATE,
       ({ width, height }: { width: number; height: number }) => {
         this.width = width;
         this.height = height;
-        this.video = new ImageData(
-          new Uint8ClampedArray(4 * this.width * this.height).fill(0),
-          this.width,
-          this.height,
-        );
+        this.video.width = width;
+        this.video.height = height;
       },
     );
     this.messageTypeFunctions.set(
       MessageType.VIDEO_ELEMENT_FRAME,
       ({
-        imageBuffer,
+        imageBitmap,
         readyState,
+        currentTime,
+        metaData,
+        now,
       }: {
-        imageBuffer: ArrayBuffer;
-        readyState: number;
+        imageBitmap: ImageBitmap,
+        readyState: number,
+        currentTime: number,
+        metaData: any,
+        now: any,
       }) => {
-        this.video = new ImageData(
-          new Uint8ClampedArray(imageBuffer),
-          this.width,
-          this.height,
-        );
+        this.video.getContext('2d').drawImage(imageBitmap, 0, 0);
+        this.currentTime = currentTime;
         this.readyState = readyState;
         if (this.frameCallback) {
-          this.frameCallback();
+          this.frameCallback(now, metaData);
+        }
+        if (this._frameCallback) {
+          this._frameCallback(now, metaData);
         }
       },
     );
-
-    this.transferedProps.push(...videoRemoteProps);
   }
   requestVideoFrameCallback(callback: any) {
     this.frameCallback = callback;
   }
+  _requestVideoFrameCallback(callback: any) {
+    this._frameCallback = callback;
+  }
 }
-class Object3DProxy extends Object3D {
+export class Object3DProxy extends Object3D {
   [x: string]: any;
   proxyID: string;
   setQueue: Map<string, any> = new Map<string, any>();
@@ -542,88 +587,6 @@ class Object3DProxy extends Object3D {
   }
 }
 
-export class AudioListenerProxy extends Object3DProxy {
-  constructor() {
-    super({ type: 'AudioListener' });
-  }
-}
-
-export type AudioBufferProxyID = string;
-
-export class AudioLoaderProxy {
-  constructor() {}
-  load(url: string, callback: any) {
-    const requestCallback = (event: DispatchEvent) => {
-      callback(event.type as AudioBufferProxyID);
-      ((globalThis as any).__messageQueue as MessageQueue).removeEventListener(
-        url,
-        requestCallback,
-      );
-    };
-    ((globalThis as any).__messageQueue as MessageQueue).addEventListener(
-      url,
-      requestCallback,
-    );
-    ((globalThis as any).__messageQueue as MessageQueue).queue.push({
-      messageType: MessageType.AUDIO_BUFFER_LOAD,
-      message: {
-        url,
-      },
-    } as Message);
-  }
-}
-
-export class AudioObjectProxy extends Object3DProxy {
-  constructor(args: any = {}) {
-    super({ type: args.type || 'Audio' });
-  }
-  // HTMLMediaElement - <audio> & <video>
-  setMediaElementSource(source: AudioDocumentElementProxy) {
-    ((globalThis as any).__messageQueue as MessageQueue).queue.push({
-      messageType: MessageType.AUDIO_SOURCE_ELEMENT_SET,
-      message: {
-        sourceID: source.uuid,
-        proxyID: this.proxyID,
-      },
-    } as Message);
-  }
-  // HTMLMediaStream - Webcams
-  // this might need to be implemented at application level
-  // setMediaStreamSource(source: AudioDocumentElementProxy) {
-  //   ((globalThis as any).__messageQueue as MessageQueue).queue.push({
-  //     messageType: MessageType.AUDIO_SOURCE_STREAM_SET,
-  //     message: {
-  //       sourceID: source.uuid,
-  //       proxyID: this.proxyID,
-  //     },
-  //   } as Message);
-  // }
-  // AudioBuffer - AudioLoader.load
-  setBuffer(buffer: AudioBufferProxyID) {
-    ((globalThis as any).__messageQueue as MessageQueue).queue.push({
-      messageType: MessageType.AUDIO_BUFFER_SET,
-      message: {
-        buffer,
-        proxyID: this.proxyID,
-      },
-    } as Message);
-  }
-  setLoop(loop: boolean) {
-    this.__callFunc('setLoop', loop);
-  }
-  setVolume(volume: number) {
-    this.__callFunc('setVolume', volume);
-  }
-  play() {
-    this.__callFunc('play');
-  }
-}
-
-export class PositionalAudioObjectProxy extends AudioObjectProxy {
-  constructor() {
-    super({ type: 'PositionalAudio' });
-  }
-}
 export class WorkerProxy extends MessageQueue {
   canvas: HTMLCanvasElement;
   constructor({
@@ -713,6 +676,12 @@ export async function createWorker(
   const { width, height } = canvas.getBoundingClientRect();
   const offscreen = canvas.transferControlToOffscreen();
   const documentElementMap = new Map<string, any>();
+  const sceneObjects: Map<string, Object3D> = new Map<string, Object3D>();
+  const audioScene = new Scene();
+  const audioLoader = new THREE_AudioLoader();
+  const audioBuffers: Map<string, AudioBuffer> = new Map<string, AudioBuffer>();
+  let audioListener: any = undefined;
+
   messageQueue.messageTypeFunctions.set(
     MessageType.DOCUMENT_ELEMENT_FUNCTION_CALL,
     ({ call, uuid, args }: { call: string; uuid: string; args: any[] }) => {
@@ -767,24 +736,26 @@ export async function createWorker(
   );
   messageQueue.messageTypeFunctions.set(
     MessageType.DOCUMENT_ELEMENT_CREATE,
-    ({ type, uuid }: { type: string; uuid: string }) => {
+    ({ type, uuid, elementArgs }: { type: string; uuid: string, elementArgs: any }) => {
       switch (type) {
         case 'window': documentElementMap.set(uuid, (window as any)); break;
         case 'document': documentElementMap.set(uuid, (document as any)); break;
         case 'canvas': documentElementMap.set(uuid, canvas); break;
+        case 'mediaElementSource': documentElementMap.set(uuid, audioListener.context.createMediaElementSource(documentElementMap.get(elementArgs.elementID) as HTMLMediaElement) as MediaElementAudioSourceNode);
         case 'audio':
           const audio = document.createElement('audio') as HTMLVideoElement;
+          elementArgs !== undefined && applyElementArguments(audio, elementArgs);
           documentElementMap.set(uuid, audio);
           break;
         case 'video':
           const video = document.createElement('video') as HTMLVideoElement;
+          elementArgs !== undefined && applyElementArguments(video, elementArgs);
           documentElementMap.set(uuid, video);
           video.onplay = (ev: any) => {
-            const drawCanvas = document.createElement(
-              'canvas',
-            ) as HTMLCanvasElement;
-            drawCanvas.width = video.videoWidth;
-            drawCanvas.height = video.videoHeight;
+            const drawCanvas = new OffscreenCanvas(
+              video.videoWidth,
+              video.videoHeight
+            );
             const context = drawCanvas.getContext('2d');
             messageQueue.queue.push({
               messageType: MessageType.VIDEO_ELEMENT_CREATE,
@@ -795,25 +766,21 @@ export async function createWorker(
               },
             } as Message);
 
-            const sendFrame = async () => {
-              context?.drawImage(video, 0, 0);
-              const imageBuffer = context?.getImageData(
-                0,
-                0,
-                video.videoWidth,
-                video.videoHeight,
-              ).data.buffer;
-              if (imageBuffer) {
-                messageQueue.queue.push({
-                  messageType: MessageType.VIDEO_ELEMENT_FRAME,
-                  message: {
-                    imageBuffer,
-                    readyState: video.readyState,
-                    returnID: uuid,
-                  },
-                  transferables: [imageBuffer],
-                } as Message);
-              }
+            const sendFrame = (now, metaData) => {
+              context.drawImage(video, 0, 0);
+              const imageBitmap = drawCanvas.transferToImageBitmap();
+              messageQueue.queue.push({
+                messageType: MessageType.VIDEO_ELEMENT_FRAME,
+                message: {
+                  imageBitmap,
+                  readyState: video.readyState,
+                  returnID: uuid,
+                  currentTime: video.currentTime,
+                  now,
+                  metaData,
+                },
+                transferables: [imageBitmap],
+              } as Message);
               /** @ts-ignore */
               video.requestVideoFrameCallback(sendFrame);
             };
@@ -826,12 +793,6 @@ export async function createWorker(
       }
     },
   );
-  const sceneObjects: Map<string, Object3D> = new Map<string, Object3D>();
-  const audioScene = new Scene();
-  const audioLoader = new THREE_AudioLoader();
-  const audioBuffers: Map<string, AudioBuffer> = new Map<string, AudioBuffer>();
-  let audioListener: any = undefined;
-
   messageQueue.messageTypeFunctions.set(
     MessageType.AUDIO_BUFFER_LOAD,
     ({ url }: { url: string }) => {
@@ -848,8 +809,8 @@ export async function createWorker(
   );
   messageQueue.messageTypeFunctions.set(
     MessageType.AUDIO_BUFFER_SET,
-    ({ buffer, proxyID }: { buffer: string; proxyID: string }) => {
-      const audioBuffer = audioBuffers.get(buffer) as AudioBuffer;
+    ({ bufferID, proxyID }: { bufferID: string; proxyID: string }) => {
+      const audioBuffer = audioBuffers.get(bufferID) as AudioBuffer;
       const obj = sceneObjects.get(proxyID) as THREE_Audio;
       if (audioBuffer && obj) {
         obj.setBuffer(audioBuffer);
@@ -978,6 +939,14 @@ export async function createWorker(
   return messageQueue;
 }
 
+
+export const applyElementArguments = (el: any, args: any) => {
+  Object.entries(args).forEach((entry: any) => {
+    const [key, value] = entry;
+    el[key] = value;
+  });
+  return el;
+}
 class WindowProxy extends DocumentElementProxy {
   constructor({
     messageQueue,
@@ -993,33 +962,16 @@ class WindowProxy extends DocumentElementProxy {
       type,
       remoteCalls: [...remoteCalls],
     });
-    // this.transferedProps.push();
   }
   focus: () => {}
-  get ownerDocument() {
-    return (globalThis as any).document;
-  }
-  get width() {
-    return this.messageQueue.width;
-  }
-  get height() {
-    return this.messageQueue.height;
-  }
-  get clientWidth() {
-    return this.messageQueue.width;
-  }
-  get clientHeight() {
-    return this.messageQueue.height;
-  }
-  get innerWidth() {
-    return this.messageQueue.width;
-  }
-  get innerHeight() {
-    return this.messageQueue.height;
-  }
-  get devicePixelRatio() {
-    return this.messageQueue.devicePixelRatio;
-  }
+  get ownerDocument() { return (globalThis as any).document; }
+  get width() { return this.messageQueue.width; }
+  get height() { return this.messageQueue.height; }
+  get clientWidth() { return this.messageQueue.width; }
+  get clientHeight() { return this.messageQueue.height; }
+  get innerWidth() { return this.messageQueue.width; }
+  get innerHeight() { return this.messageQueue.height; }
+  get devicePixelRatio() { return this.messageQueue.devicePixelRatio; }
 }
 
 class DocumentProxy extends DocumentElementProxy {
@@ -1037,17 +989,18 @@ class DocumentProxy extends DocumentElementProxy {
       type,
       remoteCalls: [...remoteCalls],
     });
-    // this.transferedProps.push();
   }
   get ownerDocument() {
     return (globalThis as any).document
   }
-  createElement(type: string): DocumentElementProxy | null {
+  createElement(type: string, elementArgs: any): DocumentElementProxy | null {
     switch (type) {
       case 'audio':
-        return new AudioDocumentElementProxy({ messageQueue: this.messageQueue });
+        return new AudioDocumentElementProxy({ messageQueue: this.messageQueue, elementArgs });
       case 'video':
-        return new VideoDocumentElementProxy({ messageQueue: this.messageQueue });
+        return new VideoDocumentElementProxy({ messageQueue: this.messageQueue, elementArgs });
+      case 'media':
+        return new DocumentElementProxy({ messageQueue: this.messageQueue, type: 'mediaElementSource', elementArgs });
       default:
         return null;
     }
@@ -1069,7 +1022,6 @@ class CanvasProxy extends DocumentElementProxy {
       type,
       remoteCalls: [...remoteCalls],
     });
-    // this.transferedProps.push();
   }
 }
 

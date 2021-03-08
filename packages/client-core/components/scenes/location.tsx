@@ -184,9 +184,7 @@ export const EnginePage = (props: Props) => {
       if (sceneId === null && currentLocation.sceneId !== null) {
         sceneId = currentLocation.sceneId;
       }
-      init(sceneId).then(() => {
-        connectToInstanceServer('instance');
-      });
+      init(sceneId);
     }
   }, [instanceConnectionState]);
 
@@ -228,8 +226,7 @@ export const EnginePage = (props: Props) => {
     styleCanvas(canvas);
 
     let initializationOptions, initialize;
-    if(false) {
-    // if(canvas.transferControlToOffscreen) {
+    if(canvas.transferControlToOffscreen) {
       const { DefaultInitializationOptions, initializeWorker } = await import('@xr3ngine/engine/src/initializeWorker');
       initializationOptions = DefaultInitializationOptions;
       initialize = initializeWorker;
@@ -251,20 +248,33 @@ export const EnginePage = (props: Props) => {
     
     await initialize(InitializationOptions)
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
-
-    const onNetworkConnect = async (ev: any) => {
-      await joinWorld();
-      EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
-    }
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
     
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LOAD_SCENE, result })
-    addEventListeners();
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENTITY_LOADED, onSceneLoadedEntity);
+    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.USER_HOVER, onUserHover);
+    document.addEventListener('object-activation', onObjectActivation);
+    document.addEventListener('object-hover', onObjectHover);
+    const engageType = isMobileOrTablet() ? 'touchstart' : 'click'
+    const onUserEngage = () => {
+      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.USER_ENGAGE });
+      document.removeEventListener(engageType, onUserEngage);
+    }
+    document.addEventListener(engageType, onUserEngage);
+
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LOAD_SCENE, result });
+    connectToInstanceServer('instance');
+  }
+
+  const onNetworkConnect = async () => {
+    await joinWorld();
+    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
   }
 
   const joinWorld = async () => {
     const { worldState } =  await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
   }
 
   //all scene entities are loaded
@@ -308,14 +318,6 @@ export const EnginePage = (props: Props) => {
       default:
         break;
     }
-  };
-
-  const addEventListeners = () => {
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENTITY_LOADED, onSceneLoadedEntity);
-    document.addEventListener('object-activation', onObjectActivation);
-    document.addEventListener('object-hover', onObjectHover);
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.USER_HOVER, onUserHover);
   };
 
   useEffect(() => {

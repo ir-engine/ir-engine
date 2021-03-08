@@ -2,9 +2,10 @@ import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import { Button, SecondaryButton } from "../inputs/Button";
 import styled from "styled-components";
+
 /**
- * DialogContainer styling defined
- * @type {any}
+ * DialogContainer used as container element for DialogHeader, DialogContent and DialogBottomNav.
+ * @type {Styled component}
  */
 const DialogContainer = (styled as any).form`
   display: flex;
@@ -17,9 +18,10 @@ const DialogContainer = (styled as any).form`
   min-height: 150px;
   max-height: 80vh;
 `;
+
 /**
- * DialogHeader styling defined
- * @type {any}
+ * DialogHeader used for providing styles to header text.
+ * @type {Styled component}
  */
 const DialogHeader = (styled as any).div`
   display: flex;
@@ -38,9 +40,11 @@ const DialogHeader = (styled as any).div`
     align-items: center;
   }
 `;
+
+
 /**
- * DialogContent styling defined
- * @type {any}
+ * DialogContent used to provide styles for dialog body content.
+ * @type {Styled component}
  */
 export const DialogContent = (styled as any).div`
   color: ${props => props.theme.text2};
@@ -63,9 +67,10 @@ export const DialogContent = (styled as any).div`
     line-height: 1.5em;
   }
 `;
+
 /**
- * DialogBottomNav styling defined
- * @type {any}
+ * DialogBottomNav used to provide styles for bottom nav of Dialog component
+ * @type {Styled component}
  */
 const DialogBottomNav = (styled as any).div`
   display: flex;
@@ -91,6 +96,10 @@ const DialogBottomNav = (styled as any).div`
   }
 `;
 
+/**
+ * declairing props for Dialog component
+ * @type {Props}
+ */
 interface Props {
     tag?;
     title?;
@@ -102,7 +111,14 @@ interface Props {
     children?;
 }
 
+/**
+ * Dialog used to render view for Dialog which contains form.
+ * @param  {Props}
+ * @constructor
+ */
 export default function Dialog(props: Props) {
+
+ // initializing component properties using props.
   const {
     tag,
     title,
@@ -114,6 +130,8 @@ export default function Dialog(props: Props) {
     children,
     ...rest
 } = props;
+
+ // callback function used to handle form submit
   const onSubmitForm = useCallback(
     e => {
       e.preventDefault();
@@ -124,7 +142,7 @@ export default function Dialog(props: Props) {
     },
     [onConfirm]
   );
-// return component html
+// returning view for Dialog component
   return (
     <DialogContainer as={tag} onSubmit={onSubmitForm} {...rest}>
       <DialogHeader>
@@ -145,7 +163,17 @@ export default function Dialog(props: Props) {
     </DialogContainer>
   );
 }
-
+/**
+ * propTypes declared for Dialog component.
+ * @param {string} tag
+ * @param {string} title
+ * @param {func} onCancel
+ * @param {string} cancelLabel
+ * @param {func} onConfirm
+ * @param {string} confirmLabel
+ * @param {node} bottomNav
+ * @param {node} children
+ */
 Dialog.propTypes = {
   tag: PropTypes.string,
   title: PropTypes.string,
@@ -157,6 +185,9 @@ Dialog.propTypes = {
   children: PropTypes.node
 };
 
+/**
+ * defaultProps defined for  Dialog component
+ */
 Dialog.defaultProps = {
   tag: "form",
   title: "Editor",
