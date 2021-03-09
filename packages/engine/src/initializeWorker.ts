@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
-import { createWorker, MESSAGE_QUEUE_EVENT_BEFORE_SEND_QUEUE, WorkerProxy } from './worker/MessageQueue';
+import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { createCanvas } from './renderer/functions/createCanvas';
 import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
@@ -48,10 +48,6 @@ export async function initializeWorker(initOptions: any = DefaultInitializationO
   Engine.inputState.schema = options.input.schema;
 
   addOutgoingEvents();
-
-  workerProxy.addEventListener(MESSAGE_QUEUE_EVENT_BEFORE_SEND_QUEUE, () => {
-    workerProxy.sendEvent('CLIENT_INPUT_DATA_EVENT', { data: Array.from(Engine.inputState.data.entries()) });
-  });
 
   initialize();
 

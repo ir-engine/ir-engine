@@ -1,9 +1,15 @@
 import { DomEventBehaviorValue } from "../../common/interfaces/DomEventBehaviorValue";
 import { Engine } from "../../ecs/classes/Engine";
 import { ClientInputSchema } from "../schema/ClientInputSchema";
-import { System } from '../../ecs/classes/System';
+import { System, SystemAttributes } from '../../ecs/classes/System';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { handleGamepads } from "../behaviors/GamepadInputBehaviors";
+import { InputType } from "../enums/InputType";
+import { InputValue } from "../interfaces/InputValue";
+import { NumericalType } from "../../common/types/NumericalTypes";
+import { LifecycleValue } from "../../common/enums/LifecycleValue";
+import { InputAlias } from "../types/InputAlias";
+import { EngineEvents } from "../../ecs/classes/EngineEvents";
 
 const supportsPassive = (): boolean => {
   let supportsPassiveValue = false;
@@ -36,16 +42,24 @@ interface ListenerBindingData {
  */
 
 export class ClientInputSystem extends System {
+
+  static EVENTS = {
+    PROCESS_INPUT: 'CLIENT_INPUT_SYSTEM_PROCESS_EVENT'
+  }
+
   updateType = SystemUpdateType.Fixed;
   needSend = false;
   switchId = 1;
   boundListeners: ListenerBindingData[] = [];
+  onProcessInput: any;
 
-  constructor() {
-    super();
+  constructor(attributes?: SystemAttributes) {
+    super(attributes);
+    this.onProcessInput = attributes.onProcessInput;
     ClientInputSchema.onAdded.forEach(behavior => {
       behavior.behavior();
     });
+  
     Object.keys(ClientInputSchema.eventBindings)?.forEach((eventName: string) => {
       ClientInputSchema.eventBindings[eventName].forEach((behaviorEntry: DomEventBehaviorValue) => {
         // const domParentElement:EventTarget = document;
@@ -102,5 +116,62 @@ export class ClientInputSystem extends System {
 
   public execute(delta: number): void { 
     handleGamepads();
+
+    Engine.inputState.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+      if (!Engine.inputState.prevData.has(key)) {
+        return;
+      }
+
+      if (value.type === InputType.BUTTON) {
+        const prevValue = Engine.inputState.prevData.get(key);
+        if (
+          prevValue.lifecycleState === LifecycleValue.STARTED &&
+          value.lifecycleState === LifecycleValue.STARTED
+        ) {
+          // auto-switch to CONTINUED
+          value.lifecycleState = LifecycleValue.CONTINUED;
+          Engine.inputState.data.set(key, value);
+        }
+        return;
+      }
+
+      if (
+        value.type !== InputType.ONEDIM &&
+        value.type !== InputType.TWODIM &&
+        value.type !== InputType.THREEDIM
+      ) {
+        // skip all other inputs
+        return;
+      }
+
+      if (value.lifecycleState === LifecycleValue.ENDED) {
+        // ENDED here is a special case, like mouse position on mouse down
+        return;
+      }
+
+      if (Engine.inputState.prevData.has(key)) {
+        if (JSON.stringify(value.value) === JSON.stringify(Engine.inputState.prevData.get(key).value)) {
+          value.lifecycleState = LifecycleValue.UNCHANGED;
+        } else {
+          value.lifecycleState = LifecycleValue.CHANGED;
+        }
+        Engine.inputState.data.set(key, value);
+      }
+    });
+
+    EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.PROCESS_INPUT, data: Engine.inputState.data });
+
+    Engine.inputState.prevData.clear();
+    Engine.inputState.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+      Engine.inputState.prevData.set(key, value);
+    });
+
+    Engine.inputState.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+      if (value.type === InputType.BUTTON) {
+        if (value.lifecycleState === LifecycleValue.ENDED) {
+          Engine.inputState.data.delete(key);
+        }
+      }
+    });
   }
 }

@@ -25,6 +25,7 @@ import { InputAlias } from "../types/InputAlias";
 import { BaseInput } from "../enums/BaseInput";
 import { ClientNetworkSystem } from "../../networking/systems/ClientNetworkSystem";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
+import { ClientInputSystem } from "./ClientInputSystem";
 /**
  * Input System
  *
@@ -60,6 +61,12 @@ export class EntityActionSystem extends System {
 
     EngineEvents.instance.addEventListener(WEBCAM_INPUT_EVENTS.LIP_INPUT, ({ pucker, widen, open }) => {
       lipToInput(Network.instance.localClientEntity, pucker, widen, open);
+    });
+
+    EngineEvents.instance.addEventListener(ClientInputSystem.EVENTS.PROCESS_INPUT, ({ data }) => {
+      data.forEach((value, key) => { 
+        Engine.inputState.data.set(key, value);
+      });
     });
   }
 
@@ -155,7 +162,9 @@ export class EntityActionSystem extends System {
       // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
       const input = getMutableComponent(entity, Input);
 
-      Engine.inputState.data.forEach((value, key) => { input.data.set(key, value); });
+      Engine.inputState.data.forEach((value, key) => { 
+        input.data.set(key, value);
+      });
 
       input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
         if (!input.prevData.has(key)) {
@@ -332,6 +341,13 @@ export class EntityActionSystem extends System {
         if (value.type === InputType.BUTTON) {
           if (value.lifecycleState === LifecycleValue.ENDED) {
             input.data.delete(key);
+          }
+        }
+      });
+      Engine.inputState.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+        if (value.type === InputType.BUTTON) {
+          if (value.lifecycleState === LifecycleValue.ENDED) {
+            Engine.inputState.data.delete(key);
           }
         }
       });
