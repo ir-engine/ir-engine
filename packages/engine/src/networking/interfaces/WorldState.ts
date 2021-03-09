@@ -25,6 +25,17 @@ export interface NetworkInputInterface {
       value: NumericalType,
       lifecycleState: LifecycleValue
     }>
+  /** Axes 2D input received over the network. */
+  axes6DOF: Array<{
+    input: InputAlias,
+    x: number,
+    y: number,
+    z: number,
+    qX: number,
+    qY: number,
+    qZ: number,
+    qW: number
+  }>
   /** Viewport vector of the client. */
   viewVector: {  x: number, y: number, z: number  },
   //snapShotTime:
@@ -181,6 +192,17 @@ export interface PacketNetworkInputInterface {
       input: InputAlias,
       value: NumericalType,
       lifecycleState: LifecycleValue
+    }>
+    /** Axes 2D input received over the network. */
+    axes6DOF: Array<{
+      input: InputAlias,
+      x: number,
+      y: number,
+      z: number,
+      qX: number,
+      qY: number,
+      qZ: number,
+      qW: number
     }>
   /** Viewport vector of the client. */
   viewVector: {  x: number, y: number, z: number  }

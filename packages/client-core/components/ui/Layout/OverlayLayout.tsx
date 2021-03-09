@@ -1,4 +1,4 @@
-import { Fab, ThemeProvider} from '@material-ui/core';
+import { ThemeProvider} from '@material-ui/core';
 import getConfig from 'next/config';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -15,18 +15,16 @@ import { UIDialog } from '../Dialog/Dialog';
 import BottomDrawer from '../Drawer/Bottom';
 import LeftDrawer from '../Drawer/Left/LeftDrawer';
 import RightDrawer from '../Drawer/Right';
-import DrawerControls from '../DrawerControls';
 import InstanceChat from '../InstanceChat';
 import Me from '../Me';
 import NavMenu from '../NavMenu';
 import PartyVideoWindows from '../PartyVideoWindows';
-import {Forum, FullscreenExit, People, PersonAdd} from '@material-ui/icons';
+import {Forum, FullscreenExit, People, ZoomOutMap} from '@material-ui/icons';
 import Harmony from "../Harmony";
 //@ts-ignore
 import styles from './Layout.module.scss';
 import UserToast from "../Toast/UserToast";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
-import { Expand } from '../Icons/Expand';
 
 const { publicRuntimeConfig } = getConfig();
 const siteTitle: string = publicRuntimeConfig.siteTitle;
@@ -166,11 +164,6 @@ const Layout = (props: Props): any => {
   // TODO: Uncomment alerts when we can fix issues
   return (
     <>
-      {
-        !fullScreenActive && harmonyOpen !== true && <span className={styles.fullScreen} onClick={handle.enter}>
-          <Expand/>
-        </span>
-      }
       <FullScreen handle={handle} onChange={reportChange}>
         <ThemeProvider theme={theme}>
           <section>
@@ -194,6 +187,14 @@ const Layout = (props: Props): any => {
                   </>
                 ) : null}
             </header>
+
+            {fullScreenActive && harmonyOpen !== true
+              ? <button type="button" className={styles.fullScreen} onClick={handle.exit}>
+                  <FullscreenExit />
+                </button>
+              : <button type="button" className={styles.fullScreen} onClick={handle.enter}>
+                <ZoomOutMap />
+              </button>}
 
             {harmonyOpen === true && <Harmony
                 setHarmonyOpen={setHarmonyOpen}
@@ -257,12 +258,6 @@ const Layout = (props: Props): any => {
                 !leftDrawerOpen && !rightDrawerOpen && !topDrawerOpen && !bottomDrawerOpen &&
                 <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen} />}
               { user?.userRole !== 'guest' && harmonyOpen === false && <div className={styles['harmony-toggle']} onClick={() => openHarmony()}><Forum /></div> }
-
-              {
-                fullScreenActive && <span className={styles.fullScreen} onClick={handle.exit}>
-                  <FullscreenExit style={{ fontSize: "4rem" }} />
-                </span>
-              }
             </footer>
           </section>
         </ThemeProvider>
