@@ -66,12 +66,16 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   // This sends message on a data channel (data channel creation is now handled explicitly/default)
   sendData(data: any, instance = true): void {
     if (instance === true) {
-      if (!this.instanceDataProducer)
-        throw new Error('Data Producer not initialized on client, Instance Data Producer doesn\'t exist!');
+      if (!this.instanceDataProducer) {
+        console.error('Data Producer not initialized on client, Instance Data Producer doesn\'t exist!');
+        return;
+      }
       if (this.instanceDataProducer.closed !== true) this.instanceDataProducer.send(this.toBuffer(data));
     } else {
-      if (!this.channelDataProducer)
-        throw new Error('Data Producer not initialized on client, Channel Data Producer doesn\'t exist!');
+      if (!this.channelDataProducer) {
+        console.error('Data Producer not initialized on client, Channel Data Producer doesn\'t exist!');
+        return;
+      }
       if (this.channelDataProducer.closed !== true) this.channelDataProducer.send(this.toBuffer(data));
     }
   }
