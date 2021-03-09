@@ -17,12 +17,12 @@ import { ClientInputModel } from '../../networking/schema/clientInputSchema';
 import { CharacterComponent, RUN_SPEED, WALK_SPEED } from "../../templates/character/components/CharacterComponent";
 import { handleGamepads } from "../behaviors/GamepadInputBehaviors";
 import { faceToInput,  lipToInput,  WEBCAM_INPUT_EVENTS } from "../behaviors/WebcamInputBehaviors";
-import { addPhysics, removeWebXRPhysics, updateWebXRPhysics } from '../behaviors/WebXRInputBehaviors';
+import { addPhysics, removeWebXRPhysics } from '../behaviors/WebXRInputBehaviors';
 import { Input } from '../components/Input';
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
-import { XRControllersComponent } from '../components/XRControllersComponent';
+import { XRInputReceiver } from '../components/XRInputReceiver';
 import { InputType } from "../enums/InputType";
-import { initVR } from "../functions/WebXRFunctions";
+import { initializeXR } from "../functions/WebXRFunctions";
 import { InputValue } from "../interfaces/InputValue";
 import { InputAlias } from "../types/InputAlias";
 import { BaseInput } from "../enums/BaseInput";
@@ -33,8 +33,8 @@ import { isWebWorker } from "../../common/functions/getEnvironment";
  * Input System
  *
  * Property with prefix readonly makes a property as read-only in the class
- * @property {Number} mainControllerId set value 0
- * @property {Number} secondControllerId set value 1
+ * @property {Number} leftControllerId set value 0
+ * @property {Number} rightControllerId set value 1
  */
 
 export class EntityActionSystem extends System {
@@ -44,17 +44,18 @@ export class EntityActionSystem extends System {
   // Temp/ref variables
   private _inputComponent: Input;
   private useWebXR = false;
-  // Client only variables
-  public mainControllerId; //= 0
-  public secondControllerId; //= 1
+  // Client only variables  
+  public leftControllerId; //= 0
+  public rightControllerId; //= 1
+
 
   constructor({ useWebXR }) {
     super();
     this.useWebXR = useWebXR;
     // Client only
-    if (isClient) {
-      this.mainControllerId = 0;
-      this.secondControllerId = 1;
+    if (isClient) {      
+      this.leftControllerId = 0;
+      this.rightControllerId = 1;
     }
 
     EngineEvents.instance.addEventListener(WEBCAM_INPUT_EVENTS.FACE_INPUT, ({ detection }) => {
@@ -79,18 +80,76 @@ export class EntityActionSystem extends System {
     if (this.useWebXR) {
       // Handle XR input
       this.queryResults.controllersComponent.added?.forEach(entity => addPhysics(entity));
-      this.queryResults.controllersComponent.all?.forEach(entity => {
-        const xRControllers = getComponent(entity, XRControllersComponent);
-        if (xRControllers.physicsBody1 !== null && xRControllers.physicsBody2 !== null && this.mainControllerId) {
-          this.mainControllerId = xRControllers.physicsBody1;
-          this.secondControllerId = xRControllers.physicsBody2;
-        }
-        updateWebXRPhysics(entity);
-      });
+
       this.queryResults.controllersComponent.removed?.forEach(entity => removeWebXRPhysics(entity, {
-        controllerPhysicalBody1: this.mainControllerId,
-        controllerPhysicalBody2: this.secondControllerId
+        leftControllerPhysicsBody: this.leftControllerId,
+        rightControllerPhysicsBody: this.rightControllerId
       }));
+
+      this.queryResults.controllersComponent.all?.forEach(entity => {
+        const xRControllers = getComponent(entity, XRInputReceiver);
+        if (xRControllers.leftHandPhysicsBody !== null && xRControllers.rightHandPhysicsBody !== null) {
+          this.leftControllerId = xRControllers.leftHandPhysicsBody;
+          this.rightControllerId = xRControllers.rightHandPhysicsBody;
+        }
+
+        xRControllers.leftHandPhysicsBody.position.set(
+          xRControllers.controllerPositionLeft.x,
+          xRControllers.controllerPositionLeft.y,
+          xRControllers.controllerPositionLeft.z
+        );
+        xRControllers.rightHandPhysicsBody.position.set(
+          xRControllers.controllerPositionRight.x,
+          xRControllers.controllerPositionRight.y,
+          xRControllers.controllerPositionRight.z
+        );
+        xRControllers.leftHandPhysicsBody.quaternion.set(
+          xRControllers.controllerRotationLeft.x,
+          xRControllers.controllerRotationLeft.y,
+          xRControllers.controllerRotationLeft.z,
+          xRControllers.controllerRotationLeft.w
+        );
+        xRControllers.rightHandPhysicsBody.quaternion.set(
+          xRControllers.controllerRotationRight.x,
+          xRControllers.controllerRotationRight.y,
+          xRControllers.controllerRotationRight.z,
+          xRControllers.controllerRotationRight.w
+        );
+
+        // inputs.axes6DOF.push({
+        //     input: XRInput.HEAD,
+        //     x: xRControllers.headPosition.x,
+        //     y: xRControllers.headPosition.y,
+        //     z: xRControllers.headPosition.z,
+        //     qX: xRControllers.headRotation.x,
+        //     qY: xRControllers.headRotation.y,
+        //     qZ: xRControllers.headRotation.z,
+        //     qW: xRControllers.headRotation.w
+        //   });
+
+        //   inputs.axes6DOF.push({
+        //     input: XRInput.CONTROLLER_LEFT,
+        //     x: xRControllers.controllerPositionLeft.x,
+        //     y: xRControllers.controllerPositionLeft.y,
+        //     z: xRControllers.controllerPositionLeft.z,
+        //     qX: xRControllers.controllerRotationLeft.x,
+        //     qY: xRControllers.controllerRotationLeft.y,
+        //     qZ: xRControllers.controllerRotationLeft.z,
+        //     qW: xRControllers.controllerRotationLeft.w
+        //   });
+
+        //   inputs.axes6DOF.push({
+        //     input: XRInput.CONTROLLER_RIGHT,
+        //     x: xRControllers.controllerPositionRight.x,
+        //     y: xRControllers.controllerPositionRight.y,
+        //     z: xRControllers.controllerPositionRight.z,
+        //     qX: xRControllers.controllerRotationRight.x,
+        //     qY: xRControllers.controllerRotationRight.y,
+        //     qZ: xRControllers.controllerRotationRight.z,
+        //     qW: xRControllers.controllerRotationRight.w
+        //   });
+        //   console.log("********** PUSHING XR CONTROLLERS TO INPUT")
+      });
     }
 
     // check CHANGED/UNCHANGED axis inputs
@@ -109,15 +168,6 @@ export class EntityActionSystem extends System {
           value.lifecycleState = LifecycleValue.CONTINUED;
           Engine.inputState.data.set(key, value);
         }
-        return;
-      }
-
-      if (
-        value.type !== InputType.ONEDIM &&
-        value.type !== InputType.TWODIM &&
-        value.type !== InputType.THREEDIM
-      ) {
-        // skip all other inputs
         return;
       }
 
@@ -160,15 +210,6 @@ export class EntityActionSystem extends System {
             value.lifecycleState = LifecycleValue.CONTINUED;
             input.data.set(key, value);
           }
-          return;
-        }
-
-        if (
-          value.type !== InputType.ONEDIM &&
-          value.type !== InputType.TWODIM &&
-          value.type !== InputType.THREEDIM
-        ) {
-          // skip all other inputs
           return;
         }
 
@@ -218,41 +259,33 @@ export class EntityActionSystem extends System {
             }
           }
         }
-        else if (
-          value.type === InputType.ONEDIM ||
-          value.type === InputType.TWODIM ||
-          value.type === InputType.THREEDIM
-        ) {
-          if (input.schema.inputAxisBehaviors[key]) {
-            // If lifecycle hasn't been set, init it
-            if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED;
-            switch (value.lifecycleState) {
-              case LifecycleValue.STARTED:
-                // Set the value to continued to debounce
-                input.schema.inputAxisBehaviors[key].started?.forEach(element =>
-                  element.behavior(entity, element.args, delta)
-                );
-                break;
-              case LifecycleValue.CHANGED:
-                // If the value is different from last frame, update it
-                input.schema.inputAxisBehaviors[key].changed?.forEach(element => {
-                  element.behavior(entity, element.args, delta);
-                });
-                break;
-              case LifecycleValue.UNCHANGED:
-                input.schema.inputAxisBehaviors[key].unchanged?.forEach(element =>
-                  element.behavior(entity, element.args, delta)
-                );
-                break;
-              case LifecycleValue.ENDED:
-                console.warn("Patch fix, need to handle properly: ", LifecycleValue.ENDED);
-                break;
-              default:
-                console.error('Unexpected lifecycleState', value.lifecycleState, LifecycleValue[value.lifecycleState]);
-            }
+        else if (input.schema.inputAxisBehaviors[key]) {
+          // If lifecycle hasn't been set, init it
+          if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED;
+          switch (value.lifecycleState) {
+            case LifecycleValue.STARTED:
+              // Set the value to continued to debounce
+              input.schema.inputAxisBehaviors[key].started?.forEach(element =>
+                element.behavior(entity, element.args, delta)
+              );
+              break;
+            case LifecycleValue.CHANGED:
+              // If the value is different from last frame, update it
+              input.schema.inputAxisBehaviors[key].changed?.forEach(element => {
+                element.behavior(entity, element.args, delta);
+              });
+              break;
+            case LifecycleValue.UNCHANGED:
+              input.schema.inputAxisBehaviors[key].unchanged?.forEach(element =>
+                element.behavior(entity, element.args, delta)
+              );
+              break;
+            case LifecycleValue.ENDED:
+              console.warn("Patch fix, need to handle properly: ", LifecycleValue.ENDED);
+              break;
+            default:
+              console.error('Unexpected lifecycleState', value.lifecycleState, LifecycleValue[value.lifecycleState]);
           }
-        } else {
-          console.error('handleInput called with an invalid input type');
         }
       });
 
@@ -292,6 +325,7 @@ export class EntityActionSystem extends System {
         buttons: [],
         axes1d: [],
         axes2d: [],
+        axes6DOF: [],
         viewVector: {
           x: 0, y: 0, z: 0
         },
@@ -301,13 +335,26 @@ export class EntityActionSystem extends System {
 
       //console.warn(inputs.snapShotTime);
       // Add all values in input component to schema
-      Engine.inputState.data.forEach((value, key) => {
+      Engine.inputState.data.forEach((value: any, key) => {
         if (value.type === InputType.BUTTON)
           inputs.buttons.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
         else if (value.type === InputType.ONEDIM) // && value.lifecycleState !== LifecycleValue.UNCHANGED
           inputs.axes1d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
         else if (value.type === InputType.TWODIM) //  && value.lifecycleState !== LifecycleValue.UNCHANGED
           inputs.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState }); // : LifecycleValue.ENDED
+        else if (value.type === InputType.SIXDOF){ //  && value.lifecycleState !== LifecycleValue.UNCHANGED
+          inputs.axes6DOF.push({
+            input: key,
+            x: value.value.x,
+            y: value.value.y,
+            z: value.value.z,
+            qX: value.value.qX,
+            qY: value.value.qX,
+            qZ: value.value.qZ,
+            qW: value.value.qW
+          }); 
+          console.log("*********** Pushing 6DOF input from client input system")
+        }
       });
 
       const actor = getMutableComponent(entity, CharacterComponent);
@@ -340,7 +387,7 @@ export class EntityActionSystem extends System {
     });
     // Called when input component is added to entity
     this.queryResults.localClientInput.added?.forEach(entity => {
-      initVR(entity);
+      initializeXR(entity);
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
       if (this._inputComponent === undefined)
@@ -422,5 +469,5 @@ EntityActionSystem.queries = {
       removed: true
     }
   },
-  controllersComponent: { components: [XRControllersComponent], listen: { added: true, removed: true } }
+  controllersComponent: { components: [Input, LocalInputReceiver, XRInputReceiver], listen: { added: true, removed: true } }
 };
