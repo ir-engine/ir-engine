@@ -9,8 +9,6 @@ import { NetworkObject } from '../components/NetworkObject';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
 import { WorldStateModel } from '../schema/worldStateSchema';
 
-
-
 /** System class for network system of client. */
 export class ClientNetworkSystem extends System {
 
@@ -59,7 +57,6 @@ export class ClientNetworkSystem extends System {
       const unbufferedState = WorldStateModel.fromBuffer(buffer);
       if(!unbufferedState) console.warn("Couldn't deserialize buffer, probably still reading the wrong one")
       EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.RECEIVE_DATA, unbufferedState, delta });
-      // if(unbufferedState) applyNetworkStateToClient(unbufferedState, delta);
     }
   }
 

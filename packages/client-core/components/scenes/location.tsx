@@ -46,6 +46,8 @@ import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
 import { InteractiveSystem } from '@xr3ngine/engine/src/interaction/systems/InteractiveSystem';
+import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
+import { DefaultInitializationOptions as WorkerDefaultInitializationOptions, initializeWorker } from '@xr3ngine/engine/src/initializeWorker';
 
 const goHome = () => window.location.href = window.location.origin;
 
@@ -225,28 +227,31 @@ export const EnginePage = (props: Props) => {
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
     styleCanvas(canvas);
 
-    let initializationOptions, initialize;
     if(canvas.transferControlToOffscreen) {
-      const { DefaultInitializationOptions, initializeWorker } = await import('@xr3ngine/engine/src/initializeWorker');
-      initializationOptions = DefaultInitializationOptions;
-      initialize = initializeWorker;
+      const InitializationOptions = {
+        ...DefaultInitializationOptions,
+        networking: {
+          schema: networkSchema,
+        },
+        renderer: {
+          canvas,
+        }
+      };
+      await initializeWorker(InitializationOptions)
     } else {
-      const { DefaultInitializationOptions, initializeEngine } = await import('@xr3ngine/engine/src/initialize');
-      initializationOptions = DefaultInitializationOptions;
-      initialize = initializeEngine;
+      const InitializationOptions = {
+        ...DefaultInitializationOptions,
+        networking: {
+          schema: networkSchema,
+        },
+        renderer: {
+          canvas,
+        }
+      };
+      await initializeEngine(InitializationOptions)
+      
     }
 
-    const InitializationOptions = {
-      ...initializationOptions,
-      networking: {
-        schema: networkSchema,
-      },
-      renderer: {
-        canvas,
-      }
-    };
-    
-    await initialize(InitializationOptions)
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
     
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
@@ -268,7 +273,7 @@ export const EnginePage = (props: Props) => {
 
   const onNetworkConnect = async () => {
     await joinWorld();
-    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
+    EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
   }
 
   const joinWorld = async () => {
@@ -282,7 +287,7 @@ export const EnginePage = (props: Props) => {
     if (event.loaded) {
       setProgressEntity(0);
       store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
-      EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
+      EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
       setAppLoaded(true);
     }
   };
