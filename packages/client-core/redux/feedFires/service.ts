@@ -35,7 +35,7 @@ export function getFeedFires(feedId : string) {
 export function addFireToFeed(feedId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      // await client.service('feedFires').create({feedId, creatorId});
+      await client.service('feed-fires').create({feedId});
       dispatch(addFeedFire(feedId));
     } catch(err) {
       console.log(err);
@@ -47,7 +47,7 @@ export function addFireToFeed(feedId: string) {
 export function removeFireToFeed(feedId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      // await client.service('feedFires').create({feedId, creatorId});
+      await client.service('feed-fires').remove(feedId);
       dispatch(removeFeedFire(feedId));
     } catch(err) {
       console.log(err);
