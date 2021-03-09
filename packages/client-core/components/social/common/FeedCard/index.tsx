@@ -51,11 +51,11 @@ const FeedCard = (props: Props) : any => {
     const {feed, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed, addBookmarkToFeed, removeBookmarkToFeed, addViewToFeed} = props;
     useEffect(()=>{if(feed){getFeedFires(feed.id);}}, []);
     
-    const handleAddFireClick = (feedId) =>addFireToFeed(feedId, '150');
-    const handleRemoveFireClick = (feedId) =>removeFireToFeed(feedId, '150');
+    const handleAddFireClick = (feedId) =>addFireToFeed(feedId);
+    const handleRemoveFireClick = (feedId) =>removeFireToFeed(feedId);
 
-    const handleAddBookmarkClick = (feedId) =>addBookmarkToFeed(feedId, '150');
-    const handleRemoveBookmarkClick = (feedId) =>removeBookmarkToFeed(feedId, '150');
+    const handleAddBookmarkClick = (feedId) =>addBookmarkToFeed(feedId);
+    const handleRemoveBookmarkClick = (feedId) =>removeBookmarkToFeed(feedId);
 
     const handlePlayVideo = (feedId) => {
         addViewToFeed(feedId);

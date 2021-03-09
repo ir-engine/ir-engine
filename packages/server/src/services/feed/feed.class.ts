@@ -169,24 +169,36 @@ export class Feed extends Service {
           ]
         });
 
-      const feed_bookmarkList = await feedBookmarkModel.findAndCountAll({
-          where: {
-            feedId: id
-          },
-          include: [
-            { model: userModel, as: 'user' },
-          ]
-        });
-
-        feed.feed_fires
-
-      // console.log('feed.feed_fires[]', feed.feed_fires.length)
-      // feed.feed_fires.map(feed=>console.log('fire', feed))
       const loggedInUser = extractLoggedInUserFromParams(params);
+
+      const dataQuery = `SELECT id
+        FROM \`feed_bookmark\`
+        WHERE feedId=:feedId AND authorId=:authorId`;
+        const isBookmarkedInTable = await this.app.get('sequelizeClient').query(dataQuery,
+          {
+            type: QueryTypes.SELECT,
+            raw: true,
+            replacements: {
+              feedId:feed.id, 
+              authorId:loggedInUser.userId
+            }
+          });
+
+        const firesDataQuery = `SELECT id
+          FROM \`feed_fires\`
+          WHERE feedId=:feedId AND authorId=:authorId`;
+        const isFiredInTable = await this.app.get('sequelizeClient').query(firesDataQuery,
+            {
+              type: QueryTypes.SELECT,
+              raw: true,
+              replacements: {
+                feedId:feed.id, 
+                authorId:loggedInUser.userId
+              }
+            });
+    
       // @ts-ignore
-      const { user, feed_fires } = feed;
-      const isFired = loggedInUser?.userId? !!feed_fires.find(feedFire => feedFire.authorId === loggedInUser.userId) : false;
-      const isBookmarked = loggedInUser?.userId? !!feed_bookmarkList.rows.find(bookmark => bookmark.authorId === loggedInUser.userId) : false;
+      const { user } = feed;
 
       const newFeed: FeedInterface = {
         creator: { // TODO: get creator from corresponding table
@@ -199,8 +211,8 @@ export class Feed extends Service {
         },
         description: feed.description,
         fires: feed.feed_fires.length,
-        isFired:false,
-        isBookmarked,
+        isFired:isFiredInTable.length > 0,
+        isBookmarked:isBookmarkedInTable.length > 0,
         id: feed.id,
         preview: feed.preview,
         stores: 0,
@@ -216,8 +228,10 @@ export class Feed extends Service {
       return newFeed;
     }
 
-    async create (data : any): Promise<any> {
+    async create (data : any,  params?: Params): Promise<any> {
       const {feed:feedModel} = this.app.get('sequelizeClient').models;
+      const loggedInUser = extractLoggedInUserFromParams(params);
+      data.authorId = loggedInUser.userId;
       const newFeed =  await feedModel.create(data);
       return  newFeed;
     }

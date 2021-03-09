@@ -5,10 +5,10 @@ import {
   addFeedBookmark, removeFeedBookmark
 } from '../feed/actions'
 
-export function addBookmarkToFeed(feedId: string, creatorId: string) {
+export function addBookmarkToFeed(feedId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      // await client.service('feedBookmark').create({feedId, creatorId});
+      await client.service('feed-bookmark').create(feedId);
       dispatch(addFeedBookmark(feedId));
     } catch(err) {
       console.log(err);
@@ -17,10 +17,10 @@ export function addBookmarkToFeed(feedId: string, creatorId: string) {
   };
 }
 
-export function removeBookmarkToFeed(feedId: string, creatorId: string) {
+export function removeBookmarkToFeed(feedId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      // await client.service('feedBookmark').create({feedId, creatorId});
+      await client.service('feed-bookmark').remove(feedId);
       dispatch(removeFeedBookmark(feedId));
     } catch(err) {
       console.log(err);
