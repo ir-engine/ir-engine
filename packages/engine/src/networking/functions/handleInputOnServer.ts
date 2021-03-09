@@ -59,13 +59,7 @@ export const handleInputFromNonLocalClients: Behavior = (entity: Entity, args: {
       }
     }
     // If the input is an axis
-    else if (
-      value.type === InputType.ONEDIM ||
-      value.type === InputType.TWODIM ||
-      value.type === InputType.THREEDIM
-    ) {
-      // If the input schema has a handler for the axis
-      if (input.schema.inputAxisBehaviors[key]) {
+    else if (input.schema.inputAxisBehaviors[key]) {
         // Handle based on lifecycle state
         switch (value.lifecycleState) {
           case LifecycleValue.STARTED:
@@ -92,8 +86,5 @@ export const handleInputFromNonLocalClients: Behavior = (entity: Entity, args: {
             console.error('Unexpected lifecycleState', value.lifecycleState, LifecycleValue[value.lifecycleState]);
         }
       }
-    } else {
-      console.error('handleInput called with an invalid input type');
-    }
   });
 };

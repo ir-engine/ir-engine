@@ -15,12 +15,12 @@ import { EngineEvents } from './ecs/classes/EngineEvents';
 import { EngineEventsProxy, addOutgoingEvents } from './ecs/classes/EngineEvents';
 import { Network } from './networking/classes/Network';
 
-const isSafari = typeof navigator !== 'undefined' && /Version\/[\d\.]+.*Safari/.test(window.navigator.userAgent);
+const webXRShouldBeAvailable = typeof navigator === 'undefined' || /Version\/[\d\.]+.*Safari/.test(window.navigator.userAgent);
 
 export const DefaultInitializationOptions = {
   input: {
     schema: CharacterInputSchema,
-    useWebXR: !isSafari,
+    useWebXR: webXRShouldBeAvailable,
   },
   networking: {
     schema: DefaultNetworkSchema
@@ -35,10 +35,10 @@ export async function initializeWorker(initOptions: any = DefaultInitializationO
 
   const workerProxy: WorkerProxy = await createWorker(
     // @ts-ignore
-    new Worker(new URL('./worker/entry.worker.ts', import.meta.url)),
+    new Worker(new URL('./worker/workerEntry.ts', import.meta.url)),
     (options.renderer.canvas || createCanvas()),
     {
-      useWebXR: !isSafari,
+      useWebXR: webXRShouldBeAvailable,
       // initOptions
     }
   );
