@@ -3,6 +3,7 @@ import { Engine } from "../../ecs/classes/Engine";
 import { ClientInputSchema } from "../schema/ClientInputSchema";
 import { System } from '../../ecs/classes/System';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
+import { handleGamepads } from "../behaviors/GamepadInputBehaviors";
 
 const supportsPassive = (): boolean => {
   let supportsPassiveValue = false;
@@ -99,5 +100,7 @@ export class ClientInputSystem extends System {
    * @param {Number} delta Time since last frame
    */
 
-  public execute(delta: number): void { }
+  public execute(delta: number): void { 
+    handleGamepads();
+  }
 }

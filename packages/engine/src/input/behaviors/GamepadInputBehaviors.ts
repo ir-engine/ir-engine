@@ -1,14 +1,12 @@
 import { BinaryValue } from "../../common/enums/BinaryValue";
 import { applyThreshold } from "../../common/functions/applyThreshold";
-import { Behavior } from "../../common/interfaces/Behavior";
-import { Entity } from "../../ecs/classes/Entity";
-import { getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { InputType } from "../enums/InputType";
 import { InputAlias } from "../types/InputAlias";
 import { Input } from "../components/Input";
 import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
 import { Thumbsticks } from "../../common/enums/Thumbsticks";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
+import { Engine } from "../../ecs/classes/Engine";
 
 const inputPerGamepad = 2;
 let input: Input;
@@ -21,15 +19,14 @@ let prevLeftX: number;
 let prevLeftY: number;
 
 let _index: number; // temp var for iterator loops
-
 /**
  * System behavior to handle gamepad input
  * 
  * @param {Entity} entity The entity
  */
-export const handleGamepads: Behavior = (entity: Entity) => {
+export const handleGamepads = () => {
   // Get an immutable reference to input
-  input = getComponent(entity, Input);
+  input = Engine.inputState;
   if (!input?.gamepadConnected) return;
   // Get gamepads from the DOM
   gamepads = navigator.getGamepads();
@@ -45,7 +42,7 @@ export const handleGamepads: Behavior = (entity: Entity) => {
     if (gamepad.axes) {
       // GamePad 0 Left Stick XY
       if (input.schema.gamepadInputMap?.axes[Thumbsticks.Left] && gamepad.axes.length >= inputPerGamepad) {
-        handleGamepadAxis(entity, {
+        handleGamepadAxis({
           gamepad: gamepad,
           inputIndex: 0,
           mappedInputValue: input.schema.gamepadInputMap.axes[Thumbsticks.Left]
@@ -54,7 +51,7 @@ export const handleGamepads: Behavior = (entity: Entity) => {
 
       // GamePad 1 Right Stick XY
       if (input.schema.gamepadInputMap?.axes[Thumbsticks.Right] && gamepad.axes.length >= inputPerGamepad * 2) {
-        handleGamepadAxis(entity, {
+        handleGamepadAxis({
           gamepad,
           inputIndex: 1,
           mappedInputValue: input.schema.gamepadInputMap.axes[Thumbsticks.Right]
@@ -67,7 +64,7 @@ export const handleGamepads: Behavior = (entity: Entity) => {
 
     // Otherwise, loop through gamepad buttons
     for (_index = 0; _index < gamepad.buttons.length; _index++) {
-      handleGamepadButton(entity, {
+      handleGamepadButton({
         gamepad,
         index: _index,
         mappedInputValue: input.schema.gamepadInputMap.buttons[_index]
@@ -82,12 +79,11 @@ export const handleGamepads: Behavior = (entity: Entity) => {
  * @param {Entity} entity The entity
  * @param args is argument object
  */
-const handleGamepadButton: Behavior = (
-  entity: Entity,
+const handleGamepadButton = (
   args: { gamepad: Gamepad; index: number; mappedInputValue: InputAlias }
 ) => {
   // Get mutable component reference
-  input = getMutableComponent(entity, Input);
+  input = Engine.inputState
   // Make sure button is in the map
   if (
     typeof input.schema.gamepadInputMap.buttons[args.index] === 'undefined' ||
@@ -108,12 +104,11 @@ const handleGamepadButton: Behavior = (
  * @param {Entity} entity The entity
  * @param args is argument object 
  */
-export const handleGamepadAxis: Behavior = (
-  entity: Entity,
+export const handleGamepadAxis = (
   args: { gamepad: Gamepad; inputIndex: number; mappedInputValue: InputAlias }
 ) => {
   // get immutable component reference
-  input = getComponent(entity, Input);
+  input = Engine.inputState;
 
   inputBase = args.inputIndex * 2;
   const xIndex = inputBase;
@@ -132,7 +127,7 @@ export const handleGamepadAxis: Behavior = (
 
   // Axis has changed, so get mutable reference to Input and set data
   if (x !== prevLeftX || y !== prevLeftY) {
-    getMutableComponent<Input>(entity, Input).data.set(args.mappedInputValue, {
+    Engine.inputState.data.set(args.mappedInputValue, {
       type: InputType.TWODIM,
       value: [x, y]
     });
@@ -148,8 +143,8 @@ export const handleGamepadAxis: Behavior = (
  * @param {Entity} entity The entity
  * @param args is argument object 
  */
-export const handleGamepadConnected: Behavior = (entity: Entity, args: { event: any }): void => {
-  input = getMutableComponent(entity, Input);
+export const handleGamepadConnected = (args: { event: any }): void => {
+  input = Engine.inputState;
 
   console.log('A gamepad connected:', args.event.gamepad, args.event.gamepad.mapping);
 
@@ -171,9 +166,9 @@ export const handleGamepadConnected: Behavior = (entity: Entity, args: { event: 
  * @param {Entity} entity The entity
  * @param args is argument object 
  */
-export const handleGamepadDisconnected: Behavior = (entity: Entity, args: { event: any }): void => {
+export const handleGamepadDisconnected = (args: { event: any }): void => {
   // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
-  input = getMutableComponent(entity, Input);
+  input = Engine.inputState;
   console.log('A gamepad disconnected:', args.event.gamepad);
 
   input.gamepadConnected = false;
