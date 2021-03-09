@@ -33,12 +33,12 @@ import { EngineEvents, addIncomingEvents, addOutgoingEvents } from './ecs/classe
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 
-const isSafari = typeof navigator !== 'undefined' && /Version\/[\d\.]+.*Safari/.test(window.navigator.userAgent);
+const webXRShouldBeAvailable = typeof navigator === 'undefined' || /Version\/[\d\.]+.*Safari/.test(window.navigator.userAgent);
 
 export const DefaultInitializationOptions = {
   input: {
     schema: CharacterInputSchema,
-    useWebXR: !isSafari,
+    useWebXR: webXRShouldBeAvailable,
   },
   networking: {
     schema: DefaultNetworkSchema

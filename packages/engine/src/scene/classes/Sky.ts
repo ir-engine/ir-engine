@@ -277,8 +277,6 @@ export class Sky extends Object3D {
     this.skyScene.add(this.sky);
     this.cubeCamera.update(renderer, this.skyScene);
     this.add(this.sky);
-    const vrEnabled = renderer.xr.enabled;
-    renderer.xr.enabled = false;
     // const pmremGenerator = new PMREMGenerator(
     //   this.cubeCamera.renderTarget.texture as any
     // );
@@ -289,7 +287,6 @@ export class Sky extends Object3D {
     const pmremCubeUVPacker = new PMREMCubeUVPacker([texture]);
     const UVPackertexture = pmremCubeUVPacker.CubeUVRenderTarget.texture;
     pmremCubeUVPacker.update(renderer);
-    renderer.xr.enabled = vrEnabled;
     pmremGenerator.dispose();
     pmremCubeUVPacker.dispose();
     return UVPackertexture;

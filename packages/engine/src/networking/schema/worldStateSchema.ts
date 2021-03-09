@@ -1,36 +1,14 @@
 import { float32, Model, Schema, string, uint32, uint8 } from "superbuffer";
 import { Network } from '../classes/Network';
 import { WorldStateInterface } from "../interfaces/WorldState";
-
-const inputKeySchema = new Schema({
-  input: uint8,
-  value: uint8, // float32
-  lifecycleState: uint8
-});
-
-const inputAxis1DSchema = new Schema({
-  input: uint8,
-  value: float32,
-  lifecycleState: uint8
-});
-
-const inputAxis2DSchema = new Schema({
-  input: uint8,
-  value: [float32],
-  lifecycleState: uint8
-});
-
-const viewVectorSchema = new Schema({
-  x: float32,
-  y: float32,
-  z: float32
-});
+import { inputAxis1DSchema, inputAxis2DSchema, inputAxis6DOFSchema, inputKeySchema, viewVectorSchema } from "./clientInputSchema";
 
 /** Schema for input. */
 export const inputKeyArraySchema = new Schema({
   networkId: uint32,
   axes1d: [inputAxis1DSchema],
   axes2d: [inputAxis2DSchema],
+  axes6DOF: [inputAxis6DOFSchema],
   buttons: [inputKeySchema],
   viewVector: viewVectorSchema
 });
@@ -55,12 +33,6 @@ const transformSchema = new Schema({
     qZ: float32,
     qW: float32
 });
-
-const snapshotSchema = new Schema({
-  id: string,
-  state: [transformSchema],
-  time: uint32
-})
 
 const createNetworkObjectSchema = new Schema({
     networkId: uint32,
@@ -129,7 +101,7 @@ export class WorldStateModel {
         };
         return Network.instance.packetCompression ? WorldStateModel.model.toBuffer(state) : state;
       } else
-      if (type === 'UnReliable') {
+      if (type === 'Unreliable') {
         const timeToTwoUinit32 = Date.now().toString();
         const state:any = {
           clientsConnected: [],
@@ -142,6 +114,7 @@ export class WorldStateModel {
               networkId: input.networkId,
               axes1d: Object.keys(input.axes1d).map(v => input.axes1d[v]),
               axes2d: Object.keys(input.axes2d).map(v => input.axes2d[v]),
+              axes6DOF: Object.keys(input.axes6DOF).map(v => input.axes6DOF[v]),
               buttons: Object.keys(input.buttons).map(v => input.buttons[v]),
               viewVector: { ...input.viewVector },
               snapShotTime: 0,
