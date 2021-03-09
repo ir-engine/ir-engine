@@ -66,7 +66,7 @@ export const startFaceTracking = () => {
 async function initialiseWorker () {
     console.log("Start load detectors")
     //@ts-ignore
-    const worker = Comlink.wrap(new Worker(new URL('./webcamInput.worker.ts', import.meta.url)));//, { type: 'module' }))
+    const worker = Comlink.wrap(new Worker(new URL('./webcamInputWorker.ts', import.meta.url)));//, { type: 'module' }))
     //@ts-ignore
     await worker.initialise()
     console.log("Finish load detectors")
