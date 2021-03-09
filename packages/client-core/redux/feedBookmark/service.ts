@@ -8,7 +8,7 @@ import {
 export function addBookmarkToFeed(feedId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      await client.service('feed-bookmark').create(feedId);
+      await client.service('feed-bookmark').create({feedId});
       dispatch(addFeedBookmark(feedId));
     } catch(err) {
       console.log(err);
