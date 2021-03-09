@@ -164,7 +164,7 @@ export function interpolate (
 
   newerState.forEach((e: StateEntity, i: number) => {
     const other: StateEntity | undefined = olderState.find((f: any) => f.networkId === e.networkId);
-    if (e.networkId == Network.instance.userNetworkId) return;
+    if (e.networkId == Network.instance.localAvatarNetworkId) return;
     if (!other) return;
 
     params.forEach(p => {
