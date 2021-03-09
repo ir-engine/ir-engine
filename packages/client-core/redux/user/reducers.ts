@@ -63,7 +63,7 @@ const userReducer = (state = immutableState, action: UserAction): any => {
     case ADDED_LAYER_USER:
       newUser = (action as AddedLayerUserAction).user;
       layerUsers = state.get('layerUsers');
-      match = layerUsers.find((layerUser) => layerUser.id === newUser.id);
+      match = layerUsers.find((layerUser) => { return layerUser != null && (layerUser.id === newUser.id)});
       if (match == null) {
         layerUsers.push(newUser);
       } else {
@@ -75,7 +75,7 @@ const userReducer = (state = immutableState, action: UserAction): any => {
     case REMOVED_LAYER_USER:
       newUser = (action as RemovedLayerUserAction).user;
       layerUsers = state.get('layerUsers');
-      layerUsers = layerUsers.filter((layerUser) => layerUser.id !== newUser.id);
+      layerUsers = layerUsers.filter((layerUser) => { return layerUser != null && (layerUser.id !== newUser.id)});
       return state
           .set('layerUsers', layerUsers);
     case CLEAR_CHANNEL_LAYER_USERS:
@@ -89,7 +89,7 @@ const userReducer = (state = immutableState, action: UserAction): any => {
     case ADDED_CHANNEL_LAYER_USER:
       newUser = (action as AddedLayerUserAction).user;
       layerUsers = state.get('channelLayerUsers');
-      match = layerUsers.find((layerUser) => layerUser.id === newUser.id);
+      match = layerUsers.find((layerUser) => { return layerUser != null && (layerUser.id === newUser.id)});
       if (match == null) {
         layerUsers.push(newUser);
       } else {
@@ -101,7 +101,7 @@ const userReducer = (state = immutableState, action: UserAction): any => {
     case REMOVED_CHANNEL_LAYER_USER:
       newUser = (action as RemovedLayerUserAction).user;
       layerUsers = state.get('channelLayerUsers');
-      layerUsers = layerUsers.filter((layerUser) => layerUser.id !== newUser.id);
+      layerUsers = layerUsers.filter((layerUser) => { return layerUser != null && (layerUser.id !== newUser.id)});
       return state
           .set('channelLayerUsers', layerUsers);
     case USER_TOAST:

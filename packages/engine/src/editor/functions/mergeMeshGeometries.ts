@@ -1,5 +1,5 @@
 import { BufferGeometry, Float32BufferAttribute } from "three";
-import { BufferGeometryUtils } from "three/examples/jsm/utils/BufferGeometryUtils";
+import { mergeBufferGeometries } from "../../common/classes/BufferGeometryUtils";
 function createEmptyGeometry() {
   const emptyGeometry = new BufferGeometry();
   emptyGeometry.setIndex([]);
@@ -33,7 +33,7 @@ export default function mergeMeshGeometries(meshes) {
   if (geometries.length === 0) {
     return createEmptyGeometry();
   }
-  const geometry = BufferGeometryUtils.mergeBufferGeometries(geometries);
+  const geometry = mergeBufferGeometries(geometries);
   const flippedGeometry = geometry.clone();
   const positions = flippedGeometry.attributes.position.array as any;
   for (let i = 0; i < positions.length; i += 9) {
@@ -48,5 +48,5 @@ export default function mergeMeshGeometries(meshes) {
     positions[i + offset + 1] = y0;
     positions[i + offset + 2] = z0;
   }
-  return BufferGeometryUtils.mergeBufferGeometries([geometry, flippedGeometry]);
+  return mergeBufferGeometries([geometry, flippedGeometry]);
 }
