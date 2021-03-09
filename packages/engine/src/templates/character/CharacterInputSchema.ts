@@ -179,7 +179,7 @@ const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:inputAxes
   const inputValue = inputComponent.data.get(inputAxes).value as number;
 
   const delta = inputValue - inputPrevValue;
-  
+
   const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent);
   if(cameraFollow === undefined) return //console.warn("cameraFollow is undefined");
 
@@ -285,6 +285,7 @@ const moveByInputAxis: Behavior = (
 
 const setLocalMovementDirection: Behavior = (entity, args: { z?: number; x?: number; y?: number }): void => {
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+  
   actor.localMovementDirection.z = args.z ?? actor.localMovementDirection.z;
   actor.localMovementDirection.x = args.x ?? actor.localMovementDirection.x;
   actor.localMovementDirection.y = args.y ?? actor.localMovementDirection.y;
@@ -461,11 +462,19 @@ export const CharacterInputSchema: InputSchema = {
     [BaseInput.JUMP]: {
       started: [
         {
-          behavior: updateCharacterState,
-          args: {}
+          behavior: setLocalMovementDirection,
+          args: {
+            y: 1
+          }
         }
       ],
       ended: [
+        {
+          behavior: setLocalMovementDirection,
+          args: {
+            y: 0
+          }
+        },
         {
           behavior: updateCharacterState,
           args: {}
