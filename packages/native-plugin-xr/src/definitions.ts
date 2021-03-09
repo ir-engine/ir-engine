@@ -189,8 +189,8 @@ export interface XRPluginPlugin {
 
     start(options: CameraOptions): Promise<{}>;
     stop(): Promise<{}>;
-
-    getXRDataForFrame(options: {}): Promise<{ data: XRFrameData;}>;
+    
+    handleTap(): void;
 
     startRecording(
         isAudio: any,
@@ -215,7 +215,11 @@ export interface XRPluginPlugin {
 
     hideVideo(options: {}): Promise<{ status: string; }>;
 
-    scrubTo(options: {}): Promise<{ status: string; }>;
+    playVideo(options: {}): Promise<{ status: string; }>;
+    
+    pauseVideo(options: {}): Promise<{ status: string; }>;
+
+    scrubTo(positionInTrack: number): Promise<{ status: string; }>;
 
     deleteVideo(options: {}): Promise<{ status: string; }>;
 

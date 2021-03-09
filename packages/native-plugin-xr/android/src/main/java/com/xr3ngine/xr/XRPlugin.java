@@ -26,6 +26,7 @@ import android.util.TypedValue;
 import android.view.Display;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
@@ -34,9 +35,10 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.NativePlugin;
 
 import com.getcapacitor.PluginResult;
+import com.google.ar.core.Pose;
+import com.google.ar.core.RecordingConfig;
 import com.xr3ngine.xr.videocompressor.VideoCompress;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -51,15 +53,22 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import androidx.core.content.ContextCompat;
+
+import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MEDIA_PROJECTION_SERVICE;
 import static com.xr3ngine.xr.XRPlugin.SCREEN_RECORD_CODE;
+
+import static com.xr3ngine.xr.MediaProjectionHelper.mediaProjection;
+import static com.xr3ngine.xr.MediaProjectionHelper.data;
 
 @NativePlugin(
         permissions = {
                 Manifest.permission.CAMERA,
                 Manifest.permission.RECORD_AUDIO,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.SYSTEM_ALERT_WINDOW
         },
         requestCodes = {
                 CameraPreview.REQUEST_CAMERA_PERMISSION,
@@ -74,11 +83,7 @@ public class XRPlugin extends Plugin {
     private ARActivity fragment;
     private int containerViewId = 20;
 
-    private boolean xrIsEnabled = false;
-    private boolean recordingIsEnabled = false;
-    private XRFrameData currentXrFrameData = new XRFrameData();
-
-    @PluginMethod
+    @PluginMethod()
     public void initialize(PluginCall call) {
         Log.d("XRPLUGIN", "Initializing");
 
@@ -87,8 +92,31 @@ public class XRPlugin extends Plugin {
         call.success(ret);
     }
 
-    // CAMERA PREVIEW METHOD =====================================
+    @PluginMethod()
+    public void handleTap(PluginCall call){
+        saveCall(call);
+        Toast t = Toast.makeText(getContext(), "Tapped", Toast.LENGTH_SHORT);
+        t.show();
+        //Raki--B
+        Intent serviceIntent = new Intent(getContext(), MediaProjectionHelperService.class);
+        serviceIntent.putExtra("inputExtra", "asdf");
+        ContextCompat.startForegroundService(getContext(), serviceIntent);
+        //Raki--E
+        fragment.handleTap(this);
+    }
 
+    @PluginMethod()
+    public void playVideo(PluginCall call)
+    {
+        Log.d(TAG,"playvideo");
+    }
+
+    @PluginMethod()
+    public void clearAnchors(PluginCall call){
+        fragment.clearAnchors();
+    }
+
+    // CAMERA PREVIEW METHOD =====================================
 
     @PluginMethod()
     public void start(PluginCall call) {
@@ -152,9 +180,6 @@ public class XRPlugin extends Plugin {
                 savedCall.reject("permission failed");
             }
         }
-
-
-
     }
 
     private void startCamera(final PluginCall call) {
@@ -357,71 +382,71 @@ public class XRPlugin extends Plugin {
 
         Log.d(TAG, "outputFilePath: " + outputFilePath);
 
-                try {
-                    VideoCompress.compressVideoLow(videoSrcPath,
-                            outputFilePath,
-                            new VideoCompress.CompressListener() {
-                                @Override
-                                public void onStart() {
-                                    Log.d(TAG, "transcoding started");
-                                }
+        try {
+            VideoCompress.compressVideoLow(videoSrcPath,
+                    outputFilePath,
+                    new VideoCompress.CompressListener() {
+                        @Override
+                        public void onStart() {
+                            Log.d(TAG, "transcoding started");
+                        }
 
-                                @Override
-                                public void onSuccess() {
-                                    File outFile = new File(outputFilePath);
-                                    if (!outFile.exists()) {
-                                        Log.d(TAG, "outputFile doesn't exist!");
-                                        videoEditorCallbackContext.error("an error ocurred during transcoding");
-                                        return;
-                                    }
+                        @Override
+                        public void onSuccess() {
+                            File outFile = new File(outputFilePath);
+                            if (!outFile.exists()) {
+                                Log.d(TAG, "outputFile doesn't exist!");
+                                videoEditorCallbackContext.error("an error ocurred during transcoding");
+                                return;
+                            }
 
-                                    // make the gallery display the new file if saving to library
-                                    if (saveToLibrary) {
-                                        Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                                        scanIntent.setData(Uri.fromFile(inFile));
-                                        scanIntent.setData(Uri.fromFile(outFile));
-                                        appContext.sendBroadcast(scanIntent);
-                                    }
+                            // make the gallery display the new file if saving to library
+                            if (saveToLibrary) {
+                                Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                                scanIntent.setData(Uri.fromFile(inFile));
+                                scanIntent.setData(Uri.fromFile(outFile));
+                                appContext.sendBroadcast(scanIntent);
+                            }
 
-                                    if (deleteInputFile) {
-                                        inFile.delete();
-                                    }
-                                    JSObject data = new JSObject();
-                                    data.put("outputFilePath", outputFilePath);
-                                    videoEditorCallbackContext.success(data);
-                                }
+                            if (deleteInputFile) {
+                                inFile.delete();
+                            }
+                            JSObject data = new JSObject();
+                            data.put("outputFilePath", outputFilePath);
+                            videoEditorCallbackContext.success(data);
+                        }
 
-                                @Override
-                                public void onFail() {
-                                    videoEditorCallbackContext.error("Erreur d'encodage");
-                                    Log.d(TAG, "transcode exception");
-                                }
+                        @Override
+                        public void onFail() {
+                            videoEditorCallbackContext.error("Erreur d'encodage");
+                            Log.d(TAG, "transcode exception");
+                        }
 
-                                @Override
-                                public void onProgress(float percent) {
-                                    Log.d(TAG, "transcode running " + percent);
+                        @Override
+                        public void onProgress(float percent) {
+                            Log.d(TAG, "transcode running " + percent);
 
-                                    JSONObject jsonObj = new JSONObject();
-                                    try {
-                                        jsonObj.put("progress", percent);
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
+                            JSONObject jsonObj = new JSONObject();
+                            try {
+                                jsonObj.put("progress", percent);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
 
-                                    JSObject data = new JSObject();
-                                    data.put("outputFilePath", outputFilePath);
-                                    videoEditorCallbackContext.success(data);
-            // TODO: ADD EVENT
+                            JSObject data = new JSObject();
+                            data.put("outputFilePath", outputFilePath);
+                            videoEditorCallbackContext.success(data);
+                            // TODO: ADD EVENT
 //                                    PluginResult progressResult = new PluginResult(PluginResult.Status.OK, jsonObj);
 //                                    progressResult.setKeepCallback(true);
 //                                    videoEditorCallbackContext.(progressResult);
-                                }
-                            }
-                    );
-                } catch (Throwable e) {
-                    Log.d(TAG, "transcode exception ", e);
-                    videoEditorCallbackContext.error(e.toString());
-                }
+                        }
+                    }
+            );
+        } catch (Throwable e) {
+            Log.d(TAG, "transcode exception ", e);
+            videoEditorCallbackContext.error(e.toString());
+        }
     }
 
     /**
@@ -498,42 +523,42 @@ public class XRPlugin extends Plugin {
         );
         final String outputFilePath = outputFile.getAbsolutePath();
 
-                OutputStream outStream = null;
+        OutputStream outStream = null;
 
+        try {
+            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+            mmr.setDataSource(srcVideoPath);
+
+            Bitmap bitmap = mmr.getFrameAtTime(atTime);
+
+            if (width > 0 || height > 0) {
+                int videoWidth = bitmap.getWidth();
+                int videoHeight = bitmap.getHeight();
+
+                final Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, 480, 360, false);
+                bitmap.recycle();
+                bitmap = resizedBitmap;
+            }
+
+            outStream = new FileOutputStream(outputFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outStream);
+
+            JSObject data = new JSObject();
+            data.put("outputFilePath", outputFilePath);
+            videoEditorCallbackContext.success(data);
+
+        } catch (Throwable e) {
+            if (outStream != null) {
                 try {
-                    MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-                    mmr.setDataSource(srcVideoPath);
-
-                    Bitmap bitmap = mmr.getFrameAtTime(atTime);
-
-                    if (width > 0 || height > 0) {
-                        int videoWidth = bitmap.getWidth();
-                        int videoHeight = bitmap.getHeight();
-
-                        final Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, 480, 360, false);
-                        bitmap.recycle();
-                        bitmap = resizedBitmap;
-                    }
-
-                    outStream = new FileOutputStream(outputFile);
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outStream);
-
-                    JSObject data = new JSObject();
-                    data.put("outputFilePath", outputFilePath);
-                    videoEditorCallbackContext.success(data);
-
-                } catch (Throwable e) {
-                    if (outStream != null) {
-                        try {
-                            outStream.close();
-                        } catch (IOException e1) {
-                            e1.printStackTrace();
-                        }
-                    }
-
-                    Log.d(TAG, "exception on thumbnail creation", e);
-                    videoEditorCallbackContext.error(e.toString());
+                    outStream.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
                 }
+            }
+
+            Log.d(TAG, "exception on thumbnail creation", e);
+            videoEditorCallbackContext.error(e.toString());
+        }
     }
 
     /**
@@ -577,25 +602,21 @@ public class XRPlugin extends Plugin {
         float videoHeight = Float.parseFloat(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
 
         String orientation;
-        if (Build.VERSION.SDK_INT >= 17) {
-            String mmrOrientation = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
-            Log.d(TAG, "mmrOrientation: " + mmrOrientation); // 0, 90, 180, or 270
+        String mmrOrientation = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
+        Log.d(TAG, "mmrOrientation: " + mmrOrientation); // 0, 90, 180, or 270
 
-            if (videoWidth < videoHeight) {
-                if (mmrOrientation.equals("0") || mmrOrientation.equals("180")) {
-                    orientation = "portrait";
-                } else {
-                    orientation = "landscape";
-                }
+        if (videoWidth < videoHeight) {
+            if (mmrOrientation.equals("0") || mmrOrientation.equals("180")) {
+                orientation = "portrait";
             } else {
-                if (mmrOrientation.equals("0") || mmrOrientation.equals("180")) {
-                    orientation = "landscape";
-                } else {
-                    orientation = "portrait";
-                }
+                orientation = "landscape";
             }
         } else {
-            orientation = (videoWidth < videoHeight) ? "portrait" : "landscape";
+            if (mmrOrientation.equals("0") || mmrOrientation.equals("180")) {
+                orientation = "landscape";
+            } else {
+                orientation = "portrait";
+            }
         }
 
         double duration = Double.parseDouble(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)) / 1000.0;
@@ -661,10 +682,9 @@ public class XRPlugin extends Plugin {
      */
     public static String getPath(final Context context, final Uri uri) {
 
-        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 
         // DocumentProvider
-        if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
+        if (DocumentsContract.isDocumentUri(context, uri)) {
             // ExternalStorageProvider
             if (isExternalStorageDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
@@ -859,14 +879,18 @@ public class XRPlugin extends Plugin {
         bitRate = callbackContext.getInt("bitRate");
         dpi = callbackContext.getInt("dpi");
         filePath = callbackContext.getString("filePath");
+
+
+
         if (screenRecord != null) {
             callbackContext.error("screenRecord service is running");
         } else {
             saveCall(callbackContext);
 
-            mProjectionManager = (MediaProjectionManager) getActivity().getSystemService(MEDIA_PROJECTION_SERVICE);
-            Intent captureIntent = mProjectionManager.createScreenCaptureIntent();
-            startActivityForResult(this.callbackContext, captureIntent, SCREEN_RECORD_CODE);
+            //mProjectionManager = (MediaProjectionManager) getActivity().getSystemService(MEDIA_PROJECTION_SERVICE);
+            //Intent captureIntent = mProjectionManager.createScreenCaptureIntent();
+            //startActivityForResult(this.callbackContext, captureIntent, SCREEN_RECORD_CODE);
+            doStartRecording((Intent) data.clone());
         }
         Log.d(TAG, "CALLBACK CONTEXT:" + this.callbackContext);
         Log.d(TAG, "IS AUDIO:" + isAudio);
@@ -875,23 +899,33 @@ public class XRPlugin extends Plugin {
 
     @PluginMethod
     public void stopRecording(PluginCall callbackContext) {
-        if(isAudio){
-            if(mediaRecord != null){
-                mediaRecord.release();
-                mediaRecord = null;
-                callbackContext.success(new JSObject().put("result", "ScreenRecord finish."));
-            }else {
-                callbackContext.error("no ScreenRecord in process isAudio");
+
+        if(screenRecord != null){
+
+            Intent serviceIntent = new Intent(getContext(), MediaProjectionHelperService.class);
+            getContext().stopService(serviceIntent);
+
+            screenRecord.quit();
+            screenRecord = null;
+            final Context appContext = getActivity().getApplicationContext();
+            final PackageManager pm = appContext.getPackageManager();
+
+            ApplicationInfo ai;
+
+            try {
+                ai = pm.getApplicationInfo(getActivity().getPackageName(), 0);
+            } catch (final PackageManager.NameNotFoundException e) {
+                ai = null;
             }
+            final String appName = (String) (ai != null ? pm.getApplicationLabel(ai) : "Unknown");
+
+            File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), appName);
+
+            callbackContext.success(new JSObject().put("result", "success").put("filePath", mediaStorageDir.getPath() + filePath));
         }else {
-            if(screenRecord != null){
-                screenRecord.quit();
-                screenRecord = null;
-                callbackContext.success(new JSObject().put("result", "ScreenRecord finish."));
-            }else {
-                callbackContext.error("no ScreenRecord in process XX");
-            }
+            callbackContext.error("no ScreenRecord in process XX");
         }
+
         Log.d(TAG, "CALLBACK CONTEXT:" + String.valueOf(this.callbackContext));
 
     }
@@ -901,60 +935,146 @@ public class XRPlugin extends Plugin {
      */
     @Override
     public void handleOnActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "*************** handleOnActivityResult" + filePath);
         PluginCall savedCall = getSavedCall();
 
-        MediaProjection mediaProjection = mProjectionManager.getMediaProjection(resultCode, data);
+        //Raki
+        //MediaProjection mediaProjection = mProjectionManager.getMediaProjection(RESULT_OK, data);
+
+
         if (mediaProjection == null) {
             Log.e(TAG, "media projection is null");
             callbackContext.error("no ScreenRecord in process");
             return;
         }
-           try {
+        try {
 
-               ApplicationInfo ai;
-               final Context appContext = getActivity().getApplicationContext();
-               final PackageManager pm = appContext.getPackageManager();
+            ApplicationInfo ai;
+            final Context appContext = getActivity().getApplicationContext();
+            final PackageManager pm = appContext.getPackageManager();
 
-               try {
-                   ai = pm.getApplicationInfo(getActivity().getPackageName(), 0);
-               } catch (final PackageManager.NameNotFoundException e) {
-                   ai = null;
-               }
-               final String appName = (String) (ai != null ? pm.getApplicationLabel(ai) : "Unknown");
+            try {
+                ai = pm.getApplicationInfo(getActivity().getPackageName(), 0);
+            } catch (final PackageManager.NameNotFoundException e) {
+                ai = null;
+            }
+            final String appName = (String) (ai != null ? pm.getApplicationLabel(ai) : "Unknown");
 
-               File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), appName);
+            File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), appName);
 
-               if (!mediaStorageDir.exists()) {
-                   if (!mediaStorageDir.mkdirs()) {
+            if (!mediaStorageDir.exists()) {
+                   /*if (!mediaStorageDir.mkdirs()) {
                        videoEditorCallbackContext.error("Can't access or make Movies directory");
                        return;
-                   }
-               }
-               File file = new File(
-                       mediaStorageDir.getPath(),
-                       filePath
-               );
-                Log.d(TAG, "*************** filePath: " + mediaStorageDir.getPath() + filePath);
-               if(isAudio){
-                mediaRecord = new MediaRecordService(width, height, bitRate, dpi, mediaProjection, file.getAbsolutePath());
-                mediaRecord.start();
-               }else {
-                screenRecord = new ScreenRecordService(width, height, bitRate, dpi,
-                mediaProjection, file.getAbsolutePath());
-                screenRecord.start();
-               }
+                   }*/
+            }
+            File file = new File(
+                    mediaStorageDir.getPath(),
+                    filePath
+            );
+            Log.d(TAG, "*************** filePath: " + mediaStorageDir.getPath() + filePath);
+            screenRecord = new ScreenRecordService(width, height, bitRate, dpi,
+                    mediaProjection, file.getAbsolutePath());
+            screenRecord.start();
 
-               Log.d(TAG, "screenrecord service is running");
-               PluginResult result = new PluginResult();
-               result.put("status", data.getStringExtra("ScreenRecord file at" + file.getAbsolutePath()));
-               savedCall.successCallback(result);
+            Log.d(TAG, "screenrecord service is running");
+            PluginResult result = new PluginResult();
+            result.put("status", data.getStringExtra("ScreenRecord file at" + file.getAbsolutePath()));
+            savedCall.successCallback(result);
 
 //               getActivity().moveTaskToBack(true);
-           }catch (Exception e){
-              e.printStackTrace();
-              savedCall.errorCallback("Error in screenrecord");
-          }
-  }
+        }catch (Exception e){
+            e.printStackTrace();
+            savedCall.errorCallback("Error in screenrecord");
+        }
+    }
+
+    void doStartRecording(Intent data)
+    {
+        PluginCall savedCall = getSavedCall();
+
+        if (mediaProjection == null) {
+            Log.e(TAG, "media projection is null");
+            callbackContext.error("no ScreenRecord in process");
+            return;
+        }
+        try {
+
+            ApplicationInfo ai;
+            final Context appContext = getActivity().getApplicationContext();
+            final PackageManager pm = appContext.getPackageManager();
+
+            try {
+                ai = pm.getApplicationInfo(getActivity().getPackageName(), 0);
+            } catch (final PackageManager.NameNotFoundException e) {
+                ai = null;
+            }
+            final String appName = (String) (ai != null ? pm.getApplicationLabel(ai) : "Unknown");
+
+            File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), appName);
+
+            if (!mediaStorageDir.exists()) {
+
+                if (!mediaStorageDir.mkdirs()) {
+                    videoEditorCallbackContext.error("Can't access or make Movies directory");
+                    return;
+                }
+            }
+            File file = new File(
+                    mediaStorageDir.getPath(),
+                    filePath
+            );
+            Log.d(TAG, "*************** filePath: " + mediaStorageDir.getPath() + filePath);
+            screenRecord = new ScreenRecordService(width, height, bitRate, dpi,
+                    mediaProjection, file.getAbsolutePath());
+            screenRecord.start();
+
+            Log.d(TAG, "screenrecord service is running");
+            PluginResult result = new PluginResult();
+            result.put("status", data.getStringExtra("ScreenRecord file at" + file.getAbsolutePath()));
+            savedCall.successCallback(result);
+
+//               getActivity().moveTaskToBack(true);
+        }catch (Exception e){
+            e.printStackTrace();
+            savedCall.errorCallback("Error in screenrecord");
+        }
+    }
+
+    public void sendPoseData(float[] cameraPose, float[] anchorPose) {
+        JSObject ret = new JSObject();
+
+        ret.put("placed", anchorPose != null);
+
+        ret.put("cameraPositionX", cameraPose[0]);
+        ret.put("cameraPositionY", cameraPose[1]);
+        ret.put("cameraPositionZ", cameraPose[2]);
+        ret.put("cameraRotationX", cameraPose[3]);
+        ret.put("cameraRotationY", cameraPose[4]);
+        ret.put("cameraRotationZ", cameraPose[5]);
+        ret.put("cameraRotationW", cameraPose[6]);
+
+        if(anchorPose != null) {
+            ret.put("anchorPositionX", anchorPose[0]);
+            ret.put("anchorPositionY", anchorPose[1]);
+            ret.put("anchorPositionZ", anchorPose[2]);
+            ret.put("anchorRotationX", anchorPose[3]);
+            ret.put("anchorRotationY", anchorPose[4]);
+            ret.put("anchorRotationZ", anchorPose[5]);
+            ret.put("anchorRotationW", anchorPose[6]);
+        }
+        notifyListeners("poseDataReceived", ret);
+    }
+
+    public void receiveCameraIntrinsics(float[] focalLength, float[] principalPoint, int[] imageDimensions) {
+        JSObject ret = new JSObject();
+        ret.put("fX", focalLength[0]);
+        ret.put("fY", focalLength[1]);
+        ret.put("cX", principalPoint[0]);
+        ret.put("cY", principalPoint[1]);
+        ret.put("x", imageDimensions[0]);
+        ret.put("y", imageDimensions[1]);
+        notifyListeners("cameraIntrinsicsReceived", ret);
+    }
+
 
 }

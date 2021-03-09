@@ -9,6 +9,9 @@ declare const store: import("redux").Store<{
     instanceConnection: any;
     invite: any;
     locations: any;
+    feeds: any;
+    feedFires: any;
+    feedComments: any;
     videos: any;
     scenes: any;
     alert: any;
@@ -29,6 +32,9 @@ export declare function configureStore(): import("redux").Store<{
     instanceConnection: any;
     invite: any;
     locations: any;
+    feeds: any;
+    feedFires: any;
+    feedComments: any;
     videos: any;
     scenes: any;
     alert: any;

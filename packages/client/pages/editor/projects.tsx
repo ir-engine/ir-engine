@@ -13,7 +13,7 @@ import {selectAuthState} from "@xr3ngine/client-core/redux/auth/selector";
 import {bindActionCreators, Dispatch} from "redux";
 import {doLoginAuto, logoutUser} from "@xr3ngine/client-core/redux/auth/service";
 import SignIn from "@xr3ngine/client-core/components/ui/Auth/Login";
-
+import Admin from "../admin";
 /**
  * Creating styled component using section.
  * Used as a parent container in view. 
@@ -304,6 +304,12 @@ const ProjectsPage = (props: Props) => {
           ) : null}          
           <ProjectsSection>
             <ProjectsContainer>
+            <ProjectsHeader>
+                <h1>Locations</h1>
+              </ProjectsHeader>
+              <div className="mb-5">
+                <Admin />
+              </div>
               <ProjectsHeader>
                 <h1>Projects</h1>
               </ProjectsHeader>

@@ -94,4 +94,4 @@ const ForgotPasswordComponent = (props: Props): any => {
 
 const ForgotPasswordWrapper = (props: any): any => <ForgotPasswordComponent {...props} />;
 
-export const ForgotPassword = connect(mapDispatchToProps)(ForgotPasswordWrapper);
+export const ForgotPassword = connect(null, mapDispatchToProps)(ForgotPasswordWrapper);

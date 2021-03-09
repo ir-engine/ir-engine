@@ -15,6 +15,8 @@ import {
 import {
   LOGIN_USER_BY_GITHUB_SUCCESS,
   LOGIN_USER_BY_GITHUB_ERROR,
+  LOGIN_USER_BY_LINKEDIN_ERROR,
+  LOGIN_USER_BY_LINKEDIN_SUCCESS,
   LOGIN_USER_SUCCESS,
   LOGIN_USER_ERROR,
   LOGOUT_USER,
@@ -65,6 +67,11 @@ const authReducer = (state = immutableState, action: any): any => {
     case LOGIN_USER_BY_GITHUB_ERROR:
       return state
         .set('error', (action as LoginResultAction).message);
+    case LOGIN_USER_BY_LINKEDIN_SUCCESS:
+      break;
+    case LOGIN_USER_BY_LINKEDIN_ERROR:
+      return state
+        .set('error', (action as LoginResultAction).message);
     case REGISTER_USER_BY_EMAIL_SUCCESS:
       return state
         .set('identityProvider', (action as RegistrationResultAction).identityProvider);
@@ -109,11 +116,11 @@ const authReducer = (state = immutableState, action: any): any => {
       return state.set('user', updatedUser);
     }
     case USER_UPDATED: {
-      const updatedUser = Object.assign({}, state.get('user'), {...(action as UserUpdatedAction).user});
+      const updatedUser = Object.assign({}, state.get('user'), { ...(action as UserUpdatedAction).user });
       return state.set('user', updatedUser);
     }
     case UPDATE_USER_SETTINGS: {
-      const updatedUser = Object.assign({}, state.get('user'), { user_setting: (action as UserSettingsUpdatedAction).data});
+      const updatedUser = Object.assign({}, state.get('user'), { user_setting: (action as UserSettingsUpdatedAction).data });
       return state.set('user', updatedUser);
     }
   }

@@ -59,6 +59,11 @@ import Upload from './upload/upload.service';
 import Video from './video/video.service';
 import Subscription from './subscription/subscription.service';
 import SubscriptionConfirm from './subscription-confirm/subscription-confirm.service';
+import Feed from './feed/feed.service';
+import FeedFires from './feed-fires/feed-fires.service';
+import FeedBookmark from './feed-bookmark/feed-bookmark.service';
+import Comments from './comments/comments.service';
+import CommentsFires from './comments-fires/comments-fires.service';
 
 // Editor
 import MediaSearch from './media-search/media-search.service';
@@ -131,6 +136,11 @@ export default (app: Application): void => {
   app.configure(SubscriptionConfirm);
   app.configure(Upload);
   // app.configure(Video);
+  app.configure(Feed); // ARC
+  app.configure(FeedFires); // ARC
+  app.configure(FeedBookmark); // ARC
+  app.configure(Comments); // ARC
+  app.configure(CommentsFires); // ARC
 
   // Editor
   app.configure(MediaSearch);

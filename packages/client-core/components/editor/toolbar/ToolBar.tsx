@@ -20,6 +20,7 @@ import { ContextMenu, MenuItem, showMenu, SubMenu } from "../layout/ContextMenu"
 import { InfoTooltip } from "../layout/Tooltip";
 import styledTheme from "../theme";
 import ToolButton from "./ToolButton";
+import LocationModal from '../../ui/Admin/LocationModal';
 
 const StyledToolbar = (styled as any).div`
   display: flex;
@@ -204,13 +205,37 @@ const transformSpaceOptions = [
   { label: "World", value: TransformSpace.World }
 ];
 
-export default class ToolBar extends Component {
+const initialLocation = {
+  id: null,
+  name: "",
+  maxUsersPerInstance: 10,
+  sceneId: null,
+  locationSettingsId: null,
+  location_setting: {
+      instanceMediaChatEnabled: false,
+      videoEnabled: false,
+      locationType: 'private'
+  }
+};
+type ToolBarProps = {
+
+}
+type ToolBarState = {
+  locationModalOpen: any;
+  selectedLocation: any;
+  editorInitialized: boolean;
+  menuOpen: boolean;
+  locationEditing: boolean
+}
+
+export default class ToolBar extends Component<ToolBarProps, ToolBarState> {
   static propTypes = {
     menu: PropTypes.array,
     editor: PropTypes.object,
     onPublish: PropTypes.func,
     onOpenScene: PropTypes.func,
-    isPublishedScene: PropTypes.bool
+    isPublishedScene: PropTypes.bool,
+    queryParams: PropTypes.object,
   };
 
   constructor(props) {
@@ -218,8 +243,19 @@ export default class ToolBar extends Component {
 
     this.state = {
       editorInitialized: false,
-      menuOpen: false
+      menuOpen: false,
+      locationModalOpen: false,
+      selectedLocation: initialLocation,
+      locationEditing: false
     };
+  }
+
+  openModalCreate = () => {
+    this.setState({ locationModalOpen: true });
+  }
+
+  handleLocationClose = (e: any): void => {
+    this.setState({ locationModalOpen: false })
   }
 
   componentDidMount() {
@@ -230,6 +266,7 @@ export default class ToolBar extends Component {
   }
 
   componentWillUnmount() {
+
     const editor = (this.props as any).editor;
     editor.removeListener("initialized", this.onEditorInitialized);
 
@@ -373,6 +410,7 @@ export default class ToolBar extends Component {
       rotationSnap
     } = (this.props as any).editor.editorControls;
 
+    const queryParams = (this.props as any).queryParams;
     return (
       <StyledToolbar>
         <ToolButtons>
@@ -402,12 +440,12 @@ export default class ToolBar extends Component {
         <ToolToggles>
           <ToolbarInputGroup id="transform-space">
             <InfoTooltip info="[Z] Toggle Transform Space" position="bottom">
-              { /* @ts-ignore */ }
+              { /* @ts-ignore */}
               <ToggleButton onClick={this.onToggleTransformSpace}>
                 <Globe size={12} />
               </ToggleButton>
             </InfoTooltip>
-            { /* @ts-ignore */ }
+            { /* @ts-ignore */}
             <SelectInput
               styles={selectInputStyles}
               onChange={(this as any).onChangeTransformSpace}
@@ -419,7 +457,7 @@ export default class ToolBar extends Component {
             <ToggleButton onClick={this.onToggleTransformPivot} tooltip="[X] Toggle Transform Pivot">
               <Bullseye size={12} />
             </ToggleButton>
-            { /* @ts-ignore */ }
+            { /* @ts-ignore */}
             <SelectInput
               styles={selectInputStyles}
               onChange={this.onChangeTransformPivot}
@@ -435,7 +473,7 @@ export default class ToolBar extends Component {
             >
               <Magnet size={12} />
             </ToggleButton>
-            { /* @ts-ignore */ }
+            { /* @ts-ignore */}
             <SelectInput
               styles={snapInputStyles}
               onChange={this.onChangeTranslationSnap}
@@ -446,7 +484,7 @@ export default class ToolBar extends Component {
               isValidNewOption={value => value.trim() !== "" && !isNaN(value)}
               creatable
             />
-            { /* @ts-ignore */ }
+            { /* @ts-ignore */}
             <SelectInput
               styles={rightSnapInputStyles}
               onChange={this.onChangeRotationSnap}
@@ -474,16 +512,41 @@ export default class ToolBar extends Component {
               decrementTooltip="[=] Decrement Grid Height"
             />
           </ToolbarInputGroup>
-            <ToolbarInputGroup id="preview">
-              <ToggleButton
-                onClick={this.onTogglePlayMode}
-                tooltip={(this.props as any).editor.playing ? "Stop Previewing Scene" : "Preview Scene"}
-              >
-                {(this.props as any).editor.playing ? <Pause size={14} /> : <Play size={14} />}
-              </ToggleButton>
-            </ToolbarInputGroup>
+          <ToolbarInputGroup id="preview">
+            <ToggleButton
+              onClick={this.onTogglePlayMode}
+              tooltip={(this.props as any).editor.playing ? "Stop Previewing Scene" : "Preview Scene"}
+            >
+              {(this.props as any).editor.playing ? <Pause size={14} /> : <Play size={14} />}
+            </ToggleButton>
+          </ToolbarInputGroup>
         </ToolToggles>
         <Spacer />
+        {
+          !queryParams ?
+          <Button
+            type="submit"
+            color="primary"
+            onClick={this.openModalCreate}
+            className="mr-4 mt-2 mb-2 pl-5 pr-5"
+          >
+            Publish
+         </Button>
+         :
+         <Button
+          color="primary"
+          disabled={true}
+          className="mr-4 mt-2 mb-2 pl-5 pr-5"
+         >
+           Published
+         </Button>
+        }
+        <LocationModal
+          editing={this.state.locationEditing}
+          open={this.state.locationModalOpen}
+          handleClose={this.handleLocationClose}
+          location={this.state.selectedLocation}
+        />
         <ContextMenu id="menu">
           {(this.props as any).menu.map(menu => {
             return this.renderMenu(menu);

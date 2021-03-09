@@ -58,12 +58,32 @@
         overflow-y: auto;
         min-height: 0;
     }
+
+    button {
+        color: black !important;
+
+        &[class*='Mui-selected'],
+        &.send-button {
+            color: white !important;
+        }
+
+        &.send-button {
+            margin-left: 10px;
+        }
+    }
+}
+
+.invite-text {
+    fieldset {
+        border-color: rgba(40, 40, 40, 0.8);
+    }
 }
 
 .rightDrawerAccordion {
     background-color: rgb(20, 20, 20, 0.8);
 
     & > div {
+        color: white;
         background-color: rgb(150, 150, 150, 0.8);
     }
 }

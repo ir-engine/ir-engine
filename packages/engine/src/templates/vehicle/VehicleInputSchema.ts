@@ -29,7 +29,7 @@ const getOutCar: Behavior = (entityCar: Entity): void => {
     networkPlayerId = vehicle.wantsExit.filter(f => f != null)[0]
     console.warn('wantsExit: '+ vehicle.wantsExit);
   } else {
-    networkPlayerId = Network.instance.userNetworkId
+    networkPlayerId = Network.instance.localAvatarNetworkId
   }
 
   for (let i = 0; i < vehicle.seatPlane.length; i++) {
@@ -49,7 +49,7 @@ const getOutCar: Behavior = (entityCar: Entity): void => {
 
 const drive: Behavior = (entity: Entity, args: { direction: number }): void => {
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
-  if(isClient && vehicleComponent.driver != Network.instance.userNetworkId) return;
+  if(isClient && vehicleComponent.driver != Network.instance.localAvatarNetworkId) return;
   const vehicle = vehicleComponent.vehiclePhysics;
 
   vehicle.setBrake(0, 0);
@@ -67,7 +67,7 @@ const stop: Behavior = (entity: Entity, args: { direction: number }): void => {
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
   vehicleComponent.isMoved = false;
   return;
-  if(isClient && vehicleComponent.driver != Network.instance.userNetworkId) return;
+  if(isClient && vehicleComponent.driver != Network.instance.localAvatarNetworkId) return;
   const vehicle = vehicleComponent.vehiclePhysics;
 
   vehicle.setBrake(10, 0);
@@ -85,7 +85,7 @@ const driveByInputAxis: Behavior = (entity: Entity, args: { input: InputAlias; i
   const data = input.data.get(args.input);
 
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
-  if(isClient && vehicleComponent.driver != Network.instance.userNetworkId) return;
+  if(isClient && vehicleComponent.driver != Network.instance.localAvatarNetworkId) return;
   const vehicle = vehicleComponent.vehiclePhysics;
 
   vehicle.setBrake(0, 0);
@@ -106,7 +106,7 @@ const driveByInputAxis: Behavior = (entity: Entity, args: { input: InputAlias; i
 
 export const driveHandBrake: Behavior = (entity: Entity, args: { on: boolean }): void => {
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
-  if(isClient && vehicleComponent.driver != Network.instance.userNetworkId) return;
+  if(isClient && vehicleComponent.driver != Network.instance.localAvatarNetworkId) return;
   const vehicle = vehicleComponent.vehiclePhysics;
 
   vehicle.setBrake(args.on? 10 : 0, 0);
@@ -118,7 +118,7 @@ export const driveHandBrake: Behavior = (entity: Entity, args: { on: boolean }):
 const driveSteering: Behavior = (entity: Entity, args: { direction: number }): void => {
 
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
-  if(isClient && vehicleComponent.driver != Network.instance.userNetworkId) return;
+  if(isClient && vehicleComponent.driver != Network.instance.localAvatarNetworkId) return;
   const vehicle = vehicleComponent.vehiclePhysics;
 
   vehicle.setSteeringValue( vehicleComponent.maxSteerVal * args.direction, 0);

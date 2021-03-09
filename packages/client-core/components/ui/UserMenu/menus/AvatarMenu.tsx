@@ -92,20 +92,20 @@ const AvatarMenu = (props: any): any => {
 				{renderAvatarList()}
 			</section>
 			<section className={styles.controlContainer}>
-				<a href="#" className={`${styles.iconBlock} ${page === 0 ? styles.disabled : ''}`} onClick={loadPreviousAvatars}>
+				<button type="button" className={`${styles.iconBlock} ${page === 0 ? styles.disabled : ''}`} onClick={loadPreviousAvatars}>
 					<NavigateBefore />
-				</a>
+				</button>
 				<div className={styles.actionBlock}>
-					<a href="#" className={styles.iconBlock} onClick={openProfileMenu}>
+					<button type="button" className={styles.iconBlock} onClick={openProfileMenu}>
 						<ArrowBack />
-					</a>
-					<a href="#" className={styles.iconBlock} onClick={closeMenu}>
+					</button>
+					<button type="button" className={styles.iconBlock} onClick={closeMenu}>
 						<Check />
-					</a>
+					</button>
 				</div>
-				<a href="#" className={`${styles.iconBlock} ${(page + 1) * imgPerPage >= CharacterAvatars.length ? styles.disabled : ''}`} onClick={loadNextAvatars}>
+				<button type="button" className={`${styles.iconBlock} ${(page + 1) * imgPerPage >= CharacterAvatars.length ? styles.disabled : ''}`} onClick={loadNextAvatars}>
 					<NavigateNext />
-				</a>
+				</button>
 			</section>
 		</div>
 	);
