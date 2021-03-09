@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '@material-ui/core';
-import { NavigateNext, NavigateBefore, Check, ArrowBack } from '@material-ui/icons';
+import { NavigateNext, NavigateBefore, Check, ArrowBack, PersonAdd } from '@material-ui/icons';
 import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
+// @ts-ignore
 import styles from '../style.module.scss';
 import { LazyImage } from '../../LazyImage';
 import { getAvatarURL, SettingMenuProps, Views } from '../util';
@@ -57,6 +58,10 @@ const AvatarMenu = (props: any): any => {
 		props.changeActiveMenu(Views.Profile);
 	}
 
+	const openAvatarSelectMenu = (e) => {
+		e.preventDefault();
+		props.changeActiveMenu(Views.AvatarUpload);
+	}
 
 	const renderAvatarList = () => {
 		const avatarList = [];
@@ -101,6 +106,9 @@ const AvatarMenu = (props: any): any => {
 					</button>
 					<button type="button" className={styles.iconBlock} onClick={closeMenu}>
 						<Check />
+					</button>
+					<button type="button" className={styles.iconBlock} onClick={openAvatarSelectMenu}>
+						<PersonAdd />
 					</button>
 				</div>
 				<button type="button" className={`${styles.iconBlock} ${(page + 1) * imgPerPage >= CharacterAvatars.length ? styles.disabled : ''}`} onClick={loadNextAvatars}>

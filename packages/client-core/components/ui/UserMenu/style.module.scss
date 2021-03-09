@@ -539,4 +539,42 @@
             }
         }
     }
+
+    .avatarUploadPanel {
+        position: absolute;
+        bottom: 75px;
+        padding: 0 30px;
+        border-radius: 5px;
+        background: #ffffffe8;
+        left: 50%;
+        transform: translateX(-50%);
+        box-shadow: 16px 16px 32px 0px #11111159;
+        color: black;
+        max-height: calc(100vh - 175px);
+        overflow: auto;
+        width: 360px;
+
+        .avatarHeaderBlock {
+            
+        }
+        .avatarCanvasContainer {
+
+            h2 { color: black; margin: 0; flex-shrink: 0; }
+            button {
+                width: 100px;
+                height: 100%;
+                background: red;
+                padding: 0;
+                border: none;
+                color: white;
+            }
+
+            #stage {
+                width: 300px;
+                height: 300px;
+                flex-grow: 1;
+                margin-top: 20px;
+            }
+        }
+    }
 }
