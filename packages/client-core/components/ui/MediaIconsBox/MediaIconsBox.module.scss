@@ -36,7 +36,7 @@
             transform: scale(0);
         }
 
-        &:hover::before { transform: scale(100%); }
+        &:hover::before { transform: scale(1); }
         &.on svg { color: rgba(122, 255, 100, 1) }
         > svg { height: 50%; width: 50%; }
     }

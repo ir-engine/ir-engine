@@ -32,7 +32,7 @@ import {
 import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import { VrIcon } from "../Icons/Vricon";
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { startVR } from "@xr3ngine/engine/src/input/functions/WebXRFunctions";
+import { startXR } from "@xr3ngine/engine/src/input/functions/WebXRFunctions";
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -68,6 +68,8 @@ const MediaIconsBox = (props) => {
 
     (navigator as any).xr?.isSessionSupported('immersive-vr').then(supported => {
       setXRSupported(supported);
+      if(supported && Engine.renderer != null && Engine.renderer.xr != null)
+        Engine.renderer.xr.enabled = true;
     })
 
     const checkMediaStream = async (partyId: string) => {
@@ -127,7 +129,7 @@ const MediaIconsBox = (props) => {
         updateCamVideoState();
     };
 
-    const handleVRClick = () => startVR();
+    const handleVRClick = () => startXR();
 
     const xrEnabled = Engine.renderer?.xr.enabled === true;
     const VideocamIcon = isCamVideoEnabled ? Videocam : VideocamOff;

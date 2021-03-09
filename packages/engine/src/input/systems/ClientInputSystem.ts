@@ -1,15 +1,8 @@
 import { DomEventBehaviorValue } from "../../common/interfaces/DomEventBehaviorValue";
 import { Engine } from "../../ecs/classes/Engine";
 import { ClientInputSchema } from "../schema/ClientInputSchema";
-import { LifecycleValue } from "../../common/enums/LifecycleValue";
-import { isClient } from "../../common/functions/isClient";
-import { NumericalType } from "../../common/types/NumericalTypes";
 import { System } from '../../ecs/classes/System';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
-import { Input } from '../components/Input';
-import { InputType } from "../enums/InputType";
-import { InputValue } from "../interfaces/InputValue";
-import { InputAlias } from "../types/InputAlias";
 
 const supportsPassive = (): boolean => {
   let supportsPassiveValue = false;
@@ -45,23 +38,10 @@ export class ClientInputSystem extends System {
   updateType = SystemUpdateType.Fixed;
   needSend = false;
   switchId = 1;
-  // Temp/ref variables
-  private _inputComponent: Input;
-  private useWebXR = false;
-  // Client only variables
-  public mainControllerId; //= 0
-  public secondControllerId; //= 1
   boundListeners: ListenerBindingData[] = [];
-  
 
-  constructor({ useWebXR }) {
+  constructor() {
     super();
-    this.useWebXR = useWebXR;
-    // Client only
-    if (isClient) {
-      this.mainControllerId = 0;
-      this.secondControllerId = 1;
-    }
     ClientInputSchema.onAdded.forEach(behavior => {
       behavior.behavior();
     });
@@ -119,7 +99,5 @@ export class ClientInputSystem extends System {
    * @param {Number} delta Time since last frame
    */
 
-  public execute(delta: number): void {
-    
-  }
+  public execute(delta: number): void { }
 }
