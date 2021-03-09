@@ -1,10 +1,8 @@
 import { BinaryValue } from "../../common/enums/BinaryValue";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { isClient } from "../../common/functions/isClient";
-import { DomEventBehaviorValue } from "../../common/interfaces/DomEventBehaviorValue";
 import { NumericalType } from "../../common/types/NumericalTypes";
 import { Engine } from "../../ecs/classes/Engine";
-import { Entity } from "../../ecs/classes/Entity";
 import { System } from '../../ecs/classes/System';
 import { Not } from "../../ecs/functions/ComponentFunctions";
 import { getComponent, hasComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
@@ -15,7 +13,6 @@ import { NetworkObject } from "../../networking/components/NetworkObject";
 import { NetworkClientInputInterface } from "../../networking/interfaces/WorldState";
 import { ClientInputModel } from '../../networking/schema/clientInputSchema';
 import { CharacterComponent, RUN_SPEED, WALK_SPEED } from "../../templates/character/components/CharacterComponent";
-import { handleGamepads } from "../behaviors/GamepadInputBehaviors";
 import { faceToInput,  lipToInput,  WEBCAM_INPUT_EVENTS } from "../behaviors/WebcamInputBehaviors";
 import { addPhysics, removeWebXRPhysics } from '../behaviors/WebXRInputBehaviors';
 import { Input } from '../components/Input';
@@ -28,7 +25,6 @@ import { InputAlias } from "../types/InputAlias";
 import { BaseInput } from "../enums/BaseInput";
 import { ClientNetworkSystem } from "../../networking/systems/ClientNetworkSystem";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
-import { isWebWorker } from "../../common/functions/getEnvironment";
 /**
  * Input System
  *
@@ -153,48 +149,14 @@ export class EntityActionSystem extends System {
     }
 
     // check CHANGED/UNCHANGED axis inputs
-    Engine.inputState.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-      if (!Engine.inputState.prevData.has(key)) {
-        return;
-      }
-
-      if (value.type === InputType.BUTTON) {
-        const prevValue = Engine.inputState.prevData.get(key);
-        if (
-          prevValue.lifecycleState === LifecycleValue.STARTED &&
-          value.lifecycleState === LifecycleValue.STARTED
-        ) {
-          // auto-switch to CONTINUED
-          value.lifecycleState = LifecycleValue.CONTINUED;
-          Engine.inputState.data.set(key, value);
-        }
-        return;
-      }
-
-      if (value.lifecycleState === LifecycleValue.ENDED) {
-        // ENDED here is a special case, like mouse position on mouse down
-        return;
-      }
-
-      if (Engine.inputState.prevData.has(key)) {
-        if (JSON.stringify(value.value) === JSON.stringify(Engine.inputState.prevData.get(key).value)) {
-          value.lifecycleState = LifecycleValue.UNCHANGED;
-        } else {
-          value.lifecycleState = LifecycleValue.CHANGED;
-        }
-        Engine.inputState.data.set(key, value);
-      }
-    });
 
     // Apply input for local user input onto client
     this.queryResults.localClientInput.all?.forEach(entity => {
-      // Apply input to local client
-      handleGamepads(entity);
-
       // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
       const input = getMutableComponent(entity, Input);
 
-      // check CHANGED/UNCHANGED axis inputs
+      Engine.inputState.data.forEach((value, key) => { input.data.set(key, value); });
+
       input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
         if (!input.prevData.has(key)) {
           return;
@@ -227,36 +189,33 @@ export class EntityActionSystem extends System {
           input.data.set(key, value);
         }
       });
-      
-      // For each input currently on the input object:
-      Engine.inputState.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-        // If the input is a button
-        if (value.type === InputType.BUTTON) {
-          // If the input exists on the input map (otherwise ignore it)
-          if (input.schema.inputButtonBehaviors[key]) {
-            // If the button is pressed
-            if (value.value === BinaryValue.ON) {
-              // If the lifecycle hasn't been set or just started (so we don't keep spamming repeatedly)
-              if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED;
 
-              if (value.lifecycleState === LifecycleValue.STARTED) {
-                // Set the value of the input to continued to debounce
-                input.schema.inputButtonBehaviors[key].started?.forEach(element => {
-                  element.behavior(entity, element.args, delta)
-                });
-              } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
-                // If the lifecycle equal continued
-                input.schema.inputButtonBehaviors[key].continued?.forEach(element =>
-                  element.behavior(entity, element.args, delta)
-                );
-              } else {
-                console.error('Unexpected lifecycleState', key, value.lifecycleState, LifecycleValue[value.lifecycleState], 'prev', LifecycleValue[Engine.inputState.prevData.get(key)?.lifecycleState]);
-              }
-            } else {
-              input.schema.inputButtonBehaviors[key].ended?.forEach(element =>
+      // For each input currently on the input object:
+      input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+          // If the input exists on the input map (otherwise ignore it)
+        if (input.schema.inputButtonBehaviors[key]) {
+          // If the button is pressed
+          if (value.value === BinaryValue.ON) {
+            // If the lifecycle hasn't been set or just started (so we don't keep spamming repeatedly)
+            if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED;
+
+            if (value.lifecycleState === LifecycleValue.STARTED) {
+              // Set the value of the input to continued to debounce
+              input.schema.inputButtonBehaviors[key].started?.forEach(element => {
+                element.behavior(entity, element.args, delta)
+              });
+            } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
+              // If the lifecycle equal continued
+              input.schema.inputButtonBehaviors[key].continued?.forEach(element =>
                 element.behavior(entity, element.args, delta)
               );
+            } else {
+              console.error('Unexpected lifecycleState', key, value.lifecycleState, LifecycleValue[value.lifecycleState], 'prev', LifecycleValue[input.prevData.get(key)?.lifecycleState]);
             }
+          } else {
+            input.schema.inputButtonBehaviors[key].ended?.forEach(element =>
+              element.behavior(entity, element.args, delta)
+            );
           }
         }
         else if (input.schema.inputAxisBehaviors[key]) {
@@ -335,7 +294,7 @@ export class EntityActionSystem extends System {
 
       //console.warn(inputs.snapShotTime);
       // Add all values in input component to schema
-      Engine.inputState.data.forEach((value: any, key) => {
+      input.data.forEach((value: any, key) => {
         if (value.type === InputType.BUTTON)
           inputs.buttons.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
         else if (value.type === InputType.ONEDIM) // && value.lifecycleState !== LifecycleValue.UNCHANGED
@@ -368,23 +327,16 @@ export class EntityActionSystem extends System {
       }
       const buffer = ClientInputModel.toBuffer(inputs);
       EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.SEND_DATA, buffer }, false, [buffer]);
-    });
 
-    Engine.inputState.prevData.clear();
-    Engine.inputState.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-      Engine.inputState.prevData.set(key, value);
-    });
-
-    Engine.inputState.lastData.clear();
-    Engine.inputState.data.forEach((value, key) => Engine.inputState.lastData.set(key, value));
-
-    Engine.inputState.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-      if (value.type === InputType.BUTTON) {
-        if (value.lifecycleState === LifecycleValue.ENDED) {
-          Engine.inputState.data.delete(key);
+      input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+        if (value.type === InputType.BUTTON) {
+          if (value.lifecycleState === LifecycleValue.ENDED) {
+            input.data.delete(key);
+          }
         }
-      }
+      });
     });
+
     // Called when input component is added to entity
     this.queryResults.localClientInput.added?.forEach(entity => {
       initializeXR(entity);
@@ -396,6 +348,7 @@ export class EntityActionSystem extends System {
       this._inputComponent.schema.onAdded.forEach(behavior => {
         behavior.behavior(entity, { ...behavior.args });
       });
+      // TODO do schema change event
     });
 
     // Called when input component is removed from entity
@@ -404,8 +357,8 @@ export class EntityActionSystem extends System {
       this._inputComponent = getComponent(entity, Input);
       if (this._inputComponent === undefined)
         return console.warn("Tried to execute on a newly added input component, but it was undefined");
-      if (Engine.inputState.data.size) {
-        Engine.inputState.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+      if (this._inputComponent.data.size) {
+        this._inputComponent.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
           // For each input currently on the input object:
           // If the input is a button
           if (value.type === InputType.BUTTON) {
