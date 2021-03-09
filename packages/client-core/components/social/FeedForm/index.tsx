@@ -35,8 +35,7 @@ const FeedForm = ({createFeed, authState} : Props) => {
     const handleCreateFeed = () => {
         const feed = {
             title: composingTitle.trim(),
-            description: composingText.trim(),
-            authorId:  authState.get('user').id
+            description: composingText.trim()
         }
         if(authState.get('user').id){
             createFeed(feed);
