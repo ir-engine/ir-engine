@@ -35,7 +35,7 @@ export async function initializeWorker(initOptions: any = DefaultInitializationO
 
   const workerProxy: WorkerProxy = await createWorker(
     // @ts-ignore
-    new Worker(new URL('./worker/entry.worker.ts', import.meta.url)),
+    new Worker(new URL('./worker/workerEntry.ts', import.meta.url)),
     (options.renderer.canvas || createCanvas()),
     {
       useWebXR: webXRShouldBeAvailable,

@@ -62,9 +62,13 @@ module.exports = withTM(
         }
       ]
     },
-    webpack(config) {
+    webpack(config, { webpack, isServer, dev }) {
+      console.log('Building client with webpack', webpack.version)
       config.externals.push({ xmlhttprequest: 'xmlhttprequest', fs: 'fs' })
       config.resolve.alias.utils = path.join(__dirname, 'utils')
+      config.output.chunkFilename = isServer
+        ? `${dev ? "[name]" : "[name].[fullhash]"}.js`
+        : `static/chunks/${dev ? "[name]" : "[name].[fullhash]"}.js`;
       config.module.rules.push(
         {
           test: /\.(eot|woff|woff2|ttf)$/,
