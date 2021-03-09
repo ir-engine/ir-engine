@@ -287,6 +287,18 @@ export class InputSystem extends System {
       input.lastData.clear();
       input.data.forEach((value, key) => input.lastData.set(key, value));
 
+      const inputSnapshot = Vault.instance?.get()
+      if (inputSnapshot === undefined) {
+        input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+          if (value.type === InputType.BUTTON) {
+            if (value.lifecycleState === LifecycleValue.ENDED) {
+              input.data.delete(key);
+            }
+          }
+        });
+        return;
+      }
+
       // Create a schema for input to send
       const inputs: NetworkClientInputInterface = {
         networkId: Network.instance.userNetworkId,
@@ -296,7 +308,7 @@ export class InputSystem extends System {
         viewVector: {
           x: 0, y: 0, z: 0
         },
-        snapShotTime: Vault.instance?.get().time - Network.instance.timeSnaphotCorrection ?? 0,
+        snapShotTime: inputSnapshot.time - Network.instance.timeSnaphotCorrection ?? 0,
         switchInputs: sendSwitchInputs ? this.switchId : 0
       };
 

@@ -1,10 +1,10 @@
 import { degreeLerp, lerp, quatSlerp, radianLerp } from '../../common/functions/MathLerpFunctions';
 import { randomId } from '../../common/functions/MathRandomFunctions';
 import { Quat } from '../../networking/types/SnapshotDataTypes';
-import { InterpolatedSnapshot, Snapshot, StateEntityGroup, StateEntity, Time, Value } from '../types/SnapshotDataTypes';
+import { InterpolatedSnapshot, Snapshot, StateEntityGroup, StateInterEntity, StateEntityInterGroup, StateEntity, Time, Value } from '../types/SnapshotDataTypes';
 import { NetworkInterpolation } from '../classes/NetworkInterpolation';
 import { Network } from '../classes/Network';
-
+import { Engine } from '../../ecs/classes/Engine';
 /** Get snapshot factory. */
 export function snapshot(): any {
   return {
@@ -14,7 +14,6 @@ export function snapshot(): any {
     add: (snapshot: Snapshot): void => addSnapshot(snapshot)
   };
 }
-
 /**
  * Create a new Snapshot.
  * @param state State of the world or client to be stored in this snapshot.
@@ -37,6 +36,7 @@ export function createSnapshot (state: StateEntityGroup): Snapshot {
   return {
     id: randomId(),
     time: Date.now(),
+    //@ts-ignore
     state: state,
     timeCorrection: 0
   };
@@ -52,9 +52,27 @@ export function addSnapshot (snapshot: Snapshot): void {
   // by subtracting the current client date from the server time of the
   // first snapshot
   if( NetworkInterpolation.instance.checkCount != snapshot.time ) {
+  const io = Date.now() - snapshot.time;
+  const tr = io%NetworkInterpolation.instance._interpolationBuffer;
+  if (io - tr > NetworkInterpolation.instance.timeOffset) {
+    NetworkInterpolation.instance.timeOffset = io - tr;
+    NetworkInterpolation.instance.checkDelay = 0;
+  } else if (NetworkInterpolation.instance.checkDelay > 500) {
+    NetworkInterpolation.instance.timeOffset = io - tr;
+    NetworkInterpolation.instance.checkDelay = 0;
+  } else {
+    NetworkInterpolation.instance.checkDelay += 1;
+  }
+  NetworkInterpolation.instance.checkCount = snapshot.time;
+  NetworkInterpolation.instance.add(snapshot);
+}
+
+/* FASTER
+
+  if( NetworkInterpolation.instance.checkCount != snapshot.time ) {
     let io = Date.now() - snapshot.time;
     let tr = io%NetworkInterpolation.instance._interpolationBuffer;
-    if (io - tr > NetworkInterpolation.instance.timeOffset) {
+    if (io - tr < NetworkInterpolation.instance.timeOffset) {
       NetworkInterpolation.instance.timeOffset = io - tr;
       NetworkInterpolation.instance.checkDelay = 0;
     } else if (NetworkInterpolation.instance.checkDelay > 500) {
@@ -66,6 +84,8 @@ export function addSnapshot (snapshot: Snapshot): void {
     NetworkInterpolation.instance.checkCount = snapshot.time;
     NetworkInterpolation.instance.add(snapshot);
   }
+*/
+
 //  console.warn(NetworkInterpolation.instance.timeOffset+' '+(Date.now() - snapshot.time));
 }
 
@@ -143,37 +163,85 @@ export function interpolate (
   const tmpSnapshot: Snapshot = JSON.parse(JSON.stringify({ ...newer, state: newerState }));
 
   newerState.forEach((e: StateEntity, i: number) => {
-    const networkId = e.networkId;
-    const other: StateEntity | undefined = olderState.find((e: any) => e.networkId === networkId);
+    const other: StateEntity | undefined = olderState.find((f: any) => f.networkId === e.networkId);
+    if (e.networkId == Network.instance.userNetworkId) return;
     if (!other) return;
 
     params.forEach(p => {
-      const lerpMethod = p == 'quat' ? 'quat' : 'linear';
-      if(lerpMethod === 'quat'){
+      if(p === 'quat') {
 
-        const p0: Quat = {x: e.qX, y: e.qY, z: e.qZ, w: e.qW };
-        const p1: Quat = { x: other.qX, y: other.qY, z: other.qZ, w: other.qW };
+        const q0: Quat = {x: e.qX, y: e.qY, z: e.qZ, w: e.qW };
+        const q1: Quat = { x: other.qX, y: other.qY, z: other.qZ, w: other.qW };
+        const qn = lerpFnc('quat', q1, q0, pPercent);
 
-        const pn = lerpFnc(lerpMethod, p1, p0, pPercent);
+        const qx = qn.x * -1;
+        const qy = qn.y * -1;
+        const qz = qn.z * -1;
+        const qw = qn.w;
 
-        if (Array.isArray(tmpSnapshot.state)) tmpSnapshot.state[i].qX = pn.x;
-        if (Array.isArray(tmpSnapshot.state)) tmpSnapshot.state[i].qY = pn.y;
-        if (Array.isArray(tmpSnapshot.state)) tmpSnapshot.state[i].qZ = pn.z;
-        if (Array.isArray(tmpSnapshot.state)) tmpSnapshot.state[i].qW = pn.w;
 
-      }
-      else {
-        const p0 = e?.[p]
-        const p1 = other?.[p]
+        const p0x = e.x;
+        const p0y = e.y;
+        const p0z = e.z;
 
-        const pn = lerpFnc(lerpMethod, p1, p0, pPercent)
-        if (Array.isArray(tmpSnapshot.state)) tmpSnapshot.state[i][p] = pn
+        const p1x = other.x;
+        const p1y = other.y;
+        const p1z = other.z;
+
+        const pnx = lerpFnc('linear', p1x, p0x, pPercent);
+        const pny = lerpFnc('linear', p1y, p0y, pPercent);
+        const pnz = lerpFnc('linear', p1z, p0z, pPercent);
+
+        let x = e.x - pnx;
+        let y = e.y - pny;
+        let z = e.z - pnz;
+
+        let speed = (Math.sqrt(x*x + y*y + z*z)*1000) / (t0 - tn);
+      //  let speed = Math.sqrt(x*x + y*y + z*z)*Engine.physicsFrameRate;
+
+        if (speed < 0.001) {
+          x = 0;
+          y = 0;
+          z = 0;
+        }
+        // normalize
+
+        const scalar = 1 / (Math.sqrt(x*x + y*y + z*z) || 1);
+        x *= scalar;
+        y *= scalar;
+        z *= scalar;
+        // applyQuaternion
+        const ix = qw * x + qy * z - qz * y;
+        const iy = qw * y + qz * x - qx * z;
+        const iz = qw * z + qx * y - qy * x;
+        const iw = - qx * x - qy * y - qz * z;
+        x = ix * qw + iw * - qx + iy * - qz - iz * - qy;
+        y = iy * qw + iw * - qy + iz * - qx - ix * - qz;
+        z = iz * qw + iw * - qz + ix * - qy - iy * - qx;
+        // add to snaphot
+        if (Array.isArray(tmpSnapshot.state)) {
+
+          tmpSnapshot.state[i].x = pnx
+          tmpSnapshot.state[i].y = pny;
+          tmpSnapshot.state[i].z = pnz;
+
+          tmpSnapshot.state[i].qX = qn.x;
+          tmpSnapshot.state[i].qY = qn.y;
+          tmpSnapshot.state[i].qZ = qn.z;
+          tmpSnapshot.state[i].qW = qn.w;
+
+          tmpSnapshot.state[i].vX = x;
+          tmpSnapshot.state[i].vY = y;
+          tmpSnapshot.state[i].vZ = z;
+
+          tmpSnapshot.state[i].speed = speed
+        }
       }
     });
   });
 
   const interpolatedSnapshot: InterpolatedSnapshot = {
-    state: tmpSnapshot.state as StateEntityGroup,
+    state: tmpSnapshot.state as StateEntityInterGroup,
     percentage: pPercent,
     newer: newer.id,
     older: older.id
@@ -194,11 +262,11 @@ export function calculateInterpolation (parameters: string, arrayName = ''): Int
   let serverTime = (Date.now() - NetworkInterpolation.instance.timeOffset) - NetworkInterpolation.instance._interpolationBuffer;
   // protection from going back in time during a ping jump
 //  serverTime < NetworkInterpolation.instance.serverTimePrev ? serverTime = NetworkInterpolation.instance.serverTimePrev:'';
-  //console.warn(Date.now() - serverTime);
+  //console.warn((Date.now() - serverTime) / 1000);
   // find snapshots between which our time goes
   const shots = NetworkInterpolation.instance.get(serverTime);
   if (!shots) {
-    console.warn('shots return');
+    //console.warn('shots return');
     return;
   }
   const { older, newer } = shots;

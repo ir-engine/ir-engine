@@ -24,8 +24,6 @@ export const handleCollider: Behavior = (entity: Entity, args: { phase?: string 
 
   // onAdd
   const colliderComponent = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
-  console.warn(colliderComponent);
-
   // if simple mesh do computeBoundingBox()
   if (hasComponent(entity, Object3DComponent)){
     const mesh = getComponent(entity, Object3DComponent).value

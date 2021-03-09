@@ -127,7 +127,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
 
     const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
     const vehicleComponent = getComponent(entity, VehicleBody) as VehicleBody;
-
+/*
     if (hasComponent(entity, NetworkObject) && args.clientSnapshot.interpolationSnapshot) {
       const networkObject = getComponent<NetworkObject>(entity, NetworkObject)
       const interpolationSnapshot = args.clientSnapshot.interpolationSnapshot.state.find(v => v.networkId == networkObject.networkId);
@@ -146,13 +146,15 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
         interpolationSnapshot.qW
       );
     }
-
-  } else if (isClient && args.phase == 'onUpdate') {
+*/
+  }
+/*
+  if (isClient && args.phase == 'onUpdate') {
 
     const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
     const vehicleComponent = getComponent(entity, VehicleBody) as VehicleBody;
     const isDriver = vehicleComponent.driver == Network.instance.userNetworkId;
-    const networkObject = getComponent<NetworkObject>(entity, NetworkObject)
+  //  const networkObject = getComponent<NetworkObject>(entity, NetworkObject)
 
     const vehicle = vehicleComponent.vehiclePhysics;
     const isMoved = vehicleComponent.isMoved;
@@ -313,8 +315,8 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
         );
       }
     }
-
-  } else if (isServer && args.phase == 'onUpdate') {
+*/
+    if ( args.phase == 'onUpdate') {
 
     const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
     const vehicleComponent = getComponent(entity, VehicleBody) as VehicleBody;

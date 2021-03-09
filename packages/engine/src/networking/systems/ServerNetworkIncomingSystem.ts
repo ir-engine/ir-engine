@@ -292,7 +292,7 @@ export class ServerNetworkIncomingSystem extends System {
       this.queryResults.networkObjectsWithInput.all?.forEach(entity => {
         // Call behaviors associated with input
         handleInputFromNonLocalClients(entity, { isLocal: false, isServer: true }, delta);
-        addInputToWorldStateOnServer(entity);
+      //  addInputToWorldStateOnServer(entity);
         const input = getMutableComponent(entity, Input);
         // Get input object attached
         const isWalking = (input.data.get(BaseInput.WALK)?.value) === BinaryValue.ON;
