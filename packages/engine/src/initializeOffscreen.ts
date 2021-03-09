@@ -26,6 +26,7 @@ import { MainProxy } from './worker/MessageQueue';
 import { EntityActionSystem } from './input/systems/EntityActionSystem';
 import { EngineEvents } from './ecs/classes/EngineEvents';
 import { EngineEventsProxy, addIncomingEvents } from './ecs/classes/EngineEvents';
+import { ClientInputSystem } from './input/systems/ClientInputSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -49,13 +50,6 @@ export function initializeEngineOffscreen({ canvas, userArgs }, proxy: MainProxy
 
   EngineEvents.instance = new EngineEventsProxy(proxy);
   addIncomingEvents();
-  
-  proxy.addEventListener('CLIENT_INPUT_DATA_EVENT', (ev) => {
-    Engine.inputState.data.clear();
-    ev.detail.data.forEach((([key, val]) => {
-      Engine.inputState.data.set(key, val);
-    }))
-  });
 
   initialize();
   Engine.scene = new Scene();
