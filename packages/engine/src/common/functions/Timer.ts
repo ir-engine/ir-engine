@@ -43,13 +43,13 @@ export function Timer (
   let timerRuns = 0;
   let prevTimerRuns = 0;
 
-  function render(time) {
+  function xrAnimationLoop(time) {
     if (Engine.xrSession) {
       if (last !== null) {
         delta = (time - last) / 1000;
         accumulated = accumulated + delta;
-
         if (fixedRunner) {
+
           fixedRunner.run(delta);
         }
 
@@ -60,7 +60,8 @@ export function Timer (
         if (callbacks.update) callbacks.update(delta, accumulated);
       }
       last = time;
-  		Engine.renderer.render( Engine.scene, Engine.camera );
+      const camera = Engine.renderer.xr.getCamera(Engine.camera);
+  		Engine.renderer.render( Engine.scene, camera );
     } else {
       Engine.renderer.setAnimationLoop( null );
       start();
@@ -73,6 +74,7 @@ export function Timer (
   const updateFunction = (isClient ? requestAnimationFrame : requestAnimationFrameOnServer);
 
   function onFrame (time) {
+
     timerRuns+=1;
     const itsTpsReportTime = TPS_REPORT_INTERVAL_MS && nextTpsReportTime <= time;
     if (TPS_REPORTS_ENABLED && itsTpsReportTime) {
@@ -81,8 +83,7 @@ export function Timer (
 
     if (Engine.xrSession) {
       stop();
-      Engine.renderer.setAnimationLoop( render );
-      //  frameId = Engine.xrSession.requestAnimationFrame(toXR)
+      Engine.renderer.xr.setAnimationLoop( xrAnimationLoop );
     } else {
       frameId = updateFunction(onFrame);
 
@@ -182,17 +183,6 @@ export function Timer (
     prevTimerRuns = timerRuns;
   }
 
-/*
-  function toXR (timestamp, xrFrame) {
-    if (Engine.xrSession) {
-      Engine.xrSession.requestAnimationFrame(toXR)
-      onFrameXR(timestamp, xrFrame, callbacks)
-    } else {
-      xrFrame.session.end();
-      frameId = defaultAnimationFrame(onFrame)
-    }
-  }
-*/
   function start () {
     last = null;
     frameId = updateFunction(onFrame);

@@ -273,9 +273,9 @@ const AdminConsole = (props: Props) => {
             name: location.name,
             sceneId: location.sceneId,
             maxUsersPerInstance: location.maxUsersPerInstance,
-            type: location.location_setting.locationType,
-            instanceMediaChatEnabled: location.location_setting.instanceMediaChatEnabled.toString(),
-            videoEnabled: location.location_setting.videoEnabled.toString()
+            type: location?.location_setting?.locationType,
+            instanceMediaChatEnabled: location?.location_setting?.instanceMediaChatEnabled?.toString(),
+            videoEnabled: location?.location_setting?.videoEnabled?.toString()
         };
     });
 

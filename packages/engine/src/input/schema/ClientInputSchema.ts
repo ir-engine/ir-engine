@@ -84,9 +84,9 @@ const handleTouchMove = (args: { event: TouchEvent }): void => {
       lifecycleState: LifecycleValue.CHANGED
     });
 
-    const lastTouchPosition1Array = Engine.inputState.prevData.get(BaseInput.POINTER1_POSITION)?.value;
+    const lastTouchcontrollerPositionLeftArray = Engine.inputState.prevData.get(BaseInput.POINTER1_POSITION)?.value;
     const lastTouchPosition2Array = Engine.inputState.prevData.get(BaseInput.POINTER2_POSITION)?.value;
-    if (args.event.type === 'touchstart' || !lastTouchPosition1Array || !lastTouchPosition2Array) {
+    if (args.event.type === 'touchstart' || !lastTouchcontrollerPositionLeftArray || !lastTouchPosition2Array) {
       // skip if it's just start of gesture or there are no previous data yet
       return;
     }
@@ -96,16 +96,16 @@ const handleTouchMove = (args: { event: TouchEvent }): void => {
       return;
     }
 
-    const currentTouchPosition1 = new Vector2().fromArray(Engine.inputState.data.get(BaseInput.POINTER1_POSITION).value as number[]);
+    const currentTouchcontrollerPositionLeft = new Vector2().fromArray(Engine.inputState.data.get(BaseInput.POINTER1_POSITION).value as number[]);
     const currentTouchPosition2 = new Vector2().fromArray(Engine.inputState.data.get(BaseInput.POINTER2_POSITION).value as number[]);
 
-    const lastTouchPosition1 = new Vector2().fromArray(lastTouchPosition1Array as number[]);
+    const lastTouchcontrollerPositionLeft = new Vector2().fromArray(lastTouchcontrollerPositionLeftArray as number[]);
     const lastTouchPosition2 = new Vector2().fromArray(lastTouchPosition2Array as number[]);
 
     const scaleMappedInputKey = Engine.inputState.schema.touchInputMap?.axes[TouchInputs.Scale];
 
-    const currentDistance = currentTouchPosition1.distanceTo(currentTouchPosition2);
-    const lastDistance = lastTouchPosition1.distanceTo(lastTouchPosition2);
+    const currentDistance = currentTouchcontrollerPositionLeft.distanceTo(currentTouchPosition2);
+    const lastDistance = lastTouchcontrollerPositionLeft.distanceTo(lastTouchPosition2);
 
     const touchScaleValue = (lastDistance - currentDistance) * 0.01;
     const signVal = Math.sign(touchScaleValue);

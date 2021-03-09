@@ -70,8 +70,8 @@ const UserMenu = (props: UserMenuProps): any => {
   const [actorEntityID, setActorEntityID] = useState(null);
 
   const onEngineLoaded = () => {
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, graphicsSettingsLoaded);
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, clientEntityLoaded);
+    EngineEvents.instance?.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, graphicsSettingsLoaded);
+    EngineEvents.instance?.addEventListener(EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, clientEntityLoaded);
     document.removeEventListener('ENGINE_LOADED', onEngineLoaded);
   }
 
@@ -82,12 +82,12 @@ const UserMenu = (props: UserMenuProps): any => {
     Network.instance.localClientEntity = id;
     setActorEntityID(id);
     updateCharacterComponent(id, selfUser?.avatarId)
-    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, clientEntityLoaded);
+    EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, clientEntityLoaded);
   }
   
   const graphicsSettingsLoaded = (ev) => {
-    EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphics);
-    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, graphicsSettingsLoaded);
+    EngineEvents.instance?.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphics);
+    EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, graphicsSettingsLoaded);
   }
 
   useEffect(() => {
