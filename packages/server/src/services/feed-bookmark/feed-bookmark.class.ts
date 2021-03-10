@@ -20,18 +20,18 @@ export class FeedBookmark extends Service {
 
   async create (data : any, params?:Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params);
-    if (!loggedInUser.userId) {
+    if (!loggedInUser?.userId) {
       return Promise.reject(new BadRequest('Could not create bookmark. Users isn\'t logged in! '));
     }
     const {feed_bookmark:feedBookmarkModel} = this.app.get('sequelizeClient').models;
-    const newBookmark =  await feedBookmarkModel.create({feedId:data.feedId, authorId:loggedInUser.userId});
+    const newBookmark =  await feedBookmarkModel.create({feedId:data.feedId, authorId:loggedInUser?.userId});
     return  newBookmark;
   }
 
 
   async remove ( feedId: string,  params?:Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params);
-    if (!loggedInUser.userId) {
+    if (!loggedInUser?.userId) {
       return Promise.reject(new BadRequest('Could not remove bookmark. Users isn\'t logged in! '));
     }
     
@@ -43,7 +43,7 @@ export class FeedBookmark extends Service {
         raw: true,
         replacements: {
           feedId:feedId, 
-          authorId:loggedInUser.userId
+          authorId:loggedInUser?.userId
         }
       });
   }
