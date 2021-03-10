@@ -45,6 +45,8 @@ export enum MessageType {
   AUDIO_SOURCE_ELEMENT_SET,
 }
 
+export const MESSAGE_QUEUE_EVENT_BEFORE_SEND_QUEUE = 'MESSAGE_QUEUE_EVENT_BEFORE_SEND_QUEUE';
+
 function simplifyObject(object: any): any {
   const messageData = {};
   for (const prop in object)
@@ -53,18 +55,8 @@ function simplifyObject(object: any): any {
   return messageData;
 }
 
-/**
- * should do this the other way, create a map of arrays of keys and add objects only if the array that corresponds
- *    to that event key contains it. this allows us to catch weird edge cases instead of just deleting as many
- *    things as we can find, and also reduces how much we are sending over the worker
- */
 function fixDocumentEvent(event: any) {
   const obj = simplifyObject(event);
-  // touches are broken still
-  // just do what i wrote above ok
-  if(obj.changedTouches?.length) for(let touch of obj.changedTouches) { console.log(touch); touch.target = 'canvas' };
-  if(obj.targetTouches?.length)  for(let touch of obj.targetTouches) { console.log(touch); touch.target = 'canvas' };
-  if(obj.touches?.length) for(let touch of obj.touches) { console.log(touch); touch.target = 'canvas' };
   switch(obj.srcElement) {
     case (window as any): obj.targetElement = 'window'; break;
     case (document as any): obj.targetElement = 'document'; break;
@@ -111,13 +103,10 @@ export class EventDispatcherProxy {//extends ExtendableProxy {
   constructor({
     eventTarget,
     eventListener,
-    getset,
   }: {
     eventTarget: EventTarget;
     eventListener: any;
-    getset?: any;
   }) {
-    // super(getset);
     this._listeners = {};
     this.eventTarget = eventTarget;
     this.eventListener = eventListener;
@@ -189,6 +178,7 @@ export class MessageQueue extends EventDispatcherProxy {
   eventTarget: EventTarget;
   object3dProxies: Object3DProxy[] = [];
 
+
   constructor({
     messagePort,
     eventTarget,
@@ -232,6 +222,7 @@ export class MessageQueue extends EventDispatcherProxy {
     });
   }
   sendQueue() {
+    this.dispatchEvent({ type: MESSAGE_QUEUE_EVENT_BEFORE_SEND_QUEUE }, true);
     if (!this.queue?.length) return;
     const messages: object[] = [];
     this.queue.forEach((message: Message) => {
@@ -476,7 +467,6 @@ export class AudioDocumentElementProxy extends DocumentElementProxy {
 }
 
 const videoRemoteFunctionCalls: string[] = [];
-// const videoRemoteProps: string[] = [];
 
 export class VideoDocumentElementProxy extends AudioDocumentElementProxy {
   frameCallback: any;
@@ -599,7 +589,7 @@ export class WorkerProxy extends MessageQueue {
     super({ messagePort, eventTarget, eventListener: (args: any) => {
       this.queue.push({
         messageType: MessageType.EVENT,
-        message: fixDocumentEvent(args),
+        message: simplifyObject(args),
       } as Message);
     }, });
 
@@ -703,8 +693,6 @@ export async function createWorker(
   messageQueue.messageTypeFunctions.set(
     MessageType.DOCUMENT_ELEMENT_ADD_EVENT,
     ({ type, uuid }: { type: string; uuid: string }) => {
-
-      // TODO add in an options parameter to message to enable piping through preventDefault & passive etc - must then be added during adding event listener in InputSchema
       if (documentElementMap.get(uuid)) {
         const listener = (ev: any) => {
           const event = fixDocumentEvent(ev) as any;
