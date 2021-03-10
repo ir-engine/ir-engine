@@ -1,11 +1,9 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { EmptyLayout }from '@xr3ngine/client-core/components/ui/Layout/EmptyLayout';
 import AdminConsole from '@xr3ngine/client-core/components/ui/Admin';
 import {doLoginAuto} from "@xr3ngine/client-core/redux/auth/service";
-import { Admin } from 'react-admin';
-import jsonServerProvider from 'ra-data-json-server';
+import Dashboard  from "@xr3ngine/client-core/components/ui/Layout/Dashboard";
 
 interface Props {
     doLoginAuto?: any;
@@ -20,6 +18,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
 });
 
+
 const AdminConsolePage = (props: Props) => {
   const { doLoginAuto} = props;
 
@@ -30,14 +29,14 @@ const AdminConsolePage = (props: Props) => {
 
   return (
       // <ThemeProvider theme={theme}>
-        <EmptyLayout>
+        <Dashboard>
             <style> {`
                 .adminPage {
                     height: 100%;
                 }
             `}</style>
-            <AdminConsole />
-        </EmptyLayout>
+               <AdminConsole />
+        </Dashboard>
       // </ThemeProvider>
   );
 };
