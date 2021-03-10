@@ -180,8 +180,6 @@ export class Feed extends Service {
 
         feed.feed_fires
 
-      // console.log('feed.feed_fires[]', feed.feed_fires.length)
-      // feed.feed_fires.map(feed=>console.log('fire', feed))
       const loggedInUser = extractLoggedInUserFromParams(params);
       // @ts-ignore
       const { user, feed_fires } = feed;
