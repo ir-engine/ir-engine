@@ -28,7 +28,7 @@ export class FeedFires extends Service {
      async find (params: Params): Promise<any> {
       const loggedInUser = extractLoggedInUserFromParams(params);
       if (!loggedInUser.userId) {
-        return Promise.reject(new BadRequest('Could not add fire. Users isn\'t logged in! '));
+        return Promise.reject(new BadRequest('Could not get fired users list. Users isn\'t logged in! '));
       }
       const skip = params.query?.$skip ? params.query.$skip : 0;
       const limit = params.query?.$limit ? params.query.$limit : 100;
@@ -85,7 +85,7 @@ export class FeedFires extends Service {
   async remove ( feedId: string,  params?:Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params);
     if (!loggedInUser.userId) {
-      return Promise.reject(new BadRequest('Could not remove bookmark. Users isn\'t logged in! '));
+      return Promise.reject(new BadRequest('Could not remove fire. Users isn\'t logged in! '));
     }
     
     const dataQuery = `DELETE FROM  \`feed_fires\` WHERE feedId=:feedId AND authorId=:authorId`;
