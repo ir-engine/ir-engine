@@ -53,7 +53,6 @@ export function initializeEngineOffscreen({ canvas, userArgs }, proxy: MainProxy
 
   initialize();
   Engine.scene = new Scene();
-  Engine.inputState.schema = options.input.schema;
 
   Network.instance.schema = options.networking.schema;
   // @ts-ignore

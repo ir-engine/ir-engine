@@ -65,7 +65,6 @@ export async function initializeEngine(initOptions: any = DefaultInitializationO
 
   // Add the three.js scene to our manager -- it is now available anywhere
   Engine.scene = scene;
-  Engine.inputState.schema = options.input.schema;
 
   if(typeof window !== 'undefined') {
     // Add iOS and safari flag to window object -- To use it for creating an iOS compatible WebGLRenderer for example

@@ -163,8 +163,11 @@ export class EntityActionSystem extends System {
         // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
         const input = getMutableComponent(entity, Input);
 
-        stateUpdate.forEach((value, key) => { 
-          input.data.set(key, value);
+        // key is the input type enu, value is the input value
+        stateUpdate.forEach((value: InputValue<NumericalType>, key: InputAlias) => { 
+          if(input.schema.inputMap.has(key)) {
+            input.data.set(input.schema.inputMap.get(key), value);
+          }
         });
 
         input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
@@ -201,7 +204,7 @@ export class EntityActionSystem extends System {
         });
 
         // For each input currently on the input object:
-        stateUpdate.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+        input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
             // If the input exists on the input map (otherwise ignore it)
           if (input.schema.inputButtonBehaviors[key]) {
             // If the button is pressed
@@ -227,8 +230,7 @@ export class EntityActionSystem extends System {
                 element.behavior(entity, element.args, delta)
               );
             }
-          }
-          else if (input.schema.inputAxisBehaviors[key]) {
+          } else if (input.schema.inputAxisBehaviors[key]) {
             // If lifecycle hasn't been set, init it
             if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED;
             switch (value.lifecycleState) {
@@ -359,7 +361,6 @@ export class EntityActionSystem extends System {
       this._inputComponent.schema.onAdded.forEach(behavior => {
         behavior.behavior(entity, { ...behavior.args });
       });
-      // TODO do schema change event
     });
 
     // Called when input component is removed from entity
