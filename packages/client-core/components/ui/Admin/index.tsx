@@ -13,6 +13,8 @@ import { selectAuthState } from '../../../redux/auth/selector';
 import { client } from "../../../redux/feathers";
 import { Router, withRouter } from "next/router";
 import { PAGE_LIMIT } from '../../../redux/admin/reducers';
+import FormControl from '@material-ui/core/FormControl';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
     fetchAdminLocations,
     fetchAdminScenes,
@@ -35,6 +37,7 @@ import styles from './Admin.module.scss';
 import LocationModal from './LocationModal';
 import InstanceModal from './InstanceModal';
 import Search from "./Search";
+
 
 if (!global.setImmediate) {
     global.setImmediate = setTimeout as any;
@@ -77,7 +80,21 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch)
 });
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    formControl: {
+      margin: theme.spacing(0),
+      minWidth: 120,
+      backgroundColor: "white"
+    },
+    selectEmpty: {
+      marginTop: theme.spacing(0),
+    },
+  }),
+);
+
 const AdminConsole = (props: Props) => {
+    const classes = useStyles();
     const {
         router,
         adminState,
@@ -258,6 +275,8 @@ const AdminConsole = (props: Props) => {
     const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT);
     const [selectedTab, setSelectedTab] = React.useState('locations');
     const [refetch, setRefetch] = React.useState(false);
+    const [userRole, setUserRole] = React.useState("");
+    const [selectedUser, setSelectedUser] = React.useState({});
 
     const adminLocations = adminState.get('locations').get('locations');
     const adminLocationCount = adminState.get('locations').get('total');
@@ -383,11 +402,31 @@ const AdminConsole = (props: Props) => {
         }, 5000);
     };
 
-    const patchUserRole = async (e: any, user: any, role: string) => {
-        await client.service('user').patch(user.id, {
+    const patchUserRole = async ( user: any, role: string) => {
+        await client.service('user').patch(user, {
             userRole: role
         });
     };
+
+    const handleChange = (event: React.ChangeEvent<{ value: unknown }>, user: any) => {
+        let role = {};
+        if (user) {
+            patchUserRole(user, event.target.value as string)
+            role[user] = event.target.value;
+            setUserRole(event.target.value as string);
+            setSelectedUser({ ...selectedUser, ...role })
+        }
+    };
+
+    useEffect(() => {
+        if (Object.keys(selectedUser).length === 0) {
+            let role = {};
+            adminUsers.forEach(element => {
+                role[element.id] = element.userRole;
+            });
+            setSelectedUser(role);
+        }
+    }, [adminUsers]);
 
     useEffect(() => {
         fetchTick();
@@ -485,7 +524,10 @@ const AdminConsole = (props: Props) => {
                                 })}
                         </TableBody>
                         }
-                        {selectedTab === 'users' && <TableBody className={styles.thead}>
+                        {selectedTab === 'users' &&
+                       
+                        
+                        <TableBody className={styles.thead}>
                             {stableSort(adminUsers, getComparator(order, orderBy))
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                 .map((row, index) => {
@@ -509,23 +551,32 @@ const AdminConsole = (props: Props) => {
                                             <TableCell className={styles.tcell} align="right">
                                                 {(row.userRole === 'guest' || row.userRole === 'admin' && row.id === user.id) &&
                                                     <div>{row.userRole}</div>}
-                                                {(row.userRole !== 'guest' && row.id !== user.id) && <Select
-                                                    labelId="userRole"
-                                                    id="userRole"
-                                                    value="user"
-                                                    style={{color: "white"}}
-                                                    onChange={(e) => patchUserRole(e, row, e.target.value as string)}
-                                                >
-                                                    <MenuItem key='user' value='user'>User</MenuItem>)
-                                                <MenuItem key='admin' value='admin'>Admin</MenuItem>
-                                                </Select>}
+                                                {(row.userRole !== 'guest' && row.id !== user.id) &&
+                                                
+                                                <>
+                                                <p>  {row.userRole && row.userRole} </p>
+                                              <FormControl className={classes.formControl}>
+                                                  <Select
+                                                      value={selectedUser[row.userRole]}
+                                                      onChange={(e) => handleChange(e, row.id)}
+                                                      className={classes.selectEmpty}
+                                                  >
+                                                      <MenuItem key="user" value="user">User</MenuItem>
+                                                      <MenuItem key="admin" value="admin">Admin</MenuItem>
+                                                  </Select>
+                                              </FormControl>
+                                                  </>
+                                                
+                                                }
                                             </TableCell>
                                             <TableCell className={styles.tcell} align="right">{row.partyId}</TableCell>
                                         </TableRow>
                                     );
                                 })}
                         </TableBody>
-                        }
+                       
+                       
+                       }
                         {selectedTab === 'instances' && <TableBody className={styles.thead}>
                             {stableSort(displayInstances, getComparator(order, orderBy))
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
