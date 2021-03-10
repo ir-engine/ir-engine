@@ -68,6 +68,7 @@ function AssetGridItem({ contextMenuId, tooltipComponent, disableTooltip, item, 
     );
   } else {
     //setting content as ImageMediaGridItem if all above cases are false
+    // @ts-ignore
     content = <ImageMediaGridItem onClick={onClickItem} label={item.label} {...rest} />;
   }
 

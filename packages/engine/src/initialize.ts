@@ -1,14 +1,12 @@
 import _ from 'lodash';
-import { AudioListener, BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
+import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
 import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
-import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 import { CameraSystem } from './camera/systems/CameraSystem';
-import { IKTimer } from './common/functions/IKTimer';
 import { isClient } from './common/functions/isClient';
 import { Timer } from './common/functions/Timer';
 import { DebugHelpersSystem } from './debug/systems/DebugHelpersSystem';
-import { Engine } from './ecs/classes/Engine';
+import { Engine, AudioListener } from './ecs/classes/Engine';
 import { execute, initialize } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
@@ -29,16 +27,18 @@ import { CharacterInputSchema } from './templates/character/CharacterInputSchema
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
+import { EngineEvents, addIncomingEvents, addOutgoingEvents } from './ecs/classes/EngineEvents';
+// import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 
-const isSafari = typeof navigator !== 'undefined' && /Version\/[\d\.]+.*Safari/.test(window.navigator.userAgent);
+const webXRShouldBeAvailable = typeof navigator === 'undefined' || /Version\/[\d\.]+.*Safari/.test(window.navigator.userAgent);
 
 export const DefaultInitializationOptions = {
   input: {
     schema: CharacterInputSchema,
-    useWebXR: !isSafari,
+    useWebXR: webXRShouldBeAvailable,
   },
   networking: {
     schema: DefaultNetworkSchema
@@ -48,12 +48,17 @@ export const DefaultInitializationOptions = {
   },
 };
 
-export function initializeEngine(initOptions: any = DefaultInitializationOptions): void {
+export async function initializeEngine(initOptions: any = DefaultInitializationOptions): Promise<void> {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
+
+  new EngineEvents();
+
+  addIncomingEvents()
+  addOutgoingEvents()
   
   // Create a new world -- this holds all of our simulation state, entities, etc
   initialize();
-  
+
   // Create a new three.js scene
   const scene = new Scene();
 
@@ -61,12 +66,11 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
   Engine.scene = scene;
 
   if(typeof window !== 'undefined') {
-    (window as any).engine = Engine;
     // Add iOS and safari flag to window object -- To use it for creating an iOS compatible WebGLRenderer for example
     (window as any).iOS = !window.MSStream && /iPad|iPhone|iPod/.test(navigator.userAgent);
     (window as any).safariWebBrowser = !window.MSStream && /Safari/.test(navigator.userAgent);
   }
-  
+
   // Networking
   const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
   if (isClient) {
@@ -91,27 +95,18 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
 
   registerSystem(TransformSystem, { priority: 900 });
 
-  //Object HighlightSystem
   if (isClient) {
-    // Create a new camera
-    const camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.3, 750);
-    // Add the camera to the camera manager so it's available anywhere
-    Engine.camera = camera;
-    // Add the camera to the three.js scene
-    scene.add(camera);
-
-    const listener = new AudioListener();
-    camera.add( listener);
-
-    Engine.audioListener = listener;
-
+    Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.3, 750);
+    Engine.scene.add(Engine.camera);
     registerSystem(HighlightSystem);
-    registerSystem(PositionalAudioSystem);
+
+    Engine.audioListener = new AudioListener();
+    Engine.camera.add(Engine.audioListener);
+    // registerSystem(PositionalAudioSystem);
+
     registerSystem(InteractiveSystem);
     registerSystem(ParticleSystem);
-    if (process.env.NODE_ENV === 'development') {
-      registerSystem(DebugHelpersSystem);
-    }
+    registerSystem(DebugHelpersSystem);
     registerSystem(CameraSystem);
     registerSystem(WebGLRendererSystem, { priority: 1001, canvas: options.renderer.canvas || createCanvas() });
     Engine.viewportElement = Engine.renderer.domElement;
@@ -120,13 +115,6 @@ export function initializeEngine(initOptions: any = DefaultInitializationOptions
   // Start our timer!
   Engine.engineTimerTimeout = setTimeout(() => {
     Engine.engineTimer = Timer(
-      {
-        networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
-        fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
-        update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
-      }, Engine.physicsFrameRate, Engine.networkFramerate).start();
-    
-    Engine.engineTimer = IKTimer(
       {
         networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
         fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),

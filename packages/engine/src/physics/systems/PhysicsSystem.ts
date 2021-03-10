@@ -7,9 +7,11 @@ import { appplyVectorMatrixXZ } from '../../common/functions/appplyVectorMatrixX
 import { cannonFromThreeVector } from '../../common/functions/cannonFromThreeVector';
 import { getSignedAngleBetweenVectors } from '../../common/functions/getSignedAngleBetweenVectors';
 import { isClient } from '../../common/functions/isClient';
+import { isServer } from '../../common/functions/isServer';
 import { lerp } from '../../common/functions/MathLerpFunctions';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Engine } from '../../ecs/classes/Engine';
+import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
@@ -59,6 +61,11 @@ export class PhysicsSystem extends System {
   static physicsWorld: World
   static simulate: boolean
   static serverOnlyRigidBodyCollides: boolean
+
+  freezeTimes = 0
+  clientSnapshotFreezeTime = 0
+  serverSnapshotFreezeTime = 0
+
   groundMaterial = new Material('groundMaterial')
   wheelMaterial = new Material('wheelMaterial')
   trimMeshMaterial = new Material('trimMeshMaterial')
@@ -82,7 +89,7 @@ export class PhysicsSystem extends System {
     this.physicsMaxPrediction = this.physicsFrameRate;
     PhysicsSystem.serverOnlyRigidBodyCollides = false;
     // Physics
-    PhysicsSystem.simulate = true;
+    PhysicsSystem.simulate = isServer;
     PhysicsSystem.frame = 0;
     PhysicsSystem.physicsWorld = new World();
     PhysicsSystem.physicsWorld.allowSleep = false;
@@ -100,6 +107,10 @@ export class PhysicsSystem extends System {
         //console.log("PH  UPD: body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape) }
       }
     };
+
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
+      PhysicsSystem.simulate = ev.enable;
+    });
 
     // window["physicsDebugView"] = () => {
     //   debug(Engine.scene, PhysicsSystem.physicsWorld.bodies, DebugOptions);
@@ -125,12 +136,23 @@ export class PhysicsSystem extends System {
     const clientSnapshot = {
       old: null,
       new: [],
-      interpolationSnapshot: calculateInterpolation('x y z quat'),
-      correction: 180 //speed correction client form server positions
+      interpolationSnapshot: isClient ? calculateInterpolation('x y z quat'):'',
+      correction: 180//NetworkInterpolation.instance.timeOffset // //speed correction client form server positions
     }
 
     if (isClient && Network.instance.snapshot) {
-      clientSnapshot.old = Vault.instance?.get((Network.instance.snapshot as any).timeCorrection - 15, true)
+      clientSnapshot.old = Vault.instance?.get((Network.instance.snapshot as any).timeCorrection, true);
+      if (clientSnapshot.old) {
+        if (this.clientSnapshotFreezeTime == clientSnapshot.old.time && this.serverSnapshotFreezeTime == Network.instance.snapshot.timeCorrection && this.freezeTimes > 3) {
+          clientSnapshot.old = null;
+        } else if (this.clientSnapshotFreezeTime == clientSnapshot.old.time && this.serverSnapshotFreezeTime == Network.instance.snapshot.timeCorrection) {
+          this.freezeTimes+=1;
+        } else {
+          this.freezeTimes = 0;
+          this.clientSnapshotFreezeTime = clientSnapshot.old.time;
+          this.serverSnapshotFreezeTime = Network.instance.snapshot.timeCorrection;
+        }
+      }
     }
 
     // Collider
@@ -172,6 +194,7 @@ export class PhysicsSystem extends System {
 
     this.queryResults.vehicleBody.all?.forEach(entityCar => {
       const networkCarId = getComponent(entityCar, NetworkObject).networkId;
+      VehicleBehavior(entityCar, { phase: 'onUpdate', clientSnapshot });
 
         this.queryResults.playerInCar.added?.forEach(entity => {
           const component = getComponent(entity, PlayerInCar);
@@ -196,16 +219,23 @@ export class PhysicsSystem extends System {
         });
 
         this.queryResults.playerInCar.removed?.forEach(entity => {
-          if(!hasComponent(entity, NetworkObject)) return;
-          const networkPlayerId = getComponent(entity, NetworkObject).networkId;
+          let networkPlayerId
           const vehicle = getComponent(entityCar, VehicleBody);
+          if(!hasComponent(entity, NetworkObject)) {
+            for (let i = 0; i < vehicle.seatPlane.length; i++) {
+              if (vehicle[vehicle.seatPlane[i]] != null && !Network.instance.networkObjects[vehicle[vehicle.seatPlane[i]]]) {
+                networkPlayerId = vehicle[vehicle.seatPlane[i]];
+              }
+            }
+          } else {
+            networkPlayerId = getComponent(entity, NetworkObject).networkId;
+          }
           for (let i = 0; i < vehicle.seatPlane.length; i++) {
             if (networkPlayerId == vehicle[vehicle.seatPlane[i]]) {
               onRemovedFromCar(entity, entityCar, i, this.diffSpeed);
             }
           }
         });
-      VehicleBehavior(entityCar, { phase: 'onUpdate', clientSnapshot });
     });
 
     this.queryResults.vehicleBody.removed?.forEach(entity => {
@@ -446,6 +476,9 @@ const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime) => {
     actor.mixer.update(deltaTime);
   }
 
+  const body = actor.actorCapsule.body;
+	if(body.world == null) return;
+
   if (isClient && Engine.camera && hasComponent(entity, LocalInputReceiver)) {
     actor.viewVector = new Vector3(0, 0, -1).applyQuaternion(Engine.camera.quaternion);
   }
@@ -484,9 +517,7 @@ const updateCharacter: Behavior = (entity: Entity, args = null, deltaTime) => {
         actor.actorCapsule.body.position.y,
         actor.actorCapsule.body.position.z
       );
-    }
-
-    if (isClient) {
+    } else {
       const networkComponent = getComponent<NetworkObject>(entity, NetworkObject)
       if (networkComponent) {
         if (networkComponent.ownerId === Network.instance.userId) {
@@ -514,7 +545,7 @@ const updateIK = (entity: Entity) => {
 
   const positionOffset = Math.sin((realDateNow() % 10000) / 10000 * Math.PI * 2) * 2;
   const positionOffset2 = -Math.sin((realDateNow() % 5000) / 5000 * Math.PI * 2) * 1;
-  const standFactor = actor.height - 0.1 * actor.height + Math.sin((realDateNow() % 2000) / 2000 * Math.PI * 2) * 0.2 * actor.height;
+  const standFactor = actor.height * (0.9 + Math.sin((realDateNow() % 2000) / 2000 * Math.PI * 2) * 0.2);
   const rotationAngle = (realDateNow() % 5000) / 5000 * Math.PI * 2;
 
   if (actor.inputs) {
@@ -549,6 +580,113 @@ const updateIK = (entity: Entity) => {
     actor.inputs.rightGamepad.pointer = (Math.sin((Date.now() % 10000) / 10000 * Math.PI * 2) + 1) / 2;
     actor.inputs.rightGamepad.grip = (Math.sin((Date.now() % 10000) / 10000 * Math.PI * 2) + 1) / 2;
 
-    actor.update();
+      const upRotation = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2)
+      const leftRotation = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI * 0.8)
+      const rightRotation = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -Math.PI * 0.8)
+      const localVector = new Vector3()
+      const modelScaleFactor = actor.inputs.hmd.scaleFactor
+      if (modelScaleFactor !== actor.lastModelScaleFactor) {
+        actor.model.scale.set(modelScaleFactor, modelScaleFactor, modelScaleFactor)
+        actor.lastModelScaleFactor = modelScaleFactor
+      }
+  
+      actor.shoulderTransforms.Update()
+  
+      for (const k in actor.modelBones) {
+        const modelBone = actor.modelBones[k]
+        const modelBoneOutput = actor.modelBoneOutputs[k]
+  
+        if (k === "Hips") {
+          modelBone.position.copy(modelBoneOutput.position)
+        }
+        modelBone.quaternion.multiplyQuaternions(modelBoneOutput.quaternion, modelBone.initialQuaternion)
+  
+        if (k === "Left_ankle" || k === "Right_ankle") {
+          modelBone.quaternion.multiply(upRotation)
+        } else if (k === "Left_wrist") {
+          modelBone.quaternion.multiply(leftRotation) // center
+        } else if (k === "Right_wrist") {
+          modelBone.quaternion.multiply(rightRotation) // center
+        }
+        modelBone.updateMatrixWorld()
+      }
+  
+      const now = Date.now()
+      const timeDiff = Math.min(now - actor.lastTimestamp, 1000)
+      actor.lastTimestamp = now
+  
+      if ((actor.options as any).fingers) {
+        const _processFingerBones = left => {
+          const fingerBones = left ? actor.fingerBones.left : actor.fingerBones.right
+          const gamepadInput = left ? actor.inputs.rightGamepad : actor.inputs.leftGamepad
+          for (const k in fingerBones) {
+            const fingerBone = fingerBones[k]
+            if (fingerBone) {
+              let setter
+              if (k === "thumb") {
+                setter = (q, i) =>
+                  q.setFromAxisAngle(
+                    localVector.set(0, left ? 1 : -1, 0),
+                    gamepadInput.grip * Math.PI * (i === 0 ? 0.125 : 0.25)
+                  )
+              } else if (k === "index") {
+                setter = (q, i) =>
+                  q.setFromAxisAngle(localVector.set(0, 0, left ? -1 : 1), gamepadInput.pointer * Math.PI * 0.5)
+              } else {
+                setter = (q, i) =>
+                  q.setFromAxisAngle(localVector.set(0, 0, left ? -1 : 1), gamepadInput.grip * Math.PI * 0.5)
+              }
+              let index = 0
+              fingerBone.traverse(subFingerBone => {
+                setter(subFingerBone.quaternion, index++)
+              })
+            }
+          }
+        }
+        _processFingerBones(true)
+        _processFingerBones(false)
+      }
+  
+      if ((actor.options as any).visemes) {
+        const aaValue = Math.min(actor.volume * 10, 1)
+        const blinkValue = (() => {
+          const nowWindow = now % 2000
+          if (nowWindow >= 0 && nowWindow < 100) {
+            return nowWindow / 100
+          } else if (nowWindow >= 100 && nowWindow < 200) {
+            return 1 - (nowWindow - 100) / 100
+          } else {
+            return 0
+          }
+        })()
+        actor.skinnedMeshes.forEach(o => {
+          const { morphTargetDictionary, morphTargetInfluences } = o
+          if (morphTargetDictionary && morphTargetInfluences) {
+            let aaMorphTargetIndex = morphTargetDictionary["vrc.v_aa"]
+            if (aaMorphTargetIndex === undefined) {
+              aaMorphTargetIndex = morphTargetDictionary["morphTarget26"]
+            }
+            if (aaMorphTargetIndex !== undefined) {
+              morphTargetInfluences[aaMorphTargetIndex] = aaValue
+            }
+  
+            let blinkLeftMorphTargetIndex = morphTargetDictionary["vrc.blink_left"]
+            if (blinkLeftMorphTargetIndex === undefined) {
+              blinkLeftMorphTargetIndex = morphTargetDictionary["morphTarget16"]
+            }
+            if (blinkLeftMorphTargetIndex !== undefined) {
+              morphTargetInfluences[blinkLeftMorphTargetIndex] = blinkValue
+            }
+  
+            let blinkRightMorphTargetIndex = morphTargetDictionary["vrc.blink_right"]
+            if (blinkRightMorphTargetIndex === undefined) {
+              blinkRightMorphTargetIndex = morphTargetDictionary["morphTarget17"]
+            }
+            if (blinkRightMorphTargetIndex !== undefined) {
+              morphTargetInfluences[blinkRightMorphTargetIndex] = blinkValue
+            }
+          }
+        })
+      }
   }
 }

@@ -84,9 +84,10 @@ export const onStartRemoveFromCar = (entity: Entity, entityCar: Entity, seat: nu
     transform.rotation.setFromRotationMatrix(
       new Matrix4().multiplyMatrices(
         new Matrix4().makeRotationFromQuaternion(transformCar.rotation),
-        new Matrix4().makeRotationX(-0.35)
+        new Matrix4().makeRotationX(0)
       )
     )
+
   }
 
   if (isServer) return;

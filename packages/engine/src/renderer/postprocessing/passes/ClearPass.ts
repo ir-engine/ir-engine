@@ -98,7 +98,7 @@ export class ClearPass extends Pass {
     const hasOverrideClearAlpha = (overrideClearAlpha >= 0.0);
 
     if (hasOverrideClearColor) {
-      color.copy(renderer.getClearColor());
+      color.copy(renderer.getClearColor(color));
       renderer.setClearColor(overrideClearColor, hasOverrideClearAlpha
         ? overrideClearAlpha : clearAlpha);
     } else if (hasOverrideClearAlpha) {

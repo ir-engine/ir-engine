@@ -52,6 +52,8 @@ const ProfileConnections = (props: Props): any => {
       <SingleConnection connectionType="github" />
       <Divider variant="middle" />
       <SingleConnection connectionType="google" />
+      <Divider variant="middle" />
+      <SingleConnection connectionType="linkedin" />
     </div>
   );
 };

@@ -1,19 +1,46 @@
 import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
     Avatar,
     Button,
+    Divider,
     Grid,
     List,
     ListItem,
     ListItemAvatar,
-    ListItemText,
-    TextField
+    ListItemIcon,
+    ListItemText, SwipeableDrawer,
+    TextField,
+    Tooltip,
+    Typography
 } from '@material-ui/core';
 import {
+    Add,
+    Block,
+    Call,
+    CallEnd,
     Clear,
     Delete,
-    Edit, Mic, MicOff,
+    Edit,
+    ExpandMore,
+    Forum,
+    Grain,
+    Group,
+    GroupAdd,
+    GroupWork,
+    Mic,
+    MicOff,
+    PersonAdd,
+    PeopleOutline,
+    Public,
     Save,
-    Send, Videocam, VideocamOff
+    Send,
+    Settings,
+    SupervisedUserCircle,
+    ThreeDRotation,
+    Videocam,
+    VideocamOff
 } from '@material-ui/icons';
 import PartyParticipantWindow from '@xr3ngine/client-core/components/ui/PartyParticipantWindow';
 import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
@@ -58,12 +85,45 @@ import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { observer } from 'mobx-react';
 //@ts-ignore
 import styles from './Harmony.module.scss';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import {autorun} from "mobx";
+import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
+import {getFriends, unfriend} from "../../../redux/friend/service";
+import {createGroup, getGroups, patchGroup, removeGroup, removeGroupUser} from "../../../redux/group/service";
+import {createParty, getParty, removeParty, removePartyUser, transferPartyOwner} from "../../../redux/party/service";
+import {updateInviteTarget} from "../../../redux/invite/service";
+import {getLayerUsers} from "../../../redux/user/service";
+import {banUserFromLocation} from "../../../redux/location/service";
+import {updateCamVideoState, updateCamAudioState} from '../../../redux/mediastream/service';
+import {updateChannelTypeState, changeChannelTypeState} from "../../../redux/transport/service";
+import {selectFriendState} from "../../../redux/friend/selector";
+import {selectGroupState} from "../../../redux/group/selector";
+import {selectLocationState} from "../../../redux/location/selector";
+import {selectPartyState} from "../../../redux/party/selector";
+import {selectTransportState} from '../../../redux/transport/selector';
+import {selectMediastreamState} from "../../../redux/mediastream/selector";
+import {Group as GroupType} from "../../../../common/interfaces/Group";
+import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 
+const initialSelectedUserState = {
+    id: '',
+    name: '',
+    userRole: '',
+    identityProviders: [],
+    relationType: {},
+    inverseRelationType: {},
+    avatarUrl: ''
+};
+
+const initialGroupForm = {
+    id: '',
+    name: '',
+    groupUsers: [],
+    description: ''
+};
+
+const engineRendererCanvasId = 'engine-renderer-canvas';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -71,7 +131,13 @@ const mapStateToProps = (state: any): any => {
         chatState: selectChatState(state),
         channelConnectionState: selectChannelConnectionState(state),
         instanceConnectionState: selectInstanceConnectionState(state),
-        userState: selectUserState(state)
+        userState: selectUserState(state),
+        friendState: selectFriendState(state),
+        groupState: selectGroupState(state),
+        locationState: selectLocationState(state),
+        partyState: selectPartyState(state),
+        transportState: selectTransportState(state),
+        mediastream: selectMediastreamState(state)
     };
 };
 
@@ -86,7 +152,23 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     connectToChannelServer: bindActionCreators(connectToChannelServer, dispatch),
     resetChannelServer: bindActionCreators(resetChannelServer, dispatch),
     patchMessage: bindActionCreators(patchMessage, dispatch),
-    updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch)
+    updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch),
+    getFriends: bindActionCreators(getFriends, dispatch),
+    unfriend: bindActionCreators(unfriend, dispatch),
+    getGroups: bindActionCreators(getGroups, dispatch),
+    createGroup: bindActionCreators(createGroup, dispatch),
+    patchGroup: bindActionCreators(patchGroup, dispatch),
+    removeGroup: bindActionCreators(removeGroup, dispatch),
+    removeGroupUser: bindActionCreators(removeGroupUser, dispatch),
+    getParty: bindActionCreators(getParty, dispatch),
+    createParty: bindActionCreators(createParty, dispatch),
+    removeParty: bindActionCreators(removeParty, dispatch),
+    removePartyUser: bindActionCreators(removePartyUser, dispatch),
+    transferPartyOwner: bindActionCreators(transferPartyOwner, dispatch),
+    updateInviteTarget: bindActionCreators(updateInviteTarget, dispatch),
+    getLayerUsers: bindActionCreators(getLayerUsers, dispatch),
+    banUserFromLocation: bindActionCreators(banUserFromLocation, dispatch),
+    changeChannelTypeState: bindActionCreators(changeChannelTypeState, dispatch)
 });
 
 interface Props {
@@ -94,6 +176,7 @@ interface Props {
     doLoginAuto?: typeof doLoginAuto;
     setBottomDrawerOpen: any;
     setLeftDrawerOpen: any;
+    setRightDrawerOpen: any;
     chatState?: any;
     channelConnectionState?: any;
     instanceConnectionState?: any;
@@ -108,9 +191,42 @@ interface Props {
     provisionChannelServer?: typeof provisionChannelServer;
     connectToChannelServer?: typeof connectToChannelServer;
     resetChannelServer?: typeof resetChannelServer;
+    friendState?: any;
+    getFriends?: any;
+    unfriend?: any;
+    groupState?: any;
+    getGroups?: any;
+    createGroup?: any;
+    patchGroup?: any;
+    removeGroup?: any;
+    removeGroupUser?: any;
+    partyState?: any;
+    getParty?: any;
+    createParty?: any;
+    removeParty?: any;
+    removePartyUser?: any;
+    transferPartyOwner?: any;
+    detailsType?: any;
+    setDetailsType?: any;
+    groupFormMode?: string;
+    setGroupFormMode?: any;
+    groupFormOpen?: boolean;
+    setGroupFormOpen?: any;
+    groupForm?: any;
+    setGroupForm?: any;
+    selectedUser?: any;
+    setSelectedUser?: any;
+    selectedGroup?: any;
+    setSelectedGroup?: any;
+    locationState?: any;
+    transportState?: any;
+    changeChannelTypeState?: any;
+    mediastream?: any;
+    setHarmonyOpen?: any;
+    isHarmonyPage?: boolean;
 }
 
-const Harmony = observer((props: Props): any => {
+const Harmony = (props: Props): any => {
     const {
         authState,
         chatState,
@@ -122,13 +238,44 @@ const Harmony = observer((props: Props): any => {
         removeMessage,
         setBottomDrawerOpen,
         setLeftDrawerOpen,
+        setRightDrawerOpen,
         updateChatTarget,
         patchMessage,
         updateMessageScrollInit,
         userState,
         provisionChannelServer,
         connectToChannelServer,
-        resetChannelServer
+        resetChannelServer,
+        friendState,
+        getFriends,
+        unfriend,
+        groupState,
+        getGroups,
+        createGroup,
+        patchGroup,
+        removeGroup,
+        removeGroupUser,
+        partyState,
+        getParty,
+        createParty,
+        detailsType,
+        setDetailsType,
+        groupFormOpen,
+        setGroupFormOpen,
+        groupFormMode,
+        setGroupFormMode,
+        groupForm,
+        setGroupForm,
+        selectedUser,
+        setSelectedUser,
+        selectedGroup,
+        setSelectedGroup,
+        locationState,
+        transportState,
+        changeChannelTypeState,
+        mediastream,
+        setHarmonyOpen,
+        isHarmonyPage
     } = props;
 
     const messageRef = React.useRef();
@@ -155,10 +302,29 @@ const Harmony = observer((props: Props): any => {
         audio: false,
         video: false
     });
+    const [selectedAccordion, setSelectedAccordion] = useState('');
+    const [tabIndex, setTabIndex] = useState(0);
+    const [videoPaused, setVideoPaused] = useState(false);
+    const [audioPaused, setAudioPaused] = useState(false);
+    const [selectorsOpen, setSelectorsOpen] = useState(false);
+    const [dimensions, setDimensions] = useState({
+        height: window.innerHeight,
+        width: window.innerWidth
+    });
+    const [engineInitialized, setEngineInitialized] = useState(false);
 
     const instanceLayerUsers = userState.get('layerUsers') ?? [];
     const channelLayerUsers = userState.get('channelLayerUsers') ?? [];
-    const layerUsers = activeAVChannelId?.length > 0 ? channelLayerUsers : instanceLayerUsers;
+    const layerUsers = channels.get(activeAVChannelId)?.channelType === 'instance' ? instanceLayerUsers : channelLayerUsers;
+    const friendSubState = friendState.get('friends');
+    const friends = friendSubState.get('friends');
+    const groupSubState = groupState.get('groups');
+    const groups = groupSubState.get('groups');
+    const party = partyState.get('party');
+    const currentLocation = locationState.get('currentLocation').get('location');
+    const selfGroupUser = selectedGroup.id && selectedGroup.id.length > 0 ? selectedGroup.groupUsers.find((groupUser) => groupUser.userId === selfUser.id) : {};
+    const partyUsers = party && party.partyUsers ? party.partyUsers : [];
+    const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === selfUser.id) : {};
 
     const setProducerStarting = value => {
         producerStartingRef.current = value;
@@ -178,35 +344,61 @@ const Harmony = observer((props: Props): any => {
     const producerStartingRef = useRef(producerStarting);
     const activeAVChannelIdRef = useRef(activeAVChannelId);
     const channelAwaitingProvisionRef = useRef(channelAwaitingProvision);
+    const videoEnabled = isHarmonyPage === true ? true : currentLocation.locationSettings ? currentLocation.locationSettings.videoEnabled : false;
+    const isCamVideoEnabled = mediastream.get('isCamVideoEnabled');
+    const isCamAudioEnabled = mediastream.get('isCamAudioEnabled');
 
     useEffect(() => {
-        window.addEventListener('connectToWorld', () => {
-            if (producerStartingRef.current === 'audio') toggleAudio(activeAVChannelIdRef.current);
-            else if (producerStartingRef.current === 'video') toggleVideo(activeAVChannelIdRef.current);
-            setProducerStarting('');
+        if (EngineEvents.instance != null) {
+            setEngineInitialized(true);
+            createEngineListeners();
+        }
+        window.addEventListener('resize', () => {
+            setDimensions({
+                height: window.innerHeight,
+                width: window.innerWidth
+            })
         });
 
-        window.addEventListener('connectToWorldTimeout', (e: any) => {
-            if (e.instance === true) resetChannelServer();
-        })
+        return () => {
+            if (EngineEvents.instance != null) {
+                setEngineInitialized(false);
+                EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
+                    await toggleAudio(activeAVChannelIdRef.current);
+                    await toggleVideo(activeAVChannelIdRef.current);
+                    updateChannelTypeState();
+                    updateCamVideoState();
+                    updateCamAudioState();
+                });
 
-        window.addEventListener('leaveWorld', () => {
-            resetChannelServer();
-            if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('');
-        });
+                EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
+                    if (e.instance === true) resetChannelServer();
+                })
 
-        autorun(() => {
-            if ((Network.instance.transport as any).channelType === 'instance') {
-                const channelEntries = [...channels.entries()];
-                const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null);
-                if (instanceChannel != null && channelAwaitingProvision?.id?.length === 0) {
-                    setActiveAVChannelId(instanceChannel[0]);
-                }
-            } else {
-                setActiveAVChannelId((Network.instance.transport as any).channelId);
+                EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.LEAVE_WORLD, () => {
+                    resetChannelServer();
+                    if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('');
+                });
             }
-        });
+
+            window.removeEventListener('resize', () => {
+                setDimensions({
+                    height: window.innerHeight,
+                    width: window.innerWidth
+                })
+            });
+        }
     }, []);
+
+    useEffect(() => {
+        if ((Network.instance.transport as any)?.channelType === 'instance') {
+            const channelEntries = [...channels.entries()];
+            const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null);
+            if (instanceChannel != null && (MediaStreamSystem.instance.camAudioProducer != null || MediaStreamSystem.instance.camVideoProducer != null)) setActiveAVChannelId(instanceChannel[0]);
+        } else {
+            setActiveAVChannelId(transportState.get('channelId'));
+        }
+    }, [transportState])
 
     useEffect(() => {
         if (channelConnectionState.get('connected') === false && channelAwaitingProvision?.id?.length > 0) {
@@ -256,11 +448,13 @@ const Harmony = observer((props: Props): any => {
         });
     }, [channels]);
 
+    useEffect(() => {
+        setVideoPaused(!isCamVideoEnabled);
+    }, [isCamVideoEnabled]);
 
-    const openLeftDrawer = (e: any): void => {
-        setBottomDrawerOpen(false);
-        setLeftDrawerOpen(true);
-    };
+    useEffect(() => {
+        setAudioPaused(!isCamAudioEnabled);
+    }, [isCamAudioEnabled]);
 
     const handleComposingMessageChange = (event: any): void => {
         const message = event.target.value;
@@ -283,16 +477,36 @@ const Harmony = observer((props: Props): any => {
         }
     };
 
-    const setActiveChat = (channel): void => {
+    const setActiveChat = (channelType, target): void => {
         updateMessageScrollInit(true);
-        const channelType = channel.channelType;
-        const target = channelType === 'user' ? (channel.user1?.id === selfUser.id ? channel.user2 : channel.user2?.id === selfUser.id ? channel.user1 : {}) : channelType === 'group' ? channel.group : channelType === 'instance' ? channel.instance : channel.party;
-        updateChatTarget(channelType, target, channel.id);
+        updateChatTarget(channelType, target);
         setMessageDeletePending('');
         setMessageUpdatePending('');
         setEditingMessage('');
         setComposingMessage('');
     };
+
+    const createEngineListeners = (): void => {
+        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
+            await toggleAudio(activeAVChannelIdRef.current);
+            await toggleVideo(activeAVChannelIdRef.current);
+            updateChannelTypeState();
+            updateCamVideoState();
+            updateCamAudioState();
+        });
+
+        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
+            if (e.instance === true) resetChannelServer();
+        })
+
+        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LEAVE_WORLD, () => {
+            resetChannelServer();
+            if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('');
+            updateChannelTypeState();
+            updateCamVideoState();
+            updateCamAudioState();
+        });
+    }
 
     const onChannelScroll = (e): void => {
         if ((e.target.scrollHeight - e.target.scrollTop) === e.target.clientHeight ) {
@@ -388,134 +602,67 @@ const Harmony = observer((props: Props): any => {
         }
     };
 
-    const checkEndVideoChat = async () =>{
-        if((MediaStreamSystem.instance?.audioPaused || MediaStreamSystem.instance?.camAudioProducer == null) && (MediaStreamSystem.instance?.videoPaused || MediaStreamSystem.instance?.camVideoProducer == null)) {
-            await endVideoChat({});
-            console.log('Leaving channel after video chat ended');
-            await leave(false);
-        }
-    };
-    const handleMicClick = async (e: any, instance: boolean, channelId: string) => {
+    const handleMicClick = async (e: any) => {
         e.stopPropagation();
-        if (instance === true && instanceConnectionState.get('instanceProvisioning') === false && channelConnectionState.get('instanceProvisioning') === false) {
-            setActiveAVChannelId(channelId);
-            setChannelAwaitingProvision({
-                id: '',
-                audio: false,
-                video: false
-            });
-            if (MediaStreamSystem.instance?.camAudioProducer == null || channelId !== activeAVChannelId) {
-                await endVideoChat({});
-                await leave(false);
-                await checkMediaStream('instance');
-                await createCamAudioProducer('instance');
-            }
-            else {
-                await checkMediaStream('instance');
-                const audioPaused = MediaStreamSystem.instance.toggleAudioPaused();
-                if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer);
-                else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer);
-                checkEndVideoChat();
-                setRelationship('instance', null);
-            }
+        if (MediaStreamSystem.instance?.camAudioProducer == null) {
+            const channel = channels.get(targetChannelId);
+            if (channel.instanceId == null) await createCamAudioProducer('channel', targetChannelId);
+            else await createCamAudioProducer('instance');
+            setAudioPaused(false);
+            await resumeProducer(MediaStreamSystem.instance?.camAudioProducer);
+        } else {
+            const msAudioPaused = MediaStreamSystem.instance?.toggleAudioPaused();
+            setAudioPaused(MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camAudioProducer == null || MediaStreamSystem.instance?.audioPaused === true);
+            if (msAudioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer);
+            else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer);
         }
-        else {
-            if (channelId !== activeAVChannelId) {
-                setChannelAwaitingProvision({
-                    id: channelAwaitingProvision?.id ? channelAwaitingProvision.id : channelId,
-                    video: channelAwaitingProvision?.video || false,
-                    audio: true
-                });
-                setActiveAVChannelId(channelId);
-                await endVideoChat({});
-                await leave(false);
-                if (channelConnectionState.get('connected') === false &&
-                    channelConnectionState.get('instanceProvisioned') === false &&
-                    channelConnectionState.get('instanceProvisioning') === false) {
-                    setChannelAwaitingProvision({
-                        id: '',
-                        audio: false,
-                        video: false
-                    });
-                    provisionChannelServer(null, channelId);
-                    setProducerStarting('audio');
-                }  else if (channelConnectionState.get('instanceProvisioning') === true) {
-                    setTimeout(() => {
-                        if (channelConnectionState.get('instanceProvisioning') === true) {
-                            provisionChannelServer(null, channelId);
-                            setProducerStarting('audio');
-                        }
-                    }, 3000);
-                }
-            }
-            else {
-                if (channelConnectionState.get('instanceProvisioned') === true && channelConnectionState.get('connected') === true) {
-                    toggleAudio(channelId);
-                }
-            }
-        }
+        updateCamAudioState();
     };
 
-    const handleCamClick = async (e: any, instance: boolean, channelId: string) => {
+    const handleCamClick = async (e: any) => {
         e.stopPropagation();
-        if (instance === true && instanceConnectionState.get('instanceProvisioning') === false && channelConnectionState.get('instanceProvisioning') === false) {
-            setActiveAVChannelId(channelId);
-            setChannelAwaitingProvision({
-                id: '',
-                audio: false,
-                video: false
-            });
-            if (MediaStreamSystem.instance?.camVideoProducer == null || channelId !== activeAVChannelId) {
-                await endVideoChat({});
-                await leave(false);
-                await checkMediaStream('instance');
-                await createCamVideoProducer('instance');
-            }
-            else {
-                await checkMediaStream('instance');
-                const videoPaused = MediaStreamSystem.instance.toggleVideoPaused();
-                if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer);
-                else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer);
-                checkEndVideoChat();
-                setRelationship('instance', null);
-            }
+        if (MediaStreamSystem.instance?.camVideoProducer == null) {
+            const channel = channels.get(targetChannelId);
+            if (channel.instanceId == null) await createCamVideoProducer('channel', targetChannelId);
+            else await createCamVideoProducer('instance');
+            setVideoPaused(false);
+            await resumeProducer(MediaStreamSystem.instance?.camVideoProducer);
+        } else {
+            const msVideoPaused = MediaStreamSystem.instance?.toggleVideoPaused();
+            setVideoPaused(MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camVideoProducer == null || MediaStreamSystem.instance?.videoPaused === true);
+            if (msVideoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer);
+            else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer);
         }
-        else {
-            if (channelId !== activeAVChannelId) {
-                setChannelAwaitingProvision({
-                    id: channelAwaitingProvision?.id ? channelAwaitingProvision.id : channelId,
-                    audio: channelAwaitingProvision?.audio || false,
-                    video: true
-                });
-                setActiveAVChannelId(channelId);
-                await endVideoChat({});
-                await leave(false);
-                if (channelConnectionState.get('connected') === false &&
-                    channelConnectionState.get('instanceProvisioned') === false &&
-                    channelConnectionState.get('instanceProvisioning') === false) {
-                    setChannelAwaitingProvision({
-                        id: '',
-                        audio: false,
-                        video: false
-                    });
-                    provisionChannelServer(null, channelId);
-                    setProducerStarting('video');
-                }  else if (channelConnectionState.get('instanceProvisioning') === true) {
-                    setTimeout(() => {
-                        if (channelConnectionState.get('instanceProvisioning') === true) {
-                            provisionChannelServer(null, channelId);
-                            setProducerStarting('video');
-                        }
-                    }, 3000);
-                }
-            }
-            else {
-                if (channelConnectionState.get('instanceProvisioned') === true && channelConnectionState.get('connected') === true) {
-                    toggleVideo(channelId);
-                }
-            }
-        }
+        updateCamVideoState();
     };
+
+    const handleStartCall = async(e: any) => {
+        e.stopPropagation();
+        const channel = channels.get(targetChannelId);
+        const channelType = channel.instanceId != null ? 'instance' : 'channel';
+        changeChannelTypeState(channelType, targetChannelId);
+        await endVideoChat({});
+        await leave(false);
+        setActiveAVChannelId(targetChannelId);
+        if (channel.instanceId == null) provisionChannelServer(null, targetChannelId);
+        else {
+            await checkMediaStream('instance');
+            await createCamVideoProducer('instance');
+            await createCamAudioProducer('instance');
+            updateCamVideoState();
+            updateCamAudioState();
+        }
+    }
+
+    const handleEndCall = async(e: any) => {
+        e.stopPropagation();
+        changeChannelTypeState('', '');
+        await endVideoChat({});
+        await leave(false);
+        setActiveAVChannelId('');
+        updateCamVideoState();
+        updateCamAudioState();
+    }
 
     const toggleAudio = async(channelId) => {
         await checkMediaStream('channel', channelId);
@@ -523,9 +670,9 @@ const Harmony = observer((props: Props): any => {
         if (MediaStreamSystem.instance?.camAudioProducer == null) await createCamAudioProducer('channel', channelId);
         else {
             const audioPaused = MediaStreamSystem.instance?.toggleAudioPaused();
+            setAudioPaused(MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camAudioProducer == null || MediaStreamSystem.instance?.audioPaused === true);
             if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer);
             else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer);
-            checkEndVideoChat();
         }
     };
 
@@ -534,14 +681,58 @@ const Harmony = observer((props: Props): any => {
         if (MediaStreamSystem.instance?.camVideoProducer == null) await createCamVideoProducer('channel', channelId);
         else {
             const videoPaused = MediaStreamSystem.instance?.toggleVideoPaused();
+            setVideoPaused(MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camVideoProducer == null || MediaStreamSystem.instance?.videoPaused === true);
             if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer);
             else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer);
-            checkEndVideoChat();
         }
     };
 
-    const audioPaused = MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camAudioProducer == null || MediaStreamSystem.instance?.audioPaused === true;
-    const videoPaused = MediaStreamSystem.instance?.mediaStream === null || MediaStreamSystem.instance?.camVideoProducer == null || MediaStreamSystem.instance?.videoPaused === true;
+    const openChat = (targetObjectType: string, targetObject: any): void => {
+        setTimeout(() => {
+            updateChatTarget(targetObjectType, targetObject);
+            updateMessageScrollInit(true);
+        }, 100);
+    };
+
+    const handleAccordionSelect = (accordionType: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
+        if (accordionType === selectedAccordion) {
+            setSelectedAccordion('');
+        } else {
+            setSelectedAccordion(accordionType);
+        }
+    };
+
+    const openInvite = (targetObjectType?: string, targetObjectId?: string): void => {
+        updateInviteTarget(targetObjectType, targetObjectId);
+        setLeftDrawerOpen(false);
+        setRightDrawerOpen(true);
+    };
+
+    const openDetails = (e, type, object) => {
+        e.stopPropagation();
+        setLeftDrawerOpen(true);
+        setDetailsType(type);
+        if (type === 'user') {
+            setSelectedUser(object);
+        } else if (type === 'group') {
+            setSelectedGroup(object);
+        }
+    };
+
+    const openGroupForm = (mode: string, group?: GroupType) => {
+        setLeftDrawerOpen(true);
+        setGroupFormOpen(true);
+        setGroupFormMode(mode);
+        if (group != null) {
+            setGroupForm({
+                id: group.id,
+                name: group.name,
+                groupUsers: group.groupUsers,
+                description: group.description
+            });
+        }
+    };
+
     async function init(): Promise<any> {
         if (Network.instance.isInitialized !== true) {
             const networkSchema: NetworkSchema = {
@@ -553,20 +744,82 @@ const Harmony = observer((props: Props): any => {
                 ...DefaultInitializationOptions,
                 networking: {
                     schema: networkSchema,
-                }
+                },
+                renderer: {}
             };
 
-            initializeEngine(InitializationOptions);
+            await initializeEngine(InitializationOptions);
+            if (engineInitialized === false) createEngineListeners();
         }
     }
 
     function getChannelName(): string {
+        const channel = channels.get(targetChannelId);
+        if (channel && channel.channelType !== 'instance') {
+            if (channel.channelType === 'group') return channel[channel.channelType].name;
+            if (channel.channelType === 'party') return 'Current party';
+            if (channel.channelType === 'user') return channel.user1.id === selfUser.id ? channel.user2.name : channel.user1.name;
+        } else return 'Current Layer';
+    }
+
+    function getAVChannelName(): string {
         const channel = channels.get(activeAVChannelId);
-        return channel && channel.channelType !== 'instance' ? channel[channel.channelType].name : 'Current Layer';
+        if (channel && channel.channelType !== 'instance') {
+            if (channel.channelType === 'group') return channel[channel.channelType].name;
+            if (channel.channelType === 'party') return 'Current party';
+            if (channel.channelType === 'user') return channel.user1.id === selfUser.id ? channel.user2.name : channel.user1.name;
+        } else return 'Current Layer';
     }
 
     function calcWidth(): 12 | 6 | 4 | 3 {
         return layerUsers.length === 1 ? 12 : layerUsers.length <= 4 ? 6 : layerUsers.length <= 9 ? 4 : 3;
+    }
+
+
+    const nextFriendsPage = (): void => {
+        if ((friendSubState.get('skip') + friendSubState.get('limit')) < friendSubState.get('total')) {
+            getFriends(friendSubState.get('skip') + friendSubState.get('limit'));
+        }
+    };
+
+    const nextGroupsPage = (): void => {
+        if ((groupSubState.get('skip') + groupSubState.get('limit')) < groupSubState.get('total')) {
+            getGroups(groupSubState.get('skip') + groupSubState.get('limit'));
+        }
+    };
+
+    const onListScroll = (e): void => {
+        if ((e.target.scrollHeight - e.target.scrollTop) === e.target.clientHeight) {
+            if (tabIndex === 0) {
+                nextFriendsPage();
+            } else if (tabIndex === 1) {
+                nextGroupsPage();
+            }
+        }
+    };
+
+    const isActiveChat = (channelType: string, targetObjectId: string): boolean => {
+        const channelEntries = [...channels.entries()];
+        const channelMatch = channelType === 'instance' ? channelEntries.find((entry) => entry[1].instanceId === targetObjectId) :
+                             channelType === 'group' ? channelEntries.find((entry) => entry[1].groupId === targetObjectId) :
+                             channelType === 'friend' ? channelEntries.find((entry) => (entry[1].userId1 === targetObjectId || entry[1].userId2 === targetObjectId)) :
+                             channelEntries.find((entry) => entry[1].partyId === targetObjectId);
+        return channelMatch != null && channelMatch[0] === targetChannelId;
+    }
+
+    const isActiveAVCall = (channelType: string, targetObjectId: string): boolean => {
+        const channelEntries = [...channels.entries()];
+        const channelMatch = channelType === 'instance' ? channelEntries.find((entry) => entry[1].instanceId === targetObjectId) :
+            channelType === 'group' ? channelEntries.find((entry) => entry[1].groupId === targetObjectId) :
+                channelType === 'friend' ? channelEntries.find((entry) => (entry[1].userId1 === targetObjectId || entry[1].userId2 === targetObjectId)) :
+                    channelEntries.find((entry) => entry[1].partyId === targetObjectId);
+        return channelMatch != null && channelMatch[0] === activeAVChannelId;
+    }
+
+    const closeHarmony = (): void => {
+        const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
+        if (canvas?.style != null) canvas.style.width = '100%';
+        setHarmonyOpen(false);
     }
 
     useEffect(() => {
@@ -577,10 +830,225 @@ const Harmony = observer((props: Props): any => {
             channelConnectionState.get('connected') === false
         ) {
             init().then(() => {
-                connectToChannelServer(channelConnectionState.get('channelId'));
+                connectToChannelServer(channelConnectionState.get('channelId'), isHarmonyPage)
+                updateCamVideoState();
+                updateCamAudioState();
             });
         }
     }, [channelConnectionState]);
+
+    const chatSelectors = <div className={classNames({
+        [styles['list-container']]: true,
+        [styles['chat-selectors']]: true
+    })}>
+        <div className={styles.partyInstanceButtons}>
+            <div className={classNames({
+                [styles.partyButton]: true,
+                [styles.activeChat]: party != null && isActiveChat('party', party.id)
+            })}
+                 onClick={(e) => {
+                     if (party != null) {
+                         setActiveChat('party', party);
+                         if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
+                     } else openDetails(e, 'party', party)}}
+            >
+                <PeopleOutline/>
+                <span>Party</span>
+                <div className={classNames({
+                    [styles.activeAVCall]: party != null && isActiveAVCall('party', party.id)
+                })} />
+                <div>{party?.id}</div>
+                { party != null && party.id != null && party.id !== '' && <ListItemIcon className={styles.groupEdit} onClick={(e) => openDetails(e,'party', party)}><Settings/></ListItemIcon>}
+            </div>
+            { selfUser.instanceId != null && <div className={classNames({
+                    [styles.instanceButton]: true,
+                    [styles.activeChat]: isActiveChat('instance', selfUser.instanceId)
+                })}
+                onClick={() => {
+                    setActiveChat('instance', {
+                        id: selfUser.instanceId
+                    });
+                    if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
+                }}
+            >
+                <Grain/>
+                <span>Here</span>
+                <div className={classNames({
+                    [styles.activeAVCall]: isActiveAVCall('instance', selfUser.instanceId)
+                })} />
+            </div> }
+        </div>
+        {selfUser.userRole !== 'guest' &&
+        <Accordion expanded={selectedAccordion === 'user'} onChange={handleAccordionSelect('user') } className={styles['MuiAccordion-root']}>
+            <AccordionSummary
+                id="friends-header"
+                expandIcon={<ExpandMore/>}
+                aria-controls="friends-content"
+            >
+                <Group/>
+                <Typography>Friends</Typography>
+            </AccordionSummary>
+            <AccordionDetails className={styles['list-container']}>
+                <div className={styles['flex-center']}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<Add/>}
+                        onClick={() => openInvite('user')}>
+                        Invite Friend
+                    </Button>
+                </div>
+                <List
+                    onScroll={(e) => onListScroll(e)}
+                >
+                    {friends && friends.length > 0 && friends.sort((a, b) => a.name - b.name).map((friend, index) => {
+                        return <div key={friend.id}>
+                            <ListItem className={classNames({
+                                [styles.selectable]: true,
+                                [styles.activeChat]: isActiveChat('user', friend.id)
+                            })}
+                                      onClick={() => {
+                                          setActiveChat('user', friend);
+                                          if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
+                                      }}
+                            >
+                                <ListItemAvatar>
+                                    <Avatar src={friend.avatarUrl}/>
+                                </ListItemAvatar>
+                                <ListItemText primary={friend.name}/>
+                                <div className={classNames({
+                                    [styles.activeAVCall]: isActiveAVCall('user', friend.id)
+                                })} />
+                            </ListItem>
+                            {index < friends.length - 1 && <Divider/>}
+                        </div>;
+                    })
+                    }
+                </List>
+            </AccordionDetails>
+        </Accordion>
+        }
+        {selfUser.userRole !== 'guest' &&
+        <Accordion expanded={selectedAccordion === 'group'} onChange={handleAccordionSelect('group')} className={styles['MuiAccordion-root']}>
+            <AccordionSummary
+                id="groups-header"
+                expandIcon={<ExpandMore/>}
+                aria-controls="groups-content"
+            >
+                <GroupWork/>
+                <Typography>Groups</Typography>
+            </AccordionSummary>
+            <AccordionDetails className={styles['list-container']}>
+                <div className={styles['flex-center']}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<Add/>}
+                        onClick={() => openGroupForm('create')}>
+                        Create Group
+                    </Button>
+                </div>
+                <List
+                    onScroll={(e) => onListScroll(e)}
+                >
+                    {groups && groups.length > 0 && groups.sort((a, b) => a.name - b.name).map((group, index) => {
+                        return <div key={group.id}>
+                            <ListItem
+                                className={classNames({
+                                    [styles.selectable]: true,
+                                    [styles.activeChat]: isActiveChat('group', group.id)
+                                })}
+                                onClick={() => {
+                                    setActiveChat('group', group);
+                                    if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
+                                }}
+                            >
+                                <ListItemText primary={group.name}/>
+                                <div className={classNames({
+                                    [styles.activeAVCall]: isActiveAVCall('group', group.id)
+                                })} />
+                                <ListItemIcon className={styles.groupEdit} onClick={(e) => openDetails(e,'group', group)}><Settings/></ListItemIcon>
+                            </ListItem>
+                            {index < groups.length - 1 && <Divider/>}
+                        </div>;
+                    })
+                    }
+                </List>
+            </AccordionDetails>
+        </Accordion>
+        }
+        {
+            selfUser && selfUser.instanceId &&
+            <Accordion expanded={selectedAccordion === 'layerUsers'}
+                       onChange={handleAccordionSelect('layerUsers')}>
+                <AccordionSummary
+                    id="layer-user-header"
+                    expandIcon={<ExpandMore/>}
+                    aria-controls="layer-user-content"
+                >
+                    <Public/>
+                    <Typography>Layer Users</Typography>
+                </AccordionSummary>
+                <AccordionDetails className={classNames({
+                    [styles.flexbox]: true,
+                    [styles['flex-column']]: true,
+                    [styles['flex-center']]: true
+                })}>
+                    <div className={styles['list-container']}>
+                        <div className={styles.title}>Users on this Layer</div>
+                        <List
+                            className={classNames({
+                                [styles['flex-center']]: true,
+                                [styles['flex-column']]: true
+                            })}
+                            onScroll={(e) => onListScroll(e)}
+                        >
+                            {layerUsers && layerUsers.length > 0 && layerUsers.sort((a, b) => a.name - b.name).map((layerUser) => {
+                                    return <ListItem key={layerUser.id}>
+                                        <ListItemAvatar>
+                                            <Avatar src={layerUser.avatarUrl}/>
+                                        </ListItemAvatar>
+                                        {selfUser.id === layerUser.id &&
+                                        <ListItemText primary={layerUser.name + ' (you)'}/>}
+                                        {selfUser.id !== layerUser.id &&
+                                        <ListItemText primary={layerUser.name}/>}
+                                        {/*{*/}
+                                        {/*    locationBanPending !== layerUser.id &&*/}
+                                        {/*    isLocationAdmin === true &&*/}
+                                        {/*    selfUser.id !== layerUser.id &&*/}
+                                        {/*    layerUser.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null &&*/}
+                                        {/*    <Tooltip title="Ban user">*/}
+                                        {/*        <Button onClick={(e) => showLocationBanConfirm(e, layerUser.id)}>*/}
+                                        {/*            <Block/>*/}
+                                        {/*        </Button>*/}
+                                        {/*    </Tooltip>*/}
+                                        {/*}*/}
+                                        {/*{locationBanPending === layerUser.id &&*/}
+                                        {/*<div>*/}
+                                        {/*    <Button variant="contained"*/}
+                                        {/*            color="primary"*/}
+                                        {/*            onClick={(e) => confirmLocationBan(e, layerUser.id)}*/}
+                                        {/*    >*/}
+                                        {/*        Ban User*/}
+                                        {/*    </Button>*/}
+                                        {/*    <Button variant="contained"*/}
+                                        {/*            color="secondary"*/}
+                                        {/*            onClick={(e) => cancelLocationBan(e)}*/}
+                                        {/*    >*/}
+                                        {/*        Cancel*/}
+                                        {/*    </Button>*/}
+                                        {/*</div>*/}
+                                        {/*}*/}
+                                    </ListItem>;
+                                }
+                            )
+                            }
+                        </List>
+                    </div>
+                </AccordionDetails>
+            </Accordion>
+        }
+    </div>
 
     return (
         <div className={styles['harmony-component']}>
@@ -592,48 +1060,78 @@ const Harmony = observer((props: Props): any => {
                     border-color: rgba(127, 127, 127, 0.7);
                 }
             `}</style>
-            <List onScroll={(e) => onChannelScroll(e)} className={styles['chat-container']}>
-                { channels && channels.size > 0 && Array.from(channels).sort(([channelId1, channel1], [channelId2, channel2]) => new Date(channel2.updatedAt).getTime() - new Date(channel1.updatedAt).getTime()).map(([channelId, channel], index) => {
-                    return <ListItem
-                        key={channelId}
-                        className={styles.selectable}
-                        onClick={() => setActiveChat(channel)}
-                        selected={ channelId === targetChannelId }
-                        divider={ index < channels.size - 1 }
-                    >
-                        { channel.channelType === 'user' &&
-                        <ListItemAvatar>
-                            <Avatar src={channel.userId1 === selfUser.id ? channel.user2.avatarUrl: channel.user1.avatarUrl}/>
-                        </ListItemAvatar>
-                        }
-                        <ListItemText primary={channel.channelType === 'user' ? (channel.user1?.id === selfUser.id ? channel.user2.name : channel.user2?.id === selfUser.id ? channel.user1.name : '') : channel.channelType === 'group' ? channel.group.name : channel.channelType === 'instance' ? 'Current layer' : 'Current party'}/>
-                        <section className={styles.drawerBox}>
-                            <div className={styles.iconContainer + ' ' + ((audioPaused === false && activeAVChannelId === channel.id && channelAwaitingProvision?.id?.length === 0 && ((Network.instance.transport as any).channelType === 'instance' || ((Network.instance.transport as any).channelType !== 'instance' && channelConnectionState.get('connected') === true))) ? styles.on : styles.off)}>
-                                <MicOff id='micOff' className={styles.offIcon} onClick={(e) => handleMicClick(e, channel.instanceId != null, channel.id)} />
-                                <Mic id='micOn' className={styles.onIcon} onClick={(e) => handleMicClick(e, channel.instanceId != null, channel.id)} />
-                            </div>
-                            <div className={styles.iconContainer + ' ' + ((videoPaused === false && activeAVChannelId === channel.id && channelAwaitingProvision?.id?.length === 0 && ((Network.instance.transport as any).channelType === 'instance' || ((Network.instance.transport as any).channelType !== 'instance' && channelConnectionState.get('connected') === true))) ? styles.on : styles.off)}>
-                                <VideocamOff id='videoOff' className={styles.offIcon} onClick={(e) => handleCamClick(e, channel.instanceId != null, channel.id)} />
-                                <Videocam id='videoOn' className={styles.onIcon} onClick={(e) => handleCamClick(e, channel.instanceId != null, channel.id)} />
-                            </div>
-                        </section>
-                    </ListItem>;
-                })
-                }
-                { channels.size === 0 &&
-                <ListItem key="no-chats" disabled>
-                    <ListItemText primary="No active chats"/>
-                </ListItem>
-                }
-            </List>
+            { (isMobileOrTablet() === true || dimensions.width <= 768) && <SwipeableDrawer
+                className={classNames({
+                    [styles['flex-column']]: true,
+                    [styles['list-container']]: true
+                })}
+                BackdropProps={{invisible: true}}
+                anchor="left"
+                open={selectorsOpen === true}
+                onClose={() => {
+                    setSelectorsOpen(false);
+                }}
+                onOpen={() => {
+                }}
+            >
+                {chatSelectors}
+            </SwipeableDrawer> }
+            { (isMobileOrTablet() !== true && dimensions.width > 768) && chatSelectors}
             <div className={styles['chat-window']}>
-                { (MediaStreamSystem?.instance?.camVideoProducer != null || MediaStreamSystem?.instance?.camAudioProducer != null) && <div className={styles['video-container']}>
-                    <div className={ styles['active-chat-plate']} >{ getChannelName() }</div>
+                <div className={styles['harmony-header']}>
+                    { targetChannelId?.length > 0 && <header className={styles.mediaControls}>
+                        { activeAVChannelId === '' &&
+                            <div className={classNames({
+                                [styles.iconContainer]: true,
+                                [styles.startCall]: true
+                            })} onClick={(e) => handleStartCall(e)}>
+                                <Call/>
+                            </div>
+                        }
+                        { activeAVChannelId !== '' &&
+                            <div className={styles.activeCallControls}>
+                                <div className={classNames({
+                                    [styles.iconContainer]: true,
+                                    [styles.endCall]: true
+                                })} onClick={(e) => handleEndCall(e)}>
+                                    <CallEnd />
+                                </div>
+                                <div className={styles.iconContainer + ' ' + (audioPaused ? styles.off : styles.on)}>
+                                    <Mic id='micOff' className={styles.offIcon} onClick={(e) => handleMicClick(e)} />
+                                    <Mic id='micOn' className={styles.onIcon} onClick={(e) => handleMicClick(e)} />
+                                </div>
+                                {videoEnabled && <div className={styles.iconContainer + ' ' + (videoPaused ? styles.off : styles.on)}>
+                                    <Videocam id='videoOff' className={styles.offIcon} onClick={(e) => handleCamClick(e)} />
+                                    <Videocam id='videoOn' className={styles.onIcon} onClick={(e) => handleCamClick(e)} />
+                                </div>}
+                            </div>
+                        }
+                        </header>
+                    }
+                    { targetChannelId?.length === 0 && <div />}
+
+                    <div className={styles.controls}>
+                        { (isMobileOrTablet() === true || dimensions.width <= 768) && <div className={classNames({
+                            [styles['chat-toggle']]: true,
+                            [styles.iconContainer]: true
+                        })} onClick={() => setSelectorsOpen(true)}><Group /></div> }
+                        <div className={classNames({
+                            [styles['invite-toggle']]: true,
+                            [styles.iconContainer]: true
+                        })} onClick={() => openInvite()}><GroupAdd /></div>
+                        { isHarmonyPage !== true && <div className={classNames({
+                            [styles['harmony-toggle']]: true,
+                            [styles.iconContainer]: true
+                        })} onClick={() => closeHarmony()}><ThreeDRotation /></div> }
+                    </div>
+                </div>
+                { activeAVChannelId !== '' && <div className={styles['video-container']}>
+                    <div className={ styles['active-chat-plate']} >{ getAVChannelName() }</div>
                     <Grid className={ styles['party-user-container']} container direction="row">
                         <Grid item className={
                             classNames({
                                 [styles['grid-item']]: true,
-                                [styles.single]: layerUsers.length === 1,
+                                [styles.single]: layerUsers.length <= 1,
                                 [styles.two]: layerUsers.length === 2,
                                 [styles.four]: layerUsers.length === 3 && layerUsers.length === 4,
                                 [styles.six]: layerUsers.length === 5 && layerUsers.length === 6,
@@ -647,10 +1145,12 @@ const Harmony = observer((props: Props): any => {
                             />
                         </Grid>
                         { layerUsers.filter(user => user.id !== selfUser.id).map((user) => (
-                            <Grid item className={
+                            <Grid item
+                                  key={user.id}
+                                  className={
                                 classNames({
                                     [styles['grid-item']]: true,
-                                    [styles.single]: layerUsers.length === 1,
+                                    [styles.single]: layerUsers.length <= 1,
                                     [styles.two]: layerUsers.length === 2,
                                     [styles.four]: layerUsers.length === 3 && layerUsers.length === 4,
                                     [styles.six]: layerUsers.length === 5 && layerUsers.length === 6,
@@ -668,6 +1168,7 @@ const Harmony = observer((props: Props): any => {
                     </Grid>
                 </div> }
                 <div className={styles['list-container']}>
+                    { targetChannelId != null && targetChannelId !== '' && <div className={ styles['active-chat-plate']} >{ getChannelName() }</div> }
                     <List ref={(messageRef as any)} onScroll={(e) => onMessageScroll(e)} className={styles['message-container']}>
                         { activeChannel != null && activeChannel.messages && activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).map((message) => {
                             return <ListItem
@@ -795,21 +1296,14 @@ const Harmony = observer((props: Props): any => {
                     { (targetObject == null || targetObject.id == null) &&
                     <div className={styles['no-chat']}>
                         <div>
-                            Start a chat with a friend or group from the left drawer
+                            Start a chat with a friend or group from the side panel
                         </div>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={openLeftDrawer}
-                        >
-                            Open Drawer
-                        </Button>
                     </div>
                     }
                 </div>
             </div>
         </div>
     );
-});
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Harmony);

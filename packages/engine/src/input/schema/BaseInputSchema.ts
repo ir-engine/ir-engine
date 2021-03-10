@@ -90,9 +90,9 @@ const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEvent }):
       lifecycleState: LifecycleValue.CHANGED
     });
 
-    const lastTouchPosition1Array = input.prevData.get(BaseInput.POINTER1_POSITION)?.value;
+    const lastTouchcontrollerPositionLeftArray = input.prevData.get(BaseInput.POINTER1_POSITION)?.value;
     const lastTouchPosition2Array = input.prevData.get(BaseInput.POINTER2_POSITION)?.value;
-    if (args.event.type === 'touchstart' || !lastTouchPosition1Array || !lastTouchPosition2Array) {
+    if (args.event.type === 'touchstart' || !lastTouchcontrollerPositionLeftArray || !lastTouchPosition2Array) {
       // skip if it's just start of gesture or there are no previous data yet
       return;
     }
@@ -102,16 +102,16 @@ const handleTouchMove: Behavior = (entity: Entity, args: { event: TouchEvent }):
       return;
     }
 
-    const currentTouchPosition1 = new Vector2().fromArray(input.data.get(BaseInput.POINTER1_POSITION).value as number[]);
+    const currentTouchcontrollerPositionLeft = new Vector2().fromArray(input.data.get(BaseInput.POINTER1_POSITION).value as number[]);
     const currentTouchPosition2 = new Vector2().fromArray(input.data.get(BaseInput.POINTER2_POSITION).value as number[]);
 
-    const lastTouchPosition1 = new Vector2().fromArray(lastTouchPosition1Array as number[]);
+    const lastTouchcontrollerPositionLeft = new Vector2().fromArray(lastTouchcontrollerPositionLeftArray as number[]);
     const lastTouchPosition2 = new Vector2().fromArray(lastTouchPosition2Array as number[]);
 
     const scaleMappedInputKey = input.schema.touchInputMap?.axes[TouchInputs.Scale];
 
-    const currentDistance = currentTouchPosition1.distanceTo(currentTouchPosition2);
-    const lastDistance = lastTouchPosition1.distanceTo(lastTouchPosition2);
+    const currentDistance = currentTouchcontrollerPositionLeft.distanceTo(currentTouchPosition2);
+    const lastDistance = lastTouchcontrollerPositionLeft.distanceTo(lastTouchPosition2);
 
     const touchScaleValue = (lastDistance - currentDistance) * 0.01;
     const signVal = Math.sign(touchScaleValue);
@@ -227,7 +227,7 @@ const handleTouch: Behavior = (entity: Entity, { event, value }: { event: TouchE
 
 const handleMobileDirectionalPad: Behavior = (entity: Entity, args: { event: CustomEvent }): void => {
   // TODO: move this types to types and interfaces
-  const { stick, value }: { stick: Thumbsticks; value: {x: number;y: number} } = args.event.detail;
+  const { stick, value }: { stick: Thumbsticks; value: { x: number; y: number; angleRad: number } } = args.event.detail;
 
   const input = getComponent(entity, Input);
   const mappedAxes = input.schema.gamepadInputMap?.axes;
@@ -239,9 +239,10 @@ const handleMobileDirectionalPad: Behavior = (entity: Entity, args: { event: Cus
     return;
   }
 
-  const stickPosition: [number, number] = [
+  const stickPosition: [number, number, number] = [
     value.x,
-    value.y
+    value.y,
+    value.angleRad,
   ];
 
   // If position not set, set it with lifecycle started

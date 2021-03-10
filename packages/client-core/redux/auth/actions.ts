@@ -2,6 +2,9 @@ import {
   LOGIN_USER_BY_GITHUB_ERROR,
   LOGIN_USER_BY_GITHUB_SUCCESS,
 
+  LOGIN_USER_BY_LINKEDIN_ERROR,
+  LOGIN_USER_BY_LINKEDIN_SUCCESS,
+
   LOGIN_USER_SUCCESS,
   LOGIN_USER_ERROR,
 
@@ -36,6 +39,10 @@ export interface EmailRegistrationForm {
 }
 
 export interface GithubLoginForm {
+  email: string;
+}
+
+export interface LinkedInLoginForm {
   email: string;
 }
 
@@ -145,6 +152,20 @@ export function loginUserByGithubError (message: string): LoginResultAction {
     type: LOGIN_USER_BY_GITHUB_ERROR,
     message
   };
+}
+
+export function loginUserByLinkedinSuccess (message: string): LoginResultAction {
+  return {
+    type: LOGIN_USER_BY_LINKEDIN_SUCCESS,
+    message
+  }
+}
+
+export function loginUserByLinkedinError (message: string): LoginResultAction {
+  return {
+    type: LOGIN_USER_BY_LINKEDIN_ERROR,
+    message
+  }
 }
 
 export function didLogout (): LoginResultAction {

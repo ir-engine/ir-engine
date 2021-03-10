@@ -120,6 +120,7 @@ export default class AssetManifestSource extends BaseSource {
    * @param  {[type]}  _abortSignal
    * @return {Promise}
    */
+  /* @ts-ignore */
   async search(params, _cursor, _abortSignal) {
     //check if component not get loaded then load
     if (!this.loaded) {

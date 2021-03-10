@@ -22,7 +22,7 @@ import { NetworkSchema } from "../interfaces/NetworkSchema";
 import { NetworkClientInputInterface, NetworkInputInterface } from "../interfaces/WorldState";
 import { ClientInputModel } from '../schema/clientInputSchema';
 
-function switchInputs( clientInput ) {
+function switchInputs(clientInput) {
   if (hasComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, PlayerInCar)) {
     return getComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, PlayerInCar).networkCarId;
   } else {
@@ -36,7 +36,7 @@ function switchInputs( clientInput ) {
  * @param delta Time since last frame.
  */
 
-export function clearFreezeInputs( clientInput ) {
+export function clearFreezeInputs(clientInput) {
 
   let clearId = null;
   if (hasComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, PlayerInCar)) {
@@ -74,14 +74,33 @@ export function clearFreezeInputs( clientInput ) {
         value: clientInput.axes2d[i].value,
         lifecycleState: LifecycleValue.ENDED
       });
+
+  // 6DOF Input
+  for (let i = 0; i < clientInput.axes6DOF.length; i++) {
+    input.data.set(clientInput.axes6DOF[i].input,
+      {
+        type: InputType.SIXDOF,
+        value: {
+          x: clientInput.axes6DOF[i].x,
+          y: clientInput.axes6DOF[i].y,
+          z: clientInput.axes6DOF[i].z,
+          qX: clientInput.axes6DOF[i].qX,
+          qY: clientInput.axes6DOF[i].qY,
+          qZ: clientInput.axes6DOF[i].qZ,
+          qW: clientInput.axes6DOF[i].qW
+        },
+        lifecycleState: LifecycleValue.CONTINUED
+      });
+    console.log("*************** SETTING 6DOF FOR ", clientInput.axes6DOF[i].input);
+  }
 }
 
 const vehicleInputCheck = (clientInput): void => {
   const entity = Network.instance.networkObjects[clientInput.networkId].component.entity;
-  if(!hasComponent(entity, PlayerInCar)) return;
+  if (!hasComponent(entity, PlayerInCar)) return;
   const playerInCar = getComponent(entity, PlayerInCar);
   const entityCar = Network.instance.networkObjects[playerInCar.networkCarId].component.entity;
-  if(!hasComponent(entityCar, VehicleBody)) return;
+  if (!hasComponent(entityCar, VehicleBody)) return;
   // its warns the car that a passenger or driver wants to get out
   for (let i = 0; i < clientInput.buttons.length; i++) {
     if (clientInput.buttons[i].input == 8) { // TO DO get interact button for every device
@@ -114,7 +133,7 @@ const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
   if (input.data.size < 1 && _.isEqual(input.data, input.lastData))
     return;
 
-  const viewVector = { x: 0, y: 0, z: 0};
+  const viewVector = { x: 0, y: 0, z: 0 };
   const actor = getComponent(entity, CharacterComponent);
   if (actor) {
     viewVector.x = actor.viewVector.x
@@ -127,6 +146,7 @@ const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
     buttons: [],
     axes1d: [],
     axes2d: [],
+    axes6DOF: [],
     viewVector: {
       x: viewVector.x,
       y: viewVector.y,
@@ -134,26 +154,25 @@ const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
     }
   };
 
-  let numInputs;
-
   // Add all values in input component to schema
   input.data.forEach((value, key) => {
     switch (value.type) {
       case InputType.BUTTON:
         inputs.buttons.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
-        numInputs++;
         break;
       case InputType.ONEDIM:
         if (value.lifecycleState !== LifecycleValue.UNCHANGED) {
           inputs.axes1d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
-          numInputs++;
         }
         break;
       case InputType.TWODIM:
         if (value.lifecycleState !== LifecycleValue.UNCHANGED) {
           inputs.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
-          numInputs++;
         }
+        break;
+      case InputType.SIXDOF:
+        inputs.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
+        console.log("******* PUSHING 6DOF")
         break;
       default:
         console.error("Input type has no network handler (maybe we should add one?)");
@@ -205,6 +224,7 @@ export class ServerNetworkIncomingSystem extends System {
     Network.tick++;
     Network.instance.worldState = {
       tick: Network.tick,
+      time: 0,
       transforms: [],
       inputs: [],
       states: [],
@@ -243,12 +263,15 @@ export class ServerNetworkIncomingSystem extends System {
       // and does not allow the passenger to drive the car
       vehicleInputCheck(clientInput);
       // this function change network id to which the inputs will be applied
-      clientInput.switchInputs ? console.warn('switchInputs: '+ clientInput.switchInputs):'';
-      clientInput.switchInputs ? clearFreezeInputs( clientInput ):'';
-      clientInput.networkId = switchInputs( clientInput );
-      // this snapShotTime which will be sent back to the client, so that he knows exactly what inputs led to the change and when it was.
+      clientInput.switchInputs ? console.warn('switchInputs: ' + clientInput.switchInputs) : '';
+      clientInput.switchInputs ? clearFreezeInputs(clientInput) : '';
+
       const networkObject = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, NetworkObject);
       networkObject.snapShotTime = clientInput.snapShotTime;
+
+      clientInput.networkId = switchInputs(clientInput);
+      // this snapShotTime which will be sent bac k to the client, so that he knows exactly what inputs led to the change and when it was.
+
       // Get input component
       const input = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, Input);
       if (!input) {
@@ -283,6 +306,25 @@ export class ServerNetworkIncomingSystem extends System {
             value: clientInput.axes2d[i].value,
             lifecycleState: clientInput.axes2d[i].lifecycleState
           });
+
+      // Axis 6DOF input
+      for (let i = 0; i < clientInput.axes6DOF.length; i++){
+        input.data.set(clientInput.axes6DOF[i].input,
+          {
+            type: InputType.SIXDOF,
+            value: {
+              x: clientInput.axes6DOF[i].x,
+              y: clientInput.axes6DOF[i].y,
+              z: clientInput.axes6DOF[i].z,
+              qX: clientInput.axes6DOF[i].qX,
+              qY: clientInput.axes6DOF[i].qY,
+              qZ: clientInput.axes6DOF[i].qZ,
+              qW: clientInput.axes6DOF[i].qW,
+            },
+            lifecycleState: LifecycleValue.CONTINUED
+          });
+          console.log("********* SETTING 6DOF INPUT IN SERVER INCOMING SYSTEM")
+        }
 
       // Apply input for local user input onto client
       this.queryResults.networkObjectsWithInput.all?.forEach(entity => {

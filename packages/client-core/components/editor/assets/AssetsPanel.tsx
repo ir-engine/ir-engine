@@ -31,8 +31,8 @@ const AssetsPanelToolbarContainer = (styled as any).div`
 `;
 
 /**
- * [AssetPanelToolbarContent ]
- * @type {[type]}
+ * [AssetPanelToolbarContent used to provide styles toolbar content]
+ * @type {Styled component}
  */
 export const AssetPanelToolbarContent = (styled as any)(Row)`
   flex: 1;
@@ -69,38 +69,59 @@ AssetsPanelToolbar.propTypes = {
 };
 
 /**
- * [AssetsPanelColumn description]
- * @param {[type]} styled [description]
+ * [AssetsPanelColumn ]
+ * @type {Styled component}
  */
 const AssetsPanelColumn = (styled as any)(Column)`
   max-width: 175px;
   border-right: 1px solid ${props => props.theme.border};
 `;
 
+/**
+ * [AssetPanelContentContainer container element for asset panel]
+ * @type {Styled component}
+ * */
 export const AssetPanelContentContainer = (styled as any)(Row)`
   flex: 1;
   overflow: hidden;
 `;
 
+/**
+ * [getSources used to get sources out of editor and filter sources on the basis of requiresAuthentication or isAuthenticated]
+ * @param  {Object} editor
+ * @return {[type]}        [description]
+ */
 function getSources(editor) {
   const isAuthenticated = editor.api.isAuthenticated();
   return editor.sources.filter(source => !source.requiresAuthentication || isAuthenticated);
 }
 
+/**
+ * [AssetsPanel used to render view for AssetsPanel]
+ * @constructor
+ */
 export default function AssetsPanel() {
+
+  //initializing editor with EditorContext
   const editor = useContext(EditorContext);
 
+  //initializing sources using getSources from editor
   const [sources, setSources] = useState(
     getSources(editor)
   );
+
+  //initializing selectedSource as the first element of sources array
   const [selectedSource, setSelectedSource] = useState(sources.length > 0 ? sources[0] : null);
   const SourceComponent = selectedSource && selectedSource.component;
 
   useEffect(() => {
+
+    // function to set selected sources
     const onSetSource = sourceId => {
       setSelectedSource(sources.find(s => s.id === sourceId));
     };
 
+   //function to handle changes in authentication
     const onAuthChanged = () => {
       const nextSources = getSources(editor);
       setSources(nextSources);
@@ -110,23 +131,28 @@ export default function AssetsPanel() {
       }
     };
 
+    // function to handle changes in authentication
     const onSettingsChanged = () => {
       const nextSources = getSources(editor);
       setSources(nextSources);
     };
 
+    //adding listeners to editor component
     editor.addListener("settingsChanged", onSettingsChanged);
     editor.addListener("setSource", onSetSource);
     editor.api.addListener("authentication-changed", onAuthChanged);
 
+    //removing listeners from editor component
     return () => {
       editor.removeListener("setSource", onSetSource);
       editor.api.removeListener("authentication-changed", onAuthChanged);
     };
   }, [editor, setSelectedSource, sources, setSources, selectedSource]);
 
+  //initializing savedSourceState with empty object
   const [savedSourceState, setSavedSourceState] = useState({});
 
+  //initializing setSavedState
   const setSavedState = useCallback(
     state => {
       setSavedSourceState({
@@ -136,9 +162,10 @@ export default function AssetsPanel() {
     },
     [selectedSource, setSavedSourceState, savedSourceState]
   );
-
+  //initializing saved state on the bases of  selected source
   const savedState = savedSourceState[selectedSource.id] || {};
 
+  //creating view for asset penal
   return (
     <AssetsPanelContainer id="assets-panel">
       { /* @ts-ignore */ }

@@ -28,7 +28,7 @@ export function createGround () {
 
 export function createCylinder (scale) {
   if(scale == undefined) return console.error("Scale is  null");
-  const shape = new Cylinder(scale.x, scale.y, scale.z, 20);
+  const shape = new Cylinder(scale.x, scale.y, scale.z*2, 20);
   const body = new Body({ mass: 0 });
   body.addShape(shape);
   return body;

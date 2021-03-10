@@ -28,6 +28,7 @@ import { interactOnServer } from '../../interaction/systems/InteractiveSystem';
 import { updateCharacterState } from "./behaviors/updateCharacterState";
 import { CharacterComponent } from "./components/CharacterComponent";
 import { isServer } from "../../common/functions/isServer";
+import { VehicleBody } from '../../physics/components/VehicleBody';
 
 const startedPosition = new Map<Entity,NumericalType>();
 
@@ -56,10 +57,13 @@ const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
   const input = getComponent(entity, Input)
   const mouseScreenPosition = input.data.get(BaseInput.SCREENXY);
 
-  if (mouseScreenPosition && args.phase === LifecycleValue.STARTED ){
-    startedPosition.set(entity,mouseScreenPosition.value);
-    return;
-  }
+
+  // TODO this might be for mobile controls, but breaks non mobile interact
+  // if (mouseScreenPosition && args.phase === LifecycleValue.STARTED ){
+  //   startedPosition.set(entity,mouseScreenPosition.value);
+  //   return;
+  // }
+
   if (!focusedEntity) {
     // no available interactive object is focused right now
     return;
@@ -72,9 +76,14 @@ const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
     return;
   }
 
+
   const interactive = getComponent(focusedEntity, Interactable);
   if (interactive && typeof interactive.onInteraction === 'function') {
-    interactive.onInteraction(entity, args, delta, focusedEntity);
+    if (!hasComponent(focusedEntity, VehicleBody)) {
+      interactive.onInteraction(entity, args, delta, focusedEntity);
+    } else {
+      console.log('Interaction with cars must work only from server');
+    }
   } else {
     console.warn('onInteraction is not a function');
   }
@@ -258,6 +267,16 @@ const setCharacterExpression: Behavior = (entity: Entity, args: any): void => {
   }
 };
 
+/** 90 degree */
+const PI_BY_2 = Math.PI / 2;
+
+/** For Thumbstick angle less than 270 degree substract 90 from it.from
+ * Otherwise substract 450 degree. This is to make angle range from -180 to 180 degree.
+ */
+const changedDirection = (radian: number) => {
+  return radian < 3 * PI_BY_2 ? radian =  radian - PI_BY_2 : radian - 5 * PI_BY_2;
+}
+
 const moveByInputAxis: Behavior = (
   entity: Entity,
   args: { input: InputAlias; inputType: InputType },
@@ -271,6 +290,7 @@ const moveByInputAxis: Behavior = (
   if (data.type === InputType.TWODIM) {
     actor.localMovementDirection.z = data.value[0];
     actor.localMovementDirection.x = data.value[1];
+    actor.changedViewAngle = changedDirection(data.value[2]);  // Calculate the changed direction.
   } else if (data.type === InputType.THREEDIM) {
     // TODO: check if this mapping correct
     actor.localMovementDirection.z = data.value[2];

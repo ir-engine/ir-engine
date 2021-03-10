@@ -43,12 +43,37 @@ export default {
         return context;
       }
     ],
-    create: [],
+    create: [
+        async (context: HookContext): Promise<HookContext> => {
+          const { app, result } = context;
+          const user = await app.service('user').get(result.userId);
+          await app.service('message').create({
+            targetObjectId: result.groupId,
+            targetObjectType: 'group',
+            text: `${user.name} joined the group`,
+            isNotification: true
+          }, {
+            'identity-provider': {
+              userId: result.userId
+            }
+          });
+          return context;
+        }
+    ],
     update: [],
     patch: [],
     remove: [
       async (context: HookContext): Promise<HookContext> => {
-        const { app, params } = context;
+        const { app, params, result } = context;
+        console.log('Group user removal result:');
+        console.log(result);
+        const user = await app.service('user').get(result.userId);
+        await app.service('message').create({
+          targetObjectId: result.groupId,
+          targetObjectType: 'group',
+          text: `${user.name} left the group`,
+          isNotification: true
+        });
         if (params.groupUsersRemoved !== true) {
           const groupUserCount = await app.service('group-user').find({
             query: {

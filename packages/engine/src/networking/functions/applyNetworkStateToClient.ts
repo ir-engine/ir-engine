@@ -26,6 +26,7 @@ import { BaseInput } from "../../input/enums/BaseInput";
  * @param worldStateBuffer State of the world received over the network.
  * @param delta Time since last frame.
  */
+
 function checkForAnyErrors(networkId) {
   //console.warn('Player: '+Network.instance.userNetworkId);
 //  console.warn('Car: '+networkId);
@@ -131,6 +132,11 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
               // sync Physics Objects with server network id
               syncPhysicsObjects(objectToCreate)
             } else {
+              if (objectToCreate.ownerId === Network.instance.userId) {
+                console.warn('Give Player Id by Server '+objectToCreate.networkId, objectToCreate.ownerId, Network.instance.userId);
+                console.warn(Network.instance.networkObjects);
+                Network.instance.localAvatarNetworkId = objectToCreate.networkId;
+              }
               initializeNetworkObject(
                   String(objectToCreate.ownerId),
                   objectToCreate.networkId,
@@ -138,21 +144,20 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
                   position,
                   rotation,
               );
-              if (objectToCreate.ownerId === Network.instance.userId) {
-              //  console.warn('Give Player Id by Server '+objectToCreate.networkId);
-              //  console.warn(Network.instance.networkObjects);
-                Network.instance.userNetworkId = objectToCreate.networkId;
-              }
             }
             // for now, its for optimization
 
         }
     }
 
+    //  it looks like if there is one player, we get 2 times a package with a transform.
     if (worldStateBuffer.transforms.length) {
-      const myPlayerTime = worldStateBuffer.transforms.find(v => v.networkId == Network.instance.userNetworkId);
+      const myPlayerTime = worldStateBuffer.transforms.find(v => v.networkId == Network.instance.localAvatarNetworkId);
       const newServerSnapshot = createSnapshot(worldStateBuffer.transforms)
+      // server correction, time when client send inputs
       newServerSnapshot.timeCorrection = myPlayerTime ? (myPlayerTime.snapShotTime + Network.instance.timeSnaphotCorrection) : 0;
+      // interpolation, time when server send transforms
+      newServerSnapshot.time = worldStateBuffer.time;
       Network.instance.snapshot = newServerSnapshot;
       addSnapshot(newServerSnapshot);
     }
@@ -163,7 +168,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
     for (const editObjects in worldStateBuffer.editObjects) {
       const networkId = worldStateBuffer.editObjects[editObjects].networkId;
       const whoIsItFor = worldStateBuffer.editObjects[editObjects].whoIsItFor;
-      if (Network.instance.userNetworkId != networkId || whoIsItFor == 'all') {
+      if (Network.instance.localAvatarNetworkId != networkId || whoIsItFor == 'all') {
         if (Network.instance.networkObjects[networkId] === undefined)
             return console.warn("Can't Edit object, as it doesn't appear to exist");
         //console.log("Destroying network object ", Network.instance.networkObjects[networkId].component.networkId);
@@ -177,7 +182,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
         const entity = Network.instance.networkObjects[networkId].component.entity;
 
         if (state == 'onAddedEnding') {
-          if (whoIsItFor == 'all' && Network.instance.userNetworkId == networkId) {
+          if (whoIsItFor == 'all' && Network.instance.localAvatarNetworkId == networkId) {
             removeComponent(entity, LocalInputReceiver);
             removeComponent(entity, FollowCameraComponent);
           }
@@ -193,7 +198,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
           if (hasComponent(entity, PlayerInCar)) {
             getMutableComponent(entity, PlayerInCar).state = state;
           } else {
-            console.warn(Network.instance.userNetworkId+' '+networkId+' hasNot PlayerInCar component');
+            console.warn(Network.instance.localAvatarNetworkId+' '+networkId+' hasNot PlayerInCar component');
           }
         }
       }
@@ -234,8 +239,8 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
 */
         // Ignore input applied to local user input object that the client is currently controlling
         if (
-          Network.instance.userNetworkId == null ||
-          Network.instance.userNetworkId == inputData.networkId ||
+          Network.instance.localAvatarNetworkId == null ||
+          Network.instance.localAvatarNetworkId == inputData.networkId ||
           Network.instance.networkObjects[inputData.networkId] === undefined ||
           Network.instance.networkObjects[inputData.networkId].ownerId === 'server'
         ) return;

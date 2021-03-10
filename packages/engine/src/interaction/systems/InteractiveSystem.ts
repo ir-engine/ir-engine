@@ -7,6 +7,7 @@ import { isClient } from "../../common/functions/isClient";
 import { vectorToScreenXYZ } from "../../common/functions/vectorToScreenXYZ";
 import { Behavior } from "../../common/interfaces/Behavior";
 import { Engine } from "../../ecs/classes/Engine";
+import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { Entity } from "../../ecs/classes/Entity";
 import { System, SystemAttributes } from "../../ecs/classes/System";
 import { Not } from "../../ecs/functions/ComponentFunctions";
@@ -33,12 +34,14 @@ export const interactOnServer: Behavior = (entity: Entity, args: any, delta): vo
       if (hasComponent(isEntityInteractable, Interactable)) {
         const interactive = getComponent(isEntityInteractable, Interactable);
         const intPosition = getComponent(isEntityInteractable, TransformComponent).position;
+        const intRotation = getComponent(isEntityInteractable, TransformComponent).rotation;
         const position = getComponent(entity, TransformComponent).position;
 
         if (interactive.interactionPartsPosition.length > 0) {
           interactive.interactionPartsPosition.forEach((v,i) => {
-            if (position.distanceTo(new Vector3(...v).add(intPosition)) < 3) {
-              focusedArrays.push([isEntityInteractable, position.distanceTo(new Vector3(...v).add(intPosition)), i])
+            const partPosition = new Vector3(...v).applyQuaternion(intRotation).add(intPosition);
+            if (position.distanceTo(partPosition) < 3) {
+              focusedArrays.push([isEntityInteractable, position.distanceTo(partPosition), i])
             }
           })
         } else {
@@ -54,9 +57,9 @@ export const interactOnServer: Behavior = (entity: Entity, args: any, delta): vo
 
     const interactable = getComponent(focusedArrays[0][0], Interactable);
 
-  //  console.warn('found networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
+  //console.warn('found networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
 
-    if (interactable.onInteractionCheck(entity, focusedArrays[0][0], focusedArrays[0][2])) {
+    if (typeof interactable.onInteractionCheck === 'function' && interactable.onInteractionCheck(entity, focusedArrays[0][0], focusedArrays[0][2])) {
     //  console.warn('start with networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
       interactable.onInteraction(entity, { currentFocusedPart: focusedArrays[0][2] }, delta, focusedArrays[0][0]);
     }
@@ -199,6 +202,10 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
 
 
 export class InteractiveSystem extends System {
+
+  static EVENTS = {
+    USER_HOVER: 'INTERACTIVE_SYSTEM_USER_HOVER',
+  };
   updateType = SystemUpdateType.Fixed;
 
   /**
@@ -263,8 +270,7 @@ export class InteractiveSystem extends System {
 
         if (!closestHoveredUser) {
           if (this.previousEntity) {
-            const userData = new CustomEvent('user-hover', { detail: { focused: false } });
-            document.dispatchEvent(userData);
+            EngineEvents.instance.dispatchEvent({ type: InteractiveSystem.EVENTS.USER_HOVER, focused: false });
 
             this.previousEntity = null;
             this.previousEntity2DPosition = null;
@@ -287,24 +293,14 @@ export class InteractiveSystem extends System {
           focused: true
         };
 
-        const userData = new CustomEvent('user-hover', { detail: nameplateData });
-
         if (!this.previousEntity2DPosition || !point2DPosition.equals(this.previousEntity2DPosition)) {
           if (closestHoveredUser !== this.previousEntity) {
-
-            document.dispatchEvent(userData);
-
             this.previousEntity = closestHoveredUser;
             this.previousEntity2DPosition = point2DPosition;
-          } else {
-            if (localTransform.position.distanceTo(closestPosition) < 5) {
-
-              document.dispatchEvent(userData);
-            } else {
-              nameplateData.focused = false;
-              document.dispatchEvent(userData);
-            }
+          } else if (localTransform.position.distanceTo(closestPosition) >= 5) {
+            nameplateData.focused = false;
           }
+          EngineEvents.instance.dispatchEvent({ type: InteractiveSystem.EVENTS.USER_HOVER, ...nameplateData });
         }
       });
 

@@ -7,17 +7,43 @@ import { Entity } from "../../ecs/classes/Entity";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { BoundingBox } from "../../interaction/components/BoundingBox";
 import { Object3DComponent } from "../../scene/components/Object3DComponent";
+import { CannonDebugRenderer} from './CannonDebugRenderer';
+import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
+import { EngineEvents } from "../../ecs/classes/EngineEvents";
+
+type ComponentHelpers = 'viewVector' | 'velocityArrow';
 
 export class DebugHelpersSystem extends System {
-  private helpersByEntity: Record<string, Map<Entity,Object3D>>;
+  private helpersByEntity: Record<ComponentHelpers, Map<Entity,Object3D>>;
+  physicsDebugRenderer: CannonDebugRenderer;
+  static instance: DebugHelpersSystem;
+  static EVENTS = {
+    TOGGLE_PHYSICS: 'DEBUG_HELPERS_SYSTEM_TOGGLE_PHYSICS',
+    TOGGLE_AVATAR: 'DEBUG_HELPERS_SYSTEM_TOGGLE_AVATAR',
+  }
 
   constructor() {
     super();
+    DebugHelpersSystem.instance = this;
+    this.physicsDebugRenderer = new CannonDebugRenderer(Engine.scene, PhysicsSystem.physicsWorld)
 
     this.helpersByEntity = {
-      "viewVector": new Map(),
-      "velocityArrow": new Map()
+      viewVector: new Map(),
+      velocityArrow: new Map()
     };
+
+    EngineEvents.instance.addEventListener(DebugHelpersSystem.EVENTS.TOGGLE_AVATAR, ({ enabled }) => {
+      this.helpersByEntity.viewVector.forEach((obj: Object3D) => {
+        obj.visible = enabled;
+      })
+      this.helpersByEntity.velocityArrow.forEach((obj: Object3D) => {
+        obj.visible = enabled;
+      })
+    })
+
+    EngineEvents.instance.addEventListener(DebugHelpersSystem.EVENTS.TOGGLE_PHYSICS, ({ enabled }) => {
+      this.physicsDebugRenderer.setEnabled(enabled);
+    })
   }
 
   execute(delta: number, time: number): void {
@@ -92,6 +118,7 @@ export class DebugHelpersSystem extends System {
         Engine.scene.add(helper);
       }
     });
+    this.physicsDebugRenderer.update()
   }
 }
 
