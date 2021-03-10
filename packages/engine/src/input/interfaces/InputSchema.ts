@@ -8,39 +8,7 @@ export interface InputSchema {
   onAdded: BehaviorValue[]; // Function
   // Called by input system when on Input component is removed
   onRemoved: BehaviorValue[]; // Function
-  cameraInputMap?: {
-    [key: number]: InputAlias;
-  };
-  mouseInputMap?: {
-    buttons?: {
-      [key: number]: InputAlias;
-    };
-    axes?: {
-      [key: number]: InputAlias;
-    };
-  };
-  touchInputMap?: {
-    buttons?: {
-      [key: number]: InputAlias;
-    };
-    axes?: {
-      [key: number]: InputAlias;
-    };
-  };
-  gamepadInputMap?: {
-    buttons?: {
-      [key: number]: InputAlias;
-    };
-    axes?: {
-      [key: number]: InputAlias;
-    };
-  };
-  keyboardInputMap?: {
-    [key: string]: InputAlias;
-  };
-  inputRelationships: {
-    [key: number]: InputRelationship;
-  };
+  inputMap: Map<InputAlias, InputAlias>;
   inputButtonBehaviors: {
     // input name / alias
     [key: number]: {

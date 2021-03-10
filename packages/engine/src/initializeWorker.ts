@@ -45,7 +45,6 @@ export async function initializeWorker(initOptions: any = DefaultInitializationO
   );
   EngineEvents.instance = new EngineEventsProxy(workerProxy);
   Engine.viewportElement = options.renderer.canvas;
-  Engine.inputState.schema = options.input.schema;
 
   addOutgoingEvents();
 

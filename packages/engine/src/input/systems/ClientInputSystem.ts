@@ -72,9 +72,9 @@ export class ClientInputSystem extends System {
             case "document":
               domParentElement = (document as any);
               break;
-            case "viewport":
-            default:
+            case "viewport": default:
               domParentElement = Engine.viewportElement;
+              break;
           }
         }
         const domElement = domParentElement;
@@ -117,20 +117,20 @@ export class ClientInputSystem extends System {
   public execute(delta: number): void { 
     handleGamepads();
 
-    Engine.inputState.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-      if (!Engine.inputState.prevData.has(key)) {
+    Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+      if (!Engine.prevInputState.has(key)) {
         return;
       }
 
       if (value.type === InputType.BUTTON) {
-        const prevValue = Engine.inputState.prevData.get(key);
+        const prevValue = Engine.prevInputState.get(key);
         if (
           prevValue.lifecycleState === LifecycleValue.STARTED &&
           value.lifecycleState === LifecycleValue.STARTED
         ) {
           // auto-switch to CONTINUED
           value.lifecycleState = LifecycleValue.CONTINUED;
-          Engine.inputState.data.set(key, value);
+          Engine.inputState.set(key, value);
         }
         return;
       }
@@ -140,27 +140,27 @@ export class ClientInputSystem extends System {
         return;
       }
 
-      if (Engine.inputState.prevData.has(key)) {
-        if (JSON.stringify(value.value) === JSON.stringify(Engine.inputState.prevData.get(key).value)) {
+      if (Engine.prevInputState.has(key)) {
+        if (JSON.stringify(value.value) === JSON.stringify(Engine.prevInputState.get(key).value)) {
           value.lifecycleState = LifecycleValue.UNCHANGED;
         } else {
           value.lifecycleState = LifecycleValue.CHANGED;
         }
-        Engine.inputState.data.set(key, value);
+        Engine.inputState.set(key, value);
       }
     });
 
-    EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.PROCESS_INPUT, data: new Map(Engine.inputState.data) });
+    EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.PROCESS_INPUT, data: new Map(Engine.inputState) });
 
-    Engine.inputState.prevData.clear();
-    Engine.inputState.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-      Engine.inputState.prevData.set(key, value);
+    Engine.prevInputState.clear();
+    Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+      Engine.prevInputState.set(key, value);
     });
 
-    Engine.inputState.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+    Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
       if (value.type === InputType.BUTTON) {
         if (value.lifecycleState === LifecycleValue.ENDED) {
-          Engine.inputState.data.delete(key);
+          Engine.inputState.delete(key);
         }
       }
     });

@@ -27,7 +27,7 @@ import { createElement } from '../functions/createElement';
 import { isWebWorker } from '../../common/functions/getEnvironment';
 import { VideoTextureProxy } from '../../worker/VideoTexture';
 import { PositionalAudioObjectProxy, AudioObjectProxy, AudioListenerProxy, AudioLoaderProxy } from '../../worker/Audio';
-import { Input } from '../../input/components/Input';
+import { BinaryType } from '../../common/types/NumericalTypes';
 
 
 export const Audio = isWebWorker ? AudioObjectProxy : THREE_Audio;
@@ -227,5 +227,19 @@ export class Engine {
 
   static useAudioSystem: boolean = false;
 
-  static inputState: Input = new Input();
+  static inputState = new Map();
+  static prevInputState = new Map();
+
+  /**
+   * Input inherits from BehaviorComponent, which adds .map and .data
+   * 
+   * @property {Boolean} gamepadConnected Connection a new gamepad
+   * @property {Number} gamepadThreshold Threshold value from 0 to 1
+   * @property {Binary[]} gamepadButtons Map gamepad buttons
+   * @property {Number[]} gamepadInput Map gamepad buttons to abstract input
+   */
+  static gamepadConnected: boolean = false;
+  static gamepadThreshold: number = 0.1;
+  static gamepadButtons: BinaryType[] = [];
+  static gamepadInput: number[] = [];
 }

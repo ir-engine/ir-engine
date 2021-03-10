@@ -9,15 +9,10 @@ import { SkinnedMesh } from 'three/src/objects/SkinnedMesh';
 import { CameraComponent } from "../../camera/components/CameraComponent";
 import { CameraModes } from "../../camera/types/CameraModes";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
-import { Thumbsticks } from '../../common/enums/Thumbsticks';
-import { NumericalType } from "../../common/types/NumericalTypes";
+import { Thumbsticks } from '../../input/enums/InputEnums';
 import { getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
-import { CameraInput } from '../../input/enums/CameraInput';
-import { GamepadButtons } from '../../input/enums/GamepadButtons';
+import { CameraInput, GamepadButtons, MouseInput, TouchInputs } from "../../input/enums/InputEnums";
 import { InputType } from "../../input/enums/InputType";
-import { MouseInput } from '../../input/enums/MouseInput';
-import { TouchInputs } from "../../input/enums/TouchInputs";
-import { InputRelationship } from '../../input/interfaces/InputRelationship';
 import { InputSchema } from '../../input/interfaces/InputSchema';
 import { InputAlias } from "../../input/types/InputAlias";
 import { Interactable } from '../../interaction/components/Interactable';
@@ -28,8 +23,6 @@ import { updateCharacterState } from "./behaviors/updateCharacterState";
 import { CharacterComponent } from "./components/CharacterComponent";
 import { isServer } from "../../common/functions/isServer";
 import { VehicleBody } from '../../physics/components/VehicleBody';
-
-const startedPosition = new Map<Entity,NumericalType>();
 
 /**
  *
@@ -353,90 +346,62 @@ const lookByInputAxis = (
   }
 }
 
+// what do we want this to look like?
+// instead of assigning a hardware input to a base input, we want to map them
+
+export const createCharacterInput = () => {
+  const map: Map<InputAlias, InputAlias> = new Map();
+
+  map.set(MouseInput.LeftButton, BaseInput.PRIMARY);
+  map.set(MouseInput.RightButton, BaseInput.SECONDARY);
+  map.set(MouseInput.MiddleButton, BaseInput.INTERACT);
+
+  map.set(MouseInput.MouseMovement, BaseInput.MOUSE_MOVEMENT);
+  map.set(MouseInput.MousePosition, BaseInput.SCREENXY);
+  map.set(MouseInput.MouseClickDownPosition, BaseInput.SCREENXY_START);
+  map.set(MouseInput.MouseClickDownTransformRotation, BaseInput.ROTATION_START);
+  map.set(MouseInput.MouseClickDownMovement, BaseInput.LOOKTURN_PLAYERONE);
+  map.set(MouseInput.MouseScroll, BaseInput.CAMERA_SCROLL);
+
+  map.set(TouchInputs.Touch, BaseInput.INTERACT);
+  map.set(TouchInputs.DoubleTouch, BaseInput.JUMP);
+  map.set(TouchInputs.Touch1Position, BaseInput.SCREENXY);
+  map.set(TouchInputs.Touch1Movement, BaseInput.LOOKTURN_PLAYERONE);
+  map.set(TouchInputs.Scale, BaseInput.CAMERA_SCROLL);
+
+  map.set(GamepadButtons.A, BaseInput.INTERACT);
+  map.set(GamepadButtons.B, BaseInput.JUMP);
+  map.set(GamepadButtons.DPad1, BaseInput.FORWARD);
+  map.set(GamepadButtons.DPad2, BaseInput.BACKWARD);
+  map.set(GamepadButtons.DPad3, BaseInput.LEFT);
+  map.set(GamepadButtons.DPad4, BaseInput.RIGHT);
+
+  map.set(Thumbsticks.Left, BaseInput.MOVEMENT_PLAYERONE);
+  map.set(Thumbsticks.Right, BaseInput.GAMEPAD_STICK_RIGHT);
+
+  map.set('w', BaseInput.FORWARD);
+  map.set('a', BaseInput.LEFT);
+  map.set('s', BaseInput.BACKWARD);
+  map.set('d', BaseInput.RIGHT);
+  map.set('e', BaseInput.INTERACT);
+  map.set(' ', BaseInput.JUMP);
+  map.set('shift', BaseInput.WALK);
+  map.set('p', BaseInput.POINTER_LOCK);
+  map.set('v', BaseInput.SWITCH_CAMERA);
+  map.set('c', BaseInput.SWITCH_SHOULDER_SIDE);
+  map.set('f', BaseInput.LOCKING_CAMERA);
+
+  map.set(CameraInput.Happy, BaseInput.FACE_EXPRESSION_HAPPY);
+  map.set(CameraInput.Sad, BaseInput.FACE_EXPRESSION_SAD);
+
+  return map;
+}
+
 export const CharacterInputSchema: InputSchema = {
   onAdded: [],
   onRemoved: [],
   // Map mouse buttons to abstract input
-  mouseInputMap: {
-    buttons: {
-      [MouseInput.LeftButton]: BaseInput.PRIMARY,
-    //  [MouseInput.LeftButton]: BaseInput.INTERACT,
-      [MouseInput.RightButton]: BaseInput.SECONDARY,
-      [MouseInput.MiddleButton]: BaseInput.INTERACT
-    },
-    axes: {
-      [MouseInput.MouseMovement]: BaseInput.MOUSE_MOVEMENT,
-      [MouseInput.MousePosition]: BaseInput.SCREENXY,
-      [MouseInput.MouseClickDownPosition]: BaseInput.SCREENXY_START,
-      [MouseInput.MouseClickDownTransformRotation]: BaseInput.ROTATION_START,
-      [MouseInput.MouseClickDownMovement]: BaseInput.LOOKTURN_PLAYERONE,
-      [MouseInput.MouseScroll]: BaseInput.CAMERA_SCROLL
-    }
-  },
-  // Map touch buttons to abstract input
-  touchInputMap: {
-    buttons: {
-      [TouchInputs.Touch]: BaseInput.INTERACT,
-      [TouchInputs.DoubleTouch]: BaseInput.JUMP,
-    },
-    axes: {
-      [TouchInputs.Touch1Position]: BaseInput.SCREENXY,
-      [TouchInputs.Touch1Movement]: BaseInput.LOOKTURN_PLAYERONE,
-      [TouchInputs.Scale]: BaseInput.CAMERA_SCROLL,
-    }
-  },
-  // Map gamepad buttons to abstract input
-  gamepadInputMap: {
-    buttons: {
-      [GamepadButtons.A]: BaseInput.INTERACT,
-      [GamepadButtons.B]: BaseInput.JUMP,
-      // [GamepadButtons.B]: BaseInput.CROUCH, // B - back
-      // [GamepadButtons.X]: BaseInput.WALK, // X - secondary input
-      // [GamepadButtons.Y]: BaseInput.INTERACT, // Y - tertiary input
-      // 4: BaseInput.DEFAULT, // LB
-      // 5: BaseInput.DEFAULT, // RB
-      // 6: BaseInput.DEFAULT, // LT
-      // 7: BaseInput.DEFAULT, // RT
-      // 8: BaseInput.DEFAULT, // Back
-      // 9: BaseInput.DEFAULT, // Start
-      // 10: BaseInput.DEFAULT, // LStick
-      // 11: BaseInput.DEFAULT, // RStick
-      [GamepadButtons.DPad1]: BaseInput.FORWARD, // DPAD 1
-      [GamepadButtons.DPad2]: BaseInput.BACKWARD, // DPAD 2
-      [GamepadButtons.DPad3]: BaseInput.LEFT, // DPAD 3
-      [GamepadButtons.DPad4]: BaseInput.RIGHT // DPAD 4
-    },
-    axes: {
-      [Thumbsticks.Left]: BaseInput.MOVEMENT_PLAYERONE,
-      [Thumbsticks.Right]: BaseInput.GAMEPAD_STICK_RIGHT
-    }
-  },
-  // Map keyboard buttons to abstract input
-  keyboardInputMap: {
-    w: BaseInput.FORWARD,
-    a: BaseInput.LEFT,
-    s: BaseInput.BACKWARD,
-    d: BaseInput.RIGHT,
-    e: BaseInput.INTERACT,
-    ' ': BaseInput.JUMP,
-    shift: BaseInput.WALK,
-    p: BaseInput.POINTER_LOCK,
-    v: BaseInput.SWITCH_CAMERA,
-    c: BaseInput.SWITCH_SHOULDER_SIDE,
-    f: BaseInput.LOCKING_CAMERA
-  },
-  cameraInputMap: {
-    [CameraInput.Happy]: BaseInput.FACE_EXPRESSION_HAPPY,
-    [CameraInput.Sad]: BaseInput.FACE_EXPRESSION_SAD
-  },
-  // Map how inputs relate to each other
-  inputRelationships: {
-    [BaseInput.FORWARD]: { opposes: [BaseInput.BACKWARD] } as InputRelationship,
-    [BaseInput.BACKWARD]: { opposes: [BaseInput.FORWARD] } as InputRelationship,
-    [BaseInput.LEFT]: { opposes: [BaseInput.RIGHT] } as InputRelationship,
-    [BaseInput.RIGHT]: { opposes: [BaseInput.LEFT] } as InputRelationship,
-    [BaseInput.JUMP]: {} as InputRelationship
-  },
+  inputMap: createCharacterInput(),
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
     [BaseInput.SWITCH_CAMERA]: {
