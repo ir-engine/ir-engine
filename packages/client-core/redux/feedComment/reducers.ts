@@ -44,7 +44,7 @@ const feedCommentsReducer = (state = immutableState, action: FeedCommentsAction)
       }));
 
       case ADD_FEED_COMMENT:
-        return state.set('feedComments', [...state.get('feedComments'), (action as AddFeedCommentAction).comment]);
+        return state.set('feedComments', [ (action as AddFeedCommentAction).comment, ...state.get('feedComments')]);
 }
 
 
