@@ -207,6 +207,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // Get information for how to consume data from server and init a data consumer
       socket.on(MessageTypes.WebRTCConsumeData.toString(), async (options) => {
         const dataConsumer = await this.instanceRecvTransport.consumeData(options);
+
+        // Firefox uses blob as by default hence have to convert binary type of data consumer to 'arraybuffer' explicitly.
+        dataConsumer.binaryType = 'arraybuffer';
         Network.instance?.dataConsumers.set(options.dataProducerId, dataConsumer);
 
         dataConsumer.on('message', (message: any) => {
