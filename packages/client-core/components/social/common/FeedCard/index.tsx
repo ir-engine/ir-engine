@@ -51,14 +51,22 @@ const FeedCard = (props: Props) : any => {
     const {feed, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed, addBookmarkToFeed, removeBookmarkToFeed, addViewToFeed} = props;
     useEffect(()=>{if(feed){getFeedFires(feed.id);}}, []);
     
-    const handleAddFireClick = (feedId) =>addFireToFeed(feedId, '150');
-    const handleRemoveFireClick = (feedId) =>removeFireToFeed(feedId, '150');
+    const handleAddFireClick = (feedId) =>addFireToFeed(feedId);
+    const handleRemoveFireClick = (feedId) =>removeFireToFeed(feedId);
 
-    const handleAddBookmarkClick = (feedId) =>addBookmarkToFeed(feedId, '150');
-    const handleRemoveBookmarkClick = (feedId) =>removeBookmarkToFeed(feedId, '150');
+    const handleAddBookmarkClick = (feedId) =>addBookmarkToFeed(feedId);
+    const handleRemoveBookmarkClick = (feedId) =>removeBookmarkToFeed(feedId);
 
     const handlePlayVideo = (feedId) => {
         addViewToFeed(feedId);
+    }
+
+    const handleGetFeedFiredUsers = (feedId) => {
+        if(feedId){
+            getFeedFires(feedId);
+            //TODO create component for this
+            console.log('Users who fired this feed ',feedFiresState.get('feedFires'));
+        }
     }
     
     return  feed ? <Card className={styles.tipItem} square={false} elevation={0} key={feed.id}>
@@ -82,7 +90,7 @@ const FeedCard = (props: Props) : any => {
                     <Typography className={styles.titleContainer} gutterBottom variant="h2" onClick={()=>Router.push({ pathname: '/feed', query:{ feedId: feed.id}})}>
                         {feed.title}                      
                     </Typography>
-                    <Typography variant="h2" onClick={()=>console.log('Fires ',feedFiresState.get('feedFires'))}><span className={styles.flamesCount}>{feed.fires}</span>Flames</Typography>
+                    <Typography variant="h2" onClick={()=>handleGetFeedFiredUsers(feed.id)}><span className={styles.flamesCount}>{feed.fires}</span>Flames</Typography>
                     <Typography variant="h2">{feed.description}</Typography>
                 </CardContent>
             </Card>

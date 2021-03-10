@@ -51,7 +51,7 @@ export function getFeed(feedId: string) {
 export function addViewToFeed(feedId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      // await client.service('feed').put({feedId, creatorId});
+      await client.service('feed').patch(feedId, {});
       dispatch(addFeedView(feedId));
     } catch(err) {
       console.log(err);
@@ -60,28 +60,10 @@ export function addViewToFeed(feedId: string) {
   };
 }
 
-export function createFeed({title, description, authorId }: any) {
+export function createFeed({title, description }: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      const feed = await client.service('feed').create({title, description, authorId, preview:'https://picsum.photos/375/210'});
-    //   const feed ={
-    //     id: '753954',
-    //     creator:{
-    //         id:'185',
-    //         avatar :'https://picsum.photos/40/40',
-    //         username: 'User username',
-    //         name: '@username',
-    //         userId: 'userId',
-    //         verified: true,
-    //     },
-    //     preview:'https://picsum.photos/375/210',
-    //     video:null,
-    //     title,
-    //     fires: 0,
-    //     stores:0,
-    //     viewsCount:  0,
-    //     description
-    // }
+      const feed = await client.service('feed').create({title, description, preview:'https://picsum.photos/375/210'});
       dispatch(addFeed(feed));
     } catch(err) {
       console.log(err);
