@@ -2,10 +2,11 @@ import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/Media
 import { Behavior } from "../../common/interfaces/Behavior";
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { Input } from "../components/Input";
-import { CameraInput } from "../enums/CameraInput";
+import { CameraInput } from "../enums/InputEnums";
 import { InputType } from "../enums/InputType";
 import * as Comlink from 'comlink'
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
+import { Engine } from "../../ecs/classes/Engine";
 
 export const WEBCAM_INPUT_EVENTS = {
   FACE_INPUT: 'WEBCAM_INPUT_EVENTS_FACE_INPUT',
@@ -66,7 +67,7 @@ export const startFaceTracking = () => {
 async function initialiseWorker () {
     console.log("Start load detectors")
     //@ts-ignore
-    const worker = Comlink.wrap(new Worker(new URL('./webcamInput.worker.ts', import.meta.url)));//, { type: 'module' }))
+    const worker = Comlink.wrap(new Worker(new URL('./webcamInputWorker.ts', import.meta.url)));//, { type: 'module' }))
     //@ts-ignore
     await worker.initialise()
     console.log("Finish load detectors")
@@ -92,7 +93,7 @@ export async function faceToInput(entity, detection) {
             // If the detected value of the expression is more than 1/3rd-ish of total, record it
             // This should allow up to 3 expressions but usually 1-2
             const cameraInputKey = nameToInputValue[expression];
-            const inputKey = input.schema.cameraInputMap[cameraInputKey];
+            const inputKey = input.schema.inputMap.get(cameraInputKey);
             if (!inputKey) {
                 // skip if expression is not in schema
                 continue;

@@ -50,7 +50,7 @@ const partyReducer = (state = immutableState, action: PartyAction): any => {
       updateMap = _.cloneDeep(state.get('party'));
       if (updateMap != null) {
         updateMapPartyUsers = updateMap.partyUsers;
-        updateMapPartyUsers = Array.isArray(updateMapPartyUsers) ? (updateMapPartyUsers.find(pUser => pUser.id === partyUser.id) == null ? updateMapPartyUsers.concat([partyUser]) : updateMap.partyUsers.map((pUser) => pUser.id === partyUser.id ? partyUser : pUser)) : [partyUser];
+        updateMapPartyUsers = Array.isArray(updateMapPartyUsers) ? (updateMapPartyUsers.find(pUser => { return pUser != null && (pUser.id === partyUser.id)}) == null ? updateMapPartyUsers.concat([partyUser]) : updateMap.partyUsers.map((pUser) => { return pUser != null && (pUser.id === partyUser.id) ? partyUser : pUser})) : [partyUser];
         updateMap.partyUsers = updateMapPartyUsers;
       }
 
@@ -61,7 +61,7 @@ const partyReducer = (state = immutableState, action: PartyAction): any => {
       partyUser = newValues.partyUser;
       updateMap = _.cloneDeep(state.get('party'));
       if (updateMap != null) {
-        updateMap.partyUsers = updateMap.partyUsers.map((pUser) => pUser.id === partyUser.id ? partyUser : pUser);
+        updateMap.partyUsers = updateMap.partyUsers.map((pUser) => { return pUser != null && (pUser.id === partyUser.id ? partyUser : pUser)});
       }
 
       return state
@@ -72,7 +72,7 @@ const partyReducer = (state = immutableState, action: PartyAction): any => {
       updateMap = _.cloneDeep(state.get('party'));
       if (updateMap != null) {
         updateMapPartyUsers = updateMap.partyUsers;
-        _.remove(updateMapPartyUsers, (pUser: PartyUser) => partyUser.id === pUser.id);
+        _.remove(updateMapPartyUsers, (pUser: PartyUser) => { return pUser != null && (partyUser.id === pUser.id)});
       }
       return state
           .set('party', updateMap)
