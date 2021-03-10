@@ -135,15 +135,6 @@ export class ClientInputSystem extends System {
         return;
       }
 
-      if (
-        value.type !== InputType.ONEDIM &&
-        value.type !== InputType.TWODIM &&
-        value.type !== InputType.THREEDIM
-      ) {
-        // skip all other inputs
-        return;
-      }
-
       if (value.lifecycleState === LifecycleValue.ENDED) {
         // ENDED here is a special case, like mouse position on mouse down
         return;
@@ -159,7 +150,7 @@ export class ClientInputSystem extends System {
       }
     });
 
-    EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.PROCESS_INPUT, data: Engine.inputState.data });
+    EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.PROCESS_INPUT, data: new Map(Engine.inputState.data) });
 
     Engine.inputState.prevData.clear();
     Engine.inputState.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
