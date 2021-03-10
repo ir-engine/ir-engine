@@ -60,6 +60,14 @@ const FeedCard = (props: Props) : any => {
     const handlePlayVideo = (feedId) => {
         addViewToFeed(feedId);
     }
+
+    const handleGetFeedFiredUsers = (feedId) => {
+        if(feedId){
+            getFeedFires(feedId);
+            //TODO create component for this
+            console.log('Users who fired this feed ',feedFiresState.get('feedFires'));
+        }
+    }
     
     return  feed ? <Card className={styles.tipItem} square={false} elevation={0} key={feed.id}>
                 <CreatorAsTitle creator={feed.creator} />                   
@@ -82,7 +90,7 @@ const FeedCard = (props: Props) : any => {
                     <Typography className={styles.titleContainer} gutterBottom variant="h2" onClick={()=>Router.push({ pathname: '/feed', query:{ feedId: feed.id}})}>
                         {feed.title}                      
                     </Typography>
-                    <Typography variant="h2" onClick={()=>console.log('Fires ',feedFiresState.get('feedFires'))}><span className={styles.flamesCount}>{feed.fires}</span>Flames</Typography>
+                    <Typography variant="h2" onClick={()=>handleGetFeedFiredUsers(feed.id)}><span className={styles.flamesCount}>{feed.fires}</span>Flames</Typography>
                     <Typography variant="h2">{feed.description}</Typography>
                 </CardContent>
             </Card>

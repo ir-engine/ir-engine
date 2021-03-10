@@ -13,17 +13,8 @@ export function getFeedFires(feedId : string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
       dispatch(fetchingFeedFires());
-      const feedFiresResults = [];
-      // const feedsResults = await client.service('feedFires').find({query: {feedId: feedId}});
-      feedFiresResults.push({ 
-          id: '150',
-          userId: '1245789',
-          avatar :'https://picsum.photos/158/210',
-          name: 'User username',
-          username: '@username', 
-          verified : true,
-      })
-      dispatch(feedFiresRetrieved(feedFiresResults));    
+      const feedsResults = await client.service('feed-fires').find({query: {feedId: feedId}});
+      dispatch(feedFiresRetrieved(feedsResults.data));    
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
