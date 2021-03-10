@@ -83,7 +83,7 @@ Collapsible.defaultProps = {
 };
 
 /**
- * [declairing propTypes for component]
+ * [declaring propTypes for component]
  * @type {Object}
  */
 Collapsible.propTypes = {
