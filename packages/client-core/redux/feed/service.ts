@@ -51,7 +51,7 @@ export function getFeed(feedId: string) {
 export function addViewToFeed(feedId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      // await client.service('feed').put({feedId, creatorId});
+      await client.service('feed').patch(feedId, {});
       dispatch(addFeedView(feedId));
     } catch(err) {
       console.log(err);

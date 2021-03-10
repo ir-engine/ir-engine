@@ -169,6 +169,10 @@ export class Feed extends Service {
           ]
         });
 
+        if (!feed) {
+          return Promise.reject(new BadRequest('Feed not found Or you don\'t have access!'));
+        }
+
       const loggedInUser = extractLoggedInUserFromParams(params);
 
       const dataQuery = `SELECT id
@@ -219,12 +223,7 @@ export class Feed extends Service {
         title: feed.title,
         video: "",
         viewsCount: feed.viewsCount
-      };
-  
-      if (!feed) {
-        return Promise.reject(new BadRequest('Feed not found Or you don\'t have access!'));
-      }
-  
+      };      
       return newFeed;
     }
 
@@ -236,4 +235,30 @@ export class Feed extends Service {
       return  newFeed;
     }
   
+
+      /**
+   * A function which is used to update viewsCount field of feed 
+   * 
+   * @param id of feed to update 
+   * @param params 
+   * @returns updated feed
+   * @author 
+   */
+  async patch (id: string, data?: any, params?: Params): Promise<any> {
+    const loggedInUser = extractLoggedInUserFromParams(params);
+    if (!loggedInUser.userId) {
+      return Promise.reject(new BadRequest('Could not update feed. Users isn\'t logged in! '));
+    }
+    if (!id) {
+      return Promise.reject(new BadRequest('Could not update feed. Feed id isn\'t provided! '));
+    }
+    const {feed:feedModel } = this.app.get('sequelizeClient').models;
+    const feedItem = await feedModel.findOne({where: {id: id}});
+    if(!feedItem){
+      return Promise.reject(new BadRequest('Could not update feed. Feed not found! '));
+    }
+    return await super.patch(feedItem.id, {
+      viewsCount: (feedItem.viewsCount as number) + 1,
+    });
+  }
 }
