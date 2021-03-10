@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { bindActionCreators, Dispatch } from 'redux';
 
 import Router from "next/router";
@@ -49,7 +49,6 @@ interface Props{
 }
 const FeedCard = (props: Props) : any => {
     const {feed, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed, addBookmarkToFeed, removeBookmarkToFeed, addViewToFeed} = props;
-    useEffect(()=>{if(feed){getFeedFires(feed.id);}}, []);
     
     const handleAddFireClick = (feedId) =>addFireToFeed(feedId);
     const handleRemoveFireClick = (feedId) =>removeFireToFeed(feedId);

@@ -27,7 +27,7 @@ export class FeedFires extends Service {
 
      async find (params: Params): Promise<any> {
       const loggedInUser = extractLoggedInUserFromParams(params);
-      if (!loggedInUser.userId) {
+      if (!loggedInUser?.userId) {
         return Promise.reject(new BadRequest('Could not get fired users list. Users isn\'t logged in! '));
       }
       const skip = params.query?.$skip ? params.query.$skip : 0;
@@ -73,18 +73,18 @@ export class FeedFires extends Service {
 
   async create (data : any, params?:Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params);
-    if (!loggedInUser.userId) {
+    if (!loggedInUser?.userId) {
       return Promise.reject(new BadRequest('Could not add fire. Users isn\'t logged in! '));
     }
     const {feed_fires:feedFiresModel} = this.app.get('sequelizeClient').models;
-    const newFire =  await feedFiresModel.create({feedId:data.feedId, authorId:loggedInUser.userId});
+    const newFire =  await feedFiresModel.create({feedId:data.feedId, authorId:loggedInUser?.userId});
     return  newFire;
 
   }
 
   async remove ( feedId: string,  params?:Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params);
-    if (!loggedInUser.userId) {
+    if (!loggedInUser?.userId) {
       return Promise.reject(new BadRequest('Could not remove fire. Users isn\'t logged in! '));
     }
     
@@ -95,7 +95,7 @@ export class FeedFires extends Service {
         raw: true,
         replacements: {
           feedId:feedId, 
-          authorId:loggedInUser.userId
+          authorId:loggedInUser?.userId
         }
       });
   }
