@@ -13,10 +13,11 @@ import {
   locationCreated,
   locationPatched,
   locationRemoved,
-  locationsRetrieved
+  locationsRetrieved,
 } from "../location/actions";
 import {
-  loadedUsers
+  loadedUsers,
+  userCreated
 } from '../user/actions';
 import { client } from '../feathers';
 import { PublicVideo, videosFetchedError, videosFetchedSuccess } from '../video/actions';
@@ -106,6 +107,7 @@ export function fetchUsersAsAdmin (offset: string) {
     const user = getState().get('auth').get('user');
     const skip = getState().get('admin').get('users').get('skip');
     const limit = getState().get('admin').get('users').get('limit');
+    
     if (user.userRole === 'admin') {
       const users = await client.service('user').find({
         query: {
@@ -148,6 +150,17 @@ export function createLocation (location: any) {
       dispatchAlertError(dispatch, err.message);
     }
   };
+}
+
+export function createUser (user: any) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const result = await client.service('user').create(user);
+      dispatch(userCreated(result))
+    } catch (error) {
+      dispatchAlertError(dispatch, error.message);
+    }
+  }
 }
 
 export function patchLocation (id: string, location: any) {
