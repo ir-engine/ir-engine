@@ -26,39 +26,35 @@ export class Comments extends Service {
     async find (params: Params): Promise<any> {
       const skip = params.query?.$skip ? params.query.$skip : 0;
       const limit = params.query?.$limit ? params.query.$limit : 100;
+      const feedId = params.query?.feedId;
       const loggedInUser = extractLoggedInUserFromParams(params);
 
-      const dataQuery = loggedInUser?.userId  ? `SELECT comments.*, user.id as userId, user.name as userName, COUNT(cf.id) as fires, iscf.id as fired
-          FROM \`comments\` as comments
-          JOIN \`user\` as user ON user.id=comments.authorId
-          LEFT JOIN \`comments_fires\` as cf ON cf.commentId=comments.id 
-          LEFT JOIN \`comments_fires\` as iscf ON iscf.commentId=comments.id  AND iscf.authorId=:loggedInUser
-          WHERE 1 
-          GROUP BY comments.id
-          ORDER BY comments.createdAt DESC    
-          LIMIT :skip, :limit` : 
-          `SELECT comments.*, user.id as userId, user.name as userName, COUNT(cf.id) as fires
-          FROM \`comments\` as comments
-          JOIN \`user\` as user ON user.id=comments.authorId
-          LEFT JOIN \`comments_fires\` as cf ON cf.commentId=comments.id 
-          WHERE 1 
-          GROUP BY comments.id
-          ORDER BY comments.createdAt DESC    
-          LIMIT :skip, :limit`;
-        const queryParamsReplacements = {
-          skip,
-          limit,
-        } as any;
-        if(loggedInUser && loggedInUser.userId){
-          queryParamsReplacements.loggedInUser =  loggedInUser.userId;
-        }
+      let select = ` SELECT comments.*, user.id as userId, user.name as userName, COUNT(cf.id) as fires `;
+      let from = ` FROM \`comments\` as comments`;
+      let join = ` JOIN \`user\` as user ON user.id=comments.authorId
+                    LEFT JOIN \`comments_fires\` as cf ON cf.commentId=comments.id `;
+      let where = ` WHERE comments.feedId=:feedId `;
+      let order = ` GROUP BY comments.id
+      ORDER BY comments.createdAt DESC    
+      LIMIT :skip, :limit`;
+      const queryParamsReplacements = {
+        feedId,
+        skip,
+        limit,
+      } as any;
+
+      if(loggedInUser?.userId){
+        select += ` , iscf.id as fired `;
+        join += ` LEFT JOIN \`comments_fires\` as iscf ON iscf.commentId=comments.id  AND iscf.authorId=:loggedInUser`;
+        queryParamsReplacements.loggedInUser =  loggedInUser.userId;
+      }
+      const dataQuery = select + from + join + where + order;
       const feed_comments = await this.app.get('sequelizeClient').query(dataQuery,
         {
           type: QueryTypes.SELECT,
           raw: true,
           replacements: queryParamsReplacements
         });
-
 
       const data = feed_comments.map(comment => {
         return {
@@ -83,7 +79,6 @@ export class Comments extends Service {
         limit: limit,
         total: feed_comments.count,
       };
-
       return feedsResult;
     }
 
@@ -114,6 +109,8 @@ export class Comments extends Service {
         id:commentFromDb.id,
         feedId:commentFromDb.feedId,
         text:commentFromDb.text,
+        fires: 0,
+        isFired: false
     } ;
     }
 }
