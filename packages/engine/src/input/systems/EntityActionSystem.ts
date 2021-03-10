@@ -2,7 +2,6 @@ import { BinaryValue } from "../../common/enums/BinaryValue";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { isClient } from "../../common/functions/isClient";
 import { NumericalType } from "../../common/types/NumericalTypes";
-import { Engine } from "../../ecs/classes/Engine";
 import { System } from '../../ecs/classes/System';
 import { Not } from "../../ecs/functions/ComponentFunctions";
 import { getComponent, hasComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
@@ -173,6 +172,19 @@ export class EntityActionSystem extends System {
             return;
           }
 
+          if (value.type === InputType.BUTTON) {
+            const prevValue = input.prevData.get(key);
+            if (
+              prevValue.lifecycleState === LifecycleValue.STARTED &&
+              value.lifecycleState === LifecycleValue.STARTED
+            ) {
+              // auto-switch to CONTINUED
+              value.lifecycleState = LifecycleValue.CONTINUED;
+              input.data.set(key, value);
+            }
+            return;
+          }
+    
           if (value.lifecycleState === LifecycleValue.ENDED) {
             // ENDED here is a special case, like mouse position on mouse down
             return;
