@@ -41,6 +41,7 @@
     "@feathersjs/socketio-client": "^4.5.9",
     "@google/model-viewer": "^1.2.1",
     "@material-ui/core": "^4.11.3",
+    "@material-ui/data-grid": "^4.0.0-alpha.21",
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.49",
     "@material-ui/styles": "^4.11.3",
