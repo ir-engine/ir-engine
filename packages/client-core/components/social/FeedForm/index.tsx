@@ -10,20 +10,14 @@ import { selectAuthState } from '../../../redux/auth/selector';
 
 import styles from './FeedForm.module.scss';
 
-const mapStateToProps = (state: any): any => {
-    return {
-        authState: selectAuthState(state),
-    };
-};
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     createFeed: bindActionCreators(createFeed, dispatch),
 });
 
 interface Props{
     createFeed?: typeof createFeed,
-    authState?: any;
 }
-const FeedForm = ({createFeed, authState} : Props) => { 
+const FeedForm = ({createFeed} : Props) => { 
     const [isSended, setIsSended] = useState(false);
     const [composingTitle, setComposingTitle] = useState('');
     const [composingText, setComposingText] = useState('');
@@ -36,15 +30,12 @@ const FeedForm = ({createFeed, authState} : Props) => {
         const feed = {
             title: composingTitle.trim(),
             description: composingText.trim()
-        }
-        if(authState.get('user').id){
-            createFeed(feed);
-            setComposingTitle('');
-            setComposingText('');
-            setIsSended(true);
-        }      
+        }        
+        createFeed(feed);
+        setComposingTitle('');
+        setComposingText('');
+        setIsSended(true);              
     }
-
     
 return <section className={styles.feedFormContainer}>
     {isSended ? 
@@ -83,4 +74,4 @@ return <section className={styles.feedFormContainer}>
 </section>
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(FeedForm);
+export default connect(null, mapDispatchToProps)(FeedForm);
