@@ -144,13 +144,12 @@
 .tableFooter {
   display: flex;
   justify-content: space-between;
-
-  .createLocation {
-    height: 40px;
-    margin: auto 5px;
-  }
 }
-
+.createLocation {
+  height: 50px;
+  margin: auto 5px;
+  width: 100%;
+}
 .locationModalButtons {
   justify-content: space-between;
 }

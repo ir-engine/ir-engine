@@ -34,6 +34,7 @@ import {
 import styles from './Admin.module.scss';
 import LocationModal from './LocationModal';
 import InstanceModal from './InstanceModal';
+import Search from "./Search";
 
 if (!global.setImmediate) {
     global.setImmediate = setTimeout as any;
@@ -102,7 +103,7 @@ const AdminConsole = (props: Props) => {
     };
 
 
-    
+
 
     const initialInstance = {
         id: '',
@@ -118,31 +119,31 @@ const AdminConsole = (props: Props) => {
     const [selectedLocation, setSelectedLocation] = useState(initialLocation);
     const [selectedInstance, setSelectedInstance] = useState(initialInstance);
     const adminScenes = adminState.get('scenes').get('scenes');
-     
+
     const headCells = {
         locations: [
-            {id: 'id', numeric: false, disablePadding: true, label: 'ID'},
-            {id: 'name', numeric: false, disablePadding: false, label: 'Name'},
-            {id: 'sceneId', numeric: false, disablePadding: false, label: 'Scene'},
-            {id: 'maxUsersPerInstance', numeric: true, disablePadding: false, label: 'Max Users'},
-            {id: 'type', numeric: false, disablePadding: false, label: 'Type'},
-            {id: 'instanceMediaChatEnabled', numeric: false, disablePadding: false, label: 'Enable public media chat'},
-            {id: 'videoEnabled', numeric: false, disablePadding: false, label: 'Video Enabled'}
+            { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
+            { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
+            { id: 'sceneId', numeric: false, disablePadding: false, label: 'Scene' },
+            { id: 'maxUsersPerInstance', numeric: true, disablePadding: false, label: 'Max Users' },
+            { id: 'type', numeric: false, disablePadding: false, label: 'Type' },
+            { id: 'instanceMediaChatEnabled', numeric: false, disablePadding: false, label: 'Enable public media chat' },
+            { id: 'videoEnabled', numeric: false, disablePadding: false, label: 'Video Enabled' }
         ],
         users: [
-            {id: 'id', numeric: false, disablePadding: true, label: 'ID'},
-            {id: 'name', numeric: false, disablePadding: false, label: 'Name'},
-            {id: 'instanceId', numeric: false, disablePadding: false, label: 'Instance ID'},
-            {id: 'userRole', numeric: false, disablePadding: false, label: 'User Role'},
-            {id: 'partyId', numeric: false, disablePadding: false, label: 'Party ID'}
+            { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
+            { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
+            { id: 'instanceId', numeric: false, disablePadding: false, label: 'Instance ID' },
+            { id: 'userRole', numeric: false, disablePadding: false, label: 'User Role' },
+            { id: 'partyId', numeric: false, disablePadding: false, label: 'Party ID' }
         ],
         instances: [
-            {id: 'id', numeric: false, disablePadding: true, label: 'ID'},
-            {id: 'ipAddress', numeric: false, disablePadding: false, label: 'IP address'},
-            {id: 'gsId', numeric: false, disablePadding: false, label: 'Gameserver ID'},
-            {id: 'serverAddress', numeric: false, disablePadding: false, label: 'Public address'},
-            {id: 'currentUsers', numeric: true, disablePadding: false, label: 'Current # of Users'},
-            {id: 'locationId', numeric: false, disablePadding: false, label: 'Location ID'}
+            { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
+            { id: 'ipAddress', numeric: false, disablePadding: false, label: 'IP address' },
+            { id: 'gsId', numeric: false, disablePadding: false, label: 'Gameserver ID' },
+            { id: 'serverAddress', numeric: false, disablePadding: false, label: 'Public address' },
+            { id: 'currentUsers', numeric: true, disablePadding: false, label: 'Current # of Users' },
+            { id: 'locationId', numeric: false, disablePadding: false, label: 'Location ID' }
         ]
     };
 
@@ -219,7 +220,7 @@ const AdminConsole = (props: Props) => {
     }
 
     function EnhancedTableHead(props: EnhancedTableProps) {
-        const {object, order, orderBy, onRequestSort} = props;
+        const { object, order, orderBy, onRequestSort } = props;
         const createSortHandler = (property) => (event: React.MouseEvent<unknown>) => {
             onRequestSort(event, property);
         };
@@ -265,7 +266,7 @@ const AdminConsole = (props: Props) => {
     const adminInstances = adminState.get('instances').get('instances');
     const adminInstanceCount = adminState.get('instances').get('total');
 
-    
+
     const selectCount = selectedTab === 'locations' ? adminLocationCount : selectedTab === 'users' ? adminUserCount : selectedTab === 'instances' ? adminInstanceCount : 0;
     const displayLocations = adminLocations.map(location => {
         return {
@@ -410,175 +411,186 @@ const AdminConsole = (props: Props) => {
         }
         setRefetch(false);
     }, [authState, adminState, refetch]);
-   
+
 
     return (
-        <Paper className={styles.adminRoot}>
-            <Tabs value={selectedTab} onChange={handleTabChange} aria-label="tabs">
-                <Tab label="Locations" value="locations"/>
-                {user?.userRole === 'admin' && <Tab label="Users" value="users"/>}
-                {user?.userRole === 'admin' && <Tab label="Instances" value="instances"/>}
-            </Tabs>
-            <TableContainer className={styles.tableContainer}>
-                <Table
-                    stickyHeader
-                    aria-labelledby="tableTitle"
-                    size={dense ? 'small' : 'medium'}
-                    aria-label="enhanced table"
-                >
-                    <EnhancedTableHead
-                        object={selectedTab}
-                        numSelected={selected.length}
-                        order={order}
-                        orderBy={orderBy}
-                        onSelectAllClick={handleSelectAllClick}
-                        onRequestSort={handleRequestSort}
-                        rowCount={adminLocationCount || 0}
-                    />
-                    {selectedTab === 'locations' && <TableBody className={styles.thead}>
-                        {stableSort(displayLocations, getComparator(order, orderBy))
-                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                            .map((row, index) => {
-                                return (
-                                    <TableRow
-                                        hover
-                                        className={styles.trowHover}
-                                        style={{color: 'black !important'}}
-                                        onClick={(event) => handleLocationClick(event, row.id.toString())}
-                                        tabIndex={-1}
-                                        key={row.id}
-                                    >
-                                        <TableCell className={styles.tcell} component="th" id={row.id.toString()}
-                                                   align="right" scope="row" padding="none">
-                                            {row.id}
-                                        </TableCell>
-                                        <TableCell className={styles.tcell} align="right">{row.name}</TableCell>
-                                        <TableCell className={styles.tcell}
-                                                   align="right">{getScene(row.sceneId as string)}</TableCell>
-                                        <TableCell className={styles.tcell}
-                                                   align="right">{row.maxUsersPerInstance}</TableCell>
-                                        <TableCell className={styles.tcell} align="right">{row.type}</TableCell>
-                                        <TableCell className={styles.tcell} align="right">{row.videoEnabled}</TableCell>
-                                        <TableCell className={styles.tcell}
-                                                   align="right">{row.instanceMediaChatEnabled}</TableCell>
-                                    </TableRow>
-                                );
-                            })}
-                    </TableBody>
-                    }
-                    {selectedTab === 'users' && <TableBody className={styles.thead}>
-                        {stableSort(adminUsers, getComparator(order, orderBy))
-                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                            .map((row, index) => {
-                                return (
-                                    <TableRow
-                                        className={styles.trow}
-                                        style={{color: 'black !important'}}
-                                        // onClick={(event) => handleClick(event, row.id.toString())}
-                                        tabIndex={-1}
-                                        key={row.id}
-                                    >
-                                        <TableCell className={styles.tcell} component="th" id={row.id.toString()}
-                                                   align="right" scope="row" padding="none">
-                                            {row.id}
-                                        </TableCell>
-                                        <TableCell className={styles.tcell} align="right">{row.name}</TableCell>
-                                        <TableCell className={(row.instanceId != null && row.instanceId !== '') ? styles.tcellSelectable : styles.tcell}
-                                                   align="right"
-                                                   onClick={(event) => (row.instanceId != null && row.instancedId !== '') ? redirectToInstance(event, row.instanceId.toString()) : {}}
-                                        >{row.instanceId}</TableCell>
-                                        <TableCell className={styles.tcell} align="right">
-                                            {(row.userRole === 'guest' || row.userRole === 'admin' && row.id === user.id) &&
-                                            <div>{row.userRole}</div>}
-                                            {(row.userRole !== 'guest' && row.id !== user.id) && <Select
-                                                labelId="userRole"
-                                                id="userRole"
-                                                value={row.userRole}
-                                                onChange={(e) => patchUserRole(e, row, e.target.value as string)}
-                                            >
-                                                <MenuItem key='user' value='user'>User</MenuItem>)
-                                                <MenuItem key='admin' value='admin'>Admin</MenuItem>
-                                            </Select>}
-                                        </TableCell>
-                                        <TableCell className={styles.tcell} align="right">{row.partyId}</TableCell>
-                                    </TableRow>
-                                );
-                            })}
-                    </TableBody>
-                    }
-                    {selectedTab === 'instances' && <TableBody className={styles.thead}>
-                        {stableSort(displayInstances, getComparator(order, orderBy))
-                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                            .map((row, index) => {
-                                return (
-                                    <TableRow
-                                        className={styles.trow}
-                                        style={{color: 'black !important'}}
-                                        // onClick={(event) => handleClick(event, row.id.toString())}
-                                        tabIndex={-1}
-                                        key={row.id}
-                                    >
-                                        <TableCell className={styles.tcell} component="th" id={row.id.toString()}
-                                                   align="right" scope="row" padding="none">
-                                            {row.id}
-                                        </TableCell>
-                                        <TableCell className={styles.tcell} align="right">{row.ipAddress}</TableCell>
-                                        <TableCell className={styles.tcell}
-                                                   align="right">
-                                            {row.gsId}
-                                        </TableCell>
-                                        <TableCell className={styles.tcell}
-                                                   align="right">
-                                            {row.serverAddress}
-                                        </TableCell>
-                                        <TableCell className={styles.tcellSelectable}
-                                                   align="right"
-                                                   onClick={(event) => handleInstanceClick(event, row.id.toString())}
-                                        >{row.currentUsers}</TableCell>
-                                        <TableCell className={styles.tcell}
-                                                   align="right">{row.locationId}</TableCell>
-                                    </TableRow>
-                                );
-                            })}
-                    </TableBody>
-                    }
-                </Table>
-            </TableContainer>
-            <div className={styles.tableFooter}>
-                {selectedTab === 'locations' && <Button
-                    className={styles.createLocation}
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    onClick={openModalCreate}
-                >
-                    Create New Location
+        <div>
+            <div className="row mb-5">
+                <div className="col-lg-9">
+                    <Search  typeName="locations"/>
+                </div>
+                <div className="col-lg-3">
+                <Button
+                        className={styles.createLocation}
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        onClick={openModalCreate}
+                    >
+                        Create New Location
                 </Button>
-                }
-                {selectedTab !== 'locations' && <div/>}
-                <TablePagination
-                    rowsPerPageOptions={[PAGE_LIMIT]}
-                    component="div"
-                    count={selectCount}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onChangePage={handleChangePage}
-                    onChangeRowsPerPage={handleChangeRowsPerPage}
-                    className={styles.tablePagination}
-                />
+                </div>
             </div>
-            <LocationModal
-                editing={locationEditing}
-                location={selectedLocation}
-                open={locationModalOpen}
-                handleClose={handleLocationClose}
-            />
-            <InstanceModal
-                instance={selectedInstance}
-                open={instanceModalOpen}
-                handleClose={handleInstanceClose}
-            />
-        </Paper>
+            <Paper className={styles.adminRoot}>
+
+                <Tabs value={selectedTab} onChange={handleTabChange} aria-label="tabs">
+                    <Tab label="Locations" value="locations" />
+                    {user?.userRole === 'admin' && <Tab label="Users" value="users" />}
+                    {user?.userRole === 'admin' && <Tab label="Instances" value="instances" />}
+                </Tabs>
+                <TableContainer className={styles.tableContainer}>
+                    <Table
+                        stickyHeader
+                        aria-labelledby="tableTitle"
+                        size={dense ? 'small' : 'medium'}
+                        aria-label="enhanced table"
+                    >
+                        <EnhancedTableHead
+                            object={selectedTab}
+                            numSelected={selected.length}
+                            order={order}
+                            orderBy={orderBy}
+                            onSelectAllClick={handleSelectAllClick}
+                            onRequestSort={handleRequestSort}
+                            rowCount={adminLocationCount || 0}
+                        />
+                        {selectedTab === 'locations' && <TableBody className={styles.thead}>
+                            {stableSort(displayLocations, getComparator(order, orderBy))
+                                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                .map((row, index) => {
+                                    return (
+                                        <TableRow
+                                            hover
+                                            className={styles.trowHover}
+                                            style={{ color: 'black !important' }}
+                                            onClick={(event) => handleLocationClick(event, row.id.toString())}
+                                            tabIndex={-1}
+                                            key={row.id}
+                                        >
+                                            <TableCell className={styles.tcell} component="th" id={row.id.toString()}
+                                                align="right" scope="row" padding="none">
+                                                {row.id}
+                                            </TableCell>
+                                            <TableCell className={styles.tcell} align="right">{row.name}</TableCell>
+                                            <TableCell className={styles.tcell}
+                                                align="right">{getScene(row.sceneId as string)}</TableCell>
+                                            <TableCell className={styles.tcell}
+                                                align="right">{row.maxUsersPerInstance}</TableCell>
+                                            <TableCell className={styles.tcell} align="right">{row.type}</TableCell>
+                                            <TableCell className={styles.tcell} align="right">{row.videoEnabled}</TableCell>
+                                            <TableCell className={styles.tcell}
+                                                align="right">{row.instanceMediaChatEnabled}</TableCell>
+                                        </TableRow>
+                                    );
+                                })}
+                        </TableBody>
+                        }
+                        {selectedTab === 'users' && <TableBody className={styles.thead}>
+                            {stableSort(adminUsers, getComparator(order, orderBy))
+                                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                .map((row, index) => {
+                                    return (
+                                        <TableRow
+                                            className={styles.trow}
+                                            style={{ color: 'black !important' }}
+                                            // onClick={(event) => handleClick(event, row.id.toString())}
+                                            tabIndex={-1}
+                                            key={row.id}
+                                        >
+                                            <TableCell className={styles.tcell} component="th" id={row.id.toString()}
+                                                align="right" scope="row" padding="none">
+                                                {row.id}
+                                            </TableCell>
+                                            <TableCell className={styles.tcell} align="right">{row.name}</TableCell>
+                                            <TableCell className={(row.instanceId != null && row.instanceId !== '') ? styles.tcellSelectable : styles.tcell}
+                                                align="right"
+                                                onClick={(event) => (row.instanceId != null && row.instancedId !== '') ? redirectToInstance(event, row.instanceId.toString()) : {}}
+                                            >{row.instanceId}</TableCell>
+                                            <TableCell className={styles.tcell} align="right">
+                                                {(row.userRole === 'guest' || row.userRole === 'admin' && row.id === user.id) &&
+                                                    <div>{row.userRole}</div>}
+                                                {(row.userRole !== 'guest' && row.id !== user.id) && <Select
+                                                    labelId="userRole"
+                                                    id="userRole"
+                                                    value="user"
+                                                    style={{color: "white"}}
+                                                    onChange={(e) => patchUserRole(e, row, e.target.value as string)}
+                                                >
+                                                    <MenuItem key='user' value='user'>User</MenuItem>)
+                                                <MenuItem key='admin' value='admin'>Admin</MenuItem>
+                                                </Select>}
+                                            </TableCell>
+                                            <TableCell className={styles.tcell} align="right">{row.partyId}</TableCell>
+                                        </TableRow>
+                                    );
+                                })}
+                        </TableBody>
+                        }
+                        {selectedTab === 'instances' && <TableBody className={styles.thead}>
+                            {stableSort(displayInstances, getComparator(order, orderBy))
+                                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                .map((row, index) => {
+                                    return (
+                                        <TableRow
+                                            className={styles.trow}
+                                            style={{ color: 'black !important' }}
+                                            // onClick={(event) => handleClick(event, row.id.toString())}
+                                            tabIndex={-1}
+                                            key={row.id}
+                                        >
+                                            <TableCell className={styles.tcell} component="th" id={row.id.toString()}
+                                                align="right" scope="row" padding="none">
+                                                {row.id}
+                                            </TableCell>
+                                            <TableCell className={styles.tcell} align="right">{row.ipAddress}</TableCell>
+                                            <TableCell className={styles.tcell}
+                                                align="right">
+                                                {row.gsId}
+                                            </TableCell>
+                                            <TableCell className={styles.tcell}
+                                                align="right">
+                                                {row.serverAddress}
+                                            </TableCell>
+                                            <TableCell className={styles.tcellSelectable}
+                                                align="right"
+                                                onClick={(event) => handleInstanceClick(event, row.id.toString())}
+                                            >{row.currentUsers}</TableCell>
+                                            <TableCell className={styles.tcell}
+                                                align="right">{row.locationId}</TableCell>
+                                        </TableRow>
+                                    );
+                                })}
+                        </TableBody>
+                        }
+                    </Table>
+                </TableContainer>
+              
+                <div className={styles.tableFooter}>
+                    {selectedTab !== 'locations' && <div />}
+                    <TablePagination
+                        rowsPerPageOptions={[PAGE_LIMIT]}
+                        component="div"
+                        count={selectCount}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onChangePage={handleChangePage}
+                        onChangeRowsPerPage={handleChangeRowsPerPage}
+                        className={styles.tablePagination}
+                    />
+                </div>
+                <LocationModal
+                    editing={locationEditing}
+                    location={selectedLocation}
+                    open={locationModalOpen}
+                    handleClose={handleLocationClose}
+                />
+                <InstanceModal
+                    instance={selectedInstance}
+                    open={instanceModalOpen}
+                    handleClose={handleInstanceClose}
+                />
+            </Paper>
+        </div>
     );
 };
 

@@ -11,6 +11,7 @@ import {
   LOADED_CHANNEL_LAYER_USERS,
   REMOVED_CHANNEL_LAYER_USER,
   USER_TOAST,
+  USER_CREATED
 } from '../actions';
 import { Relationship } from '@xr3ngine/common/interfaces/Relationship';
 import { User } from '@xr3ngine/common/interfaces/User';
@@ -18,6 +19,10 @@ import { User } from '@xr3ngine/common/interfaces/User';
 export interface LoadedUserRelationshipAction {
   type: string;
   relationship: Relationship;
+}
+export interface UserCreatedAction {
+  type: string,
+  user: User
 }
 
 export interface LoadedUsersAction {
@@ -58,6 +63,13 @@ export type UserAction =
   | LoadedUsersAction
   | LoadedLayerUsersAction
   | ClearLayersUsersAction
+
+  export function userCreated (user: User): UserCreatedAction {
+    return {
+      type: USER_CREATED,
+      user: user
+    };
+  }
 
 export function loadedUserRelationship(relationship: Relationship): LoadedUserRelationshipAction {
   return {
