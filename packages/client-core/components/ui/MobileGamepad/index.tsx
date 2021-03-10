@@ -1,6 +1,5 @@
 import { TouchApp } from '@styled-icons/material/TouchApp';
-import { Thumbsticks } from '@xr3ngine/engine/src/common/enums/Thumbsticks';
-import { GamepadButtons } from "@xr3ngine/engine/src/input/enums/GamepadButtons";
+import { Thumbsticks, GamepadButtons } from "@xr3ngine/engine/src/input/enums/InputEnums";
 import nipplejs from 'nipplejs';
 import React, { FunctionComponent, useEffect, useRef } from 'react';
 import styles from './MobileGamepad.module.scss';

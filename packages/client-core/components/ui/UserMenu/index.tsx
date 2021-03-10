@@ -18,6 +18,7 @@ import ProfileMenu from './menus/ProfileMenu';
 import AvatarMenu from './menus/AvatarMenu';
 import SettingMenu from './menus/SettingMenu';
 import ShareMenu from './menus/ShareMenu';
+import AvatarSelectMenu from './menus/AvatarSelectMenu';
 import { WebGLRendererSystem } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 
@@ -126,6 +127,7 @@ const UserMenu = (props: UserMenuProps): any => {
     [Views.Settings]: SettingMenu,
     [Views.Share]: ShareMenu,
     [Views.Avatar]: AvatarMenu,
+    [Views.AvatarUpload]: AvatarSelectMenu,
   };
 
   const handleUpdateUsername = () => {
@@ -207,7 +209,7 @@ const UserMenu = (props: UserMenuProps): any => {
       case Views.Share:
         args = { alertSuccess };
         break;
-      case Views.Account: 
+      case Views.AvatarUpload:
         args = {
           userId: selfUser?.id,
           changeActiveMenu,

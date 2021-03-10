@@ -1,5 +1,5 @@
 import { Mesh } from "three";
-import { BufferGeometryUtils } from "three/examples/jsm/utils/BufferGeometryUtils";
+import { mergeBufferGeometries } from "@xr3ngine/engine/src/common/classes/BufferGeometryUtils";
 import { isStatic } from "../functions/StaticMode";
 import asyncTraverse from "../../editor/functions/asyncTraverse";
 import keysEqual from "../functions/keysEqual";
@@ -233,7 +233,7 @@ export default class MeshCombinationGroup {
       mesh.parent.remove(mesh);
     }
 
-    const combinedGeometry = BufferGeometryUtils.mergeBufferGeometries(bufferGeometries);
+    const combinedGeometry = mergeBufferGeometries(bufferGeometries);
     delete combinedGeometry.userData.mergedUserData;
     const combinedMesh = new Mesh(combinedGeometry, originalMesh.material);
     combinedMesh.name = "CombinedMesh";
