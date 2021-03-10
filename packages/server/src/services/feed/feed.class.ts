@@ -178,28 +178,28 @@ export class Feed extends Service {
       const dataQuery = `SELECT id
         FROM \`feed_bookmark\`
         WHERE feedId=:feedId AND authorId=:authorId`;
-        const isBookmarkedInTable = await this.app.get('sequelizeClient').query(dataQuery,
+        const isBookmarkedInTable =loggedInUser?.userId ? await this.app.get('sequelizeClient').query(dataQuery,
           {
             type: QueryTypes.SELECT,
             raw: true,
             replacements: {
               feedId:feed.id, 
-              authorId:loggedInUser.userId
+              authorId:loggedInUser?.userId
             }
-          });
+          }) : false;
 
         const firesDataQuery = `SELECT id
           FROM \`feed_fires\`
           WHERE feedId=:feedId AND authorId=:authorId`;
-        const isFiredInTable = await this.app.get('sequelizeClient').query(firesDataQuery,
+        const isFiredInTable = loggedInUser?.userId ? await this.app.get('sequelizeClient').query(firesDataQuery,
             {
               type: QueryTypes.SELECT,
               raw: true,
               replacements: {
                 feedId:feed.id, 
-                authorId:loggedInUser.userId
+                authorId:loggedInUser?.userId
               }
-            });
+            }) : false;
     
       // @ts-ignore
       const { user } = feed;
@@ -230,7 +230,7 @@ export class Feed extends Service {
     async create (data : any,  params?: Params): Promise<any> {
       const {feed:feedModel} = this.app.get('sequelizeClient').models;
       const loggedInUser = extractLoggedInUserFromParams(params);
-      data.authorId = loggedInUser.userId;
+      data.authorId = loggedInUser?.userId;
       const newFeed =  await feedModel.create(data);
       return  newFeed;
     }
@@ -246,7 +246,7 @@ export class Feed extends Service {
    */
   async patch (id: string, data?: any, params?: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params);
-    if (!loggedInUser.userId) {
+    if (!loggedInUser?.userId) {
       return Promise.reject(new BadRequest('Could not update feed. Users isn\'t logged in! '));
     }
     if (!id) {

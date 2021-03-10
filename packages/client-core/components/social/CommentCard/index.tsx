@@ -39,7 +39,7 @@ const CommentCard = ({comment, addFireToFeedComment, removeFireToFeedComment }: 
                         {creator.verified && <VerifiedUserIcon htmlColor="#007AFF" style={{fontSize:'13px', margin: '0 0 0 5px'}}/>}
                     </Typography> 
                     <Typography variant="h2">{text}</Typography>                    
-                    {fires && fires > 0 && <Typography variant="h2"><span className={styles.flamesCount}>{fires}</span>Flames</Typography>}
+                    {(fires && fires > 0 ) ? <Typography variant="h2"><span className={styles.flamesCount}>{fires}</span>Flames</Typography> : null}
                 </CardContent>
                 <section className={styles.fire}>
                     {isFired ? 
