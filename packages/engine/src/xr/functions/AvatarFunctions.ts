@@ -1,6 +1,5 @@
-import { BufferGeometryUtils } from 'three';
+import { mergeBufferGeometries } from "@xr3ngine/engine/src/common/classes/BufferGeometryUtils";
 import { Quaternion, Vector3, Euler, Matrix4, ConeBufferGeometry, Color, BufferAttribute, MeshPhongMaterial, Mesh, Object3D, Bone, Skeleton } from 'three';
-
 
 export const localVector = new Vector3();
 export const localVector2 = new Vector3();
@@ -135,7 +134,7 @@ export const makeDebugMeshes = () => {
     leftFoot: makeCubeMesh(0xFFFFFF),
     rightFoot: makeCubeMesh(0x808080),
   };
-  const geometry = BufferGeometryUtils.mergeBufferGeometries(geometries);
+  const geometry = mergeBufferGeometries(geometries);
   for (const k in attributes) {
     const [index, srcGeometry] = attributes[k];
     const attribute = new BufferAttribute(

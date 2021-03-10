@@ -14,6 +14,7 @@ import { SystemUpdateType } from './ecs/functions/SystemUpdateType';
 import { EngineEvents } from './ecs/classes/EngineEvents';
 import { EngineEventsProxy, addOutgoingEvents } from './ecs/classes/EngineEvents';
 import { Network } from './networking/classes/Network';
+import { ClientInputSystem } from './input/systems/ClientInputSystem';
 
 const webXRShouldBeAvailable = typeof navigator === 'undefined' || /Version\/[\d\.]+.*Safari/.test(window.navigator.userAgent);
 
@@ -43,14 +44,16 @@ export async function initializeWorker(initOptions: any = DefaultInitializationO
     }
   );
   EngineEvents.instance = new EngineEventsProxy(workerProxy);
+  Engine.viewportElement = options.renderer.canvas;
+
   addOutgoingEvents();
-  
-  initialize()
+
+  initialize();
 
   const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
   registerSystem(ClientNetworkSystem, { ...networkSystemOptions, priority: -1 });
   registerSystem(MediaStreamSystem);
-  // registerSystem(InputSystem, { useWebXR: DefaultInitializationOptions.input.useWebXR });
+  registerSystem(ClientInputSystem, { useWebXR: DefaultInitializationOptions.input.useWebXR });
   Engine.engineTimer = Timer({
     networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
     fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),

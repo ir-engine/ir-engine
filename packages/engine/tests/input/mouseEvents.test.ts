@@ -8,7 +8,7 @@ import { InputSchema } from "../../src/input/interfaces/InputSchema";
 import { BinaryValue } from "../../src/common/enums/BinaryValue";
 import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
 import { LifecycleValue } from "../../src/common/enums/LifecycleValue";
-import { MouseInput } from "../../src/input/enums/MouseInput";
+import { MouseInput } from "../../src/input/enums/InputEnums";
 import { handleMouseMovement } from "../../src/input/behaviors/handleMouseMovement";
 import { handleMouseButton } from "../../src/input/behaviors/handleMouseButton";
 import { handleMouseWheel } from "../../src/input/behaviors/handleMouseWheel";

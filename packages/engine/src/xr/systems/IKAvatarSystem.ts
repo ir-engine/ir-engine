@@ -2,7 +2,7 @@ import { fixSkeletonZForward } from '../SkeletonUtils';
 import XRPose from '../classes/XRPose';
 import ShoulderTransforms from '../ShoulderTransforms';
 import LegsManager from '../LegsManager';
-import skeletonString from '../skeleton';
+import skeletonString from '../Skeleton';
 import {VRMSpringBoneImporter} from "@pixiv/three-vrm";
 import { Quaternion, Vector3, Matrix4, Object3D, Bone, Scene } from 'three';
 import { importSkeleton, findHips, findArmature, copySkeleton, makeDebugMeshes, getTailBones, findEye, findHead, findSpine, findShoulder, findHand, findFinger, findFoot, findClosestParentBone, countCharacters, findFurthestParentBone, localMatrix, localVector, localVector2, AnimationMapping, localEuler, localQuaternion, leftRotation, rightRotation, upRotation } from '../functions/AvatarFunctions';
