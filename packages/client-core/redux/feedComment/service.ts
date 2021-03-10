@@ -24,11 +24,11 @@ export function getFeedComments(feedId : string, limit?: number) {
   };
 }
 
-export function addFireToFeedComment(commentId: string, creatorId: string) {
+export function addFireToFeedComment(feedId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      // await client.service('feedFires').create({feedId, creatorId});
-      dispatch(addFeedCommentFire(commentId));
+      await client.service('comments-fires').create({feedId});
+      dispatch(addFeedCommentFire(feedId));
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
@@ -36,11 +36,11 @@ export function addFireToFeedComment(commentId: string, creatorId: string) {
   };
 }
 
-export function removeFireToFeedComment(commentId: string, creatorId: string) {
+export function removeFireToFeedComment(feedId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       // await client.service('feedFires').create({feedId, creatorId});
-      dispatch(removeFeedCommentFire(commentId));
+      dispatch(removeFeedCommentFire(feedId));
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
@@ -52,21 +52,6 @@ export function addCommentToFeed(feedId: string, text: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       const newComment = await client.service('comments').create({feedId, text});
-      // const toRedux = {
-      //   feedId, 
-      //   id: '4864', 
-      //   creator:{
-      //     id:creatorId,
-      //     userId:'458',
-      //     avatar :'https://picsum.photos/40/40',
-      //     name: 'User username',
-      //     username: 'username',
-      //     verified : true,
-      // },
-      // fires: 0,
-      // isFired: false,
-      // text
-      // }
       dispatch(addFeedComment(newComment));
     } catch(err) {
       console.log(err);
