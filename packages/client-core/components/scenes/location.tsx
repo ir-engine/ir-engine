@@ -229,7 +229,7 @@ export const EnginePage = (props: Props) => {
 
     if(canvas.transferControlToOffscreen) {
       const InitializationOptions = {
-        ...DefaultInitializationOptions,
+        ...WorkerDefaultInitializationOptions,
         networking: {
           schema: networkSchema,
         },
@@ -249,7 +249,6 @@ export const EnginePage = (props: Props) => {
         }
       };
       await initializeEngine(InitializationOptions)
-      
     }
 
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state

@@ -5,7 +5,7 @@ export const Views = {
   Share: 'Share',
   DeleteAccount: 'accountDelete',
   Login: 'login',
-  Account: 'Account',
+  AvatarUpload: 'AvatarUpload',
   Avatar: 'Avatar',
 }
 
