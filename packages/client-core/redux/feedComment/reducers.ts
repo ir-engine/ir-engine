@@ -31,7 +31,7 @@ const feedCommentsReducer = (state = immutableState, action: FeedCommentsAction)
     case ADD_FEED_COMMENT_FIRES:
       return state.set('feedComments', state.get('feedComments').map(item => {
         if(item.id === (action as AddFeedCommentFiresAction).commentId) {
-          return {...item, fires: ++item.fires, isFired:true};
+          return {...item, fires: parseInt(item.fires)+1, isFired:true};
         }
         return {...item};
       }));

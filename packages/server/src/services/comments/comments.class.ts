@@ -1,6 +1,7 @@
 import { BadRequest } from '@feathersjs/errors';
 import { Params } from '@feathersjs/feathers';
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
+import { QueryTypes } from 'sequelize';
 import { Application } from '../../declarations';
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils';
 
@@ -25,42 +26,57 @@ export class Comments extends Service {
     async find (params: Params): Promise<any> {
       const skip = params.query?.$skip ? params.query.$skip : 0;
       const limit = params.query?.$limit ? params.query.$limit : 100;
+      const loggedInUser = extractLoggedInUserFromParams(params);
 
-      const {
-        comments:commentsModel,
-        user:userModel,
-      } = this.app.get('sequelizeClient').models;
+      const dataQuery = loggedInUser?.userId  ? `SELECT comments.*, user.id as userId, user.name as userName, COUNT(cf.id) as fires, iscf.id as fired
+          FROM \`comments\` as comments
+          JOIN \`user\` as user ON user.id=comments.authorId
+          LEFT JOIN \`comments_fires\` as cf ON cf.commentId=comments.id 
+          LEFT JOIN \`comments_fires\` as iscf ON iscf.commentId=comments.id  AND iscf.authorId=:loggedInUser
+          WHERE 1 
+          GROUP BY comments.id
+          ORDER BY comments.createdAt DESC    
+          LIMIT :skip, :limit` : 
+          `SELECT comments.*, user.id as userId, user.name as userName, COUNT(cf.id) as fires
+          FROM \`comments\` as comments
+          JOIN \`user\` as user ON user.id=comments.authorId
+          LEFT JOIN \`comments_fires\` as cf ON cf.commentId=comments.id 
+          WHERE 1 
+          GROUP BY comments.id
+          ORDER BY comments.createdAt DESC    
+          LIMIT :skip, :limit`;
+        const queryParamsReplacements = {
+          skip,
+          limit,
+        } as any;
+        if(loggedInUser && loggedInUser.userId){
+          queryParamsReplacements.loggedInUser =  loggedInUser.userId;
+        }
+      const feed_comments = await this.app.get('sequelizeClient').query(dataQuery,
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: queryParamsReplacements
+        });
 
-      const feed_comments = await commentsModel.findAndCountAll({
-        where:{
-          feedId: params.query?.feedId
-        },
-        offset: skip,
-        limit,
-        include: [
-          { model: userModel, as: 'user' }
-        ],
-        order: [ [ 'createdAt', 'DESC' ] ] // order not used in find?
-      });
 
-      console.log('feed_comments',feed_comments)
-      const data = feed_comments.rows.map(comment => {
-        const user = comment.user.dataValues;
-        return { // TODO: get creator from corresponding table
+      const data = feed_comments.map(comment => {
+        return {
             creator: {
-              userId: user.id,
-              id:user.id,
+              userId: comment.userId,
+              id:comment.userId,
               avatar: 'https://picsum.photos/40/40',
-              name: user.name,
-              username: user.name,
+              name: comment.userName,
+              username: comment.userName,
               verified : true,
             },
             id:comment.id,
             feedId:comment.feedId,
             text:comment.text,
+            fires: comment.fires,
+            isFired:comment.fired ? true : false
         }  
       });
-      console.log('data', data)
       const feedsResult = {
         data,
         skip: skip,
