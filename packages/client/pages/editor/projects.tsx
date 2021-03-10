@@ -13,7 +13,7 @@ import {selectAuthState} from "@xr3ngine/client-core/redux/auth/selector";
 import {bindActionCreators, Dispatch} from "redux";
 import {doLoginAuto, logoutUser} from "@xr3ngine/client-core/redux/auth/service";
 import SignIn from "@xr3ngine/client-core/components/ui/Auth/Login";
-import AdminConsole from "@xr3ngine/client-core/components/ui/Admin"
+import AdminConsole from "@xr3ngine/client-core/components/ui/Admin";
 
 /**
  * Creating styled component using section.

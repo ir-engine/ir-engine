@@ -29,7 +29,7 @@ function locations(props: Props) {
         <Dashboard>
            <AdminConsole />
         </Dashboard>
-    )
+    );
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(locations);

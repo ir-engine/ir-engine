@@ -178,7 +178,7 @@ export class Feed extends Service {
           ]
         });
 
-        feed.feed_fires
+        feed.feed_fires;
 
       // console.log('feed.feed_fires[]', feed.feed_fires.length)
       // feed.feed_fires.map(feed=>console.log('fire', feed))
@@ -216,7 +216,7 @@ export class Feed extends Service {
       return newFeed;
     }
 
-    async create (data : any): Promise<any> {
+    async create (data: any): Promise<any> {
       const {feed:feedModel} = this.app.get('sequelizeClient').models;
       const newFeed =  await feedModel.create(data);
       return  newFeed;

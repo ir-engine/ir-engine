@@ -57,4 +57,4 @@ export default ({
     sagaMiddleware.run(saga);
     return store;
 
-}
+};
