@@ -4,7 +4,8 @@ import {
   VIDEO_DELETED,
   LOCATION_TYPES_RETRIEVED,
   INSTANCES_RETRIEVED,
-  INSTANCE_REMOVED
+  INSTANCE_REMOVED,
+  INSTANCE_CREATE
 } from '../actions';
 import { StaticResource } from '@xr3ngine/common/interfaces/StaticResource';
 
@@ -130,4 +131,11 @@ export function instanceRemovedAction(instance: any): InstanceRemovedResponse {
     type: INSTANCE_REMOVED,
     instance: instance
   };
+}
+
+export function instanceCreated(instance: any): InstanceRemovedResponse {
+  return{
+    type: INSTANCE_CREATE,
+    instance: instance
+  }
 }

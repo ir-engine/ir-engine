@@ -77,13 +77,18 @@
     }
 
     .tcellSelectable {
-      color: lighten(white, 0.80);
-      background-color: black;
 
-      &:hover {
-        background-color: rgba(243, 234, 234, 0.07);
-        cursor: pointer;
-      }
+
+       .currentUser{
+        color: lighten(white, 0.80);
+        background-color: #4267B2;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        &:hover {
+          background-color: #145cee;;
+          cursor: pointer;
+        }
+       }
     }
   }
 
