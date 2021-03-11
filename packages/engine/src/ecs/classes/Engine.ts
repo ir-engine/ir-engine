@@ -101,7 +101,7 @@ export class Engine {
    * Reference to the three.js perspective camera object.
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
-  static camera: PerspectiveCamera = null
+   static camera: PerspectiveCamera = null
 
   /**
    * Reference to the Transform component of the three.js camera object.
