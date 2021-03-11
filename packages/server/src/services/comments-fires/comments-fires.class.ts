@@ -19,7 +19,7 @@ export class CommentsFire extends Service {
   }
 
 
-  async create (data : any, params?:Params): Promise<any> {
+  async create (data: any, params?: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params);
     if (!loggedInUser.userId) {
       return Promise.reject(new BadRequest('Could not add fire. Users isn\'t logged in! '));
@@ -30,7 +30,7 @@ export class CommentsFire extends Service {
 
   }
 
-  async remove ( commentId: string,  params?:Params): Promise<any> {
+  async remove ( commentId: string,  params?: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params);
     if (!loggedInUser.userId) {
       return Promise.reject(new BadRequest('Could not remove fire. Users isn\'t logged in! '));

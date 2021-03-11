@@ -408,7 +408,7 @@ const audioRemoteFunctionCalls: string[] = ['play', 'pause'];
 export class AudioDocumentElementProxy extends DocumentElementProxy {
   _src: string;
   _autoplay: string;
-  _isPlaying: boolean = false;
+  _isPlaying = false;
   constructor({
     messageQueue,
     type = 'audio',
