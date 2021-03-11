@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
-import { createWorker, WorkerProxy } from './worker/MessageQueue';
+import { createWorker, OFFSCREEN_XR_EVENTS, WorkerProxy } from './worker/MessageQueue';
 import { createCanvas } from './renderer/functions/createCanvas';
 import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
@@ -15,6 +15,7 @@ import { EngineEvents } from './ecs/classes/EngineEvents';
 import { EngineEventsProxy, addOutgoingEvents } from './ecs/classes/EngineEvents';
 import { Network } from './networking/classes/Network';
 import { ClientInputSystem } from './input/systems/ClientInputSystem';
+import { WebXROffscreenRendererSystem } from './renderer/WebXROffscreenRendererSystem';
 
 const webXRShouldBeAvailable = typeof navigator === 'undefined' || /Version\/[\d\.]+.*Safari/.test(window.navigator.userAgent);
 
@@ -54,6 +55,7 @@ export async function initializeWorker(initOptions: any = DefaultInitializationO
   registerSystem(ClientNetworkSystem, { ...networkSystemOptions, priority: -1 });
   registerSystem(MediaStreamSystem);
   registerSystem(ClientInputSystem, { useWebXR: DefaultInitializationOptions.input.useWebXR });
+  registerSystem(WebXROffscreenRendererSystem);
   Engine.engineTimer = Timer({
     networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
     fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),

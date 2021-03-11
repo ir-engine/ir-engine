@@ -25,6 +25,9 @@ import { SSAOEffect } from './postprocessing/SSAOEffect';
 import { TextureEffect } from './postprocessing/TextureEffect';
 import { PostProcessingSchema } from './postprocessing/PostProcessingSchema';
 import { EngineEvents } from '../ecs/classes/EngineEvents';
+import { startXR, endXR } from '../input/functions/WebXRFunctions';
+import { isWebWorker } from '../common/functions/getEnvironment';
+import { WebXROffscreenManager } from '../worker/WebXROffscreenManager';
 
 export class WebGLRendererSystem extends System {
   
@@ -66,6 +69,8 @@ export class WebGLRendererSystem extends System {
   static shadowQuality = 5; 
   /** Resoulion scale. **Default** value is 1. */
   static scaleFactor = 1;
+
+  renderPass: RenderPass;
   
   /** Constructs WebGL Renderer System. */
   constructor(attributes?: SystemAttributes) {
@@ -101,6 +106,10 @@ export class WebGLRendererSystem extends System {
     renderer.outputEncoding = sRGBEncoding; // need this if postprocessing is not used
 
     Engine.renderer = renderer;
+
+    if(isWebWorker) {
+      Engine.renderer.xr = new WebXROffscreenManager(context)
+    }
 
     // Cascaded shadow maps
     const csm = new CSM({
@@ -142,6 +151,14 @@ export class WebGLRendererSystem extends System {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
       this.enabled = ev.enable;
     });
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async (ev: any) => {
+      if(await startXR()) {
+        // success
+      }
+    });
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_END, async (ev: any) => {
+      endXR();
+    });
 
     this.isInitialized = true;
   }
@@ -166,13 +183,13 @@ export class WebGLRendererSystem extends System {
     */
   private configurePostProcessing(): void {
     WebGLRendererSystem.composer = new EffectComposer(Engine.renderer);
-    const renderPass = new RenderPass(Engine.scene, Engine.camera);
-    renderPass.scene = Engine.scene;
-    renderPass.camera = Engine.camera;
-    WebGLRendererSystem.composer.addPass(renderPass);
+    this.renderPass = new RenderPass(Engine.scene, Engine.camera);
+    this.renderPass.scene = Engine.scene;
+    this.renderPass.camera = Engine.camera;
+    WebGLRendererSystem.composer.addPass(this.renderPass);
     // This sets up the render
     const passes: any[] = [];
-    const normalPass = new NormalPass(renderPass.scene, renderPass.camera, { renderTarget: new WebGLRenderTarget(1, 1, {
+    const normalPass = new NormalPass(this.renderPass.scene, this.renderPass.camera, { renderTarget: new WebGLRenderTarget(1, 1, {
       minFilter: NearestFilter,
       magFilter: NearestFilter,
       format: RGBFormat,
@@ -212,12 +229,16 @@ export class WebGLRendererSystem extends System {
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
+    if(Engine.renderer.xr.isPresenting) {
+      // Post processing is not currently supported in xr // https://github.com/mrdoob/three.js/pull/18846
+      // webaverse already has support for it https://github.com/webaverse/app/pull/906
+      Engine.renderer.render(Engine.scene, Engine.camera);
+      return;
+    }
     const startTime = now();
-    
     if(this.isInitialized)
     {
       // Handle resize
-      if(!Engine.xrSession){
       if (WebGLRendererSystem.needsResize) {
         const curPixelRatio = Engine.renderer.getPixelRatio();
         const scaledPixelRatio = window.devicePixelRatio * WebGLRendererSystem.scaleFactor;
@@ -238,22 +259,23 @@ export class WebGLRendererSystem extends System {
         WebGLRendererSystem.composer.setSize(width, height, false);
         WebGLRendererSystem.needsResize = false;
       }
-
-      Engine.csm.update();
-      
-      if (WebGLRendererSystem.usePostProcessing) {
-        WebGLRendererSystem.composer.render(delta);
-      } else {
-        Engine.renderer.render(Engine.scene, Engine.camera);
-      }
     }
-    }
+    this.doRender(delta);
 
     const lastTime = now();
     const deltaRender = (lastTime - startTime);
 
     if(WebGLRendererSystem.automatic) {
       this.changeQualityLevel(deltaRender);
+    }
+  }
+
+  doRender(delta) {
+    Engine.csm.update();
+    if (WebGLRendererSystem.usePostProcessing) {
+      WebGLRendererSystem.composer.render(delta);
+    } else {
+      Engine.renderer.render(Engine.scene, Engine.camera);
     }
   }
 

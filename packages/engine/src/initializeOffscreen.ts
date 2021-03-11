@@ -27,6 +27,7 @@ import { EntityActionSystem } from './input/systems/EntityActionSystem';
 import { EngineEvents } from './ecs/classes/EngineEvents';
 import { EngineEventsProxy, addIncomingEvents } from './ecs/classes/EngineEvents';
 import { ClientInputSystem } from './input/systems/ClientInputSystem';
+import { WebXROffscreenRendererSystem } from './renderer/WebXROffscreenRendererSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -84,6 +85,7 @@ export function initializeEngineOffscreen({ canvas, userArgs }, proxy: MainProxy
   registerSystem(DebugHelpersSystem);
   registerSystem(CameraSystem);
   registerSystem(WebGLRendererSystem, { priority: 1001, canvas });
+  registerSystem(WebXROffscreenRendererSystem);
   Engine.viewportElement = Engine.renderer.domElement;
 
   Engine.engineTimer = Timer({
