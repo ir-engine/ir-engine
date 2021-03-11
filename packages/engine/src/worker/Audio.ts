@@ -16,7 +16,7 @@ class AudioGainProxy {
 class AudioPannerProxy {
 
   gain: any;
-  panningModel: string = 'HRTF';
+  panningModel = 'HRTF';
   refDistance: number;
   rolloffFactor: number;
   maxDistance: number;

@@ -77,11 +77,11 @@ export class Feed extends Service {
     const loggedInUser = extractLoggedInUserFromParams(params);
 
     let select = `SELECT feed.*, user.id as userId, user.name as userName, COUNT(ff.id) as fires `;
-    let from = ` FROM \`feed\` as feed`;
+    const from = ` FROM \`feed\` as feed`;
     let join = ` JOIN \`user\` as user ON user.id=feed.authorId
                   LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id `;
-    let where = ` WHERE 1`;
-    let order = ` GROUP BY feed.id
+    const where = ` WHERE 1`;
+    const order = ` GROUP BY feed.id
     ORDER BY feed.createdAt DESC    
     LIMIT :skip, :limit `;
     const queryParamsReplacements = {
@@ -223,7 +223,7 @@ export class Feed extends Service {
       return newFeed;
     }
 
-    async create (data : any,  params?: Params): Promise<any> {
+    async create (data: any,  params?: Params): Promise<any> {
       const {feed:feedModel} = this.app.get('sequelizeClient').models;
       const loggedInUser = extractLoggedInUserFromParams(params);
       data.authorId = loggedInUser?.userId;
