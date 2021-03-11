@@ -1,4 +1,5 @@
 import { Vec3 } from 'cannon-es';
+import { isClient } from '../../common/functions/isClient';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
@@ -8,6 +9,8 @@ import { CapsuleCollider } from '../components/CapsuleCollider';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { CollisionGroups } from '../enums/CollisionGroups';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
+//import { useRouter } from 'next/router';
+
 
 
 export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void => {
@@ -55,10 +58,18 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
   // Create ray
 
   // Raycast options
-  const actorRaycastOptions = {
+  const rayDontStuckOptions = {
   	collisionFilterMask: CollisionGroups.Default | CollisionGroups.Car,
   	skipBackfaces: true /* ignore back faces */
   };
+
+  const actorRaycastOptions = {
+  	collisionFilterMask: CollisionGroups.Default | CollisionGroups.Car | CollisionGroups.ActiveCollider,
+  	skipBackfaces: true /* ignore back faces */
+  };
+
+
+
   let n = 0.17;
 
   const actorRaycastStart = new Vec3(capsule.body.position.x, capsule.body.position.y, capsule.body.position.z);
@@ -77,10 +88,10 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
   const actorRaycastEnd3 = new Vec3(capsule.body.position.x, capsule.body.position.y - actor.rayCastLength - actor.raySafeOffset, capsule.body.position.z-n);
 
   let m = PhysicsSystem.physicsWorld.raycastClosest(actorRaycastStart, actorRaycastEnd, actorRaycastOptions, actor.rayResult);
-  let m0 = PhysicsSystem.physicsWorld.raycastClosest(actorRaycastStart0, actorRaycastEnd0, actorRaycastOptions, actor.rayDontStuckX);
-  let m1 = PhysicsSystem.physicsWorld.raycastClosest(actorRaycastStart1, actorRaycastEnd1, actorRaycastOptions, actor.rayDontStuckZ);
-  let m2 = PhysicsSystem.physicsWorld.raycastClosest(actorRaycastStart2, actorRaycastEnd2, actorRaycastOptions, actor.rayDontStuckXm);
-  let m3 = PhysicsSystem.physicsWorld.raycastClosest(actorRaycastStart3, actorRaycastEnd3, actorRaycastOptions, actor.rayDontStuckZm);
+  let m0 = PhysicsSystem.physicsWorld.raycastClosest(actorRaycastStart0, actorRaycastEnd0, rayDontStuckOptions, actor.rayDontStuckX);
+  let m1 = PhysicsSystem.physicsWorld.raycastClosest(actorRaycastStart1, actorRaycastEnd1, rayDontStuckOptions, actor.rayDontStuckZ);
+  let m2 = PhysicsSystem.physicsWorld.raycastClosest(actorRaycastStart2, actorRaycastEnd2, rayDontStuckOptions, actor.rayDontStuckXm);
+  let m3 = PhysicsSystem.physicsWorld.raycastClosest(actorRaycastStart3, actorRaycastEnd3, rayDontStuckOptions, actor.rayDontStuckZm);
   // Cast the ray
   actor.rayHasHit = m0 || m1 || m2 || m3;
 
@@ -97,7 +108,22 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
     actor.playerStuck +=1
   }
 
+  if (isClient && m && actor.rayResult.body.collisionFilterGroup == CollisionGroups.ActiveCollider) {
+    //console.warn('portal '+actor.playerInPortal+' '+actor.rayResult.body.link);
+  //  console.warn(actor.rayResult.body.link);
+    actor.playerInPortal += 1
+    if (actor.playerInPortal > 120) {
 
+    //  const router = useRouter();
+    //  window.location.href = actor.rayResult.body.link;
+    //  router.push(actor.rayResult.body.link);
+    //  router.push(actor.rayResult.body.link);
+      //window.location = String(actor.rayResult.body.link);
+      actor.playerInPortal = 0;
+    }
+  } else {
+    actor.playerInPortal = 0;
+  }
 
   actor.rayGroundHit = m;
 	// Raycast debug

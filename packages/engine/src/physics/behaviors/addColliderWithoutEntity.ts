@@ -41,9 +41,15 @@ export function createCylinder (scale) {
   return body;
 }
 
-export function addColliderWithoutEntity( type, position, quaternion, scale, mesh ) {
-  let body;
+export function doThisActivateCollider (body, userData) {
+	body.collisionFilterGroup = CollisionGroups.ActiveCollider;
+	body.link = userData.link;
+	return body;
+}
 
+export function addColliderWithoutEntity( userData, position, quaternion, scale, mesh ) {
+  let body;
+	const type = userData.type
   switch (type) {
     case 'box':
       body = createBox(scale);
@@ -90,9 +96,13 @@ export function addColliderWithoutEntity( type, position, quaternion, scale, mes
         quaternion.z,
         quaternion.w
       );
-
-
-      body.collisionFilterGroup = CollisionGroups.Default;
+			console.warn(userData);
+			if (userData.action == 'portal') {
+				body = doThisActivateCollider(body, userData);
+			} else {
+				body.collisionFilterGroup = CollisionGroups.Default;
+			}
+			console.warn(body);
   //    body.collisionFilterMask = CollisionGroups.Scene | CollisionGroups.Default | CollisionGroups.Characters | CollisionGroups.Car | CollisionGroups.TrimeshColliders;
 
   PhysicsSystem.physicsWorld.addBody(body);

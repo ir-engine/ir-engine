@@ -63,9 +63,10 @@ export class CapsuleCollider extends Component<CapsuleCollider>
 		capsuleBody.addShape(cylinderShape, new Vec3(0, -options.height / 3 , 0));
 		capsuleBody.angularDamping = 0;
 		capsuleBody.linearDamping = 0;
-		capsuleBody.fixedRotation = true;
+	//	capsuleBody.fixedRotation = true;
 		//capsuleBody.type = Body.KINEMATIC;
 		capsuleBody.collisionFilterGroup = CollisionGroups.Characters;
+		capsuleBody.collisionFilterMask = CollisionGroups.Default | CollisionGroups.Characters | CollisionGroups.Car | CollisionGroups.TrimeshColliders;
 		capsuleBody.position.set(
       options.position.x,
       options.position.y,

@@ -186,7 +186,7 @@ const getMovementValues: Behavior = (entity, args: {}, deltaTime: number) => {
 actor.moveVectorSmooth.target.copy(actor.animationVelocity);
 actor.moveVectorSmooth.simulate(deltaTime);
 const actorVelocity = actor.moveVectorSmooth.position;
-
+console.warn(actorVelocity.x, actorVelocity.z);
 /*
   actor.moveSpeedSmooth.target = (absSpeed*100);
   actor.moveSpeedSmooth.simulate(deltaTime);

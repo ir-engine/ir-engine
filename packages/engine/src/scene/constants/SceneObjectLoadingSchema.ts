@@ -174,10 +174,10 @@ function addColliderComponent(entity, mesh) {
 function createStaticCollider(mesh) {
   if (mesh.type == 'Group') {
     for (let i = 0; i < mesh.children.length; i++) {
-      addColliderWithoutEntity(mesh.userData.type, mesh.position, mesh.children[i].quaternion, mesh.children[i].scale, mesh.children[i]);
+      addColliderWithoutEntity(mesh.userData, mesh.position, mesh.children[i].quaternion, mesh.children[i].scale, mesh.children[i]);
     }
   } else if (mesh.type == 'Mesh') {
-    addColliderWithoutEntity(mesh.userData.type, mesh.position, mesh.quaternion, mesh.scale, mesh);
+    addColliderWithoutEntity(mesh.userData, mesh.position, mesh.quaternion, mesh.scale, mesh);
   }
 }
 
