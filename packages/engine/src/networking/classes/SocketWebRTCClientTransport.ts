@@ -155,9 +155,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       console.log(ConnectToWorldResponse);
       const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any;
 
-      console.log('EngineEvents:');
-      console.log(EngineEvents.instance);
-      console.log(EngineEvents.instance.dispatchEvent);
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT_TO_WORLD });
 
       // Send heartbeat every second
@@ -251,6 +248,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       // Init Receive and Send Transports initially since we need them for unreliable message consumption and production
       if ((socket as any).instance === true) {
+        console.log('Initializing instance transports');
+        console.log(socket);
         await Promise.all([initSendTransport('instance'), initReceiveTransport('instance')]);
         await createDataProducer((socket as any).instance === true ? 'instance' : this.channelId );
       }

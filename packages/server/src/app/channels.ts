@@ -5,6 +5,8 @@ import config from '../config';
 import {Application} from '../declarations';
 import getLocalServerIp from '../util/get-local-server-ip';
 import logger from './logger';
+import {localConfig} from "../gameserver/transports/config";
+import {RtpCodecCapability} from "mediasoup/lib/types";
 
 
 let sceneLoaded = false;
@@ -71,6 +73,14 @@ export default (app: Application): void => {
                             console.log('Creating new instance:');
                             console.log(newInstance);
                             const instanceResult = await app.service('instance').create(newInstance);
+                            if ((app as any).isChannelInstance === true) {
+                                const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[];
+                                const networkTransport = Network.instance.transport as any;
+                                const channelType = 'channel';
+                                if (networkTransport.routers[`${channelType}:${channelId}`] == null)
+                                    networkTransport.routers[`${channelType}:${channelId}`] = await networkTransport.worker.createRouter({ mediaCodecs });
+                                logger.info("Worker created router for channel " + `${channelType}:${channelId}`);
+                            }
                             await agonesSDK.allocate();
                             (app as any).instance = instanceResult;
 

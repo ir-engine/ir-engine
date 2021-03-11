@@ -223,9 +223,9 @@ export class Engine {
 
   static createElement: any = createElement;
 
-  static hasUserEngaged: boolean = false;
+  static hasUserEngaged = false;
 
-  static useAudioSystem: boolean = false;
+  static useAudioSystem = false;
 
   static inputState = new Map();
   static prevInputState = new Map();
@@ -238,8 +238,8 @@ export class Engine {
    * @property {Binary[]} gamepadButtons Map gamepad buttons
    * @property {Number[]} gamepadInput Map gamepad buttons to abstract input
    */
-  static gamepadConnected: boolean = false;
-  static gamepadThreshold: number = 0.1;
+  static gamepadConnected = false;
+  static gamepadThreshold = 0.1;
   static gamepadButtons: BinaryType[] = [];
   static gamepadInput: number[] = [];
 }
