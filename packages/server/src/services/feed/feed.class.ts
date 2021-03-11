@@ -223,11 +223,7 @@ export class Feed extends Service {
       return newFeed;
     }
 
-<<<<<<< HEAD
     async create (data : any,  params?: Params): Promise<any> {
-=======
-    async create (data: any): Promise<any> {
->>>>>>> 7d2f9e018... fix eslint
       const {feed:feedModel} = this.app.get('sequelizeClient').models;
       const loggedInUser = extractLoggedInUserFromParams(params);
       data.authorId = loggedInUser?.userId;
