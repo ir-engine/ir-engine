@@ -88,20 +88,26 @@ export const handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
 ): Promise<void> => {
     console.log('handleConsumeData');
     networkTransport = Network.instance.transport as any;
+
     const userId = getUserIdFromSocketId(socket.id);
     logger.info('Data Consumer being created on server by client: ' + userId);
+    if (Network.instance.clients[userId] == null) return;
+
     const newTransport: Transport = Network.instance.clients[userId].instanceRecvTransport;
     const outgoingDataProducer = networkTransport.outgoingDataProducer;
+
     const dataConsumer = await newTransport.consumeData({
         dataProducerId: outgoingDataProducer.id,
         appData: { peerId: userId, transportId: newTransport.id },
     });
+
     dataConsumer.on('producerclose', () => {
         dataConsumer.close();
         Network.instance.clients[userId].dataConsumers.delete(
             dataProducer.id
         );
     });
+    
     logger.info('Setting data consumer to room state');
     Network.instance.clients[userId].dataConsumers.set(
         dataProducer.id,
