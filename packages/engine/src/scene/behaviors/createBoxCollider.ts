@@ -7,5 +7,5 @@ import { RigidBody } from '../../physics/components/RigidBody';
 import { addColliderWithoutEntity } from '../../physics/behaviors/addColliderWithoutEntity';
 
 export const createBoxCollider: Behavior = (entity, args: any) => {
-  addColliderWithoutEntity(args.objArgs.type, args.objArgs.position, args.objArgs.quaternion, args.objArgs.scale, args.objArgs.mesh);
+  addColliderWithoutEntity({type:args.objArgs.type}, args.objArgs.position, args.objArgs.quaternion, args.objArgs.scale, args.objArgs.mesh);
 };

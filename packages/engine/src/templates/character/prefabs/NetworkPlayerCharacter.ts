@@ -814,7 +814,6 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
   // These will be created for all players on the network
   networkComponents: [
     // ActorComponent has values like movement speed, deceleration, jump height, etc
-    { type: CharacterComponent },
     // Handle character's body
     { type: CharacterComponent, data: { avatarId: DEFAULT_AVATAR_ID }},
     // Transform system applies values from transform component to three.js object (position, rotation, etc)

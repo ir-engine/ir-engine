@@ -98,6 +98,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public initJumpSpeed = -1;
 	public playerSpeedNow = 0;
 	public playerStuck = 0;
+	public playerInPortal = 0;
 	public animationVelocity: Vector3 = new Vector3();
 	public groundImpactVelocity: Vector3 = new Vector3();
 
