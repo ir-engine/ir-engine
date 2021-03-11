@@ -220,3 +220,6 @@ export const ADD_FEED = 'ADD_FEED';
 
 //USERS
 export const USER_CREATED = "USER_CREATED";
+
+//INSTANCE
+export const INSTANCE_CREATE = "INSTANCE_CREATE";

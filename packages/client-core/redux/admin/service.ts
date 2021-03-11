@@ -7,7 +7,8 @@ import {
   videoDeleted,
   locationTypesRetrieved,
   instancesRetrievedAction,
-  instanceRemovedAction
+  instanceRemovedAction,
+  instanceCreated
 } from './actions';
 import {
   locationCreated,
@@ -26,6 +27,7 @@ import { apiUrl } from '../service.common';
 import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service';
 import {collectionsFetched} from "../scenes/actions";
 import store from "../store";
+
 
 export function createVideo (data: VideoCreationForm) {
   return async (dispatch: Dispatch, getState: any) => {
@@ -157,6 +159,17 @@ export function createUser (user: any) {
     try {
       const result = await client.service('user').create(user);
       dispatch(userCreated(result))
+    } catch (error) {
+      dispatchAlertError(dispatch, error.message);
+    }
+  }
+}
+
+export function createInstance (instance: any) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const result = await client.service('instance').create(instance);
+      dispatch(instanceCreated(result));
     } catch (error) {
       dispatchAlertError(dispatch, error.message);
     }
