@@ -137,6 +137,7 @@ const AdminConsole = (props: Props) => {
     const [selectedInstance, setSelectedInstance] = useState(initialInstance);
     const adminScenes = adminState.get('scenes').get('scenes');
 
+
     const headCells = {
         locations: [
             { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
@@ -346,6 +347,7 @@ const AdminConsole = (props: Props) => {
         setInstanceModalOpen(true);
     };
 
+
     const handleChangePage = (event: unknown, newPage: number) => {
         const incDec = page < newPage ? 'increment' : 'decrement';
         switch (selectedTab) {
@@ -525,8 +527,6 @@ const AdminConsole = (props: Props) => {
                         </TableBody>
                         }
                         {selectedTab === 'users' &&
-                       
-                        
                         <TableBody className={styles.thead}>
                             {stableSort(adminUsers, getComparator(order, orderBy))
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
@@ -577,7 +577,9 @@ const AdminConsole = (props: Props) => {
                        
                        
                        }
-                        {selectedTab === 'instances' && <TableBody className={styles.thead}>
+                        {selectedTab === 'instances' &&
+                        
+                        <TableBody className={styles.thead}>
                             {stableSort(displayInstances, getComparator(order, orderBy))
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                 .map((row, index) => {
@@ -603,16 +605,19 @@ const AdminConsole = (props: Props) => {
                                                 {row.serverAddress}
                                             </TableCell>
                                             <TableCell className={styles.tcellSelectable}
-                                                align="right"
+                                                align="center"
                                                 onClick={(event) => handleInstanceClick(event, row.id.toString())}
-                                            >{row.currentUsers}</TableCell>
+                                            >
+                                             <p className={styles.currentUser}>{row.currentUsers}</p>
+                                            </TableCell>
                                             <TableCell className={styles.tcell}
                                                 align="right">{row.locationId}</TableCell>
                                         </TableRow>
                                     );
                                 })}
                         </TableBody>
-                        }
+                       
+                       }
                     </Table>
                 </TableContainer>
               

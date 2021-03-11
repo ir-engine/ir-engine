@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import {
     Backdrop,
     Button,
@@ -6,25 +7,17 @@ import {
     Modal,
     TextField
 } from '@material-ui/core';
-import classNames from 'classnames';
-import React, {  useState } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators, Dispatch } from "redux";
-import { selectAdminState } from "../../../redux/admin/selector";
 import {
-    createUser
+    createInstance,
+    fetchAdminInstances
 } from "../../../redux/admin/service";
+import { bindActionCreators, Dispatch } from "redux";
 import { selectAppState } from "../../../redux/app/selector";
 import { selectAuthState } from "../../../redux/auth/selector";
+import { selectAdminState } from "../../../redux/admin/selector";
 import styles from './Admin.module.scss';
-
-
-interface Props {
-    open: boolean;
-    handleClose: any;
-    adminState?: any;
-    createUser?: any
-}
+import classNames from 'classnames';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -35,27 +28,36 @@ const mapStateToProps = (state: any): any => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-    createUser: bindActionCreators(createUser, dispatch)
+     createInstance: bindActionCreators(createInstance, dispatch),
+     fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch)
 });
 
+interface Props {
+    open: boolean;
+    handleClose: any;
+    adminState?: any;
+    createInstance?: any;
+    fetchAdminInstances?: any;
+}
 
-const userModel = (props: Props): any => {
+
+function CreateInstance(props: Props) {
     const {
         open,
         handleClose,
-        adminState,
-        createUser
+        createInstance,
+        fetchAdminInstances
     } = props;
+    const [ipAddress, setIpAddress] = useState('');
+    const [curremtUser, setCurrentUser] = useState("");
 
-    const [name, setName] = useState('');
-    const [avatar, setAvatar] = useState("");
-
-    const submitUser = () => {
+    const submitInstance = () => {
         const data = {
-            name: name,
-            avatarId: avatar
+            ipAddress: ipAddress,
+            currentUsers: curremtUser
         }
-        createUser(data);
+        createInstance(data);
+        fetchAdminInstances();
         handleClose();
     }
 
@@ -82,30 +84,30 @@ const userModel = (props: Props): any => {
                             variant="outlined"
                             margin="normal"
                             fullWidth
-                            id="name"
-                            label="Name"
-                            name="name"
+                            id="ipAddress"
+                            label="Ip Address"
+                            name="ipAddress"
                             required
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            value={ipAddress}
+                            onChange={(e) => setIpAddress(e.target.value)}
                         />
                         <TextField
                             variant="outlined"
                             margin="normal"
                             fullWidth
                             id="maxUsers"
-                            label="Avatar"
-                            name="name"
+                            label="curremtUser"
+                            name="curremtUser"
                             required
-                            value={avatar}
-                            onChange={(e) => setAvatar(e.target.value)}
+                            value={curremtUser}
+                            onChange={(e) => setCurrentUser(e.target.value)}
                         />
                         <FormGroup row className={styles.locationModalButtons}>
-                          <Button
+                            <Button
                                 type="submit"
                                 variant="contained"
                                 color="primary"
-                                onClick={submitUser}
+                                onClick={submitInstance}
                             >
                                 Create
                             </Button>
@@ -124,4 +126,5 @@ const userModel = (props: Props): any => {
     )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(userModel);
+
+export default connect(mapStateToProps, mapDispatchToProps)(CreateInstance);

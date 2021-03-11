@@ -1,4 +1,3 @@
-import getConfig from 'next/config';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -27,6 +26,8 @@ import {
 import styles from './Admin.module.scss';
 import UserModel from "./UserModel";
 import Search from "./Search";
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 if (!global.setImmediate) {
     global.setImmediate = setTimeout as any;
@@ -65,16 +66,20 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    formControl: {
-      margin: theme.spacing(0),
-      minWidth: 120,
-      backgroundColor: "white"
-    },
-    selectEmpty: {
-      marginTop: theme.spacing(0),
-    },
-  }),
+    createStyles({
+        formControl: {
+            margin: theme.spacing(0),
+            minWidth: 120,
+            backgroundColor: "white"
+        },
+        selectEmpty: {
+            marginTop: theme.spacing(0),
+        },
+        backdrop: {
+            zIndex: theme.zIndex.drawer + 1,
+            color: '#fff',
+        }
+    }),
 );
 
 const UserConsole = (props: Props) => {
@@ -164,7 +169,7 @@ const UserConsole = (props: Props) => {
     }
 
     function EnhancedTableHead(props: EnhancedTableProps) {
-        const {  order, orderBy, onRequestSort } = props;
+        const { order, orderBy, onRequestSort } = props;
         const createSortHandler = (property) => (event: React.MouseEvent<unknown>) => {
             onRequestSort(event, property);
         };
@@ -204,6 +209,7 @@ const UserConsole = (props: Props) => {
     const [refetch, setRefetch] = React.useState(false);
     const [userRole, setUserRole] = React.useState("");
     const [selectedUser, setSelectedUser] = React.useState({});
+    const [loading, setLoading] = React.useState(false);
 
 
     const adminUsers = adminState.get('users').get('users');
@@ -248,17 +254,22 @@ const UserConsole = (props: Props) => {
     const handleChange = (event: React.ChangeEvent<{ value: unknown }>, user: any) => {
         let role = {};
         if (user) {
+            setLoading(true);
             patchUserRole(user, event.target.value as string)
             role[user] = event.target.value;
             setUserRole(event.target.value as string);
             setSelectedUser({ ...selectedUser, ...role })
+            setTimeout(() => {
+             setLoading(false)     
+            }, 2000);
+   
         }
     };
 
     useEffect(() => {
         if (Object.keys(selectedUser).length === 0) {
             let role = {};
-            adminUsers.forEach(element => {
+            adminUsers.forEach((element: any) => {
                 role[element.id] = element.userRole;
             });
             setSelectedUser(role);
@@ -323,18 +334,18 @@ const UserConsole = (props: Props) => {
                                                 {(row.userRole !== 'guest' && row.id !== user.id)
                                                     &&
                                                     <>
-                                                      <p>  {row.userRole && row.userRole} </p>
-                                                    <FormControl className={classes.formControl}>
-                                                        <Select
-                                                            value={selectedUser[row.userRole]}
-                                                            onChange={(e) => handleChange(e, row.id)}
-                                                            className={classes.selectEmpty}
-                                                        >
-                                                            <MenuItem key="user" value="user">User</MenuItem>
-                                                            <MenuItem key="admin" value="admin">Admin</MenuItem>
-                                                        </Select>
-                                                    </FormControl>
-                                                        </>
+                                                        <p>  {row.userRole && row.userRole} </p>
+                                                        <FormControl className={classes.formControl}>
+                                                            <Select
+                                                                value={selectedUser[row.userRole]}
+                                                                onChange={(e) => handleChange(e, row.id)}
+                                                                className={classes.selectEmpty}
+                                                            >
+                                                                <MenuItem key="user" value="user">User</MenuItem>
+                                                                <MenuItem key="admin" value="admin">Admin</MenuItem>
+                                                            </Select>
+                                                        </FormControl>
+                                                    </>
                                                 }
                                             </TableCell>
                                             <TableCell className={styles.tcell} align="right">{row.partyId}</TableCell>
@@ -349,8 +360,10 @@ const UserConsole = (props: Props) => {
                     open={userModalOpen}
                     handleClose={handleUserClose}
                 />
-
             </Paper>
+            <Backdrop className={classes.backdrop} open={loading}>
+                <CircularProgress color="inherit" />
+            </Backdrop>
         </div>
     )
 
