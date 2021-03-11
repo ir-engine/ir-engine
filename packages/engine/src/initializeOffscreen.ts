@@ -23,9 +23,10 @@ import { CharacterStateSchema } from './templates/character/CharacterStateSchema
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { MainProxy } from './worker/MessageQueue';
-import { InputSystem } from './input/systems/ClientInputSystem';
+import { EntityActionSystem } from './input/systems/EntityActionSystem';
 import { EngineEvents } from './ecs/classes/EngineEvents';
 import { EngineEventsProxy, addIncomingEvents } from './ecs/classes/EngineEvents';
+import { ClientInputSystem } from './input/systems/ClientInputSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -49,7 +50,7 @@ export function initializeEngineOffscreen({ canvas, userArgs }, proxy: MainProxy
 
   EngineEvents.instance = new EngineEventsProxy(proxy);
   addIncomingEvents();
-  
+
   initialize();
   Engine.scene = new Scene();
 
@@ -61,7 +62,7 @@ export function initializeEngineOffscreen({ canvas, userArgs }, proxy: MainProxy
 
   registerSystem(PhysicsSystem);
 
-  registerSystem(InputSystem, { useWebXR });
+  registerSystem(EntityActionSystem, { useWebXR });
 
   registerSystem(StateSystem);
 
