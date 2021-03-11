@@ -1,6 +1,7 @@
 const path = require('path');
 const packageRoot = require('app-root-path').path;
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const NodemonPlugin = require('nodemon-webpack-plugin');
 
 const root = [path.resolve(__dirname)];
 const plugins = [new ForkTsCheckerWebpackPlugin({
@@ -11,6 +12,28 @@ const plugins = [new ForkTsCheckerWebpackPlugin({
         }
     }
 })];
+
+if (process.env.NODE_ENV !== 'production') {
+    plugins.push(new NodemonPlugin({
+        // What to watch.
+        watch: `${root}/dist`,
+
+        // Arguments to pass to the script being watched.
+        args: [],
+
+        // Node arguments.
+        nodeArgs: ['--inspect'],
+
+        // Files to ignore.
+        ignore: ['*.js.map'],
+
+        // Extensions to watch.
+        ext: 'js',
+
+        // Detailed log.
+        verbose: true,
+    }));
+}
 
 module.exports = {
     entry: `${root}/src/index.ts`,
