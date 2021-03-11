@@ -27,7 +27,7 @@ const NewComment = ({addCommentToFeed, feedId}:Props) => {
         setComposingComment(event.target.value);
     };
     const handleAddComment = () => {
-        composingComment.trim().length > 0 && addCommentToFeed(feedId, '75', composingComment);
+        composingComment.trim().length > 0 && addCommentToFeed(feedId, composingComment);
         setComposingComment('');
     }
     return  <section className={styles.messageContainer}>
