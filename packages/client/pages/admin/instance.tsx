@@ -172,5 +172,5 @@ export default function scenes() {
             </TableContainer>
 
         </Dashboard>
-    )
+    );
 }
