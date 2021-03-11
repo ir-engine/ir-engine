@@ -97,7 +97,6 @@ export async function createTransport(direction: string, channelType?: string, c
                     paused,
                     appData
                 });
-                console.log('Got new producer: ' + id);
                 if (error) {
                     errback();
                     console.log(error);

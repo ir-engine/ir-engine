@@ -312,6 +312,7 @@ const Harmony = (props: Props): any => {
         width: window.innerWidth
     });
     const [engineInitialized, setEngineInitialized] = useState(false);
+    const [lastConnectToWorldId, _setLastConnectToWorldId] = useState('');
 
     const instanceLayerUsers = userState.get('layerUsers') ?? [];
     const channelLayerUsers = userState.get('channelLayerUsers') ?? [];
@@ -341,9 +342,15 @@ const Harmony = (props: Props): any => {
         _setChannelAwaitingProvision(value);
     }
 
+    const setLastConnectToWorldId = value => {
+        lastConnectToWorldIdRef.current = value;
+        _setLastConnectToWorldId(value);
+    }
+
     const producerStartingRef = useRef(producerStarting);
     const activeAVChannelIdRef = useRef(activeAVChannelId);
     const channelAwaitingProvisionRef = useRef(channelAwaitingProvision);
+    const lastConnectToWorldIdRef = useRef(lastConnectToWorldId);
     const videoEnabled = isHarmonyPage === true ? true : currentLocation.locationSettings ? currentLocation.locationSettings.videoEnabled : false;
     const isCamVideoEnabled = mediastream.get('isCamVideoEnabled');
     const isCamAudioEnabled = mediastream.get('isCamAudioEnabled');
@@ -363,13 +370,7 @@ const Harmony = (props: Props): any => {
         return () => {
             if (EngineEvents.instance != null) {
                 setEngineInitialized(false);
-                EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
-                    await toggleAudio(activeAVChannelIdRef.current);
-                    await toggleVideo(activeAVChannelIdRef.current);
-                    updateChannelTypeState();
-                    updateCamVideoState();
-                    updateCamAudioState();
-                });
+                EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, connectToWorldHandler);
 
                 EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
                     if (e.instance === true) resetChannelServer();
@@ -486,14 +487,19 @@ const Harmony = (props: Props): any => {
         setComposingMessage('');
     };
 
-    const createEngineListeners = (): void => {
-        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
+    const connectToWorldHandler = async(): Promise<void> => {
+        if (lastConnectToWorldIdRef.current !== activeAVChannelIdRef.current) {
+            setLastConnectToWorldId(activeAVChannelIdRef.current);
             await toggleAudio(activeAVChannelIdRef.current);
             await toggleVideo(activeAVChannelIdRef.current);
             updateChannelTypeState();
             updateCamVideoState();
             updateCamAudioState();
-        });
+        }
+    }
+
+    const createEngineListeners = (): void => {
+        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, connectToWorldHandler);
 
         EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
             if (e.instance === true) resetChannelServer();
@@ -501,6 +507,7 @@ const Harmony = (props: Props): any => {
 
         EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LEAVE_WORLD, () => {
             resetChannelServer();
+            setLastConnectToWorldId('');
             if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('');
             updateChannelTypeState();
             updateCamVideoState();
@@ -1131,7 +1138,7 @@ const Harmony = (props: Props): any => {
                         <Grid item className={
                             classNames({
                                 [styles['grid-item']]: true,
-                                [styles.single]: layerUsers.length <= 1,
+                                [styles.single]: layerUsers.length == null || layerUsers.length <= 1,
                                 [styles.two]: layerUsers.length === 2,
                                 [styles.four]: layerUsers.length === 3 && layerUsers.length === 4,
                                 [styles.six]: layerUsers.length === 5 && layerUsers.length === 6,
@@ -1150,7 +1157,7 @@ const Harmony = (props: Props): any => {
                                   className={
                                 classNames({
                                     [styles['grid-item']]: true,
-                                    [styles.single]: layerUsers.length <= 1,
+                                    [styles.single]: layerUsers.length == null || layerUsers.length <= 1,
                                     [styles.two]: layerUsers.length === 2,
                                     [styles.four]: layerUsers.length === 3 && layerUsers.length === 4,
                                     [styles.six]: layerUsers.length === 5 && layerUsers.length === 6,

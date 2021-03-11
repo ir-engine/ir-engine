@@ -44,7 +44,6 @@ export default (app: Application): any => {
    */
   service.publish('created', async (data): Promise<any> => {
     try {
-      console.log('Publishing instance-provision created to ' + data.userId);
       return app.channel(`userIds/${data.userId}`).send({
         ipAddress: data.ipAddress,
         port: data.port,

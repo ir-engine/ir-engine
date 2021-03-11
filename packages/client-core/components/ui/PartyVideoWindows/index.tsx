@@ -43,11 +43,8 @@ const PartyVideoWindows = (props: Props): JSX.Element => {
   const channelLayerUsers = userState.get('channelLayerUsers') ?? [];
 
   useEffect(() => {
-    console.log('transport channelType:', (Network.instance?.transport as any)?.channelType);
     if ((Network.instance?.transport as any)?.channelType === 'channel') setDisplayedUsers(channelLayerUsers.filter((user) => user.id !== selfUser.id));
     else setDisplayedUsers(layerUsers.filter((user) => user.id !== selfUser.id))
-    console.log('displayedUsers:');
-    console.log(displayedUsers);
   }, [layerUsers, channelLayerUsers]);
 
   const [ expanded, setExpanded ] = useState(true);

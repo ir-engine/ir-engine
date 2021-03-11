@@ -26,7 +26,6 @@ declare module '../../declarations' {
  */
 
 function redirect (req, res, next): any {
-  console.log('REDIRECTING');
   return res.redirect(config.client.url);
 }
 
