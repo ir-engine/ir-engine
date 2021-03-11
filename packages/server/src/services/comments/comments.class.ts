@@ -30,11 +30,11 @@ export class Comments extends Service {
       const loggedInUser = extractLoggedInUserFromParams(params);
 
       let select = ` SELECT comments.*, user.id as userId, user.name as userName, COUNT(cf.id) as fires `;
-      let from = ` FROM \`comments\` as comments`;
+      const from = ` FROM \`comments\` as comments`;
       let join = ` JOIN \`user\` as user ON user.id=comments.authorId
                     LEFT JOIN \`comments_fires\` as cf ON cf.commentId=comments.id `;
-      let where = ` WHERE comments.feedId=:feedId `;
-      let order = ` GROUP BY comments.id
+      const where = ` WHERE comments.feedId=:feedId `;
+      const order = ` GROUP BY comments.id
       ORDER BY comments.createdAt DESC    
       LIMIT :skip, :limit`;
       const queryParamsReplacements = {
@@ -71,7 +71,7 @@ export class Comments extends Service {
             text:comment.text,
             fires: comment.fires,
             isFired:comment.fired ? true : false
-        }  
+        };  
       });
       const feedsResult = {
         data,
@@ -85,7 +85,7 @@ export class Comments extends Service {
 
 
 
-    async create (data : any, params?:Params ): Promise<any> {
+    async create (data: any, params?: Params ): Promise<any> {
       const loggedInUser = extractLoggedInUserFromParams(params);
       const {comments:commentsModel, user:userModel} = this.app.get('sequelizeClient').models;
       const newComment =  await commentsModel.create({feedId:data.feedId, authorId:loggedInUser.userId, text: data.text});
