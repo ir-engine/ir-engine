@@ -74,41 +74,37 @@ export class Feed extends Service {
     }
 
     // regular feeds
-    options.include = [
-      { model: userModel, as: 'user' },
-      { model: feedFiresModel, as: 'feed_fires' },
-      // { model: feedBookmarkModel, as: 'feed_bookmark' },
-    ];
-    // const feeds = await feedModel.findAndCountAll(options) as FindAndCountResultInterface<FeedDatabaseRow>;
+    const loggedInUser = extractLoggedInUserFromParams(params);
 
-    const dataQuery = `SELECT feed.*, user.id as userId, user.name as userName, COUNT(ff.id) as fires
-    FROM \`feed\` as feed
-    JOIN \`user\` as user ON user.id=feed.authorId
-    LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
-    WHERE 1 
-    GROUP BY feed.id
+    let select = `SELECT feed.*, user.id as userId, user.name as userName, COUNT(ff.id) as fires `;
+    let from = ` FROM \`feed\` as feed`;
+    let join = ` JOIN \`user\` as user ON user.id=feed.authorId
+                  LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id `;
+    let where = ` WHERE 1`;
+    let order = ` GROUP BY feed.id
     ORDER BY feed.createdAt DESC    
-    LIMIT :skip, :limit 
-    `;
+    LIMIT :skip, :limit `;
+    const queryParamsReplacements = {
+      skip,
+      limit,
+    } as any;
+
+    if(loggedInUser?.userId){
+      select += ` , isf.id as fired, isb.id as bookmarked `;
+      join += ` LEFT JOIN \`feed_fires\` as isf ON isf.feedId=feed.id  AND isf.authorId=:loggedInUser
+                LEFT JOIN \`feed_bookmark\` as isb ON isb.feedId=feed.id  AND isb.authorId=:loggedInUser`;
+      queryParamsReplacements.loggedInUser =  loggedInUser.userId;
+    }
+
+    const dataQuery = select + from + join + where + order;
     const feeds = await this.app.get('sequelizeClient').query(dataQuery,
       {
         type: QueryTypes.SELECT,
         raw: true,
-        replacements: {
-          skip,
-          limit
-        }
+        replacements: queryParamsReplacements
       });
 
-    const loggedInUser = extractLoggedInUserFromParams(params);
     const data = feeds.map(feed => {
-      // @ts-ignore
-      const { user } = feed;
-      const isFired = false;
-      // const isFired = loggedInUser?.userId? !!feed_fires.find(feedFire => feedFire.authorId === loggedInUser.userId) : false;
-      const isBookmarked = false;
-      //loggedInUser?.userId? !!feedBookmarks.rows.find(bookmark => bookmark.authorId === loggedInUser.userId) : false;
-
       const newFeed: FeedInterface = {
         creator: { // TODO: get creator from corresponding table
           userId: feed.userId,
@@ -120,8 +116,8 @@ export class Feed extends Service {
         },
         description: feed.description,
         fires: feed.fires,
-        isFired,
-        isBookmarked,
+        isFired: feed.fired ? true : false,
+        isBookmarked: feed.bookmarked ? true : false,
         id: feed.id,
         preview: feed.preview,
         stores: 0,
@@ -169,24 +165,40 @@ export class Feed extends Service {
           ]
         });
 
-      const feed_bookmarkList = await feedBookmarkModel.findAndCountAll({
-          where: {
-            feedId: id
-          },
-          include: [
-            { model: userModel, as: 'user' },
-          ]
-        });
+        if (!feed) {
+          return Promise.reject(new BadRequest('Feed not found Or you don\'t have access!'));
+        }
 
-        feed.feed_fires
-
-      // console.log('feed.feed_fires[]', feed.feed_fires.length)
-      // feed.feed_fires.map(feed=>console.log('fire', feed))
       const loggedInUser = extractLoggedInUserFromParams(params);
+
+      const dataQuery = `SELECT id
+        FROM \`feed_bookmark\`
+        WHERE feedId=:feedId AND authorId=:authorId`;
+        const isBookmarkedInTable =loggedInUser?.userId ? await this.app.get('sequelizeClient').query(dataQuery,
+          {
+            type: QueryTypes.SELECT,
+            raw: true,
+            replacements: {
+              feedId:feed.id, 
+              authorId:loggedInUser?.userId
+            }
+          }) : false;
+
+        const firesDataQuery = `SELECT id
+          FROM \`feed_fires\`
+          WHERE feedId=:feedId AND authorId=:authorId`;
+        const isFiredInTable = loggedInUser?.userId ? await this.app.get('sequelizeClient').query(firesDataQuery,
+            {
+              type: QueryTypes.SELECT,
+              raw: true,
+              replacements: {
+                feedId:feed.id, 
+                authorId:loggedInUser?.userId
+              }
+            }) : false;
+    
       // @ts-ignore
-      const { user, feed_fires } = feed;
-      const isFired = loggedInUser?.userId? !!feed_fires.find(feedFire => feedFire.authorId === loggedInUser.userId) : false;
-      const isBookmarked = loggedInUser?.userId? !!feed_bookmarkList.rows.find(bookmark => bookmark.authorId === loggedInUser.userId) : false;
+      const { user } = feed;
 
       const newFeed: FeedInterface = {
         creator: { // TODO: get creator from corresponding table
@@ -199,27 +211,50 @@ export class Feed extends Service {
         },
         description: feed.description,
         fires: feed.feed_fires.length,
-        isFired:false,
-        isBookmarked,
+        isFired:isFiredInTable.length > 0,
+        isBookmarked:isBookmarkedInTable.length > 0,
         id: feed.id,
         preview: feed.preview,
         stores: 0,
         title: feed.title,
         video: "",
         viewsCount: feed.viewsCount
-      };
-  
-      if (!feed) {
-        return Promise.reject(new BadRequest('Feed not found Or you don\'t have access!'));
-      }
-  
+      };      
       return newFeed;
     }
 
-    async create (data : any): Promise<any> {
+    async create (data : any,  params?: Params): Promise<any> {
       const {feed:feedModel} = this.app.get('sequelizeClient').models;
+      const loggedInUser = extractLoggedInUserFromParams(params);
+      data.authorId = loggedInUser?.userId;
       const newFeed =  await feedModel.create(data);
       return  newFeed;
     }
   
+
+      /**
+   * A function which is used to update viewsCount field of feed 
+   * 
+   * @param id of feed to update 
+   * @param params 
+   * @returns updated feed
+   * @author 
+   */
+  async patch (id: string, data?: any, params?: Params): Promise<any> {
+    const loggedInUser = extractLoggedInUserFromParams(params);
+    if (!loggedInUser?.userId) {
+      return Promise.reject(new BadRequest('Could not update feed. Users isn\'t logged in! '));
+    }
+    if (!id) {
+      return Promise.reject(new BadRequest('Could not update feed. Feed id isn\'t provided! '));
+    }
+    const {feed:feedModel } = this.app.get('sequelizeClient').models;
+    const feedItem = await feedModel.findOne({where: {id: id}});
+    if(!feedItem){
+      return Promise.reject(new BadRequest('Could not update feed. Feed not found! '));
+    }
+    return await super.patch(feedItem.id, {
+      viewsCount: (feedItem.viewsCount as number) + 1,
+    });
+  }
 }
