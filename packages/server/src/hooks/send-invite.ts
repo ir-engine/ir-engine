@@ -118,12 +118,9 @@ export default () => {
       const inviteType = result.inviteType;
       const targetObjectId = result.targetObjectId;
 
-      console.log('targetObjectId: ' + targetObjectId);
-
       const authProvider = extractLoggedInUserFromParams(params);
       const authUser = await app.service('user').get(authProvider.userId);
 
-      console.log(result.identityProviderType);
       if (result.identityProviderType === 'email') {
         await generateEmail(
           app,
@@ -167,9 +164,6 @@ export default () => {
           }
         });
 
-        console.log('EMAILIDENTITYPROVIDER');
-        console.log(emailIdentityProviderResult);
-
         if (emailIdentityProviderResult.total > 0) {
           await generateEmail(
             app,
@@ -186,9 +180,6 @@ export default () => {
               type: 'sms'
             }
           });
-
-          console.log('SMSIDENTITYPROVIDER');
-          console.log(SMSIdentityProviderResult);
 
           if (SMSIdentityProviderResult.total > 0) {
             await generateSMS(
