@@ -1,5 +1,6 @@
 import { random } from 'lodash';
 import { Dispatch } from 'redux';
+import Api from '../../components/editor/Api';
 import { dispatchAlertError } from "../alert/service";
 import { client } from '../feathers';
 import {
@@ -60,11 +61,18 @@ export function addViewToFeed(feedId: string) {
   };
 }
 
-export function createFeed({title, description }: any) {
+export function createFeed({title, description, video, preview }: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      const feed = await client.service('feed').create({title, description, preview:'https://picsum.photos/375/210'});
-      dispatch(addFeed(feed));
+      const api = new  Api();
+      const storedVideo = await api.upload(video, null);
+      const storedPreview = await api.upload(preview, null);
+      //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
+      if(storedVideo && storedPreview){
+        //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
+        const feed = await client.service('feed').create({title, description, videoId:storedVideo.file_id, previewId: storedPreview.file_id});
+        dispatch(addFeed(feed));
+      }      
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);

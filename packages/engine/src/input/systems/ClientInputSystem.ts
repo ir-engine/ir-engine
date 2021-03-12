@@ -140,14 +140,10 @@ export class ClientInputSystem extends System {
         return;
       }
 
-      if (Engine.prevInputState.has(key)) {
-        if (JSON.stringify(value.value) === JSON.stringify(Engine.prevInputState.get(key).value)) {
-          value.lifecycleState = LifecycleValue.UNCHANGED;
-        } else {
-          value.lifecycleState = LifecycleValue.CHANGED;
-        }
-        Engine.inputState.set(key, value);
-      }
+      value.lifecycleState = JSON.stringify(value.value) === JSON.stringify(Engine.prevInputState.get(key).value)
+        ? LifecycleValue.UNCHANGED
+        : LifecycleValue.CHANGED;
+      Engine.inputState.set(key, value);
     });
 
     EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.PROCESS_INPUT, data: new Map(Engine.inputState) });
@@ -155,13 +151,8 @@ export class ClientInputSystem extends System {
     Engine.prevInputState.clear();
     Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
       Engine.prevInputState.set(key, value);
-    });
-
-    Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-      if (value.type === InputType.BUTTON) {
-        if (value.lifecycleState === LifecycleValue.ENDED) {
-          Engine.inputState.delete(key);
-        }
+      if (value.type === InputType.BUTTON && value.lifecycleState === LifecycleValue.ENDED) {
+        Engine.inputState.delete(key);
       }
     });
   }
