@@ -1,13 +1,14 @@
 import LinkIcon from '@material-ui/icons/Link';
 import PersonIcon from '@material-ui/icons/Person';
 import SettingsIcon from '@material-ui/icons/Settings';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
-import { updateUserAvatarId, updateUsername, updateUserSettings, addConnectionByEmail, addConnectionBySms, loginUserByOAuth, uploadAvatarModel } from '../../../redux/auth/service';
+import { logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings, addConnectionByEmail, addConnectionBySms, loginUserByOAuth, uploadAvatarModel } from '../../../redux/auth/service';
 import { alertSuccess } from '../../../redux/alert/service';
 import { provisionInstanceServer } from "../../../redux/instanceConnection/service";
 import { Views, UserMenuProps } from './util';
@@ -37,8 +38,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   loginUserByOAuth: bindActionCreators(loginUserByOAuth, dispatch),
   addConnectionBySms: bindActionCreators(addConnectionBySms, dispatch),
   addConnectionByEmail: bindActionCreators(addConnectionByEmail, dispatch),
-  logoutUser: bindActionCreators(addConnectionByEmail, dispatch),
-  removeUser: bindActionCreators(addConnectionByEmail, dispatch),
+  logoutUser: bindActionCreators(logoutUser, dispatch),
+  removeUser: bindActionCreators(removeUser, dispatch),
   uploadAvatarModel: bindActionCreators(uploadAvatarModel, dispatch),
 });
 
@@ -228,7 +229,7 @@ const UserMenu = (props: UserMenuProps): any => {
   };
 
   return (
-    <>
+    <ClickAwayListener onClickAway={() => setCurrentActiveMenu(null)}>
       <section className={styles.settingContainer}>
         <div className={styles.iconContainer}>
           {menus.map((menu, index) => {
@@ -248,7 +249,7 @@ const UserMenu = (props: UserMenuProps): any => {
           ? renderMenuPanel()
           : null}
       </section>
-    </>
+    </ClickAwayListener>
   );
 };
 

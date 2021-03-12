@@ -17,7 +17,7 @@ function fixSkeletonZForward(rootBone, context) {
   context = context || {};
   precalculateZForwards(rootBone, context);
   if (context.exclude) {
-    var bones = [rootBone];
+    const bones = [rootBone];
     rootBone.traverse((b) => bones.push(b));
     bones.forEach((b) => {
       if (~context.exclude.indexOf(b.id) || ~context.exclude.indexOf(b.name)) {
@@ -61,11 +61,11 @@ function setZForward(rootBone, context) {
 }
 
 function calculateAverages(parentBone, worldPos, averagedDirs) {
-  var averagedDir = new Vector3();
+  const averagedDir = new Vector3();
   const childBones = parentBone.children.filter(c => c.isBone);
   childBones.forEach((childBone) => {
     //average the child bone world pos
-    var childBonePosWorld = worldPos[childBone.id][0];
+    const childBonePosWorld = worldPos[childBone.id][0];
     averagedDir.add(childBonePosWorld);
   });
 
@@ -79,7 +79,7 @@ function calculateAverages(parentBone, worldPos, averagedDirs) {
 
 function updateTransformations(parentBone, worldPos, averagedDirs, preRotations) {
 
-      var averagedDir = averagedDirs[parentBone.id];
+      const averagedDir = averagedDirs[parentBone.id];
       if (averagedDir) {
 
         //set quaternion
@@ -94,7 +94,7 @@ function updateTransformations(parentBone, worldPos, averagedDirs, preRotations)
         // setQuaternionFromDirection(childBoneDir, Y_AXIS, parentBone.quaternion)
         // console.log('new quaternion', parentBone.quaternion.toArray().join(','));
     }
-    var preRot = preRotations[parentBone.id] || preRotations[parentBone.name];
+    const preRot = preRotations[parentBone.id] || preRotations[parentBone.name];
     if (preRot) parentBone.quaternion.multiply(preRot);
     // parentBone.quaternion.multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI));
     parentBone.updateMatrixWorld();
@@ -102,7 +102,7 @@ function updateTransformations(parentBone, worldPos, averagedDirs, preRotations)
     //set child bone position relative to the new parent matrix.
     const childBones = parentBone.children.filter(c => c.isBone);
     childBones.forEach((childBone) => {
-      var childBonePosWorld = worldPos[childBone.id][0].clone();
+      const childBonePosWorld = worldPos[childBone.id][0].clone();
       parentBone.worldToLocal(childBonePosWorld);
       childBone.position.copy(childBonePosWorld);
     });
@@ -149,7 +149,7 @@ function setQuaternionFromDirection(direction, up, target) {
 }
 
 function getOriginalWorldPositions(rootBone, worldPos) {
-  var rootBoneWorldPos = rootBone.getWorldPosition(new Vector3())
+  const rootBoneWorldPos = rootBone.getWorldPosition(new Vector3())
   worldPos[rootBone.id] = [rootBoneWorldPos];
   rootBone.children.forEach((child) => {
     child.isBone && getOriginalWorldPositions(child, worldPos)

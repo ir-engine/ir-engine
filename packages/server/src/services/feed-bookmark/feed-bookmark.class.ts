@@ -18,7 +18,7 @@ export class FeedBookmark extends Service {
     this.app = app;
   }
 
-  async create (data : any, params?:Params): Promise<any> {
+  async create (data: any, params?: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params);
     if (!loggedInUser?.userId) {
       return Promise.reject(new BadRequest('Could not create bookmark. Users isn\'t logged in! '));
@@ -29,7 +29,7 @@ export class FeedBookmark extends Service {
   }
 
 
-  async remove ( feedId: string,  params?:Params): Promise<any> {
+  async remove ( feedId: string,  params?: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params);
     if (!loggedInUser?.userId) {
       return Promise.reject(new BadRequest('Could not remove bookmark. Users isn\'t logged in! '));

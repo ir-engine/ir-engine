@@ -423,7 +423,7 @@ export function addConnectionByEmail (email: string, userId: string) {
     })
       .then((res: any) => {
         const identityProvider = res as IdentityProvider;
-        loadUserData(dispatch, identityProvider.userId);
+        if (identityProvider.userId != null) loadUserData(dispatch, identityProvider.userId);
       })
       .catch((err: any) => {
         console.log(err);
@@ -444,7 +444,7 @@ export function addConnectionBySms (phone: string, userId: string) {
     })
       .then((res: any) => {
         const identityProvider = res as IdentityProvider;
-        loadUserData(dispatch, identityProvider.userId);
+        if (identityProvider.userId != null) loadUserData(dispatch, identityProvider.userId);
       })
       .catch((err: any) => {
         console.log(err);

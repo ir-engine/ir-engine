@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { Typography, InputAdornment, TextField, Button } from '@material-ui/core';
 import { Send, FileCopy } from '@material-ui/icons';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
+//@ts-ignore
 import styles from '../style.module.scss';
 
 const ShareMenu = (props: any): any => {
