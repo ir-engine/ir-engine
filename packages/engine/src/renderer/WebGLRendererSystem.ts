@@ -71,7 +71,7 @@ export class WebGLRendererSystem extends System {
   static scaleFactor = 1;
 
   renderPass: RenderPass;
-  shouldInitializeToXR: boolean = false;
+  renderContext: WebGLRenderingContext;
   
   /** Constructs WebGL Renderer System. */
   constructor(attributes?: SystemAttributes) {
@@ -82,7 +82,6 @@ export class WebGLRendererSystem extends System {
     this.onResize = this.onResize.bind(this);
 
     this.postProcessingSchema = attributes.postProcessingSchema ?? DefaultPostProcessingSchema;
-    this.shouldInitializeToXR = attributes.shouldInitializeToXR;
 
     let context;
     const canvas = attributes.canvas;
@@ -92,6 +91,7 @@ export class WebGLRendererSystem extends System {
     } catch (error) {
       context = canvas.getContext("webgl", { antialias: true });
     }
+    this.renderContext = context;
     const options = {
       canvas,
       context,
@@ -155,6 +155,7 @@ export class WebGLRendererSystem extends System {
         const session = await (navigator as any).xr.requestSession("immersive-vr", sessionInit)
         
         Engine.xrSession = session;
+        Engine.renderer.xr.setReferenceSpaceType('local');
         Engine.renderer.xr.setSession(session);
         if(!isWebWorker) { 
           EngineEvents.instance.dispatchEvent({ type: WebXRRendererSystem.EVENTS.XR_SESSION });
@@ -236,7 +237,7 @@ export class WebGLRendererSystem extends System {
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
-    if(Engine.renderer.xr.isPresenting || this.shouldInitializeToXR) { return; }
+    if(Engine.renderer.xr.isPresenting) { return; }
     const startTime = now();
     if(this.isInitialized)
     {

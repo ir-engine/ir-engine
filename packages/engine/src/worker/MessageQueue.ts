@@ -1096,9 +1096,12 @@ class XRSystemPolyfill {
     this.documentElementMap.set(uuid, session);
     //@ts-ignore
     session.createOffscreenSession = async ({ framebufferScaleFactor }) => {
+
+      //@ts-ignore
+      this.messageQueue.eventTarget.hidden = true;
       const canvas = document.createElement('canvas');
+      document.body.append(canvas)
       const context = canvas.getContext('webgl2', { xrCompatible: true });
-  
       //@ts-ignore
 			const attributes = context.getContextAttributes();
       //@ts-ignore
@@ -1106,6 +1109,7 @@ class XRSystemPolyfill {
         //@ts-ignore
 				await context.makeXRCompatible();
 			}
+
       //@ts-ignore
 			const baseLayer = new XRWebGLLayer(session, context, {
 				antialias: attributes.antialias,
@@ -1116,8 +1120,7 @@ class XRSystemPolyfill {
       });
       
 			await session.updateRenderState({ baseLayer });
-
-      document.dispatchEvent(new CustomEvent(OFFSCREEN_XR_EVENTS.SESSION_CREATED, { detail: { baseLayer, context, session } }))
+      document.dispatchEvent(new CustomEvent(OFFSCREEN_XR_EVENTS.SESSION_CREATED, { detail: { baseLayer, context, session, canvas } }))
     }
 
     // const inputSources: XRInputSource[] = session.inputSources;
