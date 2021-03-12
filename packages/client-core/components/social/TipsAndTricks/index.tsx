@@ -12,8 +12,6 @@ export const TipsAndTricks = () => {
     const data=[];
     for(let i=0; i<random(10); i++){
         data.push({ 
-            previewImg:'https://picsum.photos/375/250',
-            videoLink:null,
             title: 'Created Tips & Tricks',
             description: 'I recently understood the words of my friend Jacob West about music.'
         })
@@ -22,9 +20,11 @@ export const TipsAndTricks = () => {
         {data.map((item, itemindex)=>
             <Card className={styles.tipItem} square={false} elevation={0} key={itemindex}>
                 <CardMedia   
-                    className={styles.previewImage}                  
-                    image={item.previewImg}
+                    className={styles.previewImage}      
+                    component='video'            
+                    src={'https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4'}
                     title={item.title}
+                    controls
                 />
                 <CardContent>
                     <Typography className={styles.tipsTitle} variant="h2">{item.title}</Typography>

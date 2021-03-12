@@ -11,7 +11,6 @@ export interface Feed extends FeedShort {
   videoUrl : string,
   previewUrl : string,
   fires: number,
-  stores: number,
   title: string,
   description: string,
   isFired?: boolean,

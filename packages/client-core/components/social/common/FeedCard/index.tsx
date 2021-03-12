@@ -74,7 +74,9 @@ const FeedCard = (props: Props) : any => {
                     className={styles.previewImage}                  
                     image={feed.previewUrl}
                     src={feed.videoUrl}
-                    title={feed.title}     
+                    title={feed.title}  
+                    component='video'      
+                    controls   
                     onClick={()=>handlePlayVideo(feed.id)}               
                 />
                 <span className={styles.eyeLine}>{feed.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
