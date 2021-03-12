@@ -23,8 +23,6 @@ export class Message extends Service {
   async create (data: any, params: Params): Promise<any> {
     let channel, channelId;
     let userIdList = [];
-    console.log('Message create params:');
-    console.log(params);
     const loggedInUser = extractLoggedInUserFromParams(params);
     const userId = loggedInUser.userId;
 
