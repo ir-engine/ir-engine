@@ -154,7 +154,7 @@ export default function Dialog(props: Props) {
           {bottomNav}
           {onCancel && <SecondaryButton onClick={onCancel}>{cancelLabel}</SecondaryButton>}
           {onConfirm && (
-            <Button type="submit" onClick={tag === "form" ? null : onConfirm}>
+            <Button onClick={tag === "form" ? null : onConfirm}>
               {confirmLabel}
             </Button>
           )}
