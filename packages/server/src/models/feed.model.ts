@@ -17,10 +17,6 @@ export default function (app: Application): typeof Model {
       type: DataTypes.STRING,
       allowNull: false
     },
-    preview: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
     description: {
       type: DataTypes.TEXT,
       allowNull: false
@@ -48,7 +44,9 @@ export default function (app: Application): typeof Model {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
     (Feed as any).belongsTo(models.user, { foreignKey: 'authorId', allowNull: false });
-    (Feed as any).hasOne(models.static_resource);
+    //TODO look up constraints - make this fields as keys
+    (Feed as any).belongsTo(models.static_resource, { as: 'video',  required: true, constraints: false });
+    (Feed as any).belongsTo(models.static_resource, { as: 'preview',  required: true, constraints: false });
     (Feed as any).hasMany(models.feed_fires);
     (Feed as any).hasMany(models.feed_bookmark);
     (Feed as any).hasMany(models.comments);

@@ -72,7 +72,8 @@ const FeedCard = (props: Props) : any => {
                 <CreatorAsTitle creator={feed.creator} />                   
                 <CardMedia   
                     className={styles.previewImage}                  
-                    image={feed.preview}
+                    image={feed.previewUrl}
+                    src={feed.videoUrl}
                     title={feed.title}     
                     onClick={()=>handlePlayVideo(feed.id)}               
                 />

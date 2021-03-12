@@ -36,37 +36,30 @@ export class Feed extends Service {
     const skip = params.query?.$skip ? params.query.$skip : 0;
     const limit = params.query?.$limit ? params.query.$limit : 100;
 
-    const {
-      feed_bookmark:feedBookmarkModel,
-      feed_fires:feedFiresModel,
-      user:userModel,
-      feed:feedModel
-    } = this.app.get('sequelizeClient').models;
-
-
-    const options: FindAndCountOptions = {
-      offset: skip,
+    const queryParamsReplacements = {
+      skip,
       limit,
-      order: [ [ 'createdAt', 'DESC' ] ] // order not used in find?
-    };
+    } as any;
 
     if (action === 'featured') {
-      options.where = { featured: true };
-      const feeds = await feedModel.findAndCountAll(options) as FindAndCountResultInterface<FeedDatabaseRow>;
+      const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
+        FROM \`feed\` as feed
+        JOIN \`static_resource\` as sr ON sr.id=feed.previewId
+        WHERE feed.featured=1
+        ORDER BY feed.createdAt DESC    
+        LIMIT :skip, :limit 
+        `;
+      
 
-      // use promise here as we will later get preview from static_resources
-      const data = await Promise.all(feeds.rows.map(async feed => {
-        const newFeed: FeedShortInterface = {
-          id: feed.id,
-          preview: feed.preview,
-          viewsCount: feed.viewsCount
-        };
-
-        return newFeed;
-      }));
+      const feeds = await this.app.get('sequelizeClient').query(dataQuery,
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: queryParamsReplacements
+        });
 
       return {
-        data,
+        data: feeds,
         skip,
         limit,
         total: feeds.count,
@@ -76,19 +69,18 @@ export class Feed extends Service {
     // regular feeds
     const loggedInUser = extractLoggedInUserFromParams(params);
 
-    let select = `SELECT feed.*, user.id as userId, user.name as userName, COUNT(ff.id) as fires `;
+    let select = `SELECT feed.*, user.id as userId, user.name as userName, COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl `;
     let from = ` FROM \`feed\` as feed`;
     let join = ` JOIN \`user\` as user ON user.id=feed.authorId
-                  LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id `;
+                  LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
+                  JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
+                  JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
+                  `;
     let where = ` WHERE 1`;
     let order = ` GROUP BY feed.id
     ORDER BY feed.createdAt DESC    
     LIMIT :skip, :limit `;
-    const queryParamsReplacements = {
-      skip,
-      limit,
-    } as any;
-
+    
     if(loggedInUser?.userId){
       select += ` , isf.id as fired, isb.id as bookmarked `;
       join += ` LEFT JOIN \`feed_fires\` as isf ON isf.feedId=feed.id  AND isf.authorId=:loggedInUser
@@ -119,10 +111,10 @@ export class Feed extends Service {
         isFired: feed.fired ? true : false,
         isBookmarked: feed.bookmarked ? true : false,
         id: feed.id,
-        preview: feed.preview,
+        videoUrl: feed.videoUrl,
+        previewUrl: feed.previewUrl,
         stores: 0,
         title: feed.title,
-        video: "",
         viewsCount: feed.viewsCount
       };
 
@@ -226,7 +218,7 @@ export class Feed extends Service {
     async create (data : any,  params?: Params): Promise<any> {
       const {feed:feedModel} = this.app.get('sequelizeClient').models;
       const loggedInUser = extractLoggedInUserFromParams(params);
-      data.authorId = loggedInUser?.userId;
+      data.authorId = loggedInUser.userId;
       const newFeed =  await feedModel.create(data);
       return  newFeed;
     }
