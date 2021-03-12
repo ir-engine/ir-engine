@@ -142,6 +142,11 @@ export default function Dialog(props: Props) {
     },
     [onConfirm]
   );
+  //@ts-ignore
+  const button = <Button type="submit" onClick={tag === "form" ? null : onConfirm}>
+      {confirmLabel}
+  </Button>;
+
 // returning view for Dialog component
   return (
     <DialogContainer as={tag} onSubmit={onSubmitForm} {...rest}>
@@ -154,9 +159,7 @@ export default function Dialog(props: Props) {
           {bottomNav}
           {onCancel && <SecondaryButton onClick={onCancel}>{cancelLabel}</SecondaryButton>}
           {onConfirm && (
-            <Button onClick={tag === "form" ? null : onConfirm}>
-              {confirmLabel}
-            </Button>
+            button
           )}
         </DialogBottomNav>
       )}
