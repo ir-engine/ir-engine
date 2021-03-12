@@ -134,8 +134,6 @@ export class InstanceProvision implements ServiceMethods<Data> {
   async find (params?: Params): Promise<any> {
     try {
       let userId;
-      console.log('INCOMING QUERY');
-      console.log(params.query);
       const locationId = params.query.locationId;
       const instanceId = params.query.instanceId;
       const channelId = params.query.channelId;
@@ -201,7 +199,6 @@ export class InstanceProvision implements ServiceMethods<Data> {
         // trying to go to the scene their party is in.
         // If the user is going to a different scene, they will be removed from the party and sent to a random instance
         if (user.partyId) {
-          console.log('Joining party\'s instance');
           const partyOwnerResult = await this.app.service('party-user').find({
             query: {
               partyId: user.partyId,
@@ -220,8 +217,6 @@ export class InstanceProvision implements ServiceMethods<Data> {
                 return getLocalServerIp();
               }
               const addressSplit = partyInstance.ipAddress.split(':');
-              console.log('addressSplit:');
-              console.log(addressSplit);
               return {
                 ipAddress: addressSplit[0],
                 port: addressSplit[1]
@@ -245,8 +240,6 @@ export class InstanceProvision implements ServiceMethods<Data> {
                 return getLocalServerIp();
               }
               const addressSplit = partyInstance.ipAddress.split(':');
-              console.log('addressSplit:');
-              console.log(addressSplit);
               return {
                 ipAddress: addressSplit[0],
                 port: addressSplit[1]

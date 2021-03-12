@@ -185,7 +185,7 @@ export class Feed extends Service {
       return newFeed;
     }
 
-    async create (data : any,  params?: Params): Promise<any> {
+    async create (data: any,  params?: Params): Promise<any> {
       const {feed:feedModel} = this.app.get('sequelizeClient').models;
       const loggedInUser = extractLoggedInUserFromParams(params);
       data.authorId = loggedInUser.userId;
