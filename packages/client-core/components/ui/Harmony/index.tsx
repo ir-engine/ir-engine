@@ -467,7 +467,7 @@ const Harmony = (props: Props): any => {
         setEditingMessage(message);
     };
 
-    const packageMessage = (event: any): void => {
+    const packageMessage = (): void => {
         if (composingMessage.length > 0) {
             createMessage({
                 targetObjectId: targetObject.id,
@@ -859,7 +859,7 @@ const Harmony = (props: Props): any => {
                          if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
                      } else openDetails(e, 'party', party)}}
             >
-                <PeopleOutline/>
+                <PeopleOutline className={styles['icon-margin-right']}/>
                 <span>Party</span>
                 <div className={classNames({
                     [styles.activeAVCall]: party != null && isActiveAVCall('party', party.id)
@@ -878,7 +878,7 @@ const Harmony = (props: Props): any => {
                     if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
                 }}
             >
-                <Grain/>
+                <Grain className={styles['icon-margin-right']}/>
                 <span>Here</span>
                 <div className={classNames({
                     [styles.activeAVCall]: isActiveAVCall('instance', selfUser.instanceId)
@@ -892,7 +892,7 @@ const Harmony = (props: Props): any => {
                 expandIcon={<ExpandMore/>}
                 aria-controls="friends-content"
             >
-                <Group/>
+                <Group className={styles['icon-margin-right']}/>
                 <Typography>Friends</Typography>
             </AccordionSummary>
             <AccordionDetails className={styles['list-container']}>
@@ -926,6 +926,7 @@ const Harmony = (props: Props): any => {
                                 <div className={classNames({
                                     [styles.activeAVCall]: isActiveAVCall('user', friend.id)
                                 })} />
+                                <ListItemIcon className={styles.groupEdit} onClick={(e) => openDetails(e,'user', friend)}><Settings/></ListItemIcon>
                             </ListItem>
                             {index < friends.length - 1 && <Divider/>}
                         </div>;
@@ -942,7 +943,7 @@ const Harmony = (props: Props): any => {
                 expandIcon={<ExpandMore/>}
                 aria-controls="groups-content"
             >
-                <GroupWork/>
+                <GroupWork className={styles['icon-margin-right']}/>
                 <Typography>Groups</Typography>
             </AccordionSummary>
             <AccordionDetails className={styles['list-container']}>
@@ -993,7 +994,7 @@ const Harmony = (props: Props): any => {
                     expandIcon={<ExpandMore/>}
                     aria-controls="layer-user-content"
                 >
-                    <Public/>
+                    <Public className={styles['icon-margin-right']}/>
                     <Typography>Layer Users</Typography>
                 </AccordionSummary>
                 <AccordionDetails className={classNames({
@@ -1086,6 +1087,10 @@ const Harmony = (props: Props): any => {
             { (isMobileOrTablet() !== true && dimensions.width > 768) && chatSelectors}
             <div className={styles['chat-window']}>
                 <div className={styles['harmony-header']}>
+                    { (isMobileOrTablet() === true || dimensions.width <= 768) && <div className={classNames({
+                        [styles['chat-toggle']]: true,
+                        [styles.iconContainer]: true
+                    })} onClick={() => setSelectorsOpen(true)}><Group /></div> }
                     { targetChannelId?.length > 0 && <header className={styles.mediaControls}>
                         { activeAVChannelId === '' &&
                             <div className={classNames({
@@ -1118,10 +1123,6 @@ const Harmony = (props: Props): any => {
                     { targetChannelId?.length === 0 && <div />}
 
                     <div className={styles.controls}>
-                        { (isMobileOrTablet() === true || dimensions.width <= 768) && <div className={classNames({
-                            [styles['chat-toggle']]: true,
-                            [styles.iconContainer]: true
-                        })} onClick={() => setSelectorsOpen(true)}><Group /></div> }
                         <div className={classNames({
                             [styles['invite-toggle']]: true,
                             [styles.iconContainer]: true
@@ -1286,6 +1287,12 @@ const Harmony = (props: Props): any => {
                                 value={composingMessage}
                                 inputProps={{
                                     maxLength: 1000
+                                }}
+                                onKeyPress={(e) => {
+                                    if (e.shiftKey === false && e.charCode === 13) {
+                                        e.preventDefault()
+                                        packageMessage();
+                                    }
                                 }}
                                 onChange={handleComposingMessageChange}
                             />

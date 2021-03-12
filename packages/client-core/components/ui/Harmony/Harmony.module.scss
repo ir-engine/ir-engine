@@ -8,7 +8,7 @@ $mobileControllButtonsSize: 3em;
 
 .selectable {
     height: 50px;
-    padding: 0 16px !important;
+    padding: 0 5px !important;
 
     &.highlighted {
         background-color: lightgray;
@@ -88,6 +88,24 @@ $mobileControllButtonsSize: 3em;
     font-size: 2em;
 }
 
+.groupEdit {
+    margin: 0 5px 0 auto;
+    width: 30px;
+    height: 30px;
+    min-width: 0 !important;
+
+    &:hover {
+        cursor: pointer;
+        background-color: rgba(155, 155, 155, 0.6);
+        border-radius: 20px;
+    }
+
+    & > svg {
+        width: 30px;
+        height: 30px;
+    }
+}
+
 .harmony-component {
     display: flex;
     flex-grow: 1;
@@ -100,6 +118,13 @@ $mobileControllButtonsSize: 3em;
 
     @media (max-width: 768px) {
         flex-direction: column;
+    }
+
+    [class*='MuiAccordion-root'] {
+        &[class*='Mui-expanded'] {
+            margin: 0;
+            flex-grow: 1;
+        }
     }
 
     .chat-container {
@@ -122,24 +147,6 @@ $mobileControllButtonsSize: 3em;
             @media (max-width: 768px) {
                 text-align: center;
             }
-        }
-    }
-
-    .groupEdit {
-        margin: 0 5px 0 auto;
-        width: 30px;
-        height: 30px;
-        min-width: 0;
-
-        &:hover {
-            cursor: pointer;
-            background-color: rgba(155, 155, 155, 0.6);
-            border-radius: 20px;
-        }
-
-        & > svg {
-            width: 30px;
-            height: 30px;
         }
     }
 
@@ -504,6 +511,17 @@ $mobileControllButtonsSize: 3em;
         }
     }
 
+
+    .chat-toggle {
+        background-color: rgb(56, 178, 56) !important;
+        color: white;
+        margin-right: 5px;
+
+        &:hover {
+            cursor: pointer;
+            background-color: lighten(rgb(56, 178, 56), 10%);
+        }
+    }
     .controls {
         height: 50px;
         display: flex;
@@ -533,17 +551,6 @@ $mobileControllButtonsSize: 3em;
             &:hover {
                 cursor: pointer;
                 background-color: lighten(rgb(178, 56, 56), 10%);
-            }
-        }
-
-        .chat-toggle {
-            background-color: rgb(56, 178, 56);
-            color: white;
-            margin-right: 5px;
-
-            &:hover {
-                cursor: pointer;
-                background-color: lighten(rgb(56, 178, 56), 10%);
             }
         }
     }
@@ -614,4 +621,8 @@ $mobileControllButtonsSize: 3em;
     @media (max-width: 768px) {
         background-color: (0, 0, 0, 0.9);
     }
+}
+
+.icon-margin-right {
+    margin-right: 3px;
 }
