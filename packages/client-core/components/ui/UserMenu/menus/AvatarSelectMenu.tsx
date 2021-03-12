@@ -13,6 +13,7 @@ const THUMBNAIL_HEIGHT = 300;
 
 interface Props {
     changeActiveMenu: Function;
+	uploadAvatarModel: Function;
 }
 
 interface State {
@@ -118,8 +119,7 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 	    newContext.drawImage(this.renderer.domElement, 0, 0);
 
 	    canvas.toBlob(blob => {
-	    	this.setState({ imgFile: blob });
-	    	console.debug('Uploading to server......');
+			this.props.uploadAvatarModel(this.state.selectedFile, blob);
 	    });
 	}
 
