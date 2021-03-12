@@ -47,9 +47,7 @@ const channelConnectionReducer = (state = immutableState, action: ChannelServerA
           .set('readyToConnect', false)
           .set('instanceProvisioning', true);
     case CHANNEL_SERVER_PROVISIONED:
-      console.log('CHANNEL_SERVER_PROVISIONED REDUCER');
       newInstance = new Map(state.get('instance'));
-      console.log(newInstance);
       newValues = (action as ChannelServerProvisionedAction);
       newInstance.set('ipAddress', newValues.ipAddress);
       newInstance.set('port', newValues.port);
@@ -71,7 +69,6 @@ const channelConnectionReducer = (state = immutableState, action: ChannelServerA
           .set('updateNeeded', false)
           .set('readyToConnect', false);
     case CHANNEL_SERVER_DISCONNECTED:
-      console.log('CHANNEL_SERVER_DISCONNECTED');
       if (connectionSocket != null) (connectionSocket as any).close();
       const newState = state
           .set('connected', initialState.connected)
@@ -84,8 +81,6 @@ const channelConnectionReducer = (state = immutableState, action: ChannelServerA
           .set('locationId', initialState.locationId)
           .set('sceneId', initialState.sceneId)
           .set('channelId', initialState.channelId);
-      console.log('Reset state:');
-      console.log(newState);
       return newState;
     case SOCKET_CREATED:
       if (connectionSocket != null) (connectionSocket as any).close();

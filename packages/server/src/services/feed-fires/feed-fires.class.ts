@@ -59,7 +59,7 @@ export class FeedFires extends Service {
             name: user.name,
             username: user.name,
             verified : true,
-        }  
+        };  
       });
       const feedsResult = {
         data,
@@ -71,7 +71,7 @@ export class FeedFires extends Service {
       return feedsResult;
     }
 
-  async create (data : any, params?:Params): Promise<any> {
+  async create (data: any, params?: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params);
     if (!loggedInUser?.userId) {
       return Promise.reject(new BadRequest('Could not add fire. Users isn\'t logged in! '));
@@ -82,7 +82,7 @@ export class FeedFires extends Service {
 
   }
 
-  async remove ( feedId: string,  params?:Params): Promise<any> {
+  async remove ( feedId: string,  params?: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params);
     if (!loggedInUser?.userId) {
       return Promise.reject(new BadRequest('Could not remove fire. Users isn\'t logged in! '));
