@@ -1,17 +1,10 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { Application } from '../../declarations';
-import { Id, Paginated, Params } from "@feathersjs/feathers";
-import { FindAndCountOptions, QueryTypes } from "sequelize";
-import { Feed as FeedInterface, FeedShort as FeedShortInterface, FeedDatabaseRow } from '../../../../common/interfaces/Feed';
+import { Id, Params } from "@feathersjs/feathers";
+import { QueryTypes } from "sequelize";
+import { Feed as FeedInterface } from '../../../../common/interfaces/Feed';
 import { extractLoggedInUserFromParams } from "../auth-management/auth-management.utils";
 import { BadRequest } from '@feathersjs/errors';
-import { defaultProjectImport } from '../project/project-helper';
-
-interface FindAndCountResultInterface<T> {
-  rows: T[];
-  count: number;
-}
-
 /**
  * A class for ARC Feed service
  */
@@ -80,7 +73,7 @@ export class Feed extends Service {
     let order = ` GROUP BY feed.id
     ORDER BY feed.createdAt DESC    
     LIMIT :skip, :limit `;
-    
+
     if(loggedInUser?.userId){
       select += ` , isf.id as fired, isb.id as bookmarked `;
       join += ` LEFT JOIN \`feed_fires\` as isf ON isf.feedId=feed.id  AND isf.authorId=:loggedInUser
@@ -98,7 +91,7 @@ export class Feed extends Service {
 
     const data = feeds.map(feed => {
       const newFeed: FeedInterface = {
-        creator: { // TODO: get creator from corresponding table
+        creator: {
           userId: feed.userId,
           id:feed.userId,
           avatar: 'https://picsum.photos/40/40',
@@ -113,7 +106,6 @@ export class Feed extends Service {
         id: feed.id,
         videoUrl: feed.videoUrl,
         previewUrl: feed.previewUrl,
-        stores: 0,
         title: feed.title,
         viewsCount: feed.viewsCount
       };
@@ -140,78 +132,56 @@ export class Feed extends Service {
    * @author Vykliuk Tetiana
    */
     async get (id: Id, params?: Params): Promise<any> {
-      const {
-        feed_bookmark:feedBookmarkModel,
-        feed_fires:feedFiresModel,
-        user:userModel,
-        feed:feedModel
-      } = this.app.get('sequelizeClient').models;
-  
-      const feed = await feedModel.findOne({
-          where: {
-            id: id
-          },
-          include: [
-            { model: userModel, as: 'user' },
-            { model: feedFiresModel, as: 'feed_fires' },
-          ]
-        });
-
-        if (!feed) {
-          return Promise.reject(new BadRequest('Feed not found Or you don\'t have access!'));
-        }
-
       const loggedInUser = extractLoggedInUserFromParams(params);
 
-      const dataQuery = `SELECT id
-        FROM \`feed_bookmark\`
-        WHERE feedId=:feedId AND authorId=:authorId`;
-        const isBookmarkedInTable =loggedInUser?.userId ? await this.app.get('sequelizeClient').query(dataQuery,
-          {
-            type: QueryTypes.SELECT,
-            raw: true,
-            replacements: {
-              feedId:feed.id, 
-              authorId:loggedInUser?.userId
-            }
-          }) : false;
+      let select = `SELECT feed.*, user.id as userId, user.name as userName, COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl `;
+      let from = ` FROM \`feed\` as feed`;
+      let join = ` JOIN \`user\` as user ON user.id=feed.authorId
+                    LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
+                    JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
+                    JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
+                    `;
+      let where = ` WHERE feed.id=:id`;      
 
-        const firesDataQuery = `SELECT id
-          FROM \`feed_fires\`
-          WHERE feedId=:feedId AND authorId=:authorId`;
-        const isFiredInTable = loggedInUser?.userId ? await this.app.get('sequelizeClient').query(firesDataQuery,
-            {
-              type: QueryTypes.SELECT,
-              raw: true,
-              replacements: {
-                feedId:feed.id, 
-                authorId:loggedInUser?.userId
-              }
-            }) : false;
-    
-      // @ts-ignore
-      const { user } = feed;
+      const queryParamsReplacements = {
+        id,
+      } as any;
 
-      const newFeed: FeedInterface = {
-        creator: { // TODO: get creator from corresponding table
-          userId: user.id,
-          id: user.id,
+
+      if(loggedInUser?.userId){
+        select += ` , isf.id as fired, isb.id as bookmarked `;
+        join += ` LEFT JOIN \`feed_fires\` as isf ON isf.feedId=feed.id  AND isf.authorId=:loggedInUser
+                  LEFT JOIN \`feed_bookmark\` as isb ON isb.feedId=feed.id  AND isb.authorId=:loggedInUser`;
+        queryParamsReplacements.loggedInUser =  loggedInUser?.userId;
+      }
+  
+      const dataQuery = select + from + join + where;
+      const [feed] = await this.app.get('sequelizeClient').query(dataQuery,
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: queryParamsReplacements
+        });
+
+      const newFeed: FeedInterface = ({
+        creator: {
+          userId: feed.userId,
+          id: feed.userId,
           avatar: 'https://picsum.photos/40/40',
-          name: user.name,
-          username: user.name,
+          name: feed.userName,
+          username: feed.userName,
           verified : true,
         },
         description: feed.description,
-        fires: feed.feed_fires.length,
-        isFired:isFiredInTable.length > 0,
-        isBookmarked:isBookmarkedInTable.length > 0,
+        fires: feed.fires,
+        isFired: feed.fired ? true : false,
+        isBookmarked: feed.bookmarked ? true : false,
         id: feed.id,
-        preview: feed.preview,
-        stores: 0,
+        videoUrl: feed.videoUrl,
+        previewUrl: feed.previewUrl,
         title: feed.title,
-        video: "",
         viewsCount: feed.viewsCount
-      };      
+      });     
       return newFeed;
     }
 
