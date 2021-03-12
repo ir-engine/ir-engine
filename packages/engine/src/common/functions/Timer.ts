@@ -4,6 +4,7 @@ import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { isWebWorker } from './getEnvironment';
+import { WebXRRendererSystem } from '../../renderer/WebXRRendererSystem';
 
 type TimerUpdateCallback = (delta: number, elapsedTime?: number) => any;
 
@@ -46,8 +47,6 @@ export function Timer (
   let timerRuns = 0;
   let prevTimerRuns = 0;
 
-  let offscreenHook;
-
   function xrAnimationLoop(time) {
     if (last !== null) {
       delta = (time - last) / 1000;
@@ -65,11 +64,14 @@ export function Timer (
     last = time;
 	}
 
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async (ev: any) => {
+  EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_START, async (ev: any) => {
     stop();
+  });
+  EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_SESSION, async (ev: any) => {
+    console.log('STARTING XR', Engine.renderer?.xr)
     Engine.renderer?.xr?.setAnimationLoop(xrAnimationLoop);
   });
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_END, async (ev: any) => {
+  EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_END, async (ev: any) => {
     Engine.renderer.setAnimationLoop(null);
     start();
   });

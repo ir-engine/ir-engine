@@ -26,7 +26,6 @@ import {
   XRTransientInputHitTestOptionsInit,
   XRTransientInputHitTestSource
 } from '../input/types/WebXR';
-import { WebXRManager } from './WebXRManager';
 
 
 const { generateUUID } = MathUtils;
@@ -708,9 +707,16 @@ export async function createWorker(
     MessageType.DOCUMENT_ELEMENT_FUNCTION_CALL,
     async ({ call, uuid, args, requestID }: { call: string; uuid: string; args: any[], requestID?: any }) => {
       console.log(call, uuid, args, requestID, documentElementMap.get(uuid), documentElementMap.get(uuid)[call])
-      const returnedData = await documentElementMap.get(uuid)[call](...args)
-      if(requestID) {
+      try {
+        const returnedData = await documentElementMap.get(uuid)[call](...args)
+        if(requestID) {
           messageQueue.sendEvent(requestID, { returnedData });
+        }
+      } catch (e) { 
+        console.log(e)
+        if(requestID) {
+          messageQueue.sendEvent(requestID, { returnedData: undefined });
+        }
       }
     },
   );
@@ -1042,10 +1048,6 @@ class CanvasProxy extends DocumentElementProxy {
   }
 }
 
-const XR_PROXY_EVENTS = {
-  INPUT_SOURCES: 'XR_PROXY_INPUT_SOURCES',
-}
-
 class XRSystemProxy extends DocumentElementProxy {
   constructor({
     messageQueue,
@@ -1056,13 +1058,6 @@ class XRSystemProxy extends DocumentElementProxy {
       messageQueue,
       type: 'navigator.xr',
     });
-
-    this.messageQueue.messageTypeFunctions.set(
-      XR_PROXY_EVENTS.INPUT_SOURCES,
-      (args: any) => {
-
-      }
-    )
   }
 
   async isSessionSupported(sessionMode) {
@@ -1104,7 +1099,6 @@ class XRSystemPolyfill {
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('webgl2', { xrCompatible: true });
   
-      console.log('context', context)
       //@ts-ignore
 			const attributes = context.getContextAttributes();
       //@ts-ignore
@@ -1120,7 +1114,7 @@ class XRSystemPolyfill {
 				stencil: attributes.stencil,
         framebufferScaleFactor
       });
-      console.log('baseLayer', baseLayer)
+      
 			await session.updateRenderState({ baseLayer });
 
       document.dispatchEvent(new CustomEvent(OFFSCREEN_XR_EVENTS.SESSION_CREATED, { detail: { baseLayer, context, session } }))

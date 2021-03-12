@@ -48,6 +48,7 @@ import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
 import { InteractiveSystem } from '@xr3ngine/engine/src/interaction/systems/InteractiveSystem';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { DefaultInitializationOptions as WorkerDefaultInitializationOptions, initializeWorker } from '@xr3ngine/engine/src/initializeWorker';
+import { WebXRRendererSystem } from '@xr3ngine/engine/src/renderer/WebXRRendererSystem';
 
 const goHome = () => window.location.href = window.location.origin;
 
@@ -206,7 +207,7 @@ export const EnginePage = (props: Props) => {
     }
   }, [appState]);
   const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
-
+  
   async function init(sceneId: string): Promise<any> { // auth: any,
     let service, serviceId;
     const projectResult = await client.service('project').get(sceneId);
@@ -235,6 +236,9 @@ export const EnginePage = (props: Props) => {
         },
         renderer: {
           canvas,
+        },
+        xr: {
+          shouldInitializeToXR: navigator.userAgent.includes('Quest'),
         }
       };
       await initializeWorker(InitializationOptions)
@@ -246,6 +250,9 @@ export const EnginePage = (props: Props) => {
         },
         renderer: {
           canvas,
+        },
+        xr: {
+          shouldInitializeToXR: navigator.userAgent.includes('Quest'),
         }
       };
       await initializeEngine(InitializationOptions)
