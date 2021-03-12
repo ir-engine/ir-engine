@@ -9,7 +9,7 @@
     position: fixed;
     bottom: 25px;
     width: 100vw;
-    z-index: 1500;
+    z-index: 5;
 
     .materialIconBlock {
         display: flex;
@@ -110,6 +110,7 @@
 
                 .headerBlock {
                     display: flex;
+                    flex-direction:column;
                     flex-wrap: wrap;
                     width: calc(100% - 170px);
                     align-content: center;
@@ -155,10 +156,18 @@
                         font-family: 'Roboto';
                         font-size: 16px;
                         text-align: center;
-                        margin-top: 20px;
                         opacity: 0.8;
-                        margin: 15px auto 0 auto !important;
+                        margin: 20px auto 0 auto !important;
                         span { text-transform: capitalize; font-weight: 700; }
+                    }
+                    h4 {
+                        margin-top: 4px;
+                        text-align: center;
+
+                        &:hover {
+                            color: #5F5FF1;
+                            cursor: pointer;
+                        }
                     }
                 }
             }

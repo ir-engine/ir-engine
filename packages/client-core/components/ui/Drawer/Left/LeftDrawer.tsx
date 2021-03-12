@@ -527,10 +527,7 @@ const LeftDrawer = (props: Props): any => {
                     }}
                 >
                     {groupFormOpen === false && detailsType === 'user' &&
-                    <div className={classNames({
-                        [styles['flex-center']]: true,
-                        [styles['flex-column']]: true
-                    })}>
+                    <div className={styles['details-container']}>
                         <div className={styles.header}>
                             <Button className={styles.backButton} onClick={closeDetails}>
                                 <ArrowLeft/>

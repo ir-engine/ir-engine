@@ -92,14 +92,14 @@ export class AcceptInvite implements ServiceMethods<Data> {
             await this.app.service('user-relationship').create({
               userRelationshipType: invite.inviteType,
               userId: invite.userId,
-              relatedUserId: invite.inviteeId
+              relatedUserId: inviteeIdentityProvider.userId
             }, params);
           }
 
           const relationshipToPatch = await this.app.service('user-relationship').find({
             query: {
               userRelationshipType: 'requested',
-              userId: invite.inviteeId,
+              userId: inviteeIdentityProvider.userId,
               relatedUserId: invite.userId
             }
           });
