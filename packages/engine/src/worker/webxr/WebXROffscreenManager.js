@@ -2,12 +2,10 @@ import { ArrayCamera, EventDispatcher, PerspectiveCamera, Vector3, Vector4 } fro
 import { WebGLAnimation } from './WebGLAnimation.js';
 import { WebXRController } from './WebXRController.js';
 
-export class WebXRInputManager extends EventDispatcher {
-  constructor( renderer, gl ) {
+export class WebXROffscreenManager extends EventDispatcher {
+  constructor() {
     super()
 
-    this.renderer = renderer;
-    this.gl = gl;
     this.session = null;
   
     this.framebufferScaleFactor = 1.0;
@@ -54,7 +52,6 @@ export class WebXRInputManager extends EventDispatcher {
     this.cameraRPos = new Vector3();
 
     this.onAnimationFrameCallback = null;
-
     this.animation = new WebGLAnimation();
     this.animation.setAnimationLoop( this.onAnimationFrame );
   
@@ -193,11 +190,15 @@ export class WebXRInputManager extends EventDispatcher {
 			this.session.addEventListener( 'squeezestart', this.onSessionEvent );
 			this.session.addEventListener( 'squeezeend', this.onSessionEvent );
 			this.session.addEventListener( 'end', this.onSessionEnd );
-			this.session.addEventListener( 'inputsourceschange', this.onInputSourcesChange );
+			// this.session.addEventListener( 'inputsourceschange', this.onInputSourcesChange );
 
-			this.referenceSpace = await this.session.requestReferenceSpace( this.referenceSpaceType );
+			const layerInit = {
+				framebufferScaleFactor: this.framebufferScaleFactor
+			};
 
-			this.animation.setContext( this.session );
+      await this.session.createOffscreenSession(layerInit);
+
+			this.animation.setContext( self );
 			this.animation.start();
 
 			this.isPresenting = true;
@@ -383,85 +384,20 @@ export class WebXRInputManager extends EventDispatcher {
 
 		}
 
+    return camera; // until we have all this stuff sorted out
 		return this.cameraVR;
 
 	};
 
-	// Animation Loop
-
-	
-
 	onAnimationFrame( time, frame ) {
 
-    // console.log('WebXRInputManager', this, time, frame)
-
-		this.pose = frame.getViewerPose( this.referenceSpace );
-
-		if ( this.pose !== null ) {
-
-			const views = this.pose.views;
-			const baseLayer = this.session.renderState.baseLayer;
-
-      this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, baseLayer.framebuffer);
-			// this.renderer.setFramebuffer( baseLayer.framebuffer );
-
-			let cameraVRNeedsUpdate = false;
-
-			// check if it's necessary to rebuild cameraVR's camera list
-
-			if ( views.length !== this.cameraVR.cameras.length ) {
-
-				this.cameraVR.cameras.length = 0;
-				cameraVRNeedsUpdate = true;
-
-			}
-
-			for ( let i = 0; i < views.length; i ++ ) {
-
-				const view = views[ i ];
-				const viewport = baseLayer.getViewport( view );
-
-				const camera = this.cameras[ i ];
-				camera.matrix.fromArray( view.transform.matrix );
-				camera.projectionMatrix.fromArray( view.projectionMatrix );
-				camera.viewport.set( viewport.x, viewport.y, viewport.width, viewport.height );
-
-				if ( i === 0 ) {
-
-					this.cameraVR.matrix.copy( camera.matrix );
-
-				}
-
-				if ( cameraVRNeedsUpdate === true ) {
-
-					this.cameraVR.cameras.push( camera );
-
-				}
-
-			}
-
-		}
-
-		//
-
-		const inputSources = this.session.inputSources;
-
-		for ( let i = 0; i < this.controllers.length; i ++ ) {
-
-			const controller = this.controllers[ i ];
-			const inputSource = inputSources[ i ];
-
-			controller.update( inputSource, frame, this.referenceSpace );
-
-		}
+    // console.log('WebXROffscreenManager', this, time, frame)
 
 		if ( this.onAnimationFrameCallback ) this.onAnimationFrameCallback( time, frame );
 
 	}
 
 	setAnimationLoop ( callback ) {
-
-    console.log('WebXROffscreenManager', this, time, frame)
 
 		this.onAnimationFrameCallback = callback;
 

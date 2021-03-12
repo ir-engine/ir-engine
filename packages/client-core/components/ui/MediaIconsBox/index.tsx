@@ -68,11 +68,7 @@ const MediaIconsBox = (props) => {
     const isCamAudioEnabled = mediastream.get('isCamAudioEnabled');
 
     const onEngineLoaded = () => {
-      const onXRSupported = (supported) => {
-        setXRSupported(supported);
-        EngineEvents.instance.removeEventListener(WebXRRendererSystem.EVENTS.XR_SUPPORTED, onXRSupported);
-      }
-      EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_SUPPORTED, onXRSupported);
+      setXRSupported(Engine.xrSupported);
       document.removeEventListener('ENGINE_LOADED', onEngineLoaded)
     }
     document.addEventListener('ENGINE_LOADED', onEngineLoaded)

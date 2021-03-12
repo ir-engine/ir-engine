@@ -73,26 +73,12 @@ export const addIncomingEvents = () => {
     EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
   }
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
-
-  if(isClient) {
-    const onXRSupported = ({ supported }) => {
-      Engine.renderer.xr.enabled = supported;
-      EngineEvents.instance.removeEventListener(WebXRRendererSystem.EVENTS.XR_SUPPORTED, onXRSupported);
-    }
-    EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_SUPPORTED, onXRSupported);
-  }
 }
 
 export const addOutgoingEvents = () => {
   EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.SEND_DATA, (ev) => {
     Network.instance.transport.sendData(ev.buffer);
   });
-
-  if(isClient) {
-    (navigator as any).xr?.isSessionSupported('immersive-vr').then(supported => {
-      EngineEvents.instance.dispatchEvent({ type: WebXRRendererSystem.EVENTS.XR_SUPPORTED, supported });
-    })
-  }
 }
 
 const ENGINE_EVENTS_PROXY = {
