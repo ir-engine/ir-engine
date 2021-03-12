@@ -2,13 +2,14 @@
 import {CreatorShort} from './Creator'
 export interface FeedShort {
   id: string,
-  preview: string,
+  previewUrl: string,
   viewsCount: number,
 }
 
 export interface Feed extends FeedShort {
   creator : CreatorShort,
-  video : string,
+  videoUrl : string,
+  previewUrl : string,
   fires: number,
   stores: number,
   title: string,
@@ -22,7 +23,8 @@ export interface FeedDatabaseRow {
   title: string,
   description: string,
   featured: boolean,
-  preview: string,
+  videoUrl : string,
+  previewUrl : string,
   viewsCount: number,
   createdAt: string,
   updatedAt: string,
