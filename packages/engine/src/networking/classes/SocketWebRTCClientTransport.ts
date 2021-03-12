@@ -66,17 +66,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   // This sends message on a data channel (data channel creation is now handled explicitly/default)
   sendData(data: any, instance = true): void {
     if (instance === true) {
-      if (!this.instanceDataProducer) {
-        console.error('Data Producer not initialized on client, Instance Data Producer doesn\'t exist!');
-        return;
-      }
-      if (this.instanceDataProducer.closed !== true) this.instanceDataProducer.send(this.toBuffer(data));
+      if (this.instanceDataProducer && this.instanceDataProducer.closed !== true && this.instanceDataProducer.readyState === 'open')
+          this.instanceDataProducer.send(this.toBuffer(data));
     } else {
-      if (!this.channelDataProducer) {
-        console.error('Data Producer not initialized on client, Channel Data Producer doesn\'t exist!');
-        return;
-      }
-      if (this.channelDataProducer.closed !== true) this.channelDataProducer.send(this.toBuffer(data));
+      if (this.channelDataProducer && this.channelDataProducer.closed !== true && this.channelDataProducer.readyState === 'open')
+        this.channelDataProducer.send(this.toBuffer(data));
     }
   }
 
@@ -204,6 +198,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // Get information for how to consume data from server and init a data consumer
       socket.on(MessageTypes.WebRTCConsumeData.toString(), async (options) => {
         const dataConsumer = await this.instanceRecvTransport.consumeData(options);
+
+        // Firefox uses blob as by default hence have to convert binary type of data consumer to 'arraybuffer' explicitly.
+        dataConsumer.binaryType = 'arraybuffer';
         Network.instance?.dataConsumers.set(options.dataProducerId, dataConsumer);
 
         dataConsumer.on('message', (message: any) => {
