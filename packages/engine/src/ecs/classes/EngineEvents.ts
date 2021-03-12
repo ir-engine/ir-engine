@@ -3,6 +3,7 @@ import { isClient } from "../../common/functions/isClient";
 import { Network } from "../../networking/classes/Network";
 import { applyNetworkStateToClient } from "../../networking/functions/applyNetworkStateToClient";
 import { ClientNetworkSystem } from "../../networking/systems/ClientNetworkSystem";
+import { WebXRRendererSystem } from "../../renderer/WebXRRendererSystem";
 import { loadScene } from "../../scene/functions/SceneLoading";
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { loadActorAvatar } from "../../templates/character/prefabs/NetworkPlayerCharacter";
@@ -30,12 +31,6 @@ const EVENTS = {
 
   // MISC
   USER_ENGAGE: 'CORE_USER_ENGAGE',
-
-  // centralise all xr api to engine
-  XR_SUPPORTED: 'CORE_XR_SUPPORTED',
-  XR_START: 'CORE_XR_START',
-  XR_END: 'CORE_XR_END',
-
 };
 
 export class EngineEvents extends EventDispatcher {
@@ -82,9 +77,9 @@ export const addIncomingEvents = () => {
   if(isClient) {
     const onXRSupported = ({ supported }) => {
       Engine.renderer.xr.enabled = supported;
-      EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.XR_SUPPORTED, onXRSupported);
+      EngineEvents.instance.removeEventListener(WebXRRendererSystem.EVENTS.XR_SUPPORTED, onXRSupported);
     }
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_SUPPORTED, onXRSupported);
+    EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_SUPPORTED, onXRSupported);
   }
 }
 
@@ -95,7 +90,7 @@ export const addOutgoingEvents = () => {
 
   if(isClient) {
     (navigator as any).xr?.isSessionSupported('immersive-vr').then(supported => {
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_SUPPORTED, supported });
+      EngineEvents.instance.dispatchEvent({ type: WebXRRendererSystem.EVENTS.XR_SUPPORTED, supported });
     })
   }
 }

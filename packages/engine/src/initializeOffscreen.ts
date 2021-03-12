@@ -26,8 +26,7 @@ import { MainProxy } from './worker/MessageQueue';
 import { EntityActionSystem } from './input/systems/EntityActionSystem';
 import { EngineEvents } from './ecs/classes/EngineEvents';
 import { EngineEventsProxy, addIncomingEvents } from './ecs/classes/EngineEvents';
-import { ClientInputSystem } from './input/systems/ClientInputSystem';
-import { WebXROffscreenRendererSystem } from './renderer/WebXROffscreenRendererSystem';
+import { WebXRRendererSystem } from './renderer/WebXRRendererSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -46,7 +45,7 @@ export const DefaultInitializationOptions = {
 };
 
 export function initializeEngineOffscreen({ canvas, userArgs }, proxy: MainProxy): void {
-  const { useWebXR, initOptions } = userArgs;
+  const { useWebXR, shouldInitializeToXR, initOptions } = userArgs;
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
   EngineEvents.instance = new EngineEventsProxy(proxy);
@@ -84,8 +83,8 @@ export function initializeEngineOffscreen({ canvas, userArgs }, proxy: MainProxy
   registerSystem(ParticleSystem);
   registerSystem(DebugHelpersSystem);
   registerSystem(CameraSystem);
-  registerSystem(WebGLRendererSystem, { priority: 1001, canvas });
-  registerSystem(WebXROffscreenRendererSystem);
+  registerSystem(WebGLRendererSystem, { priority: 1001, canvas, shouldInitializeToXR });
+  registerSystem(WebXRRendererSystem, { offscreen: true });
   Engine.viewportElement = Engine.renderer.domElement;
 
   Engine.engineTimer = Timer({

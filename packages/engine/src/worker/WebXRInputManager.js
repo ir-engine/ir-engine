@@ -2,7 +2,7 @@ import { ArrayCamera, EventDispatcher, PerspectiveCamera, Vector3, Vector4 } fro
 import { WebGLAnimation } from './WebGLAnimation.js';
 import { WebXRController } from './WebXRController.js';
 
-export class WebXRManager extends EventDispatcher {
+export class WebXRInputManager extends EventDispatcher {
   constructor( renderer, gl ) {
     super()
 
@@ -134,8 +134,8 @@ export class WebXRManager extends EventDispatcher {
 
 		//
 
-		this.renderer.setFramebuffer( null );
-		this.renderer.setRenderTarget( this.renderer.getRenderTarget() ); // Hack #15830
+		// this.renderer.setFramebuffer( null );
+		// this.renderer.setRenderTarget( this.renderer.getRenderTarget() ); // Hack #15830
 		this.animation.stop();
 
 		this.isPresenting = false;
@@ -194,27 +194,6 @@ export class WebXRManager extends EventDispatcher {
 			this.session.addEventListener( 'squeezeend', this.onSessionEvent );
 			this.session.addEventListener( 'end', this.onSessionEnd );
 			this.session.addEventListener( 'inputsourceschange', this.onInputSourcesChange );
-
-			const attributes = this.gl.getContextAttributes();
-
-			if ( attributes.xrCompatible !== true ) {
-
-				await this.gl.makeXRCompatible();
-
-			}
-
-			const layerInit = {
-				antialias: attributes.antialias,
-				alpha: attributes.alpha,
-				depth: attributes.depth,
-				stencil: attributes.stencil,
-				framebufferScaleFactor: this.framebufferScaleFactor
-			};
-
-			// eslint-disable-next-line no-undef
-			const baseLayer = new XRWebGLLayer( this.session, this.gl, layerInit );
-
-			this.session.updateRenderState( { baseLayer: baseLayer } );
 
 			this.referenceSpace = await this.session.requestReferenceSpace( this.referenceSpaceType );
 
@@ -414,6 +393,8 @@ export class WebXRManager extends EventDispatcher {
 
 	onAnimationFrame( time, frame ) {
 
+    // console.log('WebXRInputManager', this, time, frame)
+
 		this.pose = frame.getViewerPose( this.referenceSpace );
 
 		if ( this.pose !== null ) {
@@ -421,8 +402,8 @@ export class WebXRManager extends EventDispatcher {
 			const views = this.pose.views;
 			const baseLayer = this.session.renderState.baseLayer;
 
-      context.bindFrameBuffer(context.FRAMEBUFFER, baseLayer.framebuffer);
-			this.renderer.setFramebuffer( baseLayer.framebuffer );
+      this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, baseLayer.framebuffer);
+			// this.renderer.setFramebuffer( baseLayer.framebuffer );
 
 			let cameraVRNeedsUpdate = false;
 
@@ -479,6 +460,8 @@ export class WebXRManager extends EventDispatcher {
 	}
 
 	setAnimationLoop ( callback ) {
+
+    console.log('WebXROffscreenManager', this, time, frame)
 
 		this.onAnimationFrameCallback = callback;
 

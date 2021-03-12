@@ -29,6 +29,7 @@ import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchem
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { EngineEvents, addIncomingEvents, addOutgoingEvents } from './ecs/classes/EngineEvents';
 import { ClientInputSystem } from './input/systems/ClientInputSystem';
+import { WebXRRendererSystem } from './renderer/WebXRRendererSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -111,6 +112,7 @@ export async function initializeEngine(initOptions: any = DefaultInitializationO
     registerSystem(DebugHelpersSystem);
     registerSystem(CameraSystem);
     registerSystem(WebGLRendererSystem, { priority: 1001, canvas: options.renderer.canvas || createCanvas() });
+    registerSystem(WebXRRendererSystem, { offscreen: false });
     Engine.viewportElement = Engine.renderer.domElement;
   }
 

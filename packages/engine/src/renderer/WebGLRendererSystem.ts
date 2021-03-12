@@ -26,8 +26,8 @@ import { TextureEffect } from './postprocessing/TextureEffect';
 import { PostProcessingSchema } from './postprocessing/PostProcessingSchema';
 import { EngineEvents } from '../ecs/classes/EngineEvents';
 import { startXR, endXR } from '../input/functions/WebXRFunctions';
+import { WebXRRendererSystem } from './WebXRRendererSystem';
 import { isWebWorker } from '../common/functions/getEnvironment';
-import { WebXROffscreenManager } from '../worker/WebXROffscreenManager';
 
 export class WebGLRendererSystem extends System {
   
@@ -71,6 +71,7 @@ export class WebGLRendererSystem extends System {
   static scaleFactor = 1;
 
   renderPass: RenderPass;
+  shouldInitializeToXR: boolean = false;
   
   /** Constructs WebGL Renderer System. */
   constructor(attributes?: SystemAttributes) {
@@ -81,6 +82,7 @@ export class WebGLRendererSystem extends System {
     this.onResize = this.onResize.bind(this);
 
     this.postProcessingSchema = attributes.postProcessingSchema ?? DefaultPostProcessingSchema;
+    this.shouldInitializeToXR = attributes.shouldInitializeToXR;
 
     let context;
     const canvas = attributes.canvas;
@@ -106,10 +108,6 @@ export class WebGLRendererSystem extends System {
     renderer.outputEncoding = sRGBEncoding; // need this if postprocessing is not used
 
     Engine.renderer = renderer;
-
-    if(isWebWorker) {
-      Engine.renderer.xr = new WebXROffscreenManager(context)
-    }
 
     // Cascaded shadow maps
     const csm = new CSM({
@@ -151,12 +149,21 @@ export class WebGLRendererSystem extends System {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
       this.enabled = ev.enable;
     });
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async (ev: any) => {
-      if(await startXR()) {
-        // success
-      }
+    EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_START, async (ev: any) => {
+      const sessionInit = { optionalFeatures: ['local'] };
+      try {
+        const session = await (navigator as any).xr.requestSession("immersive-vr", sessionInit)
+        
+        Engine.xrSession = session;
+        Engine.renderer.xr.setSession(session);
+        if(!isWebWorker) { 
+          EngineEvents.instance.dispatchEvent({ type: WebXRRendererSystem.EVENTS.XR_SESSION });
+        }
+
+        await startXR()
+      } catch(e) { console.log(e) }
     });
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_END, async (ev: any) => {
+    EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_END, async (ev: any) => {
       endXR();
     });
 
@@ -229,12 +236,7 @@ export class WebGLRendererSystem extends System {
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
-    if(Engine.renderer.xr.isPresenting) {
-      // Post processing is not currently supported in xr // https://github.com/mrdoob/three.js/pull/18846
-      // webaverse already has support for it https://github.com/webaverse/app/pull/906
-      Engine.renderer.render(Engine.scene, Engine.camera);
-      return;
-    }
+    if(Engine.renderer.xr.isPresenting || this.shouldInitializeToXR) { return; }
     const startTime = now();
     if(this.isInitialized)
     {
