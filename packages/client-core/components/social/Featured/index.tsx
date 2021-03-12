@@ -31,10 +31,11 @@ const Featured = ({feedsState, getFeeds} : Props) => {
     feedsList = feedsState.get('fetching') === false && feedsState?.get('feedsFeatured');
     return <section className={styles.feedContainer}>
         {feedsList && feedsList.length > 0  && feedsList.map((item, itemIndex)=>
-            <Card className={styles.creatorItem} elevation={0} key={itemIndex}  onClick={()=>Router.push({ pathname: '/feed', query:{ feedId: item.id}})}>                 
+            <Card className={styles.creatorItem} elevation={0} key={itemIndex}  
+                        onClick={()=>Router.push({ pathname: '/feed', query:{ feedId: item.id}})}>                 
                 <CardMedia   
                     className={styles.previewImage}                  
-                    image={item.preview}
+                    image={item.previewUrl}
                 />
                 <span className={styles.eyeLine}>{item.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
             </Card>
