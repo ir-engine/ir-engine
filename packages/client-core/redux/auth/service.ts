@@ -502,6 +502,51 @@ export function uploadAvatar (data: any) {
   };
 }
 
+export function uploadAvatarModel (model: any, thumbnail: any) {
+  return async (dispatch: Dispatch, getState: any) => {
+    // const token = getState().get('auth').get('authUser').accessToken;
+    // const selfUser = getState().get('auth').get('user');
+
+    // TODO: delete file.jpg, fileNew.jpg
+
+    const [ modelURL, thumbnailURL ] = await Promise.all([
+      client.service('upload-presigned').get('', { query: { fileName: 'model.glb' } }),
+      client.service('upload-presigned').get('', { query: { fileName: 'model.jpg' } }),
+    ]);
+    
+    const modelData = new FormData();
+    Object.keys(modelURL.fields).forEach(key => modelData.append(key, modelURL.fields[key]));
+    modelData.append('acl', 'public-read');
+    modelData.append('file', model);
+
+    axios.post(modelURL.url, modelData, {
+      // transformRequest: (data, headers) => {
+      //   console.debug(data, headers);
+      //   headers.common = {};
+      //   return data;
+      // }
+    }).then(res => {
+      const thumbnailData = new FormData();
+      Object.keys(thumbnailURL.fields).forEach(key => thumbnailData.append(key, thumbnailURL.fields[key]));
+      thumbnailData.append('acl', 'public-read');
+      thumbnailData.append('file', thumbnail);
+
+      axios.post(thumbnailURL.url, thumbnailData).then(res => {
+        dispatchAlertSuccess(dispatch, 'Avatar updated');
+        // await client.service('user').patch(selfUser.id, {
+        //   name: selfUser.name
+        // });
+        // const result = res.data;
+        // dispatch(avatarUpdated(result));
+      }).catch(err => {
+        console.error('Error occured while uploading thumbnail.');
+      });
+    }).catch(err => {
+      console.error('Error occured while uploading model.');
+    });
+  };
+}
+
 export function updateUsername (userId: string, name: string) {
   return (dispatch: Dispatch): any => {
     client.service('user').patch(userId, {

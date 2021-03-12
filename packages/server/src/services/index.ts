@@ -56,6 +56,7 @@ import MessageStatus from './message-status/message-status.service';
 import SMS from './sms/sms.service';
 import Tag from './tag/tag.service';
 import Upload from './upload/upload.service';
+import UploadPresigned from './upload-presigned/upload-presigned.service';
 import Video from './video/video.service';
 import Subscription from './subscription/subscription.service';
 import SubscriptionConfirm from './subscription-confirm/subscription-confirm.service';
@@ -135,6 +136,7 @@ export default (app: Application): void => {
   app.configure(Tag);
   app.configure(SubscriptionConfirm);
   app.configure(Upload);
+  app.configure(UploadPresigned);
   // app.configure(Video);
   app.configure(Feed); // ARC
   app.configure(FeedFires); // ARC

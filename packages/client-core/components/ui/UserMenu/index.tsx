@@ -7,8 +7,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
-import { updateUserAvatarId, updateUsername, updateUserSettings } from '../../../redux/auth/service';
-import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth } from '../../../redux/auth/service';
+import { updateUserAvatarId, updateUsername, updateUserSettings, addConnectionByEmail, addConnectionBySms, loginUserByOAuth, uploadAvatarModel } from '../../../redux/auth/service';
 import { alertSuccess } from '../../../redux/alert/service';
 import { provisionInstanceServer } from "../../../redux/instanceConnection/service";
 import { Views, UserMenuProps } from './util';
@@ -40,6 +39,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   addConnectionByEmail: bindActionCreators(addConnectionByEmail, dispatch),
   logoutUser: bindActionCreators(addConnectionByEmail, dispatch),
   removeUser: bindActionCreators(addConnectionByEmail, dispatch),
+  uploadAvatarModel: bindActionCreators(uploadAvatarModel, dispatch),
 });
 
 const UserMenu = (props: UserMenuProps): any => {
@@ -53,6 +53,7 @@ const UserMenu = (props: UserMenuProps): any => {
     loginUserByOAuth,
     logoutUser,
     removeUser,
+    uploadAvatarModel,
   } = props;
   const selfUser = authState.get('user') || {};
 
@@ -105,7 +106,7 @@ const UserMenu = (props: UserMenuProps): any => {
 
   useEffect(() => {
     return function cleanup() {
-      EngineEvents.instance.removeEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphics);
+      EngineEvents.instance?.removeEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphics);
     };
   }, [])
 
@@ -213,9 +214,7 @@ const UserMenu = (props: UserMenuProps): any => {
         args = {
           userId: selfUser?.id,
           changeActiveMenu,
-          loginUserByOAuth,
-          addConnectionByEmail,
-          addConnectionBySms,
+          uploadAvatarModel,
         };
         break;
       // case Views.Login: return renderLoginPage();
