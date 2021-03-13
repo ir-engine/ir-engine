@@ -504,14 +504,9 @@ export function uploadAvatar (data: any) {
 
 export function uploadAvatarModel (model: any, thumbnail: any) {
   return async (dispatch: Dispatch, getState: any) => {
-    // const token = getState().get('auth').get('authUser').accessToken;
-    // const selfUser = getState().get('auth').get('user');
-
-    // TODO: delete file.jpg, fileNew.jpg
-
     const [ modelURL, thumbnailURL ] = await Promise.all([
       client.service('upload-presigned').get('', { query: { fileName: 'model.glb' } }),
-      client.service('upload-presigned').get('', { query: { fileName: 'model.jpg' } }),
+      client.service('upload-presigned').get('', { query: { fileName: 'model.png' } }),
     ]);
     
     const modelData = new FormData();
@@ -519,32 +514,69 @@ export function uploadAvatarModel (model: any, thumbnail: any) {
     modelData.append('acl', 'public-read');
     modelData.append('file', model);
 
-    axios.post(modelURL.url, modelData, {
-      // transformRequest: (data, headers) => {
-      //   console.debug(data, headers);
-      //   headers.common = {};
-      //   return data;
-      // }
-    }).then(res => {
+    // Upload Model file to S3
+    axios.post(modelURL.url, modelData).then(res => {
       const thumbnailData = new FormData();
       Object.keys(thumbnailURL.fields).forEach(key => thumbnailData.append(key, thumbnailURL.fields[key]));
       thumbnailData.append('acl', 'public-read');
       thumbnailData.append('file', thumbnail);
 
+      // Upload Thumbnail file to S3
       axios.post(thumbnailURL.url, thumbnailData).then(res => {
-        dispatchAlertSuccess(dispatch, 'Avatar updated');
+        const name = modelURL.fields.Key.substring(modelURL.fields.Key.lastIndexOf('/'), modelURL.fields.Key.lastIndexOf('.'));
+        const selfUser = (store.getState() as any).get('auth').get('user');
+        console.debug('user => ', selfUser);
+        // Save URLs to backend
+        Promise.all([
+          client.service('static-resource').create({
+            name,
+            staticResourceType: 'avatar',
+            url: modelURL.url + '/' + modelURL.fields.Key,
+            key: modelURL.fields.Key,
+            userId: selfUser.id,
+            // mimeType: (data as any).mimeType
+          }),
+          client.service('static-resource').create({
+            name,
+            staticResourceType: 'user-thumbnail',
+            url: modelURL.url + '/' + thumbnailURL.fields.Key,
+            mimeType: 'image/png',
+            key: thumbnailURL.fields.Key,
+            userId: selfUser.id,
+          }),
+        ]).then(_ => {
+          dispatchAlertSuccess(dispatch, 'Avatar Uploaded Successfully.');
+          // dispatch(avatarUpdated(result));
+        }).catch(err => {
+          console.error('Error occured while saving Avatar.');
+
+          // IF error occurs then removed Model and thumbnail from S3
+          client.service('upload-presigned').remove('', { query: { keys: [modelURL.fields.Key, thumbnailURL.fields.Key] } });
+        })
         // await client.service('user').patch(selfUser.id, {
         //   name: selfUser.name
         // });
         // const result = res.data;
-        // dispatch(avatarUpdated(result));
       }).catch(err => {
-        console.error('Error occured while uploading thumbnail.');
+        console.error('Error occured while uploading thumbnail.', err);
+
+        // IF error occurs then removed Model and thumbnail from S3
+        client.service('upload-presigned').remove('', { query: { keys: [modelURL.fields.Key] } });
       });
     }).catch(err => {
       console.error('Error occured while uploading model.');
     });
   };
+}
+
+export function removeAvatar (keys: [string]) {
+  return async (dispatch: Dispatch, getState: any) => {
+    const result = await client.service('upload-presigned').remove('', {
+      query: { keys },
+    });
+
+    console.debug(result);
+  }
 }
 
 export function updateUsername (userId: string, name: string) {

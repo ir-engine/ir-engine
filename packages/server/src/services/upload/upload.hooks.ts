@@ -1,4 +1,3 @@
-import { disallow } from 'feathers-hooks-common';
 import addUUID from '../../hooks/add-uuid';
 import addUploadPath from '../../hooks/add-upload-path';
 import * as authentication from '@feathersjs/authentication';
@@ -18,7 +17,7 @@ const { authenticate } = authentication.hooks;
 export default {
   before: {
     all: [],
-    find: [disallow()],
+    find: [commonHooks.disallow()],
     get: [],
     create: [
       commonHooks.iff(
@@ -26,9 +25,9 @@ export default {
         authenticate('jwt'),
         setLoggedInUser('userId')
       ), addUUID(), addUploadPath(), addUriToFile(), makeS3FilesPublic()],
-    update: [disallow()],
-    patch: [disallow()],
-    remove: [disallow()]
+    update: [commonHooks.disallow()],
+    patch: [commonHooks.disallow()],
+    remove: []
   },
 
   after: {

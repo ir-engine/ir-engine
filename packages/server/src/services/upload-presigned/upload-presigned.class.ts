@@ -27,10 +27,15 @@ export class UploadPresigned implements ServiceMethods<Data> {
   }
 
   async get (id: Id, params?: Params): Promise<Data> {
-    let url = await this.s3.getSignedUrl(params.query.fileName, 24*60*60, [
-      {"acl": "public-read"},
-      ['content-length-range', 0, 15*1024*1024 ]
-    ])
+    let url = await this.s3.getSignedUrl(
+      // this.getKeyForFilename(params['identity-provider'].userId + '/' + params.query.fileName),
+      this.getKeyForFilename(params.query.fileName),
+      3600,  // Expires After 1 hour
+      [
+        {"acl": "public-read"},
+        ['content-length-range', 0, 15728640 ] // Max size 15 MB
+      ]
+    );
     console.log('url => ', url);
     // TODO: Review Security
     return url;
@@ -61,6 +66,12 @@ export class UploadPresigned implements ServiceMethods<Data> {
   }
 
   async remove (id: NullableId, params?: Params): Promise<Data> {
+    let data = await this.s3.deleteResources(params.query.keys);
+    console.log('result => ', data);
     return { id };
+  }
+
+  getKeyForFilename = (key: string) => {
+    return `${process.env.STORAGE_S3_AVATAR_DIRECTORY}${process.env.STORAGE_S3_DEV_MODE ? '/' + process.env.STORAGE_S3_DEV_MODE : ''}/${key}`;
   }
 }

@@ -24,12 +24,12 @@ export default class S3Provider implements StorageProviderInterface {
 
   getStorage = (): S3BlobStore => this.blob;
 
-  getSignedUrl = async (filename: string, expiresAfter: number, conditions): Promise<any> => { 
+  getSignedUrl = async (key: string, expiresAfter: number, conditions): Promise<any> => { 
     const result = await new Promise((resolve) => {
       this.provider.createPresignedPost({
         Bucket: this.bucket,
         Fields: {
-          Key: filename,
+          Key: key,
         },
         Expires: expiresAfter,
         Conditions: conditions
@@ -71,5 +71,19 @@ export default class S3Provider implements StorageProviderInterface {
       // })
 
     return result;
+  }
+
+  deleteResources = (keys: [string]) => {
+    return new Promise((resolve, reject) => {
+      this.provider.deleteObjects({
+        Bucket: this.bucket,
+        Delete: {
+          Objects: keys.map(key => { return { Key: key }; })
+        }
+      }, (err, data) => {
+        if (err) reject(err);
+        else resolve(data);
+      });
+    });
   }
 }
