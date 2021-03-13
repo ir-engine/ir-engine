@@ -2,13 +2,11 @@ import React, { useState } from 'react';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 
-import { Button, CardMedia, TextField, Typography } from '@material-ui/core';
+import { Button, TextField, Typography } from '@material-ui/core';
 import { createFeed } from '../../../redux/feed/service';
 
-import { selectAuthState } from '../../../redux/auth/selector';
-
-
 import styles from './FeedForm.module.scss';
+
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     createFeed: bindActionCreators(createFeed, dispatch),
@@ -21,6 +19,8 @@ const FeedForm = ({createFeed} : Props) => {
     const [isSended, setIsSended] = useState(false);
     const [composingTitle, setComposingTitle] = useState('');
     const [composingText, setComposingText] = useState('');
+    const [video, setVideo] = useState(null);
+    const [preview, setPreview] = useState(null);
     const titleRef = React.useRef<HTMLInputElement>();
     const textRef = React.useRef<HTMLInputElement>();
 
@@ -29,13 +29,19 @@ const FeedForm = ({createFeed} : Props) => {
     const handleCreateFeed = () => {
         const feed = {
             title: composingTitle.trim(),
-            description: composingText.trim()
+            description: composingText.trim(),
+            video, preview
         }        
+
         createFeed(feed);
         setComposingTitle('');
         setComposingText('');
+        setVideo(null);
+        setPreview(null);
         setIsSended(true);              
     }
+    const handlePickVideo = async (file) => setVideo(file.target.files[0])
+    const handlePickPreview = async (file) => setPreview(file.target.files[0])
     
 return <section className={styles.feedFormContainer}>
     {isSended ? 
@@ -43,11 +49,11 @@ return <section className={styles.feedFormContainer}>
         :
         <section>
             <Typography variant="h1" align="center">Share something with the community</Typography>
-            <CardMedia   
-                className={styles.previewImage}                  
-                image='https://picsum.photos/375/210'
-                title='preview'
-            />
+
+            <Typography variant="h2" align="center">Select video for your feed 
+                <input type="file" name="video" onChange={handlePickVideo} placeholder={'Select video'}/></Typography>          
+            <Typography variant="h2" align="center">Select preview image for your feed 
+                <input type="file" name="preview" onChange={handlePickPreview} placeholder={'Select preview'}/></Typography>  
             <TextField ref={titleRef} 
                 value={composingTitle}
                 onChange={handleComposingTitleChange}
