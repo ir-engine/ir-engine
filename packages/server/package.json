@@ -182,6 +182,5 @@
     "typescript": "^4.0.3",
     "webpack-cli": "^4.0.0",
     "webpack": "^5.25.0"
-
   }
 }
