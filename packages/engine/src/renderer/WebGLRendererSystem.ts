@@ -149,25 +149,6 @@ export class WebGLRendererSystem extends System {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
       this.enabled = ev.enable;
     });
-    EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_START, async (ev: any) => {
-      Engine.renderer.outputEncoding = sRGBEncoding;
-      const sessionInit = { optionalFeatures: ['local'] };
-      try {
-        const session = await (navigator as any).xr.requestSession("immersive-vr", sessionInit)
-        
-        Engine.xrSession = session;
-        Engine.renderer.xr.setReferenceSpaceType('local');
-        Engine.renderer.xr.setSession(session);
-        if(!isWebWorker) { 
-          EngineEvents.instance.dispatchEvent({ type: WebXRRendererSystem.EVENTS.XR_SESSION });
-        }
-
-        await startXR()
-      } catch(e) { console.log(e) }
-    });
-    EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_END, async (ev: any) => {
-      endXR();
-    });
 
     this.isInitialized = true;
   }

@@ -6,7 +6,7 @@ import { isClient } from "../../common/functions/isClient";
 import { BinaryType } from '../../common/types/NumericalTypes';
 import { Engine } from "../../ecs/classes/Engine";
 import { handleGamepadConnected, handleGamepadDisconnected } from "../behaviors/GamepadInputBehaviors";
-import { BaseInput } from "../enums/BaseInput";
+// import { BaseInput } from "../enums/BaseInput";
 import { InputType } from '../enums/InputType';
 import { MouseInput, GamepadButtons, TouchInputs } from '../enums/InputEnums';
 
@@ -28,16 +28,7 @@ const handleTouchMove = (args: { event: TouchEvent }): void => {
 
   if (args.event.touches.length == 1) {
 
-    Engine.inputState.set(BaseInput.POINTER1_POSITION, {
-      type: InputType.TWODIM,
-      value: touchPosition,
-      lifecycleState: LifecycleValue.CHANGED
-    });
-    
     const mappedPositionInput = TouchInputs.Touch1Position;
-    if (!mappedPositionInput) {
-      return;
-    }
     const hasData = Engine.inputState.has(mappedPositionInput);
 
     Engine.inputState.set(mappedPositionInput, {
@@ -48,9 +39,6 @@ const handleTouchMove = (args: { event: TouchEvent }): void => {
 
     const movementStart = args.event.type === 'touchstart';
     const mappedMovementInput = TouchInputs.Touch1Movement;
-    if (!mappedMovementInput) {
-      return;
-    }
 
     const touchMovement: [number, number] = [0, 0];
     if (!movementStart && prevTouchPosition) {
@@ -71,32 +59,32 @@ const handleTouchMove = (args: { event: TouchEvent }): void => {
     const normalizedPosition2 = normalizeMouseCoordinates(args.event.touches[1].clientX, args.event.touches[1].clientY, window.innerWidth, window.innerHeight);
     const touchPosition2: [number, number] = [normalizedPosition2.x, normalizedPosition2.y];
 
-    Engine.inputState.set(BaseInput.POINTER1_POSITION, {
+    Engine.inputState.set(TouchInputs.Touch1Position, {
       type: InputType.TWODIM,
       value: touchPosition,
       lifecycleState: LifecycleValue.CHANGED
     });
     
-    Engine.inputState.set(BaseInput.POINTER2_POSITION, {
+    Engine.inputState.set(TouchInputs.Touch2Position, {
       type: InputType.TWODIM,
       value: touchPosition2,
       lifecycleState: LifecycleValue.CHANGED
     });
 
-    const lastTouchcontrollerPositionLeftArray = Engine.prevInputState.get(BaseInput.POINTER1_POSITION)?.value;
-    const lastTouchPosition2Array = Engine.prevInputState.get(BaseInput.POINTER2_POSITION)?.value;
+    const lastTouchcontrollerPositionLeftArray = Engine.prevInputState.get(TouchInputs.Touch1Position)?.value;
+    const lastTouchPosition2Array = Engine.prevInputState.get(TouchInputs.Touch2Position)?.value;
     if (args.event.type === 'touchstart' || !lastTouchcontrollerPositionLeftArray || !lastTouchPosition2Array) {
       // skip if it's just start of gesture or there are no previous data yet
       return;
     }
 
-    if (!Engine.inputState.has(BaseInput.POINTER1_POSITION) || !Engine.inputState.has(BaseInput.POINTER2_POSITION)) {
+    if (!Engine.inputState.has(TouchInputs.Touch1Position) || !Engine.inputState.has(TouchInputs.Touch2Position)) {
       console.warn('handleTouchScale requires POINTER1_POSITION and POINTER2_POSITION to be set and updated.');
       return;
     }
 
-    const currentTouchcontrollerPositionLeft = new Vector2().fromArray(Engine.inputState.get(BaseInput.POINTER1_POSITION).value as number[]);
-    const currentTouchPosition2 = new Vector2().fromArray(Engine.inputState.get(BaseInput.POINTER2_POSITION).value as number[]);
+    const currentTouchcontrollerPositionLeft = new Vector2().fromArray(Engine.inputState.get(TouchInputs.Touch1Position).value as number[]);
+    const currentTouchPosition2 = new Vector2().fromArray(Engine.inputState.get(TouchInputs.Touch2Position).value as number[]);
 
     const lastTouchcontrollerPositionLeft = new Vector2().fromArray(lastTouchcontrollerPositionLeftArray as number[]);
     const lastTouchPosition2 = new Vector2().fromArray(lastTouchPosition2Array as number[]);
@@ -628,10 +616,7 @@ export const ClientInputSchema = {
     wheel: [
       {
         behavior: handleMouseWheel,
-        passive: true,
-        args: {
-          value: BaseInput.CAMERA_SCROLL
-        }
+        passive: true
       }
     ],
     mouseleave: [

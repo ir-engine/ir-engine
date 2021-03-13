@@ -111,6 +111,9 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
   // Overrides Model's load method and resolves the src url before loading.
   async load(src, onError?) {
+    if(src.startsWith('/')) {
+      src = window.location.origin + src;
+    }
     const nextSrc = src || "";
     if (nextSrc === this._canonicalUrl && nextSrc !== "") {
       return;

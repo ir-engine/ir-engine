@@ -1,5 +1,9 @@
+import { sRGBEncoding } from 'three';
+import { isWebWorker } from '../common/functions/getEnvironment';
 import { Engine } from '../ecs/classes/Engine';
+import { EngineEvents } from '../ecs/classes/EngineEvents';
 import { System, SystemAttributes } from '../ecs/classes/System';
+import { endXR, startXR } from '../input/functions/WebXRFunctions';
 import { XRReferenceSpaceType, XRWebGLLayer } from '../input/types/WebXR';
 // import { EngineEvents } from '../ecs/classes/EngineEvents';
 // import { isWebWorker } from '../common/functions/getEnvironment';
@@ -12,12 +16,11 @@ export class WebXRRendererSystem extends System {
 
   static EVENTS = {
     // centralise all xr api to engine
-    XR_SUPPORTED: 'WEBXR_RENDERER_SYSTEM_XR_SUPPORTED',
     XR_START: 'WEBXR_RENDERER_SYSTEM_XR_START',
     XR_SESSION: 'WEBXR_RENDERER_SYSTEM_XR_SESSION',
     XR_END: 'WEBXR_RENDERER_SYSTEM_XR_END',
-    CONTROLLER_DATA: 'OFFSCREEN_XR_EVENTS_CONTROLLER_DATA',
-    FRAME_DATA: 'OFFSCREEN_XR_EVENTS_FRAME_DATA',
+    // CONTROLLER_DATA: 'OFFSCREEN_XR_EVENTS_CONTROLLER_DATA',
+    // FRAME_DATA: 'OFFSCREEN_XR_EVENTS_FRAME_DATA',
   }
 
   offscreen: boolean;
@@ -33,6 +36,27 @@ export class WebXRRendererSystem extends System {
 
   constructor(attributes?: SystemAttributes) {
     super(attributes);
+
+    EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_START, async (ev: any) => {
+      Engine.renderer.outputEncoding = sRGBEncoding;
+      const sessionInit = { optionalFeatures: [this.referenceSpace] };
+      try {
+        const session = await (navigator as any).xr.requestSession("immersive-vr", sessionInit)
+        
+        Engine.xrSession = session;
+        Engine.renderer.xr.setReferenceSpaceType(this.referenceSpace);
+        Engine.renderer.xr.setSession(session);
+        if(!isWebWorker) { 
+          EngineEvents.instance.dispatchEvent({ type: WebXRRendererSystem.EVENTS.XR_SESSION });
+        }
+
+        await startXR()
+      } catch(e) { console.log(e) }
+    });
+
+    EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_END, async (ev: any) => {
+      endXR();
+    });
 
     this.offscreen = attributes.offscreen;
 
