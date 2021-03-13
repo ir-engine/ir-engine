@@ -1,32 +1,35 @@
 import _ from 'lodash';
 import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
-import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
-import { CameraSystem } from './camera/systems/CameraSystem';
-import { Timer } from './common/functions/Timer';
-import { DebugHelpersSystem } from './debug/systems/DebugHelpersSystem';
-import { Engine, AudioListener } from './ecs/classes/Engine';
-import { execute, initialize } from "./ecs/functions/EngineFunctions";
-import { registerSystem } from './ecs/functions/SystemFunctions';
-import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
-import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
-import { Network } from './networking/classes/Network';
-import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';
-import { ParticleSystem } from './particles/systems/ParticleSystem';
-import { PhysicsSystem } from './physics/systems/PhysicsSystem';
-import { HighlightSystem } from './renderer/HighlightSystem';
-import { WebGLRendererSystem } from './renderer/WebGLRendererSystem';
-import { ServerSpawnSystem } from './scene/systems/SpawnSystem';
-import { StateSystem } from './state/systems/StateSystem';
-import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
-import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
-import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
-import { TransformSystem } from './transform/systems/TransformSystem';
-import { MainProxy } from './worker/MessageQueue';
-import { InputSystem } from './input/systems/ClientInputSystem';
-import { EngineEvents } from './ecs/classes/EngineEvents';
-import { EngineEventsProxy, addIncomingEvents } from './ecs/classes/EngineEvents';
+import AssetLoadingSystem from '../assets/systems/AssetLoadingSystem';
+import { CameraSystem } from '../camera/systems/CameraSystem';
+import { Timer } from '../common/functions/Timer';
+import { DebugHelpersSystem } from '../debug/systems/DebugHelpersSystem';
+import { Engine, AudioListener } from '../ecs/classes/Engine';
+import { execute, initialize } from "../ecs/functions/EngineFunctions";
+import { registerSystem } from '../ecs/functions/SystemFunctions';
+import { SystemUpdateType } from "../ecs/functions/SystemUpdateType";
+import { InteractiveSystem } from "../interaction/systems/InteractiveSystem";
+import { Network } from '../networking/classes/Network';
+import { ClientNetworkSystem } from '../networking/systems/ClientNetworkSystem';
+import { ParticleSystem } from '../particles/systems/ParticleSystem';
+import { PhysicsSystem } from '../physics/systems/PhysicsSystem';
+import { HighlightSystem } from '../renderer/HighlightSystem';
+import { WebGLRendererSystem } from '../renderer/WebGLRendererSystem';
+import { ServerSpawnSystem } from '../scene/systems/SpawnSystem';
+import { StateSystem } from '../state/systems/StateSystem';
+import { CharacterInputSchema } from '../templates/character/CharacterInputSchema';
+import { CharacterStateSchema } from '../templates/character/CharacterStateSchema';
+import { DefaultNetworkSchema } from '../templates/networking/DefaultNetworkSchema';
+import { TransformSystem } from '../transform/systems/TransformSystem';
+import { MainProxy } from './MessageQueue';
+import { EntityActionSystem } from '../input/systems/EntityActionSystem';
+import { EngineEvents } from '../ecs/classes/EngineEvents';
+import { EngineEventsProxy, addIncomingEvents } from '../ecs/classes/EngineEvents';
+import { WebXRRendererSystem } from '../renderer/WebXRRendererSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
+import { receiveWorker } from './MessageQueue';
+
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -43,13 +46,13 @@ export const DefaultInitializationOptions = {
   },
 };
 
-export function initializeEngineOffscreen({ canvas, userArgs }, proxy: MainProxy): void {
-  const { useWebXR, initOptions } = userArgs;
+const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy) => {
+  const {  initOptions } = userArgs;
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
   EngineEvents.instance = new EngineEventsProxy(proxy);
   addIncomingEvents();
-  
+
   initialize();
   Engine.scene = new Scene();
 
@@ -61,7 +64,7 @@ export function initializeEngineOffscreen({ canvas, userArgs }, proxy: MainProxy
 
   registerSystem(PhysicsSystem);
 
-  registerSystem(InputSystem, { useWebXR });
+  registerSystem(EntityActionSystem, { useWebXR: false });
 
   registerSystem(StateSystem);
 
@@ -83,6 +86,7 @@ export function initializeEngineOffscreen({ canvas, userArgs }, proxy: MainProxy
   registerSystem(DebugHelpersSystem);
   registerSystem(CameraSystem);
   registerSystem(WebGLRendererSystem, { priority: 1001, canvas });
+  registerSystem(WebXRRendererSystem, { offscreen: true });
   Engine.viewportElement = Engine.renderer.domElement;
 
   Engine.engineTimer = Timer({
@@ -103,5 +107,6 @@ export function initializeEngineOffscreen({ canvas, userArgs }, proxy: MainProxy
     EngineEvents.instance.removeEventListener(ClientNetworkSystem.EVENTS.INITIALIZE, initializeNetworkEvent)
   }
   EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.INITIALIZE, initializeNetworkEvent)
-
 }
+
+receiveWorker(initializeEngineOffscreen)

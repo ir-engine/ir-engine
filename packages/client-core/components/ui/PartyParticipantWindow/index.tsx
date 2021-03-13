@@ -214,10 +214,10 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
             if (audioStream != null) {
                 audioRef.current.srcObject = new MediaStream([audioStream.track.clone()]);
                 if (peerId !== 'me_cam') {
-                    console.log("*** New mediastream created for audio track for peer id ", peerId);
+                    // console.log("*** New mediastream created for audio track for peer id ", peerId);
                     // Create positional audio and attach mediastream here
-                    console.log("MediaStreamSystem.instance?.consumers is ");
-                    console.log(MediaStreamSystem.instance?.consumers);
+                    // console.log("MediaStreamSystem.instance?.consumers is ");
+                    // console.log(MediaStreamSystem.instance?.consumers);
                 }
                 if (peerId === 'me_cam') {
                     MediaStreamSystem.instance.setAudioPaused(false);
@@ -246,24 +246,18 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
             videoRef.current.setAttribute('playsinline', 'true');
             if (videoStream) {
                 videoRef.current.srcObject = new MediaStream([videoStream.track.clone()]);
-                if (peerId === 'me_cam') {
-                    MediaStreamSystem.instance.setVideoPaused(false);
-                } else if (peerId === 'me_screen') {
-                    MediaStreamSystem.instance.setScreenShareVideoPaused(false);
-                } else if (videoStream.track.muted === true) {
-                    // toggleVideo();
-                }
-                setVideoProducerPaused(false);
             }
         }
     }, [videoStream]);
 
     useEffect(() => {
         if (peerId === 'me_cam' || peerId === 'me_screen') setAudioStreamPaused(MediaStreamSystem.instance?.audioPaused);
+        if (audioStream != null && audioRef.current != null) audioRef.current.srcObject = new MediaStream([audioStream.track.clone()]);
     }, [MediaStreamSystem.instance?.audioPaused]);
 
     useEffect(() => {
         if (peerId === 'me_cam' || peerId === 'me_screen') setVideoStreamPaused(MediaStreamSystem.instance?.videoPaused);
+        if (videoStream != null && videoRef.current != null) videoRef.current.srcObject = new MediaStream([videoStream.track.clone()]);
     }, [MediaStreamSystem.instance?.videoPaused]);
 
     const toggleVideo = async (e) => {
@@ -388,7 +382,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
                                             : audioStreamPaused ? <VolumeOff /> : <VolumeUp />}
                                     </IconButton>
                                 </Tooltip> : null}
-                            <Tooltip title="Open Picture in Picture">
+                            {harmony !== true && <Tooltip title="Open Picture in Picture">
                                 <IconButton
                                     color="secondary"
                                     size="small"
@@ -397,7 +391,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
                                 >
                                     <Launch className={styles.pipBtn}/>
                                 </IconButton>
-                            </Tooltip>
+                            </Tooltip> }
                     </div>
                     {audioProducerGlobalMute === true && <div className={styles['global-mute']}>Muted by Admin</div>}
                     {audioStream && audioProducerPaused === false && audioProducerGlobalMute === false &&

@@ -1,8 +1,9 @@
 import { EventDispatcher } from "../../common/classes/EventDispatcher";
+import { isClient } from "../../common/functions/isClient";
 import { Network } from "../../networking/classes/Network";
 import { applyNetworkStateToClient } from "../../networking/functions/applyNetworkStateToClient";
 import { ClientNetworkSystem } from "../../networking/systems/ClientNetworkSystem";
-import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
+import { WebXRRendererSystem } from "../../renderer/WebXRRendererSystem";
 import { loadScene } from "../../scene/functions/SceneLoading";
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { loadActorAvatar } from "../../templates/character/prefabs/NetworkPlayerCharacter";

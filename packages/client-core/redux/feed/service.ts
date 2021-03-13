@@ -1,5 +1,6 @@
 import { random } from 'lodash';
 import { Dispatch } from 'redux';
+import Api from '../../components/editor/Api';
 import { dispatchAlertError } from "../alert/service";
 import { client } from '../feathers';
 import {
@@ -51,7 +52,7 @@ export function getFeed(feedId: string) {
 export function addViewToFeed(feedId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      // await client.service('feed').put({feedId, creatorId});
+      await client.service('feed').patch(feedId, {});
       dispatch(addFeedView(feedId));
     } catch(err) {
       console.log(err);
@@ -60,29 +61,18 @@ export function addViewToFeed(feedId: string) {
   };
 }
 
-export function createFeed({title, description, authorId }: any) {
+export function createFeed({title, description, video, preview }: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      const feed = await client.service('feed').create({title, description, authorId, preview:'https://picsum.photos/375/210'});
-    //   const feed ={
-    //     id: '753954',
-    //     creator:{
-    //         id:'185',
-    //         avatar :'https://picsum.photos/40/40',
-    //         username: 'User username',
-    //         name: '@username',
-    //         userId: 'userId',
-    //         verified: true,
-    //     },
-    //     preview:'https://picsum.photos/375/210',
-    //     video:null,
-    //     title,
-    //     fires: 0,
-    //     stores:0,
-    //     viewsCount:  0,
-    //     description
-    // }
-      dispatch(addFeed(feed));
+      const api = new  Api();
+      const storedVideo = await api.upload(video, null);
+      const storedPreview = await api.upload(preview, null);
+      //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
+      if(storedVideo && storedPreview){
+        //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
+        const feed = await client.service('feed').create({title, description, videoId:storedVideo.file_id, previewId: storedPreview.file_id});
+        dispatch(addFeed(feed));
+      }      
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);

@@ -27,6 +27,7 @@ import { createElement } from '../functions/createElement';
 import { isWebWorker } from '../../common/functions/getEnvironment';
 import { VideoTextureProxy } from '../../worker/VideoTexture';
 import { PositionalAudioObjectProxy, AudioObjectProxy, AudioListenerProxy, AudioLoaderProxy } from '../../worker/Audio';
+import { BinaryType } from '../../common/types/NumericalTypes';
 
 
 export const Audio = isWebWorker ? AudioObjectProxy : THREE_Audio;
@@ -100,7 +101,7 @@ export class Engine {
    * Reference to the three.js perspective camera object.
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
-  static camera: PerspectiveCamera = null
+   static camera: PerspectiveCamera = null
 
   /**
    * Reference to the Transform component of the three.js camera object.
@@ -222,7 +223,25 @@ export class Engine {
 
   static createElement: any = createElement;
 
-  static hasUserEngaged: boolean = false;
+  static hasUserEngaged = false;
 
-  static useAudioSystem: boolean = false;
+  static useAudioSystem = false;
+
+  static inputState = new Map();
+  static prevInputState = new Map();
+
+  /**
+   * Input inherits from BehaviorComponent, which adds .map and .data
+   * 
+   * @property {Boolean} gamepadConnected Connection a new gamepad
+   * @property {Number} gamepadThreshold Threshold value from 0 to 1
+   * @property {Binary[]} gamepadButtons Map gamepad buttons
+   * @property {Number[]} gamepadInput Map gamepad buttons to abstract input
+   */
+  static gamepadConnected = false;
+  static gamepadThreshold = 0.1;
+  static gamepadButtons: BinaryType[] = [];
+  static gamepadInput: number[] = [];
+
+  static xrSupported: boolean = false;
 }

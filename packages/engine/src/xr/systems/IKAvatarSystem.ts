@@ -17,7 +17,7 @@ export class Avatar {
   sdkInputs: any;
   inputs: any;
   options: {};
-  debug: boolean = true;
+  debug = true;
   springBoneManager: any;
   lastModelScaleFactor: any;
   model: any;

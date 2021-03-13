@@ -324,6 +324,7 @@ const Invites = (props: Props): any => {
                 onClose={() => {
                     setRightDrawerOpen(false);
                     updateInviteTarget('user', null);
+                    setTabIndex(0);
                 }}
                 onOpen={() => {
                 }}
@@ -451,6 +452,7 @@ const Invites = (props: Props): any => {
                                 indicatorColor="primary"
                                 textColor="primary"
                                 aria-label="Invite Type"
+                                className={styles['target-type']}
                             >
 
                                 <Tab
@@ -567,7 +569,10 @@ const Invites = (props: Props): any => {
                                         >
                                             {friends.map((friend) => {
                                                 return <MenuItem
-                                                    className={styles['flex-center']}
+                                                    className={classNames({
+                                                        [styles['flex-center']]: true,
+                                                        [styles['friend-selector']]: true
+                                                    })}
                                                     key={friend.id}
                                                     value={friend.id}
                                                 >
@@ -592,33 +597,33 @@ const Invites = (props: Props): any => {
                         }
                     </AccordionDetails>
                 </Accordion>
-                <Accordion className={styles.rightDrawerAccordion} expanded={selectedAccordion === 'scenes'} onChange={handleAccordionSelect('scenes')}>
-                    <AccordionSummary
-                        id="scenes-header"
-                        expandIcon={<ExpandMore/>}
-                        aria-controls="scenes-content"
-                    >
-                        <Public/>
-                        <Typography>Scenes</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails className={styles['list-container']}>
-                        <GridList
-                            cellHeight={160}
-                            className={styles['location-grid']}
-                            cols={4}
-                        >
-                            {locations.map((location) => {
-                                return <GridListTile
-                                    key={location.id}
-                                    cols={1}
-                                    onClick={() => provisionInstance(location)}
-                                >
-                                    <div>{location.name}</div>
-                                </GridListTile>;
-                            })}
-                        </GridList>
-                    </AccordionDetails>
-                </Accordion>
+                {/*<Accordion className={styles.rightDrawerAccordion} expanded={selectedAccordion === 'scenes'} onChange={handleAccordionSelect('scenes')}>*/}
+                {/*    <AccordionSummary*/}
+                {/*        id="scenes-header"*/}
+                {/*        expandIcon={<ExpandMore/>}*/}
+                {/*        aria-controls="scenes-content"*/}
+                {/*    >*/}
+                {/*        <Public/>*/}
+                {/*        <Typography>Scenes</Typography>*/}
+                {/*    </AccordionSummary>*/}
+                {/*    <AccordionDetails className={styles['list-container']}>*/}
+                {/*        <GridList*/}
+                {/*            cellHeight={160}*/}
+                {/*            className={styles['location-grid']}*/}
+                {/*            cols={4}*/}
+                {/*        >*/}
+                {/*            {locations.map((location) => {*/}
+                {/*                return <GridListTile*/}
+                {/*                    key={location.id}*/}
+                {/*                    cols={1}*/}
+                {/*                    onClick={() => provisionInstance(location)}*/}
+                {/*                >*/}
+                {/*                    <div>{location.name}</div>*/}
+                {/*                </GridListTile>;*/}
+                {/*            })}*/}
+                {/*        </GridList>*/}
+                {/*    </AccordionDetails>*/}
+                {/*</Accordion>*/}
             </SwipeableDrawer>
         </div>
     );

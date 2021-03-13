@@ -97,7 +97,6 @@ export async function createTransport(direction: string, channelType?: string, c
                     paused,
                     appData
                 });
-                console.log('Got new producer: ' + id);
                 if (error) {
                     errback();
                     console.log(error);
@@ -304,6 +303,10 @@ export async function endVideoChat(options: { leftParty?: boolean, endConsumers?
 
 export function resetProducer(): void {
     if (MediaStreamSystem) {
+        if (MediaStreamSystem?.instance?.mediaStream != null) {
+            const tracks = MediaStreamSystem.instance.mediaStream.getTracks();
+            tracks.forEach((track) => track.stop());
+        }
         MediaStreamSystem.instance.camVideoProducer = null;
         MediaStreamSystem.instance.camAudioProducer = null;
         MediaStreamSystem.instance.screenVideoProducer = null;
@@ -456,6 +459,10 @@ export async function leave(instance: boolean): Promise<boolean> {
             }
             networkTransport.lastPollSyncData = {};
             if (MediaStreamSystem) {
+                if (MediaStreamSystem?.instance?.mediaStream != null) {
+                    const tracks = MediaStreamSystem.instance.mediaStream.getTracks();
+                    tracks.forEach((track) => track.stop());
+                }
                 MediaStreamSystem.instance.camVideoProducer = null;
                 MediaStreamSystem.instance.camAudioProducer = null;
                 MediaStreamSystem.instance.screenVideoProducer = null;

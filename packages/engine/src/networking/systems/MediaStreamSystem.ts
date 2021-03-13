@@ -59,6 +59,7 @@ export class MediaStreamSystem extends System {
    * @returns Updated Pause state.
    */
   public setVideoPaused (state: boolean): boolean {
+    console.log('setVideoPaused');
     this.videoPaused = state;
     return this.videoPaused;
   }
@@ -98,6 +99,8 @@ export class MediaStreamSystem extends System {
    * @returns Updated Pause state.
    */
   public toggleVideoPaused (): boolean {
+    console.log('toggleVideoPaused');
+    console.log(this.videoPaused);
     this.videoPaused = !this.videoPaused;
     return this.videoPaused;
   }
@@ -216,24 +219,17 @@ export class MediaStreamSystem extends System {
    * @param peerId ID to be used to find peer element in which media stream will be added.
    */
   static addVideoAudio (mediaStream: { track: { clone: () => MediaStreamTrack }; kind: string }, peerId: any): void {
-    console.log('addVideoAudio');
-    console.log(mediaStream);
-    console.log(peerId);
     if (!(mediaStream && mediaStream.track)) {
       return;
     }
     const elementID = `${peerId}_${mediaStream.kind}`;
-    console.log(`elementId: ${elementID}`);
     let el = document.getElementById(elementID) as any;
-    console.log(el);
 
     // set some attributes on our audio and video elements to make
     // mobile Safari happy. note that for audio to play you need to be
     // capturing from the mic/camera
     if (mediaStream.kind === 'video') {
-      console.log('Creating video element with ID ' + elementID);
       if (el === null) {
-        console.log(`Creating video element for user with ID: ${peerId}`);
         el = document.createElement('video');
         el.id = `${peerId}_${mediaStream.kind}`;
         el.autoplay = true;
@@ -242,18 +238,9 @@ export class MediaStreamSystem extends System {
       }
 
       // TODO: do i need to update video width and height? or is that based on stream...?
-      console.log(`Updating video source for user with ID: ${peerId}`);
-      console.log('mediaStream track:');
-      console.log(mediaStream.track);
-      console.log('mediaStream track clone:');
-      console.log(mediaStream.track.clone());
       el.srcObject = new MediaStream([mediaStream.track.clone()]);
-      console.log('srcObject:');
-      console.log(el.srcObject.getTracks());
       el.mediaStream = mediaStream;
 
-      console.log('video el before play:');
-      console.log(el);
       // let's "yield" and return before playing, rather than awaiting on
       // play() succeeding. play() will not succeed on a producer-paused
       // track until the producer unpauses.
@@ -270,7 +257,6 @@ export class MediaStreamSystem extends System {
       // Positional Audio Works in Firefox:
       // Global Audio:
       if (el === null) {
-        console.log(`Creating audio element for user with ID: ${peerId}`);
         el = document.createElement('audio');
         el.id = `${peerId}_${mediaStream.kind}`;
         document.body.appendChild(el);
@@ -278,7 +264,6 @@ export class MediaStreamSystem extends System {
         el.setAttribute('autoplay', 'true');
       }
 
-      console.log(`Updating <audio> source object for client with ID: ${peerId}`);
       el.srcObject = new MediaStream([mediaStream.track.clone()]);
       el.mediaStream = mediaStream;
       el.volume = 0; // start at 0 and let the three.js scene take over from here...

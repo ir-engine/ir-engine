@@ -302,7 +302,7 @@ const Harmony = (props: Props): any => {
         audio: false,
         video: false
     });
-    const [selectedAccordion, setSelectedAccordion] = useState('');
+    const [selectedAccordion, setSelectedAccordion] = useState('friends');
     const [tabIndex, setTabIndex] = useState(0);
     const [videoPaused, setVideoPaused] = useState(false);
     const [audioPaused, setAudioPaused] = useState(false);
@@ -312,6 +312,7 @@ const Harmony = (props: Props): any => {
         width: window.innerWidth
     });
     const [engineInitialized, setEngineInitialized] = useState(false);
+    const [lastConnectToWorldId, _setLastConnectToWorldId] = useState('');
 
     const instanceLayerUsers = userState.get('layerUsers') ?? [];
     const channelLayerUsers = userState.get('channelLayerUsers') ?? [];
@@ -341,9 +342,15 @@ const Harmony = (props: Props): any => {
         _setChannelAwaitingProvision(value);
     }
 
+    const setLastConnectToWorldId = value => {
+        lastConnectToWorldIdRef.current = value;
+        _setLastConnectToWorldId(value);
+    }
+
     const producerStartingRef = useRef(producerStarting);
     const activeAVChannelIdRef = useRef(activeAVChannelId);
     const channelAwaitingProvisionRef = useRef(channelAwaitingProvision);
+    const lastConnectToWorldIdRef = useRef(lastConnectToWorldId);
     const videoEnabled = isHarmonyPage === true ? true : currentLocation.locationSettings ? currentLocation.locationSettings.videoEnabled : false;
     const isCamVideoEnabled = mediastream.get('isCamVideoEnabled');
     const isCamAudioEnabled = mediastream.get('isCamAudioEnabled');
@@ -363,13 +370,7 @@ const Harmony = (props: Props): any => {
         return () => {
             if (EngineEvents.instance != null) {
                 setEngineInitialized(false);
-                EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
-                    await toggleAudio(activeAVChannelIdRef.current);
-                    await toggleVideo(activeAVChannelIdRef.current);
-                    updateChannelTypeState();
-                    updateCamVideoState();
-                    updateCamAudioState();
-                });
+                EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, connectToWorldHandler);
 
                 EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
                     if (e.instance === true) resetChannelServer();
@@ -466,7 +467,7 @@ const Harmony = (props: Props): any => {
         setEditingMessage(message);
     };
 
-    const packageMessage = (event: any): void => {
+    const packageMessage = (): void => {
         if (composingMessage.length > 0) {
             createMessage({
                 targetObjectId: targetObject.id,
@@ -486,14 +487,19 @@ const Harmony = (props: Props): any => {
         setComposingMessage('');
     };
 
-    const createEngineListeners = (): void => {
-        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
+    const connectToWorldHandler = async(): Promise<void> => {
+        if (lastConnectToWorldIdRef.current !== activeAVChannelIdRef.current) {
+            setLastConnectToWorldId(activeAVChannelIdRef.current);
             await toggleAudio(activeAVChannelIdRef.current);
             await toggleVideo(activeAVChannelIdRef.current);
             updateChannelTypeState();
             updateCamVideoState();
             updateCamAudioState();
-        });
+        }
+    }
+
+    const createEngineListeners = (): void => {
+        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, connectToWorldHandler);
 
         EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
             if (e.instance === true) resetChannelServer();
@@ -501,6 +507,7 @@ const Harmony = (props: Props): any => {
 
         EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LEAVE_WORLD, () => {
             resetChannelServer();
+            setLastConnectToWorldId('');
             if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('');
             updateChannelTypeState();
             updateCamVideoState();
@@ -852,12 +859,11 @@ const Harmony = (props: Props): any => {
                          if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
                      } else openDetails(e, 'party', party)}}
             >
-                <PeopleOutline/>
+                <PeopleOutline className={styles['icon-margin-right']}/>
                 <span>Party</span>
                 <div className={classNames({
                     [styles.activeAVCall]: party != null && isActiveAVCall('party', party.id)
                 })} />
-                <div>{party?.id}</div>
                 { party != null && party.id != null && party.id !== '' && <ListItemIcon className={styles.groupEdit} onClick={(e) => openDetails(e,'party', party)}><Settings/></ListItemIcon>}
             </div>
             { selfUser.instanceId != null && <div className={classNames({
@@ -871,7 +877,7 @@ const Harmony = (props: Props): any => {
                     if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
                 }}
             >
-                <Grain/>
+                <Grain className={styles['icon-margin-right']}/>
                 <span>Here</span>
                 <div className={classNames({
                     [styles.activeAVCall]: isActiveAVCall('instance', selfUser.instanceId)
@@ -885,7 +891,7 @@ const Harmony = (props: Props): any => {
                 expandIcon={<ExpandMore/>}
                 aria-controls="friends-content"
             >
-                <Group/>
+                <Group className={styles['icon-margin-right']}/>
                 <Typography>Friends</Typography>
             </AccordionSummary>
             <AccordionDetails className={styles['list-container']}>
@@ -919,6 +925,7 @@ const Harmony = (props: Props): any => {
                                 <div className={classNames({
                                     [styles.activeAVCall]: isActiveAVCall('user', friend.id)
                                 })} />
+                                <ListItemIcon className={styles.groupEdit} onClick={(e) => openDetails(e,'user', friend)}><Settings/></ListItemIcon>
                             </ListItem>
                             {index < friends.length - 1 && <Divider/>}
                         </div>;
@@ -935,7 +942,7 @@ const Harmony = (props: Props): any => {
                 expandIcon={<ExpandMore/>}
                 aria-controls="groups-content"
             >
-                <GroupWork/>
+                <GroupWork className={styles['icon-margin-right']}/>
                 <Typography>Groups</Typography>
             </AccordionSummary>
             <AccordionDetails className={styles['list-container']}>
@@ -986,7 +993,7 @@ const Harmony = (props: Props): any => {
                     expandIcon={<ExpandMore/>}
                     aria-controls="layer-user-content"
                 >
-                    <Public/>
+                    <Public className={styles['icon-margin-right']}/>
                     <Typography>Layer Users</Typography>
                 </AccordionSummary>
                 <AccordionDetails className={classNames({
@@ -1072,6 +1079,7 @@ const Harmony = (props: Props): any => {
                     setSelectorsOpen(false);
                 }}
                 onOpen={() => {
+                    setSelectedAccordion('friends')
                 }}
             >
                 {chatSelectors}
@@ -1079,6 +1087,10 @@ const Harmony = (props: Props): any => {
             { (isMobileOrTablet() !== true && dimensions.width > 768) && chatSelectors}
             <div className={styles['chat-window']}>
                 <div className={styles['harmony-header']}>
+                    { (isMobileOrTablet() === true || dimensions.width <= 768) && <div className={classNames({
+                        [styles['chat-toggle']]: true,
+                        [styles.iconContainer]: true
+                    })} onClick={() => setSelectorsOpen(true)}><Group /></div> }
                     { targetChannelId?.length > 0 && <header className={styles.mediaControls}>
                         { activeAVChannelId === '' &&
                             <div className={classNames({
@@ -1111,10 +1123,6 @@ const Harmony = (props: Props): any => {
                     { targetChannelId?.length === 0 && <div />}
 
                     <div className={styles.controls}>
-                        { (isMobileOrTablet() === true || dimensions.width <= 768) && <div className={classNames({
-                            [styles['chat-toggle']]: true,
-                            [styles.iconContainer]: true
-                        })} onClick={() => setSelectorsOpen(true)}><Group /></div> }
                         <div className={classNames({
                             [styles['invite-toggle']]: true,
                             [styles.iconContainer]: true
@@ -1131,7 +1139,7 @@ const Harmony = (props: Props): any => {
                         <Grid item className={
                             classNames({
                                 [styles['grid-item']]: true,
-                                [styles.single]: layerUsers.length <= 1,
+                                [styles.single]: layerUsers.length == null || layerUsers.length <= 1,
                                 [styles.two]: layerUsers.length === 2,
                                 [styles.four]: layerUsers.length === 3 && layerUsers.length === 4,
                                 [styles.six]: layerUsers.length === 5 && layerUsers.length === 6,
@@ -1150,7 +1158,7 @@ const Harmony = (props: Props): any => {
                                   className={
                                 classNames({
                                     [styles['grid-item']]: true,
-                                    [styles.single]: layerUsers.length <= 1,
+                                    [styles.single]: layerUsers.length == null || layerUsers.length <= 1,
                                     [styles.two]: layerUsers.length === 2,
                                     [styles.four]: layerUsers.length === 3 && layerUsers.length === 4,
                                     [styles.six]: layerUsers.length === 5 && layerUsers.length === 6,
@@ -1279,6 +1287,12 @@ const Harmony = (props: Props): any => {
                                 value={composingMessage}
                                 inputProps={{
                                     maxLength: 1000
+                                }}
+                                onKeyPress={(e) => {
+                                    if (e.shiftKey === false && e.charCode === 13) {
+                                        e.preventDefault()
+                                        packageMessage();
+                                    }
                                 }}
                                 onChange={handleComposingMessageChange}
                             />

@@ -25,9 +25,9 @@ export type XREventType =
   | 'squeezeend'
   | 'reset'
 
-type XRSpace = EventTarget
+export type XRSpace = EventTarget
 
-interface XRRenderState {
+export interface XRRenderState {
   depthNear?: number;
   depthFar?: number;
   inlineVerticalFieldOfView?: number;
@@ -43,7 +43,7 @@ export interface XRInputSource {
   profiles: string[];
 }
 
-interface XRSessionInit {
+export interface XRSessionInit {
   optionalFeatures?: string[];
   requiredFeatures?: string[];
 }
@@ -76,8 +76,8 @@ export interface XRReferenceSpace extends XRSpace {
   onreset: any;
 }
 
-type XRPlaneSet = Set<XRPlane>
-type XRAnchorSet = Set<XRAnchor>
+export type XRPlaneSet = Set<XRPlane>
+export type XRAnchorSet = Set<XRAnchor>
 
 export interface XRFrame {
   session: XRSession;
@@ -96,7 +96,7 @@ export interface XRFrame {
   };
 }
 
-interface XRViewerPose extends XRPose {
+export interface XRViewerPose extends XRPose {
   views: XRView[];
 }
 
@@ -121,7 +121,7 @@ export interface XRWebGLLayer {
   getViewport: any;
 }
 
-declare class XRRigidTransform {
+export declare class XRRigidTransform {
   constructor (matrix: Float32Array | DOMPointInit, direction?: DOMPointInit)
   position: DOMPointReadOnly
   orientation: DOMPointReadOnly
@@ -129,77 +129,77 @@ declare class XRRigidTransform {
   inverse: XRRigidTransform
 }
 
-interface XRView {
+export interface XRView {
   eye: XREye;
   projectionMatrix: Float32Array;
   transform: XRRigidTransform;
 }
 
-interface XRInputSourceChangeEvent {
+export interface XRInputSourceChangeEvent {
   session: XRSession;
   removed: XRInputSource[];
   added: XRInputSource[];
 }
 
-interface XRInputSourceEvent extends Event {
+export interface XRInputSourceEvent extends Event {
   readonly frame: XRFrame;
   readonly inputSource: XRInputSource;
 }
 
 // Experimental(er) features
-declare class XRRay {
+export declare class XRRay {
   constructor (transformOrOrigin: XRRigidTransform | DOMPointInit, direction?: DOMPointInit)
   origin: DOMPointReadOnly
   direction: DOMPointReadOnly
   matrix: Float32Array
 }
 
-declare enum XRHitTestTrackableType {
+export declare enum XRHitTestTrackableType {
   'point',
   'plane'
 }
 
-interface XRHitResult {
+export interface XRHitResult {
   hitMatrix: Float32Array;
 }
 
-interface XRTransientInputHitTestResult {
+export interface XRTransientInputHitTestResult {
   readonly inputSource: XRInputSource;
   readonly results: XRHitTestResult[];
 }
 
-interface XRHitTestResult {
+export interface XRHitTestResult {
   getPose(baseSpace: XRSpace): XRPose | undefined;
   // When anchor system is enabled
   createAnchor?(pose: XRRigidTransform): Promise<XRAnchor>;
 }
 
-interface XRHitTestSource {
+export interface XRHitTestSource {
   cancel(): void;
 }
 
-interface XRTransientInputHitTestSource {
+export interface XRTransientInputHitTestSource {
   cancel(): void;
 }
 
-interface XRHitTestOptionsInit {
+export interface XRHitTestOptionsInit {
   space: XRSpace;
   entityTypes?: XRHitTestTrackableType[];
   offsetRay?: XRRay;
 }
 
-interface XRTransientInputHitTestOptionsInit {
+export interface XRTransientInputHitTestOptionsInit {
   profile: string;
   entityTypes?: XRHitTestTrackableType[];
   offsetRay?: XRRay;
 }
 
-interface XRAnchor {
+export interface XRAnchor {
   anchorSpace: XRSpace;
   delete(): void;
 }
 
-interface XRPlane {
+export interface XRPlane {
   orientation: 'Horizontal' | 'Vertical';
   planeSpace: XRSpace;
   polygon: DOMPointReadOnly[];
