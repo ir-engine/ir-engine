@@ -99,7 +99,8 @@
         overflow-y: auto;
     }
 
-    .groupUserDeleteInit {
+    .groupUserDeleteInit,
+    .groupUserMakeOwnerInit {
         margin: 0 5px 0 auto;
         width: 40px;
     }
@@ -110,6 +111,22 @@
         & > button {
             width: 40px;
             margin: 0 5px;
+        }
+    }
+
+    .userConfirmButtons {
+        display: flex;
+        flex-direction: column;
+        margin-left: auto;
+        padding-left: 5px;
+        align-items: end;
+
+        & > button {
+            font-size: 12px;
+            max-width: 100px;
+            margin-top: 0;
+            margin-bottom: 5px;
+            padding: 6px;
         }
     }
 

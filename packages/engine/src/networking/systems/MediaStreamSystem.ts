@@ -59,6 +59,7 @@ export class MediaStreamSystem extends System {
    * @returns Updated Pause state.
    */
   public setVideoPaused (state: boolean): boolean {
+    console.log('setVideoPaused');
     this.videoPaused = state;
     return this.videoPaused;
   }
@@ -98,6 +99,8 @@ export class MediaStreamSystem extends System {
    * @returns Updated Pause state.
    */
   public toggleVideoPaused (): boolean {
+    console.log('toggleVideoPaused');
+    console.log(this.videoPaused);
     this.videoPaused = !this.videoPaused;
     return this.videoPaused;
   }
