@@ -1,4 +1,4 @@
-import { initializeEngine } from "@xr3ngine/engine/src/initialize";
+import { initializeServer } from "@xr3ngine/engine/src/initialize";
 import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/CharacterStateSchema";
 import { DefaultNetworkSchema } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
 import { SocketWebRTCServerTransport } from "./transports/SocketWebRTCServerTransport";
@@ -29,6 +29,6 @@ export class WebRTCGameServer {
   constructor(app: any) {
     (options.networking as any).app = app;
     WebRTCGameServer.instance = this;
-    initializeEngine(options);
+    initializeServer(options);
   }
 }
