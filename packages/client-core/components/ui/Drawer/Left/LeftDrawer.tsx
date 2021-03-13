@@ -36,9 +36,6 @@ import {
     banUserFromLocation
 } from '../../../../redux/location/service';
 import {
-    Accordion,
-    AccordionSummary,
-    AccordionDetails,
     Avatar,
     Button,
     Divider,
@@ -48,24 +45,16 @@ import {
     ListItemText,
     SwipeableDrawer,
     TextField,
-    Tooltip,
-    Typography
 } from '@material-ui/core';
 import {
     Add,
     ArrowLeft,
     Block,
-    Clear,
     Delete,
     Edit,
-    ExpandMore,
     Forum,
-    Group,
     GroupAdd,
-    GroupWork,
-    PersonAdd,
-    Public,
-    SupervisedUserCircle
+    SupervisorAccount
 } from "@material-ui/icons";
 import _ from 'lodash';
 import { Group as GroupType } from '@xr3ngine/common/interfaces/Group';
@@ -721,21 +710,22 @@ const LeftDrawer = (props: Props): any => {
                                                 (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
                                                 user.id !== partyUser.userId &&
                                                 <Button variant="contained"
+                                                        className={styles.groupUserMakeOwnerInit}
                                                         color="primary"
                                                         onClick={(e) => showTransferPartyOwnerConfirm(e, partyUser.id)}
                                                 >
-                                                    Make Owner
+                                                    <SupervisorAccount />
                                                 </Button>
                                             }
                                             {
                                                 partyUserDeletePending !== partyUser.id &&
                                                 partyTransferOwnerPending === partyUser.id &&
-                                                <div>
+                                                <div className={styles.userConfirmButtons}>
                                                     <Button variant="contained"
                                                             color="primary"
                                                             onClick={(e) => confirmTransferPartyOwner(e, partyUser.id)}
                                                     >
-                                                        Confirm
+                                                        Make Owner
                                                     </Button>
                                                     <Button variant="contained"
                                                             color="secondary"
@@ -766,7 +756,7 @@ const LeftDrawer = (props: Props): any => {
                                             {
                                                 partyTransferOwnerPending !== partyUser.id &&
                                                 partyUserDeletePending === partyUser.id &&
-                                                <div>
+                                                <div className={styles.userConfirmButtons}>
                                                     {
                                                         user.id !== partyUser.userId &&
                                                         <Button variant="contained"

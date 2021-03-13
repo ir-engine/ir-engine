@@ -3,7 +3,6 @@ import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
 import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
 import { CameraSystem } from './camera/systems/CameraSystem';
-import { isClient } from './common/functions/isClient';
 import { Timer } from './common/functions/Timer';
 import { DebugHelpersSystem } from './debug/systems/DebugHelpersSystem';
 import { Engine, AudioListener } from './ecs/classes/Engine';
@@ -27,19 +26,25 @@ import { CharacterInputSchema } from './templates/character/CharacterInputSchema
 import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
-import { EngineEvents, addIncomingEvents, addOutgoingEvents } from './ecs/classes/EngineEvents';
+import { EngineEvents, addIncomingEvents, addOutgoingEvents, EngineEventsProxy } from './ecs/classes/EngineEvents';
 import { ClientInputSystem } from './input/systems/ClientInputSystem';
+import { WebXRRendererSystem } from './renderer/WebXRRendererSystem';
+import { createWorker, WorkerProxy } from './worker/MessageQueue';
+import { Network } from './networking/classes/Network';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 
-const webXRShouldBeAvailable = typeof navigator === 'undefined' || /Version\/[\d\.]+.*Safari/.test(window.navigator.userAgent);
+if(typeof window !== 'undefined') {
+  // Add iOS and safari flag to window object -- To use it for creating an iOS compatible WebGLRenderer for example
+  (window as any).iOS = !window.MSStream && /iPad|iPhone|iPod/.test(navigator.userAgent);
+  (window as any).safariWebBrowser = !window.MSStream && /Safari/.test(navigator.userAgent);
+}
 
 export const DefaultInitializationOptions = {
   input: {
     schema: CharacterInputSchema,
-    useWebXR: webXRShouldBeAvailable,
   },
   networking: {
     schema: DefaultNetworkSchema
@@ -49,59 +54,58 @@ export const DefaultInitializationOptions = {
   },
 };
 
-export async function initializeEngine(initOptions: any = DefaultInitializationOptions): Promise<void> {
+export const initializeEngine = async (initOptions: any = DefaultInitializationOptions): Promise<void> => {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
+  const canvas = options.renderer.canvas || createCanvas();
 
-  new EngineEvents();
-
-  addIncomingEvents()
-  addOutgoingEvents()
+  Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr')
+  const useOffscreen = !Engine.xrSupported && 'transferControlToOffscreen' in canvas;
   
-  // Create a new world -- this holds all of our simulation state, entities, etc
+  if(useOffscreen) {
+    const workerProxy: WorkerProxy = await createWorker(
+      // @ts-ignore
+      new Worker(new URL('./worker/initializeOffscreen.ts', import.meta.url)),
+      (options.renderer.canvas || createCanvas()),
+      {
+
+      }
+    );
+    EngineEvents.instance = new EngineEventsProxy(workerProxy);
+    Engine.viewportElement = options.renderer.canvas;
+
+    const onNetworkConnect = (ev: any) => {
+      EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.INITIALIZE, userId: Network.instance.userId });
+      EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
+    }
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
+
+  } else {
+    EngineEvents.instance = new EngineEvents();
+    Engine.scene = new Scene();
+    addIncomingEvents()
+  }
+  addOutgoingEvents()
+
   initialize();
 
-  // Create a new three.js scene
-  const scene = new Scene();
-
-  // Add the three.js scene to our manager -- it is now available anywhere
-  Engine.scene = scene;
-
-  if(typeof window !== 'undefined') {
-    // Add iOS and safari flag to window object -- To use it for creating an iOS compatible WebGLRenderer for example
-    (window as any).iOS = !window.MSStream && /iPad|iPhone|iPod/.test(navigator.userAgent);
-    (window as any).safariWebBrowser = !window.MSStream && /Safari/.test(navigator.userAgent);
-  }
-
-  // Networking
   const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
-  if (isClient) {
-    registerSystem(ClientNetworkSystem, { ...networkSystemOptions, priority: -1 });
-  } else {
-    registerSystem(ServerNetworkIncomingSystem, { ...networkSystemOptions, priority: -1 });
-    registerSystem(ServerNetworkOutgoingSystem, { ...networkSystemOptions, priority: 10000 });
-  }
-
-  // Do we want audio and video streams?
+  registerSystem(ClientNetworkSystem, { ...networkSystemOptions, priority: -1 });
   registerSystem(MediaStreamSystem);
+  registerSystem(ClientInputSystem, { useWebXR: Engine.xrSupported });
 
-  registerSystem(AssetLoadingSystem);
+  if(!useOffscreen) {
 
-  registerSystem(PhysicsSystem);
+    registerSystem(AssetLoadingSystem);
+    registerSystem(PhysicsSystem);
+    registerSystem(StateSystem);
+    registerSystem(ServerSpawnSystem, { priority: 899 });
+    registerSystem(TransformSystem, { priority: 900 });
 
-  registerSystem(StateSystem);
-
-  registerSystem(ServerSpawnSystem, { priority: 899 });
-
-  registerSystem(TransformSystem, { priority: 900 });
-
-  if (isClient) {
     Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.3, 750);
     Engine.scene.add(Engine.camera);
     registerSystem(HighlightSystem);
-
-    registerSystem(ClientInputSystem, { useWebXR: DefaultInitializationOptions.input.useWebXR });
-    registerSystem(EntityActionSystem, { useWebXR: DefaultInitializationOptions.input.useWebXR });
-    
+    registerSystem(EntityActionSystem, { useWebXR: Engine.xrSupported });
+  
     Engine.audioListener = new AudioListener();
     Engine.camera.add(Engine.audioListener);
     // registerSystem(PositionalAudioSystem);
@@ -110,11 +114,43 @@ export async function initializeEngine(initOptions: any = DefaultInitializationO
     registerSystem(ParticleSystem);
     registerSystem(DebugHelpersSystem);
     registerSystem(CameraSystem);
-    registerSystem(WebGLRendererSystem, { priority: 1001, canvas: options.renderer.canvas || createCanvas() });
+    registerSystem(WebGLRendererSystem, { priority: 1001, canvas });
+    registerSystem(WebXRRendererSystem, { offscreen: useOffscreen });
     Engine.viewportElement = Engine.renderer.domElement;
+    Engine.renderer.xr.enabled = Engine.xrSupported;
   }
 
-  // Start our timer!
+  Engine.engineTimerTimeout = setTimeout(() => {
+    Engine.engineTimer = Timer(
+      {
+        networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
+        fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
+        update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
+      }, Engine.physicsFrameRate, Engine.networkFramerate).start();
+  }, 1000);
+}
+
+export const initializeServer = async (initOptions: any = DefaultInitializationOptions): Promise<void> => {
+  const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
+
+  EngineEvents.instance = new EngineEvents();
+  Engine.scene = new Scene();
+
+  addIncomingEvents()
+  addOutgoingEvents()
+
+  initialize();
+
+  const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
+  registerSystem(ServerNetworkIncomingSystem, { ...networkSystemOptions, priority: -1 });
+  registerSystem(ServerNetworkOutgoingSystem, { ...networkSystemOptions, priority: 10000 });
+  registerSystem(MediaStreamSystem);
+  registerSystem(AssetLoadingSystem);
+  registerSystem(PhysicsSystem);
+  registerSystem(StateSystem);
+  registerSystem(ServerSpawnSystem, { priority: 899 });
+  registerSystem(TransformSystem, { priority: 900 });
+
   Engine.engineTimerTimeout = setTimeout(() => {
     Engine.engineTimer = Timer(
       {

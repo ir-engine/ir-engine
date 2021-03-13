@@ -32,7 +32,8 @@ import {
 import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import { VrIcon } from "../Icons/Vricon";
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { startXR } from "@xr3ngine/engine/src/input/functions/WebXRFunctions";
+import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
+import { WebXRRendererSystem } from "@xr3ngine/engine/src/renderer/WebXRRendererSystem";
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -66,11 +67,11 @@ const MediaIconsBox = (props) => {
     const isCamVideoEnabled = mediastream.get('isCamVideoEnabled');
     const isCamAudioEnabled = mediastream.get('isCamAudioEnabled');
 
-    (navigator as any).xr?.isSessionSupported('immersive-vr').then(supported => {
-      setXRSupported(supported);
-      if(supported && Engine.renderer != null && Engine.renderer.xr != null)
-        Engine.renderer.xr.enabled = true;
-    })
+    const onEngineLoaded = () => {
+      setXRSupported(Engine.xrSupported);
+      document.removeEventListener('ENGINE_LOADED', onEngineLoaded)
+    }
+    document.addEventListener('ENGINE_LOADED', onEngineLoaded)
 
     const checkMediaStream = async (partyId: string) => {
         if (!MediaStreamSystem.instance.mediaStream)
@@ -129,7 +130,7 @@ const MediaIconsBox = (props) => {
         updateCamVideoState();
     };
 
-    const handleVRClick = () => startXR();
+    const handleVRClick = () => EngineEvents.instance.dispatchEvent({ type: WebXRRendererSystem.EVENTS.XR_START });
 
     const xrEnabled = Engine.renderer?.xr.enabled === true;
     const VideocamIcon = isCamVideoEnabled ? Videocam : VideocamOff;

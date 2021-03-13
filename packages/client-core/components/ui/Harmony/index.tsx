@@ -302,7 +302,7 @@ const Harmony = (props: Props): any => {
         audio: false,
         video: false
     });
-    const [selectedAccordion, setSelectedAccordion] = useState('');
+    const [selectedAccordion, setSelectedAccordion] = useState('friends');
     const [tabIndex, setTabIndex] = useState(0);
     const [videoPaused, setVideoPaused] = useState(false);
     const [audioPaused, setAudioPaused] = useState(false);
@@ -864,7 +864,6 @@ const Harmony = (props: Props): any => {
                 <div className={classNames({
                     [styles.activeAVCall]: party != null && isActiveAVCall('party', party.id)
                 })} />
-                <div>{party?.id}</div>
                 { party != null && party.id != null && party.id !== '' && <ListItemIcon className={styles.groupEdit} onClick={(e) => openDetails(e,'party', party)}><Settings/></ListItemIcon>}
             </div>
             { selfUser.instanceId != null && <div className={classNames({
@@ -1080,6 +1079,7 @@ const Harmony = (props: Props): any => {
                     setSelectorsOpen(false);
                 }}
                 onOpen={() => {
+                    setSelectedAccordion('friends')
                 }}
             >
                 {chatSelectors}
