@@ -62,10 +62,12 @@ export const onAddedInCar = (entity: Entity, entityCar: Entity, seat: number, de
   // CLIENT
 //  addComponent(entity, EnteringVehicle);
   setState(entity, { state: CharacterStateTypes.DRIVING });
+
   changeAnimation(entity, {
-    animationId: 'entering_car',
+    animationId: CharacterStateTypes.ENTERING_VEHICLE,
 	  transitionDuration: 0.3
    })
+
   //
   // LocalPlayerOnly
   if (Network.instance.userNetworkId != networkDriverId) return;

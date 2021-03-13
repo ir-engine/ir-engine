@@ -69,10 +69,12 @@ export const onAddEndingInCar = (entity: Entity, entityCar: Entity, seat: number
   }
 
   if (isServer) return;
+
   if (timeOut) {
     changeAnimation(entity, {
-      animationId: 'driving',
+      animationId: CharacterStateTypes.DRIVING,
   	  transitionDuration: 0.3
      })
   }
+
 };

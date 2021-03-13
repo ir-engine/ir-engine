@@ -9,10 +9,26 @@ import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 const { DRIVING, ENTERING_VEHICLE, EXITING_VEHICLE } = CharacterStateTypes;
 
 const animationsSchema = [
-  { type: [DRIVING],          name: 'idle',              maxSpeed: 1, axis: 'all',direction: 0,  grow_from: false,to__subsideFrom: 0,  to: 50   },
-  { type: [ENTERING_VEHICLE], name: 'run_backward',      maxSpeed: 1, axis: 'z',  direction: -1, grow_from: 50, to__subsideFrom: 100, to: false },
-  { type: [EXITING_VEHICLE],  name: 'run_forward',       maxSpeed: 1, axis: 'z',  direction: 1,  grow_from: 50, to__subsideFrom: 100, to: false },
+  {
+    type: [DRIVING], name: 'driving', axis: 'xyz', speed: 1, customProperties: ['weight', 'dontHasHit'],
+    value:      [ -0.5, 0, 0.5 ],
+    weight:     [  0 ,  1,   0 ],
+    dontHasHit: [  0 ,  0,   0 ]
+  },{
+    type: [ENTERING_VEHICLE], name: 'entering_car', axis:'xyz', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    value:      [ -1,   0,   1 ],
+    weight:     [  0 ,  0,   0 ],
+    dontHasHit: [  1 ,  1,   1 ]
+  },
+  {
+    type: [EXITING_VEHICLE], name: 'exiting_car', axis:'y', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    value:      [  -1  ,   0  ],
+    weight:     [   1 ,    0  ],
+    dontHasHit: [   1  ,   0  ]
+  }
 ];
+
+
 
 const getDrivingValues: Behavior = (entity, args: {}, deltaTime: number): any => {
   const values = { test: 1 }
@@ -51,23 +67,6 @@ const getDrivingValues: Behavior = (entity, args: {}, deltaTime: number): any =>
 const initializeDriverState: Behavior = (entity, args: { x?: number, y?: number, z?: number }) => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	if (!actor.initialized) return;
-	if (actor.velocitySimulator === undefined) {
-		actor.velocitySimulator.init();
-	}
-		//console.log(actor.mixer);
-		//console.log("Actor mixer is")
-	actor.velocitySimulator.damping = actor.defaultVelocitySimulatorDamping;
-	actor.velocitySimulator.mass = actor.defaultVelocitySimulatorMass;
-
-	actor.rotationSimulator.damping = actor.defaultRotationSimulatorDamping;
-	actor.rotationSimulator.mass = actor.defaultRotationSimulatorMass;
-
-	actor.canFindVehiclesToEnter = true;
-	actor.canEnterVehicles = false;
-	actor.canLeaveVehicles = true;
-
-	actor.arcadeVelocityIsAdditive = false;
-	actor.arcadeVelocityInfluence.set(1, 0, 1);
 
 	actor.timer = 0;
 	actor.velocityTarget.z = args?.z ?? 0;

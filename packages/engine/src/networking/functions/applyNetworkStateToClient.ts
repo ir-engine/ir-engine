@@ -184,6 +184,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
         const entity = Network.instance.networkObjects[networkId].component.entity;
 
         if (state == 'onAddedEnding') {
+          console.warn('siting to car');
           if (whoIsItFor == 'all' && Network.instance.userNetworkId == networkId) {
             removeComponent(entity, LocalInputReceiver);
             removeComponent(entity, FollowCameraComponent);

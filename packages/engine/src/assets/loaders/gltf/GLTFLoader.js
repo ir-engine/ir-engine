@@ -170,7 +170,6 @@ let GLTFLoader = (function () {
 			loader.setWithCredentials(this.withCredentials);
 
 			loader.load(url, function (data) {
-
 				try {
 
 					scope.parse(data, resourcePath, function (gltf) {

@@ -115,7 +115,6 @@ export const loadActorAvatar: Behavior = (entity) => {
 
     actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 	// TODO: Remove this. Currently we are double-sampling the samplerate
-	actor.mixer.timeScale = 0.5;
 
     initiateIKSystem(entity, args.asset.children[0]);
     const stateComponent = getComponent(entity, State);
@@ -761,7 +760,6 @@ const initializeCharacter: Behavior = (entity): void => {
 	actor.moveVectorSmooth = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.vactorAnimSimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.rotationSimulator = new RelativeSpringSimulator(60, actor.defaultRotationSimulatorMass, actor.defaultRotationSimulatorDamping);
-	actor.moveSpeedSmooth = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 
 	if(actor.viewVector == null) actor.viewVector = new Vector3();
 

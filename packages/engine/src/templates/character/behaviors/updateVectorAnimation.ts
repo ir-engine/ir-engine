@@ -1,7 +1,7 @@
 import { AnimationClip, MathUtils } from "three";
 import { Entity } from "../../../ecs/classes/Entity";
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
-import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
+import { hasComponent, getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 
 import { Input } from '../../../input/components/Input';
 import { BinaryValue } from "@xr3ngine/engine/src/common/enums/BinaryValue";
@@ -9,64 +9,60 @@ import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
 
 import { AnimationConfigInterface, CharacterAvatars, defaultAvatarAnimations } from "../CharacterAvatars";
 import { CharacterStateTypes } from '../CharacterStateTypes';
-import { CharacterComponent } from '../components/CharacterComponent';
-import { isMyPlayer } from '../../../common/functions/isMyPlayer';
-import { isOtherPlayer } from '../../../common/functions/isOtherPlayer';
+import { CharacterComponent, RUN_SPEED, WALK_SPEED } from '../components/CharacterComponent';
 import { isServer } from '../../../common/functions/isServer';
 
 interface AnimationWeightScaleInterface {
   weight: number
 }
-
+/*
 function safeFloat(float) {
   float < 0.00001 && float > - 0.00001 ? float = 0:'';
   float > 1 && float > 0 ? float = 1:'';
   float < -1 && float < 0 ? float = -1:'';
 }
+*/
 //
 function animationMapLinear( absSpeed, axisValue, axisWeight, i ) {
   return MathUtils.mapLinear(absSpeed, axisValue[0+i], axisValue[1+i], axisWeight[0+i], axisWeight[1+i]);
 }
 //
-function mathMixesAnimFromSchemaValues( animationsSchema, objectValues, deltaTime) {
-
-  const { actorVelocity, absSpeed, hitGround } = objectValues;
-
-  const axisScalar = Math.abs(actorVelocity.x) + Math.abs(actorVelocity.y) + Math.abs(actorVelocity.z);
-
-  safeFloat(actorVelocity.x);
-  safeFloat(actorVelocity.y);
-  safeFloat(actorVelocity.z);
-
+function mathMixesAnimFromSchemaValues( entity, animationsSchema, objectValues, deltaTime) {
+  const { actorVelocity, dontHasHit } = objectValues;
   const mathMixesAnimArray = [];
+
+  let absSpeed = actorVelocity.length() * 60 / RUN_SPEED;
+  absSpeed < 0.00001 ? absSpeed = 0:'';
+  absSpeed = Math.min(absSpeed, 1);
+  //safeFloat(actorVelocity.x);
+//  safeFloat(actorVelocity.y);
+//  safeFloat(actorVelocity.z);
+  const axisScalar = Math.abs(actorVelocity.x) + Math.abs(actorVelocity.y) + Math.abs(actorVelocity.z);
   for (let i = 0; i < animationsSchema.length; i++) {
     const animation = animationsSchema[i];
+    const customProLength = animation.customProperties.length;
     const giveSpeed = actorVelocity[animation.axis] < 0 ? absSpeed*-1 : absSpeed;
-
+    let weight = 0
     let multiplyXYZ = 0;
     if (animation.axis != 'xyz') {
-      multiplyXYZ = axisScalar === 0 ? 1 : Math.abs(actorVelocity[animation.axis]) / axisScalar;
+      multiplyXYZ = axisScalar < 0.00001 ? 1 : Math.abs(actorVelocity[animation.axis]) / axisScalar;
     }
-
-    let weight = 0
     for (let mi = 0; mi < animation.value.length-1; mi++) {
       if(animation.value[mi] <= giveSpeed && giveSpeed <= animation.value[mi+1]) {
-        weight = animationMapLinear(giveSpeed, animation.value, animation.weight, mi);
-        if (animation.hitOff) {
-          let weightCus = animationMapLinear(giveSpeed, animation.value, animation.hitOff, mi);
-          weight = (weight * hitGround) + (weightCus * (1 - hitGround));
-        }
+          for (let ip = 0; ip < customProLength; ip++) {
+            weight += animationMapLinear(giveSpeed, animation.value, animation[animation.customProperties[ip]], mi) * (ip == 0 ? 1 -dontHasHit : dontHasHit)
+          }
       }
     };
 
     animation.axis != 'xyz' ? weight*= multiplyXYZ:'';
-    weight < 0.00001 && weight > - 0.00001 ? weight = 0:'';
+    weight < 0.0001 ? weight = 0:'';
 
     mathMixesAnimArray.push({
       type: animation.type,
       name: animation.name,
       weight: weight,
-      time: (animation.speed ? animation.speed: 1)
+      time: (animation.speed ? animation.speed: 0.5)
     });
   }
   return mathMixesAnimArray;
@@ -74,9 +70,13 @@ function mathMixesAnimFromSchemaValues( animationsSchema, objectValues, deltaTim
 // FOR DEBUG ANIMATION weight
 /*
 let test = 0;
-function consoleGrafics(n) {
-  let str = '';
-  for (let i = 0; i < Math.ceil(n*20); i++) {
+function consoleGrafics(obj) {
+  let nMaxL = 25 - obj.name.length;
+  let str = obj.name;
+  for (let i = 0; i < nMaxL; i++) {
+    str += ' '
+  }
+  for (let i = 0; i < Math.ceil(obj.weight*20); i++) {
     str += '#'
   }
   return str
@@ -90,6 +90,8 @@ export const updateVectorAnimation: Behavior = (entity, args: { animationsSchema
 	if (!actor || !actor.initialized || !actor.mixer) return;
 
   if (actor.mixer) actor.mixer.update(deltaTime);
+
+  if(args.animationsSchema.length == 3) return;
 	// Get the magnitude of current velocity
 	const animations = new Map<number, AnimationWeightScaleInterface>();
 	const avatarId = actor.avatarId;
@@ -98,27 +100,15 @@ export const updateVectorAnimation: Behavior = (entity, args: { animationsSchema
   // update values for animations
   const objectValues = args.updateAnimationsValues(entity, args.animationsSchema, deltaTime);
   // math to correct all animations
-  const animationsValues = mathMixesAnimFromSchemaValues( args.animationsSchema, objectValues, deltaTime);
+  const animationsValues = mathMixesAnimFromSchemaValues(entity, args.animationsSchema, objectValues, deltaTime);
+
 /*
-  if (test > 15) {
-    console.clear();
-    console.warn('idle             '+consoleGrafics(animationsValues[0].weight))
-    console.warn('falling          '+consoleGrafics(animationsValues[1].weight))
-    console.warn('--');
-    console.warn('walking          '+consoleGrafics(animationsValues[2].weight))
-    console.warn('walk_right       '+consoleGrafics(animationsValues[3].weight))
-    console.warn('walk_left        '+consoleGrafics(animationsValues[4].weight))
-    console.warn('walking_backward '+consoleGrafics(animationsValues[5].weight))
-    console.warn('--');
-    console.warn('run_forward      '+consoleGrafics(animationsValues[6].weight))
-    console.warn('run_right        '+consoleGrafics(animationsValues[7].weight))
-    console.warn('run_left         '+consoleGrafics(animationsValues[8].weight))
-    console.warn('run_backward     '+consoleGrafics(animationsValues[9].weight))
-    test = 0
-  } else {
-    test++
-  }
+    //console.clear();
+    for (let ia = 0; ia < animationsValues.length; ia++) {
+      console.warn(consoleGrafics(animationsValues[ia]))
+    }
 */
+
 	// apply values to animations
 	animationsValues.forEach( value => {
       //@ts-ignore
@@ -167,7 +157,7 @@ export const clearAnimOnChange: Behavior = (entity: Entity, args: { animationsSc
     actor.currentAnimationAction.forEach(currentAnimationAction => {
       if(movementAnimationNames.filter(movAnim => movAnim === currentAnimationAction.getClip().name).length > 0)
         return;
-      currentAnimationAction.fadeOut(.3);
+      //currentAnimationAction.fadeOut(.3);
       // currentAnimationAction.setEffectiveWeight(0);
     } )
 };
@@ -216,7 +206,7 @@ export const changeAnimation: Behavior = (entity, args: {}, deltaTime: number): 
 	newAction
 		.reset()
 		.setEffectiveWeight(1)
-		.setEffectiveTimeScale(2)
+		.setEffectiveTimeScale(1)
 		.fadeIn(0.01)
 		.play();
 		console.log("New action is ", newAction);
