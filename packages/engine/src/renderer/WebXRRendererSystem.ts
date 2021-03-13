@@ -22,7 +22,7 @@ export class WebXRRendererSystem extends System {
 
   offscreen: boolean;
 
-  isRenderering: boolean = false;
+  isRenderering = false;
   baseLayer: XRWebGLLayer;
   context: any;
   renderbuffer: WebGLRenderbuffer;
