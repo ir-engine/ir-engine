@@ -19,6 +19,10 @@ const faceTrackingTimers = [];
 let lipsyncTracking = false;
 let audioContext = null;
 
+let faceWorker: Comlink.Remote<any> = null;
+let faceVideo: HTMLVideoElement = null;
+let faceCanvas: OffscreenCanvas = null
+
 export const stopFaceTracking = () => {
     faceTrackingTimers.forEach(timer => {
         clearInterval(timer);
@@ -31,47 +35,33 @@ export const stopLipsyncTracking = () => {
     audioContext = null;
 }
 
-export const startFaceTracking = () => {
-    console.log("**************** STARTING FACE TRACKING")
+export const startFaceTracking = async () => {
+  faceVideo = document.createElement('video');
+  faceVideo.srcObject = MediaStreamSystem.instance.mediaStream;
 
-    const video = document.createElement('video');
-    video.srcObject = MediaStreamSystem.instance.mediaStream;
-    
-    
-    initialiseWorker().then((worker) => {
-        video.addEventListener('play', () => {
-            const canvas = document.createElement('canvas')
-            canvas.width = video.videoWidth
-            canvas.height = video.videoHeight
-            const context = canvas.getContext('2d')
-            const interval = setInterval(async () => {
-                context.drawImage(video, 0, 0, canvas.width, canvas.height)
-                // we should replace this with imageBitmap.transferToImageBitmap
-                const imageData = context.getImageData(0, 0, canvas.width, canvas.height)
-                const pixels = imageData.data.buffer
+  if(!faceWorker) {
+      faceWorker = Comlink.wrap(new Worker(new URL('./WebcamInputWorker.ts', import.meta.url)));
+      await faceWorker.initialise();
+  }
 
-                //@ts-ignore
-                const detection = await worker.detect(Comlink.transfer(pixels, [pixels]), canvas.width, canvas.height)
-                if(detection) {
-                  EngineEvents.instance.dispatchEvent({ type: WEBCAM_INPUT_EVENTS.FACE_INPUT, detection });
-                }
-            }, 100);
-            faceTrackingTimers.push(interval);
-        });
-
-        video.muted = true;
-        video.play();
-    });
-};
-
-async function initialiseWorker () {
-    console.log("Start load detectors")
-    //@ts-ignore
-    const worker = Comlink.wrap(new Worker(new URL('./webcamInputWorker.ts', import.meta.url)));//, { type: 'module' }))
-    //@ts-ignore
-    await worker.initialise()
-    console.log("Finish load detectors")
-    return worker;
+  faceVideo.addEventListener('loadeddata', async () => {
+      await faceWorker.create(faceVideo.videoWidth, faceVideo.videoHeight)
+      faceCanvas = new OffscreenCanvas(faceVideo.videoWidth, faceVideo.videoHeight);
+      const context = faceCanvas.getContext('2d')
+      const interval = setInterval(async () => {
+          context.drawImage(faceVideo, 0, 0, faceVideo.videoWidth, faceVideo.videoHeight)
+          const imageData = context.getImageData(0, 0, faceVideo.videoWidth, faceVideo.videoHeight)
+          const pixels = imageData.data.buffer
+          const detection = await faceWorker.detect(Comlink.transfer(pixels, [pixels]))
+          if(detection) {
+              EngineEvents.instance.dispatchEvent({ type: WEBCAM_INPUT_EVENTS.FACE_INPUT, detection });
+          }
+      }, 100);
+      faceTrackingTimers.push(interval);
+  })
+  
+  faceVideo.muted = true;
+  faceVideo.play();
 }
 
 const nameToInputValue = {
