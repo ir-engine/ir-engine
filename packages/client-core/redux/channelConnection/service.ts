@@ -11,6 +11,8 @@ import {
   channelServerProvisioned,
   channelServerProvisioning
 } from './actions';
+import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
+import { ClientNetworkSystem } from "@xr3ngine/engine/src/networking/systems/ClientNetworkSystem";
 
 export function provisionChannelServer(instanceId?: string, channelId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -26,32 +28,22 @@ export function provisionChannelServer(instanceId?: string, channelId?: string) 
         instanceId = null;
       }
     }
-    console.log('channel provision queryParams:');
-    console.log({
-      query: {
-        channelId: channelId,
-        token: token
-      }
-    });
     const provisionResult = await client.service('instance-provision').find({
       query: {
         channelId: channelId,
         token: token
       }
     });
-    console.log('Channel Provision result:');
-    console.log(provisionResult);
     if (provisionResult.ipAddress != null && provisionResult.port != null) {
       dispatch(channelServerProvisioned(provisionResult, channelId));
     }
   };
 }
 
-export function connectToChannelServer(channelId: string) {
+export function connectToChannelServer(channelId: string, isHarmonyPage?: boolean) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
       dispatch(channelServerConnecting());
-      console.log('connectToInstanceServer: ', channelId);
       const authState = getState().get('auth');
       const user = authState.get('user');
       const token = authState.get('authUser').accessToken;
@@ -73,10 +65,13 @@ export function connectToChannelServer(channelId: string) {
         token: token,
         sceneId: sceneId,
         startVideo: videoActive,
+        channelType: 'channel',
         channelId: channelId,
-        videoEnabled: currentLocation?.locationSettings?.videoEnabled === true || !(currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null)
+        videoEnabled: currentLocation?.locationSettings?.videoEnabled === true || !(currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null),
+        isHarmonyPage: isHarmonyPage
       });
       Network.instance.isInitialized = true;
+      EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT })
 
       // setClient(instanceClient);
       dispatch(channelServerConnected());
@@ -96,7 +91,5 @@ export function resetChannelServer() {
 }
 
 client.service('instance-provision').on('created', (params) => {
-  console.log('channelConnection instance-provision listener');
-  console.log(params);
   if (params.channelId != null) store.dispatch(channelServerProvisioned(params, params.channelId));
 });

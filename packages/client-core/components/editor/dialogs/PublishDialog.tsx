@@ -6,7 +6,17 @@ import StringInput from "../inputs/StringInput";
 import BooleanInput from "../inputs/BooleanInput";
 import FormField from "../inputs/FormField";
 
+
+/**
+ * [PublishDialog used to show the dialog when we are going to publish scene]
+ * @type {class component}
+ */
 export default class PublishDialog extends Component {
+
+/**
+ * [Declairing propTypes for publishDialog component]
+ * @type {Object}
+ */
   static propTypes = {
     onCancel: PropTypes.func,
     screenshotUrl: PropTypes.string,
@@ -17,9 +27,9 @@ export default class PublishDialog extends Component {
     initialSceneParams: PropTypes.object
   };
 
+  //initializing state when object of class get invoked.
   constructor(props) {
     super(props);
-
     this.state = {
       name: "",
       creatorAttribution: "",
@@ -29,14 +39,19 @@ export default class PublishDialog extends Component {
     };
   }
 
+  //setting state when there is change in name.
   onChangeName = name => this.setState({ name });
 
+  //setting state when there is change creatorAttribution property.
   onChangeCreatorAttribution = creatorAttribution => this.setState({ creatorAttribution });
 
+  //setting state when there is changes in allowRemixing property.
   onChangeAllowRemixing = allowRemixing => this.setState({ allowRemixing });
 
+  //setting state  when there is change in allowPromotion property
   onChangeAllowPromotion = allowPromotion => this.setState({ allowPromotion });
 
+  //function to handle the confirmation of publishDialog
   onConfirm = () => {
     const publishState = { ...this.state, contentAttributions: (this.props as any).contentAttributions } as any;
     publishState.name = publishState.name.trim();
@@ -44,10 +59,10 @@ export default class PublishDialog extends Component {
     (this.props as any).onPublish(publishState);
   };
 
-  render() {
+  // creating and rendering PreviewDialog view.
+  render(){
     const { onCancel, screenshotUrl, contentAttributions } = this.props as any;
     const { creatorAttribution, name, allowRemixing, allowPromotion } = this.state as any;
-
     return (
       <PreviewDialog
         imageSrc={screenshotUrl}
@@ -95,7 +110,7 @@ export default class PublishDialog extends Component {
           </label>
           { /* @ts-ignore */ }
           <BooleanInput id="allowPromotion" value={allowPromotion} onChange={this.onChangeAllowPromotion} />
-        </FormField>
+          </FormField>
         { contentAttributions && (
           /* @ts-ignore */
           <FormField>

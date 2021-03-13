@@ -2,7 +2,7 @@
     display: flex;
     position: fixed;
     top: 5px;
-    z-index: 1300;
+    z-index: 10;
     width: 100%;
     justify-content: center;
 
@@ -36,13 +36,13 @@
             transform: scale(0);
         }
 
-        &:hover::before { transform: scale(100%); }
+        &:hover::before { transform: scale(1); }
         &.on svg { color: rgba(122, 255, 100, 1) }
         > svg { height: 50%; width: 50%; }
     }
     @media (max-width: 450px) {
         justify-content: flex-end;
-        padding-right: 5px;
+        padding-right: 50px;
         .iconContainer {
             width: 40px;
             height: 40px;

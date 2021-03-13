@@ -25,7 +25,8 @@ import {
   addedChannelLayerUser,
   addedLayerUser, clearChannelLayerUsers,
   clearLayerUsers, removedChannelLayerUser,
-  removedLayerUser
+  removedLayerUser,
+  displayUserToast,
 } from '../user/actions';
 import { client } from '../feathers';
 import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service';
@@ -195,8 +196,6 @@ export function loginUserByOAuth(service: string) {
 export function loginUserByJwt (accessToken: string, redirectSuccess: string, redirectError: string): any {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      console.log('loginUserByJWT');
-      console.log(accessToken);
       dispatch(actionProcessing(true));
       const res = await (client as any).authenticate({
         strategy: 'jwt',
@@ -205,8 +204,6 @@ export function loginUserByJwt (accessToken: string, redirectSuccess: string, re
 
       const authUser = resolveAuthUser(res);
 
-      console.log('JWT login succeeded');
-      console.log(authUser);
       dispatch(loginUserSuccess(authUser));
       loadUserData(dispatch, authUser.identityProvider.userId);
       dispatch(actionProcessing(false));
@@ -426,7 +423,7 @@ export function addConnectionByEmail (email: string, userId: string) {
     })
       .then((res: any) => {
         const identityProvider = res as IdentityProvider;
-        loadUserData(dispatch, identityProvider.userId);
+        if (identityProvider.userId != null) loadUserData(dispatch, identityProvider.userId);
       })
       .catch((err: any) => {
         console.log(err);
@@ -447,7 +444,7 @@ export function addConnectionBySms (phone: string, userId: string) {
     })
       .then((res: any) => {
         const identityProvider = res as IdentityProvider;
-        loadUserData(dispatch, identityProvider.userId);
+        if (identityProvider.userId != null) loadUserData(dispatch, identityProvider.userId);
       })
       .catch((err: any) => {
         console.log(err);
@@ -551,7 +548,7 @@ client.service('user').on('patched', async (params) => {
     if (selfUser.channelInstanceId !== user.channelInstanceId) store.dispatch(clearChannelLayerUsers());
     store.dispatch(userUpdated(user));
     if (user.partyId) {
-      setRelationship('party', user.partyId);
+      // setRelationship('party', user.partyId);
     }
     if (user.instanceId !== selfUser.instanceId) {
       const parsed = new URL(window.location.href);
@@ -564,8 +561,14 @@ client.service('user').on('patched', async (params) => {
     }
   } else {
     if (user.channelInstanceId != null && user.channelInstanceId === selfUser.channelInstanceId) store.dispatch(addedChannelLayerUser(user));
-    if (user.instanceId != null && user.instanceId === selfUser.instanceId) store.dispatch(addedLayerUser(user));
-    if (user.instanceId !== selfUser.instanceId) store.dispatch(removedLayerUser(user));
+    if (user.instanceId != null && user.instanceId === selfUser.instanceId) {
+      store.dispatch(addedLayerUser(user));
+      store.dispatch(displayUserToast(user, { userAdded: true }));
+    }
+    if (user.instanceId !== selfUser.instanceId) {
+      store.dispatch(removedLayerUser(user));
+      store.dispatch(displayUserToast(user, { userRemoved: true }));
+    }
     if (user.channelInstanceId !== selfUser.channelInstanceId) store.dispatch(removedChannelLayerUser(user));
   }
 });

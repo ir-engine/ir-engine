@@ -35,7 +35,7 @@ export const onRemovedFromCar = (entity: Entity, entityCar: Entity, seat: number
   removeComponent(entity, EnteringVehicle);
   setState(entity, { state: CharacterStateTypes.DEFAULT });
   // Player only
-  if (Network.instance.userNetworkId != networkDriverId) return;
+  if (Network.instance.localAvatarNetworkId != networkDriverId) return;
   removeComponent(entityCar, LocalInputReceiver);
   removeComponent(entityCar, FollowCameraComponent);
 

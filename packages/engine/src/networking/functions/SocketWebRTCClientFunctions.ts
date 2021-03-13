@@ -2,14 +2,17 @@ import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "@xr3ngine/engine/src/networking/c
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
 import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
 import { DataProducer, Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
+import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { Network } from "../classes/Network";
+import {triggerUpdateConsumers} from "@xr3ngine/client-core/redux/mediastream/service";
 
 let networkTransport: any;
 
 export async function createDataProducer(channel = "default", type = 'raw', customInitInfo: any = {}): Promise<DataProducer | Error> {
     networkTransport = Network.instance.transport as any;
+    const sendTransport = channel === 'instance' ? networkTransport.instanceSendTransport : networkTransport.channelSendTransport;
     // else if (MediaStreamSystem.instance.dataProducers.get(channel)) return Promise.reject(new Error('Data channel already exists!'))
-    const dataProducer = await networkTransport.instanceSendTransport.produceData({
+    const dataProducer = await sendTransport.produceData({
         appData: { data: customInitInfo },
         ordered: false,
         label: channel,
@@ -94,7 +97,6 @@ export async function createTransport(direction: string, channelType?: string, c
                     paused,
                     appData
                 });
-                console.log('Got new producer: ' + id);
                 if (error) {
                     errback();
                     console.log(error);
@@ -172,24 +174,19 @@ export async function configureMediaTransports(channelType, channelId?: string):
         console.warn("Media stream is null, camera must have failed");
 
     if (channelType !== 'instance' && (networkTransport.channelSendTransport == null || networkTransport.channelSendTransport.closed === true || networkTransport.channelSendTransport.connectionState === 'disconnected')) {
-        console.log('Initializing channel transports');
         await Promise.all([initSendTransport(channelType, channelId), initReceiveTransport(channelType, channelId)]);
     }
 }
 
 export async function createCamVideoProducer(channelType: string, channelId?: string): Promise<void> {
-    console.log('createCamVideoProducer', channelType, channelId);
-    console.log(MediaStreamSystem.instance.mediaStream);
     if (MediaStreamSystem.instance.mediaStream !== null && networkTransport.videoEnabled === true) {
         const transport = channelType === 'instance' ? networkTransport.instanceSendTransport : networkTransport.channelSendTransport;
-        console.log('Producing camVideo on', channelType, channelId);
         MediaStreamSystem.instance.camVideoProducer = await transport.produce({
             track: MediaStreamSystem.instance.mediaStream.getVideoTracks()[0],
             encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
             appData: { mediaTag: "cam-video", channelType: channelType, channelId: channelId }
         });
 
-        console.log('Video is producing on', channelType, channelId);
         if (MediaStreamSystem.instance.videoPaused) await MediaStreamSystem.instance?.camVideoProducer.pause();
     }
 }
@@ -222,8 +219,7 @@ export async function createCamAudioProducer(channelType: string, channelId?: st
 }
 
 export async function endVideoChat(options: { leftParty?: boolean, endConsumers?: boolean }): Promise<boolean> {
-    console.log('Ending video chat');
-    if (Network.instance != null) {
+    if (Network.instance != null && Network.instance.transport != null) {
         try {
             networkTransport = Network.instance.transport as any;
             const isInstanceMedia = networkTransport.instanceSocket?.connected === true && (networkTransport.channelId == null || networkTransport.channelId.length === 0);
@@ -307,6 +303,10 @@ export async function endVideoChat(options: { leftParty?: boolean, endConsumers?
 
 export function resetProducer(): void {
     if (MediaStreamSystem) {
+        if (MediaStreamSystem?.instance?.mediaStream != null) {
+            const tracks = MediaStreamSystem.instance.mediaStream.getTracks();
+            tracks.forEach((track) => track.stop());
+        }
         MediaStreamSystem.instance.camVideoProducer = null;
         MediaStreamSystem.instance.camAudioProducer = null;
         MediaStreamSystem.instance.screenVideoProducer = null;
@@ -360,6 +360,7 @@ export async function subscribeToTrack(peerId: string, mediaTag: string, channel
 
         if (MediaStreamSystem.instance?.consumers?.find(c => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag) == null) {
             MediaStreamSystem.instance?.consumers.push(consumer);
+            triggerUpdateConsumers();
 
             // okay, we're ready. let's ask the peer to send us media
             await resumeConsumer(consumer);
@@ -440,7 +441,7 @@ export async function leave(instance: boolean): Promise<boolean> {
                 // close everything on the server-side (transports, producers, consumers)
                 const result = await request(MessageTypes.LeaveWorld.toString());
                 if (result.error) console.error(result.error);
-                window.dispatchEvent(new CustomEvent('leaveWorld'));
+                EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LEAVE_WORLD })
             }
 
             networkTransport.leaving = false;
@@ -458,6 +459,10 @@ export async function leave(instance: boolean): Promise<boolean> {
             }
             networkTransport.lastPollSyncData = {};
             if (MediaStreamSystem) {
+                if (MediaStreamSystem?.instance?.mediaStream != null) {
+                    const tracks = MediaStreamSystem.instance.mediaStream.getTracks();
+                    tracks.forEach((track) => track.stop());
+                }
                 MediaStreamSystem.instance.camVideoProducer = null;
                 MediaStreamSystem.instance.camAudioProducer = null;
                 MediaStreamSystem.instance.screenVideoProducer = null;

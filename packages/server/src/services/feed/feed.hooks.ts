@@ -1,3 +1,6 @@
+import addAssociations from "../../hooks/add-associations";
+import { HookContext } from "@feathersjs/feathers";
+import logger from "../../app/logger";
 
 export default {
   before: {

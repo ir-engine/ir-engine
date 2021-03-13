@@ -104,6 +104,9 @@ function CreateProjectPage({ api }: { api: Api }) {
     thumbnailUrl: result && (result as any).images && (result as any).images.preview && (result as any).images.preview.url
   })) : [];
 
+  //@ts-ignore
+  const searchInput = <SearchInput placeholder="Search scenes..." value={params.q} onChange={onChangeQuery} />
+
   return (
     <>
       <main>
@@ -125,7 +128,7 @@ function CreateProjectPage({ api }: { api: Api }) {
                     All
                   </Filter>
                   <Separator />
-                  <SearchInput placeholder="Search scenes..." value={params.q} onChange={onChangeQuery} />
+                  {searchInput}
                 </ProjectGridHeaderRow>
                 <ProjectGridHeaderRow>
                   <Button onClick={routeTo('/editor/projects/new')}>

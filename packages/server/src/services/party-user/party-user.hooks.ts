@@ -79,9 +79,20 @@ export default {
     ],
     create: [
         async (context: HookContext): Promise<HookContext> => {
-          const { app, params, result } = context;
+          const { app, result } = context;
           await app.service('user').patch(result.userId, {
             partyId: result.partyId
+          });
+          const user = await app.service('user').get(result.userId);
+          await app.service('message').create({
+            targetObjectId: result.partyId,
+            targetObjectType: 'party',
+            text: `${user.name} joined the party`,
+            isNotification: true
+          }, {
+            'identity-provider': {
+              userId: result.userId
+            }
           });
           return context;
         },

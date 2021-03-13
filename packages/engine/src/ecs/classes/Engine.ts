@@ -3,15 +3,45 @@
  * @packageDocumentation
  */
 
-import { AudioListener, Clock, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
-import { CSM } from '../../assets/csm/CSM.js';
+import { 
+  AudioListener as THREE_AudioListener,
+  Clock,
+  PerspectiveCamera,
+  Scene, 
+  WebGLRenderer, 
+  AudioLoader as THREE_AudioLoader,
+  VideoTexture as THREE_VideoTexture, 
+  Audio as THREE_Audio, 
+  PositionalAudio as THREE_PositionalAudio, 
+  XRSession
+} from 'three';
+import { CSM } from '../../assets/csm/CSM';
 import { ServerSpawnSystem } from "../../scene/systems/SpawnSystem";
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { EngineOptions } from '../interfaces/EngineOptions';
 import { Entity } from './Entity';
 import { EntityPool } from './EntityPool';
-import { EventDispatcher } from './EventDispatcher';
+import { EntityEventDispatcher } from './EntityEventDispatcher';
 import { Query } from './Query';
+import { createElement } from '../functions/createElement';
+import { isWebWorker } from '../../common/functions/getEnvironment';
+import { VideoTextureProxy } from '../../worker/VideoTexture';
+import { PositionalAudioObjectProxy, AudioObjectProxy, AudioListenerProxy, AudioLoaderProxy } from '../../worker/Audio';
+import { BinaryType } from '../../common/types/NumericalTypes';
+
+
+export const Audio = isWebWorker ? AudioObjectProxy : THREE_Audio;
+export const AudioListener = isWebWorker ? AudioListenerProxy : THREE_AudioListener;
+export const AudioLoader = isWebWorker ? AudioLoaderProxy : THREE_AudioLoader;
+export const PositionalAudio = isWebWorker ? PositionalAudioObjectProxy : THREE_PositionalAudio;
+export const VideoTexture = isWebWorker ? VideoTextureProxy : THREE_VideoTexture;
+
+export type Audio = AudioObjectProxy | THREE_Audio;
+export type AudioListener = AudioListenerProxy | THREE_AudioListener;
+export type AudioLoader = AudioLoaderProxy | THREE_AudioLoader;
+export type PositionalAudio = PositionalAudioObjectProxy | THREE_PositionalAudio;
+export type VideoTexture = VideoTextureProxy | THREE_VideoTexture;
+
 
 /**
  * This is the base class which holds all the data related to the scene, camera,system etc.\
@@ -57,7 +87,7 @@ export class Engine {
    */
   static renderer: WebGLRenderer = null
   static csm: CSM = null
-  static xrSession: any = null
+  static xrSession: XRSession = null
   static xrReferenceSpace = null
   static context = null
 
@@ -71,7 +101,7 @@ export class Engine {
    * Reference to the three.js perspective camera object.
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
-  static camera: PerspectiveCamera = null
+   static camera: PerspectiveCamera = null
 
   /**
    * Reference to the Transform component of the three.js camera object.
@@ -84,12 +114,12 @@ export class Engine {
    * Reference to the audioListener.
    * This is a virtual listner for all positional and non-positional audio.
    */
-  static audioListener: AudioListener = null
+  static audioListener: any = null
 
   /**
    * Event dispatcher manages sending events which can be interpreted by devtools.
    */
-  static eventDispatcher = new EventDispatcher()
+  static eventDispatcher = new EntityEventDispatcher()
 
   /**
   * Initialization options.
@@ -120,6 +150,11 @@ export class Engine {
    * List of registered entities.
    */
   static entities: Entity[] = []
+
+  /**
+   * Map of registered entities by ID
+   */
+  static entityMap: Map<string, Entity> = new Map<string, Entity>();
 
   /**
    * List of registered queries.
@@ -185,4 +220,28 @@ export class Engine {
   static viewportElement: HTMLElement;
 
   static spawnSystem: ServerSpawnSystem;
+
+  static createElement: any = createElement;
+
+  static hasUserEngaged = false;
+
+  static useAudioSystem = false;
+
+  static inputState = new Map();
+  static prevInputState = new Map();
+
+  /**
+   * Input inherits from BehaviorComponent, which adds .map and .data
+   * 
+   * @property {Boolean} gamepadConnected Connection a new gamepad
+   * @property {Number} gamepadThreshold Threshold value from 0 to 1
+   * @property {Binary[]} gamepadButtons Map gamepad buttons
+   * @property {Number[]} gamepadInput Map gamepad buttons to abstract input
+   */
+  static gamepadConnected = false;
+  static gamepadThreshold = 0.1;
+  static gamepadButtons: BinaryType[] = [];
+  static gamepadInput: number[] = [];
+
+  static xrSupported: boolean = false;
 }
