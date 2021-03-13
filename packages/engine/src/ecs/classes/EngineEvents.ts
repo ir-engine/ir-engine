@@ -31,6 +31,7 @@ const EVENTS = {
 
   // MISC
   USER_ENGAGE: 'CORE_USER_ENGAGE',
+  ENTITY_DEBUG_DATA: 'CORE_ENTITY_DEBUG_DATA', // to pipe offscreen entity data to UI
 };
 
 export class EngineEvents extends EventDispatcher {
