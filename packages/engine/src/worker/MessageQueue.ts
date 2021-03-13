@@ -479,11 +479,9 @@ export class AudioDocumentElementProxy extends DocumentElementProxy {
     return this._isPlaying;
   }
   play() {
-    this._isPlaying = true;
     this.__callFunc('play');
   }
   pause() {
-    this._isPlaying = false;
     this.__callFunc('pause');
   }
   dispatchEvent(
@@ -784,22 +782,25 @@ export async function createWorker(
           elementArgs !== undefined && applyElementArguments(video, elementArgs);
           documentElementMap.set(uuid, video);
           video.onplay = (ev: any) => {
+            const canvasScale =  video.videoWidth > 1280 || video.videoHeight > 720 ? (1/Math.abs(video.videoHeight / 720)) : 1;
+            video.setAttribute('height', String(video.videoHeight * canvasScale) + 'px');
             const drawCanvas = new OffscreenCanvas(
-              video.videoWidth,
-              video.videoHeight
+              video.videoWidth * canvasScale,
+              video.videoHeight * canvasScale
             );
             const context = drawCanvas.getContext('2d');
             messageQueue.queue.push({
               messageType: MessageType.VIDEO_ELEMENT_CREATE,
               message: {
-                width: video.videoWidth,
-                height: video.videoHeight,
+                width: drawCanvas.width,
+                height: drawCanvas.width,
                 returnID: uuid,
+                canvasScale
               },
             } as Message);
 
             const sendFrame = (now, metaData) => {
-              context.drawImage(video, 0, 0);
+              context.drawImage(video, 0, 0, video.videoWidth * canvasScale, video.videoHeight * canvasScale);
               const imageBitmap = drawCanvas.transferToImageBitmap();
               messageQueue.queue.push({
                 messageType: MessageType.VIDEO_ELEMENT_FRAME,
