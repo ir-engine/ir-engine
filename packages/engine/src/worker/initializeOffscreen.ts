@@ -107,6 +107,10 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
     EngineEvents.instance.removeEventListener(ClientNetworkSystem.EVENTS.INITIALIZE, initializeNetworkEvent)
   }
   EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.INITIALIZE, initializeNetworkEvent)
+
+  setInterval(() => {
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_DEBUG_DATA, })
+  }, 1000)
 }
 
 receiveWorker(initializeEngineOffscreen)
