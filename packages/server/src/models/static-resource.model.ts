@@ -26,7 +26,8 @@ export default (app: Application): any => {
     },
     url: {
       type: DataTypes.STRING,
-      allowNull: true
+      allowNull: true,
+      unique: true,
     },
     key: DataTypes.STRING,
     mimeType: {
