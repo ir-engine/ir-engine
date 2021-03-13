@@ -8,7 +8,7 @@ $mobileControllButtonsSize: 3em;
 
 .selectable {
     height: 50px;
-    padding: 0 16px !important;
+    padding: 0 5px !important;
 
     &.highlighted {
         background-color: lightgray;
@@ -17,6 +17,19 @@ $mobileControllButtonsSize: 3em;
         cursor: pointer;
         background-color: gray !important;
     }
+}
+
+
+.activeChat {
+    background-color: rgb(56, 56, 178);
+}
+
+.activeAVCall {
+    border-radius: 20px;
+    background-color: green;
+    margin-left: 10px;
+    width: 20px;
+    height: 20px;
 }
 
 .background-red {
@@ -75,6 +88,24 @@ $mobileControllButtonsSize: 3em;
     font-size: 2em;
 }
 
+.groupEdit {
+    margin: 0 5px 0 auto;
+    width: 30px;
+    height: 30px;
+    min-width: 0 !important;
+
+    &:hover {
+        cursor: pointer;
+        background-color: rgba(155, 155, 155, 0.6);
+        border-radius: 20px;
+    }
+
+    & > svg {
+        width: 30px;
+        height: 30px;
+    }
+}
+
 .harmony-component {
     display: flex;
     flex-grow: 1;
@@ -87,6 +118,13 @@ $mobileControllButtonsSize: 3em;
 
     @media (max-width: 768px) {
         flex-direction: column;
+    }
+
+    [class*='MuiAccordion-root'] {
+        &[class*='Mui-expanded'] {
+            margin: 0;
+            flex-grow: 1;
+        }
     }
 
     .chat-container {
@@ -203,22 +241,30 @@ $mobileControllButtonsSize: 3em;
 }
 
 .message {
-    min-height: 70px;
+    padding-bottom: 0 !important;
     &.self {
         &:before {
             content: '';
             width: 40%;
             display: block;
+
+            @media (max-width: 768px) {
+                width: 20%;
+            }
         }
 
         & > div {
             //background-color: #fff8dc;
-            padding: 5px 10px;
+            padding: 0 10px;
             border-radius: 10px;
             width: 60%;
-            margin-bottom: 5px;
             display: flex;
             margin-right: 60px;
+
+            @media (max-width: 768px) {
+                margin-right: 0;
+                width: 80%;
+            }
 
             & > div:first-child {
                 width: 95%;
@@ -231,15 +277,22 @@ $mobileControllButtonsSize: 3em;
             content: '';
             width: 40%;
             display: block;
+
+            @media (max-width: 768px) {
+                width: 20%;
+            }
         }
 
         & > div {
             //background-color: #f0fff0;
-            padding: 5px 10px;
+            padding: 0 10px;
             border-radius: 10px;
             width: 60%;
-            margin-bottom: 5px;
             display: flex;
+
+            @media (max-width: 768px) {
+                width: 80%;
+            }
         }
     }
 }
@@ -247,20 +300,19 @@ $mobileControllButtonsSize: 3em;
 .chat-window {
     display: flex;
     width: 70%;
+    height: 100%;
     flex-direction: column;
 
-    & > div {
+    .video-container {
         height: 50%;
     }
 
-    .video-container {
-        display: flex;
+    & > .list-container {
         flex-grow: 1;
     }
 
     @media (max-width: 768px) {
         width: 100%;
-        height: 65%;
     }
 }
 
@@ -324,6 +376,7 @@ $mobileControllButtonsSize: 3em;
 
 .party-user-container {
     overflow-y: auto;
+    height: 100%;
     justify-content: space-around;
 
     .single {
@@ -331,6 +384,10 @@ $mobileControllButtonsSize: 3em;
         height: 100%;
         max-width: 100%;
         flex-basis: 100%;
+
+        & > div {
+            height: 100%;
+        }
     }
 
     .two {
@@ -338,13 +395,21 @@ $mobileControllButtonsSize: 3em;
         height: 100%;
         max-width: 50%;
         flex-basis: 50%;
+
+        & > div {
+            height: 100%;
+        }
     }
 
     .four {
         flex-grow: 0;
         height: 50%;
-        max-width: 33.3333%;
-        flex-basis: 33.3333%;
+        max-width: 50%;
+        flex-basis: 50%;
+
+        & > div {
+            height: 100%;
+        }
     }
 
     .six {
@@ -352,6 +417,10 @@ $mobileControllButtonsSize: 3em;
         height: 50%;
         max-width: 33.3333%;
         flex-basis: 33.3333%;
+
+        & > div {
+            height: 100%;
+        }
     }
 
     .nine {
@@ -359,6 +428,10 @@ $mobileControllButtonsSize: 3em;
         height: 33.3333%;
         max-width: 33.3333%;
         flex-basis: 33.3333%;
+
+        & > div {
+            height: 100%;
+        }
     }
 
     .many {
@@ -376,4 +449,180 @@ $mobileControllButtonsSize: 3em;
     padding: 5px;
     z-index: 20;
     background-color: black;
+}
+
+.partyInstanceButtons {
+    display: flex;
+
+     & > div {
+         padding: 12px 16px;
+         flex-grow: 1;
+         font-size: 16px;
+
+         &:hover {
+             cursor: pointer;
+             background-color: rgba(155, 155, 155, 0.6);
+         }
+
+         &:first-child {
+             border-right: 3px solid rgba(20, 20, 20, 0.1);
+         }
+
+         &.partyButton {
+             display: flex;
+             align-items: center;
+         }
+
+         &.instanceButton {
+             display: flex;
+             align-items: center;
+         }
+     }
+}
+
+.harmony-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .mediaControls {
+        height: 50px;
+        display: flex;
+        align-items: center;
+
+        .startCall {
+            background-color: green;
+
+            &:hover {
+                background-color: lighten(green, 10%);
+            }
+        }
+
+        .endCall {
+            background-color: red;
+
+            &:hover {
+                background-color: lighten(red, 10%);
+            }
+        }
+
+        .activeCallControls {
+            display: flex;
+        }
+    }
+
+
+    .chat-toggle {
+        background-color: rgb(56, 178, 56) !important;
+        color: white;
+        margin-right: 5px;
+
+        &:hover {
+            cursor: pointer;
+            background-color: lighten(rgb(56, 178, 56), 10%);
+        }
+    }
+    .controls {
+        height: 50px;
+        display: flex;
+        align-items: center;
+
+        .harmony-toggle {
+            background-color: rgb(56, 56, 178);
+            color: white;
+
+            svg {
+                box-sizing: border-box;
+                cursor: pointer;
+                margin: 6px;
+            }
+
+            &:hover {
+                cursor: pointer;
+                background-color: lighten(rgb(56, 56, 178), 10%);
+            }
+        }
+
+        .invite-toggle {
+            background-color: rgb(178, 56, 56);
+            color: white;
+            margin-right: 5px;
+
+            &:hover {
+                cursor: pointer;
+                background-color: lighten(rgb(178, 56, 56), 10%);
+            }
+        }
+    }
+
+    .iconContainer{
+        background: rgba(0, 0, 0, 0.2);
+        box-sizing: border-box;
+        border-radius: 50%;
+        margin: 6px 12px;
+        height: 36px;
+        width: 36px;
+        cursor: pointer;
+
+        @media (max-width: 768px) {
+            height: 36px;
+            width: 36px;
+            margin: 2px 8px;
+        }
+        &.on {
+            background-color: gray;
+            .offIcon{
+                display: none;
+            }
+            .onIcon{
+                display: block;
+            }
+        }
+        &.off{
+            background-color: gray;
+            .offIcon{
+                display: block;
+            }
+            .onIcon{
+                display: none;
+            }
+        }
+
+
+        .onIcon{
+            color: rgba(122, 255, 100, 1)
+        }
+
+        > svg{
+            box-sizing: border-box;
+            cursor: pointer;
+            margin: 6px;
+        }
+    }
+}
+
+.chat-selectors {
+    background-color: rgba(206, 206, 206, 0.1);
+    flex-direction: column;
+    overflow-y: auto;
+
+    & > div {
+        background-color: rgba(155, 155, 155, 0.6);
+
+        & > div {
+            color: white;
+
+            ul {
+                background-color: initial;
+            }
+        }
+    }
+
+    @media (max-width: 768px) {
+        background-color: (0, 0, 0, 0.9);
+    }
+}
+
+.icon-margin-right {
+    margin-right: 3px;
 }

@@ -57,6 +57,10 @@ export class XRPluginWeb extends WebPlugin implements XRPluginPlugin {
     });
   }
 
+  async handleTap(): Promise<void> {
+
+  }
+
   async stop(): Promise<any> {
     const video = <HTMLVideoElement>document.getElementById("video");
     if (video) {
@@ -178,6 +182,20 @@ export class XRPluginWeb extends WebPlugin implements XRPluginPlugin {
 
   async hideVideo(options: {}): Promise<{ status: string }> {
     console.log("showVideo called to plugin on web");
+    return new Promise((resolve, reject) => {
+      resolve({ status: "success" })
+    });
+  }
+
+  async playVideo(options: {}): Promise<{ status: string }> {
+    console.log("playVideo called to plugin on web");
+    return new Promise((resolve, reject) => {
+      resolve({ status: "success" })
+    });
+  }
+
+  async pauseVideo(options: {}): Promise<{ status: string }> {
+    console.log("pauseVideo called to plugin on web");
     return new Promise((resolve, reject) => {
       resolve({ status: "success" })
     });

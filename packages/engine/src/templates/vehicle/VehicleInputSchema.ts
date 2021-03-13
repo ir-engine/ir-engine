@@ -1,18 +1,14 @@
 import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
-import { Thumbsticks } from '../../common/enums/Thumbsticks';
 import { isServer } from '../../common/functions/isServer';
 import { isClient } from '../../common/functions/isClient';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { Input } from "../../input/components/Input";
-import { GamepadButtons } from '../../input/enums/GamepadButtons';
+import { GamepadButtons, MouseInput, Thumbsticks } from '../../input/enums/InputEnums';
 import { InputType } from '../../input/enums/InputType';
-import { MouseInput } from '../../input/enums/MouseInput';
-import { InputRelationship } from '../../input/interfaces/InputRelationship';
 import { InputSchema } from '../../input/interfaces/InputSchema';
-import { BaseInputSchema } from "../../input/schema/BaseInputSchema";
 import { InputAlias } from "../../input/types/InputAlias";
 import { Network } from '../../networking/classes/Network';
 import { synchronizationComponents } from '../../networking/functions/synchronizationComponents';
@@ -29,7 +25,7 @@ const getOutCar: Behavior = (entityCar: Entity): void => {
     networkPlayerId = vehicle.wantsExit.filter(f => f != null)[0]
     console.warn('wantsExit: '+ vehicle.wantsExit);
   } else {
-    networkPlayerId = Network.instance.userNetworkId
+    networkPlayerId = Network.instance.localAvatarNetworkId
   }
 
   for (let i = 0; i < vehicle.seatPlane.length; i++) {
@@ -49,7 +45,7 @@ const getOutCar: Behavior = (entityCar: Entity): void => {
 
 const drive: Behavior = (entity: Entity, args: { direction: number }): void => {
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
-  if(isClient && vehicleComponent.driver != Network.instance.userNetworkId) return;
+  if(isClient && vehicleComponent.driver != Network.instance.localAvatarNetworkId) return;
   const vehicle = vehicleComponent.vehiclePhysics;
 
   vehicle.setBrake(0, 0);
@@ -67,7 +63,7 @@ const stop: Behavior = (entity: Entity, args: { direction: number }): void => {
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
   vehicleComponent.isMoved = false;
   return;
-  if(isClient && vehicleComponent.driver != Network.instance.userNetworkId) return;
+  if(isClient && vehicleComponent.driver != Network.instance.localAvatarNetworkId) return;
   const vehicle = vehicleComponent.vehiclePhysics;
 
   vehicle.setBrake(10, 0);
@@ -85,7 +81,7 @@ const driveByInputAxis: Behavior = (entity: Entity, args: { input: InputAlias; i
   const data = input.data.get(args.input);
 
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
-  if(isClient && vehicleComponent.driver != Network.instance.userNetworkId) return;
+  if(isClient && vehicleComponent.driver != Network.instance.localAvatarNetworkId) return;
   const vehicle = vehicleComponent.vehiclePhysics;
 
   vehicle.setBrake(0, 0);
@@ -106,7 +102,7 @@ const driveByInputAxis: Behavior = (entity: Entity, args: { input: InputAlias; i
 
 export const driveHandBrake: Behavior = (entity: Entity, args: { on: boolean }): void => {
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
-  if(isClient && vehicleComponent.driver != Network.instance.userNetworkId) return;
+  if(isClient && vehicleComponent.driver != Network.instance.localAvatarNetworkId) return;
   const vehicle = vehicleComponent.vehiclePhysics;
 
   vehicle.setBrake(args.on? 10 : 0, 0);
@@ -118,7 +114,7 @@ export const driveHandBrake: Behavior = (entity: Entity, args: { on: boolean }):
 const driveSteering: Behavior = (entity: Entity, args: { direction: number }): void => {
 
   const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
-  if(isClient && vehicleComponent.driver != Network.instance.userNetworkId) return;
+  if(isClient && vehicleComponent.driver != Network.instance.localAvatarNetworkId) return;
   const vehicle = vehicleComponent.vehiclePhysics;
 
   vehicle.setSteeringValue( vehicleComponent.maxSteerVal * args.direction, 0);
@@ -126,72 +122,50 @@ const driveSteering: Behavior = (entity: Entity, args: { direction: number }): v
 
 };
 
+const createVehicleInput = () => {
+  const map: Map<InputAlias, InputAlias> = new Map();
+  
+  map.set(MouseInput.LeftButton, BaseInput.PRIMARY);
+  map.set(MouseInput.RightButton, BaseInput.SECONDARY);
+  map.set(MouseInput.MiddleButton, BaseInput.INTERACT);
+
+  map.set(MouseInput.MouseMovement, BaseInput.MOUSE_MOVEMENT);
+  map.set(MouseInput.MousePosition, BaseInput.SCREENXY);
+  map.set(MouseInput.MouseClickDownPosition, BaseInput.SCREENXY_START);
+  map.set(MouseInput.MouseClickDownTransformRotation, BaseInput.ROTATION_START);
+  map.set(MouseInput.MouseClickDownMovement, BaseInput.LOOKTURN_PLAYERONE);
+  map.set(MouseInput.MouseScroll, BaseInput.CAMERA_SCROLL);
+
+  map.set(GamepadButtons.A, BaseInput.JUMP);
+  map.set(GamepadButtons.B, BaseInput.CROUCH);
+  map.set(GamepadButtons.X, BaseInput.WALK);
+  map.set(GamepadButtons.Y, BaseInput.INTERACT);
+  map.set(GamepadButtons.DPad1, BaseInput.FORWARD);
+  map.set(GamepadButtons.DPad2, BaseInput.BACKWARD);
+  map.set(GamepadButtons.DPad3, BaseInput.LEFT);
+  map.set(GamepadButtons.DPad4, BaseInput.RIGHT);
+
+  map.set(Thumbsticks.Left, BaseInput.MOVEMENT_PLAYERONE);
+  map.set(Thumbsticks.Right, BaseInput.LOOKTURN_PLAYERONE);
+
+  map.set('w', BaseInput.FORWARD);
+  map.set('a', BaseInput.LEFT);
+  map.set('s', BaseInput.BACKWARD);
+  map.set('d', BaseInput.RIGHT);
+  map.set('e', BaseInput.INTERACT);
+  map.set(' ', BaseInput.JUMP);
+  map.set('shift', BaseInput.CROUCH);
+  map.set('p', BaseInput.POINTER_LOCK);
+  map.set('c', BaseInput.SECONDARY);
+
+  return map;
+}
 
 export const VehicleInputSchema: InputSchema = {
-  ...BaseInputSchema,
+  onAdded: [],
+  onRemoved: [],
   // Map mouse buttons to abstract input
-  mouseInputMap: {
-    buttons: {
-      [MouseInput.LeftButton]: BaseInput.PRIMARY,
-    //  [MouseInput.LeftButton]: BaseInput.INTERACT,
-      [MouseInput.RightButton]: BaseInput.SECONDARY,
-      [MouseInput.MiddleButton]: BaseInput.INTERACT
-    },
-    axes: {
-      [MouseInput.MouseMovement]: BaseInput.MOUSE_MOVEMENT,
-      [MouseInput.MousePosition]: BaseInput.SCREENXY,
-      [MouseInput.MouseClickDownPosition]: BaseInput.SCREENXY_START,
-      [MouseInput.MouseClickDownTransformRotation]: BaseInput.ROTATION_START,
-      [MouseInput.MouseClickDownMovement]: BaseInput.LOOKTURN_PLAYERONE,
-      [MouseInput.MouseScroll]: BaseInput.CAMERA_SCROLL
-    }
-  },
-  // Map gamepad buttons to abstract input
-  gamepadInputMap: {
-    buttons: {
-      [GamepadButtons.A]: BaseInput.JUMP,
-      [GamepadButtons.B]: BaseInput.CROUCH, // B - back
-      [GamepadButtons.X]: BaseInput.WALK, // X - secondary input
-      [GamepadButtons.Y]: BaseInput.INTERACT, // Y - tertiary input
-      // 4: BaseInput.DEFAULT, // LB
-      // 5: BaseInput.DEFAULT, // RB
-      // 6: BaseInput.DEFAULT, // LT
-      // 7: BaseInput.DEFAULT, // RT
-      // 8: BaseInput.DEFAULT, // Back
-      // 9: BaseInput.DEFAULT, // Start
-      // 10: BaseInput.DEFAULT, // LStick
-      // 11: BaseInput.DEFAULT, // RStick
-      [GamepadButtons.DPad1]: BaseInput.FORWARD, // DPAD 1
-      [GamepadButtons.DPad2]: BaseInput.BACKWARD, // DPAD 2
-      [GamepadButtons.DPad3]: BaseInput.LEFT, // DPAD 3
-      [GamepadButtons.DPad4]: BaseInput.RIGHT // DPAD 4
-    },
-    axes: {
-      [Thumbsticks.Left]: BaseInput.MOVEMENT_PLAYERONE,
-      [Thumbsticks.Right]: BaseInput.LOOKTURN_PLAYERONE
-    }
-  },
-  // Map keyboard buttons to abstract input
-  keyboardInputMap: {
-    w: BaseInput.FORWARD,
-    a: BaseInput.LEFT,
-    s: BaseInput.BACKWARD,
-    d: BaseInput.RIGHT,
-    ' ': BaseInput.JUMP,
-    shift: BaseInput.CROUCH,
-    p: BaseInput.POINTER_LOCK,
-    e: BaseInput.INTERACT,
-    c: BaseInput.SECONDARY
-  },
-  // Map how inputs relate to each other
-  inputRelationships: {
-    [BaseInput.FORWARD]: {opposes: [BaseInput.BACKWARD]} as InputRelationship,
-    [BaseInput.BACKWARD]: {opposes: [BaseInput.FORWARD]} as InputRelationship,
-    [BaseInput.LEFT]: {opposes: [BaseInput.RIGHT]} as InputRelationship,
-    [BaseInput.RIGHT]: {opposes: [BaseInput.LEFT]} as InputRelationship,
-    [BaseInput.CROUCH]: {blockedBy: [BaseInput.JUMP, BaseInput.WALK]} as InputRelationship,
-    [BaseInput.JUMP]: {overrides: [BaseInput.CROUCH]} as InputRelationship
-  },
+  inputMap: createVehicleInput(),
   // "Button behaviors" are called when button input is called (i.e. not axis input)
   inputButtonBehaviors: {
     [BaseInput.SECONDARY]: {

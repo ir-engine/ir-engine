@@ -1,14 +1,57 @@
 .toastContainer {
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    min-width: 400px;
-    word-wrap: break-word;
-    background-color: #fff;
-    background-clip: border-box;
-    border: 1px solid rgba(0,0,0,.125);
-    border-radius: .25rem;
-    margin-top: 20px;
-    margin-right: 20px;
+    display: block;
+    .toastMessageContainer {
+      display: flex;
+      max-width: 200px;
+      padding: 5px;
+      background: rgba(0, 0, 0, 0.2);
+      color: #ccc;
+      border-radius: 2px;
+      min-width: 110px;
+    }
+
+    .toastMessageContainer + .toastMessageContainer { margin-top: 5px; }
+
+    .toastMessage {
+      display: block;
+      min-width: calc(100% - 25px);
+      text-align: left !important;
+    }
+
+    .toastAction {
+      margin-left: 5px;
+      width: 25px;
+      align-self: flex-end;
+    }
+
+    .toastMessageContainer {
+      animation-duration: 0.2s;
+      animation-name: fadeIn, fadeOut, hide;
+      animation-delay: 0s, 3s, 3.2s;
+      animation-fill-mode: forwards;
+    }
+
+    @keyframes fadeOut { to { opacity: 0; } }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes hide { to { margin: 0; height: 0; padding: 0; } }
+}
+
+
+.userAdded { color: #21B84E; }
+.userRemoved { color: #f32f2f; }
+.userToastContainer { 
+    position: absolute;
+    top: 190px;
+    left: 20px;
+
+    @media screen and (min-width: 769px) {
+        right: 20px;
+        top: 20px;
+        left: initial;
+    }   
 }

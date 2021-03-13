@@ -3,10 +3,12 @@ import { DebugHelpersSystem } from "@xr3ngine/engine/src/debug/systems/DebugHelp
 import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import React, { useEffect, useRef, useState } from "react";
 import JSONTree from 'react-json-tree';
+import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
 
 export const NetworkDebug = () => {
   const [isShowing, setShowing] = useState(false);
   const [physicsDebug, setPhysicsDebug] = useState(false);
+  const [avatarDebug, setAvatarDebug] = useState(false);
 
   const showingStateRef = useRef(isShowing);
 
@@ -31,14 +33,20 @@ export const NetworkDebug = () => {
   const [remountCount, setRemountCount] = useState(0);
   const refresh = () => setRemountCount(remountCount + 1);
   const togglePhysicsDebug = () => { 
-    DebugHelpersSystem.instance.physicsDebugRenderer.setEnabled(!physicsDebug);
+    EngineEvents.instance.dispatchEvent({ type: DebugHelpersSystem.EVENTS.TOGGLE_PHYSICS, enabled: !physicsDebug })
     setPhysicsDebug(!physicsDebug);
+  };
+
+  const toggleAvatarDebug = () => { 
+    EngineEvents.instance.dispatchEvent({ type: DebugHelpersSystem.EVENTS.TOGGLE_AVATAR, enabled: !avatarDebug })
+    setAvatarDebug(!avatarDebug);
   };
 
   if (Network.instance !== null && isShowing) return (
     <div style={{ position: "absolute", overflowY: "auto", top: 0, zIndex: 100000, height: "auto", maxHeight: "95%", width: "auto", maxWidth: "50%" }}>
       <button type="submit" value="Refresh" onClick={refresh}>Refresh</button>
       <button type="button" value="Physics Debug" onClick={togglePhysicsDebug}>Physics Debug</button>
+      <button type="button" value="Avatar Debug" onClick={toggleAvatarDebug}>Avatar Debug</button>
       <div>
         <div>
           <h1>Network Object</h1>

@@ -1,6 +1,10 @@
 import { isClient } from './isClient';
 import { now } from "./now";
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
+import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
+import { EngineEvents } from '../../ecs/classes/EngineEvents';
+import { isWebWorker } from './getEnvironment';
+import { WebXRRendererSystem } from '../../renderer/WebXRRendererSystem';
 
 type TimerUpdateCallback = (delta: number, elapsedTime?: number) => any;
 
@@ -43,29 +47,34 @@ export function Timer (
   let timerRuns = 0;
   let prevTimerRuns = 0;
 
-  function render(time) {
-    if (Engine.xrSession) {
-      if (last !== null) {
-        delta = (time - last) / 1000;
-        accumulated = accumulated + delta;
-
-        if (fixedRunner) {
-          fixedRunner.run(delta);
-        }
-
-        if (networkRunner) {
-          networkRunner.run(delta);
-        }
-
-        if (callbacks.update) callbacks.update(delta, accumulated);
+  function xrAnimationLoop(time) {
+    if (last !== null) {
+      delta = (time - last) / 1000;
+      accumulated = accumulated + delta;
+      if (fixedRunner) {
+        fixedRunner.run(delta);
       }
-      last = time;
-  		Engine.renderer.render( Engine.scene, Engine.camera );
-    } else {
-      Engine.renderer.setAnimationLoop( null );
-      start();
+      if (networkRunner) {
+        networkRunner.run(delta);
+      }
+      if (callbacks.update) {
+        callbacks.update(delta, accumulated);
+      }
     }
+    last = time;
 	}
+
+  EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_START, async (ev: any) => {
+    stop();
+  });
+  EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_SESSION, async (ev: any) => {
+    console.log('STARTING XR', Engine.renderer?.xr)
+    Engine.renderer?.xr?.setAnimationLoop(xrAnimationLoop);
+  });
+  EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_END, async (ev: any) => {
+    Engine.renderer.setAnimationLoop(null);
+    start();
+  });
 
   const fixedRunner = callbacks.fixedUpdate? new FixedStepsRunner(fixedRate, callbacks.fixedUpdate) : null;
   const networkRunner = callbacks.fixedUpdate? new FixedStepsRunner(networkRate, callbacks.networkUpdate) : null;
@@ -73,57 +82,52 @@ export function Timer (
   const updateFunction = (isClient ? requestAnimationFrame : requestAnimationFrameOnServer);
 
   function onFrame (time) {
+
     timerRuns+=1;
     const itsTpsReportTime = TPS_REPORT_INTERVAL_MS && nextTpsReportTime <= time;
     if (TPS_REPORTS_ENABLED && itsTpsReportTime) {
       tpsPrintReport(time);
     }
 
-    if (Engine.xrSession) {
-      stop();
-      Engine.renderer.setAnimationLoop( render );
-      //  frameId = Engine.xrSession.requestAnimationFrame(toXR)
-    } else {
-      frameId = updateFunction(onFrame);
+    frameId = updateFunction(onFrame);
 
-      if (last !== null) {
-        delta = (time - last) / 1000;
-        accumulated = accumulated + delta;
+    if (last !== null) {
+      delta = (time - last) / 1000;
+      accumulated = accumulated + delta;
 
-        if (fixedRunner) {
-          tpsSubMeasureStart('fixed');
-          fixedRunner.run(delta);
-          tpsSubMeasureEnd('fixed');
-        }
+      if (fixedRunner) {
+        tpsSubMeasureStart('fixed');
+        fixedRunner.run(delta);
+        tpsSubMeasureEnd('fixed');
+      }
 
-        if (networkRunner) {
-          tpsSubMeasureStart('net');
-          networkRunner.run(delta);
-          tpsSubMeasureEnd('net');
+      if (networkRunner) {
+        tpsSubMeasureStart('net');
+        networkRunner.run(delta);
+        tpsSubMeasureEnd('net');
+      }
+
+      if (freeUpdatesLimit) {
+        freeUpdatesTimer += delta;
+      }
+      const updateFrame = !freeUpdatesLimit || freeUpdatesTimer > freeUpdatesLimitInterval;
+      if (updateFrame) {
+        if (callbacks.update) {
+          tpsSubMeasureStart('update');
+          callbacks.update(delta, accumulated);
+          tpsSubMeasureEnd('update');
         }
 
         if (freeUpdatesLimit) {
-          freeUpdatesTimer += delta;
-        }
-        const updateFrame = !freeUpdatesLimit || freeUpdatesTimer > freeUpdatesLimitInterval;
-        if (updateFrame) {
-          if (callbacks.update) {
-            tpsSubMeasureStart('update');
-            callbacks.update(delta, accumulated);
-            tpsSubMeasureEnd('update');
-          }
-
-          if (freeUpdatesLimit) {
-            freeUpdatesTimer %= freeUpdatesLimitInterval;
-          }
+          freeUpdatesTimer %= freeUpdatesLimitInterval;
         }
       }
-      last = time;
-      if (callbacks.render) {
-        tpsSubMeasureStart('render');
-        callbacks.render();
-        tpsSubMeasureEnd('render');
-      }
+    }
+    last = time;
+    if (callbacks.render) {
+      tpsSubMeasureStart('render');
+      callbacks.render();
+      tpsSubMeasureEnd('render');
     }
   }
 
@@ -182,17 +186,6 @@ export function Timer (
     prevTimerRuns = timerRuns;
   }
 
-/*
-  function toXR (timestamp, xrFrame) {
-    if (Engine.xrSession) {
-      Engine.xrSession.requestAnimationFrame(toXR)
-      onFrameXR(timestamp, xrFrame, callbacks)
-    } else {
-      xrFrame.session.end();
-      frameId = defaultAnimationFrame(onFrame)
-    }
-  }
-*/
   function start () {
     last = null;
     frameId = updateFunction(onFrame);

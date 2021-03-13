@@ -4,10 +4,18 @@ import styled, { ThemeContext } from "styled-components";
 import Dialog from "./Dialog";
 import { bytesToSize } from "@xr3ngine/engine/src/editor/functions/utils";
 
+/**
+ * [ColoredText used to provide color property Dynamically]
+ * @type {Styled component}
+ */
 const ColoredText = (styled as any).span`
   color: ${props => props.color};
 `;
 
+/**
+ * [PerformanceItemContainer used as wrapper element for Performance score]
+ * @type {Styled component}
+ */
 const PerformanceItemContainer = (styled as any).li`
   display: flex;
   min-height: 100px;
@@ -52,6 +60,16 @@ const PerformanceItemContainer = (styled as any).li`
   }
 `;
 
+/**
+ * [PerformanceCheckItem used to render view for PerformanceCheckDialog]
+ * @param       {String} score
+ * @param       {String} scoreColor
+ * @param       {String} title
+ * @param       {String} description
+ * @param       {String} learnMoreUrl
+ * @param       {node} children
+ * @constructor
+ */
 function PerformanceCheckItem({ score, scoreColor, title, description, learnMoreUrl, children }) {
   return (
     <PerformanceItemContainer>
@@ -75,6 +93,10 @@ function PerformanceCheckItem({ score, scoreColor, title, description, learnMore
   );
 }
 
+/**
+ * [declairing propTypes for PerformanceCheckItem]
+ * @type {Object}
+ */
 PerformanceCheckItem.propTypes = {
   score: PropTypes.string.isRequired,
   scoreColor: PropTypes.string.isRequired,
@@ -84,26 +106,39 @@ PerformanceCheckItem.propTypes = {
   learnMoreUrl: PropTypes.string.isRequired
 };
 
+/**
+ * [initializing scoreToValue with object containing Low Medium High]
+ * @type {Object}
+ */
 const scoreToValue = {
   Low: 0,
   Medium: 1,
   High: 2
 };
 
+/**
+ * [PerformanceCheckDialog used render view containing Performance scores]
+ * @param       {String} scores
+ * @param       {any} rest
+ * @constructor
+ */
 export default function PerformanceCheckDialog({ scores, ...rest }) {
   const theme: any = useContext(ThemeContext);
 
+  //initializing scoreToColor using theme
   const scoreToColor = {
     Low: theme.green,
     Medium: theme.yellow,
     High: theme.red
   };
 
+  // initializing texturesScore using scores.textures.largeTexturesScore if scoreToValue contains scores.textures.largeTexturesScore
+  // else setting scores.textures.score
   const texturesScore =
     scoreToValue[scores.textures.largeTexturesScore] > scoreToValue[scores.textures.score]
       ? scores.textures.largeTexturesScore
       : scores.textures.score;
-
+   // returing view containing Performance
   return (
     <Dialog {...rest}>
       <ul>
@@ -167,6 +202,7 @@ export default function PerformanceCheckDialog({ scores, ...rest }) {
   );
 }
 
+// declairing propTypes for PerformanceCheckDialog.
 PerformanceCheckDialog.propTypes = {
   scores: PropTypes.object.isRequired,
   tag: PropTypes.string.isRequired,
@@ -174,6 +210,7 @@ PerformanceCheckDialog.propTypes = {
   confirmLabel: PropTypes.string.isRequired
 };
 
+// initializing defaultProps for PerformanceCheckDialog
 PerformanceCheckDialog.defaultProps = {
   tag: "div",
   title: "Performance Check",

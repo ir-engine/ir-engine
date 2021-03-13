@@ -57,17 +57,14 @@ export class ServerNetworkOutgoingSystem extends System {
     ) {
       const bufferReliable = WorldStateModel.toBuffer(Network.instance.worldState, 'Reliable');
       Network.instance.transport.sendReliableData(bufferReliable);
-      //console.log(bufferReliable.byteLength);
     }
 
-    const bufferUnReliable = WorldStateModel.toBuffer(Network.instance.worldState, 'UnReliable');
-    //console.log(bufferUnReliable.byteLength);
+    const bufferUnreliable = WorldStateModel.toBuffer(Network.instance.worldState, 'Unreliable');
     try {
-      Network.instance.transport.sendData(bufferUnReliable);
+      Network.instance.transport.sendData(bufferUnreliable);
     } catch (error) {
       console.warn("Couldn't send data: ", error)
     }
-
   }
 
   /** System queries. */

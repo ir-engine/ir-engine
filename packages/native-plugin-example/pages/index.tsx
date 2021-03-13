@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Quaternion, Scene, Vector3, WebGLRenderer } from 'three';
 
 
+
 const { isNative } = Capacitor;
 
 enum RecordingStates {
@@ -17,8 +18,6 @@ const meshFilePath = typeof location !== 'undefined' ? location.origin + "/volum
 const videoFilePath = typeof location !== 'undefined' ? location.origin + "/volumetric/liam.mp4" : "";
 
 export const IndexPage = (): any => {
-
-
     const [initializationResponse, setInitializationResponse] = useState("");
     const [cameraStartedState, setCameraStartedState] = useState("");
     const [cameraPoseState, setCameraPoseState] = useState("");
@@ -31,7 +30,7 @@ export const IndexPage = (): any => {
     const raf = () => {
         renderer.render(scene, camera);
         requestAnimationFrame(raf);
-    }
+    };
     useEffect(() => {
         (async function () {
             scene = new Scene();
@@ -144,27 +143,6 @@ export const IndexPage = (): any => {
         })();
     }, []);
 
-    let video;
-    const playVideo = () => {
-        if(video == null)
-            video = document.createElement("VIDEO");
-
-        console.log("Playing video");
-        console.log("*********** PATH IS", savedFilePath);
-
-        video.setAttribute("width", "320");
-        video.setAttribute("height", "240");
-
-        video.style.position = "absolute";
-        video.style.width = "100%";
-        video.style.height = "100%";
-
-        video.setAttribute("src", Capacitor.convertFileSrc(savedFilePath));
-
-        video.play();
-
-    }
-
     const toggleRecording = () => {
         if (recordingState === RecordingStates.OFF) {
             setRecordingState(RecordingStates.ON);
@@ -193,12 +171,20 @@ export const IndexPage = (): any => {
 
     const handleTap = () => {
         Plugins.XRPlugin.handleTap();
-    }
+    };
+
+    const playVideo = () => {
+        Plugins.XRPlugin.playVideo();
+    };
+
+    const pauseVideo = () => {
+        Plugins.XRPlugin.pauseVideo();
+    };
 
 
     const clearAnchors = () => {
         Plugins.XRPlugin.clearAnchors();
-    }
+    };
 
     // useEffect(() => {
     //     setSecondState("Initialized and effected");
@@ -217,6 +203,8 @@ export const IndexPage = (): any => {
                 <button type="button" style={{ padding: "1em" }} onClick={() => handleTap()}>Place AR</button>
                 <button type="button" style={{ padding: "1em" }} onClick={() => clearAnchors()}>clearAnchors</button>
                 <button type="button" style={{ padding: "1em" }} onClick={() => playVideo()}>playVideo</button>
+                <button type="button" style={{ padding: "1em" }} onClick={() => pauseVideo()}>pauseVideo</button>
+
 
             </div>
 

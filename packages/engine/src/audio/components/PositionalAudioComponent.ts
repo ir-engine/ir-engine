@@ -1,5 +1,5 @@
-import { PositionalAudio } from 'three';
 import { Component } from '../../ecs/classes/Component';
+import { PositionalAudio } from '../../ecs/classes/Engine';
 import { Types } from '../../ecs/types/Types';
 
 /** Component wrapper class fro {@link https://threejs.org/docs/index.html#api/en/audio/PositionalAudio | PositionalAudio } from three.js. */

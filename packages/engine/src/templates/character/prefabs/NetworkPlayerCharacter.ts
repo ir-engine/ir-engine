@@ -29,7 +29,7 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import skeletonString from "../../../xr/Skeleton";
 import {
 	copySkeleton,
-	countActors as countCharacters,
+	countCharacters,
 	findArmature,
 	findClosestParentBone,
 	findEye,
@@ -41,10 +41,10 @@ import {
 	findSpine,
 	getTailBones,
 	importSkeleton
-} from "../../../xr/SkeletonFunctions";
-import PoseManager from "../../../xr/vrarmik/PoseManager";
-import ShoulderTransforms from "../../../xr/vrarmik/ShoulderTransforms";
-import { fixSkeletonZForward } from "../../../xr/vrarmik/SkeletonUtils";
+} from "../../../xr/functions/AvatarFunctions";
+import XRPose from "../../../xr/classes/XRPose";
+import ShoulderTransforms from "../../../xr/ShoulderTransforms";
+import { fixSkeletonZForward } from "../../../xr/SkeletonUtils";
 import { CharacterAvatars, DEFAULT_AVATAR_ID } from "../CharacterAvatars";
 import { CharacterInputSchema } from '../CharacterInputSchema';
 import { CharacterStateSchema } from '../CharacterStateSchema';
@@ -335,7 +335,7 @@ function initiateIKSystem(entity: Entity, object) {
 		})
 	}
 
-	const _findFinger = (r, left) => {
+	const findFinger = (r, left) => {
 		const fingerTipBone = actor.tailBones
 			.filter(
 				bone =>
@@ -362,18 +362,18 @@ function initiateIKSystem(entity: Entity, object) {
 	}
 	const fingerBones = {
 		left: {
-			thumb: _findFinger(/thumb/gi, true),
-			index: _findFinger(/index/gi, true),
-			middle: _findFinger(/middle/gi, true),
-			ring: _findFinger(/ring/gi, true),
-			little: _findFinger(/little/gi, true) || _findFinger(/pinky/gi, true)
+			thumb: findFinger(/thumb/gi, true),
+			index: findFinger(/index/gi, true),
+			middle: findFinger(/middle/gi, true),
+			ring: findFinger(/ring/gi, true),
+			little: findFinger(/little/gi, true) || findFinger(/pinky/gi, true)
 		},
 		right: {
-			thumb: _findFinger(/thumb/gi, false),
-			index: _findFinger(/index/gi, false),
-			middle: _findFinger(/middle/gi, false),
-			ring: _findFinger(/ring/gi, false),
-			little: _findFinger(/little/gi, false) || _findFinger(/pinky/gi, false)
+			thumb: findFinger(/thumb/gi, false),
+			index: findFinger(/index/gi, false),
+			middle: findFinger(/middle/gi, false),
+			ring: findFinger(/ring/gi, false),
+			little: findFinger(/little/gi, false) || findFinger(/pinky/gi, false)
 		}
 	}
 	actor.fingerBones = fingerBones
@@ -507,7 +507,7 @@ function initiateIKSystem(entity: Entity, object) {
 	}
 	const eyePosition = _getEyePosition()
 
-	actor.poseManager = new PoseManager(actor)
+	actor.poseManager = new XRPose()
 	actor.shoulderTransforms = new ShoulderTransforms(actor)
 
 	const _getOffset = (bone, parent = bone.parent) =>
@@ -582,116 +582,6 @@ function initiateIKSystem(entity: Entity, object) {
 
   actor.shoulderTransforms.Start()
 
-  actor.update = () => {
-    const upRotation = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2)
-    const leftRotation = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI * 0.8)
-    const rightRotation = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -Math.PI * 0.8)
-    const localVector = new Vector3()
-    const modelScaleFactor = actor.inputs.hmd.scaleFactor
-    if (modelScaleFactor !== actor.lastModelScaleFactor) {
-      actor.model.scale.set(modelScaleFactor, modelScaleFactor, modelScaleFactor)
-      actor.lastModelScaleFactor = modelScaleFactor
-    }
-
-    actor.shoulderTransforms.Update()
-
-    for (const k in actor.modelBones) {
-      const modelBone = actor.modelBones[k]
-      const modelBoneOutput = actor.modelBoneOutputs[k]
-
-      if (k === "Hips") {
-        modelBone.position.copy(modelBoneOutput.position)
-      }
-      modelBone.quaternion.multiplyQuaternions(modelBoneOutput.quaternion, modelBone.initialQuaternion)
-
-      if (k === "Left_ankle" || k === "Right_ankle") {
-        modelBone.quaternion.multiply(upRotation)
-      } else if (k === "Left_wrist") {
-        modelBone.quaternion.multiply(leftRotation) // center
-      } else if (k === "Right_wrist") {
-        modelBone.quaternion.multiply(rightRotation) // center
-      }
-      modelBone.updateMatrixWorld()
-    }
-
-    const now = Date.now()
-    const timeDiff = Math.min(now - actor.lastTimestamp, 1000)
-    actor.lastTimestamp = now
-
-    if ((actor.options as any).fingers) {
-      const _processFingerBones = left => {
-        const fingerBones = left ? actor.fingerBones.left : actor.fingerBones.right
-        const gamepadInput = left ? actor.inputs.rightGamepad : actor.inputs.leftGamepad
-        for (const k in fingerBones) {
-          const fingerBone = fingerBones[k]
-          if (fingerBone) {
-            let setter
-            if (k === "thumb") {
-              setter = (q, i) =>
-                q.setFromAxisAngle(
-                  localVector.set(0, left ? 1 : -1, 0),
-                  gamepadInput.grip * Math.PI * (i === 0 ? 0.125 : 0.25)
-                )
-            } else if (k === "index") {
-              setter = (q, i) =>
-                q.setFromAxisAngle(localVector.set(0, 0, left ? -1 : 1), gamepadInput.pointer * Math.PI * 0.5)
-            } else {
-              setter = (q, i) =>
-                q.setFromAxisAngle(localVector.set(0, 0, left ? -1 : 1), gamepadInput.grip * Math.PI * 0.5)
-            }
-            let index = 0
-            fingerBone.traverse(subFingerBone => {
-              setter(subFingerBone.quaternion, index++)
-            })
-          }
-        }
-      }
-      _processFingerBones(true)
-      _processFingerBones(false)
-    }
-
-    if ((options as any).visemes) {
-      const aaValue = Math.min(actor.volume * 10, 1)
-      const blinkValue = (() => {
-        const nowWindow = now % 2000
-        if (nowWindow >= 0 && nowWindow < 100) {
-          return nowWindow / 100
-        } else if (nowWindow >= 100 && nowWindow < 200) {
-          return 1 - (nowWindow - 100) / 100
-        } else {
-          return 0
-        }
-      })()
-      actor.skinnedMeshes.forEach(o => {
-        const { morphTargetDictionary, morphTargetInfluences } = o
-        if (morphTargetDictionary && morphTargetInfluences) {
-          let aaMorphTargetIndex = morphTargetDictionary["vrc.v_aa"]
-          if (aaMorphTargetIndex === undefined) {
-            aaMorphTargetIndex = morphTargetDictionary["morphTarget26"]
-          }
-          if (aaMorphTargetIndex !== undefined) {
-            morphTargetInfluences[aaMorphTargetIndex] = aaValue
-          }
-
-          let blinkLeftMorphTargetIndex = morphTargetDictionary["vrc.blink_left"]
-          if (blinkLeftMorphTargetIndex === undefined) {
-            blinkLeftMorphTargetIndex = morphTargetDictionary["morphTarget16"]
-          }
-          if (blinkLeftMorphTargetIndex !== undefined) {
-            morphTargetInfluences[blinkLeftMorphTargetIndex] = blinkValue
-          }
-
-          let blinkRightMorphTargetIndex = morphTargetDictionary["vrc.blink_right"]
-          if (blinkRightMorphTargetIndex === undefined) {
-            blinkRightMorphTargetIndex = morphTargetDictionary["morphTarget17"]
-          }
-          if (blinkRightMorphTargetIndex !== undefined) {
-            morphTargetInfluences[blinkRightMorphTargetIndex] = blinkValue
-          }
-        }
-      })
-    }
-  }
 }
 
 function initializeBonePositions(actor, setups) {
@@ -810,8 +700,6 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
   // These will be created for all players on the network
   networkComponents: [
     // ActorComponent has values like movement speed, deceleration, jump height, etc
-    { type: CharacterComponent },
-    // Handle character's body
     { type: CharacterComponent, data: { avatarId: DEFAULT_AVATAR_ID }},
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },

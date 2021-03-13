@@ -7,9 +7,27 @@ import {
   Object3D,
   PositionalAudio as THREE_PositionalAudio,
   Scene,
+  XRRenderState,
+  MathUtils,
+  WebGLRenderer
 } from 'three';
-import { MathUtils } from 'three';
-import { isWebWorker } from '../common/functions/getEnvironment';
+import { 
+  XRHandedness,
+  XRHitResult,
+  XRHitTestOptionsInit,
+  XRHitTestSource,
+  XRInputSource,
+  XRRay,
+  XRReferenceSpace,
+  XRReferenceSpaceType,
+  XRSession,
+  XRSpace,
+  XRTargetRayMode,
+  XRTransientInputHitTestOptionsInit,
+  XRTransientInputHitTestSource
+} from '../input/types/WebXR';
+
+
 const { generateUUID } = MathUtils;
 
 export interface Message {
@@ -20,9 +38,11 @@ export interface Message {
 
 export enum MessageType {
   OFFSCREEN_CANVAS,
+  CANVAS_CREATED,
   ADD_EVENT,
   REMOVE_EVENT,
   EVENT,
+  TRANSFER,
   DOCUMENT_ELEMENT_CREATE,
   DOCUMENT_ELEMENT_FUNCTION_CALL,
   DOCUMENT_ELEMENT_PARAM_SET,
@@ -43,9 +63,11 @@ export enum MessageType {
   AUDIO_SOURCE_ELEMENT_SET,
 }
 
+export const MESSAGE_QUEUE_EVENT_BEFORE_SEND_QUEUE = 'MESSAGE_QUEUE_EVENT_BEFORE_SEND_QUEUE';
+
 function simplifyObject(object: any): any {
-  let messageData = {};
-  for (let prop in object)
+  const messageData = {};
+  for (const prop in object)
     if (typeof object[prop] !== 'function')
       messageData[prop] = object[prop];
   return messageData;
@@ -63,48 +85,50 @@ function fixDocumentEvent(event: any) {
   delete obj.path;
   delete obj.srcElement;
   delete obj.target;
+  delete obj.view;
+  delete obj.sourceCapabilities;
+  delete obj.toElement;
+  delete obj.relatedTarget;
+  delete obj.fromElement;
   return obj;
 }
 
-class ExtendableProxy {
-  constructor(
-    getset = {
-      get(target: any, name: any, receiver: any) {
-        if (!Reflect.has(target, name)) {
-          return undefined;
-        }
-        return Reflect.get(target, name, receiver);
-      },
-      set(target: any, name: any, value: any, receiver: any) {
-        return Reflect.set(target, name, value, receiver);
-      },
-    },
-  ) {
-    return new Proxy(this, getset);
-  }
-}
+// class ExtendableProxy {
+//   constructor(
+//     getset = {
+//       get(target: any, name: any, receiver: any) {
+//         if (!Reflect.has(target, name)) {
+//           return undefined;
+//         }
+//         return Reflect.get(target, name, receiver);
+//       },
+//       set(target: any, name: any, value: any, receiver: any) {
+//         return Reflect.set(target, name, value, receiver);
+//       },
+//     },
+//   ) {
+//     return new Proxy(this, getset);
+//   }
+// }
 
-class EventDispatcherProxy extends ExtendableProxy {
+export class EventDispatcherProxy {//extends ExtendableProxy {
   [x: string]: any;
   eventTarget: EventTarget;
   eventListener: any;
-  messageTypeFunctions: Map<MessageType, any>;
+  messageTypeFunctions: Map<MessageType | string, any>;
   _listeners: any;
 
   constructor({
     eventTarget,
     eventListener,
-    getset,
   }: {
     eventTarget: EventTarget;
     eventListener: any;
-    getset?: any;
   }) {
-    super(getset);
     this._listeners = {};
     this.eventTarget = eventTarget;
     this.eventListener = eventListener;
-    this.messageTypeFunctions = new Map<MessageType, any>();
+    this.messageTypeFunctions = new Map<MessageType | string, any>();
 
     this.messageTypeFunctions.set(MessageType.EVENT, (event: any) => {
       event.preventDefault = () => {};
@@ -143,9 +167,9 @@ class EventDispatcherProxy extends ExtendableProxy {
   }
 
   removeEventListener(type: string, listener: any) {
-    var listenerArray = this._listeners[type];
+    const listenerArray = this._listeners[type];
     if (listenerArray !== undefined) {
-      var index = listenerArray.indexOf(listener);
+      const index = listenerArray.indexOf(listener);
       if (index !== -1) {
         listenerArray.splice(index, 1);
       }
@@ -153,24 +177,25 @@ class EventDispatcherProxy extends ExtendableProxy {
   }
 
   dispatchEvent(event: any, fromSelf?: boolean) {
-    var listenerArray = this._listeners[event.type];
+    const listenerArray = this._listeners[event.type];
     if (listenerArray !== undefined) {
       event.target = this;
-      var array = listenerArray.slice(0);
-      for (var i = 0, l = array.length; i < l; i++) {
+      const array = listenerArray.slice(0);
+      for (let i = 0, l = array.length; i < l; i++) {
         array[i].call(this, event);
       }
     }
   }
 }
 
-class MessageQueue extends EventDispatcherProxy {
+export class MessageQueue extends EventDispatcherProxy {
   messagePort: any;
   queue: Message[];
   interval: NodeJS.Timeout;
   remoteDocumentObjects: Map<string, DocumentElementProxy>;
   eventTarget: EventTarget;
   object3dProxies: Object3DProxy[] = [];
+
 
   constructor({
     messagePort,
@@ -207,12 +232,20 @@ class MessageQueue extends EventDispatcherProxy {
       transferables
     } as Message);
   }
+  transfer(transferables: Transferable[]) {
+    this.queue.push({
+      messageType: MessageType.TRANSFER,
+      message: {},
+      transferables
+    });
+  }
   sendQueue() {
+    this.dispatchEvent({ type: MESSAGE_QUEUE_EVENT_BEFORE_SEND_QUEUE }, true);
     if (!this.queue?.length) return;
     const messages: object[] = [];
     this.queue.forEach((message: Message) => {
       messages.push({
-        type: message.messageType,
+        messageType: message.messageType,
         message: message.message,
       });
     });
@@ -231,16 +264,16 @@ class MessageQueue extends EventDispatcherProxy {
   receiveQueue(queue: object[]) {
     queue.forEach((element: object) => {
       /** @ts-ignore */
-      const { type, message } = element;
+      const { messageType, message } = element;
       if (!message.returnID || message.returnID === '') {
-        if (this.messageTypeFunctions.has(type)) {
-          this.messageTypeFunctions.get(type)(message);
+        if (this.messageTypeFunctions.has(messageType)) {
+          this.messageTypeFunctions.get(messageType)(message);
         }
       } else {
         if (this.remoteDocumentObjects.get(message.returnID)) {
           this.remoteDocumentObjects
             .get(message.returnID)
-            ?.messageTypeFunctions.get(type)(message);
+            ?.messageTypeFunctions.get(messageType)(message);
         }
       }
     });
@@ -269,97 +302,109 @@ class MessageQueue extends EventDispatcherProxy {
   }
 
   dispatchEvent(
-    { type, detail }: { type: string, detail: any },
+    ev: any,
     fromSelf?: boolean
   ): void {
     if(!fromSelf) {
       this.queue.push({
         messageType: MessageType.EVENT,
-        message: { type, detail },
+        message: simplifyObject(ev),
       } as Message);
     }
-    super.dispatchEvent({ type, detail });
+    super.dispatchEvent(ev);
   }
 }
 
-class DocumentElementProxy extends EventDispatcherProxy {
+export class DocumentElementProxy extends EventDispatcherProxy {
   messageQueue: MessageQueue;
   uuid: string;
   type: string;
   eventTarget: EventTarget;
-  transferedProps: string[] = [];
-  remoteCalls: string[];
 
   constructor({
     messageQueue,
     type,
-    remoteCalls,
     eventTarget,
+    elementArgs,
+    ignoreCreate = false,
+    uuid,
   }: {
     messageQueue: MessageQueue;
     type: string;
-    remoteCalls?: string[];
     eventTarget?: EventTarget;
+    elementArgs?: any,
+    ignoreCreate?: boolean;
+    uuid?: string;
   }) {
     super({
       eventTarget: eventTarget || messageQueue.eventTarget,
-      eventListener: (args: any) => {
+      eventListener: (listenerArgs: any) => {
         this.messageQueue.queue.push({
           messageType: MessageType.EVENT,
-          message: simplifyObject(args),
+          message: simplifyObject(listenerArgs),
         } as Message);
       },
-      getset: {
-        get(target: any, name: any, receiver: any) {
-          if (!Reflect.has(target, name)) {
-            return undefined;
-          }
-          return Reflect.get(target, name, receiver);
-        },
-        set(target: any, name: any, value: any, receiver: any) {
-          const props = Reflect.get(target, 'transferedProps') as string[];
-          if (props?.includes(name)) {
-            Reflect.get(target, 'messageQueue').queue.push({
-              messageType: MessageType.DOCUMENT_ELEMENT_PARAM_SET,
-              message: {
-                param: name,
-                uuid: Reflect.get(target, 'uuid'),
-                arg: value,
-              },
-            } as Message);
-          }
-          return Reflect.set(target, name, value, receiver);
-        },
-      },
     });
-    this.remoteCalls = remoteCalls || [];
-    for (let call of this.remoteCalls) {
-      this[call] = (...args: any) => {
+    this.type = type;
+    this.messageQueue = messageQueue;
+    this.eventTarget = eventTarget || messageQueue.eventTarget;
+    this.uuid = uuid || generateUUID();
+    this.messageQueue.remoteDocumentObjects.set(this.uuid, this);
+    if(!ignoreCreate) {
+      this.messageQueue.queue.push({
+        messageType: MessageType.DOCUMENT_ELEMENT_CREATE,
+        message: {
+          type,
+          uuid: this.uuid,
+          elementArgs,
+        },
+      } as Message);
+    }
+  }
+  __callFunc(call: string, ...args: any) {
+    this.messageQueue.queue.push({
+      messageType: MessageType.DOCUMENT_ELEMENT_FUNCTION_CALL,
+      message: {
+        call,
+        uuid: this.uuid,
+        args,
+      },
+    } as Message);
+    return true;
+  }
+  async __callFuncAsync(call: string, ...args: any) {
+    try {
+      return await new Promise<any>((resolve) => {
+        const requestID = generateUUID();
+        const onRequestReturned = (ev) => {
+          this.messageQueue.removeEventListener(requestID, onRequestReturned);
+          resolve(ev.detail.returnedData);
+        }
+        this.messageQueue.addEventListener(requestID, onRequestReturned);
         this.messageQueue.queue.push({
           messageType: MessageType.DOCUMENT_ELEMENT_FUNCTION_CALL,
           message: {
             call,
             uuid: this.uuid,
+            requestID,
             args,
           },
         } as Message);
-        return true;
-      };
+      })
+    } catch (e) {
+      console.warn(e)
     }
-    this.type = type;
-    this.messageQueue = messageQueue;
-    this.eventTarget = eventTarget || messageQueue.eventTarget;
-    this.uuid = generateUUID();
-    this.messageQueue.remoteDocumentObjects.set(this.uuid, this);
+  }
+  __setValue(prop, value) {
     this.messageQueue.queue.push({
-      messageType: MessageType.DOCUMENT_ELEMENT_CREATE,
+      messageType: MessageType.DOCUMENT_ELEMENT_PARAM_SET,
       message: {
-        type,
+        param: prop,
         uuid: this.uuid,
+        arg: value,
       },
     } as Message);
   }
-
   addEventListener(
     type: string,
     listener: (event: DispatchEvent) => void,
@@ -383,101 +428,142 @@ class DocumentElementProxy extends EventDispatcherProxy {
   }
 
   dispatchEvent(
-    { type, detail }: { type: string, detail: any },
+    ev: any,
     fromMain?: boolean
   ): void {
     if(!fromMain) {
+      ev.uuid = this.uuid;
       this.messageQueue.queue.push({
         messageType: MessageType.DOCUMENT_ELEMENT_EVENT,
-        message: { type, detail, uuid: this.uuid },
+        message: simplifyObject(ev),
       } as Message);
     } 
-    super.dispatchEvent({ type, detail });
+    super.dispatchEvent(ev);
   }
 }
 
-const audioRemoteFunctionCalls: string[] = ['play'];
-const audioRemoteProps: string[] = ['src'];
-
-class AudioDocumentElementProxy extends DocumentElementProxy {
+export class AudioDocumentElementProxy extends DocumentElementProxy {
+  _src: string;
+  _autoplay: string;
+  _isPlaying = false;
   constructor({
     messageQueue,
     type = 'audio',
-    remoteCalls = [],
+    elementArgs,
   }: {
     messageQueue: MessageQueue;
     type?: string;
-    remoteCalls?: string[];
+    elementArgs?: any,
   }) {
     super({
       messageQueue,
       type,
-      remoteCalls: [...remoteCalls, ...audioRemoteFunctionCalls],
+      elementArgs,
     });
-    this.transferedProps.push(...audioRemoteProps);
+  }
+  get src() {
+    return this._src;
+  }
+  set src(value) {
+    this._src = value;
+    this.__setValue('src', value);
+  }
+  get autoplay() {
+    return this._autoplay;
+  }
+  set autoplay(value) {
+    this._autoplay = value;
+    this.__setValue('autoplay', value);
+  }
+  get isPlaying() {
+    return this._isPlaying;
+  }
+  play() {
+    this._isPlaying = true;
+    this.__callFunc('play');
+  }
+  pause() {
+    this._isPlaying = false;
+    this.__callFunc('pause');
+  }
+  dispatchEvent(
+    ev: any,
+    fromMain?: boolean
+  ): void {
+    console.log(ev)
+    switch(ev.type) {
+      case 'play': this._isPlaying = true; break;
+      case 'pause': case 'paused': case 'ended': this._isPlaying = false; break;
+      default: break;
+    }
+    super.dispatchEvent(ev, fromMain);
   }
 }
 
-const videoRemoteFunctionCalls: string[] = [];
-const videoRemoteProps: string[] = [];
-
 export class VideoDocumentElementProxy extends AudioDocumentElementProxy {
   frameCallback: any;
+  _frameCallback: any;
   width: number;
   height: number;
-  video: ImageData | null;
+  video: OffscreenCanvas;
   readyState: number;
+  currentTime: number;
 
-  constructor({ messageQueue }: { messageQueue: MessageQueue }) {
+  constructor({ messageQueue, elementArgs }: { messageQueue: MessageQueue, elementArgs?: any }) {
     super({
       messageQueue,
       type: 'video',
-      remoteCalls: [],
+      elementArgs,
     });
-    this.video = null;
+    this.video = new OffscreenCanvas(0, 0);
     this.width = 0;
     this.height = 0;
     this.readyState = 0;
+    this.currentTime = 0;
     this.messageTypeFunctions.set(
       MessageType.VIDEO_ELEMENT_CREATE,
       ({ width, height }: { width: number; height: number }) => {
         this.width = width;
         this.height = height;
-        this.video = new ImageData(
-          new Uint8ClampedArray(4 * this.width * this.height).fill(0),
-          this.width,
-          this.height,
-        );
+        this.video.width = width;
+        this.video.height = height;
       },
     );
     this.messageTypeFunctions.set(
       MessageType.VIDEO_ELEMENT_FRAME,
       ({
-        imageBuffer,
+        imageBitmap,
         readyState,
+        currentTime,
+        metaData,
+        now,
       }: {
-        imageBuffer: ArrayBuffer;
-        readyState: number;
+        imageBitmap: ImageBitmap,
+        readyState: number,
+        currentTime: number,
+        metaData: any,
+        now: any,
       }) => {
-        this.video = new ImageData(
-          new Uint8ClampedArray(imageBuffer),
-          this.width,
-          this.height,
-        );
+        this.video.getContext('2d').drawImage(imageBitmap, 0, 0);
+        this.currentTime = currentTime;
         this.readyState = readyState;
         if (this.frameCallback) {
-          this.frameCallback();
+          this.frameCallback(now, metaData);
+        }
+        if (this._frameCallback) {
+          this._frameCallback(now, metaData);
         }
       },
     );
-
-    this.transferedProps.push(...videoRemoteProps);
   }
   requestVideoFrameCallback(callback: any) {
     this.frameCallback = callback;
   }
+  _requestVideoFrameCallback(callback: any) {
+    this._frameCallback = callback;
+  }
 }
-class Object3DProxy extends Object3D {
+export class Object3DProxy extends Object3D {
   [x: string]: any;
   proxyID: string;
   setQueue: Map<string, any> = new Map<string, any>();
@@ -522,88 +608,6 @@ class Object3DProxy extends Object3D {
   }
 }
 
-export class AudioListenerProxy extends Object3DProxy {
-  constructor() {
-    super({ type: 'AudioListener' });
-  }
-}
-
-export type AudioBufferProxyID = string;
-
-export class AudioLoaderProxy {
-  constructor() {}
-  load(url: string, callback: any) {
-    const requestCallback = (event: DispatchEvent) => {
-      callback(event.type as AudioBufferProxyID);
-      ((globalThis as any).__messageQueue as MessageQueue).removeEventListener(
-        url,
-        requestCallback,
-      );
-    };
-    ((globalThis as any).__messageQueue as MessageQueue).addEventListener(
-      url,
-      requestCallback,
-    );
-    ((globalThis as any).__messageQueue as MessageQueue).queue.push({
-      messageType: MessageType.AUDIO_BUFFER_LOAD,
-      message: {
-        url,
-      },
-    } as Message);
-  }
-}
-
-export class AudioObjectProxy extends Object3DProxy {
-  constructor(args: any = {}) {
-    super({ type: args.type || 'Audio' });
-  }
-  // HTMLMediaElement - <audio> & <video>
-  setMediaElementSource(source: AudioDocumentElementProxy) {
-    ((globalThis as any).__messageQueue as MessageQueue).queue.push({
-      messageType: MessageType.AUDIO_SOURCE_ELEMENT_SET,
-      message: {
-        sourceID: source.uuid,
-        proxyID: this.proxyID,
-      },
-    } as Message);
-  }
-  // HTMLMediaStream - Webcams
-  // this might need to be implemented at application level
-  // setMediaStreamSource(source: AudioDocumentElementProxy) {
-  //   ((globalThis as any).__messageQueue as MessageQueue).queue.push({
-  //     messageType: MessageType.AUDIO_SOURCE_STREAM_SET,
-  //     message: {
-  //       sourceID: source.uuid,
-  //       proxyID: this.proxyID,
-  //     },
-  //   } as Message);
-  // }
-  // AudioBuffer - AudioLoader.load
-  setBuffer(buffer: AudioBufferProxyID) {
-    ((globalThis as any).__messageQueue as MessageQueue).queue.push({
-      messageType: MessageType.AUDIO_BUFFER_SET,
-      message: {
-        buffer,
-        proxyID: this.proxyID,
-      },
-    } as Message);
-  }
-  setLoop(loop: boolean) {
-    this.__callFunc('setLoop', loop);
-  }
-  setVolume(volume: number) {
-    this.__callFunc('setVolume', volume);
-  }
-  play() {
-    this.__callFunc('play');
-  }
-}
-
-export class PositionalAudioObjectProxy extends AudioObjectProxy {
-  constructor() {
-    super({ type: 'PositionalAudio' });
-  }
-}
 export class WorkerProxy extends MessageQueue {
   canvas: HTMLCanvasElement;
   constructor({
@@ -616,30 +620,11 @@ export class WorkerProxy extends MessageQueue {
     super({ messagePort, eventTarget, eventListener: (args: any) => {
       this.queue.push({
         messageType: MessageType.EVENT,
-        message: fixDocumentEvent(args),
+        message: simplifyObject(args),
       } as Message);
     }, });
 
     this.canvas = eventTarget as HTMLCanvasElement;
-
-    // this.messageTypeFunctions.set(MessageType.EVENT, (event: any) => {
-    //   event.preventDefault = () => {};
-    //   event.stopPropagation = () => {};
-    //   delete event.target;
-    //   this.dispatchEvent(new CustomEvent(event.type, { detail: event.detail }));
-    // });
-    // this.messageTypeFunctions.set(
-    //   MessageType.ADD_EVENT,
-    //   ({ type }: { type: string }) => {
-    //     this.addEventListener(type, this.eventListener); 
-    //   },
-    // );
-    // this.messageTypeFunctions.set(
-    //   MessageType.REMOVE_EVENT,
-    //   ({ type }: { type: string }) => {
-    //     this.removeEventListener(type, this.eventListener);
-    //   },
-    // );
   }
 }
 
@@ -669,26 +654,7 @@ export class MainProxy extends MessageQueue {
     this.devicePixelRatio = 0;
 
     this.focus = this.focus.bind(this);
-
-    // this.messageTypeFunctions.set(MessageType.EVENT, (event: any) => {
-    //   event.preventDefault = () => {};
-    //   event.stopPropagation = () => {};
-    //   delete event.target;
-    //   this.dispatchEvent(new CustomEvent(event.type, { detail: event.detail }));
-    // });
   }
-
-  // addEventListener(type: string, listener: (event: DispatchEvent) => void, targetElement?) {
-  //   super.addEventListener(type, listener, targetElement);
-  // }
-
-  // removeEventListener(type: string, listener: (event: DispatchEvent) => void, targetElement?) {
-  //   super.removeEventListener(type, listener, targetElement);
-  // }
-
-  // dispatchEvent(event: any, targetElement?) {
-  //   super.dispatchEvent(event, targetElement);
-  // }
   focus() {}
   get ownerDocument() {
     return this;
@@ -722,7 +688,7 @@ export class MainProxy extends MessageQueue {
 export async function createWorker(
   worker: Worker,
   canvas: HTMLCanvasElement,
-  options: any
+  userArgs: any
 ) {
   const messageQueue = new WorkerProxy({
     messagePort: worker,
@@ -731,10 +697,27 @@ export async function createWorker(
   const { width, height } = canvas.getBoundingClientRect();
   const offscreen = canvas.transferControlToOffscreen();
   const documentElementMap = new Map<string, any>();
+  const sceneObjects: Map<string, Object3D> = new Map<string, Object3D>();
+  const audioScene = new Scene();
+  const audioLoader = new THREE_AudioLoader();
+  const audioBuffers: Map<string, AudioBuffer> = new Map<string, AudioBuffer>();
+  let audioListener: any = undefined;
+
   messageQueue.messageTypeFunctions.set(
     MessageType.DOCUMENT_ELEMENT_FUNCTION_CALL,
-    ({ call, uuid, args }: { call: string; uuid: string; args: any[] }) => {
-      documentElementMap.get(uuid)[call](...args);
+    async ({ call, uuid, args, requestID }: { call: string; uuid: string; args: any[], requestID?: any }) => {
+      console.log(call, uuid, args, requestID, documentElementMap.get(uuid), documentElementMap.get(uuid)[call])
+      try {
+        const returnedData = await documentElementMap.get(uuid)[call](...args)
+        if(requestID) {
+          messageQueue.sendEvent(requestID, { returnedData });
+        }
+      } catch (e) { 
+        console.log(e)
+        if(requestID) {
+          messageQueue.sendEvent(requestID, { returnedData: undefined });
+        }
+      }
     },
   );
   messageQueue.messageTypeFunctions.set(
@@ -783,24 +766,28 @@ export async function createWorker(
   );
   messageQueue.messageTypeFunctions.set(
     MessageType.DOCUMENT_ELEMENT_CREATE,
-    ({ type, uuid }: { type: string; uuid: string }) => {
+    ({ type, uuid, elementArgs }: { type: string; uuid: string, elementArgs: any }) => {
       switch (type) {
         case 'window': documentElementMap.set(uuid, (window as any)); break;
+        // @ts-ignore
+        case 'navigator.xr': documentElementMap.set(uuid, new XRSystemPolyfill({ messageQueue, documentElementMap })); break;
         case 'document': documentElementMap.set(uuid, (document as any)); break;
-        case 'canvas:': documentElementMap.set(uuid, canvas); break;
+        case 'canvas': documentElementMap.set(uuid, canvas); break;
+        case 'mediaElementSource': documentElementMap.set(uuid, audioListener.context.createMediaElementSource(documentElementMap.get(elementArgs.elementID) as HTMLMediaElement) as MediaElementAudioSourceNode);
         case 'audio':
           const audio = document.createElement('audio') as HTMLVideoElement;
+          elementArgs !== undefined && applyElementArguments(audio, elementArgs);
           documentElementMap.set(uuid, audio);
           break;
         case 'video':
           const video = document.createElement('video') as HTMLVideoElement;
+          elementArgs !== undefined && applyElementArguments(video, elementArgs);
           documentElementMap.set(uuid, video);
           video.onplay = (ev: any) => {
-            const drawCanvas = document.createElement(
-              'canvas',
-            ) as HTMLCanvasElement;
-            drawCanvas.width = video.videoWidth;
-            drawCanvas.height = video.videoHeight;
+            const drawCanvas = new OffscreenCanvas(
+              video.videoWidth,
+              video.videoHeight
+            );
             const context = drawCanvas.getContext('2d');
             messageQueue.queue.push({
               messageType: MessageType.VIDEO_ELEMENT_CREATE,
@@ -811,25 +798,21 @@ export async function createWorker(
               },
             } as Message);
 
-            const sendFrame = async () => {
-              context?.drawImage(video, 0, 0);
-              const imageBuffer = context?.getImageData(
-                0,
-                0,
-                video.videoWidth,
-                video.videoHeight,
-              ).data.buffer;
-              if (imageBuffer) {
-                messageQueue.queue.push({
-                  messageType: MessageType.VIDEO_ELEMENT_FRAME,
-                  message: {
-                    imageBuffer,
-                    readyState: video.readyState,
-                    returnID: uuid,
-                  },
-                  transferables: [imageBuffer],
-                } as Message);
-              }
+            const sendFrame = (now, metaData) => {
+              context.drawImage(video, 0, 0);
+              const imageBitmap = drawCanvas.transferToImageBitmap();
+              messageQueue.queue.push({
+                messageType: MessageType.VIDEO_ELEMENT_FRAME,
+                message: {
+                  imageBitmap,
+                  readyState: video.readyState,
+                  returnID: uuid,
+                  currentTime: video.currentTime,
+                  now,
+                  metaData,
+                },
+                transferables: [imageBitmap],
+              } as Message);
               /** @ts-ignore */
               video.requestVideoFrameCallback(sendFrame);
             };
@@ -842,12 +825,6 @@ export async function createWorker(
       }
     },
   );
-  const sceneObjects: Map<string, Object3D> = new Map<string, Object3D>();
-  const audioScene = new Scene();
-  const audioLoader = new THREE_AudioLoader();
-  const audioBuffers: Map<string, AudioBuffer> = new Map<string, AudioBuffer>();
-  let audioListener: any = undefined;
-
   messageQueue.messageTypeFunctions.set(
     MessageType.AUDIO_BUFFER_LOAD,
     ({ url }: { url: string }) => {
@@ -864,8 +841,8 @@ export async function createWorker(
   );
   messageQueue.messageTypeFunctions.set(
     MessageType.AUDIO_BUFFER_SET,
-    ({ buffer, proxyID }: { buffer: string; proxyID: string }) => {
-      const audioBuffer = audioBuffers.get(buffer) as AudioBuffer;
+    ({ bufferID, proxyID }: { bufferID: string; proxyID: string }) => {
+      const audioBuffer = audioBuffers.get(bufferID) as AudioBuffer;
       const obj = sceneObjects.get(proxyID) as THREE_Audio;
       if (audioBuffer && obj) {
         obj.setBuffer(audioBuffer);
@@ -960,17 +937,6 @@ export async function createWorker(
       }
     },
   );
-  messageQueue.queue.push({
-    messageType: MessageType.OFFSCREEN_CANVAS,
-    message: {
-      width,
-      height,
-      canvas: offscreen,
-      devicePixelRatio: window.devicePixelRatio,
-      ...options
-    },
-    transferables: [offscreen],
-  } as Message);
   window.addEventListener('resize', () => {
     messageQueue.queue.push({
       messageType: MessageType.EVENT,
@@ -983,88 +949,297 @@ export async function createWorker(
       },
     } as Message);
   });
+  messageQueue.queue.push({
+    messageType: MessageType.OFFSCREEN_CANVAS,
+    message: {
+      width,
+      height,
+      canvas: offscreen,
+      devicePixelRatio: window.devicePixelRatio,
+      userArgs,
+    },
+    transferables: [offscreen],
+  } as Message);
+  await new Promise<void>((resolve) => {
+    const createOffscreenCanvasListener = () => {
+      messageQueue.messageTypeFunctions.delete(MessageType.CANVAS_CREATED);
+      resolve();
+    }
+    messageQueue.messageTypeFunctions.set(MessageType.CANVAS_CREATED, createOffscreenCanvasListener);
+  });
   (globalThis as any).__messageQueue = messageQueue;
   return messageQueue;
 }
 
+
+export const applyElementArguments = (el: any, args: any) => {
+  Object.entries(args).forEach((entry: any) => {
+    const [key, value] = entry;
+    el[key] = value;
+  });
+  return el;
+}
 class WindowProxy extends DocumentElementProxy {
   constructor({
     messageQueue,
     type = 'window',
-    remoteCalls = [],
   }: {
     messageQueue: MessageQueue;
     type?: string;
-    remoteCalls?: string[];
   }) {
     super({
       messageQueue,
       type,
-      remoteCalls: [...remoteCalls],
     });
-    // this.transferedProps.push();
   }
   focus: () => {}
-  get ownerDocument() {
-    return (globalThis as any).document;
-  }
-  get width() {
-    return this.messageQueue.width;
-  }
-  get height() {
-    return this.messageQueue.height;
-  }
-  get clientWidth() {
-    return this.messageQueue.width;
-  }
-  get clientHeight() {
-    return this.messageQueue.height;
-  }
-  get innerWidth() {
-    return this.messageQueue.width;
-  }
-  get innerHeight() {
-    return this.messageQueue.height;
-  }
-  get devicePixelRatio() {
-    return this.messageQueue.devicePixelRatio;
-  }
+  get ownerDocument() { return (globalThis as any).document; }
+  get width() { return this.messageQueue.width; }
+  get height() { return this.messageQueue.height; }
+  get clientWidth() { return this.messageQueue.width; }
+  get clientHeight() { return this.messageQueue.height; }
+  get innerWidth() { return this.messageQueue.width; }
+  get innerHeight() { return this.messageQueue.height; }
+  get devicePixelRatio() { return this.messageQueue.devicePixelRatio; }
 }
 
 class DocumentProxy extends DocumentElementProxy {
   constructor({
     messageQueue,
     type = 'document',
-    remoteCalls = [],
   }: {
     messageQueue: MessageQueue;
     type?: string;
-    remoteCalls?: string[];
   }) {
     super({
       messageQueue,
       type,
-      remoteCalls: [...remoteCalls],
     });
-    // this.transferedProps.push();
   }
   get ownerDocument() {
     return (globalThis as any).document
   }
-  createElement(type: string): DocumentElementProxy | null {
+  createElement(type: string, elementArgs: any): DocumentElementProxy | null {
     switch (type) {
       case 'audio':
-        return new AudioDocumentElementProxy({ messageQueue: this.messageQueue });
+        return new AudioDocumentElementProxy({ messageQueue: this.messageQueue, elementArgs });
       case 'video':
-        return new VideoDocumentElementProxy({ messageQueue: this.messageQueue });
+        return new VideoDocumentElementProxy({ messageQueue: this.messageQueue, elementArgs });
+      case 'media':
+        return new DocumentElementProxy({ messageQueue: this.messageQueue, type: 'mediaElementSource', elementArgs });
       default:
         return null;
     }
   }
 }
 
+class CanvasProxy extends DocumentElementProxy {
+  constructor({
+    messageQueue,
+    type = 'canvas',
+  }: {
+    messageQueue: MessageQueue;
+    type?: string;
+  }) {
+    super({
+      messageQueue,
+      type,
+    });
+  }
+}
+
+class XRSystemProxy extends DocumentElementProxy {
+  constructor({
+    messageQueue,
+  }: {
+    messageQueue: MessageQueue;
+  }) {
+    super({
+      messageQueue,
+      type: 'navigator.xr',
+    });
+  }
+
+  async isSessionSupported(sessionMode) {
+    return await this.__callFuncAsync('isSessionSupported', sessionMode);
+  }
+
+  async requestSession(sessionMode): Promise<XRSessionProxy> {
+    const uuid = await this.__callFuncAsync('requestSession', sessionMode);
+    return new XRSessionProxy({ uuid, messageQueue: this.messageQueue, });
+  }
+}
+
+export const OFFSCREEN_XR_EVENTS = {
+  SESSION_START: 'OFFSCREEN_XR_EVENTS_SESSION_START',
+  SESSION_CREATED: 'OFFSCREEN_XR_EVENTS_SESSION_CREATED',
+  SESSION_END: 'OFFSCREEN_XR_EVENTS_SESSION_END',
+}
+
+class XRSystemPolyfill {
+  messageQueue: MessageQueue;
+  documentElementMap: Map<string, any>;
+
+  constructor({ messageQueue, documentElementMap }: { messageQueue: MessageQueue; documentElementMap: Map<string, any> }) {
+    this.messageQueue = messageQueue;
+    this.documentElementMap = documentElementMap;
+  }
+
+  async isSessionSupported(sessionMode) {
+    return await (navigator as any).xr.isSessionSupported(sessionMode);
+  }
+
+  async requestSession(sessionMode) {
+    const session: XRSession = await (navigator as any).xr.requestSession(sessionMode)
+    document.dispatchEvent(new CustomEvent(OFFSCREEN_XR_EVENTS.SESSION_START, { detail: { session } }));
+    const uuid = generateUUID();
+    this.documentElementMap.set(uuid, session);
+    //@ts-ignore
+    session.createOffscreenSession = async ({ framebufferScaleFactor }) => {
+
+      //@ts-ignore
+      this.messageQueue.eventTarget.hidden = true;
+      const canvas = document.createElement('canvas');
+      document.body.append(canvas)
+      const context = canvas.getContext('webgl2', { xrCompatible: true });
+      //@ts-ignore
+			const attributes = context.getContextAttributes();
+      //@ts-ignore
+			if (context.xrCompatible !== true) {
+        //@ts-ignore
+				await context.makeXRCompatible();
+			}
+
+      //@ts-ignore
+			const baseLayer = new XRWebGLLayer(session, context, {
+				antialias: attributes.antialias,
+				alpha: attributes.alpha,
+				depth: attributes.depth,
+				stencil: attributes.stencil,
+        framebufferScaleFactor
+      });
+      
+			await session.updateRenderState({ baseLayer });
+      document.dispatchEvent(new CustomEvent(OFFSCREEN_XR_EVENTS.SESSION_CREATED, { detail: { baseLayer, context, session, canvas } }))
+    }
+
+    // const inputSources: XRInputSource[] = session.inputSources;
+    // const sourceProxies: XRInputSourcePolyfill[] = [];
+
+    // const createNewInputSourceProxy = (inputSource: XRInputSource) => {
+    //   const polyfill = new XRInputSourcePolyfill(inputSource);
+    //   sourceProxies.push(polyfill);
+
+    //   this.messageQueue.queue.push({
+    //     messageType: XR_PROXY_EVENTS.INPUT_SOURCES,
+    //     message: {
+    //       type: 'add',
+    //       //@ts-ignore
+    //       inputSource: sourceProxies.toJson()
+    //     },
+    //   } as Message);
+    // }
+
+    // const removeInputSourceProxy = (inputSource: XRInputSource) => {
+    //   //@ts-ignore
+    //   sourceProxies.splice(sourceProxies.indexOf(inputSource), 1);
+    // }
+
+    // inputSources.forEach(createNewInputSourceProxy)
+    // session.addEventListener('inputsourceschange', (ev) => {
+    //   console.log(ev)
+    //   ev.added.forEach(createNewInputSourceProxy)
+    //   ev.removed.forEach(removeInputSourceProxy)
+
+    // })
+
+    return uuid;
+  }
+}
+
+export class XRSessionProxy extends DocumentElementProxy implements XRSession {
+  messageQueue: MessageQueue;
+  requestAnimationFrame: any;
+  renderState: XRRenderState;
+  inputSources: XRInputSource[] = [];
+  constructor({ uuid, messageQueue }: { uuid: string, messageQueue: MessageQueue; }) {
+    super({ uuid, messageQueue, type: 'xr_session', ignoreCreate: true })
+    this.messageQueue = messageQueue;
+  }
+  async requestReferenceSpace(type: XRReferenceSpaceType): Promise<XRReferenceSpace> {
+    return this.__callFuncAsync('requestReferenceSpace', type);
+  }
+  async updateRenderState(XRRenderStateInit: XRRenderState): Promise<void> {
+    this.__callFunc('updateRenderState', XRRenderStateInit);
+    return
+  }
+  async end(): Promise<void> {
+    this.__callFunc('end');
+    return
+  }
+  async requestHitTestSource(options: XRHitTestOptionsInit): Promise<XRHitTestSource> { 
+    return this.__callFuncAsync('requestHitTestSource', options);
+  }
+  async requestHitTestSourceForTransientInput(options: XRTransientInputHitTestOptionsInit): Promise<XRTransientInputHitTestSource> {
+    return this.__callFuncAsync('requestHitTestSourceForTransientInput', options);
+  }
+  async requestHitTest(ray: XRRay, referenceSpace: XRReferenceSpace): Promise<XRHitResult[]> {
+    return this.__callFuncAsync('requestHitTest', ray, referenceSpace);
+  }
+  updateWorldTrackingState(options: { planeDetectionState?: { enabled: boolean } }): void {
+    this.__callFunc('updateWorldTrackingState', options);
+  }
+  async createOffscreenSession(layerInit) {
+    return this.__callFuncAsync('createOffscreenSession', layerInit);
+  }
+}
+
+// export class XRInputSourcePolyfill implements XRInputSource {
+//   inputSource: XRInputSource;
+//   handedness: XRHandedness;
+//   targetRayMode: XRTargetRayMode;
+//   targetRaySpace: XRSpace;
+//   gripSpace: XRSpace | undefined;
+//   gamepad: Gamepad | undefined;
+//   profiles: string[];
+
+//   constructor(inputSource) {
+//     this.inputSource = inputSource;
+//     this.handedness = inputSource.handedness;
+//     this.targetRayMode = inputSource.targetRayMode;
+//     this.targetRaySpace = inputSource.targetRaySpace;
+//     this.gripSpace = inputSource.gripSpace;
+//     this.gamepad = inputSource.gamepad;
+//     this.profiles = inputSource.profiles;
+//   }
+
+//   toJson() {
+//     return {
+//       handedness: this.handedness,
+//       targetRayMode: this.targetRayMode,
+//       targetRaySpace: this.targetRaySpace,
+//       gripSpace: {},
+//       gamepad: {
+//         axes: this.gamepad.axes,
+//         buttons: this.gamepad.buttons,
+//         connected: this.gamepad.connected,
+//         hand: this.gamepad.hand,
+//         hapticActuators: this.gamepad.hapticActuators,
+//         id: this.gamepad.id,
+//         index: this.gamepad.index,
+//         mapping: this.gamepad.mapping,
+//         pose: this.gamepad.pose,
+//         timestamp: this.gamepad.timestamp,
+//       },
+//       profiles: this.profiles,
+//     }
+//   }
+// }
+
+
 export async function receiveWorker(onCanvas: any) {
   const messageQueue = new MainProxy({ messagePort: globalThis as any });
+  const canvasProxy = new CanvasProxy({ messageQueue });
   messageQueue.messageTypeFunctions.set(
     MessageType.OFFSCREEN_CANVAS,
     (args: any) => {
@@ -1073,13 +1248,11 @@ export async function receiveWorker(onCanvas: any) {
         height,
         width,
         devicePixelRatio,
-        options
       }: {
         canvas: OffscreenCanvas;
         width: number;
         height: number;
         devicePixelRatio: number;
-        options
       } = args;
       messageQueue.canvas = canvas;
       messageQueue.width = width;
@@ -1089,26 +1262,31 @@ export async function receiveWorker(onCanvas: any) {
         type: string,
         listener: (event: any) => void,
       ) => {
-        // messageQueue.addEventListener(type, listener, 'canvas');
+        canvasProxy.addEventListener(type, listener);
       };
       canvas.removeEventListener = (
         type: string,
         listener: (event: any) => void,
       ) => {
-        // messageQueue.removeEventListener(type, listener, 'canvas');
+        canvasProxy.removeEventListener(type, listener);
       };
       canvas.dispatchEvent = (
         event: any
       ): boolean => {
-        // delete event.target;
-        // messageQueue.dispatchEvent(event, 'canvas');
+        delete event.target;
+        canvasProxy.dispatchEvent(event);
         return true;
       };
       /** @ts-ignore */
       canvas.ownerDocument = (globalThis as any).document;
       (globalThis as any).window = new WindowProxy({ messageQueue });
       (globalThis as any).document = new DocumentProxy({ messageQueue });
+      (globalThis as any).navigator.xr = new XRSystemProxy({ messageQueue });
       onCanvas(args, messageQueue);
+      messageQueue.queue.push({
+        messageType: MessageType.CANVAS_CREATED,
+        message: {}
+      });
     },
   );
   messageQueue.addEventListener('resize', (ev: any) => {
