@@ -324,6 +324,7 @@ const Invites = (props: Props): any => {
                 onClose={() => {
                     setRightDrawerOpen(false);
                     updateInviteTarget('user', null);
+                    setTabIndex(0);
                 }}
                 onOpen={() => {
                 }}
@@ -451,6 +452,7 @@ const Invites = (props: Props): any => {
                                 indicatorColor="primary"
                                 textColor="primary"
                                 aria-label="Invite Type"
+                                className={styles['target-type']}
                             >
 
                                 <Tab
@@ -567,7 +569,10 @@ const Invites = (props: Props): any => {
                                         >
                                             {friends.map((friend) => {
                                                 return <MenuItem
-                                                    className={styles['flex-center']}
+                                                    className={classNames({
+                                                        [styles['flex-center']]: true,
+                                                        [styles['friend-selector']]: true
+                                                    })}
                                                     key={friend.id}
                                                     value={friend.id}
                                                 >

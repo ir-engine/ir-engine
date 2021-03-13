@@ -90,7 +90,7 @@
 
 .group-select,
 .friend-select {
-    min-width: 100px;
+    min-width: 100px !important;
 }
 
 .flex-justify-center {
@@ -106,9 +106,14 @@
 
 .username {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 0.5em;
+
+    .send-button {
+        margin-right: 10px;
+    }
 }
 
 .location-grid {
@@ -121,4 +126,12 @@
             background-color: darkgoldenrod;
         }
     }
+}
+
+.friend-selector {
+    color: white !important;
+}
+
+.target-type {
+    margin-bottom: 10px;
 }
