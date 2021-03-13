@@ -177,9 +177,9 @@ export default class DracosisPlayer {
         } else {
           const onUserEngage = () => {
             this.play();
-            EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
+            EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
           }
-          EngineEvents.instance.addEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
+          EngineEvents.instance?.addEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
         }
       }
 
