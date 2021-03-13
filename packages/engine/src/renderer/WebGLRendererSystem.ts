@@ -150,6 +150,7 @@ export class WebGLRendererSystem extends System {
       this.enabled = ev.enable;
     });
     EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_START, async (ev: any) => {
+      Engine.renderer.outputEncoding = sRGBEncoding;
       const sessionInit = { optionalFeatures: ['local'] };
       try {
         const session = await (navigator as any).xr.requestSession("immersive-vr", sessionInit)
@@ -363,6 +364,7 @@ export class WebGLRendererSystem extends System {
   }
 
   setUsePostProcessing(usePostProcessing) {
+    if(Engine.renderer?.xr?.isPresenting) return;
     WebGLRendererSystem.usePostProcessing = usePostProcessing;
     Engine.renderer.outputEncoding = WebGLRendererSystem.usePostProcessing ? LinearEncoding : sRGBEncoding;
     saveGraphicsSettingsToStorage();

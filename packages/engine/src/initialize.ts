@@ -117,6 +117,7 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
     registerSystem(WebGLRendererSystem, { priority: 1001, canvas });
     registerSystem(WebXRRendererSystem, { offscreen: useOffscreen });
     Engine.viewportElement = Engine.renderer.domElement;
+    Engine.renderer.xr.enabled = Engine.xrSupported;
   }
 
   Engine.engineTimerTimeout = setTimeout(() => {
