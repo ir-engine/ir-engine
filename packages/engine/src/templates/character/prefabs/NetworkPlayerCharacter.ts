@@ -6,7 +6,6 @@ import { Vec3 } from "cannon-es";
 import { AnimationClip, AnimationMixer, BoxGeometry, Group, Matrix4, Mesh, MeshLambertMaterial, Quaternion, Scene, SkinnedMesh, Vector3 } from "three";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { AssetLoaderState } from "../../../assets/components/AssetLoaderState";
-import { GLTFLoader } from "../../../assets/loaders/gltf/GLTFLoader";
 import { PositionalAudioComponent } from '../../../audio/components/PositionalAudioComponent';
 import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
 import { CameraModes } from '../../../camera/types/CameraModes';
@@ -51,6 +50,7 @@ import { CharacterStateSchema } from '../CharacterStateSchema';
 import { CharacterStateTypes } from "../CharacterStateTypes";
 import { CharacterComponent } from '../components/CharacterComponent';
 import { NamePlateComponent } from '../components/NamePlateComponent';
+import { getLoader } from "../../../assets/functions/LoadGLTF";
 
 
 export class AnimationManager {
@@ -64,8 +64,7 @@ export class AnimationManager {
 				resolve([]);
 				return;
 			}
-
-			new GLTFLoader().load('/models/avatars/Animation.glb', gltf => {
+			getLoader().load('/models/avatars/Animation.glb', gltf => {
 					this._animations = gltf.animations;
 					this._animations?.forEach(clip => {
 						// TODO: make list of morph targets names

@@ -88,7 +88,6 @@ export class Engine {
   static renderer: WebGLRenderer = null
   static csm: CSM = null
   static xrSession: XRSession = null
-  static xrReferenceSpace = null
   static context = null
 
   /**
