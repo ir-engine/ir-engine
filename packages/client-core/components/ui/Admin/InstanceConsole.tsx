@@ -33,7 +33,7 @@ if (!global.setImmediate) {
 const { publicRuntimeConfig } = getConfig();
 
 interface Props {
-    router?: Router;
+    router: Router;
     adminState?: any;
     authState?: any;
     locationState?: any;
@@ -121,17 +121,14 @@ function InstanceConsole(props: Props) {
 
 
     interface EnhancedTableProps {
-        object: string,
         numSelected: number;
         onRequestSort: (event: React.MouseEvent<unknown>, property) => void;
-        onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
         order: Order;
         orderBy: string;
-        rowCount: number;
     }
 
     function EnhancedTableHead(props: EnhancedTableProps) {
-        const { object, order, orderBy, onRequestSort } = props;
+        const {  order, orderBy, onRequestSort } = props;
         const createSortHandler = (property) => (event: React.MouseEvent<unknown>) => {
             onRequestSort(event, property);
         };

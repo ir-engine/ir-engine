@@ -21,10 +21,6 @@ import { ThemeProvider } from "styled-components";
 import url from 'url';
 import './styles.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import restProvider from 'ra-data-simple-rest';
-import { createHashHistory } from 'history';
-import { Admin, Resource } from 'react-admin';
-import createAdminStore from './createAdminStore';
 
 const config = getConfig().publicRuntimeConfig;
 

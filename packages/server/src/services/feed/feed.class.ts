@@ -63,14 +63,14 @@ export class Feed extends Service {
     const loggedInUser = extractLoggedInUserFromParams(params);
 
     let select = `SELECT feed.*, user.id as userId, user.name as userName, COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl `;
-    let from = ` FROM \`feed\` as feed`;
+    const from = ` FROM \`feed\` as feed`;
     let join = ` JOIN \`user\` as user ON user.id=feed.authorId
                   LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
                   JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
                   JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
                   `;
-    let where = ` WHERE 1`;
-    let order = ` GROUP BY feed.id
+    const where = ` WHERE 1`;
+    const order = ` GROUP BY feed.id
     ORDER BY feed.createdAt DESC    
     LIMIT :skip, :limit `;
 
@@ -135,13 +135,13 @@ export class Feed extends Service {
       const loggedInUser = extractLoggedInUserFromParams(params);
 
       let select = `SELECT feed.*, user.id as userId, user.name as userName, COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl `;
-      let from = ` FROM \`feed\` as feed`;
+      const from = ` FROM \`feed\` as feed`;
       let join = ` JOIN \`user\` as user ON user.id=feed.authorId
                     LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
                     JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
                     JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
                     `;
-      let where = ` WHERE feed.id=:id`;      
+      const where = ` WHERE feed.id=:id`;      
 
       const queryParamsReplacements = {
         id,

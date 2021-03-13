@@ -243,5 +243,5 @@ export class Engine {
   static gamepadButtons: BinaryType[] = [];
   static gamepadInput: number[] = [];
 
-  static xrSupported: boolean = false;
+  static xrSupported = false;
 }
