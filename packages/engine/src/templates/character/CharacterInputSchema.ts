@@ -130,7 +130,15 @@ const setVisible = (character: CharacterComponent, visible: boolean): void => {
   }
 };
 
+let changeTimeout = undefined;
 const switchCameraMode = (entity: Entity, args: any = { pointerLock: false, mode: CameraModes.ThirdPerson }): void => {
+  
+  if(changeTimeout !== undefined) return;
+  changeTimeout = setTimeout(() => {
+    clearTimeout(changeTimeout);
+    changeTimeout = undefined;
+  }, 250);
+
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 
   const cameraFollow = getMutableComponent(entity, FollowCameraComponent);
@@ -160,6 +168,7 @@ const switchCameraMode = (entity: Entity, args: any = { pointerLock: false, mode
   }
 };
 
+let lastScrollDelta = 0;
 /**
  * Change camera distance.
  * @param entity Entity holding camera and input component.
@@ -171,13 +180,17 @@ const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:inputAxes
     return;
   }
 
+  const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent);
+  if(cameraFollow === undefined) return //console.warn("cameraFollow is undefined");
+  
   const inputPrevValue = inputComponent.prevData.get(inputAxes)?.value as number ?? 0;
   const inputValue = inputComponent.data.get(inputAxes).value as number;
 
-  const delta = inputValue - inputPrevValue;
-  
-  const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent);
-  if(cameraFollow === undefined) return //console.warn("cameraFollow is undefined");
+  const delta = Math.min(1, Math.max(-1, inputValue - inputPrevValue));
+  if(cameraFollow.mode !== CameraModes.ThirdPerson && delta === lastScrollDelta) {
+    return
+  }
+  lastScrollDelta = delta;
 
   switch(cameraFollow.mode) {
     case CameraModes.FirstPerson:
@@ -636,6 +649,15 @@ export const CharacterInputSchema: InputSchema = {
         }
       ],
       changed: [
+        {
+          behavior: changeCameraDistanceByDelta,
+          args: {
+            input: BaseInput.CAMERA_SCROLL,
+            inputType: InputType.ONEDIM
+          }
+        }
+      ],
+      unchanged: [
         {
           behavior: changeCameraDistanceByDelta,
           args: {
