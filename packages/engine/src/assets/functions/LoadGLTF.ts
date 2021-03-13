@@ -38,6 +38,7 @@ export function getLoader(): GLTFLoader {
  * @returns a promise of {@link LoadGLTFResultInterface}.
  */
 export async function LoadGLTF(url: AssetUrl): Promise<LoadGLTFResultInterface> {
+  console.log('LoadGLTF', url)
     return await new Promise<LoadGLTFResultInterface>((resolve, reject) => {
         getLoader().load(url, (gltf) => {
             loadExtentions(gltf);

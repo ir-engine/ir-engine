@@ -116,40 +116,6 @@ export class EntityActionSystem extends System {
           xRControllers.controllerRotationRight.z,
           xRControllers.controllerRotationRight.w
         );
-
-        // inputs.axes6DOF.push({
-        //     input: XRInput.HEAD,
-        //     x: xRControllers.headPosition.x,
-        //     y: xRControllers.headPosition.y,
-        //     z: xRControllers.headPosition.z,
-        //     qX: xRControllers.headRotation.x,
-        //     qY: xRControllers.headRotation.y,
-        //     qZ: xRControllers.headRotation.z,
-        //     qW: xRControllers.headRotation.w
-        //   });
-
-        //   inputs.axes6DOF.push({
-        //     input: XRInput.CONTROLLER_LEFT,
-        //     x: xRControllers.controllerPositionLeft.x,
-        //     y: xRControllers.controllerPositionLeft.y,
-        //     z: xRControllers.controllerPositionLeft.z,
-        //     qX: xRControllers.controllerRotationLeft.x,
-        //     qY: xRControllers.controllerRotationLeft.y,
-        //     qZ: xRControllers.controllerRotationLeft.z,
-        //     qW: xRControllers.controllerRotationLeft.w
-        //   });
-
-        //   inputs.axes6DOF.push({
-        //     input: XRInput.CONTROLLER_RIGHT,
-        //     x: xRControllers.controllerPositionRight.x,
-        //     y: xRControllers.controllerPositionRight.y,
-        //     z: xRControllers.controllerPositionRight.z,
-        //     qX: xRControllers.controllerRotationRight.x,
-        //     qY: xRControllers.controllerRotationRight.y,
-        //     qZ: xRControllers.controllerRotationRight.z,
-        //     qW: xRControllers.controllerRotationRight.w
-        //   });
-        //   console.log("********** PUSHING XR CONTROLLERS TO INPUT")
       });
     }
 

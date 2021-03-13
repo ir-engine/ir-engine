@@ -1123,36 +1123,6 @@ class XRSystemPolyfill {
       document.dispatchEvent(new CustomEvent(OFFSCREEN_XR_EVENTS.SESSION_CREATED, { detail: { baseLayer, context, session, canvas } }))
     }
 
-    // const inputSources: XRInputSource[] = session.inputSources;
-    // const sourceProxies: XRInputSourcePolyfill[] = [];
-
-    // const createNewInputSourceProxy = (inputSource: XRInputSource) => {
-    //   const polyfill = new XRInputSourcePolyfill(inputSource);
-    //   sourceProxies.push(polyfill);
-
-    //   this.messageQueue.queue.push({
-    //     messageType: XR_PROXY_EVENTS.INPUT_SOURCES,
-    //     message: {
-    //       type: 'add',
-    //       //@ts-ignore
-    //       inputSource: sourceProxies.toJson()
-    //     },
-    //   } as Message);
-    // }
-
-    // const removeInputSourceProxy = (inputSource: XRInputSource) => {
-    //   //@ts-ignore
-    //   sourceProxies.splice(sourceProxies.indexOf(inputSource), 1);
-    // }
-
-    // inputSources.forEach(createNewInputSourceProxy)
-    // session.addEventListener('inputsourceschange', (ev) => {
-    //   console.log(ev)
-    //   ev.added.forEach(createNewInputSourceProxy)
-    //   ev.removed.forEach(removeInputSourceProxy)
-
-    // })
-
     return uuid;
   }
 }
@@ -1193,49 +1163,6 @@ export class XRSessionProxy extends DocumentElementProxy implements XRSession {
     return this.__callFuncAsync('createOffscreenSession', layerInit);
   }
 }
-
-// export class XRInputSourcePolyfill implements XRInputSource {
-//   inputSource: XRInputSource;
-//   handedness: XRHandedness;
-//   targetRayMode: XRTargetRayMode;
-//   targetRaySpace: XRSpace;
-//   gripSpace: XRSpace | undefined;
-//   gamepad: Gamepad | undefined;
-//   profiles: string[];
-
-//   constructor(inputSource) {
-//     this.inputSource = inputSource;
-//     this.handedness = inputSource.handedness;
-//     this.targetRayMode = inputSource.targetRayMode;
-//     this.targetRaySpace = inputSource.targetRaySpace;
-//     this.gripSpace = inputSource.gripSpace;
-//     this.gamepad = inputSource.gamepad;
-//     this.profiles = inputSource.profiles;
-//   }
-
-//   toJson() {
-//     return {
-//       handedness: this.handedness,
-//       targetRayMode: this.targetRayMode,
-//       targetRaySpace: this.targetRaySpace,
-//       gripSpace: {},
-//       gamepad: {
-//         axes: this.gamepad.axes,
-//         buttons: this.gamepad.buttons,
-//         connected: this.gamepad.connected,
-//         hand: this.gamepad.hand,
-//         hapticActuators: this.gamepad.hapticActuators,
-//         id: this.gamepad.id,
-//         index: this.gamepad.index,
-//         mapping: this.gamepad.mapping,
-//         pose: this.gamepad.pose,
-//         timestamp: this.gamepad.timestamp,
-//       },
-//       profiles: this.profiles,
-//     }
-//   }
-// }
-
 
 export async function receiveWorker(onCanvas: any) {
   const messageQueue = new MainProxy({ messagePort: globalThis as any });

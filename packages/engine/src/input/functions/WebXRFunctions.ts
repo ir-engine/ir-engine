@@ -1,10 +1,7 @@
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { MeshPhongMaterial, Vector3 } from 'three';
-import { GLTFLoader } from "../../assets/loaders/gltf/GLTFLoader";
-import { isWebWorker } from "../../common/functions/getEnvironment";
-import { EngineEvents } from "../../ecs/classes/EngineEvents";
+import { getLoader } from "../../assets/functions/LoadGLTF";
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
-import { WebXRRendererSystem } from "../../renderer/WebXRRendererSystem";
 import { XRInputReceiver } from '../components/XRInputReceiver';
 import { EntityActionSystem } from "../systems/EntityActionSystem";
 
@@ -40,7 +37,7 @@ export const startXR = async () => {
     console.warn(getComponent(EntityActionSystem.inputReceiverEntity, XRInputReceiver));
     console.warn(controllerLeft);
 
-    new GLTFLoader().load('/models/webxr/controllers/valve_controller_knu_1_0_right.glb', obj => {
+    getLoader().load('/models/webxr/controllers/valve_controller_knu_1_0_right.glb', obj => {
       const controllerMeshLeft = obj.scene.children[2] as any;
       controllerMeshLeft.material = new MeshPhongMaterial()
       controllerMeshLeft.position.z = -0.08;
