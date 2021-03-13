@@ -192,7 +192,6 @@ export class Feed extends Service {
       const newFeed =  await feedModel.create(data);
       return  newFeed;
     }
-  
 
       /**
    * A function which is used to update viewsCount field of feed 
