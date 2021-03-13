@@ -44,10 +44,8 @@ import { OpenLink } from '../ui/OpenLink';
 import TooltipContainer from '../ui/TooltipContainer';
 import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
-import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
 import { InteractiveSystem } from '@xr3ngine/engine/src/interaction/systems/InteractiveSystem';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
-import { DefaultInitializationOptions as WorkerDefaultInitializationOptions, initializeWorker } from '@xr3ngine/engine/src/initializeWorker';
 
 const goHome = () => window.location.href = window.location.origin;
 
@@ -206,7 +204,7 @@ export const EnginePage = (props: Props) => {
     }
   }, [appState]);
   const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
-
+  
   async function init(sceneId: string): Promise<any> { // auth: any,
     let service, serviceId;
     const projectResult = await client.service('project').get(sceneId);
@@ -226,30 +224,16 @@ export const EnginePage = (props: Props) => {
 
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
     styleCanvas(canvas);
-
-    if(canvas.transferControlToOffscreen) {
-      const InitializationOptions = {
-        ...WorkerDefaultInitializationOptions,
-        networking: {
-          schema: networkSchema,
-        },
-        renderer: {
-          canvas,
-        }
-      };
-      await initializeWorker(InitializationOptions)
-    } else {
-      const InitializationOptions = {
-        ...DefaultInitializationOptions,
-        networking: {
-          schema: networkSchema,
-        },
-        renderer: {
-          canvas,
-        }
-      };
-      await initializeEngine(InitializationOptions)
-    }
+    const InitializationOptions = {
+      ...DefaultInitializationOptions,
+      networking: {
+        schema: networkSchema,
+      },
+      renderer: {
+        canvas,
+      },
+    };
+    await initializeEngine(InitializationOptions)
 
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
     
