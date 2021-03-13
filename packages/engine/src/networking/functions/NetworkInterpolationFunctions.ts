@@ -196,20 +196,28 @@ export function interpolate (
         let y = e.y - pny;
         let z = e.z - pnz;
 
-        let speed = (Math.sqrt(x*x + y*y + z*z)*1000) / (t0 - tn);
-      //  let speed = Math.sqrt(x*x + y*y + z*z)*Engine.physicsFrameRate;
+      //  let speed = (Math.sqrt(x*x + y*y + z*z)*60) / (t0 - tn);
 
+        x = x * 16.666666666666668 / (t0 - tn);
+        y = y * 16.666666666666668 / (t0 - tn);
+        z = z * 16.666666666666668 / (t0 - tn);
+
+
+      //  let speed = Math.sqrt(x*x + y*y + z*z)*Engine.physicsFrameRate;
+/*
         if (speed < 0.001) {
           x = 0;
           y = 0;
           z = 0;
         }
+        */
         // normalize
-
+/*
         const scalar = 1 / (Math.sqrt(x*x + y*y + z*z) || 1);
         x *= scalar;
         y *= scalar;
         z *= scalar;
+        */
         // applyQuaternion
         const ix = qw * x + qy * z - qz * y;
         const iy = qw * y + qz * x - qx * z;
@@ -234,7 +242,7 @@ export function interpolate (
           tmpSnapshot.state[i].vY = y;
           tmpSnapshot.state[i].vZ = z;
 
-          tmpSnapshot.state[i].speed = speed
+        //  tmpSnapshot.state[i].speed = speed
         }
       }
     });

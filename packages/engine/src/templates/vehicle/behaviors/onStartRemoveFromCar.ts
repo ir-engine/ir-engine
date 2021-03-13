@@ -94,9 +94,11 @@ export const onStartRemoveFromCar = (entity: Entity, entityCar: Entity, seat: nu
   if (isServer) return;
 
   if (playerInCar.currentFrame == playerInCar.animationSpeed) {
+
     changeAnimation(entity, {
-      animationId: 'exiting_car',
+      animationId: CharacterStateTypes.EXITING_VEHICLE,
   	  transitionDuration: 0.3
      })
+
   }
 };

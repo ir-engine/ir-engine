@@ -96,13 +96,11 @@ export function addColliderWithoutEntity( userData, position, quaternion, scale,
         quaternion.z,
         quaternion.w
       );
-			console.warn(userData);
 			if (userData.action == 'portal') {
 				body = doThisActivateCollider(body, userData);
 			} else {
 				body.collisionFilterGroup = CollisionGroups.Default;
 			}
-			console.warn(body);
   //    body.collisionFilterMask = CollisionGroups.Scene | CollisionGroups.Default | CollisionGroups.Characters | CollisionGroups.Car | CollisionGroups.TrimeshColliders;
 
   PhysicsSystem.physicsWorld.addBody(body);

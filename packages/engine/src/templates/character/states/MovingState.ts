@@ -4,7 +4,7 @@ import { physicsMove } from '../../../physics/behaviors/physicsMove';
 import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
 import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateTypes } from '../CharacterStateTypes';
-import { CharacterComponent, RUN_SPEED, WALK_SPEED } from '../components/CharacterComponent';
+import { CharacterComponent } from '../components/CharacterComponent';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
 import { updateVectorAnimation, clearAnimOnChange, changeAnimation } from "../behaviors/updateVectorAnimation";
 import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
@@ -21,89 +21,72 @@ const {
 
 const animationsSchema = [
   {
-    type: [IDLE],
-    name: 'idle', axis: 'xyz',
-    value:  [ -0.5, 0, 0.5 ],
-    weight: [  0 ,  1,   0 ],
-    hitOff: [  0 ,  0,   0 ],
-    speed: 2
+    type: [IDLE], name: 'idle', axis: 'xyz', speed: 1, customProperties: ['weight', 'dontHasHit'],
+    value:      [ -0.5, 0, 0.5 ],
+    weight:     [  0 ,  1,   0 ],
+    dontHasHit: [  0 ,  0,   0 ]
   },{
-    type: [FALLING],
-    name: 'falling', axis:'y',
-    value:  [ -1,   0,   1 ],
-    weight: [  0 ,  0,   0 ],
-    hitOff: [  1,   1,   1 ],
-    speed: 1
+    type: [FALLING], name: 'falling', axis:'xyz', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    value:      [ -1,   0,   1 ],
+    weight:     [  0 ,  0,   0 ],
+    dontHasHit: [  1 ,  1,   1 ]
+  },
+  {
+    type: [DROP], name: 'falling_to_land', axis:'y', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    value:      [  -1  ,   0  ],
+    weight:     [   1 ,    0  ],
+    dontHasHit: [   1  ,   0  ]
+  },
+  /*
+  {
+    type: [DROP_ROLLING], name: 'falling_to_roll', axis:'z', speed: 1, customProperties: ['weight', 'dontHasHit'],
+    value:      [  0,   1 ],
+    weight:     [  0,   0 ],
+    dontHasHit: [  0,   1 ]
+  },
+  */
+  {
+    type: [WALK_FORWARD], name: 'walking', axis:'z', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    value:      [ 0, 0.5, 1 ],
+    weight:     [ 0,  1,  0 ],
+    dontHasHit: [ 0,  0,  0 ]
+  },{
+    type: [WALK_STRAFE_RIGHT], name: 'walk_right', axis:'x', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    value:      [ -1, -0.5, 0 ],
+    weight:     [  0,   1 , 0 ],
+    dontHasHit: [  0 ,  0,  0 ]
+  },{
+    type: [WALK_STRAFE_LEFT], name: 'walk_left', axis:'x', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    value:      [ 0,  0.5, 1 ],
+    weight:     [ 0,   1,  0 ],
+    dontHasHit: [ 0 ,  0,  0 ]
+  },{
+    type: [WALK_BACKWARD], name: 'walking_backward', axis:'z', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    value:      [ -1, -0.5, 0 ],
+    weight:     [  0,   1 , 0 ],
+    dontHasHit: [  0 ,  0,  0 ]
   },
 
   {
-    type: [DROP],
-    name: 'falling_to_land', axis:'y',
-    value:  [ -1,   0 ],
-    weight: [  0.7 ,  0 ],
-    speed: 0.7
-  },
-
-/*
-  ,{
-    type: [DROP_ROLLING],
-    name: 'falling_to_roll', axis:'z',
-    value:  [  0,   1 ],
-    weight: [  0,   0 ],
-    hitOff: [  1,   1 ],
-    speed: 2
-  },
-*/
-  {
-    type: [WALK_FORWARD],
-    name: 'walking', axis:'z',
-    value:  [ 0, 0.5, 1 ],
-    weight: [ 0,  1,  0 ],
-    speed: 1
+    type: [RUN_FORWARD], name: 'run_forward', axis:'z', speed: 0.45, customProperties: ['weight', 'dontHasHit'],
+    value:      [  0.5,  1  ],
+    weight:     [   0,   1  ],
+    dontHasHit: [   0 , 0.5 ]
   },{
-    type: [WALK_STRAFE_RIGHT],
-    name: 'walk_right', axis:'x',
-    value:  [ -1, -0.5, 0 ],
-    weight: [  0,   1 , 0 ],
-    speed: 1
+    type: [RUN_STRAFE_RIGHT], name: 'run_right', axis: 'x', speed: 0.45, customProperties: ['weight', 'dontHasHit'],
+    value:      [ -1, -0.5 ],
+    weight:     [  1 ,  0  ],
+    dontHasHit: [  0.5, 0  ]
   },{
-    type: [WALK_STRAFE_LEFT],
-    name: 'walk_left', axis:'x',
-    value:  [ 0, 0.5,  1 ],
-    weight: [ 0,  1,   0 ],
-    speed: 1
+    type: [RUN_STRAFE_LEFT], name: 'run_left', axis:'x', speed: 0.45, customProperties: ['weight', 'dontHasHit'],
+    value:      [ 0.5,  1  ],
+    weight:     [  0 ,  1  ],
+    dontHasHit: [  0 , 0.5 ]
   },{
-    type: [WALK_BACKWARD],
-    name: 'walking_backward', axis:'z',
-    value:  [ -1, -0.5, 0 ],
-    weight: [  0,   1 , 0 ],
-    speed: 1
-  },
-
-  {
-    type: [RUN_FORWARD],
-    name: 'run_forward', axis:'z',
-    value:  [  0.5,  1 ],
-    weight: [   0,   1 ],
-    speed: 0.9
-  },{
-    type: [RUN_STRAFE_RIGHT],
-    name: 'run_right', axis: 'x',
-    value:  [ -1, -0.5 ],
-    weight: [  1 ,  0  ],
-    speed: 0.9
-  },{
-    type: [RUN_STRAFE_LEFT],
-    name: 'run_left', axis:'x',
-    value:  [  0.5,  1 ],
-    weight: [   0 ,  1 ],
-    speed: 0.9
-  },{
-    type: [RUN_BACKWARD],
-    name: 'run_backward', axis: 'z',
-    value:  [ -1, -0.5 ],
-    weight: [  1 ,  0 ],
-    speed: 0.9
+    type: [RUN_BACKWARD], name: 'run_backward', axis: 'z', speed: 0.45, customProperties: ['weight', 'dontHasHit'],
+    value:      [ -1 ,-0.5 ],
+    weight:     [  1 ,  0  ],
+    dontHasHit: [ 0.5,  0  ]
   }
 ];
 
@@ -121,9 +104,6 @@ const initializeCharacterState: Behavior = (entity, args: { x?: number, y?: numb
   if (actor.vactorAnimSimulator === undefined ) {
     actor.vactorAnimSimulator.init();
   }
-  if (actor.moveSpeedSmooth === undefined ) {
-    actor.moveSpeedSmooth.init();
-  }
   if (actor.moveVectorSmooth === undefined ) {
     actor.moveVectorSmooth.init();
   }
@@ -132,17 +112,13 @@ const initializeCharacterState: Behavior = (entity, args: { x?: number, y?: numb
 	actor.velocitySimulator.mass = actor.defaultVelocitySimulatorMass;
 
   actor.vactorAnimSimulator.damping = 0.5;
-	actor.vactorAnimSimulator.mass = 15;
+	actor.vactorAnimSimulator.mass = 35;
 
-  actor.moveVectorSmooth.damping = 0.5;
-	actor.moveVectorSmooth.mass = 15;
+  actor.moveVectorSmooth.damping = 0.7;
+	actor.moveVectorSmooth.mass = 35;
 
 	actor.rotationSimulator.damping = actor.defaultRotationSimulatorDamping;
 	actor.rotationSimulator.mass = actor.defaultRotationSimulatorMass;
-
-  actor.moveSpeedSmooth.damping = 0.7;
-  actor.moveSpeedSmooth.mass = 35;
-
 
 	actor.canEnterVehicles = false;
 	actor.canLeaveVehicles = true;
@@ -169,46 +145,25 @@ export const onAnimationEnded: Behavior = (entity: Entity, args: { transitionToS
 };
 */
 const customVector = new Vector3(0,0,0);
-const customSpeed = new Vector3(0,0,0);
 const getMovementValues: Behavior = (entity, args: {}, deltaTime: number) => {
   const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
-  const transform = getComponent(entity, TransformComponent);
-  // actor.animationVelocity;
-	let absSpeed = actor.playerSpeedNow;
-
-  absSpeed = absSpeed / RUN_SPEED;
-
   // simulate rayCastHit as vectorY from 1 to 0, for smooth changes
-//  absSpeed = MathUtils.smoothstep(absSpeed, 0, 1);
+ //  absSpeed = MathUtils.smoothstep(absSpeed, 0, 1);
+  actor.moveVectorSmooth.target.copy(actor.animationVelocity);
+  actor.moveVectorSmooth.simulate(deltaTime);
+  const actorVelocity = actor.moveVectorSmooth.position;
 
-//customVector.setY(actor.rayHasHit ? 1 : 0);
-
-actor.moveVectorSmooth.target.copy(actor.animationVelocity);
-actor.moveVectorSmooth.simulate(deltaTime);
-const actorVelocity = actor.moveVectorSmooth.position;
-console.warn(actorVelocity.x, actorVelocity.z);
-/*
-  actor.moveSpeedSmooth.target = (absSpeed*100);
-  actor.moveSpeedSmooth.simulate(deltaTime);
-  absSpeed = (actor.moveSpeedSmooth.position/100);
-*/
-
-
-
-  customSpeed.setY(absSpeed);
-  actor.moveSpeedSmooth.target.copy(customSpeed);
-  actor.moveSpeedSmooth.simulate(deltaTime);
-  absSpeed = actor.moveSpeedSmooth.position.y;
-
-  customVector.setY(actor.rayHasHit ? 1 : 0);
+  customVector.setY(actor.rayHasHit ? 0 : 1);
   actor.vactorAnimSimulator.target.copy(customVector);
   actor.vactorAnimSimulator.simulate(deltaTime);
-  const hitGround = actor.vactorAnimSimulator.position.y;
+  let dontHasHit = actor.vactorAnimSimulator.position.y;
 
-  absSpeed < 0.00001 && absSpeed > - 0.00001 ? absSpeed = 0:'';
-  absSpeed = Math.min(absSpeed, 1);
-  return { actorVelocity, absSpeed, hitGround };
+  dontHasHit < 0.00001 ? dontHasHit = 0:'';
+  dontHasHit = Math.min(dontHasHit, 1);
+
+  return { actorVelocity, dontHasHit };
 }
+
 
 export const MovingState: StateSchemaValue = {
   componentProperties: [{

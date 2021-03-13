@@ -221,7 +221,7 @@ export class PhysicsSystem extends System {
     // All about interpolation and server correction in one plase
     if (this.queryResults.serverCorrection.all.length > 0 && Network.instance.snapshot != undefined) {
       const snapshots = {
-        interpolation: calculateInterpolation('x y z quat velocity speed'),
+        interpolation: calculateInterpolation('x y z quat velocity'),
         correction: Vault.instance?.get((Network.instance.snapshot as any).timeCorrection, true),
         new: []
       }

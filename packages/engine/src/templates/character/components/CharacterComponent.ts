@@ -62,7 +62,6 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public defaultVelocitySimulatorMass = 50;
 	public velocitySimulator: VectorSpringSimulator
 	public vactorAnimSimulator: VectorSpringSimulator
-	public moveSpeedSmooth: VectorSpringSimulator
 	public moveVectorSmooth: VectorSpringSimulator
 	public moveSpeed = RUN_SPEED;
 	public otherPlayerMaxSpeedCount = 0;
@@ -96,7 +95,6 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public raySafeOffset = 0.03;
 	public wantsToJump = false;
 	public initJumpSpeed = -1;
-	public playerSpeedNow = 0;
 	public playerStuck = 0;
 	public playerInPortal = 0;
 	public animationVelocity: Vector3 = new Vector3();
