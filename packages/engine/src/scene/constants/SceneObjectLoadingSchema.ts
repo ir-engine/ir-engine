@@ -413,7 +413,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       {
         behavior: (entity) => {
           console.log("*********** ADDING WORLD COLLIDERS TO ONLOADED")
-          getMutableComponent<AssetLoader>(entity, AssetLoader).onLoaded.push(addWorldColliders);
+          //getMutableComponent<AssetLoader>(entity, AssetLoader).onLoaded.push(addWorldColliders);
         }
       }
     ]
@@ -681,6 +681,14 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       {
         behavior: createBoxCollider,
         values: ['type', 'position', 'quaternion', 'scale']
+      }
+    ]
+  },
+  'mesh-collider': {
+    behaviors: [
+      {
+        behavior: createBoxCollider,
+        values: ['type', 'position', 'quaternion', 'scale', 'vertices']
       }
     ]
   },

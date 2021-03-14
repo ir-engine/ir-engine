@@ -73,7 +73,8 @@ export function addColliderWithoutEntity( userData, position, quaternion, scale,
       break;
 
     case 'trimesh':
-      body = createTrimesh(mesh);
+    //  body = createTrimesh(mesh);
+			return;
       break;
 
     default:
