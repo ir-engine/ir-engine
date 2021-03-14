@@ -31,6 +31,7 @@ import { ClientInputSystem } from './input/systems/ClientInputSystem';
 import { WebXRRendererSystem } from './renderer/WebXRRendererSystem';
 import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { Network } from './networking/classes/Network';
+import { isMobileOrTablet } from './common/functions/isMobile';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -67,7 +68,7 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
       new Worker(new URL('./worker/initializeOffscreen.ts', import.meta.url)),
       (options.renderer.canvas || createCanvas()),
       {
-
+        
       }
     );
     EngineEvents.instance = new EngineEventsProxy(workerProxy);

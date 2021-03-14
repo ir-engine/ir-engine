@@ -31,8 +31,6 @@ const empty = new Vector3();
 const PI_2Deg = Math.PI / 180;
 const mx = new Matrix4();
 const vec3 = new Vector3();
-const isMobile = isMobileOrTablet()
-const sensitivity = isMobile ? 60 : 100 // eventually this will come from some settings somewhere
 const emptyInputValue = [0, 0] as NumericalType;
 
 /**
@@ -126,10 +124,10 @@ export class CameraSystem extends System {
           cameraFollow.theta = Math.atan2(actorTransform.rotation.z, actorTransform.rotation.x) * 180 / Math.PI
         }
 
-        cameraFollow.theta -= inputValue[0] * sensitivity;
+        cameraFollow.theta -= inputValue[0] * (isMobileOrTablet() ? 60 : 100);
         cameraFollow.theta %= 360;
 
-        cameraFollow.phi -= inputValue[1] * sensitivity;
+        cameraFollow.phi -= inputValue[1] * (isMobileOrTablet() ? 60 : 100);
         cameraFollow.phi = Math.min(85, Math.max(-70, cameraFollow.phi));
 
         if(cameraFollow.locked || cameraFollow.mode === CameraModes.FirstPerson) {
@@ -138,8 +136,8 @@ export class CameraSystem extends System {
           actorTransform.rotation.setFromUnitVectors(forwardVector, actor.orientation.clone().setY(0));
         }
 
-        cameraDesiredTransform.rotationRate = isMobile || cameraFollow.mode === CameraModes.FirstPerson ? 5 : 3.5
-        cameraDesiredTransform.positionRate = isMobile || cameraFollow.mode === CameraModes.FirstPerson ? 3.5 : 2
+        cameraDesiredTransform.rotationRate = isMobileOrTablet() || cameraFollow.mode === CameraModes.FirstPerson ? 5 : 3.5
+        cameraDesiredTransform.positionRate = isMobileOrTablet() || cameraFollow.mode === CameraModes.FirstPerson ? 3.5 : 2
 
         let camDist = cameraFollow.distance;
         if (cameraFollow.mode === CameraModes.FirstPerson) camDist = 0.01;

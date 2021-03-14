@@ -11,7 +11,7 @@ import { CharacterComponent } from "../components/CharacterComponent";
 const localDirection = new Vector3(0, 0, 1);
 const emptyVector = new Vector3();
 const damping = 0.2; // To reduce the change in direction.
-const isMobile = isMobileOrTablet();
+const isMobile = isMobileOrTablet;
 
 export const updateCharacterState: Behavior = (entity, args: { }, deltaTime: number): void => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
