@@ -241,8 +241,8 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENTITY_LOADED, onSceneLoadedEntity);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.USER_HOVER, onUserHover);
-    document.addEventListener('object-activation', onObjectActivation);
-    document.addEventListener('object-hover', onObjectHover);
+    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation);
+    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover);
     const engageType = isMobileOrTablet() ? 'touchstart' : 'click'
     const onUserEngage = () => {
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.USER_ENGAGE });
@@ -280,9 +280,9 @@ export const EnginePage = (props: Props) => {
     setProgressEntity(event.left || 0);
   };
 
-  const onObjectHover = (event: CustomEvent): void => {
-    setObjectHovered(event.detail.focused);
-    setHoveredLabel(event.detail.interactionText);
+  const onObjectHover = ({ focused, interactionText}): void => {
+    setObjectHovered(focused);
+    setHoveredLabel(interactionText);
   };
 
   const onUserHover = ({ focused, userId, position }): void => {
@@ -291,16 +291,15 @@ export const EnginePage = (props: Props) => {
     setonUserPosition(focused ? position : null);
   };
 
-  const onObjectActivation = (event: CustomEvent): void => {
-    switch (event.detail.action) {
+  const onObjectActivation = ({ action, payload }): void => {
+    switch (action) {
       case 'link':
-        console.log('=======onObjectActivation====',event.detail.payload);
-        setOpenLinkData(event.detail.payload);
+        setOpenLinkData(payload);
         setObjectActivated(true);
         break;
       case 'infoBox':
       case 'mediaSource':
-        setModalData(event.detail.payload);
+        setModalData(payload);
         setObjectActivated(true);
         break;
       default:

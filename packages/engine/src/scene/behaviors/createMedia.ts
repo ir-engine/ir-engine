@@ -13,6 +13,9 @@ import DracosisPlayer from '@xr3ngine/volumetric/src/Player';
 import VolumetricComponent from "../components/VolumetricComponent"
 import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { Network } from '../../networking/classes/Network';
+import { isClient } from '../../common/functions/isClient';
+import { EngineEvents } from '../../ecs/classes/EngineEvents';
+import { InteractiveSystem } from '../../interaction/systems/InteractiveSystem';
 
 const elementPlaying = (element: any): boolean => {
   if(isWebWorker) return element?._isPlaying;
@@ -21,46 +24,30 @@ const elementPlaying = (element: any): boolean => {
 
 const onMediaInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
   const volumetric = getComponent(entityInteractive, VolumetricComponent);
-
   if(volumetric) {
+    console.log(volumetric)
     // TODO handle volumetric interaction here
     return
   }
+  
+  const source = getComponent(entityInteractive, Object3DComponent).value as AudioSource;
 
-  const { el: mediaElement } = getComponent(entityInteractive, Object3DComponent).value as AudioSource;
-  const onVideoStateChange = (didPlay) => {
-    const detail: any = {
-      focused: true,
-      action: 'mediaSource',
-      interactionText: didPlay ? 'pause media' : 'play media'
-    };
-    const event = new CustomEvent('object-hover', { detail });
-    document.dispatchEvent(event);
-  };
-
-  mediaElement.addEventListener('play', () => {
-    onVideoStateChange(true);
-  });
-  mediaElement.addEventListener('pause', () => {
-    onVideoStateChange(false);
-  });
-
-  if (elementPlaying(mediaElement)) {
-    mediaElement?.pause();
+  if (elementPlaying(source.el)) {
+    source?.pause();
   } else {
-    mediaElement?.play();
+    source?.play();
   }
 };
 
 const onMediaInteractionHover: Behavior = (entityInitiator, { focused }: { focused: boolean }, delta, entityInteractive, time) => {
   const { el: mediaElement } = getComponent(entityInteractive, Object3DComponent).value as AudioSource;
-  const detail: any = {
+
+  EngineEvents.instance.dispatchEvent({ 
+    type: InteractiveSystem.EVENTS.OBJECT_HOVER, 
     focused,
     action: 'mediaSource',
     interactionText: elementPlaying(mediaElement) ? 'pause video' : 'play video'
-  };
-  const event = new CustomEvent('object-hover', { detail });
-  document.dispatchEvent(event);
+  });
 };
 
 export function createAudio(entity, args: {
@@ -121,4 +108,24 @@ function addInteraction(entity): void {
   };
 
   addComponent(entity, Interactable, interactiveData);
+
+  const onVideoStateChange = (didPlay) => {
+    EngineEvents.instance.dispatchEvent({ 
+      type: InteractiveSystem.EVENTS.OBJECT_HOVER, 
+      focused: true,
+      action: 'mediaSource',
+      interactionText: didPlay ? 'pause media' : 'play media' 
+    })
+  };
+
+  const { el: mediaElement } = getComponent(entity, Object3DComponent).value as AudioSource;
+  
+  if(mediaElement) { 
+    mediaElement.addEventListener('play', () => {
+      onVideoStateChange(true);
+    });
+    mediaElement.addEventListener('pause', () => {
+      onVideoStateChange(false);
+    });
+  }
 }
