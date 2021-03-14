@@ -7,7 +7,6 @@ import { appplyVectorMatrixXZ } from "../../../common/functions/appplyVectorMatr
 import { isMobileOrTablet } from "../../../common/functions/isMobile";
 import { getComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
 import { CharacterComponent } from "../components/CharacterComponent";
-import { EnteringVehicle } from "../components/EnteringVehicle";
 
 const localDirection = new Vector3(0, 0, 1);
 const emptyVector = new Vector3();
@@ -18,7 +17,6 @@ export const updateCharacterState: Behavior = (entity, args: { }, deltaTime: num
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	if (!actor.initialized) return console.warn("Actor no initialized");
 	actor.timer += deltaTime;
-	if (hasComponent(entity, EnteringVehicle)) return;
 
 	const localMovementDirection = actor.localMovementDirection; //getLocalMovementDirection(entity);
 
