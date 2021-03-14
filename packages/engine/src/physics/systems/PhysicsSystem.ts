@@ -6,7 +6,7 @@ import { CameraSystem } from '../../camera/systems/CameraSystem';
 import { appplyVectorMatrixXZ } from '../../common/functions/appplyVectorMatrixXZ';
 import { cannonFromThreeVector } from '../../common/functions/cannonFromThreeVector';
 import { getSignedAngleBetweenVectors } from '../../common/functions/getSignedAngleBetweenVectors';
-import { isPlayerInVehicle } from '../../common/functions/isPlayerInVehicle';
+import { isServer } from '../../common/functions/isServer';
 import { Not } from '../../ecs/functions/ComponentFunctions';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Engine } from '../../ecs/classes/Engine';

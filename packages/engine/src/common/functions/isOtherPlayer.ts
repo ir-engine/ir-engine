@@ -5,5 +5,5 @@ import {NetworkObject} from '@xr3ngine/engine/src/networking/components/NetworkO
 import { isClient } from "./isClient";
 
 export const isOtherPlayer = function(entity) {
-  return isClient && getComponent(entity, NetworkObject).networkId != Network.instance.userNetworkId;
+  return isClient && getComponent(entity, NetworkObject).networkId != Network.instance.localAvatarNetworkId;
 };
