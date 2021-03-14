@@ -1,5 +1,3 @@
-import { Engine } from "../../ecs/classes/Engine";
-
 export enum MouseInput {
   LeftButton = 0,
   MiddleButton = 1,

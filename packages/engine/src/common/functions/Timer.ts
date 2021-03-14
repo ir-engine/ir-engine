@@ -4,7 +4,8 @@ import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { isWebWorker } from './getEnvironment';
-import { WebXRRendererSystem } from '../../renderer/WebXRRendererSystem';
+import { processXRFrame, WebXRRendererSystem } from '../../renderer/WebXRRendererSystem';
+import { XRFrame } from '../../input/types/WebXR';
 
 type TimerUpdateCallback = (delta: number, elapsedTime?: number) => any;
 
@@ -47,7 +48,7 @@ export function Timer (
   let timerRuns = 0;
   let prevTimerRuns = 0;
 
-  function xrAnimationLoop(time) {
+  function xrAnimationLoop(time, xrFrame) {
     if (last !== null) {
       delta = (time - last) / 1000;
       accumulated = accumulated + delta;
@@ -57,6 +58,7 @@ export function Timer (
       if (networkRunner) {
         networkRunner.run(delta);
       }
+      processXRFrame(delta, xrFrame);
       if (callbacks.update) {
         callbacks.update(delta, accumulated);
       }
