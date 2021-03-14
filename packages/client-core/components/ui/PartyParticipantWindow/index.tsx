@@ -215,7 +215,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
             }
             if (audioStream != null) {
                 const newAudioTrack = audioStream.track.clone();
-                const updateAudioTrackClones = audioTrackClones.push(newAudioTrack);
+                const updateAudioTrackClones = audioTrackClones.concat(newAudioTrack);
                 setAudioTrackClones(updateAudioTrackClones);
                 audioRef.current.srcObject = new MediaStream([newAudioTrack]);
             }
@@ -241,7 +241,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
             videoRef.current.setAttribute('playsinline', 'true');
             if (videoStream != null) {
                 const newVideoTrack = videoStream.track.clone();
-                const updateVideoTrackClones = videoTrackClones.push(newVideoTrack);
+                const updateVideoTrackClones = videoTrackClones.concat(newVideoTrack);
                 setVideoTrackClones(updateVideoTrackClones);
                 videoRef.current.srcObject = new MediaStream([newVideoTrack]);
             }
@@ -256,7 +256,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
         if (peerId === 'me_cam' || peerId === 'me_screen') setAudioStreamPaused(MediaStreamSystem.instance?.audioPaused);
         if (audioStream != null && audioRef.current != null) {
             const newAudioTrack = audioStream.track.clone();
-            const updateAudioTrackClones = audioTrackClones.push(newAudioTrack);
+            const updateAudioTrackClones = audioTrackClones.concat(newAudioTrack);
             setAudioTrackClones(updateAudioTrackClones);
             audioRef.current.srcObject = new MediaStream([newAudioTrack]);
         }
@@ -266,7 +266,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
         if (peerId === 'me_cam' || peerId === 'me_screen') setVideoStreamPaused(MediaStreamSystem.instance?.videoPaused);
         if (videoStream != null && videoRef.current != null) {
             const newVideoTrack = videoStream.track.clone();
-            const updateVideoTrackClones = videoTrackClones.push(newVideoTrack);
+            const updateVideoTrackClones = videoTrackClones.concat(newVideoTrack);
             setVideoTrackClones(updateVideoTrackClones);
             videoRef.current.srcObject = new MediaStream([newVideoTrack]);
         }
