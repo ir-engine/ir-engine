@@ -1,5 +1,5 @@
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { MeshPhongMaterial, Vector3 } from 'three';
+import { AdditiveBlending, BufferGeometry, Float32BufferAttribute, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, RingGeometry, Vector3 } from 'three';
 import { getLoader } from "../../assets/functions/LoadGLTF";
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { XRInputReceiver } from '../components/XRInputReceiver';
@@ -17,6 +17,22 @@ export const startXR = async () => {
     Engine.scene.add(controllerLeft);
     Engine.scene.add(controllerRight);
     // Engine.scene.add(head);
+
+    // obviously unfinished
+    [controllerLeft, controllerRight].forEach((controller) => {
+
+      controller.addEventListener('select', (ev) => {})
+      controller.addEventListener('selectstart', (ev) => {})
+      controller.addEventListener('selectend', (ev) => {})
+      controller.addEventListener('squeeze', (ev) => {})
+      controller.addEventListener('squeezestart', (ev) => {})
+      controller.addEventListener('squeezeend', (ev) => {})
+
+      controller.addEventListener('connected', (ev) => {
+        controller.add(createController(ev.data));
+      })
+
+    })
 
     controllerGripLeft = Engine.renderer.xr.getControllerGrip(0);
     controllerGripRight = Engine.renderer.xr.getControllerGrip(1);
@@ -68,3 +84,21 @@ export const endXR = () => {
     Engine.xrSession = null;
   }
 }
+
+// pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
+const createController = (data) => {
+  let geometry, material;
+  switch ( data.targetRayMode ) {
+    case 'tracked-pointer':
+      geometry = new BufferGeometry();
+      geometry.setAttribute( 'position', new Float32BufferAttribute( [ 0, 0, 0, 0, 0, - 1 ], 3 ) );
+      geometry.setAttribute( 'color', new Float32BufferAttribute( [ 0.5, 0.5, 0.5, 0, 0, 0 ], 3 ) );
+      material = new LineBasicMaterial( { vertexColors: true, blending: AdditiveBlending } );
+      return new Line( geometry, material );
+
+    case 'gaze':
+      geometry = new RingGeometry( 0.02, 0.04, 32 ).translate( 0, 0, - 1 );
+      material = new MeshBasicMaterial( { opacity: 0.5, transparent: true } );
+      return new Mesh( geometry, material );
+  }
+};
