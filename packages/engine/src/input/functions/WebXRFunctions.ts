@@ -1,6 +1,7 @@
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { AdditiveBlending, BufferGeometry, Float32BufferAttribute, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, RingGeometry, Vector3 } from 'three';
 import { getLoader } from "../../assets/functions/LoadGLTF";
+import { GLTF } from "../../assets/loaders/gltf/GLTFLoader";
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { XRInputReceiver } from '../components/XRInputReceiver';
 import { EntityActionSystem } from "../systems/EntityActionSystem";
@@ -29,7 +30,17 @@ export const startXR = async () => {
       controller.addEventListener('squeezeend', (ev) => {})
 
       controller.addEventListener('connected', (ev) => {
-        controller.add(createController(ev.data));
+        if(controller.targetRay) {
+          controller.targetRay.visible = true;
+        } else {
+          const targetRay = createController(ev.data);
+          controller.add(targetRay);
+          controller.targetRay = targetRay;
+        }
+      })
+
+      controller.addEventListener('disconnected', (ev) => {
+        controller.targetRay.visible = false;
       })
 
     })
@@ -53,22 +64,22 @@ export const startXR = async () => {
     console.warn(getComponent(EntityActionSystem.inputReceiverEntity, XRInputReceiver));
     console.warn(controllerLeft);
 
-    getLoader().load('/models/webxr/controllers/valve_controller_knu_1_0_right.glb', obj => {
-      const controllerMeshLeft = obj.scene.children[2] as any;
-      controllerMeshLeft.material = new MeshPhongMaterial()
-      controllerMeshLeft.position.z = -0.08;
-      const controllerMeshRight = controllerMeshLeft.clone()
+    const obj: GLTF = await new Promise((resolve) => { getLoader().load('/models/webxr/controllers/valve_controller_knu_1_0_right.glb', obj => { resolve(obj) }, console.warn, console.error)});
+    
+    const controllerMeshLeft = obj.scene.children[2] as any;
+    controllerMeshLeft.material = new MeshPhongMaterial()
+    controllerMeshLeft.position.z = -0.08;
+    const controllerMeshRight = controllerMeshLeft.clone()
 
-      controllerMeshRight.scale.multiply(new Vector3(-1, 1, 1));
+    controllerMeshRight.scale.multiply(new Vector3(-1, 1, 1));
 
-      controllerGripLeft.add(controllerMeshLeft);
-      Engine.scene.add(controllerGripLeft);
+    controllerGripLeft.add(controllerMeshLeft);
+    Engine.scene.add(controllerGripLeft);
 
-      controllerGripRight.add(controllerMeshRight);
-      Engine.scene.add(controllerGripRight);
+    controllerGripRight.add(controllerMeshRight);
+    Engine.scene.add(controllerGripRight);
 
-      console.warn('Loaded Model Controllers Done');
-    }, console.warn, console.error)
+    console.warn('Loaded Model Controllers Done');
     
     return true;
   } catch (e) {
@@ -93,6 +104,7 @@ const createController = (data) => {
       geometry = new BufferGeometry();
       geometry.setAttribute( 'position', new Float32BufferAttribute( [ 0, 0, 0, 0, 0, - 1 ], 3 ) );
       geometry.setAttribute( 'color', new Float32BufferAttribute( [ 0.5, 0.5, 0.5, 0, 0, 0 ], 3 ) );
+      geometry.setAttribute( 'alpha', new Float32BufferAttribute( [1, 0 ], 1 ) );
       material = new LineBasicMaterial( { vertexColors: true, blending: AdditiveBlending } );
       return new Line( geometry, material );
 

@@ -61,15 +61,10 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   Network.instance.transport = { isServer: false }
 
   registerSystem(AssetLoadingSystem);
-
   registerSystem(PhysicsSystem);
-
   registerSystem(EntityActionSystem, { useWebXR: false });
-
   registerSystem(StateSystem);
-
   registerSystem(ServerSpawnSystem, { priority: 899 });
-
   registerSystem(TransformSystem, { priority: 900 });
 
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.3, 750);

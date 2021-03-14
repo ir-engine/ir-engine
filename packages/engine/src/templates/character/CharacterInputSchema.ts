@@ -186,7 +186,7 @@ const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:inputAxes
   const inputPrevValue = inputComponent.prevData.get(inputAxes)?.value as number ?? 0;
   const inputValue = inputComponent.data.get(inputAxes).value as number;
 
-  const delta = Math.min(1, Math.max(-1, inputValue - inputPrevValue)) * (isMobileOrTablet() ? 0.1 : 1);
+  const delta = Math.min(1, Math.max(-1, inputValue - inputPrevValue)) * (isMobileOrTablet() ? 0.25 : 1);
   if(cameraFollow.mode !== CameraModes.ThirdPerson && delta === lastScrollDelta) {
     return
   }
