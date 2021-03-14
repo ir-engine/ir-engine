@@ -23,6 +23,7 @@ import { updateCharacterState } from "./behaviors/updateCharacterState";
 import { CharacterComponent } from "./components/CharacterComponent";
 import { isServer } from "../../common/functions/isServer";
 import { VehicleBody } from '../../physics/components/VehicleBody';
+import { isMobileOrTablet } from '../../common/functions/isMobile';
 
 /**
  *
@@ -32,7 +33,7 @@ import { VehicleBody } from '../../physics/components/VehicleBody';
  */
 
 const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
-
+  console.log('interact', entity, args)
   if (isServer) {
     interactOnServer(entity);
     return;
@@ -186,7 +187,7 @@ const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:inputAxes
   const inputPrevValue = inputComponent.prevData.get(inputAxes)?.value as number ?? 0;
   const inputValue = inputComponent.data.get(inputAxes).value as number;
 
-  const delta = Math.min(1, Math.max(-1, inputValue - inputPrevValue));
+  const delta = Math.min(1, Math.max(-1, inputValue - inputPrevValue)) * (isMobileOrTablet() ? 0.1 : 1);
   if(cameraFollow.mode !== CameraModes.ThirdPerson && delta === lastScrollDelta) {
     return
   }

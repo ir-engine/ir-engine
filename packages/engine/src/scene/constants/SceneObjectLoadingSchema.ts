@@ -32,6 +32,7 @@ import { createBoxCollider } from '../behaviors/createBoxCollider';
 import { createCommonInteractive } from "../behaviors/createCommonInteractive";
 import { createGroup } from '../behaviors/createGroup';
 import { createImage } from '../behaviors/createImage';
+import { createLink } from '../behaviors/createLink';
 import { createAudio, createMediaServer, createVideo, createVolumetric } from "../behaviors/createMedia";
 import { createScenePreviewCamera } from "../behaviors/createScenePreviewCamera";
 import { createShadow } from '../behaviors/createShadow';
@@ -687,13 +688,16 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       }
     ]
   },
-  // 'link': {
-  //   behaviors: [
-  //     {
-  //       behavior: createLink
-  //     }
-  //   ]
-  // },
+  'link': {
+    behaviors: [
+      {
+        behavior: createLink,
+        values: [
+          { from: 'href', to: 'url' },
+        ]
+      }
+    ]
+  },
   'particle-emitter': {
     behaviors: [
       {
