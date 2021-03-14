@@ -5,7 +5,6 @@ import { Input } from "../../../input/components/Input";
 import { CharacterComponent } from "../components/CharacterComponent";
 import { BinaryValue } from "@xr3ngine/engine/src/common/enums/BinaryValue";
 import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
-import { physicsJump } from "../../../physics/behaviors/physicsJump";
 
 
 export const triggerActionIfMovementHasChanged: Behavior = (entity: Entity, args: { action: any }): void => {
@@ -19,11 +18,11 @@ export const triggerActionIfMovementHasChanged: Behavior = (entity: Entity, args
 
 	if (character.currentInputHash !== hash) {
 	//	args.action(entity);
-
+/*
 		if (input.data.has(BaseInput.JUMP) && input.data.get(BaseInput.JUMP).value === BinaryValue.ON) {
 	   // physicsJump(entity);
 	  }
-
+*/
 
 		character.currentInputHash = hash;
 	}
