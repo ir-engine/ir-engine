@@ -163,8 +163,6 @@ export function initializeNetworkObject(ownerId: string, networkId: number, pref
     uniqueId: ''
   };
 
-  loadActorAvatar(networkEntity);
-
   if (prefabType === PrefabType.Player && ownerId === (Network.instance).userId) {
     Network.instance.localClientEntity = networkEntity;
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, id: networkEntity.id });

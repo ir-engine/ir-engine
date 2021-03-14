@@ -11,6 +11,7 @@ import {
   MathUtils,
   WebGLRenderer
 } from 'three';
+import { isMobileOrTablet } from '../common/functions/isMobile';
 import { 
   XRHandedness,
   XRHitResult,
@@ -699,6 +700,7 @@ export async function createWorker(
   const audioLoader = new THREE_AudioLoader();
   const audioBuffers: Map<string, AudioBuffer> = new Map<string, AudioBuffer>();
   let audioListener: any = undefined;
+  messageQueue.isMobile = isMobileOrTablet();
 
   messageQueue.messageTypeFunctions.set(
     MessageType.DOCUMENT_ELEMENT_FUNCTION_CALL,
@@ -956,6 +958,7 @@ export async function createWorker(
       height,
       canvas: offscreen,
       devicePixelRatio: window.devicePixelRatio,
+      isMobile: messageQueue.isMobile,
       userArgs,
     },
     transferables: [offscreen],
@@ -1178,16 +1181,19 @@ export async function receiveWorker(onCanvas: any) {
         height,
         width,
         devicePixelRatio,
+        isMobile,
       }: {
         canvas: OffscreenCanvas;
         width: number;
         height: number;
         devicePixelRatio: number;
+        isMobile: boolean
       } = args;
       messageQueue.canvas = canvas;
       messageQueue.width = width;
       messageQueue.height = height;
       messageQueue.devicePixelRatio = devicePixelRatio;
+      messageQueue.isMobile = isMobile;
       canvas.addEventListener = (
         type: string,
         listener: (event: any) => void,
