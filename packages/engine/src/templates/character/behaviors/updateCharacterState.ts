@@ -35,7 +35,7 @@ export const updateCharacterState: Behavior = (entity, args: { }, deltaTime: num
 	const moveVector = localMovementDirection.length() ? appplyVectorMatrixXZ(flatViewVector, localDirection) : emptyVector.setScalar(0);
 	const camera = getComponent(entity, FollowCameraComponent);
 
-	if (camera && (camera.mode === CameraModes.FirstPerson || camera.mode === CameraModes.ShoulderCam))
+	if (camera && camera.mode === CameraModes.FirstPerson)
 		actor.orientationTarget.copy(new Vector3().copy(actor.orientation).setY(0).normalize());
 	else if (moveVector.x === 0 && moveVector.y === 0 && moveVector.z === 0)
 		actor.orientationTarget.copy(new Vector3().copy(actor.orientation).setY(0).normalize());
