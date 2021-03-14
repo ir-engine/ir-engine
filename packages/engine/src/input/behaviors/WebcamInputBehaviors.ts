@@ -2,15 +2,26 @@ import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/Media
 import { Behavior } from "../../common/interfaces/Behavior";
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { Input } from "../components/Input";
-import { CameraInput } from "../enums/CameraInput";
+import { CameraInput } from "../enums/InputEnums";
 import { InputType } from "../enums/InputType";
 import * as Comlink from 'comlink'
+import { EngineEvents } from "../../ecs/classes/EngineEvents";
+import { Engine } from "../../ecs/classes/Engine";
+
+export const WEBCAM_INPUT_EVENTS = {
+  FACE_INPUT: 'WEBCAM_INPUT_EVENTS_FACE_INPUT',
+  LIP_INPUT: 'WEBCAM_INPUT_EVENTS_LIP_INPUT',
+}
 
 const EXPRESSION_THRESHOLD = 0.1;
 
 const faceTrackingTimers = [];
 let lipsyncTracking = false;
 let audioContext = null;
+
+let faceWorker: Comlink.Remote<any> = null;
+let faceVideo: HTMLVideoElement = null;
+let faceCanvas: OffscreenCanvas = null
 
 export const stopFaceTracking = () => {
     faceTrackingTimers.forEach(timer => {
@@ -24,43 +35,33 @@ export const stopLipsyncTracking = () => {
     audioContext = null;
 }
 
-export const startFaceTracking: Behavior = (entity) => {
-    console.log("**************** STARTING FACE TRACKING")
+export const startFaceTracking = async () => {
+  faceVideo = document.createElement('video');
+  faceVideo.srcObject = MediaStreamSystem.instance.mediaStream;
 
-    const video = document.createElement('video');
-    video.srcObject = MediaStreamSystem.instance.mediaStream;
-    
-    
-    initialiseWorker().then((worker) => {
-        video.addEventListener('play', () => {
-            const canvas = document.createElement('canvas')
-            canvas.width = video.videoWidth
-            canvas.height = video.videoHeight
-            const context = canvas.getContext('2d')
-            const interval = setInterval(async () => {
-                context.drawImage(video, 0, 0, canvas.width, canvas.height)
-                const imageData = context.getImageData(0, 0, canvas.width, canvas.height)
-                const pixels = imageData.data.buffer
-                //@ts-ignore
-                const detection = await worker.detect({ pixels, width: canvas.width, height: canvas.height })
-                faceToInput(detection, entity)
-            }, 33);
-            faceTrackingTimers.push(interval);
-        });
+  if(!faceWorker) {
+      faceWorker = Comlink.wrap(new Worker(new URL('./WebcamInputWorker.ts', import.meta.url)));
+      await faceWorker.initialise();
+  }
 
-        video.muted = true;
-        video.play();
-    });
-};
-
-async function initialiseWorker () {
-    console.log("Start load detectors")
-    //@ts-ignore
-    const worker = Comlink.wrap(new Worker(new URL('./webcamInput.worker.ts', import.meta.url)));//, { type: 'module' }))
-    //@ts-ignore
-    await worker.initialise()
-    console.log("Finish load detectors")
-    return worker;
+  faceVideo.addEventListener('loadeddata', async () => {
+      await faceWorker.create(faceVideo.videoWidth, faceVideo.videoHeight)
+      faceCanvas = new OffscreenCanvas(faceVideo.videoWidth, faceVideo.videoHeight);
+      const context = faceCanvas.getContext('2d')
+      const interval = setInterval(async () => {
+          context.drawImage(faceVideo, 0, 0, faceVideo.videoWidth, faceVideo.videoHeight)
+          const imageData = context.getImageData(0, 0, faceVideo.videoWidth, faceVideo.videoHeight)
+          const pixels = imageData.data.buffer
+          const detection = await faceWorker.detect(Comlink.transfer(pixels, [pixels]))
+          if(detection) {
+              EngineEvents.instance.dispatchEvent({ type: WEBCAM_INPUT_EVENTS.FACE_INPUT, detection });
+          }
+      }, 100);
+      faceTrackingTimers.push(interval);
+  })
+  
+  faceVideo.muted = true;
+  faceVideo.play();
 }
 
 const nameToInputValue = {
@@ -73,7 +74,7 @@ const nameToInputValue = {
     surprised: CameraInput.Surprised
 };
 
-async function faceToInput(detection, entity) {
+export async function faceToInput(entity, detection) {
 
     if (detection !== undefined && detection.expressions !== undefined) {
         // console.log(detection.expressions);
@@ -82,7 +83,7 @@ async function faceToInput(detection, entity) {
             // If the detected value of the expression is more than 1/3rd-ish of total, record it
             // This should allow up to 3 expressions but usually 1-2
             const cameraInputKey = nameToInputValue[expression];
-            const inputKey = input.schema.cameraInputMap[cameraInputKey];
+            const inputKey = input.schema.inputMap.get(cameraInputKey);
             if (!inputKey) {
                 // skip if expression is not in schema
                 continue;
@@ -96,7 +97,7 @@ async function faceToInput(detection, entity) {
     }
 }
 
-export const startLipsyncTracking: Behavior = (entity) => {
+export const startLipsyncTracking = () => {
     lipsyncTracking = true;
     const BoundingFrequencyMasc = [0, 400, 560, 2400, 4800];
     const BoundingFrequencyFem = [0, 500, 700, 3000, 6000];
@@ -162,41 +163,47 @@ export const startLipsyncTracking: Behavior = (entity) => {
             EnergyBinFem[m] = EnergyBinFem[m] / (IndicesFrequencyFemale[m + 1] - IndicesFrequencyFemale[m]);
         }
 
-        const input = getMutableComponent(entity, Input);
-
         const pucker = Math.max(EnergyBinFem[1], EnergyBinMasc[1]) > 0.2 ?
             1 - 2 * Math.max(EnergyBinMasc[2], EnergyBinFem[2])
             : (1 - 2 * Math.max(EnergyBinMasc[2], EnergyBinFem[2])) * 5 * Math.max(EnergyBinMasc[1], EnergyBinFem[1]);
 
-        if (pucker > .2)
-            input.data.set(nameToInputValue["pucker"], {
-                type: InputType.ONEDIM,
-                value: pucker
-            });
-        else if (input.data.has(nameToInputValue["pucker"]))
-            input.data.delete(nameToInputValue["pucker"]);
-
-        // Calculate lips widing and apply as input
         const widen = 3 * Math.max(EnergyBinMasc[3], EnergyBinFem[3]);
-        if (widen > .2)
-            input.data.set(nameToInputValue["widen"], {
-                type: InputType.ONEDIM,
-                value: widen
-            });
-        else if (input.data.has(nameToInputValue["widen"]))
-            input.data.delete(nameToInputValue["widen"]);
-
-        // Calculate mouth opening and apply as input
         const open = 0.8 * (Math.max(EnergyBinMasc[1], EnergyBinFem[1]) - Math.max(EnergyBinMasc[3], EnergyBinFem[3]));
-        if (open > .2)
-            input.data.set(nameToInputValue["open"], {
-                type: InputType.ONEDIM,
-                value: open
-            });
-        else if (input.data.has(nameToInputValue["open"]))
-            input.data.delete(nameToInputValue["open"]);
+
+        EngineEvents.instance.dispatchEvent({ type: WEBCAM_INPUT_EVENTS.LIP_INPUT, pucker, widen, open });
     };
 };
+
+export const lipToInput = (entity, pucker, widen, open) => {
+
+  const input = getMutableComponent(entity, Input);
+
+  if (pucker > .2)
+      input.data.set(nameToInputValue["pucker"], {
+          type: InputType.ONEDIM,
+          value: pucker
+      });
+  else if (input.data.has(nameToInputValue["pucker"]))
+      input.data.delete(nameToInputValue["pucker"]);
+
+  // Calculate lips widing and apply as input
+  if (widen > .2)
+      input.data.set(nameToInputValue["widen"], {
+          type: InputType.ONEDIM,
+          value: widen
+      });
+  else if (input.data.has(nameToInputValue["widen"]))
+      input.data.delete(nameToInputValue["widen"]);
+
+  // Calculate mouth opening and apply as input
+  if (open > .2)
+      input.data.set(nameToInputValue["open"], {
+          type: InputType.ONEDIM,
+          value: open
+      });
+  else if (input.data.has(nameToInputValue["open"]))
+      input.data.delete(nameToInputValue["open"]);
+}
 
 function getRMS(spectrum) {
     let rms = 0;

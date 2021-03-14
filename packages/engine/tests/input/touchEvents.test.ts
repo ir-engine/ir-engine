@@ -6,7 +6,7 @@ import { Input } from "../../src/input/components/Input";
 import { CharacterInputSchema } from "../../src/templates/character/CharacterInputSchema";
 import { LocalInputReceiver } from "../../src/input/components/LocalInputReceiver";
 import { InputSchema } from "../../src/input/interfaces/InputSchema";
-import { TouchInputs } from "../../src/input/enums/TouchInputs";
+import { TouchInputs } from "../../src/input/enums/InputEnums";
 import { handleTouch } from "../../src/input/behaviors/handleTouch";
 import { handleTouchMove } from "../../src/input/behaviors/handleTouchMove";
 import { BinaryValue } from "../../src/common/enums/BinaryValue";

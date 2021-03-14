@@ -9,11 +9,18 @@ import { BoundingBox } from "../../interaction/components/BoundingBox";
 import { Object3DComponent } from "../../scene/components/Object3DComponent";
 import { CannonDebugRenderer} from './CannonDebugRenderer';
 import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
+import { EngineEvents } from "../../ecs/classes/EngineEvents";
+
+type ComponentHelpers = 'viewVector' | 'velocityArrow';
 
 export class DebugHelpersSystem extends System {
-  private helpersByEntity: Record<string, Map<Entity,Object3D>>;
+  private helpersByEntity: Record<ComponentHelpers, Map<Entity,Object3D>>;
   physicsDebugRenderer: CannonDebugRenderer;
   static instance: DebugHelpersSystem;
+  static EVENTS = {
+    TOGGLE_PHYSICS: 'DEBUG_HELPERS_SYSTEM_TOGGLE_PHYSICS',
+    TOGGLE_AVATAR: 'DEBUG_HELPERS_SYSTEM_TOGGLE_AVATAR',
+  }
 
   constructor() {
     super();
@@ -21,9 +28,22 @@ export class DebugHelpersSystem extends System {
     this.physicsDebugRenderer = new CannonDebugRenderer(Engine.scene, PhysicsSystem.physicsWorld)
 
     this.helpersByEntity = {
-      "viewVector": new Map(),
-      "velocityArrow": new Map()
+      viewVector: new Map(),
+      velocityArrow: new Map()
     };
+
+    EngineEvents.instance.addEventListener(DebugHelpersSystem.EVENTS.TOGGLE_AVATAR, ({ enabled }) => {
+      this.helpersByEntity.viewVector.forEach((obj: Object3D) => {
+        obj.visible = enabled;
+      })
+      this.helpersByEntity.velocityArrow.forEach((obj: Object3D) => {
+        obj.visible = enabled;
+      })
+    })
+
+    EngineEvents.instance.addEventListener(DebugHelpersSystem.EVENTS.TOGGLE_PHYSICS, ({ enabled }) => {
+      this.physicsDebugRenderer.setEnabled(enabled);
+    })
   }
 
   execute(delta: number, time: number): void {
@@ -37,12 +57,14 @@ export class DebugHelpersSystem extends System {
       const hex = 0xffff00;
       if(!actor || !actor.viewVector) return console.warn ("actor.viewVector is null")
       const arrowHelper = new ArrowHelper( actor.viewVector.clone().normalize(), origin, length, hex );
+      arrowHelper.visible = false;
       Engine.scene.add( arrowHelper );
       this.helpersByEntity.viewVector.set(entity, arrowHelper);
 
       // velocity
       const velocityColor = 0x0000ff;
       const velocityArrowHelper = new ArrowHelper( new Vector3(), new Vector3( 0, 0, 0 ), 0.5, velocityColor );
+      velocityArrowHelper.visible = false;
       Engine.scene.add( velocityArrowHelper );
       this.helpersByEntity.velocityArrow.set(entity, velocityArrowHelper);
     });
@@ -84,6 +106,7 @@ export class DebugHelpersSystem extends System {
         if (boundingBox.dynamic) {
           boundingBox.boxArray.forEach((object3D, index) => {
             const helper = new BoxHelper(object3D);
+            helper.visible = false;
             Engine.scene.add(helper);
           });
         }
@@ -95,6 +118,7 @@ export class DebugHelpersSystem extends System {
           box3.applyMatrix4(object3D.value.matrixWorld);
         }
         const helper = new Box3Helper(box3);
+        helper.visible = false;
         Engine.scene.add(helper);
       }
     });

@@ -2,12 +2,20 @@ import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
+/**
+ * [TooltipContainer used as container tooltip]
+ * @type {styled component}
+ */
 const TooltipContainer = (styled as any).div`
   display: flex;
   width: 600px;
   padding: 12px 0;
 `;
 
+/**
+ * [TooltipThumbnailContainer used to show thumbnail]
+ * @type {Styled Component}
+ */
 const TooltipThumbnailContainer = (styled as any).div`
   display: flex;
   justify-content: center;
@@ -16,6 +24,10 @@ const TooltipThumbnailContainer = (styled as any).div`
   height: 200px;
 `;
 
+/**
+ * [TooltipContent used to provide styles for tool tip]
+ * @type {Styled component}
+ */
 const TooltipContent = (styled as any).div`
   display: flex;
   flex: 1;
@@ -26,9 +38,18 @@ const TooltipContent = (styled as any).div`
   }
 `;
 
+/**
+ * [AssetTooltip used to show tooltip on elements available in asset penal]
+ * @param       {[type]} item
+ * @constructor
+ */
 export default function AssetTooltip({ item }) {
   let thumbnail;
 
+  // check if item contains thumbnailUrl then initializing thumbnail
+  // else creating thumbnail if there is videoUrl
+  // then check if item contains iconComponent then initializing using IconComponent
+  //else initialize thumbnail using src from item object
   if (item.thumbnailUrl) {
     thumbnail = <img src={item.thumbnailUrl} />;
   } else if (item.videoUrl) {
@@ -40,6 +61,7 @@ export default function AssetTooltip({ item }) {
     thumbnail = <img src={item.src} />;
   }
 
+  //creating tooltip view
   return (
     <TooltipContainer>
       <TooltipThumbnailContainer>{thumbnail}</TooltipThumbnailContainer>

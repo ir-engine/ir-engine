@@ -274,6 +274,11 @@ const lightTheme = createMuiTheme({
         }
       }
     },
+    MuiCard:{
+      root: {
+        overflow: 'visible',
+      }
+    },
     MuiCardMedia:{
       media:{  
         '&:hover':{

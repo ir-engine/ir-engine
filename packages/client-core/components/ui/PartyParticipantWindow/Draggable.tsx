@@ -1,57 +1,60 @@
 import React, { useState } from 'react';
 
-const Draggable = (props) => {
-    const MARGIN = 20;
-    const ref = React.createRef<HTMLDivElement>();
-    const [dragStarted, setDragStarted] = useState(false);
-    const [prev, setPrev] = useState({ x: 0, y: 0 });
+type PropsType = {
+    isPiP: boolean;
+}
 
-    const clamp = (low, value, high) => {
+class Draggable extends React.Component<PropsType> {
+    MARGIN = 20;
+    dragStarted = false;
+    prev = { x: 0, y: 0 };
+
+    clamp = (low, value, high) => {
         if (value < low) return low;
         if (value > high) return high;
         return value;
     }
-    const handleMouseDown = (e) => {
+
+    handleMouseDown = (e) => {
         if (e.button !== 0 && e.type !== 'touchstart') return;
 
-        const point = getCoordinates(e);
-        setDragStarted(true);
-        setPrev(point);
-        ref.current.style.transition = '';
+        const point = this.getCoordinates(e);
+        this.dragStarted = true;
+        this.prev = point;
+        e.currentTarget.style.transition = '';
     }
 
-    const handleMouseMove = (e) => {
-        if (!dragStarted) return;
+    handleMouseMove = (e) => {
+        if (!this.dragStarted) return;
+        const point = this.getCoordinates(e);
+        const container = e.currentTarget;
 
-        const point = getCoordinates(e);
-        const container = ref.current;
-
-        const boundingRect = ref.current.getBoundingClientRect();
-        container.style.left = clamp(MARGIN, (boundingRect.left + point.x  - prev.x), window.innerWidth - boundingRect.width - MARGIN) + 'px';
-        container.style.top = clamp(MARGIN, (boundingRect.top + point.y - prev.y), window.innerHeight - boundingRect.height - MARGIN) + 'px';
-        setPrev(point);
+        const boundingRect = container.getBoundingClientRect();
+        container.style.left = this.clamp(this.MARGIN, (boundingRect.left + point.x  - this.prev.x), window.innerWidth - boundingRect.width - this.MARGIN) + 'px';
+        container.style.top = this.clamp(this.MARGIN, (boundingRect.top + point.y - this.prev.y), window.innerHeight - boundingRect.height - this.MARGIN) + 'px';
+        this.prev = point;
     }
 
-    const handleMouseUp = () => {
-        setDragStarted(false);
-        setPrev({ x: 0, y: 0 });
-        const container = ref.current;
+    handleMouseUp = (e) => {
+        this.dragStarted = false;
+        this.prev = { x: 0, y: 0 };
+        const container = e.currentTarget;
         const boundingRect = container.getBoundingClientRect();
         const margin = {
-            left: boundingRect.left - MARGIN,
-            right: window.innerWidth - boundingRect.left - boundingRect.width - MARGIN,
+            left: boundingRect.left - this.MARGIN,
+            right: window.innerWidth - boundingRect.left - boundingRect.width - this.MARGIN,
         }
 
         let p = margin.left <= margin.right
-            ? { x: MARGIN, y: boundingRect.top }
-            : { x: window.innerWidth - boundingRect.width - MARGIN, y: boundingRect.top }
+            ? { x: this.MARGIN, y: boundingRect.top }
+            : { x: window.innerWidth - boundingRect.width - this.MARGIN, y: boundingRect.top }
 
         container.style.left = p.x + 'px';
         container.style.top = p.y + 'px';
         container.style.transition = 'all 0.1s linear';
     }
 
-    const getCoordinates = (e) => {
+    getCoordinates = (e) => {
         if (e.touches) {
             return {
                 x: e.touches[0].clientX,
@@ -65,20 +68,40 @@ const Draggable = (props) => {
         }
     }
 
-    return (
-        <div
-            ref={ref}
-            onTouchStart={handleMouseDown}
-            onTouchMove={handleMouseMove}
-            onTouchEnd={handleMouseUp}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            style={{touchAction: 'none', top: 0, left: 0, position: props.isPiP ? 'fixed' : 'initial' }}
-        >
-            {props.children}
-        </div>
-    )
+    getStyle = () =>  {
+        if (this.props.isPiP)
+            return {
+                touchAction: 'none',
+                position: 'fixed',
+                left: 130,
+                top: 20,
+                transition: 'all 0.1s linear',
+                zIndex: 1500,
+            } as any;
+        else {
+            return { position: 'initial' } as any;
+        }
+    }
+
+    render()  {
+        const handles = this.props.isPiP ? {
+            onTouchStart: this.handleMouseDown,
+            onTouchMove: this.handleMouseMove,
+            onTouchEnd: this.handleMouseUp,
+            onMouseDown: this.handleMouseDown,
+            onMouseMove: this.handleMouseMove,
+            onMouseUp: this.handleMouseUp,
+            onMouseLeave: this.handleMouseMove,
+        } : [];
+        return (
+            <div
+                {...handles}
+                style={this.getStyle()}
+            >
+                {this.props.children}
+            </div>
+        )
+    }
 };
 
 export default Draggable;

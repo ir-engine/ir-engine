@@ -50,11 +50,11 @@ export class CannonDebugRenderer {
     this._planeGeometry = new PlaneBufferGeometry(10, 10, 10, 10)
     this._particleGeometry = new BufferGeometry();
     this._particleGeometry.setFromPoints([new Vector3(0, 0, 0)]);
-  };
+  }
 
   public setEnabled(enabled) {
     this.enabled = enabled;
-    for(let mesh of this._meshes) {
+    for(const mesh of this._meshes) {
       mesh.visible = this.enabled;
     }
   }
@@ -76,11 +76,11 @@ export class CannonDebugRenderer {
       const body = bodies[i]
 
       for (let j = 0; j !== body.shapes.length; j++) {
-        let shape = body.shapes[j]
+        const shape = body.shapes[j]
 
         this._updateMesh(meshIndex, body, shape)
 
-        let mesh = meshes[meshIndex]
+        const mesh = meshes[meshIndex]
 
         if (mesh) {
 

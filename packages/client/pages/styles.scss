@@ -5,92 +5,56 @@
   flex-grow: 1;
 }
 
-[class*=Left_list-container] {
-  .MuiDrawer-paperAnchorLeft {
-    width: 30%;
+.MuiDrawer-paperAnchorRight,
+.MuiDrawer-paperAnchorLeft {
+  width: 30%;
 
-    @media (max-width: 768px) {
-      width: 90%;
-    }
+  @media (orientation: portrait) {
+    width: 70% !important;
+  }
 
-    .MuiAccordion-root {
-      min-height: 50px;
-      overflow-y: auto;
+  @media (max-width: 768px) {
+    width: 90% !important;
+  }
 
-      &.Mui-expanded {
+  .MuiAccordion-root {
+    min-height: 50px;
+    overflow-y: auto;
+
+    &.Mui-expanded {
+      @include flex-collapse;
+
+      .MuiCollapse-container.MuiCollapse-entered {
         @include flex-collapse;
 
-        .MuiCollapse-container.MuiCollapse-entered {
+        .MuiCollapse-wrapper {
           @include flex-collapse;
 
-          .MuiCollapse-wrapper {
+          .MuiCollapse-wrapperInner {
             @include flex-collapse;
 
-            .MuiCollapse-wrapperInner {
+            & > div {
               @include flex-collapse;
 
-              & > div {
+              & > .MuiAccordionDetails-root {
                 @include flex-collapse;
-
-                & > .MuiAccordionDetails-root {
-                  @include flex-collapse;
-                }
               }
             }
           }
         }
-      }
-    }
-
-    .MuiAccordionSummary-content {
-      & > svg {
-        margin-right: 5px;
       }
     }
   }
-}
 
-[class*=Right_list-container] {
-  .MuiDrawer-paperAnchorRight {
-    width: 30%;
-
-    @media (max-width: 768px) {
-      width: 90%;
+  .MuiTab-root {
+    @media (min-width: 600px) {
+      min-width: initial;
     }
+  }
 
-    .MuiAccordion-root {
-      min-height: 50px;
-      overflow-y: auto;
-
-      &.Mui-expanded {
-        @include flex-collapse;
-
-        .MuiCollapse-container.MuiCollapse-entered {
-          @include flex-collapse;
-
-          .MuiCollapse-wrapper {
-            @include flex-collapse;
-
-            .MuiCollapse-wrapperInner {
-              @include flex-collapse;
-
-              & > div {
-                @include flex-collapse;
-
-                & > .MuiAccordionDetails-root {
-                  @include flex-collapse;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    .MuiTab-root {
-      @media (min-width: 600px) {
-        min-width: initial;
-      }
+  .MuiAccordionSummary-content {
+    & > svg {
+      margin-right: 5px;
     }
   }
 }
@@ -390,7 +354,7 @@ body{
 
 [class*=Harmony_selectable] {
   & > .MuiListItemText-root {
-    width: 50%;
+    width: 75%;
 
     & > .MuiTypography-displayBlock {
       @media (max-width: 768px) {
@@ -400,4 +364,8 @@ body{
       }
     }
   }
+}
+
+#__next {
+  height: 0;
 }

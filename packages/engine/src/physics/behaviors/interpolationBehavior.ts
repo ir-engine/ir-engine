@@ -96,7 +96,7 @@ export const interpolationBehavior: Behavior = (entity: Entity, args): void => {
       const vehicle = vehicleComponent.vehiclePhysics;
       const chassisBody = vehicle.chassisBody;
       const wheels = vehicleComponent.arrayWheelsMesh;
-      const isDriver = vehicleComponent.driver == Network.instance.userNetworkId;
+      const isDriver = vehicleComponent.driver == Network.instance.localAvatarNetworkId;
 
       if (!isDriver && args.snapshot.qX != undefined) {
 

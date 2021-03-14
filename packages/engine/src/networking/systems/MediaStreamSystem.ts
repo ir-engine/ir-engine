@@ -1,43 +1,42 @@
-import { observable } from 'mobx';
 import { System } from '../../ecs/classes/System';
 import { localMediaConstraints } from '../constants/VideoConstants';
 
 /** System class for media streaming. */
 export class MediaStreamSystem extends System {
-  @observable public static instance = null;
+  public static instance = null;
 
   /** Whether the video is paused or not. */
-  @observable public videoPaused = false
+  public videoPaused = false
   /** Whether the audio is paused or not. */
-  @observable public audioPaused = false
+  public audioPaused = false
   /** Whether the face tracking is enabled or not. */
-  @observable public faceTracking = false
+  public faceTracking = false
   /** Media stream for streaming data. */
-  @observable public mediaStream: MediaStream = null
+  public mediaStream: MediaStream = null
   /** Audio Gain to be applied on media stream. */
-  @observable public audioGainNode: GainNode = null
+  public audioGainNode: GainNode = null
 
   /** Local screen container. */
-  @observable public localScreen = null
+  public localScreen = null
   /** Producer using camera to get Video. */
-  @observable public camVideoProducer = null
+  public camVideoProducer = null
   /** Producer using camera to get Audio. */
-  @observable public camAudioProducer = null
+  public camAudioProducer = null
   /** Producer using screen to get Video. */
-  @observable public screenVideoProducer = null
+  public screenVideoProducer = null
   /** Producer using screen to get Audio. */
-  @observable public screenAudioProducer = null
+  public screenAudioProducer = null
   /** List of all producers nodes.. */
-  @observable public producers = []
+  public producers = []
   /** List of all consumer nodes. */
-  @observable public consumers = []
+  public consumers = []
   /** Indication of whether the video while screen sharing is paused or not. */
-  @observable public screenShareVideoPaused = false
+  public screenShareVideoPaused = false
   /** Indication of whether the audio while screen sharing is paused or not. */
-  @observable public screenShareAudioPaused = false
+  public screenShareAudioPaused = false
 
   /** Whether the component is initialized or not. */
-  @observable public initialized = false
+  public initialized = false
 
   constructor() {
     super()
@@ -60,6 +59,7 @@ export class MediaStreamSystem extends System {
    * @returns Updated Pause state.
    */
   public setVideoPaused (state: boolean): boolean {
+    console.log('setVideoPaused');
     this.videoPaused = state;
     return this.videoPaused;
   }
@@ -99,6 +99,8 @@ export class MediaStreamSystem extends System {
    * @returns Updated Pause state.
    */
   public toggleVideoPaused (): boolean {
+    console.log('toggleVideoPaused');
+    console.log(this.videoPaused);
     this.videoPaused = !this.videoPaused;
     return this.videoPaused;
   }
@@ -217,24 +219,17 @@ export class MediaStreamSystem extends System {
    * @param peerId ID to be used to find peer element in which media stream will be added.
    */
   static addVideoAudio (mediaStream: { track: { clone: () => MediaStreamTrack }; kind: string }, peerId: any): void {
-    console.log('addVideoAudio');
-    console.log(mediaStream);
-    console.log(peerId);
     if (!(mediaStream && mediaStream.track)) {
       return;
     }
     const elementID = `${peerId}_${mediaStream.kind}`;
-    console.log(`elementId: ${elementID}`);
     let el = document.getElementById(elementID) as any;
-    console.log(el);
 
     // set some attributes on our audio and video elements to make
     // mobile Safari happy. note that for audio to play you need to be
     // capturing from the mic/camera
     if (mediaStream.kind === 'video') {
-      console.log('Creating video element with ID ' + elementID);
       if (el === null) {
-        console.log(`Creating video element for user with ID: ${peerId}`);
         el = document.createElement('video');
         el.id = `${peerId}_${mediaStream.kind}`;
         el.autoplay = true;
@@ -243,18 +238,9 @@ export class MediaStreamSystem extends System {
       }
 
       // TODO: do i need to update video width and height? or is that based on stream...?
-      console.log(`Updating video source for user with ID: ${peerId}`);
-      console.log('mediaStream track:');
-      console.log(mediaStream.track);
-      console.log('mediaStream track clone:');
-      console.log(mediaStream.track.clone());
       el.srcObject = new MediaStream([mediaStream.track.clone()]);
-      console.log('srcObject:');
-      console.log(el.srcObject.getTracks());
       el.mediaStream = mediaStream;
 
-      console.log('video el before play:');
-      console.log(el);
       // let's "yield" and return before playing, rather than awaiting on
       // play() succeeding. play() will not succeed on a producer-paused
       // track until the producer unpauses.
@@ -271,7 +257,6 @@ export class MediaStreamSystem extends System {
       // Positional Audio Works in Firefox:
       // Global Audio:
       if (el === null) {
-        console.log(`Creating audio element for user with ID: ${peerId}`);
         el = document.createElement('audio');
         el.id = `${peerId}_${mediaStream.kind}`;
         document.body.appendChild(el);
@@ -279,7 +264,6 @@ export class MediaStreamSystem extends System {
         el.setAttribute('autoplay', 'true');
       }
 
-      console.log(`Updating <audio> source object for client with ID: ${peerId}`);
       el.srcObject = new MediaStream([mediaStream.track.clone()]);
       el.mediaStream = mediaStream;
       el.volume = 0; // start at 0 and let the three.js scene take over from here...

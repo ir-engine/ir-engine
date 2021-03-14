@@ -43,6 +43,8 @@ export default class PointLightNodeEditor extends Component<
   onChangeRange = range => {
     (this.props.editor as any).setPropertySelected("range", range);
   };
+
+  //rendering editor view
   render() {
     const { node, editor } = this.props as any;
     return (

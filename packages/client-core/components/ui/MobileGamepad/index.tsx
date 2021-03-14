@@ -1,6 +1,5 @@
 import { TouchApp } from '@styled-icons/material/TouchApp';
-import { Thumbsticks } from '@xr3ngine/engine/src/common/enums/Thumbsticks';
-import { GamepadButtons } from "@xr3ngine/engine/src/input/enums/GamepadButtons";
+import { Thumbsticks, GamepadButtons } from "@xr3ngine/engine/src/input/enums/InputEnums";
 import nipplejs from 'nipplejs';
 import React, { FunctionComponent, useEffect, useRef } from 'react';
 import styles from './MobileGamepad.module.scss';
@@ -28,8 +27,6 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered }
       className={styles.controllButton + ' ' + styles[`gamepadButton_${value.label}`] + ' ' + (hovered ? styles.availableButton : styles.notAvailableButton)}
       onPointerDown={ (): void => triggerButton(value.button, true) }
       onPointerUp={ (): void => triggerButton(value.button, false) }
-      onTouchStart={ (): void => triggerButton(value.button, true) }
-      onTouchEnd={ (): void => triggerButton(value.button, false) }
     ><TouchApp /></div>);
   }));
 
@@ -48,12 +45,20 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered }
     });
 
     stickLeft.on("move", ( e, data) => {
-      console.log('move left', data.vector);
-      const event = new CustomEvent("stickmove", { "detail": { stick: Thumbsticks.Left, value: { x: data.vector.y, y: -data.vector.x } } });
+      const event = new CustomEvent(
+        "stickmove",
+        {
+          "detail": {
+            stick: Thumbsticks.Left, 
+            value: { x : data.vector.y, y: -data.vector.x, angleRad: data.angle.radian },
+          }, 
+        }
+      );
       document.dispatchEvent(event);
     });
+
     stickLeft.on("end", ( e, data) => {
-      const event = new CustomEvent("stickmove", { "detail": { stick: Thumbsticks.Left, value: { x:0, y:0 } } });
+      const event = new CustomEvent("stickmove", { "detail": { stick: Thumbsticks.Left, value: { x: 0, y: 0, angleRad: 0 } } });
       document.dispatchEvent(event);
     });
 

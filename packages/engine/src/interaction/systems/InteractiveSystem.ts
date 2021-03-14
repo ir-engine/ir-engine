@@ -7,6 +7,7 @@ import { isClient } from "../../common/functions/isClient";
 import { vectorToScreenXYZ } from "../../common/functions/vectorToScreenXYZ";
 import { Behavior } from "../../common/interfaces/Behavior";
 import { Engine } from "../../ecs/classes/Engine";
+import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { Entity } from "../../ecs/classes/Entity";
 import { System, SystemAttributes } from "../../ecs/classes/System";
 import { Not } from "../../ecs/functions/ComponentFunctions";
@@ -58,7 +59,7 @@ export const interactOnServer: Behavior = (entity: Entity, args: any, delta): vo
 
   //console.warn('found networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
 
-    if (interactable.onInteractionCheck(entity, focusedArrays[0][0], focusedArrays[0][2])) {
+    if (typeof interactable.onInteractionCheck === 'function' && interactable.onInteractionCheck(entity, focusedArrays[0][0], focusedArrays[0][2])) {
     //  console.warn('start with networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
       interactable.onInteraction(entity, { currentFocusedPart: focusedArrays[0][2] }, delta, focusedArrays[0][0]);
     }
@@ -81,6 +82,7 @@ export const subFocused:Behavior = (entity: Entity, args, delta: number): void =
 };
 
 const interactFocused: Behavior = (entity: Entity, args, delta: number): void => {
+
   if (!hasComponent(entity, Interactable)) {
     console.error('Attempted to call interact behavior, but target does not have Interactive component');
     return;
@@ -201,6 +203,12 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
 
 
 export class InteractiveSystem extends System {
+
+  static EVENTS = {
+    USER_HOVER: 'INTERACTIVE_SYSTEM_USER_HOVER',
+    OBJECT_HOVER: 'INTERACTIVE_SYSTEM_OBJECT_HOVER',
+    OBJECT_ACTIVATION: 'INTERACTIVE_SYSTEM_OBJECT_ACTIVATION',
+  };
   updateType = SystemUpdateType.Fixed;
 
   /**
@@ -265,8 +273,7 @@ export class InteractiveSystem extends System {
 
         if (!closestHoveredUser) {
           if (this.previousEntity) {
-            const userData = new CustomEvent('user-hover', { detail: { focused: false } });
-            document.dispatchEvent(userData);
+            EngineEvents.instance.dispatchEvent({ type: InteractiveSystem.EVENTS.USER_HOVER, focused: false });
 
             this.previousEntity = null;
             this.previousEntity2DPosition = null;
@@ -289,24 +296,14 @@ export class InteractiveSystem extends System {
           focused: true
         };
 
-        const userData = new CustomEvent('user-hover', { detail: nameplateData });
-
         if (!this.previousEntity2DPosition || !point2DPosition.equals(this.previousEntity2DPosition)) {
           if (closestHoveredUser !== this.previousEntity) {
-
-            document.dispatchEvent(userData);
-
             this.previousEntity = closestHoveredUser;
             this.previousEntity2DPosition = point2DPosition;
-          } else {
-            if (localTransform.position.distanceTo(closestPosition) < 5) {
-
-              document.dispatchEvent(userData);
-            } else {
-              nameplateData.focused = false;
-              document.dispatchEvent(userData);
-            }
+          } else if (localTransform.position.distanceTo(closestPosition) >= 5) {
+            nameplateData.focused = false;
           }
+          EngineEvents.instance.dispatchEvent({ type: InteractiveSystem.EVENTS.USER_HOVER, ...nameplateData });
         }
       });
 
@@ -384,7 +381,7 @@ export class InteractiveSystem extends System {
 
         } else
         if (object3D instanceof Object3D) {
-          aabb.setFromObject( object3D );
+          aabb.setFromCenterAndSize(getComponent(entity, TransformComponent).position, new Vector3(0.5, 0.5, 0.5))
         }
 
        calcBoundingBox.box = aabb;

@@ -17,6 +17,11 @@ import partyReducer from './party/reducers';
 import inviteReducer from './invite/reducers';
 import userReducer from './user/reducers';
 import locationReducer from './location/reducers';
+import feedReducer from './feed/reducers';
+import feedFiresReducer from './feedFires/reducers';
+import feedCommentsReducer from './feedComment/reducers';
+import mediastreamReducer from './mediastream/reducers';
+import transportReducer from './transport/reducers';
 
 export default combineReducers({
   admin: adminReducer,
@@ -35,5 +40,10 @@ export default combineReducers({
   alert: alertReducer,
   dialog: dialogReducer,
   devicedetect: deviceDetectReducer,
-  user: userReducer
+  user: userReducer,
+  feeds: feedReducer,
+  feedFires: feedFiresReducer,
+  feedComments: feedCommentsReducer,
+  mediastream: mediastreamReducer,
+  transport: transportReducer
 });

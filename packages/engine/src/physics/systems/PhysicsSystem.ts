@@ -10,6 +10,7 @@ import { isPlayerInVehicle } from '../../common/functions/isPlayerInVehicle';
 import { Not } from '../../ecs/functions/ComponentFunctions';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Engine } from '../../ecs/classes/Engine';
+import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
@@ -61,9 +62,9 @@ export class PhysicsSystem extends System {
   static serverOnlyRigidBodyCollides: boolean
   static serverCorrectionForRigidBodyTick: number = 1000
 
-  freezeTimes: number = 0
-  clientSnapshotFreezeTime: number = 0
-  serverSnapshotFreezeTime: number = 0
+  freezeTimes = 0
+  clientSnapshotFreezeTime = 0
+  serverSnapshotFreezeTime = 0
 
   groundMaterial = new Material('groundMaterial')
   wheelMaterial = new Material('wheelMaterial')
@@ -88,7 +89,7 @@ export class PhysicsSystem extends System {
     this.physicsMaxPrediction = this.physicsFrameRate;
     PhysicsSystem.serverOnlyRigidBodyCollides = false;
     // Physics
-    PhysicsSystem.simulate = true;
+    PhysicsSystem.simulate = isServer;
     PhysicsSystem.frame = 0;
     PhysicsSystem.physicsWorld = new World();
     PhysicsSystem.physicsWorld.allowSleep = false;
@@ -105,6 +106,10 @@ export class PhysicsSystem extends System {
         //console.log("PH  UPD: body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape) }
       }
     };
+
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
+      PhysicsSystem.simulate = ev.enable;
+    });
 
     // window["physicsDebugView"] = () => {
     //   debug(Engine.scene, PhysicsSystem.physicsWorld.bodies, DebugOptions);
@@ -310,7 +315,7 @@ const updateIK = (entity: Entity) => {
 
   const positionOffset = Math.sin((realDateNow() % 10000) / 10000 * Math.PI * 2) * 2;
   const positionOffset2 = -Math.sin((realDateNow() % 5000) / 5000 * Math.PI * 2) * 1;
-  const standFactor = actor.height - 0.1 * actor.height + Math.sin((realDateNow() % 2000) / 2000 * Math.PI * 2) * 0.2 * actor.height;
+  const standFactor = actor.height * (0.9 + Math.sin((realDateNow() % 2000) / 2000 * Math.PI * 2) * 0.2);
   const rotationAngle = (realDateNow() % 5000) / 5000 * Math.PI * 2;
 
   if (actor.inputs) {
@@ -345,6 +350,113 @@ const updateIK = (entity: Entity) => {
     actor.inputs.rightGamepad.pointer = (Math.sin((Date.now() % 10000) / 10000 * Math.PI * 2) + 1) / 2;
     actor.inputs.rightGamepad.grip = (Math.sin((Date.now() % 10000) / 10000 * Math.PI * 2) + 1) / 2;
 
-    actor.update();
+      const upRotation = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2)
+      const leftRotation = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI * 0.8)
+      const rightRotation = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -Math.PI * 0.8)
+      const localVector = new Vector3()
+      const modelScaleFactor = actor.inputs.hmd.scaleFactor
+      if (modelScaleFactor !== actor.lastModelScaleFactor) {
+        actor.model.scale.set(modelScaleFactor, modelScaleFactor, modelScaleFactor)
+        actor.lastModelScaleFactor = modelScaleFactor
+      }
+
+      actor.shoulderTransforms.Update()
+
+      for (const k in actor.modelBones) {
+        const modelBone = actor.modelBones[k]
+        const modelBoneOutput = actor.modelBoneOutputs[k]
+
+        if (k === "Hips") {
+          modelBone.position.copy(modelBoneOutput.position)
+        }
+        modelBone.quaternion.multiplyQuaternions(modelBoneOutput.quaternion, modelBone.initialQuaternion)
+
+        if (k === "Left_ankle" || k === "Right_ankle") {
+          modelBone.quaternion.multiply(upRotation)
+        } else if (k === "Left_wrist") {
+          modelBone.quaternion.multiply(leftRotation) // center
+        } else if (k === "Right_wrist") {
+          modelBone.quaternion.multiply(rightRotation) // center
+        }
+        modelBone.updateMatrixWorld()
+      }
+
+      const now = Date.now()
+      const timeDiff = Math.min(now - actor.lastTimestamp, 1000)
+      actor.lastTimestamp = now
+
+      if ((actor.options as any).fingers) {
+        const _processFingerBones = left => {
+          const fingerBones = left ? actor.fingerBones.left : actor.fingerBones.right
+          const gamepadInput = left ? actor.inputs.rightGamepad : actor.inputs.leftGamepad
+          for (const k in fingerBones) {
+            const fingerBone = fingerBones[k]
+            if (fingerBone) {
+              let setter
+              if (k === "thumb") {
+                setter = (q, i) =>
+                  q.setFromAxisAngle(
+                    localVector.set(0, left ? 1 : -1, 0),
+                    gamepadInput.grip * Math.PI * (i === 0 ? 0.125 : 0.25)
+                  )
+              } else if (k === "index") {
+                setter = (q, i) =>
+                  q.setFromAxisAngle(localVector.set(0, 0, left ? -1 : 1), gamepadInput.pointer * Math.PI * 0.5)
+              } else {
+                setter = (q, i) =>
+                  q.setFromAxisAngle(localVector.set(0, 0, left ? -1 : 1), gamepadInput.grip * Math.PI * 0.5)
+              }
+              let index = 0
+              fingerBone.traverse(subFingerBone => {
+                setter(subFingerBone.quaternion, index++)
+              })
+            }
+          }
+        }
+        _processFingerBones(true)
+        _processFingerBones(false)
+      }
+
+      if ((actor.options as any).visemes) {
+        const aaValue = Math.min(actor.volume * 10, 1)
+        const blinkValue = (() => {
+          const nowWindow = now % 2000
+          if (nowWindow >= 0 && nowWindow < 100) {
+            return nowWindow / 100
+          } else if (nowWindow >= 100 && nowWindow < 200) {
+            return 1 - (nowWindow - 100) / 100
+          } else {
+            return 0
+          }
+        })()
+        actor.skinnedMeshes.forEach(o => {
+          const { morphTargetDictionary, morphTargetInfluences } = o
+          if (morphTargetDictionary && morphTargetInfluences) {
+            let aaMorphTargetIndex = morphTargetDictionary["vrc.v_aa"]
+            if (aaMorphTargetIndex === undefined) {
+              aaMorphTargetIndex = morphTargetDictionary["morphTarget26"]
+            }
+            if (aaMorphTargetIndex !== undefined) {
+              morphTargetInfluences[aaMorphTargetIndex] = aaValue
+            }
+
+            let blinkLeftMorphTargetIndex = morphTargetDictionary["vrc.blink_left"]
+            if (blinkLeftMorphTargetIndex === undefined) {
+              blinkLeftMorphTargetIndex = morphTargetDictionary["morphTarget16"]
+            }
+            if (blinkLeftMorphTargetIndex !== undefined) {
+              morphTargetInfluences[blinkLeftMorphTargetIndex] = blinkValue
+            }
+
+            let blinkRightMorphTargetIndex = morphTargetDictionary["vrc.blink_right"]
+            if (blinkRightMorphTargetIndex === undefined) {
+              blinkRightMorphTargetIndex = morphTargetDictionary["morphTarget17"]
+            }
+            if (blinkRightMorphTargetIndex !== undefined) {
+              morphTargetInfluences[blinkRightMorphTargetIndex] = blinkValue
+            }
+          }
+        })
+      }
   }
 }

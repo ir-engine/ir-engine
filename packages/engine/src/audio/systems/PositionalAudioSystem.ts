@@ -1,5 +1,4 @@
-import { PositionalAudio } from 'three';
-import { Engine } from '../../ecs/classes/Engine';
+import { Engine, PositionalAudio } from '../../ecs/classes/Engine';
 import { System, SystemAttributes } from '../../ecs/classes/System';
 import {
   getComponent,
@@ -34,6 +33,7 @@ export class PositionalAudioSystem extends System {
   constructor(attributes?: SystemAttributes) {
     super(attributes);
     PositionalAudioSystem.instance = this;
+    Engine.useAudioSystem = true;
   }
 
   /** Execute the positional audio system for different events of queries. */

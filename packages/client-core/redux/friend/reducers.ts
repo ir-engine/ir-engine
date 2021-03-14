@@ -62,7 +62,7 @@ const friendReducer = (state = immutableState, action: FriendAction): any => {
       otherUser = patchedUserRelationship.userId === selfUser.id ? patchedUserRelationship.relatedUser : patchedUserRelationship.user;
       updateMap = new Map(state.get('friends'));
       updateMapFriends = updateMap.get('friends');
-      updateMapFriendsChild = _.find(updateMapFriends, (friend: User) => friend.id === otherUser.id);
+      updateMapFriendsChild = _.find(updateMapFriends, (friend: User) => { return friend != null && (friend.id === otherUser.id)});
       if (updateMapFriendsChild != null) {
         updateMapFriends = updateMapFriends.map((friend: User) => friend.id === otherUser.id ? otherUser : friend);
       }
@@ -79,7 +79,7 @@ const friendReducer = (state = immutableState, action: FriendAction): any => {
       otherUserId = removedUserRelationship.userId === selfUser.id ? removedUserRelationship.relatedUserId : removedUserRelationship.userId;
       updateMap = new Map(state.get('friends'));
       updateMapFriends = updateMap.get('friends');
-      updateMapFriendsChild = _.find(updateMapFriends, (friend: User) => friend.id === otherUserId);
+      updateMapFriendsChild = _.find(updateMapFriends, (friend: User) => { return friend != null && (friend.id === otherUserId)});
       if (updateMapFriendsChild != null) {
         _.remove(updateMapFriends, (friend: User) => friend.id === otherUserId);
         updateMap.set('friends', updateMapFriends);

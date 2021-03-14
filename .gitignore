@@ -160,3 +160,6 @@ packages/server/upload/
 .dccache
 .vscode/*
 .vscode
+.DS_Store
+*/.DS_Store
+
