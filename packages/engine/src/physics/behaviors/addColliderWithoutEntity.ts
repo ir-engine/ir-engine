@@ -1,7 +1,14 @@
 import { Body, Box, Sphere, Cylinder, Plane, Vec3 } from 'cannon-es';
 import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { CollisionGroups } from "../enums/CollisionGroups";
-import { createTrimesh } from './physicalPrimitives';
+import { threeToCannon } from '../classes/three-to-cannon';
+
+export function createTrimesh (mesh) {
+		const shape = threeToCannon(mesh, {type: threeToCannon.Type.MESH});
+		const body = new Body({ mass: 0 });
+    body.addShape(shape);
+		return body;
+}
 
 function createBox (scale) {
   if(scale == undefined) return console.error("Scale is  null");
@@ -11,8 +18,8 @@ function createBox (scale) {
   return body;
 }
 
-function createSphere (radius) {
-  const shape = new Sphere(radius);
+function createSphere (scale) {
+  const shape = new Sphere(Math.abs(scale.x));
   const body = new Body({ mass: 0 });
   body.addShape(shape);
   return body;
@@ -28,21 +35,29 @@ export function createGround () {
 
 export function createCylinder (scale) {
   if(scale == undefined) return console.error("Scale is  null");
-  const shape = new Cylinder(scale.x, scale.y, scale.z*2, 20);
+  const shape = new Cylinder(scale.x, scale.z, scale.y*2, 10);
   const body = new Body({ mass: 0 });
   body.addShape(shape);
   return body;
 }
 
-export function addColliderWithoutEntity( type, position, quaternion, scale, mesh ) {
-  let body;
+export function doThisActivateCollider (body, userData) {
+	body.collisionFilterGroup = CollisionGroups.ActiveCollider;
+	body.link = userData.link;
+	return body;
+}
 
+export function addColliderWithoutEntity( userData, position, quaternion, scale, mesh ) {
+  let body;
+	const type = userData.type
   switch (type) {
     case 'box':
       body = createBox(scale);
+      /*
       body.shapes.forEach((shape) => {
   			shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
   		});
+      */
       break;
 
     case 'ground':
@@ -58,12 +73,13 @@ export function addColliderWithoutEntity( type, position, quaternion, scale, mes
       break;
 
     case 'trimesh':
-      body = createTrimesh(mesh, new Vec3(), 0);
+    //  body = createTrimesh(mesh);
+			return;
       break;
 
     default:
       console.warn('create Collider undefined type !!!');
-      body = createBox(scale || 1);
+      body = createBox(scale || {x:1, y:1, z:1});
       break;
     }
 
@@ -81,6 +97,12 @@ export function addColliderWithoutEntity( type, position, quaternion, scale, mes
         quaternion.z,
         quaternion.w
       );
+			if (userData.action == 'portal') {
+				body = doThisActivateCollider(body, userData);
+			} else {
+				body.collisionFilterGroup = CollisionGroups.Default;
+			}
+  //    body.collisionFilterMask = CollisionGroups.Scene | CollisionGroups.Default | CollisionGroups.Characters | CollisionGroups.Car | CollisionGroups.TrimeshColliders;
 
   PhysicsSystem.physicsWorld.addBody(body);
   return body;

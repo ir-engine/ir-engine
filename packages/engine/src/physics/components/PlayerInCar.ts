@@ -15,7 +15,7 @@ PlayerInCar._schema = {
   state: { type: Types.Ref, default: null },
   networkCarId: { type: Types.Number, default: null },
   currentFocusedPart: { type: Types.Number, default: null },
-  animationSpeed: { type: Types.Number, default: 0.2 },
+  animationSpeed: { type: Types.Number, default: 0.1 },
   currentFrame: { type: Types.Number, default: 0 },
   timeOut: { type: Types.Number, default: 30 },
   angel: { type: Types.Number, default: Math.PI / 3.5 }

@@ -190,12 +190,16 @@ export class CameraSystem extends System {
 
         mx.lookAt(direction, empty, upVector);
         cameraDesiredTransform.rotation.setFromRotationMatrix(mx);
+        if (actor) {
+          actor.viewVector = new Vector3(0, 0, -1).applyQuaternion(cameraDesiredTransform.rotation)
+        } else {
+          cameraTransform.rotation.copy(cameraDesiredTransform.rotation);
+        }
 
         // for pointer lock controls
         // if(cameraFollow.mode === CameraModes.FirstPerson || cameraFollow.mode === CameraModes.ShoulderCam) {
         //     cameraTransform.rotation.copy(cameraDesiredTransform.rotation);
         // }
-
         if (cameraFollow.mode === CameraModes.FirstPerson) {
           cameraDesiredTransform.position.copy(targetPosition);
         }

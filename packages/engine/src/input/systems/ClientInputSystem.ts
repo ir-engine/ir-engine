@@ -59,7 +59,7 @@ export class ClientInputSystem extends System {
     ClientInputSchema.onAdded.forEach(behavior => {
       behavior.behavior();
     });
-  
+
     Object.keys(ClientInputSchema.eventBindings)?.forEach((eventName: string) => {
       ClientInputSchema.eventBindings[eventName].forEach((behaviorEntry: DomEventBehaviorValue) => {
         // const domParentElement:EventTarget = document;
@@ -114,7 +114,7 @@ export class ClientInputSystem extends System {
    * @param {Number} delta Time since last frame
    */
 
-  public execute(delta: number): void { 
+  public execute(delta: number): void {
     handleGamepads();
     const newState = new Map();
 
