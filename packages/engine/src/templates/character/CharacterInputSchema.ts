@@ -4,7 +4,7 @@ import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
 import { getComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { Input } from '@xr3ngine/engine/src/input/components/Input';
 import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
-import { Material, Mesh } from "three";
+import { Material, Mesh, Vector3, Quaternion } from "three";
 import { SkinnedMesh } from 'three/src/objects/SkinnedMesh';
 import { CameraComponent } from "../../camera/components/CameraComponent";
 import { CameraModes } from "../../camera/types/CameraModes";
@@ -103,7 +103,6 @@ const cycleCameraMode: Behavior = (entity: Entity, args: any): void => {
  */
 const fixedCameraBehindCharacter: Behavior = (entity: Entity, args: any, delta: number): void => {
   const follower = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent);
-
   if (CameraComponent.instance && follower && follower.mode !== CameraModes.FirstPerson) {
     follower.locked = !follower.locked
   }
@@ -148,6 +147,7 @@ const switchCameraMode = (entity: Entity, args: any = { pointerLock: false, mode
     case CameraModes.FirstPerson: {
       cameraFollow.offset.set(0, 1, 0);
       cameraFollow.phi = 0;
+      cameraFollow.locked = true;
       setVisible(actor, false);
     } break;
 
