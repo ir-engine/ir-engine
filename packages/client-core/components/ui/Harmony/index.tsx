@@ -1010,7 +1010,7 @@ const Harmony = (props: Props): any => {
                             })}
                             onScroll={(e) => onListScroll(e)}
                         >
-                            {layerUsers && layerUsers.length > 0 && layerUsers.sort((a, b) => a.name - b.name).map((layerUser) => {
+                            {instanceLayerUsers && instanceLayerUsers.length > 0 && instanceLayerUsers.sort((a, b) => a.name - b.name).map((layerUser) => {
                                     return <ListItem key={layerUser.id}>
                                         <ListItemAvatar>
                                             <Avatar src={layerUser.avatarUrl}/>
@@ -1246,7 +1246,7 @@ const Harmony = (props: Props): any => {
                                             multiline
                                             fullWidth
                                             id="editingMessage"
-                                            label="Message text"
+                                            placeholder="Abc"
                                             name="editingMessage"
                                             autoFocus
                                             value={editingMessage}
@@ -1281,7 +1281,7 @@ const Harmony = (props: Props): any => {
                                 multiline
                                 fullWidth
                                 id="newMessage"
-                                label="Message text"
+                                placeholder="Abc"
                                 name="newMessage"
                                 autoFocus
                                 value={composingMessage}

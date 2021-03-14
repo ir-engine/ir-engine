@@ -5,51 +5,13 @@
   flex-grow: 1;
 }
 
+.MuiDrawer-paperAnchorRight,
 .MuiDrawer-paperAnchorLeft {
   width: 30%;
 
-  @media (max-width: 768px) {
-    width: 90%;
+  @media (orientation: portrait) {
+    width: 70% !important;
   }
-
-  .MuiAccordion-root {
-    min-height: 50px;
-    overflow-y: auto;
-
-    &.Mui-expanded {
-      @include flex-collapse;
-
-      .MuiCollapse-container.MuiCollapse-entered {
-        @include flex-collapse;
-
-        .MuiCollapse-wrapper {
-          @include flex-collapse;
-
-          .MuiCollapse-wrapperInner {
-            @include flex-collapse;
-
-            & > div {
-              @include flex-collapse;
-
-              & > .MuiAccordionDetails-root {
-                @include flex-collapse;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  .MuiAccordionSummary-content {
-    & > svg {
-      margin-right: 5px;
-    }
-  }
-}
-
-.MuiDrawer-paperAnchorRight {
-  width: 30%;
 
   @media (max-width: 768px) {
     width: 90% !important;
@@ -87,6 +49,12 @@
   .MuiTab-root {
     @media (min-width: 600px) {
       min-width: initial;
+    }
+  }
+
+  .MuiAccordionSummary-content {
+    & > svg {
+      margin-right: 5px;
     }
   }
 }
