@@ -4,7 +4,7 @@ import { Engine } from '../ecs/classes/Engine';
 import { EngineEvents } from '../ecs/classes/EngineEvents';
 import { System, SystemAttributes } from '../ecs/classes/System';
 import { endXR, startXR } from '../input/functions/WebXRFunctions';
-import { XRReferenceSpaceType, XRWebGLLayer } from '../input/types/WebXR';
+import { XRFrame, XRReferenceSpaceType, XRWebGLLayer } from '../input/types/WebXR';
 // import { EngineEvents } from '../ecs/classes/EngineEvents';
 // import { isWebWorker } from '../common/functions/getEnvironment';
 // import { OFFSCREEN_XR_EVENTS } from '../worker/MessageQueue';
@@ -32,7 +32,7 @@ export class WebXRRendererSystem extends System {
 
   controllerUpdateHook: any;
 
-  referenceSpace: XRReferenceSpaceType = 'local';
+  referenceSpace: XRReferenceSpaceType = 'local-floor';
 
   constructor(attributes?: SystemAttributes) {
     super(attributes);
@@ -137,6 +137,22 @@ export class WebXRRendererSystem extends System {
       // Post processing is not currently supported in xr // https://github.com/mrdoob/three.js/pull/18846
       // webaverse already has support for it https://github.com/webaverse/app/pull/906
       Engine.renderer.render(Engine.scene, Engine.camera);
+    }
+  }
+}
+
+// https://github.com/immersive-web/webxr-samples/blob/main/controller-state.html
+// we have to do it here unless we refactor systems to take an XRFrame, which might not be a bad idea, or set it globally maybe? 'Engine.xrFrame'?
+export const processXRFrame = (delta:number, xrFrame: XRFrame): void => {
+  const session = xrFrame.session;
+  const refSpace = Engine.renderer.xr.getReferenceSpace();
+  const pose = xrFrame.getViewerPose(refSpace);
+
+  for(let source of session.inputSources) {
+    if(source.gamepad) {
+      const controllerPose = xrFrame.getPose(source.gripSpace, refSpace);
+      //todo - deal with gamepad stuff as per link above
+      // console.log(source.gamepad, controllerPose)
     }
   }
 }

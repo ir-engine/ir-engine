@@ -106,8 +106,9 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
     registerSystem(HighlightSystem);
     registerSystem(EntityActionSystem, { useWebXR: Engine.xrSupported });
   
-    Engine.audioListener = new AudioListener();
-    Engine.camera.add(Engine.audioListener);
+// audio breaks webxr currently
+    // Engine.audioListener = new AudioListener();
+    // Engine.camera.add(Engine.audioListener);
     // registerSystem(PositionalAudioSystem);
 
     registerSystem(InteractiveSystem);
