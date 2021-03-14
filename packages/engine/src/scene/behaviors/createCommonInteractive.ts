@@ -1,6 +1,8 @@
 import { Behavior } from "../../common/interfaces/Behavior";
+import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { addComponent, getComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import { Interactable } from "../../interaction/components/Interactable";
+import { InteractiveSystem } from "../../interaction/systems/InteractiveSystem";
 import { CommonInteractiveData } from "../../templates/interactive/interfaces/CommonInteractiveData";
 import { Object3DComponent } from "../components/Object3DComponent";
 import { InteractiveSchema } from '../constants/InteractiveSchema';
@@ -9,34 +11,31 @@ const onInteraction: Behavior = (entityInitiator, args, delta, entityInteractive
   const interactiveComponent = getComponent(entityInteractive, Interactable);
 
   // TODO: make interface for universal interactive data, and event data
-  const detail: any = {};
+  const engineEvent: any = {type: InteractiveSystem.EVENTS.OBJECT_ACTIVATION };
   if (interactiveComponent.data) {
     if (typeof interactiveComponent.data.action !== 'undefined') {
-      detail.action = interactiveComponent.data.action;
-      detail.payload = interactiveComponent.data.payload;
-      detail.interactionText = interactiveComponent.data.interactionText;
+      engineEvent.action = interactiveComponent.data.action;
+      engineEvent.payload = interactiveComponent.data.payload;
+      engineEvent.interactionText = interactiveComponent.data.interactionText;
     }
   }
 
-  const event = new CustomEvent('object-activation', { detail });
-  document.dispatchEvent(event);
+  EngineEvents.instance.dispatchEvent(engineEvent);
 };
 
 const onInteractionHover: Behavior = (entityInitiator, { focused }: { focused: boolean }, delta, entityInteractive, time) => {
   const interactiveComponent = getComponent(entityInteractive, Interactable);
 
-  // TODO: make interface for universal interactive data, and event data
-  const detail: any = { focused };
+  const engineEvent: any = { type: InteractiveSystem.EVENTS.OBJECT_HOVER, focused };
 
   if (interactiveComponent.data) {
     if (typeof interactiveComponent.data.action !== 'undefined') {
-      detail.action = interactiveComponent.data.action;
-      detail.payload = interactiveComponent.data.payload;
+      engineEvent.action = interactiveComponent.data.action;
+      engineEvent.payload = interactiveComponent.data.payload;
     }
-    detail.interactionText = interactiveComponent.data.interactionText;
+    engineEvent.interactionText = interactiveComponent.data.interactionText;
   }
-  const event = new CustomEvent('object-hover', { detail });
-  document.dispatchEvent(event);
+  EngineEvents.instance.dispatchEvent(engineEvent);
 
   if (!hasComponent(entityInteractive, Object3DComponent)) {
     return;

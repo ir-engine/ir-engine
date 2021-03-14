@@ -488,7 +488,6 @@ export class AudioDocumentElementProxy extends DocumentElementProxy {
     ev: any,
     fromMain?: boolean
   ): void {
-    console.log(ev)
     switch(ev.type) {
       case 'play': this._isPlaying = true; break;
       case 'pause': case 'paused': case 'ended': this._isPlaying = false; break;
@@ -704,7 +703,7 @@ export async function createWorker(
   messageQueue.messageTypeFunctions.set(
     MessageType.DOCUMENT_ELEMENT_FUNCTION_CALL,
     async ({ call, uuid, args, requestID }: { call: string; uuid: string; args: any[], requestID?: any }) => {
-      console.log(call, uuid, args, requestID, documentElementMap.get(uuid), documentElementMap.get(uuid)[call])
+      // console.log(call, uuid, args, requestID, documentElementMap.get(uuid), documentElementMap.get(uuid)[call])
       try {
         const returnedData = await documentElementMap.get(uuid)[call](...args)
         if(requestID) {
@@ -993,7 +992,10 @@ class WindowProxy extends DocumentElementProxy {
       type,
     });
   }
-  focus: () => {}
+  open (url) {
+    this.__callFunc('open', url);
+  }
+  focus () {}
   get ownerDocument() { return (globalThis as any).document; }
   get width() { return this.messageQueue.width; }
   get height() { return this.messageQueue.height; }

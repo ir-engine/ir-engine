@@ -2,39 +2,40 @@ import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { getComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
 import { Object3DComponent } from "@xr3ngine/engine/src/scene/components/Object3DComponent";
 import { Interactable } from "../../../interaction/components/Interactable";
+import { EngineEvents } from "../../../ecs/classes/EngineEvents";
+import { InteractiveSystem } from "../../../interaction/systems/InteractiveSystem";
 
 export const onInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
   const interactiveComponent = getComponent(entityInteractive, Interactable);
 
+  const engineEvent: any = { type: InteractiveSystem.EVENTS.OBJECT_ACTIVATION };
+
   // TODO: make interface for universal interactive data, and event data
-  const detail: any = {};
   if (interactiveComponent.data) {
     if (typeof interactiveComponent.data.action !== 'undefined') {
-      detail.action = interactiveComponent.data.action;
-      detail.payload = interactiveComponent.data.payload;
-      detail.interactionText = interactiveComponent.data.interactionText;
+      engineEvent.action = interactiveComponent.data.action;
+      engineEvent.payload = interactiveComponent.data.payload;
+      engineEvent.interactionText = interactiveComponent.data.interactionText;
     }
   }
 
-  const event = new CustomEvent('object-activation', { detail });
-  document.dispatchEvent(event);
+  EngineEvents.instance.dispatchEvent(engineEvent);
 };
 
 export const onInteractionHover: Behavior = (entityInitiator, { focused }: { focused: boolean }, delta, entityInteractive, time) => {
   const interactiveComponent = getComponent(entityInteractive, Interactable);
-
   // TODO: make interface for universal interactive data, and event data
-  const detail: any = { focused };
+  const engineEvent: any = { type: InteractiveSystem.EVENTS.OBJECT_HOVER, focused };
 
   if (interactiveComponent.data) {
     if (typeof interactiveComponent.data.action !== 'undefined') {
-      detail.action = interactiveComponent.data.action;
-      detail.payload = interactiveComponent.data.payload;
+      engineEvent.action = interactiveComponent.data.action;
+      engineEvent.payload = interactiveComponent.data.payload;
     }
-    detail.interactionText = interactiveComponent.data.interactionText;
+    engineEvent.interactionText = interactiveComponent.data.interactionText;
   }
-  const event = new CustomEvent('object-hover', { detail });
-  document.dispatchEvent(event);
+  EngineEvents.instance.dispatchEvent(engineEvent);
+
 
   if (!hasComponent(entityInteractive, Object3DComponent)) {
     return;
