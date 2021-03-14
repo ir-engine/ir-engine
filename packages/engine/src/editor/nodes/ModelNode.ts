@@ -135,19 +135,18 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       await super.load(accessibleUrl);
       if (this.model) {
         // Set up colliders
-
-
         const colliders = []
 
           const parseColliders = ( mesh ) => {
-            // console.warn(mesh.userData.data);
-        
-            if (mesh.userData.data == "physics") {
-              if (mesh.userData.type == "box" || mesh.userData.type == "trimesh") {
+            if (mesh.userData.data === 'physics' || mesh.userData.data === 'dynamic' || mesh.userData.data === 'vehicle') {
+             //mesh.userData.type == "trimesh"
                 const meshCollider = {
-                    type: 'trimesh',
-                    mass: 0,
-                    position: mesh.position,
+                    type: mesh.userData.type,
+                    position: {
+                      x: mesh.position.x,
+                      y: mesh.position.y,
+                      z: mesh.position.z
+                    },
                     quaternion: {
                       x: mesh.quaternion.x,
                       y: mesh.quaternion.y,
@@ -155,19 +154,19 @@ export default class ModelNode extends EditorNodeMixin(Model) {
                       w: mesh.quaternion.w
                     },
                     scale: {
-                      x: mesh.scale.x / 2,
-                      y: mesh.scale.y / 2,
-                      z: mesh.scale.z / 2
+                      x: mesh.scale.x,
+                      y: mesh.scale.y,
+                      z: mesh.scale.z
                     },
-                    vertices: mesh.vertices
+                  //  vertices: (mesh.userData.type == "trimesh" ? mesh.geometry.attributes.position.array: null) //count
                   }
-                  colliders.push(meshCollider);
-                }
-            }
+                colliders.push(meshCollider);
+             }
           }
-             this.model.traverse( parseColliders );
-             this.meshColliders = colliders;
-             this.editor.renderer.addBatchedObject(this.model);
+          this.model.traverse( parseColliders );
+          console.warn(colliders);
+          this.meshColliders = colliders;
+          //this.editor.renderer.addBatchedObject(this.model);
         }
 
       if (this.initialScale === "fit") {
@@ -243,6 +242,18 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       this.update(dt);
     }
   }
+  addEditorParametersToCollider(collider) {
+    collider.position.x += this.position.x
+    collider.position.y += this.position.y
+    collider.position.z += this.position.z
+
+    collider.scale.x *= this.scale.x
+    collider.scale.y *= this.scale.y
+    collider.scale.z *= this.scale.z
+    // quaternion
+    // scale
+    return collider
+  }
   updateStaticModes() {
     if (!this.model) return;
     setStaticMode(this.model, StaticModes.Static);
@@ -285,10 +296,9 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         payloadModelUrl : this._canonicalUrl,
       }
     };
-    for(let i = 0; i < this.meshColliders.length; i++){
-      components[`mesh-collider-${i}`] = this.meshColliders[i];
+    for(let i = 0; i < this.meshColliders.length; i++) {
+      components[`mesh-collider-${i}`] = this.addEditorParametersToCollider(this.meshColliders[i]);
     }
-
     if (this.activeClipIndex !== -1) {
       components["loop-animation"] = {
         activeClipIndex: this.activeClipIndex
