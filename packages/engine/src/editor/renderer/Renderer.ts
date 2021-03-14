@@ -8,6 +8,8 @@ import {
 } from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
+import { GammaCorrectionShader } from "three/examples/jsm/shaders/GammaCorrectionShader";
 import ScenePreviewCameraNode from "../nodes/ScenePreviewCameraNode";
 import { getCanvasBlob } from "../functions/thumbnails";
 import makeRenderer from "./makeRenderer";
@@ -35,6 +37,7 @@ class UnlitRenderMode extends RenderMode {
   renderPass: RenderPass;
   renderHelpersPass: RenderPass;
   outlinePass: any;
+  gammaCorrectionPass: ShaderPass;
   enabledBatchedObjectLayers: Layers;
   disabledBatchedObjectLayers: Layers;
   hiddenLayers: Layers;
@@ -57,6 +60,8 @@ class UnlitRenderMode extends RenderMode {
       editor.selectedTransformRoots,
       editorRenderer
     ) as any;
+    this.gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
+    this.effectComposer.addPass(this.gammaCorrectionPass);
     this.outlinePass.edgeColor = new Color("#006EFF");
     this.outlinePass.renderToScreen = true;
     this.effectComposer.addPass(this.outlinePass);

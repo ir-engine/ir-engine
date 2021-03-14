@@ -7,7 +7,7 @@ import { Facebook } from '@styled-icons/bootstrap/Facebook';
 import Fab from '@material-ui/core/Fab';
 
 import styles from './Login.module.scss';
-import { loginUserByOAuth, resetPassword } from '../../../redux/auth/service';
+import { loginUserByOAuth, registerUserByEmail, resetPassword } from '../../../redux/auth/service';
 import getConfig from 'next/config';
 
 import PasswordLoginApp from '../../ui/Auth/PasswordLoginApp';
@@ -27,6 +27,7 @@ const mapStateToProps = (state: any): any => {
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   loginUserByOAuth: bindActionCreators(loginUserByOAuth, dispatch),
   resetPassword: bindActionCreators(resetPassword, dispatch),
+  registerUserByEmail: bindActionCreators(registerUserByEmail, dispatch),
 });
 
 interface Props {
@@ -37,9 +38,9 @@ interface Props {
   loginUserByOAuth?: typeof loginUserByOAuth;
   logo: string;
   isAddConnection?: boolean;
-  resetPassword: typeof resetPassword;
+  resetPassword?: typeof resetPassword;
+  registerUserByEmail?: typeof registerUserByEmail;
 }
-
 const FlatSignIn = (props: Props) => {
   const [view, setView] =  useState('login');
   const enableUserPassword = config?.auth ? config.auth.enableUserPassword : false;
@@ -66,6 +67,7 @@ const FlatSignIn = (props: Props) => {
   };
 let component = null;
 let footer = null;
+
 switch (view) {
     case 'sign-up': component = <RegisterApp />;                      
                     footer = <>{!props.isAddConnection &&  (

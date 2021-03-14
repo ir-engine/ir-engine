@@ -10,6 +10,8 @@ import {
   instanceServerProvisioned,
   instanceServerProvisioning
 } from './actions';
+import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
+import { ClientNetworkSystem } from "@xr3ngine/engine/src/networking/systems/ClientNetworkSystem";
 
 export function provisionInstanceServer(locationId?: string, instanceId?: string, sceneId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -33,8 +35,6 @@ export function provisionInstanceServer(locationId?: string, instanceId?: string
         token: token
       }
     });
-    console.log('Instance Provision result:');
-    console.log(provisionResult);
     if (provisionResult.ipAddress != null && provisionResult.port != null) {
       dispatch(instanceServerProvisioned(provisionResult, locationId, sceneId));
     }
@@ -45,7 +45,6 @@ export function connectToInstanceServer(channelType: string, channelId?: string)
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
       dispatch(instanceServerConnecting());
-      console.log('connectToInstanceServer: ', channelType, channelId);
       const authState = getState().get('auth');
       const user = authState.get('user');
       const token = authState.get('authUser').accessToken;
@@ -72,6 +71,7 @@ export function connectToInstanceServer(channelType: string, channelId?: string)
         videoEnabled: currentLocation?.locationSettings?.videoEnabled === true || !(currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null)
       });
       Network.instance.isInitialized = true;
+      EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT })
 
       // setClient(instanceClient);
       dispatch(instanceServerConnected());
@@ -89,7 +89,5 @@ export function resetInstanceServer() {
 }
 
 client.service('instance-provision').on('created', (params) => {
-  console.log('instanceConnection instance-provision listener');
-  console.log(params);
   if (params.locationId != null) store.dispatch(instanceServerProvisioned(params, params.locationId, params.sceneId));
 });

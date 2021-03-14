@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {bindActionCreators, Dispatch} from 'redux';
 import {connect} from 'react-redux';
+//@ts-ignore
 import styles from './Right.module.scss';
 import _ from 'lodash';
 import {
@@ -157,7 +158,7 @@ const Invites = (props: Props): any => {
     const [inviteTypeIndex, setInviteTypeIndex] = useState(0);
     const [userToken, setUserToken] = useState('');
     const [deletePending, setDeletePending] = useState('');
-    const [selectedAccordion, setSelectedAccordion] = useState('');
+    const [selectedAccordion, setSelectedAccordion] = useState('invite');
 
     useEffect(() => {
         if (groupState.get('invitableUpdateNeeded') === true && groupState.get('getInvitableGroupsInProgress') !== true) {
@@ -259,16 +260,11 @@ const Invites = (props: Props): any => {
     };
 
     useEffect(() => {
-        if (inviteState.get('sentUpdateNeeded') === true && inviteState.get('getSentInvitesInProgress') !== true) {
-            retrieveSentInvites();
-        }
-        if (inviteState.get('receivedUpdateNeeded') === true && inviteState.get('getReceivedInvitesInProgress') !== true) {
-            retrieveReceivedInvites();
-        }
+        if (inviteState.get('sentUpdateNeeded') === true && inviteState.get('getSentInvitesInProgress') !== true) retrieveSentInvites();
+        if (inviteState.get('receivedUpdateNeeded') === true && inviteState.get('getReceivedInvitesInProgress') !== true) retrieveReceivedInvites();
         setInviteTypeIndex(targetObjectType === 'party' ? 2 : targetObjectType === 'group' ? 1 : 0);
-        if (targetObjectType == null || targetObjectType.length === 0) {
-            updateInviteTarget('user', null);
-        }
+        if (targetObjectType == null || targetObjectType.length === 0) updateInviteTarget('user', null);
+        if (targetObjectType != null && targetObjectId != null) setSelectedAccordion('invite');
     }, [inviteState]);
 
     const capitalize = (word) => word[0].toUpperCase() + word.slice(1);
@@ -327,6 +323,8 @@ const Invites = (props: Props): any => {
                 open={rightDrawerOpen === true}
                 onClose={() => {
                     setRightDrawerOpen(false);
+                    updateInviteTarget('user', null);
+                    setTabIndex(0);
                 }}
                 onOpen={() => {
                 }}
@@ -454,6 +452,7 @@ const Invites = (props: Props): any => {
                                 indicatorColor="primary"
                                 textColor="primary"
                                 aria-label="Invite Type"
+                                className={styles['target-type']}
                             >
 
                                 <Tab
@@ -548,6 +547,7 @@ const Invites = (props: Props): any => {
                                     {tabIndex !== 3 && <TextField
                                         variant="outlined"
                                         margin="normal"
+                                        className={styles['invite-text']}
                                         fullWidth
                                         id="token"
                                         label={tabIndex === 0 ? "Recipient's email" : tabIndex === 1 ? "Recipient's phone number" : "Recipient's user ID"}
@@ -569,7 +569,10 @@ const Invites = (props: Props): any => {
                                         >
                                             {friends.map((friend) => {
                                                 return <MenuItem
-                                                    className={styles['flex-center']}
+                                                    className={classNames({
+                                                        [styles['flex-center']]: true,
+                                                        [styles['friend-selector']]: true
+                                                    })}
                                                     key={friend.id}
                                                     value={friend.id}
                                                 >
@@ -582,6 +585,7 @@ const Invites = (props: Props): any => {
                                     }
                                     <Button variant="contained"
                                             color="primary"
+                                            className={styles['send-button']}
                                             onClick={packageInvite}
                                     >
                                         Send
@@ -593,33 +597,33 @@ const Invites = (props: Props): any => {
                         }
                     </AccordionDetails>
                 </Accordion>
-                <Accordion className={styles.rightDrawerAccordion} expanded={selectedAccordion === 'scenes'} onChange={handleAccordionSelect('scenes')}>
-                    <AccordionSummary
-                        id="scenes-header"
-                        expandIcon={<ExpandMore/>}
-                        aria-controls="scenes-content"
-                    >
-                        <Public/>
-                        <Typography>Scenes</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails className={styles['list-container']}>
-                        <GridList
-                            cellHeight={160}
-                            className={styles['location-grid']}
-                            cols={4}
-                        >
-                            {locations.map((location) => {
-                                return <GridListTile
-                                    key={location.id}
-                                    cols={1}
-                                    onClick={() => provisionInstance(location)}
-                                >
-                                    <div>{location.name}</div>
-                                </GridListTile>;
-                            })}
-                        </GridList>
-                    </AccordionDetails>
-                </Accordion>
+                {/*<Accordion className={styles.rightDrawerAccordion} expanded={selectedAccordion === 'scenes'} onChange={handleAccordionSelect('scenes')}>*/}
+                {/*    <AccordionSummary*/}
+                {/*        id="scenes-header"*/}
+                {/*        expandIcon={<ExpandMore/>}*/}
+                {/*        aria-controls="scenes-content"*/}
+                {/*    >*/}
+                {/*        <Public/>*/}
+                {/*        <Typography>Scenes</Typography>*/}
+                {/*    </AccordionSummary>*/}
+                {/*    <AccordionDetails className={styles['list-container']}>*/}
+                {/*        <GridList*/}
+                {/*            cellHeight={160}*/}
+                {/*            className={styles['location-grid']}*/}
+                {/*            cols={4}*/}
+                {/*        >*/}
+                {/*            {locations.map((location) => {*/}
+                {/*                return <GridListTile*/}
+                {/*                    key={location.id}*/}
+                {/*                    cols={1}*/}
+                {/*                    onClick={() => provisionInstance(location)}*/}
+                {/*                >*/}
+                {/*                    <div>{location.name}</div>*/}
+                {/*                </GridListTile>;*/}
+                {/*            })}*/}
+                {/*        </GridList>*/}
+                {/*    </AccordionDetails>*/}
+                {/*</Accordion>*/}
             </SwipeableDrawer>
         </div>
     );

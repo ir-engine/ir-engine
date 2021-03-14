@@ -103,9 +103,9 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
   }, []);
 
   // this is play button
-  const button = playPressed? null : <button type="button" onClick={(e) => { playerRef.current?.play(); setPlayPressed(true); }}>Play</button>;
+  const playButton = playPressed? null : <button type="button" style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)" }} onClick={(e) => { playerRef.current?.play(); setPlayPressed(true); }}>Play</button>;
 
   return <div className="volumetric__player" style={{ width: '100%', height: '100%'}} ref={containerRef}>
-    { button }
+    { playButton }
   </div>;
 };

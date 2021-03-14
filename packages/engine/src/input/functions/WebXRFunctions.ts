@@ -1,127 +1,104 @@
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { MeshPhongMaterial, Vector3 } from 'three';
-import { GLTFLoader } from "../../assets/loaders/gltf/GLTFLoader";
+import { AdditiveBlending, BufferGeometry, Float32BufferAttribute, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, RingGeometry, Vector3 } from 'three';
+import { getLoader } from "../../assets/functions/LoadGLTF";
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
-import { XRControllersComponent } from '../components/XRControllersComponent';
+import { XRInputReceiver } from '../components/XRInputReceiver';
+import { EntityActionSystem } from "../systems/EntityActionSystem";
 
-let controllerGrip1, controllerGrip2, button;
+let head, controllerGripLeft, controllerLeft, controllerRight, controllerGripRight;
 
-export function initControllersVR(actorEntity) {
-  // controllers
+export const startXR = async () => {
 
-  const controller1 = Engine.renderer.xr.getController(0);
-  //  controller1.addEventListener( 'selectstart', (e) => {selectStart(e, 0)} );
-  //  controller1.addEventListener( 'selectend', e => {onSelectEnd(e,0)} );
-  Engine.scene.add(controller1);
+  try{
 
-  const controller2 = Engine.renderer.xr.getController(1);
-  //  controller2.addEventListener( 'selectstart', (e) => {selectStart(e, 1)} );
-  //  controller2.addEventListener( 'selectend', e => {onSelectEnd(e,1)} );
-  Engine.scene.add(controller2);
+    head = Engine.renderer.xr.getCamera(Engine.camera);
+    controllerLeft = Engine.renderer.xr.getController(0);
+    controllerRight = Engine.renderer.xr.getController(1);
+    Engine.scene.add(controllerLeft);
+    Engine.scene.add(controllerRight);
+    // Engine.scene.add(head);
 
-  /////var controllerModelFactory = new XRControllerModelFactory();
+    // obviously unfinished
+    [controllerLeft, controllerRight].forEach((controller) => {
 
-  controllerGrip1 = Engine.renderer.xr.getControllerGrip(0);
-  controllerGrip2 = Engine.renderer.xr.getControllerGrip(1);
+      controller.addEventListener('select', (ev) => {})
+      controller.addEventListener('selectstart', (ev) => {})
+      controller.addEventListener('selectend', (ev) => {})
+      controller.addEventListener('squeeze', (ev) => {})
+      controller.addEventListener('squeezestart', (ev) => {})
+      controller.addEventListener('squeezeend', (ev) => {})
 
-  addComponent(actorEntity, XRControllersComponent, {
-    controller1: controller1,
-    controller2: controller2,
-    position1: controller1.position,
-    position2: controller2.position,
-    rotation1: controller1.quaternion,
-    rotation2: controller2.quaternion,
-    controllerGrip1: controllerGrip1,
-    controllerGrip2: controllerGrip2
+      controller.addEventListener('connected', (ev) => {
+        controller.add(createController(ev.data));
+      })
 
-  })
-  console.warn(getComponent(actorEntity, XRControllersComponent));
-  console.warn(controller1);
+    })
 
+    controllerGripLeft = Engine.renderer.xr.getControllerGrip(0);
+    controllerGripRight = Engine.renderer.xr.getControllerGrip(1);
 
+    addComponent(EntityActionSystem.inputReceiverEntity, XRInputReceiver, {
+      headPosition: head.position,
+      headRotation: head.rotation,
+      controllerLeft: controllerLeft,
+      controllerRight: controllerRight,
+      controllerPositionLeft: controllerLeft.position,
+      controllerPositionRight: controllerRight.position,
+      controllerRotationLeft: controllerLeft.quaternion,
+      controllerRotationRight: controllerRight.quaternion,
+      controllerGripLeft: controllerGripLeft,
+      controllerGripRight: controllerGripRight
+    })
 
-  new GLTFLoader().load('../models/webxr/controllers/valve_controller_knu_1_0_right.glb', obj => {
+    console.warn(getComponent(EntityActionSystem.inputReceiverEntity, XRInputReceiver));
+    console.warn(controllerLeft);
 
-    //  new TextureLoader().load('./models/controllers/valve_controller_knu_1_0_right_spec.png',
-    //    texture => {
-    //      new TextureLoader().load('./models/controllers/valve_controller_knu_1_0_right_diff.png',
-    //      texture2 => {
-    //    console.warn(obj);
-    const mesh = obj.scene.children[2] as any;
+    getLoader().load('/models/webxr/controllers/valve_controller_knu_1_0_right.glb', obj => {
+      const controllerMeshLeft = obj.scene.children[2] as any;
+      controllerMeshLeft.material = new MeshPhongMaterial()
+      controllerMeshLeft.position.z = -0.08;
+      const controllerMeshRight = controllerMeshLeft.clone()
 
-    mesh.material = new MeshPhongMaterial()
-    //    texture.anisotropy = 16
-    //    texture.wrapS = texture.wrapT = RepeatWrapping;
-    //    mesh.material.map = texture2;
-    //      mesh.material.specularMap = texture;
-    //mesh.position.y = 0.1;
-    mesh.position.z = -0.08;
-    const mesh2 = mesh.clone()
+      controllerMeshRight.scale.multiply(new Vector3(-1, 1, 1));
 
-    //    console.warn(obj);
+      controllerGripLeft.add(controllerMeshLeft);
+      Engine.scene.add(controllerGripLeft);
 
-    mesh2.scale.multiply(new Vector3(-1, 1, 1));
+      controllerGripRight.add(controllerMeshRight);
+      Engine.scene.add(controllerGripRight);
 
-    controllerGrip1.add(mesh);
-    Engine.scene.add(controllerGrip1);
-
-
-    controllerGrip2.add(mesh2);
-    Engine.scene.add(controllerGrip2);
-    console.warn('Loaded Model Controllers Done');
-    //    });
-
-    //  });
-
-  })
-}
-
-
-let entity;
-
-export function initVR(actorEntity) {
-  if (!navigator || !(navigator as any).xr)
-    return console.warn("Not initializing WebXR on this platform because it is not supported");
-
-  // button = document.createElement( 'button' );
-  // button.id = 'VRButton';
-  // if (!(navigator as any).xr.isSessionSupported( 'immersive-vr' ))
-
-  // Engine.renderer.xr.enabled = true;
-  Engine.renderer.xr.setReferenceSpaceType('local-floor');
-  entity = actorEntity;
-}
-
-function onSessionStarted(session) {
-  Engine.renderer.xr.setSession(session);
-}
-
-function onSessionEnded() {
-
-}
-
-export function startVR() {
-  if(!entity) return;
-  
-  if (Engine.xrSession === null) {
-
-    const sessionInit = { optionalFeatures: ['local-floor', 'bounded-floor'] };
-    //	var sessionInit = { optionalFeatures: [ "unbounded" ] };
-    //	var sessionInit = { optionalFeatures:  [ "local" ] };
-    try {
-      (navigator as any).xr.requestSession("immersive-vr", sessionInit).then((session) => {
-        Engine.xrSession = session;
-        onSessionStarted(session)
-        initControllersVR(entity)
-      });
-    } catch (e) {
-      console.log('Could not create VR session', e)
-    }
-
-  } else {
-    removeComponent(entity, XRControllersComponent);
-    Engine.xrSession.end();
-    Engine.xrSession = null;
-    onSessionEnded();
+      console.warn('Loaded Model Controllers Done');
+    }, console.warn, console.error)
+    
+    return true;
+  } catch (e) {
+    console.log('Could not create VR session', e)
+    return false;
   }
 }
+
+export const endXR = () => {
+  if(Engine.xrSession) {
+    removeComponent(EntityActionSystem.inputReceiverEntity, XRInputReceiver);
+    Engine.xrSession.end();
+    Engine.xrSession = null;
+  }
+}
+
+// pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
+const createController = (data) => {
+  let geometry, material;
+  switch ( data.targetRayMode ) {
+    case 'tracked-pointer':
+      geometry = new BufferGeometry();
+      geometry.setAttribute( 'position', new Float32BufferAttribute( [ 0, 0, 0, 0, 0, - 1 ], 3 ) );
+      geometry.setAttribute( 'color', new Float32BufferAttribute( [ 0.5, 0.5, 0.5, 0, 0, 0 ], 3 ) );
+      material = new LineBasicMaterial( { vertexColors: true, blending: AdditiveBlending } );
+      return new Line( geometry, material );
+
+    case 'gaze':
+      geometry = new RingGeometry( 0.02, 0.04, 32 ).translate( 0, 0, - 1 );
+      material = new MeshBasicMaterial( { opacity: 0.5, transparent: true } );
+      return new Mesh( geometry, material );
+  }
+};

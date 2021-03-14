@@ -5,6 +5,8 @@ import config from '../config';
 import {Application} from '../declarations';
 import getLocalServerIp from '../util/get-local-server-ip';
 import logger from './logger';
+import {localConfig} from "../gameserver/transports/config";
+import {RtpCodecCapability} from "mediasoup/lib/types";
 
 
 let sceneLoaded = false;
@@ -46,6 +48,9 @@ export default (app: Application): void => {
                         const agonesSDK = (app as any).agonesSDK;
                         const gsResult = await agonesSDK.getGameServer();
                         const {status} = gsResult;
+                        console.log('Creating new GS or updating current one');
+                        console.log(status.state);
+                        console.log((app as any).instance);
                         if (status.state === 'Ready' || ((process.env.NODE_ENV === 'development' && status.state === 'Shutdown') || (app as any).instance == null)) {
                             logger.info('Starting new instance');
                             const localIp = await getLocalServerIp();
@@ -68,6 +73,14 @@ export default (app: Application): void => {
                             console.log('Creating new instance:');
                             console.log(newInstance);
                             const instanceResult = await app.service('instance').create(newInstance);
+                            if ((app as any).isChannelInstance === true) {
+                                const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[];
+                                const networkTransport = Network.instance.transport as any;
+                                const channelType = 'channel';
+                                if (networkTransport.routers[`${channelType}:${channelId}`] == null)
+                                    networkTransport.routers[`${channelType}:${channelId}`] = await networkTransport.worker.createRouter({ mediaCodecs });
+                                logger.info("Worker created router for channel " + `${channelType}:${channelId}`);
+                            }
                             await agonesSDK.allocate();
                             (app as any).instance = instanceResult;
 
@@ -122,6 +135,18 @@ export default (app: Application): void => {
                         (connection as any).instanceId = (app as any).instance.id;
                         // console.log('Patched user instanceId');
                         app.channel(`instanceIds/${(app as any).instance.id as string}`).join(connection);
+                        console.log('Sending joined layer message');
+                        console.log((app as any).isChannelInstance);
+                        if ((app as any).isChannelInstance !== true) await app.service('message').create({
+                            targetObjectId: (app as any).instance.id,
+                            targetObjectType: 'instance',
+                            text: `${user.name} joined the layer`,
+                            isNotification: true
+                        }, {
+                            'identity-provider': {
+                                userId: userId
+                            }
+                        });
                         if (user.partyId != null) {
                             const partyUserResult = await app.service('party-user').find({
                                 query: {

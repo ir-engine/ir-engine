@@ -65,13 +65,13 @@ export const serverCorrectionBehavior: Behavior = (entity: Entity, args): void =
         );
       }
   } else if (hasComponent(entity, VehicleBody)) {
-    
+
     const vehicleComponent = getComponent(entity, VehicleBody) as VehicleBody;
     const vehicle = vehicleComponent.vehiclePhysics;
     const chassisBody = vehicle.chassisBody;
     const isMoved = vehicleComponent.isMoved;
     const wheels = vehicleComponent.arrayWheelsMesh;
-    const isDriver = vehicleComponent.driver == Network.instance.userNetworkId;
+    const isDriver = vehicleComponent.driver == Network.instance.localAvatarNetworkId;
 
     const carSpeed = vehicle.currentVehicleSpeedKmHour;
     const correction = 180 - (carSpeed/4);
@@ -198,7 +198,7 @@ export const createNewCorrection: Behavior = (entity: Entity, args): void => {
      const vehicleComponent = getComponent(entity, VehicleBody) as VehicleBody;
      const vehicle = vehicleComponent.vehiclePhysics;
      const chassisBody = vehicle.chassisBody;
-     const isDriver = vehicleComponent.driver == Network.instance.userNetworkId;
+     const isDriver = vehicleComponent.driver == Network.instance.localAvatarNetworkId;
 
      if (isDriver) {
        args.state.push({

@@ -33,6 +33,7 @@ const mx = new Matrix4();
 const vec3 = new Vector3();
 const isMobile = isMobileOrTablet()
 const sensitivity = isMobile ? 60 : 100 // eventually this will come from some settings somewhere
+const emptyInputValue = [0, 0] as NumericalType;
 
 /**
  * Get Input data from the device.
@@ -43,24 +44,30 @@ const sensitivity = isMobile ? 60 : 100 // eventually this will come from some s
  *
  * @returns Input value from input component.
  */
-const emptyInputValue = [0, 0] as NumericalType;
-
-const getInputData = (inputComponent: Input, inputAxes: number ): NumericalType => {
-    if (!inputComponent?.data.has(inputAxes)) return emptyInputValue;
-      const inputData = inputComponent.data.get(inputAxes);
-      const inputValue = inputData.value;
-
-      if (inputData.lifecycleState === LifecycleValue.ENDED ||
-        (inputData.lifecycleState === LifecycleValue.UNCHANGED))
-        return emptyInputValue;
-
-      return inputValue;
+const getInputData = (inputComponent: Input, inputAxes: number, prevValue: NumericalType ): { 
+  currentInputValue: NumericalType;
+  inputValue: NumericalType
+} => {
+  const result = {
+    currentInputValue: emptyInputValue,
+    inputValue: emptyInputValue,
   }
+  if (!inputComponent?.data.has(inputAxes)) return result;
+
+  const inputData = inputComponent.data.get(inputAxes);
+  result.currentInputValue = inputData.value;
+  result.inputValue = inputData.lifecycleState === LifecycleValue.ENDED ||
+    JSON.stringify(result.currentInputValue) === JSON.stringify(prevValue)
+      ? emptyInputValue : result.currentInputValue;
+  return result;
+}
 
 
 /** System class which provides methods for Camera system. */
 export class CameraSystem extends System {
   static activeCamera: Entity
+
+  prevState = [0, 0] as NumericalType;
 
   /** Constructs camera system. */
   constructor() {
@@ -110,7 +117,8 @@ export class CameraSystem extends System {
         // } else {
           const inputAxes = BaseInput.LOOKTURN_PLAYERONE;
         // }
-        const inputValue = getInputData(inputComponent, inputAxes)
+        const { inputValue, currentInputValue } = getInputData(inputComponent, inputAxes, this.prevState);
+        this.prevState = currentInputValue;
 
         if(cameraFollow.locked && actor) {
           cameraFollow.theta = Math.atan2(actor.orientation.x, actor.orientation.z) * 180 / Math.PI + 180
@@ -195,7 +203,6 @@ export class CameraSystem extends System {
         if (cameraFollow.mode === CameraModes.FirstPerson) {
           cameraDesiredTransform.position.copy(targetPosition);
         }
-
       }
     });
 

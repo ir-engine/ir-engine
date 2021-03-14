@@ -72,6 +72,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public defaultRotationSimulatorMass = 10;
 	public rotationSimulator: RelativeSpringSimulator;
 	public viewVector: Vector3;
+	public changedViewAngle = 0;
 	public actions: any;
 	public actorCapsule: CapsuleCollider;
 

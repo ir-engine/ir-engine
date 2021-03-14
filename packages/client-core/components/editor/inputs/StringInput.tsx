@@ -19,7 +19,8 @@ StringInput.defaultProps = {
   value: "",
   onChange: () => {},
   type: "text",
-  required: false
+  required: false,
+  placeholder: ''
 };
 
 StringInput.propTypes = {

@@ -32,13 +32,13 @@ import { createBoxCollider } from '../behaviors/createBoxCollider';
 import { createCommonInteractive } from "../behaviors/createCommonInteractive";
 import { createGroup } from '../behaviors/createGroup';
 import { createImage } from '../behaviors/createImage';
-import { createMedia, createMediaServer } from "../behaviors/createMedia";
+import { createLink } from '../behaviors/createLink';
+import { createAudio, createMediaServer, createVideo, createVolumetric } from "../behaviors/createMedia";
 import { createScenePreviewCamera } from "../behaviors/createScenePreviewCamera";
 import { createShadow } from '../behaviors/createShadow';
 import createSkybox from '../behaviors/createSkybox';
 import { createTransformComponent } from "../behaviors/createTransformComponent";
 import { createTriggerVolume } from '../behaviors/createTriggerVolume';
-import { createVolumetric } from "../behaviors/createVolumetric";
 import { handleAudioSettings } from '../behaviors/handleAudioSettings';
 import { setFog } from '../behaviors/setFog';
 import CollidableTagComponent from '../components/Collidable';
@@ -517,7 +517,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'video': {
     behaviors: [
       {
-        behavior: isClient ? createMedia : createMediaServer,
+        behavior: isClient ? createVideo : createMediaServer,
         values: [
           { from: 'src', to: 'src' },
           { from: 'projection', to: 'projection' },
@@ -540,7 +540,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'audio': {
     behaviors: [
       {
-        behavior: isClient ? createMedia : createMediaServer,
+        behavior: isClient ? createAudio : createMediaServer,
         values: [
           { from: 'src', to: 'src' },
           { from: 'projection', to: 'projection' },
@@ -563,7 +563,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'volumetric': {
     behaviors: [
       {
-        behavior: createVolumetric,
+        behavior: isClient ? createVolumetric : createMediaServer,
         values: [
           { from: 'src', to: 'src' },
           { from: 'controls', to: 'controls' },
@@ -699,13 +699,16 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       }
     ]
   },
-  // 'link': {
-  //   behaviors: [
-  //     {
-  //       behavior: createLink
-  //     }
-  //   ]
-  // },
+  'link': {
+    behaviors: [
+      {
+        behavior: createLink,
+        values: [
+          { from: 'href', to: 'url' },
+        ]
+      }
+    ]
+  },
   'particle-emitter': {
     behaviors: [
       {

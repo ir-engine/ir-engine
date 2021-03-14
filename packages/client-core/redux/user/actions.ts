@@ -9,7 +9,9 @@ import {
   ADDED_CHANNEL_LAYER_USER,
   CLEAR_CHANNEL_LAYER_USERS,
   LOADED_CHANNEL_LAYER_USERS,
-  REMOVED_CHANNEL_LAYER_USER
+  REMOVED_CHANNEL_LAYER_USER,
+  USER_TOAST,
+  USER_CREATED
 } from '../actions';
 import { Relationship } from '@xr3ngine/common/interfaces/Relationship';
 import { User } from '@xr3ngine/common/interfaces/User';
@@ -17,6 +19,10 @@ import { User } from '@xr3ngine/common/interfaces/User';
 export interface LoadedUserRelationshipAction {
   type: string;
   relationship: Relationship;
+}
+export interface UserCreatedAction {
+  type: string,
+  user: User
 }
 
 export interface LoadedUsersAction {
@@ -47,11 +53,23 @@ export interface RemovedLayerUserAction {
   user: User;
 }
 
+export interface UserToastAction {
+  type: string;
+  message: any;
+}
+
 export type UserAction =
   LoadedUserRelationshipAction
   | LoadedUsersAction
   | LoadedLayerUsersAction
   | ClearLayersUsersAction
+
+  export function userCreated (user: User): UserCreatedAction {
+    return {
+      type: USER_CREATED,
+      user: user
+    };
+  }
 
 export function loadedUserRelationship(relationship: Relationship): LoadedUserRelationshipAction {
   return {
@@ -124,5 +142,12 @@ export function removedChannelLayerUser(user: User): RemovedLayerUserAction {
   return {
     type: REMOVED_CHANNEL_LAYER_USER,
     user: user
+  };
+}
+
+export function displayUserToast(user: User, args: any): UserToastAction {
+  return {
+    type: USER_TOAST,
+    message: { user, args },
   };
 }

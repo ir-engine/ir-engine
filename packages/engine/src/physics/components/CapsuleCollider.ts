@@ -14,9 +14,7 @@ export class CapsuleCollider extends Component<CapsuleCollider>
 	public radius: number;
 	public segments: number;
 	public friction: number;
-	public rayCastMoreRays = ['x', 0.15, 'z', 0.15, 'x', -0.15, 'z', -0.15];
 	public moreRaysIchTurn = 0;
-	public moreReysInTurn = true;
 
 	constructor(options: any)
 	{

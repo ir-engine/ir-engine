@@ -54,7 +54,6 @@ const MyApp = (props: Props): any => {
     }
     store.dispatch(getDeviceType(deviceInfo));
   };
-  
   const initApp = useCallback(() => {
     const jssStyles = document.querySelector('#jss-server-side');
     if (jssStyles?.parentNode) {
@@ -62,6 +61,7 @@ const MyApp = (props: Props): any => {
     }
     // NOTE: getDeviceInfo is an async function, but here is running
     // without `await`.
+
     store.dispatch(restoreState());
     initGA();
     logPageView();

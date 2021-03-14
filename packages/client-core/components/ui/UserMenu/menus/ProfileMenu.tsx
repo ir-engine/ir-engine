@@ -7,6 +7,7 @@ import { GoogleIcon } from '../../Icons/GoogleIcon';
 import { LinkedInIcon } from '../../Icons/LinkedInIcon';
 import { TwitterIcon } from '../../Icons/TwitterIcon';
 import { getAvatarURL, Views } from '../util';
+//@ts-ignore
 import styles from '../style.module.scss';
 
 const ProfileMenu = (props: any): any => {
@@ -54,6 +55,10 @@ const ProfileMenu = (props: any): any => {
 		props.loginUserByOAuth(e.currentTarget.id);
 	}
 
+	const handleLogout = (e) => {
+		props.logoutUser();
+	}
+
 	return (
 		<div className={styles.menuPanel}>
 			<section className={styles.profilePanel}>
@@ -87,7 +92,8 @@ const ProfileMenu = (props: any): any => {
 							/>
 							
 						</span>
-						<h2>You are a <span>{props.userRole}</span>.</h2>
+						<h2>You are {props.userRole === 'admin' ? 'an' : 'a'} <span>{props.userRole}</span>.</h2>
+						<h4>{(props.userRole === 'user' || props.userRole === 'admin') && <div onClick={handleLogout}>Log out</div>}</h4>
 					</div>
 				</section>
 				<section className={styles.emailPhoneSection}>
@@ -122,7 +128,7 @@ const ProfileMenu = (props: any): any => {
 					<div className={styles.socialContainer}>
 						<a href="#" id="facebook" onClick={handleOAuthServiceClick}><FacebookIcon width="40" height="40" viewBox="0 0 40 40" /></a>
 						<a href="#" id="google" onClick={handleOAuthServiceClick}><GoogleIcon width="40" height="40" viewBox="0 0 40 40" /></a>
-						<a href="#" id="linkedin" onClick={handleOAuthServiceClick}><LinkedInIcon width="40" height="40" viewBox="0 0 40 40" /></a>
+						<a href="#" id="linkedin2" onClick={handleOAuthServiceClick}><LinkedInIcon width="40" height="40" viewBox="0 0 40 40" /></a>
 						<a href="#" id="twitter" onClick={handleOAuthServiceClick}><TwitterIcon width="40" height="40" viewBox="0 0 40 40" /></a>
 						<a href="#" id="github" onClick={handleOAuthServiceClick}><GitHub /></a>
 					</div>

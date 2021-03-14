@@ -5,15 +5,29 @@ import FormField from "../inputs/FormField";
 import Dialog from "./Dialog";
 import styled from "styled-components";
 
+/**
+ * [FormContainer used as a wrapper element for FormFields]
+ * @type {Styled Component}
+ */
 const FormContainer = (styled as any).div`
   display: flex;
   flex-direction: column;
   flex: 1;
 `;
 
+/**
+ * [ExportProjectDialog used to provide view containing FormFields ]
+ * @param       {Object} defaultOptions
+ * @param       {function} onConfirm
+ * @param       {function} onCancel
+ * @constructor
+ */
 export default function ExportProjectDialog({ defaultOptions, onConfirm, onCancel }) {
+
+  // initializing options using defaultOptions
   const [options, setOptions] = useState(defaultOptions);
 
+  //callback function used to handle changes in options.combinedMesh property
   const onChangeCombineMeshes = useCallback(
     combineMeshes => {
       setOptions({ ...options, combineMeshes });
@@ -21,6 +35,7 @@ export default function ExportProjectDialog({ defaultOptions, onConfirm, onCance
     [options, setOptions]
   );
 
+  // callback function used to handle change in options.removeUnusedObjects property
   const onChangeRemoveUnusedObjects = useCallback(
     removeUnusedObjects => {
       setOptions({ ...options, removeUnusedObjects });
@@ -28,6 +43,7 @@ export default function ExportProjectDialog({ defaultOptions, onConfirm, onCance
     [options, setOptions]
   );
 
+  // callback function used to handle confirmation on dialog.
   const onConfirmCallback = useCallback(
     e => {
       e.preventDefault();
@@ -36,6 +52,7 @@ export default function ExportProjectDialog({ defaultOptions, onConfirm, onCance
     [options, onConfirm]
   );
 
+  // callback functionto handle cancel of confirmation dialog.
   const onCancelCallback = useCallback(
     e => {
       e.preventDefault();
@@ -44,6 +61,7 @@ export default function ExportProjectDialog({ defaultOptions, onConfirm, onCance
     [onCancel]
   );
 
+  // returning view containing FormFields
   return (
     <Dialog
       title="Export Project"
@@ -74,6 +92,10 @@ export default function ExportProjectDialog({ defaultOptions, onConfirm, onCance
   );
 }
 
+/**
+ * [declairing propTypes for ExportProjectDialog]
+ * @type {Object}
+ */
 ExportProjectDialog.propTypes = {
   defaultOptions: PropTypes.object.isRequired,
   onConfirm: PropTypes.func.isRequired,
