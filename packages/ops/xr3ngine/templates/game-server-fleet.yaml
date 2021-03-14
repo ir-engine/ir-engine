@@ -478,6 +478,11 @@ spec:
             - name: {{ include "xr3ngine.gameserver.fullname" . }}
               image: "{{ .Values.gameserver.image.repository }}:{{ .Values.gameserver.image.tag }}"
               imagePullPolicy: {{ .Values.gameserver.image.pullPolicy }}
+
+            {{- with .Values.gameserver.resources }}
+              resources:
+                {{- toYaml . | nindent 12 }}
+            {{- end }}
               envFrom:
                 - configMapRef:
                     name: {{ include "xr3ngine.gameserver.fullname" . }}
