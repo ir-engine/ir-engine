@@ -82,6 +82,8 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     const [audioProducerPaused, setAudioProducerPaused] = useState(false);
     const [videoProducerGlobalMute, setVideoProducerGlobalMute] = useState(false);
     const [audioProducerGlobalMute, setAudioProducerGlobalMute] = useState(false);
+    const [audioTrackClones, setAudioTrackClones] = useState([]);
+    const [videoTrackClones, setVideoTrackClones] = useState([]);
     const [volume, setVolume] = useState(100);
     const {
         harmony,
@@ -212,21 +214,10 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
                 audioRef.current.muted = true;
             }
             if (audioStream != null) {
-                audioRef.current.srcObject = new MediaStream([audioStream.track.clone()]);
-                if (peerId !== 'me_cam') {
-                    // console.log("*** New mediastream created for audio track for peer id ", peerId);
-                    // Create positional audio and attach mediastream here
-                    // console.log("MediaStreamSystem.instance?.consumers is ");
-                    // console.log(MediaStreamSystem.instance?.consumers);
-                }
-                if (peerId === 'me_cam') {
-                    MediaStreamSystem.instance.setAudioPaused(false);
-                } else if (peerId === 'me_screen') {
-                    MediaStreamSystem.instance.setScreenShareAudioPaused(false);
-                } else if (audioStream.track.muted === true) {
-                    // toggleAudio();
-                }
-                setAudioProducerPaused(false);
+                const newAudioTrack = audioStream.track.clone();
+                const updateAudioTrackClones = audioTrackClones.concat(newAudioTrack);
+                setAudioTrackClones(updateAudioTrackClones);
+                audioRef.current.srcObject = new MediaStream([newAudioTrack]);
             }
             // TODO: handle 3d audio switch on/off
             if (harmony !== true && (selfUser?.user_setting?.spatialAudioEnabled === true || selfUser?.user_setting?.spatialAudioEnabled === 1)) audioRef.current.volume = 0;
@@ -236,6 +227,10 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
             }
             setVolume(volume);
         }
+
+        return () => {
+            audioTrackClones.forEach((track) => track.stop());
+        }
     }, [audioStream]);
 
     useEffect(() => {
@@ -244,20 +239,37 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
             videoRef.current.autoplay = true;
             videoRef.current.muted = true;
             videoRef.current.setAttribute('playsinline', 'true');
-            if (videoStream) {
-                videoRef.current.srcObject = new MediaStream([videoStream.track.clone()]);
+            if (videoStream != null) {
+                const newVideoTrack = videoStream.track.clone();
+                const updateVideoTrackClones = videoTrackClones.concat(newVideoTrack);
+                setVideoTrackClones(updateVideoTrackClones);
+                videoRef.current.srcObject = new MediaStream([newVideoTrack]);
             }
+        }
+
+        return () => {
+            videoTrackClones.forEach((track) => track.stop());
         }
     }, [videoStream]);
 
     useEffect(() => {
         if (peerId === 'me_cam' || peerId === 'me_screen') setAudioStreamPaused(MediaStreamSystem.instance?.audioPaused);
-        if (audioStream != null && audioRef.current != null) audioRef.current.srcObject = new MediaStream([audioStream.track.clone()]);
+        if (audioStream != null && audioRef.current != null) {
+            const newAudioTrack = audioStream.track.clone();
+            const updateAudioTrackClones = audioTrackClones.concat(newAudioTrack);
+            setAudioTrackClones(updateAudioTrackClones);
+            audioRef.current.srcObject = new MediaStream([newAudioTrack]);
+        }
     }, [MediaStreamSystem.instance?.audioPaused]);
 
     useEffect(() => {
         if (peerId === 'me_cam' || peerId === 'me_screen') setVideoStreamPaused(MediaStreamSystem.instance?.videoPaused);
-        if (videoStream != null && videoRef.current != null) videoRef.current.srcObject = new MediaStream([videoStream.track.clone()]);
+        if (videoStream != null && videoRef.current != null) {
+            const newVideoTrack = videoStream.track.clone();
+            const updateVideoTrackClones = videoTrackClones.concat(newVideoTrack);
+            setVideoTrackClones(updateVideoTrackClones);
+            videoRef.current.srcObject = new MediaStream([newVideoTrack]);
+        }
     }, [MediaStreamSystem.instance?.videoPaused]);
 
     const toggleVideo = async (e) => {

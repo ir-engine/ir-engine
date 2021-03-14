@@ -114,7 +114,7 @@ $mobileControllButtonsSize: 3em;
     position: absolute;
     width: 100%;
     background-color: black;
-    z-index: 20;
+    z-index: 50;
 
     @media (max-width: 768px) {
         flex-direction: column;
@@ -447,7 +447,7 @@ $mobileControllButtonsSize: 3em;
     border: 1px solid white;
     margin: 5px 0 0 5px;
     padding: 5px;
-    z-index: 20;
+    z-index: 50;
     background-color: black;
 }
 
@@ -464,8 +464,8 @@ $mobileControllButtonsSize: 3em;
              background-color: rgba(155, 155, 155, 0.6);
          }
 
-         &:first-child {
-             border-right: 3px solid rgba(20, 20, 20, 0.1);
+         &:not(:first-child) {
+             border-left: 3px solid rgba(20, 20, 20, 0.1);
          }
 
          &.partyButton {
