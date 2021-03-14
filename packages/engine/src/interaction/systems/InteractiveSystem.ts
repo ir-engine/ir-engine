@@ -82,7 +82,7 @@ export const subFocused:Behavior = (entity: Entity, args, delta: number): void =
 };
 
 const interactFocused: Behavior = (entity: Entity, args, delta: number): void => {
-  console.log(entity)
+
   if (!hasComponent(entity, Interactable)) {
     console.error('Attempted to call interact behavior, but target does not have Interactive component');
     return;

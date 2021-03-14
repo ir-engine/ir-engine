@@ -11,13 +11,11 @@ export const createLink: Behavior = (entity, args: {
   objArgs: any
 }) => {
     addObject3DComponent(entity, { obj3d: new Object3D(), objArgs: args.objArgs });
-    console.log(entity, args)
     const interactiveData = {
       onInteraction: () => {
         window.open(args.objArgs.url);
       },
       onInteractionFocused: (entityInitiator, { focused }, delta, entityInteractive, time) => {
-        console.log('link interactable', args.objArgs.url)
         EngineEvents.instance.dispatchEvent({ 
           type: InteractiveSystem.EVENTS.OBJECT_HOVER, 
           focused,
