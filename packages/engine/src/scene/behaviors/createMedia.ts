@@ -25,7 +25,6 @@ const elementPlaying = (element: any): boolean => {
 const onMediaInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
   const volumetric = getComponent(entityInteractive, VolumetricComponent);
   if(volumetric) {
-    console.log(volumetric)
     // TODO handle volumetric interaction here
     return
   }

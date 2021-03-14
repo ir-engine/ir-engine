@@ -33,7 +33,6 @@ import { isMobileOrTablet } from '../../common/functions/isMobile';
  */
 
 const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
-  console.log('interact', entity, args)
   if (isServer) {
     interactOnServer(entity);
     return;
