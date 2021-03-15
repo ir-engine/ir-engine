@@ -131,6 +131,7 @@ export default class DracosisPlayer {
     this._scale = scale;
     this._video = createElement('video', {
       crossorigin: "anonymous",
+      playsinline: "playsinline",
       loop: true,
       src: videoFilePath,
       style: {
