@@ -149,8 +149,14 @@ export default class DracosisPlayer {
     this.frameRate = frameRate;
 
     this.videoUpdateHandler = this.videoUpdateHandler.bind(this)
+    this.videoAnimationFrame = this.videoAnimationFrame.bind(this)
 
-    this._video.requestVideoFrameCallback(this.videoUpdateHandler);
+    if ("requestVideoFrameCallback" in this._video) {
+      this._video.requestVideoFrameCallback(this.videoUpdateHandler);
+    } else {
+      this._video.addEventListener('timeupdate', this.videoAnimationFrame);
+    }
+
     // Create a default mesh
     this.material = new MeshBasicMaterial({ map: this._videoTexture });
     this.mesh = new Mesh(new PlaneBufferGeometry(0.00001, 0.00001), this.material);
@@ -191,6 +197,25 @@ export default class DracosisPlayer {
 
     xhr.open('GET', this.manifestFilePath, true); // true for asynchronous
     xhr.send();
+  }
+
+  /**
+   * emulated video frame callback
+   * bridge from video.timeupdate event to videoUpdateHandler
+   * @param {Event} e
+   */
+  videoAnimationFrame(e) {
+    const keyFrame = Math.round(this._video.currentTime * this.frameRate);
+    if (keyFrame === this.currentKeyframe) {
+      // same keyframe, skip videoUpdateHandler
+      return;
+    }
+
+    // now is not used, so no matter what we pass
+    this.videoUpdateHandler(0, {
+      mediaTime: this._video.currentTime,
+      presentedFrames: keyFrame // we use presentedFrames only for check, so no need to be precise here
+    });
   }
 
   videoUpdateHandler(now, metadata) {
@@ -235,7 +260,10 @@ export default class DracosisPlayer {
       }
       (this.mesh.material as any).needsUpdate = true;
     }
-    this._video.requestVideoFrameCallback(this.videoUpdateHandler);
+
+    if ("requestVideoFrameCallback" in this._video) {
+      this._video.requestVideoFrameCallback(this.videoUpdateHandler);
+    }
   }
 
   // Start loop to check if we're ready to play
