@@ -16,6 +16,7 @@ import {
 import RingBuffer from './RingBuffer';
 import { Engine, VideoTexture } from '@xr3ngine/engine/src/ecs/classes/Engine';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
+import { createElement } from "@xr3ngine/engine/src/ecs/functions/createElement";
 
 export default class DracosisPlayer {
   // Public Fields
@@ -128,7 +129,7 @@ export default class DracosisPlayer {
     this.manifestFilePath = meshFilePath.replace('drcs', 'manifest');
     this._loop = loop;
     this._scale = scale;
-    this._video = Engine.createElement('video', {
+    this._video = createElement('video', {
       crossorigin: "anonymous",
       loop: true,
       src: videoFilePath,
