@@ -14,6 +14,6 @@ export default function FeedPage() {
    return <div className={styles.viewport}>
       <AppHeader user={{username:'username'}} logo="/assets/logoBlack.png"/>
       <Feed feedId={feedId}/>
-      <AppFooter user={{username:'username'}} />
+      <AppFooter />
     </div>;
 }
