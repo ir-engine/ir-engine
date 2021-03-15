@@ -48,7 +48,7 @@ export enum GamepadButtons {
   Back = 38,
   Start = 39,
   LStick = 40,
-  RString = 41,
+  RStick = 41,
   DPad1 = 42,
   DPad2 = 43,
   DPad3 = 44,
