@@ -54,7 +54,13 @@ import { NamePlateComponent } from '../components/NamePlateComponent';
 
 
 export class AnimationManager {
-	static instance: AnimationManager = new AnimationManager();
+	static _instance: AnimationManager;
+	static get instance() {
+		if (!this._instance) {
+			this._instance = new AnimationManager();
+		}
+		return this._instance;
+	}
 	public initialized = false
 
 	_animations: AnimationClip[] = []
