@@ -22,6 +22,7 @@ import feedFiresReducer from './feedFires/reducers';
 import feedCommentsReducer from './feedComment/reducers';
 import mediastreamReducer from './mediastream/reducers';
 import transportReducer from './transport/reducers';
+import creatorReducer from './creator/reducers';
 
 export default combineReducers({
   admin: adminReducer,
@@ -41,6 +42,7 @@ export default combineReducers({
   dialog: dialogReducer,
   devicedetect: deviceDetectReducer,
   user: userReducer,
+  creators: creatorReducer,
   feeds: feedReducer,
   feedFires: feedFiresReducer,
   feedComments: feedCommentsReducer,

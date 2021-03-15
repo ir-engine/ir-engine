@@ -2,14 +2,10 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import Router from "next/router";
 
-import Card from '@material-ui/core/Card';
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
-import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
-import VisibilityIcon from '@material-ui/icons/Visibility';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
-import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 
 import styles from './User.module.scss';
 import AccountCircle from '@material-ui/icons/AccountCircle';
@@ -20,35 +16,30 @@ import LinkIcon from '@material-ui/icons/Link';
 import SubjectIcon from '@material-ui/icons/Subject';
 
 import TextField from '@material-ui/core/TextField';
-import { selectAuthState } from '../../../redux/auth/selector';
-
+import { selectCreatorsState } from '../../../redux/creator/selector';
+import { updateCreator } from '../../../redux/creator/service';
+import { bindActionCreators, Dispatch } from 'redux';
 
 const mapStateToProps = (state: any): any => {
     return {
-      auth: selectAuthState(state)
+      creatorsState: selectCreatorsState(state),
     };
   };
+
+  const mapDispatchToProps = (dispatch: Dispatch): any => ({
+      updateCreator: bindActionCreators(updateCreator, dispatch)
+});
   interface Props{
-    auth?: any;
+    creatorsState?: any;
+    updateCreator?: typeof updateCreator;
   }
   
-const User = ({auth}:Props) => {
-    const user = auth.get('user') as any;
-
-    const [creator, setCreator] = useState({
-        background :'https://picsum.photos/375/290',
-        avatar :'https://picsum.photos/110/110',
-        name: user ? user.avatarId : 'User username',
-        email: 'mail@mail.com',
-        link: 'website.com',
-        username: user ? '@'+user.name : '@username',  
-        tags: 'Art & Design',
-        bio: 'I’m glad to share my works and these amazing kit with you!'
-}); 
-    const handleUpdateUser = (e) =>{
-        console.log('e',e)
+const User = ({creatorsState, updateCreator}:Props) => {
+    const [creator, setCreator] = useState(creatorsState && creatorsState.get('currentCreator')); 
+    const handleUpdateUser = (e:any) =>{
+        e.preventDefault();
+        updateCreator(creator);
     }
-
     return <section className={styles.creatorContainer}>
          <form
           className={styles.form}
@@ -58,38 +49,38 @@ const User = ({auth}:Props) => {
             <nav className={styles.headerContainer}>               
                 <Button variant="text" className={styles.backButton} onClick={()=>Router.push('/')}><ArrowBackIosIcon />Back</Button>
                 <Typography variant="h2" className={styles.pageTitle}>Edit Profile</Typography>
-                <Button variant="text" className={styles.saveButton}>Save</Button>
+                <Button variant="text" type="submit" className={styles.saveButton}>Save</Button>
             </nav>  
-            <CardMedia   
+            { creator.avatarId && creator.avatar && <CardMedia   
                 className={styles.avatarImage}                  
                 image={creator.avatar}
                 title={creator.username}
-            />   
+            />   }
             <Typography variant="h4" align="center" color="secondary">Change Profile Image</Typography>
             <section className={styles.content}>
                 <div className={styles.formLine}>
                     <AccountCircle className={styles.fieldLabelIcon} />
-                    <TextField className={styles.textFieldContainer} fullWidth id="name" placeholder="Your name" value={creator.name} />
+                    <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, name: e.target.value})} fullWidth id="name" placeholder="Your name" value={creator.name} />
                 </div>
                 <div className={styles.formLine}>                
                     <AlternateEmailIcon className={styles.fieldLabelIcon} />
-                    <TextField className={styles.textFieldContainer} fullWidth id="username" placeholder="Your Username" value={creator.username} />
+                    <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, username: e.target.value})} fullWidth id="username" placeholder="Your Username" value={creator.username} />
                 </div> 
                 <div className={styles.formLine}>
                     <MailOutlineIcon className={styles.fieldLabelIcon} />
-                    <TextField className={styles.textFieldContainer} fullWidth id="email" placeholder="Your Email" value={creator.email} />
+                    <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, email: e.target.value})} fullWidth id="email" placeholder="Your Email" value={creator.email} />
                 </div>
                 <div className={styles.formLine}>
                     <EditIcon className={styles.fieldLabelIcon} />
-                    <TextField className={styles.textFieldContainer} fullWidth id="tags" placeholder="Tags" value={creator.tags} />
+                    <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, tags: e.target.value})} fullWidth id="tags" placeholder="Tags" value={creator.tags} />
                 </div>  
                 <div className={styles.formLine}>
                     <LinkIcon className={styles.fieldLabelIcon} />
-                    <TextField className={styles.textFieldContainer} fullWidth id="link" placeholder="Link" value={creator.link} />
+                    <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, link: e.target.value})} fullWidth id="link" placeholder="Link" value={creator.link} />
                 </div>  
                 <div className={styles.formLine}>
                     <SubjectIcon className={styles.fieldLabelIcon} />
-                    <TextField className={styles.textFieldContainer} fullWidth multiline id="bio" placeholder="More about you" value={creator.bio} />
+                    <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, bio: e.target.value})} fullWidth multiline id="bio" placeholder="More about you" value={creator.bio} />
                 </div>    
                 <br />
                 <br />
@@ -102,4 +93,4 @@ const User = ({auth}:Props) => {
     </section>
 };
 
-export default connect(mapStateToProps)(User);
+export default connect(mapStateToProps, mapDispatchToProps)(User);
