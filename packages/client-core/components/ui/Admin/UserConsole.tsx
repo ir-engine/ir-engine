@@ -13,6 +13,9 @@ import {
     fetchUsersAsAdmin,
 } from '../../../redux/admin/service';
 import {
+    removeUser,
+} from "../../../redux/admin/service";
+import {
     Table,
     TableBody,
     TableContainer,
@@ -28,6 +31,13 @@ import UserModel from "./UserModel";
 import Search from "./Search";
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { Delete, Edit } from '@material-ui/icons';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Slide from '@material-ui/core/Slide';
+import { TransitionProps } from '@material-ui/core/transitions';
+
 
 if (!global.setImmediate) {
     global.setImmediate = setTimeout as any;
@@ -44,6 +54,7 @@ interface Props {
     fetchLocationTypes?: any;
     fetchUsersAsAdmin?: any;
     fetchAdminInstances?: any;
+    removeUser?: any;
 }
 
 interface HeadCell {
@@ -63,6 +74,7 @@ const mapStateToProps = (state: any): any => {
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch),
+    removeUser: bindActionCreators(removeUser, dispatch)
 });
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -82,16 +94,30 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
+const Transition = React.forwardRef(function Transition(
+    props: TransitionProps & { children?: React.ReactElement<any, any> },
+    ref: React.Ref<unknown>,
+  ) {
+    return <Slide direction="up" ref={ref} {...props} />;
+  });
+
 const UserConsole = (props: Props) => {
     const classes = useStyles();
     const {
         router,
         adminState,
         authState,
-        fetchUsersAsAdmin
+        fetchUsersAsAdmin,
+        removeUser
     } = props;
 
     const user = authState.get('user');
+
+    const initialUser = {
+        id: null,
+        name: '',
+        avatarId: ''
+    }
 
     const headCells = {
         users: [
@@ -99,7 +125,8 @@ const UserConsole = (props: Props) => {
             { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
             { id: 'instanceId', numeric: false, disablePadding: false, label: 'Instance ID' },
             { id: 'userRole', numeric: false, disablePadding: false, label: 'User Role' },
-            { id: 'partyId', numeric: false, disablePadding: false, label: 'Party ID' }
+            { id: 'partyId', numeric: false, disablePadding: false, label: 'Party ID' },
+            { id: 'action', numeric: false, disablePadding: false, label: 'Action' }
         ]
     }
 
@@ -133,32 +160,6 @@ const UserConsole = (props: Props) => {
         return stabilizedThis.map((el) => {
             return el[0];
         });
-    }
-
-    interface Data {
-        locations: {
-            id: string,
-            name: string,
-            sceneId: string,
-            maxUsersPerInstance: number,
-            type: string,
-            instanceMediaChatEnabled: boolean,
-            videoEnabled: boolean
-        },
-        users: {
-            id: string,
-            name: string,
-            instanceId: string,
-            userRole: string,
-            partyId: string
-        }
-    }
-
-    interface HeadCell {
-        disablePadding: boolean;
-        id: string;
-        label: string;
-        numeric: boolean;
     }
 
     interface EnhancedTableProps {
@@ -210,7 +211,10 @@ const UserConsole = (props: Props) => {
     const [userRole, setUserRole] = React.useState("");
     const [selectedUser, setSelectedUser] = React.useState({});
     const [loading, setLoading] = React.useState(false);
-
+    const [userEditing, setUserEditing] = React.useState(false);
+    const [userEdit, setUserEdit] = React.useState(initialUser)
+    const [userId, setUserId] = React.useState("");
+    const [open, setOpen] = React.useState(false);
 
     const adminUsers = adminState.get('users').get('users');
     const handleRequestSort = (event: React.MouseEvent<unknown>, property) => {
@@ -235,6 +239,12 @@ const UserConsole = (props: Props) => {
         fetchTick();
     }, []);
 
+    const handleUserClick = (id: string) => {
+        const selected = adminUsers.find(user => user.id === id);
+        setUserEdit(selected);
+        setUserModalOpen(true);
+        setUserEditing(true);
+    }
 
     useEffect(() => {
         if (user?.id != null && (adminState.get('users').get('updateNeeded') === true || refetch === true)) {
@@ -245,10 +255,12 @@ const UserConsole = (props: Props) => {
 
     const openModalCreate = () => {
         setUserModalOpen(true);
+        setUserEditing(false);
     };
 
     const handleUserClose = () => {
         setUserModalOpen(false);
+        setUserEditing(false);
     }
 
     const handleChange = (event: React.ChangeEvent<{ value: unknown }>, user: any) => {
@@ -260,9 +272,9 @@ const UserConsole = (props: Props) => {
             setUserRole(event.target.value as string);
             setSelectedUser({ ...selectedUser, ...role })
             setTimeout(() => {
-             setLoading(false)     
+                setLoading(false)
             }, 2000);
-   
+
         }
     };
 
@@ -275,6 +287,21 @@ const UserConsole = (props: Props) => {
             setSelectedUser(role);
         }
     }, [adminUsers]);
+
+    const handleClickOpen = (user: any) => {
+        setUserId(user);
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+        setUserId("");
+    };
+
+    const deleteUser = () => {
+        removeUser(userId.id);
+        handleClose();
+    }
 
     return (
         <div>
@@ -314,9 +341,9 @@ const UserConsole = (props: Props) => {
                                 .map((row, index) => {
                                     return (
                                         <TableRow
+                                            hover
                                             className={styles.trow}
                                             style={{ color: 'black !important' }}
-                                            // onClick={(event) => handleClick(event, row.id.toString())}
                                             tabIndex={-1}
                                             key={row.id}
                                         >
@@ -349,6 +376,10 @@ const UserConsole = (props: Props) => {
                                                 }
                                             </TableCell>
                                             <TableCell className={styles.tcell} align="right">{row.partyId}</TableCell>
+                                            <TableCell className={styles.tcell} align="right">
+                                                <a href="#h" onClick={() => handleUserClick(row.id.toString())}> <Edit className="text-success" /> </a>
+                                                <a href="#h" onClick={() => handleClickOpen(row)}> <Delete className="text-danger" /> </a>
+                                            </TableCell>
                                         </TableRow>
                                     );
                                 })}
@@ -359,7 +390,30 @@ const UserConsole = (props: Props) => {
                 <UserModel
                     open={userModalOpen}
                     handleClose={handleUserClose}
+                    editing={userEditing}
+                    userEdit={userEdit}
                 />
+
+
+
+                <Dialog
+                    open={open}
+                    TransitionComponent={Transition}
+                    keepMounted
+                    onClose={handleClose}
+                    aria-labelledby="alert-dialog-slide-title"
+                    aria-describedby="alert-dialog-slide-description"
+                >
+                    <DialogTitle id="alert-dialog-slide-title">{`Do You want to delete  ${userId.name}?`}</DialogTitle>
+                    <DialogActions>
+                        <Button onClick={handleClose} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={deleteUser} color="primary">
+                            Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </Paper>
             <Backdrop className={classes.backdrop} open={loading}>
                 <CircularProgress color="inherit" />
