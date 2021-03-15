@@ -11,6 +11,7 @@ import {
   MathUtils,
   WebGLRenderer
 } from 'three';
+import { isMobileOrTablet } from '../common/functions/isMobile';
 import { 
   XRHandedness,
   XRHitResult,
@@ -479,18 +480,15 @@ export class AudioDocumentElementProxy extends DocumentElementProxy {
     return this._isPlaying;
   }
   play() {
-    this._isPlaying = true;
     this.__callFunc('play');
   }
   pause() {
-    this._isPlaying = false;
     this.__callFunc('pause');
   }
   dispatchEvent(
     ev: any,
     fromMain?: boolean
   ): void {
-    console.log(ev)
     switch(ev.type) {
       case 'play': this._isPlaying = true; break;
       case 'pause': case 'paused': case 'ended': this._isPlaying = false; break;
@@ -702,11 +700,12 @@ export async function createWorker(
   const audioLoader = new THREE_AudioLoader();
   const audioBuffers: Map<string, AudioBuffer> = new Map<string, AudioBuffer>();
   let audioListener: any = undefined;
+  messageQueue.isMobile = isMobileOrTablet();
 
   messageQueue.messageTypeFunctions.set(
     MessageType.DOCUMENT_ELEMENT_FUNCTION_CALL,
     async ({ call, uuid, args, requestID }: { call: string; uuid: string; args: any[], requestID?: any }) => {
-      console.log(call, uuid, args, requestID, documentElementMap.get(uuid), documentElementMap.get(uuid)[call])
+      // console.log(call, uuid, args, requestID, documentElementMap.get(uuid), documentElementMap.get(uuid)[call])
       try {
         const returnedData = await documentElementMap.get(uuid)[call](...args)
         if(requestID) {
@@ -784,22 +783,25 @@ export async function createWorker(
           elementArgs !== undefined && applyElementArguments(video, elementArgs);
           documentElementMap.set(uuid, video);
           video.onplay = (ev: any) => {
+            const canvasScale =  video.videoWidth > 1280 || video.videoHeight > 720 ? (1/Math.abs(video.videoHeight / 720)) : 1;
+            video.setAttribute('height', String(video.videoHeight * canvasScale) + 'px');
             const drawCanvas = new OffscreenCanvas(
-              video.videoWidth,
-              video.videoHeight
+              video.videoWidth * canvasScale,
+              video.videoHeight * canvasScale
             );
             const context = drawCanvas.getContext('2d');
             messageQueue.queue.push({
               messageType: MessageType.VIDEO_ELEMENT_CREATE,
               message: {
-                width: video.videoWidth,
-                height: video.videoHeight,
+                width: drawCanvas.width,
+                height: drawCanvas.width,
                 returnID: uuid,
+                canvasScale
               },
             } as Message);
 
             const sendFrame = (now, metaData) => {
-              context.drawImage(video, 0, 0);
+              context.drawImage(video, 0, 0, video.videoWidth * canvasScale, video.videoHeight * canvasScale);
               const imageBitmap = drawCanvas.transferToImageBitmap();
               messageQueue.queue.push({
                 messageType: MessageType.VIDEO_ELEMENT_FRAME,
@@ -956,6 +958,7 @@ export async function createWorker(
       height,
       canvas: offscreen,
       devicePixelRatio: window.devicePixelRatio,
+      isMobile: messageQueue.isMobile,
       userArgs,
     },
     transferables: [offscreen],
@@ -992,7 +995,10 @@ class WindowProxy extends DocumentElementProxy {
       type,
     });
   }
-  focus: () => {}
+  open (url) {
+    this.__callFunc('open', url);
+  }
+  focus () {}
   get ownerDocument() { return (globalThis as any).document; }
   get width() { return this.messageQueue.width; }
   get height() { return this.messageQueue.height; }
@@ -1019,7 +1025,7 @@ class DocumentProxy extends DocumentElementProxy {
   get ownerDocument() {
     return (globalThis as any).document
   }
-  createElement(type: string, elementArgs: any): DocumentElementProxy | null {
+  createElement(type: string, elementArgs: any): any {
     switch (type) {
       case 'audio':
         return new AudioDocumentElementProxy({ messageQueue: this.messageQueue, elementArgs });
@@ -1027,6 +1033,16 @@ class DocumentProxy extends DocumentElementProxy {
         return new VideoDocumentElementProxy({ messageQueue: this.messageQueue, elementArgs });
       case 'media':
         return new DocumentElementProxy({ messageQueue: this.messageQueue, type: 'mediaElementSource', elementArgs });
+      case 'canvas':
+        return new OffscreenCanvas(0, 0);
+      default:
+        return null;
+    }
+  }
+  createElementNS(ns: string, type: string): any {
+    switch (type) {
+      case 'canvas':
+        return new OffscreenCanvas(0, 0);
       default:
         return null;
     }
@@ -1123,36 +1139,6 @@ class XRSystemPolyfill {
       document.dispatchEvent(new CustomEvent(OFFSCREEN_XR_EVENTS.SESSION_CREATED, { detail: { baseLayer, context, session, canvas } }))
     }
 
-    // const inputSources: XRInputSource[] = session.inputSources;
-    // const sourceProxies: XRInputSourcePolyfill[] = [];
-
-    // const createNewInputSourceProxy = (inputSource: XRInputSource) => {
-    //   const polyfill = new XRInputSourcePolyfill(inputSource);
-    //   sourceProxies.push(polyfill);
-
-    //   this.messageQueue.queue.push({
-    //     messageType: XR_PROXY_EVENTS.INPUT_SOURCES,
-    //     message: {
-    //       type: 'add',
-    //       //@ts-ignore
-    //       inputSource: sourceProxies.toJson()
-    //     },
-    //   } as Message);
-    // }
-
-    // const removeInputSourceProxy = (inputSource: XRInputSource) => {
-    //   //@ts-ignore
-    //   sourceProxies.splice(sourceProxies.indexOf(inputSource), 1);
-    // }
-
-    // inputSources.forEach(createNewInputSourceProxy)
-    // session.addEventListener('inputsourceschange', (ev) => {
-    //   console.log(ev)
-    //   ev.added.forEach(createNewInputSourceProxy)
-    //   ev.removed.forEach(removeInputSourceProxy)
-
-    // })
-
     return uuid;
   }
 }
@@ -1194,49 +1180,6 @@ export class XRSessionProxy extends DocumentElementProxy implements XRSession {
   }
 }
 
-// export class XRInputSourcePolyfill implements XRInputSource {
-//   inputSource: XRInputSource;
-//   handedness: XRHandedness;
-//   targetRayMode: XRTargetRayMode;
-//   targetRaySpace: XRSpace;
-//   gripSpace: XRSpace | undefined;
-//   gamepad: Gamepad | undefined;
-//   profiles: string[];
-
-//   constructor(inputSource) {
-//     this.inputSource = inputSource;
-//     this.handedness = inputSource.handedness;
-//     this.targetRayMode = inputSource.targetRayMode;
-//     this.targetRaySpace = inputSource.targetRaySpace;
-//     this.gripSpace = inputSource.gripSpace;
-//     this.gamepad = inputSource.gamepad;
-//     this.profiles = inputSource.profiles;
-//   }
-
-//   toJson() {
-//     return {
-//       handedness: this.handedness,
-//       targetRayMode: this.targetRayMode,
-//       targetRaySpace: this.targetRaySpace,
-//       gripSpace: {},
-//       gamepad: {
-//         axes: this.gamepad.axes,
-//         buttons: this.gamepad.buttons,
-//         connected: this.gamepad.connected,
-//         hand: this.gamepad.hand,
-//         hapticActuators: this.gamepad.hapticActuators,
-//         id: this.gamepad.id,
-//         index: this.gamepad.index,
-//         mapping: this.gamepad.mapping,
-//         pose: this.gamepad.pose,
-//         timestamp: this.gamepad.timestamp,
-//       },
-//       profiles: this.profiles,
-//     }
-//   }
-// }
-
-
 export async function receiveWorker(onCanvas: any) {
   const messageQueue = new MainProxy({ messagePort: globalThis as any });
   const canvasProxy = new CanvasProxy({ messageQueue });
@@ -1248,16 +1191,19 @@ export async function receiveWorker(onCanvas: any) {
         height,
         width,
         devicePixelRatio,
+        isMobile,
       }: {
         canvas: OffscreenCanvas;
         width: number;
         height: number;
         devicePixelRatio: number;
+        isMobile: boolean
       } = args;
       messageQueue.canvas = canvas;
       messageQueue.width = width;
       messageQueue.height = height;
       messageQueue.devicePixelRatio = devicePixelRatio;
+      messageQueue.isMobile = isMobile;
       canvas.addEventListener = (
         type: string,
         listener: (event: any) => void,

@@ -8,16 +8,20 @@ import { Interactable } from "../../../interaction/components/Interactable";
 import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { Object3DComponent } from "@xr3ngine/engine/src/scene/components/Object3DComponent";
 import { getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
+import { EngineEvents } from "../../../ecs/classes/EngineEvents";
+import { InteractiveSystem } from "../../../interaction/systems/InteractiveSystem";
 
 const onInteraction: Behavior = (entity, args, delta, entityOut, time) => {
-  const event = new CustomEvent('object-activation', { detail: { url: "https://google.com" } });
-  document.dispatchEvent(event);
+  EngineEvents.instance.dispatchEvent({ type: InteractiveSystem.EVENTS.OBJECT_ACTIVATION, url: "https://google.com" });
 };
 
 const onInteractionHover: Behavior = (entity, { focused }: { focused: boolean }, delta, entityOut, time) => {
-  const event = new CustomEvent('object-hover', { detail: { focused, label: "Use to open google.com" } });
-  document.dispatchEvent(event);
-
+  EngineEvents.instance.dispatchEvent({ 
+    type: InteractiveSystem.EVENTS.OBJECT_HOVER, 
+    focused, 
+    label: "Use to open google.com"
+  });
+  
   if (!hasComponent(entityOut, Object3DComponent)) {
     return;
   }

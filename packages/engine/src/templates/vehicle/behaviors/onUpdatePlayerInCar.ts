@@ -3,12 +3,22 @@ import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/func
 import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { Matrix4, Vector3 } from 'three';
+import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
+import { CharacterComponent } from "../../character/components/CharacterComponent";
+import { isPlayerInVehicle } from '../../../common/functions/isPlayerInVehicle';
 
 export const onUpdatePlayerInCar = (entity: Entity, entityCar: Entity, seat: number, delta): void => {
 
   const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
   const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);
   const transformCar = getComponent<TransformComponent>(entityCar, TransformComponent);
+
+
+  // its then connected player seen other player in car
+  if ( !isPlayerInVehicle(entity) ) {
+    const actor = getComponent<CharacterComponent>(entity, CharacterComponent);
+    PhysicsSystem.physicsWorld.removeBody(actor.actorCapsule.body);
+  }
 
   const position = new Vector3(...vehicle.seatsArray[seat])
     .applyQuaternion(transformCar.rotation)

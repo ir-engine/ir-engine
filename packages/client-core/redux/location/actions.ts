@@ -6,9 +6,10 @@ import {
   LOCATION_PATCHED,
   LOCATION_REMOVED,
   LOCATION_BAN_CREATED,
-  LOCATION_NOT_FOUND
+  LOCATION_NOT_FOUND,
 } from '../actions';
 import { Location } from '@xr3ngine/common/interfaces/Location';
+
 
 export interface LocationsRetrievedAction {
   type: string;
@@ -72,6 +73,7 @@ export function locationCreated (location: Location): LocationCreatedAction {
     location: location
   };
 }
+
 
 export function locationPatched (location: Location): LocationCreatedAction {
   return {

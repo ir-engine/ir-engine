@@ -59,7 +59,7 @@ export class ClientInputSystem extends System {
     ClientInputSchema.onAdded.forEach(behavior => {
       behavior.behavior();
     });
-  
+
     Object.keys(ClientInputSchema.eventBindings)?.forEach((eventName: string) => {
       ClientInputSchema.eventBindings[eventName].forEach((behaviorEntry: DomEventBehaviorValue) => {
         // const domParentElement:EventTarget = document;
@@ -114,8 +114,9 @@ export class ClientInputSystem extends System {
    * @param {Number} delta Time since last frame
    */
 
-  public execute(delta: number): void { 
+  public execute(delta: number): void {
     handleGamepads();
+    const newState = new Map();
 
     Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
       if (!Engine.prevInputState.has(key)) {
@@ -146,12 +147,19 @@ export class ClientInputSystem extends System {
       Engine.inputState.set(key, value);
     });
 
-    EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.PROCESS_INPUT, data: new Map(Engine.inputState) });
+    // deep copy
+    Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+      if(!(value.lifecycleState === LifecycleValue.UNCHANGED && Engine.prevInputState.get(key)?.lifecycleState === LifecycleValue.UNCHANGED)) {
+        newState.set(key, { type: value.type, value: value.value, lifecycleState: value.lifecycleState });
+      }
+    });
+
+    EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.PROCESS_INPUT, data: newState });
 
     Engine.prevInputState.clear();
     Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
       Engine.prevInputState.set(key, value);
-      if (value.type === InputType.BUTTON && value.lifecycleState === LifecycleValue.ENDED) {
+      if (value.lifecycleState === LifecycleValue.ENDED) {
         Engine.inputState.delete(key);
       }
     });

@@ -17,7 +17,7 @@ import { Matrix4, Vector3 } from 'three';
 import { isServer } from "../../../common/functions/isServer";
 import { CameraModes } from '../../../camera/types/CameraModes';
 import { EnteringVehicle } from "@xr3ngine/engine/src/templates/character/components/EnteringVehicle";
-
+import { updateVectorAnimation, clearAnimOnChange, changeAnimation } from "@xr3ngine/engine/src/templates/character/behaviors/updateVectorAnimation";
 
 function positionEnter(entity, entityCar, seat) {
   const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
@@ -60,8 +60,15 @@ export const onAddedInCar = (entity: Entity, entityCar: Entity, seat: number, de
 
   if (isServer) return;
   // CLIENT
-  addComponent(entity, EnteringVehicle);
-  setState(entity, { state: CharacterStateTypes.ENTERING_VEHICLE });
+//  addComponent(entity, EnteringVehicle);
+  setState(entity, { state: CharacterStateTypes.DRIVING });
+
+  changeAnimation(entity, {
+    animationId: CharacterStateTypes.ENTERING_VEHICLE,
+	  transitionDuration: 0.3
+   })
+
+  //
   // LocalPlayerOnly
   if (Network.instance.localAvatarNetworkId != networkDriverId) return;
   addComponent(entityCar, LocalInputReceiver);

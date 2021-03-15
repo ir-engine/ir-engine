@@ -61,15 +61,10 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   Network.instance.transport = { isServer: false }
 
   registerSystem(AssetLoadingSystem);
-
   registerSystem(PhysicsSystem);
-
   registerSystem(EntityActionSystem, { useWebXR: false });
-
   registerSystem(StateSystem);
-
   registerSystem(ServerSpawnSystem, { priority: 899 });
-
   registerSystem(TransformSystem, { priority: 900 });
 
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.3, 750);
@@ -107,6 +102,10 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
     EngineEvents.instance.removeEventListener(ClientNetworkSystem.EVENTS.INITIALIZE, initializeNetworkEvent)
   }
   EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.INITIALIZE, initializeNetworkEvent)
+
+  setInterval(() => {
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_DEBUG_DATA, })
+  }, 1000)
 }
 
 receiveWorker(initializeEngineOffscreen)

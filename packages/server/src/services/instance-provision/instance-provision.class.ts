@@ -198,55 +198,55 @@ export class InstanceProvision implements ServiceMethods<Data> {
         // If the user is in a party, they should be sent to their party's server as long as they are
         // trying to go to the scene their party is in.
         // If the user is going to a different scene, they will be removed from the party and sent to a random instance
-        if (user.partyId) {
-          const partyOwnerResult = await this.app.service('party-user').find({
-            query: {
-              partyId: user.partyId,
-              isOwner: true
-            }
-          });
-          const partyOwner = (partyOwnerResult as any).data[0];
-          // Only redirect non-party owners. Party owner will be provisioned below this and will pull the
-          // other party members with them.
-          if (partyOwner?.userId !== userId && partyOwner?.user.instanceId) {
-            const partyInstance = await this.app.service('instance').get(partyOwner.user.instanceId);
-            // Only provision the party's instance if the non-owner is trying to go to the party's scene.
-            // If they're not, they'll be removed from the party
-            if (partyInstance.locationId === locationId) {
-              if (process.env.KUBERNETES !== 'true') {
-                return getLocalServerIp();
-              }
-              const addressSplit = partyInstance.ipAddress.split(':');
-              return {
-                ipAddress: addressSplit[0],
-                port: addressSplit[1]
-              };
-            } else {
-              // Remove the party user for this user, as they're going to a different scene from their party.
-              const partyUser = await this.app.service('party-user').find({
-                query: {
-                  userId: user.id,
-                  partyId: user.partyId
-                }
-              });
-              const {query, ...paramsCopy} = params;
-              paramsCopy.query = {};
-              await this.app.service('party-user').remove((partyUser as any).data[0].id, paramsCopy);
-            }
-          } else if (partyOwner?.userId === userId && partyOwner?.user.instanceId) {
-            const partyInstance = await this.app.service('instance').get(partyOwner.user.instanceId);
-            if (partyInstance.locationId === locationId) {
-              if (process.env.KUBERNETES !== 'true') {
-                return getLocalServerIp();
-              }
-              const addressSplit = partyInstance.ipAddress.split(':');
-              return {
-                ipAddress: addressSplit[0],
-                port: addressSplit[1]
-              };
-            }
-          }
-        }
+        // if (user.partyId) {
+        //   const partyOwnerResult = await this.app.service('party-user').find({
+        //     query: {
+        //       partyId: user.partyId,
+        //       isOwner: true
+        //     }
+        //   });
+        //   const partyOwner = (partyOwnerResult as any).data[0];
+        //   // Only redirect non-party owners. Party owner will be provisioned below this and will pull the
+        //   // other party members with them.
+        //   if (partyOwner?.userId !== userId && partyOwner?.user.instanceId) {
+        //     const partyInstance = await this.app.service('instance').get(partyOwner.user.instanceId);
+        //     // Only provision the party's instance if the non-owner is trying to go to the party's scene.
+        //     // If they're not, they'll be removed from the party
+        //     if (partyInstance.locationId === locationId) {
+        //       if (process.env.KUBERNETES !== 'true') {
+        //         return getLocalServerIp();
+        //       }
+        //       const addressSplit = partyInstance.ipAddress.split(':');
+        //       return {
+        //         ipAddress: addressSplit[0],
+        //         port: addressSplit[1]
+        //       };
+        //     } else {
+        //       // Remove the party user for this user, as they're going to a different scene from their party.
+        //       const partyUser = await this.app.service('party-user').find({
+        //         query: {
+        //           userId: user.id,
+        //           partyId: user.partyId
+        //         }
+        //       });
+        //       const {query, ...paramsCopy} = params;
+        //       paramsCopy.query = {};
+        //       await this.app.service('party-user').remove((partyUser as any).data[0].id, paramsCopy);
+        //     }
+        //   } else if (partyOwner?.userId === userId && partyOwner?.user.instanceId) {
+        //     const partyInstance = await this.app.service('instance').get(partyOwner.user.instanceId);
+        //     if (partyInstance.locationId === locationId) {
+        //       if (process.env.KUBERNETES !== 'true') {
+        //         return getLocalServerIp();
+        //       }
+        //       const addressSplit = partyInstance.ipAddress.split(':');
+        //       return {
+        //         ipAddress: addressSplit[0],
+        //         port: addressSplit[1]
+        //       };
+        //     }
+        //   }
+        // }
         const friendsAtLocationResult = await this.app.service('user').Model.findAndCountAll({
           include: [
             {

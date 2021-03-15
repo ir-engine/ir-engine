@@ -218,7 +218,7 @@ function getLoaderForAssetType(assetType: AssetTypeAlias): GLTFLoader | any | Te
   else if (assetType == AssetType.glTF) return LoadGLTF.getLoader();
   else if (assetType == AssetType.PNG) return new TextureLoader();
   else if (assetType == AssetType.JPEG) return new TextureLoader();
-  else if (assetType == AssetType.VRM) return new GLTFLoader();
+  else if (assetType == AssetType.VRM) return LoadGLTF.getLoader();
 }
 
 /**
