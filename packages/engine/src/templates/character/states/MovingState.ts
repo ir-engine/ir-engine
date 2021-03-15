@@ -1,204 +1,202 @@
-import { BinaryValue } from "@xr3ngine/engine/src/common/enums/BinaryValue";
-import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
-import { AnimationClip, MathUtils } from "three";
-import { Entity } from "../../../ecs/classes/Entity";
-import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
-import { Input } from '../../../input/components/Input';
+import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { initializeCharacterState } from "../behaviors/initializeCharacterState";
+import { physicsMove } from '../../../physics/behaviors/physicsMove';
 import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
-import { trySwitchToJump } from "../behaviors/trySwitchToJump";
 import { updateCharacterState } from "../behaviors/updateCharacterState";
-import { AnimationConfigInterface, CharacterAvatars, defaultAvatarAnimations } from "../CharacterAvatars";
 import { CharacterStateTypes } from '../CharacterStateTypes';
-import { CharacterComponent, RUN_SPEED, WALK_SPEED } from '../components/CharacterComponent';
+import { CharacterComponent } from '../components/CharacterComponent';
+import { TransformComponent } from '../../../transform/components/TransformComponent';
+import { updateVectorAnimation, clearAnimOnChange, changeAnimation } from "../behaviors/updateVectorAnimation";
+import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
+import { MathUtils, Vector3 } from "three";
+
+import { isMyPlayer } from '../../../common/functions/isMyPlayer';
+import { isOtherPlayer } from '../../../common/functions/isOtherPlayer';
 
 const {
   IDLE,
   WALK_FORWARD, WALK_BACKWARD, WALK_STRAFE_LEFT, WALK_STRAFE_RIGHT,
-  RUN_FORWARD, RUN_BACKWARD, RUN_STRAFE_LEFT, RUN_STRAFE_RIGHT
+  RUN_FORWARD, RUN_BACKWARD, RUN_STRAFE_LEFT, RUN_STRAFE_RIGHT, JUMP, FALLING, DROP, DROP_ROLLING
 } = CharacterStateTypes;
 
-interface AnimationWeightScaleInterface {
-  weight: number
-}
+const animationsSchema = [
+  {
+    type: [IDLE], name: 'idle', axis: 'xyz', speed: 1, customProperties: ['weight', 'dontHasHit'],
+    value:      [ -0.5, 0, 0.5 ],
+    weight:     [  0 ,  1,   0 ],
+    dontHasHit: [  0 ,  0,   0 ]
+  },{
+    type: [FALLING], name: 'falling', axis:'xyz', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    value:      [ -1,   0,   1 ],
+    weight:     [  0 ,  0,   0 ],
+    dontHasHit: [  1 ,  1,   1 ]
+  },
+  {
+    type: [DROP], name: 'falling_to_land', axis:'y', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    value:      [  -1  ,   0  ],
+    weight:     [   1 ,    0  ],
+    dontHasHit: [   1  ,   0  ]
+  },
+  /*
+  {
+    type: [DROP_ROLLING], name: 'falling_to_roll', axis:'z', speed: 1, customProperties: ['weight', 'dontHasHit'],
+    value:      [  0,   1 ],
+    weight:     [  0,   0 ],
+    dontHasHit: [  0,   1 ]
+  },
+  */
+  {
+    type: [WALK_FORWARD], name: 'walking', axis:'z', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    value:      [ 0, 0.5, 1 ],
+    weight:     [ 0,  1,  0 ],
+    dontHasHit: [ 0,  0,  0 ]
+  },{
+    type: [WALK_STRAFE_RIGHT], name: 'walk_right', axis:'x', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    value:      [ -1, -0.5, 0 ],
+    weight:     [  0,   1 , 0 ],
+    dontHasHit: [  0 ,  0,  0 ]
+  },{
+    type: [WALK_STRAFE_LEFT], name: 'walk_left', axis:'x', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    value:      [ 0,  0.5, 1 ],
+    weight:     [ 0,   1,  0 ],
+    dontHasHit: [ 0 ,  0,  0 ]
+  },{
+    type: [WALK_BACKWARD], name: 'walking_backward', axis:'z', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    value:      [ -1, -0.5, 0 ],
+    weight:     [  0,   1 , 0 ],
+    dontHasHit: [  0 ,  0,  0 ]
+  },
 
-// speed - what speed is represented by walk animation
-// TODO: move speed into animation config
-const animationAxisSpeed = [
-  { positiveAnimationId: WALK_FORWARD, negativeAnimationId: WALK_BACKWARD, axis: 'z', speed: 1, range: [0, 1], run: false },
-  { positiveAnimationId: WALK_STRAFE_LEFT, negativeAnimationId: WALK_STRAFE_RIGHT, axis: 'x', speed: 1, range: [0, 1], run: false },
-  { positiveAnimationId: RUN_FORWARD, negativeAnimationId: RUN_BACKWARD, axis: 'z', speed: 2, range: [0, 1], run: true },
-  { positiveAnimationId: RUN_STRAFE_LEFT, negativeAnimationId: RUN_STRAFE_RIGHT, axis: 'x', speed: 2, range: [0, 1], run: true },
+  {
+    type: [RUN_FORWARD], name: 'run_forward', axis:'z', speed: 0.45, customProperties: ['weight', 'dontHasHit'],
+    value:      [  0.5,  1  ],
+    weight:     [   0,   1  ],
+    dontHasHit: [   0 , 0.5 ]
+  },{
+    type: [RUN_STRAFE_RIGHT], name: 'run_right', axis: 'x', speed: 0.45, customProperties: ['weight', 'dontHasHit'],
+    value:      [ -1, -0.5 ],
+    weight:     [  1 ,  0  ],
+    dontHasHit: [  0.5, 0  ]
+  },{
+    type: [RUN_STRAFE_LEFT], name: 'run_left', axis:'x', speed: 0.45, customProperties: ['weight', 'dontHasHit'],
+    value:      [ 0.5,  1  ],
+    weight:     [  0 ,  1  ],
+    dontHasHit: [  0 , 0.5 ]
+  },{
+    type: [RUN_BACKWARD], name: 'run_backward', axis: 'z', speed: 0.45, customProperties: ['weight', 'dontHasHit'],
+    value:      [ -1 ,-0.5 ],
+    weight:     [  1 ,  0  ],
+    dontHasHit: [ 0.5,  0  ]
+  }
 ];
 
-const movementAnimations: {[key:number]: AnimationConfigInterface} = {
-  [IDLE]: { name: 'idle' },
-  [WALK_FORWARD]: { name: 'walking' },
-  [WALK_BACKWARD]: { name: 'walking_backward' },
-  [WALK_STRAFE_RIGHT]: { name: 'walk_right' },
-  [WALK_STRAFE_LEFT]: { name: 'walk_left' },
-  [RUN_FORWARD]: { name: 'run_forward' },
-  [RUN_BACKWARD]: { name: 'run_backward' },
-  [RUN_STRAFE_RIGHT]: { name: 'run_right' },
-  [RUN_STRAFE_LEFT]: { name: 'run_left' }
+
+
+
+
+const initializeCharacterState: Behavior = (entity, args: { x?: number, y?: number, z?: number }) => {
+	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+	if (!actor.initialized) return;
+
+	if (actor.velocitySimulator === undefined ) {
+		actor.velocitySimulator.init();
+	}
+  if (actor.vactorAnimSimulator === undefined ) {
+    actor.vactorAnimSimulator.init();
+  }
+  if (actor.moveVectorSmooth === undefined ) {
+    actor.moveVectorSmooth.init();
+  }
+
+	actor.velocitySimulator.damping = actor.defaultVelocitySimulatorDamping;
+	actor.velocitySimulator.mass = actor.defaultVelocitySimulatorMass;
+
+  actor.vactorAnimSimulator.damping = 0.5;
+	actor.vactorAnimSimulator.mass = 35;
+
+  actor.moveVectorSmooth.damping = 0.7;
+	actor.moveVectorSmooth.mass = 35;
+
+	actor.rotationSimulator.damping = actor.defaultRotationSimulatorDamping;
+	actor.rotationSimulator.mass = actor.defaultRotationSimulatorMass;
+
+	actor.canEnterVehicles = false;
+	actor.canLeaveVehicles = true;
+
+  actor.canFindVehiclesToEnter = true;
+
+	actor.arcadeVelocityIsAdditive = false;
+	actor.arcadeVelocityInfluence.set(1, 0, 1);
+
+	actor.timer = 0;
+	actor.velocityTarget.z = args?.z ?? 0;
+	actor.velocityTarget.x = args?.x ?? 0;
+	actor.velocityTarget.y = args?.y ?? 0;
 };
+
+/*
+export const onAnimationEnded: Behavior = (entity: Entity, args: { transitionToState: any }, deltaTime) => {
+  const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
+  if(!actor.initialized) return console.warn("Actor not initialized");
+  if (actor.timer > actor.currentAnimationLength - deltaTime) {
+  //  console.log('animation ended! (', actor.currentAnimationLength, ')', now(),', switch to ', args.transitionToState)
+    setState(entity, { state: args.transitionToState });
+  }
+};
+*/
+const customVector = new Vector3(0,0,0);
+const getMovementValues: Behavior = (entity, args: {}, deltaTime: number) => {
+  const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
+  // simulate rayCastHit as vectorY from 1 to 0, for smooth changes
+ //  absSpeed = MathUtils.smoothstep(absSpeed, 0, 1);
+  actor.moveVectorSmooth.target.copy(actor.animationVelocity);
+  actor.moveVectorSmooth.simulate(deltaTime);
+  const actorVelocity = actor.moveVectorSmooth.position;
+
+  customVector.setY(actor.rayHasHit ? 0 : 1);
+  actor.vactorAnimSimulator.target.copy(customVector);
+  actor.vactorAnimSimulator.simulate(deltaTime);
+  let dontHasHit = actor.vactorAnimSimulator.position.y;
+
+  dontHasHit < 0.00001 ? dontHasHit = 0:'';
+  dontHasHit = Math.min(dontHasHit, 1);
+
+  return { actorVelocity, dontHasHit };
+}
+
 
 export const MovingState: StateSchemaValue = {
   componentProperties: [{
     component: CharacterComponent,
     properties: {
       ['canEnterVehicles']: true,
+   // jump and hit
     }
   }],
   onEntry: [
     {
       behavior: initializeCharacterState,
-      args: {
-        animationId: IDLE,
-        transitionDuration: 0.3
-      }
     },
     {
-    behavior: (entity: Entity): void => {
-      const actor = getMutableComponent(entity, CharacterComponent);
-
-// Walking animation names
-// If animation is not in this array, remove
-
-      // Actor isn't initialized yet, so skip the animation
-      if (!actor || !actor.initialized || !actor.mixer) return;
-
-      const avatarAnimations = CharacterAvatars.find(a => a.id === actor.avatarId)?.animations ?? defaultAvatarAnimations;
-
-      const movementAnimationNames = Object.values(movementAnimations).map(val => val.name);
-
-        // Clear existing animations
-        actor.currentAnimationAction.forEach(currentAnimationAction => {
-          if(movementAnimationNames.filter(movAnim => movAnim === currentAnimationAction.getClip().name).length > 0)
-            return;
-          currentAnimationAction.fadeOut(.3);
-          // currentAnimationAction.setEffectiveWeight(0);
-        } )
-    }
+      behavior: clearAnimOnChange,
+      args: {
+        animationsSchema: animationsSchema
+      }
     }
   ],
   onUpdate: [
     {
-      behavior: updateCharacterState
+      behavior: updateCharacterState // rotation character
     },
     {
-      behavior: triggerActionIfMovementHasChanged,
+      behavior: physicsMove
+    },
+    {
+      behavior: updateVectorAnimation,
       args: {
-        action: (entity: Entity): void => {
-          // Check if we're trying to jump
-          if (trySwitchToJump(entity)) {
-            return;
-          }
-        }
+        animationsSchema: animationsSchema, // animationsSchema
+        updateAnimationsValues: getMovementValues // function
       }
-    },
-    {
-      behavior: (entity: Entity): void => {
-        const actor = getMutableComponent(entity, CharacterComponent);
-        // Actor isn't initialized yet, so skip the animation
-        if (!actor || !actor.initialized || !actor.mixer)
-          return;
-
-        const actorVelocity = actor.velocity.clone();
-        const animations = new Map<number, AnimationWeightScaleInterface>();
-        // Normalize direction for XZ movement
-        const direction = actorVelocity.clone().setY(0).normalize();
-        const avatarId = actor.avatarId;
-        const avatarAnimations = CharacterAvatars.find(a => a.id === avatarId)?.animations ?? defaultAvatarAnimations;
-        const animationRoot = actor.modelContainer.children[0];
-
-        // Initialize state weights with idle
-        const stateWeights = {
-          idle: 1,
-          walk: 0,
-          run: 0
-        };
-
-        // Get the magnitude of current velocity
-        const absSpeed = actorVelocity.setY(0).length();
-        const isWalking = getComponent(entity, Input).data.get(BaseInput.WALK)?.value === BinaryValue.ON;
-        // If we're not standing still...
-        if (absSpeed > 0.01) {
-          if (isWalking) {
-              stateWeights.walk = MathUtils.smoothstep(absSpeed * WALK_SPEED, 0, 1);
-              stateWeights.idle = 1 - stateWeights.walk;
-          }
-          else {
-            stateWeights.run = MathUtils.smoothstep(absSpeed * RUN_SPEED, 0, 1);
-            stateWeights.idle = 1 - stateWeights.run;
-          }
-        } else {
-          stateWeights.idle = 1;
-        }
-
-        // For each axis
-        animationAxisSpeed.forEach(animationWeightsConfig => {
-          const { positiveAnimationId, negativeAnimationId, axis, speed, run: isRun } = animationWeightsConfig;
-
-          // If the value is more than 0, play position animation, otherwise play negative animation
-          const animationId = direction[axis] > 0 ? positiveAnimationId : negativeAnimationId;
-          const offAnimationId = direction[axis] > 0 ? negativeAnimationId : positiveAnimationId;
-
-          // Solve for X
-          
-          // Solve for z
-          let weight = MathUtils.clamp(Math.abs(direction[axis]), 0, 1);
-          if (weight) {
-            weight *= isRun ? stateWeights.run : stateWeights.walk;
-          }
-          animations.set(animationId, { weight });
-          animations.set(offAnimationId, { weight: 0 });
-        });
-
-        animations.set(IDLE, { weight: stateWeights.idle });
-
-        animations.forEach((value, positiveAnimationId) => {
-          // console.log('setActorAnimationWS [', CharacterStateTypes[positiveAnimationId], '](', positiveAnimationId, ') W:', value.weight);
-          const avatarAnimation: AnimationConfigInterface = avatarAnimations[positiveAnimationId];
-
-          const clip = AnimationClip.findByName(actor.animations, avatarAnimation.name);
-          let action = actor.mixer.existingAction(clip, animationRoot);
-          
-          if (!action) {
-            // get new action
-            action = actor.mixer.clipAction(clip, animationRoot);
-            if (action === null) {
-              console.warn('setActorAnimation [', avatarAnimation.name, '], not found');
-              return;
-            }
-          }
-          if (typeof avatarAnimation.loop !== "undefined") {
-            action.setLoop(avatarAnimation.loop, Infinity);
-          }
-          // Push the action to our queue so we can handle it later if necessary
-          if(!actor.currentAnimationAction.includes(action))
-            actor.currentAnimationAction.push(action);
-
-          // console.log(`
-          // avatarAnimation.name: ${avatarAnimation.name} |
-          // args.weight: ${value.weight}
-          // `)
-
-          const weight = value.weight ?? 1;
-
-          // just set weight and scale
-          action.setEffectiveWeight(weight);
-          if (weight > 0 && !action.isRunning()) {
-            action.play();
-          } else if (weight === 0 && action.isRunning()) {
-            action.stop();
-          }
-        });
-      }
-    },
-    // {
-    //   behavior: setFallingState
-    // }
+    }
   ]
 };

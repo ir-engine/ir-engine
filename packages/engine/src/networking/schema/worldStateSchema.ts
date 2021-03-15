@@ -4,6 +4,7 @@ import { WorldStateInterface } from "../interfaces/WorldState";
 import { inputAxis1DSchema, inputAxis2DSchema, inputAxis6DOFSchema, inputKeySchema, viewVectorSchema } from "./clientInputSchema";
 
 /** Schema for input. */
+/*
 export const inputKeyArraySchema = new Schema({
   networkId: uint32,
   axes1d: [inputAxis1DSchema],
@@ -12,7 +13,7 @@ export const inputKeyArraySchema = new Schema({
   buttons: [inputKeySchema],
   viewVector: viewVectorSchema
 });
-
+*/
 const clientConnectedSchema = new Schema({
     userId: string,
     name: string
@@ -68,7 +69,7 @@ const worldStateSchema = new Schema({
     createObjects: [createNetworkObjectSchema],
     editObjects: [editNetworkObjectSchema],
     destroyObjects: [destroyNetworkObjectSchema],
-    inputs: [inputKeyArraySchema],
+  //  inputs: [inputKeyArraySchema],
     tick: uint32,
     timeFP: uint32,
     timeSP: uint32,
@@ -92,7 +93,7 @@ export class WorldStateModel {
           createObjects: worldState.createObjects,
           editObjects: worldState.editObjects,
           destroyObjects: worldState.destroyObjects,
-          inputs: [],
+        //  inputs: [],
           tick: 0,
           timeFP: 0,
           timeSP: 0,
@@ -109,6 +110,7 @@ export class WorldStateModel {
           createObjects: [],
           editObjects: [],
           destroyObjects: [],
+          /*
           inputs: worldState.inputs?.map(input => {
             return {
               networkId: input.networkId,
@@ -120,6 +122,7 @@ export class WorldStateModel {
               snapShotTime: 0,
             };
           }),
+          */
           tick: worldState.tick,
           timeFP: Number(timeToTwoUinit32.slice(0,6)), // first part
           timeSP: Number(timeToTwoUinit32.slice(6)), // second part

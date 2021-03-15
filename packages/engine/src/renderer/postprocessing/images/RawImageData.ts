@@ -9,7 +9,7 @@
  */
 
 function createCanvas (width, height, data) {
-  const canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
+  const canvas = new OffscreenCanvas(width, height);// document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
   const context = (canvas as any).getContext('2d');
 
   const imageData = context.createImageData(width, height);

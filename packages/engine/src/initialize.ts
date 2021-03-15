@@ -31,6 +31,7 @@ import { ClientInputSystem } from './input/systems/ClientInputSystem';
 import { WebXRRendererSystem } from './renderer/WebXRRendererSystem';
 import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { Network } from './networking/classes/Network';
+import { isMobileOrTablet } from './common/functions/isMobile';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -67,7 +68,7 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
       new Worker(new URL('./worker/initializeOffscreen.ts', import.meta.url)),
       (options.renderer.canvas || createCanvas()),
       {
-
+        
       }
     );
     EngineEvents.instance = new EngineEventsProxy(workerProxy);
@@ -106,8 +107,9 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
     registerSystem(HighlightSystem);
     registerSystem(EntityActionSystem, { useWebXR: Engine.xrSupported });
   
-    Engine.audioListener = new AudioListener();
-    Engine.camera.add(Engine.audioListener);
+// audio breaks webxr currently
+    // Engine.audioListener = new AudioListener();
+    // Engine.camera.add(Engine.audioListener);
     // registerSystem(PositionalAudioSystem);
 
     registerSystem(InteractiveSystem);

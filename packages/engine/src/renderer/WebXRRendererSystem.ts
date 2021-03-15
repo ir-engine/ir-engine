@@ -1,6 +1,10 @@
+import { sRGBEncoding } from 'three';
+import { isWebWorker } from '../common/functions/getEnvironment';
 import { Engine } from '../ecs/classes/Engine';
+import { EngineEvents } from '../ecs/classes/EngineEvents';
 import { System, SystemAttributes } from '../ecs/classes/System';
-import { XRReferenceSpaceType, XRWebGLLayer } from '../input/types/WebXR';
+import { endXR, startXR } from '../input/functions/WebXRFunctions';
+import { XRFrame, XRReferenceSpaceType, XRWebGLLayer } from '../input/types/WebXR';
 // import { EngineEvents } from '../ecs/classes/EngineEvents';
 // import { isWebWorker } from '../common/functions/getEnvironment';
 // import { OFFSCREEN_XR_EVENTS } from '../worker/MessageQueue';
@@ -12,27 +16,47 @@ export class WebXRRendererSystem extends System {
 
   static EVENTS = {
     // centralise all xr api to engine
-    XR_SUPPORTED: 'WEBXR_RENDERER_SYSTEM_XR_SUPPORTED',
     XR_START: 'WEBXR_RENDERER_SYSTEM_XR_START',
     XR_SESSION: 'WEBXR_RENDERER_SYSTEM_XR_SESSION',
     XR_END: 'WEBXR_RENDERER_SYSTEM_XR_END',
-    CONTROLLER_DATA: 'OFFSCREEN_XR_EVENTS_CONTROLLER_DATA',
-    FRAME_DATA: 'OFFSCREEN_XR_EVENTS_FRAME_DATA',
+    // CONTROLLER_DATA: 'OFFSCREEN_XR_EVENTS_CONTROLLER_DATA',
+    // FRAME_DATA: 'OFFSCREEN_XR_EVENTS_FRAME_DATA',
   }
 
   offscreen: boolean;
 
-  isRenderering: boolean = false;
+  isRenderering = false;
   baseLayer: XRWebGLLayer;
   context: any;
   renderbuffer: WebGLRenderbuffer;
 
   controllerUpdateHook: any;
 
-  referenceSpace: XRReferenceSpaceType = 'local';
+  referenceSpace: XRReferenceSpaceType = 'local-floor';
 
   constructor(attributes?: SystemAttributes) {
     super(attributes);
+
+    EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_START, async (ev: any) => {
+      Engine.renderer.outputEncoding = sRGBEncoding;
+      const sessionInit = { optionalFeatures: [this.referenceSpace] };
+      try {
+        const session = await (navigator as any).xr.requestSession("immersive-vr", sessionInit)
+        
+        Engine.xrSession = session;
+        Engine.renderer.xr.setReferenceSpaceType(this.referenceSpace);
+        Engine.renderer.xr.setSession(session);
+        if(!isWebWorker) { 
+          EngineEvents.instance.dispatchEvent({ type: WebXRRendererSystem.EVENTS.XR_SESSION });
+        }
+
+        await startXR()
+      } catch(e) { console.log(e) }
+    });
+
+    EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_END, async (ev: any) => {
+      endXR();
+    });
 
     this.offscreen = attributes.offscreen;
 
@@ -113,6 +137,22 @@ export class WebXRRendererSystem extends System {
       // Post processing is not currently supported in xr // https://github.com/mrdoob/three.js/pull/18846
       // webaverse already has support for it https://github.com/webaverse/app/pull/906
       Engine.renderer.render(Engine.scene, Engine.camera);
+    }
+  }
+}
+
+// https://github.com/immersive-web/webxr-samples/blob/main/controller-state.html
+// we have to do it here unless we refactor systems to take an XRFrame, which might not be a bad idea, or set it globally maybe? 'Engine.xrFrame'?
+export const processXRFrame = (delta:number, xrFrame: XRFrame): void => {
+  const session = xrFrame.session;
+  const refSpace = Engine.renderer.xr.getReferenceSpace();
+  const pose = xrFrame.getViewerPose(refSpace);
+
+  for(let source of session.inputSources) {
+    if(source.gamepad) {
+      const controllerPose = xrFrame.getPose(source.gripSpace, refSpace);
+      //todo - deal with gamepad stuff as per link above
+      // console.log(source.gamepad, controllerPose)
     }
   }
 }

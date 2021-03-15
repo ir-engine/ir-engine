@@ -40,7 +40,7 @@ export class EntityActionSystem extends System {
   // Temp/ref variables
   private _inputComponent: Input;
   private useWebXR = false;
-  // Client only variables  
+  // Client only variables
   public leftControllerId; //= 0
   public rightControllerId; //= 1
   static inputReceiverEntity: Entity;
@@ -50,7 +50,7 @@ export class EntityActionSystem extends System {
     super();
     this.useWebXR = useWebXR;
     // Client only
-    if (isClient) {      
+    if (isClient) {
       this.leftControllerId = 0;
       this.rightControllerId = 1;
     }
@@ -116,40 +116,6 @@ export class EntityActionSystem extends System {
           xRControllers.controllerRotationRight.z,
           xRControllers.controllerRotationRight.w
         );
-
-        // inputs.axes6DOF.push({
-        //     input: XRInput.HEAD,
-        //     x: xRControllers.headPosition.x,
-        //     y: xRControllers.headPosition.y,
-        //     z: xRControllers.headPosition.z,
-        //     qX: xRControllers.headRotation.x,
-        //     qY: xRControllers.headRotation.y,
-        //     qZ: xRControllers.headRotation.z,
-        //     qW: xRControllers.headRotation.w
-        //   });
-
-        //   inputs.axes6DOF.push({
-        //     input: XRInput.CONTROLLER_LEFT,
-        //     x: xRControllers.controllerPositionLeft.x,
-        //     y: xRControllers.controllerPositionLeft.y,
-        //     z: xRControllers.controllerPositionLeft.z,
-        //     qX: xRControllers.controllerRotationLeft.x,
-        //     qY: xRControllers.controllerRotationLeft.y,
-        //     qZ: xRControllers.controllerRotationLeft.z,
-        //     qW: xRControllers.controllerRotationLeft.w
-        //   });
-
-        //   inputs.axes6DOF.push({
-        //     input: XRInput.CONTROLLER_RIGHT,
-        //     x: xRControllers.controllerPositionRight.x,
-        //     y: xRControllers.controllerPositionRight.y,
-        //     z: xRControllers.controllerPositionRight.z,
-        //     qX: xRControllers.controllerRotationRight.x,
-        //     qY: xRControllers.controllerRotationRight.y,
-        //     qZ: xRControllers.controllerRotationRight.z,
-        //     qW: xRControllers.controllerRotationRight.w
-        //   });
-        //   console.log("********** PUSHING XR CONTROLLERS TO INPUT")
       });
     }
 
@@ -158,12 +124,12 @@ export class EntityActionSystem extends System {
       const newStates = [...this.stateUpdates];
       this.stateUpdates = [];
       newStates?.forEach((stateUpdate) => {
-          
+
         // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
         const input = getMutableComponent(EntityActionSystem.inputReceiverEntity, Input);
 
         // key is the input type enu, value is the input value
-        stateUpdate.forEach((value: InputValue<NumericalType>, key: InputAlias) => { 
+        stateUpdate.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
           if(input.schema.inputMap.has(key)) {
             input.data.set(input.schema.inputMap.get(key), value);
           }
@@ -186,7 +152,7 @@ export class EntityActionSystem extends System {
             }
             return;
           }
-    
+
           if (value.lifecycleState === LifecycleValue.ENDED) {
             // ENDED here is a special case, like mouse position on mouse down
             return;
@@ -289,6 +255,17 @@ export class EntityActionSystem extends System {
         input.lastData.clear();
         input.data.forEach((value, key) => input.lastData.set(key, value));
 
+        const inputSnapshot = Vault.instance?.get()
+        if (inputSnapshot === undefined) {
+          input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+            if (value.type === InputType.BUTTON) {
+              if (value.lifecycleState === LifecycleValue.ENDED) {
+                input.data.delete(key);
+              }
+            }
+          });
+          return;
+        }
         // Create a schema for input to send
         const inputs: NetworkClientInputInterface = {
           networkId: Network.instance.localAvatarNetworkId,
@@ -299,7 +276,7 @@ export class EntityActionSystem extends System {
           viewVector: {
             x: 0, y: 0, z: 0
           },
-          snapShotTime: Vault.instance?.get().time - Network.instance.timeSnaphotCorrection ?? 0,
+          snapShotTime: inputSnapshot.time - Network.instance.timeSnaphotCorrection ?? 0,
           switchInputs: sendSwitchInputs ? this.switchId : 0
         };
 
@@ -322,7 +299,7 @@ export class EntityActionSystem extends System {
               qY: value.value.qX,
               qZ: value.value.qZ,
               qW: value.value.qW
-            }); 
+            });
             console.log("*********** Pushing 6DOF input from client input system")
           }
         });

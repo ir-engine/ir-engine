@@ -8,7 +8,7 @@ const Toast = ({
   autoHideDuration = 3000,
   insertDirection = "top",
   maxMessagesToShow = 4,
-  customClass = '',
+  customClass = ''
 }) => {
   const renderMessage = (m, index) => {
     const style =

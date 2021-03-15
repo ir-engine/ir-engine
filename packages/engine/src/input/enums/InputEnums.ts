@@ -15,19 +15,20 @@ export enum TouchInputs {
   DoubleTouch = 11,
   LongTouch = 12,
   Touch1Position = 13,
-  Touch1Movement = 14,
-  Touch2Move = 15,
-  SwipeLeft = 16,
-  SwipeRight = 17,
-  SwipeUp = 18,
-  SwipeDown = 19,
-  Scale = 20,
+  Touch2Position = 14,
+  Touch1Movement = 15,
+  Touch2Movement = 16,
+  SwipeLeft = 17,
+  SwipeRight = 18,
+  SwipeUp = 19,
+  SwipeDown = 20,
+  Scale = 21,
 }
 
 export enum XRInput {
-  HEAD = 21,
-  CONTROLLER_LEFT = 22,
-  CONTROLLER_RIGHT = 23
+  HEAD = 22,
+  CONTROLLER_LEFT = 23,
+  CONTROLLER_RIGHT = 24
 }
 
 export enum Thumbsticks {

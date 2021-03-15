@@ -164,19 +164,23 @@ export async function initSendTransport(channelType: string, channelId?: string)
     return Promise.resolve(newTransport);
 }
 
-export async function configureMediaTransports(channelType, channelId?: string): Promise<void> {
+export async function configureMediaTransports(channelType, channelId?: string): Promise<boolean> {
     networkTransport = Network.instance.transport as any;
 
-    if (MediaStreamSystem.instance.mediaStream == null)
-        await MediaStreamSystem.instance.startCamera();
+    if (MediaStreamSystem.instance.mediaStream == null) {
+      await MediaStreamSystem.instance.startCamera()
+    }
 
-    if (MediaStreamSystem.instance.mediaStream == null)
-        console.warn("Media stream is null, camera must have failed");
+    if (MediaStreamSystem.instance.mediaStream == null) {
+      console.warn("Media stream is null, camera must have failed");
+      return false;
+    }
 
     if (channelType !== 'instance' && (networkTransport.channelSendTransport == null || networkTransport.channelSendTransport.closed === true || networkTransport.channelSendTransport.connectionState === 'disconnected')) {
-        await Promise.all([initSendTransport(channelType, channelId), initReceiveTransport(channelType, channelId)]);
+      await Promise.all([initSendTransport(channelType, channelId), initReceiveTransport(channelType, channelId)]);
     }
-}
+    return true;
+  }
 
 export async function createCamVideoProducer(channelType: string, channelId?: string): Promise<void> {
     if (MediaStreamSystem.instance.mediaStream !== null && networkTransport.videoEnabled === true) {

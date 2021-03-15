@@ -32,6 +32,7 @@ import { createBoxCollider } from '../behaviors/createBoxCollider';
 import { createCommonInteractive } from "../behaviors/createCommonInteractive";
 import { createGroup } from '../behaviors/createGroup';
 import { createImage } from '../behaviors/createImage';
+import { createLink } from '../behaviors/createLink';
 import { createAudio, createMediaServer, createVideo, createVolumetric } from "../behaviors/createMedia";
 import { createScenePreviewCamera } from "../behaviors/createScenePreviewCamera";
 import { createShadow } from '../behaviors/createShadow';
@@ -46,6 +47,7 @@ import ScenePreviewCameraTagComponent from "../components/ScenePreviewCamera";
 import SpawnPointComponent from "../components/SpawnPointComponent";
 import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
+import { InterpolationComponent } from "../../physics/components/InterpolationComponent";
 
 function castShadowOn(group) {
   group.children.forEach(children => {
@@ -173,10 +175,10 @@ function addColliderComponent(entity, mesh) {
 function createStaticCollider(mesh) {
   if (mesh.type == 'Group') {
     for (let i = 0; i < mesh.children.length; i++) {
-      addColliderWithoutEntity(mesh.userData.type, mesh.position, mesh.children[i].quaternion, mesh.children[i].scale, mesh.children[i]);
+      addColliderWithoutEntity(mesh.userData, mesh.position, mesh.children[i].quaternion, mesh.children[i].scale, mesh.children[i]);
     }
   } else if (mesh.type == 'Mesh') {
-    addColliderWithoutEntity(mesh.userData.type, mesh.position, mesh.quaternion, mesh.scale, mesh);
+    addColliderWithoutEntity(mesh.userData, mesh.position, mesh.quaternion, mesh.scale, mesh);
   }
 }
 
@@ -189,6 +191,7 @@ function createDynamicColliderClient(entity, mesh) {
   const networkId = Network.getNetworkId();
   addComponent(entity, NetworkObject, { ownerId: 'server', networkId: networkId });
   addComponent(entity, RigidBody);
+  addComponent(entity, InterpolationComponent);
 }
 
 function createDynamicColliderServer(entity, mesh) {
@@ -227,15 +230,16 @@ function createDynamicColliderServer(entity, mesh) {
 function createVehicleOnClient(entity, mesh) {
   addComponent(entity, NetworkObject, { ownerId: 'server', networkId: Network.getNetworkId() });
   addComponent(entity, Input, { schema: VehicleInputSchema }),
-    addComponent(entity, Interactable, {
-      interactionParts: ['door_front_left', 'door_front_right'],
-      onInteraction: getInCar,
-      onInteractionCheck: getInCarPossible,
-      onInteractionFocused: onInteractionHover,
-      data: {
-        interactionText: 'get in car'
-      },
-    });
+  addComponent(entity, Interactable, {
+    interactionParts: ['door_front_left', 'door_front_right'],
+    onInteraction: getInCar,
+    onInteractionCheck: getInCarPossible,
+    onInteractionFocused: onInteractionHover,
+    data: {
+      interactionText: 'get in car'
+    },
+  });
+  addComponent(entity, InterpolationComponent),
   parseCarModel(entity, mesh);
 }
 
@@ -409,7 +413,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       {
         behavior: (entity) => {
           console.log("*********** ADDING WORLD COLLIDERS TO ONLOADED")
-          getMutableComponent<AssetLoader>(entity, AssetLoader).onLoaded.push(addWorldColliders);
+          //getMutableComponent<AssetLoader>(entity, AssetLoader).onLoaded.push(addWorldColliders);
         }
       }
     ]
@@ -680,6 +684,14 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       }
     ]
   },
+  'mesh-collider': {
+    behaviors: [
+      {
+        behavior: createBoxCollider,
+        values: ['type', 'position', 'quaternion', 'scale', 'vertices']
+      }
+    ]
+  },
   'trigger-volume': {
     behaviors: [
       {
@@ -687,13 +699,16 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       }
     ]
   },
-  // 'link': {
-  //   behaviors: [
-  //     {
-  //       behavior: createLink
-  //     }
-  //   ]
-  // },
+  'link': {
+    behaviors: [
+      {
+        behavior: createLink,
+        values: [
+          { from: 'href', to: 'url' },
+        ]
+      }
+    ]
+  },
   'particle-emitter': {
     behaviors: [
       {
