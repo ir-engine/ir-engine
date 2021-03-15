@@ -220,11 +220,11 @@ export default class DracosisPlayer {
 
   videoUpdateHandler(now, metadata) {
     if (!this._isinitialized) return console.warn("Not inited");
-    let frameToPlay = Math.round(metadata.mediaTime * 25);
+    let frameToPlay = Math.round(metadata.mediaTime * this.frameRate);
     const keyframeToPlay = this.fileHeader.frameData[frameToPlay].keyframeNumber;
 
-    // if (Math.round(this._video.currentTime * 25) !== metadata.presentedFrames)
-    //   console.log('==========DIFF', Math.round(this._video.currentTime * 25), Math.round(metadata.mediaTime * 25), metadata.presentedFrames, metadata);
+    // if (Math.round(this._video.currentTime * this.frameRate) !== metadata.presentedFrames)
+    //   console.log('==========DIFF', Math.round(this._video.currentTime * this.frameRate), Math.round(metadata.mediaTime * this.frameRate), metadata.presentedFrames, metadata);
 
     let hasKeyframe = true;
 
