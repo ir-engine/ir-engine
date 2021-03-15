@@ -1025,7 +1025,7 @@ class DocumentProxy extends DocumentElementProxy {
   get ownerDocument() {
     return (globalThis as any).document
   }
-  createElement(type: string, elementArgs: any): DocumentElementProxy | null {
+  createElement(type: string, elementArgs: any): any {
     switch (type) {
       case 'audio':
         return new AudioDocumentElementProxy({ messageQueue: this.messageQueue, elementArgs });
@@ -1033,6 +1033,16 @@ class DocumentProxy extends DocumentElementProxy {
         return new VideoDocumentElementProxy({ messageQueue: this.messageQueue, elementArgs });
       case 'media':
         return new DocumentElementProxy({ messageQueue: this.messageQueue, type: 'mediaElementSource', elementArgs });
+      case 'canvas':
+        return new OffscreenCanvas(0, 0);
+      default:
+        return null;
+    }
+  }
+  createElementNS(ns: string, type: string): any {
+    switch (type) {
+      case 'canvas':
+        return new OffscreenCanvas(0, 0);
       default:
         return null;
     }
