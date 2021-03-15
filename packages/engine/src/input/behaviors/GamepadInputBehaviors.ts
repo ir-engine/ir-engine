@@ -83,7 +83,7 @@ const handleGamepadButton = (
 ) => {
   if (gamepad.buttons[args.index].touched === (Engine.gamepadButtons[args.index] === BinaryValue.ON)) return;
   // Set input data
-  input.data.set(gamepadButtons[args.index], {
+  input.data.set(gamepadMapping[args.gamepad.mapping || 'standard'][args.index], {
     type: InputType.BUTTON,
     value: gamepad.buttons[args.index].touched ? BinaryValue.ON : BinaryValue.OFF,
     lifecycleState: gamepad.buttons[args.index].touched? LifecycleValue.STARTED : LifecycleValue.ENDED
@@ -167,7 +167,7 @@ export const handleGamepadDisconnected = (args: { event: any }): void => {
     if (
       Engine.gamepadButtons[index] === BinaryValue.ON
     ) {
-      input.data.set(gamepadButtons[index], {
+      input.data.set(gamepadMapping[args.event.gamepad.mapping || 'standard'][index], {
         type: InputType.BUTTON,
         value: BinaryValue.OFF
       });
@@ -176,21 +176,51 @@ export const handleGamepadDisconnected = (args: { event: any }): void => {
   }
 };
 
-const gamepadButtons = {
-  0: GamepadButtons.A,
-  1: GamepadButtons.B,
-  2: GamepadButtons.X,
-  3: GamepadButtons.Y,
-  4: GamepadButtons.LBumper,
-  5: GamepadButtons.RBumper,
-  6: GamepadButtons.LTrigger,
-  7: GamepadButtons.RTrigger,
-  8: GamepadButtons.Back,
-  9: GamepadButtons.Start,
-  10: GamepadButtons.LStick,
-  11: GamepadButtons.RString,
-  12: GamepadButtons.DPad1,
-  13: GamepadButtons.DPad2,
-  14: GamepadButtons.DPad3,
-  15: GamepadButtons.DPad4
+
+
+export const gamepadMapping = {
+  //https://w3c.github.io/gamepad/#remapping
+  standard: {
+    0: GamepadButtons.A,
+    1: GamepadButtons.B,
+    2: GamepadButtons.X,
+    3: GamepadButtons.Y,
+    4: GamepadButtons.LBumper,
+    5: GamepadButtons.RBumper,
+    6: GamepadButtons.LTrigger,
+    7: GamepadButtons.RTrigger,
+    8: GamepadButtons.Back,
+    9: GamepadButtons.Start,
+    10: GamepadButtons.LStick,
+    11: GamepadButtons.RStick,
+    12: GamepadButtons.DPad1,
+    13: GamepadButtons.DPad2,
+    14: GamepadButtons.DPad3,
+    15: GamepadButtons.DPad4
+  },
+  //https://www.w3.org/TR/webxr-gamepads-module-1/
+  'xr-standard': {
+    left: {
+      buttons: {
+        0: GamepadButtons.LTrigger,
+        1: GamepadButtons.LBumper,
+        2: GamepadButtons.LStick,
+        3: GamepadButtons.LStick,
+        4: GamepadButtons.X,
+        5: GamepadButtons.Y,
+      },
+      axes: Thumbsticks.Left,
+    },
+    right: {
+      buttons: {
+        0: GamepadButtons.RTrigger,
+        1: GamepadButtons.RBumper,
+        2: GamepadButtons.RStick,
+        3: GamepadButtons.RStick,
+        4: GamepadButtons.A,
+        5: GamepadButtons.B,
+      },
+      axes: Thumbsticks.Right,
+    },
+  }
 }

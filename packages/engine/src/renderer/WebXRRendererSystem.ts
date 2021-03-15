@@ -1,8 +1,12 @@
 import { sRGBEncoding } from 'three';
+import { BinaryValue } from '../common/enums/BinaryValue';
+import { LifecycleValue } from '../common/enums/LifecycleValue';
 import { isWebWorker } from '../common/functions/getEnvironment';
 import { Engine } from '../ecs/classes/Engine';
 import { EngineEvents } from '../ecs/classes/EngineEvents';
 import { System, SystemAttributes } from '../ecs/classes/System';
+import { gamepadMapping } from '../input/behaviors/GamepadInputBehaviors';
+import { InputType } from '../input/enums/InputType';
 import { endXR, startXR } from '../input/functions/WebXRFunctions';
 import { XRFrame, XRReferenceSpaceType, XRWebGLLayer } from '../input/types/WebXR';
 // import { EngineEvents } from '../ecs/classes/EngineEvents';
@@ -143,19 +147,38 @@ export class WebXRRendererSystem extends System {
 
 // https://github.com/immersive-web/webxr-samples/blob/main/controller-state.html
 // we have to do it here unless we refactor systems to take an XRFrame, which might not be a bad idea, or set it globally maybe? 'Engine.xrFrame'?
+
 export const processXRFrame = (delta:number, xrFrame: XRFrame): void => {
   const session = xrFrame.session;
   const refSpace = Engine.renderer.xr.getReferenceSpace();
   const pose = xrFrame.getViewerPose(refSpace);
 
-  for(let source of session.inputSources) {
+  session.inputSources.forEach((source) => {
     if(source.gamepad) {
-      const controllerPose = xrFrame.getPose(source.gripSpace, refSpace);
-      //todo - deal with gamepad stuff as per link above
-      // console.log(source.gamepad, controllerPose)
+      const mapping = gamepadMapping[source.gamepad.mapping || 'xr-standard'][source.handedness];
+      source.gamepad.buttons.forEach((button, index) => {
+        // TODO : support button.touched and button.value
+        Engine.inputState.set(mapping.buttons[index], {
+          type: InputType.BUTTON,
+          value: button.pressed ? BinaryValue.ON : BinaryValue.OFF,
+          lifecycleState: button.pressed ? LifecycleValue.STARTED : LifecycleValue.ENDED
+        })
+        console.log(button.pressed, mapping.buttons[index])
+      })
+      if(source.gamepad.axes.length > 2) {
+        Engine.inputState.set(mapping.axes, {
+          type: InputType.TWODIM,
+          value: [source.gamepad.axes[2], source.gamepad.axes[3]]
+        })
+      } else {
+        Engine.inputState.set(mapping.axes, {
+          type: InputType.TWODIM,
+          value: [source.gamepad.axes[0], source.gamepad.axes[1]]
+        })
+      }
+      console.log(source.gamepad.axes, source.gamepad.axes[2], source.gamepad.axes[3])
     }
-  }
+  })
 }
-
 WebXRRendererSystem.queries = {
 };
