@@ -6,6 +6,7 @@
     "logo": "./logo.svg",
     "apiServer": "https://127.0.0.1:3030",
     "apiServerBuild": "https://api-dev.theoverlay.io",
+    "gameserver": "https://127.0.0.1:3030",
     "siteTitle": "The Overlay",
     "siteDescription": "Connected Worlds for Everyone",
     "featherStoreKey": "TheOverlay-Auth-Store",
