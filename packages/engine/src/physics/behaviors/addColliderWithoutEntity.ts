@@ -48,6 +48,7 @@ export function doThisActivateCollider (body, userData) {
 }
 
 export function addColliderWithoutEntity( userData, position, quaternion, scale, mesh ) {
+	console.warn('****** Collider '+userData.type);
   let body;
 	const type = userData.type
   switch (type) {
@@ -73,7 +74,7 @@ export function addColliderWithoutEntity( userData, position, quaternion, scale,
       break;
 
     case 'trimesh':
-    //  body = createTrimesh(mesh);
+      body = createTrimesh(mesh);
 			return;
       break;
 
