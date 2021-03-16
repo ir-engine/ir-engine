@@ -21,6 +21,9 @@ import android.widget.ToggleButton;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+/*
+Created to request screen recording permssions using MediaProjection
+* */
 public class MediaProjectionHelperService extends Service
 {
 

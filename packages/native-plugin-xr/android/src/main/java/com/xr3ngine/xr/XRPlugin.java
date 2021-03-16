@@ -87,6 +87,11 @@ public class XRPlugin extends Plugin {
     public void initialize(PluginCall call) {
         Log.d("XRPLUGIN", "Initializing");
 
+        //Start the service to get screen recording permission
+        Intent serviceIntent = new Intent(getContext(), MediaProjectionHelperService.class);
+        serviceIntent.putExtra("inputExtra", "asdf");
+        ContextCompat.startForegroundService(getContext(), serviceIntent);
+
         JSObject ret = new JSObject();
         ret.put("status", "native");
         call.success(ret);
@@ -97,11 +102,7 @@ public class XRPlugin extends Plugin {
         saveCall(call);
         Toast t = Toast.makeText(getContext(), "Tapped", Toast.LENGTH_SHORT);
         t.show();
-        //Raki--B
-        Intent serviceIntent = new Intent(getContext(), MediaProjectionHelperService.class);
-        serviceIntent.putExtra("inputExtra", "asdf");
-        ContextCompat.startForegroundService(getContext(), serviceIntent);
-        //Raki--E
+
         fragment.handleTap(this);
     }
 
@@ -884,12 +885,20 @@ public class XRPlugin extends Plugin {
 
         if (screenRecord != null) {
             callbackContext.error("screenRecord service is running");
-        } else {
+        }
+        else if(data==null)
+        {
+            callbackContext.error("No permission to record video");
+            Toast t = Toast.makeText(getContext(), "No permission to record video", Toast.LENGTH_SHORT);
+            t.show();
+        }
+        else {
             saveCall(callbackContext);
 
             //mProjectionManager = (MediaProjectionManager) getActivity().getSystemService(MEDIA_PROJECTION_SERVICE);
             //Intent captureIntent = mProjectionManager.createScreenCaptureIntent();
             //startActivityForResult(this.callbackContext, captureIntent, SCREEN_RECORD_CODE);
+
             doStartRecording((Intent) data.clone());
         }
         Log.d(TAG, "CALLBACK CONTEXT:" + this.callbackContext);
@@ -922,9 +931,14 @@ public class XRPlugin extends Plugin {
             File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), appName);
 
             callbackContext.success(new JSObject().put("result", "success").put("filePath", mediaStorageDir.getPath() + filePath));
+
+            //show recored video
+            fragment.showVideo();
         }else {
             callbackContext.error("no ScreenRecord in process XX");
         }
+
+
 
         Log.d(TAG, "CALLBACK CONTEXT:" + String.valueOf(this.callbackContext));
 
@@ -936,9 +950,6 @@ public class XRPlugin extends Plugin {
     @Override
     public void handleOnActivityResult(int requestCode, int resultCode, Intent data) {
         PluginCall savedCall = getSavedCall();
-
-        //Raki
-        //MediaProjection mediaProjection = mProjectionManager.getMediaProjection(RESULT_OK, data);
 
 
         if (mediaProjection == null) {
@@ -1076,5 +1087,5 @@ public class XRPlugin extends Plugin {
         notifyListeners("cameraIntrinsicsReceived", ret);
     }
 
-    
+
 }
