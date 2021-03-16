@@ -58,9 +58,6 @@ export default (app: Application): any => {
     (User as any).belongsToMany(models.location, { through: 'location_admin' });
     (User as any).hasMany(models.location_admin, { unique: false });
     (User as any).hasMany(models.location_ban);
-    (User as any).hasMany(models.feed, { foreignKey: 'authorId' });
-    (User as any).hasMany(models.feed_fires, { foreignKey: 'authorId' });
-    (User as any).hasMany(models.feed_bookmark, { foreignKey: 'authorId' });
   };
 
   return User;
