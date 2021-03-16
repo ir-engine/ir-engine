@@ -1,4 +1,5 @@
 import { AnimationClip, MathUtils } from "three";
+import { Engine } from '../../../ecs/classes/Engine';
 import { Entity } from "../../../ecs/classes/Entity";
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { hasComponent, getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
@@ -22,7 +23,7 @@ function safeFloat(float) {
   float < -1 && float < 0 ? float = -1:'';
 }
 */
-const EPSILON = 0.01;
+const EPSILON = 0.001;
 //
 function animationMapLinear( absSpeed, axisValue, axisWeight, i ) {
   return MathUtils.mapLinear(absSpeed, axisValue[0+i], axisValue[1+i], axisWeight[0+i], axisWeight[1+i]);
@@ -32,7 +33,7 @@ function mathMixesAnimFromSchemaValues( entity, animationsSchema, objectValues, 
   const { actorVelocity, dontHasHit } = objectValues;
   const mathMixesAnimArray = [];
 
-  const absSpeed = Math.min(actorVelocity.length() * 60 / RUN_SPEED, 1);
+  const absSpeed = Math.min(actorVelocity.length() * Engine.physicsFrameRate / RUN_SPEED, 1);
   //safeFloat(actorVelocity.x);
 //  safeFloat(actorVelocity.y);
 //  safeFloat(actorVelocity.z);
@@ -102,7 +103,7 @@ export const updateVectorAnimation: Behavior = (entity, args: { animationsSchema
   const animationsValues = mathMixesAnimFromSchemaValues(entity, args.animationsSchema, objectValues, deltaTime);
 
 /*
-    //console.clear();
+    console.clear();
     for (let ia = 0; ia < animationsValues.length; ia++) {
       console.warn(consoleGrafics(animationsValues[ia]))
     }
