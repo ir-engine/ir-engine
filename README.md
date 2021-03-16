@@ -27,7 +27,11 @@ This repo includes a fully-feature client, API server, realtime gamerserver, gam
 
 ## Getting Started
 
-Getting up and running requires only a few steps. Supported on OSX / Linux / WSL2 for Windows
+Getting up and running requires only a few steps. 
+
+IF ON WINDOWS, go to Native Windows Preinstall below
+
+For on OSX / Linux / WSL2 for Windows:
 
 First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.npmjs.com/) installed (and if you are using it, [docker](https://docs.docker.com/)).
 
@@ -46,7 +50,6 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
 	npm config set python /usr/bin/python
 	PYTHON=python3 yarn install
 	```
-
 2. Make sure you have a mysql database installed and running -- our recommendation is Mariadb. We've provided a docker container for easy setup:
     ```
     cd scripts && sudo bash start-db.sh
@@ -104,9 +107,40 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
    See the sections below about invalid certificates if you are encountering errors
    connecting to the client, API, or gameserver.
 
-### Notes
+### Native Windows Preinstall
 
-If you are on Windows, you can use docker-compose to start the scripts/docker-compose.yml file, or install mariadb and copy the login/pass and database name from docker-compose or .env.local -- you will need to create the database with the matching name, but you do not need to populate it
+1. Add Env Variable
+```
+PUPPETEER_SKIP_DOWNLOAD='true'
+```
+2. install python 2 and add python installation directory path to 'path' env variable.
+
+3. Install node js
+
+4. install Visual studio community edition with build tools. follow next steps. If mediasoup will not installed properly then modify Visual studio setup to add c++ and Node.js support.
+
+5. add environmental variable
+```
+GYP_MSVS_VERSION=<vs-year>
+for example, GYP_MSVS_VERSION=2019
+```
+
+6. add path to MSbuild.exe (which is present into vs installation folder) into 'path' variable
+for example:``` C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin```
+
+7. remove mediasoup and mediasoup-client from every package.json. This will enable us to add all the dependencies except mediasoup, this way we can save time while dealing with mediasoup.
+
+8. rename 'postinstall' to 'postinstall-1' so that it will not run after installing dependencies.
+
+9. install all dependences using yarn.
+
+10. add back all removed mediasoup and mediasoup-client dependencies.
+
+11. Rerun yarn command to install dependencies to install newly added mediasoup and mediasoup-client dependencies.
+
+12. If error persists then check for typos in evironment variables.
+
+13. If you are on Windows, you can use docker-compose to start the scripts/docker-compose.yml file, or install mariadb and copy the login/pass and database name from docker-compose or .env.local -- you will need to create the database with the matching name, but you do not need to populate it
 
 ./start-db.sh only needs to be run once. If the docker image has stopped, start it again with:
 
@@ -114,8 +148,8 @@ If you are on Windows, you can use docker-compose to start the scripts/docker-co
     docker container start xr3ngine_db
 ```
 
-#### OSX DB Init
-
+### OSX DB Native Initialization Commands
+```
 brew install mysql
 
 mysql_secure_installation
@@ -133,8 +167,7 @@ show databases;
 
 mysql.server start
 mysql.server stop
-
-
+```
 ### Troubleshooting
 
 #### Invalid Certificate errors in local environment
