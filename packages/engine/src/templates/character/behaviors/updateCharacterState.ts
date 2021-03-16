@@ -10,8 +10,7 @@ import { CharacterComponent } from "../components/CharacterComponent";
 
 const localDirection = new Vector3(0, 0, 1);
 const emptyVector = new Vector3();
-const damping = 0.2; // To reduce the change in direction.
-const isMobile = isMobileOrTablet;
+const damping = 0.05; // To reduce the change in direction.
 
 export const updateCharacterState: Behavior = (entity, args: { }, deltaTime: number): void => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
@@ -21,11 +20,11 @@ export const updateCharacterState: Behavior = (entity, args: { }, deltaTime: num
 	const localMovementDirection = actor.localMovementDirection; //getLocalMovementDirection(entity);
 
 	// For Thumbstick
-	if (isMobile) {
+	if (isMobileOrTablet()) {
 		// Calculate the current view vector angle.
 		const viewVectorAngle = Math.atan2(actor.viewVector.z, actor.viewVector.x);
-	  	actor.viewVector.x = Math.cos(viewVectorAngle - (actor.changedViewAngle * damping));
-	  	actor.viewVector.z = Math.sin(viewVectorAngle - (actor.changedViewAngle * damping));
+    actor.viewVector.x = Math.cos(viewVectorAngle - (actor.changedViewAngle * damping));
+    actor.viewVector.z = Math.sin(viewVectorAngle - (actor.changedViewAngle * damping));
 	}
 
 	const flatViewVector = new Vector3(actor.viewVector.x, 0, actor.viewVector.z).normalize();
