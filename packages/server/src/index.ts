@@ -49,11 +49,11 @@ process.on('unhandledRejection', (error, promise) => {
 })();
 
 // SSL setup
-const useSSL = process.env.NODE_ENV !== 'production' && fs.existsSync(path.join(appRootPath.path, 'certs', 'key.pem'));
+const useSSL = process.env.FORCE_SSL === 'true' || process.env.NODE_ENV !== 'production' && fs.existsSync(path.join(appRootPath.path, 'certs', 'key.pem'));
 
 const certOptions = {
-  key: useSSL && process.env.NODE_ENV !== 'production' ? fs.readFileSync(path.join(appRootPath.path, 'certs', 'key.pem')) : null,
-  cert: useSSL && process.env.NODE_ENV !== 'production' ? fs.readFileSync(path.join(appRootPath.path, 'certs', 'cert.pem')) : null
+  key: useSSL && (process.env.FORCE_SSL === 'true' || process.env.NODE_ENV !== 'production') ? fs.readFileSync(path.join(appRootPath.path, 'certs', 'key.pem')) : null,
+  cert: useSSL && (process.env.FORCE_SSL === 'true' || process.env.NODE_ENV !== 'production') ? fs.readFileSync(path.join(appRootPath.path, 'certs', 'cert.pem')) : null
 };
 if (useSSL) logger.info('Starting server with HTTPS');
 else logger.warn('Starting server with NO HTTPS, if you meant to use HTTPS try \'sudo bash generate-certs\'');
