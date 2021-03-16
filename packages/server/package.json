@@ -43,7 +43,8 @@
     "lint": "node node_modules/.bin/eslint --ext .js,.ts ./ --fix",
     "validate": "yarn run lint && yarn run build && yarn run test",
     "precommit": "no-master-commits -b master,dev",
-    "postinstall": "cd ../../node_modules/mediasoup && node npm-scripts.js postinstall"
+    "postinstall": "cd ../../node_modules/mediasoup && node npm-scripts.js postinstall",
+    "serve-local-files": "http-server ./upload --ssl --cert ./certs/cert.pem --key ./certs/key.pem --port 8642"
   },
   "types": "lib/",
   "pre-push": [
@@ -126,6 +127,7 @@
     "graphql-sequelize-generator": "^5.5.0",
     "graphql-subscriptions": "^1.1.0",
     "helmet": "^3.23.3",
+    "http-server": "^0.12.3",
     "internal-ip": "^6.1.0",
     "k8s": "^0.4.15",
     "lodash": "^4.17.15",
