@@ -1,7 +1,7 @@
 import { BinaryValue } from "../../common/enums/BinaryValue";
 import { applyThreshold } from "../../common/functions/applyThreshold";
 import { InputType } from "../enums/InputType";
-import { GamepadButtons, Thumbsticks } from "../enums/InputEnums";
+import { GamepadButtons, GamepadAxis, XRAxes } from "../enums/InputEnums";
 import { InputAlias } from "../types/InputAlias";
 import { Input } from "../components/Input";
 import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
@@ -44,7 +44,7 @@ export const handleGamepads = () => {
         handleGamepadAxis({
           gamepad: gamepad,
           inputIndex: 0,
-          mappedInputValue: Thumbsticks.Left
+          mappedInputValue: GamepadAxis.Left
         });
       }
 
@@ -53,7 +53,7 @@ export const handleGamepads = () => {
         handleGamepadAxis({
           gamepad,
           inputIndex: 1,
-          mappedInputValue: Thumbsticks.Right
+          mappedInputValue: GamepadAxis.Right
         });
       }
     }
@@ -209,7 +209,7 @@ export const gamepadMapping = {
         4: GamepadButtons.X,
         5: GamepadButtons.Y,
       },
-      axes: Thumbsticks.Left,
+      axes: XRAxes.Left,
     },
     right: {
       buttons: {
@@ -220,7 +220,7 @@ export const gamepadMapping = {
         4: GamepadButtons.A,
         5: GamepadButtons.B,
       },
-      axes: Thumbsticks.Right,
+      axes: XRAxes.Right,
     },
   }
 }

@@ -9,7 +9,7 @@ import { SkinnedMesh } from 'three/src/objects/SkinnedMesh';
 import { CameraComponent } from "../../camera/components/CameraComponent";
 import { CameraModes } from "../../camera/types/CameraModes";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
-import { Thumbsticks } from '../../input/enums/InputEnums';
+import { GamepadAxis, XRAxes } from '../../input/enums/InputEnums';
 import { getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import { CameraInput, GamepadButtons, MouseInput, TouchInputs } from "../../input/enums/InputEnums";
 import { InputType } from "../../input/enums/InputType";
@@ -313,6 +313,20 @@ const setLocalMovementDirection: Behavior = (entity, args: { z?: number; x?: num
 };
 
 
+const moveFromXRInputs: Behavior = (entity, args): void => {
+  const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+  const input = getComponent<Input>(entity, Input as any);
+  const values = input.data.get(BaseInput.XR_MOVE)?.value;
+  console.log(values)
+  if(values) {
+    actor.localMovementDirection.z = values[0] ?? actor.localMovementDirection.z;
+    actor.localMovementDirection.x = values[1] ?? actor.localMovementDirection.x;
+    actor.localMovementDirection.normalize();
+  }
+};
+
+
+
 const lookByInputAxis = (
   entity: Entity,
   args: {
@@ -390,8 +404,11 @@ export const createCharacterInput = () => {
   map.set(GamepadButtons.DPad3, BaseInput.LEFT);
   map.set(GamepadButtons.DPad4, BaseInput.RIGHT);
 
-  map.set(Thumbsticks.Left, BaseInput.MOVEMENT_PLAYERONE);
-  map.set(Thumbsticks.Right, BaseInput.GAMEPAD_STICK_RIGHT);
+  map.set(GamepadAxis.Left, BaseInput.MOVEMENT_PLAYERONE);
+  map.set(GamepadAxis.Right, BaseInput.GAMEPAD_STICK_RIGHT);
+
+  map.set(XRAxes.Left, BaseInput.XR_MOVE);
+  map.set(XRAxes.Right, BaseInput.XR_LOOK);
 
   map.set('w', BaseInput.FORWARD);
   map.set('a', BaseInput.LEFT);
@@ -745,6 +762,26 @@ export const CharacterInputSchema: InputSchema = {
           }
         }
       ]
+    },
+    [BaseInput.XR_MOVE]: {
+      started: [
+        {
+          behavior: moveFromXRInputs,
+        },
+        {
+          behavior: updateCharacterState,
+          args: {}
+        }
+      ],
+      changed: [
+        {
+          behavior: moveFromXRInputs,
+        },
+        {
+          behavior: updateCharacterState,
+          args: {}
+        }
+      ],
     }
   }
 }

@@ -25,13 +25,12 @@ export enum TouchInputs {
   Scale = 21,
 }
 
-export enum XRInput {
-  HEAD = 22,
-  CONTROLLER_LEFT = 23,
-  CONTROLLER_RIGHT = 24
+export enum XRAxes {
+  Left = 22,
+  Right = 23
 }
 
-export enum Thumbsticks {
+export enum GamepadAxis {
   Left = 28,
   Right = 29
 }
