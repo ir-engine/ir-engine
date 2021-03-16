@@ -7,6 +7,7 @@ import { appplyVectorMatrixXZ } from "../../../common/functions/appplyVectorMatr
 import { isMobileOrTablet } from "../../../common/functions/isMobile";
 import { getComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
 import { CharacterComponent } from "../components/CharacterComponent";
+import { Engine } from "../../../ecs/classes/Engine";
 
 const localDirection = new Vector3(0, 0, 1);
 const emptyVector = new Vector3();
@@ -19,7 +20,7 @@ export const updateCharacterState: Behavior = (entity, args: { }, deltaTime: num
 
 	const localMovementDirection = actor.localMovementDirection; //getLocalMovementDirection(entity);
 
-	// For Thumbstick
+  // For Thumbstick
 	if (isMobileOrTablet()) {
 		// Calculate the current view vector angle.
 		const viewVectorAngle = Math.atan2(actor.viewVector.z, actor.viewVector.x);
@@ -32,6 +33,10 @@ export const updateCharacterState: Behavior = (entity, args: { }, deltaTime: num
 	const flatViewVector = new Vector3(actor.viewVector.x, 0, actor.viewVector.z).normalize();
 
 	const moveVector = localMovementDirection.length() ? appplyVectorMatrixXZ(flatViewVector, localDirection) : emptyVector.setScalar(0);
+  if(Engine.xrSession) {
+		actor.orientationTarget.copy(new Vector3().copy(moveVector).setY(0).normalize());
+    return;
+  }
 	const camera = getComponent(entity, FollowCameraComponent);
 
 	if (camera && camera.mode === CameraModes.FirstPerson)

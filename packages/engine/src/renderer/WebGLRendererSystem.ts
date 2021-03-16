@@ -40,7 +40,6 @@ export class WebGLRendererSystem extends System {
   }
 
   /** Is system Initialized. */
-  isInitialized: boolean
   static instance: WebGLRendererSystem;
 
   static composer: EffectComposer
@@ -111,11 +110,10 @@ export class WebGLRendererSystem extends System {
 
     // Cascaded shadow maps
     const csm = new CSM({
-        cascades: 4,
+        cascades: Engine.xrSupported ? 2 : 4,
         lightIntensity: 1,
-        shadowMapSize: 4096,
+        shadowMapSize: Engine.xrSupported ? 2048 : 4096,
         maxFar: 100,
-        // maxFar: Engine.camera.far,
         camera: Engine.camera,
         parent: Engine.scene
     });
@@ -149,8 +147,6 @@ export class WebGLRendererSystem extends System {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
       this.enabled = ev.enable;
     });
-
-    this.isInitialized = true;
   }
 
   /** Called on resize, sets resize flag. */
@@ -163,7 +159,6 @@ export class WebGLRendererSystem extends System {
     super.dispose();
     WebGLRendererSystem.composer?.dispose();
     window.removeEventListener('resize', this.onResize);
-    this.isInitialized = false;
   }
 
   /**
@@ -219,11 +214,15 @@ export class WebGLRendererSystem extends System {
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
-    if(Engine.renderer.xr.isPresenting) { return; }
     const startTime = now();
-    if(this.isInitialized)
-    {
-      // Handle resize
+
+    if(Engine.renderer.xr.isPresenting) {
+
+      Engine.csm.update();
+      Engine.renderer.render(Engine.scene, Engine.camera);
+
+    } else {
+      
       if (WebGLRendererSystem.needsResize) {
         const curPixelRatio = Engine.renderer.getPixelRatio();
         const scaledPixelRatio = window.devicePixelRatio * WebGLRendererSystem.scaleFactor;
@@ -244,8 +243,15 @@ export class WebGLRendererSystem extends System {
         WebGLRendererSystem.composer.setSize(width, height, false);
         WebGLRendererSystem.needsResize = false;
       }
+
+      Engine.csm.update();
+
+      if (WebGLRendererSystem.usePostProcessing) {
+        WebGLRendererSystem.composer.render(delta);
+      } else {
+        Engine.renderer.render(Engine.scene, Engine.camera);
+      }
     }
-    this.doRender(delta);
 
     const lastTime = now();
     const deltaRender = (lastTime - startTime);
@@ -255,14 +261,6 @@ export class WebGLRendererSystem extends System {
     }
   }
 
-  doRender(delta) {
-    Engine.csm.update();
-    if (WebGLRendererSystem.usePostProcessing) {
-      WebGLRendererSystem.composer.render(delta);
-    } else {
-      Engine.renderer.render(Engine.scene, Engine.camera);
-    }
-  }
 
   /**
    * Change the quality of the renderer.
@@ -338,7 +336,7 @@ export class WebGLRendererSystem extends System {
       default: break;
       case this.maxQualityLevel - 2: mapSize = 1024; break;
       case this.maxQualityLevel - 1: mapSize = 2048; break;
-      case this.maxQualityLevel: mapSize = 4096; break;
+      case this.maxQualityLevel: mapSize = Engine.renderer.xr.isPresenting ? 2048 : 4096; break;
     }
     Engine.csm.setShadowMapSize(mapSize);
     saveGraphicsSettingsToStorage();

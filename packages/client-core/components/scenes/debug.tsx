@@ -83,7 +83,6 @@ export const EnginePage = (props: Props) => {
     locationName
   } = props;
   const currentUser = authState.get('user');
-  const [actorEntity, setActorEntity] = useState(null);
   const [userBanned, setUserBannedState] = useState(false);
   const appLoaded = appState.get('loaded');
   const selfUser = authState.get('user');
@@ -206,12 +205,6 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     addEventListeners();
-    const actorEntityWaitInterval = setInterval(() => {
-      if (Network.instance?.localClientEntity) {
-        setActorEntity(Network.instance.localClientEntity);
-        clearInterval(actorEntityWaitInterval);
-      }
-    }, 300);
   }, []);
 
   return (
