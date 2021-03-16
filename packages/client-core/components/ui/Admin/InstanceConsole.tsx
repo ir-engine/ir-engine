@@ -250,7 +250,7 @@ function InstanceConsole(props: Props) {
       };
 
       const deleteInstance = () =>{
-        removeInstance(instanceId.id);
+        removeInstance((instanceId as any).id);
         setOpen(false);
         setInstanceId("");
       }
@@ -357,7 +357,7 @@ function InstanceConsole(props: Props) {
                     aria-labelledby="alert-dialog-slide-title"
                     aria-describedby="alert-dialog-slide-description"
                 >
-                    <DialogTitle id="alert-dialog-slide-title">{`Do You want to delete Instance with Ip Address of ${instanceId.ipAddress}?`}</DialogTitle>
+                    <DialogTitle id="alert-dialog-slide-title">{`Do You want to delete Instance with Ip Address of ${(instanceId as any).ipAddress}?`}</DialogTitle>
                     <DialogActions>
                         <Button onClick={handleClose} color="primary">
                             Cancel
