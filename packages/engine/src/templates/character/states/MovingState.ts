@@ -23,7 +23,7 @@ const animationsSchema = [
   {
     type: [IDLE], name: 'idle', axis: 'xyz', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
     value:      [ -0.5, 0, 0.5 ],
-    weight:     [  0 , 1.4,  0  ],
+    weight:     [  0 , 1.4, 0  ],
     dontHasHit: [  0 ,  0,  0  ]
   },{
     type: [FALLING], name: 'falling', axis:'xyz', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
@@ -33,9 +33,9 @@ const animationsSchema = [
   },
   {
     type: [DROP], name: 'falling_to_land', axis:'y', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
-    value:      [  -1  ,   0  ],
-    weight:     [   1 ,    0  ],
-    dontHasHit: [   1  ,   0  ]
+    value:      [  -1,   0  ],
+    weight:     [   1,   0  ],
+    dontHasHit: [   1,   0  ]
   },
   /*
   {
@@ -48,23 +48,23 @@ const animationsSchema = [
   {
     type: [WALK_FORWARD], name: 'walking', axis:'z', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
     value:      [ 0.1, 0.5, 1 ],
-    weight:     [ 0,  1,  0 ],
-    dontHasHit: [ 0,  0,  0 ]
+    weight:     [  0,   1,  0 ],
+    dontHasHit: [  0,   0,  0 ]
   },{
     type: [WALK_STRAFE_RIGHT], name: 'walk_right', axis:'x', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
     value:      [ -1, -0.5, -0.1 ],
-    weight:     [  0,   1 , 0 ],
-    dontHasHit: [  0 ,  0,  0 ]
+    weight:     [  0,   1 ,   0  ],
+    dontHasHit: [  0 ,  0,    0  ]
   },{
     type: [WALK_STRAFE_LEFT], name: 'walk_left', axis:'x', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
-    value:      [ 0.1,  0.5, 1 ],
-    weight:     [ 0,   1,  0 ],
-    dontHasHit: [ 0 ,  0,  0 ]
+    value:      [ 0.1, 0.5, 1 ],
+    weight:     [  0,   1,  0 ],
+    dontHasHit: [  0 ,  0,  0 ]
   },{
     type: [WALK_BACKWARD], name: 'walking_backward', axis:'z', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
-    value:      [ -1, -0.5, -0.1 ],
-    weight:     [  0,   1 , 0 ],
-    dontHasHit: [  0 ,  0,  0 ]
+    value:      [ -1, -0.5, -0.1],
+    weight:     [  0,   1,    0 ],
+    dontHasHit: [  0 ,  0,    0 ]
   },
 
   {
