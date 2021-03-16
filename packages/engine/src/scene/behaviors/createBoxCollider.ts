@@ -8,5 +8,6 @@ import { addColliderWithoutEntity } from '../../physics/behaviors/addColliderWit
 
 export const createBoxCollider: Behavior = (entity, args: any) => {
   console.warn(args.objArgs);
+  //addColliderWithoutEntity({type:args.objArgs.type}, args.objArgs.position, args.objArgs.quaternion, args.objArgs.scale, args.objArgs.vertices, args.objArgs.indices);
   addColliderWithoutEntity({type:args.objArgs.type}, args.objArgs.position, args.objArgs.quaternion, args.objArgs.scale, args.objArgs.mesh);
 };
