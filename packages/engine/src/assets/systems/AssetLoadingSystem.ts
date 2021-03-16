@@ -325,21 +325,22 @@ export default class AssetLoadingSystem extends System {
     // Do the actual entity creation inside the system tick not in the loader callback
     this.loaded.forEach((asset, entity) => {
       const component = getComponent<AssetLoader>(entity, AssetLoader);
-      if (component && component.assetClass === AssetClass.Model) {
-        addComponent(entity, Model, { value: asset });
-        ProcessModelAsset(entity, component, asset);
-      }
+      if (component) {
+        if(component.assetClass === AssetClass.Model) {
+          addComponent(entity, Model, { value: asset });
+          ProcessModelAsset(entity, component, asset);
+        }
+        getMutableComponent<AssetLoader>(entity, AssetLoader).loaded = true;
 
-      getMutableComponent<AssetLoader>(entity, AssetLoader).loaded = true;
+        // asset is already set into Vault in it's raw unprocessed state
+        // const urlHashed = hashResourceString(component.url);
+        // if (!AssetVault.instance.assets.has(urlHashed)) {
+        //   AssetVault.instance.assets.set(urlHashed, asset);
+        // }
 
-      // asset is already set into Vault in it's raw unprocessed state
-      // const urlHashed = hashResourceString(component.url);
-      // if (!AssetVault.instance.assets.has(urlHashed)) {
-      //   AssetVault.instance.assets.set(urlHashed, asset);
-      // }
-
-      if (component.onLoaded.length > 0) {
-        component.onLoaded.forEach(onLoaded => onLoaded(entity, { asset }));
+        if (component.onLoaded.length > 0) {
+          component.onLoaded.forEach(onLoaded => onLoaded(entity, { asset }));
+        }
       }
     });
 
