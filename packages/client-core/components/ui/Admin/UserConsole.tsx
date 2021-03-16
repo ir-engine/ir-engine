@@ -299,7 +299,7 @@ const UserConsole = (props: Props) => {
     };
 
     const deleteUser = () => {
-        removeUser(userId.id);
+        removeUser((userId as any).id);
         handleClose();
     }
 
@@ -404,7 +404,7 @@ const UserConsole = (props: Props) => {
                     aria-labelledby="alert-dialog-slide-title"
                     aria-describedby="alert-dialog-slide-description"
                 >
-                    <DialogTitle id="alert-dialog-slide-title">{`Do You want to delete  ${userId.name}?`}</DialogTitle>
+                    <DialogTitle id="alert-dialog-slide-title">{`Do You want to delete  ${(userId as any).name}?`}</DialogTitle>
                     <DialogActions>
                         <Button onClick={handleClose} color="primary">
                             Cancel
