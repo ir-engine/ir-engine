@@ -90,7 +90,6 @@ const ProfileMenu = (props: any): any => {
 									),
 								}}
 							/>
-							
 						</span>
 						<h2>You are {props.userRole === 'admin' ? 'an' : 'a'} <span>{props.userRole}</span>.</h2>
 						<h4>{(props.userRole === 'user' || props.userRole === 'admin') && <div onClick={handleLogout}>Log out</div>}</h4>

@@ -19,7 +19,8 @@ import {
   avatarUpdated,
   usernameUpdated,
   userUpdated,
-  userAvatarIdUpdated
+  userAvatarIdUpdated,
+  updateAvatarList,
 } from './actions';
 import {
   addedChannelLayerUser,
@@ -128,7 +129,14 @@ export function loadUserData (dispatch: Dispatch, userId: string): any {
       return Promise.resolve(res);
     }).then((res: any) => {
       const user = resolveUser(res);
-      dispatch(loadedUserData(user));
+      client.service('static-resource').find({
+        query: {
+          name: user.avatarId,
+        }
+      }).then((res: any) => {
+        dispatch(loadedUserData(user, res.data));
+        
+      }).catch(err => console.debug('Error ocured while fetching user resources'));
     })
     .catch((err: any) => {
       console.log(err);
@@ -525,7 +533,7 @@ export function uploadAvatarModel (model: any, thumbnail: any) {
       axios.post(thumbnailURL.url, thumbnailData).then(res => {
         const name = modelURL.fields.Key.substring(modelURL.fields.Key.lastIndexOf('/'), modelURL.fields.Key.lastIndexOf('.'));
         const selfUser = (store.getState() as any).get('auth').get('user');
-        console.debug('user => ', selfUser);
+
         // Save URLs to backend
         Promise.all([
           client.service('static-resource').create({
@@ -534,7 +542,6 @@ export function uploadAvatarModel (model: any, thumbnail: any) {
             url: modelURL.url + '/' + modelURL.fields.Key,
             key: modelURL.fields.Key,
             userId: selfUser.id,
-            // mimeType: (data as any).mimeType
           }),
           client.service('static-resource').create({
             name,
@@ -577,6 +584,24 @@ export function removeAvatar (keys: [string]) {
 
     console.debug(result);
   }
+}
+
+export function fetchAvatarList () {
+  return async (dispatch: Dispatch, getState: any) => {
+    const result = await client.service('static-resource').find({
+      query: {
+        $select: ['id', 'key', 'name', 'url', 'staticResourceType', 'userId'],
+        staticResourceType: {
+          $in: [ 'avatar', 'user-thumbnail']
+        },
+        $limit: 1000,
+      }
+    });
+
+    console.debug(result);
+
+    dispatch(updateAvatarList(result.data));
+  };
 }
 
 export function updateUsername (userId: string, name: string) {

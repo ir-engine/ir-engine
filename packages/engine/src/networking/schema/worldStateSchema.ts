@@ -16,7 +16,12 @@ export const inputKeyArraySchema = new Schema({
 */
 const clientConnectedSchema = new Schema({
     userId: string,
-    name: string
+    name: string,
+    avatarDetail: {
+      avatarId: string,
+      avatarURL: string,
+      thumbnailURL: string,
+    },
 });
 
 const clientDisconnectedSchema = new Schema({

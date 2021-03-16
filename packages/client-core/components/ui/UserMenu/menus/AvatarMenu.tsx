@@ -44,11 +44,10 @@ const AvatarMenu = (props: any): any => {
 		setPage(page - 1);
 	}
 
-	const selectAvatar = (e) => {
-		const selectedAvatar = e.currentTarget.id
-		setSelectedAvatarId(selectedAvatar);
-		if (props.avatarId !== selectedAvatar) {
-			props.setAvatar(selectedAvatar);
+	const selectAvatar = (avatar: any) => {
+		setSelectedAvatarId(avatar.name);
+		if (props.avatarId !== avatar.name) {
+			props.setAvatar(avatar.name, avatar.url);
 		}
 	}
 
@@ -82,7 +81,7 @@ const AvatarMenu = (props: any): any => {
 						${characterAvatar.avatar.name === props.avatarId ? styles.activeAvatar : ''}
 						${characterAvatar.avatar.name === selectedAvatarId ? styles.selectedAvatar : ''}
 					`}>
-					<CardContent id={characterAvatar.avatar.name} onClick={selectAvatar}>
+					<CardContent onClick={() => selectAvatar(characterAvatar.avatar)}>
 						<LazyImage
 							key={characterAvatar.avatar.id}
 							src={characterAvatar['user-thumbnail'].url}
