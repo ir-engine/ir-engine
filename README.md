@@ -1,6 +1,5 @@
 
 ![xr3ngine](https://github.com/xr3ngine/xr3ngine/raw/dev/xrengine%20black.png)
-<div align="center">
 
 An end-to-end solution for hosting humans and AI in a virtual space, built on top of react, three.js and express/feathers.
 
