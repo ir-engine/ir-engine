@@ -72,7 +72,7 @@ export default function Home({ children }) {
             })}
         </div> */}
       {/* <HomeRightBar data={suggestions} /> */}
-      <AppFooter user={loginData} />
+      <AppFooter />
     </div>
   </>
   );

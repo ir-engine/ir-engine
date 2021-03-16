@@ -12,7 +12,7 @@ import {
   addFeed
 } from './actions';
 
-export function getFeeds(type : string, limit?: number) {
+export function getFeeds(type : string, id?: string,  limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
       dispatch(fetchingFeeds());
@@ -21,6 +21,14 @@ export function getFeeds(type : string, limit?: number) {
         const feedsResults = await client.service('feed').find({
           query: {
             action: 'featured'
+          }
+        });
+        dispatch(feedsFeaturedRetrieved(feedsResults.data));
+      }else if(type && type === 'creator'){
+        const feedsResults = await client.service('feed').find({
+          query: {
+            action: 'creator',
+            creatorId:id
           }
         });
         dispatch(feedsFeaturedRetrieved(feedsResults.data));
