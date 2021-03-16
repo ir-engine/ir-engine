@@ -32,7 +32,7 @@ function mathMixesAnimFromSchemaValues( entity, animationsSchema, objectValues, 
   const mathMixesAnimArray = [];
 
   let absSpeed = actorVelocity.length() * 60 / RUN_SPEED;
-  absSpeed < 0.00001 ? absSpeed = 0:'';
+  absSpeed < 0.1 ? absSpeed = 0:'';
   absSpeed = Math.min(absSpeed, 1);
   //safeFloat(actorVelocity.x);
 //  safeFloat(actorVelocity.y);
