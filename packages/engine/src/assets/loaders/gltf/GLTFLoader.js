@@ -9,7 +9,7 @@ import {
 	Color,
 	DirectionalLight,
 	DoubleSide,
-	FileLoader,
+	// FileLoader,
 	FrontSide,
 	Group,
 	ImageBitmapLoader,
@@ -62,6 +62,8 @@ import {
 	VectorKeyframeTrack,
 	sRGBEncoding
 } from 'three';
+
+import { FileLoader } from "./FileLoader.js";
 
 var GLTFLoader = ( function () {
 
