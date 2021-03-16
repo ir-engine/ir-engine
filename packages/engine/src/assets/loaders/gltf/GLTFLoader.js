@@ -9,7 +9,7 @@ import {
 	Color,
 	DirectionalLight,
 	DoubleSide,
-//	FileLoader,
+	// FileLoader,
 	FrontSide,
 	Group,
 	ImageBitmapLoader,
