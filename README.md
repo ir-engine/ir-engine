@@ -9,8 +9,7 @@ This repo includes a fully-feature client, API server, realtime gamerserver, gam
 
 
 ## Popular features
-Player rigs to support 2D, 3D and XR interaction
-
+- Player rigs to support 2D, 3D and XR interaction
 - High-performance ECS engine
 - Full-featured world editor
 - Fully networked player controller, physics, vehicles and particles
