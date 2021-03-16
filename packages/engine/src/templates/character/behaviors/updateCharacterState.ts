@@ -25,6 +25,8 @@ export const updateCharacterState: Behavior = (entity, args: { }, deltaTime: num
 		const viewVectorAngle = Math.atan2(actor.viewVector.z, actor.viewVector.x);
     actor.viewVector.x = Math.cos(viewVectorAngle - (actor.changedViewAngle * damping));
     actor.viewVector.z = Math.sin(viewVectorAngle - (actor.changedViewAngle * damping));
+    if(actor.moveVectorSmooth.position.length() < 0.1) { actor.moveVectorSmooth.velocity.multiplyScalar(0.9) };
+    if(actor.moveVectorSmooth.position.length() < 0.001) { actor.moveVectorSmooth.velocity.set(0,0,0); actor.moveVectorSmooth.position.set(0,0,0); }
 	}
 
 	const flatViewVector = new Vector3(actor.viewVector.x, 0, actor.viewVector.z).normalize();
