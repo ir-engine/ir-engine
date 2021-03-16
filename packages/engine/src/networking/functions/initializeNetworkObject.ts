@@ -3,7 +3,6 @@ import { Component } from '../../ecs/classes/Component';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { Entity } from '../../ecs/classes/Entity';
 import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { loadActorAvatar } from '../../templates/character/prefabs/NetworkPlayerCharacter';
 import { PrefabType } from "../../templates/networking/DefaultNetworkSchema";
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { Network } from '../classes/Network';

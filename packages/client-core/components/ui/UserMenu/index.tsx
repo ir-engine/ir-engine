@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
-import { logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings, addConnectionByEmail, addConnectionBySms, loginUserByOAuth, uploadAvatarModel } from '../../../redux/auth/service';
+import { logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings, addConnectionByEmail, addConnectionBySms, loginUserByOAuth, uploadAvatarModel, fetchAvatarList } from '../../../redux/auth/service';
 import { alertSuccess } from '../../../redux/alert/service';
 import { provisionInstanceServer } from "../../../redux/instanceConnection/service";
 import { Views, UserMenuProps } from './util';
@@ -41,6 +41,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   logoutUser: bindActionCreators(logoutUser, dispatch),
   removeUser: bindActionCreators(removeUser, dispatch),
   uploadAvatarModel: bindActionCreators(uploadAvatarModel, dispatch),
+  fetchAvatarList: bindActionCreators(fetchAvatarList, dispatch),
 });
 
 const UserMenu = (props: UserMenuProps): any => {
@@ -55,9 +56,12 @@ const UserMenu = (props: UserMenuProps): any => {
     logoutUser,
     removeUser,
     uploadAvatarModel,
+    fetchAvatarList,
   } = props;
   const selfUser = authState.get('user') || {};
-
+  const avatarList = authState.get('avatarList') || {};
+  const activeAvatar = authState.get('activeAvatar') || {};
+  
   const [username, setUsername] = useState(selfUser?.name);
   const [setting, setUserSetting] = useState(selfUser?.user_setting);
   const [graphics, setGraphicsSetting] = useState({
@@ -119,7 +123,7 @@ const UserMenu = (props: UserMenuProps): any => {
   }, [authState]);
 
   const menus = [
-    { id: Views.Profile, iconNode: PersonIcon },
+    { id: Views.Avatar, iconNode: PersonIcon },
     { id: Views.Settings, iconNode: SettingsIcon },
     { id: Views.Share, iconNode: LinkIcon },
   ];
@@ -140,13 +144,13 @@ const UserMenu = (props: UserMenuProps): any => {
     }
   };
 
-  const updateCharacterComponent = (entityID, avatarId?: string) => {
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LOAD_AVATAR, entityID, avatarId: avatarId || selfUser?.avatarId });
+  const updateCharacterComponent = (entityID, avatarId?: string, avatarURL?: string) => {
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LOAD_AVATAR, entityID, avatarId: avatarId || selfUser?.avatarId, avatarSource: avatarURL });
   }
 
-  const setAvatar = (avatarId: string) => {
+  const setAvatar = (avatarId: string, avatarURL: string) => {
     if (actorEntityID && avatarId) {
-      updateCharacterComponent(actorEntityID, avatarId);
+      updateCharacterComponent(actorEntityID, avatarId, avatarURL);
       updateUserAvatarId(selfUser.id, avatarId);
     }
   }
@@ -197,6 +201,9 @@ const UserMenu = (props: UserMenuProps): any => {
         args = {
           setAvatar,
           changeActiveMenu,
+          fetchAvatarList,
+          avatarList,
+          activeAvatar,
           avatarId: selfUser?.avatarId,
         };
         break;

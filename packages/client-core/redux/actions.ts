@@ -43,6 +43,7 @@ export const RESTORE = 'RESTORE';
 export const SHOW_DIALOG = 'SHOW_DIALOG';
 export const CLOSE_DIALOG = 'CLOSE_DIALOG';
 
+export const AVATAR_FETCHED = 'AVATAR_FETCHED';
 export const AVATAR_UPDATED = 'AVATAR_UPDATED';
 export const AVATAR_UPDATE_FAILURE = 'AVATAR_UPDATE_FAILURE';
 export const USER_UPDATED = 'USER_UPDATED';
