@@ -176,7 +176,7 @@ export function validateNetworkObjects(): void {
 }
 
 
-export async function handleConnectToWorld(socket, data, callback, userId, user): Promise<any> {
+export async function handleConnectToWorld(socket, data, callback, userId, user, avatarDetail): Promise<any> {
     const transport = Network.instance.transport as any;
 
     console.log('Connect to world from ' + userId);
@@ -199,7 +199,7 @@ export async function handleConnectToWorld(socket, data, callback, userId, user)
     };
 
     // Push to our worldstate to send out to other users
-    Network.instance.clientsConnected.push({ userId, name: userId });
+    Network.instance.clientsConnected.push({ userId, name: userId, avatarDetail });
 
     // Create a new worldtate object that we can fill
     const worldState = {
@@ -214,7 +214,8 @@ export async function handleConnectToWorld(socket, data, callback, userId, user)
 
     // Get all clients and add to clientsConnected and push to world state frame
     Object.keys(Network.instance.clients).forEach(userId => {
-        worldState.clientsConnected.push({ userId: Network.instance.clients[userId].userId, name: Network.instance.clients[userId].userId });
+        const client = Network.instance.clients[userId];
+        worldState.clientsConnected.push({ userId: client.userId, name: client.userId, avatarDetail: client.avatarDetail });
     });
 
     // Return initial world state to client to set things up

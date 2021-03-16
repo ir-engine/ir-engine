@@ -83,16 +83,15 @@ export class AnimationManager {
 }
 
 
-export const loadActorAvatar: Behavior = (entity) => {
-  const avatarId: string = getComponent(entity, CharacterComponent)?.avatarId;
-  const avatarSource = CharacterAvatars.find(avatarData => avatarData.id === avatarId)?.src;
-
+export const loadActorAvatar: Behavior = (entity, av) => {
+  const avatarURL: string = getComponent(entity, CharacterComponent)?.avatarURL;
+  // const avatarSource = CharacterAvatars.find(avatarData => avatarData.id === avatarId)?.src;
   if (hasComponent(entity, AssetLoader)) removeComponent(entity, AssetLoader, true);
   if (hasComponent(entity, AssetLoaderState)) removeComponent(entity, AssetLoaderState, true);
 
   const tmpGroup = new Group();
   addComponent(entity, AssetLoader, {
-    url: avatarSource,
+    url: avatarURL,
     receiveShadow: true,
     castShadow: true,
     parent: tmpGroup,
