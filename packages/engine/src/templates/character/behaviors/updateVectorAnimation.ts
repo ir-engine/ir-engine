@@ -22,6 +22,7 @@ function safeFloat(float) {
   float < -1 && float < 0 ? float = -1:'';
 }
 */
+const EPSILON = 0.01;
 //
 function animationMapLinear( absSpeed, axisValue, axisWeight, i ) {
   return MathUtils.mapLinear(absSpeed, axisValue[0+i], axisValue[1+i], axisWeight[0+i], axisWeight[1+i]);
@@ -31,9 +32,7 @@ function mathMixesAnimFromSchemaValues( entity, animationsSchema, objectValues, 
   const { actorVelocity, dontHasHit } = objectValues;
   const mathMixesAnimArray = [];
 
-  let absSpeed = actorVelocity.length() * 60 / RUN_SPEED;
-  absSpeed < 0.00001 ? absSpeed = 0:'';
-  absSpeed = Math.min(absSpeed, 1);
+  const absSpeed = Math.min(actorVelocity.length() * 60 / RUN_SPEED, 1);
   //safeFloat(actorVelocity.x);
 //  safeFloat(actorVelocity.y);
 //  safeFloat(actorVelocity.z);
@@ -45,7 +44,7 @@ function mathMixesAnimFromSchemaValues( entity, animationsSchema, objectValues, 
     let weight = 0
     let multiplyXYZ = 0;
     if (animation.axis != 'xyz') {
-      multiplyXYZ = axisScalar < 0.00001 ? 1 : Math.abs(actorVelocity[animation.axis]) / axisScalar;
+      multiplyXYZ = axisScalar < EPSILON ? 1 : Math.abs(actorVelocity[animation.axis]) / axisScalar;
     }
     for (let mi = 0; mi < animation.value.length-1; mi++) {
       if(animation.value[mi] <= giveSpeed && giveSpeed <= animation.value[mi+1]) {
@@ -56,7 +55,7 @@ function mathMixesAnimFromSchemaValues( entity, animationsSchema, objectValues, 
     };
 
     animation.axis != 'xyz' ? weight*= multiplyXYZ:'';
-    weight < 0.0001 ? weight = 0:'';
+    weight < EPSILON ? weight = 0:'';
 
     mathMixesAnimArray.push({
       type: animation.type,

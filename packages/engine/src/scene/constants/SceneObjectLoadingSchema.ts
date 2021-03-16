@@ -31,7 +31,6 @@ import { createBackground } from '../behaviors/createBackground';
 import { createBoxCollider } from '../behaviors/createBoxCollider';
 import { createCommonInteractive } from "../behaviors/createCommonInteractive";
 import { createGroup } from '../behaviors/createGroup';
-import { createImage } from '../behaviors/createImage';
 import { createLink } from '../behaviors/createLink';
 import { createAudio, createMediaServer, createVideo, createVolumetric } from "../behaviors/createMedia";
 import { createScenePreviewCamera } from "../behaviors/createScenePreviewCamera";
@@ -48,6 +47,7 @@ import SpawnPointComponent from "../components/SpawnPointComponent";
 import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
 import { InterpolationComponent } from "../../physics/components/InterpolationComponent";
+import Image from '../classes/Image';
 
 function castShadowOn(group) {
   group.children.forEach(children => {
@@ -503,7 +503,8 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'image': {
     behaviors: [
       {
-        behavior: createImage,
+        behavior: addObject3DComponent,
+        args: { obj3d: Image },
         values: [
           { from: 'src', to: 'src' },
           { from: 'projection', to: 'projection' },
