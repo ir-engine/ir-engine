@@ -64,6 +64,7 @@ import {
 } from 'three';
 
 import { FileLoader } from "./FileLoader.js";
+import { isServer } from '../../../common/functions/isServer.ts';
 
 var GLTFLoader = ( function () {
 
@@ -2450,7 +2451,6 @@ var GLTFLoader = ( function () {
 	};
 
 	GLTFParser.prototype.loadTextureImage = function ( textureIndex, source, loader ) {
-
 		var parser = this;
 		var json = this.json;
 		var options = this.options;
@@ -2723,7 +2723,7 @@ var GLTFLoader = ( function () {
 	 * @return {Promise<Material>}
 	 */
 	GLTFParser.prototype.loadMaterial = function ( materialIndex ) {
-
+		if (isServer) return;
 		var parser = this;
 		var json = this.json;
 		var extensions = this.extensions;
