@@ -42,6 +42,7 @@
     "lint": "node node_modules/.bin/eslint --ext .js,.ts ./ --fix",
     "validate": "yarn run lint && yarn run build && yarn run test",
     "precommit": "no-master-commits -b master,dev",
+    "upload-avatar": "node ./scripts/upload-avatar.js",
     "postinstall": "cd ../../node_modules/mediasoup && node npm-scripts.js postinstall"
   },
   "types": "lib/",

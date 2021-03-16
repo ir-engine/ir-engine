@@ -22,7 +22,8 @@ import {
   AVATAR_UPDATED,
   USERNAME_UPDATED,
   USERAVATARID_UPDATED,
-  USER_UPDATED
+  USER_UPDATED,
+  AVATAR_FETCHED,
 } from '../actions';
 import { AuthUser } from '@xr3ngine/common/interfaces/AuthUser';
 import { User } from '@xr3ngine/common/interfaces/User';
@@ -83,6 +84,7 @@ export interface AddConnectionResultAction {
 export interface LoadDataResultAction {
   type: string;
   user?: User;
+  userResources?: any;
 }
 
 export interface AvatarUpdatedAction {
@@ -107,6 +109,11 @@ export interface UserUpdatedAction {
 export interface UserSettingsUpdatedAction {
   type: string;
   data: any;
+}
+
+export interface AvatarListUpdateAction {
+  type: string;
+  avatarList: [];
 }
 
 export type AuthAction =
@@ -225,10 +232,11 @@ export function didCreateMagicLink (result: boolean): AuthResultAction {
   };
 }
 
-export function loadedUserData (user: User): LoadDataResultAction {
+export function loadedUserData (user: User, userResources: any): LoadDataResultAction {
   return {
     type: LOADED_USER_DATA,
-    user
+    user,
+    userResources,
   };
 }
 
@@ -269,6 +277,13 @@ export function userUpdated (user: User): UserUpdatedAction {
     type: USER_UPDATED,
     user: user
   };
+}
+
+export function updateAvatarList (avatarList: []): AvatarListUpdateAction {
+  return {
+    type: AVATAR_FETCHED,
+    avatarList,
+  }
 }
 
 // export function fileUploadFailure (err: any): VideosFetchedAction {

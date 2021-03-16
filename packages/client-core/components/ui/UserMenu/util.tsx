@@ -26,6 +26,7 @@ export interface UserMenuProps {
   currentScene?: any;
   provisionInstanceServer?: any;
   uploadAvatarModel?: Function;
+  fetchAvatarList?: Function;
 }
 
 export interface SettingMenuProps {
