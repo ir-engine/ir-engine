@@ -1,6 +1,6 @@
 const path = require('path')
 const appRootPath = require('app-root-path')
-process.env.NODE_CONFIG_DIR = path.join(appRootPath.path, 'packages/client/config')
+process.env.NODE_CONFIG_DIR = path.join(appRootPath.path, 'packages/social/config')
 const conf = require('config');
 const withTM = require('next-transpile-modules')(['@xr3ngine/client-core'], { unstable_webpack5: true });
 
@@ -59,7 +59,7 @@ module.exports = withTM(
         },
         {
           test: /\.ts(x?)$/,
-          use: ['cache-loader', 
+          use: ['cache-loader',
           {
           loader: 'babel-loader',
           options:  {"presets": ["next/babel"]}
@@ -107,7 +107,7 @@ module.exports = withTM(
       config.module.rules.push({
         test: /\.(bin)$/,
         use: [
-          'cache-loader', 
+          'cache-loader',
           {
             loader: "file-loader",
             options: {
