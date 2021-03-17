@@ -7,6 +7,7 @@ import { selectCreatorsState } from "../../../redux/creator/selector";
 import { bindActionCreators, Dispatch } from "redux";
 import { getLoggedCreator } from "../../../redux/creator/service";
 import { connect } from "react-redux";
+import { any } from "prop-types";
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -18,12 +19,17 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   getLoggedCreator: bindActionCreators(getLoggedCreator, dispatch),
 });
 
-const AppHeader = ({creatorState, getLoggedCreator, logo}: any) => {
+interface Props{
+  creatorState?: any;
+  getLoggedCreator? : any;
+  logo?:string;
+}
+const AppHeader = ({creatorState, getLoggedCreator, logo}: Props) => {
   useEffect(()=>getLoggedCreator(),[]);  
   const creator = creatorState && creatorState.get('fetching') === false && creatorState.get('currentCreator');
   return (
     <nav className={styles.headerContainer}>
-          <img onClick={()=>Router.push('/')} src={logo} className="header-logo" alt="ARC" />
+          {logo && <img onClick={()=>Router.push('/')} src={logo} className="header-logo" alt="ARC" />}
           <button type={"button"} onClick={()=>Router.push('/volumetric')} title={"volumetric"} className="header-logo">VolumetricDemo</button>
           {creator && (
             <Avatar onClick={()=>Router.push({ pathname: '/creator', query:{ creatorId: creator.id}})} 
