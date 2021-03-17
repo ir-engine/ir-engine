@@ -9,7 +9,9 @@ import {
   feedRetrieved,
   feedsFeaturedRetrieved,
   addFeedView,
-  addFeed
+  addFeed,
+  feedsCreatorRetrieved,
+  feedsBookmarkRetrieved
 } from './actions';
 
 export function getFeeds(type : string, id?: string,  limit?: number) {
@@ -31,7 +33,15 @@ export function getFeeds(type : string, id?: string,  limit?: number) {
             creatorId:id
           }
         });
-        dispatch(feedsFeaturedRetrieved(feedsResults.data));
+        dispatch(feedsCreatorRetrieved(feedsResults.data));
+      }else if(type && type === 'bookmark'){
+        const feedsResults = await client.service('feed').find({
+          query: {
+            action: 'bookmark',
+            creatorId:id
+          }
+        });
+        dispatch(feedsBookmarkRetrieved(feedsResults.data));
       }else{
           const feedsResults = await client.service('feed').find({query: {}});
 

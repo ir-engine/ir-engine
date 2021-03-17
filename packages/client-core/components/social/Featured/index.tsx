@@ -22,13 +22,30 @@ const mapStateToProps = (state: any): any => {
 });
 interface Props{
     feedsState?: any,
-    getFeeds?: any
+    getFeeds?: any,
+    type?:string,
+    creatorId?: string,
 }
 
-const Featured = ({feedsState, getFeeds} : Props) => { 
-    let feedsList = null;
-    useEffect(()=> getFeeds('featured'), []);
-    feedsList = feedsState.get('fetching') === false && feedsState?.get('feedsFeatured');
+const Featured = ({feedsState, getFeeds, type, creatorId} : Props) => { 
+    let feedsList = [];
+    useEffect(()=> {
+        console.log('type', type);
+        if(type && (type === 'creator' || type === 'bookmark')){
+            getFeeds(type, creatorId);
+        }else{
+            getFeeds('featured');
+        }
+    }, [type]);
+    if(feedsState.get('fetching') === false){
+        if(!type || type === ''){
+            feedsList = feedsState?.get('feedsFeatured');
+        }else if(type === 'creator'){
+            feedsList = feedsState?.get('feedsCreator');
+        }else if(type === 'bookmark'){
+            feedsList = feedsState?.get('feedsBookmark');
+        }
+    }
     return <section className={styles.feedContainer}>
         {feedsList && feedsList.length > 0  && feedsList.map((item, itemIndex)=>
             <Card className={styles.creatorItem} elevation={0} key={itemIndex}  
