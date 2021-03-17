@@ -19,6 +19,8 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import { useEffect } from 'react';
 import { getCreator } from '../../../redux/creator/service';
+import { getFeeds } from '../../../redux/feed/service';
+import Featured from '../Featured';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -45,13 +47,10 @@ const Creator = ({creatorId, creatorState, getCreator}:Props) => {
         }else{
             getCreator(creatorId);
         }
-
-        
     },[])
 
     creator = creatorState && isMe === true? creatorState.get('currentCreator') : creatorState.get('creator');
-
-    const [videoType, setVideoType] = useState('my');
+    const [videoType, setVideoType] = useState('creator');
     const [anchorEl, setAnchorEl] = useState(null);
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -108,20 +107,10 @@ const Creator = ({creatorId, creatorState, getCreator}:Props) => {
                 </CardContent>
             </Card>
             {isMe && <section className={styles.videosSwitcher}>
-                    <Button variant={videoType === 'my' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'my' ? ' '+styles.active : '')} onClick={()=>setVideoType('my')}>My Videos</Button>
-                    <Button variant={videoType === 'saved' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'saved' ? ' '+styles.active : '')} onClick={()=>setVideoType('saved')}>Saved Videos</Button>
+                    <Button variant={videoType === 'creator' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'creator' ? ' '+styles.active : '')} onClick={()=>setVideoType('creator')}>My Videos</Button>
+                    <Button variant={videoType === 'bookmark' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'bookmark' ? ' '+styles.active : '')} onClick={()=>setVideoType('bookmark')}>Saved Videos</Button>
             </section>}
-            {/* <section className={styles.feedContainer}>
-                {creatorFeeds.map((item, itemIndex)=>
-                    <Card className={styles.creatorItem} elevation={0} key={itemIndex}>                 
-                       <CardMedia   
-                            className={styles.previewImage}                  
-                            image={item.image}
-                        />
-                        <span className={styles.eyeLine}>{item.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
-                    </Card>
-                )}
-                </section>*/}
+            <Featured creatorId={creatorId} type={videoType}/>
         </section>) 
     : <></>
 };

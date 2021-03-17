@@ -54,7 +54,6 @@ export class Feed extends Service {
         LIMIT :skip, :limit 
         `;
       
-
       const feeds = await this.app.get('sequelizeClient').query(dataQuery,
         {
           type: QueryTypes.SELECT,
@@ -62,6 +61,58 @@ export class Feed extends Service {
           replacements: queryParamsReplacements
         });
 
+      return {
+        data: feeds,
+        skip,
+        limit,
+        total: feeds.count,
+      };
+    }
+
+    if (action === 'creator') {
+      const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
+        FROM \`feed\` as feed
+        JOIN \`static_resource\` as sr ON sr.id=feed.previewId
+        WHERE feed.creatorId=:creatorId
+        ORDER BY feed.createdAt DESC    
+        LIMIT :skip, :limit 
+        `;
+      
+      queryParamsReplacements.creatorId = creatorId;
+      const feeds = await this.app.get('sequelizeClient').query(dataQuery,
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: queryParamsReplacements
+        });
+
+      return {
+        data: feeds,
+        skip,
+        limit,
+        total: feeds.count,
+      };
+    }
+
+    if (action === 'bookmark') {
+      const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
+        FROM \`feed\` as feed
+        JOIN \`static_resource\` as sr ON sr.id=feed.previewId
+        JOIN \`feed_bookmark\` as fb ON fb.feedId=feed.id
+        WHERE fb.creatorId=:creatorId
+        ORDER BY feed.createdAt DESC    
+        LIMIT :skip, :limit 
+        `;
+      
+      queryParamsReplacements.creatorId = creatorId;
+      const feeds = await this.app.get('sequelizeClient').query(dataQuery,
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: queryParamsReplacements
+        });
+
+        console.log('feeds',feeds)
       return {
         data: feeds,
         skip,
