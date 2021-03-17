@@ -1,5 +1,6 @@
 import { Creator } from '@xr3ngine/common/interfaces/Creator';
 import { Dispatch } from 'redux';
+import Api from '../../components/editor/Api';
 import { dispatchAlertError } from "../alert/service";
 import { client } from '../feathers';
 import {
@@ -52,7 +53,10 @@ export function updateCreator(creator: Creator){
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       dispatch(fetchingCreator());
-      const updatedCreator = await client.service('creator').patch(creator.id, creator);   
+      const api = new  Api();
+      const storedAvatar = await api.upload(creator.avatar, null);
+      //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
+      const updatedCreator = await client.service('creator').patch(creator.id, {...creator, avatarId: storedAvatar.fileId});   
       dispatch(creatorLoggedRetrieved(updatedCreator));
     } catch(err) {
       console.log(err);

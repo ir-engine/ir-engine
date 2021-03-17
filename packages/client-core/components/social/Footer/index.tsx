@@ -31,7 +31,8 @@ const AppFooter = ({creatorState, getLoggedCreator}: any) => {
         <AddCircleIcon onClick={()=>Router.push('/newfeed')} style={{fontSize: '5em'}} className={styles.footerItem}/>
         {/* <AddCircleIcon onClick={()=>Router.push('/videorecord')} style={{fontSize: '5em'}} className={styles.footerItem}/> */}
         {creator && (
-          <Avatar onClick={()=>Router.push({ pathname: '/creator', query:{ creatorId: creator.id}})} src={'https://picsum.photos/40/40'} />
+          <Avatar onClick={()=>Router.push({ pathname: '/creator', query:{ creatorId: creator.id}})} 
+          alt={creator.username} src={creator.avatar} />
         )}
     </nav>
   );

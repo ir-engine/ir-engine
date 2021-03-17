@@ -40,6 +40,8 @@ const User = ({creatorsState, updateCreator}:Props) => {
         e.preventDefault();
         updateCreator(creator);
     }
+    const handlePickAvatar = async (file) => setCreator({...creator, avatar: file.target.files[0]});
+
     return <section className={styles.creatorContainer}>
          <form
           className={styles.form}
@@ -51,12 +53,13 @@ const User = ({creatorsState, updateCreator}:Props) => {
                 <Typography variant="h2" className={styles.pageTitle}>Edit Profile</Typography>
                 <Button variant="text" type="submit" className={styles.saveButton}>Save</Button>
             </nav>  
-            { creator.avatarId && creator.avatar && <CardMedia   
+            <CardMedia   
                 className={styles.avatarImage}                  
                 image={creator.avatar}
                 title={creator.username}
-            />   }
-            <Typography variant="h4" align="center" color="secondary">Change Profile Image</Typography>
+            />
+            <Typography variant="h4" align="center" color="secondary" >Change Profile Image</Typography>
+            <input type="file" name="avatar" onChange={handlePickAvatar} placeholder={'Select preview'}/>
             <section className={styles.content}>
                 <div className={styles.formLine}>
                     <AccountCircle className={styles.fieldLabelIcon} />
