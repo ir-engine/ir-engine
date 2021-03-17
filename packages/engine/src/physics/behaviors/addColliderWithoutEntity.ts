@@ -48,6 +48,7 @@ export function doThisActivateCollider (body, userData) {
 }
 
 export function addColliderWithoutEntity( userData, position, quaternion, scale, mesh ) {
+	console.warn('****** Collider '+userData.type);
   let body;
 	const type = userData.type
   switch (type) {
@@ -73,37 +74,31 @@ export function addColliderWithoutEntity( userData, position, quaternion, scale,
       break;
 
     case 'trimesh':
-    //  body = createTrimesh(mesh);
-			return;
+      body = createTrimesh(mesh);
       break;
 
     default:
       console.warn('create Collider undefined type !!!');
       body = createBox(scale || {x:1, y:1, z:1});
       break;
-    }
+  }
 
-    if (position)
-      body.position.set(
-        position.x,
-        position.y,
-        position.z
-      );
+  if (position) {
+    body.position.set(position.x, position.y, position.z);
+  }
+  
+  if (quaternion) {
+    body.quaternion.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+  }
 
-    if (quaternion)
-      body.quaternion.set(
-        quaternion.x,
-        quaternion.y,
-        quaternion.z,
-        quaternion.w
-      );
-			if (userData.action == 'portal') {
-				body = doThisActivateCollider(body, userData);
-			} else {
-				body.collisionFilterGroup = CollisionGroups.Default;
-			}
+  if (userData.action == 'portal') {
+    body = doThisActivateCollider(body, userData);
+  } else {
+    body.collisionFilterGroup = CollisionGroups.Default;
+  }
   //    body.collisionFilterMask = CollisionGroups.Scene | CollisionGroups.Default | CollisionGroups.Characters | CollisionGroups.Car | CollisionGroups.TrimeshColliders;
 
   PhysicsSystem.physicsWorld.addBody(body);
+  // console. log(body)
   return body;
 }

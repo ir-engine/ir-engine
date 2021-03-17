@@ -279,7 +279,32 @@ function createVehicleOnServer(entity, mesh) {
 }
 
 // parse Function
+const clearFromColliders: Behavior = (entity: Entity, args: any) => {
+  const asset = args.asset;
+  const deleteArr = [];
 
+  function parseColliders(mesh) {
+    // have user data physics its our case
+    if (mesh.userData.data === 'physics' || mesh.userData.data === 'dynamic' || mesh.userData.data === 'vehicle') {
+      // add position from editor to mesh
+      // its for delete mesh from view scene
+      mesh.userData.data === 'vehicle' ? '' : deleteArr.push(mesh);
+    }
+  }
+  // its for diferent files with models
+  if (asset.scene) {
+    asset.scene.traverse(parseColliders);
+  } else {
+    asset.traverse(parseColliders);
+  }
+
+  // its for delete mesh from view scene
+  for (let i = 0; i < deleteArr.length; i++) {
+    deleteArr[i].parent.remove(deleteArr[i]);
+  }
+
+  return entity;
+}
 export const addWorldColliders: Behavior = (entity: Entity, args: any) => {
 
   const asset = args.asset;
@@ -412,8 +437,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       },
       {
         behavior: (entity) => {
-          console.log("*********** ADDING WORLD COLLIDERS TO ONLOADED")
-          //getMutableComponent<AssetLoader>(entity, AssetLoader).onLoaded.push(addWorldColliders);
+          getMutableComponent<AssetLoader>(entity, AssetLoader).onLoaded.push(addWorldColliders);
         }
       }
     ]
@@ -685,14 +709,16 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       }
     ]
   },
+  /*
   'mesh-collider': {
     behaviors: [
       {
         behavior: createBoxCollider,
-        values: ['type', 'position', 'quaternion', 'scale', 'vertices']
+        values: ['type', 'position', 'quaternion', 'scale', 'vertices', 'indices']
       }
     ]
   },
+  */
   'trigger-volume': {
     behaviors: [
       {
