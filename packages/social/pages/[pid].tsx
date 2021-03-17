@@ -8,7 +8,7 @@ export default function ProfilePage() {
 
   return (
     <div className="container">
-    <AppHeader user={pid} />
+    <AppHeader />
       <div>{pid}</div>
     </div>
   );

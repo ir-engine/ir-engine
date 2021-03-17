@@ -1,7 +1,7 @@
 
 export interface CreatorShort {
   id: string,
-  userId: string,
+  userId?: string,
   avatar: string,
   name: string,  
   username: string,  

@@ -7,16 +7,48 @@ import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
-import VisibilityIcon from '@material-ui/icons/Visibility';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 
 import styles from './Creator.module.scss';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import { selectCreatorsState } from '../../../redux/creator/selector';
+import { bindActionCreators, Dispatch } from 'redux';
+import { connect } from 'react-redux';
+import { useEffect } from 'react';
+import { getCreator } from '../../../redux/creator/service';
+import Featured from '../Featured';
 
-const Creator = () => { 
-    const [videoType, setVideoType] = useState('my');
+const mapStateToProps = (state: any): any => {
+    return {
+      creatorState: selectCreatorsState(state),
+    };
+  };
+  
+  const mapDispatchToProps = (dispatch: Dispatch): any => ({
+    getCreator: bindActionCreators(getCreator, dispatch),
+  });
+
+  interface Props{
+    creatorId: string;
+    creatorState?: any;
+    getCreator?: typeof getCreator;
+  }
+
+const Creator = ({creatorId, creatorState, getCreator}:Props) => { 
+    const [isMe, setIsMe] = useState(false);
+    let creator = null;
+    useEffect(()=>{
+        if(creatorState && creatorState.get('currentCreator') && creatorId === creatorState.get('currentCreator').id){
+            setIsMe(true);
+        }else{
+            getCreator(creatorId);
+        }
+    },[])
+
+    creator = creatorState && isMe === true? creatorState.get('currentCreator') : creatorState.get('creator');
+    const [videoType, setVideoType] = useState('creator');
     const [anchorEl, setAnchorEl] = useState(null);
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -28,33 +60,14 @@ const Creator = () => {
         handleClose();
         Router.push('/user');
     } 
-    const isMe = Router.router.query && Router.router.query.me ? true : false;
-
-    const creatorFeeds=[];
-    for(let i=0; i<random(150, 5); i++){
-        creatorFeeds.push({ 
-            image :'https://picsum.photos/97/139',
-            viewsCount: random(150)
-        })
-    }
-
-    const creator ={ 
-            background :'https://picsum.photos/375/290',
-            avatar :'https://picsum.photos/110/110',
-            name: 'User username',
-            username: '@username',  
-            tags: 'Art & Design',
-            bio: 'I’m glad to share my works and these amazing kit with you!'      
-    }
-
-    return <><section className={styles.creatorContainer}>
-            <Card className={styles.creatorCard} elevation={0} key={creator.username} square={false} >                 
+    return  creator ?  (<section className={styles.creatorContainer}>
+            <Card className={styles.creatorCard} elevation={0} key={creator.username} square={false} >
                 <CardMedia   
                     className={styles.bgImage}                  
                     image={creator.background}
                     title={creator.name}
                 />
-                {isMe ?  
+               {isMe ?  
                     <section className={styles.meControls}>
                         <Button variant="text" className={styles.backButton} onClick={()=>Router.push('/')}><ArrowBackIosIcon />Back</Button>
                         <Button variant="text" className={styles.moreButton} aria-controls="owner-menu" aria-haspopup="true" onClick={handleClick}><MoreHorizIcon /></Button>
@@ -69,7 +82,7 @@ const Creator = () => {
                     </section>
                     : <section className={styles.controls}>
                     <Button variant="text" className={styles.backButton} onClick={()=>Router.push('/')}><ArrowBackIosIcon />Back</Button>                    
-                </section>}
+                </section> }
                 <CardMedia   
                     className={styles.avatarImage}                  
                     image={creator.avatar}
@@ -83,22 +96,12 @@ const Creator = () => {
                 </CardContent>
             </Card>
             {isMe && <section className={styles.videosSwitcher}>
-                    <Button variant={videoType === 'my' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'my' ? ' '+styles.active : '')} onClick={()=>setVideoType('my')}>My Videos</Button>
-                    <Button variant={videoType === 'saved' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'saved' ? ' '+styles.active : '')} onClick={()=>setVideoType('saved')}>Saved Videos</Button>
+                    <Button variant={videoType === 'creator' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'creator' ? ' '+styles.active : '')} onClick={()=>setVideoType('creator')}>My Videos</Button>
+                    <Button variant={videoType === 'bookmark' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'bookmark' ? ' '+styles.active : '')} onClick={()=>setVideoType('bookmark')}>Saved Videos</Button>
             </section>}
-            <section className={styles.feedContainer}>
-                {creatorFeeds.map((item, itemIndex)=>
-                    <Card className={styles.creatorItem} elevation={0} key={itemIndex}>                 
-                       <CardMedia   
-                            className={styles.previewImage}                  
-                            image={item.image}
-                        />
-                        <span className={styles.eyeLine}>{item.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
-                    </Card>
-                )}
-            </section>
-        </section>
-        </>
+            <section className={styles.feedsWrapper}><Featured creatorId={creator.id} type={videoType}/></section>
+        </section>) 
+    : <></>
 };
 
-export default Creator;
+export default connect(mapStateToProps, mapDispatchToProps)(Creator);

@@ -9,10 +9,12 @@ import {
   feedRetrieved,
   feedsFeaturedRetrieved,
   addFeedView,
-  addFeed
+  addFeed,
+  feedsCreatorRetrieved,
+  feedsBookmarkRetrieved
 } from './actions';
 
-export function getFeeds(type : string, limit?: number) {
+export function getFeeds(type : string, id?: string,  limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
       dispatch(fetchingFeeds());
@@ -24,6 +26,22 @@ export function getFeeds(type : string, limit?: number) {
           }
         });
         dispatch(feedsFeaturedRetrieved(feedsResults.data));
+      }else if(type && type === 'creator'){
+        const feedsResults = await client.service('feed').find({
+          query: {
+            action: 'creator',
+            creatorId:id
+          }
+        });
+        dispatch(feedsCreatorRetrieved(feedsResults.data));
+      }else if(type && type === 'bookmark'){
+        const feedsResults = await client.service('feed').find({
+          query: {
+            action: 'bookmark',
+            creatorId:id
+          }
+        });
+        dispatch(feedsBookmarkRetrieved(feedsResults.data));
       }else{
           const feedsResults = await client.service('feed').find({query: {}});
 
