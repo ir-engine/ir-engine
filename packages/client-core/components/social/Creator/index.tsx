@@ -62,11 +62,11 @@ const Creator = ({creatorId, creatorState, getCreator}:Props) => {
     } 
     return  creator ?  (<section className={styles.creatorContainer}>
             <Card className={styles.creatorCard} elevation={0} key={creator.username} square={false} >
-                {creator.avatarId && creator.avatar && <CardMedia   
+                <CardMedia   
                     className={styles.bgImage}                  
                     image={creator.background}
                     title={creator.name}
-                />}
+                />
                {isMe ?  
                     <section className={styles.meControls}>
                         <Button variant="text" className={styles.backButton} onClick={()=>Router.push('/')}><ArrowBackIosIcon />Back</Button>
