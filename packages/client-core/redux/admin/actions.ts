@@ -5,7 +5,9 @@ import {
   LOCATION_TYPES_RETRIEVED,
   INSTANCES_RETRIEVED,
   INSTANCE_REMOVED,
-  INSTANCE_CREATE
+  INSTANCE_CREATE,
+  INSTANCE_REMOVED_ROW,
+  INSTANCE_PATCHED
 } from '../actions';
 import { StaticResource } from '@xr3ngine/common/interfaces/StaticResource';
 
@@ -136,6 +138,20 @@ export function instanceRemovedAction(instance: any): InstanceRemovedResponse {
 export function instanceCreated(instance: any): InstanceRemovedResponse {
   return{
     type: INSTANCE_CREATE,
+    instance: instance
+  }
+}
+
+export function instanceRemoved(instance: any): InstanceRemovedResponse {
+  return {
+    type: INSTANCE_REMOVED_ROW,
+    instance: instance
+  }
+}
+
+export function instancePatched(instance: any): InstanceRemovedResponse {
+  return {
+    type: INSTANCE_PATCHED,
     instance: instance
   }
 }
