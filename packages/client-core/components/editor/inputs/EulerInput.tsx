@@ -3,6 +3,11 @@ import NumericInput from "./NumericInput";
 import { MathUtils as _Math, Euler } from "three";
 import { Vector3InputContainer, Vector3Scrubber } from "./Vector3Input";
 const { RAD2DEG, DEG2RAD } = _Math;
+
+/**
+ * [ type aliase created EulerInputProps]
+ * @type {Object}
+ */
 type EulerInputProps = {
   value?: {
     x?: number;
@@ -11,10 +16,23 @@ type EulerInputProps = {
   };
   onChange?: (...args: any[]) => any;
 };
+
+ /**
+  * [FileIEulerInputnput used to show EulerInput]
+  * @type {Object}
+  */
 export default class EulerInput extends Component<EulerInputProps, {}> {
+
+  /**
+   * [onChange onchange trigger Change method for EulerInput Component]
+   * @param  {Object} e.target.file
+   * @return {Object}   e
+   */
   onChange = (x, y, z) => {
     this.props.onChange(new Euler(x * DEG2RAD, y * DEG2RAD, z * DEG2RAD));
   };
+
+  // creating view for component
   render() {
     const { value, onChange, ...rest } = this.props as any;
     const vx = value ? (value.x || 0) * RAD2DEG : 0;
