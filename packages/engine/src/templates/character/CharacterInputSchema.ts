@@ -295,7 +295,7 @@ const moveByInputAxis: Behavior = (
   if (data.type === InputType.TWODIM) {
     actor.localMovementDirection.z = data.value[0];
     actor.localMovementDirection.x = data.value[1];
-    actor.changedViewAngle = changedDirection(data.value[2]);  // Calculate the changed direction.
+    actor.changedViewAngle = changedDirection(data.value[2]);  // Calculate the changed direction.=
   } else if (data.type === InputType.THREEDIM) {
     // TODO: check if this mapping correct
     actor.localMovementDirection.z = data.value[2];
@@ -687,6 +687,18 @@ export const CharacterInputSchema: InputSchema = {
         }
       ],
       changed: [
+        {
+          behavior: moveByInputAxis,
+          args: {
+            input: BaseInput.MOVEMENT_PLAYERONE,
+            inputType: InputType.TWODIM
+          }
+        },
+        {
+          behavior: updateCharacterState
+        }
+      ],
+      unchanged: [
         {
           behavior: moveByInputAxis,
           args: {

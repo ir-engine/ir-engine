@@ -31,7 +31,6 @@ import { createBackground } from '../behaviors/createBackground';
 import { createBoxCollider } from '../behaviors/createBoxCollider';
 import { createCommonInteractive } from "../behaviors/createCommonInteractive";
 import { createGroup } from '../behaviors/createGroup';
-import { createImage } from '../behaviors/createImage';
 import { createLink } from '../behaviors/createLink';
 import { createAudio, createMediaServer, createVideo, createVolumetric } from "../behaviors/createMedia";
 import { createScenePreviewCamera } from "../behaviors/createScenePreviewCamera";
@@ -48,6 +47,7 @@ import SpawnPointComponent from "../components/SpawnPointComponent";
 import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
 import { InterpolationComponent } from "../../physics/components/InterpolationComponent";
+import Image from '../classes/Image';
 
 function castShadowOn(group) {
   group.children.forEach(children => {
@@ -279,7 +279,32 @@ function createVehicleOnServer(entity, mesh) {
 }
 
 // parse Function
+const clearFromColliders: Behavior = (entity: Entity, args: any) => {
+  const asset = args.asset;
+  const deleteArr = [];
 
+  function parseColliders(mesh) {
+    // have user data physics its our case
+    if (mesh.userData.data === 'physics' || mesh.userData.data === 'dynamic' || mesh.userData.data === 'vehicle') {
+      // add position from editor to mesh
+      // its for delete mesh from view scene
+      mesh.userData.data === 'vehicle' ? '' : deleteArr.push(mesh);
+    }
+  }
+  // its for diferent files with models
+  if (asset.scene) {
+    asset.scene.traverse(parseColliders);
+  } else {
+    asset.traverse(parseColliders);
+  }
+
+  // its for delete mesh from view scene
+  for (let i = 0; i < deleteArr.length; i++) {
+    deleteArr[i].parent.remove(deleteArr[i]);
+  }
+
+  return entity;
+}
 export const addWorldColliders: Behavior = (entity: Entity, args: any) => {
 
   const asset = args.asset;
@@ -412,8 +437,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       },
       {
         behavior: (entity) => {
-          console.log("*********** ADDING WORLD COLLIDERS TO ONLOADED")
-          //getMutableComponent<AssetLoader>(entity, AssetLoader).onLoaded.push(addWorldColliders);
+          getMutableComponent<AssetLoader>(entity, AssetLoader).onLoaded.push(addWorldColliders);
         }
       }
     ]
@@ -503,7 +527,8 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'image': {
     behaviors: [
       {
-        behavior: createImage,
+        behavior: addObject3DComponent,
+        args: { obj3d: Image },
         values: [
           { from: 'src', to: 'src' },
           { from: 'projection', to: 'projection' },
@@ -684,14 +709,16 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       }
     ]
   },
+  /*
   'mesh-collider': {
     behaviors: [
       {
         behavior: createBoxCollider,
-        values: ['type', 'position', 'quaternion', 'scale', 'vertices']
+        values: ['type', 'position', 'quaternion', 'scale', 'vertices', 'indices']
       }
     ]
   },
+  */
   'trigger-volume': {
     behaviors: [
       {

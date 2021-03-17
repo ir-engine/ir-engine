@@ -7,12 +7,13 @@ import {
     TextField
 } from '@material-ui/core';
 import classNames from 'classnames';
-import React, {  useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from "redux";
 import { selectAdminState } from "../../../redux/admin/selector";
 import {
-    createUser
+    createUser,
+    patchUser
 } from "../../../redux/admin/service";
 import { selectAppState } from "../../../redux/app/selector";
 import { selectAuthState } from "../../../redux/auth/selector";
@@ -23,7 +24,10 @@ interface Props {
     open: boolean;
     handleClose: any;
     adminState?: any;
-    createUser?: any
+    createUser?: any;
+    editing: boolean;
+    userEdit: any;
+    patchUser?: any;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -35,7 +39,8 @@ const mapStateToProps = (state: any): any => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-    createUser: bindActionCreators(createUser, dispatch)
+    createUser: bindActionCreators(createUser, dispatch),
+    patchUser: bindActionCreators(patchUser, dispatch),
 });
 
 
@@ -44,7 +49,10 @@ const userModel = (props: Props): any => {
         open,
         handleClose,
         adminState,
-        createUser
+        createUser,
+        userEdit,
+        editing,
+        patchUser,
     } = props;
 
     const [name, setName] = useState('');
@@ -55,9 +63,28 @@ const userModel = (props: Props): any => {
             name: name,
             avatarId: avatar
         }
-        createUser(data);
+        if (editing) {
+            patchUser(userEdit.id, data);
+        } else {
+            createUser(data);
+            setName("");
+            setAvatar("");
+        }
         handleClose();
     }
+
+    useEffect(() => {
+        if (editing) {
+            setName(userEdit.name);
+            setAvatar(userEdit.avatarId);
+        } else {
+            setName("");
+            setAvatar("");
+        }
+    }, [userEdit, editing]);
+
+
+
 
     return (
         <div>
@@ -78,6 +105,19 @@ const userModel = (props: Props): any => {
                         [styles.paper]: true,
                         [styles['modal-content']]: true
                     })}>
+                        {editing === true && <TextField
+                            variant="outlined"
+                            margin="normal"
+                            fullWidth
+                            id="id"
+                            label="ID"
+                            name="id"
+                            disabled
+                            defaultValue={userEdit?.id}
+                        >
+                            {userEdit.id}
+                        </TextField>
+                        }
                         <TextField
                             variant="outlined"
                             margin="normal"
@@ -101,14 +141,28 @@ const userModel = (props: Props): any => {
                             onChange={(e) => setAvatar(e.target.value)}
                         />
                         <FormGroup row className={styles.locationModalButtons}>
-                          <Button
-                                type="submit"
-                                variant="contained"
-                                color="primary"
-                                onClick={submitUser}
-                            >
-                                Create
-                            </Button>
+                            {
+                                editing &&
+                                <Button
+                                    type="submit"
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={submitUser}
+                                >
+                                    Update
+                          </Button>
+                            }
+                            {
+                                !editing &&
+                                <Button
+                                    type="submit"
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={submitUser}
+                                >
+                                    Create
+                          </Button>
+                            }
                             <Button
                                 type="submit"
                                 variant="contained"

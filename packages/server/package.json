@@ -34,15 +34,17 @@
   "jest": "ts-jest",
   "scripts": {
     "start": "yarn run build && node dist/server.js",
-    "dev": "cross-env NODE_ENV=development concurrently \"webpack --watch --mode=development\" \"nodemon --inspect dist/server.js -w dist\"",
-    "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true concurrently \"webpack --watch --mode=development\" \"nodemon --inspect dist/server.js -w dist\"",
+    "dev": "cross-env NODE_ENV=development webpack --watch --mode=development",
+    "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true  webpack --watch --mode=development",
     "build": "cross-env NODE_ENV=production webpack --mode=production",
     "copyfiles-server": "copyfiles -u 2 src/email-templates/**/* lib/email-templates",
     "test": "echo \"TODO: no test specified\" && exit 0",
+    "localbuild": "yarn build && cross-env FORCE_SSL=true yarn start",
     "lint": "node node_modules/.bin/eslint --ext .js,.ts ./ --fix",
     "validate": "yarn run lint && yarn run build && yarn run test",
     "precommit": "no-master-commits -b master,dev",
-    "postinstall": "cd ../../node_modules/mediasoup && node npm-scripts.js postinstall"
+    "postinstall": "cd ../../node_modules/mediasoup && node npm-scripts.js postinstall",
+    "serve-local-files": "http-server ./upload --ssl --cert ./certs/cert.pem --key ./certs/key.pem --port 8642"
   },
   "types": "lib/",
   "pre-push": [
@@ -125,6 +127,7 @@
     "graphql-sequelize-generator": "^5.5.0",
     "graphql-subscriptions": "^1.1.0",
     "helmet": "^3.23.3",
+    "http-server": "^0.12.3",
     "internal-ip": "^6.1.0",
     "k8s": "^0.4.15",
     "lodash": "^4.17.15",
@@ -177,6 +180,7 @@
     "feathers-cli": "^2.4.0",
     "no-master-commits": "^1.1.1",
     "nodemon": "^2.0.5",
+    "nodemon-webpack-plugin": "^4.4.4",
     "ts-loader": "^8.0.5",
     "typedoc": "^0.20.16",
     "typescript": "^4.0.3",

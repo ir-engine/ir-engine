@@ -1,4 +1,4 @@
-import { Box3, Sphere, PropertyBinding } from "three";
+import { Box3, Sphere, PropertyBinding, BufferGeometry, MathUtils, Matrix4, Quaternion, Vector3 } from "three";
 import Model from "../../scene/classes/Model";
 import EditorNodeMixin from "./EditorNodeMixin";
 import { setStaticMode, StaticModes } from "../functions/StaticMode";
@@ -142,7 +142,10 @@ export default class ModelNode extends EditorNodeMixin(Model) {
 
           const parseColliders = ( mesh ) => {
             if (mesh.userData.data === 'physics' || mesh.userData.data === 'dynamic' || mesh.userData.data === 'vehicle') {
-             //mesh.userData.type == "trimesh"
+            let geometry = null;
+               if(mesh.userData.type == "trimesh"){
+            //     geometry = this.getGeometry(mesh);
+               }
                 const meshCollider = {
                     type: mesh.userData.type,
                     position: {
@@ -161,15 +164,16 @@ export default class ModelNode extends EditorNodeMixin(Model) {
                       y: mesh.scale.y,
                       z: mesh.scale.z
                     },
-                  //  vertices: (mesh.userData.type == "trimesh" ? mesh.geometry.attributes.position.array: null) //count
+              //      vertices: (geometry != null ? Array.from(geometry.attributes.position.array): null),// .map(v=> parseFloat((Math.round(v * 10000)/10000).toFixed(4))
+              //      indices: (geometry != null && geometry.index ? Array.from(geometry.index.array): null)
                   }
                 colliders.push(meshCollider);
              }
           }
           this.model.traverse( parseColliders );
-          console.warn(colliders);
+      //    console.warn(colliders);
           this.meshColliders = colliders;
-          //this.editor.renderer.addBatchedObject(this.model);
+          this.editor.renderer.addBatchedObject(this.model);
         }
 
       if (this.initialScale === "fit") {
@@ -257,6 +261,65 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     // scale
     return collider
   }
+  /*
+  getMeshes(object) {
+    const meshes = [];
+    object.traverse((o) => {
+      if (o.type === 'Mesh') {
+        meshes.push(o);
+      }
+    });
+    return meshes;
+  }
+  getGeometry(object) {
+    let mesh,
+        tmp = new BufferGeometry();
+    const meshes = this.getMeshes(object);
+
+    const combined = new BufferGeometry();
+
+    if (meshes.length === 0) return null;
+
+    // Apply scale  – it can't easily be applied to a CANNON.Shape later.
+    if (meshes.length === 1) {
+      const position = new Vector3(),
+          quaternion = new Quaternion(),
+          scale = new Vector3();
+      if (meshes[0].geometry.isBufferGeometry) {
+        if (meshes[0].geometry.attributes.position
+            && meshes[0].geometry.attributes.position.itemSize > 2) {
+          tmp = meshes[0].geometry;
+        }
+      } else {
+        tmp = meshes[0].geometry.clone();
+      }
+      //tmp.metadata = meshes[0].geometry.metadata;
+      meshes[0].updateMatrixWorld();
+      meshes[0].matrixWorld.decompose(position, quaternion, scale);
+      return tmp.scale(scale.x, scale.y, scale.z);
+    }
+
+    // Recursively merge geometry, preserving local transforms.
+    while ((mesh = meshes.pop())) {
+      mesh.updateMatrixWorld();
+      if (mesh.geometry.isBufferGeometry) {
+        if (mesh.geometry.attributes.position
+            && mesh.geometry.attributes.position.itemSize > 2) {
+          const tmpGeom = mesh.geometry;
+          combined.merge(tmpGeom, mesh.matrixWorld);
+          tmpGeom.dispose();
+        }
+      } else {
+        combined.merge(mesh.geometry, mesh.matrixWorld);
+      }
+    }
+
+    const matrix = new Matrix4();
+    matrix.scale(object.scale);
+    combined.applyMatrix4(matrix);
+    return combined;
+  }
+  */
   updateStaticModes() {
     if (!this.model) return;
     setStaticMode(this.model, StaticModes.Static);

@@ -453,7 +453,6 @@ const AdminConsole = (props: Props) => {
         setRefetch(false);
     }, [authState, adminState, refetch]);
 
-
     return (
         <div>
             <div className="row mb-5">

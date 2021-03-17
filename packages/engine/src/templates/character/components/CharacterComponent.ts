@@ -81,7 +81,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public actorHeight = 1;
 	public capsuleRadius = 0.25;
 	public capsuleSegments = 8;
-	public capsuleFriction = 0.0;
+	public capsuleFriction = 0.1;
 	public capsulePosition: Vec3 = new Vec3();
 	// Ray casting
 	public rayResult: RaycastResult = new RaycastResult();
