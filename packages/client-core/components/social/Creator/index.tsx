@@ -60,15 +60,6 @@ const Creator = ({creatorId, creatorState, getCreator}:Props) => {
         handleClose();
         Router.push('/user');
     } 
-
-    const creatorFeeds=[];
-    for(let i=0; i<random(150, 5); i++){
-        creatorFeeds.push({ 
-            image :'https://picsum.photos/97/139',
-            viewsCount: random(150)
-        })
-    }
-
     return  creator ?  (<section className={styles.creatorContainer}>
             <Card className={styles.creatorCard} elevation={0} key={creator.username} square={false} >
                 {creator.avatarId && creator.avatar && <CardMedia   
@@ -108,7 +99,7 @@ const Creator = ({creatorId, creatorState, getCreator}:Props) => {
                     <Button variant={videoType === 'creator' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'creator' ? ' '+styles.active : '')} onClick={()=>setVideoType('creator')}>My Videos</Button>
                     <Button variant={videoType === 'bookmark' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'bookmark' ? ' '+styles.active : '')} onClick={()=>setVideoType('bookmark')}>Saved Videos</Button>
             </section>}
-            <section className={styles.feedsWrapper}><Featured creatorId={creatorId} type={videoType}/></section>
+            <section className={styles.feedsWrapper}><Featured creatorId={creator.id} type={videoType}/></section>
         </section>) 
     : <></>
 };

@@ -5,32 +5,22 @@ import { client } from '../feathers';
 import {
   fetchingCreator,
   creatorRetrieved,
+  creatorsRetrieved,
   creatorLoggedRetrieved
 } from './actions';
 
-// export function getCreators(type : string, limit?: number) {
-//   return async (dispatch: Dispatch, getState: any): Promise<any> => {
-//     try {
-//       dispatch(fetchingCteators());
-//       const feedsResults = [];
-//       if(type && type === 'featured'){
-//         const feedsResults = await client.service('feed').find({
-//           query: {
-//             action: 'featured'
-//           }
-//         });
-//         dispatch(feedsFeaturedRetrieved(feedsResults.data));
-//       }else{
-//           const feedsResults = await client.service('feed').find({query: {}});
-
-//         dispatch(feedsRetrieved(feedsResults.data));
-//       }
-//     } catch(err) {
-//       console.log(err);
-//       dispatchAlertError(dispatch, err.message);
-//     }
-//   };
-// }
+export function getCreators(limit?: number) {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    try {
+      dispatch(fetchingCreator());
+      const results =  await client.service('creator').find({query: {}});
+      dispatch(creatorsRetrieved(results));      
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
 
 export function getLoggedCreator() {
   return async (dispatch: Dispatch): Promise<any> => {

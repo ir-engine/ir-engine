@@ -29,6 +29,11 @@ export class Creator extends Service {
     const skip = params.query?.$skip ? params.query.$skip : 0;
     const limit = params.query?.$limit ? params.query.$limit : 100;
 
+    const queryParamsReplacements = {
+      skip,
+      limit,
+    } as any;
+
     if (action === 'current') {
       const loggedInUser = extractLoggedInUserFromParams(params);
       if(loggedInUser?.userId){
@@ -37,7 +42,7 @@ export class Creator extends Service {
         let join = ` JOIN \`user\` as user ON user.id=creator.userId`;
         let where = ` WHERE creator.userId=:userId`;      
 
-        let queryParamsReplacements = {userId:loggedInUser.userId} as any;
+        queryParamsReplacements.userId = loggedInUser.userId;
         const dataQuery = select + from + join + where;
 
         let [creator] = await this.app.get('sequelizeClient').query(dataQuery,
@@ -52,58 +57,19 @@ export class Creator extends Service {
       }
     }
 
-    // // regular feeds
-    // const loggedInUser = extractLoggedInUserFromParams(params);
+    //creators list
+    const dataQuery = `SELECT *  FROM \`creator\` WHERE 1 
+    ORDER BY createdAt DESC    
+    LIMIT :skip, :limit `
 
-    // let select = `SELECT feed.*, user.id as userId, user.name as userName, COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl `;
-    // const from = ` FROM \`feed\` as feed`;
-    // let join = ` JOIN \`user\` as user ON user.id=feed.authorId
-    //               LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
-    //               JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
-    //               JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
-    //               `;
-    // const where = ` WHERE 1`;
-    // const order = ` GROUP BY feed.id
-    // ORDER BY feed.createdAt DESC    
-    // LIMIT :skip, :limit `;
+    let creators = await this.app.get('sequelizeClient').query(dataQuery,
+      {
+        type: QueryTypes.SELECT,
+        raw: true,
+        replacements: queryParamsReplacements
+      });
+    return creators;   
 
-    // if(loggedInUser?.userId){
-    //   select += ` , isf.id as fired, isb.id as bookmarked `;
-    //   join += ` LEFT JOIN \`feed_fires\` as isf ON isf.feedId=feed.id  AND isf.authorId=:loggedInUser
-    //             LEFT JOIN \`feed_bookmark\` as isb ON isb.feedId=feed.id  AND isb.authorId=:loggedInUser`;
-    //   queryParamsReplacements.loggedInUser =  loggedInUser.userId;
-    // }
-
-    // const dataQuery = select + from + join + where + order;
-    // const feeds = await this.app.get('sequelizeClient').query(dataQuery,
-    //   {
-    //     type: QueryTypes.SELECT,
-    //     raw: true,
-    //     replacements: queryParamsReplacements
-    //   });
-
-    // const data = feeds.map(feed => {
-    //   const newFeed: CreatorInterface = {
-    //       userId: feed.userId,
-    //       id:feed.userId,
-    //       avatar: 'https://picsum.photos/40/40',
-    //       name: feed.userName,
-    //       username: feed.userName,
-    //       verified : true,
-    //     }       
-    //   };
-
-    //   return newFeed;
-    // });
-
-    // const feedsResult = {
-    //   data,
-    //   skip: skip,
-    //   limit: limit,
-    //   total: feeds.length,
-    // };
-
-    // return feedsResult;
   }
 
     /**
