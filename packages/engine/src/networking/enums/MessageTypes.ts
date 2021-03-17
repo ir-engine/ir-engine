@@ -29,8 +29,13 @@ export enum MessageTypes {
   Ban = 27,
   ConnectToWorld = 28,
   WebRTCRequestCurrentProducers = 29,
+  UpdateNetworkState = 30,
   Synchronization = 100,
   ClientInput = 101,
   StateUpdate = 102,
   Test = 250
+}
+
+export enum NetworkStateMessageTypes {
+  AvatarUpdated = 0,
 }

@@ -31,6 +31,7 @@ import {
 import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
 import {Network} from "@xr3ngine/engine/src/networking/classes/Network";
 import {MessageTypes} from "@xr3ngine/engine/src/networking/enums/MessageTypes";
+import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
 import {selectAppState} from '../../../redux/app/selector';
 import {selectAuthState} from '../../../redux/auth/selector';
 import {selectLocationState} from '../../../redux/location/selector';
@@ -40,7 +41,7 @@ import {selectUserState} from '../../../redux/user/selector';
 import {connect} from "react-redux";
 import {Dispatch} from "redux";
 import {PositionalAudioSystem} from "@xr3ngine/engine/src/audio/systems/PositionalAudioSystem";
-import { getAvatarURL } from "../UserMenu/util";
+import { getAvatarURLFromNetwork } from "../UserMenu/util";
 import Draggable from './Draggable';
 
 
@@ -84,6 +85,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     const [audioProducerGlobalMute, setAudioProducerGlobalMute] = useState(false);
     const [audioTrackClones, setAudioTrackClones] = useState([]);
     const [videoTrackClones, setVideoTrackClones] = useState([]);
+    const [toggle, setToggle] = useState(0);
     const [volume, setVolume] = useState(100);
     const {
         harmony,
@@ -203,6 +205,17 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
             (Network.instance?.transport as any)?.channelSocket?.on(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener);
             (Network.instance?.transport as any)?.channelSocket?.on(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener);
         }
+
+        let interval = setInterval(() => {
+            if (EngineEvents.instance) {
+                EngineEvents.instance.addEventListener(EngineEvents.EVENTS.NETWORK_USER_UPDATED, (ev) => {
+                    if (isSelfUser || user?.id === ev.userId) {
+                        setToggle(toggle + Math.random())
+                    }
+                })
+                clearInterval(interval);
+            }
+        });
     }, []);
 
     useEffect(() => {
@@ -351,7 +364,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
         >
 
             <div className={styles['video-wrapper']}>
-                { (videoStream == null || videoStreamPaused == true || videoProducerPaused == true || videoProducerGlobalMute == true) && <img src={getAvatarURL(isSelfUser ? selfUser?.avatarId : user?.avatarId)} /> }
+                { (videoStream == null || videoStreamPaused == true || videoProducerPaused == true || videoProducerGlobalMute == true) && <img src={getAvatarURLFromNetwork(Network.instance, isSelfUser ? selfUser?.id : user?.id)} /> }
                 <video key={peerId + '_cam'} ref={videoRef}/>
             </div>
             <audio key={peerId + '_audio'} ref={audioRef}/>

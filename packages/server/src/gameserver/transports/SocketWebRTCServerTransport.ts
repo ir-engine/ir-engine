@@ -1,6 +1,7 @@
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
 import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
 import { WebRtcTransportParams } from "@xr3ngine/engine/src/networking/types/WebRtcTransportParams";
+import { handleNetworkStateUpdate } from "@xr3ngine/engine/src/networking/functions/updateNetworkState";
 import AWS from 'aws-sdk';
 import * as https from "https";
 import {DataProducer, DataConsumer, Router, Transport, Worker, DataProducerOptions} from "mediasoup/lib/types";
@@ -18,7 +19,7 @@ import {
     handleIncomingMessage,
     handleJoinWorld,
     handleLeaveWorld,
-    validateNetworkObjects
+    validateNetworkObjects,
 } from "./NetworkFunctions";
 import {
     handleWebRtcCloseConsumer,
@@ -64,6 +65,10 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
     public sendReliableData = (message: any): any => {
         if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.ReliableMessage.toString(), message);
+    }
+
+    public sendNetworkStatUpdateMessage = (message: any): any => {
+        if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.UpdateNetworkState.toString(), message);
     }
 
     toBuffer(ab): any {
@@ -269,6 +274,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
                 socket.on(MessageTypes.WebRTCRequestCurrentProducers.toString(), async (data, callback) =>
                     handleWebRtcRequestCurrentProducers(socket, data, callback));
+
+                socket.on(MessageTypes.UpdateNetworkState.toString(), async (data) =>
+                    handleNetworkStateUpdate(socket, data, true));
             });
         });
     }
